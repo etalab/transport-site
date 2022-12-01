@@ -145,6 +145,34 @@ defmodule DB.DatasetDBTest do
 
       assert {:ok, %Ecto.Changeset{changes: %{has_realtime: false}}} = changeset
     end
+
+    test "when licence changes from lov2 to fr-lo (both licence ouverte)" do
+      %{datagouv_id: datagouv_id} = insert(:dataset, licence: "lov2", datagouv_id: Ecto.UUID.generate())
+      assert {:ok, _} = Dataset.changeset(%{"datagouv_id" => datagouv_id, "licence" => "fr-lo"})
+      assert [] == all_enqueued()
+    end
+
+    test "when licence changes from odbl to licence ouverte" do
+      %{datagouv_id: datagouv_id, id: dataset_id} =
+        insert(:dataset, licence: "odc-odbl", datagouv_id: Ecto.UUID.generate())
+
+      assert {:ok, _} = Dataset.changeset(%{"datagouv_id" => datagouv_id, "licence" => "fr-lo"})
+
+      assert [%Oban.Job{worker: "Transport.Jobs.DatasetNowLicenceOuverteJob", args: %{"dataset_id" => ^dataset_id}}] =
+               all_enqueued()
+    end
+
+    test "when dataset does not exist yet and the licence is licence ouverte" do
+      assert {:ok, _} =
+               Dataset.changeset(%{
+                 "datagouv_id" => Ecto.UUID.generate(),
+                 "licence" => "fr-lo",
+                 "national_dataset" => "true",
+                 "slug" => "ma_limace"
+               })
+
+      assert [] == all_enqueued()
+    end
   end
 
   describe "resources last content update time" do
@@ -263,6 +291,8 @@ defmodule DB.DatasetDBTest do
     dataset = insert(:dataset)
     %{id: gtfs_resource_id} = insert(:resource, format: "GTFS", dataset: dataset)
     %{id: gbfs_resource_id} = insert(:resource, format: "gbfs", dataset: dataset)
+    # Ignored because it's a community resource
+    insert(:resource, format: "GTFS", dataset: dataset, is_community_resource: true)
 
     Dataset.validate(dataset)
 
@@ -273,8 +303,14 @@ defmodule DB.DatasetDBTest do
                conflict?: false
              },
              %Oban.Job{
-               args: %{"resource_id" => ^gtfs_resource_id},
-               worker: "Transport.Jobs.ResourceHistoryJob",
+               args: %{
+                 "first_job_args" => %{"resource_id" => ^gtfs_resource_id},
+                 "jobs" => [
+                   ["Elixir.Transport.Jobs.ResourceHistoryJob", %{}, %{}],
+                   "Elixir.Transport.Jobs.ResourceHistoryValidationJob"
+                 ]
+               },
+               worker: "Transport.Jobs.Workflow",
                conflict?: false
              }
            ] = all_enqueued()
@@ -289,8 +325,14 @@ defmodule DB.DatasetDBTest do
                conflict?: false
              },
              %Oban.Job{
-               args: %{"resource_id" => ^gtfs_resource_id},
-               worker: "Transport.Jobs.ResourceHistoryJob",
+               args: %{
+                 "first_job_args" => %{"resource_id" => gtfs_resource_id},
+                 "jobs" => [
+                   ["Elixir.Transport.Jobs.ResourceHistoryJob", %{}, %{}],
+                   "Elixir.Transport.Jobs.ResourceHistoryValidationJob"
+                 ]
+               },
+               worker: "Transport.Jobs.Workflow",
                conflict?: false
              },
              %Oban.Job{
@@ -299,8 +341,14 @@ defmodule DB.DatasetDBTest do
                conflict?: false
              },
              %Oban.Job{
-               args: %{"resource_id" => ^gtfs_resource_id},
-               worker: "Transport.Jobs.ResourceHistoryJob",
+               args: %{
+                 "first_job_args" => %{"resource_id" => gtfs_resource_id},
+                 "jobs" => [
+                   ["Elixir.Transport.Jobs.ResourceHistoryJob", %{}, %{}],
+                   "Elixir.Transport.Jobs.ResourceHistoryValidationJob"
+                 ]
+               },
+               worker: "Transport.Jobs.Workflow",
                conflict?: false
              }
            ] = all_enqueued()
@@ -373,5 +421,23 @@ defmodule DB.DatasetDBTest do
              },
              r3.id => %{geojson: nil, netex: nil}
            } == related_resources
+  end
+
+  test "count dataset by mode" do
+    insert(:region, id: 14, nom: "France")
+    region = insert(:region)
+
+    %{dataset: dataset} = insert_resource_and_friends(Date.utc_today(), region_id: region.id, modes: ["bus"])
+    insert_resource_and_friends(Date.utc_today(), dataset: dataset, modes: ["ski"])
+
+    %{dataset: dataset_2} = insert_resource_and_friends(Date.utc_today(), region_id: 14, modes: ["bus"])
+    insert_resource_and_friends(Date.utc_today(), dataset: dataset_2, modes: ["ski"])
+
+    insert_resource_and_friends(Date.utc_today(), region_id: 14)
+
+    assert DB.Dataset.count_by_mode("bus") == 2
+    assert DB.Dataset.count_by_mode("ski") == 2
+    # this counts national datasets (region id = 14) with bus resources
+    assert DB.Dataset.count_coach() == 1
   end
 end

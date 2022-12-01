@@ -11,6 +11,17 @@ defmodule Transport.Jobs.SingleGtfsToNetexConverterJobTest do
 
   setup :verify_on_exit!
 
+  test "existing conversion" do
+    uuid = Ecto.UUID.generate()
+    insert(:data_conversion, convert_from: "GTFS", convert_to: "NeTEx", resource_history_uuid: uuid, payload: %{})
+
+    %{id: resource_history_id} = insert(:resource_history, payload: %{"uuid" => uuid, "format" => "GTFS"})
+
+    # no mox expectation set, and the test passes => conversion is properly skipped
+    assert {:discard, "Conversion is not needed"} ==
+             perform_job(SingleGtfsToNetexConverterJob, %{"resource_history_id" => resource_history_id})
+  end
+
   test "launch a NeTEx conversion" do
     permanent_url = "https://resource.fr"
     uuid = Ecto.UUID.generate()
@@ -27,8 +38,8 @@ defmodule Transport.Jobs.SingleGtfsToNetexConverterJobTest do
       %{status_code: 200, body: "this is my GTFS file"}
     end)
 
-    Transport.Rambo.Mock
     # mock for the resource NeTEx conversion
+    Transport.Rambo.Mock
     |> expect(:run, 1, fn _binary_path,
                           [
                             "--input",
@@ -58,12 +69,12 @@ defmodule Transport.Jobs.SingleGtfsToNetexConverterJobTest do
              perform_job(SingleGtfsToNetexConverterJob, %{"resource_history_id" => resource_history_id})
 
     # a data_conversion row is recorded ✌️‍
-    DB.DataConversion
-    |> DB.Repo.get_by!(
-      convert_from: "GTFS",
-      convert_to: "NeTEx",
-      resource_history_uuid: uuid
-    )
+    assert %DB.DataConversion{payload: %{"filesize" => 41, "filename" => "conversions/gtfs-to-netex/fff.netex.zip"}} =
+             DB.Repo.get_by!(DB.DataConversion,
+               convert_from: "GTFS",
+               convert_to: "NeTEx",
+               resource_history_uuid: uuid
+             )
 
     Transport.Test.TestUtils.ensure_no_tmp_files!("conversion_gtfs_netex_")
   end
@@ -74,6 +85,7 @@ defmodule Transport.Jobs.SingleGtfsToNetexConverterJobTest do
 
     # add a resource history
     %{id: resource_history_id} =
+      resource_history =
       insert(:resource_history,
         payload: %{"uuid" => uuid, "format" => "GTFS", "permanent_url" => permanent_url, "filename" => "fff"}
       )
@@ -84,8 +96,8 @@ defmodule Transport.Jobs.SingleGtfsToNetexConverterJobTest do
       %{status_code: 200, body: "this is my GTFS file"}
     end)
 
-    Transport.Rambo.Mock
     # mock for the resource NeTEx failing conversion
+    Transport.Rambo.Mock
     |> expect(:run, 1, fn _binary_path,
                           [
                             "--input",
@@ -99,10 +111,16 @@ defmodule Transport.Jobs.SingleGtfsToNetexConverterJobTest do
       {:error, "conversion failed"}
     end)
 
-    # job raises an Error
-    assert_raise MatchError, fn ->
-      perform_job(SingleGtfsToNetexConverterJob, %{"resource_history_id" => resource_history_id})
-    end
+    assert {:discard, _} = perform_job(SingleGtfsToNetexConverterJob, %{"resource_history_id" => resource_history_id})
+
+    # ResourceHistory's payload is updated with the error information
+    expected_payload =
+      Map.merge(resource_history.payload, %{
+        "conversion_NeTEx_error" => "conversion failed",
+        "conversion_NeTEx_fatal_error" => true
+      })
+
+    assert %DB.ResourceHistory{payload: ^expected_payload} = DB.Repo.reload!(resource_history)
 
     # no data_conversion row is recorded
     assert_raise(Ecto.NoResultsError, fn ->

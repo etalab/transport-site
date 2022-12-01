@@ -187,7 +187,7 @@ msgid "Reuses"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "License"
+msgid "Licence"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -344,10 +344,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Reuses are temporarily unavailable"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Data producer"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -544,4 +540,20 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Missing features that <a href=\"%{doc_link}\" target=\"_blank\">can be specified in GTFS</a>:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Cannot determine the relevant GTFS file to use to perform a GTFS-RT validation because there is no GTFS file."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Cannot determine the relevant GTFS file to use to perform a GTFS-RT validation because there are multiple GTFS files."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Data published by"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "This dataset has been archived from data.gouv.fr on %{date}"
 msgstr ""

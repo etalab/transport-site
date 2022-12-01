@@ -103,6 +103,27 @@
                   </li>
                 </li>
               <% end %>
+
+              <%= unless Enum.empty?(@licences) do %>
+                <li class="side-pane__title">
+                  <h3><%= dgettext("page-shortlist", "Licences") %></h3>
+                  <li class="side-pane__dropdown unfolded">
+                    <ul class="side-pane__submenu">
+                      <li>
+                        <%= licence_link(@conn, %{
+                          licence: "all",
+                          count: @licences |> Enum.map(& &1.count) |> Enum.sum()
+                        }) %>
+                      </li>
+                      <%= for licence <- @licences do %>
+                        <%= unless licence.count == 0 do %>
+                          <li><%= licence_link(@conn, licence) %></li>
+                        <% end %>
+                      <% end %>
+                    </ul>
+                  </li>
+                </li>
+              <% end %>
             </ul>
           </div>
         </nav>
@@ -154,7 +175,7 @@
                   <div class="dataset__info">
                     <div class="shortlist__notices">
                       <div class="dataset-udpate-date ml-1em">
-                        <%= dgettext("page-shortlist", "added on") %> <%= DateTimeDisplay.format_date(
+                        <%= dgettext("page-shortlist", "created on") %> <%= DateTimeDisplay.format_date(
                           dataset.created_at,
                           get_session(@conn, :locale)
                         ) %>

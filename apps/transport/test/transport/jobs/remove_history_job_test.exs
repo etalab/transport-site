@@ -9,7 +9,7 @@ defmodule Transport.Test.Transport.Jobs.RemoveHistoryJobTest do
   setup :verify_on_exit!
 
   setup do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
   test "enqueues jobs when deleting by dataset type" do
@@ -19,10 +19,11 @@ defmodule Transport.Test.Transport.Jobs.RemoveHistoryJobTest do
 
     assert :ok == perform_job(RemoveHistoryJob, %{"dataset_type" => "bike-scooter-sharing"})
 
-    assert [
-             %Oban.Job{args: %{"dataset_id" => ^d2_id}},
-             %Oban.Job{args: %{"dataset_id" => ^d1_id}}
-           ] = all_enqueued(worker: RemoveHistoryJob)
+    assert MapSet.new([d1_id, d2_id]) ==
+             [worker: RemoveHistoryJob]
+             |> all_enqueued()
+             |> Enum.map(fn %Oban.Job{args: %{"dataset_id" => dataset_id}} -> dataset_id end)
+             |> MapSet.new()
 
     refute DB.Dataset.should_skip_history?(dataset_3)
     assert :ok == perform_job(RemoveHistoryJob, %{"dataset_type" => "public-transit"})

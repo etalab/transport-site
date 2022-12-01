@@ -86,3 +86,11 @@ msgstr "Corps de la requête HTTP"
 #, elixir-autogen, elixir-format
 msgid "HTTP response body"
 msgstr "Corps de la réponse HTTP"
+
+#, elixir-autogen, elixir-format
+msgid "Line References (comma separated list)"
+msgstr "Références de Lignes (séparées par des virgules)"
+
+#, elixir-autogen, elixir-format
+msgid "Stop Reference (only one)"
+msgstr "Référence d'Arrêt (un seul)"

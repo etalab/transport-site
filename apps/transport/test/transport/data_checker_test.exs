@@ -14,9 +14,9 @@ defmodule Transport.DataCheckerTest do
 
       # but which is found (= active?) on data gouv side
       Transport.HTTPoison.Mock
-      |> expect(:head, 2, fn "https://demo.data.gouv.fr/api/1/datasets/123/" ->
+      |> expect(:request, fn :get, "https://demo.data.gouv.fr/api/1/datasets/123/", "", [], [follow_redirect: true] ->
         # the dataset is found on datagouv
-        {:ok, %HTTPoison.Response{status_code: 200}}
+        {:ok, %HTTPoison.Response{status_code: 200, body: ~s({"archived":null})}}
       end)
 
       Transport.EmailSender.Mock
@@ -32,8 +32,7 @@ defmodule Transport.DataCheckerTest do
       Transport.DataChecker.inactive_data()
 
       # should result into marking the dataset back as active
-      dataset = DB.Repo.get!(DB.Dataset, dataset.id)
-      assert %{is_active: true} = dataset
+      assert %DB.Dataset{is_active: true} = DB.Repo.reload!(dataset)
 
       verify!(Transport.HTTPoison.Mock)
       verify!(Transport.EmailSender.Mock)
@@ -47,9 +46,9 @@ defmodule Transport.DataCheckerTest do
 
       # but which is not found found (= inactive?) on data gouv side
       Transport.HTTPoison.Mock
-      |> expect(:head, fn "https://demo.data.gouv.fr/api/1/datasets/123/" ->
+      |> expect(:request, fn :get, "https://demo.data.gouv.fr/api/1/datasets/123/", "", [], [follow_redirect: true] ->
         # the dataset is not found on datagouv
-        {:ok, %HTTPoison.Response{status_code: 404}}
+        {:ok, %HTTPoison.Response{status_code: 404, body: ""}}
       end)
 
       Transport.EmailSender.Mock
@@ -65,8 +64,35 @@ defmodule Transport.DataCheckerTest do
       Transport.DataChecker.inactive_data()
 
       # should result into marking the dataset as inactive
-      dataset = DB.Repo.get!(DB.Dataset, dataset.id)
-      assert %{is_active: false} = dataset
+      assert %DB.Dataset{is_active: false} = DB.Repo.reload!(dataset)
+
+      verify!(Transport.HTTPoison.Mock)
+      verify!(Transport.EmailSender.Mock)
+    end
+
+    test "sends an email when a dataset is now archived" do
+      :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+
+      insert(:dataset, is_active: true)
+
+      # dataset is now archived on data.gouv.fr
+      Transport.HTTPoison.Mock
+      |> expect(:request, fn :get, "https://demo.data.gouv.fr/api/1/datasets/123/", "", [], [follow_redirect: true] ->
+        archived = DateTime.utc_now() |> DateTime.add(-10, :hour) |> DateTime.to_string()
+        # the dataset is not found on datagouv
+        {:ok, %HTTPoison.Response{status_code: 200, body: Jason.encode!(%{"archived" => archived})}}
+      end)
+
+      Transport.EmailSender.Mock
+      |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, subject, body, _html_body ->
+        assert from_email == "contact@transport.beta.gouv.fr"
+        assert to_email == "deploiement@transport.beta.gouv.fr"
+        assert subject == "Jeux de données archivés"
+        assert body =~ ~r/Certains jeux de données sont indiqués comme archivés/
+        :ok
+      end)
+
+      Transport.DataChecker.inactive_data()
 
       verify!(Transport.HTTPoison.Mock)
       verify!(Transport.EmailSender.Mock)

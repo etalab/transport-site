@@ -308,3 +308,11 @@ msgstr ""
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Validation carried out using the <a href=\"%{gtfs_link}\">current GTFS file</a> the %{date} using the <a href=\"%{validator_url}\" target=\"_blank\">PAN GTFS validator</a>."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "calendar span by network"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "from"
+msgstr ""

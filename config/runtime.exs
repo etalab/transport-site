@@ -97,7 +97,7 @@ oban_crontab_all_envs =
   case config_env() do
     :prod ->
       [
-        {"0 */6 * * *", Transport.Jobs.ResourceHistoryDispatcherJob},
+        {"0 */6 * * *", Transport.Jobs.ResourceHistoryAndValidationDispatcherJob},
         {"30 */6 * * *", Transport.Jobs.GtfsToGeojsonConverterJob},
         # every 6 hours but not at the same time as other jobs
         {"0 3,9,15,21 * * *", Transport.Jobs.GtfsToNetexConverterJob},
@@ -110,6 +110,8 @@ oban_crontab_all_envs =
         {"0 7 * * *", Transport.Jobs.GTFSRTMultiValidationDispatcherJob},
         {"30 7 * * *", Transport.Jobs.GBFSMultiValidationDispatcherJob},
         {"45 */3 * * *", Transport.Jobs.ResourceHistoryJSONSchemaValidationJob},
+        # once a day for the moment, as we are just testing the tool
+        {"0 20 * * *", Transport.Jobs.ResourceHistoryValidataJSONJob},
         {"15 */3 * * *", Transport.Jobs.ResourceHistoryTableSchemaValidationJob},
         {"5 6 * * *", Transport.Jobs.NewDatagouvDatasetsJob},
         {"0 6 * * *", Transport.Jobs.NewDatasetNotificationsJob}
@@ -136,7 +138,7 @@ extra_oban_conf =
     [queues: false, plugins: false]
   else
     [
-      queues: [default: 2, heavy: 1, on_demand_validation: 1, resource_validation: 1],
+      queues: [default: 2, heavy: 1, on_demand_validation: 1, resource_validation: 1, workflow: 2],
       plugins: [
         {Oban.Plugins.Pruner, max_age: 60 * 60 * 24},
         {Oban.Plugins.Cron, crontab: List.flatten(oban_crontab_all_envs, production_server_crontab)}

@@ -191,39 +191,6 @@ defmodule DB.ResourceTest do
     assert reasons == %{"content hash has changed" => 1, "no previous validation" => 1}
   end
 
-  # to be deleted later, when validation v1 has disappeared
-  # ⬇️⬇️⬇️
-  test "find_tags_from_metadata" do
-    # Can detect all available tags
-    assert ["transport à la demande"] == Resource.find_tags_from_metadata(%{"some_stops_need_phone_agency" => true})
-    assert ["transport à la demande"] == Resource.find_tags_from_metadata(%{"some_stops_need_phone_driver" => true})
-    assert ["description des correspondances"] == Resource.find_tags_from_metadata(%{"has_pathways" => true})
-    assert ["tracés de lignes"] == Resource.find_tags_from_metadata(%{"has_shapes" => true})
-
-    assert ["couleurs des lignes"] ==
-             Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => 4, "lines_count" => 5})
-
-    assert Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => 0, "has_fares" => false}) == []
-
-    # Can find multiple tags
-    assert Resource.find_tags_from_metadata(%{"has_fares" => true, "has_pathways" => true}) == [
-             "tarifs",
-             "description des correspondances"
-           ]
-
-    assert Resource.find_tags_from_metadata(%{
-             "some_stops_need_phone_driver" => true,
-             "some_stops_need_phone_agency" => true
-           }) == ["transport à la demande"]
-
-    # Does not crash when map is empty or some keys are not recognised
-    assert Resource.find_tags_from_metadata(%{}) == []
-    assert Resource.find_tags_from_metadata(%{"foo" => "bar"}) == []
-  end
-
-  # ⬆️⬆️⬆️
-  # end of deprecation notice
-
   test "get resource related geojson infos" do
     now = DateTime.now!("Etc/UTC")
 
@@ -396,6 +363,22 @@ defmodule DB.ResourceTest do
              url: "http://tipi.bison-fute.gouv.fr/bison-fute-ouvert/publicationsDIR/QTV-DIR/",
              latest_url: latest_url = "https://data.gouv.fr/fake_stable_url"
            }) == latest_url
+
+    # URLs on major object storage providers
+    [
+      "https://thapaasblobsuat.blob.core.windows.net/datagouv/gtfs_static.zip",
+      "https://download.mywebsite.com.s3.fr-par.scw.cloud/gtfs_static.zip",
+      "https://download.mywebsite.com.s3.us-east-1.amazonaws.com/gtfs_static.zip",
+      "https://transport-data-gouv-fr-resource-history-prod.cellar-c2.services.clever-cloud.com/gtfs_static.zip",
+      "https://s3.gra.cloud.ovh.net/gtfs_static.zip"
+    ]
+    |> Enum.each(fn url ->
+      assert Resource.download_url(%Resource{
+               filetype: "remote",
+               url: url,
+               latest_url: latest_url = "https://data.gouv.fr/#{Ecto.UUID.generate()}"
+             }) == latest_url
+    end)
 
     # Bison Futé files
     assert Resource.download_url(%Resource{

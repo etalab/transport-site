@@ -25,10 +25,6 @@ defmodule DB.Resource do
     field(:latest_url, :string)
     field(:is_available, :boolean, default: true)
     field(:content_hash, :string)
-    # automatically discovered tags
-    field(:features, {:array, :string}, default: [])
-    # all the detected modes of the ressource
-    field(:modes, {:array, :string}, default: [])
 
     field(:is_community_resource, :boolean)
 
@@ -63,7 +59,12 @@ defmodule DB.Resource do
     field(:display_position, :integer)
 
     belongs_to(:dataset, Dataset)
+    # validation v1, to be deleted later
+    # https://github.com/etalab/transport-site/issues/2390
     has_one(:validation, Validation, on_replace: :delete)
+    has_many(:validations, DB.MultiValidation)
+    has_many(:resource_metadata, DB.ResourceMetadata)
+
     has_many(:logs_validation, LogsValidation, on_replace: :delete, on_delete: :delete_all)
 
     has_many(:resource_unavailabilities, ResourceUnavailability,
@@ -367,8 +368,6 @@ defmodule DB.Resource do
           validation_latest_content_hash: r.content_hash,
           data_vis: data_vis
         },
-        features: find_tags(r, metadata),
-        modes: find_modes(metadata),
         start_date: str_to_date(metadata["start_date"]),
         end_date: str_to_date(metadata["end_date"])
       )
@@ -398,113 +397,6 @@ defmodule DB.Resource do
     Sentry.capture_message("validation_save_failed", extra: url)
   end
 
-  # Deprecation notice, all the tags and modes related functions now live in gtfs_transport_validator.ex
-  # Function here will be deleted when validation v1 will be unpluged
-  # ⬇️⬇️⬇️
-  @spec find_tags(__MODULE__.t(), map()) :: [binary()]
-  def find_tags(%__MODULE__{} = r, metadata) do
-    r
-    |> base_tag()
-    |> Enum.concat(find_tags_from_metadata(metadata))
-    |> Enum.uniq()
-  end
-
-  def find_tags_from_metadata(metadata) do
-    tags =
-      metadata
-      |> has_fares_tag()
-      |> Enum.concat(has_shapes_tag(metadata))
-      |> Enum.concat(has_odt_tag(metadata))
-      |> Enum.concat(has_route_colors_tag(metadata))
-      |> Enum.concat(has_pathways_tag(metadata))
-      |> Enum.concat(has_bike_accessibility(metadata))
-      |> Enum.concat(has_wheelchair_accessibility(metadata))
-
-    Enum.each(tags, fn tag ->
-      if tag not in existing_gtfs_tags() do
-        raise "`#{tag}` is not a known tag"
-      end
-    end)
-
-    tags
-  end
-
-  def existing_gtfs_tags,
-    do: [
-      "tarifs",
-      "tracés de lignes",
-      "transport à la demande",
-      "couleurs des lignes",
-      "description des correspondances",
-      "informations sur l'accessibilité à vélo",
-      "informations sur l'accessibilité en fauteuil roulant"
-    ]
-
-  @spec find_modes(map()) :: [binary()]
-  def find_modes(%{"modes" => modes}), do: modes
-  def find_modes(_), do: []
-
-  # These tags are not translated because we'll need to be able to search for those tags
-  @spec has_fares_tag(map()) :: [binary()]
-  def has_fares_tag(%{"has_fares" => true}), do: ["tarifs"]
-  def has_fares_tag(_), do: []
-
-  @spec has_shapes_tag(map()) :: [binary()]
-  def has_shapes_tag(%{"has_shapes" => true}), do: ["tracés de lignes"]
-  def has_shapes_tag(_), do: []
-
-  # check if the resource contains some On Demand Transport (odt) tags
-  @spec has_odt_tag(map()) :: [binary()]
-  def has_odt_tag(%{"some_stops_need_phone_agency" => true}), do: ["transport à la demande"]
-  def has_odt_tag(%{"some_stops_need_phone_driver" => true}), do: ["transport à la demande"]
-  def has_odt_tag(_), do: []
-
-  @doc """
-  Outputs a tag if at least 80% of GTFS routes have a custom color.
-
-  iex> has_route_colors_tag(%{"lines_with_custom_color_count" => 8, "lines_count" => 10})
-  ["couleurs des lignes"]
-  iex> has_route_colors_tag(%{"lines_with_custom_color_count" => 7, "lines_count" => 10})
-  []
-  iex> has_route_colors_tag(%{"lines_with_custom_color_count" => 0, "lines_count" => 0})
-  []
-  """
-  @spec has_route_colors_tag(map()) :: [binary()]
-  def has_route_colors_tag(%{"lines_with_custom_color_count" => with_colors_count, "lines_count" => lines_count})
-      when with_colors_count / lines_count * 100 >= 80,
-      do: ["couleurs des lignes"]
-
-  def has_route_colors_tag(_), do: []
-
-  @spec has_pathways_tag(map()) :: [binary()]
-  def has_pathways_tag(%{"has_pathways" => true}), do: ["description des correspondances"]
-  def has_pathways_tag(_), do: []
-
-  @spec has_bike_accessibility(map()) :: [binary()]
-  def has_bike_accessibility(%{"trips_with_bike_info_count" => n}) when is_integer(n) and n > 0,
-    do: ["informations sur l'accessibilité à vélo"]
-
-  def has_bike_accessibility(_), do: []
-
-  @spec has_wheelchair_accessibility(map()) :: [binary()]
-  def has_wheelchair_accessibility(%{"trips_with_wheelchair_info_count" => n1, "stops_with_wheelchair_info_count" => n2})
-      when is_integer(n1) and is_integer(n2) and (n1 > 0 or n2 > 0),
-      do: ["informations sur l'accessibilité en fauteuil roulant"]
-
-  def has_wheelchair_accessibility(_), do: []
-
-  @spec base_tag(__MODULE__.t()) :: [binary()]
-  def base_tag(%__MODULE__{format: "GTFS"}),
-    do: ["position des stations", "horaires théoriques", "topologie du réseau"]
-
-  def base_tag(%__MODULE__{format: "NeTEx"}),
-    do: ["position des stations", "horaires théoriques", "topologie du réseau"]
-
-  def base_tag(_), do: []
-
-  # ⬆️⬆️⬆️
-  # end of deprecation notice
-
   def changeset(resource, params) do
     resource
     |> cast(
@@ -520,8 +412,6 @@ defmodule DB.Resource do
         :last_update,
         :latest_url,
         :is_available,
-        :features,
-        :modes,
         :is_community_resource,
         :schema_name,
         :schema_version,
@@ -537,19 +427,6 @@ defmodule DB.Resource do
     )
     |> validate_required([:url, :datagouv_id])
   end
-
-  @spec valid_and_available?(__MODULE__.t()) :: boolean()
-  def valid_and_available?(%__MODULE__{
-        is_available: available,
-        metadata: %{
-          "start_date" => s,
-          "end_date" => e
-        }
-      })
-      when not is_nil(s) and not is_nil(e),
-      do: available
-
-  def valid_and_available?(%__MODULE__{}), do: false
 
   @spec is_outdated?(__MODULE__.t()) :: boolean
   def is_outdated?(%__MODULE__{
@@ -570,49 +447,6 @@ defmodule DB.Resource do
           |> Date.to_iso8601()
 
   def is_outdated?(_), do: true
-
-  @spec get_max_severity_validation_number(__MODULE__) :: map() | nil
-  def get_max_severity_validation_number(%__MODULE__{id: id}) do
-    """
-      SELECT json_data.value#>'{0,severity}', json_array_length(json_data.value)
-      FROM validations, json_each(validations.details::json) json_data
-      WHERE validations.resource_id = $1
-    """
-    |> Repo.query([id])
-    |> case do
-      {:ok, %{rows: rows}} when rows != [] ->
-        [max_severity | _] =
-          Enum.min_by(
-            rows,
-            fn [severity | _] -> Validation.severities(severity)[:level] end,
-            fn -> nil end
-          )
-
-        count_errors =
-          rows
-          |> Enum.filter(fn [severity, _] -> severity == max_severity end)
-          |> Enum.reduce(0, fn [_, nb], acc -> acc + nb end)
-
-        %{severity: max_severity, count_errors: count_errors}
-
-      {:ok, _} ->
-        # credo:disable-for-next-line
-        with %Validation{details: details} when details == %{} <-
-               Repo.get_by(Validation, resource_id: id) do
-          %{severity: "NoError", count_errors: 0}
-        else
-          _ ->
-            Logger.error("Unable to get validation of resource #{id}")
-            nil
-        end
-
-      {:error, error} ->
-        Logger.error(error)
-        nil
-    end
-  end
-
-  def get_max_severity_validation_number(_), do: nil
 
   # I duplicate this function in Transport.Validators.GTFSTransport
   # this one should be deleted later
@@ -782,11 +616,15 @@ defmodule DB.Resource do
     hosted_on_static_datagouv =
       Enum.member?(Application.fetch_env!(:transport, :datagouv_static_hosts), parsed_url.host)
 
+    object_storage_regex =
+      ~r{(https://.*\.blob\.core\.windows\.net)|(https://.*\.s3\..*\.amazonaws\.com)|(https://.*\.s3\..*\.scw\.cloud)|(https://.*\.cellar-c2\.services\.clever-cloud\.com)|(https://s3\..*\.cloud\.ovh\.net)}
+
     hosted_on_bison_fute = parsed_url.host == Application.fetch_env!(:transport, :bison_fute_host)
 
     cond do
       hosted_on_bison_fute -> is_link_to_folder?(parsed_url)
       hosted_on_static_datagouv -> true
+      String.match?(url, object_storage_regex) -> true
       true -> false
     end
   end

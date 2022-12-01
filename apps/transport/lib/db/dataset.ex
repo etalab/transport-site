@@ -15,6 +15,8 @@ defmodule DB.Dataset do
   use Ecto.Schema
   use TypedEctoSchema
 
+  @licences_ouvertes ["fr-lo", "lov2"]
+
   typed_schema "dataset" do
     field(:datagouv_id, :string)
     field(:custom_title, :string)
@@ -35,6 +37,7 @@ defmodule DB.Dataset do
     field(:population, :integer)
     field(:nb_reuses, :integer)
     field(:latest_data_gouv_comment_timestamp, :naive_datetime_usec)
+    field(:archived_at, :utc_datetime_usec)
 
     # When the dataset is linked to some cities
     # we ask in the backoffice for a name to display
@@ -57,6 +60,10 @@ defmodule DB.Dataset do
   end
 
   def base_query, do: from(d in DB.Dataset, as: :dataset, where: d.is_active == true)
+
+  @spec is_archived?(__MODULE__.t()) :: boolean()
+  def is_archived?(%__MODULE__{archived_at: nil}), do: false
+  def is_archived?(%__MODULE__{archived_at: %DateTime{}}), do: true
 
   @doc """
   Creates a query with the following inner joins:
@@ -122,7 +129,7 @@ defmodule DB.Dataset do
   @spec preload_without_validations() :: Ecto.Query.t()
   defp preload_without_validations do
     s = no_validations_query()
-    base_query() |> preload(resources: ^s)
+    __MODULE__ |> preload(resources: ^s)
   end
 
   @spec preload_without_validations(Ecto.Query.t()) :: Ecto.Query.t()
@@ -285,7 +292,7 @@ defmodule DB.Dataset do
 
   @spec filter_by_licence(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_licence(query, %{"licence" => "licence-ouverte"}),
-    do: where(query, [d], d.licence in ["fr-lo", "lov2"])
+    do: where(query, [d], d.licence in @licences_ouvertes)
 
   defp filter_by_licence(query, %{"licence" => licence}), do: where(query, [d], d.licence == ^licence)
   defp filter_by_licence(query, _), do: query
@@ -367,7 +374,8 @@ defmodule DB.Dataset do
       :nb_reuses,
       :is_active,
       :associated_territory_name,
-      :latest_data_gouv_comment_timestamp
+      :latest_data_gouv_comment_timestamp,
+      :archived_at
     ])
     |> cast_aom(params)
     |> cast_datagouv_zone(params, territory_name)
@@ -377,6 +385,7 @@ defmodule DB.Dataset do
     |> cast_assoc(:region)
     |> cast_assoc(:aom)
     |> validate_territory_mutual_exclusion()
+    |> maybe_dataset_now_licence_ouverte(dataset)
     |> has_real_time()
     |> case do
       %{valid?: false, changes: changes} = changeset when changes == %{} ->
@@ -398,14 +407,6 @@ defmodule DB.Dataset do
   @spec format_error(any()) :: binary()
   defp format_error(changeset), do: "#{inspect(Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end))}"
 
-  @spec valid_gtfs(DB.Dataset.t()) :: [Resource.t()]
-  def valid_gtfs(%__MODULE__{resources: nil}), do: []
-
-  def valid_gtfs(%__MODULE__{resources: r, type: "public-transit"}),
-    do: Enum.filter(r, &Resource.valid_and_available?/1)
-
-  def valid_gtfs(%__MODULE__{resources: r}), do: r
-
   @spec link_to_datagouv(DB.Dataset.t()) :: any()
   def link_to_datagouv(%__MODULE__{} = dataset) do
     Link.link(
@@ -422,21 +423,20 @@ defmodule DB.Dataset do
 
   @spec count_by_mode(binary()) :: number()
   def count_by_mode(tag) do
-    __MODULE__
-    |> join(:inner, [d], r in Resource, on: r.dataset_id == d.id)
-    |> where([d, r], d.is_active and ^tag in r.modes)
-    |> distinct([d], d.id)
+    Transport.Validators.GTFSTransport.validator_name()
+    |> join_from_dataset_to_metadata()
+    |> where([metadata: m], ^tag in m.modes)
+    |> distinct([dataset: d], d.id)
     |> Repo.aggregate(:count, :id)
   end
 
   @spec count_coach() :: number()
   def count_coach do
-    __MODULE__
-    |> join(:inner, [d], r in Resource, on: r.dataset_id == d.id)
-    |> join(:inner, [d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id)
-    |> distinct([d], d.id)
-    |> where([d, r, d_geo], d.is_active and "bus" in r.modes and d_geo.region_id == 14)
+    Transport.Validators.GTFSTransport.validator_name()
+    |> join_from_dataset_to_metadata()
     # 14 is the national "region". It means that it is not bound to a region or local territory
+    |> where([metadata: m, dataset: d], d.region_id == 14 and "bus" in m.modes)
+    |> distinct([dataset: d], d.id)
     |> Repo.aggregate(:count, :id)
   end
 
@@ -601,15 +601,23 @@ defmodule DB.Dataset do
   def validate(id) when is_integer(id) do
     dataset = __MODULE__ |> Repo.get!(id) |> Repo.preload(:resources)
 
-    {real_time_resources, static_resources} = Enum.split_with(dataset.resources, &Resource.is_real_time?/1)
+    {real_time_resources, static_resources} =
+      dataset
+      |> official_resources()
+      |> Enum.split_with(&Resource.is_real_time?/1)
+
+    # unique period is set to nil, to force the resource history job to be executed
+    static_resources
+    |> Enum.map(
+      &Transport.Jobs.ResourceHistoryJob.historize_and_validate_job(%{resource_id: &1.id},
+        history_options: [unique: nil]
+      )
+    )
+    |> Oban.insert_all()
 
     # Oban.insert_all does not enforce `unique` params
     # https://hexdocs.pm/oban/Oban.html#insert_all/3
-    # This is something we rely on
-    static_resources
-    |> Enum.map(&Transport.Jobs.ResourceHistoryJob.new(%{"resource_id" => &1.id}))
-    |> Oban.insert_all()
-
+    # This is something we rely on to force the job execution
     real_time_resources
     |> Enum.map(&Transport.Jobs.ResourceValidationJob.new(%{"resource_id" => &1.id}))
     |> Oban.insert_all()
@@ -812,6 +820,17 @@ defmodule DB.Dataset do
     |> change
     |> put_assoc(:communes, communes)
   end
+
+  defp maybe_dataset_now_licence_ouverte(%Ecto.Changeset{changes: %{licence: new_licence}} = changeset, %__MODULE__{
+         id: dataset_id,
+         licence: old_licence
+       })
+       when new_licence in @licences_ouvertes and old_licence not in @licences_ouvertes and not is_nil(dataset_id) do
+    %{"dataset_id" => dataset_id} |> Transport.Jobs.DatasetNowLicenceOuverteJob.new() |> Oban.insert!()
+    changeset
+  end
+
+  defp maybe_dataset_now_licence_ouverte(%Ecto.Changeset{} = changeset, %__MODULE__{}), do: changeset
 
   defp has_real_time(changeset) do
     has_realtime = changeset |> get_field(:resources) |> Enum.any?(&Resource.is_real_time?/1)

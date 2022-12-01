@@ -338,4 +338,17 @@ defmodule Transport.ImportDataTest do
              "siri lite" => 1
            }
   end
+
+  test "get_valid_resources for public-transit detects documentation resources" do
+    resources = %{
+      "resources" => [
+        %{"type" => "main", "format" => "gtfs"},
+        %{"type" => "main", "format" => "geojson"},
+        %{"type" => "main", "format" => "svg"}
+      ]
+    }
+
+    assert [%{"format" => "gtfs", "type" => "main"}, %{"format" => "svg", "type" => "documentation"}] ==
+             ImportData.get_valid_resources(resources, "public-transit")
+  end
 end

@@ -6,7 +6,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   import Mox
   import Transport.Test.TestUtils
 
-  alias Transport.Jobs.{ResourceHistoryDispatcherJob, ResourceHistoryJob}
+  alias Transport.Jobs.{ResourceHistoryAndValidationDispatcherJob, ResourceHistoryJob}
 
   doctest ResourceHistoryJob, import: true
 
@@ -21,25 +21,29 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   @gtfs_path "#{__DIR__}/../../../../shared/test/validation/gtfs.zip"
   @gtfs_content File.read!(@gtfs_path)
 
-  describe "ResourceHistoryDispatcherJob" do
+  describe "ResourceHistoryAndValidationDispatcherJob" do
     test "resources_to_historise" do
       ids = create_resources_for_history()
       assert 9 == count_resources()
-      assert MapSet.new(ids) == MapSet.new(ResourceHistoryDispatcherJob.resources_to_historise())
+
+      assert MapSet.new(ids) ==
+               ResourceHistoryAndValidationDispatcherJob.resources_to_historise() |> Enum.map(& &1.id) |> MapSet.new()
     end
 
     test "a simple successful case" do
       ids = create_resources_for_history()
 
       assert count_resources() > 1
-      assert :ok == perform_job(ResourceHistoryDispatcherJob, %{})
+      assert :ok == perform_job(ResourceHistoryAndValidationDispatcherJob, %{})
 
-      assert [%{args: %{"resource_id" => first_id}}, %{args: %{"resource_id" => second_id}}] =
-               all_enqueued(worker: ResourceHistoryJob)
+      assert [
+               %{args: %{"first_job_args" => %{"resource_id" => first_id}}},
+               %{args: %{"first_job_args" => %{"resource_id" => second_id}}}
+             ] = all_enqueued(worker: Transport.Jobs.Workflow)
 
       assert Enum.sort([second_id, first_id]) == Enum.sort(ids)
 
-      refute_enqueued(worker: ResourceHistoryDispatcherJob)
+      refute_enqueued(worker: ResourceHistoryAndValidationDispatcherJob)
     end
   end
 
@@ -293,7 +297,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       expected_zip_metadata = zip_metadata()
 
       assert %DB.ResourceHistory{
-               id: resource_history_id,
                resource_id: ^resource_id,
                datagouv_id: ^datagouv_id,
                payload: %{
@@ -328,37 +331,25 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       refute is_nil(last_up_to_date_at)
       %DB.Resource{content_hash: content_hash} = DB.Repo.reload(resource)
       refute content_hash == first_content_hash
-
-      # assert a resource validation is launched
-      assert [%{args: %{"resource_history_id" => ^resource_history_id}}] =
-               all_enqueued(worker: Transport.Jobs.ResourceHistoryValidationJob)
     end
 
     test "a simple successful case for a CSV" do
-      resource_url = "https://example.com/file.csv"
       csv_content = "col1,col2\nval1,val2"
       latest_schema_version = "0.4.2"
 
-      %{
-        id: resource_id,
-        datagouv_id: datagouv_id,
-        dataset_id: dataset_id,
-        metadata: resource_metadata,
-        title: title,
-        schema_name: schema_name,
-        schema_version: schema_version
-      } =
+      %DB.Resource{id: resource_id, dataset_id: dataset_id} =
         resource =
         insert(:resource,
-          url: resource_url,
+          url: resource_url = "https://example.com/file.csv",
+          latest_url: resource_latest_url = "https://example.com/#{Ecto.UUID.generate()}",
           dataset: insert(:dataset, is_active: true),
           format: "csv",
-          title: "title",
+          title: title = "title",
           is_community_resource: false,
-          datagouv_id: Ecto.UUID.generate(),
-          metadata: %{"foo" => "bar"},
-          schema_name: "etalab/schema-lieux-covoiturage",
-          schema_version: "0.4.1"
+          datagouv_id: datagouv_id = Ecto.UUID.generate(),
+          metadata: resource_metadata = %{"foo" => "bar"},
+          schema_name: schema_name = "etalab/schema-lieux-covoiturage",
+          schema_version: schema_version = "0.4.1"
         )
 
       Transport.HTTPoison.Mock
@@ -423,6 +414,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                datagouv_id: ^datagouv_id,
                payload: %{
                  "dataset_id" => ^dataset_id,
+                 "resource_url" => ^resource_url,
+                 "resource_latest_url" => ^resource_latest_url,
                  "format" => "csv",
                  "content_hash" => ^content_hash,
                  "http_headers" => %{"content-type" => "application/octet-stream"},
@@ -447,6 +440,23 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       # No validation but content hash should be set to the file hash
       %DB.Resource{content_hash: content_hash} = DB.Repo.reload(resource)
       assert content_hash == "580fb39789859f7dc29aebe6bdec9666fc8311739a8705fda0916e2907449e17"
+    end
+
+    test "discards the job when the resource should not be historicised" do
+      %DB.Resource{} =
+        resource =
+        insert(:resource,
+          url: "https://example.com/gtfs.zip",
+          dataset: insert(:dataset, is_active: true),
+          format: "GTFS",
+          title: "title",
+          is_community_resource: true
+        )
+
+      assert DB.Resource.is_community_resource?(resource)
+
+      assert {:discard, "Resource should not be historicised"} ==
+               perform_job(ResourceHistoryJob, %{resource_id: resource.id})
     end
 
     test "does not store resource again when it did not change" do

@@ -205,7 +205,9 @@ defmodule TransportWeb.ResourceControllerTest do
       "sample 2",
       validation_result["files"]["gtfs_permanent_url"],
       validation_result["files"]["gtfs_rt_permanent_url"],
-      "Prolongation des travaux rue de Kermaria"
+      "Prolongation des travaux rue de Kermaria",
+      "Impossible de déterminer le fichier GTFS à utiliser",
+      "a aucun fichier GTFS"
     ]
     |> Enum.each(&assert content =~ &1)
   end
@@ -317,24 +319,52 @@ defmodule TransportWeb.ResourceControllerTest do
         payload: %{"permanent_url" => permanent_url = "https://example.com/#{Ecto.UUID.generate()}"}
       })
 
-    insert(:multi_validation, %{
-      resource_history_id: resource_history_id,
-      validator: Transport.Validators.GTFSTransport.validator_name(),
-      result: %{},
-      metadata: %DB.ResourceMetadata{metadata: %{}, modes: ["ferry"]},
-      validation_timestamp: ~U[2022-10-28 14:12:29.041243Z]
-    })
+    %{metadata: metadata} =
+      insert(:multi_validation, %{
+        resource_history_id: resource_history_id,
+        validator: Transport.Validators.GTFSTransport.validator_name(),
+        result: %{},
+        metadata: %DB.ResourceMetadata{
+          metadata: %{
+            "networks" => ["3CM", "RLV"],
+            "networks_start_end_dates" => %{
+              "3CM" => %{
+                "end_date" => "2022-09-30",
+                "start_date" => "2021-03-05"
+              },
+              "RLV" => %{
+                end_date: "2022-11-20",
+                start_date: "2022-08-29"
+              }
+            }
+          },
+          modes: ["ferry"]
+        },
+        validation_timestamp: ~U[2022-10-28 14:12:29.041243Z]
+      })
 
     conn2 = conn |> get(resource_path(conn, :details, resource_id))
     assert conn2 |> html_response(200) =~ "Rapport de validation"
     assert conn2 |> html_response(200) =~ "ferry"
+    assert conn2 |> html_response(200) =~ "couverture calendaire par réseau"
+    assert conn2 |> html_response(200) =~ "3CM"
+    assert conn2 |> html_response(200) =~ "30/09/2022"
 
     assert conn2 |> html_response(200) =~
              ~s{Validation effectuée en utilisant <a href="#{permanent_url}">le fichier GTFS en vigueur</a> le 28/10/2022 à 16h12 Europe/Paris}
+
+    # we remove "networks_start_end_dates" content
+    DB.Repo.update!(
+      Ecto.Changeset.change(metadata, %{metadata: %{"networks_start_end_dates" => nil, "networks" => ["foo", "bar"]}})
+    )
+
+    conn3 = conn |> get(resource_path(conn, :details, resource_id))
+    refute conn3 |> html_response(200) =~ "couverture calendaire par réseau"
   end
 
   test "GTFS-RT validation is shown", %{conn: conn} do
     %{id: dataset_id} = insert(:dataset)
+    insert(:resource, format: "GTFS", dataset_id: dataset_id)
 
     %{id: resource_id} =
       insert(:resource, %{
@@ -378,6 +408,7 @@ defmodule TransportWeb.ResourceControllerTest do
     {conn2, _} = with_log(fn -> conn |> get(resource_path(conn, :details, resource_id)) end)
     assert conn2 |> html_response(200) =~ "Rapport de validation"
     assert conn2 |> html_response(200) =~ "1 erreur"
+    assert conn2 |> html_response(200) =~ "Valider ce GTFS-RT maintenant"
     refute conn2 |> html_response(200) =~ "Pas de validation disponible"
   end
 

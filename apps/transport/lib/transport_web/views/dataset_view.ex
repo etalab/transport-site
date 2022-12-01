@@ -36,17 +36,9 @@ defmodule TransportWeb.DatasetView do
   def count_discussions(nil), do: '-'
   def count_discussions(discussions), do: Enum.count(discussions)
 
-  # NOTE: this method (and more here) are unused and
-  # were referred to by unused partials
-  def first_gtfs(dataset) do
-    dataset
-    |> Dataset.valid_gtfs()
-    |> List.first()
-  end
-
   def end_date(dataset) do
-    dataset
-    |> Dataset.valid_gtfs()
+    dataset.resources
+    |> Enum.filter(&Resource.is_gtfs?/1)
     |> Enum.max_by(
       fn
         %{metadata: nil} -> ""
@@ -96,7 +88,30 @@ defmodule TransportWeb.DatasetView do
 
     case assigns = conn.assigns do
       %{order_by: ^order_by} -> ~H"<span class=\"activefilter\"><%= msg %></span>"
-      _ -> link(msg, to: "#{current_url(conn, Map.put(conn.query_params, "order_by", order_by))}")
+      _ -> link(msg, to: current_url(conn, Map.put(conn.query_params, "order_by", order_by)))
+    end
+  end
+
+  def licence_link(%Plug.Conn{} = conn, %{licence: "all", count: count}) do
+    assigns = conn.assigns
+
+    if Map.has_key?(conn.query_params, "licence") do
+      link("#{dgettext("page-shortlist", "All (feminine)")} (#{count})",
+        to: current_url(conn, Map.reject(conn.query_params, fn {k, _v} -> k == "licence" end))
+      )
+    else
+      ~H{<span class="activefilter"><%= dgettext("page-shortlist", "All (feminine)") %> (<%= count %>)</span>}
+    end
+  end
+
+  def licence_link(%Plug.Conn{} = conn, %{licence: licence, count: count}) when licence not in ["fr-lo", "lov2"] do
+    name = licence(%Dataset{licence: licence})
+    assigns = conn.assigns
+
+    if Map.get(conn.query_params, "licence") == licence do
+      ~H{<span class="activefilter"><%= name %> (<%= count %>)</span>}
+    else
+      link("#{name} (#{count})", to: current_url(conn, Map.put(conn.query_params, "licence", licence)))
     end
   end
 
@@ -333,14 +348,12 @@ defmodule TransportWeb.DatasetView do
 
   def community_resources(dataset), do: Dataset.community_resources(dataset)
 
-  def licence_url("fr-lo"),
-    do: "https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf"
-
-  def licence_url("lov2"), do: "https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf"
+  def licence_url(licence) when licence in ["fr-lo", "lov2"],
+    do: "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
 
   def licence_url("odc-odbl"), do: "https://opendatacommons.org/licenses/odbl/1.0/"
 
-  def licence_url("mobility-license"),
+  def licence_url("mobility-licence"),
     do: "https://download.data.grandlyon.com/licences/Licence_mobilit%C3%A9s_V_02_2021.pdf"
 
   def licence_url(_), do: nil
@@ -355,13 +368,13 @@ defmodule TransportWeb.DatasetView do
 
   @doc """
   Builds a licence.
-  It looks like fr-lo has been deprecrated by data.gouv and replaced by "lov2"
-  If it is confirmed, we can remove it in the future.
 
   ## Examples
 
   iex> licence(%Dataset{licence: "fr-lo"})
-  "Licence ouverte"
+  "Licence Ouverte — version 1.0"
+  iex> licence(%Dataset{licence: "lov2"})
+  "Licence Ouverte — version 2.0"
   iex> licence(%Dataset{licence: "Libertarian"})
   "Libertarian"
   """
@@ -369,11 +382,12 @@ defmodule TransportWeb.DatasetView do
   def licence(%Dataset{licence: licence}) do
     case licence do
       "fr-lo" -> dgettext("dataset", "fr-lo")
+      "licence-ouverte" -> dgettext("dataset", "licence-ouverte")
       "odc-odbl" -> dgettext("dataset", "odc-odbl")
       "other-open" -> dgettext("dataset", "other-open")
       "lov2" -> dgettext("dataset", "lov2")
       "notspecified" -> dgettext("dataset", "notspecified")
-      "mobility-license" -> dgettext("dataset", "Mobility license")
+      "mobility-licence" -> dgettext("dataset", "Mobility Licence")
       other -> other
     end
   end
@@ -429,9 +443,7 @@ defmodule TransportWeb.DatasetView do
   def resource_class(_, _), do: ""
 
   def order_resources_by_validity(resources, %{validations: validations}) do
-    resources
-    |> Enum.sort_by(&(validations |> Map.get(&1.id) |> hd() |> get_metadata_info("end_date")), &>=/2)
-    |> Enum.sort_by(&Resource.valid_and_available?(&1), &>=/2)
+    Enum.sort_by(resources, &(validations |> Map.get(&1.id) |> hd() |> get_metadata_info("end_date")), &>=/2)
   end
 
   def order_resources_by_format(resources), do: resources |> Enum.sort_by(& &1.format, &>=/2)

@@ -5,12 +5,21 @@ defmodule TransportWeb.SIRIQuerierLiveTest do
   import Phoenix.LiveViewTest
   alias TransportWeb.Live.SIRIQuerierLive
 
+  setup do
+    # Ensure the query generated properly marshalls the input and propagate them
+    Mox.stub_with(Transport.SIRIQueryGenerator.Mock, Transport.SIRIQueryGenerator)
+
+    :ok
+  end
+
   setup :verify_on_exit!
 
   test "renders form", %{conn: conn} do
     conn |> get(live_path(conn, SIRIQuerierLive)) |> html_response(200)
   end
 
+  # NOTE: currently we do not marshall other parameters (template type, template parameters)
+  # but this could be added later and would be useful to share queries around.
   test "uses query params to set input values", %{conn: conn} do
     {:ok, view, _html} =
       conn
@@ -105,5 +114,122 @@ defmodule TransportWeb.SIRIQuerierLiveTest do
     refute view |> has_element?("#response_code_wrapper")
     assert view |> has_element?("#siri_response_error")
     assert view |> element("#siri_response_error") |> render() =~ "Got an error"
+  end
+
+  test "choosing GetEstimatedTimetable allows to input line references", %{conn: conn} do
+    {:ok, view, _html} =
+      conn
+      |> get(live_path(conn, SIRIQuerierLive))
+      |> live()
+
+    # By default, we're on CheckStatus
+    assert view
+           |> element("select option:checked")
+           |> render() =~ "CheckStatus"
+
+    # And the user cannot input line references
+    refute view |> has_element?("#siri_querier_line_refs")
+
+    # Select GetEstimatedTimetable
+    assert view
+           |> element("form")
+           |> render_change(%{
+             config: %{
+               "requestor_ref" => "test-ref",
+               "query_template" => "GetEstimatedTimetable"
+             }
+           })
+
+    # Should be selected
+    assert view
+           |> element("select option:checked")
+           |> render() =~ "GetEstimatedTimetable"
+
+    # The user should be offered a way to type line references
+    assert view |> has_element?("#siri_querier_line_refs")
+
+    # Simulate user typing in
+    view
+    |> form("#siri_querier")
+    |> render_change(%{config: %{"line_refs" => " VILX, 101"}})
+
+    xml_query = "<payload></payload>"
+
+    Transport.SIRIQueryGenerator.Mock
+    |> expect(:generate_query, fn params ->
+      # comma-separated split, trimmed
+      assert params[:line_refs] == ["VILX", "101"]
+      assert params[:template] == "GetEstimatedTimetable"
+      assert params[:requestor_ref] == "test-ref"
+      assert params[:message_id] =~ "Test::Message"
+
+      xml_query
+    end)
+
+    # Clicking on "Generate" makes the "Execute" button show up
+    view |> element(~s{button[phx-click="generate_query"}) |> render_click()
+
+    # The payload should come back
+    assert view
+           |> element("#siri_query_wrapper")
+           |> render()
+           |> Floki.parse_document!()
+           |> Floki.attribute("value") == [xml_query]
+  end
+
+  test "choosing GetStopMonitoring allows to input stop reference", %{conn: conn} do
+    {:ok, view, _html} =
+      conn
+      |> get(live_path(conn, SIRIQuerierLive))
+      |> live()
+
+    # And the user cannot input stop reference
+    refute view |> has_element?("#siri_querier_stop_ref")
+
+    # Select GetStopMonitoring
+    assert view
+           |> element("form")
+           |> render_change(%{
+             config: %{
+               "requestor_ref" => "test-ref",
+               "query_template" => "GetStopMonitoring"
+             }
+           })
+
+    # Should be selected
+    assert view
+           |> element("select option:checked")
+           |> render() =~ "GetStopMonitoring"
+
+    # The user should be offered a way to type stop reference
+    assert view |> has_element?("#siri_querier_stop_ref")
+
+    # Simulate user typing in
+    view
+    |> form("#siri_querier")
+    |> render_change(%{config: %{"stop_ref" => " Test:StopPoint "}})
+
+    xml_query = "<payload></payload>"
+
+    Transport.SIRIQueryGenerator.Mock
+    |> expect(:generate_query, fn params ->
+      # trimmed
+      assert params[:stop_ref] == "Test:StopPoint"
+      assert params[:template] == "GetStopMonitoring"
+      assert params[:requestor_ref] == "test-ref"
+      assert params[:message_id] =~ "Test::Message"
+
+      xml_query
+    end)
+
+    # Clicking on "Generate" makes the "Execute" button show up
+    view |> element(~s{button[phx-click="generate_query"}) |> render_click()
+
+    # The payload should come back
+    assert view
+           |> element("#siri_query_wrapper")
+           |> render()
+           |> Floki.parse_document!()
+           |> Floki.attribute("value") == [xml_query]
   end
 end

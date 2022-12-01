@@ -13,11 +13,11 @@ defmodule Transport.Jobs.ResourcesUnavailableDispatcherJob do
 
     Logger.debug("Dispatching #{Enum.count(resource_ids)} ResourceUnavailableJob jobs")
 
-    resource_ids
-    |> Enum.map(fn resource_id ->
-      %{resource_id: resource_id} |> Transport.Jobs.ResourceUnavailableJob.new()
+    Enum.each(resource_ids, fn resource_id ->
+      %{resource_id: resource_id}
+      |> Transport.Jobs.ResourceUnavailableJob.new()
+      |> Oban.insert!()
     end)
-    |> Oban.insert_all()
 
     :ok
   end
@@ -48,7 +48,7 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
   - is_available (if the availability of the resource changes)
   - url (if lastest_url points to a new URL)
   """
-  use Oban.Worker, max_attempts: 5
+  use Oban.Worker, unique: [period: 60 * 9], max_attempts: 5
   require Logger
   alias DB.{Repo, Resource, ResourceUnavailability}
 
@@ -64,8 +64,8 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
     |> update_availability()
   end
 
-  defp check_availability({check_url, %Resource{} = resource}) do
-    {Transport.AvailabilityChecker.Wrapper.available?(check_url), resource}
+  defp check_availability({check_url, %Resource{format: format} = resource}) do
+    {Transport.AvailabilityChecker.Wrapper.available?(format, check_url), resource}
   end
 
   defp update_url(%Resource{filetype: "file", url: url, latest_url: latest_url} = resource) do
@@ -84,7 +84,10 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
   defp historize_resource({:noop, resource}), do: {Resource.download_url(resource), resource}
 
   defp historize_resource({:updated, %Resource{id: resource_id} = resource}) do
-    %{resource_id: resource_id} |> Transport.Jobs.ResourceHistoryJob.new() |> Oban.insert!()
+    %{resource_id: resource_id}
+    |> Transport.Jobs.ResourceHistoryJob.historize_and_validate_job(history_options: [unique: nil])
+    |> Oban.insert!()
+
     {resource.url, resource}
   end
 
@@ -133,7 +136,7 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
     case http_client().get(url) do
       {:ok, %HTTPoison.Response{status_code: status_code, headers: headers}}
       when status_code > 300 and status_code < 400 ->
-        case location_header(headers) do
+        case Transport.Http.Utils.location_header(headers) do
           [url] when is_binary(url) ->
             follow(url, max_redirect - 1)
 
@@ -151,12 +154,6 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
 
   def follow(url, 0 = _max_redirect) when is_binary(url) do
     {:error, :too_many_redirects}
-  end
-
-  defp location_header(headers) do
-    for {key, value} <- headers, String.downcase(key) == "location" do
-      value
-    end
   end
 
   defp now, do: DateTime.utc_now() |> DateTime.truncate(:second)

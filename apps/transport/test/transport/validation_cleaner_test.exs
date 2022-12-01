@@ -25,9 +25,7 @@ defmodule Transport.ValidationCleanerTest do
           data_vis: %{}
         },
         metadata: %{},
-        title: "angers.zip",
-        modes: ["ferry"],
-        features: ["tarifs"]
+        title: "angers.zip"
       }
       |> Repo.insert()
 
@@ -42,9 +40,7 @@ defmodule Transport.ValidationCleanerTest do
           data_vis: %{}
         },
         metadata: %{},
-        title: "another_gtfs.zip",
-        modes: ["bus"],
-        features: []
+        title: "another_gtfs.zip"
       }
       |> Repo.insert()
 

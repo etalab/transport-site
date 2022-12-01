@@ -215,7 +215,9 @@ defmodule Transport.Validators.GTFSTransport do
         dgettext("gtfs-transport-validator", "Impossible to interpolate stop times"),
       "InvalidStopLocationTypeInTrip" => dgettext("gtfs-transport-validator", "Invalid stop location type in trip"),
       "InvalidStopParent" => dgettext("gtfs-transport-validator", "Invalid stop parent"),
-      "IdNotAscii" => dgettext("gtfs-transport-validator", "ID is not ASCII-encoded")
+      "IdNotAscii" => dgettext("gtfs-transport-validator", "ID is not ASCII-encoded"),
+      "InvalidShapeId" => dgettext("gtfs-transport-validator", "Invalid shape ID"),
+      "UnusedShapeId" => dgettext("gtfs-transport-validator", "Unused shape ID")
     }
 
   @spec is_gtfs_outdated(any()) :: boolean | nil

@@ -17,16 +17,33 @@
           <strong><%= Enum.join(@modes, ", ") %></strong>
         </li>
       <% end %>
-      <%= if Map.get(@metadata, "networks", []) != [] do %>
+      <% networks_start_end_dates = Map.get(@metadata, "networks_start_end_dates", %{}) %>
+      <% networks = Map.get(@metadata, "networks", []) %>
+      <%= if Enum.count(networks) > 1 and networks_start_end_dates not in [nil, %{}] do %>
         <li>
           <div>
             <div class="networks-list">
-              <%= dngettext("validations", "network", "networks", length(@metadata["networks"])) %> :
-              <strong><%= Enum.join(@metadata["networks"], ", ") %></strong>
+              <%= dgettext("validations", "calendar span by network") %> :
+              <.networks_start_end_dates
+                networks_start_end_dates={networks_start_end_dates}
+                locale={get_session(@conn, :locale)}
+              />
             </div>
           </div>
         </li>
+      <% else %>
+        <%= if networks != [] do %>
+          <li>
+            <div>
+              <div class="networks-list">
+                <%= dngettext("validations", "network", "networks", length(@metadata["networks"])) %> :
+                <strong><%= Enum.join(@metadata["networks"], ", ") %></strong>
+              </div>
+            </div>
+          </li>
+        <% end %>
       <% end %>
+
       <%= if @metadata["stop_points_count"] != nil do %>
         <li>
           <%= dgettext("validations", "number of stop points") %> :
@@ -41,7 +58,7 @@
 
       <li><%= dgettext("page-dataset-details", "Features available in the resource:") %></li>
       <div>
-        <% found_tags = DB.Resource.find_tags_from_metadata(@metadata) %>
+        <% found_tags = Transport.Validators.GTFSTransport.find_tags_from_metadata(@metadata) %>
         <%= for tag <- found_tags do %>
           <span class="label mode"><%= tag %></span>
         <% end %>
@@ -55,7 +72,7 @@
           )
           |> raw() %>
         </li>
-        <%= for tag <- DB.Resource.existing_gtfs_tags() -- found_tags do %>
+        <%= for tag <- Transport.Validators.GTFSTransport.existing_gtfs_tags() -- found_tags do %>
           <span class="label"><%= tag %></span>
         <% end %>
       </div>

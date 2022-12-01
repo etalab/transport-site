@@ -176,7 +176,8 @@ defmodule Transport.ImportData do
       |> Map.put("organization", data_gouv_resp["organization"]["name"])
       |> Map.put("resources", get_resources(data_gouv_resp, type))
       |> Map.put("nb_reuses", get_nb_reuses(data_gouv_resp))
-      |> Map.put("licence", license(data_gouv_resp))
+      |> Map.put("licence", licence(data_gouv_resp))
+      |> Map.put("archived_at", archived(data_gouv_resp["archived"]))
       |> Map.put("zones", get_associated_zones_insee(data_gouv_resp))
 
     case Map.get(data_gouv_resp, "resources") do
@@ -185,36 +186,58 @@ defmodule Transport.ImportData do
     end
   end
 
+  @spec archived(nil | binary()) :: DateTime.t() | nil
   @doc """
-  Set the license according to the datagouv response with possible overrides.
+  Set the `archived_at` field from the `archived` API key.
+
+  iex>archived(nil)
+  nil
+  iex>archived("2022-09-28T03:08:59.782000")
+  ~U[2022-09-28 03:08:59.782000Z]
+  iex>archived("2022-09-28T03:08:59.782000Z")
+  ~U[2022-09-28 03:08:59.782000Z]
+  """
+  def archived(nil), do: nil
+
+  def archived(datetime_str) when is_binary(datetime_str) do
+    {:ok, datetime, 0} = DateTime.from_iso8601(String.replace_suffix(datetime_str, "Z", "") <> "Z")
+    datetime
+  end
+
+  @doc """
+  Set the licence according to the datagouv response with possible overrides.
   Context: we're doing this directly on transport.data.gouv.fr because data.gouv.fr does
-  not handle licenses that have not been homologated. Some custom licenses will be
+  not handle licences that have not been homologated. Some custom licences will be
   classified as `notspecified` on the datagouv API response as a result.
 
     ## Examples
 
-      iex> license(%{"license" => "notspecified", "organization" => %{"name" => "Métropole de Lyon"}})
-      "mobility-license"
+      iex> licence(%{"license" => "notspecified", "organization" => %{"name" => "Métropole de Lyon"}})
+      "mobility-licence"
 
-      iex> license(%{"license" => "notspecified", "organization" => %{"name" => "Métropole de Rouen"}})
+      iex> licence(%{"license" => "notspecified", "organization" => %{"name" => "Île-de-France Mobilités"}})
+      "mobility-licence"
+
+      iex> licence(%{"license" => "odc-odbl", "organization" => %{"name" => "Île-de-France Mobilités"}})
+      "odc-odbl"
+
+      iex> licence(%{"license" => "notspecified", "organization" => %{"name" => "Métropole de Rouen"}})
       "notspecified"
 
-      iex> license(%{"license" => "odc-odbl"})
+      iex> licence(%{"license" => "odc-odbl"})
       "odc-odbl"
 
   """
-  def license(%{"license" => "notspecified", "organization" => %{"name" => org_name}}) do
-    orgs_with_mobility_license = ["Métropole de Lyon"]
-
-    if org_name in orgs_with_mobility_license do
-      "mobility-license"
+  def licence(%{"license" => "notspecified", "organization" => %{"name" => org_name}}) do
+    if org_name in Application.fetch_env!(:transport, :orgs_with_mobility_licence) do
+      "mobility-licence"
     else
       "notspecified"
     end
   end
 
-  def license(%{"license" => datagouv_license}), do: datagouv_license
-  def license(_), do: nil
+  def licence(%{"license" => datagouv_licence}), do: datagouv_licence
+  def licence(_), do: nil
 
   @doc """
   Get logo from datagouv dataset
@@ -338,7 +361,6 @@ defmodule Transport.ImportData do
     |> Enum.uniq_by(fn resource -> resource["url"] end)
     |> Enum.map_reduce(0, fn resource, display_position ->
       is_community_resource = resource["is_community_resource"] == true
-
       existing_resource = get_existing_resource(resource, dataset["id"]) || %{}
 
       resource =
@@ -346,9 +368,11 @@ defmodule Transport.ImportData do
         |> Map.put("metadata", existing_resource[:metadata])
         |> Map.put("url", cleaned_url(resource["url"]))
 
+      format = formated_format(resource, type, is_community_resource)
+
       {%{
          "url" => resource["url"],
-         "format" => formated_format(resource, type, is_community_resource),
+         "format" => format,
          "title" => get_title(resource),
          "last_import" => DateTime.utc_now() |> DateTime.to_string(),
          "last_update" => resource["last_modified"],
@@ -359,7 +383,7 @@ defmodule Transport.ImportData do
          "type" => resource["type"],
          "id" => existing_resource[:id],
          "datagouv_id" => resource["id"],
-         "is_available" => availability_checker().available?(resource["url"]),
+         "is_available" => availability_checker().available?(format, resource["url"]),
          "is_community_resource" => is_community_resource,
          "community_resource_publisher" => get_publisher(resource),
          "description" => resource["description"],
@@ -382,12 +406,21 @@ defmodule Transport.ImportData do
   "https://exs.sismo2.cityway.fr/GTFS.aspx?key=SISMO&OperatorCode=CG60L3"
   iex> cleaned_url("http://example.com/file.zip")
   "http://example.com/file.zip"
+  iex> cleaned_url("http://exs.sismo2.cityway.fr")
+  "https://exs.sismo2.cityway.fr"
   """
   def cleaned_url(url) do
     uri = URI.parse(url)
 
     if is_binary(uri.host) and String.match?(uri.host, ~r/^exs\.(\w)+\.cityway\.fr$/) do
-      URI.to_string(%{uri | scheme: "https", query: uri.query |> String.replace("&amp;", "&"), port: 443})
+      cleaned_query =
+        if is_nil(uri.query) do
+          nil
+        else
+          uri.query |> String.replace("&amp;", "&")
+        end
+
+      %{uri | scheme: "https", query: cleaned_query, port: 443} |> URI.to_string()
     else
       url
     end
@@ -401,10 +434,18 @@ defmodule Transport.ImportData do
     |> Enum.concat(get_valid_gtfs_rt_resources(resources))
     |> Enum.concat(get_valid_siri_resources(resources))
     |> Enum.concat(get_valid_siri_lite_resources(resources))
+    |> Enum.concat(get_valid_documentation_resources(resources))
   end
 
   def get_valid_resources(%{"resources" => resources}, _type) do
     resources
+  end
+
+  @spec get_valid_documentation_resources([map()]) :: [map()]
+  def get_valid_documentation_resources(resources) do
+    resources
+    |> Enum.filter(&(is_documentation?(&1) or is_documentation_format?(&1)))
+    |> Enum.map(fn resource -> %{resource | "type" => "documentation"} end)
   end
 
   @spec get_valid_gtfs_resources([map()]) :: [map()]
@@ -465,6 +506,12 @@ defmodule Transport.ImportData do
     end
   end
 
+  def is_ods_title?(%{"title" => title})
+      when title in ["Export au format CSV", "Export au format JSON"],
+      do: true
+
+  def is_ods_title?(_), do: false
+
   @doc """
   Is it a GTFS file?
 
@@ -484,10 +531,16 @@ defmodule Transport.ImportData do
   true
   iex> is_gtfs?(%{"format" => "zip", "title" => "GTFS RTM", "url" => "https://example.com/api/Export/v1/GetExportedDataFile?ExportFormat=Gtfs&OperatorCode=RTM"})
   true
+  iex> is_gtfs?(%{"description" => "gtfs", "title" => "Export au format CSV"})
+  false
+  iex> is_gtfs?(%{"url" => "https://example.com/documentation-gtfs.pdf", "type" => "documentation"})
+  false
   """
   @spec is_gtfs?(map()) :: boolean()
+  # credo:disable-for-next-line
   def is_gtfs?(%{} = params) do
     cond do
+      is_ods_title?(params) or is_documentation?(params) -> false
       is_gtfs?(params["format"]) -> true
       is_gtfs_rt?(params) -> false
       is_format?(params["url"], ["json", "csv", "shp", "pdf", "7z"]) -> false
@@ -516,10 +569,13 @@ defmodule Transport.ImportData do
   true
   iex> Enum.all?(["GTFS RTM", "gtfs théorique", "ZIP GTFS"], &(! is_gtfs_rt?(&1)))
   true
+  iex> is_gtfs_rt?(%{"description" => "gtfs-rt", "title" => "Export au format CSV"})
+  false
   """
   @spec is_gtfs_rt?(binary() | map()) :: boolean()
   def is_gtfs_rt?(%{} = params) do
     cond do
+      is_ods_title?(params) or is_documentation?(params) -> false
       is_gtfs_rt?(params["format"]) -> true
       is_gtfs_rt?(params["description"]) -> true
       is_gtfs_rt?(params["title"]) -> true
@@ -532,13 +588,56 @@ defmodule Transport.ImportData do
   def is_gtfs_rt?(_), do: false
 
   @doc """
+  iex> is_documentation?(%{"format" => "gtfs"})
+  false
+  iex> is_documentation?(%{"format" => "csv"})
+  false
+  iex> is_documentation?(%{"format" => "PDF"})
+  false
+  iex> is_documentation?(%{"type" => "documentation", "format" => "docx"})
+  true
+  """
+  @spec is_documentation?(map() | binary()) :: boolean()
+  def is_documentation?(str) when is_binary(str), do: false
+
+  def is_documentation?(%{} = params) do
+    Map.get(params, "type") == "documentation"
+  end
+
+  @doc """
+  Determines if a format is likely a documentation format.
+  Only used for the `public-transit` type, other types use
+  `is_documentation?/1` which is stricter.
+
+  iex> is_documentation_format?("PDF")
+  true
+  iex> is_documentation_format?("GTFS")
+  false
+  """
+  def is_documentation_format?(%{"format" => format}), do: is_documentation_format?(format)
+
+  def is_documentation_format?(format) do
+    is_format?(format, ["pdf", "svg", "html"])
+  end
+
+  @doc """
   iex> is_siri?("siri lite")
   false
   iex> is_siri?("SIRI")
   true
+  iex> is_siri?(%{"format" => "SIRI"})
+  true
+  iex> is_siri?(%{"title" => "Export au format CSV", "format" => "SIRI"})
+  false
   """
   @spec is_siri?(binary() | map()) :: boolean()
-  def is_siri?(str), do: is_format?(str, "siri") and not is_siri_lite?(str)
+  def is_siri?(params) do
+    cond do
+      is_ods_title?(params) or is_documentation?(params) -> false
+      is_format?(params, "siri") and not is_siri_lite?(params) -> true
+      true -> false
+    end
+  end
 
   @doc """
   iex> is_siri_lite?("siri lite")
@@ -551,7 +650,13 @@ defmodule Transport.ImportData do
   false
   """
   @spec is_siri_lite?(binary() | map()) :: boolean()
-  def is_siri_lite?(str), do: is_format?(str, "SIRI Lite")
+  def is_siri_lite?(params) do
+    cond do
+      is_ods_title?(params) or is_documentation?(params) -> false
+      is_format?(params, "SIRI Lite") -> true
+      true -> false
+    end
+  end
 
   @doc """
   check the format
@@ -622,10 +727,13 @@ defmodule Transport.ImportData do
   true
   iex> is_netex?(%{"url" => "https://example.com/gtfs.zip", "format" => "zip"})
   false
+  iex> is_netex?(%{"url" => "https://example.com/doc-netex.pdf", "type" => "documentation"})
+  false
   """
   @spec is_netex?(binary() | map()) :: boolean()
   def is_netex?(%{} = params) do
     cond do
+      is_ods_title?(params) or is_documentation?(params) -> false
       is_netex?(params["format"]) -> true
       is_netex?(params["title"]) -> true
       is_netex?(params["description"]) -> true
@@ -637,7 +745,13 @@ defmodule Transport.ImportData do
   def is_netex?(s), do: is_format?(s, "NeTEx")
 
   @spec is_neptune?(binary() | map()) :: boolean()
-  def is_neptune?(s), do: is_format?(s, "neptune")
+  def is_neptune?(params) do
+    cond do
+      is_ods_title?(params) or is_documentation?(params) -> false
+      is_format?(params, "neptune") -> true
+      true -> false
+    end
+  end
 
   @doc """
   Check for download uri, returns ["no_download_url"] if there's no download_url
@@ -714,11 +828,15 @@ defmodule Transport.ImportData do
 
       iex> formated_format(%{"format" => "siri-lite"}, "public-transit", false)
       "SIRI Lite"
+
+      iex> formated_format(%{"format" => "pdf", "type" => "documentation"}, "public-transit", false)
+      "pdf"
   """
   @spec formated_format(map(), binary(), bool()) :: binary()
   # credo:disable-for-next-line
   def formated_format(resource, type, is_community_resource) do
     format = Map.get(resource, "format", "")
+    is_documentation = Map.get(resource, "type", "") == "documentation"
 
     cond do
       is_gtfs_rt?(format) -> "gtfs-rt"
@@ -728,7 +846,7 @@ defmodule Transport.ImportData do
       is_siri_lite?(format) -> "SIRI Lite"
       is_siri?(format) -> "SIRI"
       is_geojson?(resource, format) -> "geojson"
-      type == "public-transit" and not is_community_resource -> "GTFS"
+      type == "public-transit" and not is_documentation and not is_community_resource -> "GTFS"
       type == "bike-scooter-sharing" and is_gbfs?(resource) -> "gbfs"
       true -> format
     end

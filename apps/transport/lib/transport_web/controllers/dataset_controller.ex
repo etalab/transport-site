@@ -22,6 +22,7 @@ defmodule TransportWeb.DatasetController do
     conn
     |> assign(:datasets, get_datasets(params))
     |> assign(:types, get_types(params))
+    |> assign(:licences, get_licences(params))
     |> assign(:number_realtime_datasets, get_realtime_count(params))
     |> assign(:order_by, params["order_by"])
     |> assign(:q, Map.get(params, "q"))
@@ -198,6 +199,22 @@ defmodule TransportWeb.DatasetController do
     |> select([r, d], %{nom: r.nom, id: r.id, count: count(d.id, :distinct)})
     |> order_by([r], r.nom)
     |> Repo.all()
+  end
+
+  @spec get_licences(map()) :: [%{licence: binary(), count: integer}]
+  def get_licences(params) do
+    params
+    |> clean_datasets_query("licence")
+    |> exclude(:order_by)
+    |> group_by([d], fragment("cleaned_licence"))
+    |> select([d], %{
+      licence:
+        fragment("case when licence in ('fr-lo', 'lov2') then 'licence-ouverte' else licence end as cleaned_licence"),
+      count: count(d.id)
+    })
+    |> Repo.all()
+    # Licence ouverte should be first
+    |> Enum.sort_by(&Map.get(%{"licence-ouverte" => 1}, &1.licence, 0), &>=/2)
   end
 
   @spec get_types(map()) :: [%{type: binary(), msg: binary(), count: integer}]
