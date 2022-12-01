@@ -116,7 +116,7 @@ msgid "Declaration of conformity"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "GTFS-RT vehicle positions"
+msgid "Exploration map"
 msgstr ""
 
 #, elixir-autogen, elixir-format
