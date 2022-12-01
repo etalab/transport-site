@@ -41,7 +41,7 @@ msgstr "jeu de données"
 
 #, elixir-autogen, elixir-format
 msgid "Park and ride database"
-msgstr "P+R issus de la Base Nationale des Lieux de Stationnement"
+msgstr "Base nationale des parcs relais"
 
 #, elixir-autogen, elixir-format
 msgid "park-and-ride-explanation"
