@@ -15,6 +15,15 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
     :stop_ref,
     :line_refs
   ]
+  @default_query_template "CheckStatus"
+  @supported_query_templates [
+    @default_query_template,
+    "LinesDiscovery",
+    "StopPointsDiscovery",
+    "GetEstimatedTimetable",
+    "GetGeneralMessage",
+    "GetStopMonitoring"
+  ]
 
   def mount(_params, %{"locale" => locale} = _session, socket) do
     Gettext.put_locale(locale)
@@ -27,15 +36,8 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
       siri_query: nil,
       siri_response_status_code: nil,
       siri_response_error: nil,
-      query_template: "CheckStatus",
-      query_template_choices: [
-        "CheckStatus",
-        "LinesDiscovery",
-        "StopPointsDiscovery",
-        "GetEstimatedTimetable",
-        "GetGeneralMessage",
-        "GetStopMonitoring"
-      ],
+      query_template: @default_query_template,
+      query_template_choices: @supported_query_templates,
       line_refs: "",
       stop_ref: ""
     }
@@ -45,7 +47,13 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
   Given a map with string keys, extract a map with atom keys with only the supported parameters.
   """
   def extract_allowed_parameters(params) do
-    Map.new(@supported_url_parameters, fn p -> {p, params[Atom.to_string(p)]} end)
+    output = Map.new(@supported_url_parameters, fn p -> {p, params[Atom.to_string(p)]} end)
+    # allow-list for QueryTemplate
+    if output[:query_template] in @supported_query_templates do
+      output
+    else
+      output |> Map.replace!(:query_template, @default_query_template)
+    end
   end
 
   # called at mount to hydrate our assigns based on supported url parameters

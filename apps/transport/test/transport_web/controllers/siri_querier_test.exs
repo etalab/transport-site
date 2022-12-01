@@ -129,11 +129,10 @@ defmodule TransportWeb.SIRIQuerierLiveTest do
       |> get(live_path(conn, SIRIQuerierLive))
       |> live()
 
-    # NOTE: for some reason, this assertion does not pass anymore. Keeping the code for later investigation.
-    # By default, we're on CheckStatus
-    # assert view
-    #        |> element("select option:checked")
-    #        |> render() =~ "CheckStatus"
+    # By default, we must be on CheckStatus
+    assert view
+           |> element("select option:checked")
+           |> render() =~ "CheckStatus"
 
     # And the user cannot input line references
     refute view |> has_element?("#siri_querier_line_refs")
