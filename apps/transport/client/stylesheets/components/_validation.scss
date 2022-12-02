@@ -118,4 +118,8 @@ details .button {
 
 details > code {
   width: 100%;
+
+  &.inline {
+    display: inline;
+  }
 }
