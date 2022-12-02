@@ -40,15 +40,14 @@ defmodule Transport.Jobs.DatasetHistoryJob do
     %DB.DatasetHistory{
       dataset_id: dataset_id,
       dataset_datagouv_id: dataset.datagouv_id,
-      timestamp: DateTime.utc_now(),
       payload: %{"licence" => dataset.licence, "type" => dataset.type, "slug" => dataset.slug},
       dataset_history_resources:
         dataset.resources
         |> Enum.map(fn resource ->
-          resource_history_id =
+          {resource_history_id, last_up_to_date_at} =
             case resource.resource_history do
-              [%{id: id}] -> id
-              [] -> nil
+              [%{id: id, last_up_to_date_at: last_up_to_date_at}] -> {id, last_up_to_date_at}
+              [] -> {nil, nil}
             end
 
           resource_metadata_id =
@@ -57,10 +56,18 @@ defmodule Transport.Jobs.DatasetHistoryJob do
               [] -> nil
             end
 
+          resource_validation_id =
+            case resource.validations do
+              [%{id: id}] -> id
+              [] -> nil
+            end
+
           %DB.DatasetHistoryResources{
             resource_id: resource.id,
             resource_history_id: resource_history_id,
+            resource_history_last_up_to_date_at: last_up_to_date_at,
             resource_metadata_id: resource_metadata_id,
+            validation_id: resource_validation_id,
             payload: %{
               url: resource.url,
               latest_url: resource.latest_url,
@@ -86,14 +93,19 @@ defmodule Transport.Jobs.DatasetHistoryJob do
       on: rm.resource_id == r.id,
       as: :resource_metadata
     )
+    |> join(:left, [resource: r], rv in DB.MultiValidation,
+      on: rv.resource_id == r.id,
+      as: :resource_validation
+    )
     |> distinct([resource: r], r.id)
-    |> order_by([resource: r, resource_history: rh, resource_metadata: rm],
+    |> order_by([resource: r, resource_history: rh, resource_metadata: rm, resource_validation: rv],
       asc: r.id,
       desc: rh.inserted_at,
-      desc: rm.inserted_at
+      desc: rm.inserted_at,
+      desc: rv.inserted_at
     )
-    |> preload([resource: r, resource_history: rh, resource_metadata: rm],
-      resources: {r, resource_history: rh, resource_metadata: rm}
+    |> preload([resource: r, resource_history: rh, resource_metadata: rm, resource_validation: rv],
+      resources: {r, resource_history: rh, resource_metadata: rm, validations: rv}
     )
     |> DB.Repo.one!()
   end
