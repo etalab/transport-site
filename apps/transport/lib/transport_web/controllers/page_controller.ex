@@ -74,6 +74,27 @@ defmodule TransportWeb.PageController do
     |> render("infos_producteurs.html")
   end
 
+  def robots_txt(conn, _params) do
+    # See http://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
+    content =
+      if Application.fetch_env!(:transport, :app_env) == :staging do
+        """
+        User-agent: *
+        Disallow: /
+        """
+      else
+        """
+        User-agent: *
+        Allow: /
+        Disallow: /backoffice/
+        Disallow: /validation/*
+        Disallow: /login/*
+        """
+      end
+
+    conn |> text(content)
+  end
+
   def security_txt(conn, _params) do
     expires = DateTime.utc_now() |> DateTime.add(1 * 24 * 3600 * 7, :second) |> DateTime.to_iso8601()
 
