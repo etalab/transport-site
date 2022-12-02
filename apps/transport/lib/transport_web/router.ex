@@ -47,6 +47,7 @@ defmodule TransportWeb.Router do
     get("/real_time", PageController, :real_time)
     get("/accessibilite", PageController, :accessibility)
     get("/infos_producteurs", PageController, :infos_producteurs)
+    get("/robots.txt", PageController, :robots_txt)
     get("/.well-known/security.txt", PageController, :security_txt)
 
     scope "/espace_producteur" do
