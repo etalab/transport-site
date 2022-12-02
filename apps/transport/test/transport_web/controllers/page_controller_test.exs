@@ -146,8 +146,15 @@ defmodule TransportWeb.PageControllerTest do
     conn |> get("/.well-known/security.txt") |> text_response(200)
   end
 
-  test "robots.txt page", %{conn: conn} do
-    conn |> get("/robots.txt") |> text_response(200)
+  describe "robots.txt" do
+    test "it works", %{conn: conn} do
+      refute conn |> get("/robots.txt") |> text_response(200) =~ ~r(Disallow: \/$)
+    end
+
+    test "it works in staging with a different content", %{conn: conn} do
+      AppConfigHelper.change_app_config_temporarily(:transport, :app_env, :staging)
+      assert conn |> get("/robots.txt") |> text_response(200) =~ ~r(Disallow: \/$)
+    end
   end
 
   test "accessibility page", %{conn: conn} do
