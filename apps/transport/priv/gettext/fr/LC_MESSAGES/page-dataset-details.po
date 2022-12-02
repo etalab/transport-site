@@ -555,5 +555,5 @@ msgid "Real-time feeds"
 msgstr "Flux temps réel"
 
 #, elixir-autogen, elixir-format
-msgid "Static resources"
-msgstr "Ressources statiques"
+msgid "Theoretical data"
+msgstr "Données théoriques"
