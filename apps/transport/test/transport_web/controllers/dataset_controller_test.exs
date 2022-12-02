@@ -201,8 +201,10 @@ defmodule TransportWeb.DatasetControllerTest do
              "Ce jeu de données a été archivé de data.gouv.fr"
   end
 
-  test "redirects and updates the slug when it changed on data.gouv.fr", %{conn: conn} do
-    dataset = insert(:dataset, is_active: true, slug: "old_slug", datagouv_id: datagouv_id = Ecto.UUID.generate())
+  test "redirects when the slug changed on data.gouv.fr", %{conn: conn} do
+    dataset =
+      insert(:dataset, is_active: true, slug: old_slug = "old_slug", datagouv_id: datagouv_id = Ecto.UUID.generate())
+
     new_slug = "new_slug"
     url = "https://demo.data.gouv.fr/api/1/datasets/#{new_slug}/"
 
@@ -213,9 +215,9 @@ defmodule TransportWeb.DatasetControllerTest do
 
     {path, _} = with_log(fn -> conn |> get(dataset_path(conn, :details, new_slug)) |> redirected_to(302) end)
 
-    assert path == dataset_path(conn, :details, new_slug)
+    assert path == dataset_path(conn, :details, old_slug)
 
-    assert %Dataset{slug: ^new_slug} = DB.Repo.reload!(dataset)
+    assert %Dataset{slug: ^old_slug} = DB.Repo.reload!(dataset)
   end
 
   test "404 when data.gouv.fr's API returns a 404", %{conn: conn} do
