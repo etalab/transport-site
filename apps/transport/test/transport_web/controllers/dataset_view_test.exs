@@ -171,6 +171,14 @@ defmodule TransportWeb.DatasetViewTest do
     end
   end
 
+  test "order_resources_by_format does not reorder GTFS and NeTEx" do
+    gtfs = insert(:resource, format: "GTFS")
+    netex = insert(:resource, format: "NeTEx")
+    resources = [gtfs, netex]
+
+    assert resources == order_resources_by_format(resources)
+  end
+
   defp to_html(%Phoenix.LiveView.Rendered{} = rendered) do
     rendered |> Phoenix.HTML.Safe.to_iodata() |> IO.iodata_to_binary()
   end
