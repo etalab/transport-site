@@ -22,10 +22,12 @@ defmodule Transport.Test.Transport.Jobs.DatasetHistoryJobTest do
     insert(:resource_history, resource_id: r1.id)
     %{id: rh_id_latest} = insert(:resource_history, resource_id: r1.id)
 
-    # a resource with multiple resource metadata
+    # a resource with multiple resource metadata and validations
     r2 = insert(:resource, dataset_id: dataset.id, url: "url2")
     insert(:resource_metadata, resource_id: r2.id)
     %{id: rm_id_latest} = insert(:resource_metadata, resource_id: r2.id)
+    insert(:multi_validation, resource_id: r2.id)
+    %{id: rmv_id_latest} = insert(:multi_validation, resource_id: r2.id)
 
     # just a resource
     r3 = insert(:resource, dataset_id: dataset.id, url: "url3")
@@ -47,13 +49,27 @@ defmodule Transport.Test.Transport.Jobs.DatasetHistoryJobTest do
     assert Enum.count(dataset_history_resources) == 3
 
     dhr1 = dataset_history_resources |> Enum.find(&(&1.resource_id == r1.id))
-    assert %{resource_history_id: ^rh_id_latest, resource_metadata_id: nil, payload: %{"url" => "url1"}} = dhr1
+
+    assert %{
+             resource_history_id: ^rh_id_latest,
+             resource_metadata_id: nil,
+             validation_id: nil,
+             payload: %{"url" => "url1"}
+           } = dhr1
 
     dhr2 = dataset_history_resources |> Enum.find(&(&1.resource_id == r2.id))
-    assert %{resource_history_id: nil, resource_metadata_id: ^rm_id_latest, payload: %{"url" => "url2"}} = dhr2
+
+    assert %{
+             resource_history_id: nil,
+             resource_metadata_id: ^rm_id_latest,
+             validation_id: ^rmv_id_latest,
+             payload: %{"url" => "url2"}
+           } = dhr2
 
     dhr3 = dataset_history_resources |> Enum.find(&(&1.resource_id == r3.id))
-    assert %{resource_history_id: nil, resource_metadata_id: nil, payload: %{"url" => "url3"}} = dhr3
+
+    assert %{resource_history_id: nil, resource_metadata_id: nil, validation_id: nil, payload: %{"url" => "url3"}} =
+             dhr3
   end
 
   test "enqueue all dataset history jobs" do
