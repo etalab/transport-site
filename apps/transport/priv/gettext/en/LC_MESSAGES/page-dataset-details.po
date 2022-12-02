@@ -555,5 +555,5 @@ msgid "Real-time feeds"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Theoretical data"
+msgid "Static data"
 msgstr ""

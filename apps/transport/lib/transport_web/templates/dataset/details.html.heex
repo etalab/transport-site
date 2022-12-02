@@ -101,7 +101,7 @@
         resources: gtfs_official_resources(@dataset) ++ netex_official_resources(@dataset),
         resources_related_files: @resources_related_files,
         dataset: @dataset,
-        title: dgettext("page-dataset-details", "Theoretical data")
+        title: dgettext("page-dataset-details", "Static data")
       ) %>
       <%= render(TransportWeb.DatasetView, "_resources_container.html",
         conn: @conn,
