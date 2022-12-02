@@ -9,7 +9,10 @@ defmodule Transport.Jobs.DatasetHistoryDispatcherJob do
   @impl Oban.Worker
   def perform(_job) do
     DB.Dataset.base_query()
-    |> Enum.map(fn dataset -> %{dataset_id: dataset.id} |> Transport.Jobs.DatasetHistoryJob.new() end)
+    |> DB.Repo.all()
+    |> Enum.map(fn dataset ->
+      %{dataset_id: dataset.id} |> Transport.Jobs.DatasetHistoryJob.new()
+    end)
     |> Oban.insert_all()
 
     :ok
@@ -20,7 +23,11 @@ defmodule Transport.Jobs.DatasetHistoryJob do
   @moduledoc """
   Job historicising a single dataset
   """
-  use Oban.Worker, unique: [period: 60 * 60 * 5, fields: [:args, :queue, :worker]], tags: ["history"], max_attempts: 3
+  use Oban.Worker,
+    unique: [period: 60 * 60 * 5, fields: [:args, :queue, :worker]],
+    tags: ["history"],
+    max_attempts: 3
+
   require Logger
   import Ecto.Query
 
@@ -71,8 +78,14 @@ defmodule Transport.Jobs.DatasetHistoryJob do
     DB.Dataset.base_query()
     |> where([dataset: d], d.id == ^dataset_id)
     |> DB.Resource.join_dataset_with_resource()
-    |> join(:left, [resource: r], rh in DB.ResourceHistory, on: rh.resource_id == r.id, as: :resource_history)
-    |> join(:left, [resource: r], rm in DB.ResourceMetadata, on: rm.resource_id == r.id, as: :resource_metadata)
+    |> join(:left, [resource: r], rh in DB.ResourceHistory,
+      on: rh.resource_id == r.id,
+      as: :resource_history
+    )
+    |> join(:left, [resource: r], rm in DB.ResourceMetadata,
+      on: rm.resource_id == r.id,
+      as: :resource_metadata
+    )
     |> distinct([resource: r], r.id)
     |> order_by([resource: r, resource_history: rh, resource_metadata: rm],
       asc: r.id,
