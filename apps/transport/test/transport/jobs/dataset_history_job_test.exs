@@ -55,4 +55,16 @@ defmodule Transport.Test.Transport.Jobs.DatasetHistoryJobTest do
     dhr3 = dataset_history_resources |> Enum.find(&(&1.resource_id == r3.id))
     assert %{resource_history_id: nil, resource_metadata_id: nil, payload: %{"url" => "url3"}} = dhr3
   end
+
+  test "enqueue all dataset history jobs" do
+    %{id: id_1} = insert(:dataset)
+    %{id: id_2} = insert(:dataset)
+    %{id: id_3} = insert(:dataset, is_active: false)
+
+    Transport.Jobs.DatasetHistoryDispatcherJob.perform(%{})
+
+    assert_enqueued([worker: Transport.Jobs.DatasetHistoryJob, args: %{"dataset_id" => id_1}], 50)
+    assert_enqueued([worker: Transport.Jobs.DatasetHistoryJob, args: %{"dataset_id" => id_2}], 50)
+    refute_enqueued([worker: Transport.Jobs.DatasetHistoryJob, args: %{"dataset_id" => id_3}], 50)
+  end
 end
