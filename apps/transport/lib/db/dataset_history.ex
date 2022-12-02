@@ -6,7 +6,7 @@ defmodule DB.DatasetHistory do
   use TypedEctoSchema
 
   typed_schema "dataset_history" do
-    belongs_to(:dataset, Dataset)
+    belongs_to(:dataset, DB.Dataset)
     field(:dataset_datagouv_id, :binary)
     field(:payload, :map)
     has_many(:dataset_history_resources, DB.DatasetHistoryResources)
