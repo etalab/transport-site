@@ -95,26 +95,19 @@
       </section>
     <% end %>
     <section id="dataset-resources" class="pt-48">
-      <% gtfs_official_resources = gtfs_official_resources(@dataset) %>
       <%= render(TransportWeb.DatasetView, "_resources_container.html",
         conn: @conn,
         resources_infos: @resources_infos,
-        resources: gtfs_official_resources,
+        resources: gtfs_official_resources(@dataset) ++ netex_official_resources(@dataset),
         resources_related_files: @resources_related_files,
         dataset: @dataset,
-        title: dgettext("page-dataset-details", "GTFS resources")
+        title: dgettext("page-dataset-details", "Static resources")
       ) %>
       <%= render(TransportWeb.DatasetView, "_resources_container.html",
         conn: @conn,
         resources_infos: @resources_infos,
         resources: real_time_official_resources(@dataset),
-        title: dgettext("page-dataset-details", "Real time resources")
-      ) %>
-      <%= render(TransportWeb.DatasetView, "_resources_container.html",
-        conn: @conn,
-        resources_infos: @resources_infos,
-        resources: netex_official_resources(@dataset),
-        title: dgettext("page-dataset-details", "NeTEx resources")
+        title: dgettext("page-dataset-details", "Real-time feeds")
       ) %>
       <%= render(TransportWeb.DatasetView, "_resources_container.html",
         conn: @conn,
