@@ -10,7 +10,7 @@ defmodule DB.Repo.Migrations.CreateDatasetHistory do
       timestamps([type: :utc_datetime_usec])
     end
 
-    create_if_not_exists(index(:dataset_history, [:dataset_id, :dataset_datagouv_id]))
+    create_if_not_exists(index(:dataset_history, [:dataset_id]))
 
     create table(:dataset_history_resources) do
       add :dataset_history_id, references(:dataset_history)
