@@ -315,3 +315,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "from"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "doc-eu-formats"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "netex-siri-validator"
+msgstr ""
