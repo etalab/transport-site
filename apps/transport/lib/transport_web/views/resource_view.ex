@@ -248,20 +248,16 @@ defmodule TransportWeb.ResourceView do
       end)
     end
 
-    assigns =
-      assign(conn.assigns, %{
-        network_data: transform_data.(conn.assigns[:networks_start_end_dates]),
-        end_date_class: end_date_class.(end_date)
-      })
+    assigns = Map.put(assigns, :network_data, transform_data.(assigns[:networks_start_end_dates]))
 
     ~H"""
     <div class="networks-start-end">
-      <%= for {network, %{"start_date" => start_date, "end_date" => end_date, "end_date_class" => end_date_class}} <- @network_data do %>
+      <%= for {network, %{"start_date" => start_date, "end_date" => end_date, "end_date_class" => class}} <- @network_data do %>
         <span><strong><%= network %></strong></span>
         <span><%= dgettext("validations", "from") %></span>
         <span><%= Shared.DateTimeDisplay.format_date(start_date, @locale) %></span>
         <span><%= dgettext("validations", "to") %></span>
-        <span class={end_date_class}>
+        <span class={class}>
           <%= Shared.DateTimeDisplay.format_date(end_date, @locale) %>
         </span>
       <% end %>
