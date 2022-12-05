@@ -224,21 +224,6 @@ defmodule TransportWeb.ResourceView do
   end
 
   def networks_start_end_dates(assigns) do
-    transform_data = fn networks_start_end_dates ->
-      networks_start_end_dates
-      |> Enum.into([])
-      |> Enum.map(fn {network, %{"start_date" => start_date, "end_date" => end_date}} ->
-        {network,
-         %{
-           "start_date" => Date.from_iso8601!(start_date),
-           "end_date" => Date.from_iso8601!(end_date)
-         }}
-      end)
-      |> Enum.sort(fn {_, %{"end_date" => end_date_1}}, {_, %{"end_date" => end_date_2}} ->
-        Date.compare(end_date_1, end_date_2) == :lt
-      end)
-    end
-
     end_date_class = fn end_date ->
       case Date.diff(end_date, Date.utc_today()) do
         n when n > 7 -> "valid"
@@ -247,14 +232,36 @@ defmodule TransportWeb.ResourceView do
       end
     end
 
+    transform_data = fn networks_start_end_dates ->
+      networks_start_end_dates
+      |> Enum.into([])
+      |> Enum.map(fn {network, %{"start_date" => start_date, "end_date" => end_date}} ->
+        {network,
+         %{
+           "start_date" => Date.from_iso8601!(start_date),
+           "end_date" => end_date = Date.from_iso8601!(end_date),
+           "end_date_class" => end_date_class.(end_date)
+         }}
+      end)
+      |> Enum.sort(fn {_, %{"end_date" => end_date_1}}, {_, %{"end_date" => end_date_2}} ->
+        Date.compare(end_date_1, end_date_2) == :lt
+      end)
+    end
+
+    assigns =
+      assign(conn.assigns, %{
+        network_data: transform_data.(conn.assigns[:networks_start_end_dates]),
+        end_date_class: end_date_class.(end_date)
+      })
+
     ~H"""
     <div class="networks-start-end">
-      <%= for {network, %{"start_date" => start_date, "end_date" => end_date}} <- transform_data.(@networks_start_end_dates) do %>
+      <%= for {network, %{"start_date" => start_date, "end_date" => end_date, "end_date_class" => end_date_class}} <- @network_data do %>
         <span><strong><%= network %></strong></span>
         <span><%= dgettext("validations", "from") %></span>
         <span><%= Shared.DateTimeDisplay.format_date(start_date, @locale) %></span>
         <span><%= dgettext("validations", "to") %></span>
-        <span class={end_date_class.(end_date)}>
+        <span class={end_date_class}>
           <%= Shared.DateTimeDisplay.format_date(end_date, @locale) %>
         </span>
       <% end %>
