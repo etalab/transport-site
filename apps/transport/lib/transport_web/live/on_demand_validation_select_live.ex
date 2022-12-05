@@ -44,11 +44,16 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
   def socket_data(socket, data \\ nil) do
     socket = socket |> assign(data || %{})
 
-    socket |> assign(input_type: determine_input_type(form_value(socket, :type)))
+    socket
+    |> assign(
+      input_type: determine_input_type(form_value(socket, :type)),
+      type: form_value(socket, :type)
+    )
   end
 
   def determine_input_type(type) when type in ["gbfs"], do: "link"
   def determine_input_type(type) when type in ["gtfs-rt"], do: "gtfs-rt"
+  def determine_input_type(type) when type in ["netex"], do: nil
   def determine_input_type(_), do: "file"
 
   def handle_event("form_changed", %{"upload" => params, "_target" => target}, socket) do

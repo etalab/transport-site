@@ -44,6 +44,18 @@ defmodule TransportWeb.ValidationControllerTest do
       assert view |> has_element?("input[name='upload[feed_url]']")
     end
 
+    test "no inputs but explanations when selecting NeTEx", %{conn: conn} do
+      Transport.Shared.Schemas.Mock |> expect(:transport_schemas, 2, fn -> %{} end)
+      {:ok, view, _html} = conn |> get(live_path(conn, OnDemandValidationSelectLive)) |> live()
+
+      render_change(view, "form_changed", %{"upload" => %{"type" => "netex"}, "_target" => ["upload", "type"]})
+      assert_patched(view, live_path(conn, OnDemandValidationSelectLive, type: "netex"))
+      refute view |> has_element?("input[name='upload[url]']")
+      refute view |> has_element?("input[name='upload[file]']")
+      refute view |> has_element?("input[type='submit']")
+      assert view |> has_element?("#netex-explanations")
+    end
+
     test "takes into account query params", %{conn: conn} do
       Transport.Shared.Schemas.Mock |> expect(:transport_schemas, 2, fn -> %{} end)
 
