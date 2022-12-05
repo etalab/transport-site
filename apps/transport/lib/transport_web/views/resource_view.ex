@@ -236,10 +236,12 @@ defmodule TransportWeb.ResourceView do
       networks_start_end_dates
       |> Enum.into([])
       |> Enum.map(fn {network, %{"start_date" => start_date, "end_date" => end_date}} ->
+        end_date = Date.from_iso8601!(end_date)
+
         {network,
          %{
            "start_date" => Date.from_iso8601!(start_date),
-           "end_date" => end_date = Date.from_iso8601!(end_date),
+           "end_date" => end_date,
            "end_date_class" => end_date_class.(end_date)
          }}
       end)
