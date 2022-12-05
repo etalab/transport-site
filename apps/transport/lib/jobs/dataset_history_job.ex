@@ -93,6 +93,7 @@ defmodule Transport.Jobs.DatasetHistoryJob do
       on: rm.resource_id == r.id,
       as: :resource_metadata
     )
+    # could be problematic if multiple validators are used for the same real time resource
     |> join(:left, [resource: r], rv in DB.MultiValidation,
       on: rv.resource_id == r.id,
       as: :resource_validation
