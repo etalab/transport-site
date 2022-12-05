@@ -367,8 +367,8 @@ msgid "Learn more"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "We test this resource download availability every hour by making an HTTP <code>HEAD</code> request with a timeout of 5 seconds. If we detect a downtime, we perform subsequent tests every 10 minutes, until the resource is back online."
-msgstr ""
+msgid "availability-test-explanations"
+msgstr "We test this resource download availability every hour by making an HTTP <code class=\"inline\">HEAD</code> request with a timeout of 5 seconds. If we detect a downtime, we perform subsequent tests every 10 minutes, until the resource is back online.<br><br>For SIRI feeds, we perform a <code class=\"inline\">GET</code> request: a 401 status code is considered successful."
 
 #, elixir-autogen, elixir-format
 msgid "last content modification"
