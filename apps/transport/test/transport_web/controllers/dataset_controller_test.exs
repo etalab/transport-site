@@ -3,6 +3,7 @@ defmodule TransportWeb.DatasetControllerTest do
   use TransportWeb.ExternalCase
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
   import DB.Factory
+  import ExUnit.CaptureLog
 
   import Mock
   import Mox
@@ -198,6 +199,48 @@ defmodule TransportWeb.DatasetControllerTest do
 
     assert conn |> get(dataset_path(conn, :details, slug)) |> html_response(200) =~
              "Ce jeu de données a été archivé de data.gouv.fr"
+  end
+
+  test "redirects when the slug changed on data.gouv.fr", %{conn: conn} do
+    dataset =
+      insert(:dataset, is_active: true, slug: old_slug = "old_slug", datagouv_id: datagouv_id = Ecto.UUID.generate())
+
+    new_slug = "new_slug"
+    url = "https://demo.data.gouv.fr/api/1/datasets/#{new_slug}/"
+
+    Transport.HTTPoison.Mock
+    |> expect(:request, fn :get, ^url, "", [], [follow_redirect: true] ->
+      {:ok, %HTTPoison.Response{status_code: 200, body: Jason.encode!(%{id: datagouv_id, slug: new_slug})}}
+    end)
+
+    {path, _} = with_log(fn -> conn |> get(dataset_path(conn, :details, new_slug)) |> redirected_to(302) end)
+
+    assert path == dataset_path(conn, :details, old_slug)
+
+    assert %Dataset{slug: ^old_slug} = DB.Repo.reload!(dataset)
+  end
+
+  test "404 when data.gouv.fr's API returns a 404", %{conn: conn} do
+    insert(:dataset, is_active: true, slug: "old_slug")
+    slug_404 = "slug_404"
+    url = "https://demo.data.gouv.fr/api/1/datasets/#{slug_404}/"
+
+    Transport.HTTPoison.Mock
+    |> expect(:request, fn :get, ^url, "", [], [follow_redirect: true] ->
+      {:ok, %HTTPoison.Response{status_code: 404, body: ""}}
+    end)
+
+    with_log(fn -> conn |> get(dataset_path(conn, :details, slug_404)) |> html_response(404) end)
+  end
+
+  test "dataset#details with an ID or datagouv_id redirects to slug", %{conn: conn} do
+    dataset = insert(:dataset, is_active: true, slug: Ecto.UUID.generate(), datagouv_id: Ecto.UUID.generate())
+
+    [dataset.id, dataset.datagouv_id]
+    |> Enum.each(fn param ->
+      {path, _} = with_log(fn -> conn |> get(dataset_path(conn, :details, param)) |> redirected_to(302) end)
+      assert path == dataset_path(conn, :details, dataset.slug)
+    end)
   end
 
   test "gtfs-rt entities" do
