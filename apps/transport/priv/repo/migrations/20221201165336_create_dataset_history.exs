@@ -10,6 +10,8 @@ defmodule DB.Repo.Migrations.CreateDatasetHistory do
       timestamps([type: :utc_datetime_usec])
     end
 
+    create_if_not_exists(index(:dataset_history, [:dataset_id, :dataset_datagouv_id]))
+
     create table(:dataset_history_resources) do
       add :dataset_history_id, references(:dataset_history)
       add :resource_id, references(:resource, on_delete: :nothing)
@@ -19,5 +21,7 @@ defmodule DB.Repo.Migrations.CreateDatasetHistory do
       add :validation_id, references(:multi_validation, on_delete: :nothing)
       add :payload, :jsonb
     end
+
+    create_if_not_exists(index(:dataset_history_resources, [:dataset_history_id]))
   end
 end
