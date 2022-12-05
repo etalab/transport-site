@@ -319,7 +319,7 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "doc-eu-formats"
-msgstr "To access informations related to european standards, you can browse <a href=\"%{link}\" target=\"_blank\">our documentation</a>."
+msgstr "To access information related to European standards, you can browse <a href=\"%{link}\" target=\"_blank\">our documentation</a>."
 
 #, elixir-autogen, elixir-format
 msgid "netex-siri-validator"
