@@ -1,0 +1,45 @@
+defmodule TransportWeb.Backoffice.BrokenUrlsController do
+  use TransportWeb, :controller
+  import Ecto.Query
+
+  def index(conn, _params) do
+    urls_query =
+      DB.DatasetHistory
+      |> join(:left, [dh], dhr in DB.DatasetHistoryResources, on: dh.id == dhr.dataset_history_id)
+      |> group_by([dh], [dh.dataset_id, dh.inserted_at])
+      |> order_by([dh], asc: dh.dataset_id, desc: dh.inserted_at)
+      |> select([dh, dhr], %{
+        dataset_id: dh.dataset_id,
+        inserted_at: dh.inserted_at,
+        urls: fragment("array_agg(?.payload->>'url')", dhr)
+      })
+
+    previous_urls_query =
+      from(urls in subquery(urls_query))
+      |> windows([urls], w: [partition_by: urls.dataset_id, order_by: urls.inserted_at])
+      |> select([urls], %{
+        dataset_id: urls.dataset_id,
+        inserted_at: urls.inserted_at,
+        urls: urls.urls,
+        previous_urls: lag(urls.urls) |> over(:w)
+      })
+
+    broken_urls =
+      from(urls in subquery(previous_urls_query))
+      |> distinct([urls], urls.dataset_id)
+      |> select([urls], %{
+        dataset_id: urls.dataset_id,
+        inserted_at: urls.inserted_at,
+        urls: urls.urls,
+        previous_urls: urls.previous_urls,
+        disappeared_urls: fragment("not urls @> previous_urls"),
+        new_urls: fragment("not previous_urls @> urls")
+      })
+      |> order_by([urls], asc: urls.dataset_id, desc: urls.inserted_at)
+      |> where([urls], fragment("not urls @> previous_urls") and fragment("not previous_urls @> urls"))
+      |> DB.Repo.all()
+
+    conn
+    |> render("index.html", broken_urls: broken_urls)
+  end
+end
