@@ -316,3 +316,11 @@ msgstr "couverture calendaire par réseau"
 #, elixir-autogen, elixir-format
 msgid "from"
 msgstr "du"
+
+#, elixir-autogen, elixir-format
+msgid "doc-eu-formats"
+msgstr "Pour accéder aux ressources autour des normes européennes, vous pouvez consulter <a href=\"%{link}\" target=\"_blank\">notre documentation</a>."
+
+#, elixir-autogen, elixir-format
+msgid "netex-siri-validator"
+msgstr "Le projet européen DATA4PT assure aujourd'hui l'accompagnement au déploiement des normes européennes NeTEx et SIRI. Dans ce cadre, il est mis à disposition un outil de validation NeTEx <a href=\"%{link}\" target=\"_blank\">accessible en ligne</a>."
