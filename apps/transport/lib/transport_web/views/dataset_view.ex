@@ -447,7 +447,15 @@ defmodule TransportWeb.DatasetView do
     Enum.sort_by(resources, &(validations |> Map.get(&1.id) |> hd() |> get_metadata_info("end_date")), &>=/2)
   end
 
-  def order_resources_by_format(resources), do: resources |> Enum.sort_by(& &1.format, &>=/2)
+  def order_resources_by_format(resources) do
+    formats = resources |> Enum.map(& &1.format) |> MapSet.new()
+
+    if MapSet.equal?(formats, MapSet.new(["GTFS", "NeTEx"])) do
+      resources
+    else
+      resources |> Enum.sort_by(& &1.format, &>=/2)
+    end
+  end
 
   def documentation_url(%Resource{schema_name: schema_name, schema_version: schema_version}) do
     Transport.Shared.Schemas.documentation_url(schema_name, schema_version)

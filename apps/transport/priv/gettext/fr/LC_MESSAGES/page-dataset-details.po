@@ -175,14 +175,6 @@ msgid "Community resources"
 msgstr "Ressources communautaires"
 
 #, elixir-autogen, elixir-format
-msgid "GTFS resources"
-msgstr "Ressources GTFS"
-
-#, elixir-autogen, elixir-format
-msgid "NeTEx resources"
-msgstr "Ressources NeTEx"
-
-#, elixir-autogen, elixir-format
 msgid "Reuses"
 msgstr "Réutilisations"
 
@@ -463,10 +455,6 @@ msgid "Other datasets of %{name}"
 msgstr "Autres jeux de données de %{name}"
 
 #, elixir-autogen, elixir-format
-msgid "Real time resources"
-msgstr "Ressources temps réel"
-
-#, elixir-autogen, elixir-format
 msgid "Could not decode the GTFS-RT feed."
 msgstr "Impossible de décoder le flux GTFS-RT"
 
@@ -561,3 +549,11 @@ msgstr "Ce jeu de données a été archivé de data.gouv.fr le %{date}"
 #, elixir-autogen, elixir-format
 msgid "Try me!"
 msgstr "Essayez-moi !"
+
+#, elixir-autogen, elixir-format
+msgid "Real-time data"
+msgstr "Données temps réel"
+
+#, elixir-autogen, elixir-format
+msgid "Static data"
+msgstr "Données statiques"
