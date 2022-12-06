@@ -7,7 +7,7 @@ defmodule TransportWeb.Backoffice.BrokenUrlsController do
     |> render("index.html", broken_urls: broken_urls())
   end
 
-  def broken_urls() do
+  def broken_urls do
     urls_query =
       DB.DatasetHistory
       |> join(:left, [dh], dhr in DB.DatasetHistoryResources, on: dh.id == dhr.dataset_history_id)
@@ -19,18 +19,22 @@ defmodule TransportWeb.Backoffice.BrokenUrlsController do
         urls: fragment("array_agg(?.payload->>'download_url')", dhr)
       })
 
+    q = from(urls in subquery(urls_query))
+
     previous_urls_query =
-      from(urls in subquery(urls_query))
+      q
       |> windows([urls], w: [partition_by: urls.dataset_id, order_by: urls.inserted_at])
       |> select([urls], %{
         dataset_id: urls.dataset_id,
         inserted_at: urls.inserted_at,
         urls: urls.urls,
-        previous_urls: lag(urls.urls) |> over(:w)
+        previous_urls: urls.urls |> lag() |> over(:w)
       })
 
+    q = from(urls in subquery(previous_urls_query))
+
     broken_urls =
-      from(urls in subquery(previous_urls_query))
+      q
       |> distinct([urls], urls.dataset_id)
       |> select([urls], %{
         dataset_id: urls.dataset_id,
@@ -43,7 +47,9 @@ defmodule TransportWeb.Backoffice.BrokenUrlsController do
       |> order_by([urls], desc: urls.inserted_at, asc: urls.dataset_id)
       |> where([urls], fragment("not urls @> previous_urls") and fragment("not previous_urls @> urls"))
 
-    from(urls in subquery(broken_urls))
+    q = from(urls in subquery(broken_urls))
+
+    q
     |> order_by([urls], desc: urls.inserted_at)
     |> select([urls], urls)
     |> DB.Repo.all()
