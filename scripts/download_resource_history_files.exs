@@ -65,22 +65,61 @@ defmodule IngestResourceHistoryGTFSData do
     end
   end
 
-  def ingest!() do
-    Tooling.query()
-    # |> limit(50)
+  def ingest!(opts \\ []) do
+    query = Tooling.query()
+    limit = opts |> Keyword.get(:limit)
+    query = if limit, do: query |> limit(^limit), else: query
+
+    query
     |> DB.Repo.all()
     |> Enum.map(fn rh ->
-      Logger.info("Trying streaming...")
+      Logger.info("Processing resource_history_id=#{rh.id} (resource_id=#{rh.resource_id})")
       process(rh)
     end)
   end
 end
 
+Logger.configure(level: :info)
+
 # # create a local S3 copy (via MinIO) of each latest ResourceHistory file so
 # # that the production database dump can be used locally with a matching local S3 file
-SyncS3LatestResourceHistory.sync!(Path.expand("~/data"))
+# SyncS3LatestResourceHistory.sync!(Path.expand("~/data"))
 
-IngestResourceHistoryGTFSData.ingest!()
-|> IO.inspect(IEx.inspect_opts())
+# options = [limit: 25]
+options = []
 
-# TODO: handle deletion of duplicate (DELETE USING, CTE, or what is done in BLNC import)
+outcome = IngestResourceHistoryGTFSData.ingest!(options)
+
+result =
+  outcome
+  |> Enum.group_by(fn {k, v} -> k end, fn {k, v} -> v end)
+
+errors = result |> Map.get(:error, [])
+oks = result |> Map.get(:ok, [])
+
+IO.puts("""
+  Analysis
+  ========
+
+  Total: #{outcome |> Enum.count()}
+  Ok: #{oks |> Enum.count()}
+  Errors: #{errors |> Enum.count()}
+""")
+
+# keep the latest import for each ResourceHistory
+# TODO: only keep the latest import for each Resource
+
+Logger.info "Keeping one DataImport per ResourceHistory (deleting...)"
+
+# TODO: understand why deleting a DB.DataImport takes forever
+
+# DB.Repo.transaction(fn ->
+
+#   # TODO: use another technique, this is taking too much time as a grouped call.
+#   # DB.DataImport
+#   # |> join(:inner, [di], di2 in DB.DataImport, on: di2.resource_history_id == di.resource_history_id)
+#   # |> where([di, di2], di2.id > di.id)
+#   # |> DB.Repo.delete_all()
+# end, timeout: 120_000)
+
+Logger.info "Done!"
