@@ -57,6 +57,10 @@ defmodule IngestResourceHistoryGTFSData do
       {:ok, data_import_id}
     rescue
       e ->
+        # a quick way to satisfy our curiosity with regard to the errors
+        # later it will be better to keep a proper consolidated log so that
+        # we can inspect programmatically the outcome
+        IO.inspect(rh |> Map.take([:resource_id, :id, :datagouv_id]) |> Map.put(:error, e))
         {:error, e}
     end
   end
