@@ -596,6 +596,10 @@ defmodule Transport.ImportData do
   false
   iex> is_documentation?(%{"type" => "documentation", "format" => "docx"})
   true
+  iex> is_documentation?(nil)
+  false
+  iex> is_documentation?("pdf")
+  false
   """
   @spec is_documentation?(map() | binary() | nil) :: boolean()
   def is_documentation?(nil), do: false
