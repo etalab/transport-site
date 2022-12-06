@@ -175,14 +175,6 @@ msgid "Community resources"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "GTFS resources"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "NeTEx resources"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Reuses"
 msgstr ""
 
@@ -462,10 +454,6 @@ msgstr ""
 msgid "Other datasets of %{name}"
 msgstr ""
 
-#, elixir-autogen, elixir-format, fuzzy
-msgid "Real time resources"
-msgstr ""
-
 #, elixir-autogen, elixir-format
 msgid "Could not decode the GTFS-RT feed."
 msgstr ""
@@ -560,4 +548,12 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Try me!"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Real-time data"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Static data"
 msgstr ""
