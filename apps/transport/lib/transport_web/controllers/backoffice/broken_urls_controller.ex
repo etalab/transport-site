@@ -3,6 +3,11 @@ defmodule TransportWeb.Backoffice.BrokenUrlsController do
   import Ecto.Query
 
   def index(conn, _params) do
+    conn
+    |> render("index.html", broken_urls: broken_urls())
+  end
+
+  def broken_urls() do
     urls_query =
       DB.DatasetHistory
       |> join(:left, [dh], dhr in DB.DatasetHistoryResources, on: dh.id == dhr.dataset_history_id)
@@ -11,7 +16,7 @@ defmodule TransportWeb.Backoffice.BrokenUrlsController do
       |> select([dh, dhr], %{
         dataset_id: dh.dataset_id,
         inserted_at: dh.inserted_at,
-        urls: fragment("array_agg(?.payload->>'url')", dhr)
+        urls: fragment("array_agg(?.payload->>'download_url')", dhr)
       })
 
     previous_urls_query =
@@ -35,11 +40,12 @@ defmodule TransportWeb.Backoffice.BrokenUrlsController do
         disappeared_urls: fragment("not urls @> previous_urls"),
         new_urls: fragment("not previous_urls @> urls")
       })
-      |> order_by([urls], asc: urls.dataset_id, desc: urls.inserted_at)
+      |> order_by([urls], desc: urls.inserted_at, asc: urls.dataset_id)
       |> where([urls], fragment("not urls @> previous_urls") and fragment("not previous_urls @> urls"))
-      |> DB.Repo.all()
 
-    conn
-    |> render("index.html", broken_urls: broken_urls)
+    from(urls in subquery(broken_urls))
+    |> order_by([urls], desc: urls.inserted_at)
+    |> select([urls], urls)
+    |> DB.Repo.all()
   end
 end
