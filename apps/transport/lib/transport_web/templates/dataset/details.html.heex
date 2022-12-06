@@ -107,7 +107,7 @@
         conn: @conn,
         resources_infos: @resources_infos,
         resources: real_time_official_resources(@dataset),
-        title: dgettext("page-dataset-details", "Real-time feeds")
+        title: dgettext("page-dataset-details", "Real-time data")
       ) %>
       <%= render(TransportWeb.DatasetView, "_resources_container.html",
         conn: @conn,

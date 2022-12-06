@@ -551,7 +551,7 @@ msgid "Try me!"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Real-time feeds"
+msgid "Real-time data"
 msgstr ""
 
 #, elixir-autogen, elixir-format

@@ -551,9 +551,9 @@ msgid "Try me!"
 msgstr "Essayez-moi !"
 
 #, elixir-autogen, elixir-format
-msgid "Real-time feeds"
-msgstr "Flux temps réel"
+msgid "Real-time data"
+msgstr "Données temps réel"
 
 #, elixir-autogen, elixir-format
 msgid "Static data"
-msgstr "Données théoriques"
+msgstr "Données statiques"

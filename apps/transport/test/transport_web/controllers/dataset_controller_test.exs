@@ -137,7 +137,7 @@ defmodule TransportWeb.DatasetControllerTest do
     set_empty_mocks()
 
     conn = conn |> get(dataset_path(conn, :details, slug))
-    assert conn |> html_response(200) =~ "Flux temps réel"
+    assert conn |> html_response(200) =~ "Données temps réel"
   end
 
   test "ODbL licence with specific conditions", %{conn: conn} do
