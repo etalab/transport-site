@@ -108,6 +108,14 @@ defmodule DB.Factory do
     %DB.ResourceMetadata{}
   end
 
+  def dataset_history_factory do
+    %DB.DatasetHistory{}
+  end
+
+  def dataset_history_resources_factory do
+    %DB.DatasetHistoryResources{}
+  end
+
   # Non-Ecto stuff, for now kept here for convenience
 
   def datagouv_api_get_factory do
