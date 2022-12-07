@@ -204,3 +204,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Archived"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Changements d'URLs stables"
+msgstr ""

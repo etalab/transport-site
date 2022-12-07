@@ -596,13 +596,14 @@ defmodule Transport.ImportData do
   false
   iex> is_documentation?(%{"type" => "documentation", "format" => "docx"})
   true
+  iex> is_documentation?(nil)
+  false
+  iex> is_documentation?("pdf")
+  false
   """
-  @spec is_documentation?(map() | binary()) :: boolean()
-  def is_documentation?(str) when is_binary(str), do: false
-
-  def is_documentation?(%{} = params) do
-    Map.get(params, "type") == "documentation"
-  end
+  @spec is_documentation?(any()) :: boolean()
+  def is_documentation?(%{"type" => "documentation"}), do: true
+  def is_documentation?(_), do: false
 
   @doc """
   Determines if a format is likely a documentation format.
