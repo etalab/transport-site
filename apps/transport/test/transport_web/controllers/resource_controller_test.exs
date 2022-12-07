@@ -22,6 +22,7 @@ defmodule TransportWeb.ResourceControllerTest do
           %Resource{
             url: "https://link.to/angers.zip",
             datagouv_id: "1",
+            format: "GTFS",
             title: "GTFS",
             description: "Une _très_ belle ressource"
           },
