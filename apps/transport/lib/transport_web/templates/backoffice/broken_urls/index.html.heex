@@ -1,11 +1,11 @@
 <div class="container pt-48 pb-24">
-  <h1>Détection de changements d'urls stables</h1>
-  <p>Voici la liste des derniers changements d'urls détectés sur les datasets référencés par le PAN.</p>
+  <h1>Détection de changements d'URLs stables</h1>
+  <p>Voici la liste des derniers changements d'URLs détectés sur les jeux de données référencés par le PAN.</p>
   <p>
-    Apparaissent ici les datasets pour lesquels sont simultanément détectées une suppression d'url existante et l'apparition d'une nouvelle url, ce qui laisse penser qu'une url vient d'être modifiée.
+    Apparaissent ici les jeux de données pour lesquels sont simultanément détectées une suppression d'URL existante et l'apparition d'une nouvelle URL, ce qui laisse penser qu'une URL vient d'être modifiée.
   </p>
   <p>
-    Les urls que nous surveillons sont les urls que nous proposons au téléchargement sur notre page dataset, et sont donc celles que nous considérons comme étant les plus stables.
+    Les URLs que nous surveillons sont les URLs que nous proposons au téléchargement sur notre page d'un jeu de donnée, et sont donc celles que nous considérons comme étant les plus stables.
   </p>
 </div>
 
@@ -14,16 +14,18 @@
     <table class="table">
       <thead>
         <tr>
-          <th>dataset_id</th>
-          <th>change detected at</th>
-          <th>deleted urls</th>
-          <th>new urls</th>
+          <th>Jeu de données</th>
+          <th>Détection du changement</th>
+          <th>URLs supprimées</th>
+          <th>Nouvelles URLs</th>
         </tr>
       </thead>
       <tbody>
         <%= for broken_url <- @broken_urls do %>
           <tr>
-            <td><%= link(broken_url.dataset_id, to: dataset_path(@conn, :details, broken_url.dataset_id)) %></td>
+            <td>
+              <%= link(broken_url.dataset_custom_title, to: dataset_path(@conn, :details, broken_url.dataset_id)) %>
+            </td>
             <td><%= format_datetime_to_paris(broken_url.inserted_at, "fr") %></td>
             <td>
               <ul>

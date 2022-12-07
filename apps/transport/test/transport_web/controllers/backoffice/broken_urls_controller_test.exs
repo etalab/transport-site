@@ -8,8 +8,16 @@ defmodule TransportWeb.Backoffice.BrokenUrlsControllerTest do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
-  test "detect a broken url", %{conn: conn} do
-    dataset = insert(:dataset)
+  test "denies access to dashboard if not logged", %{conn: conn} do
+    conn = get(conn, request_path = backoffice_broken_urls_path(conn, :index))
+    target_uri = URI.parse(redirected_to(conn, 302))
+    assert target_uri.path == "/login/explanation"
+    assert target_uri.query == URI.encode_query(redirect_path: request_path)
+    assert get_flash(conn, :info) =~ "Vous devez être préalablement connecté"
+  end
+
+  test "detects a broken URL", %{conn: conn} do
+    dataset = insert(:dataset, custom_title: "Dataset custom title")
 
     dataset_history = insert(:dataset_history, dataset_id: dataset.id)
     insert(:dataset_history_resources, dataset_history_id: dataset_history.id, payload: %{"download_url" => "url1"})
@@ -24,20 +32,21 @@ defmodule TransportWeb.Backoffice.BrokenUrlsControllerTest do
       |> get(backoffice_broken_urls_path(conn, :index))
 
     res = conn |> html_response(200)
-    assert res =~ "Détection de changements d'urls stables"
+    assert res =~ "Détection de changements d'URLs stables"
+    assert res =~ dataset.custom_title
     assert res =~ "/datasets/#{dataset.id}"
     assert res =~ "url1"
     assert res =~ "url2"
   end
 
-  test "detect multiple broken urls" do
-    dataset = insert(:dataset)
+  test "detects multiple broken URLs" do
+    dataset = insert(:dataset, custom_title: "Dataset custom title")
     dataset_history = insert(:dataset_history, dataset_id: dataset.id)
     insert(:dataset_history_resources, dataset_history_id: dataset_history.id, payload: %{"download_url" => "url1"})
     dataset_history_2 = insert(:dataset_history, dataset_id: dataset.id)
     insert(:dataset_history_resources, dataset_history_id: dataset_history_2.id, payload: %{"download_url" => "url2"})
 
-    dataset_2 = insert(:dataset)
+    dataset_2 = insert(:dataset, custom_title: "Dataset custom title 2")
     dataset_history_3 = insert(:dataset_history, dataset_id: dataset_2.id)
     insert(:dataset_history_resources, dataset_history_id: dataset_history_3.id, payload: %{"download_url" => "url3"})
     dataset_history_4 = insert(:dataset_history, dataset_id: dataset_2.id)
@@ -53,7 +62,8 @@ defmodule TransportWeb.Backoffice.BrokenUrlsControllerTest do
              urls: ["url4", "url5"],
              previous_urls: ["url3"],
              disappeared_urls: true,
-             new_urls: true
+             new_urls: true,
+             dataset_custom_title: dataset_2.custom_title
            } == broken_1
 
     assert %{
@@ -62,12 +72,13 @@ defmodule TransportWeb.Backoffice.BrokenUrlsControllerTest do
              urls: ["url2"],
              previous_urls: ["url1"],
              disappeared_urls: true,
-             new_urls: true
+             new_urls: true,
+             dataset_custom_title: dataset.custom_title
            } == broken_2
   end
 
-  test "don't detect an unchanged url", %{conn: conn} do
-    dataset = insert(:dataset)
+  test "doesn't detect an unchanged URL", %{conn: conn} do
+    dataset = insert(:dataset, custom_title: "Dataset custom title")
 
     dataset_history = insert(:dataset_history, dataset_id: dataset.id)
     insert(:dataset_history_resources, dataset_history_id: dataset_history.id, payload: %{"download_url" => "url1"})
@@ -86,8 +97,8 @@ defmodule TransportWeb.Backoffice.BrokenUrlsControllerTest do
     refute res =~ "/datasets/#{dataset.id}"
   end
 
-  test "don't detect just a new url" do
-    dataset = insert(:dataset)
+  test "doesn't detect just a new URL" do
+    dataset = insert(:dataset, custom_title: "Dataset custom title")
 
     dataset_history = insert(:dataset_history, dataset_id: dataset.id)
     insert(:dataset_history_resources, dataset_history_id: dataset_history.id, payload: %{"download_url" => "url1"})
@@ -98,13 +109,26 @@ defmodule TransportWeb.Backoffice.BrokenUrlsControllerTest do
     assert [] == BrokenUrlsController.broken_urls()
   end
 
-  test "don't detect just a deleted url" do
-    dataset = insert(:dataset)
+  test "doesn't detect just a deleted URL" do
+    dataset = insert(:dataset, custom_title: "Dataset custom title")
 
     dataset_history = insert(:dataset_history, dataset_id: dataset.id)
     insert(:dataset_history_resources, dataset_history_id: dataset_history.id, payload: %{"download_url" => "url1"})
     insert(:dataset_history_resources, dataset_history_id: dataset_history.id, payload: %{"download_url" => "url2"})
     dataset_history_2 = insert(:dataset_history, dataset_id: dataset.id)
+    insert(:dataset_history_resources, dataset_history_id: dataset_history_2.id, payload: %{"download_url" => "url1"})
+
+    assert [] == BrokenUrlsController.broken_urls()
+  end
+
+  test "doesn't detect a change of order for URLs" do
+    dataset = insert(:dataset, custom_title: "Dataset custom title")
+
+    dataset_history = insert(:dataset_history, dataset_id: dataset.id)
+    insert(:dataset_history_resources, dataset_history_id: dataset_history.id, payload: %{"download_url" => "url1"})
+    insert(:dataset_history_resources, dataset_history_id: dataset_history.id, payload: %{"download_url" => "url2"})
+    dataset_history_2 = insert(:dataset_history, dataset_id: dataset.id)
+    insert(:dataset_history_resources, dataset_history_id: dataset_history_2.id, payload: %{"download_url" => "url2"})
     insert(:dataset_history_resources, dataset_history_id: dataset_history_2.id, payload: %{"download_url" => "url1"})
 
     assert [] == BrokenUrlsController.broken_urls()

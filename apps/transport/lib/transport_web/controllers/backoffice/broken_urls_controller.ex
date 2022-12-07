@@ -11,9 +11,11 @@ defmodule TransportWeb.Backoffice.BrokenUrlsController do
     urls_query =
       DB.DatasetHistory
       |> join(:left, [dh], dhr in DB.DatasetHistoryResources, on: dh.id == dhr.dataset_history_id)
-      |> group_by([dh], [dh.dataset_id, dh.inserted_at])
+      |> join(:inner, [dh], d in DB.Dataset, on: dh.dataset_id == d.id)
+      |> group_by([dh, _dhr, d], [dh.dataset_id, dh.inserted_at, d.custom_title])
       |> order_by([dh], asc: dh.dataset_id, desc: dh.inserted_at)
-      |> select([dh, dhr], %{
+      |> select([dh, dhr, d], %{
+        dataset_custom_title: d.custom_title,
         dataset_id: dh.dataset_id,
         inserted_at: dh.inserted_at,
         urls: fragment("array_agg(?.payload->>'download_url')", dhr)
@@ -25,6 +27,7 @@ defmodule TransportWeb.Backoffice.BrokenUrlsController do
       q
       |> windows([urls], w: [partition_by: urls.dataset_id, order_by: urls.inserted_at])
       |> select([urls], %{
+        dataset_custom_title: urls.dataset_custom_title,
         dataset_id: urls.dataset_id,
         inserted_at: urls.inserted_at,
         urls: urls.urls,
@@ -37,6 +40,7 @@ defmodule TransportWeb.Backoffice.BrokenUrlsController do
       q
       |> distinct([urls], urls.dataset_id)
       |> select([urls], %{
+        dataset_custom_title: urls.dataset_custom_title,
         dataset_id: urls.dataset_id,
         inserted_at: urls.inserted_at,
         urls: urls.urls,
