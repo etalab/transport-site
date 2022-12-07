@@ -21,7 +21,10 @@ defmodule TransportWeb.ResourceControllerTest do
         resources: [
           %Resource{
             url: "https://link.to/angers.zip",
-            datagouv_id: "1"
+            datagouv_id: "1",
+            format: "GTFS",
+            title: "GTFS",
+            description: "Une _très_ belle ressource"
           },
           %Resource{
             url: "http://link.to/angers.zip?foo=bar",
@@ -129,6 +132,14 @@ defmodule TransportWeb.ResourceControllerTest do
 
     conn = conn |> get(resource_path(conn, :details, resource.id))
     assert conn |> html_response(200) =~ "1 erreur"
+  end
+
+  test "resource has its description displayed", %{conn: conn} do
+    resource = Resource |> Repo.get_by(datagouv_id: "1")
+
+    assert resource.description == "Une _très_ belle ressource"
+    html = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
+    assert html =~ "Une <em>très</em> belle ressource"
   end
 
   test "resource has download availability displayed", %{conn: conn} do
