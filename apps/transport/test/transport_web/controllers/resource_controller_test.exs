@@ -300,6 +300,20 @@ defmodule TransportWeb.ResourceControllerTest do
     refute conn |> html_response(200) =~ "supprimé de data.gouv.fr"
   end
 
+  test "no validation report section for documentation resources", %{conn: conn} do
+    resource =
+      insert(:resource, %{
+        dataset: insert(:dataset),
+        format: "pdf",
+        url: "https://example.com/file",
+        type: "documentation"
+      })
+
+    assert DB.Resource.is_documentation?(resource)
+
+    refute conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200) =~ "Rapport de validation"
+  end
+
   test "GTFS Transport validation is shown", %{conn: conn} do
     %{id: dataset_id} = insert(:dataset)
 
