@@ -354,7 +354,7 @@ defmodule TransportWeb.DatasetView do
   def licence_url("odc-odbl"), do: "https://opendatacommons.org/licenses/odbl/1.0/"
 
   def licence_url("mobility-licence"),
-    do: "https://download.data.grandlyon.com/licences/Licence_mobilit%C3%A9s_V_02_2021.pdf"
+    do: "https://wiki.lafabriquedesmobilites.fr/wiki/Licence_Mobilités"
 
   def licence_url(_), do: nil
 
