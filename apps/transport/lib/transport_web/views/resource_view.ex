@@ -7,7 +7,7 @@ defmodule TransportWeb.ResourceView do
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
 
   import TransportWeb.DatasetView,
-    only: [documentation_url: 1, errors_count: 1, warnings_count: 1, multi_validation_performed?: 1]
+    only: [documentation_url: 1, errors_count: 1, warnings_count: 1, multi_validation_performed?: 1, description: 1]
 
   import DB.ResourceUnavailability, only: [floor_float: 2]
   import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2]
@@ -221,6 +221,25 @@ defmodule TransportWeb.ResourceView do
     |> Jason.Formatter.pretty_print()
   rescue
     _ -> dgettext("page-dataset-details", "Feed decoding failed")
+  end
+
+  @doc """
+  iex> should_display_description?(%DB.Resource{description: nil})
+  false
+  iex> should_display_description?(%DB.Resource{description: "foo", title: nil})
+  false
+  iex> should_display_description?(%DB.Resource{description: nil, title: "Foo"})
+  false
+  iex> should_display_description?(%DB.Resource{description: "Bonjour", title: "Foo"})
+  true
+  iex> should_display_description?(%DB.Resource{description: "Bonjour", title: "Export au format CSV"})
+  false
+  """
+  def should_display_description?(%DB.Resource{description: nil}), do: false
+  def should_display_description?(%DB.Resource{title: nil}), do: false
+
+  def should_display_description?(%DB.Resource{title: title}) do
+    not String.starts_with?(title, "Export au format")
   end
 
   def networks_start_end_dates(assigns) do
