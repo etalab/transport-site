@@ -86,30 +86,31 @@ defmodule TransportWeb.DatasetView do
         "most_recent" => dgettext("page-shortlist", "Most recently added")
       }[order_by]
 
-    case assigns = conn.assigns do
-      %{order_by: ^order_by} -> ~H"<span class=\"activefilter\"><%= msg %></span>"
+    assigns = Plug.Conn.assign(conn, :msg, msg).assigns()
+
+    case assigns do
+      %{order_by: ^order_by} -> ~H{<span class="activefilter"><%= @msg %></span>}
       _ -> link(msg, to: current_url(conn, Map.put(conn.query_params, "order_by", order_by)))
     end
   end
 
   def licence_link(%Plug.Conn{} = conn, %{licence: "all", count: count}) do
-    assigns = conn.assigns
+    assigns = Plug.Conn.assign(conn, :count, count).assigns()
 
     if Map.has_key?(conn.query_params, "licence") do
       link("#{dgettext("page-shortlist", "All (feminine)")} (#{count})",
         to: current_url(conn, Map.reject(conn.query_params, fn {k, _v} -> k == "licence" end))
       )
     else
-      ~H{<span class="activefilter"><%= dgettext("page-shortlist", "All (feminine)") %> (<%= count %>)</span>}
+      ~H{<span class="activefilter"><%= dgettext("page-shortlist", "All (feminine)") %> (<%= @count %>)</span>}
     end
   end
 
   def licence_link(%Plug.Conn{} = conn, %{licence: licence, count: count}) when licence not in ["fr-lo", "lov2"] do
-    name = licence(%Dataset{licence: licence})
-    assigns = conn.assigns
+    assigns = Plug.Conn.merge_assigns(conn, count: count, name: name = licence(%Dataset{licence: licence})).assigns()
 
     if Map.get(conn.query_params, "licence") == licence do
-      ~H{<span class="activefilter"><%= name %> (<%= count %>)</span>}
+      ~H{<span class="activefilter"><%= @name %> (<%= @count %>)</span>}
     else
       link("#{name} (#{count})", to: current_url(conn, Map.put(conn.query_params, "licence", licence)))
     end
@@ -125,10 +126,10 @@ defmodule TransportWeb.DatasetView do
     params = conn.query_params
     full_url = "#{url}?#{Query.encode(params)}"
 
-    assigns = conn.assigns
+    assigns = Plug.Conn.merge_assigns(conn, count: count, nom: nom).assigns()
 
     case current_path(conn, %{}) do
-      ^url -> ~H"<span class=\"activefilter\"><%= nom %> (<%= count %>)</span>"
+      ^url -> ~H{<span class="activefilter"><%= @nom %> (<%= @count %>)</span>}
       _ -> link("#{nom} (#{count})", to: full_url)
     end
   end
@@ -147,8 +148,8 @@ defmodule TransportWeb.DatasetView do
       |> URI.to_string()
 
     link_text = "#{msg} (#{count})"
-    assigns = conn.assigns
-    active_filter_text = ~H"<span class=\"activefilter\"><%= msg %> (<%= count %>)</span>"
+    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns()
+    active_filter_text = ~H{<span class="activefilter"><%= @msg %> (<%= @count %>)</span>}
 
     case conn.params do
       %{"type" => ^type} ->
@@ -179,12 +180,12 @@ defmodule TransportWeb.DatasetView do
       |> URI.to_string()
       |> Kernel.<>("#datasets-results")
 
-    assigns = conn.assigns
+    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns()
 
     case {only_rt, Map.get(conn.query_params, "filter")} do
       {false, "has_realtime"} -> link("#{msg} (#{count})", to: full_url)
       {true, nil} -> link("#{msg} (#{count})", to: full_url)
-      _ -> ~H"<span class=\"activefilter\"><%= msg %> (<%= count %>)</span>"
+      _ -> ~H{<span class="activefilter"><%= @msg %> (<%= @count %>)</span>}
     end
   end
 
