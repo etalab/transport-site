@@ -104,6 +104,7 @@ defmodule TransportWeb.Router do
       pipe_through([:admin_rights])
       get("/", PageController, :index)
       get("/dashboard", DashboardController, :index)
+      get("/broken-urls", BrokenUrlsController, :index)
 
       live_session :backoffice_proxy_config, root_layout: {TransportWeb.LayoutView, :app} do
         live("/proxy-config", ProxyConfigLive)
