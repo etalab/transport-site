@@ -82,6 +82,13 @@ defmodule Transport.Jobs.DatasetHistoryJob do
   end
 
   def get_preloaded_dataset(dataset_id) do
+    latest_resource_metadata =
+      DB.ResourceMetadata |> distinct([rm], rm.resource_id) |> order_by([rm], asc: rm.resource_id, desc: rm.inserted_at)
+
+    # could be problematic if multiple validators are used for the same real time resource
+    latest_resource_validation =
+      DB.MultiValidation |> distinct([mv], mv.resource_id) |> order_by([mv], asc: mv.resource_id, desc: mv.inserted_at)
+
     DB.Dataset.base_query()
     |> where([dataset: d], d.id == ^dataset_id)
     |> DB.Resource.join_dataset_with_resource()
@@ -89,24 +96,15 @@ defmodule Transport.Jobs.DatasetHistoryJob do
       on: rh.resource_id == r.id,
       as: :resource_history
     )
-    |> join(:left, [resource: r], rm in DB.ResourceMetadata,
-      on: rm.resource_id == r.id,
-      as: :resource_metadata
-    )
-    # could be problematic if multiple validators are used for the same real time resource
-    |> join(:left, [resource: r], rv in DB.MultiValidation,
-      on: rv.resource_id == r.id,
-      as: :resource_validation
-    )
     |> distinct([resource: r], r.id)
-    |> order_by([resource: r, resource_history: rh, resource_metadata: rm, resource_validation: rv],
+    |> order_by([resource: r, resource_history: rh],
       asc: r.id,
-      desc: rh.inserted_at,
-      desc: rm.inserted_at,
-      desc: rv.inserted_at
+      desc: rh.inserted_at
     )
-    |> preload([resource: r, resource_history: rh, resource_metadata: rm, resource_validation: rv],
-      resources: {r, resource_history: rh, resource_metadata: rm, validations: rv}
+    |> preload([resource: r, resource_history: rh],
+      resources:
+        {r,
+         resource_history: rh, resource_metadata: ^latest_resource_metadata, validations: ^latest_resource_validation}
     )
     |> DB.Repo.one!()
   end
