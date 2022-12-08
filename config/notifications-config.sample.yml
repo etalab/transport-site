@@ -5,7 +5,6 @@ new_dataset:
 dataset_now_licence_ouverte:
   - hello@example.com
 expiration:
-  gtfs-diviamobilitess:
+  offre-2022-de-transport-du-reseau-urbain-agglobus-et-de-transports-scolaires-gtfs:
     emails:
       - hello@example.com
-      - foo@bar.com
