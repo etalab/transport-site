@@ -211,7 +211,7 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Expiration notification are not sent automatically for this dataset. You can edit <a href=\"%{link}\" target=\"_blank\">the configuration</a>."
-msgstr "Les notifications liées à l'expiration de fichiers ne sont pas envoyées automatiquement pour ce jeu de données. Vous pouvez modifier <a href=\"%{link}\" target=\"_blank\">la configuration</a>"
+msgstr "Les notifications liées à l'expiration de fichiers ne sont pas envoyées automatiquement pour ce jeu de données. Vous pouvez modifier <a href=\"%{link}\" target=\"_blank\">la configuration</a>."
 
 #, elixir-autogen, elixir-format
 msgid "Expiration notifications"
