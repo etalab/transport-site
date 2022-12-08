@@ -176,6 +176,8 @@ defmodule TransportWeb.Backoffice.PageController do
     |> render("form_dataset.html")
   end
 
+  defp notification_expiration_emails(nil), do: []
+
   defp notification_expiration_emails(%Dataset{} = dataset) do
     Transport.Notifications.config()
     |> Transport.Notifications.emails_for_reason(:expiration, dataset)
