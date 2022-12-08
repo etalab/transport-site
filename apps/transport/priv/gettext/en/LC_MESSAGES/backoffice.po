@@ -208,3 +208,23 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Changements d'URLs stables"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Expiration notification are not sent automatically for this dataset. You can edit <a href=\"%{link}\" target=\"_blank\">the configuration</a>."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Expiration notifications"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Expiration notifications are sent automatically for this dataset. You can edit <a href=\"%{link}\" target=\"_blank\">the configuration</a>."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Notifications are sent to the following email addresses:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "email address"
+msgstr ""

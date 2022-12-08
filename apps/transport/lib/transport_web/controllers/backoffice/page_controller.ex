@@ -165,6 +165,7 @@ defmodule TransportWeb.Backoffice.PageController do
     |> assign(:dataset_id, dataset_id)
     |> assign(:dataset_types, Dataset.types())
     |> assign(:regions, Region |> where([r], r.nom != "National") |> Repo.all())
+    |> assign(:expiration_emails, notification_expiration_emails(conn.assigns[:dataset]))
     |> assign(
       :import_logs,
       LogsImport
@@ -173,6 +174,11 @@ defmodule TransportWeb.Backoffice.PageController do
       |> Repo.all()
     )
     |> render("form_dataset.html")
+  end
+
+  defp notification_expiration_emails(%Dataset{} = dataset) do
+    Transport.Notifications.config()
+    |> Transport.Notifications.emails_for_reason(:expiration, dataset)
   end
 
   def import_all_aoms(%Plug.Conn{} = conn, _params) do
