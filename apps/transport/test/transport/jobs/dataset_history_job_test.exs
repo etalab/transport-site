@@ -29,8 +29,15 @@ defmodule Transport.Test.Transport.Jobs.DatasetHistoryJobTest do
     insert(:multi_validation, resource_id: r2.id)
     %{id: rmv_id_latest} = insert(:multi_validation, resource_id: r2.id)
 
-    # just a resource
+    # another resource with multiple resource metadata and validations
     r3 = insert(:resource, dataset_id: dataset.id, url: "url3")
+    insert(:resource_metadata, resource_id: r3.id)
+    %{id: rm_id_latest_3} = insert(:resource_metadata, resource_id: r3.id)
+    insert(:multi_validation, resource_id: r3.id)
+    %{id: rmv_id_latest_3} = insert(:multi_validation, resource_id: r3.id)
+
+    # just a resource
+    r4 = insert(:resource, dataset_id: dataset.id, url: "url4")
 
     :ok = perform_job(Transport.Jobs.DatasetHistoryJob, %{"dataset_id" => dataset.id})
 
@@ -46,7 +53,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetHistoryJobTest do
 
     dataset_history_resources = dataset_history.dataset_history_resources
 
-    assert Enum.count(dataset_history_resources) == 3
+    assert Enum.count(dataset_history_resources) == 4
 
     dhr1 = dataset_history_resources |> Enum.find(&(&1.resource_id == r1.id))
 
@@ -68,8 +75,17 @@ defmodule Transport.Test.Transport.Jobs.DatasetHistoryJobTest do
 
     dhr3 = dataset_history_resources |> Enum.find(&(&1.resource_id == r3.id))
 
-    assert %{resource_history_id: nil, resource_metadata_id: nil, validation_id: nil, payload: %{"url" => "url3"}} =
-             dhr3
+    assert %{
+             resource_history_id: nil,
+             resource_metadata_id: ^rm_id_latest_3,
+             validation_id: ^rmv_id_latest_3,
+             payload: %{"url" => "url3"}
+           } = dhr3
+
+    dhr4 = dataset_history_resources |> Enum.find(&(&1.resource_id == r4.id))
+
+    assert %{resource_history_id: nil, resource_metadata_id: nil, validation_id: nil, payload: %{"url" => "url4"}} =
+             dhr4
   end
 
   test "enqueue all dataset history jobs" do
