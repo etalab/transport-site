@@ -1,0 +1,11 @@
+# can be useful in some occasions ; must be kept in sync with the format at
+# https://github.com/etalab/transport-notifications/
+new_dataset:
+  - hello@example.com
+dataset_now_licence_ouverte:
+  - hello@example.com
+expiration:
+  gtfs-diviamobilitess:
+    emails:
+      - hello@example.com
+      - foo@bar.com
