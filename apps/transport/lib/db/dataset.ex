@@ -93,7 +93,8 @@ defmodule DB.Dataset do
       "private-parking" => dgettext("db-dataset", "Private parking"),
       "bike-way" => dgettext("db-dataset", "Bike networks"),
       "bike-parking" => dgettext("db-dataset", "Bike parking"),
-      "low-emission-zones" => dgettext("db-dataset", "Low emission zones")
+      "low-emission-zones" => dgettext("db-dataset", "Low emission zones"),
+      "transport-traffic" => dgettext("db-dataset", "Transport traffic")
     }
 
   @spec type_to_str(binary()) :: binary()

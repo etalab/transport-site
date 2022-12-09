@@ -190,6 +190,8 @@ defmodule TransportWeb.DatasetView do
   end
 
   def icon_type_path(%{type: type}) do
+    # If you add an upcoming type be sure to add the black and the grey version.
+    # The upcoming ("grey") version should be named `<filename>-grey.svg`
     icons = %{
       "public-transit" => "bus.svg",
       "bike-scooter-sharing" => "bicycle-scooter.svg",
@@ -201,10 +203,10 @@ defmodule TransportWeb.DatasetView do
       "locations" => "locations.svg",
       "private-parking" => "parking.svg",
       "informations" => "infos.svg",
-      "car-motorbike-sharing" => "car-motorbike-grey.svg",
+      "car-motorbike-sharing" => "car-motorbike-sharing.svg",
       "low-emission-zones" => "low-emission-zones.svg",
       "bike-parking" => "bike-parking.svg",
-      "mobility-counting" => "mobility-counting-grey.svg",
+      "transport-traffic" => "transport-traffic.svg",
       # Not proper types, but modes/filters
       "real-time-public-transit" => "bus-stop.svg",
       "long-distance-coach" => "bus.svg",
@@ -215,8 +217,10 @@ defmodule TransportWeb.DatasetView do
     if Map.has_key?(icons, type), do: "/images/icons/#{Map.get(icons, type)}"
   end
 
-  def icon_type_path(type) when is_binary(type) do
-    icon_type_path(%{type: type})
+  def icon_type_path(type) when is_binary(type), do: icon_type_path(%{type: type})
+
+  def upcoming_icon_type_path(type) when is_binary(type) do
+    String.replace(icon_type_path(type), ".svg", "-grey.svg")
   end
 
   def display_all_types_links?(%{params: %{"type" => type}}) when not is_nil(type), do: true
