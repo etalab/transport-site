@@ -5,10 +5,10 @@ defmodule TransportWeb.PageView do
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
   import TransportWeb.DatasetView, only: [upcoming_icon_type_path: 1]
 
-  def current_tiles(tiles), do: Enum.filter(tiles, & &1.count > 0)
+  def current_tiles(tiles), do: Enum.filter(tiles, &(&1.count > 0))
 
   def upcoming_tiles(tiles) do
-    Enum.filter(tiles, & &1.count == 0 and is_binary(&1.type))
+    Enum.filter(tiles, &(&1.count == 0 and is_binary(&1.type)))
   end
 
   def class("y"), do: "good"
