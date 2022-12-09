@@ -171,7 +171,7 @@ defmodule TransportWeb.PageController do
 
   defmodule Tile do
     @enforce_keys [:link, :icon, :title, :count]
-    defstruct [:link, :icon, :title, :count]
+    defstruct [:link, :icon, :title, :count, :type, :documentation_url]
   end
 
   defp home_tiles(conn) do
@@ -214,16 +214,22 @@ defmodule TransportWeb.PageController do
       type_tile(conn, "charging-stations"),
       type_tile(conn, "private-parking"),
       type_tile(conn, "locations"),
-      type_tile(conn, "informations")
+      type_tile(conn, "informations"),
+      type_tile(conn, "car-motorbike-sharing"),
+      type_tile(conn, "transport-traffic",
+        documentation_url: "https://doc.transport.data.gouv.fr/producteurs/comptage-des-mobilites"
+      )
     ]
   end
 
-  defp type_tile(conn, type) do
+  defp type_tile(conn, type, options \\ []) do
     %Tile{
+      type: type,
       link: dataset_path(conn, :index, type: type),
       icon: icon_type_path(type),
       title: DB.Dataset.type_to_str(type),
-      count: Keyword.fetch!(home_index_stats(), :count_by_type)[type]
+      count: Keyword.fetch!(home_index_stats(), :count_by_type)[type],
+      documentation_url: Keyword.get(options, :documentation_url)
     }
   end
 end

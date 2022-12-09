@@ -82,3 +82,7 @@ msgstr "Transport public collectif - horaires théoriques"
 #, elixir-autogen, elixir-format
 msgid "Road data"
 msgstr "Données routières"
+
+#, elixir-autogen, elixir-format
+msgid "Transport traffic"
+msgstr "Comptage des mobilités"

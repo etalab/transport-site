@@ -82,7 +82,7 @@
     <div class="existing pt-48" id="datasets">
       <h1><%= dgettext("page-index", "Available data by theme") %></h1>
       <div class="available-data grid">
-        <%= for tile <- @tiles do %>
+        <%= for tile <- current_tiles(@tiles) do %>
           <a class="tile" href={tile.link}>
             <img class="tile__icon" src={tile.icon} alt="" />
             <div class="tile__text">
@@ -97,14 +97,19 @@
     <div class="upcoming">
       <h2><%= dgettext("page-index", "Coming soon") %></h2>
       <div class="grid">
-        <div class="tile">
-          <%= img_tag(icon_type_path("car-motorbike-sharing"), class: "tile__icon", alt: "") %>
-          <h3 class="text-center"><%= dgettext("page-index", "Car and motorbike sharing") %></h3>
-        </div>
-        <a class="tile" href="https://doc.transport.data.gouv.fr/producteurs/comptage-des-mobilites" target="_blank">
-          <%= img_tag(icon_type_path("mobility-counting"), class: "tile__icon", alt: "") %>
-          <h3 class="text-center"><%= dgettext("page-index", "Mobility counting") %></h3>
-        </a>
+        <%= for tile <- upcoming_tiles(@tiles) do %>
+          <%= if is_nil(tile.documentation_url) do %>
+            <div class="tile">
+              <%= img_tag(upcoming_icon_type_path(tile.type), class: "tile__icon", alt: "") %>
+              <h3 class="text-center"><%= tile.title %></h3>
+            </div>
+          <% else %>
+            <a class="tile" href={tile.documentation_url} target="_blank">
+              <%= img_tag(upcoming_icon_type_path(tile.type), class: "tile__icon", alt: "") %>
+              <h3 class="text-center"><%= tile.title %></h3>
+            </a>
+          <% end %>
+        <% end %>
       </div>
       <a class="mailing-list" href="#mailing-list"><%= dgettext("page-index", "I'd like to be informed") %></a>
     </div>

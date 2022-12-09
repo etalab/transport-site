@@ -71,10 +71,6 @@ msgid "Coming soon"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Car and motorbike sharing"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Rail transport"
 msgstr ""
 
@@ -204,8 +200,4 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "They help us achieve our mission"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Mobility counting"
 msgstr ""

@@ -262,3 +262,21 @@
         They inform us in particular about the position of airports, the routes, the times of passage of the airplanes.
 
         One data standards can be used: the [GTFS format](https://developers.google.com/transit/gtfs).
+
+- category: transport-traffic
+  search_params:
+    - key: type
+      value: transport-traffic
+  msg:
+    fr: |
+        Les jeux de données référencés dans cette catégorie contiennent des informations permettant de décrire la fréquentation des infrastructures de transport.
+
+        Ils nous renseignent notamment sur les flux des mobilités douces et des micro mobilités.
+
+        Le standard utilisé est décrit dans [cette documentation](https://doc.transport.data.gouv.fr/producteurs/comptage-des-mobilites).
+    en: |
+        The datasets referenced in this category contain information to describe transport infrastructures use.
+
+        They inform us in particular about information on the traffic of pedestrians, bicycles and micro-mobility.
+
+        The standard used is described [in this documentation](https://doc.transport.data.gouv.fr/producteurs/comptage-des-mobilites).
