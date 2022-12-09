@@ -50,6 +50,11 @@ defmodule TransportWeb.Router do
     get("/robots.txt", PageController, :robots_txt)
     get("/.well-known/security.txt", PageController, :security_txt)
 
+    live_session :test, root_layout: {TransportWeb.LayoutView, :app} do
+      live("/test", GTFSDiffAddLive)
+    end
+    get("/diff/results", GtfsDiffResultsController, :details)
+
     scope "/espace_producteur" do
       pipe_through([:authenticated])
       get("/", PageController, :espace_producteur)

@@ -86,6 +86,15 @@
   @extend .fa-table !optional;
 }
 
+.icon--trash {
+  @extend .fa-trash !optional;
+}
+
+.icon--spinner {
+  @extend .fa-spinner !optional;
+}
+
+
 .icon--uptime {
   vertical-align: middle;
   width: 1.25em;

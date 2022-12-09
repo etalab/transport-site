@@ -1,4 +1,7 @@
 <% locale = get_session(@conn, :locale) %>
+
+<%= live_render(@conn, TransportWeb.GTFSDiffLive) %>
+
 <%= unless @dataset.is_active do %>
   <div class="notification error full-width">
     <%= dgettext("page-dataset-details", "This dataset has been removed from data.gouv.fr") %>
@@ -252,6 +255,7 @@
             <thead>
               <tr>
                 <th><%= dgettext("page-dataset-details", "File") %></th>
+                <th></th>
                 <th><%= dgettext("page-dataset-details", "Publication date") %></th>
                 <%= if has_validity_period_col do %>
                   <th>
@@ -263,13 +267,15 @@
             </thead>
             <tbody>
               <%= for resource_history <- @history_resources do %>
+                <% url = resource_history.payload["permanent_url"] %>
                 <tr>
                   <td>
                     <%= link(resource_history.payload["title"],
-                      to: resource_history.payload["permanent_url"],
+                      to: url,
                       rel: "nofollow"
                     ) %>
                   </td>
+                  <td><%= live_render(@conn, TransportWeb.GTFSDiffAddLive, session: %{"url" => url}) %></td>
                   <td><%= resource_history.inserted_at |> DateTimeDisplay.format_datetime_to_date(locale) %></td>
                   <%= if has_validity_period_col do %>
                     <%= if has_validity_period?(resource_history) do %>

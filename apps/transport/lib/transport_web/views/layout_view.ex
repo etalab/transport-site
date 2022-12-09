@@ -2,6 +2,7 @@ defmodule TransportWeb.LayoutView do
   use TransportWeb, :view
   alias __MODULE__
   alias Phoenix.Controller
+  import Phoenix.Component
 
   def current_path(conn) do
     Controller.current_path(conn)
