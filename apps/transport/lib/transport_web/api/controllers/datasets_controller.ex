@@ -297,9 +297,11 @@ defmodule TransportWeb.API.DatasetController do
       end
 
     %{
+      "id" => resource.id,
       "datagouv_id" => resource.datagouv_id,
       "title" => resource.title,
       "updated" => Shared.DateTimeDisplay.format_naive_datetime_to_paris_tz(resource.last_update),
+      "is_available" => resource.is_available,
       "url" => resource.latest_url,
       "original_url" => resource.url,
       "end_calendar_validity" => metadata_content && Map.get(metadata, "end_date"),
