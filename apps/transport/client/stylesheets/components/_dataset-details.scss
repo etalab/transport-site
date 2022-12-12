@@ -559,3 +559,7 @@
 .panel > :first-child {
   margin-top: 0;
 }
+
+hr {
+  border-bottom: 1px solid var(--theme-border-lighter);
+}
