@@ -206,19 +206,19 @@ defmodule TransportWeb.PageController do
       },
       type_tile(conn, "air-transport"),
       type_tile(conn, "bike-scooter-sharing"),
+      type_tile(conn, "car-motorbike-sharing"),
       type_tile(conn, "bike-way"),
       type_tile(conn, "bike-parking"),
+      type_tile(conn, "transport-traffic",
+        documentation_url: "https://doc.transport.data.gouv.fr/producteurs/comptage-des-mobilites"
+      ),
       type_tile(conn, "road-data"),
       type_tile(conn, "low-emission-zones"),
       type_tile(conn, "carpooling-areas"),
       type_tile(conn, "charging-stations"),
       type_tile(conn, "private-parking"),
       type_tile(conn, "locations"),
-      type_tile(conn, "informations"),
-      type_tile(conn, "car-motorbike-sharing"),
-      type_tile(conn, "transport-traffic",
-        documentation_url: "https://doc.transport.data.gouv.fr/producteurs/comptage-des-mobilites"
-      )
+      type_tile(conn, "informations")
     ]
   end
 
