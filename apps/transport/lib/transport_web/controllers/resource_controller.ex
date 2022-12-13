@@ -31,12 +31,24 @@ defmodule TransportWeb.ResourceController do
       |> assign(:gtfs_rt_feed, gtfs_rt_feed(conn, resource))
       |> assign(:gtfs_rt_entities, gtfs_rt_entities(resource))
       |> assign(:multi_validation, latest_validation(resource))
+      |> assign(:proxy_requests_stats, proxy_requests_stats(resource))
+      |> assign(:proxy_requests_stats_nb_days, proxy_requests_stats_nb_days())
       |> put_resource_flash(resource.dataset.is_active)
 
     if Resource.is_gtfs?(resource) do
       render_gtfs_details(conn, params, resource)
     else
       conn |> assign(:resource, resource) |> render("details.html")
+    end
+  end
+
+  def proxy_requests_stats_nb_days, do: 15
+
+  def proxy_requests_stats(%Resource{} = resource) do
+    if Resource.served_by_proxy?(resource) do
+      DB.Metrics.requests_over_last_days(resource, proxy_requests_stats_nb_days())
+    else
+      nil
     end
   end
 

@@ -563,6 +563,45 @@ defmodule TransportWeb.ResourceControllerTest do
     assert ["a", "b", "c", "d"] = TransportWeb.ResourceController.gtfs_rt_entities(resource)
   end
 
+  test "displays proxy requests statistics", %{conn: conn} do
+    gtfs_rt_resource =
+      insert(:resource,
+        dataset: insert(:dataset, is_active: true),
+        format: "gtfs-rt",
+        url: url = "https://proxy.transport.data.gouv.fr/resource/divia-dijon-gtfs-rt-trip-update"
+      )
+
+    assert DB.Resource.served_by_proxy?(gtfs_rt_resource)
+    proxy_slug = DB.Resource.proxy_slug(gtfs_rt_resource)
+    assert proxy_slug == "divia-dijon-gtfs-rt-trip-update"
+
+    today = Transport.Telemetry.truncate_datetime_to_hour(DateTime.utc_now())
+
+    insert(:metrics,
+      target: "proxy:#{proxy_slug}",
+      event: "proxy:request:external",
+      count: 2,
+      period: today
+    )
+
+    insert(:metrics,
+      target: "proxy:#{proxy_slug}",
+      event: "proxy:request:internal",
+      count: 1,
+      period: today
+    )
+
+    Transport.HTTPoison.Mock
+    |> expect(:get, fn ^url, [], [follow_redirect: true] ->
+      {:ok, %HTTPoison.Response{status_code: 200, body: File.read!(@service_alerts_file)}}
+    end)
+
+    html = conn |> get(resource_path(conn, :details, gtfs_rt_resource.id)) |> html_response(200)
+    assert html =~ "Statistiques des requêtes gérées par le proxy"
+    assert html =~ "Nombre de requêtes gérées par le proxy au cours des 15 derniers jours : 2"
+    assert html =~ "Nombre de requêtes transmises au serveur source au cours des 15 derniers jours : 1"
+  end
+
   defp test_remote_download_error(%Plug.Conn{} = conn, mock_status_code) do
     resource = Resource |> Repo.get_by(datagouv_id: "2")
     refute Resource.can_direct_download?(resource)
