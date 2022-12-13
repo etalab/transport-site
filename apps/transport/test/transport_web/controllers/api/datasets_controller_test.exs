@@ -109,7 +109,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
       "resources" => [
         %{
           "content_hash" => "hash",
-          "id" => resource_1.id,
+          "page_url" => resource_page_url(resource_1),
           "datagouv_id" => "1",
           "features" => ["couleurs des lignes"],
           "filesize" => 42,
@@ -125,7 +125,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
         },
         %{
           "content_hash" => "hash2",
-          "id" => resource_2.id,
+          "page_url" => resource_page_url(resource_2),
           "datagouv_id" => "2",
           "features" => ["clim"],
           "filesize" => 43,
@@ -140,7 +140,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
           "is_available" => true
         },
         %{
-          "id" => gbfs_resource.id,
+          "page_url" => resource_page_url(gbfs_resource),
           "datagouv_id" => gbfs_resource.datagouv_id,
           "format" => gbfs_resource.format,
           "original_url" => gbfs_resource.url,
@@ -204,7 +204,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
                "publisher" => %{"name" => nil, "type" => "organization"},
                "resources" => [
                  %{
-                   "id" => resource.id,
+                   "page_url" => resource_page_url(resource),
                    "is_available" => true,
                    "datagouv_id" => "2",
                    "format" => "gbfs",
@@ -277,7 +277,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
                %{
                  "content_hash" => "hash",
                  "is_available" => true,
-                 "id" => Enum.find(dataset.resources, &(&1.format == "GTFS")).id,
+                 "page_url" => dataset.resources |> Enum.find(&(&1.format == "GTFS")) |> resource_page_url(),
                  "datagouv_id" => "1",
                  "filesize" => 42,
                  "type" => "main",
@@ -288,7 +288,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
                },
                %{
                  "is_available" => true,
-                 "id" => Enum.find(dataset.resources, &(&1.format == "geojson")).id,
+                 "page_url" => dataset.resources |> Enum.find(&(&1.format == "geojson")) |> resource_page_url(),
                  "datagouv_id" => "2",
                  "type" => "main",
                  "format" => "geojson",
@@ -371,7 +371,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
              "resources" => [
                %{
                  "content_hash" => "hash",
-                 "id" => resource.id,
+                 "page_url" => resource_page_url(resource),
                  "is_available" => true,
                  "datagouv_id" => "1",
                  "features" => ["couleurs des lignes"],
@@ -386,7 +386,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
                  "url" => "https://static.data.gouv.fr/foo"
                },
                %{
-                 "id" => gbfs_resource.id,
+                 "page_url" => resource_page_url(gbfs_resource),
                  "is_available" => true,
                  "datagouv_id" => "2",
                  "format" => "gbfs",
@@ -442,5 +442,9 @@ defmodule TransportWeb.API.DatasetControllerTest do
              |> Enum.at(0)
              |> Map.get("features")
              |> Enum.sort()
+  end
+
+  defp resource_page_url(%DB.Resource{id: id}) do
+    TransportWeb.Router.Helpers.resource_url(TransportWeb.Endpoint, :details, id)
   end
 end
