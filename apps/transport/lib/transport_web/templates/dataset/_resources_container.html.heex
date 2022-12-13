@@ -4,7 +4,7 @@
   <section class="dataset__resources white" id={assigns[:section_id]}>
     <h2><%= @title %></h2>
     <%= if has_reuser_message do %>
-      <div class="reuser-message"><%= assigns[:reuser_message] %></div>
+      <div class="information-message"><%= assigns[:reuser_message] %></div>
     <% end %>
     <%= unless is_nil(assigns[:message]) do %>
       <div class="resources-message">
