@@ -1,6 +1,14 @@
-<h2 id="proxy-requests-statistics"><%= dgettext("resource", "Proxy requests statistics") %></h2>
-
 <div class="panel">
+  <div>
+    <%= dgettext("resource", "Feed name:") %>
+    <a href={resource_path(@conn, :details, @resource.id)}><strong><%= @resource.title %></strong></a>
+  </div>
+  <div>
+    <%= dgettext("resource", "Format:") %><span class="label"><%= @resource.format %></span>
+  </div>
+
+  <h4><%= dgettext("resource", "Proxy requests statistics") %></h4>
+
   <table class="table small-padding">
     <thead>
       <tr>

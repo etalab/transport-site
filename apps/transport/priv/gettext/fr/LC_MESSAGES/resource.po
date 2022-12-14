@@ -148,3 +148,11 @@ msgstr "Nombre de requêtes transmises au serveur source au cours des %{nb} dern
 #, elixir-autogen, elixir-format
 msgid "Proxy requests statistics"
 msgstr "Statistiques des requêtes gérées par le proxy"
+
+#, elixir-autogen, elixir-format
+msgid "Feed name:"
+msgstr "Nom du flux :"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Format:"
+msgstr "Format :"

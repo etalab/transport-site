@@ -31,8 +31,6 @@ defmodule TransportWeb.ResourceController do
       |> assign(:gtfs_rt_feed, gtfs_rt_feed(conn, resource))
       |> assign(:gtfs_rt_entities, gtfs_rt_entities(resource))
       |> assign(:multi_validation, latest_validation(resource))
-      |> assign(:proxy_requests_stats, proxy_requests_stats(resource))
-      |> assign(:proxy_requests_stats_nb_days, proxy_requests_stats_nb_days())
       |> put_resource_flash(resource.dataset.is_active)
 
     if Resource.is_gtfs?(resource) do
@@ -43,14 +41,6 @@ defmodule TransportWeb.ResourceController do
   end
 
   def proxy_requests_stats_nb_days, do: 15
-
-  def proxy_requests_stats(%Resource{} = resource) do
-    if Resource.served_by_proxy?(resource) do
-      DB.Metrics.requests_over_last_days(resource, proxy_requests_stats_nb_days())
-    else
-      nil
-    end
-  end
 
   def gtfs_rt_entities(%Resource{format: "gtfs-rt", id: id}) do
     recent_limit = Transport.Jobs.GTFSRTEntitiesJob.datetime_limit()
@@ -275,6 +265,33 @@ defmodule TransportWeb.ResourceController do
         |> put_flash(:error, dgettext("resource", "Unable to upload file"))
         |> form(params)
     end
+  end
+
+  @spec proxy_statistics(Plug.Conn.t(), map) :: Plug.Conn.t()
+  def proxy_statistics(conn, _params) do
+    datasets =
+      [
+        Dataset.user_datasets(conn),
+        Dataset.user_org_datasets(conn)
+      ]
+      |> Enum.filter(&(elem(&1, 0) == :ok))
+      |> Enum.flat_map(&elem(&1, 1))
+
+    proxy_stats =
+      datasets
+      |> Enum.flat_map(& &1.resources)
+      |> Enum.filter(&DB.Resource.served_by_proxy?/1)
+      # Gotcha: this is a N+1 problem. Okay as long as a single producer
+      # does not have a lot of feeds/there is not a lot of traffic on this page
+      |> Enum.into(%{}, fn %DB.Resource{id: id} = resource ->
+        {id, DB.Metrics.requests_over_last_days(resource, proxy_requests_stats_nb_days())}
+      end)
+
+    conn
+    |> assign(:datasets, datasets)
+    |> assign(:proxy_stats, proxy_stats)
+    |> assign(:proxy_requests_stats_nb_days, proxy_requests_stats_nb_days())
+    |> render("proxy_statistics.html")
   end
 
   defp assign_or_flash(conn, getter, kw, error) do

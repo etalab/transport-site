@@ -644,6 +644,7 @@ defmodule DB.Dataset do
         # to the local database for some reason, it won't appear in the result, despite existing remotely.
         {:ok,
          __MODULE__
+         |> preload(:resources)
          |> where([d], d.datagouv_id in ^datagouv_ids)
          |> order_by([d], desc: d.id)
          |> Repo.all()}
@@ -665,6 +666,7 @@ defmodule DB.Dataset do
 
         {:ok,
          __MODULE__
+         |> preload(:resources)
          |> where([d], d.datagouv_id in ^datagouv_ids)
          |> order_by([d], desc: d.id)
          |> Repo.all()}

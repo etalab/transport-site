@@ -665,8 +665,8 @@ defmodule DB.Resource do
   end
 
   @doc """
-  iex> proxy_slug(%DB.Resource{url: "https://transport.data.gouv.fr/gbfs/marseille/gbfs.json", format: "gbfs"})
-  "marseille"
+  iex> proxy_slug(%DB.Resource{url: "https://transport.data.gouv.fr/gbfs/cergy-pontoise/gbfs.json", format: "gbfs"})
+  "cergy-pontoise"
   iex> proxy_slug(%DB.Resource{url: "https://proxy.transport.data.gouv.fr/resource/axeo-guingamp-gtfs-rt-vehicle-position", format: "gtfs-rt"})
   "axeo-guingamp-gtfs-rt-vehicle-position"
   iex> proxy_slug(%DB.Resource{url: "https://example.com", format: "GTFS"})
@@ -679,7 +679,7 @@ defmodule DB.Resource do
           url |> URI.parse() |> Map.fetch!(:path) |> String.replace("/resource/", "")
 
         is_gbfs?(resource) ->
-          ~r{^https://transport\.data\.gouv\.fr/gbfs/(\w+)/} |> Regex.run(url) |> List.last()
+          ~r{^https://transport\.data\.gouv\.fr/gbfs/([a-zA-Z0-9_-]+)/} |> Regex.run(url) |> List.last()
       end
     else
       nil

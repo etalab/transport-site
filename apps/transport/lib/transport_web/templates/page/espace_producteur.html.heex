@@ -70,6 +70,25 @@
               </div>
             </div>
           </div>
+          <div :if={show_proxy_stats_block?(@datasets)} class="panel espace-producer-panel">
+            <img height="40" src={static_path(@conn, "/images/producteurs/picto-publier.png")} alt="" />
+            <div>
+              <div class="publish-header">
+                <h4><%= dgettext("espace-producteurs", "Transport proxy statistics") %></h4>
+              </div>
+              <div class="pt-12">
+                <%= dgettext(
+                  "espace-producteurs",
+                  "Get access to traffic statistics for feeds handled by the transport.data.gouv.fr proxy."
+                ) %>
+              </div>
+              <div class="pt-12">
+                <a href={resource_path(@conn, :proxy_statistics)} class="button primary">
+                  <%= dgettext("espace-producteurs", "See statistics") %>
+                </a>
+              </div>
+            </div>
+          </div>
           <div class="contact-us is-centered pt-24">
             <div>
               <img

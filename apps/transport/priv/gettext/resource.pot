@@ -148,3 +148,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Proxy requests statistics"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Feed name:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Format:"
+msgstr ""

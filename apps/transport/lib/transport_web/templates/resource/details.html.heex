@@ -13,7 +13,7 @@
           </a>
         </div>
         <div>
-          <%= dgettext("resource", "Format") %><%= dgettext("helper", ":") %><span class="label"><%= @resource.format %></span>
+          <%= dgettext("resource", "Format:") %> <span class="label"><%= @resource.format %></span>
         </div>
         <div :if={should_display_description?(@resource)} class="panel mt-24" lang="fr">
           <%= description(@resource) %>
@@ -27,14 +27,6 @@
       </div>
       <h2 id="download-availability"><%= dgettext("page-dataset-details", "Download availability") %></h2>
       <%= render("_download_availability.html", uptime_per_day: @uptime_per_day, conn: @conn) %>
-
-      <%= unless is_nil(@proxy_requests_stats) do %>
-        <%= render("_proxy_requests_stats.html",
-          resource: @resource,
-          stats_per_day: @proxy_requests_stats,
-          nb_days: @proxy_requests_stats_nb_days
-        ) %>
-      <% end %>
 
       <%= unless DB.Resource.is_documentation?(@resource) do %>
         <%= render("_validation_report.html", resource: @resource, multi_validation: @multi_validation, conn: @conn) %>
