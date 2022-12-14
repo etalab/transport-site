@@ -95,8 +95,8 @@ defmodule TransportWeb.ResourceControllerTest do
 
     html =
       conn
-      |> init_test_session(%{current_user: %{"organizations" => [%{"slug" => "equipe-transport-data-gouv-fr"}]}})
-      |> get("/resources/update/datasets")
+      |> init_test_session(%{current_user: %{}})
+      |> get(resource_path(conn, :datasets_list))
       |> html_response(200)
 
     assert html =~ dataset.datagouv_title
