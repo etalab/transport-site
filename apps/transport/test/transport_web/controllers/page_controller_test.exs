@@ -2,8 +2,12 @@ defmodule TransportWeb.PageControllerTest do
   # NOTE: temporarily set to false, until it doesn't use with_mock anymore
   use TransportWeb.ConnCase, async: false
   use TransportWeb.DatabaseCase, cleanup: []
+  import DB.Factory
   import Plug.Test, only: [init_test_session: 2]
   import Mock
+  import Mox
+
+  setup :verify_on_exit!
 
   doctest TransportWeb.PageController
 
@@ -62,35 +66,30 @@ defmodule TransportWeb.PageControllerTest do
 
   describe "GET /espace_producteur" do
     test "requires authentication", %{conn: conn} do
-      conn =
-        conn
-        |> get(page_path(conn, :espace_producteur))
-
+      conn = conn |> get(page_path(conn, :espace_producteur))
       assert redirected_to(conn, 302) =~ "/login"
     end
 
     test "renders successfully when data gouv returns no error", %{conn: conn} do
-      ud = %Dataset{datagouv_title: "User Dataset", datagouv_id: "123"} |> Repo.insert!() |> DB.Repo.preload(:resources)
-      uod = %Dataset{datagouv_title: "Org Dataset", datagouv_id: "456"} |> Repo.insert!() |> DB.Repo.preload(:resources)
+      user_dataset = insert(:dataset, datagouv_title: "User Dataset", datagouv_id: Ecto.UUID.generate())
+      user_org_dataset = insert(:dataset, datagouv_title: "Org Dataset", datagouv_id: Ecto.UUID.generate())
 
-      # It would be ultimately better to have a mock implementation of `Datagouvfr.Client.OAuth` for the
-      # whole test suite, like Hex.pm does:
-      # https://github.com/hexpm/hexpm/blob/5b86630bccd308ecd394561225cf4ea78b008c8e/config/test.exs#L11
-      #
-      # There is a bit of work to get there, though, so for now we'll just call `with_mock` and revisit later,
-      # but it would also provide better insurance that the mock results here aren't out of phase with reality.
-      with_mock Dataset, user_datasets: fn _ -> {:ok, [ud]} end, user_org_datasets: fn _ -> {:ok, [uod]} end do
-        conn =
-          conn
-          |> init_test_session(current_user: %{})
-          |> get(page_path(conn, :espace_producteur))
+      Datagouvfr.Client.User.Mock
+      |> expect(:datasets, fn _conn -> {:ok, [%{"id" => user_dataset.datagouv_id}]} end)
 
-        body = html_response(conn, 200)
+      Datagouvfr.Client.User.Mock
+      |> expect(:org_datasets, fn _conn -> {:ok, [%{"id" => user_org_dataset.datagouv_id}]} end)
 
-        {:ok, doc} = Floki.parse_document(body)
-        assert Floki.find(doc, ".message--error") == []
-        assert doc |> Floki.find(".dataset-item strong") |> Enum.map(&Floki.text(&1)) == ["User Dataset", "Org Dataset"]
-      end
+      conn =
+        conn
+        |> init_test_session(current_user: %{})
+        |> get(page_path(conn, :espace_producteur))
+
+      body = html_response(conn, 200)
+
+      {:ok, doc} = Floki.parse_document(body)
+      assert Floki.find(doc, ".message--error") == []
+      assert doc |> Floki.find(".dataset-item strong") |> Enum.map(&Floki.text(&1)) == ["User Dataset", "Org Dataset"]
     end
 
     test "renders a degraded mode when data gouv returns error", %{conn: conn} do
