@@ -1,9 +1,12 @@
 defmodule TransportWeb.AomsControllerTest do
   use TransportWeb.ConnCase, async: true
+  use TransportWeb.DatabaseCase, cleanup: []
   import DB.Factory
 
   setup do
-    Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    DB.Repo.delete_all(DB.Dataset)
+    DB.Repo.delete_all(DB.AOM)
+    :ok
   end
 
   test "display AOM information with inactive dataset" do
