@@ -40,8 +40,6 @@ defmodule TransportWeb.ResourceController do
     end
   end
 
-  def proxy_requests_stats_nb_days, do: 15
-
   def gtfs_rt_entities(%Resource{format: "gtfs-rt", id: id}) do
     recent_limit = Transport.Jobs.GTFSRTEntitiesJob.datetime_limit()
 
@@ -266,6 +264,8 @@ defmodule TransportWeb.ResourceController do
         |> form(params)
     end
   end
+
+  def proxy_requests_stats_nb_days, do: 15
 
   @spec proxy_statistics(Plug.Conn.t(), map) :: Plug.Conn.t()
   def proxy_statistics(conn, _params) do
