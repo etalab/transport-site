@@ -89,10 +89,17 @@ defmodule TransportWeb.ResourceControllerTest do
   end
 
   test "I can see my datasets", %{conn: conn} do
-    conn
-    |> init_test_session(%{current_user: %{"organizations" => [%{"slug" => "equipe-transport-data-gouv-fr"}]}})
-    |> get("/resources/update/datasets")
-    |> html_response(200)
+    dataset = insert(:dataset, datagouv_title: Ecto.UUID.generate())
+    Datagouvfr.Client.User.Mock |> expect(:datasets, fn _conn -> {:ok, []} end)
+    Datagouvfr.Client.User.Mock |> expect(:org_datasets, fn _conn -> {:ok, [%{"id" => dataset.datagouv_id}]} end)
+
+    html =
+      conn
+      |> init_test_session(%{current_user: %{"organizations" => [%{"slug" => "equipe-transport-data-gouv-fr"}]}})
+      |> get("/resources/update/datasets")
+      |> html_response(200)
+
+    assert html =~ dataset.datagouv_title
   end
 
   test "Non existing resource raises a Ecto.NoResultsError (interpreted as a 404 thanks to phoenix_ecto)", %{conn: conn} do
