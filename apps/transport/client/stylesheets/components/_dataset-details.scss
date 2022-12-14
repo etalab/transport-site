@@ -78,7 +78,7 @@
   padding-top: 1vh;
 }
 
-.dataset__resources .reuser-message {
+.dataset__resources .information-message {
   color: var(--theme-label-text);
 }
 
@@ -558,4 +558,8 @@
 
 .panel > :first-child {
   margin-top: 0;
+}
+
+hr {
+  border-bottom: 1px solid var(--theme-border-lighter);
 }
