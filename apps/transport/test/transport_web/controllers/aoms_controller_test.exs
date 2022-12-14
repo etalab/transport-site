@@ -1,9 +1,9 @@
 defmodule TransportWeb.AomsControllerTest do
-  use TransportWeb.ConnCase, async: true
+  use TransportWeb.ConnCase, async: false
   import DB.Factory
 
   setup do
-    Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
   test "display AOM information with inactive dataset" do
@@ -31,7 +31,7 @@ defmodule TransportWeb.AomsControllerTest do
     aom = insert(:aom, nom: "aom", parent_dataset: dataset)
     aoms = TransportWeb.AOMSController.aoms()
 
-    aom = aoms |> Enum.find(fn r -> r.nom == aom.nom end)
+    res = aoms |> Enum.find(fn r -> r.nom == aom.nom end)
 
     assert %{
              nom: "aom",
@@ -39,7 +39,7 @@ defmodule TransportWeb.AomsControllerTest do
              in_aggregate: true,
              up_to_date: true,
              has_realtime: true
-           } = aom
+           } = res
   end
 
   test "displays AOM information with datasets" do
@@ -96,6 +96,21 @@ defmodule TransportWeb.AomsControllerTest do
              in_aggregate: true,
              up_to_date: true,
              has_realtime: true
+           } = aom
+  end
+
+  test "displays AOM information without dataset" do
+    aom = insert(:aom, nom: "aom")
+
+    aoms = TransportWeb.AOMSController.aoms()
+    aom = aoms |> Enum.find(fn r -> r.nom == aom.nom end)
+
+    assert %{
+             nom: "aom",
+             published: false,
+             in_aggregate: false,
+             up_to_date: false,
+             has_realtime: false
            } = aom
   end
 
