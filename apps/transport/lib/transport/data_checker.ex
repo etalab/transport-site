@@ -83,8 +83,8 @@ defmodule Transport.DataChecker do
   end
 
   def gtfs_datasets_expiring_on(%Date{} = date) do
-    Transport.Validators.GTFSTransport.validator_name()
-    |> DB.Dataset.join_from_dataset_to_metadata()
+    DB.Dataset.base_query()
+    |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
     |> where(
       [metadata: m, resource: r],
       fragment("TO_DATE(?->>'end_date', 'YYYY-MM-DD')", m.metadata) == ^date and r.format == "GTFS"
