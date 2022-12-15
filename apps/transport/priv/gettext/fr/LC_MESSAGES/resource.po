@@ -124,3 +124,15 @@ msgstr "Cette ressource appartient à un jeu de données qui a été supprimé d
 #, elixir-autogen, elixir-format
 msgid "This option allows you to add the resource on data.gouv.fr, directly from here. Do you want to publish a more up-to-date version of a resource? <a href=\"%{url}\">Update the resource</a> instead."
 msgstr "Cette option vous permet d'ajouter la ressource sur data.gouv.fr depuis ici, sans avoir à vous y rendre. Vous souhaitez remplacer une ressource par une version plus à jour ? <a href=\"%{url}\">Mettez à jour la ressource</a> plutôt."
+
+#, elixir-autogen, elixir-format
+msgid "An authentication is required to access this SIRI feed."
+msgstr "Une authentification est requise pour accéder à ce flux SIRI."
+
+#, elixir-autogen, elixir-format
+msgid "SIRI authentication"
+msgstr "Authentification SIRI"
+
+#, elixir-autogen, elixir-format
+msgid "The key (RequestorRef) to provide is <code class=\"inline\" id=\"siri_requestor_ref\">%{requestor_ref}</code>."
+msgstr "La clé (RequestorRef) à renseigner est <code class=\"inline\" id=\"siri_requestor_ref\">%{requestor_ref}</code>."

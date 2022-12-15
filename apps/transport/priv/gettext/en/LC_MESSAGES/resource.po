@@ -124,3 +124,15 @@ msgstr ""
 #, elixir-autogen, elixir-format, fuzzy
 msgid "This option allows you to add the resource on data.gouv.fr, directly from here. Do you want to publish a more up-to-date version of a resource? <a href=\"%{url}\">Update the resource</a> instead."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "An authentication is required to access this SIRI feed."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "SIRI authentication"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The key (RequestorRef) to provide is <code class=\"inline\" id=\"siri_requestor_ref\">%{requestor_ref}</code>."
+msgstr ""

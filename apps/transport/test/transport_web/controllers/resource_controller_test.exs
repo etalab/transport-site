@@ -563,6 +563,20 @@ defmodule TransportWeb.ResourceControllerTest do
     assert ["a", "b", "c", "d"] = TransportWeb.ResourceController.gtfs_rt_entities(resource)
   end
 
+  test "SIRI RequestorRef is displayed", %{conn: conn} do
+    resource =
+      insert(:resource, format: "SIRI", url: "https://ara-api.enroute.mobi/endpoint", dataset: insert(:dataset))
+
+    requestor_ref = DB.Resource.guess_requestor_ref(resource)
+
+    assert DB.Resource.is_siri?(resource)
+    refute is_nil(requestor_ref)
+
+    html = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
+    assert html =~ ~s{<h2 id="siri-authentication">Authentification SIRI</h2>}
+    assert html =~ requestor_ref
+  end
+
   defp test_remote_download_error(%Plug.Conn{} = conn, mock_status_code) do
     resource = Resource |> Repo.get_by(datagouv_id: "2")
     refute Resource.can_direct_download?(resource)
