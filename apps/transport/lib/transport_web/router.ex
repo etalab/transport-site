@@ -85,6 +85,11 @@ defmodule TransportWeb.Router do
       get("/:id", ResourceController, :details)
       get("/:id/download", ResourceController, :download)
 
+      scope "/show" do
+        pipe_through([:authenticated])
+        get("/proxy_statistics", ResourceController, :proxy_statistics)
+      end
+
       scope "/update" do
         pipe_through([:authenticated])
         get("/_choose_action", ResourceController, :choose_action)

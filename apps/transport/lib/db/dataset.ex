@@ -6,7 +6,6 @@ defmodule DB.Dataset do
   There are also trigger on update on aom and region that will force an update on this model
   so the search vector is up-to-date.
   """
-  alias Datagouvfr.Client.User
   alias DB.{AOM, Commune, DatasetGeographicView, LogsImport, Region, Repo, Resource}
   alias Phoenix.HTML.Link
   import Ecto.{Changeset, Query}
@@ -636,7 +635,7 @@ defmodule DB.Dataset do
   """
   @spec user_datasets(Plug.Conn.t()) :: {:error, OAuth2.Error.t()} | {:ok, [__MODULE__.t()]}
   def user_datasets(%Plug.Conn{} = conn) do
-    case User.datasets(conn) do
+    case Datagouvfr.Client.User.Wrapper.impl().datasets(conn) do
       {:ok, datasets} ->
         datagouv_ids = Enum.map(datasets, fn d -> d["id"] end)
 
@@ -644,6 +643,7 @@ defmodule DB.Dataset do
         # to the local database for some reason, it won't appear in the result, despite existing remotely.
         {:ok,
          __MODULE__
+         |> preload(:resources)
          |> where([d], d.datagouv_id in ^datagouv_ids)
          |> order_by([d], desc: d.id)
          |> Repo.all()}
@@ -659,12 +659,13 @@ defmodule DB.Dataset do
   @spec user_org_datasets(Plug.Conn.t()) ::
           {:error, OAuth2.Error.t()} | {:ok, [__MODULE__.t()]}
   def user_org_datasets(%Plug.Conn{} = conn) do
-    case User.org_datasets(conn) do
+    case Datagouvfr.Client.User.Wrapper.impl().org_datasets(conn) do
       {:ok, datasets} ->
         datagouv_ids = Enum.map(datasets, fn d -> d["id"] end)
 
         {:ok,
          __MODULE__
+         |> preload(:resources)
          |> where([d], d.datagouv_id in ^datagouv_ids)
          |> order_by([d], desc: d.id)
          |> Repo.all()}

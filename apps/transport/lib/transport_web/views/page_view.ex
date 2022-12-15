@@ -19,4 +19,9 @@ defmodule TransportWeb.PageView do
 
   def make_link(""), do: "—"
   def make_link(o), do: link("Lien", to: o)
+
+  @spec show_proxy_stats_block?([DB.Dataset.t()]) :: boolean()
+  def show_proxy_stats_block?(datasets) do
+    datasets |> Enum.flat_map(& &1.resources) |> Enum.any?(&DB.Resource.served_by_proxy?/1)
+  end
 end
