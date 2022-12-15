@@ -32,7 +32,6 @@
     <%= dgettext("resource", "requests served by the proxy over the last %{nb} days", nb: @nb_days) %>
     <br />
     <strong><%= @stats_per_day |> Enum.map(& &1.requests_internal) |> Enum.sum() |> format_number() %></strong>
-    <%= dgettext("resource", "requests served by the upstream server over the last %{nb} days",
-      nb: @nb_days) %>
+    <%= dgettext("resource", "requests served by the upstream server over the last %{nb} days", nb: @nb_days) %>
   </p>
 </div>
