@@ -3,7 +3,7 @@ defmodule Transport.StatsHandler do
   Compute statistics on the datasets
   Also contains a function called periodically to store the stats in the DB
   """
-  alias DB.{AOM, Dataset, Region, Repo, Resource, StatsHistory, Validation}
+  alias DB.{AOM, Dataset, Region, Repo, Resource, StatsHistory}
   alias Transport.CSVDocuments
   import Ecto.Query
   require Logger
