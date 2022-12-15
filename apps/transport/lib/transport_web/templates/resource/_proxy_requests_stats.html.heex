@@ -20,7 +20,7 @@
     <tbody>
       <%= for stats_for_day <- @stats_per_day do %>
         <tr>
-          <td><%= stats_for_day.date %></td>
+          <td><%= DateTimeDisplay.format_date(stats_for_day.date, get_session(@conn, :locale)) %></td>
           <td><%= format_number(stats_for_day.requests_external) %></td>
           <td><%= format_number(stats_for_day.requests_internal) %></td>
         </tr>
