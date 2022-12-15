@@ -647,4 +647,42 @@ defmodule DB.Resource do
   defp is_link_to_folder?(%URI{path: path}) do
     path |> Path.basename() |> :filename.extension() == ""
   end
+
+  @doc """
+  iex> served_by_proxy?(%DB.Resource{url: "https://transport.data.gouv.fr/gbfs/marseille/gbfs.json", format: "gbfs"})
+  true
+  iex> served_by_proxy?(%DB.Resource{url: "https://proxy.transport.data.gouv.fr/resource/axeo-guingamp-gtfs-rt-vehicle-position", format: "gtfs-rt"})
+  true
+  iex> served_by_proxy?(%DB.Resource{url: "https://example.com", format: "GTFS"})
+  false
+  """
+  def served_by_proxy?(%__MODULE__{url: url} = resource) do
+    cond do
+      is_gtfs_rt?(resource) -> URI.parse(url).host == "proxy.transport.data.gouv.fr"
+      is_gbfs?(resource) -> String.starts_with?(url, "https://transport.data.gouv.fr/gbfs/")
+      true -> false
+    end
+  end
+
+  @doc """
+  iex> proxy_slug(%DB.Resource{url: "https://transport.data.gouv.fr/gbfs/cergy-pontoise/gbfs.json", format: "gbfs"})
+  "cergy-pontoise"
+  iex> proxy_slug(%DB.Resource{url: "https://proxy.transport.data.gouv.fr/resource/axeo-guingamp-gtfs-rt-vehicle-position", format: "gtfs-rt"})
+  "axeo-guingamp-gtfs-rt-vehicle-position"
+  iex> proxy_slug(%DB.Resource{url: "https://example.com", format: "GTFS"})
+  nil
+  """
+  def proxy_slug(%__MODULE__{url: url} = resource) do
+    if served_by_proxy?(resource) do
+      cond do
+        is_gtfs_rt?(resource) ->
+          url |> URI.parse() |> Map.fetch!(:path) |> String.replace("/resource/", "")
+
+        is_gbfs?(resource) ->
+          ~r{^https://transport\.data\.gouv\.fr/gbfs/([a-zA-Z0-9_-]+)/} |> Regex.run(url) |> List.last()
+      end
+    else
+      nil
+    end
+  end
 end

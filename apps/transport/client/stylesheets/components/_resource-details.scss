@@ -24,3 +24,10 @@
     color: $orange;
   }
 }
+
+.table.small-padding {
+  td,
+  th {
+    padding: 0.5em;
+  }
+}

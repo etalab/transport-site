@@ -13,7 +13,7 @@
           </a>
         </div>
         <div>
-          <%= dgettext("resource", "Format") %><%= dgettext("helper", ":") %><span class="label"><%= @resource.format %></span>
+          <%= dgettext("resource", "Format:") %> <span class="label"><%= @resource.format %></span>
         </div>
         <div :if={should_display_description?(@resource)} class="panel mt-24" lang="fr">
           <%= description(@resource) %>

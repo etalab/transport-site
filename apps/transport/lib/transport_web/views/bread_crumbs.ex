@@ -21,6 +21,13 @@ defmodule TransportWeb.BreadCrumbs do
       ]
   end
 
+  def crumbs(conn, :proxy_statistics) do
+    crumbs(conn, :espace_producteur) ++
+      [
+        {dgettext("espace-producteurs", "Transport proxy statistics"), resource_path(conn, :proxy_statistics)}
+      ]
+  end
+
   def crumbs(conn, :select_resource, id) do
     crumbs(conn, :espace_producteur) ++
       [

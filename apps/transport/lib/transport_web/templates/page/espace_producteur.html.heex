@@ -10,7 +10,7 @@
       <div class="producer-actions-flex">
         <div class="panel">
           <div class="update-header pb-24">
-            <img height="40" src={static_path(@conn, "/images/producteurs/picto-maj.png")} alt="" />
+            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-maj.png")} alt="" />
             <div>
               <h4 class="with-link"><%= dgettext("espace-producteurs", "Update a dataset") %></h4>
               <p>
@@ -47,7 +47,7 @@
         </div>
         <div>
           <div class="panel espace-producer-panel">
-            <img height="40" src={static_path(@conn, "/images/producteurs/picto-publier.png")} alt="" />
+            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-publier.png")} alt="" />
             <div>
               <div class="publish-header">
                 <div>
@@ -66,6 +66,25 @@
               <div class="pt-12">
                 <a href={dataset_creation()} class="button primary">
                   <%= dgettext("espace-producteurs", "Publish a new dataset") %>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div :if={show_proxy_stats_block?(@datasets)} class="panel espace-producer-panel">
+            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-trend.png")} alt="" />
+            <div>
+              <div class="publish-header">
+                <h4><%= dgettext("espace-producteurs", "Transport proxy statistics") %></h4>
+              </div>
+              <div class="pt-12">
+                <%= dgettext(
+                  "espace-producteurs",
+                  "Get access to traffic statistics for feeds handled by the transport.data.gouv.fr proxy."
+                ) %>
+              </div>
+              <div class="pt-12">
+                <a href={resource_path(@conn, :proxy_statistics)} class="button primary">
+                  <%= dgettext("espace-producteurs", "See statistics") %>
                 </a>
               </div>
             </div>
@@ -133,7 +152,7 @@
           </div>
         </div>
         <div class="panel espace-producer-panel">
-          <img height="40" src={static_path(@conn, "/images/producteurs/picto-check.png")} alt="" />
+          <img class="picto" src={static_path(@conn, "/images/producteurs/picto-check.png")} alt="" />
           <div>
             <div class="test-header">
               <div>
