@@ -390,8 +390,8 @@ defmodule TransportWeb.API.StatsController do
   end
 
   def dataset_expiration_dates do
-    Transport.Validators.GTFSTransport.validator_name()
-    |> DB.Dataset.join_from_dataset_to_metadata()
+    DB.Dataset.base_query()
+    |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
     |> where([resource: r], r.is_available == true)
     |> select([dataset: d, metadata: m], %{
       dataset_id: d.id,
@@ -400,8 +400,8 @@ defmodule TransportWeb.API.StatsController do
   end
 
   def dataset_error_levels do
-    Transport.Validators.GTFSTransport.validator_name()
-    |> DB.Dataset.join_from_dataset_to_metadata()
+    DB.Dataset.base_query()
+    |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
     |> DB.ResourceMetadata.where_gtfs_up_to_date()
     |> where([resource: r], r.is_available == true)
     |> select([dataset: d, multi_validation: mv], %{dataset_id: d.id, max_error: mv.max_error})

@@ -26,8 +26,8 @@ defmodule TransportWeb.API.DatasetController do
   @spec datasets(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def datasets(%Plug.Conn{} = conn, _params) do
     datasets_with_gtfs_metadata =
-      Transport.Validators.GTFSTransport.validator_name()
-      |> Dataset.join_from_dataset_to_metadata()
+      DB.Dataset.base_query()
+      |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
       |> preload([resource: r, resource_history: rh, multi_validation: mv, metadata: m], [
         :aom,
         :region,

@@ -70,8 +70,8 @@ defmodule DB.Dataset do
   Creates a query with the following inner joins:
   datasets <> Resource <> ResourceHistory <> MultiValidation <> ResourceMetadata
   """
-  def join_from_dataset_to_metadata(validator_name) do
-    __MODULE__.base_query()
+  def join_from_dataset_to_metadata(query, validator_name) do
+    query
     |> DB.Resource.join_dataset_with_resource()
     |> DB.ResourceHistory.join_resource_with_latest_resource_history()
     |> DB.MultiValidation.join_resource_history_with_latest_validation(validator_name)
@@ -425,8 +425,8 @@ defmodule DB.Dataset do
 
   @spec count_by_mode(binary()) :: number()
   def count_by_mode(tag) do
-    Transport.Validators.GTFSTransport.validator_name()
-    |> join_from_dataset_to_metadata()
+    base_query()
+    |> join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
     |> where([metadata: m], ^tag in m.modes)
     |> distinct([dataset: d], d.id)
     |> Repo.aggregate(:count, :id)
@@ -434,8 +434,8 @@ defmodule DB.Dataset do
 
   @spec count_coach() :: number()
   def count_coach do
-    Transport.Validators.GTFSTransport.validator_name()
-    |> join_from_dataset_to_metadata()
+    base_query()
+    |> join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
     # 14 is the national "region". It means that it is not bound to a region or local territory
     |> where([metadata: m, dataset: d], d.region_id == 14 and "bus" in m.modes)
     |> distinct([dataset: d], d.id)
