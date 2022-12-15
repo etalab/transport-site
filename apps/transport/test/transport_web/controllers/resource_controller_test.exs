@@ -569,7 +569,7 @@ defmodule TransportWeb.ResourceControllerTest do
     # we want a sorted list in the output!
     assert ["a", "b", "c", "d"] = TransportWeb.ResourceController.gtfs_rt_entities(resource)
   end
-  
+
   describe "proxy_statistics" do
     test "requires authentication", %{conn: conn} do
       conn = conn |> get(resource_path(conn, :proxy_statistics))
