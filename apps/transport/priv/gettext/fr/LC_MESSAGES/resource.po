@@ -138,12 +138,12 @@ msgid "Number of requests served by transport.data.gouv.fr"
 msgstr "Nombre de requêtes gérées par transport.data.gouv.fr"
 
 #, elixir-autogen, elixir-format
-msgid "Requests served by the proxy over the last %{nb} days: %{total}"
-msgstr "Nombre de requêtes gérées par le proxy au cours des %{nb} derniers jours : %{total}"
+msgid "requests served by the proxy over the last %{nb} days"
+msgstr "requêtes gérées par le proxy au cours des %{nb} derniers jours"
 
 #, elixir-autogen, elixir-format
-msgid "Requests served by the upstream server over the last %{nb} days: %{total}"
-msgstr "Nombre de requêtes transmises au serveur source au cours des %{nb} derniers jours : %{total}"
+msgid "requests served by the upstream server over the last %{nb} days"
+msgstr "requêtes transmises au serveur source au cours des %{nb} derniers jours"
 
 #, elixir-autogen, elixir-format
 msgid "Proxy requests statistics"

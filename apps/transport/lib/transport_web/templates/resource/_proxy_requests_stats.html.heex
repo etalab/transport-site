@@ -28,14 +28,11 @@
     </tbody>
   </table>
   <p>
-    <%= dgettext("resource", "Requests served by the proxy over the last %{nb} days: %{total}",
-      nb: @nb_days,
-      total: @stats_per_day |> Enum.map(& &1.requests_external) |> Enum.sum() |> format_number()
-    ) %>
+    <strong><%= @stats_per_day |> Enum.map(& &1.requests_external) |> Enum.sum() |> format_number() %></strong>
+    <%= dgettext("resource", "requests served by the proxy over the last %{nb} days", nb: @nb_days) %>
     <br />
-    <%= dgettext("resource", "Requests served by the upstream server over the last %{nb} days: %{total}",
-      nb: @nb_days,
-      total: @stats_per_day |> Enum.map(& &1.requests_internal) |> Enum.sum() |> format_number()
-    ) %>
+    <strong><%= @stats_per_day |> Enum.map(& &1.requests_internal) |> Enum.sum() |> format_number() %></strong>
+    <%= dgettext("resource", "requests served by the upstream server over the last %{nb} days",
+      nb: @nb_days) %>
   </p>
 </div>
