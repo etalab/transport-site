@@ -166,34 +166,35 @@ defmodule Transport.StatsHandler do
   end
 
   @spec compute_aom_gtfs_max_severity() :: %{binary() => integer()}
-  defp compute_aom_gtfs_max_severity do
+  def compute_aom_gtfs_max_severity do
     # consolidate the maximum error for the current datasets of each AOMs
     # return, for each error, the number of AOM with this maximum error
     dt = Date.utc_today()
 
-    validations =
-      Validation
-      |> select([v], %{
+    validation_infos =
+      DB.Dataset.base_query()
+      |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+      |> select([resource: r, multi_validation: mv, metadata: m], %{
         max_error:
           fragment("""
           CASE max_error::text
-          WHEN 'Fatal' THEN 5
-          WHEN 'Error' THEN 4
-          WHEN 'Warning' THEN 3
-          WHEN 'Information' THEN 2
-          WHEN 'Irrelevant' THEN 1
+          WHEN 'Fatal' THEN 4
+          WHEN 'Error' THEN 3
+          WHEN 'Warning' THEN 2
+          WHEN 'Information' THEN 1
           ELSE 0
           END
           """),
-        resource_id: v.resource_id
+        resource_id: r.id,
+        end_date: fragment("TO_DATE(?->>'end_date', 'YYYY-MM-DD')", m.metadata)
       })
 
     AOM
     |> join(:left, [aom], dataset in Dataset, on: dataset.id == aom.parent_dataset_id or dataset.aom_id == aom.id)
     |> join(:left, [_, dataset], _r in assoc(dataset, :resources))
-    |> join(:left, [_, _, r], v in subquery(validations), on: v.resource_id == r.id)
+    |> join(:left, [_, _, r], v in subquery(validation_infos), on: v.resource_id == r.id)
     |> where([_a, _d, r, _v], r.format == "GTFS")
-    |> where([_a, _d, r, _v], r.end_date >= ^dt)
+    |> where([_a, _d, _r, v], v.end_date >= ^dt)
     |> group_by([a, _d, _r, v], a.id)
     |> select([a, d, r, v], %{
       aom: a.id,
@@ -203,16 +204,15 @@ defmodule Transport.StatsHandler do
     |> List.foldl(%{}, fn %{max_error: max_error}, acc ->
       max_error =
         case max_error do
-          5 -> "Fatal"
-          4 -> "Error"
-          3 -> "Warning"
-          2 -> "Information"
-          1 -> "Irrelevant"
+          4 -> "Fatal"
+          3 -> "Error"
+          2 -> "Warning"
+          1 -> "Information"
           0 -> "NoError"
           _ -> nil
         end
 
-      Map.update(acc, max_error, 0, fn v -> v + 1 end)
+      Map.update(acc, max_error, 1, fn v -> v + 1 end)
     end)
   end
 
