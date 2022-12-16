@@ -475,11 +475,19 @@ defmodule TransportWeb.DatasetView do
     history_resources |> Enum.map(&has_validity_period?/1) |> Enum.any?()
   end
 
-  def has_validity_period?(%DB.ResourceHistory{payload: %{"resource_metadata" => metadata}}) when is_map(metadata) do
+  def has_validity_period?(%DB.ResourceHistory{validations: [%{metadata: %{metadata: %{} = metadata}}]}) do
     not is_nil(Map.get(metadata, "start_date"))
   end
 
   def has_validity_period?(%DB.ResourceHistory{}), do: false
+
+  def validity_period(%DB.ResourceHistory{
+        validations: [%{metadata: %{metadata: %{"start_date" => start_date, "end_date" => end_date}}}]
+      }) do
+    %{"start_date" => start_date, "end_date" => end_date}
+  end
+
+  def validity_period(_), do: %{}
 
   def show_resource_last_update(resources_updated_at, %DB.Resource{id: id} = resource, locale) do
     if Resource.is_real_time?(resource) do

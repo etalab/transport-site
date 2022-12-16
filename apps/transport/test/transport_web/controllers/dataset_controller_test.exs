@@ -79,14 +79,14 @@ defmodule TransportWeb.DatasetControllerTest do
 
   test "has_validity_period?" do
     assert TransportWeb.DatasetView.has_validity_period?(%DB.ResourceHistory{
-             payload: %{"resource_metadata" => %{"start_date" => "2022-02-17"}}
+             validations: [%{metadata: %{metadata: %{"start_date" => "2022-02-17"}}}]
            })
 
     refute TransportWeb.DatasetView.has_validity_period?(%DB.ResourceHistory{
-             payload: %{"resource_metadata" => %{"start_date" => nil}}
+             validations: [%{metadata: %{metadata: %{"start_date" => nil}}}]
            })
 
-    refute TransportWeb.DatasetView.has_validity_period?(%DB.ResourceHistory{payload: %{}})
+    refute TransportWeb.DatasetView.has_validity_period?(%DB.ResourceHistory{})
   end
 
   test "show GTFS number of errors", %{conn: conn} do
