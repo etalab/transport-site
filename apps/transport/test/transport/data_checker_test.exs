@@ -3,6 +3,8 @@ defmodule Transport.DataCheckerTest do
   import Mox
   import DB.Factory
 
+  doctest Transport.DataChecker, import: true
+
   setup :verify_on_exit!
 
   describe "inactive_data job" do
@@ -164,7 +166,7 @@ defmodule Transport.DataCheckerTest do
       dataset_slug = "reseau-de-transport-de-la-ville"
       producer_email = "hello@example.com"
 
-      dataset = insert(:dataset, is_active: true, slug: dataset_slug)
+      dataset = insert(:dataset, is_active: true, slug: dataset_slug, custom_title: "Dataset custom title")
       # fake a resource expiring today
       resource = insert(:resource, dataset: dataset, format: "GTFS")
 
@@ -182,7 +184,7 @@ defmodule Transport.DataCheckerTest do
       assert [dataset.id] == Date.utc_today() |> Transport.DataChecker.gtfs_datasets_expiring_on() |> Enum.map(& &1.id)
 
       Transport.Notifications.FetcherMock
-      |> expect(:fetch_config!, 2, fn ->
+      |> expect(:fetch_config!, 3, fn ->
         [
           %Transport.Notifications.Item{
             reason: :expiration,
@@ -200,16 +202,21 @@ defmodule Transport.DataCheckerTest do
         assert to_email == "deploiement@transport.beta.gouv.fr"
         assert subject == "Jeux de données arrivant à expiration"
         assert body =~ ~r/Jeux de données expirant demain:/
+
+        assert body =~
+                 "#{dataset.custom_title} - http://127.0.0.1:5100/datasets/#{dataset.slug} (✅ notification automatique)"
+
         :ok
       end)
 
-      # a second mail to contact
+      # a second mail to the email address in the notifications config
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, subject, body, _html_body ->
         assert from_email == "contact@transport.beta.gouv.fr"
         assert to_email == producer_email
         assert subject == "Jeu de données arrivant à expiration"
         assert body =~ ~r/Une ressource associée au jeu de données expire demain/
+        refute body =~ "notification automatique"
         :ok
       end)
 
@@ -390,7 +397,7 @@ defmodule Transport.DataCheckerTest do
       ]
     end)
 
-    assert [0, 7, 14, 30, 42] == Transport.DataChecker.possible_delays()
+    assert [-7, -3, 0, 7, 14, 30, 42] == Transport.DataChecker.possible_delays()
   end
 
   test "count_archived_datasets" do
