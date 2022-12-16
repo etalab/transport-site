@@ -9,7 +9,8 @@ defmodule Transport.History.Fetcher do
 
   def impl, do: Application.get_env(:transport, :history_impl)
 
-  def history_resources(%DB.Dataset{} = dataset, max_records \\ nil), do: impl().history_resources(dataset, max_records)
+  def history_resources(%DB.Dataset{} = dataset, max_records \\ nil),
+    do: impl().history_resources(dataset, max_records)
 end
 
 defmodule Transport.History.Fetcher.Database do
@@ -31,7 +32,11 @@ defmodule Transport.History.Fetcher.Database do
       |> preload(:metadata)
 
     DB.ResourceHistory.base_query()
-    |> join(:inner, [resource_history: rh], r in DB.Resource, on: r.id == rh.resource_id and r.dataset_id == ^dataset_id)
+    |> join(:inner, [resource_history: rh], r in DB.Resource,
+      on:
+        r.id == rh.resource_id and
+          r.dataset_id == ^dataset_id
+    )
     |> preload([], validations: ^latest_resource_history_validation)
     |> maybe_limit(max_records)
     |> Repo.all()
