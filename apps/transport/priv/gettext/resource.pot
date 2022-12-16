@@ -156,3 +156,15 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Format:"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "An authentication is required to access this SIRI feed."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "SIRI authentication"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The key (RequestorRef) to provide is <code class=\"inline\" id=\"siri_requestor_ref\">%{requestor_ref}</code>."
+msgstr ""

@@ -502,11 +502,24 @@ defmodule DB.Resource do
   @doc """
   Ultimately, requestor_refs should be imported as data gouv meta-data, or maybe just set via
   our backoffice. For now though, we're guessing them based on a public configuration + the host name.
+
+  iex> guess_requestor_ref(%DB.Resource{format: "SIRI", url: "https://ara-api.enroute.mobi/endpoint"})
+  "fake-enroute-requestor-ref"
+  iex> guess_requestor_ref(%DB.Resource{format: "GTFS", url: "https://ara-api.enroute.mobi/gtfs.zip"})
+  nil
+  iex> guess_requestor_ref(%DB.Resource{format: "SIRI", url: "https://example.com/endpoint"})
+  nil
+  iex> guess_requestor_ref(%DB.Resource{format: "GTFS", url: "https://example.com/gtfs.zip"})
+  nil
   """
-  def guess_requestor_ref(%__MODULE__{} = resource) do
-    if URI.parse(resource.url).host == "ara-api.enroute.mobi" do
-      public_siri_requestor_refs = Application.fetch_env!(:transport, :public_siri_requestor_refs)
-      Map.get(public_siri_requestor_refs, :enroute)
+  def guess_requestor_ref(%__MODULE__{url: url} = resource) do
+    if is_siri?(resource) do
+      host_to_key = %{"ara-api.enroute.mobi" => :enroute}
+      resource_host = URI.parse(url).host
+
+      :transport
+      |> Application.fetch_env!(:public_siri_requestor_refs)
+      |> Map.get(host_to_key[resource_host])
     else
       nil
     end

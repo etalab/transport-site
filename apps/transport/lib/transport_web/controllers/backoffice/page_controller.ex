@@ -22,12 +22,12 @@ defmodule TransportWeb.Backoffice.PageController do
     dt = Date.utc_today() |> Date.to_iso8601()
 
     sub =
-      Resource
-      |> where([r], fragment("metadata->>'end_date' IS NOT NULL"))
-      |> group_by([r], r.dataset_id)
-      |> having([_q], fragment("max(metadata->>'end_date') <= ?", ^dt))
-      |> distinct([r], r.dataset_id)
-      |> select([r], %{dataset_id: r.dataset_id, end_date: fragment("max(metadata->>'end_date')")})
+      DB.Dataset.base_query()
+      |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+      |> where([metadata: m], fragment("?->>'end_date' IS NOT NULL", m.metadata))
+      |> group_by([dataset: d], d.id)
+      |> having([metadata: m], fragment("max(?->>'end_date') <= ?", m.metadata, ^dt))
+      |> select([dataset: d, metadata: m], %{dataset_id: d.id, end_date: fragment("max(?->>'end_date')", m.metadata)})
 
     Dataset
     |> join(:right, [d], r in subquery(sub), on: d.id == r.dataset_id)
@@ -35,31 +35,17 @@ defmodule TransportWeb.Backoffice.PageController do
     |> render_index(conn, params)
   end
 
-  def index(%Plug.Conn{} = conn, %{"filter" => "other_resources"} = params) do
-    resources =
-      Resource
-      |> having(
-        [r],
-        fragment("SUM(CASE WHEN format='GTFS' or format='gbfs' or format='NeTEx' THEN 1 ELSE 0 END) > 0")
-      )
-      |> group_by([r], r.dataset_id)
-      |> select([r], %{dataset_id: r.dataset_id, end_date: fragment("max(metadata->>'end_date')")})
-
-    Dataset
-    |> join(:inner, [d], r in subquery(resources), on: d.id == r.dataset_id)
-    |> query_order_by_from_params(params)
-    |> render_index(conn, params)
-  end
-
   def index(%Plug.Conn{} = conn, %{"filter" => "not_compliant"} = params) do
-    resources =
-      Resource
-      |> having([r], fragment("MAX(CAST(metadata->'issues_count'->>'UnloadableModel' as INT)) > 0"))
-      |> group_by([r], r.dataset_id)
-      |> select([r], %{dataset_id: r.dataset_id, end_date: fragment("max(metadata->>'end_date')")})
+    sub =
+      DB.Dataset.base_query()
+      |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+      |> where([metadata: m], fragment("?->>'end_date' IS NOT NULL", m.metadata))
+      |> group_by([dataset: d], d.id)
+      |> having([metadata: m], fragment("MAX(CAST(?->'issues_count'->>'UnloadableModel' as INT)) > 0", m.metadata))
+      |> select([dataset: d, metadata: m], %{dataset_id: d.id, end_date: fragment("max(?->>'end_date')", m.metadata)})
 
     Dataset
-    |> join(:inner, [d], r in subquery(resources), on: d.id == r.dataset_id)
+    |> join(:inner, [d], r in subquery(sub), on: d.id == r.dataset_id)
     |> query_order_by_from_params(params)
     |> render_index(conn, params)
   end
@@ -132,13 +118,15 @@ defmodule TransportWeb.Backoffice.PageController do
   end
 
   def index(%Plug.Conn{} = conn, params) do
-    resources =
-      Resource
-      |> group_by([r], r.dataset_id)
-      |> select([r], %{dataset_id: r.dataset_id, end_date: fragment("max(metadata->>'end_date')")})
+    sub =
+      DB.Dataset.base_query()
+      |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+      |> where([metadata: m], fragment("?->>'end_date' IS NOT NULL", m.metadata))
+      |> group_by([dataset: d], d.id)
+      |> select([dataset: d, metadata: m], %{dataset_id: d.id, end_date: fragment("max(?->>'end_date')", m.metadata)})
 
     Dataset
-    |> join(:inner, [d], r in subquery(resources), on: d.id == r.dataset_id)
+    |> join(:inner, [d], r in subquery(sub), on: d.id == r.dataset_id)
     |> query_order_by_from_params(params)
     |> render_index(conn, params)
   end
