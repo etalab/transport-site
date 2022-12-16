@@ -86,10 +86,6 @@ msgid "Edit a dataset"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "With unidentified resources"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Associated territory"
 msgstr ""
 
@@ -118,7 +114,7 @@ msgid "National dataset"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Not compliant to spec"
+msgid "GTFS with fatal failure"
 msgstr ""
 
 #, elixir-autogen, elixir-format

@@ -85,12 +85,7 @@
           ) %>
         </div>
         <div>
-          <%= link(dgettext("backoffice", "With unidentified resources"),
-            to: backoffice_page_path(@conn, :index, %{"filter" => "other_resources"}) <> "#list_datasets"
-          ) %>
-        </div>
-        <div>
-          <%= link(dgettext("backoffice", "Not compliant to spec"),
+          <%= link(dgettext("backoffice", "GTFS with fatal failure"),
             to: backoffice_page_path(@conn, :index, %{"filter" => "not_compliant"}) <> "#list_datasets"
           ) %>
         </div>
