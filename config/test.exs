@@ -95,7 +95,10 @@ config :transport,
   datagouvfr_site: "https://demo.data.gouv.fr",
   # NOTE: some tests still rely on ExVCR cassettes at the moment. We configure the
   # expected host here, until we move to a behaviour-based testing instead.
-  gtfs_validator_url: "https://validation.transport.data.gouv.fr"
+  gtfs_validator_url: "https://validation.transport.data.gouv.fr",
+  public_siri_requestor_refs: %{
+    enroute: "fake-enroute-requestor-ref"
+  }
 
 secret_key_base = "SOME-LONG-SECRET-KEY-BASE-FOR-TESTING-SOME-LONG-SECRET-KEY-BASE-FOR-TESTING"
 
