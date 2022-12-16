@@ -9,7 +9,7 @@ defmodule Transport.DataChecker do
   require Logger
 
   @update_data_doc_link "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees#remplacer-un-jeu-de-donnees-existant-plutot-quen-creer-un-nouveau"
-  @default_outdated_data_delays [0, 7, 14]
+  @default_outdated_data_delays [-7, -3, 0, 7, 14]
 
   @doc """
   This method is a scheduled job which does two things:
@@ -79,7 +79,7 @@ defmodule Transport.DataChecker do
     end
     |> Enum.reject(fn {_, d} -> d == [] end)
     |> send_outdated_data_mail()
-    |> Enum.map(fn x -> send_outdated_data_notifications(x) end)
+    |> Enum.map(&send_outdated_data_notifications/1)
   end
 
   def gtfs_datasets_expiring_on(%Date{} = date) do
@@ -159,7 +159,7 @@ defmodule Transport.DataChecker do
           """
           Bonjour,
 
-          Une ressource associée au jeu de données expire #{delay_str(delay)} :
+          Une ressource associée au jeu de données #{delay_str(delay, :expire)} :
 
           #{link_and_name(dataset, :datagouv_title)}
 
@@ -180,18 +180,58 @@ defmodule Transport.DataChecker do
     payload
   end
 
+  def has_expiration_notifications?(%Dataset{} = dataset) do
+    Transport.Notifications.config()
+    |> Transport.Notifications.emails_for_reason(:expiration, dataset)
+    |> Enum.count() > 0
+  end
+
+  def expiration_notification_enabled_str(%Dataset{} = dataset) do
+    if has_expiration_notifications?(dataset) do
+      "✅ notification automatique"
+    else
+      "❌ pas de notification automatique"
+    end
+  end
+
   defp make_str({delay, datasets}) do
-    r_str = Enum.map_join(datasets, "\n", &link_and_name(&1, :custom_title))
+    dataset_str = fn %Dataset{} = dataset ->
+      "#{link_and_name(dataset, :custom_title)} (#{expiration_notification_enabled_str(dataset)})"
+    end
 
     """
-    Jeux de données expirant #{delay_str(delay)}:
+    Jeux de données #{delay_str(delay, :expirant)}:
 
-    #{r_str}
+    #{Enum.map_join(datasets, "\n", &dataset_str.(&1))}
     """
   end
 
-  defp delay_str(0), do: "demain"
-  defp delay_str(d), do: "dans #{d} jours"
+  @doc """
+  iex> delay_str(0, :expirant)
+  "expirant demain"
+  iex> delay_str(0, :expire)
+  "expire demain"
+  iex> delay_str(2, :expirant)
+  "expirant dans 2 jours"
+  iex> delay_str(2, :expire)
+  "expire dans 2 jours"
+  iex> delay_str(-1, :expirant)
+  "expirés depuis hier"
+  iex> delay_str(-1, :expire)
+  "expiré depuis hier"
+  iex> delay_str(-2, :expirant)
+  "expirés depuis 2 jours"
+  iex> delay_str(-2, :expire)
+  "expiré depuis 2 jours"
+  """
+  @spec delay_str(integer(), :expire | :expirant) :: binary()
+  def delay_str(0, verb), do: "#{verb} demain"
+  def delay_str(1, verb), do: "#{verb} dans 1 jour"
+  def delay_str(d, verb) when d >= 2, do: "#{verb} dans #{d} jours"
+  def delay_str(-1, :expirant), do: "expirés depuis hier"
+  def delay_str(-1, :expire), do: "expiré depuis hier"
+  def delay_str(d, :expirant) when d <= -2, do: "expirés depuis #{-d} jours"
+  def delay_str(d, :expire) when d <= -2, do: "expiré depuis #{-d} jours"
 
   def link(%Dataset{slug: slug}), do: dataset_url(TransportWeb.Endpoint, :details, slug)
 
@@ -204,14 +244,12 @@ defmodule Transport.DataChecker do
   end
 
   defp make_outdated_data_body(datasets) do
-    # credo:disable-for-lines:5
     """
     Bonjour,
+
     Voici un résumé des jeux de données arrivant à expiration
 
-    #{datasets |> Enum.map(&make_str/1) |> Enum.join("\n---------------------\n")}
-
-    À vous de jouer !
+    #{Enum.map_join(datasets, "\n---------------------\n", &make_str/1)}
     """
   end
 
