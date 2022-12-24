@@ -200,7 +200,7 @@ defmodule Transport.DataChecker do
     end
 
     """
-    Jeux de données #{delay_str(delay, :expirant)}:
+    Jeux de données #{delay_str(delay, :expirant)} :
 
     #{Enum.map_join(datasets, "\n", &dataset_str.(&1))}
     """
