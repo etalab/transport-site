@@ -79,7 +79,7 @@ defmodule DB.MultiValidation do
     |> DB.Repo.exists?()
   end
 
-  @spec resource_latest_validation(integer(), atom | nil) :: __MODULE__.t() | nil
+  @spec resource_latest_validation(DB.Resource.t(), atom | nil) :: __MODULE__.t() | nil
   def resource_latest_validation(_, nil), do: nil
 
   def resource_latest_validation(resource_id, validator) when is_atom(validator) do
@@ -95,6 +95,16 @@ defmodule DB.MultiValidation do
     |> preload([:metadata, :resource_history])
     |> limit(1)
     |> DB.Repo.one()
+  end
+
+  @spec resource_latest_validations(integer(), atom, DateTime.t()) :: [__MODULE__.t()]
+  def resource_latest_validations(resource_id, validator, %DateTime{} = date_from) do
+    validator_name = validator.validator_name()
+
+    DB.MultiValidation
+    |> where([mv], mv.validator == ^validator_name and mv.resource_id == ^resource_id and mv.inserted_at >= ^date_from)
+    |> order_by([mv], asc: mv.validation_timestamp)
+    |> DB.Repo.all()
   end
 
   @spec resource_history_latest_validation(integer(), atom | nil) :: __MODULE__.t() | nil

@@ -225,7 +225,8 @@ defmodule TransportWeb.ResourceControllerTest do
       validation_result["files"]["gtfs_rt_permanent_url"],
       "Prolongation des travaux rue de Kermaria",
       "Impossible de déterminer le fichier GTFS à utiliser",
-      "a aucun fichier GTFS"
+      "a aucun fichier GTFS",
+      "Validations précédentes"
     ]
     |> Enum.each(&assert content =~ &1)
   end
@@ -635,6 +636,83 @@ defmodule TransportWeb.ResourceControllerTest do
     html = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
     assert html =~ ~s{<h2 id="siri-authentication">Authentification SIRI</h2>}
     assert html =~ requestor_ref
+  end
+
+  test "gtfs_rt_latest_validations_details" do
+    resource = insert(:resource, format: "gtfs-rt")
+
+    insert(:multi_validation,
+      validator: Transport.Validators.GTFSRT.validator_name(),
+      resource_id: resource.id,
+      validation_timestamp: DateTime.utc_now() |> DateTime.add(-500),
+      result: %{
+        "errors" => [
+          %{
+            "title" => "error title",
+            "description" => "error description",
+            "severity" => "ERROR",
+            "error_id" => "E001",
+            "errors_count" => 2,
+            "errors" => ["sample 1", "foo"]
+          },
+          %{
+            "title" => "warning title",
+            "description" => "warning description",
+            "severity" => "WARNING",
+            "error_id" => "W001",
+            "errors_count" => 3,
+            "errors" => ["sample 2", "bar", "baz"]
+          }
+        ]
+      }
+    )
+
+    insert(:multi_validation,
+      validator: Transport.Validators.GTFSRT.validator_name(),
+      resource_id: resource.id,
+      validation_timestamp: DateTime.utc_now(),
+      result: %{
+        "errors" => [
+          %{
+            "title" => "error title",
+            "description" => "error description",
+            "severity" => "ERROR",
+            "error_id" => "E001",
+            "errors_count" => 1,
+            "errors" => ["sample 1"]
+          },
+          %{
+            "title" => "error title",
+            "description" => "error description 002",
+            "severity" => "ERROR",
+            "error_id" => "E002",
+            "errors_count" => 2,
+            "errors" => ["sample 1", "sample 2"]
+          }
+        ]
+      }
+    )
+
+    assert %{
+             "E001" => %{
+               "description" => "error description",
+               "errors_count" => 3,
+               "occurence" => 2,
+               "percentage" => 100
+             },
+             "E002" => %{
+               "description" => "error description 002",
+               "errors_count" => 2,
+               "occurence" => 1,
+               "percentage" => 50
+             },
+             "W001" => %{
+               "description" => "warning description",
+               "errors_count" => 3,
+               "occurence" => 1,
+               "percentage" => 50
+             }
+           } == TransportWeb.ResourceController.gtfs_rt_latest_validations_details(resource)
   end
 
   defp test_remote_download_error(%Plug.Conn{} = conn, mock_status_code) do

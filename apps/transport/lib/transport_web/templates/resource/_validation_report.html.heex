@@ -9,7 +9,12 @@
 <% end %>
 
 <%= if show_gtfs_rt_validation do %>
-  <%= render("_validation_report_gtfs_rt.html", resource: @resource, conn: @conn, multi_validation: @multi_validation) %>
+  <%= render("_validation_report_gtfs_rt.html",
+    resource: @resource,
+    conn: @conn,
+    multi_validation: @multi_validation,
+    latest_validations_details: @gtfs_rt_latest_validations_details
+  ) %>
 <% end %>
 
 <%= if show_gbfs_validation do %>
