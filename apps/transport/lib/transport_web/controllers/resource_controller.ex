@@ -30,7 +30,7 @@ defmodule TransportWeb.ResourceController do
       |> assign(:resource_history_infos, DB.ResourceHistory.latest_resource_history_infos(id))
       |> assign(:gtfs_rt_feed, gtfs_rt_feed(conn, resource))
       |> assign(:gtfs_rt_entities, gtfs_rt_entities(resource))
-      |> assign(:gtfs_rt_latest_validations_details, gtfs_rt_latest_validations_details(resource))
+      |> assign(:latest_validations_details, latest_validations_details(resource))
       |> assign(:multi_validation, latest_validation(resource))
       |> put_resource_flash(resource.dataset.is_active)
 
@@ -53,7 +53,7 @@ defmodule TransportWeb.ResourceController do
 
   def gtfs_rt_entities(%Resource{}), do: nil
 
-  def gtfs_rt_latest_validations_details(%Resource{format: "gtfs-rt", id: id}) do
+  def latest_validations_details(%Resource{format: "gtfs-rt", id: id}) do
     validations =
       DB.MultiValidation.resource_latest_validations(
         id,
@@ -100,7 +100,7 @@ defmodule TransportWeb.ResourceController do
     |> elem(1)
   end
 
-  def gtfs_rt_latest_validations_details(%Resource{}), do: nil
+  def latest_validations_details(%Resource{}), do: nil
 
   defp gtfs_rt_feed(conn, %Resource{format: "gtfs-rt", url: url, id: id}) do
     lang = get_session(conn, :locale)

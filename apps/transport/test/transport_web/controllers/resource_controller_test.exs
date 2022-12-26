@@ -638,7 +638,7 @@ defmodule TransportWeb.ResourceControllerTest do
     assert html =~ requestor_ref
   end
 
-  test "gtfs_rt_latest_validations_details" do
+  test "latest_validations_details" do
     resource = insert(:resource, format: "gtfs-rt")
 
     insert(:multi_validation,
@@ -712,7 +712,7 @@ defmodule TransportWeb.ResourceControllerTest do
                "occurence" => 1,
                "percentage" => 50
              }
-           } == TransportWeb.ResourceController.gtfs_rt_latest_validations_details(resource)
+           } == TransportWeb.ResourceController.latest_validations_details(resource)
   end
 
   defp test_remote_download_error(%Plug.Conn{} = conn, mock_status_code) do
