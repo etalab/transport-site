@@ -56,5 +56,5 @@ defmodule Transport.Jobs.BaseGeoData do
   end
 
   # remove spaces (U+0020) and non-break spaces (U+00A0) from the string
-  defp string_to_float(s), do: s |> String.replace([" ", " "], "") |> String.to_float()
+  defp string_to_float(s), do: s |> String.trim() |> String.replace([" ", " "], "") |> String.to_float()
 end
