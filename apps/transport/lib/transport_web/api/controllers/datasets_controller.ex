@@ -26,8 +26,8 @@ defmodule TransportWeb.API.DatasetController do
   @spec datasets(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def datasets(%Plug.Conn{} = conn, _params) do
     datasets_with_gtfs_metadata =
-      Transport.Validators.GTFSTransport.validator_name()
-      |> Dataset.join_from_dataset_to_metadata()
+      DB.Dataset.base_query()
+      |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
       |> preload([resource: r, resource_history: rh, multi_validation: mv, metadata: m], [
         :aom,
         :region,
@@ -297,9 +297,11 @@ defmodule TransportWeb.API.DatasetController do
       end
 
     %{
+      "page_url" => TransportWeb.Router.Helpers.resource_url(TransportWeb.Endpoint, :details, resource.id),
       "datagouv_id" => resource.datagouv_id,
       "title" => resource.title,
       "updated" => Shared.DateTimeDisplay.format_naive_datetime_to_paris_tz(resource.last_update),
+      "is_available" => resource.is_available,
       "url" => resource.latest_url,
       "original_url" => resource.url,
       "end_calendar_validity" => metadata_content && Map.get(metadata, "end_date"),

@@ -7,7 +7,7 @@ defmodule TransportWeb.ResourceView do
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
 
   import TransportWeb.DatasetView,
-    only: [documentation_url: 1, errors_count: 1, warnings_count: 1, multi_validation_performed?: 1]
+    only: [documentation_url: 1, errors_count: 1, warnings_count: 1, multi_validation_performed?: 1, description: 1]
 
   import DB.ResourceUnavailability, only: [floor_float: 2]
   import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2]
@@ -223,22 +223,26 @@ defmodule TransportWeb.ResourceView do
     _ -> dgettext("page-dataset-details", "Feed decoding failed")
   end
 
-  def networks_start_end_dates(assigns) do
-    transform_data = fn networks_start_end_dates ->
-      networks_start_end_dates
-      |> Enum.into([])
-      |> Enum.map(fn {network, %{"start_date" => start_date, "end_date" => end_date}} ->
-        {network,
-         %{
-           "start_date" => Date.from_iso8601!(start_date),
-           "end_date" => Date.from_iso8601!(end_date)
-         }}
-      end)
-      |> Enum.sort(fn {_, %{"end_date" => end_date_1}}, {_, %{"end_date" => end_date_2}} ->
-        Date.compare(end_date_1, end_date_2) == :lt
-      end)
-    end
+  @doc """
+  iex> should_display_description?(%DB.Resource{description: nil})
+  false
+  iex> should_display_description?(%DB.Resource{description: "foo", title: nil})
+  false
+  iex> should_display_description?(%DB.Resource{description: nil, title: "Foo"})
+  false
+  iex> should_display_description?(%DB.Resource{description: "Bonjour", title: "Foo"})
+  true
+  iex> should_display_description?(%DB.Resource{description: "Bonjour", title: "Export au format CSV"})
+  false
+  """
+  def should_display_description?(%DB.Resource{description: nil}), do: false
+  def should_display_description?(%DB.Resource{title: nil}), do: false
 
+  def should_display_description?(%DB.Resource{title: title}) do
+    not String.starts_with?(title, "Export au format")
+  end
+
+  def networks_start_end_dates(assigns) do
     end_date_class = fn end_date ->
       case Date.diff(end_date, Date.utc_today()) do
         n when n > 7 -> "valid"
@@ -247,14 +251,34 @@ defmodule TransportWeb.ResourceView do
       end
     end
 
+    transform_data = fn networks_start_end_dates ->
+      networks_start_end_dates
+      |> Enum.into([])
+      |> Enum.map(fn {network, %{"start_date" => start_date, "end_date" => end_date}} ->
+        end_date = Date.from_iso8601!(end_date)
+
+        {network,
+         %{
+           "start_date" => Date.from_iso8601!(start_date),
+           "end_date" => end_date,
+           "end_date_class" => end_date_class.(end_date)
+         }}
+      end)
+      |> Enum.sort(fn {_, %{"end_date" => end_date_1}}, {_, %{"end_date" => end_date_2}} ->
+        Date.compare(end_date_1, end_date_2) == :lt
+      end)
+    end
+
+    assigns = Map.put(assigns, :network_data, transform_data.(assigns[:networks_start_end_dates]))
+
     ~H"""
     <div class="networks-start-end">
-      <%= for {network, %{"start_date" => start_date, "end_date" => end_date}} <- transform_data.(@networks_start_end_dates) do %>
+      <%= for {network, %{"start_date" => start_date, "end_date" => end_date, "end_date_class" => class}} <- @network_data do %>
         <span><strong><%= network %></strong></span>
         <span><%= dgettext("validations", "from") %></span>
         <span><%= Shared.DateTimeDisplay.format_date(start_date, @locale) %></span>
         <span><%= dgettext("validations", "to") %></span>
-        <span class={end_date_class.(end_date)}>
+        <span class={class}>
           <%= Shared.DateTimeDisplay.format_date(end_date, @locale) %>
         </span>
       <% end %>

@@ -120,13 +120,8 @@ defmodule TransportWeb.PageController do
       ]
       |> Enum.split_with(&(elem(&1, 0) == :ok))
 
-    datasets =
-      datasets
-      |> Enum.map(&elem(&1, 1))
-      |> List.flatten()
-
-    errors
-    |> Enum.each(&Sentry.capture_exception(&1))
+    datasets = datasets |> Enum.flat_map(&elem(&1, 1))
+    errors |> Enum.each(&Sentry.capture_exception(&1))
 
     # NOTE: this could be refactored in more functional style, but that will be good enough for today
     conn =
@@ -171,7 +166,7 @@ defmodule TransportWeb.PageController do
 
   defmodule Tile do
     @enforce_keys [:link, :icon, :title, :count]
-    defstruct [:link, :icon, :title, :count]
+    defstruct [:link, :icon, :title, :count, :type, :documentation_url]
   end
 
   defp home_tiles(conn) do
@@ -206,8 +201,12 @@ defmodule TransportWeb.PageController do
       },
       type_tile(conn, "air-transport"),
       type_tile(conn, "bike-scooter-sharing"),
+      type_tile(conn, "car-motorbike-sharing"),
       type_tile(conn, "bike-way"),
       type_tile(conn, "bike-parking"),
+      type_tile(conn, "transport-traffic",
+        documentation_url: "https://doc.transport.data.gouv.fr/producteurs/comptage-des-mobilites"
+      ),
       type_tile(conn, "road-data"),
       type_tile(conn, "low-emission-zones"),
       type_tile(conn, "carpooling-areas"),
@@ -218,12 +217,14 @@ defmodule TransportWeb.PageController do
     ]
   end
 
-  defp type_tile(conn, type) do
+  defp type_tile(conn, type, options \\ []) do
     %Tile{
+      type: type,
       link: dataset_path(conn, :index, type: type),
       icon: icon_type_path(type),
       title: DB.Dataset.type_to_str(type),
-      count: Keyword.fetch!(home_index_stats(), :count_by_type)[type]
+      count: Keyword.fetch!(home_index_stats(), :count_by_type)[type],
+      documentation_url: Keyword.get(options, :documentation_url)
     }
   end
 end

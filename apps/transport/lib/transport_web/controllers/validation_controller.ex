@@ -188,7 +188,7 @@ defmodule TransportWeb.ValidationController do
       |> Enum.map(fn {k, v} -> {Map.fetch!(v, "title"), k} end)
       |> Enum.sort_by(&elem(&1, 0))
 
-    ["GTFS", "GTFS-RT", "GBFS"] |> Enum.map(&{&1, String.downcase(&1)}) |> Kernel.++(schemas)
+    ["GTFS", "NeTEx", "GTFS-RT", "GBFS"] |> Enum.map(&{&1, String.downcase(&1)}) |> Kernel.++(schemas)
   end
 
   def is_valid_type?(type), do: type in (select_options() |> Enum.map(&elem(&1, 1)))

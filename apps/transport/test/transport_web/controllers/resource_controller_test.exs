@@ -21,7 +21,10 @@ defmodule TransportWeb.ResourceControllerTest do
         resources: [
           %Resource{
             url: "https://link.to/angers.zip",
-            datagouv_id: "1"
+            datagouv_id: "1",
+            format: "GTFS",
+            title: "GTFS",
+            description: "Une _très_ belle ressource"
           },
           %Resource{
             url: "http://link.to/angers.zip?foo=bar",
@@ -86,10 +89,17 @@ defmodule TransportWeb.ResourceControllerTest do
   end
 
   test "I can see my datasets", %{conn: conn} do
-    conn
-    |> init_test_session(%{current_user: %{"organizations" => [%{"slug" => "equipe-transport-data-gouv-fr"}]}})
-    |> get("/resources/update/datasets")
-    |> html_response(200)
+    dataset = insert(:dataset, datagouv_title: Ecto.UUID.generate())
+    Datagouvfr.Client.User.Mock |> expect(:datasets, fn _conn -> {:ok, []} end)
+    Datagouvfr.Client.User.Mock |> expect(:org_datasets, fn _conn -> {:ok, [%{"id" => dataset.datagouv_id}]} end)
+
+    html =
+      conn
+      |> init_test_session(%{current_user: %{}})
+      |> get(resource_path(conn, :datasets_list))
+      |> html_response(200)
+
+    assert html =~ dataset.datagouv_title
   end
 
   test "Non existing resource raises a Ecto.NoResultsError (interpreted as a 404 thanks to phoenix_ecto)", %{conn: conn} do
@@ -129,6 +139,14 @@ defmodule TransportWeb.ResourceControllerTest do
 
     conn = conn |> get(resource_path(conn, :details, resource.id))
     assert conn |> html_response(200) =~ "1 erreur"
+  end
+
+  test "resource has its description displayed", %{conn: conn} do
+    resource = Resource |> Repo.get_by(datagouv_id: "1")
+
+    assert resource.description == "Une _très_ belle ressource"
+    html = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
+    assert html =~ "Une <em>très</em> belle ressource"
   end
 
   test "resource has download availability displayed", %{conn: conn} do
@@ -298,6 +316,20 @@ defmodule TransportWeb.ResourceControllerTest do
 
     conn = conn |> get(resource_path(conn, :details, resource_id))
     refute conn |> html_response(200) =~ "supprimé de data.gouv.fr"
+  end
+
+  test "no validation report section for documentation resources", %{conn: conn} do
+    resource =
+      insert(:resource, %{
+        dataset: insert(:dataset),
+        format: "pdf",
+        url: "https://example.com/file",
+        type: "documentation"
+      })
+
+    assert DB.Resource.is_documentation?(resource)
+
+    refute conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200) =~ "Rapport de validation"
   end
 
   test "GTFS Transport validation is shown", %{conn: conn} do
@@ -536,6 +568,73 @@ defmodule TransportWeb.ResourceControllerTest do
 
     # we want a sorted list in the output!
     assert ["a", "b", "c", "d"] = TransportWeb.ResourceController.gtfs_rt_entities(resource)
+  end
+
+  describe "proxy_statistics" do
+    test "requires authentication", %{conn: conn} do
+      conn = conn |> get(resource_path(conn, :proxy_statistics))
+
+      assert redirected_to(conn, 302) =~ "/login"
+    end
+
+    test "renders successfully with a resource handled by the proxy", %{conn: conn} do
+      dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
+
+      gtfs_rt_resource =
+        insert(:resource,
+          dataset: dataset,
+          format: "gtfs-rt",
+          url: "https://proxy.transport.data.gouv.fr/resource/divia-dijon-gtfs-rt-trip-update"
+        )
+
+      assert DB.Resource.served_by_proxy?(gtfs_rt_resource)
+      proxy_slug = DB.Resource.proxy_slug(gtfs_rt_resource)
+      assert proxy_slug == "divia-dijon-gtfs-rt-trip-update"
+
+      today = Transport.Telemetry.truncate_datetime_to_hour(DateTime.utc_now())
+
+      insert(:metrics,
+        target: "proxy:#{proxy_slug}",
+        event: "proxy:request:external",
+        count: 2,
+        period: today
+      )
+
+      insert(:metrics,
+        target: "proxy:#{proxy_slug}",
+        event: "proxy:request:internal",
+        count: 1,
+        period: today
+      )
+
+      Datagouvfr.Client.User.Mock |> expect(:datasets, fn _conn -> {:ok, []} end)
+
+      Datagouvfr.Client.User.Mock |> expect(:org_datasets, fn _conn -> {:ok, [%{"id" => dataset.datagouv_id}]} end)
+
+      html =
+        conn
+        |> init_test_session(%{current_user: %{}})
+        |> get(resource_path(conn, :proxy_statistics))
+        |> html_response(200)
+
+      assert html =~ "Statistiques des requêtes gérées par le proxy"
+      assert html =~ "<strong>2</strong>\nrequêtes gérées par le proxy au cours des 15 derniers jours"
+      assert html =~ "<strong>1</strong>\nrequêtes transmises au serveur source au cours des 15 derniers jours"
+    end
+  end
+
+  test "SIRI RequestorRef is displayed", %{conn: conn} do
+    resource =
+      insert(:resource, format: "SIRI", url: "https://ara-api.enroute.mobi/endpoint", dataset: insert(:dataset))
+
+    requestor_ref = DB.Resource.guess_requestor_ref(resource)
+
+    assert DB.Resource.is_siri?(resource)
+    refute is_nil(requestor_ref)
+
+    html = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
+    assert html =~ ~s{<h2 id="siri-authentication">Authentification SIRI</h2>}
+    assert html =~ requestor_ref
   end
 
   defp test_remote_download_error(%Plug.Conn{} = conn, mock_status_code) do

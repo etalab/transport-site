@@ -81,3 +81,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Road data"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Transport traffic"
+msgstr ""

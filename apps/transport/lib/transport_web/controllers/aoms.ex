@@ -1,6 +1,6 @@
 defmodule TransportWeb.AOMSController do
   use TransportWeb, :controller
-  alias DB.{AOM, Commune, Dataset, Repo, Resource}
+  alias DB.{AOM, Commune, Dataset, Repo}
   import Ecto.Query
 
   @csvheaders [
@@ -20,20 +20,37 @@ defmodule TransportWeb.AOMSController do
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(conn, _params), do: render(conn, "index.html", aoms: aoms())
 
-  @spec prepare_aom({AOM.t(), binary()}) :: map()
-  defp prepare_aom({aom, nom_commune}) do
+  @spec prepare_aom({AOM.t(), binary()}, list(), Dataset.t() | nil) :: map()
+  defp prepare_aom({aom, nom_commune}, datasets, parent_dataset) do
+    published =
+      case {datasets, parent_dataset} do
+        {[], nil} -> false
+        _ -> true
+      end
+
+    all_datasets =
+      case parent_dataset do
+        nil -> datasets
+        parent_dataset -> datasets ++ [parent_dataset]
+      end
+
+    datasets_up_to_date =
+      Enum.any?(all_datasets, fn dataset -> Date.compare(dataset.end_date, Date.utc_today()) !== :lt end)
+
+    datasets_realtime = Enum.any?(all_datasets, fn dataset -> dataset.has_realtime end)
+
     %{
       nom: aom.nom,
       departement: aom.departement,
       region: if(aom.region, do: aom.region.nom, else: ""),
-      published: self_published(aom) || !is_nil(aom.parent_dataset),
-      in_aggregate: !is_nil(aom.parent_dataset),
-      up_to_date: up_to_date?(aom.datasets, aom.parent_dataset),
+      published: published,
+      in_aggregate: !is_nil(parent_dataset),
+      up_to_date: datasets_up_to_date,
       population_municipale: aom.population_municipale,
       nom_commune: nom_commune,
       insee_commune_principale: aom.insee_commune_principale,
       nombre_communes: aom.nombre_communes,
-      has_realtime: Enum.any?(aom.datasets, fn d -> d.has_realtime end)
+      has_realtime: datasets_realtime
     }
   end
 
@@ -46,39 +63,41 @@ defmodule TransportWeb.AOMSController do
   end
 
   @spec aoms :: [map()]
-  defp aoms do
+  def aoms do
+    query =
+      Dataset.base_query()
+      |> Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+      |> where([dataset: d], d.type == "public-transit")
+      |> select(
+        [dataset: d, metadata: m],
+        {as(:aom).id,
+         %{
+           dataset_id: d.id,
+           end_date: fragment("TO_DATE(?->>'end_date', 'YYYY-MM-DD')", m.metadata),
+           has_realtime: d.has_realtime
+         }}
+      )
+
+    datasets =
+      query
+      |> join(:inner, [dataset: d], aom in AOM, on: d.aom_id == aom.id, as: :aom)
+      |> Repo.all()
+      |> Enum.group_by(&elem(&1, 0), &elem(&1, 1))
+
+    parent_dataset =
+      query
+      |> join(:inner, [dataset: d], aom in AOM, on: d.id == aom.parent_dataset_id, as: :aom)
+      |> Repo.all()
+      |> Enum.into(%{})
+
     AOM
-    |> preload([:datasets, :region, :parent_dataset])
-    |> preload(datasets: :resources)
-    |> preload(parent_dataset: :resources)
     |> join(:left, [aom], c in Commune, on: aom.insee_commune_principale == c.insee)
+    |> preload([:region])
     |> select([aom, commune], {aom, commune.nom})
     |> Repo.all()
-    |> Enum.map(&prepare_aom/1)
-  end
-
-  @spec self_published(AOM.t()) :: boolean
-  defp self_published(aom) do
-    !(aom.datasets
-      |> Enum.filter(fn d -> d.type == "public-transit" end)
-      |> Enum.empty?())
-  end
-
-  @spec valid_dataset?(Dataset.t()) :: boolean()
-  defp valid_dataset?(dataset),
-    do: Enum.any?(Dataset.official_resources(dataset), fn r -> !Resource.is_outdated?(r) end)
-
-  @spec up_to_date?([Dataset.t()], Dataset.t() | nil) :: boolean()
-  defp up_to_date?([], nil), do: false
-  defp up_to_date?([], parent), do: up_to_date?([parent], nil)
-
-  defp up_to_date?(datasets, _parent) do
-    datasets
-    |> Enum.filter(fn d -> d.type == "public-transit" end)
-    |> case do
-      [] -> false
-      transit_datasets -> Enum.any?(transit_datasets, &valid_dataset?/1)
-    end
+    |> Enum.map(fn {aom, nom_commune} ->
+      prepare_aom({aom, nom_commune}, Map.get(datasets, aom.id, []), Map.get(parent_dataset, aom.id))
+    end)
   end
 
   @spec csv_content() :: binary()

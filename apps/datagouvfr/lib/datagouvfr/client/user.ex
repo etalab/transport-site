@@ -3,6 +3,8 @@ defmodule Datagouvfr.Client.User.Wrapper do
   A wrapper for the User module, useful for testing purposes
   """
   @callback me(Plug.Conn.t()) :: {:error, map()} | {:ok, map()}
+  @callback datasets(Plug.Conn.t()) :: {:error, map()} | {:ok, list()}
+  @callback org_datasets(Plug.Conn.t()) :: {:error, map()} | {:ok, list()}
 
   def impl, do: Application.get_env(:datagouvfr, :user_impl)
 end
@@ -23,6 +25,12 @@ defmodule Datagouvfr.Client.User.Dummy do
          "id" => "user_id_1",
          "organizations" => [%{"slug" => "equipe-transport-data-gouv-fr"}]
        }}
+
+  @impl Datagouvfr.Client.User.Wrapper
+  def datasets(_), do: {:ok, []}
+
+  @impl Datagouvfr.Client.User.Wrapper
+  def org_datasets(_), do: {:ok, []}
 end
 
 defmodule Datagouvfr.Client.User do

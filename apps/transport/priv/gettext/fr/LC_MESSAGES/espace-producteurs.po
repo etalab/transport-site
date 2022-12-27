@@ -98,3 +98,15 @@ msgstr "notre documentation"
 #, elixir-autogen, elixir-format
 msgid "If you need to replace a resource with a more up-to-date one, choose \"Update a resource\"."
 msgstr "Si vous souhaitez remplacer une ressource par une version plus à jour, choisissez \"Modifier une ressource\""
+
+#, elixir-autogen, elixir-format
+msgid "Get access to traffic statistics for feeds handled by the transport.data.gouv.fr proxy."
+msgstr "Accéder aux statistiques de trafic pour les flux gérés par le proxy de transport.data.gouv.fr"
+
+#, elixir-autogen, elixir-format
+msgid "See statistics"
+msgstr "Voir les statistiques"
+
+#, elixir-autogen, elixir-format
+msgid "Transport proxy statistics"
+msgstr "Statistiques du proxy Transport"

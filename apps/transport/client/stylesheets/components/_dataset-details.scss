@@ -78,7 +78,7 @@
   padding-top: 1vh;
 }
 
-.dataset__resources .reuser-message {
+.dataset__resources .information-message {
   color: var(--theme-label-text);
 }
 
@@ -483,6 +483,10 @@
   padding: 12px;
 }
 
+.mt-24 {
+  margin-top: 24px;
+}
+
 .mb-24 {
   margin-bottom: 24px;
 }
@@ -550,4 +554,12 @@
 
 .container_max_700px {
   max-width: 700px;
+}
+
+.panel > :first-child {
+  margin-top: 0;
+}
+
+hr {
+  border-bottom: 1px solid var(--theme-border-lighter);
 }

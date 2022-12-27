@@ -1,0 +1,49 @@
+<div class="container pt-48 pb-24">
+  <h1>Détection de changements d'URLs stables</h1>
+  <p>Voici la liste des derniers changements d'URLs détectés sur les jeux de données référencés par le PAN.</p>
+  <p>
+    Apparaissent ici les jeux de données pour lesquels sont simultanément détectées une suppression d'URL existante et l'apparition d'une nouvelle URL, ce qui laisse penser qu'une URL vient d'être modifiée.
+  </p>
+  <p>
+    Les URLs que nous surveillons sont les URLs que nous proposons au téléchargement sur notre page d'un jeu de donnée, et sont donc celles que nous considérons comme étant les plus stables.
+  </p>
+</div>
+
+<section class="section-grey">
+  <div class="container pt-48 pb-48">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Jeu de données</th>
+          <th>Détection du changement</th>
+          <th>URLs supprimées</th>
+          <th>Nouvelles URLs</th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= for broken_url <- @broken_urls do %>
+          <tr>
+            <td>
+              <%= link(broken_url.dataset_custom_title, to: dataset_path(@conn, :details, broken_url.dataset_id)) %>
+            </td>
+            <td><%= format_datetime_to_paris(broken_url.inserted_at, "fr") %></td>
+            <td>
+              <ul>
+                <%= for url <- broken_url.previous_urls -- broken_url.urls do %>
+                  <li><%= url %></li>
+                <% end %>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <%= for url <- broken_url.urls -- broken_url.previous_urls do %>
+                  <li><%= url %></li>
+                <% end %>
+              </ul>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

@@ -86,10 +86,6 @@ msgid "Edit a dataset"
 msgstr "Édition d'un jeu de données"
 
 #, elixir-autogen, elixir-format
-msgid "With unidentified resources"
-msgstr "Avec ressources autres"
-
-#, elixir-autogen, elixir-format
 msgid "Associated territory"
 msgstr "Territoire associé"
 
@@ -118,8 +114,8 @@ msgid "National dataset"
 msgstr "Jeu de données national"
 
 #, elixir-autogen, elixir-format
-msgid "Not compliant to spec"
-msgstr "Ne respectant pas les spec"
+msgid "GTFS with fatal failure"
+msgstr "GTFS avec erreur irrécupérable"
 
 #, elixir-autogen, elixir-format
 msgid "Cancel"
@@ -204,3 +200,27 @@ msgstr "Validations"
 #, elixir-autogen, elixir-format
 msgid "Archived"
 msgstr "Archivés"
+
+#, elixir-autogen, elixir-format
+msgid "Changements d'URLs stables"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Expiration notification are not sent automatically for this dataset. You can edit <a href=\"%{link}\" target=\"_blank\">the configuration</a>."
+msgstr "Les notifications liées à l'expiration de fichiers ne sont pas envoyées automatiquement pour ce jeu de données. Vous pouvez modifier <a href=\"%{link}\" target=\"_blank\">la configuration</a>."
+
+#, elixir-autogen, elixir-format
+msgid "Expiration notifications"
+msgstr "Notifications pour données périmées"
+
+#, elixir-autogen, elixir-format
+msgid "Expiration notifications are sent automatically for this dataset. You can edit <a href=\"%{link}\" target=\"_blank\">the configuration</a>."
+msgstr "Les notifications liées à l'expiration de fichiers sont envoyées automatiquement pour ce jeu de données. Vous pouvez modifier <a href=\"%{link}\" target=\"_blank\">la configuration</a>."
+
+#, elixir-autogen, elixir-format
+msgid "Notifications are sent to the following email addresses:"
+msgstr "Les notifications sont envoyées aux adresses e-mail suivantes :"
+
+#, elixir-autogen, elixir-format
+msgid "email address"
+msgstr "adresse e-mail"

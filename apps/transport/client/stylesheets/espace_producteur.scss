@@ -24,8 +24,10 @@
 
 .espace-producer-panel {
   display: flex;
-  img {
+  img.picto {
+    height: 40px;
     padding-right: 12px;
+    margin-top: -5px;
   }
 }
 
@@ -102,6 +104,8 @@
       display: flex;
       img {
         padding-right: 12px;
+        height: 40px;
+        margin-top: -5px;
       }
     }
     .resource-list {

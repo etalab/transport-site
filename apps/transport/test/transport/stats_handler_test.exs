@@ -74,4 +74,34 @@ defmodule Transport.StatsHandlerTest do
 
     assert count_resources == 1
   end
+
+  test "compute aom max severity" do
+    aom_1 = insert(:aom)
+    %{dataset: dataset} = insert_up_to_date_resource_and_friends(max_error: "Error", aom: aom_1)
+    insert_up_to_date_resource_and_friends(dataset: dataset, max_error: "Warning")
+    insert_outdated_resource_and_friends(dataset: dataset, max_error: "Fatal")
+
+    aoms = compute_aom_gtfs_max_severity()
+
+    assert %{"Error" => 1} == aoms
+  end
+
+  test "compute aom max severity bis" do
+    aom_1 = insert(:aom)
+    insert_up_to_date_resource_and_friends(max_error: "Fatal", aom: aom_1)
+
+    aom_2 = insert(:aom)
+    insert_up_to_date_resource_and_friends(max_error: "Fatal", aom: aom_2)
+
+    aom_3 = insert(:aom)
+    insert_up_to_date_resource_and_friends(max_error: "Warning", aom: aom_3)
+
+    aom_4 = insert(:aom)
+    %{dataset: dataset} = insert_up_to_date_resource_and_friends(max_error: "Information", aom: aom_4)
+    insert_outdated_resource_and_friends(dataset: dataset, max_error: "Fatal")
+
+    aoms = compute_aom_gtfs_max_severity()
+
+    assert %{"Fatal" => 2, "Warning" => 1, "Information" => 1} == aoms
+  end
 end
