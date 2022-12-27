@@ -44,6 +44,12 @@ defmodule TransportWeb.Plugs.PutLocale do
   ["fr-CH", "fr", "en", "de"]
   iex> extract_accept_language(%Plug.Conn{req_headers: []})
   []
+  iex> extract_accept_language(%Plug.Conn{req_headers: [{"accept-language", "*"}]})
+  []
+  iex> extract_accept_language(%Plug.Conn{req_headers: [{"accept-language", "fr-CH"}]})
+  ["fr-CH", "fr"]
+  iex> extract_accept_language(%Plug.Conn{req_headers: [{"accept-language", "en"}]})
+  ["en"]
   """
   def extract_accept_language(conn) do
     case get_req_header(conn, "accept-language") do
