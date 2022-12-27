@@ -91,8 +91,24 @@ defmodule Datagouvfr.Client.API do
 
     method
     |> http_client().request(url, body, headers, options)
+    |> maybe_redirect_308(method, body, headers, options)
     |> decode_body()
     |> post_process()
+  end
+
+  defp maybe_redirect_308(response, method, body, headers, options) do
+    # To be removed when https://github.com/etalab/transport-site/issues/1801 is fixed
+    case response do
+      {:ok, %HTTPoison.Response{status_code: 308, headers: response_headers}} ->
+        http_client().request(method, location_header(response_headers), body, headers, options)
+
+      _ ->
+        response
+    end
+  end
+
+  defp location_header(headers) do
+    headers |> Enum.into(%{}, fn {k, v} -> {String.downcase(k), v} end) |> Map.get("location")
   end
 
   @spec stream(path(), method()) :: Enumerable.t()
