@@ -201,7 +201,7 @@ defmodule Transport.DataCheckerTest do
         assert from_email == "contact@transport.beta.gouv.fr"
         assert to_email == "deploiement@transport.beta.gouv.fr"
         assert subject == "Jeux de données arrivant à expiration"
-        assert body =~ ~r/Jeux de données expirant demain:/
+        assert body =~ ~r/Jeux de données expirant demain :/
 
         assert body =~
                  "#{dataset.custom_title} - http://127.0.0.1:5100/datasets/#{dataset.slug} (✅ notification automatique)"
