@@ -35,7 +35,8 @@ defmodule Transport.History.Fetcher.Database do
     |> join(:left, [resource_history: rh], r in DB.Resource,
       on:
         r.id == rh.resource_id and
-          r.dataset_id == ^dataset_id, as: :resource
+          r.dataset_id == ^dataset_id,
+      as: :resource
     )
     |> where([resource: r], not is_nil(r.id) or fragment("cast(payload->>'dataset_id' as bigint) = ?", ^dataset_id))
     |> preload([], validations: ^latest_resource_history_validation)
