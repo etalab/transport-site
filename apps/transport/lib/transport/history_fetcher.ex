@@ -9,7 +9,8 @@ defmodule Transport.History.Fetcher do
 
   def impl, do: Application.get_env(:transport, :history_impl)
 
-  def history_resources(%DB.Dataset{} = dataset, max_records \\ nil), do: impl().history_resources(dataset, max_records)
+  def history_resources(%DB.Dataset{} = dataset, max_records \\ nil),
+    do: impl().history_resources(dataset, max_records)
 end
 
 defmodule Transport.History.Fetcher.Database do
@@ -19,16 +20,26 @@ defmodule Transport.History.Fetcher.Database do
   """
   @behaviour Transport.History.Fetcher
   import Ecto.Query
-  alias DB.{Dataset, Repo, Resource, ResourceHistory}
+  alias DB.{Dataset, Repo}
 
   @impl true
   def history_resources(%Dataset{id: dataset_id}, max_records \\ nil)
       when (is_integer(max_records) and max_records > 0) or is_nil(max_records) do
-    ResourceHistory
-    |> join(:left, [rh], r in Resource, on: rh.resource_id == r.id and r.dataset_id == ^dataset_id)
-    |> where([_rh, r], not is_nil(r.id) or fragment("cast(payload->>'dataset_id' as bigint) = ?", ^dataset_id))
-    |> order_by([rh, _r], desc: rh.inserted_at)
-    |> select([rh, _r], rh)
+    latest_resource_history_validation =
+      DB.MultiValidation
+      |> distinct([mv], mv.resource_history_id)
+      |> order_by([mv], asc: mv.resource_history_id, desc: mv.inserted_at)
+      |> preload(:metadata)
+
+    DB.ResourceHistory.base_query()
+    |> join(:left, [resource_history: rh], r in DB.Resource,
+      on:
+        r.id == rh.resource_id and
+          r.dataset_id == ^dataset_id,
+      as: :resource
+    )
+    |> where([resource: r], not is_nil(r.id) or fragment("cast(payload->>'dataset_id' as bigint) = ?", ^dataset_id))
+    |> preload([], validations: ^latest_resource_history_validation)
     |> maybe_limit(max_records)
     |> Repo.all()
   end
