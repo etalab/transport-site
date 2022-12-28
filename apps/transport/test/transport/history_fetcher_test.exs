@@ -26,7 +26,9 @@ defmodule Transport.History.FetcherTest do
       mv_2 = insert(:multi_validation, resource_history_id: resource_history.id)
       insert(:resource_metadata, multi_validation_id: mv_2.id, metadata: %{"a" => 2})
 
-      insert(:resource_history, resource_id: resource.id, payload: %{"dataset_id" => dataset.id})
+      # resource_id is nil, but dataset_id is filled in the payload => ok
+      insert(:resource_history, resource_id: nil, payload: %{"dataset_id" => dataset.id})
+
       insert(:resource_history, resource_id: other_resource_same_dataset.id, payload: %{"dataset_id" => dataset.id})
       # Should be ignored
       insert(:resource_history, resource_id: other_resource.id, payload: %{})
