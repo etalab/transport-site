@@ -79,16 +79,18 @@ defmodule TransportWeb.DatasetControllerTest do
 
   test "has_validity_period?" do
     assert TransportWeb.DatasetView.has_validity_period?(%DB.ResourceHistory{
-             validations: [%{metadata: %{metadata: %{"start_date" => "2022-02-17", "end_date" => "2023-02-17"}}}]
+             validations: [
+               %DB.ResourceMetadata{metadata: %{metadata: %{"start_date" => "2022-02-17", "end_date" => "2023-02-17"}}}
+             ]
            })
 
     # end_date is missing
     refute TransportWeb.DatasetView.has_validity_period?(%DB.ResourceHistory{
-             validations: [%{metadata: %{metadata: %{"start_date" => "2022-02-17"}}}]
+             validations: [%DB.ResourceMetadata{metadata: %{metadata: %{"start_date" => "2022-02-17"}}}]
            })
 
     refute TransportWeb.DatasetView.has_validity_period?(%DB.ResourceHistory{
-             validations: [%{metadata: %{metadata: %{"start_date" => nil}}}]
+             validations: [%DB.ResourceMetadata{metadata: %{metadata: %{"start_date" => nil}}}]
            })
 
     refute TransportWeb.DatasetView.has_validity_period?(%DB.ResourceHistory{})
