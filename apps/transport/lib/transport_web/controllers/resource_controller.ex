@@ -65,19 +65,16 @@ defmodule TransportWeb.ResourceController do
 
     validations
     |> Enum.flat_map(fn %DB.MultiValidation{result: result} -> Map.get(result, "errors", []) end)
-    |> Enum.group_by(&Map.get(&1, "error_id"), fn v ->
-      %{"description" => v["description"], "errors_count" => v["errors_count"]}
-    end)
-    |> Enum.map(fn {k, validations} ->
-      {k,
+    |> Enum.group_by(&Map.fetch!(&1, "error_id"), &Map.take(&1, ["description", "errors_count"]))
+    |> Enum.into(%{}, fn {error_id, validations} ->
+      {error_id,
        %{
-         "description" => validations |> Enum.at(0) |> Map.get("description"),
+         "description" => validations |> hd() |> Map.get("description"),
          "errors_count" => validations |> Enum.map(& &1["errors_count"]) |> Enum.sum(),
          "occurence" => length(validations),
-         "percentage" => length(validations) / nb_validations * 100
+         "percentage" => (length(validations) / nb_validations * 100) |> round()
        }}
     end)
-    |> Enum.into(%{})
   end
 
   def latest_validations_details(%Resource{}), do: nil
