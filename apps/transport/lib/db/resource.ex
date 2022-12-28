@@ -525,22 +525,6 @@ defmodule DB.Resource do
       |> other_resources_query()
       |> Repo.all()
 
-  @spec str_to_date(binary()) :: Date.t() | nil
-  defp str_to_date(date) when not is_nil(date) do
-    date
-    |> Date.from_iso8601()
-    |> case do
-      {:ok, v} ->
-        v
-
-      {:error, e} ->
-        Logger.error("date '#{date}' not valid: #{inspect(e)}")
-        nil
-    end
-  end
-
-  defp str_to_date(_), do: nil
-
   def by_id(query, id) do
     from(resource in query,
       where: resource.id == ^id
