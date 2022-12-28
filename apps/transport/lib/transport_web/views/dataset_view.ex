@@ -484,7 +484,7 @@ defmodule TransportWeb.DatasetView do
 
   def validity_period(%DB.ResourceHistory{
         validations: [
-          %DB.ResourceMetadata{metadata: %{metadata: %{"start_date" => start_date, "end_date" => end_date}}}
+          %{metadata: %DB.ResourceMetadata{metadata: %{"start_date" => start_date, "end_date" => end_date}}}
         ]
       }) do
     %{"start_date" => start_date, "end_date" => end_date}
