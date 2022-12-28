@@ -29,12 +29,17 @@ defmodule Transport.History.FetcherTest do
       # resource_id is nil, but dataset_id is filled in the payload => ok
       insert(:resource_history, resource_id: nil, payload: %{"dataset_id" => dataset.id})
 
-      insert(:resource_history, resource_id: other_resource_same_dataset.id, payload: %{"dataset_id" => dataset.id})
+      latest_resource_history =
+        insert(:resource_history, resource_id: other_resource_same_dataset.id, payload: %{"dataset_id" => dataset.id})
+
       # Should be ignored
       insert(:resource_history, resource_id: other_resource.id, payload: %{})
 
       resources_history = Transport.History.Fetcher.Database.history_resources(dataset)
       assert length(resources_history) == 3
+
+      # check results are ordered by descending insertion date
+      assert resources_history |> Enum.at(0) |> Map.get(:id) == latest_resource_history.id
 
       # check you can access metadata if present
       rh_with_metadata = resources_history |> Enum.find(&(&1.id == resource_history.id))
