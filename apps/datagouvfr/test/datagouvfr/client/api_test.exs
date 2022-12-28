@@ -58,6 +58,25 @@ defmodule Datagouvfr.Client.APITest do
     end
   end
 
+  test "handles a 308 redirection" do
+    path = "foo"
+    url = "https://demo.data.gouv.fr/api/1/#{path}/"
+    location_url = "https://example/bar"
+
+    # A 308 response and then a 200 response
+    Transport.HTTPoison.Mock
+    |> expect(:request, fn :get, ^url, "", [], [follow_redirect: true] ->
+      {:ok, %HTTPoison.Response{status_code: 308, headers: [{"location", location_url}]}}
+    end)
+
+    Transport.HTTPoison.Mock
+    |> expect(:request, fn :get, ^location_url, "", [], [follow_redirect: true] ->
+      {:ok, %HTTPoison.Response{status_code: 200, body: "{}"}}
+    end)
+
+    assert {:ok, %{}} == path |> API.get()
+  end
+
   defp assert_stream_return_pages(resource_to_stream, expected_pages_data) do
     obtained_pages_data =
       resource_to_stream

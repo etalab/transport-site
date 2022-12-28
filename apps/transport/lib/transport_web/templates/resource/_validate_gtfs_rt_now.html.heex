@@ -1,4 +1,4 @@
-<% gtfs_resources = Enum.filter(@resource.dataset.resources, &DB.Resource.is_gtfs?/1) %>
+<% gtfs_resources = Enum.filter(@resource.dataset.resources, &(DB.Resource.is_gtfs?(&1) and &1.is_available)) %>
 <%= if Enum.empty?(gtfs_resources) do %>
   <div class="notification error full-width">
     <p>

@@ -26,4 +26,5 @@
     <%= render("_gtfs_rt_errors_for_severity.html", errors_for_severity: errors_warning_level) %>
   <% end %>
   <%= render("_validate_gtfs_rt_now.html", conn: @conn, resource: @resource) %>
+  <%= render("_gtfs_rt_previous_validations_details.html", latest_validations_details: @latest_validations_details) %>
 </div>

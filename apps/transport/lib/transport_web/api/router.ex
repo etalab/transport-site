@@ -19,6 +19,7 @@ defmodule TransportWeb.API.Router do
 
   scope "/api/" do
     pipe_through([:accept_json, :api])
+    get("/", TransportWeb.Redirect, to: "/swaggerui")
 
     scope "/aoms" do
       get("/", TransportWeb.API.AomController, :by_coordinates)
