@@ -324,3 +324,31 @@ msgstr "Pour accéder aux ressources autour des normes européennes, vous pouvez
 #, elixir-autogen, elixir-format
 msgid "netex-siri-validator"
 msgstr "Le projet européen DATA4PT assure aujourd'hui l'accompagnement au déploiement des normes européennes NeTEx et SIRI. Dans ce cadre, il est mis à disposition un outil de validation NeTEx <a href=\"%{link}\" target=\"_blank\">accessible en ligne</a>."
+
+#, elixir-autogen, elixir-format
+msgid "%{count} times (%{percentage} % of validations)"
+msgstr "%{count} fois (%{percentage} % des validations)"
+
+#, elixir-autogen, elixir-format
+msgid "Description"
+msgstr "Description"
+
+#, elixir-autogen, elixir-format
+msgid "Error ID"
+msgstr "Identifiant d'erreur"
+
+#, elixir-autogen, elixir-format
+msgid "Errors count"
+msgstr "Nombre d'erreurs"
+
+#, elixir-autogen, elixir-format
+msgid "Here is a recap of all the error types encountered over the last %{nb} days."
+msgstr "Voici un récapitulatif des différents types d'erreurs constatés au cours des %{nb} derniers jours."
+
+#, elixir-autogen, elixir-format
+msgid "Number of occurences"
+msgstr "Nombre d'occurences"
+
+#, elixir-autogen, elixir-format
+msgid "Previous validations"
+msgstr "Validations précédentes"
