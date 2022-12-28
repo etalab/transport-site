@@ -169,7 +169,7 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
     md = insert(:resource_metadata, multi_validation_id: mv.id)
 
     # validation is skipped
-    assert {:discard, msg} =
+    assert {:cancel, msg} =
              Transport.Jobs.ResourceHistoryValidationJob
              |> perform_job(%{"resource_history_id" => rh.id, "validator" => validator_string})
 
