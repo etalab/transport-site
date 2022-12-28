@@ -32,6 +32,6 @@ defmodule Transport.Jobs.ResourceValidationJobTest do
     assert capture_log(fn ->
              assert {:error, "Resource##{resource_id} is not real time"} ==
                       perform_job(Transport.Jobs.ResourceValidationJob, %{"resource_id" => resource_id})
-           end) =~ "[warning] Job  handled by Transport.Jobs.ResourceValidationJob"
+           end) =~ ~r|\[warning\] Job \d+ handled by Transport\.Jobs\.ResourceValidationJob|
   end
 end

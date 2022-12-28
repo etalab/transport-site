@@ -137,7 +137,7 @@ production_server_crontab =
 
 extra_oban_conf =
   if not worker || iex_started? || config_env() == :test do
-    [queues: false, plugins: false]
+    [testing: :manual]
   else
     [
       queues: [default: 2, heavy: 1, on_demand_validation: 1, resource_validation: 1, workflow: 2],
