@@ -63,41 +63,21 @@ defmodule TransportWeb.ResourceController do
 
     nb_validations = Enum.count(validations)
 
-    percentage = fn value -> (value / nb_validations * 100) |> round() end
-
     validations
     |> Enum.flat_map(fn %DB.MultiValidation{result: result} -> Map.get(result, "errors", []) end)
-    |> Enum.map_reduce(
-      %{},
-      fn %{"error_id" => error_id, "description" => description, "errors_count" => errors_count}, %{} = acc ->
-        {error_id,
-         acc
-         |> Map.get_and_update(error_id, fn current_value ->
-           new_value =
-             case current_value do
-               nil ->
-                 %{
-                   "description" => description,
-                   "errors_count" => errors_count,
-                   "occurence" => 1,
-                   "percentage" => percentage.(1)
-                 }
-
-               %{"errors_count" => old_count, "occurence" => old_occurence} = current_value ->
-                 %{
-                   current_value
-                   | "occurence" => old_occurence + 1,
-                     "errors_count" => old_count + errors_count,
-                     "percentage" => percentage.(old_occurence + 1)
-                 }
-             end
-
-           {current_value, new_value}
-         end)
-         |> elem(1)}
-      end
-    )
-    |> elem(1)
+    |> Enum.group_by(&Map.get(&1, "error_id"), fn v ->
+      %{"description" => v["description"], "errors_count" => v["errors_count"]}
+    end)
+    |> Enum.map(fn {k, validations} ->
+      {k,
+       %{
+         "description" => validations |> Enum.at(0) |> Map.get("description"),
+         "errors_count" => validations |> Enum.map(& &1["errors_count"]) |> Enum.sum(),
+         "occurence" => length(validations),
+         "percentage" => length(validations) / nb_validations * 100
+       }}
+    end)
+    |> Enum.into(%{})
   end
 
   def latest_validations_details(%Resource{}), do: nil
