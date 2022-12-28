@@ -118,15 +118,15 @@ defmodule TransportWeb.Backoffice.PageController do
   end
 
   def index(%Plug.Conn{} = conn, params) do
-    sub =
+    end_dates =
       DB.Dataset.base_query()
       |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
       |> where([metadata: m], fragment("?->>'end_date' IS NOT NULL", m.metadata))
       |> group_by([dataset: d], d.id)
       |> select([dataset: d, metadata: m], %{dataset_id: d.id, end_date: fragment("max(?->>'end_date')", m.metadata)})
 
-    Dataset
-    |> join(:inner, [d], r in subquery(sub), on: d.id == r.dataset_id)
+    Dataset.base_query()
+    |> join(:left, [d], end_date in subquery(end_dates), on: d.id == end_date.dataset_id, as: :end_dates)
     |> query_order_by_from_params(params)
     |> render_index(conn, params)
   end
@@ -206,14 +206,20 @@ defmodule TransportWeb.Backoffice.PageController do
   defp render_index(datasets, conn, params) do
     config = make_pagination_config(params)
 
-    datasets =
+    paginated_result =
       datasets
       |> preload([:region, :aom, :resources])
+      |> select([dataset: d, end_dates: ed], {d, {ed.dataset_id, ed.end_date}})
       |> Repo.paginate(page: config.page_number)
+
+    {datasets, raw_end_dates} = paginated_result.entries |> Enum.unzip()
+    paginated_datasets = paginated_result |> Map.put(:entries, datasets)
+    end_dates = raw_end_dates |> Enum.into(%{})
 
     conn
     |> assign(:regions, Region |> where([r], r.nom != "National") |> Repo.all())
-    |> assign(:datasets, datasets)
+    |> assign(:datasets, paginated_datasets)
+    |> assign(:end_dates, end_dates)
     |> assign(:dataset_types, Dataset.types())
     |> assign(:order_by, get_order_by_from_params(params))
     |> render("index.html")
@@ -242,7 +248,7 @@ defmodule TransportWeb.Backoffice.PageController do
     %{direction: dir, field: field} = get_order_by_from_params(params)
 
     case field do
-      :end_date -> order_by(query, [d, r], {^dir, field(r, :end_date)})
+      :end_date -> order_by(query, [end_dates: ed], {^dir, field(ed, :end_date)})
       :custom_title -> order_by(query, [d, r], {^dir, field(d, :custom_title)})
       _ -> query
     end
