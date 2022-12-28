@@ -44,10 +44,6 @@ defmodule DB.Resource do
     # (this is done for OpenDataSoft)
     field(:datagouv_id, :string)
 
-    # we add 2 fields, that are already in the metadata json, in order to be able to add some indices
-    field(:start_date, :date)
-    field(:end_date, :date)
-
     field(:filesize, :integer)
     # Can be `remote` or `file`. `file` are for files uploaded and hosted
     # on data.gouv.fr
@@ -367,9 +363,7 @@ defmodule DB.Resource do
           max_error: get_max_severity_error(validations),
           validation_latest_content_hash: r.content_hash,
           data_vis: data_vis
-        },
-        start_date: str_to_date(metadata["start_date"]),
-        end_date: str_to_date(metadata["end_date"])
+        }
       )
       |> Repo.update()
 
@@ -427,26 +421,6 @@ defmodule DB.Resource do
     )
     |> validate_required([:url, :datagouv_id])
   end
-
-  @spec is_outdated?(__MODULE__.t()) :: boolean
-  def is_outdated?(%__MODULE__{
-        metadata: %{
-          "end_date" => nil
-        }
-      }),
-      do: false
-
-  def is_outdated?(%__MODULE__{
-        metadata: %{
-          "end_date" => end_date
-        }
-      }),
-      do:
-        end_date <=
-          Date.utc_today()
-          |> Date.to_iso8601()
-
-  def is_outdated?(_), do: true
 
   # I duplicate this function in Transport.Validators.GTFSTransport
   # this one should be deleted later
