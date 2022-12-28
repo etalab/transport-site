@@ -82,7 +82,7 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
           DB.Repo.delete(latest_validation)
           :ok
         else
-          {:discard, "resource history #{resource_history_id} is already validated by #{validator_string}"}
+          {:cancel, "resource history #{resource_history_id} is already validated by #{validator_string}"}
         end
     end
   end

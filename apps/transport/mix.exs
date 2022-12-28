@@ -105,9 +105,7 @@ defmodule Transport.Mixfile do
         {:rambo, "~> 0.3.4"}
       end,
       {:etag_plug, "~> 1.0"},
-      # conservatively waiting for https://github.com/sorentwo/oban/issues/652
-      # to be fixed before upgrading
-      {:oban, "~> 2.10.1"},
+      {:oban, "~> 2.13"},
       {:unzip, "~> 0.7.0"},
       {:protobuf, "~> 0.11.0"},
       {:nimble_csv, "~> 1.2.0"},

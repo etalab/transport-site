@@ -64,7 +64,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   defp handle_history([], %Oban.Job{} = job) do
     reason = "Resource should not be historicised"
     notify_workflow(job, %{"success" => false, "job_id" => job.id, "reason" => reason})
-    {:discard, reason}
+    {:cancel, reason}
   end
 
   defp handle_history([%Resource{} = resource], %Oban.Job{} = job) do
