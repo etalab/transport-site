@@ -39,6 +39,7 @@ defmodule Transport.History.Fetcher.Database do
       as: :resource
     )
     |> where([resource: r], not is_nil(r.id) or fragment("cast(payload->>'dataset_id' as bigint) = ?", ^dataset_id))
+    |> order_by([resource_history: rh], desc: rh.inserted_at)
     |> preload([], validations: ^latest_resource_history_validation)
     |> maybe_limit(max_records)
     |> Repo.all()
