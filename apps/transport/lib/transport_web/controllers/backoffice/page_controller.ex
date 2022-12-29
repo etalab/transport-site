@@ -5,7 +5,14 @@ defmodule TransportWeb.Backoffice.PageController do
   import Ecto.Query
   require Logger
 
-  ## Controller functions
+
+  def end_dates_query() do
+      DB.Dataset.base_query()
+      |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+      |> where([metadata: m], fragment("?->>'end_date' IS NOT NULL", m.metadata))
+      |> group_by([dataset: d], d.id)
+      |> select([dataset: d, metadata: m], %{dataset_id: d.id, end_date: fragment("max(?->>'end_date')", m.metadata)})
+  end
 
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(%Plug.Conn{} = conn, %{"q" => q} = params) when q != "" do
@@ -13,7 +20,8 @@ defmodule TransportWeb.Backoffice.PageController do
 
     params
     |> Map.put("list_inactive", true)
-    |> Dataset.list_datasets()
+    |> Dataset.list_datasets_no_order()
+    |> join(:left, [d], end_date in subquery(end_dates_query()), on: d.id == end_date.dataset_id, as: :end_dates)
     |> query_order_by_from_params(params)
     |> render_index(conn, params)
   end
@@ -118,15 +126,8 @@ defmodule TransportWeb.Backoffice.PageController do
   end
 
   def index(%Plug.Conn{} = conn, params) do
-    end_dates =
-      DB.Dataset.base_query()
-      |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
-      |> where([metadata: m], fragment("?->>'end_date' IS NOT NULL", m.metadata))
-      |> group_by([dataset: d], d.id)
-      |> select([dataset: d, metadata: m], %{dataset_id: d.id, end_date: fragment("max(?->>'end_date')", m.metadata)})
-
     Dataset.base_query()
-    |> join(:left, [d], end_date in subquery(end_dates), on: d.id == end_date.dataset_id, as: :end_dates)
+    |> join(:left, [d], end_date in subquery(end_dates_query()), on: d.id == end_date.dataset_id, as: :end_dates)
     |> query_order_by_from_params(params)
     |> render_index(conn, params)
   end
@@ -201,7 +202,6 @@ defmodule TransportWeb.Backoffice.PageController do
     List.flatten(rows)
   end
 
-  ## Private functions
   @spec render_index(Ecto.Queryable.t(), Plug.Conn.t(), map()) :: Plug.Conn.t()
   defp render_index(datasets, conn, params) do
     config = make_pagination_config(params)
