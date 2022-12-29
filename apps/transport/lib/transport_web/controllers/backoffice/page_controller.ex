@@ -5,13 +5,12 @@ defmodule TransportWeb.Backoffice.PageController do
   import Ecto.Query
   require Logger
 
-
   def end_dates_query() do
-      DB.Dataset.base_query()
-      |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
-      |> where([metadata: m], fragment("?->>'end_date' IS NOT NULL", m.metadata))
-      |> group_by([dataset: d], d.id)
-      |> select([dataset: d, metadata: m], %{dataset_id: d.id, end_date: fragment("max(?->>'end_date')", m.metadata)})
+    DB.Dataset.base_query()
+    |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+    |> where([metadata: m], fragment("?->>'end_date' IS NOT NULL", m.metadata))
+    |> group_by([dataset: d], d.id)
+    |> select([dataset: d, metadata: m], %{dataset_id: d.id, end_date: fragment("max(?->>'end_date')", m.metadata)})
   end
 
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
@@ -29,37 +28,28 @@ defmodule TransportWeb.Backoffice.PageController do
   def index(%Plug.Conn{} = conn, %{"filter" => "outdated"} = params) do
     dt = Date.utc_today() |> Date.to_iso8601()
 
-    sub =
-      DB.Dataset.base_query()
-      |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
-      |> where([metadata: m], fragment("?->>'end_date' IS NOT NULL", m.metadata))
-      |> group_by([dataset: d], d.id)
-      |> having([metadata: m], fragment("max(?->>'end_date') <= ?", m.metadata, ^dt))
-      |> select([dataset: d, metadata: m], %{dataset_id: d.id, end_date: fragment("max(?->>'end_date')", m.metadata)})
+    sub = end_dates_query() |> having([metadata: m], fragment("max(?->>'end_date') <= ?", m.metadata, ^dt))
 
-    Dataset
-    |> join(:right, [d], r in subquery(sub), on: d.id == r.dataset_id)
+    Dataset.base_query()
+    |> join(:right, [d], end_date in subquery(sub), on: d.id == end_date.dataset_id, as: :end_dates)
     |> query_order_by_from_params(params)
     |> render_index(conn, params)
   end
 
   def index(%Plug.Conn{} = conn, %{"filter" => "not_compliant"} = params) do
     sub =
-      DB.Dataset.base_query()
-      |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
-      |> where([metadata: m], fragment("?->>'end_date' IS NOT NULL", m.metadata))
-      |> group_by([dataset: d], d.id)
+      end_dates_query()
       |> having([metadata: m], fragment("MAX(CAST(?->'issues_count'->>'UnloadableModel' as INT)) > 0", m.metadata))
-      |> select([dataset: d, metadata: m], %{dataset_id: d.id, end_date: fragment("max(?->>'end_date')", m.metadata)})
 
-    Dataset
-    |> join(:inner, [d], r in subquery(sub), on: d.id == r.dataset_id)
+    Dataset.base_query()
+    |> join(:inner, [d], end_date in subquery(sub), on: d.id == end_date.dataset_id, as: :end_dates)
     |> query_order_by_from_params(params)
     |> render_index(conn, params)
   end
 
   def index(%Plug.Conn{} = conn, %{"filter" => "licence_not_specified"} = params) do
-    Dataset
+    Dataset.base_query()
+    |> join(:left, [d], end_date in subquery(end_dates_query()), on: d.id == end_date.dataset_id, as: :end_dates)
     |> where([d], d.licence == "notspecified")
     |> query_order_by_from_params(params)
     |> render_index(conn, params)
@@ -74,8 +64,12 @@ defmodule TransportWeb.Backoffice.PageController do
         having: count(r.dataset_id) > 1
       )
 
-    Dataset
-    |> join(:inner, [d], r in subquery(resources), on: d.id == r.dataset_id)
+    Dataset.base_query()
+    |> join(:left, [dataset: d], end_date in subquery(end_dates_query()),
+      on: d.id == end_date.dataset_id,
+      as: :end_dates
+    )
+    |> join(:inner, [dataset: d], r in subquery(resources), on: d.id == r.dataset_id)
     |> query_order_by_from_params(params)
     |> render_index(conn, params)
   end
@@ -88,8 +82,12 @@ defmodule TransportWeb.Backoffice.PageController do
         select: %{dataset_id: r.dataset_id}
       )
 
-    Dataset
-    |> join(:inner, [d], r in subquery(resources), on: d.id == r.dataset_id)
+    Dataset.base_query()
+    |> join(:left, [dataset: d], end_date in subquery(end_dates_query()),
+      on: d.id == end_date.dataset_id,
+      as: :end_dates
+    )
+    |> join(:inner, [dataset: d], r in subquery(resources), on: d.id == r.dataset_id)
     |> query_order_by_from_params(params)
     |> render_index(conn, params)
   end
@@ -97,14 +95,22 @@ defmodule TransportWeb.Backoffice.PageController do
   def index(%Plug.Conn{} = conn, %{"filter" => "resource_under_90_availability"} = params) do
     datasets_id = dataset_with_resource_under_90_availability()
 
-    Dataset
-    |> where([d], d.id in ^datasets_id)
+    Dataset.base_query()
+    |> join(:left, [dataset: d], end_date in subquery(end_dates_query()),
+      on: d.id == end_date.dataset_id,
+      as: :end_dates
+    )
+    |> where([dataset: d], d.id in ^datasets_id)
     |> query_order_by_from_params(params)
     |> render_index(conn, params)
   end
 
   def index(%Plug.Conn{} = conn, %{"filter" => "archived"} = params) do
     Dataset.archived()
+    |> join(:left, [dataset: d], end_date in subquery(end_dates_query()),
+      on: d.id == end_date.dataset_id,
+      as: :end_dates
+    )
     |> query_order_by_from_params(params)
     |> render_index(conn, params)
   end
