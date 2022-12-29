@@ -178,10 +178,6 @@ defmodule Transport.ImportDataTest do
     assert Map.get(resource, :display_position) == 0
     resource_id = Map.get(resource, :id)
 
-    # set the metadata field for this resource
-    saved_metadata = %{"foo" => "bar"}
-    resource |> DB.Resource.changeset(%{metadata: saved_metadata}) |> DB.Repo.update!()
-
     # import 2
     payload_2 =
       generate_dataset_payload(
@@ -209,9 +205,6 @@ defmodule Transport.ImportDataTest do
     assert Map.get(resource_updated, :title) == new_title
     assert Map.get(resource_updated, :id) == resource_id
     assert Map.get(resource_updated, :datagouv_id) == new_datagouv_id
-
-    # previous metadata was kept
-    assert Map.get(resource_updated, :metadata) == saved_metadata
 
     # import 3
     payload_3 =

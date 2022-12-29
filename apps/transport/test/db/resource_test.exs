@@ -161,8 +161,10 @@ defmodule DB.ResourceTest do
 
     assert {true, "schema is set"} == Resource.can_validate?(resource)
     # temporary behavior before validation v1 deletion
-    assert {false, "resources with a schema are not validated by validation v1 anymore"} == Resource.need_validate?(resource, false)
-    assert {false, _ } = Resource.needs_validation(resource, false)
+    assert {false, "resources with a schema are not validated by validation v1 anymore"} ==
+             Resource.need_validate?(resource, false)
+
+    assert {false, _} = Resource.needs_validation(resource, false)
   end
 
   test "needs validation when schema is set but not in list" do
@@ -173,7 +175,9 @@ defmodule DB.ResourceTest do
 
     assert {false, "schema is set"} == Resource.can_validate?(resource)
     # temporary behavior before validation v1 deletion
-    assert {false, "resources with a schema are not validated by validation v1 anymore"} == Resource.need_validate?(resource, false)
+    assert {false, "resources with a schema are not validated by validation v1 anymore"} ==
+             Resource.need_validate?(resource, false)
+
     assert {false, "schema is set"} == Resource.needs_validation(resource, false)
   end
 
@@ -193,8 +197,8 @@ defmodule DB.ResourceTest do
 
     assert {true, "schema is set"} == Resource.can_validate?(resource)
     # temporary behavior before validation v1 deletion
-    assert {false, _ } = Resource.need_validate?(resource, false)
-    assert {false, _ } = Resource.needs_validation(resource, false)
+    assert {false, _} = Resource.need_validate?(resource, false)
+    assert {false, _} = Resource.needs_validation(resource, false)
 
     # Set the same content hash in the validation metadata
     resource =
@@ -206,7 +210,7 @@ defmodule DB.ResourceTest do
     resource =
       resource |> Resource.changeset(%{metadata: %{"validation" => %{"content_hash" => "nope"}}}) |> DB.Repo.update!()
 
-    assert {false, _ } = Resource.needs_validation(resource, false)
+    assert {false, _} = Resource.needs_validation(resource, false)
   end
 
   describe "resource last content update time" do

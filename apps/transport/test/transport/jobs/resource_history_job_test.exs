@@ -242,7 +242,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
           title: "title",
           datagouv_id: "1",
           is_community_resource: false,
-          content_hash: "first_hash",
+          content_hash: "first_hash"
         )
 
       Transport.HTTPoison.Mock
