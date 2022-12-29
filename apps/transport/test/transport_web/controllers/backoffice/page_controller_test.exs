@@ -1,8 +1,8 @@
 defmodule TransportWeb.Backoffice.PageControllerTest do
   use TransportWeb.ConnCase, async: true
   import Plug.Test, only: [init_test_session: 2]
-  alias TransportWeb.Router.Helpers, as: Routes
   alias TransportWeb.Backoffice.PageController
+  alias TransportWeb.Router.Helpers, as: Routes
   import DB.Factory
 
   setup do
@@ -70,7 +70,9 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
       |> init_test_session(%{
         current_user: %{"organizations" => [%{"slug" => "blurp"}, %{"slug" => "equipe-transport-data-gouv-fr"}]}
       })
-      |> get(Routes.backoffice_page_path(conn, :index, %{"filter" => "outdated", "dir" => "asc", "order_by" => "end_date"}))
+      |> get(
+        Routes.backoffice_page_path(conn, :index, %{"filter" => "outdated", "dir" => "asc", "order_by" => "end_date"})
+      )
 
     assert html_response(conn2, 200) =~ "un dataset outdated"
     refute html_response(conn2, 200) =~ "un dataset bien à jour"

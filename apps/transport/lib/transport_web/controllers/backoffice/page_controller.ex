@@ -5,7 +5,7 @@ defmodule TransportWeb.Backoffice.PageController do
   import Ecto.Query
   require Logger
 
-  def end_dates_query() do
+  def end_dates_query do
     DB.Dataset.base_query()
     |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
     |> where([metadata: m], fragment("?->>'end_date' IS NOT NULL", m.metadata))

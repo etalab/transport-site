@@ -1,8 +1,8 @@
 defmodule TransportWeb.Backoffice.PageView do
   use TransportWeb, :view
+  alias DB.Dataset
   alias Plug.Conn.Query
   alias TransportWeb.PaginationHelpers
-  alias DB.Dataset
 
   def pagination_links(conn, datasets) do
     kwargs = [path: &backoffice_page_path/3] |> add_filter(conn.params)
