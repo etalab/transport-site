@@ -115,22 +115,6 @@ defmodule TransportWeb.Backoffice.PageController do
     |> render_index(conn, params)
   end
 
-  def index(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id} = params) do
-    conn =
-      Dataset
-      |> preload([:aom, :logs_import])
-      |> Repo.get(dataset_id)
-      |> case do
-        nil ->
-          put_flash(conn, :error, dgettext("backoffice", "Unable to find dataset"))
-
-        dataset ->
-          assign(conn, :dataset, dataset)
-      end
-
-    render_index(Dataset, conn, params)
-  end
-
   def index(%Plug.Conn{} = conn, params) do
     Dataset.base_query()
     |> join(:left, [d], end_date in subquery(end_dates_query()), on: d.id == end_date.dataset_id, as: :end_dates)
