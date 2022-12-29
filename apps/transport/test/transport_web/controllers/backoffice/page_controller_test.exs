@@ -1,6 +1,8 @@
 defmodule TransportWeb.Backoffice.PageControllerTest do
-  use ExUnit.Case
+  use TransportWeb.ConnCase, async: true
+  import Plug.Test, only: [init_test_session: 2]
   alias TransportWeb.Backoffice.PageController
+  alias TransportWeb.Router.Helpers, as: Routes
   import DB.Factory
 
   setup do
@@ -47,5 +49,32 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
     insert(:resource_unavailability, %{resource_id: resource_id, start: hours_ago_73, end: minute_ago_1})
 
     assert [] == PageController.dataset_with_resource_under_90_availability()
+  end
+
+  test "outdated datasets filter", %{conn: conn} do
+    insert_outdated_resource_and_friends(custom_title: "un dataset outdated")
+    insert_up_to_date_resource_and_friends(custom_title: "un dataset bien à jour")
+
+    conn1 =
+      conn
+      |> init_test_session(%{
+        current_user: %{"organizations" => [%{"slug" => "blurp"}, %{"slug" => "equipe-transport-data-gouv-fr"}]}
+      })
+      |> get(Routes.backoffice_page_path(conn, :index))
+
+    assert html_response(conn1, 200) =~ "un dataset outdated"
+    assert html_response(conn1, 200) =~ "un dataset bien à jour"
+
+    conn2 =
+      conn
+      |> init_test_session(%{
+        current_user: %{"organizations" => [%{"slug" => "blurp"}, %{"slug" => "equipe-transport-data-gouv-fr"}]}
+      })
+      |> get(
+        Routes.backoffice_page_path(conn, :index, %{"filter" => "outdated", "dir" => "asc", "order_by" => "end_date"})
+      )
+
+    assert html_response(conn2, 200) =~ "un dataset outdated"
+    refute html_response(conn2, 200) =~ "un dataset bien à jour"
   end
 end
