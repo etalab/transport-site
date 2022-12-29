@@ -365,7 +365,6 @@ defmodule Transport.ImportData do
 
       resource =
         resource
-        |> Map.put("metadata", existing_resource[:metadata])
         |> Map.put("url", cleaned_url(resource["url"]))
 
       format = formated_format(resource, type, is_community_resource)
@@ -893,7 +892,7 @@ defmodule Transport.ImportData do
     |> join(:left, [r], d in Dataset, on: r.dataset_id == d.id)
     |> where([r], r.url == ^url)
     |> where([_r, d], d.datagouv_id == ^dataset_datagouv_id)
-    |> select([r], map(r, [:id, :metadata]))
+    |> select([r], map(r, [:id]))
     |> Repo.one()
   end
 
@@ -902,7 +901,7 @@ defmodule Transport.ImportData do
     |> join(:left, [r], d in Dataset, on: r.dataset_id == d.id)
     |> where([r, _d], r.datagouv_id == ^datagouv_id or r.url == ^url)
     |> where([_r, d], d.datagouv_id == ^dataset_datagouv_id)
-    |> select([r], map(r, [:id, :metadata]))
+    |> select([r], map(r, [:id]))
     |> Repo.one()
   end
 
