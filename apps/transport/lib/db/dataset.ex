@@ -300,6 +300,13 @@ defmodule DB.Dataset do
 
   @spec list_datasets(map()) :: Ecto.Query.t()
   def list_datasets(%{} = params) do
+    params
+    |> list_datasets_no_order()
+    |> order_datasets(params)
+  end
+
+  @spec list_datasets_no_order(map()) :: Ecto.Query.t()
+  def list_datasets_no_order(%{} = params) do
     q =
       base_query()
       |> distinct([dataset: d], d.id)
@@ -318,7 +325,6 @@ defmodule DB.Dataset do
     base_query()
     |> where([dataset: d], d.id in subquery(q))
     |> preload_without_validations()
-    |> order_datasets(params)
   end
 
   @spec order_datasets(Ecto.Query.t(), map()) :: Ecto.Query.t()

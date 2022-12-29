@@ -132,7 +132,11 @@
       <th class="bo_dataset_button"></th>
     </tr>
     <%= for dataset <- @datasets do %>
-      <%= render(TransportWeb.Backoffice.PageView, "_dataset.html", dataset: dataset, conn: @conn) %>
+      <%= render(TransportWeb.Backoffice.PageView, "_dataset.html",
+        dataset: dataset,
+        end_date: Map.get(@end_dates, dataset.id),
+        conn: @conn
+      ) %>
     <% end %>
   </table>
   <div class="pt-48">
