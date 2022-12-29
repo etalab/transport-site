@@ -116,7 +116,8 @@ oban_crontab_all_envs =
         {"15 */3 * * *", Transport.Jobs.ResourceHistoryTableSchemaValidationJob},
         {"5 6 * * *", Transport.Jobs.NewDatagouvDatasetsJob},
         {"0 6 * * *", Transport.Jobs.NewDatasetNotificationsJob},
-        {"0 21 * * *", Transport.Jobs.DatasetHistoryDispatcherJob}
+        {"0 21 * * *", Transport.Jobs.DatasetHistoryDispatcherJob},
+        {"0 22 * * *", Transport.Jobs.ArchiveMetricsJob}
       ]
 
     :dev ->
