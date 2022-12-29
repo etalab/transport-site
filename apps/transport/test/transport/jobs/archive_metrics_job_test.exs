@@ -43,7 +43,15 @@ defmodule Transport.Test.Transport.Jobs.ArchiveMetricsJobTest do
   end
 
   test "archives rows for a given day" do
-    today = %{(DateTime.utc_now() |> DateTime.truncate(:second)) | hour: 0, minute: 0, second: 0}
+    today = %{
+      (DateTime.utc_now()
+       |> DateTime.add(-91, :day)
+       |> DateTime.truncate(:second))
+      | hour: 0,
+        minute: 0,
+        second: 0
+    }
+
     yesterday = today |> DateTime.add(-1, :day)
     tomorrow = today |> DateTime.add(1, :day)
 
@@ -67,5 +75,13 @@ defmodule Transport.Test.Transport.Jobs.ArchiveMetricsJobTest do
              %DB.Metrics{target: "foo", event: "baz", period: ^today, count: 3},
              %DB.Metrics{target: "foo", event: "baz", period: ^tomorrow, count: 5}
            ] = metrics
+  end
+
+  test "does not try to archive if not past the retention period" do
+    insert(:metrics, period: DateTime.utc_now(), target: "foo", event: "baz", count: 10)
+
+    assert {:cancel, _} = perform_job(ArchiveMetricsJob, %{"date" => Date.utc_today() |> Date.to_iso8601()})
+
+    refute Enum.empty?(DB.Metrics |> DB.Repo.all())
   end
 end

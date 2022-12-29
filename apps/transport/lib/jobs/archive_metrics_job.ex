@@ -25,43 +25,48 @@ defmodule Transport.Jobs.ArchiveMetricsJob do
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"date" => date}}) do
     date = Date.from_iso8601!(date)
-    {date_start, date_end} = {to_midnight_datetime(date), date |> Date.add(1) |> to_midnight_datetime()}
 
-    metrics =
-      DB.Metrics
-      |> where([m], m.period >= ^date_start and m.period < ^date_end)
-      |> group_by([m], [m.target, m.event, fragment("date")])
-      |> select([m], %{
-        target: m.target,
-        event: m.event,
-        date: fragment("date(?) as date", m.period),
-        total: sum(m.count)
-      })
-      |> DB.Repo.all()
+    if Date.compare(date, Date.utc_today() |> Date.add(-@days_before_archiving)) == :gt do
+      {:cancel, "Cannot archive rows if they are not older than #{@days_before_archiving} days"}
+    else
+      {date_start, date_end} = {to_midnight_datetime(date), date |> Date.add(1) |> to_midnight_datetime()}
 
-    DB.Repo.transaction(fn ->
-      DB.Metrics
-      |> where([m], m.period >= ^date_start and m.period < ^date_end)
-      |> DB.Repo.delete_all()
+      metrics =
+        DB.Metrics
+        |> where([m], m.period >= ^date_start and m.period < ^date_end)
+        |> group_by([m], [m.target, m.event, fragment("date")])
+        |> select([m], %{
+          target: m.target,
+          event: m.event,
+          date: fragment("date(?) as date", m.period),
+          total: sum(m.count)
+        })
+        |> DB.Repo.all()
 
-      records =
-        Enum.map(metrics, fn record ->
-          now = DateTime.utc_now()
+      DB.Repo.transaction(fn ->
+        DB.Metrics
+        |> where([m], m.period >= ^date_start and m.period < ^date_end)
+        |> DB.Repo.delete_all()
 
-          %{
-            target: record.target,
-            event: record.event,
-            period: to_midnight_datetime(record.date),
-            count: record.total,
-            inserted_at: now,
-            updated_at: now
-          }
-        end)
+        records =
+          Enum.map(metrics, fn record ->
+            now = DateTime.utc_now()
 
-      DB.Repo.insert_all(DB.Metrics, records)
-    end)
+            %{
+              target: record.target,
+              event: record.event,
+              period: to_midnight_datetime(record.date),
+              count: record.total,
+              inserted_at: now,
+              updated_at: now
+            }
+          end)
 
-    :ok
+        DB.Repo.insert_all(DB.Metrics, records)
+      end)
+
+      :ok
+    end
   end
 
   @doc """
