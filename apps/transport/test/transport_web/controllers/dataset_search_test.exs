@@ -24,7 +24,6 @@ defmodule TransportWeb.DatasetSearchControllerTest do
           %Resource{
             url: "https://link.to/angers.zip",
             validation: %Validation{},
-            metadata: %{},
             title: "angers.zip"
           }
         ],
@@ -47,7 +46,6 @@ defmodule TransportWeb.DatasetSearchControllerTest do
           %Resource{
             url: "https://link.to/angers.zip",
             validation: %Validation{},
-            metadata: %{}
           }
         ]
       }
