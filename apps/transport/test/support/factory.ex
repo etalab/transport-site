@@ -157,7 +157,8 @@ defmodule DB.Factory do
       region_id: Keyword.get(opts, :region_id),
       has_realtime: Keyword.get(opts, :has_realtime),
       type: Keyword.get(opts, :type),
-      aom: Keyword.get(opts, :aom)
+      aom: Keyword.get(opts, :aom),
+      custom_title: Keyword.get(opts, :custom_title)
     ]
 
     dataset_opts =
