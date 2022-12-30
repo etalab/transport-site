@@ -115,7 +115,6 @@ defmodule Transport.Jobs.ResourceHistoryJob do
           permanent_url: Transport.S3.permanent_url(:history, filename),
           resource_url: resource.url,
           resource_latest_url: resource.latest_url,
-          resource_metadata: resource.metadata,
           title: resource.title,
           format: resource.format,
           dataset_id: resource.dataset_id,
