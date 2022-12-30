@@ -74,8 +74,7 @@ defmodule Transport.Jobs.ArchiveMetricsJob do
   ~U[2022-12-29 00:00:00Z]
   """
   def to_midnight_datetime(%Date{} = date) do
-    {:ok, datetime, 0} = DateTime.from_iso8601("#{Date.to_iso8601(date)} 00:00:00Z")
-    datetime
+    DateTime.new!(date, ~T[00:00:00], "Etc/UTC")
   end
 
   def days_to_archive do

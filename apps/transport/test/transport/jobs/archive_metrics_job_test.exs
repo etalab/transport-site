@@ -43,7 +43,7 @@ defmodule Transport.Test.Transport.Jobs.ArchiveMetricsJobTest do
   end
 
   test "archives rows for a given day" do
-    today = %{
+    test_date = %{
       (DateTime.utc_now()
        |> DateTime.add(-91, :day)
        |> DateTime.truncate(:second))
@@ -52,16 +52,16 @@ defmodule Transport.Test.Transport.Jobs.ArchiveMetricsJobTest do
         second: 0
     }
 
-    yesterday = today |> DateTime.add(-1, :day)
-    tomorrow = today |> DateTime.add(1, :day)
+    day_before = test_date |> DateTime.add(-1, :day)
+    day_after = test_date |> DateTime.add(1, :day)
 
-    insert(:metrics, period: yesterday, target: "foo", event: "baz", count: 10)
-    insert(:metrics, period: tomorrow, target: "foo", event: "baz", count: 5)
-    insert(:metrics, period: today, target: "foo", event: "baz", count: 1)
-    insert(:metrics, period: today |> DateTime.add(4, :hour), target: "foo", event: "baz", count: 2)
-    insert(:metrics, period: today |> DateTime.add(6, :hour), target: "foo", event: "bar", count: 4)
+    insert(:metrics, period: day_before, target: "foo", event: "baz", count: 10)
+    insert(:metrics, period: day_after, target: "foo", event: "baz", count: 5)
+    insert(:metrics, period: test_date, target: "foo", event: "baz", count: 1)
+    insert(:metrics, period: test_date |> DateTime.add(4, :hour), target: "foo", event: "baz", count: 2)
+    insert(:metrics, period: test_date |> DateTime.add(6, :hour), target: "foo", event: "bar", count: 4)
 
-    assert :ok == perform_job(ArchiveMetricsJob, %{"date" => today |> DateTime.to_date() |> Date.to_iso8601()})
+    assert :ok == perform_job(ArchiveMetricsJob, %{"date" => test_date |> DateTime.to_date() |> Date.to_iso8601()})
 
     metrics =
       DB.Metrics
@@ -70,10 +70,10 @@ defmodule Transport.Test.Transport.Jobs.ArchiveMetricsJobTest do
       |> DB.Repo.all()
 
     assert [
-             %DB.Metrics{target: "foo", event: "baz", period: ^yesterday, count: 10},
-             %DB.Metrics{target: "foo", event: "bar", period: ^today, count: 4},
-             %DB.Metrics{target: "foo", event: "baz", period: ^today, count: 3},
-             %DB.Metrics{target: "foo", event: "baz", period: ^tomorrow, count: 5}
+             %DB.Metrics{target: "foo", event: "baz", period: ^day_before, count: 10},
+             %DB.Metrics{target: "foo", event: "bar", period: ^test_date, count: 4},
+             %DB.Metrics{target: "foo", event: "baz", period: ^test_date, count: 3},
+             %DB.Metrics{target: "foo", event: "baz", period: ^day_after, count: 5}
            ] = metrics
   end
 
