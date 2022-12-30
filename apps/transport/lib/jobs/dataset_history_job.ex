@@ -91,7 +91,7 @@ defmodule Transport.Jobs.DatasetHistoryJob do
 
     DB.Dataset.base_query()
     |> where([dataset: d], d.id == ^dataset_id)
-    |> DB.Resource.join_dataset_with_resource()
+    |> join(:left, [dataset: d], r in DB.Resource, on: d.id == r.dataset_id, as: :resource)
     |> join(:left, [resource: r], rh in DB.ResourceHistory,
       on: rh.resource_id == r.id,
       as: :resource_history

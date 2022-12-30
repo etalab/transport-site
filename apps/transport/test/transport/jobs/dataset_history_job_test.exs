@@ -88,6 +88,11 @@ defmodule Transport.Test.Transport.Jobs.DatasetHistoryJobTest do
              dhr4
   end
 
+  test "historize a dataset without resource" do
+    dataset = insert(:dataset)
+    :ok = perform_job(Transport.Jobs.DatasetHistoryJob, %{"dataset_id" => dataset.id})
+  end
+
   test "enqueue all dataset history jobs" do
     %{id: id_1} = insert(:dataset)
     %{id: id_2} = insert(:dataset)
