@@ -208,14 +208,14 @@ defmodule DB.Dataset do
   defp filter_by_feature(query, _), do: query
 
   @spec filter_by_mode(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_mode(query, %{"modes" => mode}) do
+  defp filter_by_mode(query, %{"modes" => modes}) when is_list(modes) do
     query
     |> DB.ResourceHistory.join_dataset_with_latest_resource_history()
     |> DB.MultiValidation.join_resource_history_with_latest_validation(
       Transport.Validators.GTFSTransport.validator_name()
     )
     |> DB.ResourceMetadata.join_validation_with_metadata()
-    |> where([metadata: rm], fragment("? @> ?::varchar[]", rm.modes, ^mode))
+    |> where([metadata: rm], fragment("? @> ?::varchar[]", rm.modes, ^modes))
   end
 
   defp filter_by_mode(query, _), do: query
