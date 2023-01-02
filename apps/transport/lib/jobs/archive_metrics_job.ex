@@ -80,11 +80,15 @@ defmodule Transport.Jobs.ArchiveMetricsJob do
   def days_to_archive do
     limit_date = DateTime.utc_now() |> DateTime.add(-@days_before_archiving, :day)
 
-    DB.Metrics
-    |> where([m], m.period <= ^limit_date)
-    |> select([m], fragment("date(?) as date", m.period))
-    |> order_by([m], fragment("date"))
-    |> distinct(true)
-    |> DB.Repo.all()
+    dates_query =
+      DB.Metrics
+      |> select([m], %{date: fragment("date(?)", m.period), event: m.event, target: m.target})
+      |> where([m], m.period <= ^limit_date)
+      |> group_by([m], [fragment("date"), m.event, m.target])
+      |> having([m], count(m.id) > 1)
+
+    base = from(d in subquery(dates_query))
+
+    base |> select([d], fragment("date")) |> order_by([m], fragment("date")) |> distinct(true) |> DB.Repo.all()
   end
 end
