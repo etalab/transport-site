@@ -514,7 +514,10 @@ defmodule DB.Resource do
   """
   def guess_requestor_ref(%__MODULE__{url: url} = resource) do
     if is_siri?(resource) do
-      host_to_key = %{"ara-api.enroute.mobi" => :enroute}
+      host_to_key =
+        :transport
+        |> Application.fetch_env!(:public_siri_host_mappings)
+
       resource_host = URI.parse(url).host
 
       :transport
