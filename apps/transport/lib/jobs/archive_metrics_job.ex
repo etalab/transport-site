@@ -89,6 +89,6 @@ defmodule Transport.Jobs.ArchiveMetricsJob do
 
     base = from(d in subquery(dates_query))
 
-    base |> select([d], fragment("date")) |> order_by([m], fragment("date")) |> distinct(true) |> DB.Repo.all()
+    base |> select([d], d.date) |> order_by([d], d.date) |> distinct(true) |> DB.Repo.all()
   end
 end
