@@ -35,7 +35,7 @@ defmodule Transport.Test.Transport.Jobs.RemoveHistoryJobTest do
     dataset = insert(:dataset, type: "public-transit")
 
     refute DB.Dataset.should_skip_history?(dataset)
-    assert {:discard, _} = perform_job(RemoveHistoryJob, %{"dataset_id" => dataset.id})
+    assert {:cancel, _} = perform_job(RemoveHistoryJob, %{"dataset_id" => dataset.id})
   end
 
   test "marks for deletion relevant rows" do

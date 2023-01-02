@@ -208,14 +208,14 @@ defmodule DB.Dataset do
   defp filter_by_feature(query, _), do: query
 
   @spec filter_by_mode(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_mode(query, %{"modes" => mode}) do
+  defp filter_by_mode(query, %{"modes" => modes}) when is_list(modes) do
     query
     |> DB.ResourceHistory.join_dataset_with_latest_resource_history()
     |> DB.MultiValidation.join_resource_history_with_latest_validation(
       Transport.Validators.GTFSTransport.validator_name()
     )
     |> DB.ResourceMetadata.join_validation_with_metadata()
-    |> where([metadata: rm], fragment("? @> ?::varchar[]", rm.modes, ^mode))
+    |> where([metadata: rm], fragment("? @> ?::varchar[]", rm.modes, ^modes))
   end
 
   defp filter_by_mode(query, _), do: query
@@ -300,6 +300,13 @@ defmodule DB.Dataset do
 
   @spec list_datasets(map()) :: Ecto.Query.t()
   def list_datasets(%{} = params) do
+    params
+    |> list_datasets_no_order()
+    |> order_datasets(params)
+  end
+
+  @spec list_datasets_no_order(map()) :: Ecto.Query.t()
+  def list_datasets_no_order(%{} = params) do
     q =
       base_query()
       |> distinct([dataset: d], d.id)
@@ -318,7 +325,6 @@ defmodule DB.Dataset do
     base_query()
     |> where([dataset: d], d.id in subquery(q))
     |> preload_without_validations()
-    |> order_datasets(params)
   end
 
   @spec order_datasets(Ecto.Query.t(), map()) :: Ecto.Query.t()

@@ -18,7 +18,7 @@ defmodule Transport.Test.Transport.Jobs.NewDatasetNotificationsJobTest do
     insert(:dataset, inserted_at: hours_ago(5), is_active: false)
 
     assert [%DB.Dataset{id: ^d1_id}, %DB.Dataset{id: ^d2_id}] =
-             NewDatasetNotificationsJob.relevant_datasets(DateTime.utc_now())
+             DateTime.utc_now() |> NewDatasetNotificationsJob.relevant_datasets() |> Enum.sort(&(&1.id < &2.id))
   end
 
   test "perform" do

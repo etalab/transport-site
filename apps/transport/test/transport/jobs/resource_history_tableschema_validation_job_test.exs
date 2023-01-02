@@ -55,7 +55,7 @@ defmodule Transport.Jobs.ResourceHistoryTableSchemaValidationJobTest do
       validator: Transport.Validators.TableSchema.validator_name()
     })
 
-    assert {:discard, _} = perform_job(ResourceHistoryTableSchemaValidationJob, %{resource_history_id: rh.id})
+    assert {:cancel, _} = perform_job(ResourceHistoryTableSchemaValidationJob, %{resource_history_id: rh.id})
   end
 
   test "enqueues jobs for all ResourceHistory with a Table Schema schema that have not been validated" do

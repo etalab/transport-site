@@ -57,7 +57,7 @@ defmodule Transport.Jobs.RemoveHistoryJob do
 
       :ok
     else
-      {:discard, "Cannot remove history rows for dataset##{dataset_id} because it should not be skipped"}
+      {:cancel, "Cannot remove history rows for dataset##{dataset_id} because it should not be skipped"}
     end
   end
 
