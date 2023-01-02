@@ -64,7 +64,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   defp handle_history([], %Oban.Job{} = job) do
     reason = "Resource should not be historicised"
     notify_workflow(job, %{"success" => false, "job_id" => job.id, "reason" => reason})
-    {:discard, reason}
+    {:cancel, reason}
   end
 
   defp handle_history([%Resource{} = resource], %Oban.Job{} = job) do
@@ -115,7 +115,6 @@ defmodule Transport.Jobs.ResourceHistoryJob do
           permanent_url: Transport.S3.permanent_url(:history, filename),
           resource_url: resource.url,
           resource_latest_url: resource.latest_url,
-          resource_metadata: resource.metadata,
           title: resource.title,
           format: resource.format,
           dataset_id: resource.dataset_id,

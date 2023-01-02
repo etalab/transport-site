@@ -18,7 +18,7 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJobTest do
       )
 
     # no mox expectation set, and the test passes => conversion is properly skipped
-    assert {:discard, "Conversion is not needed"} ==
+    assert {:cancel, "Conversion is not needed"} ==
              perform_job(SingleGtfsToGeojsonConverterJob, %{"resource_history_id" => resource_history_id})
   end
 
@@ -29,7 +29,7 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJobTest do
     %{id: resource_history_id} = insert(:resource_history, payload: %{"uuid" => uuid, "format" => "GTFS"})
 
     # no mox expectation set, and the test passes => conversion is properly skipped
-    assert {:discard, "Conversion is not needed"} ==
+    assert {:cancel, "Conversion is not needed"} ==
              perform_job(SingleGtfsToGeojsonConverterJob, %{"resource_history_id" => resource_history_id})
   end
 
@@ -96,7 +96,7 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJobTest do
       {:error, "conversion failed"}
     end)
 
-    assert {:discard, _} = perform_job(SingleGtfsToGeojsonConverterJob, %{"resource_history_id" => resource_history_id})
+    assert {:cancel, _} = perform_job(SingleGtfsToGeojsonConverterJob, %{"resource_history_id" => resource_history_id})
 
     # ResourceHistory's payload is updated with the error information
     expected_payload =

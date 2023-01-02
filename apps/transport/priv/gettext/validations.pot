@@ -323,3 +323,31 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "netex-siri-validator"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "%{count} times (%{percentage} % of validations)"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Description"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Error ID"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Errors count"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Here is a recap of all the error types encountered over the last %{nb} days."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Number of occurences"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Previous validations"
+msgstr ""

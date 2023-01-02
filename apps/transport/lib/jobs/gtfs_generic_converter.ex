@@ -75,7 +75,7 @@ defmodule Transport.Jobs.GTFSGenericConverter do
 
       false ->
         Logger.info("Skipping #{format} conversion of resource history #{resource_history_id}")
-        {:discard, "Conversion is not needed"}
+        {:cancel, "Conversion is not needed"}
     end
   end
 
@@ -153,7 +153,7 @@ defmodule Transport.Jobs.GTFSGenericConverter do
           })
           |> Repo.update!()
 
-          {:discard, "Converter returned an error: #{reason}"}
+          {:cancel, "Converter returned an error: #{reason}"}
       end
     after
       File.rm(gtfs_file_path)

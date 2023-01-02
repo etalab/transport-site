@@ -5,8 +5,6 @@ defmodule DB.Resource do
   use Ecto.Schema
   use TypedEctoSchema
   alias DB.{Dataset, LogsValidation, Repo, ResourceUnavailability, Validation}
-  alias Shared.Validation.JSONSchemaValidator.Wrapper, as: JSONSchemaValidator
-  alias Shared.Validation.TableSchemaValidator.Wrapper, as: TableSchemaValidator
   alias Transport.DataVisualization
   alias Transport.Shared.Schemas.Wrapper, as: Schemas
   import Ecto.{Changeset, Query}
@@ -19,7 +17,6 @@ defmodule DB.Resource do
     field(:format, :string)
     field(:last_import, :string)
     field(:title, :string)
-    field(:metadata, :map)
     field(:last_update, :string)
     # stable data.gouv.fr url if exists, else (for ODS gtfs as csv) it's the real url
     field(:latest_url, :string)
@@ -43,10 +40,6 @@ defmodule DB.Resource do
     # because one datagouv resource can be a CSV linking to several transport.data.gouv's resources
     # (this is done for OpenDataSoft)
     field(:datagouv_id, :string)
-
-    # we add 2 fields, that are already in the metadata json, in order to be able to add some indices
-    field(:start_date, :date)
-    field(:end_date, :date)
 
     field(:filesize, :integer)
     # Can be `remote` or `file`. `file` are for files uploaded and hosted
@@ -180,23 +173,8 @@ defmodule DB.Resource do
     {true, "gbfs is always validated"}
   end
 
-  def need_validate?(
-        %__MODULE__{
-          schema_name: schema_name,
-          content_hash: content_hash,
-          metadata: %{"validation" => %{"content_hash" => validation_content_hash}}
-        },
-        _force_validation
-      )
-      when is_binary(schema_name) do
-    case validation_content_hash == content_hash do
-      true -> {false, "schema is set but content hash has not changed"}
-      false -> {true, "schema is set and content hash has changed"}
-    end
-  end
-
   def need_validate?(%__MODULE__{schema_name: schema_name}, _force_validation) when is_binary(schema_name) do
-    {true, "schema is set and no previous validation"}
+    {false, "resources with a schema are not validated by validation v1 anymore"}
   end
 
   @spec validate_and_save(__MODULE__.t() | integer(), boolean()) :: {:error, any} | {:ok, nil}
@@ -304,39 +282,10 @@ defmodule DB.Resource do
     end
   end
 
-  def validate(%__MODULE__{schema_name: schema_name, metadata: metadata, content_hash: content_hash} = resource) do
-    schema_type = Schemas.schema_type(schema_name)
-
-    metadata =
-      case validate_against_schema(resource, schema_type) do
-        payload when is_map(payload) ->
-          validation_details = %{"schema_type" => schema_type, "content_hash" => content_hash}
-          Map.merge(metadata || %{}, %{"validation" => Map.merge(payload, validation_details)})
-
-        nil ->
-          metadata
-      end
-
-    {:ok, %{"metadata" => metadata}}
-  end
-
   def validate(%__MODULE__{format: f, id: id}) do
     Logger.info("cannot validate resource id=#{id} because we don't know how to validate the #{f} format")
 
     {:ok, %{"validations" => nil, "metadata" => nil}}
-  end
-
-  defp validate_against_schema(
-         %__MODULE__{url: url, schema_name: schema_name, schema_version: schema_version},
-         schema_type
-       ) do
-    case schema_type do
-      "tableschema" ->
-        TableSchemaValidator.validate(schema_name, url, schema_version)
-
-      "jsonschema" ->
-        JSONSchemaValidator.validate(JSONSchemaValidator.load_jsonschema_for_schema(schema_name), url)
-    end
   end
 
   @spec save(__MODULE__.t(), map()) :: {:ok, any()} | {:error, any()}
@@ -358,7 +307,6 @@ defmodule DB.Resource do
       |> preload(:validation)
       |> Repo.get(id)
       |> change(
-        metadata: metadata,
         validation: %Validation{
           date:
             DateTime.utc_now()
@@ -367,29 +315,22 @@ defmodule DB.Resource do
           max_error: get_max_severity_error(validations),
           validation_latest_content_hash: r.content_hash,
           data_vis: data_vis
-        },
-        start_date: str_to_date(metadata["start_date"]),
-        end_date: str_to_date(metadata["end_date"])
+        }
       )
       |> Repo.update()
 
     ecto_response
   end
 
-  def save(%__MODULE__{} = r, %{"metadata" => %{"validation" => validation} = metadata}) do
+  def save(%__MODULE__{} = r, %{"metadata" => %{"validation" => validation}}) do
     r
     |> change(
-      metadata: metadata,
       validation: %Validation{
         date: DateTime.utc_now() |> DateTime.to_string(),
         details: validation
       }
     )
     |> Repo.update()
-  end
-
-  def save(%__MODULE__{} = r, %{"metadata" => metadata}) do
-    r |> change(metadata: metadata) |> Repo.update()
   end
 
   def save(url, _) do
@@ -406,7 +347,6 @@ defmodule DB.Resource do
         :format,
         :last_import,
         :title,
-        :metadata,
         :id,
         :datagouv_id,
         :last_update,
@@ -427,26 +367,6 @@ defmodule DB.Resource do
     )
     |> validate_required([:url, :datagouv_id])
   end
-
-  @spec is_outdated?(__MODULE__.t()) :: boolean
-  def is_outdated?(%__MODULE__{
-        metadata: %{
-          "end_date" => nil
-        }
-      }),
-      do: false
-
-  def is_outdated?(%__MODULE__{
-        metadata: %{
-          "end_date" => end_date
-        }
-      }),
-      do:
-        end_date <=
-          Date.utc_today()
-          |> Date.to_iso8601()
-
-  def is_outdated?(_), do: true
 
   # I duplicate this function in Transport.Validators.GTFSTransport
   # this one should be deleted later
@@ -553,22 +473,6 @@ defmodule DB.Resource do
       r
       |> other_resources_query()
       |> Repo.all()
-
-  @spec str_to_date(binary()) :: Date.t() | nil
-  defp str_to_date(date) when not is_nil(date) do
-    date
-    |> Date.from_iso8601()
-    |> case do
-      {:ok, v} ->
-        v
-
-      {:error, e} ->
-        Logger.error("date '#{date}' not valid: #{inspect(e)}")
-        nil
-    end
-  end
-
-  defp str_to_date(_), do: nil
 
   def by_id(query, id) do
     from(resource in query,

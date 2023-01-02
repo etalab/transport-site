@@ -24,7 +24,6 @@ defmodule Transport.ValidationCleanerTest do
           validation_latest_content_hash: "a_content_hash",
           data_vis: %{}
         },
-        metadata: %{},
         title: "angers.zip"
       }
       |> Repo.insert()
@@ -39,7 +38,6 @@ defmodule Transport.ValidationCleanerTest do
           validation_latest_content_hash: "a_content_hash",
           data_vis: %{}
         },
-        metadata: %{},
         title: "another_gtfs.zip"
       }
       |> Repo.insert()

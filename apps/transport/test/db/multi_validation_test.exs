@@ -357,4 +357,60 @@ defmodule DB.MultiValidationTest do
 
     assert %{id: ^mv_id_1} = DB.MultiValidation.resource_history_latest_validation(rh.id, gtfs_rt_validator)
   end
+
+  test "resource_latest_validations" do
+    resource = insert(:resource)
+
+    gtfs_validator = Transport.Validators.GTFSTransport
+    gtfs_rt_validator = Transport.Validators.GTFSRT
+
+    %{id: mv_id_1} =
+      insert(:multi_validation,
+        resource_id: resource.id,
+        validator: gtfs_rt_validator.validator_name(),
+        inserted_at: DateTime.utc_now()
+      )
+
+    %{id: mv_id_2} =
+      insert(:multi_validation,
+        resource_id: resource.id,
+        validator: gtfs_validator.validator_name(),
+        inserted_at: DateTime.utc_now()
+      )
+
+    %{id: mv_id_3} =
+      insert(:multi_validation,
+        resource_id: resource.id,
+        validator: gtfs_rt_validator.validator_name(),
+        inserted_at: DateTime.utc_now() |> DateTime.add(-600)
+      )
+
+    assert [%{id: ^mv_id_1}, %{id: ^mv_id_3}] =
+             DB.MultiValidation.resource_latest_validations(
+               resource.id,
+               gtfs_rt_validator,
+               DateTime.utc_now() |> DateTime.add(-700)
+             )
+
+    assert [%{id: ^mv_id_1}] =
+             DB.MultiValidation.resource_latest_validations(
+               resource.id,
+               gtfs_rt_validator,
+               DateTime.utc_now() |> DateTime.add(-500)
+             )
+
+    assert [%{id: ^mv_id_2}] =
+             DB.MultiValidation.resource_latest_validations(
+               resource.id,
+               gtfs_validator,
+               DateTime.utc_now() |> DateTime.add(-500)
+             )
+
+    assert [] ==
+             DB.MultiValidation.resource_latest_validations(
+               insert(:resource).id,
+               gtfs_validator,
+               DateTime.utc_now() |> DateTime.add(-500)
+             )
+  end
 end

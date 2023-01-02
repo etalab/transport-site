@@ -7,7 +7,7 @@ defmodule TransportWeb.ResourceController do
   require Logger
   import Ecto.Query
 
-  import TransportWeb.ResourceView, only: [issue_type: 1]
+  import TransportWeb.ResourceView, only: [issue_type: 1, latest_validations_nb_days: 0]
   import TransportWeb.DatasetView, only: [availability_number_days: 0]
 
   @enabled_validators MapSet.new([
@@ -30,6 +30,7 @@ defmodule TransportWeb.ResourceController do
       |> assign(:resource_history_infos, DB.ResourceHistory.latest_resource_history_infos(id))
       |> assign(:gtfs_rt_feed, gtfs_rt_feed(conn, resource))
       |> assign(:gtfs_rt_entities, gtfs_rt_entities(resource))
+      |> assign(:latest_validations_details, latest_validations_details(resource))
       |> assign(:multi_validation, latest_validation(resource))
       |> put_resource_flash(resource.dataset.is_active)
 
@@ -51,6 +52,32 @@ defmodule TransportWeb.ResourceController do
   end
 
   def gtfs_rt_entities(%Resource{}), do: nil
+
+  def latest_validations_details(%Resource{format: "gtfs-rt", id: id}) do
+    validations =
+      DB.MultiValidation.resource_latest_validations(
+        id,
+        Transport.Validators.GTFSRT,
+        DateTime.utc_now() |> DateTime.add(-latest_validations_nb_days(), :day)
+      )
+
+    nb_validations = Enum.count(validations)
+
+    validations
+    |> Enum.flat_map(fn %DB.MultiValidation{result: result} -> Map.get(result, "errors", []) end)
+    |> Enum.group_by(&Map.fetch!(&1, "error_id"), &Map.take(&1, ["description", "errors_count"]))
+    |> Enum.into(%{}, fn {error_id, validations} ->
+      {error_id,
+       %{
+         "description" => validations |> hd() |> Map.get("description"),
+         "errors_count" => validations |> Enum.map(& &1["errors_count"]) |> Enum.sum(),
+         "occurence" => length(validations),
+         "percentage" => (length(validations) / nb_validations * 100) |> round()
+       }}
+    end)
+  end
+
+  def latest_validations_details(%Resource{}), do: nil
 
   defp gtfs_rt_feed(conn, %Resource{format: "gtfs-rt", url: url, id: id}) do
     lang = get_session(conn, :locale)

@@ -278,15 +278,15 @@
                           "page-dataset-details",
                           "%{start} to %{end}",
                           start:
-                            DateTimeDisplay.format_date(
-                              resource_history.payload["resource_metadata"]["start_date"],
-                              locale
-                            ),
+                            resource_history
+                            |> validity_period()
+                            |> Map.get("start_date")
+                            |> DateTimeDisplay.format_date(locale),
                           end:
-                            DateTimeDisplay.format_date(
-                              resource_history.payload["resource_metadata"]["end_date"],
-                              locale
-                            )
+                            resource_history
+                            |> validity_period()
+                            |> Map.get("end_date")
+                            |> DateTimeDisplay.format_date(locale)
                         ) %>
                       </td>
                     <% else %>

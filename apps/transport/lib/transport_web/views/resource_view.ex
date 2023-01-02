@@ -153,6 +153,10 @@ defmodule TransportWeb.ResourceView do
   def gtfs_rt_validator_url, do: "https://github.com/MobilityData/gtfs-realtime-validator"
   def gtfs_validator_url, do: "https://github.com/etalab/transport-validator"
 
+  def gtfs_rt_validator_rule_url(error_id) when is_binary(error_id) do
+    gtfs_rt_validator_rule_url(%{"error_id" => error_id})
+  end
+
   def gtfs_rt_validator_rule_url(%{"error_id" => error_id}) do
     "https://github.com/MobilityData/gtfs-realtime-validator/blob/master/RULES.md##{error_id}"
   end
@@ -285,4 +289,6 @@ defmodule TransportWeb.ResourceView do
     </div>
     """
   end
+
+  def latest_validations_nb_days, do: 30
 end

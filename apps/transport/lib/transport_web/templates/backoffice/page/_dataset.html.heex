@@ -29,7 +29,7 @@
     end %>
   </td>
   <td>
-    <%= end_date(@dataset) %>
+    <%= @end_date %>
   </td>
   <td class="bo_dataset_button">
     <%= form_for @conn, backoffice_dataset_path(@conn, :import_from_data_gouv_fr, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
