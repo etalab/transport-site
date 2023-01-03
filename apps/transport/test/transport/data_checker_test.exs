@@ -44,11 +44,13 @@ defmodule Transport.DataCheckerTest do
       :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
 
       # we create a dataset which is considered active on our side
-      dataset = insert(:dataset, is_active: true)
+      dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
 
       # but which is not found found (= inactive?) on data gouv side
+      api_url = "https://demo.data.gouv.fr/api/1/datasets/#{dataset.datagouv_id}/"
+
       Transport.HTTPoison.Mock
-      |> expect(:request, fn :get, "https://demo.data.gouv.fr/api/1/datasets/123/", "", [], [follow_redirect: true] ->
+      |> expect(:request, fn :get, ^api_url, "", [], [follow_redirect: true] ->
         # the dataset is not found on datagouv
         {:ok, %HTTPoison.Response{status_code: 404, body: ""}}
       end)
