@@ -58,8 +58,6 @@ defmodule Transport.Validators.GTFSTransport do
 
   def command(url), do: Shared.Validation.GtfsValidator.remote_gtfs_validation_query(url)
 
-  # Duplicates of function found in DB.Validation.
-  # DB.Validation will be removed later
   @spec severities_map() :: map()
   def severities_map,
     do: %{

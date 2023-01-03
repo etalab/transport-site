@@ -1,6 +1,6 @@
 defmodule DB.ResourceTest do
   use TransportWeb.ConnCase, async: true
-  alias DB.{Resource, Validation}
+  alias DB.Resource
   import Mox
   import DB.Factory
 
@@ -64,67 +64,6 @@ defmodule DB.ResourceTest do
       convert_to: "GeoJSON",
       payload: %{permanent_url: permanent_url, filesize: filesize}
     })
-  end
-
-  test "needs validation with a JSON Schema" do
-    schema_name = "etalab/foo"
-    resource = insert(:resource, %{schema_name: schema_name})
-
-    Transport.Shared.Schemas.Mock
-    |> expect(:transport_schemas, 2, fn -> %{schema_name => %{}} end)
-
-    assert {true, "schema is set"} == Resource.can_validate?(resource)
-    # temporary behavior before validation v1 deletion
-    assert {false, "resources with a schema are not validated by validation v1 anymore"} ==
-             Resource.need_validate?(resource, false)
-
-    assert {false, _} = Resource.needs_validation(resource, false)
-  end
-
-  test "needs validation when schema is set but not in list" do
-    resource = insert(:resource, %{schema_name: "foo"})
-
-    Transport.Shared.Schemas.Mock
-    |> expect(:transport_schemas, 2, fn -> %{} end)
-
-    assert {false, "schema is set"} == Resource.can_validate?(resource)
-    # temporary behavior before validation v1 deletion
-    assert {false, "resources with a schema are not validated by validation v1 anymore"} ==
-             Resource.need_validate?(resource, false)
-
-    assert {false, "schema is set"} == Resource.needs_validation(resource, false)
-  end
-
-  test "needs validation when schema is set and content hash is set" do
-    schema_name = "etalab/foo"
-
-    resource =
-      insert(:resource, %{
-        schema_name: schema_name,
-        content_hash: "hash",
-        url: "https://example.com/file",
-        datagouv_id: "1"
-      })
-
-    Transport.Shared.Schemas.Mock
-    |> expect(:transport_schemas, 4, fn -> %{schema_name => %{}} end)
-
-    assert {true, "schema is set"} == Resource.can_validate?(resource)
-    # temporary behavior before validation v1 deletion
-    assert {false, _} = Resource.need_validate?(resource, false)
-    assert {false, _} = Resource.needs_validation(resource, false)
-
-    # Set the same content hash in the validation metadata
-    resource =
-      resource |> Resource.changeset(%{metadata: %{"validation" => %{"content_hash" => "hash"}}}) |> DB.Repo.update!()
-
-    assert {false, _} = Resource.needs_validation(resource, false)
-
-    # Set the a different content hash in the validation metadata
-    resource =
-      resource |> Resource.changeset(%{metadata: %{"validation" => %{"content_hash" => "nope"}}}) |> DB.Repo.update!()
-
-    assert {false, _} = Resource.needs_validation(resource, false)
   end
 
   describe "resource last content update time" do
