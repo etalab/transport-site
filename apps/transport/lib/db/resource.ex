@@ -4,7 +4,7 @@ defmodule DB.Resource do
   """
   use Ecto.Schema
   use TypedEctoSchema
-  alias DB.{Dataset, LogsValidation, Repo, ResourceUnavailability, Validation}
+  alias DB.{Dataset, Repo, ResourceUnavailability, Validation}
   alias Transport.DataVisualization
   alias Transport.Shared.Schemas.Wrapper, as: Schemas
   import Ecto.{Changeset, Query}
@@ -57,8 +57,6 @@ defmodule DB.Resource do
     has_one(:validation, Validation, on_replace: :delete)
     has_many(:validations, DB.MultiValidation)
     has_many(:resource_metadata, DB.ResourceMetadata)
-
-    has_many(:logs_validation, LogsValidation, on_replace: :delete, on_delete: :delete_all)
 
     has_many(:resource_unavailabilities, ResourceUnavailability,
       on_replace: :delete,
@@ -186,34 +184,18 @@ defmodule DB.Resource do
       |> Repo.one!()
       |> validate_and_save(force_validation)
 
-  def validate_and_save(%__MODULE__{id: resource_id} = resource, force_validation) do
+  def validate_and_save(%__MODULE__{} = resource, force_validation) do
     Logger.info("Validating #{resource.url}")
 
     resource = Repo.preload(resource, :validation)
 
-    with {true, msg} <- __MODULE__.needs_validation(resource, force_validation),
+    with {true, _msg} <- __MODULE__.needs_validation(resource, force_validation),
          {:ok, validations} <- validate(resource),
          {:ok, _} <- save(resource, validations) do
-      # log the validation success
-      Repo.insert(%LogsValidation{
-        resource_id: resource_id,
-        timestamp: DateTime.truncate(DateTime.utc_now(), :second),
-        is_success: true,
-        skipped_reason: msg
-      })
-
       {:ok, nil}
     else
-      {false, skipped_reason} ->
+      {false, _skipped_reason} ->
         # the ressource does not need to be validated again, we have nothing to do
-        Repo.insert(%LogsValidation{
-          resource_id: resource_id,
-          timestamp: DateTime.truncate(DateTime.utc_now(), :second),
-          is_success: true,
-          skipped: true,
-          skipped_reason: skipped_reason
-        })
-
         {:ok, nil}
 
       {:error, error} ->
@@ -227,28 +209,12 @@ defmodule DB.Resource do
           }
         )
 
-        # log the validation error
-        Repo.insert(%LogsValidation{
-          resource_id: resource_id,
-          timestamp: DateTime.truncate(DateTime.utc_now(), :second),
-          is_success: false,
-          error_msg: "error while calling the validator: #{inspect(error)}"
-        })
-
         {:error, error}
     end
   rescue
     e ->
       Logger.error("error while validating resource #{resource.id}: #{inspect(e)}")
       Logger.error(Exception.format(:error, e, __STACKTRACE__))
-
-      Repo.insert(%LogsValidation{
-        resource_id: resource_id,
-        timestamp: DateTime.truncate(DateTime.utc_now(), :second),
-        is_success: false,
-        error_msg: "#{inspect(e)}"
-      })
-
       {:error, e}
   end
 

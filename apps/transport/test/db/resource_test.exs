@@ -1,7 +1,7 @@
 defmodule DB.ResourceTest do
   use TransportWeb.ConnCase, async: true
   alias Shared.Validation.Validator.Mock, as: ValidatorMock
-  alias DB.{LogsValidation, Repo, Resource, Validation}
+  alias DB.{Repo, Resource, Validation}
   import Mox
   import DB.Factory
   import Ecto.Query
@@ -36,10 +36,6 @@ defmodule DB.ResourceTest do
     # a validation is saved in the DB
     validations = Validation |> where([v], v.resource_id == ^resource.id) |> Repo.all()
     assert length(validations) == 1
-
-    # a log of the validation is saved as well
-    [log_validation] = LogsValidation |> where([l], l.resource_id == ^resource.id) |> Repo.all()
-    assert log_validation.skipped_reason == "no previous validation"
   end
 
   test "validate and save a GBFS resource" do
@@ -78,11 +74,6 @@ defmodule DB.ResourceTest do
 
     # second validation, should be skipped and be a success
     assert Resource.validate_and_save(resource.id, false) == {:ok, nil}
-
-    # check the logs are correct
-    validations_logs = LogsValidation |> where([l], l.resource_id == ^resource.id) |> Repo.all()
-    reasons = validations_logs |> Enum.frequencies_by(& &1.skipped_reason)
-    assert reasons == %{"content hash has not changed" => 1, "no previous validation" => 1}
   end
 
   test "validation is re-launched after resource hash has changed" do
@@ -100,11 +91,6 @@ defmodule DB.ResourceTest do
     # update resource, second validation
     resource |> Ecto.Changeset.change(%{content_hash: "new_hash"}) |> DB.Repo.update!()
     assert Resource.validate_and_save(resource.id, false) == {:ok, nil}
-
-    # check the logs are correct
-    validations_logs = LogsValidation |> where([l], l.resource_id == ^resource.id) |> Repo.all()
-    reasons = validations_logs |> Enum.frequencies_by(& &1.skipped_reason)
-    assert reasons == %{"content hash has changed" => 1, "no previous validation" => 1}
   end
 
   test "get resource related geojson infos" do

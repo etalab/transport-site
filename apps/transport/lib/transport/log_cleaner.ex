@@ -2,7 +2,7 @@ defmodule Transport.LogCleaner do
   @moduledoc """
   Clean the old logs_import and logs_validation
   """
-  alias DB.{LogsImport, LogsValidation, Repo}
+  alias DB.{LogsImport, Repo}
   import Ecto.Query
   require Logger
 
@@ -14,24 +14,16 @@ defmodule Transport.LogCleaner do
       |> DateTime.add(-1 * 24 * 3600 * @nb_days_to_keep, :second)
       |> DateTime.truncate(:second)
 
-    nb_validations_before = count_logs_validation()
     nb_import_before = count_logs_import()
     Logger.info("cleaning old logs older than #{limit}.")
-    Logger.info("There are #{nb_import_before} import logs and #{nb_validations_before} validation logs")
-
-    LogsValidation
-    |> where([l], l.timestamp < ^limit)
-    |> Repo.delete_all()
+    Logger.info("There are #{nb_import_before} import logs")
 
     LogsImport
     |> where([l], l.timestamp < ^limit)
     |> Repo.delete_all()
 
-    Logger.info("cleaned #{nb_import_before - count_logs_import()} import logs \
-and #{nb_validations_before - count_logs_validation()} validation logs")
+    Logger.info("cleaned #{nb_import_before - count_logs_import()} import logs")
   end
-
-  defp count_logs_validation, do: Repo.aggregate(LogsValidation, :count, :id)
 
   defp count_logs_import, do: Repo.aggregate(LogsImport, :count, :id)
 end
