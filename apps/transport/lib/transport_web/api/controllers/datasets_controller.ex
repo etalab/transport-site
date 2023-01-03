@@ -308,8 +308,6 @@ defmodule TransportWeb.API.DatasetController do
       "start_calendar_validity" => metadata_content && Map.get(metadata, "start_date"),
       "type" => resource.type,
       "format" => resource.format,
-      # hash should come from the resource history instead
-      "content_hash" => resource.content_hash,
       "community_resource_publisher" => resource.community_resource_publisher,
       "metadata" => metadata_content,
       "original_resource_url" => resource.original_resource_url,

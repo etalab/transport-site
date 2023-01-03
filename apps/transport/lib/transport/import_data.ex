@@ -12,7 +12,6 @@ defmodule Transport.ImportData do
   import Ecto.Query
 
   defp availability_checker, do: Transport.AvailabilityChecker.Wrapper.impl()
-  defp hasher, do: Hasher.Wrapper.impl()
 
   def max_import_concurrent_jobs do
     Application.fetch_env!(:transport, :max_import_concurrent_jobs)
@@ -359,7 +358,6 @@ defmodule Transport.ImportData do
          "community_resource_publisher" => get_publisher(resource),
          "description" => resource["description"],
          "filesize" => resource["filesize"],
-         "content_hash" => hasher().get_content_hash(resource["url"]),
          "original_resource_url" => get_original_resource_url(resource),
          "schema_name" => ResourceSchema.guess_name(resource, type),
          "schema_version" => ResourceSchema.guess_version(resource),
