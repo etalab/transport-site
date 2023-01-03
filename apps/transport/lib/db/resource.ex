@@ -420,7 +420,7 @@ defmodule DB.Resource do
     DB.ResourceHistory
     |> join(:inner, [rh], dc in DB.DataConversion,
       as: :dc,
-      on: fragment("?::text = ? ->> 'uuid'", dc.resource_history_uuid, rh.payload)
+      on: fragment("? = (?->>'uuid')::uuid", dc.resource_history_uuid, rh.payload)
     )
     |> select([rh, dc], %{
       url: fragment("? ->> 'permanent_url'", dc.payload),
