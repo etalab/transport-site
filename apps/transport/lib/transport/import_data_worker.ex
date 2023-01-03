@@ -13,11 +13,6 @@ defmodule Transport.ImportDataWorker do
     GenServer.cast(__MODULE__, {:import_and_validation})
   end
 
-  @spec validate_all :: :ok
-  def validate_all do
-    GenServer.cast(__MODULE__, {:validate_all})
-  end
-
   @spec force_validate_gtfs_transport :: :ok
   def force_validate_gtfs_transport do
     GenServer.cast(__MODULE__, {:force_validate_gtfs_transport})
@@ -41,16 +36,6 @@ defmodule Transport.ImportDataWorker do
   rescue
     e ->
       Logger.error("error in the import data worker : #{inspect(e)}")
-      Sentry.capture_exception(e)
-  end
-
-  @impl true
-  def handle_cast({:validate_all}, state) do
-    ImportData.validate_all_resources()
-    {:noreply, state}
-  rescue
-    e ->
-      Logger.error("error in the validation data worker : #{inspect(e)}")
       Sentry.capture_exception(e)
   end
 
