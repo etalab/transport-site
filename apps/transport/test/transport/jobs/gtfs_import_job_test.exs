@@ -3,6 +3,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
   import Mox
+  import Ecto.Query
 
   setup :verify_on_exit!
 
@@ -14,14 +15,26 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
     DB.Repo.aggregate(DB.DataImport, :count, :id)
   end
 
-  test "import stops" do
-    %{id: dataset_id} = insert(:dataset, %{datagouv_id: "xxx", datagouv_title: "coucou"})
-    %{id: resource_id} = insert(:resource, dataset_id: dataset_id)
-    %{id: resource_history_id} = insert(:resource_history, %{
-      resource_id: resource_id,
-      payload: %{"filename" => "some-file.zip"}
-    })
+  def data_import_ids do
+    DB.Repo.all(from di in DB.DataImport, select: di.id)
+  end
 
+  defmodule ImportStops do
+    import Ecto.Query
+
+    def import_stops(resource_history_id) do
+      data_import_id = Transport.Jobs.GtfsToDB.import_gtfs_from_resource_history(resource_history_id, :stops)
+
+      # delete all previous data imports for the same resource history id
+      DB.DataImport
+      |> where([di], di.resource_history_id == ^resource_history_id and di.id != ^data_import_id)
+      |> DB.Repo.delete_all()
+
+      data_import_id
+    end
+  end
+
+  def setup_mox do
     # TODO: reuse common code from Transport.Unzip.S3
     Transport.Unzip.S3.Mock
     |> expect(:get_file_stream, fn(file_in_zip, zip_file, bucket) ->
@@ -36,12 +49,20 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
       {:ok, unzip} = Unzip.new(zip_file)
       Unzip.file_stream!(unzip, file_in_zip)
     end)
+  end
 
+  test "import stops" do
+    %{id: dataset_id} = insert(:dataset, %{datagouv_id: "xxx", datagouv_title: "coucou"})
+    %{id: resource_id} = insert(:resource, dataset_id: dataset_id)
+    %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id, payload: %{"filename" => "some-file.zip"}})
+
+    setup_mox()
     assert data_import_count() == 0
-    _data_import_id = Transport.Jobs.GtfsToDB.import_gtfs_from_resource_history(resource_history_id, :stops)
-    assert data_import_count() == 1
+    first_data_import_id = ImportStops.import_stops(resource_history_id)
+    assert data_import_ids() == [first_data_import_id]
 
-    # TODO: add test to ensure only one data import is kept, and only for the latest resource history. Previous
-    # ones should be deleted
+    setup_mox()
+    second_data_import_id = ImportStops.import_stops(resource_history_id)
+    assert data_import_ids() == [second_data_import_id]
   end
 end
