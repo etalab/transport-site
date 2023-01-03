@@ -34,12 +34,12 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
     end
   end
 
-  def setup_mox do
+  def setup_mox(zip_filename) do
     # TODO: reuse common code from Transport.Unzip.S3
     Transport.Unzip.S3.Mock
     |> expect(:get_file_stream, fn(file_in_zip, zip_file, bucket) ->
       # from payload
-      assert zip_file == "some-file.zip"
+      assert zip_file == zip_filename
       # from config
       assert bucket == "transport-data-gouv-fr-resource-history-test"
 
@@ -56,13 +56,22 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
     %{id: resource_id} = insert(:resource, dataset_id: dataset_id)
     %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id, payload: %{"filename" => "some-file.zip"}})
 
-    setup_mox()
+    setup_mox("some-file.zip")
     assert data_import_count() == 0
     first_data_import_id = ImportStops.import_stops(resource_history_id)
     assert data_import_ids() == [first_data_import_id]
 
-    setup_mox()
+    # subsequent import must remove the previous import for same resource_history_id
+    setup_mox("some-file.zip")
     second_data_import_id = ImportStops.import_stops(resource_history_id)
     assert data_import_ids() == [second_data_import_id]
+
+    # subsequent import for a new resource_history_id on same resource should also remove previous imports
+    %{id: new_resource_history_id} = insert(:resource_history, %{resource_id: resource_id, payload: %{"filename" => "some-new-file.zip"}})
+    setup_mox("some-new-file.zip")
+    third_data_import_id = ImportStops.import_stops(new_resource_history_id)
+    # TODO: based on one resource, grab back all the resource_history_id, then all the data_import, and delete all in batch except
+    # the most recent one
+    assert data_import_ids() == [third_data_import_id]
   end
 end
