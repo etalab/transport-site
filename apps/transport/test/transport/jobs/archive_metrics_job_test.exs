@@ -16,12 +16,17 @@ defmodule Transport.Test.Transport.Jobs.ArchiveMetricsJobTest do
     last_month = today |> DateTime.add(-10, :day)
     three_months_ago = today |> DateTime.add(-91, :day)
     four_months_ago = today |> DateTime.add(-30 * 4, :day)
+    five_months_ago = today |> DateTime.add(-30 * 5, :day)
 
     insert(:metrics, period: last_month, target: "foo", event: "bar")
     insert(:metrics, period: three_months_ago, target: "foo", event: "bar")
     insert(:metrics, period: three_months_ago |> DateTime.add(5, :hour), target: "foo", event: "bar")
-    insert(:metrics, period: four_months_ago, target: "foo", event: "bar")
     insert(:metrics, period: four_months_ago, target: "foo", event: "baz")
+    insert(:metrics, period: four_months_ago |> DateTime.add(2, :hour), target: "foo", event: "baz")
+    # Don't need to process as we have a single line per (period, target, event)
+    insert(:metrics, period: five_months_ago, target: "foo", event: "baz")
+    insert(:metrics, period: five_months_ago, target: "foo", event: "bar")
+    insert(:metrics, period: five_months_ago, target: "baz", event: "bar")
 
     assert :ok == perform_job(ArchiveMetricsJob, %{})
 

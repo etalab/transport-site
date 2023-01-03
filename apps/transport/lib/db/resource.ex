@@ -175,49 +175,6 @@ defmodule DB.Resource do
     {false, "resources with a schema are not validated by validation v1 anymore"}
   end
 
-  @spec validate_and_save(__MODULE__.t() | integer(), boolean()) :: {:error, any} | {:ok, nil}
-  def validate_and_save(resource_id, force_validation) when is_integer(resource_id),
-    do:
-      __MODULE__
-      |> where([r], r.id == ^resource_id)
-      |> preload(:validation)
-      |> Repo.one!()
-      |> validate_and_save(force_validation)
-
-  def validate_and_save(%__MODULE__{} = resource, force_validation) do
-    Logger.info("Validating #{resource.url}")
-
-    resource = Repo.preload(resource, :validation)
-
-    with {true, _msg} <- __MODULE__.needs_validation(resource, force_validation),
-         {:ok, validations} <- validate(resource),
-         {:ok, _} <- save(resource, validations) do
-      {:ok, nil}
-    else
-      {false, _skipped_reason} ->
-        # the ressource does not need to be validated again, we have nothing to do
-        {:ok, nil}
-
-      {:error, error} ->
-        Logger.warn("Error when calling the validator: #{error}")
-
-        Sentry.capture_message(
-          "unable_to_call_validator",
-          extra: %{
-            url: resource.url,
-            error: error
-          }
-        )
-
-        {:error, error}
-    end
-  rescue
-    e ->
-      Logger.error("error while validating resource #{resource.id}: #{inspect(e)}")
-      Logger.error(Exception.format(:error, e, __STACKTRACE__))
-      {:error, e}
-  end
-
   @spec validate(__MODULE__.t()) :: {:error, any} | {:ok, map()}
   def validate(%__MODULE__{url: nil}), do: {:error, "No url"}
 
@@ -400,7 +357,8 @@ defmodule DB.Resource do
   """
   def guess_requestor_ref(%__MODULE__{url: url} = resource) do
     if is_siri?(resource) do
-      host_to_key = %{"ara-api.enroute.mobi" => :enroute}
+      host_to_key = Application.fetch_env!(:transport, :public_siri_host_mappings)
+
       resource_host = URI.parse(url).host
 
       :transport

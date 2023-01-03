@@ -257,19 +257,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
          }}
       end)
 
-      validator_metadata = %{
-        "start_date" => "2021-12-04",
-        "end_date" => "2022-04-24",
-        "modes" => ["bus"],
-        "networks" => ["Autocars RESALP"]
-      }
-
-      # Validator should be called because resource was never historicised
-      Shared.Validation.Validator.Mock
-      |> expect(:validate_from_url, fn ^resource_url ->
-        {:ok, %{"validations" => %{}, "metadata" => validator_metadata}}
-      end)
-
       Transport.ExAWS.Mock
       # Resource upload
       |> expect(:request!, fn request ->
@@ -379,7 +366,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       end)
 
       Transport.Shared.Schemas.Mock
-      |> expect(:transport_schemas, 2, fn ->
+      |> expect(:transport_schemas, 1, fn ->
         %{schema_name => %{"versions" => [%{"version_name" => latest_schema_version}]}}
       end)
 
