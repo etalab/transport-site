@@ -43,38 +43,10 @@ defmodule Transport.ImportData do
     Logger.info("all datasets have been reimported (#{nb_failed} failures / #{Enum.count(results)})")
   end
 
-  @spec validate_all_resources() :: :ok
-  def validate_all_resources(force \\ false) do
-    Logger.info("Validating all resources")
-
-    resources_id =
-      Resource
-      |> select([r], r.id)
-      |> Repo.all()
-
-    Logger.info("launching #{Enum.count(resources_id)} validations")
-
-    validation_results =
-      ImportTaskSupervisor
-      |> Task.Supervisor.async_stream_nolink(
-        resources_id,
-        fn r_id -> Resource.validate_and_save(r_id, force) end,
-        max_concurrency: max_import_concurrent_jobs(),
-        timeout: 240_000
-      )
-      |> Enum.to_list()
-
-    nb_failed =
-      validation_results
-      |> Enum.count(&invalid_result?/1)
-
-    Logger.info("All resources validated (#{nb_failed} failures / #{validation_results |> Enum.count()}}")
-  end
-
   @spec import_validate_all :: :ok
   def import_validate_all do
     import_all_datasets()
-    validate_all_resources()
+    # validation is now gone, replaced by DB.MultiValidation
   end
 
   def refresh_places do

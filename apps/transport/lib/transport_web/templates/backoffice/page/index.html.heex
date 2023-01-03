@@ -30,7 +30,7 @@
   </a>
   <div class="import-all">
     <%= form_for @conn, backoffice_dataset_path(@conn, :import_validate_all), [method: "post"], fn _f -> %>
-      <%= submit(dgettext("backoffice", "Import and validate all")) %>
+      <%= submit(dgettext("backoffice", "Import all datasets from data.gouv")) %>
     <% end %>
   </div>
   <a
