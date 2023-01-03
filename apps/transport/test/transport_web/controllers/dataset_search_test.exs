@@ -3,7 +3,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
   use TransportWeb.ExternalCase
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
   import DB.Factory
-  alias DB.{AOM, Dataset, Repo, Resource, Validation}
+  alias DB.{AOM, Dataset, Repo, Resource}
   import DB.Factory
 
   doctest TransportWeb.DatasetController
@@ -23,7 +23,6 @@ defmodule TransportWeb.DatasetSearchControllerTest do
         resources: [
           %Resource{
             url: "https://link.to/angers.zip",
-            validation: %Validation{},
             title: "angers.zip"
           }
         ],
@@ -44,8 +43,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
         tags: [],
         resources: [
           %Resource{
-            url: "https://link.to/angers.zip",
-            validation: %Validation{}
+            url: "https://link.to/angers.zip"
           }
         ]
       }

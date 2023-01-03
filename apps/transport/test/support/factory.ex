@@ -88,10 +88,6 @@ defmodule DB.Factory do
     %DB.GTFS.CalendarDates{}
   end
 
-  def validation_factory do
-    %DB.Validation{}
-  end
-
   def geo_data_import_factory do
     %DB.GeoDataImport{}
   end
