@@ -43,7 +43,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
         tags: [],
         resources: [
           %Resource{
-            url: "https://link.to/angers.zip",
+            url: "https://link.to/angers.zip"
           }
         ]
       }
