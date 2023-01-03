@@ -4,7 +4,7 @@ defmodule DB.Resource do
   """
   use Ecto.Schema
   use TypedEctoSchema
-  alias DB.{Dataset, LogsValidation, Repo, ResourceUnavailability, Validation}
+  alias DB.{Dataset, Repo, ResourceUnavailability, Validation}
   alias Transport.DataVisualization
   alias Transport.Shared.Schemas.Wrapper, as: Schemas
   import Ecto.{Changeset, Query}
@@ -57,8 +57,6 @@ defmodule DB.Resource do
     has_one(:validation, Validation, on_replace: :delete)
     has_many(:validations, DB.MultiValidation)
     has_many(:resource_metadata, DB.ResourceMetadata)
-
-    has_many(:logs_validation, LogsValidation, on_replace: :delete, on_delete: :delete_all)
 
     has_many(:resource_unavailabilities, ResourceUnavailability,
       on_replace: :delete,
