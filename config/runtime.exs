@@ -175,6 +175,18 @@ if config_env() == :prod do
         "" |> String.replace_prefix("postgresql", "ecto"),
     # NOTE: we must be careful with this ; front-end + worker are consuming
     pool_size: pool_size,
+    # Broken TCP connections can stop Oban from polling jobs
+    # https://github.com/sorentwo/oban/issues/493#issuecomment-1187001822
+    # https://github.com/sorentwo/oban/issues/769 is not released yet,
+    # the alternative is to use this configuration or use [the Repeater
+    # plugin](https://hexdocs.pm/oban/Oban.Plugins.Repeater.html).
+    # https://github.com/sorentwo/oban/issues/821#issuecomment-1369218531
+    parameters: [
+      tcp_keepalives_idle: "60",
+      tcp_keepalives_interval: "5",
+      tcp_keepalives_count: "3"
+    ],
+    socket_options: [keepalive: true],
     # See https://hexdocs.pm/db_connection/DBConnection.html#start_link/2-queue-config
     # [Ecto.Repo] :pool_timeout is no longer supported in favor of a new queue system described in DBConnection.start_link/2
     # under "Queue config". For most users, configuring :timeout is enough, as it now includes both queue and query time
