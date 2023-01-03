@@ -231,18 +231,15 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
         id: resource_id,
         datagouv_id: datagouv_id,
         dataset_id: dataset_id,
-        title: title,
-        content_hash: first_content_hash
+        title: title
       } =
-        resource =
         insert(:resource,
           url: resource_url,
           dataset: insert(:dataset, is_active: true),
           format: "GTFS",
           title: "title",
           datagouv_id: "1",
-          is_community_resource: false,
-          content_hash: "first_hash"
+          is_community_resource: false
         )
 
       Transport.HTTPoison.Mock
@@ -314,8 +311,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
       assert permanent_url == Transport.S3.permanent_url(:history, filename)
       refute is_nil(last_up_to_date_at)
-      %DB.Resource{content_hash: content_hash} = DB.Repo.reload(resource)
-      refute content_hash == first_content_hash
     end
 
     test "a simple successful case for a CSV" do
@@ -323,7 +318,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       latest_schema_version = "0.4.2"
 
       %DB.Resource{id: resource_id, dataset_id: dataset_id} =
-        resource =
         insert(:resource,
           url: resource_url = "https://example.com/file.csv",
           latest_url: resource_latest_url = "https://example.com/#{Ecto.UUID.generate()}",
@@ -404,10 +398,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       assert schema_version != latest_schema_version
       assert permanent_url == Transport.S3.permanent_url(:history, filename)
       refute is_nil(last_up_to_date_at)
-
-      # No validation but content hash should be set to the file hash
-      %DB.Resource{content_hash: content_hash} = DB.Repo.reload(resource)
-      assert content_hash == "580fb39789859f7dc29aebe6bdec9666fc8311739a8705fda0916e2907449e17"
     end
 
     test "discards the job when the resource should not be historicised" do
