@@ -37,7 +37,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
         dataset_id: dataset.id,
         url: "https://link.to/file.zip",
         latest_url: "https://static.data.gouv.fr/foo",
-        content_hash: "hash",
         datagouv_id: "1",
         type: "main",
         format: "GTFS",
@@ -49,7 +48,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
         dataset_id: dataset.id,
         url: "https://link.to/file2.zip",
         latest_url: "https://static.data.gouv.fr/foo2",
-        content_hash: "hash2",
         datagouv_id: "2",
         type: "main",
         format: "GTFS",
@@ -108,7 +106,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
       "publisher" => %{"name" => nil, "type" => "organization"},
       "resources" => [
         %{
-          "content_hash" => "hash",
           "page_url" => resource_page_url(resource_1),
           "datagouv_id" => "1",
           "features" => ["couleurs des lignes"],
@@ -124,7 +121,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
           "is_available" => true
         },
         %{
-          "content_hash" => "hash2",
           "page_url" => resource_page_url(resource_2),
           "datagouv_id" => "2",
           "features" => ["clim"],
@@ -236,7 +232,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
           %DB.Resource{
             url: "https://link.to/file.zip",
             latest_url: "https://static.data.gouv.fr/foo",
-            content_hash: "hash",
             datagouv_id: "1",
             type: "main",
             format: "GTFS",
@@ -275,7 +270,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
              "publisher" => %{"name" => nil, "type" => "organization"},
              "resources" => [
                %{
-                 "content_hash" => "hash",
                  "is_available" => true,
                  "page_url" => dataset.resources |> Enum.find(&(&1.format == "GTFS")) |> resource_page_url(),
                  "datagouv_id" => "1",
@@ -322,7 +316,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
         dataset_id: dataset.id,
         url: "https://link.to/file.zip",
         latest_url: "https://static.data.gouv.fr/foo",
-        content_hash: "hash",
         datagouv_id: "1",
         type: "main",
         format: "GTFS",
@@ -370,7 +363,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
              "publisher" => %{"name" => nil, "type" => "organization"},
              "resources" => [
                %{
-                 "content_hash" => "hash",
                  "page_url" => resource_page_url(resource),
                  "is_available" => true,
                  "datagouv_id" => "1",

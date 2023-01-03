@@ -49,7 +49,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   require Logger
   import Ecto.Query
   alias Transport.Shared.Schemas.Wrapper, as: Schemas
-  alias DB.{Repo, Resource, ResourceHistory}
+  alias DB.{Resource, ResourceHistory}
   import Transport.Jobs.Workflow.Notifier, only: [notify_workflow: 2]
 
   @impl Oban.Worker
@@ -101,10 +101,6 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
     case should_store_resource?(resource, hash) do
       true ->
-        # to be deleted later when validation v1 is unplugged
-        # https://github.com/etalab/transport-site/issues/2390
-        resource = validate_resource(resource, hash)
-
         filename = upload_filename(resource, download_datetime)
 
         base = %{
@@ -201,9 +197,6 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   def set_of_sha256(items) do
     items |> Enum.map(&{map_get(&1, :file_name), map_get(&1, :sha256)}) |> MapSet.new()
   end
-
-  defp to_content_hash(hash) when is_list(hash), do: Hasher.zip_hash(hash)
-  defp to_content_hash(hash) when is_binary(hash), do: hash
 
   defp resource_hash(%Resource{} = resource, resource_path) do
     case is_zip?(resource) do
@@ -312,12 +305,6 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     ]
 
     headers |> Enum.into(%{}, fn {h, v} -> {String.downcase(h), v} end) |> Map.take(headers_to_keep)
-  end
-
-  defp validate_resource(%Resource{} = resource, new_hash) do
-    # resource is not validated anymore here, but we temporarily keep the content hash updated
-    resource = resource |> Ecto.Changeset.change(%{content_hash: to_content_hash(new_hash)}) |> Repo.update!()
-    Repo.reload(resource)
   end
 
   defp latest_schema_version_to_date(%Resource{schema_name: nil}), do: nil

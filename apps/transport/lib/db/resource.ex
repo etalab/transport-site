@@ -19,7 +19,6 @@ defmodule DB.Resource do
     # stable data.gouv.fr url if exists, else (for ODS gtfs as csv) it's the real url
     field(:latest_url, :string)
     field(:is_available, :boolean, default: true)
-    field(:content_hash, :string)
 
     field(:is_community_resource, :boolean)
 
@@ -101,7 +100,6 @@ defmodule DB.Resource do
         :schema_version,
         :community_resource_publisher,
         :original_resource_url,
-        :content_hash,
         :description,
         :filesize,
         :filetype,
