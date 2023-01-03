@@ -1,4 +1,12 @@
+defmodule Transport.Unzip.S3.Behaviour do
+  @callback get_file_stream(binary(), binary(), binary()) :: Enumerable.t()
+end
+
 defmodule Transport.Unzip.S3 do
+  def impl, do: Application.get_env(:transport, :unzip_s3_impl, __MODULE__)
+
+  @behaviour Transport.Unzip.S3.Behaviour
+
   @moduledoc """
   Read a remote zip file stored on a S3 bucket, as explained here
   https://hexdocs.pm/unzip/readme.html
