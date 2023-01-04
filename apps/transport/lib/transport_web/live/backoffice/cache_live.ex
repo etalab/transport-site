@@ -1,6 +1,6 @@
 defmodule TransportWeb.Backoffice.CacheLive do
   @moduledoc """
-  A view able to display the current running configuration of the proxy.
+  A view to help debug the Cachex memory cache.
   """
   use Phoenix.LiveView
   use Phoenix.HTML
