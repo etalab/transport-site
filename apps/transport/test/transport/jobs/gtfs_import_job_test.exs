@@ -20,8 +20,16 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
   end
 
   defmodule ImportStops do
+    @moduledoc """
+    A module to import stops in a single `DB.DataImport` for a given resource, based on `resource_history_id`.
+    """
+
     import Ecto.Query
 
+    @doc """
+    For the given `resource_history_id`, imports stops in a new `DB.DataImport`, then delete all related
+    pre-existing `DB.DataImport` (either with the same `resource_history_id`, or for the same resource).
+    """
     def import_stops(resource_history_id) do
       data_import_id = Transport.Jobs.GtfsToDB.import_gtfs_from_resource_history(resource_history_id, :stops)
 
