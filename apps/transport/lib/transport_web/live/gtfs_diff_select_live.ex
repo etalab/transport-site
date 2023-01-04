@@ -70,6 +70,7 @@ defmodule TransportWeb.Live.GtfsDiffSelectLive do
           socket |> assign(:error_msg, "Job aborted, the diff is taking too long (>120sec).")
       end
 
+    Oban.Notifier.unlisten([:gossip])
     {:noreply, socket |> assign(:job_running, false)}
   end
 
@@ -81,6 +82,11 @@ defmodule TransportWeb.Live.GtfsDiffSelectLive do
     diff_summary = diff |> diff_summary()
 
     {:noreply, socket |> assign(:diff_summary, diff_summary)}
+  end
+
+  # catch-all
+  def handle_info(_, socket) do
+    {:noreply, socket}
   end
 
   def diff_summary(diff) do
