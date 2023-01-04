@@ -16,7 +16,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
   end
 
   def data_import_ids do
-    DB.Repo.all(from di in DB.DataImport, select: di.id)
+    DB.Repo.all(from di in DB.DataImport, select: di.id, order_by: [asc: di.id])
   end
 
   defmodule ImportStops do
