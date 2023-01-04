@@ -27,9 +27,7 @@ defmodule Transport.MixProject do
       # to reduce build time
       {:dialyxir, "~> 1.2.0", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.10", only: :test},
-      # temporary dialyzer fix on master until
-      # a new release https://github.com/qcam/saxy/issues/116 is cut
-      {:saxy, git: "https://github.com/qcam/saxy", override: true, ref: "c15c2c6c17aee0a6f9be78a6d0f79ca930644b2c"}
+      {:saxy, "~> 1.5"}
     ]
   end
 
