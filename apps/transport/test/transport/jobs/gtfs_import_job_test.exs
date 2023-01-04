@@ -79,7 +79,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
     %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id, payload: %{"filename" => "some-file.zip"}})
 
     setup_mox("some-file.zip")
-    assert data_import_count() == 0
+    assert data_import_ids() == []
     first_data_import_id = ImportStops.import_stops(resource_history_id)
     assert data_import_ids() == [first_data_import_id]
 
@@ -92,8 +92,20 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
     %{id: new_resource_history_id} = insert(:resource_history, %{resource_id: resource_id, payload: %{"filename" => "some-new-file.zip"}})
     setup_mox("some-new-file.zip")
     third_data_import_id = ImportStops.import_stops(new_resource_history_id)
-    # TODO: based on one resource, grab back all the resource_history_id, then all the data_import, and delete all in batch except
-    # the most recent one
     assert data_import_ids() == [third_data_import_id]
+
+    # other resources should not be impacted by import
+     setup_mox("some-other-file.zip")
+    %{id: other_dataset_id} = insert(:dataset, %{datagouv_id: "xxx"})
+    %{id: other_resource_id} = insert(:resource, dataset_id: other_dataset_id)
+    %{id: other_resource_history_id} = insert(:resource_history, %{resource_id: other_resource_id, payload: %{"filename" => "some-other-file.zip"}})
+    other_data_import_id = ImportStops.import_stops(other_resource_history_id)
+
+    assert data_import_ids() == [third_data_import_id, other_data_import_id]
+
+    %{id: new_resource_history_id} = insert(:resource_history, %{resource_id: resource_id, payload: %{"filename" => "some-new-file.zip"}})
+    setup_mox("some-new-file.zip")
+    fourth_data_import_id = ImportStops.import_stops(new_resource_history_id)
+    assert data_import_ids() == [other_data_import_id, fourth_data_import_id]
   end
 end
