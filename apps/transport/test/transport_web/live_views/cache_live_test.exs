@@ -8,6 +8,7 @@ defmodule TransportWeb.Backoffice.CacheLiveTest do
   @url "/backoffice/cache"
 
   setup do
+    on_exit(fn -> Cachex.clear(Transport.Application.cache_name()) end)
     {:ok, conn: build_conn()}
   end
 

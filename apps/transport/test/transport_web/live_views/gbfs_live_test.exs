@@ -1,10 +1,9 @@
 defmodule TransportWeb.Backoffice.GBFSLiveTest do
   use ExUnit.Case, async: true
   use TransportWeb.LiveCase
-
   import Phoenix.LiveViewTest
-  @endpoint TransportWeb.Endpoint
 
+  @endpoint TransportWeb.Endpoint
   @url "/backoffice/gbfs"
 
   setup do
