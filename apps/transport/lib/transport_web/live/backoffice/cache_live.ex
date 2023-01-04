@@ -104,8 +104,8 @@ defmodule TransportWeb.Backoffice.CacheLive do
     |> Cachex.inspect({:janitor, :last})
     |> elem(1)
     |> case do
-      %{} -> "pas encore exécuté"
       %{started: started} -> DateTime.from_unix!(started, :millisecond)
+      %{} -> "pas encore exécuté"
     end
   end
 end
