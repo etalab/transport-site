@@ -224,3 +224,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "email address"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Cache debug"
+msgstr ""
