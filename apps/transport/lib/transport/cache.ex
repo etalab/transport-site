@@ -55,7 +55,12 @@ defmodule Transport.Cache.Cachex do
         result
 
       :commit ->
-        Cachex.expire(cache_name(), cache_key, expire_value)
+        {:ok, true} = Cachex.expire(cache_name(), cache_key, expire_value)
+
+        with {:ok, nil} <- Cachex.ttl(cache_name(), cache_key) do
+          Sentry.capture_message("cache was set without a TTL", extra: %{cache_key: cache_key, result: inspect(result)})
+        end
+
         Logger.info("Value for key #{cache_key} regenerated")
         result
 
