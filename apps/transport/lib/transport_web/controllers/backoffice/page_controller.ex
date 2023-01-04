@@ -225,9 +225,11 @@ defmodule TransportWeb.Backoffice.PageController do
 
     order_by =
       case params do
-        %{"order_by" => "end_date"} -> :end_date
-        %{"order_by" => "custom_title"} -> :custom_title
-        _ -> nil
+        %{"order_by" => param} when param in ["end_date", "custom_title", "organization"] ->
+          String.to_existing_atom(param)
+
+        _ ->
+          nil
       end
 
     %{direction: dir, field: order_by}
@@ -240,6 +242,7 @@ defmodule TransportWeb.Backoffice.PageController do
     case field do
       :end_date -> order_by(query, [end_dates: ed], {^dir, field(ed, :end_date)})
       :custom_title -> order_by(query, [d, r], {^dir, field(d, :custom_title)})
+      :organization -> order_by(query, [d, r], {^dir, field(d, :organization)})
       _ -> query
     end
   end

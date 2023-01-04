@@ -121,9 +121,10 @@
   <table class="backoffice-datasets">
     <tr>
       <th class="sortable"><%= backoffice_sort_link(@conn, "Dataset", :custom_title, @order_by) %></th>
+      <th class="sortable"><%= backoffice_sort_link(@conn, "Organisation", :organization, @order_by) %></th>
       <th>transport</th>
       <th>data.gouv.fr</th>
-      <th>Region</th>
+      <th>Région</th>
       <th>Commune principale</th>
       <th class="sortable"><%= backoffice_sort_link(@conn, "Fin de validité", :end_date, @order_by) %></th>
       <th class="bo_dataset_button"></th>
