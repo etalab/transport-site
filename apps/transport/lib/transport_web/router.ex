@@ -125,6 +125,10 @@ defmodule TransportWeb.Router do
         live("/gbfs", GBFSLive)
       end
 
+      live_session :cache, root_layout: {TransportWeb.LayoutView, :app} do
+        live("/cache", CacheLive)
+      end
+
       get("/import_aoms", PageController, :import_all_aoms)
 
       scope "/datasets" do
