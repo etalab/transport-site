@@ -57,7 +57,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
   end
 
   def setup_mox(zip_filename) do
-    # TODO: reuse common code from Transport.Unzip.S3
+    # NOTE: it will be possible to reuse common code from Transport.Unzip.S3 in there
     Transport.Unzip.S3.Mock
     |> expect(:get_file_stream, fn(file_in_zip, zip_file, bucket) ->
       # from payload
