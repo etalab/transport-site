@@ -2,7 +2,7 @@ defmodule Transport.GBFSMetadata do
   @moduledoc """
   Compute and store metadata for GBFS resources.
   """
-  alias DB.{Dataset, Repo, Resource}
+  alias DB.{Dataset, Resource}
   import Ecto.Query
   require Logger
 
