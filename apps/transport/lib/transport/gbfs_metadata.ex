@@ -20,20 +20,6 @@ defmodule Transport.GBFSMetadata do
     |> where([r, _d], not fragment("? ~ ?", r.url, "station|free_bike"))
   end
 
-  def set_gbfs_feeds_metadata do
-    resources = gbfs_feeds_query() |> Repo.all()
-
-    Logger.info("Fetching details about #{Enum.count(resources)} GBFS feeds")
-
-    resources
-    |> Stream.map(fn resource ->
-      Logger.info("Fetching GBFS metadata for #{resource.url} (##{resource.id})")
-      changeset = Resource.changeset(resource, %{format: "gbfs", metadata: compute_feed_metadata(resource)})
-      Repo.update!(changeset)
-    end)
-    |> Stream.run()
-  end
-
   def compute_feed_metadata(%Resource{url: url}), do: compute_feed_metadata(url)
 
   def compute_feed_metadata(url) when is_binary(url),
