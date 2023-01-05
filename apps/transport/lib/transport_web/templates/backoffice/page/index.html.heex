@@ -23,6 +23,10 @@
     <%= dgettext("backoffice", "Changements d'URLs stables") %>
   </a>
 
+  <a class="button" href={backoffice_live_path(@conn, TransportWeb.Backoffice.CacheLive)}>
+    <%= dgettext("backoffice", "Cache debug") %>
+  </a>
+
   <h2>Actions</h2>
 
   <a class="button" href={backoffice_page_path(@conn, :new)}>
@@ -121,9 +125,10 @@
   <table class="backoffice-datasets">
     <tr>
       <th class="sortable"><%= backoffice_sort_link(@conn, "Dataset", :custom_title, @order_by) %></th>
+      <th class="sortable"><%= backoffice_sort_link(@conn, "Organisation", :organization, @order_by) %></th>
       <th>transport</th>
       <th>data.gouv.fr</th>
-      <th>Region</th>
+      <th>Région</th>
       <th>Commune principale</th>
       <th class="sortable"><%= backoffice_sort_link(@conn, "Fin de validité", :end_date, @order_by) %></th>
       <th class="bo_dataset_button"></th>
