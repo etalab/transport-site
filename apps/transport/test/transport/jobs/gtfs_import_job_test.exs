@@ -31,26 +31,30 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
     pre-existing `DB.DataImport` (either with the same `resource_history_id`, or for the same resource).
     """
     def import_stops(resource_history_id) do
-      {:ok, data_import_id} = DB.Repo.transaction fn ->
-        data_import_id = Transport.Jobs.GtfsToDB.import_gtfs_from_resource_history(resource_history_id, :stops)
+      {:ok, data_import_id} =
+        DB.Repo.transaction(fn ->
+          data_import_id = Transport.Jobs.GtfsToDB.import_gtfs_from_resource_history(resource_history_id, :stops)
 
-        resource_id = DB.Repo.get_by(DB.ResourceHistory, id: resource_history_id).resource_id
+          resource_id = DB.Repo.get_by(DB.ResourceHistory, id: resource_history_id).resource_id
 
-        resource_history_ids = (from r in DB.Resource,
-          join: rh in assoc(r, :resource_history),
-          where: r.id == ^resource_id and rh.id != ^resource_history_id,
-          select: rh.id)
-        |> DB.Repo.all
+          query =
+            from(r in DB.Resource,
+              join: rh in assoc(r, :resource_history),
+              where: r.id == ^resource_id and rh.id != ^resource_history_id,
+              select: rh.id
+            )
 
-        DB.DataImport
-        # delete all previous data imports for the same resource history id
-        |> where([di], di.resource_history_id == ^resource_history_id and di.id != ^data_import_id)
-        # delete all previous data imports for the same resource but different resource history ids
-        |> or_where([di], di.resource_history_id in ^resource_history_ids)
-        |> DB.Repo.delete_all()
+          resource_history_ids = query |> DB.Repo.all()
 
-        data_import_id
-      end
+          DB.DataImport
+          # delete all previous data imports for the same resource history id
+          |> where([di], di.resource_history_id == ^resource_history_id and di.id != ^data_import_id)
+          # delete all previous data imports for the same resource but different resource history ids
+          |> or_where([di], di.resource_history_id in ^resource_history_ids)
+          |> DB.Repo.delete_all()
+
+          data_import_id
+        end)
 
       data_import_id
     end
