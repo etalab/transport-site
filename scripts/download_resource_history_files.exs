@@ -109,7 +109,7 @@ IO.puts("""
 # keep the latest import for each ResourceHistory
 # TODO: only keep the latest import for each Resource
 
-Logger.info "Keeping one DataImport per ResourceHistory (deleting...)"
+Logger.info("Keeping one DataImport per ResourceHistory (deleting...)")
 
 # TODO: understand why deleting a DB.DataImport takes forever
 
@@ -122,4 +122,4 @@ Logger.info "Keeping one DataImport per ResourceHistory (deleting...)"
 #   # |> DB.Repo.delete_all()
 # end, timeout: 120_000)
 
-Logger.info "Done!"
+Logger.info("Done!")
