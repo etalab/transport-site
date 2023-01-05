@@ -2,7 +2,7 @@ defmodule Transport.GBFSMetadata do
   @moduledoc """
   Compute and store metadata for GBFS resources.
   """
-  alias DB.{Dataset, Repo, Resource}
+  alias DB.{Dataset, Resource}
   import Ecto.Query
   require Logger
 
@@ -18,20 +18,6 @@ defmodule Transport.GBFSMetadata do
     |> where([_r, d], d.type == "bike-scooter-sharing" and d.is_active)
     |> where([r, _d], like(r.url, "%gbfs.json") or r.format == "gbfs")
     |> where([r, _d], not fragment("? ~ ?", r.url, "station|free_bike"))
-  end
-
-  def set_gbfs_feeds_metadata do
-    resources = gbfs_feeds_query() |> Repo.all()
-
-    Logger.info("Fetching details about #{Enum.count(resources)} GBFS feeds")
-
-    resources
-    |> Stream.map(fn resource ->
-      Logger.info("Fetching GBFS metadata for #{resource.url} (##{resource.id})")
-      changeset = Resource.changeset(resource, %{format: "gbfs", metadata: compute_feed_metadata(resource)})
-      Repo.update!(changeset)
-    end)
-    |> Stream.run()
   end
 
   def compute_feed_metadata(%Resource{url: url}), do: compute_feed_metadata(url)
