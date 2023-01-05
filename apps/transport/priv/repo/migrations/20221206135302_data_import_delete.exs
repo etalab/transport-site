@@ -15,7 +15,9 @@ defmodule DB.Repo.Migrations.DataImportDelete do
       constraint_name = "#{tbl}_data_import_id_fkey" |> String.to_atom()
       drop constraint(tbl, constraint_name)
       alter table(tbl) do
-        modify :data_import_id, references(:data_import, on_delete: :delete_all, from: references(:data_import, on_delete: :nothing))
+        modify :data_import_id,
+          references(:data_import, on_delete: :delete_all,
+          from: references(:data_import, on_delete: :nothing))
       end
     end
   end

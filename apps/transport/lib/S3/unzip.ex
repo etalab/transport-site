@@ -1,4 +1,8 @@
 defmodule Transport.Unzip.S3.Behaviour do
+  @moduledoc """
+  Behaviour to allow partial Unzip testing.
+  """
+
   @callback get_file_stream(binary(), binary(), binary()) :: Enumerable.t()
 end
 
