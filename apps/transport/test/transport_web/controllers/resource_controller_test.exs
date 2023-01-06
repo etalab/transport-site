@@ -1,7 +1,7 @@
 defmodule TransportWeb.ResourceControllerTest do
   use TransportWeb.ConnCase, async: false
   use TransportWeb.DatabaseCase, cleanup: [:datasets], async: false
-  alias DB.{AOM, Dataset, Resource, Validation}
+  alias DB.{AOM, Dataset, Resource}
   import Plug.Test
   import Mox
   import DB.Factory
@@ -29,10 +29,6 @@ defmodule TransportWeb.ResourceControllerTest do
           %Resource{
             url: "http://link.to/angers.zip?foo=bar",
             datagouv_id: "2",
-            validation: %Validation{
-              details: %{},
-              max_error: "Info"
-            },
             format: "GTFS"
           },
           %Resource{
@@ -49,35 +45,6 @@ defmodule TransportWeb.ResourceControllerTest do
           %Resource{
             url: "http://link.to/gtfs-rt",
             datagouv_id: "5",
-            validation: %Validation{
-              date: DateTime.utc_now() |> DateTime.to_string(),
-              details: %{
-                "errors_count" => 2,
-                "warnings_count" => 3,
-                "files" => %{
-                  "gtfs_permanent_url" => "https://example.com/gtfs.zip",
-                  "gtfs_rt_permanent_url" => "https://example.com/gtfs-rt"
-                },
-                "errors" => [
-                  %{
-                    "title" => "error title",
-                    "description" => "error description",
-                    "severity" => "ERROR",
-                    "error_id" => "E001",
-                    "errors_count" => 2,
-                    "errors" => ["sample 1", "foo"]
-                  },
-                  %{
-                    "title" => "warning title",
-                    "description" => "warning description",
-                    "severity" => "WARNING",
-                    "error_id" => "W001",
-                    "errors_count" => 3,
-                    "errors" => ["sample 2", "bar", "baz"]
-                  }
-                ]
-              }
-            },
             format: "gtfs-rt"
           }
         ],
@@ -89,10 +56,17 @@ defmodule TransportWeb.ResourceControllerTest do
   end
 
   test "I can see my datasets", %{conn: conn} do
-    conn
-    |> init_test_session(%{current_user: %{"organizations" => [%{"slug" => "equipe-transport-data-gouv-fr"}]}})
-    |> get("/resources/update/datasets")
-    |> html_response(200)
+    dataset = insert(:dataset, datagouv_title: Ecto.UUID.generate())
+    Datagouvfr.Client.User.Mock |> expect(:datasets, fn _conn -> {:ok, []} end)
+    Datagouvfr.Client.User.Mock |> expect(:org_datasets, fn _conn -> {:ok, [%{"id" => dataset.datagouv_id}]} end)
+
+    html =
+      conn
+      |> init_test_session(%{current_user: %{}})
+      |> get(resource_path(conn, :datasets_list))
+      |> html_response(200)
+
+    assert html =~ dataset.datagouv_title
   end
 
   test "Non existing resource raises a Ecto.NoResultsError (interpreted as a 404 thanks to phoenix_ecto)", %{conn: conn} do
@@ -218,13 +192,14 @@ defmodule TransportWeb.ResourceControllerTest do
       validation_result["files"]["gtfs_rt_permanent_url"],
       "Prolongation des travaux rue de Kermaria",
       "Impossible de déterminer le fichier GTFS à utiliser",
-      "a aucun fichier GTFS"
+      "a aucun fichier GTFS",
+      "Validations précédentes"
     ]
     |> Enum.each(&assert content =~ &1)
   end
 
   test "gtfs-rt resource with feed decode error", %{conn: conn} do
-    %{url: url} = resource = Resource |> preload(:validation) |> Repo.get_by(datagouv_id: "5")
+    %{url: url} = resource = Resource |> Repo.get_by(datagouv_id: "5")
 
     Transport.HTTPoison.Mock
     |> expect(:get, fn ^url, [], [follow_redirect: true] ->
@@ -561,6 +536,150 @@ defmodule TransportWeb.ResourceControllerTest do
 
     # we want a sorted list in the output!
     assert ["a", "b", "c", "d"] = TransportWeb.ResourceController.gtfs_rt_entities(resource)
+  end
+
+  describe "proxy_statistics" do
+    test "requires authentication", %{conn: conn} do
+      conn = conn |> get(resource_path(conn, :proxy_statistics))
+
+      assert redirected_to(conn, 302) =~ "/login"
+    end
+
+    test "renders successfully with a resource handled by the proxy", %{conn: conn} do
+      dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
+
+      gtfs_rt_resource =
+        insert(:resource,
+          dataset: dataset,
+          format: "gtfs-rt",
+          url: "https://proxy.transport.data.gouv.fr/resource/divia-dijon-gtfs-rt-trip-update"
+        )
+
+      assert DB.Resource.served_by_proxy?(gtfs_rt_resource)
+      proxy_slug = DB.Resource.proxy_slug(gtfs_rt_resource)
+      assert proxy_slug == "divia-dijon-gtfs-rt-trip-update"
+
+      today = Transport.Telemetry.truncate_datetime_to_hour(DateTime.utc_now())
+
+      insert(:metrics,
+        target: "proxy:#{proxy_slug}",
+        event: "proxy:request:external",
+        count: 2,
+        period: today
+      )
+
+      insert(:metrics,
+        target: "proxy:#{proxy_slug}",
+        event: "proxy:request:internal",
+        count: 1,
+        period: today
+      )
+
+      Datagouvfr.Client.User.Mock |> expect(:datasets, fn _conn -> {:ok, []} end)
+
+      Datagouvfr.Client.User.Mock |> expect(:org_datasets, fn _conn -> {:ok, [%{"id" => dataset.datagouv_id}]} end)
+
+      html =
+        conn
+        |> init_test_session(%{current_user: %{}})
+        |> get(resource_path(conn, :proxy_statistics))
+        |> html_response(200)
+
+      assert html =~ "Statistiques des requêtes gérées par le proxy"
+      assert html =~ "<strong>2</strong>\nrequêtes gérées par le proxy au cours des 15 derniers jours"
+      assert html =~ "<strong>1</strong>\nrequêtes transmises au serveur source au cours des 15 derniers jours"
+    end
+  end
+
+  test "SIRI RequestorRef is displayed", %{conn: conn} do
+    resource =
+      insert(:resource, format: "SIRI", url: "https://ara-api.enroute.mobi/endpoint", dataset: insert(:dataset))
+
+    requestor_ref = DB.Resource.guess_requestor_ref(resource)
+
+    assert DB.Resource.is_siri?(resource)
+    refute is_nil(requestor_ref)
+
+    html = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
+    assert html =~ ~s{<h2 id="siri-authentication">Authentification SIRI</h2>}
+    assert html =~ requestor_ref
+  end
+
+  test "latest_validations_details" do
+    resource = insert(:resource, format: "gtfs-rt")
+
+    insert(:multi_validation,
+      validator: Transport.Validators.GTFSRT.validator_name(),
+      resource_id: resource.id,
+      validation_timestamp: DateTime.utc_now() |> DateTime.add(-500),
+      result: %{
+        "errors" => [
+          %{
+            "title" => "error title",
+            "description" => "error description",
+            "severity" => "ERROR",
+            "error_id" => "E001",
+            "errors_count" => 2,
+            "errors" => ["sample 1", "foo"]
+          },
+          %{
+            "title" => "warning title",
+            "description" => "warning description",
+            "severity" => "WARNING",
+            "error_id" => "W001",
+            "errors_count" => 3,
+            "errors" => ["sample 2", "bar", "baz"]
+          }
+        ]
+      }
+    )
+
+    insert(:multi_validation,
+      validator: Transport.Validators.GTFSRT.validator_name(),
+      resource_id: resource.id,
+      validation_timestamp: DateTime.utc_now(),
+      result: %{
+        "errors" => [
+          %{
+            "title" => "error title",
+            "description" => "error description",
+            "severity" => "ERROR",
+            "error_id" => "E001",
+            "errors_count" => 1,
+            "errors" => ["sample 1"]
+          },
+          %{
+            "title" => "error title",
+            "description" => "error description 002",
+            "severity" => "ERROR",
+            "error_id" => "E002",
+            "errors_count" => 2,
+            "errors" => ["sample 1", "sample 2"]
+          }
+        ]
+      }
+    )
+
+    assert %{
+             "E001" => %{
+               "description" => "error description",
+               "errors_count" => 3,
+               "occurence" => 2,
+               "percentage" => 100
+             },
+             "E002" => %{
+               "description" => "error description 002",
+               "errors_count" => 2,
+               "occurence" => 1,
+               "percentage" => 50
+             },
+             "W001" => %{
+               "description" => "warning description",
+               "errors_count" => 3,
+               "occurence" => 1,
+               "percentage" => 50
+             }
+           } == TransportWeb.ResourceController.latest_validations_details(resource)
   end
 
   defp test_remote_download_error(%Plug.Conn{} = conn, mock_status_code) do

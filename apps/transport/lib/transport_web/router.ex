@@ -15,7 +15,7 @@ defmodule TransportWeb.Router do
     plug(:fetch_live_flash)
     plug(:protect_from_forgery)
     plug(TransportWeb.Plugs.CustomSecureBrowserHeaders)
-    plug(:put_locale)
+    plug(TransportWeb.Plugs.PutLocale)
     plug(:assign_current_user)
     plug(:assign_contact_email)
     plug(:assign_token)
@@ -38,11 +38,13 @@ defmodule TransportWeb.Router do
     plug(:transport_data_gouv_member)
   end
 
-  get("/swaggerui", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi")
+  scope "/", OpenApiSpex.Plug do
+    pipe_through(:browser)
+    get("/swaggerui", SwaggerUI, path: "/api/openapi")
+  end
 
   scope "/", TransportWeb do
     pipe_through(:browser)
-
     get("/", PageController, :index)
     get("/real_time", PageController, :real_time)
     get("/accessibilite", PageController, :accessibility)
@@ -90,6 +92,11 @@ defmodule TransportWeb.Router do
       get("/:id", ResourceController, :details)
       get("/:id/download", ResourceController, :download)
 
+      scope "/show" do
+        pipe_through([:authenticated])
+        get("/proxy_statistics", ResourceController, :proxy_statistics)
+      end
+
       scope "/update" do
         pipe_through([:authenticated])
         get("/_choose_action", ResourceController, :choose_action)
@@ -121,6 +128,10 @@ defmodule TransportWeb.Router do
 
       live_session :gbfs, root_layout: {TransportWeb.LayoutView, :app} do
         live("/gbfs", GBFSLive)
+      end
+
+      live_session :cache, root_layout: {TransportWeb.LayoutView, :app} do
+        live("/cache", CacheLive)
       end
 
       get("/import_aoms", PageController, :import_all_aoms)
@@ -223,18 +234,6 @@ defmodule TransportWeb.Router do
   end
 
   # private
-
-  defp put_locale(conn, _) do
-    case conn.params["locale"] || get_session(conn, :locale) do
-      nil ->
-        Gettext.put_locale("fr")
-        conn |> put_session(:locale, "fr")
-
-      locale ->
-        Gettext.put_locale(locale)
-        conn |> put_session(:locale, locale)
-    end
-  end
 
   defp assign_mix_env(conn, _) do
     assign(conn, :mix_env, Mix.env())

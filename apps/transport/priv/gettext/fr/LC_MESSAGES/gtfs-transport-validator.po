@@ -124,10 +124,6 @@ msgid "Null duration between two stops"
 msgstr "Temps de trajet nul entre deux arrêts"
 
 #, elixir-autogen, elixir-format
-msgid "Passed validations"
-msgstr "Validations passées"
-
-#, elixir-autogen, elixir-format
 msgid "Slow"
 msgstr "Vitesse entre deux arrêts très faible"
 

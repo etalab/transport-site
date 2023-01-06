@@ -5,7 +5,7 @@ defmodule TransportWeb.SeoMetadataTest do
   use TransportWeb.ConnCase, async: false
   use TransportWeb.ExternalCase
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
-  alias DB.{AOM, Dataset, Repo, Resource, Validation}
+  alias DB.{AOM, Dataset, Repo, Resource}
   import Mox
 
   setup :verify_on_exit!
@@ -30,10 +30,6 @@ defmodule TransportWeb.SeoMetadataTest do
         resources: [
           %Resource{
             url: "https://link.to/angers.zip",
-            validation: %Validation{
-              details: %{},
-              max_error: "Info"
-            },
             description: "blabla on resource",
             format: "GTFS",
             title: "angers.zip",

@@ -231,19 +231,15 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
         id: resource_id,
         datagouv_id: datagouv_id,
         dataset_id: dataset_id,
-        title: title,
-        content_hash: first_content_hash
+        title: title
       } =
-        resource =
         insert(:resource,
           url: resource_url,
           dataset: insert(:dataset, is_active: true),
           format: "GTFS",
           title: "title",
           datagouv_id: "1",
-          is_community_resource: false,
-          content_hash: "first_hash",
-          metadata: %{"foo" => "bar"}
+          is_community_resource: false
         )
 
       Transport.HTTPoison.Mock
@@ -256,19 +252,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
            body: @gtfs_content,
            headers: [{"Content-Type", "application/octet-stream"}, {"x-foo", "bar"}]
          }}
-      end)
-
-      validator_metadata = %{
-        "start_date" => "2021-12-04",
-        "end_date" => "2022-04-24",
-        "modes" => ["bus"],
-        "networks" => ["Autocars RESALP"]
-      }
-
-      # Validator should be called because resource was never historicised
-      Shared.Validation.Validator.Mock
-      |> expect(:validate_from_url, fn ^resource_url ->
-        {:ok, %{"validations" => %{}, "metadata" => validator_metadata}}
       end)
 
       Transport.ExAWS.Mock
@@ -314,7 +297,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                  "dataset_id" => ^dataset_id,
                  "format" => "GTFS",
                  "http_headers" => %{"content-type" => "application/octet-stream"},
-                 "resource_metadata" => ^validator_metadata,
                  "total_compressed_size" => 2_370,
                  "total_uncompressed_size" => 10_685,
                  "title" => ^title,
@@ -329,8 +311,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
       assert permanent_url == Transport.S3.permanent_url(:history, filename)
       refute is_nil(last_up_to_date_at)
-      %DB.Resource{content_hash: content_hash} = DB.Repo.reload(resource)
-      refute content_hash == first_content_hash
     end
 
     test "a simple successful case for a CSV" do
@@ -338,7 +318,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       latest_schema_version = "0.4.2"
 
       %DB.Resource{id: resource_id, dataset_id: dataset_id} =
-        resource =
         insert(:resource,
           url: resource_url = "https://example.com/file.csv",
           latest_url: resource_latest_url = "https://example.com/#{Ecto.UUID.generate()}",
@@ -347,7 +326,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
           title: title = "title",
           is_community_resource: false,
           datagouv_id: datagouv_id = Ecto.UUID.generate(),
-          metadata: resource_metadata = %{"foo" => "bar"},
           schema_name: schema_name = "etalab/schema-lieux-covoiturage",
           schema_version: schema_version = "0.4.1"
         )
@@ -381,19 +359,10 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
         assert String.starts_with?(path, "#{resource_id}/#{resource_id}.")
       end)
 
-      # Validation according to the schema
       Transport.Shared.Schemas.Mock
-      |> expect(:transport_schemas, 2, fn ->
+      |> expect(:transport_schemas, 1, fn ->
         %{schema_name => %{"versions" => [%{"version_name" => latest_schema_version}]}}
       end)
-
-      Transport.Shared.Schemas.Mock
-      |> expect(:schemas_by_type, 1, fn "tableschema" -> %{schema_name => %{}} end)
-
-      validation_result = %{"fake_validation" => "fake_result"}
-
-      Shared.Validation.TableSchemaValidator.Mock
-      |> expect(:validate, fn ^schema_name, ^resource_url, ^schema_version -> validation_result end)
 
       assert 0 == count_resource_history()
       assert :ok == perform_job(ResourceHistoryJob, %{resource_id: resource_id})
@@ -402,12 +371,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       ensure_no_tmp_files!("resource_")
 
       content_hash = :sha256 |> :crypto.hash(csv_content) |> Base.encode16() |> String.downcase()
-
-      expected_metadata =
-        Map.merge(resource_metadata, %{
-          "validation" =>
-            Map.merge(%{"content_hash" => content_hash, "schema_type" => "tableschema"}, validation_result)
-        })
 
       assert %DB.ResourceHistory{
                resource_id: ^resource_id,
@@ -419,7 +382,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                  "format" => "csv",
                  "content_hash" => ^content_hash,
                  "http_headers" => %{"content-type" => "application/octet-stream"},
-                 "resource_metadata" => ^expected_metadata,
                  "title" => ^title,
                  "filename" => filename,
                  "permanent_url" => permanent_url,
@@ -436,10 +398,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       assert schema_version != latest_schema_version
       assert permanent_url == Transport.S3.permanent_url(:history, filename)
       refute is_nil(last_up_to_date_at)
-
-      # No validation but content hash should be set to the file hash
-      %DB.Resource{content_hash: content_hash} = DB.Repo.reload(resource)
-      assert content_hash == "580fb39789859f7dc29aebe6bdec9666fc8311739a8705fda0916e2907449e17"
     end
 
     test "discards the job when the resource should not be historicised" do
@@ -455,7 +413,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
       assert DB.Resource.is_community_resource?(resource)
 
-      assert {:discard, "Resource should not be historicised"} ==
+      assert {:cancel, "Resource should not be historicised"} ==
                perform_job(ResourceHistoryJob, %{resource_id: resource.id})
     end
 

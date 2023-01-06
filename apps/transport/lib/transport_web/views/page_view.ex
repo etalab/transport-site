@@ -3,7 +3,13 @@ defmodule TransportWeb.PageView do
   import Phoenix.Controller, only: [current_path: 1]
   import TransportWeb.ResourceView, only: [dataset_creation: 0]
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
-  import TransportWeb.DatasetView, only: [icon_type_path: 1]
+  import TransportWeb.DatasetView, only: [upcoming_icon_type_path: 1]
+
+  def current_tiles(tiles), do: Enum.filter(tiles, &(&1.count > 0))
+
+  def upcoming_tiles(tiles) do
+    Enum.filter(tiles, &(&1.count == 0 and is_binary(&1.type)))
+  end
 
   def class("y"), do: "good"
   def class(_), do: "bad"
@@ -13,4 +19,9 @@ defmodule TransportWeb.PageView do
 
   def make_link(""), do: "—"
   def make_link(o), do: link("Lien", to: o)
+
+  @spec show_proxy_stats_block?([DB.Dataset.t()]) :: boolean()
+  def show_proxy_stats_block?(datasets) do
+    datasets |> Enum.flat_map(& &1.resources) |> Enum.any?(&DB.Resource.served_by_proxy?/1)
+  end
 end

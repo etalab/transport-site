@@ -4,6 +4,9 @@
       <%= @dataset.custom_title %>
     </strong>
   </td>
+  <td>
+    <%= @dataset.organization %>
+  </td>
   <td class="is-centered">
     <a href={dataset_path(@conn, :details, @dataset.slug)}>
       <i class="fa fa-link"></i>
@@ -29,7 +32,7 @@
     end %>
   </td>
   <td>
-    <%= end_date(@dataset) %>
+    <%= @end_date %>
   </td>
   <td class="bo_dataset_button">
     <%= form_for @conn, backoffice_dataset_path(@conn, :import_from_data_gouv_fr, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>

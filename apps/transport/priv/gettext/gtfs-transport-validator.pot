@@ -123,10 +123,6 @@ msgid "Null duration between two stops"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Passed validations"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Slow"
 msgstr ""
 

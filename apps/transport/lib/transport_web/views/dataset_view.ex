@@ -36,23 +36,6 @@ defmodule TransportWeb.DatasetView do
   def count_discussions(nil), do: '-'
   def count_discussions(discussions), do: Enum.count(discussions)
 
-  def end_date(dataset) do
-    dataset.resources
-    |> Enum.filter(&Resource.is_gtfs?/1)
-    |> Enum.max_by(
-      fn
-        %{metadata: nil} -> ""
-        %{metadata: metadata} -> metadata["end_date"]
-        _ -> ""
-      end,
-      fn -> nil end
-    )
-    |> case do
-      nil -> ""
-      resource -> resource.metadata["end_date"]
-    end
-  end
-
   def pagination_links(%{path_info: ["datasets", "region", region]} = conn, datasets) do
     kwargs = [path: &Helpers.dataset_path/4, action: :by_region] |> add_query_params(conn.query_params)
 
@@ -190,6 +173,8 @@ defmodule TransportWeb.DatasetView do
   end
 
   def icon_type_path(%{type: type}) do
+    # If you add an upcoming type be sure to add the black and the grey version.
+    # The upcoming ("grey") version should be named `<filename>-grey.svg`
     icons = %{
       "public-transit" => "bus.svg",
       "bike-scooter-sharing" => "bicycle-scooter.svg",
@@ -201,10 +186,10 @@ defmodule TransportWeb.DatasetView do
       "locations" => "locations.svg",
       "private-parking" => "parking.svg",
       "informations" => "infos.svg",
-      "car-motorbike-sharing" => "car-motorbike-grey.svg",
+      "car-motorbike-sharing" => "car-motorbike-sharing.svg",
       "low-emission-zones" => "low-emission-zones.svg",
       "bike-parking" => "bike-parking.svg",
-      "mobility-counting" => "mobility-counting-grey.svg",
+      "transport-traffic" => "transport-traffic.svg",
       # Not proper types, but modes/filters
       "real-time-public-transit" => "bus-stop.svg",
       "long-distance-coach" => "bus.svg",
@@ -215,8 +200,10 @@ defmodule TransportWeb.DatasetView do
     if Map.has_key?(icons, type), do: "/images/icons/#{Map.get(icons, type)}"
   end
 
-  def icon_type_path(type) when is_binary(type) do
-    icon_type_path(%{type: type})
+  def icon_type_path(type) when is_binary(type), do: icon_type_path(%{type: type})
+
+  def upcoming_icon_type_path(type) when is_binary(type) do
+    String.replace(icon_type_path(type), ".svg", "-grey.svg")
   end
 
   def display_all_types_links?(%{params: %{"type" => type}}) when not is_nil(type), do: true
@@ -471,11 +458,22 @@ defmodule TransportWeb.DatasetView do
     history_resources |> Enum.map(&has_validity_period?/1) |> Enum.any?()
   end
 
-  def has_validity_period?(%DB.ResourceHistory{payload: %{"resource_metadata" => metadata}}) when is_map(metadata) do
-    not is_nil(Map.get(metadata, "start_date"))
+  def has_validity_period?(%DB.ResourceHistory{} = resource_history) do
+    case validity_period(resource_history) do
+      %{"start_date" => start_date, "end_date" => end_date} when not is_nil(start_date) and not is_nil(end_date) -> true
+      _ -> false
+    end
   end
 
-  def has_validity_period?(%DB.ResourceHistory{}), do: false
+  def validity_period(%DB.ResourceHistory{
+        validations: [
+          %{metadata: %DB.ResourceMetadata{metadata: %{"start_date" => start_date, "end_date" => end_date}}}
+        ]
+      }) do
+    %{"start_date" => start_date, "end_date" => end_date}
+  end
+
+  def validity_period(_), do: %{}
 
   def show_resource_last_update(resources_updated_at, %DB.Resource{id: id} = resource, locale) do
     if Resource.is_real_time?(resource) do

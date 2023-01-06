@@ -12,7 +12,7 @@ defmodule Transport.Jobs.ResourceHistorySchemaValidation do
     resource_history = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
 
     if resource_history |> DB.MultiValidation.already_validated?(validator) do
-      {:discard, "resource history #{resource_history_id} is already validated by #{validator.validator_name()}"}
+      {:cancel, "resource history #{resource_history_id} is already validated by #{validator.validator_name()}"}
     else
       :ok = validator.validate_and_save(resource_history)
     end

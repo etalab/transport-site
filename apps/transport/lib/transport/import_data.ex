@@ -12,7 +12,6 @@ defmodule Transport.ImportData do
   import Ecto.Query
 
   defp availability_checker, do: Transport.AvailabilityChecker.Wrapper.impl()
-  defp hasher, do: Hasher.Wrapper.impl()
 
   def max_import_concurrent_jobs do
     Application.fetch_env!(:transport, :max_import_concurrent_jobs)
@@ -43,38 +42,10 @@ defmodule Transport.ImportData do
     Logger.info("all datasets have been reimported (#{nb_failed} failures / #{Enum.count(results)})")
   end
 
-  @spec validate_all_resources() :: :ok
-  def validate_all_resources(force \\ false) do
-    Logger.info("Validating all resources")
-
-    resources_id =
-      Resource
-      |> select([r], r.id)
-      |> Repo.all()
-
-    Logger.info("launching #{Enum.count(resources_id)} validations")
-
-    validation_results =
-      ImportTaskSupervisor
-      |> Task.Supervisor.async_stream_nolink(
-        resources_id,
-        fn r_id -> Resource.validate_and_save(r_id, force) end,
-        max_concurrency: max_import_concurrent_jobs(),
-        timeout: 240_000
-      )
-      |> Enum.to_list()
-
-    nb_failed =
-      validation_results
-      |> Enum.count(&invalid_result?/1)
-
-    Logger.info("All resources validated (#{nb_failed} failures / #{validation_results |> Enum.count()}}")
-  end
-
   @spec import_validate_all :: :ok
   def import_validate_all do
     import_all_datasets()
-    validate_all_resources()
+    # validation is now gone, replaced by DB.MultiValidation
   end
 
   def refresh_places do
@@ -365,7 +336,6 @@ defmodule Transport.ImportData do
 
       resource =
         resource
-        |> Map.put("metadata", existing_resource[:metadata])
         |> Map.put("url", cleaned_url(resource["url"]))
 
       format = formated_format(resource, type, is_community_resource)
@@ -388,7 +358,6 @@ defmodule Transport.ImportData do
          "community_resource_publisher" => get_publisher(resource),
          "description" => resource["description"],
          "filesize" => resource["filesize"],
-         "content_hash" => hasher().get_content_hash(resource["url"]),
          "original_resource_url" => get_original_resource_url(resource),
          "schema_name" => ResourceSchema.guess_name(resource, type),
          "schema_version" => ResourceSchema.guess_version(resource),
@@ -893,7 +862,7 @@ defmodule Transport.ImportData do
     |> join(:left, [r], d in Dataset, on: r.dataset_id == d.id)
     |> where([r], r.url == ^url)
     |> where([_r, d], d.datagouv_id == ^dataset_datagouv_id)
-    |> select([r], map(r, [:id, :metadata]))
+    |> select([r], map(r, [:id]))
     |> Repo.one()
   end
 
@@ -902,7 +871,7 @@ defmodule Transport.ImportData do
     |> join(:left, [r], d in Dataset, on: r.dataset_id == d.id)
     |> where([r, _d], r.datagouv_id == ^datagouv_id or r.url == ^url)
     |> where([_r, d], d.datagouv_id == ^dataset_datagouv_id)
-    |> select([r], map(r, [:id, :metadata]))
+    |> select([r], map(r, [:id]))
     |> Repo.one()
   end
 

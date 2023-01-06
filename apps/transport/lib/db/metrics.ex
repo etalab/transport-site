@@ -17,6 +17,49 @@ defmodule DB.Metrics do
   end
 
   @doc """
+  Counts the number of external and internal request for a resource over a given
+  number of days.
+  """
+  def requests_over_last_days(%DB.Resource{} = resource, days) when is_integer(days) and days > 0 do
+    namespace =
+      cond do
+        DB.Resource.is_gtfs_rt?(resource) -> "proxy"
+        DB.Resource.is_gbfs?(resource) -> "gbfs"
+      end
+
+    date_from = %{DateTime.utc_now() | hour: 0, minute: 0, second: 0} |> DateTime.add(-days, :day)
+    target = Enum.join([namespace, DB.Resource.proxy_slug(resource)], ":")
+    external_event = Enum.join([namespace, "request", "external"], ":")
+    internal_event = Enum.join([namespace, "request", "internal"], ":")
+
+    query =
+      from(m in DB.Metrics,
+        group_by: fragment("date"),
+        order_by: fragment("date"),
+        where: m.period >= ^date_from and m.target == ^target,
+        select: %{
+          date: fragment("?::date as date", m.period),
+          requests_external:
+            fragment(
+              "sum(case when ? = ? then ? else 0 end) as requests_external",
+              m.event,
+              ^external_event,
+              m.count
+            ),
+          requests_internal:
+            fragment(
+              "sum(case when ? = ? then ? else 0 end) as requests_internal",
+              m.event,
+              ^internal_event,
+              m.count
+            )
+        }
+      )
+
+    query |> DB.Repo.all()
+  end
+
+  @doc """
   A function to compute the total count of event per identifier/event
   for the last N days. You can optionally keep only a given
   list of events.

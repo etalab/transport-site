@@ -20,7 +20,7 @@ defmodule DB.DataConversion do
   def join_resource_history_with_data_conversion(query, list_of_convert_to) do
     query
     |> join(:left, [resource_history: rh], dc in DB.DataConversion,
-      on: fragment("?->>'uuid' = ?.resource_history_uuid::text", rh.payload, dc),
+      on: fragment("(?->>'uuid')::uuid = ?", rh.payload, dc.resource_history_uuid),
       as: :data_conversion
     )
     |> where([data_conversion: dc], dc.convert_to in ^list_of_convert_to)

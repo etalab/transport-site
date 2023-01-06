@@ -6,7 +6,6 @@ defmodule DB.Dataset do
   There are also trigger on update on aom and region that will force an update on this model
   so the search vector is up-to-date.
   """
-  alias Datagouvfr.Client.User
   alias DB.{AOM, Commune, DatasetGeographicView, LogsImport, Region, Repo, Resource}
   alias Phoenix.HTML.Link
   import Ecto.{Changeset, Query}
@@ -70,8 +69,8 @@ defmodule DB.Dataset do
   Creates a query with the following inner joins:
   datasets <> Resource <> ResourceHistory <> MultiValidation <> ResourceMetadata
   """
-  def join_from_dataset_to_metadata(validator_name) do
-    __MODULE__.base_query()
+  def join_from_dataset_to_metadata(query, validator_name) do
+    query
     |> DB.Resource.join_dataset_with_resource()
     |> DB.ResourceHistory.join_resource_with_latest_resource_history()
     |> DB.MultiValidation.join_resource_history_with_latest_validation(validator_name)
@@ -93,7 +92,8 @@ defmodule DB.Dataset do
       "private-parking" => dgettext("db-dataset", "Private parking"),
       "bike-way" => dgettext("db-dataset", "Bike networks"),
       "bike-parking" => dgettext("db-dataset", "Bike parking"),
-      "low-emission-zones" => dgettext("db-dataset", "Low emission zones")
+      "low-emission-zones" => dgettext("db-dataset", "Low emission zones"),
+      "transport-traffic" => dgettext("db-dataset", "Transport traffic")
     }
 
   @spec type_to_str(binary()) :: binary()
@@ -113,7 +113,6 @@ defmodule DB.Dataset do
         datagouv_id: r.datagouv_id,
         last_update: r.last_update,
         latest_url: r.latest_url,
-        content_hash: r.content_hash,
         is_community_resource: r.is_community_resource,
         is_available: r.is_available,
         description: r.description,
@@ -208,14 +207,14 @@ defmodule DB.Dataset do
   defp filter_by_feature(query, _), do: query
 
   @spec filter_by_mode(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_mode(query, %{"modes" => mode}) do
+  defp filter_by_mode(query, %{"modes" => modes}) when is_list(modes) do
     query
     |> DB.ResourceHistory.join_dataset_with_latest_resource_history()
     |> DB.MultiValidation.join_resource_history_with_latest_validation(
       Transport.Validators.GTFSTransport.validator_name()
     )
     |> DB.ResourceMetadata.join_validation_with_metadata()
-    |> where([metadata: rm], fragment("? @> ?::varchar[]", rm.modes, ^mode))
+    |> where([metadata: rm], fragment("? @> ?::varchar[]", rm.modes, ^modes))
   end
 
   defp filter_by_mode(query, _), do: query
@@ -300,6 +299,13 @@ defmodule DB.Dataset do
 
   @spec list_datasets(map()) :: Ecto.Query.t()
   def list_datasets(%{} = params) do
+    params
+    |> list_datasets_no_order()
+    |> order_datasets(params)
+  end
+
+  @spec list_datasets_no_order(map()) :: Ecto.Query.t()
+  def list_datasets_no_order(%{} = params) do
     q =
       base_query()
       |> distinct([dataset: d], d.id)
@@ -318,7 +324,6 @@ defmodule DB.Dataset do
     base_query()
     |> where([dataset: d], d.id in subquery(q))
     |> preload_without_validations()
-    |> order_datasets(params)
   end
 
   @spec order_datasets(Ecto.Query.t(), map()) :: Ecto.Query.t()
@@ -424,8 +429,8 @@ defmodule DB.Dataset do
 
   @spec count_by_mode(binary()) :: number()
   def count_by_mode(tag) do
-    Transport.Validators.GTFSTransport.validator_name()
-    |> join_from_dataset_to_metadata()
+    base_query()
+    |> join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
     |> where([metadata: m], ^tag in m.modes)
     |> distinct([dataset: d], d.id)
     |> Repo.aggregate(:count, :id)
@@ -433,8 +438,8 @@ defmodule DB.Dataset do
 
   @spec count_coach() :: number()
   def count_coach do
-    Transport.Validators.GTFSTransport.validator_name()
-    |> join_from_dataset_to_metadata()
+    base_query()
+    |> join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
     # 14 is the national "region". It means that it is not bound to a region or local territory
     |> where([metadata: m, dataset: d], d.region_id == 14 and "bus" in m.modes)
     |> distinct([dataset: d], d.id)
@@ -635,7 +640,7 @@ defmodule DB.Dataset do
   """
   @spec user_datasets(Plug.Conn.t()) :: {:error, OAuth2.Error.t()} | {:ok, [__MODULE__.t()]}
   def user_datasets(%Plug.Conn{} = conn) do
-    case User.datasets(conn) do
+    case Datagouvfr.Client.User.Wrapper.impl().datasets(conn) do
       {:ok, datasets} ->
         datagouv_ids = Enum.map(datasets, fn d -> d["id"] end)
 
@@ -643,6 +648,7 @@ defmodule DB.Dataset do
         # to the local database for some reason, it won't appear in the result, despite existing remotely.
         {:ok,
          __MODULE__
+         |> preload(:resources)
          |> where([d], d.datagouv_id in ^datagouv_ids)
          |> order_by([d], desc: d.id)
          |> Repo.all()}
@@ -658,12 +664,13 @@ defmodule DB.Dataset do
   @spec user_org_datasets(Plug.Conn.t()) ::
           {:error, OAuth2.Error.t()} | {:ok, [__MODULE__.t()]}
   def user_org_datasets(%Plug.Conn{} = conn) do
-    case User.org_datasets(conn) do
+    case Datagouvfr.Client.User.Wrapper.impl().org_datasets(conn) do
       {:ok, datasets} ->
         datagouv_ids = Enum.map(datasets, fn d -> d["id"] end)
 
         {:ok,
          __MODULE__
+         |> preload(:resources)
          |> where([d], d.datagouv_id in ^datagouv_ids)
          |> order_by([d], desc: d.id)
          |> Repo.all()}

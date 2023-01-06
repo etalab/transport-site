@@ -37,7 +37,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
         dataset_id: dataset.id,
         url: "https://link.to/file.zip",
         latest_url: "https://static.data.gouv.fr/foo",
-        content_hash: "hash",
         datagouv_id: "1",
         type: "main",
         format: "GTFS",
@@ -49,20 +48,22 @@ defmodule TransportWeb.API.DatasetControllerTest do
         dataset_id: dataset.id,
         url: "https://link.to/file2.zip",
         latest_url: "https://static.data.gouv.fr/foo2",
-        content_hash: "hash2",
         datagouv_id: "2",
         type: "main",
         format: "GTFS",
         filesize: 43
       )
 
-    _gbfs_resource =
+    gbfs_resource =
       insert(:resource,
         dataset_id: dataset.id,
         url: "https://link.to/gbfs.json",
-        datagouv_id: "2",
+        latest_url: "https://link.to/latest",
+        datagouv_id: "3",
+        title: "GBFS",
         type: "main",
-        format: "gbfs"
+        format: "gbfs",
+        is_available: false
       )
 
     insert(:resource_metadata,
@@ -105,7 +106,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
       "publisher" => %{"name" => nil, "type" => "organization"},
       "resources" => [
         %{
-          "content_hash" => "hash",
+          "page_url" => resource_page_url(resource_1),
           "datagouv_id" => "1",
           "features" => ["couleurs des lignes"],
           "filesize" => 42,
@@ -116,10 +117,11 @@ defmodule TransportWeb.API.DatasetControllerTest do
           "title" => "GTFS.zip",
           "type" => "main",
           "updated" => "",
-          "url" => "https://static.data.gouv.fr/foo"
+          "url" => "https://static.data.gouv.fr/foo",
+          "is_available" => true
         },
         %{
-          "content_hash" => "hash2",
+          "page_url" => resource_page_url(resource_2),
           "datagouv_id" => "2",
           "features" => ["clim"],
           "filesize" => 43,
@@ -130,16 +132,19 @@ defmodule TransportWeb.API.DatasetControllerTest do
           "title" => "GTFS.zip",
           "type" => "main",
           "updated" => "",
-          "url" => "https://static.data.gouv.fr/foo2"
+          "url" => "https://static.data.gouv.fr/foo2",
+          "is_available" => true
         },
         %{
-          "datagouv_id" => "2",
-          "format" => "gbfs",
-          "original_url" => "https://link.to/gbfs.json",
-          "title" => "GTFS.zip",
+          "page_url" => resource_page_url(gbfs_resource),
+          "datagouv_id" => gbfs_resource.datagouv_id,
+          "format" => gbfs_resource.format,
+          "original_url" => gbfs_resource.url,
+          "title" => gbfs_resource.title,
           "type" => "main",
           "updated" => "",
-          "url" => "url"
+          "url" => gbfs_resource.latest_url,
+          "is_available" => gbfs_resource.is_available
         }
       ],
       "slug" => "slug-1",
@@ -158,22 +163,23 @@ defmodule TransportWeb.API.DatasetControllerTest do
   end
 
   test "GET /api/datasets *without* history, multi_validation and resource_metadata", %{conn: conn} do
-    insert(:resource,
-      dataset:
-        insert(:dataset,
-          custom_title: "title",
-          type: "public-transit",
-          licence: "lov2",
-          datagouv_id: "datagouv",
-          slug: "slug-1",
-          is_active: true,
-          aom: insert(:aom, nom: "Angers Métropole", siren: "siren")
-        ),
-      url: "https://link.to/gbfs.json",
-      datagouv_id: "2",
-      type: "main",
-      format: "gbfs"
-    )
+    resource =
+      insert(:resource,
+        dataset:
+          insert(:dataset,
+            custom_title: "title",
+            type: "public-transit",
+            licence: "lov2",
+            datagouv_id: "datagouv",
+            slug: "slug-1",
+            is_active: true,
+            aom: insert(:aom, nom: "Angers Métropole", siren: "siren")
+          ),
+        url: "https://link.to/gbfs.json",
+        datagouv_id: "2",
+        type: "main",
+        format: "gbfs"
+      )
 
     path = Helpers.dataset_path(conn, :datasets)
 
@@ -194,6 +200,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
                "publisher" => %{"name" => nil, "type" => "organization"},
                "resources" => [
                  %{
+                   "page_url" => resource_page_url(resource),
+                   "is_available" => true,
                    "datagouv_id" => "2",
                    "format" => "gbfs",
                    "original_url" => "https://link.to/gbfs.json",
@@ -224,7 +232,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
           %DB.Resource{
             url: "https://link.to/file.zip",
             latest_url: "https://static.data.gouv.fr/foo",
-            content_hash: "hash",
             datagouv_id: "1",
             type: "main",
             format: "GTFS",
@@ -241,6 +248,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
         aom: %DB.AOM{id: 4242, nom: "Angers Métropole", siren: "siren"}
       }
       |> DB.Repo.insert!()
+      |> DB.Repo.preload(:resources)
 
     Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
 
@@ -262,7 +270,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
              "publisher" => %{"name" => nil, "type" => "organization"},
              "resources" => [
                %{
-                 "content_hash" => "hash",
+                 "is_available" => true,
+                 "page_url" => dataset.resources |> Enum.find(&(&1.format == "GTFS")) |> resource_page_url(),
                  "datagouv_id" => "1",
                  "filesize" => 42,
                  "type" => "main",
@@ -272,6 +281,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
                  "url" => "https://static.data.gouv.fr/foo"
                },
                %{
+                 "is_available" => true,
+                 "page_url" => dataset.resources |> Enum.find(&(&1.format == "geojson")) |> resource_page_url(),
                  "datagouv_id" => "2",
                  "type" => "main",
                  "format" => "geojson",
@@ -305,14 +316,13 @@ defmodule TransportWeb.API.DatasetControllerTest do
         dataset_id: dataset.id,
         url: "https://link.to/file.zip",
         latest_url: "https://static.data.gouv.fr/foo",
-        content_hash: "hash",
         datagouv_id: "1",
         type: "main",
         format: "GTFS",
         filesize: 42
       )
 
-    _gbfs_resource =
+    gbfs_resource =
       insert(:resource,
         dataset_id: dataset.id,
         url: "https://link.to/gbfs.json",
@@ -353,7 +363,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
              "publisher" => %{"name" => nil, "type" => "organization"},
              "resources" => [
                %{
-                 "content_hash" => "hash",
+                 "page_url" => resource_page_url(resource),
+                 "is_available" => true,
                  "datagouv_id" => "1",
                  "features" => ["couleurs des lignes"],
                  "filesize" => 42,
@@ -367,6 +378,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
                  "url" => "https://static.data.gouv.fr/foo"
                },
                %{
+                 "page_url" => resource_page_url(gbfs_resource),
+                 "is_available" => true,
                  "datagouv_id" => "2",
                  "format" => "gbfs",
                  "original_url" => "https://link.to/gbfs.json",
@@ -421,5 +434,9 @@ defmodule TransportWeb.API.DatasetControllerTest do
              |> Enum.at(0)
              |> Map.get("features")
              |> Enum.sort()
+  end
+
+  defp resource_page_url(%DB.Resource{id: id}) do
+    TransportWeb.Router.Helpers.resource_url(TransportWeb.Endpoint, :details, id)
   end
 end

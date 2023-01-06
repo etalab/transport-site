@@ -1,7 +1,7 @@
 defmodule Transport.Jobs.OnDemandValidationJob do
   @moduledoc """
   Job in charge of validating a file that has been stored
-  on Cellar and tracked by a `DB.Validation` row.
+  on Cellar and tracked by a `DB.MultiValidation` row.
 
   It validates the file and stores the result in the database.
   """

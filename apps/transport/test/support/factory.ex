@@ -88,10 +88,6 @@ defmodule DB.Factory do
     %DB.GTFS.CalendarDates{}
   end
 
-  def validation_factory do
-    %DB.Validation{}
-  end
-
   def geo_data_import_factory do
     %DB.GeoDataImport{}
   end
@@ -152,7 +148,14 @@ defmodule DB.Factory do
     def_opts = [resource_available: true, is_active: true, resource_history_payload: %{}]
     opts = Keyword.merge(def_opts, opts)
 
-    dataset_opts = [is_active: Keyword.get(opts, :is_active), region_id: Keyword.get(opts, :region_id)]
+    dataset_opts = [
+      is_active: Keyword.get(opts, :is_active),
+      region_id: Keyword.get(opts, :region_id),
+      has_realtime: Keyword.get(opts, :has_realtime),
+      type: Keyword.get(opts, :type),
+      aom: Keyword.get(opts, :aom),
+      custom_title: Keyword.get(opts, :custom_title)
+    ]
 
     dataset_opts =
       case Keyword.get(opts, :aom) do
@@ -188,7 +191,7 @@ defmodule DB.Factory do
     resource_metadata =
       insert(:resource_metadata,
         multi_validation_id: multi_validation.id,
-        metadata: %{"start_date" => Date.utc_today() |> Date.add(-30), "end_date" => end_date},
+        metadata: %{"start_date" => end_date |> Date.add(-60), "end_date" => end_date},
         modes: Keyword.get(opts, :modes),
         features: Keyword.get(opts, :features)
       )

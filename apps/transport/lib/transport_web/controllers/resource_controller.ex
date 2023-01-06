@@ -7,7 +7,7 @@ defmodule TransportWeb.ResourceController do
   require Logger
   import Ecto.Query
 
-  import TransportWeb.ResourceView, only: [issue_type: 1]
+  import TransportWeb.ResourceView, only: [issue_type: 1, latest_validations_nb_days: 0]
   import TransportWeb.DatasetView, only: [availability_number_days: 0]
 
   @enabled_validators MapSet.new([
@@ -30,6 +30,7 @@ defmodule TransportWeb.ResourceController do
       |> assign(:resource_history_infos, DB.ResourceHistory.latest_resource_history_infos(id))
       |> assign(:gtfs_rt_feed, gtfs_rt_feed(conn, resource))
       |> assign(:gtfs_rt_entities, gtfs_rt_entities(resource))
+      |> assign(:latest_validations_details, latest_validations_details(resource))
       |> assign(:multi_validation, latest_validation(resource))
       |> put_resource_flash(resource.dataset.is_active)
 
@@ -51,6 +52,32 @@ defmodule TransportWeb.ResourceController do
   end
 
   def gtfs_rt_entities(%Resource{}), do: nil
+
+  def latest_validations_details(%Resource{format: "gtfs-rt", id: id}) do
+    validations =
+      DB.MultiValidation.resource_latest_validations(
+        id,
+        Transport.Validators.GTFSRT,
+        DateTime.utc_now() |> DateTime.add(-latest_validations_nb_days(), :day)
+      )
+
+    nb_validations = Enum.count(validations)
+
+    validations
+    |> Enum.flat_map(fn %DB.MultiValidation{result: result} -> Map.get(result, "errors", []) end)
+    |> Enum.group_by(&Map.fetch!(&1, "error_id"), &Map.take(&1, ["description", "errors_count"]))
+    |> Enum.into(%{}, fn {error_id, validations} ->
+      {error_id,
+       %{
+         "description" => validations |> hd() |> Map.get("description"),
+         "errors_count" => validations |> Enum.map(& &1["errors_count"]) |> Enum.sum(),
+         "occurence" => length(validations),
+         "percentage" => (length(validations) / nb_validations * 100) |> round()
+       }}
+    end)
+  end
+
+  def latest_validations_details(%Resource{}), do: nil
 
   defp gtfs_rt_feed(conn, %Resource{format: "gtfs-rt", url: url, id: id}) do
     lang = get_session(conn, :locale)
@@ -263,6 +290,35 @@ defmodule TransportWeb.ResourceController do
         |> put_flash(:error, dgettext("resource", "Unable to upload file"))
         |> form(params)
     end
+  end
+
+  def proxy_requests_stats_nb_days, do: 15
+
+  @spec proxy_statistics(Plug.Conn.t(), map) :: Plug.Conn.t()
+  def proxy_statistics(conn, _params) do
+    datasets =
+      [
+        Dataset.user_datasets(conn),
+        Dataset.user_org_datasets(conn)
+      ]
+      |> Enum.filter(&(elem(&1, 0) == :ok))
+      |> Enum.flat_map(&elem(&1, 1))
+
+    proxy_stats =
+      datasets
+      |> Enum.flat_map(& &1.resources)
+      |> Enum.filter(&DB.Resource.served_by_proxy?/1)
+      # Gotcha: this is a N+1 problem. Okay as long as a single producer
+      # does not have a lot of feeds/there is not a lot of traffic on this page
+      |> Enum.into(%{}, fn %DB.Resource{id: id} = resource ->
+        {id, DB.Metrics.requests_over_last_days(resource, proxy_requests_stats_nb_days())}
+      end)
+
+    conn
+    |> assign(:datasets, datasets)
+    |> assign(:proxy_stats, proxy_stats)
+    |> assign(:proxy_requests_stats_nb_days, proxy_requests_stats_nb_days())
+    |> render("proxy_statistics.html")
   end
 
   defp assign_or_flash(conn, getter, kw, error) do

@@ -3,6 +3,10 @@ defmodule Transport.Cache.Cachex.Test do
   use ExUnit.Case, async: true
   import ExUnit.CaptureLog
 
+  setup do
+    on_exit(fn -> Cachex.clear(Transport.Application.cache_name()) end)
+  end
+
   def build_unique_cache_key, do: Ecto.UUID.generate()
 
   test "it caches values provided in Cachex cache" do
