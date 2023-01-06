@@ -2,32 +2,29 @@ defmodule TransportWeb.GTFSDiffLive do
   # use Phoenix.Component
   use Phoenix.LiveView, container: {:div, class: "gtfs-diff-selector"}
   alias Phoenix.PubSub
+  alias TransportWeb.Router.Helpers, as: Routes
 
   def render(assigns) do
     ~H"""
     <div class={show(@urls)}>
       <strong>Comparer 2 GTFS</strong>
       <%= for i <- 0..1 do %>
-      <% url = Enum.at(@urls, i) || "" %>
-      <div class="gtfs-diff-url pt-6">
-      <input
-        type="text"
-        value={url}
-        name="url1"
-        id="url1"
-        placeholder={"url#{i+1}"}
-      />
-      <%= if url != "" do %>
-        <i class="icon icon--trash" phx-click="delete_url" phx-value-index={i} aria-hidden="true"></i>
-      <% end %>
-      </div>
+        <% url = Enum.at(@urls, i) || "" %>
+        <div class="gtfs-diff-url pt-6">
+          <input type="text" value={url} name="url1" id="url1" placeholder={"url#{i+1}"} />
+          <%= if url != "" do %>
+            <i class="icon icon--trash" phx-click="delete_url" phx-value-index={i} aria-hidden="true"></i>
+          <% end %>
+        </div>
       <% end %>
       <button class="button" phx-click="compare">Comparer</button>
       <%= if @job_executing do %>
         <i class="icon icon--spinner" aria-hidden="true"></i>
       <% end %>
-      <%= if @diff_file_url do %>
-        <%= @diff_file_url %>
+      <%= if @gtfs_diff_id do %>
+        <.link navigate={Routes.gtfs_diff_path(@socket, :show, @gtfs_diff_id)} target="_blank">
+          Voir la différence
+        </.link>
       <% end %>
     </div>
     """
@@ -39,7 +36,7 @@ defmodule TransportWeb.GTFSDiffLive do
       :ok = Oban.Notifier.listen([:gossip])
     end
 
-    socket = socket |> assign(:urls, [nil, nil]) |> assign(:job_executing, false) |> assign(:diff_file_url, nil)
+    socket = socket |> assign(:urls, [nil, nil]) |> assign(:job_executing, false) |> assign(:gtfs_diff_id, nil)
 
     {:ok, socket}
   end
@@ -54,12 +51,16 @@ defmodule TransportWeb.GTFSDiffLive do
     {:noreply, assign(socket, :urls, urls)}
   end
 
-  def handle_info({:notification, :gossip, %{"complete" => job_id, "diff_file_url" => diff_file_url}}, socket) do
+  def handle_info({:notification, :gossip, %{"complete" => job_id, "gtfs_diff_id" => gtfs_diff_id}}, socket) do
     if socket.assigns.job_id == job_id do
-      {:noreply, socket |> assign(:job_executing, false) |> assign(:diff_file_url, diff_file_url)}
+      {:noreply, socket |> assign(:job_executing, false) |> assign(:gtfs_diff_id, gtfs_diff_id)}
     else
       {:noreply, socket}
     end
+  end
+
+  def handle_info(_, socket) do
+    {:noreply, socket}
   end
 
   def handle_event("delete_url", %{"index" => index}, socket) do
@@ -99,8 +100,6 @@ defmodule TransportWeb.GTFSDiffLive do
 
     {:noreply, socket |> assign(:job_executing, true) |> assign(:job_id, job_id)}
   end
-
-
 
   defp upload_to_s3(file_path, path) do
     Transport.S3.upload_to_s3!(:gtfs_diff, File.read!(file_path), path)
