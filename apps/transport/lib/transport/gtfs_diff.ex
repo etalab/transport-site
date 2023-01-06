@@ -1,4 +1,4 @@
-defmodule Transport.Beta.GTFS do
+defmodule Transport.GTFSDiff do
   @moduledoc """
   Compute Diff between two GTFS files
   """
@@ -412,8 +412,8 @@ end
 
 # usage
 
-# unzip_1 = Transport.Beta.GTFS.unzip("path/to/gtfs_1.zip")
-# unzip_2 = Transport.Beta.GTFS.unzip("path/to/gtfs_2.zip")
+# unzip_1 = Transport.GTFSDiff.unzip("path/to/gtfs_1.zip")
+# unzip_2 = Transport.GTFSDiff.unzip("path/to/gtfs_2.zip")
 
-# diff = Transport.Beta.GTFS.diff(unzip_1, unzip_2)
-# File.write!("diff_output.txt", diff |> Transport.Beta.GTFS.dump_diff())
+# diff = Transport.GTFSDiff.diff(unzip_1, unzip_2)
+# File.write!("diff_output.txt", diff |> Transport.GTFSDiff.dump_diff())
