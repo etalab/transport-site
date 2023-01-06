@@ -1,13 +1,16 @@
 defmodule Transport.GTFSDiffTest do
   use ExUnit.Case, async: true
 
+  defp unzip(path) do
+    zip_file = Unzip.LocalFile.open(path)
+    {:ok, unzip} = Unzip.new(zip_file)
+    unzip
+  end
+
   describe "GTFS Diff" do
     test "2 identical files" do
-      zip_file_1 = Unzip.LocalFile.open("test/fixture/files/gtfs_diff/gtfs.zip")
-      zip_file_2 = Unzip.LocalFile.open("test/fixture/files/gtfs_diff/gtfs.zip")
-
-      {:ok, unzip_1} = Unzip.new(zip_file_1)
-      {:ok, unzip_2} = Unzip.new(zip_file_2)
+      unzip_1 = unzip("test/fixture/files/gtfs_diff/gtfs.zip")
+      unzip_2 = unzip("test/fixture/files/gtfs_diff/gtfs.zip")
 
       diff = Transport.GTFSDiff.diff(unzip_1, unzip_2)
 
@@ -15,11 +18,8 @@ defmodule Transport.GTFSDiffTest do
     end
 
     test "rows order is ignored" do
-      zip_file_1 = Unzip.LocalFile.open("test/fixture/files/gtfs_diff/gtfs.zip")
-      zip_file_2 = Unzip.LocalFile.open("test/fixture/files/gtfs_diff/gtfs_change_order.zip")
-
-      {:ok, unzip_1} = Unzip.new(zip_file_1)
-      {:ok, unzip_2} = Unzip.new(zip_file_2)
+      unzip_1 = unzip("test/fixture/files/gtfs_diff/gtfs.zip")
+      unzip_2 = unzip("test/fixture/files/gtfs_diff/gtfs_change_order.zip")
 
       diff = Transport.GTFSDiff.diff(unzip_1, unzip_2)
 
@@ -27,11 +27,8 @@ defmodule Transport.GTFSDiffTest do
     end
 
     test "detect changes" do
-      zip_file_1 = Unzip.LocalFile.open("test/fixture/files/gtfs_diff/gtfs.zip")
-      zip_file_2 = Unzip.LocalFile.open("test/fixture/files/gtfs_diff/gtfs_modified_files.zip")
-
-      {:ok, unzip_1} = Unzip.new(zip_file_1)
-      {:ok, unzip_2} = Unzip.new(zip_file_2)
+      unzip_1 = unzip("test/fixture/files/gtfs_diff/gtfs.zip")
+      unzip_2 = unzip("test/fixture/files/gtfs_diff/gtfs_modified_files.zip")
 
       diff = Transport.GTFSDiff.diff(unzip_1, unzip_2)
 
@@ -71,11 +68,8 @@ defmodule Transport.GTFSDiffTest do
     end
 
     test "modified columns" do
-      zip_file_1 = Unzip.LocalFile.open("test/fixture/files/gtfs_diff/gtfs.zip")
-      zip_file_2 = Unzip.LocalFile.open("test/fixture/files/gtfs_diff/gtfs_modified_columns.zip")
-
-      {:ok, unzip_1} = Unzip.new(zip_file_1)
-      {:ok, unzip_2} = Unzip.new(zip_file_2)
+      unzip_1 = unzip("test/fixture/files/gtfs_diff/gtfs.zip")
+      unzip_2 = unzip("test/fixture/files/gtfs_diff/gtfs_modified_columns.zip")
 
       diff = Transport.GTFSDiff.diff(unzip_1, unzip_2)
 
@@ -97,11 +91,8 @@ defmodule Transport.GTFSDiffTest do
     end
 
     test "modified rows" do
-      zip_file_1 = Unzip.LocalFile.open("test/fixture/files/gtfs_diff/gtfs.zip")
-      zip_file_2 = Unzip.LocalFile.open("test/fixture/files/gtfs_diff/gtfs_modified_rows.zip")
-
-      {:ok, unzip_1} = Unzip.new(zip_file_1)
-      {:ok, unzip_2} = Unzip.new(zip_file_2)
+      unzip_1 = unzip("test/fixture/files/gtfs_diff/gtfs.zip")
+      unzip_2 = unzip("test/fixture/files/gtfs_diff/gtfs_modified_rows.zip")
 
       diff = Transport.GTFSDiff.diff(unzip_1, unzip_2)
 
