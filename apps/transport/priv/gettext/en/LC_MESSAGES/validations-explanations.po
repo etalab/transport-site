@@ -98,3 +98,15 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Trip ID"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "MissingId"
+msgstr "Some required IDs are missing"
+
+#, elixir-autogen, elixir-format
+msgid "MissingName"
+msgstr "Some required names are missing"
+
+#, elixir-autogen, elixir-format
+msgid "Object type"
+msgstr "Object type"
