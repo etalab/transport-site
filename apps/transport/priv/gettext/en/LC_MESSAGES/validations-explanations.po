@@ -110,3 +110,7 @@ msgstr "Some required names are missing"
 #, elixir-autogen, elixir-format
 msgid "Object type"
 msgstr "Object type"
+
+#, elixir-autogen, elixir-format
+msgid "Object ID"
+msgstr "Object ID"

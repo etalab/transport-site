@@ -109,3 +109,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Object type"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Object ID"
+msgstr ""
