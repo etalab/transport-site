@@ -55,6 +55,7 @@ defmodule TransportWeb.Router do
     live_session :test, root_layout: {TransportWeb.LayoutView, :app} do
       live("/test", GTFSDiffAddLive)
     end
+
     get("/diff/results", GtfsDiffResultsController, :details)
 
     scope "/espace_producteur" do
@@ -179,6 +180,7 @@ defmodule TransportWeb.Router do
 
       live_session :gtfs_diff, root_layout: {TransportWeb.LayoutView, :app} do
         live("/beta/gtfs_diff", Live.GtfsDiffSelectLive)
+        get("/gtfs_diff/:id", GTFSDiffController, :show)
       end
 
       live_session :siri, root_layout: {TransportWeb.LayoutView, :app} do
