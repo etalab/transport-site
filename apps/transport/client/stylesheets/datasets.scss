@@ -26,30 +26,30 @@
 }
 
 .gtfs-diff-selector {
-position: sticky;
-top: 70px;
-display: flex;
-flex-direction:row-reverse;
-z-index: 1000;
-div {
-  padding: 10px;
-  border-radius: 5px;
-  background-color: $blue;
-  color: white;
-  max-width: 300px;
-  margin-right: 10px;
-}
-.hidden {
-  display: none;
-}
-.gtfs-diff-url {
+  position: sticky;
+  top: 70px;
   display: flex;
-  align-items: center;
-  padding: 6px 0 0 0;
-  .icon {
-    padding-left: 6px;
+  flex-direction: row-reverse;
+  z-index: 1000;
+  div {
+    padding: 10px;
+    border-radius: 5px;
+    background-color: $blue;
+    color: white;
+    max-width: 300px;
+    margin-right: 10px;
   }
-}
+  .hidden {
+    display: none;
+  }
+  .gtfs-diff-url {
+    display: flex;
+    align-items: center;
+    padding: 6px 0 0;
+    .icon {
+      padding-left: 6px;
+    }
+  }
 }
 
 .gtfs_diff_button {

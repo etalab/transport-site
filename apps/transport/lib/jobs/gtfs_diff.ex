@@ -3,7 +3,6 @@ defmodule Transport.Jobs.GtfsDiff do
   Job in charge of computing a diff between two GTFS files
   """
   use Oban.Worker, max_attempts: 1, queue: :on_demand_validation
-  import Ecto.Changeset
 
   @impl Oban.Worker
   def perform(
@@ -28,7 +27,8 @@ defmodule Transport.Jobs.GtfsDiff do
     )
 
     %{id: gtfs_diff_id} =
-      %DB.GTFSDiff{result_url: Transport.S3.permanent_url(:gtfs_diff, diff_file_name)} |> DB.Repo.insert!()
+      %DB.GTFSDiff{result_url: Transport.S3.permanent_url(:gtfs_diff, diff_file_name)}
+      |> DB.Repo.insert!()
 
     Oban.Notifier.notify(Oban, :gossip, %{
       complete: job.id,
