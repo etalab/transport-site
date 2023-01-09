@@ -98,3 +98,19 @@ msgstr "Certaines shapes définies dans shapes.txt ne sont pas utilisées dans t
 #, elixir-autogen, elixir-format
 msgid "Trip ID"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "MissingId"
+msgstr "Certains identifiants obligatoires sont manquants"
+
+#, elixir-autogen, elixir-format
+msgid "MissingName"
+msgstr "Certains noms obligatoires sont manquants"
+
+#, elixir-autogen, elixir-format
+msgid "Object type"
+msgstr "Type d'objet"
+
+#, elixir-autogen, elixir-format
+msgid "Object ID"
+msgstr "Identifiant de l’objet"
