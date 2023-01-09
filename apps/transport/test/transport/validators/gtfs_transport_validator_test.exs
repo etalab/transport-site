@@ -20,6 +20,29 @@ defmodule Transport.Validators.GtfsTransportValidatorTest do
       "MissingCoordinates" => [%{"severity" => "Warning"}]
     }
 
+    # Add a fake GeoJSON point to each issue
+    validation_content_with_geojson =
+      Enum.into(validation_content, %{}, fn {issue_type, issues} ->
+        {issue_type,
+         Enum.map(
+           issues,
+           &Map.put(&1, "geojson", %{
+             "features" => [
+               %{
+                 "geometry" => %{
+                   "coordinates" => [
+                     5.001521,
+                     47.317228
+                   ],
+                   "type" => "Point"
+                 },
+                 "type" => "Feature"
+               }
+             ]
+           })
+         )}
+      end)
+
     data_vis_content = %{"data_vis" => "some data vis"}
     metadata_content = %{"m" => 1, "validator_version" => validator_version = "0.2.0"}
 
@@ -30,7 +53,7 @@ defmodule Transport.Validators.GtfsTransportValidatorTest do
 
     Shared.Validation.Validator.Mock
     |> expect(:validate_from_url, 1, fn _url ->
-      {:ok, %{"validations" => validation_content, "metadata" => metadata_content}}
+      {:ok, %{"validations" => validation_content_with_geojson, "metadata" => metadata_content}}
     end)
 
     Transport.Validators.GTFSTransport.validate_and_save(%DB.ResourceHistory{

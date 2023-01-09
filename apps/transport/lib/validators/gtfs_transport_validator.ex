@@ -33,7 +33,7 @@ defmodule Transport.Validators.GTFSTransport do
       %DB.MultiValidation{
         validation_timestamp: timestamp,
         validator: validator_name(),
-        result: validations,
+        result: validation_result(validations),
         data_vis: data_vis,
         command: command(url),
         resource_history_id: resource_history_id,
@@ -47,6 +47,13 @@ defmodule Transport.Validators.GTFSTransport do
     else
       e -> {:error, "#{validator_name()}, validation failed. #{inspect(e)}"}
     end
+  end
+
+  defp validation_result(validations) do
+    # Remove the `geojson` key for each issue: we already have the details on the `data_vis` field
+    Enum.into(validations, %{}, fn {issue_type, issues} ->
+      {issue_type, Enum.map(issues, &Map.drop(&1, ["geojson"]))}
+    end)
   end
 
   # https://github.com/etalab/transport-site/issues/2390
