@@ -43,3 +43,11 @@
     justify-content: space-around;
   }
 }
+
+#see-diff {
+  color: white;
+  text-decoration: none;
+  &:hover {
+    background-color: transparent;
+  }
+}

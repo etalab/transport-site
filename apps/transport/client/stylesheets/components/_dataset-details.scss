@@ -53,7 +53,7 @@
   padding: 0 12px 48px;
   font-style: normal;
   .icon {
-    margin-right: .2em;
+    margin-right: 0.2em;
   }
   .dataset-metas-info-title {
     color: var(--theme-label-text);
@@ -483,6 +483,10 @@
   padding: 12px;
 }
 
+.mt-12 {
+  margin-top: 12px;
+}
+
 .mt-24 {
   margin-top: 24px;
 }
@@ -496,7 +500,7 @@
 }
 
 .my-\.5 {
-  margin: .5em 0;
+  margin: 0.5em 0;
 }
 
 .no-padding {

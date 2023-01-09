@@ -92,6 +92,7 @@
 
 .icon--spinner {
   @extend .fa-spinner !optional;
+  @extend .fa-spin !optional;
 }
 
 .icon--uptime {
