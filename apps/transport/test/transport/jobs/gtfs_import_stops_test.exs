@@ -11,10 +11,6 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportStopsTest do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
-  def data_import_count do
-    DB.Repo.aggregate(DB.DataImport, :count, :id)
-  end
-
   def data_import_ids do
     DB.Repo.all(from(di in DB.DataImport, select: di.id, order_by: [asc: di.id]))
   end
