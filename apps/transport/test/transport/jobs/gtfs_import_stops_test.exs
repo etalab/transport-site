@@ -59,7 +59,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportStopsTest do
 
     # other resources should not be impacted by import
     setup_mox("some-other-file.zip")
-    %{id: other_dataset_id} = insert(:dataset, %{datagouv_id: "xxx"})
+    %{id: other_dataset_id} = insert(:dataset, %{datagouv_id: "yyy"})
     %{id: other_resource_id} = insert(:resource, dataset_id: other_dataset_id)
 
     %{id: other_resource_history_id} =
