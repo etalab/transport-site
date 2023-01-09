@@ -4,14 +4,18 @@
 export MINIO_ROOT_USER=test-local
 export MINIO_ROOT_PASSWORD=apoi8761876bbazeriouy
 
-# 3. Follow instructions at
+# 3. It is preferable to use a non-Docker version when available,
+#    such as https://min.io/docs/minio/macos/index.html, in which case you can do:
+# minio server --console-address :9090 ~/data
+
+# 4. For Docker support (a bit more involved), follow instructions at
 # https://docs.min.io/minio/baremetal/quickstart/container.html#quickstart-container
 # which means at time of writing:
 # mkdir -p ~/minio/data
 # NOTE: -name removed for simplicity, and "quayio" removed since the container appeared outdated
 # docker run -p 9000:9000 -p 9090:9090 -v ~/minio/data:/data -e "MINIO_ROOT_USER=$MINIO_ROOT_USER" -e "MINIO_ROOT_PASSWORD=$MINIO_ROOT_PASSWORD" minio/minio server /data --console-address ":9090"
 
-# 4. setup `dev.secret.exs` from `dev.secret.template.exs`
-# 5. source `.miniorc`
-# 6. go to console at http://127.0.0.1:9090 and create bucket `transport-data-gouv-fr-resource-history-dev`
-# 7. start `mix phx.server`
+# 5. setup `dev.secret.exs` from `dev.secret.template.exs`
+# 6. source `.miniorc`
+# 7. go to console at http://127.0.0.1:9090 and create bucket `transport-data-gouv-fr-resource-history-dev`
+# 8. start `mix phx.server`
