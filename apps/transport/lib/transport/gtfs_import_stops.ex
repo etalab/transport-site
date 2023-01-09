@@ -25,6 +25,7 @@ defmodule Transport.GTFSImportStops do
 
         resource_history_ids = query |> DB.Repo.all()
 
+        # NOTE: we may need to add an index on di.resource_history_id
         DB.DataImport
         # delete all previous data imports for the same resource history id
         |> where([di], di.resource_history_id == ^resource_history_id and di.id != ^data_import_id)
