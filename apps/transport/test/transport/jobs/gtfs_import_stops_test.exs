@@ -45,12 +45,12 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportStopsTest do
 
     setup_mox("some-file.zip")
     assert data_import_ids() == []
-    first_data_import_id = Transport.GTFSImportStops.import_stops(resource_history_id)
+    first_data_import_id = Transport.GTFSImportStops.import_stops_and_remove_previous(resource_history_id)
     assert data_import_ids() == [first_data_import_id]
 
     # subsequent import must remove the previous import for same resource_history_id
     setup_mox("some-file.zip")
-    second_data_import_id = Transport.GTFSImportStops.import_stops(resource_history_id)
+    second_data_import_id = Transport.GTFSImportStops.import_stops_and_remove_previous(resource_history_id)
     assert data_import_ids() == [second_data_import_id]
 
     # subsequent import for a new resource_history_id on same resource should also remove previous imports
@@ -58,7 +58,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportStopsTest do
       insert(:resource_history, %{resource_id: resource_id, payload: %{"filename" => "some-new-file.zip"}})
 
     setup_mox("some-new-file.zip")
-    third_data_import_id = Transport.GTFSImportStops.import_stops(new_resource_history_id)
+    third_data_import_id = Transport.GTFSImportStops.import_stops_and_remove_previous(new_resource_history_id)
     assert data_import_ids() == [third_data_import_id]
 
     # other resources should not be impacted by import
@@ -69,7 +69,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportStopsTest do
     %{id: other_resource_history_id} =
       insert(:resource_history, %{resource_id: other_resource_id, payload: %{"filename" => "some-other-file.zip"}})
 
-    other_data_import_id = Transport.GTFSImportStops.import_stops(other_resource_history_id)
+    other_data_import_id = Transport.GTFSImportStops.import_stops_and_remove_previous(other_resource_history_id)
 
     assert data_import_ids() == [third_data_import_id, other_data_import_id]
 
@@ -77,7 +77,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportStopsTest do
       insert(:resource_history, %{resource_id: resource_id, payload: %{"filename" => "some-new-file.zip"}})
 
     setup_mox("some-new-file.zip")
-    fourth_data_import_id = Transport.GTFSImportStops.import_stops(new_resource_history_id)
+    fourth_data_import_id = Transport.GTFSImportStops.import_stops_and_remove_previous(new_resource_history_id)
     assert data_import_ids() == [other_data_import_id, fourth_data_import_id]
   end
 end

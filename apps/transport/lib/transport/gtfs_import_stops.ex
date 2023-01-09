@@ -9,7 +9,7 @@ defmodule Transport.GTFSImportStops do
   For the given `resource_history_id`, imports stops in a new `DB.DataImport`, then delete all related
   pre-existing `DB.DataImport` (either with the same `resource_history_id`, or for the same resource).
   """
-  def import_stops(resource_history_id) do
+  def import_stops_and_remove_previous(resource_history_id) do
     {:ok, data_import_id} =
       DB.Repo.transaction(fn ->
         data_import_id = Transport.Jobs.GtfsToDB.import_gtfs_from_resource_history(resource_history_id, :stops)
