@@ -36,7 +36,12 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
     # - the GeoJSON is too old (45 minutes)
     assert %{} == MultiValidationWithErrorNotificationJob.relevant_validations(DateTime.utc_now())
 
-    refute Enum.empty?(MultiValidationWithErrorNotificationJob.relevant_validations(DateTime.utc_now() |> DateTime.add(-30, :minute)))
+    refute Enum.empty?(
+             MultiValidationWithErrorNotificationJob.relevant_validations(
+               DateTime.utc_now()
+               |> DateTime.add(-30, :minute)
+             )
+           )
   end
 
   test "perform" do
@@ -99,8 +104,13 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
                              plain_text_body,
                              "" = _html_part ->
       assert plain_text_body =~ "Le contenu du jeu de données #{dataset.custom_title} vient de changer"
-      assert plain_text_body =~ "#{resource_1.title} - http://127.0.0.1:5100/resources/#{resource_1.id}#validation-report"
-      assert plain_text_body =~ "#{resource_2.title} - http://127.0.0.1:5100/resources/#{resource_2.id}#validation-report"
+
+      assert plain_text_body =~
+               "#{resource_1.title} - http://127.0.0.1:5100/resources/#{resource_1.id}#validation-report"
+
+      assert plain_text_body =~
+               "#{resource_2.title} - http://127.0.0.1:5100/resources/#{resource_2.id}#validation-report"
+
       :ok
     end)
 
@@ -113,7 +123,10 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
                              plain_text_body,
                              "" = _html_part ->
       assert plain_text_body =~ "Le contenu du jeu de données #{gtfs_dataset.custom_title} vient de changer"
-      assert plain_text_body =~ "#{resource_gtfs.title} - http://127.0.0.1:5100/resources/#{resource_gtfs.id}#validation-report"
+
+      assert plain_text_body =~
+               "#{resource_gtfs.title} - http://127.0.0.1:5100/resources/#{resource_gtfs.id}#validation-report"
+
       :ok
     end)
 
