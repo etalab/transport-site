@@ -1,4 +1,4 @@
-defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
+defmodule Transport.Test.Transport.Jobs.GTFSImportStopsTest do
   use ExUnit.Case, async: true
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
@@ -17,47 +17,6 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
 
   def data_import_ids do
     DB.Repo.all(from(di in DB.DataImport, select: di.id, order_by: [asc: di.id]))
-  end
-
-  defmodule ImportStops do
-    @moduledoc """
-    A module to import stops in a single `DB.DataImport` for a given resource, based on `resource_history_id`.
-    """
-
-    import Ecto.Query
-
-    @doc """
-    For the given `resource_history_id`, imports stops in a new `DB.DataImport`, then delete all related
-    pre-existing `DB.DataImport` (either with the same `resource_history_id`, or for the same resource).
-    """
-    def import_stops(resource_history_id) do
-      {:ok, data_import_id} =
-        DB.Repo.transaction(fn ->
-          data_import_id = Transport.Jobs.GtfsToDB.import_gtfs_from_resource_history(resource_history_id, :stops)
-
-          resource_id = DB.Repo.get_by(DB.ResourceHistory, id: resource_history_id).resource_id
-
-          query =
-            from(r in DB.Resource,
-              join: rh in assoc(r, :resource_history),
-              where: r.id == ^resource_id and rh.id != ^resource_history_id,
-              select: rh.id
-            )
-
-          resource_history_ids = query |> DB.Repo.all()
-
-          DB.DataImport
-          # delete all previous data imports for the same resource history id
-          |> where([di], di.resource_history_id == ^resource_history_id and di.id != ^data_import_id)
-          # delete all previous data imports for the same resource but different resource history ids
-          |> or_where([di], di.resource_history_id in ^resource_history_ids)
-          |> DB.Repo.delete_all()
-
-          data_import_id
-        end)
-
-      data_import_id
-    end
   end
 
   def setup_mox(zip_filename) do
@@ -86,12 +45,12 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
 
     setup_mox("some-file.zip")
     assert data_import_ids() == []
-    first_data_import_id = ImportStops.import_stops(resource_history_id)
+    first_data_import_id = Transport.GTFSImportStops.import_stops(resource_history_id)
     assert data_import_ids() == [first_data_import_id]
 
     # subsequent import must remove the previous import for same resource_history_id
     setup_mox("some-file.zip")
-    second_data_import_id = ImportStops.import_stops(resource_history_id)
+    second_data_import_id = Transport.GTFSImportStops.import_stops(resource_history_id)
     assert data_import_ids() == [second_data_import_id]
 
     # subsequent import for a new resource_history_id on same resource should also remove previous imports
@@ -99,7 +58,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
       insert(:resource_history, %{resource_id: resource_id, payload: %{"filename" => "some-new-file.zip"}})
 
     setup_mox("some-new-file.zip")
-    third_data_import_id = ImportStops.import_stops(new_resource_history_id)
+    third_data_import_id = Transport.GTFSImportStops.import_stops(new_resource_history_id)
     assert data_import_ids() == [third_data_import_id]
 
     # other resources should not be impacted by import
@@ -110,7 +69,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
     %{id: other_resource_history_id} =
       insert(:resource_history, %{resource_id: other_resource_id, payload: %{"filename" => "some-other-file.zip"}})
 
-    other_data_import_id = ImportStops.import_stops(other_resource_history_id)
+    other_data_import_id = Transport.GTFSImportStops.import_stops(other_resource_history_id)
 
     assert data_import_ids() == [third_data_import_id, other_data_import_id]
 
@@ -118,7 +77,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
       insert(:resource_history, %{resource_id: resource_id, payload: %{"filename" => "some-new-file.zip"}})
 
     setup_mox("some-new-file.zip")
-    fourth_data_import_id = ImportStops.import_stops(new_resource_history_id)
+    fourth_data_import_id = Transport.GTFSImportStops.import_stops(new_resource_history_id)
     assert data_import_ids() == [other_data_import_id, fourth_data_import_id]
   end
 end
