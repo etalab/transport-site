@@ -1,16 +1,16 @@
 defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
   @moduledoc """
   Job in charge of sending notifications when a dataset has at least a resource,
-  which got updated, with a validation error.
+  which got updated recently, with a validation error.
 
   It ignores validations carried out on real-time resources.
 
   Notifications are sent at the dataset level.
 
   This job should be scheduled every 30 minutes because it looks at validations
-  that have been inserted in the last 30 minutes.
+  that have been created in the last 30 minutes.
   """
-  use Oban.Worker, max_attempts: 3
+  use Oban.Worker, max_attempts: 3, tags: ["notifications"]
   import Ecto.Query
 
   @enabled_validators [
