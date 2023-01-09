@@ -11,6 +11,7 @@ defmodule Transport.GTFSImportStops do
   """
   def import_stops_and_remove_previous(resource_history_id) do
     {:ok, data_import_id} =
+      # Transaction timeout is at 15s currently, we may need to customize this here later
       DB.Repo.transaction(fn ->
         data_import_id = Transport.Jobs.GtfsToDB.import_gtfs_from_resource_history(resource_history_id, :stops)
 
