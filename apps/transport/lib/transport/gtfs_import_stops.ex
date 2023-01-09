@@ -10,8 +10,8 @@ defmodule Transport.GTFSImportStops do
   pre-existing `DB.DataImport` (either with the same `resource_history_id`, or for the same resource).
   """
   def import_stops_and_remove_previous(resource_history_id) do
+    # Transaction timeout is at 15s currently, we may need to customize this here later
     {:ok, data_import_id} =
-      # Transaction timeout is at 15s currently, we may need to customize this here later
       DB.Repo.transaction(fn ->
         data_import_id = Transport.Jobs.GtfsToDB.import_gtfs_from_resource_history(resource_history_id, :stops)
 
@@ -20,7 +20,8 @@ defmodule Transport.GTFSImportStops do
         query =
           from(rh in DB.ResourceHistory,
             where: rh.resource_id == ^resource_id and rh.id != ^resource_history_id,
-            select: rh.id)
+            select: rh.id
+          )
 
         resource_history_ids = query |> DB.Repo.all()
 
