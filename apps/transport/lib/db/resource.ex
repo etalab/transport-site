@@ -4,9 +4,7 @@ defmodule DB.Resource do
   """
   use Ecto.Schema
   use TypedEctoSchema
-  alias DB.{Dataset, LogsValidation, Repo, ResourceUnavailability, Validation}
-  alias Transport.DataVisualization
-  alias Transport.Shared.Schemas.Wrapper, as: Schemas
+  alias DB.{Dataset, Repo, ResourceUnavailability}
   import Ecto.{Changeset, Query}
   import TransportWeb.Router.Helpers, only: [resource_url: 3]
   require Logger
@@ -21,7 +19,6 @@ defmodule DB.Resource do
     # stable data.gouv.fr url if exists, else (for ODS gtfs as csv) it's the real url
     field(:latest_url, :string)
     field(:is_available, :boolean, default: true)
-    field(:content_hash, :string)
 
     field(:is_community_resource, :boolean)
 
@@ -52,13 +49,9 @@ defmodule DB.Resource do
     field(:display_position, :integer)
 
     belongs_to(:dataset, Dataset)
-    # validation v1, to be deleted later
-    # https://github.com/etalab/transport-site/issues/2390
-    has_one(:validation, Validation, on_replace: :delete)
+
     has_many(:validations, DB.MultiValidation)
     has_many(:resource_metadata, DB.ResourceMetadata)
-
-    has_many(:logs_validation, LogsValidation, on_replace: :delete, on_delete: :delete_all)
 
     has_many(:resource_unavailabilities, ResourceUnavailability,
       on_replace: :delete,
@@ -85,258 +78,8 @@ defmodule DB.Resource do
     |> where([resource: r], r.dataset_id == ^dataset_id)
   end
 
-  defp gtfs_validator, do: Shared.Validation.GtfsValidator.Wrapper.impl()
-
   @spec endpoint() :: binary()
   def endpoint, do: Application.fetch_env!(:transport, :gtfs_validator_url) <> "/validate"
-
-  @doc """
-  Determines if a validation is needed. We need to validate a resource if:
-  - we forced the validation process
-  - the resource is a gbfs
-  - for GTFS resources: the content hash changed since the last validation or it was never validated
-  - the resource has a JSON Schema schema set
-
-  ## Examples
-
-    iex> Resource.needs_validation(%Resource{format: "GTFS", content_hash: "a_sha",
-    ...> validation: %Validation{validation_latest_content_hash: "a_sha"}}, false)
-    {false, "content hash has not changed"}
-    iex> Resource.needs_validation(%Resource{format: "GTFS", content_hash: "a_sha",
-    ...> validation: %Validation{validation_latest_content_hash: "a_sha"}}, true)
-    {true, "forced validation"}
-    iex> Resource.needs_validation(%Resource{format: "gbfs"}, false)
-    {true, "gbfs is always validated"}
-    iex> Resource.needs_validation(%Resource{format: "GTFS", content_hash: "a_sha"}, false)
-    {true, "no previous validation"}
-    iex> Resource.needs_validation(%Resource{format: "gtfs-rt", content_hash: "a_sha"}, true)
-    {false, "cannot validate this resource"}
-    iex> Resource.needs_validation(%Resource{schema_name: "foo", filesize: 11000000}, false)
-    {false, "schema is set but file is bigger than 10 MB"}
-    iex> Resource.needs_validation(%Resource{format: "GTFS", content_hash: "a_sha",
-    ...> validation: %Validation{validation_latest_content_hash: "another_sha"}}, false)
-    {true, "content hash has changed"}
-  """
-  @spec needs_validation(__MODULE__.t(), boolean()) :: {boolean(), binary()}
-  def needs_validation(%__MODULE__{} = resource, force_validation) do
-    case can_validate?(resource) do
-      {true, _} -> need_validate?(resource, force_validation)
-      result -> result
-    end
-  end
-
-  def can_validate?(%__MODULE__{format: format}) when format in ["GTFS", "gbfs"] do
-    {true, "#{format} can be validated"}
-  end
-
-  def can_validate?(%__MODULE__{schema_name: schema_name, filesize: filesize})
-      when is_binary(schema_name) and is_integer(filesize) and filesize > 10_000_000 do
-    {false, "schema is set but file is bigger than 10 MB"}
-  end
-
-  def can_validate?(%__MODULE__{schema_name: schema_name}) when is_binary(schema_name) do
-    {Schemas.is_known_schema?(schema_name), "schema is set"}
-  end
-
-  def can_validate?(%__MODULE__{}) do
-    {false, "cannot validate this resource"}
-  end
-
-  def need_validate?(%__MODULE__{}, true) do
-    {true, "forced validation"}
-  end
-
-  def need_validate?(
-        %__MODULE__{
-          content_hash: content_hash,
-          validation: %Validation{
-            validation_latest_content_hash: validation_latest_content_hash
-          }
-        } = r,
-        _force_validation
-      ) do
-    # if there is already a validation, we revalidate only if the file has changed
-    if content_hash != validation_latest_content_hash do
-      Logger.info("the files for resource #{r.id} have been modified since last validation, we need to revalidate them")
-
-      {true, "content hash has changed"}
-    else
-      {false, "content hash has not changed"}
-    end
-  end
-
-  def need_validate?(%__MODULE__{format: "GTFS"}, _force_validation) do
-    {true, "no previous validation"}
-  end
-
-  def need_validate?(%__MODULE__{format: "gbfs"}, _force_validation) do
-    {true, "gbfs is always validated"}
-  end
-
-  def need_validate?(%__MODULE__{schema_name: schema_name}, _force_validation) when is_binary(schema_name) do
-    {false, "resources with a schema are not validated by validation v1 anymore"}
-  end
-
-  @spec validate_and_save(__MODULE__.t() | integer(), boolean()) :: {:error, any} | {:ok, nil}
-  def validate_and_save(resource_id, force_validation) when is_integer(resource_id),
-    do:
-      __MODULE__
-      |> where([r], r.id == ^resource_id)
-      |> preload(:validation)
-      |> Repo.one!()
-      |> validate_and_save(force_validation)
-
-  def validate_and_save(%__MODULE__{id: resource_id} = resource, force_validation) do
-    Logger.info("Validating #{resource.url}")
-
-    resource = Repo.preload(resource, :validation)
-
-    with {true, msg} <- __MODULE__.needs_validation(resource, force_validation),
-         {:ok, validations} <- validate(resource),
-         {:ok, _} <- save(resource, validations) do
-      # log the validation success
-      Repo.insert(%LogsValidation{
-        resource_id: resource_id,
-        timestamp: DateTime.truncate(DateTime.utc_now(), :second),
-        is_success: true,
-        skipped_reason: msg
-      })
-
-      {:ok, nil}
-    else
-      {false, skipped_reason} ->
-        # the ressource does not need to be validated again, we have nothing to do
-        Repo.insert(%LogsValidation{
-          resource_id: resource_id,
-          timestamp: DateTime.truncate(DateTime.utc_now(), :second),
-          is_success: true,
-          skipped: true,
-          skipped_reason: skipped_reason
-        })
-
-        {:ok, nil}
-
-      {:error, error} ->
-        Logger.warn("Error when calling the validator: #{error}")
-
-        Sentry.capture_message(
-          "unable_to_call_validator",
-          extra: %{
-            url: resource.url,
-            error: error
-          }
-        )
-
-        # log the validation error
-        Repo.insert(%LogsValidation{
-          resource_id: resource_id,
-          timestamp: DateTime.truncate(DateTime.utc_now(), :second),
-          is_success: false,
-          error_msg: "error while calling the validator: #{inspect(error)}"
-        })
-
-        {:error, error}
-    end
-  rescue
-    e ->
-      Logger.error("error while validating resource #{resource.id}: #{inspect(e)}")
-      Logger.error(Exception.format(:error, e, __STACKTRACE__))
-
-      Repo.insert(%LogsValidation{
-        resource_id: resource_id,
-        timestamp: DateTime.truncate(DateTime.utc_now(), :second),
-        is_success: false,
-        error_msg: "#{inspect(e)}"
-      })
-
-      {:error, e}
-  end
-
-  @spec validate(__MODULE__.t()) :: {:error, any} | {:ok, map()}
-  def validate(%__MODULE__{url: nil}), do: {:error, "No url"}
-
-  def validate(%__MODULE__{url: url, format: "gbfs"}) do
-    {:ok,
-     %{
-       "metadata" =>
-         Transport.Shared.GBFSMetadata.Wrapper.compute_feed_metadata(
-           url,
-           "https://#{Application.fetch_env!(:transport, :domain_name)}"
-         )
-     }}
-  end
-
-  def validate(%__MODULE__{url: url, format: "GTFS"}) do
-    with {:ok, validation_result} <- gtfs_validator().validate_from_url(url),
-         {:ok, validations} <- Map.fetch(validation_result, "validations") do
-      data_vis = DataVisualization.validation_data_vis(validations)
-
-      {:ok, Map.put(validation_result, "data_vis", data_vis)}
-    else
-      {:error, error} ->
-        Logger.error(inspect(error))
-        {:error, "Validation failed."}
-
-      :error ->
-        {:error, "Validation failed."}
-    end
-  end
-
-  def validate(%__MODULE__{format: f, id: id}) do
-    Logger.info("cannot validate resource id=#{id} because we don't know how to validate the #{f} format")
-
-    {:ok, %{"validations" => nil, "metadata" => nil}}
-  end
-
-  @spec save(__MODULE__.t(), map()) :: {:ok, any()} | {:error, any()}
-  def save(
-        %__MODULE__{id: id, format: format} = r,
-        %{
-          "validations" => validations,
-          "metadata" => metadata,
-          "data_vis" => data_vis
-        }
-      ) do
-    # When the validator is unable to open the archive, it will return a fatal issue
-    # And the metadata will be nil (as it couldn’t read them)
-    if is_nil(metadata) and format == "GTFS",
-      do: Logger.warn("Unable to validate resource ##{id}: #{inspect(validations)}")
-
-    ecto_response =
-      __MODULE__
-      |> preload(:validation)
-      |> Repo.get(id)
-      |> change(
-        validation: %Validation{
-          date:
-            DateTime.utc_now()
-            |> DateTime.to_string(),
-          details: validations,
-          max_error: get_max_severity_error(validations),
-          validation_latest_content_hash: r.content_hash,
-          data_vis: data_vis
-        }
-      )
-      |> Repo.update()
-
-    ecto_response
-  end
-
-  def save(%__MODULE__{} = r, %{"metadata" => %{"validation" => validation}}) do
-    r
-    |> change(
-      validation: %Validation{
-        date: DateTime.utc_now() |> DateTime.to_string(),
-        details: validation
-      }
-    )
-    |> Repo.update()
-  end
-
-  def save(url, _) do
-    Logger.warn("Unknown error when saving the validation")
-    Sentry.capture_message("validation_save_failed", extra: url)
-  end
 
   def changeset(resource, params) do
     resource
@@ -357,7 +100,6 @@ defmodule DB.Resource do
         :schema_version,
         :community_resource_publisher,
         :original_resource_url,
-        :content_hash,
         :description,
         :filesize,
         :filetype,
@@ -367,19 +109,6 @@ defmodule DB.Resource do
     )
     |> validate_required([:url, :datagouv_id])
   end
-
-  # I duplicate this function in Transport.Validators.GTFSTransport
-  # this one should be deleted later
-  # https://github.com/etalab/transport-site/issues/2390
-  @spec get_max_severity_error(any) :: binary()
-  defp get_max_severity_error(%{} = validations) do
-    validations
-    |> Map.values()
-    |> Enum.map(fn v -> hd(v)["severity"] end)
-    |> Enum.min_by(fn sev -> Validation.severities(sev).level end, fn -> "NoError" end)
-  end
-
-  defp get_max_severity_error(_), do: nil
 
   @spec is_gtfs?(__MODULE__.t()) :: boolean()
   def is_gtfs?(%__MODULE__{format: "GTFS"}), do: true
@@ -434,7 +163,8 @@ defmodule DB.Resource do
   """
   def guess_requestor_ref(%__MODULE__{url: url} = resource) do
     if is_siri?(resource) do
-      host_to_key = %{"ara-api.enroute.mobi" => :enroute}
+      host_to_key = Application.fetch_env!(:transport, :public_siri_host_mappings)
+
       resource_host = URI.parse(url).host
 
       :transport
@@ -494,7 +224,7 @@ defmodule DB.Resource do
     DB.ResourceHistory
     |> join(:inner, [rh], dc in DB.DataConversion,
       as: :dc,
-      on: fragment("?::text = ? ->> 'uuid'", dc.resource_history_uuid, rh.payload)
+      on: fragment("? = (?->>'uuid')::uuid", dc.resource_history_uuid, rh.payload)
     )
     |> select([rh, dc], %{
       url: fragment("? ->> 'permanent_url'", dc.payload),

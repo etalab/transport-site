@@ -262,11 +262,6 @@ defmodule TransportWeb.API.Schemas do
             "The first day of the validity period of the file (read from the calendars for the GTFS). null if the file couldn’t be read"
         },
         format: %Schema{type: :string, description: "The format of the resource (GTFS, NeTEx, ...)"},
-        content_hash: %Schema{
-          type: :string,
-          description:
-            "A hash on the content of the file. Can be either a sha256 or an etag. Can be stored and used to check if the resource has changed."
-        },
         metadata: %Schema{
           type: :object,
           description: "Some metadata about the resource"

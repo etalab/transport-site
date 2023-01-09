@@ -7,6 +7,7 @@ defmodule TransportWeb.Live.GtfsDiffSelectLive do
   import TransportWeb.Router.Helpers
   import TransportWeb.Gettext
 
+  @max_file_size_mb 4
   def mount(_params, %{"locale" => locale} = _session, socket) do
     Gettext.put_locale(locale)
 
@@ -16,7 +17,7 @@ defmodule TransportWeb.Live.GtfsDiffSelectLive do
      |> allow_upload(:gtfs,
        accept: ~w(.zip),
        max_entries: 2,
-       max_file_size: 4_000_000,
+       max_file_size: @max_file_size_mb * 1_000_000,
        auto_upload: true
      )}
   end
@@ -69,6 +70,7 @@ defmodule TransportWeb.Live.GtfsDiffSelectLive do
           socket |> assign(:error_msg, "Job aborted, the diff is taking too long (>120sec).")
       end
 
+    Oban.Notifier.unlisten([:gossip])
     {:noreply, socket |> assign(:job_running, false)}
   end
 
@@ -80,6 +82,11 @@ defmodule TransportWeb.Live.GtfsDiffSelectLive do
     diff_summary = diff |> diff_summary()
 
     {:noreply, socket |> assign(:diff_summary, diff_summary)}
+  end
+
+  # catch-all
+  def handle_info(_, socket) do
+    {:noreply, socket}
   end
 
   def diff_summary(diff) do
@@ -101,7 +108,7 @@ defmodule TransportWeb.Live.GtfsDiffSelectLive do
     gtfs |> Enum.count() == 2 and gtfs |> Enum.all?(& &1.valid?)
   end
 
-  defp error_to_string(:too_large), do: "File is too large, must be <2MB"
+  defp error_to_string(:too_large), do: "File is too large, must be <#{@max_file_size_mb}MB"
   defp error_to_string(:too_many_files), do: "You must select 2 files"
   defp error_to_string(:not_accepted), do: "You have selected an unacceptable file type"
 end

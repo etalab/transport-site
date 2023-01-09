@@ -1,11 +1,10 @@
 defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
   use ExUnit.Case, async: true
   use TransportWeb.LiveCase
-
-  import Phoenix.LiveViewTest
-  @endpoint TransportWeb.Endpoint
   import Mox
+  import Phoenix.LiveViewTest
 
+  @endpoint TransportWeb.Endpoint
   @url "/backoffice/proxy-config"
 
   setup do

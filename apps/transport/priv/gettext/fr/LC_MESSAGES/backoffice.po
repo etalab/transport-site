@@ -66,8 +66,8 @@ msgid "Unable to find dataset"
 msgstr "Impossible de trouver le jeu de données"
 
 #, elixir-autogen, elixir-format
-msgid "Import and validate all"
-msgstr "Importer et valider tous les jeux de données"
+msgid "Import all datasets from data.gouv"
+msgstr "Importer tous les jeux de données depuis data.gouv"
 
 #, elixir-autogen, elixir-format
 msgid "Outdated"
@@ -224,3 +224,7 @@ msgstr "Les notifications sont envoyées aux adresses e-mail suivantes :"
 #, elixir-autogen, elixir-format
 msgid "email address"
 msgstr "adresse e-mail"
+
+#, elixir-autogen, elixir-format
+msgid "Cache debug"
+msgstr "Debug du cache"

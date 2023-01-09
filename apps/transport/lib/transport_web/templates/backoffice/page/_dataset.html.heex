@@ -4,6 +4,9 @@
       <%= @dataset.custom_title %>
     </strong>
   </td>
+  <td>
+    <%= @dataset.organization %>
+  </td>
   <td class="is-centered">
     <a href={dataset_path(@conn, :details, @dataset.slug)}>
       <i class="fa fa-link"></i>

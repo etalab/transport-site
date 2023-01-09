@@ -67,6 +67,14 @@ defmodule Transport.DataChecker do
         {:ok, datetime, 0} = DateTime.from_iso8601(String.replace_suffix(archived, "Z", "") <> "Z")
         {:archived, datetime}
 
+      {:error, %HTTPoison.Error{} = error} ->
+        Sentry.capture_message(
+          "Unable to get Dataset status from data.gouv.fr",
+          extra: %{dataset_datagouv_id: datagouv_id, error_reason: inspect(error)}
+        )
+
+        :inactive
+
       {:error, _} ->
         :inactive
     end

@@ -1,7 +1,7 @@
 defmodule TransportWeb.ResourceControllerTest do
   use TransportWeb.ConnCase, async: false
   use TransportWeb.DatabaseCase, cleanup: [:datasets], async: false
-  alias DB.{AOM, Dataset, Resource, Validation}
+  alias DB.{AOM, Dataset, Resource}
   import Plug.Test
   import Mox
   import DB.Factory
@@ -29,10 +29,6 @@ defmodule TransportWeb.ResourceControllerTest do
           %Resource{
             url: "http://link.to/angers.zip?foo=bar",
             datagouv_id: "2",
-            validation: %Validation{
-              details: %{},
-              max_error: "Info"
-            },
             format: "GTFS"
           },
           %Resource{
@@ -49,35 +45,6 @@ defmodule TransportWeb.ResourceControllerTest do
           %Resource{
             url: "http://link.to/gtfs-rt",
             datagouv_id: "5",
-            validation: %Validation{
-              date: DateTime.utc_now() |> DateTime.to_string(),
-              details: %{
-                "errors_count" => 2,
-                "warnings_count" => 3,
-                "files" => %{
-                  "gtfs_permanent_url" => "https://example.com/gtfs.zip",
-                  "gtfs_rt_permanent_url" => "https://example.com/gtfs-rt"
-                },
-                "errors" => [
-                  %{
-                    "title" => "error title",
-                    "description" => "error description",
-                    "severity" => "ERROR",
-                    "error_id" => "E001",
-                    "errors_count" => 2,
-                    "errors" => ["sample 1", "foo"]
-                  },
-                  %{
-                    "title" => "warning title",
-                    "description" => "warning description",
-                    "severity" => "WARNING",
-                    "error_id" => "W001",
-                    "errors_count" => 3,
-                    "errors" => ["sample 2", "bar", "baz"]
-                  }
-                ]
-              }
-            },
             format: "gtfs-rt"
           }
         ],
@@ -232,7 +199,7 @@ defmodule TransportWeb.ResourceControllerTest do
   end
 
   test "gtfs-rt resource with feed decode error", %{conn: conn} do
-    %{url: url} = resource = Resource |> preload(:validation) |> Repo.get_by(datagouv_id: "5")
+    %{url: url} = resource = Resource |> Repo.get_by(datagouv_id: "5")
 
     Transport.HTTPoison.Mock
     |> expect(:get, fn ^url, [], [follow_redirect: true] ->
