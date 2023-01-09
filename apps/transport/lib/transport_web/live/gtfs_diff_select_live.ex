@@ -1,4 +1,4 @@
-defmodule TransportWeb.Live.GtfsDiffSelectLive do
+defmodule TransportWeb.Live.GTFSDiffSelectLive do
   @moduledoc """
   Beta functionality: generate GTFS file diffs online
   """
@@ -57,7 +57,7 @@ defmodule TransportWeb.Live.GtfsDiffSelectLive do
         gtfs_file_name_2: gtfs_file_name_2,
         bucket: Transport.S3.bucket_name(:gtfs_diff)
       }
-      |> Transport.Jobs.GtfsDiff.new()
+      |> Transport.Jobs.GTFSDiff.new()
       |> Oban.insert!()
 
     socket =
@@ -78,7 +78,7 @@ defmodule TransportWeb.Live.GtfsDiffSelectLive do
     http_client = Transport.Shared.Wrapper.HTTPoison.impl()
 
     %{status_code: 200, body: body} = http_client.get!(diff_file_url)
-    diff = Transport.Beta.GTFS.parse_diff_output(body)
+    diff = Transport.GTFSDiff.parse_diff_output(body)
     diff_summary = diff |> diff_summary()
 
     {:noreply, socket |> assign(:diff_summary, diff_summary)}

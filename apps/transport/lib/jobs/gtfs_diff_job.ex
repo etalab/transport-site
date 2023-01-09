@@ -1,4 +1,4 @@
-defmodule Transport.Jobs.GtfsDiff do
+defmodule Transport.Jobs.GTFSDiff do
   @moduledoc """
   Job in charge of computing a diff between two GTFS files
   """
@@ -16,13 +16,13 @@ defmodule Transport.Jobs.GtfsDiff do
       ) do
     {:ok, unzip_1} = Transport.Unzip.S3.get_unzip(gtfs_file_name_1, bucket)
     {:ok, unzip_2} = Transport.Unzip.S3.get_unzip(gtfs_file_name_2, bucket)
-    diff = Transport.Beta.GTFS.diff(unzip_1, unzip_2)
+    diff = Transport.GTFSDiff.diff(unzip_1, unzip_2)
 
     diff_file_name = "gtfs-diff-#{DateTime.utc_now() |> DateTime.to_unix()}.csv"
 
     Transport.S3.upload_to_s3!(
       :gtfs_diff,
-      diff |> Transport.Beta.GTFS.dump_diff(),
+      diff |> Transport.GTFSDiff.dump_diff(),
       diff_file_name
     )
 
