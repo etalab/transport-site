@@ -18,11 +18,9 @@ defmodule Transport.GTFSImportStops do
         resource_id = DB.Repo.get_by(DB.ResourceHistory, id: resource_history_id).resource_id
 
         query =
-          from(r in DB.Resource,
-            join: rh in assoc(r, :resource_history),
-            where: r.id == ^resource_id and rh.id != ^resource_history_id,
-            select: rh.id
-          )
+          from(rh in DB.ResourceHistory,
+            where: rh.resource_id == ^resource_id and rh.id != ^resource_history_id,
+            select: rh.id)
 
         resource_history_ids = query |> DB.Repo.all()
 
