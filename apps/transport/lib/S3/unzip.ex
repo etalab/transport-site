@@ -31,14 +31,10 @@ defmodule Transport.Unzip.S3 do
       )
 
   def get_file_stream(file_name, zip_name, bucket_name) do
-    aws_s3_config = aws_s3_config()
-    file = new(zip_name, bucket_name, aws_s3_config)
-    {:ok, unzip} = Unzip.new(file)
-
+    {:ok, unzip} = get_unzip(zip_name, bucket_name)
     Unzip.file_stream!(unzip, file_name)
   end
 
-  # NOTE: code below is duplicated from above - to be DRYed
   def get_unzip(zip_name, bucket_name) do
     aws_s3_config = aws_s3_config()
     file = new(zip_name, bucket_name, aws_s3_config)
