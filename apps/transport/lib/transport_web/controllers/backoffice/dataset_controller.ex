@@ -20,7 +20,14 @@ defmodule TransportWeb.Backoffice.DatasetController do
     }
 
     dataset_datagouv_id = Datasets.get_id_from_url(params["url"])
-    params = Map.put(params, "dataset_id", params["id"])
+
+    params =
+      case Map.get(params, "id") do
+        # will create a new dataset
+        nil -> params
+        # will update an existing dataset
+        dataset_id -> Map.put(params, "dataset_id", dataset_id)
+      end
 
     with datagouv_id when not is_nil(datagouv_id) <- dataset_datagouv_id,
          {:ok, dg_dataset} <- ImportData.import_from_data_gouv(datagouv_id, params["type"]),
