@@ -1,6 +1,6 @@
 <% expiration_configuration_edit_url = "https://github.com/etalab/transport-notifications/edit/master/config.yml" %>
 <div class="pt-48">
-  <%= form_for @conn, backoffice_dataset_path(@conn, :post), fn f -> %>
+  <%= form_for @conn, backoffice_dataset_path(@conn, :post, @dataset_id), fn f -> %>
     <h1>
       <%= if is_nil(@dataset) do %>
         <%= dgettext("backoffice", "Add a dataset") %>

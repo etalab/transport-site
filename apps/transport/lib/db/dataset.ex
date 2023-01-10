@@ -350,6 +350,16 @@ defmodule DB.Dataset do
   end
 
   @spec changeset(map()) :: {:error, binary()} | {:ok, Ecto.Changeset.t()}
+  def changeset(%{"dataset_id" => dataset_id} = params) do
+    dataset =
+      case Repo.get(__MODULE__, dataset_id) do
+        nil -> %__MODULE__{}
+        dataset -> dataset
+      end
+
+    apply_changeset(dataset, params)
+  end
+
   def changeset(%{"datagouv_id" => datagouv_id} = params) when is_binary(datagouv_id) do
     dataset =
       case Repo.get_by(__MODULE__, datagouv_id: datagouv_id) do
@@ -357,6 +367,10 @@ defmodule DB.Dataset do
         dataset -> dataset
       end
 
+    apply_changeset(dataset, params)
+  end
+
+  def apply_changeset(%__MODULE__{} = dataset, params) do
     territory_name = Map.get(params, "associated_territory_name") || dataset.associated_territory_name
 
     dataset

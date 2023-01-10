@@ -19,9 +19,10 @@ defmodule TransportWeb.Backoffice.DatasetController do
       }
     }
 
-    dataset_id = Datasets.get_id_from_url(params["url"])
+    dataset_datagouv_id = Datasets.get_id_from_url(params["url"])
+    params = Map.put(params, "dataset_id", params["id"])
 
-    with datagouv_id when not is_nil(datagouv_id) <- dataset_id,
+    with datagouv_id when not is_nil(datagouv_id) <- dataset_datagouv_id,
          {:ok, dg_dataset} <- ImportData.import_from_data_gouv(datagouv_id, params["type"]),
          params <- Map.merge(params, dg_dataset),
          {:ok, changeset} <- Dataset.changeset(params),
@@ -35,7 +36,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
           ". ",
           Phoenix.HTML.Link.link(
             dgettext("backoffice_dataset", "Check the dataset page"),
-            to: dataset_path(conn, :details, dataset_id)
+            to: dataset_path(conn, :details, dataset_datagouv_id)
           )
         ],
         msgs.error[params["action"]]

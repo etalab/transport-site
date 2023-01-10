@@ -134,7 +134,7 @@ defmodule TransportWeb.Router do
       scope "/datasets" do
         get("/new", PageController, :new)
         get("/:id/edit", PageController, :edit)
-        post("/", DatasetController, :post)
+        post("/:id", DatasetController, :post)
         post("/:id/_import", DatasetController, :import_from_data_gouv_fr)
         post("/:id/_delete", DatasetController, :delete)
         post("/_all_/_import_validate", DatasetController, :import_validate_all)
