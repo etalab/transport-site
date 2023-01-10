@@ -10,8 +10,15 @@ defmodule Transport.Jobs.GTFSImportStopsJob do
   end
 
   def refresh_all() do
-    active_datasets_resource_history_items()
-    |> refresh()
+    result =
+      active_datasets_resource_history_items()
+      |> refresh()
+
+    batch =
+      %DB.DataImportBatch{summary: %{result: result}}
+      |> DB.Repo.insert!()
+
+    %{result: result, data_import_batch_id: batch.id}
   end
 
   def active_datasets_resource_history_items do
@@ -26,16 +33,27 @@ defmodule Transport.Jobs.GTFSImportStopsJob do
   def refresh(resource_history_items) do
     resource_history_items
     |> Enum.map(fn rh ->
-      # TODO: create a global summary
       Logger.info("Processing rh_id=#{rh.id}")
 
       try do
         data_import_id = Transport.GTFSImportStops.import_stops_and_remove_previous(rh.id)
-        {:ok, %{resource_history_id: rh.id, data_import_id: data_import_id}}
+        %{resource_history_id: rh.id, status: :ok, data_import_id: data_import_id}
       rescue
         error ->
-          {:error, %{resource_history_id: rh.id, error: error}}
+          %{
+            resource_history_id: rh.id,
+            status: :error,
+            error: error |> inspect(),
+            error_message: safe_call(fn -> Map.get(error, :message) end, "unknown"),
+            error_struct: safe_call(fn -> error.__struct__ |> inspect end, "unknown")
+          }
       end
     end)
+  end
+
+  def safe_call(cb, default) do
+    cb.()
+  rescue
+    _ -> default
   end
 end
