@@ -350,6 +350,8 @@ defmodule DB.Dataset do
   end
 
   @spec changeset(map()) :: {:error, binary()} | {:ok, Ecto.Changeset.t()}
+  # used to update a dataset slug from backoffice without changing the dataset_id
+  # useful when the dataset has been deleted / recreated on data.gouv.fr but we want to keep the resources history
   def changeset(%{"dataset_id" => dataset_id} = params) do
     dataset =
       case Repo.get(__MODULE__, dataset_id) do
