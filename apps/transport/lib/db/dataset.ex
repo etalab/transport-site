@@ -372,7 +372,11 @@ defmodule DB.Dataset do
     apply_changeset(dataset, params)
   end
 
-  def apply_changeset(%__MODULE__{} = dataset, params) do
+  def changeset(_) do
+    {:error, "datagouv_id or dataset_id are required"}
+  end
+
+  defp apply_changeset(%__MODULE__{} = dataset, params) do
     territory_name = Map.get(params, "associated_territory_name") || dataset.associated_territory_name
 
     dataset
@@ -420,10 +424,6 @@ defmodule DB.Dataset do
         Logger.warn("error while importing dataset: #{format_error(errors)}")
         {:error, format_error(errors)}
     end
-  end
-
-  def changeset(_) do
-    {:error, "datagouv_id is a required field"}
   end
 
   @spec format_error(any()) :: binary()
