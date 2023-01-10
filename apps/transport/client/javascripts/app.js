@@ -28,6 +28,29 @@ Hooks.SyntaxColoring = {
     }
 }
 
+Hooks.GTFSDiff = {
+    mounted () {
+        this.handleEvent('store', (obj) => this.store(obj))
+        this.handleEvent('clear', (obj) => this.clear(obj))
+        this.handleEvent('restore', (obj) => this.restore(obj))
+        console.log('gtfs diff mounted')
+    },
+
+    store (obj) {
+        console.log('stored !')
+        localStorage.setItem(obj.key, obj.data)
+    },
+
+    restore (obj) {
+        const data = sessionStorage.getItem(obj.key)
+        this.pushEvent(obj.event, data)
+    },
+
+    clear (obj) {
+        sessionStorage.removeItem(obj.key)
+    }
+}
+
 const csrfToken = document.querySelector('meta[name=\'csrf\']').getAttribute('content')
 const liveSocket = new LiveSocket('/live', Socket, { hooks: Hooks, params: { _csrf_token: csrfToken } })
 liveSocket.connect()

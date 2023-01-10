@@ -6,7 +6,7 @@ defmodule TransportWeb.GTFSDiffLive do
 
   def render(assigns) do
     ~H"""
-    <div class={show(@urls)}>
+    <div id="gtfs-diff-widget" class={show(@urls)} phx-hook="GTFSDiff">
       <strong>Comparer 2 GTFS</strong>
       <form phx-change="manual_input">
         <%= for i <- 0..1 do %>
@@ -58,7 +58,12 @@ defmodule TransportWeb.GTFSDiffLive do
         [url1, _url2] -> [url1, url]
       end
 
-    {:noreply, assign(socket, :urls, urls)}
+    socket =
+      socket
+      |> assign(:urls, urls)
+      |> push_event("store", %{key: "cle", data: urls})
+
+    {:noreply, socket}
   end
 
   def handle_info(
@@ -91,7 +96,13 @@ defmodule TransportWeb.GTFSDiffLive do
   end
 
   def handle_event("manual_input", params, socket) do
-    socket = assign(socket, :urls, [params["url1"], params["url2"]])
+    urls = [params["url1"], params["url2"]]
+
+    socket =
+      socket
+      |> assign(:urls, urls)
+      |> push_event("store", %{key: "cle", data: urls})
+
     {:noreply, socket}
   end
 
