@@ -41,6 +41,7 @@ config :transport,
   validator_selection: Transport.ValidatorsSelection.Mock,
   data_visualization: Transport.DataVisualization.Mock,
   notifications_api_token: "secret",
+  unzip_s3_impl: Transport.Unzip.S3.Mock,
   s3_buckets: %{
     history: "resource-history-test",
     on_demand_validation: "on-demand-validation-test",

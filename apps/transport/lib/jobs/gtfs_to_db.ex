@@ -13,10 +13,16 @@ defmodule Transport.Jobs.GtfsToDB do
     fill_trips_from_resource_history(resource_history_id, data_import_id)
   end
 
+  def import_gtfs_from_resource_history(resource_history_id, :stops) do
+    %{id: data_import_id} = %DB.DataImport{resource_history_id: resource_history_id} |> DB.Repo.insert!()
+    fill_stops_from_resource_history(resource_history_id, data_import_id)
+    data_import_id
+  end
+
   def file_stream(resource_history_id, gtfs_file_name) do
     %{payload: %{"filename" => filename}} = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
     bucket_name = Transport.S3.bucket_name(:history)
-    Transport.Unzip.S3.get_file_stream(gtfs_file_name, filename, bucket_name)
+    Transport.Unzip.S3.impl().get_file_stream(gtfs_file_name, filename, bucket_name)
   end
 
   def fill_stops_from_resource_history(resource_history_id, data_import_id) do
