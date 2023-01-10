@@ -56,7 +56,7 @@ defmodule Shared.MixProject do
       # be required no matter what.
       {:jason, ">= 0.0.0"},
       {:ex_cldr_numbers, "~> 2.0"},
-      {:cachex, "~> 3.4"},
+      {:cachex, "~> 3.5"},
       {:ex_json_schema, "~> 0.9.1"}
     ]
   end
