@@ -52,11 +52,16 @@ defmodule Transport.NotificationsTest do
     assert ["foo@bar.com", "foo@bar.fr"] ==
              Notifications.emails_for_reason(config, :expiration, %DB.Dataset{slug: "my_slug"})
 
+    # :dataset_with_error is an alias for :expiration, for now
+    assert Notifications.emails_for_reason(config, :expiration, %DB.Dataset{slug: "my_slug"}) ==
+             Notifications.emails_for_reason(config, :dataset_with_error, %DB.Dataset{slug: "my_slug"})
+
     assert_raise FunctionClauseError, fn ->
       Notifications.emails_for_reason(config, :nope, %DB.Dataset{slug: "my_slug"})
     end
 
     assert [] == Notifications.emails_for_reason(config, :expiration, %DB.Dataset{slug: "nope"})
+    assert [] == Notifications.emails_for_reason(config, :dataset_with_error, %DB.Dataset{slug: "nope"})
 
     assert ["foo@baz.com", "nope@baz.com"] == Notifications.emails_for_reason(config, :new_dataset)
     assert ["bar@foo.com"] == Notifications.emails_for_reason(config, :dataset_now_licence_ouverte)
