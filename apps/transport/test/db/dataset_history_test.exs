@@ -31,12 +31,14 @@ defmodule DB.DatasetHistoryTest do
       end
     end
 
-    test "ignores inactive datasets" do
-      dataset = insert(:dataset, datagouv_id: Ecto.UUID.generate(), is_active: false, slug: Ecto.UUID.generate())
+    test "it works with inactive datasets" do
+      %{id: dataset_id} =
+        dataset = insert(:dataset, datagouv_id: Ecto.UUID.generate(), is_active: false, slug: Ecto.UUID.generate())
+
       refute dataset.is_active
       insert(:dataset_history, dataset_id: dataset.id, payload: %{slug: old_slug = Ecto.UUID.generate()})
 
-      assert nil == from_old_dataset_slug(old_slug)
+      assert %DB.DatasetHistory{dataset_id: ^dataset_id} = from_old_dataset_slug(old_slug)
     end
   end
 end
