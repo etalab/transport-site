@@ -33,9 +33,15 @@ defmodule Transport.DataChecker do
 
     # Some datasets marked as active in our database may have disappeared
     # on the data gouv side, mark them as inactive.
+    current_nb_active_datasets = Repo.aggregate(Dataset.base_query(), :count, :id)
     inactive_datasets = for {%Dataset{is_active: true} = dataset, :inactive} <- datasets_statuses, do: dataset
 
     inactive_ids = Enum.map(inactive_datasets, & &1.id)
+    desactivates_over_10_percent_datasets = Enum.count(inactive_datasets) > current_nb_active_datasets * 10 / 100
+
+    if desactivates_over_10_percent_datasets do
+      raise "Would desactivate over 10% of active datasets, stopping"
+    end
 
     Dataset
     |> where([d], d.id in ^inactive_ids)

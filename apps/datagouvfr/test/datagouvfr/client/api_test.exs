@@ -74,7 +74,39 @@ defmodule Datagouvfr.Client.APITest do
       {:ok, %HTTPoison.Response{status_code: 200, body: "{}"}}
     end)
 
-    assert {:ok, %{}} == path |> API.get()
+    assert {:ok, %{}} == API.get(path)
+  end
+
+  describe "retry mechanism on timeout" do
+    test "retries when there is a timeout" do
+      path = "foo"
+      url = "https://demo.data.gouv.fr/api/1/#{path}/"
+
+      # A timeout response and then a 200 response
+      Transport.HTTPoison.Mock
+      |> expect(:request, fn :get, ^url, "", [], [follow_redirect: true] ->
+        {:error, %HTTPoison.Error{reason: :timeout}}
+      end)
+
+      Transport.HTTPoison.Mock
+      |> expect(:request, fn :get, ^url, "", [], [follow_redirect: true] ->
+        {:ok, %HTTPoison.Response{status_code: 200, body: "{}"}}
+      end)
+
+      assert {:ok, %{}} == API.get(path)
+    end
+
+    test "retries request up to 3 times and then gives up" do
+      path = "foo"
+      url = "https://demo.data.gouv.fr/api/1/#{path}/"
+
+      Transport.HTTPoison.Mock
+      |> expect(:request, 3, fn :get, ^url, "", [], [follow_redirect: true] ->
+        {:error, %HTTPoison.Error{reason: :timeout}}
+      end)
+
+      assert {:error, %HTTPoison.Error{reason: :timeout}} == API.get(path)
+    end
   end
 
   defp assert_stream_return_pages(resource_to_stream, expected_pages_data) do
