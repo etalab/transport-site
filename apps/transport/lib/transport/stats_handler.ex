@@ -39,7 +39,7 @@ defmodule Transport.StatsHandler do
           select: %{
             population: a.population_totale,
             region_id: a.region_id,
-            nb_datasets: fragment("SELECT count(*) FROM dataset where aom_id = ?", a.id),
+            nb_datasets: fragment("SELECT count(*) FROM dataset where aom_id = ? and is_active", a.id),
             parent_dataset_id: a.parent_dataset_id
           }
         )
