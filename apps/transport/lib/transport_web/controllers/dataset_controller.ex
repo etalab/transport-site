@@ -264,13 +264,23 @@ defmodule TransportWeb.DatasetController do
       _ ->
         case Repo.get_by(Dataset, datagouv_id: slug_or_id) do
           %Dataset{} = dataset -> redirect_to_dataset(conn, dataset)
-          nil -> refresh_dataset_from_datagouv(conn, slug_or_id)
+          nil -> find_dataset_from_slug(conn, slug_or_id)
         end
     end
   end
 
-  defp refresh_dataset_from_datagouv(%Plug.Conn{} = conn, slug_or_id) do
-    case Datagouvfr.Client.Datasets.get(slug_or_id) do
+  defp find_dataset_from_slug(%Plug.Conn{} = conn, slug) do
+    case DB.DatasetHistory.from_old_dataset_slug(slug) do
+      %DB.DatasetHistory{dataset_id: dataset_id} ->
+        redirect_to_dataset(conn, Repo.get_by(Dataset, id: dataset_id))
+
+      nil ->
+        find_dataset_from_datagouv(conn, slug)
+    end
+  end
+
+  defp find_dataset_from_datagouv(%Plug.Conn{} = conn, slug) do
+    case Datagouvfr.Client.Datasets.get(slug) do
       {:ok, %{"id" => datagouv_id}} ->
         redirect_to_dataset(conn, Repo.get_by(Dataset, datagouv_id: datagouv_id))
 

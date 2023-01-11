@@ -250,6 +250,15 @@ defmodule TransportWeb.DatasetControllerTest do
     end)
   end
 
+  test "dataset#details uses DatasetHistory when passed an old slug", %{conn: conn} do
+    dataset = insert(:dataset, is_active: true, slug: Ecto.UUID.generate(), datagouv_id: Ecto.UUID.generate())
+
+    insert(:dataset_history, dataset_id: dataset.id, payload: %{slug: old_slug = Ecto.UUID.generate()})
+
+    {path, _} = with_log(fn -> conn |> get(dataset_path(conn, :details, old_slug)) |> redirected_to(302) end)
+    assert path == dataset_path(conn, :details, dataset.slug)
+  end
+
   test "gtfs-rt entities" do
     dataset = %{id: dataset_id} = insert(:dataset, type: "public-transit")
     %{id: resource_id_1} = insert(:resource, dataset_id: dataset_id, format: "gtfs-rt")
