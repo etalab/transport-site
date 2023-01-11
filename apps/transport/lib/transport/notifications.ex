@@ -17,6 +17,12 @@ defmodule Transport.Notifications do
   end
 
   @spec emails_for_reason(configuration, atom(), DB.Dataset.t()) :: list(binary())
+  def emails_for_reason(config, :dataset_with_error, %DB.Dataset{} = dataset) do
+    # Reuse the `:expiration` reason for now, until we update the notifications system
+    # or introduce different notification reasons
+    emails_for_reason(config, :expiration, dataset)
+  end
+
   def emails_for_reason(config, :expiration = reason, %DB.Dataset{slug: slug}) do
     Enum.find_value(config, [], fn item ->
       if item.reason == reason and item.dataset_slug == slug, do: item.emails

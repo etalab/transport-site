@@ -2,7 +2,7 @@ defmodule Transport.Jobs.DatasetNowLicenceOuverteJob do
   @moduledoc """
   Job in charge of sending notifications when the dataset switches to the "licence ouverte".
   """
-  use Oban.Worker, max_attempts: 3
+  use Oban.Worker, max_attempts: 3, tags: ["notifications"]
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"dataset_id" => dataset_id}}) do
