@@ -267,7 +267,7 @@ defmodule TransportWeb.DatasetControllerTest do
     insert(:dataset_history, dataset_id: dataset.id, payload: %{slug: old_slug})
     insert(:dataset_history, dataset_id: dataset2.id, payload: %{slug: old_slug})
 
-    conn |> get(dataset_path(conn, :details, old_slug)) |> html_response(404)
+    with_log(fn -> conn |> get(dataset_path(conn, :details, old_slug)) |> html_response(404) end)
   end
 
   test "gtfs-rt entities" do
