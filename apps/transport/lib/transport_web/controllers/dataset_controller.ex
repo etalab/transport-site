@@ -270,17 +270,15 @@ defmodule TransportWeb.DatasetController do
   end
 
   defp find_dataset_from_slug(%Plug.Conn{} = conn, slug) do
-    try do
-      case DB.DatasetHistory.from_old_dataset_slug(slug) do
-        %DB.DatasetHistory{dataset_id: dataset_id} ->
-          redirect_to_dataset(conn, Repo.get_by(Dataset, id: dataset_id))
+    case DB.DatasetHistory.from_old_dataset_slug(slug) do
+      %DB.DatasetHistory{dataset_id: dataset_id} ->
+        redirect_to_dataset(conn, Repo.get_by(Dataset, id: dataset_id))
 
-        nil ->
-          find_dataset_from_datagouv(conn, slug)
-      end
-    rescue
-      Ecto.MultipleResultsError -> redirect_to_dataset(conn, nil)
+      nil ->
+        find_dataset_from_datagouv(conn, slug)
     end
+  rescue
+    Ecto.MultipleResultsError -> redirect_to_dataset(conn, nil)
   end
 
   defp find_dataset_from_datagouv(%Plug.Conn{} = conn, slug) do
