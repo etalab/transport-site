@@ -19,6 +19,8 @@ defmodule DB.DatasetHistory do
     __MODULE__
     |> join(:inner, [dh], d in DB.Dataset, on: d.id == dh.dataset_id and d.slug != ^slug)
     |> where([dh], fragment("?->>'slug'", dh.payload) == ^slug)
+    |> select([dh, _d], [:dataset_id])
+    |> distinct(true)
     |> DB.Repo.one()
   end
 end
