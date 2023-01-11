@@ -350,6 +350,18 @@ defmodule DB.Dataset do
   end
 
   @spec changeset(map()) :: {:error, binary()} | {:ok, Ecto.Changeset.t()}
+  # used to update a dataset slug from backoffice without changing the dataset_id
+  # useful when the dataset has been deleted / recreated on data.gouv.fr but we want to keep the resources history
+  def changeset(%{"dataset_id" => dataset_id} = params) do
+    dataset =
+      case Repo.get(__MODULE__, dataset_id) do
+        nil -> %__MODULE__{}
+        dataset -> dataset
+      end
+
+    apply_changeset(dataset, params)
+  end
+
   def changeset(%{"datagouv_id" => datagouv_id} = params) when is_binary(datagouv_id) do
     dataset =
       case Repo.get_by(__MODULE__, datagouv_id: datagouv_id) do
@@ -357,6 +369,14 @@ defmodule DB.Dataset do
         dataset -> dataset
       end
 
+    apply_changeset(dataset, params)
+  end
+
+  def changeset(_) do
+    {:error, "datagouv_id or dataset_id are required"}
+  end
+
+  defp apply_changeset(%__MODULE__{} = dataset, params) do
     territory_name = Map.get(params, "associated_territory_name") || dataset.associated_territory_name
 
     dataset
@@ -404,10 +424,6 @@ defmodule DB.Dataset do
         Logger.warn("error while importing dataset: #{format_error(errors)}")
         {:error, format_error(errors)}
     end
-  end
-
-  def changeset(_) do
-    {:error, "datagouv_id is a required field"}
   end
 
   @spec format_error(any()) :: binary()
