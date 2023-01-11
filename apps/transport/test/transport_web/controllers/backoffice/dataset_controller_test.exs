@@ -25,12 +25,12 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
 
     Transport.HTTPoison.Mock
     |> expect(:request, fn :get, "https://demo.data.gouv.fr/api/1/datasets/slug/", _, _, _ ->
-      {:ok, %HTTPoison.Response{body: "{\"id\": \"datagouv_id\"}", status_code: 200}}
+      {:ok, %HTTPoison.Response{body: ~s({"id": "datagouv_id"}), status_code: 200}}
     end)
 
     Transport.HTTPoison.Mock
     |> expect(:get!, fn "https://demo.data.gouv.fr/api/1/datasets/datagouv_id/", _, _ ->
-      %HTTPoison.Response{body: "{\"id\": \"datagouv_id\", \"resources\": []}", status_code: 200}
+      %HTTPoison.Response{body: ~s({"id": "datagouv_id", "resources": []}), status_code: 200}
     end)
 
     Datagouvfr.Client.CommunityResources.Mock
@@ -62,7 +62,7 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
     Transport.HTTPoison.Mock
     |> expect(:request, fn :get, "https://demo.data.gouv.fr/api/1/datasets/slug_2/", _, _, _ ->
       # the slug changes, the datagouv_id too
-      {:ok, %HTTPoison.Response{body: "{\"id\": \"#{datagouv_id_2}\"}", status_code: 200}}
+      {:ok, %HTTPoison.Response{body: ~s({"id": "#{datagouv_id_2}"}), status_code: 200}}
     end)
 
     slug_2 = "slug_2"
@@ -72,7 +72,7 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
       assert "https://demo.data.gouv.fr/api/1/datasets/#{datagouv_id_2}/" == url
 
       %HTTPoison.Response{
-        body: "{\"id\": \"#{datagouv_id_2}\", \"resources\": [], \"slug\": \"#{slug_2}\"}",
+        body: ~s({"id": "#{datagouv_id_2}", "resources": [], "slug": "#{slug_2}"}),
         status_code: 200
       }
     end)
