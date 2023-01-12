@@ -8,6 +8,8 @@ defmodule Datagouvfr.Client.API do
   @type response :: {:ok, any} | {:error, any}
   @type method :: :delete | :get | :head | :options | :patch | :post | :put
 
+  @default_max_retries 3
+
   # HTTP client injection. Allow mock injection in tests
   defp http_client, do: Application.fetch_env!(:transport, :httpoison_impl)
 
@@ -90,10 +92,29 @@ defmodule Datagouvfr.Client.API do
     options = Keyword.put_new(options, :follow_redirect, true)
 
     method
-    |> http_client().request(url, body, headers, options)
+    |> perform_request(url, body, headers, options)
     |> maybe_redirect_308(method, body, headers, options)
     |> decode_body()
     |> post_process()
+  end
+
+  def perform_request(method, url, body, headers, options) do
+    perform_request(method, url, body, headers, options, @default_max_retries)
+  end
+
+  def perform_request(_method, _url, _body, _headers, _options, 0) do
+    {:error, %HTTPoison.Error{reason: :timeout}}
+  end
+
+  def perform_request(method, url, body, headers, options, max_retries)
+      when is_integer(max_retries) and max_retries > 0 do
+    case http_client().request(method, url, body, headers, options) do
+      {:error, %HTTPoison.Error{reason: :timeout}} ->
+        perform_request(method, url, body, headers, options, max_retries - 1)
+
+      response ->
+        response
+    end
   end
 
   defp maybe_redirect_308(response, method, body, headers, options) do
