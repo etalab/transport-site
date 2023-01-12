@@ -1,4 +1,8 @@
 defmodule Transport.Vault do
+  @moduledoc """
+  A vault, used by `cloak_ecto` to encrypt/decrypt
+  https://hexdocs.pm/cloak_ecto/install.html#create-a-vault
+  """
   use Cloak.Vault, otp_app: :transport
 
   @prod_config_env_name "CLOAK_KEY"
@@ -7,7 +11,8 @@ defmodule Transport.Vault do
   def init(config) do
     # See config recommendation
     # https://github.com/danielberkompas/cloak#configuration
-    config = Keyword.put(config, :ciphers, default: {Cloak.Ciphers.AES.GCM, tag: "AES.GCM.V2", key: key(), iv_length: 12})
+    config =
+      Keyword.put(config, :ciphers, default: {Cloak.Ciphers.AES.GCM, tag: "AES.GCM.V2", key: key(), iv_length: 12})
 
     {:ok, config}
   end
