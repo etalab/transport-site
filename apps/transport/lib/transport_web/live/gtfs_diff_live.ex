@@ -6,11 +6,11 @@ defmodule TransportWeb.GTFSDiffLive do
 
   def render(assigns) do
     ~H"""
-    <div id="gtfs-diff-widget" class={show(@urls)} phx-hook="GTFSDiff">
+    <div id="gtfs-diff-widget" class={show(@gtfs_files)} phx-hook="GTFSDiff">
       <strong>Comparer 2 GTFS</strong>
       <form phx-change="manual_input">
         <%= for i <- 0..1 do %>
-          <% url = Enum.at(@urls, i) || "" %>
+          <% url = Enum.at(@gtfs_files, i) |> Map.get("url") || "" %>
           <div class="gtfs-diff-url pt-6">
             <input type="text" value={url} name={"url#{i+1}"} id={"url#{i+1}"} placeholder="url" />
             <%= if url != "" do %>
@@ -19,7 +19,7 @@ defmodule TransportWeb.GTFSDiffLive do
           </div>
         <% end %>
       </form>
-      <%= if is_nil(@gtfs_diff_id) and not Enum.any?(@urls, &is_nil/1) do %>
+      <%= if is_nil(@gtfs_diff_id) and not Enum.any?(@gtfs_files, &is_nil/1) do %>
         <button class="button-outline mt-12" phx-click="compare"><strong>Comparer</strong></button>
       <% end %>
       <%= if @job_executing do %>
@@ -44,7 +44,7 @@ defmodule TransportWeb.GTFSDiffLive do
 
     socket =
       socket
-      |> assign(:urls, [nil, nil])
+      |> assign(:gtfs_files, [%{}, %{}])
       |> assign(:job_executing, false)
       |> assign(:gtfs_diff_id, nil)
       |> assign(:page_id, page_id)
@@ -59,18 +59,19 @@ defmodule TransportWeb.GTFSDiffLive do
     {:ok, socket}
   end
 
-  def handle_info({"add_url", url, page_id}, socket) when page_id == socket.assigns.page_id do
-    urls =
-      case socket.assigns.urls do
-        [nil, url2] -> [url, url2]
-        ["", url2] -> [url, url2]
-        [url1, _url2] -> [url1, url]
+  def handle_info({"add_url", %{"url" => _url} = gtfs_file, page_id}, socket)
+      when page_id == socket.assigns.page_id do
+    gtfs_files =
+      case socket.assigns.gtfs_files do
+        [%{} = file_1, file_2] when file_1 == %{} -> [gtfs_file, file_2]
+        [%{"url" => ""}, file_2] -> [gtfs_file, file_2]
+        [file_1, _file_2] -> [file_1, gtfs_file]
       end
 
     socket =
       socket
-      |> assign(:urls, urls)
-      |> push_event("store", %{key: "cle", data: Jason.encode!(urls)})
+      |> assign(:gtfs_files, gtfs_files)
+      |> push_event("store", %{key: "cle", data: Jason.encode!(gtfs_files)})
 
     {:noreply, socket}
   end
@@ -91,26 +92,30 @@ defmodule TransportWeb.GTFSDiffLive do
   end
 
   def handle_event("delete_url", %{"index" => index}, socket) do
-    urls = socket.assigns.urls
+    gtfs_files = socket.assigns.gtfs_files
 
-    updated_urls =
+    updated_gtfs_files =
       case index do
-        "0" -> [nil, urls |> Enum.at(1)]
-        "1" -> [urls |> Enum.at(0), nil]
+        "0" -> [nil, gtfs_files |> Enum.at(1)]
+        "1" -> [gtfs_files |> Enum.at(0), nil]
       end
 
-    socket = socket |> assign(:urls, updated_urls) |> assign(:gtfs_diff_id, nil)
+    socket = socket |> assign(:gtfs_files, updated_gtfs_files) |> assign(:gtfs_diff_id, nil)
 
     {:noreply, socket}
   end
 
-  def handle_event("manual_input", params, socket) do
-    urls = [params["url1"], params["url2"]]
+  def handle_event("manual_input", %{"_target" => [target]} = params, socket) do
+    gtfs_files =
+      case target do
+        "url1" -> socket.assigns.gtfs_files |> List.replace_at(0, %{"type" => "manual", "url" => params["url1"]})
+        "url2" -> socket.assigns.gtfs_files |> List.replace_at(1, %{"type" => "manual", "url" => params["url2"]})
+      end
 
     socket =
       socket
-      |> assign(:urls, urls)
-      |> push_event("store", %{key: "cle", data: Jason.encode!(urls)})
+      |> assign(:gtfs_files, gtfs_files)
+      |> push_event("store", %{key: "cle", data: Jason.encode!(gtfs_files)})
 
     {:noreply, socket}
   end
@@ -119,8 +124,8 @@ defmodule TransportWeb.GTFSDiffLive do
     http_client = Transport.Shared.Wrapper.HTTPoison.impl()
 
     [gtfs_file_name_2, gtfs_file_name_1] =
-      socket.assigns.urls
-      |> Enum.map(fn url ->
+      socket.assigns.gtfs_files
+      |> Enum.map(fn %{"url" => url} ->
         {:ok, %{status_code: 200, body: body}} = http_client.get(url, [], follow_redirect: true)
         file_name = Ecto.UUID.generate()
         filepath = file_name |> tmp_filepath()
@@ -141,10 +146,11 @@ defmodule TransportWeb.GTFSDiffLive do
     {:noreply, socket |> assign(:job_executing, true) |> assign(:job_id, job_id)}
   end
 
-  def handle_event("localStorageUpdate", %{"urls" => urls}, socket) when not is_nil(urls) do
-    urls = urls |> Jason.decode!()
+  def handle_event("localStorageUpdate", %{"gtfs_files" => gtfs_files}, socket)
+      when not is_nil(gtfs_files) do
+    gtfs_files = gtfs_files |> Jason.decode!()
 
-    socket = socket |> assign(:urls, urls)
+    socket = socket |> assign(:gtfs_files, gtfs_files)
 
     {:noreply, socket}
   end

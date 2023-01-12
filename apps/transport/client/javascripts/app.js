@@ -38,7 +38,7 @@ Hooks.GTFSDiff = {
     },
 
     storageUpdate (obj) {
-        this.pushEvent('localStorageUpdate', { urls: obj.newValue })
+        this.pushEvent('localStorageUpdate', { gtfs_files: obj.newValue })
     },
 
     store (obj) {
@@ -47,7 +47,7 @@ Hooks.GTFSDiff = {
 
     restore (obj) {
         const data = localStorage.getItem(obj.key)
-        this.pushEvent('localStorageUpdate', { urls: data })
+        this.pushEvent('localStorageUpdate', { gtfs_files: data })
     }
 }
 
