@@ -43,10 +43,21 @@ defmodule Transport.DataCheckerTest do
     test "warns our team of datasets disappearing on data gouv and mark them as such locally" do
       :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
 
-      # we create a dataset which is considered active on our side
-      dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
+      # Create a bunch of random datasets to avoid triggering the safety net
+      # of desactivating more than 10% of active datasets
+      Enum.each(1..10, fn _ ->
+        dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
+        api_url = "https://demo.data.gouv.fr/api/1/datasets/#{dataset.datagouv_id}/"
 
+        Transport.HTTPoison.Mock
+        |> expect(:request, fn :get, ^api_url, "", [], [follow_redirect: true] ->
+          {:ok, %HTTPoison.Response{status_code: 200, body: ~s({"archived":null})}}
+        end)
+      end)
+
+      # We create a dataset which is considered active on our side
       # but which is not found found (= inactive?) on data gouv side
+      dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
       api_url = "https://demo.data.gouv.fr/api/1/datasets/#{dataset.datagouv_id}/"
 
       Transport.HTTPoison.Mock
