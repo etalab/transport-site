@@ -5,7 +5,9 @@ defmodule Transport.Vault do
 
   @impl GenServer
   def init(config) do
-    config = Keyword.put(config, :ciphers, default: {Cloak.Ciphers.AES.GCM, tag: "AES.GCM.V1", key: key()})
+    # See config recommendation
+    # https://github.com/danielberkompas/cloak#configuration
+    config = Keyword.put(config, :ciphers, default: {Cloak.Ciphers.AES.GCM, tag: "AES.GCM.V2", key: key(), iv_length: 12})
 
     {:ok, config}
   end
@@ -18,7 +20,7 @@ defmodule Transport.Vault do
         |> Base.decode64!()
 
       _ ->
-        # A fake encryption, suitable for dev/test
+        # A fake encryption key, suitable for dev/test
         "AhBXnRHXxioy+OBaZXP1dawhvhtNFwTzi9kh9QBkXuQ="
         |> Base.decode64!()
     end
