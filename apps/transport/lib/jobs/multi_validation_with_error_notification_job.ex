@@ -48,10 +48,18 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
           """,
           ""
         )
+
+        save_notification(dataset, email)
       end)
     end)
 
     :ok
+  end
+
+  defp save_notification(%DB.Dataset{id: dataset_id}, email) do
+    %DB.Notification{}
+    |> DB.Notification.changeset(%{email: email, dataset_id: dataset_id, reason: :dataset_with_error})
+    |> DB.Repo.insert!()
   end
 
   def relevant_validations(%DateTime{} = inserted_at) do

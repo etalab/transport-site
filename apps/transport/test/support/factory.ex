@@ -112,6 +112,10 @@ defmodule DB.Factory do
     %DB.DatasetHistoryResources{}
   end
 
+  def notification_factory do
+    %DB.Notification{}
+  end
+
   # Non-Ecto stuff, for now kept here for convenience
 
   def datagouv_api_get_factory do
@@ -211,5 +215,11 @@ defmodule DB.Factory do
 
   def insert_outdated_resource_and_friends(opts \\ []) do
     insert_resource_and_friends(Date.utc_today() |> Date.add(-5), opts)
+  end
+
+  def insert_notification(args) do
+    %DB.Notification{}
+    |> DB.Notification.changeset(args)
+    |> DB.Repo.insert!()
   end
 end

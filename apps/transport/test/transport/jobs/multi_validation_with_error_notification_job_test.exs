@@ -47,8 +47,11 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
   test "perform" do
     # 2 datasets in scope, with different validators
     # 1 GTFS dataset with a resource, another dataset with a JSON schema and 2 errors
-    dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true, custom_title: "Mon JDD")
-    gtfs_dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true, custom_title: "Dataset GTFS")
+    %{id: dataset_id} = dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true, custom_title: "Mon JDD")
+
+    %{id: gtfs_dataset_id} =
+      gtfs_dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true, custom_title: "Dataset GTFS")
+
     resource_1 = insert(:resource, dataset: dataset, format: "geojson", title: "GeoJSON 1")
     resource_2 = insert(:resource, dataset: dataset, format: "geojson", title: "GeoJSON 2")
     resource_gtfs = insert(:resource, dataset: gtfs_dataset, format: "GTFS")
@@ -131,5 +134,12 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
     end)
 
     assert :ok == perform_job(MultiValidationWithErrorNotificationJob, %{})
+
+    # Logs have been saved
+    assert %DB.Notification{dataset_id: ^dataset_id, email: "foo@example.com", reason: :dataset_with_error} =
+             DB.Repo.get_by(DB.Notification, email_hash: "foo@example.com")
+
+    assert %DB.Notification{dataset_id: ^gtfs_dataset_id, email: "bar@example.com", reason: :dataset_with_error} =
+             DB.Repo.get_by(DB.Notification, email_hash: "bar@example.com")
   end
 end

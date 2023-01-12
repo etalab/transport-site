@@ -38,7 +38,8 @@ defmodule Transport.Application do
         TransportWeb.Presence,
         # Oban is "always started", but muted via `config/runtime.exs` for cases like
         # tests, IEx usage, front-end only mode etc.
-        {Oban, Application.fetch_env!(:transport, Oban)}
+        {Oban, Application.fetch_env!(:transport, Oban)},
+        Transport.Vault
       ]
       |> add_scheduler()
       |> add_if(fn -> run_realtime_poller end, Transport.RealtimePoller)
