@@ -55,6 +55,7 @@ defmodule TransportWeb.DatasetController do
       |> assign(:resources_infos, resources_infos(dataset))
       |> assign(:history_resources, Transport.History.Fetcher.history_resources(dataset, max_nb_history_resources()))
       |> assign(:latest_resources_history_infos, DB.ResourceHistory.latest_dataset_resources_history_infos(dataset.id))
+      |> assign(:page_id, Ecto.UUID.generate())
       |> put_status(if dataset.is_active, do: :ok, else: :not_found)
       |> render("details.html")
     else

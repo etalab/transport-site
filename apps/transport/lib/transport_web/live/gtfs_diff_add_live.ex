@@ -8,12 +8,13 @@ defmodule TransportWeb.GTFSDiffAddLive do
     """
   end
 
-  def mount(_params, %{"url" => url}, socket) do
-    {:ok, assign(socket, :url, url)}
+  def mount(_params, %{"url" => url, "page_id" => page_id}, socket) do
+    socket = socket |> assign(:url, url) |> assign(:page_id, page_id)
+    {:ok, socket}
   end
 
   def handle_event("add_url", _value, socket) do
-    PubSub.broadcast(TransportWeb.PubSub, "diff", {"add_url", socket.assigns.url})
+    PubSub.broadcast(TransportWeb.PubSub, "diff", {"add_url", socket.assigns.url, socket.assigns.page_id})
     {:noreply, socket}
   end
 end

@@ -36,7 +36,7 @@ defmodule TransportWeb.GTFSDiffLive do
     """
   end
 
-  def mount(_params, %{}, socket) do
+  def mount(_params, %{"page_id" => page_id}, socket) do
     if connected?(socket) do
       PubSub.subscribe(TransportWeb.PubSub, "diff")
       :ok = Oban.Notifier.listen([:gossip])
@@ -47,21 +47,30 @@ defmodule TransportWeb.GTFSDiffLive do
       |> assign(:urls, [nil, nil])
       |> assign(:job_executing, false)
       |> assign(:gtfs_diff_id, nil)
+      |> assign(:page_id, page_id)
+
+    socket =
+      if connected?(socket) do
+        socket |> push_event("restore", %{key: "cle"})
+      else
+        socket
+      end
 
     {:ok, socket}
   end
 
-  def handle_info({"add_url", url}, socket) do
+  def handle_info({"add_url", url, page_id}, socket) when page_id == socket.assigns.page_id do
     urls =
       case socket.assigns.urls do
         [nil, url2] -> [url, url2]
+        ["", url2] -> [url, url2]
         [url1, _url2] -> [url1, url]
       end
 
     socket =
       socket
       |> assign(:urls, urls)
-      |> push_event("store", %{key: "cle", data: urls})
+      |> push_event("store", %{key: "cle", data: Jason.encode!(urls)})
 
     {:noreply, socket}
   end
@@ -101,7 +110,7 @@ defmodule TransportWeb.GTFSDiffLive do
     socket =
       socket
       |> assign(:urls, urls)
-      |> push_event("store", %{key: "cle", data: urls})
+      |> push_event("store", %{key: "cle", data: Jason.encode!(urls)})
 
     {:noreply, socket}
   end
@@ -130,6 +139,18 @@ defmodule TransportWeb.GTFSDiffLive do
       |> Oban.insert!()
 
     {:noreply, socket |> assign(:job_executing, true) |> assign(:job_id, job_id)}
+  end
+
+  def handle_event("localStorageUpdate", %{"urls" => urls}, socket) when not is_nil(urls) do
+    urls = urls |> Jason.decode!()
+
+    socket = socket |> assign(:urls, urls)
+
+    {:noreply, socket}
+  end
+
+  def handle_event("localStorageUpdate", _, socket) do
+    {:noreply, socket}
   end
 
   defp upload_to_s3(file_path, path) do

@@ -1,6 +1,6 @@
 <% locale = get_session(@conn, :locale) %>
 
-<%= live_render(@conn, TransportWeb.GTFSDiffLive) %>
+<%= live_render(@conn, TransportWeb.GTFSDiffLive, session: %{"page_id" => @page_id}) %>
 
 <%= unless @dataset.is_active do %>
   <div class="notification error full-width">
@@ -275,7 +275,9 @@
                       rel: "nofollow"
                     ) %>
                   </td>
-                  <td><%= live_render(@conn, TransportWeb.GTFSDiffAddLive, session: %{"url" => url}) %></td>
+                  <td>
+                    <%= live_render(@conn, TransportWeb.GTFSDiffAddLive, session: %{"url" => url, "page_id" => @page_id}) %>
+                  </td>
                   <td><%= resource_history.inserted_at |> DateTimeDisplay.format_datetime_to_date(locale) %></td>
                   <%= if has_validity_period_col do %>
                     <%= if has_validity_period?(resource_history) do %>

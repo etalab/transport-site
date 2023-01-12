@@ -33,21 +33,21 @@ Hooks.GTFSDiff = {
         this.handleEvent('store', (obj) => this.store(obj))
         this.handleEvent('clear', (obj) => this.clear(obj))
         this.handleEvent('restore', (obj) => this.restore(obj))
+        window.addEventListener('storage', (obj) => this.storageUpdate(obj))
         console.log('gtfs diff mounted')
     },
 
+    storageUpdate (obj) {
+        this.pushEvent('localStorageUpdate', { urls: obj.newValue })
+    },
+
     store (obj) {
-        console.log('stored !')
         localStorage.setItem(obj.key, obj.data)
     },
 
     restore (obj) {
-        const data = sessionStorage.getItem(obj.key)
-        this.pushEvent(obj.event, data)
-    },
-
-    clear (obj) {
-        sessionStorage.removeItem(obj.key)
+        const data = localStorage.getItem(obj.key)
+        this.pushEvent('localStorageUpdate', { urls: data })
     }
 }
 
