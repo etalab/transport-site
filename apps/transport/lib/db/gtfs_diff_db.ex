@@ -7,8 +7,8 @@ defmodule DB.GTFSDiff do
 
   typed_schema "gtfs_diff" do
     field(:result_url, :string)
-    field(:input_url_1, :string)
-    field(:input_url_2, :string)
+    field(:input_1, :map)
+    field(:input_2, :map)
 
     timestamps(type: :utc_datetime_usec)
   end

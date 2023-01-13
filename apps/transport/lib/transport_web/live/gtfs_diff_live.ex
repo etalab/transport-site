@@ -96,8 +96,8 @@ defmodule TransportWeb.GTFSDiffLive do
 
     updated_gtfs_files =
       case index do
-        "0" -> [nil, gtfs_files |> Enum.at(1)]
-        "1" -> [gtfs_files |> Enum.at(0), nil]
+        "0" -> [%{}, gtfs_files |> Enum.at(1)]
+        "1" -> [gtfs_files |> Enum.at(0), %{}]
       end
 
     socket = socket |> assign(:gtfs_files, updated_gtfs_files) |> assign(:gtfs_diff_id, nil)
@@ -121,25 +121,8 @@ defmodule TransportWeb.GTFSDiffLive do
   end
 
   def handle_event("compare", _, socket) do
-    http_client = Transport.Shared.Wrapper.HTTPoison.impl()
-
-    [gtfs_file_name_2, gtfs_file_name_1] =
-      socket.assigns.gtfs_files
-      |> Enum.map(fn %{"url" => url} ->
-        {:ok, %{status_code: 200, body: body}} = http_client.get(url, [], follow_redirect: true)
-        file_name = Ecto.UUID.generate()
-        filepath = file_name |> tmp_filepath()
-        filepath |> File.write!(body)
-        upload_to_s3(filepath, file_name)
-        file_name
-      end)
-
     %{id: job_id} =
-      %{
-        gtfs_file_name_1: gtfs_file_name_1,
-        gtfs_file_name_2: gtfs_file_name_2,
-        bucket: Transport.S3.bucket_name(:gtfs_diff)
-      }
+      %{gtfs_files: socket.assigns.gtfs_files}
       |> Transport.Jobs.GtfsDiff.new()
       |> Oban.insert!()
 
@@ -159,12 +142,6 @@ defmodule TransportWeb.GTFSDiffLive do
     {:noreply, socket}
   end
 
-  defp upload_to_s3(file_path, path) do
-    Transport.S3.upload_to_s3!(:gtfs_diff, File.read!(file_path), path)
-  end
-
-  def tmp_filepath(filename), do: Path.join(System.tmp_dir!(), filename)
-
-  def show([nil, nil]), do: "hidden"
+  def show([f1, f2]) when f1 == %{} and f2 == %{}, do: "hidden"
   def show(_), do: nil
 end

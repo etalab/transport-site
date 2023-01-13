@@ -1,8 +1,13 @@
 <section class="single-page section section-grey">
   <div class="container gtfs-diff">
     <h2>
+      Comparaison entre les GTFS :
+      <ul>
+        <li><%= @gtfs_diff |> Map.get(:input_1) |> Map.get("url") %></li>
+        <li><%= @gtfs_diff |> Map.get(:input_2) |> Map.get("url") %></li>
+      </ul>
       <%= dgettext("validations", "Diff is complete") %>, <%= link(dgettext("validations", "download it"),
-        to: @result_url,
+        to: @gtfs_diff |> Map.get(:result_url),
         target: "_blank"
       ) %>.
     </h2>
