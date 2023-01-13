@@ -1,0 +1,34 @@
+defmodule TransportWeb.Backoffice.DataImportBatchReportLive do
+  use Phoenix.LiveView
+  use Phoenix.HTML
+  import TransportWeb.Backoffice.JobsLive, only: [ensure_admin_auth_or_redirect: 3]
+  import Ecto.Query
+
+  @impl true
+  def mount(_params, %{"current_user" => current_user} = _session, socket) do
+    {:ok,
+     ensure_admin_auth_or_redirect(socket, current_user, fn socket ->
+       record = DB.Repo.one(from(x in DB.DataImportBatch, order_by: [desc: x.id], limit: 1))
+       result = if record, do: sort(record.summary["result"]), else: []
+       socket |> assign(result: result, stats: compute_stats(result))
+     end)}
+  end
+
+  @moduledoc """
+  Provide a default sort helping us group errors by similarity
+  """
+  def sort(result) do
+    Enum.sort_by(result, fn item ->
+      [item["status"], item["error_struct"], item["error_message"]]
+    end)
+  end
+
+  @moduledoc """
+  Provide a bit of stats to display a summary
+  """
+  def compute_stats(result) do
+    Enum.group_by(result, fn x -> x["status"] end)
+    |> Enum.map(fn {k, v} -> "#{k} : #{Enum.count(v)}" end)
+    |> Enum.join(", ")
+  end
+end

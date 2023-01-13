@@ -1,0 +1,22 @@
+<section class="container pt-48 pb-48">
+  <h2>Latest batch import summary</h2>
+  <p>Summary: <%= @stats %></p>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Resource History Id</th>
+        <th>Status</th>
+        <th>Error</th>
+        <th>Error desc</th>
+      </tr>
+    </thead>
+    <%= for item <- @result do %>
+      <tr>
+        <td><%= item["resource_history_id"] %></td>
+        <td><%= item["status"] %></td>
+        <td><%= item["error_struct"] %></td>
+        <td><%= item["error_message"] %></td>
+      </tr>
+    <% end %>
+  </table>
+</section>
