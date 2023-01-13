@@ -159,4 +159,8 @@ defmodule TransportWeb.PageControllerTest do
   test "accessibility page", %{conn: conn} do
     conn |> get(page_path(conn, :accessibility)) |> html_response(200)
   end
+
+  test "budget page", %{conn: conn} do
+    conn |> get("/budget") |> redirected_to(302) =~ "https://doc.transport.data.gouv.fr"
+  end
 end
