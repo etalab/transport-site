@@ -22,5 +22,7 @@ defmodule DB.NotificationTest do
 
     # Cannot get rows by using the value, because the encrypted value changes everytime
     assert DB.Notification |> where([n], n.email == ^email) |> DB.Repo.all() |> Enum.empty?()
+    # But values are properly decrypted
+    assert [email] == DB.Notification |> select([n], n.email) |> DB.Repo.all() |> Enum.uniq()
   end
 end
