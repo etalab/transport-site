@@ -7,7 +7,7 @@ defmodule DB.Notification do
   import Ecto.Changeset
 
   schema "notifications" do
-    field(:reason, Ecto.Enum, values: [:dataset_with_error])
+    field(:reason, Ecto.Enum, values: [:dataset_with_error, :expiration])
     belongs_to(:dataset, DB.Dataset)
     field(:email, DB.Encrypted.Binary)
     # Should be used to search rows matching an email address
