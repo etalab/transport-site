@@ -23,9 +23,7 @@ defmodule Transport.ImportDataServiceTest do
       resource_url = "https://si.eurometropolemetz.eu/fiches/opendata/gtfs_current.zip"
 
       Transport.HTTPoison.Mock
-      |> expect(:get!, fn "https://demo.data.gouv.fr/api/1/datasets/transport-donnees-gtfs/",
-                          _,
-                          _ ->
+      |> expect(:get!, fn "https://demo.data.gouv.fr/api/1/datasets/transport-donnees-gtfs/", _, _ ->
         %{status: 200, body: ~s({
           "id": "546609c1c751df1a6f6c8d07",
           "resources": [
@@ -41,8 +39,7 @@ defmodule Transport.ImportDataServiceTest do
         })}
       end)
 
-      assert {:ok, dataset} =
-               ImportData.import_from_data_gouv("transport-donnees-gtfs", "public-transit")
+      assert {:ok, dataset} = ImportData.import_from_data_gouv("transport-donnees-gtfs", "public-transit")
 
       assert List.first(dataset["resources"])["url"] == resource_url
     end
@@ -86,8 +83,7 @@ defmodule Transport.ImportDataServiceTest do
            %{
              status_code: 200,
              headers: [{"Content-Type", "csv"}],
-             body:
-               ~s(Donnees;format;Download\r\nHoraires des lignes TER;GTFS;#{resource_final_url}\r\n)
+             body: ~s(Donnees;format;Download\r\nHoraires des lignes TER;GTFS;#{resource_final_url}\r\n)
            }}
         end
       )
@@ -106,8 +102,7 @@ defmodule Transport.ImportDataServiceTest do
         end
       )
 
-      assert {:ok, dataset} =
-               ImportData.import_from_data_gouv("horaires-des-lignes-ter-sncf", "public-transit")
+      assert {:ok, dataset} = ImportData.import_from_data_gouv("horaires-des-lignes-ter-sncf", "public-transit")
 
       assert length(dataset["resources"]) == 1
       resource = List.first(dataset["resources"])
