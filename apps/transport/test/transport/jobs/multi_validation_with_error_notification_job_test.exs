@@ -88,7 +88,8 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
     # Should be ignored because it's for another dataset
     insert_notification(%{dataset_id: gtfs_dataset_id, reason: :dataset_with_error, email: "foo@example.com"})
     # Should be ignored because it's too old
-    insert_notification(%{dataset_id: dataset_id, reason: :dataset_with_error, email: "foo@example.com"})
+    %{dataset_id: dataset_id, reason: :dataset_with_error, email: "foo@example.com"}
+    |> insert_notification()
     |> Ecto.Changeset.change(%{inserted_at: DateTime.utc_now() |> DateTime.add(-20, :day)})
     |> DB.Repo.update!()
 
