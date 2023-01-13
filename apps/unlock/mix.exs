@@ -43,7 +43,7 @@ defmodule Unlock.MixProject do
       {:jason, "~> 1.1"},
       {:finch, "~> 0.8"},
       {:yaml_elixir, "~> 2.7"},
-      {:cachex, "~> 3.4"},
+      {:cachex, "~> 3.5"},
       {:cors_plug, "~> 3.0"},
       {:saxy, "~> 1.5"},
       {:mox, "~> 1.0.0", only: :test},

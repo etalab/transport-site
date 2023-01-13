@@ -39,7 +39,7 @@ defmodule Transport.StatsHandler do
           select: %{
             population: a.population_totale,
             region_id: a.region_id,
-            nb_datasets: fragment("SELECT count(*) FROM dataset where aom_id = ?", a.id),
+            nb_datasets: fragment("SELECT count(*) FROM dataset where aom_id = ? and is_active", a.id),
             parent_dataset_id: a.parent_dataset_id
           }
         )
@@ -58,7 +58,7 @@ defmodule Transport.StatsHandler do
       |> Enum.sum()
 
     %{
-      nb_datasets: Repo.aggregate(Dataset, :count, :id),
+      nb_datasets: Repo.aggregate(Dataset.base_query(), :count, :id),
       nb_pt_datasets: Dataset.count_by_type("public-transit"),
       nb_aoms: Enum.count(aoms),
       nb_aoms_with_data: Enum.count(aoms_with_datasets),
