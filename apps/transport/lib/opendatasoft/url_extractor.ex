@@ -179,7 +179,7 @@ defmodule Opendatasoft.UrlExtractor do
 
   @spec download_csv(map()) :: map() | {:error, binary()}
   defp download_csv(%{"url" => url}) do
-    case HTTPoison.get(url, [], hackney: [follow_redirect: true]) do
+    case httpoison_impl().get(url, [], hackney: [follow_redirect: true]) do
       {:ok, response = %{status_code: 200}} ->
         response
 
@@ -339,11 +339,14 @@ defmodule Opendatasoft.UrlExtractor do
 
   @spec get_filename(binary()) :: binary()
   defp get_filename(url) do
-    httpoison_impl = Transport.Shared.Wrapper.HTTPoison.impl()
+    case httpoison_impl().head(url) do
+      {:ok, %HTTPoison.Response{headers: headers}} ->
+        Transport.FileDownloads.guess_filename(headers, url)
 
-    case httpoison_impl.head(url) do
-      {:ok, %HTTPoison.Response{headers: headers}} -> Transport.FileDownloads.guess_filename(headers, url)
-      _ -> Transport.FileDownloads.guess_filename(%{}, url)
+      _ ->
+        Transport.FileDownloads.guess_filename(%{}, url)
     end
   end
+
+  defp httpoison_impl, do: Transport.Shared.Wrapper.HTTPoison.impl()
 end
