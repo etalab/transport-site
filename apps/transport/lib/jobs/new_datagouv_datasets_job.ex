@@ -4,7 +4,7 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
   and tries to determine if it should be added on the NAP.
   It sends the list of these datasets by email.
   """
-  use Oban.Worker, max_attempts: 3
+  use Oban.Worker, max_attempts: 3, tags: ["notifications"]
   import Ecto.Query
   alias Transport.Shared.Schemas.Wrapper, as: Schemas
 

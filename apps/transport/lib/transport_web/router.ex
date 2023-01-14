@@ -138,6 +138,7 @@ defmodule TransportWeb.Router do
       scope "/datasets" do
         get("/new", PageController, :new)
         get("/:id/edit", PageController, :edit)
+        post("/:id", DatasetController, :post)
         post("/", DatasetController, :post)
         post("/:id/_import", DatasetController, :import_from_data_gouv_fr)
         post("/:id/_delete", DatasetController, :delete)
@@ -207,6 +208,8 @@ defmodule TransportWeb.Router do
       external:
         "https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/conditions-dutilisation-des-donnees/licence-odbl"
     )
+
+    get("/budget", Redirect, external: "https://doc.transport.data.gouv.fr/guide-du-pan/budget")
 
     # old static pages that have been moved to blog.transport
     get("/blog/2019_04_26_interview_my_bus", Redirect,

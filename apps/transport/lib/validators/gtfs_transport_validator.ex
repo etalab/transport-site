@@ -33,7 +33,7 @@ defmodule Transport.Validators.GTFSTransport do
       %DB.MultiValidation{
         validation_timestamp: timestamp,
         validator: validator_name(),
-        result: validations,
+        result: validation_result(validations),
         data_vis: data_vis,
         command: command(url),
         resource_history_id: resource_history_id,
@@ -49,12 +49,19 @@ defmodule Transport.Validators.GTFSTransport do
     end
   end
 
+  @impl Transport.Validators.Validator
+  def validator_name, do: @validator_name
+
   # https://github.com/etalab/transport-site/issues/2390
   # delete Shared.Validation.GtfsValidator.Wrapper and bring back the code here.
   def validate(url), do: Shared.Validation.GtfsValidator.Wrapper.impl().validate_from_url(url)
 
-  @impl Transport.Validators.Validator
-  def validator_name, do: @validator_name
+  defp validation_result(validations) do
+    # Remove the `geojson` key for each issue: we already have the details on the `data_vis` field
+    Enum.into(validations, %{}, fn {issue_type, issues} ->
+      {issue_type, Enum.map(issues, &Map.drop(&1, ["geojson"]))}
+    end)
+  end
 
   def command(url), do: Shared.Validation.GtfsValidator.remote_gtfs_validation_query(url)
 
