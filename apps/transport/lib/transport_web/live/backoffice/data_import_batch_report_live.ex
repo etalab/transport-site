@@ -66,7 +66,8 @@ defmodule TransportWeb.Backoffice.DataImportBatchReportLive do
     :ok = Oban.Notifier.listen([:gossip])
 
     %{id: job_id} =
-      Transport.Jobs.GTFSImportStopsJob.new(%{})
+      %{}
+      |> Transport.Jobs.GTFSImportStopsJob.new()
       |> Oban.insert!()
 
     socket =

@@ -7,7 +7,7 @@ defmodule Transport.Jobs.GTFSImportStopsJob do
   require Logger
 
   @impl Oban.Worker
-  def perform(job = %Oban.Job{}) do
+  def perform(%Oban.Job{} = job) do
     # NOTE: at some point deleting DataImport not referenced by active datasets item will be a good idea,
     # to avoid leaving obsolete stuff in the database.
     result = {:ok, refresh_all()}
