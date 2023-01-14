@@ -1,4 +1,7 @@
 defmodule Transport.Test.FileStreamUtils do
+  @moduledoc """
+  Shared tools to mox unzip calls during tests.
+  """
   import ExUnit.Assertions
   import Mox
 

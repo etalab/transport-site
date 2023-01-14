@@ -27,8 +27,8 @@ defmodule TransportWeb.Backoffice.DataImportBatchReportLive do
   Provide a bit of stats to display a summary
   """
   def compute_stats(result) do
-    Enum.group_by(result, fn x -> x["status"] end)
-    |> Enum.map(fn {k, v} -> "#{k} : #{Enum.count(v)}" end)
-    |> Enum.join(", ")
+    result
+    |> Enum.group_by(fn x -> x["status"] end)
+    |> Enum.map_join(fn {k, v} -> "#{k} : #{Enum.count(v)}" end, ", ")
   end
 end

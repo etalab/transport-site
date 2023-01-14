@@ -1,15 +1,19 @@
 defmodule Transport.Jobs.GTFSImportStopsJob do
+  @moduledoc """
+  A job to import all stops from all active GTFS, and report on that.
+  """
   use Oban.Worker, max_attempts: 1
   import Ecto.Query
   require Logger
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
-    # TODO: delete all DataImport not referenced by active datasets items
+    # NOTE: at some point deleting DataImport not referenced by active datasets item will be a good idea,
+    # to avoid leaving obsolete stuff in the database.
     {:ok, refresh_all()}
   end
 
-  def refresh_all() do
+  def refresh_all do
     result =
       active_datasets_resource_history_items()
       |> refresh()
