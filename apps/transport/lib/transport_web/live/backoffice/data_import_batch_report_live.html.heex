@@ -1,6 +1,16 @@
 <section class="container pt-48 pb-48">
   <h2>Rapport du dernier batch import GTFS</h2>
-  <p>Résumé : <%= @stats %></p>
+  <div class="pb-24">
+    <%= if @last_updated_at do %>
+      <p>Mis à jour à <%= @last_updated_at %></p>
+    <% end %>
+    <button class="button" phx-click="refresh" disabled={@job_running}>
+      <%= if @job_running, do: "En cours...", else: "Rafraîchir" %>
+    </button>
+    <%= if @stats do %>
+      <p>Résumé : <%= @stats %></p>
+    <% end %>
+  </div>
   <table class="table">
     <thead>
       <tr>
@@ -20,3 +30,5 @@
     <% end %>
   </table>
 </section>
+<script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>
+</script>
