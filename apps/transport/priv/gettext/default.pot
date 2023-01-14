@@ -122,3 +122,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "SIRI query generator"
 msgstr ""
+
+#, elixir-autogen
+msgid "Budget"
+msgstr ""
