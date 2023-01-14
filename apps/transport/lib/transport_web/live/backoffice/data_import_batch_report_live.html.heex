@@ -1,13 +1,13 @@
 <section class="container pt-48 pb-48">
-  <h2>Latest batch import summary</h2>
-  <p>Summary: <%= @stats %></p>
+  <h2>Rapport du dernier batch import GTFS</h2>
+  <p>Résumé : <%= @stats %></p>
   <table class="table">
     <thead>
       <tr>
         <th>Resource History Id</th>
         <th>Status</th>
-        <th>Error</th>
-        <th>Error desc</th>
+        <th>Erreur</th>
+        <th>Erreur desc</th>
       </tr>
     </thead>
     <%= for item <- @result do %>
