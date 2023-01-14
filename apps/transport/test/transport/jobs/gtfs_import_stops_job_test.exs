@@ -22,8 +22,11 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
 
     {:ok, result} = perform_job(Transport.Jobs.GTFSImportStopsJob, %{})
 
-    [%{resource_history_id: ^resource_history_id}] = result
+    %{
+      data_import_batch_id: data_import_batch_id,
+      result: [%{resource_history_id: ^resource_history_id}]
+    } = result
 
-    # TODO: assert creation of DB.DataImportBatch (reporting structure)
+    assert DB.Repo.get(DB.DataImportBatch, data_import_batch_id)
   end
 end
