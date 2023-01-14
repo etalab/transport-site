@@ -14,7 +14,7 @@ defmodule TransportWeb.Backoffice.DataImportBatchReportLive do
      end)}
   end
 
-  @moduledoc """
+  @doc """
   Provide a default sort helping us group errors by similarity
   """
   def sort(result) do
@@ -23,7 +23,7 @@ defmodule TransportWeb.Backoffice.DataImportBatchReportLive do
     end)
   end
 
-  @moduledoc """
+  @doc """
   Provide a bit of stats to display a summary
   """
   def compute_stats(result) do
