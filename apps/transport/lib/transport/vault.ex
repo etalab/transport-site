@@ -21,7 +21,7 @@ defmodule Transport.Vault do
     case Application.fetch_env!(:transport, :app_env) do
       env when env in [:production, :staging] ->
         @prod_config_env_name
-        |> System.get_env()
+        |> System.fetch_env!()
         |> Base.decode64!()
 
       _ ->
