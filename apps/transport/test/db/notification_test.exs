@@ -11,8 +11,10 @@ defmodule DB.NotificationTest do
     dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
 
     email = "foo@example.fr"
+    other_email = Ecto.UUID.generate() <> "@example.com"
     insert_notification(%{dataset_id: dataset.id, reason: :dataset_with_error, email: email})
     insert_notification(%{dataset_id: dataset.id, reason: :dataset_with_error, email: email})
+    insert_notification(%{dataset_id: dataset.id, reason: :dataset_with_error, email: other_email})
 
     # Can query using the hash column dedicated to search
     rows = DB.Notification |> where([n], n.email_hash == ^email) |> DB.Repo.all()
@@ -23,6 +25,6 @@ defmodule DB.NotificationTest do
     # Cannot get rows by using the value, because the encrypted value changes everytime
     assert DB.Notification |> where([n], n.email == ^email) |> DB.Repo.all() |> Enum.empty?()
     # But values are properly decrypted
-    assert [email] == DB.Notification |> select([n], n.email) |> DB.Repo.all() |> Enum.uniq()
+    assert MapSet.new([email, other_email]) == DB.Notification |> select([n], n.email) |> DB.Repo.all() |> MapSet.new()
   end
 end
