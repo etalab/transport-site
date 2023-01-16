@@ -48,6 +48,7 @@ defmodule Transport.Jobs.GTFSImportStopsJob do
         error ->
           %{
             resource_history_id: rh.id,
+            resource_id: rh.resource_id,
             status: :error,
             error: error |> inspect(),
             error_message: safe_call(fn -> Map.get(error, :message) end, "unknown"),
