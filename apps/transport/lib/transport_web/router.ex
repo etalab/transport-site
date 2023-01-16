@@ -133,6 +133,10 @@ defmodule TransportWeb.Router do
 
       get("/import_aoms", PageController, :import_all_aoms)
 
+      live_session :data_import_batch_report, root_layout: {TransportWeb.LayoutView, :app} do
+        live("/batch-report", DataImportBatchReportLive)
+      end
+
       scope "/datasets" do
         get("/new", PageController, :new)
         get("/:id/edit", PageController, :edit)
