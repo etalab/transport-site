@@ -14,6 +14,7 @@
   <table class="table">
     <thead>
       <tr>
+        <th>Resource Id</th>
         <th>Resource History Id</th>
         <th>Status</th>
         <th>Erreur</th>
@@ -22,10 +23,11 @@
     </thead>
     <%= for item <- @result do %>
       <tr>
+        <td><a href={resource_path(@socket, :details, item["resource_id"])}><%= item["resource_id"] %></a></td>
         <td><%= item["resource_history_id"] %></td>
         <td><%= item["status"] %></td>
         <td><%= item["error_struct"] %></td>
-        <td><%= item["error_message"] %></td>
+        <td><%= item["error_message"] || item["error"] %></td>
       </tr>
     <% end %>
   </table>
