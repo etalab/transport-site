@@ -23,7 +23,7 @@
     </thead>
     <%= for item <- @result do %>
       <tr>
-        <td><%= item["resource_id"] %></td>
+        <td><a href={resource_path(@socket, :details, item["resource_id"])}><%= item["resource_id"] %></a></td>
         <td><%= item["resource_history_id"] %></td>
         <td><%= item["status"] %></td>
         <td><%= item["error_struct"] %></td>
