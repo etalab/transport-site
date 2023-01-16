@@ -41,19 +41,28 @@ defmodule Transport.Jobs.GTFSImportStopsJob do
     |> Enum.map(fn rh ->
       Logger.info("Processing rh_id=#{rh.id}")
 
+      common_data = %{
+        resource_history_id: rh.id,
+        resource_id: rh.resource_id
+      }
+
       try do
         data_import_id = Transport.GTFSImportStops.import_stops_and_remove_previous(rh.id)
-        %{resource_history_id: rh.id, status: :ok, data_import_id: data_import_id}
+
+        %{
+          status: :ok,
+          data_import_id: data_import_id
+        }
+        |> Map.merge(common_data)
       rescue
         error ->
           %{
-            resource_history_id: rh.id,
-            resource_id: rh.resource_id,
             status: :error,
             error: error |> inspect(),
             error_message: safe_call(fn -> Map.get(error, :message) end, "unknown"),
             error_struct: safe_call(fn -> error.__struct__ |> inspect end, "unknown")
           }
+          |> Map.merge(common_data)
       end
     end)
   end
