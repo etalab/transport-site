@@ -5,6 +5,8 @@ defmodule Transport.Vault do
   """
   use Cloak.Vault, otp_app: :transport
 
+  # This value should be base64 encrypted
+  # See https://github.com/danielberkompas/cloak#configuration
   @prod_config_env_name "CLOAK_KEY"
 
   @impl GenServer
