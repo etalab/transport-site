@@ -21,8 +21,8 @@ defmodule Transport.Jobs.GtfsToDB do
     input |> String.trim() |> Decimal.new() |> Decimal.to_float()
   end
 
-  def csv_get_with_default!(map, field, default_value) do
-    value = Map.fetch!(map, field)
+  def csv_get_with_default!(map, field, default_value, mandatory_column \\ true) do
+    value = if mandatory_column, do: Map.fetch!(map, field), else: Map.get(map, field)
 
     case value do
       nil -> default_value
@@ -70,7 +70,8 @@ defmodule Transport.Jobs.GtfsToDB do
           stop_name: r |> Map.fetch!("stop_name"),
           stop_lat: r |> Map.fetch!("stop_lat") |> convert_text_to_float(),
           stop_lon: r |> Map.fetch!("stop_lon") |> convert_text_to_float(),
-          location_type: r |> csv_get_with_default!("location_type", "0") |> String.to_integer()
+          location_type:
+            r |> csv_get_with_default!("location_type", "0", false) |> String.to_integer()
         }
       end)
       |> Stream.chunk_every(1000)
