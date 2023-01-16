@@ -113,7 +113,11 @@ defmodule TransportWeb.Router do
       get("/", PageController, :index)
       get("/dashboard", DashboardController, :index)
       get("/broken-urls", BrokenUrlsController, :index)
-      live_dashboard("/phoenix-dashboard", metrics: Transport.PhoenixDashboardTelemetry)
+
+      live_dashboard("/phoenix-dashboard",
+        metrics: Transport.PhoenixDashboardTelemetry,
+        csp_nonce_assign_key: :my_csp_key
+      )
 
       live_session :backoffice_proxy_config, root_layout: {TransportWeb.LayoutView, :app} do
         live("/proxy-config", ProxyConfigLive)
