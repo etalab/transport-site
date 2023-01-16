@@ -25,7 +25,7 @@ defmodule TransportWeb.Backoffice.DataImportBatchReportLive do
       |> assign(
         result: sort(result),
         stats: compute_stats(result),
-        last_updated_at: (record.inserted_at |> to_string()) <> " UTC"
+        last_updated_at: (record.inserted_at |> DateTime.truncate(:second) |> to_string()) <> " UTC"
       )
     else
       socket
