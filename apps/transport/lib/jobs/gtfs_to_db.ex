@@ -3,6 +3,22 @@ defmodule Transport.Jobs.GtfsToDB do
   Get the content of a GTFS ResourceHistory, store it in the DB
   """
 
+  @doc """
+   Convert textual values to float.
+
+   iex> convert_text_to_float("0")
+   0.0
+   iex> convert_text_to_float("0.0")
+   0.0
+   iex> convert_text_to_float("12.7")
+   12.7
+   iex> convert_text_to_float("-12.7")
+   -12.7
+  """
+  def convert_text_to_float(input) do
+    Decimal.new(input) |> Decimal.to_float()
+  end
+
   def import_gtfs_from_resource_history(resource_history_id) do
     %{id: data_import_id} = %DB.DataImport{resource_history_id: resource_history_id} |> DB.Repo.insert!()
 
