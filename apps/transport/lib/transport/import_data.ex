@@ -150,6 +150,7 @@ defmodule Transport.ImportData do
       |> Map.put("licence", licence(data_gouv_resp))
       |> Map.put("archived_at", archived(data_gouv_resp["archived"]))
       |> Map.put("zones", get_associated_zones_insee(data_gouv_resp))
+      |> Map.put("is_active", true)
 
     case Map.get(data_gouv_resp, "resources") do
       nil -> {:error, "dataset #{data_gouv_resp["id"]} has no resource"}
