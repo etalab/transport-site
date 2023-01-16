@@ -1,6 +1,7 @@
 defmodule TransportWeb.Router do
   use TransportWeb, :router
   use Sentry.PlugCapture
+  import Phoenix.LiveDashboard.Router
 
   defimpl Plug.Exception, for: Phoenix.Template.UndefinedError do
     def status(_exception), do: 404
@@ -112,6 +113,7 @@ defmodule TransportWeb.Router do
       get("/", PageController, :index)
       get("/dashboard", DashboardController, :index)
       get("/broken-urls", BrokenUrlsController, :index)
+      live_dashboard("/phoenix-dashboard", metrics: Transport.PhoenixDashboardTelemetry)
 
       live_session :backoffice_proxy_config, root_layout: {TransportWeb.LayoutView, :app} do
         live("/proxy-config", ProxyConfigLive)
