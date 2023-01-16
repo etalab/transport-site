@@ -70,8 +70,7 @@ defmodule Transport.Jobs.GtfsToDB do
           stop_name: r |> Map.fetch!("stop_name"),
           stop_lat: r |> Map.fetch!("stop_lat") |> convert_text_to_float(),
           stop_lon: r |> Map.fetch!("stop_lon") |> convert_text_to_float(),
-          location_type:
-            r |> csv_get_with_default!("location_type", "0", false) |> String.to_integer()
+          location_type: r |> csv_get_with_default!("location_type", "0", false) |> String.to_integer()
         }
       end)
       |> Stream.chunk_every(1000)
