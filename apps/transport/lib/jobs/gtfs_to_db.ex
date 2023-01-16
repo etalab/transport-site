@@ -56,8 +56,8 @@ defmodule Transport.Jobs.GtfsToDB do
           data_import_id: data_import_id,
           stop_id: r |> Map.fetch!("stop_id"),
           stop_name: r |> Map.fetch!("stop_name"),
-          stop_lat: r |> Map.fetch!("stop_lat") |> String.to_float(),
-          stop_lon: r |> Map.fetch!("stop_lon") |> String.to_float(),
+          stop_lat: r |> Map.fetch!("stop_lat") |> convert_text_to_float(),
+          stop_lon: r |> Map.fetch!("stop_lon") |> convert_text_to_float(),
           location_type: r |> Map.fetch!("location_type") |> String.to_integer()
         }
       end)
