@@ -2,6 +2,7 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
   use ExUnit.Case, async: true
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
+  import Ecto.Query
   import Mox
   alias Transport.Jobs.MultiValidationWithErrorNotificationJob
 
@@ -47,8 +48,11 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
   test "perform" do
     # 2 datasets in scope, with different validators
     # 1 GTFS dataset with a resource, another dataset with a JSON schema and 2 errors
-    dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true, custom_title: "Mon JDD")
-    gtfs_dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true, custom_title: "Dataset GTFS")
+    %{id: dataset_id} = dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true, custom_title: "Mon JDD")
+
+    %{id: gtfs_dataset_id} =
+      gtfs_dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true, custom_title: "Dataset GTFS")
+
     resource_1 = insert(:resource, dataset: dataset, format: "geojson", title: "GeoJSON 1")
     resource_2 = insert(:resource, dataset: dataset, format: "geojson", title: "GeoJSON 2")
     resource_gtfs = insert(:resource, dataset: gtfs_dataset, format: "GTFS")
@@ -77,12 +81,24 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
       max_error: "Fatal"
     })
 
+    already_sent_email = "alreadysent@example.fr"
+    insert_notification(%{dataset_id: dataset_id, reason: :dataset_with_error, email: already_sent_email})
+    # Should be ignored because this is for another reason
+    insert_notification(%{dataset_id: dataset_id, reason: :expiration, email: "foo@example.com"})
+    # Should be ignored because it's for another dataset
+    insert_notification(%{dataset_id: gtfs_dataset_id, reason: :dataset_with_error, email: "foo@example.com"})
+    # Should be ignored because it's too old
+    %{dataset_id: dataset_id, reason: :dataset_with_error, email: "foo@example.com"}
+    |> insert_notification()
+    |> Ecto.Changeset.change(%{inserted_at: DateTime.utc_now() |> DateTime.add(-20, :day)})
+    |> DB.Repo.update!()
+
     Transport.Notifications.FetcherMock
     |> expect(:fetch_config!, 2, fn ->
       [
         %Transport.Notifications.Item{
           dataset_slug: dataset.slug,
-          emails: ["foo@example.com"],
+          emails: ["foo@example.com", already_sent_email],
           reason: :expiration,
           extra_delays: []
         },
@@ -100,16 +116,19 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
                              "contact@transport.beta.gouv.fr",
                              "foo@example.com" = _to,
                              "contact@transport.beta.gouv.fr",
-                             "Erreur de validation détectée" = _subject,
+                             subject,
                              plain_text_body,
                              "" = _html_part ->
-      assert plain_text_body =~ "Le contenu du jeu de données #{dataset.custom_title} vient de changer"
+      assert subject == "Erreurs détectées dans le jeu de données #{dataset.custom_title}"
 
       assert plain_text_body =~
-               "#{resource_1.title} - http://127.0.0.1:5100/resources/#{resource_1.id}#validation-report"
+               "Des erreurs bloquantes ont été détectées dans votre jeu de données #{dataset.custom_title}"
 
       assert plain_text_body =~
-               "#{resource_2.title} - http://127.0.0.1:5100/resources/#{resource_2.id}#validation-report"
+               "#{resource_1.title} — http://127.0.0.1:5100/resources/#{resource_1.id}#validation-report"
+
+      assert plain_text_body =~
+               "#{resource_2.title} — http://127.0.0.1:5100/resources/#{resource_2.id}#validation-report"
 
       :ok
     end)
@@ -119,17 +138,39 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
                              "contact@transport.beta.gouv.fr",
                              "bar@example.com" = _to,
                              "contact@transport.beta.gouv.fr",
-                             "Erreur de validation détectée" = _subject,
+                             subject,
                              plain_text_body,
                              "" = _html_part ->
-      assert plain_text_body =~ "Le contenu du jeu de données #{gtfs_dataset.custom_title} vient de changer"
+      assert subject == "Erreurs détectées dans le jeu de données #{gtfs_dataset.custom_title}"
 
       assert plain_text_body =~
-               "#{resource_gtfs.title} - http://127.0.0.1:5100/resources/#{resource_gtfs.id}#validation-report"
+               "Des erreurs bloquantes ont été détectées dans votre jeu de données #{gtfs_dataset.custom_title}"
+
+      assert plain_text_body =~
+               "#{resource_gtfs.title} — http://127.0.0.1:5100/resources/#{resource_gtfs.id}#validation-report"
 
       :ok
     end)
 
     assert :ok == perform_job(MultiValidationWithErrorNotificationJob, %{})
+
+    # Logs have been saved
+    recent_dt = DateTime.utc_now() |> DateTime.add(-1, :second)
+
+    assert DB.Notification
+           |> where(
+             [n],
+             n.email_hash == ^"foo@example.com" and n.dataset_id == ^dataset_id and n.inserted_at >= ^recent_dt and
+               n.reason == :dataset_with_error
+           )
+           |> DB.Repo.exists?()
+
+    assert DB.Notification
+           |> where(
+             [n],
+             n.email_hash == ^"bar@example.com" and n.dataset_id == ^gtfs_dataset_id and n.inserted_at >= ^recent_dt and
+               n.reason == :dataset_with_error
+           )
+           |> DB.Repo.exists?()
   end
 end
