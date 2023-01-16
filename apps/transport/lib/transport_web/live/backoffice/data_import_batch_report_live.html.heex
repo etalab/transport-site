@@ -27,7 +27,7 @@
         <td><%= item["resource_history_id"] %></td>
         <td><%= item["status"] %></td>
         <td><%= item["error_struct"] %></td>
-        <td><%= item["error_message"] %></td>
+        <td><%= item["error_message"] || item["error"] %></td>
       </tr>
     <% end %>
   </table>
