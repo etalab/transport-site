@@ -19,6 +19,16 @@ defmodule Transport.Jobs.GtfsToDB do
     Decimal.new(input) |> Decimal.to_float()
   end
 
+  def csv_get_with_default!(map, field, default_value) do
+    value = Map.fetch!(map, field)
+
+    case value do
+      nil -> default_value
+      "" -> default_value
+      v -> v
+    end
+  end
+
   def import_gtfs_from_resource_history(resource_history_id) do
     %{id: data_import_id} = %DB.DataImport{resource_history_id: resource_history_id} |> DB.Repo.insert!()
 
@@ -58,7 +68,7 @@ defmodule Transport.Jobs.GtfsToDB do
           stop_name: r |> Map.fetch!("stop_name"),
           stop_lat: r |> Map.fetch!("stop_lat") |> convert_text_to_float(),
           stop_lon: r |> Map.fetch!("stop_lon") |> convert_text_to_float(),
-          location_type: r |> Map.fetch!("location_type") |> String.to_integer()
+          location_type: r |> csv_get_with_default!("location_type", "0") |> String.to_integer()
         }
       end)
       |> Stream.chunk_every(1000)
