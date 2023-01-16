@@ -119,6 +119,7 @@ defmodule Transport.Mixfile do
       {:scrivener_ecto, "~> 2.7.0"},
       {:typed_ecto_schema, ">= 0.1.1"},
       {:ymlr, "~> 2.0"},
+      {:cloak_ecto, "~> 1.2.0"},
       {:ex_machina, "~> 2.4", only: :test}
     ]
   end

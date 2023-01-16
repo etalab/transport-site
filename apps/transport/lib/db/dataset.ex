@@ -58,8 +58,9 @@ defmodule DB.Dataset do
     has_many(:child_aom, AOM, foreign_key: :parent_dataset_id)
   end
 
-  def base_query, do: from(d in DB.Dataset, as: :dataset, where: d.is_active == true)
+  def base_query, do: from(d in DB.Dataset, as: :dataset, where: d.is_active)
   def archived, do: base_query() |> where([dataset: d], not is_nil(d.archived_at))
+  def inactive, do: from(d in DB.Dataset, as: :dataset, where: not d.is_active)
 
   @spec is_archived?(__MODULE__.t()) :: boolean()
   def is_archived?(%__MODULE__{archived_at: nil}), do: false

@@ -115,6 +115,16 @@ defmodule TransportWeb.Backoffice.PageController do
     |> render_index(conn, params)
   end
 
+  def index(%Plug.Conn{} = conn, %{"filter" => "inactive"} = params) do
+    Dataset.inactive()
+    |> join(:left, [dataset: d], end_date in subquery(end_dates_query()),
+      on: d.id == end_date.dataset_id,
+      as: :end_dates
+    )
+    |> query_order_by_from_params(params)
+    |> render_index(conn, params)
+  end
+
   def index(%Plug.Conn{} = conn, params) do
     Dataset.base_query()
     |> join(:left, [d], end_date in subquery(end_dates_query()), on: d.id == end_date.dataset_id, as: :end_dates)
