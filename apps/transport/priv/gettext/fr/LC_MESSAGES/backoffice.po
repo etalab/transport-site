@@ -232,3 +232,7 @@ msgstr "Debug du cache"
 #, elixir-autogen, elixir-format
 msgid "Deleted"
 msgstr "Supprimés"
+
+#, elixir-autogen, elixir-format
+msgid "GTFS data import"
+msgstr ""

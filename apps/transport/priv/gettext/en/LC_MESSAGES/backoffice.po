@@ -232,3 +232,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Deleted"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "GTFS data import"
+msgstr ""
