@@ -27,6 +27,10 @@
     <%= dgettext("backoffice", "Cache debug") %>
   </a>
 
+  <a class="button" href={backoffice_live_path(@conn, TransportWeb.Backoffice.DataImportBatchReportLive)}>
+    <%= dgettext("backoffice", "GTFS data import") %>
+  </a>
+
   <h2>Actions</h2>
 
   <a class="button" href={backoffice_page_path(@conn, :new)}>
