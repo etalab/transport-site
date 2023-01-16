@@ -14,9 +14,11 @@ defmodule Transport.Jobs.GtfsToDB do
    12.7
    iex> convert_text_to_float("-12.7")
    -12.7
+   iex> convert_text_to_float("   -48.7    ")
+   -48.7
   """
   def convert_text_to_float(input) do
-    Decimal.new(input) |> Decimal.to_float()
+    input |> String.trim() |> Decimal.new() |> Decimal.to_float()
   end
 
   def csv_get_with_default!(map, field, default_value) do
