@@ -88,9 +88,9 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
       [mv],
       not is_nil(mv.resource_history_id) and mv.validator in ^validator_names and mv.inserted_at >= ^datetime_limit
     )
-    |> preload([:resource, resource: [:dataset]])
+    |> preload(resource_history: [resource: [:dataset]])
     |> DB.Repo.all()
-    |> Enum.group_by(& &1.resource.dataset)
+    |> Enum.group_by(& &1.resource_history.resource.dataset)
   end
 
   defp emails_list(%DB.Dataset{} = dataset) do
@@ -105,7 +105,9 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
     "#{custom_title} — #{url}"
   end
 
-  defp resource_link(%DB.MultiValidation{resource: %DB.Resource{id: id, title: title}}) do
+  defp resource_link(%DB.MultiValidation{
+         resource_history: %DB.ResourceHistory{resource: %DB.Resource{id: id, title: title}}
+       }) do
     url = TransportWeb.Router.Helpers.resource_url(TransportWeb.Endpoint, :details, id) <> "#validation-report"
 
     "* #{title} — #{url}"
