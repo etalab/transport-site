@@ -4,6 +4,8 @@ defmodule Transport.Jobs.DatasetNowLicenceOuverteJob do
   """
   use Oban.Worker, max_attempts: 3, tags: ["notifications"]
 
+  @notification_reason :dataset_now_licence_ouverte
+
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"dataset_id" => dataset_id}}) do
     dataset = DB.Repo.get!(DB.Dataset, dataset_id)
@@ -13,7 +15,7 @@ defmodule Transport.Jobs.DatasetNowLicenceOuverteJob do
     end
 
     Transport.Notifications.config()
-    |> Transport.Notifications.emails_for_reason(:dataset_now_licence_ouverte)
+    |> Transport.Notifications.emails_for_reason(@notification_reason)
     |> Enum.each(fn email ->
       Transport.EmailSender.impl().send_mail(
         "transport.data.gouv.fr",
@@ -35,9 +37,17 @@ defmodule Transport.Jobs.DatasetNowLicenceOuverteJob do
         """,
         ""
       )
+
+      save_notification(dataset, email)
     end)
 
     :ok
+  end
+
+  def save_notification(%DB.Dataset{id: dataset_id}, email) do
+    %DB.Notification{}
+    |> DB.Notification.changeset(%{email: email, dataset_id: dataset_id, reason: @notification_reason})
+    |> DB.Repo.insert!()
   end
 
   defp link(%DB.Dataset{slug: slug}), do: TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, slug)

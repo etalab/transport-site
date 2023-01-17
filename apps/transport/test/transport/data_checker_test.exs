@@ -7,10 +7,12 @@ defmodule Transport.DataCheckerTest do
 
   setup :verify_on_exit!
 
+  setup do
+    Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+  end
+
   describe "inactive_data job" do
     test "warns our team of datasets reappearing on data gouv and reactivates them locally" do
-      :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-
       # we create a dataset which is considered not active on our side
       dataset = insert(:dataset, is_active: false)
 
@@ -41,8 +43,6 @@ defmodule Transport.DataCheckerTest do
     end
 
     test "warns our team of datasets disappearing on data gouv and mark them as such locally" do
-      :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-
       # Create a bunch of random datasets to avoid triggering the safety net
       # of desactivating more than 10% of active datasets
       Enum.each(1..10, fn _ ->
@@ -86,8 +86,6 @@ defmodule Transport.DataCheckerTest do
     end
 
     test "sends an email when a dataset is now archived" do
-      :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-
       insert(:dataset, is_active: true)
 
       # dataset is now archived on data.gouv.fr
@@ -114,8 +112,6 @@ defmodule Transport.DataCheckerTest do
     end
 
     test "does not send email if nothing has disappeared or reappeared" do
-      :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-
       assert DB.Repo.aggregate(DB.Dataset, :count) == 0
 
       Transport.HTTPoison.Mock
@@ -132,8 +128,6 @@ defmodule Transport.DataCheckerTest do
   end
 
   test "gtfs_datasets_expiring_on" do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-
     {today, tomorrow, yesterday} = {Date.utc_today(), Date.add(Date.utc_today(), 1), Date.add(Date.utc_today(), -1)}
     assert [] == today |> Transport.DataChecker.gtfs_datasets_expiring_on()
 
@@ -174,8 +168,6 @@ defmodule Transport.DataCheckerTest do
 
   describe "outdated_data job" do
     test "sends email to our team + relevant contact before expiry" do
-      :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-
       dataset_slug = "reseau-de-transport-de-la-ville"
       producer_email = "hello@example.com"
 
@@ -240,8 +232,6 @@ defmodule Transport.DataCheckerTest do
     end
 
     test "outdated_data job with nothing to send should not send email" do
-      :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-
       Transport.EmailSender.Mock
       |> expect(:send_mail, 0, fn _, _, _, _, _, _, _ -> nil end)
 
@@ -292,9 +282,12 @@ defmodule Transport.DataCheckerTest do
         ]
       end)
 
-      dataset = %DB.Dataset{slug: dataset_slug, datagouv_title: "title"}
+      %{id: dataset_id} = dataset = insert(:dataset, slug: dataset_slug)
 
       Transport.DataChecker.send_outdated_data_notifications({7, [dataset]})
+
+      assert [%DB.Notification{email: "foo@example.com", reason: :expiration, dataset_id: ^dataset_id}] =
+               DB.Notification |> DB.Repo.all()
 
       verify!(Transport.EmailSender.Mock)
     end
@@ -318,9 +311,12 @@ defmodule Transport.DataCheckerTest do
         ]
       end)
 
-      dataset = %DB.Dataset{slug: dataset_slug, datagouv_title: "title"}
+      %{id: dataset_id} = dataset = insert(:dataset, slug: dataset_slug)
 
       Transport.DataChecker.send_outdated_data_notifications({custom_delay, [dataset]})
+
+      assert [%DB.Notification{email: "foo@example.com", reason: :expiration, dataset_id: ^dataset_id}] =
+               DB.Notification |> DB.Repo.all()
     end
 
     test "with a non-matching extra delay" do
@@ -383,9 +379,13 @@ defmodule Transport.DataCheckerTest do
         ]
       end)
 
-      dataset = %DB.Dataset{slug: dataset_slug, custom_title: "Super JDD", type: "public-transit"}
+      %{id: dataset_id} =
+        dataset = insert(:dataset, slug: dataset_slug, custom_title: "Super JDD", type: "public-transit")
 
       Transport.DataChecker.send_new_dataset_notifications([dataset])
+
+      assert [%DB.Notification{email: "foo@example.com", reason: :new_dataset, dataset_id: ^dataset_id}] =
+               DB.Notification |> DB.Repo.all()
 
       verify!(Transport.EmailSender.Mock)
     end
@@ -414,8 +414,6 @@ defmodule Transport.DataCheckerTest do
   end
 
   test "count_archived_datasets" do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-
     insert(:dataset, is_active: true, archived_at: nil)
     insert(:dataset, is_active: true, archived_at: DateTime.utc_now())
     insert(:dataset, is_active: false, archived_at: DateTime.utc_now())
