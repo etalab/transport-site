@@ -12,7 +12,8 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
     csp_headers = csp_headers(Application.fetch_env!(:transport, :app_env), nonce)
 
     conn
-    |> Plug.Conn.assign(:csp_key, nonce)
+    # used by the phoenix LivedDashboard to allow secure inlined CSS
+    |> Plug.Conn.assign(:csp_nonce_value, nonce)
     |> Phoenix.Controller.put_secure_browser_headers(csp_headers)
   end
 
