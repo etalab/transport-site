@@ -39,5 +39,8 @@ defmodule Transport.Test.Transport.Jobs.DatasetNowLicenceOuverteJobTest do
     end)
 
     assert :ok == perform_job(DatasetNowLicenceOuverteJob, %{"dataset_id" => dataset_id})
+
+    assert [%DB.Notification{email: "foo@example.com", reason: :dataset_now_licence_ouverte, dataset_id: ^dataset_id}] =
+             DB.Notification |> DB.Repo.all()
   end
 end
