@@ -5,9 +5,16 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
 
   def init(options), do: options
 
+  defp generate_nonce(size \\ 10), do: size |> :crypto.strong_rand_bytes() |> Base.url_encode64(padding: false)
+
   def call(conn, _opts) do
-    csp_headers = csp_headers(Application.fetch_env!(:transport, :app_env))
-    Phoenix.Controller.put_secure_browser_headers(conn, csp_headers)
+    nonce = generate_nonce()
+    csp_headers = csp_headers(Application.fetch_env!(:transport, :app_env), nonce)
+
+    conn
+    # used by the phoenix LivedDashboard to allow secure inlined CSS
+    |> Plug.Conn.assign(:csp_nonce_value, nonce)
+    |> Phoenix.Controller.put_secure_browser_headers(csp_headers)
   end
 
   @doc """
@@ -22,7 +29,7 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
   iex> match?(%{"content-security-policy" => _csp_content}, csp_headers(:staging))
   true
   """
-  def csp_headers(app_env) do
+  def csp_headers(app_env, nonce) do
     csp_content =
       case app_env do
         :production ->
@@ -32,7 +39,7 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
           font-src *;
           img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://www.data.gouv.fr;
           script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
-          style-src 'self';
+          style-src 'self' 'nonce-#{nonce}';
           report-uri #{Application.fetch_env!(:sentry, :csp_url)}
           """
 
@@ -44,7 +51,7 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
             font-src *;
             img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://demo-static.data.gouv.fr https://www.data.gouv.fr https://demo.data.gouv.fr;
             script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
-            style-src 'self';
+            style-src 'self' 'nonce-#{nonce}';
             report-uri #{Application.fetch_env!(:sentry, :csp_url)}
           """
 
