@@ -5,7 +5,7 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
 
   def init(options), do: options
 
-  defp generate_nonce(), do: :crypto.strong_rand_bytes(10) |> Base.url_encode64(padding: false)
+  defp generate_nonce(size \\ 10), do: size |> :crypto.strong_rand_bytes() |> Base.url_encode64(padding: false)
 
   def call(conn, _opts) do
     nonce = generate_nonce()
