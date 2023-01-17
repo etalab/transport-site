@@ -100,7 +100,8 @@ defmodule Transport.Mixfile do
         # must not be committed in that case.
         # NOTE: this is not enough, and a manual `mix compile.rambo` must be issued manually in order
         # for this to work (https://github.com/jayjun/rambo/pull/13#issuecomment-1189194040).
-        {:rambo, "~> 0.3.4", github: "myobie/rambo", ref: "e321db8e4f035f2a295ee2a5310dcb75034677ce"}
+        {:rambo, "~> 0.3.4",
+         github: "myobie/rambo", ref: "e321db8e4f035f2a295ee2a5310dcb75034677ce"}
       else
         {:rambo, "~> 0.3.4"}
       end,
@@ -119,8 +120,12 @@ defmodule Transport.Mixfile do
       {:scrivener_ecto, "~> 2.7.0"},
       {:typed_ecto_schema, ">= 0.1.1"},
       {:ymlr, "~> 2.0"},
+      {:ex_machina, "~> 2.4", only: :test},
       {:cloak_ecto, "~> 1.2.0"},
-      {:ex_machina, "~> 2.4", only: :test}
+      {:phoenix_live_dashboard, "~> 0.7"},
+      {:ecto_psql_extras, "~> 0.6"},
+      {:telemetry_poller, "~> 0.4"},
+      {:telemetry_metrics, "~> 0.4"}
     ]
   end
 end

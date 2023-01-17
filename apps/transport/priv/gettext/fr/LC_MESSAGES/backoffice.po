@@ -236,3 +236,7 @@ msgstr "Supprimés"
 #, elixir-autogen, elixir-format
 msgid "GTFS data import"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Phoenix LiveDashboard"
+msgstr "Phoenix LiveDashboard"
