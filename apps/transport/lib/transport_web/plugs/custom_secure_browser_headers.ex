@@ -50,20 +50,12 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
             font-src *;
             img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://demo-static.data.gouv.fr https://www.data.gouv.fr https://demo.data.gouv.fr;
             script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
-            style-src 'self';
+            style-src 'self' 'nonce-#{nonce}';
             report-uri #{Application.fetch_env!(:sentry, :csp_url)}
           """
 
         _ ->
-          """
-          default-src 'none';
-          connect-src *;
-          font-src *;
-          img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://www.data.gouv.fr;
-          script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
-          style-src 'self' 'nonce-#{nonce}';
-          report-uri #{Application.fetch_env!(:sentry, :csp_url)}
-          """
+          nil
       end
 
     case csp_content do
