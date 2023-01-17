@@ -118,7 +118,8 @@ oban_crontab_all_envs =
         {"0 6 * * *", Transport.Jobs.NewDatasetNotificationsJob},
         {"0 21 * * *", Transport.Jobs.DatasetHistoryDispatcherJob},
         {"0 22 * * *", Transport.Jobs.ArchiveMetricsJob},
-        {"15,45 * * * *", Transport.Jobs.MultiValidationWithErrorNotificationJob}
+        {"15,45 * * * *", Transport.Jobs.MultiValidationWithErrorNotificationJob},
+        {"20,50 * * * *", Transport.Jobs.ResourceUnavailableNotificationJob}
       ]
 
     :dev ->
