@@ -27,7 +27,6 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
     insert(:multi_validation, %{
       resource_history: rh_geojson_resource,
       validator: Transport.Validators.EXJSONSchema.validator_name(),
-      resource_id: rh_geojson_resource.resource_id,
       result: %{"has_errors" => true},
       inserted_at: DateTime.utc_now() |> DateTime.add(-45, :minute)
     })
@@ -63,21 +62,18 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
     insert(:multi_validation, %{
       resource_history: rh_resource_1,
       validator: Transport.Validators.EXJSONSchema.validator_name(),
-      resource_id: rh_resource_1.resource_id,
       result: %{"has_errors" => true}
     })
 
     insert(:multi_validation, %{
       resource_history: rh_resource_2,
       validator: Transport.Validators.EXJSONSchema.validator_name(),
-      resource_id: rh_resource_2.resource_id,
       result: %{"has_errors" => true}
     })
 
     insert(:multi_validation, %{
       resource_history: rh_resource_gtfs,
       validator: Transport.Validators.GTFSTransport.validator_name(),
-      resource_id: rh_resource_gtfs.resource_id,
       max_error: "Fatal"
     })
 
