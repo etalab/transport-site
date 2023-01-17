@@ -3,6 +3,34 @@ defmodule Transport.Jobs.GtfsToDB do
   Get the content of a GTFS ResourceHistory, store it in the DB
   """
 
+  @doc """
+   Convert textual values to float.
+
+   iex> convert_text_to_float("0")
+   0.0
+   iex> convert_text_to_float("0.0")
+   0.0
+   iex> convert_text_to_float("12.7")
+   12.7
+   iex> convert_text_to_float("-12.7")
+   -12.7
+   iex> convert_text_to_float("   -48.7    ")
+   -48.7
+  """
+  def convert_text_to_float(input) do
+    input |> String.trim() |> Decimal.new() |> Decimal.to_float()
+  end
+
+  def csv_get_with_default!(map, field, default_value, mandatory_column \\ true) do
+    value = if mandatory_column, do: Map.fetch!(map, field), else: Map.get(map, field)
+
+    case value do
+      nil -> default_value
+      "" -> default_value
+      v -> v
+    end
+  end
+
   def import_gtfs_from_resource_history(resource_history_id) do
     %{id: data_import_id} = %DB.DataImport{resource_history_id: resource_history_id} |> DB.Repo.insert!()
 
@@ -40,9 +68,9 @@ defmodule Transport.Jobs.GtfsToDB do
           data_import_id: data_import_id,
           stop_id: r |> Map.fetch!("stop_id"),
           stop_name: r |> Map.fetch!("stop_name"),
-          stop_lat: r |> Map.fetch!("stop_lat") |> String.to_float(),
-          stop_lon: r |> Map.fetch!("stop_lon") |> String.to_float(),
-          location_type: r |> Map.fetch!("location_type") |> String.to_integer()
+          stop_lat: r |> Map.fetch!("stop_lat") |> convert_text_to_float(),
+          stop_lon: r |> Map.fetch!("stop_lon") |> convert_text_to_float(),
+          location_type: r |> csv_get_with_default!("location_type", "0", false) |> String.to_integer()
         }
       end)
       |> Stream.chunk_every(1000)

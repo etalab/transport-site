@@ -45,27 +45,28 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
     })
 
     # the title has been updated, the dataset_id has not changed
-    assert %{custom_title: "new title"} = DB.Repo.reload!(dataset)
+    assert %DB.Dataset{custom_title: "new title"} = DB.Repo.reload!(dataset)
   end
 
   test "update a dataset slug", %{conn: conn} do
     dataset =
       %{id: dataset_id} =
       insert(:dataset,
-        datagouv_id: "datagouv_id",
+        is_active: false,
+        datagouv_id: Ecto.UUID.generate(),
         custom_title: "title",
         slug: "https://example.com/slug"
       )
 
-    datagouv_id_2 = "datagouv_id_2"
+    datagouv_id_2 = "datagouv_id_2_" <> Ecto.UUID.generate()
+    slug_2 = "slug_2_" <> Ecto.UUID.generate()
 
     Transport.HTTPoison.Mock
-    |> expect(:request, fn :get, "https://demo.data.gouv.fr/api/1/datasets/slug_2/", _, _, _ ->
+    |> expect(:request, fn :get, url, _, _, _ ->
+      assert url == "https://demo.data.gouv.fr/api/1/datasets/#{slug_2}/"
       # the slug changes, the datagouv_id too
       {:ok, %HTTPoison.Response{body: ~s({"id": "#{datagouv_id_2}"}), status_code: 200}}
     end)
-
-    slug_2 = "slug_2"
 
     Transport.HTTPoison.Mock
     |> expect(:get!, fn url, _, _ ->
@@ -89,7 +90,13 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
     })
 
     # the slug and datagouv_id have been updated, but the dataset_id has not changed
-    assert %{id: ^dataset_id, datagouv_id: ^datagouv_id_2, custom_title: "title", slug: ^slug_2} =
-             DB.Repo.reload!(dataset)
+    # `is_active` has been changed to `true`
+    assert %DB.Dataset{
+             id: ^dataset_id,
+             datagouv_id: ^datagouv_id_2,
+             custom_title: "title",
+             slug: ^slug_2,
+             is_active: true
+           } = DB.Repo.reload!(dataset)
   end
 end

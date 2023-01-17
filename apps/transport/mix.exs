@@ -121,6 +121,7 @@ defmodule Transport.Mixfile do
       {:typed_ecto_schema, ">= 0.1.1"},
       {:ymlr, "~> 2.0"},
       {:ex_machina, "~> 2.4", only: :test},
+      {:cloak_ecto, "~> 1.2.0"},
       {:phoenix_live_dashboard, "~> 0.7"},
       {:ecto_psql_extras, "~> 0.6"},
       {:telemetry_poller, "~> 0.4"},
