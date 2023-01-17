@@ -116,7 +116,7 @@ defmodule TransportWeb.Router do
 
       live_dashboard("/phoenix-dashboard",
         metrics: Transport.PhoenixDashboardTelemetry,
-        csp_nonce_assign_key: :my_csp_key
+        csp_nonce_assign_key: :csp_key
       )
 
       live_session :backoffice_proxy_config, root_layout: {TransportWeb.LayoutView, :app} do
