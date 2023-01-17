@@ -148,6 +148,11 @@ defmodule Transport.DataChecker do
         """,
         ""
       )
+
+      datasets
+      |> Enum.each(fn %Dataset{} = dataset ->
+        save_notification(:new_dataset, dataset, email)
+      end)
     end)
   end
 
@@ -188,10 +193,18 @@ defmodule Transport.DataChecker do
           """,
           ""
         )
+
+        save_notification(:expiration, dataset, email)
       end)
     end)
 
     payload
+  end
+
+  defp save_notification(reason, %Dataset{id: dataset_id}, email) do
+    %DB.Notification{}
+    |> DB.Notification.changeset(%{email: email, dataset_id: dataset_id, reason: reason})
+    |> DB.Repo.insert!()
   end
 
   def has_expiration_notifications?(%Dataset{} = dataset) do
