@@ -7,7 +7,10 @@ defmodule DB.Notification do
   import Ecto.Changeset
 
   schema "notifications" do
-    field(:reason, Ecto.Enum, values: [:dataset_with_error, :resource_unavailable, :expiration, :new_dataset, :dataset_now_licence_ouverte])
+    field(:reason, Ecto.Enum,
+      values: [:dataset_with_error, :resource_unavailable, :expiration, :new_dataset, :dataset_now_licence_ouverte]
+    )
+
     belongs_to(:dataset, DB.Dataset)
     field(:email, DB.Encrypted.Binary)
     # Should be used to search rows matching an email address
