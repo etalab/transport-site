@@ -155,6 +155,8 @@ defmodule TransportWeb.Backoffice.PageController do
     |> assign(:dataset_types, Dataset.types())
     |> assign(:regions, Region |> where([r], r.nom != "National") |> Repo.all())
     |> assign(:expiration_emails, notification_expiration_emails(conn.assigns[:dataset]))
+    |> assign(:notifications_sent, notifications_sent(conn.assigns[:dataset]))
+    |> assign(:notifications_last_nb_days, notifications_last_nb_days())
     |> assign(
       :import_logs,
       LogsImport
@@ -170,6 +172,25 @@ defmodule TransportWeb.Backoffice.PageController do
   defp notification_expiration_emails(%Dataset{} = dataset) do
     Transport.Notifications.config()
     |> Transport.Notifications.emails_for_reason(:expiration, dataset)
+  end
+
+  defp notifications_last_nb_days, do: 30
+
+  defp notifications_sent(nil), do: []
+
+  defp notifications_sent(%Dataset{id: dataset_id}) do
+    datetime_limit = DateTime.utc_now() |> DateTime.add(-notifications_last_nb_days(), :day)
+
+    DB.Notification
+    |> where([n], n.dataset_id == ^dataset_id and n.inserted_at >= ^datetime_limit)
+    |> select([n], [:email, :reason, :inserted_at])
+    |> DB.Repo.all()
+    |> Enum.group_by(
+      fn %DB.Notification{reason: reason, inserted_at: inserted_at} ->
+        {reason, %{DateTime.truncate(inserted_at, :second) | second: 0}}
+      end,
+      fn %DB.Notification{email: email} -> email end
+    )
   end
 
   def import_all_aoms(%Plug.Conn{} = conn, _params) do
