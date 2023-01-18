@@ -17,7 +17,8 @@ defmodule Transport.Notifications do
   end
 
   @spec emails_for_reason(configuration, atom(), DB.Dataset.t()) :: list(binary())
-  def emails_for_reason(config, :dataset_with_error, %DB.Dataset{} = dataset) do
+  def emails_for_reason(config, reason, %DB.Dataset{} = dataset)
+      when reason in [:dataset_with_error, :resource_unavailable] do
     # Reuse the `:expiration` reason for now, until we update the notifications system
     # or introduce different notification reasons
     emails_for_reason(config, :expiration, dataset)

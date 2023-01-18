@@ -52,16 +52,23 @@ defmodule Transport.NotificationsTest do
     assert ["foo@bar.com", "foo@bar.fr"] ==
              Notifications.emails_for_reason(config, :expiration, %DB.Dataset{slug: "my_slug"})
 
-    # :dataset_with_error is an alias for :expiration, for now
-    assert Notifications.emails_for_reason(config, :expiration, %DB.Dataset{slug: "my_slug"}) ==
-             Notifications.emails_for_reason(config, :dataset_with_error, %DB.Dataset{slug: "my_slug"})
+    # :dataset_with_error and :resource_unavailable are an alias for :expiration, for now
+    ~w(dataset_with_error resource_unavailable)a
+    |> Enum.each(fn reason ->
+      assert Notifications.emails_for_reason(config, :expiration, %DB.Dataset{slug: "my_slug"}) ==
+               Notifications.emails_for_reason(config, reason, %DB.Dataset{slug: "my_slug"})
+    end)
 
+    # Raises for an unknown reason
     assert_raise FunctionClauseError, fn ->
       Notifications.emails_for_reason(config, :nope, %DB.Dataset{slug: "my_slug"})
     end
 
-    assert [] == Notifications.emails_for_reason(config, :expiration, %DB.Dataset{slug: "nope"})
-    assert [] == Notifications.emails_for_reason(config, :dataset_with_error, %DB.Dataset{slug: "nope"})
+    # Returns an empty list for valid reason but if the dataset isn't in the config
+    ~w(expiration dataset_with_error resource_unavailable)a
+    |> Enum.each(fn reason ->
+      assert [] == Notifications.emails_for_reason(config, reason, %DB.Dataset{slug: "nope"})
+    end)
 
     assert ["foo@baz.com", "nope@baz.com"] == Notifications.emails_for_reason(config, :new_dataset)
     assert ["bar@foo.com"] == Notifications.emails_for_reason(config, :dataset_now_licence_ouverte)
