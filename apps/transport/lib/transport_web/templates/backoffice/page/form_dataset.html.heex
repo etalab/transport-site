@@ -155,7 +155,7 @@
         </p>
       </div>
     <% end %>
-    <div :if={@dataset.type == "public-transit"} class="dashboard-description mt-48">
+    <div class="dashboard-description mt-48">
       <h3><%= dgettext("backoffice", "Expiration notifications") %></h3>
       <%= if Enum.empty?(@expiration_emails) do %>
         <p class="notification">
@@ -191,6 +191,29 @@
           <% end %>
         </table>
       <% end %>
+    </div>
+    <div :if={Enum.count(@notifications_sent) > 0} class="dashboard-description mt-48">
+      <h3><%= dgettext("backoffice", "Notifications sent") %></h3>
+
+      <p>
+        <%= dgettext("backoffice", "Notifications sent in the last %{nb_days} days.",
+          nb_days: @notifications_last_nb_days
+        ) %>
+      </p>
+      <table class="table">
+        <tr>
+          <th><%= dgettext("backoffice", "Notification reason") %></th>
+          <th><%= dgettext("backoffice", "Datetime") %></th>
+          <th><%= dgettext("backoffice", "Emails") %></th>
+        </tr>
+        <%= for {{reason, datetime}, emails} <- @notifications_sent do %>
+          <tr>
+            <td lang="en"><%= reason %></td>
+            <td><%= Shared.DateTimeDisplay.format_datetime_to_paris(datetime, "fr") %></td>
+            <td><%= emails |> Enum.sort() |> Enum.join(", ") %></td>
+          </tr>
+        <% end %>
+      </table>
     </div>
     <div class="dataset_import_validations_logs" id="imports_history">
       <h3><%= dgettext("backoffice", "Imports history") %></h3>
