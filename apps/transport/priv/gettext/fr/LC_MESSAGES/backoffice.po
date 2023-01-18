@@ -259,4 +259,4 @@ msgstr "Notifications envoyées"
 
 #, elixir-autogen, elixir-format
 msgid "Notifications sent in the last %{nb_days} days."
-msgstr "Notifications envoyées au cours des %{nb_days} jours."
+msgstr "Notifications envoyées au cours des %{nb_days} derniers jours."
