@@ -109,16 +109,10 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
                              subject,
                              plain_text_body,
                              "" = _html_part ->
-      assert subject == "Erreurs détectées dans le jeu de données #{dataset.custom_title}"
+      assert subject == "Ressources indisponibles dans le jeu de données #{dataset.custom_title}"
 
       assert plain_text_body =~
-               "Des erreurs bloquantes ont été détectées dans votre jeu de données #{dataset.custom_title}"
-
-      assert plain_text_body =~
-               "#{resource_1.title} — http://127.0.0.1:5100/resources/#{resource_1.id}"
-
-      assert plain_text_body =~
-               "#{resource_2.title} — http://127.0.0.1:5100/resources/#{resource_2.id}"
+               "Les ressources #{resource_1.title}, #{resource_2.title} dans votre jeu de données #{dataset.custom_title} — http://127.0.0.1:5100/datasets/#{dataset.slug} ne sont plus disponibles au téléchargement depuis plus de 6h."
 
       :ok
     end)
@@ -131,13 +125,10 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
                              subject,
                              plain_text_body,
                              "" = _html_part ->
-      assert subject == "Erreurs détectées dans le jeu de données #{gtfs_dataset.custom_title}"
+      assert subject == "Ressources indisponibles dans le jeu de données #{gtfs_dataset.custom_title}"
 
       assert plain_text_body =~
-               "Des erreurs bloquantes ont été détectées dans votre jeu de données #{gtfs_dataset.custom_title}"
-
-      assert plain_text_body =~
-               "#{resource_gtfs.title} — http://127.0.0.1:5100/resources/#{resource_gtfs.id}"
+               "Les ressources #{resource_gtfs.title} dans votre jeu de données #{gtfs_dataset.custom_title} — http://127.0.0.1:5100/datasets/#{gtfs_dataset.slug} ne sont plus disponibles au téléchargement depuis plus de 6h."
 
       :ok
     end)

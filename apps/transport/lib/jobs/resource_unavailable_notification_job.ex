@@ -30,14 +30,15 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
           Application.get_env(:transport, :contact_email),
           email,
           Application.get_env(:transport, :contact_email),
-          "Erreurs détectées dans le jeu de données #{dataset.custom_title}",
+          "Ressources indisponibles dans le jeu de données #{dataset.custom_title}",
           """
           Bonjour,
 
-          Des erreurs bloquantes ont été détectées dans votre jeu de données #{dataset_url(dataset)}. Ces erreurs empêchent la réutilisation de vos données.
+          Les ressources #{Enum.map_join(unavailabilities, ", ", &resource_title/1)} dans votre jeu de données #{dataset_url(dataset)} ne sont plus disponibles au téléchargement depuis plus de #{@hours_consecutive_downtime}h.
 
-          Nous vous invitons à les corriger en vous appuyant sur les rapports de validation suivants :
-          #{Enum.map_join(unavailabilities, "\n", &resource_link/1)}
+          Ces erreurs empêchent la réutilisation de vos données.
+
+          Nous vous invitons à corriger l'accès de vos données dès que possible.
 
           Nous restons disponible pour vous accompagner si besoin.
 
@@ -96,9 +97,7 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
     "#{custom_title} — #{url}"
   end
 
-  defp resource_link(%DB.ResourceUnavailability{resource: %DB.Resource{id: id, title: title}}) do
-    url = TransportWeb.Router.Helpers.resource_url(TransportWeb.Endpoint, :details, id)
-
-    "* #{title} — #{url}"
+  defp resource_title(%DB.ResourceUnavailability{resource: %DB.Resource{title: title}}) do
+    title
   end
 end
