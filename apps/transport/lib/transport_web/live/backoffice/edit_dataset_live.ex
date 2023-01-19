@@ -4,6 +4,8 @@ defmodule TransportWeb.EditDatasetLive do
   use Phoenix.HTML
   import TransportWeb.Gettext, only: [dgettext: 2]
   alias DB.Dataset
+  import TransportWeb.Router.Helpers
+  alias TransportWeb.InputHelpers
 
   def render(assigns) do
     ~H"""
@@ -22,23 +24,22 @@ defmodule TransportWeb.EditDatasetLive do
           <%= dgettext("backoffice", "Edit a dataset") %>
         <% end %>
       </h1>
-      <%= unless is_nil(assigns[:dataset_id]) do %>
+      <%= unless is_nil(assigns[:dataset]) do %>
         <div class="pb-24">
           <i class="fa fa-external-link-alt"></i>
-          <%!-- <%= link(dgettext("backoffice", "See dataset on website"), to: dataset_path(@conn, :details, @dataset_id)) %> --%>
+          <%= link(dgettext("backoffice", "See dataset on website"), to: dataset_path(@socket, :details, @dataset.id)) %>
         </div>
       <% end %>
 
       <div class="pt-24">
-        <%= text_input(f, :url,
+        <%= InputHelpers.text_input(f, :url,
           placeholder: dgettext("backoffice", "Dataset's url"),
           value:
             if not is_nil(@dataset) do
               Dataset.datagouv_url(@dataset)
             else
               ""
-            end,
-          class: "form__group"
+            end
         ) %>
 
         <%= if assigns[:datagouv_infos] do %>
@@ -63,24 +64,22 @@ defmodule TransportWeb.EditDatasetLive do
           </div>
         <% end %>
 
-        <%= text_input(f, :custom_title,
+        <%= InputHelpers.text_input(f, :custom_title,
           placeholder: dgettext("backoffice", "name"),
           value:
             if not is_nil(@dataset) do
               @dataset.custom_title
             else
               ""
-            end,
-          class: "form__group"
+            end
         ) %>
-        <%= select(f, :type, @dataset_types,
+        <%= InputHelpers.select(f, :type, @dataset_types,
           selected:
             if not is_nil(@dataset) do
               @dataset.type
             else
               "public-transit"
-            end,
-          class: "form__group"
+            end
         ) %>
       </div>
 
@@ -118,11 +117,12 @@ defmodule TransportWeb.EditDatasetLive do
         <%= dgettext("backoffice", "Dataset linked to an AOM") %>
         <div class="panel__content">
           <%= if is_nil(@dataset) || is_nil(@dataset.aom) || is_nil(@dataset.aom.insee_commune_principale) do %>
-            <%!-- <%= live_render(@conn, TransportWeb.Live.CommuneField, session: %{"insee" => ""}) %> --%>
+            <%= live_render(@socket, TransportWeb.Live.CommuneField, id: "commune_field", session: %{"insee" => ""}) %>
           <% else %>
-            <%!-- <%= live_render(@conn, TransportWeb.Live.CommuneField,
+            <%= live_render(@socket, TransportWeb.Live.CommuneField,
+              id: "commune_field",
               session: %{"insee" => @dataset.aom.insee_commune_principale}
-            ) %> --%>
+            ) %>
           <% end %>
         </div>
         <p class="separator">
@@ -132,7 +132,7 @@ defmodule TransportWeb.EditDatasetLive do
           <%= dgettext("backoffice", "Dataset linked to a list of cities in data.gouv.fr") %>
           <div>
             <div class="pt-12">
-              <%= text_input(f, :associated_territory_name,
+              <%= InputHelpers.text_input(f, :associated_territory_name,
                 placeholder: dgettext("backoffice", "Name of the associtated territory (used in the title of the dataset)"),
                 value:
                   if not is_nil(@dataset) do
@@ -149,14 +149,14 @@ defmodule TransportWeb.EditDatasetLive do
         <div>
           <%= if is_nil(@dataset) do %>
             <%= hidden_input(f, :action, value: "new") %>
-            <%= submit(dgettext("backoffice", "Add")) %>
+            <%= InputHelpers.submit(dgettext("backoffice", "Add")) %>
           <% else %>
             <%= hidden_input(f, :action, value: "edit") %>
-            <%= submit(dgettext("backoffice", "Edit")) %>
+            <%= InputHelpers.submit(dgettext("backoffice", "Edit")) %>
           <% end %>
         </div>
         <div>
-          <%!-- <%= link(dgettext("backoffice", "Cancel"), to: backoffice_page_path(@conn, :index)) %> --%>
+          <%= link(dgettext("backoffice", "Cancel"), to: backoffice_page_path(@socket, :index)) %>
         </div>
       </div>
     </.form>
