@@ -21,8 +21,8 @@ defmodule DB.Notification do
   end
 
   def insert!(reason, %DB.Dataset{id: dataset_id}, email) do
-    __MODULE__
-    |> changeset(%{email: email, dataset_id: dataset_id, reason: @notification_reason})
+    %__MODULE__{}
+    |> changeset(%{reason: reason, dataset_id: dataset_id, email: email})
     |> DB.Repo.insert!()
   end
 
