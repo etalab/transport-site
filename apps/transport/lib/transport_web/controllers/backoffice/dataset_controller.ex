@@ -7,7 +7,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
   require Logger
 
   @spec post(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def post(%Plug.Conn{} = conn, params) do
+  def post(%Plug.Conn{} = conn, %{"form" => form_params} = params) do
     msgs = %{
       success: %{
         "edit" => dgettext("backoffice_dataset", "Dataset edited with success"),
@@ -19,20 +19,20 @@ defmodule TransportWeb.Backoffice.DatasetController do
       }
     }
 
-    dataset_datagouv_id = Datasets.get_id_from_url(params["url"])
+    dataset_datagouv_id = Datasets.get_id_from_url(form_params["url"])
 
-    params =
+    form_params =
       case Map.get(params, "id") do
         # will create a new dataset
-        nil -> params
+        nil -> form_params
         # will update an existing dataset
-        dataset_id -> Map.put(params, "dataset_id", dataset_id)
+        dataset_id -> Map.put(form_params, "dataset_id", dataset_id)
       end
 
     with datagouv_id when not is_nil(datagouv_id) <- dataset_datagouv_id,
-         {:ok, dg_dataset} <- ImportData.import_from_data_gouv(datagouv_id, params["type"]),
-         params <- Map.merge(params, dg_dataset),
-         {:ok, changeset} <- Dataset.changeset(params),
+         {:ok, dg_dataset} <- ImportData.import_from_data_gouv(datagouv_id, form_params["type"]),
+         complete_params <- Map.merge(form_params, dg_dataset),
+         {:ok, changeset} <- Dataset.changeset(complete_params),
          {:ok, dataset} <- insert_dataset(changeset) do
       dataset
       |> Dataset.validate()
