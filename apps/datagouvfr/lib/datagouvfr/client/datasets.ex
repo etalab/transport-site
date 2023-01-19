@@ -78,17 +78,21 @@ defmodule Datagouvfr.Client.Datasets do
     |> Enum.reduce(%Datasets{}, &accumulator_atomizer/2)
   end
 
-  @spec get_id_from_url(String.t()) :: String.t()
+  @spec get_id_from_url(String.t()) :: String.t() | nil
   def get_id_from_url(url) do
-    [@endpoint, Helpers.filename_from_url(url)]
-    |> API.get()
-    |> case do
-      {:ok, dataset} ->
-        dataset["id"]
+    case get_infos_from_url(url) do
+      infos when is_list(infos) -> Keyword.get(infos, :id)
+      _ -> nil
+    end
+  end
 
-      {:error, error} ->
-        Logger.error(inspect(error))
-        nil
+  @spec get_infos_from_url(String.t()) :: keyword() | nil
+  def get_infos_from_url(url) do
+    with filename when not is_nil(filename) <- Helpers.filename_from_url(url),
+         {:ok, dataset} <- [@endpoint, filename] |> API.get() do
+      [id: dataset["id"], title: dataset["title"], slug: dataset["slug"]]
+    else
+      _ -> nil
     end
   end
 

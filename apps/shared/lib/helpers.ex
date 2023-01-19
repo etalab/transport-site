@@ -16,7 +16,7 @@ defmodule Helpers do
   "bobette"
   """
   @spec filename_from_url(binary()) :: binary()
-  def filename_from_url(url) do
+  def filename_from_url("http" <> _ = url) do
     url
     |> URI.parse()
     |> Map.get(:path)
@@ -24,6 +24,8 @@ defmodule Helpers do
     |> String.split("/")
     |> List.last()
   end
+
+  def filename_from_url(_), do: nil
 
   @doc """
   Formats numbers.
