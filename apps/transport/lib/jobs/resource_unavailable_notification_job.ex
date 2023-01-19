@@ -79,10 +79,8 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
     |> Enum.group_by(& &1.resource.dataset)
   end
 
-  defp save_notification(%DB.Dataset{id: dataset_id}, email) do
-    %DB.Notification{}
-    |> DB.Notification.changeset(%{email: email, dataset_id: dataset_id, reason: @notification_reason})
-    |> DB.Repo.insert!()
+  defp save_notification(%DB.Dataset{} = dataset, email) do
+    DB.Notification.insert!(@notification_reason, dataset, email)
   end
 
   defp emails_list(%DB.Dataset{} = dataset) do

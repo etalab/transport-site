@@ -20,6 +20,12 @@ defmodule DB.Notification do
     timestamps(type: :utc_datetime_usec)
   end
 
+  def insert!(reason, %DB.Dataset{id: dataset_id}, email) do
+    __MODULE__
+    |> changeset(%{email: email, dataset_id: dataset_id, reason: @notification_reason})
+    |> DB.Repo.insert!()
+  end
+
   def changeset(struct, attrs \\ %{}) do
     struct
     |> cast(attrs, [:reason, :dataset_id, :email])

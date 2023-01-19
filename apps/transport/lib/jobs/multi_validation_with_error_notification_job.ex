@@ -14,7 +14,7 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
   import Ecto.Query
 
   @nb_days_before_sending_notification_again 15
-
+  @notification_reason :dataset_with_error
   @enabled_validators [
     Transport.Validators.GTFSTransport,
     Transport.Validators.TableSchema,
@@ -66,16 +66,14 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
     datetime_limit = DateTime.utc_now() |> DateTime.add(-@nb_days_before_sending_notification_again, :day)
 
     DB.Notification
-    |> where([n], n.inserted_at >= ^datetime_limit and n.dataset_id == ^dataset_id and n.reason == :dataset_with_error)
+    |> where([n], n.inserted_at >= ^datetime_limit and n.dataset_id == ^dataset_id and n.reason == @notification_reason)
     |> select([n], n.email)
     |> DB.Repo.all()
     |> MapSet.new()
   end
 
-  defp save_notification(%DB.Dataset{id: dataset_id}, email) do
-    %DB.Notification{}
-    |> DB.Notification.changeset(%{email: email, dataset_id: dataset_id, reason: :dataset_with_error})
-    |> DB.Repo.insert!()
+  defp save_notification(%DB.Dataset{} = dataset, email) do
+    DB.Notification.insert!(@notification_reason, dataset, email)
   end
 
   def relevant_validations(%DateTime{} = inserted_at) do
