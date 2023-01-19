@@ -39,9 +39,11 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
     conn
     |> setup_admin_in_session()
     |> post(Routes.backoffice_dataset_path(conn, :post, dataset.id), %{
-      "custom_title" => "new title",
-      "url" => slug,
-      "type" => "public-transit"
+      "form" => %{
+        "custom_title" => "new title",
+        "url" => slug,
+        "type" => "public-transit"
+      }
     })
 
     # the title has been updated, the dataset_id has not changed
@@ -84,9 +86,11 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
     conn
     |> setup_admin_in_session()
     |> post(Routes.backoffice_dataset_path(conn, :post, dataset.id), %{
-      "custom_title" => "title",
-      "url" => "https://example.com/#{slug_2}",
-      "type" => "public-transit"
+      "form" => %{
+        "custom_title" => "title",
+        "url" => "https://example.com/#{slug_2}",
+        "type" => "public-transit"
+      }
     })
 
     # the slug and datagouv_id have been updated, but the dataset_id has not changed
