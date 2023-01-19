@@ -16,7 +16,7 @@ defmodule Helpers do
   "bobette"
   """
   @spec filename_from_url(binary()) :: binary()
-  def filename_from_url("http" <> _ = url) do
+  def filename_from_url(url) when is_binary(url) do
     url
     |> URI.parse()
     |> Map.get(:path)

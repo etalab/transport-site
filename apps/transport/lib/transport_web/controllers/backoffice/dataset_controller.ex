@@ -39,14 +39,14 @@ defmodule TransportWeb.Backoffice.DatasetController do
       |> flash(
         conn,
         [
-          msgs.success[params["action"]],
+          msgs.success[form_params["action"]],
           ". ",
           Phoenix.HTML.Link.link(
             dgettext("backoffice_dataset", "Check the dataset page"),
             to: dataset_path(conn, :details, dataset_datagouv_id)
           )
         ],
-        msgs.error[params["action"]]
+        msgs.error[form_params["action"]]
       )
     else
       {:error, error} ->

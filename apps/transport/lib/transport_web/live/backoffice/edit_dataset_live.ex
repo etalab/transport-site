@@ -51,7 +51,7 @@ defmodule TransportWeb.EditDatasetLive do
             <% else %>
               <div>Jeu de données <strong>"<%= @datagouv_infos[:datagouv_title] %>"</strong></div>
               Son identifiant data.gouv est <strong><%= @datagouv_infos[:dataset_datagouv_id] %></strong>
-              <div class="pt-12">
+              <div class="pt-12 pb-12">
                 <%= if @datagouv_infos[:dataset_id] do %>
                   ⚠️ Ce jeu de données est déjà référencé chez nous, il n'est pas possible de le référencer une seconde fois. <%= @datagouv_infos[
                     :dataset_id
@@ -190,10 +190,9 @@ defmodule TransportWeb.EditDatasetLive do
         socket
       ) do
     # new dataset or existing dataset with new url => get info from data.gouv
-    if(
-      socket.assigns.dataset == nil or
-        datagouv_url != Dataset.datagouv_url(socket.assigns.dataset)
-    ) do
+    if datagouv_url != "" and
+         (socket.assigns.dataset == nil or
+            datagouv_url != Dataset.datagouv_url(socket.assigns.dataset)) do
       Task.async(fn -> get_datagouv_infos(datagouv_url) end)
       {:noreply, socket}
     else
