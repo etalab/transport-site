@@ -1,5 +1,4 @@
 defmodule TransportWeb.EditDatasetLive do
-  # In Phoenix v1.6+ apps, the line below should be: use MyAppWeb, :live_view
   use Phoenix.LiveView
   use Phoenix.HTML
   import TransportWeb.Gettext, only: [dgettext: 2]
@@ -50,10 +49,15 @@ defmodule TransportWeb.EditDatasetLive do
               Impossible de trouver ce jeu de données sur data.gouv
             <% else %>
               <div>Jeu de données <strong>"<%= @datagouv_infos[:datagouv_title] %>"</strong></div>
-              <div class="pt-12">Son identifiant data.gouv est <strong><%= @datagouv_infos[:dataset_datagouv_id] %></strong></div>
+              <div class="pt-12">
+                Son identifiant data.gouv est <strong><%= @datagouv_infos[:dataset_datagouv_id] %></strong>
+              </div>
               <div class="pt-12">
                 <%= if @datagouv_infos[:dataset_id] do %>
-                  ⚠️ Ce jeu de données est déjà référencé <%= link("sur le PAN", to: backoffice_page_path(@socket, :edit, @datagouv_infos[:dataset_id]), target: "_blank") %>, il n'est pas possible de le référencer une seconde fois.
+                  ⚠️ Ce jeu de données est déjà référencé <%= link("sur le PAN",
+                    to: backoffice_page_path(@socket, :edit, @datagouv_infos[:dataset_id]),
+                    target: "_blank"
+                  ) %>, il n'est pas possible de le référencer une seconde fois.
                 <% else %>
                   Ce jeu n'est pas encore référencé chez nous ✅
                 <% end %>
