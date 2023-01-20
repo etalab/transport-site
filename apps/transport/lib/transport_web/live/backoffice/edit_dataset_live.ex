@@ -115,11 +115,14 @@ defmodule TransportWeb.EditDatasetLive do
         <%= dgettext("backoffice", "Dataset linked to an AOM") %>
         <div class="panel__content">
           <%= if is_nil(@dataset) || is_nil(@dataset.aom) || is_nil(@dataset.aom.insee_commune_principale) do %>
-            <%= live_render(@socket, TransportWeb.Live.CommuneField, id: "commune_field", session: %{"insee" => ""}) %>
+            <%= live_render(@socket, TransportWeb.Live.CommuneField,
+              id: "commune_field",
+              session: %{"insee" => "", "form" => f}
+            ) %>
           <% else %>
             <%= live_render(@socket, TransportWeb.Live.CommuneField,
               id: "commune_field",
-              session: %{"insee" => @dataset.aom.insee_commune_principale}
+              session: %{"insee" => @dataset.aom.insee_commune_principale, "form" => f}
             ) %>
           <% end %>
         </div>
