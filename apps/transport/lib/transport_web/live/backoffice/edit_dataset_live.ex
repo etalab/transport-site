@@ -53,7 +53,10 @@ defmodule TransportWeb.EditDatasetLive do
               Son identifiant data.gouv est <strong><%= @datagouv_infos[:dataset_datagouv_id] %></strong>
               <div class="pt-12 pb-12">
                 <%= if @datagouv_infos[:dataset_id] do %>
-                  ⚠️ Ce jeu de données est déjà référencé <%= link("sur le PAN", to: backoffice_page_path(@socket, :edit, @datagouv_infos[:dataset_id]), target: "_blank") %>, il n'est pas possible de le référencer une seconde fois.
+                  ⚠️ Ce jeu de données est déjà référencé <%= link("sur le PAN",
+                    to: backoffice_page_path(@socket, :edit, @datagouv_infos[:dataset_id]),
+                    target: "_blank"
+                  ) %>, il n'est pas possible de le référencer une seconde fois.
                 <% else %>
                   Ce jeu n'est pas encore référencé chez nous ✅
                 <% end %>

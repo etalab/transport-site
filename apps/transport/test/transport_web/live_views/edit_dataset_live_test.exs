@@ -27,11 +27,7 @@ defmodule TransportWeb.EditDatasetLiveTest do
     input_data_gouv_url = "http://data.gouv.fr/url_404"
 
     Transport.HTTPoison.Mock
-    |> expect(:request, 1, fn :get,
-                              "https://demo.data.gouv.fr/api/1/datasets/url_404/",
-                              _,
-                              _,
-                              _ ->
+    |> expect(:request, 1, fn :get, "https://demo.data.gouv.fr/api/1/datasets/url_404/", _, _, _ ->
       {:ok, %HTTPoison.Response{body: "", status_code: 404}}
     end)
 
@@ -62,11 +58,7 @@ defmodule TransportWeb.EditDatasetLiveTest do
     input_data_gouv_url = "http://data.gouv.fr/url_200"
 
     Transport.HTTPoison.Mock
-    |> expect(:request, 1, fn :get,
-                              "https://demo.data.gouv.fr/api/1/datasets/url_200/",
-                              _,
-                              _,
-                              _ ->
+    |> expect(:request, 1, fn :get, "https://demo.data.gouv.fr/api/1/datasets/url_200/", _, _, _ ->
       {:ok,
        %HTTPoison.Response{
          body: ~s({"id":"1234","title": "Horaires de Talence"}),
@@ -102,11 +94,7 @@ defmodule TransportWeb.EditDatasetLiveTest do
     input_data_gouv_url = "http://data.gouv.fr/url_200"
 
     Transport.HTTPoison.Mock
-    |> expect(:request, 1, fn :get,
-                              "https://demo.data.gouv.fr/api/1/datasets/url_200/",
-                              _,
-                              _,
-                              _ ->
+    |> expect(:request, 1, fn :get, "https://demo.data.gouv.fr/api/1/datasets/url_200/", _, _, _ ->
       {:ok,
        %HTTPoison.Response{
          body: ~s({"id":"#{datagouv_id}","title": "Horaires de Talence"}),
