@@ -189,4 +189,18 @@ defmodule TransportWeb.DatasetSearchControllerTest do
 
     assert first_dataset_id != base_nationale_dataset_id
   end
+
+  test "datasets associated to a region are displayed first when searching for a region" do
+    aom_dataset = insert(:dataset, is_active: true)
+    refute is_nil(aom_dataset.aom_id)
+    aom = DB.Repo.get!(DB.AOM, aom_dataset.aom_id)
+    region_dataset = insert(:dataset, region_id: aom.region_id, is_active: true)
+
+    list_datasets = fn %{} = args ->
+      args |> Dataset.list_datasets() |> Repo.all() |> Enum.map(& &1.id)
+    end
+
+    assert [region_dataset.id, aom_dataset.id] == list_datasets.(%{"region" => aom.region_id |> to_string()})
+    assert list_datasets.(%{}) != list_datasets.(%{"region" => aom.region_id |> to_string()})
+  end
 end
