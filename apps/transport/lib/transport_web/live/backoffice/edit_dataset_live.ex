@@ -45,18 +45,15 @@ defmodule TransportWeb.EditDatasetLive do
         <%= if assigns[:datagouv_infos] do %>
           <% dataset_datagouv_id = @datagouv_infos[:dataset_datagouv_id] %>
 
-          <div class="pt-12">
+          <div class="pt-12 pb-12">
             <%= if is_nil(dataset_datagouv_id) do %>
               Impossible de trouver ce jeu de données sur data.gouv
             <% else %>
               <div>Jeu de données <strong>"<%= @datagouv_infos[:datagouv_title] %>"</strong></div>
-              Son identifiant data.gouv est <strong><%= @datagouv_infos[:dataset_datagouv_id] %></strong>
-              <div class="pt-12 pb-12">
+              <div class="pt-12">Son identifiant data.gouv est <strong><%= @datagouv_infos[:dataset_datagouv_id] %></strong></div>
+              <div class="pt-12">
                 <%= if @datagouv_infos[:dataset_id] do %>
-                  ⚠️ Ce jeu de données est déjà référencé <%= link("sur le PAN",
-                    to: backoffice_page_path(@socket, :edit, @datagouv_infos[:dataset_id]),
-                    target: "_blank"
-                  ) %>, il n'est pas possible de le référencer une seconde fois.
+                  ⚠️ Ce jeu de données est déjà référencé <%= link("sur le PAN", to: backoffice_page_path(@socket, :edit, @datagouv_infos[:dataset_id]), target: "_blank") %>, il n'est pas possible de le référencer une seconde fois.
                 <% else %>
                   Ce jeu n'est pas encore référencé chez nous ✅
                 <% end %>
@@ -102,7 +99,7 @@ defmodule TransportWeb.EditDatasetLive do
         </p>
         <div class="panel__content">
           <%= dgettext("backoffice", "Dataset linked to a region") %>
-          <%= select(f, :region_id, Enum.map(@regions, &{&1.nom, &1.id}),
+          <%= select(f, :region_id, @regions,
             selected:
               if not is_nil(@dataset) do
                 @dataset.region_id
@@ -146,7 +143,7 @@ defmodule TransportWeb.EditDatasetLive do
           </div>
         </div>
       </div>
-      <div class="backoffice_dataset_submit_buttons">
+      <div id="backoffice_dataset_submit_buttons" class={if is_nil(@dataset), do: "pb-48"}>
         <div>
           <%= if is_nil(@dataset) do %>
             <%= hidden_input(f, :action, value: "new") %>
