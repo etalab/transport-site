@@ -1,12 +1,7 @@
 <% expiration_configuration_edit_url = "https://github.com/etalab/transport-notifications/edit/master/config.yml" %>
 <div class="pt-48">
-  <% form_url =
-    if assigns[:dataset_id],
-      do: backoffice_dataset_path(@conn, :post, @dataset_id),
-      else: backoffice_dataset_path(@conn, :post) %>
-
   <%= live_render(@conn, TransportWeb.EditDatasetLive,
-    session: %{"dataset" => @dataset, "dataset_types" => @dataset_types, "regions" => @regions, "form_url" => form_url}
+    session: %{"dataset" => @dataset, "dataset_types" => @dataset_types, "regions" => @regions}
   ) %>
 
   <%= unless is_nil(@dataset) do %>

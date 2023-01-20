@@ -173,11 +173,16 @@ defmodule TransportWeb.EditDatasetLive do
         %{
           "dataset" => dataset,
           "dataset_types" => dataset_types,
-          "regions" => regions,
-          "form_url" => form_url
+          "regions" => regions
         },
         socket
       ) do
+    form_url =
+      case dataset do
+        nil -> backoffice_dataset_path(socket, :post)
+        %{id: dataset_id} -> backoffice_dataset_path(socket, :post, dataset_id)
+      end
+
     socket =
       socket
       |> assign(:dataset, dataset)
@@ -205,6 +210,7 @@ defmodule TransportWeb.EditDatasetLive do
     end
   end
 
+  # allow a classic http form submit when the form is submitted by user
   def handle_event("save", _, socket) do
     {:noreply, assign(socket, trigger_submit: true)}
   end
@@ -213,7 +219,9 @@ defmodule TransportWeb.EditDatasetLive do
     {:noreply, socket}
   end
 
+  # get the result from the async Task triggered by "change_dataset"
   def handle_info({ref, datagouv_infos}, socket) do
+    # we stop monitoring the process after receiving the result
     Process.demonitor(ref, [:flush])
     {:noreply, assign(socket, datagouv_infos: datagouv_infos)}
   end
