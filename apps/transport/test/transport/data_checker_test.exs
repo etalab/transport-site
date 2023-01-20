@@ -17,8 +17,10 @@ defmodule Transport.DataCheckerTest do
       dataset = insert(:dataset, is_active: false)
 
       # but which is found (= active?) on data gouv side
+      url = "https://demo.data.gouv.fr/api/1/datasets/#{dataset.datagouv_id}/"
+
       Transport.HTTPoison.Mock
-      |> expect(:request, fn :get, "https://demo.data.gouv.fr/api/1/datasets/123/", "", [], [follow_redirect: true] ->
+      |> expect(:request, fn :get, ^url, "", [], [follow_redirect: true] ->
         # the dataset is found on datagouv
         {:ok, %HTTPoison.Response{status_code: 200, body: ~s({"archived":null})}}
       end)
@@ -86,11 +88,13 @@ defmodule Transport.DataCheckerTest do
     end
 
     test "sends an email when a dataset is now archived" do
-      insert(:dataset, is_active: true)
+      dataset = insert(:dataset, is_active: true)
 
       # dataset is now archived on data.gouv.fr
+      url = "https://demo.data.gouv.fr/api/1/datasets/#{dataset.datagouv_id}/"
+
       Transport.HTTPoison.Mock
-      |> expect(:request, fn :get, "https://demo.data.gouv.fr/api/1/datasets/123/", "", [], [follow_redirect: true] ->
+      |> expect(:request, fn :get, ^url, "", [], [follow_redirect: true] ->
         archived = DateTime.utc_now() |> DateTime.add(-10, :hour) |> DateTime.to_string()
         # the dataset is not found on datagouv
         {:ok, %HTTPoison.Response{status_code: 200, body: Jason.encode!(%{"archived" => archived})}}
