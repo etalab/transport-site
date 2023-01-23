@@ -113,6 +113,7 @@ defmodule TransportWeb.Router do
       get("/", PageController, :index)
       get("/dashboard", DashboardController, :index)
       get("/broken-urls", BrokenUrlsController, :index)
+      get("/gtfs-export", GTFSExportController, :export)
 
       live_dashboard("/phoenix-dashboard",
         metrics: Transport.PhoenixDashboardTelemetry,
