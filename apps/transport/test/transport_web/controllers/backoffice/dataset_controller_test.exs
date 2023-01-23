@@ -1,6 +1,5 @@
 defmodule TransportWeb.Backoffice.DatasetControllerTest do
   use TransportWeb.ConnCase, async: true
-  import Plug.Test
   alias TransportWeb.Router.Helpers, as: Routes
   import DB.Factory
   import Mox
