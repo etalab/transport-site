@@ -34,7 +34,7 @@ defmodule Transport.Validators.ValidataJsonTest do
     end)
 
     poll_url = "https://json.validator.validata.fr/job/#{job_id}"
-    output_url = poll_url <> "/output"
+    output_url = poll_url <> "/output?text_or_json=json"
 
     Transport.HTTPoison.Mock
     |> expect(:get, 1, fn ^poll_url ->
