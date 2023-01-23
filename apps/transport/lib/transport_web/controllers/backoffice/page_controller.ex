@@ -132,11 +132,15 @@ defmodule TransportWeb.Backoffice.PageController do
     |> render_index(conn, params)
   end
 
+  defp get_regions_for_select do
+    Region |> where([r], r.nom != "National") |> select([r], {r.nom, r.id}) |> Repo.all()
+  end
+
   def new(%Plug.Conn{} = conn, _) do
     conn
     |> assign(:dataset, nil)
     |> assign(:dataset_types, Dataset.types())
-    |> assign(:regions, Region |> where([r], r.nom != "National") |> Repo.all())
+    |> assign(:regions, get_regions_for_select())
     |> render("form_dataset.html")
   end
 
@@ -153,7 +157,7 @@ defmodule TransportWeb.Backoffice.PageController do
     conn
     |> assign(:dataset_id, dataset_id)
     |> assign(:dataset_types, Dataset.types())
-    |> assign(:regions, Region |> where([r], r.nom != "National") |> Repo.all())
+    |> assign(:regions, get_regions_for_select())
     |> assign(:expiration_emails, notification_expiration_emails(conn.assigns[:dataset]))
     |> assign(:notifications_sent, notifications_sent(conn.assigns[:dataset]))
     |> assign(:notifications_last_nb_days, notifications_last_nb_days())

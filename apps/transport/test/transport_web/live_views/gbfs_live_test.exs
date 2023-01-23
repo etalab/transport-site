@@ -1,6 +1,7 @@
 defmodule TransportWeb.Backoffice.GBFSLiveTest do
   use ExUnit.Case, async: true
   use TransportWeb.LiveCase
+  import TransportWeb.ConnCase, only: [setup_admin_in_session: 1]
   import Phoenix.LiveViewTest
 
   @endpoint TransportWeb.Endpoint

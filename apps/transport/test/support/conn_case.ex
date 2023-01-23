@@ -15,6 +15,7 @@ defmodule TransportWeb.ConnCase do
 
   use ExUnit.CaseTemplate
   alias Phoenix.ConnTest
+  import Plug.Test
 
   using do
     quote do
@@ -26,6 +27,7 @@ defmodule TransportWeb.ConnCase do
       # This is due to how we configured the various "cases" I believe, and we'll have to clean that up.
       import Phoenix.ConnTest, except: [init_test_session: 2]
       import TransportWeb.Router.Helpers
+      import TransportWeb.ConnCase
 
       # The default endpoint for testing
       @endpoint TransportWeb.Endpoint
@@ -34,5 +36,14 @@ defmodule TransportWeb.ConnCase do
 
   setup _tags do
     {:ok, conn: ConnTest.build_conn()}
+  end
+
+  def setup_admin_in_session(conn) do
+    conn
+    |> init_test_session(%{
+      current_user: %{
+        "organizations" => [%{"slug" => "equipe-transport-data-gouv-fr"}]
+      }
+    })
   end
 end

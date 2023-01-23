@@ -79,7 +79,7 @@ defmodule TransportWeb.BackofficeControllerTest do
 
     {conn, logs} =
       use_cassette "dataset/dataset-region-ao.json" do
-        with_log(fn -> post(conn, backoffice_dataset_path(conn, :post), @dataset) end)
+        with_log(fn -> post(conn, backoffice_dataset_path(conn, :post), %{"form" => @dataset}) end)
       end
 
     assert logs =~ "Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv"
@@ -102,7 +102,7 @@ defmodule TransportWeb.BackofficeControllerTest do
 
     {conn, logs} =
       use_cassette "dataset/dataset-no-region-nor-ao.json" do
-        with_log(fn -> post(conn, backoffice_dataset_path(conn, :post), dataset) end)
+        with_log(fn -> post(conn, backoffice_dataset_path(conn, :post), %{"form" => dataset}) end)
       end
 
     assert logs =~ "Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv"
@@ -163,7 +163,7 @@ defmodule TransportWeb.BackofficeControllerTest do
        ]}
     end)
 
-    conn = post(conn, backoffice_dataset_path(conn, :post), dataset)
+    conn = post(conn, backoffice_dataset_path(conn, :post), %{"form" => dataset})
 
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
     assert Resource |> where([r], not r.is_community_resource) |> Repo.all() |> length() == 1
@@ -201,7 +201,7 @@ defmodule TransportWeb.BackofficeControllerTest do
 
     conn =
       use_cassette "dataset/dataset-aom.json" do
-        post(conn, backoffice_dataset_path(conn, :post), dataset)
+        post(conn, backoffice_dataset_path(conn, :post), %{"form" => dataset})
       end
 
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
@@ -225,7 +225,7 @@ defmodule TransportWeb.BackofficeControllerTest do
 
     conn =
       use_cassette "dataset/dataset-with-multiple-cities.json" do
-        post(conn, backoffice_dataset_path(conn, :post), dataset)
+        post(conn, backoffice_dataset_path(conn, :post), %{"form" => dataset})
       end
 
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
@@ -248,7 +248,7 @@ defmodule TransportWeb.BackofficeControllerTest do
 
     {conn, logs} =
       use_cassette "dataset/dataset-with-multiple-cities-and-country.json" do
-        with_log(fn -> post(conn, backoffice_dataset_path(conn, :post), dataset) end)
+        with_log(fn -> post(conn, backoffice_dataset_path(conn, :post), %{"form" => dataset}) end)
       end
 
     # It should not be possible to link a dataset to either
@@ -278,7 +278,7 @@ defmodule TransportWeb.BackofficeControllerTest do
 
     conn =
       use_cassette "dataset/dataset-with-multiple-cities.json" do
-        post(conn, backoffice_dataset_path(conn, :post), dataset)
+        post(conn, backoffice_dataset_path(conn, :post), %{"form" => dataset})
       end
 
     # It should be possible to link a dataset to an AOM if the territory name
@@ -316,7 +316,7 @@ defmodule TransportWeb.BackofficeControllerTest do
 
     {conn, logs} =
       use_cassette "dataset/dataset-region-and-country.json" do
-        with_log(fn -> post(conn, backoffice_dataset_path(conn, :post), dataset) end)
+        with_log(fn -> post(conn, backoffice_dataset_path(conn, :post), %{"form" => dataset}) end)
       end
 
     # It should not be possible to link a dataset to either a region and to the whole country
@@ -337,12 +337,12 @@ defmodule TransportWeb.BackofficeControllerTest do
     dataset = %{@dataset | "region_id" => nil}
 
     use_cassette "dataset/dataset_twice" do
-      conn = post(conn, backoffice_dataset_path(conn, :post), dataset)
+      conn = post(conn, backoffice_dataset_path(conn, :post), %{"form" => dataset})
       query = from(r in Resource, where: r.url == ^resource_url)
       assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
       assert query |> Repo.all() |> length() == 1
 
-      conn = post(conn, backoffice_dataset_path(conn, :post), dataset)
+      conn = post(conn, backoffice_dataset_path(conn, :post), %{"form" => dataset})
       query = from(r in Resource, where: r.url == ^resource_url)
       assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
       assert query |> Repo.all() |> length() == 1

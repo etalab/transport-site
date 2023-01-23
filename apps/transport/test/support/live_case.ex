@@ -32,15 +32,6 @@ defmodule TransportWeb.LiveCase do
           |> Enum.into(%{})
         end)
       end
-
-      def setup_admin_in_session(conn) do
-        conn
-        |> init_test_session(%{
-          current_user: %{
-            "organizations" => [%{"slug" => "equipe-transport-data-gouv-fr"}]
-          }
-        })
-      end
     end
   end
 end
