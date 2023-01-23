@@ -50,7 +50,7 @@ defmodule TransportWeb.EditDatasetLive do
             <% else %>
               <div>Jeu de données <strong>"<%= @datagouv_infos[:datagouv_title] %>"</strong></div>
               <div class="pt-12">
-                Son identifiant data.gouv est <strong><%= @datagouv_infos[:dataset_datagouv_id] %></strong>
+                Son identifiant data.gouv est <code><%= @datagouv_infos[:dataset_datagouv_id] %></code>
               </div>
               <div class="pt-12">
                 <%= if @datagouv_infos[:dataset_id] do %>
