@@ -1,4 +1,7 @@
 defmodule Transport.GTFSExportStops do
+  @moduledoc """
+  A module to generate a flat-report from GTFS stops into a CSV for biz-devs.
+  """
   import Ecto.Query
 
   def data_import_ids do
