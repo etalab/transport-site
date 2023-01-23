@@ -29,29 +29,35 @@ defmodule Transport.GTFSExportStops do
     })
   end
 
-  # TODO: reduce query time (test: index on data_import_id reduces time by 2)
+  @headers [
+    :dataset_custom_title,
+    :dataset_organisation,
+    :dataset_id,
+    :resource_id,
+    :dataset_aom_id,
+    :dataset_region_id,
+    :stop_id,
+    :stop_name,
+    :stop_lat,
+    :stop_lon,
+    :stop_location_type
+  ]
+
   @doc """
   A flat export for the bizdev team to have a closer look at data.
   """
   def export_stops_report(data_import_ids) do
-    build_stops_report(data_import_ids)
-    |> DB.Repo.all()
-    |> CSV.encode(
-      headers: [
-        :dataset_custom_title,
-        :dataset_organisation,
-        :dataset_id,
-        :resource_id,
-        :dataset_aom_id,
-        :dataset_region_id,
-        :stop_id,
-        :stop_name,
-        :stop_lat,
-        :stop_lon,
-        :stop_location_type
-      ]
-    )
-    |> Enum.to_list()
-    |> Enum.join()
+    headers = @headers |> Enum.map(fn x -> Atom.to_string(x) end)
+
+    rows =
+      build_stops_report(data_import_ids)
+      |> DB.Repo.all()
+      |> Enum.map(fn record ->
+        # build a list with same order as the headers
+        for header <- @headers, do: Map.fetch!(record, header)
+      end)
+
+    ([headers] ++ rows)
+    |> NimbleCSV.RFC4180.dump_to_iodata()
   end
 end
