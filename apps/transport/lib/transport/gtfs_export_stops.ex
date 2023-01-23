@@ -48,22 +48,21 @@ defmodule Transport.GTFSExportStops do
     :stop_location_type
   ]
 
+  def export_headers do
+    @headers
+    |> Enum.map(fn x -> Atom.to_string(x) end)
+  end
+
   @doc """
   A flat export for the bizdev team to have a closer look at data.
   """
   def export_stops_report(data_import_ids) do
-    headers = @headers |> Enum.map(fn x -> Atom.to_string(x) end)
-
-    rows =
-      data_import_ids
-      |> build_stops_report()
-      |> DB.Repo.all()
-      |> Enum.map(fn record ->
-        # build a list with same order as the headers
-        for header <- @headers, do: Map.fetch!(record, header)
-      end)
-
-    ([headers] ++ rows)
-    |> NimbleCSV.RFC4180.dump_to_iodata()
+    data_import_ids
+    |> build_stops_report()
+    |> DB.Repo.all()
+    |> Enum.map(fn record ->
+      # build a list with same order as the headers
+      for header <- @headers, do: Map.fetch!(record, header)
+    end)
   end
 end

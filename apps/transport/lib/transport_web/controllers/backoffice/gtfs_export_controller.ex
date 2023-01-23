@@ -3,13 +3,27 @@ defmodule TransportWeb.Backoffice.GTFSExportController do
   require Logger
 
   def export(%Plug.Conn{} = conn, _params) do
-    data_import_ids = Transport.GTFSExportStops.data_import_ids()
-    csv_data = Transport.GTFSExportStops.export_stops_report(data_import_ids)
+    conn =
+      conn
+      |> put_resp_content_type("text/csv")
+      |> put_resp_header("content-disposition", "attachment; filename=\"export.csv\"")
+      |> send_chunked(:ok)
+
+    [Transport.GTFSExportStops.export_headers()]
+    |> send_csv_data_chunk(conn)
+
+    Transport.GTFSExportStops.data_import_ids()
+    |> Enum.chunk_every(25)
+    |> Enum.each(fn ids ->
+      ids
+      |> Transport.GTFSExportStops.export_stops_report()
+      |> send_csv_data_chunk(conn)
+    end)
 
     conn
-    |> put_resp_content_type("text/csv")
-    |> put_resp_header("content-disposition", "attachment; filename=\"export.csv\"")
-    |> put_root_layout(false)
-    |> send_resp(200, csv_data)
+  end
+
+  def send_csv_data_chunk(data, conn) do
+    chunk(conn, data |> NimbleCSV.RFC4180.dump_to_iodata())
   end
 end
