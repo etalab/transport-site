@@ -4,6 +4,9 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
   alias TransportWeb.Backoffice.PageController
   alias TransportWeb.Router.Helpers, as: Routes
   import DB.Factory
+  import Mox
+
+  setup :verify_on_exit!
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -76,5 +79,37 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
 
     assert html_response(conn2, 200) =~ "un dataset outdated"
     refute html_response(conn2, 200) =~ "un dataset bien à jour"
+  end
+
+  test "notifications config and notifications sent are displayed", %{conn: conn} do
+    dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate(), slug: Ecto.UUID.generate())
+
+    insert_notification(%{dataset_id: dataset.id, email: "foo@example.fr", reason: :expiration})
+    insert_notification(%{dataset_id: dataset.id, email: "bar@example.fr", reason: :expiration})
+
+    Transport.Notifications.FetcherMock
+    |> expect(:fetch_config!, fn ->
+      [
+        %Transport.Notifications.Item{
+          reason: :expiration,
+          dataset_slug: dataset.slug,
+          emails: ["alert@example.fr"],
+          extra_delays: []
+        }
+      ]
+    end)
+
+    response =
+      conn
+      |> init_test_session(%{
+        current_user: %{
+          "organizations" => [%{"slug" => "equipe-transport-data-gouv-fr"}]
+        }
+      })
+      |> get(Routes.backoffice_page_path(conn, :edit, dataset.id))
+      |> html_response(200)
+
+    assert response =~ "bar@example.fr, foo@example.fr"
+    assert response =~ "alert@example.fr"
   end
 end

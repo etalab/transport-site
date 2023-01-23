@@ -7,7 +7,10 @@ defmodule DB.Notification do
   import Ecto.Changeset
 
   schema "notifications" do
-    field(:reason, Ecto.Enum, values: [:dataset_with_error, :expiration, :new_dataset, :dataset_now_licence_ouverte])
+    field(:reason, Ecto.Enum,
+      values: [:dataset_with_error, :resource_unavailable, :expiration, :new_dataset, :dataset_now_licence_ouverte]
+    )
+
     belongs_to(:dataset, DB.Dataset)
     field(:email, DB.Encrypted.Binary)
     # Should be used to search rows matching an email address
@@ -15,6 +18,12 @@ defmodule DB.Notification do
     field(:email_hash, Cloak.Ecto.SHA256)
 
     timestamps(type: :utc_datetime_usec)
+  end
+
+  def insert!(reason, %DB.Dataset{id: dataset_id}, email) do
+    %__MODULE__{}
+    |> changeset(%{reason: reason, dataset_id: dataset_id, email: email})
+    |> DB.Repo.insert!()
   end
 
   def changeset(struct, attrs \\ %{}) do

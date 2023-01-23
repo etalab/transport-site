@@ -4,26 +4,23 @@ defmodule TransportWeb.Live.CommuneField do
   """
   use Phoenix.LiveView
   alias Transport.SearchCommunes
+  alias TransportWeb.InputHelpers
 
   def render(assigns) do
     ~H"""
-    <div class="form__group">
-      <input
-        type="text"
-        phx-keyup="suggest"
-        list="matches"
-        name="insee"
-        value={@insee}
-        autocomplete="off"
-        id="communes_q"
-        placeholder="Commune faisant partie de l'AOM (code INSEE ou nom)"
-      />
-      <datalist id="matches">
-        <%= for match <- @matches do %>
-          <option value={match.insee}><%= "#{match.nom} #{match.insee}" %></option>
-        <% end %>
-      </datalist>
-    </div>
+    <%= InputHelpers.text_input(@form, :insee,
+      placeholder: "Commune faisant partie de l'AOM (code INSEE ou nom)",
+      value: @insee,
+      phx_keyup: "suggest",
+      list: "matches",
+      autocomplete: "off",
+      id: "communes_q"
+    ) %>
+    <datalist id="matches">
+      <%= for match <- @matches do %>
+        <option value={match.insee}><%= "#{match.nom} #{match.insee}" %></option>
+      <% end %>
+    </datalist>
     """
   end
 
@@ -32,6 +29,7 @@ defmodule TransportWeb.Live.CommuneField do
       socket
       |> assign(matches: [])
       |> assign(insee: session["insee"])
+      |> assign(form: session["form"])
 
     {:ok, assigns}
   end

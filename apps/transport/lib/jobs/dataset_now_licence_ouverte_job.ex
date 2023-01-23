@@ -44,10 +44,8 @@ defmodule Transport.Jobs.DatasetNowLicenceOuverteJob do
     :ok
   end
 
-  def save_notification(%DB.Dataset{id: dataset_id}, email) do
-    %DB.Notification{}
-    |> DB.Notification.changeset(%{email: email, dataset_id: dataset_id, reason: @notification_reason})
-    |> DB.Repo.insert!()
+  def save_notification(%DB.Dataset{} = dataset, email) do
+    DB.Notification.insert!(@notification_reason, dataset, email)
   end
 
   defp link(%DB.Dataset{slug: slug}), do: TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, slug)

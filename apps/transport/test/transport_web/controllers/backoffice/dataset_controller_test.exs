@@ -1,6 +1,5 @@
 defmodule TransportWeb.Backoffice.DatasetControllerTest do
   use TransportWeb.ConnCase, async: true
-  import Plug.Test
   alias TransportWeb.Router.Helpers, as: Routes
   import DB.Factory
   import Mox
@@ -9,15 +8,6 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-  end
-
-  def setup_admin_in_session(conn) do
-    conn
-    |> init_test_session(%{
-      current_user: %{
-        "organizations" => [%{"slug" => "equipe-transport-data-gouv-fr"}]
-      }
-    })
   end
 
   test "update a dataset custom title", %{conn: conn} do
@@ -39,9 +29,11 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
     conn
     |> setup_admin_in_session()
     |> post(Routes.backoffice_dataset_path(conn, :post, dataset.id), %{
-      "custom_title" => "new title",
-      "url" => slug,
-      "type" => "public-transit"
+      "form" => %{
+        "custom_title" => "new title",
+        "url" => slug,
+        "type" => "public-transit"
+      }
     })
 
     # the title has been updated, the dataset_id has not changed
@@ -84,9 +76,11 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
     conn
     |> setup_admin_in_session()
     |> post(Routes.backoffice_dataset_path(conn, :post, dataset.id), %{
-      "custom_title" => "title",
-      "url" => "https://example.com/#{slug_2}",
-      "type" => "public-transit"
+      "form" => %{
+        "custom_title" => "title",
+        "url" => "https://example.com/#{slug_2}",
+        "type" => "public-transit"
+      }
     })
 
     # the slug and datagouv_id have been updated, but the dataset_id has not changed

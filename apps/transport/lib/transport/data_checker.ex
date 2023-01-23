@@ -201,10 +201,8 @@ defmodule Transport.DataChecker do
     payload
   end
 
-  defp save_notification(reason, %Dataset{id: dataset_id}, email) do
-    %DB.Notification{}
-    |> DB.Notification.changeset(%{email: email, dataset_id: dataset_id, reason: reason})
-    |> DB.Repo.insert!()
+  defp save_notification(reason, %Dataset{} = dataset, email) do
+    DB.Notification.insert!(reason, dataset, email)
   end
 
   def has_expiration_notifications?(%Dataset{} = dataset) do
