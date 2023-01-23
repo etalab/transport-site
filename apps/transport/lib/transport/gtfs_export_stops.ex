@@ -7,12 +7,14 @@ defmodule Transport.GTFSExportStops do
   def data_import_ids do
     DB.DataImport
     |> select([di], di.id)
+    |> order_by([di], di.id)
     |> DB.Repo.all()
   end
 
   def build_stops_report(data_import_ids) do
     DB.GTFS.Stops
     |> where([s], s.data_import_id in ^data_import_ids)
+    |> order_by([s], [s.data_import_id, s.id])
     |> join(:inner, [s], di in DB.DataImport, on: s.data_import_id == di.id)
     |> join(:inner, [_, di], rh in DB.ResourceHistory, on: di.resource_history_id == rh.id)
     |> join(:inner, [_, _, rh], r in DB.Resource, on: rh.resource_id == r.id)
