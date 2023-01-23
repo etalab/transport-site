@@ -53,7 +53,8 @@ defmodule Transport.GTFSExportStops do
     headers = @headers |> Enum.map(fn x -> Atom.to_string(x) end)
 
     rows =
-      build_stops_report(data_import_ids)
+      data_import_ids
+      |> build_stops_report()
       |> DB.Repo.all()
       |> Enum.map(fn record ->
         # build a list with same order as the headers
