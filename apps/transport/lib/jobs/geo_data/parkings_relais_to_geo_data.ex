@@ -17,7 +17,7 @@ defmodule Transport.Jobs.ParkingsRelaisToGeoData do
   def relevant_dataset do
     transport_publisher_label = Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
 
-    DB.Dataset
+    DB.Dataset.base_query()
     |> preload(:resources)
     |> where(
       [d],
