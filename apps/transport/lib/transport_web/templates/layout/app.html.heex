@@ -60,6 +60,7 @@
 
     <main class="layout-main">
       <%= if has_flash(@conn) do %>
+        <%= render(LayoutView, "_breaking_news.html", assigns) %>
         <%= if get_flash(@conn, :info) do %>
           <p class="notification"><%= get_flash(@conn, :info) %></p>
         <% end %>

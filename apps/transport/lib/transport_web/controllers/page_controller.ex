@@ -19,7 +19,9 @@ defmodule TransportWeb.PageController do
     Transport.Cache.API.fetch("home-index-stats", fn -> compute_home_index_stats() end)
   end
 
-  defp put_breaking_news(conn, %{level: level, msg: msg}), do: conn |> put_flash(String.to_atom(level), msg)
+  defp put_breaking_news(conn, %{level: level, msg: msg}),
+    do: conn |> put_flash(String.to_existing_atom("breaking_news_" <> level), msg)
+
   defp put_breaking_news(conn, %{}), do: conn
 
   def not_found(conn, _params) do

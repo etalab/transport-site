@@ -22,7 +22,7 @@ defmodule TransportWeb.BreakingNewsControllerTest do
     end
 
     test "update a message, check it is displayed on home, delete it", %{conn: conn} do
-      message = "coucou message alerte"
+      message = "coucou message **alerte**"
 
       # set the message
       conn_admin =
@@ -35,20 +35,16 @@ defmodule TransportWeb.BreakingNewsControllerTest do
       # message has been set with sucess
       assert html_response(conn_admin, 200)
 
-      conn_client =
-        conn
-        |> get(page_path(conn, :index))
+      conn_client = conn |> get(page_path(conn, :index))
 
-      # message is displayed on home page
-      assert html_response(conn_client, 200) =~ message
+      # message is displayed on home page and Markdown is rendered
+      assert html_response(conn_client, 200) =~ "coucou message <strong>alerte</strong>"
 
       # set an empty message
       conn_admin
       |> post(backoffice_breaking_news_path(conn, :update_breaking_news, %{level: "info", msg: ""}))
 
-      conn_client =
-        conn
-        |> get(page_path(conn, :index))
+      conn_client = conn |> get(page_path(conn, :index))
 
       # no more message is displayed on home
       doc = conn_client |> html_response(200) |> Floki.parse_document!()
