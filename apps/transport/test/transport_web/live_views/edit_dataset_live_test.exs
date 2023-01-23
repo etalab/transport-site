@@ -23,10 +23,12 @@ defmodule TransportWeb.EditDatasetLiveTest do
         }
       )
 
-    input_data_gouv_url = "http://data.gouv.fr/url_404"
+    slug = "url_404"
+    input_data_gouv_url = "http://data.gouv.fr/#{slug}"
+    api_url = "https://demo.data.gouv.fr/api/1/datasets/#{slug}/"
 
     Transport.HTTPoison.Mock
-    |> expect(:request, 1, fn :get, "https://demo.data.gouv.fr/api/1/datasets/url_404/", _, _, _ ->
+    |> expect(:request, 1, fn :get, ^api_url, _, _, _ ->
       {:ok, %HTTPoison.Response{body: "", status_code: 404}}
     end)
 

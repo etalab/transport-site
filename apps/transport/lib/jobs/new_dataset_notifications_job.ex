@@ -2,7 +2,7 @@ defmodule Transport.Jobs.NewDatasetNotificationsJob do
   @moduledoc """
   Job in charge of sending notifications about datasets that have been added recently.
   """
-  use Oban.Worker, max_attempts: 3
+  use Oban.Worker, max_attempts: 3, tags: ["notifications"]
   import Ecto.Query
 
   @impl Oban.Worker

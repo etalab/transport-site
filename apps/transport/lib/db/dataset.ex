@@ -338,6 +338,19 @@ defmodule DB.Dataset do
         asc: :custom_title
       )
 
+  def order_datasets(datasets, %{"region" => region_id}) do
+    case Integer.parse(region_id) do
+      {region_id, ""} ->
+        order_by(datasets,
+          desc: fragment("case when region_id = ? then 1 else 0 end", ^region_id),
+          asc: :custom_title
+        )
+
+      :error ->
+        datasets
+    end
+  end
+
   def order_datasets(datasets, _params) do
     pan_publisher = Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
 
