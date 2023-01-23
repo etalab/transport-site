@@ -1,6 +1,7 @@
 defmodule TransportWeb.Backoffice.CacheLiveTest do
   use ExUnit.Case, async: true
   use TransportWeb.LiveCase
+  import TransportWeb.ConnCase, only: [setup_admin_in_session: 1]
   import Transport.Application, only: [cache_name: 0]
   import Phoenix.LiveViewTest
 

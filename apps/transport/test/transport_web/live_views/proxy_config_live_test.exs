@@ -1,6 +1,7 @@
 defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
   use ExUnit.Case, async: true
   use TransportWeb.LiveCase
+  import TransportWeb.ConnCase, only: [setup_admin_in_session: 1]
   import Mox
   import Phoenix.LiveViewTest
 
