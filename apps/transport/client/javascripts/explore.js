@@ -52,7 +52,7 @@ function prepareLayer (layerId, layerData) {
 }
 
 const deckGLLayer = new LeafletLayer({
-    views: [new MapView({repeat: true})],
+    views: [new MapView({ repeat: true })],
     layers: [],
     getTooltip
 })
@@ -65,7 +65,7 @@ function getTooltip ({ object, layer }) {
         } else if (layer.id === 'parkings_relais-layer') {
             return { html: `<strong>Parking relai</strong><br>${object.properties.nom}<br>Capacité : ${object.properties.nb_pr} places` }
         } else if (layer.id === 'zfe-layer') {
-            return { html: `<strong>Zone à Faible Émission</strong>` }
+            return { html: '<strong>Zone à Faible Émission</strong>' }
         } else {
             return { html: `<strong>Position temps-réel</strong><br>transport_resource: ${object.transport.resource_id}<br>id: ${object.vehicle.id}` }
         }
@@ -152,7 +152,7 @@ function createPointsLayer (geojson, id) {
     const fillColor = {
         'bnlc-layer': [255, 174, 0, 100],
         'parkings_relais-layer': [0, 33, 70, 100],
-        'zfe-layer': [155, 89, 182, 100],
+        'zfe-layer': [155, 89, 182, 100]
     }[id]
 
     return new GeoJsonLayer({
