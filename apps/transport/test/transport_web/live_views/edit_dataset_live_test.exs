@@ -1,6 +1,5 @@
 defmodule TransportWeb.EditDatasetLiveTest do
   use TransportWeb.ConnCase, async: true
-  import Phoenix.ConnTest
   import Phoenix.LiveViewTest
   import Mox
   import DB.Factory
@@ -110,14 +109,5 @@ defmodule TransportWeb.EditDatasetLiveTest do
     assert render(view) =~ "Horaires de Talence"
     assert render(view) =~ "1234"
     assert render(view) =~ "Ce jeu de données est déjà référencé"
-  end
-
-  def setup_admin_in_session(conn) do
-    conn
-    |> init_test_session(%{
-      current_user: %{
-        "organizations" => [%{"slug" => "equipe-transport-data-gouv-fr"}]
-      }
-    })
   end
 end

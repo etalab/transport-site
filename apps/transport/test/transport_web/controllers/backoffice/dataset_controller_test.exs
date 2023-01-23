@@ -11,15 +11,6 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
-  def setup_admin_in_session(conn) do
-    conn
-    |> init_test_session(%{
-      current_user: %{
-        "organizations" => [%{"slug" => "equipe-transport-data-gouv-fr"}]
-      }
-    })
-  end
-
   test "update a dataset custom title", %{conn: conn} do
     dataset = insert(:dataset, custom_title: "title 1", slug: slug = "https://example.com/slug")
 
