@@ -240,3 +240,23 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Phoenix LiveDashboard"
 msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Datetime"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Emails"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Notification reason"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Notifications sent"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Notifications sent in the last %{nb_days} days."
+msgstr ""
