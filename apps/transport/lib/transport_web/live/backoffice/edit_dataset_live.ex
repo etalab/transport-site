@@ -235,7 +235,7 @@ defmodule TransportWeb.EditDatasetLive do
       nil ->
         %{dataset_datagouv_id: nil}
 
-      [id: dataset_datagouv_id, title: title] ->
+      %{id: dataset_datagouv_id, title: title} ->
         # does the dataset already exists?
         dataset_id =
           case DB.Dataset |> DB.Repo.get_by(datagouv_id: dataset_datagouv_id) do

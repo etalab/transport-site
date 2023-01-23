@@ -81,16 +81,16 @@ defmodule Datagouvfr.Client.Datasets do
   @spec get_id_from_url(String.t()) :: String.t() | nil
   def get_id_from_url(url) do
     case get_infos_from_url(url) do
-      infos when is_list(infos) -> Keyword.get(infos, :id)
+      %{id: id} -> id
       _ -> nil
     end
   end
 
-  @spec get_infos_from_url(String.t()) :: keyword() | nil
+  @spec get_infos_from_url(String.t()) :: map() | nil
   def get_infos_from_url(url) do
     with filename when not is_nil(filename) <- Helpers.filename_from_url(url),
          {:ok, dataset} <- [@endpoint, filename] |> API.get() do
-      [id: dataset["id"], title: dataset["title"]]
+      %{id: dataset["id"], title: dataset["title"]}
     else
       _ -> nil
     end
