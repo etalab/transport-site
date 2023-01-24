@@ -19,8 +19,10 @@ defmodule TransportWeb.PageController do
     Transport.Cache.API.fetch("home-index-stats", fn -> compute_home_index_stats() end)
   end
 
-  defp put_breaking_news(conn, %{level: level, msg: msg}),
-    do: conn |> put_flash(String.to_existing_atom("breaking_news_" <> level), msg)
+  defp put_breaking_news(conn, %{level: level, msg: msg}) do
+    # The flash reason should match the view _breaking_news.html.heex
+    conn |> put_flash(String.to_existing_atom("breaking_news_#{level}"), msg)
+  end
 
   defp put_breaking_news(conn, %{}), do: conn
 
