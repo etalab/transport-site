@@ -85,6 +85,11 @@ defmodule TransportWeb.EditDatasetLive do
         ) %>
       </div>
 
+      <%= live_render(@socket, TransportWeb.CustomTagsLive,
+        id: "custom_tags",
+        session: %{"dataset" => @dataset, "form" => f}
+      ) %>
+
       <div class="panel mt-48">
         <div class="panel__header">
           <h4>
