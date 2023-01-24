@@ -22,10 +22,13 @@ defmodule TransportWeb.ExploreController do
 
     # NOTE: at this point the client-side seems to digest the whole JSON easily, chunked,
     # so that will do for now, unless I need more splitting.
-    chunk(conn, "[")
+    chunk(conn, ~s/[/)
+
+    headers = [:d_id, :stop_id, :stop_name, :stop_lat, :stop_lon, :stop_location_type]
+    chunk(conn, %{headers: headers} |> Jason.encode!())
+    chunk(conn, ~s(,{"data": [))
 
     Transport.GTFSExportStops.data_import_ids()
-    |> Enum.chunk_every(25)
     |> Enum.each(fn ids ->
       stops =
         DB.GTFS.Stops
@@ -40,13 +43,14 @@ defmodule TransportWeb.ExploreController do
           stop_location_type: s.location_type
         })
         |> DB.Repo.all()
-        # TODO: make order deterministic
-        |> Enum.map(fn x -> Map.values(x) end)
+        |> Enum.map(fn x ->
+          for h <- headers, do: Map.fetch!(x, h)
+        end)
 
       chunk(conn, Jason.encode!(stops) <> ",")
     end)
 
-    chunk(conn, "[]]")
+    chunk(conn, ~s/[]]}]/)
     conn
   end
 end
