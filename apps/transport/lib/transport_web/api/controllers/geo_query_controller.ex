@@ -30,6 +30,10 @@ defmodule TransportWeb.API.GeoQueryController do
       "parkings-relais" => %{
         dataset: Transport.Jobs.ParkingsRelaisToGeoData.relevant_dataset(),
         transform_fn: &parkings_relais_geojson/1
+      },
+      "zfe" => %{
+        dataset: Transport.Jobs.LowEmissionZonesToGeoData.relevant_dataset(),
+        transform_fn: &zfe_geojson/1
       }
     }
   end
@@ -45,6 +49,12 @@ defmodule TransportWeb.API.GeoQueryController do
         select_merge: %{nom: fragment("payload->>'nom'"), nb_pr: fragment("(payload->>'nb_pr')::int")}
       )
     end
+
+    DB.GeoData.geo_data_as_geojson(geo_data_import, add_fields)
+  end
+
+  def zfe_geojson(%DB.GeoDataImport{} = geo_data_import) do
+    add_fields = fn query -> query end
 
     DB.GeoData.geo_data_as_geojson(geo_data_import, add_fields)
   end
