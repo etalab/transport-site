@@ -1,0 +1,7 @@
+<div :if={get_flash(@conn, :breaking_news_info)} class="notification">
+  <%= @conn |> get_flash(:breaking_news_info) |> markdown_to_safe_html!() %>
+</div>
+
+<div :if={get_flash(@conn, :breaking_news_error)} class="notification message--error">
+  <%= @conn |> get_flash(:breaking_news_error) |> markdown_to_safe_html!() %>
+</div>
