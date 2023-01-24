@@ -12,4 +12,13 @@ defmodule TransportWeb.ExploreController do
   def vehicle_positions(conn, _params) do
     conn |> redirect(to: explore_path(conn, :index))
   end
+
+  def gtfs_stops(conn, _params) do
+    # NOTE: this will change - either I will send streamed, or streamed via newlines
+    # or in blocks based on parameters, to be determined.
+    data_import_ids = Transport.GTFSExportStops.data_import_ids() |> Enum.take(25)
+    output = Transport.GTFSExportStops.export_stops_report(data_import_ids)
+
+    json(conn, %{data: output})
+  end
 end
