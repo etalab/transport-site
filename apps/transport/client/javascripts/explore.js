@@ -52,11 +52,7 @@ function prepareLayer (layerId, layerData) {
 }
 
 const deckGLLayer = new LeafletLayer({
-    views: [
-        new MapView({
-            repeat: true
-        })
-    ],
+    views: [new MapView({ repeat: true })],
     layers: [],
     getTooltip
 })
@@ -68,18 +64,21 @@ function getTooltip ({ object, layer }) {
             return { html: `<strong>Aire de covoiturage</strong><br>${object.properties.nom_lieu}` }
         } else if (layer.id === 'parkings_relais-layer') {
             return { html: `<strong>Parking relai</strong><br>${object.properties.nom}<br>Capacité : ${object.properties.nb_pr} places` }
+        } else if (layer.id === 'zfe-layer') {
+            return { html: '<strong>Zone à Faible Émission</strong>' }
         } else {
             return { html: `<strong>Position temps-réel</strong><br>transport_resource: ${object.transport.resource_id}<br>id: ${object.vehicle.id}` }
         }
     }
 }
 // internal dictionary were all layers are stored
-const layers = { gtfsrt: {}, bnlc: undefined, parkings_relais: undefined }
+const layers = { gtfsrt: {}, bnlc: undefined, parkings_relais: undefined, zfe: undefined }
 
 function getLayers (layers) {
     const layersArray = Object.values(layers.gtfsrt)
     layersArray.push(layers.bnlc)
     layersArray.push(layers.parkings_relais)
+    layersArray.push(layers.zfe)
     return layersArray
 }
 
@@ -126,6 +125,16 @@ document.getElementById('parkings_relais-check').addEventListener('change', (eve
     }
 })
 
+// Handle ZFE toggle
+document.getElementById('zfe-check').addEventListener('change', (event) => {
+    if (event.currentTarget.checked) {
+        fetch('/api/geo-query?data=zfe')
+            .then(data => updateZFELayer(data.json()))
+    } else {
+        updateZFELayer(null)
+    }
+})
+
 function updateBNLCLayer (geojson) {
     layers.bnlc = createPointsLayer(geojson, 'bnlc-layer')
     deckGLLayer.setProps({ layers: getLayers(layers) })
@@ -134,11 +143,16 @@ function updateParkingsRelaisLayer (geojson) {
     layers.parkings_relais = createPointsLayer(geojson, 'parkings_relais-layer')
     deckGLLayer.setProps({ layers: getLayers(layers) })
 }
+function updateZFELayer (geojson) {
+    layers.zfe = createPointsLayer(geojson, 'zfe-layer')
+    deckGLLayer.setProps({ layers: getLayers(layers) })
+}
 
 function createPointsLayer (geojson, id) {
     const fillColor = {
         'bnlc-layer': [255, 174, 0, 100],
-        'parkings_relais-layer': [0, 33, 70, 100]
+        'parkings_relais-layer': [0, 33, 70, 100],
+        'zfe-layer': [155, 89, 182, 100]
     }[id]
 
     return new GeoJsonLayer({
@@ -147,7 +161,7 @@ function createPointsLayer (geojson, id) {
         pickable: true,
         stroked: false,
         filled: true,
-        extruded: true,
+        extruded: false,
         pointType: 'circle',
         getFillColor: fillColor,
         getPointRadius: 1000,

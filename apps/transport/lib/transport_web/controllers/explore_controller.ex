@@ -5,6 +5,7 @@ defmodule TransportWeb.ExploreController do
     conn
     |> assign(:bnlc_dataset, Transport.Jobs.BNLCToGeoData.relevant_dataset())
     |> assign(:parcs_relais_dataset, Transport.Jobs.ParkingsRelaisToGeoData.relevant_dataset())
+    |> assign(:zfe_dataset, Transport.Jobs.LowEmissionZonesToGeoData.relevant_dataset())
     |> render("explore.html")
   end
 

@@ -1,6 +1,7 @@
 <% real_time_datasets = dataset_path(@conn, :index, type: "public-transit", filter: "has_realtime") %>
 <% bnlc_link = dataset_path(@conn, :details, @bnlc_dataset.slug) %>
 <% parcs_relais_link = dataset_path(@conn, :details, @parcs_relais_dataset.slug) %>
+<% zfe_link = dataset_path(@conn, :details, @zfe_dataset.slug) %>
 <div class="container dataset-page-top">
   <h2><%= dgettext("explore", "Transport Explore") %></h2>
 
@@ -42,6 +43,17 @@
         dgettext("explore", "park-and-ride-explanation",
           link: safe_to_string(link(dgettext("explore", "dataset"), to: parcs_relais_link))
         )
+      ) %>
+    </details>
+  </div>
+  <div class="checkbox-explore pb-24">
+    <input id="zfe-check" name="zfe" type="checkbox" value="true" />
+    <details>
+      <summary>
+        <%= dgettext("explore", "Low emission zones database") %>
+      </summary>
+      <%= raw(
+        dgettext("explore", "lez-explanation", link: safe_to_string(link(dgettext("explore", "dataset"), to: zfe_link)))
       ) %>
     </details>
   </div>
