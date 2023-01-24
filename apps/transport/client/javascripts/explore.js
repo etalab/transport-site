@@ -29,7 +29,11 @@ Leaflet.tileLayer(Mapbox.url, {
     maxZoom: Mapbox.maxZoom
 }).addTo(map)
 
-const visibility = { gtfsrt: true }
+// NOTE: we may need to refactor to wait for document ready here
+const visibility = {
+    gtfs: document.getElementById('gtfs-check').checked,
+    gtfsrt: document.getElementById('gtfs-rt-check').checked
+}
 
 function prepareLayer (layerId, layerData) {
     return new ScatterplotLayer({
