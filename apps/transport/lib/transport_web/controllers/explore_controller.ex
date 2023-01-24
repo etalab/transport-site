@@ -1,5 +1,6 @@
 defmodule TransportWeb.ExploreController do
   use TransportWeb, :controller
+  import Ecto.Query
 
   def index(conn, _params) do
     conn
@@ -14,11 +15,38 @@ defmodule TransportWeb.ExploreController do
   end
 
   def gtfs_stops(conn, _params) do
-    # NOTE: this will change - either I will send streamed, or streamed via newlines
-    # or in blocks based on parameters, to be determined.
-    data_import_ids = Transport.GTFSExportStops.data_import_ids() |> Enum.take(25)
-    output = Transport.GTFSExportStops.export_stops_report(data_import_ids)
+    conn =
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_chunked(:ok)
 
-    json(conn, %{data: output})
+    # NOTE: at this point the client-side seems to digest the whole JSON easily, chunked,
+    # so that will do for now, unless I need more splitting.
+    chunk(conn, "[")
+
+    Transport.GTFSExportStops.data_import_ids()
+    |> Enum.chunk_every(25)
+    |> Enum.each(fn ids ->
+      stops =
+        DB.GTFS.Stops
+        |> where([s], s.data_import_id in ^ids)
+        |> order_by([s], [s.data_import_id, s.id])
+        |> select([s], %{
+          d_id: s.data_import_id,
+          stop_id: s.stop_id,
+          stop_name: s.stop_name,
+          stop_lat: s.stop_lat,
+          stop_lon: s.stop_lon,
+          stop_location_type: s.location_type
+        })
+        |> DB.Repo.all()
+        # TODO: make order deterministic
+        |> Enum.map(fn x -> Map.values(x) end)
+
+      chunk(conn, Jason.encode!(stops) <> ",")
+    end)
+
+    chunk(conn, "[]]")
+    conn
   end
 end
