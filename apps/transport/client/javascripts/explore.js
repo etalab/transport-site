@@ -177,4 +177,12 @@ function createPointsLayer (geojson, id) {
     })
 }
 
+// Experimental code, to be organized once working
+console.log("Fetching...")
+fetch('/explore/gtfs-stops').then(response => {
+    response.json().then(data => {
+        console.log(data.data)
+    })
+})
+
 export default socket
