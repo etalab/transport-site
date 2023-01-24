@@ -8,9 +8,10 @@ import { MapView } from '@deck.gl/core'
 const socket = new Socket('/socket', { params: { token: window.userToken } })
 socket.connect()
 const channel = socket.channel('explore', {})
-channel.join()
-    .receive('ok', resp => { console.log('Joined successfully', resp) })
-    .receive('error', resp => { console.log('Unable to join', resp) })
+// TODO - re-activate (I'm uncluttering the logs while I work)
+// channel.join()
+//     .receive('ok', resp => { console.log('Joined successfully', resp) })
+//     .receive('error', resp => { console.log('Unable to join', resp) })
 
 const Mapbox = {
     url: 'https://api.mapbox.com/styles/v1/istopopoki/ckg98kpoc010h19qusi9kxcct/tiles/256/{z}/{x}/{y}?access_token={accessToken}',
