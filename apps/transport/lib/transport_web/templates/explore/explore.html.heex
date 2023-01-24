@@ -6,6 +6,15 @@
   <h2><%= dgettext("explore", "Transport Explore") %></h2>
 
   <div class="checkbox-explore pb-24">
+    <input id="gtfs-check" name="gtfs" type="checkbox" value="true" checked />
+    <details>
+      <summary>
+        <%= dgettext("explore", "National stops database (GTFS)") %>
+      </summary>
+    </details>
+  </div>
+
+  <div class="checkbox-explore pb-24">
     <input id="gtfs-rt-check" name="gtfs-rt" type="checkbox" value="true" checked />
     <details>
       <summary>
