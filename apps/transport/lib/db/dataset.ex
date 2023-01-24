@@ -416,7 +416,8 @@ defmodule DB.Dataset do
       :is_active,
       :associated_territory_name,
       :latest_data_gouv_comment_timestamp,
-      :archived_at
+      :archived_at,
+      :custom_tags
     ])
     |> cast_aom(params)
     |> cast_datagouv_zone(params, territory_name)

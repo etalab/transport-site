@@ -29,6 +29,13 @@ defmodule TransportWeb.Backoffice.DatasetController do
         dataset_id -> Map.put(form_params, "dataset_id", dataset_id)
       end
 
+    custom_tags =
+      for {"custom_tags" <> _, tag} <- form_params do
+        tag
+      end
+
+    form_params = Map.put(form_params, "custom_tags", custom_tags)
+
     with datagouv_id when not is_nil(datagouv_id) <- dataset_datagouv_id,
          {:ok, dg_dataset} <- ImportData.import_from_data_gouv(datagouv_id, form_params["type"]),
          complete_params <- Map.merge(form_params, dg_dataset),

@@ -15,6 +15,7 @@ defmodule TransportWeb.EditDatasetLive do
       phx-change="change_dataset"
       phx-submit="save"
       phx-trigger-action={@trigger_submit}
+      onkeydown="return event.key != 'Enter';"
     >
       <h1>
         <%= if is_nil(@dataset) do %>
