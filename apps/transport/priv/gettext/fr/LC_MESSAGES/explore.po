@@ -94,3 +94,11 @@ msgstr "Références de Lignes (séparées par des virgules)"
 #, elixir-autogen, elixir-format
 msgid "Stop Reference (only one)"
 msgstr "Référence d'Arrêt (un seul)"
+
+#, elixir-autogen, elixir-format
+msgid "Low emission zones database"
+msgstr "Base nationale des Zones à Faibles Émissions"
+
+#, elixir-autogen, elixir-format
+msgid "lez-explanation"
+msgstr "Données issues du %{link} de la Base nationale des Zones à Faibles Émissions. Les restrictions de circulation sont inclues dans la base."

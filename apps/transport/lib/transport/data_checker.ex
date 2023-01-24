@@ -59,7 +59,10 @@ defmodule Transport.DataChecker do
   end
 
   def datasets_datagouv_statuses do
-    Dataset |> Repo.all() |> Enum.map(&{&1, dataset_status(&1)})
+    Dataset
+    |> order_by(:id)
+    |> Repo.all()
+    |> Enum.map(&{&1, dataset_status(&1)})
   end
 
   @spec dataset_status(Dataset.t()) :: :active | :inactive | {:archived, DateTime.t()}

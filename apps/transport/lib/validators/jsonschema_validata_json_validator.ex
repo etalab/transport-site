@@ -86,6 +86,8 @@ defmodule Transport.Validators.ValidataJson do
 
         base_url()
         |> Map.put(:path, location)
+        # get a json validation report
+        |> URI.append_query(URI.encode_query(text_or_json: "json"))
         |> URI.to_string()
         |> get_results()
 
