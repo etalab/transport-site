@@ -22,8 +22,9 @@ defmodule TransportWeb.BreakingNewsControllerTest do
       message = "coucou message **alerte**"
       expected_message = "coucou message <strong>alerte</strong>"
 
-      ~w(info error)
-      |> Enum.each(fn level ->
+      levels = Ecto.Enum.values(DB.BreakingNews, :level)
+
+      Enum.each(levels, fn level ->
         # set the message
         conn
         |> setup_admin_in_session()
@@ -39,7 +40,7 @@ defmodule TransportWeb.BreakingNewsControllerTest do
       # set an empty message
       conn
       |> setup_admin_in_session()
-      |> post(backoffice_breaking_news_path(conn, :update_breaking_news, %{level: "info", msg: ""}))
+      |> post(backoffice_breaking_news_path(conn, :update_breaking_news, %{level: hd(levels), msg: ""}))
       |> html_response(200)
 
       assert DB.BreakingNews |> DB.Repo.all() |> Enum.empty?()
