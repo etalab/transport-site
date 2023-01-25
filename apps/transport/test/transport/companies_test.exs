@@ -25,6 +25,20 @@ defmodule Transport.CompaniesTest do
       assert {:ok, result} == Companies.by_siren_or_siret(@siren)
     end
 
+    test "providing a valid SIRET searches for the associated SIREN" do
+      siret = "42049517800014"
+      assert String.starts_with?(siret, @siren)
+
+      payload = %{
+        "results" => [result = %{"siren" => @siren, "nom_complet" => "air france"}, %{"siren" => Ecto.UUID.generate()}]
+      }
+
+      response = {:ok, %HTTPoison.Response{status_code: 200, body: Jason.encode!(payload)}}
+      setup_response_by_siren(@siren, response)
+
+      assert {:ok, result} == Companies.by_siren_or_siret(siret)
+    end
+
     test "500 from server" do
       response = {:ok, %HTTPoison.Response{status_code: 500}}
       setup_response_by_siren(@siren, response)
