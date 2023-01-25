@@ -15,14 +15,10 @@ defmodule Transport.Companies do
   """
   @spec by_siren_or_siret(binary()) :: {:ok, map()} | {:error, atom()}
   def by_siren_or_siret(siren_or_siret) do
-    if is_valid_siren?(siren_or_siret) do
-      by_siren(siren_or_siret)
-    else
-      if is_valid_siret?(siren_or_siret) do
-        siren_or_siret |> siret_to_siren() |> by_siren()
-      else
-        {:error, :invalid_siren_siret_format}
-      end
+    cond do
+      is_valid_siren?(siren_or_siret) -> by_siren(siren_or_siret)
+      is_valid_siret?(siren_or_siret) -> siren_or_siret |> siret_to_siren() |> by_siren()
+      true -> {:error, :invalid_siren_siret_format}
     end
   end
 
