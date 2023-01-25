@@ -12,9 +12,9 @@ defmodule DB.NotificationTest do
 
     email = "foo@example.fr"
     other_email = Ecto.UUID.generate() <> "@example.com"
-    insert_notification(%{dataset_id: dataset.id, reason: :dataset_with_error, email: email})
-    insert_notification(%{dataset_id: dataset.id, reason: :dataset_with_error, email: email})
-    insert_notification(%{dataset_id: dataset.id, reason: :dataset_with_error, email: other_email})
+    insert_notification(%{dataset: dataset, reason: :dataset_with_error, email: email})
+    insert_notification(%{dataset: dataset, reason: :dataset_with_error, email: email})
+    insert_notification(%{dataset: dataset, reason: :dataset_with_error, email: other_email})
 
     # Can query using the hash column dedicated to search
     rows = DB.Notification |> where([n], n.email_hash == ^email) |> DB.Repo.all()

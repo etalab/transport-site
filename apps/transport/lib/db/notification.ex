@@ -12,6 +12,8 @@ defmodule DB.Notification do
     )
 
     belongs_to(:dataset, DB.Dataset)
+    # `dataset_datagouv_id` may be useful if the linked dataset gets deleted
+    field(:dataset_datagouv_id, :string)
     field(:email, DB.Encrypted.Binary)
     # Should be used to search rows matching an email address
     # https://hexdocs.pm/cloak_ecto/install.html#usage
@@ -20,16 +22,16 @@ defmodule DB.Notification do
     timestamps(type: :utc_datetime_usec)
   end
 
-  def insert!(reason, %DB.Dataset{id: dataset_id}, email) do
+  def insert!(reason, %DB.Dataset{id: dataset_id, datagouv_id: datagouv_id}, email) do
     %__MODULE__{}
-    |> changeset(%{reason: reason, dataset_id: dataset_id, email: email})
+    |> changeset(%{reason: reason, dataset_id: dataset_id, dataset_datagouv_id: datagouv_id, email: email})
     |> DB.Repo.insert!()
   end
 
   def changeset(struct, attrs \\ %{}) do
     struct
-    |> cast(attrs, [:reason, :dataset_id, :email])
-    |> validate_required([:reason, :dataset_id, :email])
+    |> cast(attrs, [:reason, :dataset_id, :dataset_datagouv_id, :email])
+    |> validate_required([:reason, :dataset_id, :dataset_datagouv_id, :email])
     |> validate_format(:email, ~r/@/)
     |> put_hashed_fields()
   end
