@@ -1,4 +1,4 @@
-defmodule DB.Repo.Migrations.NotificationChangeDatasetOnDeleteBehavior do
+defmodule DB.Repo.Migrations.NotificationsChangeDatasetOnDeleteBehavior do
   use Ecto.Migration
 
   def up do
