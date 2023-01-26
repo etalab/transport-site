@@ -1,6 +1,5 @@
 defmodule TransportWeb.CustomTagsLive do
   use Phoenix.LiveView
-  alias Phoenix.LiveView.JS
   alias TransportWeb.InputHelpers
   import Ecto.Query
 
@@ -10,7 +9,7 @@ defmodule TransportWeb.CustomTagsLive do
     <div class="pb-6">
 
     <%= for {tag, index} <- Enum.with_index(@custom_tags) do %>
-      <span class="label"><%= tag %> <span phx-click="remove_tag" phx-value-tag={tag}>x</span></span>
+      <span class="label custom-tag"><%= tag %> <span class="delete-tag" phx-click="remove_tag" phx-value-tag={tag}></span></span>
     <%= Phoenix.HTML.Form.hidden_input(@form, "custom_tags[#{index}]",
       value: tag
     ) %>
@@ -35,7 +34,8 @@ defmodule TransportWeb.CustomTagsLive do
         _params,
         %{"dataset" => %{custom_tags: custom_tags}, "form" => f},
         socket
-      ) do
+      )
+      when is_list(custom_tags) do
     {:ok, mount_assigns(socket, custom_tags, f)}
   end
 
@@ -60,7 +60,6 @@ defmodule TransportWeb.CustomTagsLive do
   end
 
   def handle_event("add_tag", %{"key" => "Enter", "value" => tag}, socket) do
-    IO.inspect("coucou")
     custom_tags = socket.assigns.custom_tags ++ [tag]
     socket = socket |> clear_input() |> assign(:custom_tags, custom_tags)
 
