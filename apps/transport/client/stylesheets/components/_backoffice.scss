@@ -166,7 +166,7 @@
 }
 
 .custom-tag {
-  animation: fadeIn 0.5s;
+  animation: fade-in 0.5s;
   .delete-tag {
     cursor: pointer;
     display: inline-block;
@@ -178,17 +178,24 @@
     border-style: solid;
     border-color: var(--grey);
     border-radius: 100%;
-    background: -webkit-linear-gradient(
-        -45deg,
-        transparent 0%,
-        transparent 46%,
-        white 46%,
-        white 56%,
-        transparent 56%,
-        transparent 100%
-      ),
-      -webkit-linear-gradient(45deg, transparent 0%, transparent 46%, white 46%, white
-            56%, transparent 56%, transparent 100%);
+    background: linear-gradient(
+      -45deg,
+      transparent 0%,
+      transparent 46%,
+      white 46%,
+      white 56%,
+      transparent 56%,
+      transparent 100%
+    ),
+      linear-gradient(
+      45deg,
+      transparent 0%,
+      transparent 46%,
+      white 46%,
+      white 56%,
+      transparent 56%,
+      transparent 100%
+    );
     background-color: var(--grey);
 
     &:hover {
@@ -198,7 +205,7 @@
   }
 }
 
-@keyframes fadeIn {
+@keyframes fade-in {
   0% {
     opacity: 0;
   }
