@@ -16,7 +16,7 @@ defmodule TransportWeb.CustomTagsLive do
     <% end %>
     </div>
     <%= InputHelpers.text_input(@form, :tag_input,
-      placeholder: "tag",
+      placeholder: "Ajouter un tag",
       list: "suggestions",
       phx_keydown: "add_tag",
       id: "custom_tag"
