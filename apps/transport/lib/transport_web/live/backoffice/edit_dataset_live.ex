@@ -15,6 +15,7 @@ defmodule TransportWeb.EditDatasetLive do
       phx-change="change_dataset"
       phx-submit="save"
       phx-trigger-action={@trigger_submit}
+      onkeydown="return event.key != 'Enter';"
     >
       <h1>
         <%= if is_nil(@dataset) do %>
@@ -84,6 +85,11 @@ defmodule TransportWeb.EditDatasetLive do
             end
         ) %>
       </div>
+
+      <%= live_render(@socket, TransportWeb.CustomTagsLive,
+        id: "custom_tags",
+        session: %{"dataset" => @dataset, "form" => f}
+      ) %>
 
       <div class="panel mt-48">
         <div class="panel__header">

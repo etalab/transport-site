@@ -37,6 +37,7 @@ defmodule DB.Dataset do
     field(:nb_reuses, :integer)
     field(:latest_data_gouv_comment_timestamp, :naive_datetime_usec)
     field(:archived_at, :utc_datetime_usec)
+    field(:custom_tags, {:array, :string})
 
     # When the dataset is linked to some cities
     # we ask in the backoffice for a name to display
@@ -415,7 +416,8 @@ defmodule DB.Dataset do
       :is_active,
       :associated_territory_name,
       :latest_data_gouv_comment_timestamp,
-      :archived_at
+      :archived_at,
+      :custom_tags
     ])
     |> cast_aom(params)
     |> cast_datagouv_zone(params, territory_name)
