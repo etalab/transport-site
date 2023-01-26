@@ -1,13 +1,10 @@
 defmodule TransportWeb.BreakingNewsControllerTest do
   use TransportWeb.ConnCase, async: true
   use TransportWeb.DatabaseCase, cleanup: []
-  import Plug.Test
 
   describe "breaking news home message" do
     test "no flash message by default", %{conn: conn} do
-      conn =
-        conn
-        |> get(page_path(conn, :index))
+      conn = conn |> get(page_path(conn, :index))
 
       doc = conn |> html_response(200) |> Floki.parse_document!()
       assert [] == Floki.find(doc, ".notification")
@@ -22,37 +19,37 @@ defmodule TransportWeb.BreakingNewsControllerTest do
     end
 
     test "update a message, check it is displayed on home, delete it", %{conn: conn} do
-      message = "coucou message alerte"
+      message = "coucou message **alerte**"
+      expected_message = "coucou message <strong>alerte</strong>"
 
-      # set the message
-      conn_admin =
+      levels = Ecto.Enum.values(DB.BreakingNews, :level)
+
+      Enum.each(levels, fn level ->
+        # set the message
         conn
-        |> init_test_session(%{
-          current_user: %{"organizations" => [%{"slug" => "equipe-transport-data-gouv-fr"}]}
-        })
-        |> post(backoffice_breaking_news_path(conn, :update_breaking_news, %{level: "info", msg: message}))
+        |> setup_admin_in_session()
+        |> post(backoffice_breaking_news_path(conn, :update_breaking_news, %{level: level, msg: message}))
+        |> html_response(200)
 
-      # message has been set with sucess
-      assert html_response(conn_admin, 200)
+        response = conn |> get(page_path(conn, :index)) |> html_response(200)
 
-      conn_client =
-        conn
-        |> get(page_path(conn, :index))
-
-      # message is displayed on home page
-      assert html_response(conn_client, 200) =~ message
+        # message is displayed on home page and Markdown is rendered
+        assert response =~ expected_message
+      end)
 
       # set an empty message
-      conn_admin
-      |> post(backoffice_breaking_news_path(conn, :update_breaking_news, %{level: "info", msg: ""}))
+      conn
+      |> setup_admin_in_session()
+      |> post(backoffice_breaking_news_path(conn, :update_breaking_news, %{level: hd(levels), msg: ""}))
+      |> html_response(200)
 
-      conn_client =
-        conn
-        |> get(page_path(conn, :index))
+      assert DB.BreakingNews |> DB.Repo.all() |> Enum.empty?()
 
-      # no more message is displayed on home
+      conn_client = conn |> get(page_path(conn, :index))
+
+      # Message has been removed on the home page
       doc = conn_client |> html_response(200) |> Floki.parse_document!()
-      refute html_response(conn_client, 200) =~ message
+      refute html_response(conn_client, 200) =~ expected_message
       assert [] == Floki.find(doc, ".notification")
     end
   end

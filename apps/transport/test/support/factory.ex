@@ -217,6 +217,13 @@ defmodule DB.Factory do
     insert_resource_and_friends(Date.utc_today() |> Date.add(-5), opts)
   end
 
+  def insert_notification(%{dataset: %DB.Dataset{id: dataset_id, datagouv_id: datagouv_id}} = args) do
+    args
+    |> Map.delete(:dataset)
+    |> Map.merge(%{dataset_id: dataset_id, dataset_datagouv_id: datagouv_id})
+    |> insert_notification()
+  end
+
   def insert_notification(args) do
     %DB.Notification{}
     |> DB.Notification.changeset(args)
