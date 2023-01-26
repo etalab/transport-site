@@ -59,7 +59,8 @@ defmodule TransportWeb.CustomTagsLive do
   end
 
   def handle_event("add_tag", %{"key" => "Enter", "value" => tag}, socket) do
-    custom_tags = socket.assigns.custom_tags ++ [tag]
+    clean_tag = tag |> String.downcase() |> String.trim()
+    custom_tags = socket.assigns.custom_tags ++ [clean_tag]
     socket = socket |> clear_input() |> assign(:custom_tags, custom_tags)
 
     {:noreply, socket}

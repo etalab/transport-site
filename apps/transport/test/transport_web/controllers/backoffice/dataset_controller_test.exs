@@ -93,4 +93,36 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
              is_active: true
            } = DB.Repo.reload!(dataset)
   end
+
+  test "update a dataset custom tags", %{conn: conn} do
+    dataset = insert(:dataset, slug: slug = "https://example.com/slug")
+
+    Transport.HTTPoison.Mock
+    |> expect(:request, fn :get, "https://demo.data.gouv.fr/api/1/datasets/slug/", _, _, _ ->
+      {:ok, %HTTPoison.Response{body: ~s({"id": "datagouv_id"}), status_code: 200}}
+    end)
+
+    Transport.HTTPoison.Mock
+    |> expect(:get!, fn "https://demo.data.gouv.fr/api/1/datasets/datagouv_id/", _, _ ->
+      %HTTPoison.Response{body: ~s({"id": "datagouv_id", "resources": []}), status_code: 200}
+    end)
+
+    Datagouvfr.Client.CommunityResources.Mock
+    |> expect(:get, fn _ -> {:ok, []} end)
+
+    conn
+    |> setup_admin_in_session()
+    |> post(Routes.backoffice_dataset_path(conn, :post, dataset.id), %{
+      "form" => %{
+        "custom_title" => "title",
+        "url" => slug,
+        "type" => "public-transit",
+        "custom_tags[0]" => tag1 = "top",
+        "custom_tags[1]" => tag2 = "super"
+      }
+    })
+
+    # the custom tags have been saved
+    assert %DB.Dataset{custom_tags: [^tag1, ^tag2]} = DB.Repo.reload!(dataset)
+  end
 end
