@@ -5,15 +5,16 @@ defmodule TransportWeb.ExploreControllerTest do
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
 
-    insert(:dataset, %{
-      type: "carpooling-areas",
-      organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
-    })
+    pan_org = Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
+
+    insert(:dataset, %{type: "carpooling-areas", organization: pan_org})
+
+    insert(:dataset, %{type: "private-parking", custom_title: "Base nationale des parcs relais", organization: pan_org})
 
     insert(:dataset, %{
-      type: "private-parking",
-      custom_title: "Base nationale des parcs relais",
-      organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
+      type: "low-emission-zones",
+      custom_title: "Base Nationale des Zones à Faibles Émissions (BNZFE)",
+      organization: pan_org
     })
 
     :ok
@@ -26,10 +27,11 @@ defmodule TransportWeb.ExploreControllerTest do
   end
 
   test "GET /explore/vehicle-positions", %{conn: conn} do
-    conn =
+    redirect_path =
       conn
       |> get("/explore/vehicle-positions")
+      |> redirected_to(302)
 
-    assert redirected_to(conn, 302) == "/explore"
+    assert redirect_path == "/explore"
   end
 end

@@ -7,7 +7,7 @@ defmodule DB.BreakingNews do
   import Ecto.{Changeset, Query}
 
   typed_schema "breaking_news" do
-    field(:level, :string)
+    field(:level, Ecto.Enum, values: [:info, :error])
     field(:msg, :string)
   end
 
@@ -31,6 +31,6 @@ defmodule DB.BreakingNews do
   def set_breaking_news(%{level: level, msg: msg}) do
     DB.BreakingNews |> DB.Repo.delete_all()
 
-    %DB.BreakingNews{} |> change(%{level: level, msg: msg}) |> DB.Repo.insert()
+    %DB.BreakingNews{} |> change(%{level: String.to_existing_atom(level), msg: msg}) |> DB.Repo.insert()
   end
 end

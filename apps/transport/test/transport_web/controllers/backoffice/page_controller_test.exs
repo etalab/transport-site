@@ -84,8 +84,8 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
   test "notifications config and notifications sent are displayed", %{conn: conn} do
     dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate(), slug: Ecto.UUID.generate())
 
-    insert_notification(%{dataset_id: dataset.id, email: "foo@example.fr", reason: :expiration})
-    insert_notification(%{dataset_id: dataset.id, email: "bar@example.fr", reason: :expiration})
+    insert_notification(%{dataset: dataset, email: "foo@example.fr", reason: :expiration})
+    insert_notification(%{dataset: dataset, email: "bar@example.fr", reason: :expiration})
 
     Transport.Notifications.FetcherMock
     |> expect(:fetch_config!, fn ->

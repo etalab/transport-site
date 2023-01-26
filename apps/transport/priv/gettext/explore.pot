@@ -93,3 +93,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Stop Reference (only one)"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Low emission zones database"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "lez-explanation"
+msgstr ""
