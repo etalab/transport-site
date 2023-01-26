@@ -6,26 +6,25 @@ defmodule TransportWeb.CustomTagsLive do
   def render(assigns) do
     ~H"""
     <div class="pt-24">
-    <div class="pb-6">
-
-    <%= for {tag, index} <- Enum.with_index(@custom_tags) do %>
-      <span class="label custom-tag"><%= tag %> <span class="delete-tag" phx-click="remove_tag" phx-value-tag={tag}></span></span>
-    <%= Phoenix.HTML.Form.hidden_input(@form, "custom_tags[#{index}]",
-      value: tag
-    ) %>
-    <% end %>
-    </div>
-    <%= InputHelpers.text_input(@form, :tag_input,
-      placeholder: "Ajouter un tag",
-      list: "suggestions",
-      phx_keydown: "add_tag",
-      id: "custom_tag"
-    ) %>
-    <datalist id="suggestions" phx-keydown="add_tag",>
-      <%= for suggestion <- @tag_suggestions do %>
-        <option value={suggestion}><%= suggestion %></option>
-      <% end %>
-    </datalist>
+      <div class="pb-6">
+        <%= for {tag, index} <- Enum.with_index(@custom_tags) do %>
+          <span class="label custom-tag">
+            <%= tag %> <span class="delete-tag" phx-click="remove_tag" phx-value-tag={tag}></span>
+          </span>
+          <%= Phoenix.HTML.Form.hidden_input(@form, "custom_tags[#{index}]", value: tag) %>
+        <% end %>
+      </div>
+      <%= InputHelpers.text_input(@form, :tag_input,
+        placeholder: "Ajouter un tag",
+        list: "suggestions",
+        phx_keydown: "add_tag",
+        id: "custom_tag"
+      ) %>
+      <datalist id="suggestions" phx-keydown="add_tag" ,>
+        <%= for suggestion <- @tag_suggestions do %>
+          <option value={suggestion}><%= suggestion %></option>
+        <% end %>
+      </datalist>
     </div>
     """
   end
