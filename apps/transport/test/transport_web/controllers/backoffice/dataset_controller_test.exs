@@ -95,7 +95,7 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
   end
 
   test "update a dataset custom tags", %{conn: conn} do
-    dataset = insert(:dataset, slug: slug = "https://example.com/slug")
+    dataset = insert(:dataset, slug: slug = "slug")
 
     Transport.HTTPoison.Mock
     |> expect(:request, fn :get, "https://demo.data.gouv.fr/api/1/datasets/slug/", _, _, _ ->

@@ -67,11 +67,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
   end
 
   defp transform_custom_tags_to_list(form_params) do
-    custom_tags =
-      for {"custom_tags" <> _, tag} <- form_params do
-        tag
-      end
-
+    custom_tags = for {"custom_tags" <> _, tag} <- form_params, do: tag
     Map.put(form_params, "custom_tags", custom_tags)
   end
 

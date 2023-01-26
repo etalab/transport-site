@@ -38,19 +38,16 @@ defmodule TransportWeb.CustomTagsLive do
     {:ok, mount_assigns(socket, custom_tags, f)}
   end
 
-  def mount(
-        _params,
-        %{"form" => f},
-        socket
-      ) do
+  def mount(_params, %{"form" => f}, socket) do
     {:ok, mount_assigns(socket, [], f)}
   end
 
   def mount_assigns(socket, custom_tags, form) do
     tag_suggestions =
       DB.Dataset.base_query()
-      |> select([d], fragment("unnest(custom_tags)"))
+      |> select([d], fragment("distinct unnest(custom_tags)"))
       |> DB.Repo.all()
+      |> Enum.sort()
 
     socket
     |> assign(:custom_tags, custom_tags)
@@ -60,7 +57,7 @@ defmodule TransportWeb.CustomTagsLive do
 
   def handle_event("add_tag", %{"key" => "Enter", "value" => tag}, socket) do
     clean_tag = tag |> String.downcase() |> String.trim()
-    custom_tags = socket.assigns.custom_tags ++ [clean_tag]
+    custom_tags = (socket.assigns.custom_tags ++ [clean_tag]) |> Enum.uniq()
     socket = socket |> clear_input() |> assign(:custom_tags, custom_tags)
 
     {:noreply, socket}
