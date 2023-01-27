@@ -15,6 +15,7 @@ defmodule DB.Dataset do
   use TypedEctoSchema
 
   @licences_ouvertes ["fr-lo", "lov2"]
+  @licence_mobilités_tag "licence-mobilités"
 
   typed_schema "dataset" do
     field(:datagouv_id, :string)
@@ -428,6 +429,7 @@ defmodule DB.Dataset do
     |> cast_assoc(:aom)
     |> validate_territory_mutual_exclusion()
     |> maybe_dataset_now_licence_ouverte(dataset)
+    |> maybe_overwrite_licence()
     |> has_real_time()
     |> case do
       %{valid?: false, changes: changes} = changeset when changes == %{} ->
@@ -871,6 +873,16 @@ defmodule DB.Dataset do
   end
 
   defp maybe_dataset_now_licence_ouverte(%Ecto.Changeset{} = changeset, %__MODULE__{}), do: changeset
+
+  defp maybe_overwrite_licence(%Ecto.Changeset{} = changeset) do
+    custom_tags = get_field(changeset, :custom_tags) || []
+
+    if @licence_mobilités_tag in custom_tags do
+      changeset |> change(licence: "mobility-licence")
+    else
+      changeset
+    end
+  end
 
   defp has_real_time(changeset) do
     has_realtime = changeset |> get_field(:resources) |> Enum.any?(&Resource.is_real_time?/1)
