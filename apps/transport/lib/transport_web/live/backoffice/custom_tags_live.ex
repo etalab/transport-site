@@ -20,7 +20,7 @@ defmodule TransportWeb.CustomTagsLive do
         phx_keydown: "add_tag",
         id: "custom_tag"
       ) %>
-      <datalist id="suggestions" phx-keydown="add_tag" ,>
+      <datalist id="suggestions" phx-keydown="add_tag">
         <%= for suggestion <- @tag_suggestions do %>
           <option value={suggestion}><%= suggestion %></option>
         <% end %>

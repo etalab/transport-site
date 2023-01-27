@@ -140,7 +140,6 @@ config :transport,
 
 config :transport,
   datagouv_static_hosts: ["static.data.gouv.fr", "demo-static.data.gouv.fr"],
-  orgs_with_mobility_licence: ["Métropole de Lyon", "Île-de-France Mobilités"],
   bison_fute_host: "tipi.bison-fute.gouv.fr"
 
 # A list of publicly transmissible requestor refs for open data SIRI. Currently
