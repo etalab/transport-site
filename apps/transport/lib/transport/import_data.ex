@@ -177,37 +177,15 @@ defmodule Transport.ImportData do
   end
 
   @doc """
-  Set the licence according to the datagouv response with possible overrides.
-  Context: we're doing this directly on transport.data.gouv.fr because data.gouv.fr does
-  not handle licences that have not been homologated. Some custom licences will be
-  classified as `notspecified` on the datagouv API response as a result.
+  Set the licence according to the datagouv response.
 
-    ## Examples
+  ## Examples
 
-      iex> licence(%{"license" => "notspecified", "organization" => %{"name" => "Métropole de Lyon"}})
-      "mobility-licence"
-
-      iex> licence(%{"license" => "notspecified", "organization" => %{"name" => "Île-de-France Mobilités"}})
-      "mobility-licence"
-
-      iex> licence(%{"license" => "odc-odbl", "organization" => %{"name" => "Île-de-France Mobilités"}})
-      "odc-odbl"
-
-      iex> licence(%{"license" => "notspecified", "organization" => %{"name" => "Métropole de Rouen"}})
-      "notspecified"
-
-      iex> licence(%{"license" => "odc-odbl"})
-      "odc-odbl"
-
+  iex> licence(%{"license" => "odc-odbl"})
+  "odc-odbl"
+  iex> licence("odc-odbl")
+  nil
   """
-  def licence(%{"license" => "notspecified", "organization" => %{"name" => org_name}}) do
-    if org_name in Application.fetch_env!(:transport, :orgs_with_mobility_licence) do
-      "mobility-licence"
-    else
-      "notspecified"
-    end
-  end
-
   def licence(%{"license" => datagouv_licence}), do: datagouv_licence
   def licence(_), do: nil
 

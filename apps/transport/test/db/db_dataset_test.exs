@@ -175,6 +175,32 @@ defmodule DB.DatasetDBTest do
     end
   end
 
+  describe "mobility-licence" do
+    test "does not change the licence if the magic custom tag is not set" do
+      insert(:dataset, licence: "lov2", datagouv_id: datagouv_id = Ecto.UUID.generate(), custom_tags: nil)
+
+      assert {:ok, %Ecto.Changeset{changes: %{licence: "fr-lo"}}} =
+               Dataset.changeset(%{"datagouv_id" => datagouv_id, "licence" => "fr-lo"})
+    end
+
+    test "if the magic tag is set, change the licence" do
+      insert(:dataset, custom_tags: ["licence-mobilités"], datagouv_id: datagouv_id = Ecto.UUID.generate())
+
+      assert {:ok, %Ecto.Changeset{changes: %{licence: "mobility-licence"}}} =
+               Dataset.changeset(%{"datagouv_id" => datagouv_id})
+
+      assert {:ok, %Ecto.Changeset{changes: %{licence: "mobility-licence"}}} =
+               Dataset.changeset(%{"datagouv_id" => datagouv_id, "licence" => "fr-lo"})
+    end
+
+    test "ignores other tags in custom_tags" do
+      insert(:dataset, custom_tags: ["foo"], datagouv_id: datagouv_id = Ecto.UUID.generate())
+
+      assert {:ok, %Ecto.Changeset{changes: %{licence: "fr-lo"}}} =
+               Dataset.changeset(%{"datagouv_id" => datagouv_id, "licence" => "fr-lo"})
+    end
+  end
+
   describe "resources last content update time" do
     test "for a dataset, get resources last update times" do
       %{id: dataset_id} = insert(:dataset, %{datagouv_id: "xxx", datagouv_title: "coucou"})
