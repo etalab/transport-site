@@ -6,10 +6,7 @@
          },
          "ID":"delete-after-30-days",
          "Filter":{
-            "Prefix":"",
-            "And":{
-               "Prefix":"*"
-            }
+            "Prefix":""
          },
          "Status":"Enabled"
       }
