@@ -26,6 +26,9 @@ EXPOSE 8080
 # and that its value will be the same when running Phoenix vs. running an iex
 # on the same node (but it will be different on e.g. site vs worker).
 #
+# This cookie is stored in `~/.erlang_cookie` and can be read programmatically
+# via `:erlang.get_cookie()`.
+#
 # So as long as a `-sname` has been set at Phoenix startup, this is good enough to
 # allow iex connection with the following command (after SSH):
 #
