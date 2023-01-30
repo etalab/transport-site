@@ -15,7 +15,8 @@ ENV PORT 8080
 ENV MIX_ENV prod
 # Equivalent to `elixir --sname ... --cookie -S mix ...`, but without needing
 # a subprocess in ENTRYPOINT, which would introduce kill-time subtleties.
-ENV ERL_FLAGS="-sname node@$(hostname) -setcookie $ELIXIR_NODE_SECRET_COOKIE"
+# NOTE: complete name for access will be name@hostname
+ENV ERL_FLAGS="-sname node -setcookie $ELIXIR_NODE_SECRET_COOKIE"
 RUN mix deps.compile
 RUN cd apps/transport/client && yarn install && npm run build
 # assets digest must happen after the npm build step
