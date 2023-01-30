@@ -13,15 +13,16 @@ RUN node --version
 
 ENV PORT 8080
 ENV MIX_ENV prod
-# Equivalent to `elixir --sname ... --cookie -S mix ...`, but without needing
-# a subprocess in ENTRYPOINT, which would introduce kill-time subtleties.
-# NOTE: complete name for access will be name@hostname
-ENV ERL_FLAGS="-sname node -setcookie $ELIXIR_NODE_SECRET_COOKIE"
 RUN mix deps.compile
 RUN cd apps/transport/client && yarn install && npm run build
 # assets digest must happen after the npm build step
 RUN mix phx.digest
 
 EXPOSE 8080
+
+# Equivalent to `elixir --sname ... --cookie -S mix ...`, but without needing
+# a subprocess in ENTRYPOINT, which would introduce kill-time subtleties.
+# NOTE: complete name for access will be name@hostname
+ENV ERL_FLAGS="-sname node -setcookie $ELIXIR_NODE_SECRET_COOKIE"
 
 ENTRYPOINT ["mix", "phx.migrate_phx.server"]
