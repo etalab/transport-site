@@ -27,7 +27,9 @@ defmodule Transport.MixProject do
       # to reduce build time
       {:dialyxir, "~> 1.2.0", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.10", only: :test},
-      {:saxy, "~> 1.5"}
+      {:saxy, "~> 1.5"},
+      # Temporary fork to ensure the branch does not disappear while we test in production
+      {:cachex, github: "etalab/cachex", branch: "issue-304", override: true}
     ]
   end
 
