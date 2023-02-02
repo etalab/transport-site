@@ -490,7 +490,7 @@ defmodule DB.DatasetDBTest do
         Dataset.changeset(%{"datagouv_id" => datagouv_id, "organization_type" => "US Gvt"})
       end)
 
-    assert logs =~ "Organization type is invalid"
-    assert {:error, "%{organization_type: [\"Organization type is invalid\"]}"} == res
+    assert logs =~ "Le type d'organisation (publicateur) est invalide"
+    assert {:error, "%{organization_type: [\"Le type d'organisation (publicateur) est invalide\"]}"} == res
   end
 end
