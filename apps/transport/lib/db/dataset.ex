@@ -788,7 +788,8 @@ defmodule DB.Dataset do
   defp validate_organization_type(changeset) do
     changeset
     |> get_field(:organization_type)
-    |> Kernel.in(TransportWeb.EditDatasetLive.organization_types())
+    # allow a nil value for the moment
+    |> Kernel.in(TransportWeb.EditDatasetLive.organization_types() ++ [nil])
     |> case do
       true -> changeset
       false -> changeset |> add_error(:organization_type, dgettext("db-dataset", "Organization type is invalid"))

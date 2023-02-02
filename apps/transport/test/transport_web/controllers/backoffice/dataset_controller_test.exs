@@ -94,7 +94,7 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
            } = DB.Repo.reload!(dataset)
   end
 
-  test "update a dataset custom tags", %{conn: conn} do
+  test "update a dataset custom tags and organization type", %{conn: conn} do
     dataset = insert(:dataset, slug: slug = "slug")
 
     Transport.HTTPoison.Mock
@@ -118,11 +118,13 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
         "url" => slug,
         "type" => "public-transit",
         "custom_tags[0]" => tag1 = "top",
-        "custom_tags[1]" => tag2 = "super"
+        "custom_tags[1]" => tag2 = "super",
+        "organization_type" => organization_type = "AOM"
       }
     })
 
     # the custom tags have been saved
-    assert %DB.Dataset{custom_tags: [^tag1, ^tag2]} = DB.Repo.reload!(dataset)
+    assert %DB.Dataset{custom_tags: [^tag1, ^tag2], organization_type: ^organization_type} =
+             DB.Repo.reload!(dataset)
   end
 end
