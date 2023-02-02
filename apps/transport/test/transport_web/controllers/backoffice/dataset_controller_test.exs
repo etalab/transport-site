@@ -124,7 +124,6 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
     })
 
     # the custom tags have been saved
-    assert %DB.Dataset{custom_tags: [^tag1, ^tag2], organization_type: ^organization_type} =
-             DB.Repo.reload!(dataset)
+    assert %DB.Dataset{custom_tags: [^tag1, ^tag2], organization_type: ^organization_type} = DB.Repo.reload!(dataset)
   end
 end

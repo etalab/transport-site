@@ -94,7 +94,7 @@ defmodule TransportWeb.EditDatasetLive do
       <%= if @dataset_organization do %>
         <div class="panel mt-48">
           <div class="panel-explanation">
-          <%= dgettext("backoffice", "published by") %>
+            <%= dgettext("backoffice", "published by") %>
           </div>
           <h4><%= @dataset_organization %></h4>
           <%= select(f, :organization_type, @organization_types,
@@ -280,7 +280,6 @@ defmodule TransportWeb.EditDatasetLive do
 
   def get_datagouv_infos(datagouv_url) do
     infos = Datagouvfr.Client.Datasets.get_infos_from_url(datagouv_url)
-    IO.inspect(infos)
 
     case infos do
       nil ->

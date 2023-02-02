@@ -482,7 +482,6 @@ defmodule DB.DatasetDBTest do
              Dataset.changeset(%{"datagouv_id" => datagouv_id, "licence" => "lov2"})
   end
 
-
   test "incorrect organization type" do
     insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate())
 

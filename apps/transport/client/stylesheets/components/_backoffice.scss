@@ -171,7 +171,7 @@
   top: -1em;
   right: 0;
   text-align: right;
-  &+h4 {
+  & + h4 {
     margin-top: -1em;
   }
 }
