@@ -260,3 +260,11 @@ msgstr "Notifications envoyées"
 #, elixir-autogen, elixir-format
 msgid "Notifications sent in the last %{nb_days} days."
 msgstr "Notifications envoyées au cours des %{nb_days} derniers jours."
+
+#, elixir-autogen, elixir-format
+msgid "Publisher type"
+msgstr "Type de publicateur"
+
+#, elixir-autogen, elixir-format
+msgid "published by"
+msgstr "publié par"

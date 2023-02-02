@@ -94,7 +94,7 @@ defmodule TransportWeb.EditDatasetLive do
       <%= if @dataset_organization do %>
         <div class="panel mt-48">
           <div class="panel-explanation">
-            publié par
+          <%= dgettext("backoffice", "published by") %>
           </div>
           <h4><%= @dataset_organization %></h4>
           <%= select(f, :organization_type, @organization_types,
@@ -104,7 +104,7 @@ defmodule TransportWeb.EditDatasetLive do
               else
                 ""
               end,
-            prompt: "Type de publicateur"
+            prompt: dgettext("backoffice", "Publisher type")
           ) %>
         </div>
       <% end %>
