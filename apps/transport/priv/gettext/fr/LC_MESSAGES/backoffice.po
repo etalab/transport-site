@@ -30,7 +30,7 @@ msgstr "id data.gouv.fr"
 
 #, elixir-autogen
 msgid "name"
-msgstr "Nom du réseau"
+msgstr "Nom du jeu de données sur le PAN"
 
 msgid "Dataset added with success"
 msgstr "Jeux de données ajouté avec succès"
