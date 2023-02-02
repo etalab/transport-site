@@ -91,6 +91,24 @@ defmodule TransportWeb.EditDatasetLive do
         session: %{"dataset" => @dataset, "form" => f}
       ) %>
 
+      <%= if @dataset_organization do %>
+        <div class="panel mt-48">
+          <div class="panel-explanation">
+            publié par
+          </div>
+          <h4><%= @dataset_organization %></h4>
+          <%= select(f, :organization_type, @organization_types,
+            selected:
+              if not is_nil(@dataset) do
+                @dataset.organization_type
+              else
+                ""
+              end,
+            prompt: "Type de publicateur"
+          ) %>
+        </div>
+      <% end %>
+
       <div class="panel mt-48">
         <div class="panel__header">
           <h4>
@@ -189,16 +207,34 @@ defmodule TransportWeb.EditDatasetLive do
         %{id: dataset_id} -> backoffice_dataset_path(socket, :post, dataset_id)
       end
 
+    dataset_organization =
+      case dataset do
+        nil -> nil
+        %{organization: organization} -> organization
+      end
+
     socket =
       socket
       |> assign(:dataset, dataset)
       |> assign(:dataset_types, dataset_types)
       |> assign(:regions, regions)
       |> assign(:form_url, form_url)
+      |> assign(:dataset_organization, dataset_organization)
+      |> assign(:organization_types, organization_types())
       |> assign(:trigger_submit, false)
 
     {:ok, socket}
   end
+
+  def organization_types,
+    do: [
+      "AOM",
+      "Réseau",
+      "Fournisseur de système",
+      "Opérateur de transport",
+      "Syndicat Mixte",
+      "Autre"
+    ]
 
   def handle_event(
         "change_dataset",
@@ -212,7 +248,7 @@ defmodule TransportWeb.EditDatasetLive do
       Task.async(fn -> get_datagouv_infos(datagouv_url) end)
       {:noreply, socket}
     else
-      {:noreply, assign(socket, datagouv_infos: nil)}
+      {:noreply, assign(socket, datagouv_infos: nil, dataset_organization: nil)}
     end
   end
 
@@ -229,7 +265,13 @@ defmodule TransportWeb.EditDatasetLive do
   def handle_info({ref, datagouv_infos}, socket) do
     # we stop monitoring the process after receiving the result
     Process.demonitor(ref, [:flush])
-    {:noreply, assign(socket, datagouv_infos: datagouv_infos)}
+
+    socket =
+      socket
+      |> assign(datagouv_infos: datagouv_infos)
+      |> assign(dataset_organization: Map.get(datagouv_infos, :organization))
+
+    {:noreply, socket}
   end
 
   def handle_info(_, socket) do
@@ -237,11 +279,14 @@ defmodule TransportWeb.EditDatasetLive do
   end
 
   def get_datagouv_infos(datagouv_url) do
-    case Datagouvfr.Client.Datasets.get_infos_from_url(datagouv_url) do
+    infos = Datagouvfr.Client.Datasets.get_infos_from_url(datagouv_url)
+    IO.inspect(infos)
+
+    case infos do
       nil ->
         %{dataset_datagouv_id: nil}
 
-      %{id: dataset_datagouv_id, title: title} ->
+      %{id: dataset_datagouv_id, title: title, organization: organization} ->
         # does the dataset already exists?
         dataset_id =
           case DB.Dataset |> DB.Repo.get_by(datagouv_id: dataset_datagouv_id) do
@@ -249,7 +294,12 @@ defmodule TransportWeb.EditDatasetLive do
             _ -> nil
           end
 
-        %{dataset_datagouv_id: dataset_datagouv_id, datagouv_title: title, dataset_id: dataset_id}
+        %{
+          dataset_datagouv_id: dataset_datagouv_id,
+          datagouv_title: title,
+          dataset_id: dataset_id,
+          organization: organization
+        }
     end
   end
 end

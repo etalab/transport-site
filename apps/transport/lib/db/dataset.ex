@@ -405,6 +405,7 @@ defmodule DB.Dataset do
       :description,
       :frequency,
       :organization,
+      :organization_type,
       :last_update,
       :licence,
       :logo,
@@ -432,6 +433,7 @@ defmodule DB.Dataset do
     |> maybe_dataset_now_licence_ouverte(dataset)
     |> maybe_overwrite_licence()
     |> has_real_time()
+    |> validate_organization_type()
     |> case do
       %{valid?: false, changes: changes} = changeset when changes == %{} ->
         {:ok, %{changeset | action: :ignore}}
@@ -779,6 +781,17 @@ defmodule DB.Dataset do
           :region,
           dgettext("db-dataset", "You need to fill either aom, region or use datagouv's zone")
         )
+    end
+  end
+
+  @spec validate_organization_type(Ecto.Changeset.t()) :: Ecto.Changeset.t()
+  defp validate_organization_type(changeset) do
+    changeset
+    |> get_field(:organization_type)
+    |> Kernel.in(TransportWeb.EditDatasetLive.organization_types())
+    |> case do
+      true -> changeset
+      false -> changeset |> add_error(:organization_type, dgettext("db-dataset", "Organization type is invalid"))
     end
   end
 
