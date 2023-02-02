@@ -32,6 +32,7 @@ defmodule DB.Dataset do
     field(:datagouv_title, :string)
     field(:type, :string)
     field(:organization, :string)
+    field(:organization_type, :string)
     field(:has_realtime, :boolean)
     field(:is_active, :boolean)
     field(:population, :integer)
