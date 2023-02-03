@@ -260,3 +260,21 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Notifications sent in the last %{nb_days} days."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "There is % {n} resource in this dataset"
+msgid_plural "There are %{n} resources in this dataset"
+msgstr[0] ""
+msgstr[1] ""
+
+#, elixir-autogen, elixir-format
+msgid "Last historization"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Resource"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Resource historization"
+msgstr ""
