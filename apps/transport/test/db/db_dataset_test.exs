@@ -493,4 +493,22 @@ defmodule DB.DatasetDBTest do
     assert logs =~ "Le type d'organisation (publicateur) est invalide"
     assert {:error, "%{organization_type: [\"Le type d'organisation (publicateur) est invalide\"]}"} == res
   end
+
+  test "dataset last resource history" do
+    dataset = insert(:dataset)
+
+    r1 = insert(:resource, dataset_id: dataset.id)
+    insert(:resource_history, resource_id: r1.id, inserted_at: DateTime.utc_now() |> DateTime.add(-3, :day))
+    rh = insert(:resource_history, resource_id: r1.id, inserted_at: DateTime.utc_now())
+
+    r2 = insert(:resource, dataset_id: dataset.id)
+
+    insert(:resource)
+
+    last_resource_history = DB.Dataset.last_resource_history(dataset.id)
+
+    assert length(last_resource_history) == 2
+    assert last_resource_history |> Enum.find(&(&1.id == r1.id)) |> Map.get(:resource_history) == [rh]
+    assert last_resource_history |> Enum.find(&(&1.id == r2.id)) |> Map.get(:resource_history) == []
+  end
 end

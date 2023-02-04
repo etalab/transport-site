@@ -81,6 +81,27 @@ defmodule DB.Dataset do
     |> DB.ResourceMetadata.join_validation_with_metadata()
   end
 
+  @doc """
+  Returns a list of resources, with their last resource_history preloaded
+  """
+  def last_resource_history(dataset_id) do
+    DB.Dataset.base_query()
+    |> where([dataset: d], d.id == ^dataset_id)
+    |> join(:left, [dataset: d], r in DB.Resource, on: d.id == r.dataset_id, as: :resource)
+    |> join(:left, [resource: r], rh in DB.ResourceHistory,
+      on: rh.resource_id == r.id,
+      as: :resource_history
+    )
+    |> distinct([resource: r], r.id)
+    |> order_by([resource: r, resource_history: rh],
+      asc: r.id,
+      desc: rh.inserted_at
+    )
+    |> preload([resource: r, resource_history: rh], resources: {r, resource_history: rh})
+    |> DB.Repo.one!()
+    |> Map.get(:resources, [])
+  end
+
   @spec type_to_str_map() :: %{binary() => binary()}
   def type_to_str_map,
     do: %{
