@@ -91,7 +91,7 @@ defmodule TransportWeb.EditDatasetLive do
         session: %{"dataset" => @dataset, "form" => f}
       ) %>
 
-      <div class="panel mt-48" :if={@dataset_organization}>
+      <div :if={@dataset_organization} class="panel mt-48">
         <div class="panel-explanation">
           <%= dgettext("backoffice", "published by") %>
         </div>
