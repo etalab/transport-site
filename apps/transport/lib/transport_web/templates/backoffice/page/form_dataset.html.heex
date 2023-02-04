@@ -27,13 +27,47 @@
         <% end %>
       </div>
     </div>
-    <%= if Dataset.should_skip_history?(@dataset) do %>
-      <div class="dashboard-description mt-48">
+
+    <div class="dashboard-description mt-48">
+      <h3><%= dgettext("backoffice", "Resource historization") %></h3>
+
+      <%= if Dataset.should_skip_history?(@dataset) do %>
         <p class="notification">
           <%= dgettext("backoffice", "This dataset is not historicized on purpose.") %>
         </p>
-      </div>
-    <% end %>
+      <% else %>
+        <% nb_resources = length(@resources_with_history) %>
+        <%= dngettext(
+          "backoffice",
+          "There is % {n} resource in this dataset",
+          "There are %{n} resources in this dataset",
+          nb_resources,
+          n: nb_resources
+        ) %>
+
+        <%= if nb_resources > 0 do %>
+          <table class="table">
+            <tr>
+              <th><%= dgettext("backoffice", "Resource") %></th>
+              <th><%= dgettext("backoffice", "Last historization") %></th>
+            </tr>
+            <%= for r <- @resources_with_history do %>
+              <tr>
+                <td><%= link(r.title, to: resource_path(@conn, :details, r.id)) %></td>
+                <td>
+                  <%= if r.resource_history == [] do %>
+                    🚫
+                  <% else %>
+                    <%= r.resource_history |> Enum.at(0) |> Map.get(:inserted_at) %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </table>
+        <% end %>
+      <% end %>
+    </div>
+
     <div class="dashboard-description mt-48">
       <h3><%= dgettext("backoffice", "Expiration notifications") %></h3>
       <%= if Enum.empty?(@expiration_emails) do %>
@@ -113,4 +147,5 @@
     </div>
   <% end %>
 </div>
+<div class="pt-48"></div>
 <script src={static_path(@conn, "/js/app.js")} />
