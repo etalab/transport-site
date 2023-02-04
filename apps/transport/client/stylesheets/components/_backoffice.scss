@@ -165,6 +165,17 @@
   }
 }
 
+.panel-explanation {
+  color: var(--grey);
+  position: relative;
+  top: -1em;
+  right: 0;
+  text-align: right;
+  & + h4 {
+    margin-top: -1em;
+  }
+}
+
 .custom-tag {
   animation: fade-in 0.5s;
   .delete-tag {

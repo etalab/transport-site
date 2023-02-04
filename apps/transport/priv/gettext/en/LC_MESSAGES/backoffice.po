@@ -262,6 +262,14 @@ msgid "Notifications sent in the last %{nb_days} days."
 msgstr ""
 
 #, elixir-autogen, elixir-format
+msgid "Publisher type"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "published by"
+msgstr ""
+
+#, elixir-autogen, elixir-format
 msgid "There is % {n} resource in this dataset"
 msgid_plural "There are %{n} resources in this dataset"
 msgstr[0] ""

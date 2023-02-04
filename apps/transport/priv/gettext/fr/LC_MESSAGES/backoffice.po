@@ -30,7 +30,7 @@ msgstr "id data.gouv.fr"
 
 #, elixir-autogen
 msgid "name"
-msgstr "Nom du réseau"
+msgstr "Nom du jeu de données sur le PAN"
 
 msgid "Dataset added with success"
 msgstr "Jeux de données ajouté avec succès"
@@ -260,6 +260,14 @@ msgstr "Notifications envoyées"
 #, elixir-autogen, elixir-format
 msgid "Notifications sent in the last %{nb_days} days."
 msgstr "Notifications envoyées au cours des %{nb_days} derniers jours."
+
+#, elixir-autogen, elixir-format
+msgid "Publisher type"
+msgstr "Type de publicateur"
+
+#, elixir-autogen, elixir-format
+msgid "published by"
+msgstr "publié par"
 
 #, elixir-autogen, elixir-format
 msgid "There is % {n} resource in this dataset"

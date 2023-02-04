@@ -86,3 +86,7 @@ msgstr "Données routières"
 #, elixir-autogen, elixir-format
 msgid "Transport traffic"
 msgstr "Comptage des mobilités"
+
+#, elixir-autogen, elixir-format
+msgid "Organization type is invalid"
+msgstr "Le type d'organisation (publicateur) est invalide"

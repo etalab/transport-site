@@ -467,6 +467,33 @@ defmodule DB.DatasetDBTest do
     assert DB.Dataset.count_coach() == 1
   end
 
+  test "correct organization type" do
+    insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate())
+
+    assert {:ok, %Ecto.Changeset{changes: %{organization_type: "AOM"}}} =
+             Dataset.changeset(%{"datagouv_id" => datagouv_id, "organization_type" => "AOM"})
+  end
+
+  test "empty organization type" do
+    insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate())
+
+    # we test a random change to check if the changeset is valid without an organization type specified
+    assert {:ok, %Ecto.Changeset{changes: %{licence: "lov2"}}} =
+             Dataset.changeset(%{"datagouv_id" => datagouv_id, "licence" => "lov2"})
+  end
+
+  test "incorrect organization type" do
+    insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate())
+
+    {res, logs} =
+      with_log(fn ->
+        Dataset.changeset(%{"datagouv_id" => datagouv_id, "organization_type" => "US Gvt"})
+      end)
+
+    assert logs =~ "Le type d'organisation (publicateur) est invalide"
+    assert {:error, "%{organization_type: [\"Le type d'organisation (publicateur) est invalide\"]}"} == res
+  end
+
   test "dataset last resource history" do
     dataset = insert(:dataset)
 
