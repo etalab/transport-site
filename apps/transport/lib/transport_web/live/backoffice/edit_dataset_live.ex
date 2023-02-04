@@ -91,23 +91,21 @@ defmodule TransportWeb.EditDatasetLive do
         session: %{"dataset" => @dataset, "form" => f}
       ) %>
 
-      <%= if @dataset_organization do %>
-        <div class="panel mt-48">
-          <div class="panel-explanation">
-            <%= dgettext("backoffice", "published by") %>
-          </div>
-          <h4><%= @dataset_organization %></h4>
-          <%= select(f, :organization_type, @organization_types,
-            selected:
-              if not is_nil(@dataset) do
-                @dataset.organization_type
-              else
-                ""
-              end,
-            prompt: dgettext("backoffice", "Publisher type")
-          ) %>
+      <div class="panel mt-48" :if={@dataset_organization}>
+        <div class="panel-explanation">
+          <%= dgettext("backoffice", "published by") %>
         </div>
-      <% end %>
+        <h4><%= @dataset_organization %></h4>
+        <%= select(f, :organization_type, @organization_types,
+          selected:
+            if not is_nil(@dataset) do
+              @dataset.organization_type
+            else
+              ""
+            end,
+          prompt: dgettext("backoffice", "Publisher type")
+        ) %>
+      </div>
 
       <div class="panel mt-48">
         <div class="panel__header">
