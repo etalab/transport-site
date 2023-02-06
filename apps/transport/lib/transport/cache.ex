@@ -58,7 +58,7 @@ defmodule Transport.Cache.Cachex do
         Logger.info("Value for key #{cache_key} regenerated (options=#{options |> inspect})")
         result
 
-      :ignore ->
+      {:ignore, _} ->
         # NOTE: should normally not happen, due to how the code is structured, but kept for clarity
         raise "Ignore mode is not supported"
 
