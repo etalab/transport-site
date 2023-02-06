@@ -32,6 +32,7 @@ defmodule DB.Dataset do
     field(:datagouv_title, :string)
     field(:type, :string)
     field(:organization, :string)
+    field(:organization_type, :string)
     field(:has_realtime, :boolean)
     field(:is_active, :boolean)
     field(:population, :integer)
@@ -78,6 +79,27 @@ defmodule DB.Dataset do
     |> DB.ResourceHistory.join_resource_with_latest_resource_history()
     |> DB.MultiValidation.join_resource_history_with_latest_validation(validator_name)
     |> DB.ResourceMetadata.join_validation_with_metadata()
+  end
+
+  @doc """
+  Returns a list of resources, with their last resource_history preloaded
+  """
+  def last_resource_history(dataset_id) do
+    DB.Dataset.base_query()
+    |> where([dataset: d], d.id == ^dataset_id)
+    |> join(:left, [dataset: d], r in DB.Resource, on: d.id == r.dataset_id, as: :resource)
+    |> join(:left, [resource: r], rh in DB.ResourceHistory,
+      on: rh.resource_id == r.id,
+      as: :resource_history
+    )
+    |> distinct([resource: r], r.id)
+    |> order_by([resource: r, resource_history: rh],
+      asc: r.id,
+      desc: rh.inserted_at
+    )
+    |> preload([resource: r, resource_history: rh], resources: {r, resource_history: rh})
+    |> DB.Repo.one!()
+    |> Map.get(:resources, [])
   end
 
   @spec type_to_str_map() :: %{binary() => binary()}
@@ -404,6 +426,7 @@ defmodule DB.Dataset do
       :description,
       :frequency,
       :organization,
+      :organization_type,
       :last_update,
       :licence,
       :logo,
@@ -431,6 +454,7 @@ defmodule DB.Dataset do
     |> maybe_dataset_now_licence_ouverte(dataset)
     |> maybe_overwrite_licence()
     |> has_real_time()
+    |> validate_organization_type()
     |> case do
       %{valid?: false, changes: changes} = changeset when changes == %{} ->
         {:ok, %{changeset | action: :ignore}}
@@ -778,6 +802,18 @@ defmodule DB.Dataset do
           :region,
           dgettext("db-dataset", "You need to fill either aom, region or use datagouv's zone")
         )
+    end
+  end
+
+  @spec validate_organization_type(Ecto.Changeset.t()) :: Ecto.Changeset.t()
+  defp validate_organization_type(changeset) do
+    changeset
+    |> get_field(:organization_type)
+    # allow a nil value for the moment
+    |> Kernel.in(TransportWeb.EditDatasetLive.organization_types() ++ [nil])
+    |> case do
+      true -> changeset
+      false -> changeset |> add_error(:organization_type, dgettext("db-dataset", "Organization type is invalid"))
     end
   end
 

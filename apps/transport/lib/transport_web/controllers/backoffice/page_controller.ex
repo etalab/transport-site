@@ -161,6 +161,7 @@ defmodule TransportWeb.Backoffice.PageController do
     |> assign(:expiration_emails, notification_expiration_emails(conn.assigns[:dataset]))
     |> assign(:notifications_sent, notifications_sent(conn.assigns[:dataset]))
     |> assign(:notifications_last_nb_days, notifications_last_nb_days())
+    |> assign(:resources_with_history, DB.Dataset.last_resource_history(dataset_id))
     |> assign(
       :import_logs,
       LogsImport

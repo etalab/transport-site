@@ -90,7 +90,7 @@ defmodule Datagouvfr.Client.Datasets do
   def get_infos_from_url(url) do
     with filename when not is_nil(filename) <- Helpers.filename_from_url(url),
          {:ok, dataset} <- [@endpoint, filename] |> API.get() do
-      %{id: dataset["id"], title: dataset["title"]}
+      %{id: dataset["id"], title: dataset["title"], organization: get_in(dataset, ["organization", "name"])}
     else
       _ -> nil
     end
