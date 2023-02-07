@@ -37,7 +37,7 @@ defmodule Transport.Cache.Cachex do
       Logger.info("Generating cached value for key #{key}")
 
       try do
-        {:commit, value_fn.()}
+        {:commit, value_fn.(), ttl: expire_value}
       rescue
         e ->
           # NOTE: if an error occurs inside the value_fn computation, then
@@ -47,29 +47,23 @@ defmodule Transport.Cache.Cachex do
       end
     end
 
-    {operation, result} = Cachex.fetch(cache_name(), cache_key, comp_fn)
+    outcome = Cachex.fetch(cache_name(), cache_key, comp_fn)
 
-    case operation do
-      :ok ->
+    case outcome do
+      {:ok, result} ->
         Logger.info("Value for key #{cache_key} served from cache")
         result
 
-      :commit ->
-        {:ok, true} = Cachex.expire(cache_name(), cache_key, expire_value)
-
-        with {:ok, nil} <- Cachex.ttl(cache_name(), cache_key) do
-          Sentry.capture_message("cache was set without a TTL", extra: %{cache_key: cache_key, result: inspect(result)})
-        end
-
-        Logger.info("Value for key #{cache_key} regenerated")
+      {:commit, result, options} ->
+        Logger.info("Value for key #{cache_key} regenerated (options=#{options |> inspect})")
         result
 
-      :ignore ->
+      {:ignore, _} ->
         # NOTE: should normally not happen, due to how the code is structured, but kept for clarity
         raise "Ignore mode is not supported"
 
-      :error ->
-        case result do
+      {:error, error} ->
+        case error do
           {:computation_error, computation_error, computation_error_stacktrace} ->
             Logger.error("The computation function failed during cached query for key #{cache_key}. Re-raising.")
             reraise(computation_error, computation_error_stacktrace)
@@ -77,7 +71,7 @@ defmodule Transport.Cache.Cachex do
           _ ->
             # here we assume we have a technical (cache-oriented) error, and we'll try to evaluate the function again
             Logger.error(
-              "Cache error #{result |> inspect} while handling key #{cache_key} - attempting to evaluate without cache"
+              "Cache error #{error |> inspect} while handling key #{cache_key} - attempting to evaluate without cache"
             )
 
             # NOTE: if this occurs, we'll need to propagate "result" into it, instead of hiding the underlying details,
