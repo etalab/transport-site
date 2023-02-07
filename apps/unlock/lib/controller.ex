@@ -177,7 +177,7 @@ defmodule Unlock.Controller do
           Logger.warn("Payload is too large (#{size} bytes > #{@max_allowed_cached_byte_size}). Skipping cache.")
           {:ignore, response}
         else
-          {:commit, response}
+          {:commit, response, ttl: :timer.seconds(item.ttl)}
         end
       rescue
         e ->
@@ -192,26 +192,21 @@ defmodule Unlock.Controller do
     cache_key = Unlock.Shared.cache_key(item.identifier)
     # NOTE: concurrent calls to `fetch` with the same key will result (here)
     # in only one fetching call, which is a nice guarantee (avoid overloading of target)
-    {operation, result} = Cachex.fetch(cache_name, cache_key, comp_fn)
+    outcome = Cachex.fetch(cache_name, cache_key, comp_fn)
 
-    case operation do
-      :ok ->
+    case outcome do
+      {:ok, result} ->
         Logger.info("Proxy response for #{item.identifier} served from cache")
         result
 
-      :commit ->
-        # NOTE: in case of concurrent calls, the expire will be called 1 time per call. I am
-        # doing research to verify if this could be changed (e.g. call `expire` inside the `comp_fn`),
-        # but at this point it doesn't cause troubles.
-        {:ok, true} = Cachex.expire(cache_name, cache_key, :timer.seconds(item.ttl))
-        Logger.info("Setting cache TTL for key #{cache_key} (expire in #{item.ttl} seconds)")
+      {:commit, result, _options} ->
         result
 
-      :ignore ->
+      {:ignore, result} ->
         Logger.info("Cache has been skipped for proxy response")
         result
 
-      :error ->
+      {:error, _error} ->
         # NOTE: we'll want to have some monitoring here, but not using Sentry
         # because in case of troubles, we will blow up our quota.
         Logger.error("Error while fetching key #{cache_key}")

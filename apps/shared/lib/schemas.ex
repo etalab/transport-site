@@ -108,14 +108,16 @@ defmodule Transport.Shared.Schemas do
   end
 
   def cache_fetch(cache_key, comp_fn, ttl \\ 300) do
-    {operation, result} = Cachex.fetch(cache_name(), cache_key, fn _ -> {:commit, comp_fn.()} end)
+    outcome =
+      Cachex.fetch(cache_name(), cache_key, fn _ ->
+        {:commit, comp_fn.(), ttl: :timer.seconds(ttl)}
+      end)
 
-    case operation do
-      :ok ->
+    case outcome do
+      {:ok, result} ->
         result
 
-      :commit ->
-        {:ok, true} = Cachex.expire(cache_name(), cache_key, :timer.seconds(ttl))
+      {:commit, result, _options} ->
         result
     end
   end
