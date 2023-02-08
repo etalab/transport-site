@@ -7,16 +7,15 @@ defmodule DB.ContactTest do
   end
 
   test "can save objects in the database with relevant casts" do
-    %DB.Contact{}
-    |> DB.Contact.changeset(%{
+    %{
       first_name: "John ",
       last_name: " Doe",
       email: email = "john@example.fr",
       job_title: "Boss",
       organization: "Big Corp Inc",
       phone_number: "06 92 22 88 03"
-    })
-    |> DB.Repo.insert!()
+    }
+    |> DB.Contact.insert!()
 
     assert %DB.Contact{
              email: ^email,

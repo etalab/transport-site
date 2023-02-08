@@ -4,10 +4,11 @@ defmodule DB.Contact do
   """
   use Ecto.Schema
   import Ecto.Changeset
+  import Ecto.Query
 
   @default_phone_number_region "FR"
 
-  schema "contacts" do
+  schema "contact" do
     field(:first_name, :string)
     field(:last_name, :string)
     field(:organization, :string)
@@ -20,6 +21,17 @@ defmodule DB.Contact do
 
     timestamps(type: :utc_datetime_usec)
   end
+
+  def base_query, do: from(c in __MODULE__, as: :contact)
+
+  def search(%{"q" => q}) do
+    ilike = "%#{q}%"
+    base_query() |> where([contact: c], ilike(c.last_name, ^ilike))
+  end
+
+  def search(%{}), do: base_query()
+
+  def insert!(%{} = fields), do: %__MODULE__{} |> changeset(fields) |> DB.Repo.insert!()
 
   def changeset(struct, attrs \\ %{}) do
     struct
