@@ -1,4 +1,4 @@
-defmodule TransportWeb.Backoffice.PageControllerTest do
+defmodule TransportWeb.Backoffice.ContactControllerTest do
   use TransportWeb.ConnCase, async: true
 
   setup do
