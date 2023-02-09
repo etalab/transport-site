@@ -35,48 +35,32 @@ defmodule DB.ContactTest do
   end
 
   test "validates and formats phone numbers" do
-    base_args = %{
-      first_name: "John",
-      last_name: "Doe",
-      email: "john@example.fr",
-      job_title: "Boss",
-      organization: "Big Corp Inc",
-      phone_number: nil
-    }
-
     assert %Ecto.Changeset{
              valid?: false,
              errors: [phone_number: {"The string supplied did not seem to be a phone number", []}]
-           } = DB.Contact.changeset(%DB.Contact{}, %{base_args | phone_number: "🤡"})
+           } = DB.Contact.changeset(%DB.Contact{}, %{sample_contact_args() | phone_number: "🤡"})
 
     assert %Ecto.Changeset{valid?: false, errors: [phone_number: {"Phone number is not a possible number", []}]} =
-             DB.Contact.changeset(%DB.Contact{}, %{base_args | phone_number: "999"})
+             DB.Contact.changeset(%DB.Contact{}, %{sample_contact_args() | phone_number: "999"})
 
     assert %Ecto.Changeset{valid?: false, errors: [phone_number: {"Phone number is not a valid number", []}]} =
-             DB.Contact.changeset(%DB.Contact{}, %{base_args | phone_number: "06 92 22 88 0"})
+             DB.Contact.changeset(%DB.Contact{}, %{sample_contact_args() | phone_number: "06 92 22 88 0"})
 
     assert %Ecto.Changeset{valid?: true, changes: %{phone_number: "+33699999999"}} =
-             DB.Contact.changeset(%DB.Contact{}, %{base_args | phone_number: "+33 6 99 99 99 99"})
+             DB.Contact.changeset(%DB.Contact{}, %{sample_contact_args() | phone_number: "+33 6 99 99 99 99"})
 
     assert %Ecto.Changeset{valid?: true, changes: %{phone_number: "+33699999999"}} =
-             DB.Contact.changeset(%DB.Contact{}, %{base_args | phone_number: "+33.6.99.99.99.99"})
+             DB.Contact.changeset(%DB.Contact{}, %{sample_contact_args() | phone_number: "+33.6.99.99.99.99"})
 
     assert %Ecto.Changeset{valid?: true, changes: %{phone_number: "+33699999999"}} =
-             DB.Contact.changeset(%DB.Contact{}, %{base_args | phone_number: "06.99.99.99.99"})
+             DB.Contact.changeset(%DB.Contact{}, %{sample_contact_args() | phone_number: "06.99.99.99.99"})
 
     assert %Ecto.Changeset{valid?: true, changes: %{phone_number: "+14383898482"}} =
-             DB.Contact.changeset(%DB.Contact{}, %{base_args | phone_number: "+1 (438) 389 8482"})
+             DB.Contact.changeset(%DB.Contact{}, %{sample_contact_args() | phone_number: "+1 (438) 389 8482"})
   end
 
   test "cannot have duplicates based on email" do
-    params = %{
-      first_name: "John ",
-      last_name: " Doe",
-      email: "john@example.fr",
-      job_title: "Boss",
-      organization: "Big Corp Inc",
-      phone_number: "06 92 22 88 03"
-    }
+    params = %{sample_contact_args() | email: "foo@example.fr"}
 
     DB.Contact.insert!(params)
 
@@ -85,5 +69,28 @@ defmodule DB.ContactTest do
              %DB.Contact{}
              |> DB.Contact.changeset(params)
              |> DB.Repo.insert_or_update()
+  end
+
+  test "search" do
+    search_fn = fn args -> args |> DB.Contact.search() |> DB.Repo.all() end
+    assert search_fn.(%{}) == []
+
+    DB.Contact.insert!(%{sample_contact_args() | last_name: "Doe"})
+    DB.Contact.insert!(%{sample_contact_args() | last_name: "Bar"})
+
+    assert [%DB.Contact{last_name: "Doe"}] = search_fn.(%{"q" => "DOE"})
+    assert [%DB.Contact{last_name: "Doe"}] = search_fn.(%{"q" => "doe"})
+    assert [%DB.Contact{last_name: "Bar"}] = search_fn.(%{"q" => "bar"})
+  end
+
+  defp sample_contact_args do
+    %{
+      first_name: "John",
+      last_name: "Doe",
+      email: "john#{Ecto.UUID.generate()}@example.fr",
+      job_title: "Boss",
+      organization: "Big Corp Inc",
+      phone_number: "06 92 22 88 03"
+    }
   end
 end
