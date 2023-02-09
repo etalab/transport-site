@@ -1,5 +1,6 @@
 defmodule TransportWeb.Backoffice.ContactController do
   use TransportWeb, :controller
+  import Ecto.Query
 
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(%Plug.Conn{} = conn, %{} = params) do
@@ -13,7 +14,23 @@ defmodule TransportWeb.Backoffice.ContactController do
   def new(%Plug.Conn{} = conn, params) do
     conn
     |> assign(:contact, DB.Contact.changeset(existing_contact(params), params))
-    |> render("form.html")
+    |> render_form()
+  end
+
+  defp existing_organizations do
+    DB.Contact.base_query()
+    |> select([contact: c], c.organization)
+    |> distinct(true)
+    |> DB.Repo.all()
+    |> Enum.sort()
+  end
+
+  defp existing_job_titles do
+    DB.Contact.base_query()
+    |> select([contact: c], c.job_title)
+    |> distinct(true)
+    |> DB.Repo.all()
+    |> Enum.sort()
   end
 
   def create(%Plug.Conn{} = conn, %{"contact" => params}) do
@@ -41,6 +58,13 @@ defmodule TransportWeb.Backoffice.ContactController do
   def edit(%Plug.Conn{} = conn, %{"id" => _} = params) do
     conn
     |> assign(:contact, DB.Contact.changeset(existing_contact(params), %{}))
+    |> render_form()
+  end
+
+  defp render_form(%Plug.Conn{} = conn) do
+    conn
+    |> assign(:existing_organizations, existing_organizations())
+    |> assign(:existing_job_titles, existing_job_titles())
     |> render("form.html")
   end
 

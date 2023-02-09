@@ -22,12 +22,26 @@
       Nom <%= text_input(f, :last_name, required: true) %>
     <% end %>
     <%= label f, :job_title, class: "pt-12" do %>
-      Fonction <%= text_input(f, :job_title, required: true, placeholder: "Responsable numérique") %>
+      Fonction <%= text_input(f, :job_title,
+        required: true,
+        placeholder: "Responsable numérique",
+        list: "existing_job_titles"
+      ) %>
       <div class="small">Optionnel</div>
     <% end %>
+    <datalist id="existing_job_titles">
+      <%= for job_title <- @existing_job_titles do %>
+        <option value={job_title} />
+      <% end %>
+    </datalist>
     <%= label f, :organization, class: "pt-12" do %>
-      Organisation <%= text_input(f, :organization, required: true, placeholder: "SNCF") %>
+      Organisation <%= text_input(f, :organization, required: true, placeholder: "SNCF", list: "existing_organizations") %>
     <% end %>
+    <datalist id="existing_organizations">
+      <%= for org <- @existing_organizations do %>
+        <option value={org} />
+      <% end %>
+    </datalist>
     <%= label f, :email, class: "pt-12" do %>
       E-mail <%= text_input(f, :email, required: true, type: "email") %>
     <% end %>
