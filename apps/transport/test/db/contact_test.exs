@@ -44,6 +44,11 @@ defmodule DB.ContactTest do
       phone_number: nil
     }
 
+    assert %Ecto.Changeset{
+             valid?: false,
+             errors: [phone_number: {"The string supplied did not seem to be a phone number", []}]
+           } = DB.Contact.changeset(%DB.Contact{}, %{base_args | phone_number: "🤡"})
+
     assert %Ecto.Changeset{valid?: false, errors: [phone_number: {"Phone number is not a possible number", []}]} =
              DB.Contact.changeset(%DB.Contact{}, %{base_args | phone_number: "999"})
 
@@ -61,5 +66,24 @@ defmodule DB.ContactTest do
 
     assert %Ecto.Changeset{valid?: true, changes: %{phone_number: "+14383898482"}} =
              DB.Contact.changeset(%DB.Contact{}, %{base_args | phone_number: "+1 (438) 389 8482"})
+  end
+
+  test "cannot have duplicates based on email" do
+    params = %{
+      first_name: "John ",
+      last_name: " Doe",
+      email: "john@example.fr",
+      job_title: "Boss",
+      organization: "Big Corp Inc",
+      phone_number: "06 92 22 88 03"
+    }
+
+    DB.Contact.insert!(params)
+
+    assert {:error,
+            %Ecto.Changeset{action: :insert, errors: [email: {"has already been taken", _}], data: _, valid?: false}} =
+             %DB.Contact{}
+             |> DB.Contact.changeset(params)
+             |> DB.Repo.insert_or_update()
   end
 end

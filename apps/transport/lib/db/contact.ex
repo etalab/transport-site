@@ -41,6 +41,7 @@ defmodule DB.Contact do
     |> validate_format(:email, ~r/@/)
     |> cast_phone_number()
     |> put_hashed_fields()
+    |> unique_constraint(:email_hash, error_key: :email, name: :contact_email_hash_index)
   end
 
   defp trim_fields(%Ecto.Changeset{} = changeset, fields) do
@@ -53,18 +54,23 @@ defmodule DB.Contact do
         changeset
 
       phone_number_value ->
-        {:ok, phone_number} = ExPhoneNumber.parse(phone_number_value, @default_phone_number_region)
-
-        cond do
-          not ExPhoneNumber.is_possible_number?(phone_number) ->
-            add_error(changeset, :phone_number, "Phone number is not a possible number")
-
-          not ExPhoneNumber.is_valid_number?(phone_number) ->
-            add_error(changeset, :phone_number, "Phone number is not a valid number")
-
-          true ->
-            put_change(changeset, :phone_number, ExPhoneNumber.format(phone_number, :e164))
+        case ExPhoneNumber.parse(phone_number_value, @default_phone_number_region) do
+          {:ok, phone_number} -> parse_phone_number(changeset, phone_number)
+          {:error, reason} -> add_error(changeset, :phone_number, reason)
         end
+    end
+  end
+
+  defp parse_phone_number(%Ecto.Changeset{} = changeset, %ExPhoneNumber.Model.PhoneNumber{} = phone_number) do
+    cond do
+      not ExPhoneNumber.is_possible_number?(phone_number) ->
+        add_error(changeset, :phone_number, "Phone number is not a possible number")
+
+      not ExPhoneNumber.is_valid_number?(phone_number) ->
+        add_error(changeset, :phone_number, "Phone number is not a valid number")
+
+      true ->
+        put_change(changeset, :phone_number, ExPhoneNumber.format(phone_number, :e164))
     end
   end
 

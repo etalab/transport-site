@@ -10,9 +10,38 @@ defmodule TransportWeb.Backoffice.ContactController do
     |> render_index(conn, params)
   end
 
+  def new(%Plug.Conn{} = conn, params) do
+    conn
+    |> assign(:contact, DB.Contact.changeset(existing_contact(params), params))
+    |> render("form.html")
+  end
+
+  def create(%Plug.Conn{} = conn, %{"contact" => params}) do
+    case DB.Contact.changeset(existing_contact(params), params) do
+      %Ecto.Changeset{valid?: false} ->
+        conn |> redirect(to: backoffice_contact_path(conn, :new, params))
+
+      %Ecto.Changeset{valid?: true} = changeset ->
+        case changeset |> DB.Repo.insert_or_update() do
+          {:ok, _} ->
+            conn |> put_flash(:info, "Contact mis à jour") |> redirect(to: backoffice_contact_path(conn, :index))
+
+          {:error, %Ecto.Changeset{errors: [email: {"has already been taken", _}]}} ->
+            conn
+            |> put_flash(:error, "Un contact existe déjà avec cette adresse e-mail")
+            |> redirect(to: backoffice_contact_path(conn, :index))
+        end
+    end
+  end
+
+  defp existing_contact(%{"id" => id}) when id != "", do: DB.Repo.get!(DB.Contact, String.to_integer(id))
+  defp existing_contact(%{}), do: %DB.Contact{}
+
   @spec edit(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def edit(%Plug.Conn{} = conn, %{"contact_id" => contact_id}) do
-    text(conn, contact_id)
+  def edit(%Plug.Conn{} = conn, %{"id" => _} = params) do
+    conn
+    |> assign(:contact, DB.Contact.changeset(existing_contact(params), %{}))
+    |> render("form.html")
   end
 
   @spec render_index(Ecto.Queryable.t(), Plug.Conn.t(), map()) :: Plug.Conn.t()

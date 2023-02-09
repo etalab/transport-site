@@ -16,6 +16,6 @@ defmodule DB.Repo.Migrations.AddContacts do
       timestamps([type: :utc_datetime_usec])
     end
 
-    create unique_index(:contact, [:email])
+    create unique_index(:contact, [:email_hash], name: :contact_email_hash_index)
   end
 end
