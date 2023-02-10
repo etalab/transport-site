@@ -145,6 +145,19 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
     end
   end
 
+  test "delete", %{conn: conn} do
+    contact = DB.Contact.insert!(sample_contact_args())
+
+    conn =
+      conn
+      |> setup_admin_in_session()
+      |> post(backoffice_contact_path(conn, :delete, contact.id))
+
+    assert redirected_to(conn, 302) == backoffice_contact_path(conn, :index)
+    assert get_flash(conn, :info) =~ "Le contact a été supprimé"
+    assert is_nil(DB.Repo.reload(contact))
+  end
+
   defp sample_contact_args do
     %{
       first_name: "John",

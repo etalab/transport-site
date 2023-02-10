@@ -115,7 +115,8 @@ defmodule TransportWeb.Router do
       get("/contacts", ContactController, :index)
       get("/contacts/new", ContactController, :new)
       post("/contacts/create", ContactController, :create)
-      get("/contacts/edit/:id", ContactController, :edit)
+      get("/contacts/:id/edit", ContactController, :edit)
+      post("/contacts/:id/delete", ContactController, :delete)
       get("/broken-urls", BrokenUrlsController, :index)
       get("/gtfs-export", GTFSExportController, :export)
 

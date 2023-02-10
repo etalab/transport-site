@@ -17,22 +17,6 @@ defmodule TransportWeb.Backoffice.ContactController do
     |> render_form()
   end
 
-  defp existing_organizations do
-    DB.Contact.base_query()
-    |> select([contact: c], c.organization)
-    |> distinct(true)
-    |> DB.Repo.all()
-    |> Enum.sort()
-  end
-
-  defp existing_job_titles do
-    DB.Contact.base_query()
-    |> select([contact: c], c.job_title)
-    |> distinct(true)
-    |> DB.Repo.all()
-    |> Enum.sort()
-  end
-
   def create(%Plug.Conn{} = conn, %{"contact" => params}) do
     case DB.Contact.changeset(existing_contact(params), params) do
       %Ecto.Changeset{valid?: false} ->
@@ -61,6 +45,14 @@ defmodule TransportWeb.Backoffice.ContactController do
     |> render_form()
   end
 
+  def delete(%Plug.Conn{} = conn, %{"id" => _} = params) do
+    params |> existing_contact() |> DB.Repo.delete!()
+
+    conn
+    |> put_flash(:info, "Le contact a été supprimé")
+    |> redirect(to: backoffice_contact_path(conn, :index))
+  end
+
   defp render_form(%Plug.Conn{} = conn) do
     conn
     |> assign(:existing_organizations, existing_organizations())
@@ -78,5 +70,21 @@ defmodule TransportWeb.Backoffice.ContactController do
     conn
     |> assign(:contacts, paginated_contacts)
     |> render("index.html")
+  end
+
+  defp existing_organizations do
+    DB.Contact.base_query()
+    |> select([contact: c], c.organization)
+    |> distinct(true)
+    |> DB.Repo.all()
+    |> Enum.sort()
+  end
+
+  defp existing_job_titles do
+    DB.Contact.base_query()
+    |> select([contact: c], c.job_title)
+    |> distinct(true)
+    |> DB.Repo.all()
+    |> Enum.sort()
   end
 end
