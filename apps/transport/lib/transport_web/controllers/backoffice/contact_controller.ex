@@ -8,6 +8,7 @@ defmodule TransportWeb.Backoffice.ContactController do
 
     params
     |> DB.Contact.search()
+    |> order_by([contact: c], asc: c.last_name)
     |> render_index(conn, params)
   end
 
