@@ -75,12 +75,14 @@ defmodule DB.ContactTest do
     search_fn = fn args -> args |> DB.Contact.search() |> DB.Repo.all() end
     assert search_fn.(%{}) == []
 
-    DB.Contact.insert!(%{sample_contact_args() | last_name: "Doe"})
-    DB.Contact.insert!(%{sample_contact_args() | last_name: "Bar"})
+    DB.Contact.insert!(%{sample_contact_args() | last_name: "Doe", organization: "Big Corp Inc"})
+    DB.Contact.insert!(%{sample_contact_args() | last_name: "Bar", organization: "Big Corp Inc"})
+    DB.Contact.insert!(%{sample_contact_args() | last_name: "Baz", organization: "Foo Bar"})
 
     assert [%DB.Contact{last_name: "Doe"}] = search_fn.(%{"q" => "DOE"})
     assert [%DB.Contact{last_name: "Doe"}] = search_fn.(%{"q" => "doe"})
     assert [%DB.Contact{last_name: "Bar"}] = search_fn.(%{"q" => "bar"})
+    assert [%DB.Contact{organization: "Foo Bar"}] = search_fn.(%{"q" => "Foo Bar"})
   end
 
   defp sample_contact_args do

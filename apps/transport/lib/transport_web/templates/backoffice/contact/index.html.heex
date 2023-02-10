@@ -5,9 +5,16 @@
     <%= search_input(f, :q,
       id: "backoffice_search",
       value: assigns[:q] || "",
+      list: "existing_organizations",
       placeholder: dgettext("contact", "Find contacts")
     ) %>
+    <datalist id="existing_organizations">
+      <%= for org <- @existing_organizations do %>
+        <option value={org} />
+      <% end %>
+    </datalist>
     <button type="submit" class="button backoffice_search_button"><i class="fa fa-search"></i></button>
+    <div class="small">Recherchez par nom de famille ou organisation</div>
   <% end %>
 
   <a class="button" href={backoffice_contact_path(@conn, :new)}>

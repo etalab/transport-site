@@ -69,6 +69,7 @@ defmodule TransportWeb.Backoffice.ContactController do
 
     conn
     |> assign(:contacts, paginated_contacts)
+    |> assign(:existing_organizations, existing_organizations())
     |> render("index.html")
   end
 
