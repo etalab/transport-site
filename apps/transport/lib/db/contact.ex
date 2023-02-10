@@ -26,7 +26,10 @@ defmodule DB.Contact do
 
   def search(%{"q" => q}) do
     ilike = "%#{q}%"
-    base_query() |> where([contact: c], ilike(c.last_name, ^ilike) or c.organization == ^q)
+
+    base_query()
+    |> where([contact: c], ilike(c.last_name, ^ilike) or c.organization == ^q)
+    |> order_by([contact: c], asc: c.last_name)
   end
 
   def search(%{}), do: base_query()
