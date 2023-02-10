@@ -71,6 +71,11 @@ defmodule DB.ContactTest do
              |> DB.Repo.insert_or_update()
   end
 
+  test "email is lowercased" do
+    assert %DB.Contact{email: "foo.bar@example.fr"} =
+             DB.Contact.insert!(%{sample_contact_args() | email: "foo.BAR@example.fr"})
+  end
+
   test "search" do
     search_fn = fn args -> args |> DB.Contact.search() |> DB.Repo.all() end
     assert search_fn.(%{}) == []

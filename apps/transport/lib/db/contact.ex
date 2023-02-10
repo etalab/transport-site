@@ -43,6 +43,7 @@ defmodule DB.Contact do
     |> validate_required([:first_name, :last_name, :organization, :email])
     |> validate_format(:email, ~r/@/)
     |> cast_phone_number()
+    |> lowercase_email()
     |> put_hashed_fields()
     |> unique_constraint(:email_hash, error_key: :email, name: :contact_email_hash_index)
   end
@@ -62,6 +63,10 @@ defmodule DB.Contact do
           {:error, reason} -> add_error(changeset, :phone_number, reason)
         end
     end
+  end
+
+  defp lowercase_email(%Ecto.Changeset{} = changeset) do
+    update_change(changeset, :email, &String.downcase/1)
   end
 
   defp parse_phone_number(%Ecto.Changeset{} = changeset, %ExPhoneNumber.Model.PhoneNumber{} = phone_number) do
