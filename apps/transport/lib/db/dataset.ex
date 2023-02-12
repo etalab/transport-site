@@ -15,6 +15,7 @@ defmodule DB.Dataset do
   use TypedEctoSchema
 
   @licences_ouvertes ["fr-lo", "lov2"]
+  @licence_mobilités_tag "licence-mobilités"
 
   typed_schema "dataset" do
     field(:datagouv_id, :string)
@@ -31,12 +32,14 @@ defmodule DB.Dataset do
     field(:datagouv_title, :string)
     field(:type, :string)
     field(:organization, :string)
+    field(:organization_type, :string)
     field(:has_realtime, :boolean)
     field(:is_active, :boolean)
     field(:population, :integer)
     field(:nb_reuses, :integer)
     field(:latest_data_gouv_comment_timestamp, :naive_datetime_usec)
     field(:archived_at, :utc_datetime_usec)
+    field(:custom_tags, {:array, :string})
 
     # When the dataset is linked to some cities
     # we ask in the backoffice for a name to display
@@ -76,6 +79,27 @@ defmodule DB.Dataset do
     |> DB.ResourceHistory.join_resource_with_latest_resource_history()
     |> DB.MultiValidation.join_resource_history_with_latest_validation(validator_name)
     |> DB.ResourceMetadata.join_validation_with_metadata()
+  end
+
+  @doc """
+  Returns a list of resources, with their last resource_history preloaded
+  """
+  def last_resource_history(dataset_id) do
+    DB.Dataset.base_query()
+    |> where([dataset: d], d.id == ^dataset_id)
+    |> join(:left, [dataset: d], r in DB.Resource, on: d.id == r.dataset_id, as: :resource)
+    |> join(:left, [resource: r], rh in DB.ResourceHistory,
+      on: rh.resource_id == r.id,
+      as: :resource_history
+    )
+    |> distinct([resource: r], r.id)
+    |> order_by([resource: r, resource_history: rh],
+      asc: r.id,
+      desc: rh.inserted_at
+    )
+    |> preload([resource: r, resource_history: rh], resources: {r, resource_history: rh})
+    |> DB.Repo.one!()
+    |> Map.get(:resources, [])
   end
 
   @spec type_to_str_map() :: %{binary() => binary()}
@@ -402,6 +426,7 @@ defmodule DB.Dataset do
       :description,
       :frequency,
       :organization,
+      :organization_type,
       :last_update,
       :licence,
       :logo,
@@ -415,7 +440,8 @@ defmodule DB.Dataset do
       :is_active,
       :associated_territory_name,
       :latest_data_gouv_comment_timestamp,
-      :archived_at
+      :archived_at,
+      :custom_tags
     ])
     |> cast_aom(params)
     |> cast_datagouv_zone(params, territory_name)
@@ -426,7 +452,9 @@ defmodule DB.Dataset do
     |> cast_assoc(:aom)
     |> validate_territory_mutual_exclusion()
     |> maybe_dataset_now_licence_ouverte(dataset)
+    |> maybe_overwrite_licence()
     |> has_real_time()
+    |> validate_organization_type()
     |> case do
       %{valid?: false, changes: changes} = changeset when changes == %{} ->
         {:ok, %{changeset | action: :ignore}}
@@ -777,6 +805,18 @@ defmodule DB.Dataset do
     end
   end
 
+  @spec validate_organization_type(Ecto.Changeset.t()) :: Ecto.Changeset.t()
+  defp validate_organization_type(changeset) do
+    changeset
+    |> get_field(:organization_type)
+    # allow a nil value for the moment
+    |> Kernel.in(TransportWeb.EditDatasetLive.organization_types() ++ [nil])
+    |> case do
+      true -> changeset
+      false -> changeset |> add_error(:organization_type, dgettext("db-dataset", "Organization type is invalid"))
+    end
+  end
+
   @spec cast_aom(Ecto.Changeset.t(), map()) :: Ecto.Changeset.t()
   defp cast_aom(changeset, %{"insee" => insee}) when insee in [nil, ""], do: change(changeset, aom_id: nil)
 
@@ -869,6 +909,16 @@ defmodule DB.Dataset do
   end
 
   defp maybe_dataset_now_licence_ouverte(%Ecto.Changeset{} = changeset, %__MODULE__{}), do: changeset
+
+  defp maybe_overwrite_licence(%Ecto.Changeset{} = changeset) do
+    custom_tags = get_field(changeset, :custom_tags) || []
+
+    if @licence_mobilités_tag in custom_tags do
+      changeset |> change(licence: "mobility-licence")
+    else
+      changeset
+    end
+  end
 
   defp has_real_time(changeset) do
     has_realtime = changeset |> get_field(:resources) |> Enum.any?(&Resource.is_real_time?/1)

@@ -62,10 +62,13 @@ defmodule TransportWeb.EditDatasetLiveTest do
     |> expect(:request, 1, fn :get, "https://demo.data.gouv.fr/api/1/datasets/url_200/", _, _, _ ->
       {:ok,
        %HTTPoison.Response{
-         body: ~s({"id":"1234","title": "Horaires de Talence"}),
+         body: ~s({"id":"1234","title": "Horaires de Talence", "organization": {"name": "Mairie de Talence"}}),
          status_code: 200
        }}
     end)
+
+    # this is shown only when we know the organization name
+    refute render(view) =~ "publié par"
 
     datagouv_info = TransportWeb.EditDatasetLive.get_datagouv_infos(input_data_gouv_url)
 
@@ -75,6 +78,9 @@ defmodule TransportWeb.EditDatasetLiveTest do
     assert render(view) =~ "Horaires de Talence"
     assert render(view) =~ "1234"
     assert render(view) =~ "pas encore référencé chez nous"
+
+    assert render(view) =~ "publié par"
+    assert render(view) =~ "Mairie de Talence"
   end
 
   test "dataset form, input url is 200, existing dataset", %{conn: conn} do

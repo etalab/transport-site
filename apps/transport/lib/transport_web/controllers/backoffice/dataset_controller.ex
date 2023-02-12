@@ -29,6 +29,8 @@ defmodule TransportWeb.Backoffice.DatasetController do
         dataset_id -> Map.put(form_params, "dataset_id", dataset_id)
       end
 
+    form_params = transform_custom_tags_to_list(form_params)
+
     with datagouv_id when not is_nil(datagouv_id) <- dataset_datagouv_id,
          {:ok, dg_dataset} <- ImportData.import_from_data_gouv(datagouv_id, form_params["type"]),
          complete_params <- Map.merge(form_params, dg_dataset),
@@ -62,6 +64,11 @@ defmodule TransportWeb.Backoffice.DatasetController do
         |> put_flash(:error, "Unable to get datagouv id")
     end
     |> redirect_to_index()
+  end
+
+  defp transform_custom_tags_to_list(form_params) do
+    custom_tags = for {"custom_tags" <> _, tag} <- form_params, do: tag
+    Map.put(form_params, "custom_tags", custom_tags)
   end
 
   @spec insert_dataset(Ecto.Changeset.t()) :: {:ok, Dataset.t()} | {:error, binary}

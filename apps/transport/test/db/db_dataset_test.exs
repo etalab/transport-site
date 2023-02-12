@@ -175,6 +175,32 @@ defmodule DB.DatasetDBTest do
     end
   end
 
+  describe "mobility-licence" do
+    test "does not change the licence if the magic custom tag is not set" do
+      insert(:dataset, licence: "lov2", datagouv_id: datagouv_id = Ecto.UUID.generate(), custom_tags: nil)
+
+      assert {:ok, %Ecto.Changeset{changes: %{licence: "fr-lo"}}} =
+               Dataset.changeset(%{"datagouv_id" => datagouv_id, "licence" => "fr-lo"})
+    end
+
+    test "if the magic tag is set, change the licence" do
+      insert(:dataset, custom_tags: ["licence-mobilités"], datagouv_id: datagouv_id = Ecto.UUID.generate())
+
+      assert {:ok, %Ecto.Changeset{changes: %{licence: "mobility-licence"}}} =
+               Dataset.changeset(%{"datagouv_id" => datagouv_id})
+
+      assert {:ok, %Ecto.Changeset{changes: %{licence: "mobility-licence"}}} =
+               Dataset.changeset(%{"datagouv_id" => datagouv_id, "licence" => "fr-lo"})
+    end
+
+    test "ignores other tags in custom_tags" do
+      insert(:dataset, custom_tags: ["foo"], datagouv_id: datagouv_id = Ecto.UUID.generate())
+
+      assert {:ok, %Ecto.Changeset{changes: %{licence: "fr-lo"}}} =
+               Dataset.changeset(%{"datagouv_id" => datagouv_id, "licence" => "fr-lo"})
+    end
+  end
+
   describe "resources last content update time" do
     test "for a dataset, get resources last update times" do
       %{id: dataset_id} = insert(:dataset, %{datagouv_id: "xxx", datagouv_title: "coucou"})
@@ -439,5 +465,50 @@ defmodule DB.DatasetDBTest do
     assert DB.Dataset.count_by_mode("ski") == 2
     # this counts national datasets (region id = 14) with bus resources
     assert DB.Dataset.count_coach() == 1
+  end
+
+  test "correct organization type" do
+    insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate())
+
+    assert {:ok, %Ecto.Changeset{changes: %{organization_type: "AOM"}}} =
+             Dataset.changeset(%{"datagouv_id" => datagouv_id, "organization_type" => "AOM"})
+  end
+
+  test "empty organization type" do
+    insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate())
+
+    # we test a random change to check if the changeset is valid without an organization type specified
+    assert {:ok, %Ecto.Changeset{changes: %{licence: "lov2"}}} =
+             Dataset.changeset(%{"datagouv_id" => datagouv_id, "licence" => "lov2"})
+  end
+
+  test "incorrect organization type" do
+    insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate())
+
+    {res, logs} =
+      with_log(fn ->
+        Dataset.changeset(%{"datagouv_id" => datagouv_id, "organization_type" => "US Gvt"})
+      end)
+
+    assert logs =~ "Le type d'organisation (publicateur) est invalide"
+    assert {:error, "%{organization_type: [\"Le type d'organisation (publicateur) est invalide\"]}"} == res
+  end
+
+  test "dataset last resource history" do
+    dataset = insert(:dataset)
+
+    r1 = insert(:resource, dataset_id: dataset.id)
+    insert(:resource_history, resource_id: r1.id, inserted_at: DateTime.utc_now() |> DateTime.add(-3, :day))
+    rh = insert(:resource_history, resource_id: r1.id, inserted_at: DateTime.utc_now())
+
+    r2 = insert(:resource, dataset_id: dataset.id)
+
+    insert(:resource)
+
+    last_resource_history = DB.Dataset.last_resource_history(dataset.id)
+
+    assert length(last_resource_history) == 2
+    assert last_resource_history |> Enum.find(&(&1.id == r1.id)) |> Map.get(:resource_history) == [rh]
+    assert last_resource_history |> Enum.find(&(&1.id == r2.id)) |> Map.get(:resource_history) == []
   end
 end
