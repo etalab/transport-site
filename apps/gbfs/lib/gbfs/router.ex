@@ -25,7 +25,6 @@ defmodule GBFS.Router do
     "cergy-pontoise" => "Velo2",
     "creteil" => "CristoLib",
     "lyon" => "Vélo'v",
-    "marseille" => "Le vélo",
     "mulhouse" => "VéloCité",
     "nancy" => "vélOstan'lib",
     "nantes" => "Bicloo",
@@ -50,6 +49,19 @@ defmodule GBFS.Router do
         "system_information.json" => "https://strasbourg-fr-smoove.klervi.net/gbfs/en/system_information.json",
         "station_information.json" => "https://strasbourg-fr-smoove.klervi.net/gbfs/en/station_information.json",
         "station_status.json" => "https://strasbourg-fr-smoove.klervi.net/gbfs/en/station_status.json"
+      }
+    },
+    %{
+      contract_id: "marseille",
+      redirects: %{
+        "gbfs.json" =>
+          "https://api.omega.fifteen.eu/gbfs/2.2/marseille/en/gbfs.json?key=MjE0ZDNmMGEtNGFkZS00M2FlLWFmMWItZGNhOTZhMWQyYzM2",
+        "system_information.json" =>
+          "https://api.omega.fifteen.eu/gbfs/2.2/marseille/en/system_information.json?key=MjE0ZDNmMGEtNGFkZS00M2FlLWFmMWItZGNhOTZhMWQyYzM2",
+        "station_information.json" =>
+          "https://api.omega.fifteen.eu/gbfs/2.2/marseille/en/station_information.json?key=MjE0ZDNmMGEtNGFkZS00M2FlLWFmMWItZGNhOTZhMWQyYzM2",
+        "station_status.json" =>
+          "https://api.omega.fifteen.eu/gbfs/2.2/marseille/en/station_status.json?key=MjE0ZDNmMGEtNGFkZS00M2FlLWFmMWItZGNhOTZhMWQyYzM2"
       }
     }
   ]
