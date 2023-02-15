@@ -333,7 +333,7 @@ defmodule DB.DatasetDBTest do
                  "first_job_args" => %{"resource_id" => ^gtfs_resource_id},
                  "jobs" => [
                    ["Elixir.Transport.Jobs.ResourceHistoryJob", %{}, %{}],
-                   "Elixir.Transport.Jobs.ResourceHistoryValidationJob"
+                   ["Elixir.Transport.Jobs.ResourceHistoryValidationJob", %{"force_validation" => false}, %{}]
                  ]
                },
                worker: "Transport.Jobs.Workflow",
@@ -355,7 +355,7 @@ defmodule DB.DatasetDBTest do
                  "first_job_args" => %{"resource_id" => gtfs_resource_id},
                  "jobs" => [
                    ["Elixir.Transport.Jobs.ResourceHistoryJob", %{}, %{}],
-                   "Elixir.Transport.Jobs.ResourceHistoryValidationJob"
+                   ["Elixir.Transport.Jobs.ResourceHistoryValidationJob", %{"force_validation" => false}, %{}]
                  ]
                },
                worker: "Transport.Jobs.Workflow",
@@ -371,7 +371,7 @@ defmodule DB.DatasetDBTest do
                  "first_job_args" => %{"resource_id" => gtfs_resource_id},
                  "jobs" => [
                    ["Elixir.Transport.Jobs.ResourceHistoryJob", %{}, %{}],
-                   "Elixir.Transport.Jobs.ResourceHistoryValidationJob"
+                   ["Elixir.Transport.Jobs.ResourceHistoryValidationJob", %{"force_validation" => false}, %{}]
                  ]
                },
                worker: "Transport.Jobs.Workflow",

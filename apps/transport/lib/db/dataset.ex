@@ -658,11 +658,15 @@ defmodule DB.Dataset do
   def formats(_), do: []
 
   @spec validate(binary | integer | __MODULE__.t()) :: {:error, String.t()} | {:ok, nil}
-  def validate(%__MODULE__{id: id}), do: validate(id)
+  @spec validate(binary | integer | __MODULE__.t(), force_validation: boolean()) :: {:error, String.t()} | {:ok, nil}
+  def validate(d), do: validate(d, force_validation: false)
 
-  def validate(id) when is_binary(id), do: id |> String.to_integer() |> validate()
+  def validate(%__MODULE__{id: id}, opt), do: validate(id, opt)
 
-  def validate(id) when is_integer(id) do
+  def validate(id, opt) when is_binary(id), do: id |> String.to_integer() |> validate(opt)
+
+  def validate(id, opt) when is_integer(id) do
+    force_validation = Keyword.get(opt, :force_validation, false)
     dataset = __MODULE__ |> Repo.get!(id) |> Repo.preload(:resources)
 
     {real_time_resources, static_resources} =
@@ -674,7 +678,8 @@ defmodule DB.Dataset do
     static_resources
     |> Enum.map(
       &Transport.Jobs.ResourceHistoryJob.historize_and_validate_job(%{resource_id: &1.id},
-        history_options: [unique: nil]
+        history_options: [unique: nil],
+        validation_custom_args: %{"force_validation" => force_validation}
       )
     )
     |> Oban.insert_all()

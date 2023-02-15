@@ -315,10 +315,14 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
   def historize_and_validate_job(%{resource_id: resource_id}, options \\ []) do
     history_options = options |> Keyword.get(:history_options, []) |> Transport.Jobs.Workflow.kw_to_map()
+    validation_custom_args = options |> Keyword.get(:validation_custom_args, %{})
 
     # jobs is a list of jobs that will be enqueued as a workflow.
     # if ResourceHistoryJob is a success, ResourceHistoryValidationJob will be enqueued.
-    jobs = [[Transport.Jobs.ResourceHistoryJob, %{}, history_options], Transport.Jobs.ResourceHistoryValidationJob]
+    jobs = [
+      [Transport.Jobs.ResourceHistoryJob, %{}, history_options],
+      [Transport.Jobs.ResourceHistoryValidationJob, validation_custom_args, %{}]
+    ]
 
     Transport.Jobs.Workflow.new(%{jobs: jobs, first_job_args: %{resource_id: resource_id}})
   end
