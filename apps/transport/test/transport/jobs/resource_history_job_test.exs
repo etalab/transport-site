@@ -480,12 +480,18 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   end
 
   test "historize and validate job workflow, with options" do
-    job = Transport.Jobs.ResourceHistoryJob.historize_and_validate_job(%{resource_id: resource_id = 123},
-      history_options: [unique: nil], validation_custom_args: %{"force_validation" => true}
-    )
+    job =
+      Transport.Jobs.ResourceHistoryJob.historize_and_validate_job(%{resource_id: resource_id = 123},
+        history_options: [unique: nil],
+        validation_custom_args: %{"force_validation" => true}
+      )
 
     assert %{changes: %{args: %{jobs: jobs, first_job_args: %{resource_id: ^resource_id}}}} = job
-    assert [[Transport.Jobs.ResourceHistoryJob, %{}, %{unique: nil}], [Transport.Jobs.ResourceHistoryValidationJob, %{"force_validation" => true}, %{}]] = jobs
+
+    assert [
+             [Transport.Jobs.ResourceHistoryJob, %{}, %{unique: nil}],
+             [Transport.Jobs.ResourceHistoryValidationJob, %{"force_validation" => true}, %{}]
+           ] = jobs
   end
 
   defp create_resources_for_history do

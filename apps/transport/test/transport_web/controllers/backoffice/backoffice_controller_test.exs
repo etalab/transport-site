@@ -294,7 +294,7 @@ defmodule TransportWeb.BackofficeControllerTest do
                  "first_job_args" => %{"resource_id" => ^resource_id},
                  "jobs" => [
                    ["Elixir.Transport.Jobs.ResourceHistoryJob", %{}, %{}],
-                   "Elixir.Transport.Jobs.ResourceHistoryValidationJob"
+                   ["Elixir.Transport.Jobs.ResourceHistoryValidationJob", %{"force_validation" => false}, %{}]
                  ]
                },
                worker: "Transport.Jobs.Workflow"

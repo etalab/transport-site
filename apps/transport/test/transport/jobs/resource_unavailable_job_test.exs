@@ -161,7 +161,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
                    "first_job_args" => %{"resource_id" => ^resource_id},
                    "jobs" => [
                      ["Elixir.Transport.Jobs.ResourceHistoryJob", _, _],
-                     "Elixir.Transport.Jobs.ResourceHistoryValidationJob"
+                     ["Elixir.Transport.Jobs.ResourceHistoryValidationJob", %{}, %{}]
                    ]
                  }
                }
