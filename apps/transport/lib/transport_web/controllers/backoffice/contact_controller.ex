@@ -14,7 +14,7 @@ defmodule TransportWeb.Backoffice.ContactController do
 
   def new(%Plug.Conn{} = conn, params) do
     conn
-    |> assign(:contact, DB.Contact.changeset(existing_contact(params), params))
+    |> assign(:contact, DB.Contact.changeset(%DB.Contact{}, params))
     |> render_form()
   end
 
@@ -77,16 +77,16 @@ defmodule TransportWeb.Backoffice.ContactController do
   defp existing_organizations do
     DB.Contact.base_query()
     |> select([contact: c], c.organization)
+    |> order_by([contact: c], asc: c.organization)
     |> distinct(true)
     |> DB.Repo.all()
-    |> Enum.sort()
   end
 
   defp existing_job_titles do
     DB.Contact.base_query()
     |> select([contact: c], c.job_title)
+    |> order_by([contact: c], asc: c.job_title)
     |> distinct(true)
     |> DB.Repo.all()
-    |> Enum.sort()
   end
 end

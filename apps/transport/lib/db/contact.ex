@@ -37,6 +37,7 @@ defmodule DB.Contact do
     struct
     |> cast(attrs, [:first_name, :last_name, :organization, :job_title, :email, :phone_number])
     |> trim_fields([:first_name, :last_name, :organization, :job_title])
+    |> capitalize_fields([:first_name, :last_name, :job_title])
     |> validate_required([:first_name, :last_name, :organization, :email])
     |> validate_format(:email, ~r/@/)
     |> cast_phone_number()
@@ -47,6 +48,10 @@ defmodule DB.Contact do
 
   defp trim_fields(%Ecto.Changeset{} = changeset, fields) do
     Enum.reduce(fields, changeset, fn field, changeset -> update_change(changeset, field, &String.trim/1) end)
+  end
+
+  defp capitalize_fields(%Ecto.Changeset{} = changeset, fields) do
+    Enum.reduce(fields, changeset, fn field, changeset -> update_change(changeset, field, &String.capitalize/1) end)
   end
 
   defp cast_phone_number(%Ecto.Changeset{} = changeset) do

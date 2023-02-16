@@ -8,10 +8,10 @@ defmodule DB.ContactTest do
 
   test "can save objects in the database with relevant casts" do
     %{
-      first_name: "John ",
-      last_name: " Doe",
+      first_name: "john ",
+      last_name: " doe",
       email: email = "john@example.fr",
-      job_title: "Boss",
+      job_title: "boss",
       organization: "Big Corp Inc",
       phone_number: "06 92 22 88 03"
     }
