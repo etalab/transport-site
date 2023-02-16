@@ -15,3 +15,4 @@ Saint-Etienne STAS;42218;Spécifique;y;n;Inconnue;;https://data.saint-etienne-me
 Bordeaux TBM;33063;Spécifique;y;n;LO;;https://opendata.bordeaux-metropole.fr/explore/dataset/sv_horai_a/information/;https://opendata.bordeaux-metropole.fr/explore/dataset/sv_vehic_p/information/;https://opendata.bordeaux-metropole.fr/explore/dataset/sv_messa_a/information/
 Poitiers Vitalis;86194;GTFS-RT;y;n;ODbL;;https://grandpoitiers.opendatasoft.com/explore/dataset/mobilite-horaires-de-bus-temps-reel-gtfs-rt-vitalis-inscription/;;
 Grenoble SMMAG;38185;Spécifique;n;y;ODbL;;https://data.mobilites-m.fr/doc/api#temps-reel;;https://data.mobilites-m.fr/api/dyn/evtTC/json
+Lille Ilévia;59350;Spécifique;n;y;LO;;;;https://opendata.lillemetropole.fr/explore/dataset/ilevia-perturbations/
