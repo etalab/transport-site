@@ -30,3 +30,6 @@ if [[ $REPLY =~ ^[Yy]$ ]]
 then
     psql -h $HOST -U $USER_NAME -d $DB_NAME -c 'DELETE from oban_jobs'
 fi
+
+# Don't let database files hang around
+rm $BACKUP_PATH
