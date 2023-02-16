@@ -111,7 +111,7 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
       content =
         conn
         |> setup_admin_in_session()
-        |> get(backoffice_contact_path(conn, :new, %{"id" => contact.id}))
+        |> get(backoffice_contact_path(conn, :edit, contact.id))
         |> html_response(200)
 
       assert content =~ "Éditer un contact"
