@@ -42,24 +42,24 @@ module.exports = {
     ],
     module: {
         rules: [{ test: /\.css$/, use: ['style-loader', 'css-loader'] },
-            {
-                test: /\.(js|scss)$/,
-                exclude: [/node_modules/],
-                enforce: 'pre',
-                loader: 'import-glob-loader'
-            }, {
-                test: /\.js$/,
-                exclude: [/node_modules/],
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        presets: ['@babel/preset-env']
-                    }
+        {
+            test: /\.(js|scss)$/,
+            exclude: [/node_modules/],
+            enforce: 'pre',
+            loader: 'glob-import-loader'
+        }, {
+            test: /\.js$/,
+            exclude: [/node_modules/],
+            use: {
+                loader: 'babel-loader',
+                options: {
+                    presets: ['@babel/preset-env']
                 }
-            }, {
-                test: /\.scss$/,
-                exclude: [/node_modules/],
-                use:
+            }
+        }, {
+            test: /\.scss$/,
+            exclude: [/node_modules/],
+            use:
                 [
                     MiniCssExtractPlugin.loader,
                     {
@@ -74,18 +74,18 @@ module.exports = {
                         }
                     }
                 ]
-            }, {
-                test: /\.(jpe?g|png|gif|svg)$/,
-                type: 'asset/resource',
-                generator: {
-                    filename: '[name][ext]'
-                }
-            }, {
-                test: /\.(eot|ttf|otf|woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
-                type: 'asset/resource',
-                generator: {
-                    filename: '[name][ext]'
-                }
-            }]
+        }, {
+            test: /\.(jpe?g|png|gif|svg)$/,
+            type: 'asset/resource',
+            generator: {
+                filename: '[name][ext]'
+            }
+        }, {
+            test: /\.(eot|ttf|otf|woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
+            type: 'asset/resource',
+            generator: {
+                filename: '[name][ext]'
+            }
+        }]
     }
 }
