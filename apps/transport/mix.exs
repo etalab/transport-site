@@ -126,7 +126,8 @@ defmodule Transport.Mixfile do
       {:ecto_psql_extras, "~> 0.6"},
       {:telemetry_poller, "~> 0.4"},
       {:telemetry_metrics, "~> 0.4"},
-      {:luhn, "~> 0.3.0"}
+      {:luhn, "~> 0.3.0"},
+      {:ex_phone_number, "~> 0.3"}
     ]
   end
 end

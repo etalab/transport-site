@@ -13,6 +13,18 @@ defmodule GBFS.RedirectControllerTest do
     end
   end
 
+  test "redirects for Marseille", %{conn: conn} do
+    ~w(gbfs system_information station_information station_status)a
+    |> Enum.each(fn path ->
+      conn = conn |> get("/gbfs/marseille/#{path}.json")
+
+      expected =
+        "https://api.omega.fifteen.eu/gbfs/2.2/marseille/en/#{path}.json?key=MjE0ZDNmMGEtNGFkZS00M2FlLWFmMWItZGNhOTZhMWQyYzM2"
+
+      assert redirected_to(conn, 301) == expected
+    end)
+  end
+
   defp test_klervi_for_city(conn, city) do
     klervi_base = "https://#{city}-fr-smoove.klervi.net/gbfs/"
 
