@@ -125,7 +125,7 @@ defmodule TransportWeb.PageController do
       |> Enum.split_with(&(elem(&1, 0) == :ok))
 
     datasets = datasets |> Enum.flat_map(&elem(&1, 1))
-    errors |> Enum.each(&Sentry.capture_exception(&1))
+    errors |> Enum.map(&inspect(elem(&1, 1))) |> Enum.each(&Sentry.capture_message(&1))
 
     # NOTE: this could be refactored in more functional style, but that will be good enough for today
     conn =

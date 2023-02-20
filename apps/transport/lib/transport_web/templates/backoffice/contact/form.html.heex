@@ -1,0 +1,66 @@
+<% creating_contact = is_nil(Ecto.Changeset.get_field(@contact, :id)) %>
+<div class="container mt-48 mb-24">
+  <div class="panel">
+    <h2 :if={creating_contact}>Créer un contact</h2>
+    <h2 :if={!creating_contact}>Éditer un contact</h2>
+
+    <%= if not @contact.valid? and @contact.changes != %{} do %>
+      <div class="notification error">
+        <ul>
+          <%= for {field, {msg, _}} <- @contact.errors do %>
+            <li><%= "#{field} : #{msg}" %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+    <%= form_for @contact, backoffice_contact_path(@conn, :create), [class: "no-margin", method: "post"], fn f -> %>
+      <%= hidden_input(f, :id, value: Ecto.Changeset.get_field(@contact, :id)) %>
+      <%= label f, :first_name do %>
+        Prénom <%= text_input(f, :first_name, required: true) %>
+      <% end %>
+      <%= label f, :last_name, class: "pt-12" do %>
+        Nom <%= text_input(f, :last_name, required: true) %>
+      <% end %>
+      <%= label f, :job_title, class: "pt-12" do %>
+        Fonction <%= text_input(f, :job_title,
+          required: true,
+          placeholder: "Responsable numérique",
+          list: "existing_job_titles"
+        ) %>
+        <div class="small">Optionnel</div>
+      <% end %>
+      <datalist id="existing_job_titles">
+        <%= for job_title <- @existing_job_titles do %>
+          <option value={job_title} />
+        <% end %>
+      </datalist>
+      <%= label f, :organization, class: "pt-12" do %>
+        Organisation <%= text_input(f, :organization,
+          required: true,
+          placeholder: "SNCF",
+          list: "existing_organizations"
+        ) %>
+      <% end %>
+      <datalist id="existing_organizations">
+        <%= for org <- @existing_organizations do %>
+          <option value={org} />
+        <% end %>
+      </datalist>
+      <%= label f, :email, class: "pt-12" do %>
+        E-mail <%= text_input(f, :email, required: true, type: "email") %>
+      <% end %>
+      <%= label f, :phone_number, class: "pt-12" do %>
+        Numéro de téléphone <%= text_input(f, :phone_number, type: "tel") %>
+        <div class="small">Optionnel</div>
+      <% end %>
+      <%= submit("Envoyer") %>
+    <% end %>
+  </div>
+
+  <div :if={!creating_contact} class="panel">
+    <h2>Actions</h2>
+    <%= form_for @contact, backoffice_contact_path(@conn, :delete, Ecto.Changeset.get_field(@contact, :id)), [class: "no-margin", method: "post"], fn _ -> %>
+      <%= submit("Supprimer", class: "button warning") %>
+    <% end %>
+  </div>
+</div>

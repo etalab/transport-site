@@ -93,7 +93,7 @@ defmodule TransportWeb.PageControllerTest do
     end
 
     test "renders a degraded mode when data gouv returns error", %{conn: conn} do
-      with_mock Sentry, capture_exception: fn _ -> nil end do
+      with_mock Sentry, capture_message: fn _ -> nil end do
         with_mock Dataset,
           user_datasets: fn _ -> {:error, "BAD"} end,
           user_org_datasets: fn _ -> {:error, "SOMETHING"} end do
@@ -115,8 +115,8 @@ defmodule TransportWeb.PageControllerTest do
 
         # we want to be notified
         assert history == [
-                 {Sentry, :capture_exception, [error: "BAD"]},
-                 {Sentry, :capture_exception, [error: "SOMETHING"]}
+                 {Sentry, :capture_message, [~s("BAD")]},
+                 {Sentry, :capture_message, [~s("SOMETHING")]}
                ]
       end
     end
