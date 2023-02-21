@@ -13,6 +13,7 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
     %DB.Contact{id: contact_id} = DB.Contact.insert!(sample_contact_args())
 
     args = %{
+      "redirect_location" => "dataset",
       "dataset_id" => dataset_id,
       "contact_id" => contact_id,
       "expiration" => "true",
@@ -77,7 +78,9 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
     conn_response =
       conn
       |> setup_admin_in_session()
-      |> delete(backoffice_notification_subscription_path(conn, :delete, subscription_id))
+      |> delete(backoffice_notification_subscription_path(conn, :delete, subscription_id), %{
+        "redirect_location" => "dataset"
+      })
 
     assert redirected_to(conn_response, 302) == backoffice_page_path(conn, :edit, dataset_id) <> @target_html_anchor
     assert get_flash(conn_response, :info) =~ "L'abonnement a été supprimé"
@@ -116,7 +119,8 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
       conn
       |> setup_admin_in_session()
       |> delete(
-        backoffice_notification_subscription_path(conn, :delete_for_contact_and_dataset, contact_id, dataset_id)
+        backoffice_notification_subscription_path(conn, :delete_for_contact_and_dataset, contact_id, dataset_id),
+        %{"redirect_location" => "dataset"}
       )
 
     assert redirected_to(conn_response, 302) == backoffice_page_path(conn, :edit, dataset_id) <> @target_html_anchor

@@ -1,4 +1,5 @@
-<% creating_contact = is_nil(Ecto.Changeset.get_field(@contact, :id)) %>
+<% contact_id = Ecto.Changeset.get_field(@contact, :id) %>
+<% creating_contact = is_nil(contact_id) %>
 <div class="container mt-48 mb-24">
   <div class="panel">
     <h2 :if={creating_contact}>Créer un contact</h2>
@@ -14,7 +15,7 @@
       </div>
     <% end %>
     <%= form_for @contact, backoffice_contact_path(@conn, :create), [class: "no-margin", method: "post"], fn f -> %>
-      <%= hidden_input(f, :id, value: Ecto.Changeset.get_field(@contact, :id)) %>
+      <%= hidden_input(f, :id, value: contact_id) %>
       <%= label f, :first_name do %>
         Prénom <%= text_input(f, :first_name, required: true) %>
       <% end %>
@@ -59,8 +60,78 @@
 
   <div :if={!creating_contact} class="panel">
     <h2>Actions</h2>
-    <%= form_for @contact, backoffice_contact_path(@conn, :delete, Ecto.Changeset.get_field(@contact, :id)), [class: "no-margin", method: "post"], fn _ -> %>
+    <%= form_for @contact, backoffice_contact_path(@conn, :delete, contact_id), [class: "no-margin", method: "post"], fn _ -> %>
       <%= submit("Supprimer", class: "button warning") %>
     <% end %>
+  </div>
+
+  <div :if={!creating_contact} class="panel" id="notification_subscriptions">
+    <h2>Abonnements à des notifications</h2>
+
+    <h3>Créer un abonnement</h3>
+
+    <%= form_for @conn, backoffice_notification_subscription_path(@conn, :create), [], fn f -> %>
+      <%= hidden_input(f, :redirect_location, value: "contact") %>
+      <%= hidden_input(f, :contact_id, value: @contact_id) %>
+      <%= label f, :dataset_id do %>
+        Jeu de données <%= text_input(f, :dataset_id, required: true, list: "datasets_datalist") %>
+      <% end %>
+      <datalist id="datasets_datalist">
+        <%= for dataset <- @datasets_datalist do %>
+          <option value={dataset.id}><%= "#{dataset.custom_title} (#{dataset.type})" %></option>
+        <% end %>
+      </datalist>
+      <%= label f, :reasons, class: "pt-12" do %>
+        <%= dgettext("backoffice", "Notification reason") %>
+        <%= for reason <- DB.NotificationSubscription.reasons_related_to_datasets() do %>
+          <%= label f, reason do %>
+            <%= checkbox(f, reason, hidden_input: false, value: true) %>
+            <%= reason %>
+          <% end %>
+        <% end %>
+      <% end %>
+
+      <%= submit("Créer un abonnement") %>
+    <% end %>
+
+    <h3>Abonnements existants</h3>
+    <p :if={Enum.empty?(@notification_subscriptions)} class="notification">
+      Il n'y a pas d'abonnements à des notifications pour ce contact.
+    </p>
+    <table :if={Enum.count(@notification_subscriptions) > 0} class="table dashboard-description">
+      <tr>
+        <th>Jeu de données</th>
+        <th><%= dgettext("backoffice", "Notification reason") %></th>
+        <th>Actions</th>
+      </tr>
+      <%= for {dataset, notification_subscriptions} <- @notification_subscriptions |> Enum.sort_by(&{&1.dataset.custom_title, &1.reason}) |> Enum.group_by(& &1.dataset) do %>
+        <%= for {notification_subscription, index} <- Enum.with_index(notification_subscriptions) do %>
+          <tr>
+            <td :if={index == 0} rowspan={Enum.count(notification_subscriptions)}>
+              <strong><%= dataset.custom_title %></strong> <span class="small"><%= dataset.type %></span>
+              <br />
+              <a href={backoffice_page_path(@conn, :edit, dataset.id)}>
+                <i class="fas fa-edit"></i> Éditer le JDD
+              </a>
+              <%= form_for @conn, backoffice_notification_subscription_path(@conn, :delete_for_contact_and_dataset, contact_id, dataset.id), [method: "delete"], fn f -> %>
+                <%= hidden_input(f, :redirect_location, value: "contact") %>
+                <button class="small button-outline warning">
+                  <i class="fas fa-trash"></i> Supprimer les abonnements
+                </button>
+              <% end %>
+            </td>
+            <td><%= notification_subscription.reason %></td>
+            <td>
+              <%= form_for @conn, backoffice_notification_subscription_path(@conn, :delete, notification_subscription.id), [method: "delete"], fn f -> %>
+                <%= hidden_input(f, :redirect_location, value: "contact") %>
+                <button class="small button-outline warning">
+                  <i class="fas fa-trash"></i> Supprimer
+                </button>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      <% end %>
+    </table>
   </div>
 </div>

@@ -147,7 +147,8 @@
                 <a href={backoffice_contact_path(@conn, :edit, contact.id)}>
                   <i class="fas fa-edit"></i> Éditer le contact
                 </a>
-                <%= form_for @conn, backoffice_notification_subscription_path(@conn, :delete_for_contact_and_dataset, contact.id, @dataset.id), [method: "delete"], fn _f -> %>
+                <%= form_for @conn, backoffice_notification_subscription_path(@conn, :delete_for_contact_and_dataset, contact.id, @dataset.id), [method: "delete"], fn f -> %>
+                  <%= hidden_input(f, :redirect_location, value: "dataset") %>
                   <button class="small button-outline warning">
                     <i class="fas fa-trash"></i> Supprimer les abonnements
                   </button>
@@ -155,7 +156,8 @@
               </td>
               <td><%= notification_subscription.reason %></td>
               <td>
-                <%= form_for @conn, backoffice_notification_subscription_path(@conn, :delete, notification_subscription.id), [method: "delete"], fn _f -> %>
+                <%= form_for @conn, backoffice_notification_subscription_path(@conn, :delete, notification_subscription.id), [method: "delete"], fn f -> %>
+                  <%= hidden_input(f, :redirect_location, value: "dataset") %>
                   <button class="small button-outline warning">
                     <i class="fas fa-trash"></i> Supprimer
                   </button>
