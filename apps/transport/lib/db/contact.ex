@@ -3,12 +3,12 @@ defmodule DB.Contact do
   Represents a contact/user
   """
   use Ecto.Schema
-  import Ecto.Changeset
-  import Ecto.Query
+  use TypedEctoSchema
+  import Ecto.{Changeset, Query}
 
   @default_phone_number_region "FR"
 
-  schema "contact" do
+  typed_schema "contact" do
     field(:first_name, :string)
     field(:last_name, :string)
     field(:organization, :string)
