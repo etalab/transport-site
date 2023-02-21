@@ -105,8 +105,10 @@
         </table>
       <% end %>
     </div>
-    <div class="dashboard-description mt-48">
+    <div id="notification_subscriptions" class="dashboard-description mt-48">
       <h3>Abonnements aux notifications</h3>
+
+      <h4>Créer un abonnement</h4>
       <%= form_for @conn, backoffice_notification_subscription_path(@conn, :create), [], fn f -> %>
         <%= hidden_input(f, :dataset_id, value: @dataset.id) %>
         <%= label f, :contact_id do %>
@@ -118,16 +120,19 @@
           <% end %>
         </datalist>
         <%= label f, :reasons, class: "pt-12" do %>
-          <%= dgettext("backoffice", "Notification reason") %><br />
-          <%= multiple_select(f, :reasons, DB.NotificationSubscription.reasons_related_to_datasets(),
-            selected: DB.NotificationSubscription.reasons_related_to_datasets()
-          ) %>
+          <%= dgettext("backoffice", "Notification reason") %>
+          <%= for reason <- DB.NotificationSubscription.reasons_related_to_datasets() do %>
+            <%= label f, reason do %>
+              <%= checkbox(f, reason, hidden_input: false, value: true) %>
+              <%= reason %>
+            <% end %>
+          <% end %>
         <% end %>
 
         <%= submit("Créer un abonnement") %>
       <% end %>
-
-      <table :if={Enum.count(@dataset.notification_subscriptions) > 0} class="mt-48 table">
+      <h4>Abonnements existants</h4>
+      <table :if={Enum.count(@dataset.notification_subscriptions) > 0} class="table">
         <tr>
           <th>Contact</th>
           <th><%= dgettext("backoffice", "Notification reason") %></th>
@@ -137,11 +142,16 @@
           <%= for {notification_subscription, index} <- Enum.with_index(notification_subscriptions) do %>
             <tr>
               <td :if={index == 0} rowspan={Enum.count(notification_subscriptions)}>
-                <%= notification_subscription_contact(notification_subscription) %>
+                <strong><%= notification_subscription_contact(notification_subscription) %></strong>
                 <br />
                 <a href={backoffice_contact_path(@conn, :edit, contact.id)}>
-                  <i class="fas fa-edit"></i> Éditer
+                  <i class="fas fa-edit"></i> Éditer le contact
                 </a>
+                <%= form_for @conn, backoffice_notification_subscription_path(@conn, :delete_for_contact_and_dataset, contact.id, @dataset.id), [method: "delete"], fn _f -> %>
+                  <button class="small button-outline warning">
+                    <i class="fas fa-trash"></i> Supprimer les abonnements
+                  </button>
+                <% end %>
               </td>
               <td><%= notification_subscription.reason %></td>
               <td>

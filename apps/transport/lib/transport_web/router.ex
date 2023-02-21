@@ -124,6 +124,7 @@ defmodule TransportWeb.Router do
       scope "/notification_subscription" do
         post("/", NotificationSubscriptionController, :create)
         delete("/:id", NotificationSubscriptionController, :delete)
+        delete("/contact/:contact_id/:dataset_id", NotificationSubscriptionController, :delete_for_contact_and_dataset)
       end
 
       get("/broken-urls", BrokenUrlsController, :index)
