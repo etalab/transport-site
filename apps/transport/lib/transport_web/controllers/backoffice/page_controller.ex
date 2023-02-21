@@ -193,6 +193,7 @@ defmodule TransportWeb.Backoffice.PageController do
 
     DB.Notification
     |> where([n], n.dataset_id == ^dataset_id and n.inserted_at >= ^datetime_limit)
+    |> order_by([n], desc: n.inserted_at)
     |> select([n], [:email, :reason, :inserted_at])
     |> DB.Repo.all()
     |> Enum.group_by(
