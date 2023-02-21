@@ -112,11 +112,20 @@ defmodule TransportWeb.Router do
       pipe_through([:admin_rights])
       get("/", PageController, :index)
       get("/dashboard", DashboardController, :index)
-      get("/contacts", ContactController, :index)
-      get("/contacts/new", ContactController, :new)
-      post("/contacts/create", ContactController, :create)
-      get("/contacts/:id/edit", ContactController, :edit)
-      post("/contacts/:id/delete", ContactController, :delete)
+
+      scope "/contacts" do
+        get("/", ContactController, :index)
+        get("/new", ContactController, :new)
+        post("/create", ContactController, :create)
+        get("/:id/edit", ContactController, :edit)
+        post("/:id/delete", ContactController, :delete)
+      end
+
+      scope "/notification_subscription" do
+        post("/", NotificationSubscriptionController, :create)
+        delete("/:id", NotificationSubscriptionController, :delete)
+      end
+
       get("/broken-urls", BrokenUrlsController, :index)
       get("/gtfs-export", GTFSExportController, :export)
 

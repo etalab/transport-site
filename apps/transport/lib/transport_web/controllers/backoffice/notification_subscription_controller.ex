@@ -1,0 +1,39 @@
+defmodule TransportWeb.Backoffice.NotificationSubscriptionController do
+  use TransportWeb, :controller
+  import Ecto.Query
+
+  def create(
+        %Plug.Conn{} = conn,
+        %{"contact_id" => contact_id, "dataset_id" => dataset_id, "reasons" => reasons} = params
+      ) do
+    dataset_id = String.to_integer(dataset_id)
+    contact_id = String.to_integer(contact_id)
+
+    existing_reasons =
+      DB.NotificationSubscription.base_query()
+      |> where([notification_subscription: ns], ns.dataset_id == ^dataset_id and ns.contact_id == ^contact_id)
+      |> select([notification_subscription: ns], ns.reason)
+      |> DB.Repo.all()
+      |> Enum.map(&to_string/1)
+
+    reasons
+    |> Enum.reject(&(&1 in existing_reasons))
+    |> Enum.each(fn reason ->
+      %{contact_id: contact_id, dataset_id: dataset_id, reason: reason, source: :admin}
+      |> DB.NotificationSubscription.insert!()
+    end)
+
+    conn
+    |> put_flash(:info, "L'abonnement a été créé")
+    |> redirect(to: backoffice_page_path(conn, :edit, dataset_id))
+  end
+
+  def delete(%Plug.Conn{} = conn, %{"id" => id}) do
+    notification_subscription = DB.Repo.get!(DB.NotificationSubscription, id)
+    notification_subscription |> DB.Repo.delete!()
+
+    conn
+    |> put_flash(:info, "L'abonnement a été supprimé")
+    |> redirect(to: backoffice_page_path(conn, :edit, notification_subscription.dataset_id))
+  end
+end
