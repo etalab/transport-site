@@ -20,6 +20,8 @@ defmodule DB.Contact do
     field(:phone_number, DB.Encrypted.Binary)
 
     timestamps(type: :utc_datetime_usec)
+
+    has_many(:notification_subscriptions, DB.NotificationSubscription, on_delete: :delete_all)
   end
 
   def base_query, do: from(c in __MODULE__, as: :contact)
