@@ -3,13 +3,13 @@ defmodule DB.NotificationSubscription do
   Represents a subscription to a notification type for a `DB.Contact`
   """
   use Ecto.Schema
-  import Ecto.Changeset
-  import Ecto.Query
+  use TypedEctoSchema
+  import Ecto.{Changeset, Query}
 
   @reasons_related_to_datasets [:expiration, :dataset_with_error, :resource_unavailable]
   @other_reasons [:new_dataset, :dataset_now_licence_ouverte]
 
-  schema "notification_subscription" do
+  typed_schema "notification_subscription" do
     field(:reason, Ecto.Enum, values: @reasons_related_to_datasets ++ @other_reasons)
     field(:source, Ecto.Enum, values: [:admin, :user])
 
