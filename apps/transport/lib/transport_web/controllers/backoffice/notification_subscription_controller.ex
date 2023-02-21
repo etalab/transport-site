@@ -24,12 +24,6 @@ defmodule TransportWeb.Backoffice.NotificationSubscriptionController do
     |> redirect(to: backoffice_page_path(conn, :edit, dataset_id) <> @target_html_anchor)
   end
 
-  defp picked_reasons(%{} = params) do
-    possible_reasons = DB.NotificationSubscription.reasons_related_to_datasets() |> Enum.map(&to_string/1)
-
-    params |> Map.filter(fn {k, v} -> k in possible_reasons and v == "true" end) |> Map.keys()
-  end
-
   def delete(%Plug.Conn{} = conn, %{"id" => id}) do
     notification_subscription = DB.Repo.get!(DB.NotificationSubscription, id)
     notification_subscription |> DB.Repo.delete!()
@@ -47,5 +41,11 @@ defmodule TransportWeb.Backoffice.NotificationSubscriptionController do
     conn
     |> put_flash(:info, "Les abonnements ont été supprimés")
     |> redirect(to: backoffice_page_path(conn, :edit, dataset_id) <> @target_html_anchor)
+  end
+
+  defp picked_reasons(%{} = params) do
+    possible_reasons = DB.NotificationSubscription.reasons_related_to_datasets() |> Enum.map(&to_string/1)
+
+    params |> Map.filter(fn {k, v} -> k in possible_reasons and v == "true" end) |> Map.keys()
   end
 end

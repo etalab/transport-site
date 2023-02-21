@@ -229,4 +229,8 @@ defmodule DB.Factory do
     |> DB.Notification.changeset(args)
     |> DB.Repo.insert!()
   end
+
+  def notification_subscription_factory do
+    %DB.NotificationSubscription{}
+  end
 end

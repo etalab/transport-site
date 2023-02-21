@@ -38,9 +38,10 @@ defmodule DB.NotificationSubscription do
     if get_field(changeset, :reason) in reasons_related_to_datasets() do
       changeset |> assoc_constraint(:dataset)
     else
-      changeset
+      changeset |> validate_inclusion(:dataset_id, [nil])
     end
   end
 
+  @spec reasons_related_to_datasets :: [atom()]
   def reasons_related_to_datasets, do: @reasons_related_to_datasets
 end
