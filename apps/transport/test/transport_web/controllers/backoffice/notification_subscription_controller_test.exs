@@ -1,4 +1,4 @@
-defmodule TransportWeb.BreakingNewsControllerTest do
+defmodule TransportWeb.NotificationSubscriptionControllerTest do
   use TransportWeb.ConnCase, async: true
   import Ecto.Query
   import DB.Factory
