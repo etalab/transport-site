@@ -110,6 +110,7 @@
 
       <h4>Créer un abonnement</h4>
       <%= form_for @conn, backoffice_notification_subscription_path(@conn, :create), [], fn f -> %>
+        <%= hidden_input(f, :redirect_location, value: "dataset") %>
         <%= hidden_input(f, :dataset_id, value: @dataset.id) %>
         <%= label f, :contact_id do %>
           Contact <%= text_input(f, :contact_id, required: true, list: "contacts_datalist") %>
