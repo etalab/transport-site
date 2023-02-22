@@ -3,7 +3,8 @@ Mix.install([
   # for UUID generation
   {:ecto, "~> 3.7.1"},
   # YAML config to make group tests easier (see https://github.com/etalab/transport_deploy/issues/49)
-  {:yaml_elixir, "~> 2.8"}
+  {:yaml_elixir, "~> 2.8"},
+  {:saxy, "~> 1.5.0"}
 ])
 
 Code.require_file("../../apps/transport/lib/siri_queries.ex")
@@ -89,6 +90,8 @@ request =
   end
 
 message_id = "Test::Message::#{Ecto.UUID.generate()}"
+
+alias Transport.SIRI
 
 # NOTE: a more dynamic dispatching will be easy to add later, at this point I'm
 # more interested in having actual queries available quickly.
