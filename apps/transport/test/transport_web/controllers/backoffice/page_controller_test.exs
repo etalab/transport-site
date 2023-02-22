@@ -112,4 +112,31 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
     assert response =~ "bar@example.fr, foo@example.fr"
     assert response =~ "alert@example.fr"
   end
+
+  test "notifications_sent sort order and grouping works" do
+    dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate(), slug: Ecto.UUID.generate())
+
+    now = DateTime.utc_now()
+    five_hours_ago = DateTime.add(now, -5, :hour)
+
+    insert_notification_at_datetime(%{dataset: dataset, email: "foo@example.fr", reason: :expiration}, now)
+    insert_notification_at_datetime(%{dataset: dataset, email: "bar@example.fr", reason: :expiration}, now)
+    insert_notification_at_datetime(%{dataset: dataset, email: "bar@example.fr", reason: :expiration}, five_hours_ago)
+    insert_notification_at_datetime(%{dataset: dataset, email: "baz@example.fr", reason: :expiration}, five_hours_ago)
+
+    now_truncated = %{DateTime.truncate(now, :second) | second: 0}
+    five_hours_ago_truncated = %{DateTime.truncate(five_hours_ago, :second) | second: 0}
+
+    assert [
+             {{:expiration, five_hours_ago_truncated}, ["bar@example.fr", "baz@example.fr"]},
+             {{:expiration, now_truncated}, ["foo@example.fr", "bar@example.fr"]}
+           ] == PageController.notifications_sent(dataset)
+  end
+
+  defp insert_notification_at_datetime(%{} = args, %DateTime{} = datetime) do
+    args
+    |> insert_notification()
+    |> Ecto.Changeset.change(%{inserted_at: datetime})
+    |> DB.Repo.update!()
+  end
 end
