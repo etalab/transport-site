@@ -5,5 +5,5 @@
   # EctoInterval raises an unknown_type error
   ~r/gtfs_stop_times.ex/,
   # Cloak.Ecto.SHA256 and DB.Encrypted.Binary raise an unknown_type error
-  ~r/contact.ex/
+  {"lib/db/contact.ex", :unknown_type, 0}
 ]
