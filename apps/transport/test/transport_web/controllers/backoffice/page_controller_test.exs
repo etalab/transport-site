@@ -128,9 +128,12 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
     five_hours_ago_truncated = %{DateTime.truncate(five_hours_ago, :second) | second: 0}
 
     assert [
-             {{:expiration, now_truncated}, ["foo@example.fr", "bar@example.fr"]},
-             {{:expiration, five_hours_ago_truncated}, ["bar@example.fr", "baz@example.fr"]}
-           ] == PageController.notifications_sent(dataset)
+             {{:expiration, ^now_truncated}, emails_1},
+             {{:expiration, ^five_hours_ago_truncated}, emails_2}
+           ] = PageController.notifications_sent(dataset)
+
+    assert emails_1 |> Enum.sort() == ["bar@example.fr", "foo@example.fr"]
+    assert emails_2 |> Enum.sort() == ["bar@example.fr", "baz@example.fr"]
   end
 
   defp insert_notification_at_datetime(%{} = args, %DateTime{} = datetime) do
