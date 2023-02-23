@@ -186,14 +186,13 @@ defmodule TransportWeb.Backoffice.PageController do
 
   defp notifications_last_nb_days, do: 30
 
-  defp notifications_sent(nil), do: []
+  def notifications_sent(nil), do: []
 
-  defp notifications_sent(%Dataset{id: dataset_id}) do
+  def notifications_sent(%Dataset{id: dataset_id}) do
     datetime_limit = DateTime.utc_now() |> DateTime.add(-notifications_last_nb_days(), :day)
 
     DB.Notification
     |> where([n], n.dataset_id == ^dataset_id and n.inserted_at >= ^datetime_limit)
-    |> order_by([n], desc: n.inserted_at)
     |> select([n], [:email, :reason, :inserted_at])
     |> DB.Repo.all()
     |> Enum.group_by(
@@ -202,6 +201,7 @@ defmodule TransportWeb.Backoffice.PageController do
       end,
       fn %DB.Notification{email: email} -> email end
     )
+    |> Enum.sort_by(fn {{_reason, %DateTime{} = dt}, _emails} -> dt end, {:desc, DateTime})
   end
 
   def import_all_aoms(%Plug.Conn{} = conn, _params) do
