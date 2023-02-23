@@ -158,6 +158,29 @@
          "external_doc":null,
          "external_tool":null,
          "homepage":"https://github.com/etalab/schema-lieux-covoiturage.git"
+      },
+      {
+         "name": "etalab/schema-irve",
+         "title": "Infrastructures de recharges pour véhicules électriques",
+         "description": "data package contenant 2 schémas : IRVE statique et IRVE dynamique",
+         "schema_url": "https://schema.data.gouv.fr/schemas/etalab/schema-irve/latest/datapackage.json",
+         "schema_type": "datapackage",
+         "contact": "contact@transport.beta.gouv.fr",
+         "examples": [],
+         "labels": [
+            "Socle Commun des Données Locales",
+            "transport.data.gouv.fr"
+         ],
+         "consolidation_dataset_id": "5448d3e0c751df01f85d0572",
+         "versions": [
+            {
+               "version_name": "2.2.0",
+               "schema_url": "https://schema.data.gouv.fr/schemas/etalab/schema-irve/2.2.0/datapackage.json"
+            }
+         ],
+         "external_doc": "https://doc.transport.data.gouv.fr/producteurs/infrastructures-de-recharge-de-vehicules-electriques-irve",
+         "external_tool": null,
+         "homepage": "https://github.com/etalab/schema-irve.git"
       }
    ]
 }
