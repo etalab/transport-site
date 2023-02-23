@@ -12,4 +12,9 @@ defmodule TransportWeb.ExploreController do
   def vehicle_positions(conn, _params) do
     conn |> redirect(to: explore_path(conn, :index))
   end
+
+  def gtfs_stops(conn, _params) do
+    conn
+    |> render("gtfs_stops.html")
+  end
 end
