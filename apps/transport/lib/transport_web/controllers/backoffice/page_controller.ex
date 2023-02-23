@@ -196,7 +196,7 @@ defmodule TransportWeb.Backoffice.PageController do
       end,
       fn %DB.Notification{email: email} -> email end
     )
-    |> Enum.sort_by(fn {{_reason, %DateTime{} = dt}, _emails} -> dt end, {:asc, DateTime})
+    |> Enum.sort_by(fn {{_reason, %DateTime{} = dt}, _emails} -> dt end, {:desc, DateTime})
   end
 
   def import_all_aoms(%Plug.Conn{} = conn, _params) do

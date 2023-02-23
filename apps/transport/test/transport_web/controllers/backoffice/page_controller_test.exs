@@ -128,8 +128,8 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
     five_hours_ago_truncated = %{DateTime.truncate(five_hours_ago, :second) | second: 0}
 
     assert [
-             {{:expiration, five_hours_ago_truncated}, ["bar@example.fr", "baz@example.fr"]},
-             {{:expiration, now_truncated}, ["foo@example.fr", "bar@example.fr"]}
+             {{:expiration, now_truncated}, ["foo@example.fr", "bar@example.fr"]},
+             {{:expiration, five_hours_ago_truncated}, ["bar@example.fr", "baz@example.fr"]}
            ] == PageController.notifications_sent(dataset)
   end
 
