@@ -28,8 +28,7 @@ defmodule TransportWeb.Backoffice.NotificationSubscriptionController do
   end
 
   def delete(%Plug.Conn{} = conn, %{"id" => id, "redirect_location" => _} = params) do
-    notification_subscription = DB.Repo.get!(DB.NotificationSubscription, id)
-    notification_subscription |> DB.Repo.delete!()
+    notification_subscription = DB.NotificationSubscription |> DB.Repo.get!(id) |> DB.Repo.delete!()
 
     conn
     |> put_flash(:info, "L'abonnement a été supprimé")

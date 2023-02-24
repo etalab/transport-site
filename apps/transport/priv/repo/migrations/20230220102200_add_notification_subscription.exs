@@ -3,7 +3,7 @@ defmodule DB.Repo.Migrations.AddNotificationSubscription do
 
   def change do
     create table(:notification_subscription) do
-      add :contact_id, references(:contact, on_delete: :delete_all)
+      add :contact_id, references(:contact, on_delete: :delete_all), null: false
       add :dataset_id, references(:dataset, on_delete: :delete_all), null: true
       add :reason, :string, null: false
       add :source, :string, null: false
