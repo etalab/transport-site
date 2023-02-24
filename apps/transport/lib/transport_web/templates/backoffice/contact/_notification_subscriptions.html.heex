@@ -10,7 +10,7 @@
     <%= hidden_input(f, :redirect_location, value: "contact") %>
     <%= hidden_input(f, :contact_id, value: @contact_id) %>
     <%= label f, :dataset_id do %>
-      Jeu de données <%= text_input(f, :dataset_id, required: true, list: "datasets_datalist") %>
+      Jeu de données <%= text_input(f, :dataset_id, required: true, list: "datasets_datalist", pattern: "[0-9]+") %>
     <% end %>
     <datalist id="datasets_datalist">
       <%= for dataset <- @datasets_datalist do %>
