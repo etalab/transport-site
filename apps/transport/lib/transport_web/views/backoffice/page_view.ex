@@ -63,4 +63,8 @@ defmodule TransportWeb.Backoffice.PageView do
         "<i class=\"sort-icon fa fa-sort-up\"></i>"
     end
   end
+
+  def notification_subscription_contact(%DB.NotificationSubscription{contact: %DB.Contact{} = contact}) do
+    "#{contact.first_name} #{contact.last_name} — #{contact.job_title} (#{contact.organization})"
+  end
 end
