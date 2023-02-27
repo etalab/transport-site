@@ -759,7 +759,7 @@ defmodule Transport.ImportData do
       "gbfs"
 
       iex> %{"url" => "https://example.com/gbfs/v2"}
-      ...> |> ImportData.formated_format("bike-scooter-sharing", false)
+      ...> |> ImportData.formated_format("car-motorbike-sharing", false)
       "gbfs"
 
       iex> %{"url" => "https://example.com/gbfs/free_bike_status.json", "format" => "json"}
@@ -796,7 +796,7 @@ defmodule Transport.ImportData do
       is_siri?(format) -> "SIRI"
       is_geojson?(resource, format) -> "geojson"
       type == "public-transit" and not is_documentation and not is_community_resource -> "GTFS"
-      type == "bike-scooter-sharing" and is_gbfs?(resource) -> "gbfs"
+      type in ["bike-scooter-sharing", "car-motorbike-sharing"] and is_gbfs?(resource) -> "gbfs"
       true -> format
     end
   end

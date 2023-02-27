@@ -15,7 +15,7 @@ defmodule Transport.GBFSMetadata do
   def gbfs_feeds_query do
     Resource
     |> join(:inner, [r], d in Dataset, on: r.dataset_id == d.id)
-    |> where([_r, d], d.type == "bike-scooter-sharing" and d.is_active)
+    |> where([_r, d], d.type in ["bike-scooter-sharing", "car-motorbike-sharing"] and d.is_active)
     |> where([r, _d], like(r.url, "%gbfs.json") or r.format == "gbfs")
     |> where([r, _d], not fragment("? ~ ?", r.url, "station|free_bike"))
   end
