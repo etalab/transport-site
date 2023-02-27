@@ -7,9 +7,7 @@ defmodule DB.Notification do
   import Ecto.Changeset
 
   schema "notifications" do
-    field(:reason, Ecto.Enum,
-      values: [:dataset_with_error, :resource_unavailable, :expiration, :new_dataset, :dataset_now_licence_ouverte]
-    )
+    field(:reason, Ecto.Enum, values: Ecto.Enum.mappings(DB.NotificationSubscription, :reason))
 
     belongs_to(:dataset, DB.Dataset)
     # `dataset_datagouv_id` may be useful if the linked dataset gets deleted
