@@ -92,8 +92,9 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
   end
 
   defp emails_list(%DB.Dataset{} = dataset) do
-    Transport.Notifications.config()
-    |> Transport.Notifications.emails_for_reason(:dataset_with_error, dataset)
+    @notification_reason
+    |> DB.NotificationSubscription.subscriptions_for_reason(dataset)
+    |> DB.NotificationSubscription.subscriptions_to_emails()
     |> MapSet.new()
   end
 

@@ -44,4 +44,25 @@ defmodule DB.NotificationSubscription do
 
   @spec reasons_related_to_datasets :: [atom()]
   def reasons_related_to_datasets, do: @reasons_related_to_datasets
+
+  @spec subscriptions_for_reason(atom()) :: [__MODULE__.t()]
+  def subscriptions_for_reason(reason) do
+    base_query()
+    |> preload([:contact])
+    |> where([notification_subscription: ns], ns.reason == ^reason and is_nil(ns.dataset_id))
+    |> DB.Repo.all()
+  end
+
+  @spec subscriptions_for_reason(atom(), DB.Dataset.t()) :: [__MODULE__.t()]
+  def subscriptions_for_reason(reason, %DB.Dataset{id: dataset_id}) do
+    base_query()
+    |> preload([:contact])
+    |> where([notification_subscription: ns], ns.reason == ^reason and ns.dataset_id == ^dataset_id)
+    |> DB.Repo.all()
+  end
+
+  @spec subscriptions_to_emails([__MODULE__.t()]) :: [binary()]
+  def subscriptions_to_emails(subscriptions) do
+    subscriptions |> Enum.map(& &1.contact.email)
+  end
 end

@@ -46,9 +46,6 @@ config :phoenix, :stacktrace_depth, 20
 # Edit the following lines if you want to use another implementation.
 # You can use dev.secret.exs (out of git) if you need to set secrets
 # as often done.
-config :transport,
-  notifications_impl: Transport.Notifications.Disk,
-  notifications_config_file: Path.join(__DIR__, "notifications-config.yml")
 
 # Provide a default experience that will mostly work without manual config,
 # as long as the developer does not use advanced features (backoffice login, gbfs etc)

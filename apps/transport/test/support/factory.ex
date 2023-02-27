@@ -233,4 +233,17 @@ defmodule DB.Factory do
   def notification_subscription_factory do
     %DB.NotificationSubscription{}
   end
+
+  def insert_contact(%{} = args \\ %{}) do
+    %{
+      first_name: "John",
+      last_name: "Doe",
+      email: "john#{Ecto.UUID.generate()}@example.fr",
+      job_title: "Boss",
+      organization: "Big Corp Inc",
+      phone_number: "06 92 22 88 03"
+    }
+    |> Map.merge(args)
+    |> DB.Contact.insert!()
+  end
 end
