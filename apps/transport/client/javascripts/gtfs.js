@@ -16,7 +16,32 @@ const Mapbox = {
 }
 
 const metropolitanFranceBounds = [[51.1, -4.9], [41.2, 9.8]]
-const map = Leaflet.map('map', { renderer: Leaflet.canvas() }).fitBounds(metropolitanFranceBounds)
+const map = Leaflet.map('map', { renderer: Leaflet.canvas() });
+
+// triggered both by "zoomend" and the end of move
+map.on('moveend', function(event) {
+    var bounds = map.getBounds();
+    bounds = {
+        south: bounds.getSouth(),
+        north: bounds.getNorth(),
+        west: bounds.getWest(),
+        east: bounds.getEast()
+    }
+
+    var a = map.latLngToLayerPoint([bounds.north, bounds.west]);
+    var b = map.latLngToLayerPoint([bounds.south, bounds.east]);
+
+    var width_pixels = b.x - a.x;
+    var height_pixels = b.y - a.y;
+    var width_degrees = bounds.east - bounds.west;
+    var height_degrees = bounds.south - bounds.north;
+
+    var snap_x = Math.abs(width_degrees / (width_pixels / 5.0));
+    var snap_y = Math.abs(height_degrees / (height_pixels / 5.0));
+    console.log(snap_x, snap_y)
+})
+
+map.fitBounds(metropolitanFranceBounds)
 
 Leaflet.tileLayer(Mapbox.url, {
     accessToken: Mapbox.accessToken,
