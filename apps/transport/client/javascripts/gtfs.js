@@ -1,7 +1,7 @@
 import { Socket } from 'phoenix'
 import Leaflet from 'leaflet'
 import { LeafletLayer } from 'deck.gl-leaflet'
-import { ScatterplotLayer, GeoJsonLayer } from '@deck.gl/layers'
+import { ScatterplotLayer } from '@deck.gl/layers';
 
 import { MapView } from '@deck.gl/core'
 
@@ -17,6 +17,18 @@ const Mapbox = {
 
 const metropolitanFranceBounds = [[51.1, -4.9], [41.2, 9.8]]
 const map = Leaflet.map('map', { renderer: Leaflet.canvas() });
+
+Leaflet.tileLayer(Mapbox.url, {
+    accessToken: Mapbox.accessToken,
+    attribution: Mapbox.attribution,
+    maxZoom: Mapbox.maxZoom
+}).addTo(map);
+
+const deckGLLayer = new LeafletLayer({
+    views: [new MapView({ repeat: true })],
+    layers: []
+})
+map.addLayer(deckGLLayer);
 
 // triggered both by "zoomend" and the end of move
 map.on('moveend', function(event) {
@@ -37,26 +49,66 @@ map.on('moveend', function(event) {
 
     var url = `/explore/gtfs-stops-data?${params}`;
 
+    // https://colorbrewer2.org/#type=sequential&scheme=YlOrRd&n=6
+    var palette = [[255, 255, 178], [254, 217, 118], [254, 178, 76], [253, 141, 60], [240, 59, 32], [189, 0, 38]];
+
+    var colorFunc = function(d) {
+        let count = d[2];
+        if (count > 25) {
+            return palette[0];
+        } else if (count > 15) {
+            return palette[1];
+        } else if (count > 10) {
+            return palette[2];
+        } else if (count > 5) {
+            return palette[3];
+        } else if (count > 2) {
+            return palette[4];
+        } else {
+            return palette[5];
+        }
+    };
+
     fetch(url)
         .then(data => data.json())
-        .then(geojson => {
-            console.log("we have something");
+        .then(json => {
+
+            var data = json;
+            console.log(data);
+            const scatterplotLayer = new ScatterplotLayer({
+                id: 'scatterplot-layer',
+                data,
+                pickable: true,
+                opacity: 1.0,
+                stroked: true,
+                filled: true,
+                radiusScale: 6,
+                radiusMinPixels: 1,
+                radiusMaxPixels: 100,
+                lineWidthMinPixels: 1,
+                getPosition: d => [d[1], d[0]],
+                getRadius: function(d) {
+                    var c = d[2];
+                    if (c > 10) {
+                        return 6;
+                    } else if (c > 5) {
+                        return 3;
+                    } else {
+                        return 2;
+                    }
+                },
+                getFillColor: colorFunc,
+                getLineColor: function(d) {
+                    let x = colorFunc(d);
+                    return [0, 0, 0, 0.5];
+                }
+            });
+            deckGLLayer.setProps({ layers: [scatterplotLayer] });
         })
-        .catch(_ => console.log('invalid geojson'))
+        .catch(e => console.log(e))
 })
 
 map.fitBounds(metropolitanFranceBounds)
 
-Leaflet.tileLayer(Mapbox.url, {
-    accessToken: Mapbox.accessToken,
-    attribution: Mapbox.attribution,
-    maxZoom: Mapbox.maxZoom
-}).addTo(map)
-
-const deckGLLayer = new LeafletLayer({
-    views: [new MapView({ repeat: true })],
-    layers: []
-})
-map.addLayer(deckGLLayer)
 
 export default socket
