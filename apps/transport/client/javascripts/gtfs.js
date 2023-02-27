@@ -26,13 +26,8 @@ Leaflet.tileLayer(Mapbox.url, {
 
 const deckGLLayer = new LeafletLayer({
     views: [new MapView({ repeat: true })],
-    layers: [],
-    getTooltip
+    layers: []
 })
 map.addLayer(deckGLLayer)
-
-function getTooltip ({ object, layer }) {
-    return { html: `hello` }
-}
 
 export default socket
