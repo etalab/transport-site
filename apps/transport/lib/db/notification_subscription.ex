@@ -26,7 +26,7 @@ defmodule DB.NotificationSubscription do
   def changeset(struct, attrs \\ %{}) do
     struct
     |> cast(attrs, [:contact_id, :dataset_id, :reason, :source])
-    |> validate_required([:contact_id, :dataset_id, :reason, :source])
+    |> validate_required([:contact_id, :reason, :source])
     |> assoc_constraint(:contact)
     |> maybe_assoc_constraint_dataset()
     |> unique_constraint([:contact_id, :dataset_id, :reason],
@@ -36,7 +36,7 @@ defmodule DB.NotificationSubscription do
 
   defp maybe_assoc_constraint_dataset(%Ecto.Changeset{} = changeset) do
     if get_field(changeset, :reason) in reasons_related_to_datasets() do
-      changeset |> assoc_constraint(:dataset)
+      changeset |> validate_required(:dataset_id) |> assoc_constraint(:dataset)
     else
       changeset |> validate_inclusion(:dataset_id, [nil])
     end
