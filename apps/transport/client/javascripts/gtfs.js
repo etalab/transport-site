@@ -62,7 +62,6 @@ map.on('moveend', function(event) {
 
             var data = json;
             const maxCount = Math.max(...data.map(a => a[2]))
-            console.log(data);
             const scatterplotLayer = new ScatterplotLayer({
                 id: 'scatterplot-layer',
                 data,
