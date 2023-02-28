@@ -1,6 +1,6 @@
 <%= raw ~s(<div lang=fr>) %>
 
-# Missions menées par le Point d'Accès National
+# À propos du Point d’Accès National
 
 ## Contexte
 
