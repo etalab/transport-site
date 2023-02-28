@@ -204,4 +204,4 @@ msgstr "Ils nous aident dans notre mission"
 
 #, elixir-autogen, elixir-format
 msgid "Learn more about our missions"
-msgstr ""
+msgstr "Découvrez les missions que nous menons"
