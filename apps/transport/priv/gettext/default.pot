@@ -126,3 +126,11 @@ msgstr ""
 #, elixir-autogen
 msgid "Budget"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "About"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Our missions"
+msgstr ""

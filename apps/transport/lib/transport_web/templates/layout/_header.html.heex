@@ -50,6 +50,14 @@
             </div>
           </li>
           <li class="nav__item">
+            <div class="dropdown">
+              <%= gettext("About") %>
+              <div class="dropdown-content">
+                <%= link(gettext("Our missions"), to: page_path(@conn, :missions)) %>
+              </div>
+            </div>
+          </li>
+          <li class="nav__item">
             <%= link(gettext("Blog"), to: "https://blog.transport.data.gouv.fr") %>
           </li>
           <%= if assigns[:current_user] do %>
