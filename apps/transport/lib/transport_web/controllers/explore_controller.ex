@@ -49,8 +49,10 @@ defmodule TransportWeb.ExploreController do
     # NOTE: this query is not horribly slow but not super fast either. When the user
     # scrolls, this will stack up queries. It would be a good idea to cache the result for
     # some precomputed zoom levels when all the data imports are considered (no filtering).
+    q = from(gs in "gtfs_stops")
+
     clusters =
-      from(gs in "gtfs_stops")
+      q
       |> select([gs], %{
         cluster:
           selected_as(
@@ -66,7 +68,9 @@ defmodule TransportWeb.ExploreController do
       )
       |> group_by([gs], selected_as(:cluster))
 
-    from(e in subquery(clusters))
+    q = from(e in subquery(clusters))
+
+    q
     |> select([e], %{
       lon: selected_as(fragment("ST_X(ST_TRANSFORM(cluster, 4326))"), :cluster_lon),
       lat: selected_as(fragment("ST_Y(ST_TRANSFORM(cluster, 4326))"), :cluster_lat),
@@ -76,9 +80,9 @@ defmodule TransportWeb.ExploreController do
     |> DB.Repo.all()
     |> Enum.map(fn x ->
       [
-        Map.fetch!(x, :lat) |> Decimal.from_float() |> Decimal.round(4) |> Decimal.to_float(),
-        Map.fetch!(x, :lon) |> Decimal.from_float() |> Decimal.round(4) |> Decimal.to_float(),
-        Map.fetch!(x, :c)
+        x |> Map.fetch!(:lat) |> Decimal.from_float() |> Decimal.round(4) |> Decimal.to_float(),
+        x |> Map.fetch!(:lon) |> Decimal.from_float() |> Decimal.round(4) |> Decimal.to_float(),
+        x |> Map.fetch!(:c)
       ]
     end)
   end
