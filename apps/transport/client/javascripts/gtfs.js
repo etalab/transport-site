@@ -83,21 +83,12 @@ map.on('moveend', function(event) {
                 stroked: true,
                 filled: true,
                 radiusScale: 6,
-                radiusMinPixels: 1,
+                radiusMinPixels: 2,
                 radiusMaxPixels: 100,
                 lineWidthMinPixels: 1,
                 getPosition: d => [d[1], d[0]],
-                getRadius: function(d) {
-                    var c = d[2];
-                    if (c > 10) {
-                        return 6;
-                    } else if (c > 5) {
-                        return 3;
-                    } else {
-                        return 2;
-                    }
-                },
-                getFillColor: colorFunc,
+                getRadius: d => 20,
+                getFillColor: d => [250, 0, 0, 127],
                 getLineColor: function(d) {
                     let x = colorFunc(d);
                     return [0, 0, 0, 0.5];
