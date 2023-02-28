@@ -126,3 +126,11 @@ msgstr "Générateur de requêtes SIRI"
 #, elixir-autogen
 msgid "Budget"
 msgstr "Budget"
+
+#, elixir-autogen, elixir-format
+msgid "About"
+msgstr "À propos"
+
+#, elixir-autogen, elixir-format
+msgid "Our missions"
+msgstr "Nos missions"

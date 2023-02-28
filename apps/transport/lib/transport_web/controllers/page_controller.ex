@@ -72,6 +72,10 @@ defmodule TransportWeb.PageController do
     single_page(conn, %{"page" => "accessibility"})
   end
 
+  def missions(conn, _params) do
+    single_page(conn, %{"page" => "missions"})
+  end
+
   def infos_producteurs(conn, _params) do
     conn
     |> assign(:mailchimp_newsletter_url, Application.get_env(:transport, :mailchimp_newsletter_url))
