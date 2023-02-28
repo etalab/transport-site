@@ -52,7 +52,11 @@ defmodule TransportWeb.ExploreController do
     clusters =
       from(gs in "gtfs_stops")
       |> select([gs], %{
-        cluster: selected_as(fragment("ST_SnapToGrid(geom, ?, ?)", ^snap_x, ^snap_y), :cluster),
+        cluster:
+          selected_as(
+            fragment("ST_SnapToGrid(ST_SetSRID(ST_MakePoint(stop_lon, stop_lat), 4326), ?, ?)", ^snap_x, ^snap_y),
+            :cluster
+          ),
         count: selected_as(fragment("count(*)"), :count)
       })
       |> where(
