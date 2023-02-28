@@ -49,24 +49,11 @@ map.on('moveend', function(event) {
 
     var url = `/explore/gtfs-stops-data?${params}`;
 
-    // https://colorbrewer2.org/#type=sequential&scheme=YlOrRd&n=6
-    var palette = [[255, 255, 178], [254, 217, 118], [254, 178, 76], [253, 141, 60], [240, 59, 32], [189, 0, 38]];
+    // https://coolors.co/gradient-palette/2655ff-ff9822?number=5 and https://coolors.co/gradient-palette/ff9822-ce1313?number=5
+    var palette = [[38,85,255], [92,102,200], [147,119,145], [201,135,89], [255,152,34], [243,119,30], [231,86,27], [218,52,23], [206,19,19]];
 
-    var colorFunc = function(d) {
-        let count = d[2];
-        if (count > 25) {
-            return palette[0];
-        } else if (count > 15) {
-            return palette[1];
-        } else if (count > 10) {
-            return palette[2];
-        } else if (count > 5) {
-            return palette[3];
-        } else if (count > 2) {
-            return palette[4];
-        } else {
-            return palette[5];
-        }
+    var colorFunc = function(v) {
+        return palette[Math.min(Math.floor(v * 10), 9)];
     };
 
     fetch(url)
@@ -74,25 +61,22 @@ map.on('moveend', function(event) {
         .then(json => {
 
             var data = json;
+            const maxCount = Math.max(...data.map(a => a[2]))
             console.log(data);
             const scatterplotLayer = new ScatterplotLayer({
                 id: 'scatterplot-layer',
                 data,
                 pickable: true,
-                opacity: 1.0,
+                opacity: 0.8,
                 stroked: true,
                 filled: true,
-                radiusScale: 6,
-                radiusMinPixels: 2,
-                radiusMaxPixels: 100,
+                radiusUnits: 'pixels',
+                radiusScale: 1,
                 lineWidthMinPixels: 1,
                 getPosition: d => [d[1], d[0]],
-                getRadius: d => 20,
-                getFillColor: d => [250, 0, 0, 127],
-                getLineColor: function(d) {
-                    let x = colorFunc(d);
-                    return [0, 0, 0, 0.5];
-                }
+                getRadius: d => 2,
+                getFillColor: d => colorFunc(maxCount < 3 ? 0 : d[2] / maxCount),
+                getLineColor: d => colorFunc(maxCount < 3 ? 0 : d[2] / maxCount)
             });
             deckGLLayer.setProps({ layers: [scatterplotLayer] });
         })
