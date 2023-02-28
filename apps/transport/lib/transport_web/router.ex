@@ -48,6 +48,7 @@ defmodule TransportWeb.Router do
     pipe_through(:browser)
     get("/", PageController, :index)
     get("/real_time", PageController, :real_time)
+    get("/missions", PageController, :missions)
     get("/accessibilite", PageController, :accessibility)
     get("/infos_producteurs", PageController, :infos_producteurs)
     get("/robots.txt", PageController, :robots_txt)
