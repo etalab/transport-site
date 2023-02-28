@@ -201,3 +201,7 @@ msgstr "liste complète"
 #, elixir-autogen, elixir-format
 msgid "They help us achieve our mission"
 msgstr "Ils nous aident dans notre mission"
+
+#, elixir-autogen, elixir-format
+msgid "Learn more about our missions"
+msgstr "Découvrez les missions que nous menons"
