@@ -147,7 +147,7 @@ defmodule TransportWeb.Backoffice.PageController do
   def edit(%Plug.Conn{} = conn, %{"id" => dataset_id}) do
     conn =
       Dataset
-      |> preload(:aom)
+      |> preload([:aom, :notification_subscriptions, [notification_subscriptions: :contact]])
       |> Repo.get(dataset_id)
       |> case do
         nil -> put_flash(conn, :error, dgettext("backoffice", "Unable to find dataset"))
@@ -162,6 +162,7 @@ defmodule TransportWeb.Backoffice.PageController do
     |> assign(:notifications_sent, notifications_sent(conn.assigns[:dataset]))
     |> assign(:notifications_last_nb_days, notifications_last_nb_days())
     |> assign(:resources_with_history, DB.Dataset.last_resource_history(dataset_id))
+    |> assign(:contacts_datalist, contacts_datalist())
     |> assign(
       :import_logs,
       LogsImport
@@ -170,6 +171,10 @@ defmodule TransportWeb.Backoffice.PageController do
       |> Repo.all()
     )
     |> render("form_dataset.html")
+  end
+
+  defp contacts_datalist do
+    DB.Contact.base_query() |> select([contact: c], [:first_name, :last_name, :id]) |> DB.Repo.all()
   end
 
   defp notification_expiration_emails(nil), do: []
@@ -181,9 +186,9 @@ defmodule TransportWeb.Backoffice.PageController do
 
   defp notifications_last_nb_days, do: 30
 
-  defp notifications_sent(nil), do: []
+  def notifications_sent(nil), do: []
 
-  defp notifications_sent(%Dataset{id: dataset_id}) do
+  def notifications_sent(%Dataset{id: dataset_id}) do
     datetime_limit = DateTime.utc_now() |> DateTime.add(-notifications_last_nb_days(), :day)
 
     DB.Notification
@@ -196,6 +201,7 @@ defmodule TransportWeb.Backoffice.PageController do
       end,
       fn %DB.Notification{email: email} -> email end
     )
+    |> Enum.sort_by(fn {{_reason, %DateTime{} = dt}, _emails} -> dt end, {:desc, DateTime})
   end
 
   def import_all_aoms(%Plug.Conn{} = conn, _params) do

@@ -3,12 +3,12 @@ defmodule DB.Contact do
   Represents a contact/user
   """
   use Ecto.Schema
-  import Ecto.Changeset
-  import Ecto.Query
+  use TypedEctoSchema
+  import Ecto.{Changeset, Query}
 
   @default_phone_number_region "FR"
 
-  schema "contact" do
+  typed_schema "contact" do
     field(:first_name, :string)
     field(:last_name, :string)
     field(:organization, :string)
@@ -20,6 +20,8 @@ defmodule DB.Contact do
     field(:phone_number, DB.Encrypted.Binary)
 
     timestamps(type: :utc_datetime_usec)
+
+    has_many(:notification_subscriptions, DB.NotificationSubscription, on_delete: :delete_all)
   end
 
   def base_query, do: from(c in __MODULE__, as: :contact)

@@ -6,7 +6,7 @@ defmodule DB.Dataset do
   There are also trigger on update on aom and region that will force an update on this model
   so the search vector is up-to-date.
   """
-  alias DB.{AOM, Commune, DatasetGeographicView, LogsImport, Region, Repo, Resource}
+  alias DB.{AOM, Commune, DatasetGeographicView, LogsImport, NotificationSubscription, Region, Repo, Resource}
   alias Phoenix.HTML.Link
   import Ecto.{Changeset, Query}
   import TransportWeb.Gettext
@@ -57,6 +57,7 @@ defmodule DB.Dataset do
 
     has_many(:resources, Resource, on_replace: :delete, on_delete: :delete_all)
     has_many(:logs_import, LogsImport, on_replace: :delete, on_delete: :delete_all)
+    has_many(:notification_subscriptions, NotificationSubscription, on_delete: :delete_all)
     # A dataset can be "parent dataset" of many AOMs
     has_many(:child_aom, AOM, foreign_key: :parent_dataset_id)
   end
@@ -955,7 +956,7 @@ defmodule DB.Dataset do
   Should this dataset not be historicized?
   """
   def should_skip_history?(%__MODULE__{slug: slug, type: type}) do
-    type in ["bike-scooter-sharing", "road-data"] or
+    type in ["bike-scooter-sharing", "car-motorbike-sharing", "road-data"] or
       slug in [
         "prix-des-carburants-en-france-flux-instantane",
         "prix-des-carburants-en-france-flux-quotidien"

@@ -100,7 +100,9 @@ defmodule Transport.Shared.Schemas do
       body
       |> Jason.decode!()
       |> Map.fetch!("schemas")
-      |> Enum.filter(&Enum.member?(&1["labels"], "transport.data.gouv.fr"))
+      |> Enum.filter(
+        &(Enum.member?(&1["labels"], "transport.data.gouv.fr") and Map.fetch!(&1, "schema_type") != "datapackage")
+      )
       |> Enum.into(%{}, fn schema -> {Map.fetch!(schema, "name"), schema} end)
     end
 
