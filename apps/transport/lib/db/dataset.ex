@@ -956,7 +956,7 @@ defmodule DB.Dataset do
   Should this dataset not be historicized?
   """
   def should_skip_history?(%__MODULE__{slug: slug, type: type}) do
-    type in ["bike-scooter-sharing", "road-data"] or
+    type in ["bike-scooter-sharing", "car-motorbike-sharing", "road-data"] or
       slug in [
         "prix-des-carburants-en-france-flux-instantane",
         "prix-des-carburants-en-france-flux-quotidien"
