@@ -138,14 +138,33 @@
 
         Ces données sont disponibles en temps réel pour connaître la position des véhicules ou le taux de remplissage des stations.
 
-        Le standard utilisé est le [GBFS](https://github.com/NABSA/gbfs).
+        Le standard utilisé est le [GBFS](https://gbfs.mobilitydata.org).
 
     en: |
         The datasets referenced in this category contain information flows describing fleets of self-service bicycles or scooters in stations or in freefloating.
 
         These data are available in real time to know the position of vehicles or the filling rate of stations.
 
-        The standard used is [GBFS](https://github.com/NABSA/gbfs).
+        The standard used is [GBFS](https://gbfs.mobilitydata.org).
+
+- category: car-motorbike-sharing
+  search_params:
+    - key: type
+      value: car-motorbike-sharing
+  msg:
+    fr: |
+        Les jeux de données référencés dans cette catégorie contiennent des flux d’information décrivant des flottes de voitures ou de deux-roues motorisés en libre service, en station ou en free-floating.
+
+        Ces données sont disponibles en temps réel pour connaître la position des véhicules ou le taux de remplissage des stations.
+
+        Le standard utilisé est le [GBFS à partir de la v2.3](https://gbfs.mobilitydata.org).
+
+    en: |
+        The datasets referenced in this category contain information flows describing fleets of self-service cars or motobikes in stations or in free floating.
+
+        These data are available in real-time and inform about the position of vehicles or the filling rate of stations.
+
+        The standard used is [GBFS from v2.3](https://gbfs.mobilitydata.org).
 
 - category: charging-stations
   search_params:

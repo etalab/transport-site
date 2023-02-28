@@ -1,5 +1,6 @@
 defmodule TransportWeb.Backoffice.ContactControllerTest do
   use TransportWeb.ConnCase, async: true
+  import DB.Factory
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -142,6 +143,35 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
       assert redirected_to(conn, 302) == backoffice_contact_path(conn, :index)
       assert get_flash(conn, :error) =~ "Un contact existe déjà avec cette adresse e-mail"
       assert %DB.Contact{email: ^email} = DB.Repo.reload!(contact)
+    end
+
+    test "displays notification subscriptions", %{conn: conn} do
+      dataset = insert(:dataset, custom_title: Ecto.UUID.generate())
+      contact = DB.Contact.insert!(sample_contact_args())
+
+      insert(:notification_subscription,
+        contact_id: contact.id,
+        dataset_id: dataset.id,
+        reason: :expiration,
+        source: :admin
+      )
+
+      insert(:notification_subscription,
+        contact_id: contact.id,
+        dataset_id: nil,
+        reason: :dataset_now_licence_ouverte,
+        source: :admin
+      )
+
+      content =
+        conn
+        |> setup_admin_in_session()
+        |> get(backoffice_contact_path(conn, :edit, contact.id))
+        |> html_response(200)
+
+      assert content =~ dataset.custom_title
+      assert content =~ "expiration"
+      assert content =~ "dataset_now_licence_ouverte"
     end
   end
 

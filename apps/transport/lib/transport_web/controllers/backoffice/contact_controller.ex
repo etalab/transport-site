@@ -40,9 +40,10 @@ defmodule TransportWeb.Backoffice.ContactController do
   defp existing_contact(%{}), do: %DB.Contact{}
 
   @spec edit(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def edit(%Plug.Conn{} = conn, %{"id" => _} = params) do
+  def edit(%Plug.Conn{} = conn, %{"id" => contact_id} = params) do
     conn
     |> assign(:contact, DB.Contact.changeset(existing_contact(params), %{}))
+    |> assign(:contact_id, contact_id)
     |> render_form()
   end
 
@@ -54,10 +55,12 @@ defmodule TransportWeb.Backoffice.ContactController do
     |> redirect(to: backoffice_contact_path(conn, :index))
   end
 
-  defp render_form(%Plug.Conn{} = conn) do
+  defp render_form(%Plug.Conn{assigns: assigns} = conn) do
     conn
     |> assign(:existing_organizations, existing_organizations())
     |> assign(:existing_job_titles, existing_job_titles())
+    |> assign(:datasets_datalist, datasets_datalist())
+    |> assign(:notification_subscriptions, notification_subscriptions_for_contact(Map.get(assigns, :contact_id)))
     |> render("form.html")
   end
 
@@ -89,4 +92,21 @@ defmodule TransportWeb.Backoffice.ContactController do
     |> distinct(true)
     |> DB.Repo.all()
   end
+
+  defp datasets_datalist do
+    DB.Dataset.base_query()
+    |> select([dataset: d], [:id, :custom_title, :type])
+    |> order_by([dataset: d], asc: d.custom_title)
+    |> distinct(true)
+    |> DB.Repo.all()
+  end
+
+  defp notification_subscriptions_for_contact(contact_id) when is_binary(contact_id) do
+    DB.NotificationSubscription.base_query()
+    |> preload(:dataset)
+    |> where([notification_subscription: ns], ns.contact_id == ^contact_id)
+    |> DB.Repo.all()
+  end
+
+  defp notification_subscriptions_for_contact(nil), do: []
 end
