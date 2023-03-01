@@ -274,13 +274,13 @@
 
         Ils nous renseignent notamment sur la localisation des aéroports, les parcours, les horaires de passage des véhicules.
 
-        Un standard peut être utilisé : le format [GTFS](https://developers.google.com/transit/gtfs?hl=fr).
+        Les standards suivants peuvent être utilisés : le format [GTFS](https://developers.google.com/transit/gtfs?hl=fr) et [SSIM de IATA](https://www.iata.org/en/publications/store/standard-schedules-information/).
     en: |
         The datasets referenced in this category contain information for describing schedules and flight plans of airlines.
 
         They inform us in particular about the position of airports, the routes, the times of passage of the airplanes.
 
-        One data standards can be used: the [GTFS format](https://developers.google.com/transit/gtfs).
+        The following standards can be used: the [GTFS format](https://developers.google.com/transit/gtfs) and [SSIM from IATA](https://www.iata.org/en/publications/store/standard-schedules-information/).
 
 - category: transport-traffic
   search_params:
