@@ -112,10 +112,7 @@ defmodule Transport.DataChecker do
   end
 
   def possible_delays do
-    Transport.Notifications.config()
-    |> Enum.filter(&(&1.reason == :expiration))
-    |> Enum.flat_map(& &1.extra_delays)
-    |> Enum.concat(@default_outdated_data_delays)
+    @default_outdated_data_delays
     |> Enum.uniq()
     |> Enum.sort()
   end
@@ -128,8 +125,9 @@ defmodule Transport.DataChecker do
       "* #{dataset.custom_title} - (#{Dataset.type_to_str(dataset.type)}) - #{link(dataset)}"
     end
 
-    Transport.Notifications.config()
-    |> Transport.Notifications.emails_for_reason(:new_dataset)
+    :new_dataset
+    |> DB.NotificationSubscription.subscriptions_for_reason()
+    |> DB.NotificationSubscription.subscriptions_to_emails()
     |> Enum.each(fn email ->
       Transport.EmailSender.impl().send_mail(
         "transport.data.gouv.fr",
@@ -160,15 +158,11 @@ defmodule Transport.DataChecker do
   end
 
   def send_outdated_data_notifications({delay, datasets} = payload) do
-    notifications_config = Transport.Notifications.config()
-
-    datasets
-    |> Enum.filter(fn dataset ->
-      Enum.member?(@default_outdated_data_delays, delay) or
-        Transport.Notifications.is_valid_extra_delay?(notifications_config, :expiration, dataset, delay)
-    end)
-    |> Enum.each(fn dataset ->
-      emails = Transport.Notifications.emails_for_reason(notifications_config, :expiration, dataset)
+    Enum.each(datasets, fn dataset ->
+      emails =
+        :expiration
+        |> DB.NotificationSubscription.subscriptions_for_reason(dataset)
+        |> DB.NotificationSubscription.subscriptions_to_emails()
 
       emails
       |> Enum.each(fn email ->
@@ -209,8 +203,8 @@ defmodule Transport.DataChecker do
   end
 
   def has_expiration_notifications?(%Dataset{} = dataset) do
-    Transport.Notifications.config()
-    |> Transport.Notifications.emails_for_reason(:expiration, dataset)
+    :expiration
+    |> DB.NotificationSubscription.subscriptions_for_reason(dataset)
     |> Enum.count() > 0
   end
 

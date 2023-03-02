@@ -172,10 +172,7 @@ defmodule Transport.DataCheckerTest do
 
   describe "outdated_data job" do
     test "sends email to our team + relevant contact before expiry" do
-      dataset_slug = "reseau-de-transport-de-la-ville"
-      producer_email = "hello@example.com"
-
-      dataset = insert(:dataset, is_active: true, slug: dataset_slug, custom_title: "Dataset custom title")
+      dataset = insert(:dataset, is_active: true, custom_title: "Dataset custom title")
       # fake a resource expiring today
       resource = insert(:resource, dataset: dataset, format: "GTFS")
 
@@ -192,17 +189,14 @@ defmodule Transport.DataCheckerTest do
 
       assert [dataset.id] == Date.utc_today() |> Transport.DataChecker.gtfs_datasets_expiring_on() |> Enum.map(& &1.id)
 
-      Transport.Notifications.FetcherMock
-      |> expect(:fetch_config!, 3, fn ->
-        [
-          %Transport.Notifications.Item{
-            reason: :expiration,
-            dataset_slug: dataset_slug,
-            emails: [producer_email],
-            extra_delays: []
-          }
-        ]
-      end)
+      %DB.Contact{id: contact_id, email: producer_email} = insert_contact()
+
+      insert(:notification_subscription, %{
+        reason: :expiration,
+        source: :admin,
+        contact_id: contact_id,
+        dataset_id: dataset.id
+      })
 
       # a first mail to our team
       Transport.EmailSender.Mock
@@ -231,7 +225,6 @@ defmodule Transport.DataCheckerTest do
 
       Transport.DataChecker.outdated_data()
 
-      verify!(Transport.Notifications.FetcherMock)
       verify!(Transport.EmailSender.Mock)
     end
 
@@ -239,112 +232,41 @@ defmodule Transport.DataCheckerTest do
       Transport.EmailSender.Mock
       |> expect(:send_mail, 0, fn _, _, _, _, _, _, _ -> nil end)
 
-      Transport.Notifications.FetcherMock
-      |> expect(:fetch_config!, fn ->
-        [
-          %Transport.Notifications.Item{
-            reason: :expiration,
-            dataset_slug: "reseau-de-transport-de-la-ville",
-            emails: ["hello@example.com"],
-            extra_delays: []
-          }
-        ]
-      end)
-
       Transport.DataChecker.outdated_data()
 
-      verify!(Transport.Notifications.FetcherMock)
       verify!(Transport.EmailSender.Mock)
     end
   end
 
-  describe "send_outdated_data_notifications" do
-    test "with a default delay" do
-      Transport.EmailSender.Mock
-      |> expect(:send_mail, fn "transport.data.gouv.fr",
-                               "contact@transport.beta.gouv.fr",
-                               "foo@example.com" = _to,
-                               "contact@transport.beta.gouv.fr",
-                               "Jeu de données arrivant à expiration" = _subject,
-                               plain_text_body,
-                               "" = _html_part ->
-        assert plain_text_body =~ ~r/Bonjour/
-        :ok
-      end)
+  test "send_outdated_data_notifications" do
+    %{id: dataset_id} = dataset = insert(:dataset)
+    %DB.Contact{id: contact_id, email: email} = insert_contact()
 
-      dataset_slug = "slug"
+    insert(:notification_subscription, %{
+      reason: :expiration,
+      source: :admin,
+      contact_id: contact_id,
+      dataset_id: dataset.id
+    })
 
-      Transport.Notifications.FetcherMock
-      |> expect(:fetch_config!, fn ->
-        [
-          %Transport.Notifications.Item{
-            dataset_slug: dataset_slug,
-            emails: ["foo@example.com"],
-            reason: :expiration,
-            extra_delays: []
-          }
-        ]
-      end)
+    Transport.EmailSender.Mock
+    |> expect(:send_mail, fn "transport.data.gouv.fr",
+                             "contact@transport.beta.gouv.fr",
+                             ^email = _to,
+                             "contact@transport.beta.gouv.fr",
+                             "Jeu de données arrivant à expiration" = _subject,
+                             plain_text_body,
+                             "" = _html_part ->
+      assert plain_text_body =~ ~r/Bonjour/
+      :ok
+    end)
 
-      %{id: dataset_id} = dataset = insert(:dataset, slug: dataset_slug)
+    Transport.DataChecker.send_outdated_data_notifications({7, [dataset]})
 
-      Transport.DataChecker.send_outdated_data_notifications({7, [dataset]})
+    assert [%DB.Notification{email: ^email, reason: :expiration, dataset_id: ^dataset_id}] =
+             DB.Notification |> DB.Repo.all()
 
-      assert [%DB.Notification{email: "foo@example.com", reason: :expiration, dataset_id: ^dataset_id}] =
-               DB.Notification |> DB.Repo.all()
-
-      verify!(Transport.EmailSender.Mock)
-    end
-
-    test "with a matching extra delay" do
-      Transport.EmailSender.Mock
-      |> expect(:send_mail, fn _, _, "foo@example.com" = _to, _, _, _, _ -> :ok end)
-
-      dataset_slug = "slug"
-      custom_delay = 30
-
-      Transport.Notifications.FetcherMock
-      |> expect(:fetch_config!, fn ->
-        [
-          %Transport.Notifications.Item{
-            dataset_slug: dataset_slug,
-            emails: ["foo@example.com"],
-            reason: :expiration,
-            extra_delays: [custom_delay]
-          }
-        ]
-      end)
-
-      %{id: dataset_id} = dataset = insert(:dataset, slug: dataset_slug)
-
-      Transport.DataChecker.send_outdated_data_notifications({custom_delay, [dataset]})
-
-      assert [%DB.Notification{email: "foo@example.com", reason: :expiration, dataset_id: ^dataset_id}] =
-               DB.Notification |> DB.Repo.all()
-    end
-
-    test "with a non-matching extra delay" do
-      Transport.EmailSender.Mock
-      |> expect(:send_mail, 0, fn _, _, _, _, _, _, _ -> :ok end)
-
-      dataset_slug = "slug"
-
-      Transport.Notifications.FetcherMock
-      |> expect(:fetch_config!, fn ->
-        [
-          %Transport.Notifications.Item{
-            dataset_slug: dataset_slug,
-            emails: ["foo@example.com"],
-            reason: :expiration,
-            extra_delays: [30]
-          }
-        ]
-      end)
-
-      dataset = %DB.Dataset{slug: dataset_slug, datagouv_title: "title"}
-
-      Transport.DataChecker.send_outdated_data_notifications({42, [dataset]})
-    end
+    verify!(Transport.EmailSender.Mock)
   end
 
   describe "send_new_dataset_notifications" do
@@ -353,10 +275,16 @@ defmodule Transport.DataCheckerTest do
     end
 
     test "with datasets" do
+      %DB.Dataset{id: dataset_id, slug: slug} =
+        dataset = insert(:dataset, custom_title: "Super JDD", type: "public-transit", slug: Ecto.UUID.generate())
+
+      %DB.Contact{id: contact_id, email: email} = insert_contact()
+      insert(:notification_subscription, %{reason: :new_dataset, source: :admin, contact_id: contact_id})
+
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn "transport.data.gouv.fr",
                                "contact@transport.beta.gouv.fr",
-                               "foo@example.com" = _to,
+                               ^email = _to,
                                "contact@transport.beta.gouv.fr",
                                "Nouveaux jeux de données référencés" = _subject,
                                plain_text_body,
@@ -364,57 +292,18 @@ defmodule Transport.DataCheckerTest do
         assert plain_text_body =~ ~r/^Bonjour/
 
         assert plain_text_body =~
-                 "* Super JDD - (Transport public collectif - horaires théoriques) - http://127.0.0.1:5100/datasets/slug"
+                 "* Super JDD - (Transport public collectif - horaires théoriques) - http://127.0.0.1:5100/datasets/#{slug}"
 
         :ok
       end)
 
-      dataset_slug = "slug"
-
-      Transport.Notifications.FetcherMock
-      |> expect(:fetch_config!, fn ->
-        [
-          %Transport.Notifications.Item{
-            dataset_slug: nil,
-            emails: ["foo@example.com"],
-            reason: :new_dataset,
-            extra_delays: []
-          }
-        ]
-      end)
-
-      %{id: dataset_id} =
-        dataset = insert(:dataset, slug: dataset_slug, custom_title: "Super JDD", type: "public-transit")
-
       Transport.DataChecker.send_new_dataset_notifications([dataset])
 
-      assert [%DB.Notification{email: "foo@example.com", reason: :new_dataset, dataset_id: ^dataset_id}] =
+      assert [%DB.Notification{email: ^email, reason: :new_dataset, dataset_id: ^dataset_id}] =
                DB.Notification |> DB.Repo.all()
 
       verify!(Transport.EmailSender.Mock)
     end
-  end
-
-  test "possible_delays" do
-    Transport.Notifications.FetcherMock
-    |> expect(:fetch_config!, fn ->
-      [
-        %Transport.Notifications.Item{
-          dataset_slug: "slug",
-          emails: ["foo@example.com"],
-          reason: :expiration,
-          extra_delays: [14, 30]
-        },
-        %Transport.Notifications.Item{
-          dataset_slug: "other",
-          emails: ["foo@example.com"],
-          reason: :expiration,
-          extra_delays: [30, 42]
-        }
-      ]
-    end)
-
-    assert [-7, -3, 0, 7, 14, 30, 42] == Transport.DataChecker.possible_delays()
   end
 
   test "count_archived_datasets" do
