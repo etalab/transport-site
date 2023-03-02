@@ -50,10 +50,6 @@ defmodule TransportWeb.API.Router do
       get("/:id/geojson", TransportWeb.API.DatasetController, :geojson_by_id)
     end
 
-    scope "/notifications" do
-      post("/clear_config_cache", TransportWeb.API.NotificationsController, :clear_config_cache)
-    end
-
     scope "/geo-query" do
       get("/", TransportWeb.API.GeoQueryController, :index)
     end

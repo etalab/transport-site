@@ -204,11 +204,7 @@ config :transport,
   contact_email: "contact@transport.beta.gouv.fr",
   bizdev_email: "deploiement@transport.beta.gouv.fr",
   security_email: "contact@transport.beta.gouv.fr",
-  transport_tools_folder: Path.absname("transport-tools/"),
-  notifications_impl: Transport.Notifications.GitHub,
-  notifications_github_config_url: "https://raw.githubusercontent.com/etalab/transport-notifications/master/config.yml",
-  notifications_github_auth_token: System.get_env("TRANSPORT_NOTIFICATIONS_CONFIG_GITHUB_TOKEN"),
-  notifications_api_token: System.get_env("TRANSPORT_NOTIFICATIONS_API_TOKEN")
+  transport_tools_folder: Path.absname("transport-tools/")
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
