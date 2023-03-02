@@ -41,11 +41,29 @@ defmodule DB.Dataset do
     field(:archived_at, :utc_datetime_usec)
     field(:custom_tags, {:array, :string})
 
-    # When the dataset is linked to some cities
-    # we ask in the backoffice for a name to display
-    # (used in the long title of a dataset and to find the associated datasets)
-    field(:associated_territory_name, :string)
     timestamps(type: :utc_datetime_usec)
+
+    # When the dataset is linked to some cities
+    many_to_many(:communes, Commune, join_through: "dataset_communes", on_replace: :delete)
+
+    many_to_many(:legal_owners_aom, AOM,
+      join_through: "dataset_aom_legal_owner",
+      on_replace: :delete
+    )
+
+    many_to_many(:legal_owners_region, Region,
+      join_through: "dataset_region_legal_owner",
+      on_replace: :delete
+    )
+
+    field(:legal_owner_company_siren, :integer)
+
+    has_many(:resources, Resource, on_replace: :delete, on_delete: :delete_all)
+    has_many(:logs_import, LogsImport, on_replace: :delete, on_delete: :delete_all)
+    has_many(:notification_subscriptions, NotificationSubscription, on_delete: :delete_all)
+
+    # Depraction Notice : datasets won't be linked to region and aom like that in the future
+    # ⬇️⬇️⬇️
 
     # A Dataset can be linked to *either*:
     # - a Region (and there is a special Region 'national' that represents the national datasets);
@@ -53,13 +71,14 @@ defmodule DB.Dataset do
     # - or a list of cities.
     belongs_to(:region, Region)
     belongs_to(:aom, AOM)
-    many_to_many(:communes, Commune, join_through: "dataset_communes", on_replace: :delete)
 
-    has_many(:resources, Resource, on_replace: :delete, on_delete: :delete_all)
-    has_many(:logs_import, LogsImport, on_replace: :delete, on_delete: :delete_all)
-    has_many(:notification_subscriptions, NotificationSubscription, on_delete: :delete_all)
+    # we ask in the backoffice for a name to display
+    # (used in the long title of a dataset and to find the associated datasets)
+    field(:associated_territory_name, :string)
+
     # A dataset can be "parent dataset" of many AOMs
     has_many(:child_aom, AOM, foreign_key: :parent_dataset_id)
+    # ⬆️⬆️⬆️
   end
 
   def base_query, do: from(d in DB.Dataset, as: :dataset, where: d.is_active)
