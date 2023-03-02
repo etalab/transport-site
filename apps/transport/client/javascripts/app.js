@@ -32,6 +32,10 @@ window.addEventListener('phx:backoffice-form-reset', () => {
     document.getElementById('custom_tag').value = ''
 })
 
+window.addEventListener('phx:backoffice-form-owner-reset', () => {
+    document.getElementById('owner_input').value = ''
+})
+
 const csrfToken = document.querySelector('meta[name=\'csrf\']').getAttribute('content')
 const liveSocket = new LiveSocket('/live', Socket, { hooks: Hooks, params: { _csrf_token: csrfToken } })
 liveSocket.connect()

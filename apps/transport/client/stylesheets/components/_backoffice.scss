@@ -178,6 +178,12 @@
 
 .custom-tag {
   animation: fade-in 0.5s;
+  &.green {
+    background-color: var(--light-green);
+  }
+  &.blue {
+    background-color: var(--lighter-blue);
+  }
   .delete-tag {
     cursor: pointer;
     display: inline-block;

@@ -107,6 +107,8 @@ defmodule TransportWeb.EditDatasetLive do
         ) %>
       </div>
 
+      <.live_component module={TransportWeb.LegalOwnerSelectLive} id="owners_selection" form={f} owners={[]} />
+
       <div class="panel mt-48">
         <div class="panel__header">
           <h4>
