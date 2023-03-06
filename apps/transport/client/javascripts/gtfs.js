@@ -58,25 +58,66 @@ map.on('moveend', function (event) {
 
     fetch(url)
         .then(data => data.json())
-        .then(json => {
-            const data = json
-            const maxCount = Math.max(...data.map(a => a[2]))
-            const scatterplotLayer = new ScatterplotLayer({
-                id: 'scatterplot-layer',
-                data,
-                pickable: true,
-                opacity: 0.8,
-                stroked: true,
-                filled: true,
-                radiusUnits: 'pixels',
-                radiusScale: 1,
-                lineWidthMinPixels: 1,
-                getPosition: d => [d[1], d[0]],
-                getRadius: d => 2,
-                getFillColor: d => colorFunc(maxCount < 3 ? 0 : d[2] / maxCount),
-                getLineColor: d => colorFunc(maxCount < 3 ? 0 : d[2] / maxCount)
+        .then(jsonResponse => {
+            let layer = null
+            let tooltip = null
+            if (jsonResponse.type === 'clustered') {
+                const data = jsonResponse.data
+                const maxCount = Math.max(...data.map(a => a[2]))
+                const scatterplotLayer = new ScatterplotLayer({
+                    id: 'scatterplot-layer',
+                    data,
+                    pickable: true,
+                    opacity: 0.8,
+                    stroked: true,
+                    filled: true,
+                    radiusUnits: 'pixels',
+                    radiusScale: 1,
+                    lineWidthMinPixels: 1,
+                    getPosition: d => [d[1], d[0]],
+                    getRadius: d => 2,
+                    getFillColor: d => colorFunc(maxCount < 3 ? 0 : d[2] / maxCount),
+                    getLineColor: d => colorFunc(maxCount < 3 ? 0 : d[2] / maxCount)
+                })
+                layer = scatterplotLayer
+                tooltip = function (d) {
+                    if (d.picked) {
+                        return `${d.object.at(2).toString()} stops`
+                    } else {
+                        return false
+                    }
+                }
+            } else if (jsonResponse.type === 'detailed') {
+                const data = jsonResponse.data
+                const geoJsonLayer = new GeoJsonLayer({
+                    id: 'geojson-layer',
+                    data,
+                    pickable: true,
+                    stroked: false,
+                    filled: true,
+                    extruded: true,
+                    pointType: 'circle',
+                    lineWidthScale: 20,
+                    lineWidthMinPixels: 2,
+                    getFillColor: [147, 119, 145],
+                    getLineColor: [147, 119, 145],
+                    getPointRadius: 100,
+                    pointRadiusMaxPixels: 5,
+                    getLineWidth: 1,
+                    getElevation: 30
+                })
+                layer = geoJsonLayer
+                tooltip = function (d) {
+                    if (d.picked) {
+                        return { html: `<pre><code>${JSON.stringify(d.object, null, 4)}</code></pre>` }
+                    }
+                }
+            }
+            deckGLLayer.setProps({
+                getTooltip: tooltip,
+                getCursor: () => 'crosshair',
+                layers: [layer]
             })
-            deckGLLayer.setProps({ layers: [scatterplotLayer] })
         })
         .catch(e => console.log(e))
 })
