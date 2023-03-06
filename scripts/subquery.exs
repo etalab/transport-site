@@ -31,3 +31,14 @@ from(e in subquery(clusters))
 |> where([e], e.count > 0)
 |> DB.Repo.all()
 |> IO.inspect()
+
+count =
+  from(gs in "gtfs_stops")
+  |> where(
+    [gs],
+    fragment("? between ? and ?", gs.stop_lon, ^west, ^east) and
+      fragment("? between ? and ?", gs.stop_lat, ^south, ^north)
+  )
+  |> DB.Repo.aggregate(:count, :id)
+
+IO.puts("Count = #{count}")
