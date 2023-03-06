@@ -103,7 +103,7 @@ map.on('moveend', function (event) {
                     getLineColor: [38, 85, 255],
                     getPointRadius: 100,
                     pointRadiusMinPixels: 1,
-                    pointRadiusMaxPixels: 5,
+                    pointRadiusMaxPixels: 3,
                     getLineWidth: 1,
                     getElevation: 30
                 })
