@@ -14,8 +14,9 @@ defmodule Transport.Jobs.DatasetNowLicenceOuverteJob do
       "* #{dataset.custom_title} - (#{DB.Dataset.type_to_str(dataset.type)}) - #{link(dataset)}"
     end
 
-    Transport.Notifications.config()
-    |> Transport.Notifications.emails_for_reason(@notification_reason)
+    @notification_reason
+    |> DB.NotificationSubscription.subscriptions_for_reason()
+    |> DB.NotificationSubscription.subscriptions_to_emails()
     |> Enum.each(fn email ->
       Transport.EmailSender.impl().send_mail(
         "transport.data.gouv.fr",
