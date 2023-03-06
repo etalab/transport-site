@@ -286,3 +286,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Resource historization"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "National GTFS map"
+msgstr ""
