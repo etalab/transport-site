@@ -45,6 +45,12 @@ defmodule DB.NotificationSubscription do
   @spec reasons_related_to_datasets :: [atom()]
   def reasons_related_to_datasets, do: @reasons_related_to_datasets
 
+  @spec other_reasons :: [atom()]
+  def other_reasons, do: @other_reasons
+
+  @spec possible_reasons :: [atom()]
+  def possible_reasons, do: reasons_related_to_datasets() ++ other_reasons()
+
   @spec subscriptions_for_reason(atom()) :: [__MODULE__.t()]
   def subscriptions_for_reason(reason) do
     base_query()

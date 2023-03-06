@@ -1,10 +1,13 @@
 <% subscriptions_with_dataset = notification_subscriptions_with_dataset(@notification_subscriptions) %>
 <% subscriptions_without_dataset = notification_subscriptions_without_dataset(@notification_subscriptions) %>
+<% reasons_subscribed_without_dataset = subscriptions_without_dataset |> Enum.map(& &1.reason) |> Enum.uniq() %>
 
 <div :if={!@creating_contact} class="panel" id="notification_subscriptions">
   <h2>Abonnements à des notifications</h2>
 
   <h3>Créer un abonnement</h3>
+
+  <h4>Lié à un jeu de données</h4>
 
   <%= form_for @conn, backoffice_notification_subscription_path(@conn, :create), [], fn f -> %>
     <%= hidden_input(f, :redirect_location, value: "contact") %>
@@ -28,6 +31,24 @@
     <% end %>
 
     <%= submit("Créer un abonnement") %>
+  <% end %>
+
+  <h4>Autres motifs</h4>
+
+  <%= form_for @conn, backoffice_notification_subscription_path(@conn, :create), [], fn f -> %>
+    <%= hidden_input(f, :redirect_location, value: "contact") %>
+    <%= hidden_input(f, :contact_id, value: @contact_id) %>
+    <%= label f, :reasons, class: "pt-12" do %>
+      <%= dgettext("backoffice", "Notification reason") %>
+      <%= for reason <- DB.NotificationSubscription.other_reasons() do %>
+        <%= label f, reason do %>
+          <%= checkbox(f, reason, hidden_input: false, value: reason in reasons_subscribed_without_dataset) %>
+          <%= reason %>
+        <% end %>
+      <% end %>
+    <% end %>
+
+    <%= submit("Mettre à jour les abonnements") %>
   <% end %>
 
   <h3>Abonnements existants</h3>
@@ -79,7 +100,7 @@
       <th><%= dgettext("backoffice", "Notification reason") %></th>
       <th>Actions</th>
     </tr>
-    <%= for notification_subscription <- subscriptions_without_dataset do %>
+    <%= for notification_subscription <- Enum.sort_by(subscriptions_without_dataset, & &1.reason, :asc) do %>
       <tr>
         <td><%= notification_subscription.reason %></td>
         <td>

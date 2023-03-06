@@ -1,11 +1,20 @@
 defmodule TransportWeb.Backoffice.ContactView do
   use TransportWeb, :view
+  import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
   alias TransportWeb.PaginationHelpers
 
   def pagination_links(conn, contacts) do
     kwargs = [path: &backoffice_contact_path/3] |> add_filter(conn.params)
 
     PaginationHelpers.pagination_links(conn, contacts, kwargs)
+  end
+
+  defp contact_fonction(%DB.Contact{job_title: nil, organization: organization}) do
+    organization
+  end
+
+  defp contact_fonction(%DB.Contact{job_title: job_title, organization: organization}) do
+    "#{job_title} (#{organization})"
   end
 
   defp notification_subscriptions_with_dataset(records) do
