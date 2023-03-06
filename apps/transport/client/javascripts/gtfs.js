@@ -1,7 +1,7 @@
 import { Socket } from 'phoenix'
 import Leaflet from 'leaflet'
 import { LeafletLayer } from 'deck.gl-leaflet'
-import { ScatterplotLayer } from '@deck.gl/layers'
+import { ScatterplotLayer, GeoJsonLayer } from '@deck.gl/layers'
 
 import { MapView } from '@deck.gl/core'
 
