@@ -18,6 +18,8 @@ defmodule TransportWeb.ExploreController do
     |> render("gtfs_stops.html")
   end
 
+  @max_points 10_000
+
   def gtfs_stops_data(conn, params) do
     %{
       "south" => south,
@@ -38,12 +40,73 @@ defmodule TransportWeb.ExploreController do
     snap_x = abs((west - east) / (width_px / 5.0))
     snap_y = abs((north - south) / (height_px / 5.0))
 
-    data = build_clusters(north, south, east, west, snap_x, snap_y)
+    count = count_points(north, south, east, west)
+
+    data =
+      if count < @max_points do
+        %{
+          type: "detailed",
+          data: build_detailed(north, south, east, west)
+        }
+      else
+        %{
+          type: "clustered",
+          data: build_clusters(north, south, east, west, snap_x, snap_y)
+        }
+      end
 
     conn |> json(data)
   end
 
   import Ecto.Query
+
+  defp bounding_box_points(north, south, east, west) do
+    from(gs in "gtfs_stops")
+    |> where(
+      [gs],
+      fragment("? between ? and ?", gs.stop_lon, ^west, ^east) and
+        fragment("? between ? and ?", gs.stop_lat, ^south, ^north)
+    )
+  end
+
+  def build_detailed(north, south, east, west) do
+    stops =
+      bounding_box_points(north, south, east, west)
+      |> select([gs], %{
+        d_id: gs.data_import_id,
+        stop_id: gs.stop_id,
+        stop_name: gs.stop_name,
+        stop_lat: gs.stop_lat,
+        stop_lon: gs.stop_lon,
+        stop_location_type: gs.location_type
+      })
+
+    %{
+      type: "FeatureCollection",
+      features:
+        stops
+        |> DB.Repo.all()
+        |> Enum.map(fn s ->
+          %{
+            type: "Feature",
+            geometry: %{
+              type: "Point",
+              coordinates: [Map.fetch!(s, :stop_lon), Map.fetch!(s, :stop_lat)]
+            },
+            properties: %{
+              d_id: Map.fetch!(s, :d_id),
+              stop_id: Map.fetch!(s, :stop_id),
+              stop_location_type: Map.fetch!(s, :stop_location_type)
+            }
+          }
+        end)
+    }
+  end
+
+  defp count_points(north, south, east, west) do
+    bounding_box_points(north, south, east, west)
+    |> DB.Repo.aggregate(:count, :id)
+  end
 
   defp build_clusters(north, south, east, west, snap_x, snap_y) do
     # NOTE: this query is not horribly slow but not super fast either. When the user
