@@ -99,9 +99,10 @@ map.on('moveend', function (event) {
                     pointType: 'circle',
                     lineWidthScale: 20,
                     lineWidthMinPixels: 2,
-                    getFillColor: [147, 119, 145],
-                    getLineColor: [147, 119, 145],
+                    getFillColor: [38, 85, 255],
+                    getLineColor: [38, 85, 255],
                     getPointRadius: 100,
+                    pointRadiusMinPixels: 1,
                     pointRadiusMaxPixels: 5,
                     getLineWidth: 1,
                     getElevation: 30
