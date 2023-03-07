@@ -108,7 +108,7 @@ defmodule TransportWeb.EditDatasetLive do
         ) %>
       </div>
 
-      <div :if={@dataset_organization} class="panel mt-48">
+      <div class="panel mt-48">
         <div class="panel-explanation">
           <%= dgettext("backoffice", "Legal owner") %>
         </div>
@@ -119,7 +119,7 @@ defmodule TransportWeb.EditDatasetLive do
             <%= dgettext("backoffice", "code SIREN d'une entreprise") %>
             <%= InputHelpers.text_input(f, :legal_owner_company_siren,
               placeholder: "exemple : 821611431",
-              pattern: "\d{9,9}",
+              pattern: "\\d{9,9}",
               value:
                 if not is_nil(@dataset) do
                   @dataset.legal_owner_company_siren
