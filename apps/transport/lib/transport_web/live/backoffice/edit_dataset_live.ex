@@ -5,6 +5,7 @@ defmodule TransportWeb.EditDatasetLive do
   alias DB.Dataset
   import TransportWeb.Router.Helpers
   alias TransportWeb.InputHelpers
+  import Ecto.Query
 
   def render(assigns) do
     ~H"""
@@ -107,7 +108,7 @@ defmodule TransportWeb.EditDatasetLive do
         ) %>
       </div>
 
-      <.live_component module={TransportWeb.LegalOwnerSelectLive} id="owners_selection" form={f} owners={[]} />
+      <.live_component module={TransportWeb.LegalOwnerSelectLive} id="owners_selection" form={f} owners={@legal_owners} />
 
       <div class="panel mt-48">
         <div class="panel__header">
@@ -221,9 +222,18 @@ defmodule TransportWeb.EditDatasetLive do
       |> assign(:form_url, form_url)
       |> assign(:dataset_organization, dataset_organization)
       |> assign(:organization_types, organization_types())
+      |> assign(:legal_owners, get_legal_owners(dataset.id))
       |> assign(:trigger_submit, false)
 
     {:ok, socket}
+  end
+
+  def get_legal_owners(dataset_id) do
+    # current legal owner, to initiate the state of the legal_owner_select_live component
+    %{legal_owners_aom: legal_owners_aom, legal_owners_region: legal_owners_region} = DB.Dataset |> preload([:legal_owners_aom, :legal_owners_region]) |> DB.Repo.get(dataset_id)
+    legal_owners_aom = legal_owners_aom |> Enum.map(fn aom -> %{id: aom.id, type: "aom", label: aom.nom} end)
+    legal_owners_region = legal_owners_region |> Enum.map(fn region -> %{id: region.id, type: "region", label: region.nom} end)
+    legal_owners_aom ++ legal_owners_region
   end
 
   def organization_types,
@@ -259,6 +269,11 @@ defmodule TransportWeb.EditDatasetLive do
 
   def handle_event(_, _, socket) do
     {:noreply, socket}
+  end
+
+  # handle info sent from the child live component to update the list of legal owners
+  def handle_info({:updated_legal_owner, legal_owners}, socket) do
+    {:noreply, socket |> assign(:legal_owners, legal_owners)}
   end
 
   # get the result from the async Task triggered by "change_dataset"

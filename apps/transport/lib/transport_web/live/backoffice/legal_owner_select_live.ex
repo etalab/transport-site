@@ -7,11 +7,13 @@ defmodule TransportWeb.LegalOwnerSelectLive do
     ~H"""
     <div class="pt-24">
       <div class="pb-6">
-        <%= for {owner_display_label, index} <- Enum.with_index(@owners) do %>
-          <span class={["label", "custom-tag"] ++ [color_class(owner_display_label)]}>
-            <%= owner_display_label %> <span class="delete-tag" phx-click="remove_tag" phx-value-owner={owner_display_label} phx-target={@myself}></span>
+        <%= for {owner, index} <- Enum.with_index(@owners) do %>
+          <span class={["label", "custom-tag"] ++ [color_class(owner)]}>
+            <%= get_owner_label(owner, @owners_list) %>
+            <span class="delete-tag" phx-click="remove_tag" phx-value-owner-id={owner.id} phx-value-owner-type={owner.type} phx-target={@myself}>
+            </span>
           </span>
-          <% {field_name, field_value} = get_field_info(owner_display_label, index, @owners_list) %>
+          <% {field_name, field_value} = get_field_info(owner, index) %>
           <%= Phoenix.HTML.Form.hidden_input(@form, field_name, value: field_value) %>
         <% end %>
       </div>
@@ -32,8 +34,8 @@ defmodule TransportWeb.LegalOwnerSelectLive do
   end
 
   def update(assigns, socket) do
-    aoms = DB.AOM |> select([aom], %{label: aom.nom, type: "AOM", id: aom.id})
-    regions = DB.Region |> select([r], %{label: r.nom, type: "Région", id: r.id})
+    aoms = DB.AOM |> select([aom], %{label: aom.nom, type: "aom", id: aom.id})
+    regions = DB.Region |> select([r], %{label: r.nom, type: "region", id: r.id})
 
     owners_list =
       aoms
@@ -43,37 +45,47 @@ defmodule TransportWeb.LegalOwnerSelectLive do
     {:ok, socket |> assign(assigns) |> assign(:owners_list, owners_list)}
   end
 
-    def handle_event("add_tag", %{"key" => "Enter", "value" => value}, socket) do
-      if Enum.any?(socket.assigns.owners_list, fn owner -> owner_display(owner) == value end) do
-        owners = (socket.assigns.owners ++ [value]) |> Enum.uniq()
-        socket = socket |> clear_input() |> assign(:owners, owners)
+  def handle_event("add_tag", %{"key" => "Enter", "value" => value}, socket) do
+    new_owner = Enum.find(socket.assigns.owners_list, fn owner -> owner_display(owner) == value end)
+    legal_owners = (socket.assigns.owners ++ [new_owner]) |> Enum.uniq()
 
-        {:noreply, socket}
+    if not is_nil(new_owner) do
+      # new owners list is sent to the parent liveview form
+      # because this is a LiveComponent, the process of the parent is the same.
+      send(self(), {:updated_legal_owner, legal_owners})
+      {:noreply, socket |> clear_input()}
     else
       {:noreply, socket}
     end
-    end
+  end
 
-    def handle_event("add_tag", _, socket) do
-      {:noreply, socket}
-    end
+  def handle_event("add_tag", _, socket) do
+    {:noreply, socket}
+  end
 
-    def handle_event("remove_tag", %{"owner" => owner}, socket) do
-      owners = socket.assigns.owners -- [owner]
-      {:noreply, assign(socket, :owners, owners)}
-    end
+  def handle_event("remove_tag", %{"owner-id" => owner_id, "owner-type" => owner_type}, socket) do
+    owners = socket.assigns.owners |> Enum.reject(fn owner -> owner.id == String.to_integer(owner_id) and owner.type == owner_type end)
+    send(self(), {:updated_legal_owner, owners})
 
-    def clear_input(socket) do
-      push_event(socket, "backoffice-form-owner-reset", %{})
-    end
+    {:noreply, socket}
+  end
 
-    def get_field_info(owner_display_label, index, owners) do
-      owner = owners |> Enum.find(fn owner -> owner_display(owner) == owner_display_label end)
-      {"owners_#{owner.type}[#{index}]", owner.id}
-    end
+  # clear the input using a js hook
+  def clear_input(socket) do
+    push_event(socket, "backoffice-form-owner-reset", %{})
+  end
 
-    def color_class("AOM : " <> _), do: "green"
-    def color_class("Région : " <> _), do: "blue"
+  def get_field_info(owner, index) do
+    {"legal_owners_#{owner.type}[#{index}]", owner.id}
+  end
 
-    def owner_display(%{label: label, type: type}), do: "#{type} : #{label}"
+  def get_owner_label(%{type: type, id: id}, owners_list) do
+    owner = owners_list |> Enum.find(fn owner -> owner.type == type and owner.id == id end)
+    "#{type} : #{owner.label}"
+  end
+
+  def color_class(%{type: "aom"}), do: "green"
+  def color_class(%{type: "region"}), do: "blue"
+
+  def owner_display(%{label: label, type: type}), do: "#{type} : #{label}"
 end

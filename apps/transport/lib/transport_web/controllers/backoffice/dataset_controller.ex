@@ -29,7 +29,11 @@ defmodule TransportWeb.Backoffice.DatasetController do
         dataset_id -> Map.put(form_params, "dataset_id", dataset_id)
       end
 
-    form_params = transform_custom_tags_to_list(form_params)
+    form_params =
+      form_params
+      |> transform_custom_tags_to_list()
+      |> transform_legal_owners_aom_to_list()
+      |> transform_legal_owners_region_to_list()
 
     with datagouv_id when not is_nil(datagouv_id) <- dataset_datagouv_id,
          {:ok, dg_dataset} <- ImportData.import_from_data_gouv(datagouv_id, form_params["type"]),
@@ -69,6 +73,16 @@ defmodule TransportWeb.Backoffice.DatasetController do
   defp transform_custom_tags_to_list(form_params) do
     custom_tags = for {"custom_tags" <> _, tag} <- form_params, do: tag
     Map.put(form_params, "custom_tags", custom_tags)
+  end
+
+  defp transform_legal_owners_region_to_list(form_params) do
+    regions = for {"legal_owners_region" <> _, region_id} <- form_params, do: region_id  |> String.to_integer()
+    Map.put(form_params, "legal_owners_region", regions)
+  end
+
+  defp transform_legal_owners_aom_to_list(form_params) do
+    aoms = for {"legal_owners_aom" <> _, aom_id} <- form_params, do: aom_id |> String.to_integer()
+    Map.put(form_params, "legal_owners_aom", aoms)
   end
 
   @spec insert_dataset(Ecto.Changeset.t()) :: {:ok, Dataset.t()} | {:error, binary}
