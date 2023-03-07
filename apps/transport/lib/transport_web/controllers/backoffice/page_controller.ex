@@ -158,7 +158,6 @@ defmodule TransportWeb.Backoffice.PageController do
     |> assign(:dataset_id, dataset_id)
     |> assign(:dataset_types, Dataset.types())
     |> assign(:regions, get_regions_for_select())
-    |> assign(:expiration_emails, notification_expiration_emails(conn.assigns[:dataset]))
     |> assign(:notifications_sent, notifications_sent(conn.assigns[:dataset]))
     |> assign(:notifications_last_nb_days, notifications_last_nb_days())
     |> assign(:resources_with_history, DB.Dataset.last_resource_history(dataset_id))
@@ -175,13 +174,6 @@ defmodule TransportWeb.Backoffice.PageController do
 
   defp contacts_datalist do
     DB.Contact.base_query() |> select([contact: c], [:first_name, :last_name, :id]) |> DB.Repo.all()
-  end
-
-  defp notification_expiration_emails(nil), do: []
-
-  defp notification_expiration_emails(%Dataset{} = dataset) do
-    Transport.Notifications.config()
-    |> Transport.Notifications.emails_for_reason(:expiration, dataset)
   end
 
   defp notifications_last_nb_days, do: 30

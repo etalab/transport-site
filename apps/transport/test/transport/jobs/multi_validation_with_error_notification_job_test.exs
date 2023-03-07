@@ -89,23 +89,31 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
     |> Ecto.Changeset.change(%{inserted_at: DateTime.utc_now() |> DateTime.add(-20, :day)})
     |> DB.Repo.update!()
 
-    Transport.Notifications.FetcherMock
-    |> expect(:fetch_config!, 2, fn ->
-      [
-        %Transport.Notifications.Item{
-          dataset_slug: dataset.slug,
-          emails: ["foo@example.com", already_sent_email],
-          reason: :expiration,
-          extra_delays: []
-        },
-        %Transport.Notifications.Item{
-          dataset_slug: gtfs_dataset.slug,
-          emails: ["bar@example.com"],
-          reason: :expiration,
-          extra_delays: []
-        }
-      ]
-    end)
+    %DB.Contact{id: already_sent_contact_id} = insert_contact(%{email: already_sent_email})
+    %DB.Contact{id: foo_contact_id} = insert_contact(%{email: "foo@example.com"})
+
+    insert(:notification_subscription, %{
+      reason: :dataset_with_error,
+      source: :admin,
+      contact_id: already_sent_contact_id,
+      dataset_id: dataset.id
+    })
+
+    insert(:notification_subscription, %{
+      reason: :dataset_with_error,
+      source: :admin,
+      contact_id: foo_contact_id,
+      dataset_id: dataset.id
+    })
+
+    %DB.Contact{id: bar_contact_id} = insert_contact(%{email: "bar@example.com"})
+
+    insert(:notification_subscription, %{
+      reason: :dataset_with_error,
+      source: :admin,
+      contact_id: bar_contact_id,
+      dataset_id: gtfs_dataset.id
+    })
 
     Transport.EmailSender.Mock
     |> expect(:send_mail, fn "transport.data.gouv.fr",

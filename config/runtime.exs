@@ -120,7 +120,9 @@ oban_crontab_all_envs =
         {"0 21 * * *", Transport.Jobs.DatasetHistoryDispatcherJob},
         {"0 22 * * *", Transport.Jobs.ArchiveMetricsJob},
         {"15,45 * * * *", Transport.Jobs.MultiValidationWithErrorNotificationJob},
-        {"20,50 * * * *", Transport.Jobs.ResourceUnavailableNotificationJob}
+        {"20,50 * * * *", Transport.Jobs.ResourceUnavailableNotificationJob},
+        {"45 2 * * *", Transport.Jobs.RemoveHistoryJob,
+         args: %{schema_name: "etalab/schema-irve-dynamique", days_limit: 7}}
       ]
 
     :dev ->
