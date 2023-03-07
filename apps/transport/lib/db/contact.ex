@@ -61,12 +61,6 @@ defmodule DB.Contact do
       nil ->
         changeset
 
-      :error ->
-        case Mix.env() do
-          :dev -> put_change(changeset, :phone_number, "cannot decode phone number")
-          _ -> add_error(changeset, :phone_number, "cannot decode phone number")
-        end
-
       phone_number_value ->
         case ExPhoneNumber.parse(phone_number_value, @default_phone_number_region) do
           {:ok, phone_number} -> parse_phone_number(changeset, phone_number)
