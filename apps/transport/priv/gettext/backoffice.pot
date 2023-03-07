@@ -288,7 +288,7 @@ msgid "Resource historization"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Legal owner"
+msgid "Legal owners"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -296,5 +296,5 @@ msgid "or"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "code SIREN d'une entreprise"
+msgid "company SIREN code"
 msgstr ""

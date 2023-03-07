@@ -110,13 +110,13 @@ defmodule TransportWeb.EditDatasetLive do
 
       <div class="panel mt-48">
         <div class="panel-explanation">
-          <%= dgettext("backoffice", "Legal owner") %>
+          <%= dgettext("backoffice", "Legal owners") %>
         </div>
         <.live_component module={TransportWeb.LegalOwnerSelectLive} id="owners_selection" form={f} owners={@legal_owners} />
         <div class="pt-12"><%= dgettext("backoffice", "or") %></div>
         <div class="pt-12">
           <label>
-            <%= dgettext("backoffice", "code SIREN d'une entreprise") %>
+            <%= dgettext("backoffice", "company SIREN code") %>
             <%= InputHelpers.text_input(f, :legal_owner_company_siren,
               placeholder: "exemple : 821611431",
               pattern: "\\d{9,9}",
@@ -250,7 +250,7 @@ defmodule TransportWeb.EditDatasetLive do
   end
 
   def get_legal_owners(dataset_id) do
-    # current legal owner, to initiate the state of the legal_owner_select_live component
+    # current legal owners, to initiate the state of the legal_owner_select_live component
     %{legal_owners_aom: legal_owners_aom, legal_owners_region: legal_owners_region} =
       DB.Dataset |> preload([:legal_owners_aom, :legal_owners_region]) |> DB.Repo.get(dataset_id)
 

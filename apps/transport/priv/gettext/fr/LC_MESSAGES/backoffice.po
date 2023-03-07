@@ -289,12 +289,12 @@ msgstr "Historisation des ressources"
 
 #, elixir-autogen, elixir-format
 msgid "Legal owner"
-msgstr "Représentant légal"
+msgstr "Représentants légaux"
 
 #, elixir-autogen, elixir-format
 msgid "or"
 msgstr "ou"
 
 #, elixir-autogen, elixir-format, fuzzy
-msgid "code SIREN d'une entreprise"
-msgstr "company SIREN code"
+msgid "company SIREN code"
+msgstr "code SIREN d'une entreprise"

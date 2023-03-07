@@ -116,7 +116,7 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
 
     set_expectations()
 
-    siren = 123456789
+    siren = 123_456_789
 
     conn
     |> setup_admin_in_session()
@@ -134,7 +134,8 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
     })
 
     # the legal owners have been saved
-    assert %DB.Dataset{legal_owner_company_siren: ^siren, legal_owners_aom: aoms, legal_owners_region: regions} = DB.Dataset |> preload([:legal_owners_aom, :legal_owners_region]) |> DB.Repo.get!(dataset.id)
+    assert %DB.Dataset{legal_owner_company_siren: ^siren, legal_owners_aom: aoms, legal_owners_region: regions} =
+             DB.Dataset |> preload([:legal_owners_aom, :legal_owners_region]) |> DB.Repo.get!(dataset.id)
 
     assert aoms |> Enum.map(& &1.id) |> Enum.sort() == [aom_0.id, aom_1.id]
     assert regions |> Enum.map(& &1.id) |> Enum.sort() == [region_0.id, region_1.id]
