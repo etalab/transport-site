@@ -6,7 +6,22 @@ defmodule TransportWeb.LegalOwnerSelectLive do
   def render(assigns) do
     ~H"""
     <div class="pt-24">
-      <div class="pb-6">
+    <label>
+      Une/des AOM locale(s) ou régionale(s)
+      <%= InputHelpers.text_input(@form, :tag_input,
+        placeholder: "exemple: CC du Val de Morteau",
+        list: "owner_suggestions",
+        phx_keydown: "add_tag",
+        phx_target: @myself,
+        id: "owner_input"
+      ) %>
+      </label>
+      <datalist id="owner_suggestions" phx-keydown="add_tag">
+        <%= for owner_suggestion <- @owners_list do %>
+          <option value={owner_display(owner_suggestion)}><%= owner_display(owner_suggestion) %></option>
+        <% end %>
+      </datalist>
+      <div class="pt-6">
         <%= for {owner, index} <- Enum.with_index(@owners) do %>
           <span class={["label", "custom-tag"] ++ [color_class(owner)]}>
             <%= get_owner_label(owner, @owners_list) %>
@@ -17,18 +32,6 @@ defmodule TransportWeb.LegalOwnerSelectLive do
           <%= Phoenix.HTML.Form.hidden_input(@form, field_name, value: field_value) %>
         <% end %>
       </div>
-      <%= InputHelpers.text_input(@form, :tag_input,
-        placeholder: "Ajouter un représentant légal (AOM locale ou régionale)",
-        list: "owner_suggestions",
-        phx_keydown: "add_tag",
-        phx_target: @myself,
-        id: "owner_input"
-      ) %>
-      <datalist id="owner_suggestions" phx-keydown="add_tag">
-        <%= for owner_suggestion <- @owners_list do %>
-          <option value={owner_display(owner_suggestion)}><%= owner_display(owner_suggestion) %></option>
-        <% end %>
-      </datalist>
     </div>
     """
   end
