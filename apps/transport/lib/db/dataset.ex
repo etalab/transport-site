@@ -436,8 +436,12 @@ defmodule DB.Dataset do
 
   defp apply_changeset(%__MODULE__{} = dataset, params) do
     territory_name = Map.get(params, "associated_territory_name") || dataset.associated_territory_name
-    legal_owners_aom = Repo.all(from(aom in AOM, where: aom.id in ^params["legal_owners_aom"]))
-    legal_owners_region = Repo.all(from(region in Region, where: region.id in ^params["legal_owners_region"]))
+
+    legal_owners_aom_id = params["legal_owners_aom"] || []
+    legal_owners_aom = Repo.all(from(aom in AOM, where: aom.id in ^legal_owners_aom_id))
+
+    legal_owners_region_id = params["legal_owners_region"] || []
+    legal_owners_region = Repo.all(from(region in Region, where: region.id in ^legal_owners_region_id))
 
     dataset
     |> Repo.preload([:resources, :communes, :region, :legal_owners_aom, :legal_owners_region])
