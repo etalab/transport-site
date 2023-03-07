@@ -61,7 +61,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
         |> put_flash(:error, error)
 
       error ->
-        Logger.error(error)
+        unless is_nil(error), do: Logger.error(error)
 
         conn
         |> put_flash(:error, msgs.error[params["action"]])
