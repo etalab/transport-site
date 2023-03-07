@@ -12,9 +12,12 @@ defmodule TransportWeb.MarkdownHandler do
   def markdown_to_safe_html!(nil), do: HTML.raw(nil)
 
   def markdown_to_safe_html!(md) do
-    md
-    |> Earmark.as_html!()
-    |> HtmlSanitizeEx.basic_html()
-    |> HTML.raw()
+    {:safe, txt} =
+      md
+      |> Earmark.as_html!(gfm_tables: true)
+      |> HtmlSanitizeEx.basic_html()
+      |> HTML.raw()
+
+    {:safe, String.replace(txt, "<table>", ~s(<table class="table">), global: true)}
   end
 end
