@@ -118,4 +118,25 @@ defmodule TransportWeb.EditDatasetLiveTest do
     assert render(view) =~ "1234"
     assert render(view) =~ "Ce jeu de données est déjà référencé"
   end
+
+  test "dataset form, show legal owners saved in database", %{conn: conn} do
+    conn = conn |> setup_admin_in_session()
+
+    dataset = insert(:dataset, datagouv_id: "1234", legal_owner_company_siren: siren = 123456789, legal_owners_aom: [insert(:aom, nom: aom_name = "Bordeaux Métropole")], legal_owners_region: [insert(:region, nom: region_name = "jolie région")])
+
+    {:ok, view, _html} =
+      live_isolated(conn, TransportWeb.EditDatasetLive,
+        session: %{
+          "dataset" => dataset,
+          "dataset_types" => [],
+          "regions" => [],
+          "form_url" => "url_used_to_post_result"
+        }
+      )
+
+    assert render(view) =~ "Représentant légal"
+    assert render(view) =~ aom_name
+    assert render(view) =~ region_name
+    assert render(view) =~ siren |> Integer.to_string()
+  end
 end
