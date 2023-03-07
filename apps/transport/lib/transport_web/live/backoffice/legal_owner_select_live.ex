@@ -57,13 +57,13 @@ defmodule TransportWeb.LegalOwnerSelectLive do
     new_owner = Enum.find(socket.assigns.owners_list, fn owner -> owner_display(owner) == value end)
     legal_owners = (socket.assigns.owners ++ [new_owner]) |> Enum.uniq()
 
-    if not is_nil(new_owner) do
+    if is_nil(new_owner) do
+      {:noreply, socket}
+    else
       # new owners list is sent to the parent liveview form
       # because this is a LiveComponent, the process of the parent is the same.
       send(self(), {:updated_legal_owner, legal_owners})
       {:noreply, socket |> clear_input()}
-    else
-      {:noreply, socket}
     end
   end
 

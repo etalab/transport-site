@@ -243,13 +243,13 @@ defmodule TransportWeb.EditDatasetLive do
       |> assign(:form_url, form_url)
       |> assign(:dataset_organization, dataset_organization)
       |> assign(:organization_types, organization_types())
-      |> assign(:legal_owners, get_legal_owners(dataset.id))
+      |> assign(:legal_owners, get_legal_owners(dataset))
       |> assign(:trigger_submit, false)
 
     {:ok, socket}
   end
 
-  def get_legal_owners(dataset_id) do
+  def get_legal_owners(%Dataset{id: dataset_id}) do
     # current legal owners, to initiate the state of the legal_owner_select_live component
     %{legal_owners_aom: legal_owners_aom, legal_owners_region: legal_owners_region} =
       DB.Dataset |> preload([:legal_owners_aom, :legal_owners_region]) |> DB.Repo.get(dataset_id)
@@ -261,6 +261,8 @@ defmodule TransportWeb.EditDatasetLive do
 
     legal_owners_aom ++ legal_owners_region
   end
+
+  def get_legal_owners(_), do: []
 
   def organization_types,
     do: [

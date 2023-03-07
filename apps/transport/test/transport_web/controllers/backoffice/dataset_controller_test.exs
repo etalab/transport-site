@@ -141,7 +141,7 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
     assert regions |> Enum.map(& &1.id) |> Enum.sort() == [region_0.id, region_1.id]
   end
 
-  defp set_expectations() do
+  defp set_expectations do
     Transport.HTTPoison.Mock
     |> expect(:request, fn :get, "https://demo.data.gouv.fr/api/1/datasets/slug/", _, _, _ ->
       {:ok, %HTTPoison.Response{body: ~s({"id": "datagouv_id"}), status_code: 200}}

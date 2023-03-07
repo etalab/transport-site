@@ -288,7 +288,7 @@ msgid "Resource historization"
 msgstr "Historisation des ressources"
 
 #, elixir-autogen, elixir-format
-msgid "Legal owner"
+msgid "Legal owners"
 msgstr "Représentants légaux"
 
 #, elixir-autogen, elixir-format
