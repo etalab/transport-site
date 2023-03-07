@@ -3,11 +3,16 @@ defmodule TransportWeb.Backoffice.NotificationSubscriptionController do
   import Ecto.Query
   @target_html_anchor "#notification_subscriptions"
 
+  @doc """
+  Creates a notification subscription:
+  - for reasons related to a specific dataset
+  - OR for reasons that are not related to datasets.
+  """
   def create(
         %Plug.Conn{} = conn,
         %{"contact_id" => contact_id, "dataset_id" => dataset_id, "redirect_location" => _} = params
       ) do
-    existing_reasons = existing_reasons(params)
+    existing_reasons = reasons_for_contact_and_dataset(params)
 
     params
     |> picked_reasons()
@@ -23,7 +28,7 @@ defmodule TransportWeb.Backoffice.NotificationSubscriptionController do
   end
 
   def create(%Plug.Conn{} = conn, %{"contact_id" => contact_id, "redirect_location" => "contact"} = params) do
-    possible_reasons = DB.NotificationSubscription.other_reasons()
+    possible_reasons = DB.NotificationSubscription.platform_wide_reasons()
     picked_reasons = params |> picked_reasons()
 
     DB.NotificationSubscription.base_query()
@@ -33,7 +38,7 @@ defmodule TransportWeb.Backoffice.NotificationSubscriptionController do
     )
     |> DB.Repo.delete_all()
 
-    existing_reasons = existing_reasons(params)
+    existing_reasons = platform_wide_reasons_for_contact(params)
 
     picked_reasons
     |> Enum.reject(&(&1 in existing_reasons))
@@ -74,13 +79,13 @@ defmodule TransportWeb.Backoffice.NotificationSubscriptionController do
     params |> Map.filter(fn {k, v} -> k in possible_reasons and v == "true" end) |> Map.keys()
   end
 
-  defp existing_reasons(%{"contact_id" => contact_id, "dataset_id" => dataset_id}) do
+  defp reasons_for_contact_and_dataset(%{"contact_id" => contact_id, "dataset_id" => dataset_id}) do
     DB.NotificationSubscription.base_query()
     |> where([notification_subscription: ns], ns.dataset_id == ^dataset_id and ns.contact_id == ^contact_id)
     |> existing_reasons()
   end
 
-  defp existing_reasons(%{"contact_id" => contact_id}) do
+  defp platform_wide_reasons_for_contact(%{"contact_id" => contact_id}) do
     DB.NotificationSubscription.base_query()
     |> where([notification_subscription: ns], is_nil(ns.dataset_id) and ns.contact_id == ^contact_id)
     |> existing_reasons()
