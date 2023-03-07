@@ -76,7 +76,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
   end
 
   defp transform_legal_owners_region_to_list(form_params) do
-    regions = for {"legal_owners_region" <> _, region_id} <- form_params, do: region_id  |> String.to_integer()
+    regions = for {"legal_owners_region" <> _, region_id} <- form_params, do: region_id |> String.to_integer()
     Map.put(form_params, "legal_owners_region", regions)
   end
 

@@ -6,15 +6,14 @@ defmodule TransportWeb.LegalOwnerSelectLive do
   def render(assigns) do
     ~H"""
     <div class="pt-24">
-    <label>
-      Une/des AOM locale(s) ou régionale(s)
-      <%= InputHelpers.text_input(@form, :tag_input,
-        placeholder: "exemple: CC du Val de Morteau",
-        list: "owner_suggestions",
-        phx_keydown: "add_tag",
-        phx_target: @myself,
-        id: "owner_input"
-      ) %>
+      <label>
+        Une/des AOM locale(s) ou régionale(s) <%= InputHelpers.text_input(@form, :tag_input,
+          placeholder: "exemple: CC du Val de Morteau",
+          list: "owner_suggestions",
+          phx_keydown: "add_tag",
+          phx_target: @myself,
+          id: "owner_input"
+        ) %>
       </label>
       <datalist id="owner_suggestions" phx-keydown="add_tag">
         <%= for owner_suggestion <- @owners_list do %>
@@ -25,7 +24,13 @@ defmodule TransportWeb.LegalOwnerSelectLive do
         <%= for {owner, index} <- Enum.with_index(@owners) do %>
           <span class={["label", "custom-tag"] ++ [color_class(owner)]}>
             <%= get_owner_label(owner, @owners_list) %>
-            <span class="delete-tag" phx-click="remove_tag" phx-value-owner-id={owner.id} phx-value-owner-type={owner.type} phx-target={@myself}>
+            <span
+              class="delete-tag"
+              phx-click="remove_tag"
+              phx-value-owner-id={owner.id}
+              phx-value-owner-type={owner.type}
+              phx-target={@myself}
+            >
             </span>
           </span>
           <% {field_name, field_value} = get_field_info(owner, index) %>
@@ -67,7 +72,10 @@ defmodule TransportWeb.LegalOwnerSelectLive do
   end
 
   def handle_event("remove_tag", %{"owner-id" => owner_id, "owner-type" => owner_type}, socket) do
-    owners = socket.assigns.owners |> Enum.reject(fn owner -> owner.id == String.to_integer(owner_id) and owner.type == owner_type end)
+    owners =
+      socket.assigns.owners
+      |> Enum.reject(fn owner -> owner.id == String.to_integer(owner_id) and owner.type == owner_type end)
+
     send(self(), {:updated_legal_owner, owners})
 
     {:noreply, socket}

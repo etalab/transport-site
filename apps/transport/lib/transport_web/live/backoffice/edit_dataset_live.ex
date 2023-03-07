@@ -112,23 +112,23 @@ defmodule TransportWeb.EditDatasetLive do
         <div class="panel-explanation">
           <%= dgettext("backoffice", "Legal owner") %>
         </div>
-      <.live_component module={TransportWeb.LegalOwnerSelectLive} id="owners_selection" form={f} owners={@legal_owners} />
-      <div class="pt-12"><%= dgettext("backoffice", "or") %></div>
-      <div class="pt-12">
-      <label>
-        <%= dgettext("backoffice", "code SIREN d'une entreprise") %>
-        <%= InputHelpers.text_input(f, :legal_owner_company_siren,
-            placeholder: "exemple : 821611431",
-            pattern: "\d{9,9}",
-            value:
-              if not is_nil(@dataset) do
-                @dataset.legal_owner_company_siren
-              else
-                ""
-              end
-          ) %>
-        </label>
-      </div>
+        <.live_component module={TransportWeb.LegalOwnerSelectLive} id="owners_selection" form={f} owners={@legal_owners} />
+        <div class="pt-12"><%= dgettext("backoffice", "or") %></div>
+        <div class="pt-12">
+          <label>
+            <%= dgettext("backoffice", "code SIREN d'une entreprise") %>
+            <%= InputHelpers.text_input(f, :legal_owner_company_siren,
+              placeholder: "exemple : 821611431",
+              pattern: "\d{9,9}",
+              value:
+                if not is_nil(@dataset) do
+                  @dataset.legal_owner_company_siren
+                else
+                  ""
+                end
+            ) %>
+          </label>
+        </div>
       </div>
 
       <div class="panel mt-48">
@@ -251,9 +251,14 @@ defmodule TransportWeb.EditDatasetLive do
 
   def get_legal_owners(dataset_id) do
     # current legal owner, to initiate the state of the legal_owner_select_live component
-    %{legal_owners_aom: legal_owners_aom, legal_owners_region: legal_owners_region} = DB.Dataset |> preload([:legal_owners_aom, :legal_owners_region]) |> DB.Repo.get(dataset_id)
+    %{legal_owners_aom: legal_owners_aom, legal_owners_region: legal_owners_region} =
+      DB.Dataset |> preload([:legal_owners_aom, :legal_owners_region]) |> DB.Repo.get(dataset_id)
+
     legal_owners_aom = legal_owners_aom |> Enum.map(fn aom -> %{id: aom.id, type: "aom", label: aom.nom} end)
-    legal_owners_region = legal_owners_region |> Enum.map(fn region -> %{id: region.id, type: "region", label: region.nom} end)
+
+    legal_owners_region =
+      legal_owners_region |> Enum.map(fn region -> %{id: region.id, type: "region", label: region.nom} end)
+
     legal_owners_aom ++ legal_owners_region
   end
 
