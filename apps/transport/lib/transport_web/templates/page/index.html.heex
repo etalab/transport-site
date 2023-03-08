@@ -97,7 +97,7 @@
       </div>
     </div>
 
-    <div class="upcoming">
+    <div :if={@tiles |> upcoming_tiles() |> length() > 0} class="upcoming">
       <h2><%= dgettext("page-index", "Coming soon") %></h2>
       <div class="grid">
         <%= for tile <- upcoming_tiles(@tiles) do %>
