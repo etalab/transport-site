@@ -296,5 +296,5 @@ msgid "or"
 msgstr ""
 
 #, elixir-autogen, elixir-format, fuzzy
-msgid "company SIREN code"
+msgid "Company SIREN code"
 msgstr ""

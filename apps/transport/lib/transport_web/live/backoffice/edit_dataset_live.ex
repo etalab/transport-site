@@ -116,7 +116,7 @@ defmodule TransportWeb.EditDatasetLive do
         <div class="pt-12"><%= dgettext("backoffice", "or") %></div>
         <div class="pt-12">
           <label>
-            <%= dgettext("backoffice", "company SIREN code") %>
+            <%= dgettext("backoffice", "Company SIREN code") %>
             <%= InputHelpers.text_input(f, :legal_owner_company_siren,
               placeholder: "exemple : 821611431",
               pattern: "\\d{9,9}",
