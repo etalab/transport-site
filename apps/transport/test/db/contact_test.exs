@@ -11,7 +11,7 @@ defmodule DB.ContactTest do
       first_name: "john ",
       last_name: " doe",
       email: email = "john@example.fr",
-      job_title: "boss",
+      job_title: "Chef SIG",
       organization: "Big Corp Inc",
       phone_number: "06 92 22 88 03"
     }
@@ -20,7 +20,7 @@ defmodule DB.ContactTest do
     assert %DB.Contact{
              email: ^email,
              first_name: "John",
-             job_title: "Boss",
+             job_title: "Chef SIG",
              last_name: "Doe",
              organization: "Big Corp Inc",
              phone_number: "+33692228803"
