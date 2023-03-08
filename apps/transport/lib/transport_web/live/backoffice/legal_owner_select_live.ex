@@ -12,7 +12,7 @@ defmodule TransportWeb.LegalOwnerSelectLive do
           list: "owner_suggestions",
           phx_keydown: "add_tag",
           phx_target: @myself,
-          id: "owner_input"
+          id: "js-owner-input"
         ) %>
       </label>
       <datalist id="owner_suggestions" phx-keydown="add_tag">

@@ -33,7 +33,7 @@ window.addEventListener('phx:backoffice-form-reset', () => {
 })
 
 window.addEventListener('phx:backoffice-form-owner-reset', () => {
-    document.getElementById('owner_input').value = ''
+    document.getElementById('js-owner-input').value = ''
 })
 
 const csrfToken = document.querySelector('meta[name=\'csrf\']').getAttribute('content')
