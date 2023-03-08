@@ -5,7 +5,6 @@ defmodule TransportWeb.EditDatasetLive do
   alias DB.Dataset
   import TransportWeb.Router.Helpers
   alias TransportWeb.InputHelpers
-  import Ecto.Query
 
   def render(assigns) do
     ~H"""
@@ -249,10 +248,9 @@ defmodule TransportWeb.EditDatasetLive do
     {:ok, socket}
   end
 
-  def get_legal_owners(%Dataset{id: dataset_id}) do
+  def get_legal_owners(%Dataset{} = dataset) do
     # current legal owners, to initiate the state of the legal_owner_select_live component
-    %{legal_owners_aom: legal_owners_aom, legal_owners_region: legal_owners_region} =
-      DB.Dataset |> preload([:legal_owners_aom, :legal_owners_region]) |> DB.Repo.get(dataset_id)
+    %{legal_owners_aom: legal_owners_aom, legal_owners_region: legal_owners_region} = dataset
 
     legal_owners_aom = legal_owners_aom |> Enum.map(fn aom -> %{id: aom.id, type: "aom", label: aom.nom} end)
 

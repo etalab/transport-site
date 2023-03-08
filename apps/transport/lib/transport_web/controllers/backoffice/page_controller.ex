@@ -147,7 +147,7 @@ defmodule TransportWeb.Backoffice.PageController do
   def edit(%Plug.Conn{} = conn, %{"id" => dataset_id}) do
     conn =
       Dataset
-      |> preload([:aom, :notification_subscriptions, [notification_subscriptions: :contact]])
+      |> preload([:aom, :notification_subscriptions, [notification_subscriptions: :contact], :legal_owners_aom, :legal_owners_region])
       |> Repo.get(dataset_id)
       |> case do
         nil -> put_flash(conn, :error, dgettext("backoffice", "Unable to find dataset"))
