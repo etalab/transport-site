@@ -23,7 +23,7 @@ defmodule TransportWeb.LegalOwnerSelectLive do
       <div class="pt-6">
         <%= for {owner, index} <- Enum.with_index(@owners) do %>
           <span class={["label", "custom-tag"] ++ [color_class(owner)]}>
-            <%= get_owner_label(owner, @owners_list) %>
+            <%= owner_label(owner, @owners_list) %>
             <span
               class="delete-tag"
               phx-click="remove_tag"
@@ -33,7 +33,7 @@ defmodule TransportWeb.LegalOwnerSelectLive do
             >
             </span>
           </span>
-          <% {field_name, field_value} = get_field_info(owner, index) %>
+          <% {field_name, field_value} = field_info(owner, index) %>
           <%= Phoenix.HTML.Form.hidden_input(@form, field_name, value: field_value) %>
         <% end %>
       </div>
@@ -86,11 +86,11 @@ defmodule TransportWeb.LegalOwnerSelectLive do
     push_event(socket, "backoffice-form-owner-reset", %{})
   end
 
-  def get_field_info(owner, index) do
+  def field_info(owner, index) do
     {"legal_owners_#{owner.type}[#{index}]", owner.id}
   end
 
-  def get_owner_label(%{type: type, id: id}, owners_list) do
+  def owner_label(%{type: type, id: id}, owners_list) do
     owner = owners_list |> Enum.find(fn owner -> owner.type == type and owner.id == id end)
     "#{type} : #{owner.label}"
   end
