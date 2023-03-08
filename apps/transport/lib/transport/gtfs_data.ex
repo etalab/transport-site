@@ -17,8 +17,13 @@ defmodule Transport.GTFSData do
   def build_detailed(north, south, east, west) do
     stops =
       bounding_box_points(north, south, east, west)
-      |> select([gs], %{
+      |> join(:left, [gs, di], di in DB.DataImport, on: gs.data_import_id == di.id)
+      |> join(:left, [gs, di, rh], rh in DB.ResourceHistory, on: di.resource_history_id == rh.id)
+      |> join(:left, [gs, di, rh, r], r in DB.Resource, on: rh.resource_id == r.id)
+      |> join(:left, [gs, di, rh, r, d], d in DB.Dataset, on: r.dataset_id == d.id)
+      |> select([gs, di, rh, r, d], %{
         d_id: gs.data_import_id,
+        d_title: d.custom_title,
         stop_id: gs.stop_id,
         stop_name: gs.stop_name,
         stop_lat: gs.stop_lat,
@@ -40,6 +45,7 @@ defmodule Transport.GTFSData do
             },
             properties: %{
               d_id: Map.fetch!(s, :d_id),
+              d_title: Map.fetch!(s, :d_title),
               stop_id: Map.fetch!(s, :stop_id),
               stop_location_type: Map.fetch!(s, :stop_location_type)
             }

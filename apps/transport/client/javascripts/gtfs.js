@@ -110,7 +110,7 @@ map.on('moveend', function (event) {
                 layer = geoJsonLayer
                 tooltip = function (d) {
                     if (d.picked) {
-                        return { html: `<pre><code>${JSON.stringify(d.object, null, 4)}</code></pre>` }
+                        return { html: `${d.object['properties']['d_title']} - ${d.object['properties']['stop_id']} <pre><code>${JSON.stringify(d.object, null, 4)}</code></pre>` }
                     }
                 }
             }
