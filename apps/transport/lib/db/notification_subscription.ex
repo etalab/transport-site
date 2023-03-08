@@ -6,11 +6,13 @@ defmodule DB.NotificationSubscription do
   use TypedEctoSchema
   import Ecto.{Changeset, Query}
 
+  # These notification reasons are required to have a `dataset_id` set
   @reasons_related_to_datasets [:expiration, :dataset_with_error, :resource_unavailable]
-  @other_reasons [:new_dataset, :dataset_now_licence_ouverte]
+  # These notification reasons are *not* linked to a specific dataset, `dataset_id` should be nil
+  @platform_wide_reasons [:new_dataset, :dataset_now_licence_ouverte]
 
   typed_schema "notification_subscription" do
-    field(:reason, Ecto.Enum, values: @reasons_related_to_datasets ++ @other_reasons)
+    field(:reason, Ecto.Enum, values: @reasons_related_to_datasets ++ @platform_wide_reasons)
     field(:source, Ecto.Enum, values: [:admin, :user])
 
     belongs_to(:contact, DB.Contact)
@@ -44,6 +46,12 @@ defmodule DB.NotificationSubscription do
 
   @spec reasons_related_to_datasets :: [atom()]
   def reasons_related_to_datasets, do: @reasons_related_to_datasets
+
+  @spec platform_wide_reasons :: [atom()]
+  def platform_wide_reasons, do: @platform_wide_reasons
+
+  @spec possible_reasons :: [atom()]
+  def possible_reasons, do: reasons_related_to_datasets() ++ platform_wide_reasons()
 
   @spec subscriptions_for_reason(atom()) :: [__MODULE__.t()]
   def subscriptions_for_reason(reason) do
