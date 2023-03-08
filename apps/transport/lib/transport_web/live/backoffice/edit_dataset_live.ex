@@ -118,7 +118,7 @@ defmodule TransportWeb.EditDatasetLive do
           <label>
             <%= dgettext("backoffice", "Company SIREN code") %>
             <%= InputHelpers.text_input(f, :legal_owner_company_siren,
-              placeholder: "exemple : 821611431",
+              placeholder: "821611431",
               pattern: "\\d{9,9}",
               value:
                 if not is_nil(@dataset) do

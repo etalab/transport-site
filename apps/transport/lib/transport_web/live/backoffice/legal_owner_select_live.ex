@@ -8,7 +8,7 @@ defmodule TransportWeb.LegalOwnerSelectLive do
     <div class="pt-24">
       <label>
         Une/des AOM locale(s) ou régionale(s) <%= InputHelpers.text_input(@form, :tag_input,
-          placeholder: "exemple: CC du Val de Morteau",
+          placeholder: "CC du Val de Morteau",
           list: "owner_suggestions",
           phx_keydown: "add_tag",
           phx_target: @myself,
