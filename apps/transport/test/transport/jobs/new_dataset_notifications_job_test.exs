@@ -22,12 +22,14 @@ defmodule Transport.Test.Transport.Jobs.NewDatasetNotificationsJobTest do
   end
 
   test "perform" do
-    insert(:dataset, inserted_at: hours_ago(23), is_active: true)
+    %DB.Dataset{id: dataset_id} = insert(:dataset, inserted_at: hours_ago(23), is_active: true)
+    %DB.Contact{id: contact_id, email: email} = insert_contact()
+    insert(:notification_subscription, %{reason: :new_dataset, source: :admin, contact_id: contact_id})
 
     Transport.EmailSender.Mock
     |> expect(:send_mail, fn "transport.data.gouv.fr",
                              "contact@transport.beta.gouv.fr",
-                             "foo@example.com" = _to,
+                             ^email = _to,
                              "contact@transport.beta.gouv.fr",
                              "Nouveaux jeux de données référencés" = _subject,
                              plain_text_body,
@@ -36,19 +38,11 @@ defmodule Transport.Test.Transport.Jobs.NewDatasetNotificationsJobTest do
       :ok
     end)
 
-    Transport.Notifications.FetcherMock
-    |> expect(:fetch_config!, fn ->
-      [
-        %Transport.Notifications.Item{
-          dataset_slug: nil,
-          emails: ["foo@example.com"],
-          reason: :new_dataset,
-          extra_delays: []
-        }
-      ]
-    end)
-
     assert :ok == perform_job(NewDatasetNotificationsJob, %{}, inserted_at: DateTime.utc_now())
+
+    # Logs have been saved
+    assert [%DB.Notification{email: ^email, reason: :new_dataset, dataset_id: ^dataset_id}] =
+             DB.Notification |> DB.Repo.all()
   end
 
   defp hours_ago(hours) when hours > 0 do

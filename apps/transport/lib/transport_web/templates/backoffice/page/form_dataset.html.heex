@@ -1,4 +1,3 @@
-<% expiration_configuration_edit_url = "https://github.com/etalab/transport-notifications/edit/master/config.yml" %>
 <div class="pt-48">
   <%= live_render(@conn, TransportWeb.EditDatasetLive,
     session: %{"dataset" => @dataset, "dataset_types" => @dataset_types, "regions" => @regions}
@@ -68,43 +67,6 @@
       <% end %>
     </div>
 
-    <div class="dashboard-description mt-48">
-      <h3><%= dgettext("backoffice", "Expiration notifications") %></h3>
-      <%= if Enum.empty?(@expiration_emails) do %>
-        <p class="notification">
-          ❌ <%= raw(
-            dgettext(
-              "backoffice",
-              ~s(Expiration notification are not sent automatically for this dataset. You can edit <a href="%{link}" target="_blank">the configuration</a>.),
-              link: expiration_configuration_edit_url
-            )
-          ) %>
-        </p>
-      <% else %>
-        <p class="notification">
-          ✅ <%= raw(
-            dgettext(
-              "backoffice",
-              ~s(Expiration notifications are sent automatically for this dataset. You can edit <a href="%{link}" target="_blank">the configuration</a>.),
-              link: expiration_configuration_edit_url
-            )
-          ) %>
-        </p>
-        <p>
-          <%= dgettext("backoffice", "Notifications are sent to the following email addresses:") %>
-        </p>
-        <table class="table">
-          <tr>
-            <th><%= dgettext("backoffice", "email address") %></th>
-          </tr>
-          <%= for email <- @expiration_emails do %>
-            <tr>
-              <td><%= email %></td>
-            </tr>
-          <% end %>
-        </table>
-      <% end %>
-    </div>
     <div id="notification_subscriptions" class="dashboard-description mt-48">
       <h3>Abonnements aux notifications</h3>
 

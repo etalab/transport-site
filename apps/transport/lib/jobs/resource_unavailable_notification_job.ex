@@ -84,8 +84,9 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
   end
 
   defp emails_list(%DB.Dataset{} = dataset) do
-    Transport.Notifications.config()
-    |> Transport.Notifications.emails_for_reason(@notification_reason, dataset)
+    @notification_reason
+    |> DB.NotificationSubscription.subscriptions_for_reason(dataset)
+    |> DB.NotificationSubscription.subscriptions_to_emails()
     |> MapSet.new()
   end
 

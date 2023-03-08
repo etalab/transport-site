@@ -1,6 +1,5 @@
 defmodule TransportWeb.Backoffice.PageControllerTest do
   use TransportWeb.ConnCase, async: true
-  import Plug.Test, only: [init_test_session: 2]
   alias TransportWeb.Backoffice.PageController
   alias TransportWeb.Router.Helpers, as: Routes
   import DB.Factory
@@ -60,9 +59,7 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
 
     conn1 =
       conn
-      |> init_test_session(%{
-        current_user: %{"organizations" => [%{"slug" => "blurp"}, %{"slug" => "equipe-transport-data-gouv-fr"}]}
-      })
+      |> setup_admin_in_session()
       |> get(Routes.backoffice_page_path(conn, :index))
 
     assert html_response(conn1, 200) =~ "un dataset outdated"
@@ -70,9 +67,7 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
 
     conn2 =
       conn
-      |> init_test_session(%{
-        current_user: %{"organizations" => [%{"slug" => "blurp"}, %{"slug" => "equipe-transport-data-gouv-fr"}]}
-      })
+      |> setup_admin_in_session()
       |> get(
         Routes.backoffice_page_path(conn, :index, %{"filter" => "outdated", "dir" => "asc", "order_by" => "end_date"})
       )
@@ -87,30 +82,13 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
     insert_notification(%{dataset: dataset, email: "foo@example.fr", reason: :expiration})
     insert_notification(%{dataset: dataset, email: "bar@example.fr", reason: :expiration})
 
-    Transport.Notifications.FetcherMock
-    |> expect(:fetch_config!, fn ->
-      [
-        %Transport.Notifications.Item{
-          reason: :expiration,
-          dataset_slug: dataset.slug,
-          emails: ["alert@example.fr"],
-          extra_delays: []
-        }
-      ]
-    end)
-
     response =
       conn
-      |> init_test_session(%{
-        current_user: %{
-          "organizations" => [%{"slug" => "equipe-transport-data-gouv-fr"}]
-        }
-      })
+      |> setup_admin_in_session()
       |> get(Routes.backoffice_page_path(conn, :edit, dataset.id))
       |> html_response(200)
 
     assert response =~ "bar@example.fr, foo@example.fr"
-    assert response =~ "alert@example.fr"
   end
 
   test "notifications_sent sort order and grouping works" do

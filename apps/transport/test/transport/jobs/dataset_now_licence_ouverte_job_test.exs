@@ -13,11 +13,13 @@ defmodule Transport.Test.Transport.Jobs.DatasetNowLicenceOuverteJobTest do
 
   test "perform" do
     %{id: dataset_id} = insert(:dataset, is_active: true)
+    %DB.Contact{id: contact_id, email: email} = insert_contact()
+    insert(:notification_subscription, %{reason: :dataset_now_licence_ouverte, source: :admin, contact_id: contact_id})
 
     Transport.EmailSender.Mock
     |> expect(:send_mail, fn "transport.data.gouv.fr",
                              "contact@transport.beta.gouv.fr",
-                             "foo@example.com" = _to,
+                             ^email,
                              "contact@transport.beta.gouv.fr",
                              "Jeu de données maintenant en licence ouverte" = _subject,
                              plain_text_body,
@@ -26,21 +28,10 @@ defmodule Transport.Test.Transport.Jobs.DatasetNowLicenceOuverteJobTest do
       :ok
     end)
 
-    Transport.Notifications.FetcherMock
-    |> expect(:fetch_config!, fn ->
-      [
-        %Transport.Notifications.Item{
-          dataset_slug: nil,
-          emails: ["foo@example.com"],
-          reason: :dataset_now_licence_ouverte,
-          extra_delays: []
-        }
-      ]
-    end)
-
     assert :ok == perform_job(DatasetNowLicenceOuverteJob, %{"dataset_id" => dataset_id})
 
-    assert [%DB.Notification{email: "foo@example.com", reason: :dataset_now_licence_ouverte, dataset_id: ^dataset_id}] =
+    # Logs have been saved
+    assert [%DB.Notification{email: ^email, reason: :dataset_now_licence_ouverte, dataset_id: ^dataset_id}] =
              DB.Notification |> DB.Repo.all()
   end
 end
