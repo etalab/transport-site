@@ -17,11 +17,14 @@ elif test "$#" -eq 5; then
     export PGPASSWORD=$4
     BACKUP_PATH=$5
 else
-    echo "Usage : Usage ./restore_db.sh <db_name> <host> <user_name> <password> <absolute_path_to_backup>"
+    echo "Usage: ./restore_db.sh <db_name> <host> <user_name> <password> <absolute_path_to_backup>"
     exit 1
 fi
 
 pg_restore -h $HOST -U $USER_NAME -d $DB_NAME --format=c --no-owner --clean --no-acl $BACKUP_PATH
+
+echo "Truncating `contact` table"
+psql -h $HOST -U $USER_NAME -d $DB_NAME -c 'TRUNCATE TABLE contact CASCADE'
 
 # https://stackoverflow.com/a/1885534
 read -p "Do you want to remove already enqueued Oban jobs? " -n 1 -r
