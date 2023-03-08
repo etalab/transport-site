@@ -58,7 +58,7 @@ map.on('moveend', function (event) {
             let layer = null
             let tooltip = null
             if (jsonResponse.type === 'clustered') {
-                const data = jsonResponse.data.map(x => { return { "lat": x[0], "lon": x[1], "count": x[2] } });
+                const data = jsonResponse.data.map(x => { return { lat: x[0], lon: x[1], count: x[2] } })
                 const maxCount = Math.max(...data.map(a => a.count))
                 const scatterplotLayer = new ScatterplotLayer({
                     id: 'scatterplot-layer',
