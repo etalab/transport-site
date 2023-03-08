@@ -57,11 +57,11 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
       assert redirected_to(conn_response, 302) == backoffice_page_path(conn, :edit, dataset_id) <> @target_html_anchor
       assert get_flash(conn_response, :info) =~ "L'abonnement a été créé"
 
-      assert MapSet.new([:dataset_with_error, :expiration, :resource_unavailable]) ==
+      assert Enum.sort([:dataset_with_error, :expiration, :resource_unavailable]) ==
                DB.NotificationSubscription.base_query()
                |> select([notification_subscription: ns], ns.reason)
                |> DB.Repo.all()
-               |> MapSet.new()
+               |> Enum.sort()
     end
 
     test "for reasons not related to datasets", %{conn: conn} do
