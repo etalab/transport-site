@@ -62,7 +62,7 @@ defmodule DB.Dataset do
     has_many(:logs_import, LogsImport, on_replace: :delete, on_delete: :delete_all)
     has_many(:notification_subscriptions, NotificationSubscription, on_delete: :delete_all)
 
-    # Depraction Notice : datasets won't be linked to region and aom like that in the future
+    # Depracation Notice: datasets won't be linked to region and aom like that in the future
     # ⬇️⬇️⬇️
 
     # A Dataset can be linked to *either*:
