@@ -150,7 +150,9 @@ defmodule TransportWeb.EditDatasetLiveTest do
     dataset =
       insert(:dataset,
         datagouv_id: "1234",
-        legal_owner_company_siren: siren = 123_456_789
+        legal_owner_company_siren: siren = 123_456_789,
+        legal_owners_aom: [],
+        legal_owners_region: []
       )
 
     {:ok, view, _html} =
