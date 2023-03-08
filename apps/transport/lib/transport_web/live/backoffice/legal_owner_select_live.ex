@@ -17,7 +17,7 @@ defmodule TransportWeb.LegalOwnerSelectLive do
       </label>
       <datalist id="owner_suggestions" phx-keydown="add_tag">
         <%= for owner_suggestion <- @owners_list do %>
-          <option value={owner_display(owner_suggestion)}><%= owner_display(owner_suggestion) %></option>
+          <option value={owner_label(owner_suggestion)}><%= owner_label(owner_suggestion) %></option>
         <% end %>
       </datalist>
       <div class="pt-6">
@@ -54,7 +54,7 @@ defmodule TransportWeb.LegalOwnerSelectLive do
   end
 
   def handle_event("add_tag", %{"key" => "Enter", "value" => value}, socket) do
-    new_owner = Enum.find(socket.assigns.owners_list, fn owner -> owner_display(owner) == value end)
+    new_owner = Enum.find(socket.assigns.owners_list, fn owner -> owner_label(owner) == value end)
     legal_owners = (socket.assigns.owners ++ [new_owner]) |> Enum.uniq()
 
     if is_nil(new_owner) do
@@ -90,13 +90,17 @@ defmodule TransportWeb.LegalOwnerSelectLive do
     {"legal_owners_#{owner.type}[#{index}]", owner.id}
   end
 
+  def owner_label(%{label: label, type: type}) do
+    types_display = %{"aom" => "AOM", "region" => "Région"}
+    "#{types_display[type]} : #{label}"
+  end
+
   def owner_label(%{type: type, id: id}, owners_list) do
-    owner = owners_list |> Enum.find(fn owner -> owner.type == type and owner.id == id end)
-    "#{type} : #{owner.label}"
+    owners_list
+    |> Enum.find(fn owner -> owner.type == type and owner.id == id end)
+    |> owner_label()
   end
 
   def color_class(%{type: "aom"}), do: "green"
   def color_class(%{type: "region"}), do: "blue"
-
-  def owner_display(%{label: label, type: type}), do: "#{type} : #{label}"
 end
