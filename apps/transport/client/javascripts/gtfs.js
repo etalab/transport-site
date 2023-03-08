@@ -1,12 +1,8 @@
-import { Socket } from 'phoenix'
 import Leaflet from 'leaflet'
 import { LeafletLayer } from 'deck.gl-leaflet'
 import { ScatterplotLayer, GeoJsonLayer } from '@deck.gl/layers'
 
 import { MapView } from '@deck.gl/core'
-
-const socket = new Socket('/socket', { params: { token: window.userToken } })
-socket.connect()
 
 const Mapbox = {
     url: 'https://api.mapbox.com/styles/v1/istopopoki/ckg98kpoc010h19qusi9kxcct/tiles/256/{z}/{x}/{y}?access_token={accessToken}',
@@ -124,5 +120,3 @@ map.on('moveend', function (event) {
 })
 
 map.fitBounds(metropolitanFranceBounds)
-
-export default socket
