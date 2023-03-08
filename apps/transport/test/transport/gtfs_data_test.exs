@@ -20,7 +20,7 @@ defmodule Transport.GTFSDataTest do
       stop_id: "LOC:001"
     )
 
-    assert Transport.GTFSData.build_detailed(3.333333, 2.333333, 48.866667, 48.266667) == %{
+    assert Transport.GTFSData.build_detailed({3.333333, 2.333333, 48.866667, 48.266667}) == %{
              features: [
                %{
                  geometry: %{coordinates: [48.5, 2.5], type: "Point"},
