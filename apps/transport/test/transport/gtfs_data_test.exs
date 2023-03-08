@@ -54,6 +54,7 @@ defmodule Transport.GTFSDataTest do
       stop_id: "LOC:002"
     )
 
+    # format is expected exactly as is, without keys (to reduce load), on the javascript side
     assert Transport.GTFSData.build_clusters({3.333333, 2.333333, 48.866667, 48.266667}, {0.5, 0.5}) == [[2.5, 48.5, 2]]
   end
 end

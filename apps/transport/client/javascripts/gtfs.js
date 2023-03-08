@@ -58,8 +58,8 @@ map.on('moveend', function (event) {
             let layer = null
             let tooltip = null
             if (jsonResponse.type === 'clustered') {
-                const data = jsonResponse.data
-                const maxCount = Math.max(...data.map(a => a[2]))
+                const data = jsonResponse.data.map(x => { return { "lat": x[0], "lon": x[1], "count": x[2] } });
+                const maxCount = Math.max(...data.map(a => a.count))
                 const scatterplotLayer = new ScatterplotLayer({
                     id: 'scatterplot-layer',
                     data,
@@ -70,15 +70,15 @@ map.on('moveend', function (event) {
                     radiusUnits: 'pixels',
                     radiusScale: 1,
                     lineWidthMinPixels: 1,
-                    getPosition: d => [d[1], d[0]],
+                    getPosition: d => [d.lon, d.lat],
                     getRadius: d => 2,
-                    getFillColor: d => colorFunc(maxCount < 3 ? 0 : d[2] / maxCount),
-                    getLineColor: d => colorFunc(maxCount < 3 ? 0 : d[2] / maxCount)
+                    getFillColor: d => colorFunc(maxCount < 3 ? 0 : d.count / maxCount),
+                    getLineColor: d => colorFunc(maxCount < 3 ? 0 : d.count / maxCount)
                 })
                 layer = scatterplotLayer
                 tooltip = function (d) {
                     if (d.picked) {
-                        return `${d.object.at(2).toString()} stops`
+                        return `${d.object.count.toString()} stops`
                     } else {
                         return false
                     }
