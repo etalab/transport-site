@@ -40,18 +40,18 @@ defmodule TransportWeb.ExploreController do
     snap_x = abs((west - east) / (width_px / 5.0))
     snap_y = abs((north - south) / (height_px / 5.0))
 
-    count = Transport.GTFSData.count_points(north, south, east, west)
+    count = Transport.GTFSData.count_points({north, south, east, west})
 
     data =
       if count < @max_points do
         %{
           type: "detailed",
-          data: Transport.GTFSData.build_detailed(north, south, east, west)
+          data: Transport.GTFSData.build_detailed({north, south, east, west})
         }
       else
         %{
           type: "clustered",
-          data: Transport.GTFSData.build_clusters(north, south, east, west, snap_x, snap_y)
+          data: Transport.GTFSData.build_clusters({north, south, east, west}, {snap_x, snap_y})
         }
       end
 

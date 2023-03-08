@@ -5,8 +5,10 @@ defmodule Transport.GTFSData do
 
   import Ecto.Query
 
-  def bounding_box_points(north, south, east, west) do
-    from(gs in "gtfs_stops")
+  def bounding_box_points({north, south, east, west}) do
+    query = from(gs in "gtfs_stops")
+
+    query
     |> where(
       [gs],
       fragment("? between ? and ?", gs.stop_lon, ^west, ^east) and
@@ -14,9 +16,10 @@ defmodule Transport.GTFSData do
     )
   end
 
-  def build_detailed(north, south, east, west) do
+  def build_detailed({north, south, east, west}) do
     stops =
-      bounding_box_points(north, south, east, west)
+      {north, south, east, west}
+      |> bounding_box_points()
       |> join(:left, [gs, di], di in DB.DataImport, on: gs.data_import_id == di.id)
       |> join(:left, [gs, di, rh], rh in DB.ResourceHistory, on: di.resource_history_id == rh.id)
       |> join(:left, [gs, di, rh, r], r in DB.Resource, on: rh.resource_id == r.id)
@@ -54,12 +57,13 @@ defmodule Transport.GTFSData do
     }
   end
 
-  def count_points(north, south, east, west) do
-    bounding_box_points(north, south, east, west)
+  def count_points({north, south, east, west}) do
+    {north, south, east, west}
+    |> bounding_box_points()
     |> DB.Repo.aggregate(:count, :id)
   end
 
-  def build_clusters(north, south, east, west, snap_x, snap_y) do
+  def build_clusters({north, south, east, west}, {snap_x, snap_y}) do
     # NOTE: this query is not horribly slow but not super fast either. When the user
     # scrolls, this will stack up queries. It would be a good idea to cache the result for
     # some precomputed zoom levels when all the data imports are considered (no filtering).
