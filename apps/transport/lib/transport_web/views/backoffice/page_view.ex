@@ -65,6 +65,6 @@ defmodule TransportWeb.Backoffice.PageView do
   end
 
   def notification_subscription_contact(%DB.NotificationSubscription{contact: %DB.Contact{} = contact}) do
-    "#{contact.first_name} #{contact.last_name} — #{contact.job_title} (#{contact.organization})"
+    "#{DB.Contact.display_name(contact)} — #{contact.job_title} (#{contact.organization})"
   end
 end

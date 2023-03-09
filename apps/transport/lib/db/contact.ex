@@ -9,8 +9,12 @@ defmodule DB.Contact do
   @default_phone_number_region "FR"
 
   typed_schema "contact" do
+    # Use `first_name` and `last_name` for real humans
     field(:first_name, :string)
     field(:last_name, :string)
+    # Use `title` for mailing lists and similar
+    field(:title, :string)
+
     field(:organization, :string)
     field(:job_title, :string)
     field(:email, DB.Encrypted.Binary)
@@ -28,32 +32,75 @@ defmodule DB.Contact do
 
   def search(%{"q" => q}) do
     ilike = "%#{q}%"
-    base_query() |> where([contact: c], ilike(c.last_name, ^ilike) or c.organization == ^q)
+    base_query() |> where([contact: c], ilike(c.last_name, ^ilike) or ilike(c.title, ^ilike) or c.organization == ^q)
   end
 
   def search(%{}), do: base_query()
 
   def insert!(%{} = fields), do: %__MODULE__{} |> changeset(fields) |> DB.Repo.insert!()
 
+  @doc """
+  iex> display_name(%DB.Contact{first_name: "John", last_name: "Doe", title: nil})
+  "John Doe"
+  iex> display_name(%DB.Contact{first_name: nil, last_name: nil, title: "Service SIG"})
+  "Service SIG"
+  """
+  def display_name(%__MODULE__{first_name: first_name, last_name: last_name, title: title} = object) do
+    cond do
+      is_human?(object) -> "#{first_name} #{last_name}"
+      is_mailing_list?(object) -> title
+    end
+  end
+
+  @doc """
+  iex> is_human?(%DB.Contact{first_name: "John", last_name: "Doe", title: nil})
+  true
+  iex> is_human?(%DB.Contact{first_name: nil, last_name: nil, title: "Service SIG"})
+  false
+  """
+  def is_human?(%__MODULE__{title: title}), do: is_nil(title)
+
+  @doc """
+  iex> is_mailing_list?(%DB.Contact{first_name: "John", last_name: "Doe", title: nil})
+  false
+  iex> is_mailing_list?(%DB.Contact{first_name: nil, last_name: nil, title: "Service SIG"})
+  true
+  """
+  def is_mailing_list?(%__MODULE__{} = object), do: !is_human?(object)
+
   def changeset(struct, attrs \\ %{}) do
     struct
-    |> cast(attrs, [:first_name, :last_name, :organization, :job_title, :email, :phone_number])
+    |> cast(attrs, [:first_name, :last_name, :title, :organization, :job_title, :email, :phone_number])
     |> trim_fields([:first_name, :last_name, :organization, :job_title])
     |> capitalize_fields([:first_name, :last_name])
-    |> validate_required([:first_name, :last_name, :organization, :email])
+    |> validate_required([:organization, :email])
     |> validate_format(:email, ~r/@/)
+    |> validate_names_or_title()
     |> cast_phone_number()
     |> lowercase_email()
     |> put_hashed_fields()
     |> unique_constraint(:email_hash, error_key: :email, name: :contact_email_hash_index)
   end
 
+  defp validate_names_or_title(%Ecto.Changeset{} = changeset) do
+    case Enum.map(~w(first_name last_name title)a, &get_field(changeset, &1)) do
+      [nil, nil, nil] -> add_error(changeset, :first_name, "You need to fill first_name and last_name OR title")
+      [first_name, last_name, nil] when first_name != nil and last_name != nil -> changeset
+      [nil, nil, title] when title != nil -> changeset
+      _ -> add_error(changeset, :first_name, "You need to fill either first_name and last_name OR title")
+    end
+  end
+
   defp trim_fields(%Ecto.Changeset{} = changeset, fields) do
-    Enum.reduce(fields, changeset, fn field, changeset -> update_change(changeset, field, &String.trim/1) end)
+    fields
+    |> Enum.reject(&(get_field(changeset, &1) == nil))
+    |> Enum.reduce(changeset, fn field, changeset -> update_change(changeset, field, &String.trim/1) end)
   end
 
   defp capitalize_fields(%Ecto.Changeset{} = changeset, fields) do
-    Enum.reduce(fields, changeset, fn field, changeset -> update_change(changeset, field, &String.capitalize/1) end)
+    fields
+    |> Enum.reject(&(get_field(changeset, &1) == nil))
+    |> Enum.reduce(changeset, fn field, changeset -> update_change(changeset, field, &String.capitalize/1) end)
   end
 
   defp cast_phone_number(%Ecto.Changeset{} = changeset) do
