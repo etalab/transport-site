@@ -41,11 +41,29 @@ defmodule DB.Dataset do
     field(:archived_at, :utc_datetime_usec)
     field(:custom_tags, {:array, :string})
 
-    # When the dataset is linked to some cities
-    # we ask in the backoffice for a name to display
-    # (used in the long title of a dataset and to find the associated datasets)
-    field(:associated_territory_name, :string)
     timestamps(type: :utc_datetime_usec)
+
+    # When the dataset is linked to some cities
+    many_to_many(:communes, Commune, join_through: "dataset_communes", on_replace: :delete)
+
+    many_to_many(:legal_owners_aom, AOM,
+      join_through: "dataset_aom_legal_owner",
+      on_replace: :delete
+    )
+
+    many_to_many(:legal_owners_region, Region,
+      join_through: "dataset_region_legal_owner",
+      on_replace: :delete
+    )
+
+    field(:legal_owner_company_siren, :integer)
+
+    has_many(:resources, Resource, on_replace: :delete, on_delete: :delete_all)
+    has_many(:logs_import, LogsImport, on_replace: :delete, on_delete: :delete_all)
+    has_many(:notification_subscriptions, NotificationSubscription, on_delete: :delete_all)
+
+    # Deprecation notice: datasets won't be linked to region and aom like that in the future
+    # ⬇️⬇️⬇️
 
     # A Dataset can be linked to *either*:
     # - a Region (and there is a special Region 'national' that represents the national datasets);
@@ -53,13 +71,14 @@ defmodule DB.Dataset do
     # - or a list of cities.
     belongs_to(:region, Region)
     belongs_to(:aom, AOM)
-    many_to_many(:communes, Commune, join_through: "dataset_communes", on_replace: :delete)
 
-    has_many(:resources, Resource, on_replace: :delete, on_delete: :delete_all)
-    has_many(:logs_import, LogsImport, on_replace: :delete, on_delete: :delete_all)
-    has_many(:notification_subscriptions, NotificationSubscription, on_delete: :delete_all)
+    # we ask in the backoffice for a name to display
+    # (used in the long title of a dataset and to find the associated datasets)
+    field(:associated_territory_name, :string)
+
     # A dataset can be "parent dataset" of many AOMs
     has_many(:child_aom, AOM, foreign_key: :parent_dataset_id)
+    # ⬆️⬆️⬆️
   end
 
   def base_query, do: from(d in DB.Dataset, as: :dataset, where: d.is_active)
@@ -418,8 +437,14 @@ defmodule DB.Dataset do
   defp apply_changeset(%__MODULE__{} = dataset, params) do
     territory_name = Map.get(params, "associated_territory_name") || dataset.associated_territory_name
 
+    legal_owners_aom_id = params["legal_owners_aom"] || []
+    legal_owners_aom = Repo.all(from(aom in AOM, where: aom.id in ^legal_owners_aom_id))
+
+    legal_owners_region_id = params["legal_owners_region"] || []
+    legal_owners_region = Repo.all(from(region in Region, where: region.id in ^legal_owners_region_id))
+
     dataset
-    |> Repo.preload([:resources, :communes, :region])
+    |> Repo.preload([:resources, :communes, :region, :legal_owners_aom, :legal_owners_region])
     |> cast(params, [
       :datagouv_id,
       :custom_title,
@@ -442,7 +467,8 @@ defmodule DB.Dataset do
       :associated_territory_name,
       :latest_data_gouv_comment_timestamp,
       :archived_at,
-      :custom_tags
+      :custom_tags,
+      :legal_owner_company_siren
     ])
     |> cast_aom(params)
     |> cast_datagouv_zone(params, territory_name)
@@ -456,6 +482,8 @@ defmodule DB.Dataset do
     |> maybe_overwrite_licence()
     |> has_real_time()
     |> validate_organization_type()
+    |> put_assoc(:legal_owners_aom, legal_owners_aom)
+    |> put_assoc(:legal_owners_region, legal_owners_region)
     |> case do
       %{valid?: false, changes: changes} = changeset when changes == %{} ->
         {:ok, %{changeset | action: :ignore}}

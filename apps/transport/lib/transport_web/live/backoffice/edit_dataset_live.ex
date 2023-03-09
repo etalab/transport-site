@@ -108,6 +108,29 @@ defmodule TransportWeb.EditDatasetLive do
       </div>
 
       <div class="panel mt-48">
+        <div class="panel-explanation">
+          <%= dgettext("backoffice", "Legal owners") %>
+        </div>
+        <.live_component module={TransportWeb.LegalOwnerSelectLive} id="owners_selection" form={f} owners={@legal_owners} />
+        <div class="pt-12"><%= dgettext("backoffice", "or") %></div>
+        <div class="pt-12">
+          <label>
+            <%= dgettext("backoffice", "Company SIREN code") %>
+            <%= InputHelpers.text_input(f, :legal_owner_company_siren,
+              placeholder: "821611431",
+              pattern: "\\d{9,9}",
+              value:
+                if not is_nil(@dataset) do
+                  @dataset.legal_owner_company_siren
+                else
+                  ""
+                end
+            ) %>
+          </label>
+        </div>
+      </div>
+
+      <div class="panel mt-48">
         <div class="panel__header">
           <h4>
             <%= dgettext("backoffice", "Associated territory") %>
@@ -219,10 +242,25 @@ defmodule TransportWeb.EditDatasetLive do
       |> assign(:form_url, form_url)
       |> assign(:dataset_organization, dataset_organization)
       |> assign(:organization_types, organization_types())
+      |> assign(:legal_owners, get_legal_owners(dataset))
       |> assign(:trigger_submit, false)
 
     {:ok, socket}
   end
+
+  def get_legal_owners(%Dataset{} = dataset) do
+    # current legal owners, to initiate the state of the legal_owner_select_live component
+    %{legal_owners_aom: legal_owners_aom, legal_owners_region: legal_owners_region} = dataset
+
+    legal_owners_aom = legal_owners_aom |> Enum.map(fn aom -> %{id: aom.id, type: "aom", label: aom.nom} end)
+
+    legal_owners_region =
+      legal_owners_region |> Enum.map(fn region -> %{id: region.id, type: "region", label: region.nom} end)
+
+    legal_owners_aom ++ legal_owners_region
+  end
+
+  def get_legal_owners(_), do: []
 
   def organization_types,
     do: [
@@ -257,6 +295,11 @@ defmodule TransportWeb.EditDatasetLive do
 
   def handle_event(_, _, socket) do
     {:noreply, socket}
+  end
+
+  # handle info sent from the child live component to update the list of legal owners
+  def handle_info({:updated_legal_owner, legal_owners}, socket) do
+    {:noreply, socket |> assign(:legal_owners, legal_owners)}
   end
 
   # get the result from the async Task triggered by "change_dataset"
