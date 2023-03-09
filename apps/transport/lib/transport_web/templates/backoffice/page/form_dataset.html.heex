@@ -76,6 +76,11 @@
         <%= hidden_input(f, :dataset_id, value: @dataset.id) %>
         <%= label f, :contact_id do %>
           Contact <%= text_input(f, :contact_id, required: true, list: "contacts_datalist", pattern: "[0-9]+") %>
+          <div class="small">
+            <a href={backoffice_contact_path(@conn, :new)} target="_blank">
+              <i class="fas fa-external-link"></i> Créer un contact
+            </a>
+          </div>
         <% end %>
         <datalist id="contacts_datalist">
           <%= for contact <- @contacts_datalist do %>

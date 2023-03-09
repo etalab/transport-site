@@ -1,6 +1,9 @@
 <% contact_id = Ecto.Changeset.get_field(@contact, :id) %>
 <% creating_contact = is_nil(contact_id) %>
-<div class="container mt-48 mb-24">
+<div class="container pb-24">
+  <div class="pb-24">
+    <%= breadcrumbs([@conn, :contacts_edit]) %>
+  </div>
   <div class="panel">
     <h2 :if={creating_contact}>Créer un contact</h2>
     <h2 :if={!creating_contact}>Éditer un contact</h2>

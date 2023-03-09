@@ -39,7 +39,7 @@ defmodule DB.Contact do
     struct
     |> cast(attrs, [:first_name, :last_name, :organization, :job_title, :email, :phone_number])
     |> trim_fields([:first_name, :last_name, :organization, :job_title])
-    |> capitalize_fields([:first_name, :last_name, :job_title])
+    |> capitalize_fields([:first_name, :last_name])
     |> validate_required([:first_name, :last_name, :organization, :email])
     |> validate_format(:email, ~r/@/)
     |> cast_phone_number()

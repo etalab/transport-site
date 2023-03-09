@@ -21,6 +21,14 @@ defmodule TransportWeb.BreadCrumbs do
       ]
   end
 
+  def crumbs(conn, :contacts) do
+    [{"Contacts", backoffice_contact_path(conn, :index)}]
+  end
+
+  def crumbs(conn, :contacts_edit) do
+    crumbs(conn, :contacts) ++ [{"Créer/éditer un contact", nil}]
+  end
+
   def crumbs(conn, :proxy_statistics) do
     crumbs(conn, :espace_producteur) ++
       [
