@@ -14,7 +14,7 @@
       <% end %>
     </datalist>
     <button type="submit" class="button backoffice_search_button"><i class="fa fa-search"></i></button>
-    <div class="small">Recherchez par nom de famille ou organisation</div>
+    <div class="small">Recherchez par nom de famille, titre ou organisation</div>
   <% end %>
 
   <a class="button" href={backoffice_contact_path(@conn, :new)}>
@@ -27,7 +27,6 @@
 
   <table class="backoffice-results">
     <tr>
-      <th>Prénom</th>
       <th>Nom</th>
       <th>E-mail</th>
       <th>Fonction</th>
@@ -35,8 +34,7 @@
     </tr>
     <%= for contact <- @contacts do %>
       <tr>
-        <td><%= contact.first_name %></td>
-        <td><%= contact.last_name %></td>
+        <td><%= DB.Contact.display_name(contact) %></td>
         <td><%= contact.email %></td>
         <td><%= contact_fonction(contact) %></td>
         <td class="bo_action_button">
