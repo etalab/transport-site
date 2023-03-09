@@ -89,8 +89,7 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
         "resources" => [],
         "tags" => [],
         "description" => "",
-        "created_at" =>
-          DateTime.utc_now() |> DateTime.add(-23, :hour) |> DateTime.to_iso8601(),
+        "created_at" => DateTime.utc_now() |> DateTime.add(-23, :hour) |> DateTime.to_iso8601(),
         "page" => "https://example.com/link",
         "id" => Ecto.UUID.generate()
       }
