@@ -62,7 +62,7 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
       doc = content |> Floki.parse_document!()
 
       assert [
-               {"li", [], ["first_name : You need to fill either first_name and last_name OR title"]},
+               {"li", [], ["first_name : You need to fill either first_name and last_name OR mailing_list_title"]},
                {"li", [], ["organization : can't be blank"]},
                {"li", [], ["email : can't be blank"]}
              ] == Floki.find(doc, ".notification.error ul li")

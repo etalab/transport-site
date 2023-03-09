@@ -36,7 +36,7 @@ defmodule DB.ContactTest do
     assert DB.Contact |> where([n], n.email == ^"+33692228803") |> DB.Repo.all() |> Enum.empty?()
 
     # Can save a contact with a `title`
-    %{sample_contact_args() | first_name: nil, last_name: nil, title: "title"}
+    %{sample_contact_args() | first_name: nil, last_name: nil, mailing_list_title: "title"}
     |> DB.Contact.insert!()
 
     assert 2 == DB.Contact |> DB.Repo.aggregate(:count, :id)
@@ -67,36 +67,66 @@ defmodule DB.ContactTest do
              DB.Contact.changeset(%DB.Contact{}, %{sample_contact_args() | phone_number: "+1 (438) 389 8482"})
   end
 
-  test "validates that you can fill first_name/last_name OR title" do
+  test "validates that you can fill first_name/last_name OR mailing_list_title" do
     assert %Ecto.Changeset{
              valid?: false,
-             errors: [first_name: {"You need to fill either first_name and last_name OR title", []}]
+             errors: [first_name: {"You need to fill either first_name and last_name OR mailing_list_title", []}]
            } =
-             DB.Contact.changeset(%DB.Contact{}, %{sample_contact_args() | first_name: "A", last_name: "B", title: "C"})
+             DB.Contact.changeset(%DB.Contact{}, %{
+               sample_contact_args()
+               | first_name: "A",
+                 last_name: "B",
+                 mailing_list_title: "C"
+             })
 
     assert %Ecto.Changeset{
              valid?: false,
-             errors: [first_name: {"You need to fill either first_name and last_name OR title", []}]
+             errors: [first_name: {"You need to fill either first_name and last_name OR mailing_list_title", []}]
            } =
-             DB.Contact.changeset(%DB.Contact{}, %{sample_contact_args() | first_name: "A", last_name: nil, title: "C"})
+             DB.Contact.changeset(%DB.Contact{}, %{
+               sample_contact_args()
+               | first_name: "A",
+                 last_name: nil,
+                 mailing_list_title: "C"
+             })
 
     assert %Ecto.Changeset{
              valid?: false,
-             errors: [first_name: {"You need to fill either first_name and last_name OR title", []}]
+             errors: [first_name: {"You need to fill either first_name and last_name OR mailing_list_title", []}]
            } =
-             DB.Contact.changeset(%DB.Contact{}, %{sample_contact_args() | first_name: nil, last_name: "B", title: "C"})
+             DB.Contact.changeset(%DB.Contact{}, %{
+               sample_contact_args()
+               | first_name: nil,
+                 last_name: "B",
+                 mailing_list_title: "C"
+             })
 
     assert %Ecto.Changeset{
              valid?: false,
-             errors: [first_name: {"You need to fill first_name and last_name OR title", []}]
+             errors: [first_name: {"You need to fill first_name and last_name OR mailing_list_title", []}]
            } =
-             DB.Contact.changeset(%DB.Contact{}, %{sample_contact_args() | first_name: nil, last_name: nil, title: nil})
+             DB.Contact.changeset(%DB.Contact{}, %{
+               sample_contact_args()
+               | first_name: nil,
+                 last_name: nil,
+                 mailing_list_title: nil
+             })
 
     assert %Ecto.Changeset{valid?: true} =
-             DB.Contact.changeset(%DB.Contact{}, %{sample_contact_args() | first_name: "A", last_name: "B", title: nil})
+             DB.Contact.changeset(%DB.Contact{}, %{
+               sample_contact_args()
+               | first_name: "A",
+                 last_name: "B",
+                 mailing_list_title: nil
+             })
 
     assert %Ecto.Changeset{valid?: true} =
-             DB.Contact.changeset(%DB.Contact{}, %{sample_contact_args() | first_name: nil, last_name: nil, title: "C"})
+             DB.Contact.changeset(%DB.Contact{}, %{
+               sample_contact_args()
+               | first_name: nil,
+                 last_name: nil,
+                 mailing_list_title: "C"
+             })
   end
 
   test "cannot have duplicates based on email" do
@@ -128,7 +158,7 @@ defmodule DB.ContactTest do
       sample_contact_args()
       | first_name: nil,
         last_name: nil,
-        title: "Service SIG",
+        mailing_list_title: "Service SIG",
         organization: "Geo Inc"
     })
 
@@ -136,14 +166,14 @@ defmodule DB.ContactTest do
     assert [%DB.Contact{last_name: "Doe"}] = search_fn.(%{"q" => "doe"})
     assert [%DB.Contact{last_name: "Bar"}] = search_fn.(%{"q" => "bar"})
     assert [%DB.Contact{organization: "Foo Bar"}] = search_fn.(%{"q" => "Foo Bar"})
-    assert [%DB.Contact{title: "Service SIG"}] = search_fn.(%{"q" => "SIG"})
+    assert [%DB.Contact{mailing_list_title: "Service SIG"}] = search_fn.(%{"q" => "SIG"})
   end
 
   defp sample_contact_args do
     %{
       first_name: "John",
       last_name: "Doe",
-      title: nil,
+      mailing_list_title: nil,
       email: "john#{Ecto.UUID.generate()}@example.fr",
       job_title: "Boss",
       organization: "Big Corp Inc",

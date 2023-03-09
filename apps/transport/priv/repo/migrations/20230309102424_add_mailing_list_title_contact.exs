@@ -1,4 +1,4 @@
-defmodule DB.Repo.Migrations.AddTitleContact do
+defmodule DB.Repo.Migrations.AddMailingListTitleContact do
   use Ecto.Migration
 
   def change do
@@ -7,7 +7,7 @@ defmodule DB.Repo.Migrations.AddTitleContact do
       modify :first_name, :string, null: true, from: {:string, null: false}
       modify :last_name, :string, null: true, from: {:string, null: false}
       # add new `column` for contacts that are not "real humans", for example mailing lists
-      add :title, :string, null: true
+      add :mailing_list_title, :string, null: true
     end
   end
 end
