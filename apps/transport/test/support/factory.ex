@@ -116,6 +116,10 @@ defmodule DB.Factory do
     %DB.Notification{}
   end
 
+  def gtfs_stops_factory do
+    %DB.GTFS.Stops{}
+  end
+
   # Non-Ecto stuff, for now kept here for convenience
 
   def datagouv_api_get_factory do
