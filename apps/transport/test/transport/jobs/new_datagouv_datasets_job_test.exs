@@ -50,7 +50,7 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
       "resources" => [],
       "tags" => [],
       "description" => "",
-      "created_at" => "2022-11-01 00:01:00",
+      "created_at" => "2022-11-01 00:01:00+00:00",
       "id" => Ecto.UUID.generate()
     }
 
@@ -58,7 +58,7 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
 
     datasets = [
       base,
-      %{base | "created_at" => "2022-10-30 00:00:00", "title" => "GTFS de Dijon"},
+      %{base | "created_at" => "2022-10-30 00:00:00+00:00", "title" => "GTFS de Dijon"},
       dataset_to_keep = %{base | "title" => "GTFS de Dijon"},
       %{base | "tags" => ["gbfs"], "id" => datagouv_id}
     ]
@@ -89,8 +89,7 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
         "resources" => [],
         "tags" => [],
         "description" => "",
-        "created_at" =>
-          DateTime.utc_now() |> DateTime.add(-23, :hour) |> DateTime.to_iso8601() |> String.trim_trailing("Z"),
+        "created_at" => DateTime.utc_now() |> DateTime.add(-23, :hour) |> DateTime.to_iso8601(),
         "page" => "https://example.com/link",
         "id" => Ecto.UUID.generate()
       }

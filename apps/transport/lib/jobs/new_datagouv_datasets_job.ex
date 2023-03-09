@@ -84,8 +84,6 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
   end
 
   def after_datetime?(created_at, %DateTime{} = dt_limit) when is_binary(created_at) do
-    # data.gouv.fr does not include the timezone (trailing Z) but these are UTC datetimes
-    created_at = String.replace_trailing(created_at, "Z", "") <> "Z"
     {:ok, datetime, 0} = DateTime.from_iso8601(created_at)
     DateTime.compare(datetime, dt_limit) == :gt
   end
