@@ -103,6 +103,10 @@
   padding-left: 24px;
 }
 
+.pt-6 {
+  padding-top: 6px;
+}
+
 .pt-12 {
   padding-top: 12px;
 }
@@ -178,6 +182,12 @@
 
 .custom-tag {
   animation: fade-in 0.5s;
+  &.green {
+    background-color: var(--light-green);
+  }
+  &.blue {
+    background-color: var(--lighter-blue);
+  }
   .delete-tag {
     cursor: pointer;
     display: inline-block;

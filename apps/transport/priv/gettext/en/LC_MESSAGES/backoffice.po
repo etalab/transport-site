@@ -270,3 +270,15 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "National GTFS map"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Legal owners"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "or"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Company SIREN code"
+msgstr ""
