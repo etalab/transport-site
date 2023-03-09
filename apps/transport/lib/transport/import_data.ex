@@ -164,7 +164,7 @@ defmodule Transport.ImportData do
 
   iex>archived(nil)
   nil
-  iex>archived("2022-09-28T03:08:59.782000")
+  iex>archived("2022-09-28T03:08:59.782000+00:00")
   ~U[2022-09-28 03:08:59.782000Z]
   iex>archived("2022-09-28T03:08:59.782000Z")
   ~U[2022-09-28 03:08:59.782000Z]
@@ -172,7 +172,7 @@ defmodule Transport.ImportData do
   def archived(nil), do: nil
 
   def archived(datetime_str) when is_binary(datetime_str) do
-    {:ok, datetime, 0} = DateTime.from_iso8601(String.replace_suffix(datetime_str, "Z", "") <> "Z")
+    {:ok, datetime, 0} = DateTime.from_iso8601(datetime_str)
     datetime
   end
 

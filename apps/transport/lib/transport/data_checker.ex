@@ -72,8 +72,7 @@ defmodule Transport.DataChecker do
         :active
 
       {:ok, %{"archived" => archived}} ->
-        # data.gouv.fr does not include the timezone
-        {:ok, datetime, 0} = DateTime.from_iso8601(String.replace_suffix(archived, "Z", "") <> "Z")
+        {:ok, datetime, 0} = DateTime.from_iso8601(archived)
         {:archived, datetime}
 
       {:error, %HTTPoison.Error{} = error} ->
