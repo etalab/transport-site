@@ -1,7 +1,7 @@
 defmodule Datagouvfr.Client.APITest do
   use ExUnit.Case, async: true
 
-  doctest Datagouvfr.Client.API
+  doctest Datagouvfr.Client.API, import: true
 
   import Datagouvfr.ApiFixtures
   import Mox
@@ -66,11 +66,30 @@ defmodule Datagouvfr.Client.APITest do
     # A 308 response and then a 200 response
     Transport.HTTPoison.Mock
     |> expect(:request, fn :get, ^url, "", [], [follow_redirect: true] ->
-      {:ok, %HTTPoison.Response{status_code: 308, headers: [{"location", location_url}]}}
+      {:ok, %HTTPoison.Response{status_code: 308, headers: [{"location", location_url}], request_url: url}}
     end)
 
     Transport.HTTPoison.Mock
     |> expect(:request, fn :get, ^location_url, "", [], [follow_redirect: true] ->
+      {:ok, %HTTPoison.Response{status_code: 200, body: "{}"}}
+    end)
+
+    assert {:ok, %{}} == API.get(path)
+  end
+
+  test "handles a relative 308 redirection" do
+    path = "foo"
+    url = "https://demo.data.gouv.fr/api/1/#{path}/"
+    location_url = "/bar"
+
+    # A 308 response and then a 200 response
+    Transport.HTTPoison.Mock
+    |> expect(:request, fn :get, ^url, "", [], [follow_redirect: true] ->
+      {:ok, %HTTPoison.Response{status_code: 308, headers: [{"location", location_url}], request_url: url}}
+    end)
+
+    Transport.HTTPoison.Mock
+    |> expect(:request, fn :get, "https://demo.data.gouv.fr" <> ^location_url, "", [], [follow_redirect: true] ->
       {:ok, %HTTPoison.Response{status_code: 200, body: "{}"}}
     end)
 
