@@ -19,12 +19,21 @@
     <% end %>
     <%= form_for @contact, backoffice_contact_path(@conn, :create), [class: "no-margin", method: "post"], fn f -> %>
       <%= hidden_input(f, :id, value: contact_id) %>
-      <%= label f, :first_name do %>
-        Prénom <%= text_input(f, :first_name, required: true) %>
-      <% end %>
-      <%= label f, :last_name, class: "pt-12" do %>
-        Nom <%= text_input(f, :last_name, required: true) %>
-      <% end %>
+      <div class="panel">
+        <%= label f, :first_name do %>
+          Prénom <%= text_input(f, :first_name, []) %>
+        <% end %>
+        <%= label f, :last_name, class: "pt-12" do %>
+          Nom <%= text_input(f, :last_name, []) %>
+        <% end %>
+        <p class="separator pt-6 pb-6">
+          - <%= dgettext("backoffice", "or") %> -
+        </p>
+        <%= label f, :mailing_list_title do %>
+          Titre <%= text_input(f, :mailing_list_title, []) %>
+          <div class="small">À utiliser quand un contact n'est pas une personne</div>
+        <% end %>
+      </div>
       <%= label f, :job_title, class: "pt-12" do %>
         Fonction <%= text_input(f, :job_title,
           placeholder: "Responsable numérique",

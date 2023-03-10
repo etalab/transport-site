@@ -179,7 +179,9 @@ defmodule TransportWeb.Backoffice.PageController do
   end
 
   defp contacts_datalist do
-    DB.Contact.base_query() |> select([contact: c], [:first_name, :last_name, :id]) |> DB.Repo.all()
+    DB.Contact.base_query()
+    |> select([contact: c], [:first_name, :last_name, :mailing_list_title, :id])
+    |> DB.Repo.all()
   end
 
   defp notifications_last_nb_days, do: 30
