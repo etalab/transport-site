@@ -515,18 +515,4 @@ defmodule TransportWeb.DatasetView do
   end
 
   def displays_odbl_specific_usage_conditions?(%Dataset{}), do: false
-
-  @doc """
-  Gets the human-friendly version of a `DB.DataConversion.format`
-
-  iex> conversion_cleaned_format(:netex)
-  "NeTEx"
-  iex> conversion_cleaned_format(:geojson)
-  "geojson"
-  """
-  def conversion_cleaned_format(conversion_format) do
-    type = nil
-    is_community_resource = false
-    Transport.ImportData.formated_format(%{"format" => to_string(conversion_format)}, type, is_community_resource)
-  end
 end

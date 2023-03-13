@@ -429,19 +429,22 @@ defmodule DB.DatasetDBTest do
                geojson: %{
                  url: "url1",
                  filesize: "size1",
-                 resource_history_last_up_to_date_at: dt1
+                 resource_history_last_up_to_date_at: dt1,
+                 format: "GeoJSON"
                },
                netex: %{
                  url: "url11",
                  filesize: "size11",
-                 resource_history_last_up_to_date_at: dt1
+                 resource_history_last_up_to_date_at: dt1,
+                 format: "NeTEx"
                }
              },
              r2.id => %{
                geojson: %{
                  url: "url2",
                  filesize: "size2",
-                 resource_history_last_up_to_date_at: dt2
+                 resource_history_last_up_to_date_at: dt2,
+                 format: "GeoJSON"
                },
                netex: nil
              },

@@ -2,12 +2,10 @@
 <p><%= dgettext("page-dataset-details", "Automatic conversions") %></p>
 <div class="resource-actions">
   <div>
-    <%= for {format, %{url: url}} <- Enum.sort_by(@conversions_details, fn {format, _v} -> format end, :asc) do %>
+    <%= for {_, %{url: url, format: format}} <- Enum.sort_by(@conversions_details, fn {_, %{format: format}} -> format end, :asc) do %>
       <a class="download-button" href={url}>
         <button class="button-outline primary small">
-          <i class="icon icon--download" aria-hidden="true"></i><%= dgettext("page-dataset-details", "Download") %> <%= conversion_cleaned_format(
-            format
-          ) %>
+          <i class="icon icon--download" aria-hidden="true"></i><%= dgettext("page-dataset-details", "Download") %> <%= format %>
         </button>
       </a>
     <% end %>
