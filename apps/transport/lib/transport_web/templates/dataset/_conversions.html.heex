@@ -1,4 +1,4 @@
-<% conversions = Enum.reject(@conversions_details, fn {format, details} -> is_nil(details) end) %>
+<% conversions = Enum.reject(@conversions_details, fn {_format, details} -> is_nil(details) end) %>
 <hr class="mb-0 mt-24" />
 <p><%= dgettext("page-dataset-details", "Automatic conversions") %></p>
 <div class="resource-actions">
