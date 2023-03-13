@@ -331,7 +331,8 @@ defmodule TransportWeb.DatasetView do
   def resources_with_conversions(%Dataset{} = dataset, resources_related_files) do
     resource_ids =
       # Don't keep records looking like `%{79088 => %{geojson: nil, netex: nil}}`
-      Enum.reject(resources_related_files, fn {_resource_id, conversions} ->
+      resources_related_files
+      |> Enum.reject(fn {_resource_id, conversions} ->
         conversions |> Map.values() |> Enum.reject(&is_nil/1) |> Enum.empty?()
       end)
       |> Enum.map(fn {resource_id, _} -> resource_id end)
