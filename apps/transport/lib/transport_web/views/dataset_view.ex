@@ -328,6 +328,19 @@ defmodule TransportWeb.DatasetView do
     |> Enum.filter(&Resource.is_documentation?/1)
   end
 
+  def resources_with_conversions(%Dataset{} = dataset, resources_related_files) do
+    resource_ids =
+      # Don't keep records looking like `%{79088 => %{geojson: nil, netex: nil}}`
+      Enum.reject(resources_related_files, fn {_resource_id, conversions} ->
+        conversions |> Map.values() |> Enum.reject(&is_nil/1) |> Enum.empty?()
+      end)
+      |> Enum.map(fn {resource_id, _} -> resource_id end)
+
+    dataset
+    |> Dataset.official_resources()
+    |> Enum.filter(&(&1.id in resource_ids))
+  end
+
   def is_real_time_public_transit?(%Dataset{type: "public-transit"} = dataset) do
     not Enum.empty?(real_time_official_resources(dataset))
   end
@@ -515,4 +528,18 @@ defmodule TransportWeb.DatasetView do
   end
 
   def displays_odbl_specific_usage_conditions?(%Dataset{}), do: false
+
+  @doc """
+  Gets the human-friendly version of a `DB.DataConversion.format`
+
+  iex> conversion_cleaned_format(:netex)
+  "NeTEx"
+  iex> conversion_cleaned_format(:geojson)
+  "geojson"
+  """
+  def conversion_cleaned_format(conversion_format) do
+    type = nil
+    is_community_resource = false
+    Transport.ImportData.formated_format(%{"format" => to_string(conversion_format)}, type, is_community_resource)
+  end
 end

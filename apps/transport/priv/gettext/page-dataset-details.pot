@@ -557,3 +557,15 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Static data"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Automatic conversions for this %{format} resource"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Conversions"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "These resources are created automatically by transport.data.gouv.fr"
+msgstr ""
