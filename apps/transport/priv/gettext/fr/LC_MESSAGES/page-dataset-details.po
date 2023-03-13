@@ -291,10 +291,6 @@ msgid "resource format"
 msgstr "format de la ressource"
 
 #, elixir-autogen, elixir-format
-msgid "see other formats"
-msgstr "autres formats"
-
-#, elixir-autogen, elixir-format
 msgid "real-time"
 msgstr "temps réel"
 
@@ -559,13 +555,5 @@ msgid "Static data"
 msgstr "Données statiques"
 
 #, elixir-autogen, elixir-format
-msgid "Automatic conversions for this %{format} resource"
-msgstr "Conversions automatiques pour cette ressource %{format}"
-
-#, elixir-autogen, elixir-format
-msgid "Conversions"
-msgstr "Conversions"
-
-#, elixir-autogen, elixir-format
-msgid "These resources are created automatically by transport.data.gouv.fr"
-msgstr "Ces ressources ont été générées automatiquement par transport.data.gouv.fr"
+msgid "Automatic conversions"
+msgstr "Conversions automatiques"

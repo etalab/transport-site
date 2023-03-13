@@ -1,6 +1,5 @@
 <section>
   <% associated_geojson = get_associated_geojson(@related_files) %>
-  <% associated_netex = get_associated_netex(@related_files) %>
   <div class="grey-background">
     <div class="container">
       <h2 class="mt-48"><%= dgettext("validations", "Resource details") %></h2>
@@ -21,31 +20,6 @@
           ) %>.
         </p>
         <%= render("_resources_details.html", conn: @conn, metadata: @metadata, modes: @modes) %>
-        <%= if !is_nil(associated_geojson) or !is_nil(associated_netex) do %>
-          <div id="other-formats">
-            <%= dgettext("validations", "This resource is also available in the following formats:") %>
-            <ul>
-              <%= unless is_nil(associated_geojson) do %>
-                <li>
-                  <a href={associated_geojson.url}>GeoJSON</a>*
-                </li>
-              <% end %>
-              <%= unless is_nil(associated_netex) do %>
-                <li><a href={associated_netex.url}>NeTEx</a></li>
-              <% end %>
-            </ul>
-            * <%= dgettext(
-              "validations",
-              "GeoJSON format contains only the spatial information of the resource (stops coordinates, eventually lines shapes)
-              It corresponds to the data you can see on the map below."
-            ) %>
-            <%= unless is_nil(associated_geojson) or is_nil(associated_geojson.resource_history_last_up_to_date_at) do %>
-              <%= dgettext("validations", "This GeoJSON was up-to-date with the GTFS resource %{hours} ago.",
-                hours: hours_ago(associated_geojson.resource_history_last_up_to_date_at)
-              ) %>
-            <% end %>
-          </div>
-        <% end %>
       </div>
 
       <h2 id="download-availability"><%= dgettext("page-dataset-details", "Download availability") %></h2>

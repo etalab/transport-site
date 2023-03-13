@@ -1,24 +1,15 @@
-<div class="panel resource">
-  <h4><%= @resource.title %></h4>
-  <p>
-    <%= dgettext("page-dataset-details", "Automatic conversions for this %{format} resource", format: @resource.format) %>
-  </p>
-  <div class="resource-panel-bottom">
-    <%= for {format, %{url: url}} <- @conversions_details |> Enum.sort_by(fn {k, _v} -> k end, :asc) do %>
-      <div class="resource-actions">
-        <div>
-          <div class="resource-format" title={dgettext("page-dataset-details", "resource format")}>
-            <span class="label"><%= conversion_cleaned_format(format) %></span>
-          </div>
-        </div>
-        <div>
-          <a class="download-button" href={url}>
-            <button class="button-outline primary small">
-              <i class="icon icon--download" aria-hidden="true"></i><%= dgettext("page-dataset-details", "Download") %>
-            </button>
-          </a>
-        </div>
-      </div>
+<hr class="mb-0 mt-24" />
+<p><%= dgettext("page-dataset-details", "Automatic conversions") %></p>
+<div class="resource-actions">
+  <div>
+    <%= for {format, %{url: url}} <- Enum.sort_by(@conversions_details, fn {format, _v} -> format end, :asc) do %>
+      <a class="download-button" href={url}>
+        <button class="button-outline primary small">
+          <i class="icon icon--download" aria-hidden="true"></i><%= dgettext("page-dataset-details", "Download") %> <%= conversion_cleaned_format(
+            format
+          ) %>
+        </button>
+      </a>
     <% end %>
   </div>
 </div>

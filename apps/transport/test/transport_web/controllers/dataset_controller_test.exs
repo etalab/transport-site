@@ -56,8 +56,34 @@ defmodule TransportWeb.DatasetControllerTest do
       {Datagouvfr.Client.Reuses, [], [get: fn _dataset -> {:ok, []} end]},
       {Datagouvfr.Client.Discussions, [], [get: fn _id -> nil end]}
     ] do
-      conn = conn |> get(dataset_path(conn, :details, dataset.slug))
-      assert html_response(conn, 200) =~ "Documentation"
+      html_response = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200)
+      assert html_response =~ "Documentation"
+      refute html_response =~ "Conversions automatiques"
+    end
+  end
+
+  test "dataset details with a NeTEx conversion", %{conn: conn} do
+    dataset = insert(:dataset, type: "public-transit", is_active: true)
+    resource = insert(:resource, format: "GTFS", url: "https://example.com", dataset: dataset)
+    insert(:resource_history, resource_id: resource.id, payload: %{"uuid" => uuid = Ecto.UUID.generate()})
+
+    insert(:data_conversion,
+      resource_history_uuid: uuid,
+      convert_from: "GTFS",
+      convert_to: "NeTEx",
+      payload: %{"permanent_url" => conversion_url = "https://super-cellar-url.com/netex"}
+    )
+
+    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
+
+    with_mocks [
+      {Datagouvfr.Client.Reuses, [], [get: fn _dataset -> {:ok, []} end]},
+      {Datagouvfr.Client.Discussions, [], [get: fn _id -> nil end]}
+    ] do
+      html_response = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200)
+      assert html_response =~ "Conversions automatiques"
+      assert html_response =~ "NeTEx"
+      assert html_response =~ conversion_url
     end
   end
 
