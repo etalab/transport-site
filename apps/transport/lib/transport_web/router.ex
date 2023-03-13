@@ -8,14 +8,13 @@ defmodule TransportWeb.Router do
     def actions(e), do: [%{label: "Not found", handler: {IO, :puts, ["Template not found: #{inspect(e)}"]}}]
   end
 
-  pipeline :browser do
+  pipeline :browser_no_csp do
     plug(:canonical_host)
 
     plug(:accepts, ["html"])
     plug(:fetch_session)
     plug(:fetch_live_flash)
     plug(:protect_from_forgery)
-    plug(TransportWeb.Plugs.CustomSecureBrowserHeaders)
     plug(TransportWeb.Plugs.PutLocale)
     plug(:assign_current_user)
     plug(:assign_contact_email)
@@ -23,6 +22,11 @@ defmodule TransportWeb.Router do
     plug(:maybe_login_again)
     plug(:assign_mix_env)
     plug(Sentry.PlugContext)
+  end
+
+  pipeline :browser do
+    plug(:browser_no_csp)
+    plug(TransportWeb.Plugs.CustomSecureBrowserHeaders)
   end
 
   pipeline :accept_json do
@@ -40,7 +44,7 @@ defmodule TransportWeb.Router do
   end
 
   scope "/", OpenApiSpex.Plug do
-    pipe_through(:browser)
+    pipe_through(:browser_no_csp)
     get("/swaggerui", SwaggerUI, path: "/api/openapi")
   end
 
