@@ -84,6 +84,7 @@ defmodule TransportWeb.DatasetControllerTest do
       assert html_response =~ "Conversions automatiques"
       assert html_response =~ "NeTEx"
       assert html_response =~ conversion_url
+      refute html_response =~ "GeoJSON"
     end
   end
 
