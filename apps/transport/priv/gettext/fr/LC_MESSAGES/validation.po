@@ -9,7 +9,7 @@
 msgid ""
 msgstr ""
 "Language: fr\n"
-"Plural-Forms: nplurals=2\n"
+"Plural-Forms: nplurals=2; plural=(n>1);"
 
 #, elixir-autogen, elixir-format
 msgid "Validation not found. On-demand validation results have been reinitialized on 2022-05-30. Please validate your file again."
