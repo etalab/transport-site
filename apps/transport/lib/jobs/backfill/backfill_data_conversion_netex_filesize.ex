@@ -30,7 +30,7 @@ defmodule Transport.Jobs.Backfill.DataConversionNeTExFilesize do
 
   defp fetch_next(data_conversion_id) do
     DataConversion
-    |> where([dc], dc.id > ^data_conversion_id and dc.convert_to == "NeTEx")
+    |> where([dc], dc.id > ^data_conversion_id and dc.convert_to == :NeTEx)
     |> order_by(asc: :id)
     |> limit(1)
     |> select([dc], dc.id)
@@ -42,7 +42,7 @@ defmodule Transport.Jobs.Backfill.DataConversionNeTExFilesize do
   end
 
   defp do_update(
-         %DataConversion{convert_from: "GTFS", convert_to: "NeTEx", payload: %{"permanent_url" => url} = payload} = dc
+         %DataConversion{convert_from: :GTFS, convert_to: :NeTEx, payload: %{"permanent_url" => url} = payload} = dc
        ) do
     http_client = Transport.Shared.Wrapper.HTTPoison.impl()
 
