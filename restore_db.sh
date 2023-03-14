@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Usage ./restore_db.sh <db_name> <host> <user_name> <password> <absolute_path_to_backup>
 # or the ./restore_db.sh <absolute_path_to_backup> if the default options are ok for you
@@ -23,7 +24,7 @@ fi
 
 pg_restore -h $HOST -U $USER_NAME -d $DB_NAME --format=c --no-owner --clean --no-acl $BACKUP_PATH
 
-echo "Truncating `contact` table"
+echo "Truncating contact table"
 psql -h $HOST -U $USER_NAME -d $DB_NAME -c 'TRUNCATE TABLE contact CASCADE'
 
 # https://stackoverflow.com/a/1885534
