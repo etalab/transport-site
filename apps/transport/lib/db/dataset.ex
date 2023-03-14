@@ -774,7 +774,8 @@ defmodule DB.Dataset do
 
   @spec get_resources_related_files(any()) :: map()
   def get_resources_related_files(%__MODULE__{resources: resources}) when is_list(resources) do
-    to_atom = %{"GeoJSON" => :geojson, "NeTEx" => :netex}
+    convert_to_values = Ecto.Enum.values(DB.DataConversion, :convert_to)
+    to_atom = Enum.into(convert_to_values, %{}, fn v -> {v, lowercase_atom(v)} end)
     filler = to_atom |> Map.new(fn {_a, b} -> {b, nil} end)
 
     resource_ids = resources |> Enum.map(& &1.id)
@@ -783,7 +784,7 @@ defmodule DB.Dataset do
       DB.Resource.base_query()
       |> where([resource: r], r.id in ^resource_ids)
       |> DB.ResourceHistory.join_resource_with_latest_resource_history()
-      |> DB.DataConversion.join_resource_history_with_data_conversion(["GeoJSON", "NeTEx"])
+      |> DB.DataConversion.join_resource_history_with_data_conversion(convert_to_values)
       |> select(
         [resource: r, resource_history: rh, data_conversion: dc],
         {r.id,
@@ -810,6 +811,8 @@ defmodule DB.Dataset do
   end
 
   def get_resources_related_files(_), do: %{}
+
+  defp lowercase_atom(v) when is_atom(v), do: v |> to_string() |> String.downcase() |> String.to_existing_atom()
 
   @spec validate_territory_mutual_exclusion(Ecto.Changeset.t()) :: Ecto.Changeset.t()
   defp validate_territory_mutual_exclusion(changeset) do

@@ -220,7 +220,7 @@ defmodule DB.Resource do
   @spec get_related_conversion_info(integer() | nil, binary()) :: %{url: binary(), filesize: binary()} | nil
   def get_related_conversion_info(nil, _), do: nil
 
-  def get_related_conversion_info(resource_id, format) when format in ["GeoJSON", "NeTEx"] do
+  def get_related_conversion_info(resource_id, format) do
     DB.ResourceHistory
     |> join(:inner, [rh], dc in DB.DataConversion,
       as: :dc,
