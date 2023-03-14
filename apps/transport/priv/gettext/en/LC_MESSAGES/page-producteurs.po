@@ -9,7 +9,7 @@
 msgid ""
 msgstr ""
 "Language: en\n"
-"Plural-Forms: nplurals=2\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);"
 
 #, elixir-autogen, elixir-format
 msgid "transport.data.gouv.fr help you publish your data"
