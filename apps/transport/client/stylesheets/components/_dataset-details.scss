@@ -200,6 +200,9 @@
       flex-wrap: wrap;
       align-items: flex-end;
       justify-content: space-between;
+      .button-outline.secondary {
+        padding: 0 12px 0 0;
+      }
     }
   }
   .button {
@@ -224,6 +227,11 @@
   .button-outline.secondary {
     border: none;
     background-color: transparent;
+  }
+  .button-bare.secondary {
+    border: none;
+    background-color: transparent;
+    padding: 0;
   }
   .other-formats-link {
     font-size: 12px;
