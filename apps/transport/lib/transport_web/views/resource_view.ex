@@ -80,6 +80,20 @@ defmodule TransportWeb.ResourceView do
       |> Application.fetch_env!(:datagouvfr_site)
       |> Path.join("/fr/admin/dataset/new/")
 
+  def has_associated_files(%{} = resources_related_files, resource_id) do
+    # Don't keep records looking like `%{79088 => %{geojson: nil, netex: nil}}`
+    resource_ids =
+      resources_related_files
+      |> Enum.reject(fn {_resource_id, conversions} ->
+        conversions |> Map.values() |> Enum.reject(&is_nil/1) |> Enum.empty?()
+      end)
+      |> Enum.map(fn {resource_id, _} -> resource_id end)
+
+    resource_id in resource_ids
+  end
+
+  def has_associated_files(_, _), do: false
+
   def has_associated_file(%{} = resources_related_files, resource_id, get_associated_file) do
     resources_related_files
     |> Map.get(resource_id)
