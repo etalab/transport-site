@@ -145,11 +145,10 @@
         resources: unavailable_resources(@dataset),
         dataset: @dataset,
         title: dgettext("page-dataset-details", "unavailable resources"),
-        message:
+        warning_message:
           dgettext("page-dataset-details", "Those resources are listed by the provider but are unreachable for now"),
         latest_resources_history_infos: @latest_resources_history_infos
       ) %>
-
       <%= render("_reuser_message.html") %>
       <%= render("_community_resources.html", dataset: @dataset) %>
     </section>

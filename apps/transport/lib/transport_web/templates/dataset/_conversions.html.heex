@@ -1,0 +1,14 @@
+<% conversions = Enum.reject(@conversions_details, fn {_format, details} -> is_nil(details) end) %>
+<hr class="mb-0 mt-24" />
+<p><%= dgettext("page-dataset-details", "Automatic conversions") %></p>
+<div class="resource-actions">
+  <div>
+    <%= for {_, %{url: url, format: human_format}} <- Enum.sort_by(conversions, fn {_, %{format: format}} -> format end, :asc) do %>
+      <a class="download-button" href={url}>
+        <button class="button-outline secondary small">
+          <i class="icon icon--download" aria-hidden="true"></i><%= dgettext("page-dataset-details", "Download") %> <%= human_format %>
+        </button>
+      </a>
+    <% end %>
+  </div>
+</div>

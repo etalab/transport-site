@@ -1,6 +1,6 @@
 <% locale = get_session(@conn, :locale) %>
+<% has_conversions = ResourceView.has_associated_files(@resources_related_files, @resource.id) %>
 <% has_associated_geojson = ResourceView.has_associated_geojson(@resources_related_files, @resource.id) %>
-<% has_associated_netex = ResourceView.has_associated_netex(@resources_related_files, @resource.id) %>
 <% geojson_with_viz? =
   ResourceView.geojson_with_viz?(@resource, Map.get(@latest_resources_history_infos || %{}, @resource.id)) %>
 <% unavailabilities = @resources_infos.unavailabilities %>
@@ -165,16 +165,6 @@
       <div>
         <div class="resource-format" title={dgettext("page-dataset-details", "resource format")}>
           <span class="label"><%= @resource.format %></span>
-          <%= if has_associated_geojson or has_associated_netex do %>
-            <div>
-              <a
-                class="other-formats-link light-grey-link"
-                href={resource_path(@conn, :details, @resource.id) <> "#other-formats"}
-              >
-                <%= dgettext("page-dataset-details", "see other formats") %>
-              </a>
-            </div>
-          <% end %>
         </div>
       </div>
       <div>
@@ -205,5 +195,11 @@
         <% end %>
       </div>
     </div>
+    <%= if has_conversions do %>
+      <%= render(TransportWeb.DatasetView, "_conversions.html",
+        resource: @resource,
+        conversions_details: Map.fetch!(@resources_related_files, @resource.id)
+      ) %>
+    <% end %>
   </div>
 </div>

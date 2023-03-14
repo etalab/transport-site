@@ -291,10 +291,6 @@ msgid "resource format"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "see other formats"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "real-time"
 msgstr ""
 
@@ -556,4 +552,8 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Static data"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Automatic conversions"
 msgstr ""
