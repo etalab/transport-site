@@ -1,5 +1,8 @@
 defmodule TransportWeb.ConversionControllerTest do
   use TransportWeb.ConnCase, async: true
+  import DB.Factory
+  alias TransportWeb.ConversionController
+  doctest ConversionController, import: true
 
   setup do
     setup_telemetry_handler()
@@ -15,18 +18,63 @@ defmodule TransportWeb.ConversionControllerTest do
       assert conn |> get(conversion_path(conn, :get, 42, "foo")) |> text_response(404) ==
                "Conversion not found. `convert_to` is not a possible value."
     end
+
+    test "when the resource exists but there are no conversions", %{conn: conn} do
+      resource = insert(:resource)
+
+      assert conn |> get(conversion_path(conn, :get, resource.id, "NeTEx")) |> text_response(404) ==
+               "Conversion not found."
+    end
+
+    test "with an existing conversion", %{conn: conn} do
+      resource = insert(:resource, format: "GTFS")
+
+      insert(:resource_history,
+        resource_id: resource.id,
+        payload: %{"uuid" => uuid1 = Ecto.UUID.generate()},
+        last_up_to_date_at: last_up_to_date_at = DateTime.utc_now()
+      )
+
+      insert(:data_conversion,
+        resource_history_uuid: uuid1,
+        convert_from: "GTFS",
+        convert_to: "GeoJSON",
+        payload: %{"permanent_url" => permanent_url = "https://example.com/url1", "filesize" => "size1"}
+      )
+
+      # Relevant headers are sent and we return a redirect response
+      conn_redirected = conn |> get(conversion_path(conn, :get, resource.id, "GeoJSON"))
+      assert [
+               {"cache-control", "public, max-age=300"},
+               {"etag", ConversionController.md5_hash(permanent_url)},
+               {"x-last-up-to-date-at", last_up_to_date_at |> DateTime.to_iso8601()}
+             ] ==
+               conn_redirected.resp_headers
+               |> Enum.filter(fn {k, _} -> k in ["cache-control", "etag", "x-last-up-to-date-at"] end)
+               |> Enum.sort_by(fn {k, _} -> k end, :asc)
+
+      assert redirected_to(conn_redirected, 302) == permanent_url
+
+      # A request is recorded in the `metrics` table, with a `period` at the day level
+      target = "resource_id:#{resource.id}"
+      period = %{DateTime.truncate(DateTime.utc_now(), :second) | second: 0, minute: 0, hour: 0}
+      assert_received {:telemetry_event, [:conversions, :get, :geojson], %{}, %{target: ^target}}
+
+      # Need to wait a few milliseconds because the real telemetry handler
+      # writes rows in the database asynchronously
+      Process.sleep(50)
+      assert [%DB.Metrics{target: ^target, event: "conversions:get:geojson", period: ^period, count: 1}] =
+               DB.Metrics |> DB.Repo.all()
+    end
   end
 
   defp setup_telemetry_handler do
-    events = Transport.Telemetry.conversions_get_event_names()
-    events |> Enum.at(1) |> :telemetry.list_handlers() |> Enum.map(& &1.id) |> Enum.each(&:telemetry.detach/1)
-    test_pid = self()
     # inspired by https://github.com/dashbitco/broadway/blob/main/test/broadway_test.exs
     :telemetry.attach_many(
       "test-handler-#{System.unique_integer()}",
-      events,
+      Transport.Telemetry.conversions_get_event_names(),
       fn name, measurements, metadata, _ ->
-        send(test_pid, {:telemetry_event, name, measurements, metadata})
+        send(self(), {:telemetry_event, name, measurements, metadata})
       end,
       nil
     )

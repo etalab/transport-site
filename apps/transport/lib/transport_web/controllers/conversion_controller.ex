@@ -7,9 +7,15 @@ defmodule TransportWeb.ConversionController do
         nil ->
           conn |> conversion_not_found()
 
-        %{url: url} ->
+        %{url: url, resource_history_last_up_to_date_at: %DateTime{} = last_up_to_date_at} ->
           trace_request(resource_id, convert_to)
-          conn |> put_status(302) |> redirect(external: url)
+
+          conn
+          |> put_resp_header("etag", md5_hash(url))
+          |> put_resp_header("cache-control", "public, max-age=300")
+          |> put_resp_header("x-last-up-to-date-at", last_up_to_date_at |> DateTime.to_iso8601())
+          |> put_status(302)
+          |> redirect(external: url)
       end
     else
       conn |> conversion_not_found("`convert_to` is not a possible value.")
@@ -18,6 +24,14 @@ defmodule TransportWeb.ConversionController do
 
   def get(%Plug.Conn{} = conn, _) do
     conn |> conversion_not_found("Unrecognized parameters.")
+  end
+
+  @doc """
+  iex> md5_hash("elixir")
+  "74b565865a192cc8693c530d48eb383a"
+  """
+  def md5_hash(value) do
+    :md5 |> :crypto.hash(value) |> Base.encode16(case: :lower)
   end
 
   defp trace_request(resource_id, convert_to) do
