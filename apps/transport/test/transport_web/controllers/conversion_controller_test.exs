@@ -44,6 +44,7 @@ defmodule TransportWeb.ConversionControllerTest do
 
       # Relevant headers are sent and we return a redirect response
       conn_redirected = conn |> get(conversion_path(conn, :get, resource.id, "GeoJSON"))
+
       assert [
                {"cache-control", "public, max-age=300"},
                {"etag", ConversionController.md5_hash(permanent_url)},
@@ -63,6 +64,7 @@ defmodule TransportWeb.ConversionControllerTest do
       # Need to wait a few milliseconds because the real telemetry handler
       # writes rows in the database asynchronously
       Process.sleep(50)
+
       assert [%DB.Metrics{target: ^target, event: "conversions:get:geojson", period: ^period, count: 1}] =
                DB.Metrics |> DB.Repo.all()
     end
