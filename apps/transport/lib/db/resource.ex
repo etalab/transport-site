@@ -217,7 +217,8 @@ defmodule DB.Resource do
   def get_related_geojson_info(resource_id), do: get_related_conversion_info(resource_id, "GeoJSON")
   def get_related_netex_info(resource_id), do: get_related_conversion_info(resource_id, "NeTEx")
 
-  @spec get_related_conversion_info(integer() | nil, binary()) :: %{url: binary(), filesize: binary()} | nil
+  @spec get_related_conversion_info(integer() | nil, binary()) ::
+          %{url: binary(), filesize: binary(), resource_history_last_up_to_date_at: DateTime.t()} | nil
   def get_related_conversion_info(nil, _), do: nil
 
   def get_related_conversion_info(resource_id, format) do
