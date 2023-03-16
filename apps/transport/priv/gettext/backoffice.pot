@@ -250,7 +250,7 @@ msgid "published by"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "There is % {n} resource in this dataset"
+msgid "There is %{n} resource in this dataset"
 msgid_plural "There are %{n} resources in this dataset"
 msgstr[0] ""
 msgstr[1] ""
