@@ -33,7 +33,16 @@ defmodule DB.Contact do
   def search(%{"q" => q}) do
     base_query()
     |> where([contact: c], c.organization == ^q)
-    |> or_where([contact: c], fragment("to_tsvector('custom_french', concat(?, ' ', ?, ' ', ?)) @@  plainto_tsquery('custom_french', ?)", c.first_name, c.last_name, c.mailing_list_title, ^q))
+    |> or_where(
+      [contact: c],
+      fragment(
+        "to_tsvector('custom_french', concat(?, ' ', ?, ' ', ?)) @@  plainto_tsquery('custom_french', ?)",
+        c.first_name,
+        c.last_name,
+        c.mailing_list_title,
+        ^q
+      )
+    )
   end
 
   def search(%{}), do: base_query()
