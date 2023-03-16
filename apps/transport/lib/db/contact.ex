@@ -31,10 +31,9 @@ defmodule DB.Contact do
   def base_query, do: from(c in __MODULE__, as: :contact)
 
   def search(%{"q" => q}) do
-    ilike = "%#{q}%"
-
     base_query()
-    |> where([contact: c], ilike(c.last_name, ^ilike) or ilike(c.mailing_list_title, ^ilike) or c.organization == ^q)
+    |> where([contact: c], c.organization == ^q)
+    |> or_where([contact: c], fragment("to_tsvector('custom_french', concat(?, ' ', ?, ' ', ?)) @@  plainto_tsquery('custom_french', ?)", c.first_name, c.last_name, c.mailing_list_title, ^q))
   end
 
   def search(%{}), do: base_query()
