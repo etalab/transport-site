@@ -153,6 +153,7 @@ defmodule DB.ContactTest do
     DB.Contact.insert!(%{sample_contact_args() | last_name: "Doe", organization: "Big Corp Inc"})
     DB.Contact.insert!(%{sample_contact_args() | last_name: "Bar", organization: "Big Corp Inc"})
     DB.Contact.insert!(%{sample_contact_args() | last_name: "Baz", organization: "Foo Bar"})
+    DB.Contact.insert!(%{sample_contact_args() | first_name: "Marina", last_name: "Loiseau", organization: "CNRS"})
 
     DB.Contact.insert!(%{
       sample_contact_args()
@@ -167,6 +168,7 @@ defmodule DB.ContactTest do
     assert [%DB.Contact{last_name: "Bar"}] = search_fn.(%{"q" => "bar"})
     assert [%DB.Contact{organization: "Foo Bar"}] = search_fn.(%{"q" => "Foo Bar"})
     assert [%DB.Contact{mailing_list_title: "Service SIG"}] = search_fn.(%{"q" => "SIG"})
+    assert [%DB.Contact{first_name: "Marina"}] = search_fn.(%{"q" => "marina"})
   end
 
   defp sample_contact_args do
