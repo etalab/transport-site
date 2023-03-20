@@ -127,8 +127,8 @@ defmodule Transport.Jobs.GTFSGenericConverter do
           Transport.S3.upload_to_s3!(:history, file, conversion_file_name)
 
           %DataConversion{
-            convert_from: "GTFS",
-            convert_to: format,
+            convert_from: :GTFS,
+            convert_to: String.to_existing_atom(format),
             resource_history_uuid: resource_uuid,
             payload: %{
               filename: conversion_file_name,

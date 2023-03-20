@@ -210,17 +210,18 @@ defmodule DB.Resource do
   @spec get_related_files(__MODULE__.t()) :: map()
   def get_related_files(%__MODULE__{id: resource_id}) do
     %{}
-    |> Map.put(:geojson, get_related_geojson_info(resource_id))
-    |> Map.put(:netex, get_related_netex_info(resource_id))
+    |> Map.put(:GeoJSON, get_related_geojson_info(resource_id))
+    |> Map.put(:NeTEx, get_related_netex_info(resource_id))
   end
 
-  def get_related_geojson_info(resource_id), do: get_related_conversion_info(resource_id, "GeoJSON")
-  def get_related_netex_info(resource_id), do: get_related_conversion_info(resource_id, "NeTEx")
+  def get_related_geojson_info(resource_id), do: get_related_conversion_info(resource_id, :GeoJSON)
+  def get_related_netex_info(resource_id), do: get_related_conversion_info(resource_id, :NeTEx)
 
-  @spec get_related_conversion_info(integer() | nil, binary()) :: %{url: binary(), filesize: binary()} | nil
+  @spec get_related_conversion_info(integer() | nil, atom()) ::
+          %{url: binary(), filesize: binary(), resource_history_last_up_to_date_at: DateTime.t()} | nil
   def get_related_conversion_info(nil, _), do: nil
 
-  def get_related_conversion_info(resource_id, format) when format in ["GeoJSON", "NeTEx"] do
+  def get_related_conversion_info(resource_id, format) do
     DB.ResourceHistory
     |> join(:inner, [rh], dc in DB.DataConversion,
       as: :dc,
