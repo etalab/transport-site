@@ -37,7 +37,7 @@ defmodule GBFS.MixProject do
   defp deps do
     [
       {:cachex, "~> 3.5"},
-      {:httpoison, "~> 1.8.0"},
+      {:httpoison, "~> 2.1"},
       {:phoenix, "~> 1.6.2"},
       {:sweet_xml, ">= 0.0.0"},
       {:jason, ">= 0.0.0"},
