@@ -45,7 +45,7 @@ defmodule DB.ResourceTest do
 
     assert nil == Resource.get_related_geojson_info(resource_id_1 - 10)
 
-    assert %{geojson: %{url: "url2", filesize: "12", resource_history_last_up_to_date_at: _}} =
+    assert %{GeoJSON: %{url: "url2", filesize: "12", resource_history_last_up_to_date_at: _}} =
              Resource.get_related_files(%Resource{id: resource_id_1})
   end
 
