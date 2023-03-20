@@ -59,13 +59,13 @@ defmodule TransportWeb.ConversionControllerTest do
       # A request is recorded in the `metrics` table, with a `period` at the day level
       target = "resource_id:#{resource.id}"
       period = %{DateTime.truncate(DateTime.utc_now(), :second) | second: 0, minute: 0, hour: 0}
-      assert_received {:telemetry_event, [:conversions, :get, :geojson], %{}, %{target: ^target}}
+      assert_received {:telemetry_event, [:conversions, :get, :GeoJSON], %{}, %{target: ^target}}
 
       # Need to wait a few milliseconds because the real telemetry handler
       # writes rows in the database asynchronously
       Process.sleep(50)
 
-      assert [%DB.Metrics{target: ^target, event: "conversions:get:geojson", period: ^period, count: 1}] =
+      assert [%DB.Metrics{target: ^target, event: "conversions:get:GeoJSON", period: ^period, count: 1}] =
                DB.Metrics |> DB.Repo.all()
     end
   end

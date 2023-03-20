@@ -34,8 +34,8 @@ defmodule TransportWeb.ConversionController do
     :md5 |> :crypto.hash(value) |> Base.encode16(case: :lower)
   end
 
-  defp trace_request(resource_id, convert_to) do
-    convert_to_atom = convert_to |> String.downcase() |> String.to_existing_atom()
+  defp trace_request(resource_id, convert_to) when is_binary(convert_to) do
+    convert_to_atom = convert_to |> String.to_existing_atom()
     :telemetry.execute([:conversions, :get, convert_to_atom], %{}, %{target: "resource_id:#{resource_id}"})
   end
 

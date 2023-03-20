@@ -10,9 +10,7 @@ defmodule Transport.Telemetry do
   defdelegate gbfs_request_event_name(request), to: Unlock.Telemetry
 
   def conversions_get_event_names do
-    DB.DataConversion
-    |> Ecto.Enum.dump_values(:convert_to)
-    |> Enum.map(&[:conversions, :get, &1 |> String.downcase() |> String.to_existing_atom()])
+    DB.DataConversion |> Ecto.Enum.values(:convert_to) |> Enum.map(&[:conversions, :get, &1])
   end
 
   @moduledoc """
