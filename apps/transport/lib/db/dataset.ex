@@ -775,8 +775,7 @@ defmodule DB.Dataset do
   @spec get_resources_related_files(any()) :: map()
   def get_resources_related_files(%__MODULE__{resources: resources}) when is_list(resources) do
     convert_to_values = Ecto.Enum.values(DB.DataConversion, :convert_to)
-    to_atom = Enum.into(convert_to_values, %{}, fn v -> {v, lowercase_atom(v)} end)
-    filler = to_atom |> Map.new(fn {_a, b} -> {b, nil} end)
+    filler = convert_to_values |> Enum.into(%{}, &{&1, nil})
 
     resource_ids = resources |> Enum.map(& &1.id)
 
@@ -799,22 +798,19 @@ defmodule DB.Dataset do
       )
       |> Repo.all()
       # transform from
-      # [{id1, {"GeoJSON", %{infos}}}, {id1, {"NeTEx", %{infos}}}, {id2, {"NeTEx", %{infos}}}]
+      # [{id1, {:GeoJSON, %{infos}}}, {id1, {:NeTEx, %{infos}}}, {id2, {:NeTEx, %{infos}}}]
       # to
-      # %{id1 => %{geojson: %{infos}, netex: %{infos}}, id2 => %{geojson: nil, netex: %{infos}}}
-      |> Enum.map(fn {id, {c_to, infos}} -> {id, {Map.fetch!(to_atom, c_to), infos}} end)
+      # %{id1 => %{:GeoJSON: %{infos}, :NeTEx: %{infos}}, id2 => %{:GeoJSON: nil, :NeTEx: %{infos}}}
       |> Enum.group_by(fn {id, _} -> id end, fn {_, v} -> v end)
       |> Enum.map(fn {id, l} -> {id, Map.merge(filler, Enum.into(l, %{}))} end)
       |> Enum.into(%{})
 
-    empty_results = resource_ids |> Enum.map(fn id -> {id, %{geojson: nil, netex: nil}} end) |> Enum.into(%{})
+    empty_results = resource_ids |> Enum.into(%{}, fn id -> {id, filler} end)
 
     Map.merge(empty_results, results)
   end
 
   def get_resources_related_files(_), do: %{}
-
-  defp lowercase_atom(v) when is_atom(v), do: v |> to_string() |> String.downcase() |> String.to_existing_atom()
 
   @spec validate_territory_mutual_exclusion(Ecto.Changeset.t()) :: Ecto.Changeset.t()
   defp validate_territory_mutual_exclusion(changeset) do
