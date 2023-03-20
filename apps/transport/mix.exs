@@ -59,7 +59,7 @@ defmodule Transport.Mixfile do
       {:csv, "~> 2.1"},
       {:earmark, "~> 1.4"},
       {:gettext, "~> 0.11"},
-      {:httpoison, "~> 1.8.0"},
+      {:httpoison, "~> 2.1"},
       {:phoenix, "~> 1.6.2"},
       {:phoenix_html, "~> 3.1"},
       {:phoenix_markdown, "~> 1.0"},
