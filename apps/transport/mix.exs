@@ -80,7 +80,7 @@ defmodule Transport.Mixfile do
       {:datagouvfr, in_umbrella: true},
       {:shared, in_umbrella: true},
       {:unlock, in_umbrella: true},
-      {:castore, "~> 0.1.0"},
+      {:castore, "~> 1.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:cors_plug, "~> 3.0"},
       {:exvcr, "~> 0.13", only: :test},
