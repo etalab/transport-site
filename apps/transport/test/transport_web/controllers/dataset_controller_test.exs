@@ -83,7 +83,8 @@ defmodule TransportWeb.DatasetControllerTest do
       html_response = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200)
       assert html_response =~ "Conversions automatiques"
       assert html_response =~ "NeTEx"
-      assert html_response =~ conversion_url
+      assert html_response =~ conversion_path(conn, :get, resource.id, :NeTEx)
+      refute html_response =~ conversion_url
       refute html_response =~ "GeoJSON"
     end
   end

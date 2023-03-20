@@ -13,6 +13,7 @@ defmodule TransportWeb.ConversionController do
           conn
           |> put_resp_header("etag", md5_hash(url))
           |> put_resp_header("cache-control", "public, max-age=300")
+          |> put_resp_header("x-robots-tag", "noindex")
           |> put_resp_header("x-last-up-to-date-at", last_up_to_date_at |> DateTime.to_iso8601())
           |> put_status(302)
           |> redirect(external: url)
