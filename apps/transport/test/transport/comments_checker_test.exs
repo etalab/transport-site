@@ -1,5 +1,5 @@
 defmodule Transport.CommentsCheckerTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   alias Transport.CommentsChecker
   alias DB.{Dataset, Repo}
   import DB.Factory
