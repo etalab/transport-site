@@ -81,7 +81,7 @@ defmodule TransportWeb.ResourceView do
       |> Path.join("/fr/admin/dataset/new/")
 
   def has_associated_files(%{} = resources_related_files, resource_id) do
-    # Don't keep records looking like `%{79088 => %{geojson: nil, netex: nil}}`
+    # Don't keep records looking like `%{79088 => %{GeoJSON: nil, NeTEx: nil}}`
     resource_ids =
       resources_related_files
       |> Enum.reject(fn {_resource_id, conversions} ->
@@ -114,10 +114,10 @@ defmodule TransportWeb.ResourceView do
     has_associated_file(resources_related_files, resource_id, &get_associated_netex/1)
   end
 
-  def get_associated_geojson(%{geojson: geojson_url}), do: geojson_url
+  def get_associated_geojson(%{GeoJSON: geojson_url}), do: geojson_url
   def get_associated_geojson(_), do: nil
 
-  def get_associated_netex(%{netex: netex_url}), do: netex_url
+  def get_associated_netex(%{NeTEx: netex_url}), do: netex_url
   def get_associated_netex(_), do: nil
 
   def errors_sample(%DB.MultiValidation{result: %{"errors" => errors}}) do

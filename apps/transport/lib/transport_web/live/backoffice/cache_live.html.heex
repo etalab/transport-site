@@ -18,7 +18,7 @@
   <h3>Clés actives</h3>
 
   <div class="pb-24">
-    <.form :let={f} for={@search_key_name} phx-change="filter" class="no-margin">
+    <.form :let={f} for={%{}} as={@search_key_name} phx-change="filter" class="no-margin">
       <%= label(f, "Filtrer par nom de clé") %>
       <%= text_input(f, :filter_key_name, value: @filter_key_name) %>
     </.form>

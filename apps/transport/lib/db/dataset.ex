@@ -782,8 +782,8 @@ defmodule DB.Dataset do
 
   @spec get_resources_related_files(any()) :: map()
   def get_resources_related_files(%__MODULE__{resources: resources}) when is_list(resources) do
-    to_atom = %{"GeoJSON" => :geojson, "NeTEx" => :netex}
-    filler = to_atom |> Map.new(fn {_a, b} -> {b, nil} end)
+    convert_to_values = Ecto.Enum.values(DB.DataConversion, :convert_to)
+    filler = convert_to_values |> Enum.into(%{}, &{&1, nil})
 
     resource_ids = resources |> Enum.map(& &1.id)
 
@@ -791,7 +791,7 @@ defmodule DB.Dataset do
       DB.Resource.base_query()
       |> where([resource: r], r.id in ^resource_ids)
       |> DB.ResourceHistory.join_resource_with_latest_resource_history()
-      |> DB.DataConversion.join_resource_history_with_data_conversion(["GeoJSON", "NeTEx"])
+      |> DB.DataConversion.join_resource_history_with_data_conversion(convert_to_values)
       |> select(
         [resource: r, resource_history: rh, data_conversion: dc],
         {r.id,
@@ -799,21 +799,21 @@ defmodule DB.Dataset do
           %{
             url: fragment("? ->> 'permanent_url'", dc.payload),
             filesize: fragment("? ->> 'filesize'", dc.payload),
-            format: dc.convert_to,
+            # Using `fragment` to avoid `convert_to` being cast to atoms
+            format: fragment("?", dc.convert_to),
             resource_history_last_up_to_date_at: rh.last_up_to_date_at
           }}}
       )
       |> Repo.all()
       # transform from
-      # [{id1, {"GeoJSON", %{infos}}}, {id1, {"NeTEx", %{infos}}}, {id2, {"NeTEx", %{infos}}}]
+      # [{id1, {:GeoJSON, %{infos}}}, {id1, {:NeTEx, %{infos}}}, {id2, {:NeTEx, %{infos}}}]
       # to
-      # %{id1 => %{geojson: %{infos}, netex: %{infos}}, id2 => %{geojson: nil, netex: %{infos}}}
-      |> Enum.map(fn {id, {c_to, infos}} -> {id, {Map.fetch!(to_atom, c_to), infos}} end)
+      # %{id1 => %{:GeoJSON: %{infos}, :NeTEx: %{infos}}, id2 => %{:GeoJSON: nil, :NeTEx: %{infos}}}
       |> Enum.group_by(fn {id, _} -> id end, fn {_, v} -> v end)
       |> Enum.map(fn {id, l} -> {id, Map.merge(filler, Enum.into(l, %{}))} end)
       |> Enum.into(%{})
 
-    empty_results = resource_ids |> Enum.map(fn id -> {id, %{geojson: nil, netex: nil}} end) |> Enum.into(%{})
+    empty_results = resource_ids |> Enum.into(%{}, fn id -> {id, filler} end)
 
     Map.merge(empty_results, results)
   end

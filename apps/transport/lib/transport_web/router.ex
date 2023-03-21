@@ -100,6 +100,10 @@ defmodule TransportWeb.Router do
       get("/:id", ResourceController, :details)
       get("/:id/download", ResourceController, :download)
 
+      scope "/conversions" do
+        get("/:resource_id/:convert_to", ConversionController, :get)
+      end
+
       scope "/show" do
         pipe_through([:authenticated])
         get("/proxy_statistics", ResourceController, :proxy_statistics)
