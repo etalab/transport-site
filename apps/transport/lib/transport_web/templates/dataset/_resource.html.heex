@@ -197,8 +197,6 @@
     </div>
     <%= if has_conversions do %>
       <%= render(TransportWeb.DatasetView, "_conversions.html",
-        conn: @conn,
-        resource: @resource,
         conversions_details: Map.fetch!(@resources_related_files, @resource.id)
       ) %>
     <% end %>

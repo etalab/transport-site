@@ -27,11 +27,11 @@
             <ul>
               <%= unless is_nil(associated_geojson) do %>
                 <li>
-                  <a rel="nofollow" href={conversion_path(@conn, :get, @resource.id, :GeoJSON)}>GeoJSON</a>*
+                  <a rel="nofollow" href={associated_geojson.stable_url}>GeoJSON</a>*
                 </li>
               <% end %>
               <%= unless is_nil(associated_netex) do %>
-                <li><a rel="nofollow" href={conversion_path(@conn, :get, @resource.id, :NeTEx)}>NeTEx</a></li>
+                <li><a rel="nofollow" href={associated_netex.stable_url}>NeTEx</a></li>
               <% end %>
             </ul>
             * <%= dgettext(
