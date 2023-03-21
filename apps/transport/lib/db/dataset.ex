@@ -395,6 +395,14 @@ defmodule DB.Dataset do
     end
   end
 
+  def order_datasets(datasets, %{"insee_commune" => _insee_commune}) do
+    order_by(datasets,
+      # priority to non regional datasets when we search for a commune
+      desc: fragment("case when region_id is null then 1 else 0 end"),
+      asc: :custom_title
+    )
+  end
+
   def order_datasets(datasets, _params) do
     pan_publisher = Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
 

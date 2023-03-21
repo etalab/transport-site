@@ -203,4 +203,19 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     assert [region_dataset.id, aom_dataset.id] == list_datasets.(%{"region" => aom.region_id |> to_string()})
     assert list_datasets.(%{}) != list_datasets.(%{"region" => aom.region_id |> to_string()})
   end
+
+  test "datasets associated to a region are displayed last when searching for a commune" do
+    aom = insert(:aom, region: region = insert(:region))
+    commune = insert(:commune, aom_res_id: aom.composition_res_id, insee: "33400", region: region)
+
+    region_dataset = insert(:dataset, region_id: region.id, is_active: true)
+    aom_dataset = insert(:dataset, is_active: true, aom: aom)
+
+    list_datasets = fn %{} = args ->
+      args |> Dataset.list_datasets() |> Repo.all() |> Enum.map(& &1.id)
+    end
+
+    assert [aom_dataset.id, region_dataset.id] == list_datasets.(%{"insee_commune" => commune.insee |> to_string()})
+    assert list_datasets.(%{}) != list_datasets.(%{"insee_commune" => commune.insee |> to_string()})
+  end
 end
