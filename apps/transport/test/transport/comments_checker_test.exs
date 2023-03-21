@@ -1,5 +1,5 @@
 defmodule Transport.CommentsCheckerTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
   alias Transport.CommentsChecker
   alias DB.{Dataset, Repo}
   import DB.Factory
@@ -15,12 +15,8 @@ defmodule Transport.CommentsCheckerTest do
     %{latest_data_gouv_comment_timestamp: db_ts} = Dataset |> Repo.get!(id)
 
     case timestamp do
-      nil ->
-        assert is_nil(db_ts)
-
-      timestamp ->
-        timestamp = NaiveDateTime.from_iso8601!(timestamp)
-        assert NaiveDateTime.diff(timestamp, db_ts) < 1
+      nil -> assert is_nil(db_ts)
+      %DateTime{} = timestamp -> assert DateTime.diff(timestamp, db_ts) < 1
     end
   end
 
@@ -37,7 +33,7 @@ defmodule Transport.CommentsCheckerTest do
            %{
              "id" => "discussion_id_1",
              "discussion" => [
-               %{"posted_on" => "2020-01-01T12:00:00.000100", "content" => "commentaire 1"}
+               %{"posted_on" => "2020-01-01T12:00:00.000100+00:00", "content" => "commentaire 1"}
              ]
            }
          ]
@@ -52,7 +48,7 @@ defmodule Transport.CommentsCheckerTest do
 
       assert number_new_comments == 1
       verify!(Transport.EmailSender.Mock)
-      assert_dataset_ts(dataset_id, "2020-01-01T12:00:00.000100")
+      assert_dataset_ts(dataset_id, ~U[2020-01-01T12:00:00.000100Z])
     end
 
     # second run : we shouldn't find new comment
@@ -64,7 +60,7 @@ defmodule Transport.CommentsCheckerTest do
 
       assert number_new_comments == 0
       verify!(Transport.EmailSender.Mock)
-      assert_dataset_ts(dataset_id, "2020-01-01T12:00:00.000100")
+      assert_dataset_ts(dataset_id, ~U[2020-01-01T12:00:00.000100Z])
     end
 
     # we add a new comment
@@ -75,8 +71,8 @@ defmodule Transport.CommentsCheckerTest do
            %{
              "id" => "discussion_id_1",
              "discussion" => [
-               %{"posted_on" => "2020-01-01T12:00:00.000100", "content" => "commentaire 1"},
-               %{"posted_on" => "2021-01-01T12:00:00.000200", "content" => "commentaire 2"}
+               %{"posted_on" => "2020-01-01T12:00:00.000100+00:00", "content" => "commentaire 1"},
+               %{"posted_on" => "2021-01-01T12:00:00.000200+00:00", "content" => "commentaire 2"}
              ]
            }
          ]
@@ -91,20 +87,20 @@ defmodule Transport.CommentsCheckerTest do
 
       assert number_new_comments == 1
       verify!(Transport.EmailSender.Mock)
-      assert_dataset_ts(dataset_id, "2021-01-01T12:00:00.000200")
+      assert_dataset_ts(dataset_id, ~U[2021-01-01T12:00:00.000200Z])
     end
   end
 
   test "get latest comment timestamp" do
     discussions = [
-      %{"posted_on" => "2020-05-12T15:07:04.547000"},
-      %{"posted_on" => "2021-05-12T15:07:00.547000"},
-      %{"posted_on" => "2021-05-12T15:07:04.547000"},
-      %{"posted_on" => "2021-05-12T15:06:48.512000"}
+      %{"posted_on" => "2020-05-12T15:07:04.547000+00:00"},
+      %{"posted_on" => "2021-05-12T15:07:00.547000+00:00"},
+      %{"posted_on" => "2021-05-12T15:07:04.547000+00:00"},
+      %{"posted_on" => "2021-05-12T15:06:48.512000+00:00"}
     ]
 
     assert CommentsChecker.comments_latest_timestamp(discussions) ==
-             NaiveDateTime.from_iso8601!("2021-05-12T15:07:04.547000")
+             ~U[2021-05-12 15:07:04.547000Z]
   end
 
   test "timestamp of empty list is nil" do
@@ -117,37 +113,37 @@ defmodule Transport.CommentsCheckerTest do
 
   test "fetch comments for datasets posted after timestamp" do
     discussions = [
-      %{"discussion" => [%{"posted_on" => "2020-05-12T15:07:04.547000", "content" => "commentaire 1"}]},
+      %{"discussion" => [%{"posted_on" => "2020-05-12T15:07:04.547000+00:00", "content" => "commentaire 1"}]},
       %{
         "discussion" => [
-          %{"posted_on" => "2020-05-12T15:07:00.547000", "content" => "commentaire 2"},
-          %{"posted_on" => "2022-05-12T15:07:04.547000", "content" => "commentaire 3"}
+          %{"posted_on" => "2020-05-12T15:07:00.547000+00:00", "content" => "commentaire 2"},
+          %{"posted_on" => "2022-05-12T15:07:04.547000+00:00", "content" => "commentaire 3"}
         ]
       },
-      %{"discussion" => [%{"posted_on" => "2022-05-12T15:06:48.512000", "content" => "commentaire 4"}]}
+      %{"discussion" => [%{"posted_on" => "2022-05-12T15:06:48.512000+00:00", "content" => "commentaire 4"}]}
     ]
 
-    selected_discussions = CommentsChecker.comments_posted_after(discussions, ~N[2022-01-01 00:00:00.000])
+    selected_discussions = CommentsChecker.comments_posted_after(discussions, ~U[2022-01-01 00:00:00.000Z])
 
     assert selected_discussions |> Enum.frequencies_by(fn d -> d["content"] end) == %{
              "commentaire 3" => 1,
              "commentaire 4" => 1
            }
 
-    selected_discussions_empty = CommentsChecker.comments_posted_after(discussions, ~N[2023-01-01 00:00:00.000])
+    selected_discussions_empty = CommentsChecker.comments_posted_after(discussions, ~U[2023-01-01 00:00:00.000Z])
     assert selected_discussions_empty == []
   end
 
   test "comments_posted_after with nil timestamp" do
     discussions = [
-      %{"discussion" => [%{"posted_on" => "2020-05-12T15:07:04.547000", "content" => "commentaire 1"}]},
+      %{"discussion" => [%{"posted_on" => "2020-05-12T15:07:04.547000+00:00", "content" => "commentaire 1"}]},
       %{
         "discussion" => [
-          %{"posted_on" => "2020-05-12T15:07:00.547000", "content" => "commentaire 2"},
-          %{"posted_on" => "2022-05-12T15:07:04.547000", "content" => "commentaire 3"}
+          %{"posted_on" => "2020-05-12T15:07:00.547000+00:00", "content" => "commentaire 2"},
+          %{"posted_on" => "2022-05-12T15:07:04.547000+00:00", "content" => "commentaire 3"}
         ]
       },
-      %{"discussion" => [%{"posted_on" => "2022-05-12T15:06:48.512000", "content" => "commentaire 4"}]}
+      %{"discussion" => [%{"posted_on" => "2022-05-12T15:06:48.512000+00:00", "content" => "commentaire 4"}]}
     ]
 
     assert discussions |> CommentsChecker.comments_posted_after(nil) |> Enum.count() == 4
@@ -155,17 +151,20 @@ defmodule Transport.CommentsCheckerTest do
   end
 
   test "comments_posted_after with empty discussions" do
-    assert CommentsChecker.comments_posted_after([], ~N[2023-01-01 00:00:00.000]) == []
+    assert CommentsChecker.comments_posted_after([], ~U[2023-01-01 00:00:00.000Z]) == []
   end
 
   test "add a discussion id to comments" do
     discussions = [
-      %{"id" => "id1", "discussion" => [%{"posted_on" => "2020-05-12T15:07:04.547000", "content" => "commentaire 1"}]},
+      %{
+        "id" => "id1",
+        "discussion" => [%{"posted_on" => "2020-05-12T15:07:04.547000+00:00", "content" => "commentaire 1"}]
+      },
       %{
         "id" => "id2",
         "discussion" => [
-          %{"posted_on" => "2020-05-12T15:07:00.547000", "content" => "commentaire 2"},
-          %{"posted_on" => "2022-05-12T15:07:04.547000", "content" => "commentaire 3"}
+          %{"posted_on" => "2020-05-12T15:07:00.547000+00:00", "content" => "commentaire 2"},
+          %{"posted_on" => "2022-05-12T15:07:04.547000+00:00", "content" => "commentaire 3"}
         ]
       }
     ]
