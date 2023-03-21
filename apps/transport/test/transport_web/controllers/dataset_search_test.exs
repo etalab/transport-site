@@ -205,7 +205,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
   end
 
   test "datasets associated to a region are displayed last when searching for a commune" do
-    aom = insert(:aom, composition_res_id: 10000, region: region = insert(:region))
+    aom = insert(:aom, region: region = insert(:region))
     commune = insert(:commune, aom_res_id: aom.composition_res_id, insee: "33400", region: region)
 
     region_dataset = insert(:dataset, region_id: region.id, is_active: true)
