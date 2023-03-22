@@ -248,6 +248,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
           }
         ],
         created_at: ~U[2021-12-23 13:30:40.000000Z],
+        last_update: DateTime.utc_now(),
         aom: %DB.AOM{id: 4242, nom: "Angers Métropole", siren: "siren"}
       }
       |> DB.Repo.insert!()

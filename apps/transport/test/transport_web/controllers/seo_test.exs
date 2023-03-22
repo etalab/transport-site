@@ -18,6 +18,8 @@ defmodule TransportWeb.SeoMetadataTest do
 
     {:ok, _} =
       %Dataset{
+        created_at: DateTime.utc_now(),
+        last_update: DateTime.utc_now(),
         description: "Un jeu de données",
         licence: "odc-odbl",
         datagouv_title: "Horaires et arrêts du réseau IRIGO - format GTFS",

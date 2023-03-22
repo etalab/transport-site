@@ -137,6 +137,8 @@ defmodule TransportWeb.BackofficeControllerTest do
     |> expect(:get!, fn "https://demo.data.gouv.fr/api/1/datasets/12/", [], _ ->
       body =
         %{
+          "created_at" => DateTime.utc_now(),
+          "last_update" => DateTime.utc_now(),
           "slug" => "dataset-slug",
           "type" => "public-transit",
           "id" => dataset_datagouv_id,

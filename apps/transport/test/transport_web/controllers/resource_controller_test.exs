@@ -17,6 +17,8 @@ defmodule TransportWeb.ResourceControllerTest do
 
     {:ok, _} =
       %Dataset{
+        created_at: DateTime.utc_now(),
+        last_update: DateTime.utc_now(),
         slug: "slug-1",
         resources: [
           %Resource{
