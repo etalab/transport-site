@@ -84,7 +84,7 @@
         <% end %>
         <datalist id="contacts_datalist">
           <%= for contact <- @contacts_datalist do %>
-            <option value={contact.id}><%= DB.Contact.display_name(contact) %></option>
+            <option value={contact.id}><%= DB.Contact.display_name(contact) %> (<%= contact.organization %>)</option>
           <% end %>
         </datalist>
         <%= label f, :reasons, class: "pt-12" do %>
