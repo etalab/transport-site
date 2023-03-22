@@ -180,7 +180,7 @@ defmodule TransportWeb.Backoffice.PageController do
 
   defp contacts_datalist do
     DB.Contact.base_query()
-    |> select([contact: c], [:first_name, :last_name, :mailing_list_title, :id])
+    |> select([contact: c], [:first_name, :last_name, :mailing_list_title, :organization, :id])
     |> DB.Repo.all()
   end
 
