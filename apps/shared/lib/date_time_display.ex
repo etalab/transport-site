@@ -18,8 +18,11 @@ defmodule Shared.DateTimeDisplay do
   "01/03/2022"
   iex> format_date("2022-03-01", "en")
   "2022-03-01"
+  iex> format_date(~U[2022-11-01 00:00:00Z], "en")
+  "2022-11-01"
   """
-  @spec format_date(binary | Date.t(), binary() | nil) :: binary
+  @spec format_date(binary | Date.t() | DateTime.t(), binary() | nil) :: binary
+  def format_date(%DateTime{} = datetime, locale), do: format_date(DateTime.to_date(datetime), locale)
   def format_date(%Date{} = date, "fr"), do: Calendar.strftime(date, "%d/%m/%Y")
   def format_date(%Date{} = date, "en"), do: Calendar.strftime(date, "%Y-%m-%d")
   def format_date(%Date{} = date, _), do: format_date(date, "fr")
