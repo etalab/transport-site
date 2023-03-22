@@ -701,9 +701,8 @@ defmodule Transport.ImportData do
   def check_download_url(%{"download_url" => _}), do: true
 
   @doc """
-  Returns the date part of an ISO 8601 datetime.
+  Parses an ISO 8601 string into a datetime.
 
-  ## Examples
   iex> parse_datetime("2018-09-28T13:37:00+00:00")
   ~U[2018-09-28 13:37:00Z]
   iex> parse_datetime(nil)
