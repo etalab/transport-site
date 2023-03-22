@@ -48,10 +48,11 @@ defmodule TransportWeb.ConversionControllerTest do
       assert [
                {"cache-control", "public, max-age=300"},
                {"etag", ConversionController.md5_hash(permanent_url)},
-               {"x-last-up-to-date-at", last_up_to_date_at |> DateTime.to_iso8601()}
+               {"x-last-up-to-date-at", last_up_to_date_at |> DateTime.to_iso8601()},
+               {"x-robots-tag", "noindex"}
              ] ==
                conn_redirected.resp_headers
-               |> Enum.filter(fn {k, _} -> k in ["cache-control", "etag", "x-last-up-to-date-at"] end)
+               |> Enum.filter(fn {k, _} -> k in ["cache-control", "etag", "x-last-up-to-date-at", "x-robots-tag"] end)
                |> Enum.sort_by(fn {k, _} -> k end, :asc)
 
       assert redirected_to(conn_redirected, 302) == permanent_url
