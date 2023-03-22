@@ -97,6 +97,7 @@ defmodule TransportWeb.PageController do
         Disallow: /backoffice/
         Disallow: /validation/*
         Disallow: /login/*
+        Disallow: /resources/conversions/*
         """
       end
 

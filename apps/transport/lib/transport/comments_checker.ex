@@ -4,7 +4,6 @@ defmodule Transport.CommentsChecker do
   Send an email to the team with the new comments and a link to them.
   """
   alias Datagouvfr.Client.Discussions
-  alias Datagouvfr.DgDate
   alias DB.{Dataset, Repo}
   import Ecto.Query
   require Logger
@@ -87,7 +86,7 @@ defmodule Transport.CommentsChecker do
     end)
   end
 
-  @spec update_dataset_ts(Dataset.t(), DgDate.dt()) :: {:ok, any()} | {:error, any()}
+  @spec update_dataset_ts(Dataset.t(), DateTime.t()) :: {:ok, any()} | {:error, any()}
   def update_dataset_ts(dataset, timestamp) do
     changeset_request = Ecto.Changeset.change(dataset, %{latest_data_gouv_comment_timestamp: timestamp})
     update = Repo.update(changeset_request)
@@ -111,9 +110,9 @@ defmodule Transport.CommentsChecker do
   def comment_timestamp(comment) do
     comment
     |> Map.get("posted_on")
-    |> DgDate.from_iso8601()
+    |> DateTime.from_iso8601()
     |> case do
-      {:ok, datetime} -> datetime
+      {:ok, %DateTime{} = datetime, 0} -> datetime
       _ -> nil
     end
   end
@@ -127,19 +126,22 @@ defmodule Transport.CommentsChecker do
         comment_timestamp(comment)
 
       [c | comments] ->
-        DgDate.latest_dg_datetime(comment_timestamp(c), comments_latest_timestamp(comments))
+        latest_datetime(comment_timestamp(c), comments_latest_timestamp(comments))
     end
   end
 
+  defp latest_datetime(%DateTime{} = date1, %DateTime{} = date2) do
+    Enum.max([date1, date2], DateTime)
+  end
+
   def comments_posted_after(discussions, nil) do
-    discussions
-    |> Enum.flat_map(fn d -> d["discussion"] end)
+    discussions |> Enum.flat_map(fn d -> d["discussion"] end)
   end
 
   def comments_posted_after(discussions, timestamp) do
     discussions
     |> Enum.flat_map(fn d -> d["discussion"] end)
-    |> Enum.filter(fn comment -> DgDate.diff(comment_timestamp(comment), timestamp) >= 1 end)
+    |> Enum.filter(fn comment -> DateTime.diff(comment_timestamp(comment), timestamp) >= 1 end)
   end
 
   def add_discussion_id_to_comments(discussions) do

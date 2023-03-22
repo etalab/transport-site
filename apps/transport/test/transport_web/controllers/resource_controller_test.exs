@@ -83,12 +83,13 @@ defmodule TransportWeb.ResourceControllerTest do
       resource_history_uuid: uuid,
       convert_from: "GTFS",
       convert_to: "NeTEx",
-      payload: %{"permanent_url" => url = "https://super-cellar-url.com/netex"}
+      payload: %{"permanent_url" => permanent_url = "https://super-cellar-url.com/netex"}
     )
 
     html_response = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
     assert html_response =~ "NeTEx"
-    assert html_response =~ url
+    assert html_response =~ conversion_path(conn, :get, resource.id, :NeTEx)
+    refute html_response =~ permanent_url
   end
 
   test "GBFS resource with multi-validation sends back 200", %{conn: conn} do

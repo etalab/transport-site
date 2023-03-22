@@ -6,7 +6,7 @@ defmodule DB.Resource do
   use TypedEctoSchema
   alias DB.{Dataset, Repo, ResourceUnavailability}
   import Ecto.{Changeset, Query}
-  import TransportWeb.Router.Helpers, only: [resource_url: 3]
+  import TransportWeb.Router.Helpers, only: [conversion_url: 4, resource_url: 3]
   require Logger
 
   typed_schema "resource" do
@@ -218,7 +218,8 @@ defmodule DB.Resource do
   def get_related_netex_info(resource_id), do: get_related_conversion_info(resource_id, :NeTEx)
 
   @spec get_related_conversion_info(integer() | nil, atom()) ::
-          %{url: binary(), filesize: binary(), resource_history_last_up_to_date_at: DateTime.t()} | nil
+          %{url: binary(), stable_url: binary(), filesize: binary(), resource_history_last_up_to_date_at: DateTime.t()}
+          | nil
   def get_related_conversion_info(nil, _), do: nil
 
   def get_related_conversion_info(resource_id, format) do
@@ -236,6 +237,13 @@ defmodule DB.Resource do
     |> order_by([rh, _], desc: rh.inserted_at)
     |> limit(1)
     |> DB.Repo.one()
+    |> case do
+      nil ->
+        nil
+
+      %{} = data ->
+        Map.put(data, :stable_url, conversion_url(TransportWeb.Endpoint, :get, resource_id, format))
+    end
   end
 
   @spec content_updated_at(integer() | __MODULE__.t()) :: Calendar.datetime() | nil

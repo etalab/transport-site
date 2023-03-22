@@ -114,10 +114,10 @@ defmodule TransportWeb.ResourceView do
     has_associated_file(resources_related_files, resource_id, &get_associated_netex/1)
   end
 
-  def get_associated_geojson(%{GeoJSON: geojson_url}), do: geojson_url
+  def get_associated_geojson(%{GeoJSON: geojson_details}), do: geojson_details
   def get_associated_geojson(_), do: nil
 
-  def get_associated_netex(%{NeTEx: netex_url}), do: netex_url
+  def get_associated_netex(%{NeTEx: netex_details}), do: netex_details
   def get_associated_netex(_), do: nil
 
   def errors_sample(%DB.MultiValidation{result: %{"errors" => errors}}) do

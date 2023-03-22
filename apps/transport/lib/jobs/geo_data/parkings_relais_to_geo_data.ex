@@ -35,7 +35,7 @@ defmodule Transport.Jobs.ParkingsRelaisToGeoData do
 
     stream
     |> IO.binstream(:line)
-    |> CSV.decode(separator: ?;, headers: true)
+    |> CSV.decode(separator: ?;, headers: true, validate_row_length: true)
     |> Stream.filter(fn {:ok, line} -> pr_count(line["nb_pr"]) > 0 end)
     |> Stream.map(fn {:ok, m} ->
       %{

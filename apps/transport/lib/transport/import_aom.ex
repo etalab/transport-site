@@ -136,7 +136,7 @@ defmodule Transport.ImportAOMs do
 
     stream
     |> IO.binstream(:line)
-    |> CSV.decode(separator: ?,, headers: true)
+    |> CSV.decode(separator: ?,, headers: true, validate_row_length: true)
     |> Enum.reject(fn {:ok, line} -> line["Id réseau"] in ["", nil] or line["Nom de l’AOM"] in @ignored_aoms end)
     |> Enum.map(fn {:ok, line} ->
       AOM
@@ -190,7 +190,7 @@ defmodule Transport.ImportAOMs do
 
     stream
     |> IO.binstream(:line)
-    |> CSV.decode(separator: ?,, headers: true)
+    |> CSV.decode(separator: ?,, headers: true, validate_row_length: true)
     |> Enum.map(fn {:ok, line} -> {line["siren_aom"], line["insee"]} end)
     |> Enum.reject(fn {aom_siren, insee} -> aom_siren == "" || insee == "" || aom_siren not in Map.keys(aom_ids) end)
     |> Enum.map(fn {aom_siren, insee} -> {aom_ids[aom_siren], insee} end)

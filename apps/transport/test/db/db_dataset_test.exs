@@ -430,13 +430,15 @@ defmodule DB.DatasetDBTest do
                  url: "url1",
                  filesize: "size1",
                  resource_history_last_up_to_date_at: dt1,
-                 format: "GeoJSON"
+                 format: "GeoJSON",
+                 stable_url: "http://127.0.0.1:5100/resources/conversions/#{r1.id}/GeoJSON"
                },
                NeTEx: %{
                  url: "url11",
                  filesize: "size11",
                  resource_history_last_up_to_date_at: dt1,
-                 format: "NeTEx"
+                 format: "NeTEx",
+                 stable_url: "http://127.0.0.1:5100/resources/conversions/#{r1.id}/NeTEx"
                }
              },
              r2.id => %{
@@ -444,7 +446,8 @@ defmodule DB.DatasetDBTest do
                  url: "url2",
                  filesize: "size2",
                  resource_history_last_up_to_date_at: dt2,
-                 format: "GeoJSON"
+                 format: "GeoJSON",
+                 stable_url: "http://127.0.0.1:5100/resources/conversions/#{r2.id}/GeoJSON"
                },
                NeTEx: nil
              },
