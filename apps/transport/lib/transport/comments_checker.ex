@@ -131,10 +131,7 @@ defmodule Transport.CommentsChecker do
   end
 
   defp latest_datetime(%DateTime{} = date1, %DateTime{} = date2) do
-    case DateTime.compare(date1, date2) do
-      :lt -> date2
-      _ -> date1
-    end
+    Enum.max([date1, date2], DateTime)
   end
 
   def comments_posted_after(discussions, nil) do
