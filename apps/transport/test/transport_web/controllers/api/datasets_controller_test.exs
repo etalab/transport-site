@@ -29,6 +29,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
         datagouv_id: datagouv_id = "datagouv",
         slug: "slug-1",
         is_active: true,
+        created_at: ~U[2021-12-23 13:30:40.000000Z],
         aom: insert(:aom, nom: "Angers Métropole", siren: "siren")
       )
 
@@ -98,7 +99,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
         "name" => "Angers Métropole",
         "type" => "aom"
       },
-      "created_at" => nil,
+      "created_at" => "2021-12-23",
       "datagouv_id" => "datagouv",
       "id" => "datagouv",
       "licence" => "lov2",
@@ -173,6 +174,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
             datagouv_id: "datagouv",
             slug: "slug-1",
             is_active: true,
+            created_at: ~U[2021-12-23 13:30:40.000000Z],
             aom: insert(:aom, nom: "Angers Métropole", siren: "siren")
           ),
         url: "https://link.to/gbfs.json",
@@ -192,7 +194,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
                  "name" => "Angers Métropole",
                  "type" => "aom"
                },
-               "created_at" => nil,
+               "created_at" => "2021-12-23",
                "datagouv_id" => "datagouv",
                "id" => "datagouv",
                "licence" => "lov2",
@@ -245,6 +247,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
             schema_name: "etalab/schema-zfe"
           }
         ],
+        created_at: ~U[2021-12-23 13:30:40.000000Z],
         aom: %DB.AOM{id: 4242, nom: "Angers Métropole", siren: "siren"}
       }
       |> DB.Repo.insert!()
@@ -262,7 +265,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
                "name" => "Angers Métropole",
                "type" => "aom"
              },
-             "created_at" => nil,
+             "created_at" => "2021-12-23",
              "datagouv_id" => "datagouv",
              "history" => [],
              "id" => "datagouv",
@@ -308,6 +311,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
         datagouv_id: "datagouv",
         slug: "slug-1",
         is_active: true,
+        created_at: ~U[2021-12-23 13:30:40.000000Z],
         aom: insert(:aom, nom: "Angers Métropole", siren: "siren")
       )
 
@@ -354,7 +358,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
                "name" => "Angers Métropole",
                "type" => "aom"
              },
-             "created_at" => nil,
+             "created_at" => "2021-12-23",
              "datagouv_id" => "datagouv",
              "history" => [],
              "id" => "datagouv",

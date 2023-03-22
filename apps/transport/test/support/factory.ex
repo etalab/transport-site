@@ -26,6 +26,7 @@ defmodule DB.Factory do
 
   def dataset_factory do
     %DB.Dataset{
+      created_at: DateTime.utc_now(),
       datagouv_title: "Hello",
       slug: sequence(:slug, fn i -> "dataset_slug_#{i}" end),
       datagouv_id: sequence(:datagouv_id, fn i -> "dataset_datagouv_id_#{i}" end),
