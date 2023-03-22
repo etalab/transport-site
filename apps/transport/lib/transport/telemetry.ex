@@ -9,6 +9,10 @@ defmodule Transport.Telemetry do
   defdelegate proxy_request_event_name(request), to: Unlock.Telemetry
   defdelegate gbfs_request_event_name(request), to: Unlock.Telemetry
 
+  def conversions_get_event_names do
+    DB.DataConversion |> Ecto.Enum.values(:convert_to) |> Enum.map(&[:conversions, :get, &1])
+  end
+
   @moduledoc """
   This place groups various aspects of event handling (currently to get metrics for the proxy, later more):
   - events handler declaration
@@ -55,22 +59,52 @@ defmodule Transport.Telemetry do
     end)
   end
 
+  def handle_event(
+        [:conversions, :get, convert_to] = event,
+        _measurements,
+        %{target: target},
+        _config
+      ) do
+    # make it non-blocking, to ensure the traffic will be served quickly. this also means, though, we
+    # won't notice if a tracing of event fails
+    Task.start(fn ->
+      Logger.info("Telemetry event: processing #{convert_to} conversions request for #{target}")
+      count_event(target, event, DateTime.utc_now(), :day)
+    end)
+  end
+
   def database_event_name(event_name), do: Enum.join(event_name, ":")
 
   @doc """
   We embrace the fact that our current implementation's goal is not to replace
   a full-blown timeseries, by limiting the bucket timespan to 1 hour.
+
+  iex> truncate_datetime_to_hour(~U[2023-03-14 09:36:11.642695Z])
+  ~U[2023-03-14 09:00:00Z]
   """
   def truncate_datetime_to_hour(datetime) do
     %{DateTime.truncate(datetime, :second) | second: 0, minute: 0}
   end
 
   @doc """
+  iex> truncate_datetime_to_day(~U[2023-03-14 09:36:11.642695Z])
+  ~U[2023-03-14 00:00:00Z]
+  """
+  def truncate_datetime_to_day(datetime) do
+    %{DateTime.truncate(datetime, :second) | second: 0, minute: 0, hour: 0}
+  end
+
+  @doc """
   Atomically upsert a count record in the database.
   """
-  def count_event(target, event, period \\ DateTime.utc_now()) do
+  def count_event(target, event, period \\ DateTime.utc_now(), truncate_period \\ :hour) do
     event = database_event_name(event)
-    period = truncate_datetime_to_hour(period)
+
+    period =
+      case truncate_period do
+        :hour -> truncate_datetime_to_hour(period)
+        :day -> truncate_datetime_to_day(period)
+      end
 
     DB.Repo.insert!(
       %DB.Metrics{target: target, event: event, period: period, count: 1},
@@ -84,25 +118,24 @@ defmodule Transport.Telemetry do
   Attach the required handlers. To be called at application start.
   """
   def setup do
-    :ok =
-      :telemetry.attach_many(
-        # unique handler id
-        "proxy-logging-handler",
-        # here we list the "event names" (a name is actually a list of atoms, per
-        # https://hexdocs.pm/telemetry/telemetry.html#t:event_name/0)
-        # for which we want to be called in the handler
-        proxy_request_event_names(),
-        &Transport.Telemetry.handle_event/4,
-        nil
-      )
-
-    :ok =
-      :telemetry.attach_many(
-        "gbfs-logging-handler",
-        gbfs_request_event_names(),
-        &Transport.Telemetry.handle_event/4,
-        nil
-      )
+    [
+      {"proxy-logging-handler", proxy_request_event_names()},
+      {"gbfs-logging-handler", gbfs_request_event_names()},
+      {"conversions-logging-handler", conversions_get_event_names()}
+    ]
+    |> Enum.each(fn {name, events} ->
+      :ok =
+        :telemetry.attach_many(
+          # unique handler id
+          name,
+          # here we list the "event names" (a name is actually a list of atoms, per
+          # https://hexdocs.pm/telemetry/telemetry.html#t:event_name/0)
+          # for which we want to be called in the handler
+          events,
+          &Transport.Telemetry.handle_event/4,
+          nil
+        )
+    end)
 
     :ok =
       :telemetry.attach(

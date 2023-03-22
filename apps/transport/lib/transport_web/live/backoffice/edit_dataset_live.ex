@@ -10,7 +10,8 @@ defmodule TransportWeb.EditDatasetLive do
     ~H"""
     <.form
       :let={f}
-      for={:form}
+      for={%{}}
+      as={:form}
       action={@form_url}
       phx-change="change_dataset"
       phx-submit="save"

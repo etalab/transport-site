@@ -1,6 +1,7 @@
 defmodule Transport.TelemetryTest do
   use ExUnit.Case, async: true
-  import Transport.Telemetry, only: [count_event: 3]
+  import Transport.Telemetry, only: [count_event: 3, count_event: 4]
+  doctest Transport.Telemetry, import: true
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -19,6 +20,26 @@ defmodule Transport.TelemetryTest do
                count: 2,
                event: "proxy:request:internal",
                period: ~U[2021-11-22 14:00:00Z],
+               target: "id-001"
+             }
+           ] = stored_events()
+  end
+
+  test "count_event can aggregate at the day level" do
+    count_event("id-001", [:proxy, :request, :internal], ~U[2021-11-22 14:28:06.098765Z], :day)
+    count_event("id-001", [:proxy, :request, :internal], ~U[2021-11-23 15:29:56.098765Z], :day)
+
+    assert [
+             %{
+               count: 1,
+               event: "proxy:request:internal",
+               period: ~U[2021-11-22 00:00:00Z],
+               target: "id-001"
+             },
+             %{
+               count: 1,
+               event: "proxy:request:internal",
+               period: ~U[2021-11-23 00:00:00Z],
                target: "id-001"
              }
            ] = stored_events()
@@ -54,11 +75,11 @@ defmodule Transport.TelemetryTest do
   end
 
   test "handlers have been registered" do
-    events = Transport.Telemetry.proxy_request_event_names() ++ Transport.Telemetry.gbfs_request_event_names()
+    events =
+      Transport.Telemetry.proxy_request_event_names() ++
+        Transport.Telemetry.gbfs_request_event_names() ++
+        Transport.Telemetry.conversions_get_event_names()
 
-    events
-    |> Enum.each(fn event ->
-      refute is_nil(:telemetry.list_handlers(event))
-    end)
+    Enum.each(events, fn event -> refute is_nil(:telemetry.list_handlers(event)) end)
   end
 end

@@ -426,13 +426,13 @@ defmodule DB.DatasetDBTest do
 
     assert %{
              r1.id => %{
-               geojson: %{
+               GeoJSON: %{
                  url: "url1",
                  filesize: "size1",
                  resource_history_last_up_to_date_at: dt1,
                  format: "GeoJSON"
                },
-               netex: %{
+               NeTEx: %{
                  url: "url11",
                  filesize: "size11",
                  resource_history_last_up_to_date_at: dt1,
@@ -440,15 +440,15 @@ defmodule DB.DatasetDBTest do
                }
              },
              r2.id => %{
-               geojson: %{
+               GeoJSON: %{
                  url: "url2",
                  filesize: "size2",
                  resource_history_last_up_to_date_at: dt2,
                  format: "GeoJSON"
                },
-               netex: nil
+               NeTEx: nil
              },
-             r3.id => %{geojson: nil, netex: nil}
+             r3.id => %{GeoJSON: nil, NeTEx: nil}
            } == related_resources
   end
 
