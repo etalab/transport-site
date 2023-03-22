@@ -246,7 +246,7 @@ defmodule Opendatasoft.UrlExtractor do
       {:ok, out} ->
         out
         |> IO.binstream(:line)
-        |> CSV.decode(headers: true, separator: separator)
+        |> CSV.decode(headers: true, separator: separator, validate_row_length: true)
         |> Enum.map(&get_url_from_row/1)
         |> Enum.filter(&(&1 != nil))
     end

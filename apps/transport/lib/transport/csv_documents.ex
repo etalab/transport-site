@@ -43,7 +43,7 @@ defmodule Transport.CSVDocuments do
   defp read_csv(filename) do
     (Application.app_dir(:transport, "priv") <> "/#{filename}")
     |> File.stream!()
-    |> CSV.decode(separator: ?;, headers: true)
+    |> CSV.decode(separator: ?;, headers: true, validate_row_length: true)
     |> Enum.filter(fn
       {:ok, _} -> true
       _ -> false
