@@ -9,8 +9,8 @@ defmodule DB.Repo.Migrations.DatasetChangeTypesDateCols do
   end
 
   def down do
-    execute "ALTER TABLE dataset ALTER COLUMN created_at TYPE varchar;"
-    execute "ALTER TABLE dataset ALTER COLUMN last_update TYPE varchar;"
+    execute "ALTER TABLE dataset ALTER COLUMN created_at TYPE varchar USING created_at::date;"
+    execute "ALTER TABLE dataset ALTER COLUMN last_update TYPE varchar USING last_update::date;"
     execute "ALTER TABLE dataset ALTER COLUMN created_at DROP NOT NULL;"
     execute "ALTER TABLE dataset ALTER COLUMN last_update DROP NOT NULL;"
   end
