@@ -231,7 +231,7 @@ defmodule TransportWeb.API.DatasetController do
       # (since it's used in /dataset/:id)
       "id" => dataset.datagouv_id,
       "title" => dataset.custom_title,
-      "created_at" => dataset.created_at,
+      "created_at" => dataset.created_at |> DateTime.to_date() |> Date.to_string(),
       "page_url" => TransportWeb.Router.Helpers.dataset_url(conn, :details, dataset.slug),
       "slug" => dataset.slug,
       "updated" => Helpers.last_updated(Dataset.official_resources(dataset)),

@@ -10,7 +10,7 @@ defmodule DB.DatasetDBTest do
   import Ecto.Query
 
   test "delete_parent_dataset" do
-    parent_dataset = Repo.insert!(%Dataset{})
+    parent_dataset = insert(:dataset)
     linked_aom = Repo.insert!(%AOM{parent_dataset_id: parent_dataset.id, nom: "Jolie AOM"})
 
     # linked_aom is supposed to have a parent_dataset id

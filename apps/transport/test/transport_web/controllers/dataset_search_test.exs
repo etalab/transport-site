@@ -11,6 +11,8 @@ defmodule TransportWeb.DatasetSearchControllerTest do
   setup do
     {:ok, _} =
       %Dataset{
+        created_at: DateTime.utc_now(),
+        last_update: DateTime.utc_now(),
         description: "Un jeu de données",
         licence: "odc-odbl",
         datagouv_title: "Horaires et arrêts du réseau IRIGO - format GTFS",
@@ -32,6 +34,8 @@ defmodule TransportWeb.DatasetSearchControllerTest do
 
     {:ok, _} =
       %Dataset{
+        created_at: DateTime.utc_now(),
+        last_update: DateTime.utc_now(),
         description: "Un autre jeu de données",
         licence: "lov2",
         datagouv_title: "offre de transport du réseau de LAVAL Agglomération (GTFS)",

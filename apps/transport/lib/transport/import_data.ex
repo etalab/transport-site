@@ -141,14 +141,14 @@ defmodule Transport.ImportData do
       |> Map.put("datagouv_id", data_gouv_resp["id"])
       |> Map.put("logo", get_logo_thumbnail(data_gouv_resp))
       |> Map.put("full_logo", get_logo(data_gouv_resp))
-      |> Map.put("created_at", parse_date(data_gouv_resp["created_at"]))
-      |> Map.put("last_update", parse_date(data_gouv_resp["last_update"]))
+      |> Map.put("created_at", parse_datetime(data_gouv_resp["created_at"]))
+      |> Map.put("last_update", parse_datetime(data_gouv_resp["last_update"]))
       |> Map.put("type", type)
       |> Map.put("organization", data_gouv_resp["organization"]["name"])
       |> Map.put("resources", get_resources(data_gouv_resp, type))
       |> Map.put("nb_reuses", get_nb_reuses(data_gouv_resp))
       |> Map.put("licence", licence(data_gouv_resp))
-      |> Map.put("archived_at", archived(data_gouv_resp["archived"]))
+      |> Map.put("archived_at", parse_datetime(data_gouv_resp["archived"]))
       |> Map.put("zones", get_associated_zones_insee(data_gouv_resp))
       |> Map.put("is_active", true)
 
@@ -156,24 +156,6 @@ defmodule Transport.ImportData do
       nil -> {:error, "dataset #{data_gouv_resp["id"]} has no resource"}
       _ -> {:ok, dataset}
     end
-  end
-
-  @spec archived(nil | binary()) :: DateTime.t() | nil
-  @doc """
-  Set the `archived_at` field from the `archived` API key.
-
-  iex>archived(nil)
-  nil
-  iex>archived("2022-09-28T03:08:59.782000+00:00")
-  ~U[2022-09-28 03:08:59.782000Z]
-  iex>archived("2022-09-28T03:08:59.782000Z")
-  ~U[2022-09-28 03:08:59.782000Z]
-  """
-  def archived(nil), do: nil
-
-  def archived(datetime_str) when is_binary(datetime_str) do
-    {:ok, datetime, 0} = DateTime.from_iso8601(datetime_str)
-    datetime
   end
 
   @doc """
@@ -719,23 +701,20 @@ defmodule Transport.ImportData do
   def check_download_url(%{"download_url" => _}), do: true
 
   @doc """
-  Returns an date only part of the datetime
+  Parses an ISO 8601 string into a datetime.
 
-  ## Examples
-
-      iex> parse_date("2018-09-28T13:37:00")
-      "2018-09-28"
+  iex> parse_datetime("2018-09-28T13:37:00+00:00")
+  ~U[2018-09-28 13:37:00Z]
+  iex> parse_datetime(nil)
+  nil
   """
-  @spec parse_date(binary()) :: binary()
-  def parse_date(date) when is_binary(date) do
-    with {:ok, date} <- NaiveDateTime.from_iso8601(date) do
-      date
-      |> NaiveDateTime.to_date()
-      |> Date.to_string()
-    end
+  @spec parse_datetime(binary() | nil) :: DateTime.t() | nil
+  def parse_datetime(date) when is_binary(date) do
+    {:ok, datetime, 0} = DateTime.from_iso8601(date)
+    datetime
   end
 
-  def parse_date(nil), do: nil
+  def parse_datetime(nil), do: nil
 
   @doc """
   Formats the file format in a human readable form

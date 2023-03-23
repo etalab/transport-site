@@ -315,7 +315,7 @@ defmodule TransportWeb.API.Schemas do
         updated: %Schema{type: :string, description: "The last update of any resource of that dataset"},
         name: %Schema{type: :string},
         licence: %Schema{type: :string, description: "The licence of the dataset"},
-        created_at: %Schema{type: :string, description: "Date of creation of the dataset"},
+        created_at: %Schema{type: :string, format: :date, description: "Date of creation of the dataset"},
         aom: %Schema{type: :string, description: "Transit authority responsible of this authority"},
         resources: %Schema{
           type: :array,

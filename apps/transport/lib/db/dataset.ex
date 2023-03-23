@@ -20,10 +20,10 @@ defmodule DB.Dataset do
   typed_schema "dataset" do
     field(:datagouv_id, :string)
     field(:custom_title, :string)
-    field(:created_at, :string)
+    field(:created_at, :utc_datetime_usec)
     field(:description, :string)
     field(:frequency, :string)
-    field(:last_update, :string)
+    field(:last_update, :utc_datetime_usec)
     field(:licence, :string)
     field(:logo, :string)
     field(:full_logo, :string)
