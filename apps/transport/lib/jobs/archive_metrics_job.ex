@@ -43,24 +43,25 @@ defmodule Transport.Jobs.ArchiveMetricsJob do
         })
         |> DB.Repo.all()
 
+      map_record = fn record ->
+        now = DateTime.utc_now()
+
+        %{
+          target: record.target,
+          event: record.event,
+          period: to_midnight_datetime(record.date),
+          count: record.total,
+          inserted_at: now,
+          updated_at: now
+        }
+      end
+
       DB.Repo.transaction(fn ->
         DB.Metrics
         |> where([m], m.period >= ^date_start and m.period < ^date_end)
         |> DB.Repo.delete_all()
 
-        records =
-          Enum.map(metrics, fn record ->
-            now = DateTime.utc_now()
-
-            %{
-              target: record.target,
-              event: record.event,
-              period: to_midnight_datetime(record.date),
-              count: record.total,
-              inserted_at: now,
-              updated_at: now
-            }
-          end)
+        records = Enum.map(metrics, map_record)
 
         DB.Repo.insert_all(DB.Metrics, records)
       end)
