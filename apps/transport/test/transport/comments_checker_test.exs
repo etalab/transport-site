@@ -100,7 +100,7 @@ defmodule Transport.CommentsCheckerTest do
     ]
 
     assert CommentsChecker.comments_latest_timestamp(discussions) ==
-             ~U[2021-05-12 15:07:04.547000Z]
+             ~U[2021-05-12 15:07:04Z]
   end
 
   test "timestamp of empty list is nil" do
