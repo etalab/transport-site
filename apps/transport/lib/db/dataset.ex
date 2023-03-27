@@ -387,6 +387,7 @@ defmodule DB.Dataset do
       {region_id, ""} ->
         order_by(datasets,
           desc: fragment("case when region_id = ? then 1 else 0 end", ^region_id),
+          desc: fragment("coalesce(population, 0)"),
           asc: :custom_title
         )
 
