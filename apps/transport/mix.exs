@@ -107,7 +107,7 @@ defmodule Transport.Mixfile do
       end,
       {:etag_plug, "~> 1.0"},
       {:oban, "~> 2.13"},
-      {:unzip, "~> 0.7.0"},
+      {:unzip, "~> 0.8"},
       {:protobuf, "~> 0.11.0"},
       {:nimble_csv, "~> 1.2.0"},
       {:kino, "~> 0.6", only: :dev},
