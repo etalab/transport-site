@@ -237,7 +237,7 @@ defmodule TransportWeb.ResourceController do
     else
       case Transport.Shared.Wrapper.HTTPoison.impl().get(resource.url, [], hackney: [follow_redirect: true]) do
         {:ok, %HTTPoison.Response{status_code: 200} = response} ->
-          headers = Enum.into(response.headers, %{}, fn {h, v} -> {String.downcase(h), v} end)
+          headers = Enum.into(response.headers, %{}, &downcase_header(&1))
           %{"content-type" => content_type} = headers
 
           send_download(conn, {:binary, response.body},
@@ -255,6 +255,8 @@ defmodule TransportWeb.ResourceController do
       end
     end
   end
+
+  defp downcase_header({h, v}), do: {String.downcase(h), v}
 
   @spec post_file(Plug.Conn.t(), map) :: Plug.Conn.t()
   def post_file(conn, params) do

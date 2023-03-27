@@ -71,20 +71,21 @@ defmodule TransportWeb.API.DatasetController do
       |> Repo.all()
       |> Enum.map(fn dataset ->
         enriched_dataset = Map.get(existing_ids, dataset.id)
-
-        if enriched_dataset do
-          enriched_resources =
-            dataset.resources
-            |> Enum.map(fn r -> enriched_dataset |> Map.get(r.id, r) end)
-
-          Map.put(dataset, :resources, enriched_resources)
-        else
-          dataset
-        end
+        add_enriched_resources_to_dataset(dataset, enriched_dataset)
       end)
       |> Enum.map(&transform_dataset(conn, &1))
 
     render(conn, %{data: data})
+  end
+
+  def add_enriched_resources_to_dataset(dataset, nil = _enriched_dataset), do: dataset
+
+  def add_enriched_resources_to_dataset(dataset, enriched_dataset) do
+    enriched_resources =
+      dataset.resources
+      |> Enum.map(fn r -> enriched_dataset |> Map.get(r.id, r) end)
+
+    Map.put(dataset, :resources, enriched_resources)
   end
 
   @spec by_id_operation() :: Operation.t()

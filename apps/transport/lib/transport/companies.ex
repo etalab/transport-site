@@ -27,16 +27,14 @@ defmodule Transport.Companies do
   """
   @spec by_siren(binary()) :: {:ok, map()} | {:error, atom()}
   def by_siren(siren) do
+    find_siren = fn result -> if result["siren"] == siren, do: {:ok, result} end
+
     if is_valid_siren?(siren) do
       case search(%{"q" => siren}) do
         {:ok, json} ->
           json
           |> Map.get("results", [])
-          |> Enum.find({:error, :result_not_found}, fn result -> result["siren"] == siren end)
-          |> case do
-            {:error, _} = error_details -> error_details
-            %{} = result -> {:ok, result}
-          end
+          |> Enum.find_value({:error, :result_not_found}, find_siren)
 
         {:error, _} = error_details ->
           error_details
