@@ -37,7 +37,7 @@ defmodule DB.Dataset do
     field(:is_active, :boolean)
     field(:population, :integer)
     field(:nb_reuses, :integer)
-    field(:latest_data_gouv_comment_timestamp, :utc_datetime_usec)
+    field(:latest_data_gouv_comment_timestamp, :utc_datetime)
     field(:archived_at, :utc_datetime_usec)
     field(:custom_tags, {:array, :string})
 
