@@ -112,7 +112,7 @@ defmodule Transport.CommentsChecker do
     |> Map.get("posted_on")
     |> DateTime.from_iso8601()
     |> case do
-      {:ok, %DateTime{} = datetime, 0} -> datetime
+      {:ok, %DateTime{} = datetime, 0} -> datetime |> DateTime.truncate(:second)
       _ -> nil
     end
   end
