@@ -124,7 +124,7 @@ defmodule Transport.Mixfile do
       {:cloak_ecto, "~> 1.2.0"},
       {:phoenix_live_dashboard, "~> 0.7"},
       {:ecto_psql_extras, "~> 0.6"},
-      {:telemetry_poller, "~> 0.4"},
+      {:telemetry_poller, "~> 1.0"},
       {:telemetry_metrics, "~> 0.4"},
       {:luhn, "~> 0.3.0"},
       {:ex_phone_number, "~> 0.3"}
