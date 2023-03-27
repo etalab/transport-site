@@ -37,7 +37,7 @@ defmodule DB.Dataset do
     field(:is_active, :boolean)
     field(:population, :integer)
     field(:nb_reuses, :integer)
-    field(:latest_data_gouv_comment_timestamp, :utc_datetime_usec)
+    field(:latest_data_gouv_comment_timestamp, :utc_datetime)
     field(:archived_at, :utc_datetime_usec)
     field(:custom_tags, {:array, :string})
 
@@ -387,6 +387,7 @@ defmodule DB.Dataset do
       {region_id, ""} ->
         order_by(datasets,
           desc: fragment("case when region_id = ? then 1 else 0 end", ^region_id),
+          desc: fragment("coalesce(population, 0)"),
           asc: :custom_title
         )
 
