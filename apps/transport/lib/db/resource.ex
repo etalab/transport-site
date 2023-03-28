@@ -230,7 +230,7 @@ defmodule DB.Resource do
     )
     |> select([rh, dc], %{
       url: fragment("? ->> 'permanent_url'", dc.payload),
-      filesize: fragment("? ->> 'filesize'", dc.payload),
+      filesize: fragment("(? ->> 'filesize')::int", dc.payload),
       resource_history_last_up_to_date_at: rh.last_up_to_date_at
     })
     |> where([rh, dc], rh.resource_id == ^resource_id and dc.convert_to == ^format)

@@ -257,10 +257,25 @@ defmodule TransportWeb.API.DatasetController do
   defp transform_dataset_with_detail(%Plug.Conn{} = conn, %Dataset{} = dataset) do
     conn
     |> transform_dataset(dataset)
+    |> Map.put("conversions", transform_conversions(dataset))
     |> Map.put(
       "history",
       Transport.History.Fetcher.history_resources(dataset, TransportWeb.DatasetView.max_nb_history_resources())
     )
+  end
+
+  defp transform_conversions(%Dataset{} = dataset) do
+    dataset
+    |> Dataset.get_resources_related_files()
+    |> Enum.reject(fn {_id, data} ->
+      data |> Map.values() |> MapSet.new() == MapSet.new([nil])
+    end)
+    |> Enum.flat_map(fn {id, data} ->
+      data
+      |> Map.values()
+      |> Enum.reject(&is_nil/1)
+      |> Enum.map(&Map.put(&1, "resource_id", id))
+    end)
   end
 
   defp get_metadata(%Resource{format: "GTFS", resource_history: resource_history}) do
@@ -299,6 +314,7 @@ defmodule TransportWeb.API.DatasetController do
 
     %{
       "page_url" => TransportWeb.Router.Helpers.resource_url(TransportWeb.Endpoint, :details, resource.id),
+      "id" => resource.id,
       "datagouv_id" => resource.datagouv_id,
       "title" => resource.title,
       "updated" => Shared.DateTimeDisplay.format_naive_datetime_to_paris_tz(resource.last_update),
