@@ -22,7 +22,7 @@
         # In the latter case `**/*.{ex,exs}` will be used.
         #
         included: ["lib/", "src/", "web/", "apps/"],
-        excluded: [~r"/_build/", ~r"/deps/", ~r"/apps/transport/client/"]
+        excluded: [~r"/_build/", ~r"/deps/", ~r"/apps/transport/client/", "apps/transport/lib/transport/protobuf/gtfs-realtime.pb.ex"]
       },
       #
       # If you create your own checks, you must specify the source files for

@@ -229,6 +229,8 @@ defmodule TransportWeb.ResourceView do
       :OTHER_EFFECT -> dgettext("page-dataset-details", "Other effect")
       :UNKNOWN_EFFECT -> dgettext("page-dataset-details", "Unknown effect")
       :STOP_MOVED -> dgettext("page-dataset-details", "Stop moved")
+      :NO_EFFECT -> dgettext("page-dataset-details", "No effect")
+      :ACCESSIBILITY_ISSUE -> dgettext("page-dataset-details", "Accessibility issue")
     end
   end
 

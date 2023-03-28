@@ -557,3 +557,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Automatic conversions"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Accessibility issue"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "No effect"
+msgstr ""
