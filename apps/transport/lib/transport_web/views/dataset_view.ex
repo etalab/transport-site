@@ -389,7 +389,7 @@ defmodule TransportWeb.DatasetView do
     resources
     |> Enum.filter(fn r -> r.format == "csv" end)
     |> Enum.reject(fn r -> Resource.is_community_resource?(r) or Resource.is_documentation?(r) end)
-    |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
+    |> Enum.max_by(& &1.last_update, DateTime, fn -> nil end)
   end
 
   def get_resource_to_display(%Dataset{type: type, resources: resources})
@@ -400,7 +400,7 @@ defmodule TransportWeb.DatasetView do
       String.contains?(r.url, "station_status") or String.contains?(r.url, "station_information") or
         Resource.is_community_resource?(r) or Resource.is_documentation?(r)
     end)
-    |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
+    |> Enum.max_by(& &1.last_update, DateTime, fn -> nil end)
   end
 
   def get_resource_to_display(%Dataset{type: "low-emission-zones", resources: resources}) do
@@ -413,7 +413,7 @@ defmodule TransportWeb.DatasetView do
     |> Enum.reject(fn r ->
       String.contains?(r.url, "voie") or Resource.is_community_resource?(r) or Resource.is_documentation?(r)
     end)
-    |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
+    |> Enum.max_by(& &1.last_update, DateTime, fn -> nil end)
   end
 
   def get_resource_to_display(%Dataset{}), do: nil

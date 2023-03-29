@@ -31,6 +31,8 @@ defmodule TransportWeb.SeoMetadataTest do
         tags: [],
         resources: [
           %Resource{
+            last_update: DateTime.utc_now() |> DateTime.add(-6, :hour),
+            last_import: DateTime.utc_now() |> DateTime.add(-1, :hour),
             url: "https://link.to/angers.zip",
             description: "blabla on resource",
             format: "GTFS",

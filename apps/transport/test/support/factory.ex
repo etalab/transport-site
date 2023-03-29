@@ -39,6 +39,8 @@ defmodule DB.Factory do
 
   def resource_factory do
     %DB.Resource{
+      last_import: DateTime.utc_now(),
+      last_update: DateTime.utc_now(),
       title: "GTFS.zip",
       latest_url: "url"
     }
