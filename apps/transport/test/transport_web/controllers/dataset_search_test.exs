@@ -226,4 +226,26 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     assert [aom_dataset.id, region_dataset.id] == list_datasets.(%{"insee_commune" => commune.insee |> to_string()})
     assert list_datasets.(%{}) != list_datasets.(%{"insee_commune" => commune.insee |> to_string()})
   end
+
+  test "when searching for a region, use the population to sort" do
+    small_aom = insert(:aom, region: region = insert(:region), population_totale: 100)
+    big_aom = insert(:aom, region: region, population_totale: 200)
+
+    # regional dataset: first result expected
+    region_dataset = insert(:dataset, region_id: region.id, is_active: true, population: 0)
+    # small population: last result expected
+    aom_dataset_0 = insert(:dataset, is_active: true, aom: small_aom, custom_title: "AAA Plomberie")
+    # equal population, alphabetical order expected
+    aom_dataset_1 = insert(:dataset, is_active: true, aom: big_aom, custom_title: "ABC Plomberie")
+    aom_dataset_2 = insert(:dataset, is_active: true, aom: big_aom, custom_title: "BBB Plomberie")
+
+    list_datasets = fn %{} = args ->
+      args |> Dataset.list_datasets() |> Repo.all() |> Enum.map(& &1.id)
+    end
+
+    assert [region_dataset.id, aom_dataset_1.id, aom_dataset_2.id, aom_dataset_0.id] ==
+             list_datasets.(%{"region" => region.id |> to_string()})
+
+    assert list_datasets.(%{}) != list_datasets.(%{"region" => region.id |> to_string()})
+  end
 end
