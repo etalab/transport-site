@@ -39,6 +39,7 @@ defmodule Transport.ImportDataTest do
         "id" => id || "resource1_id",
         "type" => "main",
         "filetype" => filetype || "remote",
+        "last_modified" => DateTime.utc_now() |> DateTime.add(-1, :hour) |> DateTime.to_iso8601(),
         "schema" => %{"name" => schema_name, "version" => schema_version}
       }
     ]

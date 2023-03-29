@@ -557,3 +557,11 @@ msgstr "Données statiques"
 #, elixir-autogen, elixir-format
 msgid "Automatic conversions"
 msgstr "Conversions automatiques"
+
+#, elixir-autogen, elixir-format
+msgid "Accessibility issue"
+msgstr "Problème d'accessibilité"
+
+#, elixir-autogen, elixir-format
+msgid "No effect"
+msgstr "Pas d'impact"
