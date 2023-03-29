@@ -83,9 +83,8 @@ defmodule DB.Repo.Migrations.CorrectDatasetPopulationUpdate do
   EXECUTE PROCEDURE dataset_communes_update();
   """)
 
-
     # Force update
-    execute("UPDATE dataset SET id = id", "")
+    execute("UPDATE dataset SET id = id")
   end
 
   def down do
@@ -148,6 +147,6 @@ defmodule DB.Repo.Migrations.CorrectDatasetPopulationUpdate do
     execute("DROP FUNCTION IF EXISTS dataset_communes_update;")
 
     # Force update
-    execute("UPDATE dataset SET id = id", "")
+    execute("UPDATE dataset SET id = id")
   end
 end
