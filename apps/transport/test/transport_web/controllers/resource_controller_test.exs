@@ -22,6 +22,8 @@ defmodule TransportWeb.ResourceControllerTest do
         slug: "slug-1",
         resources: [
           %Resource{
+            last_update: DateTime.utc_now() |> DateTime.add(-6, :hour),
+            last_import: DateTime.utc_now() |> DateTime.add(-1, :hour),
             url: "https://link.to/angers.zip",
             datagouv_id: "1",
             format: "GTFS",
@@ -29,22 +31,30 @@ defmodule TransportWeb.ResourceControllerTest do
             description: "Une _très_ belle ressource"
           },
           %Resource{
+            last_update: DateTime.utc_now() |> DateTime.add(-6, :hour),
+            last_import: DateTime.utc_now() |> DateTime.add(-1, :hour),
             url: "http://link.to/angers.zip?foo=bar",
             datagouv_id: "2",
             format: "GTFS"
           },
           %Resource{
+            last_update: DateTime.utc_now() |> DateTime.add(-6, :hour),
+            last_import: DateTime.utc_now() |> DateTime.add(-1, :hour),
             url: "http://link.to/gbfs",
             datagouv_id: "3",
             format: "gbfs"
           },
           %Resource{
+            last_update: DateTime.utc_now() |> DateTime.add(-6, :hour),
+            last_import: DateTime.utc_now() |> DateTime.add(-1, :hour),
             url: "http://link.to/file",
             datagouv_id: "4",
             schema_name: "etalab/foo",
             format: "json"
           },
           %Resource{
+            last_update: DateTime.utc_now() |> DateTime.add(-6, :hour),
+            last_import: DateTime.utc_now() |> DateTime.add(-1, :hour),
             url: "http://link.to/gtfs-rt",
             datagouv_id: "5",
             format: "gtfs-rt"

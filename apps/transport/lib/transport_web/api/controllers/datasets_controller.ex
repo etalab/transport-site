@@ -301,7 +301,7 @@ defmodule TransportWeb.API.DatasetController do
       "page_url" => TransportWeb.Router.Helpers.resource_url(TransportWeb.Endpoint, :details, resource.id),
       "datagouv_id" => resource.datagouv_id,
       "title" => resource.title,
-      "updated" => Shared.DateTimeDisplay.format_naive_datetime_to_paris_tz(resource.last_update),
+      "updated" => resource.last_update |> DateTime.to_iso8601(),
       "is_available" => resource.is_available,
       "url" => resource.latest_url,
       "original_url" => resource.url,
