@@ -147,7 +147,7 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
     test "it works" do
       setup_schemas_response()
 
-      assert "https://validata.etalab.studio/table-schema?schema_name=schema-transport.etalab%2Fschema-lieux-covoiturage" ==
+      assert "https://validata.fr/table-schema?schema_name=schema-datagouvfr.etalab%2Fschema-lieux-covoiturage" ==
                validata_web_url(@schema_name)
     end
 
