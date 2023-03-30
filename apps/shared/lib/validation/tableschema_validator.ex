@@ -24,7 +24,7 @@ defmodule Shared.Validation.TableSchemaValidator do
   import Transport.Shared.Schemas
   @behaviour Shared.Validation.TableSchemaValidator.Wrapper
   @timeout 180_000
-  @validata_web_url URI.parse("https://validata.etalab.studio/table-schema")
+  @validata_web_url URI.parse("https://validata.fr/table-schema")
   @validata_api_url URI.parse("https://validata-api.app.etalab.studio/validate")
   # https://git.opendatafrance.net/validata/validata-core/-/blob/75ee5258010fc43b6a164122eff2579c2adc01a7/validata_core/helpers.py#L152
   @structure_tags ["#head", "#structure"]
@@ -58,7 +58,7 @@ defmodule Shared.Validation.TableSchemaValidator do
     ensure_schema_is_tableschema!(schema_name)
 
     @validata_web_url
-    |> Map.put(:query, URI.encode_query(%{schema_name: "schema-transport.#{schema_name}"}))
+    |> Map.put(:query, URI.encode_query(%{schema_name: "schema-datagouvfr.#{schema_name}"}))
     |> URI.to_string()
   end
 
