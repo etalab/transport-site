@@ -51,9 +51,11 @@ defmodule Helpers do
   @spec last_updated([DB.Resource.t()]) :: binary()
   def last_updated(resources) do
     resources
-    |> Enum.max_by(& &1.last_update, DateTime)
-    |> Map.fetch!(:last_update)
-    |> DateTime.to_iso8601()
+    |> Enum.map(& &1.last_update)
+    |> case do
+      [] -> nil
+      dates -> dates |> Enum.max(DateTime) |> DateTime.to_iso8601()
+    end
   end
 
   @spec admin?(map | nil) :: boolean
