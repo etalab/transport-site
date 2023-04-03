@@ -13,9 +13,9 @@ defmodule DB.Resource do
     # real url
     field(:url, :string)
     field(:format, :string)
-    field(:last_import, :string)
+    field(:last_import, :utc_datetime_usec)
     field(:title, :string)
-    field(:last_update, :string)
+    field(:last_update, :utc_datetime_usec)
     # stable data.gouv.fr url if exists, else (for ODS gtfs as csv) it's the real url
     field(:latest_url, :string)
     field(:is_available, :boolean, default: true)

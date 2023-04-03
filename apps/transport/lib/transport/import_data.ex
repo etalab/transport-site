@@ -305,8 +305,8 @@ defmodule Transport.ImportData do
          "url" => resource["url"],
          "format" => format,
          "title" => get_title(resource),
-         "last_import" => DateTime.utc_now() |> DateTime.to_string(),
-         "last_update" => resource["last_modified"],
+         "last_import" => DateTime.utc_now(),
+         "last_update" => parse_datetime(resource["last_modified"]),
          # For ODS gtfs as csv we do not have a 'latest' field
          # (the 'latest' field is the stable data.gouv.fr url)
          "latest_url" => resource["latest"] || resource["url"],

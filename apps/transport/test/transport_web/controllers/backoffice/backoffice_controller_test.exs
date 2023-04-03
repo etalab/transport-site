@@ -144,6 +144,7 @@ defmodule TransportWeb.BackofficeControllerTest do
           "id" => dataset_datagouv_id,
           "resources" => [
             %{
+              "last_modified" => DateTime.utc_now() |> DateTime.to_iso8601(),
               "url" => "url1",
               "id" => "resource_datagouv_id",
               "format" => "siri"
@@ -160,8 +161,18 @@ defmodule TransportWeb.BackofficeControllerTest do
     |> expect(:get, fn _dataset_id ->
       {:ok,
        [
-         %{"url" => "url2", "format" => "json", "id" => "resource_datagouv_id_2"},
-         %{"url" => "url3", "format" => "csv", "id" => "resource_datagouv_id_3"}
+         %{
+           "url" => "url2",
+           "last_modified" => DateTime.utc_now() |> DateTime.to_iso8601(),
+           "format" => "json",
+           "id" => "resource_datagouv_id_2"
+         },
+         %{
+           "url" => "url3",
+           "last_modified" => DateTime.utc_now() |> DateTime.to_iso8601(),
+           "format" => "csv",
+           "id" => "resource_datagouv_id_3"
+         }
        ]}
     end)
 
@@ -192,11 +203,13 @@ defmodule TransportWeb.BackofficeControllerTest do
        [
          %{
            "url" => "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt.json",
-           "id" => "r1"
+           "id" => "r1",
+           "last_modified" => DateTime.utc_now() |> DateTime.to_iso8601()
          },
          %{
            "url" => "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt",
-           "id" => "r2"
+           "id" => "r2",
+           "last_modified" => DateTime.utc_now() |> DateTime.to_iso8601()
          }
        ]}
     end)
