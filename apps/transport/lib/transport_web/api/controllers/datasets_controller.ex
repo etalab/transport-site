@@ -257,25 +257,28 @@ defmodule TransportWeb.API.DatasetController do
   defp transform_dataset_with_detail(%Plug.Conn{} = conn, %Dataset{} = dataset) do
     conn
     |> transform_dataset(dataset)
-    |> Map.put("conversions", transform_conversions(dataset))
+    |> add_conversions(dataset)
     |> Map.put(
       "history",
       Transport.History.Fetcher.history_resources(dataset, TransportWeb.DatasetView.max_nb_history_resources())
     )
   end
 
-  defp transform_conversions(%Dataset{} = dataset) do
-    dataset
-    |> Dataset.get_resources_related_files()
-    |> Enum.reject(fn {_id, data} ->
-      data |> Map.values() |> MapSet.new() == MapSet.new([nil])
-    end)
-    |> Enum.flat_map(fn {id, data} ->
-      data
-      |> Map.values()
-      |> Enum.reject(&is_nil/1)
-      |> Enum.map(&Map.put(&1, "resource_id", id))
-    end)
+  defp add_conversions(%{"resources" => resources} = data, %Dataset{} = dataset) do
+    conversions =
+      dataset
+      |> Dataset.get_resources_related_files()
+      |> Enum.into(%{}, fn {resource_id, data} ->
+        {resource_id, data |> Enum.reject(fn {_format, v} -> is_nil(v) end) |> Enum.into(%{})}
+      end)
+
+    Map.put(
+      data,
+      "resources",
+      Enum.map(resources, fn %{"id" => resource_id} = resource ->
+        Map.put(resource, "conversions", Map.fetch!(conversions, resource_id))
+      end)
+    )
   end
 
   defp get_metadata(%Resource{format: "GTFS", resource_history: resource_history}) do

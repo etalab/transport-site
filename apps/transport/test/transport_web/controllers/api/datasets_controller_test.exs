@@ -166,7 +166,12 @@ defmodule TransportWeb.API.DatasetControllerTest do
     # check the result is in line with a query on this dataset
     # only difference: individual dataset adds information about history and conversions
     Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
-    dataset_res = Map.merge(dataset_res, %{"conversions" => [], "history" => []})
+
+    dataset_res =
+      dataset_res
+      |> Map.merge(%{"history" => []})
+      |> Map.put("resources", Enum.map(dataset_res["resources"], &Map.put(&1, "conversions", %{})))
+
     assert dataset_res == conn |> get(Helpers.dataset_path(conn, :by_id, datagouv_id)) |> json_response(200)
   end
 
@@ -295,7 +300,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
                  "format" => "GTFS",
                  "original_url" => "https://link.to/file.zip",
                  "updated" => last_update_gtfs |> DateTime.to_iso8601(),
-                 "url" => "https://static.data.gouv.fr/foo"
+                 "url" => "https://static.data.gouv.fr/foo",
+                 "conversions" => %{}
                },
                %{
                  "is_available" => true,
@@ -306,14 +312,14 @@ defmodule TransportWeb.API.DatasetControllerTest do
                  "format" => "geojson",
                  "original_url" => "http://link.to/file.zip?foo=bar",
                  "schema_name" => "etalab/schema-zfe",
-                 "updated" => last_update_geojson |> DateTime.to_iso8601()
+                 "updated" => last_update_geojson |> DateTime.to_iso8601(),
+                 "conversions" => %{}
                }
              ],
              "slug" => "slug-1",
              "title" => "title",
              "type" => "public-transit",
              "licence" => "lov2",
-             "conversions" => [],
              "updated" => [last_update_gtfs, last_update_geojson] |> Enum.max(DateTime) |> DateTime.to_iso8601()
            } == conn |> get(path) |> json_response(200)
   end
@@ -410,7 +416,16 @@ defmodule TransportWeb.API.DatasetControllerTest do
                  "original_url" => "https://link.to/file.zip",
                  "title" => "GTFS.zip",
                  "type" => "main",
-                 "url" => "https://static.data.gouv.fr/foo"
+                 "url" => "https://static.data.gouv.fr/foo",
+                 "conversions" => %{
+                   "GeoJSON" => %{
+                     "filesize" => filesize,
+                     "format" => "GeoJSON",
+                     "resource_history_last_up_to_date_at" => last_up_to_date_at |> DateTime.to_iso8601(),
+                     "stable_url" => "http://127.0.0.1:5100/resources/conversions/#{resource.id}/GeoJSON",
+                     "url" => permanent_url
+                   }
+                 }
                },
                %{
                  "updated" => gbfs_resource.last_update |> DateTime.to_iso8601(),
@@ -422,22 +437,13 @@ defmodule TransportWeb.API.DatasetControllerTest do
                  "original_url" => "https://link.to/gbfs.json",
                  "title" => "GTFS.zip",
                  "type" => "main",
-                 "url" => "url"
+                 "url" => "url",
+                 "conversions" => %{}
                }
              ],
              "slug" => "slug-1",
              "title" => "title",
              "type" => "public-transit",
-             "conversions" => [
-               %{
-                 "filesize" => filesize,
-                 "format" => "GeoJSON",
-                 "resource_id" => resource.id,
-                 "resource_history_last_up_to_date_at" => last_up_to_date_at |> DateTime.to_iso8601(),
-                 "stable_url" => "http://127.0.0.1:5100/resources/conversions/#{resource.id}/GeoJSON",
-                 "url" => permanent_url
-               }
-             ],
              "updated" =>
                [resource, gbfs_resource] |> Enum.map(& &1.last_update) |> Enum.max(DateTime) |> DateTime.to_iso8601()
            } == conn |> get(path) |> json_response(200)
