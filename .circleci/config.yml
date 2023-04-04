@@ -12,7 +12,7 @@ default_docker: &default_docker
 defaults: &defaults
   parameters:
     base_image:
-      default: ghcr.io/etalab/transport-ops:elixir-1.14.3-erlang-24.3.4.8-ubuntu-focal-20221130-transport-tools-1.0.5
+      default: ghcr.io/etalab/transport-ops:elixir-1.14.3-erlang-24.3.4.8-ubuntu-focal-20221130-transport-tools-1.0.7
       type: string
     # useful to invalidate the build cache manually by bumping the version
     build_cache_key:
@@ -102,7 +102,7 @@ jobs:
           keys:
             - js-<< parameters.js_cache_key >>-{{ checksum "apps/transport/client/yarn.lock" }}
             - js-<< parameters.js_cache_key >>
-          
+
       - run:
           name: Install yarn dependencies
           command: cd ~/transport/apps/transport/client && yarn install
@@ -114,7 +114,7 @@ jobs:
 
       - save_cache:
           key: js-<< parameters.js_cache_key >>-{{ checksum "apps/transport/client/yarn.lock" }}
-          paths: 
+          paths:
             - ~/transport/apps/transport/client/node_modules
 
       # NOTE: I think this should be moved to the dialyzer parallel section,
@@ -152,11 +152,11 @@ jobs:
       - run:
           name: Run gettext check
           command: mix gettext.extract --check-up-to-date
-      
+
       - run:
           name: Run credo
           command: mix credo --strict
-      
+
       - run:
           name: Run javascript linter
           command: mix npm "run linter:ecma"
