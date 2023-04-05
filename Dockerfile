@@ -1,4 +1,4 @@
-FROM ghcr.io/etalab/transport-ops:elixir-1.14.3-erlang-24.3.4.8-ubuntu-focal-20221130-transport-tools-1.0.5
+FROM ghcr.io/etalab/transport-ops:elixir-1.14.3-erlang-24.3.4.8-ubuntu-focal-20221130-transport-tools-1.0.7
 
 RUN mkdir phoenixapp
 WORKDIR /phoenixapp
@@ -37,7 +37,7 @@ EXPOSE 8080
 # I was also able to define a custom cookie, and I'm saving the notes in case we
 # decide the default cookie is not good enough, or detect a situation where it could
 # be guessable in a way or another.
-# 
+#
 # Add this right above the `ENTRYPOINT`:
 #
 # `ENV ERL_FLAGS="-cookie $ELIXIR_NODE_SECRET_COOKIE"`
@@ -50,7 +50,7 @@ EXPOSE 8080
 # Setting `ERL_FLAGS` via `ENV` makes it possible not to introduce a subshell
 # to evaluate the variable in `ENTRYPOINT`, something that would introduce other
 # problems such as the behaviour of kill on the container (subprocesses).
-# 
+#
 # If you use `ERL_FLAGS` with a custom cookie, the command to connect to the node
 # will be slightly different:
 # `iex --sname console --cookie $ELIXIR_NODE_SECRET_COOKIE --remsh node`
