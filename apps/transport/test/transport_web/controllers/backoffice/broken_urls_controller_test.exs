@@ -64,7 +64,7 @@ defmodule TransportWeb.Backoffice.BrokenUrlsControllerTest do
              disappeared_urls: true,
              new_urls: true,
              dataset_custom_title: dataset_2.custom_title
-           } == broken_1
+           } == %{broken_1 | urls: broken_1.urls |> Enum.sort()}
 
     assert %{
              dataset_id: dataset.id,
