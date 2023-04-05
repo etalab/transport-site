@@ -39,7 +39,7 @@ defmodule TransportWeb.ConversionControllerTest do
         resource_history_uuid: uuid1,
         convert_from: "GTFS",
         convert_to: "GeoJSON",
-        payload: %{"permanent_url" => permanent_url = "https://example.com/url1", "filesize" => "size1"}
+        payload: %{"permanent_url" => permanent_url = "https://example.com/url1", "filesize" => 42}
       )
 
       # Relevant headers are sent and we return a redirect response

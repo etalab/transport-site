@@ -799,7 +799,7 @@ defmodule DB.Dataset do
          {dc.convert_to,
           %{
             url: fragment("? ->> 'permanent_url'", dc.payload),
-            filesize: fragment("? ->> 'filesize'", dc.payload),
+            filesize: fragment("(? ->> 'filesize')::int", dc.payload),
             # Using `fragment` to avoid `convert_to` being cast to atoms
             format: fragment("?", dc.convert_to),
             resource_history_last_up_to_date_at: rh.last_up_to_date_at
