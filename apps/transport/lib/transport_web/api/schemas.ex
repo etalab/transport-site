@@ -274,7 +274,7 @@ defmodule TransportWeb.API.Schemas do
         |> get_resource_prop()
         |> Map.put(:conversions, %Schema{
           type: :object,
-          description: "available conversions of the resource in other formats",
+          description: "Available conversions of the resource in other formats",
           properties: %{
             GeoJSON: %Schema{
               type: :object,
