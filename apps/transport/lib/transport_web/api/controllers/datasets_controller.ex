@@ -269,7 +269,18 @@ defmodule TransportWeb.API.DatasetController do
       dataset
       |> Dataset.get_resources_related_files()
       |> Enum.into(%{}, fn {resource_id, data} ->
-        {resource_id, data |> Enum.reject(fn {_format, v} -> is_nil(v) end) |> Enum.into(%{})}
+        {resource_id,
+         data
+         |> Enum.reject(fn {_format, v} -> is_nil(v) end)
+         |> Enum.into(%{}, fn {format, data} ->
+           payload = %{
+             filesize: Map.fetch!(data, :filesize),
+             last_check_conversion_is_up_to_date: Map.fetch!(data, :resource_history_last_up_to_date_at),
+             stable_url: Map.fetch!(data, :stable_url)
+           }
+
+           {format, payload}
+         end)}
       end)
 
     Map.put(

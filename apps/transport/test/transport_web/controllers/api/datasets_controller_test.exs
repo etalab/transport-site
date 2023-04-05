@@ -379,7 +379,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
       resource_history_uuid: uuid1,
       convert_from: "GTFS",
       convert_to: "GeoJSON",
-      payload: %{"permanent_url" => permanent_url = "https://example.com/url1", "filesize" => filesize = 43}
+      payload: %{"permanent_url" => "https://example.com/url1", "filesize" => filesize = 43}
     )
 
     Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
@@ -420,10 +420,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
                  "conversions" => %{
                    "GeoJSON" => %{
                      "filesize" => filesize,
-                     "format" => "GeoJSON",
-                     "resource_history_last_up_to_date_at" => last_up_to_date_at |> DateTime.to_iso8601(),
-                     "stable_url" => "http://127.0.0.1:5100/resources/conversions/#{resource.id}/GeoJSON",
-                     "url" => permanent_url
+                     "last_check_conversion_is_up_to_date" => last_up_to_date_at |> DateTime.to_iso8601(),
+                     "stable_url" => "http://127.0.0.1:5100/resources/conversions/#{resource.id}/GeoJSON"
                    }
                  }
                },
