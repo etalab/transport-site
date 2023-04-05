@@ -294,7 +294,7 @@ defmodule TransportWeb.API.Schemas do
         filesize: %Schema{type: :integer, description: "File size in bytes"},
         last_check_conversion_is_up_to_date: %Schema{
           type: :string,
-          format :"date-time"
+          format: "date-time",
           description: "Last datetime (UTC) it was checked the converted file is still up-to-date with the resource"
         },
         stable_url: %Schema{type: :string, description: "The converted file stable download URL"}
