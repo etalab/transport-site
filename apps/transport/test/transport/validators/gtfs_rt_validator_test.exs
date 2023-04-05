@@ -426,5 +426,43 @@ defmodule Transport.Validators.GTFSRTTest do
     end
   end
 
+  describe "gtfs_rt_resources" do
+    test "with an outdated GTFS and 1 GTFS-RT" do
+      %{dataset: dataset} = insert_outdated_resource_and_friends()
+      insert(:resource, dataset: dataset, is_available: true, format: "gtfs-rt")
+      assert [] == GTFSRT.gtfs_rt_resources(dataset)
+    end
+
+    test "with 2 GTFS, a GTFS-RT linked to an outdated one: it uses the up-to-date one" do
+      %{dataset: dataset, resource: gtfs_1} = insert_outdated_resource_and_friends()
+      %{resource: gtfs_2} = insert_up_to_date_resource_and_friends(dataset: dataset)
+      %{id: gtfs_2_id} = gtfs_2
+      %{id: gtfs_rt_1_id} = gtfs_rt_1 = insert(:resource, dataset: dataset, is_available: true, format: "gtfs-rt")
+      insert(:resource_related, resource_src: gtfs_rt_1, resource_dst: gtfs_1, reason: :gtfs_rt_validation)
+
+      assert [
+               {%DB.Resource{id: ^gtfs_2_id}, %DB.Resource{id: ^gtfs_rt_1_id}}
+             ] = GTFSRT.gtfs_rt_resources(dataset)
+    end
+
+    test "with 2 up-to-date GTFS, 2 GTFS-RT linked to a GTFS, 1 GTFS-RT linked to nothing" do
+      %{dataset: dataset, resource: %DB.Resource{id: gtfs_1_id, format: "GTFS"} = gtfs_1} = insert_up_to_date_resource_and_friends()
+      %{resource: %DB.Resource{format: "GTFS"}} = insert_up_to_date_resource_and_friends(dataset: dataset)
+
+      %{id: gtfs_rt_1_id} = gtfs_rt_1 = insert(:resource, dataset: dataset, is_available: true, format: "gtfs-rt")
+      %{id: gtfs_rt_2_id} = gtfs_rt_2 = insert(:resource, dataset: dataset, is_available: true, format: "gtfs-rt")
+      # Should be ignored because no `resource_related` exists
+      _ignored_gtfs_rt = insert(:resource, dataset: dataset, is_available: true, format: "gtfs-rt")
+
+      insert(:resource_related, resource_src: gtfs_rt_1, resource_dst: gtfs_1, reason: :gtfs_rt_validation)
+      insert(:resource_related, resource_src: gtfs_rt_2, resource_dst: gtfs_1, reason: :gtfs_rt_validation)
+
+      assert [
+               {%DB.Resource{id: ^gtfs_1_id}, %DB.Resource{id: ^gtfs_rt_1_id}},
+               {%DB.Resource{id: ^gtfs_1_id}, %DB.Resource{id: ^gtfs_rt_2_id}}
+             ] = GTFSRT.gtfs_rt_resources(dataset)
+    end
+  end
+
   defp validator_path, do: Path.join(Application.fetch_env!(:transport, :transport_tools_folder), @validator_filename)
 end

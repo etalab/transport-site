@@ -196,7 +196,7 @@ defmodule Transport.Validators.GTFSRT do
 
     gtfs_rt_resources =
       Resource.base_query()
-      |> preload(resources_related: [:resource_dst])
+      |> preload([:resources_related])
       |> where([resource: r], r.format == "gtfs-rt" and r.is_available and r.dataset_id == ^dataset_id)
       |> Repo.all()
 
@@ -209,8 +209,18 @@ defmodule Transport.Validators.GTFSRT do
           {hd(gtfs_resources), resource}
         end)
 
-      _ ->
-        []
+      n when n > 1 ->
+        gtfs_rt_resources
+        |> Enum.map(fn %Resource{format: "gtfs-rt"} = resource ->
+          case Enum.find(resource.resources_related, &match?(%DB.ResourceRelated{reason: :gtfs_rt_validation}, &1)) do
+            %DB.ResourceRelated{reason: :gtfs_rt_validation, resource_dst_id: gtfs_id} ->
+              {Enum.find(gtfs_resources, fn %Resource{format: "GTFS", id: id} -> id == gtfs_id end), resource}
+
+            nil ->
+              {nil, resource}
+          end
+        end)
+        |> Enum.reject(&(elem(&1, 0) == nil))
     end
   end
 
