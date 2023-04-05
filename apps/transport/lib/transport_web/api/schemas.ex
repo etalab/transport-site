@@ -291,7 +291,7 @@ defmodule TransportWeb.API.Schemas do
 
     defp conversion_properties,
       do: %{
-        filesize: %Schema{type: :integer, description: "file size in bytes"},
+        filesize: %Schema{type: :integer, description: "File size in bytes"},
         last_check_conversion_is_up_to_date: %Schema{
           type: :string,
           format :"date-time"
