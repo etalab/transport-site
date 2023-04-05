@@ -245,7 +245,7 @@ defmodule TransportWeb.API.Schemas do
 
   defmodule Utils do
     @moduledoc false
-    def get_resource_prop,
+    def get_resource_prop(conversions: false),
       do: %{
         url: %Schema{type: :string, description: "Stable URL of the file"},
         original_url: %Schema{type: :string, description: "Direct URL of the file"},
@@ -267,6 +267,37 @@ defmodule TransportWeb.API.Schemas do
           description: "Some metadata about the resource"
         }
       }
+
+    def get_resource_prop(conversions: true),
+      do:
+        [conversions: false]
+        |> get_resource_prop()
+        |> Map.put(:conversions, %Schema{
+          type: :object,
+          description: "available conversions of the resource in other formats",
+          properties: %{
+            GeoJSON: %Schema{
+              type: :object,
+              description: "Conversion to the GeoJSON format",
+              properties: conversion_properties()
+            },
+            NeTEx: %Schema{
+              type: :object,
+              description: "Conversion to the NeTEx format",
+              properties: conversion_properties()
+            }
+          }
+        })
+
+    defp conversion_properties(),
+      do: %{
+        filesize: %Schema{type: :integer, description: "file size in bytes"},
+        last_check_conversion_is_up_to_date: %Schema{
+          type: :string,
+          description: "Last datetime (UTC) it was checked the converted file is still up-to-date with the resource"
+        },
+        stable_url: %Schema{type: :string, description: "the converted file stable download url"}
+      }
   end
 
   defmodule Resource do
@@ -276,7 +307,7 @@ defmodule TransportWeb.API.Schemas do
     OpenApiSpex.schema(%Schema{
       type: :object,
       description: "A single resource",
-      properties: Utils.get_resource_prop()
+      properties: Utils.get_resource_prop(conversions: true)
     })
   end
 
@@ -288,7 +319,7 @@ defmodule TransportWeb.API.Schemas do
       type: :object,
       description: "A single community resource",
       properties:
-        Utils.get_resource_prop()
+        Utils.get_resource_prop(conversions: false)
         |> Map.put(:community_resource_publisher, %Schema{
           type: :string,
           description: "Name of the producer of the community resource"
