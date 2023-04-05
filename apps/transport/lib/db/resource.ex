@@ -59,6 +59,14 @@ defmodule DB.Resource do
     )
 
     has_many(:resource_history, DB.ResourceHistory)
+
+    has_many(
+      :resources_related,
+      DB.ResourceRelated,
+      references: :id,
+      foreign_key: :resource_src_id,
+      on_replace: :delete
+    )
   end
 
   def base_query, do: from(r in DB.Resource, as: :resource)
