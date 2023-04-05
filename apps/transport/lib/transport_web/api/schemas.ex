@@ -289,7 +289,7 @@ defmodule TransportWeb.API.Schemas do
           }
         })
 
-    defp conversion_properties(),
+    defp conversion_properties,
       do: %{
         filesize: %Schema{type: :integer, description: "file size in bytes"},
         last_check_conversion_is_up_to_date: %Schema{
@@ -319,7 +319,8 @@ defmodule TransportWeb.API.Schemas do
       type: :object,
       description: "A single community resource",
       properties:
-        Utils.get_resource_prop(conversions: false)
+        [conversions: false]
+        |> Utils.get_resource_prop()
         |> Map.put(:community_resource_publisher, %Schema{
           type: :string,
           description: "Name of the producer of the community resource"
