@@ -297,7 +297,7 @@ defmodule TransportWeb.API.Schemas do
           format :"date-time"
           description: "Last datetime (UTC) it was checked the converted file is still up-to-date with the resource"
         },
-        stable_url: %Schema{type: :string, description: "the converted file stable download url"}
+        stable_url: %Schema{type: :string, description: "The converted file stable download URL"}
       }
   end
 
