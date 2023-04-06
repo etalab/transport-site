@@ -90,7 +90,7 @@ defmodule Transport.Validators.GTFSRTTest do
 
       resource_history_uuid = Ecto.UUID.generate()
 
-      %{dataset: dataset, resource_history: %{id: resource_history_id}, resource: gtfs} =
+      %{dataset: dataset, resource_history: %{id: resource_history_id}, resource: %{id: gtfs_id} = gtfs} =
         insert_up_to_date_resource_and_friends(
           resource_history_payload: %{
             "format" => "GTFS",
@@ -213,6 +213,7 @@ defmodule Transport.Validators.GTFSRTTest do
                  "uuid" => _uuid
                },
                resource_id: ^gtfs_rt_id,
+               secondary_resource_id: ^gtfs_id,
                secondary_resource_history_id: ^resource_history_id,
                max_error: "ERROR"
              } = gtfs_rt_validation
@@ -235,6 +236,7 @@ defmodule Transport.Validators.GTFSRTTest do
                  "uuid" => _uuid
                },
                resource_id: ^gtfs_rt_no_errors_id,
+               secondary_resource_id: ^gtfs_id,
                secondary_resource_history_id: ^resource_history_id,
                max_error: nil
              } = gtfs_rt_no_errors_validation
@@ -254,7 +256,7 @@ defmodule Transport.Validators.GTFSRTTest do
 
       resource_history_uuid = Ecto.UUID.generate()
 
-      %{dataset: dataset, resource_history: %{id: resource_history_id}, resource: gtfs} =
+      %{dataset: dataset, resource_history: %{id: resource_history_id}, resource: %{id: gtfs_id} = gtfs} =
         insert_up_to_date_resource_and_friends(
           resource_history_payload: %{
             "format" => "GTFS",
@@ -343,6 +345,7 @@ defmodule Transport.Validators.GTFSRTTest do
                  "uuid" => _uuid
                },
                resource_id: ^gtfs_rt_id,
+               secondary_resource_id: ^gtfs_id,
                secondary_resource_history_id: ^resource_history_id,
                max_error: "ERROR"
              } = gtfs_rt_validation

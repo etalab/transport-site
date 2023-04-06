@@ -42,6 +42,7 @@ defmodule Transport.Validators.GTFSRT do
               GTFSRT.build_validation_details(gtfs_resource_history, report, cellar_filename),
               gtfs_path,
               gtfs_rt_path,
+              gtfs_resource,
               gtfs_resource_history
             )
           else
@@ -246,10 +247,11 @@ defmodule Transport.Validators.GTFSRT do
   end
 
   defp insert_multi_validation(
-         %Resource{} = gtfs_rt_resource,
+         %Resource{format: "gtfs-rt"} = gtfs_rt_resource,
          %{} = validation_details,
          gtfs_path,
          gtfs_rt_path,
+         %Resource{format: "GTFS"} = gtfs_resource,
          %ResourceHistory{} = gtfs_resource_history
        ) do
     %MultiValidation{
@@ -258,6 +260,7 @@ defmodule Transport.Validators.GTFSRT do
       command: command(gtfs_path, gtfs_rt_path),
       result: validation_details,
       resource_id: gtfs_rt_resource.id,
+      secondary_resource_id: gtfs_resource.id,
       secondary_resource_history_id: gtfs_resource_history.id,
       max_error: Map.fetch!(validation_details, "max_severity")
     }
