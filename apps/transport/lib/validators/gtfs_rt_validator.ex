@@ -191,6 +191,22 @@ defmodule Transport.Validators.GTFSRT do
   end
 
   @spec gtfs_rt_resources(Dataset.t() | Resource.t()) :: [] | [{Resource.t(), Resource.t()}]
+  @doc """
+  Identifies couples of {GTFS, GTFS-RT} resources to run GTFS-RT validation on.
+
+  Resources in scope:
+  - up-to-date GTFS in the dataset
+  - GTFS-RT currently available in the dataset
+
+  Based on the number of up-to-date GTFS resources, we can determine the relevant GTFS
+  to use to perform GTFS-RT validation:
+  - 0 GTFS: nothing to do
+  - 1 up-to-date GTFS: we will use this resource to perform validation, **regardless** of
+  potential related resources
+  - at least 2 up-to-date GTFS: use `DB.ResourceRelated` with the reason `:gtfs_rt_validation`
+  to know the GTFS to use for each GTFS-RT. If a GTFS-RT does not have a related resource,
+  it will not be validated.
+  """
   def gtfs_rt_resources(%Dataset{id: dataset_id} = dataset) do
     gtfs_resources = up_to_date_gtfs_resources(dataset)
 
@@ -226,7 +242,7 @@ defmodule Transport.Validators.GTFSRT do
           {nil, resource}
       end
     end)
-    |> Enum.reject(fn {gtfs_resource, _gtfs_rt_resource} -> is_nil(gtfs_resource) end)
+    |> Enum.reject(&match?({nil, %Resource{format: "gtfs-rt"}}, &1))
   end
 
   defp insert_multi_validation(
