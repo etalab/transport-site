@@ -190,7 +190,7 @@ defmodule Transport.Validators.GTFSRT do
     |> Enum.filter(fn {_gtfs, %Resource{id: id, format: "gtfs-rt"}} -> id == resource_id end)
   end
 
-  @spec gtfs_rt_resources(Dataset.t()) :: [] | [{Resource.t(), Resource.t()}]
+  @spec gtfs_rt_resources(Dataset.t() | Resource.t()) :: [] | [{Resource.t(), Resource.t()}]
   def gtfs_rt_resources(%Dataset{id: dataset_id} = dataset) do
     gtfs_resources = up_to_date_gtfs_resources(dataset)
 
