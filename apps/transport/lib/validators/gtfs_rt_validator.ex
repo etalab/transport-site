@@ -190,7 +190,7 @@ defmodule Transport.Validators.GTFSRT do
     |> Enum.filter(fn {_gtfs, %Resource{id: id, format: "gtfs-rt"}} -> id == resource_id end)
   end
 
-  @spec gtfs_rt_resources(Dataset.t()) :: [] | [tuple()]
+  @spec gtfs_rt_resources(Dataset.t()) :: [] | [{Resource.t(), Resource.t()}]
   def gtfs_rt_resources(%Dataset{id: dataset_id} = dataset) do
     gtfs_resources = up_to_date_gtfs_resources(dataset)
 
@@ -210,18 +210,23 @@ defmodule Transport.Validators.GTFSRT do
         end)
 
       n when n > 1 ->
-        gtfs_rt_resources
-        |> Enum.map(fn %Resource{format: "gtfs-rt"} = resource ->
-          case Enum.find(resource.resources_related, &match?(%DB.ResourceRelated{reason: :gtfs_rt_validation}, &1)) do
-            %DB.ResourceRelated{reason: :gtfs_rt_validation, resource_dst_id: gtfs_id} ->
-              {Enum.find(gtfs_resources, fn %Resource{format: "GTFS", id: id} -> id == gtfs_id end), resource}
-
-            nil ->
-              {nil, resource}
-          end
-        end)
-        |> Enum.reject(&(elem(&1, 0) == nil))
+        gtfs_rt_and_gtfs_resources(gtfs_rt_resources, gtfs_resources)
     end
+  end
+
+  @spec gtfs_rt_and_gtfs_resources([Resource.t()], [Resource.t()]) :: [{Resource.t(), Resource.t()}] | []
+  defp gtfs_rt_and_gtfs_resources(gtfs_rt_resources, gtfs_resources) do
+    gtfs_rt_resources
+    |> Enum.map(fn %Resource{format: "gtfs-rt"} = resource ->
+      case Enum.find(resource.resources_related, &match?(%DB.ResourceRelated{reason: :gtfs_rt_validation}, &1)) do
+        %DB.ResourceRelated{reason: :gtfs_rt_validation, resource_dst_id: gtfs_id} ->
+          {Enum.find(gtfs_resources, fn %Resource{format: "GTFS", id: id} -> id == gtfs_id end), resource}
+
+        nil ->
+          {nil, resource}
+      end
+    end)
+    |> Enum.reject(fn {gtfs_resource, _gtfs_rt_resource} -> is_nil(gtfs_resource) end)
   end
 
   defp insert_multi_validation(

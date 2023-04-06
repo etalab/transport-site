@@ -446,7 +446,9 @@ defmodule Transport.Validators.GTFSRTTest do
     end
 
     test "with 2 up-to-date GTFS, 2 GTFS-RT linked to a GTFS, 1 GTFS-RT linked to nothing" do
-      %{dataset: dataset, resource: %DB.Resource{id: gtfs_1_id, format: "GTFS"} = gtfs_1} = insert_up_to_date_resource_and_friends()
+      %{dataset: dataset, resource: %DB.Resource{id: gtfs_1_id, format: "GTFS"} = gtfs_1} =
+        insert_up_to_date_resource_and_friends()
+
       %{resource: %DB.Resource{format: "GTFS"}} = insert_up_to_date_resource_and_friends(dataset: dataset)
 
       %{id: gtfs_rt_1_id} = gtfs_rt_1 = insert(:resource, dataset: dataset, is_available: true, format: "gtfs-rt")
