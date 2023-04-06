@@ -1,4 +1,4 @@
-defmodule DB.ResourceTest do
+defmodule DB.ResourceRelatedTest do
   use ExUnit.Case, async: true
   import DB.Factory
 
