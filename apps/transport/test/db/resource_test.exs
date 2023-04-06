@@ -40,12 +40,12 @@ defmodule DB.ResourceTest do
     insert_data_conversion(uuid3, "url3", 10)
     insert_data_conversion(uuid4, "url4", 10)
 
-    assert %{url: "url2", filesize: "12", resource_history_last_up_to_date_at: _} =
+    assert %{url: "url2", filesize: 12, resource_history_last_up_to_date_at: _} =
              Resource.get_related_geojson_info(resource_id_1)
 
     assert nil == Resource.get_related_geojson_info(resource_id_1 - 10)
 
-    assert %{GeoJSON: %{url: "url2", filesize: "12", resource_history_last_up_to_date_at: _}} =
+    assert %{GeoJSON: %{url: "url2", filesize: 12, resource_history_last_up_to_date_at: _}} =
              Resource.get_related_files(%Resource{id: resource_id_1})
   end
 

@@ -13,6 +13,7 @@ defmodule TransportWeb.ResourceView do
   import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2]
   import Shared.Validation.TableSchemaValidator, only: [validata_web_url: 1]
   import Transport.GBFSUtils, only: [gbfs_validation_link: 1]
+  import Transport.Shared.Schemas.Wrapper, only: [schema_type: 1]
   alias Shared.DateTimeDisplay
   def format_related_objects(nil), do: ""
 
