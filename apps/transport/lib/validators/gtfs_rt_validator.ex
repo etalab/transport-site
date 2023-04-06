@@ -204,7 +204,7 @@ defmodule Transport.Validators.GTFSRT do
   - 0 GTFS: nothing to do
   - 1 up-to-date GTFS: we will use this resource to perform validation, **regardless** of
   potential related resources
-  - at least 2 up-to-date GTFS: use `DB.ResourceRelated` with the reason `:gtfs_rt_validation`
+  - at least 2 up-to-date GTFS: use `DB.ResourceRelated` with the reason `:gtfs_rt_gtfs`
   to know the GTFS to use for each GTFS-RT. If a GTFS-RT does not have a related resource,
   it will not be validated.
   """
@@ -235,8 +235,8 @@ defmodule Transport.Validators.GTFSRT do
   defp gtfs_rt_and_gtfs_resources(gtfs_rt_resources, gtfs_resources) do
     gtfs_rt_resources
     |> Enum.map(fn %Resource{format: "gtfs-rt"} = resource ->
-      case Enum.find(resource.resources_related, &match?(%DB.ResourceRelated{reason: :gtfs_rt_validation}, &1)) do
-        %DB.ResourceRelated{reason: :gtfs_rt_validation, resource_dst_id: gtfs_id} ->
+      case Enum.find(resource.resources_related, &match?(%DB.ResourceRelated{reason: :gtfs_rt_gtfs}, &1)) do
+        %DB.ResourceRelated{reason: :gtfs_rt_gtfs, resource_dst_id: gtfs_id} ->
           {Enum.find(gtfs_resources, fn %Resource{format: "GTFS", id: id} -> id == gtfs_id end), resource}
 
         nil ->

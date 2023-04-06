@@ -441,7 +441,7 @@ defmodule Transport.Validators.GTFSRTTest do
       %{resource: gtfs_2} = insert_up_to_date_resource_and_friends(dataset: dataset)
       %{id: gtfs_2_id} = gtfs_2
       %{id: gtfs_rt_1_id} = gtfs_rt_1 = insert(:resource, dataset: dataset, is_available: true, format: "gtfs-rt")
-      insert(:resource_related, resource_src: gtfs_rt_1, resource_dst: gtfs_1, reason: :gtfs_rt_validation)
+      insert(:resource_related, resource_src: gtfs_rt_1, resource_dst: gtfs_1, reason: :gtfs_rt_gtfs)
 
       assert [
                {%DB.Resource{id: ^gtfs_2_id}, %DB.Resource{id: ^gtfs_rt_1_id}}
@@ -459,8 +459,8 @@ defmodule Transport.Validators.GTFSRTTest do
       # Should be ignored because no `resource_related` exists
       _ignored_gtfs_rt = insert(:resource, dataset: dataset, is_available: true, format: "gtfs-rt")
 
-      insert(:resource_related, resource_src: gtfs_rt_1, resource_dst: gtfs_1, reason: :gtfs_rt_validation)
-      insert(:resource_related, resource_src: gtfs_rt_2, resource_dst: gtfs_1, reason: :gtfs_rt_validation)
+      insert(:resource_related, resource_src: gtfs_rt_1, resource_dst: gtfs_1, reason: :gtfs_rt_gtfs)
+      insert(:resource_related, resource_src: gtfs_rt_2, resource_dst: gtfs_1, reason: :gtfs_rt_gtfs)
 
       assert [
                {%DB.Resource{id: ^gtfs_1_id}, %DB.Resource{id: ^gtfs_rt_1_id}},
