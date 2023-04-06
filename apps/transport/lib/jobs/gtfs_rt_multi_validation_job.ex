@@ -5,7 +5,6 @@ defmodule Transport.Jobs.GTFSRTMultiValidationDispatcherJob do
   use Oban.Worker, max_attempts: 3, queue: :resource_validation, tags: ["validation"]
   import Ecto.Query
   alias DB.{Repo, Resource}
-  alias Transport.Validators.GTFSTransport
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
