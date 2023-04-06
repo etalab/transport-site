@@ -9,7 +9,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMultiValidationDispatcherJobTest d
   end
 
   describe "GTFSRTMultiValidationDispatcherJob" do
-    test "selects appropriate datasets" do
+    test "selects datasets with at least 1 available GTFS-RT" do
       %{dataset: dataset} = insert_up_to_date_resource_and_friends()
       insert(:resource, dataset_id: dataset.id, is_available: true, format: "gtfs-rt")
 
@@ -24,7 +24,8 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMultiValidationDispatcherJobTest d
       %{dataset: unavailable_dataset} = insert_up_to_date_resource_and_friends(resource_available: false)
       insert(:resource, dataset_id: unavailable_dataset.id, is_available: true, format: "gtfs-rt")
 
-      assert [dataset.id] == GTFSRTMultiValidationDispatcherJob.relevant_datasets() |> Enum.map(& &1.id)
+      assert MapSet.new([dataset.id, unavailable_dataset.id, outdated_dataset.id]) ==
+               GTFSRTMultiValidationDispatcherJob.relevant_datasets() |> Enum.map(& &1.id) |> MapSet.new()
     end
 
     test "enqueues other jobs" do

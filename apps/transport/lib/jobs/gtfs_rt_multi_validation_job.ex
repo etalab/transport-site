@@ -16,25 +16,15 @@ defmodule Transport.Jobs.GTFSRTMultiValidationDispatcherJob do
     :ok
   end
 
+  @doc """
+  Identifies datasets with at least 1 available GTFS-RT resource.
+  The GTFS-RT validator will be responsible to determine if the dataset can be validated,
+  based on the number of up-to-date GTFS and related resources.
+  """
   def relevant_datasets do
-    # relevant datasets are active datasets having a gtfs-rt and a single GTFS resource,
-    # that is both available and up to date
-
-    resources =
-      DB.Resource.base_query()
-      |> DB.ResourceHistory.join_resource_with_latest_resource_history()
-      |> DB.MultiValidation.join_resource_history_with_latest_validation(GTFSTransport.validator_name())
-      |> DB.ResourceMetadata.join_validation_with_metadata()
-      |> where([resource: r], r.format == "GTFS" and r.is_available)
-      |> DB.ResourceMetadata.where_gtfs_up_to_date()
-      |> select([resource: r], r.dataset_id)
-      |> group_by([resource: r], r.dataset_id)
-      |> having([resource: r], count(r.id) == 1)
-
     DB.Dataset.base_query()
     |> join(:inner, [d], r in Resource, on: r.dataset_id == d.id)
     |> where([_d, r], r.format == "gtfs-rt" and r.is_available)
-    |> where([d], d.id in subquery(resources))
     |> distinct(true)
     |> Repo.all()
   end
