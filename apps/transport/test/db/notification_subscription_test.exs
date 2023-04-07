@@ -8,7 +8,7 @@ defmodule DB.NotificationSubscriptionTest do
   end
 
   test "changeset" do
-    contact = DB.Contact.insert!(sample_contact_args())
+    contact = insert_contact()
     dataset = insert(:dataset)
     changeset = fn args -> NotificationSubscription.changeset(%NotificationSubscription{}, args) end
 
@@ -71,16 +71,5 @@ defmodule DB.NotificationSubscriptionTest do
                reason: :dataset_now_licence_ouverte,
                contact_id: contact.id
              })
-  end
-
-  defp sample_contact_args do
-    %{
-      first_name: "John",
-      last_name: "Doe",
-      email: "john#{Ecto.UUID.generate()}@example.fr",
-      job_title: "Boss",
-      organization: "Big Corp Inc",
-      phone_number: "06 92 22 88 03"
-    }
   end
 end

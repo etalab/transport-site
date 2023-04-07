@@ -1,7 +1,9 @@
 defmodule Transport.CommentsChecker do
   @moduledoc """
-  Check for new comments posted on data.gouv.fr for datasets referenced on the PAN
-  Send an email to the team with the new comments and a link to them.
+  Check for new comments posted on data.gouv.fr for datasets referenced on the PAN.
+
+  Send an email to contacts with a subscription to the `daily_new_comments` reason
+  with the new comments and a link to them.
   """
   alias Datagouvfr.Client.Discussions
   alias DB.{Dataset, Repo}
@@ -12,6 +14,8 @@ defmodule Transport.CommentsChecker do
   @type title :: binary()
   @type datagouv_comment :: map()
   @type comments_with_context :: {%Dataset{}, datagouv_id(), title(), [datagouv_comment()]}
+
+  @notification_reason :daily_new_comments
 
   def check_for_new_comments do
     comments_with_context = fetch_new_comments()
@@ -52,22 +56,39 @@ defmodule Transport.CommentsChecker do
   end
 
   def handle_new_comments(comments_number, comments) do
-    Logger.info("#{comments_number} new comment(s), sending an email to the team")
+    Logger.info("#{comments_number} new comment(s), sending emails")
 
     email_content = Phoenix.View.render_to_string(TransportWeb.EmailView, "index.html", comments_with_context: comments)
 
-    Transport.EmailSender.impl().send_mail(
-      "transport.data.gouv.fr",
-      Application.get_env(:transport, :contact_email),
-      Application.get_env(:transport, :contact_email),
-      Application.get_env(:transport, :contact_email),
-      "#{comments_number} nouveaux commentaires sur data.gouv.fr",
-      "",
-      email_content
-    )
+    emails =
+      @notification_reason
+      |> DB.NotificationSubscription.subscriptions_for_reason()
+      |> DB.NotificationSubscription.subscriptions_to_emails()
+
+    Enum.each(emails, fn email ->
+      Transport.EmailSender.impl().send_mail(
+        "transport.data.gouv.fr",
+        Application.get_env(:transport, :contact_email),
+        email,
+        Application.get_env(:transport, :contact_email),
+        "#{comments_number} nouveaux commentaires sur data.gouv.fr",
+        "",
+        email_content
+      )
+    end)
 
     update_all_datasets_ts(comments)
+    save_notifications(comments, emails)
+
     :ok
+  end
+
+  def save_notifications(comments_with_context, emails) do
+    Enum.each(comments_with_context, fn {%Dataset{} = dataset, _datagouv_id, _title, _comments} ->
+      Enum.each(emails, fn email ->
+        DB.Notification.insert!(@notification_reason, dataset, email)
+      end)
+    end)
   end
 
   @spec update_all_datasets_ts([comments_with_context()]) :: []
