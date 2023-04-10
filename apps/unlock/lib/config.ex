@@ -4,10 +4,10 @@ defmodule Unlock.Config do
   """
   require Logger
 
-  defmodule Item.GTFS.RT do
+  defmodule Item.Generic.HTTP do
     @moduledoc """
     An intermediate structure to add a bit of typing to the
-    external YAML configuration, specialized for GTFS-RT config.
+    external YAML configuration, for generic HTTP and gtfs-rt items.
 
     It supports hardcoded request headers for e.g. simple authentication.
     """
@@ -41,8 +41,8 @@ defmodule Unlock.Config do
       }
     end
 
-    def convert_yaml_item_to_struct(%{"type" => "gtfs-rt"} = item) do
-      %Item.GTFS.RT{
+    def convert_yaml_item_to_struct(%{"type" => "generic-http"} = item) do
+      %Item.Generic.HTTP{
         identifier: Map.fetch!(item, "identifier"),
         target_url: Map.fetch!(item, "target_url"),
         # By default, no TTL
