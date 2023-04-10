@@ -51,6 +51,14 @@ defmodule Unlock.Config do
       }
     end
 
+    @doc """
+    At the moment, GTFS-RT is just an alias for HTTP generic. This is done
+    to make it easier to achieve alternate processing later if needed.
+    """
+    def convert_yaml_item_to_struct(%{"type" => "gtfs-rt"} = item) do
+      convert_yaml_item_to_struct(item |> Map.put("type", "generic-http"))
+    end
+
     # provide an automatic upgrade path for existing configuration, to be
     # deprecated later
     def convert_yaml_item_to_struct(item) when not is_map_key(item, "type") do
