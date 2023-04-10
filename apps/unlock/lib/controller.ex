@@ -164,7 +164,7 @@ defmodule Unlock.Controller do
     |> send_resp(response.status, body)
   end
 
-  defp fetch_remote(item) do
+  defp fetch_remote(%Unlock.Config.Item.Generic.HTTP{} = item) do
     comp_fn = fn _key ->
       Logger.info("Processing proxy request for identifier #{item.identifier}")
 
