@@ -10,9 +10,11 @@ defmodule Unlock.Config do
     external YAML configuration, for generic HTTP and gtfs-rt items.
 
     It supports hardcoded request headers for e.g. simple authentication.
+
+    Default subtype is "gtfs-rt" for historical reasons, see `convert_yaml_item_to_struct` in the code.
     """
     @enforce_keys [:identifier, :target_url, :ttl]
-    defstruct [:identifier, :target_url, :ttl, request_headers: []]
+    defstruct [:identifier, :target_url, :ttl, subtype: "gtfs-rt", request_headers: []]
   end
 
   defmodule Item.SIRI do
@@ -41,22 +43,20 @@ defmodule Unlock.Config do
       }
     end
 
-    def convert_yaml_item_to_struct(%{"type" => "generic-http"} = item) do
+    @doc """
+    At the moment, GTFS-RT is just an alias for HTTP generic. This is done
+    to make it easier to achieve alternate processing later if needed.
+    """
+    def convert_yaml_item_to_struct(%{"type" => subtype} = item) when subtype in ["generic-http", "gtfs-rt"] do
       %Item.Generic.HTTP{
         identifier: Map.fetch!(item, "identifier"),
         target_url: Map.fetch!(item, "target_url"),
         # By default, no TTL
         ttl: Map.get(item, "ttl", 0),
+        # keep the subtype in case we need to do alternate processing later, without creating too many types too soon
+        subtype: subtype,
         request_headers: parse_config_request_headers(Map.get(item, "request_headers", []))
       }
-    end
-
-    @doc """
-    At the moment, GTFS-RT is just an alias for HTTP generic. This is done
-    to make it easier to achieve alternate processing later if needed.
-    """
-    def convert_yaml_item_to_struct(%{"type" => "gtfs-rt"} = item) do
-      convert_yaml_item_to_struct(item |> Map.put("type", "generic-http"))
     end
 
     # provide an automatic upgrade path for existing configuration, to be

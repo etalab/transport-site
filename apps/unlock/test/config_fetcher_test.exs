@@ -25,6 +25,8 @@ defmodule Unlock.ConfigFetcherTest do
                    %Unlock.Config.Item.Generic.HTTP{
                      identifier: "httpbin-get",
                      target_url: "https://httpbin.org/get",
+                     # gtfs-rt must be stored
+                     subtype: "gtfs-rt",
                      ttl: 10
                    }
                  ]
@@ -45,6 +47,8 @@ defmodule Unlock.ConfigFetcherTest do
                  %Unlock.Config.Item.Generic.HTTP{
                    identifier: "httpbin-get",
                    target_url: "https://httpbin.org/get",
+                   # default value
+                   subtype: unquote(config_type),
                    ttl: 10
                  }
                ]
