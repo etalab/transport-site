@@ -3,7 +3,7 @@ title: "Réseau Fil Bleu à Tours : assurer une information voyageurs optimale �
   l'aide d'une publication en open data de qualité"
 date: 2023-04-11T07:59:47.853Z
 tags:
-  - retour d'expérience
+  - qualité des données
 description: " Nicolas Béhier-Dévigne, Gestionnaire d’applications pour Keolis
   Tours, réseau Fil Bleu, répond aux questions de transport.data.gouv.fr et
   détaille la démarche de publication en open data des données de leur réseau
