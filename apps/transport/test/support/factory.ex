@@ -242,6 +242,10 @@ defmodule DB.Factory do
     %DB.NotificationSubscription{}
   end
 
+  def resource_related_factory do
+    %DB.ResourceRelated{}
+  end
+
   def insert_contact(%{} = args \\ %{}) do
     %{
       first_name: "John",

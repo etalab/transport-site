@@ -19,7 +19,7 @@ defmodule TransportWeb.ResourceController do
                       ])
 
   def details(conn, %{"id" => id} = params) do
-    resource = Resource |> Repo.get!(id) |> Repo.preload(dataset: [:resources])
+    resource = Resource |> preload(dataset: [:resources]) |> Repo.get!(id)
 
     conn =
       conn
