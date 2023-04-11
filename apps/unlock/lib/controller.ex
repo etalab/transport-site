@@ -51,9 +51,9 @@ defmodule Unlock.Controller do
     text(conn, "Unlock Proxy")
   end
 
-  # for now we use a whitelist which we'll gradually expand.
+  # for now we use a allowlist which we'll gradually expand.
   # make sure to avoid including "hop-by-hop" headers here.
-  @forwarded_headers_whitelist [
+  @forwarded_headers_allowlist [
     "content-type",
     "content-length",
     "date",
@@ -221,7 +221,7 @@ defmodule Unlock.Controller do
   # Inspiration (MIT) here https://github.com/tallarium/reverse_proxy_plug
   defp filter_response_headers(headers) do
     headers
-    |> Enum.filter(fn {h, _v} -> Enum.member?(@forwarded_headers_whitelist, h) end)
+    |> Enum.filter(fn {h, _v} -> Enum.member?(@forwarded_headers_allowlist, h) end)
   end
 
   defp prepare_response_headers(headers) do
