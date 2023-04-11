@@ -27,7 +27,7 @@
       <%= dgettext("validations", "No validation available") %>
     </div>
     <%= if DB.Resource.is_gtfs_rt?(@resource) do %>
-      <%= render("_validate_gtfs_rt_now.html", conn: @conn, resource: @resource) %>
+      <%= render("_validate_gtfs_rt_now.html", conn: @conn, resource: @resource, multi_validation: @multi_validation) %>
     <% end %>
     <%= if DB.Resource.is_gbfs?(@resource) do %>
       <%= render("_validate_gbfs_now.html", conn: @conn, resource: @resource) %>
