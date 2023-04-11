@@ -81,7 +81,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     end)
   end
 
-  defp extract_config(proxy_base_url, %Unlock.Config.Item.GTFS.RT{} = resource) do
+  defp extract_config(proxy_base_url, %Unlock.Config.Item.Generic.HTTP{} = resource) do
     %{
       unique_slug: resource.identifier,
       proxy_url: Transport.Proxy.resource_url(proxy_base_url, resource.identifier),
