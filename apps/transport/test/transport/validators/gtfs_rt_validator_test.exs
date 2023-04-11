@@ -90,7 +90,7 @@ defmodule Transport.Validators.GTFSRTTest do
 
       resource_history_uuid = Ecto.UUID.generate()
 
-      %{dataset: dataset, resource_history: %{id: resource_history_id}, resource: gtfs} =
+      %{dataset: dataset, resource_history: %{id: resource_history_id}, resource: %{id: gtfs_id} = gtfs} =
         insert_up_to_date_resource_and_friends(
           resource_history_payload: %{
             "format" => "GTFS",
@@ -213,6 +213,7 @@ defmodule Transport.Validators.GTFSRTTest do
                  "uuid" => _uuid
                },
                resource_id: ^gtfs_rt_id,
+               secondary_resource_id: ^gtfs_id,
                secondary_resource_history_id: ^resource_history_id,
                max_error: "ERROR"
              } = gtfs_rt_validation
@@ -235,6 +236,7 @@ defmodule Transport.Validators.GTFSRTTest do
                  "uuid" => _uuid
                },
                resource_id: ^gtfs_rt_no_errors_id,
+               secondary_resource_id: ^gtfs_id,
                secondary_resource_history_id: ^resource_history_id,
                max_error: nil
              } = gtfs_rt_no_errors_validation
@@ -254,7 +256,7 @@ defmodule Transport.Validators.GTFSRTTest do
 
       resource_history_uuid = Ecto.UUID.generate()
 
-      %{dataset: dataset, resource_history: %{id: resource_history_id}, resource: gtfs} =
+      %{dataset: dataset, resource_history: %{id: resource_history_id}, resource: %{id: gtfs_id} = gtfs} =
         insert_up_to_date_resource_and_friends(
           resource_history_payload: %{
             "format" => "GTFS",
@@ -343,6 +345,7 @@ defmodule Transport.Validators.GTFSRTTest do
                  "uuid" => _uuid
                },
                resource_id: ^gtfs_rt_id,
+               secondary_resource_id: ^gtfs_id,
                secondary_resource_history_id: ^resource_history_id,
                max_error: "ERROR"
              } = gtfs_rt_validation
@@ -423,6 +426,46 @@ defmodule Transport.Validators.GTFSRTTest do
         |> DB.Repo.all()
 
       assert [] == gtfs_rt_validation
+    end
+  end
+
+  describe "gtfs_rt_resources" do
+    test "with an outdated GTFS and 1 GTFS-RT" do
+      %{dataset: dataset} = insert_outdated_resource_and_friends()
+      insert(:resource, dataset: dataset, is_available: true, format: "gtfs-rt")
+      assert [] == GTFSRT.gtfs_rt_resources(dataset)
+    end
+
+    test "with 2 GTFS, a GTFS-RT linked to an outdated one: it uses the up-to-date one" do
+      %{dataset: dataset, resource: gtfs_1} = insert_outdated_resource_and_friends()
+      %{resource: gtfs_2} = insert_up_to_date_resource_and_friends(dataset: dataset)
+      %{id: gtfs_2_id} = gtfs_2
+      %{id: gtfs_rt_1_id} = gtfs_rt_1 = insert(:resource, dataset: dataset, is_available: true, format: "gtfs-rt")
+      insert(:resource_related, resource_src: gtfs_rt_1, resource_dst: gtfs_1, reason: :gtfs_rt_gtfs)
+
+      assert [
+               {%DB.Resource{id: ^gtfs_2_id}, %DB.Resource{id: ^gtfs_rt_1_id}}
+             ] = GTFSRT.gtfs_rt_resources(dataset)
+    end
+
+    test "with 2 up-to-date GTFS, 2 GTFS-RT linked to a GTFS, 1 GTFS-RT linked to nothing" do
+      %{dataset: dataset, resource: %DB.Resource{id: gtfs_1_id, format: "GTFS"} = gtfs_1} =
+        insert_up_to_date_resource_and_friends()
+
+      %{resource: %DB.Resource{format: "GTFS"}} = insert_up_to_date_resource_and_friends(dataset: dataset)
+
+      %{id: gtfs_rt_1_id} = gtfs_rt_1 = insert(:resource, dataset: dataset, is_available: true, format: "gtfs-rt")
+      %{id: gtfs_rt_2_id} = gtfs_rt_2 = insert(:resource, dataset: dataset, is_available: true, format: "gtfs-rt")
+      # Should be ignored because no `resource_related` exists
+      _ignored_gtfs_rt = insert(:resource, dataset: dataset, is_available: true, format: "gtfs-rt")
+
+      insert(:resource_related, resource_src: gtfs_rt_1, resource_dst: gtfs_1, reason: :gtfs_rt_gtfs)
+      insert(:resource_related, resource_src: gtfs_rt_2, resource_dst: gtfs_1, reason: :gtfs_rt_gtfs)
+
+      assert [
+               {%DB.Resource{id: ^gtfs_1_id}, %DB.Resource{id: ^gtfs_rt_1_id}},
+               {%DB.Resource{id: ^gtfs_1_id}, %DB.Resource{id: ^gtfs_rt_2_id}}
+             ] = GTFSRT.gtfs_rt_resources(dataset)
     end
   end
 

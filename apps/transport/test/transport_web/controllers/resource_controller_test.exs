@@ -205,7 +205,6 @@ defmodule TransportWeb.ResourceControllerTest do
       validation_result["files"]["gtfs_rt_permanent_url"],
       "Prolongation des travaux rue de Kermaria",
       "Impossible de déterminer le fichier GTFS à utiliser",
-      "a aucun fichier GTFS",
       "Validations précédentes"
     ]
     |> Enum.each(&assert content =~ &1)
@@ -377,7 +376,7 @@ defmodule TransportWeb.ResourceControllerTest do
 
   test "GTFS-RT validation is shown", %{conn: conn} do
     %{id: dataset_id} = insert(:dataset)
-    insert(:resource, format: "GTFS", dataset_id: dataset_id)
+    %{id: gtfs_id} = insert(:resource, format: "GTFS", dataset_id: dataset_id)
 
     %{id: resource_id} =
       insert(:resource, %{
@@ -415,6 +414,7 @@ defmodule TransportWeb.ResourceControllerTest do
           "gtfs_rt_permanent_url" => "url"
         }
       },
+      secondary_resource_id: gtfs_id,
       metadata: %DB.ResourceMetadata{metadata: %{}}
     })
 
