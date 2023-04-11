@@ -148,10 +148,12 @@ config :transport,
 config :transport,
   public_siri_host_mappings: %{
     "ara-api.enroute.mobi" => :enroute,
-    "ara-api-staging.enroute.mobi" => :enroute
+    "ara-api-staging.enroute.mobi" => :enroute,
+    "opendata.siri.transports-lia.fr" => :lia_le_havre
   },
   public_siri_requestor_refs: %{
-    enroute: "open-data"
+    enroute: "open-data",
+    lia_le_havre: "PAN"
   }
 
 config :datagouvfr,
