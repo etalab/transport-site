@@ -22,6 +22,7 @@ defmodule DB.Contact do
     # https://hexdocs.pm/cloak_ecto/install.html#usage
     field(:email_hash, Cloak.Ecto.SHA256)
     field(:phone_number, DB.Encrypted.Binary)
+    field(:secondary_phone_number, DB.Encrypted.Binary)
 
     timestamps(type: :utc_datetime_usec)
 
@@ -80,13 +81,22 @@ defmodule DB.Contact do
 
   def changeset(struct, attrs \\ %{}) do
     struct
-    |> cast(attrs, [:first_name, :last_name, :mailing_list_title, :organization, :job_title, :email, :phone_number])
+    |> cast(attrs, [
+      :first_name,
+      :last_name,
+      :mailing_list_title,
+      :organization,
+      :job_title,
+      :email,
+      :phone_number,
+      :secondary_phone_number
+    ])
     |> trim_fields([:first_name, :last_name, :organization, :job_title])
     |> capitalize_fields([:first_name, :last_name])
     |> validate_required([:organization, :email])
     |> validate_format(:email, ~r/@/)
     |> validate_names_or_mailing_list_title()
-    |> cast_phone_number()
+    |> cast_phone_numbers()
     |> lowercase_email()
     |> put_hashed_fields()
     |> unique_constraint(:email_hash, error_key: :email, name: :contact_email_hash_index)
@@ -120,34 +130,40 @@ defmodule DB.Contact do
     |> Enum.reduce(changeset, fn field, changeset -> update_change(changeset, field, &String.capitalize/1) end)
   end
 
-  defp cast_phone_number(%Ecto.Changeset{} = changeset) do
-    case get_field(changeset, :phone_number) do
+  defp cast_phone_numbers(%Ecto.Changeset{} = changeset) do
+    ~w(phone_number secondary_phone_number)a
+    |> Enum.map_reduce(changeset, fn field, acc -> {nil, cast_phone_number(acc, field)} end)
+    |> elem(1)
+  end
+
+  defp cast_phone_number(%Ecto.Changeset{} = changeset, field) when is_atom(field) do
+    case get_field(changeset, field) do
       nil ->
         changeset
 
       phone_number_value ->
         case ExPhoneNumber.parse(phone_number_value, @default_phone_number_region) do
-          {:ok, phone_number} -> parse_phone_number(changeset, phone_number)
-          {:error, reason} -> add_error(changeset, :phone_number, reason)
+          {:ok, phone_number} -> parse_phone_number(changeset, phone_number, field)
+          {:error, reason} -> add_error(changeset, field, reason)
         end
+    end
+  end
+
+  defp parse_phone_number(%Ecto.Changeset{} = changeset, %ExPhoneNumber.Model.PhoneNumber{} = phone_number, field) do
+    cond do
+      not ExPhoneNumber.is_possible_number?(phone_number) ->
+        add_error(changeset, field, "Phone number is not a possible number")
+
+      not ExPhoneNumber.is_valid_number?(phone_number) ->
+        add_error(changeset, field, "Phone number is not a valid number")
+
+      true ->
+        put_change(changeset, field, ExPhoneNumber.format(phone_number, :e164))
     end
   end
 
   defp lowercase_email(%Ecto.Changeset{} = changeset) do
     update_change(changeset, :email, &String.downcase/1)
-  end
-
-  defp parse_phone_number(%Ecto.Changeset{} = changeset, %ExPhoneNumber.Model.PhoneNumber{} = phone_number) do
-    cond do
-      not ExPhoneNumber.is_possible_number?(phone_number) ->
-        add_error(changeset, :phone_number, "Phone number is not a possible number")
-
-      not ExPhoneNumber.is_valid_number?(phone_number) ->
-        add_error(changeset, :phone_number, "Phone number is not a valid number")
-
-      true ->
-        put_change(changeset, :phone_number, ExPhoneNumber.format(phone_number, :e164))
-    end
   end
 
   defp put_hashed_fields(%Ecto.Changeset{} = changeset) do

@@ -15,7 +15,8 @@ defmodule DB.ContactTest do
       email: email = "john@example.fr",
       job_title: "Chef SIG",
       organization: "Big Corp Inc",
-      phone_number: "06 92 22 88 03"
+      phone_number: "06 92 22 88 03",
+      secondary_phone_number: "+33 1 99 00 17 45"
     }
     |> DB.Contact.insert!()
 
@@ -25,7 +26,8 @@ defmodule DB.ContactTest do
              job_title: "Chef SIG",
              last_name: "Doe",
              organization: "Big Corp Inc",
-             phone_number: "+33692228803"
+             phone_number: "+33692228803",
+             secondary_phone_number: "+33199001745"
            } = DB.Repo.one!(DB.Contact)
 
     # Can search using `email_hash`
@@ -33,7 +35,8 @@ defmodule DB.ContactTest do
 
     # Cannot get rows by using the email/phone_number values, because values are encrypted
     assert DB.Contact |> where([n], n.email == ^email) |> DB.Repo.all() |> Enum.empty?()
-    assert DB.Contact |> where([n], n.email == ^"+33692228803") |> DB.Repo.all() |> Enum.empty?()
+    assert DB.Contact |> where([n], n.phone_number == ^"+33692228803") |> DB.Repo.all() |> Enum.empty?()
+    assert DB.Contact |> where([n], n.secondary_phone_number == ^"+33199001745") |> DB.Repo.all() |> Enum.empty?()
 
     # Can save a contact with a `title`
     %{sample_contact_args() | first_name: nil, last_name: nil, mailing_list_title: "title"}
