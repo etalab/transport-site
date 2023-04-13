@@ -28,8 +28,8 @@ msgid "See on data.gouv.fr"
 msgstr "Voir sur data.gouv.fr"
 
 #, elixir-autogen, elixir-format
-msgid "Locations"
-msgstr "Lieux d'intérêts"
+msgid "Mobility locations"
+msgstr "Lieux de mobilité"
 
 #, elixir-autogen, elixir-format
 msgid "A dataset cannot be national and regional"
