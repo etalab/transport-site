@@ -27,7 +27,7 @@ msgid "See on data.gouv.fr"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Locations"
+msgid "Mobility locations"
 msgstr ""
 
 #, elixir-autogen, elixir-format
