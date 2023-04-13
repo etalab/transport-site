@@ -645,7 +645,7 @@ defmodule Transport.ImportData do
   def is_zip?(str), do: is_format?(str, "zip")
 
   @doc """
-  Is the ressource a NeTEx file?
+  Is the resource a NeTEx file?
 
   ## Examples
   iex> is_netex?(%{"format" => "netex"})
@@ -759,6 +759,9 @@ defmodule Transport.ImportData do
 
       iex> formated_format(%{"format" => "pdf", "type" => "documentation"}, "public-transit", false)
       "pdf"
+
+      iex> formated_format(%{"format" => "zip", "description" => "Lieux de mobilités au format netex"}, "locations", false)
+      "NeTEx"
   """
   @spec formated_format(map(), binary(), bool()) :: binary()
   # credo:disable-for-next-line
@@ -776,6 +779,7 @@ defmodule Transport.ImportData do
       is_geojson?(resource, format) -> "geojson"
       type == "public-transit" and not is_documentation and not is_community_resource -> "GTFS"
       type in ["bike-scooter-sharing", "car-motorbike-sharing"] and is_gbfs?(resource) -> "gbfs"
+      type == "locations" and is_netex?(resource) -> "NeTEx"
       true -> format
     end
   end
