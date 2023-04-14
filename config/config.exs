@@ -153,7 +153,7 @@ config :transport,
   },
   public_siri_requestor_refs: %{
     enroute: "open-data",
-    lia_le_havre: "PAN"
+    lia_le_havre: "opendata"
   }
 
 config :datagouvfr,
