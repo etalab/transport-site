@@ -30,7 +30,7 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
                    "vélo",
                    "zfe"
                  ])
-  @relevant_formats MapSet.new(["gtfs", "netex", "gbfs", "gtfs-rt", "gtfsrt", "siri"])
+  @relevant_formats MapSet.new(["gtfs", "netex", "gbfs", "gtfs-rt", "gtfsrt", "siri", "ssim"])
 
   @impl Oban.Worker
   def perform(%Oban.Job{inserted_at: %DateTime{} = inserted_at}) do
