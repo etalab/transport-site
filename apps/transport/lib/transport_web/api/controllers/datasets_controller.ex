@@ -71,20 +71,21 @@ defmodule TransportWeb.API.DatasetController do
       |> Repo.all()
       |> Enum.map(fn dataset ->
         enriched_dataset = Map.get(existing_ids, dataset.id)
-
-        if enriched_dataset do
-          enriched_resources =
-            dataset.resources
-            |> Enum.map(fn r -> enriched_dataset |> Map.get(r.id, r) end)
-
-          Map.put(dataset, :resources, enriched_resources)
-        else
-          dataset
-        end
+        add_enriched_resources_to_dataset(dataset, enriched_dataset)
       end)
       |> Enum.map(&transform_dataset(conn, &1))
 
     render(conn, %{data: data})
+  end
+
+  def add_enriched_resources_to_dataset(dataset, nil = _enriched_dataset), do: dataset
+
+  def add_enriched_resources_to_dataset(dataset, enriched_dataset) do
+    enriched_resources =
+      dataset.resources
+      |> Enum.map(fn r -> enriched_dataset |> Map.get(r.id, r) end)
+
+    Map.put(dataset, :resources, enriched_resources)
   end
 
   @spec by_id_operation() :: Operation.t()
@@ -231,7 +232,7 @@ defmodule TransportWeb.API.DatasetController do
       # (since it's used in /dataset/:id)
       "id" => dataset.datagouv_id,
       "title" => dataset.custom_title,
-      "created_at" => dataset.created_at,
+      "created_at" => dataset.created_at |> DateTime.to_date() |> Date.to_string(),
       "page_url" => TransportWeb.Router.Helpers.dataset_url(conn, :details, dataset.slug),
       "slug" => dataset.slug,
       "updated" => Helpers.last_updated(Dataset.official_resources(dataset)),
@@ -256,9 +257,38 @@ defmodule TransportWeb.API.DatasetController do
   defp transform_dataset_with_detail(%Plug.Conn{} = conn, %Dataset{} = dataset) do
     conn
     |> transform_dataset(dataset)
+    |> add_conversions(dataset)
     |> Map.put(
       "history",
       Transport.History.Fetcher.history_resources(dataset, TransportWeb.DatasetView.max_nb_history_resources())
+    )
+  end
+
+  defp add_conversions(%{"resources" => resources} = data, %Dataset{} = dataset) do
+    conversions =
+      dataset
+      |> Dataset.get_resources_related_files()
+      |> Enum.into(%{}, fn {resource_id, data} ->
+        {resource_id,
+         data
+         |> Enum.reject(fn {_format, v} -> is_nil(v) end)
+         |> Enum.into(%{}, fn {format, data} ->
+           payload = %{
+             filesize: Map.fetch!(data, :filesize),
+             last_check_conversion_is_up_to_date: Map.fetch!(data, :resource_history_last_up_to_date_at),
+             stable_url: Map.fetch!(data, :stable_url)
+           }
+
+           {format, payload}
+         end)}
+      end)
+
+    Map.put(
+      data,
+      "resources",
+      Enum.map(resources, fn %{"id" => resource_id} = resource ->
+        Map.put(resource, "conversions", Map.fetch!(conversions, resource_id))
+      end)
     )
   end
 
@@ -298,9 +328,10 @@ defmodule TransportWeb.API.DatasetController do
 
     %{
       "page_url" => TransportWeb.Router.Helpers.resource_url(TransportWeb.Endpoint, :details, resource.id),
+      "id" => resource.id,
       "datagouv_id" => resource.datagouv_id,
       "title" => resource.title,
-      "updated" => Shared.DateTimeDisplay.format_naive_datetime_to_paris_tz(resource.last_update),
+      "updated" => resource.last_update |> DateTime.to_iso8601(),
       "is_available" => resource.is_available,
       "url" => resource.latest_url,
       "original_url" => resource.url,

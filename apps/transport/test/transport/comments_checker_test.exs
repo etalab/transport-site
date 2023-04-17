@@ -22,6 +22,8 @@ defmodule Transport.CommentsCheckerTest do
 
   test "check for new comments on data.gouv.fr" do
     %{id: dataset_id} = insert(:dataset, datagouv_title: "dataset 1")
+    %DB.Contact{id: contact_id, email: email} = insert_contact()
+    insert(:notification_subscription, %{reason: :daily_new_comments, source: :admin, contact_id: contact_id})
 
     # when the dataset is created, no comment timestamp is stored
     assert_dataset_ts(dataset_id, nil)
@@ -51,7 +53,7 @@ defmodule Transport.CommentsCheckerTest do
       assert_dataset_ts(dataset_id, ~U[2020-01-01T12:00:00.000100Z])
     end
 
-    # second run : we shouldn't find new comment
+    # second run: we shouldn't find new comment
     with_mock Datagouvfr.Client.API, get: get_mock do
       Transport.EmailSender.Mock
       |> expect(:send_mail, 0, fn _, _, _, _, _, _, _ -> {:ok, "envoyé !"} end)
@@ -89,6 +91,12 @@ defmodule Transport.CommentsCheckerTest do
       verify!(Transport.EmailSender.Mock)
       assert_dataset_ts(dataset_id, ~U[2021-01-01T12:00:00.000200Z])
     end
+
+    # Logs have been saved
+    assert [
+             %DB.Notification{email: ^email, reason: :daily_new_comments, dataset_id: ^dataset_id},
+             %DB.Notification{email: ^email, reason: :daily_new_comments, dataset_id: ^dataset_id}
+           ] = DB.Notification |> DB.Repo.all()
   end
 
   test "get latest comment timestamp" do
@@ -100,7 +108,7 @@ defmodule Transport.CommentsCheckerTest do
     ]
 
     assert CommentsChecker.comments_latest_timestamp(discussions) ==
-             ~U[2021-05-12 15:07:04.547000Z]
+             ~U[2021-05-12 15:07:04Z]
   end
 
   test "timestamp of empty list is nil" do

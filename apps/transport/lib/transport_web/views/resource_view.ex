@@ -13,6 +13,7 @@ defmodule TransportWeb.ResourceView do
   import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2]
   import Shared.Validation.TableSchemaValidator, only: [validata_web_url: 1]
   import Transport.GBFSUtils, only: [gbfs_validation_link: 1]
+  import Transport.Shared.Schemas.Wrapper, only: [schema_type: 1]
   alias Shared.DateTimeDisplay
   def format_related_objects(nil), do: ""
 
@@ -229,6 +230,8 @@ defmodule TransportWeb.ResourceView do
       :OTHER_EFFECT -> dgettext("page-dataset-details", "Other effect")
       :UNKNOWN_EFFECT -> dgettext("page-dataset-details", "Unknown effect")
       :STOP_MOVED -> dgettext("page-dataset-details", "Stop moved")
+      :NO_EFFECT -> dgettext("page-dataset-details", "No effect")
+      :ACCESSIBILITY_ISSUE -> dgettext("page-dataset-details", "Accessibility issue")
     end
   end
 
@@ -307,4 +310,12 @@ defmodule TransportWeb.ResourceView do
   end
 
   def latest_validations_nb_days, do: 30
+
+  def gtfs_for_gtfs_rt(_resource, nil = _multi_validation), do: nil
+
+  def gtfs_for_gtfs_rt(
+        %DB.Resource{format: "gtfs-rt", dataset: %DB.Dataset{resources: resources}},
+        %DB.MultiValidation{secondary_resource_id: gtfs_id}
+      ),
+      do: Enum.find(resources, &(&1.id == gtfs_id))
 end

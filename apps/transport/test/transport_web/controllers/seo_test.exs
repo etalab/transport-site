@@ -18,6 +18,8 @@ defmodule TransportWeb.SeoMetadataTest do
 
     {:ok, _} =
       %Dataset{
+        created_at: DateTime.utc_now(),
+        last_update: DateTime.utc_now(),
         description: "Un jeu de données",
         licence: "odc-odbl",
         datagouv_title: "Horaires et arrêts du réseau IRIGO - format GTFS",
@@ -29,6 +31,8 @@ defmodule TransportWeb.SeoMetadataTest do
         tags: [],
         resources: [
           %Resource{
+            last_update: DateTime.utc_now() |> DateTime.add(-6, :hour),
+            last_import: DateTime.utc_now() |> DateTime.add(-1, :hour),
             url: "https://link.to/angers.zip",
             description: "blabla on resource",
             format: "GTFS",

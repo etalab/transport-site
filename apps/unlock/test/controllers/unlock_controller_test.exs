@@ -199,7 +199,7 @@ defmodule Unlock.ControllerTest do
       ttl_in_seconds = 30
 
       setup_proxy_config(%{
-        slug => %Unlock.Config.Item.GTFS.RT{
+        slug => %Unlock.Config.Item.Generic.HTTP{
           identifier: slug,
           target_url: "http://localhost/some-remote-resource",
           ttl: ttl_in_seconds
@@ -219,7 +219,7 @@ defmodule Unlock.ControllerTest do
       ttl_in_seconds = 30
 
       setup_proxy_config(%{
-        slug => %Unlock.Config.Item.GTFS.RT{
+        slug => %Unlock.Config.Item.Generic.HTTP{
           identifier: slug,
           target_url: target_url = "http://localhost/some-remote-resource",
           ttl: ttl_in_seconds
@@ -320,7 +320,7 @@ defmodule Unlock.ControllerTest do
       slug = "an-existing-identifier"
 
       setup_proxy_config(%{
-        slug => %Unlock.Config.Item.GTFS.RT{
+        slug => %Unlock.Config.Item.Generic.HTTP{
           identifier: slug,
           target_url: target_url = "http://localhost/some-remote-resource",
           ttl: 30
@@ -361,7 +361,7 @@ defmodule Unlock.ControllerTest do
 
     test "handles optional hardcoded request headers" do
       setup_proxy_config(%{
-        "some-identifier" => %Unlock.Config.Item.GTFS.RT{
+        "some-identifier" => %Unlock.Config.Item.Generic.HTTP{
           identifier: "some-identifier",
           target_url: "http://localhost/some-remote-resource",
           ttl: 10,
@@ -395,7 +395,7 @@ defmodule Unlock.ControllerTest do
       identifier = "foo"
 
       setup_proxy_config(%{
-        identifier => %Unlock.Config.Item.GTFS.RT{
+        identifier => %Unlock.Config.Item.Generic.HTTP{
           identifier: identifier,
           target_url: url,
           ttl: 10

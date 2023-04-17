@@ -3,8 +3,6 @@ defmodule Shared.DateTimeDisplay do
   A module to have a coherent display of dates and times accross the website.
   The goal is to show date times for Europe/Paris timezone to our users.
   """
-  alias Timex.Format.DateTime.Formatter
-
   @doc """
   Formats a date to display depending on the locale
 
@@ -18,8 +16,11 @@ defmodule Shared.DateTimeDisplay do
   "01/03/2022"
   iex> format_date("2022-03-01", "en")
   "2022-03-01"
+  iex> format_date(~U[2022-11-01 00:00:00Z], "en")
+  "2022-11-01"
   """
-  @spec format_date(binary | Date.t(), binary() | nil) :: binary
+  @spec format_date(binary | Date.t() | DateTime.t(), binary() | nil) :: binary
+  def format_date(%DateTime{} = datetime, locale), do: format_date(DateTime.to_date(datetime), locale)
   def format_date(%Date{} = date, "fr"), do: Calendar.strftime(date, "%d/%m/%Y")
   def format_date(%Date{} = date, "en"), do: Calendar.strftime(date, "%Y-%m-%d")
   def format_date(%Date{} = date, _), do: format_date(date, "fr")
@@ -124,24 +125,5 @@ defmodule Shared.DateTimeDisplay do
       %Timex.AmbiguousDateTime{after: dt} -> dt
       %DateTime{} = dt -> dt
     end
-  end
-
-  @doc """
-  Converts a binary naive date time to a binary date time having the Paris timezone.
-  Output formatting is ISO 8601
-
-  iex> format_naive_datetime_to_paris_tz("2022-03-01T15:30:00")
-  "2022-03-01T15:30:00+01:00"
-  iex> format_naive_datetime_to_paris_tz("2022-10-30T02:03:54")
-  "2022-10-30T02:03:54+01:00"
-  """
-  @spec format_naive_datetime_to_paris_tz(nil | binary) :: binary
-  def format_naive_datetime_to_paris_tz(nil), do: ""
-
-  def format_naive_datetime_to_paris_tz(naive_datetime) do
-    naive_datetime
-    |> Timex.parse!("{ISO:Extended}")
-    |> convert_to_paris_time()
-    |> Formatter.format!("{ISO:Extended}")
   end
 end

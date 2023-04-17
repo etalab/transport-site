@@ -26,6 +26,8 @@ defmodule DB.Factory do
 
   def dataset_factory do
     %DB.Dataset{
+      created_at: DateTime.utc_now(),
+      last_update: DateTime.utc_now(),
       datagouv_title: "Hello",
       slug: sequence(:slug, fn i -> "dataset_slug_#{i}" end),
       datagouv_id: sequence(:datagouv_id, fn i -> "dataset_datagouv_id_#{i}" end),
@@ -37,6 +39,8 @@ defmodule DB.Factory do
 
   def resource_factory do
     %DB.Resource{
+      last_import: DateTime.utc_now(),
+      last_update: DateTime.utc_now(),
       title: "GTFS.zip",
       latest_url: "url"
     }
@@ -236,6 +240,10 @@ defmodule DB.Factory do
 
   def notification_subscription_factory do
     %DB.NotificationSubscription{}
+  end
+
+  def resource_related_factory do
+    %DB.ResourceRelated{}
   end
 
   def insert_contact(%{} = args \\ %{}) do

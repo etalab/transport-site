@@ -86,17 +86,17 @@ defmodule Transport.GTFSDiff do
       |> CSV.to_line_stream()
       |> CSV.parse_stream(skip_headers: false)
       # cannot take only the headers, I crash
-      |> Enum.reduce({}, fn r, acc ->
-        if acc == {} do
-          r |> Enum.map(fn h -> h |> String.replace_prefix("\uFEFF", "") end)
-        else
-          acc
-        end
-      end)
+      |> Enum.reduce({}, &save_headers_in_acc(&1, &2))
     else
       []
     end
   end
+
+  defp save_headers_in_acc(r, {}) do
+    r |> Enum.map(fn h -> h |> String.replace_prefix("\uFEFF", "") end)
+  end
+
+  defp save_headers_in_acc(_r, acc), do: acc
 
   def get_headers(file_path) do
     file_path

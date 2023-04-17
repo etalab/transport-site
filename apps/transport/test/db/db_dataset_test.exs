@@ -10,7 +10,7 @@ defmodule DB.DatasetDBTest do
   import Ecto.Query
 
   test "delete_parent_dataset" do
-    parent_dataset = Repo.insert!(%Dataset{})
+    parent_dataset = insert(:dataset)
     linked_aom = Repo.insert!(%AOM{parent_dataset_id: parent_dataset.id, nom: "Jolie AOM"})
 
     # linked_aom is supposed to have a parent_dataset id
@@ -403,21 +403,21 @@ defmodule DB.DatasetDBTest do
       resource_history_uuid: uuid1,
       convert_from: "GTFS",
       convert_to: "GeoJSON",
-      payload: %{"permanent_url" => "url1", "filesize" => "size1"}
+      payload: %{"permanent_url" => "url1", "filesize" => 21}
     )
 
     insert(:data_conversion,
       resource_history_uuid: uuid1,
       convert_from: "GTFS",
       convert_to: "NeTEx",
-      payload: %{"permanent_url" => "url11", "filesize" => "size11"}
+      payload: %{"permanent_url" => "url11", "filesize" => 42}
     )
 
     insert(:data_conversion,
       resource_history_uuid: uuid2,
       convert_from: "GTFS",
       convert_to: "GeoJSON",
-      payload: %{"permanent_url" => "url2", "filesize" => "size2"}
+      payload: %{"permanent_url" => "url2", "filesize" => 76}
     )
 
     dataset = DB.Dataset |> preload(:resources) |> DB.Repo.get(dataset_id)
@@ -428,14 +428,14 @@ defmodule DB.DatasetDBTest do
              r1.id => %{
                GeoJSON: %{
                  url: "url1",
-                 filesize: "size1",
+                 filesize: 21,
                  resource_history_last_up_to_date_at: dt1,
                  format: "GeoJSON",
                  stable_url: "http://127.0.0.1:5100/resources/conversions/#{r1.id}/GeoJSON"
                },
                NeTEx: %{
                  url: "url11",
-                 filesize: "size11",
+                 filesize: 42,
                  resource_history_last_up_to_date_at: dt1,
                  format: "NeTEx",
                  stable_url: "http://127.0.0.1:5100/resources/conversions/#{r1.id}/NeTEx"
@@ -444,7 +444,7 @@ defmodule DB.DatasetDBTest do
              r2.id => %{
                GeoJSON: %{
                  url: "url2",
-                 filesize: "size2",
+                 filesize: 76,
                  resource_history_last_up_to_date_at: dt2,
                  format: "GeoJSON",
                  stable_url: "http://127.0.0.1:5100/resources/conversions/#{r2.id}/GeoJSON"

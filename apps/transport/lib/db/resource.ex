@@ -13,9 +13,9 @@ defmodule DB.Resource do
     # real url
     field(:url, :string)
     field(:format, :string)
-    field(:last_import, :string)
+    field(:last_import, :utc_datetime_usec)
     field(:title, :string)
-    field(:last_update, :string)
+    field(:last_update, :utc_datetime_usec)
     # stable data.gouv.fr url if exists, else (for ODS gtfs as csv) it's the real url
     field(:latest_url, :string)
     field(:is_available, :boolean, default: true)
@@ -59,6 +59,14 @@ defmodule DB.Resource do
     )
 
     has_many(:resource_history, DB.ResourceHistory)
+
+    has_many(
+      :resources_related,
+      DB.ResourceRelated,
+      references: :id,
+      foreign_key: :resource_src_id,
+      on_replace: :delete
+    )
   end
 
   def base_query, do: from(r in DB.Resource, as: :resource)
@@ -230,7 +238,7 @@ defmodule DB.Resource do
     )
     |> select([rh, dc], %{
       url: fragment("? ->> 'permanent_url'", dc.payload),
-      filesize: fragment("? ->> 'filesize'", dc.payload),
+      filesize: fragment("(? ->> 'filesize')::int", dc.payload),
       resource_history_last_up_to_date_at: rh.last_up_to_date_at
     })
     |> where([rh, dc], rh.resource_id == ^resource_id and dc.convert_to == ^format)

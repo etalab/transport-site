@@ -527,14 +527,6 @@ msgid "Missing features that <a href=\"%{doc_link}\" target=\"_blank\">can be sp
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Cannot determine the relevant GTFS file to use to perform a GTFS-RT validation because there is no GTFS file."
-msgstr ""
-
-#, elixir-autogen, elixir-format, fuzzy
-msgid "Cannot determine the relevant GTFS file to use to perform a GTFS-RT validation because there are multiple GTFS files."
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Data published by"
 msgstr ""
 
@@ -556,4 +548,16 @@ msgstr ""
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Automatic conversions"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Accessibility issue"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "No effect"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Cannot determine the relevant GTFS file to use to perform a GTFS-RT validation."
 msgstr ""

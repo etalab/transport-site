@@ -1,42 +1,19 @@
 defmodule TransportWeb.AtomControllerTest do
   use TransportWeb.ConnCase, async: true
   import TransportWeb.AtomController
-  # use TransportWeb.DatabaseCase, cleanup: [:datasets]
   import DB.Factory
-  alias Timex.Format.DateTime.Formatter
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
-  def days_ago(days) do
-    "Etc/UTC"
-    |> DateTime.now!()
-    |> DateTime.add(-days * 24 * 3600)
-  end
-
-  def days_ago_as_iso_string(days) do
-    days
-    |> days_ago()
-    |> Formatter.format!("{ISO:Extended}")
-  end
-
-  def days_ago_as_naive_iso_string(days) do
-    days
-    |> days_ago()
-    |> NaiveDateTime.to_iso8601()
-  end
-
   test "get recent resources for atom feed" do
     days = 1000
 
-    # Database currently expects datetime as iso string!
-    # With or without timezones, we are not too sure, so we insert both
-    insert(:resource, title: "10-days-old", last_update: days_ago_as_iso_string(10))
-    insert(:resource, title: "today-old", last_update: days_ago_as_iso_string(0))
-    insert(:resource, title: "naive-yesterday-old", last_update: days_ago_as_naive_iso_string(1))
-    insert(:resource, title: "no-timestamp-should-not-appear", last_update: nil)
-    insert(:resource, title: "too-old-should-not-appear", last_update: days_ago_as_iso_string(days * 2))
+    insert(:resource, title: "10-days-old", last_update: days_ago(10))
+    insert(:resource, title: "today-old", last_update: days_ago(0))
+    insert(:resource, title: "naive-yesterday-old", last_update: days_ago(1))
+    insert(:resource, title: "too-old-should-not-appear", last_update: days_ago(days * 2))
 
     limit = days_ago(days)
 
@@ -49,35 +26,28 @@ defmodule TransportWeb.AtomControllerTest do
              "naive-yesterday-old",
              # not too old to be filtered out
              "10-days-old"
-             # very old and no timestamp are excluded
+             # very old is excluded
            ]
   end
 
   test "date format in atom feed", %{conn: conn} do
     %{id: dataset_id} = insert(:dataset)
     last_update_utc = days_ago(5)
-    insert(:resource, title: "today-old", last_update: last_update_utc |> to_string(), dataset_id: dataset_id)
+    insert(:resource, title: "today-old", last_update: last_update_utc, dataset_id: dataset_id)
 
     conn = conn |> get(atom_path(conn, :index))
 
-    # The timestamp displayed gets converted from UTC to Paris timezone
-    last_update_paris = last_update_utc |> Timex.Timezone.convert("Europe/Paris") |> Formatter.format!("{ISO:Extended}")
-
     doc = conn |> response(200) |> Floki.parse_document!()
-    assert {"updated", [], [last_update_paris]} == doc |> Floki.find("updated") |> Enum.at(0)
+    assert {"updated", [], [last_update_utc |> DateTime.to_iso8601()]} == doc |> Floki.find("updated") |> Enum.at(0)
   end
 
   test "doc is rendered as expected", %{conn: conn} do
-    last_update_utc = days_ago(5)
-
     %{id: resource_id} =
       insert(:resource,
         title: "title",
-        last_update: last_update_utc |> to_string(),
+        last_update: last_update = days_ago(5),
         dataset: insert(:dataset, description: "<p>Hello</p>", organization: "BusCorp", custom_title: "Custom Title")
       )
-
-    last_update_paris = last_update_utc |> Timex.Timezone.convert("Europe/Paris") |> Formatter.format!("{ISO:Extended}")
 
     content = conn |> get(atom_path(conn, :index)) |> response(200)
 
@@ -93,18 +63,22 @@ defmodule TransportWeb.AtomControllerTest do
                 {"subtitle", [], ["Jeux de données GTFS"]},
                 {"link", [{"href", "http://127.0.0.1:5100/atom.xml"}, {"rel", "self"}], []},
                 {"id", [], ["tag:transport.data.gouv.fr,2019-02-27:/20190227161047181"]},
-                {"updated", [], [last_update_paris]},
+                {"updated", [], [last_update |> DateTime.to_iso8601()]},
                 {"entry", [],
                  [
                    {"title", [], ["Custom Title — title"]},
                    {"link", [{"href", "url"}], []},
                    {"id", [], ["http://127.0.0.1:5100/resources/#{resource_id}"]},
-                   {"updated", [], [last_update_paris]},
+                   {"updated", [], [last_update |> DateTime.to_iso8601()]},
                    {"summary", [], ["Cette ressource fait partie du jeux de données Custom Title"]},
                    {"content", [{"type", "html"}], ["\n<p>\n  Hello</p>\n\n      "]},
                    {"author", [], [{"name", [], ["BusCorp"]}]}
                  ]}
               ]}
            ] == Floki.parse_document!(content)
+  end
+
+  def days_ago(days) when is_integer(days) and days >= 0 do
+    DateTime.utc_now() |> DateTime.add(-days, :day)
   end
 end

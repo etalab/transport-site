@@ -62,7 +62,11 @@
         E-mail <%= text_input(f, :email, required: true, type: "email") %>
       <% end %>
       <%= label f, :phone_number, class: "pt-12" do %>
-        Numéro de téléphone <%= text_input(f, :phone_number, type: "tel") %>
+        Numéro de téléphone principal <%= text_input(f, :phone_number, type: "tel") %>
+        <div class="small">Optionnel</div>
+      <% end %>
+      <%= label f, :secondary_phone_number, class: "pt-12" do %>
+        Numéro de téléphone secondaire <%= text_input(f, :secondary_phone_number, type: "tel") %>
         <div class="small">Optionnel</div>
       <% end %>
       <%= submit("Envoyer") %>

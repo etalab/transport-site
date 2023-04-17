@@ -51,9 +51,9 @@ defmodule Unlock.Controller do
     text(conn, "Unlock Proxy")
   end
 
-  # for now we use a whitelist which we'll gradually expand.
+  # for now we use a allowlist which we'll gradually expand.
   # make sure to avoid including "hop-by-hop" headers here.
-  @forwarded_headers_whitelist [
+  @forwarded_headers_allowlist [
     "content-type",
     "content-length",
     "date",
@@ -100,7 +100,7 @@ defmodule Unlock.Controller do
   # RAM consumption
   @max_allowed_cached_byte_size 20 * 1024 * 1024
 
-  defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.GTFS.RT{} = item) do
+  defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.Generic.HTTP{} = item) do
     Telemetry.trace_request(item.identifier, :external)
     response = fetch_remote(item)
 
@@ -113,7 +113,7 @@ defmodule Unlock.Controller do
     |> send_resp(response.status, response.body)
   end
 
-  defp process_resource(conn, %Unlock.Config.Item.GTFS.RT{}), do: send_not_allowed(conn)
+  defp process_resource(conn, %Unlock.Config.Item.Generic.HTTP{}), do: send_not_allowed(conn)
 
   # NOTE: this code is designed for private use for now. I have tracked
   # what is required or useful for public opening later here:
@@ -164,7 +164,7 @@ defmodule Unlock.Controller do
     |> send_resp(response.status, body)
   end
 
-  defp fetch_remote(item) do
+  defp fetch_remote(%Unlock.Config.Item.Generic.HTTP{} = item) do
     comp_fn = fn _key ->
       Logger.info("Processing proxy request for identifier #{item.identifier}")
 
@@ -221,7 +221,7 @@ defmodule Unlock.Controller do
   # Inspiration (MIT) here https://github.com/tallarium/reverse_proxy_plug
   defp filter_response_headers(headers) do
     headers
-    |> Enum.filter(fn {h, _v} -> Enum.member?(@forwarded_headers_whitelist, h) end)
+    |> Enum.filter(fn {h, _v} -> Enum.member?(@forwarded_headers_allowlist, h) end)
   end
 
   defp prepare_response_headers(headers) do

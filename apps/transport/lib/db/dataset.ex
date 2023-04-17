@@ -20,10 +20,10 @@ defmodule DB.Dataset do
   typed_schema "dataset" do
     field(:datagouv_id, :string)
     field(:custom_title, :string)
-    field(:created_at, :string)
+    field(:created_at, :utc_datetime_usec)
     field(:description, :string)
     field(:frequency, :string)
-    field(:last_update, :string)
+    field(:last_update, :utc_datetime_usec)
     field(:licence, :string)
     field(:logo, :string)
     field(:full_logo, :string)
@@ -37,7 +37,7 @@ defmodule DB.Dataset do
     field(:is_active, :boolean)
     field(:population, :integer)
     field(:nb_reuses, :integer)
-    field(:latest_data_gouv_comment_timestamp, :utc_datetime_usec)
+    field(:latest_data_gouv_comment_timestamp, :utc_datetime)
     field(:archived_at, :utc_datetime_usec)
     field(:custom_tags, {:array, :string})
 
@@ -132,7 +132,7 @@ defmodule DB.Dataset do
       "bike-scooter-sharing" => dgettext("db-dataset", "Bike and scooter sharing"),
       "car-motorbike-sharing" => dgettext("db-dataset", "Car and motorbike sharing"),
       "road-data" => dgettext("db-dataset", "Road data"),
-      "locations" => dgettext("db-dataset", "Locations"),
+      "locations" => dgettext("db-dataset", "Mobility locations"),
       "informations" => dgettext("db-dataset", "Other informations"),
       "private-parking" => dgettext("db-dataset", "Private parking"),
       "bike-way" => dgettext("db-dataset", "Bike networks"),
@@ -387,6 +387,7 @@ defmodule DB.Dataset do
       {region_id, ""} ->
         order_by(datasets,
           desc: fragment("case when region_id = ? then 1 else 0 end", ^region_id),
+          desc: fragment("coalesce(population, 0)"),
           asc: :custom_title
         )
 
@@ -798,7 +799,7 @@ defmodule DB.Dataset do
          {dc.convert_to,
           %{
             url: fragment("? ->> 'permanent_url'", dc.payload),
-            filesize: fragment("? ->> 'filesize'", dc.payload),
+            filesize: fragment("(? ->> 'filesize')::int", dc.payload),
             # Using `fragment` to avoid `convert_to` being cast to atoms
             format: fragment("?", dc.convert_to),
             resource_history_last_up_to_date_at: rh.last_up_to_date_at

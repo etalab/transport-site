@@ -79,11 +79,11 @@
       value: locations
   msg:
     fr: |
-      Cette catégorie regroupe des jeux de données décrivant des lieux d'intérêts relatifs à la mobilité comme les adresses ou la position des arrêts de transports et gares.
+      Cette catégorie regroupe des jeux de données décrivant des lieux d'intérêts relatifs à la mobilité comme les descriptions ou la position des arrêts de transports et gares.
 
       Les données d’adresses françaises sont disponibles dans le jeu de données de la [Base Adresse Nationale (BAN)](https://transport.data.gouv.fr/datasets/base-adresse-nationale/) qui a vocation à réunir **l’ensemble des adresses géolocalisées du territoire national**.
     en: |
-      This category includes datasets describing places of interest relating to mobility, such as addresses or positions of transport stops and stations.
+      This category includes datasets describing places of interest relating to mobility, such as descriptions or positions of transport stops and stations.
 
       French address data is available in the [National Address Base (BAN) dataset](https://transport.data.gouv.fr/datasets/base-adresse-nationale/?locale=en), which aims to bring together all the geolocated addresses of the national territory.
 

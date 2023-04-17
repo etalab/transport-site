@@ -39,6 +39,7 @@ defmodule Transport.ImportDataTest do
         "id" => id || "resource1_id",
         "type" => "main",
         "filetype" => filetype || "remote",
+        "last_modified" => DateTime.utc_now() |> DateTime.add(-1, :hour) |> DateTime.to_iso8601(),
         "schema" => %{"name" => schema_name, "version" => schema_version}
       }
     ]
@@ -50,6 +51,8 @@ defmodule Transport.ImportDataTest do
     %{
       "title" => "dataset1",
       "id" => datagouv_id,
+      "created_at" => DateTime.utc_now() |> to_string(),
+      "last_update" => DateTime.utc_now() |> to_string(),
       "slug" => "dataset-slug",
       "resources" => resources
     }
@@ -58,6 +61,8 @@ defmodule Transport.ImportDataTest do
   def insert_national_dataset(datagouv_id) do
     {:ok, changes} =
       DB.Dataset.changeset(%{
+        "created_at" => DateTime.utc_now(),
+        "last_update" => DateTime.utc_now(),
         "datagouv_id" => datagouv_id,
         "slug" => "ma_limace",
         "national_dataset" => "true"

@@ -12,7 +12,7 @@
       <title><%= resource.dataset.custom_title %> — <%= resource.title %></title>
       <%= raw(~s(<link href="#{resource.latest_url}" />)) %>
       <id><%= resource_url(@conn, :details, resource.id) %></id>
-      <updated><%= DateTimeDisplay.format_naive_datetime_to_paris_tz(resource.last_update) %></updated>
+      <updated><%= resource.last_update |> DateTime.to_iso8601() %></updated>
       <summary>Cette ressource fait partie du jeux de données <%= resource.dataset.custom_title %></summary>
       <content type="html">
         <%= raw(

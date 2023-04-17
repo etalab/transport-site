@@ -55,7 +55,8 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
       assert "https://demo.data.gouv.fr/api/1/datasets/#{datagouv_id_2}/" == url
 
       %HTTPoison.Response{
-        body: ~s({"id": "#{datagouv_id_2}", "resources": [], "slug": "#{slug_2}"}),
+        body:
+          ~s({"id": "#{datagouv_id_2}", "resources": [], "slug": "#{slug_2}", "created_at": "2023-03-22 15:53:50+00:00", "last_update": "2023-03-22 15:53:50+00:00"}),
         status_code: 200
       }
     end)
@@ -149,7 +150,11 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
 
     Transport.HTTPoison.Mock
     |> expect(:get!, fn "https://demo.data.gouv.fr/api/1/datasets/datagouv_id/", _, _ ->
-      %HTTPoison.Response{body: ~s({"id": "datagouv_id", "resources": []}), status_code: 200}
+      %HTTPoison.Response{
+        body:
+          ~s({"id": "datagouv_id", "resources": [], "created_at": "2023-03-22 15:53:50+00:00", "last_update": "2023-03-22 15:53:50+00:00"}),
+        status_code: 200
+      }
     end)
 
     Datagouvfr.Client.CommunityResources.Mock

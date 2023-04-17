@@ -47,7 +47,7 @@ defmodule Unlock.MixProject do
       {:cors_plug, "~> 3.0"},
       {:saxy, "~> 1.5"},
       {:mox, "~> 1.0.0", only: :test},
-      {:ymlr, "~> 2.0", only: :test},
+      {:ymlr, "~> 3.0", only: :test},
       {:ecto, "~> 3.7", only: :test}
     ]
   end

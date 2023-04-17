@@ -21,23 +21,18 @@ defmodule Transport.Validators.GTFSRT do
   def validate_and_save(%Resource{format: "gtfs-rt"} = resource), do: run_validate_and_save(resource)
 
   defp run_validate_and_save(dataset_or_resource) do
-    gtfs = up_to_date_gtfs_resources(dataset_or_resource)
-    gtfs_rts = gtfs_rt_resources(dataset_or_resource)
-
-    if Enum.empty?(gtfs_rts) do
-      raise "Should have gtfs-rt resources for #{inspect(dataset_or_resource)}"
-    end
-
-    gtfs_path = download_path(gtfs)
-    gtfs_resource_history = gtfs.resource_history |> Enum.at(0)
-    download_latest_gtfs(gtfs_resource_history, gtfs_path)
+    resources = gtfs_rt_resources(dataset_or_resource)
 
     try do
-      gtfs_rts
+      resources
       |> snapshot_gtfs_rts()
-      |> Enum.reject(&(elem(&1, 1) == :error))
+      |> Enum.reject(&(elem(&1, 2) == :error))
       |> Enum.each(fn snapshot ->
-        {rt_resource, {:ok, gtfs_rt_path, cellar_filename}} = snapshot
+        {gtfs_resource, rt_resource, {:ok, gtfs_rt_path, cellar_filename}} = snapshot
+
+        gtfs_path = download_path(gtfs_resource)
+        gtfs_resource_history = gtfs_resource.resource_history |> Enum.at(0)
+        download_latest_gtfs(gtfs_resource_history, gtfs_path)
 
         _validator_return =
           with {:ok, _} <- GTFSRT.run_validator(gtfs_path, gtfs_rt_path),
@@ -47,6 +42,7 @@ defmodule Transport.Validators.GTFSRT do
               GTFSRT.build_validation_details(gtfs_resource_history, report, cellar_filename),
               gtfs_path,
               gtfs_rt_path,
+              gtfs_resource,
               gtfs_resource_history
             )
           else
@@ -60,8 +56,7 @@ defmodule Transport.Validators.GTFSRT do
       end)
     after
       Logger.debug("Cleaning up temporary files")
-      clean_gtfs_rts(gtfs_rts)
-      clean_gtfs(gtfs_path)
+      Enum.each(resources, fn tuple -> tuple |> Tuple.to_list() |> Enum.each(&delete_tmp_files/1) end)
     end
 
     :ok
@@ -176,36 +171,87 @@ defmodule Transport.Validators.GTFSRT do
     })
   end
 
-  def up_to_date_gtfs_resources(%Dataset{id: dataset_id}), do: up_to_date_gtfs_resources(dataset_id)
-  def up_to_date_gtfs_resources(%Resource{dataset_id: dataset_id}), do: up_to_date_gtfs_resources(dataset_id)
+  def up_to_date_gtfs_resources(%Resource{dataset_id: dataset_id}),
+    do: up_to_date_gtfs_resources(%Dataset{id: dataset_id})
 
-  def up_to_date_gtfs_resources(dataset_id) when is_integer(dataset_id) do
+  def up_to_date_gtfs_resources(%Dataset{id: dataset_id}) do
     Resource.base_query()
     |> ResourceHistory.join_resource_with_latest_resource_history()
     |> MultiValidation.join_resource_history_with_latest_validation(GTFSTransport.validator_name())
     |> ResourceMetadata.join_validation_with_metadata()
-    |> where([resource: r], r.format == "GTFS" and r.is_available and r.dataset_id == ^dataset_id)
+    |> where([resource: r], r.format == "GTFS" and r.dataset_id == ^dataset_id)
     |> ResourceMetadata.where_gtfs_up_to_date()
     |> preload([resource_history: rh], resource_history: rh)
-    |> limit(1)
-    |> Repo.one()
-  end
-
-  def gtfs_rt_resources(%Resource{id: resource_id, dataset_id: dataset_id}) do
-    %Dataset{id: dataset_id} |> gtfs_rt_resources() |> Enum.filter(&(&1.id == resource_id))
-  end
-
-  def gtfs_rt_resources(%Dataset{id: dataset_id}) do
-    Resource.base_query()
-    |> where([resource: r], r.format == "gtfs-rt" and r.is_available and r.dataset_id == ^dataset_id)
     |> Repo.all()
   end
 
+  def gtfs_rt_resources(%Resource{id: resource_id, dataset_id: dataset_id}) do
+    %Dataset{id: dataset_id}
+    |> gtfs_rt_resources()
+    |> Enum.filter(fn {_gtfs, %Resource{id: id, format: "gtfs-rt"}} -> id == resource_id end)
+  end
+
+  @spec gtfs_rt_resources(Dataset.t() | Resource.t()) :: [] | [{Resource.t(), Resource.t()}]
+  @doc """
+  Identifies couples of {GTFS, GTFS-RT} resources to run GTFS-RT validation on.
+
+  Resources in scope:
+  - up-to-date GTFS in the dataset
+  - GTFS-RT currently available in the dataset
+
+  Based on the number of up-to-date GTFS resources, we can determine the relevant GTFS
+  to use to perform GTFS-RT validation:
+  - 0 GTFS: nothing to do
+  - 1 up-to-date GTFS: we will use this resource to perform validation, **regardless** of
+  potential related resources
+  - at least 2 up-to-date GTFS: use `DB.ResourceRelated` with the reason `:gtfs_rt_gtfs`
+  to know the GTFS to use for each GTFS-RT. If a GTFS-RT does not have a related resource,
+  it will not be validated.
+  """
+  def gtfs_rt_resources(%Dataset{id: dataset_id} = dataset) do
+    gtfs_resources = up_to_date_gtfs_resources(dataset)
+
+    gtfs_rt_resources =
+      Resource.base_query()
+      |> preload([:resources_related])
+      |> where([resource: r], r.format == "gtfs-rt" and r.is_available and r.dataset_id == ^dataset_id)
+      |> Repo.all()
+
+    case Enum.count(gtfs_resources) do
+      0 ->
+        []
+
+      1 ->
+        Enum.into(gtfs_rt_resources, [], fn %Resource{format: "gtfs-rt"} = resource ->
+          {hd(gtfs_resources), resource}
+        end)
+
+      n when n > 1 ->
+        gtfs_rt_and_gtfs_resources(gtfs_rt_resources, gtfs_resources)
+    end
+  end
+
+  @spec gtfs_rt_and_gtfs_resources([Resource.t()], [Resource.t()]) :: [{Resource.t(), Resource.t()}] | []
+  defp gtfs_rt_and_gtfs_resources(gtfs_rt_resources, gtfs_resources) do
+    gtfs_rt_resources
+    |> Enum.map(fn %Resource{format: "gtfs-rt"} = resource ->
+      case Enum.find(resource.resources_related, &match?(%DB.ResourceRelated{reason: :gtfs_rt_gtfs}, &1)) do
+        %DB.ResourceRelated{reason: :gtfs_rt_gtfs, resource_dst_id: gtfs_id} ->
+          {Enum.find(gtfs_resources, fn %Resource{format: "GTFS", id: id} -> id == gtfs_id end), resource}
+
+        nil ->
+          {nil, resource}
+      end
+    end)
+    |> Enum.reject(&match?({nil, %Resource{format: "gtfs-rt"}}, &1))
+  end
+
   defp insert_multi_validation(
-         %Resource{} = gtfs_rt_resource,
+         %Resource{format: "gtfs-rt"} = gtfs_rt_resource,
          %{} = validation_details,
          gtfs_path,
          gtfs_rt_path,
+         %Resource{format: "GTFS"} = gtfs_resource,
          %ResourceHistory{} = gtfs_resource_history
        ) do
     %MultiValidation{
@@ -214,29 +260,32 @@ defmodule Transport.Validators.GTFSRT do
       command: command(gtfs_path, gtfs_rt_path),
       result: validation_details,
       resource_id: gtfs_rt_resource.id,
+      secondary_resource_id: gtfs_resource.id,
       secondary_resource_history_id: gtfs_resource_history.id,
       max_error: Map.fetch!(validation_details, "max_severity")
     }
     |> Repo.insert!()
   end
 
-  defp clean_gtfs(gtfs_path) do
-    remove_file(gtfs_path)
-    File.rmdir(Path.dirname(gtfs_path))
+  defp delete_tmp_files(%Resource{format: "GTFS"} = resource) do
+    resource |> download_path() |> remove_file()
+    resource |> download_path() |> Path.dirname() |> File.rmdir()
   end
 
-  defp clean_gtfs_rts(gtfs_rts) do
+  defp delete_tmp_files(%Resource{format: "gtfs-rt"} = resource) do
     # Clean GTFS-RT: binaries, validation results and folders
-    gtfs_rts |> Enum.each(&(&1 |> download_path() |> remove_file()))
-    gtfs_rts |> Enum.each(&(&1 |> gtfs_rt_result_path() |> remove_file()))
-    gtfs_rts |> Enum.each(&(&1 |> download_path() |> Path.dirname() |> File.rmdir()))
+    resource |> download_path() |> remove_file()
+    resource |> gtfs_rt_result_path() |> remove_file()
+    resource |> download_path() |> Path.dirname() |> File.rmdir()
   end
 
-  defp snapshot_gtfs_rts(gtfs_rts) do
-    gtfs_rts |> Enum.map(&{&1, snapshot_gtfs_rt(&1)})
+  defp snapshot_gtfs_rts(resources) do
+    Enum.map(resources, fn {%Resource{format: "GTFS"} = gtfs_resource, %Resource{format: "gtfs-rt"} = gtfs_rt_resource} ->
+      {gtfs_resource, gtfs_rt_resource, snapshot_gtfs_rt(gtfs_rt_resource)}
+    end)
   end
 
-  defp snapshot_gtfs_rt(%Resource{format: format} = resource) when format == "gtfs-rt" do
+  defp snapshot_gtfs_rt(%Resource{format: "gtfs-rt"} = resource) do
     resource |> download_resource(download_path(resource)) |> process_download(resource)
   end
 
@@ -247,12 +296,13 @@ defmodule Transport.Validators.GTFSRT do
   end
 
   defp download_latest_gtfs(%ResourceHistory{payload: %{"permanent_url" => url, "format" => "GTFS"}}, tmp_path) do
-    %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(url, [], follow_redirect: true)
-    File.write!(tmp_path, body)
+    unless File.exists?(tmp_path) do
+      %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(url, [], follow_redirect: true)
+      File.write!(tmp_path, body)
+    end
   end
 
-  defp download_resource(%Resource{id: resource_id, url: url, is_available: true, format: format}, tmp_path)
-       when format == "gtfs-rt" do
+  defp download_resource(%Resource{id: resource_id, url: url, is_available: true, format: "gtfs-rt"}, tmp_path) do
     case http_client().get(url, [], follow_redirect: true) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         Logger.debug("Saving resource #{resource_id} to #{tmp_path}")
