@@ -16,6 +16,7 @@ config :transport, TransportWeb.Endpoint,
 config :gbfs, :disable_page_cache, true
 
 config :oauth2, adapter: Tesla.Mock
+
 config :unlock,
   config_fetcher: Unlock.Config.Fetcher.Mock,
   http_client: Unlock.HTTP.Client.Mock,
