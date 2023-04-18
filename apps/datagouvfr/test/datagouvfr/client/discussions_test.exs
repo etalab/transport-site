@@ -16,7 +16,7 @@ defmodule Datagouvfr.Client.DiscussionTest do
 
   test "post discussion without extras", %{conn: conn} do
     cassette = "test/fixture/cassettes/client/discussions/post-0.json"
-    [data] = File.read!(cassette) |> Jason.decode!()
+    [data] = cassette |> File.read!() |> Jason.decode!()
 
     mock(fn
       %{method: :post, url: "https://demo.data.gouv.fr/api/1/discussions/"} ->
@@ -45,7 +45,7 @@ defmodule Datagouvfr.Client.DiscussionTest do
     extras = %{"type" => "STOP_UNUSED"}
 
     cassette = "test/fixture/cassettes/client/discussions/post-1.json"
-    [data] = File.read!(cassette) |> Jason.decode!()
+    [data] = cassette |> File.read!() |> Jason.decode!()
 
     mock(fn
       %{method: :post, url: "https://demo.data.gouv.fr/api/1/discussions/"} ->
