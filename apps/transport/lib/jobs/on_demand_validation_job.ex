@@ -15,6 +15,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   alias Transport.DataVisualization
   alias Transport.Validators.GTFSRT
   alias Transport.Validators.GTFSTransport
+  @download_timeout_ms 10_000
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"id" => multivalidation_id, "state" => "waiting"} = payload}) do
@@ -193,22 +194,26 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   end
 
   defp download_from_url(url, path) do
-    result =
-      case http_client().get(url, [], follow_redirect: true) do
-        {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-          Logger.debug("Saving #{url} to #{path}")
-          File.write!(path, body)
-          {:ok, path, body}
+    case get_request(url) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        Logger.debug("Saving #{url} to #{path}")
+        File.write!(path, body)
+        {:ok, path, body}
 
-        {:ok, %HTTPoison.Response{status_code: status}} ->
-          {:error, "Got a non 200 status: #{status}"}
+      {:ok, %HTTPoison.Response{status_code: status}} ->
+        {:error, "Got a non 200 status: #{status} when downloading #{url}"}
 
-        {:error, %HTTPoison.Error{reason: reason}} ->
-          {:error, "Got an error: #{reason}"}
-      end
-
-    normalize_download(result)
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        {:error, "Got an error: #{reason} when downloading #{url}"}
+    end
+    |> normalize_download()
   end
 
-  defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
+  defp get_request(url) do
+    Transport.Shared.Wrapper.HTTPoison.impl().get(url, [],
+      follow_redirect: true,
+      recv_timeout: @download_timeout_ms,
+      timeout: @download_timeout_ms
+    )
+  end
 end
