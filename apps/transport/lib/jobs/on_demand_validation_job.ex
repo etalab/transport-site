@@ -194,19 +194,21 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   end
 
   defp download_from_url(url, path) do
-    case get_request(url) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        Logger.debug("Saving #{url} to #{path}")
-        File.write!(path, body)
-        {:ok, path, body}
+    result =
+      case get_request(url) do
+        {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+          Logger.debug("Saving #{url} to #{path}")
+          File.write!(path, body)
+          {:ok, path, body}
 
-      {:ok, %HTTPoison.Response{status_code: status}} ->
-        {:error, "Got a non 200 status: #{status} when downloading #{url}"}
+        {:ok, %HTTPoison.Response{status_code: status}} ->
+          {:error, "Got a non 200 status: #{status} when downloading #{url}"}
 
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        {:error, "Got an error: #{reason} when downloading #{url}"}
-    end
-    |> normalize_download()
+        {:error, %HTTPoison.Error{reason: reason}} ->
+          {:error, "Got an error: #{reason} when downloading #{url}"}
+      end
+
+    normalize_download(result)
   end
 
   defp get_request(url) do
