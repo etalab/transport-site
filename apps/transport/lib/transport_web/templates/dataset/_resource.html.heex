@@ -8,6 +8,7 @@
 <% [validation] = @resources_infos.validations |> Map.get(@resource.id) %>
 <% is_gtfs_outdated = Transport.Validators.GTFSTransport.is_gtfs_outdated(validation) %>
 <% resource_modes = get_metadata_modes(validation, []) %>
+<% related_gtfs_resource = related_gtfs_resource(@resource) %>
 
 <div
   class={"panel resource #{valid_panel_class(@resource, is_gtfs_outdated)}"}
@@ -57,6 +58,12 @@
         <%= resource_ttl %>s
       </span>
     <% end %>
+    <div :if={related_gtfs_resource != nil}>
+      <span title={dgettext("page-dataset-details", "GTFS file to use with the GTFS-RT feed")}>
+        <i class="icon fa fa-link" aria-hidden="true"></i>
+        <%= link("GTFS", to: resource_path(@conn, :details, related_gtfs_resource.resource_dst_id), class: "dark") %>
+      </span>
+    </div>
     <%= if Map.has_key?(unavailabilities, @resource.id) do %>
       <div>
         <span title={

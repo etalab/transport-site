@@ -1,5 +1,10 @@
 .icon {
   @extend .fas !optional;
+  margin-right: 0.5em;
+}
+
+.icon--logout {
+  margin: 0;
 }
 
 .icon--badge {
@@ -90,6 +95,7 @@
   vertical-align: middle;
   width: 1.25em;
   height: 1.25em;
+  margin-right: 0.4em;
 }
 
 .icon--validation {
