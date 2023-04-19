@@ -1,10 +1,7 @@
 .icon {
   @extend .fas !optional;
-  margin-right: 0.5em;
-}
 
-.icon--logout {
-  margin: 0;
+  margin-right: 0.5em;
 }
 
 .icon--badge {
@@ -33,6 +30,8 @@
 
 .icon--logout {
   @extend .fa-sign-out-alt !optional;
+
+  margin: 0;
 }
 
 .icon--open {
