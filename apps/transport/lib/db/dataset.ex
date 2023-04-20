@@ -342,6 +342,8 @@ defmodule DB.Dataset do
   defp filter_by_licence(query, %{"licence" => licence}), do: where(query, [d], d.licence == ^licence)
   defp filter_by_licence(query, _), do: query
 
+  def licences_ouvertes_values, do: @licences_ouvertes
+
   @spec list_datasets(map()) :: Ecto.Query.t()
   def list_datasets(%{} = params) do
     params
@@ -487,7 +489,6 @@ defmodule DB.Dataset do
     |> cast_assoc(:region)
     |> cast_assoc(:aom)
     |> validate_territory_mutual_exclusion()
-    |> maybe_dataset_now_licence_ouverte(dataset)
     |> maybe_overwrite_licence()
     |> has_real_time()
     |> validate_organization_type()
@@ -944,17 +945,6 @@ defmodule DB.Dataset do
     |> change
     |> put_assoc(:communes, communes)
   end
-
-  defp maybe_dataset_now_licence_ouverte(%Ecto.Changeset{changes: %{licence: new_licence}} = changeset, %__MODULE__{
-         id: dataset_id,
-         licence: old_licence
-       })
-       when new_licence in @licences_ouvertes and old_licence not in @licences_ouvertes and not is_nil(dataset_id) do
-    %{"dataset_id" => dataset_id} |> Transport.Jobs.DatasetNowLicenceOuverteJob.new() |> Oban.insert!()
-    changeset
-  end
-
-  defp maybe_dataset_now_licence_ouverte(%Ecto.Changeset{} = changeset, %__MODULE__{}), do: changeset
 
   defp maybe_overwrite_licence(%Ecto.Changeset{} = changeset) do
     custom_tags = get_field(changeset, :custom_tags) || []
