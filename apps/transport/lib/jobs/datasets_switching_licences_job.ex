@@ -23,6 +23,7 @@ defmodule Transport.Jobs.DatasetsSwitchingLicencesJob do
       @notification_reason
       |> DB.NotificationSubscription.subscriptions_for_reason()
       |> DB.NotificationSubscription.subscriptions_to_emails()
+
     Enum.each(emails, fn email ->
       Transport.EmailSender.impl().send_mail(
         "transport.data.gouv.fr",
@@ -43,7 +44,6 @@ defmodule Transport.Jobs.DatasetsSwitchingLicencesJob do
         """,
         ""
       )
-
     end)
 
     save_notifications(datasets_previously_lo, emails)
