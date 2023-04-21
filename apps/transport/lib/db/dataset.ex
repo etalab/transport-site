@@ -342,8 +342,6 @@ defmodule DB.Dataset do
   defp filter_by_licence(query, %{"licence" => licence}), do: where(query, [d], d.licence == ^licence)
   defp filter_by_licence(query, _), do: query
 
-  def licences_ouvertes_values, do: @licences_ouvertes
-
   @spec list_datasets(map()) :: Ecto.Query.t()
   def list_datasets(%{} = params) do
     params
@@ -992,4 +990,6 @@ defmodule DB.Dataset do
         "prix-des-carburants-en-france-flux-quotidien"
       ]
   end
+
+  def has_licence_ouverte?(%__MODULE__{licence: licence}), do: licence in @licences_ouvertes
 end

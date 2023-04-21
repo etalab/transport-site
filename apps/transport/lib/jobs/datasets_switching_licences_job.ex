@@ -1,6 +1,8 @@
 defmodule Transport.Jobs.DatasetsSwitchingLicencesJob do
   @moduledoc """
-  Job in charge of sending notifications when the dataset switches to the "licence ouverte".
+  Job in charge of sending email notifications on a weekly basis to known
+  - when datasets switch to the "licence ouverte" licence
+  - were available under the the "licence ouverte" licence previously but switched licence
   """
   use Oban.Worker, max_attempts: 3, tags: ["notifications"]
   import Ecto.Query
@@ -46,8 +48,7 @@ defmodule Transport.Jobs.DatasetsSwitchingLicencesJob do
       )
     end)
 
-    save_notifications(datasets_previously_lo, emails)
-    save_notifications(datasets_now_lo, emails)
+    save_notifications(datasets_previously_lo ++ datasets_now_lo, emails)
 
     :ok
   end
@@ -84,15 +85,13 @@ defmodule Transport.Jobs.DatasetsSwitchingLicencesJob do
   end
 
   def datasets_previously_licence_ouverte(result) do
-    result
-    |> Enum.filter(fn [%DB.DatasetHistory{} = recent_dh, %DB.Dataset{}, %DB.DatasetHistory{} = previous_dh] ->
+    Enum.filter(result, fn [%DB.DatasetHistory{} = recent_dh, %DB.Dataset{}, %DB.DatasetHistory{} = previous_dh] ->
       dataset_history_is_licence_ouverte?(previous_dh) and not dataset_history_is_licence_ouverte?(recent_dh)
     end)
   end
 
   def datasets_now_licence_ouverte(result) do
-    result
-    |> Enum.filter(fn [%DB.DatasetHistory{} = recent_dh, %DB.Dataset{}, %DB.DatasetHistory{} = previous_dh] ->
+    Enum.filter(result, fn [%DB.DatasetHistory{} = recent_dh, %DB.Dataset{}, %DB.DatasetHistory{} = previous_dh] ->
       not dataset_history_is_licence_ouverte?(previous_dh) and dataset_history_is_licence_ouverte?(recent_dh)
     end)
   end
@@ -106,7 +105,7 @@ defmodule Transport.Jobs.DatasetsSwitchingLicencesJob do
   false
   """
   def dataset_history_is_licence_ouverte?(%DB.DatasetHistory{payload: %{"licence" => licence}}) do
-    licence in DB.Dataset.licences_ouvertes_values()
+    DB.Dataset.has_licence_ouverte?(%DB.Dataset{licence: licence})
   end
 
   def datasets_changes(%Date{} = date) do
