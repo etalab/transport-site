@@ -561,3 +561,7 @@ msgstr ""
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Cannot determine the relevant GTFS file to use to perform a GTFS-RT validation."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "GTFS file to use with the GTFS-RT feed"
+msgstr ""

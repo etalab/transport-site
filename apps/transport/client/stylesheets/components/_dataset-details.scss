@@ -235,6 +235,10 @@
   }
 }
 
+.dark {
+  color: var(--theme-dark-text) !important;
+}
+
 .light-grey {
   color: var(--theme-label-text) !important;
 }

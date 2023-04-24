@@ -298,6 +298,18 @@ defmodule TransportWeb.DatasetControllerTest do
     with_log(fn -> conn |> get(dataset_path(conn, :details, old_slug)) |> html_response(404) end)
   end
 
+  test "dataset#details with resources_related for gtfs-rt resources", %{conn: conn} do
+    dataset = insert(:dataset, is_active: true, slug: slug = "dataset-slug")
+    gtfs = insert(:resource, dataset: dataset, url: "https://example.com/gtfs.zip", format: "GTFS")
+    gtfs_rt = insert(:resource, dataset: dataset, url: "https://example.com/gtfs-rt", format: "gtfs-rt")
+    insert(:resource_related, resource_src: gtfs_rt, resource_dst: gtfs, reason: :gtfs_rt_gtfs)
+
+    set_empty_mocks()
+
+    assert conn |> get(dataset_path(conn, :details, slug)) |> html_response(200) =~
+             ~s{<i class="icon fa fa-link" aria-hidden="true"></i>\n<a class="dark" href="#{resource_path(conn, :details, gtfs.id)}">GTFS</a>}
+  end
+
   test "gtfs-rt entities" do
     dataset = %{id: dataset_id} = insert(:dataset, type: "public-transit")
     %{id: resource_id_1} = insert(:resource, dataset_id: dataset_id, format: "gtfs-rt")

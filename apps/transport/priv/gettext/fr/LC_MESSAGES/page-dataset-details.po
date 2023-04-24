@@ -561,3 +561,7 @@ msgstr "Pas d'impact"
 #, elixir-autogen, elixir-format
 msgid "Cannot determine the relevant GTFS file to use to perform a GTFS-RT validation."
 msgstr "Impossible de déterminer le fichier GTFS à utiliser pour effectuer une validation du GTFS-RT."
+
+#, elixir-autogen, elixir-format
+msgid "GTFS file to use with the GTFS-RT feed"
+msgstr "Fichier GTFS à utiliser avec le flux GTFS-RT"
