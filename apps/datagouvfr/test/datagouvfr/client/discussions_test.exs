@@ -4,6 +4,8 @@ defmodule Datagouvfr.Client.DiscussionTest do
   alias Datagouvfr.Client.Discussions
   alias OAuth2.AccessToken
 
+  import Tesla.Mock
+
   setup do
     conn =
       build_conn()
@@ -13,39 +15,51 @@ defmodule Datagouvfr.Client.DiscussionTest do
   end
 
   test "post discussion without extras", %{conn: conn} do
-    use_cassette "client/discussions/post-0" do
-      id_ = "5a6613940b5b3954c07c586a"
-      title = "Test title"
-      comment = "Test comment"
-      extras = nil
+    cassette = "test/fixture/cassettes/client/discussions/post-0.json"
+    [data] = cassette |> File.read!() |> Jason.decode!()
 
-      assert {:ok, discussion} = Discussions.post(conn, id_, title, comment, extras)
-      assert Map.get(discussion, "title") == "Test title"
-      assert Map.get(discussion, "extras") == %{}
+    mock(fn
+      %{method: :post, url: "https://demo.data.gouv.fr/api/1/discussions/"} ->
+        %Tesla.Env{status: 201, body: data["response"]["body"]}
+    end)
 
-      assert discussion
-             |> Map.get("discussion")
-             |> List.first()
-             |> Map.get("content") == "Test comment"
-    end
+    id_ = "5a6613940b5b3954c07c586a"
+    title = "Test title"
+    comment = "Test comment"
+    extras = nil
+
+    assert {:ok, discussion} = Discussions.post(conn, id_, title, comment, extras)
+    assert Map.get(discussion, "title") == "Test title"
+    assert Map.get(discussion, "extras") == %{}
+
+    assert discussion
+           |> Map.get("discussion")
+           |> List.first()
+           |> Map.get("content") == "Test comment"
   end
 
   test "post discussion with extras", %{conn: conn} do
-    use_cassette "client/discussions/post-1" do
-      id_ = "5a6613940b5b3954c07c586a"
-      title = "Test title"
-      comment = "Test comment"
-      extras = %{"type" => "STOP_UNUSED"}
+    id_ = "5a6613940b5b3954c07c586a"
+    title = "Test title"
+    comment = "Test comment"
+    extras = %{"type" => "STOP_UNUSED"}
 
-      assert {:ok, discussion} = Discussions.post(conn, id_, title, comment, extras)
-      assert Map.get(discussion, "title") == "Test title"
+    cassette = "test/fixture/cassettes/client/discussions/post-1.json"
+    [data] = cassette |> File.read!() |> Jason.decode!()
 
-      assert discussion
-             |> Map.get("discussion")
-             |> List.first()
-             |> Map.get("content") == "Test comment"
+    mock(fn
+      %{method: :post, url: "https://demo.data.gouv.fr/api/1/discussions/"} ->
+        %Tesla.Env{status: 201, body: data["response"]["body"]}
+    end)
 
-      assert Map.get(discussion, "extras") == %{"type" => "STOP_UNUSED"}
-    end
+    assert {:ok, discussion} = Discussions.post(conn, id_, title, comment, extras)
+    assert Map.get(discussion, "title") == "Test title"
+
+    assert discussion
+           |> Map.get("discussion")
+           |> List.first()
+           |> Map.get("content") == "Test comment"
+
+    assert Map.get(discussion, "extras") == %{"type" => "STOP_UNUSED"}
   end
 end

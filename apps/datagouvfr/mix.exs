@@ -36,7 +36,8 @@ defmodule Datagouvfr.MixProject do
   defp deps do
     [
       {:gettext, ">= 0.0.0"},
-      {:oauth2, "~> 2.0.0"},
+      {:oauth2, "~> 2.1"},
+      {:hackney, "~> 1.18"},
       {:httpoison, ">= 0.0.0"},
       {:plug, ">= 0.0.0"},
       {:shared, in_umbrella: true},
