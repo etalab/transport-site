@@ -171,12 +171,12 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
       validation = create_validation(%{"type" => "gtfs-rt", "gtfs_url" => gtfs_url, "gtfs_rt_url" => gtfs_rt_url})
 
       Transport.HTTPoison.Mock
-      |> expect(:get, fn ^gtfs_url, [], [follow_redirect: true] ->
+      |> expect(:get, fn ^gtfs_url, [], _ ->
         {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs"}}
       end)
 
       Transport.HTTPoison.Mock
-      |> expect(:get, fn ^gtfs_rt_url, [], [follow_redirect: true] ->
+      |> expect(:get, fn ^gtfs_rt_url, [], _ ->
         {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs-rt"}}
       end)
 
@@ -228,22 +228,24 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
       validation = create_validation(%{"type" => "gtfs-rt", "gtfs_url" => gtfs_url, "gtfs_rt_url" => gtfs_rt_url})
 
       Transport.HTTPoison.Mock
-      |> expect(:get, fn ^gtfs_url, [], [follow_redirect: true] ->
+      |> expect(:get, fn ^gtfs_url, [], _ ->
         {:ok, %HTTPoison.Response{status_code: 404}}
       end)
 
       Transport.HTTPoison.Mock
-      |> expect(:get, fn ^gtfs_rt_url, [], [follow_redirect: true] ->
+      |> expect(:get, fn ^gtfs_rt_url, [], _ ->
         {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs-rt"}}
       end)
 
       assert :ok == run_job(validation)
 
+      expected_error_reason = "Got a non 200 status: 404 when downloading #{gtfs_url}"
+
       assert %{
                result: nil,
                oban_args: %{
                  "state" => "error",
-                 "error_reason" => "Got a non 200 status: 404",
+                 "error_reason" => ^expected_error_reason,
                  "type" => "gtfs-rt",
                  "gtfs_url" => ^gtfs_url,
                  "gtfs_rt_url" => ^gtfs_rt_url
@@ -263,7 +265,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
       validation = create_validation(%{"type" => "gtfs-rt", "gtfs_url" => gtfs_url, "gtfs_rt_url" => gtfs_rt_url})
 
       Transport.HTTPoison.Mock
-      |> expect(:get, fn ^gtfs_url, [], [follow_redirect: true] ->
+      |> expect(:get, fn ^gtfs_url, [], _ ->
         {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs"}}
       end)
 
@@ -271,7 +273,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
       gtfs_rt_path = OnDemandValidationJob.filename(validation.id, "gtfs-rt")
 
       Transport.HTTPoison.Mock
-      |> expect(:get, fn ^gtfs_rt_url, [], [follow_redirect: true] ->
+      |> expect(:get, fn ^gtfs_rt_url, [], _ ->
         {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs-rt"}}
       end)
 
