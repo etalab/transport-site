@@ -8,7 +8,8 @@ description: " Nicolas Béhier-Dévigne, Gestionnaire d’applications pour Keol
   Tours, réseau Fil Bleu, répond aux questions de transport.data.gouv.fr et
   détaille la démarche de publication en open data des données de leur réseau
   urbain."
-images: []
+images:
+  - /images/fil-bleu.jpg
 ---
 **Bonjour Nicolas Béhier-Dévigne, pourriez-vous vous présenter ?**\
 Je travaille chez Keolis Tours depuis 10 ans dans la Direction Innovation, Projets et Systèmes d’Information. J’assure des missions de conduite de projets orientés voyageurs (Mise en place du site web, de l’application mobile, de la e-boutique, de la chaîne de saisie et diffusion de la perturbation, etc.) et du développement des traitements de données (Développements Talend ETL/ESB principalement).
