@@ -10,7 +10,7 @@ defmodule Transport.Jobs.DatasetsSwitchingLicencesJob do
 
   @impl Oban.Worker
   def perform(%Oban.Job{inserted_at: %DateTime{} = inserted_at}) do
-    changes = inserted_at |> DateTime.to_date() |> Date.add(-1) |> datasets_changes()
+    changes = inserted_at |> DateTime.to_date() |> Date.add(-1) |> datasets_licence_changes()
 
     datasets_previously_lo = datasets_previously_licence_ouverte(changes)
     datasets_now_lo = datasets_now_licence_ouverte(changes)
@@ -108,7 +108,7 @@ defmodule Transport.Jobs.DatasetsSwitchingLicencesJob do
     DB.Dataset.has_licence_ouverte?(%DB.Dataset{licence: licence})
   end
 
-  def datasets_changes(%Date{} = date) do
+  def datasets_licence_changes(%Date{} = date) do
     DB.DatasetHistory
     |> join(:inner, [dh], d in DB.Dataset, on: d.id == dh.dataset_id)
     # Join on the same table, same dataset, but compare to a week ago

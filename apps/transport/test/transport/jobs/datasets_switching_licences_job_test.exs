@@ -13,7 +13,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetsSwitchingLicencesJobTest do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
-  test "datasets_changes, datasets_previously_licence_ouverte and datasets_now_licence_ouverte" do
+  test "datasets_licence_changes, datasets_previously_licence_ouverte and datasets_now_licence_ouverte" do
     %{id: d1_id} = d1 = insert(:dataset)
     %{id: d2_id} = d2 = insert(:dataset)
     d3 = insert(:dataset)
@@ -43,7 +43,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetsSwitchingLicencesJobTest do
                %DB.Dataset{id: ^d2_id},
                %DB.DatasetHistory{dataset_id: ^d2_id, payload: %{"licence" => "fr-lo"}}
              ]
-           ] = changes = DatasetsSwitchingLicencesJob.datasets_changes(~D[2023-04-20])
+           ] = changes = DatasetsSwitchingLicencesJob.datasets_licence_changes(~D[2023-04-20])
 
     assert [
              [
