@@ -15,7 +15,7 @@ images:
 Je travaille chez Keolis Tours depuis 10 ans dans la Direction Innovation, Projets et Systèmes d’Information. J’assure des missions de conduite de projets orientés voyageurs (Mise en place du site web, de l’application mobile, de la e-boutique, de la chaîne de saisie et diffusion de la perturbation, etc.) et du développement des traitements de données (Développements Talend ETL/ESB principalement).
 
 **Pourriez-vous nous en dire plus sur le réseau Fil Bleu de Tours ?**\
-Le Syndicat des Mobilités de Touraine délègue la gestion du réseau Fil Bleu à Keolis Tours. Il regroupe 25 communes autour de Tours Métropole Val de Loire. Il est composé d’une ligne de tram, une ligne de BHNS, 26 lignes de bus, 11 lignes de transport à la demande, 8 lignes spéciales, 1 calèche,7 parkings relais et 15 parcs à vélos.
+Le Syndicat des Mobilités de Touraine délègue la gestion du réseau Fil Bleu à Keolis Tours. Il regroupe 25 communes autour de Tours Métropole Val de Loire. Il est composé d’une ligne de tram, une ligne de BHNS, 26 lignes de bus, 11 lignes de transport à la demande, 8 lignes spéciales, 1 calèche, 7 parkings relais et 15 parcs à vélos.
 
 **Comment utilisez-vous le PAN, transport.data.gouv.fr, pour répondre à vos besoins et obligations ?**\
 Nous publions nos données au format GTFS et GTFS-RT sur l’open data de notre métropole. Le PAN moissonne ces données à partir de ce point d’accès.
