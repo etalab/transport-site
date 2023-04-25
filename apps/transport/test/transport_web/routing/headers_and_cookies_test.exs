@@ -21,6 +21,6 @@ defmodule TransportWeb.HeadersAndCookiesTest do
     } = Plug.Conn.Cookies.decode(header)
 
     datetime = Timex.parse!(datetime, "{WDshort}, {D} {Mfull} {YYYY} {h24}:{m}:{s} GMT")
-    assert_in_delta Timex.diff(datetime, Timex.now(), :days), 14, 1
+    assert_in_delta Timex.diff(datetime, Timex.now(), :hours), 15 * 24, 1
   end
 end
