@@ -25,6 +25,11 @@
           ) %>.
         </p>
       </div>
+
+      <%= unless Enum.empty?(@resource.resources_related) do %>
+        <%= render("_related_resources.html", resource: @resource, conn: @conn) %>
+      <% end %>
+
       <h2 id="download-availability"><%= dgettext("page-dataset-details", "Download availability") %></h2>
       <%= render("_download_availability.html", uptime_per_day: @uptime_per_day, conn: @conn) %>
 
