@@ -6,7 +6,9 @@ defmodule TransportWeb.Endpoint do
     store: :cookie,
     key: "_transport_key",
     signing_salt: "wqoqbzqj",
-    same_site: "Lax"
+    same_site: "Lax",
+    # 15 days
+    max_age: 24 * 60 * 60 * 15
   ]
 
   socket("/socket", TransportWeb.UserSocket)
