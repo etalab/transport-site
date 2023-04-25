@@ -515,4 +515,11 @@ defmodule TransportWeb.DatasetView do
   end
 
   def displays_odbl_specific_usage_conditions?(%Dataset{}), do: false
+
+  @spec related_gtfs_resource(Resource.t()) :: DB.ResourceRelated.t() | nil
+  def related_gtfs_resource(%Resource{format: "gtfs-rt", resources_related: resources_related}) do
+    Enum.find(resources_related, fn %DB.ResourceRelated{reason: reason} -> reason == :gtfs_rt_gtfs end)
+  end
+
+  def related_gtfs_resource(%Resource{}), do: nil
 end
