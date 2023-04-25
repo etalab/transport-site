@@ -487,7 +487,6 @@ defmodule DB.Dataset do
     |> cast_assoc(:region)
     |> cast_assoc(:aom)
     |> validate_territory_mutual_exclusion()
-    |> maybe_dataset_now_licence_ouverte(dataset)
     |> maybe_overwrite_licence()
     |> has_real_time()
     |> validate_organization_type()
@@ -945,17 +944,6 @@ defmodule DB.Dataset do
     |> put_assoc(:communes, communes)
   end
 
-  defp maybe_dataset_now_licence_ouverte(%Ecto.Changeset{changes: %{licence: new_licence}} = changeset, %__MODULE__{
-         id: dataset_id,
-         licence: old_licence
-       })
-       when new_licence in @licences_ouvertes and old_licence not in @licences_ouvertes and not is_nil(dataset_id) do
-    %{"dataset_id" => dataset_id} |> Transport.Jobs.DatasetNowLicenceOuverteJob.new() |> Oban.insert!()
-    changeset
-  end
-
-  defp maybe_dataset_now_licence_ouverte(%Ecto.Changeset{} = changeset, %__MODULE__{}), do: changeset
-
   defp maybe_overwrite_licence(%Ecto.Changeset{} = changeset) do
     custom_tags = get_field(changeset, :custom_tags) || []
 
@@ -1002,4 +990,6 @@ defmodule DB.Dataset do
         "prix-des-carburants-en-france-flux-quotidien"
       ]
   end
+
+  def has_licence_ouverte?(%__MODULE__{licence: licence}), do: licence in @licences_ouvertes
 end
