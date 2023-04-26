@@ -695,6 +695,21 @@ defmodule TransportWeb.ResourceControllerTest do
            } == TransportWeb.ResourceController.latest_validations_details(resource)
   end
 
+  test "resources_related are displayed", %{conn: conn} do
+    %{url: gtfs_url} = gtfs_rt_resource = Repo.get_by(Resource, datagouv_id: "5", format: "gtfs-rt")
+    gtfs_resource = Repo.get_by(Resource, datagouv_id: "1", format: "GTFS")
+
+    insert(:resource_related, resource_src: gtfs_rt_resource, resource_dst: gtfs_resource, reason: :gtfs_rt_gtfs)
+
+    expect(Transport.HTTPoison.Mock, :get, fn ^gtfs_url, [], [follow_redirect: true] ->
+      {:ok, %HTTPoison.Response{status_code: 200, body: ""}}
+    end)
+
+    html_response = conn |> get(resource_path(conn, :details, gtfs_rt_resource.id)) |> html_response(200)
+    assert html_response =~ ~s(<h2 id="related-resources">Ressources associées</h2>)
+    assert html_response =~ "Fichier GTFS associé"
+  end
+
   defp test_remote_download_error(%Plug.Conn{} = conn, mock_status_code) do
     resource = Resource |> Repo.get_by(datagouv_id: "2")
     refute Resource.can_direct_download?(resource)

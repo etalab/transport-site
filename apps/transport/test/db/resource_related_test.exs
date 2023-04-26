@@ -2,6 +2,8 @@ defmodule DB.ResourceRelatedTest do
   use ExUnit.Case, async: true
   import DB.Factory
 
+  doctest DB.ResourceRelated, import: true
+
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end

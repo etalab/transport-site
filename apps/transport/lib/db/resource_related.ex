@@ -12,6 +12,12 @@ defmodule DB.ResourceRelated do
     field(:reason, Ecto.Enum, values: [:gtfs_rt_gtfs])
   end
 
+  @doc """
+  A human-friendly description for a `reason`.
+
+  iex> Enum.each(Ecto.Enum.values(DB.ResourceRelated, :reason), & reason_to_str(%DB.ResourceRelated {reason: &1}))
+  :ok
+  """
   def reason_to_str(%__MODULE__{reason: reason}) do
     Map.fetch!(
       %{
