@@ -127,7 +127,17 @@ defmodule TransportWeb.SessionControllerTest do
         "organizations" => [%{"name" => org_name = "Corp Inc"}]
       })
 
-      assert [%DB.Contact{first_name: ^first_name, last_name: ^last_name, datagouv_user_id: ^datagouv_user_id, email: ^email, organization: ^org_name, last_login_at: last_login_at}] = DB.Contact |> DB.Repo.all()
+      assert [
+               %DB.Contact{
+                 first_name: ^first_name,
+                 last_name: ^last_name,
+                 datagouv_user_id: ^datagouv_user_id,
+                 email: ^email,
+                 organization: ^org_name,
+                 last_login_at: last_login_at
+               }
+             ] = DB.Contact |> DB.Repo.all()
+
       assert_in_delta last_login_at |> DateTime.to_unix(), DateTime.utc_now() |> DateTime.to_unix(), 1
     end
   end
