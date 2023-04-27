@@ -84,10 +84,10 @@ defmodule Transport.CommentsChecker do
   end
 
   def save_notifications(comments_with_context, emails) do
-    Enum.each(comments_with_context, fn {%Dataset{} = dataset, _datagouv_id, _title, _comments} ->
-      Enum.each(emails, fn email ->
-        DB.Notification.insert!(@notification_reason, dataset, email)
-      end)
+    comments_with_context
+    |> Enum.reject(fn {%Dataset{}, _datagouv_id, _title, comments} -> Enum.empty?(comments) end)
+    |> Enum.each(fn {%Dataset{} = dataset, _datagouv_id, _title, _comments} ->
+      Enum.each(emails, fn email -> DB.Notification.insert!(@notification_reason, dataset, email) end)
     end)
   end
 
