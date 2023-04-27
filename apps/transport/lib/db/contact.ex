@@ -14,6 +14,7 @@ defmodule DB.Contact do
     field(:last_name, :string)
     # Use `mailing_list_title` for mailing lists and similar
     field(:mailing_list_title, :string)
+    field(:datagouv_user_id, :string)
 
     field(:organization, :string)
     field(:job_title, :string)
@@ -23,6 +24,7 @@ defmodule DB.Contact do
     field(:email_hash, Cloak.Ecto.SHA256)
     field(:phone_number, DB.Encrypted.Binary)
     field(:secondary_phone_number, DB.Encrypted.Binary)
+    field(:last_login_at, :utc_datetime_usec)
 
     timestamps(type: :utc_datetime_usec)
 
@@ -89,7 +91,9 @@ defmodule DB.Contact do
       :job_title,
       :email,
       :phone_number,
-      :secondary_phone_number
+      :secondary_phone_number,
+      :datagouv_user_id,
+      :last_login_at
     ])
     |> trim_fields([:first_name, :last_name, :organization, :job_title])
     |> capitalize_fields([:first_name, :last_name])
