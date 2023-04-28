@@ -1,5 +1,6 @@
 defmodule TransportWeb.Backoffice.ContactView do
   use TransportWeb, :view
+  import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2]
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
   alias TransportWeb.PaginationHelpers
 
