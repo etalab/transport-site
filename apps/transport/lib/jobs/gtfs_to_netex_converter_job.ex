@@ -39,7 +39,7 @@ defmodule Transport.Jobs.DatasetGtfsToNetexConverterJob do
   alias Transport.Jobs.GTFSGenericConverter
   import Ecto.Query
 
-  def list_GTFS_last_resource_history(dataset_id) do
+  def list_gtfs_last_resource_history(dataset_id) do
     DB.Dataset.base_query()
     |> DB.Resource.join_dataset_with_resource()
     |> DB.ResourceHistory.join_resource_with_latest_resource_history()
@@ -51,7 +51,7 @@ defmodule Transport.Jobs.DatasetGtfsToNetexConverterJob do
   @impl true
   def perform(%{args: %{"dataset_id" => dataset_id}}) do
     dataset_id
-    |> list_GTFS_last_resource_history()
+    |> list_gtfs_last_resource_history()
     |> Enum.each(fn rh_id ->
       GTFSGenericConverter.perform_single_conversion_job(rh_id, "NeTEx", Transport.GtfsToNeTExConverter)
     end)
