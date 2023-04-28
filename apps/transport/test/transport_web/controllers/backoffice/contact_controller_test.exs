@@ -107,7 +107,7 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
 
   describe "edit" do
     test "can change values", %{conn: conn} do
-      contact = DB.Contact.insert!(sample_contact_args())
+      contact = DB.Contact.insert!(sample_contact_args(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(), last_login_at: ~U[2023-04-28 09:54:19.458897Z]}))
 
       content =
         conn
@@ -118,6 +118,8 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
       assert content =~ "Éditer un contact"
       assert content =~ contact.first_name
       assert content =~ contact.last_name
+      assert content =~ datagouv_user_id
+      assert content =~ "28/04/2023 à 11h54 Europe/Paris"
 
       args = %{"id" => contact.id, "last_name" => new_last_name = "Bar"}
 
@@ -188,14 +190,17 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
     assert is_nil(DB.Repo.reload(contact))
   end
 
-  defp sample_contact_args do
-    %{
-      first_name: "John",
-      last_name: "Doe",
-      email: "john#{Ecto.UUID.generate()}@example.fr",
-      job_title: "Boss",
-      organization: "Big Corp Inc",
-      phone_number: "06 92 22 88 03"
-    }
+  defp sample_contact_args(%{} = args \\ %{}) do
+    Map.merge(
+      %{
+        first_name: "John",
+        last_name: "Doe",
+        email: "john#{Ecto.UUID.generate()}@example.fr",
+        job_title: "Boss",
+        organization: "Big Corp Inc",
+        phone_number: "06 92 22 88 03"
+      },
+      args
+    )
   end
 end
