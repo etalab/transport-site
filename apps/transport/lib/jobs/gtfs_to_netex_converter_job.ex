@@ -31,6 +31,33 @@ defmodule Transport.Jobs.SingleGtfsToNetexConverterJob do
   end
 end
 
+defmodule Transport.Jobs.DatasetGtfsToNetexConverterJob do
+  @moduledoc """
+  This will enqueue GTFS -> NeTEx conversions jobs for all GTFS resources linked to a dataset, but only for the most recent resource history
+  """
+  use Oban.Worker, max_attempts: 3, queue: :heavy
+  alias Transport.Jobs.GTFSGenericConverter
+  import Ecto.Query
+
+  def list_GTFS_last_resource_history(dataset_id) do
+    DB.Dataset.base_query()
+    |> DB.Resource.join_dataset_with_resource()
+    |> DB.ResourceHistory.join_resource_with_latest_resource_history()
+    |> where([dataset: d, resource: r], d.id == ^dataset_id and r.format == "GTFS")
+    |> select([resource_history: rh], rh.id)
+    |> DB.Repo.all()
+  end
+
+  @impl true
+  def perform(%{args: %{"dataset_id" => dataset_id}}) do
+    dataset_id
+    |> list_GTFS_last_resource_history()
+    |> Enum.each(fn rh_id ->
+      GTFSGenericConverter.perform_single_conversion_job(rh_id, "NeTEx", Transport.GtfsToNeTExConverter)
+    end)
+  end
+end
+
 defmodule Transport.GtfsToNeTExConverter do
   @moduledoc """
   Given a GTFS file path, convert it to NeTEx.

@@ -51,11 +51,8 @@ defmodule DB.DataConversion do
     conversions = last_data_conversions(dataset_id, "NeTEx")
     delete_data_conversions(conversions)
 
-    conversions
-    |> Enum.each(fn %{resource_history_id: rh_id} ->
-      %{"resource_history_id" => rh_id}
-      |> Transport.Jobs.SingleGtfsToNetexConverterJob.new()
-      |> Oban.insert()
-    end)
+    %{"dataset_id" => dataset_id}
+    |> Transport.Jobs.DatasetGtfsToNetexConverterJob.new()
+    |> Oban.insert()
   end
 end

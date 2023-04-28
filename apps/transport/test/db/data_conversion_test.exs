@@ -60,7 +60,7 @@ defmodule DB.DataConversionTest do
 
   test "list data conversions of a dataset" do
     dataset = insert(:dataset)
-    resource_1 = insert(:resource, dataset_id: dataset.id)
+    resource_1 = insert(:resource, dataset_id: dataset.id, format: "GTFS")
 
     # not listed as there is more recent
     insert(:resource_history,
@@ -96,7 +96,7 @@ defmodule DB.DataConversionTest do
     )
 
     # listed (other resource same dataset)
-    resource_2 = insert(:resource, dataset_id: dataset.id)
+    resource_2 = insert(:resource, dataset_id: dataset.id, format: "GTFS")
 
     resource_history_2 =
       insert(:resource_history, resource_id: resource_2.id, payload: %{uuid: uuid_2 = Ecto.UUID.generate()})
@@ -141,6 +141,10 @@ defmodule DB.DataConversionTest do
                s3_path: "filename_2"
              }
            ] == conversions
+
+     # list candidate resource history for future conversions
+     resource_history_ids = Transport.Jobs.DatasetGtfsToNetexConverterJob.list_GTFS_last_resource_history(dataset.id) |> Enum.sort()
+     assert [resource_history_1.id, resource_history_2.id] == resource_history_ids
   end
 
   test "force refresh a NeTEx conversion" do
