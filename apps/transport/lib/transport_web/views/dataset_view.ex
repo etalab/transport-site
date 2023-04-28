@@ -504,7 +504,7 @@ defmodule TransportWeb.DatasetView do
 
   ## Examples
 
-  iex> displays_odbl_osm_conditions?(%Dataset{licence: "odc-odbl", tags: ["foo"]}, custom_tags: nil)
+  iex> displays_odbl_osm_conditions?(%Dataset{licence: "odc-odbl", tags: ["foo"]})
   false
   iex> displays_odbl_osm_conditions?(%Dataset{licence: "odc-odbl", tags: ["foo", "openstreetmap"]}, custom_tags: [])
   true
