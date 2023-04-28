@@ -500,21 +500,22 @@ defmodule TransportWeb.DatasetView do
   def multi_validation_performed?(nil), do: false
 
   @doc """
-  Determines if we should display "specific usage conditions" for a dataset.
-  We displays it only for datasets under the ODbL license that are not OSM exports. We use the `openstreetmap` tag as a proxy of "this is an export from OSM".
+  Determines if we should display OSM community guidelines for a dataset.
 
   ## Examples
 
-  iex> displays_odbl_specific_usage_conditions?(%Dataset{licence: "odc-odbl", tags: ["foo"]})
-  true
-  iex> displays_odbl_specific_usage_conditions?(%Dataset{licence: "odc-odbl", tags: ["foo", "openstreetmap"]})
+  iex> displays_odbl_osm_conditions?(%Dataset{licence: "odc-odbl", tags: ["foo"]})
   false
+  iex> displays_odbl_osm_conditions?(%Dataset{licence: "odc-odbl", tags: ["foo", "openstreetmap"], custom_tags: []})
+  true
+  iex> displays_odbl_osm_conditions?(%Dataset{licence: "odc-odbl", tags: [], custom_tags: ["licence-osm"]})
+  true
   """
-  def displays_odbl_specific_usage_conditions?(%Dataset{licence: "odc-odbl", tags: tags}) do
-    "openstreetmap" not in tags
+  def displays_odbl_osm_conditions?(%Dataset{licence: "odc-odbl", tags: tags, custom_tags: custom_tags}) do
+    "openstreetmap" in tags or "licence-osm" in custom_tags
   end
 
-  def displays_odbl_specific_usage_conditions?(%Dataset{}), do: false
+  def displays_odbl_osm_conditions?(%Dataset{}), do: false
 
   @spec related_gtfs_resource(Resource.t()) :: DB.ResourceRelated.t() | nil
   def related_gtfs_resource(%Resource{format: "gtfs-rt", resources_related: resources_related}) do

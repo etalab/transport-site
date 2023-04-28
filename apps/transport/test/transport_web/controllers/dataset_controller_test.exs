@@ -191,6 +191,7 @@ defmodule TransportWeb.DatasetControllerTest do
 
     conn = conn |> get(dataset_path(conn, :details, slug))
     refute conn |> html_response(200) =~ "Conditions Particulières"
+    assert conn |> html_response(200) =~ "Règles de la communauté OSM"
   end
 
   test "does not crash when validation_performed is false", %{conn: conn} do
