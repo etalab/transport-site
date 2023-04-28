@@ -39,7 +39,7 @@ defmodule DB.Dataset do
     field(:nb_reuses, :integer)
     field(:latest_data_gouv_comment_timestamp, :utc_datetime)
     field(:archived_at, :utc_datetime_usec)
-    field(:custom_tags, {:array, :string})
+    field(:custom_tags, {:array, :string}, default: [])
 
     timestamps(type: :utc_datetime_usec)
 
