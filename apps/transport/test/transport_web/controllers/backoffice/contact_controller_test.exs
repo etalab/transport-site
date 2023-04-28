@@ -107,7 +107,13 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
 
   describe "edit" do
     test "can change values", %{conn: conn} do
-      contact = DB.Contact.insert!(sample_contact_args(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(), last_login_at: ~U[2023-04-28 09:54:19.458897Z]}))
+      contact =
+        DB.Contact.insert!(
+          sample_contact_args(%{
+            datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
+            last_login_at: ~U[2023-04-28 09:54:19.458897Z]
+          })
+        )
 
       content =
         conn
