@@ -142,9 +142,11 @@ defmodule DB.DataConversionTest do
              }
            ] == conversions
 
-     # list candidate resource history for future conversions
-     resource_history_ids = Transport.Jobs.DatasetGtfsToNetexConverterJob.list_GTFS_last_resource_history(dataset.id) |> Enum.sort()
-     assert [resource_history_1.id, resource_history_2.id] == resource_history_ids
+    # list candidate resource history for future conversions
+    resource_history_ids =
+      Transport.Jobs.DatasetGtfsToNetexConverterJob.list_GTFS_last_resource_history(dataset.id) |> Enum.sort()
+
+    assert [resource_history_1.id, resource_history_2.id] == resource_history_ids
   end
 
   test "force refresh a NeTEx conversion" do
@@ -162,13 +164,16 @@ defmodule DB.DataConversionTest do
         payload: %{filename: filename = "filepath/filename"}
       )
 
-      Transport.Test.S3TestUtils.s3_mocks_delete_object(Transport.S3.bucket_name(:history), filename)
+    Transport.Test.S3TestUtils.s3_mocks_delete_object(Transport.S3.bucket_name(:history), filename)
 
-      DB.DataConversion.force_refresh_netex_conversions(dataset.id)
+    DB.DataConversion.force_refresh_netex_conversions(dataset.id)
 
-      # data conversion has been deleted
-      assert_raise Ecto.NoResultsError, fn -> DB.DataConversion |> DB.Repo.get!(data_conversion.id) end
-      # new conversion is enqueued
-      assert_enqueued([worker: Transport.Jobs.SingleGtfsToNetexConverterJob, args: %{"resource_history_id" => resource_history.id}])
+    # data conversion has been deleted
+    assert_raise Ecto.NoResultsError, fn -> DB.DataConversion |> DB.Repo.get!(data_conversion.id) end
+    # new conversion is enqueued
+    assert_enqueued(
+      worker: Transport.Jobs.SingleGtfsToNetexConverterJob,
+      args: %{"resource_history_id" => resource_history.id}
+    )
   end
 end

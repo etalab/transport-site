@@ -6,8 +6,7 @@ defmodule TransportWeb.Live.ForceNeTExConversion do
     ~H"""
     <button class="button" phx-click="force_conversion">
       <%= if @running do %>
-        <%= dgettext("backoffice", "Conversions launched") %>
-        ✅
+        <%= dgettext("backoffice", "Conversions launched") %> ✅
       <% else %>
         <%= dgettext("backoffice", "Refresh NeTEx conversions") %>
       <% end %>
