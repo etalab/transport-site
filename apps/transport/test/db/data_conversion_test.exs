@@ -153,8 +153,7 @@ defmodule DB.DataConversionTest do
     dataset = insert(:dataset)
     resource = insert(:resource, dataset_id: dataset.id)
 
-    resource_history =
-      insert(:resource_history, resource_id: resource.id, payload: %{uuid: uuid = Ecto.UUID.generate()})
+    insert(:resource_history, resource_id: resource.id, payload: %{uuid: uuid = Ecto.UUID.generate()})
 
     data_conversion =
       insert(:data_conversion,
@@ -172,8 +171,8 @@ defmodule DB.DataConversionTest do
     assert_raise Ecto.NoResultsError, fn -> DB.DataConversion |> DB.Repo.get!(data_conversion.id) end
     # new conversion is enqueued
     assert_enqueued(
-      worker: Transport.Jobs.SingleGtfsToNetexConverterJob,
-      args: %{"resource_history_id" => resource_history.id}
+      worker: Transport.Jobs.DatasetGtfsToNetexConverterJob,
+      args: %{"dataset_id" => dataset.id}
     )
   end
 end
