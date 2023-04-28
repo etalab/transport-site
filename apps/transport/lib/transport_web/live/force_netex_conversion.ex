@@ -7,7 +7,7 @@ defmodule TransportWeb.Live.ForceNeTExConversion do
 
   def render(assigns) do
     ~H"""
-    <button class="button" phx-click="force_conversion">
+    <button class="button" phx-click="force_conversion" disabled={@running}>
       <%= if @running do %>
         <%= dgettext("backoffice", "Conversions launched") %> ✅
       <% else %>
@@ -36,7 +36,7 @@ defmodule TransportWeb.Live.ForceNeTExConversion do
 
   def handle_info({:force_conversion, dataset_id}, socket) do
     DB.DataConversion.force_refresh_netex_conversions(dataset_id)
-    Process.send_after(self(), :stop_running, 3000)
+    Process.send_after(self(), :stop_running, 60_000)
     {:noreply, socket}
   end
 
