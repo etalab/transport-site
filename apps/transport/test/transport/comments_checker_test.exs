@@ -99,6 +99,39 @@ defmodule Transport.CommentsCheckerTest do
            ] = DB.Notification |> DB.Repo.all()
   end
 
+  test "does not insert notification logs when there are no new comments" do
+    latest_ts = DateTime.utc_now()
+    %{datagouv_id: datagouv_id} = insert(:dataset, latest_data_gouv_comment_timestamp: latest_ts)
+
+    Transport.HTTPoison.Mock
+    |> expect(:request, 2, fn :get,
+                              "https://demo.data.gouv.fr/api/1/discussions/",
+                              "",
+                              [],
+                              [follow_redirect: true, params: %{for: ^datagouv_id}] ->
+      data = %{
+        "data" => [
+          %{
+            "id" => "discussion_id_1",
+            "discussion" => [
+              %{"posted_on" => DateTime.to_string(latest_ts), "content" => "commentaire 1"}
+            ]
+          }
+        ]
+      }
+
+      {:ok, %HTTPoison.Response{status_code: 200, body: Jason.encode!(data)}}
+    end)
+
+    assert [{%Dataset{datagouv_id: ^datagouv_id}, ^datagouv_id, _title, [] = _comments}] =
+             CommentsChecker.fetch_new_comments()
+
+    number_new_comments = CommentsChecker.check_for_new_comments()
+
+    assert number_new_comments == 0
+    assert [] == DB.Notification |> DB.Repo.all()
+  end
+
   test "get latest comment timestamp" do
     discussions = [
       %{"posted_on" => "2020-05-12T15:07:04.547000+00:00"},
