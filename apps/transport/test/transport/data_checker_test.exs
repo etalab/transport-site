@@ -57,6 +57,15 @@ defmodule Transport.DataCheckerTest do
         end)
       end)
 
+      # Getting timeout errors, should be ignored
+      dataset_http_error = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
+      api_url = "https://demo.data.gouv.fr/api/1/datasets/#{dataset_http_error.datagouv_id}/"
+
+      Transport.HTTPoison.Mock
+      |> expect(:request, 3, fn :get, ^api_url, "", [], [follow_redirect: true] ->
+        {:error, %HTTPoison.Error{reason: :timeout}}
+      end)
+
       # We create a dataset which is considered active on our side
       # but which is not found found (= inactive?) on data gouv side
       dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
@@ -82,6 +91,8 @@ defmodule Transport.DataCheckerTest do
 
       # should result into marking the dataset as inactive
       assert %DB.Dataset{is_active: false} = DB.Repo.reload!(dataset)
+      # we got HTTP timeout errors: we should not desactivate the dataset
+      assert %DB.Dataset{is_active: true} = DB.Repo.reload!(dataset_http_error)
 
       verify!(Transport.HTTPoison.Mock)
       verify!(Transport.EmailSender.Mock)
