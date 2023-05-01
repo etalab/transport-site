@@ -25,4 +25,34 @@ defmodule DB.DataConversion do
     )
     |> where([data_conversion: dc], dc.convert_to in ^list_of_convert_to)
   end
+
+  def last_data_conversions(dataset_id, convert_to) do
+    DB.Dataset.base_query()
+    |> DB.ResourceHistory.join_dataset_with_latest_resource_history()
+    |> join_resource_history_with_data_conversion([convert_to])
+    |> where([dataset: d], d.id == ^dataset_id)
+    |> select([resource_history: rh, data_conversion: dc], %{
+      resource_history_id: rh.id,
+      data_conversion_id: dc.id,
+      s3_path: fragment("?->>'filename'", dc.payload)
+    })
+    |> DB.Repo.all()
+  end
+
+  def delete_data_conversions(conversions) do
+    conversions
+    |> Enum.each(fn %{data_conversion_id: dc_id, s3_path: s3_path} ->
+      Transport.S3.delete_object!(:history, s3_path)
+      DB.DataConversion |> DB.Repo.get(dc_id) |> DB.Repo.delete!()
+    end)
+  end
+
+  def force_refresh_netex_conversions(dataset_id) do
+    conversions = last_data_conversions(dataset_id, "NeTEx")
+    delete_data_conversions(conversions)
+
+    %{"dataset_id" => dataset_id}
+    |> Transport.Jobs.DatasetGtfsToNetexConverterJob.new()
+    |> Oban.insert()
+  end
 end

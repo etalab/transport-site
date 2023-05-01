@@ -569,3 +569,7 @@ msgstr "Fichier GTFS à utiliser avec le flux GTFS-RT"
 #, elixir-autogen, elixir-format
 msgid "Related resources"
 msgstr "Ressources associées"
+
+#, elixir-autogen, elixir-format
+msgid "OSM community guidelines"
+msgstr "Règles de la communauté OSM"
