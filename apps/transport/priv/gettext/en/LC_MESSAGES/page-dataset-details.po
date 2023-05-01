@@ -567,5 +567,9 @@ msgid "GTFS file to use with the GTFS-RT feed"
 msgstr ""
 
 #, elixir-autogen, elixir-format
+msgid "Related resources"
+msgstr ""
+
+#, elixir-autogen, elixir-format
 msgid "OSM community guidelines"
 msgstr ""
