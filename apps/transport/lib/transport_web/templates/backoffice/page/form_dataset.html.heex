@@ -25,6 +25,12 @@
           <%= submit("Supprimer", class: "button", nodiv: true) %>
         <% end %>
       </div>
+
+      <div :if={@dataset.type == "public-transit"}>
+        <%= live_render(@conn, TransportWeb.Live.ForceNeTExConversion,
+          session: %{"dataset_id" => @dataset.id, "locale" => get_session(@conn, :locale)}
+        ) %>
+      </div>
     </div>
 
     <div class="dashboard-description mt-48">

@@ -282,3 +282,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Company SIREN code"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Refresh NeTEx conversions"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Conversions launched"
+msgstr ""
