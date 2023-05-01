@@ -510,9 +510,11 @@ defmodule TransportWeb.DatasetView do
   true
   iex> displays_odbl_osm_conditions?(%Dataset{licence: "odc-odbl", tags: [], custom_tags: ["licence-osm"]})
   true
+  iex> displays_odbl_osm_conditions?(%Dataset{licence: "odc-odbl", tags: [], custom_tags: nil})
+  false
   """
   def displays_odbl_osm_conditions?(%Dataset{licence: "odc-odbl", tags: tags, custom_tags: custom_tags}) do
-    "openstreetmap" in tags or "licence-osm" in custom_tags
+    "openstreetmap" in tags or "licence-osm" in (custom_tags || [])
   end
 
   def displays_odbl_osm_conditions?(%Dataset{}), do: false
