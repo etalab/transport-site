@@ -99,21 +99,23 @@ defmodule Transport.Validators.GTFSRTTest do
           }
         )
 
-      %{id: gtfs_rt_id} =
+      %DB.Resource{id: gtfs_rt_id} =
         gtfs_rt =
         insert(:resource,
           dataset_id: dataset.id,
           is_available: true,
           format: "gtfs-rt",
+          is_community_resource: false,
           url: gtfs_rt_url
         )
 
-      %{id: gtfs_rt_no_errors_id} =
+      %DB.Resource{id: gtfs_rt_no_errors_id} =
         gtfs_rt_no_errors =
         insert(:resource,
           dataset_id: dataset.id,
           is_available: true,
           format: "gtfs-rt",
+          is_community_resource: false,
           url: gtfs_rt_no_errors_url
         )
 
@@ -265,12 +267,13 @@ defmodule Transport.Validators.GTFSRTTest do
           }
         )
 
-      %{id: gtfs_rt_id} =
+      %DB.Resource{id: gtfs_rt_id} =
         gtfs_rt =
         insert(:resource,
           dataset_id: dataset.id,
           is_available: true,
           format: "gtfs-rt",
+          is_community_resource: false,
           url: gtfs_rt_url
         )
 
@@ -279,6 +282,7 @@ defmodule Transport.Validators.GTFSRTTest do
           dataset_id: dataset.id,
           is_available: true,
           format: "gtfs-rt",
+          is_community_resource: false,
           url: gtfs_rt_no_errors_url
         )
 
@@ -375,11 +379,13 @@ defmodule Transport.Validators.GTFSRTTest do
           }
         )
 
-      gtfs_rt =
+      %DB.Resource{} =
+        gtfs_rt =
         insert(:resource,
           dataset_id: dataset.id,
           is_available: true,
           format: "gtfs-rt",
+          is_community_resource: false,
           url: gtfs_rt_url
         )
 
@@ -440,7 +446,11 @@ defmodule Transport.Validators.GTFSRTTest do
       %{dataset: dataset, resource: gtfs_1} = insert_outdated_resource_and_friends()
       %{resource: gtfs_2} = insert_up_to_date_resource_and_friends(dataset: dataset)
       %{id: gtfs_2_id} = gtfs_2
-      %{id: gtfs_rt_1_id} = gtfs_rt_1 = insert(:resource, dataset: dataset, is_available: true, format: "gtfs-rt")
+
+      %DB.Resource{id: gtfs_rt_1_id} =
+        gtfs_rt_1 =
+        insert(:resource, dataset: dataset, is_available: true, format: "gtfs-rt", is_community_resource: false)
+
       insert(:resource_related, resource_src: gtfs_rt_1, resource_dst: gtfs_1, reason: :gtfs_rt_gtfs)
 
       assert [
@@ -454,8 +464,14 @@ defmodule Transport.Validators.GTFSRTTest do
 
       %{resource: %DB.Resource{format: "GTFS"}} = insert_up_to_date_resource_and_friends(dataset: dataset)
 
-      %{id: gtfs_rt_1_id} = gtfs_rt_1 = insert(:resource, dataset: dataset, is_available: true, format: "gtfs-rt")
-      %{id: gtfs_rt_2_id} = gtfs_rt_2 = insert(:resource, dataset: dataset, is_available: true, format: "gtfs-rt")
+      %DB.Resource{id: gtfs_rt_1_id} =
+        gtfs_rt_1 =
+        insert(:resource, dataset: dataset, is_available: true, format: "gtfs-rt", is_community_resource: false)
+
+      %DB.Resource{id: gtfs_rt_2_id} =
+        gtfs_rt_2 =
+        insert(:resource, dataset: dataset, is_available: true, format: "gtfs-rt", is_community_resource: false)
+
       # Should be ignored because no `resource_related` exists
       _ignored_gtfs_rt = insert(:resource, dataset: dataset, is_available: true, format: "gtfs-rt")
 
