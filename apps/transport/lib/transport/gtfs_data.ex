@@ -75,22 +75,18 @@ defmodule Transport.GTFSData do
     8 => {0.027465820312500007, 0.018949562981982936}
   }
 
-  def build_clusters(box = {north, south, east, west}, snap = {snap_x, snap_y}) do
-    IO.inspect(box, label: "box")
-    IO.inspect(snap, label: "snap")
-
-    # box: {68.9110048456202, 8.581021215641854, 103.35937500000001, -98.43750000000001}
-    snap_x = 0.02
-    snap_y = 0.02
+  def build_cacheable_clusters(zoom_level = 8) do
     north = DB.Repo.aggregate("gtfs_stops", :max, :stop_lat)
     south = DB.Repo.aggregate("gtfs_stops", :min, :stop_lat)
     east = DB.Repo.aggregate("gtfs_stops", :max, :stop_lon)
     west = DB.Repo.aggregate("gtfs_stops", :min, :stop_lon)
 
-    IO.inspect({north, south, east, west}, label: "box")
-    IO.inspect({snap_x, snap_y}, label: "snap")
+    {snap_x, snap_y} = @zoom_levels |> Map.fetch!(zoom_level)
 
-    #    north =
+    build_clusters({north, south, east, west}, {snap_x, snap_y})
+  end
+
+  def build_clusters({north, south, east, west}, {snap_x, snap_y}) do
     # NOTE: this query is not horribly slow but not super fast either. When the user
     # scrolls, this will stack up queries. It would be a good idea to cache the result for
     # some precomputed zoom levels when all the data imports are considered (no filtering).
