@@ -72,10 +72,12 @@ defmodule Transport.GTFSData do
     5 => {0.21972656250000006, 0.15165412371973086},
     6 => {0.10986328125000003, 0.07580875200863536},
     7 => {0.054931640625000014, 0.037900705683396894},
-    8 => {0.027465820312500007, 0.018949562981982936}
+    8 => {0.027465820312500007, 0.018949562981982936},
+    9 => {0.013732910156250003, 0.009474781490991468},
+    10 => {0.006866455078125002, 0.004737390745495734}
   }
 
-  def create_gtfs_stops_materialized_view(zoom_level) when is_integer(zoom_level) and zoom_level in 1..8 do
+  def create_gtfs_stops_materialized_view(zoom_level) when is_integer(zoom_level) and zoom_level in 1..10 do
     north = DB.Repo.aggregate("gtfs_stops", :max, :stop_lat)
     south = DB.Repo.aggregate("gtfs_stops", :min, :stop_lat)
     east = DB.Repo.aggregate("gtfs_stops", :max, :stop_lon)
