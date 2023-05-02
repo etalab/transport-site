@@ -125,6 +125,14 @@ defmodule Transport.GTFSData do
     end)
   end
 
+  require Logger
+
+  def log_time_taken(message, cb) do
+    {delay, result} = :timer.tc(cb)
+    Logger.info("#{message} took #{delay / 1_000_000.0} seconds")
+    result
+  end
+
   def build_clusters({north, south, east, west}, {snap_x, snap_y}) do
     {zoom_level, {_sx, _sy}} = find_closest_zoom_level({snap_x, snap_y})
 
@@ -133,20 +141,31 @@ defmodule Transport.GTFSData do
 
     q = from(gs in "gtfs_stops_clusters_level_#{zoom_level}", select: [:cluster_lat, :cluster_lon, :count])
 
+    q =
+      log_time_taken("SQL query", fn ->
+        q
+        |> where(
+          [c],
+          fragment("? between ? and ?", c.cluster_lon, ^west, ^east) and
+            fragment("? between ? and ?", c.cluster_lat, ^south, ^north)
+        )
+        |> DB.Repo.all()
+      end)
+
+    q =
+      log_time_taken("Map", fn ->
+        q
+        |> Enum.map(fn x ->
+          [
+            x |> Map.fetch!(:cluster_lat) |> Decimal.from_float() |> Decimal.round(4) |> Decimal.to_float(),
+            x |> Map.fetch!(:cluster_lon) |> Decimal.from_float() |> Decimal.round(4) |> Decimal.to_float(),
+            x |> Map.fetch!(:count)
+          ]
+        end)
+      end)
+
+    Logger.info("Sending back...")
     q
-    |> where(
-      [c],
-      fragment("? between ? and ?", c.cluster_lon, ^west, ^east) and
-        fragment("? between ? and ?", c.cluster_lat, ^south, ^north)
-    )
-    |> DB.Repo.all()
-    |> Enum.map(fn x ->
-      [
-        x |> Map.fetch!(:cluster_lat) |> Decimal.from_float() |> Decimal.round(4) |> Decimal.to_float(),
-        x |> Map.fetch!(:cluster_lon) |> Decimal.from_float() |> Decimal.round(4) |> Decimal.to_float(),
-        x |> Map.fetch!(:count)
-      ]
-    end)
   end
 
   def build_clusters_query({north, south, east, west}, {snap_x, snap_y}) do
