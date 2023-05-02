@@ -95,17 +95,27 @@ defmodule Transport.GTFSData do
     #{sql}
     """
 
-    {:ok, _res} = Ecto.Adapters.SQL.query(DB.Repo, view_query, params)
+    # TODO: replace this by cleaner solutions (https://dba.stackexchange.com/a/208599)
+    view_query =
+      view_query
+      |> String.replace("$1", params |> Enum.at(0) |> Float.to_string())
+      |> String.replace("$2", params |> Enum.at(1) |> Float.to_string())
+      |> String.replace("$3", params |> Enum.at(2) |> Float.to_string())
+      |> String.replace("$4", params |> Enum.at(3) |> Float.to_string())
+      |> String.replace("$5", params |> Enum.at(4) |> Float.to_string())
+      |> String.replace("$6", params |> Enum.at(5) |> Float.to_string())
 
-    q = from(gs in "gtfs_stops_clusters_level_8")
+    {:ok, _res} = Ecto.Adapters.SQL.query(DB.Repo, view_query)
+
+    q = from(gs in "gtfs_stops_clusters_level_8", select: [:cluster_lat, :cluster_lon, :count])
 
     q
     |> DB.Repo.all()
     |> Enum.map(fn x ->
       [
-        x |> Map.fetch!(:lat) |> Decimal.from_float() |> Decimal.round(4) |> Decimal.to_float(),
-        x |> Map.fetch!(:lon) |> Decimal.from_float() |> Decimal.round(4) |> Decimal.to_float(),
-        x |> Map.fetch!(:c)
+        x |> Map.fetch!(:cluster_lat) |> Decimal.from_float() |> Decimal.round(4) |> Decimal.to_float(),
+        x |> Map.fetch!(:cluster_lon) |> Decimal.from_float() |> Decimal.round(4) |> Decimal.to_float(),
+        x |> Map.fetch!(:count)
       ]
     end)
   end
