@@ -83,10 +83,34 @@ defmodule Transport.GTFSData do
 
     {snap_x, snap_y} = @zoom_levels |> Map.fetch!(zoom_level)
 
-    build_clusters({north, south, east, west}, {snap_x, snap_y})
+    query = build_clusters_query({north, south, east, west}, {snap_x, snap_y})
+
+    {sql, params} = DB.Repo.to_sql(:all, query)
+
+    # NOTE: this won't work as is, and will raise an error
+    # "materialized views may not be defined using bound parameters"
+    # potential solutions can be found at https://dba.stackexchange.com/a/208599
+    view_query = """
+    CREATE MATERIALIZED VIEW IF NOT EXISTS gtfs_stops_clusters_level_8 AS
+    #{sql}
+    """
+
+    {:ok, _res} = Ecto.Adapters.SQL.query(DB.Repo, view_query, params)
+
+    q = from(gs in "gtfs_stops_clusters_level_8")
+
+    q
+    |> DB.Repo.all()
+    |> Enum.map(fn x ->
+      [
+        x |> Map.fetch!(:lat) |> Decimal.from_float() |> Decimal.round(4) |> Decimal.to_float(),
+        x |> Map.fetch!(:lon) |> Decimal.from_float() |> Decimal.round(4) |> Decimal.to_float(),
+        x |> Map.fetch!(:c)
+      ]
+    end)
   end
 
-  def build_clusters({north, south, east, west}, {snap_x, snap_y}) do
+  def build_clusters_query({north, south, east, west}, {snap_x, snap_y}) do
     # NOTE: this query is not horribly slow but not super fast either. When the user
     # scrolls, this will stack up queries. It would be a good idea to cache the result for
     # some precomputed zoom levels when all the data imports are considered (no filtering).
@@ -122,13 +146,5 @@ defmodule Transport.GTFSData do
       c: selected_as(fragment("count"), :count)
     })
     |> where([e], e.count > 0)
-    |> DB.Repo.all()
-    |> Enum.map(fn x ->
-      [
-        x |> Map.fetch!(:lat) |> Decimal.from_float() |> Decimal.round(4) |> Decimal.to_float(),
-        x |> Map.fetch!(:lon) |> Decimal.from_float() |> Decimal.round(4) |> Decimal.to_float(),
-        x |> Map.fetch!(:c)
-      ]
-    end)
   end
 end
