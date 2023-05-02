@@ -125,7 +125,11 @@ defmodule Transport.GTFSData do
     q = from(gs in "gtfs_stops_clusters_level_#{zoom_level}", select: [:cluster_lat, :cluster_lon, :count])
 
     q
-    # TODO: filter based on bounding box
+    |> where(
+      [c],
+      fragment("? between ? and ?", c.cluster_lon, ^west, ^east) and
+        fragment("? between ? and ?", c.cluster_lat, ^south, ^north)
+    )
     |> DB.Repo.all()
     |> Enum.map(fn x ->
       [
