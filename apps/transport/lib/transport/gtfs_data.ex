@@ -63,7 +63,34 @@ defmodule Transport.GTFSData do
     |> DB.Repo.aggregate(:count, :id)
   end
 
-  def build_clusters({north, south, east, west}, {snap_x, snap_y}) do
+  # exploratory values, zoom level is map.getZoom()
+  @zoom_levels %{
+    1 => {3.5, 2.0},
+    2 => {1.7578125000000004, 1.189324575526938},
+    3 => {0.8789062500000002, 0.6065068377804875},
+    4 => {0.4394531250000001, 0.3034851814036069},
+    5 => {0.21972656250000006, 0.15165412371973086},
+    6 => {0.10986328125000003, 0.07580875200863536},
+    7 => {0.054931640625000014, 0.037900705683396894},
+    8 => {0.027465820312500007, 0.018949562981982936}
+  }
+
+  def build_clusters(box = {north, south, east, west}, snap = {snap_x, snap_y}) do
+    IO.inspect(box, label: "box")
+    IO.inspect(snap, label: "snap")
+
+    # box: {68.9110048456202, 8.581021215641854, 103.35937500000001, -98.43750000000001}
+    snap_x = 0.02
+    snap_y = 0.02
+    north = DB.Repo.aggregate("gtfs_stops", :max, :stop_lat)
+    south = DB.Repo.aggregate("gtfs_stops", :min, :stop_lat)
+    east = DB.Repo.aggregate("gtfs_stops", :max, :stop_lon)
+    west = DB.Repo.aggregate("gtfs_stops", :min, :stop_lon)
+
+    IO.inspect({north, south, east, west}, label: "box")
+    IO.inspect({snap_x, snap_y}, label: "snap")
+
+    #    north =
     # NOTE: this query is not horribly slow but not super fast either. When the user
     # scrolls, this will stack up queries. It would be a good idea to cache the result for
     # some precomputed zoom levels when all the data imports are considered (no filtering).
