@@ -108,14 +108,14 @@ defmodule Transport.GTFSData do
     {:ok, _res} = Ecto.Adapters.SQL.query(DB.Repo, view_query)
   end
 
-  def find_closest_zoom_level({snap_x, snap_y}) do
-    Enum.min_by(@zoom_levels, fn {zoom_level, {sx, sy}} ->
+  def find_closest_zoom_level({_snap_x, snap_y}) do
+    Enum.min_by(@zoom_levels, fn {_zoom_level, {_sx, sy}} ->
       abs(sy - snap_y)
     end)
   end
 
   def build_clusters({north, south, east, west}, {snap_x, snap_y}) do
-    {zoom_level, {sx, sy}} = find_closest_zoom_level({snap_x, snap_y})
+    {zoom_level, {_sx, _sy}} = find_closest_zoom_level({snap_x, snap_y})
 
     # TODO: skip create earlier if exist
     create_gtfs_stops_materialized_view(zoom_level)
