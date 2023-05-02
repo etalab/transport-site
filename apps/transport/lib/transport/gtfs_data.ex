@@ -75,7 +75,7 @@ defmodule Transport.GTFSData do
     8 => {0.027465820312500007, 0.018949562981982936}
   }
 
-  def build_cacheable_clusters(zoom_level = 8) do
+  def create_gtfs_stops_materialized_view(zoom_level) when is_integer(zoom_level) and zoom_level in 1..8 do
     north = DB.Repo.aggregate("gtfs_stops", :max, :stop_lat)
     south = DB.Repo.aggregate("gtfs_stops", :min, :stop_lat)
     east = DB.Repo.aggregate("gtfs_stops", :max, :stop_lon)
@@ -91,7 +91,7 @@ defmodule Transport.GTFSData do
     # "materialized views may not be defined using bound parameters"
     # potential solutions can be found at https://dba.stackexchange.com/a/208599
     view_query = """
-    CREATE MATERIALIZED VIEW IF NOT EXISTS gtfs_stops_clusters_level_8 AS
+    CREATE MATERIALIZED VIEW IF NOT EXISTS gtfs_stops_clusters_level_#{zoom_level} AS
     #{sql}
     """
 
@@ -106,10 +106,24 @@ defmodule Transport.GTFSData do
       |> String.replace("$6", params |> Enum.at(5) |> Float.to_string())
 
     {:ok, _res} = Ecto.Adapters.SQL.query(DB.Repo, view_query)
+  end
 
-    q = from(gs in "gtfs_stops_clusters_level_8", select: [:cluster_lat, :cluster_lon, :count])
+  def find_closest_zoom_level({snap_x, snap_y}) do
+    Enum.min_by(@zoom_levels, fn {zoom_level, {sx, sy}} ->
+      abs(sy - snap_y)
+    end)
+  end
+
+  def build_clusters({north, south, east, west}, {snap_x, snap_y}) do
+    {zoom_level, {sx, sy}} = find_closest_zoom_level({snap_x, snap_y})
+
+    # TODO: skip create earlier if exist
+    create_gtfs_stops_materialized_view(zoom_level)
+
+    q = from(gs in "gtfs_stops_clusters_level_#{zoom_level}", select: [:cluster_lat, :cluster_lon, :count])
 
     q
+    # TODO: filter based on bounding box
     |> DB.Repo.all()
     |> Enum.map(fn x ->
       [

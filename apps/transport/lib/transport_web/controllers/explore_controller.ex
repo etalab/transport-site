@@ -52,7 +52,7 @@ defmodule TransportWeb.ExploreController do
         %{
           type: "clustered",
           # TODO: change zoom level of cached cluster dynamically
-          data: Transport.GTFSData.build_cacheable_clusters(8)
+          data: Transport.GTFSData.build_clusters({north, south, east, west}, {snap_x, snap_y})
         }
       end
 
