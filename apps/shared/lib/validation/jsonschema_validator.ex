@@ -63,7 +63,7 @@ defmodule Shared.Validation.JSONSchemaValidator do
 
   @impl true
   def validate(schema, url) when is_binary(url) do
-    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(url, [], follow_redirect: true),
+    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(url, [], follow_redirect: true, recv_timeout: 180_000),
          {:ok, json} <- Jason.decode(body) do
       validate(schema, json)
     else
