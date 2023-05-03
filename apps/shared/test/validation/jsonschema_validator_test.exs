@@ -79,7 +79,7 @@ defmodule Shared.Validation.JSONSchemaValidatorTest do
       url = "http://example.com/file"
 
       Transport.HTTPoison.Mock
-      |> expect(:get, fn ^url, [], follow_redirect: true ->
+      |> expect(:get, fn ^url, [], follow_redirect: true, recv_timeout: _ ->
         {:ok, %HTTPoison.Response{status_code: 200, body: Jason.encode!(%{"name" => "foo"})}}
       end)
 
@@ -95,7 +95,7 @@ defmodule Shared.Validation.JSONSchemaValidatorTest do
       url = "http://example.com/file"
 
       Transport.HTTPoison.Mock
-      |> expect(:get, fn ^url, [], follow_redirect: true ->
+      |> expect(:get, fn ^url, [], follow_redirect: true, recv_timeout: _ ->
         {:ok, %HTTPoison.Response{status_code: 500, body: "error"}}
       end)
 
@@ -106,7 +106,7 @@ defmodule Shared.Validation.JSONSchemaValidatorTest do
       url = "http://example.com/file"
 
       Transport.HTTPoison.Mock
-      |> expect(:get, fn ^url, [], follow_redirect: true ->
+      |> expect(:get, fn ^url, [], follow_redirect: true, recv_timeout: _ ->
         {:ok, %HTTPoison.Response{status_code: 200, body: "error"}}
       end)
 
