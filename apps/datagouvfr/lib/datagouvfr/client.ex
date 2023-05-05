@@ -31,6 +31,9 @@ defmodule Datagouvfr.Client do
           {:ok, %{status_code: status_code, body: body}} when status_code in [200, 201, 202, 204] ->
             {:ok, body}
 
+          {:ok, %{status_code: 404}} ->
+            {:error, :not_found}
+
           {:ok, %{status_code: status_code, body: body} = resp} ->
             maybe_report_error(resp)
             {:error, body}
