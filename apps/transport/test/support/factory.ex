@@ -185,6 +185,7 @@ defmodule DB.Factory do
         insert(:resource,
           dataset_id: dataset.id,
           is_available: Keyword.get(opts, :resource_available),
+          is_community_resource: Keyword.get(opts, :is_community_resource, false),
           format: "GTFS",
           datagouv_id: Ecto.UUID.generate()
         )

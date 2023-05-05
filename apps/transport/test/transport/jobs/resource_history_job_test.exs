@@ -244,7 +244,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
       Transport.HTTPoison.Mock
       |> expect(:get, fn ^resource_url, _headers, options ->
-        assert options == [follow_redirect: true]
+        assert options |> Keyword.fetch!(:follow_redirect) == true
 
         {:ok,
          %HTTPoison.Response{
@@ -332,7 +332,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
       Transport.HTTPoison.Mock
       |> expect(:get, fn ^resource_url, _headers, options ->
-        assert options == [follow_redirect: true]
+        assert options |> Keyword.fetch!(:follow_redirect) == true
 
         {:ok,
          %HTTPoison.Response{
@@ -437,7 +437,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
       Transport.HTTPoison.Mock
       |> expect(:get, fn ^resource_url, _headers, options ->
-        assert options == [follow_redirect: true]
+        assert options |> Keyword.fetch!(:follow_redirect) == true
         {:ok, %HTTPoison.Response{status_code: 200, body: @gtfs_content, headers: []}}
       end)
 
