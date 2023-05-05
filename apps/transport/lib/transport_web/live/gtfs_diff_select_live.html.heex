@@ -82,6 +82,17 @@
         </div>
       </div>
     <% end %>
+
+    <div :if={assigns[:diff_explanations]}>
+      <%= dgettext("validations", "A subset of the found differences can be expressed in a human friendly way:") %>
+      <ul>
+        <%= for explanation <- @diff_explanations do %>
+          <li>
+            <%= explanation %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
   </div>
 </section>
 <script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>
