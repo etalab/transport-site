@@ -83,8 +83,16 @@ defmodule Transport.DataChecker do
 
         :ignore
 
-      {:error, _} ->
+      {:error, :not_found} ->
         :inactive
+
+      {:error, error} ->
+        Sentry.capture_message(
+          "Unable to get Dataset status from data.gouv.fr",
+          extra: %{dataset_datagouv_id: datagouv_id, error_reason: inspect(error)}
+        )
+
+        :ignore
     end
   end
 
