@@ -5,7 +5,7 @@ tags:
   - réutilisation
 description: Interview avec Pierre Philbert, Directeur général de WISP Solutions
 ---
-### [W﻿isp](https://wisp-solutions.fr/) : Améliorer le trafic dans les grandes villes 
+### [W﻿isp](https://wisp-solutions.fr/) : Améliorer le trafic dans les grandes villes
 
 <!--StartFragment-->
 
@@ -15,9 +15,7 @@ En combinant l'analyse des données des véhicules connectés avec l'intelligenc
 
 <!--EndFragment-->
 
-
-
-### [](https://wisp-solutions.fr/)éutilisation des données de transport.data.gouv.fr 
+### [](https://wisp-solutions.fr/)éutilisation des données de transport.data.gouv.fr
 
 L'analyse des données des véhicules connectés se base notamment sur les données  temps-réel [ GTFS-RT `vehicle position` publiés sur transport.data.gouv.f](https://transport.data.gouv.fr/datasets?features[]=vehicle_positions)
 
@@ -25,10 +23,6 @@ Ces données sont récupérées sur le Point d'accès national grâce à l’API
 
 <!--EndFragment-->
 
+### A﻿ suivre 
 
-
-
-
-A﻿ suivre 
-
-U﻿ne éventuelle intégration des données de comptage des mobilités
+U﻿ne éventuelle intégration des données de [comptage des mobilités](https://transport.data.gouv.fr/datasets?type=transport-traffic)
