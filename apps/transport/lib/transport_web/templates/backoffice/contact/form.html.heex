@@ -17,6 +17,14 @@
         </ul>
       </div>
     <% end %>
+    <div :if={@contact.data.datagouv_user_id != nil} class="pb-24">
+      Identifiant de l'utilisateur sur data.gouv.fr <span class="label"><%= @contact.data.datagouv_user_id %></span>
+      <br />
+      Dernière date de connexion : <%= format_datetime_to_paris(
+        @contact.data.last_login_at,
+        get_session(@conn, :locale)
+      ) %>
+    </div>
     <%= form_for @contact, backoffice_contact_path(@conn, :create), [class: "no-margin", method: "post"], fn f -> %>
       <%= hidden_input(f, :id, value: contact_id) %>
       <div class="panel">
