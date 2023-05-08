@@ -78,7 +78,7 @@ defmodule Transport.DataCheckerTest do
       end)
 
       # We create a dataset which is considered active on our side
-      # but we get an error 500 on data.gouv side => we should not deactive it
+      # but we get a 500 error on data gouv side => we should not deactivate it
       dataset_500 = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
       api_url_500 = "https://demo.data.gouv.fr/api/1/datasets/#{dataset_500.datagouv_id}/"
 
