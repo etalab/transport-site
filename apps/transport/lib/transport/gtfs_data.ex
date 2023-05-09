@@ -153,19 +153,16 @@ defmodule Transport.GTFSData do
           )
       )
 
-    q =
-      log_time_taken("SQL query", fn ->
-        q
-        |> where(
-          [c],
-          fragment("? between ? and ?", c.cluster_lon, ^west, ^east) and
-            fragment("? between ? and ?", c.cluster_lat, ^south, ^north)
-        )
-        # "one" because we use jsonb_agg above, returning one record with everything
-        |> DB.Repo.one()
-      end)
-
-    q
+    log_time_taken("SQL query", fn ->
+      q
+      |> where(
+        [c],
+        fragment("? between ? and ?", c.cluster_lon, ^west, ^east) and
+          fragment("? between ? and ?", c.cluster_lat, ^south, ^north)
+      )
+      # "one" because we use jsonb_agg above, returning one record with everything
+      |> DB.Repo.one()
+    end)
   end
 
   def build_clusters_query({north, south, east, west}, {snap_x, snap_y}) do
