@@ -65,7 +65,7 @@ defmodule Transport.DataChecker do
     |> Enum.map(&{&1, dataset_status(&1)})
   end
 
-  @spec dataset_status(Dataset.t()) :: :active | :inactive | {:archived, DateTime.t()}
+  @spec dataset_status(Dataset.t()) :: :active | :inactive | :ignore | {:archived, DateTime.t()}
   defp dataset_status(%Dataset{datagouv_id: datagouv_id}) do
     case Datasets.get(datagouv_id) do
       {:ok, %{"archived" => nil}} ->
@@ -81,10 +81,18 @@ defmodule Transport.DataChecker do
           extra: %{dataset_datagouv_id: datagouv_id, error_reason: inspect(error)}
         )
 
+        :ignore
+
+      {:error, :not_found} ->
         :inactive
 
-      {:error, _} ->
-        :inactive
+      {:error, error} ->
+        Sentry.capture_message(
+          "Unable to get Dataset status from data.gouv.fr",
+          extra: %{dataset_datagouv_id: datagouv_id, error_reason: inspect(error)}
+        )
+
+        :ignore
     end
   end
 
