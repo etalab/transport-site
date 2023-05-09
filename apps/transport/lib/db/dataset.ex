@@ -421,7 +421,10 @@ defmodule DB.Dataset do
   # useful when the dataset has been deleted / recreated on data.gouv.fr but we want to keep the resources history
   def changeset(%{"dataset_id" => dataset_id} = params) do
     dataset =
-      case Repo.get(__MODULE__, dataset_id) do
+      __MODULE__
+      |> preload([:legal_owners_aom, :legal_owners_region])
+      |> Repo.get(dataset_id)
+      |> case do
         nil -> %__MODULE__{}
         dataset -> dataset
       end
@@ -431,7 +434,10 @@ defmodule DB.Dataset do
 
   def changeset(%{"datagouv_id" => datagouv_id} = params) when is_binary(datagouv_id) do
     dataset =
-      case Repo.get_by(__MODULE__, datagouv_id: datagouv_id) do
+      __MODULE__
+      |> preload([:legal_owners_aom, :legal_owners_region])
+      |> Repo.get_by(datagouv_id: datagouv_id)
+      |> case do
         nil -> %__MODULE__{}
         dataset -> dataset
       end
@@ -446,11 +452,8 @@ defmodule DB.Dataset do
   defp apply_changeset(%__MODULE__{} = dataset, params) do
     territory_name = Map.get(params, "associated_territory_name") || dataset.associated_territory_name
 
-    legal_owners_aom_id = params["legal_owners_aom"] || []
-    legal_owners_aom = Repo.all(from(aom in AOM, where: aom.id in ^legal_owners_aom_id))
-
-    legal_owners_region_id = params["legal_owners_region"] || []
-    legal_owners_region = Repo.all(from(region in Region, where: region.id in ^legal_owners_region_id))
+    legal_owners_aom = get_legal_owners_aom(dataset, params)
+    legal_owners_region = get_legal_owners_region(dataset, params)
 
     dataset
     |> Repo.preload([:resources, :communes, :region, :legal_owners_aom, :legal_owners_region])
@@ -502,6 +505,37 @@ defmodule DB.Dataset do
       %{valid?: false} = errors ->
         Logger.warn("error while importing dataset: #{format_error(errors)}")
         {:error, format_error(errors)}
+    end
+  end
+
+  defp get_legal_owners_aom(dataset, params) do
+    case params["legal_owners_aom"] do
+      nil ->
+        if Ecto.assoc_loaded?(dataset.legal_owners_aom) do
+          # get existing aom legal owners
+          dataset.legal_owners_aom
+        else
+          # new dataset
+          []
+        end
+
+      # aom legal owners are updated from the params
+      legal_owners_aom_id ->
+        Repo.all(from(aom in AOM, where: aom.id in ^legal_owners_aom_id))
+    end
+  end
+
+  defp get_legal_owners_region(dataset, params) do
+    case params["legal_owners_region"] do
+      nil ->
+        if Ecto.assoc_loaded?(dataset.legal_owners_region) do
+          dataset.legal_owners_region
+        else
+          []
+        end
+
+      legal_owners_region_id ->
+        Repo.all(from(region in Region, where: region.id in ^legal_owners_region_id))
     end
   end
 
