@@ -18,7 +18,7 @@ defmodule TransportWeb.ExploreController do
     |> render("gtfs_stops.html")
   end
 
-  @max_points 10_000
+  @max_points 20_000
 
   def gtfs_stops_data(conn, params) do
     %{
