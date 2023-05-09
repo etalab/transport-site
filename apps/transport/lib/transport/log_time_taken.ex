@@ -1,4 +1,8 @@
 defmodule Transport.LogTimeTaken do
+  @moduledoc """
+  Provides code to easily measure time taken by an operation
+  all while returning the computed value
+  """
   defmacro __using__(_opts) do
     quote do
       require Logger
