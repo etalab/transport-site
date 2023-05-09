@@ -55,7 +55,9 @@ defmodule TransportWeb.ExploreController do
 
       conn
       |> put_resp_content_type("application/json")
-      |> render("gtfs_stops_data.json", data: {:skip_json_encoding, data})
+      |> render("gtfs_stops_data.json",
+        data: {:skip_json_encoding, Jason.encode!(%{type: "clustered", data: Jason.Fragment.new(data)})}
+      )
     end
   end
 end

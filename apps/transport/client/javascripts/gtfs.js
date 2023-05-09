@@ -57,9 +57,8 @@ map.on('moveend', function (event) {
         .then(jsonResponse => {
             let layer = null
             let tooltip = null
-            // clustered mode is just an array for now: I will add a "type" key if possible
-            if (jsonResponse.type === undefined) {
-                const data = jsonResponse.map(x => { return { lat: x[0], lon: x[1], count: x[2] } })
+            if (jsonResponse.type === 'clustered') {
+                const data = jsonResponse.data.map(x => { return { lat: x[0], lon: x[1], count: x[2] } })
                 const maxCount = Math.max(...data.map(a => a.count))
                 const scatterplotLayer = new ScatterplotLayer({
                     id: 'scatterplot-layer',
