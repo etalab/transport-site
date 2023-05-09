@@ -135,7 +135,13 @@ defmodule Transport.GTFSData do
     # TODO: skip create earlier if exist
     create_gtfs_stops_materialized_view(zoom_level)
 
-    q = from(gs in "gtfs_stops_clusters_level_#{zoom_level}", select: [:cluster_lat, :cluster_lon, :count])
+    # NOTE: the rounding could be moved to the materialized view itself,
+    # it would probably be faster.
+    q = from(gs in "gtfs_stops_clusters_level_#{zoom_level}", select: [
+      fragment("round(cluster_lat::numeric, 4)::float"),
+      fragment("round(cluster_lon::numeric, 4)::float"),
+      gs.count
+    ])
 
     q =
       log_time_taken("SQL query", fn ->
@@ -148,19 +154,6 @@ defmodule Transport.GTFSData do
         |> DB.Repo.all()
       end)
 
-    q =
-      log_time_taken("Map", fn ->
-        q
-        |> Enum.map(fn x ->
-          [
-            x |> Map.fetch!(:cluster_lat) |> Decimal.from_float() |> Decimal.round(4) |> Decimal.to_float(),
-            x |> Map.fetch!(:cluster_lon) |> Decimal.from_float() |> Decimal.round(4) |> Decimal.to_float(),
-            x |> Map.fetch!(:count)
-          ]
-        end)
-      end)
-
-    Logger.info("Sending back...")
     q
   end
 
