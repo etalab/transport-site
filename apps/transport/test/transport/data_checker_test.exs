@@ -57,8 +57,17 @@ defmodule Transport.DataCheckerTest do
         end)
       end)
 
+      # Getting timeout errors, should be ignored
+      dataset_http_error = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
+      api_url = "https://demo.data.gouv.fr/api/1/datasets/#{dataset_http_error.datagouv_id}/"
+
+      Transport.HTTPoison.Mock
+      |> expect(:request, 3, fn :get, ^api_url, "", [], [follow_redirect: true] ->
+        {:error, %HTTPoison.Error{reason: :timeout}}
+      end)
+
       # We create a dataset which is considered active on our side
-      # but which is not found found (= inactive?) on data gouv side
+      # but which is not found (=> inactive) on data gouv side
       dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
       api_url = "https://demo.data.gouv.fr/api/1/datasets/#{dataset.datagouv_id}/"
 
@@ -66,6 +75,17 @@ defmodule Transport.DataCheckerTest do
       |> expect(:request, fn :get, ^api_url, "", [], [follow_redirect: true] ->
         # the dataset is not found on datagouv
         {:ok, %HTTPoison.Response{status_code: 404, body: ""}}
+      end)
+
+      # We create a dataset which is considered active on our side
+      # but we get a 500 error on data gouv side => we should not deactivate it
+      dataset_500 = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
+      api_url_500 = "https://demo.data.gouv.fr/api/1/datasets/#{dataset_500.datagouv_id}/"
+
+      Transport.HTTPoison.Mock
+      |> expect(:request, fn :get, ^api_url_500, "", [], [follow_redirect: true] ->
+        # data.gouv answers with a 500
+        {:ok, %HTTPoison.Response{status_code: 500, body: ""}}
       end)
 
       Transport.EmailSender.Mock
@@ -82,6 +102,10 @@ defmodule Transport.DataCheckerTest do
 
       # should result into marking the dataset as inactive
       assert %DB.Dataset{is_active: false} = DB.Repo.reload!(dataset)
+      # we got HTTP timeout errors: we should not deactivate the dataset
+      assert %DB.Dataset{is_active: true} = DB.Repo.reload!(dataset_http_error)
+      # we got a 500 error: we should not deactivate the dataset
+      assert %DB.Dataset{is_active: true} = DB.Repo.reload!(dataset_500)
 
       verify!(Transport.HTTPoison.Mock)
       verify!(Transport.EmailSender.Mock)
