@@ -179,7 +179,7 @@ defmodule Transport.Validators.GTFSRT do
     |> ResourceHistory.join_resource_with_latest_resource_history()
     |> MultiValidation.join_resource_history_with_latest_validation(GTFSTransport.validator_name())
     |> ResourceMetadata.join_validation_with_metadata()
-    |> where([resource: r], r.format == "GTFS" and r.dataset_id == ^dataset_id)
+    |> where([resource: r], r.format == "GTFS" and not r.is_community_resource and r.dataset_id == ^dataset_id)
     |> ResourceMetadata.where_gtfs_up_to_date()
     |> preload([resource_history: rh], resource_history: rh)
     |> Repo.all()
@@ -214,7 +214,10 @@ defmodule Transport.Validators.GTFSRT do
     gtfs_rt_resources =
       Resource.base_query()
       |> preload([:resources_related])
-      |> where([resource: r], r.format == "gtfs-rt" and r.is_available and r.dataset_id == ^dataset_id)
+      |> where(
+        [resource: r],
+        r.format == "gtfs-rt" and not r.is_community_resource and r.is_available and r.dataset_id == ^dataset_id
+      )
       |> Repo.all()
 
     case Enum.count(gtfs_resources) do

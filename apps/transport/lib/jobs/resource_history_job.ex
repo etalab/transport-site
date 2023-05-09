@@ -243,7 +243,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   end
 
   defp download_resource(%Resource{id: resource_id, url: url}, file_path) do
-    case http_client().get(url, [], follow_redirect: true) do
+    case http_client().get(url, [], follow_redirect: true, recv_timeout: 180_000) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body} = r} ->
         Logger.debug("Saving resource##{resource_id} to #{file_path}")
         File.write!(file_path, body)
