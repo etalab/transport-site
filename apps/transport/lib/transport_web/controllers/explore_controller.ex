@@ -42,20 +42,20 @@ defmodule TransportWeb.ExploreController do
 
     count = Transport.GTFSData.count_points({north, south, east, west})
 
-    data =
-      if count < @max_points do
-        %{
-          type: "detailed",
-          data: Transport.GTFSData.build_detailed({north, south, east, west})
-        }
-      else
-        %{
-          type: "clustered",
-          # TODO: change zoom level of cached cluster dynamically
-          data: Transport.GTFSData.build_clusters({north, south, east, west}, {snap_x, snap_y})
-        }
-      end
+    if count < @max_points do
+      data = %{
+        type: "detailed",
+        data: Transport.GTFSData.build_detailed({north, south, east, west})
+      }
 
-    conn |> json(data)
+      conn |> json(data)
+    else
+      # this comes out as already-encoded JSON, hence the use of :skip_json_encoding above
+      data = Transport.GTFSData.build_clusters({north, south, east, west}, {snap_x, snap_y})
+
+      conn
+      |> put_resp_content_type("application/json")
+      |> render("gtfs_stops_data.json", data: {:skip_json_encoding, data})
+    end
   end
 end

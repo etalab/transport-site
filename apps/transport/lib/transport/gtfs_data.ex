@@ -135,13 +135,18 @@ defmodule Transport.GTFSData do
     # TODO: skip create earlier if exist
     create_gtfs_stops_materialized_view(zoom_level)
 
-    # NOTE: the rounding could be moved to the materialized view itself,
-    # it would probably be faster.
-    q = from(gs in "gtfs_stops_clusters_level_#{zoom_level}", select: [
-      fragment("round(cluster_lat::numeric, 4)::float"),
-      fragment("round(cluster_lon::numeric, 4)::float"),
-      gs.count
-    ])
+    q =
+      from(gs in "gtfs_stops_clusters_level_#{zoom_level}",
+        # NOTE: the rounding could be moved to the materialized view itself,
+        # it would probably be faster.
+        select:
+          fragment(
+            "jsonb_agg(jsonb_build_array(?, ?, ?))::text",
+            fragment("round(cluster_lat::numeric, 4)::float"),
+            fragment("round(cluster_lon::numeric, 4)::float"),
+            gs.count
+          )
+      )
 
     q =
       log_time_taken("SQL query", fn ->
@@ -151,7 +156,8 @@ defmodule Transport.GTFSData do
           fragment("? between ? and ?", c.cluster_lon, ^west, ^east) and
             fragment("? between ? and ?", c.cluster_lat, ^south, ^north)
         )
-        |> DB.Repo.all()
+        # "one" because we use jsonb_agg above, returning one record with everything
+        |> DB.Repo.one()
       end)
 
     q
