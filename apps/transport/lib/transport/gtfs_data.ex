@@ -74,10 +74,12 @@ defmodule Transport.GTFSData do
     7 => {0.054931640625000014, 0.037900705683396894},
     8 => {0.027465820312500007, 0.018949562981982936},
     9 => {0.013732910156250003, 0.009474781490991468},
-    10 => {0.006866455078125002, 0.004737390745495734}
+    10 => {0.006866455078125002, 0.004737390745495734},
+    11 => {0.0034332275390624983, 0.002259008904275428},
+    12 => {0.00171661376953125, 0.0011294445140095472}
   }
 
-  def create_gtfs_stops_materialized_view(zoom_level) when is_integer(zoom_level) and zoom_level in 1..10 do
+  def create_gtfs_stops_materialized_view(zoom_level) when is_integer(zoom_level) and zoom_level in 1..12 do
     {:ok, %{rows: [[count]], num_rows: 1}} =
       Ecto.Adapters.SQL.query(DB.Repo, """
       select count(*)
