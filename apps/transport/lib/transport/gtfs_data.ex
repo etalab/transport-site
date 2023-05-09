@@ -127,13 +127,7 @@ defmodule Transport.GTFSData do
     end)
   end
 
-  require Logger
-
-  def log_time_taken(message, cb) do
-    {delay, result} = :timer.tc(cb)
-    Logger.info("#{message} took #{delay / 1_000_000.0} seconds")
-    result
-  end
+  import Transport.LogTimeTaken, only: [log_time_taken: 2]
 
   def build_clusters({north, south, east, west}, {snap_x, snap_y}) do
     {zoom_level, {_sx, _sy}} = find_closest_zoom_level({snap_x, snap_y})
