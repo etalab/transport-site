@@ -51,7 +51,7 @@ defmodule TransportWeb.ExploreController do
       conn |> json(data)
     else
       # this comes out as already-encoded JSON, hence the use of :skip_json_encoding above
-      data = Transport.GTFSData.build_clusters({north, south, east, west}, {snap_x, snap_y})
+      data = Transport.GTFSData.build_clusters_json_encoded({north, south, east, west}, {snap_x, snap_y})
 
       conn
       |> put_resp_content_type("application/json")

@@ -129,7 +129,12 @@ defmodule Transport.GTFSData do
 
   import Transport.LogTimeTaken, only: [log_time_taken: 2]
 
-  def build_clusters({north, south, east, west}, {snap_x, snap_y}) do
+  @doc """
+  Build an already-encoded JSON list of arrays of lat/lon/count for all the clusters,
+  leveraging the database for both the computation and the encoding (faster than with Elixir),
+  and working at the closest available zoom level automatically.
+  """
+  def build_clusters_json_encoded({north, south, east, west}, {snap_x, snap_y}) do
     {zoom_level, {_sx, _sy}} = find_closest_zoom_level({snap_x, snap_y})
 
     # TODO: skip create earlier if exist
