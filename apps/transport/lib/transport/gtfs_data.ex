@@ -99,15 +99,16 @@ defmodule Transport.GTFSData do
 
       {sql, params} = DB.Repo.to_sql(:all, query)
 
-      # NOTE: this won't work as is, and will raise an error
-      # "materialized views may not be defined using bound parameters"
-      # potential solutions can be found at https://dba.stackexchange.com/a/208599
+      # NOTE: we cannot use parameters directly in materalized views, and will get error
+      # "materialized views may not be defined using bound parameters". One solution is to
+      # straight replace the $ parameters manually, something that is tolerable since the
+      # parameters are all under our control at time of writing, and no SQL injection can occur.
+      # potential other solutions can be found at https://dba.stackexchange.com/a/208599
       view_query = """
       CREATE MATERIALIZED VIEW IF NOT EXISTS gtfs_stops_clusters_level_#{zoom_level} AS
       #{sql}
       """
 
-      # TODO: replace this by cleaner solutions (https://dba.stackexchange.com/a/208599)
       view_query =
         view_query
         |> String.replace("$1", params |> Enum.at(0) |> Float.to_string())
@@ -137,7 +138,8 @@ defmodule Transport.GTFSData do
   def build_clusters_json_encoded({north, south, east, west}, {snap_x, snap_y}) do
     {zoom_level, {_sx, _sy}} = find_closest_zoom_level({snap_x, snap_y})
 
-    # TODO: skip create earlier if exist
+    # NOTE: this lazily creates the materialized view if needed, but we'll schedule
+    # a nightly refresh later in addition to that as a fallback.
     create_gtfs_stops_materialized_view(zoom_level)
 
     q =
