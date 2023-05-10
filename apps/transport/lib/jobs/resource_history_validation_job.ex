@@ -70,6 +70,24 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
     validator = String.to_existing_atom(validator_string)
     resource_history = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
 
+    validate(resource_history, validator, force_validation)
+  end
+
+  # validate one resource history with all validators
+  @impl Oban.Worker
+  def perform(%Oban.Job{args: %{"resource_history_id" => resource_history_id} = args})
+      when is_integer(resource_history_id) do
+    force_validation = args |> Map.get("force_validation", false)
+    resource_history = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
+
+    resource_history
+    |> Transport.ValidatorsSelection.validators()
+    |> Enum.each(fn validator -> validate(resource_history, validator, force_validation) end)
+
+    :ok
+  end
+
+  defp validate(resource_history, validator, force_validation) do
     case DB.MultiValidation.resource_history_latest_validation(resource_history.id, validator) do
       nil ->
         :ok = validator.validate_and_save(resource_history)
@@ -82,24 +100,8 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
           DB.Repo.delete(latest_validation)
           :ok
         else
-          {:cancel, "resource history #{resource_history_id} is already validated by #{validator_string}"}
+          {:cancel, "resource history #{resource_history.id} is already validated by #{Atom.to_string(validator)}"}
         end
     end
-  end
-
-  # validate one resource history with all validators
-  @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"resource_history_id" => resource_history_id}})
-      when is_integer(resource_history_id) do
-    resource_history = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
-
-    resource_history
-    |> Transport.ValidatorsSelection.validators()
-    |> Enum.reject(fn validator ->
-      resource_history |> DB.MultiValidation.already_validated?(validator)
-    end)
-    |> Enum.each(fn validator -> validator.validate_and_save(resource_history) end)
-
-    :ok
   end
 end
