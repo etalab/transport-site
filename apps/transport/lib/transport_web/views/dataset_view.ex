@@ -528,7 +528,7 @@ defmodule TransportWeb.DatasetView do
   iex> display_loi_climat_resilience_badge?(%Dataset{custom_tags: nil})
   false
   iex> display_loi_climat_resilience_badge?(%Dataset{custom_tags: ["loi-climat-resilience", "foo"]})
-  false
+  true
   """
   def display_loi_climat_resilience_badge?(%Dataset{custom_tags: custom_tags}) do
     "loi-climat-resilience" in (custom_tags || [])
