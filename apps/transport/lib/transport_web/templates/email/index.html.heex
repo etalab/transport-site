@@ -12,7 +12,7 @@
         "<%= comment["content"] %>" <br />
         <%= link("voir la discussion",
           to:
-            "#{Application.fetch_env!(:transport, :datagouvfr_site)}/datasets/#{datagouv_id}/#discussion-#{comment["discussion_id"]}"
+            "#{Application.fetch_env!(:transport, :datagouvfr_site)}/datasets/#{datagouv_id}/#/discussions/#{comment["discussion_id"]}"
         ) %>
       </div>
     <% end %>
