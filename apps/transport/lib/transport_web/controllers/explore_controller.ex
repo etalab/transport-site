@@ -18,7 +18,7 @@ defmodule TransportWeb.ExploreController do
     |> render("gtfs_stops.html")
   end
 
-  @max_points 10_000
+  @max_points 20_000
 
   def gtfs_stops_data(conn, params) do
     %{
@@ -42,19 +42,22 @@ defmodule TransportWeb.ExploreController do
 
     count = Transport.GTFSData.count_points({north, south, east, west})
 
-    data =
-      if count < @max_points do
-        %{
-          type: "detailed",
-          data: Transport.GTFSData.build_detailed({north, south, east, west})
-        }
-      else
-        %{
-          type: "clustered",
-          data: Transport.GTFSData.build_clusters({north, south, east, west}, {snap_x, snap_y})
-        }
-      end
+    if count < @max_points do
+      data = %{
+        type: "detailed",
+        data: Transport.GTFSData.build_detailed({north, south, east, west})
+      }
 
-    conn |> json(data)
+      conn |> json(data)
+    else
+      # this comes out as already-encoded JSON, hence the use of :skip_json_encoding above
+      data = Transport.GTFSData.build_clusters_json_encoded({north, south, east, west}, {snap_x, snap_y})
+
+      conn
+      |> put_resp_content_type("application/json")
+      |> render("gtfs_stops_data.json",
+        data: {:skip_json_encoding, Jason.encode!(%{type: "clustered", data: Jason.Fragment.new(data)})}
+      )
+    end
   end
 end
