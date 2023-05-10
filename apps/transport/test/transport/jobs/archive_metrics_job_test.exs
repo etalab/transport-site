@@ -71,13 +71,13 @@ defmodule Transport.Test.Transport.Jobs.ArchiveMetricsJobTest do
     metrics =
       DB.Metrics
       |> select([m], [:target, :event, :count, :period])
-      |> order_by([m], m.period)
+      |> order_by([m], [m.period, m.count])
       |> DB.Repo.all()
 
     assert [
              %DB.Metrics{target: "foo", event: "baz", period: ^day_before, count: 10},
-             %DB.Metrics{target: "foo", event: "bar", period: ^test_date, count: 4},
              %DB.Metrics{target: "foo", event: "baz", period: ^test_date, count: 3},
+             %DB.Metrics{target: "foo", event: "bar", period: ^test_date, count: 4},
              %DB.Metrics{target: "foo", event: "baz", period: ^day_after, count: 5}
            ] = metrics
   end
