@@ -1,0 +1,16 @@
+<div :if={display_loi_climat_resilience_badge?(@dataset)}>
+  <div class="loi-climat-resilience">
+    <div>
+      <img class="icon---loi-climat-resilience" src={static_path(@conn, "/images/loi-climat-resilience.png")} />
+    </div>
+    <div>
+      <span class="bill"><%= dgettext("page-dataset-details", "Climate and Resilience bill:") %></span>
+      <br />
+      <i class="icon icon--link" aria-hidden="true"></i>
+      <a href="#">
+        <%= dgettext("page-dataset-details", "compulsory data reuse") %>
+      </a>
+    </div>
+  </div>
+  <hr class="xs">
+</div>

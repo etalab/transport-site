@@ -513,6 +513,7 @@
 
 .dataset-type-info {
   display: flex;
+  align-items: center;
 }
 
 .dataset-icon-type img {
@@ -566,6 +567,20 @@
 
 .panel > :first-child {
   margin-top: 0;
+}
+
+.loi-climat-resilience {
+  display: flex;
+  align-items: center;
+
+  .bill {
+    color: $loi-climat-resilience-color;
+    font-weight: bold;
+  }
+}
+
+hr.xs {
+  margin: var(--space-s) 0;
 }
 
 hr {

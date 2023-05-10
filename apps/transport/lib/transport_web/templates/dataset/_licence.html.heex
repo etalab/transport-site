@@ -6,7 +6,7 @@
   <% else %>
     <%= licence(@dataset) %>
   <% end %>
-  <%= if displays_odbl_osm_conditions?(@dataset) do %>
+  <%= if display_odbl_osm_conditions?(@dataset) do %>
     &#32 <%= dgettext("page-dataset-details", "and ") %>
     <%= link(dgettext("page-dataset-details", "OSM community guidelines"),
       to: "https://wiki.osmfoundation.org/wiki/Licence/Community_Guidelines"

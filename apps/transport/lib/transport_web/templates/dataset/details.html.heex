@@ -327,6 +327,7 @@
   </div>
   <div class="dataset-metas">
     <div class="panel">
+      <%= render("_loi_climat_resilience.html", conn: @conn, dataset: @dataset) %>
       <div class="dataset__logo">
         <%= img_tag(@dataset.full_logo, alt: @dataset.custom_title) %>
       </div>

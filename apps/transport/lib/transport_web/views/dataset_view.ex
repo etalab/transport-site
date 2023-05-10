@@ -504,20 +504,35 @@ defmodule TransportWeb.DatasetView do
 
   ## Examples
 
-  iex> displays_odbl_osm_conditions?(%Dataset{licence: "odc-odbl", tags: ["foo"]})
+  iex> display_odbl_osm_conditions?(%Dataset{licence: "odc-odbl", tags: ["foo"]})
   false
-  iex> displays_odbl_osm_conditions?(%Dataset{licence: "odc-odbl", tags: ["foo", "openstreetmap"], custom_tags: []})
+  iex> display_odbl_osm_conditions?(%Dataset{licence: "odc-odbl", tags: ["foo", "openstreetmap"], custom_tags: []})
   true
-  iex> displays_odbl_osm_conditions?(%Dataset{licence: "odc-odbl", tags: [], custom_tags: ["licence-osm"]})
+  iex> display_odbl_osm_conditions?(%Dataset{licence: "odc-odbl", tags: [], custom_tags: ["licence-osm"]})
   true
-  iex> displays_odbl_osm_conditions?(%Dataset{licence: "odc-odbl", tags: [], custom_tags: nil})
+  iex> display_odbl_osm_conditions?(%Dataset{licence: "odc-odbl", tags: [], custom_tags: nil})
   false
   """
-  def displays_odbl_osm_conditions?(%Dataset{licence: "odc-odbl", tags: tags, custom_tags: custom_tags}) do
+  def display_odbl_osm_conditions?(%Dataset{licence: "odc-odbl", tags: tags, custom_tags: custom_tags}) do
     "openstreetmap" in tags or "licence-osm" in (custom_tags || [])
   end
 
-  def displays_odbl_osm_conditions?(%Dataset{}), do: false
+  def display_odbl_osm_conditions?(%Dataset{}), do: false
+
+  @doc """
+  Should we display the climate and resilience bill/article 122 badge for a dataset?
+
+
+  iex> display_loi_climat_resilience_badge?(%Dataset{custom_tags: ["licence-osm"]})
+  false
+  iex> display_loi_climat_resilience_badge?(%Dataset{custom_tags: nil})
+  false
+  iex> display_loi_climat_resilience_badge?(%Dataset{custom_tags: ["loi-climat-resilience", "foo"]})
+  false
+  """
+  def display_loi_climat_resilience_badge?(%Dataset{custom_tags: custom_tags}) do
+    "loi-climat-resilience" in (custom_tags || [])
+  end
 
   @spec related_gtfs_resource(Resource.t()) :: DB.ResourceRelated.t() | nil
   def related_gtfs_resource(%Resource{format: "gtfs-rt", resources_related: resources_related}) do
