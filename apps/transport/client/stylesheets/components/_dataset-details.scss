@@ -569,6 +569,11 @@
   margin-top: 0;
 }
 
+.loi-climat-resilience-bg {
+  background: url('/images/bg_loi_climat_resilience.jpg');
+  padding: 1em 0;
+}
+
 .loi-climat-resilience {
   display: flex;
   align-items: center;
@@ -577,10 +582,6 @@
     color: $loi-climat-resilience-color;
     font-weight: bold;
   }
-}
-
-hr.xs {
-  margin: var(--space-s) 0;
 }
 
 hr {

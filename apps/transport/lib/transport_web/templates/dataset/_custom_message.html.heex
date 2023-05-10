@@ -1,5 +1,23 @@
-<div class="container container_max_700px">
-  <div class="panel mb-24" id="custom-message">
-    <%= markdown_to_safe_html!(@conn.assigns[:category_custom_message]) %>
+<div class="container shortlist loi-climat-resilience mb-24">
+  <div class="side-pane">
+    <div class="panel">
+      <div class="loi-climat-resilience">
+        <div>
+          <img class="icon---loi-climat-resilience" src={static_path(@conn, "/images/loi-climat-resilience.png")} />
+        </div>
+        <div>
+          <span class="bill">Loi climat et résilience</span>
+        </div>
+      </div>
+      <p>
+        Certaines données de cette catégorie font l'objet d'une intégration obligatoire depuis de décembre 2022.
+      </p>
+    </div>
+  </div>
+
+  <div class="main-pane">
+    <div class="panel" id="custom-message">
+      <%= markdown_to_safe_html!(@conn.assigns[:category_custom_message]) %>
+    </div>
   </div>
 </div>

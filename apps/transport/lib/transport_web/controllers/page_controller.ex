@@ -76,6 +76,12 @@ defmodule TransportWeb.PageController do
     single_page(conn, %{"page" => "missions"})
   end
 
+  def loi_climat_resilience(conn, _params) do
+    conn
+    |> assign(:page, "loi_climat_resilience.html")
+    |> render("loi_climat_resilience.html")
+  end
+
   def infos_producteurs(conn, _params) do
     conn
     |> assign(:mailchimp_newsletter_url, Application.get_env(:transport, :mailchimp_newsletter_url))
