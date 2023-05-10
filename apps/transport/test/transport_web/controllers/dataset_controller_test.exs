@@ -175,23 +175,35 @@ defmodule TransportWeb.DatasetControllerTest do
     assert conn |> html_response(200) =~ "Données temps réel"
   end
 
-  test "ODbL licence with specific conditions", %{conn: conn} do
-    insert(:dataset, %{slug: slug = "dataset-slug", licence: "odc-odbl"})
+  describe "licence description" do
+    test "ODbL licence with specific conditions", %{conn: conn} do
+      insert(:dataset, %{slug: slug = "dataset-slug", licence: "odc-odbl"})
 
-    set_empty_mocks()
+      set_empty_mocks()
 
-    conn = conn |> get(dataset_path(conn, :details, slug))
-    assert conn |> html_response(200) =~ "Conditions Particulières"
-  end
+      conn = conn |> get(dataset_path(conn, :details, slug))
+      assert conn |> html_response(200) =~ "Conditions Particulières"
+    end
 
-  test "ODbL licence with openstreetmap tag", %{conn: conn} do
-    insert(:dataset, %{slug: slug = "dataset-slug", licence: "odc-odbl", tags: ["openstreetmap"]})
+    test "ODbL licence with openstreetmap tag", %{conn: conn} do
+      insert(:dataset, %{slug: slug = "dataset-slug", licence: "odc-odbl", tags: ["openstreetmap"]})
 
-    set_empty_mocks()
+      set_empty_mocks()
 
-    conn = conn |> get(dataset_path(conn, :details, slug))
-    refute conn |> html_response(200) =~ "Conditions Particulières"
-    assert conn |> html_response(200) =~ "Règles de la communauté OSM"
+      conn = conn |> get(dataset_path(conn, :details, slug))
+      refute conn |> html_response(200) =~ "Conditions Particulières"
+      assert conn |> html_response(200) =~ "Règles de la communauté OSM"
+    end
+
+    test "licence ouverte licence", %{conn: conn} do
+      insert(:dataset, %{slug: slug = "dataset-slug", licence: "lov2"})
+
+      set_empty_mocks()
+
+      conn = conn |> get(dataset_path(conn, :details, slug))
+      assert conn |> html_response(200) =~ "Licence Ouverte — version 2.0"
+      refute conn |> html_response(200) =~ "Conditions Particulières"
+    end
   end
 
   test "does not crash when validation_performed is false", %{conn: conn} do
