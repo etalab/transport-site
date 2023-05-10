@@ -417,26 +417,11 @@ defmodule DB.Dataset do
   end
 
   @spec changeset(map()) :: {:error, binary()} | {:ok, Ecto.Changeset.t()}
-  # used to update a dataset slug from backoffice without changing the dataset_id
-  # useful when the dataset has been deleted / recreated on data.gouv.fr but we want to keep the resources history
-  def changeset(%{"dataset_id" => dataset_id} = params) do
+  def changeset(params = %{}) when is_map_key(params, "datagouv_id") or is_map_key(params, "dataset_id") do
     dataset =
       __MODULE__
       |> preload([:legal_owners_aom, :legal_owners_region])
-      |> Repo.get(dataset_id)
-      |> case do
-        nil -> %__MODULE__{}
-        dataset -> dataset
-      end
-
-    apply_changeset(dataset, params)
-  end
-
-  def changeset(%{"datagouv_id" => datagouv_id} = params) when is_binary(datagouv_id) do
-    dataset =
-      __MODULE__
-      |> preload([:legal_owners_aom, :legal_owners_region])
-      |> Repo.get_by(datagouv_id: datagouv_id)
+      |> get_dataset(params)
       |> case do
         nil -> %__MODULE__{}
         dataset -> dataset
@@ -447,6 +432,16 @@ defmodule DB.Dataset do
 
   def changeset(_) do
     {:error, "datagouv_id or dataset_id are required"}
+  end
+
+  # this case is used to update a dataset slug from backoffice without changing the dataset_id
+  # useful when the dataset has been deleted / recreated on data.gouv.fr but we want to keep the resources history
+  def get_dataset(query, %{"dataset_id" => dataset_id}) do
+    query |> Repo.get(dataset_id)
+  end
+
+  def get_dataset(query, %{"datagouv_id" => datagouv_id}) when is_binary(datagouv_id) do
+    query |> Repo.get_by(datagouv_id: datagouv_id)
   end
 
   defp apply_changeset(%__MODULE__{} = dataset, params) do
