@@ -192,6 +192,49 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
     assert_received :validate!
   end
 
+  test "single resource history validation, all validators" do
+    rh = insert(:resource_history)
+    validator = Transport.Validators.Dummy
+
+    Transport.ValidatorsSelection.Mock
+    |> expect(:validators, 3, fn ^rh ->
+      [validator]
+    end)
+
+    assert :ok =
+             Transport.Jobs.ResourceHistoryValidationJob
+             |> perform_job(%{"resource_history_id" => rh.id})
+
+    # validation is performed
+    assert_received :validate!
+
+    # we insert manually a mv
+    mv = insert(:multi_validation, resource_history_id: rh.id, validator: validator.validator_name())
+    md = insert(:resource_metadata, multi_validation_id: mv.id)
+
+    # validation is skipped
+    assert :ok =
+             Transport.Jobs.ResourceHistoryValidationJob
+             |> perform_job(%{"resource_history_id" => rh.id})
+
+    refute_receive :validate!, 50
+
+    # we force the validation
+    assert :ok =
+             Transport.Jobs.ResourceHistoryValidationJob
+             |> perform_job(%{
+               "resource_history_id" => rh.id,
+               "force_validation" => true
+             })
+
+    # existing validation & metadata have been deleted
+    assert is_nil(DB.Repo.reload(mv))
+    assert is_nil(DB.Repo.reload(md))
+
+    # validation is called
+    assert_received :validate!
+  end
+
   # wait for https://github.com/sorentwo/oban/issues/704 response
   # test "job uniqueness for a resource_history validation" do
   #   %{"resource_history_id" => 1, "validator" => "Elixir.Transport.Validators.Dummy"}
