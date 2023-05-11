@@ -72,6 +72,11 @@ defmodule TransportWeb.SeoMetadata do
       title: dgettext("seo", "Non standard real time transport open data")
     }
 
+  def metadata(TransportWeb.PageView, %{page: "loi_climat_resilience.html"}),
+    do: %{
+      title: dgettext("seo", "Climate and Resilience bill: compulsory data reuse")
+    }
+
   def metadata(_, %{live_module: TransportWeb.Live.OnDemandValidationSelectLive}),
     do: %{
       title: dgettext("seo", "Data quality evaluation")
