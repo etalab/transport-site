@@ -6,16 +6,18 @@
   <% else %>
     <%= licence(@dataset) %>
   <% end %>
-  <%= if display_odbl_osm_conditions?(@dataset) do %>
-    &#32 <%= dgettext("page-dataset-details", "and ") %>
-    <%= link(dgettext("page-dataset-details", "OSM community guidelines"),
-      to: "https://wiki.osmfoundation.org/wiki/Licence/Community_Guidelines"
-    ) %>
-  <% else %>
-    &#32 <%= dgettext("page-dataset-details", "and ") %>
-    <%= link(dgettext("page-dataset-details", "Specific usage conditions"),
-      to:
-        "https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/conditions-dutilisation-des-donnees/licence-odbl"
-    ) %>
+  <%= if @dataset.licence == "odc-odbl" do %>
+    <%= if displays_odbl_osm_conditions?(@dataset) do %>
+      &#32 <%= dgettext("page-dataset-details", "and ") %>
+      <%= link(dgettext("page-dataset-details", "OSM community guidelines"),
+        to: "https://wiki.osmfoundation.org/wiki/Licence/Community_Guidelines"
+      ) %>
+    <% else %>
+      &#32 <%= dgettext("page-dataset-details", "and ") %>
+      <%= link(dgettext("page-dataset-details", "Specific usage conditions"),
+        to:
+          "https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/conditions-dutilisation-des-donnees/licence-odbl"
+      ) %>
+    <% end %>
   <% end %>
 </b>

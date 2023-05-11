@@ -489,4 +489,30 @@ defmodule DB.DatasetDBTest do
     assert last_resource_history |> Enum.find(&(&1.id == r1.id)) |> Map.get(:resource_history) == [rh]
     assert last_resource_history |> Enum.find(&(&1.id == r2.id)) |> Map.get(:resource_history) == []
   end
+
+  test "changeset with aom legal owners" do
+    %{id: aom_id} = aom = insert(:aom)
+    dataset = insert(:dataset, legal_owners_aom: [aom])
+    assert [aom] == dataset.legal_owners_aom
+
+    # this function should not erase the associated legal owners
+    {:ok, changeset} = DB.Dataset.changeset(%{"dataset_id" => dataset.id, "custom_title" => "Nouveau titre"})
+    DB.Repo.update!(changeset)
+
+    dataset = DB.Dataset |> preload(:legal_owners_aom) |> DB.Repo.get!(dataset.id)
+    assert [%DB.AOM{id: ^aom_id}] = dataset.legal_owners_aom
+  end
+
+  test "changeset with region legal owners" do
+    %{id: region_id} = region = insert(:region)
+    dataset = insert(:dataset, datagouv_id: datagouv_id = "some_datagouv_id", legal_owners_region: [region])
+    assert [region] == dataset.legal_owners_region
+
+    # this time we test the changeset function with the datagouv_id
+    {:ok, changeset} = DB.Dataset.changeset(%{"datagouv_id" => datagouv_id, "custom_title" => "Nouveau titre"})
+    DB.Repo.update!(changeset)
+
+    dataset = DB.Dataset |> preload(:legal_owners_region) |> DB.Repo.get!(dataset.id)
+    assert [%DB.Region{id: ^region_id}] = dataset.legal_owners_region
+  end
 end
