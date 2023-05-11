@@ -4,7 +4,7 @@ date: 2020-05-12T16:05:55.126Z
 tags:
   - réutilisation
 description: Interview avec Nelly Escoffier, responsable centrale de mobilité
-  Itinisère, et Baptiste Delloye, directeur d'exploitation chez Cityway
+  Itinisère, et Baptiste Delloye, directeur d'exploitation chez Cityway xxx
 images:
   - /images/cityway-cover.png
 ---
