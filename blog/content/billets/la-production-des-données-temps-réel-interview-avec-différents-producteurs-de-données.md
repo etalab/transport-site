@@ -169,8 +169,6 @@ Grâce à la production des données temps réel, certaines collectivités comme
 
 - - -
 
-- - -
-
 Cet article a été rédigé grâce aux retours d'expériences des collectivités, producteurs et services de traitement de données temps-réel suivants : 
 
 *Producteurs* 
