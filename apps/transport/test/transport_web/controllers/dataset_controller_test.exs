@@ -105,6 +105,23 @@ defmodule TransportWeb.DatasetControllerTest do
     assert [] == Floki.find(doc, "#custom-message")
   end
 
+  describe "climate and resilience bill" do
+    test "displayed for public-transit", %{conn: conn} do
+      conn = conn |> get(dataset_path(conn, :index, type: "public-transit"))
+      doc = conn |> html_response(200) |> Floki.parse_document!()
+      [msg] = Floki.find(doc, "#climate-resilience-bill-panel")
+
+      assert Floki.text(msg) =~
+               "Certaines données de cette catégorie font l'objet d'une intégration obligatoire depuis décembre 2022"
+    end
+
+    test "not displayed for locations", %{conn: conn} do
+      conn = conn |> get(dataset_path(conn, :index, type: "locations"))
+      doc = conn |> html_response(200) |> Floki.parse_document!()
+      assert [] == Floki.find(doc, "#climate-resilience-bill-panel")
+    end
+  end
+
   test "has_validity_period?" do
     assert TransportWeb.DatasetView.has_validity_period?(%DB.ResourceHistory{
              validations: [
