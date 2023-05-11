@@ -523,14 +523,14 @@ defmodule TransportWeb.DatasetView do
   Should we display the climate and resilience bill/article 122 badge for a dataset?
 
 
-  iex> display_loi_climat_resilience_badge?(%Dataset{custom_tags: ["licence-osm"]})
+  iex> display_climate_resilience_bill_badge?(%Dataset{custom_tags: ["licence-osm"]})
   false
-  iex> display_loi_climat_resilience_badge?(%Dataset{custom_tags: nil})
+  iex> display_climate_resilience_bill_badge?(%Dataset{custom_tags: nil})
   false
-  iex> display_loi_climat_resilience_badge?(%Dataset{custom_tags: ["loi-climat-resilience", "foo"]})
+  iex> display_climate_resilience_bill_badge?(%Dataset{custom_tags: ["loi-climat-resilience", "foo"]})
   true
   """
-  def display_loi_climat_resilience_badge?(%Dataset{custom_tags: custom_tags}) do
+  def display_climate_resilience_bill_badge?(%Dataset{custom_tags: custom_tags}) do
     "loi-climat-resilience" in (custom_tags || [])
   end
 

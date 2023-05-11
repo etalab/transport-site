@@ -10,6 +10,9 @@
 
 .side-pane img {
   max-width: 100%;
+  &.icon---climate-resilience-bill {
+    max-width: none;
+  }
 }
 
 .small {

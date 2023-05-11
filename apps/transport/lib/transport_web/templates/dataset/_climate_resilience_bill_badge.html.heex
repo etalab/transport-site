@@ -1,8 +1,8 @@
-<div :if={display_loi_climat_resilience_badge?(@dataset)} class="loi-climat-resilience-bg">
+<div :if={display_climate_resilience_bill_badge?(@dataset)} class="climate-resilience-bill-bg">
   <section class="section-white p-6">
-    <div class="loi-climat-resilience">
+    <div class="climate-resilience-bill">
       <div>
-        <img class="icon---loi-climat-resilience" src={static_path(@conn, "/images/loi-climat-resilience.png")} />
+        <img class="icon---climate-resilience-bill" src={static_path(@conn, "/images/loi-climat-resilience.png")} />
       </div>
       <div>
         <span class="bill"><%= dgettext("page-dataset-details", "Climate and Resilience bill") %></span>

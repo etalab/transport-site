@@ -3,6 +3,7 @@ defmodule TransportWeb.DatasetController do
   alias Datagouvfr.Authentication
   alias Datagouvfr.Client.Datasets
   alias DB.{AOM, Commune, Dataset, DatasetGeographicView, Region, Repo}
+  alias Transport.ClimateResilienceBill
   import Ecto.Query
   import TransportWeb.DatasetView, only: [availability_number_days: 0, max_nb_history_resources: 0]
   import Phoenix.HTML
@@ -28,6 +29,7 @@ defmodule TransportWeb.DatasetController do
     |> assign(:q, Map.get(params, "q"))
     |> put_empty_message(params)
     |> put_category_custom_message(params)
+    |> put_climate_resilience_bill_message(params)
     |> put_page_title(params)
     |> render("index.html")
   end
@@ -355,6 +357,15 @@ defmodule TransportWeb.DatasetController do
     case Transport.CustomSearchMessage.get_message(params, locale) do
       nil -> conn
       msg -> assign(conn, :category_custom_message, msg)
+    end
+  end
+
+  defp put_climate_resilience_bill_message(%Plug.Conn{} = conn, %{} = params) do
+    if ClimateResilienceBill.display_data_reuse_panel?(params) do
+      conn
+      |> assign(:climate_resilience_bill_message, ClimateResilienceBill.data_reuse_message(params, Date.utc_today()))
+    else
+      conn
     end
   end
 
