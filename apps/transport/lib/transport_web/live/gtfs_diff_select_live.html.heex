@@ -2,8 +2,14 @@
   <div class="container">
     <h1><%= dgettext("validations", "GTFS comparison with GTFS Diff") %></h1>
     <p>
-      <%= raw(dgettext("validations", "GTFS Diff is a <a href=\"%{link}\">specification</a>
-      created by transport.data.gouv.fr and aims at providing a unified way to express differences between GTFS files", link: "https://github.com/etalab/gtfs_diff")) %>.
+      <%= raw(
+        dgettext(
+          "validations",
+          "GTFS Diff is a <a href=\"%{link}\">specification</a>
+      created by transport.data.gouv.fr and aims at providing a simple and unified way to express differences between GTFS files",
+          link: "https://github.com/etalab/gtfs_diff"
+        )
+      ) %>.
     </p>
 
     <div id="gtfs-diff-input" phx-drop-target={@uploads.gtfs.ref}>
@@ -55,13 +61,16 @@
     </div>
     <div :if={assigns[:diff_file_url]} class="panel">
       <h4>
-        <%= dgettext("validations", "GTFS Diff is availalble for") %>
+        <%= dgettext("validations", "GTFS Diff is available for") %>
         <%= link(dgettext("validations", "download"),
           to: @diff_file_url,
           target: "_blank"
         ) %>
       </h4>
-      <%= dgettext("validations", "Read the GTFS Diff specification to understand how differences between GTFS are expressed") %>.
+      <%= dgettext(
+        "validations",
+        "Read the GTFS Diff specification to understand how differences between GTFS are expressed"
+      ) %>.
       <div :if={assigns[:diff_summary]} class="pt-24">
         <h4><%= dgettext("validations", "Differences Overview") %></h4>
         <%= dgettext(
@@ -72,21 +81,27 @@
           <div :if={@diff_summary["add"]}>
             <ul>
               <%= for {{file, "add", target}, n} <- @diff_summary["add"] do %>
-                <li><span class="green"><%= dgettext("validations", "added") %> </span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %></li>
+                <li>
+                  <span class="green"><%= dgettext("validations", "added") %></span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %>
+                </li>
               <% end %>
             </ul>
           </div>
           <div :if={@diff_summary["delete"]}>
             <ul>
               <%= for {{file, "delete", target}, n} <- @diff_summary["delete"] do %>
-                <li><span class="red"><%= dgettext("validations", "deleted") %> </span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %></li>
+                <li>
+                  <span class="red"><%= dgettext("validations", "deleted") %></span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %>
+                </li>
               <% end %>
             </ul>
           </div>
           <div :if={@diff_summary["update"]}>
             <ul>
               <%= for {{file, "update", target}, n} <- @diff_summary["update"] do %>
-                <li><span class="orange"><%= dgettext("validations", "updated") %> </span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %></li>
+                <li>
+                  <span class="orange"><%= dgettext("validations", "updated") %></span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %>
+                </li>
               <% end %>
             </ul>
           </div>

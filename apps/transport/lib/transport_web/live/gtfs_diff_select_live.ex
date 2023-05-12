@@ -105,13 +105,13 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   end
 
   def explanation_add_file(explanations, %{"action" => "add", "file" => file, "target" => "file"}) do
-    [~s(Un fichier nommé "#{file}" a été ajouté) | explanations]
+    [dgettext("validations", ~s(A file named "%{file}" has been added), file: file) | explanations]
   end
 
   def explanation_add_file(explanations, _), do: explanations
 
   def explanation_delete_file(explanations, %{"action" => "delete", "file" => file, "target" => "file"}) do
-    [~s(Le fichier nommé "#{file}" a été supprimé) | explanations]
+    [dgettext("validations", ~s(The file "%{file}" has been deleted), file: file) | explanations]
   end
 
   def explanation_delete_file(explanations, _), do: explanations
@@ -128,7 +128,13 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
         }
       ) do
     [
-      ~s([stops.txt] Le nom du stop_id #{stop_id} a été modifié. Nom initial : "#{initial_stop_name}", nouvelle valeur : "#{new_stop_name}")
+      dgettext(
+        "validations",
+        ~s([stops.txt] The name of the stop_id %{stop_id} has been modified. Initial name: "%{initial_stop_name}", New name: "%{new_stop_name}"),
+        stop_id: stop_id,
+        initial_stop_name: initial_stop_name,
+        new_stop_name: new_stop_name
+      )
       | explanations
     ]
   end
@@ -150,7 +156,13 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
       )
       when new_wheelchair_boarding in ["1", "2"] do
     [
-      ~s([stops.txt] Information sur l'accessibilité rajoutée au stop_id #{stop_id}, ancienne valeur : "#{initial_wheelchair_boarding}", nouvelle valeur : "#{new_wheelchair_boarding}")
+      dgettext(
+        "validations",
+        ~s([stops.txt] wheelchair_boarding information added for stop_id %{stop_id}, previously: "%{initial_wheelchair_boarding}", now: "%{new_wheelchair_boarding}"),
+        stop_id: stop_id,
+        initial_wheelchair_boarding: initial_wheelchair_boarding,
+        new_wheelchair_boarding: new_wheelchair_boarding
+      )
       | explanations
     ]
   end
