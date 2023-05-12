@@ -40,23 +40,37 @@ defmodule Transport.Jobs.DatasetsWithoutGTFSRTRelatedResourcesNotificationJob do
     "* #{custom_title} - #{link}"
   end
 
+  @doc """
+  Find datasets for which we need to do something.
+
+  These datasets have:
+  - > 1 up-to-date GTFS
+  - > 0 gtfs-rt resources
+  - no resource related links set for GTFS-RT resources
+  """
   def relevant_datasets do
+    datasets_with_multiple_gtfs =
+      DB.Dataset.base_query()
+      |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+      |> DB.ResourceMetadata.where_gtfs_up_to_date()
+      |> where([resource: r], r.format == "GTFS" and not r.is_community_resource)
+      |> group_by([dataset: d], d.id)
+      |> having([resource: r], count(r.id) > 1)
+      |> select([dataset: d], d.id)
+
+    # Datasets with at least 1 GTFS-RT resource and > 1 up-to-date GTFS
     dataset_ids_sub =
       DB.Dataset.base_query()
       |> DB.Resource.join_dataset_with_resource()
-      |> where([resource: r], not r.is_community_resource)
-      |> group_by([dataset: d], d.id)
-      |> having(
+      |> where(
         [resource: r],
-        # > 1 GTFS and >= 1 GTFS-RT
-        fragment(
-          ~s{sum(case when ? = 'GTFS' then 1 else 0 end) > 1 and sum(case when ? = 'gtfs-rt' then 1 else 0 end) >= 1},
-          r.format,
-          r.format
-        )
+        r.format == "gtfs-rt" and not r.is_community_resource and r.dataset_id in subquery(datasets_with_multiple_gtfs)
       )
+      |> group_by([dataset: d], d.id)
+      |> having([resource: r], count(r.id) > 0)
       |> select([dataset: d], d.id)
 
+    # Datasets missing resource related rows and also part of the previous groups
     DB.Dataset.base_query()
     |> DB.Resource.join_dataset_with_resource()
     |> join(:left, [resource: r], rr in DB.ResourceRelated,
