@@ -67,10 +67,13 @@
           target: "_blank"
         ) %>
       </h4>
-      <%= raw(dgettext(
-        "validations",
-        "<a href=\"%{spec}\">Read</a> the GTFS Diff specification to understand how differences between GTFS are expressed", spec: "https://github.com/etalab/gtfs_diff/blob/main/specification.md"
-      )) %>.
+      <%= raw(
+        dgettext(
+          "validations",
+          "<a href=\"%{spec}\">Read</a> the GTFS Diff specification to understand how differences between GTFS are expressed",
+          spec: "https://github.com/etalab/gtfs_diff/blob/main/specification.md"
+        )
+      ) %>.
       <div :if={assigns[:diff_summary]} class="pt-24">
         <h4><%= dgettext("validations", "Differences Overview") %></h4>
         <%= dgettext(
@@ -82,7 +85,7 @@
             <ul>
               <%= for {{file, "add", target}, n} <- @diff_summary["add"] do %>
                 <li>
-                  <span class="green"><%= dgettext("validations", "added") %> </span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %>
+                  <span class="green"><%= dgettext("validations", "added") %></span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %>
                 </li>
               <% end %>
             </ul>
@@ -91,7 +94,7 @@
             <ul>
               <%= for {{file, "delete", target}, n} <- @diff_summary["delete"] do %>
                 <li>
-                  <span class="red"><%= dgettext("validations", "deleted") %> </span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %>
+                  <span class="red"><%= dgettext("validations", "deleted") %></span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %>
                 </li>
               <% end %>
             </ul>
@@ -100,7 +103,7 @@
             <ul>
               <%= for {{file, "update", target}, n} <- @diff_summary["update"] do %>
                 <li>
-                  <span class="orange"><%= dgettext("validations", "updated") %> </span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %>
+                  <span class="orange"><%= dgettext("validations", "updated") %></span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %>
                 </li>
               <% end %>
             </ul>
