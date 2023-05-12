@@ -10,7 +10,12 @@
       </a>
       <%= form_for @conn, contact_path(@conn, :send_mail), fn f -> %>
         <h3>Contact</h3>
-        <%= email_input(f, :email, placeholder: gettext("Email address"), type: "email", required: true) %>
+        <%= email_input(f, :email,
+          placeholder: gettext("Email address"),
+          value: Map.get(@current_user || %{}, "email"),
+          type: "email",
+          required: true
+        ) %>
         <%= text_input(f, :name,
           placeholder: "your name",
           class: "form-special-field",
