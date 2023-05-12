@@ -23,11 +23,7 @@ config :oauth2, Authentication,
   site: System.get_env("DATAGOUVFR_SITE"),
   client_id: System.get_env("DATAGOUVFR_CLIENT_ID"),
   client_secret: System.get_env("DATAGOUVFR_CLIENT_SECRET"),
-  redirect_uri: URI.to_string(%URI{scheme: "https", host: System.get_env("DOMAIN_NAME"), path: "/login/callback"}),
-  adapter: Tesla.Adapter.Hackney
+  redirect_uri: URI.to_string(%URI{scheme: "https", host: System.get_env("DOMAIN_NAME"), path: "/login/callback"})
 
 config :oauth2,
-  serializers: %{
-    "multipart/form-data" => Transport.Datagouvfr.MultipartSerializer,
-    "application/json" => Jason
-  }
+  adapter: Tesla.Adapter.Hackney
