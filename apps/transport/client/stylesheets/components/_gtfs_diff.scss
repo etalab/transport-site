@@ -22,13 +22,20 @@
     display: inline-block;
     width: 250px;
   }
-  .upload-entry {
-    padding-bottom: 30px;
+  input {
+    border: none;
+    padding: 12px 0 6px 0;
   }
 }
 
-.gtfs-diff {
-  min-height: 90vh;
+progress {
+  accent-color: var(--blue);
+}
+
+.gtfs-diff-results {
+  h4 {
+    margin: 24px 0 12px 0;
+  }
   .green {
     color: green;
   }
