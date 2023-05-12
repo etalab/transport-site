@@ -49,5 +49,8 @@ progress {
   .summary {
     display: flex;
     justify-content: space-around;
+    ul {
+      padding-left: 12px;
+    }
   }
 }

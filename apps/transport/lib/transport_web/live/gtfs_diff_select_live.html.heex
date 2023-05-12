@@ -85,7 +85,7 @@
             <ul>
               <%= for {{file, "add", target}, n} <- @diff_summary["add"] do %>
                 <li>
-                  <span class="green"><%= dgettext("validations", "added") %></span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %>
+                  <span class="green"><%= dgettext("validations", "added") %> &nbsp;</span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %>
                 </li>
               <% end %>
             </ul>
@@ -94,7 +94,7 @@
             <ul>
               <%= for {{file, "delete", target}, n} <- @diff_summary["delete"] do %>
                 <li>
-                  <span class="red"><%= dgettext("validations", "deleted") %></span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %>
+                  <span class="red"><%= dgettext("validations", "deleted") %> &nbsp;</span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %>
                 </li>
               <% end %>
             </ul>
@@ -103,7 +103,7 @@
             <ul>
               <%= for {{file, "update", target}, n} <- @diff_summary["update"] do %>
                 <li>
-                  <span class="orange"><%= dgettext("validations", "updated") %></span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %>
+                  <span class="orange"><%= dgettext("validations", "updated") %> &nbsp;</span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %>
                 </li>
               <% end %>
             </ul>
