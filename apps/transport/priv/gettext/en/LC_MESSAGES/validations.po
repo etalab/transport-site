@@ -278,7 +278,7 @@ msgid "Validate this GBFS now"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Compute GTFS Diff"
+msgid "Compare"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -362,7 +362,7 @@ msgid "Human friendly explanations"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Read the GTFS Diff specification to understand how differences between GTFS are expressed"
+msgid "<a href=\"%{spec}\">Read</a> the GTFS Diff specification to understand how differences between GTFS are expressed"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -370,7 +370,7 @@ msgid "The file \"%{file}\" has been deleted"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "This is a work in progress. We also try to express some of the differences found in a human friendly way."
+msgid "(Work in progress) We also try to express some of the differences found in a human friendly way."
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -399,4 +399,8 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "[stops.txt] wheelchair_boarding information added for stop_id %{stop_id}, previously: \"%{initial_wheelchair_boarding}\", now: \"%{new_wheelchair_boarding}\""
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Job is running..."
 msgstr ""

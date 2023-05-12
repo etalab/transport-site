@@ -278,8 +278,8 @@ msgid "Validate this GBFS now"
 msgstr "Valider ce GBFS maintenant"
 
 #, elixir-autogen, elixir-format
-msgid "Compute GTFS Diff"
-msgstr ""
+msgid "Compare"
+msgstr "Comparer"
 
 #, elixir-autogen, elixir-format
 msgid "Upload in progress"
@@ -362,7 +362,7 @@ msgid "Human friendly explanations"
 msgstr "Pour les humains"
 
 #, elixir-autogen, elixir-format
-msgid "Read the GTFS Diff specification to understand how differences between GTFS are expressed"
+msgid "<a href=\"%{spec}\">Read</a> the GTFS Diff specification to understand how differences between GTFS are expressed"
 msgstr "Vous pouvez lire la specification GTFS Diff pour comprendre comment les différences entre les GTFS sont exprimées"
 
 #, elixir-autogen, elixir-format
@@ -370,8 +370,8 @@ msgid "The file \"%{file}\" has been deleted"
 msgstr "Le fichier \"%{file}\" a été supprimé"
 
 #, elixir-autogen, elixir-format
-msgid "This is a work in progress. We also try to express some of the differences found in a human friendly way."
-msgstr "Travail en cours. Nous commençons à exprimer simplement certaines différences trouvées dans le GTFS Diff."
+msgid "(Work in progress) We also try to express some of the differences found in a human friendly way."
+msgstr "(Travail en cours) Nous commençons à exprimer simplement certaines différences trouvées dans le GTFS Diff."
 
 #, elixir-autogen, elixir-format
 msgid "added"
@@ -400,3 +400,7 @@ msgstr "[stops.txt] Le nom du stop_id %{stop_id} a été modifié. Nom initial: 
 #, elixir-autogen, elixir-format
 msgid "[stops.txt] wheelchair_boarding information added for stop_id %{stop_id}, previously: \"%{initial_wheelchair_boarding}\", now: \"%{new_wheelchair_boarding}\""
 msgstr "[stops.txt] une information d'accessibilité wheelchair_boarding a été ajouté par le stop_id %{stop_id}, valeur précédente : \"%{initial_wheelchair_boarding}\", nouvelle valeur : \"%{new_wheelchair_boarding}\""
+
+#, elixir-autogen, elixir-format
+msgid "Job is running..."
+msgstr "Comparaison en cours..."
