@@ -369,7 +369,7 @@ msgid "The file \"%{file}\" has been deleted"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "(Work in progress) We also try to express some of the differences found in a human friendly way."
+msgid "(Work in progress). We also try to express some of the differences found in a human friendly way."
 msgstr ""
 
 #, elixir-autogen, elixir-format

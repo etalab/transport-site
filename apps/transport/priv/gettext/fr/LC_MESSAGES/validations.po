@@ -363,15 +363,15 @@ msgstr "Pour les humains"
 
 #, elixir-autogen, elixir-format
 msgid "<a href=\"%{spec}\">Read</a> the GTFS Diff specification to understand how differences between GTFS are expressed"
-msgstr "Vous pouvez lire la specification GTFS Diff pour comprendre comment les différences entre les GTFS sont exprimées"
+msgstr "Vous pouvez <a href=\"%{spec}\">lire la specification</a> GTFS Diff pour comprendre comment les différences entre les GTFS sont exprimées"
 
 #, elixir-autogen, elixir-format
 msgid "The file \"%{file}\" has been deleted"
 msgstr "Le fichier \"%{file}\" a été supprimé"
 
 #, elixir-autogen, elixir-format
-msgid "(Work in progress) We also try to express some of the differences found in a human friendly way."
-msgstr "(Travail en cours) Nous commençons à exprimer simplement certaines différences trouvées dans le GTFS Diff."
+msgid "(Work in progress). We also try to express some of the differences found in a human friendly way."
+msgstr "(Travail en cours). Nous commençons à exprimer simplement certaines différences trouvées dans le GTFS Diff."
 
 #, elixir-autogen, elixir-format
 msgid "added"
