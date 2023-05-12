@@ -6,6 +6,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   use TransportWeb.InputHelpers
   import TransportWeb.Router.Helpers
   import TransportWeb.Gettext
+  alias TransportWeb.GTFSDiffExplain
 
   @max_file_size_mb 4
   def mount(_params, %{"locale" => locale} = _session, socket) do
@@ -28,6 +29,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
       |> assign(:diff_file_url, nil)
       |> assign(:error_msg, nil)
       |> assign(:diff_summary, nil)
+      |> assign(:diff_explanations, nil)
 
     {:noreply, socket}
   end
@@ -82,8 +84,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
 
     socket =
       socket
-      |> assign(:diff_summary, diff |> diff_summary())
-      |> assign(:diff_explanations, diff |> diff_explanations())
+      |> assign(:diff_summary, diff |> GTFSDiffExplain.diff_summary())
+      |> assign(:diff_explanations, diff |> GTFSDiffExplain.diff_explanations())
 
     {:noreply, socket}
   end
@@ -91,99 +93,6 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   # catch-all
   def handle_info(_, socket) do
     {:noreply, socket}
-  end
-
-  def diff_summary(diff) do
-    order = %{"file" => 0, "column" => 1, "row" => 2}
-
-    diff
-    |> Enum.frequencies_by(fn r ->
-      {Map.get(r, "file"), Map.get(r, "action"), Map.get(r, "target")}
-    end)
-    |> Enum.sort_by(fn {{_, _, target}, _} -> order |> Map.fetch!(target) end)
-    |> Enum.group_by(fn {{_file, action, _target}, _n} -> action end)
-  end
-
-  def explanation_add_file(explanations, %{"action" => "add", "file" => file, "target" => "file"}) do
-    [dgettext("validations", ~s(A file named "%{file}" has been added), file: file) | explanations]
-  end
-
-  def explanation_add_file(explanations, _), do: explanations
-
-  def explanation_delete_file(explanations, %{"action" => "delete", "file" => file, "target" => "file"}) do
-    [dgettext("validations", ~s(The file "%{file}" has been deleted), file: file) | explanations]
-  end
-
-  def explanation_delete_file(explanations, _), do: explanations
-
-  def explanation_update_stop_name(
-        explanations,
-        %{
-          "action" => "update",
-          "file" => "stops.txt",
-          "target" => "row",
-          "identifier" => %{"stop_id" => stop_id},
-          "new_value" => %{"stop_name" => new_stop_name},
-          "initial_value" => %{"stop_name" => initial_stop_name}
-        }
-      ) do
-    [
-      dgettext(
-        "validations",
-        ~s([stops.txt] The name of the stop_id %{stop_id} has been modified. Initial name: "%{initial_stop_name}", New name: "%{new_stop_name}"),
-        stop_id: stop_id,
-        initial_stop_name: initial_stop_name,
-        new_stop_name: new_stop_name
-      )
-      | explanations
-    ]
-  end
-
-  def explanation_update_stop_name(explanations, _) do
-    explanations
-  end
-
-  def explanation_stop_wheelchair_access(
-        explanations,
-        %{
-          "action" => "update",
-          "file" => "stops.txt",
-          "target" => "row",
-          "identifier" => %{"stop_id" => stop_id},
-          "new_value" => %{"wheelchair_boarding" => new_wheelchair_boarding},
-          "initial_value" => %{"wheelchair_boarding" => initial_wheelchair_boarding}
-        }
-      )
-      when new_wheelchair_boarding in ["1", "2"] do
-    [
-      dgettext(
-        "validations",
-        ~s([stops.txt] wheelchair_boarding information added for stop_id %{stop_id}, previously: "%{initial_wheelchair_boarding}", now: "%{new_wheelchair_boarding}"),
-        stop_id: stop_id,
-        initial_wheelchair_boarding: initial_wheelchair_boarding,
-        new_wheelchair_boarding: new_wheelchair_boarding
-      )
-      | explanations
-    ]
-  end
-
-  def explanation_stop_wheelchair_access(explanations, _), do: explanations
-
-  def diff_explanations(diffs) do
-    diffs
-    |> Enum.flat_map(fn diff ->
-      diff =
-        diff
-        |> Map.update("initial_value", %{}, &try_jason_decode(&1))
-        |> Map.update("new_value", %{}, &try_jason_decode(&1))
-        |> Map.update("identifier", %{}, &try_jason_decode(&1))
-
-      []
-      |> explanation_add_file(diff)
-      |> explanation_delete_file(diff)
-      |> explanation_update_stop_name(diff)
-      |> explanation_stop_wheelchair_access(diff)
-    end)
   end
 
   def try_jason_decode(""), do: ""
