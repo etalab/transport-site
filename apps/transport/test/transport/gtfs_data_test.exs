@@ -79,7 +79,7 @@ defmodule Transport.GTFSDataTest do
     Transport.GTFSData.create_it_not_exist_materialized_views()
 
     view_names = list_views(@cluster_views_prefix <> "%")
-    expected_view_names = 1..12 |> Enum.map(&"gtfs_stops_clusters_level_#{&1}")
+    expected_view_names = 1..12 |> Enum.map(&"#{@cluster_views_prefix}_level_#{&1}")
     assert view_names == expected_view_names
 
     # quick litmus test to verify we have something roughly working

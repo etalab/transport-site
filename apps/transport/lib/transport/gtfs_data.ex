@@ -86,8 +86,23 @@ defmodule Transport.GTFSData do
     end)
   end
 
-  def create_gtfs_stops_materialized_view(zoom_level)
-      when is_integer(zoom_level) and zoom_level in 1..12 do
+  def refresh_materialized_views() do
+    @zoom_levels
+    |> Enum.each(fn {zoom_level, _} ->
+      refresh_materialized_view(zoom_level)
+    end)
+  end
+
+  def refresh_materialized_view(zoom_level) when is_integer(zoom_level) do
+    # NOTE: CONCURRENTLY is better but will require a unique index first
+    # Not using CONCURRENTLY means the view cannot be queried at all during the operation
+    {:ok, _res} =
+      Ecto.Adapters.SQL.query(DB.Repo, """
+        REFRESH MATERIALIZED VIEW gtfs_stops_clusters_level_#{zoom_level}
+      """)
+  end
+
+  def create_gtfs_stops_materialized_view(zoom_level) when is_integer(zoom_level) do
     north = DB.Repo.aggregate("gtfs_stops", :max, :stop_lat)
     south = DB.Repo.aggregate("gtfs_stops", :min, :stop_lat)
     east = DB.Repo.aggregate("gtfs_stops", :max, :stop_lon)
