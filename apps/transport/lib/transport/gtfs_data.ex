@@ -146,10 +146,6 @@ defmodule Transport.GTFSData do
   def build_clusters_json_encoded({north, south, east, west}, {snap_x, snap_y}) do
     {zoom_level, {_sx, _sy}} = find_closest_zoom_level({snap_x, snap_y})
 
-    # NOTE: this lazily creates the materialized view if needed, but we'll schedule
-    # a nightly refresh later in addition to that as a fallback.
-    create_gtfs_stops_materialized_view(zoom_level)
-
     q =
       from(gs in "gtfs_stops_clusters_level_#{zoom_level}",
         # NOTE: the rounding could be moved to the materialized view itself,

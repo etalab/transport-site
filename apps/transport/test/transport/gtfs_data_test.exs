@@ -90,11 +90,23 @@ defmodule Transport.GTFSDataTest do
   end
 
   test "build_clusters_json_encoded" do
+    drop_views(@cluster_views_prefix <> "%")
+
     insert_gtfs_stops([
       {2.5, 48.5},
       {2.6, 48.6},
       {3.3, 48.6}
     ])
+
+    # the views must not be created lazily anymore
+    assert_raise(Postgrex.Error, ~r/undefined_table/, fn ->
+      Transport.GTFSData.build_clusters_json_encoded(
+        {3.333333, 2.333333, 48.866667, 48.266667},
+        {0.5, 0.5}
+      )
+    end)
+
+    Transport.GTFSData.create_it_not_exist_materialized_views()
 
     # format is expected exactly as is, without keys (to reduce load), on the javascript side
     assert Jason.decode!(
