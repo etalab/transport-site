@@ -3,6 +3,8 @@ defmodule Transport.GTFSDataTest do
   import DB.Factory
   import Ecto.Query
 
+  @cluster_views_prefix "gtfs_stops_clusters"
+
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
@@ -16,6 +18,13 @@ defmodule Transport.GTFSDataTest do
       )
 
     List.flatten(view_names)
+  end
+
+  def drop_views(pattern) do
+    list_views(pattern)
+    |> Enum.each(fn view_name ->
+      {:ok, _} = Ecto.Adapters.SQL.query(DB.Repo, "drop materialized view #{view_name}")
+    end)
   end
 
   # input: arrays of lat/lon
@@ -63,16 +72,13 @@ defmodule Transport.GTFSDataTest do
   end
 
   test "create_if_not_exist_materialized_views" do
-    list_views("gtfs_stops_clusters%")
-    |> Enum.each(fn view_name ->
-      {:ok, _} = Ecto.Adapters.SQL.query(DB.Repo, "drop materialized view #{view_name}")
-    end)
+    drop_views(@cluster_views_prefix <> "%")
 
     insert_gtfs_stops([{2.5, 48.5}])
 
     Transport.GTFSData.create_it_not_exist_materialized_views()
 
-    view_names = list_views("gtfs_stops_clusters%")
+    view_names = list_views(@cluster_views_prefix <> "%")
     expected_view_names = 1..12 |> Enum.map(&"gtfs_stops_clusters_level_#{&1}")
     assert view_names == expected_view_names
 
