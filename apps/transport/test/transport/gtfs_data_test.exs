@@ -1,5 +1,5 @@
 defmodule Transport.GTFSDataTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   import DB.Factory
 
   setup do
