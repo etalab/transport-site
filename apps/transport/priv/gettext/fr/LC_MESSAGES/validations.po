@@ -395,7 +395,7 @@ msgstr "Un fichier \"%{file}\" a été ajouté"
 
 #, elixir-autogen, elixir-format
 msgid "[stops.txt] The name of the stop_id %{stop_id} has been modified. Initial name: \"%{initial_stop_name}\", New name: \"%{new_stop_name}\""
-msgstr "[stops.txt] Le nom du stop_id %{stop_id} a été modifié. Nom initial: \"%{initial_stop_name}\", Nouveau nom: \"%{new_stop_name}\""
+msgstr "[stops.txt] Le nom du stop_id %{stop_id} a été modifié. Nom initial : \"%{initial_stop_name}\", Nouveau nom : \"%{new_stop_name}\""
 
 #, elixir-autogen, elixir-format
 msgid "[stops.txt] Wheelchair_boarding information added for stop_id %{stop_id}, previously: \"%{initial_wheelchair_boarding}\", now: \"%{new_wheelchair_boarding}\""
