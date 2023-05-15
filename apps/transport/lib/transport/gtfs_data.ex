@@ -88,46 +88,37 @@ defmodule Transport.GTFSData do
 
   def create_gtfs_stops_materialized_view(zoom_level)
       when is_integer(zoom_level) and zoom_level in 1..12 do
-    {:ok, %{rows: [[count]], num_rows: 1}} =
-      Ecto.Adapters.SQL.query(DB.Repo, """
-      select count(*)
-        from pg_matviews
-        where matviewname = 'gtfs_stops_clusters_level_#{zoom_level}'
-      """)
+    north = DB.Repo.aggregate("gtfs_stops", :max, :stop_lat)
+    south = DB.Repo.aggregate("gtfs_stops", :min, :stop_lat)
+    east = DB.Repo.aggregate("gtfs_stops", :max, :stop_lon)
+    west = DB.Repo.aggregate("gtfs_stops", :min, :stop_lon)
 
-    if count == 0 do
-      north = DB.Repo.aggregate("gtfs_stops", :max, :stop_lat)
-      south = DB.Repo.aggregate("gtfs_stops", :min, :stop_lat)
-      east = DB.Repo.aggregate("gtfs_stops", :max, :stop_lon)
-      west = DB.Repo.aggregate("gtfs_stops", :min, :stop_lon)
+    {snap_x, snap_y} = @zoom_levels |> Map.fetch!(zoom_level)
 
-      {snap_x, snap_y} = @zoom_levels |> Map.fetch!(zoom_level)
+    query = build_clusters_query({north, south, east, west}, {snap_x, snap_y})
 
-      query = build_clusters_query({north, south, east, west}, {snap_x, snap_y})
+    {sql, params} = DB.Repo.to_sql(:all, query)
 
-      {sql, params} = DB.Repo.to_sql(:all, query)
+    # NOTE: we cannot use parameters directly in materalized views, and will get error
+    # "materialized views may not be defined using bound parameters". One solution is to
+    # straight replace the $ parameters manually, something that is tolerable since the
+    # parameters are all under our control at time of writing, and no SQL injection can occur.
+    # potential other solutions can be found at https://dba.stackexchange.com/a/208599
+    view_query = """
+    CREATE MATERIALIZED VIEW IF NOT EXISTS gtfs_stops_clusters_level_#{zoom_level} AS
+    #{sql}
+    """
 
-      # NOTE: we cannot use parameters directly in materalized views, and will get error
-      # "materialized views may not be defined using bound parameters". One solution is to
-      # straight replace the $ parameters manually, something that is tolerable since the
-      # parameters are all under our control at time of writing, and no SQL injection can occur.
-      # potential other solutions can be found at https://dba.stackexchange.com/a/208599
-      view_query = """
-      CREATE MATERIALIZED VIEW IF NOT EXISTS gtfs_stops_clusters_level_#{zoom_level} AS
-      #{sql}
-      """
+    view_query =
+      view_query
+      |> String.replace("$1", params |> Enum.at(0) |> Float.to_string())
+      |> String.replace("$2", params |> Enum.at(1) |> Float.to_string())
+      |> String.replace("$3", params |> Enum.at(2) |> Float.to_string())
+      |> String.replace("$4", params |> Enum.at(3) |> Float.to_string())
+      |> String.replace("$5", params |> Enum.at(4) |> Float.to_string())
+      |> String.replace("$6", params |> Enum.at(5) |> Float.to_string())
 
-      view_query =
-        view_query
-        |> String.replace("$1", params |> Enum.at(0) |> Float.to_string())
-        |> String.replace("$2", params |> Enum.at(1) |> Float.to_string())
-        |> String.replace("$3", params |> Enum.at(2) |> Float.to_string())
-        |> String.replace("$4", params |> Enum.at(3) |> Float.to_string())
-        |> String.replace("$5", params |> Enum.at(4) |> Float.to_string())
-        |> String.replace("$6", params |> Enum.at(5) |> Float.to_string())
-
-      {:ok, _res} = Ecto.Adapters.SQL.query(DB.Repo, view_query)
-    end
+    {:ok, _res} = Ecto.Adapters.SQL.query(DB.Repo, view_query)
   end
 
   def find_closest_zoom_level({_snap_x, snap_y}) do
