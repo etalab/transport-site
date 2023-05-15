@@ -134,3 +134,7 @@ msgstr "À propos"
 #, elixir-autogen, elixir-format
 msgid "Our missions"
 msgstr "Nos missions"
+
+#, elixir-autogen, elixir-format
+msgid "National GTFS map"
+msgstr "Carte nationale GTFS"
