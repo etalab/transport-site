@@ -104,6 +104,6 @@ defmodule TransportWeb.GTFSDiffExplain do
 
   def explanation_stop_wheelchair_access(explanations, _), do: explanations
 
-  def try_jason_decode(""), do: ""
+  def try_jason_decode(""), do: nil
   def try_jason_decode(input), do: Jason.decode!(input)
 end
