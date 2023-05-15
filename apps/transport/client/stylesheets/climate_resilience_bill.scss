@@ -1,0 +1,20 @@
+.panel-conditions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+  .section-picto {
+    flex-basis: 96px;
+    flex-grow: 1;
+    max-width: 96px;
+    img {
+      width: 100%;
+    }
+  }
+  .section-text {
+    padding-left: 24px;
+    flex-basis: 300px;
+    min-width: 250px;
+    flex-grow: 2;
+  }
+}

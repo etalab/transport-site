@@ -1,47 +1,103 @@
 <% article122_url = "https://www.legifrance.gouv.fr/jorf/article_jo/JORFARTI000043957195"
 decret_url = "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000046144256"
 arrete_url = "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000046144276" %>
-<section class="section section-climate-resilience-bill">
-  <div class="container container_max_700px">
-    <article class="panel">
-      <div class="climate-resilience-bill">
-        <div>
-          <img class="icon---climate-resilience-bill xl" src={static_path(@conn, "/images/loi-climat-resilience.png")} />
-        </div>
-        <div>
-          <h1 class="bill mb-0">Loi climat et résilience</h1>
+<section class="section section-climate-resilience-bill" lang="fr">
+  <section class="section-why no-bg">
+    <div class="container">
+      <div class="container_max_700px section-white mb-24 pt-12 pb-12">
+        <div class="climate-resilience-bill">
+          <div>
+            <img
+              class="icon---climate-resilience-bill xl"
+              src={static_path(@conn, "/images/loi-climat-resilience.png")}
+            />
+          </div>
+          <div>
+            <h1 class="bill mb-0">Loi climat et résilience</h1>
+          </div>
         </div>
       </div>
-      <p>
-        Un des objectifs de la loi dite « Climat et résilience » consiste à fournir plus d’informations à vocation environnementale aux individus afin de les aider à orienter leurs comportements en connaissance de cause. Dans ce cadre-là,
-        <a href={article122_url}>l’article 122</a>
-        vise à accompagner la transition des usages vers une mobilité décarbonnée, en agissant notamment sur les services numériques d’information voyageurs, aujourd’hui très couramment utilisés.
-      </p>
-      <p>
-        Aussi, <a href={decret_url}>le décret d’application n°2022-1119 du 3 août 2022</a>
-        prévoit notamment un ensemble d’obligations de réutilisation des données du Point d’accès national auprès des services numériques multimodaux, relatives aux informations sur les modes et services de mobilité alternatifs à l’usage individuel du véhicule, selon les échéances suivantes :
-      </p>
+      <div class="section-why-body">
+        <div class="panel">
+          <div class="why-section-picto">
+            <img src={static_path(@conn, "/images/icons/map.png")} alt="Carte" />
+          </div>
+          <div class="why-section-text">
+            <h2>Pour les producteurs</h2>
+            <ul>
+              <li>intégrer facilement vos données dans des calculateurs d’itinéraires</li>
+              <li>bénéficier d’une visibilité grand public sur vos services de mobilités</li>
+              <li>informer efficacement les usagers des possibilités de déplacements vertueuses</li>
+            </ul>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="why-section-picto">
+            <img
+              src={static_path(@conn, "/images/producteurs/streamline-icon-people-in-love-3@140x140.png")}
+              alt="Réutilisateurs"
+            />
+          </div>
+          <div class="why-section-text">
+            <h2>Pour les réutilisateurs</h2>
+            <ul>
+              <li>accroître plus largement la couverture des territoires</li>
+              <li>faciliter la mise en conformité juridique de votre service</li>
+              <li>bénéficier d’un lien avec les producteurs via l’accompagnement du PAN</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class="container container_max_700px">
+      <article class="panel">
+        <p>
+          Un des objectifs de la loi dite « Climat et résilience » consiste à fournir plus d’informations à vocation environnementale aux individus afin de les aider à orienter leurs comportements en connaissance de cause. Dans ce cadre,
+          <a href={article122_url}>l’article 122</a>
+          vise à accompagner la transition des usages vers une mobilité décarbonnée, en agissant notamment sur les services numériques d’information voyageurs, aujourd’hui très couramment utilisés.
+        </p>
+        <p>
+          Aussi, <a href={decret_url}>le décret d’application n°2022-1119 du 3 août 2022</a>
+          prévoit notamment un ensemble d’obligations de réutilisation des données du Point d’accès national auprès des services numériques multimodaux, relatives aux informations sur les modes et services de mobilité alternatifs à l’usage individuel du véhicule, selon les échéances suivantes :
+        </p>
 
-      <ul>
-        <li>Dès le 1<sup>er</sup> décembre 2022 :</li>
         <ul>
-          <li>Les services de transport réguliers</li>
-          <li>Les services de transport à la demande</li>
+          <li>Dès le 1<sup>er</sup> décembre 2022 :</li>
+          <ul>
+            <li>Les services de transport réguliers</li>
+            <li>Les services de transport à la demande</li>
+          </ul>
+          <li>Dès le 1<sup>er</sup> décembre 2023 :</li>
+          <ul>
+            <li>Les services de transport partagés</li>
+          </ul>
         </ul>
-        <li>Dès le 1<sup>er</sup> décembre 2023 :</li>
-        <ul>
-          <li>Les services de transport partagés</li>
-        </ul>
-      </ul>
 
-      <p>
-        Conformément à <a href={arrete_url}>l’arrêté d’application du 3 août 2022</a>
-        relatif aux services numériques d’assistance aux déplacements, ces mesures de réutilisation s’appliquent uniquement pour les jeux de données soumis à la licence ouverte de réutilisation d’informations publiques dite « Etalab ».
-      </p>
-
-      <p>
-        Sur un plan technique, les jeux de données doivent être disponibles dans un format standardisé et de qualité suffisante à leur utilisation.
-      </p>
-    </article>
-  </div>
+        <p>
+          Conformément à <a href={arrete_url}>l’arrêté d’application du 3 août 2022</a>
+          relatif aux services numériques d’assistance aux déplacements, ces mesures de réutilisation s’appliquent uniquement pour les jeux de données soumis à la licence ouverte de réutilisation d’informations publiques dite « Etalab ». Les jeux de données doivent être par ailleurs disponibles dans un format standardisé et de qualité suffisante à leur utilisation.
+        </p>
+      </article>
+      <div class="panel panel-conditions">
+        <div class="section-picto">
+          <img
+            src={static_path(@conn, "/images/producteurs/streamline-icon-employee-checklist.png")}
+            alt="Réutilisateurs"
+          />
+        </div>
+        <div class="section-text">
+          <h3>Conditions d'applications</h3>
+          Les données concernées par ces mesures se limitent aux données :
+          <ul>
+            <li>sous licence ouverte Etalab</li>
+            <li>respectant un standard</li>
+            <li>d'une qualité pertinente</li>
+            <li>mises à jour régulièrement</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
 </section>

@@ -563,6 +563,8 @@
 
 .container_max_700px {
   max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .panel > :first-child {
@@ -577,6 +579,7 @@
 .climate-resilience-bill {
   display: flex;
   align-items: center;
+  justify-content: center;
 
   .bill {
     color: $climate-resilience-bill-color;
