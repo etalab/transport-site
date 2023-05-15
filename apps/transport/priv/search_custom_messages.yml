@@ -61,13 +61,13 @@
       value: road-data
   msg:
     fr: |
-        Les jeux de données de cette catégorie décrivent le réseau routier et son état en temps réel (trafic, travaux, événements...).
+        Les jeux de données de cette catégorie décrivent le réseau routier et son état en temps réel (trafic, travaux, événements…).
 
         À ce jour, les seules informations disponibles de manière ouverte portent sur le réseau routier principal (autoroutes et routes nationales).
 
         L’équipe de transport.data.gouv.fr travaille au référencement de nouveaux jeux de données permettant de cartographier le réseau routier secondaire comme la [BD Topo de l’IGN](https://geoservices.ign.fr/documentation/donnees/vecteur/bdtopo) ou de connaître [des informations en temps réel](https://www.bison-fute.gouv.fr/donnees-sur-le-rrn.html).
     en: |
-        Datasets in this category describe the road network and its state in real time (traffic, works, events...).
+        Datasets in this category describe the road network and its state in real time (traffic, works, events, etc.).
 
         To date, the only openly available information concerns the main road network (motorways and national roads).
 
@@ -230,7 +230,7 @@
         Une base nationale extraite d'[OpenStreetMap](https://www.openstreetmap.org/) par [GéoVélo](https://geovelo.fr/) respectant le schéma national [est disponible](https://transport.data.gouv.fr/datasets/amenagements-cyclables-france-metropolitaine/).
 
     en: |
-        The datasets in this category describe the cycle networks in France. All facilities (tracks, lanes, greenways, cycle streets...) intended to be used by bicycles can be represented according to the [national schema](https://schema.data.gouv.fr/etalab/schema-amenagements-cyclables/latest.html).
+        The datasets in this category describe the cycle networks in France. All facilities (tracks, lanes, greenways, cycle streets…) intended to be used by bicycles can be represented according to the [national schema](https://schema.data.gouv.fr/etalab/schema-amenagements-cyclables/latest.html).
 
         A national database extracted from [OpenStreetMap](https://www.openstreetmap.org/) by [GéoVélo](https://geovelo.fr/) respecting the national schema [is available](https://transport.data.gouv.fr/datasets/amenagements-cyclables-france-metropolitaine/).
 
@@ -240,12 +240,12 @@
       value: bike-parking
   msg:
     fr: |
-        Les jeux de données de cette catégorie décrivent les équipements de stationnement cyclable en France. Tous les équipements (arceaux, racks, box...) destinés à être utilisés pour stationner des vélos peuvent être représentés selon le [schéma national](https://schema.data.gouv.fr/etalab/schema-stationnement-cyclable/).
+        Les jeux de données de cette catégorie décrivent les équipements de stationnement cyclable en France. Tous les équipements (arceaux, racks, box…) destinés à être utilisés pour stationner des vélos peuvent être représentés selon le [schéma national](https://schema.data.gouv.fr/etalab/schema-stationnement-cyclable/).
 
         Une base nationale extraite d'[OpenStreetMap](https://www.openstreetmap.org/) par [GéoDataMine](https://geodatamine.fr/) respectant le schéma national [est disponible](https://transport.data.gouv.fr/datasets/stationnements-cyclables-issus-dopenstreetmap/).
 
     en: |
-        The datasets in this category describe the bicycle parking facilities in France. All facilities (hoops, racks, boxes...) intended to be used for bicycle parking can be represented according to the [national schema](https://schema.data.gouv.fr/etalab/schema-stationnement-cyclable/).
+        The datasets in this category describe the bicycle parking facilities in France. All facilities (hoops, racks, boxes…) intended to be used for bicycle parking can be represented according to the [national schema](https://schema.data.gouv.fr/etalab/schema-stationnement-cyclable/).
 
         A national database extracted from [OpenStreetMap](https://www.openstreetmap.org/) by [GéoDataMine](https://geodatamine.fr/) respecting the national schema [is available](https://transport.data.gouv.fr/datasets/stationnements-cyclables-issus-dopenstreetmap/).
 

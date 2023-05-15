@@ -5,7 +5,7 @@
       <p>Mis à jour à <%= @last_updated_at %></p>
     <% end %>
     <button class="button" phx-click="refresh" disabled={@job_running}>
-      <%= if @job_running, do: "En cours...", else: "Rafraîchir" %>
+      <%= if @job_running, do: "En cours…", else: "Rafraîchir" %>
     </button>
     <a target="_blank" href="/backoffice/gtfs-export"><button class="button">Export</button></a>
     <%= if @stats do %>

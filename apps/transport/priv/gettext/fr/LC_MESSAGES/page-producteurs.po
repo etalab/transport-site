@@ -77,7 +77,7 @@ msgstr "Guides de publication de données"
 
 #, elixir-autogen, elixir-format
 msgid "Read tutorials and users testimonies"
-msgstr "Notre journal où l'on trouve des tutoriels, des exemples de réutilisations, des retours d'expérience..."
+msgstr "Notre journal où l'on trouve des tutoriels, des exemples de réutilisations, des retours d'expérience…"
 
 #, elixir-autogen, elixir-format
 msgid "Regulatory obligations"
