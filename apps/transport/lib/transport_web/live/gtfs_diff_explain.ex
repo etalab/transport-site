@@ -21,6 +21,33 @@ defmodule TransportWeb.GTFSDiffExplain do
     end)
   end
 
+  @doc """
+  Creates a summary of a given GTFS Diff
+
+  iex> [
+  ...> %{
+  ...>   "action" => "delete",
+  ...>   "file" => "agency.txt",
+  ...>   "target" => "file"
+  ...> },
+  ...> %{
+  ...>   "action" => "delete",
+  ...>   "file" => "calendar.txt",
+  ...>   "target" => "column"
+  ...> },
+  ...> %{
+  ...>   "action" => "add",
+  ...>   "file" => "stop_times.txt",
+  ...>   "target" => "row"
+  ...> }] |> diff_summary()
+  %{
+    "add" => [{{"stop_times.txt", "add", "row"}, 1}],
+    "delete" => [
+      {{"agency.txt", "delete", "file"}, 1},
+      {{"calendar.txt", "delete", "column"}, 1},
+    ]
+  }
+  """
   def diff_summary(diff) do
     order = %{"file" => 0, "column" => 1, "row" => 2}
 
