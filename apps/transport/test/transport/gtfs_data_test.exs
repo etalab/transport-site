@@ -80,6 +80,18 @@ defmodule Transport.GTFSDataTest do
 
     expected_view_names = 1..12 |> Enum.map(&"gtfs_stops_clusters_level_#{&1}")
     assert view_names == expected_view_names
+
+    # quick litmus test to verify we have something roughly working
+    view_names
+    |> Enum.each(fn view_name ->
+      [%{cluster_lat: _, cluster_lon: _, count: 1}] =
+        from(s in view_name)
+        |> select([:cluster_lat, :cluster_lon, :count])
+        |> DB.Repo.all()
+    end)
+  end
+
+  test "refresh_materialized_views" do
   end
 
   test "build_clusters_json_encoded" do
