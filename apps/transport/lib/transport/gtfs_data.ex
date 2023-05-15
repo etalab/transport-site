@@ -79,14 +79,14 @@ defmodule Transport.GTFSData do
     12 => {0.00171661376953125, 0.0011294445140095472}
   }
 
-  def create_it_not_exist_materialized_views() do
+  def create_it_not_exist_materialized_views do
     @zoom_levels
     |> Enum.each(fn {zoom_level, _} ->
       create_gtfs_stops_materialized_view(zoom_level)
     end)
   end
 
-  def refresh_materialized_views() do
+  def refresh_materialized_views do
     @zoom_levels
     |> Enum.each(fn {zoom_level, _} ->
       refresh_materialized_view(zoom_level)

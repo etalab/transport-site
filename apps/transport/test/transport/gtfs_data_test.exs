@@ -21,7 +21,8 @@ defmodule Transport.GTFSDataTest do
   end
 
   def drop_views(pattern) do
-    list_views(pattern)
+    pattern
+    |> list_views()
     |> Enum.each(fn view_name ->
       {:ok, _} = Ecto.Adapters.SQL.query(DB.Repo, "drop materialized view #{view_name}")
     end)
@@ -72,7 +73,10 @@ defmodule Transport.GTFSDataTest do
   end
 
   def get_view_data(view_name) do
-    from(s in view_name)
+    query = s in view_name
+
+    query
+    |> from()
     |> select([:cluster_lat, :cluster_lon, :count])
     |> DB.Repo.all()
   end
