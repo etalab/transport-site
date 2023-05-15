@@ -71,6 +71,12 @@ defmodule Transport.GTFSDataTest do
            }
   end
 
+  def get_view_data(view_name) do
+    from(s in view_name)
+    |> select([:cluster_lat, :cluster_lon, :count])
+    |> DB.Repo.all()
+  end
+
   test "create_if_not_exist_materialized_views" do
     drop_views(@cluster_views_prefix <> "%")
 
@@ -85,14 +91,19 @@ defmodule Transport.GTFSDataTest do
     # quick litmus test to verify we have something roughly working
     view_names
     |> Enum.each(fn view_name ->
-      [%{cluster_lat: _, cluster_lon: _, count: 1}] =
-        from(s in view_name)
-        |> select([:cluster_lat, :cluster_lon, :count])
-        |> DB.Repo.all()
+      [%{cluster_lat: _, cluster_lon: _, count: 1}] = get_view_data(view_name)
     end)
   end
 
   test "refresh_materialized_views" do
+    drop_views(@cluster_views_prefix <> "%")
+    insert_gtfs_stops([{2.5, 48.5}])
+    Transport.GTFSData.create_it_not_exist_materialized_views()
+    [%{count: 1}] = get_view_data(@cluster_views_prefix <> "_level_1")
+    insert_gtfs_stops([{2.5, 48.5}])
+    [%{count: 1}] = get_view_data(@cluster_views_prefix <> "_level_1")
+    Transport.GTFSData.refresh_materialized_views()
+    [%{count: 2}] = get_view_data(@cluster_views_prefix <> "_level_1")
   end
 
   test "build_clusters_json_encoded" do
