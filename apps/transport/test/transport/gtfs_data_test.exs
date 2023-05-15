@@ -76,20 +76,10 @@ defmodule Transport.GTFSDataTest do
         "select matviewname from pg_matviews where matviewname like 'gtfs_stops_clusters%'"
       )
 
-    assert view_names == [
-             ["gtfs_stops_clusters_level_1"],
-             ["gtfs_stops_clusters_level_2"],
-             ["gtfs_stops_clusters_level_3"],
-             ["gtfs_stops_clusters_level_4"],
-             ["gtfs_stops_clusters_level_5"],
-             ["gtfs_stops_clusters_level_6"],
-             ["gtfs_stops_clusters_level_7"],
-             ["gtfs_stops_clusters_level_8"],
-             ["gtfs_stops_clusters_level_9"],
-             ["gtfs_stops_clusters_level_10"],
-             ["gtfs_stops_clusters_level_11"],
-             ["gtfs_stops_clusters_level_12"]
-           ]
+    view_names = List.flatten(view_names)
+
+    expected_view_names = 1..12 |> Enum.map(&"gtfs_stops_clusters_level_#{&1}")
+    assert view_names == expected_view_names
   end
 
   test "build_clusters_json_encoded" do
