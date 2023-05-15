@@ -6,6 +6,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   use TransportWeb.InputHelpers
   import TransportWeb.Router.Helpers
   import TransportWeb.Gettext
+  alias TransportWeb.GTFSDiffExplain
 
   @max_file_size_mb 4
   def mount(_params, %{"locale" => locale} = _session, socket) do
@@ -28,6 +29,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
       |> assign(:diff_file_url, nil)
       |> assign(:error_msg, nil)
       |> assign(:diff_summary, nil)
+      |> assign(:diff_explanations, nil)
 
     {:noreply, socket}
   end
@@ -79,25 +81,18 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
 
     %{status_code: 200, body: body} = http_client.get!(diff_file_url)
     diff = Transport.GTFSDiff.parse_diff_output(body)
-    diff_summary = diff |> diff_summary()
 
-    {:noreply, socket |> assign(:diff_summary, diff_summary)}
+    socket =
+      socket
+      |> assign(:diff_summary, diff |> GTFSDiffExplain.diff_summary())
+      |> assign(:diff_explanations, diff |> GTFSDiffExplain.diff_explanations())
+
+    {:noreply, socket}
   end
 
   # catch-all
   def handle_info(_, socket) do
     {:noreply, socket}
-  end
-
-  def diff_summary(diff) do
-    order = %{"file" => 0, "column" => 1, "row" => 2}
-
-    diff
-    |> Enum.frequencies_by(fn r ->
-      {Map.get(r, "file"), Map.get(r, "action"), Map.get(r, "target")}
-    end)
-    |> Enum.sort_by(fn {{_, _, target}, _} -> order |> Map.fetch!(target) end)
-    |> Enum.group_by(fn {{_file, action, _target}, _n} -> action end)
   end
 
   defp upload_to_s3(file_path, path) do

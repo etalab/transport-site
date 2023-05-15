@@ -10,15 +10,20 @@
       </a>
       <%= form_for @conn, contact_path(@conn, :send_mail), fn f -> %>
         <h3>Contact</h3>
-        <%= email_input(f, :email, placeholder: gettext("Email address")) %>
+        <%= email_input(f, :email,
+          placeholder: gettext("Email address"),
+          value: Map.get(@current_user || %{}, "email"),
+          type: "email",
+          required: true
+        ) %>
         <%= text_input(f, :name,
           placeholder: "your name",
           class: "form-special-field",
           tabindex: "-1",
           autocomplete: "off"
         ) %>
-        <%= text_input(f, :topic, value: gettext("Question about transport.data.gouv.fr")) %>
-        <%= textarea(f, :demande, placeholder: gettext("Ask for help")) %>
+        <%= text_input(f, :topic, value: gettext("Question about transport.data.gouv.fr"), required: true) %>
+        <%= textarea(f, :demande, placeholder: gettext("Ask for help"), required: true) %>
         <%= submit(gettext("Send email")) %>
       <% end %>
     </div>

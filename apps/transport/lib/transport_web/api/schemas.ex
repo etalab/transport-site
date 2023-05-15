@@ -261,7 +261,7 @@ defmodule TransportWeb.API.Schemas do
           description:
             "The first day of the validity period of the file (read from the calendars for the GTFS). null if the file couldn’t be read"
         },
-        format: %Schema{type: :string, description: "The format of the resource (GTFS, NeTEx, ...)"},
+        format: %Schema{type: :string, description: "The format of the resource (GTFS, NeTEx, etc.)"},
         metadata: %Schema{
           type: :object,
           description: "Some metadata about the resource"
