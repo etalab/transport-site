@@ -93,7 +93,7 @@ defmodule TransportWeb.GTFSDiffExplain do
     [
       dgettext(
         "validations",
-        ~s([stops.txt] wheelchair_boarding information added for stop_id %{stop_id}, previously: "%{initial_wheelchair_boarding}", now: "%{new_wheelchair_boarding}"),
+        ~s([stops.txt] Wheelchair_boarding information added for stop_id %{stop_id}, previously: "%{initial_wheelchair_boarding}", now: "%{new_wheelchair_boarding}"),
         stop_id: stop_id,
         initial_wheelchair_boarding: initial_wheelchair_boarding,
         new_wheelchair_boarding: new_wheelchair_boarding

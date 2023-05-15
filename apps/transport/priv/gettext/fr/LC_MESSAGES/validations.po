@@ -398,8 +398,8 @@ msgid "[stops.txt] The name of the stop_id %{stop_id} has been modified. Initial
 msgstr "[stops.txt] Le nom du stop_id %{stop_id} a été modifié. Nom initial: \"%{initial_stop_name}\", Nouveau nom: \"%{new_stop_name}\""
 
 #, elixir-autogen, elixir-format
-msgid "[stops.txt] wheelchair_boarding information added for stop_id %{stop_id}, previously: \"%{initial_wheelchair_boarding}\", now: \"%{new_wheelchair_boarding}\""
-msgstr "[stops.txt] une information d'accessibilité wheelchair_boarding a été ajouté par le stop_id %{stop_id}, valeur précédente : \"%{initial_wheelchair_boarding}\", nouvelle valeur : \"%{new_wheelchair_boarding}\""
+msgid "[stops.txt] Wheelchair_boarding information added for stop_id %{stop_id}, previously: \"%{initial_wheelchair_boarding}\", now: \"%{new_wheelchair_boarding}\""
+msgstr "[stops.txt] Une information d'accessibilité wheelchair_boarding a été ajouté pour le stop_id %{stop_id}, valeur précédente : \"%{initial_wheelchair_boarding}\", nouvelle valeur : \"%{new_wheelchair_boarding}\""
 
 #, elixir-autogen, elixir-format
 msgid "Job is running…"
