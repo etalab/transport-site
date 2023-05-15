@@ -40,7 +40,12 @@ defmodule Transport.Jobs.DatasetHistoryJob do
     %DB.DatasetHistory{
       dataset_id: dataset_id,
       dataset_datagouv_id: dataset.datagouv_id,
-      payload: %{"licence" => dataset.licence, "type" => dataset.type, "slug" => dataset.slug},
+      payload: %{
+        "licence" => dataset.licence,
+        "type" => dataset.type,
+        "slug" => dataset.slug,
+        "custom_tags" => dataset.custom_tags
+      },
       dataset_history_resources:
         dataset.resources
         |> Enum.map(fn resource ->
