@@ -7,6 +7,17 @@ defmodule Transport.GTFSDataTest do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
+  # not to be used outside test (SQL injection)
+  def list_views(pattern) do
+    {:ok, %{rows: view_names}} =
+      Ecto.Adapters.SQL.query(
+        DB.Repo,
+        "select matviewname from pg_matviews where matviewname like '#{pattern}'"
+      )
+
+    List.flatten(view_names)
+  end
+
   # input: arrays of lat/lon
   def insert_gtfs_stops(lat_lon_list) do
     dataset = insert(:dataset, %{custom_title: "Hello", is_active: true})
@@ -52,15 +63,7 @@ defmodule Transport.GTFSDataTest do
   end
 
   test "create_if_not_exist_materialized_views" do
-    # drop first for testing purposes
-    # TODO: move to ecto, and move to helper module
-    {:ok, %{rows: view_names}} =
-      Ecto.Adapters.SQL.query(
-        DB.Repo,
-        "select matviewname from pg_matviews where matviewname like 'gtfs_stops_clusters%'"
-      )
-
-    view_names
+    list_views("gtfs_stops_clusters%")
     |> Enum.each(fn view_name ->
       {:ok, _} = Ecto.Adapters.SQL.query(DB.Repo, "drop materialized view #{view_name}")
     end)
@@ -69,15 +72,7 @@ defmodule Transport.GTFSDataTest do
 
     Transport.GTFSData.create_it_not_exist_materialized_views()
 
-    # TODO: move to ecto, and move to helper module
-    {:ok, %{rows: view_names}} =
-      Ecto.Adapters.SQL.query(
-        DB.Repo,
-        "select matviewname from pg_matviews where matviewname like 'gtfs_stops_clusters%'"
-      )
-
-    view_names = List.flatten(view_names)
-
+    view_names = list_views("gtfs_stops_clusters%")
     expected_view_names = 1..12 |> Enum.map(&"gtfs_stops_clusters_level_#{&1}")
     assert view_names == expected_view_names
 
@@ -95,34 +90,11 @@ defmodule Transport.GTFSDataTest do
   end
 
   test "build_clusters_json_encoded" do
-    dataset = insert(:dataset, %{custom_title: "Hello", is_active: true})
-    resource = insert(:resource, dataset: dataset)
-    resource_history = insert(:resource_history, resource: resource)
-    data_import = insert(:data_import, resource_history: resource_history)
-
-    insert(:gtfs_stops,
-      data_import: data_import,
-      stop_lat: 2.5,
-      stop_lon: 48.5,
-      stop_name: "L'arrêt",
-      stop_id: "LOC:001"
-    )
-
-    insert(:gtfs_stops,
-      data_import: data_import,
-      stop_lat: 2.6,
-      stop_lon: 48.6,
-      stop_name: "L'autre arrêt",
-      stop_id: "LOC:002"
-    )
-
-    insert(:gtfs_stops,
-      data_import: data_import,
-      stop_lat: 3.3,
-      stop_lon: 48.6,
-      stop_name: "Encore un autre arrêt",
-      stop_id: "LOC:002"
-    )
+    insert_gtfs_stops([
+      {2.5, 48.5},
+      {2.6, 48.6},
+      {3.3, 48.6}
+    ])
 
     # format is expected exactly as is, without keys (to reduce load), on the javascript side
     assert Jason.decode!(
