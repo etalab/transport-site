@@ -14,7 +14,8 @@ defmodule Transport.Test.Transport.Jobs.DatasetHistoryJobTest do
         datagouv_id: datagouv_id = Ecto.UUID.generate(),
         licence: "love",
         type: "public-transport",
-        slug: "the-slug"
+        slug: "the-slug",
+        custom_tags: ["foo"]
       )
 
     # a resource with multiple resource history
@@ -48,7 +49,12 @@ defmodule Transport.Test.Transport.Jobs.DatasetHistoryJobTest do
     assert %{
              dataset_id: ^dataset_id,
              dataset_datagouv_id: ^datagouv_id,
-             payload: %{"licence" => "love", "type" => "public-transport", "slug" => "the-slug"}
+             payload: %{
+               "licence" => "love",
+               "type" => "public-transport",
+               "slug" => "the-slug",
+               "custom_tags" => ["foo"]
+             }
            } = dataset_history
 
     dataset_history_resources = dataset_history.dataset_history_resources
