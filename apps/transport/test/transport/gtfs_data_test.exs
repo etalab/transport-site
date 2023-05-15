@@ -1,6 +1,7 @@
 defmodule Transport.GTFSDataTest do
   use ExUnit.Case, async: false
   import DB.Factory
+  import Ecto.Query
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -37,7 +38,12 @@ defmodule Transport.GTFSDataTest do
              features: [
                %{
                  geometry: %{coordinates: [48.5, 2.5], type: "Point"},
-                 properties: %{d_id: data_import.id, d_title: "Hello", stop_id: "LOC:001", stop_location_type: nil},
+                 properties: %{
+                   d_id: data_import.id,
+                   d_title: "Hello",
+                   stop_id: "LOC:001",
+                   stop_location_type: nil
+                 },
                  type: "Feature"
                }
              ],
