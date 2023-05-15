@@ -402,5 +402,5 @@ msgid "[stops.txt] wheelchair_boarding information added for stop_id %{stop_id},
 msgstr "[stops.txt] une information d'accessibilité wheelchair_boarding a été ajouté par le stop_id %{stop_id}, valeur précédente : \"%{initial_wheelchair_boarding}\", nouvelle valeur : \"%{new_wheelchair_boarding}\""
 
 #, elixir-autogen, elixir-format
-msgid "Job is running..."
-msgstr "Comparaison en cours..."
+msgid "Job is running…"
+msgstr "Comparaison en cours…"

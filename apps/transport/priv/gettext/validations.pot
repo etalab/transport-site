@@ -401,5 +401,5 @@ msgid "[stops.txt] wheelchair_boarding information added for stop_id %{stop_id},
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Job is running..."
+msgid "Job is running…"
 msgstr ""
