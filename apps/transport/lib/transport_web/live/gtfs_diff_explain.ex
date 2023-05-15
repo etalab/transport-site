@@ -4,6 +4,23 @@ defmodule TransportWeb.GTFSDiffExplain do
   """
   import TransportWeb.Gettext
 
+  def diff_explanations(diffs) do
+    diffs
+    |> Enum.flat_map(fn diff ->
+      diff =
+        diff
+        |> Map.update("initial_value", %{}, &try_jason_decode(&1))
+        |> Map.update("new_value", %{}, &try_jason_decode(&1))
+        |> Map.update("identifier", %{}, &try_jason_decode(&1))
+
+      []
+      |> explanation_add_file(diff)
+      |> explanation_delete_file(diff)
+      |> explanation_update_stop_name(diff)
+      |> explanation_stop_wheelchair_access(diff)
+    end)
+  end
+
   def diff_summary(diff) do
     order = %{"file" => 0, "column" => 1, "row" => 2}
 
@@ -86,23 +103,6 @@ defmodule TransportWeb.GTFSDiffExplain do
   end
 
   def explanation_stop_wheelchair_access(explanations, _), do: explanations
-
-  def diff_explanations(diffs) do
-    diffs
-    |> Enum.flat_map(fn diff ->
-      diff =
-        diff
-        |> Map.update("initial_value", %{}, &try_jason_decode(&1))
-        |> Map.update("new_value", %{}, &try_jason_decode(&1))
-        |> Map.update("identifier", %{}, &try_jason_decode(&1))
-
-      []
-      |> explanation_add_file(diff)
-      |> explanation_delete_file(diff)
-      |> explanation_update_stop_name(diff)
-      |> explanation_stop_wheelchair_access(diff)
-    end)
-  end
 
   def try_jason_decode(""), do: ""
   def try_jason_decode(input), do: Jason.decode!(input)
