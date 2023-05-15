@@ -95,9 +95,6 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     {:noreply, socket}
   end
 
-  def try_jason_decode(""), do: ""
-  def try_jason_decode(input), do: Jason.decode!(input)
-
   defp upload_to_s3(file_path, path) do
     Transport.S3.upload_to_s3!(:gtfs_diff, File.read!(file_path), path)
   end
