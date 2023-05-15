@@ -6,19 +6,32 @@ defmodule Transport.GTFSDataTest do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
-  test "build_detailed" do
+  # input: arrays of lat/lon
+  def insert_gtfs_stops(lat_lon_list) do
     dataset = insert(:dataset, %{custom_title: "Hello", is_active: true})
     resource = insert(:resource, dataset: dataset)
     resource_history = insert(:resource_history, resource: resource)
     data_import = insert(:data_import, resource_history: resource_history)
 
-    insert(:gtfs_stops,
-      data_import: data_import,
-      stop_lat: 2.5,
-      stop_lon: 48.5,
-      stop_name: "L'arrêt",
-      stop_id: "LOC:001"
-    )
+    lat_lon_list
+    |> Enum.with_index()
+    |> Enum.each(fn {{lat, lon}, index} ->
+      index = index + 1
+
+      insert(:gtfs_stops,
+        data_import: data_import,
+        stop_lat: lat,
+        stop_lon: lon,
+        stop_name: "L'arrêt #{index}",
+        stop_id: "LOC:#{String.pad_leading(index |> Integer.to_string(), 3, "0")}"
+      )
+    end)
+
+    data_import
+  end
+
+  test "build_detailed" do
+    data_import = insert_gtfs_stops([{2.5, 48.5}])
 
     assert Transport.GTFSData.build_detailed({3.333333, 2.333333, 48.866667, 48.266667}) == %{
              features: [
