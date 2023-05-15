@@ -21,7 +21,7 @@
         </div>
         <%= if uploads_are_valid(@uploads) do %>
           <%= if assigns[:job_running] do %>
-            <button class="button"><%= dgettext("validations", "Job is running...") %></button>
+            <button class="button"><%= dgettext("validations", "Job is running…") %></button>
           <% else %>
             <button class="button" type="submit"><%= dgettext("validations", "Compare") %></button>
           <% end %>
