@@ -65,20 +65,7 @@ defmodule Transport.GTFSDataTest do
       {:ok, _} = Ecto.Adapters.SQL.query(DB.Repo, "drop materialized view #{view_name}")
     end)
 
-    # TODO: move to helper code & DRY
-    # We need at least one point for the method to work (bounding box)
-    dataset = insert(:dataset, %{custom_title: "Hello", is_active: true})
-    resource = insert(:resource, dataset: dataset)
-    resource_history = insert(:resource_history, resource: resource)
-    data_import = insert(:data_import, resource_history: resource_history)
-
-    insert(:gtfs_stops,
-      data_import: data_import,
-      stop_lat: 2.5,
-      stop_lon: 48.5,
-      stop_name: "L'arrêt",
-      stop_id: "LOC:001"
-    )
+    insert_gtfs_stops([{2.5, 48.5}])
 
     Transport.GTFSData.create_it_not_exist_materialized_views()
 
