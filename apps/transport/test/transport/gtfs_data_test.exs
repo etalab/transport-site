@@ -73,10 +73,9 @@ defmodule Transport.GTFSDataTest do
   end
 
   def get_view_data(view_name) do
-    query = s in view_name
+    query = from(s in view_name)
 
     query
-    |> from()
     |> select([:cluster_lat, :cluster_lon, :count])
     |> DB.Repo.all()
   end
