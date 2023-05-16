@@ -43,9 +43,9 @@ msgid "401: Unauthorized"
 msgstr "401 : Non autorisé"
 
 #, elixir-autogen, elixir-format
-msgid "503: Service Unavailable"
-msgstr "503 : Service non disponible"
-
-#, elixir-autogen, elixir-format
 msgid "Feature temporarily disabled"
 msgstr "Fonctionnalité temporairement désactivée"
+
+#, elixir-autogen, elixir-format
+msgid "503: Service Unavailable"
+msgstr "503 : Service non disponible"
