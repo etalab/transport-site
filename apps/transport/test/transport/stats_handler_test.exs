@@ -39,6 +39,42 @@ defmodule Transport.StatsHandlerTest do
              count_feed_types_gtfs_rt()
   end
 
+  test "climate_resilience_bill_count" do
+    aom = insert(:aom, population_totale: 1_000)
+    insert(:dataset, aom: aom, is_active: false, custom_tags: ["loi-climat-resilience"], type: "public-transit")
+    insert(:dataset, aom: aom, is_active: true, custom_tags: ["loi-climat-resilience"], type: "public-transit")
+    insert(:dataset, aom: aom, is_active: true, custom_tags: ["loi-climat-resilience"], type: "public-transit")
+
+    insert(:dataset,
+      aom: aom,
+      is_active: true,
+      custom_tags: ["loi-climat-resilience", "foo"],
+      type: "low-emission-zones"
+    )
+
+    assert %{
+             climate_resilience_bill_count: %{
+               "low-emission-zones" => 1,
+               "public-transit" => 2
+             }
+           } = compute_stats()
+
+    # Stored as expected in the database
+    store_stats()
+
+    decimal_1 = Decimal.new(1)
+    decimal_2 = Decimal.new(2)
+
+    assert [
+             %DB.StatsHistory{metric: "climate_resilience_bill_count::low-emission-zones", value: ^decimal_1},
+             %DB.StatsHistory{metric: "climate_resilience_bill_count::public-transit", value: ^decimal_2}
+           ] =
+             DB.StatsHistory
+             |> where([s], like(s.metric, "climate_resilience_bill_count%"))
+             |> order_by([s], s.metric)
+             |> DB.Repo.all()
+  end
+
   test "store_stats" do
     resource = insert(:resource, format: "gtfs-rt")
     insert(:resource_metadata, features: ["vehicle_positions"], resource_id: resource.id)
@@ -53,7 +89,10 @@ defmodule Transport.StatsHandlerTest do
     all_metrics = DB.StatsHistory |> select([s], s.metric) |> DB.Repo.all()
 
     stats_metrics =
-      stats |> Map.keys() |> Enum.map(&to_string/1) |> Enum.reject(&String.starts_with?(&1, "gtfs_rt_types"))
+      stats
+      |> Map.keys()
+      |> Enum.map(&to_string/1)
+      |> Enum.reject(&String.starts_with?(&1, ["gtfs_rt_types", "climate_resilience_bill_count"]))
 
     assert MapSet.subset?(MapSet.new(stats_metrics), MapSet.new(all_metrics))
     assert Enum.member?(all_metrics, "gtfs_rt_types::vehicle_positions")
