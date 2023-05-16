@@ -79,6 +79,13 @@ defmodule Transport.GTFSData do
     12 => {0.00171661376953125, 0.0011294445140095472}
   }
 
+  def list_views(pattern) do
+    from(v in "pg_matviews")
+    |> select([:matviewname])
+    |> where([v], like(v.matviewname, ^pattern))
+    |> DB.Repo.all()
+  end
+
   def create_it_not_exist_materialized_views do
     @zoom_levels
     |> Enum.each(fn {zoom_level, _} ->

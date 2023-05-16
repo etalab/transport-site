@@ -2,22 +2,12 @@ defmodule Transport.GTFSDataTest do
   use ExUnit.Case, async: false
   import DB.Factory
   import Ecto.Query
+  import Transport.GTFSData, only: [list_views: 1]
 
   @cluster_views_prefix "gtfs_stops_clusters"
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-  end
-
-  # not to be used outside test (SQL injection)
-  def list_views(pattern) do
-    {:ok, %{rows: view_names}} =
-      Ecto.Adapters.SQL.query(
-        DB.Repo,
-        "select matviewname from pg_matviews where matviewname like '#{pattern}'"
-      )
-
-    List.flatten(view_names)
   end
 
   def drop_views(pattern) do
