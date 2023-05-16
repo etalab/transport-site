@@ -88,7 +88,7 @@ defmodule Transport.GTFSData do
     |> DB.Repo.all()
   end
 
-  def create_it_not_exist_materialized_views do
+  def create_if_not_exist_materialized_views do
     @zoom_levels
     |> Enum.each(fn {zoom_level, _} ->
       create_gtfs_stops_materialized_view(zoom_level)

@@ -75,7 +75,7 @@ defmodule Transport.GTFSDataTest do
 
     insert_gtfs_stops([{2.5, 48.5}])
 
-    Transport.GTFSData.create_it_not_exist_materialized_views()
+    Transport.GTFSData.create_if_not_exist_materialized_views()
 
     view_names = list_views(@cluster_views_prefix <> "%")
     expected_view_names = 1..12 |> Enum.map(&"#{@cluster_views_prefix}_level_#{&1}")
@@ -91,7 +91,7 @@ defmodule Transport.GTFSDataTest do
   test "refresh_materialized_views" do
     drop_views(@cluster_views_prefix <> "%")
     insert_gtfs_stops([{2.5, 48.5}])
-    Transport.GTFSData.create_it_not_exist_materialized_views()
+    Transport.GTFSData.create_if_not_exist_materialized_views()
     [%{count: 1}] = get_view_data(@cluster_views_prefix <> "_level_1")
     insert_gtfs_stops([{2.5, 48.5}])
     [%{count: 1}] = get_view_data(@cluster_views_prefix <> "_level_1")
@@ -116,7 +116,7 @@ defmodule Transport.GTFSDataTest do
       )
     end)
 
-    Transport.GTFSData.create_it_not_exist_materialized_views()
+    Transport.GTFSData.create_if_not_exist_materialized_views()
 
     # format is expected exactly as is, without keys (to reduce load), on the javascript side
     assert Jason.decode!(
