@@ -80,8 +80,10 @@ defmodule Transport.GTFSData do
   }
 
   def list_views(pattern) do
-    from(v in "pg_matviews")
-    |> select([:matviewname])
+    query = from(v in "pg_matviews")
+
+    query
+    |> select([v], v.matviewname)
     |> where([v], like(v.matviewname, ^pattern))
     |> DB.Repo.all()
   end
