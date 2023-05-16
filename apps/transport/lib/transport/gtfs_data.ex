@@ -102,6 +102,16 @@ defmodule Transport.GTFSData do
     end)
   end
 
+  @doc """
+  For simplicity, this method will attempt to "create if not exist", then
+  refresh the views. It means the first time ever, 2 computations will occur.
+  "NO DATA" could instead be used on view creation instead if needed.
+  """
+  def create_or_refresh_all_materialized_views do
+    create_if_not_exist_materialized_views()
+    refresh_materialized_views()
+  end
+
   def refresh_materialized_view(zoom_level) when is_integer(zoom_level) do
     # NOTE: CONCURRENTLY is better but will require a unique index first
     # Not using CONCURRENTLY means the view cannot be queried at all during the operation
@@ -111,6 +121,8 @@ defmodule Transport.GTFSData do
       """)
   end
 
+  # NOTE: the bounding box computation is done before the "create if not exists", which
+  # costs a bit of time even if the view exists already.
   def create_gtfs_stops_materialized_view(zoom_level) when is_integer(zoom_level) do
     north = DB.Repo.aggregate("gtfs_stops", :max, :stop_lat)
     south = DB.Repo.aggregate("gtfs_stops", :min, :stop_lat)
