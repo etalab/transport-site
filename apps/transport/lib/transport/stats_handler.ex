@@ -18,9 +18,10 @@ defmodule Transport.StatsHandler do
     compute_stats() |> Enum.each(fn {k, v} -> store_stat_history(k, v, timestamp) end)
   end
 
-  defp store_stat_history(:gtfs_rt_types = key, values, %DateTime{} = timestamp) do
-    Enum.map(values, fn {feed_type, count} ->
-      store_stat_history("#{key}::#{feed_type}", count, timestamp)
+  defp store_stat_history(key, values, %DateTime{} = timestamp)
+       when key in [:gtfs_rt_types, :climate_resilience_bill_count] do
+    Enum.map(values, fn {type, count} ->
+      store_stat_history("#{key}::#{type}", count, timestamp)
     end)
   end
 
@@ -82,6 +83,7 @@ defmodule Transport.StatsHandler do
       nb_bikes_scooter_datasets: nb_bikes_scooters(),
       nb_gtfs_rt: count_dataset_with_format("gtfs-rt"),
       gtfs_rt_types: count_feed_types_gtfs_rt(),
+      climate_resilience_bill_count: count_datasets_climate_resilience_bill(),
       nb_siri: count_dataset_with_format("SIRI"),
       nb_siri_lite: count_dataset_with_format("SIRI Lite")
     }
@@ -108,6 +110,15 @@ defmodule Transport.StatsHandler do
     q
     |> group_by([f], f.feature)
     |> select([f], {f.feature, count(f.feature)})
+    |> DB.Repo.all()
+    |> Enum.into(%{})
+  end
+
+  defp count_datasets_climate_resilience_bill do
+    DB.Dataset.base_query()
+    |> where([dataset: d], "loi-climat-resilience" in d.custom_tags)
+    |> group_by([dataset: d], d.type)
+    |> select([dataset: d], {d.type, count(d.id)})
     |> DB.Repo.all()
     |> Enum.into(%{})
   end
