@@ -36,7 +36,9 @@ webserver = webserver == "1"
 # expose the result so that the application can configure itself from there
 config :transport,
   worker: worker,
-  webserver: webserver
+  webserver: webserver,
+  # kill switch
+  disable_national_gtfs_map: System.get_env("DISABLE_NATIONAL_GTFS_MAP") == "1"
 
 config :unlock,
   enforce_ttl: webserver

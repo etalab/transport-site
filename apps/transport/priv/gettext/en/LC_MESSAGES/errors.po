@@ -41,3 +41,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "401: Unauthorized"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "503: Under Maintenance"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Feature temporarily disabled"
+msgstr ""
