@@ -23,7 +23,7 @@ defmodule TransportWeb.ExploreController do
       |> assign(:custom_message, dgettext("errors", "Feature temporarily disabled"))
       |> render("503.html")
     else
-      render("gtfs_stops.html")
+      render(conn, "gtfs_stops.html")
     end
   end
 
