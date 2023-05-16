@@ -101,6 +101,7 @@ oban_crontab_all_envs =
       [
         {"0 */6 * * *", Transport.Jobs.ResourceHistoryAndValidationDispatcherJob},
         {"30 */6 * * *", Transport.Jobs.GtfsToGeojsonConverterJob},
+        {"0 4 * * *", Transport.Jobs.GTFSImportStopsJob},
         # every 6 hours but not at the same time as other jobs
         {"0 3,9,15,21 * * *", Transport.Jobs.GtfsToNetexConverterJob},
         {"20 8 * * *", Transport.Jobs.CleanOrphanConversionsJob},
