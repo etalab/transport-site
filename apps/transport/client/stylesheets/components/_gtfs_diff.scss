@@ -22,13 +22,21 @@
     display: inline-block;
     width: 250px;
   }
-  .upload-entry {
-    padding-bottom: 30px;
+  input {
+    border: none;
+    padding: 12px 0 6px;
   }
 }
 
-.gtfs-diff {
+progress {
+  accent-color: var(--blue);
+}
+
+.gtfs-diff-results {
   min-height: 90vh;
+  h4 {
+    margin: 24px 0 12px;
+  }
   .green {
     color: green;
   }
@@ -41,5 +49,8 @@
   .summary {
     display: flex;
     justify-content: space-around;
+    ul {
+      padding-left: 12px;
+    }
   }
 }
