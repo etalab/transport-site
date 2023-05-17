@@ -20,7 +20,7 @@ defmodule TransportWeb.HeadersAndCookiesTest do
       "expires" => datetime
     } = Plug.Conn.Cookies.decode(header)
 
-    datetime = Timex.parse!(datetime, "{WDshort}, {D} {Mfull} {YYYY} {h24}:{m}:{s} GMT")
+    datetime = Timex.parse!(datetime, "{WDshort}, {D} {Mshort} {YYYY} {h24}:{m}:{s} GMT")
     assert_in_delta Timex.diff(datetime, Timex.now(), :hours), 15 * 24, 1
   end
 end
