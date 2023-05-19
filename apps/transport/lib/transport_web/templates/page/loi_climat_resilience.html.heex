@@ -13,21 +13,25 @@ arrete_url = "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000046144276" %>
             />
           </div>
           <div>
-            <h1 class="bill mb-0">Loi climat et résilience</h1>
+            <h1 class="bill mb-0"><%= dgettext("climate-resilience-bill", "Climate and Resilience bill") %></h1>
           </div>
         </div>
       </div>
       <div class="section-why-body">
         <div class="panel">
           <div class="why-section-picto">
-            <img src={static_path(@conn, "/images/icons/map.png")} alt="Carte" />
+            <img src={static_path(@conn, "/images/icons/map.png")} alt={dgettext("climate-resilience-bill", "Map")} />
           </div>
           <div class="why-section-text">
-            <h2>Pour les producteurs</h2>
+            <h2><%= dgettext("climate-resilience-bill", "For producers") %></h2>
             <ul>
-              <li>intégrer facilement vos données dans des calculateurs d’itinéraires</li>
-              <li>bénéficier d’une visibilité grand public sur vos services de mobilités</li>
-              <li>informer efficacement les usagers des possibilités de déplacements vertueuses</li>
+              <li>
+                <%= dgettext("climate-resilience-bill", "Easily integrate your data into travel information services") %>
+              </li>
+              <li>
+                <%= dgettext("climate-resilience-bill", "Benefit from public visibility for your mobility services") %>
+              </li>
+              <li><%= dgettext("climate-resilience-bill", "Inform users about sustainable travel options") %></li>
             </ul>
           </div>
         </div>
@@ -35,15 +39,17 @@ arrete_url = "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000046144276" %>
           <div class="why-section-picto">
             <img
               src={static_path(@conn, "/images/producteurs/streamline-icon-people-in-love-3@140x140.png")}
-              alt="Réutilisateurs"
+              alt={dgettext("climate-resilience-bill", "Reusers")}
             />
           </div>
           <div class="why-section-text">
-            <h2>Pour les réutilisateurs</h2>
+            <h2><%= dgettext("climate-resilience-bill", "For reusers") %></h2>
             <ul>
-              <li>accroître plus largement la couverture des territoires</li>
-              <li>faciliter la mise en conformité juridique de votre service</li>
-              <li>bénéficier d’un lien avec les producteurs via l’accompagnement du PAN</li>
+              <li><%= dgettext("climate-resilience-bill", "Expand coverage to a wider range of territories") %></li>
+              <li><%= dgettext("climate-resilience-bill", "Facilitate legal compliance of your service") %></li>
+              <li>
+                <%= dgettext("climate-resilience-bill", "Benefit from a connection with producers through NAP support") %>
+              </li>
             </ul>
           </div>
         </div>
@@ -54,47 +60,68 @@ arrete_url = "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000046144276" %>
     <div class="container container_max_700px">
       <article class="panel">
         <p>
-          Un des objectifs de la loi dite « Climat et résilience » consiste à fournir plus d’informations à vocation environnementale aux individus afin de les aider à orienter leurs comportements en connaissance de cause. Dans ce cadre,
-          <a href={article122_url}>l’article 122</a>
-          vise à accompagner la transition des usages vers une mobilité décarbonnée, en agissant notamment sur les services numériques d’information voyageurs, aujourd’hui très couramment utilisés.
+          <%= dgettext(
+            "climate-resilience-bill",
+            "One of the main objectives of the Climate and Resilience bill is to provide individuals with more environment-oriented information in order to help them make better-informed behavioral decisions."
+          ) %>
+          <%= raw(
+            dgettext(
+              "climate-resilience-bill",
+              ~s(In this context, <a href="%{article122_url}">Article 122</a> aims to support the transition towards decarbonized mobility by addressing digital travel information services, which are widely used today.),
+              article122_url: article122_url
+            )
+          ) %>
         </p>
         <p>
-          Aussi, <a href={decret_url}>le décret d’application n°2022-1119 du 3 août 2022</a>
-          prévoit notamment un ensemble d’obligations de réutilisation des données du Point d’accès national auprès des services numériques multimodaux, relatives aux informations sur les modes et services de mobilité alternatifs à l’usage individuel du véhicule, selon les échéances suivantes :
+          <%= raw(
+            dgettext(
+              "climate-resilience-bill",
+              ~s[The implementing <a href="%{decret_url}">decree No. 2022-1119 of August 3rd 2022</a> sets out a series of obligations for the re-use of data from the National Access Point (NAP) for multimodal digital services, regarding information on mobility modes and services alternative to the individual vehicle use. The deadlines for compliance are as follows:],
+              decret_url: decret_url
+            )
+          ) %>
         </p>
 
         <ul>
-          <li>Dès le 1<sup>er</sup> décembre 2022 :</li>
+          <li><%= raw(dgettext("climate-resilience-bill", "Starting from December 1, 2022:")) %></li>
           <ul>
-            <li>Les services de transport réguliers</li>
-            <li>Les services de transport à la demande</li>
+            <li>
+              <%= dgettext("climate-resilience-bill", "Regular transport services and on-demand transport services") %>
+            </li>
           </ul>
-          <li>Dès le 1<sup>er</sup> décembre 2023 :</li>
+          <li><%= raw(dgettext("climate-resilience-bill", "Starting from December 1, 2023:")) %></li>
           <ul>
-            <li>Les services de transport partagés</li>
+            <li><%= dgettext("climate-resilience-bill", "Shared transport services") %></li>
           </ul>
         </ul>
 
         <p>
-          Conformément à <a href={arrete_url}>l’arrêté d’application du 3 août 2022</a>
-          relatif aux services numériques d’assistance aux déplacements, ces mesures de réutilisation s’appliquent uniquement pour les jeux de données soumis à la licence ouverte de réutilisation d’informations publiques dite « Etalab ». Les jeux de données doivent être par ailleurs disponibles dans un format standardisé et de qualité suffisante à leur utilisation.
+          <%= raw(
+            dgettext(
+              "climate-resilience-bill",
+              ~s[In compliance with the implementation of <a href="%{arrete_url}">the order of August 3rd 2022</a> on digital travel assistance services, these reuse obligations apply only to datasets subject to  the "Etalab" open licence for the re-use of public information. Additionally, the datasets must be available in a standardized format and of sufficient quality for their use.],
+              arrete_url: arrete_url
+            )
+          ) %>
         </p>
       </article>
       <div class="panel panel-conditions">
         <div class="section-picto">
           <img
             src={static_path(@conn, "/images/producteurs/streamline-icon-employee-checklist.png")}
-            alt="Réutilisateurs"
+            alt={dgettext("climate-resilience-bill", "Checklist")}
           />
         </div>
         <div class="section-text">
-          <h3>Conditions d'applications</h3>
-          Les données concernées par ces mesures se limitent aux données :
+          <h3><%= dgettext("climate-resilience-bill", "Conditions of application") %></h3>
+          <p>
+            <%= dgettext("climate-resilience-bill", "The data concerned by these measures is limited to data:") %>
+          </p>
           <ul>
-            <li>sous licence ouverte Etalab</li>
-            <li>respectant un standard</li>
-            <li>d'une qualité pertinente</li>
-            <li>mises à jour régulièrement</li>
+            <li><%= dgettext("climate-resilience-bill", "under the Etalab open licence") %></li>
+            <li><%= dgettext("climate-resilience-bill", "respecting a standard") %></li>
+            <li><%= dgettext("climate-resilience-bill", "of a relevant quality criteria") %></li>
+            <li><%= dgettext("climate-resilience-bill", "regularly updated") %></li>
           </ul>
         </div>
       </div>
