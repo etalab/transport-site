@@ -70,6 +70,25 @@
               </div>
             </div>
           </div>
+          <div class="panel espace-producer-panel">
+            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-bell.svg")} alt="" />
+            <div>
+              <div class="publish-header">
+                <h4><%= dgettext("espace-producteurs", "Notification subscriptions") %></h4>
+              </div>
+              <div class="pt-12">
+                <%= dgettext(
+                  "espace-producteurs",
+                  "Receive helpful notifications about the data you publish."
+                ) %>
+              </div>
+              <div class="pt-12">
+                <a href={notification_path(@conn, :index)} class="button primary">
+                  <%= dgettext("espace-producteurs", "Manage notifications") %>
+                </a>
+              </div>
+            </div>
+          </div>
           <div :if={show_proxy_stats_block?(@datasets)} class="panel espace-producer-panel">
             <img class="picto" src={static_path(@conn, "/images/producteurs/picto-trend.png")} alt="" />
             <div>

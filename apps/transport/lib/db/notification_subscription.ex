@@ -5,6 +5,7 @@ defmodule DB.NotificationSubscription do
   use Ecto.Schema
   use TypedEctoSchema
   import Ecto.{Changeset, Query}
+  import TransportWeb.Gettext, only: [dgettext: 2]
 
   # These notification reasons are required to have a `dataset_id` set
   @reasons_related_to_datasets [:expiration, :dataset_with_error, :resource_unavailable]
@@ -22,6 +23,11 @@ defmodule DB.NotificationSubscription do
   end
 
   def base_query, do: from(ns in __MODULE__, as: :notification_subscription)
+
+  def join_with_contact(query) do
+    query
+    |> join(:inner, [notification_subscription: ns], c in DB.Contact, on: ns.contact_id == c.id, as: :contact)
+  end
 
   def insert!(%{} = fields), do: %__MODULE__{} |> changeset(fields) |> DB.Repo.insert!()
 
@@ -72,5 +78,24 @@ defmodule DB.NotificationSubscription do
   @spec subscriptions_to_emails([__MODULE__.t()]) :: [binary()]
   def subscriptions_to_emails(subscriptions) do
     subscriptions |> Enum.map(& &1.contact.email)
+  end
+
+  @doc """
+  iex> possible_reasons() |> Enum.each(&reason_to_str/1)
+  :ok
+  """
+  def reason_to_str(reason) when is_binary(reason), do: reason |> String.to_existing_atom() |> reason_to_str()
+  def reason_to_str(reason) when is_atom(reason) do
+    Map.fetch!(
+      %{
+        expiration: dgettext("notification_subscription", "expiration"),
+        dataset_with_error: dgettext("notification_subscription", "dataset_with_error"),
+        resource_unavailable: dgettext("notification_subscription", "resource_unavailable"),
+        new_dataset: dgettext("notification_subscription", "new_dataset"),
+        datasets_switching_licences: dgettext("notification_subscription", "datasets_switching_licences"),
+        daily_new_comments: dgettext("notification_subscription", "daily_new_comments")
+      },
+      reason
+    )
   end
 end

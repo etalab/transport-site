@@ -36,6 +36,13 @@ defmodule TransportWeb.BreadCrumbs do
       ]
   end
 
+  def crumbs(conn, :notification_index) do
+    crumbs(conn, :espace_producteur) ++
+      [
+        {dgettext("espace-producteurs", "Notification subscriptions"), notification_path(conn, :index)}
+      ]
+  end
+
   def crumbs(conn, :select_resource, id) do
     crumbs(conn, :espace_producteur) ++
       [

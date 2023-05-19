@@ -1,0 +1,78 @@
+<div class="pt-48">
+  <div class="container pb-24">
+    <%= breadcrumbs([@conn, :notification_index]) %>
+  </div>
+</div>
+<section class="section producer-actions">
+  <div class="container">
+    <h2><%= dgettext("espace-producteurs", "Notification subscriptions") %></h2>
+    <div class="panel">
+      <h3><%= dgettext("espace-producteurs", "Create a subscription") %></h3>
+      <%= form_for @conn, notification_path(@conn, :create), [], fn f -> %>
+        <%= label f, :dataset_id do %>
+          <%= dgettext("espace-producteurs", "Dataset") %> <%= select(
+            f,
+            :dataset_id,
+            @datasets |> Enum.sort_by(& &1.custom_title) |> Enum.map(&{&1.custom_title, &1.id}),
+            required: true
+          ) %>
+        <% end %>
+        <%= label f, :reasons, class: "pt-12" do %>
+          <%= dgettext("espace-producteurs", "Notification reason") %>
+          <%= for reason <- DB.NotificationSubscription.reasons_related_to_datasets() do %>
+            <%= label f, reason do %>
+              <%= checkbox(f, reason, hidden_input: false, value: true) %>
+              <%= DB.NotificationSubscription.reason_to_str(reason) %>
+            <% end %>
+          <% end %>
+        <% end %>
+
+        <%= submit(dgettext("espace-producteurs", "Subscribe")) %>
+      <% end %>
+    </div>
+    <div :if={Enum.count(@notification_subscriptions) > 0} class="panel">
+      <h3><%= dgettext("espace-producteurs", "Existing subscriptions") %></h3>
+      <p>
+        <%= dgettext(
+          "espace-producteurs",
+          "Here you can see your existing notification subscriptions. You can delete notification subscriptions for a dataset entirely in one click or one at a time."
+        ) %>
+      </p>
+      <table class="table dashboard-description">
+        <tr>
+          <th><%= dgettext("espace-producteurs", "Dataset") %></th>
+          <th><%= dgettext("espace-producteurs", "Notification reason") %></th>
+          <th><%= dgettext("espace-producteurs", "Actions") %></th>
+        </tr>
+        <%= for {dataset, subscriptions} <- @notification_subscriptions do %>
+          <%= for {notification_subscription, index} <- Enum.with_index(subscriptions) do %>
+            <tr>
+              <td :if={index == 0} rowspan={Enum.count(subscriptions)}>
+                <a href={dataset_path(@conn, :details, dataset.slug)}><%= dataset.custom_title %></a>
+                <div class="inline-block">
+                  <%= form_for @conn, notification_path(@conn, :delete_for_dataset, dataset.id), [method: "delete"], fn _ -> %>
+                    <button
+                      class="small button-outline no-border warning"
+                      title={dgettext("espace-producteurs", "Unsubscribe entirely")}
+                    >
+                      <i class="fa-solid fa-xmark"></i>
+                    </button>
+                  <% end %>
+                </div>
+                <div class="small"><%= DB.Dataset.type_to_str(dataset.type) %></div>
+              </td>
+              <td><%= DB.NotificationSubscription.reason_to_str(notification_subscription.reason) %></td>
+              <td>
+                <%= form_for @conn, notification_path(@conn, :delete, notification_subscription.id), [method: "delete"], fn _ -> %>
+                  <button class="small button-outline no-border warning">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        <% end %>
+      </table>
+    </div>
+  </div>
+</section>

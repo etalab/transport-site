@@ -110,3 +110,59 @@ msgstr "Voir les statistiques"
 #, elixir-autogen, elixir-format
 msgid "Transport proxy statistics"
 msgstr "Statistiques du proxy Transport"
+
+#, elixir-autogen, elixir-format
+msgid "Actions"
+msgstr "Actions"
+
+#, elixir-autogen, elixir-format
+msgid "Dataset"
+msgstr "Jeu de données"
+
+#, elixir-autogen, elixir-format
+msgid "Existing subscriptions"
+msgstr "Abonnements existants"
+
+#, elixir-autogen, elixir-format
+msgid "Here you can see your existing notification subscriptions. You can delete notification subscriptions for a dataset entirely in one click or one at a time."
+msgstr "Ici vous pouvez voir vos abonnements existants. Vous pouvez supprimer tous vos abonnements pour un jeu de données en une fois ou un motif à la fois."
+
+#, elixir-autogen, elixir-format
+msgid "Manage notifications"
+msgstr "Gérer vos notifications"
+
+#, elixir-autogen, elixir-format
+msgid "Notification reason"
+msgstr "Motif de notification"
+
+#, elixir-autogen, elixir-format
+msgid "Notification subscriptions"
+msgstr "Abonnements aux notifications"
+
+#, elixir-autogen, elixir-format
+msgid "Receive helpful notifications about the data you publish."
+msgstr "Recevez des notifications pertinentes à propos des données que vous publiez."
+
+#, elixir-autogen, elixir-format
+msgid "Unsubscribe entirely"
+msgstr "Se désabonner intégralement"
+
+#, elixir-autogen, elixir-format
+msgid "Create a subscription"
+msgstr "Créer un abonnement"
+
+#, elixir-autogen, elixir-format
+msgid "Subscribe"
+msgstr "S'abonner"
+
+#, elixir-autogen, elixir-format
+msgid "The subscription has been created"
+msgstr "L'abonnement a été créé"
+
+#, elixir-autogen, elixir-format
+msgid "The subscription has been deleted"
+msgstr "L'abonnement a été supprimé"
+
+#, elixir-autogen, elixir-format
+msgid "The subscriptions have been deleted"
+msgstr "Les abonnements ont été supprimés"
