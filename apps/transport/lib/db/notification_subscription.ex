@@ -85,6 +85,7 @@ defmodule DB.NotificationSubscription do
   :ok
   """
   def reason_to_str(reason) when is_binary(reason), do: reason |> String.to_existing_atom() |> reason_to_str()
+
   def reason_to_str(reason) when is_atom(reason) do
     Map.fetch!(
       %{
