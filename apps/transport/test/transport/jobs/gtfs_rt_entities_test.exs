@@ -42,8 +42,10 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTEntitiesJobTest do
 
       assert :ok == perform_job(GTFSRTEntitiesJob, %{"resource_id" => resource.id})
 
-      %{metadata: %{"service_alerts" => _}, features: ["service_alerts"]} =
+      %{metadata: %{"service_alerts" => _, "feed_timestamp_delay" => feed_timestamp_delay }, features: ["service_alerts"]} =
         DB.ResourceMetadata |> DB.Repo.get_by!(resource_id: resource.id)
+
+      assert feed_timestamp_delay > 0
     end
 
     test "perform with a decode error" do
