@@ -1,6 +1,6 @@
-defmodule Transport.Jobs.GTFSRTEntitiesDispatcherJob do
+defmodule Transport.Jobs.GTFSRTMetadataDispatcherJob do
   @moduledoc """
-  Job in charge of dispatching multiple `GTFSRTEntitiesJob`.
+  Job in charge of dispatching multiple `GTFSRTMetadataJob`.
   """
   use Oban.Worker, max_attempts: 3
   import Ecto.Query
@@ -9,7 +9,7 @@ defmodule Transport.Jobs.GTFSRTEntitiesDispatcherJob do
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
     relevant_resources()
-    |> Enum.map(&(%{resource_id: &1.id} |> Transport.Jobs.GTFSRTEntitiesJob.new()))
+    |> Enum.map(&(%{resource_id: &1.id} |> Transport.Jobs.GTFSRTMetadataJob.new()))
     |> Oban.insert_all()
 
     :ok
@@ -24,7 +24,7 @@ defmodule Transport.Jobs.GTFSRTEntitiesDispatcherJob do
   end
 end
 
-defmodule Transport.Jobs.GTFSRTEntitiesJob do
+defmodule Transport.Jobs.GTFSRTMetadataJob do
   @moduledoc """
   Job in charge of keeping track of which entities are present
   in a GTFS-RT feed.

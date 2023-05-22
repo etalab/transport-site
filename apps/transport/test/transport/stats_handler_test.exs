@@ -18,7 +18,7 @@ defmodule Transport.StatsHandlerTest do
     insert(:resource_metadata,
       features: ["foo"],
       resource_id: resource.id,
-      inserted_at: Transport.Jobs.GTFSRTEntitiesJob.datetime_limit() |> DateTime.add(-5)
+      inserted_at: Transport.Jobs.GTFSRTMetadataJob.datetime_limit() |> DateTime.add(-5)
     )
 
     # Empty cases, should not crash

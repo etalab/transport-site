@@ -101,7 +101,7 @@ defmodule Transport.StatsHandler do
       |> join(:inner, [metadata: m], r in DB.Resource, on: r.id == m.resource_id, as: :resource)
       |> where(
         [metadata: m, resource: r],
-        r.format == "gtfs-rt" and m.inserted_at > ^Transport.Jobs.GTFSRTEntitiesJob.datetime_limit()
+        r.format == "gtfs-rt" and m.inserted_at > ^Transport.Jobs.GTFSRTMetadataJob.datetime_limit()
       )
       |> select([metadata: m], %{resource_id: m.resource_id, feature: fragment("unnest(?)", m.features)})
 
