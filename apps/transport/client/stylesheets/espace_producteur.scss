@@ -119,3 +119,10 @@
     }
   }
 }
+
+a.filler {
+  margin-right: .3em;
+  &:first-child {
+    margin-left: .5em;
+  }
+}
