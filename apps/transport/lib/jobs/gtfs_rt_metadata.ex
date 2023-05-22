@@ -1,6 +1,6 @@
-defmodule Transport.Jobs.GTFSRTEntitiesDispatcherJob do
+defmodule Transport.Jobs.GTFSRTMetadataDispatcherJob do
   @moduledoc """
-  Job in charge of dispatching multiple `GTFSRTEntitiesJob`.
+  Job in charge of dispatching multiple `GTFSRTMetadataJob`.
   """
   use Oban.Worker, max_attempts: 3
   import Ecto.Query
@@ -9,7 +9,7 @@ defmodule Transport.Jobs.GTFSRTEntitiesDispatcherJob do
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
     relevant_resources()
-    |> Enum.map(&(%{resource_id: &1.id} |> Transport.Jobs.GTFSRTEntitiesJob.new()))
+    |> Enum.map(&(%{resource_id: &1.id} |> Transport.Jobs.GTFSRTMetadataJob.new()))
     |> Oban.insert_all()
 
     :ok
@@ -24,7 +24,7 @@ defmodule Transport.Jobs.GTFSRTEntitiesDispatcherJob do
   end
 end
 
-defmodule Transport.Jobs.GTFSRTEntitiesJob do
+defmodule Transport.Jobs.GTFSRTMetadataJob do
   @moduledoc """
   Job in charge of keeping track of which entities are present
   in a GTFS-RT feed.
@@ -59,12 +59,15 @@ defmodule Transport.Jobs.GTFSRTEntitiesJob do
     count_entities |> Map.filter(fn {_, v} -> v > 0 end) |> Enum.map(fn {k, _} -> Atom.to_string(k) end)
   end
 
+  @spec process_feed({:error, any} | {:ok, TransitRealtime.FeedMessage.t()}, DB.Resource.t()) :: any
   def process_feed({:ok, %TransitRealtime.FeedMessage{} = feed}, %Resource{id: resource_id}) do
     count_entities = feed |> GTFSRT.count_entities()
+    feed_timestamp_delay = %{feed_timestamp_delay: feed |> GTFSRT.feed_timestamp_delay()}
+    metadata = Map.merge(count_entities, feed_timestamp_delay)
 
     %DB.ResourceMetadata{
       resource_id: resource_id,
-      metadata: count_entities,
+      metadata: metadata,
       features: present_entities(count_entities)
     }
     |> Repo.insert!()

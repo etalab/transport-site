@@ -235,7 +235,7 @@ defmodule TransportWeb.ResourceView do
     end
   end
 
-  def nb_days_entities, do: Transport.Jobs.GTFSRTEntitiesJob.days_to_keep()
+  def nb_days_entities, do: Transport.Jobs.GTFSRTMetadataJob.days_to_keep()
 
   @spec display_gtfs_rt_feed(map()) :: binary()
   def display_gtfs_rt_feed(gtfs_rt_feed) do
