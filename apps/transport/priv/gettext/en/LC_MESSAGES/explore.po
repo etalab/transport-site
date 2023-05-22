@@ -102,3 +102,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "lez-explanation"
 msgstr "Latest data from the Low Emission Zones %{link}. Traffic restrictions details are included in the database."
+
+#, elixir-autogen, elixir-format
+msgid "Consolidated GTFS map"
+msgstr "Consolidated GTFS map (beta)"

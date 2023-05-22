@@ -101,3 +101,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "lez-explanation"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Consolidated GTFS map"
+msgstr ""
