@@ -106,3 +106,7 @@ msgstr "Latest data from the Low Emission Zones %{link}. Traffic restrictions de
 #, elixir-autogen, elixir-format
 msgid "Consolidated GTFS map"
 msgstr "Consolidated GTFS map (beta)"
+
+#, elixir-autogen, elixir-format
+msgid "Consolidated GTFS map explanation"
+msgstr "This map consolidates all the GTFS referenced on this site. It is in beta and may include outdated or duplicate data (see %{link}). Feedback is most welcome."

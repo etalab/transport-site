@@ -106,3 +106,8 @@ msgstr "Données issues du %{link} de la Base nationale des Zones à Faibles Ém
 #, elixir-autogen, elixir-format
 msgid "Consolidated GTFS map"
 msgstr "Carte GTFS consolidée (beta)"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Consolidated GTFS map explanation"
+msgstr "Cette carte consolide tous les GTFS référencés sur ce site. En beta, peut inclure des éléments expirés ou des doublons (voir %{link}). Vos retours sont les bienvenus."
+

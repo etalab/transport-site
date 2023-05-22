@@ -105,3 +105,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Consolidated GTFS map"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Consolidated GTFS map explanation"
+msgstr ""
