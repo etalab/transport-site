@@ -103,9 +103,9 @@ msgid "lez-explanation"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Consolidated GTFS map"
+msgid "Consolidated GTFS stops map"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Consolidated GTFS map explanation"
+msgid "Consolidated GTFS stops map explanation"
 msgstr ""

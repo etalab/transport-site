@@ -268,7 +268,7 @@ msgid "Resource historization"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "National GTFS map"
+msgid "National GTFS stops map"
 msgstr ""
 
 #, elixir-autogen, elixir-format

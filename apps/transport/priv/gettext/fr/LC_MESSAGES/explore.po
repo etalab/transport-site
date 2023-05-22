@@ -104,10 +104,10 @@ msgid "lez-explanation"
 msgstr "Données issues du %{link} de la Base nationale des Zones à Faibles Émissions. Les restrictions de circulation sont inclues dans la base."
 
 #, elixir-autogen, elixir-format
-msgid "Consolidated GTFS map"
-msgstr "Carte GTFS consolidée (beta)"
+msgid "Consolidated GTFS stops map"
+msgstr "Carte consolidée des arrêts GTFS (beta)"
 
 #, elixir-autogen, elixir-format, fuzzy
-msgid "Consolidated GTFS map explanation"
+msgid "Consolidated GTFS stops map explanation"
 msgstr "Cette carte consolide tous les GTFS référencés sur ce site. En beta, peut inclure des éléments expirés ou des doublons (voir %{link}). Vos retours sont les bienvenus."
 
