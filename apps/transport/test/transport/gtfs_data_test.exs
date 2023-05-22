@@ -79,7 +79,7 @@ defmodule Transport.GTFSDataTest do
 
     view_names = list_views(@cluster_views_prefix <> "%")
     expected_view_names = 1..12 |> Enum.map(&"#{@cluster_views_prefix}_level_#{&1}")
-    assert view_names == expected_view_names
+    assert view_names |> Enum.sort() == expected_view_names |> Enum.sort()
 
     # quick litmus test to verify we have something roughly working
     view_names
