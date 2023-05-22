@@ -108,10 +108,22 @@ defmodule Transport.Shared.GBFSMetadata do
   iex> last_updated = DateTime.utc_now() |> DateTime.add(-1, :minute) |> DateTime.to_unix()
   iex> freshness_in_seconds(%{"last_updated" => last_updated})
   60
+  iex> freshness_in_seconds(%{"x" => 1})
+  nil
+  iex> freshness_in_seconds(%{"last_updated" => "F6"})
+  nil
   """
-  def freshness_in_seconds(%{"last_updated" => last_updated}) do
-    DateTime.utc_now() |> DateTime.diff(last_updated |> DateTime.from_unix!())
+  @spec freshness_in_seconds(any()) :: nil | integer
+  def freshness_in_seconds(%{"last_updated" => last_updated}) when is_integer(last_updated) do
+    last_updated
+    |> DateTime.from_unix()
+    |> case do
+      {:ok, t} -> DateTime.utc_now() |> DateTime.diff(t)
+      _ -> nil
+    end
   end
+
+  def freshness_in_seconds(_), do: nil
 
   @doc """
   Determines the feed to use as the ttl value of a GBFS feed.
