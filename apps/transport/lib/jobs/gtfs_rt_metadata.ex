@@ -59,6 +59,7 @@ defmodule Transport.Jobs.GTFSRTMetadataJob do
     count_entities |> Map.filter(fn {_, v} -> v > 0 end) |> Enum.map(fn {k, _} -> Atom.to_string(k) end)
   end
 
+  @spec process_feed({:error, any} | {:ok, TransitRealtime.FeedMessage.t()}, DB.Resource.t()) :: any
   def process_feed({:ok, %TransitRealtime.FeedMessage{} = feed}, %Resource{id: resource_id}) do
     count_entities = feed |> GTFSRT.count_entities()
     feed_timestamp_delay = %{feed_timestamp_delay: feed |> GTFSRT.feed_timestamp_delay()}
