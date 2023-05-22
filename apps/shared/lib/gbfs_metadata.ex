@@ -26,6 +26,9 @@ defmodule Transport.Shared.GBFSMetadata do
     {:ok, %{status_code: 200, body: body} = response} = http_client().get(url, [{"origin", cors_base_url}])
     {:ok, json} = Jason.decode(body)
 
+    # we compute freshness before the rest for accuracy
+    freshness_in_seconds = freshness_in_seconds(json)
+
     %{
       validation: validation(url),
       cors_header_value: cors_header_value(response),
@@ -34,7 +37,8 @@ defmodule Transport.Shared.GBFSMetadata do
       languages: languages(json),
       system_details: system_details(json),
       types: types(json),
-      ttl: ttl(json)
+      ttl: ttl(json),
+      freshness_in_seconds: freshness_in_seconds
     }
   rescue
     e ->
@@ -96,6 +100,17 @@ defmodule Transport.Shared.GBFSMetadata do
         Logger.error("Cannot get GBFS ttl details: #{inspect(e)}")
         nil
     end
+  end
+
+  @doc """
+  Computes the freshness in seconds of a feed's content
+
+  iex> last_updated = DateTime.utc_now() |> DateTime.add(-1, :minute) |> DateTime.to_unix()
+  iex> freshness_in_seconds(%{"last_updated" => last_updated})
+  60
+  """
+  def freshness_in_seconds(%{"last_updated" => last_updated}) do
+    DateTime.utc_now() |> DateTime.diff(last_updated |> DateTime.from_unix!())
   end
 
   @doc """

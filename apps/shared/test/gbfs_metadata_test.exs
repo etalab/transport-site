@@ -16,25 +16,24 @@ defmodule Transport.Shared.GBFSMetadataTest do
       setup_feeds([:gbfs, :system_information, :station_information])
       setup_validation_result()
 
-      expected = %{
-        languages: ["fr"],
-        system_details: %{name: "velhop", timezone: "Europe/Paris"},
-        ttl: 3600,
-        types: ["stations"],
-        versions: ["1.1"],
-        feeds: ["system_information", "station_information", "station_status"],
-        validation: %GBFSValidationSummary{
-          errors_count: 0,
-          has_errors: false,
-          version_detected: "1.1",
-          version_validated: "1.1",
-          validator_version: "31c5325",
-          validator: :validator_module
-        },
-        cors_header_value: "*"
-      }
-
-      assert expected == compute_feed_metadata(@gbfs_url, "http://example.com")
+      assert %{
+               languages: ["fr"],
+               system_details: %{name: "velhop", timezone: "Europe/Paris"},
+               ttl: 3600,
+               types: ["stations"],
+               versions: ["1.1"],
+               feeds: ["system_information", "station_information", "station_status"],
+               validation: %GBFSValidationSummary{
+                 errors_count: 0,
+                 has_errors: false,
+                 version_detected: "1.1",
+                 version_validated: "1.1",
+                 validator_version: "31c5325",
+                 validator: :validator_module
+               },
+               cors_header_value: "*",
+               freshness_in_seconds: _
+             } = compute_feed_metadata(@gbfs_url, "http://example.com")
     end
 
     test "for a stations + free floating feed with a multiple versions" do
@@ -53,27 +52,28 @@ defmodule Transport.Shared.GBFSMetadataTest do
            }}
       )
 
-      expected = %{
-        languages: ["fr"],
-        system_details: %{name: "velhop", timezone: "Europe/Paris"},
-        ttl: 60,
-        types: ["free_floating", "stations"],
-        validation: summary,
-        versions: ["2.2", "2.1"],
-        feeds: [
-          "system_information",
-          "free_bike_status",
-          "vehicle_types",
-          "system_pricing_plans",
-          "station_information",
-          "station_status",
-          "geofencing_zones",
-          "gbfs_versions"
-        ],
-        cors_header_value: "*"
-      }
+      assert %{
+               languages: ["fr"],
+               system_details: %{name: "velhop", timezone: "Europe/Paris"},
+               ttl: 60,
+               types: ["free_floating", "stations"],
+               validation: ^summary,
+               versions: ["2.2", "2.1"],
+               feeds: [
+                 "system_information",
+                 "free_bike_status",
+                 "vehicle_types",
+                 "system_pricing_plans",
+                 "station_information",
+                 "station_status",
+                 "geofencing_zones",
+                 "gbfs_versions"
+               ],
+               cors_header_value: "*",
+               freshness_in_seconds: freshness_in_seconds
+             } = compute_feed_metadata(@gbfs_url, "http://example.com")
 
-      assert expected == compute_feed_metadata(@gbfs_url, "http://example.com")
+      assert freshness_in_seconds > 0
     end
 
     test "for feed with a 500 error on the root URL" do
