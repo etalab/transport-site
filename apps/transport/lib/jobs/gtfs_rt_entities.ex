@@ -61,10 +61,12 @@ defmodule Transport.Jobs.GTFSRTEntitiesJob do
 
   def process_feed({:ok, %TransitRealtime.FeedMessage{} = feed}, %Resource{id: resource_id}) do
     count_entities = feed |> GTFSRT.count_entities()
+    feed_timestamp_delay = %{feed_timestamp_delay: feed |> GTFSRT.feed_timestamp_delay()}
+    metadata = Map.merge(count_entities, feed_timestamp_delay)
 
     %DB.ResourceMetadata{
       resource_id: resource_id,
-      metadata: count_entities,
+      metadata: metadata,
       features: present_entities(count_entities)
     }
     |> Repo.insert!()
