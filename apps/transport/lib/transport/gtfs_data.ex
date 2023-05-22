@@ -15,16 +15,20 @@ defmodule Transport.GTFSData do
   detailed information.
 
   Above the threshold, aggregates are returned to the client instead. The controller computes "snap x" and "snap y"
-  values, which are the delta in latitude/longitude, divided per 5 pixels of screen. This is done to give the controller
-  enough information to figure out how to display roughly equally spaced/sized "cells" on the screen.
+  values, which are the delta in latitude/longitude, divided per 5 pixels of screen, based on what is sent by the client.
+
+  This is done to give the controller enough information to figure out how to display roughly equally spaced/sized "cells" on the screen,
+  all while keeping the number of overall clusters for a given zoom level low enough.
 
   To save bandwidth and get a fast-enough experience, the aggregates are returned as [count, lat, lon] JSON arrays,
   without any key, and with reduced decimal precision.
 
   The aggregates are pre-computed as materialized views for each of the 12 zoom levels encountered with leaflet.
-  For each zoom level, the stops are aggregated via `ST_SnapToGrid` to a certain amount of delta lat/lon, which allows
-  more or less to have one "cell" every 5 pixels on the client side. This is of course an approximation, but it works
-  reasonably well.
+  For each zoom level, the stops are counted as aggregates via `ST_SnapToGrid`. The delta latitude/longitude for each zoom level
+  has been captured from the client and hardcoded (see `@zoom_levels`).
+
+  When an actual aggregate query needs to occur, the snap_x/snap_y computed values (thanks to what is sent by the client)
+  are used to determine which zoom level is the closest in term of snap_y, which helps deciding which aggregate to pick.
   """
 
   import Ecto.Query
@@ -147,6 +151,7 @@ defmodule Transport.GTFSData do
 
   # NOTE: the bounding box computation is done before the "create if not exists", which
   # costs a bit of time even if the view exists already.
+  # NOTE: make sure to keep the integer guard to avoid SQL injections.
   def create_gtfs_stops_materialized_view(zoom_level) when is_integer(zoom_level) do
     north = DB.Repo.aggregate("gtfs_stops", :max, :stop_lat)
     south = DB.Repo.aggregate("gtfs_stops", :min, :stop_lat)
@@ -197,6 +202,8 @@ defmodule Transport.GTFSData do
   def build_clusters_json_encoded({north, south, east, west}, {snap_x, snap_y}) do
     {zoom_level, {_sx, _sy}} = find_closest_zoom_level({snap_x, snap_y})
 
+    # NOTE: careful with not creating a SQL injection here as in other similar places in this file.
+    # Here zoom_level is not user input at time of writing.
     q =
       from(gs in "gtfs_stops_clusters_level_#{zoom_level}",
         # NOTE: the rounding could be moved to the materialized view itself,
