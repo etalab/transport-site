@@ -1,6 +1,20 @@
 defmodule Transport.GTFSData do
   @moduledoc """
   A module centralizing data functions for GTFS (stops for now).
+
+  Here is the general explanation around the algorithms used to create the national GTFS stops map,
+  centralized in one place for simplicity.
+
+  The client side (`gtfs.js`) computes the width/height in pixels and the bounding box (north/south/east/west).
+  The size in pixels is useful to try to display similarly spaced clusters, as explained below.
+
+  Server-side, `explore_controller.ex` counts the stops in the bounding box.
+
+  Under a certain threshold, one that allows decent performance on the client side & in delay in transmission from
+  the server to the client, a non-aggregate (aka "detailed") reply is generated as GeoJSON, allowing to show per-stop
+  detailed information.
+
+  Above the threshold, (TO BE CONTINUED)
   """
 
   import Ecto.Query
