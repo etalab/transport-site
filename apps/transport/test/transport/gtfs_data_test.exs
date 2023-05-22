@@ -5,7 +5,7 @@ defmodule Transport.GTFSDataTest do
   import Transport.GTFSData, only: [list_views: 1]
 
   @cluster_views_prefix "gtfs_stops_clusters"
-  @cluster_views_pattern @cluster_views_pattern
+  @cluster_views_pattern @cluster_views_prefix <> "%"
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
