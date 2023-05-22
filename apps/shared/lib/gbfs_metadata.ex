@@ -26,6 +26,9 @@ defmodule Transport.Shared.GBFSMetadata do
     {:ok, %{status_code: 200, body: body} = response} = http_client().get(url, [{"origin", cors_base_url}])
     {:ok, json} = Jason.decode(body)
 
+    # we compute the feed delay before the rest for accuracy
+    feed_timestamp_delay = feed_timestamp_delay(json)
+
     %{
       validation: validation(url),
       cors_header_value: cors_header_value(response),
@@ -34,7 +37,8 @@ defmodule Transport.Shared.GBFSMetadata do
       languages: languages(json),
       system_details: system_details(json),
       types: types(json),
-      ttl: ttl(json)
+      ttl: ttl(json),
+      feed_timestamp_delay: feed_timestamp_delay
     }
   rescue
     e ->
@@ -97,6 +101,29 @@ defmodule Transport.Shared.GBFSMetadata do
         nil
     end
   end
+
+  @doc """
+  Computes the freshness in seconds of a feed's content
+
+  iex> last_updated = DateTime.utc_now() |> DateTime.add(-1, :minute) |> DateTime.to_unix()
+  iex> feed_timestamp_delay(%{"last_updated" => last_updated})
+  60
+  iex> feed_timestamp_delay(%{"x" => 1})
+  nil
+  iex> feed_timestamp_delay(%{"last_updated" => "F6"})
+  nil
+  """
+  @spec feed_timestamp_delay(any()) :: nil | integer
+  def feed_timestamp_delay(%{"last_updated" => last_updated}) when is_integer(last_updated) do
+    last_updated
+    |> DateTime.from_unix()
+    |> case do
+      {:ok, t} -> DateTime.utc_now() |> DateTime.diff(t)
+      _ -> nil
+    end
+  end
+
+  def feed_timestamp_delay(_), do: nil
 
   @doc """
   Determines the feed to use as the ttl value of a GBFS feed.
