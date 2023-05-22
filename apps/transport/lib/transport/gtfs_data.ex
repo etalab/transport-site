@@ -14,7 +14,17 @@ defmodule Transport.GTFSData do
   the server to the client, a non-aggregate (aka "detailed") reply is generated as GeoJSON, allowing to show per-stop
   detailed information.
 
-  Above the threshold, (TO BE CONTINUED)
+  Above the threshold, aggregates are returned to the client instead. The controller computes "snap x" and "snap y"
+  values, which are the delta in latitude/longitude, divided per 5 pixels of screen. This is done to give the controller
+  enough information to figure out how to display roughly equally spaced/sized "cells" on the screen.
+
+  To save bandwidth and get a fast-enough experience, the aggregates are returned as [count, lat, lon] JSON arrays,
+  without any key, and with reduced decimal precision.
+
+  The aggregates are pre-computed as materialized views for each of the 12 zoom levels encountered with leaflet.
+  For each zoom level, the stops are aggregated via `ST_SnapToGrid` to a certain amount of delta lat/lon, which allows
+  more or less to have one "cell" every 5 pixels on the client side. This is of course an approximation, but it works
+  reasonably well.
   """
 
   import Ecto.Query
