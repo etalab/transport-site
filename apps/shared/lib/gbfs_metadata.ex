@@ -26,8 +26,8 @@ defmodule Transport.Shared.GBFSMetadata do
     {:ok, %{status_code: 200, body: body} = response} = http_client().get(url, [{"origin", cors_base_url}])
     {:ok, json} = Jason.decode(body)
 
-    # we compute freshness before the rest for accuracy
-    freshness_in_seconds = freshness_in_seconds(json)
+    # we compute the feed delay before the rest for accuracy
+    feed_timestamp_delay = feed_timestamp_delay(json)
 
     %{
       validation: validation(url),
@@ -38,7 +38,7 @@ defmodule Transport.Shared.GBFSMetadata do
       system_details: system_details(json),
       types: types(json),
       ttl: ttl(json),
-      freshness_in_seconds: freshness_in_seconds
+      feed_timestamp_delay: feed_timestamp_delay
     }
   rescue
     e ->
@@ -106,15 +106,15 @@ defmodule Transport.Shared.GBFSMetadata do
   Computes the freshness in seconds of a feed's content
 
   iex> last_updated = DateTime.utc_now() |> DateTime.add(-1, :minute) |> DateTime.to_unix()
-  iex> freshness_in_seconds(%{"last_updated" => last_updated})
+  iex> feed_timestamp_delay(%{"last_updated" => last_updated})
   60
-  iex> freshness_in_seconds(%{"x" => 1})
+  iex> feed_timestamp_delay(%{"x" => 1})
   nil
-  iex> freshness_in_seconds(%{"last_updated" => "F6"})
+  iex> feed_timestamp_delay(%{"last_updated" => "F6"})
   nil
   """
-  @spec freshness_in_seconds(any()) :: nil | integer
-  def freshness_in_seconds(%{"last_updated" => last_updated}) when is_integer(last_updated) do
+  @spec feed_timestamp_delay(any()) :: nil | integer
+  def feed_timestamp_delay(%{"last_updated" => last_updated}) when is_integer(last_updated) do
     last_updated
     |> DateTime.from_unix()
     |> case do
@@ -123,7 +123,7 @@ defmodule Transport.Shared.GBFSMetadata do
     end
   end
 
-  def freshness_in_seconds(_), do: nil
+  def feed_timestamp_delay(_), do: nil
 
   @doc """
   Determines the feed to use as the ttl value of a GBFS feed.

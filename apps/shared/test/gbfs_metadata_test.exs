@@ -32,7 +32,7 @@ defmodule Transport.Shared.GBFSMetadataTest do
                  validator: :validator_module
                },
                cors_header_value: "*",
-               freshness_in_seconds: _
+               feed_timestamp_delay: _
              } = compute_feed_metadata(@gbfs_url, "http://example.com")
     end
 
@@ -70,10 +70,10 @@ defmodule Transport.Shared.GBFSMetadataTest do
                  "gbfs_versions"
                ],
                cors_header_value: "*",
-               freshness_in_seconds: freshness_in_seconds
+               feed_timestamp_delay: feed_timestamp_delay
              } = compute_feed_metadata(@gbfs_url, "http://example.com")
 
-      assert freshness_in_seconds > 0
+      assert feed_timestamp_delay > 0
     end
 
     test "for feed with a 500 error on the root URL" do
