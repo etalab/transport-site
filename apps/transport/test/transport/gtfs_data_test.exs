@@ -5,7 +5,7 @@ defmodule Transport.GTFSDataTest do
   import Transport.GTFSData, only: [list_views: 1]
 
   @cluster_views_prefix "gtfs_stops_clusters"
-  @cluster_views_pattern @cluster_views_prefix <> "%"
+  @cluster_views_pattern @cluster_views_pattern
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -72,13 +72,13 @@ defmodule Transport.GTFSDataTest do
   end
 
   test "create_if_not_exist_materialized_views" do
-    drop_views(@cluster_views_prefix <> "%")
+    drop_views(@cluster_views_pattern)
 
     insert_gtfs_stops([{2.5, 48.5}])
 
     Transport.GTFSData.create_if_not_exist_materialized_views()
 
-    view_names = list_views(@cluster_views_prefix <> "%")
+    view_names = list_views(@cluster_views_pattern)
     expected_view_names = 1..12 |> Enum.map(&"#{@cluster_views_prefix}_level_#{&1}")
     assert view_names |> Enum.sort() == expected_view_names |> Enum.sort()
 
@@ -90,7 +90,7 @@ defmodule Transport.GTFSDataTest do
   end
 
   test "refresh_materialized_views" do
-    drop_views(@cluster_views_prefix <> "%")
+    drop_views(@cluster_views_pattern)
     insert_gtfs_stops([{2.5, 48.5}])
     Transport.GTFSData.create_if_not_exist_materialized_views()
     [%{count: 1}] = get_view_data(@cluster_views_prefix <> "_level_1")
@@ -101,7 +101,7 @@ defmodule Transport.GTFSDataTest do
   end
 
   test "build_clusters_json_encoded" do
-    drop_views(@cluster_views_prefix <> "%")
+    drop_views(@cluster_views_pattern)
 
     insert_gtfs_stops([
       {2.5, 48.5},
