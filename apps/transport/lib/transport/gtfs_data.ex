@@ -77,6 +77,7 @@ defmodule Transport.GTFSData do
             properties: %{
               d_id: Map.fetch!(s, :d_id),
               d_title: Map.fetch!(s, :d_title),
+              stop_name: Map.fetch!(s, :stop_name),
               stop_id: Map.fetch!(s, :stop_id),
               stop_location_type: Map.fetch!(s, :stop_location_type)
             }
