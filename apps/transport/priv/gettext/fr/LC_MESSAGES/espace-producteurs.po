@@ -166,3 +166,7 @@ msgstr "L'abonnement a été supprimé"
 #, elixir-autogen, elixir-format
 msgid "The subscriptions have been deleted"
 msgstr "Les abonnements ont été supprimés"
+
+#, elixir-autogen, elixir-format
+msgid "<a href=\"%{doc_url}\" target=\"_blank\">Learn more</a> about how notifications work and when they are sent."
+msgstr "<a href=\"%{doc_url}\" target=\"_blank\">Apprenez-en plus</a> sur le fonctionnement des notifications et quand elles sont envoyées."

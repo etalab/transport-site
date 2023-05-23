@@ -8,6 +8,16 @@
     <h2><%= dgettext("espace-producteurs", "Notification subscriptions") %></h2>
     <div class="panel">
       <h3><%= dgettext("espace-producteurs", "Create a subscription") %></h3>
+      <p>
+        <%= raw(
+          dgettext(
+            "espace-producteurs",
+            ~s[<a href="%{doc_url}" target="_blank">Learn more</a> about how notifications work and when they are sent.],
+            doc_url:
+              "https://doc.transport.data.gouv.fr/producteurs/gerer-la-qualite-des-donnees/sabonner-aux-notifications"
+          )
+        ) %>
+      </p>
       <%= form_for @conn, notification_path(@conn, :create), [], fn f -> %>
         <%= label f, :dataset_id do %>
           <%= dgettext("espace-producteurs", "Dataset") %> <%= select(

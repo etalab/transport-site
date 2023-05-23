@@ -165,3 +165,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "The subscriptions have been deleted"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "<a href=\"%{doc_url}\" target=\"_blank\">Learn more</a> about how notifications work and when they are sent."
+msgstr ""
