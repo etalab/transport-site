@@ -27,9 +27,12 @@
                 <%= link(gettext("Check the quality of a file or a feed"),
                   to: live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)
                 ) %>
-                <%= link(gettext("Service status"), to: "https://stats.uptimerobot.com/q7nqyiO9yQ", target: "_blank") %>
+                <%= link(gettext("Compare two GTFS files"),
+                  to: live_path(@conn, TransportWeb.Live.GTFSDiffSelectLive)
+                ) %>
                 <%= link(gettext("SIRI query generator"), to: live_path(@conn, TransportWeb.Live.SIRIQuerierLive)) %>
                 <%= link(gettext("Exploration map"), to: explore_path(@conn, :index)) %>
+                <%= link(gettext("Service status"), to: "https://stats.uptimerobot.com/q7nqyiO9yQ", target: "_blank") %>
               </div>
             </div>
           </li>
