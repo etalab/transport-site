@@ -43,7 +43,8 @@ defmodule TransportWeb.ExploreController do
         "west" => west,
         "north" => north,
         "width_pixels" => width,
-        "height_pixels" => height
+        "height_pixels" => height,
+        "zoom_level" => zoom_level
       } = params
 
       {south, ""} = Float.parse(south)
@@ -52,13 +53,14 @@ defmodule TransportWeb.ExploreController do
       {north, ""} = Float.parse(north)
       {width_px, ""} = Float.parse(width)
       {height_px, ""} = Float.parse(height)
+      {zoom_level, ""} = Integer.parse(zoom_level)
 
       snap_x = abs((west - east) / (width_px / 5.0))
       snap_y = abs((north - south) / (height_px / 5.0))
 
       count = Transport.GTFSData.count_points({north, south, east, west})
 
-      if count < @max_points do
+      if count < @max_points && zoom_level >= 10 do
         data = %{
           type: "detailed",
           data: Transport.GTFSData.build_detailed({north, south, east, west})
