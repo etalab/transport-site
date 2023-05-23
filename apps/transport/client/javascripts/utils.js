@@ -7,7 +7,7 @@ const addSeeMore = function (maxHeight, querySelector, seeMoreText, seeLessText)
                 const parent = div.parentElement
                 const displayMore = document.createElement('div')
                 parent.appendChild(displayMore)
-                displayMore.className = '.displayMore'
+                displayMore.className = 'displayMore'
                 const linkDisplayMore = document.createElement('a')
                 displayMore.appendChild(linkDisplayMore)
                 linkDisplayMore.innerHTML = seeMoreText
