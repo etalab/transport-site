@@ -1,0 +1,20 @@
+<%= for discussion <- @discussions do %>
+  <%= render("_discussion.html",
+    discussion: discussion,
+    current_user: @current_user,
+    conn: @conn,
+    dataset: @dataset
+  ) %>
+<% end %>
+<script src={static_path(@conn, "/js/utils.js")} />
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    <%= for discussion <- @discussions |> Enum.reject(& &1["closed"] == nil) do %>
+    addSeeMore("0px",
+      "<%= "#comments-discussion-" <> discussion["id"] %>",
+      "<%= dgettext("page-dataset-details", "Display more") %>",
+      "<%= dgettext("page-dataset-details", "Display less") %>"
+    )
+    <% end %>
+  })
+</script>
