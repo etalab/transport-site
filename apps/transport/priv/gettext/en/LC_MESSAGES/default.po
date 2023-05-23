@@ -134,3 +134,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Our missions"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Climate and Resilience bill"
+msgstr ""
