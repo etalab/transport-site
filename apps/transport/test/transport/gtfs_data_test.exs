@@ -128,4 +128,23 @@ defmodule Transport.GTFSDataTest do
            ) ==
              [[2.426, 48.3398, 2], [3.0325, 48.3398, 1]]
   end
+
+  test "build_clusters_json_encoded with no data must not raise" do
+    drop_views(@cluster_views_pattern)
+
+    insert_gtfs_stops([
+      {lat = 2.5, 48.5}
+    ])
+
+    Transport.GTFSData.create_if_not_exist_materialized_views()
+
+    # must not crash when nothing is in the bounding box
+    assert Jason.decode!(
+             Transport.GTFSData.build_clusters_json_encoded(
+               {lat + 1, lat + 2, 48.866667, 48.266667},
+               {0.5, 0.5}
+             )
+           ) ==
+             []
+  end
 end

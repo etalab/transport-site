@@ -239,14 +239,18 @@ defmodule Transport.GTFSData do
       )
 
     log_time_taken("SQL query", fn ->
-      q
-      |> where(
-        [c],
-        fragment("? between ? and ?", c.cluster_lon, ^west, ^east) and
-          fragment("? between ? and ?", c.cluster_lat, ^south, ^north)
-      )
-      # "one" because we use jsonb_agg above, returning one record with everything
-      |> DB.Repo.one()
+      record =
+        q
+        |> where(
+          [c],
+          fragment("? between ? and ?", c.cluster_lon, ^west, ^east) and
+            fragment("? between ? and ?", c.cluster_lat, ^south, ^north)
+        )
+        # "one" because we use jsonb_agg above, returning one record with everything
+        |> DB.Repo.one()
+
+      # if nothing is in the bounding box, return an empty array instead of nil
+      if is_nil(record), do: "[]", else: record
     end)
   end
 
