@@ -36,7 +36,7 @@ defmodule TransportWeb.API.DatasetController do
       ])
       |> Repo.all()
 
-    recent_limit = Transport.Jobs.GTFSRTEntitiesJob.datetime_limit()
+    recent_limit = Transport.Jobs.GTFSRTMetadataJob.datetime_limit()
 
     datasets_with_gtfs_rt_metadata =
       DB.Dataset.base_query()
@@ -138,7 +138,7 @@ defmodule TransportWeb.API.DatasetController do
         |> select([resource: r], {r.id, r})
         |> DB.Repo.all()
 
-      recent_limit = Transport.Jobs.GTFSRTEntitiesJob.datetime_limit()
+      recent_limit = Transport.Jobs.GTFSRTMetadataJob.datetime_limit()
 
       gtfs_rt_resources_with_metadata =
         DB.Resource.base_query()

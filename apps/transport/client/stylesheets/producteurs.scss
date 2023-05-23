@@ -74,6 +74,10 @@
   @media (min-width: $breakpoint-tablet) and (max-width: $breakpoint-desktop) {
     background-size: 30%;
   }
+  &.no-bg {
+    background: none;
+    padding-bottom: 0;
+  }
   .section-why-body {
     display: flex;
     flex-wrap: wrap;

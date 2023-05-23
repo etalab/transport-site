@@ -1,19 +1,22 @@
 defmodule Datagouvfr.Client.DatasetsTest do
-  use Datagouvfr.ConnCase, async: false
-  use Datagouvfr.ExternalCase
+  use Datagouvfr.ConnCase, async: true
   alias Datagouvfr.Client
   alias Datagouvfr.Client.Datasets
-
+  import Mox
   doctest Client
 
-  setup do
-    Mox.stub_with(Transport.HTTPoison.Mock, HTTPoison)
-    :ok
-  end
+  setup :verify_on_exit!
 
   test "get one dataset" do
-    use_cassette "client/datasets/one-0" do
-      assert "5387f0a0a3a7291cb367549e" == Datasets.get_id_from_url("horaires-et-arrets-du-reseau-irigo-format-gtfs")
-    end
+    id = Ecto.UUID.generate()
+    slug = "slug" <> Ecto.UUID.generate()
+    url = "https://demo.data.gouv.fr/api/1/datasets/#{slug}/"
+
+    Transport.HTTPoison.Mock
+    |> expect(:request, fn :get, ^url, "", [], [follow_redirect: true] ->
+      {:ok, %HTTPoison.Response{status_code: 200, body: Jason.encode!(%{id: id})}}
+    end)
+
+    assert id == Datasets.get_id_from_url(slug)
   end
 end

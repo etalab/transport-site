@@ -31,7 +31,15 @@
   </div>
 </div>
 
-<%= if @conn.assigns[:category_custom_message] do %>
+<%= if @conn.assigns[:climate_resilience_bill_message] do %>
+  <%= render(TransportWeb.DatasetView, "_climate_resilience_bill_panel.html",
+    conn: @conn,
+    climate_resilience_msg: @climate_resilience_bill_message,
+    category_custom_message: @category_custom_message
+  ) %>
+<% end %>
+
+<%= if not is_nil(@conn.assigns[:category_custom_message]) and is_nil(@conn.assigns[:climate_resilience_bill_message]) do %>
   <%= render(TransportWeb.DatasetView, "_custom_message.html", conn: @conn, msg: @category_custom_message) %>
 <% end %>
 

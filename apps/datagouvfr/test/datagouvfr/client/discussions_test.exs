@@ -1,17 +1,11 @@
 defmodule Datagouvfr.Client.DiscussionTest do
-  use Datagouvfr.ConnCase, async: false
-  use Datagouvfr.ExternalCase
+  use Datagouvfr.ConnCase, async: true
   alias Datagouvfr.Client.Discussions
   alias OAuth2.AccessToken
-
   import Tesla.Mock
 
   setup do
-    conn =
-      build_conn()
-      |> assign(:token, AccessToken.new("secret"))
-
-    {:ok, conn: conn}
+    {:ok, conn: build_conn() |> assign(:token, AccessToken.new("secret"))}
   end
 
   test "post discussion without extras", %{conn: conn} do
