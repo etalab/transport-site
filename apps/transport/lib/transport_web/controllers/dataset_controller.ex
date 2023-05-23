@@ -89,7 +89,7 @@ defmodule TransportWeb.DatasetController do
 
   @spec gtfs_rt_entities(Dataset.t()) :: map()
   def gtfs_rt_entities(%Dataset{id: dataset_id, type: "public-transit"}) do
-    recent_limit = Transport.Jobs.GTFSRTEntitiesJob.datetime_limit()
+    recent_limit = Transport.Jobs.GTFSRTMetadataJob.datetime_limit()
 
     DB.Resource.base_query()
     |> join(:inner, [resource: r], rm in DB.ResourceMetadata, on: r.id == rm.resource_id, as: :metadata)

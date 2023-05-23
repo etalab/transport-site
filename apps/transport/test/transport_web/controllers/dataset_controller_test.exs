@@ -354,7 +354,7 @@ defmodule TransportWeb.DatasetControllerTest do
     insert(:resource_metadata,
       resource_id: resource_id_3,
       features: ["e"],
-      inserted_at: Transport.Jobs.GTFSRTEntitiesJob.datetime_limit() |> DateTime.add(-5)
+      inserted_at: Transport.Jobs.GTFSRTMetadataJob.datetime_limit() |> DateTime.add(-5)
     )
 
     assert %{resource_id_1 => MapSet.new(["a", "b"]), resource_id_2 => MapSet.new(["a", "c", "d"])} ==
