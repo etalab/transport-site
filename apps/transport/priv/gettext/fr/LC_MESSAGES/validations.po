@@ -343,7 +343,7 @@ msgstr "Résumé"
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Drop your GTFS files here or browse your local drive"
-msgstr "Glissez des fichiers GTFS ici ou parcourez vos repertoires locaux"
+msgstr "Glissez des fichiers GTFS ici ou parcourez vos répertoires locaux"
 
 #, elixir-autogen, elixir-format
 msgid "GTFS Diff is a <a href=\"%{link}\">specification</a>\n      created by transport.data.gouv.fr and aims at providing a simple and unified way to express differences between GTFS files"

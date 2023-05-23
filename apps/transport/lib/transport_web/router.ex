@@ -224,7 +224,7 @@ defmodule TransportWeb.Router do
       get("/gbfs/analyze", GbfsAnalyzerController, :index)
 
       live_session :gtfs_diff, root_layout: {TransportWeb.LayoutView, :app} do
-        live("/beta/gtfs_diff", Live.GTFSDiffSelectLive)
+        live("/gtfs_diff", Live.GTFSDiffSelectLive)
       end
 
       live_session :siri, root_layout: {TransportWeb.LayoutView, :app} do
