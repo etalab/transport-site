@@ -91,7 +91,28 @@ defmodule Transport.GTFSData do
     |> DB.Repo.aggregate(:count, :id)
   end
 
-  # exploratory values, zoom level is map.getZoom()
+  #
+  # To recreate these values, you must compute, for each Leaflet zoom-level,
+  # the following values.
+  #
+  # (east - west) / (width_in_pixels / 5.0)
+  # (north - south) / (height_in_pixels / 5.0)
+  #
+  # This can be achieved for instance purely in `gtfs.js` with the following code
+  # in the `moveend` event:
+  #
+  # ```
+  #    console.log(map.getZoom())
+  #    console.log((bounds.getEast() - bounds.getWest()) / (widthPixels / 5.0))
+  #    console.log((bounds.getNorth() - bounds.getSouth()) / (heightPixels / 5.0))
+  # ```
+  #
+  # The results will vary based on which screen / resolution you have, so I made
+  # the computations on an average sized screen. They will also vary based on where
+  # you zoom, so I worked mostly around Metropolitan France.
+  #
+  # Despite this limitation, they could still be used correctly for most cases.
+  #
   @zoom_levels %{
     1 => {3.5, 2.0},
     2 => {1.7578125000000004, 1.189324575526938},
