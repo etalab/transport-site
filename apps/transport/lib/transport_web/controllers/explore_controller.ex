@@ -13,51 +13,74 @@ defmodule TransportWeb.ExploreController do
     conn |> redirect(to: explore_path(conn, :index))
   end
 
+  defp national_map_disabled?, do: Application.fetch_env!(:transport, :disable_national_gtfs_map)
+
   def gtfs_stops(conn, _params) do
-    conn
-    |> render("gtfs_stops.html")
+    if national_map_disabled?() do
+      conn
+      |> put_status(:not_found)
+      |> put_view(ErrorView)
+      |> assign(:custom_message, dgettext("errors", "Feature temporarily disabled"))
+      |> render("503.html")
+    else
+      conn
+      |> assign(:page_title, dgettext("explore", "Consolidated GTFS stops map"))
+      |> render("gtfs_stops.html")
+    end
   end
 
   @max_points 20_000
 
   def gtfs_stops_data(conn, params) do
-    %{
-      "south" => south,
-      "east" => east,
-      "west" => west,
-      "north" => north,
-      "width_pixels" => width,
-      "height_pixels" => height
-    } = params
-
-    {south, ""} = Float.parse(south)
-    {east, ""} = Float.parse(east)
-    {west, ""} = Float.parse(west)
-    {north, ""} = Float.parse(north)
-    {width_px, ""} = Float.parse(width)
-    {height_px, ""} = Float.parse(height)
-
-    snap_x = abs((west - east) / (width_px / 5.0))
-    snap_y = abs((north - south) / (height_px / 5.0))
-
-    count = Transport.GTFSData.count_points({north, south, east, west})
-
-    if count < @max_points do
-      data = %{
-        type: "detailed",
-        data: Transport.GTFSData.build_detailed({north, south, east, west})
-      }
-
-      conn |> json(data)
-    else
-      # this comes out as already-encoded JSON, hence the use of :skip_json_encoding above
-      data = Transport.GTFSData.build_clusters_json_encoded({north, south, east, west}, {snap_x, snap_y})
-
+    if national_map_disabled?() do
       conn
-      |> put_resp_content_type("application/json")
-      |> render("gtfs_stops_data.json",
-        data: {:skip_json_encoding, Jason.encode!(%{type: "clustered", data: Jason.Fragment.new(data)})}
-      )
+      |> put_status(503)
+      |> json(%{error: "temporarily unavailable"})
+    else
+      %{
+        "south" => south,
+        "east" => east,
+        "west" => west,
+        "north" => north,
+        "width_pixels" => width,
+        "height_pixels" => height,
+        "zoom_level" => zoom_level
+      } = params
+
+      {south, ""} = Float.parse(south)
+      {east, ""} = Float.parse(east)
+      {west, ""} = Float.parse(west)
+      {north, ""} = Float.parse(north)
+      {width_px, ""} = Float.parse(width)
+      {height_px, ""} = Float.parse(height)
+      {zoom_level, ""} = Integer.parse(zoom_level)
+
+      snap_x = abs((west - east) / (width_px / 5.0))
+      snap_y = abs((north - south) / (height_px / 5.0))
+
+      count = Transport.GTFSData.count_points({north, south, east, west})
+
+      if count < @max_points && zoom_level >= 10 do
+        data = %{
+          type: "detailed",
+          data: Transport.GTFSData.build_detailed({north, south, east, west})
+        }
+
+        conn |> json(data)
+      else
+        # this comes out as already-encoded JSON, hence the use of :skip_json_encoding above
+        data =
+          Transport.GTFSData.build_clusters_json_encoded(
+            {north, south, east, west},
+            {snap_x, snap_y}
+          )
+
+        conn
+        |> put_resp_content_type("application/json")
+        |> render("gtfs_stops_data.json",
+          data: {:skip_json_encoding, Jason.encode!(%{type: "clustered", data: Jason.Fragment.new(data)})}
+        )
+      end
     end
   end
 end

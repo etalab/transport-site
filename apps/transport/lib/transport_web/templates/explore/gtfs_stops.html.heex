@@ -1,4 +1,13 @@
-<div class="container dataset-page-top"></div>
+<div class="container dataset-page-top">
+  <h2><%= @page_title %></h2>
+  <p>
+    <%= raw(
+      dgettext("explore", "Consolidated GTFS stops map explanation",
+        link: "<a href=\"https://github.com/etalab/transport-site/issues/3167\">#3167</a>"
+      )
+    ) %>
+  </p>
+</div>
 
 <div id="map" class="explore_map"></div>
 

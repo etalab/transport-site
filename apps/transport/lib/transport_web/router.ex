@@ -73,13 +73,8 @@ defmodule TransportWeb.Router do
     scope "/explore" do
       get("/", ExploreController, :index)
       get("/vehicle-positions", ExploreController, :vehicle_positions)
-
-      scope("/") do
-        pipe_through([:admin_rights])
-
-        get("/gtfs-stops", ExploreController, :gtfs_stops)
-        get("/gtfs-stops-data", ExploreController, :gtfs_stops_data)
-      end
+      get("/gtfs-stops", ExploreController, :gtfs_stops)
+      get("/gtfs-stops-data", ExploreController, :gtfs_stops_data)
     end
 
     scope "/datasets" do

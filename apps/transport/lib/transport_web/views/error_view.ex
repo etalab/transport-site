@@ -5,6 +5,12 @@ defmodule TransportWeb.ErrorView do
     render(__MODULE__, "internal_server_error.html", assigns)
   end
 
+  def render("503.html", assigns) do
+    assigns = assigns |> Map.put(:status_message, dgettext("errors", "503: Service Unavailable"))
+    # Using 400 template because it is quite generic
+    render(__MODULE__, "400_family_errors.html", assigns)
+  end
+
   def render("400.html", assigns) do
     assigns =
       assigns

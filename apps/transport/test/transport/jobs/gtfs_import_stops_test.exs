@@ -1,5 +1,6 @@
 defmodule Transport.Test.Transport.Jobs.GTFSImportStopsTest do
-  use ExUnit.Case, async: true
+  # due to materialized views creations, we cannot go async
+  use ExUnit.Case, async: false
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
   import Mox
