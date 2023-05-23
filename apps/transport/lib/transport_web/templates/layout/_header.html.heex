@@ -27,10 +27,13 @@
                 <%= link(gettext("Check the quality of a file or a feed"),
                   to: live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)
                 ) %>
-                <%= link(gettext("Service status"), to: "https://stats.uptimerobot.com/q7nqyiO9yQ", target: "_blank") %>
+                <%= link(gettext("Compare two GTFS files"),
+                  to: live_path(@conn, TransportWeb.Live.GTFSDiffSelectLive)
+                ) %>
                 <%= link(gettext("SIRI query generator"), to: live_path(@conn, TransportWeb.Live.SIRIQuerierLive)) %>
                 <%= link(gettext("Exploration map"), to: explore_path(@conn, :index)) %>
                 <%= link(gettext("National GTFS stops map"), to: explore_path(@conn, :gtfs_stops)) %>
+                <%= link(gettext("Service status"), to: "https://stats.uptimerobot.com/q7nqyiO9yQ", target: "_blank") %>
               </div>
             </div>
           </li>
@@ -42,6 +45,7 @@
               <%= gettext("Regulation") %>
               <div class="dropdown-content">
                 <%= link(gettext("Standards"), to: "https://normes.transport.data.gouv.fr", target: "_blank") %>
+                <%= link(gettext("Climate and Resilience bill"), to: page_path(@conn, :loi_climat_resilience)) %>
                 <%= link(gettext("Declaration of conformity"),
                   to:
                     "https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/declaration-de-conformite",

@@ -58,3 +58,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "State of transport open data in France"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Climate and Resilience bill: compulsory data reuse"
+msgstr ""

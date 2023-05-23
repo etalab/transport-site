@@ -144,7 +144,7 @@
         resources_infos: @resources_infos,
         resources: unavailable_resources(@dataset),
         dataset: @dataset,
-        title: dgettext("page-dataset-details", "unavailable resources"),
+        title: dgettext("page-dataset-details", "Unavailable resources"),
         warning_message:
           dgettext("page-dataset-details", "Those resources are listed by the provider but are unreachable for now"),
         latest_resources_history_infos: @latest_resources_history_infos
@@ -327,6 +327,7 @@
   </div>
   <div class="dataset-metas">
     <div class="panel">
+      <%= render("_climate_resilience_bill_badge.html", conn: @conn, dataset: @dataset) %>
       <div class="dataset__logo">
         <%= img_tag(@dataset.full_logo, alt: @dataset.custom_title) %>
       </div>

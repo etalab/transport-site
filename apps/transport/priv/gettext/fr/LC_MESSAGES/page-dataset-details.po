@@ -311,7 +311,7 @@ msgid "Features available in the resource:"
 msgstr "Données présentes dans la ressource :"
 
 #, elixir-autogen, elixir-format
-msgid "unavailable resources"
+msgid "Unavailable resources"
 msgstr "Ressources non disponibles"
 
 #, elixir-autogen, elixir-format
@@ -573,3 +573,11 @@ msgstr "Ressources associées"
 #, elixir-autogen, elixir-format
 msgid "OSM community guidelines"
 msgstr "Règles de la communauté OSM"
+
+#, elixir-autogen, elixir-format
+msgid "Climate and Resilience bill"
+msgstr "Loi climat et résilience"
+
+#, elixir-autogen, elixir-format
+msgid "compulsory data reuse"
+msgstr "intégration obligatoire de données"
