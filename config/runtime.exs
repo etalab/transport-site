@@ -36,7 +36,9 @@ webserver = webserver == "1"
 # expose the result so that the application can configure itself from there
 config :transport,
   worker: worker,
-  webserver: webserver
+  webserver: webserver,
+  # kill switch
+  disable_national_gtfs_map: System.get_env("DISABLE_NATIONAL_GTFS_MAP") == "1"
 
 config :unlock,
   enforce_ttl: webserver
@@ -99,6 +101,7 @@ oban_crontab_all_envs =
       [
         {"0 */6 * * *", Transport.Jobs.ResourceHistoryAndValidationDispatcherJob},
         {"30 */6 * * *", Transport.Jobs.GtfsToGeojsonConverterJob},
+        {"0 4 * * *", Transport.Jobs.GTFSImportStopsJob},
         # every 6 hours but not at the same time as other jobs
         {"0 3,9,15,21 * * *", Transport.Jobs.GtfsToNetexConverterJob},
         {"20 8 * * *", Transport.Jobs.CleanOrphanConversionsJob},

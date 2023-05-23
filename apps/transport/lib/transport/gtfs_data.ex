@@ -1,6 +1,34 @@
 defmodule Transport.GTFSData do
   @moduledoc """
   A module centralizing data functions for GTFS (stops for now).
+
+  Here is the general explanation around the algorithms used to create the national GTFS stops map,
+  centralized in one place for simplicity.
+
+  The client side (`gtfs.js`) computes the width/height in pixels and the bounding box (north/south/east/west).
+  The size in pixels is useful to try to display similarly spaced clusters, as explained below.
+
+  Server-side, `explore_controller.ex` counts the stops in the bounding box.
+
+  Under a certain threshold, one that allows decent performance on the client side & in delay in transmission from
+  the server to the client, a non-aggregate (aka "detailed") reply is generated as GeoJSON, allowing to show per-stop
+  detailed information.
+
+  Above the threshold, aggregates are returned to the client instead. The controller computes "snap x" and "snap y"
+  values, which are the delta in latitude/longitude, divided per 5 pixels of screen, based on what is sent by the client.
+
+  This is done to give the controller enough information to figure out how to display roughly equally spaced/sized "cells" on the screen,
+  all while keeping the number of overall clusters for a given zoom level low enough.
+
+  To save bandwidth and get a fast-enough experience, the aggregates are returned as [count, lat, lon] JSON arrays,
+  without any key, and with reduced decimal precision.
+
+  The aggregates are pre-computed as materialized views for each of the 12 zoom levels encountered with leaflet.
+  For each zoom level, the stops are counted as aggregates via `ST_SnapToGrid`. The delta latitude/longitude for each zoom level
+  has been captured from the client and hardcoded (see `@zoom_levels`).
+
+  When an actual aggregate query needs to occur, the snap_x/snap_y computed values (thanks to what is sent by the client)
+  are used to determine which zoom level is the closest in term of snap_y, which helps deciding which aggregate to pick.
   """
 
   import Ecto.Query
@@ -63,7 +91,28 @@ defmodule Transport.GTFSData do
     |> DB.Repo.aggregate(:count, :id)
   end
 
-  # exploratory values, zoom level is map.getZoom()
+  #
+  # To recreate these values, you must compute, for each Leaflet zoom-level,
+  # the following values.
+  #
+  # (east - west) / (width_in_pixels / 5.0)
+  # (north - south) / (height_in_pixels / 5.0)
+  #
+  # This can be achieved for instance purely in `gtfs.js` with the following code
+  # in the `moveend` event:
+  #
+  # ```
+  #    console.log(map.getZoom())
+  #    console.log((bounds.getEast() - bounds.getWest()) / (widthPixels / 5.0))
+  #    console.log((bounds.getNorth() - bounds.getSouth()) / (heightPixels / 5.0))
+  # ```
+  #
+  # The results will vary based on which screen / resolution you have, so I made
+  # the computations on an average sized screen. They will also vary based on where
+  # you zoom, so I worked mostly around Metropolitan France.
+  #
+  # Despite this limitation, they could still be used correctly for most cases.
+  #
   @zoom_levels %{
     1 => {3.5, 2.0},
     2 => {1.7578125000000004, 1.189324575526938},
@@ -79,48 +128,83 @@ defmodule Transport.GTFSData do
     12 => {0.00171661376953125, 0.0011294445140095472}
   }
 
-  def create_gtfs_stops_materialized_view(zoom_level)
-      when is_integer(zoom_level) and zoom_level in 1..12 do
-    {:ok, %{rows: [[count]], num_rows: 1}} =
+  def list_views(pattern) do
+    query = from(v in "pg_matviews")
+
+    query
+    |> select([v], v.matviewname)
+    |> where([v], like(v.matviewname, ^pattern))
+    |> DB.Repo.all()
+  end
+
+  def create_if_not_exist_materialized_views do
+    @zoom_levels
+    |> Enum.each(fn {zoom_level, _} ->
+      create_gtfs_stops_materialized_view(zoom_level)
+    end)
+  end
+
+  def refresh_materialized_views do
+    @zoom_levels
+    |> Enum.each(fn {zoom_level, _} ->
+      refresh_materialized_view(zoom_level)
+    end)
+  end
+
+  @doc """
+  For simplicity, this method will attempt to "create if not exist", then
+  refresh the views. It means the first time ever, 2 computations will occur.
+  "NO DATA" could instead be used on view creation instead if needed.
+  """
+  def create_or_refresh_all_materialized_views do
+    create_if_not_exist_materialized_views()
+    refresh_materialized_views()
+  end
+
+  def refresh_materialized_view(zoom_level) when is_integer(zoom_level) do
+    # NOTE: CONCURRENTLY is better but will require a unique index first
+    # Not using CONCURRENTLY means the view cannot be queried at all during the operation
+    {:ok, _res} =
       Ecto.Adapters.SQL.query(DB.Repo, """
-      select count(*)
-        from pg_matviews
-        where matviewname = 'gtfs_stops_clusters_level_#{zoom_level}'
+        REFRESH MATERIALIZED VIEW gtfs_stops_clusters_level_#{zoom_level}
       """)
+  end
 
-    if count == 0 do
-      north = DB.Repo.aggregate("gtfs_stops", :max, :stop_lat)
-      south = DB.Repo.aggregate("gtfs_stops", :min, :stop_lat)
-      east = DB.Repo.aggregate("gtfs_stops", :max, :stop_lon)
-      west = DB.Repo.aggregate("gtfs_stops", :min, :stop_lon)
+  # NOTE: the bounding box computation is done before the "create if not exists", which
+  # costs a bit of time even if the view exists already.
+  # NOTE: make sure to keep the integer guard to avoid SQL injections.
+  def create_gtfs_stops_materialized_view(zoom_level) when is_integer(zoom_level) do
+    north = DB.Repo.aggregate("gtfs_stops", :max, :stop_lat)
+    south = DB.Repo.aggregate("gtfs_stops", :min, :stop_lat)
+    east = DB.Repo.aggregate("gtfs_stops", :max, :stop_lon)
+    west = DB.Repo.aggregate("gtfs_stops", :min, :stop_lon)
 
-      {snap_x, snap_y} = @zoom_levels |> Map.fetch!(zoom_level)
+    {snap_x, snap_y} = @zoom_levels |> Map.fetch!(zoom_level)
 
-      query = build_clusters_query({north, south, east, west}, {snap_x, snap_y})
+    query = build_clusters_query({north, south, east, west}, {snap_x, snap_y})
 
-      {sql, params} = DB.Repo.to_sql(:all, query)
+    {sql, params} = DB.Repo.to_sql(:all, query)
 
-      # NOTE: we cannot use parameters directly in materalized views, and will get error
-      # "materialized views may not be defined using bound parameters". One solution is to
-      # straight replace the $ parameters manually, something that is tolerable since the
-      # parameters are all under our control at time of writing, and no SQL injection can occur.
-      # potential other solutions can be found at https://dba.stackexchange.com/a/208599
-      view_query = """
-      CREATE MATERIALIZED VIEW IF NOT EXISTS gtfs_stops_clusters_level_#{zoom_level} AS
-      #{sql}
-      """
+    # NOTE: we cannot use parameters directly in materalized views, and will get error
+    # "materialized views may not be defined using bound parameters". One solution is to
+    # straight replace the $ parameters manually, something that is tolerable since the
+    # parameters are all under our control at time of writing, and no SQL injection can occur.
+    # potential other solutions can be found at https://dba.stackexchange.com/a/208599
+    view_query = """
+    CREATE MATERIALIZED VIEW IF NOT EXISTS gtfs_stops_clusters_level_#{zoom_level} AS
+    #{sql}
+    """
 
-      view_query =
-        view_query
-        |> String.replace("$1", params |> Enum.at(0) |> Float.to_string())
-        |> String.replace("$2", params |> Enum.at(1) |> Float.to_string())
-        |> String.replace("$3", params |> Enum.at(2) |> Float.to_string())
-        |> String.replace("$4", params |> Enum.at(3) |> Float.to_string())
-        |> String.replace("$5", params |> Enum.at(4) |> Float.to_string())
-        |> String.replace("$6", params |> Enum.at(5) |> Float.to_string())
+    view_query =
+      view_query
+      |> String.replace("$1", params |> Enum.at(0) |> Float.to_string())
+      |> String.replace("$2", params |> Enum.at(1) |> Float.to_string())
+      |> String.replace("$3", params |> Enum.at(2) |> Float.to_string())
+      |> String.replace("$4", params |> Enum.at(3) |> Float.to_string())
+      |> String.replace("$5", params |> Enum.at(4) |> Float.to_string())
+      |> String.replace("$6", params |> Enum.at(5) |> Float.to_string())
 
-      {:ok, _res} = Ecto.Adapters.SQL.query(DB.Repo, view_query)
-    end
+    {:ok, _res} = Ecto.Adapters.SQL.query(DB.Repo, view_query)
   end
 
   def find_closest_zoom_level({_snap_x, snap_y}) do
@@ -139,10 +223,8 @@ defmodule Transport.GTFSData do
   def build_clusters_json_encoded({north, south, east, west}, {snap_x, snap_y}) do
     {zoom_level, {_sx, _sy}} = find_closest_zoom_level({snap_x, snap_y})
 
-    # NOTE: this lazily creates the materialized view if needed, but we'll schedule
-    # a nightly refresh later in addition to that as a fallback.
-    create_gtfs_stops_materialized_view(zoom_level)
-
+    # NOTE: careful with not creating a SQL injection here as in other similar places in this file.
+    # Here zoom_level is not user input at time of writing.
     q =
       from(gs in "gtfs_stops_clusters_level_#{zoom_level}",
         # NOTE: the rounding could be moved to the materialized view itself,
@@ -157,14 +239,18 @@ defmodule Transport.GTFSData do
       )
 
     log_time_taken("SQL query", fn ->
-      q
-      |> where(
-        [c],
-        fragment("? between ? and ?", c.cluster_lon, ^west, ^east) and
-          fragment("? between ? and ?", c.cluster_lat, ^south, ^north)
-      )
-      # "one" because we use jsonb_agg above, returning one record with everything
-      |> DB.Repo.one()
+      record =
+        q
+        |> where(
+          [c],
+          fragment("? between ? and ?", c.cluster_lon, ^west, ^east) and
+            fragment("? between ? and ?", c.cluster_lat, ^south, ^north)
+        )
+        # "one" because we use jsonb_agg above, returning one record with everything
+        |> DB.Repo.one()
+
+      # if nothing is in the bounding box, return an empty array instead of nil
+      if is_nil(record), do: "[]", else: record
     end)
   end
 
