@@ -34,4 +34,16 @@ defmodule TransportWeb.ExploreControllerTest do
 
     assert redirect_path == "/explore"
   end
+
+  test "GET /explore/gtfs-stops", %{conn: conn} do
+    conn = conn |> get("/explore/gtfs-stops")
+    html = html_response(conn, 200)
+    doc = Floki.parse_document!(html)
+
+    [{"title", _, [title]}] = Floki.find(doc, "title")
+    [{"h2", _, [h2]}] = Floki.find(doc, "h2")
+
+    assert title == "Carte consolidée des arrêts GTFS (beta)"
+    assert h2 == "Carte consolidée des arrêts GTFS (beta)"
+  end
 end

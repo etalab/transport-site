@@ -136,6 +136,10 @@ msgid "Our missions"
 msgstr ""
 
 #, elixir-autogen, elixir-format
+msgid "National GTFS stops map"
+msgstr ""
+
+#, elixir-autogen, elixir-format
 msgid "Climate and Resilience bill"
 msgstr ""
 

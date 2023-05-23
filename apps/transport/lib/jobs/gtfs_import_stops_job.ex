@@ -12,6 +12,12 @@ defmodule Transport.Jobs.GTFSImportStopsJob do
     # to avoid leaving obsolete stuff in the database.
     result = {:ok, refresh_all()}
     Oban.Notifier.notify(Oban, :gossip, %{complete: job.id})
+
+    # for now, just chain view creation/refresh directly
+    Logger.info("Creating or refreshing materialized views...")
+    Transport.GTFSData.create_or_refresh_all_materialized_views()
+    Logger.info("Done with refresh...")
+
     result
   end
 

@@ -40,7 +40,8 @@ map.on('moveend', function (event) {
         south: bounds.getSouth(),
         east: bounds.getEast(),
         west: bounds.getWest(),
-        north: bounds.getNorth()
+        north: bounds.getNorth(),
+        zoom_level: map.getZoom()
     })
 
     const url = `/explore/gtfs-stops-data?${params}`
