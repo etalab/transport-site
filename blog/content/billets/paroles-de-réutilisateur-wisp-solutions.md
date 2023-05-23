@@ -11,11 +11,11 @@ images:
 
 <!--StartFragment-->
 
-WISP Solutions propose aux collectivités urbaines une solution pour améliorer et simplifier la gestion des feux de signalisation et ainsi permettre de réduire les émissions de CO2. Leur solution est notamment déployée sur le territoire de Vallée Sud Grand Paris et permet d’économiser jusqu’à 10 secondes par usager par intersection.
+WISP Solutions propose aux collectivités urbaines une solution pour améliorer et simplifier la gestion des feux de signalisation et contribue ainsi à réduire les émissions de CO2. Leur solution est notamment déployée sur le territoire de Vallée Sud Grand Paris et permet d’économiser jusqu’à 10 secondes par usager par intersection.  
 
 <!--EndFragment-->
 
-En combinant l'analyse des données des véhicules connectés avec l'intelligence artificielle, cette solution permet aux collectivités de s'affranchir de l'installation d'infrastructures lourdes comme des caméras, des radars,des boucles de détection etc. 
+En combinant l'analyse des données des véhicules connectés avec l'intelligence artificielle, cette solution permet aux collectivités de s'affranchir de l'installation d'infrastructures lourdes comme des caméras, des radars, des boucles de détection etc. 
 
 <!--EndFragment-->
 
