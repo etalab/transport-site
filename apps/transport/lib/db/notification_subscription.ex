@@ -9,7 +9,7 @@ defmodule DB.NotificationSubscription do
   # These notification reasons are required to have a `dataset_id` set
   @reasons_related_to_datasets [:expiration, :dataset_with_error, :resource_unavailable]
   # These notification reasons are *not* linked to a specific dataset, `dataset_id` should be nil
-  @platform_wide_reasons [:new_dataset, :datasets_switching_licences, :daily_new_comments]
+  @platform_wide_reasons [:new_dataset, :datasets_switching_climate_resilience_bill, :daily_new_comments]
 
   typed_schema "notification_subscription" do
     field(:reason, Ecto.Enum, values: @reasons_related_to_datasets ++ @platform_wide_reasons)
