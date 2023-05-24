@@ -231,3 +231,11 @@ msgstr "Toutes"
 #, elixir-autogen, elixir-format
 msgid "Licences"
 msgstr "Licences"
+
+#, elixir-autogen, elixir-format
+msgid "Climate and Resilience bill"
+msgstr "Loi climat et résilience"
+
+#, elixir-autogen, elixir-format
+msgid "Compulsory data integration"
+msgstr "Intégration obligatoire de données"

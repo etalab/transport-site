@@ -118,17 +118,11 @@ defmodule TransportWeb.DatasetView do
   end
 
   def type_link(conn, %{type: type, msg: msg, count: count}) do
-    params =
-      case type do
-        nil -> conn.query_params |> Map.delete("type")
-        type -> conn.query_params |> Map.put("type", type)
-      end
-
     full_url =
-      conn.request_path
-      |> URI.parse()
-      |> Map.put(:query, Query.encode(params))
-      |> URI.to_string()
+      case type do
+        nil -> current_url(conn, Map.delete(conn.query_params, "type"))
+        type -> current_url(conn, Map.put(conn.query_params, "type", type))
+      end
 
     link_text = "#{msg} (#{count})"
     assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns()
@@ -150,23 +144,37 @@ defmodule TransportWeb.DatasetView do
   end
 
   def real_time_link(conn, %{only_realtime: only_rt, msg: msg, count: count}) do
-    params =
-      case only_rt do
-        false -> conn.query_params |> Map.delete("filter")
-        true -> conn.query_params |> Map.put(:filter, "has_realtime")
-      end
-
     full_url =
-      conn.request_path
-      |> URI.parse()
-      |> Map.put(:query, Query.encode(params))
-      |> URI.to_string()
-      |> Kernel.<>("#datasets-results")
+      case only_rt do
+        false -> current_url(conn, Map.delete(conn.query_params, "filter"))
+        true -> current_url(conn, Map.put(conn.query_params, "filter", "has_realtime"))
+      end
 
     assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns()
 
     case {only_rt, Map.get(conn.query_params, "filter")} do
       {false, "has_realtime"} -> link("#{msg} (#{count})", to: full_url)
+      {true, nil} -> link("#{msg} (#{count})", to: full_url)
+      _ -> ~H{<span class="activefilter"><%= @msg %> (<%= @count %>)</span>}
+    end
+  end
+
+  @spec climate_resilience_bill_link(Plug.Conn.t(), %{
+          only_climate_climate_resilience_bill: boolean(),
+          msg: binary(),
+          count: non_neg_integer()
+        }) :: binary()
+  def climate_resilience_bill_link(conn, %{only_climate_climate_resilience_bill: only, msg: msg, count: count}) do
+    full_url =
+      case only do
+        false -> current_url(conn, Map.delete(conn.query_params, "loi-climat-resilience"))
+        true -> current_url(conn, Map.put(conn.query_params, "loi-climat-resilience", true))
+      end
+
+    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns()
+
+    case {only, Map.get(conn.query_params, "loi-climat-resilience")} do
+      {false, "true"} -> link("#{msg} (#{count})", to: full_url)
       {true, nil} -> link("#{msg} (#{count})", to: full_url)
       _ -> ~H{<span class="activefilter"><%= @msg %> (<%= @count %>)</span>}
     end
