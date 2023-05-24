@@ -86,8 +86,8 @@ defmodule TransportWeb.NotificationController do
     |> existing_reasons()
   end
 
-  defp contact_for_user(%Plug.Conn{assigns: %{current_user: %{"id" => datagouv_user_id}}}) do
-    DB.Contact |> DB.Repo.get_by!(datagouv_user_id: datagouv_user_id)
+  defp contact_for_user(%Plug.Conn{assigns: %{current_user: current_user}}) do
+    TransportWeb.SessionController.find_or_create_contact(current_user)
   end
 
   defp existing_reasons(%Ecto.Query{} = query) do

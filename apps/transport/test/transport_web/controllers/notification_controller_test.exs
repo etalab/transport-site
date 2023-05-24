@@ -52,7 +52,17 @@ defmodule TransportWeb.NotificationControllerTest do
         "dataset_with_error" => "false"
       }
 
-      conn = conn |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+      conn =
+        conn
+        |> init_test_session(%{
+          current_user: %{
+            "id" => datagouv_user_id,
+            "first_name" => "John",
+            "last_name" => "Doe",
+            "email" => "john@example.fr"
+          }
+        })
+
       conn_response = conn |> post(notification_path(conn, :create, args))
 
       assert redirected_to(conn_response, 302) == notification_path(conn, :index)
