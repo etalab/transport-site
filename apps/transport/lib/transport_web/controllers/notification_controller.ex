@@ -25,7 +25,7 @@ defmodule TransportWeb.NotificationController do
     end)
 
     conn
-    |> put_flash(:info, dgettext("espace-producteurs", "The subscription has been created"))
+    |> put_flash(:info, dgettext("espace-producteurs", "The notification has been created"))
     |> redirect(to: notification_path(conn, :index))
   end
 
@@ -54,7 +54,7 @@ defmodule TransportWeb.NotificationController do
     |> DB.Repo.delete_all()
 
     conn
-    |> put_flash(:info, dgettext("espace-producteurs", "The subscriptions have been deleted"))
+    |> put_flash(:info, dgettext("espace-producteurs", "The notifications have been deleted"))
     |> redirect(to: notification_path(conn, :index))
   end
 
@@ -66,7 +66,7 @@ defmodule TransportWeb.NotificationController do
     |> DB.Repo.delete!()
 
     conn
-    |> put_flash(:info, dgettext("espace-producteurs", "The subscription has been deleted"))
+    |> put_flash(:info, dgettext("espace-producteurs", "The notification has been deleted"))
     |> redirect(to: notification_path(conn, :index))
   end
 

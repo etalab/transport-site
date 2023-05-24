@@ -120,10 +120,6 @@ msgid "Dataset"
 msgstr "Jeu de données"
 
 #, elixir-autogen, elixir-format
-msgid "Here you can see your existing notification subscriptions. You can delete notification subscriptions for a dataset entirely in one click or one at a time."
-msgstr "Ici vous pouvez voir vos abonnements existants. Vous pouvez supprimer tous vos abonnements pour un jeu de données en une fois ou un motif à la fois."
-
-#, elixir-autogen, elixir-format
 msgid "Manage notifications"
 msgstr "Gérer vos notifications"
 
@@ -136,32 +132,16 @@ msgid "Receive helpful notifications about the data you publish."
 msgstr "Recevez des notifications pertinentes à propos des données que vous publiez."
 
 #, elixir-autogen, elixir-format
-msgid "Unsubscribe entirely"
-msgstr "Se désabonner intégralement"
+msgid "Delete all"
+msgstr "Tout supprimer"
 
 #, elixir-autogen, elixir-format
-msgid "Subscribe"
-msgstr "S'abonner"
-
-#, elixir-autogen, elixir-format
-msgid "The subscription has been created"
-msgstr "L'abonnement a été créé"
-
-#, elixir-autogen, elixir-format
-msgid "The subscription has been deleted"
-msgstr "L'abonnement a été supprimé"
-
-#, elixir-autogen, elixir-format
-msgid "The subscriptions have been deleted"
-msgstr "Les abonnements ont été supprimés"
+msgid "Create"
+msgstr "Créer"
 
 #, elixir-autogen, elixir-format
 msgid "<a href=\"%{doc_url}\" target=\"_blank\">Learn more</a> about how notifications work and when they are sent."
 msgstr "<a href=\"%{doc_url}\" target=\"_blank\">Apprenez-en plus</a> sur le fonctionnement des notifications et quand elles sont envoyées."
-
-#, elixir-autogen, elixir-format
-msgid "You do not have notification subscriptions yet. They will show up here."
-msgstr "Vous n'avez pas encore d'abonnements aux notifications. Ils apparaitront ici."
 
 #, elixir-autogen, elixir-format
 msgid "Create a notification"
@@ -178,3 +158,23 @@ msgstr "Gestion des notifications"
 #, elixir-autogen, elixir-format
 msgid "Receive notifications"
 msgstr "Recevoir des notifications"
+
+#, elixir-autogen, elixir-format
+msgid "Here you can see your existing notifications. You can delete notifications for a dataset entirely in one click or one at a time."
+msgstr "Ici vous pouvez voir vos notifications existantes. Vous pouvez supprimer toutes vos notifications pour un jeu de données en une fois ou un motif à la fois."
+
+#, elixir-autogen, elixir-format
+msgid "The notification has been created"
+msgstr "La notification a été créée"
+
+#, elixir-autogen, elixir-format
+msgid "The notification has been deleted"
+msgstr "La notification a été supprimée"
+
+#, elixir-autogen, elixir-format
+msgid "The notifications have been deleted"
+msgstr "Les notifications ont été supprimées"
+
+#, elixir-autogen, elixir-format
+msgid "You do not have notifications yet. They will show up here."
+msgstr "Vous n'avez pas encore activé de notifications. Elles apparaitront ici."

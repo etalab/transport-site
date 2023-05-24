@@ -119,10 +119,6 @@ msgid "Dataset"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Here you can see your existing notification subscriptions. You can delete notification subscriptions for a dataset entirely in one click or one at a time."
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Manage notifications"
 msgstr ""
 
@@ -135,31 +131,15 @@ msgid "Receive helpful notifications about the data you publish."
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Unsubscribe entirely"
+msgid "Delete all"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Subscribe"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "The subscription has been created"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "The subscription has been deleted"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "The subscriptions have been deleted"
+msgid "Create"
 msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "<a href=\"%{doc_url}\" target=\"_blank\">Learn more</a> about how notifications work and when they are sent."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "You do not have notification subscriptions yet. They will show up here."
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -176,4 +156,24 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Receive notifications"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Here you can see your existing notifications. You can delete notifications for a dataset entirely in one click or one at a time."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The notification has been created"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The notification has been deleted"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The notifications have been deleted"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You do not have notifications yet. They will show up here."
 msgstr ""
