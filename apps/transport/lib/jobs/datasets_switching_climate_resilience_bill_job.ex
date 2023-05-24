@@ -1,6 +1,6 @@
 defmodule Transport.Jobs.DatasetsSwitchingClimateResilienceBillJob do
   @moduledoc """
-  Job in charge of sending email notifications on a weekly basis to known
+  Job in charge of sending email notifications on a weekly basis to know:
   - when datasets are subject to a compulsory data integration obligation (article 122)
   - were previously subject to to a compulsory data integration obligation but are not any more
   """
