@@ -80,7 +80,7 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
         dataset_id: nil,
         source: :admin,
         contact_id: contact_id,
-        reason: :datasets_switching_licences
+        reason: :datasets_switching_climate_resilience_bill
       )
 
       assert [
@@ -94,14 +94,14 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
                  contact_id: ^contact_id,
                  dataset_id: nil,
                  source: :admin,
-                 reason: :datasets_switching_licences
+                 reason: :datasets_switching_climate_resilience_bill
                }
              ] = DB.NotificationSubscription |> DB.Repo.all()
 
       args = %{
         "redirect_location" => "contact",
         "contact_id" => contact_id,
-        "datasets_switching_licences" => "false",
+        "datasets_switching_climate_resilience_bill" => "false",
         "new_dataset" => "true",
         # Not a valid reason, should be ignored
         "foobar" => "true"
