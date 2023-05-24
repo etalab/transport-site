@@ -163,7 +163,7 @@ defmodule TransportWeb.DatasetView do
           only_climate_climate_resilience_bill: boolean(),
           msg: binary(),
           count: non_neg_integer()
-        }) :: binary()
+        }) :: any()
   def climate_resilience_bill_link(conn, %{only_climate_climate_resilience_bill: only, msg: msg, count: count}) do
     full_url =
       case only do
