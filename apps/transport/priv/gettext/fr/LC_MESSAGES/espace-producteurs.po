@@ -120,10 +120,6 @@ msgid "Dataset"
 msgstr "Jeu de données"
 
 #, elixir-autogen, elixir-format
-msgid "Existing subscriptions"
-msgstr "Abonnements existants"
-
-#, elixir-autogen, elixir-format
 msgid "Here you can see your existing notification subscriptions. You can delete notification subscriptions for a dataset entirely in one click or one at a time."
 msgstr "Ici vous pouvez voir vos abonnements existants. Vous pouvez supprimer tous vos abonnements pour un jeu de données en une fois ou un motif à la fois."
 
@@ -136,20 +132,12 @@ msgid "Notification reason"
 msgstr "Motif de notification"
 
 #, elixir-autogen, elixir-format
-msgid "Notification subscriptions"
-msgstr "Abonnements aux notifications"
-
-#, elixir-autogen, elixir-format
 msgid "Receive helpful notifications about the data you publish."
 msgstr "Recevez des notifications pertinentes à propos des données que vous publiez."
 
 #, elixir-autogen, elixir-format
 msgid "Unsubscribe entirely"
 msgstr "Se désabonner intégralement"
-
-#, elixir-autogen, elixir-format
-msgid "Create a subscription"
-msgstr "Créer un abonnement"
 
 #, elixir-autogen, elixir-format
 msgid "Subscribe"
@@ -174,3 +162,19 @@ msgstr "<a href=\"%{doc_url}\" target=\"_blank\">Apprenez-en plus</a> sur le fon
 #, elixir-autogen, elixir-format
 msgid "You do not have notification subscriptions yet. They will show up here."
 msgstr "Vous n'avez pas encore d'abonnements aux notifications. Ils apparaitront ici."
+
+#, elixir-autogen, elixir-format
+msgid "Create a notification"
+msgstr "Créer une notification"
+
+#, elixir-autogen, elixir-format
+msgid "Existing notifications"
+msgstr "Notifications existantes"
+
+#, elixir-autogen, elixir-format
+msgid "Notifications settings"
+msgstr "Gestion des notifications"
+
+#, elixir-autogen, elixir-format
+msgid "Receive notifications"
+msgstr "Recevoir des notifications"

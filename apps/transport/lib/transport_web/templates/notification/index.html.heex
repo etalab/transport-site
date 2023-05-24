@@ -5,9 +5,9 @@
 </div>
 <section class="section producer-actions">
   <div class="container">
-    <h2><%= dgettext("espace-producteurs", "Notification subscriptions") %></h2>
+    <h2><%= dgettext("espace-producteurs", "Notifications settings") %></h2>
     <div class="panel">
-      <h3><%= dgettext("espace-producteurs", "Create a subscription") %></h3>
+      <h3><%= dgettext("espace-producteurs", "Create a notification") %></h3>
       <p>
         <%= raw(
           dgettext(
@@ -41,13 +41,13 @@
       <% end %>
     </div>
     <div :if={Enum.empty?(@notification_subscriptions)} class="panel">
-      <h3><%= dgettext("espace-producteurs", "Existing subscriptions") %></h3>
+      <h3><%= dgettext("espace-producteurs", "Existing notifications") %></h3>
       <p class="notification">
         <%= dgettext("espace-producteurs", "You do not have notification subscriptions yet. They will show up here.") %>
       </p>
     </div>
     <div :if={Enum.count(@notification_subscriptions) > 0} class="panel">
-      <h3><%= dgettext("espace-producteurs", "Existing subscriptions") %></h3>
+      <h3><%= dgettext("espace-producteurs", "Existing notifications") %></h3>
       <p>
         <%= dgettext(
           "espace-producteurs",
