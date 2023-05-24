@@ -175,11 +175,11 @@ defmodule TransportWeb.DatasetViewTest do
     test "inactive filter", %{conn: conn} do
       conn = conn |> get(dataset_path(conn, :index))
 
-      assert ~s{<a href="http://127.0.0.1:5100/datasets?loi-climat-resilience=true">Intégration obligatoire de données (3)</a>} ==
+      assert ~s{<a href="http://127.0.0.1:5100/datasets?loi-climat-resilience=true">Données à intégration obligatoire (3)</a>} ==
                conn
                |> climate_resilience_bill_link(%{
                  only_climate_climate_resilience_bill: true,
-                 msg: "Intégration obligatoire de données",
+                 msg: "Données à intégration obligatoire",
                  count: 3
                })
                |> to_html()
@@ -188,11 +188,11 @@ defmodule TransportWeb.DatasetViewTest do
     test "active filter", %{conn: conn} do
       conn = conn |> get(dataset_path(conn, :index, "loi-climat-resilience": "true"))
 
-      assert ~s{<span class="activefilter">Intégration obligatoire de données (3)</span>} ==
+      assert ~s{<span class="activefilter">Données à intégration obligatoire (3)</span>} ==
                conn
                |> climate_resilience_bill_link(%{
                  only_climate_climate_resilience_bill: true,
-                 msg: "Intégration obligatoire de données",
+                 msg: "Données à intégration obligatoire",
                  count: 3
                })
                |> to_html()
