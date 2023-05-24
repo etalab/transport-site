@@ -169,3 +169,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "<a href=\"%{doc_url}\" target=\"_blank\">Learn more</a> about how notifications work and when they are sent."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You do not have notification subscriptions yet. They will show up here."
+msgstr ""

@@ -40,6 +40,12 @@
         <%= submit(dgettext("espace-producteurs", "Subscribe")) %>
       <% end %>
     </div>
+    <div :if={Enum.empty?(@notification_subscriptions)} class="panel">
+      <h3><%= dgettext("espace-producteurs", "Existing subscriptions") %></h3>
+      <p class="notification">
+        <%= dgettext("espace-producteurs", "You do not have notification subscriptions yet. They will show up here.") %>
+      </p>
+    </div>
     <div :if={Enum.count(@notification_subscriptions) > 0} class="panel">
       <h3><%= dgettext("espace-producteurs", "Existing subscriptions") %></h3>
       <p>
