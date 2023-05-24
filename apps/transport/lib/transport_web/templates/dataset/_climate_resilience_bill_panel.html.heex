@@ -19,7 +19,7 @@
   </div>
 
   <div class="main-pane">
-    <div class="panel" id="custom-message">
+    <div :if={@category_custom_message} class="panel" id="custom-message">
       <%= markdown_to_safe_html!(@category_custom_message) %>
     </div>
   </div>
