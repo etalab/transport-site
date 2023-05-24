@@ -25,6 +25,7 @@ defmodule TransportWeb.DatasetController do
     |> assign(:types, get_types(params))
     |> assign(:licences, get_licences(params))
     |> assign(:number_realtime_datasets, get_realtime_count(params))
+    |> assign(:number_climate_resilience_bill_datasets, climate_resilience_bill_count(params))
     |> assign(:order_by, params["order_by"])
     |> assign(:q, Map.get(params, "q"))
     |> put_empty_message(params)
@@ -203,7 +204,7 @@ defmodule TransportWeb.DatasetController do
     |> Repo.all()
   end
 
-  @spec get_licences(map()) :: [%{licence: binary(), count: integer}]
+  @spec get_licences(map()) :: [%{licence: binary(), count: non_neg_integer()}]
   def get_licences(params) do
     params
     |> clean_datasets_query("licence")
@@ -219,7 +220,7 @@ defmodule TransportWeb.DatasetController do
     |> Enum.sort_by(&Map.get(%{"licence-ouverte" => 1}, &1.licence, 0), &>=/2)
   end
 
-  @spec get_types(map()) :: [%{type: binary(), msg: binary(), count: integer}]
+  @spec get_types(map()) :: [%{type: binary(), msg: binary(), count: non_neg_integer()}]
   def get_types(params) do
     params
     |> clean_datasets_query("type")
@@ -242,7 +243,26 @@ defmodule TransportWeb.DatasetController do
     end
   end
 
-  @spec get_realtime_count(map()) :: %{all: integer, true: integer}
+  @spec climate_resilience_bill_count(map()) :: %{all: non_neg_integer(), true: non_neg_integer()}
+  defp climate_resilience_bill_count(params) do
+    result =
+      params
+      |> clean_datasets_query("loi-climat-resilience")
+      |> exclude(:order_by)
+      |> group_by([d], fragment("'loi-climat-resilience' = any(coalesce(?, '{}'))", d.custom_tags))
+      |> select([d], %{
+        has_climat_resilience_bill_tag: fragment("'loi-climat-resilience' = any(coalesce(?, '{}'))", d.custom_tags),
+        count: count(d.id, :distinct)
+      })
+      |> Repo.all()
+
+    %{
+      all: Enum.reduce(result, 0, fn x, acc -> x.count + acc end),
+      true: Enum.find_value(result, 0, fn r -> if r.has_climat_resilience_bill_tag, do: r.count end)
+    }
+  end
+
+  @spec get_realtime_count(map()) :: %{all: non_neg_integer(), true: non_neg_integer()}
   defp get_realtime_count(params) do
     result =
       params
