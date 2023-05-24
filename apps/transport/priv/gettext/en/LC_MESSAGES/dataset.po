@@ -107,3 +107,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "starting from"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "These datasets are subject to a data reuse obligation."
+msgstr ""
