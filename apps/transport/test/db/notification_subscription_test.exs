@@ -3,6 +3,8 @@ defmodule DB.NotificationSubscriptionTest do
   import DB.Factory
   alias DB.NotificationSubscription
 
+  doctest NotificationSubscription, import: true
+
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
