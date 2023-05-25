@@ -20,8 +20,8 @@ msgid "dataset_with_error"
 msgstr "Validation errors"
 
 #, elixir-autogen, elixir-format
-msgid "datasets_switching_licences"
-msgstr "Datasets switching licences to/from open licences"
+msgid "datasets_switching_climate_resilience_bill"
+msgstr "Datasets being subject to/leaving the data reuse obligation"
 
 #, elixir-autogen, elixir-format
 msgid "expiration"

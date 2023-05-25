@@ -93,7 +93,7 @@ defmodule DB.NotificationSubscription do
         dataset_with_error: dgettext("notification_subscription", "dataset_with_error"),
         resource_unavailable: dgettext("notification_subscription", "resource_unavailable"),
         new_dataset: dgettext("notification_subscription", "new_dataset"),
-        datasets_switching_licences: dgettext("notification_subscription", "datasets_switching_licences"),
+        datasets_switching_climate_resilience_bill: dgettext("notification_subscription", "datasets_switching_climate_resilience_bill"),
         daily_new_comments: dgettext("notification_subscription", "daily_new_comments")
       },
       reason
