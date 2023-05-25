@@ -2,7 +2,7 @@ defmodule WithMoxVerifyOnExitTest do
   @moduledoc """
   Check that we did not forget to verify on exit when using Mox.
   """
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   test "If you use Mox, you verify on exit" do
     files =

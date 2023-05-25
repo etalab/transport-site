@@ -62,6 +62,13 @@ defmodule TransportWeb.Router do
     scope "/espace_producteur" do
       pipe_through([:authenticated])
       get("/", PageController, :espace_producteur)
+
+      scope "/notifications" do
+        get("/", NotificationController, :index)
+        post("/", NotificationController, :create)
+        delete("/:id", NotificationController, :delete)
+        delete("/datasets/:dataset_id", NotificationController, :delete_for_dataset)
+      end
     end
 
     get("/stats", StatsController, :index)

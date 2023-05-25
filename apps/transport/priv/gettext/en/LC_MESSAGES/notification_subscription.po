@@ -1,0 +1,36 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#, elixir-autogen, elixir-format
+msgid "daily_new_comments"
+msgstr "Daily list of new comments"
+
+#, elixir-autogen, elixir-format
+msgid "dataset_with_error"
+msgstr "Validation errors"
+
+#, elixir-autogen, elixir-format
+msgid "datasets_switching_licences"
+msgstr "Datasets switching licences to/from open licences"
+
+#, elixir-autogen, elixir-format
+msgid "expiration"
+msgstr "Expiring data"
+
+#, elixir-autogen, elixir-format
+msgid "new_dataset"
+msgstr "Daily list of new datasets"
+
+#, elixir-autogen, elixir-format
+msgid "resource_unavailable"
+msgstr "Unavailable resources"

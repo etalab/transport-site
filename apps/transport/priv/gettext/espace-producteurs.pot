@@ -109,3 +109,71 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Transport proxy statistics"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Actions"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Dataset"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Manage notifications"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Notification reason"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Receive helpful notifications about the data you publish."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Delete all"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Create"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "<a href=\"%{doc_url}\" target=\"_blank\">Learn more</a> about how notifications work and when they are sent."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Create a notification"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Existing notifications"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Notifications settings"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Receive notifications"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Here you can see your existing notifications. You can delete notifications for a dataset entirely in one click or one at a time."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The notification has been created"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The notification has been deleted"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The notifications have been deleted"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You do not have notifications yet. They will show up here."
+msgstr ""
