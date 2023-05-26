@@ -54,6 +54,7 @@ defmodule Transport.GTFSDataTest do
                    d_id: data_import.id,
                    d_title: "Hello",
                    stop_id: "LOC:001",
+                   stop_name: "L'arrêt 1",
                    stop_location_type: nil
                  },
                  type: "Feature"

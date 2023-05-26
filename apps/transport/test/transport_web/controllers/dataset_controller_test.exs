@@ -115,6 +115,14 @@ defmodule TransportWeb.DatasetControllerTest do
                "Certaines données de cette catégorie font l'objet d'une intégration obligatoire depuis décembre 2022"
     end
 
+    test "displayed when filtering for climate resilience bill datasets", %{conn: conn} do
+      conn = conn |> get(dataset_path(conn, :index, "loi-climat-resilience": true))
+      doc = conn |> html_response(200) |> Floki.parse_document!()
+      [msg] = Floki.find(doc, "#climate-resilience-bill-panel")
+
+      assert Floki.text(msg) =~ "Ces jeux de données font l'objet d'une intégration obligatoire."
+    end
+
     test "not displayed for locations", %{conn: conn} do
       conn = conn |> get(dataset_path(conn, :index, type: "locations"))
       doc = conn |> html_response(200) |> Floki.parse_document!()
