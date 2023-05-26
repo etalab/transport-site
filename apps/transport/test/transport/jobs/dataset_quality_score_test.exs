@@ -201,12 +201,13 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
       {:ok, score} = save_dataset_freshness_score(dataset.id)
       # score is computed with yesterday's score
-      assert %{id: _id, topic: "freshness", score: 0.55, timestamp: timestamp} = score
+      assert %{id: id1, topic: "freshness", score: 0.55, timestamp: _timestamp} = score
 
       # we force refresh the score computation
       # it should use yesterday's score again
       {:ok, score} = save_dataset_freshness_score(dataset.id)
-      assert %{id: _id, topic: "freshness", score: 0.55, timestamp: timestamp} = score
+      assert %{id: id2, topic: "freshness", score: 0.55, timestamp: _timestamp} = score
+      assert id2 > id1
     end
   end
 end
