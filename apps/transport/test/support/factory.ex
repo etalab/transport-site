@@ -124,6 +124,10 @@ defmodule DB.Factory do
     %DB.GTFS.Stops{}
   end
 
+  def dataset_score_factory do
+    %DB.DatasetScore{}
+  end
+
   # Non-Ecto stuff, for now kept here for convenience
 
   def datagouv_api_get_factory do

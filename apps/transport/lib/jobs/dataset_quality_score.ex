@@ -11,16 +11,22 @@ defmodule Transport.Jobs.DatasetQualityScore do
     |> DB.Repo.insert()
   end
 
+  @doc """
+  dataset freshness is score is computed with:
+  - today's freshness score
+  - last (non nil) freshness score
+  """
   def dataset_freshness_score(dataset_id) do
     today_score = current_dataset_freshness(dataset_id)
     last_dataset_freshness = last_dataset_freshness(dataset_id)
 
     case last_dataset_freshness do
-      %{score: previous_score} -> exp_smoothing(previous_score, today_score)
-      nil -> today_score
+      %{score: previous_score} when is_float(previous_score) -> exp_smoothing(previous_score, today_score)
+      _ -> today_score
     end
   end
 
+  @spec exp_smoothing(float, float) :: float
   @doc """
   Exponential smoothing. See https://en.wikipedia.org/wiki/Exponential_smoothing
 
@@ -34,12 +40,17 @@ defmodule Transport.Jobs.DatasetQualityScore do
 
   def last_dataset_freshness(dataset_id) do
     DB.DatasetScore.base_query()
-    |> where([ds], ds.dataset_id == ^dataset_id and ds.topic == "freshness")
+    |> where(
+      [ds],
+      ds.dataset_id == ^dataset_id and ds.topic == "freshness" and not is_nil(ds.score) and
+        fragment("DATE(?) < CURRENT_DATE", ds.timestamp)
+    )
     |> order_by([ds], desc: ds.timestamp)
     |> limit(1)
     |> DB.Repo.one()
   end
 
+  @spec current_dataset_freshness(integer()) :: nil | float
   def current_dataset_freshness(dataset_id) do
     resources =
       DB.Dataset.base_query()
@@ -73,7 +84,6 @@ defmodule Transport.Jobs.DatasetQualityScore do
         freshness =
           if Date.compare(start_date, today) != :gt and Date.compare(today, end_date) != :gt, do: 1.0, else: 0.0
 
-        IO.inspect("GTFS freshness is #{freshness}")
         freshness
 
       _ ->
@@ -88,7 +98,6 @@ defmodule Transport.Jobs.DatasetQualityScore do
         _ -> nil
       end
 
-    IO.inspect("GBFS freshness is #{freshness}")
     freshness
   end
 
@@ -99,7 +108,6 @@ defmodule Transport.Jobs.DatasetQualityScore do
         _ -> nil
       end
 
-    IO.inspect("GTFS-RT freshness is #{freshness}")
     freshness
   end
 
@@ -111,6 +119,14 @@ defmodule Transport.Jobs.DatasetQualityScore do
   """
   def gbfs_max_timestamp_delay, do: 5 * 60
 
+  @doc """
+  gives a feed a freshness score, based on observed feed_timestamp_delay
+
+  iex> gbfs_feed_freshness(0)
+  1.0
+  iex> gbfs_feed_freshness(1000)
+  0.0
+  """
   def gbfs_feed_freshness(feed_timestamp_delay) do
     if feed_timestamp_delay < gbfs_max_timestamp_delay(), do: 1.0, else: 0.0
   end
@@ -120,6 +136,14 @@ defmodule Transport.Jobs.DatasetQualityScore do
   """
   def gtfs_rt_max_timestamp_delay, do: 5 * 60
 
+  @doc """
+  gives a feed a freshness score, based on observed feed_timestamp_delay
+
+  iex> gtfs_rt_feed_freshness(0)
+  1.0
+  iex> gtfs_rt_feed_freshness(1000)
+  0.0
+  """
   def gtfs_rt_feed_freshness(feed_timestamp_delay) do
     if feed_timestamp_delay < gtfs_rt_max_timestamp_delay(), do: 1.0, else: 0.0
   end
@@ -130,6 +154,5 @@ defmodule Transport.Jobs.DatasetQualityScore do
     |> distinct([metadata: m], m.resource_id)
     |> order_by([metadata: m], desc: m.inserted_at)
     |> DB.Repo.one()
-    |> IO.inspect()
   end
 end
