@@ -61,3 +61,15 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "GTFS Transport Validator has been force launched on all GTFS resources"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Send welcome email to contacts"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Sending"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Sent"
+msgstr ""

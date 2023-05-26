@@ -34,3 +34,7 @@ msgstr "Jeux de données référencés récemment"
 #, elixir-autogen, elixir-format
 msgid "resource_unavailable"
 msgstr "Ressources indisponibles"
+
+#, elixir-autogen, elixir-format
+msgid "dataset_now_on_nap"
+msgstr "Le jeu de données a été référencé sur le PAN"

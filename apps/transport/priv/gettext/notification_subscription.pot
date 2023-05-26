@@ -34,3 +34,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "resource_unavailable"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "dataset_now_on_nap"
+msgstr ""
