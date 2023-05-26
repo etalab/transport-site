@@ -8,7 +8,7 @@ defmodule Transport.Jobs.DatasetNowOnNAPNotificationJob do
   @notification_reason :dataset_now_on_nap
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"dataset_id" => dataset_id}}) do
+  def perform(%Oban.Job{args: %{"dataset_id" => dataset_id}, id: job_id}) do
     dataset = DB.Repo.get!(DB.Dataset, dataset_id)
 
     dataset
@@ -33,6 +33,8 @@ defmodule Transport.Jobs.DatasetNowOnNAPNotificationJob do
 
       save_notification(dataset, email)
     end)
+
+    Oban.Notifier.notify(Oban, :gossip, %{complete: job_id})
   end
 
   defp save_notification(%DB.Dataset{} = dataset, email) do

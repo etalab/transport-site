@@ -40,16 +40,25 @@ defmodule TransportWeb.Live.SendNowOnNAPNotificationView do
   def handle_info({:dispatch, dataset_id}, socket) do
     new_socket =
       case %{dataset_id: dataset_id} |> Transport.Jobs.DatasetNowOnNAPNotificationJob.new() |> Oban.insert() do
-        {:ok, %Oban.Job{}} ->
+        {:ok, %Oban.Job{id: job_id}} ->
+          send(self(), {:wait_for_completion, job_id})
           assign_step(socket, :sending)
       end
 
-    Process.send_after(self(), :sent, 10_000)
     {:noreply, new_socket}
   end
 
-  def handle_info(:sent, socket) do
-    {:noreply, assign_step(socket, :sent)}
+  def handle_info({:wait_for_completion, job_id}, socket) do
+    :ok = Oban.Notifier.listen([:gossip])
+
+    new_socket =
+      receive do
+        {:notification, :gossip, %{"complete" => ^job_id}} ->
+          socket |> assign_step(:sent)
+      end
+
+    Oban.Notifier.unlisten([:gossip])
+    {:noreply, new_socket}
   end
 
   defp assign_step(socket, step) do
