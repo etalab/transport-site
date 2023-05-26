@@ -14,14 +14,22 @@ defmodule Transport.Jobs.DatasetQualityScore do
   def dataset_freshness_score(dataset_id) do
     today_score = current_dataset_freshness(dataset_id)
     last_dataset_freshness = last_dataset_freshness(dataset_id)
-    alpha = 0.9
 
     case last_dataset_freshness do
-      # Exponential smoothing
-      # https://en.wikipedia.org/wiki/Exponential_smoothing
-      %{score: previous_score} -> alpha * previous_score + (1.0 - alpha) * today_score
+      %{score: previous_score} -> exp_smoothing(previous_score, today_score)
       nil -> today_score
     end
+  end
+
+  @doc """
+  Exponential smoothing. See https://en.wikipedia.org/wiki/Exponential_smoothing
+
+  iex> exp_smoothing(0.5, 1)
+  0.55
+  """
+  def exp_smoothing(previous_score, today_score) do
+    alpha = 0.9
+    alpha * previous_score + (1.0 - alpha) * today_score
   end
 
   def last_dataset_freshness(dataset_id) do
@@ -98,7 +106,7 @@ defmodule Transport.Jobs.DatasetQualityScore do
   def resource_freshness(%DB.Resource{}), do: nil
 
   @doc """
-  5 minutes is the max delay allowed
+  5 minutes is the max delay allowed for GBFS
   https://github.com/MobilityData/gbfs/blob/master/gbfs.md#data-latency
   """
   def gbfs_max_timestamp_delay, do: 5 * 60
@@ -108,7 +116,7 @@ defmodule Transport.Jobs.DatasetQualityScore do
   end
 
   @doc """
-  we allow a 5 minutes delay
+  we allow a 5 minutes delay for GTFS realtime feeds
   """
   def gtfs_rt_max_timestamp_delay, do: 5 * 60
 
