@@ -145,6 +145,16 @@
       <p :if={Enum.empty?(@dataset.notification_subscriptions)} class="mt-48 notification">
         Il n'y a pas d'abonnements à des notifications pour ce jeu de données.
       </p>
+      <div :if={Enum.count(@dataset.notification_subscriptions) > 0}>
+        <%= live_render(@conn, TransportWeb.Live.SendNowOnNAPNotificationView,
+          session: %{
+            "dataset_id" => @dataset.id,
+            "locale" => get_session(@conn, :locale),
+            "sent_reasons" =>
+              @notifications_sent |> Enum.map(fn {{reason, _datetime}, _emails} -> reason end) |> Enum.uniq()
+          }
+        ) %>
+      </div>
     </div>
     <div :if={Enum.count(@notifications_sent) > 0} class="dashboard-description mt-48">
       <h3><%= dgettext("backoffice", "Notifications sent") %></h3>
