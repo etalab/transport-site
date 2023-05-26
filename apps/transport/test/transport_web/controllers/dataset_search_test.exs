@@ -1,6 +1,5 @@
 defmodule TransportWeb.DatasetSearchControllerTest do
-  use TransportWeb.ConnCase, async: false
-  use TransportWeb.ExternalCase
+  use TransportWeb.ConnCase, async: true
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
   import DB.Factory
   alias DB.{AOM, Dataset, Repo, Resource}
@@ -178,6 +177,17 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     # searching for an unknown AOM should lead to a 404
     conn = conn |> get(dataset_path(conn, :by_aom, 999_999))
     assert html_response(conn, 404)
+  end
+
+  test "searching with the climate and resilience bill filter" do
+    %DB.Dataset{id: dataset_id} =
+      insert(:dataset, type: "public-transit", is_active: true, custom_tags: ["loi-climat-resilience", "foo"])
+
+    results = %{"type" => "public-transit"} |> Dataset.list_datasets() |> Repo.all()
+    assert Enum.count(results) == 3
+
+    assert [%DB.Dataset{id: ^dataset_id}] =
+             %{"type" => "public-transit", "loi-climat-resilience" => "true"} |> Dataset.list_datasets() |> Repo.all()
   end
 
   test "a dataset labelled as base nationale published by us is first without filters" do

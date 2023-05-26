@@ -8,17 +8,22 @@ defmodule Transport.ClimateResilienceBill do
   @doc """
   Should we display the data reuse panel when listing/searching datasets.
 
+  iex> display_data_reuse_panel?(%{"loi-climat-resilience" => "true", "page" => 2})
+  true
   iex> display_data_reuse_panel?(%{"type" => "public-transit", "page" => 2})
   true
   iex> display_data_reuse_panel?(%{"type" => "private-parking", "page" => 2})
   false
   """
   @spec display_data_reuse_panel?(map()) :: boolean()
+  def display_data_reuse_panel?(%{"loi-climat-resilience" => "true"}), do: true
   def display_data_reuse_panel?(%{"type" => dataset_type}), do: dataset_type in relevant_dataset_types()
 
   def display_data_reuse_panel?(_), do: false
 
   @doc """
+  iex> data_reuse_message(%{"loi-climat-resilience" => "true"}, ~D[2022-12-01])
+  "Ces jeux de données font l'objet d'une intégration obligatoire."
   iex> data_reuse_message("public-transit", ~D[2022-12-01])
   "Certaines données de cette catégorie font l'objet d'une intégration obligatoire depuis décembre 2022."
   iex> data_reuse_message("public-transit", ~D[2022-11-01])
@@ -27,6 +32,10 @@ defmodule Transport.ClimateResilienceBill do
   :ok
   """
   @spec data_reuse_message(binary() | map(), Date.t()) :: binary()
+  def data_reuse_message(%{"loi-climat-resilience" => "true"}, %Date{} = _) do
+    dgettext("dataset", "These datasets are subject to a data reuse obligation.")
+  end
+
   def data_reuse_message(dataset_type, %Date{} = date) when is_binary(dataset_type) do
     data_reuse_message(%{"type" => dataset_type}, date)
   end
