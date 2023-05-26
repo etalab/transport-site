@@ -13,5 +13,5 @@ defmodule DB.DatasetScore do
     field(:timestamp, :utc_datetime_usec)
   end
 
-  def base_query(), do: from(ds in DB.DatasetScore, as: :dataset_score)
+  def base_query, do: from(ds in DB.DatasetScore, as: :dataset_score)
 end

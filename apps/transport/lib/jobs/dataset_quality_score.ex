@@ -1,8 +1,35 @@
+defmodule Transport.Jobs.DatasetQualityScoreDispatcher do
+  @moduledoc """
+  Computes quality scores for a dataset
+  """
+  use Oban.Worker, unique: [period: 60 * 60 * 20], max_attempts: 1
+  import Ecto.Query
+
+  @impl Oban.Worker
+  def perform(_job) do
+    DB.Dataset.base_query()
+    |> DB.Repo.all()
+    |> Enum.map(fn dataset ->
+      %{dataset_id: dataset.id} |> Transport.Jobs.DatasetQualityScore.new()
+    end)
+    |> Oban.insert_all()
+
+    :ok
+  end
+end
+
 defmodule Transport.Jobs.DatasetQualityScore do
   @moduledoc """
   Computes quality scores for a dataset
   """
+  use Oban.Worker, unique: [period: 60 * 60 * 20], max_attempts: 1
   import Ecto.Query
+
+  @impl Oban.Worker
+  def perform(%Oban.Job{args: %{"dataset_id" => dataset_id}}) do
+    save_dataset_freshness_score(dataset_id)
+    :ok
+  end
 
   def save_dataset_freshness_score(dataset_id) do
     score = dataset_freshness_score(dataset_id)
