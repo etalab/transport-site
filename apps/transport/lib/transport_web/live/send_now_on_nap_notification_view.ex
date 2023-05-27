@@ -27,7 +27,10 @@ defmodule TransportWeb.Live.SendNowOnNAPNotificationView do
 
   defp display_button?(dataset_id, sent_reasons) do
     dataset = DB.Repo.get!(DB.Dataset, dataset_id)
-    recently_added = DateTime.diff(dataset.inserted_at, DateTime.utc_now(), :day) >= -30
+
+    recently_added =
+      not is_nil(dataset.inserted_at) and DateTime.diff(dataset.inserted_at, DateTime.utc_now(), :day) >= -30
+
     not_sent = :dataset_now_on_nap not in sent_reasons
     recently_added and not_sent
   end
