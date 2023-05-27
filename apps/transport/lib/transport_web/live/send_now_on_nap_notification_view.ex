@@ -33,7 +33,7 @@ defmodule TransportWeb.Live.SendNowOnNAPNotificationView do
 
   defp recently_added?(%DB.Dataset{inserted_at: nil}), do: false
 
-  defp recently_added?(%DB.Dataset{inserted_at: inserted_at}) do
+  defp recently_added?(%DB.Dataset{inserted_at: %DateTime{} = inserted_at}) do
     DateTime.diff(inserted_at, DateTime.utc_now(), :day) >= -30
   end
 
