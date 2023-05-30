@@ -167,7 +167,7 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
       insert(:notification_subscription,
         contact_id: contact.id,
         dataset_id: nil,
-        reason: :datasets_switching_licences,
+        reason: :datasets_switching_climate_resilience_bill,
         source: :admin
       )
 
@@ -179,7 +179,7 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
 
       assert content =~ dataset.custom_title
       assert content =~ "expiration"
-      assert content =~ "datasets_switching_licences"
+      assert content =~ "datasets_switching_climate_resilience_bill"
     end
   end
 

@@ -216,6 +216,13 @@ defmodule DB.Dataset do
 
   defp filter_by_category(query, _), do: query
 
+  @spec filter_by_climate_resilience_bill(Ecto.Query.t(), map()) :: Ecto.Query.t()
+  defp filter_by_climate_resilience_bill(%Ecto.Query{} = query, %{"loi-climat-resilience" => "true"}) do
+    where(query, [dataset: d], fragment("'loi-climat-resilience' = any(?)", d.custom_tags))
+  end
+
+  defp filter_by_climate_resilience_bill(%Ecto.Query{} = query, _), do: query
+
   @spec filter_by_feature(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_feature(query, %{"features" => [feature]})
        when feature in ["service_alerts", "trip_updates", "vehicle_positions"] do
@@ -363,6 +370,7 @@ defmodule DB.Dataset do
       |> filter_by_aom(params)
       |> filter_by_commune(params)
       |> filter_by_licence(params)
+      |> filter_by_climate_resilience_bill(params)
       |> filter_by_fulltext(params)
       |> select([dataset: d], d.id)
 

@@ -128,3 +128,21 @@ arrete_url = "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000046144276" %>
     </div>
   </section>
 </section>
+<section class="section section-grey">
+  <div class="container">
+    <div id="datasets">
+      <h1><%= dgettext("page-index", "Available data by theme") %></h1>
+      <div class="available-data grid">
+        <%= for tile <- @tiles do %>
+          <a class="tile" href={tile.link}>
+            <img class="tile__icon" src={tile.icon} />
+            <div class="tile__text">
+              <h4 class=""><%= tile.title %></h4>
+              <div><%= dngettext("page-index", "dataset", "datasets", tile.count) %></div>
+            </div>
+          </a>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>

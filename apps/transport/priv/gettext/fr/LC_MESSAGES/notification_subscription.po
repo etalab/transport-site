@@ -1,0 +1,40 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n>1);\n"
+
+#, elixir-autogen, elixir-format
+msgid "daily_new_comments"
+msgstr "Commentaires ajoutés quotidiennement"
+
+#, elixir-autogen, elixir-format
+msgid "dataset_with_error"
+msgstr "Erreurs de validation"
+
+#, elixir-autogen, elixir-format
+msgid "datasets_switching_climate_resilience_bill"
+msgstr "Suivi des jeux de données étant soumis à une obligation d'intégration"
+
+#, elixir-autogen, elixir-format
+msgid "expiration"
+msgstr "Expiration de données"
+
+#, elixir-autogen, elixir-format
+msgid "new_dataset"
+msgstr "Jeux de données référencés récemment"
+
+#, elixir-autogen, elixir-format
+msgid "resource_unavailable"
+msgstr "Ressources indisponibles"
+
+#, elixir-autogen, elixir-format
+msgid "dataset_now_on_nap"
+msgstr "Le jeu de données a été référencé sur le PAN"
