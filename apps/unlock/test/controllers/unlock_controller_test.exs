@@ -397,7 +397,8 @@ defmodule Unlock.ControllerTest do
           target_url: "http://localhost/some-remote-resource",
           ttl: 10,
           response_headers: [
-            {"content-disposition", "attachment; filename=data.csv"}
+            # upper-case should be converted to lower-case
+            {"Content-disposition", "attachment; filename=data.csv"}
           ]
         }
       })
