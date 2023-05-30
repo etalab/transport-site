@@ -63,7 +63,35 @@ defmodule Transport.Jobs.DatasetQualityScore do
           today_score
       end
 
-    %{score: computed_score, details: details}
+    %{score: computed_score, details: build_details(details, last_dataset_freshness)}
+  end
+
+  @doc """
+  build the details map to explane the score computation
+
+  iex> build_details(%{resources: [%{resource_id: 1}]}, %{score: 1.0})
+  %{resources: [%{resource_id: 1}], previous_score: 1.0}
+
+  iex> build_details(%{resources: [%{resource_id: 1}]}, nil)
+  %{resources: [%{resource_id: 1}], previous_score: nil}
+
+  iex> build_details(%{resources: [%{resource_id: 1}]}, %{score: nil})
+  %{resources: [%{resource_id: 1}], previous_score: nil}
+
+  iex> build_details(nil, %{score: 1.0})
+  %{previous_score: 1.0}
+
+  """
+  def build_details(%{} = details, %{score: previous_score}) when is_float(previous_score) do
+    Map.merge(details, %{previous_score: previous_score})
+  end
+
+  def build_details(%{} = details, _last_dataset_freshness) do
+    Map.merge(details, %{previous_score: nil})
+  end
+
+  def build_details(_details, last_dataset_freshness) do
+    build_details(%{}, last_dataset_freshness)
   end
 
   @spec exp_smoothing(float, float) :: float

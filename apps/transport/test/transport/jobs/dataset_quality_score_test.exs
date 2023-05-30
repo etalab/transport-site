@@ -209,10 +209,24 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
       # expected score is 0.5 * 0.9 + 1. * (1. - 0.9)
       # see exp_smoothing() function
-      assert %{id: _id, topic: "freshness", score: 0.55, timestamp: timestamp} = score
-      assert DateTime.diff(timestamp, DateTime.utc_now()) < 3
+      assert %{id: _id, topic: "freshness", score: 0.55, timestamp: timestamp, details: details} = score
 
+      assert DateTime.diff(timestamp, DateTime.utc_now()) < 3
       assert DB.DatasetScore |> DB.Repo.all() |> length() == 3
+
+      assert %{
+               previous_score: 0.5,
+               resources: [
+                 %{
+                   format: "GTFS",
+                   freshness: 1.0,
+                   resource_id: _,
+                   raw_measure: %{start_date: start_date, end_date: end_date}
+                 }
+               ]
+             } = details
+
+      assert Date.diff(Date.utc_today(), start_date) > 0 and Date.diff(end_date, Date.utc_today()) > 0
     end
 
     test "no score yesterday" do
