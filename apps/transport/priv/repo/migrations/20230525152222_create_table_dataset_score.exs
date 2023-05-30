@@ -7,6 +7,7 @@ defmodule DB.Repo.Migrations.CreateTableDatasetScore do
       add :topic, :string
       add :score, :float
       add :timestamp, :utc_datetime_usec
+      add :details, :jsonb
     end
 
     create index("dataset_score", [:dataset_id])

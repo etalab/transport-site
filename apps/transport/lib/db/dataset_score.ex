@@ -11,6 +11,7 @@ defmodule DB.DatasetScore do
     field(:topic, :string)
     field(:score, :float)
     field(:timestamp, :utc_datetime_usec)
+    field(:details, :map)
   end
 
   def base_query, do: from(ds in DB.DatasetScore, as: :dataset_score)
