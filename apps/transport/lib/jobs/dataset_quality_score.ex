@@ -99,24 +99,15 @@ defmodule Transport.Jobs.DatasetQualityScore do
       |> select([resource: r], r)
       |> DB.Repo.all()
 
-    # current_dataset_freshness_infos =
-    #   resources
-    #   |> Enum.map(fn resource -> {resource_id, &resource_freshness(&1)} end)
-    #   |> Enum.reject(fn {_, freshness} -> is_nil(freshness) end)
-    #   |> Enum.into(%{})
-
-    current_dataset_freshness_infos =
-      for r <- resources, (freshness = resource_freshness(r)) !== nil, into: %{} do
-        {r.id, freshness}
-      end
+    current_dataset_freshness_infos = resources |> Enum.map(&resource_freshness(&1))
 
     score =
       current_dataset_freshness_infos
-      |> Enum.map(fn {_k, %{freshness: freshness}} -> freshness end)
+      |> Enum.map(fn %{freshness: freshness} -> freshness end)
       |> Enum.reject(&is_nil(&1))
       |> average()
 
-    %{dataset_freshness: score, details: current_dataset_freshness_infos}
+    %{dataset_freshness: score, details: %{resources: current_dataset_freshness_infos}}
   end
 
   defp average([]), do: nil
