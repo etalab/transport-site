@@ -32,25 +32,38 @@ defmodule Transport.Jobs.DatasetQualityScore do
   end
 
   def save_dataset_freshness_score(dataset_id) do
-    score = dataset_freshness_score(dataset_id)
+    %{score: score, details: details} = dataset_freshness_score(dataset_id)
 
-    %DB.DatasetScore{dataset_id: dataset_id, topic: "freshness", score: score, timestamp: DateTime.utc_now()}
+    %DB.DatasetScore{
+      dataset_id: dataset_id,
+      topic: "freshness",
+      score: score,
+      timestamp: DateTime.utc_now(),
+      details: details
+    }
     |> DB.Repo.insert()
   end
 
+  @spec dataset_freshness_score(integer) :: %{details: map, score: nil | float}
   @doc """
   dataset freshness is score is computed with:
   - today's freshness score
   - last (non nil) freshness score
   """
   def dataset_freshness_score(dataset_id) do
-    today_score = current_dataset_freshness(dataset_id)
+    %{dataset_freshness: today_score, details: details} = current_dataset_freshness(dataset_id)
     last_dataset_freshness = last_dataset_freshness(dataset_id)
 
-    case last_dataset_freshness do
-      %{score: previous_score} when is_float(previous_score) -> exp_smoothing(previous_score, today_score)
-      _ -> today_score
-    end
+    computed_score =
+      case last_dataset_freshness do
+        %{score: previous_score} when is_float(previous_score) ->
+          exp_smoothing(previous_score, today_score)
+
+        _ ->
+          today_score
+      end
+
+    %{score: computed_score, details: details}
   end
 
   @spec exp_smoothing(float, float) :: float
@@ -77,7 +90,7 @@ defmodule Transport.Jobs.DatasetQualityScore do
     |> DB.Repo.one()
   end
 
-  @spec current_dataset_freshness(integer()) :: nil | float
+  @spec current_dataset_freshness(integer()) :: %{dataset_freshness: float | nil, details: map()}
   def current_dataset_freshness(dataset_id) do
     resources =
       DB.Dataset.base_query()
@@ -86,54 +99,106 @@ defmodule Transport.Jobs.DatasetQualityScore do
       |> select([resource: r], r)
       |> DB.Repo.all()
 
-    current_dataset_freshness =
-      resources
-      |> Enum.map(&resource_freshness(&1))
+    # current_dataset_freshness_infos =
+    #   resources
+    #   |> Enum.map(fn resource -> {resource_id, &resource_freshness(&1)} end)
+    #   |> Enum.reject(fn {_, freshness} -> is_nil(freshness) end)
+    #   |> Enum.into(%{})
+
+    current_dataset_freshness_infos =
+      for r <- resources, (freshness = resource_freshness(r)) !== nil, into: %{} do
+        {r.id, freshness}
+      end
+
+    score =
+      current_dataset_freshness_infos
+      |> Enum.map(fn {_k, %{freshness: freshness}} -> freshness end)
       |> Enum.reject(&is_nil(&1))
       |> average()
 
-    current_dataset_freshness
+    %{dataset_freshness: score, details: current_dataset_freshness_infos}
   end
 
   defp average([]), do: nil
   defp average(e), do: Enum.sum(e) / Enum.count(e)
 
+  @spec resource_freshness(map) ::
+          %{
+            :format => binary,
+            :freshness => float | nil,
+            :resource_id => integer,
+            :raw_measure => any
+          }
   def resource_freshness(%{format: "GTFS", id: resource_id}) do
     resource_id
     |> DB.MultiValidation.resource_latest_validation(Transport.Validators.GTFSTransport)
     |> case do
-      %{metadata: %{metadata: %{"start_date" => start_date, "end_date" => end_date}}} ->
+      %{metadata: %{metadata: %{"start_date" => start_date, "end_date" => end_date}}}
+      when not is_nil(start_date) and not is_nil(end_date) ->
         start_date = Date.from_iso8601!(start_date)
         end_date = Date.from_iso8601!(end_date)
 
         today = Date.utc_today()
 
         freshness =
-          if Date.compare(start_date, today) != :gt and Date.compare(today, end_date) != :gt, do: 1.0, else: 0.0
+          if Date.compare(start_date, today) != :gt and Date.compare(today, end_date) != :gt,
+            do: 1.0,
+            else: 0.0
 
-        freshness
+        %{
+          freshness: freshness,
+          raw_measure: %{start_date: start_date, end_date: end_date}
+        }
 
       _ ->
-        nil
+        %{
+          freshness: nil,
+          raw_measure: nil
+        }
     end
+    |> Map.merge(%{resource_id: resource_id, format: "GTFS"})
   end
 
   def resource_freshness(%{format: "gbfs", id: resource_id}) do
     freshness =
-      case resource_last_metadata_from_today(resource_id) do
-        %{metadata: %{"feed_timestamp_delay" => feed_timestamp_delay}} -> gbfs_feed_freshness(feed_timestamp_delay)
-        _ -> nil
+      resource_id
+      |> resource_last_metadata_from_today()
+      |> case do
+        %{metadata: %{"feed_timestamp_delay" => feed_timestamp_delay}} ->
+          %{
+            freshness: gbfs_feed_freshness(feed_timestamp_delay),
+            raw_measure: feed_timestamp_delay
+          }
+
+        _ ->
+          %{
+            freshness: nil,
+            raw_measure: nil
+          }
       end
+      |> Map.merge(%{resource_id: resource_id, format: "gbfs"})
 
     freshness
   end
 
   def resource_freshness(%{format: "gtfs-rt", id: resource_id}) do
     freshness =
-      case resource_last_metadata_from_today(resource_id) do
-        %{metadata: %{"feed_timestamp_delay" => feed_timestamp_delay}} -> gtfs_rt_feed_freshness(feed_timestamp_delay)
-        _ -> nil
+      resource_id
+      |> resource_last_metadata_from_today()
+      |> case do
+        %{metadata: %{"feed_timestamp_delay" => feed_timestamp_delay}} ->
+          %{
+            freshness: gtfs_rt_feed_freshness(feed_timestamp_delay),
+            raw_measure: feed_timestamp_delay
+          }
+
+        _ ->
+          %{
+            freshness: nil,
+            raw_measure: nil
+          }
       end
+      |> Map.merge(%{resource_id: resource_id, format: "gtfs-rt"})
 
     freshness
   end
@@ -177,7 +242,10 @@ defmodule Transport.Jobs.DatasetQualityScore do
 
   def resource_last_metadata_from_today(resource_id) do
     DB.ResourceMetadata.base_query()
-    |> where([metadata: m], m.resource_id == ^resource_id and fragment("date(?) = CURRENT_DATE", m.inserted_at))
+    |> where(
+      [metadata: m],
+      m.resource_id == ^resource_id and fragment("date(?) = CURRENT_DATE", m.inserted_at)
+    )
     |> distinct([metadata: m], m.resource_id)
     |> order_by([metadata: m], desc: m.inserted_at)
     |> DB.Repo.one()
