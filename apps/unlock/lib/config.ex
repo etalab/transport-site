@@ -14,7 +14,7 @@ defmodule Unlock.Config do
     Default subtype is "gtfs-rt" for historical reasons, see `convert_yaml_item_to_struct` in the code.
     """
     @enforce_keys [:identifier, :target_url, :ttl]
-    defstruct [:identifier, :target_url, :ttl, subtype: "gtfs-rt", request_headers: []]
+    defstruct [:identifier, :target_url, :ttl, subtype: "gtfs-rt", request_headers: [], response_headers: []]
   end
 
   defmodule Item.SIRI do
