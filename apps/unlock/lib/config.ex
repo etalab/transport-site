@@ -39,7 +39,7 @@ defmodule Unlock.Config do
         identifier: Map.fetch!(item, "identifier"),
         target_url: Map.fetch!(item, "target_url"),
         requestor_ref: Map.fetch!(item, "requestor_ref"),
-        request_headers: parse_config_request_headers(Map.get(item, "request_headers", []))
+        request_headers: parse_config_http_headers(Map.get(item, "request_headers", []))
       }
     end
 
@@ -55,8 +55,8 @@ defmodule Unlock.Config do
         ttl: Map.get(item, "ttl", 0),
         # keep the subtype in case we need to do alternate processing later, without creating too many types too soon
         subtype: subtype,
-        request_headers: parse_config_request_headers(Map.get(item, "request_headers", [])),
-        response_headers: parse_config_request_headers(Map.get(item, "response_headers", []))
+        request_headers: parse_config_http_headers(Map.get(item, "request_headers", [])),
+        response_headers: parse_config_http_headers(Map.get(item, "response_headers", []))
       }
     end
 
@@ -78,7 +78,7 @@ defmodule Unlock.Config do
     This method converts that to a list of tuple, commonly used for HTTP headers
     (e.g. `Mint.Types.headers()` in https://github.com/elixir-mint/mint/blob/main/lib/mint/types.ex)
     """
-    def parse_config_request_headers(list) do
+    def parse_config_http_headers(list) do
       list
       |> Enum.map(fn [k, v] -> {k, v} end)
     end
