@@ -55,7 +55,8 @@ defmodule Unlock.Config do
         ttl: Map.get(item, "ttl", 0),
         # keep the subtype in case we need to do alternate processing later, without creating too many types too soon
         subtype: subtype,
-        request_headers: parse_config_request_headers(Map.get(item, "request_headers", []))
+        request_headers: parse_config_request_headers(Map.get(item, "request_headers", [])),
+        response_headers: parse_config_request_headers(Map.get(item, "response_headers", []))
       }
     end
 
