@@ -390,6 +390,39 @@ defmodule Unlock.ControllerTest do
       verify!(Unlock.HTTP.Client.Mock)
     end
 
+    test "supports override of response headers" do
+      setup_proxy_config(%{
+        "some-identifier" => %Unlock.Config.Item.Generic.HTTP{
+          identifier: "some-identifier",
+          target_url: "http://localhost/some-remote-resource",
+          ttl: 10,
+          response_headers: [
+            {"content-disposition", "attachment; filename=data.csv"}
+          ]
+        }
+      })
+
+      Unlock.HTTP.Client.Mock
+      |> expect(:get!, fn _url, _request_headers ->
+        %Unlock.HTTP.Response{
+          body: "content",
+          status: 200,
+          headers: [{"content-disposition", "foobar"}]
+        }
+      end)
+
+      resp =
+        build_conn()
+        |> get("/resource/some-identifier")
+
+      assert resp.resp_headers |> Enum.filter(fn {k, v} -> k == "content-disposition" end) ==
+               [{"content-disposition", "attachment; filename=data.csv"}]
+
+      assert resp.status == 200
+
+      verify!(Unlock.HTTP.Client.Mock)
+    end
+
     test "handles remote error" do
       url = "http://localhost/some-remote-resource"
       identifier = "foo"
