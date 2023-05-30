@@ -13,7 +13,7 @@ defmodule DB.NotificationSubscription do
   # but are not made visible to users
   @hidden_reasons_related_to_datasets [:dataset_now_on_nap]
   # These notification reasons are *not* linked to a specific dataset, `dataset_id` should be nil
-  @platform_wide_reasons [:new_dataset, :datasets_switching_licences, :daily_new_comments]
+  @platform_wide_reasons [:new_dataset, :datasets_switching_climate_resilience_bill, :daily_new_comments]
 
   typed_schema "notification_subscription" do
     field(:reason, Ecto.Enum,
@@ -109,7 +109,8 @@ defmodule DB.NotificationSubscription do
         resource_unavailable: dgettext("notification_subscription", "resource_unavailable"),
         dataset_now_on_nap: dgettext("notification_subscription", "dataset_now_on_nap"),
         new_dataset: dgettext("notification_subscription", "new_dataset"),
-        datasets_switching_licences: dgettext("notification_subscription", "datasets_switching_licences"),
+        datasets_switching_climate_resilience_bill:
+          dgettext("notification_subscription", "datasets_switching_climate_resilience_bill"),
         daily_new_comments: dgettext("notification_subscription", "daily_new_comments")
       },
       reason
