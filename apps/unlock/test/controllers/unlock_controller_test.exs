@@ -416,7 +416,7 @@ defmodule Unlock.ControllerTest do
         build_conn()
         |> get("/resource/some-identifier")
 
-      assert resp.resp_headers |> Enum.filter(fn {k, v} -> k == "content-disposition" end) ==
+      assert resp.resp_headers |> Enum.filter(fn {k, _v} -> k == "content-disposition" end) ==
                [{"content-disposition", "attachment; filename=data.csv"}]
 
       assert resp.status == 200
