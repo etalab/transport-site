@@ -204,7 +204,7 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
         email: "john#{Ecto.UUID.generate()}@example.fr",
         job_title: "Boss",
         organization: "Big Corp Inc",
-        phone_number: "06 92 22 88 03"
+        phone_number: "06 82 22 88 03"
       },
       args
     )
