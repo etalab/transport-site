@@ -46,9 +46,18 @@ defmodule Transport.Jobs.DatasetQualityScore do
 
   @spec dataset_freshness_score(integer) :: %{details: map, score: nil | float}
   @doc """
-  dataset freshness is score is computed with:
-  - today's freshness score
-  - last (non nil) freshness score
+  dataset "freshness" is the answer to the question:
+  "When the data was downloaded, was it up-to-date?"
+  To give a score, we proceed this way:
+  - get the dataset's current resources
+  - for each resource, give it a score
+  - we compute an average of those scores to get a score at the dataset level
+  - that score is averaged with the dataset's last computed score, using exponential smoothing
+  (see the function exp_smoothing below). This allows a score to reflect not only the current
+  dataset situation but also past situations. Typically, a dataset that had outdated resources
+  for the past year, but only up-to-date resources today is expected to have a low freshness score.
+  The interest of exponential smoothing is to give past scores an increasingly small weight as time
+  passes. To have a good score, a dataset must have up-to-date resources every day.
   """
   def dataset_freshness_score(dataset_id) do
     %{dataset_freshness: today_score, details: details} = current_dataset_freshness(dataset_id)
