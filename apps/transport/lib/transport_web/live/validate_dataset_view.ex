@@ -70,7 +70,7 @@ defmodule TransportWeb.Live.ValidateDatasetView do
     Map.get(
       %{
         validated: "button success",
-        validating: "button-outlined secondary"
+        validating: "button button-outlined secondary"
       },
       step,
       "button"

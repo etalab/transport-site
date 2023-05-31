@@ -71,7 +71,7 @@ defmodule TransportWeb.NotificationController do
   end
 
   defp picked_reasons(%{} = params) do
-    possible_reasons = DB.NotificationSubscription.possible_reasons() |> Enum.map(&to_string/1)
+    possible_reasons = DB.NotificationSubscription.reasons_related_to_datasets() |> Enum.map(&to_string/1)
 
     params |> Map.filter(fn {k, v} -> k in possible_reasons and v == "true" end) |> Map.keys()
   end

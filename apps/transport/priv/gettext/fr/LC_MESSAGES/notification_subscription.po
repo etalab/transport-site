@@ -20,8 +20,8 @@ msgid "dataset_with_error"
 msgstr "Erreurs de validation"
 
 #, elixir-autogen, elixir-format
-msgid "datasets_switching_licences"
-msgstr "Jeux de données changeant de licence de/vers la licence ouverte"
+msgid "datasets_switching_climate_resilience_bill"
+msgstr "Suivi des jeux de données étant soumis à une obligation d'intégration"
 
 #, elixir-autogen, elixir-format
 msgid "expiration"
@@ -34,3 +34,7 @@ msgstr "Jeux de données référencés récemment"
 #, elixir-autogen, elixir-format
 msgid "resource_unavailable"
 msgstr "Ressources indisponibles"
+
+#, elixir-autogen, elixir-format
+msgid "dataset_now_on_nap"
+msgstr "Le jeu de données a été référencé sur le PAN"

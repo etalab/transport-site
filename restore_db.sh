@@ -1,5 +1,6 @@
 #!/bin/bash
-set -e
+# NOTE: set -e cannot be used at the moment because of pg_restore will actually generate
+# errors/warnings, which stops the script. A better way to handle errors must be found.
 
 # Usage ./restore_db.sh <db_name> <host> <user_name> <password> <absolute_path_to_backup>
 # or the ./restore_db.sh <absolute_path_to_backup> if the default options are ok for you

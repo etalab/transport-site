@@ -100,6 +100,16 @@ defmodule Unlock.Controller do
   # RAM consumption
   @max_allowed_cached_byte_size 20 * 1024 * 1024
 
+  # In particular, it can be desirable to let the config override "content-disposition"
+  # to specify a filename (in the case of IRVE data for instance, which is CSV and most
+  # users expect it to download as a file, contrary to other formats)
+  defp override_resp_headers_if_configured(conn, %Unlock.Config.Item.Generic.HTTP{} = item) do
+    Enum.reduce(item.response_headers, conn, fn {header, value}, conn ->
+      conn
+      |> put_resp_header(header |> String.downcase(), value)
+    end)
+  end
+
   defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.Generic.HTTP{} = item) do
     Telemetry.trace_request(item.identifier, :external)
     response = fetch_remote(item)
@@ -110,6 +120,7 @@ defmodule Unlock.Controller do
     # For now, we enforce the download. This will result in incorrect filenames
     # if the content-type is incorrect, but is better than nothing.
     |> put_resp_header("content-disposition", "attachment")
+    |> override_resp_headers_if_configured(item)
     |> send_resp(response.status, response.body)
   end
 

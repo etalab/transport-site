@@ -9,11 +9,17 @@ defmodule DB.NotificationSubscription do
 
   # These notification reasons are required to have a `dataset_id` set
   @reasons_related_to_datasets [:expiration, :dataset_with_error, :resource_unavailable]
+  # These notification reasons are also required to have a `dataset_id` set
+  # but are not made visible to users
+  @hidden_reasons_related_to_datasets [:dataset_now_on_nap]
   # These notification reasons are *not* linked to a specific dataset, `dataset_id` should be nil
-  @platform_wide_reasons [:new_dataset, :datasets_switching_licences, :daily_new_comments]
+  @platform_wide_reasons [:new_dataset, :datasets_switching_climate_resilience_bill, :daily_new_comments]
 
   typed_schema "notification_subscription" do
-    field(:reason, Ecto.Enum, values: @reasons_related_to_datasets ++ @platform_wide_reasons)
+    field(:reason, Ecto.Enum,
+      values: @reasons_related_to_datasets ++ @platform_wide_reasons ++ @hidden_reasons_related_to_datasets
+    )
+
     field(:source, Ecto.Enum, values: [:admin, :user])
 
     belongs_to(:contact, DB.Contact)
@@ -43,7 +49,7 @@ defmodule DB.NotificationSubscription do
   end
 
   defp maybe_assoc_constraint_dataset(%Ecto.Changeset{} = changeset) do
-    if get_field(changeset, :reason) in reasons_related_to_datasets() do
+    if get_field(changeset, :reason) in (reasons_related_to_datasets() ++ @hidden_reasons_related_to_datasets) do
       changeset |> validate_required(:dataset_id) |> assoc_constraint(:dataset)
     else
       changeset |> validate_inclusion(:dataset_id, [nil])
@@ -57,7 +63,8 @@ defmodule DB.NotificationSubscription do
   def platform_wide_reasons, do: @platform_wide_reasons
 
   @spec possible_reasons :: [atom()]
-  def possible_reasons, do: reasons_related_to_datasets() ++ platform_wide_reasons()
+  def possible_reasons,
+    do: reasons_related_to_datasets() ++ platform_wide_reasons() ++ @hidden_reasons_related_to_datasets
 
   @spec subscriptions_for_reason(atom()) :: [__MODULE__.t()]
   def subscriptions_for_reason(reason) do
@@ -72,6 +79,14 @@ defmodule DB.NotificationSubscription do
     base_query()
     |> preload([:contact])
     |> where([notification_subscription: ns], ns.reason == ^reason and ns.dataset_id == ^dataset_id)
+    |> DB.Repo.all()
+  end
+
+  @spec subscriptions_for_dataset(DB.Dataset.t()) :: [__MODULE__.t()]
+  def subscriptions_for_dataset(%DB.Dataset{id: dataset_id}) do
+    base_query()
+    |> preload([:contact])
+    |> where([notification_subscription: ns], ns.dataset_id == ^dataset_id)
     |> DB.Repo.all()
   end
 
@@ -92,8 +107,10 @@ defmodule DB.NotificationSubscription do
         expiration: dgettext("notification_subscription", "expiration"),
         dataset_with_error: dgettext("notification_subscription", "dataset_with_error"),
         resource_unavailable: dgettext("notification_subscription", "resource_unavailable"),
+        dataset_now_on_nap: dgettext("notification_subscription", "dataset_now_on_nap"),
         new_dataset: dgettext("notification_subscription", "new_dataset"),
-        datasets_switching_licences: dgettext("notification_subscription", "datasets_switching_licences"),
+        datasets_switching_climate_resilience_bill:
+          dgettext("notification_subscription", "datasets_switching_climate_resilience_bill"),
         daily_new_comments: dgettext("notification_subscription", "daily_new_comments")
       },
       reason

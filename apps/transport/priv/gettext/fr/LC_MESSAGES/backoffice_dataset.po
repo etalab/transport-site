@@ -62,3 +62,15 @@ msgstr "Voir la page du jeu de données"
 #, elixir-autogen, elixir-format
 msgid "GTFS Transport Validator has been force launched on all GTFS resources"
 msgstr "Le validateur GTFS Transport a été lancé sur toutes les ressources GTFS"
+
+#, elixir-autogen, elixir-format
+msgid "Send welcome email to contacts"
+msgstr "Envoyer e-mail de bienvenue aux contacts"
+
+#, elixir-autogen, elixir-format
+msgid "Sending"
+msgstr "Envoi en cours"
+
+#, elixir-autogen, elixir-format
+msgid "Sent"
+msgstr "Envoyé"

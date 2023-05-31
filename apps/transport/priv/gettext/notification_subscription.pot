@@ -20,7 +20,7 @@ msgid "dataset_with_error"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "datasets_switching_licences"
+msgid "datasets_switching_climate_resilience_bill"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -33,4 +33,8 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "resource_unavailable"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "dataset_now_on_nap"
 msgstr ""

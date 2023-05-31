@@ -124,7 +124,7 @@ oban_crontab_all_envs =
         {"0 22 * * *", Transport.Jobs.ArchiveMetricsJob},
         {"15,45 * * * *", Transport.Jobs.MultiValidationWithErrorNotificationJob},
         {"20,50 * * * *", Transport.Jobs.ResourceUnavailableNotificationJob},
-        {"30 6 * * 1", Transport.Jobs.DatasetsSwitchingLicencesJob},
+        {"30 6 * * 1", Transport.Jobs.DatasetsSwitchingClimateResilienceBillJob},
         {"10 6 * * 1", Transport.Jobs.DatasetsWithoutGTFSRTRelatedResourcesNotificationJob},
         {"45 2 * * *", Transport.Jobs.RemoveHistoryJob,
          args: %{schema_name: "etalab/schema-irve-dynamique", days_limit: 7}},

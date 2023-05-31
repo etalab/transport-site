@@ -50,7 +50,7 @@ map.on('moveend', function (event) {
     const palette = [[38, 85, 255], [92, 102, 200], [147, 119, 145], [201, 135, 89], [255, 152, 34], [243, 119, 30], [231, 86, 27], [218, 52, 23], [206, 19, 19]]
 
     const colorFunc = function (v) {
-        return palette[Math.min(Math.floor(v * 10), 9)]
+        return palette[Math.min(Math.floor(v * 9), 8)]
     }
 
     fetch(url)

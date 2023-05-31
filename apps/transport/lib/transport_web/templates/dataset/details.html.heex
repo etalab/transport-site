@@ -208,14 +208,12 @@
             <% end %>
           </div>
           <%= unless @discussions == nil do %>
-            <%= for discussion <- @discussions do %>
-              <%= render("_discussion.html",
-                discussion: discussion,
-                current_user: @current_user,
-                conn: @conn,
-                dataset: @dataset
-              ) %>
-            <% end %>
+            <%= render("_discussions.html",
+              discussions: @discussions,
+              current_user: @current_user,
+              conn: @conn,
+              dataset: @dataset
+            ) %>
           <% else %>
             <%= dgettext("page-dataset-details", "Unable to retrieve discussions from data.gouv.fr") %>
           <% end %>

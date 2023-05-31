@@ -18,7 +18,7 @@ defmodule DB.NotificationSubscriptionTest do
     assert %Ecto.Changeset{valid?: true} =
              changeset.(%{
                source: :admin,
-               reason: :datasets_switching_licences,
+               reason: :datasets_switching_climate_resilience_bill,
                contact_id: contact.id
              })
 
@@ -53,14 +53,14 @@ defmodule DB.NotificationSubscriptionTest do
     assert %Ecto.Changeset{valid?: false, errors: [contact_id: {"can't be blank", [validation: :required]}]} =
              changeset.(%{
                source: :admin,
-               reason: :datasets_switching_licences,
+               reason: :datasets_switching_climate_resilience_bill,
                contact_id: nil
              })
 
     assert {:error, %Ecto.Changeset{valid?: false, errors: [contact: {"does not exist", _}]}} =
              %{
                source: :admin,
-               reason: :datasets_switching_licences,
+               reason: :datasets_switching_climate_resilience_bill,
                contact_id: -1
              }
              |> changeset.()
@@ -70,7 +70,7 @@ defmodule DB.NotificationSubscriptionTest do
     assert %Ecto.Changeset{valid?: false, errors: [source: {"is invalid", _}]} =
              changeset.(%{
                source: :foo,
-               reason: :datasets_switching_licences,
+               reason: :datasets_switching_climate_resilience_bill,
                contact_id: contact.id
              })
   end
