@@ -30,7 +30,24 @@ defmodule Transport.Jobs.GTFSImportStopsJob do
       %DB.DataImportBatch{summary: %{result: result}}
       |> DB.Repo.insert!()
 
+    clean_up_stale_imports()
+
     %{result: result, data_import_batch_id: batch.id}
+  end
+
+  def clean_up_stale_imports do
+    Logger.info("Removing DataImports for deleted resources")
+    query = from(di in DB.DataImport)
+
+    data_import_ids =
+      query
+      |> join(:left, [di], rh in DB.ResourceHistory, on: di.resource_history_id == rh.id)
+      |> join(:left, [di, rh], r in DB.Resource, on: rh.resource_id == r.id)
+      |> where([di, rh, r], is_nil(r.id))
+      |> select([di, rh, r], di.id)
+      |> DB.Repo.all()
+
+    from(di in DB.DataImport, where: di.id in ^data_import_ids) |> DB.Repo.delete_all()
   end
 
   def active_datasets_resource_history_items do
