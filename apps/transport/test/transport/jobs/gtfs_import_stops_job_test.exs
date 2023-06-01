@@ -56,7 +56,8 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
     assert DB.Repo.aggregate(DB.GTFS.Stops, :count, :id) == 4
 
     # then delete one of the resource
-    from(r in DB.Resource, where: r.id == ^resource_id) |> DB.Repo.delete_all()
+    query = from(r in DB.Resource, where: r.id == ^resource_id)
+    query |> DB.Repo.delete_all()
 
     # resource history & data imports must still be there at this point
     assert DB.Repo.aggregate(DB.ResourceHistory, :count, :id) == 2
@@ -82,7 +83,8 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
     assert DB.Repo.aggregate(DB.GTFS.Stops, :count, :id) == 2 * 2
 
     # make one dataset inactive
-    DB.Repo.get_by(DB.Dataset, id: dataset_id)
+    DB.Dataset
+    |> DB.Repo.get_by(id: dataset_id)
     |> Ecto.Changeset.change(%{is_active: false})
     |> DB.Repo.update!()
 
