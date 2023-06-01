@@ -17,13 +17,16 @@ defmodule DB.DatasetScoreTest do
     end
 
     test "score has constraints" do
-      changeset = %DB.DatasetScore{} |> DB.DatasetScore.changeset(%{dataset_id: 1, topic: "freshness", score: 2.0, timestamp: DateTime.utc_now()})
+      changeset =
+        %DB.DatasetScore{}
+        |> DB.DatasetScore.changeset(%{dataset_id: 1, topic: "freshness", score: 2.0, timestamp: DateTime.utc_now()})
+
       assert %{
-        valid?: false,
-        errors: [
-          score: {"must be beetween 0.0 and 1.0", []},
-        ]
-      } = changeset
+               valid?: false,
+               errors: [
+                 score: {"must be beetween 0.0 and 1.0", []}
+               ]
+             } = changeset
     end
   end
 end
