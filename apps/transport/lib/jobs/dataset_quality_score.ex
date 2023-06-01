@@ -179,12 +179,7 @@ defmodule Transport.Jobs.DatasetQualityScore do
         start_date = Date.from_iso8601!(start_date)
         end_date = Date.from_iso8601!(end_date)
 
-        today = Date.utc_today()
-
-        freshness =
-          if Date.compare(start_date, today) != :gt and Date.compare(today, end_date) != :gt,
-            do: 1.0,
-            else: 0.0
+        freshness = gtfs_freshness(start_date, end_date)
 
         %{
           freshness: freshness,
@@ -245,6 +240,34 @@ defmodule Transport.Jobs.DatasetQualityScore do
   end
 
   def resource_freshness(%DB.Resource{}), do: nil
+
+  @doc """
+  the freshness of a GTFS resource, base on its validity dates
+
+  iex> {today, tomorrow, yesterday} = {Date.utc_today(), Date.utc_today() |> Date.add(1), Date.utc_today() |> Date.add(-1)}
+  iex> gtfs_freshness(tomorrow, tomorrow)
+  nil
+  iex> gtfs_freshness(yesterday, yesterday)
+  0.0
+  iex> gtfs_freshness(yesterday, tomorrow)
+  1.0
+  iex> gtfs_freshness(today, tomorrow)
+  1.0
+  iex> gtfs_freshness(yesterday, today)
+  1.0
+  """
+  def gtfs_freshness(start_date, end_date) do
+    today = Date.utc_today()
+
+    case {Date.compare(start_date, today), Date.compare(end_date, today)} do
+      # future GTFS are not scored
+      {:gt, _} -> nil
+      # outdated GTFS
+      {_, :lt} -> 0.0
+      # up-to-date GTFS
+      _ -> 1.0
+    end
+  end
 
   @doc """
   5 minutes is the max delay allowed for GBFS

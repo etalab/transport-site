@@ -58,6 +58,18 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
              } = resource_freshness(resource)
     end
 
+    test "future GTFS resource" do
+      # insert a GTFS with validity dates in the future
+      %{resource: resource} = insert_resource_and_friends(Date.utc_today() |> Date.add(365), [])
+
+      assert %{
+               format: "GTFS",
+               freshness: nil,
+               raw_measure: %{end_date: _, start_date: _},
+               resource_id: _
+             } = resource_freshness(resource)
+    end
+
     test "GTFS resource without metadata" do
       resource = insert(:resource, format: "GTFS")
 
