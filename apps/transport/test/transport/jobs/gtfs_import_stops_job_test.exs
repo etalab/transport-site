@@ -44,7 +44,6 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
   # NOTE: ultimately, a better approach would be to reimport stops & everything in temporary tables
   # then drop previous tables, instead of manually removing items, but for now that will do.
   test "import must remove data imports for removed resource" do
-    # create a situation with 2 data imports for 2 resources
     {_dataset_id, resource_id, _resource_history_id} = import_some_data()
     # import another one to make sure we can still create the materialized views
     import_some_data()
@@ -65,6 +64,29 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
     assert DB.Repo.aggregate(DB.GTFS.Stops, :count, :id) == 4
 
     # deleting the resource and re-importing must result into data import removal
+    {:ok, _result} = perform_job(Transport.Jobs.GTFSImportStopsJob, %{})
+    assert DB.Repo.aggregate(DB.DataImport, :count, :id) == 1
+    assert DB.Repo.aggregate(DB.GTFS.Stops, :count, :id) == 2
+  end
+
+  test "import must remove data imports for inactive datasets" do
+    {dataset_id, _resource_id, _resource_history_id} = import_some_data()
+    # import another one to make sure we can still create the materialized views
+    import_some_data()
+
+    setup_get_file_stream_mox("some-file.zip")
+    setup_get_file_stream_mox("some-file.zip")
+
+    {:ok, _result} = perform_job(Transport.Jobs.GTFSImportStopsJob, %{})
+    assert DB.Repo.aggregate(DB.DataImport, :count, :id) == 2
+    assert DB.Repo.aggregate(DB.GTFS.Stops, :count, :id) == 2 * 2
+
+    # make one dataset inactive
+    DB.Repo.get_by(DB.Dataset, id: dataset_id)
+    |> Ecto.Changeset.change(%{is_active: false})
+    |> DB.Repo.update!()
+
+    # data import must be removed
     {:ok, _result} = perform_job(Transport.Jobs.GTFSImportStopsJob, %{})
     assert DB.Repo.aggregate(DB.DataImport, :count, :id) == 1
     assert DB.Repo.aggregate(DB.GTFS.Stops, :count, :id) == 2
