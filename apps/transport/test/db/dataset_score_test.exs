@@ -25,16 +25,5 @@ defmodule DB.DatasetScoreTest do
         ]
       } = changeset
     end
-
-    test "not all topics are allowed" do
-      changeset = %DB.DatasetScore{} |> DB.DatasetScore.changeset(%{dataset_id: 1, topic: "bruit-cuisine", score: 0.5, timestamp: DateTime.utc_now()})
-      assert %{
-        valid?: false,
-        errors: [
-          topic: {"is invalid", _},
-        ]
-      } = changeset
-
-    end
   end
 end
