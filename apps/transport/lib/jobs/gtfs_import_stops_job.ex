@@ -30,7 +30,74 @@ defmodule Transport.Jobs.GTFSImportStopsJob do
       %DB.DataImportBatch{summary: %{result: result}}
       |> DB.Repo.insert!()
 
+    clean_up_stale_imports()
+
     %{result: result, data_import_batch_id: batch.id}
+  end
+
+  # Doing some cleanup operations:
+  # - remove data imports for deleted resources
+  # - remove data imports for inactive datasets
+  #
+  # This, combined with the existing code in `gtfs_import_stops.ex` to remove
+  # previous data import for same resource history and previous data import
+  # for other resource history for the same resource, should cover most cases.
+  #
+  # To ensure there is only one data import per resource, and no NULL resources,
+  # one can use the following query & verify it returns nothing:
+  #
+  # ```sql
+  # select r.id, count(*) from data_import di
+  # left join resource_history rh on rh.id = di.resource_history_id
+  # left join resource r on r.id = rh.resource_id
+  # group by r.id
+  # having count(*) > 1
+  # ```
+  #
+  # If we need more features in the future, it could be a good idea to instead
+  # import "all current stuff" in temporary tables (staging area), then
+  # merge/insert/update/delete in the real tables, to avoid fiddling around too much.
+  #
+  def clean_up_stale_imports do
+    Logger.info("Removing DataImports for deleted resources")
+    query = from(di in DB.DataImport)
+
+    data_import_ids =
+      query
+      |> join(:left, [di], rh in DB.ResourceHistory, on: di.resource_history_id == rh.id)
+      |> join(:left, [di, rh], r in DB.Resource, on: rh.resource_id == r.id)
+      |> where([di, rh, r], is_nil(r.id))
+      |> select([di, rh, r], di.id)
+      |> DB.Repo.all()
+
+    # process in smaller batches to avoid putting to much stress on the database
+    # and also increase the timeout
+    data_import_ids
+    |> Enum.chunk_every(5)
+    |> Enum.each(fn data_import_ids ->
+      query = from(di in DB.DataImport, where: di.id in ^data_import_ids)
+      query |> DB.Repo.delete_all(timeout: 60_000)
+    end)
+
+    Logger.info("Removing DataImports for inactive datasets")
+
+    query = from(di in DB.DataImport)
+
+    data_import_ids =
+      query
+      |> join(:left, [di], rh in DB.ResourceHistory, on: di.resource_history_id == rh.id)
+      |> join(:left, [di, rh], r in DB.Resource, on: rh.resource_id == r.id)
+      |> join(:left, [di, rh, r], d in DB.Dataset, on: r.dataset_id == d.id)
+      |> where([di, rh, r, d], d.is_active == false)
+      |> select([di, rh, r], di.id)
+      |> DB.Repo.all()
+
+    data_import_ids
+    |> Enum.chunk_every(5)
+    |> Enum.each(fn data_import_ids ->
+      query = from(di in DB.DataImport, where: di.id in ^data_import_ids)
+      query |> DB.Repo.delete_all(timeout: 60_000)
+    end)
   end
 
   def active_datasets_resource_history_items do
