@@ -15,7 +15,7 @@ defmodule DB.ContactTest do
       email: email = "john@example.fr",
       job_title: "Chef SIG",
       organization: "Big Corp Inc",
-      phone_number: "06 92 22 88 03",
+      phone_number: "06 82 22 88 03",
       secondary_phone_number: "+33 1 99 00 17 45"
     }
     |> DB.Contact.insert!()
@@ -26,7 +26,7 @@ defmodule DB.ContactTest do
              job_title: "Chef SIG",
              last_name: "Doe",
              organization: "Big Corp Inc",
-             phone_number: "+33692228803",
+             phone_number: "+33682228803",
              secondary_phone_number: "+33199001745"
            } = DB.Repo.one!(DB.Contact)
 
@@ -35,7 +35,7 @@ defmodule DB.ContactTest do
 
     # Cannot get rows by using the email/phone_number values, because values are encrypted
     assert DB.Contact |> where([n], n.email == ^email) |> DB.Repo.all() |> Enum.empty?()
-    assert DB.Contact |> where([n], n.phone_number == ^"+33692228803") |> DB.Repo.all() |> Enum.empty?()
+    assert DB.Contact |> where([n], n.phone_number == ^"+33682228803") |> DB.Repo.all() |> Enum.empty?()
     assert DB.Contact |> where([n], n.secondary_phone_number == ^"+33199001745") |> DB.Repo.all() |> Enum.empty?()
 
     # Can save a contact with a `title`
@@ -182,7 +182,7 @@ defmodule DB.ContactTest do
       email: "john#{Ecto.UUID.generate()}@example.fr",
       job_title: "Boss",
       organization: "Big Corp Inc",
-      phone_number: "06 92 22 88 03"
+      phone_number: "06 82 22 88 03"
     }
   end
 end
