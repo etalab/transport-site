@@ -31,17 +31,29 @@ defmodule Transport.Jobs.DatasetQualityScore do
     :ok
   end
 
+  @spec save_dataset_freshness_score(integer) :: %DB.DatasetScore{} | nil
   def save_dataset_freshness_score(dataset_id) do
     %{score: score, details: details} = dataset_freshness_score(dataset_id)
 
-    %DB.DatasetScore{
+    %DB.DatasetScore{}
+    |> DB.DatasetScore.changeset(%{
       dataset_id: dataset_id,
       topic: "freshness",
       score: score,
       timestamp: DateTime.utc_now(),
       details: details
-    }
-    |> DB.Repo.insert()
+    })
+    |> case do
+      %{valid?: true} = c ->
+        DB.Repo.insert(c)
+
+      c ->
+        Sentry.capture_message(
+          "Dataset quality score entry is incorrect",
+          extra: %{dataset_id: dataset_id, error_reason: inspect(c)}
+        )
+        nil
+    end
   end
 
   @spec dataset_freshness_score(integer) :: %{details: map, score: nil | float}
