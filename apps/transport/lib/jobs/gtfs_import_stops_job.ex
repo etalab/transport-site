@@ -70,8 +70,14 @@ defmodule Transport.Jobs.GTFSImportStopsJob do
       |> select([di, rh, r], di.id)
       |> DB.Repo.all()
 
-    query = from(di in DB.DataImport, where: di.id in ^data_import_ids)
-    query |> DB.Repo.delete_all()
+    # process in smaller batches to avoid putting to much stress on the database
+    # and also increase the timeout
+    data_import_ids
+    |> Enum.chunk_every(5)
+    |> Enum.each(fn data_import_ids ->
+      query = from(di in DB.DataImport, where: di.id in ^data_import_ids)
+      query |> DB.Repo.delete_all(timeout: 60_000)
+    end)
 
     Logger.info("Removing DataImports for inactive datasets")
 
@@ -86,8 +92,12 @@ defmodule Transport.Jobs.GTFSImportStopsJob do
       |> select([di, rh, r], di.id)
       |> DB.Repo.all()
 
-    query = from(di in DB.DataImport, where: di.id in ^data_import_ids)
-    query |> DB.Repo.delete_all()
+    data_import_ids
+    |> Enum.chunk_every(5)
+    |> Enum.each(fn data_import_ids ->
+      query = from(di in DB.DataImport, where: di.id in ^data_import_ids)
+      query |> DB.Repo.delete_all(timeout: 60_000)
+    end)
   end
 
   def active_datasets_resource_history_items do
