@@ -13,8 +13,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
   end
 
   def import_some_data do
-    %{id: dataset_id} =
-      insert(:dataset, %{datagouv_id: Ecto.UUID.generate(), datagouv_title: "coucou"})
+    %{id: dataset_id} = insert(:dataset, %{datagouv_id: Ecto.UUID.generate(), datagouv_title: "coucou"})
 
     %{id: resource_id} = insert(:resource, dataset_id: dataset_id, format: "GTFS")
 
@@ -28,8 +27,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
   end
 
   test "import without error" do
-    %{id: dataset_id} =
-      insert(:dataset, %{datagouv_id: Ecto.UUID.generate(), datagouv_title: "coucou"})
+    %{id: dataset_id} = insert(:dataset, %{datagouv_id: Ecto.UUID.generate(), datagouv_title: "coucou"})
 
     %{id: resource_id} = insert(:resource, dataset_id: dataset_id, format: "GTFS")
 
