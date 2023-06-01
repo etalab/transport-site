@@ -35,6 +35,29 @@ defmodule Transport.Jobs.GTFSImportStopsJob do
     %{result: result, data_import_batch_id: batch.id}
   end
 
+  # Doing some cleanup operations:
+  # - remove data imports for deleted resources
+  # - remove data imports for inactive datasets
+  #
+  # This, combined with the existing code in `gtfs_import_stops.ex` to remove
+  # previous data import for same resource history and previous data import
+  # for other resource history for the same resource, should cover most cases.
+  #
+  # To ensure there is only one data import per resource, and no NULL resources,
+  # one can use the following query & verify it returns nothing:
+  #
+  # ```sql
+  # select r.id, count(*) from data_import di
+  # left join resource_history rh on rh.id = di.resource_history_id
+  # left join resource r on r.id = rh.resource_id
+  # group by r.id
+  # having count(*) > 1
+  # ```
+  #
+  # If we need more features in the future, it could be a good idea to instead
+  # import "all current stuff" in temporary tables (staging area), then
+  # merge/insert/update/delete in the real tables, to avoid fiddling around too much.
+  #
   def clean_up_stale_imports do
     Logger.info("Removing DataImports for deleted resources")
     query = from(di in DB.DataImport)
