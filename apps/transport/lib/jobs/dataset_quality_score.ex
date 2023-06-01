@@ -52,6 +52,7 @@ defmodule Transport.Jobs.DatasetQualityScore do
           "Dataset quality score entry is incorrect",
           extra: %{dataset_id: dataset_id, error_reason: inspect(c)}
         )
+
         nil
     end
   end
@@ -88,7 +89,7 @@ defmodule Transport.Jobs.DatasetQualityScore do
   end
 
   @doc """
-  build the details map to explane the score computation
+  build the details map to explain the score computation
 
   iex> build_details(%{resources: [%{resource_id: 1}]}, %{score: 1.0})
   %{resources: [%{resource_id: 1}], previous_score: 1.0}
