@@ -12,22 +12,32 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
-  def import_some_data() do
-    %{id: dataset_id} = insert(:dataset, %{datagouv_id: Ecto.UUID.generate(), datagouv_title: "coucou"})
+  def import_some_data do
+    %{id: dataset_id} =
+      insert(:dataset, %{datagouv_id: Ecto.UUID.generate(), datagouv_title: "coucou"})
+
     %{id: resource_id} = insert(:resource, dataset_id: dataset_id, format: "GTFS")
 
     %{id: resource_history_id} =
-      insert(:resource_history, %{resource_id: resource_id, payload: %{"filename" => "some-file.zip"}})
+      insert(:resource_history, %{
+        resource_id: resource_id,
+        payload: %{"filename" => "some-file.zip"}
+      })
 
     {dataset_id, resource_id, resource_history_id}
   end
 
   test "import without error" do
-    %{id: dataset_id} = insert(:dataset, %{datagouv_id: Ecto.UUID.generate(), datagouv_title: "coucou"})
+    %{id: dataset_id} =
+      insert(:dataset, %{datagouv_id: Ecto.UUID.generate(), datagouv_title: "coucou"})
+
     %{id: resource_id} = insert(:resource, dataset_id: dataset_id, format: "GTFS")
 
     %{id: resource_history_id} =
-      insert(:resource_history, %{resource_id: resource_id, payload: %{"filename" => "some-file.zip"}})
+      insert(:resource_history, %{
+        resource_id: resource_id,
+        payload: %{"filename" => "some-file.zip"}
+      })
 
     setup_get_file_stream_mox("some-file.zip")
 
