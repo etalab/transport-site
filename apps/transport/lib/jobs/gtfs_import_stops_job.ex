@@ -70,7 +70,8 @@ defmodule Transport.Jobs.GTFSImportStopsJob do
       |> select([di, rh, r], di.id)
       |> DB.Repo.all()
 
-    from(di in DB.DataImport, where: di.id in ^data_import_ids) |> DB.Repo.delete_all()
+    query = from(di in DB.DataImport, where: di.id in ^data_import_ids)
+    query |> DB.Repo.delete_all()
 
     Logger.info("Removing DataImports for inactive datasets")
 
@@ -85,7 +86,8 @@ defmodule Transport.Jobs.GTFSImportStopsJob do
       |> select([di, rh, r], di.id)
       |> DB.Repo.all()
 
-    from(di in DB.DataImport, where: di.id in ^data_import_ids) |> DB.Repo.delete_all()
+    query = from(di in DB.DataImport, where: di.id in ^data_import_ids)
+    query |> DB.Repo.delete_all()
   end
 
   def active_datasets_resource_history_items do
