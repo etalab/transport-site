@@ -10,7 +10,6 @@ defmodule DB.DatasetScoreTest do
                errors: [
                  dataset_id: {"can't be blank", [validation: :required]},
                  topic: {"can't be blank", [validation: :required]},
-                 score: {"can't be blank", [validation: :required]},
                  timestamp: {"can't be blank", [validation: :required]}
                ]
              } = changeset
