@@ -1,8 +1,10 @@
 defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
   use ExUnit.Case, async: true
-  doctest Transport.Jobs.DatasetQualityScore, import: true
+  use Oban.Testing, repo: DB.Repo
   import DB.Factory
   import Transport.Jobs.DatasetQualityScore
+
+  doctest Transport.Jobs.DatasetQualityScore, import: true
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -380,6 +382,31 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       {:ok, score} = save_dataset_freshness_score(dataset.id)
       assert %{id: id2, topic: "freshness", score: 0.55, timestamp: _timestamp} = score
       assert id2 > id1
+    end
+  end
+
+  describe "jobs are enqueued" do
+    test "dispatcher" do
+      dataset_1 = insert(:dataset)
+      dataset_2 = insert(:dataset)
+      dataset_3 = insert(:dataset, is_active: false)
+
+      perform_job(Transport.Jobs.DatasetQualityScoreDispatcher, %{})
+
+      assert_enqueued(
+        worker: Transport.Jobs.DatasetQualityScore,
+        args: %{"dataset_id" => dataset_1.id}
+      )
+
+      assert_enqueued(
+        worker: Transport.Jobs.DatasetQualityScore,
+        args: %{"dataset_id" => dataset_2.id}
+      )
+
+      refute_enqueued(
+        worker: Transport.Jobs.DatasetQualityScore,
+        args: %{"dataset_id" => dataset_3.id}
+      )
     end
   end
 end
