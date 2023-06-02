@@ -176,13 +176,21 @@ defmodule Transport.Jobs.DatasetQualityScore do
             :format => binary,
             :freshness => float | nil,
             :resource_id => integer,
-            :raw_measure => any
+            :raw_measure => any,
+            :metadata_id => integer | nil,
+            :metadata_inserted_at => binary | nil
           }
   def resource_freshness(%{format: "GTFS", id: resource_id}) do
     resource_id
     |> DB.MultiValidation.resource_latest_validation(Transport.Validators.GTFSTransport)
     |> case do
-      %{metadata: %{metadata: %{"start_date" => start_date, "end_date" => end_date}}}
+      %{
+        metadata: %{
+          metadata: %{"start_date" => start_date, "end_date" => end_date},
+          id: metadata_id,
+          inserted_at: inserted_at
+        }
+      }
       when not is_nil(start_date) and not is_nil(end_date) ->
         start_date = Date.from_iso8601!(start_date)
         end_date = Date.from_iso8601!(end_date)
@@ -191,13 +199,17 @@ defmodule Transport.Jobs.DatasetQualityScore do
 
         %{
           freshness: freshness,
-          raw_measure: %{start_date: start_date, end_date: end_date}
+          raw_measure: %{start_date: start_date, end_date: end_date},
+          metadata_id: metadata_id,
+          metadata_inserted_at: inserted_at
         }
 
       _ ->
         %{
           freshness: nil,
-          raw_measure: nil
+          raw_measure: nil,
+          metadata_id: nil,
+          metadata_inserted_at: nil
         }
     end
     |> Map.merge(%{resource_id: resource_id, format: "GTFS"})
@@ -208,16 +220,20 @@ defmodule Transport.Jobs.DatasetQualityScore do
       resource_id
       |> resource_last_metadata_from_today()
       |> case do
-        %{metadata: %{"feed_timestamp_delay" => feed_timestamp_delay}} ->
+        %{metadata: %{"feed_timestamp_delay" => feed_timestamp_delay}, id: metadata_id, inserted_at: inserted_at} ->
           %{
             freshness: gbfs_feed_freshness(feed_timestamp_delay),
-            raw_measure: feed_timestamp_delay
+            raw_measure: feed_timestamp_delay,
+            metadata_id: metadata_id,
+            metadata_inserted_at: inserted_at
           }
 
         _ ->
           %{
             freshness: nil,
-            raw_measure: nil
+            raw_measure: nil,
+            metadata_id: nil,
+            metadata_inserted_at: nil
           }
       end
       |> Map.merge(%{resource_id: resource_id, format: "gbfs"})
@@ -230,16 +246,20 @@ defmodule Transport.Jobs.DatasetQualityScore do
       resource_id
       |> resource_last_metadata_from_today()
       |> case do
-        %{metadata: %{"feed_timestamp_delay" => feed_timestamp_delay}} ->
+        %{metadata: %{"feed_timestamp_delay" => feed_timestamp_delay}, id: metadata_id, inserted_at: inserted_at} ->
           %{
             freshness: gtfs_rt_feed_freshness(feed_timestamp_delay),
-            raw_measure: feed_timestamp_delay
+            raw_measure: feed_timestamp_delay,
+            metadata_id: metadata_id,
+            metadata_inserted_at: inserted_at
           }
 
         _ ->
           %{
             freshness: nil,
-            raw_measure: nil
+            raw_measure: nil,
+            metadata_id: nil,
+            metadata_inserted_at: nil
           }
       end
       |> Map.merge(%{resource_id: resource_id, format: "gtfs-rt"})

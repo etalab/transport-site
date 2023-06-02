@@ -37,13 +37,16 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
   describe "resource freshness computation" do
     test "up to date GTFS resource" do
-      %{resource: resource} = insert_up_to_date_resource_and_friends()
+      %{resource: resource = %{id: resource_id}, resource_metadata: %{id: metadata_id, inserted_at: inserted_at}} =
+        insert_up_to_date_resource_and_friends()
 
       assert %{
                format: "GTFS",
                freshness: 1.0,
                raw_measure: %{end_date: _, start_date: _},
-               resource_id: _
+               resource_id: ^resource_id,
+               metadata_id: ^metadata_id,
+               metadata_inserted_at: ^inserted_at
              } = resource_freshness(resource)
     end
 
@@ -95,14 +98,22 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
     end
 
     test "up to date GBFS resource" do
-      resource = insert(:resource, format: "gbfs")
+      resource = %{id: resource_id} = insert(:resource, format: "gbfs")
 
-      insert(:resource_metadata,
-        resource_id: resource.id,
-        metadata: %{"feed_timestamp_delay" => 10}
-      )
+      %{id: metadata_id, inserted_at: inserted_at} =
+        insert(:resource_metadata,
+          resource_id: resource.id,
+          metadata: %{"feed_timestamp_delay" => 10}
+        )
 
-      assert %{format: "gbfs", freshness: 1.0, raw_measure: 10, resource_id: _} = resource_freshness(resource)
+      assert %{
+               format: "gbfs",
+               freshness: 1.0,
+               raw_measure: 10,
+               resource_id: ^resource_id,
+               metadata_id: ^metadata_id,
+               metadata_inserted_at: ^inserted_at
+             } = resource_freshness(resource)
     end
 
     test "outdated GBFS resource" do
@@ -126,6 +137,25 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       )
 
       assert %{format: "gbfs", freshness: nil, raw_measure: nil, resource_id: _} = resource_freshness(resource)
+    end
+
+    test "up to date gtfs-register_test() resource" do
+      resource = %{id: resource_id} = insert(:resource, format: "gtfs-rt")
+
+      %{id: metadata_id, inserted_at: inserted_at} =
+        insert(:resource_metadata,
+          resource_id: resource.id,
+          metadata: %{"feed_timestamp_delay" => 10}
+        )
+
+      assert %{
+               format: "gtfs-rt",
+               freshness: 1.0,
+               raw_measure: 10,
+               resource_id: ^resource_id,
+               metadata_id: ^metadata_id,
+               metadata_inserted_at: ^inserted_at
+             } = resource_freshness(resource)
     end
   end
 
@@ -198,7 +228,9 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
   describe "save dataset average freshness" do
     test "compute freshness from yesterday and today" do
-      %{dataset: dataset} = insert_up_to_date_resource_and_friends()
+      %{dataset: dataset, resource: %{id: resource_id}, resource_metadata: %{id: metadata_id}} =
+        insert_up_to_date_resource_and_friends()
+
       # we save a freshness score for yesterday
       insert(:dataset_score,
         dataset_id: dataset.id,
@@ -232,8 +264,9 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                  %{
                    format: "GTFS",
                    freshness: 1.0,
-                   resource_id: _,
-                   raw_measure: %{start_date: start_date, end_date: end_date}
+                   resource_id: ^resource_id,
+                   raw_measure: %{start_date: start_date, end_date: end_date},
+                   metadata_id: ^metadata_id
                  }
                ]
              } = details
