@@ -31,7 +31,7 @@ defmodule Transport.Jobs.DatasetQualityScore do
     :ok
   end
 
-  @spec save_dataset_freshness_score(integer) :: %DB.DatasetScore{} | nil
+  @spec save_dataset_freshness_score(integer) :: DB.DatasetScore.t() | nil
   def save_dataset_freshness_score(dataset_id) do
     %{score: score, details: details} = dataset_freshness_score(dataset_id)
 
