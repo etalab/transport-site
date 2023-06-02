@@ -24,7 +24,7 @@ defmodule DB.DatasetScore do
 
   def between_0_and_1_if_exists(:score, score) when score >= 0.0 and score <= 1.0, do: []
   def between_0_and_1_if_exists(:score, nil), do: []
-  def between_0_and_1_if_exists(:score, _score), do: [score: "must be beetween 0.0 and 1.0"]
+  def between_0_and_1_if_exists(:score, _score), do: [score: "must be between 0.0 and 1.0"]
 
   def base_query, do: from(ds in DB.DatasetScore, as: :dataset_score)
 end

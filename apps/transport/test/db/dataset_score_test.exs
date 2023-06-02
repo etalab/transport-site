@@ -23,7 +23,7 @@ defmodule DB.DatasetScoreTest do
       assert %{
                valid?: false,
                errors: [
-                 score: {"must be beetween 0.0 and 1.0", []}
+                 score: {"must be between 0.0 and 1.0", []}
                ]
              } = changeset
     end
