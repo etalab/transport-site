@@ -304,6 +304,27 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       assert DB.DatasetScore |> DB.Repo.all() |> length() == 3
     end
 
+    test "new score is computed with last non nil score, unless it is too old" do
+      %{dataset: dataset} = insert_up_to_date_resource_and_friends()
+      # old existing score
+      insert(:dataset_score,
+        dataset_id: dataset.id,
+        topic: "freshness",
+        score: 0.5,
+        timestamp: DateTime.utc_now() |> DateTime.add(-8, :day)
+      )
+
+      assert DB.DatasetScore |> DB.Repo.all() |> length() == 1
+
+      {:ok, score} = save_dataset_freshness_score(dataset.id)
+
+      # score is computed from scratch, previous score is not used
+      assert %{id: _id, topic: "freshness", score: 1.0, timestamp: timestamp} = score
+      assert DateTime.diff(timestamp, DateTime.utc_now()) < 3
+
+      assert DB.DatasetScore |> DB.Repo.all() |> length() == 2
+    end
+
     test "last score timestamp is not today" do
       # if a score is for some reason computed many times in one day
       # we don't want to massively change the score

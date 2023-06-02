@@ -129,11 +129,19 @@ defmodule Transport.Jobs.DatasetQualityScore do
   end
 
   def last_dataset_freshness(dataset_id) do
+    # if a previous score exists but is too old, it is not used
+    max_last_score_age_days = 7
+
     DB.DatasetScore.base_query()
     |> where(
       [ds],
       ds.dataset_id == ^dataset_id and ds.topic == "freshness" and not is_nil(ds.score) and
-        fragment("DATE(?) < CURRENT_DATE", ds.timestamp)
+        fragment(
+          "DATE(?) < CURRENT_DATE AND DATE(?) > CURRENT_DATE - ?::integer",
+          ds.timestamp,
+          ds.timestamp,
+          ^max_last_score_age_days
+        )
     )
     |> order_by([ds], desc: ds.timestamp)
     |> limit(1)
