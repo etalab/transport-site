@@ -515,4 +515,15 @@ defmodule DB.DatasetDBTest do
     dataset = DB.Dataset |> preload(:legal_owners_region) |> DB.Repo.get!(dataset.id)
     assert [%DB.Region{id: ^region_id}] = dataset.legal_owners_region
   end
+
+  test "changeset to national dataset" do
+    %{id: region_id} = insert(:region)
+    insert(:dataset, region_id: region_id, datagouv_id: datagouv_id = "1234", aom: nil)
+
+    {:ok, changeset} =
+      DB.Dataset.changeset(%{"datagouv_id" => datagouv_id, "national_dataset" => "true", "region_id" => ""})
+
+    %{region_id: national_region_id} = DB.Repo.update!(changeset)
+    assert national_region_id != region_id
+  end
 end
