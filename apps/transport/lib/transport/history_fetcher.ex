@@ -31,14 +31,17 @@ defmodule Transport.History.Fetcher.Database do
       |> order_by([mv], asc: mv.resource_history_id, desc: mv.inserted_at)
       |> preload(:metadata)
 
+    dataset_id_sub =
+      DB.ResourceHistory.base_query()
+      |> where([resource_history: rh], fragment("(?->>'dataset_id')::bigint = ?", rh.payload, ^dataset_id))
+      |> select([resource_history: rh], rh.id)
+
     DB.ResourceHistory.base_query()
     |> join(:left, [resource_history: rh], r in DB.Resource,
-      on:
-        r.id == rh.resource_id and
-          r.dataset_id == ^dataset_id,
+      on: r.id == rh.resource_id and r.dataset_id == ^dataset_id,
       as: :resource
     )
-    |> where([resource: r], not is_nil(r.id) or fragment("cast(payload->>'dataset_id' as bigint) = ?", ^dataset_id))
+    |> where([resource: r, resource_history: rh], not is_nil(r.id) or rh.id in subquery(dataset_id_sub))
     |> order_by([resource_history: rh], desc: rh.inserted_at)
     |> preload([], validations: ^latest_resource_history_validation)
     |> maybe_limit(max_records)
