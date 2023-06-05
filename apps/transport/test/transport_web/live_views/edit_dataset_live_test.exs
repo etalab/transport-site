@@ -168,4 +168,34 @@ defmodule TransportWeb.EditDatasetLiveTest do
     assert render(view) =~ "Représentants légaux"
     assert render(view) =~ siren |> Integer.to_string()
   end
+
+  test "form inputs are persisted", %{conn: conn} do
+    conn = conn |> setup_admin_in_session()
+    aom = insert(:aom, nom: "mon AOM")
+
+    {:ok, view, _html} =
+      live_isolated(conn, TransportWeb.EditDatasetLive,
+        session: %{
+          "dataset" => nil,
+          "dataset_types" => [],
+          "regions" => [],
+          "form_url" => "url_used_to_post_result"
+        }
+      )
+
+    custom_title = "dataset custom title"
+
+    # fill the custom title input, it should be rendered
+    assert view
+           |> element("form")
+           |> render_change(%{_target: ["form", "custom_title"], form: %{custom_title: custom_title}}) =~ custom_title
+
+    # add a legal owner, by sending a message
+    send(view.pid, {:updated_legal_owner, [%{id: aom.id, label: aom.nom, type: "aom"}]})
+
+    # the legal owner is rendered
+    assert render(view) =~ aom.nom
+    # custom title has not been cleared
+    assert render(view) =~ custom_title
+  end
 end
