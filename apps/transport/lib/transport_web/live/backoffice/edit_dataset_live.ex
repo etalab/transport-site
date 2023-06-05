@@ -10,7 +10,7 @@ defmodule TransportWeb.EditDatasetLive do
     ~H"""
     <.form
       :let={f}
-      for={%{}}
+      for={@form_params}
       as={:form}
       action={@form_url}
       phx-change="change_dataset"
@@ -35,12 +35,7 @@ defmodule TransportWeb.EditDatasetLive do
       <div class="pt-24">
         <%= InputHelpers.text_input(f, :url,
           placeholder: dgettext("backoffice", "Dataset's url"),
-          value:
-            if not is_nil(@dataset) do
-              Dataset.datagouv_url(@dataset)
-            else
-              ""
-            end
+          value: @form_params["url"].value
         ) %>
 
         <%= if assigns[:datagouv_infos] do %>
@@ -70,12 +65,7 @@ defmodule TransportWeb.EditDatasetLive do
 
         <%= InputHelpers.text_input(f, :custom_title,
           placeholder: dgettext("backoffice", "name"),
-          value:
-            if not is_nil(@dataset) do
-              @dataset.custom_title
-            else
-              ""
-            end
+          value: @form_params["custom_title"].value
         ) %>
         <%= InputHelpers.select(f, :type, @dataset_types,
           selected:
@@ -120,12 +110,7 @@ defmodule TransportWeb.EditDatasetLive do
             <%= InputHelpers.text_input(f, :legal_owner_company_siren,
               placeholder: "821611431",
               pattern: "\\d{9,9}",
-              value:
-                if not is_nil(@dataset) do
-                  @dataset.legal_owner_company_siren
-                else
-                  ""
-                end
+              value: @form_params["legal_owner_company_siren"].value
             ) %>
           </label>
         </div>
@@ -139,7 +124,7 @@ defmodule TransportWeb.EditDatasetLive do
           <%= dgettext("backoffice", "Choose one") %>
         </div>
         <div class="panel__content">
-          <%= checkbox(f, :national_dataset, value: not is_nil(@dataset) && @dataset.region_id == 14) %><%= dgettext(
+          <%= checkbox(f, :national_dataset, value: @form_params["national_dataset"].value) %><%= dgettext(
             "backoffice",
             "National dataset"
           ) %>
@@ -185,12 +170,7 @@ defmodule TransportWeb.EditDatasetLive do
             <div class="pt-12">
               <%= InputHelpers.text_input(f, :associated_territory_name,
                 placeholder: dgettext("backoffice", "Name of the associtated territory (used in the title of the dataset)"),
-                value:
-                  if not is_nil(@dataset) do
-                    @dataset.associated_territory_name
-                  else
-                    ""
-                  end
+                value: @form_params["associated_territory_name"].value
               ) %>
             </div>
           </div>
@@ -245,8 +225,31 @@ defmodule TransportWeb.EditDatasetLive do
       |> assign(:organization_types, organization_types())
       |> assign(:legal_owners, get_legal_owners(dataset))
       |> assign(:trigger_submit, false)
+      |> assign(:form_params, form_params(dataset))
 
     {:ok, socket}
+  end
+
+  def form_params(%DB.Dataset{} = dataset) do
+    %{
+      "url" => Dataset.datagouv_url(dataset),
+      "custom_title" => dataset.custom_title,
+      "legal_owner_company_siren" => dataset.legal_owner_company_siren,
+      "national_dataset" => dataset.region_id == 14,
+      "associated_territory_name" => dataset.associated_territory_name
+    }
+    |> to_form()
+  end
+
+  def form_params(nil) do
+    %{
+      "url" => "",
+      "custom_title" => "",
+      "legal_owner_company_siren" => "",
+      "national_dataset" => "",
+      "associated_territory_name" => ""
+    }
+    |> to_form()
   end
 
   def get_legal_owners(%Dataset{} = dataset) do
@@ -275,18 +278,28 @@ defmodule TransportWeb.EditDatasetLive do
 
   def handle_event(
         "change_dataset",
-        %{"_target" => ["form", "url"], "form" => %{"url" => datagouv_url}},
+        %{"_target" => ["form", "url"], "form" => %{"url" => datagouv_url} = form_params},
         socket
       ) do
     # new dataset or existing dataset with new url => get info from data.gouv
-    if datagouv_url != "" and
-         (socket.assigns.dataset == nil or
-            datagouv_url != Dataset.datagouv_url(socket.assigns.dataset)) do
-      Task.async(fn -> get_datagouv_infos(datagouv_url) end)
-      {:noreply, socket}
-    else
-      {:noreply, assign(socket, datagouv_infos: nil, dataset_organization: nil)}
-    end
+    socket =
+      if datagouv_url != "" and
+           (socket.assigns.dataset == nil or
+              datagouv_url != Dataset.datagouv_url(socket.assigns.dataset)) do
+        Task.async(fn -> get_datagouv_infos(datagouv_url) end)
+        socket
+      else
+        assign(socket, datagouv_infos: nil, dataset_organization: nil)
+      end
+
+    socket = socket |> assign(:form_params, form_params |> to_form())
+    {:noreply, socket}
+  end
+
+  def handle_event("change_dataset", %{"_target" => _, "form" => %{} = form_params}, socket) do
+    # persist the form input values
+    socket = socket |> assign(:form_params, form_params |> to_form())
+    {:noreply, socket}
   end
 
   # allow a classic http form submit when the form is submitted by user
