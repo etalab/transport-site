@@ -935,7 +935,7 @@ defmodule DB.Dataset do
         |> where([r], r.nom == "National")
         |> Repo.one!()
 
-      change(changeset, region: national, region_id: national.id)
+      put_change(changeset, :region_id, national.id)
     else
       add_error(changeset, :region, dgettext("db-dataset", "A dataset cannot be national and regional"))
     end
