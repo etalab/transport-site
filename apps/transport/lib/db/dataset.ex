@@ -490,8 +490,6 @@ defmodule DB.Dataset do
     |> cast_nation_dataset(params)
     |> cast_assoc(:resources)
     |> validate_required([:slug])
-    |> cast_assoc(:region)
-    |> cast_assoc(:aom)
     |> validate_territory_mutual_exclusion()
     |> maybe_overwrite_licence()
     |> has_real_time()
