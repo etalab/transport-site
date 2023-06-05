@@ -46,6 +46,11 @@
       <%= unless is_nil(@reuses) or @reuses == [] do %>
         <div class="menu-item"><a href="#dataset-reuses"><%= dgettext("page-dataset-details", "Reuses") %></a></div>
       <% end %>
+      <div :if={Enum.count(@notifications_sent) > 0} class="menu-item">
+        <a href="#notifications-sent">
+          <%= dgettext("page-dataset-details", "Notifications sent") %> (<%= Enum.count(@notifications_sent) %>)
+        </a>
+      </div>
       <div class="menu-item">
         <a href="#dataset-discussions">Discussions (<%= count_discussions(@discussions) %>)</a>
       </div>
@@ -184,6 +189,9 @@
           <% end %>
         </div>
       </section>
+    <% end %>
+    <%= unless Enum.empty?(@notifications_sent) do %>
+      <%= render("_notifications_sent.html", notifications_sent: @notifications_sent, locale: locale, conn: @conn) %>
     <% end %>
     <%= if @dataset.is_active do %>
       <section class="pt-48" id="dataset-discussions">

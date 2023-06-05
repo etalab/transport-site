@@ -68,6 +68,8 @@ defmodule Transport.Validators.GTFSRT do
     args = [
       "-jar",
       Path.join(Application.fetch_env!(:transport, :transport_tools_folder), @validator_filename),
+      "-ignoreShapes",
+      "yes",
       "-gtfs",
       gtfs_path,
       "-gtfsRealtimePath",

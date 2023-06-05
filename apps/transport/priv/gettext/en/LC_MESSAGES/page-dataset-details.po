@@ -581,3 +581,19 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "compulsory data reuse"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Date"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Notification reason"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Notifications sent"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "transport.data.gouv.fr sends relevant notifications to improve the quality of data. The following notifications have been sent in the last %{nb} days. Data producers can <a href=\"%{url}\" target=\"_blank\">manage how they receive these notifications</a>."
+msgstr ""
