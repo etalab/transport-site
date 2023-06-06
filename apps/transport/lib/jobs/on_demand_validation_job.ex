@@ -147,19 +147,32 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   end
 
   defp process_download([{:ok, gtfs_path}, {:ok, gtfs_rt_path}]) do
-    case GTFSRT.run_validator(gtfs_path, gtfs_rt_path) do
+    run_save_gtfs_rt_validation_with_shapes(gtfs_path, gtfs_rt_path)
+  end
+
+  defp process_download(results) do
+    {_, oban_args} = results |> Enum.find(fn {k, _} -> k !== :ok end)
+    %{oban_args: oban_args}
+  end
+
+  def run_save_gtfs_rt_validation_with_shapes(gtfs_path, gtfs_rt_path) do
+    run_save_gtfs_rt_validation(gtfs_path, gtfs_rt_path, false)
+  end
+
+  defp run_save_gtfs_rt_validation(gtfs_path, gtfs_rt_path, ignore_shapes) when is_boolean(ignore_shapes) do
+    validator_args = GTFSRT.validator_arguments(gtfs_path, gtfs_rt_path, ignore_shapes)
+
+    case GTFSRT.run_validator(validator_args) do
       {:ok, _} ->
-        case GTFSRT.convert_validator_report(gtfs_rt_result_path(gtfs_rt_path)) do
+        case GTFSRT.convert_validator_report(gtfs_rt_result_path(gtfs_rt_path), ignore_shapes) do
           {:ok, validation} ->
             # https://github.com/etalab/transport-site/issues/2390
-            # to do : transport-tools version when available
+            # to do: transport-tools version when available
             %{
-              oban_args: %{
-                "state" => "completed"
-              },
+              oban_args: %{"state" => "completed"},
               result: validation,
               validator: GTFSRT.validator_name(),
-              command: GTFSRT.command(gtfs_path, gtfs_rt_path)
+              command: inspect(validator_args)
             }
 
           :error ->
@@ -172,13 +185,12 @@ defmodule Transport.Jobs.OnDemandValidationJob do
         end
 
       {:error, reason} ->
-        %{oban_args: %{"state" => "error", "error_reason" => inspect(reason)}}
+        if not ignore_shapes and String.contains?(reason, "java.lang.OutOfMemoryError") do
+          run_save_gtfs_rt_validation(gtfs_path, gtfs_rt_path, true)
+        else
+          %{oban_args: %{"state" => "error", "error_reason" => inspect(reason)}}
+        end
     end
-  end
-
-  defp process_download(results) do
-    {_, oban_args} = results |> Enum.find(fn {k, _} -> k !== :ok end)
-    %{oban_args: oban_args}
   end
 
   def filename(validation_id, format) when format in ["gtfs", "gtfs-rt"] do
