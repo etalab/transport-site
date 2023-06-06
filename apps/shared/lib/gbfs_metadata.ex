@@ -106,8 +106,9 @@ defmodule Transport.Shared.GBFSMetadata do
   Computes the freshness in seconds of a feed's content
 
   iex> last_updated = DateTime.utc_now() |> DateTime.add(-1, :minute) |> DateTime.to_unix()
-  iex> feed_timestamp_delay(%{"last_updated" => last_updated})
-  60
+  iex> delay = feed_timestamp_delay(%{"last_updated" => last_updated})
+  iex> delay >= 60 and delay <= 62
+  true
   iex> feed_timestamp_delay(%{"x" => 1})
   nil
   iex> feed_timestamp_delay(%{"last_updated" => "F6"})
