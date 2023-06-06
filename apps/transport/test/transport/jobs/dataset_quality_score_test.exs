@@ -383,6 +383,19 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       assert %{id: id2, topic: "freshness", score: 0.55, timestamp: _timestamp} = score
       assert id2 > id1
     end
+
+    test "dataset without scorable resource" do
+      dataset = insert(:dataset, is_active: true)
+      %{id: resource_id} = insert(:resource, dataset_id: dataset.id, format: "csv", is_community_resource: false)
+
+      {:ok, score} = save_dataset_freshness_score(dataset.id)
+
+      assert %{
+               topic: "freshness",
+               score: nil,
+               details: %{previous_score: nil, resources: [%{resource_id: ^resource_id, format: "csv", freshness: nil}]}
+             } = score
+    end
   end
 
   describe "jobs are enqueued" do
