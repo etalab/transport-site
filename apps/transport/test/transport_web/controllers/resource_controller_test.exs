@@ -727,7 +727,9 @@ defmodule TransportWeb.ResourceControllerTest do
       {:ok, %HTTPoison.Response{status_code: 200, body: ""}}
     end)
 
-    html_response = conn |> get(resource_path(conn, :details, gtfs_rt_resource.id)) |> html_response(200)
+    {html_response, _logs} =
+      with_log(fn -> conn |> get(resource_path(conn, :details, gtfs_rt_resource.id)) |> html_response(200) end)
+
     assert html_response =~ ~s(<h2 id="related-resources">Ressources associées</h2>)
     assert html_response =~ "Fichier GTFS associé"
   end
