@@ -348,6 +348,16 @@ defmodule TransportWeb.DatasetControllerTest do
              ~s{<i class="icon fa fa-link" aria-hidden="true"></i>\n<a class="dark" href="#{resource_path(conn, :details, gtfs.id)}">GTFS</a>}
   end
 
+  test "dataset#details with notifications sent recently", %{conn: conn} do
+    dataset = insert(:dataset, is_active: true)
+    insert_notification(%{dataset: dataset, reason: :expiration, email: Ecto.UUID.generate() <> "@example.com"})
+    set_empty_mocks()
+
+    doc = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200) |> Floki.parse_document!()
+    [msg] = Floki.find(doc, "#notifications-sent")
+    assert Floki.text(msg) =~ "Expiration de données"
+  end
+
   test "gtfs-rt entities" do
     dataset = %{id: dataset_id} = insert(:dataset, type: "public-transit")
     %{id: resource_id_1} = insert(:resource, dataset_id: dataset_id, format: "gtfs-rt")
