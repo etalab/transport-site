@@ -581,3 +581,23 @@ msgstr "Loi climat et résilience"
 #, elixir-autogen, elixir-format
 msgid "compulsory data reuse"
 msgstr "intégration obligatoire de données"
+
+#, elixir-autogen, elixir-format
+msgid "Date"
+msgstr "Date"
+
+#, elixir-autogen, elixir-format
+msgid "Notification reason"
+msgstr "Motif de notification"
+
+#, elixir-autogen, elixir-format
+msgid "Notifications sent"
+msgstr "Notifications envoyées"
+
+#, elixir-autogen, elixir-format
+msgid "If you are a data producer, you can <a href=\"%{url}\" target=\"_blank\">manage how you receive these notifications</a> from your Producer section."
+msgstr "Si vous êtes producteur de données, vous pouvez <a href=\"%{url}\" target=\"_blank\">personnaliser ces notifications</a> depuis votre Espace producteur."
+
+#, elixir-autogen, elixir-format
+msgid "transport.data.gouv.fr automatically sends notifications to data producers in order to improve the quality of data. The following notifications have been sent in the last %{nb} days."
+msgstr "transport.data.gouv.fr envoie automatiquement des notifications au producteur du jeu de données afin d'en améliorer la qualité. Les notifications suivantes ont été envoyées au cours des %{nb} derniers jours."
