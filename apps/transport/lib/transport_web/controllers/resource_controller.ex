@@ -238,6 +238,7 @@ defmodule TransportWeb.ResourceController do
       case Transport.Shared.Wrapper.HTTPoison.impl().head(resource.url, []) do
         {:ok, %HTTPoison.Response{status_code: status_code, headers: headers}} ->
           send_response_with_status_headers(conn, status_code, headers)
+
         _ ->
           conn |> Plug.Conn.send_resp(:bad_gateway, "")
       end
