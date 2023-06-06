@@ -390,6 +390,8 @@ defmodule TransportWeb.ResourceControllerTest do
 
     {conn1, _} = with_log(fn -> conn |> get(resource_path(conn, :details, resource_id)) end)
     assert conn1 |> html_response(200) =~ "Pas de validation disponible"
+    # Even without a multi-validation we can validate now as we have a single GTFS resource
+    assert conn1 |> html_response(200) =~ "Valider ce GTFS-RT maintenant"
 
     %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id})
 
