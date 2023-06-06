@@ -66,7 +66,7 @@ defmodule Transport.Validators.GTFSRT do
     end
   end
 
-  @spec validator_arguments(binary(), binary(), boolean()) :: {binary(), binary()}
+  @spec validator_arguments(binary(), binary(), boolean()) :: {binary(), [binary()]}
   def validator_arguments(gtfs_path, gtfs_rt_path, ignore_shapes) when is_boolean(ignore_shapes) do
     binary_path = "java"
 
