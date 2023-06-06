@@ -599,5 +599,5 @@ msgid "If you are a data producer, you can <a href=\"%{url}\" target=\"_blank\">
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "transport.data.gouv.fr sends automatically notifications to data producers in order to improve the quality of data. The following notifications have been sent in the last %{nb} days."
+msgid "transport.data.gouv.fr automatically sends notifications to data producers in order to improve the quality of data. The following notifications have been sent in the last %{nb} days."
 msgstr ""
