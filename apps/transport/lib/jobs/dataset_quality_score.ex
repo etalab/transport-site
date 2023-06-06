@@ -267,7 +267,15 @@ defmodule Transport.Jobs.DatasetQualityScore do
     freshness
   end
 
-  def resource_freshness(%DB.Resource{}), do: nil
+  def resource_freshness(%DB.Resource{format: format, id: resource_id}),
+    do: %{
+      format: format,
+      resource_id: resource_id,
+      freshness: nil,
+      raw_measure: nil,
+      metadata_id: nil,
+      metadata_inserted_at: nil
+    }
 
   @doc """
   the freshness of a GTFS resource, base on its validity dates
