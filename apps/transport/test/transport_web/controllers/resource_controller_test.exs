@@ -411,6 +411,7 @@ defmodule TransportWeb.ResourceControllerTest do
         ],
         "has_errors" => true,
         "errors_count" => 1,
+        "ignore_shapes" => true,
         "files" => %{
           "gtfs_permanent_url" => "url",
           "gtfs_rt_permanent_url" => "url"
@@ -423,6 +424,7 @@ defmodule TransportWeb.ResourceControllerTest do
     {conn2, _} = with_log(fn -> conn |> get(resource_path(conn, :details, resource_id)) end)
     assert conn2 |> html_response(200) =~ "Rapport de validation"
     assert conn2 |> html_response(200) =~ "1 erreur"
+    assert conn2 |> html_response(200) =~ "Les shapes présentes dans le GTFS ont été ignorées"
     assert conn2 |> html_response(200) =~ "Valider ce GTFS-RT maintenant"
     refute conn2 |> html_response(200) =~ "Pas de validation disponible"
   end
