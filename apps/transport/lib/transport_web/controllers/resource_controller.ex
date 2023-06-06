@@ -229,6 +229,21 @@ defmodule TransportWeb.ResourceController do
   block downloads of external HTTP resources when
   they are referenced on an HTTPS page.
   """
+  def download(%Plug.Conn{assigns: %{original_method: "HEAD"}} = conn, %{"id" => id}) do
+    resource = Resource |> Repo.get!(id)
+
+    if Resource.can_direct_download?(resource) do
+      conn |> Plug.Conn.send_resp(:not_found, "")
+    else
+      case Transport.Shared.Wrapper.HTTPoison.impl().head(resource.url, []) do
+        {:ok, %HTTPoison.Response{status_code: status_code, headers: headers}} ->
+          send_response_with_status_headers(conn, status_code, headers)
+        _ ->
+          conn |> Plug.Conn.send_resp(:bad_gateway, "")
+      end
+    end
+  end
+
   def download(conn, %{"id" => id}) do
     resource = Resource |> Repo.get!(id)
 
@@ -257,6 +272,12 @@ defmodule TransportWeb.ResourceController do
   end
 
   defp downcase_header({h, v}), do: {String.downcase(h), v}
+
+  defp send_response_with_status_headers(%Plug.Conn{} = conn, status_code, headers) do
+    headers
+    |> Enum.reduce(conn, fn {k, v}, conn -> Plug.Conn.put_resp_header(conn, String.downcase(k), v) end)
+    |> Plug.Conn.send_resp(status_code, "")
+  end
 
   @spec post_file(Plug.Conn.t(), map) :: Plug.Conn.t()
   def post_file(conn, params) do
