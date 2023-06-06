@@ -490,8 +490,6 @@ defmodule DB.Dataset do
     |> cast_nation_dataset(params)
     |> cast_assoc(:resources)
     |> validate_required([:slug])
-    |> cast_assoc(:region)
-    |> cast_assoc(:aom)
     |> validate_territory_mutual_exclusion()
     |> maybe_overwrite_licence()
     |> has_real_time()
@@ -935,7 +933,7 @@ defmodule DB.Dataset do
         |> where([r], r.nom == "National")
         |> Repo.one!()
 
-      change(changeset, region: national, region_id: national.id)
+      put_change(changeset, :region_id, national.id)
     else
       add_error(changeset, :region, dgettext("db-dataset", "A dataset cannot be national and regional"))
     end
