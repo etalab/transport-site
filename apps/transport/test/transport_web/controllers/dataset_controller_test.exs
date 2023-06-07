@@ -32,7 +32,7 @@ defmodule TransportWeb.DatasetControllerTest do
 
     with_mocks [
       {Datagouvfr.Client.Reuses, [], [get: fn _dataset -> {:error, "data.gouv is down !"} end]},
-      {Datagouvfr.Client.Discussions, [], [get: fn _id -> nil end]}
+      {Datagouvfr.Client.Discussions, [], [get: fn _id -> [] end]}
     ] do
       conn = conn |> get(dataset_path(conn, :details, dataset.slug))
       html = html_response(conn, 200)
