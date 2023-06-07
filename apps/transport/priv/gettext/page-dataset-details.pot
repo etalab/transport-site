@@ -147,10 +147,6 @@ msgid "Start a new discussion"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Unable to retrieve discussions from data.gouv.fr"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "See on data.gouv.fr"
 msgstr ""
 
