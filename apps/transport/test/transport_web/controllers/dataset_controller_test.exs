@@ -394,7 +394,6 @@ defmodule TransportWeb.DatasetControllerTest do
 
   defp set_empty_mocks do
     Datagouvfr.Client.Reuses.Mock |> expect(:get, fn _ -> {:ok, []} end)
-    Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _ -> %{} end)
     Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
   end
 end
