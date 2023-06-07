@@ -52,7 +52,8 @@ defmodule TransportWeb.DiscussionsLive do
 
     Phoenix.PubSub.broadcast(
       TransportWeb.PubSub,
-      "dataset_discussions_count:#{dataset_datagouv_id}", {:count,discussions |> length()}
+      "dataset_discussions_count:#{dataset_datagouv_id}",
+      {:count, discussions |> length()}
     )
 
     socket = socket |> assign(:discussions, discussions)
