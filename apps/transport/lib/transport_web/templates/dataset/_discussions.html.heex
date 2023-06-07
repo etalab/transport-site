@@ -2,11 +2,12 @@
   <%= render("_discussion.html",
     discussion: discussion,
     current_user: @current_user,
-    conn: @conn,
-    dataset: @dataset
+    socket: @socket,
+    dataset: @dataset,
+    locale: @locale
   ) %>
 <% end %>
-<script src={static_path(@conn, "/js/utils.js")} />
+<script src={static_path(@socket, "/js/utils.js")} />
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     <%= for discussion <- @discussions |> Enum.reject(& &1["closed"] == nil) do %>
