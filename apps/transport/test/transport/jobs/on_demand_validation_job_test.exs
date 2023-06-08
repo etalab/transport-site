@@ -358,7 +358,8 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
         assert [
                  "-jar",
                  validator_path(),
-                 "-ignoreShapes yes",
+                 "-ignoreShapes",
+                 "yes",
                  "-gtfs",
                  gtfs_path,
                  "-gtfsRealtimePath",

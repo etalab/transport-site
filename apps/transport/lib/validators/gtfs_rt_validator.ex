@@ -73,9 +73,9 @@ defmodule Transport.Validators.GTFSRT do
     # https://github.com/MobilityData/gtfs-realtime-validator/blob/master/TROUBLESHOOTING.md#javalangoutofmemoryerror-java-heap-space-when-running-project
     shapes_args =
       if Keyword.fetch!(opts, :ignore_shapes) do
-        "-ignoreShapes yes"
+        ["-ignoreShapes", "yes"]
       else
-        ""
+        []
       end
 
     args =
@@ -88,6 +88,7 @@ defmodule Transport.Validators.GTFSRT do
         "-gtfsRealtimePath",
         Path.dirname(gtfs_rt_path)
       ]
+      |> List.flatten()
       |> Enum.reject(&(&1 == ""))
 
     {binary_path, args}
