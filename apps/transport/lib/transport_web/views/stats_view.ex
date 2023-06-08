@@ -1,5 +1,6 @@
 defmodule TransportWeb.StatsView do
   use TransportWeb, :view
+  import Phoenix.Component, only: [live_render: 2]
 
   def friendly_gtfs_type(type) when is_binary(type) do
     Map.fetch!(

@@ -101,7 +101,7 @@
       <div class="domain-stats">
         <%= render("_maps.html", droms: @droms, prefix: "pt_format_map") %>
         <div class="panel">
-          <div class="description" id="public-transport-format">
+          <div class="description">
             <h3>Zoom sur les formats de données</h3>
             <span class="stat-link" id="public-transport-format">
               <a href="#public-transport-format"><i class="fa fa-link fa-small"></i></a>
@@ -312,6 +312,7 @@
         </div>
       </div>
     </div>
+    <%= live_render(@conn, TransportWeb.ProxyRequestsCountLive) %>
     <div class="domain carpooling">
       <h2>Lieux de covoiturage</h2>
       <p>
@@ -338,5 +339,5 @@
     </div>
   </div>
 </section>
-<script src={static_path(@conn, "/js/map.js")}>
-</script>
+<script src={static_path(@conn, "/js/map.js")} />
+<script defer src={static_path(@conn, "/js/app.js")} />
