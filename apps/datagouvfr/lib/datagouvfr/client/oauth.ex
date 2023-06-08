@@ -48,7 +48,9 @@ defmodule Datagouvfr.Client.OAuth do
   def request(method, %Plug.Conn{} = conn, path, body, headers, opts) do
     client = get_client(conn)
     url = process_url(path)
-    opts = Keyword.put_new(opts, :timeout, 15_000)
+    # See Hackney options
+    # https://github.com/benoitc/hackney/blob/master/doc/hackney.md
+    opts = Keyword.put_new(opts, :recv_timeout, 15_000)
     opts = Keyword.put_new(opts, :follow_redirect, true)
     Logger.debug(fn -> "Request to: #{path}" end)
     Logger.debug(fn -> "Body: #{inspect(body)}" end)
