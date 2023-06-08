@@ -52,7 +52,11 @@
         </a>
       </div>
       <div class="menu-item">
-        <a href="#dataset-discussions">Discussions (<%= count_discussions(@discussions) %>)</a>
+        <a href="#dataset-discussions">
+          Discussions <%= live_render(@conn, TransportWeb.CountDiscussionsLive,
+            session: %{"dataset_datagouv_id" => @dataset.datagouv_id}
+          ) %>
+        </a>
       </div>
       <%= unless @history_resources == [] do %>
         <div class="menu-item">
@@ -215,16 +219,14 @@
               ) %> <%= dgettext("page-dataset-details", "to subscribe to comments of this dataset.") %>
             <% end %>
           </div>
-          <%= unless @discussions == nil do %>
-            <%= render("_discussions.html",
-              discussions: @discussions,
-              current_user: @current_user,
-              conn: @conn,
-              dataset: @dataset
-            ) %>
-          <% else %>
-            <%= dgettext("page-dataset-details", "Unable to retrieve discussions from data.gouv.fr") %>
-          <% end %>
+          <%= live_render(@conn, TransportWeb.DiscussionsLive,
+            session: %{
+              "current_user" => @current_user,
+              "dataset" => @dataset,
+              "locale" => locale
+            }
+          ) %>
+
           <%= if @current_user do %>
             <a href="#new_discussion">
               <%= dgettext("page-dataset-details", "Begin a new conversation") %>
@@ -402,4 +404,6 @@
   document.addEventListener("DOMContentLoaded", function() {
     createDatasetMap('dataset-covered-area-map', "<%= @dataset.datagouv_id %>")
   })
+</script>
+<script defer type="text/javascript" src={static_path(@conn, "/js/app.js")}>
 </script>
