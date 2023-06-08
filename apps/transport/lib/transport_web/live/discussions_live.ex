@@ -1,6 +1,6 @@
 defmodule TransportWeb.DiscussionsLive do
   @moduledoc """
-  Display data.gouv conversations on the dataset page
+  Display data.gouv discussions on the dataset page
   """
   use Phoenix.LiveView
   import TransportWeb.Gettext
