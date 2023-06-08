@@ -36,41 +36,41 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
     Datagouvfr.Client.Discussions.Mock |> expect(:get, 1, fn ^datagouv_id -> [] end)
 
     assert {:ok, _view, _html} =
-      live_isolated(conn, TransportWeb.DiscussionsLive,
-        session: %{
-          "dataset_datagouv_id" => datagouv_id,
-          "current_user" => %{"email" => "fc@tdg.fr"},
-          "dataset" => dataset,
-          "locale" => "fr"
-        }
-      )
+             live_isolated(conn, TransportWeb.DiscussionsLive,
+               session: %{
+                 "dataset_datagouv_id" => datagouv_id,
+                 "current_user" => %{"email" => "fc@tdg.fr"},
+                 "dataset" => dataset,
+                 "locale" => "fr"
+               }
+             )
   end
 
   test "the counter reacts to broadcasted messages", %{conn: conn} do
     {:ok, view, _html} =
       live_isolated(conn, TransportWeb.CountDiscussionsLive,
         session: %{
-          "dataset_datagouv_id" => datagouv_id = Ecto.UUID.generate(),
+          "dataset_datagouv_id" => datagouv_id = Ecto.UUID.generate()
         }
       )
 
-      refute render(view) =~ "("
+    refute render(view) =~ "("
 
-      Phoenix.PubSub.broadcast(
-        TransportWeb.PubSub,
-        "dataset_discussions_count:bad_dataset_id",
-        {:count, 10}
-      )
+    Phoenix.PubSub.broadcast(
+      TransportWeb.PubSub,
+      "dataset_discussions_count:bad_dataset_id",
+      {:count, 10}
+    )
 
-      refute render(view) =~ "("
+    refute render(view) =~ "("
 
-      Phoenix.PubSub.broadcast(
-        TransportWeb.PubSub,
-        "dataset_discussions_count:#{datagouv_id}",
-        {:count, 10}
-      )
+    Phoenix.PubSub.broadcast(
+      TransportWeb.PubSub,
+      "dataset_discussions_count:#{datagouv_id}",
+      {:count, 10}
+    )
 
-      assert render(view) =~ "(10)"
+    assert render(view) =~ "(10)"
   end
 
   defp discussions do
@@ -85,7 +85,8 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
             "content" => "petite question",
             "posted_by" => %{
               "avatar" => "https://demo-static.data.gouv.fr/avatars/66/831b849f1c454683bbc9253c5ee191-original.png",
-              "avatar_thumbnail" => "https://demo-static.data.gouv.fr/avatars/66/831b849f1c454683bbc9253c5ee191-500.png",
+              "avatar_thumbnail" =>
+                "https://demo-static.data.gouv.fr/avatars/66/831b849f1c454683bbc9253c5ee191-500.png",
               "class" => "User",
               "first_name" => "Francis",
               "id" => "5e60d6668b4c410c429b8a4a",
@@ -113,6 +114,7 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
           "slug" => "francis-chabouis-1",
           "uri" => "https://demo.data.gouv.fr/api/1/users/francis-chabouis-1/"
         }
-      }]
+      }
+    ]
   end
 end
