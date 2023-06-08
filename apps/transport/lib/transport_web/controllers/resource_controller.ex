@@ -233,8 +233,8 @@ defmodule TransportWeb.ResourceController do
     resource = Resource |> Repo.get!(id)
 
     if Resource.can_direct_download?(resource) do
-       # should not happen
-       # if direct download is possible, we don't expect the function `download` to be called
+      # should not happen
+      # if direct download is possible, we don't expect the function `download` to be called
       conn |> Plug.Conn.send_resp(:not_found, "")
     else
       case Transport.Shared.Wrapper.HTTPoison.impl().head(resource.url, []) do
