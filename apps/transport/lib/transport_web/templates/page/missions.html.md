@@ -22,4 +22,17 @@ D’une manière plus générale, transport.data.gouv.fr est le Point d’accès
 
 Enfin, nous veillons à proposer une plateforme parfaitement opérationnelle pour répondre à la demande de l’écosystème. Dans une logique de développement continu, notre infrastructure numérique évolue en effet selon les besoins exprimés par les producteurs, réutilisateurs ou l’équipe projet, avec le déploiement de nouvelles fonctionnalités, ou de nouveaux outils, pour faciliter l’ouverture de données, améliorer leur qualité, leur découvrabilité, et ainsi inciter à leur réutilisation.
 
+## Vidéo de présentation
+
+<div itemscope itemtype="https://schema.org/VideoObject">
+  <meta itemprop="name" content="La DINUM en action : présentation de transport.data.gouv.fr" />
+  <meta itemprop="description" content="La DINUM en action : présentation de transport.data.gouv.fr" />
+  <meta itemprop="uploadDate" content="2023-06-07T08:24:42.000Z" />
+  <meta itemprop="thumbnailUrl" content="https://s1.dmcdn.net/v/U_Xeu1aW48sHkdXdT/x180" />
+  <meta itemprop="duration" content="P123S" />
+  <meta itemprop="embedUrl" content="https://www.dailymotion.com/embed/video/x8lkqwo" />
+  
+  <iframe id="dailymotion-video" frameborder="0" type="text/html" src="https://www.dailymotion.com/embed/video/x8lkqwo" width="100%" height="100%" allowfullscreen></iframe>
+</div>
+
 <%= raw ~s(</div>) %>

@@ -1,6 +1,6 @@
 defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
   @moduledoc """
-    Call the put_secure_browser_headers Plug and add some CSP headers
+  Call the put_secure_browser_headers Plug and add some CSP headers
   """
 
   def init(options), do: options
@@ -37,8 +37,9 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
           default-src 'none';
           connect-src *;
           font-src *;
-          img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://www.data.gouv.fr;
+          img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://www.data.gouv.fr https://*.dmcdn.net;
           script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
+          frame-src https://www.dailymotion.com/;
           style-src 'self' 'nonce-#{nonce}';
           report-uri #{Application.fetch_env!(:sentry, :csp_url)}
           """
@@ -49,8 +50,9 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
             default-src 'none';
             connect-src *;
             font-src *;
-            img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://demo-static.data.gouv.fr https://www.data.gouv.fr https://demo.data.gouv.fr;
+            img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://demo-static.data.gouv.fr https://www.data.gouv.fr https://demo.data.gouv.fr https://*.dmcdn.net;
             script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
+            frame-src https://www.dailymotion.com/;
             style-src 'self' 'nonce-#{nonce}';
             report-uri #{Application.fetch_env!(:sentry, :csp_url)}
           """
