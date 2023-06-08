@@ -155,7 +155,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
     %{oban_args: oban_args}
   end
 
-  @spec run_save_gtfs_rt_validation(binary(), binary(), ignore_shapes: boolean()) :: map()
+  @spec run_save_gtfs_rt_validation(binary(), binary(), [ignore_shapes: boolean()]) :: map()
   defp run_save_gtfs_rt_validation(gtfs_path, gtfs_rt_path, opts \\ []) do
     opts = Keyword.validate!(opts, ignore_shapes: false)
     ignore_shapes = Keyword.fetch!(opts, :ignore_shapes)
