@@ -51,7 +51,7 @@ defmodule TransportWeb.Endpoint do
   plug(Sentry.PlugContext)
 
   plug(Plug.MethodOverride)
-  plug(Plug.Head)
+  plug(TransportWeb.Plugs.Head)
 
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
