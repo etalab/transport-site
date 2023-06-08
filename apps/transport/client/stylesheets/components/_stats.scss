@@ -249,3 +249,15 @@
   width: 9px;
   height: 9px;
 }
+
+.proxy-external-requests {
+  font-weight: bold;
+  font-size: 2em;
+  text-align: center;
+  margin: 1em 0 .5em;
+}
+.proxy-legend {
+  text-align: center;
+  color: $dark-grey;
+  margin-bottom: 1em;
+}
