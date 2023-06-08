@@ -224,6 +224,28 @@ defmodule TransportWeb.ResourceControllerTest do
     assert content =~ "Impossible de décoder le flux GTFS-RT"
   end
 
+  test "HEAD request for an HTTP resource", %{conn: conn} do
+    resource = Resource |> Repo.get_by(datagouv_id: "2")
+    refute Resource.can_direct_download?(resource)
+
+    Transport.HTTPoison.Mock
+    |> expect(:head, fn url, [] ->
+      assert url == resource.url
+      {:ok, %HTTPoison.Response{status_code: 200, headers: [{"Content-Type", "application/zip"}, {"foo", "bar"}]}}
+    end)
+
+    conn = conn |> head(resource_path(conn, :download, resource.id))
+    assert ["application/zip"] == conn |> get_resp_header("content-type")
+    assert ["bar"] == conn |> get_resp_header("foo")
+    assert conn.assigns[:original_method] == "HEAD"
+    assert conn |> response(200) == ""
+
+    # With a resource that can be directly downloaded
+    resource = Resource |> Repo.get_by(datagouv_id: "1")
+    assert Resource.can_direct_download?(resource)
+    assert conn |> head(resource_path(conn, :download, resource.id)) |> response(404) == ""
+  end
+
   test "downloading a resource that can be directly downloaded", %{conn: conn} do
     resource = Resource |> Repo.get_by(datagouv_id: "1")
     assert Resource.can_direct_download?(resource)
