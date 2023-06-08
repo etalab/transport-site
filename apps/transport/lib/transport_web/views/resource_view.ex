@@ -311,11 +311,22 @@ defmodule TransportWeb.ResourceView do
 
   def latest_validations_nb_days, do: 30
 
-  def gtfs_for_gtfs_rt(_resource, nil = _multi_validation), do: nil
-
   def gtfs_for_gtfs_rt(
         %DB.Resource{format: "gtfs-rt", dataset: %DB.Dataset{resources: resources}},
         %DB.MultiValidation{secondary_resource_id: gtfs_id}
       ),
       do: Enum.find(resources, &(&1.id == gtfs_id))
+
+  def gtfs_for_gtfs_rt(
+        %DB.Resource{format: "gtfs-rt", dataset: %DB.Dataset{resources: resources}},
+        nil = _multi_validation
+      ) do
+    gtfs_resources = resources |> Enum.filter(&DB.Resource.is_gtfs?/1)
+
+    if Enum.count(gtfs_resources) == 1 do
+      hd(gtfs_resources)
+    else
+      nil
+    end
+  end
 end

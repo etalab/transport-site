@@ -27,33 +27,7 @@ defmodule Transport.Validators.GTFSRT do
       resources
       |> snapshot_gtfs_rts()
       |> Enum.reject(&(elem(&1, 2) == :error))
-      |> Enum.each(fn snapshot ->
-        {gtfs_resource, rt_resource, {:ok, gtfs_rt_path, cellar_filename}} = snapshot
-
-        gtfs_path = download_path(gtfs_resource)
-        gtfs_resource_history = gtfs_resource.resource_history |> Enum.at(0)
-        download_latest_gtfs(gtfs_resource_history, gtfs_path)
-
-        _validator_return =
-          with {:ok, _} <- GTFSRT.run_validator(gtfs_path, gtfs_rt_path),
-               {:ok, report} <- rt_resource |> gtfs_rt_result_path() |> GTFSRT.convert_validator_report() do
-            insert_multi_validation(
-              rt_resource,
-              GTFSRT.build_validation_details(gtfs_resource_history, report, cellar_filename),
-              gtfs_path,
-              gtfs_rt_path,
-              gtfs_resource,
-              gtfs_resource_history
-            )
-          else
-            :error -> {:error, "Could not run validator. Please provide a GTFS and a GTFS-RT."}
-            e -> e
-          end
-
-        # add a validation log when the table is created
-        # https://github.com/etalab/transport-site/issues/2390
-        # log_validation(validator_return, resource)
-      end)
+      |> Enum.each(fn snapshot -> run_validator_and_save(snapshot) end)
     after
       Logger.debug("Cleaning up temporary files")
       Enum.each(resources, fn tuple -> tuple |> Tuple.to_list() |> Enum.each(&delete_tmp_files/1) end)
@@ -62,33 +36,72 @@ defmodule Transport.Validators.GTFSRT do
     :ok
   end
 
-  defp validator_arguments(gtfs_path, gtfs_rt_path) do
-    binary_path = "java"
+  defp run_validator_and_save({gtfs_resource, rt_resource, {:ok, gtfs_rt_path, cellar_filename}} = snapshot, opts \\ []) do
+    opts = Keyword.validate!(opts, ignore_shapes: false)
+    ignore_shapes = Keyword.fetch!(opts, :ignore_shapes)
+    gtfs_path = download_path(gtfs_resource)
+    gtfs_resource_history = gtfs_resource.resource_history |> Enum.at(0)
+    download_latest_gtfs(gtfs_resource_history, gtfs_path)
+    validator_args = validator_arguments(gtfs_path, gtfs_rt_path, opts)
 
-    args = [
-      "-jar",
-      Path.join(Application.fetch_env!(:transport, :transport_tools_folder), @validator_filename),
-      "-gtfs",
-      gtfs_path,
-      "-gtfsRealtimePath",
-      Path.dirname(gtfs_rt_path)
-    ]
+    with {:ok, _} <- GTFSRT.run_validator(validator_args),
+         {:ok, report} <- rt_resource |> gtfs_rt_result_path() |> GTFSRT.convert_validator_report(opts) do
+      insert_multi_validation(
+        rt_resource,
+        GTFSRT.build_validation_details(gtfs_resource_history, report, cellar_filename),
+        validator_args,
+        gtfs_resource,
+        gtfs_resource_history
+      )
+    else
+      :error ->
+        {:error, "Could not run validator. Please provide a GTFS and a GTFS-RT."}
+
+      {:error, message} ->
+        if not ignore_shapes and String.contains?(message, "java.lang.OutOfMemoryError") do
+          run_validator_and_save(snapshot, ignore_shapes: true)
+        end
+    end
+  end
+
+  @spec validator_arguments(binary(), binary(), ignore_shapes: boolean()) :: {binary(), [binary()]}
+  def validator_arguments(gtfs_path, gtfs_rt_path, opts \\ []) do
+    binary_path = "java"
+    opts = Keyword.validate!(opts, ignore_shapes: false)
+
+    # Do not process shapes.txt: this requires a large amount of memory
+    # https://github.com/MobilityData/gtfs-realtime-validator/blob/master/TROUBLESHOOTING.md#javalangoutofmemoryerror-java-heap-space-when-running-project
+    shapes_args =
+      if Keyword.fetch!(opts, :ignore_shapes) do
+        "-ignoreShapes yes"
+      else
+        ""
+      end
+
+    args =
+      [
+        "-jar",
+        Path.join(Application.fetch_env!(:transport, :transport_tools_folder), @validator_filename),
+        shapes_args,
+        "-gtfs",
+        gtfs_path,
+        "-gtfsRealtimePath",
+        Path.dirname(gtfs_rt_path)
+      ]
+      |> Enum.reject(&(&1 == ""))
 
     {binary_path, args}
   end
 
-  def command(gtfs_path, gtfs_rt_path), do: inspect(validator_arguments(gtfs_path, gtfs_rt_path))
-
-  def run_validator(gtfs_path, gtfs_rt_path) do
+  def run_validator({binary_path, args}) do
     # See https://github.com/MobilityData/gtfs-realtime-validator/blob/master/gtfs-realtime-validator-lib/README.md#batch-processing
-
-    {binary_path, args} = validator_arguments(gtfs_path, gtfs_rt_path)
-
     Transport.RamboLauncher.run(binary_path, args, log: Mix.env() == :dev)
   end
 
-  @spec convert_validator_report(binary()) :: {:ok, map()} | :error
-  def convert_validator_report(path) do
+  @spec convert_validator_report(binary(), ignore_shapes: boolean()) :: {:ok, map()} | :error
+  def convert_validator_report(path, opts \\ []) do
+    opts = Keyword.validate!(opts, ignore_shapes: false)
+
     case File.read(path) do
       {:ok, content} ->
         errors =
@@ -129,6 +142,7 @@ defmodule Transport.Validators.GTFSRT do
            "errors_count" => total_errors,
            "warnings_count" => total_warnings,
            "has_errors" => total_errors + total_warnings > 0,
+           "ignore_shapes" => Keyword.fetch!(opts, :ignore_shapes),
            "errors" => errors
          }}
 
@@ -252,15 +266,14 @@ defmodule Transport.Validators.GTFSRT do
   defp insert_multi_validation(
          %Resource{format: "gtfs-rt"} = gtfs_rt_resource,
          %{} = validation_details,
-         gtfs_path,
-         gtfs_rt_path,
+         {_, _} = validator_arguments,
          %Resource{format: "GTFS"} = gtfs_resource,
          %ResourceHistory{} = gtfs_resource_history
        ) do
     %MultiValidation{
       validation_timestamp: DateTime.utc_now(),
       validator: validator_name(),
-      command: command(gtfs_path, gtfs_rt_path),
+      command: inspect(validator_arguments),
       result: validation_details,
       resource_id: gtfs_rt_resource.id,
       secondary_resource_id: gtfs_resource.id,

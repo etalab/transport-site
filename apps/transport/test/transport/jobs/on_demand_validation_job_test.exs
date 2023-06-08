@@ -312,6 +312,82 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
       refute File.exists?(gtfs_path)
       refute File.exists?(gtfs_rt_path)
     end
+
+    test "with a gtfs-rt, validation fails, retries without shapes" do
+      gtfs_url = "https://example.com/gtfs.zip"
+      gtfs_rt_url = "https://example.com/gtfs-rt"
+      validation = create_validation(%{"type" => "gtfs-rt", "gtfs_url" => gtfs_url, "gtfs_rt_url" => gtfs_rt_url})
+
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^gtfs_url, [], _ ->
+        {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs"}}
+      end)
+
+      gtfs_path = OnDemandValidationJob.filename(validation.id, "gtfs")
+      gtfs_rt_path = OnDemandValidationJob.filename(validation.id, "gtfs-rt")
+
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^gtfs_rt_url, [], _ ->
+        {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs-rt"}}
+      end)
+
+      Transport.Rambo.Mock
+      |> expect(:run, fn binary, args, [log: false] ->
+        assert binary == "java"
+        assert File.exists?(gtfs_path)
+        assert File.exists?(gtfs_rt_path)
+
+        assert [
+                 "-jar",
+                 validator_path(),
+                 "-gtfs",
+                 gtfs_path,
+                 "-gtfsRealtimePath",
+                 Path.dirname(gtfs_rt_path)
+               ] == args
+
+        {:error, "Exception in thread main java.lang.OutOfMemoryError: Java heap space"}
+      end)
+
+      Transport.Rambo.Mock
+      |> expect(:run, fn binary, args, [log: false] ->
+        assert binary == "java"
+        assert File.exists?(gtfs_path)
+        assert File.exists?(gtfs_rt_path)
+
+        assert [
+                 "-jar",
+                 validator_path(),
+                 "-ignoreShapes yes",
+                 "-gtfs",
+                 gtfs_path,
+                 "-gtfsRealtimePath",
+                 Path.dirname(gtfs_rt_path)
+               ] == args
+
+        File.write!(OnDemandValidationJob.gtfs_rt_result_path(gtfs_rt_path), File.read!(@gtfs_rt_report_path))
+        {:ok, nil}
+      end)
+
+      assert :ok == run_job(validation)
+
+      {:ok, expected_details} = GTFSRT.convert_validator_report(@gtfs_rt_report_path, ignore_shapes: true)
+
+      assert %{
+               result: ^expected_details,
+               oban_args: %{
+                 "state" => "completed",
+                 "type" => "gtfs-rt",
+                 "gtfs_url" => ^gtfs_url,
+                 "gtfs_rt_url" => ^gtfs_rt_url
+               },
+               data_vis: nil
+             } = DB.Repo.reload(validation)
+
+      refute File.exists?(gtfs_path)
+      refute File.exists?(gtfs_rt_path)
+      refute File.exists?(OnDemandValidationJob.gtfs_rt_result_path(gtfs_rt_path))
+    end
   end
 
   defp create_validation(details) do
