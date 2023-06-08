@@ -32,7 +32,7 @@ defmodule TransportWeb.DatasetControllerTest do
 
     with_mocks [
       {Datagouvfr.Client.Reuses, [], [get: fn _dataset -> {:error, "data.gouv is down !"} end]},
-      {Datagouvfr.Client.Discussions, [], [get: fn _id -> nil end]}
+      {Datagouvfr.Client.Discussions, [], [get: fn _id -> [] end]}
     ] do
       conn = conn |> get(dataset_path(conn, :details, dataset.slug))
       html = html_response(conn, 200)
@@ -394,7 +394,6 @@ defmodule TransportWeb.DatasetControllerTest do
 
   defp set_empty_mocks do
     Datagouvfr.Client.Reuses.Mock |> expect(:get, fn _ -> {:ok, []} end)
-    Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _ -> %{} end)
     Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
   end
 end

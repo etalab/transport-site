@@ -53,7 +53,6 @@ defmodule TransportWeb.DatasetController do
       |> assign(:dataset, dataset)
       |> assign(:resources_related_files, DB.Dataset.get_resources_related_files(dataset))
       |> assign(:territory, territory)
-      |> assign(:discussions, Datagouvfr.Client.Discussions.Wrapper.get(dataset.datagouv_id))
       |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
       |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.datagouv_id))
       |> merge_assigns(reuses_assign)

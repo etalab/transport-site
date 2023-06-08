@@ -147,10 +147,6 @@ msgid "Start a new discussion"
 msgstr "Initier une nouvelle discussion"
 
 #, elixir-autogen, elixir-format
-msgid "Unable to retrieve discussions from data.gouv.fr"
-msgstr "Impossible de récupérer les discussions depuis data.gouv.fr, veuillez recharger la page"
-
-#, elixir-autogen, elixir-format
 msgid "See on data.gouv.fr"
 msgstr "Voir sur data.gouv.fr"
 
@@ -601,3 +597,7 @@ msgstr "Si vous êtes producteur de données, vous pouvez <a href=\"%{url}\" tar
 #, elixir-autogen, elixir-format
 msgid "transport.data.gouv.fr automatically sends notifications to data producers in order to improve the quality of data. The following notifications have been sent in the last %{nb} days."
 msgstr "transport.data.gouv.fr envoie automatiquement des notifications au producteur du jeu de données afin d'en améliorer la qualité. Les notifications suivantes ont été envoyées au cours des %{nb} derniers jours."
+
+#, elixir-autogen, elixir-format
+msgid "loading discussions..."
+msgstr "chargement des discussions..."
