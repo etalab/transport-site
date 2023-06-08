@@ -221,7 +221,6 @@
           </div>
           <%= live_render(@conn, TransportWeb.DiscussionsLive,
             session: %{
-              "dataset_datagouv_id" => @dataset.datagouv_id,
               "current_user" => @current_user,
               "dataset" => @dataset,
               "locale" => locale

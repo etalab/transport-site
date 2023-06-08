@@ -28,7 +28,6 @@ defmodule TransportWeb.DiscussionsLive do
   def mount(
         _params,
         %{
-          "dataset_datagouv_id" => dataset_datagouv_id,
           "current_user" => current_user,
           "dataset" => dataset,
           "locale" => locale
@@ -42,7 +41,7 @@ defmodule TransportWeb.DiscussionsLive do
       |> assign(:locale, locale)
 
     # async comments loading
-    send(self(), {:fetch_data_gouv_discussions, dataset_datagouv_id})
+    send(self(), {:fetch_data_gouv_discussions, dataset.datagouv_id})
 
     {:ok, socket}
   end
