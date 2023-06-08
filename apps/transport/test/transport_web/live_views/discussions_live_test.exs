@@ -4,6 +4,8 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
   import DB.Factory
   import Mox
 
+  setup :verify_on_exit!
+
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
