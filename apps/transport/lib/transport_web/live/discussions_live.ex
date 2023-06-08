@@ -68,7 +68,7 @@ defmodule TransportWeb.CountDiscussionsLive do
 
   def render(assigns) do
     ~H"""
-      <%= if assigns[:count], do: "(#{@count})" %>
+    <%= if assigns[:count], do: "(#{@count})" %>
     """
   end
 
