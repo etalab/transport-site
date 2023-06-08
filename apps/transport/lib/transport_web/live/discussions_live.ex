@@ -74,13 +74,7 @@ defmodule TransportWeb.CountDiscussionsLive do
     """
   end
 
-  def mount(
-        _,
-        %{
-          "dataset_datagouv_id" => dataset_datagouv_id
-        },
-        socket
-      ) do
+  def mount(_, %{"dataset_datagouv_id" => dataset_datagouv_id}, socket) do
     if connected?(socket) do
       # messages are sent by TransportWeb.DiscussionsLive
       Phoenix.PubSub.subscribe(TransportWeb.PubSub, "dataset_discussions_count:#{dataset_datagouv_id}")
