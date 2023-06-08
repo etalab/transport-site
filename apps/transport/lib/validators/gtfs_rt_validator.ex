@@ -27,7 +27,7 @@ defmodule Transport.Validators.GTFSRT do
       resources
       |> snapshot_gtfs_rts()
       |> Enum.reject(&(elem(&1, 2) == :error))
-      |> Enum.each(fn snapshot -> run_validator_and_save(snapshot, false) end)
+      |> Enum.each(fn snapshot -> run_validator_and_save(snapshot) end)
     after
       Logger.debug("Cleaning up temporary files")
       Enum.each(resources, fn tuple -> tuple |> Tuple.to_list() |> Enum.each(&delete_tmp_files/1) end)
@@ -36,18 +36,16 @@ defmodule Transport.Validators.GTFSRT do
     :ok
   end
 
-  defp run_validator_and_save(
-         {gtfs_resource, rt_resource, {:ok, gtfs_rt_path, cellar_filename}} = snapshot,
-         ignore_shapes
-       )
-       when is_boolean(ignore_shapes) do
+  defp run_validator_and_save({gtfs_resource, rt_resource, {:ok, gtfs_rt_path, cellar_filename}} = snapshot, opts \\ []) do
+    opts = Keyword.validate!(opts, ignore_shapes: false)
+    ignore_shapes = Keyword.fetch!(opts, :ignore_shapes)
     gtfs_path = download_path(gtfs_resource)
     gtfs_resource_history = gtfs_resource.resource_history |> Enum.at(0)
     download_latest_gtfs(gtfs_resource_history, gtfs_path)
-    validator_args = validator_arguments(gtfs_path, gtfs_rt_path, ignore_shapes)
+    validator_args = validator_arguments(gtfs_path, gtfs_rt_path, opts)
 
     with {:ok, _} <- GTFSRT.run_validator(validator_args),
-         {:ok, report} <- rt_resource |> gtfs_rt_result_path() |> GTFSRT.convert_validator_report(ignore_shapes) do
+         {:ok, report} <- rt_resource |> gtfs_rt_result_path() |> GTFSRT.convert_validator_report(opts) do
       insert_multi_validation(
         rt_resource,
         GTFSRT.build_validation_details(gtfs_resource_history, report, cellar_filename),
@@ -61,19 +59,20 @@ defmodule Transport.Validators.GTFSRT do
 
       {:error, message} ->
         if not ignore_shapes and String.contains?(message, "java.lang.OutOfMemoryError") do
-          run_validator_and_save(snapshot, true)
+          run_validator_and_save(snapshot, ignore_shapes: true)
         end
     end
   end
 
-  @spec validator_arguments(binary(), binary(), boolean()) :: {binary(), [binary()]}
-  def validator_arguments(gtfs_path, gtfs_rt_path, ignore_shapes) when is_boolean(ignore_shapes) do
+  @spec validator_arguments(binary(), binary(), ignore_shapes: boolean()) :: {binary(), [binary()]}
+  def validator_arguments(gtfs_path, gtfs_rt_path, opts \\ []) do
     binary_path = "java"
+    opts = Keyword.validate!(opts, ignore_shapes: false)
 
     # Do not process shapes.txt: this requires a large amount of memory
     # https://github.com/MobilityData/gtfs-realtime-validator/blob/master/TROUBLESHOOTING.md#javalangoutofmemoryerror-java-heap-space-when-running-project
     shapes_args =
-      if ignore_shapes do
+      if Keyword.fetch!(opts, :ignore_shapes) do
         "-ignoreShapes yes"
       else
         ""
@@ -99,8 +98,10 @@ defmodule Transport.Validators.GTFSRT do
     Transport.RamboLauncher.run(binary_path, args, log: Mix.env() == :dev)
   end
 
-  @spec convert_validator_report(binary(), boolean()) :: {:ok, map()} | :error
-  def convert_validator_report(path, ignore_shapes) when is_boolean(ignore_shapes) do
+  @spec convert_validator_report(binary(), ignore_shapes: boolean()) :: {:ok, map()} | :error
+  def convert_validator_report(path, opts \\ []) do
+    opts = Keyword.validate!(opts, ignore_shapes: false)
+
     case File.read(path) do
       {:ok, content} ->
         errors =
@@ -141,7 +142,7 @@ defmodule Transport.Validators.GTFSRT do
            "errors_count" => total_errors,
            "warnings_count" => total_warnings,
            "has_errors" => total_errors + total_warnings > 0,
-           "ignore_shapes" => ignore_shapes,
+           "ignore_shapes" => Keyword.fetch!(opts, :ignore_shapes),
            "errors" => errors
          }}
 

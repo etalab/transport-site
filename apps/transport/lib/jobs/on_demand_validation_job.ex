@@ -147,7 +147,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   end
 
   defp process_download([{:ok, gtfs_path}, {:ok, gtfs_rt_path}]) do
-    run_save_gtfs_rt_validation_with_shapes(gtfs_path, gtfs_rt_path)
+    run_save_gtfs_rt_validation(gtfs_path, gtfs_rt_path)
   end
 
   defp process_download(results) do
@@ -155,16 +155,15 @@ defmodule Transport.Jobs.OnDemandValidationJob do
     %{oban_args: oban_args}
   end
 
-  def run_save_gtfs_rt_validation_with_shapes(gtfs_path, gtfs_rt_path) do
-    run_save_gtfs_rt_validation(gtfs_path, gtfs_rt_path, false)
-  end
-
-  defp run_save_gtfs_rt_validation(gtfs_path, gtfs_rt_path, ignore_shapes) when is_boolean(ignore_shapes) do
-    validator_args = GTFSRT.validator_arguments(gtfs_path, gtfs_rt_path, ignore_shapes)
+  @spec run_save_gtfs_rt_validation(binary(), binary(), ignore_shapes: boolean()) :: map()
+  defp run_save_gtfs_rt_validation(gtfs_path, gtfs_rt_path, opts \\ []) do
+    opts = Keyword.validate!(opts, ignore_shapes: false)
+    ignore_shapes = Keyword.fetch!(opts, :ignore_shapes)
+    validator_args = GTFSRT.validator_arguments(gtfs_path, gtfs_rt_path, opts)
 
     case GTFSRT.run_validator(validator_args) do
       {:ok, _} ->
-        case GTFSRT.convert_validator_report(gtfs_rt_result_path(gtfs_rt_path), ignore_shapes) do
+        case GTFSRT.convert_validator_report(gtfs_rt_result_path(gtfs_rt_path), opts) do
           {:ok, validation} ->
             # https://github.com/etalab/transport-site/issues/2390
             # to do: transport-tools version when available
@@ -186,7 +185,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
 
       {:error, reason} ->
         if not ignore_shapes and String.contains?(reason, "java.lang.OutOfMemoryError") do
-          run_save_gtfs_rt_validation(gtfs_path, gtfs_rt_path, true)
+          run_save_gtfs_rt_validation(gtfs_path, gtfs_rt_path, ignore_shapes: true)
         else
           %{oban_args: %{"state" => "error", "error_reason" => inspect(reason)}}
         end

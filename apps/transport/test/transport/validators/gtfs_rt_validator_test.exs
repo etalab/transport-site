@@ -76,11 +76,11 @@ defmodule Transport.Validators.GTFSRTTest do
                   "title" => "Sequential stop_time_updates have the same stop_sequence"
                 }
               ]
-            }} == GTFSRT.convert_validator_report(@gtfs_rt_report_path, false)
+            }} == GTFSRT.convert_validator_report(@gtfs_rt_report_path)
   end
 
   test "convert_validator_report when file does not exist" do
-    assert :error == GTFSRT.convert_validator_report(Ecto.UUID.generate(), false)
+    assert :error == GTFSRT.convert_validator_report(Ecto.UUID.generate())
   end
 
   describe "validate_and_save" do
@@ -181,7 +181,7 @@ defmodule Transport.Validators.GTFSRTTest do
       end)
 
       assert :ok == GTFSRT.validate_and_save(dataset)
-      {:ok, report} = GTFSRT.convert_validator_report(@gtfs_rt_report_path, false)
+      {:ok, report} = GTFSRT.convert_validator_report(@gtfs_rt_report_path)
       expected_errors = Map.fetch!(report, "errors")
 
       gtfs_rt_validation =
@@ -322,7 +322,7 @@ defmodule Transport.Validators.GTFSRTTest do
       end)
 
       assert :ok == GTFSRT.validate_and_save(gtfs_rt)
-      {:ok, report} = GTFSRT.convert_validator_report(@gtfs_rt_report_path, false)
+      {:ok, report} = GTFSRT.convert_validator_report(@gtfs_rt_report_path)
       expected_errors = Map.fetch!(report, "errors")
 
       gtfs_rt_validation =

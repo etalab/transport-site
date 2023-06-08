@@ -403,7 +403,7 @@ defmodule TransportWeb.ValidationControllerTest do
       {:ok, view, _html} = live(conn)
 
       # Validation is displayed
-      {:ok, report} = Transport.Validators.GTFSRT.convert_validator_report(@gtfs_rt_report_path, true)
+      {:ok, report} = Transport.Validators.GTFSRT.convert_validator_report(@gtfs_rt_report_path, ignore_shapes: true)
 
       validation
       |> Ecto.Changeset.change(

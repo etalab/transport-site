@@ -204,7 +204,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
 
       assert :ok == run_job(validation)
 
-      {:ok, expected_details} = GTFSRT.convert_validator_report(@gtfs_rt_report_path, false)
+      {:ok, expected_details} = GTFSRT.convert_validator_report(@gtfs_rt_report_path)
 
       assert %{
                result: ^expected_details,
@@ -371,7 +371,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
 
       assert :ok == run_job(validation)
 
-      {:ok, expected_details} = GTFSRT.convert_validator_report(@gtfs_rt_report_path, true)
+      {:ok, expected_details} = GTFSRT.convert_validator_report(@gtfs_rt_report_path, ignore_shapes: true)
 
       assert %{
                result: ^expected_details,
