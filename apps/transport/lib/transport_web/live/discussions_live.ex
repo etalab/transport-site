@@ -64,7 +64,7 @@ defmodule TransportWeb.CountDiscussionsLive do
   @moduledoc """
   A live counter of dicussions for the dataset
   """
-  use Phoenix.LiveView
+  use Phoenix.LiveView, container: {:span, []}
 
   def render(assigns) do
     ~H"""
