@@ -403,7 +403,7 @@ defmodule TransportWeb.ValidationControllerTest do
       {:ok, view, _html} = live(conn)
 
       # Validation is displayed
-      {:ok, report} = Transport.Validators.GTFSRT.convert_validator_report(@gtfs_rt_report_path)
+      {:ok, report} = Transport.Validators.GTFSRT.convert_validator_report(@gtfs_rt_report_path, ignore_shapes: true)
 
       validation
       |> Ecto.Changeset.change(
@@ -415,6 +415,7 @@ defmodule TransportWeb.ValidationControllerTest do
       send(view.pid, :update_data)
 
       assert render(view) =~ "4 erreurs, 26 avertissements"
+      assert render(view) =~ "Les shapes présentes dans le GTFS ont été ignorées"
       assert render(view) =~ "stop_times_updates not strictly sorted"
       assert render(view) =~ "vehicle_id should be populated for TripUpdates and VehiclePositions"
       assert render(view) =~ "Ligne 5 Travaux à compter 22/11 pour 5 semaines"

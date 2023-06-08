@@ -36,6 +36,7 @@ defmodule Transport.Validators.GTFSRTTest do
               "warnings_count" => 26,
               "errors_count" => 4,
               "has_errors" => true,
+              "ignore_shapes" => false,
               "errors" => [
                 %{
                   "description" => "vehicle_id should be populated for TripUpdates and VehiclePositions",
@@ -432,6 +433,94 @@ defmodule Transport.Validators.GTFSRTTest do
         |> DB.Repo.all()
 
       assert [] == gtfs_rt_validation
+    end
+
+    test "when there is a memory error, run the validator another time and ignore shapes" do
+      gtfs_permanent_url = "https://example.com/gtfs.zip"
+      gtfs_rt_url = "https://example.com/gtfs-rt"
+
+      %{dataset: dataset, resource: gtfs} =
+        insert_up_to_date_resource_and_friends(
+          resource_history_payload: %{
+            "format" => "GTFS",
+            "permanent_url" => gtfs_permanent_url,
+            "uuid" => Ecto.UUID.generate()
+          }
+        )
+
+      %DB.Resource{} =
+        gtfs_rt =
+        insert(:resource,
+          dataset_id: dataset.id,
+          is_available: true,
+          format: "gtfs-rt",
+          is_community_resource: false,
+          url: gtfs_rt_url
+        )
+
+      Transport.HTTPoison.Mock
+      |> expect(:get!, fn ^gtfs_permanent_url, [], [follow_redirect: true] ->
+        %HTTPoison.Response{status_code: 200, body: "gtfs"}
+      end)
+
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^gtfs_rt_url, [], [follow_redirect: true] ->
+        {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs-rt"}}
+      end)
+
+      S3TestUtils.s3_mocks_upload_file(gtfs_rt.id |> to_string())
+
+      gtfs_path = GTFSRT.download_path(gtfs)
+      gtfs_rt_path = GTFSRT.download_path(gtfs_rt)
+
+      Transport.Rambo.Mock
+      |> expect(:run, fn binary, args, [log: false] ->
+        assert binary == "java"
+        assert File.exists?(gtfs_path)
+        assert File.exists?(gtfs_rt_path)
+
+        assert [
+                 "-jar",
+                 validator_path(),
+                 "-gtfs",
+                 gtfs_path,
+                 "-gtfsRealtimePath",
+                 Path.dirname(gtfs_rt_path)
+               ] == args
+
+        {:error, "Exception in thread main java.lang.OutOfMemoryError: Java heap space"}
+      end)
+
+      # Runs the validator another time, this time it should ignore shapes validation
+      Transport.Rambo.Mock
+      |> expect(:run, fn binary, args, [log: false] ->
+        assert binary == "java"
+        assert File.exists?(gtfs_path)
+        assert File.exists?(gtfs_rt_path)
+
+        assert [
+                 "-jar",
+                 validator_path(),
+                 "-ignoreShapes yes",
+                 "-gtfs",
+                 gtfs_path,
+                 "-gtfsRealtimePath",
+                 Path.dirname(gtfs_rt_path)
+               ] == args
+
+        File.write!(GTFSRT.gtfs_rt_result_path(gtfs_rt), File.read!(@gtfs_rt_report_path))
+        {:ok, nil}
+      end)
+
+      assert :ok == GTFSRT.validate_and_save(dataset)
+
+      assert DB.MultiValidation
+             |> where([mv], mv.resource_id == ^gtfs_rt.id and mv.validator == ^GTFSRT.validator_name())
+             |> DB.Repo.exists?()
+
+      # No temporary files left
+      refute File.exists?(Path.dirname(gtfs_path))
+      refute File.exists?(Path.dirname(gtfs_rt_path))
     end
   end
 

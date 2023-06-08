@@ -412,6 +412,8 @@ defmodule TransportWeb.ResourceControllerTest do
 
     {conn1, _} = with_log(fn -> conn |> get(resource_path(conn, :details, resource_id)) end)
     assert conn1 |> html_response(200) =~ "Pas de validation disponible"
+    # Even without a multi-validation we can validate now as we have a single GTFS resource
+    assert conn1 |> html_response(200) =~ "Valider ce GTFS-RT maintenant"
 
     %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id})
 
@@ -431,6 +433,7 @@ defmodule TransportWeb.ResourceControllerTest do
         ],
         "has_errors" => true,
         "errors_count" => 1,
+        "ignore_shapes" => true,
         "files" => %{
           "gtfs_permanent_url" => "url",
           "gtfs_rt_permanent_url" => "url"
@@ -443,6 +446,7 @@ defmodule TransportWeb.ResourceControllerTest do
     {conn2, _} = with_log(fn -> conn |> get(resource_path(conn, :details, resource_id)) end)
     assert conn2 |> html_response(200) =~ "Rapport de validation"
     assert conn2 |> html_response(200) =~ "1 erreur"
+    assert conn2 |> html_response(200) =~ "Les shapes présentes dans le GTFS ont été ignorées"
     assert conn2 |> html_response(200) =~ "Valider ce GTFS-RT maintenant"
     refute conn2 |> html_response(200) =~ "Pas de validation disponible"
   end
