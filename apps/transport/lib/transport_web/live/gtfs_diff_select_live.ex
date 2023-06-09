@@ -8,7 +8,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   import TransportWeb.Gettext
   alias TransportWeb.GTFSDiffExplain
 
-  @max_file_size_mb 4
+  @max_file_size_mb 10
   def mount(_params, %{"locale" => locale} = _session, socket) do
     Gettext.put_locale(locale)
 
