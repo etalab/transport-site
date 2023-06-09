@@ -46,6 +46,8 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
                  "locale" => "fr"
                }
              )
+
+    :timer.sleep(100)
   end
 
   test "the counter reacts to broadcasted messages", %{conn: conn} do
