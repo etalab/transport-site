@@ -15,6 +15,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     {:ok,
      socket
      |> assign(:uploaded_files, [])
+     |> assign(:diff_logs, [])
      |> allow_upload(:gtfs,
        accept: ~w(.zip),
        max_entries: 2,
@@ -30,6 +31,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
       |> assign(:error_msg, nil)
       |> assign(:diff_summary, nil)
       |> assign(:diff_explanations, nil)
+      |> assign(:diff_logs, [])
 
     {:noreply, socket}
   end

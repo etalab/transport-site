@@ -52,6 +52,13 @@
         <% end %>
       </div>
     </div>
+    <div class="pt-24">
+      <%= for log <- Enum.reverse(@diff_logs) do %>
+        <div>
+          <%= log %>...
+        </div>
+      <% end %>
+    </div>
   </div>
 </section>
 <section class="section section-grey">
