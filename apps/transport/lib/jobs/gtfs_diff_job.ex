@@ -43,4 +43,9 @@ defmodule Transport.Jobs.GTFSDiff do
     Transport.S3.delete_object!(:gtfs_diff, gtfs_file_name_2)
     :ok
   end
+
+  @impl Oban.Worker
+  def timeout(_job), do: :timer.seconds(job_timeout())
+
+  def job_timeout, do: 180_000
 end
