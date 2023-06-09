@@ -286,7 +286,6 @@ defmodule Transport.GTFSDiff do
 
     file_names_2
     |> Enum.flat_map(fn file_name ->
-
       log_msg = "computing diff for #{file_name}"
       Logger.info(log_msg)
       unless is_nil(notify_func), do: notify_func.(log_msg)
