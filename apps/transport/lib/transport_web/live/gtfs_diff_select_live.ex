@@ -64,18 +64,10 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
       |> Transport.Jobs.GTFSDiff.new()
       |> Oban.insert!()
 
-    socket =
-      receive do
-        {:notification, :gossip, %{"complete" => ^job_id, "diff_file_url" => diff_file_url}} ->
-          send(self(), {:generate_diff_summary, diff_file_url})
-          socket |> assign(:diff_file_url, diff_file_url)
-      after
-        120_000 ->
-          socket |> assign(:error_msg, "Job aborted, the diff is taking too long (>120sec).")
-      end
+    Process.send_after(self(), :timeout, Transport.Jobs.GTFSDiff.job_timeout())
 
-    Oban.Notifier.unlisten([:gossip])
-    {:noreply, socket |> assign(:job_running, false)}
+    socket = socket |> assign(:job_id, job_id) |> assign(:diff_logs, ["job started"])
+    {:noreply, socket}
   end
 
   def handle_info({:generate_diff_summary, diff_file_url}, socket) do
@@ -88,6 +80,43 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
       socket
       |> assign(:diff_summary, diff |> GTFSDiffExplain.diff_summary())
       |> assign(:diff_explanations, diff |> GTFSDiffExplain.diff_explanations())
+
+    {:noreply, socket}
+  end
+
+  # notifications about the ongoing job
+  def handle_info(
+        {:notification, :gossip, %{"running" => job_id, "log" => log}},
+        %{assigns: %{job_id: job_id}} = socket
+      ) do
+    {:noreply, socket |> assign(:diff_logs, [log | socket.assigns[:diff_logs]])}
+  end
+
+  # job is complete
+  def handle_info(
+        {:notification, :gossip, %{"complete" => job_id, "diff_file_url" => diff_file_url}},
+        %{assigns: %{job_id: job_id}} = socket
+      ) do
+    send(self(), {:generate_diff_summary, diff_file_url})
+    Oban.Notifier.unlisten([:gossip])
+    {:noreply, socket |> assign(:diff_file_url, diff_file_url) |> assign(:diff_logs, []) |> assign(:job_running, false)}
+  end
+
+  # job took too long
+  def handle_info(:timeout, socket) do
+    socket =
+      if is_nil(socket.assigns[:diff_file_url]) do
+        # no diff_file_url: job has not finished
+        Oban.Notifier.unlisten([:gossip])
+
+        socket
+        |> assign(
+          :error_msg,
+          "Job aborted, the diff is taking too long (> #{Transport.Jobs.GTFSDiff.job_timeout()} sec)."
+        )
+      else
+        socket
+      end
 
     {:noreply, socket}
   end
