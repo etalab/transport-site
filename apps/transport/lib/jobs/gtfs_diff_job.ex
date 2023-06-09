@@ -16,7 +16,15 @@ defmodule Transport.Jobs.GTFSDiff do
       ) do
     {:ok, unzip_1} = Transport.Unzip.S3.get_unzip(gtfs_file_name_1, bucket)
     {:ok, unzip_2} = Transport.Unzip.S3.get_unzip(gtfs_file_name_2, bucket)
-    diff = Transport.GTFSDiff.diff(unzip_1, unzip_2)
+
+    notify = fn log_msg ->
+      Oban.Notifier.notify(Oban, :gossip, %{
+        running: job.id,
+        log: log_msg
+      })
+    end
+
+    diff = Transport.GTFSDiff.diff(unzip_1, unzip_2, notify)
 
     diff_file_name = "gtfs-diff-#{DateTime.utc_now() |> DateTime.to_unix()}.csv"
 
