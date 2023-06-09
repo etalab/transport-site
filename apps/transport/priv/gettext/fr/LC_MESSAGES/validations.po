@@ -408,3 +408,7 @@ msgstr "Comparaison en cours…"
 #, elixir-autogen, elixir-format
 msgid "Shapes present in the GTFS have been ignored, some rules are not enforced."
 msgstr "Les shapes présentes dans le GTFS ont été ignorées, certaines règles de validation n'ont pas été vérifiées."
+
+#, elixir-autogen, elixir-format
+msgid "analyzing found differences..."
+msgstr "analyse des différences trouvées..."

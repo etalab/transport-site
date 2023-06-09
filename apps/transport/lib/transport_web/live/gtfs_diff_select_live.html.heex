@@ -81,7 +81,9 @@
           spec: "https://github.com/etalab/gtfs_diff/blob/main/specification.md"
         )
       ) %>.
-      <div :if={assigns[:diff_summary]} class="pt-24">
+
+      <%= if assigns[:diff_summary] do %>
+      <div class="pt-24">
         <h4><%= dgettext("validations", "Differences Overview") %></h4>
         <%= dgettext(
           "validations",
@@ -117,6 +119,11 @@
           </div>
         </div>
       </div>
+      <% else %>
+      <div class="pt-24">
+        <%= dgettext("validations", "analyzing found differences...") %>
+      </div>
+      <% end %>
       <div :if={assigns[:diff_explanations]} class="pt-24">
         <h4><%= dgettext("validations", "Human friendly explanations") %></h4>
         <%= dgettext(

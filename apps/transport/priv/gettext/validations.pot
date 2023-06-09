@@ -407,3 +407,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Shapes present in the GTFS have been ignored, some rules are not enforced."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "analyzing found differences..."
+msgstr ""
