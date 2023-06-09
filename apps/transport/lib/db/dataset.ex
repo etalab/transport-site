@@ -32,6 +32,7 @@ defmodule DB.Dataset do
     field(:datagouv_title, :string)
     field(:type, :string)
     field(:organization, :string)
+    field(:organization_id, :string)
     field(:organization_type, :string)
     field(:has_realtime, :boolean)
     field(:is_active, :boolean)
@@ -467,6 +468,7 @@ defmodule DB.Dataset do
       :description,
       :frequency,
       :organization,
+      :organization_id,
       :organization_type,
       :last_update,
       :licence,
@@ -767,48 +769,18 @@ defmodule DB.Dataset do
   end
 
   @doc """
-    Queries the Data Gouv API to determine the user datasets, then use each dataset id
-    to achieve a look-up on our internal database, and return all local `DB.Dataset` objects.
-
-    Any dataset available remotely (in Data Gouv) but not already synchronised locally
-    will be missing in the returned result.
+  Find datasets present on the NAP for which the user is a member of the organization.
   """
-  @spec user_datasets(Plug.Conn.t()) :: {:error, OAuth2.Error.t()} | {:ok, [__MODULE__.t()]}
-  def user_datasets(%Plug.Conn{} = conn) do
-    case Datagouvfr.Client.User.Wrapper.impl().datasets(conn) do
-      {:ok, datasets} ->
-        datagouv_ids = Enum.map(datasets, fn d -> d["id"] end)
+  @spec datasets_for_user(Plug.Conn.t()) :: [__MODULE__.t()] | {:error, OAuth2.Error.t()}
+  def datasets_for_user(%Plug.Conn{} = conn) do
+    case Datagouvfr.Client.User.Wrapper.impl().me(conn) do
+      {:ok, %{"organizations" => organizations}} ->
+        organization_ids = Enum.map(organizations, fn %{"id" => id} -> id end)
 
-        # this code has a caveat: if a remote (data gouv) dataset has not yet been synchronised/imported
-        # to the local database for some reason, it won't appear in the result, despite existing remotely.
-        {:ok,
-         __MODULE__
-         |> preload(:resources)
-         |> where([d], d.datagouv_id in ^datagouv_ids)
-         |> order_by([d], desc: d.id)
-         |> Repo.all()}
-
-      error ->
-        error
-    end
-  end
-
-  @doc """
-    Same as `user_datasets/1` but for organization datasets.
-  """
-  @spec user_org_datasets(Plug.Conn.t()) ::
-          {:error, OAuth2.Error.t()} | {:ok, [__MODULE__.t()]}
-  def user_org_datasets(%Plug.Conn{} = conn) do
-    case Datagouvfr.Client.User.Wrapper.impl().org_datasets(conn) do
-      {:ok, datasets} ->
-        datagouv_ids = Enum.map(datasets, fn d -> d["id"] end)
-
-        {:ok,
-         __MODULE__
-         |> preload(:resources)
-         |> where([d], d.datagouv_id in ^datagouv_ids)
-         |> order_by([d], desc: d.id)
-         |> Repo.all()}
+        __MODULE__.base_query()
+        |> preload(:resources)
+        |> where([dataset: d], d.organization_id in ^organization_ids)
+        |> Repo.all()
 
       error ->
         error

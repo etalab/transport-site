@@ -31,6 +31,7 @@ defmodule DB.Factory do
       datagouv_title: "Hello",
       slug: sequence(:slug, fn i -> "dataset_slug_#{i}" end),
       datagouv_id: sequence(:datagouv_id, fn i -> "dataset_datagouv_id_#{i}" end),
+      organization_id: sequence(:organization_id, fn i -> "dataset_organization_id_#{i}" end),
       # NOTE: need to figure out how to pass aom/region together with changeset checks here
       aom: build(:aom),
       tags: []
