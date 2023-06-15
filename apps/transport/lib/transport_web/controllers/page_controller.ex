@@ -131,33 +131,18 @@ defmodule TransportWeb.PageController do
     conn |> text(content)
   end
 
-  @doc """
-    Retrieve the user datasets + corresponding org datasets.
+  def espace_producteur(%Plug.Conn{} = conn, _params) do
+    {conn, datasets} =
+      case DB.Dataset.datasets_for_user(conn) do
+        datasets when is_list(datasets) ->
+          {conn, datasets}
 
-    Data Gouv is queried, and we support a degraded mode with an error reporting in case of connection issue.
-  """
-  def espace_producteur(conn, _params) do
-    {datasets, errors} =
-      [
-        Dataset.user_datasets(conn),
-        Dataset.user_org_datasets(conn)
-      ]
-      |> Enum.split_with(&(elem(&1, 0) == :ok))
-
-    datasets = datasets |> Enum.flat_map(&elem(&1, 1))
-    errors |> Enum.map(&inspect(elem(&1, 1))) |> Enum.each(&Sentry.capture_message(&1))
-
-    # NOTE: this could be refactored in more functional style, but that will be good enough for today
-    conn =
-      if length(errors) != 0 do
-        conn |> put_flash(:error, dgettext("alert", "Unable to get all your resources for the moment"))
-      else
-        conn
+        {:error, _} ->
+          conn = conn |> put_flash(:error, dgettext("alert", "Unable to get all your resources for the moment"))
+          {conn, []}
       end
 
-    conn
-    |> assign(:datasets, datasets)
-    |> render("espace_producteur.html")
+    conn |> assign(:datasets, datasets) |> render("espace_producteur.html")
   end
 
   defp aoms_with_dataset do

@@ -6,8 +6,18 @@ defmodule TransportWeb.NotificationController do
   import Ecto.Query
 
   def index(%Plug.Conn{assigns: %{current_user: current_user}} = conn, _) do
+    {conn, datasets} =
+      case DB.Dataset.datasets_for_user(conn) do
+        datasets when is_list(datasets) ->
+          {conn, datasets}
+
+        {:error, _} ->
+          conn = conn |> put_flash(:error, dgettext("alert", "Unable to get all your resources for the moment"))
+          {conn, []}
+      end
+
     conn
-    |> assign(:datasets, datasets(conn))
+    |> assign(:datasets, datasets)
     |> assign(:notification_subscriptions, notification_subscriptions_for_user(current_user))
     |> render("index.html")
   end
@@ -95,17 +105,5 @@ defmodule TransportWeb.NotificationController do
     |> select([notification_subscription: ns], ns.reason)
     |> DB.Repo.all()
     |> Enum.map(&to_string/1)
-  end
-
-  defp datasets(%Plug.Conn{} = conn) do
-    {datasets, errors} =
-      [
-        DB.Dataset.user_datasets(conn),
-        DB.Dataset.user_org_datasets(conn)
-      ]
-      |> Enum.split_with(&(elem(&1, 0) == :ok))
-
-    errors |> Enum.map(&inspect(elem(&1, 1))) |> Enum.each(&Sentry.capture_message(&1))
-    datasets |> Enum.flat_map(&elem(&1, 1))
   end
 end
