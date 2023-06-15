@@ -14,6 +14,9 @@ defmodule Transport.Jobs.GTFSDiff do
           }
         } = job
       ) do
+
+    Oban.Notifier.notify(Oban, :gossip, %{started: job.id})
+
     {:ok, unzip_1} = Transport.Unzip.S3.get_unzip(gtfs_file_name_1, bucket)
     {:ok, unzip_2} = Transport.Unzip.S3.get_unzip(gtfs_file_name_2, bucket)
 

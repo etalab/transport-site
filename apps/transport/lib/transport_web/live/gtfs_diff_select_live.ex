@@ -64,8 +64,6 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
       |> Transport.Jobs.GTFSDiff.new()
       |> Oban.insert!()
 
-    Process.send_after(self(), :timeout, Transport.Jobs.GTFSDiff.job_timeout_sec() * 1_000)
-
     socket = socket |> assign(:job_id, job_id) |> assign(:diff_logs, ["job started"])
     {:noreply, socket}
   end
@@ -84,6 +82,15 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     {:noreply, socket}
   end
 
+  # job has started
+  def handle_info(
+        {:notification, :gossip, %{"started" => job_id}},
+        %{assigns: %{job_id: job_id}} = socket
+      ) do
+    Process.send_after(self(), :timeout, Transport.Jobs.GTFSDiff.job_timeout_sec() * 1_000)
+    {:noreply, socket}
+  end
+
   # notifications about the ongoing job
   def handle_info(
         {:notification, :gossip, %{"running" => job_id, "log" => log}},
@@ -99,7 +106,12 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
       ) do
     send(self(), {:generate_diff_summary, diff_file_url})
     Oban.Notifier.unlisten([:gossip])
-    {:noreply, socket |> assign(:diff_file_url, diff_file_url) |> assign(:diff_logs, []) |> assign(:job_running, false)}
+
+    {:noreply,
+     socket
+     |> assign(:diff_file_url, diff_file_url)
+     |> assign(:diff_logs, [])
+     |> assign(:job_running, false)}
   end
 
   # job took too long
