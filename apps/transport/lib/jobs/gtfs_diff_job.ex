@@ -45,7 +45,8 @@ defmodule Transport.Jobs.GTFSDiff do
   end
 
   @impl Oban.Worker
-  def timeout(_job), do: :timer.seconds(job_timeout())
+  def timeout(_job), do: :timer.seconds(job_timeout_sec())
 
-  def job_timeout, do: 180_000
+  # 5 minutes timeout
+  def job_timeout_sec, do: 300
 end
