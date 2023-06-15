@@ -145,6 +145,7 @@ defmodule Transport.ImportData do
       |> Map.put("last_update", parse_datetime(data_gouv_resp["last_update"]))
       |> Map.put("type", type)
       |> Map.put("organization", data_gouv_resp["organization"]["name"])
+      |> Map.put("organization_id", data_gouv_resp["organization"]["id"])
       |> Map.put("resources", get_resources(data_gouv_resp, type))
       |> Map.put("nb_reuses", get_nb_reuses(data_gouv_resp))
       |> Map.put("licence", licence(data_gouv_resp))

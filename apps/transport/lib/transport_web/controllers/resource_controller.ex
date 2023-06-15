@@ -182,17 +182,10 @@ defmodule TransportWeb.ResourceController do
 
   @spec datasets_list(Plug.Conn.t(), any()) :: Plug.Conn.t()
   def datasets_list(conn, _params) do
+    {conn, datasets} = datasets_for_user(conn)
+
     conn
-    |> assign_or_flash(
-      fn -> Dataset.user_datasets(conn) end,
-      :datasets,
-      "Unable to get resources, please retry."
-    )
-    |> assign_or_flash(
-      fn -> Dataset.user_org_datasets(conn) end,
-      :org_datasets,
-      "Unable to get resources, please retry."
-    )
+    |> assign(:datasets, datasets)
     |> render("list.html")
   end
 
@@ -322,13 +315,7 @@ defmodule TransportWeb.ResourceController do
 
   @spec proxy_statistics(Plug.Conn.t(), map) :: Plug.Conn.t()
   def proxy_statistics(conn, _params) do
-    datasets =
-      [
-        Dataset.user_datasets(conn),
-        Dataset.user_org_datasets(conn)
-      ]
-      |> Enum.filter(&(elem(&1, 0) == :ok))
-      |> Enum.flat_map(&elem(&1, 1))
+    {conn, datasets} = datasets_for_user(conn)
 
     proxy_stats =
       datasets
@@ -356,6 +343,17 @@ defmodule TransportWeb.ResourceController do
         conn
         |> assign(kw, [])
         |> put_flash(:error, Gettext.dgettext(TransportWeb.Gettext, "resource", error))
+    end
+  end
+
+  defp datasets_for_user(%Plug.Conn{} = conn) do
+    case DB.Dataset.datasets_for_user(conn) do
+      datasets when is_list(datasets) ->
+        {conn, datasets}
+
+      {:error, _} ->
+        conn = conn |> put_flash(:error, dgettext("alert", "Unable to get all your resources for the moment"))
+        {conn, []}
     end
   end
 end

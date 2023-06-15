@@ -1,10 +1,8 @@
 defmodule TransportWeb.PageControllerTest do
-  # NOTE: temporarily set to false, until it doesn't use with_mock anymore
-  use TransportWeb.ConnCase, async: false
+  use TransportWeb.ConnCase, async: true
   use TransportWeb.DatabaseCase, cleanup: []
   import DB.Factory
   import Plug.Test, only: [init_test_session: 2]
-  import Mock
   import Mox
 
   setup :verify_on_exit!
@@ -70,55 +68,36 @@ defmodule TransportWeb.PageControllerTest do
       assert redirected_to(conn, 302) =~ "/login"
     end
 
-    test "renders successfully when data gouv returns no error", %{conn: conn} do
-      user_dataset = insert(:dataset, datagouv_title: "User Dataset", datagouv_id: Ecto.UUID.generate())
-      user_org_dataset = insert(:dataset, datagouv_title: "Org Dataset", datagouv_id: Ecto.UUID.generate())
+    test "renders successfully and finds datasets using organization IDs", %{conn: conn} do
+      %DB.Dataset{organization_id: organization_id} = insert(:dataset, datagouv_title: datagouv_title = "Foobar")
 
       Datagouvfr.Client.User.Mock
-      |> expect(:datasets, fn _conn -> {:ok, [%{"id" => user_dataset.datagouv_id}]} end)
-
-      Datagouvfr.Client.User.Mock
-      |> expect(:org_datasets, fn _conn -> {:ok, [%{"id" => user_org_dataset.datagouv_id}]} end)
+      |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
       conn =
         conn
         |> init_test_session(current_user: %{})
         |> get(page_path(conn, :espace_producteur))
 
-      body = html_response(conn, 200)
-
-      {:ok, doc} = Floki.parse_document(body)
+      {:ok, doc} = conn |> html_response(200) |> Floki.parse_document()
       assert Floki.find(doc, ".message--error") == []
-      assert doc |> Floki.find(".dataset-item strong") |> Enum.map(&Floki.text(&1)) == ["User Dataset", "Org Dataset"]
+      assert doc |> Floki.find(".dataset-item strong") |> Enum.map(&Floki.text(&1)) == [datagouv_title]
     end
 
-    test "renders a degraded mode when data gouv returns error", %{conn: conn} do
-      with_mock Sentry, capture_message: fn _ -> nil end do
-        with_mock Dataset,
-          user_datasets: fn _ -> {:error, "BAD"} end,
-          user_org_datasets: fn _ -> {:error, "SOMETHING"} end do
-          conn =
-            conn
-            |> init_test_session(current_user: %{})
-            |> get(page_path(conn, :espace_producteur))
+    test "with an OAuth2 error", %{conn: conn} do
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, fn %Plug.Conn{} -> {:error, "its broken"} end)
 
-          body = html_response(conn, 200)
+      conn =
+        conn
+        |> init_test_session(current_user: %{})
+        |> get(page_path(conn, :espace_producteur))
 
-          {:ok, doc} = Floki.parse_document(body)
-          assert doc |> Floki.find(".dataset-item") |> length == 0
+      {:ok, doc} = conn |> html_response(200) |> Floki.parse_document()
+      assert doc |> Floki.find(".dataset-item") |> length == 0
 
-          assert doc |> Floki.find(".message--error") |> Floki.text() ==
-                   "Une erreur a eu lieu lors de la récupération de vos ressources"
-        end
-
-        history = Sentry |> call_history |> Enum.map(&elem(&1, 1))
-
-        # we want to be notified
-        assert history == [
-                 {Sentry, :capture_message, [~s("BAD")]},
-                 {Sentry, :capture_message, [~s("SOMETHING")]}
-               ]
-      end
+      assert doc |> Floki.find(".message--error") |> Floki.text() ==
+               "Une erreur a eu lieu lors de la récupération de vos ressources"
     end
   end
 
