@@ -131,7 +131,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   end
 
   def uploads_are_valid(%{gtfs: %{entries: gtfs}}) do
-    gtfs |> Enum.count() == 2 and gtfs |> Enum.all?(& &1.valid?)
+    gtfs |> Enum.count() == 2 and gtfs |> Enum.all?(&(&1.valid? && &1.done?))
   end
 
   defp error_to_string(:too_large), do: "File is too large, must be <#{@max_file_size_mb}MB"
