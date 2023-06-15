@@ -17,7 +17,7 @@ defmodule Transport.Jobs.DatasetsClimateResilienceBillNotLOLicenceJob do
       Application.get_env(:transport, :contact_email),
       Application.get_env(:transport, :bizdev_email),
       Application.get_env(:transport, :contact_email),
-      "Jeux de données article 122 avec licence inapproprié",
+      "Jeux de données article 122 avec licence inappropriée",
       "",
       Phoenix.View.render_to_string(
         TransportWeb.EmailView,

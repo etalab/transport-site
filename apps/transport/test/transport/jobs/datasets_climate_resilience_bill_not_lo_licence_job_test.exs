@@ -27,7 +27,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetsClimateResilienceBillNotLOLicenc
                              "contact@transport.beta.gouv.fr",
                              "deploiement@transport.beta.gouv.fr",
                              "contact@transport.beta.gouv.fr",
-                             "Jeux de données article 122 avec licence inapproprié",
+                             "Jeux de données article 122 avec licence inappropriée",
                              "",
                              html_content ->
       assert html_content =~ ~s(<a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a>)
