@@ -402,9 +402,9 @@ msgid "[stops.txt] Wheelchair_boarding information added for stop_id %{stop_id},
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Job is running…"
+msgid "Shapes present in the GTFS have been ignored, some rules are not enforced."
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Shapes present in the GTFS have been ignored, some rules are not enforced."
+msgid "analyzing found differences..."
 msgstr ""
