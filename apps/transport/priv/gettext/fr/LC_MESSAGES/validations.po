@@ -402,10 +402,6 @@ msgid "[stops.txt] Wheelchair_boarding information added for stop_id %{stop_id},
 msgstr "[stops.txt] Une information d'accessibilité wheelchair_boarding a été ajouté pour le stop_id %{stop_id}, valeur initiale : \"%{initial_wheelchair_boarding}\", nouvelle valeur : \"%{new_wheelchair_boarding}\""
 
 #, elixir-autogen, elixir-format
-msgid "Job is running…"
-msgstr "Comparaison en cours…"
-
-#, elixir-autogen, elixir-format
 msgid "Shapes present in the GTFS have been ignored, some rules are not enforced."
 msgstr "Les shapes présentes dans le GTFS ont été ignorées, certaines règles de validation n'ont pas été vérifiées."
 
