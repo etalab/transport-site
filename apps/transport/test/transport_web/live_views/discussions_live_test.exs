@@ -37,7 +37,7 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
     # in case of request failure, the function returns an empty list.
     Datagouvfr.Client.Discussions.Mock |> expect(:get, 1, fn ^datagouv_id -> [] end)
 
-    assert {:ok, _view, _html} =
+    assert {:ok, view, _html} =
              live_isolated(conn, TransportWeb.DiscussionsLive,
                session: %{
                  "dataset_datagouv_id" => datagouv_id,
@@ -46,6 +46,8 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
                  "locale" => "fr"
                }
              )
+    # we render the view to make sure the async call to data.gouv is done
+    assert render(view) =~ ""
   end
 
   test "the counter reacts to broadcasted messages", %{conn: conn} do
