@@ -46,6 +46,7 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
                  "locale" => "fr"
                }
              )
+
     # we render the view to make sure the async call to data.gouv is done
     assert render(view) =~ ""
   end
