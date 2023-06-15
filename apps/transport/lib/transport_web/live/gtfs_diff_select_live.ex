@@ -64,7 +64,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
       |> Transport.Jobs.GTFSDiff.new()
       |> Oban.insert!()
 
-    Process.send_after(self(), :timeout, Transport.Jobs.GTFSDiff.timeout())
+    Process.send_after(self(), :timeout, Transport.Jobs.GTFSDiff.job_timeout_sec() * 1_000)
 
     socket = socket |> assign(:job_id, job_id) |> assign(:diff_logs, ["job started"])
     {:noreply, socket}
