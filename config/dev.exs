@@ -1,5 +1,10 @@
 import Config
 
+config :opentelemetry, :processors,
+    otel_batch_processor: %{
+      exporter: {:otel_exporter_stdout, []}
+    }
+
 # For local work, it is usually more convenient to copy-paste
 config :unlock,
   config_fetcher: Unlock.Config.Disk,
