@@ -2,7 +2,7 @@
   <div class="container">
     <div class="existing">
       <h1><%= dgettext("resource", "Select a dataset to update it.") %></h1>
-      <%= for dataset <- @datasets ++ @org_datasets do %>
+      <%= for dataset <- @datasets do %>
         <div class="panel">
           <h2><%= dataset.datagouv_title %></h2>
           <%= link(

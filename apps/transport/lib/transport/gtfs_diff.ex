@@ -281,22 +281,25 @@ defmodule Transport.GTFSDiff do
     |> Enum.reject(&(&1 == []))
   end
 
-  def row_diff(unzip_1, unzip_2) do
+  def row_diff(unzip_1, unzip_2, notify_func) do
     file_names_2 = unzip_2 |> Unzip.list_entries() |> Enum.map(&Map.get(&1, :file_name))
 
     file_names_2
     |> Enum.flat_map(fn file_name ->
-      Logger.info("computing diff for #{file_name}")
+      log_msg = "computing diff for #{file_name}"
+      Logger.info(log_msg)
+      unless is_nil(notify_func), do: notify_func.(log_msg)
+
       file_1 = parse_from_unzip(unzip_1, file_name)
       file_2 = parse_from_unzip(unzip_2, file_name)
       diff_file(file_name, file_1, file_2)
     end)
   end
 
-  def diff(unzip_1, unzip_2) do
+  def diff(unzip_1, unzip_2, notify_func \\ nil) do
     file_diff = file_diff(unzip_1, unzip_2)
     column_diff = column_diff(unzip_1, unzip_2)
-    row_diff = row_diff(unzip_1, unzip_2)
+    row_diff = row_diff(unzip_1, unzip_2, notify_func)
 
     diff = file_diff ++ column_diff ++ row_diff
     id_range = 0..(Enum.count(diff) - 1)

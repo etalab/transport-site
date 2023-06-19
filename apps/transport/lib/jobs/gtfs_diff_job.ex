@@ -14,9 +14,19 @@ defmodule Transport.Jobs.GTFSDiff do
           }
         } = job
       ) do
+    Oban.Notifier.notify(Oban, :gossip, %{started: job.id})
+
     {:ok, unzip_1} = Transport.Unzip.S3.get_unzip(gtfs_file_name_1, bucket)
     {:ok, unzip_2} = Transport.Unzip.S3.get_unzip(gtfs_file_name_2, bucket)
-    diff = Transport.GTFSDiff.diff(unzip_1, unzip_2)
+
+    notify = fn log_msg ->
+      Oban.Notifier.notify(Oban, :gossip, %{
+        running: job.id,
+        log: log_msg
+      })
+    end
+
+    diff = Transport.GTFSDiff.diff(unzip_1, unzip_2, notify)
 
     diff_file_name = "gtfs-diff-#{DateTime.utc_now() |> DateTime.to_unix()}.csv"
 
@@ -35,4 +45,10 @@ defmodule Transport.Jobs.GTFSDiff do
     Transport.S3.delete_object!(:gtfs_diff, gtfs_file_name_2)
     :ok
   end
+
+  @impl Oban.Worker
+  def timeout(_job), do: :timer.seconds(job_timeout_sec())
+
+  # 5 minutes timeout
+  def job_timeout_sec, do: 300
 end
