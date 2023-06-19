@@ -3,8 +3,6 @@ defmodule Datagouvfr.Client.User.Wrapper do
   A wrapper for the User module, useful for testing purposes
   """
   @callback me(Plug.Conn.t()) :: {:error, map()} | {:ok, map()}
-  @callback datasets(Plug.Conn.t()) :: {:error, map()} | {:ok, list()}
-  @callback org_datasets(Plug.Conn.t()) :: {:error, map()} | {:ok, list()}
 
   def impl, do: Application.get_env(:datagouvfr, :user_impl)
 end
@@ -26,12 +24,6 @@ defmodule Datagouvfr.Client.User.Dummy do
          "email" => "email@example.fr",
          "organizations" => [%{"slug" => "equipe-transport-data-gouv-fr", "name" => "PAN"}]
        }}
-
-  @impl Datagouvfr.Client.User.Wrapper
-  def datasets(_), do: {:ok, []}
-
-  @impl Datagouvfr.Client.User.Wrapper
-  def org_datasets(_), do: {:ok, []}
 end
 
 defmodule Datagouvfr.Client.User do
@@ -51,16 +43,6 @@ defmodule Datagouvfr.Client.User do
   @spec me(Plug.Conn.t(), [binary()]) :: {:error, OAuth2.Error.t()} | {:ok, OAuth2.Response.t()}
   def me(%Plug.Conn{} = conn, exclude_fields \\ []) do
     Client.get(conn, "me", [{"x-fields", xfields(exclude_fields)}])
-  end
-
-  @spec datasets(Plug.Conn.t()) :: {:error, OAuth2.Error.t()} | {:ok, OAuth2.Response.t()}
-  def datasets(%Plug.Conn{} = conn) do
-    Client.get(conn, Path.join(["me", "datasets"]))
-  end
-
-  @spec org_datasets(Plug.Conn.t()) :: {:error, OAuth2.Error.t()} | {:ok, OAuth2.Response.t()}
-  def org_datasets(%Plug.Conn{} = conn) do
-    Client.get(conn, Path.join(["me", "org_datasets"]))
   end
 
   # private functions

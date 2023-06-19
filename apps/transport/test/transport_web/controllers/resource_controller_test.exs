@@ -68,9 +68,10 @@ defmodule TransportWeb.ResourceControllerTest do
   end
 
   test "I can see my datasets", %{conn: conn} do
-    dataset = insert(:dataset, datagouv_title: Ecto.UUID.generate())
-    Datagouvfr.Client.User.Mock |> expect(:datasets, fn _conn -> {:ok, []} end)
-    Datagouvfr.Client.User.Mock |> expect(:org_datasets, fn _conn -> {:ok, [%{"id" => dataset.datagouv_id}]} end)
+    %DB.Dataset{datagouv_title: datagouv_title, organization_id: organization_id} = insert(:dataset)
+
+    Datagouvfr.Client.User.Mock
+    |> expect(:me, fn _conn -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
     html =
       conn
@@ -78,7 +79,7 @@ defmodule TransportWeb.ResourceControllerTest do
       |> get(resource_path(conn, :datasets_list))
       |> html_response(200)
 
-    assert html =~ dataset.datagouv_title
+    assert html =~ datagouv_title
   end
 
   test "Non existing resource raises a Ecto.NoResultsError (interpreted as a 404 thanks to phoenix_ecto)", %{conn: conn} do
@@ -614,9 +615,8 @@ defmodule TransportWeb.ResourceControllerTest do
         period: today
       )
 
-      Datagouvfr.Client.User.Mock |> expect(:datasets, fn _conn -> {:ok, []} end)
-
-      Datagouvfr.Client.User.Mock |> expect(:org_datasets, fn _conn -> {:ok, [%{"id" => dataset.datagouv_id}]} end)
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, fn _conn -> {:ok, %{"organizations" => [%{"id" => dataset.organization_id}]}} end)
 
       html =
         conn

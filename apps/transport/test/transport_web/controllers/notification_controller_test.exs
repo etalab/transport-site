@@ -17,7 +17,7 @@ defmodule TransportWeb.NotificationControllerTest do
     end
 
     test "displays existing subscriptions", %{conn: conn} do
-      %DB.Dataset{id: dataset_id} = insert(:dataset, custom_title: "Mon super JDD")
+      %DB.Dataset{id: dataset_id, organization_id: organization_id} = insert(:dataset, custom_title: "Mon super JDD")
       %DB.Contact{id: contact_id} = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
 
       insert(:notification_subscription,
@@ -27,9 +27,8 @@ defmodule TransportWeb.NotificationControllerTest do
         source: :user
       )
 
-      Datagouvfr.Client.User.Mock |> expect(:datasets, fn _conn -> {:ok, []} end)
-
-      Datagouvfr.Client.User.Mock |> expect(:org_datasets, fn _conn -> {:ok, []} end)
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
       conn = conn |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
       content = conn |> get(notification_path(conn, :index)) |> html_response(200)
