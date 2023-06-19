@@ -127,7 +127,13 @@ defmodule Transport.Mixfile do
       {:telemetry_poller, "~> 1.0"},
       {:telemetry_metrics, "~> 0.4"},
       {:luhn, "~> 0.3.0"},
-      {:ex_phone_number, "~> 0.3"}
+      {:ex_phone_number, "~> 0.3"},
+      # monitoring
+      {:opentelemetry, "~> 1.3"},
+      {:opentelemetry_api, "~> 1.2"},
+      {:opentelemetry_exporter, "~> 1.4"},
+      {:opentelemetry_phoenix, "~> 1.1"},
+      {:opentelemetry_cowboy, "~> 0.2"}
     ]
   end
 end
