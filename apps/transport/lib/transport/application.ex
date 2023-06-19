@@ -26,6 +26,9 @@ defmodule Transport.Application do
 
     run_realtime_poller = webserver_enabled?() && Mix.env() != :test
 
+    :opentelemetry_cowboy.setup()
+    OpentelemetryPhoenix.setup(adapter: :cowboy2)
+
     children =
       [
         DB.Repo,
