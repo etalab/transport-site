@@ -19,6 +19,14 @@
   <%= if admin?(assigns[:current_user]) do %>
     <i class="fa fa-external-link-alt"></i>
     <%= link("backoffice", to: backoffice_page_path(@conn, :edit, @dataset.id)) %>
+    <div class="light-grey pt-6">
+      <%= if not is_nil(@freshness_score) do %>
+        Score fraicheur : <%= @freshness_score.score %><br />
+        <%= @freshness_score.timestamp |> Shared.DateTimeDisplay.format_datetime_to_paris(locale) %>
+      <% else %>
+        Pas de score fraicheur
+      <% end %>
+    </div>
   <% end %>
 </div>
 <div class="dataset-page">
