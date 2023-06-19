@@ -8,6 +8,18 @@ require Logger
 # and secrets from environment variables or elsewhere. Do not define
 # any compile-time configuration in here, as it won't be applied.
 
+config :opentelemetry_exporter,
+  otlp_protocol: :http_protobuf,
+  otlp_endpoint: "https://api.honeycomb.io:443",
+  otlp_headers: [
+    {"x-honeycomb-team", "XYZ"},
+    {"x-honeycomb-dataset", "XYZ"}
+  ]
+
+config :opentelemetry,
+  span_processor: :batch,
+  exporter: :otlp
+
 {worker, webserver} =
   case config_env() do
     :prod ->
