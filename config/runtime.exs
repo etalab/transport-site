@@ -8,6 +8,7 @@ require Logger
 # and secrets from environment variables or elsewhere. Do not define
 # any compile-time configuration in here, as it won't be applied.
 
+# TODO: configure only when we want it, with ENV vars
 config :opentelemetry_exporter,
   otlp_protocol: :http_protobuf,
   otlp_endpoint: "https://api.honeycomb.io:443",
