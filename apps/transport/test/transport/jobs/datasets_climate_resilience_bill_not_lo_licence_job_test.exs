@@ -45,4 +45,10 @@ defmodule Transport.Test.Transport.Jobs.DatasetsClimateResilienceBillNotLOLicenc
              %DB.Dataset{custom_tags: ["foo", "loi-climat-resilience"], licence: "fr-lo"}
            ] = DB.Repo.reload!([dataset, lo_dataset])
   end
+
+  test "does not send an email if there are no datasets to handle" do
+    insert(:dataset, is_active: true, custom_tags: ["loi-climat-resilience"], licence: "fr-lo")
+    assert :ok == perform_job(DatasetsClimateResilienceBillNotLOLicenceJob, %{})
+    # No e-mails have been sent
+  end
 end
