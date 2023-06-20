@@ -999,4 +999,16 @@ defmodule DB.Dataset do
   end
 
   def has_licence_ouverte?(%__MODULE__{licence: licence}), do: licence in @licences_ouvertes
+
+  @doc """
+  iex> display_climate_resilience_bill_badge?(%__MODULE__{custom_tags: ["licence-osm"]})
+  false
+  iex> display_climate_resilience_bill_badge?(%__MODULE__{custom_tags: nil})
+  false
+  iex> display_climate_resilience_bill_badge?(%__MODULE__{custom_tags: ["loi-climat-resilience", "foo"]})
+  true
+  """
+  def climate_resilience_bill?(%__MODULE__{custom_tags: custom_tags}) do
+    "loi-climat-resilience" in (custom_tags || [])
+  end
 end
