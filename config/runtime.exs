@@ -223,7 +223,7 @@ end
 # NOTE: for dev work, use dev.secret.exs instead
 if config_env() == :prod do
   # staging vs production
-  app_signal_env = config_env()
+  app_signal_env = app_env
 
   # inspired from the installer and
   # https://docs.appsignal.com/elixir/configuration.html
