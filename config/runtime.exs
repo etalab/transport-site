@@ -219,3 +219,22 @@ if config_env() == :prod do
       }
   end
 end
+
+# NOTE: for dev work, use dev.secret.exs instead
+if config_env() == :prod do
+  # staging vs production
+  app_signal_env = config_env()
+
+  # inspired from the installer and
+  # https://docs.appsignal.com/elixir/configuration.html
+
+  config :appsignal, :config,
+    # https://docs.appsignal.com/elixir/integrations/ecto.html
+    otp_app: :transport,
+    # NOTE: not directly using APPSIGNAL_* variables to let us decide programmatically,
+    # because APPSIGNAL_* variables take precedence
+    name: System.get_env("CUSTOM_APPSIGNAL_APP_NAME", "transport.data.gouv.fr"),
+    push_api_key: System.get_env("CUSTOM_APPSIGNAL_PUSH_API_KEY"),
+    env: app_signal_env,
+    active: true
+end
