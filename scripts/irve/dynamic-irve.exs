@@ -34,7 +34,11 @@ resources =
     dataset["resources"]
     |> Enum.filter(fn r -> r["schema"]["name"] == "etalab/schema-irve-dynamique" end)
   end)
-  |> Enum.reject(&(&1["url"] =~ ~r/donneesdynamiquesIRVE.fr/i))
+  |> Enum.reject(fn r ->
+    # https://www.data.gouv.fr/en/datasets/exemple-jeu-de-donnees-points-de-recharge-de-xxxxxx-donnees-statiques-et-dynamiques/
+    # a fake dataset with non existent url donnesdynamiquesIRVE.fr
+    r["id"] == "5ef6ddff-2f98-4300-9e6e-1b47ea4ab779"
+  end)
 
 # IO.inspect resources |> Enum.map &(&1["url"])
 
