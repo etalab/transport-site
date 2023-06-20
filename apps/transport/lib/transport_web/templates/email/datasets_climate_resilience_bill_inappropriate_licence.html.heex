@@ -1,0 +1,15 @@
+<p>Bonjour,</p>
+
+<p>
+  Les jeux de données suivants sont soumis à une obligation de réutilisation en vertu de l'article 122 de la loi climat et résilience mais ne sont plus publiés avec une licence ouverte.
+</p>
+
+<ul>
+  <%= for dataset <- @datasets do %>
+    <li><%= raw(link_for_dataset(dataset, :heex)) %></li>
+  <% end %>
+</ul>
+
+<p>
+  Le tag "loi climat et résilience" a été retiré automatiquement, toutefois il faudrait discuter avec les producteurs concernés.
+</p>
