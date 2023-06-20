@@ -1,3 +1,6 @@
+# exploratory script to compute start date & end date of the latest resource history
+# of each available GTFS resource, & dump them as a CSV file.
+
 import Ecto.Query
 
 content =
