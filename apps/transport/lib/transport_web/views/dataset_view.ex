@@ -528,21 +528,6 @@ defmodule TransportWeb.DatasetView do
 
   def display_odbl_osm_conditions?(%Dataset{}), do: false
 
-  @doc """
-  Should we display the climate and resilience bill/article 122 badge for a dataset?
-
-
-  iex> display_climate_resilience_bill_badge?(%Dataset{custom_tags: ["licence-osm"]})
-  false
-  iex> display_climate_resilience_bill_badge?(%Dataset{custom_tags: nil})
-  false
-  iex> display_climate_resilience_bill_badge?(%Dataset{custom_tags: ["loi-climat-resilience", "foo"]})
-  true
-  """
-  def display_climate_resilience_bill_badge?(%Dataset{custom_tags: custom_tags}) do
-    "loi-climat-resilience" in (custom_tags || [])
-  end
-
   @spec related_gtfs_resource(Resource.t()) :: DB.ResourceRelated.t() | nil
   def related_gtfs_resource(%Resource{format: "gtfs-rt", resources_related: resources_related}) do
     Enum.find(resources_related, fn %DB.ResourceRelated{reason: reason} -> reason == :gtfs_rt_gtfs end)
