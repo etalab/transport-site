@@ -25,6 +25,16 @@ defmodule GBFS.RedirectControllerTest do
     end)
   end
 
+  test "redirects for Rouen", %{conn: conn} do
+    ~w(gbfs system_information station_information station_status)a
+    |> Enum.each(fn path ->
+      conn = conn |> get("/gbfs/rouen/#{path}.json")
+
+      expected = "https://gbfs.urbansharing.com/lovelolibreservice.fr/#{path}.json"
+
+      assert redirected_to(conn, 301) == expected
+    end)
+  end
   defp test_klervi_for_city(conn, city) do
     klervi_base = "https://#{city}-fr-smoove.klervi.net/gbfs/"
 
