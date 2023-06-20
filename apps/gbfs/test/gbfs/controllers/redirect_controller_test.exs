@@ -35,6 +35,7 @@ defmodule GBFS.RedirectControllerTest do
       assert redirected_to(conn, 301) == expected
     end)
   end
+
   defp test_klervi_for_city(conn, city) do
     klervi_base = "https://#{city}-fr-smoove.klervi.net/gbfs/"
 
