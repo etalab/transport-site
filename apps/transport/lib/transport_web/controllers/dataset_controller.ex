@@ -42,12 +42,6 @@ defmodule TransportWeb.DatasetController do
   def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do
     with {:ok, dataset} <- Dataset.get_by_slug(slug_or_id),
          {:ok, territory} <- Dataset.get_territory(dataset) do
-      # in case data.gouv datagouv is down, datasets pages should still be available on our site
-      reuses_assign =
-        case Datagouvfr.Client.Reuses.Wrapper.get(dataset) do
-          {:ok, reuses} -> [reuses: reuses, fetch_reuses_error: false]
-          _ -> [reuses: %{}, fetch_reuses_error: true]
-        end
 
       conn
       |> assign(:dataset, dataset)
@@ -55,7 +49,6 @@ defmodule TransportWeb.DatasetController do
       |> assign(:territory, territory)
       |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
       |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.datagouv_id))
-      |> merge_assigns(reuses_assign)
       |> assign(:other_datasets, Dataset.get_other_datasets(dataset))
       |> assign(:resources_infos, resources_infos(dataset))
       |> assign(:history_resources, Transport.History.Fetcher.history_resources(dataset, max_nb_history_resources()))
