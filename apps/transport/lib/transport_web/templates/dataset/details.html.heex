@@ -170,12 +170,7 @@
       <%= render("_community_resources.html", dataset: @dataset) %>
     </section>
 
-    <%= live_render(@conn, TransportWeb.ReusesLive,
-      session: %{
-        "dataset_datagouv_id" => @dataset.datagouv_id,
-        "locale" => locale
-      }
-    ) %>
+    <%= live_render(@conn, TransportWeb.ReusesLive, session: %{"dataset_datagouv_id" => @dataset.datagouv_id}) %>
 
     <%= unless Enum.empty?(@notifications_sent) do %>
       <%= render("_notifications_sent.html", notifications_sent: @notifications_sent, locale: locale, conn: @conn) %>
@@ -205,8 +200,7 @@
           <%= live_render(@conn, TransportWeb.DiscussionsLive,
             session: %{
               "current_user" => @current_user,
-              "dataset" => @dataset,
-              "locale" => locale
+              "dataset" => @dataset
             }
           ) %>
 
