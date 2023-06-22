@@ -44,7 +44,7 @@ defmodule Transport.TransportWeb.ReusesLiveTest do
              )
 
     # we render the view to make sure the async call to data.gouv is done
-    assert render(view) =~ ""
+    assert render(view) =~ "réutilisations sont temporairement indisponibles"
   end
 
   test "the counter reacts to broadcasted messages", %{conn: conn} do

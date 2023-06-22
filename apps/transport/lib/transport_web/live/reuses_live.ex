@@ -8,32 +8,34 @@ defmodule TransportWeb.ReusesLive do
 
   def render(assigns) do
     ~H"""
-    <%= unless is_nil(@reuses) or @reuses == [] do %>
-      <section class="white pt-48" id="dataset-reuses">
-        <h2><%= dgettext("page-dataset-details", "Reuses") %></h2>
-        <%= if @fetch_reuses_error do %>
-          <div class="panel reuses_not_available">
-            🔌 <%= dgettext("page-dataset-details", "Reuses are temporarily unavailable") %>
-          </div>
-        <% end %>
-        <div class="reuses">
-          <%= for reuse <- @reuses do %>
-            <div class="panel reuse">
-              <img src={reuse["image"]} alt={reuse["title"]} />
-              <div class="reuse__links">
-                <.link href={reuse["url"]}><%= dgettext("page-dataset-details", "Website") %></.link>
-                <.link href={reuse["page"]}><%= dgettext("page-dataset-details", "See on data.gouv.fr") %></.link>
-              </div>
-              <div class="reuse__details">
-                <div>
-                  <h3><%= reuse["title"] %></h3>
-                  <p><%= MarkdownHandler.markdown_to_safe_html!(reuse["description"]) %></p>
-                </div>
-              </div>
+    <%= unless @loading do %>
+      <%= unless @reuses == [] and !@fetch_reuses_error do %>
+        <section class="white pt-48" id="dataset-reuses">
+          <h2><%= dgettext("page-dataset-details", "Reuses") %></h2>
+          <%= if @fetch_reuses_error do %>
+            <div class="panel reuses_not_available">
+              🔌 <%= dgettext("page-dataset-details", "Reuses are temporarily unavailable") %>
             </div>
           <% end %>
-        </div>
-      </section>
+          <div class="reuses">
+            <%= for reuse <- @reuses do %>
+              <div class="panel reuse">
+                <img src={reuse["image"]} alt={reuse["title"]} />
+                <div class="reuse__links">
+                  <.link href={reuse["url"]}><%= dgettext("page-dataset-details", "Website") %></.link>
+                  <.link href={reuse["page"]}><%= dgettext("page-dataset-details", "See on data.gouv.fr") %></.link>
+                </div>
+                <div class="reuse__details">
+                  <div>
+                    <h3><%= reuse["title"] %></h3>
+                    <p><%= MarkdownHandler.markdown_to_safe_html!(reuse["description"]) %></p>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </section>
+      <% end %>
     <% end %>
     """
   end
@@ -51,6 +53,7 @@ defmodule TransportWeb.ReusesLive do
       |> assign(:dataset_datagouv_id, dataset_datagouv_id)
       |> assign(:reuses, [])
       |> assign(:fetch_reuses_error, false)
+      |> assign(:loading, true)
       |> assign(:locale, locale)
 
     # async reuses loading
@@ -77,6 +80,7 @@ defmodule TransportWeb.ReusesLive do
       socket
       |> assign(:reuses, reuses)
       |> assign(:fetch_reuses_error, fetch_reuses_error)
+      |> assign(:loading, false)
 
     {:noreply, socket}
   end
