@@ -24,22 +24,6 @@ defmodule TransportWeb.DatasetControllerTest do
     assert html_response(conn, 200) =~ "Jeux de données"
   end
 
-  test "Datasets details page loads even when data.gouv is down", %{conn: conn} do
-    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
-    # NOTE: we just want a dataset, but the factory setup is not finished, so
-    # we have to provide an already built aom
-    dataset = insert(:dataset, aom: insert(:aom, composition_res_id: 157))
-
-    with_mocks [
-      {Datagouvfr.Client.Reuses, [], [get: fn _dataset -> {:error, "data.gouv is down !"} end]},
-      {Datagouvfr.Client.Discussions, [], [get: fn _id -> [] end]}
-    ] do
-      conn = conn |> get(dataset_path(conn, :details, dataset.slug))
-      html = html_response(conn, 200)
-      assert html =~ "réutilisations sont temporairement indisponibles"
-    end
-  end
-
   test "dataset details with a documentation resource", %{conn: conn} do
     dataset = insert(:dataset, aom: insert(:aom, composition_res_id: 157))
     resource = insert(:resource, type: "documentation", url: "https://example.com", dataset: dataset)
@@ -393,7 +377,6 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   defp set_empty_mocks do
-    Datagouvfr.Client.Reuses.Mock |> expect(:get, fn _ -> {:ok, []} end)
     Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
   end
 end

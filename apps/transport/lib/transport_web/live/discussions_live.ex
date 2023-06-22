@@ -40,6 +40,8 @@ defmodule TransportWeb.DiscussionsLive do
       |> assign(:dataset, dataset)
       |> assign(:locale, locale)
 
+    Gettext.put_locale(locale)
+
     # async comments loading
     send(self(), {:fetch_data_gouv_discussions, dataset.datagouv_id})
 
