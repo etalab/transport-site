@@ -54,7 +54,8 @@ defmodule TransportWeb.ReusesLive do
       |> assign(:reuses, [])
       |> assign(:fetch_reuses_error, false)
       |> assign(:loading, true)
-      |> assign(:locale, locale)
+
+    Gettext.put_locale(locale)
 
     # async reuses loading
     send(self(), {:fetch_data_gouv_reuses, dataset_datagouv_id})
@@ -98,7 +99,9 @@ defmodule TransportWeb.CountReusesLive do
     """
   end
 
-  def mount(_, %{"dataset_datagouv_id" => dataset_datagouv_id}, socket) do
+  def mount(_, %{"dataset_datagouv_id" => dataset_datagouv_id, "locale" => locale}, socket) do
+    Gettext.put_locale(locale)
+
     if connected?(socket) do
       # messages are sent by TransportWeb.ReusesLive
       Phoenix.PubSub.subscribe(TransportWeb.PubSub, "dataset_reuses_count:#{dataset_datagouv_id}")
