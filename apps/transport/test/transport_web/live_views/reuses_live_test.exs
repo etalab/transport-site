@@ -51,7 +51,8 @@ defmodule Transport.TransportWeb.ReusesLiveTest do
     {:ok, view, _html} =
       live_isolated(conn, TransportWeb.CountReusesLive,
         session: %{
-          "dataset_datagouv_id" => datagouv_id = Ecto.UUID.generate()
+          "dataset_datagouv_id" => datagouv_id = Ecto.UUID.generate(),
+          "locale" => "fr"
         }
       )
 
