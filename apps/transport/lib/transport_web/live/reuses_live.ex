@@ -64,7 +64,7 @@ defmodule TransportWeb.ReusesLive do
   end
 
   def handle_info({:fetch_data_gouv_reuses, dataset_datagouv_id}, socket) do
-    # in case data.gouv datagouv is down, datasets pages should still be available on our site
+    # in case data.gouv api is down, datasets pages should still be available on our site
     %{reuses: reuses, fetch_reuses_error: fetch_reuses_error} =
       case Datagouvfr.Client.Reuses.Wrapper.get(%{datagouv_id: dataset_datagouv_id}) do
         {:ok, reuses} -> %{reuses: reuses, fetch_reuses_error: false}
