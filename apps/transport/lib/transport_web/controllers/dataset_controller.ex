@@ -42,7 +42,6 @@ defmodule TransportWeb.DatasetController do
   def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do
     with {:ok, dataset} <- Dataset.get_by_slug(slug_or_id),
          {:ok, territory} <- Dataset.get_territory(dataset) do
-
       conn
       |> assign(:dataset, dataset)
       |> assign(:resources_related_files, DB.Dataset.get_resources_related_files(dataset))
