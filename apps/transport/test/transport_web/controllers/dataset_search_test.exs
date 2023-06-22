@@ -190,6 +190,26 @@ defmodule TransportWeb.DatasetSearchControllerTest do
              %{"type" => "public-transit", "loi-climat-resilience" => "true"} |> Dataset.list_datasets() |> Repo.all()
   end
 
+  test "searching for datasets in an AOM" do
+    aom = insert(:aom)
+    aom2 = insert(:aom)
+    %Dataset{id: dataset_id, aom_id: aom_id} = insert(:dataset, legal_owners_aom: [aom, aom2], is_active: true)
+
+    aom_ids = [aom.id, aom2.id, aom_id]
+    assert aom_ids |> MapSet.new() |> Enum.count() == Enum.count(aom_ids)
+
+    aom_ids
+    |> Enum.each(fn aom_id ->
+      assert [%Dataset{id: ^dataset_id}] = %{"aom" => to_string(aom_id)} |> Dataset.list_datasets() |> Repo.all()
+    end)
+
+    # Search order: datasets associated to an AOM are displayed first
+    %Dataset{id: dataset2_id} = insert(:dataset, aom: aom2)
+
+    assert [%Dataset{id: ^dataset2_id}, %Dataset{id: ^dataset_id}] =
+             %{"aom" => to_string(aom2.id)} |> Dataset.list_datasets() |> Repo.all()
+  end
+
   test "a dataset labelled as base nationale published by us is first without filters" do
     %{id: base_nationale_dataset_id} =
       insert(:dataset,

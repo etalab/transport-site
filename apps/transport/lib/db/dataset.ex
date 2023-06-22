@@ -76,10 +76,6 @@ defmodule DB.Dataset do
     # we ask in the backoffice for a name to display
     # (used in the long title of a dataset and to find the associated datasets)
     field(:associated_territory_name, :string)
-
-    # A dataset can be "parent dataset" of many AOMs
-    has_many(:child_aom, AOM, foreign_key: :parent_dataset_id)
-    # ⬆️⬆️⬆️
   end
 
   def base_query, do: from(d in DB.Dataset, as: :dataset, where: d.is_active)
@@ -278,23 +274,22 @@ defmodule DB.Dataset do
 
   @spec filter_by_aom(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_aom(query, %{"aom" => aom_id}) do
-    case parent_dataset(aom_id) do
-      nil -> where(query, [d], d.aom_id == ^aom_id)
-      parent_dataset_id -> where(query, [d], d.aom_id == ^aom_id or d.id == ^parent_dataset_id)
-    end
+    aom_id =
+      case Integer.parse(aom_id) do
+        {value, ""} -> value
+        _ -> nil
+      end
+
+    datasets_from_legal_owners =
+      from(a in fragment("dataset_aom_legal_owner"),
+        where: a.aom_id == ^aom_id,
+        select: a.dataset_id
+      )
+
+    query |> where([dataset: d], d.aom_id == ^aom_id or d.id in subquery(datasets_from_legal_owners))
   end
 
   defp filter_by_aom(query, _), do: query
-
-  @spec parent_dataset(binary()) :: binary() | nil
-  defp parent_dataset(aom_id) do
-    aom =
-      AOM
-      |> where([a], a.id == ^aom_id)
-      |> Repo.one()
-
-    aom.parent_dataset_id
-  end
 
   @spec filter_by_commune(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_commune(query, %{"insee_commune" => commune_insee}) do
@@ -396,6 +391,20 @@ defmodule DB.Dataset do
       {region_id, ""} ->
         order_by(datasets,
           desc: fragment("case when region_id = ? then 1 else 0 end", ^region_id),
+          desc: fragment("coalesce(population, 0)"),
+          asc: :custom_title
+        )
+
+      :error ->
+        datasets
+    end
+  end
+
+  def order_datasets(datasets, %{"aom" => aom_id}) do
+    case Integer.parse(aom_id) do
+      {aom_id, ""} ->
+        order_by(datasets,
+          desc: fragment("case when aom_id = ? then 1 else 0 end", ^aom_id),
           desc: fragment("coalesce(population, 0)"),
           asc: :custom_title
         )

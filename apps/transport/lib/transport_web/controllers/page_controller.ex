@@ -146,11 +146,16 @@ defmodule TransportWeb.PageController do
   end
 
   defp aoms_with_dataset do
-    from(a in AOM,
-      join: d in Dataset,
-      on: a.id == d.aom_id or not is_nil(a.parent_dataset_id),
-      distinct: a.id
-    )
+    aoms_legal_owners =
+      from(a in fragment("dataset_aom_legal_owner"),
+        join: d in Dataset,
+        on: d.id == a.dataset_id and d.is_active,
+        select: a.aom_id
+      )
+
+    aoms_datasets = Dataset.base_query() |> where([dataset: d], not is_nil(d.aom_id)) |> select([dataset: d], d.aom_id)
+
+    from(a in AOM, where: a.id in subquery(union(aoms_legal_owners, ^aoms_datasets)))
   end
 
   defp count_aoms_with_dataset, do: Repo.aggregate(aoms_with_dataset(), :count, :id)

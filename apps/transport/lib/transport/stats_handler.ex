@@ -40,13 +40,22 @@ defmodule Transport.StatsHandler do
           select: %{
             population: a.population_totale,
             region_id: a.region_id,
-            nb_datasets: fragment("SELECT count(*) FROM dataset where aom_id = ? and is_active", a.id),
-            parent_dataset_id: a.parent_dataset_id
+            nb_datasets:
+              fragment(
+                """
+                select count(d.id)
+                from dataset d
+                left join dataset_aom_legal_owner a on a.dataset_id = d.id and a.aom_id = ?
+                where (d.aom_id = ? or a.dataset_id is not null) and d.is_active
+                """,
+                a.id,
+                a.id
+              )
           }
         )
       )
 
-    aoms_with_datasets = aoms |> Enum.filter(&(&1.nb_datasets > 0 || !is_nil(&1.parent_dataset_id)))
+    aoms_with_datasets = aoms |> Enum.filter(&(&1.nb_datasets > 0))
 
     regions = Repo.all(from(r in Region, where: r.nom != "National"))
 
@@ -201,13 +210,16 @@ defmodule Transport.StatsHandler do
       })
 
     AOM
-    |> join(:left, [aom], dataset in Dataset, on: dataset.id == aom.parent_dataset_id or dataset.aom_id == aom.id)
-    |> join(:left, [_, dataset], _r in assoc(dataset, :resources))
-    |> join(:left, [_, _, r], v in subquery(validation_infos), on: v.resource_id == r.id)
-    |> where([_a, _d, r, _v], r.format == "GTFS")
-    |> where([_a, _d, _r, v], v.end_date >= ^dt)
-    |> group_by([a, _d, _r, v], a.id)
-    |> select([a, d, r, v], %{
+    |> join(:left, [aom], legal_owner in fragment("dataset_aom_legal_owner"), on: aom.id == legal_owner.aom_id)
+    |> join(:left, [aom, legal_owner], dataset in Dataset,
+      on: dataset.id == legal_owner.dataset_id or dataset.aom_id == aom.id
+    )
+    |> join(:left, [_, _, dataset], _r in assoc(dataset, :resources))
+    |> join(:left, [_, _, _, r], v in subquery(validation_infos), on: v.resource_id == r.id)
+    |> where([_a, _l, _d, r, _v], r.format == "GTFS")
+    |> where([_a, _l, _d, _r, v], v.end_date >= ^dt)
+    |> group_by([a, _l, _d, _r, v], a.id)
+    |> select([a, l, d, r, v], %{
       aom: a.id,
       max_error: max(v.max_error)
     })

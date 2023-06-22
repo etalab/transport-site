@@ -109,8 +109,7 @@ defmodule TransportWeb.API.StatsController do
           "nom" => Map.get(aom, :nom, ""),
           "id" => aom.id,
           "forme_juridique" => Map.get(aom, :forme_juridique, ""),
-          "parent_dataset_slug" => Map.get(aom, :parent_dataset_slug, ""),
-          "parent_dataset_name" => Map.get(aom, :parent_dataset_name, ""),
+          "nb_other_datasets" => Map.get(aom, :nb_other_datasets, 0),
           "quality" => %{
             "expired_from" => %{
               # negative values are up to date datasets, we filter them
@@ -147,12 +146,55 @@ defmodule TransportWeb.API.StatsController do
     |> Enum.to_list()
   end
 
-  defmacro count_aom_format(aom, format) do
+  defmacro count_aom_types(aom_id, type, include_aggregates: true) do
     quote do
-      fragment("SELECT COUNT(format) FROM resource \
-      WHERE dataset_id in \
-      (SELECT id FROM dataset WHERE aom_id=? and is_active=TRUE) \
-      AND format = ? GROUP BY format", unquote(aom), unquote(format))
+      fragment(
+        """
+        select count(d.id)
+        from dataset d
+        left join dataset_aom_legal_owner a on a.dataset_id = d.id and a.aom_id = ?
+        where (d.aom_id = ? or a.dataset_id is not null) and d.is_active and d.type = ?
+        """,
+        unquote(aom_id),
+        unquote(aom_id),
+        unquote(type)
+      )
+    end
+  end
+
+  defmacro count_aom_types(aom_id, type) do
+    quote do
+      fragment(
+        """
+        select count(d.id)
+        from dataset d
+        where d.aom_id = ? and d.is_active and d.type = ?
+        """,
+        unquote(aom_id),
+        unquote(type)
+      )
+    end
+  end
+
+  defmacro count_aom_format(aom_id, format) do
+    quote do
+      fragment(
+        """
+        SELECT COUNT(format)
+        FROM resource
+        WHERE format = ?
+        AND dataset_id in (
+          select d.id
+          from dataset d
+          left join dataset_aom_legal_owner a on a.dataset_id = d.id and a.aom_id = ?
+          where (d.aom_id = ? or a.dataset_id is not null) and d.is_active
+        )
+        group by format
+        """,
+        unquote(format),
+        unquote(aom_id),
+        unquote(aom_id)
+      )
     end
   end
 
@@ -237,13 +279,12 @@ defmodule TransportWeb.API.StatsController do
   @spec aom_features_query :: Ecto.Query.t()
   defp aom_features_query do
     AOM
-    |> join(:left, [aom], dataset in Dataset, on: dataset.id == aom.parent_dataset_id)
-    |> select([aom, parent_dataset], %{
+    |> select([aom], %{
       geometry: aom.geom,
       id: aom.id,
       created_in_2022: aom.composition_res_id >= 1_000,
       insee_commune_principale: aom.insee_commune_principale,
-      nb_datasets: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND is_active=TRUE ", aom.id),
+      nb_datasets: fragment("select count(id) from dataset where aom_id = ? and is_active", aom.id),
       dataset_formats: %{
         gtfs: count_aom_format(aom.id, "GTFS"),
         netex: count_aom_format(aom.id, "NeTEx"),
@@ -255,16 +296,24 @@ defmodule TransportWeb.API.StatsController do
       nom: aom.nom,
       forme_juridique: aom.forme_juridique,
       dataset_types: %{
-        pt:
-          fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'public-transit' AND is_active=TRUE", aom.id),
-        bike_scooter_sharing:
-          fragment(
-            "SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'bike-scooter-sharing' AND is_active=TRUE",
-            aom.id
-          )
+        pt: count_aom_types(aom.id, "public-transit"),
+        bike_scooter_sharing: count_aom_types(aom.id, "bike-scooter-sharing")
       },
-      parent_dataset_slug: parent_dataset.slug,
-      parent_dataset_name: parent_dataset.custom_title
+      nb_other_datasets:
+        fragment(
+          """
+          select
+            count(distinct dataset_id)
+          from dataset_aom_legal_owner
+          where dataset_id in (
+            select dataset_id
+            from dataset_aom_legal_owner
+            group by 1
+            having count(1) >= 2
+          ) and aom_id = ?
+          """,
+          aom.id
+        )
     })
   end
 
@@ -334,8 +383,12 @@ defmodule TransportWeb.API.StatsController do
     expired_info_sub = dataset_expiration_dates()
 
     DB.AOM
-    |> join(:left, [aom], dataset in Dataset,
-      on: dataset.id == aom.parent_dataset_id or dataset.aom_id == aom.id,
+    |> join(:left, [aom], legal_owner in fragment("dataset_aom_legal_owner"),
+      on: aom.id == legal_owner.aom_id,
+      as: :legal_owner
+    )
+    |> join(:left, [aom, legal_owner], dataset in Dataset,
+      on: dataset.id == legal_owner.dataset_id or dataset.aom_id == aom.id,
       as: :dataset
     )
     |> join(:left, [dataset: d], error_info in subquery(error_info_sub),
@@ -356,16 +409,8 @@ defmodule TransportWeb.API.StatsController do
         nom: aom.nom,
         forme_juridique: aom.forme_juridique,
         dataset_types: %{
-          pt:
-            fragment(
-              "SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'public-transit' AND is_active=TRUE",
-              aom.id
-            ),
-          bike_scooter_sharing:
-            fragment(
-              "SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'bike-scooter-sharing' AND is_active=TRUE",
-              aom.id
-            )
+          pt: count_aom_types(aom.id, "public-transit", include_aggregates: true),
+          bike_scooter_sharing: count_aom_types(aom.id, "bike-scooter-sharing", include_aggregates: true)
         },
         quality: %{
           expired_from: fragment("TO_DATE(?, 'YYYY-MM-DD') - max(?)", ^dt, expired_info.end_date),
