@@ -151,4 +151,33 @@ defmodule TransportWeb.PageControllerTest do
   test "budget page", %{conn: conn} do
     conn |> get("/budget") |> redirected_to(302) =~ "https://doc.transport.data.gouv.fr"
   end
+
+  test "humans txt", %{conn: conn} do
+    Transport.HTTPoison.Mock
+    |> expect(:get!, fn "https://beta.gouv.fr/api/v2.5/authors.json" ->
+      body = [
+        %{"id" => "foo", "fullname" => "Foo"},
+        %{"id" => "bar", "fullname" => "Bar"},
+        %{"id" => "baz", "fullname" => "Baz"}
+      ]
+
+      %HTTPoison.Response{status_code: 200, body: Jason.encode!(body)}
+    end)
+
+    Transport.HTTPoison.Mock
+    |> expect(:get!, fn "https://beta.gouv.fr/api/v2.5/startups_details.json" ->
+      body = %{
+        "transport" => %{
+          "active_members" => ["foo"],
+          "previous_members" => ["bar"],
+          "expired_members" => ["baz", "nope"]
+        }
+      }
+
+      %HTTPoison.Response{status_code: 200, body: Jason.encode!(body)}
+    end)
+
+    content = conn |> get(page_path(conn, :humans_txt)) |> text_response(200)
+    assert content == "# Membres actuels\nFoo\n\n# Anciens membres\nBar\nBaz"
+  end
 end
