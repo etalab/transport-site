@@ -213,10 +213,10 @@ function addStaticPTMapAOMS (id, view) {
                 ? 'Un jeu de données'
                 : `${count} jeux de données`
         const extra = feature.properties.nb_other_datasets > 0
-            ? `<br>Des données sont disponibles au sein d'un jeu agrégé. `
+            ? '<br>Des données sont disponibles au sein d\'un jeu agrégé. '
             : ''
-        const aom_id = feature.properties.id
-        layer.bindPopup(`<strong>${name}</strong><br>(${type})<br/>${text} propre à l'AOM. ${extra}<br><a href="/datasets/aom/${aom_id}">Voir les jeux de données</a>`)
+        const aomId = feature.properties.id
+        layer.bindPopup(`<strong>${name}</strong><br>(${type})<br/>${text} propre à l'AOM. ${extra}<br><a href="/datasets/aom/${aomId}">Voir les jeux de données</a>`)
     }
 
     const smallStripes = new Leaflet.StripePattern({ angle: -45, color: 'green', spaceColor: lightGreen, spaceOpacity: 1, weight: 1, spaceWeight: 1, height: 2 })
@@ -449,8 +449,8 @@ function addRealTimePTMap (id, view) {
         let bind = `<strong>${name}</strong><br/>${type}`
         if (countOfficial) {
             const text = countOfficial === 1 ? 'Un jeu de données standardisé' : `${countOfficial} jeux de données standardisés`
-            const aom_id = feature.properties.id
-            bind += `<br/><a href="/datasets/aom/${aom_id}">${text}</a>`
+            const aomId = feature.properties.id
+            bind += `<br/><a href="/datasets/aom/${aomId}">${text}</a>`
         }
 
         if (countNonStandardRT) {
