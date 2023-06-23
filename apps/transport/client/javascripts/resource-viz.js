@@ -6,10 +6,12 @@ import Papa from 'papaparse'
  * @type {Object}
  */
 const Mapbox = {
-    url: 'https://api.mapbox.com/styles/v1/istopopoki/ckg98kpoc010h19qusi9kxcct/tiles/256/{z}/{x}/{y}?access_token={accessToken}',
-    accessToken: 'pk.eyJ1IjoiaXN0b3BvcG9raSIsImEiOiJjaW12eWw2ZHMwMGFxdzVtMWZ5NHcwOHJ4In0.VvZvyvK0UaxbFiAtak7aVw',
+    url: 'https://api.mapbox.com/styles/v1/transport-pan/clj8j9fla009701pie4nrfo62/tiles/{tileSize}/{z}/{x}/{y}?access_token={accessToken}',
+    accessToken: 'pk.eyJ1IjoidHJhbnNwb3J0LXBhbiIsImEiOiJjbGo4anJodWUxOXY0M3BxeWo3bHlrMXoxIn0.qFfjiswVf2TaLQ2YmB-Mnw',
     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors <a href="https://spdx.org/licenses/ODbL-1.0.html">ODbL</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-    maxZoom: 20
+    maxZoom: 20,
+    tileSize: 512,
+    zoomOffset: -1
 }
 
 // possible field names in csv files
@@ -30,7 +32,9 @@ function initilizeMap (id) {
     L.tileLayer(Mapbox.url, {
         accessToken: Mapbox.accessToken,
         attribution: Mapbox.attribution,
-        maxZoom: Mapbox.maxZoom
+        maxZoom: Mapbox.maxZoom,
+        tileSize: Mapbox.tileSize,
+        zoomOffset: Mapbox.zoomOffset
     }).addTo(map)
 
     const fg = L.featureGroup().addTo(map)
