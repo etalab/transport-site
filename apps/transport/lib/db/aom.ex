@@ -26,7 +26,6 @@ defmodule DB.AOM do
 
     belongs_to(:region, Region)
     has_many(:datasets, Dataset)
-    belongs_to(:parent_dataset, Dataset)
   end
 
   @spec get(insee_commune_principale: binary()) :: __MODULE__ | nil
