@@ -14,7 +14,7 @@ defmodule TransportWeb.MarkdownHandler do
   def markdown_to_safe_html!(md) do
     {:safe, txt} =
       md
-      |> Earmark.as_html!([gfm_tables: true, breaks: true])
+      |> Earmark.as_html!(gfm_tables: true, breaks: true)
       |> HtmlSanitizeEx.basic_html()
       |> HTML.raw()
 
