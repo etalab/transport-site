@@ -36,7 +36,6 @@ defmodule TransportWeb.MarkdownHandlerTest do
               "<p>\nCela pourrait être une bonne chose de rajouter tout de meme l’url en <code>license_url</code> (du fichier <code>system_information.json</code>)</p>\n"}
   end
 
-  # This is weird, I keep this as the current behaviour, but do we want this?
   test "does render HTML elements inside Markdown code" do
     content = "<h1>This is a title</h1>"
     assert content |> MarkdownHandler.markdown_to_safe_html!() == {:safe, "<h1>\n  This is a title</h1>\n"}
