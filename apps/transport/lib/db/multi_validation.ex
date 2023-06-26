@@ -128,37 +128,37 @@ defmodule DB.MultiValidation do
   def dataset_latest_validation(dataset_id, validators) do
     validators_names = validators |> Enum.map(fn v -> v.validator_name() end)
 
-    latest_validations =
-      DB.MultiValidation
-      |> distinct([mv], [mv.resource_history_id, mv.resource_id, mv.validator])
-      |> order_by([mv],
-        desc: mv.resource_history_id,
-        desc: mv.resource_id,
-        desc: mv.validator,
-        desc: mv.validation_timestamp
+    resource_history_query =
+      DB.ResourceHistory.base_query()
+      |> where([resource_history: rh], parent_as(:resource).id == rh.resource_id)
+      |> order_by([resource_history: rh], desc: rh.inserted_at)
+      |> limit(1)
+
+    multi_validation_query =
+      DB.MultiValidation.base_query()
+      |> where(
+        [multi_validation: mv],
+        parent_as(:resource).id == mv.resource_id or parent_as(:rh).id == mv.resource_history_id
       )
-      |> where([mv], mv.validator in ^validators_names)
+      |> where([multi_validation: mv], mv.validator in ^validators_names)
+      |> order_by([multi_validation: mv], desc: mv.validation_timestamp)
+      |> distinct([multi_validation: mv], [mv.resource_history_id, mv.resource_id, mv.validator])
 
-    latest_resource_history =
-      DB.ResourceHistory
-      |> distinct([rh], [rh.resource_id])
-      |> order_by([rh], desc: rh.inserted_at)
+    resource_metadata_query =
+      DB.ResourceMetadata.base_query()
+      |> where([metadata: rm], parent_as(:mv).id == rm.multi_validation_id)
 
-    DB.Resource
-    |> join(:left, [r], rh in subquery(latest_resource_history), on: rh.resource_id == r.id)
-    |> join(:left, [r, rh], mv in subquery(latest_validations),
-      on: rh.id == mv.resource_history_id or r.id == mv.resource_id
-    )
-    |> join(:left, [r, rh, mv], metadata in DB.ResourceMetadata, on: metadata.multi_validation_id == mv.id)
-    |> where([r, rh, mv], r.dataset_id == ^dataset_id)
-    |> select([r, rh, mv, metadata], {r.id, mv, metadata})
+    DB.Resource.base_query()
+    |> join(:left_lateral, [], rh in subquery(resource_history_query), on: true, as: :rh)
+    |> join(:left_lateral, [], mv in subquery(multi_validation_query), on: true, as: :mv)
+    |> join(:left_lateral, [], rm in subquery(resource_metadata_query), on: true, as: :rm)
+    |> where([resource: r], r.dataset_id == ^dataset_id)
+    |> select([resource: r, mv: mv, rm: rm], {r.id, mv, rm})
     |> DB.Repo.all()
     |> Enum.group_by(fn {k, _, _} -> k end, fn {_, mv, metadata} ->
       if is_nil(mv) do
         nil
       else
-        # you cannot preload in a subquery, so we cannot preload the multi-validation associated metadata easily
-        # we do the work manually, with a join and then put the metadata in the multi-validation
         Map.put(mv, :metadata, metadata)
       end
     end)

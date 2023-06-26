@@ -27,4 +27,16 @@ defmodule DB.DatasetScore do
   def between_0_and_1_if_exists(:score, _score), do: [score: "must be between 0.0 and 1.0"]
 
   def base_query, do: from(ds in DB.DatasetScore, as: :dataset_score)
+
+  @spec get_latest(DB.Dataset.t(), any) :: DB.DatasetScore.t() | nil
+  @doc """
+  Latest score for a given dataset and topic
+  """
+  def get_latest(%DB.Dataset{id: dataset_id}, topic) do
+    __MODULE__.base_query()
+    |> where([dataset_score: ds], ds.dataset_id == ^dataset_id and ds.topic == ^topic)
+    |> order_by([ds], desc: ds.timestamp)
+    |> limit(1)
+    |> DB.Repo.one()
+  end
 end
