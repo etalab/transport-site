@@ -30,7 +30,7 @@ defmodule TransportWeb.NotificationController do
     |> picked_reasons()
     |> Enum.reject(&(&1 in existing_reasons))
     |> Enum.each(fn reason ->
-      %{contact_id: contact_id, dataset_id: dataset_id, reason: reason, source: :user}
+      %{contact_id: contact_id, dataset_id: dataset_id, reason: reason, source: :user, role: :producer}
       |> DB.NotificationSubscription.insert!()
     end)
 

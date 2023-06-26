@@ -26,7 +26,13 @@ defmodule Transport.Test.Transport.Jobs.DatasetNowOnNAPNotificationJobTest do
 
     ~w(resource_unavailable expiration)a
     |> Enum.each(fn reason ->
-      insert(:notification_subscription, %{reason: reason, source: :admin, contact: contact, dataset: dataset})
+      insert(:notification_subscription, %{
+        reason: reason,
+        source: :admin,
+        role: :producer,
+        contact: contact,
+        dataset: dataset
+      })
     end)
 
     Transport.EmailSender.Mock
