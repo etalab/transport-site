@@ -22,7 +22,7 @@ defmodule TransportWeb.AOMsControllerTest do
   end
 
   test "display AOM information using legal owners" do
-    %DB.AOM{nom: nom_aom} = aom = insert(:aom)
+    %DB.AOM{nom: nom_aom} = aom = insert(:aom, nom: "Super AOM 76")
     aom2 = insert(:aom)
 
     dataset =
@@ -66,7 +66,7 @@ defmodule TransportWeb.AOMsControllerTest do
   end
 
   test "displays AOM information with both legal owners and datasets" do
-    %DB.AOM{nom: nom_aom} = aom = insert(:aom)
+    %DB.AOM{nom: nom_aom} = aom = insert(:aom, nom: "Super AOM 76")
     aom2 = insert(:aom)
 
     dataset =
@@ -90,7 +90,7 @@ defmodule TransportWeb.AOMsControllerTest do
   end
 
   test "displays AOM information without dataset" do
-    %DB.AOM{nom: nom_aom} = aom = insert(:aom)
+    %DB.AOM{nom: nom_aom} = aom = insert(:aom, nom: "Super AOM 76")
 
     assert %{
              nom: ^nom_aom,
