@@ -122,6 +122,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetsSwitchingClimateResilienceBillJo
     insert(:notification_subscription, %{
       reason: :datasets_switching_climate_resilience_bill,
       source: :admin,
+      role: :producer,
       contact_id: contact_id
     })
 
