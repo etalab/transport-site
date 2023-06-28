@@ -161,14 +161,16 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
         contact_id: contact.id,
         dataset_id: dataset.id,
         reason: :expiration,
-        source: :admin
+        source: :admin,
+        role: :producer
       )
 
       insert(:notification_subscription,
         contact_id: contact.id,
         dataset_id: nil,
         reason: :datasets_switching_climate_resilience_bill,
-        source: :admin
+        source: :admin,
+        role: :producer
       )
 
       content =

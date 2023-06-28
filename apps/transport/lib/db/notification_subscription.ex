@@ -21,6 +21,7 @@ defmodule DB.NotificationSubscription do
     )
 
     field(:source, Ecto.Enum, values: [:admin, :user])
+    field(:role, Ecto.Enum, values: [:producer, :reuser])
 
     belongs_to(:contact, DB.Contact)
     belongs_to(:dataset, DB.Dataset)
@@ -39,8 +40,8 @@ defmodule DB.NotificationSubscription do
 
   def changeset(struct, attrs \\ %{}) do
     struct
-    |> cast(attrs, [:contact_id, :dataset_id, :reason, :source])
-    |> validate_required([:contact_id, :reason, :source])
+    |> cast(attrs, [:contact_id, :dataset_id, :reason, :source, :role])
+    |> validate_required([:contact_id, :reason, :source, :role])
     |> assoc_constraint(:contact)
     |> maybe_assoc_constraint_dataset()
     |> unique_constraint([:contact_id, :dataset_id, :reason],
