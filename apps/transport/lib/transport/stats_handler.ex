@@ -35,25 +35,19 @@ defmodule Transport.StatsHandler do
   @spec compute_stats() :: any()
   def compute_stats do
     aoms =
-      Repo.all(
-        from(a in AOM,
-          select: %{
-            population: a.population_totale,
-            region_id: a.region_id,
-            nb_datasets:
-              fragment(
-                """
-                select count(d.id)
-                from dataset d
-                left join dataset_aom_legal_owner a on a.dataset_id = d.id and a.aom_id = ?
-                where (d.aom_id = ? or a.dataset_id is not null) and d.is_active
-                """,
-                a.id,
-                a.id
-              )
-          }
-        )
+      AOM
+      |> join(:left, [a], d in assoc(a, :legal_owners_dataset), as: :legal_owners_dataset)
+      |> join(:left, [a, legal_owners_dataset: legal_owners_dataset], d in Dataset,
+        on: (d.id == legal_owners_dataset.id or d.aom_id == a.id) and d.is_active,
+        as: :dataset
       )
+      |> group_by([a], [a.id, a.population_totale, a.region_id])
+      |> select([a, dataset: d], %{
+        population: a.population_totale,
+        region_id: a.region_id,
+        nb_datasets: count(d.id)
+      })
+      |> Repo.all()
 
     aoms_with_datasets = aoms |> Enum.filter(&(&1.nb_datasets > 0))
 
@@ -210,9 +204,10 @@ defmodule Transport.StatsHandler do
       })
 
     AOM
-    |> join(:left, [aom], legal_owner in fragment("dataset_aom_legal_owner"), on: aom.id == legal_owner.aom_id)
-    |> join(:left, [aom, legal_owner], dataset in Dataset,
-      on: dataset.id == legal_owner.dataset_id or dataset.aom_id == aom.id
+    |> join(:left, [a], d in assoc(a, :legal_owners_dataset), as: :legal_owners_dataset)
+    |> join(:left, [a, legal_owners_dataset: legal_owners_dataset], d in Dataset,
+      on: (d.id == legal_owners_dataset.id or d.aom_id == a.id) and d.is_active,
+      as: :dataset
     )
     |> join(:left, [_, _, dataset], _r in assoc(dataset, :resources))
     |> join(:left, [_, _, _, r], v in subquery(validation_infos), on: v.resource_id == r.id)

@@ -278,8 +278,28 @@ defmodule TransportWeb.API.StatsController do
 
   @spec aom_features_query :: Ecto.Query.t()
   defp aom_features_query do
+    nb_aggregates_dataset_by_aom =
+      AOM
+      |> join(:inner, [aom], d in assoc(aom, :legal_owners_dataset), as: :legal_owners_dataset)
+      |> where(
+        [legal_owners_dataset: d],
+        d.id in subquery(
+          Dataset.base_query()
+          |> join(:inner, [dataset: d], aom in assoc(d, :legal_owners_aom), as: :aom)
+          |> group_by([dataset: d], d.id)
+          |> having([aom: a], count(a.id) >= 2)
+          |> select([dataset: d], d.id)
+        )
+      )
+      |> group_by([aom], aom.id)
+      |> select([aom, legal_owners_dataset: d], %{aom_id: aom.id, count: count(d.id)})
+
     AOM
-    |> select([aom], %{
+    |> join(:left, [aom], d in subquery(nb_aggregates_dataset_by_aom),
+      on: aom.id == d.aom_id,
+      as: :aggregates_by_aom
+    )
+    |> select([aom, aggregates_by_aom: d], %{
       geometry: aom.geom,
       id: aom.id,
       created_in_2022: aom.composition_res_id >= 1_000,
@@ -299,21 +319,7 @@ defmodule TransportWeb.API.StatsController do
         pt: count_aom_types(aom.id, "public-transit"),
         bike_scooter_sharing: count_aom_types(aom.id, "bike-scooter-sharing")
       },
-      nb_other_datasets:
-        fragment(
-          """
-          select
-            count(distinct dataset_id)
-          from dataset_aom_legal_owner
-          where dataset_id in (
-            select dataset_id
-            from dataset_aom_legal_owner
-            group by 1
-            having count(1) >= 2
-          ) and aom_id = ?
-          """,
-          aom.id
-        )
+      nb_other_datasets: coalesce(d.count, 0)
     })
   end
 
@@ -382,13 +388,10 @@ defmodule TransportWeb.API.StatsController do
     error_info_sub = dataset_error_levels()
     expired_info_sub = dataset_expiration_dates()
 
-    DB.AOM
-    |> join(:left, [aom], legal_owner in fragment("dataset_aom_legal_owner"),
-      on: aom.id == legal_owner.aom_id,
-      as: :legal_owner
-    )
-    |> join(:left, [aom, legal_owner], dataset in Dataset,
-      on: dataset.id == legal_owner.dataset_id or dataset.aom_id == aom.id,
+    AOM
+    |> join(:left, [a], d in assoc(a, :legal_owners_dataset), as: :legal_owners_dataset)
+    |> join(:left, [a, legal_owners_dataset: legal_owners_dataset], d in Dataset,
+      on: (d.id == legal_owners_dataset.id or d.aom_id == a.id) and d.is_active,
       as: :dataset
     )
     |> join(:left, [dataset: d], error_info in subquery(error_info_sub),

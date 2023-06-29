@@ -72,17 +72,19 @@ defmodule TransportWeb.AOMSController do
       |> Enum.group_by(&elem(&1, 0), &elem(&1, 1))
 
     datasets_with_multiple_aoms =
-      from(a in fragment("dataset_aom_legal_owner"),
-        where:
-          a.dataset_id in subquery(
-            from(a in fragment("dataset_aom_legal_owner"),
-              group_by: a.dataset_id,
-              having: count(a.aom_id) >= 2,
-              select: a.dataset_id
-            )
-          ),
-        select: %{aom_id: a.aom_id, dataset_id: a.dataset_id}
+      AOM
+      |> join(:inner, [aom], d in assoc(aom, :legal_owners_dataset), as: :legal_owners_dataset)
+      |> where(
+        [legal_owners_dataset: d],
+        d.id in subquery(
+          Dataset.base_query()
+          |> join(:inner, [dataset: d], aom in assoc(d, :legal_owners_aom), as: :aom)
+          |> group_by([dataset: d], d.id)
+          |> having([aom: a], count(a.id) >= 2)
+          |> select([dataset: d], d.id)
+        )
       )
+      |> select([aom, legal_owners_dataset: d], %{aom_id: aom.id, dataset_id: d.id})
 
     aggregated_datasets =
       AOM
