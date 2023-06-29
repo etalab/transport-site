@@ -190,11 +190,9 @@ defmodule TransportWeb.PageController do
 
   defp aoms_with_dataset do
     aoms_legal_owners =
-      from(a in fragment("dataset_aom_legal_owner"),
-        join: d in Dataset,
-        on: d.id == a.dataset_id and d.is_active,
-        select: a.aom_id
-      )
+      Dataset.base_query()
+      |> join(:inner, [dataset: d], a in assoc(d, :legal_owners_aom), as: :aom)
+      |> select([aom: a], a.id)
 
     aoms_datasets = Dataset.base_query() |> where([dataset: d], not is_nil(d.aom_id)) |> select([dataset: d], d.aom_id)
 

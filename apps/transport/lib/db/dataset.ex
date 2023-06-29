@@ -274,19 +274,9 @@ defmodule DB.Dataset do
 
   @spec filter_by_aom(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_aom(query, %{"aom" => aom_id}) do
-    aom_id =
-      case Integer.parse(aom_id) do
-        {value, ""} -> value
-        _ -> nil
-      end
-
-    datasets_from_legal_owners =
-      from(a in fragment("dataset_aom_legal_owner"),
-        where: a.aom_id == ^aom_id,
-        select: a.dataset_id
-      )
-
-    query |> where([dataset: d], d.aom_id == ^aom_id or d.id in subquery(datasets_from_legal_owners))
+    query
+    |> join(:left, [dataset: d], aom in assoc(d, :legal_owners_aom), on: aom.id == ^aom_id, as: :aom)
+    |> where([dataset: d, aom: aom], d.aom_id == ^aom_id or aom.id == ^aom_id)
   end
 
   defp filter_by_aom(query, _), do: query
