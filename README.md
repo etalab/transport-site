@@ -36,7 +36,7 @@ Installation can then be done with:
 
 ### Postgresql
 
-You also need an up to date postgresql with postgis installed. Version 12+ is recommended.
+You also need an up to date postgresql with postgis installed. Version 14+ is recommended.
 
 For Mac users, you can use https://postgresapp.com/.
 
