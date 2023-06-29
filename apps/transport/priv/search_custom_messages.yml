@@ -227,12 +227,12 @@
     fr: |
         Les jeux de données de cette catégorie décrivent les réseaux cyclables en France. Tous les aménagements (pistes, bandes, voies vertes, vélo rue...) destinés à être empuntés par des vélos peuvent être représentés selon le [schéma national](https://schema.data.gouv.fr/etalab/schema-amenagements-cyclables/latest.html).
 
-        Une base nationale extraite d'[OpenStreetMap](https://www.openstreetmap.org/) par [GéoVélo](https://geovelo.fr/) respectant le schéma national [est disponible](https://transport.data.gouv.fr/datasets/amenagements-cyclables-france-metropolitaine/).
+        Une base nationale extraite d'[OpenStreetMap](https://www.openstreetmap.org/) par [Géovélo](https://geovelo.app/fr/) respectant le schéma national [est disponible](https://transport.data.gouv.fr/datasets/amenagements-cyclables-france-metropolitaine/).
 
     en: |
         The datasets in this category describe the cycle networks in France. All facilities (tracks, lanes, greenways, cycle streets…) intended to be used by bicycles can be represented according to the [national schema](https://schema.data.gouv.fr/etalab/schema-amenagements-cyclables/latest.html).
 
-        A national database extracted from [OpenStreetMap](https://www.openstreetmap.org/) by [GéoVélo](https://geovelo.fr/) respecting the national schema [is available](https://transport.data.gouv.fr/datasets/amenagements-cyclables-france-metropolitaine/).
+        A national database extracted from [OpenStreetMap](https://www.openstreetmap.org/) by [Géovélo](https://geovelo.app/fr/) respecting the national schema [is available](https://transport.data.gouv.fr/datasets/amenagements-cyclables-france-metropolitaine/).
 
 - category: bike-parking
   search_params:
