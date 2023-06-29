@@ -391,17 +391,13 @@ defmodule DB.Dataset do
   end
 
   def order_datasets(datasets, %{"aom" => aom_id}) do
-    case Integer.parse(aom_id) do
-      {aom_id, ""} ->
-        order_by(datasets,
-          desc: fragment("case when aom_id = ? then 1 else 0 end", ^aom_id),
-          desc: fragment("coalesce(population, 0)"),
-          asc: :custom_title
-        )
+    aom_id = String.to_integer(aom_id)
 
-      :error ->
-        datasets
-    end
+    order_by(datasets,
+      desc: fragment("case when aom_id = ? then 1 else 0 end", ^aom_id),
+      desc: fragment("coalesce(population, 0)"),
+      asc: :custom_title
+    )
   end
 
   def order_datasets(datasets, %{"insee_commune" => _insee_commune}) do
