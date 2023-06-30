@@ -29,6 +29,7 @@ defmodule DB.Contact do
     timestamps(type: :utc_datetime_usec)
 
     has_many(:notification_subscriptions, DB.NotificationSubscription, on_delete: :delete_all)
+    many_to_many(:organizations, DB.Organization, join_through: "contacts_organizations", on_replace: :delete)
   end
 
   def base_query, do: from(c in __MODULE__, as: :contact)
@@ -83,6 +84,7 @@ defmodule DB.Contact do
 
   def changeset(struct, attrs \\ %{}) do
     struct
+    |> DB.Repo.preload([:organizations])
     |> cast(attrs, [
       :first_name,
       :last_name,
@@ -104,6 +106,7 @@ defmodule DB.Contact do
     |> lowercase_email()
     |> put_hashed_fields()
     |> unique_constraint(:email_hash, error_key: :email, name: :contact_email_hash_index)
+    |> cast_assoc(:organizations)
   end
 
   defp validate_names_or_mailing_list_title(%Ecto.Changeset{} = changeset) do
