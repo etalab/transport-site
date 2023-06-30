@@ -290,3 +290,7 @@ msgstr "Regénérer les conversions NeTEx"
 #, elixir-autogen, elixir-format
 msgid "Conversions launched"
 msgstr "Conversions relancées"
+
+#, elixir-autogen, elixir-format
+msgid "AOM open data status"
+msgstr "Ouverture des données par AOM"
