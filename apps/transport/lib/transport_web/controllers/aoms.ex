@@ -36,7 +36,7 @@ defmodule TransportWeb.AOMSController do
 
     datasets_up_to_date =
       all_datasets
-      |> Enum.reject(& is_nil(&1.end_date))
+      |> Enum.reject(&is_nil(&1.end_date))
       |> Enum.any?(fn dataset -> Date.compare(dataset.end_date, Date.utc_today()) !== :lt end)
 
     datasets_realtime = Enum.any?(all_datasets, fn dataset -> dataset.has_realtime end)
