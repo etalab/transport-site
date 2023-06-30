@@ -24,6 +24,7 @@ defmodule TransportWeb.NotificationControllerTest do
         contact_id: contact_id,
         dataset_id: dataset_id,
         reason: :expiration,
+        role: :producer,
         source: :user
       )
 
@@ -105,6 +106,7 @@ defmodule TransportWeb.NotificationControllerTest do
         contact_id: contact_id,
         dataset_id: dataset_id,
         reason: :expiration,
+        role: :producer,
         source: :user
       )
 
@@ -126,6 +128,7 @@ defmodule TransportWeb.NotificationControllerTest do
       contact_id: contact_id,
       dataset_id: dataset_id,
       reason: :expiration,
+      role: :producer,
       source: :user
     )
 
@@ -133,6 +136,7 @@ defmodule TransportWeb.NotificationControllerTest do
       contact_id: contact_id,
       dataset_id: dataset_id,
       reason: :dataset_with_error,
+      role: :producer,
       source: :user
     )
 
@@ -141,6 +145,7 @@ defmodule TransportWeb.NotificationControllerTest do
       contact_id: other_contact_id,
       dataset_id: dataset_id,
       reason: :dataset_with_error,
+      role: :producer,
       source: :user
     )
 

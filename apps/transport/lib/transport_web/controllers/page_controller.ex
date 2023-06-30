@@ -131,6 +131,49 @@ defmodule TransportWeb.PageController do
     conn |> text(content)
   end
 
+  def humans_txt(conn, _params) do
+    http_client = Transport.Shared.Wrapper.HTTPoison.impl()
+
+    authors =
+      case http_client.get!("https://beta.gouv.fr/api/v2.5/authors.json") do
+        %HTTPoison.Response{status_code: 200, body: body} -> body |> Jason.decode!()
+        _ -> %{}
+      end
+
+    content =
+      case http_client.get!("https://beta.gouv.fr/api/v2.5/startups_details.json") do
+        %HTTPoison.Response{status_code: 200, body: body} ->
+          transport_details = body |> Jason.decode!() |> Map.fetch!("transport")
+          humans_txt_build_content(authors, transport_details)
+
+        _ ->
+          ""
+      end
+
+    conn |> text(content)
+  end
+
+  defp humans_txt_build_content(authors, transport_details) do
+    authors = authors |> Enum.into(%{}, fn %{"id" => id} = data -> {id, data} end)
+    author_fullname = fn member_id -> get_in(authors, [member_id, "fullname"]) end
+
+    active_members =
+      transport_details |> Map.get("active_members", []) |> Enum.map(&author_fullname.(&1)) |> Enum.sort()
+
+    previous_members =
+      transport_details
+      |> Map.take(["previous_members", "expired_members"])
+      |> Map.values()
+      |> List.flatten()
+      |> Enum.map(&author_fullname.(&1))
+      |> Enum.sort()
+
+    ["# Membres actuels", active_members, "", "# Anciens membres", previous_members]
+    |> List.flatten()
+    |> Enum.reject(&is_nil/1)
+    |> Enum.join("\n")
+  end
+
   def espace_producteur(%Plug.Conn{} = conn, _params) do
     {conn, datasets} =
       case DB.Dataset.datasets_for_user(conn) do

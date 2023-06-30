@@ -95,6 +95,7 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
     insert(:notification_subscription, %{
       reason: :dataset_with_error,
       source: :admin,
+      role: :producer,
       contact_id: already_sent_contact_id,
       dataset_id: dataset.id
     })
@@ -102,6 +103,7 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
     insert(:notification_subscription, %{
       reason: :dataset_with_error,
       source: :admin,
+      role: :producer,
       contact_id: foo_contact_id,
       dataset_id: dataset.id
     })
@@ -111,6 +113,7 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
     insert(:notification_subscription, %{
       reason: :dataset_with_error,
       source: :admin,
+      role: :producer,
       contact_id: bar_contact_id,
       dataset_id: gtfs_dataset.id
     })

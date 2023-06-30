@@ -71,6 +71,7 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
       insert(:notification_subscription,
         dataset_id: dataset_id,
         source: :admin,
+        role: :producer,
         contact_id: contact_id,
         reason: :expiration
       )
@@ -79,6 +80,7 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
       insert(:notification_subscription,
         dataset_id: nil,
         source: :admin,
+        role: :producer,
         contact_id: contact_id,
         reason: :datasets_switching_climate_resilience_bill
       )
@@ -143,7 +145,8 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
         contact_id: contact_id,
         dataset_id: dataset_id,
         reason: :expiration,
-        source: :admin
+        source: :admin,
+        role: :producer
       )
 
     conn_response =
@@ -168,14 +171,16 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
       contact_id: contact_id,
       dataset_id: dataset_id,
       reason: :expiration,
-      source: :admin
+      source: :admin,
+      role: :producer
     )
 
     insert(:notification_subscription,
       contact_id: contact_id,
       dataset_id: dataset_id,
       reason: :dataset_with_error,
-      source: :admin
+      source: :admin,
+      role: :producer
     )
 
     # A subscription, but for another contact.
@@ -183,7 +188,8 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
       contact_id: other_contact_id,
       dataset_id: dataset_id,
       reason: :dataset_with_error,
-      source: :admin
+      source: :admin,
+      role: :producer
     )
 
     conn_response =
