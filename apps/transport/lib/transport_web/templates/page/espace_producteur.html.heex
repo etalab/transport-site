@@ -50,9 +50,7 @@
             <img class="picto" src={static_path(@conn, "/images/producteurs/picto-check.png")} alt="" />
             <div>
               <div class="publish-header">
-                <div>
-                  <h4 class="with-link"><%= dgettext("espace-producteurs", "Validate your datasets") %></h4>
-                </div>
+                <h4 class="with-link"><%= dgettext("espace-producteurs", "Validate your datasets") %></h4>
               </div>
               <div>
                 <%= dgettext("espace-producteurs", "You can test your data online and check its validity.") %>
@@ -69,14 +67,15 @@
             <img class="picto" src={static_path(@conn, "/images/producteurs/picto-publier.png")} alt="" />
             <div>
               <div class="publish-header">
-                <div>
                   <h4 class="with-link"><%= dgettext("espace-producteurs", "Publish a dataset") %></h4>
-                  <a href="https://doc.transport.data.gouv.fr/producteurs/comment-et-pourquoi-les-producteurs-de-donnees-utilisent-ils-le-pan">
-                    <%= dgettext("espace-producteurs", "Adding a dataset guidelines") %>
-                  </a>
-                </div>
+
               </div>
-              <div class="pt-24">
+              <div>
+                <a href="https://doc.transport.data.gouv.fr/producteurs/comment-et-pourquoi-les-producteurs-de-donnees-utilisent-ils-le-pan">
+                    <%= dgettext("espace-producteurs", "Adding a dataset guidelines") %>
+                </a>
+              </div>
+              <div class="pt-12">
                 <%= dgettext(
                   "espace-producteurs",
                   "Get your mobility data on the National Access Point. You will be redirected to data.gouv.fr to have your data published."
