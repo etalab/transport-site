@@ -178,3 +178,7 @@ msgstr ""
 #, elixir-autogen, elixir-format, fuzzy
 msgid "You do not have notifications yet. They will show up here."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Validate a file or a feed"
+msgstr ""

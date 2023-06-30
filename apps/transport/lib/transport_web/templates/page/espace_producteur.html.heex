@@ -47,6 +47,25 @@
         </div>
         <div>
           <div class="panel espace-producer-panel">
+            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-check.png")} alt="" />
+            <div>
+              <div class="publish-header">
+                <div>
+                  <h4 class="with-link"><%= dgettext("espace-producteurs", "Validate your datasets") %></h4>
+                </div>
+              </div>
+              <div>
+                <%= dgettext("espace-producteurs", "You can test your data online and check its validity.") %>
+
+              </div>
+              <div class="pt-12">
+                <a href={dataset_creation()} class="button primary">
+                  <%= dgettext("espace-producteurs", "Validate a file or a feed") %>
+                </a>
+              </div>
+            </div>
+          </div>
+            <div class="panel espace-producer-panel">
             <img class="picto" src={static_path(@conn, "/images/producteurs/picto-publier.png")} alt="" />
             <div>
               <div class="publish-header">
@@ -167,24 +186,6 @@
                   )
                 ) %>
               </p>
-            </div>
-          </div>
-        </div>
-        <div class="panel espace-producer-panel">
-          <img class="picto" src={static_path(@conn, "/images/producteurs/picto-check.png")} alt="" />
-          <div>
-            <div class="test-header">
-              <div>
-                <h4><%= dgettext("espace-producteurs", "Validate your datasets") %></h4>
-              </div>
-            </div>
-            <div>
-              <%= dgettext("espace-producteurs", "You can test your data online and check its validity.") %>
-            </div>
-            <div class="pt-24">
-              <a href={live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)} class="button-outline primary">
-                <%= dgettext("page-producteurs", "Validate a file or a feed") %>
-              </a>
             </div>
           </div>
         </div>

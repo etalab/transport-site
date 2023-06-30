@@ -178,3 +178,7 @@ msgstr "Les notifications ont été supprimées"
 #, elixir-autogen, elixir-format
 msgid "You do not have notifications yet. They will show up here."
 msgstr "Vous n'avez pas encore activé de notifications. Elles apparaitront ici."
+
+#, elixir-autogen, elixir-format
+msgid "Validate a file or a feed"
+msgstr "Valider un fichier ou un flux"
