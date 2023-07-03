@@ -204,11 +204,11 @@ function addStaticPTMapAOMS (id, view) {
             : count === 1
                 ? 'Un jeu de données'
                 : `${count} jeux de données`
-        const extra = feature.properties.parent_dataset_slug !== null
-            ? `<br>Des données sont disponibles au sein <a href="/datasets/${feature.properties.parent_dataset_slug}/">d'un jeu agrégé</a>.`
+        const extra = feature.properties.nb_other_datasets > 0
+            ? '<br>Des données sont disponibles au sein d\'un jeu agrégé. '
             : ''
-        const commune = feature.properties.id
-        layer.bindPopup(`<strong>${name}</strong><br>(${type})<br/><a href="/datasets/aom/${commune}">${text}</a> propre à l'AOM. ${extra}`)
+        const aomId = feature.properties.id
+        layer.bindPopup(`<strong>${name}</strong><br>(${type})<br/>${text} propre à l'AOM. ${extra}<br><a href="/datasets/aom/${aomId}">Voir les jeux de données</a>`)
     }
 
     const smallStripes = new Leaflet.StripePattern({ angle: -45, color: 'green', spaceColor: lightGreen, spaceOpacity: 1, weight: 1, spaceWeight: 1, height: 2 })
@@ -250,11 +250,11 @@ function addStaticPTMapAOMS (id, view) {
 
     const style = zoom => feature => {
         const count = nbBaseSchedule(feature)
-        if (count > 0 && feature.properties.parent_dataset_slug) {
+        if (count > 0 && feature.properties.nb_other_datasets > 0) {
             return zoom > 6 ? styles.availableEverywhere.bigStripes : styles.availableEverywhere.smallStripes
         } else if (count > 0) {
             return styles.available
-        } else if (feature.properties.parent_dataset_slug) {
+        } else if (feature.properties.nb_other_datasets > 0) {
             return styles.availableElsewhere
         } else {
             return styles.unavailable
@@ -441,8 +441,8 @@ function addRealTimePTMap (id, view) {
         let bind = `<strong>${name}</strong><br/>${type}`
         if (countOfficial) {
             const text = countOfficial === 1 ? 'Un jeu de données standardisé' : `${countOfficial} jeux de données standardisés`
-            const commune = feature.properties.id
-            bind += `<br/><a href="/datasets/aom/${commune}">${text}</a>`
+            const aomId = feature.properties.id
+            bind += `<br/><a href="/datasets/aom/${aomId}">${text}</a>`
         }
 
         if (countNonStandardRT) {

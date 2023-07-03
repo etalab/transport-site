@@ -26,7 +26,8 @@ defmodule DB.AOM do
 
     belongs_to(:region, Region)
     has_many(:datasets, Dataset)
-    belongs_to(:parent_dataset, Dataset)
+
+    many_to_many(:legal_owners_dataset, Dataset, join_through: "dataset_aom_legal_owner")
   end
 
   @spec get(insee_commune_principale: binary()) :: __MODULE__ | nil

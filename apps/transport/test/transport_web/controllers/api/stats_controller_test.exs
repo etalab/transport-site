@@ -199,6 +199,29 @@ defmodule TransportWeb.API.StatsControllerTest do
     end
   end
 
+  test "uses legal owners to include datasets in AOMs" do
+    aom =
+      insert(:aom,
+        nom: aom_nom = "aom",
+        geom: "SRID=4326;LINESTRING(1 1,2 2)" |> Geo.WKT.decode!()
+      )
+
+    insert(:dataset, type: "public-transit", is_active: true, legal_owners_aom: [aom])
+    insert(:dataset, type: "public-transit", is_active: true, legal_owners_aom: [aom])
+
+    insert_resource_and_friends(Date.utc_today() |> Date.add(10), aom: aom, max_error: "Error")
+
+    assert [
+             %{
+               "properties" => %{
+                 "dataset_types" => %{pt: 2},
+                 "nom" => ^aom_nom,
+                 "quality" => %{"error_level" => "Error"}
+               }
+             }
+           ] = TransportWeb.API.StatsController.quality_features_query() |> TransportWeb.API.StatsController.features()
+  end
+
   test "can load the /stats page", %{conn: conn} do
     insert(:resource_metadata, features: ["service_alerts"], resource: insert(:resource, format: "gtfs-rt"))
 
