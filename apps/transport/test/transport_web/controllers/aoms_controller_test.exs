@@ -1,5 +1,5 @@
-defmodule TransportWeb.AomsControllerTest do
-  use TransportWeb.ConnCase, async: false
+defmodule TransportWeb.AOMsControllerTest do
+  use TransportWeb.ConnCase, async: true
   import DB.Factory
 
   setup do
@@ -21,25 +21,22 @@ defmodule TransportWeb.AomsControllerTest do
            } = aom
   end
 
-  test "display AOM information with parent_dataset" do
-    %{dataset: dataset} =
-      DB.Factory.insert_resource_and_friends(Date.utc_today() |> Date.add(10),
-        has_realtime: true,
-        type: "public-transit"
-      )
+  test "display AOM information using legal owners" do
+    %DB.AOM{nom: nom_aom} = aom = insert(:aom, nom: "Super AOM 76")
+    aom2 = insert(:aom)
 
-    aom = insert(:aom, nom: "aom", parent_dataset: dataset)
-    aoms = TransportWeb.AOMSController.aoms()
+    dataset =
+      insert(:dataset, legal_owners_aom: [aom, aom2], is_active: true, type: "public-transit", has_realtime: true)
 
-    res = aoms |> Enum.find(fn r -> r.nom == aom.nom end)
+    DB.Factory.insert_resource_and_friends(Date.utc_today() |> Date.add(10), dataset: dataset)
 
     assert %{
-             nom: "aom",
+             nom: ^nom_aom,
              published: true,
              in_aggregate: true,
              up_to_date: true,
              has_realtime: true
-           } = res
+           } = TransportWeb.AOMSController.aoms() |> Enum.find(fn r -> r.nom == aom.nom end)
   end
 
   test "displays AOM information with datasets" do
@@ -59,27 +56,23 @@ defmodule TransportWeb.AomsControllerTest do
       aom: aom
     )
 
-    aoms = TransportWeb.AOMSController.aoms()
-
-    aom = aoms |> Enum.find(fn r -> r.nom == aom.nom end)
-
     assert %{
              nom: "aom",
              published: true,
              in_aggregate: false,
              up_to_date: true,
              has_realtime: true
-           } = aom
+           } = TransportWeb.AOMSController.aoms() |> Enum.find(fn r -> r.nom == aom.nom end)
   end
 
-  test "displays AOM information with both parent_dataset and datasets" do
-    %{dataset: parent_dataset} =
-      DB.Factory.insert_resource_and_friends(Date.utc_today() |> Date.add(10),
-        has_realtime: false,
-        type: "public-transit"
-      )
+  test "displays AOM information with both legal owners and datasets" do
+    %DB.AOM{nom: nom_aom} = aom = insert(:aom, nom: "Super AOM 76")
+    aom2 = insert(:aom)
 
-    aom = insert(:aom, nom: "aom", parent_dataset: parent_dataset)
+    dataset =
+      insert(:dataset, legal_owners_aom: [aom, aom2], is_active: true, type: "public-transit", has_realtime: false)
+
+    DB.Factory.insert_resource_and_friends(Date.utc_today() |> Date.add(10), dataset: dataset)
 
     DB.Factory.insert_resource_and_friends(Date.utc_today() |> Date.add(-10),
       has_realtime: true,
@@ -87,31 +80,25 @@ defmodule TransportWeb.AomsControllerTest do
       aom: aom
     )
 
-    aoms = TransportWeb.AOMSController.aoms()
-    aom = aoms |> Enum.find(fn r -> r.nom == aom.nom end)
-
     assert %{
-             nom: "aom",
+             nom: ^nom_aom,
              published: true,
              in_aggregate: true,
              up_to_date: true,
              has_realtime: true
-           } = aom
+           } = TransportWeb.AOMSController.aoms() |> Enum.find(fn r -> r.nom == aom.nom end)
   end
 
   test "displays AOM information without dataset" do
-    aom = insert(:aom, nom: "aom")
-
-    aoms = TransportWeb.AOMSController.aoms()
-    aom = aoms |> Enum.find(fn r -> r.nom == aom.nom end)
+    %DB.AOM{nom: nom_aom} = aom = insert(:aom, nom: "Super AOM 76")
 
     assert %{
-             nom: "aom",
+             nom: ^nom_aom,
              published: false,
              in_aggregate: false,
              up_to_date: false,
              has_realtime: false
-           } = aom
+           } = TransportWeb.AOMSController.aoms() |> Enum.find(fn r -> r.nom == aom.nom end)
   end
 
   test "the page renders", %{conn: conn} do
