@@ -20,7 +20,18 @@ defmodule TransportWeb.SessionControllerTest do
       "last_name" => last_name = "Doe",
       "id" => datagouv_user_id = "user_id_1",
       "email" => email = "email@example.fr",
-      "organizations" => [%{"slug" => "equipe-transport-data-gouv-fr", "name" => organization = "PAN"}]
+      "organizations" => [
+        %{
+          "acronym" => nil,
+          "badges" => [%{"kind" => "certified"}, %{"kind" => "public-service"}],
+          "id" => organization_id = "5abca8d588ee386ee6ece479",
+          "logo" => logo = "https://static.data.gouv.fr/avatars/85/53e0a3845e43eb87fb905032aaa389-original.png",
+          "logo_thumbnail" =>
+            logo_thumbnail = "https://static.data.gouv.fr/avatars/85/53e0a3845e43eb87fb905032aaa389-100.png",
+          "name" => organization_name = "Point d'Accès National transport.data.gouv.fr",
+          "slug" => organization_slug = "equipe-transport-data-gouv-fr"
+        }
+      ]
     }
 
     expect(Datagouvfr.Client.User.Mock, :me, fn %Plug.Conn{} -> {:ok, user_params} end)
@@ -32,6 +43,7 @@ defmodule TransportWeb.SessionControllerTest do
     assert redirected_to(conn, 302) == "/"
     assert Map.has_key?(current_user, "id") == true
     assert Map.has_key?(current_user, "avatar") == false
+    assert [%{"slug" => ^organization_slug}] = current_user["organizations"]
 
     # A `DB.Contact` has been created for this user
     assert [
@@ -39,11 +51,23 @@ defmodule TransportWeb.SessionControllerTest do
                first_name: ^first_name,
                last_name: ^last_name,
                email: ^email,
-               organization: ^organization,
+               organization: ^organization_name,
                datagouv_user_id: ^datagouv_user_id,
                last_login_at: last_login_at
              }
            ] = DB.Repo.all(DB.Contact)
+
+    assert [
+             %DB.Organization{
+               id: ^organization_id,
+               slug: ^organization_slug,
+               name: ^organization_name,
+               logo_thumbnail: ^logo_thumbnail,
+               logo: ^logo,
+               acronym: nil,
+               badges: [%{"kind" => "certified"}, %{"kind" => "public-service"}]
+             }
+           ] = DB.Repo.all(DB.Organization)
 
     assert_in_delta last_login_at |> DateTime.to_unix(), DateTime.utc_now() |> DateTime.to_unix(), 1
   end
@@ -66,7 +90,8 @@ defmodule TransportWeb.SessionControllerTest do
         "id" => datagouv_user_id,
         "first_name" => contact.first_name,
         "last_name" => contact.last_name,
-        "email" => new_email = "#{Ecto.UUID.generate()}@example.fr"
+        "email" => new_email = "#{Ecto.UUID.generate()}@example.fr",
+        "organizations" => []
       })
 
       contact = DB.Repo.reload!(contact)
@@ -88,7 +113,8 @@ defmodule TransportWeb.SessionControllerTest do
         "id" => datagouv_user_id,
         "first_name" => "Équipe data",
         "last_name" => "CD42",
-        "email" => contact.email
+        "email" => contact.email,
+        "organizations" => []
       })
 
       contact = DB.Repo.reload!(contact)
@@ -124,7 +150,17 @@ defmodule TransportWeb.SessionControllerTest do
         "first_name" => first_name = "John",
         "last_name" => last_name = "Doe",
         "email" => email = "email@example.fr",
-        "organizations" => [%{"name" => org_name = "Corp Inc"}]
+        "organizations" => [
+          %{
+            "acronym" => nil,
+            "badges" => [],
+            "id" => org_id = "5abca8d588ee386ee6ece479",
+            "logo" => "https://static.data.gouv.fr/avatars/85/53e0a3845e43eb87fb905032aaa389-original.png",
+            "logo_thumbnail" => "https://static.data.gouv.fr/avatars/85/53e0a3845e43eb87fb905032aaa389-100.png",
+            "name" => org_name = "Corp Inc",
+            "slug" => org_slug = Ecto.UUID.generate()
+          }
+        ]
       })
 
       assert [
@@ -137,6 +173,10 @@ defmodule TransportWeb.SessionControllerTest do
                  last_login_at: last_login_at
                }
              ] = DB.Contact |> DB.Repo.all()
+
+      assert [
+               %DB.Organization{id: ^org_id, name: ^org_name, slug: ^org_slug}
+             ] = DB.Organization |> DB.Repo.all()
 
       assert_in_delta last_login_at |> DateTime.to_unix(), DateTime.utc_now() |> DateTime.to_unix(), 1
     end

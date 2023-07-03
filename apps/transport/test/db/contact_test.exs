@@ -174,6 +174,52 @@ defmodule DB.ContactTest do
     assert [%DB.Contact{first_name: "Marina"}] = search_fn.(%{"q" => "marina"})
   end
 
+  test "organisations" do
+    sample_contact_args()
+    |> Map.merge(%{
+      organizations: [
+        %{
+          "acronym" => nil,
+          "badges" => [],
+          "id" => Ecto.UUID.generate(),
+          "logo" => "https://static.data.gouv.fr/avatars/85/53e0a3845e43eb87fb905032aaa389-original.png",
+          "logo_thumbnail" => "https://static.data.gouv.fr/avatars/85/53e0a3845e43eb87fb905032aaa389-100.png",
+          "name" => "PAN",
+          "slug" => "equipe-transport-data-gouv-fr"
+        },
+        %{
+          "acronym" => nil,
+          "badges" => [],
+          "id" => Ecto.UUID.generate(),
+          "logo" => "https://static.data.gouv.fr/avatars/85/53e0a3845e43eb87fb905032aaa389-original.png",
+          "logo_thumbnail" => "https://static.data.gouv.fr/avatars/85/53e0a3845e43eb87fb905032aaa389-100.png",
+          "name" => "Big Corp",
+          "slug" => "foo"
+        }
+      ]
+    })
+    |> DB.Contact.insert!()
+
+    contact = DB.Contact |> DB.Repo.one!() |> DB.Repo.preload([:organizations])
+
+    assert 2 == contact.organizations |> Enum.count()
+
+    # Updating organizations by keeping just one
+    contact
+    |> DB.Contact.changeset(%{organizations: [contact.organizations |> hd() |> Map.from_struct()]})
+    |> DB.Repo.update!()
+
+    # The contact's organizations have been updated and we kept 2 organizations
+    assert 1 ==
+             contact
+             |> DB.Repo.reload!()
+             |> DB.Repo.preload([:organizations])
+             |> Map.fetch!(:organizations)
+             |> Enum.count()
+
+    assert 2 == DB.Organization |> DB.Repo.all() |> Enum.count()
+  end
+
   defp sample_contact_args do
     %{
       first_name: "John",

@@ -56,18 +56,36 @@ defmodule TransportWeb.SessionController do
   end
 
   def find_or_create_contact(
-        %{"id" => user_id, "first_name" => first_name, "last_name" => last_name, "email" => email} = user_params
+        %{
+          "id" => user_id,
+          "first_name" => first_name,
+          "last_name" => last_name,
+          "email" => email,
+          "organizations" => organizations
+        } = user_params
       ) do
     DB.Contact
     |> DB.Repo.get_by(datagouv_user_id: user_id)
     |> case do
       %DB.Contact{mailing_list_title: nil} = contact ->
         contact
-        |> DB.Contact.changeset(%{first_name: first_name, last_name: last_name, email: email})
+        |> DB.Contact.changeset(%{
+          first_name: first_name,
+          last_name: last_name,
+          email: email,
+          organizations: organizations,
+          organization: organization_name(organizations)
+        })
         |> DB.Repo.update!()
 
       %DB.Contact{mailing_list_title: mailing_list_title} = contact when mailing_list_title != nil ->
-        contact |> DB.Contact.changeset(%{email: email}) |> DB.Repo.update!()
+        contact
+        |> DB.Contact.changeset(%{
+          email: email,
+          organizations: organizations,
+          organization: organization_name(organizations)
+        })
+        |> DB.Repo.update!()
 
       nil ->
         find_contact_by_email_or_create(user_params)
@@ -86,11 +104,23 @@ defmodule TransportWeb.SessionController do
     case DB.Repo.get_by(DB.Contact, email_hash: email) do
       %DB.Contact{mailing_list_title: nil} = contact ->
         contact
-        |> DB.Contact.changeset(%{datagouv_user_id: user_id, first_name: first_name, last_name: last_name})
+        |> DB.Contact.changeset(%{
+          datagouv_user_id: user_id,
+          first_name: first_name,
+          last_name: last_name,
+          organizations: organizations,
+          organization: organization_name(organizations)
+        })
         |> DB.Repo.update!()
 
       %DB.Contact{mailing_list_title: mailing_list_title} = contact when mailing_list_title != nil ->
-        contact |> DB.Contact.changeset(%{datagouv_user_id: user_id}) |> DB.Repo.update!()
+        contact
+        |> DB.Contact.changeset(%{
+          datagouv_user_id: user_id,
+          organizations: organizations,
+          organization: organization_name(organizations)
+        })
+        |> DB.Repo.update!()
 
       nil ->
         %{
@@ -98,6 +128,7 @@ defmodule TransportWeb.SessionController do
           first_name: first_name,
           last_name: last_name,
           email: email,
+          organizations: organizations,
           organization: organization_name(organizations)
         }
         |> DB.Contact.insert!()
@@ -109,26 +140,39 @@ defmodule TransportWeb.SessionController do
 
   iex> organization_name([])
   "Inconnue"
-  iex> organization_name([%{"name" => "1"}, %{"name" => "2"}])
+  iex> organization_name([%{"name" => "1", "badges" => []}, %{"name" => "2", "badges" => []}])
   "1"
+  iex> organization_name([%{"name" => "1", "badges" => []}, %{"name" => "2", "badges" => [%{"kind" => "certified"}]}])
+  "2"
   """
   def organization_name([]), do: "Inconnue"
-  def organization_name(orgs), do: orgs |> List.first() |> Map.fetch!("name")
+
+  def organization_name(orgs) do
+    certified_orgs =
+      Enum.filter(orgs, fn %{"badges" => badges} -> Enum.any?(badges, &match?(&1, %{"kind" => "certified"})) end)
+
+    case certified_orgs do
+      [] -> orgs |> List.first() |> Map.fetch!("name")
+      result -> result |> List.first() |> Map.fetch!("name")
+    end
+  end
 
   defp user_params(%{} = user) do
-    params =
-      Map.take(
-        user,
-        ["id", "apikey", "email", "first_name", "last_name", "avatar_thumbnail", "organizations"]
-      )
+    Map.take(
+      user,
+      ["id", "apikey", "email", "first_name", "last_name", "avatar_thumbnail", "organizations"]
+    )
+  end
 
-    filtered_organizations =
+  def user_params_in_session(%{} = params) do
+    Map.put(
+      params,
+      "organizations",
       Enum.filter(
-        Map.get(params, "organizations", []),
-        fn org -> org["slug"] == "equipe-transport-data-gouv-fr" end
+        params["organizations"],
+        &match?(&1, %{"slug" => "equipe-transport-data-gouv-fr"})
       )
-
-    Map.put(params, "organizations", filtered_organizations)
+    )
   end
 
   defp get_redirect_path(%Plug.Conn{} = conn) do
