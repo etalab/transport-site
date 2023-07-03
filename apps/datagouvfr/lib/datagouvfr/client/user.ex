@@ -39,7 +39,7 @@ defmodule Datagouvfr.Client.User do
   @moduledoc """
   An Client to retrieve User information of data.gouv.fr
   """
-
+  alias Datagouvfr.Client.API
   alias Datagouvfr.Client.OAuth, as: Client
 
   @me_fields ~w(avatar avatar_thumbnail first_name id last_name
@@ -52,6 +52,15 @@ defmodule Datagouvfr.Client.User do
   @spec me(Plug.Conn.t(), [binary()]) :: {:error, OAuth2.Error.t()} | {:ok, OAuth2.Response.t()}
   def me(%Plug.Conn{} = conn, exclude_fields \\ []) do
     Client.get(conn, "me", [{"x-fields", xfields(exclude_fields)}])
+  end
+
+  @doc """
+  Call to GET /api/1/users/:id/
+  You can see documentation here: http://www.data.gouv.fr/fr/apidoc/#!/datasets/put_dataset
+  """
+  @spec get(String.t()) :: {atom, any}
+  def get(id) do
+    "users" |> Path.join(id) |> API.get()
   end
 
   # private functions
