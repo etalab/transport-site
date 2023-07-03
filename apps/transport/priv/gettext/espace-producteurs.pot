@@ -63,10 +63,6 @@ msgid "Your producer space"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "You can test your data online and check its validity."
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Updating a dataset guidelines"
 msgstr ""
 
@@ -180,4 +176,8 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Validate a file or a feed"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Before publishing, you can test your data online and check its validity."
 msgstr ""

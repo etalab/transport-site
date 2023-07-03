@@ -53,11 +53,11 @@
                 <h4 class="with-link"><%= dgettext("espace-producteurs", "Validate your datasets") %></h4>
               </div>
               <div>
-                <%= dgettext("espace-producteurs", "You can test your data online and check its validity.") %>
+                <%= dgettext("espace-producteurs", "Before publishing, you can test your data online and check its validity.") %>
 
               </div>
               <div class="pt-12">
-                <a href={dataset_creation()} class="button primary">
+                <a href={live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)} class="button primary">
                   <%= dgettext("espace-producteurs", "Validate a file or a feed") %>
                 </a>
               </div>
