@@ -5,7 +5,11 @@ WORKDIR /phoenixapp
 COPY ./ /phoenixapp
 RUN mv  /transport-tools /phoenixapp
 
-# TEMPORARY test https://docs.appsignal.com/support/operating-systems.html#debian-ubuntu
+# Installation of AppSignal dependencies:
+# https://docs.appsignal.com/support/operating-systems.html#debian-ubuntu
+# To be moved to the base Docker image instead:
+# https://github.com/etalab/transport-ops/issues/51
+# (but this could take a bit of time)
 RUN apt-get update
 RUN apt-get install --assume-yes build-essential ca-certificates
 
