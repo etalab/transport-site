@@ -56,7 +56,7 @@ defmodule Datagouvfr.Client.User do
 
   @doc """
   Call to GET /api/1/users/:id/
-  You can see documentation here: http://www.data.gouv.fr/fr/apidoc/#!/datasets/put_dataset
+  You can see documentation here: https://www.data.gouv.fr/fr/apidoc/#!/users/get_user
   """
   @spec get(String.t()) :: {atom, any}
   def get(id) do
