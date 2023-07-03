@@ -28,7 +28,6 @@ defmodule GBFS.Router do
     "mulhouse" => "VéloCité",
     "nancy" => "vélOstan'lib",
     "nantes" => "Bicloo",
-    "rouen" => "cy'clic",
     "toulouse" => "Vélô"
   }
 
@@ -49,6 +48,15 @@ defmodule GBFS.Router do
         "system_information.json" => "https://strasbourg-fr-smoove.klervi.net/gbfs/en/system_information.json",
         "station_information.json" => "https://strasbourg-fr-smoove.klervi.net/gbfs/en/station_information.json",
         "station_status.json" => "https://strasbourg-fr-smoove.klervi.net/gbfs/en/station_status.json"
+      }
+    },
+    %{
+      contract_id: "rouen",
+      redirects: %{
+        "gbfs.json" => "https://gbfs.urbansharing.com/lovelolibreservice.fr/gbfs.json",
+        "system_information.json" => "https://gbfs.urbansharing.com/lovelolibreservice.fr/system_information.json",
+        "station_information.json" => "https://gbfs.urbansharing.com/lovelolibreservice.fr/station_information.json",
+        "station_status.json" => "https://gbfs.urbansharing.com/lovelolibreservice.fr/station_status.json"
       }
     },
     %{
