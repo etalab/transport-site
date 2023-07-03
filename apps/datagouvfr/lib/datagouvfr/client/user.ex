@@ -22,7 +22,16 @@ defmodule Datagouvfr.Client.User.Dummy do
          "last_name" => "rigolo",
          "id" => "user_id_1",
          "email" => "email@example.fr",
-         "organizations" => [%{"slug" => "equipe-transport-data-gouv-fr", "name" => "PAN"}]
+         "organizations" => [
+           %{
+             "slug" => "equipe-transport-data-gouv-fr",
+             "name" => "PAN",
+             "badges" => [],
+             "id" => "random",
+             "logo" => "https://example.com/pic.jpg",
+             "logo_thumbnail" => "https://example.com/pic.small.jpg"
+           }
+         ]
        }}
 end
 

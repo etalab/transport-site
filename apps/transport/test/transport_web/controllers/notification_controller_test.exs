@@ -56,10 +56,7 @@ defmodule TransportWeb.NotificationControllerTest do
         conn
         |> init_test_session(%{
           current_user: %{
-            "id" => datagouv_user_id,
-            "first_name" => "John",
-            "last_name" => "Doe",
-            "email" => "john@example.fr"
+            "id" => datagouv_user_id
           }
         })
 
