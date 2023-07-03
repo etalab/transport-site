@@ -71,7 +71,7 @@ defmodule IRVECheck do
       |> Enum.to_list()
       |> Enum.sort()
 
-    {List.first(data), List.last(data)}
+    {List.first(data), List.last(data), Enum.count(data)}
   end
 end
 
