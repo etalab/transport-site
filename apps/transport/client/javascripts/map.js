@@ -1,16 +1,6 @@
 import Leaflet from 'leaflet'
 import 'leaflet.pattern'
-
-/**
- * Represents a Mapbox object.
- * @type {Object}
- */
-const Mapbox = {
-    url: 'https://api.mapbox.com/styles/v1/istopopoki/ckg98kpoc010h19qusi9kxcct/tiles/256/{z}/{x}/{y}?access_token={accessToken}',
-    accessToken: 'pk.eyJ1IjoiaXN0b3BvcG9raSIsImEiOiJjaW12eWw2ZHMwMGFxdzVtMWZ5NHcwOHJ4In0.VvZvyvK0UaxbFiAtak7aVw',
-    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors <a href="https://spdx.org/licenses/ODbL-1.0.html">ODbL</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-    maxZoom: 20
-}
+import { Mapbox } from './mapbox-credentials'
 
 const regionsUrl = '/api/stats/regions'
 const aomsUrl = '/api/stats/'
@@ -31,7 +21,9 @@ const makeMapOnView = (id, view) => {
     Leaflet.tileLayer(Mapbox.url, {
         accessToken: Mapbox.accessToken,
         attribution: Mapbox.attribution,
-        maxZoom: Mapbox.maxZoom
+        maxZoom: Mapbox.maxZoom,
+        tileSize: Mapbox.tileSize,
+        zoomOffset: Mapbox.zoomOffset
     }).addTo(map)
 
     return map
@@ -212,11 +204,11 @@ function addStaticPTMapAOMS (id, view) {
             : count === 1
                 ? 'Un jeu de données'
                 : `${count} jeux de données`
-        const extra = feature.properties.parent_dataset_slug !== null
-            ? `<br>Des données sont disponibles au sein <a href="/datasets/${feature.properties.parent_dataset_slug}/">d'un jeu agrégé</a>.`
+        const extra = feature.properties.nb_other_datasets > 0
+            ? '<br>Des données sont disponibles au sein d\'un jeu agrégé. '
             : ''
-        const commune = feature.properties.id
-        layer.bindPopup(`<strong>${name}</strong><br>(${type})<br/><a href="/datasets/aom/${commune}">${text}</a> propre à l'AOM. ${extra}`)
+        const aomId = feature.properties.id
+        layer.bindPopup(`<strong>${name}</strong><br>(${type})<br/>${text} propre à l'AOM. ${extra}<br><a href="/datasets/aom/${aomId}">Voir les jeux de données</a>`)
     }
 
     const smallStripes = new Leaflet.StripePattern({ angle: -45, color: 'green', spaceColor: lightGreen, spaceOpacity: 1, weight: 1, spaceWeight: 1, height: 2 })
@@ -258,11 +250,11 @@ function addStaticPTMapAOMS (id, view) {
 
     const style = zoom => feature => {
         const count = nbBaseSchedule(feature)
-        if (count > 0 && feature.properties.parent_dataset_slug) {
+        if (count > 0 && feature.properties.nb_other_datasets > 0) {
             return zoom > 6 ? styles.availableEverywhere.bigStripes : styles.availableEverywhere.smallStripes
         } else if (count > 0) {
             return styles.available
-        } else if (feature.properties.parent_dataset_slug) {
+        } else if (feature.properties.nb_other_datasets > 0) {
             return styles.availableElsewhere
         } else {
             return styles.unavailable
@@ -449,8 +441,8 @@ function addRealTimePTMap (id, view) {
         let bind = `<strong>${name}</strong><br/>${type}`
         if (countOfficial) {
             const text = countOfficial === 1 ? 'Un jeu de données standardisé' : `${countOfficial} jeux de données standardisés`
-            const commune = feature.properties.id
-            bind += `<br/><a href="/datasets/aom/${commune}">${text}</a>`
+            const aomId = feature.properties.id
+            bind += `<br/><a href="/datasets/aom/${aomId}">${text}</a>`
         }
 
         if (countNonStandardRT) {

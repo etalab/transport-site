@@ -24,7 +24,7 @@ defmodule Transport.Test.Transport.Jobs.NewDatasetNotificationsJobTest do
   test "perform" do
     %DB.Dataset{id: dataset_id} = insert(:dataset, inserted_at: hours_ago(23), is_active: true)
     %DB.Contact{id: contact_id, email: email} = insert_contact()
-    insert(:notification_subscription, %{reason: :new_dataset, source: :admin, contact_id: contact_id})
+    insert(:notification_subscription, %{reason: :new_dataset, source: :admin, role: :producer, contact_id: contact_id})
 
     Transport.EmailSender.Mock
     |> expect(:send_mail, fn "transport.data.gouv.fr",

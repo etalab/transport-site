@@ -35,18 +35,21 @@ defmodule Transport.StatsHandler do
   @spec compute_stats() :: any()
   def compute_stats do
     aoms =
-      Repo.all(
-        from(a in AOM,
-          select: %{
-            population: a.population_totale,
-            region_id: a.region_id,
-            nb_datasets: fragment("SELECT count(*) FROM dataset where aom_id = ? and is_active", a.id),
-            parent_dataset_id: a.parent_dataset_id
-          }
-        )
+      AOM
+      |> join(:left, [a], d in assoc(a, :legal_owners_dataset), as: :legal_owners_dataset)
+      |> join(:left, [a, legal_owners_dataset: legal_owners_dataset], d in Dataset,
+        on: (d.id == legal_owners_dataset.id or d.aom_id == a.id) and d.is_active,
+        as: :dataset
       )
+      |> group_by([a], [a.id, a.population_totale, a.region_id])
+      |> select([a, dataset: d], %{
+        population: a.population_totale,
+        region_id: a.region_id,
+        nb_datasets: count(d.id)
+      })
+      |> Repo.all()
 
-    aoms_with_datasets = aoms |> Enum.filter(&(&1.nb_datasets > 0 || !is_nil(&1.parent_dataset_id)))
+    aoms_with_datasets = aoms |> Enum.filter(&(&1.nb_datasets > 0))
 
     regions = Repo.all(from(r in Region, where: r.nom != "National"))
 
@@ -201,13 +204,17 @@ defmodule Transport.StatsHandler do
       })
 
     AOM
-    |> join(:left, [aom], dataset in Dataset, on: dataset.id == aom.parent_dataset_id or dataset.aom_id == aom.id)
-    |> join(:left, [_, dataset], _r in assoc(dataset, :resources))
-    |> join(:left, [_, _, r], v in subquery(validation_infos), on: v.resource_id == r.id)
-    |> where([_a, _d, r, _v], r.format == "GTFS")
-    |> where([_a, _d, _r, v], v.end_date >= ^dt)
-    |> group_by([a, _d, _r, v], a.id)
-    |> select([a, d, r, v], %{
+    |> join(:left, [a], d in assoc(a, :legal_owners_dataset), as: :legal_owners_dataset)
+    |> join(:left, [a, legal_owners_dataset: legal_owners_dataset], d in Dataset,
+      on: (d.id == legal_owners_dataset.id or d.aom_id == a.id) and d.is_active,
+      as: :dataset
+    )
+    |> join(:left, [_, _, dataset], _r in assoc(dataset, :resources))
+    |> join(:left, [_, _, _, r], v in subquery(validation_infos), on: v.resource_id == r.id)
+    |> where([_a, _l, _d, r, _v], r.format == "GTFS")
+    |> where([_a, _l, _d, _r, v], v.end_date >= ^dt)
+    |> group_by([a, _l, _d, _r, v], a.id)
+    |> select([a, l, d, r, v], %{
       aom: a.id,
       max_error: max(v.max_error)
     })

@@ -218,6 +218,7 @@ defmodule Transport.DataCheckerTest do
       insert(:notification_subscription, %{
         reason: :expiration,
         source: :admin,
+        role: :producer,
         contact_id: contact_id,
         dataset_id: dataset.id
       })
@@ -269,6 +270,7 @@ defmodule Transport.DataCheckerTest do
     insert(:notification_subscription, %{
       reason: :expiration,
       source: :admin,
+      role: :producer,
       contact_id: contact_id,
       dataset_id: dataset.id
     })
@@ -303,7 +305,13 @@ defmodule Transport.DataCheckerTest do
         dataset = insert(:dataset, custom_title: "Super JDD", type: "public-transit", slug: Ecto.UUID.generate())
 
       %DB.Contact{id: contact_id, email: email} = insert_contact()
-      insert(:notification_subscription, %{reason: :new_dataset, source: :admin, contact_id: contact_id})
+
+      insert(:notification_subscription, %{
+        reason: :new_dataset,
+        source: :admin,
+        role: :producer,
+        contact_id: contact_id
+      })
 
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn "transport.data.gouv.fr",

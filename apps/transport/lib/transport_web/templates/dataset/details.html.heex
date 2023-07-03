@@ -19,6 +19,14 @@
   <%= if admin?(assigns[:current_user]) do %>
     <i class="fa fa-external-link-alt"></i>
     <%= link("backoffice", to: backoffice_page_path(@conn, :edit, @dataset.id)) %>
+    <div class="light-grey pt-6">
+      <%= if not is_nil(@freshness_score) do %>
+        Score fraicheur : <%= @freshness_score.score %><br />
+        <%= @freshness_score.timestamp |> Shared.DateTimeDisplay.format_datetime_to_paris(locale) %>
+      <% else %>
+        Pas de score fraicheur
+      <% end %>
+    </div>
   <% end %>
 </div>
 <div class="dataset-page">
@@ -43,9 +51,9 @@
           <a href="#dataset-documentation"><%= dgettext("page-dataset-details", "Documentation") %></a>
         </div>
       <% end %>
-      <%= unless is_nil(@reuses) or @reuses == [] do %>
-        <div class="menu-item"><a href="#dataset-reuses"><%= dgettext("page-dataset-details", "Reuses") %></a></div>
-      <% end %>
+
+      <%= live_render(@conn, TransportWeb.CountReusesLive, session: %{"dataset_datagouv_id" => @dataset.datagouv_id}) %>
+
       <div :if={Enum.count(@notifications_sent) > 0} class="menu-item">
         <a href="#notifications-sent">
           <%= dgettext("page-dataset-details", "Notifications sent") %> (<%= Enum.count(@notifications_sent) %>)
@@ -161,39 +169,9 @@
       <%= render("_reuser_message.html") %>
       <%= render("_community_resources.html", dataset: @dataset) %>
     </section>
-    <%= unless is_nil(@reuses) or @reuses == [] do %>
-      <section class="white pt-48" id="dataset-reuses">
-        <h2><%= dgettext("page-dataset-details", "Reuses") %></h2>
-        <%= if @fetch_reuses_error do %>
-          <div class="panel reuses_not_available">
-            🔌 <%= dgettext("page-dataset-details", "Reuses are temporarily unavailable") %>
-          </div>
-        <% end %>
-        <div class="reuses">
-          <%= for reuse <- @reuses do %>
-            <div class="panel reuse">
-              <img src={reuse["image"]} alt={reuse["title"]} />
-              <div class="reuse__links">
-                <%= link(
-                  dgettext("page-dataset-details", "Website"),
-                  to: reuse["url"]
-                ) %>
-                <%= link(
-                  dgettext("page-dataset-details", "See on data.gouv.fr"),
-                  to: reuse["page"]
-                ) %>
-              </div>
-              <div class="reuse__details">
-                <div>
-                  <h3><%= reuse["title"] %></h3>
-                  <p><%= MarkdownHandler.markdown_to_safe_html!(reuse["description"]) %></p>
-                </div>
-              </div>
-            </div>
-          <% end %>
-        </div>
-      </section>
-    <% end %>
+
+    <%= live_render(@conn, TransportWeb.ReusesLive, session: %{"dataset_datagouv_id" => @dataset.datagouv_id}) %>
+
     <%= unless Enum.empty?(@notifications_sent) do %>
       <%= render("_notifications_sent.html", notifications_sent: @notifications_sent, locale: locale, conn: @conn) %>
     <% end %>
@@ -222,8 +200,7 @@
           <%= live_render(@conn, TransportWeb.DiscussionsLive,
             session: %{
               "current_user" => @current_user,
-              "dataset" => @dataset,
-              "locale" => locale
+              "dataset" => @dataset
             }
           ) %>
 

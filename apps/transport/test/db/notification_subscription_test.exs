@@ -17,6 +17,7 @@ defmodule DB.NotificationSubscriptionTest do
     # valid cases
     assert %Ecto.Changeset{valid?: true} =
              changeset.(%{
+               role: :producer,
                source: :admin,
                reason: :datasets_switching_climate_resilience_bill,
                contact_id: contact.id
@@ -24,6 +25,7 @@ defmodule DB.NotificationSubscriptionTest do
 
     assert %Ecto.Changeset{valid?: true} =
              changeset.(%{
+               role: :producer,
                source: :admin,
                reason: :expiration,
                contact_id: contact.id,
@@ -34,6 +36,7 @@ defmodule DB.NotificationSubscriptionTest do
     assert %Ecto.Changeset{valid?: false, errors: [dataset_id: {"can't be blank", [validation: :required]}]} =
              changeset.(%{
                source: :admin,
+               role: :producer,
                reason: :expiration,
                contact_id: contact.id,
                dataset_id: nil
@@ -42,6 +45,7 @@ defmodule DB.NotificationSubscriptionTest do
     assert {:error, %Ecto.Changeset{valid?: false, errors: [dataset: {"does not exist", _}]}} =
              %{
                source: :admin,
+               role: :producer,
                reason: :expiration,
                contact_id: contact.id,
                dataset_id: -1
@@ -53,6 +57,7 @@ defmodule DB.NotificationSubscriptionTest do
     assert %Ecto.Changeset{valid?: false, errors: [contact_id: {"can't be blank", [validation: :required]}]} =
              changeset.(%{
                source: :admin,
+               role: :producer,
                reason: :datasets_switching_climate_resilience_bill,
                contact_id: nil
              })
@@ -60,15 +65,17 @@ defmodule DB.NotificationSubscriptionTest do
     assert {:error, %Ecto.Changeset{valid?: false, errors: [contact: {"does not exist", _}]}} =
              %{
                source: :admin,
+               role: :producer,
                reason: :datasets_switching_climate_resilience_bill,
                contact_id: -1
              }
              |> changeset.()
              |> DB.Repo.insert()
 
-    # `source` is an enum
-    assert %Ecto.Changeset{valid?: false, errors: [source: {"is invalid", _}]} =
+    # `source` and `role` are enums
+    assert %Ecto.Changeset{valid?: false, errors: [source: {"is invalid", _}, role: {"is invalid", _}]} =
              changeset.(%{
+               role: :foo,
                source: :foo,
                reason: :datasets_switching_climate_resilience_bill,
                contact_id: contact.id

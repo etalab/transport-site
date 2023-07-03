@@ -23,7 +23,13 @@ defmodule Transport.CommentsCheckerTest do
   test "check for new comments on data.gouv.fr" do
     %{id: dataset_id} = insert(:dataset, datagouv_title: "dataset 1")
     %DB.Contact{id: contact_id, email: email} = insert_contact()
-    insert(:notification_subscription, %{reason: :daily_new_comments, source: :admin, contact_id: contact_id})
+
+    insert(:notification_subscription, %{
+      reason: :daily_new_comments,
+      source: :admin,
+      contact_id: contact_id,
+      role: :producer
+    })
 
     # when the dataset is created, no comment timestamp is stored
     assert_dataset_ts(dataset_id, nil)
