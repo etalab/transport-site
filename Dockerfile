@@ -5,6 +5,10 @@ WORKDIR /phoenixapp
 COPY ./ /phoenixapp
 RUN mv  /transport-tools /phoenixapp
 
+# TEMPORARY test https://docs.appsignal.com/support/operating-systems.html#debian-ubuntu
+RUN apt-get update
+RUN apt-get install build-essential ca-certificates
+
 RUN mix do deps.get --only prod
 
 RUN elixir --version
