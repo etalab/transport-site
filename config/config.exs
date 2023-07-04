@@ -216,6 +216,8 @@ config :appsignal, :config,
   send_session_data: false,
   # https://docs.appsignal.com/ruby/configuration/options.html#option-send_params
   send_params: false
+  send_params: false,
+  ignore_namespaces: ["ignore"]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
