@@ -215,7 +215,6 @@ config :appsignal, :config,
   # https://docs.appsignal.com/ruby/configuration/options.html#option-send_session_data
   send_session_data: false,
   # https://docs.appsignal.com/ruby/configuration/options.html#option-send_params
-  send_params: false
   send_params: false,
   ignore_namespaces: ["ignore"]
 
