@@ -49,7 +49,9 @@ defmodule GBFS.MixProject do
       {:shared, in_umbrella: true},
       {:exvcr, "~> 0.13", only: :test},
       {:mock, "~> 0.3.6", only: :test},
-      {:bypass, "~> 2.1", only: :test}
+      {:bypass, "~> 2.1", only: :test},
+      {:appsignal, "~> 2.0"},
+      {:appsignal_phoenix, "~> 2.0"}
     ]
   end
 end

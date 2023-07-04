@@ -17,7 +17,7 @@ defmodule CustomCache do
     # TODO: handle a form of expiration - for now it is acceptable to wipe out the whole folder manually for me
     # NOTE: race condition here, for parallel queries
     if File.exists?(path = cache_path(request)) do
-      Logger.info("File found in cache (#{path})")
+      # Logger.info("File found in cache (#{path})")
       {request, load_cache(path)}
     else
       request
