@@ -208,6 +208,15 @@ config :transport,
   security_email: "contact@transport.beta.gouv.fr",
   transport_tools_folder: Path.absname("transport-tools/")
 
+# For now, never send session data (containing sensitive data in our case) nor params,
+# even if this means less useful information.
+# See https://github.com/etalab/transport_deploy/issues/64
+config :appsignal, :config,
+  # https://docs.appsignal.com/ruby/configuration/options.html#option-send_session_data
+  send_session_data: false,
+  # https://docs.appsignal.com/ruby/configuration/options.html#option-send_params
+  send_params: false
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "datagouvfr.exs"
