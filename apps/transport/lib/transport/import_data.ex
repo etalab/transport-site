@@ -771,10 +771,10 @@ defmodule Transport.ImportData do
     is_documentation = Map.get(resource, "type", "") == "documentation"
 
     cond do
-      is_gtfs_rt?(format) -> "gtfs-rt"
-      is_netex?(format) -> "NeTEx"
+      is_gtfs_rt?(resource) -> "gtfs-rt"
+      is_netex?(resource) -> "NeTEx"
       is_neptune?(format) -> "Neptune"
-      is_gtfs?(format) -> "GTFS"
+      is_gtfs?(resource) -> "GTFS"
       is_siri_lite?(format) -> "SIRI Lite"
       is_siri?(format) -> "SIRI"
       is_geojson?(resource, format) -> "geojson"
