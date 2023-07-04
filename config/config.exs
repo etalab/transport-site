@@ -216,7 +216,14 @@ config :appsignal, :config,
   send_session_data: false,
   # https://docs.appsignal.com/ruby/configuration/options.html#option-send_params
   send_params: false,
-  ignore_namespaces: ["ignore"]
+  ignore_namespaces: ["ignore"],
+  ignore_actions: [
+    # this one results in aggregates of everything already there
+    "GET /*_path",
+    # these ones kept to make sure we really filter out (double check)
+    "GET /gbfs/*_",
+    "Unlock.Controller#fetch"
+  ]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
