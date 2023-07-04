@@ -31,8 +31,13 @@ unless is_nil(datasets["next_page"]), do: raise("should not have next page")
 resources =
   datasets["data"]
   |> Enum.flat_map(fn dataset ->
+    # IO.inspect(dataset, IEx.inspect_opts())
+
     dataset["resources"]
     |> Enum.filter(fn r -> r["schema"]["name"] == "etalab/schema-irve-dynamique" end)
+    |> Enum.map(fn r ->
+      Map.put(r, "dataset_url", dataset["page"])
+    end)
   end)
   |> Enum.reject(fn r ->
     # https://www.data.gouv.fr/en/datasets/exemple-jeu-de-donnees-points-de-recharge-de-xxxxxx-donnees-statiques-et-dynamiques/
@@ -66,12 +71,14 @@ defmodule IRVECheck do
       |> Enum.to_list()
       |> Enum.sort()
 
-    {List.first(data), List.last(data)}
+    {List.first(data), List.last(data), Enum.count(data)}
   end
 end
 
 resources
 |> Enum.each(fn r ->
+  IO.puts("\n" <> r["dataset_url"])
+
   IO.puts(
     r["url"] <>
       " --- " <>
