@@ -59,21 +59,23 @@ defmodule TransportWeb.AOMSController do
     datasets =
       Dataset.base_query()
       |> Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
-      |> join(:inner, [dataset: d], aom in AOM, on: d.aom_id == aom.id, as: :aom)
+      |> join(:left, [dataset: d], aom in AOM, on: d.aom_id == aom.id, as: :aom)
       |> where([dataset: d], d.type == "public-transit")
       |> select(
-        [dataset: d, metadata: m],
-        {as(:aom).id,
-         %{
-           dataset_id: d.id,
-           end_date: fragment("TO_DATE(?->>'end_date', 'YYYY-MM-DD')", m.metadata),
-           has_realtime: d.has_realtime
-         }}
+        [dataset: d, metadata: m, aom: a],
+        %{
+          aom_id: a.id,
+          dataset_id: d.id,
+          end_date: fragment("TO_DATE(?->>'end_date', 'YYYY-MM-DD')", m.metadata),
+          has_realtime: d.has_realtime
+        }
       )
       |> Repo.all()
-      |> Enum.group_by(&elem(&1, 0), &elem(&1, 1))
 
-    datasets_with_multiple_aoms =
+    datasets_by_aom_id = datasets |> Enum.group_by(& &1.aom_id)
+    datasets_by_dataset_id = datasets |> Enum.group_by(& &1.dataset_id)
+
+    aggregated_datasets =
       AOM
       |> join(:inner, [aom], d in assoc(aom, :legal_owners_dataset), as: :legal_owners_dataset)
       |> where(
@@ -87,26 +89,10 @@ defmodule TransportWeb.AOMSController do
         )
       )
       |> select([aom, legal_owners_dataset: d], %{aom_id: aom.id, dataset_id: d.id})
-
-    aggregated_datasets =
-      AOM
-      |> join(:inner, [aom], legal_owners in subquery(datasets_with_multiple_aoms), on: aom.id == legal_owners.aom_id)
-      |> join(:inner, [aom, legal_owners], d in Dataset,
-        on: d.id == legal_owners.dataset_id and d.is_active and d.type == "public-transit",
-        as: :dataset
-      )
-      |> Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
-      |> select(
-        [aom, dataset: d, metadata: m],
-        {aom.id,
-         %{
-           dataset_id: d.id,
-           end_date: fragment("TO_DATE(?->>'end_date', 'YYYY-MM-DD')", m.metadata),
-           has_realtime: d.has_realtime
-         }}
-      )
       |> Repo.all()
-      |> Enum.group_by(&elem(&1, 0), &elem(&1, 1))
+      |> Enum.group_by(& &1.aom_id, fn %{dataset_id: dataset_id} ->
+        datasets_by_dataset_id |> Map.fetch!(dataset_id) |> hd()
+      end)
 
     AOM
     |> join(:left, [aom], c in Commune, on: aom.insee_commune_principale == c.insee)
@@ -114,7 +100,7 @@ defmodule TransportWeb.AOMSController do
     |> select([aom, commune], {aom, commune.nom})
     |> Repo.all()
     |> Enum.map(fn {aom, nom_commune} ->
-      prepare_aom({aom, nom_commune}, Map.get(datasets, aom.id, []), Map.get(aggregated_datasets, aom.id, []))
+      prepare_aom({aom, nom_commune}, Map.get(datasets_by_aom_id, aom.id, []), Map.get(aggregated_datasets, aom.id, []))
     end)
   end
 
