@@ -27,7 +27,9 @@ defmodule Transport.MixProject do
       # to reduce build time
       {:dialyxir, "~> 1.2.0", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.10", only: :test},
-      {:saxy, "~> 1.5"}
+      {:saxy, "~> 1.5"},
+      {:appsignal, "~> 2.0"},
+      {:appsignal_phoenix, "~> 2.0"}
     ]
   end
 

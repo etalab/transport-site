@@ -127,7 +127,10 @@ defmodule Transport.Mixfile do
       {:telemetry_poller, "~> 1.0"},
       {:telemetry_metrics, "~> 0.4"},
       {:luhn, "~> 0.3.0"},
-      {:ex_phone_number, "~> 0.3"}
+      {:ex_phone_number, "~> 0.3"},
+      {:appsignal, "~> 2.0"},
+      {:appsignal_phoenix, "~> 2.0"}
+
     ]
   end
 end
