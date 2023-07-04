@@ -763,6 +763,9 @@ defmodule Transport.ImportData do
 
       iex> formated_format(%{"format" => "zip", "description" => "Lieux de mobilités au format netex"}, "locations", false)
       "NeTEx"
+
+      iex> formated_format(%{"format" => "zip", "title" => "files-netex-half-summer-autumn-2023.zip"}, "public-transit", false)
+      "NeTEx"
   """
   @spec formated_format(map(), binary(), bool()) :: binary()
   # credo:disable-for-next-line
