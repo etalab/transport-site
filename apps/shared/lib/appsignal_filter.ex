@@ -15,7 +15,7 @@ defmodule TransportWeb.Plugs.AppSignalFilter do
 
   def init(options), do: options
 
-  def call(conn, _opts) do
+  def call(%Plug.Conn{} = conn, _opts) do
     if function_exported?(Appsignal.Tracer, :root_span, 0) do
       if must_ignore?(conn) do
         Appsignal.Tracer.root_span()
