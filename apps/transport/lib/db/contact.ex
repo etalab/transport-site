@@ -7,6 +7,7 @@ defmodule DB.Contact do
   import Ecto.{Changeset, Query}
 
   @default_phone_number_region "FR"
+  @default_org_name "Inconnue"
 
   typed_schema "contact" do
     # Use `first_name` and `last_name` for real humans
@@ -99,7 +100,7 @@ defmodule DB.Contact do
     ])
     |> trim_fields([:first_name, :last_name, :organization, :job_title])
     |> capitalize_fields([:first_name, :last_name])
-    |> validate_required([:organization, :email])
+    |> validate_required([:email])
     |> validate_format(:email, ~r/@/)
     |> validate_names_or_mailing_list_title()
     |> cast_phone_numbers()
@@ -107,6 +108,42 @@ defmodule DB.Contact do
     |> put_hashed_fields()
     |> unique_constraint(:email_hash, error_key: :email, name: :contact_email_hash_index)
     |> put_assoc(:organizations, attrs |> organizations() |> Enum.map(&DB.Organization.changeset(find_org(&1), &1)))
+    |> cast_organisation()
+  end
+
+  defp cast_organisation(%Ecto.Changeset{changes: changes} = changeset) when changes == %{}, do: changeset
+
+  defp cast_organisation(%Ecto.Changeset{} = changeset) do
+    case {get_field(changeset, :organization), get_field(changeset, :organizations)} do
+      {value, _} when is_binary(value) and value != @default_org_name ->
+        put_change(changeset, :organization, value)
+
+      {_, orgs} when is_list(orgs) ->
+        put_change(changeset, :organization, organization_name(orgs))
+    end
+  end
+
+  @doc """
+  The best organization name possible for a contact.
+
+  iex> organization_name([])
+  "Inconnue"
+  iex> organization_name([%DB.Organization{name: "1", badges: []}, %DB.Organization{name: "2", badges: []}])
+  "1"
+  iex> organization_name([%DB.Organization{name: "1", badges: []}, %DB.Organization{name: "2", badges: [%{"kind" => "certified"}]}])
+  "2"
+  """
+  def organization_name([]), do: @default_org_name
+
+  def organization_name(orgs) do
+    certified_orgs =
+      orgs
+      |> Enum.filter(fn %DB.Organization{badges: badges} -> Enum.any?(badges, &match?(&1, %{"kind" => "certified"})) end)
+
+    case certified_orgs do
+      [] -> orgs |> List.first() |> Map.fetch!(:name)
+      result -> result |> List.first() |> Map.fetch!(:name)
+    end
   end
 
   defp organizations(%{"organizations" => orgs}), do: orgs

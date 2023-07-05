@@ -2,7 +2,6 @@ defmodule TransportWeb.SessionController do
   @moduledoc """
   Session management for transport.
   """
-
   use TransportWeb, :controller
   alias Datagouvfr.Authentication
   require Logger
@@ -73,18 +72,13 @@ defmodule TransportWeb.SessionController do
           first_name: first_name,
           last_name: last_name,
           email: email,
-          organizations: organizations,
-          organization: organization_name(organizations)
+          organizations: organizations
         })
         |> DB.Repo.update!()
 
       %DB.Contact{mailing_list_title: mailing_list_title} = contact when mailing_list_title != nil ->
         contact
-        |> DB.Contact.changeset(%{
-          email: email,
-          organizations: organizations,
-          organization: organization_name(organizations)
-        })
+        |> DB.Contact.changeset(%{email: email, organizations: organizations})
         |> DB.Repo.update!()
 
       nil ->
@@ -108,18 +102,13 @@ defmodule TransportWeb.SessionController do
           datagouv_user_id: user_id,
           first_name: first_name,
           last_name: last_name,
-          organizations: organizations,
-          organization: organization_name(organizations)
+          organizations: organizations
         })
         |> DB.Repo.update!()
 
       %DB.Contact{mailing_list_title: mailing_list_title} = contact when mailing_list_title != nil ->
         contact
-        |> DB.Contact.changeset(%{
-          datagouv_user_id: user_id,
-          organizations: organizations,
-          organization: organization_name(organizations)
-        })
+        |> DB.Contact.changeset(%{datagouv_user_id: user_id, organizations: organizations})
         |> DB.Repo.update!()
 
       nil ->
@@ -128,32 +117,9 @@ defmodule TransportWeb.SessionController do
           first_name: first_name,
           last_name: last_name,
           email: email,
-          organizations: organizations,
-          organization: organization_name(organizations)
+          organizations: organizations
         }
         |> DB.Contact.insert!()
-    end
-  end
-
-  @doc """
-  The best organization name possible to use when creating a contact.
-
-  iex> organization_name([])
-  "Inconnue"
-  iex> organization_name([%{"name" => "1", "badges" => []}, %{"name" => "2", "badges" => []}])
-  "1"
-  iex> organization_name([%{"name" => "1", "badges" => []}, %{"name" => "2", "badges" => [%{"kind" => "certified"}]}])
-  "2"
-  """
-  def organization_name([]), do: "Inconnue"
-
-  def organization_name(orgs) do
-    certified_orgs =
-      Enum.filter(orgs, fn %{"badges" => badges} -> Enum.any?(badges, &match?(&1, %{"kind" => "certified"})) end)
-
-    case certified_orgs do
-      [] -> orgs |> List.first() |> Map.fetch!("name")
-      result -> result |> List.first() |> Map.fetch!("name")
     end
   end
 

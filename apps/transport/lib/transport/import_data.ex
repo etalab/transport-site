@@ -452,8 +452,6 @@ defmodule Transport.ImportData do
   false
   iex> is_gtfs?("sncf.tgv.GtFs.zip.tar.gz.7z")
   true
-  iex> is_gtfs?(%{"format" => "neptune"})
-  false
   iex> is_gtfs?(%{"format" => "gtfs-rt"})
   false
   iex> is_gtfs?(%{"format" => "pb", "url" => "https://example.com/GtfsRt/GtfsRT.TCRA.pb"})
@@ -475,7 +473,7 @@ defmodule Transport.ImportData do
       is_gtfs?(params["format"]) -> true
       is_gtfs_rt?(params) -> false
       is_format?(params["url"], ["json", "csv", "shp", "pdf", "7z"]) -> false
-      is_format?(params["format"], ["NeTEx", "neptune"]) -> false
+      is_format?(params["format"], "NeTEx") -> false
       is_netex?(params["title"]) -> false
       is_gtfs?(params["description"]) -> true
       is_gtfs?(params["title"]) -> true
@@ -676,15 +674,6 @@ defmodule Transport.ImportData do
 
   def is_netex?(s), do: is_format?(s, "NeTEx")
 
-  @spec is_neptune?(binary() | map()) :: boolean()
-  def is_neptune?(params) do
-    cond do
-      is_ods_title?(params) or is_documentation?(params) -> false
-      is_format?(params, "neptune") -> true
-      true -> false
-    end
-  end
-
   @doc """
   Check for download uri, returns ["no_download_url"] if there's no download_url
 
@@ -776,7 +765,6 @@ defmodule Transport.ImportData do
     cond do
       is_gtfs_rt?(resource) -> "gtfs-rt"
       is_netex?(resource) -> "NeTEx"
-      is_neptune?(format) -> "Neptune"
       is_gtfs?(resource) -> "GTFS"
       is_siri_lite?(format) -> "SIRI Lite"
       is_siri?(format) -> "SIRI"
