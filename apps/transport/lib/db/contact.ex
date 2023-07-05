@@ -106,8 +106,16 @@ defmodule DB.Contact do
     |> lowercase_email()
     |> put_hashed_fields()
     |> unique_constraint(:email_hash, error_key: :email, name: :contact_email_hash_index)
-    |> cast_assoc(:organizations)
+    |> put_assoc(:organizations, attrs |> organizations() |> Enum.map(&DB.Organization.changeset(find_org(&1), &1)))
   end
+
+  defp organizations(%{"organizations" => orgs}), do: orgs
+  defp organizations(%{organizations: orgs}), do: orgs
+  defp organizations(%{}), do: []
+
+  defp find_org(%{"id" => id}), do: DB.Repo.get(DB.Organization, id) || %DB.Organization{}
+  defp find_org(%{id: id}), do: DB.Repo.get(DB.Organization, id) || %DB.Organization{}
+  defp find_org(%{}), do: %DB.Organization{}
 
   defp validate_names_or_mailing_list_title(%Ecto.Changeset{} = changeset) do
     case Enum.map(~w(first_name last_name mailing_list_title)a, &get_field(changeset, &1)) do
