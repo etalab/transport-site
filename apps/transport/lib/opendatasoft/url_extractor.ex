@@ -324,11 +324,6 @@ defmodule Opendatasoft.UrlExtractor do
       iex> [%{"mime" => "text/cv", "format" => nil}]
       ...> |> UrlExtractor.filter_csv
       []
-
-      iex> [%{"mime" => "text/csv", "format" => nil}, %{"mime" => "application/neptune", "format" => nil}]
-      ...> |> UrlExtractor.filter_csv
-      [%{"mime" => "text/csv", "format" => "csv"}]
-
   """
   @spec filter_csv([map()]) :: [map()]
   def filter_csv(resources) do
