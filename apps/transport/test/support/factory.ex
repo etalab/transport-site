@@ -252,6 +252,10 @@ defmodule DB.Factory do
     %DB.ResourceRelated{}
   end
 
+  def organization_factory do
+    %DB.Organization{}
+  end
+
   def insert_contact(%{} = args \\ %{}) do
     %{
       first_name: "John",
