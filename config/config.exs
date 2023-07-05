@@ -208,6 +208,31 @@ config :transport,
   security_email: "contact@transport.beta.gouv.fr",
   transport_tools_folder: Path.absname("transport-tools/")
 
+# For now, never send session data (containing sensitive data in our case) nor params,
+# even if this means less useful information.
+# See https://github.com/etalab/transport_deploy/issues/64
+config :appsignal, :config,
+  # https://docs.appsignal.com/ruby/configuration/options.html#option-send_session_data
+  send_session_data: false,
+  # https://docs.appsignal.com/ruby/configuration/options.html#option-send_params
+  send_params: false,
+  # we use a plug which sets the namespace as ignore programmatically
+  # and here declare that the corresponding requests should be ignored
+  ignore_namespaces: ["ignore"],
+  # but this is not always enough:
+  ignore_actions: [
+    # without this action, requests will be counted twice
+    # I presume this is triggered by the way we route requests
+    # https://github.com/etalab/transport-site/blob/master/apps/transport/lib/transport_web/plugs/router.ex
+    "GET /*_path",
+    # Same for GBFS - although it is filtered in the plug, a request
+    # will also be double-counted at the router level for some reason
+    "GET /gbfs/*_",
+    # Here this is a duplicate precaution to ensure we exclude proxy
+    # traffic which generates a lot of AppSignal events
+    "Unlock.Controller#fetch"
+  ]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "datagouvfr.exs"

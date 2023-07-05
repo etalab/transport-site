@@ -48,7 +48,11 @@ defmodule Unlock.MixProject do
       {:saxy, "~> 1.5"},
       {:mox, "~> 1.0.0", only: :test},
       {:ymlr, "~> 3.0", only: :test},
-      {:ecto, "~> 3.7", only: :test}
+      {:ecto, "~> 3.7", only: :test},
+      # required for `TransportWeb.Plugs.AppSignalFilter`
+      {:shared, in_umbrella: true},
+      {:appsignal, "~> 2.0"},
+      {:appsignal_phoenix, "~> 2.0"}
     ]
   end
 end
