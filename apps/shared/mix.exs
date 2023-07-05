@@ -61,7 +61,6 @@ defmodule Shared.MixProject do
       # added because of `TransportWeb.Plugs.AppSignalFilter`
       {:appsignal, "~> 2.0"},
       {:appsignal_phoenix, "~> 2.0"}
-
     ]
   end
 end
