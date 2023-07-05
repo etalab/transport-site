@@ -27,7 +27,7 @@ defmodule TransportWeb.Plugs.AppSignalFilter do
   end
 
   # this method allows us to filter programmatically as needed
-  defp must_ignore?(conn) do
+  defp must_ignore?(%Plug.Conn{} = conn) do
     conn.host =~ ~r/proxy/i or conn.request_path =~ ~r/\/gbfs/i
   end
 end
