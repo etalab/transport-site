@@ -3,6 +3,7 @@ defmodule Unlock.Router do
 
   pipeline :api do
     plug(CORSPlug, origin: "*", expose: ["*"], credentials: false)
+    plug(TransportWeb.Plugs.AppSignalFilter)
   end
 
   scope "/" do
