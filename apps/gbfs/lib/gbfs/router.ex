@@ -5,6 +5,7 @@ defmodule GBFS.Router do
     plug(:accepts, ["json"])
     plug(CORSPlug, origin: "*", credentials: false)
     plug(PageCache, ttl_seconds: 30, cache_name: GBFS.Application.cache_name())
+    plug(TransportWeb.Plugs.AppSignalFilter)
   end
 
   pipeline :jcdecaux do

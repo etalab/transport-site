@@ -1,5 +1,6 @@
 defmodule DB.ContactTest do
   use ExUnit.Case, async: true
+  import DB.Factory
   import Ecto.Query
 
   setup do
@@ -175,18 +176,22 @@ defmodule DB.ContactTest do
   end
 
   test "organisations" do
+    pan_org = %{
+      acronym: nil,
+      badges: [],
+      id: Ecto.UUID.generate(),
+      logo: "https://static.data.gouv.fr/avatars/85/53e0a3845e43eb87fb905032aaa389-original.png",
+      logo_thumbnail: "https://static.data.gouv.fr/avatars/85/53e0a3845e43eb87fb905032aaa389-100.png",
+      name: "PAN",
+      slug: "equipe-transport-data-gouv-fr"
+    }
+
+    insert(:organization, pan_org)
+
     sample_contact_args()
     |> Map.merge(%{
       organizations: [
-        %{
-          "acronym" => nil,
-          "badges" => [],
-          "id" => Ecto.UUID.generate(),
-          "logo" => "https://static.data.gouv.fr/avatars/85/53e0a3845e43eb87fb905032aaa389-original.png",
-          "logo_thumbnail" => "https://static.data.gouv.fr/avatars/85/53e0a3845e43eb87fb905032aaa389-100.png",
-          "name" => "PAN",
-          "slug" => "equipe-transport-data-gouv-fr"
-        },
+        pan_org,
         %{
           "acronym" => nil,
           "badges" => [],
