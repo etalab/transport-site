@@ -55,7 +55,14 @@ defmodule Transport.ImportDataTest do
       "last_update" => DateTime.utc_now() |> to_string(),
       "slug" => "dataset-slug",
       "resources" => resources,
-      "organization" => %{"id" => Ecto.UUID.generate()}
+      "organization" => %{
+        "id" => Ecto.UUID.generate(),
+        "name" => "Org " <> Ecto.UUID.generate(),
+        "badges" => [],
+        "logo" => "https://example.com/img.jpg",
+        "logo_thumbnail" => "https://example.com/img.small.jpg",
+        "slug" => Ecto.UUID.generate()
+      }
     }
   end
 
@@ -204,9 +211,10 @@ defmodule Transport.ImportDataTest do
     end
 
     assert db_count(DB.Dataset) == 1
-
-    %DB.Dataset{organization_id: organization_id} = DB.Dataset |> DB.Repo.one!()
-    refute is_nil(organization_id)
+    assert db_count(DB.Organization) == 2
+    organization_id = get_in(payload_2, ["organization", "id"])
+    organization_name = get_in(payload_2, ["organization", "name"])
+    %DB.Dataset{organization_id: ^organization_id, organization: ^organization_name} = DB.Dataset |> DB.Repo.one!()
 
     [resource_updated] = DB.Resource |> DB.Repo.all()
     # assert that the resource has been updated with a new title and a new datagouv_id
