@@ -218,10 +218,15 @@ config :appsignal, :config,
   send_params: false,
   ignore_namespaces: ["ignore"],
   ignore_actions: [
-    # this one results in aggregates of everything already there
+    # without this action, requests will be counted twice
+    # I presume this is triggered by the way we route requests
+    # https://github.com/etalab/transport-site/blob/master/apps/transport/lib/transport_web/plugs/router.ex
     "GET /*_path",
-    # these ones kept to make sure we really filter out (double check)
+    # Same for GBFS - although it is filtered in the plug, a request
+    # will also be double-counted at the router level for some reason
     "GET /gbfs/*_",
+    # Here this is a duplicate precaution to ensure we exclude proxy
+    # traffic which generates a lot of AppSignal events
     "Unlock.Controller#fetch"
   ]
 
