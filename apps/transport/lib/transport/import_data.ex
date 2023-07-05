@@ -752,6 +752,9 @@ defmodule Transport.ImportData do
 
       iex> formated_format(%{"format" => "zip", "description" => "Lieux de mobilités au format netex"}, "locations", false)
       "NeTEx"
+
+      iex> formated_format(%{"format" => "zip", "title" => "files-netex-half-summer-autumn-2023.zip"}, "public-transit", false)
+      "NeTEx"
   """
   @spec formated_format(map(), binary(), bool()) :: binary()
   # credo:disable-for-next-line
@@ -760,9 +763,9 @@ defmodule Transport.ImportData do
     is_documentation = Map.get(resource, "type", "") == "documentation"
 
     cond do
-      is_gtfs_rt?(format) -> "gtfs-rt"
-      is_netex?(format) -> "NeTEx"
-      is_gtfs?(format) -> "GTFS"
+      is_gtfs_rt?(resource) -> "gtfs-rt"
+      is_netex?(resource) -> "NeTEx"
+      is_gtfs?(resource) -> "GTFS"
       is_siri_lite?(format) -> "SIRI Lite"
       is_siri?(format) -> "SIRI"
       is_geojson?(resource, format) -> "geojson"
