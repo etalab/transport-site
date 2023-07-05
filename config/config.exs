@@ -216,7 +216,10 @@ config :appsignal, :config,
   send_session_data: false,
   # https://docs.appsignal.com/ruby/configuration/options.html#option-send_params
   send_params: false,
+  # we use a plug which sets the namespace as ignore programmatically
+  # and here declare that the corresponding requests should be ignored
   ignore_namespaces: ["ignore"],
+  # but this is not always enough:
   ignore_actions: [
     # without this action, requests will be counted twice
     # I presume this is triggered by the way we route requests
