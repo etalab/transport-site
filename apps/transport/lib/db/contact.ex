@@ -107,13 +107,23 @@ defmodule DB.Contact do
     |> lowercase_email()
     |> put_hashed_fields()
     |> unique_constraint(:email_hash, error_key: :email, name: :contact_email_hash_index)
-    |> put_assoc(:organizations, attrs |> organizations() |> Enum.map(&DB.Organization.changeset(find_org(&1), &1)))
-    |> cast_organisation()
+    |> save_organizations(attrs)
+    |> cast_organization()
   end
 
-  defp cast_organisation(%Ecto.Changeset{changes: changes} = changeset) when changes == %{}, do: changeset
+  defp save_organizations(%Ecto.Changeset{} = changeset, %{} = attrs)
+       when is_map_key(attrs, "organizations") or is_map_key(attrs, :organizations) do
+    # Update organizations only when the key is present in the changes.
+    # Passing an empty list would delete all orgs for the contact
+    changeset
+    |> put_assoc(:organizations, attrs |> organizations() |> Enum.map(&DB.Organization.changeset(find_org(&1), &1)))
+  end
 
-  defp cast_organisation(%Ecto.Changeset{} = changeset) do
+  defp save_organizations(%Ecto.Changeset{} = changeset, %{}), do: changeset
+
+  defp cast_organization(%Ecto.Changeset{changes: changes} = changeset) when changes == %{}, do: changeset
+
+  defp cast_organization(%Ecto.Changeset{} = changeset) do
     case {get_field(changeset, :organization), get_field(changeset, :organizations)} do
       {value, _} when is_binary(value) and value != @default_org_name ->
         put_change(changeset, :organization, value)
@@ -148,7 +158,6 @@ defmodule DB.Contact do
 
   defp organizations(%{"organizations" => orgs}), do: orgs
   defp organizations(%{organizations: orgs}), do: orgs
-  defp organizations(%{}), do: []
 
   defp find_org(%{"id" => id}), do: DB.Repo.get(DB.Organization, id) || %DB.Organization{}
   defp find_org(%{id: id}), do: DB.Repo.get(DB.Organization, id) || %DB.Organization{}

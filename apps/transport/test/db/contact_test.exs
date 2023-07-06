@@ -230,11 +230,11 @@ defmodule DB.ContactTest do
     |> DB.Repo.update!()
 
     assert 1 ==
-         contact
-         |> DB.Repo.reload!()
-         |> DB.Repo.preload([:organizations])
-         |> Map.fetch!(:organizations)
-         |> Enum.count()
+             contact
+             |> DB.Repo.reload!()
+             |> DB.Repo.preload([:organizations])
+             |> Map.fetch!(:organizations)
+             |> Enum.count()
   end
 
   defp sample_contact_args do

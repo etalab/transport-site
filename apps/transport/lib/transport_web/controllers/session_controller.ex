@@ -71,20 +71,19 @@ defmodule TransportWeb.SessionController do
         |> DB.Contact.changeset(%{
           first_name: first_name,
           last_name: last_name,
-          email: email,
-          organizations: organizations
+          email: email
         })
         |> DB.Repo.update!()
 
       %DB.Contact{mailing_list_title: mailing_list_title} = contact when mailing_list_title != nil ->
         contact
-        |> DB.Contact.changeset(%{email: email, organizations: organizations})
+        |> DB.Contact.changeset(%{email: email})
         |> DB.Repo.update!()
 
       nil ->
         find_contact_by_email_or_create(user_params)
     end
-    |> DB.Contact.changeset(%{last_login_at: DateTime.utc_now()})
+    |> DB.Contact.changeset(%{last_login_at: DateTime.utc_now(), organizations: organizations})
     |> DB.Repo.update!()
   end
 
@@ -92,8 +91,7 @@ defmodule TransportWeb.SessionController do
          "id" => user_id,
          "first_name" => first_name,
          "last_name" => last_name,
-         "email" => email,
-         "organizations" => organizations
+         "email" => email
        }) do
     case DB.Repo.get_by(DB.Contact, email_hash: email) do
       %DB.Contact{mailing_list_title: nil} = contact ->
@@ -101,14 +99,13 @@ defmodule TransportWeb.SessionController do
         |> DB.Contact.changeset(%{
           datagouv_user_id: user_id,
           first_name: first_name,
-          last_name: last_name,
-          organizations: organizations
+          last_name: last_name
         })
         |> DB.Repo.update!()
 
       %DB.Contact{mailing_list_title: mailing_list_title} = contact when mailing_list_title != nil ->
         contact
-        |> DB.Contact.changeset(%{datagouv_user_id: user_id, organizations: organizations})
+        |> DB.Contact.changeset(%{datagouv_user_id: user_id})
         |> DB.Repo.update!()
 
       nil ->
@@ -116,8 +113,7 @@ defmodule TransportWeb.SessionController do
           datagouv_user_id: user_id,
           first_name: first_name,
           last_name: last_name,
-          email: email,
-          organizations: organizations
+          email: email
         }
         |> DB.Contact.insert!()
     end
