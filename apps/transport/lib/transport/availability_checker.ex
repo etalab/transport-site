@@ -33,7 +33,7 @@ defmodule Transport.AvailabilityChecker do
 
   def available?("SIRI", url, _) when is_binary(url) do
     case http_client().get(url, [], follow_redirect: true) do
-      {:ok, %Response{status_code: code}} when (code >= 200 and code < 300) or code == 401 ->
+      {:ok, %Response{status_code: code}} when (code >= 200 and code < 300) or code in [401, 405] ->
         true
 
       _ ->
