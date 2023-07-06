@@ -223,6 +223,18 @@ defmodule DB.ContactTest do
              |> Enum.count()
 
     assert 2 == DB.Organization |> DB.Repo.all() |> Enum.count()
+
+    # Not passing orgs should not delete orgs associated to the contact
+    contact
+    |> DB.Contact.changeset(%{first_name: "Robert"})
+    |> DB.Repo.update!()
+
+    assert 1 ==
+         contact
+         |> DB.Repo.reload!()
+         |> DB.Repo.preload([:organizations])
+         |> Map.fetch!(:organizations)
+         |> Enum.count()
   end
 
   defp sample_contact_args do
