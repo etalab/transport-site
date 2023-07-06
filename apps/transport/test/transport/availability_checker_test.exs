@@ -33,13 +33,24 @@ defmodule Transport.AvailabilityCheckerTest do
     refute AvailabilityChecker.available?("GTFS", "url500")
   end
 
-  test "SIRI resource, 401" do
-    Transport.HTTPoison.Mock
-    |> expect(:get, fn _url, [], [follow_redirect: true] ->
-      {:ok, %HTTPoison.Response{status_code: 401}}
-    end)
+  describe "SIRI resource" do
+    test "401" do
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn _url, [], [follow_redirect: true] ->
+        {:ok, %HTTPoison.Response{status_code: 401}}
+      end)
 
-    assert AvailabilityChecker.available?("SIRI", "url401")
+      assert AvailabilityChecker.available?("SIRI", "url401")
+    end
+
+    test "405" do
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn _url, [], [follow_redirect: true] ->
+        {:ok, %HTTPoison.Response{status_code: 405}}
+      end)
+
+      assert AvailabilityChecker.available?("SIRI", "url405")
+    end
   end
 
   test "head NOT supported, fallback on stream method" do
