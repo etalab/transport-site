@@ -69,6 +69,10 @@ defmodule TransportWeb.SessionControllerTest do
              }
            ] = DB.Repo.all(DB.Organization)
 
+    assert [
+             %DB.Organization{id: ^organization_id}
+           ] = DB.Contact |> DB.Repo.one!() |> DB.Repo.preload(:organizations) |> Map.fetch!(:organizations)
+
     assert_in_delta last_login_at |> DateTime.to_unix(), DateTime.utc_now() |> DateTime.to_unix(), 1
   end
 
