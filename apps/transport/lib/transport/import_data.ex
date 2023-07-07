@@ -462,6 +462,8 @@ defmodule Transport.ImportData do
   true
   iex> is_gtfs?(%{"description" => "gtfs", "title" => "Export au format CSV"})
   false
+  iex> is_gtfs?(%{"format" => "gtfs", "title" => "Export au format CSV"})
+  true
   iex> is_gtfs?(%{"url" => "https://example.com/documentation-gtfs.pdf", "type" => "documentation"})
   false
   """
@@ -469,8 +471,8 @@ defmodule Transport.ImportData do
   # credo:disable-for-next-line
   def is_gtfs?(%{} = params) do
     cond do
-      is_ods_title?(params) or is_documentation?(params) -> false
       is_gtfs?(params["format"]) -> true
+      is_ods_title?(params) or is_documentation?(params) -> false
       is_gtfs_rt?(params) -> false
       is_format?(params["url"], ["json", "csv", "shp", "pdf", "7z"]) -> false
       is_format?(params["format"], "NeTEx") -> false
@@ -500,12 +502,14 @@ defmodule Transport.ImportData do
   true
   iex> is_gtfs_rt?(%{"description" => "gtfs-rt", "title" => "Export au format CSV"})
   false
+  iex> is_gtfs_rt?(%{"format" => "gtfs-rt", "title" => "Export au format CSV"})
+  true
   """
   @spec is_gtfs_rt?(binary() | map()) :: boolean()
   def is_gtfs_rt?(%{} = params) do
     cond do
-      is_ods_title?(params) or is_documentation?(params) -> false
       is_gtfs_rt?(params["format"]) -> true
+      is_ods_title?(params) or is_documentation?(params) -> false
       is_gtfs_rt?(params["description"]) -> true
       is_gtfs_rt?(params["title"]) -> true
       is_gtfs_rt?(params["url"]) -> true
@@ -558,13 +562,13 @@ defmodule Transport.ImportData do
   iex> is_siri?(%{"format" => "SIRI"})
   true
   iex> is_siri?(%{"title" => "Export au format CSV", "format" => "SIRI"})
-  false
+  true
   """
   @spec is_siri?(binary() | map()) :: boolean()
   def is_siri?(params) do
     cond do
-      is_ods_title?(params) or is_documentation?(params) -> false
       is_format?(params, "siri") and not is_siri_lite?(params) -> true
+      is_ods_title?(params) or is_documentation?(params) -> false
       true -> false
     end
   end
@@ -582,8 +586,8 @@ defmodule Transport.ImportData do
   @spec is_siri_lite?(binary() | map()) :: boolean()
   def is_siri_lite?(params) do
     cond do
-      is_ods_title?(params) or is_documentation?(params) -> false
       is_format?(params, "SIRI Lite") -> true
+      is_ods_title?(params) or is_documentation?(params) -> false
       true -> false
     end
   end
@@ -659,12 +663,14 @@ defmodule Transport.ImportData do
   false
   iex> is_netex?(%{"url" => "https://example.com/doc-netex.pdf", "type" => "documentation"})
   false
+  iex> is_netex?(%{"title" => "Export au format CSV", "format" => "netex"})
+  true
   """
   @spec is_netex?(binary() | map()) :: boolean()
   def is_netex?(%{} = params) do
     cond do
-      is_ods_title?(params) or is_documentation?(params) -> false
       is_netex?(params["format"]) -> true
+      is_ods_title?(params) or is_documentation?(params) -> false
       is_netex?(params["title"]) -> true
       is_netex?(params["description"]) -> true
       is_netex?(params["url"]) -> true
@@ -758,6 +764,9 @@ defmodule Transport.ImportData do
 
       iex> formated_format(%{"format" => "zip", "title" => "gtfs.zip", "description" => "GTFS qui va avec le GTFS-RT"}, "public-transit", false)
       "GTFS"
+
+      iex> formated_format(%{"format" => "netex", "title" => "Export au format CSV"}, "public-transit", false)
+      "NeTEx"
   """
   @spec formated_format(map(), binary(), bool()) :: binary()
   # credo:disable-for-next-line
