@@ -12,9 +12,12 @@
   </section>
   <section class="choose-file">
     <div class="container pt-24">
-      <strong><%= @dataset["datagouv_title"] %></strong>
+      <strong><%= @dataset["title"] %><span :if={!new_resource}> > <%= @resource["title"] %></span></strong>
       <div class="pt-24">
         <h2><%= title(@conn) %></h2>
+      </div>
+      <div class="panel">
+        Validez vos données avant de les publier.
       </div>
       <div class="option-1">
         <div class="panel">
