@@ -783,7 +783,6 @@ defmodule Transport.ImportData do
       is_geojson?(resource, format) -> "geojson"
       type == "public-transit" and not is_documentation and not is_community_resource -> "GTFS"
       type in ["bike-scooter-sharing", "car-motorbike-sharing"] and is_gbfs?(resource) -> "gbfs"
-      type == "locations" and is_netex?(resource) -> "NeTEx"
       true -> format
     end
   end
