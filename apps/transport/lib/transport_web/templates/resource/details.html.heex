@@ -33,7 +33,7 @@
       <h2 id="download-availability"><%= dgettext("page-dataset-details", "Download availability") %></h2>
       <%= render("_download_availability.html", uptime_per_day: @uptime_per_day, conn: @conn) %>
 
-      <%= unless is_nil(DB.Resource.guess_requestor_ref(@resource)) do %>
+      <%= unless is_nil(DB.Resource.requestor_ref(@resource)) do %>
         <%= render("_requestor_ref.html", resource: @resource, conn: @conn) %>
       <% end %>
 

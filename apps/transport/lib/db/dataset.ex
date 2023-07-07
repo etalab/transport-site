@@ -594,7 +594,7 @@ defmodule DB.Dataset do
   def get_by_slug(slug) do
     preload_without_validations()
     |> where(slug: ^slug)
-    |> preload([:region, :aom, :communes, resources: [:resources_related]])
+    |> preload([:region, :aom, :communes, resources: [:resources_related, :dataset]])
     |> Repo.one()
     |> case do
       nil -> {:error, "Dataset with slug #{slug} not found"}
