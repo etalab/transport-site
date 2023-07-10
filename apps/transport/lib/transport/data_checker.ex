@@ -223,9 +223,17 @@ defmodule Transport.DataChecker do
     end
   end
 
+  defp climate_resilience_str(%Dataset{} = dataset) do
+    if DB.Dataset.climate_resilience_bill?(dataset) do
+      "⚖️🗺️ article 122"
+    else
+      ""
+    end
+  end
+
   defp make_str({delay, datasets}) do
     dataset_str = fn %Dataset{} = dataset ->
-      "#{link_and_name(dataset, :custom_title)} (#{expiration_notification_enabled_str(dataset)})"
+      "#{link_and_name(dataset, :custom_title)} (#{expiration_notification_enabled_str(dataset)}) #{climate_resilience_str(dataset)}"
     end
 
     """
