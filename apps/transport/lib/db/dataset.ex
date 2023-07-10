@@ -152,6 +152,7 @@ defmodule DB.Dataset do
         title: r.title,
         url: r.url,
         id: r.id,
+        dataset_id: r.dataset_id,
         datagouv_id: r.datagouv_id,
         last_update: r.last_update,
         latest_url: r.latest_url,
@@ -594,7 +595,7 @@ defmodule DB.Dataset do
   def get_by_slug(slug) do
     preload_without_validations()
     |> where(slug: ^slug)
-    |> preload([:region, :aom, :communes, resources: [:resources_related]])
+    |> preload([:region, :aom, :communes, resources: [:resources_related, :dataset]])
     |> Repo.one()
     |> case do
       nil -> {:error, "Dataset with slug #{slug} not found"}
