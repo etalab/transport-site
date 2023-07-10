@@ -1,4 +1,4 @@
-<% requestor_ref = DB.Resource.guess_requestor_ref(@resource)
+<% requestor_ref = DB.Resource.requestor_ref(@resource)
 siri_querier_params = [endpoint_url: @resource.url, requestor_ref: requestor_ref, query_template: "LinesDiscovery"] %>
 <h2 id="siri-authentication"><%= dgettext("resource", "SIRI authentication") %></h2>
 
