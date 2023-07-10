@@ -196,7 +196,10 @@ defmodule Transport.DataCheckerTest do
 
   describe "outdated_data job" do
     test "sends email to our team + relevant contact before expiry" do
-      dataset = insert(:dataset, is_active: true, custom_title: "Dataset custom title")
+      dataset =
+        insert(:dataset, is_active: true, custom_title: "Dataset custom title", custom_tags: ["loi-climat-resilience"])
+
+      assert DB.Dataset.climate_resilience_bill?(dataset)
       # fake a resource expiring today
       resource = insert(:resource, dataset: dataset, format: "GTFS")
 
@@ -232,7 +235,7 @@ defmodule Transport.DataCheckerTest do
         assert body =~ ~r/Jeux de données expirant demain :/
 
         assert body =~
-                 "#{dataset.custom_title} - http://127.0.0.1:5100/datasets/#{dataset.slug} (✅ notification automatique)"
+                 "#{dataset.custom_title} - http://127.0.0.1:5100/datasets/#{dataset.slug} (✅ notification automatique) ⚖️🗺️ article 122"
 
         :ok
       end)
@@ -245,6 +248,7 @@ defmodule Transport.DataCheckerTest do
         assert subject == "Jeu de données arrivant à expiration"
         assert body =~ ~r/Une ressource associée au jeu de données expire demain/
         refute body =~ "notification automatique"
+        refute body =~ "article 122"
         :ok
       end)
 
