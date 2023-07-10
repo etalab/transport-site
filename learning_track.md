@@ -26,6 +26,20 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 * Learn how to run a single test (see readme), as this is very useful for debugging
 * :warning: All the tests should pass locally! If they don't, file an issue
 
+### Different techniques to debug stuff
+
+(More will come here later, especially with Elixir 1.15+)
+
+* `IO.puts(x)`
+* `IO.inspect(x, IEx.inspect_opts)`
+* `dbg` + `iex -S mix phx.server`
+* `find apps/transport | entr -c mix run my_script.exs`
+* `@tag :focus` and `find debug.exs apps/transport/{lib,test} | entr -c mix cmd --app transport mix test --color --only focus`
+* `mix test apps/transport/test/transport/import_data_test.exs --only focus`
+* `doctest ImportData, import: true, tags: [:focus]`
+* `elixir --sname node -S mix phx.server` and `iex --sname console --remsh node` (https://github.com/etalab/transport-site/pull/2960/files) to connect to a running node and make evaluations (useful to inspect ETS state for instance)
+* LiveBook in non-standalone mode (create a notebook then switch from standalone to connected in the settings)
+
 ### Understand the "stats" page
 
 * Check out the [/stats](https://transport.data.gouv.fr/stats) page, entry point for bizdev questions on data quality
