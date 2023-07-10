@@ -216,13 +216,12 @@ defmodule TransportWeb.ResourceController do
     assign_or_flash(
       conn,
       fn -> Resources.get(args) end,
-    :resource,
-    "Unable to get resources, please retry."
-  )
+      :resource,
+      "Unable to get resources, please retry."
+    )
   end
 
   defp get_resource(conn, _), do: conn
-
 
   @doc """
   `download` is in charge of downloading resources.
@@ -354,6 +353,7 @@ defmodule TransportWeb.ResourceController do
 
       value when is_map(value) ->
         assign(conn, kw, value)
+
       {:error, _error} ->
         conn
         |> assign(kw, [])
