@@ -168,3 +168,7 @@ msgstr "Authentification SIRI"
 #, elixir-autogen, elixir-format
 msgid "The key (RequestorRef) to provide is <code class=\"inline\" id=\"siri_requestor_ref\">%{requestor_ref}</code>."
 msgstr "La clé (RequestorRef) à renseigner est <code class=\"inline\" id=\"siri_requestor_ref\">%{requestor_ref}</code>."
+
+#, elixir-autogen, elixir-format
+msgid "If you haven’t done it yet, think about <a href=\"%{link}\">validating your data</a> before publishing it."
+msgstr "Si vous ne l’avez pas encore fait, pensez à <a href=\"%{link}\">valider vos données</a> avant de les publier."
