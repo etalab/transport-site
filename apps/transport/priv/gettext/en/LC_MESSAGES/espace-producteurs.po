@@ -64,10 +64,6 @@ msgid "Your producer space"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "You can test your data online and check its validity."
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Updating a dataset guidelines"
 msgstr ""
 
@@ -97,10 +93,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "If you need to replace a resource with a more up-to-date one, choose \"Update a resource\"."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Get access to traffic statistics for feeds handled by the transport.data.gouv.fr proxy."
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -177,4 +169,20 @@ msgstr ""
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "You do not have notifications yet. They will show up here."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Validate a file or a feed"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Before publishing, you can test your data online and check its validity."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Get access to traffic statistics for your feeds handled by the transport.data.gouv.fr proxy."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Your proxy statistics"
 msgstr ""

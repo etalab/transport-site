@@ -12,11 +12,22 @@
   </section>
   <section class="choose-file">
     <div class="container pt-24">
-      <strong><%= @dataset["datagouv_title"] %></strong>
+      <strong><%= @dataset["title"] %><span :if={!new_resource}> > <%= @resource["title"] %></span></strong>
       <div class="pt-24">
         <h2><%= title(@conn) %></h2>
       </div>
-      <div class="option-1">
+      <div class="validation-reminder">
+        <div class="panel">
+          <%= raw(
+            dgettext(
+              "resource",
+              "If you haven’t done it yet, think about <a href=\"%{link}\">validating your data</a> before publishing it.",
+              link: live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)
+            )
+          ) %>
+        </div>
+      </div>
+      <div class="option-1 mt-48">
         <div class="panel">
           <div>
             <%= if new_resource do %>

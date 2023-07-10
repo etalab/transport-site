@@ -7,7 +7,8 @@
     background-color: var(--theme-background-grey);
     padding-bottom: 24px;
     .option-1,
-    .option-2 {
+    .option-2,
+    .validation-reminder {
       display: flex;
       .panel {
         flex-basis: 40vw;
