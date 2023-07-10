@@ -152,6 +152,7 @@ defmodule DB.Dataset do
         title: r.title,
         url: r.url,
         id: r.id,
+        dataset_id: r.dataset_id,
         datagouv_id: r.datagouv_id,
         last_update: r.last_update,
         latest_url: r.latest_url,
