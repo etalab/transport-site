@@ -84,10 +84,7 @@ defmodule Transport.DataChecker do
 
         :ignore
 
-      {:error, :not_found} ->
-        :inactive
-
-      {:error, :gone} ->
+      {:error, reason} when reason in [:not_found, :gone] ->
         :inactive
 
       {:error, error} ->
