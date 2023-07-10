@@ -8,8 +8,8 @@
     "watch": "webpack --watch-options-stdin --color --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js",
     "errors": "webpack --display-error-details --config webpack.dev.js",
-    "linter:ecma": "eslint -c .eslintrc --resolve-plugins-relative-to ./apps/transport/client/node_modules --ext .js .",
-    "linter:ecma:fix": "eslint -c .eslintrc --resolve-plugins-relative-to ./apps/transport/client/node_modules --ext .js . --fix",
+    "linter:ecma": "eslint -c .eslintrc.json --resolve-plugins-relative-to ./apps/transport/client/node_modules --ext .js .",
+    "linter:ecma:fix": "eslint -c .eslintrc.json --resolve-plugins-relative-to ./apps/transport/client/node_modules --ext .js . --fix",
     "linter:sass": "stylelint --config '../../../.stylelintrc.json' 'stylesheets/**/*.scss'"
   },
   "dependencies": {
@@ -47,12 +47,12 @@
     "file-loader": "^6.2.0",
     "import-glob-loader": "^1.1.0",
     "mini-css-extract-plugin": "^2.5.3",
-    "sass": "^1.32.8",
-    "sass-loader": "^13.1.0",
+    "sass": "^1.63.6",
+    "sass-loader": "^13.3.2",
     "style-loader": "^3.3.1",
     "stylelint": "^15.10.1",
-    "stylelint-config-standard-scss": "^5.0.0",
-    "stylelint-scss": "^4.3.0",
+    "stylelint-config-standard-scss": "^10.0.0",
+    "stylelint-scss": "^5.0.1",
     "webpack": "^5.76.0",
     "webpack-cli": "^4.9.2",
     "webpack-merge": "^5.8.0"
