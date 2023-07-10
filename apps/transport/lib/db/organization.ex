@@ -6,10 +6,9 @@ defmodule DB.Organization do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @primary_key false
+  @primary_key {:id, :string, []}
 
   typed_schema "organization" do
-    field(:id, :string, primary_key: true)
     field(:slug, :string)
     field(:name, :string)
     field(:acronym, :string)
@@ -20,6 +19,7 @@ defmodule DB.Organization do
     field(:created_at, :utc_datetime_usec)
 
     many_to_many(:contacts, DB.Contact, join_through: "contacts_organizations", on_replace: :delete)
+    has_many(:datasets, DB.Dataset)
   end
 
   def changeset(struct, attrs \\ %{}) do
