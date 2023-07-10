@@ -201,15 +201,27 @@ defmodule TransportWeb.ResourceController do
   end
 
   @spec form(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def form(conn, %{"dataset_id" => dataset_id}) do
+  def form(conn, %{"dataset_id" => dataset_id} = args) do
     conn
     |> assign_or_flash(
       fn -> Datasets.get(dataset_id) end,
       :dataset,
       "Unable to get resources, please retry."
     )
+    |> get_resource(args)
     |> render("form.html")
   end
+
+  defp get_resource(conn, %{"dataset_id" => _, "resource_id" => _} = args) do
+    assign_or_flash(
+      conn,
+      fn -> Resources.get(args) end,
+      :resource,
+      "Unable to get resources, please retry."
+    )
+  end
+
+  defp get_resource(conn, _), do: conn
 
   @doc """
   `download` is in charge of downloading resources.
@@ -337,6 +349,9 @@ defmodule TransportWeb.ResourceController do
   defp assign_or_flash(conn, getter, kw, error) do
     case getter.() do
       {:ok, value} ->
+        assign(conn, kw, value)
+
+      value when is_map(value) ->
         assign(conn, kw, value)
 
       {:error, _error} ->

@@ -47,7 +47,7 @@ defmodule Transport.DataCheckerTest do
     test "warns our team of datasets disappearing on data gouv and mark them as such locally" do
       # Create a bunch of random datasets to avoid triggering the safety net
       # of desactivating more than 10% of active datasets
-      Enum.each(1..10, fn _ ->
+      Enum.each(1..20, fn _ ->
         dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
         api_url = "https://demo.data.gouv.fr/api/1/datasets/#{dataset.datagouv_id}/"
 
@@ -88,6 +88,17 @@ defmodule Transport.DataCheckerTest do
         {:ok, %HTTPoison.Response{status_code: 500, body: ""}}
       end)
 
+      # we create a dataset which is considered active on our side
+      # but private on datagouv, resulting on a HTTP code 410
+      dataset_410 = insert(:dataset, is_active: true)
+      url_410 = "https://demo.data.gouv.fr/api/1/datasets/#{dataset_410.datagouv_id}/"
+
+      Transport.HTTPoison.Mock
+      |> expect(:request, fn :get, ^url_410, "", [], [follow_redirect: true] ->
+        # the dataset is found on datagouv
+        {:ok, %HTTPoison.Response{status_code: 410, body: "{\"message\": \"Dataset has been deleted\"}"}}
+      end)
+
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, subject, body, _html_body ->
         assert from_email == "contact@transport.beta.gouv.fr"
@@ -106,6 +117,8 @@ defmodule Transport.DataCheckerTest do
       assert %DB.Dataset{is_active: true} = DB.Repo.reload!(dataset_http_error)
       # we got a 500 error: we should not deactivate the dataset
       assert %DB.Dataset{is_active: true} = DB.Repo.reload!(dataset_500)
+      # we got a 410 GONE HTTP code: we should deactivate the dataset
+      assert %DB.Dataset{is_active: false} = DB.Repo.reload!(dataset_410)
 
       verify!(Transport.HTTPoison.Mock)
       verify!(Transport.EmailSender.Mock)
