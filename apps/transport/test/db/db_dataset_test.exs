@@ -551,13 +551,17 @@ defmodule DB.DatasetDBTest do
       }
 
       %DB.Dataset{id: dataset_id} = dataset = insert(:dataset)
-      {:ok, %Ecto.Changeset{} = changeset} = DB.Dataset.changeset(%{"datagouv_id" => dataset.datagouv_id, "organization" => pan_org})
+
+      {:ok, %Ecto.Changeset{} = changeset} =
+        DB.Dataset.changeset(%{"datagouv_id" => dataset.datagouv_id, "organization" => pan_org})
 
       DB.Repo.update!(changeset)
 
       assert %DB.Organization{id: ^org_id} =
                dataset |> DB.Repo.reload() |> DB.Repo.preload(:organization_object) |> Map.fetch!(:organization_object)
-      assert [%DB.Dataset{id: ^dataset_id}] = DB.Organization |> DB.Repo.one!() |> DB.Repo.preload(:datasets) |> Map.fetch!(:datasets)
+
+      assert [%DB.Dataset{id: ^dataset_id}] =
+               DB.Organization |> DB.Repo.one!() |> DB.Repo.preload(:datasets) |> Map.fetch!(:datasets)
     end
   end
 end
