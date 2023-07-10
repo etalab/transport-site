@@ -12,8 +12,10 @@ asdf reshim elixir
 * Lancer livebook en connection au projet, avec la commande suivante:
 
 ```
-LIVEBOOK_DEFAULT_RUNTIME=mix:. livebook server --open
+livebook server
 ```
+
+* Modifier les réglages pour ne pas utiliser le mode "standalone" mais se connecter à un noeud qui tourne à la place (instructions disponibles dans LiveBook)
 
 ## Opérations liées à l'import
 
