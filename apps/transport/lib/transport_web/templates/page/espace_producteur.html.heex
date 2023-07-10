@@ -47,17 +47,36 @@
         </div>
         <div>
           <div class="panel espace-producer-panel">
+            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-check.png")} alt="" />
+            <div>
+              <div class="publish-header">
+                <h4 class="with-link"><%= dgettext("espace-producteurs", "Validate your datasets") %></h4>
+              </div>
+              <div>
+                <%= dgettext(
+                  "espace-producteurs",
+                  "Before publishing, you can test your data online and check its validity."
+                ) %>
+              </div>
+              <div class="pt-12">
+                <a href={live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)} class="button primary">
+                  <%= dgettext("espace-producteurs", "Validate a file or a feed") %>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="panel espace-producer-panel">
             <img class="picto" src={static_path(@conn, "/images/producteurs/picto-publier.png")} alt="" />
             <div>
               <div class="publish-header">
-                <div>
-                  <h4 class="with-link"><%= dgettext("espace-producteurs", "Publish a dataset") %></h4>
-                  <a href="https://doc.transport.data.gouv.fr/producteurs/comment-et-pourquoi-les-producteurs-de-donnees-utilisent-ils-le-pan">
-                    <%= dgettext("espace-producteurs", "Adding a dataset guidelines") %>
-                  </a>
-                </div>
+                <h4 class="with-link"><%= dgettext("espace-producteurs", "Publish a dataset") %></h4>
               </div>
-              <div class="pt-24">
+              <div>
+                <a href="https://doc.transport.data.gouv.fr/producteurs/comment-et-pourquoi-les-producteurs-de-donnees-utilisent-ils-le-pan">
+                  <%= dgettext("espace-producteurs", "Adding a dataset guidelines") %>
+                </a>
+              </div>
+              <div class="pt-12">
                 <%= dgettext(
                   "espace-producteurs",
                   "Get your mobility data on the National Access Point. You will be redirected to data.gouv.fr to have your data published."
@@ -93,12 +112,12 @@
             <img class="picto" src={static_path(@conn, "/images/producteurs/picto-trend.png")} alt="" />
             <div>
               <div class="publish-header">
-                <h4><%= dgettext("espace-producteurs", "Transport proxy statistics") %></h4>
+                <h4><%= dgettext("espace-producteurs", "Your proxy statistics") %></h4>
               </div>
               <div class="pt-12">
                 <%= dgettext(
                   "espace-producteurs",
-                  "Get access to traffic statistics for feeds handled by the transport.data.gouv.fr proxy."
+                  "Get access to traffic statistics for your feeds handled by the transport.data.gouv.fr proxy."
                 ) %>
               </div>
               <div class="pt-12">
@@ -167,24 +186,6 @@
                   )
                 ) %>
               </p>
-            </div>
-          </div>
-        </div>
-        <div class="panel espace-producer-panel">
-          <img class="picto" src={static_path(@conn, "/images/producteurs/picto-check.png")} alt="" />
-          <div>
-            <div class="test-header">
-              <div>
-                <h4><%= dgettext("espace-producteurs", "Validate your datasets") %></h4>
-              </div>
-            </div>
-            <div>
-              <%= dgettext("espace-producteurs", "You can test your data online and check its validity.") %>
-            </div>
-            <div class="pt-24">
-              <a href={live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)} class="button-outline primary">
-                <%= dgettext("page-producteurs", "Validate a file or a feed") %>
-              </a>
             </div>
           </div>
         </div>

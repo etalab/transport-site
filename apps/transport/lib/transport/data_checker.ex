@@ -58,6 +58,7 @@ defmodule Transport.DataChecker do
     send_inactive_datasets_mail(to_reactivate_datasets, inactive_datasets, archived_datasets)
   end
 
+  @spec datasets_datagouv_statuses :: list
   def datasets_datagouv_statuses do
     Dataset
     |> order_by(:id)
@@ -83,7 +84,7 @@ defmodule Transport.DataChecker do
 
         :ignore
 
-      {:error, :not_found} ->
+      {:error, reason} when reason in [:not_found, :gone] ->
         :inactive
 
       {:error, error} ->
