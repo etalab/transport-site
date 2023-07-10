@@ -25,8 +25,28 @@ defmodule TransportWeb.CustomTagsLive do
           <option value={suggestion}><%= suggestion %></option>
         <% end %>
       </datalist>
+      <details class="pt-12">
+        <summary>Tags liés à des fonctionnalités</summary>
+        <ul>
+          <%= for tag_doc <- Enum.sort_by(@tags_documentation, & &1.name) do %>
+            <li><span class="label"><%= tag_doc.name %></span><%= tag_doc.doc %></li>
+          <% end %>
+        </ul>
+      </details>
     </div>
     """
+  end
+
+  defp tags_documentation do
+    [
+      %{name: "licence-mobilités", doc: "Applique la licence mobilités pour ce jeu de données"},
+      %{
+        name: "loi-climat-resilience",
+        doc:
+          "Ce jeu de données est soumis à l'obligation de réutilisation selon l'article 122 de la loi climat et résilience"
+      },
+      %{name: "requestor_ref:<valeur>", doc: "Renseigne le requestor_ref des ressources SIRI pour ce jeu de données"}
+    ]
   end
 
   def mount(
@@ -51,6 +71,7 @@ defmodule TransportWeb.CustomTagsLive do
 
     socket
     |> assign(:custom_tags, custom_tags)
+    |> assign(:tags_documentation, tags_documentation())
     |> assign(:form, form)
     |> assign(:tag_suggestions, tag_suggestions)
   end
