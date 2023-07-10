@@ -631,17 +631,21 @@ defmodule TransportWeb.ResourceControllerTest do
   end
 
   test "SIRI RequestorRef is displayed", %{conn: conn} do
-    resource =
-      insert(:resource, format: "SIRI", url: "https://ara-api.enroute.mobi/endpoint", dataset: insert(:dataset))
+    requestor_ref_value = Ecto.UUID.generate()
 
-    requestor_ref = DB.Resource.guess_requestor_ref(resource)
+    resource =
+      insert(:resource,
+        format: "SIRI",
+        url: "https://example.com/siri",
+        dataset: insert(:dataset, custom_tags: ["requestor_ref:#{requestor_ref_value}", "foo"])
+      )
 
     assert DB.Resource.is_siri?(resource)
-    refute is_nil(requestor_ref)
+    assert requestor_ref_value == DB.Resource.requestor_ref(resource)
 
     html = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
     assert html =~ ~s{<h2 id="siri-authentication">Authentification SIRI</h2>}
-    assert html =~ requestor_ref
+    assert html =~ requestor_ref_value
   end
 
   test "latest_validations_details" do

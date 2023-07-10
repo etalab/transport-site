@@ -342,6 +342,26 @@ defmodule TransportWeb.DatasetControllerTest do
     assert Floki.text(msg) =~ "Expiration de données"
   end
 
+  test "dataset#details with a SIRI resource links to the query generator", %{conn: conn} do
+    requestor_ref = Ecto.UUID.generate()
+    dataset = insert(:dataset, is_active: true, slug: "dataset-slug", custom_tags: ["requestor_ref:#{requestor_ref}"])
+    resource = insert(:resource, dataset: dataset, url: "https://example.com/siri", format: "SIRI")
+    assert DB.Resource.requestor_ref(resource) == requestor_ref
+
+    set_empty_mocks()
+    {html, _} = with_log(fn -> conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200) end)
+
+    assert html =~
+             conn
+             |> live_path(TransportWeb.Live.SIRIQuerierLive,
+               endpoint_url: resource.url,
+               requestor_ref: DB.Resource.requestor_ref(resource),
+               query_template: "LinesDiscovery"
+             )
+             |> Phoenix.HTML.html_escape()
+             |> Phoenix.HTML.safe_to_string()
+  end
+
   test "gtfs-rt entities" do
     dataset = %{id: dataset_id} = insert(:dataset, type: "public-transit")
     %{id: resource_id_1} = insert(:resource, dataset_id: dataset_id, format: "gtfs-rt")
