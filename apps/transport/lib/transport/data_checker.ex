@@ -234,6 +234,7 @@ defmodule Transport.DataChecker do
   defp make_str({delay, datasets}) do
     dataset_str = fn %Dataset{} = dataset ->
       "#{link_and_name(dataset, :custom_title)} (#{expiration_notification_enabled_str(dataset)}) #{climate_resilience_str(dataset)}"
+      |> String.trim()
     end
 
     """
