@@ -64,10 +64,6 @@ msgid "Your producer space"
 msgstr "Votre espace producteur"
 
 #, elixir-autogen, elixir-format
-msgid "You can test your data online and check its validity."
-msgstr "Utilisez nos validateurs de données pour vous assurer qu'ils sont bien conformes."
-
-#, elixir-autogen, elixir-format
 msgid "Updating a dataset guidelines"
 msgstr "Consultez le guide de mise à jour"
 
@@ -98,10 +94,6 @@ msgstr "notre documentation"
 #, elixir-autogen, elixir-format
 msgid "If you need to replace a resource with a more up-to-date one, choose \"Update a resource\"."
 msgstr "Si vous souhaitez remplacer une ressource par une version plus à jour, choisissez \"Modifier une ressource\""
-
-#, elixir-autogen, elixir-format
-msgid "Get access to traffic statistics for feeds handled by the transport.data.gouv.fr proxy."
-msgstr "Accéder aux statistiques de trafic pour les flux gérés par le proxy de transport.data.gouv.fr"
 
 #, elixir-autogen, elixir-format
 msgid "See statistics"
@@ -178,3 +170,19 @@ msgstr "Les notifications ont été supprimées"
 #, elixir-autogen, elixir-format
 msgid "You do not have notifications yet. They will show up here."
 msgstr "Vous n'avez pas encore activé de notifications. Elles apparaitront ici."
+
+#, elixir-autogen, elixir-format
+msgid "Validate a file or a feed"
+msgstr "Valider un fichier ou un flux"
+
+#, elixir-autogen, elixir-format
+msgid "Before publishing, you can test your data online and check its validity."
+msgstr "Avant de mettre à jour ou publier des données, utilisez nos validateurs pour vous assurer qu'elles sont bien conformes."
+
+#, elixir-autogen, elixir-format
+msgid "Get access to traffic statistics for your feeds handled by the transport.data.gouv.fr proxy."
+msgstr "Accéder aux statistiques de trafic pour vos flux gérés par le proxy de transport.data.gouv.fr"
+
+#, elixir-autogen, elixir-format
+msgid "Your proxy statistics"
+msgstr "Vos statistiques proxy"

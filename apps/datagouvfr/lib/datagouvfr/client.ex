@@ -34,6 +34,9 @@ defmodule Datagouvfr.Client do
           {:ok, %{status_code: 404}} ->
             {:error, :not_found}
 
+          {:ok, %{status_code: 410}} ->
+            {:error, :gone}
+
           {:ok, %{status_code: status_code, body: body} = resp} ->
             maybe_report_error(resp)
             {:error, body}
