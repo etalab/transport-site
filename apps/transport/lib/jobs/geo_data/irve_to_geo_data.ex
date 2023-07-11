@@ -10,8 +10,10 @@ defmodule Transport.Jobs.IRVEToGeoData do
 
 
   def perform(%{}) do # This could be shared with some options between files
-    [resource] = relevant_dataset() |> DB.Dataset.official_resources() |> Enum.filter(&(&1.format == "csv"))
+  # This is ugly, I need to learn more about Ecto queries
+   resource = relevant_dataset() |> DB.Dataset.official_resources() |> Enum.filter(&(&1.format == "csv" && &1.type == "main")) |> hd |> dbg
 
+   # The following line crashes with my dev database
     Transport.Jobs.BaseGeoData.import_replace_data(resource, &prepare_data_for_insert/2)
 
     :ok
