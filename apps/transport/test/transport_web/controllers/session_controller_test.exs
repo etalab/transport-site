@@ -134,7 +134,8 @@ defmodule TransportWeb.SessionControllerTest do
         "id" => datagouv_user_id = Ecto.UUID.generate(),
         "first_name" => new_first_name = "Oka",
         "last_name" => last_name = contact.last_name,
-        "email" => contact.email,
+        # We should perform a lowercase comparison for the email address
+        "email" => String.upcase(contact.email),
         "organizations" => []
       })
 
