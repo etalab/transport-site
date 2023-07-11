@@ -2,6 +2,7 @@ defmodule Transport.Jobs.IRVEToGeoData do
   @moduledoc """
   Job in charge of taking the charge stations stored in the Base nationale des Infrastructures de Recharge pour Véhicules Électriques and storing the result in the `geo_data` table.
   """
+  import Ecto.Query
   alias NimbleCSV.RFC4180, as: CSV
 
 
@@ -27,5 +28,13 @@ defmodule Transport.Jobs.IRVEToGeoData do
         payload: m |> Map.drop(["consolidated_longitude", "consolidated_latitude", "coordonnesXY"])
       }
     end)
+  end
+
+  def relevant_dataset do
+    # Etalab org ID is hardcoded, do not merge while it is the case
+    DB.Dataset.base_query()
+    |> preload(:resources)
+    |> where([d], d.type == "charging-stations" and d.organization_id == "534fff75a3a7292c64a77de4")
+    |> DB.Repo.one!()
   end
 end
