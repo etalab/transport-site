@@ -1,6 +1,6 @@
 defmodule Transport.Jobs.BNLCToGeoDataTest do
   use ExUnit.Case, async: true
-  alias Transport.Jobs.{BaseGeoData, BNLCToGeoData}
+  alias Transport.Jobs.{BaseGeoData, IRVEToGeoData}
   import DB.Factory
   import Mox
 
@@ -10,93 +10,31 @@ defmodule Transport.Jobs.BNLCToGeoDataTest do
 
   setup :verify_on_exit!
 
-  @bnlc_content ~s("id_lieu","Xlong","Ylat","nbre_pl"\n"2A004-C-001","8.783403","41.9523692","0"\n"01024-C-001","5.158352778","46.28957222","5")
+  @irve_content ~S"""
+  nom_amenageur,siren_amenageur,contact_amenageur,nom_operateur,contact_operateur,telephone_operateur,nom_enseigne,id_station_itinerance,id_station_local,nom_station,implantation_station,adresse_station,code_insee_commune,coordonneesXY,nbre_pdc,id_pdc_itinerance,id_pdc_local,puissance_nominale,prise_type_ef,prise_type_2,prise_type_combo_ccs,prise_type_chademo,prise_type_autre,gratuit,paiement_acte,paiement_cb,paiement_autre,tarification,condition_acces,reservation,horaires,accessibilite_pmr,restriction_gabarit,station_deux_roues,raccordement,num_pdl,date_mise_en_service,observations,date_maj,cable_t2_attache,last_modified,datagouv_dataset_id,datagouv_resource_id,datagouv_organization_or_owner,consolidated_longitude,consolidated_latitude,consolidated_code_postal,consolidated_commune,consolidated_is_lon_lat_correct,consolidated_is_code_insee_verified
+  ,,info@example.com,,info@example.com,,STATION SUPER U BELLEVIGNY 4,FRCPIE6610355,FRCPIE6610355,STATION SUPER U BELLEVIGNY 4,Parking privé à usage public,"23 Av. Atlant’Vie, 85170 Bellevigny",,"[-1.429227, 46.776249]",6,FRCPIE66103552,FRCPIE66103552,21,false,true,false,false,false,false,true,false,,,Accès réservé,false,24/7,Accessibilité inconnue,inconnu,false,,,2022-10-12,EF connector is available at the site separately,2023-07-10,false,2023-07-11T03:08:58.394000+00:00,64060c2ac773dcf3fabbe5d2,b11113db-875d-41c7-8673-0cf8ad43e917,eco-movement,-1.429227,46.776249,,,False,False
+  ,,info2@example.com,,info2@example.com,,Giberville Sud,FRIONE4171,FRIONE4171,Giberville Sud,Station dédiée à la recharge rapide,"Aire de Giberville Sud, A13, km 220, 14730 Giberville",,"[-0.276864, 49.166746]",5,FRIONE41715,FRIONE41715,50,false,true,true,true,false,false,true,true,,,Accès libre,false,24/7,Accessibilité inconnue,inconnu,false,,,2021-11-20,EF connector is available at the site separately,2023-07-11,false,2023-07-11T03:08:58.394000+00:00,64060c2ac773dcf3fabbe5d2,b11113db-875d-41c7-8673-0cf8ad43e917,eco-movement,-0.276864,49.166746,,,False,False
+  """
 
-  test "import a BNLC to the DB" do
-    geo_data_import = %{id: id} = insert(:geo_data_import)
-    BaseGeoData.insert_data(@bnlc_content, id, &BNLCToGeoData.prepare_data_for_insert/2)
-
-    [row1, row2] = DB.GeoData |> DB.Repo.all()
+  test "import an IRVE to the DB" do
+    %{id: id} = insert(:geo_data_import)
+    # Uncomment to test only the prepare_data_for_insert function
+    # row1 = IRVEToGeoData.prepare_data_for_insert(@irve_content, id) |> Enum.take(1) |> hd
+    BaseGeoData.insert_data(@irve_content, id, &IRVEToGeoData.prepare_data_for_insert/2)
+    [row1| _t] = DB.GeoData |> DB.Repo.all()
 
     assert %{
-             geo_data_import_id: ^id,
-             geom: %Geo.Point{coordinates: {8.783403, 41.952369}, srid: 4326},
-             payload: %{"id_lieu" => "2A004-C-001", "nbre_pl" => "0"}
-           } = row1
-
-    assert %{
-             geo_data_import_id: ^id,
-             geom: %Geo.Point{coordinates: {5.158353, 46.289572}, srid: 4326},
-             payload: %{"id_lieu" => "01024-C-001", "nbre_pl" => "5"}
-           } = row2
-
-    # test cascading delete: if geo_data_import is deleted, associated geo_data are deleted too
-    geo_data_import |> DB.Repo.delete!()
-    assert [] = DB.GeoData |> DB.Repo.all()
-  end
-
-  test "bnlc data update logic" do
-    now = DateTime.utc_now()
-    now_100 = now |> DateTime.add(-100)
-    now_50 = now |> DateTime.add(-50)
-    now_25 = now |> DateTime.add(-25)
-
-    assert [] = DB.GeoData |> DB.Repo.all()
-    assert [] = DB.GeoDataImport |> DB.Repo.all()
-
-    # insert bnlc dataset
-    %DB.Dataset{id: dataset_id} =
-      insert(:dataset, %{
-        type: "carpooling-areas",
-        organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
-      })
-
-    # insert bnlc resources
-    insert(:resource, %{dataset_id: dataset_id, is_community_resource: true})
-    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id})
-    # insert bnlc resource history
-    %{id: id_0} =
-      insert(:resource_history, %{
-        resource_id: resource_id,
-        inserted_at: now_100,
-        payload: %{"dataset_id" => dataset_id, "permanent_url" => "url"}
-      })
-
-    # another random resource history, just in case
-    insert(:resource_history, %{inserted_at: now_25, payload: %{"dataset_id" => dataset_id + 5}})
-
-    # download BNLC Mock
-    Transport.HTTPoison.Mock
-    |> expect(:get!, 2, fn "url" -> %HTTPoison.Response{status_code: 200, body: @bnlc_content} end)
-
-    # launch job
-    Transport.Jobs.BNLCToGeoData.perform(%{})
-
-    # data is imported
-    [%{id: geo_data_import_1, resource_history_id: ^id_0}] = DB.GeoDataImport |> DB.Repo.all()
-    assert DB.GeoData |> DB.Repo.all() |> Enum.count() == 2
-
-    # relaunch job
-    Transport.Jobs.BNLCToGeoData.perform(%{})
-
-    # no change
-    [%{id: ^geo_data_import_1}] = DB.GeoDataImport |> DB.Repo.all()
-
-    # new (more recent) resource history
-    %{id: id_1} =
-      insert(:resource_history, %{
-        resource_id: resource_id,
-        inserted_at: now_50,
-        payload: %{"dataset_id" => dataset_id, "permanent_url" => "url"}
-      })
-
-    # relaunch job
-    Transport.Jobs.BNLCToGeoData.perform(%{})
-
-    # geo_data and geo_data_import are updated accordingly
-    [%{id: geo_data_import_2, resource_history_id: ^id_1}] = DB.GeoDataImport |> DB.Repo.all()
-    assert geo_data_import_2 !== geo_data_import_1
-
-    [%{geo_data_import_id: ^geo_data_import_2}, %{geo_data_import_id: ^geo_data_import_2}] = DB.GeoData |> DB.Repo.all()
+      geo_data_import_id: ^id,
+      geom: %Geo.Point{
+        coordinates: {-1.429227, 46.776249},
+        srid: 4326
+      },
+      payload: %{
+        "nom_enseigne" => "STATION SUPER U BELLEVIGNY 4",
+        "nom_station" => "STATION SUPER U BELLEVIGNY 4",
+        "id_station_itinerance" => "FRCPIE6610355",
+        "nbre_pdc" => "6"
+      }
+    } = row1
   end
 end
