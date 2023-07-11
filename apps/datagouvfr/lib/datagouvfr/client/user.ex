@@ -27,7 +27,7 @@ defmodule Datagouvfr.Client.User.Dummy do
              "slug" => "equipe-transport-data-gouv-fr",
              "name" => "PAN",
              "badges" => [],
-             "id" => "random",
+             "id" => "5abca8d588ee386ee6ece479",
              "logo" => "https://example.com/pic.jpg",
              "logo_thumbnail" => "https://example.com/pic.small.jpg"
            }

@@ -32,7 +32,6 @@ defmodule DB.Dataset do
     field(:datagouv_title, :string)
     field(:type, :string)
     field(:organization, :string)
-    field(:organization_id, :string)
     field(:organization_type, :string)
     field(:has_realtime, :boolean)
     field(:is_active, :boolean)
@@ -72,6 +71,7 @@ defmodule DB.Dataset do
     # - or a list of cities.
     belongs_to(:region, Region)
     belongs_to(:aom, AOM)
+    belongs_to(:organization_object, DB.Organization, foreign_key: :organization_id, type: :string, on_replace: :nilify)
 
     # we ask in the backoffice for a name to display
     # (used in the long title of a dataset and to find the associated datasets)
@@ -456,15 +456,13 @@ defmodule DB.Dataset do
     legal_owners_region = get_legal_owners_region(dataset, params)
 
     dataset
-    |> Repo.preload([:resources, :communes, :region, :legal_owners_aom, :legal_owners_region])
+    |> Repo.preload([:resources, :communes, :region, :legal_owners_aom, :legal_owners_region, :organization_object])
     |> cast(params, [
       :datagouv_id,
       :custom_title,
       :created_at,
       :description,
       :frequency,
-      :organization,
-      :organization_id,
       :organization_type,
       :last_update,
       :licence,
@@ -492,6 +490,7 @@ defmodule DB.Dataset do
     |> maybe_overwrite_licence()
     |> has_real_time()
     |> validate_organization_type()
+    |> add_organization(params)
     |> put_assoc(:legal_owners_aom, legal_owners_aom)
     |> put_assoc(:legal_owners_region, legal_owners_region)
     |> case do
@@ -506,6 +505,17 @@ defmodule DB.Dataset do
         {:error, format_error(errors)}
     end
   end
+
+  defp add_organization(%Ecto.Changeset{} = changeset, %{"organization" => %{"id" => id, "name" => name} = org}) do
+    changeset
+    |> put_assoc(
+      :organization_object,
+      DB.Organization.changeset(DB.Repo.get(DB.Organization, id) || %DB.Organization{}, org)
+    )
+    |> put_change(:organization, name)
+  end
+
+  defp add_organization(%Ecto.Changeset{} = changeset, _), do: changeset
 
   defp get_legal_owners_aom(dataset, params) do
     case params["legal_owners_aom"] do

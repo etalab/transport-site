@@ -511,4 +511,57 @@ defmodule DB.DatasetDBTest do
     %{region_id: national_region_id} = DB.Repo.update!(changeset)
     assert national_region_id != region_id
   end
+
+  describe "organization" do
+    test "sets an existing org" do
+      pan_org = %{
+        acronym: nil,
+        badges: [],
+        id: org_id = Ecto.UUID.generate(),
+        logo: "https://static.data.gouv.fr/avatars/85/53e0a3845e43eb87fb905032aaa389-original.png",
+        logo_thumbnail: "https://static.data.gouv.fr/avatars/85/53e0a3845e43eb87fb905032aaa389-100.png",
+        name: "PAN",
+        slug: "equipe-transport-data-gouv-fr"
+      }
+
+      insert(:organization, pan_org)
+      dataset = insert(:dataset)
+
+      {:ok, %Ecto.Changeset{} = changeset} =
+        DB.Dataset.changeset(%{
+          "datagouv_id" => dataset.datagouv_id,
+          "organization" => pan_org |> Map.new(fn {k, v} -> {to_string(k), v} end)
+        })
+
+      DB.Repo.update!(changeset)
+
+      assert %DB.Organization{id: ^org_id} =
+               dataset |> DB.Repo.reload() |> DB.Repo.preload(:organization_object) |> Map.fetch!(:organization_object)
+    end
+
+    test "creates and sets an org" do
+      pan_org = %{
+        "acronym" => nil,
+        "badges" => [],
+        "id" => org_id = Ecto.UUID.generate(),
+        "logo" => "https://static.data.gouv.fr/avatars/85/53e0a3845e43eb87fb905032aaa389-original.png",
+        "logo_thumbnail" => "https://static.data.gouv.fr/avatars/85/53e0a3845e43eb87fb905032aaa389-100.png",
+        "name" => "PAN",
+        "slug" => "equipe-transport-data-gouv-fr"
+      }
+
+      %DB.Dataset{id: dataset_id} = dataset = insert(:dataset)
+
+      {:ok, %Ecto.Changeset{} = changeset} =
+        DB.Dataset.changeset(%{"datagouv_id" => dataset.datagouv_id, "organization" => pan_org})
+
+      DB.Repo.update!(changeset)
+
+      assert %DB.Organization{id: ^org_id} =
+               dataset |> DB.Repo.reload() |> DB.Repo.preload(:organization_object) |> Map.fetch!(:organization_object)
+
+      assert [%DB.Dataset{id: ^dataset_id}] =
+               DB.Organization |> DB.Repo.one!() |> DB.Repo.preload(:datasets) |> Map.fetch!(:datasets)
+    end
+  end
 end
