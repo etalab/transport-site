@@ -93,7 +93,7 @@ defmodule TransportWeb.SessionController do
          "last_name" => last_name,
          "email" => email
        }) do
-    case DB.Repo.get_by(DB.Contact, email_hash: email) do
+    case DB.Repo.get_by(DB.Contact, email_hash: String.downcase(email)) do
       %DB.Contact{mailing_list_title: nil} = contact ->
         contact
         |> DB.Contact.changeset(%{
