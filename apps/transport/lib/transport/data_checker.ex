@@ -257,20 +257,20 @@ defmodule Transport.DataChecker do
   iex> delay_str(-1, :expirant)
   "expirés depuis hier"
   iex> delay_str(-1, :expire)
-  "expiré depuis hier"
+  "est expirée depuis hier"
   iex> delay_str(-2, :expirant)
   "expirés depuis 2 jours"
   iex> delay_str(-2, :expire)
-  "expiré depuis 2 jours"
+  "est expirée depuis 2 jours"
   """
   @spec delay_str(integer(), :expire | :expirant) :: binary()
   def delay_str(0, verb), do: "#{verb} demain"
   def delay_str(1, verb), do: "#{verb} dans 1 jour"
   def delay_str(d, verb) when d >= 2, do: "#{verb} dans #{d} jours"
   def delay_str(-1, :expirant), do: "expirés depuis hier"
-  def delay_str(-1, :expire), do: "expiré depuis hier"
+  def delay_str(-1, :expire), do: "est expirée depuis hier"
   def delay_str(d, :expirant) when d <= -2, do: "expirés depuis #{-d} jours"
-  def delay_str(d, :expire) when d <= -2, do: "expiré depuis #{-d} jours"
+  def delay_str(d, :expire) when d <= -2, do: "est expirée depuis #{-d} jours"
 
   def link(%Dataset{slug: slug}), do: dataset_url(TransportWeb.Endpoint, :details, slug)
 
