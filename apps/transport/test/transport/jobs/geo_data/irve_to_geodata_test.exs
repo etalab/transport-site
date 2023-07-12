@@ -1,4 +1,4 @@
-defmodule Transport.Jobs.BNLCToGeoDataTest do
+defmodule Transport.Jobs.IRVEToGeoDataTest do
   use ExUnit.Case, async: true
   alias Transport.Jobs.{BaseGeoData, IRVEToGeoData}
   import DB.Factory
@@ -21,20 +21,20 @@ defmodule Transport.Jobs.BNLCToGeoDataTest do
     # Uncomment to test only the prepare_data_for_insert function
     # row1 = IRVEToGeoData.prepare_data_for_insert(@irve_content, id) |> Enum.take(1) |> hd
     BaseGeoData.insert_data(@irve_content, id, &IRVEToGeoData.prepare_data_for_insert/2)
-    [row1| _t] = DB.GeoData |> DB.Repo.all()
+    [row1 | _t] = DB.GeoData |> DB.Repo.all()
 
     assert %{
-      geo_data_import_id: ^id,
-      geom: %Geo.Point{
-        coordinates: {-1.429227, 46.776249},
-        srid: 4326
-      },
-      payload: %{
-        "nom_enseigne" => "STATION SUPER U BELLEVIGNY 4",
-        "nom_station" => "STATION SUPER U BELLEVIGNY 4",
-        "id_station_itinerance" => "FRCPIE6610355",
-        "nbre_pdc" => "6"
-      }
-    } = row1
+             geo_data_import_id: ^id,
+             geom: %Geo.Point{
+               coordinates: {-1.429227, 46.776249},
+               srid: 4326
+             },
+             payload: %{
+               "nom_enseigne" => "STATION SUPER U BELLEVIGNY 4",
+               "nom_station" => "STATION SUPER U BELLEVIGNY 4",
+               "id_station_itinerance" => "FRCPIE6610355",
+               "nbre_pdc" => "6"
+             }
+           } = row1
   end
 end

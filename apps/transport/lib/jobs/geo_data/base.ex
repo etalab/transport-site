@@ -37,17 +37,20 @@ defmodule Transport.Jobs.BaseGeoData do
          %DB.ResourceHistory{id: latest_resource_history_id, payload: %{"permanent_url" => permanent_url}},
          prepare_data_for_insert_fn
        ) do
-    DB.Repo.transaction(fn ->
-      unless is_nil(current_geo_data_import) do
-        # thanks to cascading delete, it will also clean geo_data table corresponding entries
-        current_geo_data_import |> DB.Repo.delete!()
-      end
+    DB.Repo.transaction(
+      fn ->
+        unless is_nil(current_geo_data_import) do
+          # thanks to cascading delete, it will also clean geo_data table corresponding entries
+          current_geo_data_import |> DB.Repo.delete!()
+        end
 
-      %{id: geo_data_import_id} = DB.Repo.insert!(%DB.GeoDataImport{resource_history_id: latest_resource_history_id})
-      http_client = Transport.Shared.Wrapper.HTTPoison.impl()
-      %{status_code: 200, body: body} = http_client.get!(permanent_url)
-      insert_data(body, geo_data_import_id, prepare_data_for_insert_fn)
-    end)
+        %{id: geo_data_import_id} = DB.Repo.insert!(%DB.GeoDataImport{resource_history_id: latest_resource_history_id})
+        http_client = Transport.Shared.Wrapper.HTTPoison.impl()
+        %{status_code: 200, body: body} = http_client.get!(permanent_url)
+        insert_data(body, geo_data_import_id, prepare_data_for_insert_fn)
+      end,
+      timeout: 1_000_000
+    )
   end
 
   # keep 6 digits for WGS 84, see https://en.wikipedia.org/wiki/Decimal_degrees#Precision

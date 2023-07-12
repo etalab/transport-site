@@ -8,20 +8,23 @@ defmodule Transport.Jobs.IRVEToGeoData do
   alias NimbleCSV.RFC4180, as: CSV
   require Logger
 
+  @etalab_organization_id "534fff75a3a7292c64a77de4"
+  @resource_datagouv_id "8d9398ae-3037-48b2-be19-412c24561fbb"
 
-  def perform(%{}) do # This could be shared with some options between files
-  # This is ugly, I need to learn more about Ecto queries
-   resource = relevant_dataset() |> DB.Dataset.official_resources() |> Enum.filter(&(&1.format == "csv" && &1.type == "main")) |> hd |> dbg
+  def perform(%{}) do
+    [resource] =
+      relevant_dataset()
+      |> DB.Dataset.official_resources()
+      |> Enum.filter(&match?(%DB.Resource{datagouv_id: @resource_datagouv_id, format: "csv"}, &1))
 
-   # The following line crashes with my dev database
     Transport.Jobs.BaseGeoData.import_replace_data(resource, &prepare_data_for_insert/2)
 
     :ok
   end
 
-
   def prepare_data_for_insert(body, geo_data_import_id) do
     body
+    #  TODO : try to use same than in parking relais
     |> CSV.parse_string(skip_headers: false)
     |> Stream.transform([], fn r, acc ->
       if acc == [] do
@@ -30,7 +33,7 @@ defmodule Transport.Jobs.IRVEToGeoData do
         {[acc |> Enum.zip(r) |> Enum.into(%{})], acc}
       end
     end)
-    |> Stream.map(fn m -> # Purquoi dans les parkings relais on met un :ok ?
+    |> Stream.map(fn m ->
       %{
         geo_data_import_id: geo_data_import_id,
         geom: %Geo.Point{
@@ -45,10 +48,9 @@ defmodule Transport.Jobs.IRVEToGeoData do
   end
 
   def relevant_dataset do
-    # Etalab org ID is hardcoded, do not merge while it is the case
     DB.Dataset.base_query()
     |> preload(:resources)
-    |> where([d], d.type == "charging-stations" and d.organization_id == "534fff75a3a7292c64a77de4")
+    |> where([d], d.type == "charging-stations" and d.organization_id == @etalab_organization_id)
     |> DB.Repo.one!()
   end
 end
