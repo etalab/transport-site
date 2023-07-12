@@ -40,10 +40,10 @@ defmodule Opendatasoft.UrlExtractor do
       resources
     else
       {:error, error} ->
-        Logger.warn(" <message>  #{inspect(error)}")
+        Logger.warning(" <message>  #{inspect(error)}")
 
         Enum.each(csv_resources, fn resource ->
-          Logger.warn(" <resource> #{resource["url"]}")
+          Logger.warning(" <resource> #{resource["url"]}")
         end)
 
         []

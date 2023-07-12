@@ -33,7 +33,7 @@ defmodule Mix.Tasks.Transport.ImportEPCI do
       :ok
     else
       e ->
-        Logger.warn("impossible to fetch epci file, error #{inspect(e)}")
+        Logger.warning("impossible to fetch epci file, error #{inspect(e)}")
         :error
     end
   end
