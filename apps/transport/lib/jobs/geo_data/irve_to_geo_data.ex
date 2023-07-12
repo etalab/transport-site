@@ -5,7 +5,6 @@ defmodule Transport.Jobs.IRVEToGeoData do
 
   use Oban.Worker, max_attempts: 3
   import Ecto.Query
-  alias NimbleCSV.RFC4180, as: CSV
   require Logger
 
   @etalab_organization_id "534fff75a3a7292c64a77de4"
@@ -23,16 +22,12 @@ defmodule Transport.Jobs.IRVEToGeoData do
   end
 
   def prepare_data_for_insert(body, geo_data_import_id) do
-    body
-    #  TODO : try to use same than in parking relais
-    |> CSV.parse_string(skip_headers: false)
-    |> Stream.transform([], fn r, acc ->
-      if acc == [] do
-        {%{}, r}
-      else
-        {[acc |> Enum.zip(r) |> Enum.into(%{})], acc}
-      end
-    end)
+    {:ok, stream} = StringIO.open(body)
+
+    stream
+    |> IO.binstream(:line)
+    |> CSV.decode(separator: ?,, escape_character: ?", headers: true, validate_row_length: true)
+    |> Stream.map(fn {:ok, m} -> m end)
     |> Stream.map(fn m ->
       %{
         geo_data_import_id: geo_data_import_id,
