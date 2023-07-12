@@ -501,7 +501,7 @@ defmodule DB.Dataset do
         {:ok, changeset}
 
       %{valid?: false} = errors ->
-        Logger.warn("error while importing dataset: #{format_error(errors)}")
+        Logger.warning("error while importing dataset: #{format_error(errors)}")
         {:error, format_error(errors)}
     end
   end
@@ -925,7 +925,7 @@ defmodule DB.Dataset do
     |> Repo.get_by(insee: insee)
     |> case do
       nil ->
-        Logger.warn("Unable to find zone with INSEE #{insee}")
+        Logger.warning("Unable to find zone with INSEE #{insee}")
         nil
 
       commune ->

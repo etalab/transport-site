@@ -10,7 +10,7 @@ defmodule Transport.ObanLogger do
         %{args: args, error: error, id: id, worker: worker},
         nil
       ) do
-    Logger.warn(
+    Logger.warning(
       "Job #{id} handled by #{worker} called with args #{inspect(args)} failed in #{duration}. Error: #{inspect(error)}"
     )
   end

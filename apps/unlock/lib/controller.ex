@@ -185,7 +185,7 @@ defmodule Unlock.Controller do
         size = byte_size(response.body)
 
         if size > @max_allowed_cached_byte_size do
-          Logger.warn("Payload is too large (#{size} bytes > #{@max_allowed_cached_byte_size}). Skipping cache.")
+          Logger.warning("Payload is too large (#{size} bytes > #{@max_allowed_cached_byte_size}). Skipping cache.")
           {:ignore, response}
         else
           {:commit, response, ttl: :timer.seconds(item.ttl)}
