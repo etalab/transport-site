@@ -37,4 +37,15 @@ defmodule Transport.Jobs.IRVEToGeoDataTest do
              }
            } = row1
   end
+
+  test "Finds the relevant dataset" do
+    %DB.Dataset{id: dataset_id} =
+      insert(:dataset, %{
+        type: "charging-stations",
+        custom_title: "Infrastructures de Recharge pour Véhicules Électriques - IRVE",
+        organization: "Etalab",
+        organization_id: "534fff75a3a7292c64a77de4"
+      })
+    assert %DB.Dataset{id: ^dataset_id} = IRVEToGeoData.relevant_dataset()
+  end
 end
