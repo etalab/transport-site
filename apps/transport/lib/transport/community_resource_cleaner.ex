@@ -24,7 +24,7 @@ defmodule Transport.CommunityResourcesCleaner do
       |> Enum.frequencies_by(fn {r, _} -> r end)
 
     with %{error: error_n} <- result do
-      Logger.warn("#{error_n} community resources were listed as orphans but could not be deleted")
+      Logger.warning("#{error_n} community resources were listed as orphans but could not be deleted")
     end
 
     ok_n = Map.get(result, :ok, 0)
@@ -86,7 +86,7 @@ defmodule Transport.CommunityResourcesCleaner do
       |> Enum.frequencies_by(fn {r, _} -> r end)
 
     with %{error: error_n} <- result do
-      Logger.warn("#{error_n} transport community resources could not be deleted")
+      Logger.warning("#{error_n} transport community resources could not be deleted")
     end
 
     ok_n = Map.get(result, :ok, 0)

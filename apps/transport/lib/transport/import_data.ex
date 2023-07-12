@@ -267,7 +267,7 @@ defmodule Transport.ImportData do
     |> Repo.get_by(code: code)
     |> case do
       nil ->
-        Logger.warn("impossible to find epci #{code}, no cities associated to the dataset")
+        Logger.warning("impossible to find epci #{code}, no cities associated to the dataset")
         []
 
       epci ->
@@ -430,7 +430,7 @@ defmodule Transport.ImportData do
         |> Enum.map(fn r -> Map.put(r, "is_community_resource", true) end)
 
       {:error, error} ->
-        Logger.warn("impossible to get community ressource for dataset #{datagouv_id} => #{inspect(error)}")
+        Logger.warning("impossible to get community ressource for dataset #{datagouv_id} => #{inspect(error)}")
 
         []
     end
