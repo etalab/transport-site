@@ -275,13 +275,26 @@ defmodule DB.Resource do
     end
   end
 
+  @doc """
+  iex> hosted_on_datagouv?(%DB.Resource{url: "https://static.data.gouv.fr/file.zip"})
+  true
+  iex> hosted_on_datagouv?("https://static.data.gouv.fr/file.zip")
+  true
+  iex> hosted_on_datagouv?(%DB.Resource{url: "https://example.com/file.zip"})
+  false
+  """
+  @spec hosted_on_datagouv?(__MODULE__.t() | binary()) :: boolean()
+  def hosted_on_datagouv?(url) when is_binary(url), do: hosted_on_datagouv?(%__MODULE__{url: url})
+
+  def hosted_on_datagouv?(%__MODULE__{url: url}) do
+    host = url |> URI.parse() |> Map.fetch!(:host)
+    Enum.member?(Application.fetch_env!(:transport, :datagouv_static_hosts), host)
+  end
+
   defp needs_stable_url?(%__MODULE__{latest_url: nil}), do: false
 
-  defp needs_stable_url?(%__MODULE__{url: url}) do
+  defp needs_stable_url?(%__MODULE__{url: url} = resource) do
     parsed_url = URI.parse(url)
-
-    hosted_on_static_datagouv =
-      Enum.member?(Application.fetch_env!(:transport, :datagouv_static_hosts), parsed_url.host)
 
     object_storage_regex =
       ~r{(https://.*\.blob\.core\.windows\.net)|(https://.*\.s3\..*\.amazonaws\.com)|(https://.*\.s3\..*\.scw\.cloud)|(https://.*\.cellar-c2\.services\.clever-cloud\.com)|(https://s3\..*\.cloud\.ovh\.net)}
@@ -290,13 +303,11 @@ defmodule DB.Resource do
 
     cond do
       hosted_on_bison_fute -> is_link_to_folder?(parsed_url)
-      hosted_on_static_datagouv -> true
+      hosted_on_datagouv?(resource) -> true
       String.match?(url, object_storage_regex) -> true
       true -> false
     end
   end
-
-  defp needs_stable_url?(%__MODULE__{}), do: false
 
   defp is_link_to_folder?(%URI{path: path}) do
     path |> Path.basename() |> :filename.extension() == ""

@@ -31,24 +31,13 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
           email,
           Application.get_env(:transport, :contact_email),
           "Ressources indisponibles dans le jeu de données #{dataset.custom_title}",
-          """
-          Bonjour,
-
-          Les ressources #{Enum.map_join(unavailabilities, ", ", &resource_title/1)} dans votre jeu de données #{dataset_url(dataset)} ne sont plus disponibles au téléchargement depuis plus de #{@hours_consecutive_downtime}h.
-
-          Ces erreurs empêchent la réutilisation de vos données.
-
-          Nous vous invitons à corriger l'accès de vos données dès que possible.
-
-          Nous restons disponible pour vous accompagner si besoin.
-
-          Merci par avance pour votre action,
-
-          À bientôt,
-
-          L'équipe du PAN
-          """,
-          ""
+          "",
+          Phoenix.View.render_to_string(TransportWeb.EmailView, "resource_unavailable.html",
+            dataset: dataset,
+            hours_consecutive_downtime: @hours_consecutive_downtime,
+            deleted_recreated_on_datagouv: deleted_and_recreated_resource_hosted_on_datagouv(dataset, unavailabilities),
+            resource_titles: Enum.map_join(unavailabilities, ", ", &resource_title/1)
+          )
         )
 
         save_notification(dataset, email)
@@ -66,6 +55,31 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
     |> select([n], n.email)
     |> DB.Repo.all()
     |> MapSet.new()
+  end
+
+  def deleted_and_recreated_resource_hosted_on_datagouv(%DB.Dataset{} = dataset, unavailabilities) do
+    hosted_on_datagouv = Enum.any?(unavailabilities, &DB.Resource.hosted_on_datagouv?(&1.resource))
+    hosted_on_datagouv and created_resource_hosted_on_datagouv_recently?(dataset)
+  end
+
+  def created_resource_hosted_on_datagouv_recently?(%DB.Dataset{datagouv_id: datagouv_id}) do
+    case Datagouvfr.Client.Datasets.get(datagouv_id) do
+      {:ok, %{"resources" => resources}} ->
+        dt_limit = DateTime.utc_now() |> DateTime.add(-12, :hour)
+
+        Enum.any?(resources, fn %{"created_at" => created_at, "url" => url} ->
+          is_recent = created_at |> parse_datetime() |> DateTime.compare(dt_limit) == :gt
+          is_recent and DB.Resource.hosted_on_datagouv?(url)
+        end)
+
+      _ ->
+        false
+    end
+  end
+
+  defp parse_datetime(value) do
+    {:ok, datetime, 0} = DateTime.from_iso8601(value)
+    datetime
   end
 
   def relevant_unavailabilities(%DateTime{} = inserted_at) do
@@ -88,12 +102,6 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
     |> DB.NotificationSubscription.subscriptions_for_reason(dataset)
     |> DB.NotificationSubscription.subscriptions_to_emails()
     |> MapSet.new()
-  end
-
-  defp dataset_url(%DB.Dataset{slug: slug, custom_title: custom_title}) do
-    url = TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, slug)
-
-    "#{custom_title} — #{url}"
   end
 
   defp resource_title(%DB.ResourceUnavailability{resource: %DB.Resource{title: title}}) do
