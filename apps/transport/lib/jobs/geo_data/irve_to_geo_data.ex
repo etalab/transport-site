@@ -22,13 +22,7 @@ defmodule Transport.Jobs.IRVEToGeoData do
   end
 
   def prepare_data_for_insert(body, geo_data_import_id) do
-    {:ok, stream} = StringIO.open(body)
-
-    stream
-    |> IO.binstream(:line)
-    |> CSV.decode(separator: ?,, escape_character: ?", headers: true, validate_row_length: true)
-    |> Stream.map(fn {:ok, m} -> m end)
-    |> Stream.map(fn m ->
+    prepare_data_fn = fn m ->
       %{
         geo_data_import_id: geo_data_import_id,
         geom: %Geo.Point{
@@ -39,7 +33,9 @@ defmodule Transport.Jobs.IRVEToGeoData do
         },
         payload: m |> Map.drop(["consolidated_longitude", "consolidated_latitude", "coordonnesXY"])
       }
-    end)
+    end
+
+    Transport.Jobs.BaseGeoData.prepare_csv_data_for_import(body, prepare_data_fn)
   end
 
   def relevant_dataset do

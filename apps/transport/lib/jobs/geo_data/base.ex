@@ -58,6 +58,16 @@ defmodule Transport.Jobs.BaseGeoData do
     s |> string_to_float() |> Float.round(6)
   end
 
+  def prepare_csv_data_for_import(body, prepare_data_fn, {separator_char, escape_char} \\ {?, , ?"}) do
+    {:ok, stream} = StringIO.open(body)
+
+    stream
+    |> IO.binstream(:line)
+    |> CSV.decode(separator: separator_char, escape_character: escape_char, headers: true, validate_row_length: true)
+    |> Stream.map(fn {:ok, m} -> m end)
+    |> Stream.map(prepare_data_fn)
+  end
+
   # remove spaces (U+0020) and non-break spaces (U+00A0) from the string
   defp string_to_float(s), do: s |> String.trim() |> String.replace([" ", " "], "") |> String.to_float()
 end
