@@ -46,6 +46,10 @@ defmodule Transport.Jobs.ParkingsRelaisToGeoData do
       }
     end
 
-    Transport.Jobs.BaseGeoData.prepare_csv_data_for_import(body, prepare_data_fn, filter_fn: filter_fn, separator_char: ?;, escape_char: ?")
+    Transport.Jobs.BaseGeoData.prepare_csv_data_for_import(body, prepare_data_fn,
+      filter_fn: filter_fn,
+      separator_char: ?;,
+      escape_char: ?"
+    )
   end
 end

@@ -64,7 +64,12 @@ defmodule Transport.Jobs.BaseGeoData do
 
     stream
     |> IO.binstream(:line)
-    |> CSV.decode(separator: opts[:separator_char], escape_character: opts[:escape_char], headers: true, validate_row_length: true)
+    |> CSV.decode(
+      separator: opts[:separator_char],
+      escape_character: opts[:escape_char],
+      headers: true,
+      validate_row_length: true
+    )
     |> Stream.filter(opts[:filter_fn])
     |> Stream.map(fn {:ok, m} -> m end)
     |> Stream.map(prepare_data_fn)
