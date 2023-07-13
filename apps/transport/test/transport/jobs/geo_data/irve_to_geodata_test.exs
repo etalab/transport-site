@@ -25,8 +25,6 @@ defmodule Transport.Jobs.IRVEToGeoDataTest do
 
   test "import an IRVE to the DB" do
     %{id: id} = insert(:geo_data_import)
-    # Uncomment to test only the prepare_data_for_insert function
-    # row1 = IRVEToGeoData.prepare_data_for_insert(@irve_content, id) |> Enum.take(1) |> hd
     BaseGeoData.insert_data(@irve_content, id, &IRVEToGeoData.prepare_data_for_insert/2)
     [row1 | _t] = DB.GeoData |> DB.Repo.all()
 
