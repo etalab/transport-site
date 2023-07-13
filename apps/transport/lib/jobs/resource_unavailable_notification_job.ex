@@ -59,7 +59,7 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
 
   @doc """
   Detects when the producer deleted and recreated just after a resource hosted on data.gouv.fr.
-  Best practise: upload a new version of the file, keep the same datagouv's resource.
+  Best practice: upload a new version of the file, keep the same datagouv's resource.
 
   Detected if:
   - a resource hosted on datagouv is unavailable (ie it was deleted)
