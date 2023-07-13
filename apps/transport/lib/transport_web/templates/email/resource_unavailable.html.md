@@ -5,9 +5,7 @@ Les ressources <%= @resource_titles %> dans votre jeu de données <%= link_for_d
 <%= if @deleted_recreated_on_datagouv do %>
 Il semble que vous ayez supprimé et créé une nouvelle ressource. Lors de la mise à jour de vos données, privilégiez le remplacement de fichiers. Retrouvez la procédure pas à pas [sur notre documentation](https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees).
 <% else %>
-Ces erreurs empêchent la réutilisation de vos données.
-
-Nous vous invitons à corriger l'accès de vos données dès que possible.
+Ces erreurs provoquent des difficultés pour les réutilisateurs. Nous vous invitons à corriger l'accès de vos données dès que possible.
 <% end %>
 
 Nous restons disponible pour vous accompagner si besoin.

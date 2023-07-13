@@ -57,6 +57,14 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
     |> MapSet.new()
   end
 
+  @doc """
+  Detects when the producer deleted and recreated just after a resource hosted on data.gouv.fr.
+  Best practise: upload a new version of the file, keep the same datagouv's resource.
+
+  Detected if:
+  - a resource hosted on datagouv is unavailable (ie it was deleted)
+  - call the API now and see that a resource hosted on datagouv has been created recently
+  """
   def deleted_and_recreated_resource_hosted_on_datagouv(%DB.Dataset{} = dataset, unavailabilities) do
     hosted_on_datagouv = Enum.any?(unavailabilities, &DB.Resource.hosted_on_datagouv?(&1.resource))
     hosted_on_datagouv and created_resource_hosted_on_datagouv_recently?(dataset)
