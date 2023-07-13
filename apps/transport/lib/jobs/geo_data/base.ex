@@ -37,22 +37,42 @@ defmodule Transport.Jobs.BaseGeoData do
          %DB.ResourceHistory{id: latest_resource_history_id, payload: %{"permanent_url" => permanent_url}},
          prepare_data_for_insert_fn
        ) do
-    DB.Repo.transaction(fn ->
-      unless is_nil(current_geo_data_import) do
-        # thanks to cascading delete, it will also clean geo_data table corresponding entries
-        current_geo_data_import |> DB.Repo.delete!()
-      end
+    DB.Repo.transaction(
+      fn ->
+        unless is_nil(current_geo_data_import) do
+          # thanks to cascading delete, it will also clean geo_data table corresponding entries
+          current_geo_data_import |> DB.Repo.delete!()
+        end
 
-      %{id: geo_data_import_id} = DB.Repo.insert!(%DB.GeoDataImport{resource_history_id: latest_resource_history_id})
-      http_client = Transport.Shared.Wrapper.HTTPoison.impl()
-      %{status_code: 200, body: body} = http_client.get!(permanent_url)
-      insert_data(body, geo_data_import_id, prepare_data_for_insert_fn)
-    end)
+        %{id: geo_data_import_id} = DB.Repo.insert!(%DB.GeoDataImport{resource_history_id: latest_resource_history_id})
+        http_client = Transport.Shared.Wrapper.HTTPoison.impl()
+        %{status_code: 200, body: body} = http_client.get!(permanent_url)
+        insert_data(body, geo_data_import_id, prepare_data_for_insert_fn)
+      end,
+      timeout: 60_000
+    )
   end
 
   # keep 6 digits for WGS 84, see https://en.wikipedia.org/wiki/Decimal_degrees#Precision
   def parse_coordinate(s) do
     s |> string_to_float() |> Float.round(6)
+  end
+
+  def prepare_csv_data_for_import(body, prepare_data_fn, opts \\ []) do
+    opts = Keyword.validate!(opts, separator_char: ?,, escape_char: ?", filter_fn: fn _ -> true end)
+    {:ok, stream} = StringIO.open(body)
+
+    stream
+    |> IO.binstream(:line)
+    |> CSV.decode(
+      separator: Keyword.fetch!(opts, :separator_char),
+      escape_character: Keyword.fetch!(opts, :escape_char),
+      headers: true,
+      validate_row_length: true
+    )
+    |> Stream.filter(Keyword.fetch!(opts, :filter_fn))
+    |> Stream.map(fn {:ok, m} -> m end)
+    |> Stream.map(prepare_data_fn)
   end
 
   # remove spaces (U+0020) and non-break spaces (U+00A0) from the string

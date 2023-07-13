@@ -31,13 +31,9 @@ defmodule Transport.Jobs.ParkingsRelaisToGeoData do
   defp pr_count(str), do: String.to_integer(str)
 
   def prepare_data_for_insert(body, geo_data_import_id) do
-    {:ok, stream} = StringIO.open(body)
+    filter_fn = fn {:ok, line} -> pr_count(line["nb_pr"]) > 0 end
 
-    stream
-    |> IO.binstream(:line)
-    |> CSV.decode(separator: ?;, headers: true, validate_row_length: true)
-    |> Stream.filter(fn {:ok, line} -> pr_count(line["nb_pr"]) > 0 end)
-    |> Stream.map(fn {:ok, m} ->
+    prepare_data_fn = fn m ->
       %{
         geo_data_import_id: geo_data_import_id,
         geom: %Geo.Point{
@@ -48,6 +44,12 @@ defmodule Transport.Jobs.ParkingsRelaisToGeoData do
         },
         payload: m |> Map.drop(["Xlong", "Ylat"])
       }
-    end)
+    end
+
+    Transport.Jobs.BaseGeoData.prepare_csv_data_for_import(body, prepare_data_fn,
+      filter_fn: filter_fn,
+      separator_char: ?;,
+      escape_char: ?"
+    )
   end
 end

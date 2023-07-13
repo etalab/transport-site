@@ -5,7 +5,6 @@ defmodule Transport.Jobs.BNLCToGeoData do
   """
   use Oban.Worker, max_attempts: 3
   import Ecto.Query
-  alias NimbleCSV.RFC4180, as: CSV
   require Logger
 
   @impl Oban.Worker
@@ -26,16 +25,7 @@ defmodule Transport.Jobs.BNLCToGeoData do
   end
 
   def prepare_data_for_insert(body, geo_data_import_id) do
-    body
-    |> CSV.parse_string(skip_headers: false)
-    |> Stream.transform([], fn r, acc ->
-      if acc == [] do
-        {%{}, r}
-      else
-        {[acc |> Enum.zip(r) |> Enum.into(%{})], acc}
-      end
-    end)
-    |> Stream.map(fn m ->
+    prepare_data_fn = fn m ->
       %{
         geo_data_import_id: geo_data_import_id,
         geom: %Geo.Point{
@@ -46,6 +36,8 @@ defmodule Transport.Jobs.BNLCToGeoData do
         },
         payload: m |> Map.drop(["Xlong", "Ylat"])
       }
-    end)
+    end
+
+    Transport.Jobs.BaseGeoData.prepare_csv_data_for_import(body, prepare_data_fn)
   end
 end
