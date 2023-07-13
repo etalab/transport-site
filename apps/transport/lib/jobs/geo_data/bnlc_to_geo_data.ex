@@ -38,6 +38,6 @@ defmodule Transport.Jobs.BNLCToGeoData do
       }
     end
 
-    Transport.Jobs.BaseGeoData.prepare_csv_data_for_import(body, prepare_data_fn)
+    Transport.Jobs.BaseGeoData.prepare_csv_data_for_import(body, nil, prepare_data_fn)
   end
 end
