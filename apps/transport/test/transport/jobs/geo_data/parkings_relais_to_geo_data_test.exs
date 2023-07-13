@@ -10,15 +10,15 @@ defmodule Transport.Jobs.ParkingsRelaisToGeoDataTest do
 
   setup :verify_on_exit!
 
-  @bnls_content ~S"""
+  @parking_relais_content ~S"""
   id;nom;Xlong;Ylat;nb_pr
   04070-P-001;Parking Gassendi;6.2366534;44.0932836;
   04070-P-002;Parking Deux;6.22;44.10;5
   """
 
-  test "import a BNLS to the DB" do
+  test "import a Parking Relais to the DB" do
     geo_data_import = %{id: id} = insert(:geo_data_import)
-    BaseGeoData.insert_data(@bnls_content, id, &ParkingsRelaisToGeoData.prepare_data_for_insert/2)
+    BaseGeoData.insert_data(@parking_relais_content, id, &ParkingsRelaisToGeoData.prepare_data_for_insert/2)
 
     [row1] = DB.GeoData |> DB.Repo.all()
 
@@ -33,7 +33,7 @@ defmodule Transport.Jobs.ParkingsRelaisToGeoDataTest do
     assert [] = DB.GeoData |> DB.Repo.all()
   end
 
-  test "BNLS data update logic" do
+  test "Parking relais data update logic" do
     now = DateTime.utc_now()
     now_100 = now |> DateTime.add(-100)
     now_50 = now |> DateTime.add(-50)
@@ -62,9 +62,9 @@ defmodule Transport.Jobs.ParkingsRelaisToGeoDataTest do
     # another random resource history, just in case
     insert(:resource_history, %{inserted_at: now_25, payload: %{"dataset_id" => dataset_id + 5}})
 
-    # download BNLS Mock
+    # download Parking Relais Mock
     Transport.HTTPoison.Mock
-    |> expect(:get!, 2, fn "url" -> %HTTPoison.Response{status_code: 200, body: @bnls_content} end)
+    |> expect(:get!, 2, fn "url" -> %HTTPoison.Response{status_code: 200, body: @parking_relais_content} end)
 
     # launch job
     Transport.Jobs.ParkingsRelaisToGeoData.perform(%{})
