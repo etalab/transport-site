@@ -49,7 +49,7 @@ defmodule Transport.Jobs.BaseGeoData do
         %{status_code: 200, body: body} = http_client.get!(permanent_url)
         insert_data(body, geo_data_import_id, prepare_data_for_insert_fn)
       end,
-      timeout: 1_000_000
+      timeout: 60_000
     )
   end
 
