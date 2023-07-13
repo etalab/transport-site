@@ -20,8 +20,8 @@ defmodule Transport.Jobs.IRVEToGeoDataTest do
   @dataset_info %{
     type: "charging-stations",
     custom_title: "Infrastructures de Recharge pour Véhicules Électriques - IRVE",
-    organization: "Etalab",
-    organization_id: "534fff75a3a7292c64a77de4"
+    organization: "data.gouv.fr",
+    organization_id: "646b7187b50b2a93b1ae3d45"
   }
 
   test "import an IRVE to the DB" do

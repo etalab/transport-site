@@ -6,7 +6,7 @@ defmodule Transport.Jobs.IRVEToGeoData do
   import Ecto.Query
   require Logger
 
-  @etalab_organization_id "534fff75a3a7292c64a77de4"
+  @datagouv_organization_id "646b7187b50b2a93b1ae3d45"
   @resource_datagouv_id "8d9398ae-3037-48b2-be19-412c24561fbb"
 
   @impl Oban.Worker
@@ -41,7 +41,7 @@ defmodule Transport.Jobs.IRVEToGeoData do
   def relevant_dataset do
     DB.Dataset.base_query()
     |> preload(:resources)
-    |> where([d], d.type == "charging-stations" and d.organization_id == @etalab_organization_id)
+    |> where([d], d.type == "charging-stations" and d.organization_id == @datagouv_organization_id)
     |> DB.Repo.one!()
   end
 end
