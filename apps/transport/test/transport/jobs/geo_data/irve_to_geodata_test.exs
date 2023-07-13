@@ -23,7 +23,6 @@ defmodule Transport.Jobs.IRVEToGeoDataTest do
     organization_id: "534fff75a3a7292c64a77de4"
   }
 
-
   test "import an IRVE to the DB" do
     %{id: id} = insert(:geo_data_import)
     # Uncomment to test only the prepare_data_for_insert function
@@ -47,8 +46,8 @@ defmodule Transport.Jobs.IRVEToGeoDataTest do
   end
 
   test "Finds the relevant dataset" do
-     %DB.Dataset{id: dataset_id} = insert(:dataset, @dataset_info)
-     assert %DB.Dataset{id: ^dataset_id} = IRVEToGeoData.relevant_dataset()
+    %DB.Dataset{id: dataset_id} = insert(:dataset, @dataset_info)
+    assert %DB.Dataset{id: ^dataset_id} = IRVEToGeoData.relevant_dataset()
   end
 
   test "IRVE data update logic" do
@@ -93,7 +92,6 @@ defmodule Transport.Jobs.IRVEToGeoDataTest do
     # launch job
     Transport.Jobs.IRVEToGeoData.perform(%{})
 
-
     # data is imported
     [%{id: geo_data_import_1, resource_history_id: ^id_0}] = DB.GeoDataImport |> DB.Repo.all()
     assert DB.GeoData |> DB.Repo.all() |> Enum.count() == 2
@@ -119,6 +117,6 @@ defmodule Transport.Jobs.IRVEToGeoDataTest do
     [%{id: geo_data_import_2, resource_history_id: ^id_1}] = DB.GeoDataImport |> DB.Repo.all()
     assert geo_data_import_2 !== geo_data_import_1
 
-    [%{geo_data_import_id: ^geo_data_import_2},%{geo_data_import_id: ^geo_data_import_2}] = DB.GeoData |> DB.Repo.all()
+    [%{geo_data_import_id: ^geo_data_import_2}, %{geo_data_import_id: ^geo_data_import_2}] = DB.GeoData |> DB.Repo.all()
   end
 end

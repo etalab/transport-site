@@ -32,6 +32,7 @@ defmodule Transport.Jobs.ParkingsRelaisToGeoData do
 
   def prepare_data_for_insert(body, geo_data_import_id) do
     filter_fn = fn {:ok, line} -> pr_count(line["nb_pr"]) > 0 end
+
     prepare_data_fn = fn m ->
       %{
         geo_data_import_id: geo_data_import_id,
@@ -45,6 +46,6 @@ defmodule Transport.Jobs.ParkingsRelaisToGeoData do
       }
     end
 
-    Transport.Jobs.BaseGeoData.prepare_csv_data_for_import(body, filter_fn, prepare_data_fn, {?;,?"})
+    Transport.Jobs.BaseGeoData.prepare_csv_data_for_import(body, filter_fn, prepare_data_fn, {?;, ?"})
   end
 end
