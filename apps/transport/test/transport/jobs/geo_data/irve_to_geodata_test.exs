@@ -65,7 +65,7 @@ defmodule Transport.Jobs.IRVEToGeoDataTest do
     insert(:resource, %{
       dataset_id: dataset_id,
       is_community_resource: true,
-      datagouv_id: "8d9398ae-3037-48b2-be19-412c24561fbb"
+      datagouv_id: Ecto.UUID.generate()
     })
 
     %{id: resource_id} =
