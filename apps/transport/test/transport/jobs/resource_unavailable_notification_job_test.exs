@@ -161,7 +161,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
                ~s(Les ressources #{resource_gtfs.title} dans votre jeu de données <a href="http://127.0.0.1:5100/datasets/#{gtfs_dataset.slug}">#{gtfs_dataset.custom_title}</a> ne sont plus disponibles au téléchargement depuis plus de 6h.)
 
       refute html_part =~ "Il semble que vous ayez supprimé et créé une nouvelle ressource."
-      assert html_part =~ "Ces erreurs empêchent la réutilisation de vos données."
+      assert html_part =~ "Ces erreurs provoquent des difficultés pour les réutilisateurs."
 
       :ok
     end)
@@ -197,7 +197,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
       assert ResourceUnavailableNotificationJob.created_resource_hosted_on_datagouv_recently?(dataset)
     end
 
-    test "resource on datagouv has created a long time ago" do
+    test "resource on datagouv has been created a long time ago" do
       dataset = %DB.Dataset{datagouv_id: Ecto.UUID.generate()}
       file_url = "https://static.data.gouv.fr/file.zip"
       assert DB.Resource.hosted_on_datagouv?(file_url)
