@@ -1,5 +1,6 @@
 defmodule Transport.Jobs.ParkingsRelaisToGeoDataTest do
   use ExUnit.Case, async: true
+  use Oban.Testing, repo: DB.Repo
   alias Transport.Jobs.{BaseGeoData, ParkingsRelaisToGeoData}
   import DB.Factory
   import Mox
@@ -67,14 +68,14 @@ defmodule Transport.Jobs.ParkingsRelaisToGeoDataTest do
     |> expect(:get!, 2, fn "url" -> %HTTPoison.Response{status_code: 200, body: @parking_relais_content} end)
 
     # launch job
-    Transport.Jobs.ParkingsRelaisToGeoData.perform(%{})
+    perform_job(ParkingsRelaisToGeoData, %{})
 
     # data is imported
     [%{id: geo_data_import_1, resource_history_id: ^id_0}] = DB.GeoDataImport |> DB.Repo.all()
     assert DB.GeoData |> DB.Repo.all() |> Enum.count() == 1
 
     # relaunch job
-    Transport.Jobs.ParkingsRelaisToGeoData.perform(%{})
+    perform_job(ParkingsRelaisToGeoData, %{})
 
     # no change
     [%{id: ^geo_data_import_1}] = DB.GeoDataImport |> DB.Repo.all()
@@ -88,7 +89,7 @@ defmodule Transport.Jobs.ParkingsRelaisToGeoDataTest do
       })
 
     # relaunch job
-    Transport.Jobs.ParkingsRelaisToGeoData.perform(%{})
+    perform_job(ParkingsRelaisToGeoData, %{})
 
     # geo_data and geo_data_import are updated accordingly
     [%{id: geo_data_import_2, resource_history_id: ^id_1}] = DB.GeoDataImport |> DB.Repo.all()
