@@ -95,14 +95,14 @@ defmodule Transport.Jobs.LowEmissionZonesToGeoDataTest do
     |> expect(:get!, 2, fn "url" -> %HTTPoison.Response{status_code: 200, body: @lez_aires_content} end)
 
     # launch job
-    perform_job(LowEmissionZonesToGeoData, %{})
+    assert :ok = perform_job(LowEmissionZonesToGeoData, %{})
 
     # data is imported
     [%{id: geo_data_import_1, resource_history_id: ^id_0}] = DB.GeoDataImport |> DB.Repo.all()
     assert DB.GeoData |> DB.Repo.all() |> Enum.count() == 1
 
     # relaunch job
-    perform_job(LowEmissionZonesToGeoData, %{})
+    assert :ok = perform_job(LowEmissionZonesToGeoData, %{})
 
     # no change
     [%{id: ^geo_data_import_1}] = DB.GeoDataImport |> DB.Repo.all()
@@ -116,7 +116,7 @@ defmodule Transport.Jobs.LowEmissionZonesToGeoDataTest do
       })
 
     # relaunch job
-    perform_job(LowEmissionZonesToGeoData, %{})
+    assert :ok = perform_job(LowEmissionZonesToGeoData, %{})
 
     # geo_data and geo_data_import are updated accordingly
     [%{id: geo_data_import_2, resource_history_id: ^id_1}] = DB.GeoDataImport |> DB.Repo.all()

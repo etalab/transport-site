@@ -71,14 +71,14 @@ defmodule Transport.Jobs.BNLCToGeoDataTest do
     |> expect(:get!, 2, fn "url" -> %HTTPoison.Response{status_code: 200, body: @bnlc_content} end)
 
     # launch job
-    perform_job(BNLCToGeoData, %{})
+    assert :ok = perform_job(BNLCToGeoData, %{})
 
     # data is imported
     [%{id: geo_data_import_1, resource_history_id: ^id_0}] = DB.GeoDataImport |> DB.Repo.all()
     assert DB.GeoData |> DB.Repo.all() |> Enum.count() == 2
 
     # relaunch job
-    perform_job(BNLCToGeoData, %{})
+    assert :ok = perform_job(BNLCToGeoData, %{})
 
     # no change
     [%{id: ^geo_data_import_1}] = DB.GeoDataImport |> DB.Repo.all()
@@ -92,7 +92,7 @@ defmodule Transport.Jobs.BNLCToGeoDataTest do
       })
 
     # relaunch job
-    perform_job(BNLCToGeoData, %{})
+    assert :ok = perform_job(BNLCToGeoData, %{})
 
     # geo_data and geo_data_import are updated accordingly
     [%{id: geo_data_import_2, resource_history_id: ^id_1}] = DB.GeoDataImport |> DB.Repo.all()
