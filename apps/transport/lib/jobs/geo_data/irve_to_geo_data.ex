@@ -9,7 +9,8 @@ defmodule Transport.Jobs.IRVEToGeoData do
   @etalab_organization_id "534fff75a3a7292c64a77de4"
   @resource_datagouv_id "8d9398ae-3037-48b2-be19-412c24561fbb"
 
-  def perform(%{}) do
+  @impl Oban.Worker
+  def perform(%Oban.Job{}) do
     [resource] =
       relevant_dataset()
       |> DB.Dataset.official_resources()
