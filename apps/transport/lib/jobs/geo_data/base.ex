@@ -58,13 +58,14 @@ defmodule Transport.Jobs.BaseGeoData do
     s |> string_to_float() |> Float.round(6)
   end
 
-  def prepare_csv_data_for_import(body, filter_fn, prepare_data_fn, {separator_char, escape_char} \\ {?,, ?"}) do
+  def prepare_csv_data_for_import(body, prepare_data_fn, opts \\ []) do
+    opts = Keyword.validate!(opts, separator_char: ?,, escape_char: ?", filter_fn: fn _ -> true end)
     {:ok, stream} = StringIO.open(body)
 
     stream
     |> IO.binstream(:line)
-    |> CSV.decode(separator: separator_char, escape_character: escape_char, headers: true, validate_row_length: true)
-    |> Stream.filter(filter_fn || (& &1))
+    |> CSV.decode(separator: opts[:separator_char], escape_character: opts[:escape_char], headers: true, validate_row_length: true)
+    |> Stream.filter(opts[:filter_fn])
     |> Stream.map(fn {:ok, m} -> m end)
     |> Stream.map(prepare_data_fn)
   end
