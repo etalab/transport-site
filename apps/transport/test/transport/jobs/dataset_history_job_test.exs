@@ -104,7 +104,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetHistoryJobTest do
     %{id: id_2} = insert(:dataset)
     %{id: id_3} = insert(:dataset, is_active: false)
 
-    perform_job(Transport.Jobs.DatasetHistoryDispatcherJob, %{})
+    assert :ok = perform_job(Transport.Jobs.DatasetHistoryDispatcherJob, %{})
 
     assert_enqueued([worker: Transport.Jobs.DatasetHistoryJob, args: %{"dataset_id" => id_1}], 50)
     assert_enqueued([worker: Transport.Jobs.DatasetHistoryJob, args: %{"dataset_id" => id_2}], 50)
