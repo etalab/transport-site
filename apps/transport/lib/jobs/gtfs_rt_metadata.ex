@@ -22,7 +22,7 @@ defmodule Transport.Jobs.GTFSRTMetadataDispatcherJob do
   end
 
   def remove_old_metadata do
-    recent_limit = DateTime.utc_now() |> DateTime.add(-@metadata_max_nb_days * 24 * 60 * 60)
+    recent_limit = DateTime.utc_now() |> DateTime.add(-@metadata_max_nb_days, :day)
 
     ResourceMetadata
     |> join(:inner, [rm], r in Resource, on: rm.resource_id == r.id and r.format == "gtfs-rt")
