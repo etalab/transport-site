@@ -1,0 +1,75 @@
+# Modèle de données
+
+```elixir
+my_app_root = Path.join(__DIR__, "..")
+
+Mix.install(
+  [
+    {:my_app, path: my_app_root, env: :dev},
+    {:kino, "~> 0.10.0"}
+  ],
+  config_path: Path.join(my_app_root, "config/config.exs"),
+  lockfile: Path.join(my_app_root, "mix.lock")
+)
+```
+
+## Exploration
+
+```elixir
+Ecto.Adapters.SQL.query!(
+  DB.Repo,
+  "SELECT id, datagouv_id, slug, custom_title FROM dataset"
+)
+|> Kino.DataTable.new()
+```
+
+```elixir
+Ecto.Adapters.SQL.query!(
+  DB.Repo,
+  "SELECT 'https://transport.data.gouv.fr/datasets/' || slug as url FROM dataset"
+)
+|> Kino.DataTable.new()
+```
+
+```elixir
+Ecto.Adapters.SQL.query!(
+  DB.Repo,
+  """
+  SELECT
+    dataset.id as d_id,
+    resource.id as r_id,
+    'http://localhost:5000/resources/' || resource.id as r_url,
+    resource.format as r_format,
+    resource.title as r_title,
+    dataset.datagouv_id as d_gid,
+    dataset.slug as d_slug,
+    dataset.custom_title as d_title
+
+  FROM (SELECT * from dataset ORDER BY id desc limit 3) dataset
+
+  LEFT JOIN resource resource on resource.dataset_id = dataset.id
+  ORDER by dataset.id asc
+  """
+)
+|> Kino.DataTable.new()
+```
+
+```elixir
+well_known_slug = "Réseau urbain Bibus"
+
+Ecto.Adapters.SQL.query!(
+  DB.Repo,
+  """
+  SELECT
+    resource.format as r_format,
+    resource.title as r_title
+
+  FROM (SELECT * from dataset WHERE custom_title = $1) dataset
+
+  LEFT JOIN resource resource on resource.dataset_id = dataset.id
+  ORDER by resource.title asc
+  """,
+  [well_known_slug]
+)
+|> Kino.DataTable.new()
+```
