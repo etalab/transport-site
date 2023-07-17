@@ -38,7 +38,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMetadataJobTest do
       rm3 = insert(:resource_metadata, resource_id: resource.id, inserted_at: days_ago(91))
       rm4 = insert(:resource_metadata, resource_id: gtfs_resource.id, inserted_at: days_ago(91))
 
-      assert :ok == perform_job(GTFSRTEntitiesDispatcherJob, %{})
+      assert :ok == perform_job(GTFSRTMetadataDispatcherJob, %{})
 
       assert [rm1, rm2, nil, rm4] == DB.Repo.reload([rm1, rm2, rm3, rm4])
       assert resource == DB.Repo.reload(resource)
