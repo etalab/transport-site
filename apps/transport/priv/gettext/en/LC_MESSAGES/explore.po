@@ -110,3 +110,11 @@ msgstr "Consolidated GTFS stops map (beta)"
 #, elixir-autogen, elixir-format
 msgid "Consolidated GTFS stops map explanation"
 msgstr "This map consolidates all the GTFS referenced on this site. It is in beta and may include outdated or duplicate data (see %{link}). Feedback is most welcome."
+
+#, elixir-autogen, elixir-format
+msgid "IRVE map"
+msgstr "Electric Vehicule Charging Infrastructure database"
+
+#, elixir-autogen, elixir-format
+msgid "irve-explanation"
+msgstr "Consolidated national map of charging stations static data %{link}."
