@@ -48,7 +48,9 @@ defmodule Transport.History.FetcherTest do
       [validation] = rh_with_metadata.validations
       assert validation.metadata.metadata == %{"a" => 2}
 
-      assert Enum.count(Transport.History.Fetcher.Database.history_resources(dataset, 1)) == 1
+      assert Enum.count(
+               Transport.History.Fetcher.Database.history_resources(dataset, max_records: 1)
+             ) == 1
 
       assert Transport.History.Fetcher.Database.history_resources(insert(:dataset)) == []
     end
