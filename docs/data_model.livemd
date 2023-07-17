@@ -73,3 +73,40 @@ Ecto.Adapters.SQL.query!(
 )
 |> Kino.DataTable.new()
 ```
+
+```elixir
+well_known_slug = "Réseau urbain Bibus"
+
+%{rows: [[gtfs_resource_id]]} =
+  Ecto.Adapters.SQL.query!(
+    DB.Repo,
+    """
+    SELECT
+      resource.id as r_id
+
+    FROM (SELECT * from dataset WHERE custom_title = $1) dataset
+
+    LEFT JOIN resource resource on resource.dataset_id = dataset.id
+
+    where resource.format = 'GTFS'
+    """,
+    [well_known_slug]
+  )
+
+"Resource with id #{gtfs_resource_id} is at http://localhost:5000/resources/#{gtfs_resource_id}"
+|> Kino.Markdown.new()
+```
+
+```elixir
+# this is displayed on the dataset page, not on the resource detail page
+Ecto.Adapters.SQL.query!(
+  DB.Repo,
+  """
+  SELECT * from resource_history WHERE resource_id = $1
+
+  ORDER BY inserted_at DESC
+  """,
+  [gtfs_resource_id]
+)
+|> Kino.DataTable.new()
+```
