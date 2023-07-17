@@ -63,7 +63,13 @@ function getTooltip ({ object, layer }) {
         } else if (layer.id === 'zfe-layer') {
             return { html: '<strong>Zone à Faible Émission</strong>' }
         } else if (layer.id === 'irve-layer') {
-            return { html: `<strong>Infrastructure de recharge</strong><br>${object.properties.nom_station}<br>Enseigne : ${object.properties.nom_enseigne}<br>Identifiant : ${object.properties.id_station_itinerance}<br>Nombre de points de charge : ${object.properties.nbre_pdc}` }
+            return {
+                html: `<strong>Infrastructure de recharge</strong><br>
+            ${object.properties.nom_station}<br>
+            Enseigne&nbsp;: ${object.properties.nom_enseigne}<br>
+            Identifiant&nbsp;: ${object.properties.id_station_itinerance}<br>
+            Nombre de points de charge&nbsp;: ${object.properties.nbre_pdc}`
+            }
         } else {
             return { html: `<strong>Position temps-réel</strong><br>transport_resource: ${object.transport.resource_id}<br>id: ${object.vehicle.id}` }
         }
