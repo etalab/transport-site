@@ -5,12 +5,19 @@ defmodule Transport.History.Fetcher do
   for tests which have no interest in it (that is: most of the tests).
   """
   @callback history_resources(DB.Dataset.t()) :: [map()]
-  @callback history_resources(DB.Dataset.t(), integer() | nil, boolean() | true) :: [map()]
+  @callback history_resources(DB.Dataset.t(), keyword()) :: [map()]
 
   def impl, do: Application.get_env(:transport, :history_impl)
 
-  def history_resources(%DB.Dataset{} = dataset, max_records \\ nil, preload_validations \\ true),
-    do: impl().history_resources(dataset, max_records, preload_validations)
+  def history_resources(%DB.Dataset{} = dataset, options \\ []) do
+    preload_validations = Keyword.get(options, :preload_validations, true)
+    max_records = Keyword.get(options, :max_records)
+
+    impl().history_resources(dataset,
+      preload_validations: preload_validations,
+      max_records: max_records
+    )
+  end
 end
 
 defmodule Transport.History.Fetcher.Database do
@@ -23,8 +30,11 @@ defmodule Transport.History.Fetcher.Database do
   alias DB.{Dataset, Repo}
 
   @impl true
-  def history_resources(%Dataset{id: dataset_id}, max_records \\ nil, preload_validations \\ true)
-      when (is_integer(max_records) and max_records > 0) or is_nil(max_records) do
+  def history_resources(%Dataset{id: dataset_id}, options \\ []) do
+    # NOTE: default values are provided by the wrapper
+    preload_validations = Keyword.get(options, :preload_validations)
+    max_records = Keyword.get(options, :max_records)
+
     latest_resource_history_validation =
       DB.MultiValidation
       |> distinct([mv], mv.resource_history_id)
@@ -73,5 +83,5 @@ defmodule Transport.History.Fetcher.Null do
   @behaviour Transport.History.Fetcher
 
   @impl true
-  def history_resources(%DB.Dataset{}, _ \\ nil, _ \\ true), do: []
+  def history_resources(%DB.Dataset{}, _options \\ []), do: []
 end

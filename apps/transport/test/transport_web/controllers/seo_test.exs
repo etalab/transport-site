@@ -91,8 +91,8 @@ defmodule TransportWeb.SeoMetadataTest do
   end
 
   test "GET /dataset/:id ", %{conn: conn} do
-    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _, _ -> [] end)
     title = conn |> get("/datasets/horaires-et-arrets-du-reseau-irigo-format-gtfs") |> html_response(200) |> title
+    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
     assert title =~ "Horaires Angers - Données (GTFS) ouvertes - Angers Métropôle"
   end
 

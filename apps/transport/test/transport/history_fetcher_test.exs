@@ -35,7 +35,9 @@ defmodule Transport.History.FetcherTest do
       # Should be ignored
       insert(:resource_history, resource_id: other_resource.id, payload: %{})
 
-      resources_history = Transport.History.Fetcher.Database.history_resources(dataset)
+      resources_history =
+        Transport.History.Fetcher.Database.history_resources(dataset, preload_validations: true)
+
       assert length(resources_history) == 3
 
       # check results are ordered by descending insertion date
