@@ -111,9 +111,9 @@ msgid "Consolidated GTFS stops map explanation"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Charge point map"
+msgid "irve-explanation"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "irve-explanation"
+msgid "IRVE map"
 msgstr ""
