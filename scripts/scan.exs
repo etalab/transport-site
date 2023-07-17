@@ -58,6 +58,8 @@ task = fn id ->
   IO.puts(message)
 
   unless before_data == after_data do
+    # NOTE: this can fail (rarely) due to ordering of the records, but the sorted content is the same
+    # if you compare files with `jd -set` (https://stackoverflow.com/a/40983522)
     IO.puts("================ Different returns found for #{id} =========================")
   end
 end
