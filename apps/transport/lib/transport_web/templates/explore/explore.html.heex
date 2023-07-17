@@ -17,7 +17,9 @@
           <%= raw(
             dgettext("explore", "gtfs-rt-explanation",
               link:
-                safe_to_string(link(dgettext("explore", "GTFS-RT feeds referenced on this site"), to: real_time_datasets))
+                safe_to_string(
+                  link(dgettext("explore", "GTFS-RT feeds referenced on this site"), to: real_time_datasets)
+                )
             )
           ) %>
         </details>
@@ -57,7 +59,9 @@
             <%= dgettext("explore", "Low emission zones database") %>
           </summary>
           <%= raw(
-            dgettext("explore", "lez-explanation", link: safe_to_string(link(dgettext("explore", "dataset"), to: zfe_link)))
+            dgettext("explore", "lez-explanation",
+              link: safe_to_string(link(dgettext("explore", "dataset"), to: zfe_link))
+            )
           ) %>
         </details>
       </div>
@@ -68,7 +72,9 @@
             <%= dgettext("explore", "IRVE map") %>
           </summary>
           <%= raw(
-            dgettext("explore", "irve-explanation", link: safe_to_string(link(dgettext("explore", "dataset"), to: irve_link)))
+            dgettext("explore", "irve-explanation",
+              link: safe_to_string(link(dgettext("explore", "dataset"), to: irve_link))
+            )
           ) %>
         </details>
       </div>
