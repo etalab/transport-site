@@ -44,14 +44,30 @@ defmodule Transport.History.Fetcher.Database do
       |> where([resource_history: rh], fragment("(?->>'dataset_id')::bigint = ?", rh.payload, ^dataset_id))
       |> select([resource_history: rh], rh.id)
 
-    DB.ResourceHistory.base_query()
-    |> join(:left, [resource_history: rh], r in DB.Resource,
-      on: r.id == rh.resource_id and r.dataset_id == ^dataset_id,
-      as: :resource
-    )
-    |> where([resource: r, resource_history: rh], not is_nil(r.id) or rh.id in subquery(dataset_id_sub))
-    |> order_by([resource_history: rh], desc: rh.inserted_at)
-    |> preload([], validations: ^latest_resource_history_validation)
+    r =
+      DB.ResourceHistory.base_query()
+      |> join(:left, [resource_history: rh], r in DB.Resource,
+        on: r.id == rh.resource_id and r.dataset_id == ^dataset_id,
+        as: :resource
+      )
+      |> where(
+        [resource: r, resource_history: rh],
+        not is_nil(r.id) or rh.id in subquery(dataset_id_sub)
+      )
+      |> order_by([resource_history: rh], desc: rh.inserted_at)
+
+    r =
+      if skip_validations_preload do
+        IO.puts("Skipping validations preload")
+        r
+      else
+        IO.puts("Preloading validations")
+
+        r
+        |> preload([], validations: ^latest_resource_history_validation)
+      end
+
+    r
     |> maybe_limit(max_records)
     |> Repo.all()
   end
