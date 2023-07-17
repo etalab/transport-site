@@ -29,6 +29,20 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMetadataJobTest do
       assert :ok == perform_job(GTFSRTMetadataDispatcherJob, %{})
       assert [%Oban.Job{args: %{"resource_id" => ^resource_id}}] = all_enqueued(worker: GTFSRTMetadataJob)
     end
+
+    test "removes old metadata" do
+      resource = insert(:resource, format: "gtfs-rt")
+      gtfs_resource = insert(:resource, format: "gtfs")
+      rm1 = insert(:resource_metadata, resource_id: resource.id, inserted_at: days_ago(30))
+      rm2 = insert(:resource_metadata, resource_id: resource.id, inserted_at: days_ago(89))
+      rm3 = insert(:resource_metadata, resource_id: resource.id, inserted_at: days_ago(91))
+      rm4 = insert(:resource_metadata, resource_id: gtfs_resource.id, inserted_at: days_ago(91))
+
+      assert :ok == perform_job(GTFSRTMetadataDispatcherJob, %{})
+
+      assert [rm1, rm2, nil, rm4] == DB.Repo.reload([rm1, rm2, rm3, rm4])
+      assert resource == DB.Repo.reload(resource)
+    end
   end
 
   describe "GTFSRTMetadataJob" do
@@ -65,5 +79,9 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMetadataJobTest do
 
   defp setup_gtfs_rt_feed(url) do
     setup_http_response(url, {:ok, %HTTPoison.Response{status_code: 200, body: File.read!(@sample_file)}})
+  end
+
+  defp days_ago(nb) when nb > 0 do
+    DateTime.utc_now() |> DateTime.add(-nb * 24 * 60 * 60)
   end
 end
