@@ -64,7 +64,13 @@ defmodule TransportWeb.API.GeoQueryController do
   end
 
   def irve_geojson(%DB.GeoDataImport{} = geo_data_import) do
-    add_fields = fn query -> query end
+    add_fields = fn query -> from(g in query, select_merge: %{
+      nom_enseigne: fragment("payload->>'nom_enseigne'"),
+      id_station_itinerance: fragment("payload->>'id_station_itinerance'"),
+      nom_station: fragment("payload->>'nom_station'"),
+      nbre_pdc: fragment("payload->>'nbre_pdc'")
+      }
+      ) end
 
     DB.GeoData.geo_data_as_geojson(geo_data_import, add_fields)
   end
