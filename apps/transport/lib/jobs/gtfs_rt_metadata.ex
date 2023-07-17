@@ -1,10 +1,14 @@
 defmodule Transport.Jobs.GTFSRTMetadataDispatcherJob do
   @moduledoc """
-  Job in charge of dispatching multiple `GTFSRTMetadataJob`.
+  Job in charge of:
+  - removing old `DB.ResourceMetadata` for GTFS-RT resources
+  - dispatching multiple `GTFSRTMetadataJob`.
   """
   use Oban.Worker, max_attempts: 3
   import Ecto.Query
-  alias DB.{Dataset, Repo, Resource}
+  alias DB.{Dataset, Repo, Resource, ResourceMetadata}
+
+  @metadata_max_nb_days 90
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
@@ -12,7 +16,19 @@ defmodule Transport.Jobs.GTFSRTMetadataDispatcherJob do
     |> Enum.map(&(%{resource_id: &1.id} |> Transport.Jobs.GTFSRTMetadataJob.new()))
     |> Oban.insert_all()
 
+    remove_old_metadata()
+
     :ok
+  end
+
+  def remove_old_metadata do
+    recent_limit = DateTime.utc_now() |> DateTime.add(-@metadata_max_nb_days, :day)
+
+    ResourceMetadata
+    |> join(:inner, [rm], r in Resource, on: rm.resource_id == r.id and r.format == "gtfs-rt")
+    |> where([rm, _r], rm.inserted_at < ^recent_limit)
+    |> select([rm, _r], rm)
+    |> Repo.delete_all()
   end
 
   def relevant_resources do
