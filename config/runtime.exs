@@ -231,6 +231,10 @@ if config_env() == :prod do
   # inspired from the installer and
   # https://docs.appsignal.com/elixir/configuration.html
 
+  # revision tracking is helpful to track optimisations & regressions
+  {revision, exitcode} = System.cmd("git", ["log", "--pretty=format:%h", "-n 1"])
+  revision = if exitcode == 0, do: revision, else: nil
+
   config :appsignal, :config,
     # https://docs.appsignal.com/elixir/integrations/ecto.html
     otp_app: :transport,
@@ -239,5 +243,6 @@ if config_env() == :prod do
     name: System.get_env("CUSTOM_APPSIGNAL_APP_NAME", "transport.data.gouv.fr"),
     push_api_key: System.get_env("CUSTOM_APPSIGNAL_PUSH_API_KEY"),
     env: app_signal_env,
+    revision: revision,
     active: true
 end
