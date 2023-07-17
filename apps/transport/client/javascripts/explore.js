@@ -166,7 +166,7 @@ function createPointsLayer (geojson, id) {
         'bnlc-layer': [255, 174, 0, 100],
         'parkings_relais-layer': [0, 33, 70, 100],
         'zfe-layer': [155, 89, 182, 100],
-        'irve-layer': [155, 89, 182, 100]
+        'irve-layer': [245, 40, 145, 100]
     }[id]
 
     return new GeoJsonLayer({
