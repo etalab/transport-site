@@ -260,7 +260,7 @@ defmodule TransportWeb.API.DatasetController do
     |> add_conversions(dataset)
     |> Map.put(
       "history",
-      Transport.History.Fetcher.history_resources(dataset, TransportWeb.DatasetView.max_nb_history_resources())
+      Transport.History.Fetcher.history_resources(dataset, TransportWeb.DatasetView.max_nb_history_resources(), false)
     )
   end
 
