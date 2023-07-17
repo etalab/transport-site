@@ -12,11 +12,11 @@ defmodule Transport.Jobs.GTFSRTMetadataDispatcherJob do
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
-    remove_old_metadata()
-
     relevant_resources()
     |> Enum.map(&(%{resource_id: &1.id} |> Transport.Jobs.GTFSRTMetadataJob.new()))
     |> Oban.insert_all()
+
+    remove_old_metadata()
 
     :ok
   end
