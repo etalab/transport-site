@@ -255,12 +255,18 @@ defmodule TransportWeb.API.DatasetController do
 
   @spec transform_dataset_with_detail(Plug.Conn.t(), Dataset.t() | map()) :: map()
   defp transform_dataset_with_detail(%Plug.Conn{} = conn, %Dataset{} = dataset) do
+    skip_validations_preload = conn.params["skip"] == "1"
+
     conn
     |> transform_dataset(dataset)
     |> add_conversions(dataset)
     |> Map.put(
       "history",
-      Transport.History.Fetcher.history_resources(dataset, TransportWeb.DatasetView.max_nb_history_resources())
+      Transport.History.Fetcher.history_resources(
+        dataset,
+        TransportWeb.DatasetView.max_nb_history_resources(),
+        skip_validations_preload
+      )
     )
   end
 
