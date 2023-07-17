@@ -113,7 +113,7 @@ msgstr "This map consolidates all the GTFS referenced on this site. It is in bet
 
 #, elixir-autogen, elixir-format
 msgid "irve-explanation"
-msgstr "Consolidated national map of charging stations static data %{link}."
+msgstr "Consolidated national map of charging stations static %{link}."
 
 #, elixir-autogen, elixir-format
 msgid "IRVE map"
