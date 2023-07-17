@@ -26,7 +26,7 @@ Ecto.Adapters.SQL.query!(
 ```elixir
 Ecto.Adapters.SQL.query!(
   DB.Repo,
-  "SELECT 'https://transport.data.gouv.fr/datasets/' || slug as url FROM dataset"
+  "SELECT 'http://localhost:5000/datasets/' || slug as url FROM dataset"
 )
 |> Kino.DataTable.new()
 ```
@@ -75,7 +75,7 @@ Ecto.Adapters.SQL.query!(
 ```
 
 ```elixir
-well_known_slug = "Réseau urbain Bibus"
+well_known_title = "Réseau urbain Bibus"
 
 %{rows: [[gtfs_resource_id]]} =
   Ecto.Adapters.SQL.query!(
@@ -90,10 +90,27 @@ well_known_slug = "Réseau urbain Bibus"
 
     where resource.format = 'GTFS'
     """,
-    [well_known_slug]
+    [well_known_title]
   )
 
-"Resource with id #{gtfs_resource_id} is at http://localhost:5000/resources/#{gtfs_resource_id}"
+%{rows: [[well_known_dataset_slug, datagouv_id]]} =
+  Ecto.Adapters.SQL.query!(
+    DB.Repo,
+    """
+    SELECT dataset.slug, dataset.datagouv_id from dataset WHERE custom_title = $1
+    """,
+    [well_known_title]
+  )
+
+"""
+### La ressource
+
+Resource with id #{gtfs_resource_id} is at http://localhost:5000/resources/#{gtfs_resource_id}
+
+Resource history is shown on the dataset page at http://localhost:5000/datasets/#{well_known_dataset_slug}#backed-up-resources
+
+That page is by the way the same (although via redirect) as http://localhost:5000/datasets/#{datagouv_id}
+"""
 |> Kino.Markdown.new()
 ```
 
