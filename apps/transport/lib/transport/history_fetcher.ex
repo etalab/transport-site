@@ -5,12 +5,16 @@ defmodule Transport.History.Fetcher do
   for tests which have no interest in it (that is: most of the tests).
   """
   @callback history_resources(DB.Dataset.t()) :: [map()]
-  @callback history_resources(DB.Dataset.t(), integer() | nil) :: [map()]
+  @callback history_resources(DB.Dataset.t(), integer() | nil, boolean() | false) :: [map()]
 
   def impl, do: Application.get_env(:transport, :history_impl)
 
-  def history_resources(%DB.Dataset{} = dataset, max_records \\ nil),
-    do: impl().history_resources(dataset, max_records)
+  def history_resources(
+        %DB.Dataset{} = dataset,
+        max_records \\ nil,
+        skip_validations_preload \\ false
+      ),
+      do: impl().history_resources(dataset, max_records, skip_validations_preload)
 end
 
 defmodule Transport.History.Fetcher.Database do
@@ -23,7 +27,11 @@ defmodule Transport.History.Fetcher.Database do
   alias DB.{Dataset, Repo}
 
   @impl true
-  def history_resources(%Dataset{id: dataset_id}, max_records \\ nil)
+  def history_resources(
+        %Dataset{id: dataset_id},
+        max_records \\ nil,
+        skip_validations_preload \\ false
+      )
       when (is_integer(max_records) and max_records > 0) or is_nil(max_records) do
     latest_resource_history_validation =
       DB.MultiValidation
@@ -60,5 +68,5 @@ defmodule Transport.History.Fetcher.Null do
   @behaviour Transport.History.Fetcher
 
   @impl true
-  def history_resources(%DB.Dataset{}, _ \\ nil), do: []
+  def history_resources(%DB.Dataset{}, _ \\ nil, _ \\ false), do: []
 end
