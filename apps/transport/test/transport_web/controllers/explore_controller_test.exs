@@ -15,6 +15,13 @@ defmodule TransportWeb.ExploreControllerTest do
       type: "low-emission-zones",
       custom_title: "Base Nationale des Zones à Faibles Émissions (BNZFE)",
       organization: pan_org
+      })
+
+    insert(:dataset, %{
+      type: "charging-stations",
+      custom_title: "Infrastructures de Recharge pour Véhicules Électriques - IRVE",
+      organization: "data.gouv.fr",
+      organization_id: "646b7187b50b2a93b1ae3d45"
     })
 
     :ok
