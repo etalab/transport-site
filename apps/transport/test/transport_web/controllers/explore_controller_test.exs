@@ -15,7 +15,7 @@ defmodule TransportWeb.ExploreControllerTest do
       type: "low-emission-zones",
       custom_title: "Base Nationale des Zones à Faibles Émissions (BNZFE)",
       organization: pan_org
-      })
+    })
 
     insert(:dataset, %{
       type: "charging-stations",
