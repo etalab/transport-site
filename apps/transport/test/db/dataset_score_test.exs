@@ -74,10 +74,10 @@ defmodule DB.DatasetScoreTest do
     # bad topic
     insert(:dataset_score, dataset_id: dataset.id, timestamp: DateTime.utc_now(), score: 1.0, topic: :availability)
 
-    assert score == DB.DatasetScore.get_latest(dataset, "freshness")
+    assert score == DB.DatasetScore.get_latest(dataset, :freshness)
   end
 
   test "get unexisting latest score" do
-    assert %DB.Dataset{id: 123_456} |> DB.DatasetScore.get_latest("freshness") |> is_nil()
+    assert %DB.Dataset{id: 123_456} |> DB.DatasetScore.get_latest(:freshness) |> is_nil()
   end
 end

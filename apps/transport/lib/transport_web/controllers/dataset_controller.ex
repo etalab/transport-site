@@ -53,7 +53,7 @@ defmodule TransportWeb.DatasetController do
       |> assign(:history_resources, Transport.History.Fetcher.history_resources(dataset, max_nb_history_resources()))
       |> assign(:latest_resources_history_infos, DB.ResourceHistory.latest_dataset_resources_history_infos(dataset.id))
       |> assign(:notifications_sent, DB.Notification.recent_reasons_binned(dataset, days_notifications_sent()))
-      |> assign(:freshness_score, DB.DatasetScore.get_latest(dataset, "freshness"))
+      |> assign(:freshness_score, DB.DatasetScore.get_latest(dataset, :freshness))
       |> put_status(if dataset.is_active, do: :ok, else: :not_found)
       |> render("details.html")
     else
