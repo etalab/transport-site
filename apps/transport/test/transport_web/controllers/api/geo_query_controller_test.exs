@@ -9,6 +9,7 @@ defmodule TransportWeb.API.GeoQueryControllerTest do
   test "a BNLC geo query", %{conn: conn} do
     insert_parcs_relais_dataset()
     insert_zfe_dataset()
+    insert_irve_dataset()
     %{id: dataset_id} = insert_bnlc_dataset()
 
     %{id: resource_history_id} = insert(:resource_history, %{payload: %{"dataset_id" => dataset_id}})
@@ -47,6 +48,7 @@ defmodule TransportWeb.API.GeoQueryControllerTest do
   test "a parkings relais geo query", %{conn: conn} do
     insert_bnlc_dataset()
     insert_zfe_dataset()
+    insert_irve_dataset()
     %{id: dataset_id} = insert_parcs_relais_dataset()
 
     %{id: resource_history_id} = insert(:resource_history, %{payload: %{"dataset_id" => dataset_id}})
@@ -97,6 +99,7 @@ defmodule TransportWeb.API.GeoQueryControllerTest do
   test "a ZFE geo query", %{conn: conn} do
     insert_bnlc_dataset()
     insert_parcs_relais_dataset()
+    insert_irve_dataset()
     %{id: dataset_id} = insert_zfe_dataset()
 
     %{id: resource_history_id} = insert(:resource_history, %{payload: %{"dataset_id" => dataset_id}})
@@ -150,10 +153,74 @@ defmodule TransportWeb.API.GeoQueryControllerTest do
            }
   end
 
+  test "a IRVE geo query", %{conn: conn} do
+    insert_parcs_relais_dataset()
+    insert_zfe_dataset()
+    insert_bnlc_dataset()
+    %{id: dataset_id} = insert_irve_dataset()
+
+    %{id: resource_history_id} = insert(:resource_history, %{payload: %{"dataset_id" => dataset_id}})
+    %{id: geo_data_import_id} = insert(:geo_data_import, %{resource_history_id: resource_history_id})
+
+    point1 = %Geo.Point{coordinates: {1, 1}, srid: 4326}
+    point2 = %Geo.Point{coordinates: {2, 2}, srid: 4326}
+
+    insert(:geo_data, %{
+      geo_data_import_id: geo_data_import_id,
+      geom: point1,
+      payload: %{
+        "nom_enseigne" => "Recharge Super 95",
+        "id_station_itinerance" => "FRELCPEYSPC",
+        "nom_station" => "Dehaven Centre",
+        "nbre_pdc" => 2
+      }
+    })
+
+    insert(:geo_data, %{
+      geo_data_import_id: geo_data_import_id,
+      geom: point2,
+      payload: %{
+        "nom_enseigne" => "Recharge Super 95",
+        "id_station_itinerance" => "FRELCPBLOHM",
+        "nom_station" => "Gemina Port",
+        "nbre_pdc" => 3
+      }
+    })
+
+    conn = conn |> get(TransportWeb.API.Router.Helpers.geo_query_path(conn, :index, data: "irve"))
+
+    assert json_response(conn, 200) == %{
+             "type" => "FeatureCollection",
+             "features" => [
+               %{
+                 "geometry" => %{"coordinates" => [1, 1], "type" => "Point"},
+                 "properties" => %{
+                   "nom_enseigne" => "Recharge Super 95",
+                   "id_station_itinerance" => "FRELCPEYSPC",
+                   "nom_station" => "Dehaven Centre",
+                   "nbre_pdc" => "2"
+                 },
+                 "type" => "Feature"
+               },
+               %{
+                 "geometry" => %{"coordinates" => [2, 2], "type" => "Point"},
+                 "properties" => %{
+                   "nom_enseigne" => "Recharge Super 95",
+                   "id_station_itinerance" => "FRELCPBLOHM",
+                   "nom_station" => "Gemina Port",
+                   "nbre_pdc" => "3"
+                 },
+                 "type" => "Feature"
+               }
+             ]
+           }
+  end
+
   test "404 cases", %{conn: conn} do
     insert_bnlc_dataset()
     insert_parcs_relais_dataset()
     insert_zfe_dataset()
+    insert_irve_dataset()
 
     conn
     |> get(TransportWeb.API.Router.Helpers.geo_query_path(conn, :index))
@@ -184,6 +251,15 @@ defmodule TransportWeb.API.GeoQueryControllerTest do
       type: "low-emission-zones",
       custom_title: "Base Nationale des Zones à Faibles Émissions (BNZFE)",
       organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
+    })
+  end
+
+  defp insert_irve_dataset do
+    insert(:dataset, %{
+      type: "charging-stations",
+      custom_title: "Infrastructures de Recharge pour Véhicules Électriques - IRVE",
+      organization: "data.gouv.fr",
+      organization_id: "646b7187b50b2a93b1ae3d45"
     })
   end
 end

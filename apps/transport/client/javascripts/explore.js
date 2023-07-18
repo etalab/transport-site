@@ -59,9 +59,17 @@ function getTooltip ({ object, layer }) {
         if (layer.id === 'bnlc-layer') {
             return { html: `<strong>Aire de covoiturage</strong><br>${object.properties.nom_lieu}` }
         } else if (layer.id === 'parkings_relais-layer') {
-            return { html: `<strong>Parking relai</strong><br>${object.properties.nom}<br>Capacité : ${object.properties.nb_pr} places` }
+            return { html: `<strong>Parking relais</strong><br>${object.properties.nom}<br>Capacité : ${object.properties.nb_pr} places` }
         } else if (layer.id === 'zfe-layer') {
             return { html: '<strong>Zone à Faible Émission</strong>' }
+        } else if (layer.id === 'irve-layer') {
+            return {
+                html: `<strong>Infrastructure de recharge</strong><br>
+            ${object.properties.nom_station}<br>
+            Enseigne&nbsp;: ${object.properties.nom_enseigne}<br>
+            Identifiant&nbsp;: ${object.properties.id_station_itinerance}<br>
+            Nombre de points de charge&nbsp;: ${object.properties.nbre_pdc}`
+            }
         } else {
             return { html: `<strong>Position temps-réel</strong><br>transport_resource: ${object.transport.resource_id}<br>id: ${object.vehicle.id}` }
         }
@@ -75,6 +83,7 @@ function getLayers (layers) {
     layersArray.push(layers.bnlc)
     layersArray.push(layers.parkings_relais)
     layersArray.push(layers.zfe)
+    layersArray.push(layers.irve)
     return layersArray
 }
 
@@ -131,6 +140,16 @@ document.getElementById('zfe-check').addEventListener('change', (event) => {
     }
 })
 
+// Handle IRVE toggle
+document.getElementById('irve-check').addEventListener('change', (event) => {
+    if (event.currentTarget.checked) {
+        fetch('/api/geo-query?data=irve')
+            .then(data => updateIRVELayer(data.json()))
+    } else {
+        updateIRVELayer(null)
+    }
+})
+
 function updateBNLCLayer (geojson) {
     layers.bnlc = createPointsLayer(geojson, 'bnlc-layer')
     deckGLLayer.setProps({ layers: getLayers(layers) })
@@ -143,12 +162,17 @@ function updateZFELayer (geojson) {
     layers.zfe = createPointsLayer(geojson, 'zfe-layer')
     deckGLLayer.setProps({ layers: getLayers(layers) })
 }
+function updateIRVELayer (geojson) {
+    layers.irve = createPointsLayer(geojson, 'irve-layer')
+    deckGLLayer.setProps({ layers: getLayers(layers) })
+}
 
 function createPointsLayer (geojson, id) {
     const fillColor = {
         'bnlc-layer': [255, 174, 0, 100],
         'parkings_relais-layer': [0, 33, 70, 100],
-        'zfe-layer': [155, 89, 182, 100]
+        'zfe-layer': [155, 89, 182, 100],
+        'irve-layer': [245, 40, 145, 100]
     }[id]
 
     return new GeoJsonLayer({
