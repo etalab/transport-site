@@ -49,9 +49,23 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
     %{id: gtfs_dataset_id} =
       gtfs_dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true, custom_title: "Dataset GTFS")
 
-    resource_1 = insert(:resource, dataset: dataset, format: "geojson", title: "GeoJSON 1")
-    resource_2 = insert(:resource, dataset: dataset, format: "geojson", title: "GeoJSON 2")
-    resource_gtfs = insert(:resource, dataset: gtfs_dataset, format: "GTFS")
+    resource_1 =
+      insert(:resource,
+        dataset: dataset,
+        format: "geojson",
+        title: "GeoJSON 1",
+        url: "https://static.data.gouv.fr/file.geojson"
+      )
+
+    resource_2 =
+      insert(:resource,
+        dataset: dataset,
+        format: "geojson",
+        title: "GeoJSON 2",
+        url: "https://static.data.gouv.fr/other_file.geojson"
+      )
+
+    resource_gtfs = insert(:resource, dataset: gtfs_dataset, format: "GTFS", url: "https://example/file.zip")
 
     insert(:resource_unavailability,
       start: DateTime.add(DateTime.utc_now(), -6 * 60 - 29, :minute),
@@ -82,6 +96,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
     |> insert_notification()
     |> Ecto.Changeset.change(%{inserted_at: DateTime.utc_now() |> DateTime.add(-20, :day)})
     |> DB.Repo.update!()
+
+    setup_dataset_response(dataset, resource_1.url, DateTime.utc_now() |> DateTime.add(-6, :hour))
 
     %DB.Contact{id: already_sent_contact_id} = insert_contact(%{email: already_sent_email})
     %DB.Contact{id: foo_contact_id} = insert_contact(%{email: "foo@example.com"})
@@ -118,12 +134,15 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
                              "foo@example.com" = _to,
                              "contact@transport.beta.gouv.fr",
                              subject,
-                             plain_text_body,
-                             "" = _html_part ->
+                             _plain_text_body,
+                             html_part ->
       assert subject == "Ressources indisponibles dans le jeu de données #{dataset.custom_title}"
 
-      assert plain_text_body =~
-               "Les ressources #{resource_1.title}, #{resource_2.title} dans votre jeu de données #{dataset.custom_title} — http://127.0.0.1:5100/datasets/#{dataset.slug} ne sont plus disponibles au téléchargement depuis plus de 6h."
+      assert html_part =~
+               ~s(Les ressources #{resource_1.title}, #{resource_2.title} dans votre jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> ne sont plus disponibles au téléchargement depuis plus de 6h.)
+
+      assert html_part =~
+               "Il semble que vous ayez supprimé et créé une nouvelle ressource. Lors de la mise à jour de vos données, remplacez plutôt le fichier au sein de la ressource existante."
 
       :ok
     end)
@@ -134,12 +153,15 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
                              "bar@example.com" = _to,
                              "contact@transport.beta.gouv.fr",
                              subject,
-                             plain_text_body,
-                             "" = _html_part ->
+                             _plain_text_body,
+                             html_part ->
       assert subject == "Ressources indisponibles dans le jeu de données #{gtfs_dataset.custom_title}"
 
-      assert plain_text_body =~
-               "Les ressources #{resource_gtfs.title} dans votre jeu de données #{gtfs_dataset.custom_title} — http://127.0.0.1:5100/datasets/#{gtfs_dataset.slug} ne sont plus disponibles au téléchargement depuis plus de 6h."
+      assert html_part =~
+               ~s(Les ressources #{resource_gtfs.title} dans votre jeu de données <a href="http://127.0.0.1:5100/datasets/#{gtfs_dataset.slug}">#{gtfs_dataset.custom_title}</a> ne sont plus disponibles au téléchargement depuis plus de 6h.)
+
+      refute html_part =~ "Il semble que vous ayez supprimé et créé une nouvelle ressource."
+      assert html_part =~ "Ces erreurs provoquent des difficultés pour les réutilisateurs."
 
       :ok
     end)
@@ -164,5 +186,44 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
                n.reason == :resource_unavailable
            )
            |> DB.Repo.exists?()
+  end
+
+  describe "created_resource_hosted_on_datagouv_recently?" do
+    test "base case" do
+      dataset = %DB.Dataset{datagouv_id: Ecto.UUID.generate()}
+      file_url = "https://static.data.gouv.fr/file.zip"
+      assert DB.Resource.hosted_on_datagouv?(file_url)
+      setup_dataset_response(dataset, file_url, DateTime.utc_now() |> DateTime.add(-6, :hour))
+      assert ResourceUnavailableNotificationJob.created_resource_hosted_on_datagouv_recently?(dataset)
+    end
+
+    test "resource on datagouv has been created a long time ago" do
+      dataset = %DB.Dataset{datagouv_id: Ecto.UUID.generate()}
+      file_url = "https://static.data.gouv.fr/file.zip"
+      assert DB.Resource.hosted_on_datagouv?(file_url)
+      setup_dataset_response(dataset, file_url, DateTime.utc_now() |> DateTime.add(-24, :hour))
+      refute ResourceUnavailableNotificationJob.created_resource_hosted_on_datagouv_recently?(dataset)
+    end
+
+    test "recent resource is not hosted on datagouv" do
+      dataset = %DB.Dataset{datagouv_id: Ecto.UUID.generate()}
+      file_url = "https://example.com/file.zip"
+      refute DB.Resource.hosted_on_datagouv?(file_url)
+      setup_dataset_response(dataset, file_url, DateTime.utc_now() |> DateTime.add(-6, :hour))
+      refute ResourceUnavailableNotificationJob.created_resource_hosted_on_datagouv_recently?(dataset)
+    end
+  end
+
+  defp setup_dataset_response(%DB.Dataset{datagouv_id: datagouv_id}, resource_url, created_at) do
+    url = "https://demo.data.gouv.fr/api/1/datasets/#{datagouv_id}/"
+
+    Transport.HTTPoison.Mock
+    |> expect(:request, fn :get, ^url, "", [], [follow_redirect: true] ->
+      {:ok,
+       %HTTPoison.Response{
+         status_code: 200,
+         body: Jason.encode!(%{"resources" => [%{"url" => resource_url, "created_at" => created_at}]})
+       }}
+    end)
   end
 end
