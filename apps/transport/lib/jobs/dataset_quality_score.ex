@@ -165,6 +165,21 @@ defmodule Transport.Jobs.DatasetAvailabilityScore do
   import Ecto.Query
   import Transport.Jobs.DatasetQualityScore
 
+  @doc """
+  Saves and computes an availability score for a dataset.
+
+  To compute this score:
+  - get the dataset's current resources
+  - for each resource, give it a score based on its availability over the last 24 hours
+  - we compute an average of those scores to get a score at the dataset level
+   - that score is averaged with the dataset's last computed score, using exponential smoothing
+  (see the function `exp_smoothing/1` below). This allows a score to reflect not only the current
+  dataset situation but also past situations.
+
+  If any resource as an availability score of 0 (under 95% of availability over the last 24 hours),
+  the availability score of the dataset will be 0.
+  The rationale is that the entire dataset may be unusable if a single resource cannot be fetched.
+  """
   def save_availability_score(dataset_id) do
     save_dataset_score(dataset_id, &current_dataset_availability/1, :availability)
   end
@@ -251,7 +266,7 @@ defmodule Transport.Jobs.DatasetFreshnessScore do
   - for each resource, give it a score
   - we compute an average of those scores to get a score at the dataset level
   - that score is averaged with the dataset's last computed score, using exponential smoothing
-  (see the function exp_smoothing below). This allows a score to reflect not only the current
+  (see the function `exp_smoothing/1`). This allows a score to reflect not only the current
   dataset situation but also past situations. Typically, a dataset that had outdated resources
   for the past year, but only up-to-date resources today is expected to have a low freshness score.
   The interest of exponential smoothing is to give past scores an increasingly small weight as time
