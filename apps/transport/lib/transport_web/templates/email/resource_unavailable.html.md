@@ -5,7 +5,7 @@ Les ressources <%= @resource_titles %> dans votre jeu de données <%= link_for_d
 <%= if @deleted_recreated_on_datagouv do %>
 Il semble que vous ayez supprimé et créé une nouvelle ressource. Lors de la mise à jour de vos données, remplacez plutôt le fichier au sein de la ressource existante. Retrouvez la procédure pas à pas [sur notre documentation](https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees).
 
-Pour corriger le problème pour cette fois-ci  :
+Pour corriger le problème pour cette fois-ci :
 1. Mettez à jour l’ancienne ressource avec les nouvelles données en [suivant notre documentation](https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees) ;
 2. Supprimez la ressource nouvellement créée qui sera alors en doublon.
 
