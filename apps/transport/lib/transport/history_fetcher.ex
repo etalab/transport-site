@@ -27,8 +27,8 @@ defmodule Transport.History.Fetcher.Database do
   @impl true
   def history_resources(%Dataset{id: dataset_id}, options \\ []) do
     # NOTE: default values are provided by the wrapper
-    preload_validations = Keyword.get(options, :preload_validations)
-    max_records = Keyword.get(options, :max_records)
+    preload_validations = Keyword.fetch!(options, :preload_validations)
+    max_records = Keyword.fetch!(options, :max_records)
 
     latest_resource_history_validation =
       DB.MultiValidation
