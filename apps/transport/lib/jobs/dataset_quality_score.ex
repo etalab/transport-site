@@ -27,18 +27,90 @@ defmodule Transport.Jobs.DatasetQualityScore do
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"dataset_id" => dataset_id}}) do
-    save_dataset_freshness_score(dataset_id)
+    Transport.Jobs.DatasetFreshnessScore.save_freshness_score(dataset_id)
     :ok
   end
 
-  @spec save_dataset_freshness_score(integer) :: DB.DatasetScore.t() | nil
-  def save_dataset_freshness_score(dataset_id) do
-    %{score: score, details: details} = dataset_freshness_score(dataset_id)
+  @doc """
+  Build the details map to explain the score computation
+
+  iex> build_details(%{resources: [%{resource_id: 1}]}, %{score: 1.0})
+  %{resources: [%{resource_id: 1}], previous_score: 1.0}
+
+  iex> build_details(%{resources: [%{resource_id: 1}]}, nil)
+  %{resources: [%{resource_id: 1}], previous_score: nil}
+
+  iex> build_details(%{resources: [%{resource_id: 1}]}, %{score: nil})
+  %{resources: [%{resource_id: 1}], previous_score: nil}
+
+  iex> build_details(nil, %{score: 1.0})
+  %{previous_score: 1.0}
+  """
+  def build_details(%{} = details, %{score: previous_score}) when is_float(previous_score) do
+    Map.merge(details, %{previous_score: previous_score})
+  end
+
+  def build_details(%{} = details, _last_dataset_freshness) do
+    Map.merge(details, %{previous_score: nil})
+  end
+
+  def build_details(_details, last_dataset_freshness) do
+    build_details(%{}, last_dataset_freshness)
+  end
+
+  @doc """
+  Exponential smoothing. See https://en.wikipedia.org/wiki/Exponential_smoothing
+
+  iex> exp_smoothing(0.5, 1)
+  0.55
+  """
+  @spec exp_smoothing(float, float) :: float
+  def exp_smoothing(previous_score, today_score) do
+    alpha = 0.9
+    alpha * previous_score + (1.0 - alpha) * today_score
+  end
+
+  @spec last_dataset_score(integer(), atom()) :: DB.DatasetScore.t() | nil
+  def last_dataset_score(dataset_id, topic) do
+    # if a previous score exists but is too old, it is not used
+    max_last_score_age_days = 7
+
+    DB.DatasetScore.base_query()
+    |> where(
+      [ds],
+      ds.dataset_id == ^dataset_id and ds.topic == ^topic and not is_nil(ds.score) and
+        fragment(
+          "DATE(?) < CURRENT_DATE AND DATE(?) > CURRENT_DATE - ?::integer",
+          ds.timestamp,
+          ds.timestamp,
+          ^max_last_score_age_days
+        )
+    )
+    |> order_by([ds], desc: ds.timestamp)
+    |> limit(1)
+    |> DB.Repo.one()
+  end
+
+  @doc """
+  Computes the average of a list of values.
+
+  iex> average([])
+  nil
+  iex> average([1, 3])
+  2.0
+  """
+  def average([]), do: nil
+  def average(e), do: Enum.sum(e) / Enum.count(e)
+
+  @spec save_dataset_score(integer(), (integer() -> %{score: nil | float(), details: map()}), atom()) ::
+          DB.DatasetScore.t() | nil
+  def save_dataset_score(dataset_id, compute_fn, topic) do
+    %{score: score, details: details} = compute_fn.(dataset_id)
 
     %DB.DatasetScore{}
     |> DB.DatasetScore.changeset(%{
       dataset_id: dataset_id,
-      topic: "freshness",
+      topic: topic,
       score: score,
       timestamp: DateTime.utc_now(),
       details: details
@@ -50,11 +122,23 @@ defmodule Transport.Jobs.DatasetQualityScore do
       c ->
         Sentry.capture_message(
           "Dataset quality score entry is incorrect",
-          extra: %{dataset_id: dataset_id, error_reason: inspect(c)}
+          extra: %{dataset_id: dataset_id, topic: to_string(topic), error_reason: inspect(c)}
         )
 
         nil
     end
+  end
+end
+
+defmodule Transport.Jobs.DatasetFreshnessScore do
+  @moduledoc """
+  Methods specific to the freshness component of a dataset score.
+  """
+  import Ecto.Query
+  import Transport.Jobs.DatasetQualityScore
+
+  def save_freshness_score(dataset_id) do
+    save_dataset_score(dataset_id, &dataset_freshness_score/1, :freshness)
   end
 
   @spec dataset_freshness_score(integer) :: %{details: map, score: nil | float}
@@ -74,7 +158,7 @@ defmodule Transport.Jobs.DatasetQualityScore do
   """
   def dataset_freshness_score(dataset_id) do
     %{dataset_freshness: today_score, details: details} = current_dataset_freshness(dataset_id)
-    last_dataset_freshness = last_dataset_freshness(dataset_id)
+    last_dataset_freshness = last_dataset_score(dataset_id, :freshness)
 
     computed_score =
       case last_dataset_freshness do
@@ -86,66 +170,6 @@ defmodule Transport.Jobs.DatasetQualityScore do
       end
 
     %{score: computed_score, details: build_details(details, last_dataset_freshness)}
-  end
-
-  @doc """
-  build the details map to explain the score computation
-
-  iex> build_details(%{resources: [%{resource_id: 1}]}, %{score: 1.0})
-  %{resources: [%{resource_id: 1}], previous_score: 1.0}
-
-  iex> build_details(%{resources: [%{resource_id: 1}]}, nil)
-  %{resources: [%{resource_id: 1}], previous_score: nil}
-
-  iex> build_details(%{resources: [%{resource_id: 1}]}, %{score: nil})
-  %{resources: [%{resource_id: 1}], previous_score: nil}
-
-  iex> build_details(nil, %{score: 1.0})
-  %{previous_score: 1.0}
-
-  """
-  def build_details(%{} = details, %{score: previous_score}) when is_float(previous_score) do
-    Map.merge(details, %{previous_score: previous_score})
-  end
-
-  def build_details(%{} = details, _last_dataset_freshness) do
-    Map.merge(details, %{previous_score: nil})
-  end
-
-  def build_details(_details, last_dataset_freshness) do
-    build_details(%{}, last_dataset_freshness)
-  end
-
-  @spec exp_smoothing(float, float) :: float
-  @doc """
-  Exponential smoothing. See https://en.wikipedia.org/wiki/Exponential_smoothing
-
-  iex> exp_smoothing(0.5, 1)
-  0.55
-  """
-  def exp_smoothing(previous_score, today_score) do
-    alpha = 0.9
-    alpha * previous_score + (1.0 - alpha) * today_score
-  end
-
-  def last_dataset_freshness(dataset_id) do
-    # if a previous score exists but is too old, it is not used
-    max_last_score_age_days = 7
-
-    DB.DatasetScore.base_query()
-    |> where(
-      [ds],
-      ds.dataset_id == ^dataset_id and ds.topic == "freshness" and not is_nil(ds.score) and
-        fragment(
-          "DATE(?) < CURRENT_DATE AND DATE(?) > CURRENT_DATE - ?::integer",
-          ds.timestamp,
-          ds.timestamp,
-          ^max_last_score_age_days
-        )
-    )
-    |> order_by([ds], desc: ds.timestamp)
-    |> limit(1)
-    |> DB.Repo.one()
   end
 
   @spec current_dataset_freshness(integer()) :: %{dataset_freshness: float | nil, details: map()}
@@ -168,10 +192,7 @@ defmodule Transport.Jobs.DatasetQualityScore do
     %{dataset_freshness: score, details: %{resources: current_dataset_freshness_infos}}
   end
 
-  defp average([]), do: nil
-  defp average(e), do: Enum.sum(e) / Enum.count(e)
-
-  @spec resource_freshness(map) ::
+  @spec resource_freshness(DB.Resource.t()) ::
           %{
             :format => binary,
             :freshness => float | nil,
@@ -180,7 +201,7 @@ defmodule Transport.Jobs.DatasetQualityScore do
             :metadata_id => integer | nil,
             :metadata_inserted_at => binary | nil
           }
-  def resource_freshness(%{format: "GTFS", id: resource_id}) do
+  def resource_freshness(%DB.Resource{format: "GTFS" = format, id: resource_id}) do
     resource_id
     |> DB.MultiValidation.resource_latest_validation(Transport.Validators.GTFSTransport)
     |> case do
@@ -212,59 +233,53 @@ defmodule Transport.Jobs.DatasetQualityScore do
           metadata_inserted_at: nil
         }
     end
-    |> Map.merge(%{resource_id: resource_id, format: "GTFS"})
+    |> Map.merge(%{resource_id: resource_id, format: format})
   end
 
-  def resource_freshness(%{format: "gbfs", id: resource_id}) do
-    freshness =
-      resource_id
-      |> resource_last_metadata_from_today()
-      |> case do
-        %{metadata: %{"feed_timestamp_delay" => feed_timestamp_delay}, id: metadata_id, inserted_at: inserted_at} ->
-          %{
-            freshness: gbfs_feed_freshness(feed_timestamp_delay),
-            raw_measure: feed_timestamp_delay,
-            metadata_id: metadata_id,
-            metadata_inserted_at: inserted_at
-          }
+  def resource_freshness(%DB.Resource{format: "gbfs" = format, id: resource_id}) do
+    resource_id
+    |> resource_last_metadata_from_today()
+    |> case do
+      %{metadata: %{"feed_timestamp_delay" => feed_timestamp_delay}, id: metadata_id, inserted_at: inserted_at} ->
+        %{
+          freshness: gbfs_feed_freshness(feed_timestamp_delay),
+          raw_measure: feed_timestamp_delay,
+          metadata_id: metadata_id,
+          metadata_inserted_at: inserted_at
+        }
 
-        _ ->
-          %{
-            freshness: nil,
-            raw_measure: nil,
-            metadata_id: nil,
-            metadata_inserted_at: nil
-          }
-      end
-      |> Map.merge(%{resource_id: resource_id, format: "gbfs"})
-
-    freshness
+      _ ->
+        %{
+          freshness: nil,
+          raw_measure: nil,
+          metadata_id: nil,
+          metadata_inserted_at: nil
+        }
+    end
+    |> Map.merge(%{resource_id: resource_id, format: format})
   end
 
-  def resource_freshness(%{format: "gtfs-rt", id: resource_id}) do
-    freshness =
-      resource_id
-      |> resource_last_metadata_from_today()
-      |> case do
-        %{metadata: %{"feed_timestamp_delay" => feed_timestamp_delay}, id: metadata_id, inserted_at: inserted_at} ->
-          %{
-            freshness: gtfs_rt_feed_freshness(feed_timestamp_delay),
-            raw_measure: feed_timestamp_delay,
-            metadata_id: metadata_id,
-            metadata_inserted_at: inserted_at
-          }
+  def resource_freshness(%DB.Resource{format: "gtfs-rt" = format, id: resource_id}) do
+    resource_id
+    |> resource_last_metadata_from_today()
+    |> case do
+      %{metadata: %{"feed_timestamp_delay" => feed_timestamp_delay}, id: metadata_id, inserted_at: inserted_at} ->
+        %{
+          freshness: gtfs_rt_feed_freshness(feed_timestamp_delay),
+          raw_measure: feed_timestamp_delay,
+          metadata_id: metadata_id,
+          metadata_inserted_at: inserted_at
+        }
 
-        _ ->
-          %{
-            freshness: nil,
-            raw_measure: nil,
-            metadata_id: nil,
-            metadata_inserted_at: nil
-          }
-      end
-      |> Map.merge(%{resource_id: resource_id, format: "gtfs-rt"})
-
-    freshness
+      _ ->
+        %{
+          freshness: nil,
+          raw_measure: nil,
+          metadata_id: nil,
+          metadata_inserted_at: nil
+        }
+    end
+    |> Map.merge(%{resource_id: resource_id, format: format})
   end
 
   def resource_freshness(%DB.Resource{format: format, id: resource_id}),
@@ -278,7 +293,7 @@ defmodule Transport.Jobs.DatasetQualityScore do
     }
 
   @doc """
-  the freshness of a GTFS resource, base on its validity dates
+  The freshness of a GTFS resource, base on its validity dates
 
   iex> {today, tomorrow, yesterday} = {Date.utc_today(), Date.utc_today() |> Date.add(1), Date.utc_today() |> Date.add(-1)}
   iex> gtfs_freshness(tomorrow, tomorrow)
@@ -312,7 +327,7 @@ defmodule Transport.Jobs.DatasetQualityScore do
   def gbfs_max_timestamp_delay, do: 5 * 60
 
   @doc """
-  gives a feed a freshness score, based on observed feed_timestamp_delay
+  Gives a feed a freshness score, based on observed feed_timestamp_delay
 
   iex> gbfs_feed_freshness(0)
   1.0
@@ -324,12 +339,12 @@ defmodule Transport.Jobs.DatasetQualityScore do
   end
 
   @doc """
-  we allow a 5 minutes delay for GTFS realtime feeds
+  We allow a 5 minutes delay for GTFS realtime feeds
   """
   def gtfs_rt_max_timestamp_delay, do: 5 * 60
 
   @doc """
-  gives a feed a freshness score, based on observed feed_timestamp_delay
+  Gives a feed a freshness score, based on observed feed_timestamp_delay
 
   iex> gtfs_rt_feed_freshness(0)
   1.0

@@ -2,7 +2,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
   use ExUnit.Case, async: true
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
-  import Transport.Jobs.DatasetQualityScore
+  import Transport.Jobs.{DatasetFreshnessScore, DatasetQualityScore}
 
   doctest Transport.Jobs.DatasetQualityScore, import: true
 
@@ -236,7 +236,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       # we save a freshness score for yesterday
       insert(:dataset_score,
         dataset_id: dataset.id,
-        topic: "freshness",
+        topic: :freshness,
         score: 0.5,
         timestamp: DateTime.utc_now() |> DateTime.add(-1, :day)
       )
@@ -244,18 +244,18 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       # another irrelevant score
       insert(:dataset_score,
         dataset_id: dataset.id,
-        topic: "fun",
+        topic: :availability,
         score: 1.0,
         timestamp: DateTime.utc_now() |> DateTime.add(-1, :day)
       )
 
       assert DB.DatasetScore |> DB.Repo.all() |> length() == 2
 
-      {:ok, score} = save_dataset_freshness_score(dataset.id)
+      {:ok, score} = save_freshness_score(dataset.id)
 
       # expected score is 0.5 * 0.9 + 1. * (1. - 0.9)
       # see exp_smoothing() function
-      assert %{id: _id, topic: "freshness", score: 0.55, timestamp: timestamp, details: details} = score
+      assert %{id: _id, topic: :freshness, score: 0.55, timestamp: timestamp, details: details} = score
 
       assert DateTime.diff(timestamp, DateTime.utc_now()) < 3
       assert DB.DatasetScore |> DB.Repo.all() |> length() == 3
@@ -281,17 +281,17 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       # an irrelevant score
       insert(:dataset_score,
         dataset_id: dataset.id,
-        topic: "fun",
+        topic: :availability,
         score: 1.0,
         timestamp: DateTime.utc_now() |> DateTime.add(-1, :day)
       )
 
       assert DB.DatasetScore |> DB.Repo.all() |> length() == 1
 
-      {:ok, score} = save_dataset_freshness_score(dataset.id)
+      {:ok, score} = save_freshness_score(dataset.id)
 
       # expected score is todays's score (no existing history)
-      assert %{id: _id, topic: "freshness", score: 1.0, timestamp: timestamp} = score
+      assert %{id: _id, topic: :freshness, score: 1.0, timestamp: timestamp} = score
       assert DateTime.diff(timestamp, DateTime.utc_now()) < 3
 
       assert DB.DatasetScore |> DB.Repo.all() |> length() == 2
@@ -301,10 +301,10 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       dataset = insert(:dataset)
       assert DB.DatasetScore |> DB.Repo.all() |> length() == 0
 
-      {:ok, score} = save_dataset_freshness_score(dataset.id)
+      {:ok, score} = save_freshness_score(dataset.id)
 
       # expected score is nil
-      assert %{id: _id, topic: "freshness", score: nil, timestamp: timestamp} = score
+      assert %{id: _id, topic: :freshness, score: nil, timestamp: timestamp} = score
       assert DateTime.diff(timestamp, DateTime.utc_now()) < 3
 
       assert DB.DatasetScore |> DB.Repo.all() |> length() == 1
@@ -315,7 +315,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       # last score is nil
       insert(:dataset_score,
         dataset_id: dataset.id,
-        topic: "freshness",
+        topic: :freshness,
         score: nil,
         timestamp: DateTime.utc_now() |> DateTime.add(-1, :day)
       )
@@ -323,17 +323,17 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       # but existing score before
       insert(:dataset_score,
         dataset_id: dataset.id,
-        topic: "freshness",
+        topic: :freshness,
         score: 0.5,
         timestamp: DateTime.utc_now() |> DateTime.add(-2, :day)
       )
 
       assert DB.DatasetScore |> DB.Repo.all() |> length() == 2
 
-      {:ok, score} = save_dataset_freshness_score(dataset.id)
+      {:ok, score} = save_freshness_score(dataset.id)
 
       # score is computed with today's freshness and last non nil score.
-      assert %{id: _id, topic: "freshness", score: 0.55, timestamp: timestamp} = score
+      assert %{id: _id, topic: :freshness, score: 0.55, timestamp: timestamp} = score
       assert DateTime.diff(timestamp, DateTime.utc_now()) < 3
 
       assert DB.DatasetScore |> DB.Repo.all() |> length() == 3
@@ -344,17 +344,17 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       # old existing score
       insert(:dataset_score,
         dataset_id: dataset.id,
-        topic: "freshness",
+        topic: :freshness,
         score: 0.5,
         timestamp: DateTime.utc_now() |> DateTime.add(-8, :day)
       )
 
       assert DB.DatasetScore |> DB.Repo.all() |> length() == 1
 
-      {:ok, score} = save_dataset_freshness_score(dataset.id)
+      {:ok, score} = save_freshness_score(dataset.id)
 
       # score is computed from scratch, previous score is not used
-      assert %{id: _id, topic: "freshness", score: 1.0, timestamp: timestamp} = score
+      assert %{id: _id, topic: :freshness, score: 1.0, timestamp: timestamp} = score
       assert DateTime.diff(timestamp, DateTime.utc_now()) < 3
 
       assert DB.DatasetScore |> DB.Repo.all() |> length() == 2
@@ -368,19 +368,19 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       # yesterday's score
       insert(:dataset_score,
         dataset_id: dataset.id,
-        topic: "freshness",
+        topic: :freshness,
         score: 0.5,
         timestamp: DateTime.utc_now() |> DateTime.add(-1, :day)
       )
 
-      {:ok, score} = save_dataset_freshness_score(dataset.id)
+      {:ok, score} = save_freshness_score(dataset.id)
       # score is computed with yesterday's score
-      assert %{id: id1, topic: "freshness", score: 0.55, timestamp: _timestamp} = score
+      assert %{id: id1, topic: :freshness, score: 0.55, timestamp: _timestamp} = score
 
       # we force refresh the score computation
       # it should use yesterday's score again
-      {:ok, score} = save_dataset_freshness_score(dataset.id)
-      assert %{id: id2, topic: "freshness", score: 0.55, timestamp: _timestamp} = score
+      {:ok, score} = save_freshness_score(dataset.id)
+      assert %{id: id2, topic: :freshness, score: 0.55, timestamp: _timestamp} = score
       assert id2 > id1
     end
 
@@ -388,10 +388,10 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       dataset = insert(:dataset, is_active: true)
       %{id: resource_id} = insert(:resource, dataset_id: dataset.id, format: "csv", is_community_resource: false)
 
-      {:ok, score} = save_dataset_freshness_score(dataset.id)
+      {:ok, score} = save_freshness_score(dataset.id)
 
       assert %{
-               topic: "freshness",
+               topic: :freshness,
                score: nil,
                details: %{previous_score: nil, resources: [%{resource_id: ^resource_id, format: "csv", freshness: nil}]}
              } = score
