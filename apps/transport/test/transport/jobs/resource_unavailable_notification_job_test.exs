@@ -142,7 +142,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
                ~s(Les ressources #{resource_1.title}, #{resource_2.title} dans votre jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> ne sont plus disponibles au téléchargement depuis plus de 6h.)
 
       assert html_part =~
-               "Il semble que vous ayez supprimé et créé une nouvelle ressource. Lors de la mise à jour de vos données, privilégiez le remplacement de fichiers."
+               "Il semble que vous ayez supprimé et créé une nouvelle ressource. Lors de la mise à jour de vos données, remplacez plutôt le fichier au sein de la ressource existante."
 
       :ok
     end)
