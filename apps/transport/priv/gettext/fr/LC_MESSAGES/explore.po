@@ -110,3 +110,11 @@ msgstr "Carte consolidée des arrêts GTFS (beta)"
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Consolidated GTFS stops map explanation"
 msgstr "Cette carte consolide tous les GTFS référencés sur ce site. En beta, peut inclure des éléments expirés ou des doublons (voir %{link}). Vos retours sont les bienvenus."
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "irve-explanation"
+msgstr "Carte du %{link} consolidé des IRVE (données statiques)."
+
+#, elixir-autogen, elixir-format
+msgid "IRVE map"
+msgstr "Infrastructures de Recharge des Véhicules Électriques (IRVE)"
