@@ -17,6 +17,13 @@ defmodule TransportWeb.ExploreControllerTest do
       organization: pan_org
     })
 
+    insert(:dataset, %{
+      type: "charging-stations",
+      custom_title: "Infrastructures de Recharge pour Véhicules Électriques - IRVE",
+      organization: "data.gouv.fr",
+      organization_id: "646b7187b50b2a93b1ae3d45"
+    })
+
     :ok
   end
 
