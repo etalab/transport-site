@@ -1,0 +1,203 @@
+# Modèle de données
+
+```elixir
+my_app_root = Path.join(__DIR__, "..")
+
+Mix.install(
+  [
+    {:my_app, path: my_app_root, env: :dev},
+    {:kino, "~> 0.10.0"}
+  ],
+  config_path: Path.join(my_app_root, "config/config.exs"),
+  lockfile: Path.join(my_app_root, "mix.lock")
+)
+```
+
+## Exploration
+
+Au coeur du modèle du PAN il y a le dataset:
+
+```elixir
+# shut down debug logging (including Ecto/SQL)
+Logger.configure(level: :warning)
+
+Ecto.Adapters.SQL.query!(
+  DB.Repo,
+  "SELECT id, datagouv_id, slug, custom_title FROM dataset"
+)
+|> Kino.DataTable.new()
+```
+
+L'url de chaque dataset s'appuie sur son `slug` (url unique fournie par data gouv):
+
+```elixir
+Ecto.Adapters.SQL.query!(
+  DB.Repo,
+  "SELECT 'http://localhost:5000/datasets/' || slug as url FROM dataset"
+)
+|> Kino.DataTable.new()
+```
+
+À chaque dataset, sont associées une ou plusieurs ressources (avec leur format, leur url propre, leur titre etc):
+
+```elixir
+Ecto.Adapters.SQL.query!(
+  DB.Repo,
+  """
+  SELECT
+    dataset.id as d_id,
+    resource.id as r_id,
+    'http://localhost:5000/resources/' || resource.id as r_url,
+    resource.format as r_format,
+    resource.title as r_title,
+    dataset.datagouv_id as d_gid,
+    dataset.slug as d_slug,
+    dataset.custom_title as d_title
+
+  FROM (SELECT * from dataset ORDER BY id desc limit 3) dataset
+
+  LEFT JOIN resource resource on resource.dataset_id = dataset.id
+  ORDER by dataset.id asc
+  """
+)
+|> Kino.DataTable.new()
+```
+
+On va se concentrer sur un dataset en particulier:
+
+```elixir
+well_known_slug = "Réseau urbain Bibus"
+
+Ecto.Adapters.SQL.query!(
+  DB.Repo,
+  """
+  SELECT
+    resource.format as r_format,
+    resource.title as r_title
+
+  FROM (SELECT * from dataset WHERE custom_title = $1) dataset
+
+  LEFT JOIN resource resource on resource.dataset_id = dataset.id
+  ORDER by resource.title asc
+  """,
+  [well_known_slug]
+)
+|> Kino.DataTable.new()
+```
+
+Puis sur une ressource en particulier:
+
+```elixir
+well_known_title = "Réseau urbain Bibus"
+
+%{rows: [[gtfs_resource_id]]} =
+  Ecto.Adapters.SQL.query!(
+    DB.Repo,
+    """
+    SELECT
+      resource.id as r_id
+
+    FROM (SELECT * from dataset WHERE custom_title = $1) dataset
+
+    LEFT JOIN resource resource on resource.dataset_id = dataset.id
+
+    where resource.format = 'GTFS'
+    """,
+    [well_known_title]
+  )
+
+%{rows: [[well_known_dataset_slug, datagouv_id]]} =
+  Ecto.Adapters.SQL.query!(
+    DB.Repo,
+    """
+    SELECT dataset.slug, dataset.datagouv_id from dataset WHERE custom_title = $1
+    """,
+    [well_known_title]
+  )
+
+"""
+
+La ressource avec id #{gtfs_resource_id} est visible via http://localhost:5000/resources/#{gtfs_resource_id}
+
+Son historique est visualisé sur la page du dataset, qui est:
+- http://localhost:5000/datasets/#{well_known_dataset_slug}#backed-up-resources (via le slug)
+- http://localhost:5000/datasets/#{datagouv_id} (via le data gouv id)
+"""
+|> Kino.Markdown.new()
+```
+
+À chaque Resource est associée N ResourceHistory, qui représentent les versions historisées de la ressource (dont on détecte les changements). C'est ce qui est affiché sur la page du Dataset actuellement.
+
+```elixir
+# this is displayed on the dataset page, not on the resource detail page
+data =
+  Ecto.Adapters.SQL.query!(
+    DB.Repo,
+    """
+    SELECT * from resource_history WHERE resource_id = $1
+
+    ORDER BY inserted_at DESC
+    """,
+    [gtfs_resource_id]
+  )
+
+data |> Kino.DataTable.new()
+```
+
+On peut obtenir la dernière version d'une Resource via Ecto au lieu de faire du SQL, comme suit:
+
+```elixir
+import Ecto.Query
+
+resource_history_query =
+  from(rh in DB.ResourceHistory,
+    where: rh.resource_id == ^gtfs_resource_id,
+    order_by: {:desc, rh.inserted_at},
+    limit: 1
+  )
+
+resource_history_query
+|> DB.Repo.one()
+```
+
+On note les associations `validations` et `metadata` en particulier (tout en bas).
+
+À partir de la `ResourceHistory` on peut obtenir les metadatas associées (`DB.ResourceMetadata`) qui sont en fait également liées chacune à une `DB.MultiValidation` (dont on voit l'id `multi_validation_id` ci-dessous):
+
+```elixir
+resource_history_query
+|> preload(:metadata)
+|> DB.Repo.one()
+|> Map.take([:metadata])
+```
+
+On peut également obtenir les validations `DB.MultiValidation`:
+
+```elixir
+resource_history_query
+|> preload(:validations)
+|> DB.Repo.one()
+|> Map.fetch!(:validations)
+|> Kino.DataTable.new()
+```
+
+En utilisant la commande `mix ecto.gen.erd --output-path=ecto_erd.mmd` et en filtrant un peu à la main, on obtient cette vue très simplifiée de ce qui est discuté ci-dessus:
+
+<!-- livebook:{"break_markdown":true} -->
+
+<!-- Learn more at https://mermaid-js.github.io/mermaid -->
+
+```mermaid
+erDiagram
+  dataset ||--|{ resource : ""
+  multi_validation ||--o| resource_metadata : ""
+  resource ||--|{ multi_validation : ""
+  resource ||--|{ resource_history : ""
+  resource ||--|{ resource_metadata : ""
+  resource_history ||--|{ multi_validation : ""
+  resource_history ||--|{ resource_metadata : ""
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+À suivre!
