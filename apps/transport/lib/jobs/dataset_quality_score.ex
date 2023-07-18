@@ -6,12 +6,11 @@ defmodule Transport.Jobs.DatasetQualityScoreDispatcher do
   import Ecto.Query
 
   @impl Oban.Worker
-  def perform(_job) do
+  def perform(%Oban.Job{}) do
     DB.Dataset.base_query()
+    |> select([dataset: d], d.id)
     |> DB.Repo.all()
-    |> Enum.map(fn dataset ->
-      %{dataset_id: dataset.id} |> Transport.Jobs.DatasetQualityScore.new()
-    end)
+    |> Enum.map(&(%{dataset_id: &1} |> Transport.Jobs.DatasetQualityScore.new()))
     |> Oban.insert_all()
 
     :ok
@@ -28,6 +27,7 @@ defmodule Transport.Jobs.DatasetQualityScore do
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"dataset_id" => dataset_id}}) do
     Transport.Jobs.DatasetFreshnessScore.save_freshness_score(dataset_id)
+    Transport.Jobs.DatasetAvailabilityScore.save_availability_score(dataset_id)
     :ok
   end
 
@@ -102,10 +102,19 @@ defmodule Transport.Jobs.DatasetQualityScore do
   def average([]), do: nil
   def average(e), do: Enum.sum(e) / Enum.count(e)
 
+  @spec dataset_resources(integer()) :: [DB.Resource.t()]
+  def dataset_resources(dataset_id) do
+    DB.Dataset.base_query()
+    |> DB.Resource.join_dataset_with_resource()
+    |> where([dataset: d, resource: r], d.id == ^dataset_id and not r.is_community_resource)
+    |> select([resource: r], r)
+    |> DB.Repo.all()
+  end
+
   @spec save_dataset_score(integer(), (integer() -> %{score: nil | float(), details: map()}), atom()) ::
           DB.DatasetScore.t() | nil
   def save_dataset_score(dataset_id, compute_fn, topic) do
-    %{score: score, details: details} = compute_fn.(dataset_id)
+    %{score: score, details: details} = dataset_score(dataset_id, compute_fn, topic)
 
     %DB.DatasetScore{}
     |> DB.DatasetScore.changeset(%{
@@ -128,6 +137,103 @@ defmodule Transport.Jobs.DatasetQualityScore do
         nil
     end
   end
+
+  @spec dataset_score(integer(), (integer() -> %{score: nil | float(), details: map()}), atom()) :: %{
+          score: float | nil,
+          details: map()
+        }
+  def dataset_score(dataset_id, compute_fn, topic) do
+    %{score: today_score, details: details} = compute_fn.(dataset_id)
+
+    computed_score =
+      case last_score = last_dataset_score(dataset_id, topic) do
+        %{score: previous_score} when is_float(previous_score) ->
+          exp_smoothing(previous_score, today_score)
+
+        _ ->
+          today_score
+      end
+
+    %{score: computed_score, details: build_details(details, last_score)}
+  end
+end
+
+defmodule Transport.Jobs.DatasetAvailabilityScore do
+  @moduledoc """
+  Methods specific to the availability component of a dataset score.
+  """
+  import Ecto.Query
+  import Transport.Jobs.DatasetQualityScore
+
+  def save_availability_score(dataset_id) do
+    save_dataset_score(dataset_id, &current_dataset_availability/1, :availability)
+  end
+
+  @spec current_dataset_availability(integer()) :: %{score: float | nil, details: map()}
+  def current_dataset_availability(dataset_id) do
+    resources = dataset_resources(dataset_id)
+    current_dataset_infos = resources |> Enum.map(&resource_availability(&1))
+    scores = current_dataset_infos |> Enum.map(fn %{availability: availability} -> availability end)
+
+    score =
+      if Enum.count(scores) > 0 and Enum.min(scores) == 0 do
+        0
+      else
+        average(scores)
+      end
+
+    %{score: score, details: %{resources: current_dataset_infos}}
+  end
+
+  @spec resource_availability(DB.Resource.t()) :: %{
+          :availability => float,
+          :resource_id => integer,
+          :raw_measure => any
+        }
+  def resource_availability(%DB.Resource{id: resource_id} = resource) do
+    if resource_id in resource_ids_with_unavailabilities() do
+      percentage = DB.ResourceUnavailability.availability_over_last_days(resource, 1)
+      %{availability: availability_percentage_to_score(percentage), resource_id: resource_id, raw_measure: percentage}
+    else
+      %{availability: 1.0, resource_id: resource_id, raw_measure: nil}
+    end
+  end
+
+  @doc """
+  iex> availability_percentage_to_score(99.5)
+  1.0
+  iex> availability_percentage_to_score(98)
+  0.75
+  iex> availability_percentage_to_score(96)
+  0.5
+  iex> availability_percentage_to_score(94.9)
+  0.0
+  """
+  @spec availability_percentage_to_score(float()) :: float()
+  def availability_percentage_to_score(percentage) when percentage >= 0 and percentage <= 100 do
+    cond do
+      percentage >= 99.5 -> 1.0
+      percentage >= 97.5 -> 0.75
+      percentage >= 95 -> 0.5
+      true -> 0.0
+    end
+  end
+
+  def resource_ids_with_unavailabilities do
+    Transport.Cache.API.fetch(
+      to_string(__MODULE__) <> ":unavailabilities_resource_ids",
+      fn ->
+        dt_limit = DateTime.utc_now() |> DateTime.add(-1, :day)
+
+        DB.ResourceUnavailability
+        |> where([r], is_nil(r.end) or r.end >= ^dt_limit)
+        |> select([r], r.resource_id)
+        |> distinct(true)
+        |> DB.Repo.all()
+      end,
+      :timer.seconds(60)
+    )
+  end
 end
 
 defmodule Transport.Jobs.DatasetFreshnessScore do
@@ -137,14 +243,9 @@ defmodule Transport.Jobs.DatasetFreshnessScore do
   import Ecto.Query
   import Transport.Jobs.DatasetQualityScore
 
-  def save_freshness_score(dataset_id) do
-    save_dataset_score(dataset_id, &dataset_freshness_score/1, :freshness)
-  end
-
-  @spec dataset_freshness_score(integer) :: %{details: map, score: nil | float}
   @doc """
-  dataset "freshness" is the answer to the question:
-  "When the data was downloaded, was it up-to-date?"
+  Dataset "freshness" is the answer to the question: "When the data was downloaded, was it up-to-date?"
+
   To give a score, we proceed this way:
   - get the dataset's current resources
   - for each resource, give it a score
@@ -156,40 +257,22 @@ defmodule Transport.Jobs.DatasetFreshnessScore do
   The interest of exponential smoothing is to give past scores an increasingly small weight as time
   passes. To have a good score, a dataset must have up-to-date resources every day.
   """
-  def dataset_freshness_score(dataset_id) do
-    %{dataset_freshness: today_score, details: details} = current_dataset_freshness(dataset_id)
-    last_dataset_freshness = last_dataset_score(dataset_id, :freshness)
-
-    computed_score =
-      case last_dataset_freshness do
-        %{score: previous_score} when is_float(previous_score) ->
-          exp_smoothing(previous_score, today_score)
-
-        _ ->
-          today_score
-      end
-
-    %{score: computed_score, details: build_details(details, last_dataset_freshness)}
+  def save_freshness_score(dataset_id) do
+    save_dataset_score(dataset_id, &current_dataset_freshness/1, :freshness)
   end
 
-  @spec current_dataset_freshness(integer()) :: %{dataset_freshness: float | nil, details: map()}
+  @spec current_dataset_freshness(integer()) :: %{score: float | nil, details: map()}
   def current_dataset_freshness(dataset_id) do
-    resources =
-      DB.Dataset.base_query()
-      |> DB.Resource.join_dataset_with_resource()
-      |> where([dataset: d, resource: r], d.id == ^dataset_id and not r.is_community_resource)
-      |> select([resource: r], r)
-      |> DB.Repo.all()
-
-    current_dataset_freshness_infos = resources |> Enum.map(&resource_freshness(&1))
+    resources = dataset_resources(dataset_id)
+    current_dataset_infos = resources |> Enum.map(&resource_freshness(&1))
 
     score =
-      current_dataset_freshness_infos
+      current_dataset_infos
       |> Enum.map(fn %{freshness: freshness} -> freshness end)
       |> Enum.reject(&is_nil(&1))
       |> average()
 
-    %{dataset_freshness: score, details: %{resources: current_dataset_freshness_infos}}
+    %{score: score, details: %{resources: current_dataset_infos}}
   end
 
   @spec resource_freshness(DB.Resource.t()) ::
