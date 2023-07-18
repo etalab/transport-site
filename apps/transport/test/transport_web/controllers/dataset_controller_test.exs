@@ -34,7 +34,7 @@ defmodule TransportWeb.DatasetControllerTest do
     assert Enum.empty?(TransportWeb.DatasetView.other_official_resources(dataset))
     assert 1 == Enum.count(TransportWeb.DatasetView.official_documentation_resources(dataset))
 
-    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
+    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _, true -> [] end)
 
     with_mocks [
       {Datagouvfr.Client.Reuses, [], [get: fn _dataset -> {:ok, []} end]},
@@ -58,7 +58,7 @@ defmodule TransportWeb.DatasetControllerTest do
       payload: %{"permanent_url" => conversion_url = "https://super-cellar-url.com/netex"}
     )
 
-    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
+    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _, true -> [] end)
 
     with_mocks [
       {Datagouvfr.Client.Reuses, [], [get: fn _dataset -> {:ok, []} end]},
@@ -397,6 +397,6 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   defp set_empty_mocks do
-    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
+    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _, true -> [] end)
   end
 end
