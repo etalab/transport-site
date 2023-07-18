@@ -67,7 +67,7 @@ function getTooltip ({ object, layer }) {
                 html: `<strong>Infrastructure de recharge</strong><br>
             ${object.properties.nom_station}<br>
             Enseigne&nbsp;: ${object.properties.nom_enseigne}<br>
-            Identifiant&nbsp;: ${object.properties.id_station_itinerance}<br>
+            Identifiant station en itinérance&nbsp;: ${object.properties.id_station_itinerance}<br>
             Nombre de points de charge&nbsp;: ${object.properties.nbre_pdc}`
             }
         } else {
