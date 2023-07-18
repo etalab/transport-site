@@ -10,13 +10,8 @@ defmodule Transport.History.Fetcher do
   def impl, do: Application.get_env(:transport, :history_impl)
 
   def history_resources(%DB.Dataset{} = dataset, options \\ []) do
-    preload_validations = Keyword.get(options, :preload_validations, true)
-    max_records = Keyword.get(options, :max_records)
-
-    impl().history_resources(dataset,
-      preload_validations: preload_validations,
-      max_records: max_records
-    )
+    options = Keyword.validate!(options, [max_records: nil, preload_validations: true])
+    impl().history_resources(dataset, options)
   end
 end
 
