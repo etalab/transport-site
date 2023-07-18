@@ -165,7 +165,11 @@ defmodule TransportWeb.API.DatasetControllerTest do
 
     # check the result is in line with a query on this dataset
     # only difference: individual dataset adds information about history and conversions
-    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
+    Transport.History.Fetcher.Mock
+    |> expect(:history_resources, fn _, options ->
+      assert Keyword.equal?(options, preload_validations: false, max_records: 25)
+      []
+    end)
 
     dataset_res =
       dataset_res
@@ -271,7 +275,11 @@ defmodule TransportWeb.API.DatasetControllerTest do
       |> DB.Repo.insert!()
       |> DB.Repo.preload(:resources)
 
-    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
+    Transport.History.Fetcher.Mock
+    |> expect(:history_resources, fn _, options ->
+      assert Keyword.equal?(options, preload_validations: false, max_records: 25)
+      []
+    end)
 
     path = Helpers.dataset_path(conn, :by_id, dataset.datagouv_id)
 
@@ -382,7 +390,11 @@ defmodule TransportWeb.API.DatasetControllerTest do
       payload: %{"permanent_url" => "https://example.com/url1", "filesize" => filesize = 43}
     )
 
-    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
+    Transport.History.Fetcher.Mock
+    |> expect(:history_resources, fn _, options ->
+      assert Keyword.equal?(options, preload_validations: false, max_records: 25)
+      []
+    end)
 
     path = Helpers.dataset_path(conn, :by_id, dataset.datagouv_id)
 
@@ -454,7 +466,11 @@ defmodule TransportWeb.API.DatasetControllerTest do
     insert(:resource_metadata, resource_id: resource_1.id, features: ["a", "b"])
     insert(:resource_metadata, resource_id: resource_1.id, features: ["c"])
 
-    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
+    Transport.History.Fetcher.Mock
+    |> expect(:history_resources, fn _, options ->
+      assert Keyword.equal?(options, preload_validations: false, max_records: 25)
+      []
+    end)
 
     # call to specific dataset
     path = Helpers.dataset_path(conn, :by_id, datagouv_id_1)

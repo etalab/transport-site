@@ -34,6 +34,10 @@ defmodule TransportWeb.API.GeoQueryController do
       "zfe" => %{
         dataset: Transport.Jobs.LowEmissionZonesToGeoData.relevant_dataset(),
         transform_fn: &zfe_geojson/1
+      },
+      "irve" => %{
+        dataset: Transport.Jobs.IRVEToGeoData.relevant_dataset(),
+        transform_fn: &irve_geojson/1
       }
     }
   end
@@ -55,6 +59,21 @@ defmodule TransportWeb.API.GeoQueryController do
 
   def zfe_geojson(%DB.GeoDataImport{} = geo_data_import) do
     add_fields = fn query -> query end
+
+    DB.GeoData.geo_data_as_geojson(geo_data_import, add_fields)
+  end
+
+  def irve_geojson(%DB.GeoDataImport{} = geo_data_import) do
+    add_fields = fn query ->
+      from(g in query,
+        select_merge: %{
+          nom_enseigne: fragment("payload->>'nom_enseigne'"),
+          id_station_itinerance: fragment("payload->>'id_station_itinerance'"),
+          nom_station: fragment("payload->>'nom_station'"),
+          nbre_pdc: fragment("payload->>'nbre_pdc'")
+        }
+      )
+    end
 
     DB.GeoData.geo_data_as_geojson(geo_data_import, add_fields)
   end

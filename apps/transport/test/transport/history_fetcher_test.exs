@@ -35,7 +35,9 @@ defmodule Transport.History.FetcherTest do
       # Should be ignored
       insert(:resource_history, resource_id: other_resource.id, payload: %{})
 
-      resources_history = Transport.History.Fetcher.Database.history_resources(dataset)
+      resources_history =
+        Transport.History.Fetcher.Database.history_resources(dataset, max_records: 25, preload_validations: true)
+
       assert length(resources_history) == 3
 
       # check results are ordered by descending insertion date
@@ -46,9 +48,17 @@ defmodule Transport.History.FetcherTest do
       [validation] = rh_with_metadata.validations
       assert validation.metadata.metadata == %{"a" => 2}
 
-      assert Enum.count(Transport.History.Fetcher.Database.history_resources(dataset, 1)) == 1
+      assert Enum.count(
+               Transport.History.Fetcher.Database.history_resources(dataset,
+                 max_records: 1,
+                 preload_validations: true
+               )
+             ) == 1
 
-      assert Transport.History.Fetcher.Database.history_resources(insert(:dataset)) == []
+      assert Transport.History.Fetcher.Database.history_resources(insert(:dataset),
+               max_records: 25,
+               preload_validations: true
+             ) == []
     end
   end
 end

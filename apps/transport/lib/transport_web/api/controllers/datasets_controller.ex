@@ -260,7 +260,12 @@ defmodule TransportWeb.API.DatasetController do
     |> add_conversions(dataset)
     |> Map.put(
       "history",
-      Transport.History.Fetcher.history_resources(dataset, TransportWeb.DatasetView.max_nb_history_resources())
+      Transport.History.Fetcher.history_resources(dataset,
+        max_records: TransportWeb.DatasetView.max_nb_history_resources(),
+        # see https://github.com/etalab/transport-site/issues/3324, not needed currently
+        # in the API output
+        preload_validations: false
+      )
     )
   end
 
