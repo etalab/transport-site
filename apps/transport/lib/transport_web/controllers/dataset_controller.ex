@@ -50,7 +50,13 @@ defmodule TransportWeb.DatasetController do
       |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.datagouv_id))
       |> assign(:other_datasets, Dataset.get_other_datasets(dataset))
       |> assign(:resources_infos, resources_infos(dataset))
-      |> assign(:history_resources, Transport.History.Fetcher.history_resources(dataset, max_nb_history_resources()))
+      |> assign(
+        :history_resources,
+        Transport.History.Fetcher.history_resources(dataset,
+          max_records: max_nb_history_resources(),
+          preload_validations: true
+        )
+      )
       |> assign(:latest_resources_history_infos, DB.ResourceHistory.latest_dataset_resources_history_infos(dataset.id))
       |> assign(:notifications_sent, DB.Notification.recent_reasons_binned(dataset, days_notifications_sent()))
       |> assign(:freshness_score, DB.DatasetScore.get_latest(dataset, "freshness"))
