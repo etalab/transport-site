@@ -291,7 +291,7 @@ defmodule TransportWeb.Backoffice.PageController do
 
   def download_resources_csv(%Plug.Conn{} = conn, _) do
     %Postgrex.Result{columns: columns, rows: rows} = resources_query()
-    filename = "resource-#{Date.utc_today() |> Date.to_iso8601()}.csv"
+    filename = "ressources-#{Date.utc_today() |> Date.to_iso8601()}.csv"
 
     content =
       rows

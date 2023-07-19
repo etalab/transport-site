@@ -124,7 +124,7 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
     assert response_content_type(response, :csv) == "text/csv; charset=utf-8"
 
     assert Plug.Conn.get_resp_header(response, "content-disposition") == [
-             ~s(attachment; filename="resource-#{Date.utc_today() |> Date.to_iso8601()}.csv")
+             ~s(attachment; filename="ressources-#{Date.utc_today() |> Date.to_iso8601()}.csv")
            ]
   end
 
