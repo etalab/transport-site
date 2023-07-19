@@ -173,7 +173,7 @@ function updateIRVELayer (geojson) {
 
 function trackEvent (layer) {
     // https://matomo.org/faq/reports/implement-event-tracking-with-matomo/#how-to-set-up-matomo-event-tracking-with-javascript
-    _paq.push(['trackEvent', 'explore-map', 'enable-layer', layer]);
+    window._paq.push(['trackEvent', 'explore-map', 'enable-layer', layer])
 }
 
 function createPointsLayer (geojson, id) {
