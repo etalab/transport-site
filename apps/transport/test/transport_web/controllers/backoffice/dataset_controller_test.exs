@@ -117,7 +117,7 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
 
     set_expectations()
 
-    siren = 123_456_789
+    siren = "552049447"
 
     conn
     |> setup_admin_in_session()
@@ -126,7 +126,7 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
         "custom_title" => "title",
         "url" => slug,
         "type" => "public-transit",
-        "legal_owner_company_siren" => siren |> Integer.to_string(),
+        "legal_owner_company_siren" => siren,
         "legal_owners_aom[0]" => aom_0.id |> Integer.to_string(),
         "legal_owners_aom[1]" => aom_1.id |> Integer.to_string(),
         "legal_owners_region[0]" => region_0.id |> Integer.to_string(),
