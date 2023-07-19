@@ -842,10 +842,10 @@ defmodule DB.Dataset do
         changeset
 
       siren ->
-        unless Transport.Companies.is_valid_siren?(siren) do
-          add_error(changeset, :legal_owner_company_siren, "SIREN is not valid")
-        else
+        if Transport.Companies.is_valid_siren?(siren) do
           changeset
+        else
+          add_error(changeset, :legal_owner_company_siren, "SIREN is not valid")
         end
     end
   end
