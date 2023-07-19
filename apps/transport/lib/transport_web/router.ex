@@ -193,6 +193,7 @@ defmodule TransportWeb.Router do
 
       get("/breaking_news", BreakingNewsController, :index)
       post("/breaking_news", BreakingNewsController, :update_breaking_news)
+      get("/download_resources_csv", PageController, :download_resources_csv)
     end
 
     # Authentication
