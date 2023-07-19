@@ -288,4 +288,74 @@ defmodule TransportWeb.Backoffice.PageController do
       _ -> query
     end
   end
+
+  def download_resources_csv(%Plug.Conn{} = conn, _) do
+    %Postgrex.Result{columns: columns, rows: rows} = resources_query()
+    filename = "ressources-#{Date.utc_today() |> Date.to_iso8601()}.csv"
+
+    content =
+      rows
+      |> Enum.map(fn row -> columns |> Enum.zip(row) |> Enum.into(%{}) end)
+      |> CSV.encode(headers: columns)
+      |> Enum.to_list()
+      |> to_string()
+
+    conn
+    |> put_resp_content_type("text/csv")
+    |> put_resp_header("content-disposition", ~s(attachment; filename="#{filename}"))
+    |> send_resp(200, content)
+  end
+
+  defp resources_query do
+    DB.Repo
+    |> Ecto.Adapters.SQL.query!("""
+    select
+      d.organization nom_organisation,
+      d.datagouv_title dataset_titre_datagouv,
+      d.custom_title dataset_titre_pan,
+      'https://transport.data.gouv.fr/datasets/' || d.slug dataset_url,
+      d.licence licence,
+      d.type dataset_type,
+      case when d.custom_tags is null or cardinality(d.custom_tags) = 0 then null else d.custom_tags end dataset_custom_tags,
+      d.organization_type type_publicateur,
+      coalesce(a.nom, re.nom) nom_territoire,
+      coalesce(legal_owners.noms_aoms, d.legal_owner_company_siren::varchar) representants_legaux,
+      case when d.is_active and d.archived_at is null then 'actif' when not d.is_active then 'supprimé' when d.archived_at is not null then 'archivé' end statut_datagouv,
+      r.title titre_ressource,
+      r.format format_ressource,
+      case when r.url like 'https://static.data.gouv.fr%' then 'manuelle' else 'automatique' end methode_maj,
+      rh.inserted_at derniere_maj,
+      case when mv.validator = 'GTFS transport-validator' then mv.max_error else mv.result->>'errors_count' end validation_errors,
+      rm.metadata->>'end_date' gtfs_date_fin,
+      d.organization_id id_organisation,
+      d.id id_dataset,
+      r.id id_ressource,
+      freshness.score score_fraicheur
+    from resource r
+    join dataset d on d.id = r.dataset_id
+    left join aom a on a.id = d.aom_id
+    left join region re on re.id = d.region_id
+    left join (
+      select
+        rh.*,
+        row_number() over (partition by rh.resource_id order by rh.inserted_at desc) row_number
+      from resource_history rh
+    ) rh on rh.resource_id = r.id and rh.row_number = 1
+    left join (
+      select da.dataset_id, string_agg(a.nom, ', ' order by a.nom) noms_aoms
+      from dataset_aom_legal_owner da
+      join aom a on da.aom_id = a.id
+      group by 1
+    ) legal_owners on legal_owners.dataset_id = d.id
+    left join multi_validation mv on mv.resource_history_id = rh.id
+    left join resource_metadata rm on rm.multi_validation_id = mv.id
+    left join (
+      select
+        ds.*,
+        row_number() over (partition by ds.dataset_id order by ds.timestamp desc) row_number
+      from dataset_score ds
+      where ds.topic = 'freshness'
+    ) freshness on freshness.dataset_id = d.id and freshness.row_number = 1
+    """)
+  end
 end
