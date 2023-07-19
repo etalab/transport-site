@@ -113,6 +113,7 @@ gtfsrtCheckbox.addEventListener('change', (event) => {
 // Handle BNLC toggle
 document.getElementById('bnlc-check').addEventListener('change', (event) => {
     if (event.currentTarget.checked) {
+        trackEvent('bnlc')
         fetch('/api/geo-query?data=bnlc')
             .then(data => updateBNLCLayer(data.json()))
     } else {
@@ -123,6 +124,7 @@ document.getElementById('bnlc-check').addEventListener('change', (event) => {
 // Handle Parkings Relais toggle
 document.getElementById('parkings_relais-check').addEventListener('change', (event) => {
     if (event.currentTarget.checked) {
+        trackEvent('parkings-relais')
         fetch('/api/geo-query?data=parkings-relais')
             .then(data => updateParkingsRelaisLayer(data.json()))
     } else {
@@ -133,6 +135,7 @@ document.getElementById('parkings_relais-check').addEventListener('change', (eve
 // Handle ZFE toggle
 document.getElementById('zfe-check').addEventListener('change', (event) => {
     if (event.currentTarget.checked) {
+        trackEvent('zfe')
         fetch('/api/geo-query?data=zfe')
             .then(data => updateZFELayer(data.json()))
     } else {
@@ -143,6 +146,7 @@ document.getElementById('zfe-check').addEventListener('change', (event) => {
 // Handle IRVE toggle
 document.getElementById('irve-check').addEventListener('change', (event) => {
     if (event.currentTarget.checked) {
+        trackEvent('irve')
         fetch('/api/geo-query?data=irve')
             .then(data => updateIRVELayer(data.json()))
     } else {
@@ -165,6 +169,11 @@ function updateZFELayer (geojson) {
 function updateIRVELayer (geojson) {
     layers.irve = createPointsLayer(geojson, 'irve-layer')
     deckGLLayer.setProps({ layers: getLayers(layers) })
+}
+
+function trackEvent (layer) {
+    // https://matomo.org/faq/reports/implement-event-tracking-with-matomo/#how-to-set-up-matomo-event-tracking-with-javascript
+    window._paq.push(['trackEvent', 'explore-map', 'enable-layer', layer])
 }
 
 function createPointsLayer (geojson, id) {
