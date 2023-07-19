@@ -132,7 +132,7 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
                  source: :admin,
                  reason: :new_dataset
                }
-             ] = DB.NotificationSubscription |> DB.Repo.all()
+             ] = DB.NotificationSubscription |> DB.Repo.all() |> Enum.sort_by(& &1.reason)
     end
   end
 
