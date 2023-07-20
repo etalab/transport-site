@@ -56,7 +56,7 @@ defmodule DB.Dataset do
       on_replace: :delete
     )
 
-    field(:legal_owner_company_siren, :integer)
+    field(:legal_owner_company_siren, :string)
 
     has_many(:resources, Resource, on_replace: :delete, on_delete: :delete_all)
     has_many(:logs_import, LogsImport, on_replace: :delete, on_delete: :delete_all)
@@ -486,6 +486,7 @@ defmodule DB.Dataset do
     |> cast_nation_dataset(params)
     |> cast_assoc(:resources)
     |> validate_required([:slug])
+    |> validate_siren()
     |> validate_territory_mutual_exclusion()
     |> maybe_overwrite_licence()
     |> has_real_time()
@@ -834,6 +835,20 @@ defmodule DB.Dataset do
   end
 
   def get_resources_related_files(_), do: %{}
+
+  defp validate_siren(%Ecto.Changeset{} = changeset) do
+    case get_change(changeset, :legal_owner_company_siren) do
+      nil ->
+        changeset
+
+      siren ->
+        if Transport.Companies.is_valid_siren?(siren) do
+          changeset
+        else
+          add_error(changeset, :legal_owner_company_siren, "SIREN is not valid")
+        end
+    end
+  end
 
   @spec validate_territory_mutual_exclusion(Ecto.Changeset.t()) :: Ecto.Changeset.t()
   defp validate_territory_mutual_exclusion(changeset) do

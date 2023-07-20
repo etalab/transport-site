@@ -150,7 +150,7 @@ defmodule TransportWeb.EditDatasetLiveTest do
     dataset =
       insert(:dataset,
         datagouv_id: "1234",
-        legal_owner_company_siren: siren = 123_456_789,
+        legal_owner_company_siren: siren = "552049447",
         legal_owners_aom: [],
         legal_owners_region: []
       )
@@ -166,7 +166,7 @@ defmodule TransportWeb.EditDatasetLiveTest do
       )
 
     assert render(view) =~ "Représentants légaux"
-    assert render(view) =~ siren |> Integer.to_string()
+    assert render(view) =~ siren
   end
 
   test "form inputs are persisted", %{conn: conn} do

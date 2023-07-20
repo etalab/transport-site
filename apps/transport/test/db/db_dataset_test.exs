@@ -130,6 +130,28 @@ defmodule DB.DatasetDBTest do
 
       assert {:ok, %Ecto.Changeset{changes: %{has_realtime: false}}} = changeset
     end
+
+    test "siren is validated" do
+      {{:error, _}, logs} =
+        with_log(fn ->
+          Dataset.changeset(%{
+            "datagouv_id" => "1",
+            "slug" => "slug",
+            "national_dataset" => "true",
+            "legal_owner_company_siren" => "123456789"
+          })
+        end)
+
+      assert logs =~ "error while importing dataset: %{legal_owner_company_siren:"
+
+      assert {:ok, %Ecto.Changeset{}} =
+               Dataset.changeset(%{
+                 "datagouv_id" => "1",
+                 "slug" => "slug",
+                 "national_dataset" => "true",
+                 "legal_owner_company_siren" => "552049447"
+               })
+    end
   end
 
   describe "mobility-licence" do
