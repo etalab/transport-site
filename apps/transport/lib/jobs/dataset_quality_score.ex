@@ -215,6 +215,8 @@ defmodule Transport.Jobs.DatasetAvailabilityScore do
   end
 
   @doc """
+  Goes from an availability percentage [0; 100] over the last 24h to a score [0; 1].
+
   iex> availability_percentage_to_score(99.5)
   1.0
   iex> availability_percentage_to_score(98)
@@ -234,6 +236,16 @@ defmodule Transport.Jobs.DatasetAvailabilityScore do
     end
   end
 
+  @doc """
+  Returns `DB.Resource` IDs which were unavailable over the last 24 hours.
+
+  This is used for optimization purposes. Most (> 95% ?) resources will be
+  available so we want to avoid SQL queries for those.
+
+  By identifying problematic resources quickly we can avoid a bunch of SQL queries.
+  Since the process is executed in asynchronous jobs, we use a cache to share
+  this data across jobs.
+  """
   def resource_ids_with_unavailabilities do
     Transport.Cache.API.fetch(
       to_string(__MODULE__) <> ":unavailabilities_resource_ids",
