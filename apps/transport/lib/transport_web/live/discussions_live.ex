@@ -4,11 +4,24 @@ defmodule TransportWeb.DiscussionsLive do
   """
   use Phoenix.LiveView
   import TransportWeb.Gettext
+  import TransportWeb.Endpoint
 
   def render(assigns) do
+
     ~H"""
+          <script src={TransportWeb.Endpoint.static_path(@socket, "/js/utils.js")} />
+
+      <script>
+    window.addEventListener('phx:discussions-loaded', () => {
+      console.log("yoooo");
+    })
+    </script>
+
+
     <%= if assigns[:discussions] do %>
       <div>
+
+
         <%= Phoenix.View.render(TransportWeb.DatasetView, "_discussions.html",
           discussions: @discussions,
           current_user: @current_user,
@@ -57,7 +70,8 @@ defmodule TransportWeb.DiscussionsLive do
       {:count, discussions |> length()}
     )
 
-    socket = socket |> assign(:discussions, discussions)
+    socket = socket |> assign(:discussions, discussions) |> push_event("discussions-loaded", %{})
+
     {:noreply, socket}
   end
 end
