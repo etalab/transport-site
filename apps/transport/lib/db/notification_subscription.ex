@@ -112,7 +112,8 @@ defmodule DB.NotificationSubscription do
         new_dataset: dgettext("notification_subscription", "new_dataset"),
         datasets_switching_climate_resilience_bill:
           dgettext("notification_subscription", "datasets_switching_climate_resilience_bill"),
-        daily_new_comments: dgettext("notification_subscription", "daily_new_comments")
+        daily_new_comments: dgettext("notification_subscription", "daily_new_comments"),
+        resources_changed: dgettext("notification_subscription", "resources_changed")
       },
       reason
     )
