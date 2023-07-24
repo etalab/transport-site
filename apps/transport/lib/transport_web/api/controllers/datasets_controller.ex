@@ -7,6 +7,11 @@ defmodule TransportWeb.API.DatasetController do
   alias TransportWeb.API.Schemas.{DatasetsResponse, GeoJSONResponse}
   alias Geo.{JSON, MultiPolygon}
 
+  # The default (one minute) felt a bit too high for someone doing scripted operations
+  # (have to wait during experimentations), so I lowered it a bit. It is high enough
+  # that it will still protect a lot against excessive querying.
+  @cache_ttl :timer.seconds(30)
+
   @spec open_api_operation(any) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
 
@@ -76,7 +81,7 @@ defmodule TransportWeb.API.DatasetController do
       |> Enum.map(&transform_dataset(conn, &1))
     end
 
-    data = Transport.Cache.API.fetch("api-datasets-index", comp_fn, :timer.seconds(30))
+    data = Transport.Cache.API.fetch("api-datasets-index", comp_fn, @cache_ttl)
 
     render(conn, %{data: data})
   end
@@ -165,7 +170,7 @@ defmodule TransportWeb.API.DatasetController do
         transform_dataset_with_detail(conn, dataset)
       end
 
-      data = Transport.Cache.API.fetch("api-datasets-#{id}", comp_fn, :timer.seconds(30))
+      data = Transport.Cache.API.fetch("api-datasets-#{id}", comp_fn, @cache_ttl)
 
       conn |> assign(:data, data) |> render()
     end
