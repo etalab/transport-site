@@ -76,7 +76,7 @@ defmodule TransportWeb.API.DatasetController do
       |> Enum.map(&transform_dataset(conn, &1))
     end
 
-    data = Transport.Cache.API.fetch("api-datasets-index", comp_fn)
+    data = Transport.Cache.API.fetch("api-datasets-index", comp_fn, :timer.seconds(30))
 
     render(conn, %{data: data})
   end
