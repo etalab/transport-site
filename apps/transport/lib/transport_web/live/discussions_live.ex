@@ -4,16 +4,21 @@ defmodule TransportWeb.DiscussionsLive do
   """
   use Phoenix.LiveView
   import TransportWeb.Gettext
-  import TransportWeb.Endpoint
 
   def render(assigns) do
 
     ~H"""
-          <script src={TransportWeb.Endpoint.static_path(@socket, "/js/utils.js")} />
+          <script src={TransportWeb.Endpoint.static_path("/js/utils.js")} />
 
       <script>
-    window.addEventListener('phx:discussions-loaded', () => {
-      console.log("yoooo");
+    window.addEventListener('phx:discussions-loaded', (event) => {
+      event.detail.ids.forEach(id =>
+          addSeeMore("0px",
+        "#comments-discussion-" + id,
+        "<%= dgettext("page-dataset-details", "Display more") %>",
+        "<%= dgettext("page-dataset-details", "Display less") %>"
+        )
+      )
     })
     </script>
 
@@ -70,10 +75,18 @@ defmodule TransportWeb.DiscussionsLive do
       {:count, discussions |> length()}
     )
 
-    socket = socket |> assign(:discussions, discussions) |> push_event("discussions-loaded", %{})
+    socket = socket
+      |> assign(:discussions, discussions)
+      |> push_event("discussions-loaded", %{
+        ids: discussions |> Enum.filter(&discussion_should_be_closed?/1) |> Enum.map(& &1["id"])
+        })
 
     {:noreply, socket}
   end
+
+  def discussion_should_be_closed?(%{"closed" => closed}) when not is_nil(closed), do: true
+  def discussion_should_be_closed?(%{}), do: false
+
 end
 
 defmodule TransportWeb.CountDiscussionsLive do
