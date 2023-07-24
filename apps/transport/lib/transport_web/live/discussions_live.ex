@@ -6,27 +6,23 @@ defmodule TransportWeb.DiscussionsLive do
   import TransportWeb.Gettext
 
   def render(assigns) do
-
     ~H"""
-          <script src={TransportWeb.Endpoint.static_path("/js/utils.js")} />
+    <script src={TransportWeb.Endpoint.static_path("/js/utils.js")} />
 
-      <script>
-    window.addEventListener('phx:discussions-loaded', (event) => {
-      event.detail.ids.forEach(id =>
-          addSeeMore("0px",
-        "#comments-discussion-" + id,
-        "<%= dgettext("page-dataset-details", "Display more") %>",
-        "<%= dgettext("page-dataset-details", "Display less") %>"
+    <script>
+      window.addEventListener('phx:discussions-loaded', (event) => {
+        event.detail.ids.forEach(id =>
+            addSeeMore("0px",
+          "#comments-discussion-" + id,
+          "<%= dgettext("page-dataset-details", "Display more") %>",
+          "<%= dgettext("page-dataset-details", "Display less") %>"
+          )
         )
-      )
-    })
+      })
     </script>
-
 
     <%= if assigns[:discussions] do %>
       <div>
-
-
         <%= Phoenix.View.render(TransportWeb.DatasetView, "_discussions.html",
           discussions: @discussions,
           current_user: @current_user,
@@ -75,18 +71,23 @@ defmodule TransportWeb.DiscussionsLive do
       {:count, discussions |> length()}
     )
 
-    socket = socket
+    socket =
+      socket
       |> assign(:discussions, discussions)
       |> push_event("discussions-loaded", %{
         ids: discussions |> Enum.filter(&discussion_should_be_closed?/1) |> Enum.map(& &1["id"])
-        })
+      })
 
     {:noreply, socket}
   end
 
   def discussion_should_be_closed?(%{"closed" => closed}) when not is_nil(closed), do: true
-  def discussion_should_be_closed?(%{}), do: false
 
+  def discussion_should_be_closed?(%{"discussion" => comment_list}) do
+    {:ok, latest_comment_datetime, 0} = List.first(comment_list)["posted_on"] |> DateTime.from_iso8601()
+    # A discussion of more than 2 months with no more recent comment should be closed
+    DateTime.diff(latest_comment_datetime, Timex.shift(DateTime.utc_now(), months: -2)) < 0
+  end
 end
 
 defmodule TransportWeb.CountDiscussionsLive do
