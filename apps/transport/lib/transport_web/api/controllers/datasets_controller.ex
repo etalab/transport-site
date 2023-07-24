@@ -25,46 +25,46 @@ defmodule TransportWeb.API.DatasetController do
 
   @spec datasets(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def datasets(%Plug.Conn{} = conn, _params) do
-    datasets_with_gtfs_metadata =
-      DB.Dataset.base_query()
-      |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
-      |> preload([resource: r, resource_history: rh, multi_validation: mv, metadata: m], [
-        :aom,
-        :region,
-        :communes,
-        resources: {r, resource_history: {rh, validations: {mv, metadata: m}}}
-      ])
-      |> Repo.all()
+    comp_fn = fn ->
+      datasets_with_gtfs_metadata =
+        DB.Dataset.base_query()
+        |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+        |> preload([resource: r, resource_history: rh, multi_validation: mv, metadata: m], [
+          :aom,
+          :region,
+          :communes,
+          resources: {r, resource_history: {rh, validations: {mv, metadata: m}}}
+        ])
+        |> Repo.all()
 
-    recent_limit = Transport.Jobs.GTFSRTMetadataJob.datetime_limit()
+      recent_limit = Transport.Jobs.GTFSRTMetadataJob.datetime_limit()
 
-    datasets_with_gtfs_rt_metadata =
-      DB.Dataset.base_query()
-      |> DB.Resource.join_dataset_with_resource()
-      |> DB.ResourceMetadata.join_resource_with_metadata()
-      |> where([resource: r], r.format == "gtfs-rt")
-      |> where([metadata: rm], rm.inserted_at > ^recent_limit)
-      |> preload([resource: r, metadata: m], resources: {r, resource_metadata: m})
-      |> DB.Repo.all()
+      datasets_with_gtfs_rt_metadata =
+        DB.Dataset.base_query()
+        |> DB.Resource.join_dataset_with_resource()
+        |> DB.ResourceMetadata.join_resource_with_metadata()
+        |> where([resource: r], r.format == "gtfs-rt")
+        |> where([metadata: rm], rm.inserted_at > ^recent_limit)
+        |> preload([resource: r, metadata: m], resources: {r, resource_metadata: m})
+        |> DB.Repo.all()
 
-    datasets_with_metadata =
-      datasets_with_gtfs_metadata
-      |> Kernel.++(datasets_with_gtfs_rt_metadata)
-      |> Enum.group_by(& &1.id, & &1.resources)
-      |> Enum.map(fn {dataset_id, resources} -> {dataset_id, List.flatten(resources)} end)
-      |> Enum.into(%{})
+      datasets_with_metadata =
+        datasets_with_gtfs_metadata
+        |> Kernel.++(datasets_with_gtfs_rt_metadata)
+        |> Enum.group_by(& &1.id, & &1.resources)
+        |> Enum.map(fn {dataset_id, resources} -> {dataset_id, List.flatten(resources)} end)
+        |> Enum.into(%{})
 
-    existing_ids =
-      datasets_with_metadata
-      |> Enum.map(fn {dataset_id, resources} ->
-        {dataset_id,
-         resources
-         |> Enum.map(fn resource -> {resource.id, resource} end)
-         |> Enum.into(%{})}
-      end)
-      |> Enum.into(%{})
+      existing_ids =
+        datasets_with_metadata
+        |> Enum.map(fn {dataset_id, resources} ->
+          {dataset_id,
+           resources
+           |> Enum.map(fn resource -> {resource.id, resource} end)
+           |> Enum.into(%{})}
+        end)
+        |> Enum.into(%{})
 
-    data =
       %{}
       |> Dataset.list_datasets()
       |> preload([:resources, :aom, :region, :communes])
@@ -74,6 +74,9 @@ defmodule TransportWeb.API.DatasetController do
         add_enriched_resources_to_dataset(dataset, enriched_dataset)
       end)
       |> Enum.map(&transform_dataset(conn, &1))
+    end
+
+    data = Transport.Cache.API.fetch("api-datasets-index", comp_fn)
 
     render(conn, %{data: data})
   end
