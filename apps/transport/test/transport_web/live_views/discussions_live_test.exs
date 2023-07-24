@@ -84,18 +84,17 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
   end
 
   test "a discussion with an old discussion should be displayed as closed" do
-    # Note : dans l’idéal j’aurais bien aimé pouvoir mocker DateTime.utc_now() mais je n’ai pas trouvé comment faire
     discussion = %{
       "closed" => nil,
       "discussion" => [
         %{
-          "posted_on" => Timex.shift(DateTime.utc_now(), months: -3) |> DateTime.to_iso8601()
+          "posted_on" => iso8601_string_x_months_ago(3)
         },
         %{
-          "posted_on" => Timex.shift(DateTime.utc_now(), months: -4) |> DateTime.to_iso8601()
+          "posted_on" => iso8601_string_x_months_ago(4)
         },
         %{
-          "posted_on" => Timex.shift(DateTime.utc_now(), months: -5) |> DateTime.to_iso8601()
+          "posted_on" => iso8601_string_x_months_ago(5)
         }
       ]
     }
@@ -108,18 +107,22 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
       "closed" => nil,
       "discussion" => [
         %{
-          "posted_on" => Timex.shift(DateTime.utc_now(), months: -1) |> DateTime.to_iso8601()
+          "posted_on" => iso8601_string_x_months_ago(1)
         },
         %{
-          "posted_on" => Timex.shift(DateTime.utc_now(), months: -4) |> DateTime.to_iso8601()
+          "posted_on" => iso8601_string_x_months_ago(4)
         },
         %{
-          "posted_on" => Timex.shift(DateTime.utc_now(), months: -5) |> DateTime.to_iso8601()
+          "posted_on" => iso8601_string_x_months_ago(5)
         }
       ]
     }
 
     refute TransportWeb.DiscussionsLive.discussion_should_be_closed?(discussion)
+  end
+
+  defp iso8601_string_x_months_ago(x) do
+    DateTime.utc_now() |> Timex.shift(months: -x) |> DateTime.to_iso8601()
   end
 
   defp discussions do
