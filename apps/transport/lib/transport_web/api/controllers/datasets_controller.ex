@@ -73,17 +73,17 @@ defmodule TransportWeb.API.DatasetController do
     }
 
   @spec by_id(Plug.Conn.t(), map) :: Plug.Conn.t()
-  def by_id(%Plug.Conn{} = conn, %{"id" => id}) do
+  def by_id(%Plug.Conn{} = conn, %{"id" => datagouv_id}) do
     dataset =
       Dataset
       |> preload([:resources, :aom, :region, :communes])
-      |> Repo.get_by(datagouv_id: id)
+      |> Repo.get_by(datagouv_id: datagouv_id)
 
     if is_nil(dataset) do
       conn |> put_status(404) |> render(%{errors: "dataset not found"})
     else
       comp_fn = fn -> prepare_dataset_detail_data(conn, dataset) end
-      data = Transport.Cache.API.fetch("api-datasets-#{id}", comp_fn, @cache_ttl)
+      data = Transport.Cache.API.fetch("api-datasets-#{datagouv_id}", comp_fn, @cache_ttl)
 
       conn |> assign(:data, data) |> render()
     end
