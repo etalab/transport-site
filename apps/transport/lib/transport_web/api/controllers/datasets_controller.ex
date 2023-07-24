@@ -309,7 +309,7 @@ defmodule TransportWeb.API.DatasetController do
     |> Enum.map(fn c -> %{"name" => c.nom, "insee" => c.insee} end)
   end
 
-  defp prepare_datasets_index_data(conn) do
+  defp prepare_datasets_index_data(%Plug.Conn{} = conn) do
     datasets_with_gtfs_metadata =
       DB.Dataset.base_query()
       |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
@@ -360,7 +360,7 @@ defmodule TransportWeb.API.DatasetController do
     |> Enum.map(&transform_dataset(conn, &1))
   end
 
-  defp prepare_dataset_detail_data(conn, %DB.Dataset{} = dataset) do
+  defp prepare_dataset_detail_data(%Plug.Conn{} = conn, %DB.Dataset{} = dataset) do
     gtfs_resources_with_metadata =
       DB.Resource.base_query()
       |> DB.ResourceHistory.join_resource_with_latest_resource_history()
