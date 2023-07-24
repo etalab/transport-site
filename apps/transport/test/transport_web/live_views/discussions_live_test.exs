@@ -78,6 +78,50 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
     assert render(view) =~ "(10)"
   end
 
+  test "a closed discussion should be displayed as closed" do
+    discussion = %{"closed" => "2021-09-10T16:14:53.091000+00:00"}
+    assert TransportWeb.DiscussionsLive.discussion_should_be_closed?(discussion)
+  end
+
+  test "a discussion with an old discussion should be displayed as closed" do
+    # Note : dans l’idéal j’aurais bien aimé pouvoir mocker DateTime.utc_now() mais je n’ai pas trouvé comment faire
+    discussion = %{
+      "closed" => nil,
+      "discussion" => [
+        %{
+          "posted_on" => Timex.shift(DateTime.utc_now(), months: -3) |> DateTime.to_iso8601()
+        },
+        %{
+          "posted_on" => Timex.shift(DateTime.utc_now(), months: -4) |> DateTime.to_iso8601()
+        },
+        %{
+          "posted_on" => Timex.shift(DateTime.utc_now(), months: -5) |> DateTime.to_iso8601()
+        }
+      ]
+    }
+
+    assert TransportWeb.DiscussionsLive.discussion_should_be_closed?(discussion)
+  end
+
+  test "a discussion with a newer discussion should not be displayed as closed" do
+    discussion = %{
+      "closed" => nil,
+      "discussion" => [
+        %{
+          "posted_on" => Timex.shift(DateTime.utc_now(), months: -1) |> DateTime.to_iso8601()
+        },
+        %{
+          "posted_on" => Timex.shift(DateTime.utc_now(), months: -4) |> DateTime.to_iso8601()
+        },
+        %{
+          "posted_on" => Timex.shift(DateTime.utc_now(), months: -5) |> DateTime.to_iso8601()
+        }
+      ]
+    }
+
+    refute TransportWeb.DiscussionsLive.discussion_should_be_closed?(discussion)
+  end
+
   defp discussions do
     [
       %{
