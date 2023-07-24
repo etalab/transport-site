@@ -127,41 +127,46 @@ defmodule TransportWeb.API.DatasetController do
     if is_nil(dataset) do
       conn |> put_status(404) |> render(%{errors: "dataset not found"})
     else
-      gtfs_resources_with_metadata =
-        DB.Resource.base_query()
-        |> DB.ResourceHistory.join_resource_with_latest_resource_history()
-        |> DB.MultiValidation.join_resource_history_with_latest_validation(
-          Transport.Validators.GTFSTransport.validator_name()
-        )
-        |> DB.ResourceMetadata.join_validation_with_metadata()
-        |> preload([resource_history: rh, multi_validation: mv, metadata: m],
-          resource_history: {rh, validations: {mv, metadata: m}}
-        )
-        |> where([resource: r], r.dataset_id == ^dataset.id)
-        |> select([resource: r], {r.id, r})
-        |> DB.Repo.all()
+      comp_fn = fn ->
+        gtfs_resources_with_metadata =
+          DB.Resource.base_query()
+          |> DB.ResourceHistory.join_resource_with_latest_resource_history()
+          |> DB.MultiValidation.join_resource_history_with_latest_validation(
+            Transport.Validators.GTFSTransport.validator_name()
+          )
+          |> DB.ResourceMetadata.join_validation_with_metadata()
+          |> preload([resource_history: rh, multi_validation: mv, metadata: m],
+            resource_history: {rh, validations: {mv, metadata: m}}
+          )
+          |> where([resource: r], r.dataset_id == ^dataset.id)
+          |> select([resource: r], {r.id, r})
+          |> DB.Repo.all()
 
-      recent_limit = Transport.Jobs.GTFSRTMetadataJob.datetime_limit()
+        recent_limit = Transport.Jobs.GTFSRTMetadataJob.datetime_limit()
 
-      gtfs_rt_resources_with_metadata =
-        DB.Resource.base_query()
-        |> DB.ResourceMetadata.join_resource_with_metadata()
-        |> where([metadata: rm], rm.inserted_at > ^recent_limit)
-        |> where([resource: r], r.dataset_id == ^dataset.id)
-        |> preload([metadata: m], resource_metadata: m)
-        |> select([resource: r], {r.id, r})
-        |> DB.Repo.all()
+        gtfs_rt_resources_with_metadata =
+          DB.Resource.base_query()
+          |> DB.ResourceMetadata.join_resource_with_metadata()
+          |> where([metadata: rm], rm.inserted_at > ^recent_limit)
+          |> where([resource: r], r.dataset_id == ^dataset.id)
+          |> preload([metadata: m], resource_metadata: m)
+          |> select([resource: r], {r.id, r})
+          |> DB.Repo.all()
 
-      resources_with_metadata = Enum.into(gtfs_resources_with_metadata ++ gtfs_rt_resources_with_metadata, %{})
+        resources_with_metadata = Enum.into(gtfs_resources_with_metadata ++ gtfs_rt_resources_with_metadata, %{})
 
-      enriched_resources =
-        dataset
-        |> Dataset.official_resources()
-        |> Enum.map(fn r -> resources_with_metadata |> Map.get(r.id, r) end)
+        enriched_resources =
+          dataset
+          |> Dataset.official_resources()
+          |> Enum.map(fn r -> resources_with_metadata |> Map.get(r.id, r) end)
 
-      dataset = dataset |> Map.put(:resources, enriched_resources)
+        dataset = dataset |> Map.put(:resources, enriched_resources)
 
-      data = transform_dataset_with_detail(conn, dataset)
+        transform_dataset_with_detail(conn, dataset)
+      end
+
+      data = Transport.Cache.API.fetch("api-datasets-#{id}", comp_fn, :timer.seconds(30))
+
       conn |> assign(:data, data) |> render()
     end
   end
