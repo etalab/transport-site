@@ -78,6 +78,53 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
     assert render(view) =~ "(10)"
   end
 
+  test "a closed discussion should be displayed as closed" do
+    discussion = %{"closed" => "2021-09-10T16:14:53.091000+00:00"}
+    assert TransportWeb.DiscussionsLive.discussion_should_be_closed?(discussion)
+  end
+
+  test "a discussion with an old discussion should be displayed as closed" do
+    discussion = %{
+      "closed" => nil,
+      "discussion" => [
+        %{
+          "posted_on" => iso8601_string_x_months_ago(3)
+        },
+        %{
+          "posted_on" => iso8601_string_x_months_ago(4)
+        },
+        %{
+          "posted_on" => iso8601_string_x_months_ago(5)
+        }
+      ]
+    }
+
+    assert TransportWeb.DiscussionsLive.discussion_should_be_closed?(discussion)
+  end
+
+  test "a discussion with a newer discussion should not be displayed as closed" do
+    discussion = %{
+      "closed" => nil,
+      "discussion" => [
+        %{
+          "posted_on" => iso8601_string_x_months_ago(1)
+        },
+        %{
+          "posted_on" => iso8601_string_x_months_ago(4)
+        },
+        %{
+          "posted_on" => iso8601_string_x_months_ago(5)
+        }
+      ]
+    }
+
+    refute TransportWeb.DiscussionsLive.discussion_should_be_closed?(discussion)
+  end
+
+  defp iso8601_string_x_months_ago(x) do
+    DateTime.utc_now() |> Timex.shift(months: -x) |> DateTime.to_iso8601()
+  end
+
   defp discussions do
     [
       %{
