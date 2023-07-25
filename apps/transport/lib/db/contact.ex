@@ -36,8 +36,11 @@ defmodule DB.Contact do
   def base_query, do: from(c in __MODULE__, as: :contact)
 
   def search(%{"q" => q}) do
+    ilike_search = "%#{q}%"
+
     base_query()
-    |> where([contact: c], c.organization == ^q)
+    |> where([contact: c], ilike(c.organization, ^ilike_search))
+    |> or_where([contact: c], fragment("unaccent(?) ilike unaccent(?)", c.last_name, ^ilike_search))
     |> or_where(
       [contact: c],
       fragment(

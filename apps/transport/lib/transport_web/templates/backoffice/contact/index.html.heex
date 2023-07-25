@@ -5,12 +5,14 @@
     <%= search_input(f, :q,
       id: "backoffice_search",
       value: assigns[:q] || "",
-      list: "existing_organizations",
+      list: "search_datalist",
       placeholder: dgettext("contact", "Find contacts")
     ) %>
-    <datalist id="existing_organizations">
-      <%= for org <- @existing_organizations do %>
-        <option value={org} />
+    <datalist id="search_datalist">
+      <%= for value <- @search_datalist do %>
+        <% unaccent_value = unaccent(value) %>
+        <option value={value} />
+        <option :if={value != unaccent_value} value={value}><%= unaccent_value %></option>
       <% end %>
     </datalist>
     <button type="submit" class="button backoffice_search_button"><i class="fa fa-search"></i></button>

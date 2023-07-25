@@ -25,8 +25,9 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
         |> get(backoffice_contact_path(conn, :index))
         |> html_response(200)
 
-      assert content =~ "Foo"
-      assert content =~ "Bar"
+      table_content = content |> Floki.parse_document!() |> Floki.find("table") |> Floki.text()
+      assert table_content =~ "Foo"
+      assert table_content =~ "Bar"
 
       content =
         conn
@@ -34,8 +35,9 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
         |> get(backoffice_contact_path(conn, :index, %{"q" => "foo"}))
         |> html_response(200)
 
-      assert content =~ "Foo"
-      refute content =~ "Bar"
+      table_content = content |> Floki.parse_document!() |> Floki.find("table") |> Floki.text()
+      assert table_content =~ "Foo"
+      refute table_content =~ "Bar"
     end
   end
 

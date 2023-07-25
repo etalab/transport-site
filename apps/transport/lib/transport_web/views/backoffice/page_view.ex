@@ -64,6 +64,28 @@ defmodule TransportWeb.Backoffice.PageView do
     end
   end
 
+  @doc """
+  Replaces accented letters by their regular versions, suitable only for FR languages.
+
+  iex> unaccent("Et Ça sera sa moitié.")
+  "Et Ca sera sa moitie."
+  """
+  def unaccent(value) do
+    replace_fn = fn l ->
+      cond do
+        l in ["é", "è"] -> "e"
+        l in ["É", "È"] -> "E"
+        l == "à" -> "a"
+        l == "À" -> "A"
+        l == "ç" -> "c"
+        l == "Ç" -> "C"
+        true -> l
+      end
+    end
+
+    String.replace(value, ["é", "É", "è", "È", "à", "À", "ç", "Ç"], replace_fn)
+  end
+
   def notification_subscription_contact(%DB.NotificationSubscription{contact: %DB.Contact{} = contact}) do
     "#{DB.Contact.display_name(contact)} — #{contact.job_title} (#{contact.organization})"
   end
