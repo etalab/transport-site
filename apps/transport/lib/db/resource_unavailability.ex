@@ -122,6 +122,6 @@ defmodule DB.ResourceUnavailability do
   end
 
   defp days_ago(days) when days >= 0 do
-    DateTime.utc_now() |> DateTime.add(-days * 24 * 60 * 60, :second) |> DateTime.truncate(:second)
+    DateTime.utc_now() |> DateTime.add(-days, :day) |> DateTime.truncate(:second)
   end
 end
