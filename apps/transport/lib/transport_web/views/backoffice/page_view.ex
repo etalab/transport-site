@@ -65,29 +65,17 @@ defmodule TransportWeb.Backoffice.PageView do
   end
 
   @doc """
-  Replaces accented letters by their regular versions, suitable only for FR languages.
+  Replaces accented letters by their regular versions.
+
+  From https://stackoverflow.com/a/68724296
 
   iex> unaccent("Et Ça sera sa moitié.")
   "Et Ca sera sa moitie."
   """
   def unaccent(value) do
-    matches = ["é", "è", "à", "ç", "ù", "ë"]
-    String.replace(value, matches ++ Enum.map(matches, &String.upcase/1), &replace_accent/1)
-  end
-
-  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
-  defp replace_accent(l) do
-    cond do
-      l in ["é", "è", "ë"] -> "e"
-      l in ["É", "È", "Ë"] -> "E"
-      l == "à" -> "a"
-      l == "À" -> "A"
-      l == "ç" -> "c"
-      l == "Ç" -> "C"
-      l == "ù" -> "u"
-      l == "Ù" -> "U"
-      true -> l
-    end
+    ~R<\p{Mn}>u
+    |> Regex.replace(value |> :unicode.characters_to_nfd_binary(), "")
+    |> :unicode.characters_to_nfc_binary()
   end
 
   def notification_subscription_contact(%DB.NotificationSubscription{contact: %DB.Contact{} = contact}) do
