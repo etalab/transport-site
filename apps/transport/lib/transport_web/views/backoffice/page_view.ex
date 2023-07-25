@@ -73,16 +73,14 @@ defmodule TransportWeb.Backoffice.PageView do
   def unaccent(value) do
     replace_fn = fn l ->
       cond do
-        l in ["é", "è"] -> "e"
-        l in ["É", "È"] -> "E"
+        l in ["é", "è", "ë"] -> "e"
+        l in ["É", "È", "Ë"] -> "E"
         l == "à" -> "a"
         l == "À" -> "A"
         l == "ç" -> "c"
         l == "Ç" -> "C"
         l == "ù" -> "u"
         l == "Ù" -> "U"
-        l == "ë" -> "e"
-        l == "Ë" -> "E"
         true -> l
       end
     end
