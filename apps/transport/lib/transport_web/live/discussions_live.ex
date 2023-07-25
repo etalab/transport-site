@@ -82,11 +82,15 @@ defmodule TransportWeb.DiscussionsLive do
     {:noreply, socket}
   end
 
+  @doc """
+    Decides if a discussion coming from data.gouv.fr API should be dislayed as closed for a less cluttered UI
+    A discussion is closed if it has a "closed" key with a value (same behaviour than on data.gouv.fr)
+    or if the last comment inside the discussion is older than 2 months (because people often forget to close discussions)
+  """
   def discussion_should_be_closed?(%{"closed" => closed}) when not is_nil(closed), do: true
 
   def discussion_should_be_closed?(%{"discussion" => comment_list}) do
     {:ok, latest_comment_datetime, 0} = List.first(comment_list)["posted_on"] |> DateTime.from_iso8601()
-    # A discussion of more than 2 months with no more recent comment should be closed
     DateTime.utc_now() |> Timex.shift(months: -2) |> DateTime.compare(latest_comment_datetime) == :gt
   end
 end
