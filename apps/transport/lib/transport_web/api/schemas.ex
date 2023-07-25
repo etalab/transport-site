@@ -342,7 +342,11 @@ defmodule TransportWeb.API.Schemas do
       description: "A dataset is a composed of one or more resources",
       type: :object,
       properties: %{
-        updated: %Schema{type: :string, format: :"date-time", description: "The last update of any resource of that dataset"},
+        updated: %Schema{
+          type: :string,
+          format: :"date-time",
+          description: "The last update of any resource of that dataset"
+        },
         title: %Schema{type: :string},
         licence: %Schema{type: :string, description: "The licence of the dataset"},
         created_at: %Schema{type: :string, format: :date, description: "Date of creation of the dataset"},
