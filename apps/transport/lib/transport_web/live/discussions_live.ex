@@ -12,10 +12,11 @@ defmodule TransportWeb.DiscussionsLive do
     <script>
       window.addEventListener('phx:discussions-loaded', (event) => {
         event.detail.ids.forEach(id =>
-            addSeeMore("0px",
-          "#comments-discussion-" + id,
-          "<%= dgettext("page-dataset-details", "Display more") %>",
-          "<%= dgettext("page-dataset-details", "Display less") %>"
+          addSeeMore(
+            "0px",
+            "#comments-discussion-" + id,
+            "<%= dgettext("page-dataset-details", "Display more") %>",
+            "<%= dgettext("page-dataset-details", "Display less") %>"
           )
         )
       })
