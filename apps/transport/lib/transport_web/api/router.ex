@@ -60,7 +60,7 @@ defmodule TransportWeb.API.Router do
     do: %{
       info: %{
         version: "1.0",
-        title: "transport.data.gouv.fr API",
+        title: "transport.data.gouv.fr API"
       }
     }
 end

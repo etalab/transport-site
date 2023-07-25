@@ -16,7 +16,6 @@ defmodule TransportWeb.API.Spec do
           name: "API email support",
           email: Application.fetch_env!(:transport, :contact_email)
         }
-
       },
       paths: Paths.from_router(TransportWeb.API.Router)
     }
