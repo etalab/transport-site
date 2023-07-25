@@ -79,11 +79,17 @@ defmodule TransportWeb.Backoffice.PageView do
         l == "À" -> "A"
         l == "ç" -> "c"
         l == "Ç" -> "C"
+        l == "ù" -> "u"
+        l == "Ù" -> "U"
+        l == "ë" -> "e"
+        l == "Ë" -> "E"
         true -> l
       end
     end
 
-    String.replace(value, ["é", "É", "è", "È", "à", "À", "ç", "Ç"], replace_fn)
+    matches = ["é", "è", "à", "ç", "ù", "ë"]
+
+    String.replace(value, matches ++ Enum.map(matches, &String.upcase/1), replace_fn)
   end
 
   def notification_subscription_contact(%DB.NotificationSubscription{contact: %DB.Contact{} = contact}) do
