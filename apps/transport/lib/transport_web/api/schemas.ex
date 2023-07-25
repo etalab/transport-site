@@ -215,14 +215,11 @@ defmodule TransportWeb.API.Schemas do
 
     OpenApiSpex.schema(%{
       title: "AOM",
-      description: "AOM object",
+      description: "AOM object (DEPRECATED, only there for retrocompatibility, use covered_area instead)",
       type: :object,
       properties: %{
         siren: %Schema{type: :string},
-        nom: %Schema{type: :string},
-        insee_commune_principale: %Schema{type: :string},
-        forme_juridique: %Schema{type: :string},
-        departement: %Schema{type: :string}
+        name: %Schema{type: :string}
       }
     })
   end
@@ -349,7 +346,7 @@ defmodule TransportWeb.API.Schemas do
         name: %Schema{type: :string},
         licence: %Schema{type: :string, description: "The licence of the dataset"},
         created_at: %Schema{type: :string, format: :date, description: "Date of creation of the dataset"},
-        aom: %Schema{type: :string, description: "Transit authority responsible of this authority"},
+        aom: AOMResponse.schema(),
         resources: %Schema{
           type: :array,
           description: "All the resources (files) associated with the dataset",
