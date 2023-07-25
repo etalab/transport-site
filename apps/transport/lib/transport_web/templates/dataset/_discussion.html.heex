@@ -1,5 +1,11 @@
 <div class="discussion" id={"discussion-#{@discussion["id"]}"}>
-  <h4><i class="icon fas fa-comments"></i><%= @discussion["title"] %></h4>
+  <div class="discussion-title">
+    <h4><i class="icon fas fa-comments"></i><%= @discussion["title"] %></h4>
+
+    <span class="discussion-date">
+      <%= DateTimeDisplay.format_datetime_to_paris(@discussion["created"], @locale) %>
+    </span>
+  </div>
 
   <div id={"comments-discussion-#{@discussion["id"]}"}>
     <%= for comment <- @discussion["discussion"] do %>

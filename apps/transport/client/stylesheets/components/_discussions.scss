@@ -1,4 +1,14 @@
 .discussion {
+  margin-bottom: 2vw;
+
+  .discussion-title {
+    display: flex;
+
+    .discussion-date {
+      color: var(--darker-grey);
+      margin-left: 1vw;
+    }
+  }
   .discussion-comment {
     padding-left: 1vw;
     display: flex;
