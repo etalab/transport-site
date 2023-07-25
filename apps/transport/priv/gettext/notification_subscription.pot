@@ -38,3 +38,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "dataset_now_on_nap"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "resources_changed"
+msgstr ""
