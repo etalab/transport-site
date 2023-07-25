@@ -24,6 +24,8 @@ defmodule Transport.Jobs.DatasetQualityScore do
   use Oban.Worker, unique: [period: 60 * 60 * 20], max_attempts: 1
   import Ecto.Query
 
+  @type compute_score_fn :: (integer() -> %{score: nil | float(), details: map()})
+
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"dataset_id" => dataset_id}}) do
     Transport.Jobs.DatasetFreshnessScore.save_freshness_score(dataset_id)
@@ -104,17 +106,15 @@ defmodule Transport.Jobs.DatasetQualityScore do
 
   @spec dataset_resources(integer()) :: [DB.Resource.t()]
   def dataset_resources(dataset_id) do
-    DB.Dataset.base_query()
-    |> DB.Resource.join_dataset_with_resource()
-    |> where([dataset: d, resource: r], d.id == ^dataset_id and not r.is_community_resource)
-    |> select([resource: r], r)
-    |> DB.Repo.all()
+    DB.Dataset
+    |> DB.Repo.get!(dataset_id)
+    |> DB.Repo.preload(:resources)
+    |> DB.Dataset.official_resources()
   end
 
-  @spec save_dataset_score(integer(), (integer() -> %{score: nil | float(), details: map()}), atom()) ::
-          DB.DatasetScore.t() | nil
-  def save_dataset_score(dataset_id, compute_fn, topic) do
-    %{score: score, details: details} = dataset_score(dataset_id, compute_fn, topic)
+  @spec save_dataset_score(integer(), atom()) :: DB.DatasetScore.t() | nil
+  def save_dataset_score(dataset_id, topic) do
+    %{score: score, details: details} = dataset_score(dataset_id, topic)
 
     %DB.DatasetScore{}
     |> DB.DatasetScore.changeset(%{
@@ -138,11 +138,9 @@ defmodule Transport.Jobs.DatasetQualityScore do
     end
   end
 
-  @spec dataset_score(integer(), (integer() -> %{score: nil | float(), details: map()}), atom()) :: %{
-          score: float | nil,
-          details: map()
-        }
-  def dataset_score(dataset_id, compute_fn, topic) do
+  @spec dataset_score(integer(), atom()) :: %{score: float | nil, details: map()}
+  def dataset_score(dataset_id, topic) do
+    compute_fn = compute_fn_for_topic(topic)
     %{score: today_score, details: details} = compute_fn.(dataset_id)
 
     computed_score =
@@ -155,6 +153,21 @@ defmodule Transport.Jobs.DatasetQualityScore do
       end
 
     %{score: computed_score, details: build_details(details, last_score)}
+  end
+
+  @doc """
+  iex> DB.DatasetScore |> Ecto.Enum.values(:topic) |> Enum.each(&compute_fn_for_topic/1)
+  :ok
+  """
+  @spec compute_fn_for_topic(atom()) :: compute_score_fn()
+  def compute_fn_for_topic(topic) do
+    Map.fetch!(
+      %{
+        availability: &Transport.Jobs.DatasetAvailabilityScore.current_dataset_availability/1,
+        freshness: &Transport.Jobs.DatasetFreshnessScore.current_dataset_freshness/1
+      },
+      topic
+    )
   end
 end
 
@@ -181,7 +194,7 @@ defmodule Transport.Jobs.DatasetAvailabilityScore do
   The rationale is that the entire dataset may be unusable if a single resource cannot be fetched.
   """
   def save_availability_score(dataset_id) do
-    save_dataset_score(dataset_id, &current_dataset_availability/1, :availability)
+    save_dataset_score(dataset_id, :availability)
   end
 
   @spec current_dataset_availability(integer()) :: %{score: float | nil, details: map()}
@@ -285,7 +298,7 @@ defmodule Transport.Jobs.DatasetFreshnessScore do
   passes. To have a good score, a dataset must have up-to-date resources every day.
   """
   def save_freshness_score(dataset_id) do
-    save_dataset_score(dataset_id, &current_dataset_freshness/1, :freshness)
+    save_dataset_score(dataset_id, :freshness)
   end
 
   @spec current_dataset_freshness(integer()) :: %{score: float | nil, details: map()}
