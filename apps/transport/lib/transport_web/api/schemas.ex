@@ -247,7 +247,7 @@ defmodule TransportWeb.API.Schemas do
         url: %Schema{type: :string, description: "Stable URL of the file"},
         original_url: %Schema{type: :string, description: "Direct URL of the file"},
         title: %Schema{type: :string, description: "Title of the resource"},
-        updated: %Schema{type: :string, description: "Last update date-time"},
+        updated: %Schema{type: :string, format: "date-time", description: "Last update date-time"},
         end_calendar_validity: %Schema{
           type: :string,
           description:
