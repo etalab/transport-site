@@ -71,23 +71,23 @@ defmodule TransportWeb.Backoffice.PageView do
   "Et Ca sera sa moitie."
   """
   def unaccent(value) do
-    replace_fn = fn l ->
-      cond do
-        l in ["é", "è", "ë"] -> "e"
-        l in ["É", "È", "Ë"] -> "E"
-        l == "à" -> "a"
-        l == "À" -> "A"
-        l == "ç" -> "c"
-        l == "Ç" -> "C"
-        l == "ù" -> "u"
-        l == "Ù" -> "U"
-        true -> l
-      end
-    end
-
     matches = ["é", "è", "à", "ç", "ù", "ë"]
+    String.replace(value, matches ++ Enum.map(matches, &String.upcase/1), &replace_accent/1)
+  end
 
-    String.replace(value, matches ++ Enum.map(matches, &String.upcase/1), replace_fn)
+  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
+  defp replace_accent(l) do
+    cond do
+      l in ["é", "è", "ë"] -> "e"
+      l in ["É", "È", "Ë"] -> "E"
+      l == "à" -> "a"
+      l == "À" -> "A"
+      l == "ç" -> "c"
+      l == "Ç" -> "C"
+      l == "ù" -> "u"
+      l == "Ù" -> "U"
+      true -> l
+    end
   end
 
   def notification_subscription_contact(%DB.NotificationSubscription{contact: %DB.Contact{} = contact}) do
