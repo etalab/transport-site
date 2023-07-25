@@ -339,11 +339,11 @@ defmodule TransportWeb.API.Schemas do
 
     OpenApiSpex.schema(%{
       title: "Dataset",
-      description: "A dataset is a composed of at least one GTFS resource",
+      description: "A dataset is a composed of one or more resources",
       type: :object,
       properties: %{
         updated: %Schema{type: :string, description: "The last update of any resource of that dataset"},
-        name: %Schema{type: :string},
+        title: %Schema{type: :string},
         licence: %Schema{type: :string, description: "The licence of the dataset"},
         created_at: %Schema{type: :string, format: :date, description: "Date of creation of the dataset"},
         aom: AOMResponse.schema(),
