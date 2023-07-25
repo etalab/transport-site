@@ -57,8 +57,8 @@ defmodule TransportWeb.Backoffice.ContactController do
 
   defp render_form(%Plug.Conn{assigns: assigns} = conn) do
     conn
-    |> assign(:existing_organizations, existing_organizations())
-    |> assign(:existing_job_titles, existing_job_titles())
+    |> assign(:existing_organizations, contact_values_for_field(:organization))
+    |> assign(:existing_job_titles, contact_values_for_field(:job_title))
     |> assign(:datasets_datalist, datasets_datalist())
     |> assign(:notification_subscriptions, notification_subscriptions_for_contact(Map.get(assigns, :contact_id)))
     |> render("form.html")
@@ -73,22 +73,21 @@ defmodule TransportWeb.Backoffice.ContactController do
 
     conn
     |> assign(:contacts, paginated_contacts)
-    |> assign(:existing_organizations, existing_organizations())
+    |> assign(:search_datalist, search_datalist())
     |> render("index.html")
   end
 
-  defp existing_organizations do
-    DB.Contact.base_query()
-    |> select([contact: c], c.organization)
-    |> order_by([contact: c], asc: c.organization)
-    |> distinct(true)
-    |> DB.Repo.all()
+  defp search_datalist do
+    :organization
+    |> contact_values_for_field()
+    |> Enum.concat(contact_values_for_field(:last_name))
+    |> Enum.sort()
   end
 
-  defp existing_job_titles do
+  defp contact_values_for_field(field) when is_atom(field) do
     DB.Contact.base_query()
-    |> select([contact: c], c.job_title)
-    |> order_by([contact: c], asc: c.job_title)
+    |> select([contact: c], field(c, ^field))
+    |> order_by([contact: c], asc: ^field)
     |> distinct(true)
     |> DB.Repo.all()
   end

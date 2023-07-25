@@ -36,8 +36,11 @@ defmodule DB.Contact do
   def base_query, do: from(c in __MODULE__, as: :contact)
 
   def search(%{"q" => q}) do
+    ilike_search = "%#{safe_like_pattern(q)}%"
+
     base_query()
-    |> where([contact: c], c.organization == ^q)
+    |> where([contact: c], ilike(c.organization, ^ilike_search))
+    |> or_where([contact: c], fragment("unaccent(?) ilike unaccent(?)", c.last_name, ^ilike_search))
     |> or_where(
       [contact: c],
       fragment(
@@ -51,6 +54,17 @@ defmodule DB.Contact do
   end
 
   def search(%{}), do: base_query()
+
+  @doc """
+  Make sure a string that will be passed to `like` or `ilike` is safe.
+
+  See https://elixirforum.com/t/secure-ecto-like-queries/31265
+  iex> safe_like_pattern("I love %like_injections%\\!")
+  "I love likeinjections!"
+  """
+  def safe_like_pattern(value) do
+    String.replace(value, ["\\", "%", "_"], "")
+  end
 
   def insert!(%{} = fields), do: %__MODULE__{} |> changeset(fields) |> DB.Repo.insert!()
 

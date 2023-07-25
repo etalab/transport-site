@@ -90,7 +90,12 @@
         <% end %>
         <datalist id="contacts_datalist">
           <%= for contact <- @contacts_datalist do %>
-            <option value={contact.id}><%= DB.Contact.display_name(contact) %> (<%= contact.organization %>)</option>
+            <% display_name = DB.Contact.display_name(contact) %>
+            <% unaccent_display_name = unaccent(display_name) %>
+            <option value={contact.id}><%= display_name %> (<%= contact.organization %>)</option>
+            <option :if={display_name != unaccent_display_name} value={contact.id}>
+              <%= unaccent_display_name %> (<%= contact.organization %>)
+            </option>
           <% end %>
         </datalist>
         <%= label f, :reasons, class: "pt-12" do %>
