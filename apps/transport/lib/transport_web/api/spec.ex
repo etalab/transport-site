@@ -7,9 +7,16 @@ defmodule TransportWeb.API.Spec do
   @spec spec :: OpenApiSpex.OpenApi.t()
   def spec do
     %OpenApi{
+      # # https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#info-object
       info: %Info{
-        title: "Transport.data.gouv.fr API",
-        version: "1.0"
+        title: "transport.data.gouv.fr API",
+        version: "1.0",
+        description: ~S(Extra <a href="https://doc.transport.data.gouv.fr/reutilisateurs/apis/">documentation</a>),
+        contact: %{
+          name: "API email support",
+          email: Application.fetch_env!(:transport, :contact_email)
+        }
+
       },
       paths: Paths.from_router(TransportWeb.API.Router)
     }
