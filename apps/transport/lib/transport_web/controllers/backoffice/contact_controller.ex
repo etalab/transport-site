@@ -77,7 +77,7 @@ defmodule TransportWeb.Backoffice.ContactController do
     |> render("index.html")
   end
 
-  defp search_datalist do
+  def search_datalist do
     :organization
     |> contact_values_for_field()
     |> Enum.concat(contact_values_for_field(:last_name))
@@ -87,6 +87,7 @@ defmodule TransportWeb.Backoffice.ContactController do
   defp contact_values_for_field(field) when is_atom(field) do
     DB.Contact.base_query()
     |> select([contact: c], field(c, ^field))
+    |> where([contact: c], not is_nil(field(c, ^field)))
     |> order_by([contact: c], asc: ^field)
     |> distinct(true)
     |> DB.Repo.all()
