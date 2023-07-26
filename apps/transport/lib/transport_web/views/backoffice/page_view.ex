@@ -66,13 +66,17 @@ defmodule TransportWeb.Backoffice.PageView do
 
   @doc """
   Replaces accented letters by their regular versions.
-
-  From https://stackoverflow.com/a/68724296
+  Taken from https://stackoverflow.com/a/68724296
 
   iex> unaccent("Et Ça sera sa moitié.")
   "Et Ca sera sa moitie."
+  iex> unaccent(nil)
+  ""
   """
-  def unaccent(value) do
+  @spec unaccent(nil | binary()) :: binary()
+  def unaccent(nil), do: ""
+
+  def unaccent(value) when is_binary(value) do
     ~R<\p{Mn}>u
     |> Regex.replace(value |> :unicode.characters_to_nfd_binary(), "")
     |> :unicode.characters_to_nfc_binary()

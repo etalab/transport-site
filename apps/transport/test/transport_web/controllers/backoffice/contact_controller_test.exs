@@ -1,6 +1,7 @@
 defmodule TransportWeb.Backoffice.ContactControllerTest do
   use TransportWeb.ConnCase, async: true
   import DB.Factory
+  alias TransportWeb.Backoffice.ContactController
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -197,6 +198,17 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
     assert redirected_to(conn, 302) == backoffice_contact_path(conn, :index)
     assert get_flash(conn, :info) =~ "Le contact a été supprimé"
     assert is_nil(DB.Repo.reload(contact))
+  end
+
+  test "search_datalist" do
+    DB.Contact.insert!(sample_contact_args(%{last_name: "Doe", organization: "FooBar"}))
+    DB.Contact.insert!(sample_contact_args(%{last_name: "Oppenheimer", organization: "FooBar"}))
+
+    DB.Contact.insert!(
+      sample_contact_args(%{first_name: nil, last_name: nil, organization: "Disney", mailing_list_title: "Data"})
+    )
+
+    assert ["Disney", "Doe", "FooBar", "Oppenheimer"] == ContactController.search_datalist()
   end
 
   defp sample_contact_args(%{} = args \\ %{}) do
