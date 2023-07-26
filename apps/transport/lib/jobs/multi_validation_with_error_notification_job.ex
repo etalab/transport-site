@@ -26,40 +26,66 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
     inserted_at
     |> relevant_validations()
     |> Enum.each(fn {%DB.Dataset{} = dataset, multi_validations} ->
-      dataset
-      |> emails_list()
-      |> MapSet.difference(notifications_sent_recently(dataset))
-      |> Enum.each(fn email ->
-        Transport.EmailSender.impl().send_mail(
-          "transport.data.gouv.fr",
-          Application.get_env(:transport, :contact_email),
-          email,
-          Application.get_env(:transport, :contact_email),
-          "Erreurs détectées dans le jeu de données #{dataset.custom_title}",
-          """
-          Bonjour,
+      producer_emails = dataset |> emails_list(:producer) |> MapSet.difference(notifications_sent_recently(dataset))
+      send_to_producers(producer_emails, dataset, multi_validations)
 
-          Des erreurs bloquantes ont été détectées dans votre jeu de données #{dataset_url(dataset)}. Ces erreurs empêchent la réutilisation de vos données.
-
-          Nous vous invitons à les corriger en vous appuyant sur les rapports de validation suivants :
-          #{Enum.map_join(multi_validations, "\n", &resource_link/1)}
-
-          Nous restons disponible pour vous accompagner si besoin.
-
-          Merci par avance pour votre action,
-
-          À bientôt,
-
-          L'équipe du PAN
-          """,
-          ""
-        )
-
-        save_notification(dataset, email)
-      end)
+      reuser_emails = dataset |> emails_list(:reuser) |> MapSet.difference(notifications_sent_recently(dataset))
+      send_to_reusers(reuser_emails, dataset, producer_warned: not Enum.empty?(producer_emails))
     end)
 
     :ok
+  end
+
+  defp send_to_reusers(emails, %DB.Dataset{} = dataset, producer_warned: producer_warned) do
+    Enum.each(emails, fn email ->
+      Transport.EmailSender.impl().send_mail(
+        "transport.data.gouv.fr",
+        Application.get_env(:transport, :contact_email),
+        email,
+        Application.get_env(:transport, :contact_email),
+        "Erreurs détectées dans le jeu de données #{dataset.custom_title}",
+        "",
+        Phoenix.View.render_to_string(
+          TransportWeb.EmailView,
+          "dataset_with_error_reuser.html",
+          dataset: dataset,
+          producer_warned: producer_warned
+        )
+      )
+
+      save_notification(dataset, email)
+    end)
+  end
+
+  defp send_to_producers(emails, %DB.Dataset{} = dataset, multi_validations) do
+    Enum.each(emails, fn email ->
+      Transport.EmailSender.impl().send_mail(
+        "transport.data.gouv.fr",
+        Application.get_env(:transport, :contact_email),
+        email,
+        Application.get_env(:transport, :contact_email),
+        "Erreurs détectées dans le jeu de données #{dataset.custom_title}",
+        """
+        Bonjour,
+
+        Des erreurs bloquantes ont été détectées dans votre jeu de données #{dataset_url(dataset)}. Ces erreurs empêchent la réutilisation de vos données.
+
+        Nous vous invitons à les corriger en vous appuyant sur les rapports de validation suivants :
+        #{Enum.map_join(multi_validations, "\n", &resource_link/1)}
+
+        Nous restons disponible pour vous accompagner si besoin.
+
+        Merci par avance pour votre action,
+
+        À bientôt,
+
+        L'équipe du PAN
+        """,
+        ""
+      )
+
+      save_notification(dataset, email)
+    end)
   end
 
   defp notifications_sent_recently(%DB.Dataset{id: dataset_id}) do
@@ -91,9 +117,9 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
     |> Enum.group_by(& &1.resource_history.resource.dataset)
   end
 
-  defp emails_list(%DB.Dataset{} = dataset) do
+  defp emails_list(%DB.Dataset{} = dataset, role) do
     @notification_reason
-    |> DB.NotificationSubscription.subscriptions_for_reason(dataset)
+    |> DB.NotificationSubscription.subscriptions_for_reason_dataset_and_role(dataset, role)
     |> DB.NotificationSubscription.subscriptions_to_emails()
     |> MapSet.new()
   end

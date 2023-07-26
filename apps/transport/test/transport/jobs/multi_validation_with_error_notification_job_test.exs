@@ -91,7 +91,9 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
 
     %DB.Contact{id: already_sent_contact_id} = insert_contact(%{email: already_sent_email})
     %DB.Contact{id: foo_contact_id} = insert_contact(%{email: "foo@example.com"})
+    %DB.Contact{id: reuser_contact_id} = insert_contact(%{email: reuser_email = "reuser@example.com"})
 
+    # Subscriptions for a contact who was already warned, a producer and a reuser
     insert(:notification_subscription, %{
       reason: :dataset_with_error,
       source: :admin,
@@ -108,6 +110,15 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
       dataset_id: dataset.id
     })
 
+    insert(:notification_subscription, %{
+      reason: :dataset_with_error,
+      source: :user,
+      role: :reuser,
+      contact_id: reuser_contact_id,
+      dataset_id: dataset.id
+    })
+
+    # Contact + subscription for another dataset
     %DB.Contact{id: bar_contact_id} = insert_contact(%{email: "bar@example.com"})
 
     insert(:notification_subscription, %{
@@ -143,6 +154,24 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
     Transport.EmailSender.Mock
     |> expect(:send_mail, fn "transport.data.gouv.fr",
                              "contact@transport.beta.gouv.fr",
+                             ^reuser_email,
+                             "contact@transport.beta.gouv.fr",
+                             subject,
+                             "",
+                             html ->
+      assert subject == "Erreurs détectées dans le jeu de données #{dataset.custom_title}"
+
+      assert html =~
+               ~s(Des erreurs bloquantes ont été détectées dans le jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> que vous réutilisez.)
+
+      assert html =~ "Le producteur de ces données a été informé de ces erreurs."
+
+      :ok
+    end)
+
+    Transport.EmailSender.Mock
+    |> expect(:send_mail, fn "transport.data.gouv.fr",
+                             "contact@transport.beta.gouv.fr",
                              "bar@example.com" = _to,
                              "contact@transport.beta.gouv.fr",
                              subject,
@@ -168,6 +197,14 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
            |> where(
              [n],
              n.email_hash == ^"foo@example.com" and n.dataset_id == ^dataset_id and n.inserted_at >= ^recent_dt and
+               n.reason == :dataset_with_error
+           )
+           |> DB.Repo.exists?()
+
+    assert DB.Notification
+           |> where(
+             [n],
+             n.email_hash == ^reuser_email and n.dataset_id == ^dataset_id and n.inserted_at >= ^recent_dt and
                n.reason == :dataset_with_error
            )
            |> DB.Repo.exists?()

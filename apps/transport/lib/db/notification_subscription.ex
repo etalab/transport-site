@@ -14,6 +14,8 @@ defmodule DB.NotificationSubscription do
   @hidden_reasons_related_to_datasets [:dataset_now_on_nap, :resources_changed]
   # These notification reasons are *not* linked to a specific dataset, `dataset_id` should be nil
   @platform_wide_reasons [:new_dataset, :datasets_switching_climate_resilience_bill, :daily_new_comments]
+  @possible_roles [:producer, :reuser]
+  @type role :: :producer | :reuser
 
   typed_schema "notification_subscription" do
     field(:reason, Ecto.Enum,
@@ -21,7 +23,7 @@ defmodule DB.NotificationSubscription do
     )
 
     field(:source, Ecto.Enum, values: [:admin, :user])
-    field(:role, Ecto.Enum, values: [:producer, :reuser])
+    field(:role, Ecto.Enum, values: @possible_roles)
 
     belongs_to(:contact, DB.Contact)
     belongs_to(:dataset, DB.Dataset)
@@ -83,11 +85,39 @@ defmodule DB.NotificationSubscription do
     |> DB.Repo.all()
   end
 
+  @spec subscriptions_for_reason_dataset_and_role(atom(), DB.Dataset.t(), role()) :: [__MODULE__.t()]
+  def subscriptions_for_reason_dataset_and_role(reason, %DB.Dataset{id: dataset_id}, role)
+      when role in @possible_roles do
+    base_query()
+    |> preload([:contact])
+    |> where(
+      [notification_subscription: ns],
+      ns.reason == ^reason and ns.dataset_id == ^dataset_id and ns.role == ^role
+    )
+    |> DB.Repo.all()
+  end
+
+  @spec subscriptions_for_reason_and_role(atom(), role()) :: [__MODULE__.t()]
+  def subscriptions_for_reason_and_role(reason, role) when role in @possible_roles do
+    base_query()
+    |> preload([:contact])
+    |> where([notification_subscription: ns], ns.reason == ^reason and is_nil(ns.dataset_id) and ns.role == ^role)
+    |> DB.Repo.all()
+  end
+
   @spec subscriptions_for_dataset(DB.Dataset.t()) :: [__MODULE__.t()]
   def subscriptions_for_dataset(%DB.Dataset{id: dataset_id}) do
     base_query()
     |> preload([:contact])
     |> where([notification_subscription: ns], ns.dataset_id == ^dataset_id)
+    |> DB.Repo.all()
+  end
+
+  @spec subscriptions_for_dataset_and_role(DB.Dataset.t(), role()) :: [__MODULE__.t()]
+  def subscriptions_for_dataset_and_role(%DB.Dataset{id: dataset_id}, role) when role in @possible_roles do
+    base_query()
+    |> preload([:contact])
+    |> where([notification_subscription: ns], ns.dataset_id == ^dataset_id and ns.role == ^role)
     |> DB.Repo.all()
   end
 
