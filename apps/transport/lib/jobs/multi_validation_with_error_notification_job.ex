@@ -26,14 +26,12 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
     inserted_at
     |> relevant_validations()
     |> Enum.each(fn {%DB.Dataset{} = dataset, multi_validations} ->
-      producer_emails = dataset |> emails_list(:producer) |> MapSet.difference(notifications_sent_recently(dataset))
+      producer_emails = dataset |> emails_list(:producer)
       send_to_producers(producer_emails, dataset, multi_validations)
 
-      reuser_emails = dataset |> emails_list(:reuser) |> MapSet.difference(notifications_sent_recently(dataset))
+      reuser_emails = dataset |> emails_list(:reuser)
       send_to_reusers(reuser_emails, dataset, producer_warned: not Enum.empty?(producer_emails))
     end)
-
-    :ok
   end
 
   defp send_to_reusers(emails, %DB.Dataset{} = dataset, producer_warned: producer_warned) do
@@ -122,6 +120,7 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
     |> DB.NotificationSubscription.subscriptions_for_reason_dataset_and_role(dataset, role)
     |> DB.NotificationSubscription.subscriptions_to_emails()
     |> MapSet.new()
+    |> MapSet.difference(notifications_sent_recently(dataset))
   end
 
   defp dataset_url(%DB.Dataset{slug: slug, custom_title: custom_title}) do
