@@ -232,6 +232,7 @@ defmodule DB.Contact do
   end
 
   defp uppercase_first(string) do
+    # Can't use `String.capitalize/2` because it lowercases the rest of the string
     {first, rest} = String.split_at(string, 1)
     String.upcase(first) <> rest
   end
