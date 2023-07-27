@@ -202,7 +202,25 @@ defmodule DB.Contact do
   defp capitalize_fields(%Ecto.Changeset{} = changeset, fields) do
     fields
     |> Enum.reject(&(get_field(changeset, &1) == nil))
-    |> Enum.reduce(changeset, fn field, changeset -> update_change(changeset, field, &String.capitalize/1) end)
+    |> Enum.reduce(changeset, fn field, changeset -> update_change(changeset, field, &title_case/1) end)
+  end
+
+  @doc """
+  iex> title_case("Antoine")
+  "Antoine"
+  iex> title_case("antoine")
+  "Antoine"
+  iex> title_case("jean marie")
+  "Jean Marie"
+  iex> title_case("jean-marie")
+  "Jean-Marie"
+  iex> title_case("Jean Marie")
+  "Jean Marie"
+  iex> title_case("Mélo")
+  "Mélo"
+  """
+  def title_case(string) do
+    Regex.replace(~r/\b(?<![a-zà-ü])\w/, string, &String.capitalize/1)
   end
 
   defp cast_phone_numbers(%Ecto.Changeset{} = changeset) do
