@@ -9,4 +9,9 @@ defmodule TransportWeb.EmailView do
       :heex -> link(custom_title, to: url)
     end
   end
+
+  def link_for_resource(%DB.Resource{id: id, title: title}) do
+    url = TransportWeb.Router.Helpers.resource_url(TransportWeb.Endpoint, :details, id)
+    link(title, to: url)
+  end
 end

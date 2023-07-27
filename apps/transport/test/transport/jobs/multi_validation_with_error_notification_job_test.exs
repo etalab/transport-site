@@ -135,18 +135,18 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
                              "foo@example.com" = _to,
                              "contact@transport.beta.gouv.fr",
                              subject,
-                             plain_text_body,
-                             "" = _html_part ->
+                             "",
+                             html ->
       assert subject == "Erreurs détectées dans le jeu de données #{dataset.custom_title}"
 
-      assert plain_text_body =~
-               "Des erreurs bloquantes ont été détectées dans votre jeu de données #{dataset.custom_title}"
+      assert html =~
+               ~s(Des erreurs bloquantes ont été détectées dans votre jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a>)
 
-      assert plain_text_body =~
-               "#{resource_1.title} — http://127.0.0.1:5100/resources/#{resource_1.id}#validation-report"
+      assert html =~
+               ~s(<a href="http://127.0.0.1:5100/resources/#{resource_1.id}">#{resource_1.title}</a>)
 
-      assert plain_text_body =~
-               "#{resource_2.title} — http://127.0.0.1:5100/resources/#{resource_2.id}#validation-report"
+      assert html =~
+               ~s(<a href="http://127.0.0.1:5100/resources/#{resource_2.id}">#{resource_2.title}</a>)
 
       :ok
     end)
@@ -175,15 +175,15 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
                              "bar@example.com" = _to,
                              "contact@transport.beta.gouv.fr",
                              subject,
-                             plain_text_body,
-                             "" = _html_part ->
+                             "",
+                             html ->
       assert subject == "Erreurs détectées dans le jeu de données #{gtfs_dataset.custom_title}"
 
-      assert plain_text_body =~
-               "Des erreurs bloquantes ont été détectées dans votre jeu de données #{gtfs_dataset.custom_title}"
+      assert html =~
+               ~s(Des erreurs bloquantes ont été détectées dans votre jeu de données <a href="http://127.0.0.1:5100/datasets/#{gtfs_dataset.slug}">#{gtfs_dataset.custom_title}</a>)
 
-      assert plain_text_body =~
-               "#{resource_gtfs.title} — http://127.0.0.1:5100/resources/#{resource_gtfs.id}#validation-report"
+      assert html =~
+               ~s(<a href="http://127.0.0.1:5100/resources/#{resource_gtfs.id}">#{resource_gtfs.title}</a>)
 
       :ok
     end)

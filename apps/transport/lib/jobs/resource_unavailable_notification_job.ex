@@ -61,7 +61,7 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
       Application.get_env(:transport, :contact_email),
       "Ressources indisponibles dans le jeu de données #{dataset.custom_title}",
       "",
-      Phoenix.View.render_to_string(TransportWeb.EmailView, "resource_unavailable_#{role}.html", args)
+      Phoenix.View.render_to_string(TransportWeb.EmailView, "#{@notification_reason}_#{role}.html", args)
     )
 
     save_notification(dataset, email)

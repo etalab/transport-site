@@ -35,55 +35,33 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
   end
 
   defp send_to_reusers(emails, %DB.Dataset{} = dataset, producer_warned: producer_warned) do
-    Enum.each(emails, fn email ->
-      Transport.EmailSender.impl().send_mail(
-        "transport.data.gouv.fr",
-        Application.get_env(:transport, :contact_email),
-        email,
-        Application.get_env(:transport, :contact_email),
-        "Erreurs détectées dans le jeu de données #{dataset.custom_title}",
-        "",
-        Phoenix.View.render_to_string(
-          TransportWeb.EmailView,
-          "dataset_with_error_reuser.html",
-          dataset: dataset,
-          producer_warned: producer_warned
-        )
-      )
-
-      save_notification(dataset, email)
-    end)
+    Enum.each(emails, &send_mail(&1, :reuser, dataset: dataset, producer_warned: producer_warned))
   end
 
   defp send_to_producers(emails, %DB.Dataset{} = dataset, multi_validations) do
-    Enum.each(emails, fn email ->
-      Transport.EmailSender.impl().send_mail(
-        "transport.data.gouv.fr",
-        Application.get_env(:transport, :contact_email),
-        email,
-        Application.get_env(:transport, :contact_email),
-        "Erreurs détectées dans le jeu de données #{dataset.custom_title}",
-        """
-        Bonjour,
-
-        Des erreurs bloquantes ont été détectées dans votre jeu de données #{dataset_url(dataset)}. Ces erreurs empêchent la réutilisation de vos données.
-
-        Nous vous invitons à les corriger en vous appuyant sur les rapports de validation suivants :
-        #{Enum.map_join(multi_validations, "\n", &resource_link/1)}
-
-        Nous restons disponible pour vous accompagner si besoin.
-
-        Merci par avance pour votre action,
-
-        À bientôt,
-
-        L'équipe du PAN
-        """,
-        ""
+    Enum.each(
+      emails,
+      &send_mail(&1, :producer,
+        dataset: dataset,
+        resources: Enum.map(multi_validations, fn mv -> mv.resource_history.resource end)
       )
+    )
+  end
 
-      save_notification(dataset, email)
-    end)
+  defp send_mail(email, role, args) do
+    dataset = Keyword.fetch!(args, :dataset)
+
+    Transport.EmailSender.impl().send_mail(
+      "transport.data.gouv.fr",
+      Application.get_env(:transport, :contact_email),
+      email,
+      Application.get_env(:transport, :contact_email),
+      "Erreurs détectées dans le jeu de données #{dataset.custom_title}",
+      "",
+      Phoenix.View.render_to_string(TransportWeb.EmailView, "#{@notification_reason}_#{role}.html", args)
+    )
+
+    save_notification(dataset, email)
   end
 
   defp notifications_sent_recently(%DB.Dataset{id: dataset_id}) do
@@ -121,19 +99,5 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
     |> DB.NotificationSubscription.subscriptions_to_emails()
     |> MapSet.new()
     |> MapSet.difference(notifications_sent_recently(dataset))
-  end
-
-  defp dataset_url(%DB.Dataset{slug: slug, custom_title: custom_title}) do
-    url = TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, slug)
-
-    "#{custom_title} — #{url}"
-  end
-
-  defp resource_link(%DB.MultiValidation{
-         resource_history: %DB.ResourceHistory{resource: %DB.Resource{id: id, title: title}}
-       }) do
-    url = TransportWeb.Router.Helpers.resource_url(TransportWeb.Endpoint, :details, id) <> "#validation-report"
-
-    "* #{title} — #{url}"
   end
 end
