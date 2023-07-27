@@ -22,6 +22,8 @@ defmodule DB.NotificationSubscription do
       values: @reasons_related_to_datasets ++ @platform_wide_reasons ++ @hidden_reasons_related_to_datasets
     )
 
+    # Useful to know if the subscription has been created by an admin
+    # from the backoffice (`:admin`) or by the user (`:user`)
     field(:source, Ecto.Enum, values: [:admin, :user])
     field(:role, Ecto.Enum, values: @possible_roles)
 
