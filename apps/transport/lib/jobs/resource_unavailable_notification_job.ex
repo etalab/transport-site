@@ -21,30 +21,50 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
     inserted_at
     |> relevant_unavailabilities()
     |> Enum.each(fn {%DB.Dataset{} = dataset, unavailabilities} ->
-      dataset
-      |> emails_list()
-      |> MapSet.difference(notifications_sent_recently(dataset))
-      |> Enum.each(fn email ->
-        Transport.EmailSender.impl().send_mail(
-          "transport.data.gouv.fr",
-          Application.get_env(:transport, :contact_email),
-          email,
-          Application.get_env(:transport, :contact_email),
-          "Ressources indisponibles dans le jeu de données #{dataset.custom_title}",
-          "",
-          Phoenix.View.render_to_string(TransportWeb.EmailView, "resource_unavailable.html",
-            dataset: dataset,
-            hours_consecutive_downtime: @hours_consecutive_downtime,
-            deleted_recreated_on_datagouv: deleted_and_recreated_resource_hosted_on_datagouv(dataset, unavailabilities),
-            resource_titles: Enum.map_join(unavailabilities, ", ", &resource_title/1)
-          )
-        )
+      producer_emails = emails_list(dataset, :producer)
+      send_to_producers(producer_emails, dataset, unavailabilities)
 
-        save_notification(dataset, email)
-      end)
+      reuser_emails = emails_list(dataset, :reuser)
+      send_to_reusers(reuser_emails, dataset, unavailabilities, producer_warned: not Enum.empty?(producer_emails))
     end)
+  end
 
-    :ok
+  defp send_to_reusers(emails, %DB.Dataset{} = dataset, unavailabilities, producer_warned: producer_warned) do
+    Enum.each(emails, fn email ->
+      send_mail(email, :reuser,
+        dataset: dataset,
+        hours_consecutive_downtime: @hours_consecutive_downtime,
+        producer_warned: producer_warned,
+        resource_titles: Enum.map_join(unavailabilities, ", ", &resource_title/1)
+      )
+    end)
+  end
+
+  defp send_to_producers(emails, dataset, unavailabilities) do
+    Enum.each(emails, fn email ->
+      send_mail(email, :producer,
+        dataset: dataset,
+        hours_consecutive_downtime: @hours_consecutive_downtime,
+        deleted_recreated_on_datagouv: deleted_and_recreated_resource_hosted_on_datagouv(dataset, unavailabilities),
+        resource_titles: Enum.map_join(unavailabilities, ", ", &resource_title/1)
+      )
+    end)
+  end
+
+  defp send_mail(email, role, args) do
+    dataset = Keyword.fetch!(args, :dataset)
+
+    Transport.EmailSender.impl().send_mail(
+      "transport.data.gouv.fr",
+      Application.get_env(:transport, :contact_email),
+      email,
+      Application.get_env(:transport, :contact_email),
+      "Ressources indisponibles dans le jeu de données #{dataset.custom_title}",
+      "",
+      Phoenix.View.render_to_string(TransportWeb.EmailView, "#{@notification_reason}_#{role}.html", args)
+    )
+
+    save_notification(dataset, email)
   end
 
   defp notifications_sent_recently(%DB.Dataset{id: dataset_id}) do
@@ -105,11 +125,12 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
     DB.Notification.insert!(@notification_reason, dataset, email)
   end
 
-  defp emails_list(%DB.Dataset{} = dataset) do
+  defp emails_list(%DB.Dataset{} = dataset, role) do
     @notification_reason
-    |> DB.NotificationSubscription.subscriptions_for_reason(dataset)
+    |> DB.NotificationSubscription.subscriptions_for_reason_dataset_and_role(dataset, role)
     |> DB.NotificationSubscription.subscriptions_to_emails()
     |> MapSet.new()
+    |> MapSet.difference(notifications_sent_recently(dataset))
   end
 
   defp resource_title(%DB.ResourceUnavailability{resource: %DB.Resource{title: title}}) do
