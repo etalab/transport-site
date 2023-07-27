@@ -226,9 +226,9 @@ defmodule DB.Contact do
   end
 
   defp capitalize_per_word(string, split_join_char) do
-    String.split(string, split_join_char)
-    |> Enum.map(&uppercase_first/1)
-    |> Enum.join(split_join_char)
+    string
+    |> String.split(split_join_char)
+    |> Enum.map_join(split_join_char, &uppercase_first/1)
   end
 
   defp uppercase_first(string) do
