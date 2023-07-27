@@ -218,9 +218,22 @@ defmodule DB.Contact do
   "Jean Marie"
   iex> title_case("Mélo")
   "Mélo"
+  iex> title_case("")
+  ""
   """
   def title_case(string) do
-    Regex.replace(~r/\b(?<![a-zà-ü])\w/, string, &String.capitalize/1)
+    string |> capitalize_per_word("-") |> capitalize_per_word(" ")
+  end
+
+  defp capitalize_per_word(string, split_join_char) do
+    String.split(string, split_join_char)
+    |> Enum.map(&uppercase_first/1)
+    |> Enum.join(split_join_char)
+  end
+
+  defp uppercase_first(string) do
+    {first, rest} = String.split_at(string, 1)
+    String.upcase(first) <> rest
   end
 
   defp cast_phone_numbers(%Ecto.Changeset{} = changeset) do
