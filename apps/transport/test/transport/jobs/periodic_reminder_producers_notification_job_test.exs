@@ -43,15 +43,7 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
       %DB.Contact{id: contact_id_with_org} =
         insert_contact(%{
           organizations: [
-            %{
-              "acronym" => nil,
-              "badges" => [],
-              "id" => org_id,
-              "logo" => "https://example.com/original.png",
-              "logo_thumbnail" => "https://example.com/100.png",
-              "name" => "Big Corp",
-              "slug" => "foo"
-            }
+            sample_org(%{"id" => org_id})
           ]
         })
 
@@ -75,5 +67,98 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
                }
              ] = all_enqueued()
     end
+  end
+
+  test "subscribed_as_producer?" do
+    dataset = insert(:dataset)
+    contact = insert_contact()
+
+    insert(:notification_subscription,
+      source: :admin,
+      role: :reuser,
+      reason: :new_dataset,
+      contact: contact
+    )
+
+    refute contact
+           |> DB.Repo.preload(:notification_subscriptions)
+           |> PeriodicReminderProducersNotificationJob.subscribed_as_producer?()
+
+    insert(:notification_subscription,
+      source: :admin,
+      role: :producer,
+      reason: :expiration,
+      dataset: dataset,
+      contact: contact
+    )
+
+    assert contact
+           |> DB.Repo.preload(:notification_subscriptions)
+           |> PeriodicReminderProducersNotificationJob.subscribed_as_producer?()
+  end
+
+  test "all_orgs" do
+    dataset = insert(:dataset, organization_id: dataset_org_id = Ecto.UUID.generate())
+
+    contact =
+      insert_contact(%{
+        organizations: [
+          sample_org(%{"id" => org_id = Ecto.UUID.generate()})
+        ]
+      })
+
+    Enum.each(~w(expiration dataset_with_error), fn reason ->
+      insert(:notification_subscription,
+        source: :admin,
+        role: :producer,
+        reason: reason,
+        dataset: dataset,
+        contact: contact
+      )
+    end)
+
+    assert [dataset_org_id, org_id] |> Enum.sort() ==
+             contact
+             |> DB.Repo.preload([:organizations, notification_subscriptions: [:dataset]])
+             |> PeriodicReminderProducersNotificationJob.all_orgs()
+             |> Enum.sort()
+  end
+
+  test "contacts_in_orgs" do
+    dataset = insert(:dataset, organization_id: dataset_org_id = Ecto.UUID.generate())
+    contact_with_sub = insert_contact()
+
+    insert(:notification_subscription,
+      source: :admin,
+      role: :producer,
+      reason: :expiration,
+      dataset: dataset,
+      contact: contact_with_sub
+    )
+
+    %DB.Contact{id: contact_without_subs_id} =
+      insert_contact(%{
+        organizations: [
+          sample_org(%{"id" => dataset_org_id})
+        ]
+      })
+
+    assert [%DB.Contact{id: ^contact_without_subs_id}] =
+             PeriodicReminderProducersNotificationJob.contacts_in_orgs([dataset_org_id, Ecto.UUID.generate()])
+  end
+
+  defp sample_org(%{} = args) do
+    Map.merge(
+      %{
+        "acronym" => nil,
+        "badges" => [],
+        "id" => Ecto.UUID.generate(),
+        "logo" => "https://example.com/original.png",
+        "logo_thumbnail" => "https://example.com/100.png",
+        "name" => "Big Corp",
+        "slug" => "foo"
+      },
+      args
+    )
   end
 end

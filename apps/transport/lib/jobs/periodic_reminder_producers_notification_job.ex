@@ -19,8 +19,34 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
   end
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"contact_id" => _contact_id}}) do
+  def perform(%Oban.Job{args: %{"contact_id" => contact_id}}) do
+    _contact =
+      DB.Contact.base_query()
+      |> preload([:organizations, notification_subscriptions: [:dataset]])
+      |> DB.Repo.get!(contact_id)
+
     :ok
+  end
+
+  def contacts_in_orgs(org_ids) do
+    DB.Organization
+    |> preload(:contacts)
+    |> where([o], o.id in ^org_ids)
+    |> DB.Repo.all()
+    |> Enum.flat_map(& &1.contacts)
+    |> Enum.uniq()
+    |> Enum.sort_by(&DB.Contact.display_name/1)
+  end
+
+  def all_orgs(%DB.Contact{organizations: orgs, notification_subscriptions: subscriptions}) do
+    orgs
+    |> Enum.map(& &1.id)
+    |> Enum.concat(subscriptions |> Enum.map(& &1.dataset.organization_id))
+    |> Enum.uniq()
+  end
+
+  def subscribed_as_producer?(%DB.Contact{notification_subscriptions: subscriptions}) do
+    Enum.any?(subscriptions, &match?(%DB.NotificationSubscription{role: :producer}, &1))
   end
 
   defp relevant_contacts do
@@ -40,11 +66,10 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
     |> join(:left, [contact: c], c in assoc(c, :organizations), as: :organization)
     |> order_by([organization: o], desc: o.id)
     |> DB.Repo.all()
-    |> Enum.filter(fn %DB.Contact{notification_subscriptions: subscriptions, organizations: orgs} ->
-      subscribed_as_producer? = Enum.any?(subscriptions, &match?(%DB.NotificationSubscription{role: :producer}, &1))
+    |> Enum.filter(fn %DB.Contact{organizations: orgs} = contact ->
       org_has_published_dataset? = not MapSet.disjoint?(MapSet.new(orgs, & &1.id), orgs_with_dataset)
 
-      subscribed_as_producer? or org_has_published_dataset?
+      subscribed_as_producer?(contact) or org_has_published_dataset?
     end)
   end
 
@@ -53,7 +78,7 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
     |> Enum.map(fn %DB.Contact{id: id} -> id end)
     |> Enum.chunk_every(@max_emails_per_day)
     |> Enum.with_index(0)
-    |> Enum.each(fn {ids, index} ->
+    |> Enum.reduce(scheduled_at, fn {ids, index}, %DateTime{} = scheduled_at ->
       scheduled_at =
         case index do
           0 -> scheduled_at
@@ -63,7 +88,11 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
       ids
       |> Enum.map(&(%{"contact_id" => &1} |> new(scheduled_at: scheduled_at)))
       |> Oban.insert_all()
+
+      scheduled_at
     end)
+
+    :ok
   end
 
   @doc """
