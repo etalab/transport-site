@@ -33,7 +33,8 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
 
     # Identify contacts we want to reach:
     # - they have at least a subscription as a producer (=> review settings)
-    # - they don't have subscriptions but they are a member of an org with published datasets (=> advertise subscriptions)
+    # - they don't have subscriptions but they are a member of an org
+    #   with published datasets (=> advertise subscriptions)
     DB.Contact.base_query()
     |> preload([:organizations, :notification_subscriptions])
     |> join(:left, [contact: c], c in assoc(c, :organizations), as: :organization)
