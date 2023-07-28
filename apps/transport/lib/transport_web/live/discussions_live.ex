@@ -7,8 +7,6 @@ defmodule TransportWeb.DiscussionsLive do
 
   def render(assigns) do
     ~H"""
-    <script src={TransportWeb.Endpoint.static_path("/js/utils.js")} />
-
     <script>
       window.addEventListener('phx:discussions-loaded', (event) => {
         event.detail.ids.forEach(id =>
