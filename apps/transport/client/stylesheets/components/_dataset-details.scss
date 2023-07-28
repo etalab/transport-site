@@ -591,12 +591,7 @@ hr {
   border-bottom: 1px solid var(--theme-border-lighter);
 }
 
-.discussion .displayMore {
-  text-align: center;
-  margin-bottom: 1em;
-}
-
-#notifications-sent .displayMore {
+.discussion, #notifications-sent, #backed-up-resources .displayMore {
   text-align: center;
   margin-bottom: 1em;
 }
