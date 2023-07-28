@@ -202,7 +202,39 @@ defmodule DB.Contact do
   defp capitalize_fields(%Ecto.Changeset{} = changeset, fields) do
     fields
     |> Enum.reject(&(get_field(changeset, &1) == nil))
-    |> Enum.reduce(changeset, fn field, changeset -> update_change(changeset, field, &String.capitalize/1) end)
+    |> Enum.reduce(changeset, fn field, changeset -> update_change(changeset, field, &title_case/1) end)
+  end
+
+  @doc """
+  iex> title_case("Antoine")
+  "Antoine"
+  iex> title_case("antoine")
+  "Antoine"
+  iex> title_case("jean marie")
+  "Jean Marie"
+  iex> title_case("jean-marie")
+  "Jean-Marie"
+  iex> title_case("Jean Marie")
+  "Jean Marie"
+  iex> title_case("Mélo")
+  "Mélo"
+  iex> title_case("")
+  ""
+  """
+  def title_case(string) do
+    string |> capitalize_per_word("-") |> capitalize_per_word(" ")
+  end
+
+  defp capitalize_per_word(string, split_join_char) do
+    string
+    |> String.split(split_join_char)
+    |> Enum.map_join(split_join_char, &uppercase_first/1)
+  end
+
+  defp uppercase_first(string) do
+    # Can't use `String.capitalize/2` because it lowercases the rest of the string
+    {first, rest} = String.split_at(string, 1)
+    String.upcase(first) <> rest
   end
 
   defp cast_phone_numbers(%Ecto.Changeset{} = changeset) do
