@@ -47,22 +47,22 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
           ]
         })
 
+      assert 1 == PeriodicReminderProducersNotificationJob.chunk_size()
+
       assert :ok ==
-               perform_job(PeriodicReminderProducersNotificationJob, %{},
-                 inserted_at: scheduled_at = ~U[2023-07-03 09:00:00.000000Z]
-               )
+               perform_job(PeriodicReminderProducersNotificationJob, %{}, inserted_at: ~U[2023-07-03 09:00:00.000000Z])
 
       assert [
                %Oban.Job{
                  worker: "Transport.Jobs.PeriodicReminderProducersNotificationJob",
-                 args: %{"contact_id" => ^contact_id_with_org},
-                 scheduled_at: ^scheduled_at,
+                 args: %{"contact_id" => ^contact_id_without_org},
+                 scheduled_at: ~U[2023-07-04 09:00:00.000000Z],
                  state: "scheduled"
                },
                %Oban.Job{
                  worker: "Transport.Jobs.PeriodicReminderProducersNotificationJob",
-                 args: %{"contact_id" => ^contact_id_without_org},
-                 scheduled_at: ^scheduled_at,
+                 args: %{"contact_id" => ^contact_id_with_org},
+                 scheduled_at: ~U[2023-07-03 09:00:00.000000Z],
                  state: "scheduled"
                }
              ] = all_enqueued()

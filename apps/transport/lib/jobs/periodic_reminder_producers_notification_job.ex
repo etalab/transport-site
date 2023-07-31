@@ -64,7 +64,7 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
     DB.Contact.base_query()
     |> preload([:organizations, :notification_subscriptions])
     |> join(:left, [contact: c], c in assoc(c, :organizations), as: :organization)
-    |> order_by([organization: o], desc: o.id)
+    |> order_by([organization: o], asc: o.id)
     |> DB.Repo.all()
     |> Enum.filter(fn %DB.Contact{organizations: orgs} = contact ->
       org_has_published_dataset? = not MapSet.disjoint?(MapSet.new(orgs, & &1.id), orgs_with_dataset)
@@ -76,23 +76,29 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
   defp schedule_jobs(contacts, %DateTime{} = scheduled_at) do
     contacts
     |> Enum.map(fn %DB.Contact{id: id} -> id end)
-    |> Enum.chunk_every(@max_emails_per_day)
-    |> Enum.with_index(0)
-    |> Enum.reduce(scheduled_at, fn {ids, index}, %DateTime{} = scheduled_at ->
-      scheduled_at =
-        case index do
-          0 -> scheduled_at
-          _ -> next_weekday(scheduled_at)
-        end
-
+    |> Enum.chunk_every(chunk_size())
+    # credo:disable-for-next-line Credo.Check.Warning.UnusedEnumOperation
+    |> Enum.reduce(scheduled_at, fn ids, %DateTime{} = scheduled_at ->
       ids
       |> Enum.map(&(%{"contact_id" => &1} |> new(scheduled_at: scheduled_at)))
       |> Oban.insert_all()
 
-      scheduled_at
+      next_weekday(scheduled_at)
     end)
 
     :ok
+  end
+
+  @doc """
+  How many e-mails are we going to send per day?
+  Our daily free limit quota is set at 200 per day so we don't want to go over that.
+  We set the chunk size to 1 in the test env to test the scheduling logic.
+  """
+  def chunk_size do
+    case Mix.env() do
+      :test -> 1
+      _ -> @max_emails_per_day
+    end
   end
 
   @doc """
