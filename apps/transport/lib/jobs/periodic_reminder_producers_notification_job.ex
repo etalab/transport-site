@@ -20,12 +20,41 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"contact_id" => contact_id}}) do
-    _contact =
+    contact =
       DB.Contact.base_query()
       |> preload([:organizations, notification_subscriptions: [:dataset]])
       |> DB.Repo.get!(contact_id)
 
+    if contact |> subscribed_as_producer?() do
+      send_mail_producer_with_subscriptions(contact)
+    end
+
     :ok
+  end
+
+  defp send_mail_producer_with_subscriptions(%DB.Contact{notification_subscriptions: subscriptions} = contact) do
+    other_producers_subscribers = contact |> other_producers_subscribers()
+
+    Transport.EmailSender.impl().send_mail(
+      "transport.data.gouv.fr",
+      Application.get_env(:transport, :contact_email),
+      contact.email,
+      Application.get_env(:transport, :contact_email),
+      "Rappel : vos notifications pour vos données sur transport.data.gouv.fr",
+      "",
+      Phoenix.View.render_to_string(TransportWeb.EmailView, "producer_with_subscriptions.html", %{
+        datasets_subscribed:
+          subscriptions
+          |> Enum.filter(&(&1.role == :producer))
+          |> Enum.map(& &1.dataset)
+          |> Enum.uniq()
+          |> Enum.sort_by(& &1.custom_title),
+        has_other_producers_subscribers: not Enum.empty?(other_producers_subscribers),
+        other_producers_subscribers: Enum.map_join(other_producers_subscribers, ", ", &DB.Contact.display_name/1)
+      })
+    )
+
+    # Save the notification
   end
 
   def contacts_in_orgs(org_ids) do
@@ -47,6 +76,21 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
 
   def subscribed_as_producer?(%DB.Contact{notification_subscriptions: subscriptions}) do
     Enum.any?(subscriptions, &match?(%DB.NotificationSubscription{role: :producer}, &1))
+  end
+
+  def other_producers_subscribers(%DB.Contact{id: contact_id, notification_subscriptions: subscriptions}) do
+    dataset_ids = subscriptions |> Enum.map(& &1.dataset_id) |> Enum.uniq()
+
+    DB.NotificationSubscription.base_query()
+    |> preload(:contact)
+    |> where(
+      [notification_subscription: ns],
+      ns.contact_id != ^contact_id and ns.role == :producer and ns.dataset_id in ^dataset_ids
+    )
+    |> DB.Repo.all()
+    |> Enum.map(& &1.contact)
+    |> Enum.uniq()
+    |> Enum.sort_by(&DB.Contact.display_name/1)
   end
 
   defp relevant_contacts do

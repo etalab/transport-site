@@ -147,6 +147,29 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
              PeriodicReminderProducersNotificationJob.contacts_in_orgs([dataset_org_id, Ecto.UUID.generate()])
   end
 
+  test "other_producers_subscribers" do
+    producer_1 = insert_contact()
+    %DB.Contact{id: producer_2_id} = producer_2 = insert_contact()
+    reuser = insert_contact()
+    dataset = insert(:dataset)
+
+    [{producer_1, :producer}, {producer_2, :producer}, {reuser, :reuser}]
+    |> Enum.each(fn {%DB.Contact{} = contact, role} ->
+      insert(:notification_subscription,
+        source: :admin,
+        role: role,
+        reason: :expiration,
+        dataset: dataset,
+        contact: contact
+      )
+    end)
+
+    assert [%DB.Contact{id: ^producer_2_id}] =
+             producer_1
+             |> DB.Repo.preload(:notification_subscriptions)
+             |> PeriodicReminderProducersNotificationJob.other_producers_subscribers()
+  end
+
   defp sample_org(%{} = args) do
     Map.merge(
       %{
