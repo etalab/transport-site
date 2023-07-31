@@ -44,6 +44,19 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
                  %{"format" => "csv", "schema" => %{"name" => "etalab/schema-irve-statique"}, "description" => ""}
                ]
            })
+
+    # Uses `ignore_dataset?/1` to ignore specific datasets
+    bdtopo_args =
+      Map.merge(base, %{
+        "title" => "BDTOPO© - Chefs-Lieux pour le département de l'Eure-et-Loir",
+        "tags" => ["transport"]
+      })
+
+    assert NewDatagouvDatasetsJob.dataset_is_relevant?(bdtopo_args)
+
+    refute NewDatagouvDatasetsJob.dataset_is_relevant?(
+             Map.merge(bdtopo_args, %{"organization" => %{"id" => "5a83f81fc751df6f8573eb8a"}})
+           )
   end
 
   test "filtered_datasets" do

@@ -103,20 +103,20 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
   def dataset_is_relevant?(%{} = dataset) do
     if ignore_dataset?(dataset) do
       false
+    else
+      match_on_dataset =
+        [&tags_is_relevant?/1, &description_is_relevant?/1, &title_is_relevant?/1]
+        |> Enum.map(& &1.(dataset))
+        |> Enum.any?()
+
+      match_on_resources =
+        dataset
+        |> Map.fetch!("resources")
+        |> Enum.map(&resource_is_relevant?/1)
+        |> Enum.any?()
+
+      match_on_dataset or match_on_resources
     end
-
-    match_on_dataset =
-      [&tags_is_relevant?/1, &description_is_relevant?/1, &title_is_relevant?/1]
-      |> Enum.map(& &1.(dataset))
-      |> Enum.any?()
-
-    match_on_resources =
-      dataset
-      |> Map.fetch!("resources")
-      |> Enum.map(&resource_is_relevant?/1)
-      |> Enum.any?()
-
-    match_on_dataset or match_on_resources
   end
 
   defp title_is_relevant?(%{"title" => title}), do: string_matches?(title)
