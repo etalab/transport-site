@@ -40,7 +40,9 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
 
     refute NewDatagouvDatasetsJob.dataset_is_relevant?(%{
              base
-             | "resources" => [%{"format" => "csv", "schema" => %{"name" => "etalab/schema-irve"}, "description" => ""}]
+             | "resources" => [
+                 %{"format" => "csv", "schema" => %{"name" => "etalab/schema-irve-statique"}, "description" => ""}
+               ]
            })
   end
 
