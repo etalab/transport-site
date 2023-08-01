@@ -4,12 +4,16 @@ Vous gérez des données présentes sur transport.data.gouv.fr.
 
 ## Gérer vos notifications
 
+<%= if Enum.count(@datasets_subscribed) == 1 do %>
+Vous êtes susceptible de recevoir des notifications pour le jeu de données <%= @datasets_subscribed |> hd() |> link_for_dataset(:heex) %>.
+<% else %>
 Vous êtes susceptible de recevoir des notifications pour les jeux de données suivants :
 <ul>
   <%= for dataset <- @datasets_subscribed do %>
   <li><%= link_for_dataset(dataset, :heex) %></li>
   <% end %>
 </ul>
+<% end %>
 
 Les notifications facilitent la gestion de vos données. Elles vous permettront d'être averti de l'[expiration de vos ressources, des erreurs qu'elles peuvent contenir et de leur potentielle indisponibilité](https://doc.transport.data.gouv.fr/producteurs/gerer-la-qualite-des-donnees/sinscrire-aux-notifications#les-differents-types-de-notifications).
 
