@@ -15,7 +15,7 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
     test "with a specific schema version" do
       setup_schemas_response()
       schema_version = "0.2.2"
-      query = URI.encode_query(%{schema: schema_url(@schema_name, schema_version), url: @url})
+      query = URI.encode_query(%{schema: schema_url(@schema_name, schema_version), url: @url, header_case: "false"})
       expected_url = "https://validata-api.app.etalab.studio/validate?#{query}"
 
       assert validator_api_url(@schema_name, @url, schema_version) == expected_url
@@ -23,7 +23,7 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
 
     test "with latest version" do
       setup_schemas_response()
-      query = URI.encode_query(%{schema: schema_url(@schema_name, "latest"), url: @url})
+      query = URI.encode_query(%{schema: schema_url(@schema_name, "latest"), url: @url, header_case: "false"})
       expected_url = "https://validata-api.app.etalab.studio/validate?#{query}"
 
       assert validator_api_url(@schema_name, @url) == expected_url
@@ -166,7 +166,7 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
   defp read_json(filename), do: File.read!("#{__DIR__}/../fixtures/#{filename}")
 
   defp validata_response_with_body(body, status_code \\ 200) do
-    query = URI.encode_query(%{schema: schema_url(@schema_name, "latest"), url: @url})
+    query = URI.encode_query(%{schema: schema_url(@schema_name, "latest"), url: @url, header_case: "false"})
     url = "https://validata-api.app.etalab.studio/validate?#{query}"
 
     Transport.HTTPoison.Mock
