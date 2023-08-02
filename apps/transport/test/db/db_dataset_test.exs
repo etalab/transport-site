@@ -152,6 +152,16 @@ defmodule DB.DatasetDBTest do
                  "legal_owner_company_siren" => "552049447"
                })
     end
+
+    test "custom_title is trimmed" do
+      assert {:ok, %Ecto.Changeset{changes: %{custom_title: "Foo"}}} =
+               Dataset.changeset(%{
+                 "datagouv_id" => "1",
+                 "slug" => "slug",
+                 "national_dataset" => "true",
+                 "custom_title" => "  Foo "
+               })
+    end
   end
 
   describe "mobility-licence" do
