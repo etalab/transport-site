@@ -28,6 +28,11 @@ defmodule DB.NotificationTest do
     assert MapSet.new([email, other_email]) == DB.Notification |> select([n], n.email) |> DB.Repo.all() |> MapSet.new()
   end
 
+  test "can insert without a dataset" do
+    DB.Notification.insert!(:periodic_reminder_producers, email = Ecto.UUID.generate() <> "@example.fr")
+    assert [%DB.Notification{reason: :periodic_reminder_producers, email: ^email}] = DB.Notification |> DB.Repo.all()
+  end
+
   test "recent_reasons_binned" do
     dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
     yesterday = DateTime.add(DateTime.utc_now(), -1, :day)

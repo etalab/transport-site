@@ -6,6 +6,7 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
   import Ecto.Query
 
   @max_emails_per_day 100
+  @notification_reason :periodic_reminder_producers
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: args, inserted_at: %DateTime{} = inserted_at}) when args == %{} or is_nil(args) do
@@ -54,7 +55,7 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
       })
     )
 
-    # Save the notification
+    DB.Notification.insert!(@notification_reason, contact.email)
   end
 
   def contacts_in_orgs(org_ids) do

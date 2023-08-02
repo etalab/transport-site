@@ -42,3 +42,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "resources_changed"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "periodic_reminder_producers"
+msgstr ""
