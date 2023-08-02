@@ -33,7 +33,7 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
     :ok
   end
 
-  defp send_mail_producer_with_subscriptions(%DB.Contact{notification_subscriptions: subscriptions} = contact) do
+  defp send_mail_producer_with_subscriptions(%DB.Contact{} = contact) do
     other_producers_subscribers = contact |> other_producers_subscribers()
 
     Transport.EmailSender.impl().send_mail(
@@ -44,18 +44,22 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
       "Rappel : vos notifications pour vos données sur transport.data.gouv.fr",
       "",
       Phoenix.View.render_to_string(TransportWeb.EmailView, "producer_with_subscriptions.html", %{
-        datasets_subscribed:
-          subscriptions
-          |> Enum.filter(&(&1.role == :producer))
-          |> Enum.map(& &1.dataset)
-          |> Enum.uniq()
-          |> Enum.sort_by(& &1.custom_title),
+        datasets_subscribed: contact |> datasets_subscribed_as_producer(),
         has_other_producers_subscribers: not Enum.empty?(other_producers_subscribers),
         other_producers_subscribers: Enum.map_join(other_producers_subscribers, ", ", &DB.Contact.display_name/1)
       })
     )
 
     DB.Notification.insert!(@notification_reason, contact.email)
+  end
+
+  @spec datasets_subscribed_as_producer(DB.Contact.t()) :: [DB.Dataset.t()]
+  def datasets_subscribed_as_producer(%DB.Contact{notification_subscriptions: subscriptions}) do
+    subscriptions
+    |> Enum.filter(&(&1.role == :producer))
+    |> Enum.map(& &1.dataset)
+    |> Enum.uniq()
+    |> Enum.sort_by(& &1.custom_title)
   end
 
   def contacts_in_orgs(org_ids) do

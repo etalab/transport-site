@@ -1,7 +1,6 @@
 defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJobTest do
   use ExUnit.Case, async: true
   import DB.Factory
-  # import Ecto.Query
   use Oban.Testing, repo: DB.Repo
   alias Transport.Jobs.PeriodicReminderProducersNotificationJob
   import Mox
@@ -110,7 +109,7 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
         ]
       })
 
-    Enum.each(~w(expiration dataset_with_error), fn reason ->
+    Enum.each(~w(expiration dataset_with_error)a, fn reason ->
       insert(:notification_subscription,
         source: :admin,
         role: :producer,
@@ -171,6 +170,34 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
              producer_1
              |> DB.Repo.preload(:notification_subscriptions)
              |> PeriodicReminderProducersNotificationJob.other_producers_subscribers()
+  end
+
+  test "datasets_subscribed_as_producer" do
+    contact = insert_contact()
+    %DB.Dataset{id: d1_id} = d1 = insert(:dataset, custom_title: "A")
+    %DB.Dataset{id: d2_id} = d2 = insert(:dataset, custom_title: "B")
+    d3 = insert(:dataset, custom_title: "C")
+
+    [
+      {d1, :producer, :expiration},
+      {d2, :producer, :expiration},
+      {d2, :producer, :dataset_with_error},
+      {d3, :reuser, :expiration}
+    ]
+    |> Enum.each(fn {%DB.Dataset{} = dataset, role, reason} ->
+      insert(:notification_subscription,
+        source: :admin,
+        role: role,
+        reason: reason,
+        dataset: dataset,
+        contact: contact
+      )
+    end)
+
+    assert [%DB.Dataset{id: ^d1_id}, %DB.Dataset{id: ^d2_id}] =
+             contact
+             |> DB.Repo.preload(notification_subscriptions: [:dataset])
+             |> PeriodicReminderProducersNotificationJob.datasets_subscribed_as_producer()
   end
 
   test "send mail to producer with subscriptions" do
