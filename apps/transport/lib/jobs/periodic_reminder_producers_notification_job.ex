@@ -1,8 +1,17 @@
 defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
   @moduledoc """
-  A comment will be written later.
+  This jobs sends emails to producers on the first Monday of a few months per year.
+  The goals are to:
+  - let them know that they could receive notifications
+  - review notification settings
+  - advertise about these features
+  - review settings regarding colleagues/organisations
+  - provide an opportunity to get in touch with our team
+
+  Emails may be sent over multiple days if we have a large number to send, to
+  avoid going over daily quotas and to spread the support load.
   """
-  use Oban.Worker, max_attempts: 3
+  use Oban.Worker, max_attempts: 3, tags: ["notifications"]
   import Ecto.Query
 
   @max_emails_per_day 100
@@ -37,6 +46,46 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
 
       :ok
     end
+  end
+
+  defp relevant_contacts do
+    orgs_with_dataset =
+      DB.Dataset.base_query()
+      |> select([dataset: d], d.organization_id)
+      |> distinct(true)
+      |> DB.Repo.all()
+      |> MapSet.new()
+
+    # Identify contacts we want to reach:
+    # - they have at least a subscription as a producer (=> review settings)
+    # - they don't have subscriptions but they are a member of an org
+    #   with published datasets (=> advertise subscriptions)
+    DB.Contact.base_query()
+    |> preload([:organizations, :notification_subscriptions])
+    |> join(:left, [contact: c], c in assoc(c, :organizations), as: :organization)
+    |> order_by([organization: o], asc: o.id)
+    |> DB.Repo.all()
+    |> Enum.filter(fn %DB.Contact{organizations: orgs} = contact ->
+      org_has_published_dataset? = not MapSet.disjoint?(MapSet.new(orgs, & &1.id), orgs_with_dataset)
+
+      subscribed_as_producer?(contact) or org_has_published_dataset?
+    end)
+  end
+
+  defp schedule_jobs(contacts, %DateTime{} = scheduled_at) do
+    contacts
+    |> Enum.map(fn %DB.Contact{id: id} -> id end)
+    |> Enum.chunk_every(chunk_size())
+    # credo:disable-for-next-line Credo.Check.Warning.UnusedEnumOperation
+    |> Enum.reduce(scheduled_at, fn ids, %DateTime{} = scheduled_at ->
+      ids
+      |> Enum.map(&(%{"contact_id" => &1} |> new(scheduled_at: scheduled_at)))
+      |> Oban.insert_all()
+
+      next_weekday(scheduled_at)
+    end)
+
+    :ok
   end
 
   def sent_mail_recently?(%DB.Contact{email: email}) do
@@ -115,10 +164,12 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
     |> Enum.sort_by(&DB.Contact.display_name/1)
   end
 
+  @spec subscribed_as_producer?(DB.Contact.t()) :: boolean()
   def subscribed_as_producer?(%DB.Contact{notification_subscriptions: subscriptions}) do
     Enum.any?(subscriptions, &match?(%DB.NotificationSubscription{role: :producer}, &1))
   end
 
+  @spec other_producers_subscribers(DB.Contact.t()) :: [DB.Contact.t()]
   def other_producers_subscribers(%DB.Contact{id: contact_id, notification_subscriptions: subscriptions}) do
     dataset_ids = subscriptions |> Enum.map(& &1.dataset_id) |> Enum.uniq()
 
@@ -132,46 +183,6 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
     |> Enum.map(& &1.contact)
     |> Enum.uniq()
     |> Enum.sort_by(&DB.Contact.display_name/1)
-  end
-
-  defp relevant_contacts do
-    orgs_with_dataset =
-      DB.Dataset.base_query()
-      |> select([dataset: d], d.organization_id)
-      |> distinct(true)
-      |> DB.Repo.all()
-      |> MapSet.new()
-
-    # Identify contacts we want to reach:
-    # - they have at least a subscription as a producer (=> review settings)
-    # - they don't have subscriptions but they are a member of an org
-    #   with published datasets (=> advertise subscriptions)
-    DB.Contact.base_query()
-    |> preload([:organizations, :notification_subscriptions])
-    |> join(:left, [contact: c], c in assoc(c, :organizations), as: :organization)
-    |> order_by([organization: o], asc: o.id)
-    |> DB.Repo.all()
-    |> Enum.filter(fn %DB.Contact{organizations: orgs} = contact ->
-      org_has_published_dataset? = not MapSet.disjoint?(MapSet.new(orgs, & &1.id), orgs_with_dataset)
-
-      subscribed_as_producer?(contact) or org_has_published_dataset?
-    end)
-  end
-
-  defp schedule_jobs(contacts, %DateTime{} = scheduled_at) do
-    contacts
-    |> Enum.map(fn %DB.Contact{id: id} -> id end)
-    |> Enum.chunk_every(chunk_size())
-    # credo:disable-for-next-line Credo.Check.Warning.UnusedEnumOperation
-    |> Enum.reduce(scheduled_at, fn ids, %DateTime{} = scheduled_at ->
-      ids
-      |> Enum.map(&(%{"contact_id" => &1} |> new(scheduled_at: scheduled_at)))
-      |> Oban.insert_all()
-
-      next_weekday(scheduled_at)
-    end)
-
-    :ok
   end
 
   @doc """
