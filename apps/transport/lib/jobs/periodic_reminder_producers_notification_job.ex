@@ -195,12 +195,13 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
   ~D[2023-10-02]
   iex> first_monday_of_month(~D[2024-01-08])
   ~D[2024-01-01]
+  iex> first_monday_of_month(~D[2024-01-01])
+  ~D[2024-01-01]
   """
   def first_monday_of_month(%Date{} = date) do
-    date
-    |> Date.beginning_of_month()
-    |> Date.add(6)
-    |> Date.beginning_of_week(:monday)
+    1..8
+    |> Enum.map(fn day -> %Date{date | day: day} end)
+    |> Enum.find(&(Date.day_of_week(&1) == 1))
   end
 
   @doc """

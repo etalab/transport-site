@@ -132,7 +132,10 @@ oban_crontab_all_envs =
          args: %{schema_name: "etalab/schema-irve-dynamique", days_limit: 7}},
         {"0 16 * * *", Transport.Jobs.DatasetQualityScoreDispatcher},
         {"40 3 * * *", Transport.Jobs.UpdateContactsJob},
-        {"10 5 * * *", Transport.Jobs.NotificationSubscriptionProducerJob}
+        {"10 5 * * *", Transport.Jobs.NotificationSubscriptionProducerJob},
+        # "At 08:15 on Monday in March, June, and November.""
+        # The job will make sure that it's executed only on the first Monday of these months
+        {"15 8 * 3,6,11 1", Transport.Jobs.PeriodicReminderProducersNotificationJob}
       ]
 
     :dev ->
