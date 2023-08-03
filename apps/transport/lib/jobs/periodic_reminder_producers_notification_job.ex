@@ -26,11 +26,53 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
       |> preload([:organizations, notification_subscriptions: [:dataset]])
       |> DB.Repo.get!(contact_id)
 
-    if contact |> subscribed_as_producer?() do
-      send_mail_producer_with_subscriptions(contact)
-    end
+    if sent_mail_recently?(contact) do
+      {:discard, "Mail has already been sent recently"}
+    else
+      if contact |> subscribed_as_producer?() do
+        send_mail_producer_with_subscriptions(contact)
+      else
+        send_mail_producer_without_subscriptions(contact)
+      end
 
-    :ok
+      :ok
+    end
+  end
+
+  def sent_mail_recently?(%DB.Contact{email: email}) do
+    dt_limit = DateTime.utc_now() |> DateTime.add(-90, :day)
+
+    DB.Notification
+    |> where([n], n.email_hash == ^email and n.reason == ^@notification_reason and n.inserted_at >= ^dt_limit)
+    |> DB.Repo.exists?()
+  end
+
+  defp send_mail_producer_without_subscriptions(%DB.Contact{organizations: orgs} = contact) do
+    datasets =
+      orgs
+      |> DB.Repo.preload(:datasets)
+      |> Enum.flat_map(& &1.datasets)
+      |> Enum.uniq()
+      |> Enum.filter(&DB.Dataset.is_active?/1)
+      |> Enum.sort_by(fn %DB.Dataset{custom_title: custom_title} -> custom_title end)
+
+    contacts_in_orgs = contact |> other_contacts_in_orgs()
+
+    Transport.EmailSender.impl().send_mail(
+      "transport.data.gouv.fr",
+      Application.get_env(:transport, :contact_email),
+      contact.email,
+      Application.get_env(:transport, :contact_email),
+      "Notifications pour vos données sur transport.data.gouv.fr",
+      "",
+      Phoenix.View.render_to_string(TransportWeb.EmailView, "producer_without_subscriptions.html", %{
+        datasets: datasets,
+        contacts_in_orgs: Enum.map_join(contacts_in_orgs, ", ", &DB.Contact.display_name/1),
+        has_other_contacts: not Enum.empty?(contacts_in_orgs)
+      })
+    )
+
+    DB.Notification.insert!(@notification_reason, contact.email)
   end
 
   defp send_mail_producer_with_subscriptions(%DB.Contact{} = contact) do
@@ -62,21 +104,15 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
     |> Enum.sort_by(& &1.custom_title)
   end
 
-  def contacts_in_orgs(org_ids) do
-    DB.Organization
-    |> preload(:contacts)
-    |> where([o], o.id in ^org_ids)
-    |> DB.Repo.all()
+  @spec other_contacts_in_orgs(DB.Contact.t()) :: [DB.Contact.t()]
+  def other_contacts_in_orgs(%DB.Contact{id: contact_id} = contact) do
+    contact
+    |> DB.Repo.preload(organizations: [:contacts])
+    |> Map.fetch!(:organizations)
     |> Enum.flat_map(& &1.contacts)
     |> Enum.uniq()
+    |> Enum.reject(&match?(%DB.Contact{id: ^contact_id}, &1))
     |> Enum.sort_by(&DB.Contact.display_name/1)
-  end
-
-  def all_orgs(%DB.Contact{organizations: orgs, notification_subscriptions: subscriptions}) do
-    orgs
-    |> Enum.map(& &1.id)
-    |> Enum.concat(subscriptions |> Enum.map(& &1.dataset.organization_id))
-    |> Enum.uniq()
   end
 
   def subscribed_as_producer?(%DB.Contact{notification_subscriptions: subscriptions}) do

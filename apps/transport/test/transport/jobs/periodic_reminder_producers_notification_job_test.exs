@@ -99,54 +99,26 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
            |> PeriodicReminderProducersNotificationJob.subscribed_as_producer?()
   end
 
-  test "all_orgs" do
-    dataset = insert(:dataset, organization_id: dataset_org_id = Ecto.UUID.generate())
+  test "other_contacts_in_orgs" do
+    org_id = Ecto.UUID.generate()
 
     contact =
       insert_contact(%{
         organizations: [
-          sample_org(%{"id" => org_id = Ecto.UUID.generate()})
+          sample_org(%{"id" => org_id}),
+          sample_org()
         ]
       })
 
-    Enum.each(~w(expiration dataset_with_error)a, fn reason ->
-      insert(:notification_subscription,
-        source: :admin,
-        role: :producer,
-        reason: reason,
-        dataset: dataset,
-        contact: contact
-      )
-    end)
-
-    assert [dataset_org_id, org_id] |> Enum.sort() ==
-             contact
-             |> DB.Repo.preload([:organizations, notification_subscriptions: [:dataset]])
-             |> PeriodicReminderProducersNotificationJob.all_orgs()
-             |> Enum.sort()
-  end
-
-  test "contacts_in_orgs" do
-    dataset = insert(:dataset, organization_id: dataset_org_id = Ecto.UUID.generate())
-    contact_with_sub = insert_contact()
-
-    insert(:notification_subscription,
-      source: :admin,
-      role: :producer,
-      reason: :expiration,
-      dataset: dataset,
-      contact: contact_with_sub
-    )
-
-    %DB.Contact{id: contact_without_subs_id} =
+    %DB.Contact{id: other_contact_id} =
       insert_contact(%{
         organizations: [
-          sample_org(%{"id" => dataset_org_id})
+          sample_org(%{"id" => org_id})
         ]
       })
 
-    assert [%DB.Contact{id: ^contact_without_subs_id}] =
-             PeriodicReminderProducersNotificationJob.contacts_in_orgs([dataset_org_id, Ecto.UUID.generate()])
+    assert [%DB.Contact{id: ^other_contact_id}] =
+             PeriodicReminderProducersNotificationJob.other_contacts_in_orgs(contact)
   end
 
   test "other_producers_subscribers" do
@@ -238,7 +210,67 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
     assert [%DB.Notification{reason: :periodic_reminder_producers, email: ^email}] = DB.Notification |> DB.Repo.all()
   end
 
-  defp sample_org(%{} = args) do
+  test "send mail to producer without subscriptions" do
+    org_id = Ecto.UUID.generate()
+
+    %DB.Contact{email: email} =
+      contact =
+      insert_contact(%{
+        organizations: [
+          sample_org(%{"id" => org_id})
+        ]
+      })
+
+    insert_contact(%{
+      first_name: "Marina",
+      last_name: "Loiseau",
+      organizations: [
+        sample_org(%{"id" => org_id}),
+        sample_org()
+      ]
+    })
+
+    dataset = insert(:dataset, custom_title: "Super JDD", organization_id: org_id)
+
+    refute contact
+           |> DB.Repo.preload(:notification_subscriptions)
+           |> PeriodicReminderProducersNotificationJob.subscribed_as_producer?()
+
+    Transport.EmailSender.Mock
+    |> expect(:send_mail, fn "transport.data.gouv.fr",
+                             "contact@transport.beta.gouv.fr",
+                             ^email = _to,
+                             "contact@transport.beta.gouv.fr",
+                             subject,
+                             "",
+                             html ->
+      assert subject == "Notifications pour vos données sur transport.data.gouv.fr"
+
+      assert html =~
+               ~s(Vous gérez le jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a>)
+
+      assert html =~ "Pour vous faciliter la gestion de ces données, vous pouvez activer des notifications"
+
+      assert html =~
+               "Les autres personnes pouvant s’inscrire à ces notifications et s’étant déjà connecté sont : Marina Loiseau."
+    end)
+
+    assert :ok == perform_job(PeriodicReminderProducersNotificationJob, %{"contact_id" => contact.id})
+
+    assert [%DB.Notification{reason: :periodic_reminder_producers, email: ^email}] = DB.Notification |> DB.Repo.all()
+  end
+
+  test "makes sure the email has not been sent recently already" do
+    contact = insert_contact()
+    refute PeriodicReminderProducersNotificationJob.sent_mail_recently?(contact)
+    DB.Notification.insert!(:periodic_reminder_producers, contact.email)
+    assert PeriodicReminderProducersNotificationJob.sent_mail_recently?(contact)
+
+    assert {:discard, "Mail has already been sent recently"} ==
+             perform_job(PeriodicReminderProducersNotificationJob, %{"contact_id" => contact.id})
+  end
+
+  defp sample_org(%{} = args \\ %{}) do
     Map.merge(
       %{
         "acronym" => nil,
@@ -247,7 +279,7 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
         "logo" => "https://example.com/original.png",
         "logo_thumbnail" => "https://example.com/100.png",
         "name" => "Big Corp",
-        "slug" => "foo"
+        "slug" => "foo" <> Ecto.UUID.generate()
       },
       args
     )
