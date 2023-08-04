@@ -1,0 +1,24 @@
+<div :if={@dataset_scores != %{}} class="light-grey pt-6">
+  <% freshness_score = Map.get(@dataset_scores, :freshness) %>
+  <div>
+    <%= unless is_nil(freshness_score) do %>
+      Score fraicheur : <%= freshness_score.score %>
+      <span class="small">
+        <%= freshness_score.timestamp |> Shared.DateTimeDisplay.format_datetime_to_paris(@locale) %>
+      </span>
+    <% else %>
+      Pas de score fraicheur
+    <% end %>
+  </div>
+  <% availability_score = Map.get(@dataset_scores, :availability) %>
+  <div>
+    <%= unless is_nil(availability_score) do %>
+      Score de disponibilité : <%= availability_score.score %>
+      <span class="small">
+        <%= availability_score.timestamp |> Shared.DateTimeDisplay.format_datetime_to_paris(@locale) %>
+      </span>
+    <% else %>
+      Pas de score de disponibilité
+    <% end %>
+  </div>
+</div>

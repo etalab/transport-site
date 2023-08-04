@@ -370,6 +370,32 @@ defmodule TransportWeb.DatasetControllerTest do
              |> Phoenix.HTML.safe_to_string()
   end
 
+  test "displays dataset scores for admins", %{conn: conn} do
+    dataset = insert(:dataset, is_active: true)
+
+    insert(:dataset_score,
+      dataset: dataset,
+      timestamp: DateTime.utc_now() |> DateTime.add(-1, :hour),
+      score: 0.55,
+      topic: :freshness
+    )
+
+    set_empty_mocks()
+
+    content =
+      conn
+      |> setup_admin_in_session()
+      |> get(dataset_path(conn, :details, dataset.slug))
+      |> html_response(200)
+
+    assert content =~ "Score fraicheur : 0.55"
+
+    # For someone who's not an admin
+    set_empty_mocks()
+    content = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200)
+    refute content =~ "Score fraicheur"
+  end
+
   test "gtfs-rt entities" do
     dataset = %{id: dataset_id} = insert(:dataset, type: "public-transit")
     %{id: resource_id_1} = insert(:resource, dataset_id: dataset_id, format: "gtfs-rt")
