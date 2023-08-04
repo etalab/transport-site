@@ -76,6 +76,14 @@ defmodule TransportWeb.SessionControllerTest do
     assert_in_delta last_login_at |> DateTime.to_unix(), DateTime.utc_now() |> DateTime.to_unix(), 1
   end
 
+  test "save_current_user", %{conn: conn} do
+    pan_org = %{"slug" => "equipe-transport-data-gouv-fr", "name" => "PAN"}
+    user_params = %{"foo" => "bar", "organizations" => [%{"slug" => "foo"}, pan_org]}
+
+    assert %{"foo" => "bar", "organizations" => [pan_org]} ==
+             conn |> init_test_session(%{}) |> save_current_user(user_params) |> get_session(:current_user)
+  end
+
   test "GET /login/callback and redirection to /datasets", %{conn: conn} do
     conn =
       conn
