@@ -19,7 +19,7 @@ Les notifications facilitent la gestion de vos données. Elles vous permettront 
 
 Vous pouvez gérer ces notifications depuis [votre espace producteur du Point d'accès national](<%= TransportWeb.Router.Helpers.page_url(TransportWeb.Endpoint, :espace_producteur) %>).
 
-## Gestion de vos collègues
+## Gérer les membres de vos organisations
 
 <%= if @has_other_producers_subscribers do %>
 Les autres personnes inscrites à ces notifications sont : <%= @other_producers_subscribers %>.

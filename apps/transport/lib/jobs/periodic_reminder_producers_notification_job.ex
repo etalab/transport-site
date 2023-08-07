@@ -1,6 +1,6 @@
 defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
   @moduledoc """
-  This jobs sends emails to producers on the first Monday of a few months per year.
+  This job sends emails to producers on the first Monday of a few months per year.
   The goals are to:
   - let them know that they could receive notifications
   - review notification settings
@@ -216,6 +216,8 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
   end
 
   @doc """
+  Returns the following weekday, avoiding Saturdays and Sundays.
+
   iex> next_weekday(~U[2023-07-28 09:05:00Z])
   ~U[2023-07-31 09:05:00Z]
   iex> next_weekday(~U[2023-07-29 09:05:00Z])

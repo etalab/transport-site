@@ -14,7 +14,8 @@ defmodule DB.NotificationSubscription do
   @hidden_reasons_related_to_datasets [:dataset_now_on_nap, :resources_changed]
   # These notification reasons are *not* linked to a specific dataset, `dataset_id` should be nil
   @platform_wide_reasons [:new_dataset, :datasets_switching_climate_resilience_bill, :daily_new_comments]
-  # These notifications should not be linked to a dataset and should be hidden from users
+  # These notifications should not be linked to a dataset and should be hidden from users: they
+  # should not be able to subscribe to these reasons.
   @hidden_platform_wide_reasons [:periodic_reminder_producers]
   @possible_roles [:producer, :reuser]
   @type role :: :producer | :reuser
@@ -23,7 +24,9 @@ defmodule DB.NotificationSubscription do
     field(:reason, Ecto.Enum,
       values:
         @reasons_related_to_datasets ++
-          @platform_wide_reasons ++ @hidden_reasons_related_to_datasets ++ @hidden_platform_wide_reasons
+          @platform_wide_reasons ++
+          @hidden_reasons_related_to_datasets ++
+          @hidden_platform_wide_reasons
     )
 
     # Useful to know if the subscription has been created by an admin
@@ -76,7 +79,8 @@ defmodule DB.NotificationSubscription do
     do:
       reasons_related_to_datasets() ++
         platform_wide_reasons() ++
-        @hidden_reasons_related_to_datasets ++ @hidden_platform_wide_reasons
+        @hidden_reasons_related_to_datasets ++
+        @hidden_platform_wide_reasons
 
   @spec subscriptions_for_reason(atom()) :: [__MODULE__.t()]
   def subscriptions_for_reason(reason) do

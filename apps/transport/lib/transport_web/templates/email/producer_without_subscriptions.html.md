@@ -17,7 +17,7 @@ Vous gérez les jeux de données suivants :
 
 Pour vous faciliter la gestion de ces données, vous pouvez activer des notifications depuis [votre espace producteur du Point d'accès national](<%= TransportWeb.Router.Helpers.page_url(TransportWeb.Endpoint, :espace_producteur) %>). Elles vous permettront d'être averti de l'[expiration de vos ressources, des erreurs qu'elles peuvent contenir et de leur potentielle indisponibilité](https://doc.transport.data.gouv.fr/producteurs/gerer-la-qualite-des-donnees/sinscrire-aux-notifications#les-differents-types-de-notifications).
 
-## Gestion de vos collègues
+## Gérer les membres de vos organisations
 
 <%= if @has_other_contacts do %>
 Les autres personnes pouvant s'inscrire à ces notifications et s'étant déjà connecté sont : <%= @contacts_in_orgs %>.
