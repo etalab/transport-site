@@ -42,3 +42,7 @@ msgstr "Le jeu de données a été référencé sur le PAN"
 #, elixir-autogen, elixir-format
 msgid "resources_changed"
 msgstr "Les ressources d'un jeu de données ont été modifiées"
+
+#, elixir-autogen, elixir-format
+msgid "periodic_reminder_producers"
+msgstr "Rappels périodiques pour les producteurs"

@@ -86,6 +86,9 @@ defmodule DB.Dataset do
   def is_archived?(%__MODULE__{archived_at: nil}), do: false
   def is_archived?(%__MODULE__{archived_at: %DateTime{}}), do: true
 
+  @spec is_active?(__MODULE__.t()) :: boolean()
+  def is_active?(%__MODULE__{is_active: is_active}), do: is_active
+
   @doc """
   Creates a query with the following inner joins:
   datasets <> Resource <> ResourceHistory <> MultiValidation <> ResourceMetadata
