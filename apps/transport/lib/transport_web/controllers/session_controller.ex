@@ -24,7 +24,7 @@ defmodule TransportWeb.SessionController do
       find_or_create_contact(user_params)
 
       conn
-      |> put_session(:current_user, user_params)
+      |> save_current_user(user_params)
       |> redirect(to: get_redirect_path(conn))
       |> halt()
     else
@@ -126,13 +126,23 @@ defmodule TransportWeb.SessionController do
     )
   end
 
-  def user_params_in_session(%{} = params) do
+  def save_current_user(%Plug.Conn{} = conn, %{} = user_params) do
+    conn |> put_session(:current_user, user_params |> user_params_for_session())
+  end
+
+  @doc """
+  iex> pan_org = %{"slug" => "equipe-transport-data-gouv-fr", "name" => "PAN"}
+  iex> other_org = %{"slug" => "foo-inc", "name" => "Foo Inc"}
+  iex> user_params_for_session(%{"foo" => "bar", "organizations" => [pan_org, other_org]})
+  %{"foo" => "bar", "organizations" => [pan_org]}
+  """
+  def user_params_for_session(%{} = params) do
     Map.put(
       params,
       "organizations",
       Enum.filter(
         params["organizations"],
-        &match?(&1, %{"slug" => "equipe-transport-data-gouv-fr"})
+        &match?(%{"slug" => "equipe-transport-data-gouv-fr"}, &1)
       )
     )
   end
