@@ -481,6 +481,7 @@ defmodule DB.Dataset do
       :custom_tags,
       :legal_owner_company_siren
     ])
+    |> update_change(:custom_title, &String.trim/1)
     |> cast_aom(params)
     |> cast_datagouv_zone(params, territory_name)
     |> cast_nation_dataset(params)
