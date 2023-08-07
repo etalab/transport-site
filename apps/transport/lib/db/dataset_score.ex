@@ -32,11 +32,31 @@ defmodule DB.DatasetScore do
   Latest score for a given dataset and topic
   """
   @spec get_latest(DB.Dataset.t(), atom()) :: DB.DatasetScore.t() | nil
-  def get_latest(%DB.Dataset{id: dataset_id}, topic) do
+  def get_latest(%DB.Dataset{id: dataset_id}, topic) when is_atom(topic) do
     __MODULE__.base_query()
     |> where([dataset_score: ds], ds.dataset_id == ^dataset_id and ds.topic == ^topic)
     |> order_by([ds], desc: ds.timestamp)
     |> limit(1)
     |> DB.Repo.one()
+  end
+
+  @doc """
+  Latest scores for a given dataset and a list of topics
+  """
+  @spec get_latest_scores(DB.Dataset.t(), [atom()]) :: %{required(atom()) => DB.DatasetScore.t()}
+  def get_latest_scores(%DB.Dataset{id: dataset_id}, topics) when is_list(topics) do
+    ids =
+      __MODULE__.base_query()
+      |> where([dataset_score: ds], ds.dataset_id == ^dataset_id and ds.topic in ^topics)
+      |> select(
+        [dataset_score: ds],
+        ds.id |> first_value() |> over(partition_by: ds.topic, order_by: [desc: ds.timestamp])
+      )
+      |> distinct(true)
+
+    __MODULE__.base_query()
+    |> where([dataset_score: ds], ds.id in subquery(ids))
+    |> DB.Repo.all()
+    |> Enum.into(%{}, fn %__MODULE__{topic: topic} = ds -> {topic, ds} end)
   end
 end

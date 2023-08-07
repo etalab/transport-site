@@ -80,4 +80,39 @@ defmodule DB.DatasetScoreTest do
   test "get unexisting latest score" do
     assert %DB.Dataset{id: 123_456} |> DB.DatasetScore.get_latest(:freshness) |> is_nil()
   end
+
+  test "get_latest_scores" do
+    dataset = insert(:dataset)
+    other_dataset = insert(:dataset)
+
+    # old
+    insert(:dataset_score,
+      dataset: dataset,
+      timestamp: DateTime.utc_now() |> DateTime.add(-1, :day),
+      score: 1.0,
+      topic: :freshness
+    )
+
+    # the expected results
+    freshness_score =
+      insert(:dataset_score,
+        dataset_id: dataset.id,
+        timestamp: DateTime.utc_now() |> DateTime.add(-1, :hour),
+        score: 0.55,
+        topic: :freshness
+      )
+
+    availability_score =
+      insert(:dataset_score, dataset_id: dataset.id, timestamp: DateTime.utc_now(), score: 1.0, topic: :availability)
+
+    # other dataset
+    insert(:dataset_score, dataset: other_dataset, timestamp: DateTime.utc_now(), score: 1.0, topic: :freshness)
+
+    assert %{freshness: freshness_score} == DB.DatasetScore.get_latest_scores(dataset, [:freshness])
+
+    assert %{freshness: freshness_score, availability: availability_score} ==
+             DB.DatasetScore.get_latest_scores(dataset, [:freshness, :availability])
+
+    assert %{} == DB.DatasetScore.get_latest_scores(%DB.Dataset{id: 123_456}, [:freshness, :availability])
+  end
 end
