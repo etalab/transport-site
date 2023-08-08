@@ -396,6 +396,33 @@ defmodule TransportWeb.DatasetControllerTest do
     refute content =~ "Score fraicheur"
   end
 
+  describe "scores_chart" do
+    test "is displayed for admins", %{conn: conn} do
+      dataset = insert(:dataset, is_active: true)
+      set_empty_mocks()
+
+      refute conn
+             |> setup_admin_in_session()
+             |> get(dataset_path(conn, :details, dataset.slug))
+             |> html_response(200)
+             |> Floki.parse_document!()
+             |> Floki.find("#scores-chart")
+             |> Enum.empty?()
+    end
+
+    test "is not displayed for regular users", %{conn: conn} do
+      dataset = insert(:dataset, is_active: true)
+      set_empty_mocks()
+
+      assert conn
+             |> get(dataset_path(conn, :details, dataset.slug))
+             |> html_response(200)
+             |> Floki.parse_document!()
+             |> Floki.find("#scores-chart")
+             |> Enum.empty?()
+    end
+  end
+
   test "gtfs-rt entities" do
     dataset = %{id: dataset_id} = insert(:dataset, type: "public-transit")
     %{id: resource_id_1} = insert(:resource, dataset_id: dataset_id, format: "gtfs-rt")

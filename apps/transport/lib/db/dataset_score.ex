@@ -59,4 +59,25 @@ defmodule DB.DatasetScore do
     |> DB.Repo.all()
     |> Enum.into(%{}, fn %__MODULE__{topic: topic} = ds -> {topic, ds} end)
   end
+
+  def scores_over_last_days(%DB.Dataset{id: dataset_id}, nb_days) when is_integer(nb_days) and nb_days > 0 do
+    dt_limit = %DateTime{DateTime.utc_now() | hour: 0, minute: 0, second: 0} |> DateTime.add(-nb_days, :day)
+
+    # Find the latest point for each topic for this dataset, for each day
+    ids =
+      __MODULE__.base_query()
+      |> where([dataset_score: ds], ds.dataset_id == ^dataset_id and ds.timestamp >= ^dt_limit)
+      |> select(
+        [dataset_score: ds],
+        ds.id
+        |> first_value()
+        |> over(partition_by: [ds.topic, fragment("?::date", ds.timestamp)], order_by: [desc: ds.timestamp])
+      )
+      |> distinct(true)
+
+    __MODULE__.base_query()
+    |> where([dataset_score: ds], ds.id in subquery(ids))
+    |> order_by([dataset_score: ds], asc: ds.timestamp, asc: ds.topic)
+    |> DB.Repo.all()
+  end
 end
