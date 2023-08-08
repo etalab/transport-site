@@ -1,5 +1,5 @@
 <% has_validity_period_col = has_validity_period?(@history_resources) %>
-<section class="white pt-48" id="backed-up-resources">
+<section :if={Enum.count(@history_resources) > 0} class="white pt-48" id="backed-up-resources">
   <h3><%= dgettext("page-dataset-details", "Backed up resources") %></h3>
   <div class="panel">
     <div id="backed-up-resources-see-more-wrapper">
