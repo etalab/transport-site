@@ -115,4 +115,46 @@ defmodule DB.DatasetScoreTest do
 
     assert %{} == DB.DatasetScore.get_latest_scores(%DB.Dataset{id: 123_456}, [:freshness, :availability])
   end
+
+  test "scores_over_last_days" do
+    dataset = insert(:dataset)
+    other_dataset = insert(:dataset)
+
+    # other dataset
+    insert(:dataset_score, dataset: other_dataset, timestamp: DateTime.utc_now(), score: 1.0, topic: :freshness)
+
+    [{-3, 0.75}, {-2, 0.5}, {-1, 0.75}, {0, 1}]
+    |> Enum.each(fn {days_delta, score} ->
+      insert(:dataset_score,
+        dataset: dataset,
+        timestamp: DateTime.utc_now() |> DateTime.add(days_delta, :day),
+        score: score,
+        topic: :freshness
+      )
+
+      insert(:dataset_score,
+        dataset: dataset,
+        timestamp: DateTime.utc_now() |> DateTime.add(days_delta, :day),
+        score: score - 0.25,
+        topic: :availability
+      )
+    end)
+
+    # should be ignored, not the latest point for today
+    insert(:dataset_score,
+      dataset: dataset,
+      timestamp: DateTime.utc_now() |> DateTime.add(-5, :minute),
+      score: 0,
+      topic: :freshness
+    )
+
+    assert [
+             %DB.DatasetScore{topic: :freshness, score: 0.5},
+             %DB.DatasetScore{topic: :availability, score: 0.25},
+             %DB.DatasetScore{topic: :freshness, score: 0.75},
+             %DB.DatasetScore{topic: :availability, score: 0.5},
+             %DB.DatasetScore{topic: :freshness, score: 1.0},
+             %DB.DatasetScore{topic: :availability, score: 0.75}
+           ] = DB.DatasetScore.scores_over_last_days(dataset, 2)
+  end
 end

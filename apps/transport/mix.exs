@@ -129,8 +129,8 @@ defmodule Transport.Mixfile do
       {:luhn, "~> 0.3.0"},
       {:ex_phone_number, "~> 0.3"},
       {:appsignal, "~> 2.0"},
-      {:appsignal_phoenix, "~> 2.0"}
-
+      {:appsignal_phoenix, "~> 2.0"},
+      {:vega_lite, "~> 0.1.7"}
     ]
   end
 end

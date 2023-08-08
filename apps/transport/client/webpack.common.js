@@ -11,6 +11,7 @@ module.exports = {
         app: './javascripts/app.js',
         clipboard: './javascripts/clipboard.js',
         map: './javascripts/map.js',
+        vega: './javascripts/vega.js',
         resourceviz: './javascripts/resource-viz.js',
         explore: './javascripts/explore.js',
         gtfs: './javascripts/gtfs.js',

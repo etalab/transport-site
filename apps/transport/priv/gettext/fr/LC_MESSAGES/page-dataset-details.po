@@ -601,3 +601,7 @@ msgstr "transport.data.gouv.fr envoie automatiquement des notifications au produ
 #, elixir-autogen, elixir-format
 msgid "loading discussions..."
 msgstr "chargement des discussions..."
+
+#, elixir-autogen, elixir-format
+msgid "Dataset scores"
+msgstr "Scores du jeu de données"

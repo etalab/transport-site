@@ -597,3 +597,10 @@ hr {
     margin-bottom: 1em;
   }
 }
+
+#vega-vis {
+  width: 100%;
+  max-width: 900px;
+  margin: 1em auto;
+  display: block;
+}
