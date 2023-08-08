@@ -1,7 +1,7 @@
 exclude = [:pending]
 # NOTE: the CI variable is defined by CircleCI (and oftent by CI providers) here:
 # https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables
-extra_exclude = if System.get_env("CI") == "true", do: [], else: [:transport_tools]
+extra_exclude = if System.get_env("CI") == "true", do: [], else: [:transport_tools, :documentation_links]
 
 ExUnit.configure(exclude: exclude ++ extra_exclude)
 
