@@ -21,6 +21,6 @@ defmodule Transport.DocumentationLinksTest do
         end
       end)
 
-    assert [] == failures, "Unexpected status codes for: #{Enum.map_join(failures, ", ", &elem(&1, 1))}"
+    assert [] == failures, "Unexpected status codes for:\n#{Enum.map_join(failures, "\n", &elem(&1, 1))}"
   end
 end
