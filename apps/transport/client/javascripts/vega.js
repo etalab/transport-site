@@ -1,3 +1,3 @@
-import embed from 'vega-embed';
+import embed from 'vega-embed'
 
-window.vegaEmbed = embed;
+window.vegaEmbed = embed
