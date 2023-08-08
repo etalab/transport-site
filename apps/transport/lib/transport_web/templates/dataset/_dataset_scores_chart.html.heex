@@ -3,7 +3,7 @@
   <div class="panel" id="scores-chart">
     <div id="vega-vis"></div>
     <p class="small">Ceci est visible uniquement par les membres de transport.data.gouv.fr.</p>
-    <script src={static_path(@conn, "/js/vega.js")} />
+    <script src={static_path(@conn, "/js/vega.js")} nonce={@conn.assigns[:csp_nonce_value]} />
     <script>
       const spec = <%= raw Jason.encode!(@scores_chart) %>;
       window.vegaEmbed("#vega-vis", spec, {renderer: "svg"});
