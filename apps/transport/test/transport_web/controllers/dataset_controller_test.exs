@@ -376,7 +376,7 @@ defmodule TransportWeb.DatasetControllerTest do
     insert(:dataset_score,
       dataset: dataset,
       timestamp: DateTime.utc_now() |> DateTime.add(-1, :hour),
-      score: 0.55,
+      score: 0.549,
       topic: :freshness
     )
 

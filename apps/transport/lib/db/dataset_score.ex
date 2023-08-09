@@ -20,7 +20,6 @@ defmodule DB.DatasetScore do
     |> cast(attrs, [:dataset_id, :topic, :score, :timestamp, :details])
     |> validate_required([:dataset_id, :topic, :timestamp])
     |> validate_change(:score, &between_0_and_1_if_exists/2)
-    |> update_change(:score, &Float.round(&1, 2))
   end
 
   def between_0_and_1_if_exists(:score, score) when score >= 0.0 and score <= 1.0, do: []
