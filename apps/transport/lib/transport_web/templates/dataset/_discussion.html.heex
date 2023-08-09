@@ -31,7 +31,7 @@
       </div>
     <% end %>
 
-    <div :if={@current_user} class="discussion-form">
+    <div :if={not is_nil(@current_user) and is_nil(@discussion["closed"])} class="discussion-form">
       <a href={"#reply-#{@discussion["id"]}"}>
         <%= dgettext("page-dataset-details", "Respond") %>
       </a>
