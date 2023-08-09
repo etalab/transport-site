@@ -235,7 +235,9 @@ defmodule TransportWeb.Router do
     end
 
     # old static pages that have been moved to doc.transport
-    get("/faq", Redirect, external: "https://doc.transport.data.gouv.fr/foire-aux-questions-1/generalites")
+    get("/faq", Redirect,
+      external: "https://doc.transport.data.gouv.fr/le-point-d-acces-national/generalites/le-point-dacces-national"
+    )
 
     get("/guide", Redirect,
       external:
@@ -252,7 +254,7 @@ defmodule TransportWeb.Router do
         "https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/conditions-dutilisation-des-donnees/licence-odbl"
     )
 
-    get("/budget", Redirect, external: "https://doc.transport.data.gouv.fr/guide-du-pan/budget")
+    get("/budget", Redirect, external: "https://doc.transport.data.gouv.fr/le-point-d-acces-national/generalites/budget")
 
     # old static pages that have been moved to blog.transport
     get("/blog/2019_04_26_interview_my_bus", Redirect,
