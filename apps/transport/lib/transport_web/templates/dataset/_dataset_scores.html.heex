@@ -2,7 +2,7 @@
   <% freshness_score = Map.get(@dataset_scores, :freshness) %>
   <div>
     <%= unless is_nil(freshness_score) do %>
-      Score fraicheur : <%= freshness_score.score |> Float.round(2) %>
+      Score fraicheur : <%= DB.DatasetScore.score_for_humans(freshness_score) %>
       <span class="small">
         <%= freshness_score.timestamp |> Shared.DateTimeDisplay.format_datetime_to_paris(@locale) %>
       </span>
@@ -13,7 +13,7 @@
   <% availability_score = Map.get(@dataset_scores, :availability) %>
   <div>
     <%= unless is_nil(availability_score) do %>
-      Score de disponibilité : <%= availability_score.score |> Float.round(2) %>
+      Score de disponibilité : <%= DB.DatasetScore.score_for_humans(availability_score) %>
       <span class="small">
         <%= availability_score.timestamp |> Shared.DateTimeDisplay.format_datetime_to_paris(@locale) %>
       </span>
