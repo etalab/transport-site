@@ -33,6 +33,14 @@ defmodule DB.DatasetScoreTest do
              } = changeset
     end
 
+    test "score is rounded to 2 digits" do
+      changeset =
+        %DB.DatasetScore{}
+        |> DB.DatasetScore.changeset(%{dataset_id: 1, topic: :freshness, score: 0.123, timestamp: DateTime.utc_now()})
+
+      assert %Ecto.Changeset{valid?: true, changes: %{score: 0.12}} = changeset
+    end
+
     test "topic is an enum" do
       changeset =
         %DB.DatasetScore{}
