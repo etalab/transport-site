@@ -14,7 +14,8 @@ defmodule TransportWeb.DiscussionsLive do
             "0px",
             "#comments-discussion-" + id,
             "<%= dgettext("page-dataset-details", "Display more") %>",
-            "<%= dgettext("page-dataset-details", "Display less") %>"
+            "<%= dgettext("page-dataset-details", "Display less") %>",
+            "discussion"
           )
         )
       })
