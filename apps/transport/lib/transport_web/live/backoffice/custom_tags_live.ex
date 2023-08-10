@@ -77,7 +77,14 @@ defmodule TransportWeb.CustomTagsLive do
   end
 
   def handle_event("add_tag", %{"key" => "Enter", "value" => tag}, socket) do
-    clean_tag = tag |> String.downcase() |> String.trim()
+    # Do not lowercase a tag for a SIRI requestor_ref
+    clean_tag =
+      if String.starts_with?(tag, "requestor_ref:") do
+        tag |> String.trim()
+      else
+        tag |> String.downcase() |> String.trim()
+      end
+
     custom_tags = (socket.assigns.custom_tags ++ [clean_tag]) |> Enum.uniq()
     socket = socket |> clear_input() |> assign(:custom_tags, custom_tags)
 

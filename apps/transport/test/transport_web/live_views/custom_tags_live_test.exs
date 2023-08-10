@@ -33,5 +33,13 @@ defmodule TransportWeb.CustomTagsLiveTest do
 
     assert rendered_view =~ "excellent"
     refute rendered_view =~ "excellent   "
+
+    # Does not lowercase tags for SIRI requestor refs
+    rendered_view =
+      view
+      |> element("#custom_tag")
+      |> render_keydown(%{"key" => "Enter", "value" => "requestor_ref:OPENDATA"})
+
+    assert rendered_view =~ "requestor_ref:OPENDATA"
   end
 end
