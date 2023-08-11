@@ -18,7 +18,7 @@ defmodule Transport.Test.Transport.Jobs.ObanLoggerTest do
   test "sends an email on failure if the appropriate tag is set" do
     assert {:error, "failed"} == perform_job(Transport.Test.Transport.Jobs.ObanLoggerJobTag, %{}, tags: [])
 
-    # When the specific tag is sent, an email should be sent
+    # When the specific tag is set, an email should be sent
     Transport.EmailSender.Mock
     |> expect(:send_mail, fn "transport.data.gouv.fr",
                              "contact@transport.beta.gouv.fr",
