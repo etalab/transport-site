@@ -45,11 +45,6 @@ module.exports = {
     module: {
         rules: [{ test: /\.css$/, use: ['style-loader', 'css-loader'] },
             {
-                test: /\.(js|scss)$/,
-                exclude: [/node_modules/],
-                enforce: 'pre',
-                loader: 'import-glob-loader'
-            }, {
                 test: /\.js$/,
                 exclude: [/node_modules/],
                 use: {

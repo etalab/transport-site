@@ -4,7 +4,35 @@
 @import 'globals/mixins';
 
 // Components: abstract building blocks as buttons, navigation, etc...
-@import 'components/**/*';
+@import 'components/_aom_table.scss';
+@import 'components/_autocomplete.scss';
+@import 'components/_backoffice.scss';
+@import 'components/_blog.scss';
+@import 'components/_choose_file.scss';
+@import 'components/_community-resources.scss';
+@import 'components/_dataset-details.scss';
+@import 'components/_discussions.scss';
+@import 'components/_download_availability.scss';
+@import 'components/_error.scss';
+@import 'components/_explore.scss';
+@import 'components/_gtfs_diff.scss';
+@import 'components/_guide.scss';
+@import 'components/_icons.scss';
+@import 'components/_legal.scss';
+@import 'components/_login.scss';
+@import 'components/_logo.scss';
+@import 'components/_mail.scss';
+@import 'components/_mailing-list.scss';
+@import 'components/_map-js.scss';
+@import 'components/_message.scss';
+@import 'components/_notification.scss';
+@import 'components/_pagination.scss';
+@import 'components/_resource-details.scss';
+@import 'components/_search.scss';
+@import 'components/_shortlist.scss';
+@import 'components/_stats.scss';
+@import 'components/_tooltip.scss';
+@import 'components/_validation.scss';
 
 // States: microinteractions...
 @import 'states';
