@@ -4,7 +4,7 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
   currently unavailable for at least 6 hours.
 
   Notifications are sent at the dataset level and are sent again no sooner than
-  15 days apart (to avoid potential spamming).
+  7 days apart (to avoid potential spamming).
 
   This job should be scheduled every 30 minutes because it looks at unavailabilities
   that are ongoing since [6h00 ; 6h30].
@@ -13,7 +13,7 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
   import Ecto.Query
 
   @hours_consecutive_downtime 6
-  @nb_days_before_sending_notification_again 15
+  @nb_days_before_sending_notification_again 7
   @notification_reason :resource_unavailable
 
   @impl Oban.Worker
@@ -67,7 +67,7 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
     save_notification(dataset, email)
   end
 
-  defp notifications_sent_recently(%DB.Dataset{id: dataset_id}) do
+  def notifications_sent_recently(%DB.Dataset{id: dataset_id}) do
     datetime_limit = DateTime.utc_now() |> DateTime.add(-@nb_days_before_sending_notification_again, :day)
 
     DB.Notification
