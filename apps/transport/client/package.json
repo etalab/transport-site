@@ -34,7 +34,7 @@
     "xml-formatter": "^2.6.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.3.4",
+    "@babel/core": "^7.22.10",
     "@babel/preset-env": "^7.3.4",
     "babel-loader": "^8.0.5",
     "copy-webpack-plugin": "^11.0.0",
