@@ -1,6 +1,6 @@
 Bonjour,
 
-Des erreurs bloquantes ont été détectées dans votre jeu de données <%= link_for_dataset(@dataset, :heex) %>. Ces erreurs empêchent la réutilisation de vos données.
+Des erreurs bloquantes ont été détectées dans votre jeu de données <%= link_for_dataset(@dataset) %>. Ces erreurs empêchent la réutilisation de vos données.
 
 Nous vous invitons à les corriger en vous appuyant sur les rapports de validation suivants :
 <%= for resource <- @resources do %>

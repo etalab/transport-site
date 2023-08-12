@@ -33,18 +33,11 @@ defmodule Transport.Jobs.DatasetsSwitchingClimateResilienceBillJob do
         email,
         Application.get_env(:transport, :contact_email),
         "Loi climat et résilience : suivi des jeux de données",
-        """
-        Bonjour,
-
-        #{now_climate_resilience_bill_txt(datasets_now_climate_resilience)}
-        #{previously_climate_resilience_bill_txt(datasets_previously_climate_resilience)}
-
-        L’équipe transport.data.gouv.fr
-
-        ---
-        Si vous souhaitez modifier ou supprimer ces alertes, vous pouvez répondre à cet e-mail.
-        """,
-        ""
+        "",
+        Phoenix.View.render_to_string(TransportWeb.EmailView, "datasets_switching_climate_resilience_bill.html", %{
+          datasets_now_climate_resilience: Enum.map(datasets_now_climate_resilience, &Enum.at(&1, 1)),
+          datasets_previously_climate_resilience: Enum.map(datasets_previously_climate_resilience, &Enum.at(&1, 1))
+        })
       )
     end)
 
@@ -57,31 +50,6 @@ defmodule Transport.Jobs.DatasetsSwitchingClimateResilienceBillJob do
     Enum.each(result, fn [%DB.DatasetHistory{}, %DB.Dataset{} = dataset, %DB.DatasetHistory{}] ->
       Enum.each(emails, fn email -> DB.Notification.insert!(@notification_reason, dataset, email) end)
     end)
-  end
-
-  defp dataset_link([%DB.DatasetHistory{}, %DB.Dataset{} = dataset, %DB.DatasetHistory{}]) do
-    link = TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, dataset.slug)
-    "* #{dataset.custom_title} - (#{DB.Dataset.type_to_str(dataset.type)}) - #{link}"
-  end
-
-  def now_climate_resilience_bill_txt([]), do: ""
-
-  def now_climate_resilience_bill_txt(data) do
-    """
-    Les jeux de données suivants font désormais l'objet d'une intégration obligatoire :
-    #{Enum.map_join(data, "\n", &dataset_link/1)}
-
-    """
-  end
-
-  def previously_climate_resilience_bill_txt([]), do: ""
-
-  def previously_climate_resilience_bill_txt(data) do
-    """
-    Les jeux de données suivants faisaient l'objet d'une intégration obligatoire et ne font plus l'objet de cette obligation :
-    #{Enum.map_join(data, "\n", &dataset_link/1)}
-
-    """
   end
 
   def datasets_previously_climate_resilience_bill(result) do
