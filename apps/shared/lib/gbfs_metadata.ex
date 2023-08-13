@@ -105,8 +105,11 @@ defmodule Transport.Shared.GBFSMetadata do
   @doc """
   Computes the freshness in seconds of a feed's content
 
-  iex> last_updated = DateTime.utc_now() |> DateTime.add(-1, :minute) |> DateTime.to_unix()
-  iex> delay = feed_timestamp_delay(%{"last_updated" => last_updated})
+  iex> last_updated = DateTime.utc_now() |> DateTime.add(-1, :minute)
+  iex> delay = feed_timestamp_delay(%{"last_updated" => last_updated |> DateTime.to_unix()})
+  iex> delay >= 60 and delay <= 62
+  true
+  iex> delay = feed_timestamp_delay(%{"last_updated" => last_updated |> DateTime.to_iso8601()})
   iex> delay >= 60 and delay <= 62
   true
   iex> feed_timestamp_delay(%{"x" => 1})
@@ -119,7 +122,14 @@ defmodule Transport.Shared.GBFSMetadata do
     last_updated
     |> DateTime.from_unix()
     |> case do
-      {:ok, t} -> DateTime.utc_now() |> DateTime.diff(t)
+      {:ok, %DateTime{} = dt} -> DateTime.utc_now() |> DateTime.diff(dt)
+      _ -> nil
+    end
+  end
+
+  def feed_timestamp_delay(%{"last_updated" => last_updated}) when is_binary(last_updated) do
+    case DateTime.from_iso8601(last_updated) do
+      {:ok, %DateTime{} = utc_datetime, _} -> DateTime.utc_now() |> DateTime.diff(utc_datetime)
       _ -> nil
     end
   end

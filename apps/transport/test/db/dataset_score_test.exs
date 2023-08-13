@@ -6,6 +6,8 @@ defmodule DB.DatasetScoreTest do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
+  doctest DB.DatasetScore, import: true
+
   describe "save dataset score" do
     test "some fields are mandatory" do
       changeset = %DB.DatasetScore{} |> DB.DatasetScore.changeset(%{})
