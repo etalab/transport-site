@@ -5695,17 +5695,17 @@ write-file-atomic@^5.0.1:
     imurmurhash "^0.1.4"
     signal-exit "^4.0.1"
 
-xml-formatter@^2.6.1:
-  version "2.6.1"
-  resolved "https://registry.npmjs.org/xml-formatter/-/xml-formatter-2.6.1.tgz"
-  integrity sha512-dOiGwoqm8y22QdTNI7A+N03tyVfBlQ0/oehAzxIZtwnFAHGeSlrfjF73YQvzSsa/Kt6+YZasKsrdu6OIpuBggw==
+xml-formatter@^3.5.0:
+  version "3.5.0"
+  resolved "https://registry.npmjs.org/xml-formatter/-/xml-formatter-3.5.0.tgz#3be010082f58dea17f9dc860f1f5e6e92e81c2ec"
+  integrity sha512-9ij/f2PLIPv+YDywtdztq7U82kYMDa5yPYwpn0TnXnqJRH6Su8RC/oaw91erHe3aSEbfgBaA1hDzReDFb1SVXw==
   dependencies:
-    xml-parser-xo "^3.2.0"
+    xml-parser-xo "^4.1.0"
 
-xml-parser-xo@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.npmjs.org/xml-parser-xo/-/xml-parser-xo-3.2.0.tgz"
-  integrity sha512-8LRU6cq+d7mVsoDaMhnkkt3CTtAs4153p49fRo+HIB3I1FD1o5CeXRjRH29sQevIfVJIcPjKSsPU/+Ujhq09Rg==
+xml-parser-xo@^4.1.0:
+  version "4.1.1"
+  resolved "https://registry.npmjs.org/xml-parser-xo/-/xml-parser-xo-4.1.1.tgz#7434d990f442e06ed96286c813c02e921f14fc50"
+  integrity sha512-Ggf2y90+Y6e9IK5hoPuembVHJ03PhDSdhldEmgzbihzu9k0XBo0sfcFxaSi4W1PlUSSI1ok+MJ0JCXUn+U4Ilw==
 
 y18n@^5.0.5:
   version "5.0.8"
