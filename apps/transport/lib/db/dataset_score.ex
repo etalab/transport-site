@@ -80,4 +80,14 @@ defmodule DB.DatasetScore do
     |> order_by([dataset_score: ds], asc: ds.timestamp, asc: ds.topic)
     |> DB.Repo.all()
   end
+
+  @doc """
+  iex> score_for_humans(%DB.DatasetScore{score: nil})
+  nil
+  iex> score_for_humans(%DB.DatasetScore{score: 0.123})
+  0.12
+  """
+  @spec score_for_humans(__MODULE__.t()) :: nil | float()
+  def score_for_humans(%__MODULE__{score: nil}), do: nil
+  def score_for_humans(%__MODULE__{score: score}), do: Float.round(score, 2)
 end

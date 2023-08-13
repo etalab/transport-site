@@ -81,8 +81,10 @@ defmodule TransportWeb.DatasetController do
     [width: "container", height: 250]
     |> VegaLite.new()
     |> VegaLite.data_from_values(
-      Enum.map(data, fn %DB.DatasetScore{} = ds ->
-        %{"topic" => ds.topic, "score" => ds.score, "date" => ds.timestamp |> DateTime.to_date()}
+      data
+      |> Enum.reject(&match?(%DB.DatasetScore{score: nil}, &1))
+      |> Enum.map(fn %DB.DatasetScore{topic: topic, timestamp: timestamp} = ds ->
+        %{"topic" => topic, "score" => DB.DatasetScore.score_for_humans(ds), "date" => timestamp |> DateTime.to_date()}
       end)
     )
     |> VegaLite.mark(:line, interpolate: "step-before", tooltip: true, strokeWidth: 3)
