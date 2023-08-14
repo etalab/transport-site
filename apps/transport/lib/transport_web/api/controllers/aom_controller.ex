@@ -43,7 +43,7 @@ defmodule TransportWeb.API.AomController do
   @spec by_insee_operation :: OpenApiSpex.Operation.t()
   def by_insee_operation,
     do: %Operation{
-      tags: ["insee"],
+      tags: ["aom"],
       summary: "Show AOM by INSEE",
       description: "Show covered regions",
       operationId: "API.AOMController.by_insee_operation",
@@ -92,7 +92,7 @@ defmodule TransportWeb.API.AomController do
   @spec geojson_operation :: OpenApiSpex.Operation.t()
   def geojson_operation,
     do: %Operation{
-      tags: ["geojson"],
+      tags: ["aom"],
       summary: "Show geojson of AOM",
       description: "Show covered regions",
       operationId: "API.AOMController.geojson_operation",

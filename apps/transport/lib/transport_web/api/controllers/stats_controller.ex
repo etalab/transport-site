@@ -13,7 +13,7 @@ defmodule TransportWeb.API.StatsController do
   @spec regions_operation() :: Operation.t()
   def regions_operation,
     do: %Operation{
-      tags: ["regions"],
+      tags: ["stats"],
       summary: "Show regions",
       description: "Show covered french administrative regions",
       operationId: "API.StatsController.regions",
@@ -26,7 +26,7 @@ defmodule TransportWeb.API.StatsController do
   @spec index_operation() :: Operation.t()
   def index_operation,
     do: %Operation{
-      tags: ["index"],
+      tags: ["stats"],
       summary: "Show regions",
       description: "Show covered french administrative regions",
       operationId: "API.StatsController.index",
@@ -39,7 +39,7 @@ defmodule TransportWeb.API.StatsController do
   @spec bike_scooter_sharing_operation() :: Operation.t()
   def bike_scooter_sharing_operation,
     do: %Operation{
-      tags: ["bike-scooter-sharing"],
+      tags: ["stats"],
       summary: "Show bike and scooter sharing stats",
       description: "Show bike and scooter sharing stats",
       operationId: "API.StatsController.bike_scooter_sharing",
@@ -52,7 +52,7 @@ defmodule TransportWeb.API.StatsController do
   @spec quality_operation() :: Operation.t()
   def quality_operation,
     do: %Operation{
-      tags: ["quality"],
+      tags: ["stats"],
       summary: "Show data quality stats",
       description: "Show data quality stats",
       operationId: "API.StatsController.quality",
