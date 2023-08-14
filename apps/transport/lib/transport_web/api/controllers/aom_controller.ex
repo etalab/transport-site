@@ -16,7 +16,7 @@ defmodule TransportWeb.API.AomController do
   def by_coordinates_operation,
     do: %Operation{
       tags: ["aom"],
-      summary: "Show AOM by coordinates",
+      summary: "Show first AOM containing a point with given coordinates",
       description: "Show covered regions",
       operationId: "API.AOMController.by_coordinates",
       parameters: [
