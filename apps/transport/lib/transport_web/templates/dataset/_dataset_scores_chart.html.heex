@@ -1,0 +1,12 @@
+<section :if={admin?(@conn.assigns[:current_user])} class="pt-48">
+  <h2><%= dgettext("page-dataset-details", "Dataset scores") %></h2>
+  <div class="panel" id="scores-chart">
+    <div id="vega-vis"></div>
+    <p class="small">Ceci est visible uniquement par les membres de transport.data.gouv.fr.</p>
+    <script src={static_path(@conn, "/js/vega.js")} nonce={@conn.assigns[:csp_nonce_value]} />
+    <script nonce={@conn.assigns[:csp_nonce_value]}>
+      const spec = <%= raw Jason.encode!(@scores_chart) %>;
+      window.vegaEmbed("#vega-vis", spec, {renderer: "svg"});
+    </script>
+  </div>
+</section>

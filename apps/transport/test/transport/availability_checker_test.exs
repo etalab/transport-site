@@ -33,23 +33,25 @@ defmodule Transport.AvailabilityCheckerTest do
     refute AvailabilityChecker.available?("GTFS", "url500")
   end
 
-  describe "SIRI resource" do
+  describe "SIRI or SIRI Lite resource" do
     test "401" do
       Transport.HTTPoison.Mock
-      |> expect(:get, fn _url, [], [follow_redirect: true] ->
+      |> expect(:get, 2, fn _url, [], [follow_redirect: true] ->
         {:ok, %HTTPoison.Response{status_code: 401}}
       end)
 
       assert AvailabilityChecker.available?("SIRI", "url401")
+      assert AvailabilityChecker.available?("SIRI Lite", "url401")
     end
 
     test "405" do
       Transport.HTTPoison.Mock
-      |> expect(:get, fn _url, [], [follow_redirect: true] ->
+      |> expect(:get, 2, fn _url, [], [follow_redirect: true] ->
         {:ok, %HTTPoison.Response{status_code: 405}}
       end)
 
       assert AvailabilityChecker.available?("SIRI", "url405")
+      assert AvailabilityChecker.available?("SIRI Lite", "url405")
     end
   end
 

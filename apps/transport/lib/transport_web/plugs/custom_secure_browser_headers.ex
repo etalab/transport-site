@@ -30,6 +30,10 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
   true
   """
   def csp_headers(app_env, nonce) do
+    # https://github.com/vega/vega-embed/issues/1214#issuecomment-1670812445
+    vega_hash_values =
+      "'sha256-9uoGUaZm3j6W7+Fh2wfvjI8P7zXcclRw5tVUu3qKZa0=' 'sha256-MmUum7+PiN7Rz79EUMm0OmUFWjCx6NZ97rdjoIbTnAg='"
+
     csp_content =
       case app_env do
         :production ->
@@ -40,7 +44,7 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
           img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://www.data.gouv.fr https://*.dmcdn.net;
           script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
           frame-src https://www.dailymotion.com/;
-          style-src 'self' 'nonce-#{nonce}';
+          style-src 'self' 'nonce-#{nonce}' #{vega_hash_values};
           report-uri #{Application.fetch_env!(:sentry, :csp_url)}
           """
 
@@ -53,7 +57,7 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
             img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://demo-static.data.gouv.fr https://www.data.gouv.fr https://demo.data.gouv.fr https://*.dmcdn.net;
             script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
             frame-src https://www.dailymotion.com/;
-            style-src 'self' 'nonce-#{nonce}';
+            style-src 'self' 'nonce-#{nonce}' #{vega_hash_values};
             report-uri #{Application.fetch_env!(:sentry, :csp_url)}
           """
 

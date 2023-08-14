@@ -1,4 +1,4 @@
-const addSeeMore = function (maxHeight, querySelector, seeMoreText, seeLessText) {
+const addSeeMore = function (maxHeight, querySelector, seeMoreText, seeLessText, featureName) {
     document.querySelectorAll(querySelector).forEach(
         function (div) {
             div.style.maxHeight = maxHeight
@@ -16,6 +16,7 @@ const addSeeMore = function (maxHeight, querySelector, seeMoreText, seeLessText)
                         if (div.style.maxHeight !== '100%') {
                             div.style.maxHeight = '100%'
                             linkDisplayMore.innerHTML = seeLessText
+                            window._paq.push(['trackEvent', 'see_more', featureName, querySelector])
                         } else {
                             div.style.maxHeight = maxHeight
                             linkDisplayMore.innerHTML = seeMoreText

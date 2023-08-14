@@ -59,7 +59,8 @@ defmodule TransportWeb.DatasetController do
       )
       |> assign(:latest_resources_history_infos, DB.ResourceHistory.latest_dataset_resources_history_infos(dataset.id))
       |> assign(:notifications_sent, DB.Notification.recent_reasons_binned(dataset, days_notifications_sent()))
-      |> assign(:freshness_score, DB.DatasetScore.get_latest(dataset, "freshness"))
+      |> assign(:dataset_scores, DB.DatasetScore.get_latest_scores(dataset, Ecto.Enum.values(DB.DatasetScore, :topic)))
+      |> assign(:scores_chart, scores_chart(dataset))
       |> put_status(if dataset.is_active, do: :ok, else: :not_found)
       |> render("details.html")
     else
@@ -70,6 +71,28 @@ defmodule TransportWeb.DatasetController do
       nil ->
         redirect_to_slug_or_404(conn, slug_or_id)
     end
+  end
+
+  def scores_chart(%DB.Dataset{} = dataset) do
+    data = DB.DatasetScore.scores_over_last_days(dataset, 30 * 3)
+
+    # See https://hexdocs.pm/vega_lite/
+    # and https://vega.github.io/vega-lite/docs/
+    [width: "container", height: 250]
+    |> VegaLite.new()
+    |> VegaLite.data_from_values(
+      data
+      |> Enum.reject(&match?(%DB.DatasetScore{score: nil}, &1))
+      |> Enum.map(fn %DB.DatasetScore{topic: topic, timestamp: timestamp} = ds ->
+        %{"topic" => topic, "score" => DB.DatasetScore.score_for_humans(ds), "date" => timestamp |> DateTime.to_date()}
+      end)
+    )
+    |> VegaLite.mark(:line, interpolate: "step-before", tooltip: true, strokeWidth: 3)
+    |> VegaLite.encode_field(:x, "date", type: :temporal)
+    |> VegaLite.encode_field(:y, "score", type: :quantitative)
+    |> VegaLite.encode_field(:color, "topic", type: :nominal)
+    |> VegaLite.config(axis: [grid: false])
+    |> VegaLite.to_spec()
   end
 
   def validators_to_use,

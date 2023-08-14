@@ -2,6 +2,7 @@ defmodule TransportWeb.Backoffice.ContactView do
   use TransportWeb, :view
   import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2]
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
+  import TransportWeb.Backoffice.PageView, only: [unaccent: 1]
   alias TransportWeb.PaginationHelpers
 
   def pagination_links(conn, contacts) do

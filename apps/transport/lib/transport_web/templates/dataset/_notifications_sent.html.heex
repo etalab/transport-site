@@ -31,20 +31,21 @@
         dgettext(
           "page-dataset-details",
           ~s(If you are a data producer, you can <a href="%{url}" target="_blank">manage how you receive these notifications</a> from your Producer section.),
-          url: "https://doc.transport.data.gouv.fr/producteurs/gerer-la-qualite-des-donnees/sinscrire-aux-notifications"
+          url:
+            "https://doc.transport.data.gouv.fr/administration-des-donnees/procedures-de-publication/gerer-la-qualite-des-donnees#sinscrire-aux-notifications"
         )
       ) %>
     </p>
   </div>
 </section>
 
-<script src={static_path(@conn, "/js/utils.js")} />
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     addSeeMore("15em",
       "#notifications-sent-content",
       "<%= dgettext("page-dataset-details", "Display more") %>",
-      "<%= dgettext("page-dataset-details", "Display less") %>"
+      "<%= dgettext("page-dataset-details", "Display less") %>",
+      "notifications_sent"
     )
   })
 </script>

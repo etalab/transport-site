@@ -88,19 +88,35 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
     DateTime.compare(datetime, dt_limit) == :gt
   end
 
+  @doc """
+  Useful to ignore specific datasets/organizations.
+
+  iex> ignore_dataset?(%{"organization" => %{"id" => "5a83f81fc751df6f8573eb8a"}, "title" => "BDTOPO© - Chefs-Lieux pour le département de l'Eure-et-Loir"})
+  true
+  """
+  def ignore_dataset?(%{"organization" => %{"id" => "5a83f81fc751df6f8573eb8a"}, "title" => title}) do
+    String.contains?(title, "BDTOPO")
+  end
+
+  def ignore_dataset?(%{}), do: false
+
   def dataset_is_relevant?(%{} = dataset) do
-    match_on_dataset =
-      [&tags_is_relevant?/1, &description_is_relevant?/1, &title_is_relevant?/1]
-      |> Enum.map(& &1.(dataset))
-      |> Enum.any?()
+    if ignore_dataset?(dataset) do
+      false
+    else
+      match_on_dataset =
+        [&tags_is_relevant?/1, &description_is_relevant?/1, &title_is_relevant?/1]
+        |> Enum.map(& &1.(dataset))
+        |> Enum.any?()
 
-    match_on_resources =
-      dataset
-      |> Map.fetch!("resources")
-      |> Enum.map(&resource_is_relevant?/1)
-      |> Enum.any?()
+      match_on_resources =
+        dataset
+        |> Map.fetch!("resources")
+        |> Enum.map(&resource_is_relevant?/1)
+        |> Enum.any?()
 
-    match_on_dataset or match_on_resources
+      match_on_dataset or match_on_resources
+    end
   end
 
   defp title_is_relevant?(%{"title" => title}), do: string_matches?(title)
@@ -133,7 +149,7 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
     MapSet.member?(@relevant_formats, String.downcase(format))
   end
 
-  defp resource_schema_is_relevant?(%{"schema" => %{"name" => "etalab/schema-irve"}}), do: false
+  defp resource_schema_is_relevant?(%{"schema" => %{"name" => "etalab/schema-irve-statique"}}), do: false
 
   defp resource_schema_is_relevant?(%{"schema" => %{"name" => schema_name}}) do
     schema_name in Map.keys(Schemas.transport_schemas())

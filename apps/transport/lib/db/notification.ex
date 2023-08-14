@@ -22,6 +22,12 @@ defmodule DB.Notification do
 
   def base_query, do: from(n in __MODULE__, as: :notification)
 
+  def insert!(reason, email) do
+    %__MODULE__{}
+    |> changeset(%{reason: reason, email: email})
+    |> DB.Repo.insert!()
+  end
+
   def insert!(reason, %DB.Dataset{id: dataset_id, datagouv_id: datagouv_id}, email) do
     %__MODULE__{}
     |> changeset(%{reason: reason, dataset_id: dataset_id, dataset_datagouv_id: datagouv_id, email: email})
@@ -57,13 +63,12 @@ defmodule DB.Notification do
   def changeset(struct, attrs \\ %{}) do
     struct
     |> cast(attrs, [:reason, :dataset_id, :dataset_datagouv_id, :email])
-    |> validate_required([:reason, :dataset_id, :dataset_datagouv_id, :email])
+    |> validate_required([:reason, :email])
     |> validate_format(:email, ~r/@/)
     |> put_hashed_fields()
   end
 
   defp put_hashed_fields(%Ecto.Changeset{} = changeset) do
-    changeset
-    |> put_change(:email_hash, get_field(changeset, :email))
+    changeset |> put_change(:email_hash, get_field(changeset, :email))
   end
 end

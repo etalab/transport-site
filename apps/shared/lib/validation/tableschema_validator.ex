@@ -48,9 +48,9 @@ defmodule Shared.Validation.TableSchemaValidator do
 
     schema_url = schema_url(schema_name, schema_version || "latest")
 
-    # See https://go.validata.fr/api/v1/apidocs
+    # See https://api.validata.etalab.studio/apidocs
     @validata_api_url
-    |> Map.put(:query, URI.encode_query(%{schema: schema_url, url: url}))
+    |> Map.put(:query, URI.encode_query(%{schema: schema_url, url: url, header_case: "false"}))
     |> URI.to_string()
   end
 

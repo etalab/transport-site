@@ -370,6 +370,83 @@ defmodule TransportWeb.DatasetControllerTest do
              |> Phoenix.HTML.safe_to_string()
   end
 
+  test "displays dataset scores for admins", %{conn: conn} do
+    dataset = insert(:dataset, is_active: true)
+
+    insert(:dataset_score,
+      dataset: dataset,
+      timestamp: DateTime.utc_now() |> DateTime.add(-1, :hour),
+      score: 0.549,
+      topic: :freshness
+    )
+
+    insert(:dataset_score,
+      dataset: dataset,
+      timestamp: DateTime.utc_now() |> DateTime.add(-1, :hour),
+      score: nil,
+      topic: :availability
+    )
+
+    assert %{
+             availability: %DB.DatasetScore{topic: :availability, score: nil},
+             freshness: %DB.DatasetScore{topic: :freshness, score: 0.549}
+           } = dataset |> DB.DatasetScore.get_latest_scores(Ecto.Enum.values(DB.DatasetScore, :topic))
+
+    set_empty_mocks()
+
+    content =
+      conn
+      |> setup_admin_in_session()
+      |> get(dataset_path(conn, :details, dataset.slug))
+      |> html_response(200)
+
+    assert content =~ "Score fraicheur : 0.55"
+    assert content =~ "Score de disponibilité : \n"
+  end
+
+  test "does not display scores for non admins", %{conn: conn} do
+    dataset = insert(:dataset, is_active: true)
+
+    insert(:dataset_score,
+      dataset: dataset,
+      timestamp: DateTime.utc_now() |> DateTime.add(-1, :hour),
+      score: 1,
+      topic: :freshness
+    )
+
+    refute dataset |> DB.DatasetScore.get_latest_scores([:freshness]) |> Enum.empty?()
+    set_empty_mocks()
+    content = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200)
+    refute content =~ "Score fraicheur"
+  end
+
+  describe "scores_chart" do
+    test "is displayed for admins", %{conn: conn} do
+      dataset = insert(:dataset, is_active: true)
+      set_empty_mocks()
+
+      refute conn
+             |> setup_admin_in_session()
+             |> get(dataset_path(conn, :details, dataset.slug))
+             |> html_response(200)
+             |> Floki.parse_document!()
+             |> Floki.find("#scores-chart")
+             |> Enum.empty?()
+    end
+
+    test "is not displayed for regular users", %{conn: conn} do
+      dataset = insert(:dataset, is_active: true)
+      set_empty_mocks()
+
+      assert conn
+             |> get(dataset_path(conn, :details, dataset.slug))
+             |> html_response(200)
+             |> Floki.parse_document!()
+             |> Floki.find("#scores-chart")
+             |> Enum.empty?()
+    end
+  end
+
   test "gtfs-rt entities" do
     dataset = %{id: dataset_id} = insert(:dataset, type: "public-transit")
     %{id: resource_id_1} = insert(:resource, dataset_id: dataset_id, format: "gtfs-rt")

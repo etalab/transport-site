@@ -19,14 +19,7 @@
   <%= if admin?(assigns[:current_user]) do %>
     <i class="fa fa-external-link-alt"></i>
     <%= link("backoffice", to: backoffice_page_path(@conn, :edit, @dataset.id)) %>
-    <div class="light-grey pt-6">
-      <%= if not is_nil(@freshness_score) do %>
-        Score fraicheur : <%= @freshness_score.score %><br />
-        <%= @freshness_score.timestamp |> Shared.DateTimeDisplay.format_datetime_to_paris(locale) %>
-      <% else %>
-        Pas de score fraicheur
-      <% end %>
-    </div>
+    <%= render("_dataset_scores.html", dataset_scores: @dataset_scores, locale: locale) %>
   <% end %>
 </div>
 <div class="dataset-page">
@@ -227,71 +220,8 @@
         </div>
       </section>
     <% end %>
-    <%= unless @history_resources == [] do %>
-      <% has_validity_period_col = has_validity_period?(@history_resources) %>
-      <section class="white pt-48" id="backed-up-resources">
-        <h3><%= dgettext("page-dataset-details", "Backed up resources") %></h3>
-        <div class="panel">
-          <table class="table">
-            <thead>
-              <tr>
-                <th><%= dgettext("page-dataset-details", "File") %></th>
-                <th><%= dgettext("page-dataset-details", "Publication date") %></th>
-                <%= if has_validity_period_col do %>
-                  <th>
-                    <%= dgettext("page-dataset-details", "Validity period") %>
-                  </th>
-                <% end %>
-                <th><%= dgettext("page-dataset-details", "Format") %></th>
-              </tr>
-            </thead>
-            <tbody>
-              <%= for resource_history <- @history_resources do %>
-                <tr>
-                  <td>
-                    <%= link(resource_history.payload["title"],
-                      to: resource_history.payload["permanent_url"],
-                      rel: "nofollow"
-                    ) %>
-                  </td>
-                  <td><%= resource_history.inserted_at |> DateTimeDisplay.format_datetime_to_date(locale) %></td>
-                  <%= if has_validity_period_col do %>
-                    <%= if has_validity_period?(resource_history) do %>
-                      <td>
-                        <%= dgettext(
-                          "page-dataset-details",
-                          "%{start} to %{end}",
-                          start:
-                            resource_history
-                            |> validity_period()
-                            |> Map.get("start_date")
-                            |> DateTimeDisplay.format_date(locale),
-                          end:
-                            resource_history
-                            |> validity_period()
-                            |> Map.get("end_date")
-                            |> DateTimeDisplay.format_date(locale)
-                        ) %>
-                      </td>
-                    <% else %>
-                      <td></td>
-                    <% end %>
-                  <% end %>
-                  <td><span class="label"><%= resource_history.payload["format"] %></span></td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-          <%= if Enum.count(@history_resources) == max_nb_history_resources() do %>
-            <p class="small">
-              <%= dgettext("page-dataset-details", "Displaying the last %{nb} backed up resources.",
-                nb: max_nb_history_resources()
-              ) %>
-            </p>
-          <% end %>
-        </div>
-      </section>
-    <% end %>
+    <%= render("_dataset_scores_chart.html", scores_chart: @scores_chart, conn: @conn) %>
+    <%= render("_dataset_resources_history.html", history_resources: @history_resources, locale: locale, conn: @conn) %>
     <%= unless is_nil(@other_datasets) or @other_datasets == [] do %>
       <section class="pt-48" id="dataset-other-datasets">
         <h2><%= dgettext("page-dataset-details", "Other datasets of %{name}", name: @territory) %></h2>
@@ -384,3 +314,4 @@
 </script>
 <script defer type="text/javascript" src={static_path(@conn, "/js/app.js")}>
 </script>
+<script src={static_path(@conn, "/js/utils.js")} />

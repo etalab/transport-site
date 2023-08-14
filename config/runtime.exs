@@ -122,6 +122,8 @@ oban_crontab_all_envs =
         {"5 6 * * *", Transport.Jobs.NewDatagouvDatasetsJob},
         {"0 6 * * *", Transport.Jobs.NewDatasetNotificationsJob},
         {"0 21 * * *", Transport.Jobs.DatasetHistoryDispatcherJob},
+        # Should be executed after all `DatasetHistoryJob` have been executed
+        {"50 21 * * *", Transport.Jobs.ResourcesChangedNotificationJob},
         {"0 22 * * *", Transport.Jobs.ArchiveMetricsJob},
         {"15,45 * * * *", Transport.Jobs.MultiValidationWithErrorNotificationJob},
         {"20,50 * * * *", Transport.Jobs.ResourceUnavailableNotificationJob},
@@ -132,7 +134,10 @@ oban_crontab_all_envs =
          args: %{schema_name: "etalab/schema-irve-dynamique", days_limit: 7}},
         {"0 16 * * *", Transport.Jobs.DatasetQualityScoreDispatcher},
         {"40 3 * * *", Transport.Jobs.UpdateContactsJob},
-        {"10 5 * * *", Transport.Jobs.NotificationSubscriptionProducerJob}
+        {"10 5 * * *", Transport.Jobs.NotificationSubscriptionProducerJob},
+        # "At 08:15 on Monday in March, June, and November.""
+        # The job will make sure that it's executed only on the first Monday of these months
+        {"15 8 * 3,6,11 1", Transport.Jobs.PeriodicReminderProducersNotificationJob}
       ]
 
     :dev ->
