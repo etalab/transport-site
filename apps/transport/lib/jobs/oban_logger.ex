@@ -5,6 +5,13 @@ defmodule Transport.Jobs.ObanLogger do
   require Logger
   @tag_email_on_failure "email_on_failure"
 
+  @doc """
+  If you add this tag to an `Oban.Job`, if this job fails an email will be sent
+  to the tech team alias to warn about this failure.
+
+  ⚠️ Do not use this on a lot of jobs or jobs that are executed often, this is not a Sentry replacement! ⚠️
+  This should soon be replaced by a Sentry integration.
+  """
   def email_on_failure_tag, do: @tag_email_on_failure
 
   def handle_event(
