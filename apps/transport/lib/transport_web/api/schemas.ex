@@ -333,7 +333,7 @@ defmodule TransportWeb.API.Schemas do
     })
   end
 
-  defmodule DatasetsResponse do
+  defmodule Dataset do
     @moduledoc false
     require OpenApiSpex
 
@@ -362,6 +362,17 @@ defmodule TransportWeb.API.Schemas do
           items: CommunityResource
         }
       }
+    })
+  end
+
+  defmodule DatasetsResponse do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "DatasetsResponse",
+      type: :array,
+      items: Dataset.schema()
     })
   end
 

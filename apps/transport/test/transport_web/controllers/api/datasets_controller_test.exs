@@ -21,7 +21,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
     conn |> recycle() |> put_req_header("if-none-match", etag) |> get(path) |> response(304)
 
     api_spec = TransportWeb.API.Spec.spec()
-    assert_schema(json, "Dataset", api_spec)
+    assert_schema(json, "DatasetsResponse", api_spec)
   end
 
   test "GET /api/datasets *with* history, multi_validation and resource_metadata", %{conn: conn} do
