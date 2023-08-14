@@ -239,9 +239,12 @@ defmodule DB.Factory do
   end
 
   def insert_notification(args) do
-    %DB.Notification{}
-    |> DB.Notification.changeset(args)
-    |> DB.Repo.insert!()
+    notification = %DB.Notification{} |> DB.Notification.changeset(args) |> DB.Repo.insert!()
+
+    case Map.get(args, :inserted_at) do
+      nil -> notification
+      %DateTime{} = dt -> notification |> Ecto.Changeset.change(%{inserted_at: dt}) |> DB.Repo.update!()
+    end
   end
 
   def notification_subscription_factory do

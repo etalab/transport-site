@@ -217,4 +217,24 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
            )
            |> DB.Repo.exists?()
   end
+
+  test "notifications_sent_recently" do
+    dataset = insert(:dataset)
+
+    %{dataset: dataset, reason: :dataset_with_error, email: "foo@example.com", inserted_at: add_days(-6)}
+    |> insert_notification()
+
+    # Too old
+    %{dataset: dataset, reason: :dataset_with_error, email: "bar@example.com", inserted_at: add_days(-8)}
+    |> insert_notification()
+
+    # Another reason
+    %{dataset: dataset, reason: :expiration, email: "baz@example.com", inserted_at: add_days(-6)}
+    |> insert_notification()
+
+    assert MapSet.new(["foo@example.com"]) ==
+             MultiValidationWithErrorNotificationJob.notifications_sent_recently(dataset)
+  end
+
+  defp add_days(days), do: DateTime.utc_now() |> DateTime.add(days, :day)
 end

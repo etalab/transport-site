@@ -5,12 +5,12 @@ Vous gérez des données présentes sur transport.data.gouv.fr.
 ## Gérer vos notifications
 
 <%= if Enum.count(@datasets_subscribed) == 1 do %>
-Vous êtes susceptible de recevoir des notifications pour le jeu de données <%= @datasets_subscribed |> hd() |> link_for_dataset(:heex) %>.
+Vous êtes susceptible de recevoir des notifications pour le jeu de données <%= @datasets_subscribed |> hd() |> link_for_dataset() %>.
 <% else %>
 Vous êtes susceptible de recevoir des notifications pour les jeux de données suivants :
 <ul>
   <%= for dataset <- @datasets_subscribed do %>
-  <li><%= link_for_dataset(dataset, :heex) %></li>
+  <li><%= link_for_dataset(dataset) %></li>
   <% end %>
 </ul>
 <% end %>
