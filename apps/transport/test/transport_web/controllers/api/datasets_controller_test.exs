@@ -165,7 +165,9 @@ defmodule TransportWeb.API.DatasetControllerTest do
         |> DateTime.to_iso8601()
     }
 
-    assert [dataset_res] == conn |> get(path) |> json_response(200)
+    assert json = conn |> get(path) |> json_response(200)
+    assert [dataset_res] == json
+    assert_schema(json, "DatasetsResponse", TransportWeb.API.Spec.spec())
 
     # check the result is in line with a query on this dataset
     # only difference: individual dataset adds information about history and conversions
@@ -180,7 +182,9 @@ defmodule TransportWeb.API.DatasetControllerTest do
       |> Map.merge(%{"history" => []})
       |> Map.put("resources", Enum.map(dataset_res["resources"], &Map.put(&1, "conversions", %{})))
 
-    assert dataset_res == conn |> get(Helpers.dataset_path(conn, :by_id, datagouv_id)) |> json_response(200)
+    json = conn |> get(Helpers.dataset_path(conn, :by_id, datagouv_id)) |> json_response(200)
+    assert dataset_res == json
+    assert_schema(json, "Dataset", TransportWeb.API.Spec.spec())
   end
 
   test "GET /api/datasets *without* history, multi_validation and resource_metadata", %{conn: conn} do
