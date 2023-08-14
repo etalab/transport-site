@@ -17,10 +17,16 @@ defmodule Transport.Jobs.ObanLogger do
   def handle_event(
         [:oban, :job, :exception],
         %{duration: duration},
-        %{args: args, error: error, id: id, worker: worker, job: %Oban.Job{tags: tags}} = meta,
+        %{
+          args: args,
+          error: error,
+          id: id,
+          worker: worker,
+          job: %Oban.Job{tags: tags, attempt: attempt, max_attempts: max_attempts}
+        } = meta,
         nil
       ) do
-    if email_on_failure_tag() in tags do
+    if email_on_failure_tag() in tags and attempt == max_attempts do
       send_email_to_tech(meta)
     end
 
