@@ -2,7 +2,7 @@ defmodule TransportWeb.API.Spec do
   @moduledoc """
   OpenAPI specifications
   """
-  alias OpenApiSpex.{Info, OpenApi, Paths}
+  alias OpenApiSpex.{Info, Contact, OpenApi, Paths}
 
   @spec spec :: OpenApiSpex.OpenApi.t()
   def spec do
@@ -12,7 +12,7 @@ defmodule TransportWeb.API.Spec do
         title: "transport.data.gouv.fr API",
         version: "1.0",
         description: ~S(Extra <a href="https://doc.transport.data.gouv.fr/reutilisateurs/apis/">documentation</a>),
-        contact: %{
+        contact: %Contact{
           name: "API email support",
           email: Application.fetch_env!(:transport, :contact_email)
         }
