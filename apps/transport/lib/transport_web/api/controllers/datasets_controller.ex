@@ -24,7 +24,7 @@ defmodule TransportWeb.API.DatasetController do
       operationId: "API.DatasetController.datasets",
       parameters: [],
       responses: %{
-        200 => Operation.response("Dataset", "application/json", DatasetsResponse)
+        200 => Operation.response("DatasetsResponse", "application/json", DatasetsResponse)
       }
     }
 
