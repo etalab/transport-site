@@ -218,7 +218,7 @@ defmodule TransportWeb.API.Schemas do
       description: "AOM object (DEPRECATED, only there for retrocompatibility, use covered_area instead)",
       type: :object,
       properties: %{
-        siren: %Schema{type: :string},
+        siren: %Schema{type: :string, nullable: true},
         name: %Schema{type: :string}
       }
     })
