@@ -19,6 +19,16 @@ defmodule Transport.Test.Transport.Jobs.ObanLoggerTest do
     assert {:error, "failed"} == perform_job(Transport.Test.Transport.Jobs.ObanLoggerJobTag, %{}, tags: [])
 
     # When the specific tag is set, an email should be sent
+
+    # Should not be sent when not trying for the last time
+    assert {:error, "failed"} ==
+             perform_job(Transport.Test.Transport.Jobs.ObanLoggerJobTag, %{},
+               tags: [Transport.Jobs.ObanLogger.email_on_failure_tag()],
+               attempt: 1,
+               max_attempts: 2
+             )
+
+    # Should be sent when failing at the last attempt
     Transport.EmailSender.Mock
     |> expect(:send_mail, fn "transport.data.gouv.fr",
                              "contact@transport.beta.gouv.fr",
@@ -35,7 +45,9 @@ defmodule Transport.Test.Transport.Jobs.ObanLoggerTest do
 
     assert {:error, "failed"} ==
              perform_job(Transport.Test.Transport.Jobs.ObanLoggerJobTag, %{},
-               tags: [Transport.Jobs.ObanLogger.email_on_failure_tag()]
+               tags: [Transport.Jobs.ObanLogger.email_on_failure_tag()],
+               attempt: 2,
+               max_attempts: 2
              )
   end
 end
