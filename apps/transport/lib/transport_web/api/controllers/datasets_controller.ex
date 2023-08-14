@@ -19,8 +19,8 @@ defmodule TransportWeb.API.DatasetController do
   def datasets_operation,
     do: %Operation{
       tags: ["datasets"],
-      summary: "Show datasets and its resources",
-      description: "For every dataset, show its associated resources, url and validity date",
+      summary: "List all datasets with their resources (non paginated)",
+      description: "For every dataset, show its associated resources",
       operationId: "API.DatasetController.datasets",
       parameters: [],
       responses: %{
