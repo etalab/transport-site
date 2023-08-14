@@ -4,6 +4,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
   alias TransportWeb.API.Router.Helpers
   import DB.Factory
   import Mox
+  import OpenApiSpex.TestAssertions
 
   setup :verify_on_exit!
 
@@ -12,12 +13,15 @@ defmodule TransportWeb.API.DatasetControllerTest do
     conn = conn |> get(path)
 
     [etag] = conn |> get_resp_header("etag")
-    json_response(conn, 200)
+    json = json_response(conn, 200)
     assert etag
     assert conn |> get_resp_header("cache-control") == ["max-age=60, public, must-revalidate"]
 
     # Passing the previous `ETag` value in a new HTTP request returns a 304
     conn |> recycle() |> put_req_header("if-none-match", etag) |> get(path) |> response(304)
+
+    api_spec = TransportWeb.API.Spec.spec()
+    assert_schema(json, "Dataset", api_spec)
   end
 
   test "GET /api/datasets *with* history, multi_validation and resource_metadata", %{conn: conn} do
