@@ -47,7 +47,7 @@ defmodule Transport.Application do
       ## manually add a children supervisor that is not scheduled
       |> Kernel.++([{Task.Supervisor, name: ImportTaskSupervisor}])
 
-    :ok = Transport.ObanLogger.setup()
+    :ok = Transport.Jobs.ObanLogger.setup()
 
     :ok = Transport.Telemetry.setup()
 
