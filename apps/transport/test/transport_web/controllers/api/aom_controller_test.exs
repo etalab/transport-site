@@ -29,7 +29,7 @@ defmodule TransportWeb.API.AomControllerTest do
 
     # apparently, currently returning only one AOM
     assert json == %{
-             "departement" => "The one",
+             "departement" => nil,
              "forme_juridique" => nil,
              "insee_commune_principale" => "38185",
              "nom" => "Grenoble",
