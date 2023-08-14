@@ -6,7 +6,7 @@ defmodule Transport.Jobs.DatabaseBackupReplicationJob do
   This job checks that the dump is recent enough, not too large
   and that permissions are write-only for the destination.
   """
-  use Oban.Worker, max_attempts: 3
+  use Oban.Worker, max_attempts: 3, tags: [Transport.Jobs.ObanLogger.email_on_failure_tag()]
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do

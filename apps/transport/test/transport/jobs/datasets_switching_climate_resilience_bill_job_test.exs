@@ -132,15 +132,13 @@ defmodule Transport.Test.Transport.Jobs.DatasetsSwitchingClimateResilienceBillJo
                              ^email,
                              "contact@transport.beta.gouv.fr",
                              "Loi climat et résilience : suivi des jeux de données" = _subject,
-                             plain_text_body,
-                             "" = _html_part ->
-      assert plain_text_body =~ ~r/^Bonjour/
+                             "" = _plain_text,
+                             html ->
+      assert html =~
+               ~s(Les jeux de données suivants font désormais l’objet d’une intégration obligatoire :\n\n<a href="http://127.0.0.1:5100/datasets/#{d1.slug}">#{d1.custom_title}</a>)
 
-      assert plain_text_body =~
-               "Les jeux de données suivants font désormais l'objet d'une intégration obligatoire :\n* #{d1.custom_title} - (Transport public collectif - horaires théoriques) - http://127.0.0.1:5100/datasets/#{d1.slug}"
-
-      assert plain_text_body =~
-               "Les jeux de données suivants faisaient l'objet d'une intégration obligatoire et ne font plus l'objet de cette obligation :\n* #{d2.custom_title} - (Transport public collectif - horaires théoriques) - http://127.0.0.1:5100/datasets/#{d2.slug}"
+      assert html =~
+               ~s(Les jeux de données suivants faisaient l’objet d’une intégration obligatoire et ne font plus l’objet de cette obligation :\n\n<a href="http://127.0.0.1:5100/datasets/#{d2.slug}">#{d2.custom_title}</a>)
 
       :ok
     end)

@@ -4,7 +4,35 @@
 @import 'globals/mixins';
 
 // Components: abstract building blocks as buttons, navigation, etc...
-@import 'components/**/*';
+@import 'components/aom_table';
+@import 'components/autocomplete';
+@import 'components/backoffice';
+@import 'components/blog';
+@import 'components/choose_file';
+@import 'components/community-resources';
+@import 'components/dataset-details';
+@import 'components/discussions';
+@import 'components/download_availability';
+@import 'components/error';
+@import 'components/explore';
+@import 'components/gtfs_diff';
+@import 'components/guide';
+@import 'components/icons';
+@import 'components/legal';
+@import 'components/login';
+@import 'components/logo';
+@import 'components/mail';
+@import 'components/mailing-list';
+@import 'components/map-js';
+@import 'components/message';
+@import 'components/notification';
+@import 'components/pagination';
+@import 'components/resource-details';
+@import 'components/search';
+@import 'components/shortlist';
+@import 'components/stats';
+@import 'components/tooltip';
+@import 'components/validation';
 
 // States: microinteractions...
 @import 'states';

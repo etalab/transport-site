@@ -181,6 +181,11 @@ defmodule Transport.Test.Transport.Jobs.DatabaseBackupReplicationJobTest do
     assert :ok == perform_job(DatabaseBackupReplicationJob, %{})
   end
 
+  test "email on failure tag is set" do
+    expected_tag = Transport.Jobs.ObanLogger.email_on_failure_tag()
+    assert %Ecto.Changeset{params: %{"tags" => [^expected_tag]}} = DatabaseBackupReplicationJob.new(%{})
+  end
+
   defp config_is_destination?(%{bucket_name: bucket_name}), do: bucket_name == @destination_bucket_name
   defp config_is_source?(%{bucket_name: bucket_name}), do: bucket_name == @source_bucket_name
 end
