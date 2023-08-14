@@ -2,7 +2,7 @@ defmodule TransportWeb.API.Spec do
   @moduledoc """
   OpenAPI specifications
   """
-  alias OpenApiSpex.{Info, Contact, OpenApi, Paths}
+  alias OpenApiSpex.{Contact, Info, OpenApi, Paths}
 
   @spec spec :: OpenApiSpex.OpenApi.t()
   def spec do
