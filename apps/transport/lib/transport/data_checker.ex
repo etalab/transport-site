@@ -133,7 +133,9 @@ defmodule Transport.DataChecker do
       "* #{dataset.custom_title} - (#{Dataset.type_to_str(dataset.type)}) - #{link(dataset)}"
     end
 
-    :new_dataset
+    reason = DB.NotificationSubscription.reason(:new_dataset)
+
+    reason
     |> DB.NotificationSubscription.subscriptions_for_reason()
     |> DB.NotificationSubscription.subscriptions_to_emails()
     |> Enum.each(fn email ->
@@ -166,9 +168,11 @@ defmodule Transport.DataChecker do
   end
 
   def send_outdated_data_notifications({delay, datasets} = payload) do
+    reason = DB.NotificationSubscription.reason(:expiration)
+
     Enum.each(datasets, fn dataset ->
       emails =
-        :expiration
+        reason
         |> DB.NotificationSubscription.subscriptions_for_reason(dataset)
         |> DB.NotificationSubscription.subscriptions_to_emails()
 
@@ -199,7 +203,7 @@ defmodule Transport.DataChecker do
           ""
         )
 
-        save_notification(:expiration, dataset, email)
+        save_notification(reason, dataset, email)
       end)
     end)
 
@@ -211,7 +215,9 @@ defmodule Transport.DataChecker do
   end
 
   def has_expiration_notifications?(%Dataset{} = dataset) do
-    :expiration
+    reason = DB.NotificationSubscription.reason(:expiration)
+
+    reason
     |> DB.NotificationSubscription.subscriptions_for_reason(dataset)
     |> Enum.count() > 0
   end

@@ -17,17 +17,22 @@ defmodule DB.NotificationSubscription do
   # These notifications should not be linked to a dataset and should be hidden from users: they
   # should not be able to subscribe to these reasons.
   @hidden_platform_wide_reasons [:periodic_reminder_producers]
+
+  @all_reasons @reasons_related_to_datasets ++
+                 @platform_wide_reasons ++
+                 @hidden_reasons_related_to_datasets ++
+                 @hidden_platform_wide_reasons
+
   @possible_roles [:producer, :reuser]
-  @type role :: :producer | :reuser
+
+  # https://elixirforum.com/t/using-module-attributes-in-typespec-definitions-to-reduce-duplication/42374/2
+  types = Enum.reduce(@possible_roles, &{:|, [], [&1, &2]})
+  @type role :: unquote(types)
+  types = Enum.reduce(@all_reasons, &{:|, [], [&1, &2]})
+  @type reason :: unquote(types)
 
   typed_schema "notification_subscription" do
-    field(:reason, Ecto.Enum,
-      values:
-        @reasons_related_to_datasets ++
-          @platform_wide_reasons ++
-          @hidden_reasons_related_to_datasets ++
-          @hidden_platform_wide_reasons
-    )
+    field(:reason, Ecto.Enum, values: @all_reasons)
 
     # Useful to know if the subscription has been created by an admin
     # from the backoffice (`:admin`) or by the user (`:user`)
@@ -39,6 +44,17 @@ defmodule DB.NotificationSubscription do
 
     timestamps(type: :utc_datetime_usec)
   end
+
+  @doc """
+  This method provides a consistent manner to reference a `DB.NotificationSubscription.reason`.
+  This is useful when searching for code related to a reason, as it allows you to easily
+  find all references to a particular reason.
+  *
+  The custom type `reason` helps us be safer at compile time, by preventing us from accidentally
+  passing in an invalid reason value.
+  """
+  @spec reason(reason()) :: reason()
+  def reason(reason) when reason in @all_reasons, do: reason
 
   def base_query, do: from(ns in __MODULE__, as: :notification_subscription)
 
@@ -68,19 +84,14 @@ defmodule DB.NotificationSubscription do
     end
   end
 
-  @spec reasons_related_to_datasets :: [atom()]
+  @spec reasons_related_to_datasets :: [reason()]
   def reasons_related_to_datasets, do: @reasons_related_to_datasets
 
-  @spec platform_wide_reasons :: [atom()]
+  @spec platform_wide_reasons :: [reason()]
   def platform_wide_reasons, do: @platform_wide_reasons
 
-  @spec possible_reasons :: [atom()]
-  def possible_reasons,
-    do:
-      reasons_related_to_datasets() ++
-        platform_wide_reasons() ++
-        @hidden_reasons_related_to_datasets ++
-        @hidden_platform_wide_reasons
+  @spec possible_reasons :: [reason()]
+  def possible_reasons, do: @all_reasons
 
   @spec subscriptions_for_reason(atom()) :: [__MODULE__.t()]
   def subscriptions_for_reason(reason) do
