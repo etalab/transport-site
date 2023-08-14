@@ -218,6 +218,7 @@ defmodule TransportWeb.API.Schemas do
       description: "AOM object (DEPRECATED, only there for retrocompatibility, use covered_area instead)",
       type: :object,
       properties: %{
+        # TODO: fix this (incorrect), but this should first be detected by assert_schema during tests!
         siren: %Schema{type: :string, nullable: true},
         name: %Schema{type: :string}
       }
