@@ -13,7 +13,7 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
   use Oban.Worker, max_attempts: 3, tags: ["notifications"]
   import Ecto.Query
 
-  @nb_days_before_sending_notification_again 15
+  @nb_days_before_sending_notification_again 7
   @notification_reason :dataset_with_error
   @enabled_validators [
     Transport.Validators.GTFSTransport,
@@ -64,7 +64,7 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
     save_notification(dataset, email)
   end
 
-  defp notifications_sent_recently(%DB.Dataset{id: dataset_id}) do
+  def notifications_sent_recently(%DB.Dataset{id: dataset_id}) do
     datetime_limit = DateTime.utc_now() |> DateTime.add(-@nb_days_before_sending_notification_again, :day)
 
     DB.Notification

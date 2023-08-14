@@ -92,10 +92,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
     # Should be ignored because it's for another dataset
     insert_notification(%{dataset: gtfs_dataset, reason: :resource_unavailable, email: "foo@example.com"})
     # Should be ignored because it's too old
-    %{dataset: dataset, reason: :resource_unavailable, email: "foo@example.com"}
+    %{dataset: dataset, reason: :resource_unavailable, email: "foo@example.com", inserted_at: add_days(-8)}
     |> insert_notification()
-    |> Ecto.Changeset.change(%{inserted_at: DateTime.utc_now() |> DateTime.add(-20, :day)})
-    |> DB.Repo.update!()
 
     setup_dataset_response(dataset, resource_1.url, DateTime.utc_now() |> DateTime.add(-6, :hour))
 
@@ -250,6 +248,25 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
       refute ResourceUnavailableNotificationJob.created_resource_hosted_on_datagouv_recently?(dataset)
     end
   end
+
+  test "notifications_sent_recently" do
+    dataset = insert(:dataset)
+
+    %{dataset: dataset, reason: :resource_unavailable, email: "foo@example.com", inserted_at: add_days(-6)}
+    |> insert_notification()
+
+    # Too old
+    %{dataset: dataset, reason: :resource_unavailable, email: "bar@example.com", inserted_at: add_days(-8)}
+    |> insert_notification()
+
+    # Another reason
+    %{dataset: dataset, reason: :expiration, email: "baz@example.com", inserted_at: add_days(-6)}
+    |> insert_notification()
+
+    assert MapSet.new(["foo@example.com"]) == ResourceUnavailableNotificationJob.notifications_sent_recently(dataset)
+  end
+
+  defp add_days(days), do: DateTime.utc_now() |> DateTime.add(days, :day)
 
   defp setup_dataset_response(%DB.Dataset{datagouv_id: datagouv_id}, resource_url, created_at) do
     url = "https://demo.data.gouv.fr/api/1/datasets/#{datagouv_id}/"
