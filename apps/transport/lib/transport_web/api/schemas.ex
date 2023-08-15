@@ -278,25 +278,30 @@ defmodule TransportWeb.API.Schemas do
     @moduledoc false
     def get_resource_prop(conversions: false),
       do: %{
-        url: %Schema{type: :string, description: "Stable URL of the file"},
-        original_url: %Schema{type: :string, description: "Direct URL of the file"},
-        title: %Schema{type: :string, description: "Title of the resource"},
-        updated: %Schema{type: :string, format: "date-time", description: "Last update date-time"},
-        end_calendar_validity: %Schema{
-          type: :string,
-          description:
-            "The last day of the validity period of the file (read from the calendars for the GTFS). null if the file couldn’t be read"
-        },
-        start_calendar_validity: %Schema{
-          type: :string,
-          description:
-            "The first day of the validity period of the file (read from the calendars for the GTFS). null if the file couldn’t be read"
-        },
-        format: %Schema{type: :string, description: "The format of the resource (GTFS, NeTEx, etc.)"},
+        datagouv_id: %Schema{type: :string, description: "Data gouv id of the resource", nullable: false},
+        id: %Schema{type: :integer, description: "transport.data.gouv.fr specific id", nullable: false},
+        format: %Schema{type: :string, description: "The format of the resource (GTFS, NeTEx, etc.)", nullable: false},
+        is_available: %Schema{type: :boolean, description: "Availability of the resource", nullable: false},
+        original_url: %Schema{type: :string, description: "Direct URL of the file", nullable: false},
+        url: %Schema{type: :string, description: "Stable URL of the file", nullable: false},
+        page_url: %Schema{type: :string, description: "URL of the resource on transport.data.gouv.fr", nullable: false},
+        features: %Schema{type: :array, items: %Schema{type: :string}, description: "Features", nullable: false},
+        title: %Schema{type: :string, description: "Title of the resource", nullable: false},
+        filesize: %Schema{type: :integer, description: "Size of the resource in bytes", nullable: false},
         metadata: %Schema{
           type: :object,
-          description: "Some metadata about the resource"
-        }
+          description: "Some metadata about the resource",
+          nullable: false
+        },
+        type: %Schema{type: :string, description: "Category of the data", nullable: false},
+        modes: %Schema{
+          type: :array,
+          items: %Schema{type: :string, nullable: false},
+          description: "Types of transportation",
+          nullable: false
+        },
+        updated: %Schema{type: :string, format: "date-time", description: "Last update date-time", nullable: false},
+        schema_name: %Schema{type: :string, description: "Data schema followed by the resource", nullable: false}
       }
 
     def get_resource_prop(conversions: true),
@@ -339,7 +344,10 @@ defmodule TransportWeb.API.Schemas do
     OpenApiSpex.schema(%Schema{
       type: :object,
       description: "A single resource",
-      properties: Utils.get_resource_prop(conversions: true)
+      # TODO: fill this. Required fields are keys which must always been present (even if data is null/empty)
+      required: [],
+      properties: Utils.get_resource_prop(conversions: true),
+      additionalProperties: false
     })
   end
 
@@ -350,6 +358,8 @@ defmodule TransportWeb.API.Schemas do
     OpenApiSpex.schema(%Schema{
       type: :object,
       description: "A single community resource",
+      # TODO: fill
+      required: [],
       properties:
         [conversions: false]
         |> Utils.get_resource_prop()
@@ -357,13 +367,17 @@ defmodule TransportWeb.API.Schemas do
           type: :string,
           description: "Name of the producer of the community resource"
         })
-        |> Map.put(:original_resource_url, %Schema{
-          type: :string,
-          description: """
-          some community resources have been generated from another dataset (like the generated NeTEx / GeoJson).
-          Those resources have a `original_resource_url` equals to the original resource's `original_url`
-          """
-        })
+        |> Map.put(
+          :original_resource_url,
+          %Schema{
+            type: :string,
+            description: """
+            some community resources have been generated from another dataset (like the generated NeTEx / GeoJson).
+            Those resources have a `original_resource_url` equals to the original resource's `original_url`
+            """
+          }
+        ),
+      additionalProperties: false
     })
   end
 
