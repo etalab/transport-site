@@ -304,6 +304,7 @@ defmodule TransportWeb.API.Schemas do
         schema_name: %Schema{type: :string, description: "Data schema followed by the resource", nullable: false}
       }
 
+    # TODO: review - I believe conversions are not available at the moment in the output
     def get_resource_prop(conversions: true),
       do:
         [conversions: false]
