@@ -381,6 +381,23 @@ defmodule TransportWeb.API.Schemas do
     })
   end
 
+  defmodule Publisher do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "Publisher",
+      description: "Publisher",
+      type: :object,
+      # non nullable I think - but tests will need to be adapted
+      properties: %{
+        name: %Schema{type: :string, nullable: true},
+        type: %Schema{type: :string, nullable: true}
+      },
+      additionalProperties: false
+      })
+  end
+
   defmodule Dataset do
     @moduledoc false
     require OpenApiSpex
@@ -390,12 +407,22 @@ defmodule TransportWeb.API.Schemas do
       description: "A dataset is a composed of one or more resources",
       type: :object,
       properties: %{
+        datagouv_id: %Schema{type: :string, description: "Data gouv id for this dataset", nullable: false},
+        id: %Schema{type: :string, description: "Same as datagouv_id", nullable: false},
         updated: %Schema{
           type: :string,
           format: :"date-time",
           description: "The last update of any resource of that dataset"
         },
-        title: %Schema{type: :string},
+        # TODO: see why this is not found in production currently!!!
+        # TODO: be more specific about the format
+        history: %Schema{type: :array},
+        page_url: %Schema{type: :string, description: "transport.data.gouv.fr page for this dataset", nullable: false},
+        publisher: Publisher.schema(),
+        slug: %Schema{type: :string, description: "unique dataset slug", nullable: false},
+        title: %Schema{type: :string, nullable: false},
+        # TODO: move to nullable, but tests need fixin'
+        type: %Schema{type: :string, nullable: true},
         licence: %Schema{type: :string, description: "The licence of the dataset"},
         created_at: %Schema{type: :string, format: :date, description: "Date of creation of the dataset"},
         aom: AOMShortRef.schema(),
@@ -408,8 +435,18 @@ defmodule TransportWeb.API.Schemas do
           type: :array,
           description: "All the community resources (files published by the community) associated with the dataset",
           items: CommunityResource
+        },
+        covered_area: %Schema{
+          type: :object,
+          properties: %{
+            aom: AOMShortRef,
+            name: %Schema{type: :string, description: "TODO"},
+            type: %Schema{type: :string, description: "TODO"}
+          },
+          additionalProperties: false
         }
-      }
+      },
+      additionalProperties: false
     })
   end
 
