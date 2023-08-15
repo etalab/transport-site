@@ -432,11 +432,13 @@ defmodule TransportWeb.API.Schemas do
       title: "Autocomplete result",
       description: "One result of the autocomplete",
       type: :object,
+      required: [:url, :type, :name],
       properties: %{
         url: %Schema{type: :string, description: "URL of the Resource"},
         type: %Schema{type: :string, description: "type of the resource (commune, region, aom)"},
         name: %Schema{type: :string, description: "name of the resource"}
-      }
+      },
+      additionalProperties: false
     })
   end
 
@@ -445,7 +447,7 @@ defmodule TransportWeb.API.Schemas do
     require OpenApiSpex
 
     OpenApiSpex.schema(%{
-      title: "Autocomplete results",
+      title: "AutocompleteResponse",
       description: "An array of matching results",
       type: :array,
       items: AutocompleteItem
