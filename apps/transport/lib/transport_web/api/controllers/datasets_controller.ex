@@ -53,6 +53,7 @@ defmodule TransportWeb.API.DatasetController do
       summary: "Show given dataset and its resources",
       description: "For one dataset, show its associated resources, url and validity date",
       operationId: "API.DatasetController.datasets_by_id",
+      # TODO: advertise how to get this id (it is not the slug)
       parameters: [Operation.parameter(:id, :path, :string, "id")],
       responses: %{
         200 => Operation.response("Dataset", "application/json", DatasetsResponse)
