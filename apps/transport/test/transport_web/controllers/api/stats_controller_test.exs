@@ -3,7 +3,6 @@ defmodule TransportWeb.API.StatsControllerTest do
   use TransportWeb.ConnCase
   import Mock
   import DB.Factory
-  import OpenApiSpex.TestAssertions
 
   @cached_features_routes [
     {"/api/stats", "api-stats-aoms"},
