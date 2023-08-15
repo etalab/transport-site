@@ -214,14 +214,47 @@ defmodule TransportWeb.API.Schemas do
     require OpenApiSpex
 
     OpenApiSpex.schema(%{
-      title: "AOM",
-      description: "AOM object (DEPRECATED, only there for retrocompatibility, use covered_area instead)",
+      title: "AOMResponse",
+      description:
+        "AOM object, as returned from AOMs endpoints (DEPRECATED, only there for retrocompatibility, use covered_area instead)",
       type: :object,
+      # this means key must be present (but does not specify if value is nullable or not)
+      required: [
+        :siren,
+        :nom,
+        :insee_commune_principale,
+        :forme_juridique,
+        :departement
+      ],
       properties: %{
-        # TODO: fix this (incorrect), but this should first be detected by assert_schema during tests!
         siren: %Schema{type: :string, nullable: true},
-        name: %Schema{type: :string}
-      }
+        nom: %Schema{type: :string, nullable: false},
+        insee_commune_principale: %Schema{type: :string, nullable: false},
+        forme_juridique: %Schema{type: :string, nullable: false},
+        departement: %Schema{type: :string, nullable: false}
+      },
+      # this forbids unknown property - keep to false to ensure `assert_schema` 
+      # detects out of sync specifications during the tests.
+      additionalProperties: false
+    })
+  end
+
+  defmodule AOMShortRef do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "AOMShortRef",
+      description:
+        "AOM object, as embedded in datasets (short version - DEPRECATED, only there for retrocompatibility, use covered_area instead)",
+      type: :object,
+      required: [:siren, :name],
+      properties: %{
+        # nullable because we saw it null in actual production data
+        siren: %Schema{type: :string, nullable: true},
+        name: %Schema{type: :string, nullable: true}
+      },
+      additionalProperties: false
     })
   end
 
@@ -351,7 +384,7 @@ defmodule TransportWeb.API.Schemas do
         title: %Schema{type: :string},
         licence: %Schema{type: :string, description: "The licence of the dataset"},
         created_at: %Schema{type: :string, format: :date, description: "Date of creation of the dataset"},
-        aom: AOMResponse.schema(),
+        aom: AOMShortRef.schema(),
         resources: %Schema{
           type: :array,
           description: "All the resources (files) associated with the dataset",

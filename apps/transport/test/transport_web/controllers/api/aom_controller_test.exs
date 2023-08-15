@@ -22,21 +22,25 @@ defmodule TransportWeb.API.AomControllerTest do
       properties: %{}
     }
 
-    insert(:aom, geom: geom)
+    insert(:aom,
+      geom: geom,
+      departement: "75",
+      forme_juridique: "Communauté de communes",
+      insee_commune_principale: "38185",
+      siren: "247400690"
+    )
 
     conn = conn |> get(TransportWeb.API.Router.Helpers.aom_path(conn, :by_coordinates, lon: 56.0, lat: 4.0))
     json = json_response(conn, 200)
 
-    # apparently, currently returning only one AOM
+    assert_response_schema(json, "AOMResponse", TransportWeb.API.Spec.spec())
+
     assert json == %{
-             "departement" => nil,
-             "forme_juridique" => nil,
+             "departement" => "75",
+             "forme_juridique" => "Communauté de communes",
              "insee_commune_principale" => "38185",
              "nom" => "Grenoble",
-             "siren" => nil
+             "siren" => "247400690"
            }
-
-    # TODO: fix this - this should raise, because `AOMResponse` is out of sync with this output
-    assert_schema(json, "AOM", TransportWeb.API.Spec.spec())
   end
 end
