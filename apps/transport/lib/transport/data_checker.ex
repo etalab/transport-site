@@ -155,7 +155,7 @@ defmodule Transport.DataChecker do
         L’équipe transport.data.gouv.fr
 
         ---
-        Si vous souhaitez modifier ou supprimer ces alertes, vous pouvez répondre à cet e-mail.
+        #{notification_documentation_text()}
         """,
         ""
       )
@@ -198,7 +198,7 @@ defmodule Transport.DataChecker do
           L’équipe transport.data.gouv.fr
 
           ---
-          Si vous souhaitez modifier ou supprimer ces alertes, vous pouvez répondre à cet e-mail.
+          #{notification_documentation_text()}
           """,
           ""
         )
@@ -347,6 +347,10 @@ defmodule Transport.DataChecker do
 
     #{count_archived_datasets()} jeux de données sont archivés. Retrouvez-les dans le backoffice : #{backoffice_archived_datasets_url()}
     """
+  end
+
+  defp notification_documentation_text do
+    ~s(Retrouvez comment gérer ces notifications <a href="https://doc.transport.data.gouv.fr/administration-des-donnees/procedures-de-publication/gerer-la-qualite-des-donnees">dans notre documentation</a>.)
   end
 
   defp backoffice_archived_datasets_url do
