@@ -282,7 +282,6 @@ defmodule TransportWeb.API.Schemas do
       properties: %{
         name: %Schema{type: :string, nullable: false},
         type: %Schema{type: :string, nullable: false},
-        # TODO: add properties
         country: %Schema{
           type: :object,
           nullable: false,
