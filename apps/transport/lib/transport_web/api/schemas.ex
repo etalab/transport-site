@@ -14,11 +14,20 @@ defmodule TransportWeb.API.Schemas do
       type: :object,
       description: "GeoJSon geometry",
       required: [:type],
-      externalDocs: %ExternalDocumentation{url: "http://geojson.org/geojson-spec.html#geometry-objects"},
+      externalDocs: %ExternalDocumentation{
+        url: "http://geojson.org/geojson-spec.html#geometry-objects"
+      },
       properties: %{
         type: %Schema{
           type: :string,
-          enum: ["Point", "LineString", "Polygon", "MultiPoint", "MultiLineString", "MultiPolygon"]
+          enum: [
+            "Point",
+            "LineString",
+            "Polygon",
+            "MultiPoint",
+            "MultiLineString",
+            "MultiPolygon"
+          ]
         }
       }
     })
