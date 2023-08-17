@@ -237,10 +237,10 @@ defmodule TransportWeb.API.Schemas do
       ],
       properties: %{
         siren: %Schema{type: :string, nullable: true},
-        nom: %Schema{type: :string, nullable: false},
-        insee_commune_principale: %Schema{type: :string, nullable: false},
-        forme_juridique: %Schema{type: :string, nullable: false},
-        departement: %Schema{type: :string, nullable: false}
+        nom: %Schema{type: :string},
+        insee_commune_principale: %Schema{type: :string},
+        forme_juridique: %Schema{type: :string},
+        departement: %Schema{type: :string}
       },
       # this forbids unknown property - keep to false to ensure `assert_schema`
       # detects out of sync specifications during the tests.
@@ -280,14 +280,13 @@ defmodule TransportWeb.API.Schemas do
         :type
       ],
       properties: %{
-        name: %Schema{type: :string, nullable: false},
+        name: %Schema{type: :string},
         type: %Schema{type: :string, enum: ["country"], required: true},
         country: %Schema{
           type: :object,
-          nullable: false,
           required: [:name],
           properties: %{
-            name: %Schema{type: :string, nullable: false}
+            name: %Schema{type: :string}
           },
           additionalProperties: false
         }
@@ -310,15 +309,14 @@ defmodule TransportWeb.API.Schemas do
         :type
       ],
       properties: %{
-        name: %Schema{type: :string, nullable: false},
+        name: %Schema{type: :string},
         type: %Schema{type: :string, enum: ["aom"], required: true},
         aom: %Schema{
           type: :object,
-          nullable: false,
           required: [:name, :siren],
           properties: %{
-            name: %Schema{type: :string, nullable: false},
-            siren: %Schema{type: :string, nullable: false}
+            name: %Schema{type: :string},
+            siren: %Schema{type: :string}
           },
           additionalProperties: false
         }
@@ -340,7 +338,7 @@ defmodule TransportWeb.API.Schemas do
         :type
       ],
       properties: %{
-        name: %Schema{type: :string, nullable: false},
+        name: %Schema{type: :string},
         type: %Schema{type: :string, enum: ["cities"], required: true},
         cities: %Schema{
           type: :array,
@@ -348,8 +346,8 @@ defmodule TransportWeb.API.Schemas do
             type: :object,
             required: [:name, :insee],
             properties: %{
-              name: %Schema{type: :string, nullable: false},
-              insee: %Schema{type: :string, nullable: false}
+              name: %Schema{type: :string},
+              insee: %Schema{type: :string}
             },
             additionalProperties: false
           }
@@ -372,14 +370,13 @@ defmodule TransportWeb.API.Schemas do
         :type
       ],
       properties: %{
-        name: %Schema{type: :string, nullable: false},
+        name: %Schema{type: :string},
         type: %Schema{type: :string, enum: ["region"], required: true},
         region: %Schema{
           type: :object,
-          nullable: false,
           required: [:name],
           properties: %{
-            name: %Schema{type: :string, nullable: false}
+            name: %Schema{type: :string}
           },
           additionalProperties: false
         }
@@ -445,73 +442,60 @@ defmodule TransportWeb.API.Schemas do
         datagouv_id: %Schema{
           type: :string,
           description: "Data gouv id of the resource",
-          nullable: false
         },
         id: %Schema{
           type: :integer,
           description: "transport.data.gouv.fr specific id",
-          nullable: false
         },
         format: %Schema{
           type: :string,
           description: "The format of the resource (GTFS, NeTEx, etc.)",
-          nullable: false
         },
         is_available: %Schema{
           type: :boolean,
           description: "Availability of the resource",
-          nullable: false
         },
         original_url: %Schema{
           type: :string,
           description: "Direct URL of the file",
-          nullable: false
         },
-        url: %Schema{type: :string, description: "Stable URL of the file", nullable: false},
+        url: %Schema{type: :string, description: "Stable URL of the file"},
         page_url: %Schema{
           type: :string,
           description: "URL of the resource on transport.data.gouv.fr",
-          nullable: false
         },
         features: %Schema{
           type: :array,
           items: %Schema{type: :string},
           description: "Features",
-          nullable: false
         },
-        title: %Schema{type: :string, description: "Title of the resource", nullable: false},
+        title: %Schema{type: :string, description: "Title of the resource"},
         filesize: %Schema{
           type: :integer,
           description: "Size of the resource in bytes",
-          nullable: false
         },
         metadata: %Schema{
           type: :object,
           description: "Some metadata about the resource",
-          nullable: false
         },
-        type: %Schema{type: :string, description: "Category of the data", nullable: false},
+        type: %Schema{type: :string, description: "Category of the data"},
         modes: %Schema{
           type: :array,
-          items: %Schema{type: :string, nullable: false},
+          items: %Schema{type: :string},
           description: "Types of transportation",
-          nullable: false
         },
         updated: %Schema{
           type: :string,
           format: "date-time",
           description: "Last update date-time",
-          nullable: false
         },
         schema_name: %Schema{
           type: :string,
           description: "Data schema followed by the resource",
-          nullable: false
         },
         schema_version: %Schema{
           type: :string,
           description: "Version of the data schema followed by the resource",
-          nullable: false
         }
       }
 
@@ -621,8 +605,7 @@ defmodule TransportWeb.API.Schemas do
         type: %Schema{type: :string},
         licence: %Schema{
           type: :string,
-          description: "The licence of the dataset",
-          nullable: false
+          description: "The licence of the dataset"
         },
         created_at: %Schema{
           type: :string,
