@@ -454,7 +454,7 @@ defmodule TransportWeb.API.Schemas do
         type: %Schema{type: :string, nullable: true}
       },
       additionalProperties: false
-      })
+    })
   end
 
   defmodule Dataset do
