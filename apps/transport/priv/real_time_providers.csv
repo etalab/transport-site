@@ -4,9 +4,8 @@ Rennes Star – Métro;35238;Spécifique;y;y;ODbL;;https://data.explore.star.fr/
 Montpellier Tam;34172;Spécifique;y;y;ODbL;;http://data.montpellier3m.fr/dataset/offre-de-transport-tam-en-temps-reel;;
 Nantes TAN;44109;Spécifique;n;y;ODbL;;https://data.nantesmetropole.fr/explore/dataset/244400404_api-temps-reel-tan/information/;;https://data.nantesmetropole.fr/explore/dataset/244400404_info-trafic-tan-temps-reel/table/
 Strasbourg CTS;67482;Siri-lite;y;n;Inconnue;;https://api.cts-strasbourg.eu/index.html;;
-Lyon TCL;69123;Spécifique;n;n;Associée;;https://data.grandlyon.com/jeux-de-donnees/prochains-passages-reseau-transports-commun-lyonnais-disponibilites-temps-reel/info;;https://data.grandlyon.com/jeux-de-donnees/alertes-trafic-reseau-transports-commun-lyonnais-v2/info
+Lyon TCL;69123;Spécifique;n;n;Associée;;https://data.grandlyon.com/portail/fr/jeux-de-donnees/prochains-passages-reseau-transports-commun-lyonnais-rhonexpress-disponibilites-temps-reel/info;;https://data.grandlyon.com/portail/fr/jeux-de-donnees/alertes-trafic-reseau-transports-commun-lyonnais-v2/info
 Lyon Rhône Express;69123;Spécifique;n;n;Associée;;https://data.grandlyon.com/jeux-de-donnees/prochains-passages-service-rhonexpress-metropole-lyon-departement-rhone-disponibilites-temps-reel/info;;
-Angers Irigo;49007;Spécifique;n;y;ODbL;;https://data.angers.fr/explore/dataset/bus-tram-circulation-passages/api/;https://data.angers.fr/explore/dataset/bus-tram-position-tr/api/;
 Toulouse Tisséo;31555;Spécifique;n;n;ODbL;;https://data.toulouse-metropole.fr/explore/dataset/api-temps-reel-tisseo/information/;;
 Île-de-France Mobilités;75056;Siri-lite;y;n;ODbL;https://prim.iledefrance-mobilites.fr/fr/centre-aide;https://prim.iledefrance-mobilites.fr/fr/catalogue-data?type=REST;;https://prim.iledefrance-mobilites.fr/fr/donnees-dynamiques/2edc0361-1c3c-41ea-a5e5-21b28f4828e1
 Nice Lignes d’Azur;6088;Spécifique;n;n;LO;;http://opendata.nicecotedazur.org/data/dataset/rla-horaires-de-bus-et-tramway-en-temps-reel-infos-perturbations;;
