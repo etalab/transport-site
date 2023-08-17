@@ -560,12 +560,22 @@ defmodule TransportWeb.API.Schemas do
     @moduledoc false
     require OpenApiSpex
 
+    @properties ResourceUtils.get_resource_prop(conversions: true)
+    @optional_properties [
+      :features,
+      :filesize,
+      :metadata,
+      :modes,
+      :original_resource_url,
+      :schema_name,
+      :schema_version
+    ]
+
     OpenApiSpex.schema(%Schema{
       type: :object,
       description: "A single resource (including conversions)",
-      # TODO: fill this. Required fields are keys which must always been present (even if data is null/empty)
-      required: [],
-      properties: ResourceUtils.get_resource_prop(conversions: true),
+      required: (@properties |> Map.keys) -- @optional_properties,
+      properties: @properties,
       additionalProperties: false
     })
   end
