@@ -421,7 +421,24 @@ defmodule TransportWeb.API.Schemas do
     })
   end
 
-  defmodule Utils do
+  defmodule Publisher do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "Publisher",
+      description: "Publisher",
+      type: :object,
+      # non nullable I think - but tests will need to be adapted
+      properties: %{
+        name: %Schema{type: :string, nullable: true},
+        type: %Schema{type: :string, nullable: true}
+      },
+      additionalProperties: false
+    })
+  end
+
+  defmodule ResourceUtils do
     @moduledoc false
     def get_resource_prop(conversions: false),
       do: %{
@@ -542,7 +559,7 @@ defmodule TransportWeb.API.Schemas do
       description: "A single resource",
       # TODO: fill this. Required fields are keys which must always been present (even if data is null/empty)
       required: [],
-      properties: Utils.get_resource_prop(conversions: true),
+      properties: ResourceUtils.get_resource_prop(conversions: true),
       additionalProperties: false
     })
   end
@@ -560,7 +577,7 @@ defmodule TransportWeb.API.Schemas do
       required: [],
       properties:
         [conversions: false]
-        |> Utils.get_resource_prop()
+        |> ResourceUtils.get_resource_prop()
         |> Map.put(:community_resource_publisher, %Schema{
           type: :string,
           description: "Name of the producer of the community resource"
@@ -579,38 +596,14 @@ defmodule TransportWeb.API.Schemas do
     })
   end
 
-  defmodule Publisher do
-    @moduledoc false
-    require OpenApiSpex
-
-    OpenApiSpex.schema(%{
-      title: "Publisher",
-      description: "Publisher",
-      type: :object,
-      # non nullable I think - but tests will need to be adapted
-      properties: %{
-        name: %Schema{type: :string, nullable: true},
-        type: %Schema{type: :string, nullable: true}
-      },
-      additionalProperties: false
-    })
-  end
-
-  defmodule Dataset do
-    @moduledoc false
-    require OpenApiSpex
-
-    OpenApiSpex.schema(%{
-      title: "Dataset",
-      description: "A dataset is a composed of one or more resources",
-      type: :object,
-      properties: %{
+  defmodule DatasetUtils do
+    def get_dataset_prop(details: false) do
+      %{
         datagouv_id: %Schema{
           type: :string,
-          description: "Data gouv id for this dataset",
-          nullable: false
+          description: "Data gouv id for this dataset"
         },
-        id: %Schema{type: :string, description: "Same as datagouv_id", nullable: false},
+        id: %Schema{type: :string, description: "Same as datagouv_id"},
         updated: %Schema{
           type: :string,
           format: :"date-time",
@@ -618,20 +611,19 @@ defmodule TransportWeb.API.Schemas do
             "The last update of any resource of that dataset (`null` if the dataset has no resources)",
           nullable: true
         },
-        # TODO: see why this is not found in production currently!!!
-        # TODO: be more specific about the format
-        history: %Schema{type: :array},
         page_url: %Schema{
           type: :string,
-          description: "transport.data.gouv.fr page for this dataset",
-          nullable: false
+          description: "transport.data.gouv.fr page for this dataset"
         },
         publisher: Publisher.schema(),
-        slug: %Schema{type: :string, description: "unique dataset slug", nullable: false},
-        title: %Schema{type: :string, nullable: false},
-        # TODO: move to nullable, but tests need fixin'
-        type: %Schema{type: :string, nullable: true},
-        licence: %Schema{type: :string, description: "The licence of the dataset"},
+        slug: %Schema{type: :string, description: "unique dataset slug"},
+        title: %Schema{type: :string},
+        type: %Schema{type: :string},
+        licence: %Schema{
+          type: :string,
+          description: "The licence of the dataset",
+          nullable: false
+        },
         created_at: %Schema{
           type: :string,
           format: :date,
@@ -652,7 +644,30 @@ defmodule TransportWeb.API.Schemas do
           items: CommunityResource
         },
         covered_area: CoveredArea.schema()
-      },
+      }
+    end
+
+    def get_dataset_prop(details: true) do
+      get_dataset_prop(details: false)
+      # TODO: specify history
+      |> Map.put(:history, %Schema{type: :array})
+    end
+  end
+
+  defmodule Dataset do
+    @moduledoc false
+    require OpenApiSpex
+
+    @properties DatasetUtils.get_dataset_prop(details: false)
+
+    OpenApiSpex.schema(%{
+      title: "Dataset",
+      description: "A dataset is a composed of one or more resources",
+      type: :object,
+      # make all keys mandatory (& whitelist to remove if needed)
+      # this will ensure we think about weither or not a new key must be added here
+      required: @properties |> Map.keys(),
+      properties: @properties,
       additionalProperties: false
     })
   end
