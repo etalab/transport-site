@@ -499,7 +499,7 @@ defmodule TransportWeb.API.Schemas do
         }
       }
 
-    # TODO: review - I believe conversions are not available at the moment in the output
+    # conversions are only shown in the detailed dataset view
     def get_resource_prop(conversions: true),
       do:
         [conversions: false]
@@ -524,6 +524,25 @@ defmodule TransportWeb.API.Schemas do
             }
           }
         })
+
+    def get_community_resource_prop() do
+      [conversions: false]
+      |> ResourceUtils.get_resource_prop()
+      |> Map.put(:community_resource_publisher, %Schema{
+        type: :string,
+        description: "Name of the producer of the community resource"
+      })
+      |> Map.put(
+        :original_resource_url,
+        %Schema{
+          type: :string,
+          description: """
+          some community resources have been generated from another dataset (like the generated NeTEx / GeoJson).
+          Those resources have a `original_resource_url` equals to the original resource's `original_url`
+          """
+        }
+      )
+    end
 
     defp conversion_properties,
       do: %{
@@ -556,12 +575,19 @@ defmodule TransportWeb.API.Schemas do
     @moduledoc false
     require OpenApiSpex
 
+    @properties ResourceUtils.get_resource_prop(conversions: false)
+    @optional_properties [
+      :features,
+      :filesize,
+      :metadata,
+      :modes
+    ]
+
     OpenApiSpex.schema(%Schema{
       type: :object,
       description: "A single resource (summarized version)",
-      # TODO: fill this. Required fields are keys which must always been present (even if data is null/empty)
-      required: [],
-      properties: ResourceUtils.get_resource_prop(conversions: false),
+      required: (@properties |> Map.keys()) -- @optional_properties,
+      properties: @properties,
       additionalProperties: false
     })
   end
@@ -572,28 +598,22 @@ defmodule TransportWeb.API.Schemas do
     @moduledoc false
     require OpenApiSpex
 
+    @properties ResourceUtils.get_community_resource_prop()
+    @optional_properties [
+      :features, 
+      :filesize, 
+      :metadata, 
+      :modes, 
+      :original_resource_url, 
+      :schema_name,
+      :schema_version
+    ]
+
     OpenApiSpex.schema(%Schema{
       type: :object,
       description: "A single community resource",
-      # TODO: fill
-      required: [],
-      properties:
-        [conversions: false]
-        |> ResourceUtils.get_resource_prop()
-        |> Map.put(:community_resource_publisher, %Schema{
-          type: :string,
-          description: "Name of the producer of the community resource"
-        })
-        |> Map.put(
-          :original_resource_url,
-          %Schema{
-            type: :string,
-            description: """
-            some community resources have been generated from another dataset (like the generated NeTEx / GeoJson).
-            Those resources have a `original_resource_url` equals to the original resource's `original_url`
-            """
-          }
-        ),
+      required: (@properties |> Map.keys()) -- @optional_properties,
+      properties: @properties,
       additionalProperties: false
     })
   end
