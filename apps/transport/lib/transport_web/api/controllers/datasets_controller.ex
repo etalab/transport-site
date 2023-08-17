@@ -196,7 +196,7 @@ defmodule TransportWeb.API.DatasetController do
     )
   end
 
-  # TODO: review - I believe this is not filled anymore in production data
+  # NOTE: only added in detailed dataset view
   defp add_conversions(%{"resources" => resources} = data, %Dataset{} = dataset) do
     conversions =
       dataset
