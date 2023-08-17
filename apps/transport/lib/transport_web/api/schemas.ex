@@ -534,16 +534,30 @@ defmodule TransportWeb.API.Schemas do
       }
   end
 
-  defmodule Resource do
+  defmodule DetailedResource do
     @moduledoc false
     require OpenApiSpex
 
     OpenApiSpex.schema(%Schema{
       type: :object,
-      description: "A single resource",
+      description: "A single resource (including conversions)",
       # TODO: fill this. Required fields are keys which must always been present (even if data is null/empty)
       required: [],
       properties: ResourceUtils.get_resource_prop(conversions: true),
+      additionalProperties: false
+    })
+  end
+
+  defmodule SummarizedResource do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%Schema{
+      type: :object,
+      description: "A single resource (summarized version)",
+      # TODO: fill this. Required fields are keys which must always been present (even if data is null/empty)
+      required: [],
+      properties: ResourceUtils.get_resource_prop(conversions: false),
       additionalProperties: false
     })
   end
@@ -581,8 +595,10 @@ defmodule TransportWeb.API.Schemas do
   end
 
   defmodule DatasetUtils do
-    def get_dataset_prop(details: false) do
-      %{
+    def get_dataset_prop(details: details) do
+      # base resource comes in 2 flavors
+      resource_type = if (details == true), do: DetailedResource, else: SummarizedResource
+      base = %{
         datagouv_id: %Schema{
           type: :string,
           description: "Data gouv id for this dataset"
@@ -618,7 +634,7 @@ defmodule TransportWeb.API.Schemas do
           description: "All the resources (files) associated with the dataset",
           # NOTE: community resources will have to be removed from here
           # https://github.com/etalab/transport-site/issues/3407
-          items: %Schema{anyOf: [Resource, CommunityResource]}
+          items: %Schema{anyOf: [resource_type, CommunityResource]}
         },
         community_resources: %Schema{
           type: :array,
@@ -628,12 +644,13 @@ defmodule TransportWeb.API.Schemas do
         },
         covered_area: CoveredArea.schema()
       }
-    end
-
-    def get_dataset_prop(details: true) do
-      get_dataset_prop(details: false)
-      # TODO: specify history
-      |> Map.put(:history, %Schema{type: :array})
+      if details do
+        base
+        # TODO: specify history
+        |> Map.put(:history, %Schema{type: :array})
+      else
+        base
+      end
     end
   end
 

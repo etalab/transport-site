@@ -20,7 +20,7 @@ defmodule TransportWeb.API.DatasetController do
     do: %Operation{
       tags: ["datasets"],
       summary: "List all datasets with their resources (non paginated)",
-      description: "For every dataset, show its associated resources",
+      description: "For every dataset, show its associated resources (summarized version)",
       operationId: "API.DatasetController.datasets",
       parameters: [],
       responses: %{
