@@ -242,7 +242,7 @@ defmodule TransportWeb.API.Schemas do
         forme_juridique: %Schema{type: :string, nullable: false},
         departement: %Schema{type: :string, nullable: false}
       },
-      # this forbids unknown property - keep to false to ensure `assert_schema` 
+      # this forbids unknown property - keep to false to ensure `assert_schema`
       # detects out of sync specifications during the tests.
       additionalProperties: false
     })
