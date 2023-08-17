@@ -313,10 +313,23 @@ defmodule TransportWeb.API.Schemas do
           nullable: false
         },
         url: %Schema{type: :string, description: "Stable URL of the file", nullable: false},
-        page_url: %Schema{type: :string, description: "URL of the resource on transport.data.gouv.fr", nullable: false},
-        features: %Schema{type: :array, items: %Schema{type: :string}, description: "Features", nullable: false},
+        page_url: %Schema{
+          type: :string,
+          description: "URL of the resource on transport.data.gouv.fr",
+          nullable: false
+        },
+        features: %Schema{
+          type: :array,
+          items: %Schema{type: :string},
+          description: "Features",
+          nullable: false
+        },
         title: %Schema{type: :string, description: "Title of the resource", nullable: false},
-        filesize: %Schema{type: :integer, description: "Size of the resource in bytes", nullable: false},
+        filesize: %Schema{
+          type: :integer,
+          description: "Size of the resource in bytes",
+          nullable: false
+        },
         metadata: %Schema{
           type: :object,
           description: "Some metadata about the resource",
