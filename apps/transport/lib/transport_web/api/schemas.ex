@@ -354,10 +354,6 @@ defmodule TransportWeb.API.Schemas do
             siren: %Schema{type: :string, nullable: false}
           },
           additionalProperties: false
-        },
-        city: %Schema{
-          type: :object,
-          nullable: false
         }
       },
       additionalProperties: false
