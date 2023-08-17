@@ -466,7 +466,11 @@ defmodule TransportWeb.API.Schemas do
       description: "A dataset is a composed of one or more resources",
       type: :object,
       properties: %{
-        datagouv_id: %Schema{type: :string, description: "Data gouv id for this dataset", nullable: false},
+        datagouv_id: %Schema{
+          type: :string,
+          description: "Data gouv id for this dataset",
+          nullable: false
+        },
         id: %Schema{type: :string, description: "Same as datagouv_id", nullable: false},
         updated: %Schema{
           type: :string,
@@ -476,14 +480,22 @@ defmodule TransportWeb.API.Schemas do
         # TODO: see why this is not found in production currently!!!
         # TODO: be more specific about the format
         history: %Schema{type: :array},
-        page_url: %Schema{type: :string, description: "transport.data.gouv.fr page for this dataset", nullable: false},
+        page_url: %Schema{
+          type: :string,
+          description: "transport.data.gouv.fr page for this dataset",
+          nullable: false
+        },
         publisher: Publisher.schema(),
         slug: %Schema{type: :string, description: "unique dataset slug", nullable: false},
         title: %Schema{type: :string, nullable: false},
         # TODO: move to nullable, but tests need fixin'
         type: %Schema{type: :string, nullable: true},
         licence: %Schema{type: :string, description: "The licence of the dataset"},
-        created_at: %Schema{type: :string, format: :date, description: "Date of creation of the dataset"},
+        created_at: %Schema{
+          type: :string,
+          format: :date,
+          description: "Date of creation of the dataset"
+        },
         aom: AOMShortRef.schema(),
         resources: %Schema{
           type: :array,
