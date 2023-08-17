@@ -511,12 +511,16 @@ defmodule TransportWeb.API.Schemas do
             GeoJSON: %Schema{
               type: :object,
               description: "Conversion to the GeoJSON format",
-              properties: conversion_properties()
+              required: conversion_properties() |> Map.keys(),
+              properties: conversion_properties(),
+              additionalProperties: false
             },
             NeTEx: %Schema{
               type: :object,
               description: "Conversion to the NeTEx format",
-              properties: conversion_properties()
+              required: conversion_properties() |> Map.keys(),
+              properties: conversion_properties(),
+              additionalProperties: false
             }
           }
         })
