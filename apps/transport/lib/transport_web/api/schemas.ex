@@ -580,7 +580,8 @@ defmodule TransportWeb.API.Schemas do
         updated: %Schema{
           type: :string,
           format: :"date-time",
-          description: "The last update of any resource of that dataset"
+          description: "The last update of any resource of that dataset (`null` if the dataset has no resources)",
+          nullable: true
         },
         # TODO: see why this is not found in production currently!!!
         # TODO: be more specific about the format
