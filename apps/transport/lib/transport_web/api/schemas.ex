@@ -500,7 +500,9 @@ defmodule TransportWeb.API.Schemas do
         resources: %Schema{
           type: :array,
           description: "All the resources (files) associated with the dataset",
-          items: Resource
+          # NOTE: community resources will have to be removed from here
+          # https://github.com/etalab/transport-site/issues/3407
+          items: %Schema{anyOf: [Resource, CommunityResource]}
         },
         community_resources: %Schema{
           type: :array,
