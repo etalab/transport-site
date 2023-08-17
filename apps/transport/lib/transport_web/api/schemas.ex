@@ -287,11 +287,31 @@ defmodule TransportWeb.API.Schemas do
     @moduledoc false
     def get_resource_prop(conversions: false),
       do: %{
-        datagouv_id: %Schema{type: :string, description: "Data gouv id of the resource", nullable: false},
-        id: %Schema{type: :integer, description: "transport.data.gouv.fr specific id", nullable: false},
-        format: %Schema{type: :string, description: "The format of the resource (GTFS, NeTEx, etc.)", nullable: false},
-        is_available: %Schema{type: :boolean, description: "Availability of the resource", nullable: false},
-        original_url: %Schema{type: :string, description: "Direct URL of the file", nullable: false},
+        datagouv_id: %Schema{
+          type: :string,
+          description: "Data gouv id of the resource",
+          nullable: false
+        },
+        id: %Schema{
+          type: :integer,
+          description: "transport.data.gouv.fr specific id",
+          nullable: false
+        },
+        format: %Schema{
+          type: :string,
+          description: "The format of the resource (GTFS, NeTEx, etc.)",
+          nullable: false
+        },
+        is_available: %Schema{
+          type: :boolean,
+          description: "Availability of the resource",
+          nullable: false
+        },
+        original_url: %Schema{
+          type: :string,
+          description: "Direct URL of the file",
+          nullable: false
+        },
         url: %Schema{type: :string, description: "Stable URL of the file", nullable: false},
         page_url: %Schema{type: :string, description: "URL of the resource on transport.data.gouv.fr", nullable: false},
         features: %Schema{type: :array, items: %Schema{type: :string}, description: "Features", nullable: false},
