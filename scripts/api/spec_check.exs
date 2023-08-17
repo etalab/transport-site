@@ -24,8 +24,26 @@ defmodule TestSuite do
 
     api_spec = TransportWeb.API.Spec.spec()
 
-    json = Enum.take(json, 1)
-
     assert_schema(json, "DatasetsResponse", api_spec)
+
+    task = fn(id) -> 
+      IO.puts "Processing #{id}"
+
+      url = Path.join(@host, "/api/datasets/#{id}")
+      %{status: 200, body: json} = Query.cached_get!(url)
+
+      json
+    end
+
+    json
+    |> Enum.map(&(&1["id"]))
+    |> Task.async_stream(
+      task,
+      max_concurrency: 25,
+      on_timeout: :kill_task
+    )
+    |> Enum.map(fn({:ok, result}) -> result end)
+    |> Enum.into([])
+    |> IO.inspect(IEx.inspect_opts)
   end
 end
