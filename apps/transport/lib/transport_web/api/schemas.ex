@@ -281,7 +281,7 @@ defmodule TransportWeb.API.Schemas do
       ],
       properties: %{
         name: %Schema{type: :string, nullable: false},
-        type: %Schema{type: :string, nullable: false},
+        type: %Schema{type: :string, enum: ["country"], required: true},
         country: %Schema{
           type: :object,
           nullable: false,
@@ -311,7 +311,7 @@ defmodule TransportWeb.API.Schemas do
       ],
       properties: %{
         name: %Schema{type: :string, nullable: false},
-        type: %Schema{type: :string, nullable: false},
+        type: %Schema{type: :string, enum: ["aom"], required: true},
         aom: %Schema{
           type: :object,
           nullable: false,
