@@ -591,8 +591,6 @@ defmodule TransportWeb.API.Schemas do
     })
   end
 
-  # TODO: remove in favor of only Resource + a `is_community_resource` boolean flag?
-  # https://github.com/etalab/transport-site/issues/3407
   defmodule CommunityResource do
     @moduledoc false
     require OpenApiSpex
