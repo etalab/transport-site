@@ -697,6 +697,22 @@ defmodule TransportWeb.API.Schemas do
     })
   end
 
+  defmodule DatasetDetails do
+    @moduledoc false
+    require OpenApiSpex
+
+    @properties DatasetUtils.get_dataset_prop(details: true)
+
+    OpenApiSpex.schema(%{
+      title: "DatasetDetails",
+      description: "A dataset is a composed of one or more resources (detailed version)",
+      type: :object,
+      required: @properties |> Map.keys(),
+      properties: @properties,
+      additionalProperties: false
+    })
+  end
+
   defmodule DatasetsResponse do
     @moduledoc false
     require OpenApiSpex

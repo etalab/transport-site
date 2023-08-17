@@ -26,8 +26,8 @@ defmodule TestSuite do
 
     assert_schema(json, "DatasetsResponse", api_spec)
 
-    task = fn(id) -> 
-      IO.puts "Processing #{id}"
+    task = fn id ->
+      # IO.puts("Processing #{id}")
 
       url = Path.join(@host, "/api/datasets/#{id}")
       %{status: 200, body: json} = Query.cached_get!(url)
@@ -35,15 +35,20 @@ defmodule TestSuite do
       json
     end
 
-    json
-    |> Enum.map(&(&1["id"]))
-    |> Task.async_stream(
-      task,
-      max_concurrency: 25,
-      on_timeout: :kill_task
-    )
-    |> Enum.map(fn({:ok, result}) -> result end)
-    |> Enum.into([])
-    |> IO.inspect(IEx.inspect_opts)
+    datasets =
+      json
+      |> Enum.map(& &1["id"])
+      |> Task.async_stream(
+        task,
+        max_concurrency: 25,
+        on_timeout: :kill_task
+      )
+      |> Enum.map(fn {:ok, result} -> result end)
+      |> Enum.into([])
+
+    datasets
+    |> Enum.each(fn d ->
+      assert_schema(d, "DatasetDetails", api_spec)
+    end)
   end
 end
