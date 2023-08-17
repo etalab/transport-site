@@ -378,7 +378,7 @@ defmodule TransportWeb.API.Schemas do
       ],
       properties: %{
         name: %Schema{type: :string, nullable: false},
-        type: %Schema{type: :string, nullable: false},
+        type: %Schema{type: :string, enum: ["region"], required: true},
         region: %Schema{
           type: :object,
           nullable: false,
