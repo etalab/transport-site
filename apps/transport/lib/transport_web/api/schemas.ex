@@ -441,61 +441,61 @@ defmodule TransportWeb.API.Schemas do
       do: %{
         datagouv_id: %Schema{
           type: :string,
-          description: "Data gouv id of the resource",
+          description: "Data gouv id of the resource"
         },
         id: %Schema{
           type: :integer,
-          description: "transport.data.gouv.fr specific id",
+          description: "transport.data.gouv.fr specific id"
         },
         format: %Schema{
           type: :string,
-          description: "The format of the resource (GTFS, NeTEx, etc.)",
+          description: "The format of the resource (GTFS, NeTEx, etc.)"
         },
         is_available: %Schema{
           type: :boolean,
-          description: "Availability of the resource",
+          description: "Availability of the resource"
         },
         original_url: %Schema{
           type: :string,
-          description: "Direct URL of the file",
+          description: "Direct URL of the file"
         },
         url: %Schema{type: :string, description: "Stable URL of the file"},
         page_url: %Schema{
           type: :string,
-          description: "URL of the resource on transport.data.gouv.fr",
+          description: "URL of the resource on transport.data.gouv.fr"
         },
         features: %Schema{
           type: :array,
           items: %Schema{type: :string},
-          description: "Features",
+          description: "Features"
         },
         title: %Schema{type: :string, description: "Title of the resource"},
         filesize: %Schema{
           type: :integer,
-          description: "Size of the resource in bytes",
+          description: "Size of the resource in bytes"
         },
         metadata: %Schema{
           type: :object,
-          description: "Some metadata about the resource",
+          description: "Some metadata about the resource"
         },
         type: %Schema{type: :string, description: "Category of the data"},
         modes: %Schema{
           type: :array,
           items: %Schema{type: :string},
-          description: "Types of transportation",
+          description: "Types of transportation"
         },
         updated: %Schema{
           type: :string,
           format: "date-time",
-          description: "Last update date-time",
+          description: "Last update date-time"
         },
         schema_name: %Schema{
           type: :string,
-          description: "Data schema followed by the resource",
+          description: "Data schema followed by the resource"
         },
         schema_version: %Schema{
           type: :string,
-          description: "Version of the data schema followed by the resource",
+          description: "Version of the data schema followed by the resource"
         }
       }
 
@@ -550,8 +550,7 @@ defmodule TransportWeb.API.Schemas do
         last_check_conversion_is_up_to_date: %Schema{
           type: :string,
           format: "date-time",
-          description:
-            "Last datetime (UTC) it was checked the converted file is still up-to-date with the resource"
+          description: "Last datetime (UTC) it was checked the converted file is still up-to-date with the resource"
         },
         stable_url: %Schema{type: :string, description: "The converted file stable download URL"}
       }
@@ -600,11 +599,11 @@ defmodule TransportWeb.API.Schemas do
 
     @properties ResourceUtils.get_community_resource_prop()
     @optional_properties [
-      :features, 
-      :filesize, 
-      :metadata, 
-      :modes, 
-      :original_resource_url, 
+      :features,
+      :filesize,
+      :metadata,
+      :modes,
+      :original_resource_url,
       :schema_name,
       :schema_version
     ]
@@ -621,7 +620,8 @@ defmodule TransportWeb.API.Schemas do
   defmodule DatasetUtils do
     def get_dataset_prop(details: details) do
       # base resource comes in 2 flavors
-      resource_type = if (details == true), do: DetailedResource, else: SummarizedResource
+      resource_type = if details == true, do: DetailedResource, else: SummarizedResource
+
       base = %{
         datagouv_id: %Schema{
           type: :string,
@@ -631,8 +631,7 @@ defmodule TransportWeb.API.Schemas do
         updated: %Schema{
           type: :string,
           format: :"date-time",
-          description:
-            "The last update of any resource of that dataset (`null` if the dataset has no resources)",
+          description: "The last update of any resource of that dataset (`null` if the dataset has no resources)",
           nullable: true
         },
         page_url: %Schema{
@@ -662,12 +661,12 @@ defmodule TransportWeb.API.Schemas do
         },
         community_resources: %Schema{
           type: :array,
-          description:
-            "All the community resources (files published by the community) associated with the dataset",
+          description: "All the community resources (files published by the community) associated with the dataset",
           items: CommunityResource
         },
         covered_area: CoveredArea.schema()
       }
+
       if details do
         base
         # TODO: specify history
