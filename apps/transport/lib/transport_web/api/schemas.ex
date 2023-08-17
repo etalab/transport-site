@@ -346,14 +346,13 @@ defmodule TransportWeb.API.Schemas do
           type: :array,
           items: %Schema{
             type: :object,
-            nullable: false
-          },
-          required: [:name, :insee],
-          properties: %{
-            name: %Schema{type: :string, nullable: false},
-            siren: %Schema{type: :string, nullable: false}
-          },
-          additionalProperties: false
+            required: [:name, :insee],
+            properties: %{
+              name: %Schema{type: :string, nullable: false},
+              insee: %Schema{type: :string, nullable: false}
+            },
+            additionalProperties: false
+          }
         }
       },
       additionalProperties: false
