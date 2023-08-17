@@ -527,7 +527,8 @@ defmodule TransportWeb.API.Schemas do
         last_check_conversion_is_up_to_date: %Schema{
           type: :string,
           format: "date-time",
-          description: "Last datetime (UTC) it was checked the converted file is still up-to-date with the resource"
+          description:
+            "Last datetime (UTC) it was checked the converted file is still up-to-date with the resource"
         },
         stable_url: %Schema{type: :string, description: "The converted file stable download URL"}
       }
@@ -614,7 +615,8 @@ defmodule TransportWeb.API.Schemas do
         updated: %Schema{
           type: :string,
           format: :"date-time",
-          description: "The last update of any resource of that dataset (`null` if the dataset has no resources)",
+          description:
+            "The last update of any resource of that dataset (`null` if the dataset has no resources)",
           nullable: true
         },
         # TODO: see why this is not found in production currently!!!
@@ -646,7 +648,8 @@ defmodule TransportWeb.API.Schemas do
         },
         community_resources: %Schema{
           type: :array,
-          description: "All the community resources (files published by the community) associated with the dataset",
+          description:
+            "All the community resources (files published by the community) associated with the dataset",
           items: CommunityResource
         },
         covered_area: CoveredArea.schema()
