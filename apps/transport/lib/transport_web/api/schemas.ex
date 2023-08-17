@@ -267,6 +267,50 @@ defmodule TransportWeb.API.Schemas do
     })
   end
 
+  defmodule CoveredArea.Country do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "CoveredArea.Country",
+      type: :object,
+      required: [
+        :country,
+        :name,
+        :type
+      ],
+      properties: %{
+        name: %Schema{type: :string, nullable: false},
+        type: %Schema{type: :string, nullable: false},
+        # TODO: add properties
+        country: %Schema{
+          type: :object,
+          nullable: false,
+          required: [:name],
+          properties: %{
+            name: %Schema{type: :string, nullable: false}
+          },
+          additionalProperties: false
+        }
+      },
+      additionalProperties: false
+    })
+  end
+
+  defmodule CoveredArea do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "CoveredArea",
+      type: :object,
+      oneOf: [
+        CoveredArea.Country.schema()
+      ],
+      additionalProperties: false
+    })
+  end
+
   defmodule GeoJSONResponse do
     @moduledoc false
     require OpenApiSpex
@@ -509,15 +553,7 @@ defmodule TransportWeb.API.Schemas do
           description: "All the community resources (files published by the community) associated with the dataset",
           items: CommunityResource
         },
-        covered_area: %Schema{
-          type: :object,
-          properties: %{
-            aom: AOMShortRef,
-            name: %Schema{type: :string, description: "TODO"},
-            type: %Schema{type: :string, description: "TODO"}
-          },
-          additionalProperties: false
-        }
+        covered_area: CoveredArea.schema()
       },
       additionalProperties: false
     })
