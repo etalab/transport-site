@@ -296,6 +296,66 @@ defmodule TransportWeb.API.Schemas do
     })
   end
 
+  # Very similar to `AOMShortRef` but ultimately only CoveredAreas should be kept (?)
+  defmodule CoveredArea.AOM do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "CoveredArea.AOM",
+      type: :object,
+      required: [
+        :aom,
+        :name,
+        :type
+      ],
+      properties: %{
+        name: %Schema{type: :string, nullable: false},
+        type: %Schema{type: :string, nullable: false},
+        aom: %Schema{
+          type: :object,
+          nullable: false,
+          required: [:name, :siren],
+          properties: %{
+            name: %Schema{type: :string, nullable: false},
+            siren: %Schema{type: :string, nullable: false}
+          },
+          additionalProperties: false
+        }
+      },
+      additionalProperties: false
+    })
+  end
+
+  defmodule CoveredArea.Region do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "CoveredArea.Region",
+      type: :object,
+      required: [
+        :region,
+        :name,
+        :type
+      ],
+      properties: %{
+        name: %Schema{type: :string, nullable: false},
+        type: %Schema{type: :string, nullable: false},
+        region: %Schema{
+          type: :object,
+          nullable: false,
+          required: [:name],
+          properties: %{
+            name: %Schema{type: :string, nullable: false}
+          },
+          additionalProperties: false
+        }
+      },
+      additionalProperties: false
+    })
+  end
+
   defmodule CoveredArea do
     @moduledoc false
     require OpenApiSpex
@@ -304,7 +364,9 @@ defmodule TransportWeb.API.Schemas do
       title: "CoveredArea",
       type: :object,
       oneOf: [
-        CoveredArea.Country.schema()
+        CoveredArea.Country.schema(),
+        CoveredArea.AOM.schema(),
+        CoveredArea.Region.schema()
       ],
       additionalProperties: false
     })
