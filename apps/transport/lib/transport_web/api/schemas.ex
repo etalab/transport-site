@@ -327,6 +327,43 @@ defmodule TransportWeb.API.Schemas do
     })
   end
 
+  defmodule CoveredArea.Cities do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "CoveredArea.Cities",
+      type: :object,
+      required: [
+        :cities,
+        :name,
+        :type
+      ],
+      properties: %{
+        name: %Schema{type: :string, nullable: false},
+        type: %Schema{type: :string, enum: ["cities"], required: true},
+        cities: %Schema{
+          type: :array,
+          items: %Schema{
+            type: :object,
+            nullable: false
+          },
+          required: [:name, :insee],
+          properties: %{
+            name: %Schema{type: :string, nullable: false},
+            siren: %Schema{type: :string, nullable: false}
+          },
+          additionalProperties: false
+        },
+        city: %Schema{
+          type: :object,
+          nullable: false
+        }
+      },
+      additionalProperties: false
+    })
+  end
+
   defmodule CoveredArea.Region do
     @moduledoc false
     require OpenApiSpex
@@ -366,7 +403,8 @@ defmodule TransportWeb.API.Schemas do
       oneOf: [
         CoveredArea.Country.schema(),
         CoveredArea.AOM.schema(),
-        CoveredArea.Region.schema()
+        CoveredArea.Region.schema(),
+        CoveredArea.Cities.schema()
       ],
       additionalProperties: false
     })
