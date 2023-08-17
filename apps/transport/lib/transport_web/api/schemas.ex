@@ -579,7 +579,10 @@ defmodule TransportWeb.API.Schemas do
       :features,
       :filesize,
       :metadata,
-      :modes
+      :modes,
+      :original_resource_url,
+      :schema_name,
+      :schema_version
     ]
 
     OpenApiSpex.schema(%Schema{
@@ -596,6 +599,7 @@ defmodule TransportWeb.API.Schemas do
     require OpenApiSpex
 
     @properties ResourceUtils.get_community_resource_prop()
+    # TODO: DRY with SummarizedResource (same)
     @optional_properties [
       :features,
       :filesize,
