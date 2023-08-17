@@ -654,15 +654,15 @@ defmodule TransportWeb.API.Schemas do
     end
   end
 
-  defmodule Dataset do
+  defmodule DatasetSummary do
     @moduledoc false
     require OpenApiSpex
 
     @properties DatasetUtils.get_dataset_prop(details: false)
 
     OpenApiSpex.schema(%{
-      title: "Dataset",
-      description: "A dataset is a composed of one or more resources",
+      title: "DatasetSummary",
+      description: "A dataset is a composed of one or more resources (summarized version)",
       type: :object,
       # make all keys mandatory (& whitelist to remove if needed)
       # this will ensure we think about weither or not a new key must be added here
@@ -679,7 +679,7 @@ defmodule TransportWeb.API.Schemas do
     OpenApiSpex.schema(%{
       title: "DatasetsResponse",
       type: :array,
-      items: Dataset.schema()
+      items: DatasetSummary.schema()
     })
   end
 
