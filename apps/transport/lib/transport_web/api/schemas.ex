@@ -342,8 +342,17 @@ defmodule TransportWeb.API.Schemas do
           description: "Types of transportation",
           nullable: false
         },
-        updated: %Schema{type: :string, format: "date-time", description: "Last update date-time", nullable: false},
-        schema_name: %Schema{type: :string, description: "Data schema followed by the resource", nullable: false}
+        updated: %Schema{
+          type: :string,
+          format: "date-time",
+          description: "Last update date-time",
+          nullable: false
+        },
+        schema_name: %Schema{
+          type: :string,
+          description: "Data schema followed by the resource",
+          nullable: false
+        },
       }
 
     # TODO: review - I believe conversions are not available at the moment in the output
