@@ -257,7 +257,7 @@ defmodule TransportWeb.API.Schemas do
       description:
         "AOM object, as embedded in datasets (short version - DEPRECATED, only there for retrocompatibility, use covered_area instead)",
       type: :object,
-      required: [:siren, :name],
+      required: [:name],
       properties: %{
         # nullable because we saw it null in actual production data
         siren: %Schema{type: :string, nullable: true},
