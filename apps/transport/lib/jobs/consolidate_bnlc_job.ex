@@ -4,7 +4,6 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   """
   use Oban.Worker, max_attempts: 3
   require Logger
-  import Ecto.Query
   alias Shared.Validation.TableSchemaValidator.Wrapper, as: TableSchemaValidator
 
   @schema_name "etalab/schema-lieux-covoiturage"
