@@ -29,6 +29,26 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     |> Enum.uniq()
   end
 
+  @doc """
+  Guesses a CSV separator (, or ;) from a CSV body, using only its first line (the header).
+  """
+  @spec guess_csv_separator(binary()) :: char()
+  def guess_csv_separator(body) do
+    [?;, ?,]
+    |> Enum.into(%{}, fn separator ->
+      nb_columns =
+        [body]
+        |> CSV.decode(headers: true, separator: separator)
+        |> Stream.take(1)
+        |> Enum.filter(&match?({:ok, _}, &1))
+        |> Enum.map(fn {:ok, map} -> map |> Map.keys() |> Enum.count() end)
+
+      {separator, nb_columns}
+    end)
+    |> Enum.max_by(fn {_, v} -> v end)
+    |> elem(0)
+  end
+
   @spec dataset_details([binary()]) :: %{ok: [map()], errors: [binary() | map()]}
   def dataset_details(slugs) do
     filter_resources = fn acc, %{"resources" => resources} = details ->
@@ -90,12 +110,12 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   @spec download_resources([map()]) :: %{ok: [], errors: []}
   def download_resources(resources_details) do
     download_resource = fn
-      {:ok, dataset_details, %{"id" => resource_id, "url" => resource_url} = resource}, %{ok: _, errors: _} = acc ->
+      {dataset_details, %{"id" => resource_id, "url" => resource_url} = resource}, %{ok: _, errors: _} = acc ->
         case http_client().get(resource_url, [], follow_redirect: true) do
           {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
             path = System.tmp_dir!() |> Path.join("consolidate_bnlc_#{resource_id}")
             File.write!(path, body)
-            resource = Map.put(resource, @download_path_key, path)
+            resource = Map.merge(resource, %{@download_path_key => path, "csv_separator" => guess_csv_separator(body)})
             Map.put(acc, :ok, [{dataset_details, resource} | Map.fetch!(acc, :ok)])
 
           _ ->

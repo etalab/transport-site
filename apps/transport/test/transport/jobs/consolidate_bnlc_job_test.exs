@@ -111,4 +111,60 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
              ok: [{dataset_details, resource}]
            } == ConsolidateBNLCJob.valid_datagouv_resources(datasets_details)
   end
+
+  test "download_resources" do
+    dataset_detail = %{
+      "resources" => [
+        resource = %{
+          "id" => resource_id = Ecto.UUID.generate(),
+          "schema" => %{"name" => "etalab/schema-lieux-covoiturage"},
+          "url" => url = "https://example.com/file.csv"
+        }
+      ],
+      "slug" => "foo"
+    }
+
+    Transport.HTTPoison.Mock
+    |> expect(:get, fn ^url, [], [follow_redirect: true] ->
+      body = """
+      foo,bar
+      1,2
+      """
+
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}}
+    end)
+
+    resources_details = [{dataset_detail, resource}]
+
+    assert %{
+             errors: [],
+             ok: [
+               {^dataset_detail,
+                %{"id" => ^resource_id, "url" => ^url, "csv_separator" => ?,, "tmp_download_path" => tmp_download_path}}
+             ]
+           } = ConsolidateBNLCJob.download_resources(resources_details)
+
+    assert String.ends_with?(tmp_download_path, "consolidate_bnlc_#{resource_id}")
+    assert File.exists?(tmp_download_path)
+  end
+
+  test "guess_csv_separator" do
+    assert ?, ==
+             ConsolidateBNLCJob.guess_csv_separator("""
+             foo,bar
+             1,2
+             """)
+
+    assert ?; ==
+             ConsolidateBNLCJob.guess_csv_separator("""
+             foo;bar
+             1;2
+             """)
+
+    assert ?; ==
+             ConsolidateBNLCJob.guess_csv_separator("""
+             "foo";"bar"
+             1;2
+             """)
+  end
 end
