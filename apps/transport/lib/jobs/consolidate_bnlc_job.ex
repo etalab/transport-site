@@ -7,6 +7,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   alias Shared.Validation.TableSchemaValidator.Wrapper, as: TableSchemaValidator
 
   @schema_name "etalab/schema-lieux-covoiturage"
+  @download_path_key "tmp_download_path"
   @datasets_list_csv_url "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/datasets.csv"
 
   @impl Oban.Worker
@@ -30,34 +31,42 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
   @spec dataset_details([binary()]) :: %{ok: [map()], errors: [binary() | map()]}
   def dataset_details(slugs) do
-    Enum.reduce(slugs, %{ok: [], errors: []}, fn slug, acc ->
+    filter_resources = fn acc, %{"resources" => resources} = details ->
+      if resources |> Enum.filter(&with_appropriate_schema?/1) |> Enum.any?() do
+        Map.put(acc, :ok, [details | Map.fetch!(acc, :ok)])
+      else
+        Map.put(acc, :errors, [details | Map.fetch!(acc, :errors)])
+      end
+    end
+
+    analyze_dataset = fn slug, %{ok: _, errors: _} = acc ->
       case Datagouvfr.Client.Datasets.get(slug) do
-        {:ok, %{"resources" => resources} = details} ->
-          if resources |> Enum.filter(&with_appropriate_schema?/1) |> Enum.any?() do
-            Map.put(acc, :ok, [details | Map.fetch!(acc, :ok)])
-          else
-            Map.put(acc, :errors, [details | Map.fetch!(acc, :errors)])
-          end
+        {:ok, %{"resources" => _} = details} ->
+          filter_resources.(acc, details)
 
         _ ->
           Map.put(acc, :errors, [dataset_slug_to_url(slug) | Map.fetch!(acc, :errors)])
       end
-    end)
+    end
+
+    Enum.reduce(slugs, %{ok: [], errors: []}, fn slug, acc -> analyze_dataset.(slug, acc) end)
   end
 
   @spec valid_datagouv_resources([map()]) :: %{ok: [], errors: []}
   def valid_datagouv_resources(datasets_details) do
-    Enum.reduce(datasets_details, %{ok: [], errors: []}, fn %{"resources" => resources} = dataset_details, acc ->
+    analyze_resource = fn dataset_details, %{"url" => resource_url} = resource ->
+      case TableSchemaValidator.validate(@schema_name, resource_url) do
+        %{"has_errors" => true} -> {:error, dataset_details, resource}
+        %{"has_errors" => false} -> {:ok, dataset_details, resource}
+        nil -> {:validation_error, dataset_details, resource}
+      end
+    end
+
+    analyze_dataset = fn %{"resources" => resources} = dataset_details, %{ok: _, errors: _} = acc ->
       {oks, errors} =
         resources
         |> Enum.filter(&with_appropriate_schema?/1)
-        |> Enum.map(fn %{"url" => resource_url} = resource ->
-          case TableSchemaValidator.validate(@schema_name, resource_url) do
-            %{"has_errors" => true} -> {:error, dataset_details, resource}
-            %{"has_errors" => false} -> {:ok, dataset_details, resource}
-            nil -> {:validation_error, dataset_details, resource}
-          end
-        end)
+        |> Enum.map(fn %{"url" => _} = resource -> analyze_resource.(dataset_details, resource) end)
         |> Enum.split_with(&match?({:ok, %{}, %{}}, &1))
 
       acc
@@ -67,10 +76,35 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
         {key,
          case key do
-           :ok -> Enum.map(oks, fn {:ok, dataset, resource} -> {dataset, resource} end) |> Kernel.++(existing_value)
+           :ok -> oks |> Enum.map(fn {:ok, dataset, resource} -> {dataset, resource} end) |> Kernel.++(existing_value)
            :errors -> errors ++ existing_value
          end}
       end)
+    end
+
+    Enum.reduce(datasets_details, %{ok: [], errors: []}, fn dataset_details, acc ->
+      analyze_dataset.(dataset_details, acc)
+    end)
+  end
+
+  @spec download_resources([map()]) :: %{ok: [], errors: []}
+  def download_resources(resources_details) do
+    download_resource = fn
+      {:ok, dataset_details, %{"id" => resource_id, "url" => resource_url} = resource}, %{ok: _, errors: _} = acc ->
+        case http_client().get(resource_url, [], follow_redirect: true) do
+          {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+            path = System.tmp_dir!() |> Path.join("consolidate_bnlc_#{resource_id}")
+            File.write!(path, body)
+            resource = Map.put(resource, @download_path_key, path)
+            Map.put(acc, :ok, [{dataset_details, resource} | Map.fetch!(acc, :ok)])
+
+          _ ->
+            Map.put(acc, :errors, [{dataset_details, resource} | Map.fetch!(acc, :errors)])
+        end
+    end
+
+    Enum.reduce(resources_details, %{ok: [], errors: []}, fn payload, acc ->
+      download_resource.(payload, acc)
     end)
   end
 

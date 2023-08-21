@@ -61,11 +61,30 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
   test "valid_datagouv_resources" do
     datasets_details = [
-      %{
+      dataset_details = %{
         "resources" => [
-          %{"schema" => %{"name" => "etalab/schema-lieux-covoiturage"}, "url" => url = "https://example.com/file.csv"}
+          resource = %{
+            "schema" => %{"name" => "etalab/schema-lieux-covoiturage"},
+            "url" => url = "https://example.com/file.csv"
+          },
+          # Ignored, not the expected schema
+          %{"format" => "GTFS"},
+          other_resource = %{
+            "schema" => %{"name" => "etalab/schema-lieux-covoiturage"},
+            "url" => other_url = "https://example.com/other_file.csv"
+          }
         ],
         "slug" => "foo"
+      },
+      # Another dataset where we will simulate a validation error (validator's fault)
+      other_dataset_details = %{
+        "resources" => [
+          validation_error_resource = %{
+            "schema" => %{"name" => "etalab/schema-lieux-covoiturage"},
+            "url" => file_error_url = "https://example.com/file_error.csv"
+          }
+        ],
+        "slug" => "bar"
       }
     ]
 
@@ -74,6 +93,22 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       %{"has_errors" => false}
     end)
 
-    assert [] == ConsolidateBNLCJob.valid_datagouv_resources(datasets_details)
+    Shared.Validation.TableSchemaValidator.Mock
+    |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^other_url ->
+      %{"has_errors" => true}
+    end)
+
+    Shared.Validation.TableSchemaValidator.Mock
+    |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^file_error_url ->
+      nil
+    end)
+
+    assert %{
+             errors: [
+               {:validation_error, other_dataset_details, validation_error_resource},
+               {:error, dataset_details, other_resource}
+             ],
+             ok: [{dataset_details, resource}]
+           } == ConsolidateBNLCJob.valid_datagouv_resources(datasets_details)
   end
 end
