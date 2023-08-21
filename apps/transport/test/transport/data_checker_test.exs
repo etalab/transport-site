@@ -241,10 +241,13 @@ defmodule Transport.DataCheckerTest do
 
       # a first mail to our team
       Transport.EmailSender.Mock
-      |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, subject, body, _html_body ->
-        assert from_email == "contact@transport.beta.gouv.fr"
-        assert to_email == "deploiement@transport.beta.gouv.fr"
-        assert subject == "Jeux de données arrivant à expiration"
+      |> expect(:send_mail, fn _from_name,
+                               "contact@transport.beta.gouv.fr" = _from_email,
+                               "deploiement@transport.beta.gouv.fr" = _to_email,
+                               _reply_to,
+                               "Jeux de données arrivant à expiration" = _subject,
+                               body,
+                               _html_body ->
         assert body =~ ~r/Jeux de données expirant demain :/
 
         assert body =~
@@ -255,13 +258,18 @@ defmodule Transport.DataCheckerTest do
 
       # a second mail to the email address in the notifications config
       Transport.EmailSender.Mock
-      |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, subject, body, _html_body ->
-        assert from_email == "contact@transport.beta.gouv.fr"
-        assert to_email == producer_email
-        assert subject == "Jeu de données arrivant à expiration"
-        assert body =~ ~r/Une ressource associée au jeu de données expire demain/
-        refute body =~ "notification automatique"
-        refute body =~ "article 122"
+      |> expect(:send_mail, fn _from_name,
+                               "contact@transport.beta.gouv.fr" = _from_email,
+                               ^producer_email = _to_email,
+                               _reply_to,
+                               "Jeu de données arrivant à expiration" = _subject,
+                               _body,
+                               html_body ->
+        assert html_body =~
+                 ~s(Une ressource associée au jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> expire demain.)
+
+        refute html_body =~ "notification automatique"
+        refute html_body =~ "article 122"
         :ok
       end)
 
@@ -298,9 +306,9 @@ defmodule Transport.DataCheckerTest do
                              ^email = _to,
                              "contact@transport.beta.gouv.fr",
                              "Jeu de données arrivant à expiration" = _subject,
-                             plain_text_body,
-                             "" = _html_part ->
-      assert plain_text_body =~ ~r/Bonjour/
+                             "" = _plain_text_body,
+                             html_part ->
+      assert html_part =~ ~r/Bonjour/
       :ok
     end)
 
