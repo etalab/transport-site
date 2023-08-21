@@ -152,9 +152,6 @@ defmodule Transport.DataChecker do
         #{datasets |> Enum.sort_by(& &1.type) |> Enum.map_join("\n", &dataset_link_fn.(&1))}
 
         L’équipe transport.data.gouv.fr
-
-        ---
-        #{notification_documentation_text()}
         """,
         ""
       )
@@ -333,10 +330,6 @@ defmodule Transport.DataChecker do
 
     #{count_archived_datasets()} jeux de données sont archivés. Retrouvez-les dans le backoffice : #{backoffice_archived_datasets_url()}
     """
-  end
-
-  defp notification_documentation_text do
-    ~s(Retrouvez comment gérer ces notifications <a href="https://doc.transport.data.gouv.fr/administration-des-donnees/procedures-de-publication/gerer-la-qualite-des-donnees">dans notre documentation</a>.)
   end
 
   defp backoffice_archived_datasets_url do
