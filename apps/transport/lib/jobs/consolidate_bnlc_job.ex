@@ -15,7 +15,16 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
-    :ok
+    %{ok: datasets_details, errors: _datasets_errors} = dataset_slugs() |> dataset_details()
+    %{ok: resources_details, errors: validation_errors} = valid_datagouv_resources(datasets_details)
+
+    if validation_errors |> Enum.filter(&match?({:validation_error, _, _}, &1)) |> Enum.any?() do
+      {:discard, "Cannot consolidate the BNLC because the TableSchema validator is not available"}
+    else
+      %{ok: download_details, errors: _download_errors} = download_resources(resources_details)
+      consolidate_resources(download_details)
+      :ok
+    end
   end
 
   @spec bnlc_csv_headers() :: [binary()]
@@ -65,6 +74,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     [body]
     |> CSV.decode!(field_transform: &String.trim/1, headers: true)
     |> Stream.map(fn %{"dataset_url" => url} ->
+      # Keep only the slug of the dataset, remove any possible trailing slash
       url
       |> String.replace("https://www.data.gouv.fr/fr/datasets/", "")
       |> String.replace_suffix("/", "")
@@ -80,15 +90,16 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   def guess_csv_separator(body) do
     [?;, ?,]
     |> Enum.into(%{}, fn separator ->
-      nb_columns =
+      nb_columns_detected =
         [body]
         |> CSV.decode(headers: true, separator: separator)
         |> Stream.take(1)
         |> Enum.filter(&match?({:ok, _}, &1))
         |> Enum.map(fn {:ok, map} -> map |> Map.keys() |> Enum.count() end)
 
-      {separator, nb_columns}
+      {separator, nb_columns_detected}
     end)
+    # Maximum number of columns detected is a good proxy to find the separator
     |> Enum.max_by(fn {_, v} -> v end)
     |> elem(0)
   end
@@ -124,7 +135,10 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     Enum.reduce(slugs, %{ok: [], errors: []}, fn slug, acc -> analyze_dataset.(slug, acc) end)
   end
 
-  @spec valid_datagouv_resources([map()]) :: %{ok: [], errors: []}
+  @spec valid_datagouv_resources([map()]) :: %{
+          ok: [],
+          errors: [{:error, map(), map()} | {:validation_error, map(), map()}]
+        }
   def valid_datagouv_resources(datasets_details) do
     analyze_resource = fn dataset_details, %{"url" => resource_url} = resource ->
       case TableSchemaValidator.validate(@schema_name, resource_url) do
