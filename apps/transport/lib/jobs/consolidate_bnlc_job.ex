@@ -7,14 +7,58 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   alias Shared.Validation.TableSchemaValidator.Wrapper, as: TableSchemaValidator
 
   @schema_name "etalab/schema-lieux-covoiturage"
+  @separator_key "csv_separator"
   @download_path_key "tmp_download_path"
   @datasets_list_csv_url "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/datasets.csv"
+  @bnlc_github_url "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv"
+  @bnlc_path "/tmp/bnlc.csv"
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
     :ok
   end
 
+  @spec bnlc_csv_headers() :: [binary()]
+  def bnlc_csv_headers do
+    %HTTPoison.Response{body: body, status_code: 200} = @bnlc_github_url |> http_client().get!()
+    [body] |> CSV.decode!(field_transform: &String.trim/1) |> Stream.take(1) |> Enum.to_list() |> hd()
+  end
+
+  @doc """
+  Given a list of resources, previously prepared by `download_resources/1`,
+  creates the BNLC final file and write on the local disk at `@bnlc_path`.
+
+  It downloads the BNLC from GitHub and reads other files from the disk.
+  """
+  def consolidate_resources(resources_details) do
+    file = File.open!(@bnlc_path, [:write, :utf8])
+    headers = bnlc_csv_headers()
+
+    %HTTPoison.Response{body: body, status_code: 200} = @bnlc_github_url |> http_client().get!()
+
+    # Write first the header + content of the BNLC hosted on GitHub
+    [body]
+    |> CSV.decode!(field_transform: &String.trim/1, headers: headers)
+    |> Stream.drop(1)
+    |> CSV.encode(headers: headers)
+    |> Enum.each(&IO.write(file, &1))
+
+    # Append other valid resources to the file
+    Enum.each(resources_details, fn {_dataset_detail, %{@download_path_key => tmp_path, @separator_key => separator}} ->
+      tmp_path
+      |> File.stream!()
+      |> Stream.drop(1)
+      |> CSV.decode!(field_transform: &String.trim/1, separator: separator)
+      |> CSV.encode(headers: false)
+      |> Enum.each(&IO.write(file, &1))
+    end)
+  end
+
+  @doc """
+  Reads the CSV file maintained by our team on GitHub listing dataset URLs we should include in the BNLC.
+  Keep only dataset slugs.
+  """
+  @spec dataset_slugs() :: [binary()]
   def dataset_slugs do
     %HTTPoison.Response{body: body, status_code: 200} = @datasets_list_csv_url |> http_client().get!()
 
@@ -30,7 +74,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   end
 
   @doc """
-  Guesses a CSV separator (, or ;) from a CSV body, using only its first line (the header).
+  Guesses a CSV separator (`,` or `;`) from a CSV body, using only its first line (the header).
   """
   @spec guess_csv_separator(binary()) :: char()
   def guess_csv_separator(body) do
@@ -49,6 +93,14 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     |> elem(0)
   end
 
+  @doc """
+  From a list of dataset slugs, call the data.gouv.fr's API and identify resources we are interested in.
+  At this point, we only keep resources with the "covoiturage schema" declared, we don't perform further checks.
+
+  Possible errors:
+  - the dataset has no resources with the schema we are interested in
+  - the data.gouv.fr's API returns an error for this dataset slug
+  """
   @spec dataset_details([binary()]) :: %{ok: [map()], errors: [binary() | map()]}
   def dataset_details(slugs) do
     filter_resources = fn acc, %{"resources" => resources} = details ->
@@ -107,6 +159,15 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     end)
   end
 
+  @doc """
+  From a list of resource object coming from the data.gouv.fr's API, download these (valid)
+  CSV files locally and guess the CSV separator.
+
+  The temporary download path and the guessed CSV separator are added to the resource's payload.
+
+  Possible errors:
+  - cannot download the resource
+  """
   @spec download_resources([map()]) :: %{ok: [], errors: []}
   def download_resources(resources_details) do
     download_resource = fn
@@ -115,7 +176,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
           {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
             path = System.tmp_dir!() |> Path.join("consolidate_bnlc_#{resource_id}")
             File.write!(path, body)
-            resource = Map.merge(resource, %{@download_path_key => path, "csv_separator" => guess_csv_separator(body)})
+            resource = Map.merge(resource, %{@download_path_key => path, @separator_key => guess_csv_separator(body)})
             Map.put(acc, :ok, [{dataset_details, resource} | Map.fetch!(acc, :ok)])
 
           _ ->

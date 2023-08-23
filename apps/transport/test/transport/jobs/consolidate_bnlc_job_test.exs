@@ -124,6 +124,17 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       "slug" => "foo"
     }
 
+    dataset_error_detail = %{
+      "resources" => [
+        resource_error = %{
+          "id" => Ecto.UUID.generate(),
+          "schema" => %{"name" => "etalab/schema-lieux-covoiturage"},
+          "url" => error_url = "https://example.com/other_file.csv"
+        }
+      ],
+      "slug" => "bar"
+    }
+
     Transport.HTTPoison.Mock
     |> expect(:get, fn ^url, [], [follow_redirect: true] ->
       body = """
@@ -134,10 +145,15 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}}
     end)
 
-    resources_details = [{dataset_detail, resource}]
+    Transport.HTTPoison.Mock
+    |> expect(:get, fn ^error_url, [], [follow_redirect: true] ->
+      {:ok, %HTTPoison.Response{status_code: 500, body: ""}}
+    end)
+
+    resources_details = [{dataset_detail, resource}, {dataset_error_detail, resource_error}]
 
     assert %{
-             errors: [],
+             errors: [{^dataset_error_detail, ^resource_error}],
              ok: [
                {^dataset_detail,
                 %{"id" => ^resource_id, "url" => ^url, "csv_separator" => ?,, "tmp_download_path" => tmp_download_path}}
@@ -166,5 +182,111 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
              "foo";"bar"
              1;2
              """)
+  end
+
+  test "bnlc_csv_headers" do
+    Transport.HTTPoison.Mock
+    |> expect(
+      :get!,
+      fn "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv" ->
+        body = """
+        "foo","bar","baz"
+        a,1,2
+        """
+
+        %HTTPoison.Response{status_code: 200, body: body}
+      end
+    )
+
+    assert ["foo", "bar", "baz"] == ConsolidateBNLCJob.bnlc_csv_headers()
+  end
+
+  test "consolidate_resources" do
+    dataset_detail = %{
+      "resources" => [
+        resource = %{
+          "id" => Ecto.UUID.generate(),
+          "schema" => %{"name" => "etalab/schema-lieux-covoiturage"},
+          "url" => url = "https://example.com/file.csv"
+        }
+      ],
+      "slug" => "foo"
+    }
+
+    other_dataset_detail = %{
+      "resources" => [
+        other_resource = %{
+          "id" => Ecto.UUID.generate(),
+          "schema" => %{"name" => "etalab/schema-lieux-covoiturage"},
+          "url" => other_url = "https://example.com/other_file.csv"
+        }
+      ],
+      "slug" => "bar"
+    }
+
+    Transport.HTTPoison.Mock
+    |> expect(:get, fn ^url, [], [follow_redirect: true] ->
+      body = """
+      foo,bar,baz
+      1,2,3
+      4,5,6
+      """
+
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}}
+    end)
+
+    Transport.HTTPoison.Mock
+    |> expect(:get, fn ^other_url, [], [follow_redirect: true] ->
+      body = """
+      "foo";"bar";"baz"
+      "a";"b";"c"
+      "d";"e";"f"
+      """
+
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}}
+    end)
+
+    resources_details = [{dataset_detail, resource}, {other_dataset_detail, other_resource}]
+    assert %{errors: [], ok: res} = ConsolidateBNLCJob.download_resources(resources_details)
+
+    Transport.HTTPoison.Mock
+    |> expect(
+      :get!,
+      2,
+      fn "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv" ->
+        body = """
+        "foo","bar","baz"
+        I,Love,CSV
+        Very,Much,So
+        """
+
+        %HTTPoison.Response{status_code: 200, body: body}
+      end
+    )
+
+    assert :ok == ConsolidateBNLCJob.consolidate_resources(res)
+
+    assert [
+             %{"foo" => "I", "bar" => "Love", "baz" => "CSV"},
+             %{"foo" => "Very", "bar" => "Much", "baz" => "So"},
+             %{"foo" => "a", "bar" => "b", "baz" => "c"},
+             %{"foo" => "d", "bar" => "e", "baz" => "f"},
+             %{"foo" => "1", "bar" => "2", "baz" => "3"},
+             %{"foo" => "4", "bar" => "5", "baz" => "6"}
+           ] == "/tmp/bnlc.csv" |> File.stream!() |> CSV.decode!(headers: true) |> Enum.to_list()
+
+    # From https://datatracker.ietf.org/doc/html/rfc4180#section-2
+    # > Each record is located on a separate line, delimited by a line break (CRLF)
+    # We could change to just a newline, using the `delimiter` option:
+    # https://hexdocs.pm/csv/CSV.html#encode/2
+    assert """
+           foo,bar,baz\r
+           I,Love,CSV\r
+           Very,Much,So\r
+           a,b,c\r
+           d,e,f\r
+           1,2,3\r
+           4,5,6\r
+           """ = File.read!("/tmp/bnlc.csv")
   end
 end
