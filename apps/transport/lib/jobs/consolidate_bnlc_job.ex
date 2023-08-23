@@ -15,16 +15,101 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
-    %{ok: datasets_details, errors: _datasets_errors} = dataset_slugs() |> dataset_details()
+    consolidate()
+  end
+
+  @spec consolidate() :: :ok | {:discard, binary()}
+  def consolidate do
+    %{ok: datasets_details, errors: dataset_errors} = dataset_slugs() |> dataset_details()
     %{ok: resources_details, errors: validation_errors} = valid_datagouv_resources(datasets_details)
 
     if validation_errors |> Enum.filter(&match?({:validation_error, _, _}, &1)) |> Enum.any?() do
       {:discard, "Cannot consolidate the BNLC because the TableSchema validator is not available"}
     else
-      %{ok: download_details, errors: _download_errors} = download_resources(resources_details)
+      %{ok: download_details, errors: download_errors} = download_resources(resources_details)
       consolidate_resources(download_details)
+
+      send_email_recap(%{
+        dataset_errors: dataset_errors,
+        validation_errors: validation_errors,
+        download_errors: download_errors
+      })
+
       :ok
     end
+  end
+
+  def send_email_recap(%{}) do
+    :ok
+  end
+
+  @spec format_errors(%{dataset_errors: list(), validation_errors: list(), download_errors: list()}) :: binary()
+  def format_errors(%{dataset_errors: _, validation_errors: _, download_errors: _} = errors) do
+    [&format_dataset_errors/1, &format_validation_errors/1, &format_download_errors/1]
+    |> Enum.map_join("\n\n", fn fmt_fn -> fmt_fn.(errors) end)
+    |> String.trim()
+  end
+
+  def format_dataset_errors(%{dataset_errors: []}), do: ""
+
+  def format_dataset_errors(%{dataset_errors: dataset_errors}) do
+    format = fn el ->
+      case el do
+        el when is_binary(el) ->
+          "Le slug du jeu de données `#{el}` est introuvable via l'API"
+
+        %{"page" => _, "title" => _} = dataset ->
+          "Pas de ressources avec le schéma #{@schema_name} pour #{link_to_dataset(dataset)}"
+      end
+    end
+
+    """
+    <h2>Erreurs liées aux jeux de données</h2>
+    #{Enum.map_join(dataset_errors, "\n", fn el -> format.(el) end)}
+    """
+  end
+
+  def format_validation_errors(%{validation_errors: []}), do: ""
+
+  def format_validation_errors(%{validation_errors: validation_errors}) do
+    """
+    <h2>Ressources non valides par rapport au schéma #{@schema_name}</h2>
+    #{Enum.map_join(validation_errors, "\n", &link_to_resource/1)}
+    """
+  end
+
+  def format_download_errors(%{download_errors: []}), do: ""
+
+  def format_download_errors(%{download_errors: download_errors}) do
+    """
+    <h2>Impossible de télécharger les ressources suivantes</h2>
+    #{Enum.map_join(download_errors, "\n", &link_to_resource/1)}
+    """
+  end
+
+  @doc """
+  iex> link_to_dataset(%{"page" => "https://example.com", "title" => "Title"})
+  ~s(<a href="https://example.com">Title</a>)
+  """
+  def link_to_dataset(%{"page" => page_url, "title" => title}) do
+    title
+    |> Phoenix.HTML.Link.link(to: page_url)
+    |> Phoenix.HTML.safe_to_string()
+  end
+
+  @doc """
+  iex> dataset = %{"page" => "https://example.com", "title" => "Title"}
+  iex> resource = %{"schema" => %{"name" => "etalab/schema-lieux-covoiturage"}, "title" => "Foo"}
+  iex> link_to_resource({dataset, resource})
+  ~s{Ressource `Foo` (<a href="https://example.com">Title</a>)}
+  iex> link_to_resource({:error, dataset, resource})
+  ~s{Ressource `Foo` (<a href="https://example.com">Title</a>)}
+  """
+  def link_to_resource({:error, dataset_details, resource}), do: link_to_resource({dataset_details, resource})
+
+  def link_to_resource({dataset_details, %{"title" => title, "schema" => %{"name" => schema_name}}})
+      when schema_name == @schema_name do
+    "Ressource `#{title}` (#{link_to_dataset(dataset_details)})"
   end
 
   @spec bnlc_csv_headers() :: [binary()]
@@ -128,7 +213,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
           filter_resources.(acc, details)
 
         _ ->
-          Map.put(acc, :errors, [dataset_slug_to_url(slug) | Map.fetch!(acc, :errors)])
+          Map.put(acc, :errors, [slug | Map.fetch!(acc, :errors)])
       end
     end
 

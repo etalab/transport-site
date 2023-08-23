@@ -56,11 +56,45 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
     assert %{
              errors: [
-               "https://www.data.gouv.fr/fr/datasets/baz/",
+               "baz",
                %{"resources" => [%{"format" => "csv"}], "slug" => "bar"}
              ],
              ok: [%{"resources" => [%{"schema" => %{"name" => @target_schema}}], "slug" => "foo"}]
            } == ConsolidateBNLCJob.dataset_details(["foo", "bar", "baz"])
+  end
+
+  describe "format_errors" do
+    test "it formats everything" do
+      errors = %{
+        dataset_errors: ["404-slug", %{"page" => "https://example.com/jdd", "title" => "JDD sans ressources"}],
+        validation_errors: [
+          {%{"page" => "https://example.com/jdd_erreur", "title" => "JDD avec erreurs"},
+           %{"title" => "Ressource avec erreurs", "schema" => %{"name" => @target_schema}}}
+        ],
+        download_errors: [
+          {%{"page" => "https://example.com/jdd_download_error", "title" => "JDD avec erreur de téléchargement"},
+           %{"title" => "Ressource indisponible", "schema" => %{"name" => @target_schema}}}
+        ]
+      }
+
+      assert """
+             <h2>Erreurs liées aux jeux de données</h2>
+             Le slug du jeu de données `404-slug` est introuvable via l'API
+             Pas de ressources avec le schéma etalab/schema-lieux-covoiturage pour <a href=\"https://example.com/jdd\">JDD sans ressources</a>
+
+
+             <h2>Ressources non valides par rapport au schéma etalab/schema-lieux-covoiturage</h2>
+             Ressource `Ressource avec erreurs` (<a href="https://example.com/jdd_erreur">JDD avec erreurs</a>)
+
+
+             <h2>Impossible de télécharger les ressources suivantes</h2>
+             Ressource `Ressource indisponible` (<a href="https://example.com/jdd_download_error">JDD avec erreur de téléchargement</a>)\
+             """ == ConsolidateBNLCJob.format_errors(errors)
+    end
+
+    test "empty when there are no errors" do
+      assert "" == ConsolidateBNLCJob.format_errors(%{dataset_errors: [], validation_errors: [], download_errors: []})
+    end
   end
 
   test "valid_datagouv_resources" do
@@ -408,6 +442,55 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
              a,b,c\r
              d,e,f\r
              """ = File.read!(@tmp_path)
+    end
+
+    test "stops when the schema validator is down" do
+      Transport.HTTPoison.Mock
+      |> expect(
+        :get!,
+        fn "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/datasets.csv" ->
+          body = """
+          dataset_url
+          https://www.data.gouv.fr/fr/datasets/foo/
+          """
+
+          %HTTPoison.Response{status_code: 200, body: body}
+        end
+      )
+
+      dataset_response = %{
+        "slug" => "foo",
+        "resources" => [
+          %{
+            "schema" => %{"name" => @target_schema},
+            "id" => Ecto.UUID.generate(),
+            "url" => foo_url = "https://example.com/foo.csv"
+          },
+          %{
+            "schema" => %{"name" => @target_schema},
+            "id" => Ecto.UUID.generate(),
+            "url" => bar_url = "https://example.com/bar.csv"
+          }
+        ]
+      }
+
+      # Calling the data.gouv.fr's API to get dataset details
+      Transport.HTTPoison.Mock
+      |> expect(:request, fn :get, "https://demo.data.gouv.fr/api/1/datasets/foo/", "", [], [follow_redirect: true] ->
+        {:ok, %HTTPoison.Response{status_code: 200, body: Jason.encode!(dataset_response)}}
+      end)
+
+      # Validating resources with the schema validator
+      Shared.Validation.TableSchemaValidator.Mock
+      |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^foo_url -> nil end)
+
+      Shared.Validation.TableSchemaValidator.Mock
+      |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^bar_url ->
+        %{"has_errors" => false}
+      end)
+
+      assert {:discard, "Cannot consolidate the BNLC because the TableSchema validator is not available"} ==
+               perform_job(ConsolidateBNLCJob, %{})
     end
   end
 end
