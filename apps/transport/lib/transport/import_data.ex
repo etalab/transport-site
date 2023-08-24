@@ -397,7 +397,7 @@ defmodule Transport.ImportData do
         true -> []
       end
 
-    resources |> Enum.map(fn r -> %{r | "format" => "netex"} end)
+    resources |> Enum.map(fn r -> %{r | "format" => "NeTEx"} end)
   end
 
   @spec get_valid_gtfs_rt_resources([map()]) :: [map()]
@@ -413,14 +413,18 @@ defmodule Transport.ImportData do
   end
 
   @doc """
-    iex> get_valid_siri_resources([%{"format" => "siri", id: 1}, %{"format" => "xxx", id: 2}])
-    [%{"format" => "siri", id: 1}]
+  iex> get_valid_siri_resources([%{"format" => "siri", "id" => 1}, %{"format" => "xxx", "id" => 2}])
+  [%{"format" => "SIRI", "id" => 1}]
   """
   @spec get_valid_siri_resources([map()]) :: [map()]
-  def get_valid_siri_resources(resources), do: Enum.filter(resources, &is_siri?/1)
+  def get_valid_siri_resources(resources) do
+    resources |> Enum.filter(&is_siri?/1) |> Enum.map(fn r -> %{r | "format" => "SIRI"} end)
+  end
 
   @spec get_valid_siri_lite_resources([map()]) :: [map()]
-  def get_valid_siri_lite_resources(resources), do: Enum.filter(resources, &is_siri_lite?/1)
+  def get_valid_siri_lite_resources(resources) do
+    resources |> Enum.filter(&is_siri_lite?/1) |> Enum.map(fn r -> %{r | "format" => "SIRI Lite"} end)
+  end
 
   @spec get_community_resources(map()) :: [map()]
   def get_community_resources(%{"id" => datagouv_id}) do
