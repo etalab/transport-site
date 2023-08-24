@@ -565,19 +565,21 @@ defmodule Transport.ImportData do
   iex> is_siri?(%{"format" => "SIRI"})
   true
   iex> is_siri?(%{"title" => "Export au format CSV", "format" => "SIRI"})
-  true
+  false
   iex> is_siri?(%{"title" => "https://api.okina.fr/gateway/cae/realtime", "format" => "bin", "description" => "API temps réel au format SIRI"})
   true
+  iex> is_siri?(%{"type" => "documentation", "title" => "Documentation de l'API SIRI"})
+  false
   """
   @spec is_siri?(binary() | map()) :: boolean()
   def is_siri?(%{} = params) do
     cond do
       is_siri_lite?(params) -> false
+      is_ods_title?(params) or is_documentation?(params) -> false
       is_format?(params, "siri") -> true
       is_siri?(params["title"]) -> true
       is_siri?(params["description"]) -> true
       is_siri?(params["url"]) -> true
-      is_ods_title?(params) or is_documentation?(params) -> false
       true -> false
     end
   end
@@ -597,8 +599,8 @@ defmodule Transport.ImportData do
   @spec is_siri_lite?(binary() | map()) :: boolean()
   def is_siri_lite?(params) do
     cond do
-      is_format?(params, "SIRI Lite") -> true
       is_ods_title?(params) or is_documentation?(params) -> false
+      is_format?(params, "SIRI Lite") -> true
       true -> false
     end
   end
