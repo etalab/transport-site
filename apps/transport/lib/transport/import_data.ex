@@ -397,7 +397,7 @@ defmodule Transport.ImportData do
         true -> []
       end
 
-    resources |> Enum.map(fn r -> %{r | "format" => "netex"} end)
+    resources |> Enum.map(fn r -> %{r | "format" => "NeTEx"} end)
   end
 
   @spec get_valid_gtfs_rt_resources([map()]) :: [map()]
@@ -413,14 +413,18 @@ defmodule Transport.ImportData do
   end
 
   @doc """
-    iex> get_valid_siri_resources([%{"format" => "siri", id: 1}, %{"format" => "xxx", id: 2}])
-    [%{"format" => "siri", id: 1}]
+  iex> get_valid_siri_resources([%{"format" => "siri", "id" => 1}, %{"format" => "xxx", "id" => 2}])
+  [%{"format" => "SIRI", "id" => 1}]
   """
   @spec get_valid_siri_resources([map()]) :: [map()]
-  def get_valid_siri_resources(resources), do: Enum.filter(resources, &is_siri?/1)
+  def get_valid_siri_resources(resources) do
+    resources |> Enum.filter(&is_siri?/1) |> Enum.map(fn r -> %{r | "format" => "SIRI"} end)
+  end
 
   @spec get_valid_siri_lite_resources([map()]) :: [map()]
-  def get_valid_siri_lite_resources(resources), do: Enum.filter(resources, &is_siri_lite?/1)
+  def get_valid_siri_lite_resources(resources) do
+    resources |> Enum.filter(&is_siri_lite?/1) |> Enum.map(fn r -> %{r | "format" => "SIRI Lite"} end)
+  end
 
   @spec get_community_resources(map()) :: [map()]
   def get_community_resources(%{"id" => datagouv_id}) do
@@ -561,16 +565,26 @@ defmodule Transport.ImportData do
   iex> is_siri?(%{"format" => "SIRI"})
   true
   iex> is_siri?(%{"title" => "Export au format CSV", "format" => "SIRI"})
+  false
+  iex> is_siri?(%{"title" => "https://api.okina.fr/gateway/cae/realtime", "format" => "bin", "description" => "API temps réel au format SIRI"})
   true
+  iex> is_siri?(%{"type" => "documentation", "title" => "Documentation de l'API SIRI"})
+  false
   """
   @spec is_siri?(binary() | map()) :: boolean()
-  def is_siri?(params) do
+  def is_siri?(%{} = params) do
     cond do
-      is_format?(params, "siri") and not is_siri_lite?(params) -> true
+      is_siri_lite?(params) -> false
       is_ods_title?(params) or is_documentation?(params) -> false
+      is_format?(params, "siri") -> true
+      is_siri?(params["title"]) -> true
+      is_siri?(params["description"]) -> true
+      is_siri?(params["url"]) -> true
       true -> false
     end
   end
+
+  def is_siri?(format), do: not is_siri_lite?(format) and is_format?(format, "siri")
 
   @doc """
   iex> is_siri_lite?("siri lite")
@@ -585,8 +599,8 @@ defmodule Transport.ImportData do
   @spec is_siri_lite?(binary() | map()) :: boolean()
   def is_siri_lite?(params) do
     cond do
-      is_format?(params, "SIRI Lite") -> true
       is_ods_title?(params) or is_documentation?(params) -> false
+      is_format?(params, "SIRI Lite") -> true
       true -> false
     end
   end
