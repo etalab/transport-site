@@ -432,6 +432,18 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
         end
       )
 
+      Transport.EmailSender.Mock
+      |> expect(:send_mail, fn "transport.data.gouv.fr" = _display_name,
+                               "contact@transport.beta.gouv.fr" = _from,
+                               "deploiement@transport.beta.gouv.fr" = _to,
+                               "contact@transport.beta.gouv.fr" = _reply_to,
+                               "Rapport de consolidation de la BNLC" = _subject,
+                               "",
+                               html_part ->
+        assert html_part == "✅ La consolidation s'est déroulée sans erreurs"
+        :ok
+      end)
+
       assert :ok == perform_job(ConsolidateBNLCJob, %{})
 
       assert """
@@ -491,6 +503,127 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
       assert {:discard, "Cannot consolidate the BNLC because the TableSchema validator is not available"} ==
                perform_job(ConsolidateBNLCJob, %{})
+    end
+
+    test "when a resource is not valid" do
+      Transport.HTTPoison.Mock
+      |> expect(
+        :get!,
+        fn "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/datasets.csv" ->
+          body = """
+          dataset_url
+          https://www.data.gouv.fr/fr/datasets/foo/
+          https://www.data.gouv.fr/fr/datasets/bar
+          """
+
+          %HTTPoison.Response{status_code: 200, body: body}
+        end
+      )
+
+      foo_dataset_response = %{
+        "slug" => "foo",
+        "resources" => [
+          %{
+            "schema" => %{"name" => @target_schema},
+            "id" => Ecto.UUID.generate(),
+            "url" => foo_url = "https://example.com/foo.csv"
+          },
+          # Should be ignored, irrelevant resource
+          %{
+            "id" => Ecto.UUID.generate(),
+            "url" => "fake",
+            "format" => "GTFS"
+          }
+        ]
+      }
+
+      bar_dataset_response = %{
+        "slug" => "bar",
+        "title" => "Bar JDD",
+        "page" => "https://data.gouv.fr/bar",
+        "resources" => [
+          %{
+            "schema" => %{"name" => @target_schema},
+            "id" => Ecto.UUID.generate(),
+            "url" => bar_url = "https://example.com/bar.csv",
+            "title" => "Bar CSV"
+          }
+        ]
+      }
+
+      # Calling the data.gouv.fr's API to get dataset details
+      Transport.HTTPoison.Mock
+      |> expect(:request, fn :get, "https://demo.data.gouv.fr/api/1/datasets/foo/", "", [], [follow_redirect: true] ->
+        {:ok, %HTTPoison.Response{status_code: 200, body: Jason.encode!(foo_dataset_response)}}
+      end)
+
+      Transport.HTTPoison.Mock
+      |> expect(:request, fn :get, "https://demo.data.gouv.fr/api/1/datasets/bar/", "", [], [follow_redirect: true] ->
+        {:ok, %HTTPoison.Response{status_code: 200, body: Jason.encode!(bar_dataset_response)}}
+      end)
+
+      # Validating resources with the schema validator
+      Shared.Validation.TableSchemaValidator.Mock
+      |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^bar_url ->
+        %{"has_errors" => true}
+      end)
+
+      Shared.Validation.TableSchemaValidator.Mock
+      |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^foo_url ->
+        %{"has_errors" => false}
+      end)
+
+      # Fetching CSV content and storing files locally
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^foo_url, [], [follow_redirect: true] ->
+        body = """
+        "foo";"bar";"baz"
+        "a";"b";"c"
+        "d";"e";"f"
+        """
+
+        {:ok, %HTTPoison.Response{status_code: 200, body: body}}
+      end)
+
+      # Fetching the BNLC content hosted on GitHub
+      Transport.HTTPoison.Mock
+      |> expect(
+        :get!,
+        2,
+        fn "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv" ->
+          body = """
+          "foo","bar","baz"
+          I,Love,CSV
+          Very,Much,So
+          """
+
+          %HTTPoison.Response{status_code: 200, body: body}
+        end
+      )
+
+      Transport.EmailSender.Mock
+      |> expect(:send_mail, fn "transport.data.gouv.fr" = _display_name,
+                               "contact@transport.beta.gouv.fr" = _from,
+                               "deploiement@transport.beta.gouv.fr" = _to,
+                               "contact@transport.beta.gouv.fr" = _reply_to,
+                               "Rapport de consolidation de la BNLC" = _subject,
+                               "",
+                               html_part ->
+        assert html_part ==
+                 ~s{<h2>Ressources non valides par rapport au schéma etalab/schema-lieux-covoiturage</h2>\nRessource `Bar CSV` (<a href="https://data.gouv.fr/bar">Bar JDD</a>)}
+
+        :ok
+      end)
+
+      assert :ok == perform_job(ConsolidateBNLCJob, %{})
+
+      assert """
+             foo,bar,baz\r
+             I,Love,CSV\r
+             Very,Much,So\r
+             a,b,c\r
+             d,e,f\r
+             """ = File.read!(@tmp_path)
     end
   end
 end

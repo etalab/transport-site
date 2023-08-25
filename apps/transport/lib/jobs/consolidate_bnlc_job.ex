@@ -13,6 +13,8 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   @bnlc_github_url "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv"
   @bnlc_path "/tmp/bnlc.csv"
 
+  @type consolidation_errors :: %{dataset_errors: list(), validation_errors: list(), download_errors: list()}
+
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
     consolidate()
@@ -39,11 +41,26 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     end
   end
 
-  def send_email_recap(%{}) do
-    :ok
+  @spec send_email_recap(consolidation_errors()) :: {:ok, any()} | {:error, any()}
+  def send_email_recap(%{} = errors) do
+    body =
+      case format_errors(errors) do
+        "" -> "✅ La consolidation s'est déroulée sans erreurs"
+        txt -> txt
+      end
+
+    Transport.EmailSender.impl().send_mail(
+      "transport.data.gouv.fr",
+      Application.get_env(:transport, :contact_email),
+      Application.get_env(:transport, :bizdev_email),
+      Application.get_env(:transport, :contact_email),
+      "Rapport de consolidation de la BNLC",
+      "",
+      body
+    )
   end
 
-  @spec format_errors(%{dataset_errors: list(), validation_errors: list(), download_errors: list()}) :: binary()
+  @spec format_errors(consolidation_errors()) :: binary()
   def format_errors(%{dataset_errors: _, validation_errors: _, download_errors: _} = errors) do
     [&format_dataset_errors/1, &format_validation_errors/1, &format_download_errors/1]
     |> Enum.map_join("\n\n", fn fmt_fn -> fmt_fn.(errors) end)
