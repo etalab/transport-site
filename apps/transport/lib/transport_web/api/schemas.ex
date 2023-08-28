@@ -559,6 +559,19 @@ defmodule TransportWeb.API.Schemas do
       )
     end
 
+    # DRYing keys here
+    def get_resource_optional_properties_keys do
+      [
+        :features,
+        :filesize,
+        :metadata,
+        :modes,
+        :original_resource_url,
+        :schema_name,
+        :schema_version
+      ]
+    end
+
     defp conversion_properties,
       do: %{
         filesize: %Schema{type: :integer, description: "File size in bytes"},
@@ -576,15 +589,7 @@ defmodule TransportWeb.API.Schemas do
     require OpenApiSpex
 
     @properties ResourceUtils.get_resource_prop(conversions: true)
-    @optional_properties [
-      :features,
-      :filesize,
-      :metadata,
-      :modes,
-      :original_resource_url,
-      :schema_name,
-      :schema_version
-    ]
+    @optional_properties ResourceUtils.get_resource_optional_properties_keys()
 
     OpenApiSpex.schema(%Schema{
       type: :object,
@@ -600,15 +605,7 @@ defmodule TransportWeb.API.Schemas do
     require OpenApiSpex
 
     @properties ResourceUtils.get_resource_prop(conversions: false)
-    @optional_properties [
-      :features,
-      :filesize,
-      :metadata,
-      :modes,
-      :original_resource_url,
-      :schema_name,
-      :schema_version
-    ]
+    @optional_properties ResourceUtils.get_resource_optional_properties_keys()
 
     OpenApiSpex.schema(%Schema{
       type: :object,
@@ -624,16 +621,7 @@ defmodule TransportWeb.API.Schemas do
     require OpenApiSpex
 
     @properties ResourceUtils.get_community_resource_prop()
-    # TODO: DRY with SummarizedResource (same)
-    @optional_properties [
-      :features,
-      :filesize,
-      :metadata,
-      :modes,
-      :original_resource_url,
-      :schema_name,
-      :schema_version
-    ]
+    @optional_properties ResourceUtils.get_resource_optional_properties_keys()
 
     OpenApiSpex.schema(%Schema{
       type: :object,
