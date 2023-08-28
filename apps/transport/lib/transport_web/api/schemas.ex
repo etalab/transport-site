@@ -101,7 +101,16 @@ defmodule TransportWeb.API.Schemas do
         %Schema{
           type: :object,
           properties: %{
-            coordinates: %Schema{type: :array, items: %Schema{type: :array, items: Point2D}}
+            coordinates: %Schema{
+              type: :array,
+              items: %Schema{
+                type: :array,
+                items: %Schema{
+                  type: :array,
+                  items: Point2D
+                }
+              }
+            }
           }
         }
       ],
