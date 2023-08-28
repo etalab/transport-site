@@ -265,8 +265,7 @@ defmodule TransportWeb.API.Schemas do
 
     OpenApiSpex.schema(%{
       title: "AOMResponse",
-      description:
-        "AOM object, as returned from AOMs endpoints",
+      description: "AOM object, as returned from AOMs endpoints",
       type: :object,
       properties: @properties,
       required: @properties |> Map.keys(),
