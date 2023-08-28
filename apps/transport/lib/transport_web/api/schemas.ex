@@ -644,6 +644,46 @@ defmodule TransportWeb.API.Schemas do
     })
   end
 
+  defmodule ResourceHistory do
+    @moduledoc false
+    require OpenApiSpex
+
+    @properties %{
+      inserted_at: %Schema{type: :string, format: "date-time"},
+      updated_at: %Schema{type: :string, format: "date-time"},
+      last_up_to_date_at: %Schema{type: :string, format: "date-time", nullable: true},
+      payload: %Schema{type: :object, description: "Payload (loosely specified at the moment)"},
+      latest_schema_version_to_date: %Schema{type: :string},
+      permanent_url: %Schema{type: :string},
+      resource_latest_url: %Schema{type: :string},
+      resource_url: %Schema{type: :string},
+      # NOTE: apparently, can be nil sometimes! This should be investigated
+      resource_id: %Schema{type: :integer, nullable: true},
+      schema_name: %Schema{type: :string},
+      schema_version: %Schema{type: :string},
+      title: %Schema{type: :string},
+      uuid: %Schema{type: :string}
+    }
+    @optional_properties [
+      :latest_schema_version_to_date,
+      :permanent_url,
+      :resource_latest_url,
+      :resource_url,
+      :schema_name,
+      :schema_version,
+      :uuid,
+      :title
+    ]
+
+    OpenApiSpex.schema(%Schema{
+      type: :object,
+      description: "A resource version",
+      required: (@properties |> Map.keys()) -- @optional_properties,
+      properties: @properties,
+      additionalProperties: false
+    })
+  end
+
   defmodule DatasetUtils do
     @moduledoc false
 
@@ -699,8 +739,7 @@ defmodule TransportWeb.API.Schemas do
 
       if details do
         base
-        # TODO: specify history
-        |> Map.put(:history, %Schema{type: :array})
+        |> Map.put(:history, %Schema{type: :array, items: ResourceHistory})
       else
         base
       end
