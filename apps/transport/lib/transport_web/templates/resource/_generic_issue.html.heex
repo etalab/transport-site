@@ -1,5 +1,6 @@
 <table class="table">
   <tr>
+    <th><%= dgettext("validations-explanations", "Object type") %></th>
     <th><%= dgettext("page-dataset-details", "Object ID") %></th>
     <th><%= dgettext("page-dataset-details", "Object name") %></th>
     <th><%= dgettext("page-dataset-details", "Related object ID") %></th>
@@ -8,6 +9,7 @@
 
   <%= for issue <- @issues do %>
     <tr>
+      <td><%= issue["object_type"] %></td>
       <td><%= issue["object_id"] %></td>
       <td><%= issue["object_name"] %></td>
       <td>

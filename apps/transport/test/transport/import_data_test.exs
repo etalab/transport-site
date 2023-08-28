@@ -343,9 +343,9 @@ defmodule Transport.ImportDataTest do
     assert valid_resources |> Enum.frequencies_by(fn %{"format" => f} -> f end) == %{
              "gtfs" => 1,
              "gtfs-rt" => 1,
-             "netex" => 1,
-             "siri" => 1,
-             "siri lite" => 1
+             "NeTEx" => 1,
+             "SIRI" => 1,
+             "SIRI Lite" => 1
            }
   end
 
