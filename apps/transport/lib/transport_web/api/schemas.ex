@@ -742,16 +742,18 @@ defmodule TransportWeb.API.Schemas do
     @moduledoc false
     require OpenApiSpex
 
+    @properties %{
+      url: %Schema{type: :string, description: "URL of the Resource"},
+      type: %Schema{type: :string, description: "type of the resource (commune, region, aom)"},
+      name: %Schema{type: :string, description: "name of the resource"}
+    }
+
     OpenApiSpex.schema(%{
       title: "Autocomplete result",
       description: "One result of the autocomplete",
       type: :object,
-      required: [:url, :type, :name],
-      properties: %{
-        url: %Schema{type: :string, description: "URL of the Resource"},
-        type: %Schema{type: :string, description: "type of the resource (commune, region, aom)"},
-        name: %Schema{type: :string, description: "name of the resource"}
-      },
+      required: @properties |> Map.keys(),
+      properties: @properties,
       additionalProperties: false
     })
   end
