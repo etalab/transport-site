@@ -286,6 +286,7 @@ defmodule TransportWeb.API.Schemas do
       required: [:name],
       properties: %{
         # nullable because we saw it null in actual production data
+        # probably exactly what's described in https://github.com/etalab/transport-site/issues/3422
         siren: %Schema{type: :string, nullable: true},
         name: %Schema{type: :string, nullable: true}
       },
