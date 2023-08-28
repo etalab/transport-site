@@ -1,6 +1,11 @@
 defmodule TransportWeb.API.Schemas do
   @moduledoc """
     OpenAPI schema defintions
+
+    Useful documentation:
+    - https://json-schema.org/understanding-json-schema/reference/array.html
+    - https://json-schema.org/understanding-json-schema/reference/object.html
+    - https://json-schema.org/understanding-json-schema/reference/string.html
   """
   require OpenApiSpex
   alias OpenApiSpex.{ExternalDocumentation, Schema}
