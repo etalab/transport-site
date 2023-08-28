@@ -234,9 +234,13 @@
       </div>
       <div class="api-link">
         <i class="fas fa-cogs"></i>
+        <% 
+            # NOTE: the syntax_highlight flag is there just because otherwise we get a match error
+            # due to how OpenAPISpex register routes (I think)
+         %>
         <%= link(
           dgettext("page-shortlist", "Get dataset list via an API"),
-          to: "#{swagger_ui_path(@conn, path: "/api/openapi")}#/datasets/API.DatasetController.datasets"
+          to: "#{swagger_ui_path(@conn, path: "/api/openapi", syntax_highlight: false)}#/datasets/API.DatasetController.datasets"
         ) %> -
       </div>
     </div>
