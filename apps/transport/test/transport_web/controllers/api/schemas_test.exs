@@ -1,6 +1,5 @@
 defmodule TransportWeb.API.SchemasTest do
   use ExUnit.Case
-  import OpenApiSpex.TestAssertions
 
   test "make sure we get a warning because this helps keeping specs in sync with API output" do
     api_spec = TransportWeb.API.Spec.spec()
