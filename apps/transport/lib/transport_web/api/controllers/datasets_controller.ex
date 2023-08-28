@@ -4,7 +4,7 @@ defmodule TransportWeb.API.DatasetController do
   alias Helpers
   alias OpenApiSpex.Operation
   alias DB.{AOM, Dataset, Repo, Resource}
-  alias TransportWeb.API.Schemas.{DatasetsResponse, GeoJSONResponse, DatasetDetails}
+  alias TransportWeb.API.Schemas.{DatasetDetails, DatasetsResponse, GeoJSONResponse}
   alias Geo.{JSON, MultiPolygon}
 
   # The default (one minute) felt a bit too high for someone doing scripted operations
