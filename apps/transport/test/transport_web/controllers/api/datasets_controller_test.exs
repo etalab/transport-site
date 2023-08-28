@@ -24,7 +24,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
     assert_schema(json, "DatasetsResponse", api_spec)
   end
 
-  test "GET /api/datasets *with* history, multi_validation and resource_metadata", %{conn: conn} do
+  test "GET /api/datasets then /api/datasets/:id *with* history, multi_validation and resource_metadata",
+       %{conn: conn} do
     dataset =
       insert(:dataset,
         custom_title: "title",
