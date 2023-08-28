@@ -352,7 +352,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
              "updated" => [last_update_gtfs, last_update_geojson] |> Enum.max(DateTime) |> DateTime.to_iso8601()
            } == json
 
-    assert_schema(json, "Dataset", TransportWeb.API.Spec.spec())
+    assert_schema(json, "DatasetDetails", TransportWeb.API.Spec.spec())
   end
 
   test "GET /api/datasets/:id *with* history, conversions, multi_validation and resource_metadata", %{conn: conn} do
