@@ -11,7 +11,7 @@ defmodule TransportWeb.API.Spec do
       info: %Info{
         title: "transport.data.gouv.fr API",
         version: "1.0",
-        description: ~S(Extra <a href="https://doc.transport.data.gouv.fr/reutilisateurs/apis/">documentation</a>),
+        description: ~S(Extra <a href="https://doc.transport.data.gouv.fr/administration-des-donnees/outils/api">documentation</a>),
         contact: %Contact{
           name: "API email support",
           email: Application.fetch_env!(:transport, :contact_email)
