@@ -540,7 +540,7 @@ defmodule TransportWeb.API.Schemas do
           }
         })
 
-    def get_community_resource_prop() do
+    def get_community_resource_prop do
       [conversions: false]
       |> ResourceUtils.get_resource_prop()
       |> Map.put(:community_resource_publisher, %Schema{
