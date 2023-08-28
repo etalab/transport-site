@@ -66,6 +66,7 @@ defmodule TransportWeb.API.StatsController do
   def geojson(features),
     do: %{
       "type" => "FeatureCollection",
+      # This is now completely incorrect!
       "name" => "Autorités organisatrices de Mobiltés",
       "features" => features
     }
