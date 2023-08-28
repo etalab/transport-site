@@ -18,6 +18,7 @@ defmodule DB.Factory do
     %DB.AOM{
       insee_commune_principale: "38185",
       nom: "Grenoble",
+      siren: "253800825",
       region: build(:region),
       # The value must be unique, ExFactory helps us with a named sequence
       composition_res_id: 1000 + sequence("composition_res_id", & &1)
@@ -36,7 +37,8 @@ defmodule DB.Factory do
       licence: "odbl",
       # NOTE: need to figure out how to pass aom/region together with changeset checks here
       aom: build(:aom),
-      tags: []
+      tags: [],
+      type: "public-transit"
     }
   end
 
@@ -45,7 +47,10 @@ defmodule DB.Factory do
       last_import: DateTime.utc_now(),
       last_update: DateTime.utc_now(),
       title: "GTFS.zip",
-      latest_url: "url"
+      latest_url: "url",
+      url: "url",
+      type: "main",
+      datagouv_id: Ecto.UUID.generate()
     }
   end
 
