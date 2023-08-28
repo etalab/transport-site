@@ -93,7 +93,7 @@ defmodule TransportWeb.API.Schemas do
     OpenApiSpex.schema(%{
       type: :object,
       title: "Polygon",
-      description: "GeoJSon geometry",
+      description: "GeoJSON geometry",
       externalDocs: %ExternalDocumentation{url: "http://geojson.org/geojson-spec.html#id4"},
       allOf: [
         GeometryBase.schema(),
