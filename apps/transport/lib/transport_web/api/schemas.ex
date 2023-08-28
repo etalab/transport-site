@@ -705,8 +705,6 @@ defmodule TransportWeb.API.Schemas do
       title: "DatasetSummary",
       description: "A dataset is a composed of one or more resources (summarized version)",
       type: :object,
-      # make all keys mandatory (& whitelist to remove if needed)
-      # this will ensure we think about weither or not a new key must be added here
       required: @properties |> Map.keys(),
       properties: @properties,
       additionalProperties: false
