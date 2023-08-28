@@ -483,7 +483,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
                [resource, gbfs_resource] |> Enum.map(& &1.last_update) |> Enum.max(DateTime) |> DateTime.to_iso8601()
            } == json
 
-    assert_schema(json, "Dataset", TransportWeb.API.Spec.spec())
+    assert_schema(json, "DatasetDetails", TransportWeb.API.Spec.spec())
   end
 
   test "gtfs-rt features are filled", %{conn: conn} do
