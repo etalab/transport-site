@@ -266,7 +266,7 @@ defmodule TransportWeb.API.Schemas do
     OpenApiSpex.schema(%{
       title: "AOMResponse",
       description:
-        "AOM object, as returned from AOMs endpoints (DEPRECATED, only there for retrocompatibility, use covered_area instead)",
+        "AOM object, as returned from AOMs endpoints",
       type: :object,
       properties: @properties,
       required: @properties |> Map.keys(),
