@@ -58,15 +58,15 @@ defmodule Transport.ImportAOMs do
      Ecto.Changeset.change(aom, %{
        composition_res_id: external_id,
        insee_commune_principale: insee,
-       departement: line["Dep"],
-       siren: line["N° SIREN"],
+       departement: line["Dep"] |> String.trim(),
+       siren: line["N° SIREN"] |> String.trim(),
        nom: nom,
        forme_juridique: normalize_forme(line["Forme juridique"]),
        nombre_communes: to_int(line["Nombre de communes du RT"]),
        population_municipale: to_int(line["Population municipale 2018"]),
        population_totale: to_int(line["Population totale 2018"]),
-       surface: line["Surface (km²)"],
-       commentaire: line["Commentaire"],
+       surface: line["Surface (km²)"] |> String.trim(),
+       commentaire: line["Commentaire"] |> String.trim(),
        region: new_region
      })}
   end
