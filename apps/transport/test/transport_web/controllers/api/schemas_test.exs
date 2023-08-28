@@ -7,6 +7,8 @@ defmodule TransportWeb.API.SchemasTest do
 
     api_spec.components.schemas
     |> Enum.filter(fn {_name, schema} -> schema.type == :object end)
+    # composable type
+    |> Enum.reject(fn {name, _schema} -> name == "GeometryBase" end)
     |> Enum.each(fn {name, schema} ->
       assert schema.additionalProperties == false,
              "\"#{name}\" OpenAPI spec declaration lacks additionalProperties: false"

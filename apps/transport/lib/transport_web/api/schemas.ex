@@ -35,7 +35,8 @@ defmodule TransportWeb.API.Schemas do
           ]
         }
       },
-      additionalProperties: false
+      # allow extra properties since this is used as a composable base
+      additionalProperties: true
     })
   end
 
