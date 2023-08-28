@@ -579,7 +579,7 @@ defmodule TransportWeb.API.Schemas do
     OpenApiSpex.schema(%Schema{
       type: :object,
       description: "A single resource (including conversions)",
-      required: (@properties |> Map.keys) -- @optional_properties,
+      required: (@properties |> Map.keys()) -- @optional_properties,
       properties: @properties,
       additionalProperties: false
     })
