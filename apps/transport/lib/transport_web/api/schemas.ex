@@ -633,6 +633,8 @@ defmodule TransportWeb.API.Schemas do
   end
 
   defmodule DatasetUtils do
+    @moduledoc false
+
     def get_dataset_prop(details: details) do
       # base resource comes in 2 flavors
       resource_type = if details == true, do: DetailedResource, else: SummarizedResource
