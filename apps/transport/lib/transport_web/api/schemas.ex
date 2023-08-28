@@ -6,6 +6,9 @@ defmodule TransportWeb.API.Schemas do
     - https://json-schema.org/understanding-json-schema/reference/array.html
     - https://json-schema.org/understanding-json-schema/reference/object.html
     - https://json-schema.org/understanding-json-schema/reference/string.html
+
+    A good chunk of our GeoJSON responses do not pass our OpenAPI specs. It would need more work.
+
   """
   require OpenApiSpex
   alias OpenApiSpex.{ExternalDocumentation, Schema}
