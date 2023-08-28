@@ -8,7 +8,6 @@ defmodule Transport.DataChecker do
   import Ecto.Query
   require Logger
 
-  @update_data_doc_link "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees#remplacer-un-jeu-de-donnees-existant-plutot-quen-creer-un-nouveau"
   @default_outdated_data_delays [-7, -3, 0, 7, 14]
 
   @doc """
@@ -153,9 +152,6 @@ defmodule Transport.DataChecker do
         #{datasets |> Enum.sort_by(& &1.type) |> Enum.map_join("\n", &dataset_link_fn.(&1))}
 
         L’équipe transport.data.gouv.fr
-
-        ---
-        #{notification_documentation_text()}
         """,
         ""
       )
@@ -184,23 +180,11 @@ defmodule Transport.DataChecker do
           email,
           Application.get_env(:transport, :contact_email),
           "Jeu de données arrivant à expiration",
-          """
-          Bonjour,
-
-          Une ressource associée au jeu de données #{delay_str(delay, :expire)} :
-
-          #{link_and_name(dataset, :datagouv_title)}
-
-          Afin qu’il puisse continuer à être utilisé par les différents acteurs, il faut qu’il soit mis à jour. Pour cela, veuillez remplacer la ressource périmée par la nouvelle ressource : #{@update_data_doc_link}.
-
-          Veuillez également anticiper vos prochaines mises à jour, au moins 7 jours avant l'expiration de votre fichier.
-
-          L’équipe transport.data.gouv.fr
-
-          ---
-          #{notification_documentation_text()}
-          """,
-          ""
+          "",
+          Phoenix.View.render_to_string(TransportWeb.EmailView, "expiration_producer.html",
+            delay_str: delay_str(delay, :expire),
+            dataset: dataset
+          )
         )
 
         save_notification(reason, dataset, email)
@@ -240,7 +224,7 @@ defmodule Transport.DataChecker do
 
   defp make_str({delay, datasets}) do
     dataset_str = fn %Dataset{} = dataset ->
-      "#{link_and_name(dataset, :custom_title)} (#{expiration_notification_enabled_str(dataset)}) #{climate_resilience_str(dataset)}"
+      "#{link_and_name(dataset)} (#{expiration_notification_enabled_str(dataset)}) #{climate_resilience_str(dataset)}"
       |> String.trim()
     end
 
@@ -280,12 +264,11 @@ defmodule Transport.DataChecker do
 
   def link(%Dataset{slug: slug}), do: dataset_url(TransportWeb.Endpoint, :details, slug)
 
-  @spec link_and_name(Dataset.t(), :datagouv_title | :custom_title) :: binary()
-  def link_and_name(%Dataset{} = dataset, title_field) do
+  @spec link_and_name(Dataset.t()) :: binary()
+  def link_and_name(%Dataset{custom_title: custom_title} = dataset) do
     link = link(dataset)
-    name = Map.fetch!(dataset, title_field)
 
-    " * #{name} - #{link}"
+    " * #{custom_title} - #{link}"
   end
 
   defp make_outdated_data_body(datasets) do
@@ -317,7 +300,7 @@ defmodule Transport.DataChecker do
   defp fmt_inactive_datasets([]), do: ""
 
   defp fmt_inactive_datasets(inactive_datasets) do
-    datasets_str = Enum.map_join(inactive_datasets, "\n", &link_and_name(&1, :custom_title))
+    datasets_str = Enum.map_join(inactive_datasets, "\n", &link_and_name(&1))
 
     """
     Certains jeux de données ont disparus de data.gouv.fr :
@@ -328,7 +311,7 @@ defmodule Transport.DataChecker do
   defp fmt_reactivated_datasets([]), do: ""
 
   defp fmt_reactivated_datasets(reactivated_datasets) do
-    datasets_str = Enum.map_join(reactivated_datasets, "\n", &link_and_name(&1, :custom_title))
+    datasets_str = Enum.map_join(reactivated_datasets, "\n", &link_and_name(&1))
 
     """
     Certains jeux de données disparus sont réapparus sur data.gouv.fr :
@@ -339,7 +322,7 @@ defmodule Transport.DataChecker do
   defp fmt_archived_datasets([]), do: ""
 
   defp fmt_archived_datasets(archived_datasets) do
-    datasets_str = Enum.map_join(archived_datasets, "\n", &link_and_name(&1, :custom_title))
+    datasets_str = Enum.map_join(archived_datasets, "\n", &link_and_name(&1))
 
     """
     Certains jeux de données sont indiqués comme archivés sur data.gouv.fr :
@@ -347,10 +330,6 @@ defmodule Transport.DataChecker do
 
     #{count_archived_datasets()} jeux de données sont archivés. Retrouvez-les dans le backoffice : #{backoffice_archived_datasets_url()}
     """
-  end
-
-  defp notification_documentation_text do
-    ~s(Retrouvez comment gérer ces notifications <a href="https://doc.transport.data.gouv.fr/administration-des-donnees/procedures-de-publication/gerer-la-qualite-des-donnees">dans notre documentation</a>.)
   end
 
   defp backoffice_archived_datasets_url do
