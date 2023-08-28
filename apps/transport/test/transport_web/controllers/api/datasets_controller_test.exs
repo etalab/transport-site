@@ -185,7 +185,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
 
     json = conn |> get(Helpers.dataset_path(conn, :by_id, datagouv_id)) |> json_response(200)
     assert dataset_res == json
-    assert_schema(json, "Dataset", TransportWeb.API.Spec.spec())
+    assert_schema(json, "DatasetDetails", TransportWeb.API.Spec.spec())
   end
 
   test "GET /api/datasets *without* history, multi_validation and resource_metadata", %{conn: conn} do
