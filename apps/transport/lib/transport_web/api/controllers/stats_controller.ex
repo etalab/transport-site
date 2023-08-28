@@ -376,6 +376,9 @@ defmodule TransportWeb.API.StatsController do
       %{
         "geometry" => r.geometry |> JSON.encode!(),
         "type" => "Feature",
+        # NOTE: there is a bug here - the key is an atom.
+        # I won't change it now because it would mean more changes somewhere else, maybe.
+        # `Map.reject(fn({k,v}) -> k == :geometry end)` will do it.
         "properties" => Map.take(r, Enum.filter(Map.keys(r), fn k -> k != "geometry" end))
       }
     end)
