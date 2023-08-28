@@ -672,14 +672,14 @@ defmodule TransportWeb.API.Schemas do
         aom: AOMShortRef.schema(),
         resources: %Schema{
           type: :array,
-          description: "All the resources (files) associated with the dataset",
+          description: "All the resources associated with the dataset",
           # NOTE: community resources will have to be removed from here
           # https://github.com/etalab/transport-site/issues/3407
           items: %Schema{anyOf: [resource_type, CommunityResource]}
         },
         community_resources: %Schema{
           type: :array,
-          description: "All the community resources (files published by the community) associated with the dataset",
+          description: "All the community resources (published by the community) associated with the dataset",
           items: CommunityResource
         },
         covered_area: CoveredArea.schema()
