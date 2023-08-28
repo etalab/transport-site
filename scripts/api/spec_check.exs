@@ -1,3 +1,4 @@
+#! mix run
 Code.require_file(__DIR__ <> "/../irve/req_custom_cache.exs")
 
 ExUnit.start()
