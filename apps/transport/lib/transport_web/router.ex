@@ -46,6 +46,8 @@ defmodule TransportWeb.Router do
   scope "/", OpenApiSpex.Plug do
     pipe_through(:browser_no_csp)
 
+    # NOTE: version of SwaggerUI is currently hardcoded by the Elixir package.
+    # See: https://github.com/open-api-spex/open_api_spex/issues/559
     get("/swaggerui", SwaggerUI,
       path: "/api/openapi",
       # See: https://github.com/etalab/transport-site/issues/3421
