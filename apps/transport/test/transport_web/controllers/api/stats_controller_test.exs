@@ -65,7 +65,6 @@ defmodule TransportWeb.API.StatsControllerTest do
     ]
 
     assert TransportWeb.API.StatsController.bike_scooter_sharing_features() == expected
-    # TODO: validate against GeoJSONResponse
   end
 
   test "Quality of AOM data stats", %{conn: conn} do
