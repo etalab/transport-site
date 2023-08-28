@@ -326,6 +326,11 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
            1,2,3\r
            4,5,6\r
            """ = File.read!(@tmp_path)
+
+    # Temporary files have been removed
+    [{_, r1}, {_, r2}] = res
+    refute r1 |> Map.fetch!("tmp_download_path") |> File.exists?()
+    refute r2 |> Map.fetch!("tmp_download_path") |> File.exists?()
   end
 
   describe "perform" do

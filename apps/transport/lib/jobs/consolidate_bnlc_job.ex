@@ -162,6 +162,8 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
       |> CSV.decode!(field_transform: &String.trim/1, separator: separator)
       |> CSV.encode(headers: false)
       |> Enum.each(&IO.write(file, &1))
+
+      File.rm!(tmp_path)
     end)
   end
 
@@ -188,7 +190,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   @doc """
   Guesses a CSV separator (`,` or `;`) from a CSV body, using only its first line (the header).
   """
-  @spec guess_csv_separator(binary()) :: char()
+  @spec guess_csv_separator(binary()) :: ?; | ?,
   def guess_csv_separator(body) do
     [?;, ?,]
     |> Enum.into(%{}, fn separator ->
