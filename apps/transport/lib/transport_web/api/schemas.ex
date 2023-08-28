@@ -454,10 +454,10 @@ defmodule TransportWeb.API.Schemas do
       title: "Publisher",
       description: "Publisher",
       type: :object,
-      # non nullable I think - but tests will need to be adapted
       properties: %{
+        # as seen in production data
         name: %Schema{type: :string, nullable: true},
-        type: %Schema{type: :string, nullable: true}
+        type: %Schema{type: :string}
       },
       additionalProperties: false
     })
