@@ -240,7 +240,9 @@ defmodule TransportWeb.API.Schemas do
       title: "FeatureCollection",
       description: "FeatureCollection object",
       properties: %{
-        features: %Schema{type: :array, items: Feature}
+        features: %Schema{type: :array, items: Feature},
+        type: %Schema{type: :string, enum: ["FeatureCollection"], required: true},
+        name: %Schema{type: :string}
       },
       additionalProperties: false
     })
