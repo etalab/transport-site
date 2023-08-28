@@ -501,7 +501,11 @@ defmodule TransportWeb.API.DatasetControllerTest do
 
     # call to specific dataset
     path = Helpers.dataset_path(conn, :by_id, datagouv_id_1)
-    %{"resources" => [%{"features" => features}]} = conn |> get(path) |> json_response(200)
+    dataset_response = conn |> get(path) |> json_response(200)
+    %{"resources" => [%{"features" => features}]} = dataset_response
+
+    assert_schema(dataset_response, "DatasetDetails", TransportWeb.API.Spec.spec())
+
     assert features |> Enum.sort() == ["a", "b", "c"]
 
     # add another dataset
