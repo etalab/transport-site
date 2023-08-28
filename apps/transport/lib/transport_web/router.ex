@@ -45,7 +45,12 @@ defmodule TransportWeb.Router do
 
   scope "/", OpenApiSpex.Plug do
     pipe_through(:browser_no_csp)
-    get("/swaggerui", SwaggerUI, path: "/api/openapi")
+
+    get("/swaggerui", SwaggerUI,
+      path: "/api/openapi",
+      # See: https://github.com/etalab/transport-site/issues/3421
+      syntax_highlight: false
+    )
   end
 
   scope "/", TransportWeb do
