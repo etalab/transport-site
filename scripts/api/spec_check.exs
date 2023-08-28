@@ -17,22 +17,24 @@ defmodule TestSuite do
   import OpenApiSpex.TestAssertions
 
   @host "https://transport.data.gouv.fr"
+  @index_url Path.join(@host, "/api/datasets")
 
-  test "it works" do
-    url = Path.join(@host, "/api/datasets")
+  def api_spec, do: TransportWeb.API.Spec.spec()
 
+  test "/api/datasets passes our OpenAPI specification" do
+    url = @index_url
     %{status: 200, body: json} = Query.cached_get!(url)
+    assert_schema(json, "DatasetsResponse", api_spec())
+  end
 
-    api_spec = TransportWeb.API.Spec.spec()
-
-    assert_schema(json, "DatasetsResponse", api_spec)
+  test "each /api/datasets/:id passes our OpenAPI specification" do
+    url = @index_url
+    %{status: 200, body: json} = Query.cached_get!(url)
 
     task = fn id ->
       # IO.puts("Processing #{id}")
-
       url = Path.join(@host, "/api/datasets/#{id}")
       %{status: 200, body: json} = Query.cached_get!(url)
-
       json
     end
 
@@ -50,7 +52,7 @@ defmodule TestSuite do
 
     datasets
     |> Enum.each(fn d ->
-      assert_schema(d, "DatasetDetails", api_spec)
+      assert_schema(d, "DatasetDetails", api_spec())
     end)
   end
 end
