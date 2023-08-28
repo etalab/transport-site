@@ -668,6 +668,7 @@ defmodule TransportWeb.API.Schemas do
           format: :date,
           description: "Date of creation of the dataset"
         },
+        # Obsolete, to be removed (see https://github.com/etalab/transport-site/issues/3422)
         aom: AOMShortRef.schema(),
         resources: %Schema{
           type: :array,
