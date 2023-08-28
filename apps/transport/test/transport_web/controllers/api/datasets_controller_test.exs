@@ -269,16 +269,19 @@ defmodule TransportWeb.API.DatasetControllerTest do
             datagouv_id: "1",
             type: "main",
             format: "GTFS",
-            filesize: 42
+            filesize: 42,
+            title: "The title"
           },
           %DB.Resource{
             last_import: DateTime.utc_now(),
             last_update: last_update_geojson = DateTime.utc_now() |> DateTime.add(-1, :hour),
             url: "http://link.to/file.zip?foo=bar",
+            latest_url: "http://static.data.gouv.fr/?foo=bar",
             datagouv_id: "2",
             type: "main",
             format: "geojson",
-            schema_name: "etalab/schema-zfe"
+            schema_name: "etalab/schema-zfe",
+            title: "The other title"
           }
         ],
         created_at: ~U[2021-12-23 13:30:40.000000Z],
@@ -324,7 +327,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
                  "original_url" => "https://link.to/file.zip",
                  "updated" => last_update_gtfs |> DateTime.to_iso8601(),
                  "url" => "https://static.data.gouv.fr/foo",
-                 "conversions" => %{}
+                 "conversions" => %{},
+                 "title" => "The title"
                },
                %{
                  "is_available" => true,
@@ -336,7 +340,9 @@ defmodule TransportWeb.API.DatasetControllerTest do
                  "original_url" => "http://link.to/file.zip?foo=bar",
                  "schema_name" => "etalab/schema-zfe",
                  "updated" => last_update_geojson |> DateTime.to_iso8601(),
-                 "conversions" => %{}
+                 "url" => "http://static.data.gouv.fr/?foo=bar",
+                 "conversions" => %{},
+                 "title" => "The other title"
                }
              ],
              "slug" => "slug-1",
