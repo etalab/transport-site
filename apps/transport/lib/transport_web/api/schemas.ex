@@ -252,28 +252,21 @@ defmodule TransportWeb.API.Schemas do
     @moduledoc false
     require OpenApiSpex
 
+    @properties %{
+      siren: %Schema{type: :string, nullable: true},
+      nom: %Schema{type: :string},
+      insee_commune_principale: %Schema{type: :string},
+      forme_juridique: %Schema{type: :string},
+      departement: %Schema{type: :string}
+    }
+
     OpenApiSpex.schema(%{
       title: "AOMResponse",
       description:
         "AOM object, as returned from AOMs endpoints (DEPRECATED, only there for retrocompatibility, use covered_area instead)",
       type: :object,
-      # this means key must be present (but does not specify if value is nullable or not)
-      required: [
-        :siren,
-        :nom,
-        :insee_commune_principale,
-        :forme_juridique,
-        :departement
-      ],
-      properties: %{
-        siren: %Schema{type: :string, nullable: true},
-        nom: %Schema{type: :string},
-        insee_commune_principale: %Schema{type: :string},
-        forme_juridique: %Schema{type: :string},
-        departement: %Schema{type: :string}
-      },
-      # this forbids unknown property - keep to false to ensure `assert_schema`
-      # detects out of sync specifications during the tests.
+      properties: @properties,
+      required: @properties |> Map.keys(),
       additionalProperties: false
     })
   end
