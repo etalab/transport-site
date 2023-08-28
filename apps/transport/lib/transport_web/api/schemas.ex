@@ -34,7 +34,8 @@ defmodule TransportWeb.API.Schemas do
             "MultiPolygon"
           ]
         }
-      }
+      },
+      additionalProperties: false
     })
   end
 
@@ -80,7 +81,8 @@ defmodule TransportWeb.API.Schemas do
             coordinates: %Schema{type: :array, items: Point2D}
           }
         }
-      ]
+      ],
+      additionalProperties: false
     })
   end
 
@@ -101,7 +103,8 @@ defmodule TransportWeb.API.Schemas do
             coordinates: %Schema{type: :array, items: %Schema{type: :array, items: Point2D}}
           }
         }
-      ]
+      ],
+      additionalProperties: false
     })
   end
 
@@ -122,7 +125,8 @@ defmodule TransportWeb.API.Schemas do
             coordinates: %Schema{type: :array, items: Point2D}
           }
         }
-      ]
+      ],
+      additionalProperties: false
     })
   end
 
@@ -143,7 +147,8 @@ defmodule TransportWeb.API.Schemas do
             coordinates: %Schema{type: :array, items: %Schema{type: :array, items: Point2D}}
           }
         }
-      ]
+      ],
+      additionalProperties: false
     })
   end
 
@@ -167,7 +172,8 @@ defmodule TransportWeb.API.Schemas do
             }
           }
         }
-      ]
+      ],
+      additionalProperties: false
     })
   end
 
@@ -185,7 +191,8 @@ defmodule TransportWeb.API.Schemas do
         MultiPoint.schema(),
         MultiLineString.schema(),
         MultiPolygon.schema()
-      ]
+      ],
+      additionalProperties: false
     })
   end
 
@@ -205,7 +212,8 @@ defmodule TransportWeb.API.Schemas do
         id: %Schema{
           oneOf: [%Schema{type: :string}, %Schema{type: :number}]
         }
-      }
+      },
+      additionalProperties: false
     })
   end
 
@@ -219,7 +227,8 @@ defmodule TransportWeb.API.Schemas do
       description: "FeatureCollection object",
       properties: %{
         features: %Schema{type: :array, items: Feature}
-      }
+      },
+      additionalProperties: false
     })
   end
 
@@ -419,7 +428,8 @@ defmodule TransportWeb.API.Schemas do
         Geometry.schema(),
         Feature.schema(),
         FeatureCollection.schema()
-      ]
+      ],
+      additionalProperties: false
     })
   end
 
