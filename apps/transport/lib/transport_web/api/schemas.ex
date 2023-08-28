@@ -218,9 +218,13 @@ defmodule TransportWeb.API.Schemas do
       properties: %{
         type: %Schema{type: :string, enum: ["Feature"]},
         geometry: Geometry,
-        properties: %Schema{type: :object},
-        id: %Schema{
-          oneOf: [%Schema{type: :string}, %Schema{type: :number}]
+        properties: %Schema{
+          type: :object,
+          properties: %{
+            id: %Schema{
+              oneOf: [%Schema{type: :string}, %Schema{type: :number}]
+            }
+          }
         }
       },
       additionalProperties: false
