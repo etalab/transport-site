@@ -42,7 +42,8 @@ defmodule TestSuite do
       |> Task.async_stream(
         task,
         max_concurrency: 25,
-        on_timeout: :kill_task
+        on_timeout: :kill_task,
+        timeout: 15_000
       )
       |> Enum.map(fn {:ok, result} -> result end)
       |> Enum.into([])
