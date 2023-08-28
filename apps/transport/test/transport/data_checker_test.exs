@@ -268,6 +268,9 @@ defmodule Transport.DataCheckerTest do
         assert html_body =~
                  ~s(Une ressource associée au jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> expire demain.)
 
+        assert html_body =~
+                 ~s(<a href="https://doc.transport.data.gouv.fr/administration-des-donnees/procedures-de-publication/mettre-a-jour-des-donnees#remplacer-un-jeu-de-donnees-existant-plutot-quen-creer-un-nouveau">remplacer la ressource périmée par la nouvelle ressource</a>)
+
         refute html_body =~ "notification automatique"
         refute html_body =~ "article 122"
         :ok
