@@ -3,6 +3,7 @@ defmodule TransportWeb.API.StatsControllerTest do
   use TransportWeb.ConnCase
   import Mock
   import DB.Factory
+  import OpenApiSpex.TestAssertions
 
   @cached_features_routes [
     {"/api/stats", "api-stats-aoms"},
@@ -110,6 +111,9 @@ defmodule TransportWeb.API.StatsControllerTest do
 
     # the aom status is outdated
     assert %{"features" => [%{"properties" => %{"quality" => %{"expired_from" => %{"status" => "outdated"}}}}]} = res
+
+    api_spec = TransportWeb.API.Spec.spec()
+    assert_schema(res, "FeatureCollection", api_spec)
   end
 
   describe("aom quality features") do
