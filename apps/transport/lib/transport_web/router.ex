@@ -82,6 +82,7 @@ defmodule TransportWeb.Router do
     get("/stats", StatsController, :index)
     get("/atom.xml", AtomController, :index)
     post("/send_mail", ContactController, :send_mail)
+    post("/send_feedback", ContactController, :send_feedback)
     get("/aoms", AOMSController, :index)
     get("/aoms.csv", AOMSController, :csv)
 

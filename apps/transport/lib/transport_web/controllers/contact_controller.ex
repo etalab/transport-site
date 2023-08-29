@@ -42,4 +42,7 @@ defmodule TransportWeb.ContactController do
     |> put_flash(:error, gettext("There has been an error, try again later"))
     |> redirect(to: params["redirect_path"] || page_path(conn, :index))
   end
+
+  def send_feedback(conn, params) do
+  end
 end
