@@ -15,18 +15,20 @@ Vous êtes susceptible de recevoir des notifications pour les jeux de données s
 </ul>
 <% end %>
 
-Les notifications facilitent la gestion de vos données. Elles vous permettront d'être averti de l'[expiration de vos ressources, des erreurs qu'elles peuvent contenir et de leur potentielle indisponibilité](https://doc.transport.data.gouv.fr/administration-des-donnees/procedures-de-publication/gerer-la-qualite-des-donnees#sinscrire-aux-notifications#les-differents-types-de-notifications).
+Les notifications facilitent la gestion de vos données. Elles vous permettront d’être averti de l’expiration de vos ressources, des erreurs qu’elles peuvent contenir et de leur potentielle indisponibilité.
 
-Vous pouvez gérer ces notifications depuis [votre espace producteur du Point d'accès national](<%= TransportWeb.Router.Helpers.page_url(TransportWeb.Endpoint, :espace_producteur) %>).
+Vous pouvez gérer ces notifications depuis [votre espace producteur](<%= TransportWeb.Router.Helpers.page_url(TransportWeb.Endpoint, :espace_producteur) %>) du Point d’Accès National.
 
-## Gérer les membres de vos organisations
+## Gérer les membres de votre organisation
+
+L’administrateur de votre organisation peut ajouter, modifier ou supprimer les différents membres depuis [votre espace d’administration data.gouv.fr](<%= @manage_organization_url %>).
 
 <%= if @has_other_producers_subscribers do %>
 Les autres personnes inscrites à ces notifications sont : <%= @other_producers_subscribers %>.
 <% end %>
 
-Vous pouvez gérer les membres de vos organisations depuis data.gouv.fr. Si d'autres personnes administrent vos données, elles peuvent [rejoindre votre organisation sur data.gouv.fr](https://doc.transport.data.gouv.fr/administration-des-donnees/procedures-de-publication/creer-un-compte-utilisateur-sur-data.gouv.fr). Chacune de ces personnes peut paramétrer des notifications depuis leur espace producteur.
+Chaque utilisateur peut paramétrer ses propres notifications depuis son espace producteur du PAN.
 
-Nous restons disponible pour vous accompagner si besoin.
+Nous restons disponibles pour vous accompagner si besoin.
 
-Bien à vous,
+À bientôt !
