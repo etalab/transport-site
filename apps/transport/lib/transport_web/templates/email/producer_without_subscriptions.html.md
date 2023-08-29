@@ -15,18 +15,18 @@ Vous gérez les jeux de données suivants :
 </ul>
 <% end %>
 
-Pour vous faciliter la gestion de ces données, vous pouvez activer des notifications depuis [votre espace producteur du Point d'accès national](<%= TransportWeb.Router.Helpers.page_url(TransportWeb.Endpoint, :espace_producteur) %>). Elles vous permettront d'être averti de l'[expiration de vos ressources, des erreurs qu'elles peuvent contenir et de leur potentielle indisponibilité](https://doc.transport.data.gouv.fr/administration-des-donnees/procedures-de-publication/gerer-la-qualite-des-donnees#sinscrire-aux-notifications).
+Pour vous faciliter la gestion de ces données, vous pouvez activer des notifications depuis [votre espace producteur](<%= TransportWeb.Router.Helpers.page_url(TransportWeb.Endpoint, :espace_producteur) %>) du Point d’Accès National. Elles vous permettront d’être averti de l’expiration de vos ressources, des erreurs qu’elles peuvent contenir et de leur potentielle indisponibilité.
 
-## Gérer les membres de vos organisations
+## Gérer les membres de votre organisation
+
+L’administrateur de votre organisation peut ajouter, modifier ou supprimer les différents membres depuis [votre espace d’administration data.gouv.fr](<%= @manage_organization_url %>).
 
 <%= if @has_other_contacts do %>
-Les autres personnes pouvant s'inscrire à ces notifications et s'étant déjà connecté sont : <%= @contacts_in_orgs %>.
+Les autres personnes pouvant s’inscrire à ces notifications et s’étant déjà connectées sont : <%= @contacts_in_orgs %>.
 <% end %>
 
-Vous pouvez gérer les membres de vos organisations depuis data.gouv.fr. Si certaines personnes ne font plus partie de votre organisation, vous pouvez supprimer leur accès depuis data.gouv.fr. Si d'autres personnes administrent vos données, elles peuvent [rejoindre votre organisation sur data.gouv.fr](https://doc.transport.data.gouv.fr/administration-des-donnees/procedures-de-publication/creer-un-compte-utilisateur-sur-data.gouv.fr).
+Chaque utilisateur peut paramétrer ses propres notifications depuis son espace producteur du PAN.
 
-Chacune de ces personnes peut paramétrer des notifications depuis leur espace producteur.
+Nous restons disponibles pour vous accompagner si besoin.
 
-Nous restons disponible pour vous accompagner si besoin.
-
-Bien à vous,
+À bientôt !

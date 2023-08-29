@@ -252,7 +252,7 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
       assert html =~ "Pour vous faciliter la gestion de ces données, vous pouvez activer des notifications"
 
       assert html =~
-               "Les autres personnes pouvant s’inscrire à ces notifications et s’étant déjà connecté sont : Marina Loiseau."
+               "Les autres personnes pouvant s’inscrire à ces notifications et s’étant déjà connectées sont : Marina Loiseau."
     end)
 
     assert :ok == perform_job(PeriodicReminderProducersNotificationJob, %{"contact_id" => contact.id})
@@ -268,6 +268,26 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
 
     assert {:discard, "Mail has already been sent recently"} ==
              perform_job(PeriodicReminderProducersNotificationJob, %{"contact_id" => contact.id})
+  end
+
+  describe "manage_organization_url" do
+    test "single org" do
+      org_id = Ecto.UUID.generate()
+      contact = %{organizations: [sample_org(%{"id" => org_id})]} |> insert_contact() |> DB.Repo.preload(:organizations)
+      assert 1 == contact.organizations |> Enum.count()
+
+      assert "https://demo.data.gouv.fr/fr/admin/organization/#{org_id}/" ==
+               contact |> PeriodicReminderProducersNotificationJob.manage_organization_url()
+    end
+
+    test "multiple orgs" do
+      contact = %{organizations: [sample_org(), sample_org()]} |> insert_contact() |> DB.Repo.preload(:organizations)
+
+      assert 2 == contact.organizations |> Enum.count()
+
+      assert "https://demo.data.gouv.fr/fr/admin/" ==
+               contact |> PeriodicReminderProducersNotificationJob.manage_organization_url()
+    end
   end
 
   defp sample_org(%{} = args \\ %{}) do
