@@ -1,34 +1,34 @@
-
-
-.feedback-selector {
-  
+.feedback-selector {  
     input{
-      display: none;
+        display: none;
     }
     
     label {
-      cursor:pointer;
-      display:inline-block;
-      margin-right: 12px;
-      filter: brightness(1.8) grayscale(1) opacity(.7);
+        cursor:pointer;
+        display:inline-block;
+        margin-right: 12px;
+        filter: brightness(1.8) grayscale(1) opacity(.7);
     }
     
     label:hover{
-      filter: brightness(1.2) grayscale(.5) opacity(.9);
+        filter: brightness(1.2) grayscale(.5) opacity(.9);
     }
     
-     input:checked + label {
-      filter: none;
-      color: $primary;
+    input:checked + label {
+        filter: none;
+        color: $primary;
     }
     
     .feedback-emojis {
-      font-size: 48px;
+        font-size: 48px;
     }
-    
-  }
+}
 
-  legend.required::before {
+#full-feedback-form.hidden {
+    display: none;
+}
+
+legend.required::before {
     content: '✱';
     color: #d63626;
     color: var(--red);
@@ -38,8 +38,7 @@
     position: absolute;
     left: 0;
     -webkit-transform: translateX(-100%);
-            transform: translateX(-100%);
-  }
-  
-  
-  
+    transform: translateX(-100%);
+}
+
+
