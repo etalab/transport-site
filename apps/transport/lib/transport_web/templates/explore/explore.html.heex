@@ -84,5 +84,11 @@
 
 <div id="map" class="explore_map"></div>
 
+<section class="section section-white">
+<%= live_render(@conn, TransportWeb.Live.Feedback) %>
+
+</section>
+
+
 <script src={static_path(@conn, "/js/explore.js")}>
 </script>
