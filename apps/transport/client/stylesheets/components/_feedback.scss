@@ -1,0 +1,45 @@
+
+
+.feedback-selector {
+  
+    input{
+      display: none;
+    }
+    
+    label {
+      cursor:pointer;
+      display:inline-block;
+      margin-right: 12px;
+      filter: brightness(1.8) grayscale(1) opacity(.7);
+    }
+    
+    label:hover{
+      filter: brightness(1.2) grayscale(.5) opacity(.9);
+    }
+    
+     input:checked + label {
+      filter: none;
+      color: $primary;
+    }
+    
+    .feedback-emojis {
+      font-size: 48px;
+    }
+    
+  }
+
+  legend.required::before {
+    content: '✱';
+    color: #d63626;
+    color: var(--red);
+    font-weight: 700;
+    padding-right: 0.5em;
+    padding-right: var(--space-xs);
+    position: absolute;
+    left: 0;
+    -webkit-transform: translateX(-100%);
+            transform: translateX(-100%);
+  }
+  
+  
+  

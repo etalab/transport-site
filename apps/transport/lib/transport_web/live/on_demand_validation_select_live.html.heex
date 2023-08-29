@@ -1,3 +1,40 @@
+<section class="section section-white">
+<div class="container">
+  <h2>Laissez-nous votre avis</h2>
+
+
+
+  <form action="#" method="post" name="form" target="_blank" novalidate="" class="no-margin">
+    <div class="form__group feedback-selector">
+        <fieldset>
+          <legend class="required">Qu’avez vous pensé de cette page ?</legend>
+
+          <input type="radio" id="like" name="feedback-rating" value="like" />
+          <label class="label-inline" for="like">  <i class="fa-regular fa-face-smile feedback-emojis"></i></label>
+          <input type="radio" id="neutral" name="feedback-rating" value="neutral" />
+          <label class="label-inline" for="neutral">  <i class="fa-regular fa-face-meh feedback-emojis"></i></label>
+          <input type="radio" id="dislike" name="feedback-rating" value="dislike" />
+          <label class="label-inline" for="dislike">  <i class="fa-regular fa-face-frown feedback-emojis"></i></label>
+        </fieldset>
+
+    </div>
+
+    <div class="form__group">
+      <label for="feedback-text" class="required">Pourquoi ?</label>
+      <textarea name="feedback-text"></textarea>
+    </div>
+
+    <div class="form__group">
+    <label for="feedback-email">Votre email (facultatif)</label>
+    <input id="feedback-email" name="feedback-email" required="" type="email">
+    </div>
+
+          <button class="button" type="submit" name="subscribe" id="submit">Envoyer l’avis</button>
+        </form>
+
+</div>
+</section>
+
 <section class="single-page section section-grey">
   <div class="container container_min_height">
     <h1><%= TransportWeb.Gettext.dgettext("validations", "Check the quality of a file or a feed") %></h1>
@@ -63,4 +100,5 @@
     </div>
   </div>
 </section>
+
 <script defer type="text/javascript" src={static_path(@socket, "/js/app.js")} />
