@@ -15,7 +15,7 @@ Vous gérez les jeux de données suivants :
 </ul>
 <% end %>
 
-Pour vous faciliter la gestion de ces données, vous pouvez activer des notifications depuis [votre espace producteur](<%= TransportWeb.Router.Helpers.page_url(TransportWeb.Endpoint, :espace_producteur) %>) du Point d’accès national. Elles vous permettront d’être averti de l’expiration de vos ressources, des erreurs qu’elles peuvent contenir et de leur potentielle indisponibilité.
+Pour vous faciliter la gestion de ces données, vous pouvez activer des notifications depuis [votre espace producteur](<%= TransportWeb.Router.Helpers.page_url(TransportWeb.Endpoint, :espace_producteur) %>) du Point d’Accès National. Elles vous permettront d’être averti de l’expiration de vos ressources, des erreurs qu’elles peuvent contenir et de leur potentielle indisponibilité.
 
 ## Gérer les membres de votre organisation
 

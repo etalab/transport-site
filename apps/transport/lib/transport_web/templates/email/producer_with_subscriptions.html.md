@@ -17,7 +17,7 @@ Vous êtes susceptible de recevoir des notifications pour les jeux de données s
 
 Les notifications facilitent la gestion de vos données. Elles vous permettront d’être averti de l’expiration de vos ressources, des erreurs qu’elles peuvent contenir et de leur potentielle indisponibilité.
 
-Vous pouvez gérer ces notifications depuis [votre espace producteur](<%= TransportWeb.Router.Helpers.page_url(TransportWeb.Endpoint, :espace_producteur) %>) du Point d’accès national.
+Vous pouvez gérer ces notifications depuis [votre espace producteur](<%= TransportWeb.Router.Helpers.page_url(TransportWeb.Endpoint, :espace_producteur) %>) du Point d’Accès National.
 
 ## Gérer les membres de votre organisation
 
