@@ -252,7 +252,7 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
       assert html =~ "Pour vous faciliter la gestion de ces données, vous pouvez activer des notifications"
 
       assert html =~
-               "Les autres personnes pouvant s’inscrire à ces notifications et s’étant déjà connectés sont : Marina Loiseau."
+               "Les autres personnes pouvant s’inscrire à ces notifications et s’étant déjà connectées sont : Marina Loiseau."
     end)
 
     assert :ok == perform_job(PeriodicReminderProducersNotificationJob, %{"contact_id" => contact.id})
@@ -276,7 +276,7 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
       contact = %{organizations: [sample_org(%{"id" => org_id})]} |> insert_contact() |> DB.Repo.preload(:organizations)
       assert 1 == contact.organizations |> Enum.count()
 
-      assert "https://www.data.gouv.fr/fr/admin/organization/#{org_id}/" ==
+      assert "https://demo.data.gouv.fr/fr/admin/organization/#{org_id}/" ==
                contact |> PeriodicReminderProducersNotificationJob.manage_organization_url()
     end
 
@@ -285,7 +285,7 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
 
       assert 2 == contact.organizations |> Enum.count()
 
-      assert "https://www.data.gouv.fr/fr/admin/" ==
+      assert "https://demo.data.gouv.fr/fr/admin/" ==
                contact |> PeriodicReminderProducersNotificationJob.manage_organization_url()
     end
   end

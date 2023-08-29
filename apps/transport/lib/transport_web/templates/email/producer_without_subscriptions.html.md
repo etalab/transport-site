@@ -22,7 +22,7 @@ Pour vous faciliter la gestion de ces données, vous pouvez activer des notifica
 L’administrateur de votre organisation peut ajouter, modifier ou supprimer les différents membres depuis [votre espace d’administration data.gouv.fr](<%= @manage_organization_url %>).
 
 <%= if @has_other_contacts do %>
-Les autres personnes pouvant s’inscrire à ces notifications et s’étant déjà connectés sont : <%= @contacts_in_orgs %>.
+Les autres personnes pouvant s’inscrire à ces notifications et s’étant déjà connectées sont : <%= @contacts_in_orgs %>.
 <% end %>
 
 Chaque utilisateur peut paramétrer ses propres notifications depuis son espace producteur du PAN.

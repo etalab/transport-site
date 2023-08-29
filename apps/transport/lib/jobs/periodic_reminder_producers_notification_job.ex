@@ -146,12 +146,12 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
     DB.Notification.insert!(@notification_reason, contact.email)
   end
 
-  def manage_organization_url(%DB.Contact{organizations: organizations}) when length(organizations) == 1 do
-    "https://www.data.gouv.fr/fr/admin/organization/#{organizations |> hd() |> Map.fetch!(:id)}/"
+  def manage_organization_url(%DB.Contact{organizations: [%DB.Organization{id: org_id}]}) do
+    Application.fetch_env!(:transport, :datagouvfr_site) <> "/fr/admin/organization/#{org_id}/"
   end
 
   def manage_organization_url(%DB.Contact{}) do
-    "https://www.data.gouv.fr/fr/admin/"
+    Application.fetch_env!(:transport, :datagouvfr_site) <> "/fr/admin/"
   end
 
   @spec datasets_subscribed_as_producer(DB.Contact.t()) :: [DB.Dataset.t()]
