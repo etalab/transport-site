@@ -202,8 +202,10 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
     [body]
     |> CSV.decode!(field_transform: &String.trim/1, headers: true)
-    |> Stream.map(fn %{"dataset_url" => "https://www.data.gouv.fr/fr/datasets/" <> slug} ->
-      slug |> String.replace_suffix("/", "")
+    |> Stream.map(fn %{"dataset_url" => url} ->
+      url
+      |> String.replace_prefix(Application.fetch_env!(:transport, :datagouvfr_site) <> "/fr/datasets/", "")
+      |> String.replace_suffix("/", "")
     end)
     |> Enum.uniq()
   end

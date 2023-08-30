@@ -22,9 +22,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       fn "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/datasets.csv" ->
         body = """
         dataset_url
-        https://www.data.gouv.fr/fr/datasets/foo/
-        https://www.data.gouv.fr/fr/datasets/bar
-        https://www.data.gouv.fr/fr/datasets/bar/
+        https://demo.data.gouv.fr/fr/datasets/foo/
+        https://demo.data.gouv.fr/fr/datasets/bar
+        https://demo.data.gouv.fr/fr/datasets/bar/
         """
 
         %HTTPoison.Response{status_code: 200, body: body}
@@ -351,8 +351,8 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
         fn "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/datasets.csv" ->
           body = """
           dataset_url
-          https://www.data.gouv.fr/fr/datasets/foo/
-          https://www.data.gouv.fr/fr/datasets/bar
+          https://demo.data.gouv.fr/fr/datasets/foo/
+          https://demo.data.gouv.fr/fr/datasets/bar
           """
 
           %HTTPoison.Response{status_code: 200, body: body}
@@ -478,7 +478,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
         fn "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/datasets.csv" ->
           body = """
           dataset_url
-          https://www.data.gouv.fr/fr/datasets/foo/
+          https://demo.data.gouv.fr/fr/datasets/foo/
           """
 
           %HTTPoison.Response{status_code: 200, body: body}
@@ -527,8 +527,8 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
         fn "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/datasets.csv" ->
           body = """
           dataset_url
-          https://www.data.gouv.fr/fr/datasets/foo/
-          https://www.data.gouv.fr/fr/datasets/bar
+          https://demo.data.gouv.fr/fr/datasets/foo/
+          https://demo.data.gouv.fr/fr/datasets/bar
           """
 
           %HTTPoison.Response{status_code: 200, body: body}
