@@ -70,7 +70,7 @@ defmodule Transport.Mixfile do
       {:recon, "~> 2.4"},
       {:quantum, "~> 3.4"},
       {:timex, "~> 3.7"},
-      {:sentry, "~> 8.0"},
+      {:sentry, "~> 8.1"},
       {:scrivener, "~> 2.5"},
       {:scrivener_html, git: "https://github.com/mgwidmann/scrivener_html.git", ref: "9224d1"},
       {:scrivener_list, "~>2.0"},

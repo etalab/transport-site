@@ -37,7 +37,7 @@ defmodule Unlock.MixProject do
     [
       {:phoenix, "~> 1.6.2"},
       {:phoenix_html, "~> 3.1"},
-      {:sentry, "~> 8.0"},
+      {:sentry, "~> 8.1"},
       # required indirectly by sentry
       {:hackney, "~> 1.8"},
       {:jason, "~> 1.1"},
