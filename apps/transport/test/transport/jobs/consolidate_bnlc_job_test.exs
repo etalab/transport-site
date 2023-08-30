@@ -1,11 +1,12 @@
 defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
   use ExUnit.Case, async: true
+  @moduletag :capture_log
   use Oban.Testing, repo: DB.Repo
   import Mox
   alias Transport.Jobs.ConsolidateBNLCJob
 
   @target_schema "etalab/schema-lieux-covoiturage"
-  @tmp_path "/tmp/bnlc.csv"
+  @tmp_path System.tmp_dir!() |> Path.join("bnlc.csv")
 
   doctest ConsolidateBNLCJob, import: true
   setup :verify_on_exit!
@@ -14,7 +15,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
-  test "dataset_slugs" do
+  test "datagouv_dataset_slugs" do
     Transport.HTTPoison.Mock
     |> expect(
       :get!,
@@ -30,10 +31,10 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       end
     )
 
-    assert ["foo", "bar"] == ConsolidateBNLCJob.dataset_slugs()
+    assert ["foo", "bar"] == ConsolidateBNLCJob.datagouv_dataset_slugs()
   end
 
-  test "dataset_details" do
+  test "extract_dataset_details" do
     # foo is a 200 response including a resource with an appropriate schema
     Transport.HTTPoison.Mock
     |> expect(:request, fn :get, "https://demo.data.gouv.fr/api/1/datasets/foo/", "", [], [follow_redirect: true] ->
@@ -56,17 +57,26 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
     assert %{
              errors: [
-               "baz",
-               %{"resources" => [%{"format" => "csv"}], "slug" => "bar"}
+               %{
+                 dataset_details: %{"resources" => [%{"format" => "csv"}], "slug" => "bar"},
+                 error: :not_at_least_one_appropriate_resource
+               },
+               %{dataset_slug: "baz", error: :dataset_not_found}
              ],
              ok: [%{"resources" => [%{"schema" => %{"name" => @target_schema}}], "slug" => "foo"}]
-           } == ConsolidateBNLCJob.dataset_details(["foo", "bar", "baz"])
+           } == ConsolidateBNLCJob.extract_dataset_details(["foo", "bar", "baz"])
   end
 
   describe "format_errors" do
     test "it formats everything" do
       errors = %{
-        dataset_errors: ["404-slug", %{"page" => "https://example.com/jdd", "title" => "JDD sans ressources"}],
+        dataset_errors: [
+          %{error: :dataset_not_found, dataset_slug: "404-slug"},
+          %{
+            error: :not_at_least_one_appropriate_resource,
+            dataset_details: %{"page" => "https://example.com/jdd", "title" => "JDD sans ressources"}
+          }
+        ],
         validation_errors: [
           {%{"page" => "https://example.com/jdd_erreur", "title" => "JDD avec erreurs"},
            %{"title" => "Ressource avec erreurs", "schema" => %{"name" => @target_schema}}}
@@ -92,8 +102,8 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
              """ == ConsolidateBNLCJob.format_errors(errors)
     end
 
-    test "empty when there are no errors" do
-      assert "" == ConsolidateBNLCJob.format_errors(%{dataset_errors: [], validation_errors: [], download_errors: []})
+    test "nil when there are no errors" do
+      assert nil == ConsolidateBNLCJob.format_errors(%{dataset_errors: [], validation_errors: [], download_errors: []})
     end
   end
 
@@ -143,8 +153,8 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
     assert %{
              errors: [
-               {:validation_error, other_dataset_details, validation_error_resource},
-               {:error, dataset_details, other_resource}
+               {:error, dataset_details, other_resource},
+               {:validation_error, other_dataset_details, validation_error_resource}
              ],
              ok: [{dataset_details, resource}]
            } == ConsolidateBNLCJob.valid_datagouv_resources(datasets_details)
@@ -307,10 +317,10 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     assert [
              %{"foo" => "I", "bar" => "Love", "baz" => "CSV"},
              %{"foo" => "Very", "bar" => "Much", "baz" => "So"},
-             %{"foo" => "a", "bar" => "b", "baz" => "c"},
-             %{"foo" => "d", "bar" => "e", "baz" => "f"},
              %{"foo" => "1", "bar" => "2", "baz" => "3"},
-             %{"foo" => "4", "bar" => "5", "baz" => "6"}
+             %{"foo" => "4", "bar" => "5", "baz" => "6"},
+             %{"foo" => "a", "bar" => "b", "baz" => "c"},
+             %{"foo" => "d", "bar" => "e", "baz" => "f"}
            ] == @tmp_path |> File.stream!() |> CSV.decode!(headers: true) |> Enum.to_list()
 
     # From https://datatracker.ietf.org/doc/html/rfc4180#section-2
@@ -321,10 +331,10 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
            foo,bar,baz\r
            I,Love,CSV\r
            Very,Much,So\r
-           a,b,c\r
-           d,e,f\r
            1,2,3\r
            4,5,6\r
+           a,b,c\r
+           d,e,f\r
            """ = File.read!(@tmp_path)
 
     # Temporary files have been removed
@@ -390,12 +400,12 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
       # Validating resources with the schema validator
       Shared.Validation.TableSchemaValidator.Mock
-      |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^bar_url ->
+      |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^foo_url ->
         %{"has_errors" => false}
       end)
 
       Shared.Validation.TableSchemaValidator.Mock
-      |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^foo_url ->
+      |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^bar_url ->
         %{"has_errors" => false}
       end)
 
@@ -455,9 +465,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
              foo,bar,baz\r
              I,Love,CSV\r
              Very,Much,So\r
-             1,2,3\r
              a,b,c\r
              d,e,f\r
+             1,2,3\r
              """ = File.read!(@tmp_path)
     end
 
@@ -569,13 +579,13 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
       # Validating resources with the schema validator
       Shared.Validation.TableSchemaValidator.Mock
-      |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^bar_url ->
-        %{"has_errors" => true}
+      |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^foo_url ->
+        %{"has_errors" => false}
       end)
 
       Shared.Validation.TableSchemaValidator.Mock
-      |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^foo_url ->
-        %{"has_errors" => false}
+      |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^bar_url ->
+        %{"has_errors" => true}
       end)
 
       # Fetching CSV content and storing files locally

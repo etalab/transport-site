@@ -9,11 +9,20 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   @schema_name "etalab/schema-lieux-covoiturage"
   @separator_key "csv_separator"
   @download_path_key "tmp_download_path"
+  # You may need to change this URL if you're working locally on the code.
+  # Maybe upload your own CSV to https://gist.github.com or return hardcoded
+  # slugs from `datagouv_dataset_slugs`
   @datasets_list_csv_url "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/datasets.csv"
   @bnlc_github_url "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv"
-  @bnlc_path "/tmp/bnlc.csv"
+  @bnlc_path System.tmp_dir!() |> Path.join("bnlc.csv")
 
+  # Custom types
   @type consolidation_errors :: %{dataset_errors: list(), validation_errors: list(), download_errors: list()}
+  @type dataset_without_appropriate_resource_error :: %{
+          error: :not_at_least_one_appropriate_resource,
+          dataset_details: map()
+        }
+  @type dataset_not_found_error :: %{error: :dataset_not_found, dataset_slug: binary()}
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
@@ -22,14 +31,22 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
   @spec consolidate() :: :ok | {:discard, binary()}
   def consolidate do
-    %{ok: datasets_details, errors: dataset_errors} = dataset_slugs() |> dataset_details()
+    Logger.info("Starting consolidation…")
+    Logger.info("Extracting configured datasets & retrieving data from data.gouv…")
+    %{ok: datasets_details, errors: dataset_errors} = datagouv_dataset_slugs() |> extract_dataset_details()
+
+    Logger.info("Finding valid resources…")
     %{ok: resources_details, errors: validation_errors} = valid_datagouv_resources(datasets_details)
 
     if validation_errors |> Enum.filter(&match?({:validation_error, _, _}, &1)) |> Enum.any?() do
       {:discard, "Cannot consolidate the BNLC because the TableSchema validator is not available"}
     else
+      Logger.info("Downloading resources…")
       %{ok: download_details, errors: download_errors} = download_resources(resources_details)
+      Logger.info("Creating a single file")
       consolidate_resources(download_details)
+
+      Logger.info("Sending the email recap")
 
       send_email_recap(%{
         dataset_errors: dataset_errors,
@@ -45,8 +62,8 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   def send_email_recap(%{} = errors) do
     body =
       case format_errors(errors) do
-        "" -> "✅ La consolidation s'est déroulée sans erreurs"
-        txt -> txt
+        nil -> "✅ La consolidation s'est déroulée sans erreurs"
+        txt when is_binary(txt) -> txt
       end
 
     Transport.EmailSender.impl().send_mail(
@@ -60,22 +77,29 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     )
   end
 
-  @spec format_errors(consolidation_errors()) :: binary()
+  @spec format_errors(consolidation_errors()) :: binary() | nil
   def format_errors(%{dataset_errors: _, validation_errors: _, download_errors: _} = errors) do
     [&format_dataset_errors/1, &format_validation_errors/1, &format_download_errors/1]
     |> Enum.map_join("\n\n", fn fmt_fn -> fmt_fn.(errors) end)
     |> String.trim()
+    |> case do
+      "" -> nil
+      txt when is_binary(txt) -> txt
+    end
   end
 
+  @spec format_dataset_errors(%{
+          dataset_errors: [dataset_without_appropriate_resource_error() | dataset_not_found_error()]
+        }) :: binary()
   def format_dataset_errors(%{dataset_errors: []}), do: ""
 
   def format_dataset_errors(%{dataset_errors: dataset_errors}) do
     format = fn el ->
       case el do
-        el when is_binary(el) ->
-          "Le slug du jeu de données `#{el}` est introuvable via l'API"
+        %{error: :dataset_not_found, dataset_slug: slug} when is_binary(slug) ->
+          "Le slug du jeu de données `#{slug}` est introuvable via l'API"
 
-        %{"page" => _, "title" => _} = dataset ->
+        %{error: :not_at_least_one_appropriate_resource, dataset_details: %{"page" => _, "title" => _} = dataset} ->
           "Pas de ressources avec le schéma #{@schema_name} pour #{link_to_dataset(dataset)}"
       end
     end
@@ -168,22 +192,19 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   end
 
   @doc """
-  Reads the CSV file maintained by our team on GitHub listing dataset URLs we should include in the BNLC.
+  Reads the CSV file maintained by our team on GitHub listing datagouv dataset URLs
+  we should include in the BNLC.
   Keep only dataset slugs.
   """
-  @spec dataset_slugs() :: [binary()]
-  def dataset_slugs do
+  @spec datagouv_dataset_slugs() :: [binary()]
+  def datagouv_dataset_slugs do
     %HTTPoison.Response{body: body, status_code: 200} = @datasets_list_csv_url |> http_client().get!()
 
     [body]
     |> CSV.decode!(field_transform: &String.trim/1, headers: true)
-    |> Stream.map(fn %{"dataset_url" => url} ->
-      # Keep only the slug of the dataset, remove any possible trailing slash
-      url
-      |> String.replace("https://www.data.gouv.fr/fr/datasets/", "")
-      |> String.replace_suffix("/", "")
+    |> Stream.map(fn %{"dataset_url" => "https://www.data.gouv.fr/fr/datasets/" <> slug} ->
+      slug |> String.replace_suffix("/", "")
     end)
-    |> Enum.to_list()
     |> Enum.uniq()
   end
 
@@ -214,67 +235,64 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
   Possible errors:
   - the dataset has no resources with the schema we are interested in
+    `%{error: :not_at_least_one_appropriate_resource, dataset_details: map()}`
   - the data.gouv.fr's API returns an error for this dataset slug
+    `%{error: :dataset_not_found, dataset_slug: binary()}`
   """
-  @spec dataset_details([binary()]) :: %{ok: [map()], errors: [binary() | map()]}
-  def dataset_details(slugs) do
-    filter_resources = fn acc, %{"resources" => resources} = details ->
-      if resources |> Enum.filter(&with_appropriate_schema?/1) |> Enum.any?() do
-        Map.put(acc, :ok, [details | Map.fetch!(acc, :ok)])
-      else
-        Map.put(acc, :errors, [details | Map.fetch!(acc, :errors)])
-      end
+  @spec extract_dataset_details([binary()]) :: %{
+          ok: [map()],
+          errors: [dataset_without_appropriate_resource_error() | dataset_not_found_error()]
+        }
+  def extract_dataset_details(slugs) do
+    slugs
+    |> Enum.map(&get_dataset_details/1)
+    |> normalize_ok_errors()
+  end
+
+  @spec get_dataset_details(binary()) ::
+          {:ok, map()} | {:errors, dataset_without_appropriate_resource_error() | dataset_not_found_error()}
+  defp get_dataset_details(slug) do
+    case Datagouvfr.Client.Datasets.get(slug) do
+      {:ok, %{"resources" => resources} = details} ->
+        if resources |> Enum.filter(&with_appropriate_schema?/1) |> Enum.any?() do
+          {:ok, details}
+        else
+          {:errors, %{error: :not_at_least_one_appropriate_resource, dataset_details: details}}
+        end
+
+      _ ->
+        {:errors, %{error: :dataset_not_found, dataset_slug: slug}}
     end
-
-    analyze_dataset = fn slug, %{ok: _, errors: _} = acc ->
-      case Datagouvfr.Client.Datasets.get(slug) do
-        {:ok, %{"resources" => _} = details} ->
-          filter_resources.(acc, details)
-
-        _ ->
-          Map.put(acc, :errors, [slug | Map.fetch!(acc, :errors)])
-      end
-    end
-
-    Enum.reduce(slugs, %{ok: [], errors: []}, fn slug, acc -> analyze_dataset.(slug, acc) end)
   end
 
   @spec valid_datagouv_resources([map()]) :: %{
           ok: [],
           errors: [{:error, map(), map()} | {:validation_error, map(), map()}]
         }
+  @doc """
+  Identifies valid resources according to the target schema.
+  For each resource, call the TableSchemaValidator to make sure the resource is valid.
+
+  Possible errors:
+  - the resource is not valid according to the schema ({`:error`, _, _})
+  - the validator is not available ({`:validation_error`, _, _})
+  """
   def valid_datagouv_resources(datasets_details) do
     analyze_resource = fn dataset_details, %{"url" => resource_url} = resource ->
       case TableSchemaValidator.validate(@schema_name, resource_url) do
-        %{"has_errors" => true} -> {:error, dataset_details, resource}
-        %{"has_errors" => false} -> {:ok, dataset_details, resource}
-        nil -> {:validation_error, dataset_details, resource}
+        %{"has_errors" => true} -> {:errors, {:error, dataset_details, resource}}
+        %{"has_errors" => false} -> {:ok, {dataset_details, resource}}
+        nil -> {:errors, {:validation_error, dataset_details, resource}}
       end
     end
 
-    analyze_dataset = fn %{"resources" => resources} = dataset_details, %{ok: _, errors: _} = acc ->
-      {oks, errors} =
-        resources
-        |> Enum.filter(&with_appropriate_schema?/1)
-        |> Enum.map(fn %{"url" => _} = resource -> analyze_resource.(dataset_details, resource) end)
-        |> Enum.split_with(&match?({:ok, %{}, %{}}, &1))
-
-      acc
-      |> Map.keys()
-      |> Enum.into(%{}, fn key ->
-        existing_value = Map.fetch!(acc, key)
-
-        {key,
-         case key do
-           :ok -> oks |> Enum.map(fn {:ok, dataset, resource} -> {dataset, resource} end) |> Kernel.++(existing_value)
-           :errors -> errors ++ existing_value
-         end}
-      end)
+    analyze_dataset = fn %{"resources" => resources} = dataset_details ->
+      resources
+      |> Enum.filter(&with_appropriate_schema?/1)
+      |> Enum.map(fn %{"url" => _} = resource -> analyze_resource.(dataset_details, resource) end)
     end
 
-    Enum.reduce(datasets_details, %{ok: [], errors: []}, fn dataset_details, acc ->
-      analyze_dataset.(dataset_details, acc)
-    end)
+    datasets_details |> Enum.flat_map(&analyze_dataset.(&1)) |> normalize_ok_errors()
   end
 
   @doc """
@@ -288,24 +306,38 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   """
   @spec download_resources([map()]) :: %{ok: [], errors: []}
   def download_resources(resources_details) do
-    download_resource = fn
-      {dataset_details, %{"id" => resource_id, "url" => resource_url} = resource}, %{ok: _, errors: _} = acc ->
-        case http_client().get(resource_url, [], follow_redirect: true) do
-          {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-            path = System.tmp_dir!() |> Path.join("consolidate_bnlc_#{resource_id}")
-            File.write!(path, body)
-            resource = Map.merge(resource, %{@download_path_key => path, @separator_key => guess_csv_separator(body)})
-            Map.put(acc, :ok, [{dataset_details, resource} | Map.fetch!(acc, :ok)])
+    resources_details
+    |> Enum.map(fn {dataset_details, %{"id" => resource_id, "url" => resource_url} = resource} ->
+      case http_client().get(resource_url, [], follow_redirect: true) do
+        {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+          path = System.tmp_dir!() |> Path.join("consolidate_bnlc_#{resource_id}")
+          File.write!(path, body)
+          resource = Map.merge(resource, %{@download_path_key => path, @separator_key => guess_csv_separator(body)})
+          {:ok, {dataset_details, resource}}
 
-          _ ->
-            Map.put(acc, :errors, [{dataset_details, resource} | Map.fetch!(acc, :errors)])
-        end
-    end
-
-    Enum.reduce(resources_details, %{ok: [], errors: []}, fn payload, acc ->
-      download_resource.(payload, acc)
+        _ ->
+          {:errors, {dataset_details, resource}}
+      end
     end)
+    |> normalize_ok_errors()
   end
+
+  @doc """
+  Make sure we always have `:ok` and `:errors` keys.
+
+  iex> normalize_ok_errors(%{})
+  %{ok: [], errors: []}
+  iex> normalize_ok_errors(%{ok: [1]})
+  %{ok: [1], errors: []}
+  iex> normalize_ok_errors(%{ok: [1], errors: [2]})
+  %{ok: [1], errors: [2]}
+  iex> normalize_ok_errors([{:ok, 1}, {:errors, 2}])
+  %{errors: [2], ok: [1]}
+  """
+  def normalize_ok_errors(result) when is_list(result),
+    do: result |> Enum.group_by(&elem(&1, 0), &elem(&1, 1)) |> normalize_ok_errors()
+
+  def normalize_ok_errors(result) when is_map(result), do: Map.merge(%{ok: [], errors: []}, result)
 
   @doc """
   iex> with_appropriate_schema?(%{"schema" => %{"name" => "foo"}})
