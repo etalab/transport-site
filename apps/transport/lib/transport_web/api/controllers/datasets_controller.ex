@@ -54,7 +54,8 @@ defmodule TransportWeb.API.DatasetController do
     do: %Operation{
       tags: ["datasets"],
       summary: "Return the details of a given dataset and its resources",
-      description: ~s"Returns the detailed version of a dataset, showing its resources, the resources history & conversions.",
+      description:
+        ~s"Returns the detailed version of a dataset, showing its resources, the resources history & conversions.",
       operationId: "API.DatasetController.datasets_by_id",
       parameters: [Operation.parameter(:id, :path, :string, "datagouv id of the dataset you want to retrieve")],
       responses: %{

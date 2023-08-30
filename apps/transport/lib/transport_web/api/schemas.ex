@@ -770,7 +770,8 @@ defmodule TransportWeb.API.Schemas do
 
     OpenApiSpex.schema(%{
       title: "DatasetDetails",
-      description: "A dataset is a composed of one or more resources (detailed version, including history & conversions).",
+      description:
+        "A dataset is a composed of one or more resources (detailed version, including history & conversions).",
       type: :object,
       required: @properties |> Map.keys(),
       properties: @properties,
