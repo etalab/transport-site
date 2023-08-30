@@ -1,14 +1,24 @@
 {
    "Rules":[
       {
-         "Expiration":{
-            "Days":30
-         },
          "ID":"delete-after-30-days",
+         "Status":"Enabled",
          "Filter":{
             "Prefix":""
          },
-         "Status":"Enabled"
+         "Expiration":{
+            "Days":30
+         }
+      },
+      {
+         "ID":"Remove uncompleted uploads",
+         "Status":"Enabled",
+         "Filter":{
+            "Prefix":""
+         },
+         "AbortIncompleteMultipartUpload":{
+            "DaysAfterInitiation":1
+         }
       }
    ]
 }

@@ -115,6 +115,7 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
       "Notifications pour vos données sur transport.data.gouv.fr",
       "",
       Phoenix.View.render_to_string(TransportWeb.EmailView, "producer_without_subscriptions.html", %{
+        manage_organization_url: contact |> manage_organization_url(),
         datasets: datasets,
         contacts_in_orgs: Enum.map_join(contacts_in_orgs, ", ", &DB.Contact.display_name/1),
         has_other_contacts: not Enum.empty?(contacts_in_orgs)
@@ -135,6 +136,7 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
       "Rappel : vos notifications pour vos données sur transport.data.gouv.fr",
       "",
       Phoenix.View.render_to_string(TransportWeb.EmailView, "producer_with_subscriptions.html", %{
+        manage_organization_url: contact |> manage_organization_url(),
         datasets_subscribed: contact |> datasets_subscribed_as_producer(),
         has_other_producers_subscribers: not Enum.empty?(other_producers_subscribers),
         other_producers_subscribers: Enum.map_join(other_producers_subscribers, ", ", &DB.Contact.display_name/1)
@@ -142,6 +144,14 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
     )
 
     DB.Notification.insert!(@notification_reason, contact.email)
+  end
+
+  def manage_organization_url(%DB.Contact{organizations: [%DB.Organization{id: org_id}]}) do
+    Application.fetch_env!(:transport, :datagouvfr_site) <> "/fr/admin/organization/#{org_id}/"
+  end
+
+  def manage_organization_url(%DB.Contact{}) do
+    Application.fetch_env!(:transport, :datagouvfr_site) <> "/fr/admin/"
   end
 
   @spec datasets_subscribed_as_producer(DB.Contact.t()) :: [DB.Dataset.t()]
