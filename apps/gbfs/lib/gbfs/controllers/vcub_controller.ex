@@ -35,7 +35,7 @@ defmodule GBFS.VCubController do
     |> render("gbfs.json")
   end
 
-  @spec station_aux(Plug.Conn.t(), (() -> {:ok, map()} | {:error, binary()})) :: Plug.Conn.t()
+  @spec station_aux(Plug.Conn.t(), (-> {:ok, map()} | {:error, binary()})) :: Plug.Conn.t()
   defp station_aux(conn, get_info_function) do
     case get_info_function.() do
       {:ok, data} ->

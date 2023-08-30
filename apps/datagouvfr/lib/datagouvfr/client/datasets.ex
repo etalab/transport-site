@@ -159,7 +159,7 @@ defmodule Datagouvfr.Client.Datasets do
     Enum.any?(
       followers,
       &(&1["follower"]["id"] == user_id)
-    ) or is_user_in_followers?(page['next_page'], user_id, conn)
+    ) or is_user_in_followers?(page[~c"next_page"], user_id, conn)
   end
 
   defp is_user_in_followers?(page_url, user_id, conn) when is_binary(page_url) do
