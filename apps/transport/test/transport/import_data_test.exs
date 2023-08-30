@@ -313,7 +313,7 @@ defmodule Transport.ImportDataTest do
 
       with_mock HTTPoison, get!: mock do
         logs =
-          capture_log([level: :warn], fn ->
+          capture_log([level: :warning], fn ->
             ImportData.import_all_datasets()
           end)
 
