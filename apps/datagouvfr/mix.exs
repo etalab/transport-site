@@ -45,7 +45,8 @@ defmodule Datagouvfr.MixProject do
       {:vex, github: "CargoSense/vex", ref: "328a39f7"},
       {:exvcr, "~> 0.13", only: :test},
       {:mox, "~> 1.0.0", only: :test},
-      {:sentry, "~> 8.1"}
+      {:sentry, "~> 8.1"},
+      {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
     ]
   end
 end

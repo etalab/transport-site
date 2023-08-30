@@ -51,7 +51,8 @@ defmodule GBFS.MixProject do
       {:mock, "~> 0.3.6", only: :test},
       {:bypass, "~> 2.1", only: :test},
       {:appsignal, "~> 2.0"},
-      {:appsignal_phoenix, "~> 2.0"}
+      {:appsignal_phoenix, "~> 2.0"},
+      {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
     ]
   end
 end
