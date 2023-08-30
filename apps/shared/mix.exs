@@ -57,7 +57,7 @@ defmodule Shared.MixProject do
       {:jason, ">= 0.0.0"},
       {:ex_cldr_numbers, "~> 2.0"},
       {:cachex, "~> 3.5"},
-      {:ex_json_schema, "~> 0.9.1"},
+      {:ex_json_schema, "~> 0.10"},
       # added because of `TransportWeb.Plugs.AppSignalFilter`
       {:appsignal, "~> 2.0"},
       {:appsignal_phoenix, "~> 2.0"}
