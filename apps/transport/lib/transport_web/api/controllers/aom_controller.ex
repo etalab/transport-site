@@ -17,7 +17,6 @@ defmodule TransportWeb.API.AomController do
     do: %Operation{
       tags: ["aom"],
       summary: "Show first AOM containing a point with given coordinates",
-      description: "Show covered regions",
       operationId: "API.AOMController.by_coordinates",
       parameters: [
         Operation.parameter(:lon, :query, :number, "Longitude"),
@@ -44,8 +43,7 @@ defmodule TransportWeb.API.AomController do
   def by_insee_operation,
     do: %Operation{
       tags: ["aom"],
-      summary: "Show AOM by INSEE",
-      description: "Show covered regions",
+      summary: "Search AOM by INSEE code",
       operationId: "API.AOMController.by_insee_operation",
       parameters: [
         Operation.parameter(:insee, :path, :string, "INSEE")
@@ -93,8 +91,7 @@ defmodule TransportWeb.API.AomController do
   def geojson_operation,
     do: %Operation{
       tags: ["aom"],
-      summary: "Show geojson of AOM",
-      description: "Show covered regions",
+      summary: "Show GeoJSON of all available AOMs (Autorités Organisatrices de la Mobilité)",
       operationId: "API.AOMController.geojson_operation",
       parameters: [],
       responses: %{

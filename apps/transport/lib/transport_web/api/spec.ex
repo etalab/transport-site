@@ -12,7 +12,13 @@ defmodule TransportWeb.API.Spec do
         title: "transport.data.gouv.fr API",
         version: "1.0",
         description:
-          ~S(Extra <a href="https://doc.transport.data.gouv.fr/administration-des-donnees/outils/api">documentation</a>),
+          ~s"""
+            Extra <a href="https://doc.transport.data.gouv.fr/administration-des-donnees/outils/api">documentation</a>.
+
+            The structure of the returned data is detailed at the bottom (see `Schemas`) and on each query (click on `Schema` near `Example Value`).
+
+            To create a query, just add the domain `https://transport.data.gouv.fr` and the path (e.g. `/api/datasets`).
+          """,
         contact: %Contact{
           name: "API email support",
           email: Application.fetch_env!(:transport, :contact_email)
