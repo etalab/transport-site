@@ -33,7 +33,7 @@ defmodule TransportWeb.DatasetView do
   @doc """
   Count the number of discussions if they are available
   """
-  def count_discussions(nil), do: '-'
+  def count_discussions(nil), do: ~c"-"
   def count_discussions(discussions), do: Enum.count(discussions)
 
   def pagination_links(%{path_info: ["datasets", "region", region]} = conn, datasets) do

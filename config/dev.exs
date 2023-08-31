@@ -84,7 +84,7 @@ if File.exists?(extra_config_file) do
 else
   require Logger
 
-  Logger.warn(
+  Logger.warning(
     "Only the most basic features will work. Please create #{extra_config_file} based on config/dev.secret.template.exs for more advanced use."
   )
 end

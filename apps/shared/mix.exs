@@ -51,16 +51,17 @@ defmodule Shared.MixProject do
       # otherwise running tests for an individual umbrella sub-app will raise error.
       # A better way to achieve this will be to configure it at runtime, like described
       # in https://github.com/getsentry/sentry-elixir/pull/472.
-      {:sentry, "~> 8.0.0"},
+      {:sentry, "~> 8.1"},
       # Similarly, Jason is configured as `json_library` by the main app, so it will
       # be required no matter what.
       {:jason, ">= 0.0.0"},
       {:ex_cldr_numbers, "~> 2.0"},
       {:cachex, "~> 3.5"},
-      {:ex_json_schema, "~> 0.9.1"},
+      {:ex_json_schema, "~> 0.10"},
       # added because of `TransportWeb.Plugs.AppSignalFilter`
       {:appsignal, "~> 2.0"},
-      {:appsignal_phoenix, "~> 2.0"}
+      {:appsignal_phoenix, "~> 2.0"},
+      {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
     ]
   end
 end

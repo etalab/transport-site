@@ -261,7 +261,9 @@ defmodule TransportWeb.Router do
         "https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/conditions-dutilisation-des-donnees/licence-odbl"
     )
 
-    get("/budget", Redirect, external: "https://doc.transport.data.gouv.fr/le-point-d-acces-national/generalites/budget")
+    get("/budget", Redirect,
+      external: "https://doc.transport.data.gouv.fr/le-point-d-acces-national/generalites/budget"
+    )
 
     # old static pages that have been moved to blog.transport
     get("/blog/2019_04_26_interview_my_bus", Redirect,
