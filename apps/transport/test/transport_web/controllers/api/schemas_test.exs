@@ -1,5 +1,5 @@
 defmodule TransportWeb.API.SchemasTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   test "make sure we get a warning because this helps keeping specs in sync with API output" do
     api_spec = TransportWeb.API.Spec.spec()
@@ -10,7 +10,7 @@ defmodule TransportWeb.API.SchemasTest do
     |> Enum.reject(fn {name, _schema} -> name == "GeometryBase" end)
     |> Enum.each(fn {name, schema} ->
       assert schema.additionalProperties == false,
-             "\"#{name}\" OpenAPI spec declaration lacks additionalProperties: false"
+             ~s("#{name}" OpenAPI spec declaration lacks additionalProperties: false")
     end)
   end
 end

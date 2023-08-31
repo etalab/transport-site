@@ -472,7 +472,7 @@ defmodule TransportWeb.API.Schemas do
         },
         id: %Schema{
           type: :integer,
-          description: "transport.data.gouv.fr specific id"
+          description: "transport.data.gouv.fr's ID"
         },
         format: %Schema{
           type: :string,
@@ -564,7 +564,7 @@ defmodule TransportWeb.API.Schemas do
         %Schema{
           type: :string,
           description: """
-          some community resources have been generated from another dataset (like the generated NeTEx / GeoJson).
+          Some community resources have been generated from another dataset (like the generated NeTEx / GeoJSON).
           Those resources have a `original_resource_url` equals to the original resource's `original_url`
           """
         }
