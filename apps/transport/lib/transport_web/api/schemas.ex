@@ -472,7 +472,7 @@ defmodule TransportWeb.API.Schemas do
         },
         id: %Schema{
           type: :integer,
-          description: "transport.data.gouv.fr specific id"
+          description: "transport.data.gouv.fr's ID"
         },
         format: %Schema{
           type: :string,
