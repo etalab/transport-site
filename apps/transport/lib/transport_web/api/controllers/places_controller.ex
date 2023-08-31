@@ -79,7 +79,7 @@ defmodule TransportWeb.API.PlacesController do
     %Operation{
       tags: ["datasets"],
       summary: "Autocomplete search for datasets",
-      description: "Given a search input, return potentially corresponding results with the associated url",
+      description: "Given a search input, return potentially corresponding results with the associated search URL",
       operationId: "API.DatasetController.datasets_autocomplete",
       parameters: [Operation.parameter(:q, :query, :string, "query")],
       responses: %{
