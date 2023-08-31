@@ -82,7 +82,9 @@
               ) %>
             <% end %>
             <%= if not is_nil(start_date) and is_nil(end_date) do %>
-              <%= dgettext("page-dataset-details", "From %{start}", start: format_datetime_to_paris(start_date, @locale)) %>
+              <%= dgettext("page-dataset-details", "From %{start}",
+                start: format_datetime_to_paris(start_date, @locale)
+              ) %>
             <% end %>
             <%= if is_nil(start_date) and not is_nil(end_date) do %>
               <%= dgettext("page-dataset-details", "Until %{end}", end: format_datetime_to_paris(end_date, @locale)) %>

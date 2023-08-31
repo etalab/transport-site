@@ -63,14 +63,14 @@ defmodule Transport.Mixfile do
       {:phoenix, "~> 1.6.2"},
       {:phoenix_html, "~> 3.1"},
       {:phoenix_markdown, "~> 1.0"},
-      {:phoenix_live_view, "~> 0.18.0"},
+      {:phoenix_live_view, "~> 0.19.0"},
       {:html_sanitize_ex, "~> 1.4"},
       {:floki, ">= 0.0.0", only: :test},
       {:plug_cowboy, "~> 2.3"},
       {:recon, "~> 2.4"},
       {:quantum, "~> 3.4"},
       {:timex, "~> 3.7"},
-      {:sentry, "~> 8.0"},
+      {:sentry, "~> 8.1"},
       {:scrivener, "~> 2.5"},
       {:scrivener_html, git: "https://github.com/mgwidmann/scrivener_html.git", ref: "9224d1"},
       {:scrivener_list, "~>2.0"},
@@ -108,7 +108,7 @@ defmodule Transport.Mixfile do
       {:etag_plug, "~> 1.0"},
       {:oban, "~> 2.13"},
       {:unzip, "~> 0.8"},
-      {:protobuf, "~> 0.11.0"},
+      {:protobuf, "~> 0.11"},
       {:nimble_csv, "~> 1.2.0"},
       {:kino, "~> 0.6", only: :dev},
       # db
@@ -119,10 +119,10 @@ defmodule Transport.Mixfile do
       {:ecto_interval, "~> 0.2.5"},
       {:scrivener_ecto, "~> 2.7.0"},
       {:typed_ecto_schema, ">= 0.1.1"},
-      {:ymlr, "~> 3.0"},
+      {:ymlr, "~> 4.0"},
       {:ex_machina, "~> 2.4", only: :test},
       {:cloak_ecto, "~> 1.2.0"},
-      {:phoenix_live_dashboard, "~> 0.7"},
+      {:phoenix_live_dashboard, "~> 0.8"},
       {:ecto_psql_extras, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
       {:telemetry_metrics, "~> 0.4"},
@@ -130,7 +130,8 @@ defmodule Transport.Mixfile do
       {:ex_phone_number, "~> 0.3"},
       {:appsignal, "~> 2.0"},
       {:appsignal_phoenix, "~> 2.0"},
-      {:vega_lite, "~> 0.1.7"}
+      {:vega_lite, "~> 0.1.7"},
+      {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
     ]
   end
 end

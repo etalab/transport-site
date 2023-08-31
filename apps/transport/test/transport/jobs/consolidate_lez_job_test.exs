@@ -40,7 +40,11 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
       insert(:resource, dataset: dataset, url: "https://example.com/voies.geojson", schema_name: "etalab/schema-zfe")
 
     _zfe_pan =
-      insert(:resource, dataset: pan_dataset, url: "https://example.com/aires.geojson", schema_name: "etalab/schema-zfe")
+      insert(:resource,
+        dataset: pan_dataset,
+        url: "https://example.com/aires.geojson",
+        schema_name: "etalab/schema-zfe"
+      )
 
     assert [zfe_aire.id, zfe_voies.id] == ConsolidateLEZsJob.relevant_resources() |> Enum.map(& &1.id)
   end

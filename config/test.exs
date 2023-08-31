@@ -67,7 +67,7 @@ config :datagouvfr,
 config :logger, level: :debug
 
 # ... but show only warnings and up on the console
-config :logger, :console, level: :warn
+config :logger, :console, level: :warning
 
 # Configure data.gouv.fr authentication
 config :oauth2, Authentication,

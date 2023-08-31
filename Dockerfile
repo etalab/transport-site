@@ -1,4 +1,4 @@
-FROM ghcr.io/etalab/transport-ops:elixir-1.14.5-erlang-24.3.4.13-ubuntu-focal-20230126-transport-tools-1.0.7
+FROM ghcr.io/etalab/transport-ops:elixir-1.15.5-erlang-24.3.4.13-ubuntu-focal-20230126-transport-tools-1.0.7
 
 RUN mkdir phoenixapp
 WORKDIR /phoenixapp
