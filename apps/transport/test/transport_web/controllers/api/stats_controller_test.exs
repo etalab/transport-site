@@ -111,8 +111,7 @@ defmodule TransportWeb.API.StatsControllerTest do
     # the aom status is outdated
     assert %{"features" => [%{"properties" => %{"quality" => %{"expired_from" => %{"status" => "outdated"}}}}]} = res
 
-    api_spec = TransportWeb.API.Spec.spec()
-    assert_schema(res, "FeatureCollection", api_spec)
+    assert_schema(res, "FeatureCollection", TransportWeb.API.Spec.spec())
   end
 
   describe("aom quality features") do
