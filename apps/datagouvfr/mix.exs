@@ -41,11 +41,11 @@ defmodule Datagouvfr.MixProject do
       {:httpoison, ">= 0.0.0"},
       {:plug, ">= 0.0.0"},
       {:shared, in_umbrella: true},
-      # Using master until https://github.com/CargoSense/vex/issues/68 is fixed
-      {:vex, github: "CargoSense/vex", ref: "328a39f7"},
+      {:vex, "~> 0.9"},
       {:exvcr, "~> 0.13", only: :test},
       {:mox, "~> 1.0.0", only: :test},
-      {:sentry, "~> 8.0"}
+      {:sentry, "~> 8.1"},
+      {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
     ]
   end
 end

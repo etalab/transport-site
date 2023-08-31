@@ -4,7 +4,7 @@ defmodule Transport.Validators.EXJSONSchemaTest do
   import Mox
   alias Transport.Validators.EXJSONSchema
 
-  @validator_version_regex ~r/^0\.\d\.\d$/
+  @validator_version_regex ~r/^0\.\d+\.\d$/
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
