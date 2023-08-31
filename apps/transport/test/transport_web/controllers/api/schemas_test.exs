@@ -10,7 +10,7 @@ defmodule TransportWeb.API.SchemasTest do
     |> Enum.reject(fn {name, _schema} -> name == "GeometryBase" end)
     |> Enum.each(fn {name, schema} ->
       assert schema.additionalProperties == false,
-             "\"#{name}\" OpenAPI spec declaration lacks additionalProperties: false"
+             ~s("#{name}" OpenAPI spec declaration lacks additionalProperties: false")
     end)
   end
 end
