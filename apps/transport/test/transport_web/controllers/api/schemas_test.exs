@@ -1,5 +1,5 @@
 defmodule TransportWeb.API.SchemasTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   test "make sure we get a warning because this helps keeping specs in sync with API output" do
     api_spec = TransportWeb.API.Spec.spec()
