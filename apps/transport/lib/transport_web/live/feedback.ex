@@ -9,8 +9,8 @@ defmodule TransportWeb.Live.Feedback do
     ~H"""
     <div class="container">
       <h2>Laissez-nous votre avis</h2>
-      <%= form_for @socket, contact_path(@socket, :send_feedback), fn f -> %>
-        <!-- form action="#" method="post" name="form" target="_blank" novalidate="" class="no-margin" -->
+      <%#= form_for @socket, contact_path(@socket, :send_feedback), fn f -> %>
+        <form action="/send_feedback" method="post" name="form" target="_blank" novalidate="" class="no-margin">
         <div class="form__group feedback-selector">
           <fieldset>
             <legend class="required">Qu’avez vous pensé de cette page ?</legend>
@@ -35,9 +35,11 @@ defmodule TransportWeb.Live.Feedback do
             <input id="feedback-email" name="feedback-email" required="" type="email" />
           </div>
 
-          <button class="button" type="submit" name="subscribe" id="submit">Envoyer l’avis</button>
+          <button class="button" type="submit" name="send-feedback-email" id="submit">Envoyer l’avis</button>
         </div>
-      <% end %>
+      </form>
+
+      <%# end %>
 
       <script>
         document.querySelectorAll(".feedback-selector label").forEach(
