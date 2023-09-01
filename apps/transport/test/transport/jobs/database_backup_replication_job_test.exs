@@ -15,13 +15,13 @@ defmodule Transport.Test.Transport.Jobs.DatabaseBackupReplicationJobTest do
   end
 
   test "check_dump_not_too_large!" do
-    assert DatabaseBackupReplicationJob.max_size_threshold() == DatabaseBackupReplicationJob.gigabytes(1)
+    assert DatabaseBackupReplicationJob.max_size_threshold() == DatabaseBackupReplicationJob.gigabytes(10)
     DatabaseBackupReplicationJob.check_dump_not_too_large!(%{size: "1"})
 
-    oversize = DatabaseBackupReplicationJob.gigabytes(5)
+    oversize = DatabaseBackupReplicationJob.gigabytes(11)
     assert oversize > DatabaseBackupReplicationJob.max_size_threshold()
 
-    assert_raise RuntimeError, ~r'^Latest database dump is larger than 1 gigabytes', fn ->
+    assert_raise RuntimeError, ~r'^Latest database dump is larger than 10 gigabytes', fn ->
       DatabaseBackupReplicationJob.check_dump_not_too_large!(%{size: oversize |> round() |> to_string()})
     end
   end
