@@ -83,7 +83,7 @@ defmodule Transport.Jobs.DatabaseBackupReplicationJob do
     {size, ""} = Integer.parse(size_str)
 
     if size > max_size_threshold() do
-      raise "Latest database dump is larger than 1 gigabytes #{inspect(dump)}"
+      raise "Latest database dump is larger than 10 gigabytes #{inspect(dump)}"
     end
 
     dump
@@ -99,7 +99,7 @@ defmodule Transport.Jobs.DatabaseBackupReplicationJob do
     dump
   end
 
-  def max_size_threshold, do: gigabytes(1)
+  def max_size_threshold, do: gigabytes(10)
   def recent_enough_threshold, do: hours_in_seconds(12)
 
   defp upload_filename(%{key: key}) do
