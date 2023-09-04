@@ -91,8 +91,10 @@ defmodule TransportWeb.DiscussionsLive do
   def discussion_should_be_closed?(%{"discussion" => comment_list}) do
     latest_comment_datetime =
       comment_list
-      |> Enum.map(&DateTime.from_iso8601(&1["posted_on"]))
-      |> Enum.map(&elem(&1, 1))
+      |> Enum.map(fn comment ->
+        { :ok, comment_datetime, 0} = DateTime.from_iso8601(comment["posted_on"])
+        comment_datetime
+      end)
       |> Enum.max(DateTime)
 
     two_months_ago = DateTime.utc_now() |> Timex.shift(months: -2)
