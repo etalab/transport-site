@@ -26,5 +26,6 @@ defmodule Transport.EmailSender.Dummy do
 
   def send_mail(_from_name, from_email, to_email, _reply_to, subject, _text_body, _html_body) do
     Logger.info("Would send email: from #{from_email} to #{to_email}, subject '#{subject}'")
+    {:ok, "dummy email sent"}
   end
 end
