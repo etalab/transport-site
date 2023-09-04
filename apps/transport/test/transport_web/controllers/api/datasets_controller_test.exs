@@ -4,6 +4,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
   alias TransportWeb.API.Router.Helpers
   import DB.Factory
   import Mox
+  import OpenApiSpex.TestAssertions
 
   setup :verify_on_exit!
 
@@ -12,15 +13,19 @@ defmodule TransportWeb.API.DatasetControllerTest do
     conn = conn |> get(path)
 
     [etag] = conn |> get_resp_header("etag")
-    json_response(conn, 200)
+    json = json_response(conn, 200)
     assert etag
     assert conn |> get_resp_header("cache-control") == ["max-age=60, public, must-revalidate"]
 
     # Passing the previous `ETag` value in a new HTTP request returns a 304
     conn |> recycle() |> put_req_header("if-none-match", etag) |> get(path) |> response(304)
+
+    api_spec = TransportWeb.API.Spec.spec()
+    assert_schema(json, "DatasetsResponse", api_spec)
   end
 
-  test "GET /api/datasets *with* history, multi_validation and resource_metadata", %{conn: conn} do
+  test "GET /api/datasets then /api/datasets/:id *with* history, multi_validation and resource_metadata",
+       %{conn: conn} do
     dataset =
       insert(:dataset,
         custom_title: "title",
@@ -161,7 +166,9 @@ defmodule TransportWeb.API.DatasetControllerTest do
         |> DateTime.to_iso8601()
     }
 
-    assert [dataset_res] == conn |> get(path) |> json_response(200)
+    assert json = conn |> get(path) |> json_response(200)
+    assert [dataset_res] == json
+    assert_schema(json, "DatasetsResponse", TransportWeb.API.Spec.spec())
 
     # check the result is in line with a query on this dataset
     # only difference: individual dataset adds information about history and conversions
@@ -176,7 +183,9 @@ defmodule TransportWeb.API.DatasetControllerTest do
       |> Map.merge(%{"history" => []})
       |> Map.put("resources", Enum.map(dataset_res["resources"], &Map.put(&1, "conversions", %{})))
 
-    assert dataset_res == conn |> get(Helpers.dataset_path(conn, :by_id, datagouv_id)) |> json_response(200)
+    json = conn |> get(Helpers.dataset_path(conn, :by_id, datagouv_id)) |> json_response(200)
+    assert dataset_res == json
+    assert_schema(json, "DatasetDetails", TransportWeb.API.Spec.spec())
   end
 
   test "GET /api/datasets *without* history, multi_validation and resource_metadata", %{conn: conn} do
@@ -200,6 +209,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
       )
 
     path = Helpers.dataset_path(conn, :datasets)
+
+    json = conn |> get(path) |> json_response(200)
 
     assert [
              %{
@@ -235,7 +246,9 @@ defmodule TransportWeb.API.DatasetControllerTest do
                "type" => "public-transit",
                "updated" => resource.last_update |> DateTime.to_iso8601()
              }
-           ] == conn |> get(path) |> json_response(200)
+           ] == json
+
+    assert_schema(json, "DatasetsResponse", TransportWeb.API.Spec.spec())
   end
 
   test "GET /api/datasets/:id *without* history, multi_validation and resource_metadata", %{conn: conn} do
@@ -256,16 +269,19 @@ defmodule TransportWeb.API.DatasetControllerTest do
             datagouv_id: "1",
             type: "main",
             format: "GTFS",
-            filesize: 42
+            filesize: 42,
+            title: "The title"
           },
           %DB.Resource{
             last_import: DateTime.utc_now(),
             last_update: last_update_geojson = DateTime.utc_now() |> DateTime.add(-1, :hour),
             url: "http://link.to/file.zip?foo=bar",
+            latest_url: "http://static.data.gouv.fr/?foo=bar",
             datagouv_id: "2",
             type: "main",
             format: "geojson",
-            schema_name: "etalab/schema-zfe"
+            schema_name: "etalab/schema-zfe",
+            title: "The other title"
           }
         ],
         created_at: ~U[2021-12-23 13:30:40.000000Z],
@@ -282,6 +298,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
     end)
 
     path = Helpers.dataset_path(conn, :by_id, dataset.datagouv_id)
+
+    json = conn |> get(path) |> json_response(200)
 
     assert %{
              "aom" => %{"name" => "Angers Métropole", "siren" => "siren"},
@@ -309,7 +327,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
                  "original_url" => "https://link.to/file.zip",
                  "updated" => last_update_gtfs |> DateTime.to_iso8601(),
                  "url" => "https://static.data.gouv.fr/foo",
-                 "conversions" => %{}
+                 "conversions" => %{},
+                 "title" => "The title"
                },
                %{
                  "is_available" => true,
@@ -321,7 +340,9 @@ defmodule TransportWeb.API.DatasetControllerTest do
                  "original_url" => "http://link.to/file.zip?foo=bar",
                  "schema_name" => "etalab/schema-zfe",
                  "updated" => last_update_geojson |> DateTime.to_iso8601(),
-                 "conversions" => %{}
+                 "url" => "http://static.data.gouv.fr/?foo=bar",
+                 "conversions" => %{},
+                 "title" => "The other title"
                }
              ],
              "slug" => "slug-1",
@@ -329,7 +350,9 @@ defmodule TransportWeb.API.DatasetControllerTest do
              "type" => "public-transit",
              "licence" => "lov2",
              "updated" => [last_update_gtfs, last_update_geojson] |> Enum.max(DateTime) |> DateTime.to_iso8601()
-           } == conn |> get(path) |> json_response(200)
+           } == json
+
+    assert_schema(json, "DatasetDetails", TransportWeb.API.Spec.spec())
   end
 
   test "GET /api/datasets/:id *with* history, conversions, multi_validation and resource_metadata", %{conn: conn} do
@@ -398,6 +421,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
 
     path = Helpers.dataset_path(conn, :by_id, dataset.datagouv_id)
 
+    json = conn |> get(path) |> json_response(200)
+
     assert %{
              "aom" => %{"name" => "Angers Métropole", "siren" => "siren"},
              "community_resources" => [],
@@ -456,7 +481,9 @@ defmodule TransportWeb.API.DatasetControllerTest do
              "type" => "public-transit",
              "updated" =>
                [resource, gbfs_resource] |> Enum.map(& &1.last_update) |> Enum.max(DateTime) |> DateTime.to_iso8601()
-           } == conn |> get(path) |> json_response(200)
+           } == json
+
+    assert_schema(json, "DatasetDetails", TransportWeb.API.Spec.spec())
   end
 
   test "gtfs-rt features are filled", %{conn: conn} do
@@ -474,7 +501,11 @@ defmodule TransportWeb.API.DatasetControllerTest do
 
     # call to specific dataset
     path = Helpers.dataset_path(conn, :by_id, datagouv_id_1)
-    %{"resources" => [%{"features" => features}]} = conn |> get(path) |> json_response(200)
+    dataset_response = conn |> get(path) |> json_response(200)
+    %{"resources" => [%{"features" => features}]} = dataset_response
+
+    assert_schema(dataset_response, "DatasetDetails", TransportWeb.API.Spec.spec())
+
     assert features |> Enum.sort() == ["a", "b", "c"]
 
     # add another dataset
@@ -485,6 +516,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
     # call for all datasets
     path = Helpers.dataset_path(conn, :datasets)
     datasets = conn |> get(path) |> json_response(200)
+    assert_schema(datasets, "DatasetsResponse", TransportWeb.API.Spec.spec())
 
     assert ["a", "b", "c"] ==
              datasets

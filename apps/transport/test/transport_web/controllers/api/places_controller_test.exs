@@ -3,6 +3,7 @@ defmodule TransportWeb.API.PlacesControllerTest do
   use TransportWeb.ConnCase, async: false
   alias TransportWeb.API.Router.Helpers
   alias DB.{AOM, Commune, Dataset, Region, Repo}
+  import OpenApiSpex.TestAssertions
 
   defp cleanup(value) do
     # we cannot compare the urls as they can contain internal unstable db id
@@ -37,21 +38,23 @@ defmodule TransportWeb.API.PlacesControllerTest do
              ])
 
     [etag] = conn |> get_resp_header("etag")
-    json_response(conn, 200)
+    json = json_response(conn, 200)
     assert etag
     assert conn |> get_resp_header("cache-control") == ["max-age=60, public, must-revalidate"]
 
     # Passing the previous `ETag` value in a new HTTP request returns a 304
     conn |> recycle() |> put_req_header("if-none-match", etag) |> get(path) |> response(304)
+
+    assert_response_schema(json, "AutocompleteResponse", TransportWeb.API.Spec.spec())
   end
 
   test "Search a place with accent", %{conn: conn} do
-    r =
+    json =
       conn
       |> get(Helpers.places_path(conn, :autocomplete, q: "cha"))
       |> json_response(200)
 
-    assert sort_and_clean(r) ==
+    assert sort_and_clean(json) ==
              Enum.sort([
                %{
                  "name" => "Châteauroux (36044)",
@@ -69,15 +72,17 @@ defmodule TransportWeb.API.PlacesControllerTest do
                  "url" => "/datasets/commune/:id"
                }
              ])
+
+    assert_response_schema(json, "AutocompleteResponse", TransportWeb.API.Spec.spec())
   end
 
   test "Search a place with multiple word", %{conn: conn} do
-    r =
+    json =
       conn
       |> get(Helpers.places_path(conn, :autocomplete, q: "ile de fr"))
       |> json_response(200)
 
-    assert sort_and_clean(r) ==
+    assert sort_and_clean(json) ==
              Enum.sort([
                %{
                  "name" => "Île-de-France Mobilités",
@@ -90,14 +95,18 @@ defmodule TransportWeb.API.PlacesControllerTest do
                  "url" => "/datasets/region/:id"
                }
              ])
+
+    assert_response_schema(json, "AutocompleteResponse", TransportWeb.API.Spec.spec())
   end
 
   test "Search a unknown place", %{conn: conn} do
-    r =
+    json =
       conn
       |> get(Helpers.places_path(conn, :autocomplete, q: "pouet"))
       |> json_response(200)
 
-    assert sort_and_clean(r) == []
+    assert sort_and_clean(json) == []
+
+    assert_response_schema(json, "AutocompleteResponse", TransportWeb.API.Spec.spec())
   end
 end

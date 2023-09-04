@@ -473,8 +473,8 @@ defmodule DB.DatasetDBTest do
     insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate())
 
     # we test a random change to check if the changeset is valid without an organization type specified
-    assert {:ok, %Ecto.Changeset{changes: %{licence: "lov2"}}} =
-             Dataset.changeset(%{"datagouv_id" => datagouv_id, "licence" => "lov2"})
+    assert {:ok, %Ecto.Changeset{changes: %{licence: "fr-lo"}}} =
+             Dataset.changeset(%{"datagouv_id" => datagouv_id, "licence" => "fr-lo"})
   end
 
   test "incorrect organization type" do

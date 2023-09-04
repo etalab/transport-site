@@ -4,7 +4,7 @@ defmodule TransportWeb.API.DatasetController do
   alias Helpers
   alias OpenApiSpex.Operation
   alias DB.{AOM, Dataset, Repo, Resource}
-  alias TransportWeb.API.Schemas.{DatasetsResponse, GeoJSONResponse}
+  alias TransportWeb.API.Schemas.{DatasetDetails, DatasetsResponse, GeoJSONResponse}
   alias Geo.{JSON, MultiPolygon}
 
   # The default (one minute) felt a bit too high for someone doing scripted operations
@@ -19,12 +19,15 @@ defmodule TransportWeb.API.DatasetController do
   def datasets_operation,
     do: %Operation{
       tags: ["datasets"],
-      summary: "Show datasets and its resources",
-      description: "For every dataset, show its associated resources, url and validity date",
+      summary: "List all datasets (with their resources)",
+      description: ~s"This call returns (in a single, non-paginated response) the list of all the
+                      datasets referenced on the site, along with their associated resources. The datasets
+                      and resources are here provided in summarized form (without history & conversions).
+                      You can call `/api/datasets/:id` for each dataset to get extra data (history & conversions)",
       operationId: "API.DatasetController.datasets",
       parameters: [],
       responses: %{
-        200 => Operation.response("Dataset", "application/json", DatasetsResponse)
+        200 => Operation.response("DatasetsResponse", "application/json", DatasetsResponse)
       }
     }
 
@@ -50,12 +53,13 @@ defmodule TransportWeb.API.DatasetController do
   def by_id_operation,
     do: %Operation{
       tags: ["datasets"],
-      summary: "Show given dataset and its resources",
-      description: "For one dataset, show its associated resources, url and validity date",
+      summary: "Return the details of a given dataset and its resources",
+      description:
+        ~s"Returns the detailed version of a dataset, showing its resources, the resources history & conversions.",
       operationId: "API.DatasetController.datasets_by_id",
-      parameters: [Operation.parameter(:id, :path, :string, "id")],
+      parameters: [Operation.parameter(:id, :path, :string, "datagouv id of the dataset you want to retrieve")],
       responses: %{
-        200 => Operation.response("Dataset", "application/json", DatasetsResponse)
+        200 => Operation.response("DatasetDetails", "application/json", DatasetDetails)
       }
     }
 
@@ -63,8 +67,8 @@ defmodule TransportWeb.API.DatasetController do
   def geojson_by_id_operation,
     do: %Operation{
       tags: ["datasets"],
-      summary: "Show given dataset geojson",
-      description: "For one dataset, show its associated geojson",
+      summary: "Show given dataset GeoJSON",
+      description: "For one dataset, show its associated GeoJSON.",
       operationId: "API.DatasetController.datasets_geojson_by_id",
       parameters: [Operation.parameter(:id, :path, :string, "id")],
       responses: %{
@@ -195,6 +199,7 @@ defmodule TransportWeb.API.DatasetController do
     )
   end
 
+  # NOTE: only added in detailed dataset view
   defp add_conversions(%{"resources" => resources} = data, %Dataset{} = dataset) do
     conversions =
       dataset

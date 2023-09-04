@@ -18,6 +18,7 @@ defmodule DB.Factory do
     %DB.AOM{
       insee_commune_principale: "38185",
       nom: "Grenoble",
+      siren: "253800825",
       region: build(:region),
       # The value must be unique, ExFactory helps us with a named sequence
       composition_res_id: 1000 + sequence("composition_res_id", & &1)
@@ -29,12 +30,15 @@ defmodule DB.Factory do
       created_at: DateTime.utc_now(),
       last_update: DateTime.utc_now(),
       datagouv_title: "Hello",
+      custom_title: "Hello",
       slug: sequence(:slug, fn i -> "dataset_slug_#{i}" end),
       datagouv_id: sequence(:datagouv_id, fn i -> "dataset_datagouv_id_#{i}" end),
       organization_id: sequence(:organization_id, fn i -> "dataset_organization_id_#{i}" end),
+      licence: "lov2",
       # NOTE: need to figure out how to pass aom/region together with changeset checks here
       aom: build(:aom),
-      tags: []
+      tags: [],
+      type: "public-transit"
     }
   end
 
@@ -43,7 +47,11 @@ defmodule DB.Factory do
       last_import: DateTime.utc_now(),
       last_update: DateTime.utc_now(),
       title: "GTFS.zip",
-      latest_url: "url"
+      # NOTE: we should use real urls here (but something safe on localhost?)
+      latest_url: "url",
+      url: "url",
+      type: "main",
+      datagouv_id: Ecto.UUID.generate()
     }
   end
 
