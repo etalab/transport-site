@@ -1,3 +1,4 @@
+
 .feedback-selector {  
     input{
         display: none;
@@ -24,6 +25,9 @@
     }
 }
 
+.feedback-form {
+
+
 #full-feedback-form.hidden {
     display: none;
 }
@@ -32,6 +36,8 @@
     margin-top: 2em;
     margin-top: var(--space-l);
 }
+
+
 
 legend.required::before {
     content: '✱';
@@ -46,4 +52,10 @@ legend.required::before {
     transform: translateX(-100%);
 }
 
+.form-special-field {
+    // hide field used as honey-pot
+    display: none;
+  }
 
+
+}

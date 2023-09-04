@@ -45,5 +45,6 @@ defmodule TransportWeb.ContactController do
 
   def send_feedback(conn, params) do
     IO.inspect(params)
+    send_resp(conn, 201, "good")
   end
 end

@@ -1,7 +1,7 @@
 <div class="container dataset-page-top">
-<section class="section section-white">
-  <%= live_render(@conn, TransportWeb.Live.Feedback) %>
-</section>
+  <section class="section section-white">
+    <%= render(TransportWeb.FeedbackView, "feedback.html") %>
+  </section>
 
   <h2><%= @page_title %></h2>
   <p>

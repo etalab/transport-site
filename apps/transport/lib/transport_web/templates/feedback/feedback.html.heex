@@ -1,0 +1,49 @@
+<div class="container">
+  <%= form_for :contact, contact_path(TransportWeb.Endpoint, :send_feedback), [class: "feedback-form"], fn f -> %>
+    <div class="form__group feedback-selector">
+      <fieldset>
+        <legend class="required">Qu’avez vous pensé de cette page ?</legend>
+
+        <%= radio_button(f, :rating, "like") %>
+        <%= label :contact_rating, "like" do %>
+          <i class="fa-regular fa-face-smile feedback-emojis"></i>
+        <% end %>
+        <input type="radio" id="neutral" name="feedback-rating" value="neutral" />
+        <label class="label-inline" for="neutral"><i class="fa-regular fa-face-meh feedback-emojis"></i></label>
+        <input type="radio" id="dislike" name="feedback-rating" value="dislike" />
+        <label class="label-inline" for="dislike"><i class="fa-regular fa-face-frown feedback-emojis"></i></label>
+      </fieldset>
+    </div>
+
+    <div id="full-feedback-form" class="hidden">
+      <div class="form__group">
+        <label for="feedback-text" class="required">Pourquoi ?</label>
+        <textarea name="feedback-text"></textarea>
+      </div>
+
+      <div class="form__group">
+        <label for="feedback-email">Votre email (facultatif)</label>
+        <input id="feedback-email" name="feedback-email" required="" type="email" />
+      </div>
+
+      <%= text_input(f, :name,
+        placeholder: "your name",
+        class: "form-special-field",
+        tabindex: "-1",
+        autocomplete: "off"
+      ) %>
+
+      <button class="button" type="submit" name="send-feedback-email" id="submit">Envoyer l’avis</button>
+    </div>
+  <% end %>
+
+  <script>
+    document.querySelectorAll(".feedback-selector label").forEach(
+      function(el) {
+      el.addEventListener('click', function() {
+        document.getElementById("full-feedback-form").classList.remove("hidden");
+      });
+     }
+    );
+  </script>
+</div>
