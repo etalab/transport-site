@@ -3,32 +3,32 @@
   <%= form_for :feedback, contact_path(TransportWeb.Endpoint, :send_feedback), [class: "feedback-form no-margin"], fn f -> %>
     <div class="form__group feedback-selector">
       <fieldset>
-        <legend><%= dgettext("feedback", "what’s your feedback on this page?")%></legend>
+        <legend><%= dgettext("feedback", "what’s your feedback on this page?") %></legend>
 
         <%= radio_button(f, :rating, "like", id: "like") %>
         <%= label f, "like", class: "label-inline", for: "like" do %>
-            <i class="fa-regular fa-face-smile feedback-emojis"></i>
+          <i class="fa-regular fa-face-smile feedback-emojis"></i>
         <% end %>
         <%= radio_button(f, :rating, "neutral", id: "neutral") %>
         <%= label f, "neutral", class: "label-inline", for: "neutral" do %>
-            <i class="fa-regular fa-face-meh feedback-emojis"></i>
+          <i class="fa-regular fa-face-meh feedback-emojis"></i>
         <% end %>
         <%= radio_button(f, :rating, "dislike", id: "dislike") %>
         <%= label f, "like", class: "label-inline", for: "dislike" do %>
-            <i class="fa-regular fa-face-frown feedback-emojis"></i>
+          <i class="fa-regular fa-face-frown feedback-emojis"></i>
         <% end %>
       </fieldset>
     </div>
 
     <div id="full-feedback-form" class="hidden">
       <div class="form__group">
-        <%= label f, :explanation, dgettext("feedback", "Why?"), class: "required" %>
-        <%= textarea f, :explanation, required: true %>
+        <%= label(f, :explanation, dgettext("feedback", "Why?"), class: "required") %>
+        <%= textarea(f, :explanation, required: true) %>
       </div>
 
       <div class="form__group">
-        <%= label f, :email, dgettext("feedback", "Your email (optional)") %>
-        <%= text_input f, :email, type: "email" %>
+        <%= label(f, :email, dgettext("feedback", "Your email (optional)")) %>
+        <%= text_input(f, :email, type: "email") %>
       </div>
 
       <%= text_input(f, :name,
@@ -45,10 +45,9 @@
         autocomplete: "off"
       ) %>
 
-      <%= hidden_input f, :feature, value: @feature %>
+      <%= hidden_input(f, :feature, value: @feature) %>
 
-      <%= submit( dgettext("feedback", "Send the feedback"), class: "button") %>
-
+      <%= submit(dgettext("feedback", "Send the feedback"), class: "button") %>
     </div>
   <% end %>
 

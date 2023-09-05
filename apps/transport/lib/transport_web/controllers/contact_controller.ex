@@ -36,7 +36,7 @@ defmodule TransportWeb.ContactController do
   end
 
   def send_mail(conn, params) do
-    Logger.error("Bad parameters for sending email #{inspect params}")
+    Logger.error("Bad parameters for sending email #{inspect(params)}")
 
     conn
     |> put_flash(:error, gettext("There has been an error, try again later"))
@@ -53,12 +53,16 @@ defmodule TransportWeb.ContactController do
     |> redirect(to: params["redirect_path"] || page_path(conn, :index))
   end
 
-
-  def send_feedback(conn, %{"feedback" => %{"rating" => rating, "explanation" => explanation, "email" => email, "feature" => feature}} = params) do
+  def send_feedback(
+        conn,
+        %{"feedback" => %{"rating" => rating, "explanation" => explanation, "email" => email, "feature" => feature}} =
+          params
+      ) do
     # IO.inspect(params)
-    # send_resp(conn, 201, "good")
+    #  send_resp(conn, 201, "good")
 
-    feedback_content = "Vous avez un nouvel avis sur le PAN!\nFonctionnalité: #{feature}\nNotation: #{rating}\n#{explanation}"
+    feedback_content =
+      "Vous avez un nouvel avis sur le PAN!\nFonctionnalité: #{feature}\nNotation: #{rating}\n#{explanation}"
 
     case Transport.EmailSender.impl().send_mail(
            "PAN, Formulaire Feedback",
@@ -82,10 +86,10 @@ defmodule TransportWeb.ContactController do
   end
 
   def send_feedback(conn, params) do
-    Logger.error("Bad parameters for feedback #{inspect params}")
+    Logger.error("Bad parameters for feedback #{inspect(params)}")
+
     conn
     |> put_flash(:error, gettext("There has been an error, try again later"))
     |> redirect(to: params["redirect_path"] || page_path(conn, :index))
   end
-
 end

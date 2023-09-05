@@ -79,7 +79,8 @@ defmodule TransportWeb.ContactControllerTest do
                from_email: "contact@transport.beta.gouv.fr",
                to_email: "contact@transport.beta.gouv.fr",
                subject: "Nouveau feedback pour validator: like",
-               text_body: "Vous avez un nouvel avis sur le PAN!\nFonctionnalité: validator\nNotation: like\nso useful for my GTFS files",
+               text_body:
+                 "Vous avez un nouvel avis sur le PAN!\nFonctionnalité: validator\nNotation: like\nso useful for my GTFS files",
                html_body: "",
                reply_to: ""
              }
@@ -89,7 +90,9 @@ defmodule TransportWeb.ContactControllerTest do
 
     conn
     |> post(
-      contact_path(conn, :send_feedback, %{feedback: %{email: "", feature: "validator", rating: "like", explanation: "so useful for my GTFS files"}})
+      contact_path(conn, :send_feedback, %{
+        feedback: %{email: "", feature: "validator", rating: "like", explanation: "so useful for my GTFS files"}
+      })
     )
     |> get_flash(:info)
     |> case do
@@ -99,15 +102,14 @@ defmodule TransportWeb.ContactControllerTest do
   end
 
   test "Post invalid parameters to feedback endpoint and check it doesn’t crash", %{conn: conn} do
-    {conn, logs} = with_log(fn ->
-      conn
-      |> post(
-        contact_path(conn, :send_feedback, %{topic: "question", demande: "where is my dataset?"}))
-
+    {conn, logs} =
+      with_log(fn ->
+        conn
+        |> post(contact_path(conn, :send_feedback, %{topic: "question", demande: "where is my dataset?"}))
       end)
-      assert redirected_to(conn, 302) == "/"
+
+    assert redirected_to(conn, 302) == "/"
 
     assert logs =~ "Bad parameters for feedback"
-
   end
 end
