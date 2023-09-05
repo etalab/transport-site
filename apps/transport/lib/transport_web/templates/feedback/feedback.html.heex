@@ -1,29 +1,33 @@
 <div class="container">
-  <%= form_for :contact, contact_path(TransportWeb.Endpoint, :send_feedback), [class: "feedback-form"], fn f -> %>
+  <%= form_for :feedback, contact_path(TransportWeb.Endpoint, :send_feedback), [class: "feedback-form"], fn f -> %>
     <div class="form__group feedback-selector">
       <fieldset>
-        <legend class="required">Qu’avez vous pensé de cette page ?</legend>
+        <legend>Qu’avez vous pensé de cette page ?</legend>
 
-        <%= radio_button(f, :rating, "like") %>
-        <%= label :contact_rating, "like" do %>
+        <%= radio_button(f, :rating, "like", id: "like") %>
+        <%= label f, "like", class: "label-inline", for: "like" do %>
           <i class="fa-regular fa-face-smile feedback-emojis"></i>
         <% end %>
-        <input type="radio" id="neutral" name="feedback-rating" value="neutral" />
-        <label class="label-inline" for="neutral"><i class="fa-regular fa-face-meh feedback-emojis"></i></label>
-        <input type="radio" id="dislike" name="feedback-rating" value="dislike" />
-        <label class="label-inline" for="dislike"><i class="fa-regular fa-face-frown feedback-emojis"></i></label>
+        <%= radio_button(f, :rating, "neutral", id: "neutral") %>
+        <%= label f, "neutral", class: "label-inline", for: "neutral" do %>
+          <i class="fa-regular fa-face-meh feedback-emojis"></i>
+        <% end %>
+        <%= radio_button(f, :rating, "dislike", id: "dislike") %>
+        <%= label f, "like", class: "label-inline", for: "dislike" do %>
+          <i class="fa-regular fa-face-frown feedback-emojis"></i>
+        <% end %>
       </fieldset>
     </div>
 
     <div id="full-feedback-form" class="hidden">
       <div class="form__group">
-        <label for="feedback-text" class="required">Pourquoi ?</label>
-        <textarea name="feedback-text"></textarea>
+        <%= label(f, :feedback_text, "Pourquoi ?", class: "required") %>
+        <%= textarea(f, :feedback_text, required: true) %>
       </div>
 
       <div class="form__group">
-        <label for="feedback-email">Votre email (facultatif)</label>
-        <input id="feedback-email" name="feedback-email" required="" type="email" />
+        <%= label(f, :feedback_email, "Votre email (facultatif)") %>
+        <%= text_input(f, :feedback_email, type: "email") %>
       </div>
 
       <%= text_input(f, :name,
@@ -33,7 +37,7 @@
         autocomplete: "off"
       ) %>
 
-      <button class="button" type="submit" name="send-feedback-email" id="submit">Envoyer l’avis</button>
+      <%= submit("Envoyer l’avis", class: "button") %>
     </div>
   <% end %>
 

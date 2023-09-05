@@ -38,20 +38,6 @@
 }
 
 
-
-legend.required::before {
-    content: '✱';
-    color: #d63626;
-    color: var(--red);
-    font-weight: 700;
-    padding-right: 0.5em;
-    padding-right: var(--space-xs);
-    position: absolute;
-    left: 0;
-    -webkit-transform: translateX(-100%);
-    transform: translateX(-100%);
-}
-
 .form-special-field {
     // hide field used as honey-pot
     display: none;
