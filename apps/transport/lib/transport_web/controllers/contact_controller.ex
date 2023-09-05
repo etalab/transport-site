@@ -54,18 +54,18 @@ defmodule TransportWeb.ContactController do
   end
 
 
-  def send_feedback(conn, %{"feedback" => %{"rating" => rating, "explanation" => explanation, "email" => email}} = params) do
+  def send_feedback(conn, %{"feedback" => %{"rating" => rating, "explanation" => explanation, "email" => email, "feature" => feature}} = params) do
     # IO.inspect(params)
     # send_resp(conn, 201, "good")
 
-    feedback_content = "Vous avez un nouvel avis sur le PAN!\nNotation: #{rating}\n#{explanation}"
+    feedback_content = "Vous avez un nouvel avis sur le PAN!\nFonctionnalité: #{feature}\nNotation: #{rating}\n#{explanation}"
 
     case Transport.EmailSender.impl().send_mail(
            "PAN, Formulaire Feedback",
            Application.get_env(:transport, :contact_email),
            Application.get_env(:transport, :contact_email),
            email,
-           "Nouveau feedback: #{rating}",
+           "Nouveau feedback pour #{feature}: #{rating}",
            feedback_content,
            ""
          ) do

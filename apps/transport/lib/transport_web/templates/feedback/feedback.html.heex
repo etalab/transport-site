@@ -1,8 +1,9 @@
 <div class="container">
-  <%= form_for :feedback, contact_path(TransportWeb.Endpoint, :send_feedback), [class: "feedback-form"], fn f -> %>
+  <h2><%= dgettext("feedback", "Leave your feedback") %></h2>
+  <%= form_for :feedback, contact_path(TransportWeb.Endpoint, :send_feedback), [class: "feedback-form no-margin"], fn f -> %>
     <div class="form__group feedback-selector">
       <fieldset>
-        <legend>Qu’avez vous pensé de cette page ?</legend>
+        <legend><%= dgettext("feedback", "what’s your feedback on this page?")%></legend>
 
         <%= radio_button(f, :rating, "like", id: "like") %>
         <%= label f, "like", class: "label-inline", for: "like" do %>
@@ -21,12 +22,12 @@
 
     <div id="full-feedback-form" class="hidden">
       <div class="form__group">
-        <%= label f, :explanation, "Pourquoi ?", class: "required" %>
+        <%= label f, :explanation, dgettext("feedback", "Why?"), class: "required" %>
         <%= textarea f, :explanation, required: true %>
       </div>
 
       <div class="form__group">
-        <%= label f, :email, "Votre email (facultatif)" %>
+        <%= label f, :email, dgettext("feedback", "Your email (optional)") %>
         <%= text_input f, :email, type: "email" %>
       </div>
 
@@ -37,7 +38,16 @@
         autocomplete: "off"
       ) %>
 
-      <%= submit("Envoyer l’avis", class: "button") %>
+      <%= text_input(f, :name,
+        placeholder: "your name",
+        class: "form-special-field",
+        tabindex: "-1",
+        autocomplete: "off"
+      ) %>
+
+      <%= hidden_input f, :feature, value: @feature %>
+
+      <%= submit( dgettext("feedback", "Send the feedback"), class: "button") %>
 
     </div>
   <% end %>

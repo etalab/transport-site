@@ -1,0 +1,32 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n>1);\n"
+
+#, elixir-autogen, elixir-format
+msgid "Send the feedback"
+msgstr "Envoyer l’avis"
+
+#, elixir-autogen, elixir-format
+msgid "Why?"
+msgstr "Pourquoi ?"
+
+#, elixir-autogen, elixir-format
+msgid "Your email (optional)"
+msgstr "Votre adresse email (facultatif)"
+
+#, elixir-autogen, elixir-format
+msgid "what’s your feedback on this page?"
+msgstr "Qu’avez vous pensé de cette page ?"
+
+#, elixir-autogen, elixir-format
+msgid "Leave your feedback"
+msgstr "Laissez nous votre avis"
