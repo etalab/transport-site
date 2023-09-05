@@ -36,7 +36,7 @@ defmodule TransportWeb.ContactController do
   end
 
   def send_mail(conn, params) do
-    Logger.error("Bad parameters for sending email #{params}")
+    Logger.error("Bad parameters for sending email #{inspect params}")
 
     conn
     |> put_flash(:error, gettext("There has been an error, try again later"))
@@ -82,8 +82,7 @@ defmodule TransportWeb.ContactController do
   end
 
   def send_feedback(conn, params) do
-    Logger.error("Bad parameters for feedback #{params}")
-
+    Logger.error("Bad parameters for feedback #{inspect params}")
     conn
     |> put_flash(:error, gettext("There has been an error, try again later"))
     |> redirect(to: params["redirect_path"] || page_path(conn, :index))
