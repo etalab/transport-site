@@ -168,5 +168,8 @@
     </div>
   </div>
 </section>
+<section class="section section-white">
+  <%= Phoenix.View.render(TransportWeb.FeedbackView, "feedback.html", feature: "on-demand-validation") %>
+</section>
 <script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>
 </script>
