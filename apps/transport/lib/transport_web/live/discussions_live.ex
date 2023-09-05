@@ -92,7 +92,7 @@ defmodule TransportWeb.DiscussionsLive do
     latest_comment_datetime =
       comment_list
       |> Enum.map(fn comment ->
-        { :ok, comment_datetime, 0} = DateTime.from_iso8601(comment["posted_on"])
+        {:ok, comment_datetime, 0} = DateTime.from_iso8601(comment["posted_on"])
         comment_datetime
       end)
       |> Enum.max(DateTime)
