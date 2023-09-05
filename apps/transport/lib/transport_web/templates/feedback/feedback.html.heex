@@ -6,28 +6,28 @@
 
         <%= radio_button(f, :rating, "like", id: "like") %>
         <%= label f, "like", class: "label-inline", for: "like" do %>
-          <i class="fa-regular fa-face-smile feedback-emojis"></i>
+            <i class="fa-regular fa-face-smile feedback-emojis"></i>
         <% end %>
         <%= radio_button(f, :rating, "neutral", id: "neutral") %>
         <%= label f, "neutral", class: "label-inline", for: "neutral" do %>
-          <i class="fa-regular fa-face-meh feedback-emojis"></i>
+            <i class="fa-regular fa-face-meh feedback-emojis"></i>
         <% end %>
         <%= radio_button(f, :rating, "dislike", id: "dislike") %>
         <%= label f, "like", class: "label-inline", for: "dislike" do %>
-          <i class="fa-regular fa-face-frown feedback-emojis"></i>
+            <i class="fa-regular fa-face-frown feedback-emojis"></i>
         <% end %>
       </fieldset>
     </div>
 
     <div id="full-feedback-form" class="hidden">
       <div class="form__group">
-        <%= label(f, :feedback_text, "Pourquoi ?", class: "required") %>
-        <%= textarea(f, :feedback_text, required: true) %>
+        <%= label f, :explanation, "Pourquoi ?", class: "required" %>
+        <%= textarea f, :explanation, required: true %>
       </div>
 
       <div class="form__group">
-        <%= label(f, :feedback_email, "Votre email (facultatif)") %>
-        <%= text_input(f, :feedback_email, type: "email") %>
+        <%= label f, :email, "Votre email (facultatif)" %>
+        <%= text_input f, :email, type: "email" %>
       </div>
 
       <%= text_input(f, :name,
@@ -38,6 +38,7 @@
       ) %>
 
       <%= submit("Envoyer l’avis", class: "button") %>
+
     </div>
   <% end %>
 
