@@ -79,7 +79,8 @@ defmodule TransportWeb.ContactControllerTest do
                from_email: "contact@transport.beta.gouv.fr",
                to_email: "contact@transport.beta.gouv.fr",
                subject: "Nouvel avis pour validator: j’aime",
-               text_body: "Vous avez un nouvel avis sur le PAN.\nFonctionnalité: validator\nNotation: j’aime\nAdresse email: \n\nExplication: so useful for my GTFS files\n",
+               text_body:
+                 "Vous avez un nouvel avis sur le PAN.\nFonctionnalité: validator\nNotation: j’aime\nAdresse email: \n\nExplication: so useful for my GTFS files\n",
                html_body: "",
                reply_to: "contact@transport.beta.gouv.fr"
              }
