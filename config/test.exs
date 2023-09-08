@@ -110,6 +110,15 @@ config :transport, TransportWeb.Endpoint,
 # NOTE: adding some explicit values so that we can test the
 # behaviour of the client with regard to those credentials,
 # but these are not real keys.
+config :transport, Mailjet.Client,
+  mailjet_user: "TEST_MJ_APIKEY_PUBLIC",
+  mailjet_key: "TEST_MJ_APIKEY_PRIVATE"
+
+config(
+  :transport,
+  email_sender_impl: Transport.EmailSender.Mock,
+  siri_query_generator_impl: Transport.SIRIQueryGenerator.Mock
+)
 
 config :transport, Transport.Mailer,
   adapter: Swoosh.Adapters.Test

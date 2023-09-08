@@ -223,6 +223,8 @@ config :appsignal, :config,
     "Unlock.Controller#fetch"
   ]
 
+
+
 config :transport, Transport.Mailer,
   adapter: Swoosh.Adapters.Mailjet,
   api_key: System.get_env("MJ_APIKEY_PUBLIC"),
@@ -234,5 +236,6 @@ import_config "datagouvfr.exs"
 import_config "database.exs"
 import_config "gtfs_validator.exs"
 import_config "gbfs_validator.exs"
+import_config "mailjet.exs"
 import_config "mailchimp.exs"
 import_config "#{config_env()}.exs"
