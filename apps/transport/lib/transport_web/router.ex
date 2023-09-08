@@ -55,6 +55,13 @@ defmodule TransportWeb.Router do
     )
   end
 
+  if Mix.env == :dev do
+    scope "/dev" do
+      pipe_through [:browser]
+      forward "/mailbox", Plug.Swoosh.MailboxPreview
+    end
+  end
+
   scope "/", TransportWeb do
     pipe_through(:browser)
     get("/", PageController, :index)
@@ -287,13 +294,6 @@ defmodule TransportWeb.Router do
     #
     # See https://elixirforum.com/t/phoenix-router-no-pipelines-invoked-for-404/42563
     get("/*path", PageController, :not_found)
-  end
-
-  if Mix.env == :dev do
-    scope "/dev" do
-      pipe_through [:browser]
-      forward "/mailbox", Plug.Swoosh.MailboxPreview
-    end
   end
 
   # private
