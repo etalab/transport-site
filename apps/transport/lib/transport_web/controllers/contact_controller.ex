@@ -41,8 +41,8 @@ defmodule TransportWeb.ContactEmail do
 
   def contact(email, subject, demande) do
     new()
+    |> from({"PAN, Formulaire Contact", Application.get_env(:transport, :contact_email)})
     |> to(Application.get_env(:transport, :contact_email))
-    |> from(Application.get_env(:transport, :contact_email))
     |> reply_to(email)
     |> subject(subject)
     |> text_body(demande)
