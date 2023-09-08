@@ -77,6 +77,10 @@ end
 defmodule Transport.ResourcesChangedNotifier do
   use Phoenix.Swoosh, view: TransportWeb.EmailView
 
+  @moduledoc """
+  Module in charge of building the email notifying resources have changed.
+  """
+
   def resources_changed(email, subject, dataset) do
     new()
     |> from({"transport.data.gouv.fr", Application.get_env(:transport, :contact_email)})
