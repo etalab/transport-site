@@ -289,6 +289,13 @@ defmodule TransportWeb.Router do
     get("/*path", PageController, :not_found)
   end
 
+  if Mix.env == :dev do
+    scope "/dev" do
+      pipe_through [:browser]
+      forward "/mailbox", Plug.Swoosh.MailboxPreview
+    end
+  end
+
   # private
 
   defp assign_mix_env(conn, _) do

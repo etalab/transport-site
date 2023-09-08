@@ -75,7 +75,9 @@ config :oauth2, Datagouvfr.Authentication,
   site: datagouvfr_site,
   redirect_uri: "http://localhost:5000/login/callback"
 
-config :transport, :email_sender_impl, Transport.EmailSender.Dummy
+config :transport, Transport.Mailer,
+  adapter: Swoosh.Adapters.Local
+
 
 extra_config_file = Path.join(__DIR__, "#{config_env()}.secret.exs")
 
