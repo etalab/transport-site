@@ -75,6 +75,8 @@ config :oauth2, Datagouvfr.Authentication,
   site: datagouvfr_site,
   redirect_uri: "http://localhost:5000/login/callback"
 
+# Allows emails to be read at localhost:5000/dev/mailer
+# Add a dev.secret.exs to use a real email provider
 config :transport, Transport.Mailer,
   adapter: Swoosh.Adapters.Local
 
