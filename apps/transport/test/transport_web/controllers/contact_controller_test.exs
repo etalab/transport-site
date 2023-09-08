@@ -27,11 +27,12 @@ defmodule TransportWeb.ContactControllerTest do
     end
 
     assert_email_sent(
-    from: {"PAN, Formulaire Contact", "contact@transport.beta.gouv.fr"},
-    to: "contact@transport.beta.gouv.fr",
-    subject: "question",
-    text_body: "where is my dataset?",
-    html_body: nil,
-    reply_to: "human@user.fr")
+      from: {"PAN, Formulaire Contact", "contact@transport.beta.gouv.fr"},
+      to: "contact@transport.beta.gouv.fr",
+      subject: "question",
+      text_body: "where is my dataset?",
+      html_body: nil,
+      reply_to: "human@user.fr"
+    )
   end
 end

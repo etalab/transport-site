@@ -28,7 +28,8 @@ defmodule Transport.Jobs.ResourcesChangedNotificationJob do
     |> DB.NotificationSubscription.subscriptions_for_reason()
     |> DB.NotificationSubscription.subscriptions_to_emails()
     |> Enum.each(fn email ->
-      Transport.ResourcesChangedNotifier.resources_changed(email, subject, dataset) |> Transport.Mailer.deliver()
+      resources_changed_email = Transport.ResourcesChangedNotifier.resources_changed(email, subject, dataset)
+      Transport.Mailer.deliver(resources_changed_email)
       save_notification(dataset, email)
     end)
   end
@@ -83,7 +84,6 @@ defmodule Transport.ResourcesChangedNotifier do
     |> reply_to(Application.get_env(:transport, :contact_email))
     |> subject(subject)
     |> render_body("resources_changed.html", %{dataset: dataset})
-
 
     # new()
     #   |> from(),

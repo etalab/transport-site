@@ -14,7 +14,8 @@ defmodule TransportWeb.ContactController do
   end
 
   def send_mail(conn, %{"email" => email, "topic" => subject, "demande" => demande} = params) do
-    case TransportWeb.ContactEmail.contact(email, subject, demande) |> Transport.Mailer.deliver() do
+    contact_email = TransportWeb.ContactEmail.contact(email, subject, demande)
+    case  Transport.Mailer.deliver(contact_email) do
       {:ok, _} ->
         conn
         |> put_flash(:info, gettext("Your email has been sent, we will contact you soon"))

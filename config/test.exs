@@ -120,8 +120,7 @@ config(
   siri_query_generator_impl: Transport.SIRIQueryGenerator.Mock
 )
 
-config :transport, Transport.Mailer,
-  adapter: Swoosh.Adapters.Test
+config :transport, Transport.Mailer, adapter: Swoosh.Adapters.Test
 
 # avoid logging
 config :os_mon,

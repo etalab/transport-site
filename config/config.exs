@@ -223,8 +223,6 @@ config :appsignal, :config,
     "Unlock.Controller#fetch"
   ]
 
-
-
 config :transport, Transport.Mailer,
   adapter: Swoosh.Adapters.Mailjet,
   api_key: System.get_env("MJ_APIKEY_PUBLIC"),
