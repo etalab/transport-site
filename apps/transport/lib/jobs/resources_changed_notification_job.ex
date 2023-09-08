@@ -28,16 +28,7 @@ defmodule Transport.Jobs.ResourcesChangedNotificationJob do
     |> DB.NotificationSubscription.subscriptions_for_reason()
     |> DB.NotificationSubscription.subscriptions_to_emails()
     |> Enum.each(fn email ->
-      Transport.EmailSender.impl().send_mail(
-        "transport.data.gouv.fr",
-        Application.get_env(:transport, :contact_email),
-        email,
-        Application.get_env(:transport, :contact_email),
-        subject,
-        "",
-        Phoenix.View.render_to_string(TransportWeb.EmailView, "resources_changed.html", dataset: dataset)
-      )
-
+      Transport.ResourcesChangedNotifier.resources_changed(email, subject, dataset) |> Transport.Mailer.deliver()
       save_notification(dataset, email)
     end)
   end
@@ -79,5 +70,26 @@ defmodule Transport.Jobs.ResourcesChangedNotificationJob do
     )
     |> where([today, _yesterday], today.date == ^today)
     |> DB.Repo.all()
+  end
+end
+
+defmodule Transport.ResourcesChangedNotifier do
+  use Phoenix.Swoosh, view: TransportWeb.EmailView
+
+  def resources_changed(email, subject, dataset) do
+    new()
+    |> from({"transport.data.gouv.fr", Application.get_env(:transport, :contact_email)})
+    |> to(email)
+    |> reply_to(Application.get_env(:transport, :contact_email))
+    |> subject(subject)
+    |> render_body("resources_changed.html", %{dataset: dataset})
+
+
+    # new()
+    #   |> from(),
+    #   |> to(email),
+    #   |> reply_to(Application.get_env(:transport, :contact_email)),
+    #   |> subject(subject),
+    #   |> render_body("resources_changed.html", %{dataset: dataset})
   end
 end
