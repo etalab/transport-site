@@ -88,12 +88,5 @@ defmodule Transport.ResourcesChangedNotifier do
     |> reply_to(Application.get_env(:transport, :contact_email))
     |> subject(subject)
     |> render_body("resources_changed.html", %{dataset: dataset})
-
-    # new()
-    #   |> from(),
-    #   |> to(email),
-    #   |> reply_to(Application.get_env(:transport, :contact_email)),
-    #   |> subject(subject),
-    #   |> render_body("resources_changed.html", %{dataset: dataset})
   end
 end
