@@ -119,6 +119,7 @@ config(
   email_sender_impl: Transport.EmailSender.Mock,
   siri_query_generator_impl: Transport.SIRIQueryGenerator.Mock
 )
+
 # The Swoosh test adapter works a bit like an embryo of Mox. 
 # See: https://github.com/swoosh/swoosh/blob/main/lib/swoosh/adapters/test.ex
 #
