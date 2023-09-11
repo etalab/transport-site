@@ -136,6 +136,7 @@ defmodule Transport.Mixfile do
       {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
       {:swoosh, "~> 1.11"},
       {:phoenix_swoosh, "~> 1.0"},
+      {:hackney, "~> 1.9"}
     ]
   end
 end
