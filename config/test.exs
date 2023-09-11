@@ -119,7 +119,13 @@ config(
   email_sender_impl: Transport.EmailSender.Mock,
   siri_query_generator_impl: Transport.SIRIQueryGenerator.Mock
 )
-
+# The Swoosh test adapter works a bit like an embryo of Mox. 
+# See: https://github.com/swoosh/swoosh/blob/main/lib/swoosh/adapters/test.ex
+#
+# It won't be as flexible in all situations (see https://github.com/swoosh/swoosh/issues/66).
+# 
+# If this causes issues, we will have instead to create
+# a behaviour/wrapper around `Transport.Mailer`
 config :transport, Transport.Mailer, adapter: Swoosh.Adapters.Test
 
 # avoid logging
