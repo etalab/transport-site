@@ -10,12 +10,13 @@ url = large_file_url
 
 # Download file to disk via an IO.Stream
 file = File.stream!("test.data", [:write])
+
 try do
   # NOTE: decode_body is apparently disabled on response streaming
   # https://hexdocs.pm/req/Req.Steps.html#decode_body/1
   response = Req.get!(url, into: file)
   # :body is just a ref to the File.Stream
-  IO.inspect(response, IEx.inspect_opts)
+  IO.inspect(response, IEx.inspect_opts())
 after
   :ok = File.close(file)
 end
