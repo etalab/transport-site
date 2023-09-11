@@ -85,7 +85,7 @@ defmodule Transport.ResourcesChangedNotifier do
     new()
     |> from({"transport.data.gouv.fr", Application.get_env(:transport, :contact_email)})
     |> to(email)
-    |> reply_to(Application.get_env(:transport, :contact_email))
+    |> reply_to(Application.fetch_env!(:transport, :contact_email))
     |> subject(subject)
     |> render_body("resources_changed.html", %{dataset: dataset})
   end
