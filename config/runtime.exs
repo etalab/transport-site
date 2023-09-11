@@ -87,6 +87,11 @@ if app_env == :staging do
       on_demand_validation: "on-demand-validation-staging",
       gtfs_diff: "gtfs-diff-staging"
     }
+
+  # Do not send emails in staging
+  config :sample, Sample.Mailer,
+    adapter: Swoosh.Adapters.Logger,
+    level: :debug
 end
 
 base_oban_conf = [repo: DB.Repo]
@@ -225,6 +230,11 @@ if config_env() == :prod do
           }
         }
       }
+
+    config :transport, Transport.Mailer,
+      adapter: Swoosh.Adapters.Mailjet,
+      api_key: System.get_env("MJ_APIKEY_PUBLIC"),
+      secret: System.get_env("MJ_APIKEY_PRIVATE")
   end
 end
 
