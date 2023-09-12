@@ -55,9 +55,12 @@ defmodule TransportWeb.ContactController do
 
   def send_feedback(
         conn,
-        %{"feedback" => %{"rating" => rating, "explanation" => explanation, "email" => email, "feature" => feature}} =
-          params
-      ) do
+        %{"feedback" => %{"rating" => rating, "explanation" => explanation, "email" => email, "feature" => feature}}
+      )
+      when rating in ["like", "neutral", "dislike"] and
+             feature in ["gtfs-stops", "on-demand-validation", "gbfs-validation"] do
+    [email, explanation] = [email, explanation] |> Enum.map(&String.trim/1)
+
     rating_t = %{"like" => "j’aime", "neutral" => "neutre", "dislike" => "mécontent"}
 
     feedback_content = """
@@ -88,14 +91,14 @@ defmodule TransportWeb.ContactController do
       {:ok, _} ->
         conn
         |> put_flash(:info, gettext("Thanks for your feedback!"))
-        |> redirect(to: params["redirect_path"] || page_path(conn, :index))
+        |> redirect(to: page_path(conn, :index))
 
       {:error, message} ->
         Logger.error("Error while sending feedback: #{message}")
 
         conn
         |> put_flash(:error, gettext("There has been an error, try again later"))
-        |> redirect(to: params["redirect_path"] || page_path(conn, :index))
+        |> redirect(to: page_path(conn, :index))
     end
   end
 

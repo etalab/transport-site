@@ -78,9 +78,9 @@ defmodule TransportWeb.ContactControllerTest do
                from_name: "PAN, Formulaire Feedback",
                from_email: "contact@transport.beta.gouv.fr",
                to_email: "contact@transport.beta.gouv.fr",
-               subject: "Nouvel avis pour validator: j’aime",
+               subject: "Nouvel avis pour on-demand-validation: j’aime",
                text_body:
-                 "Vous avez un nouvel avis sur le PAN.\nFonctionnalité: validator\nNotation: j’aime\nAdresse email: \n\nExplication: so useful for my GTFS files\n",
+                 "Vous avez un nouvel avis sur le PAN.\nFonctionnalité: on-demand-validation\nNotation: j’aime\nAdresse email: \n\nExplication: so useful for my GTFS files\n",
                html_body: "",
                reply_to: "contact@transport.beta.gouv.fr"
              }
@@ -91,7 +91,12 @@ defmodule TransportWeb.ContactControllerTest do
     conn
     |> post(
       contact_path(conn, :send_feedback, %{
-        feedback: %{email: "", feature: "validator", rating: "like", explanation: "so useful for my GTFS files"}
+        feedback: %{
+          email: "",
+          feature: "on-demand-validation",
+          rating: "like",
+          explanation: "so useful for my GTFS files"
+        }
       })
     )
     |> get_flash(:info)
