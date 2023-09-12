@@ -65,9 +65,9 @@ defmodule TransportWeb.ContactController do
 
     feedback_content = """
     Vous avez un nouvel avis sur le PAN.
-    Fonctionnalité: #{feature}
-    Notation: #{rating_t[rating]}
-    Adresse email: #{email}
+    Fonctionnalité : #{feature}
+    Notation : #{rating_t[rating]}
+    Adresse e-mail : #{email}
 
     Explication: #{explanation}
     """
