@@ -60,7 +60,6 @@ defmodule TransportWeb.ContactController do
         %{"feedback" => %{"rating" => rating, "explanation" => explanation, "email" => email, "feature" => feature}}
       )
       when rating in @feedback_rating_values and feature in @feedback_features do
-
     [email, explanation] = [email, explanation] |> Enum.map(&String.trim/1)
 
     rating_t = %{"like" => "j’aime", "neutral" => "neutre", "dislike" => "mécontent"}
@@ -86,7 +85,7 @@ defmodule TransportWeb.ContactController do
            Application.fetch_env!(:transport, :contact_email),
            Application.fetch_env!(:transport, :contact_email),
            reply_email,
-           "Nouvel avis pour #{feature}: #{rating_t[rating]}",
+           "Nouvel avis pour #{feature} : #{rating_t[rating]}",
            feedback_content,
            ""
          ) do
