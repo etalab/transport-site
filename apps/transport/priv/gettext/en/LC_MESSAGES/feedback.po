@@ -24,7 +24,7 @@ msgid "Your email (optional)"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "what’s your feedback on this page?"
+msgid "What's your feedback on this page?"
 msgstr ""
 
 #, elixir-autogen, elixir-format

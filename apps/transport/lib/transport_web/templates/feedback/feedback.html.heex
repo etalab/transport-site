@@ -3,7 +3,7 @@
   <%= form_for :feedback, contact_path(TransportWeb.Endpoint, :send_feedback), [class: "feedback-form no-margin"], fn f -> %>
     <div class="form__group feedback-selector">
       <fieldset>
-        <legend><%= dgettext("feedback", "what’s your feedback on this page?") %></legend>
+        <legend><%= dgettext("feedback", "What's your feedback on this page?") %></legend>
 
         <%= radio_button(f, :rating, "like", id: "like") %>
         <%= label f, "like", class: "label-inline", for: "like" do %>
