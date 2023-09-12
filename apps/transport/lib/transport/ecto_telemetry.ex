@@ -5,25 +5,32 @@ defmodule Transport.EctoTelemetry do
   A module receiving Ecto events and forwarding them (currently) to AppSignal, so that we can
   chart the pool occupancy.
 
-  Reference: https://hexdocs.pm/ecto/Ecto.Repo.html#module-telemetry-events
-
-  Inspiration: https://github.com/appsignal/appsignal-elixir/issues/318#issuecomment-841156779
+  References:
+  * https://hexdocs.pm/ecto/Ecto.Repo.html#module-telemetry-events
+  * https://github.com/appsignal/appsignal-elixir/issues/318#issuecomment-841156779 (inspiration)
+  * https://elixirforum.com/t/how-to-deal-with-detached-telemetry-handlers-caused-by-errors/56069/2
+  * https://github.com/appsignal/appsignal-elixir/issues/887 (which ensures calls are fast & mostly safe)
 
   A few notes extracted from the doc (with extra comments):
-  * :idle_time - the time the connection spent waiting before being checked out for the query. 
+  * `:idle_time` - the time the connection spent waiting before being checked out for the query. 
                  the higher the better ; if this gets low (close to 0), the pool is over-used (not good).
-  * :queue_time - the time spent waiting to check out a database connection.
+  * `:queue_time` - the time spent waiting to check out a database connection.
                   the lower the better. if this gets too high, the pool is over-used (not good).
-  * :query_time - the time spent executing the query.
+  * `:query_time` - the time spent executing the query.
 
   We do not track the following metrics for now, because they are less useful for pool optimization:
-  * :decode_time - the time spent decoding the data received from the database
-  * :total_time - the sum of (queue_time, query_time, and decode_time)️
+  * `:decode_time` - the time spent decoding the data received from the database
+  * `:total_time` - the sum of (queue_time, query_time, and decode_time)️
+
+  It must be noted that handlers are running inline, and that they can be "detached" in case of errors.
+
+  In the case of this implementation, the risk is just losing metrics, which is acceptable, plus the way
+  AppSignal works (see above discussions) makes this risk not very likely to occur.
   """
 
   def handle_event([:db, :repo, :query], measurements, _metadata, _config) do
     #
-    # NOTE: at time of writing, at AppSignal, "Custom metrics do not count towards your plan. 
+    # NOTE: at time of writing, at AppSignal, "Custom metrics do not count towards your plan.
     # Only requests and logging. Custom metrics are included.".
     #
     # If we need to reduce the volume of metrics (for billing or ops reasons), it appears that
