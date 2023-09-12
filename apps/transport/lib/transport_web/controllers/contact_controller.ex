@@ -17,6 +17,7 @@ defmodule TransportWeb.ContactController do
 
   def send_mail(conn, %{"email" => email, "topic" => subject, "demande" => demande} = params) do
     [email, subject, demande] = sanitize_inputs([email, subject, demande])
+
     case Transport.EmailSender.impl().send_mail(
            "PAN, Formulaire Contact",
            Application.fetch_env!(:transport, :contact_email),
