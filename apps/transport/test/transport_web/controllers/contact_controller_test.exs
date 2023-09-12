@@ -46,7 +46,7 @@ defmodule TransportWeb.ContactControllerTest do
     )
     |> get_flash(:info)
     |> case do
-      nil -> assert true
+      nil -> assert false
       msg -> refute msg =~ "🦊"
     end
   end
@@ -65,27 +65,18 @@ defmodule TransportWeb.ContactControllerTest do
 
   test "Post feedback form without honey pot", %{conn: conn} do
     Transport.EmailSender.Mock
-    |> expect(:send_mail, fn from_name, from_email, to_email, reply_to, subject, text_body, html_body ->
-      assert %{
-               from_name: from_name,
-               from_email: from_email,
-               to_email: to_email,
-               subject: subject,
-               text_body: text_body,
-               html_body: html_body,
-               reply_to: reply_to
-             } == %{
-               from_name: "Formulaire feedback",
-               from_email: "contact@transport.beta.gouv.fr",
-               to_email: "contact@transport.beta.gouv.fr",
-               subject: "Nouvel avis pour on-demand-validation : j’aime",
-               text_body:
-                 "Vous avez un nouvel avis sur le PAN.\nFonctionnalité : on-demand-validation\nNotation : j’aime\nAdresse e-mail : \n\nExplication : so useful for my GTFS files\n",
-               html_body: "",
-               reply_to: "contact@transport.beta.gouv.fr"
-             }
+    |> expect(:send_mail, fn "Formulaire feedback",
+                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.beta.gouv.fr",
+                             reply_to,
+                             subject,
+                             text_body,
+                             "" ->
+      assert subject == "Nouvel avis pour on-demand-validation : j’aime"
+      assert text_body == "Vous avez un nouvel avis sur le PAN.\nFonctionnalité : on-demand-validation\nNotation : j’aime\nAdresse e-mail : \n\nExplication : so useful for my GTFS files\n"
+      assert reply_to == "contact@transport.beta.gouv.fr"
 
-      {:ok, text_body}
+      {:ok, :text_body}
     end)
 
     conn
@@ -101,7 +92,7 @@ defmodule TransportWeb.ContactControllerTest do
     )
     |> get_flash(:info)
     |> case do
-      nil -> assert true
+      nil -> assert false
       msg -> refute msg =~ "🦊"
     end
   end
