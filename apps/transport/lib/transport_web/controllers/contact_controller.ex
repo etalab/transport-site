@@ -1,6 +1,8 @@
 defmodule TransportWeb.ContactController do
   use TransportWeb, :controller
   require Logger
+  @feedback_rating_values ["like", "neutral", "dislike"]
+  @feedback_features ["gtfs-stops", "on-demand-validation", "gbfs-validation"]
 
   @spec send_mail(Plug.Conn.t(), map()) :: {:error, any} | Plug.Conn.t()
   def send_mail(conn, %{"email" => email, "name" => name} = params) when name !== "" do
@@ -57,8 +59,8 @@ defmodule TransportWeb.ContactController do
         conn,
         %{"feedback" => %{"rating" => rating, "explanation" => explanation, "email" => email, "feature" => feature}}
       )
-      when rating in ["like", "neutral", "dislike"] and
-             feature in ["gtfs-stops", "on-demand-validation", "gbfs-validation"] do
+      when rating in @feedback_rating_values and feature in @feedback_features do
+
     [email, explanation] = [email, explanation] |> Enum.map(&String.trim/1)
 
     rating_t = %{"like" => "j’aime", "neutral" => "neutre", "dislike" => "mécontent"}
