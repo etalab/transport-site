@@ -38,13 +38,6 @@
         autocomplete: "off"
       ) %>
 
-      <%= text_input(f, :name,
-        placeholder: "your name",
-        class: "form-special-field",
-        tabindex: "-1",
-        autocomplete: "off"
-      ) %>
-
       <%= hidden_input(f, :feature, value: @feature) %>
 
       <%= submit(dgettext("feedback", "Send the feedback"), class: "button") %>
