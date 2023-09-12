@@ -16,8 +16,8 @@ defmodule TransportWeb.ContactController do
   def send_mail(conn, %{"email" => email, "topic" => subject, "demande" => demande} = params) do
     case Transport.EmailSender.impl().send_mail(
            "PAN, Formulaire Contact",
-           Application.get_env(:transport, :contact_email),
-           Application.get_env(:transport, :contact_email),
+           Application.fetch_env!(:transport, :contact_email),
+           Application.fetch_env!(:transport, :contact_email),
            email,
            subject,
            demande,
@@ -74,15 +74,15 @@ defmodule TransportWeb.ContactController do
 
     reply_email =
       if email == "" do
-        Application.get_env(:transport, :contact_email)
+        Application.fetch_env!(:transport, :contact_email)
       else
         email
       end
 
     case Transport.EmailSender.impl().send_mail(
            "PAN, Formulaire Feedback",
-           Application.get_env(:transport, :contact_email),
-           Application.get_env(:transport, :contact_email),
+           Application.fetch_env!(:transport, :contact_email),
+           Application.fetch_env!(:transport, :contact_email),
            reply_email,
            "Nouvel avis pour #{feature}: #{rating_t[rating]}",
            feedback_content,
