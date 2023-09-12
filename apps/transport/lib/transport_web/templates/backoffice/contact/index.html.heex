@@ -31,6 +31,7 @@
     <tr>
       <th>Nom</th>
       <th>E-mail</th>
+      <th>Organisation</th>
       <th>Fonction</th>
       <th class="bo_action_button"></th>
     </tr>
@@ -38,7 +39,8 @@
       <tr>
         <td><%= DB.Contact.display_name(contact) %></td>
         <td><%= contact.email %></td>
-        <td><%= contact_fonction(contact) %></td>
+        <td><%= contact.organization %></td>
+        <td><%= contact.job_title %></td>
         <td class="bo_action_button">
           <%= form_for @conn, backoffice_contact_path(@conn, :edit, contact.id), [nodiv: true, method: "get"], fn _ -> %>
             <%= submit("Éditer", class: "button", nodiv: true) %>
