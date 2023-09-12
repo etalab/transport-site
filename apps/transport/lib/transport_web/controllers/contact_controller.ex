@@ -52,7 +52,7 @@ defmodule TransportWeb.ContactController do
     conn
     # spammer get a little fox emoji in their flash message, useful for testing purpose
     |> put_flash(:info, "Your feedback has been sent, we will contact you soon 🦊")
-    |> redirect(to: params["redirect_path"] || page_path(conn, :index))
+    |> redirect(to: page_path(conn, :index))
   end
 
   def send_feedback(
@@ -108,6 +108,6 @@ defmodule TransportWeb.ContactController do
 
     conn
     |> put_flash(:error, gettext("There has been an error, try again later"))
-    |> redirect(to: params["redirect_path"] || page_path(conn, :index))
+    |> redirect(to: page_path(conn, :index))
   end
 end
