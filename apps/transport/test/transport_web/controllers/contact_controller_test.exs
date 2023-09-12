@@ -46,10 +46,8 @@ defmodule TransportWeb.ContactControllerTest do
         contact_path(conn, :send_mail, %{email: "human@user.fr", topic: "question", demande: "where is my dataset?"})
       )
       |> get_flash(:info)
-      |> case do
-        nil -> assert false
-        msg -> refute msg =~ "🦊"
-      end
+      |> Kernel.=~("🦊")
+      |> refute
     end
   end
 
@@ -97,10 +95,8 @@ defmodule TransportWeb.ContactControllerTest do
         })
       )
       |> get_flash(:info)
-      |> case do
-        nil -> assert false
-        msg -> refute msg =~ "🦊"
-      end
+      |> Kernel.=~("🦊")
+      |> refute
     end
 
     test "Post invalid parameters to feedback endpoint and check it doesn’t crash", %{conn: conn} do
