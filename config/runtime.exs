@@ -88,7 +88,7 @@ if app_env == :staging do
       gtfs_diff: "gtfs-diff-staging"
     }
 
-  # Do not send emails in staging
+  # Do not send emails in staging, but instead log something!
   config :sample, Sample.Mailer,
     adapter: Swoosh.Adapters.Logger,
     level: :debug
