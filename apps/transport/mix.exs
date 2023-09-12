@@ -132,7 +132,8 @@ defmodule Transport.Mixfile do
       {:appsignal, "~> 2.0"},
       {:appsignal_phoenix, "~> 2.0"},
       {:vega_lite, "~> 0.1.7"},
-      {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
+      {:req, "~> 0.3.11", only: :dev},
+      {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false}
     ]
   end
 end

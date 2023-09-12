@@ -89,8 +89,16 @@ defmodule TransportWeb.DiscussionsLive do
   def discussion_should_be_closed?(%{"closed" => closed}) when not is_nil(closed), do: true
 
   def discussion_should_be_closed?(%{"discussion" => comment_list}) do
-    {:ok, latest_comment_datetime, 0} = List.first(comment_list)["posted_on"] |> DateTime.from_iso8601()
-    DateTime.utc_now() |> Timex.shift(months: -2) |> DateTime.compare(latest_comment_datetime) == :gt
+    latest_comment_datetime =
+      comment_list
+      |> Enum.map(fn comment ->
+        {:ok, comment_datetime, 0} = DateTime.from_iso8601(comment["posted_on"])
+        comment_datetime
+      end)
+      |> Enum.max(DateTime)
+
+    two_months_ago = DateTime.utc_now() |> Timex.shift(months: -2)
+    DateTime.compare(two_months_ago, latest_comment_datetime) == :gt
   end
 end
 

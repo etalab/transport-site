@@ -228,6 +228,14 @@ if config_env() == :prod do
   end
 end
 
+# On CleverCloud, each container gets assigned a UUID, which gets propagated to AppSignal.
+# It is easier to assign the container a "role" so that we can more easily charts relevant metrics.
+host_role =
+  []
+  |> Kernel.++(if webserver, do: ["site"], else: [])
+  |> Kernel.++(if worker, do: ["worker"], else: [])
+  |> Enum.join("-")
+
 # NOTE: for dev work, use dev.secret.exs instead
 if config_env() == :prod do
   # staging vs production
@@ -248,6 +256,7 @@ if config_env() == :prod do
     name: System.get_env("CUSTOM_APPSIGNAL_APP_NAME", "transport.data.gouv.fr"),
     push_api_key: System.get_env("CUSTOM_APPSIGNAL_PUSH_API_KEY"),
     env: app_signal_env,
+    host_role: host_role,
     revision: revision,
     active: true
 end
