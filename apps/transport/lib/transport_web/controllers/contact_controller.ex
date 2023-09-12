@@ -69,7 +69,7 @@ defmodule TransportWeb.ContactController do
     Notation : #{rating_t[rating]}
     Adresse e-mail : #{email}
 
-    Explication: #{explanation}
+    Explication : #{explanation}
     """
 
     reply_email =

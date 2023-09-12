@@ -80,7 +80,7 @@ defmodule TransportWeb.ContactControllerTest do
                to_email: "contact@transport.beta.gouv.fr",
                subject: "Nouvel avis pour on-demand-validation: j’aime",
                text_body:
-                 "Vous avez un nouvel avis sur le PAN.\nFonctionnalité: on-demand-validation\nNotation: j’aime\nAdresse email: \n\nExplication: so useful for my GTFS files\n",
+                 "Vous avez un nouvel avis sur le PAN.\nFonctionnalité : on-demand-validation\nNotation : j’aime\nAdresse e-mail : \n\nExplication : so useful for my GTFS files\n",
                html_body: "",
                reply_to: "contact@transport.beta.gouv.fr"
              }
