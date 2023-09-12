@@ -75,7 +75,7 @@ defmodule TransportWeb.ContactControllerTest do
                html_body: html_body,
                reply_to: reply_to
              } == %{
-               from_name: "PAN, Formulaire Feedback",
+               from_name: "Formulaire feedback",
                from_email: "contact@transport.beta.gouv.fr",
                to_email: "contact@transport.beta.gouv.fr",
                subject: "Nouvel avis pour on-demand-validation: j’aime",

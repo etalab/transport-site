@@ -82,7 +82,7 @@ defmodule TransportWeb.ContactController do
       end
 
     case Transport.EmailSender.impl().send_mail(
-           "PAN, Formulaire Feedback",
+           "Formulaire feedback",
            Application.fetch_env!(:transport, :contact_email),
            Application.fetch_env!(:transport, :contact_email),
            reply_email,
