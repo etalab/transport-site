@@ -16,6 +16,7 @@ defmodule TransportWeb.ContactController do
   end
 
   def send_mail(conn, %{"email" => email, "topic" => subject, "demande" => demande} = params) do
+    [email, subject, demande] = sanitize_inputs([email, subject, demande])
     case Transport.EmailSender.impl().send_mail(
            "PAN, Formulaire Contact",
            Application.fetch_env!(:transport, :contact_email),
@@ -45,7 +46,7 @@ defmodule TransportWeb.ContactController do
     |> redirect(to: params["redirect_path"] || page_path(conn, :index))
   end
 
-  def send_feedback(conn, %{"feedback" => %{"name" => name, "email" => email}} = params) when name !== "" do
+  def send_feedback(conn, %{"feedback" => %{"name" => name, "email" => email}}) when name !== "" do
     # someone filled the honeypot field ("name") => discard as spam
     Logger.info("Feedback coming from #{email} has been discarded because it filled the feedback form honeypot")
 
@@ -60,7 +61,7 @@ defmodule TransportWeb.ContactController do
         %{"feedback" => %{"rating" => rating, "explanation" => explanation, "email" => email, "feature" => feature}}
       )
       when rating in @feedback_rating_values and feature in @feedback_features do
-    [email, explanation] = [email, explanation] |> Enum.map(&String.trim/1)
+    [email, explanation] = sanitize_inputs([email, explanation])
 
     rating_t = %{"like" => "j’aime", "neutral" => "neutre", "dislike" => "mécontent"}
 
@@ -109,5 +110,9 @@ defmodule TransportWeb.ContactController do
     conn
     |> put_flash(:error, gettext("There has been an error, try again later"))
     |> redirect(to: page_path(conn, :index))
+  end
+
+  defp sanitize_inputs(arr) do
+    arr |> Enum.map(&String.trim/1) |> Enum.map(&HtmlSanitizeEx.strip_tags/1)
   end
 end
