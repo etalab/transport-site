@@ -21,7 +21,7 @@ msgstr "Pourquoi ?"
 
 #, elixir-autogen, elixir-format
 msgid "Your email (optional)"
-msgstr "Votre adresse email (facultatif)"
+msgstr "Votre adresse e-mail (facultatif)"
 
 #, elixir-autogen, elixir-format
 msgid "what’s your feedback on this page?"
