@@ -81,7 +81,7 @@ defmodule Transport.ResourcesChangedNotifier do
   Module in charge of building the email notifying resources have changed.
   """
 
-  def resources_changed(email, subject, dataset) do
+  def resources_changed(email, subject, %DB.Dataset{} = dataset) do
     new()
     |> from({"transport.data.gouv.fr", Application.get_env(:transport, :contact_email)})
     |> to(email)
