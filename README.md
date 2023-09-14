@@ -216,7 +216,7 @@ To run a custom task: `mix <custom task>`
 
 ### Testing emails
 
-To locally test emails in a dev environnment, there is a Swoosh preview inbox in /dev/mailbox. Your server needs to be run through iex : `iex -S mix phx.server`.
+To locally test emails in a dev environment, a Swoosh preview inbox available in your browser at `/dev/mailbox`. Your server needs to be run through iex : `iex -S mix phx.server`.
 
 ## Docker installation <a name="docker_install"></a>
 
