@@ -83,7 +83,7 @@ defmodule Transport.ResourcesChangedNotifier do
 
   def resources_changed(email, subject, %DB.Dataset{} = dataset) do
     new()
-    |> from({"transport.data.gouv.fr", Application.fetch!_env(:transport, :contact_email)})
+    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
     |> to(email)
     |> reply_to(Application.fetch_env!(:transport, :contact_email))
     |> subject(subject)
