@@ -14,7 +14,7 @@ defmodule TransportWeb.ContactController do
   end
 
   def send_mail(conn, %{"email" => email, "topic" => subject, "demande" => demande} = params) do
-    contact_email = TransportWeb.ContactEmail.contact(email, subject, demande)
+    contact_email = TransportWeb.ContactEmail.contact(email, subject, question)
 
     case Transport.Mailer.deliver(contact_email) do
       {:ok, _} ->
