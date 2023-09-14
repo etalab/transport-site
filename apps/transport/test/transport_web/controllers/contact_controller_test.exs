@@ -18,7 +18,7 @@ defmodule TransportWeb.ContactControllerTest do
   test "Post contact form without honey pot", %{conn: conn} do
     conn
     |> post(
-      contact_path(conn, :send_mail, %{email: "human@user.fr", topic: "question", demande: "where is my dataset?"})
+      contact_path(conn, :send_mail, %{email: "human@user.fr", topic: "dataset", question: "where is my dataset?"})
     )
     |> get_flash(:info)
     |> case do
@@ -29,7 +29,7 @@ defmodule TransportWeb.ContactControllerTest do
     assert_email_sent(
       from: {"PAN, Formulaire Contact", "contact@transport.beta.gouv.fr"},
       to: "contact@transport.beta.gouv.fr",
-      subject: "question",
+      subject: "dataset",
       text_body: "where is my dataset?",
       html_body: nil,
       reply_to: "human@user.fr"

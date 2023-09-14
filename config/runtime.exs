@@ -87,11 +87,6 @@ if app_env == :staging do
       on_demand_validation: "on-demand-validation-staging",
       gtfs_diff: "gtfs-diff-staging"
     }
-
-  # Do not send emails in staging, but instead log something!
-  config :transport, Transport.Mailer,
-    adapter: Swoosh.Adapters.Logger,
-    level: :debug
 end
 
 base_oban_conf = [repo: DB.Repo]
