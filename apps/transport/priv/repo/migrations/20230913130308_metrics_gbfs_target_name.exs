@@ -3,7 +3,7 @@ defmodule DB.Repo.Migrations.MetricsGBFSTargetName do
 
   def up do
     # See https://github.com/etalab/transport-site/issues/3458
-    execute "update metrics set target = replace(target, '/', '') where target like 'gbfs:%/'"
+    execute "delete from metrics where target like 'gbfs:%/'"
   end
 
   def down do
