@@ -6,7 +6,9 @@ defmodule TransportWeb.ConversionControllerTest do
 
   setup do
     setup_telemetry_handler()
-    Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    # See https://elixirforum.com/t/dbconnection-ownershiperror-cannot-find-ownership-process-for-pid-0-xxx-0/41373/3
+    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(DB.Repo)
+    on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
   end
 
   describe "get" do
@@ -64,7 +66,7 @@ defmodule TransportWeb.ConversionControllerTest do
 
       # Need to wait a few milliseconds because the real telemetry handler
       # writes rows in the database asynchronously
-      Process.sleep(50)
+      Process.sleep(100)
 
       assert [%DB.Metrics{target: ^target, event: "conversions:get:GeoJSON", period: ^period, count: 1}] =
                DB.Metrics |> DB.Repo.all()
