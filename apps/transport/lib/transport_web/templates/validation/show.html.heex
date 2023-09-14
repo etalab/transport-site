@@ -59,5 +59,8 @@
 </section>
 
 <section class="section section-white">
-  <%= render(TransportWeb.FeedbackView, "feedback.html", feature: "on-demand-validation") %>
+  <%= render(TransportWeb.FeedbackView, "feedback.html",
+    feature: "on-demand-validation",
+    current_email: Map.get(@current_user || %{}, "email")
+  ) %>
 </section>

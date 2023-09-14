@@ -28,7 +28,7 @@
 
       <div class="form__group">
         <%= label(f, :email, dgettext("feedback", "Your email (optional)")) %>
-        <%= text_input(f, :email, type: "email") %>
+        <%= text_input(f, :email, type: "email", value: @current_email) %>
       </div>
 
       <%= text_input(f, :name,

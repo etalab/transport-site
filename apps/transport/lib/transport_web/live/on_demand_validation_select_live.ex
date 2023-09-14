@@ -12,8 +12,9 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
   import TransportWeb.Router.Helpers
   import TransportWeb.ValidationController, only: [select_options: 0]
 
-  def mount(_params, %{"locale" => locale} = _session, socket) do
+  def mount(_params, %{"locale" => locale} = session, socket) do
     Gettext.put_locale(locale)
+    current_email = (Map.get(session, "current_user") || %{}) |> Map.get("email")
 
     {:ok,
      socket
@@ -21,7 +22,8 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
        trigger_submit: false,
        select_options: select_options(),
        changeset: cast(%{})
-     })}
+     })
+     |> assign(:current_email, current_email)}
   end
 
   defp cast(params) do
