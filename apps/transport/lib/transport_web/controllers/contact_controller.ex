@@ -57,33 +57,9 @@ defmodule TransportWeb.ContactController do
       when rating in @feedback_rating_values and feature in @feedback_features do
     [email, explanation] = sanitize_inputs([email, explanation])
 
-    rating_t = %{"like" => "j’aime", "neutral" => "neutre", "dislike" => "mécontent"}
+    feedback_email = TransportWeb.ContactEmail.feedback(rating, explanation, email, feature)
 
-    feedback_content = """
-    Vous avez un nouvel avis sur le PAN.
-    Fonctionnalité : #{feature}
-    Notation : #{rating_t[rating]}
-    Adresse e-mail : #{email}
-
-    Explication : #{explanation}
-    """
-
-    reply_email =
-      if email == "" do
-        Application.fetch_env!(:transport, :contact_email)
-      else
-        email
-      end
-
-    case Transport.EmailSender.impl().send_mail(
-           "Formulaire feedback",
-           Application.fetch_env!(:transport, :contact_email),
-           Application.fetch_env!(:transport, :contact_email),
-           reply_email,
-           "Nouvel avis pour #{feature} : #{rating_t[rating]}",
-           feedback_content,
-           ""
-         ) do
+    case Transport.Mailer.deliver(feedback_email) do
       {:ok, _} ->
         conn
         |> put_flash(:info, gettext("Thanks for your feedback!"))
@@ -121,5 +97,32 @@ defmodule TransportWeb.ContactEmail do
     |> reply_to(email)
     |> subject(subject)
     |> text_body(question)
+  end
+
+  def feedback(rating, explanation, email, feature) do
+    rating_t = %{"like" => "j’aime", "neutral" => "neutre", "dislike" => "mécontent"}
+
+    reply_email =
+      if email == "" do
+        Application.fetch_env!(:transport, :contact_email)
+      else
+        email
+      end
+
+    feedback_content = """
+    Vous avez un nouvel avis sur le PAN.
+    Fonctionnalité : #{feature}
+    Notation : #{rating_t[rating]}
+    Adresse e-mail : #{email}
+
+    Explication : #{explanation}
+    """
+
+    new()
+    |> from({"Formulaire feedback", Application.fetch_env!(:transport, :contact_email)})
+    |> to(Application.fetch_env!(:transport, :contact_email))
+    |> reply_to(reply_email)
+    |> subject("Nouvel avis pour #{feature} : #{rating_t[rating]}")
+    |> text_body(feedback_content)
   end
 end
