@@ -214,6 +214,10 @@ To run a custom task: `mix <custom task>`
 * `Transport.ImportEPCI`: import the french EPCI from data.gouv
 * `Transport.OpenApiSpec`: generate an OpenAPI specification file
 
+### Testing emails
+
+To locally test emails in a dev environnment, there is a Swoosh preview inbox in /dev/mailbox. Your server needs to be run through iex : `iex -S mix phx.server`.
+
 ## Docker installation <a name="docker_install"></a>
 
 ### Development
