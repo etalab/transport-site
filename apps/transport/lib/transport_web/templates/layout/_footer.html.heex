@@ -23,7 +23,7 @@
           autocomplete: "off"
         ) %>
         <%= text_input(f, :topic, value: gettext("Question about transport.data.gouv.fr"), required: true) %>
-        <%= textarea(f, :demande, placeholder: gettext("Ask for help"), required: true) %>
+        <%= textarea(f, :question, placeholder: gettext("Ask for help"), required: true) %>
         <%= submit(gettext("Send email")) %>
       <% end %>
     </div>

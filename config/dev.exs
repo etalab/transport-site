@@ -77,6 +77,10 @@ config :oauth2, Datagouvfr.Authentication,
 
 config :transport, :email_sender_impl, Transport.EmailSender.Dummy
 
+# Allows emails to be read at localhost:5000/dev/mailbox
+# Add a dev.secret.exs to use a real email provider
+config :transport, Transport.Mailer, adapter: Swoosh.Adapters.Local
+
 extra_config_file = Path.join(__DIR__, "#{config_env()}.secret.exs")
 
 if File.exists?(extra_config_file) do
