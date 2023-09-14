@@ -21,7 +21,7 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
         socket
       ) do
     Gettext.put_locale(locale)
-    current_email = (Map.get(session, "current_user") || %{}) |> Map.get("email")
+    current_email = session |> get_in(["current_user", "email"])
     data = %{validation_id: validation_id, current_url: current_url, locale: locale, current_email: current_email}
     {:ok, socket |> assign(data) |> update_data()}
   end

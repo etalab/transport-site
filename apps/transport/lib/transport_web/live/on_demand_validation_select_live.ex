@@ -14,7 +14,7 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
 
   def mount(_params, %{"locale" => locale} = session, socket) do
     Gettext.put_locale(locale)
-    current_email = (Map.get(session, "current_user") || %{}) |> Map.get("email")
+    current_email = session |> get_in(["current_user", "email"])
 
     {:ok,
      socket
