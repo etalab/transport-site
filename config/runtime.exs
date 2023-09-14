@@ -89,7 +89,7 @@ if app_env == :staging do
     }
 
   # Do not send emails in staging, but instead log something!
-  config :sample, Sample.Mailer,
+  config :transport, Transport.Mailer,
     adapter: Swoosh.Adapters.Logger,
     level: :debug
 end
