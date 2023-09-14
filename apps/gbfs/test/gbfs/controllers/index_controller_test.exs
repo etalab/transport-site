@@ -17,4 +17,10 @@ defmodule GBFS.IndexControllerTest do
       assert first_href == "http://localhost/gbfs/vcub/gbfs.json"
     end
   end
+
+  test "404 pages", %{conn: conn} do
+    expected_regex = ~r"^Network not found. See available data:"
+    assert conn |> get("/gbfs/foo") |> text_response(404) =~ expected_regex
+    assert conn |> get("/gbfs/foo/gbfs.json") |> text_response(404) =~ expected_regex
+  end
 end

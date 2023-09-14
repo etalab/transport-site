@@ -31,11 +31,6 @@ defmodule GBFS.Router do
   scope "/gbfs", GBFS do
     pipe_through(:api)
 
-    scope "/" do
-      pipe_through(:index_pipeline)
-      get("/", IndexController, :index)
-    end
-
     scope "/vcub" do
       get("/gbfs.json", VCubController, :index)
       get("/system_information.json", VCubController, :system_information)
@@ -62,6 +57,12 @@ defmodule GBFS.Router do
         get("/station_status.json", JCDecauxController, :station_status, as: contract)
       end
     end)
+
+    scope "/" do
+      pipe_through(:index_pipeline)
+      get("/", IndexController, :index)
+      get("/*path", IndexController, :not_found)
+    end
   end
 
   defp assign_jcdecaux(conn, _) do

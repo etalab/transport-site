@@ -27,4 +27,10 @@ defmodule GBFS.IndexController do
       }
     }
   end
+
+  def not_found(%Plug.Conn{} = conn, _params) do
+    conn
+    |> put_status(:not_found)
+    |> text("Network not found. See available data: https://transport.data.gouv.fr/datasets?type=bike-scooter-sharing")
+  end
 end
