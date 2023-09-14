@@ -47,6 +47,6 @@ defmodule TransportWeb.ContactEmail do
     |> to(Application.fetch_env!(:transport, :contact_email))
     |> reply_to(email)
     |> subject(subject)
-    |> text_body(demande)
+    |> text_body(question)
   end
 end
