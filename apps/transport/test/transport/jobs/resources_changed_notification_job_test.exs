@@ -155,14 +155,17 @@ defmodule Transport.Test.Transport.Jobs.ResourcesChangedNotificationJobTest do
              %DB.Notification{email: ^email, reason: :resources_changed, dataset_id: ^dataset_id}
            ] = DB.Notification |> DB.Repo.all()
 
-    assert_email_sent(fn sent ->
-      assert sent.from == {"transport.data.gouv.fr", "contact@transport.beta.gouv.fr"}
-      assert sent.to == [{"", email}]
-      assert sent.reply_to == {"", "contact@transport.beta.gouv.fr"}
-      assert sent.subject == "Super JDD : ressources modifiées"
-      assert is_nil(sent.text_body)
+    assert_email_sent(fn %Swoosh.Email{} = sent ->
+      assert %Swoosh.Email{
+               from: {"transport.data.gouv.fr", "contact@transport.beta.gouv.fr"},
+               to: [{"", ^email}],
+               reply_to: {"", "contact@transport.beta.gouv.fr"},
+               subject: "Super JDD : ressources modifiées",
+               text_body: nil,
+               html_body: html_body
+             } = sent
 
-      assert sent.html_body =~
+      assert html_body =~
                ~s(Les ressources du jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> viennent d’être modifiées)
     end)
   end
