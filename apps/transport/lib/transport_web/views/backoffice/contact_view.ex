@@ -11,14 +11,6 @@ defmodule TransportWeb.Backoffice.ContactView do
     PaginationHelpers.pagination_links(conn, contacts, kwargs)
   end
 
-  defp contact_fonction(%DB.Contact{job_title: nil, organization: organization}) do
-    organization
-  end
-
-  defp contact_fonction(%DB.Contact{job_title: job_title, organization: organization}) do
-    "#{job_title} (#{organization})"
-  end
-
   defp notification_subscriptions_with_dataset(records) do
     records
     |> Enum.reject(&is_nil(&1.dataset_id))

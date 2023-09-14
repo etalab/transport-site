@@ -15,18 +15,11 @@ defmodule TransportWeb.ContactController do
     |> redirect(to: params["redirect_path"] || page_path(conn, :index))
   end
 
-  def send_mail(conn, %{"email" => email, "topic" => subject, "demande" => demande} = params) do
-    [email, subject, demande] = sanitize_inputs([email, subject, demande])
+  def send_mail(conn, %{"email" => email, "topic" => subject, "question" => question} = params) do
+    [email, subject, question] = sanitize_inputs([email, subject, question])
+    contact_email = TransportWeb.ContactEmail.contact(email, subject, question)
 
-    case Transport.EmailSender.impl().send_mail(
-           "PAN, Formulaire Contact",
-           Application.fetch_env!(:transport, :contact_email),
-           Application.fetch_env!(:transport, :contact_email),
-           email,
-           subject,
-           demande,
-           ""
-         ) do
+    case Transport.Mailer.deliver(contact_email) do
       {:ok, _} ->
         conn
         |> put_flash(:info, gettext("Your email has been sent, we will contact you soon"))
@@ -115,5 +108,18 @@ defmodule TransportWeb.ContactController do
 
   defp sanitize_inputs(arr) do
     arr |> Enum.map(&String.trim/1) |> Enum.map(&HtmlSanitizeEx.strip_tags/1)
+  end
+end
+
+defmodule TransportWeb.ContactEmail do
+  import Swoosh.Email
+
+  def contact(email, subject, question) do
+    new()
+    |> from({"PAN, Formulaire Contact", Application.fetch_env!(:transport, :contact_email)})
+    |> to(Application.fetch_env!(:transport, :contact_email))
+    |> reply_to(email)
+    |> subject(subject)
+    |> text_body(question)
   end
 end

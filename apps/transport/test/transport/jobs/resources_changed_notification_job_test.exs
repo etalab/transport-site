@@ -2,6 +2,7 @@ defmodule Transport.Test.Transport.Jobs.ResourcesChangedNotificationJobTest do
   use ExUnit.Case, async: true
   import DB.Factory
   import Mox
+  import Swoosh.TestAssertions
   use Oban.Testing, repo: DB.Repo
   alias Transport.Jobs.ResourcesChangedNotificationJob
 
@@ -147,25 +148,25 @@ defmodule Transport.Test.Transport.Jobs.ResourcesChangedNotificationJobTest do
       contact_id: contact_id
     })
 
-    Transport.EmailSender.Mock
-    |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.beta.gouv.fr",
-                             ^email,
-                             "contact@transport.beta.gouv.fr",
-                             "Super JDD : ressources modifiées" = _subject,
-                             "",
-                             html_part ->
-      assert html_part =~
-               ~s(Les ressources du jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> viennent d’être modifiées)
-
-      :ok
-    end)
-
     assert :ok == perform_job(ResourcesChangedNotificationJob, %{"dataset_id" => dataset_id})
 
     # Logs have been saved
     assert [
              %DB.Notification{email: ^email, reason: :resources_changed, dataset_id: ^dataset_id}
            ] = DB.Notification |> DB.Repo.all()
+
+    assert_email_sent(fn %Swoosh.Email{} = sent ->
+      assert %Swoosh.Email{
+               from: {"transport.data.gouv.fr", "contact@transport.beta.gouv.fr"},
+               to: [{"", ^email}],
+               reply_to: {"", "contact@transport.beta.gouv.fr"},
+               subject: "Super JDD : ressources modifiées",
+               text_body: nil,
+               html_body: html_body
+             } = sent
+
+      assert html_body =~
+               ~s(Les ressources du jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> viennent d’être modifiées)
+    end)
   end
 end
