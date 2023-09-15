@@ -16,7 +16,9 @@ defmodule TransportWeb.ContactController do
   end
 
   def send_mail(conn, %{"email" => email, "topic" => subject, "question" => question} = params) do
-    %{email: email, subject: subject, question: question} = sanitize_inputs(%{email: email, subject: subject, question: question})
+    %{email: email, subject: subject, question: question} =
+      sanitize_inputs(%{email: email, subject: subject, question: question})
+
     contact_email = TransportWeb.ContactEmail.contact(email, subject, question)
 
     case Transport.Mailer.deliver(contact_email) do
