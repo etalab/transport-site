@@ -36,6 +36,13 @@ defmodule Transport.AvailabilityChecker do
       {:ok, %Response{status_code: code}} when (code >= 200 and code < 300) or code in [401, 405] ->
         true
 
+      # Bug affecting Hackney (dependency of HTTPoison)
+      # 303 status codes on `GET` requests should be fine but they're returned as errors
+      # https://github.com/edgurgel/httpoison/issues/171#issuecomment-244029927
+      # https://github.com/etalab/transport-site/issues/3463
+      {:error, %HTTPoison.Error{reason: {:invalid_redirection, _}}} ->
+        true
+
       _ ->
         false
     end

@@ -12,10 +12,6 @@ defmodule GBFS.Router do
     plug(:assign_jcdecaux)
   end
 
-  pipeline :redirect_reseau do
-    plug(:assign_redirect)
-  end
-
   pipeline :index_pipeline do
     plug(:assign_index)
   end
@@ -32,65 +28,8 @@ defmodule GBFS.Router do
     "toulouse" => "Vélô"
   }
 
-  @reseaux_redirects [
-    %{
-      contract_id: "montpellier",
-      redirects: %{
-        "gbfs.json" => "https://montpellier-fr-smoove.klervi.net/gbfs/gbfs.json",
-        "system_information.json" => "https://montpellier-fr-smoove.klervi.net/gbfs/en/system_information.json",
-        "station_information.json" => "https://montpellier-fr-smoove.klervi.net/gbfs/en/station_information.json",
-        "station_status.json" => "https://montpellier-fr-smoove.klervi.net/gbfs/en/station_status.json"
-      }
-    },
-    %{
-      contract_id: "strasbourg",
-      redirects: %{
-        "gbfs.json" => "https://strasbourg-fr-smoove.klervi.net/gbfs/gbfs.json",
-        "system_information.json" => "https://strasbourg-fr-smoove.klervi.net/gbfs/en/system_information.json",
-        "station_information.json" => "https://strasbourg-fr-smoove.klervi.net/gbfs/en/station_information.json",
-        "station_status.json" => "https://strasbourg-fr-smoove.klervi.net/gbfs/en/station_status.json"
-      }
-    },
-    %{
-      contract_id: "rouen",
-      redirects: %{
-        "gbfs.json" => "https://gbfs.urbansharing.com/lovelolibreservice.fr/gbfs.json",
-        "system_information.json" => "https://gbfs.urbansharing.com/lovelolibreservice.fr/system_information.json",
-        "station_information.json" => "https://gbfs.urbansharing.com/lovelolibreservice.fr/station_information.json",
-        "station_status.json" => "https://gbfs.urbansharing.com/lovelolibreservice.fr/station_status.json"
-      }
-    },
-    %{
-      contract_id: "marseille",
-      redirects: %{
-        "gbfs.json" =>
-          "https://api.omega.fifteen.eu/gbfs/2.2/marseille/en/gbfs.json?key=MjE0ZDNmMGEtNGFkZS00M2FlLWFmMWItZGNhOTZhMWQyYzM2",
-        "system_information.json" =>
-          "https://api.omega.fifteen.eu/gbfs/2.2/marseille/en/system_information.json?key=MjE0ZDNmMGEtNGFkZS00M2FlLWFmMWItZGNhOTZhMWQyYzM2",
-        "station_information.json" =>
-          "https://api.omega.fifteen.eu/gbfs/2.2/marseille/en/station_information.json?key=MjE0ZDNmMGEtNGFkZS00M2FlLWFmMWItZGNhOTZhMWQyYzM2",
-        "station_status.json" =>
-          "https://api.omega.fifteen.eu/gbfs/2.2/marseille/en/station_status.json?key=MjE0ZDNmMGEtNGFkZS00M2FlLWFmMWItZGNhOTZhMWQyYzM2"
-      }
-    }
-  ]
-
   scope "/gbfs", GBFS do
     pipe_through(:api)
-
-    scope "/" do
-      pipe_through(:index_pipeline)
-      get("/", IndexController, :index)
-    end
-
-    @reseaux_redirects
-    |> Enum.map(fn %{contract_id: contract_id} ->
-      scope "/" <> contract_id do
-        pipe_through(:redirect_reseau)
-
-        get("/:path", RedirectController, :index, as: contract_id)
-      end
-    end)
 
     scope "/vcub" do
       get("/gbfs.json", VCubController, :index)
@@ -118,6 +57,12 @@ defmodule GBFS.Router do
         get("/station_status.json", JCDecauxController, :station_status, as: contract)
       end
     end)
+
+    scope "/" do
+      pipe_through(:index_pipeline)
+      get("/", IndexController, :index)
+      get("/*path", IndexController, :not_found)
+    end
   end
 
   defp assign_jcdecaux(conn, _) do
@@ -128,19 +73,11 @@ defmodule GBFS.Router do
     |> assign(:contract_name, @reseaux_jcdecaux[contract_id])
   end
 
-  defp assign_redirect(conn, _) do
-    [_, contract_id, _] = conn.path_info
-
-    conn
-    |> assign(:redirect_params, Enum.find(@reseaux_redirects, &(&1.contract_id == contract_id)))
-  end
-
   defp assign_index(conn, _) do
     conn
     |> assign(
       :networks,
-      ["vcub", "vlille"] ++
-        (@reseaux_jcdecaux |> Map.keys()) ++ (@reseaux_redirects |> Enum.map(& &1.contract_id))
+      ["vcub", "vlille"] ++ (@reseaux_jcdecaux |> Map.keys())
     )
   end
 end

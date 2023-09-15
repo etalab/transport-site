@@ -61,6 +61,7 @@ defmodule GBFS.PageCacheTest do
     assert nil == PageCache.network_name("/foo")
     assert nil == PageCache.network_name("/gbfs")
     assert "nantes" == PageCache.network_name("/gbfs/nantes/gbfs.json")
+    assert "nantes" == PageCache.network_name("/gbfs/nantes//gbfs.json")
     assert "nantes" == PageCache.network_name("/gbfs/nantes/station_information.json")
     assert "st_helene" == PageCache.network_name("/gbfs/st_helene/station_information.json")
     assert "cergy-pontoise" == PageCache.network_name("/gbfs/cergy-pontoise/station_information.json")

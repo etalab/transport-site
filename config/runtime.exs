@@ -225,6 +225,11 @@ if config_env() == :prod do
           }
         }
       }
+
+    config :transport, Transport.Mailer,
+      adapter: Swoosh.Adapters.Mailjet,
+      api_key: System.fetch_env!("MJ_APIKEY_PUBLIC"),
+      secret: System.fetch_env!("MJ_APIKEY_PRIVATE")
   end
 end
 
