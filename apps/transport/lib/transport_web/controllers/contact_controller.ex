@@ -16,7 +16,7 @@ defmodule TransportWeb.ContactController do
   end
 
   def send_mail(conn, %{"email" => email, "topic" => subject, "question" => question} = params) do
-    [email, subject, question] = sanitize_inputs([email, subject, question])
+    %{email: email, subject: subject, question: question} = sanitize_inputs(%{email: email, subject: subject, question: question})
     contact_email = TransportWeb.ContactEmail.contact(email, subject, question)
 
     case Transport.Mailer.deliver(contact_email) do
@@ -55,7 +55,7 @@ defmodule TransportWeb.ContactController do
         %{"feedback" => %{"rating" => rating, "explanation" => explanation, "email" => email, "feature" => feature}}
       )
       when rating in @feedback_rating_values and feature in @feedback_features do
-    [email, explanation] = sanitize_inputs([email, explanation])
+    %{email: email, explanation: explanation} = sanitize_inputs(%{email: email, explanation: explanation})
 
     feedback_email = TransportWeb.ContactEmail.feedback(rating, explanation, email, feature)
 
@@ -82,9 +82,7 @@ defmodule TransportWeb.ContactController do
     |> redirect(to: page_path(conn, :index))
   end
 
-  defp sanitize_inputs(arr) do
-    arr |> Enum.map(&String.trim/1) |> Enum.map(&HtmlSanitizeEx.strip_tags/1)
-  end
+  defp sanitize_inputs(map), do: Map.new(map, fn {k, v} -> {k, v |> String.trim() |> HtmlSanitizeEx.strip_tags()} end)
 end
 
 defmodule TransportWeb.ContactEmail do
