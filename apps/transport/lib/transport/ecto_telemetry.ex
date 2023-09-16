@@ -34,7 +34,7 @@ defmodule Transport.EctoTelemetry do
     # Only requests and logging. Custom metrics are included.".
     #
     # If we need to reduce the volume of metrics (for billing or ops reasons), it appears that
-    # Oban emits roughly 5 calls every 500ms in development at least (setting WORKER=0) removes those events.
+    # Oban emits roughly 5 calls every 500ms in development at least (setting `WORKER=0` removes those events).
     # If this is a problem, we can probably filter a part of them via metadata[:options][:oban_conf] which
     # appears to be there, but for now I believe this gives useful information too.
     #
