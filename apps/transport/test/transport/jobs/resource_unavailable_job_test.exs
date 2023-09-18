@@ -168,6 +168,47 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
              ] = all_enqueued(worker: Transport.Jobs.Workflow)
     end
 
+    test "updates the resource's URL and requests the final URL only once" do
+      %{id: resource_id} =
+        resource =
+        insert(:resource,
+          url: url = "https://static.data.gouv.fr/gtfs.zip",
+          latest_url: latest_url = "https://static.data.gouv.fr/latest_url",
+          is_available: true,
+          datagouv_id: "foo",
+          filetype: "file"
+        )
+
+      new_url = "#{url}##{Ecto.UUID.generate()}"
+
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^latest_url ->
+        {:ok, %HTTPoison.Response{status_code: 303, headers: [{"location", new_url}]}}
+      end)
+
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^new_url ->
+        {:ok, %HTTPoison.Response{status_code: 200}}
+      end)
+
+      assert :ok == perform_job(ResourceUnavailableJob, %{"resource_id" => resource.id})
+
+      assert 0 == count_resource_unavailabilities()
+      assert %DB.Resource{is_available: true, url: ^new_url} = Repo.reload(resource)
+
+      assert [
+               %{
+                 args: %{
+                   "first_job_args" => %{"resource_id" => ^resource_id},
+                   "jobs" => [
+                     ["Elixir.Transport.Jobs.ResourceHistoryJob", _, _],
+                     ["Elixir.Transport.Jobs.ResourceHistoryValidationJob", %{}, %{}]
+                   ]
+                 }
+               }
+             ] = all_enqueued(worker: Transport.Jobs.Workflow)
+    end
+
     test "performs a GET request and allows a 401 response for a SIRI resource" do
       resource =
         insert(:resource,
