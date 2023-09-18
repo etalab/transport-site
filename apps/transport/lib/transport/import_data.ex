@@ -310,6 +310,8 @@ defmodule Transport.ImportData do
          # For ODS gtfs as csv we do not have a 'latest' field
          # (the 'latest' field is the stable data.gouv.fr url)
          "latest_url" => resource["latest"] || resource["url"],
+         # GOTCHA: `filetype` is set to `file` for exports coming from ODS
+         # https://github.com/opendatateam/udata-ods/issues/250
          "filetype" => resource["filetype"],
          "type" => resource["type"],
          "id" => existing_resource[:id],
