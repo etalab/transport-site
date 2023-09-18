@@ -169,9 +169,9 @@
   </div>
 </section>
 <section class="section section-white">
-  <%= Phoenix.View.render(TransportWeb.FeedbackView, "feedback.html",
-    feature: "on-demand-validation",
-    current_email: @current_email
+  <%= live_render(@socket, TransportWeb.Live.FeedbackLive,
+    id: "feedback-form",
+    session: %{"feature" => "on-demand-validation"}
   ) %>
 </section>
 <script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>

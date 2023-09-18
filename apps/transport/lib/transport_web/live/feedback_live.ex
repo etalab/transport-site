@@ -5,6 +5,12 @@ defmodule TransportWeb.Live.FeedbackLive do
   import TransportWeb.Gettext
   require Logger
 
+  @moduledoc """
+  A reusable module to display a feedback form for a given feature, you can display inside a normal view or a live view.
+  In case of normal view, don’t forget to add the app.js script with LiveView js inside the page as if it is not included in the general layout.
+  If you add feedback for a new feature, add it to the list of features.
+  """
+
   @feedback_rating_values ["like", "neutral", "dislike"]
   @feedback_features ["gtfs-stops", "on-demand-validation", "gbfs-validation"]
 
