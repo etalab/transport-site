@@ -30,3 +30,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Leave your feedback"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Thanks for your feedback!"
+msgstr ""

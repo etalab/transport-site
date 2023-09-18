@@ -19,9 +19,11 @@ defmodule TransportWeb.FeedbackLiveTest do
         session: %{"feature" => "on-demand-validation", "locale" => "fr"}
       )
 
-    assert view
-           |> element("form")
-           |> render_submit(%{feedback: %{email: "spammer@internet.com", name: "John Doe"}})
+    view
+    |> element("form")
+    |> render_submit(%{feedback: %{email: "spammer@internet.com", name: "John Doe"}})
+    |> Kernel.=~("Merci d’avoir laissé votre avis !")
+    |> assert
 
     assert_no_email_sent()
   end
@@ -42,7 +44,7 @@ defmodule TransportWeb.FeedbackLiveTest do
         explanation: "so useful for my GTFS files"
       }
     })
-    |> Kernel.=~("We have received your feedback.")
+    |> Kernel.=~("Merci d’avoir laissé votre avis !")
     |> assert
 
     assert_email_sent(
@@ -56,7 +58,7 @@ defmodule TransportWeb.FeedbackLiveTest do
     )
   end
 
-  test "Post invalid", %{conn: conn} do
+  test "Post invalid parameters in feedback form and check it doesn’t crash", %{conn: conn} do
     {:ok, view, _html} =
       live_isolated(conn, TransportWeb.Live.FeedbackLive,
         session: %{"feature" => "on-demand-validation", "locale" => "fr"}
@@ -68,6 +70,8 @@ defmodule TransportWeb.FeedbackLiveTest do
         |> element("form")
         |> render_submit(%{topic: "question", demande: "where is my dataset?"})
       end)
+
+    assert view =~ "Il y a eu une erreur réessayez."
 
     assert logs =~ "Bad parameters for feedback"
 

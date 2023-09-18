@@ -10,7 +10,7 @@ defmodule TransportWeb.Live.FeedbackLive do
 
   def mount(_params, %{"feature" => feature} = session, socket) do
     current_email = session |> get_in(["current_user", "email"])
-    {:ok, socket |> assign(feature: feature, current_email: current_email, feedback_sent: false)}
+    {:ok, socket |> assign(feature: feature, current_email: current_email, feedback_sent: false, feedback_error: false)}
   end
 
   def handle_event("submit", %{"feedback" => %{"name" => name, "email" => email}}, socket) when name !== "" do
