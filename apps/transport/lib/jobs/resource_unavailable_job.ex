@@ -64,10 +64,16 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
     |> update_availability()
   end
 
-  defp check_availability({check_url, %Resource{format: format} = resource}) do
+  defp check_availability({:updated, %Resource{} = resource}) do
+    {true, resource}
+  end
+
+  defp check_availability({:noop, check_url, %Resource{format: format} = resource}) do
     {Transport.AvailabilityChecker.Wrapper.available?(format, check_url), resource}
   end
 
+  # GOTCHA: `filetype` is set to `file` for exports coming from ODS
+  # https://github.com/opendatateam/udata-ods/issues/250
   defp update_url(%Resource{filetype: "file", url: url, latest_url: latest_url} = resource) do
     case follow(latest_url) do
       {:ok, final_url} when final_url != url ->
@@ -81,14 +87,14 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
 
   defp update_url(%Resource{} = resource), do: {:noop, resource}
 
-  defp historize_resource({:noop, resource}), do: {Resource.download_url(resource), resource}
+  defp historize_resource({:noop, resource}), do: {:noop, Resource.download_url(resource), resource}
 
   defp historize_resource({:updated, %Resource{id: resource_id} = resource}) do
     %{resource_id: resource_id}
     |> Transport.Jobs.ResourceHistoryJob.historize_and_validate_job(history_options: [unique: nil])
     |> Oban.insert!()
 
-    {resource.url, resource}
+    {:updated, resource}
   end
 
   defp update_availability({is_available, %Resource{} = resource}) do
