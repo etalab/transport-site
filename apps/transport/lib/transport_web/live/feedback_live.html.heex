@@ -1,6 +1,6 @@
 <div class="container">
   <h2><%= dgettext("feedback", "Leave your feedback") %></h2>
-  <.form :let={f} for={%{}} as={:feedback} :if={!@feedback_sent} phx-submit="submit" class="feedback-form no-margin">
+  <.form :let={f} :if={!@feedback_sent} for={%{}} as={:feedback} phx-submit="submit" class="feedback-form no-margin">
     <div class="form__group feedback-selector">
       <fieldset>
         <legend><%= dgettext("feedback", "What's your feedback on this page?") %></legend>
@@ -43,7 +43,6 @@
       <%= submit(dgettext("feedback", "Send the feedback"), class: "button") %>
     </div>
   </.form>
-
 
   <p :if={@feedback_sent}><%= dgettext("feedback", "We have received your feedback.") %></p>
 </div>
