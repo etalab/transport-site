@@ -64,37 +64,43 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
     |> update_availability()
   end
 
-  defp check_availability({:updated, %Resource{} = resource}) do
+  defp check_availability({:updated, 200 = _status_code, %Resource{} = resource}) do
     {true, resource}
   end
 
-  defp check_availability({:noop, check_url, %Resource{format: format} = resource}) do
+  defp check_availability({:updated, status_code, %Resource{format: format, url: url} = resource})
+       when status_code != 200 do
+    {Transport.AvailabilityChecker.Wrapper.available?(format, url), resource}
+  end
+
+  defp check_availability({:no_op, %Resource{format: format} = resource}) do
+    check_url = Resource.download_url(resource)
     {Transport.AvailabilityChecker.Wrapper.available?(format, check_url), resource}
   end
 
-  # GOTCHA: `filetype` is set to `file` for exports coming from ODS
+  # GOTCHA: `filetype` is set to `"file"` for exports coming from ODS
   # https://github.com/opendatateam/udata-ods/issues/250
   defp update_url(%Resource{filetype: "file", url: url, latest_url: latest_url} = resource) do
     case follow(latest_url) do
-      {:ok, final_url} when final_url != url ->
+      {:ok, status_code, final_url} when final_url != url ->
         resource = resource |> Ecto.Changeset.change(%{url: final_url}) |> Repo.update!()
-        {:updated, resource}
+        {:updated, status_code, resource}
 
       _ ->
-        {:noop, resource}
+        {:no_op, resource}
     end
   end
 
-  defp update_url(%Resource{} = resource), do: {:noop, resource}
+  defp update_url(%Resource{} = resource), do: {:no_op, resource}
 
-  defp historize_resource({:noop, resource}), do: {:noop, Resource.download_url(resource), resource}
+  defp historize_resource({:no_op, %Resource{}} = payload), do: payload
 
-  defp historize_resource({:updated, %Resource{id: resource_id} = resource}) do
+  defp historize_resource({:updated, _status_code, %Resource{id: resource_id}} = payload) do
     %{resource_id: resource_id}
     |> Transport.Jobs.ResourceHistoryJob.historize_and_validate_job(history_options: [unique: nil])
     |> Oban.insert!()
 
-    {:updated, resource}
+    payload
   end
 
   defp update_availability({is_available, %Resource{} = resource}) do
@@ -150,8 +156,8 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
             {:error, :no_location_header}
         end
 
-      {:ok, %HTTPoison.Response{}} ->
-        {:ok, url}
+      {:ok, %HTTPoison.Response{status_code: status_code}} ->
+        {:ok, status_code, url}
 
       reason ->
         {:error, reason}
