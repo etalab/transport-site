@@ -1,4 +1,6 @@
-# Ref: http://www.normes-donnees-tc.org/wp-content/uploads/2021/09/BNTRA-CN03-GT7_NF-Profil-SIRI-FR_v1.2_20210308.pdf
+# Links:
+# - http://www.normes-donnees-tc.org/wp-content/uploads/2021/09/BNTRA-CN03-GT7_NF-Profil-SIRI-FR_v1.2_20210308.pdf
+# - https://github.com/SIRI-CEN/SIRI
 defmodule Transport.SIRI do
   @moduledoc """
   A module to build SIRI queries.
@@ -20,6 +22,8 @@ defmodule Transport.SIRI do
     ~S(<?xml version="1.0" encoding="UTF-8"?>)
   end
 
+  def request_extension, do: empty_element("RequestExtension", [])
+
   def check_status(timestamp, requestor_ref, message_identifier) do
     doc =
       element("S:Envelope", @top_level_namespaces, [
@@ -29,7 +33,8 @@ defmodule Transport.SIRI do
               element("siri:RequestTimestamp", [], timestamp),
               element("siri:RequestorRef", [], requestor_ref),
               element("siri:MessageIdentifier", [], message_identifier)
-            ])
+            ]),
+            request_extension()
           ])
         ])
       ])
@@ -46,7 +51,8 @@ defmodule Transport.SIRI do
               element("siri:RequestTimestamp", [], timestamp),
               element("siri:RequestorRef", [], requestor_ref),
               element("siri:MessageIdentifier", [], message_identifier)
-            ])
+            ]),
+            request_extension()
           ])
         ])
       ])
@@ -63,7 +69,8 @@ defmodule Transport.SIRI do
               element("siri:RequestTimestamp", [], timestamp),
               element("siri:RequestorRef", [], requestor_ref),
               element("siri:MessageIdentifier", [], message_identifier)
-            ])
+            ]),
+            request_extension()
           ])
         ])
       ])
@@ -110,7 +117,8 @@ defmodule Transport.SIRI do
                 element("siri:MessageIdentifier", [], message_identifier)
               ]
               |> append_if_not_nil(line_refs_element(line_refs))
-            )
+            ),
+            request_extension()
           ])
         ])
       ])
@@ -137,7 +145,8 @@ defmodule Transport.SIRI do
                 element("siri:MonitoringRef", [], stop_ref),
                 element("siri:StopVisitTypes", [], "all")
               ]
-            )
+            ),
+            request_extension()
           ])
         ])
       ])
@@ -162,7 +171,8 @@ defmodule Transport.SIRI do
                 element("siri:RequestTimestamp", [], timestamp),
                 element("siri:MessageIdentifier", [], message_identifier)
               ]
-            )
+            ),
+            request_extension()
           ])
         ])
       ])
