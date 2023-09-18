@@ -13,16 +13,11 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
 
   def mount(
         _params,
-        %{
-          "locale" => locale,
-          "validation_id" => validation_id,
-          "current_url" => current_url
-        } = session,
+        %{"locale" => locale, "validation_id" => validation_id, "current_url" => current_url} = _session,
         socket
       ) do
     Gettext.put_locale(locale)
-    current_email = session |> get_in(["current_user", "email"])
-    data = %{validation_id: validation_id, current_url: current_url, locale: locale, current_email: current_email}
+    data = %{validation_id: validation_id, current_url: current_url, locale: locale}
     {:ok, socket |> assign(data) |> update_data()}
   end
 
