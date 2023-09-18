@@ -1,3 +1,7 @@
+<section class="section section-white">
+  <%= live_render(@socket, TransportWeb.Live.FeedbackLive, id: "feedback-form", session: %{"feature" => "on-demand-validation" }) %>
+</section>
+
 <section class="single-page section section-grey">
   <div class="container container_min_height">
     <h1><%= TransportWeb.Gettext.dgettext("validations", "Check the quality of a file or a feed") %></h1>
