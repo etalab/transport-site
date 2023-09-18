@@ -146,7 +146,3 @@ msgstr "Loi climat et résilience"
 #, elixir-autogen, elixir-format
 msgid "Compare two GTFS files"
 msgstr "Comparer deux GTFS"
-
-#, elixir-autogen, elixir-format
-msgid "Thanks for your feedback!"
-msgstr "Merci d’avoir laissé votre avis !"

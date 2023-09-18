@@ -146,7 +146,3 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Compare two GTFS files"
 msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Thanks for your feedback!"
-msgstr ""
