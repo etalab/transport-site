@@ -28,6 +28,7 @@ defmodule Transport.Http.Utils do
   end
 
   defp parse_charset([content_type]), do: parse_charset(content_type)
+
   defp parse_charset(content_type) when is_binary(content_type) do
     case Plug.Conn.Utils.content_type(content_type) do
       {:ok, _, _, %{"charset" => charset}} ->
@@ -42,6 +43,7 @@ defmodule Transport.Http.Utils do
         nil
     end
   end
+
   defp parse_charset(_), do: nil
 
   # When the header isn't sent, the RFC spec says we should assume ISO-8859-1, but the default is
