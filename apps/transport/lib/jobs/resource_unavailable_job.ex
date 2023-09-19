@@ -88,6 +88,7 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
     bypass_resource_ids = @bypass_ids_env_name |> System.get_env("") |> String.split(",")
 
     if to_string(resource_id) in bypass_resource_ids do
+      Logger.info("is_available=true for resource##{resource_id} because the check is bypassed")
       {true, resource}
     else
       {Transport.AvailabilityChecker.Wrapper.available?(format, check_url), resource}
