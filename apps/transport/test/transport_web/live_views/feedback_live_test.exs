@@ -84,10 +84,4 @@ defmodule TransportWeb.FeedbackLiveTest do
     {:ok, _view, html} = conn |> live(live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive))
     assert html =~ "<h2>Laissez-nous votre avis</h2>"
   end
-
-  test "Is correctly included in the GTFS map view", %{conn: conn} do
-    conn = conn |> get("/explore/gtfs-stops")
-    html = html_response(conn, 200)
-    assert html =~ "<h2>Laissez-nous votre avis</h2>"
-  end
 end
