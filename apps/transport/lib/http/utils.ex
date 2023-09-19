@@ -6,14 +6,12 @@ defmodule Transport.Http.Utils do
 
   def location_header(headers), do: header_value(headers, "location")
 
-  @spec header_value(map(), binary()) :: binary() | nil
   def header_value(headers, header) do
     for {key, value} <- headers, String.downcase(key) == String.downcase(header) do
       value
     end
   end
 
-  @spec reencode_body_to_utf8(binary(), map()) :: binary()
   @doc """
   Takes a response body and response headers and try to convert the body to UTF-8.
   It looks at the charset defined in the `content-type` header.
