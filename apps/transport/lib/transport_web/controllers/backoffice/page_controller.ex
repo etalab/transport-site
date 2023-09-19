@@ -319,7 +319,7 @@ defmodule TransportWeb.Backoffice.PageController do
       case when d.custom_tags is null or cardinality(d.custom_tags) = 0 then null else d.custom_tags end dataset_custom_tags,
       d.organization_type type_publicateur,
       coalesce(a.nom, re.nom) nom_territoire,
-      coalesce(legal_owners.noms_aoms, d.legal_owner_company_siren::varchar) representants_legaux,
+      coalesce(legal_owners.noms, d.legal_owner_company_siren::varchar) representants_legaux,
       case when d.is_active and d.archived_at is null then 'actif' when not d.is_active then 'supprimé' when d.archived_at is not null then 'archivé' end statut_datagouv,
       r.title titre_ressource,
       r.format format_ressource,
@@ -342,7 +342,14 @@ defmodule TransportWeb.Backoffice.PageController do
       from resource_history rh
     ) rh on rh.resource_id = r.id and rh.row_number = 1
     left join (
-      select da.dataset_id, string_agg(a.nom, ', ' order by a.nom) noms_aoms
+      select dr.dataset_id, string_agg(r.nom, ', ' order by r.nom) noms
+      from dataset_region_legal_owner dr
+      join region r on dr.region_id = r.id
+      group by 1
+
+      union
+
+      select da.dataset_id, string_agg(a.nom, ', ' order by a.nom) noms
       from dataset_aom_legal_owner da
       join aom a on da.aom_id = a.id
       group by 1
