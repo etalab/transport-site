@@ -121,6 +121,27 @@ defmodule TransportWeb.SIRIQuerierLiveTest do
     refute view |> has_element?("#response_code_wrapper")
     assert view |> has_element?("#siri_response_error")
     assert view |> element("#siri_response_error") |> render() =~ "Got an error"
+
+    # re-encodes a latin1 body to UTF-8
+    latin1 = <<163, 233, 100, 117, 102, 102>>
+    utf8 = "£éduff"
+
+    Transport.HTTPoison.Mock
+    |> expect(:post, fn ^endpoint_url, _body, [{"content-type", "text/xml"}], [recv_timeout: _] ->
+      {:ok,
+       %HTTPoison.Response{
+         body: latin1,
+         headers: [{"Content-Type", "text/plain;charset=ISO-8859-1"}],
+         status_code: 200
+       }}
+    end)
+
+    view |> element(~s{button[phx-click="execute_query"}) |> render_click()
+
+    assert view |> element("#siri_response_wrapper") |> render() =~
+             ~s(<input type="hidden" value="#{utf8}" data-code="response_code_id")
+
+    refute view |> has_element?("#siri_response_error")
   end
 
   test "choosing GetEstimatedTimetable allows to input line references", %{conn: conn} do
