@@ -3,6 +3,7 @@ defmodule TransportWeb.FeedbackLiveTest do
   import Phoenix.LiveViewTest
   import Swoosh.TestAssertions
   import ExUnit.CaptureLog
+  import Mox
 
   @endpoint TransportWeb.Endpoint
 
@@ -76,5 +77,17 @@ defmodule TransportWeb.FeedbackLiveTest do
     assert logs =~ "Bad parameters for feedback"
 
     assert_no_email_sent()
+  end
+
+  test "Is correctly included in the validation Liveview", %{conn: conn} do
+    Transport.Shared.Schemas.Mock |> expect(:transport_schemas, 2, fn -> %{} end)
+    {:ok, _view, html} = conn |> live(live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive))
+    assert html =~ "<h2>Laissez-nous votre avis</h2>"
+  end
+
+  test "Is correctly included in the GTFS map view", %{conn: conn} do
+    conn = conn |> get("/explore/gtfs-stops")
+    html = html_response(conn, 200)
+    assert html =~ "<h2>Laissez-nous votre avis</h2>"
   end
 end
