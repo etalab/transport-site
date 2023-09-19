@@ -14,9 +14,22 @@ defmodule TransportWeb.Live.FeedbackLive do
   @feedback_rating_values ["like", "neutral", "dislike"]
   @feedback_features ["gtfs-stops", "on-demand-validation", "gbfs-validation"]
 
-  def mount(_params, %{"feature" => feature} = session, socket) when feature in @feedback_features do
+  def mount(_params, %{"feature" => feature, "locale" => locale} = session, socket)
+      when feature in @feedback_features do
     current_email = session |> get_in(["current_user", "email"])
-    {:ok, socket |> assign(feature: feature, current_email: current_email, feedback_sent: false, feedback_error: false)}
+
+    socket =
+      socket
+      |> assign(
+        feature: feature,
+        current_email: current_email,
+        feedback_sent: false,
+        feedback_error: false
+      )
+
+    Gettext.put_locale(locale)
+
+    {:ok, socket}
   end
 
   def handle_event("submit", %{"feedback" => %{"name" => name, "email" => email}}, socket) when name !== "" do
