@@ -11,7 +11,9 @@ defmodule TransportWeb.FeedbackLiveTest do
 
   test "Render the feedback component", %{conn: conn} do
     {:ok, _view, html} =
-      live_isolated(conn, TransportWeb.Live.FeedbackLive, session: %{"feature" => "my-feature", "locale" => "fr"})
+      live_isolated(conn, TransportWeb.Live.FeedbackLive,
+        session: %{"feature" => "on-demand-validation", "locale" => "fr"}
+      )
 
     assert html =~ "Qu’avez-vous pensé de cette page ?"
   end
