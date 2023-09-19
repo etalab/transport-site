@@ -44,6 +44,7 @@ defmodule Transport.SIRITest do
             <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
             <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
           </Request>
+          <RequestExtension/>
         </sw:CheckStatus>
       </S:Body>
     </S:Envelope>
@@ -68,6 +69,7 @@ defmodule Transport.SIRITest do
             <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
             <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
           </Request>
+          <RequestExtension/>
         </sw:LinesDiscovery>
       </S:Body>
     </S:Envelope>
@@ -92,6 +94,7 @@ defmodule Transport.SIRITest do
             <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
             <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
           </Request>
+          <RequestExtension/>
         </sw:StopPointsDiscovery>
       </S:Body>
     </S:Envelope>
@@ -126,6 +129,7 @@ defmodule Transport.SIRITest do
                 <siri:LineRef>#{line_002}</siri:LineRef>
               </siri:Lines>
             </Request>
+            <RequestExtension/>
         </sw:GetEstimatedTimetable>
       </S:Body>
     </S:Envelope>
@@ -156,6 +160,7 @@ defmodule Transport.SIRITest do
               <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
               <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
             </Request>
+            <RequestExtension/>
         </sw:GetEstimatedTimetable>
       </S:Body>
     </S:Envelope>
@@ -184,6 +189,7 @@ defmodule Transport.SIRITest do
           <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
           <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
         </Request>
+        <RequestExtension/>
       </sw:GetGeneralMessage>
     </S:Body>
     </S:Envelope>
@@ -215,6 +221,7 @@ defmodule Transport.SIRITest do
           <siri:MonitoringRef>#{stop_ref}</siri:MonitoringRef>
           <siri:StopVisitTypes>all</siri:StopVisitTypes>
         </Request>
+        <RequestExtension/>
       </sw:GetStopMonitoring>
     </S:Body>
     </S:Envelope>
