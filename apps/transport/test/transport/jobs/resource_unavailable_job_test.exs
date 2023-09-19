@@ -209,6 +209,34 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
              ] = all_enqueued(worker: Transport.Jobs.Workflow)
     end
 
+    test "does not perform a real availability check if the resource is bypassed" do
+      url = "https://example.com/stop-monitoring"
+
+      resource =
+        insert(:resource,
+          url: url,
+          latest_url: latest_url = url,
+          filetype: "file",
+          is_available: true,
+          format: "SIRI",
+          datagouv_id: Ecto.UUID.generate()
+        )
+
+      System.put_env("BYPASS_RESOURCE_AVAILABILITY_RESOURCE_IDS", "#{resource.id},42")
+
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^latest_url ->
+        {:ok, %HTTPoison.Response{status_code: 405}}
+      end)
+
+      # `Transport.AvailabilityChecker.Mock` is not called
+
+      assert :ok == perform_job(ResourceUnavailableJob, %{"resource_id" => resource.id})
+
+      assert 0 == count_resource_unavailabilities()
+      assert %DB.Resource{is_available: true} = Repo.reload(resource)
+    end
+
     test "performs a GET request and allows a 401 response for a SIRI resource" do
       resource =
         insert(:resource,
