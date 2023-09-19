@@ -53,6 +53,16 @@ defmodule Transport.AvailabilityCheckerTest do
       assert AvailabilityChecker.available?("SIRI", "url405")
       assert AvailabilityChecker.available?("SIRI Lite", "url405")
     end
+
+    test "303 response" do
+      # See https://github.com/edgurgel/httpoison/issues/171#issuecomment-244029927
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn _url, [], [follow_redirect: true] ->
+        {:error, %HTTPoison.Error{reason: {:invalid_redirection, nil}}}
+      end)
+
+      assert AvailabilityChecker.available?("SIRI", "url303")
+    end
   end
 
   test "head NOT supported, fallback on stream method" do
