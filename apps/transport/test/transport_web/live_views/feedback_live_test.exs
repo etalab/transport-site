@@ -5,6 +5,8 @@ defmodule TransportWeb.FeedbackLiveTest do
   import ExUnit.CaptureLog
   import Mox
 
+  setup :verify_on_exit!
+
   @endpoint TransportWeb.Endpoint
 
   test "Render the feedback component", %{conn: conn} do
