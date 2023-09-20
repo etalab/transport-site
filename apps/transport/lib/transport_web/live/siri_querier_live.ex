@@ -1,6 +1,7 @@
 defmodule TransportWeb.Live.SIRIQuerierLive do
   use Phoenix.LiveView
   use Phoenix.HTML, only: [text_input: 2]
+  import Transport.Http.Utils, only: [reencode_body_to_utf8: 2]
   import TransportWeb.Gettext
   import TransportWeb.Router.Helpers, only: [live_path: 3, static_path: 2]
   import Unlock.GunzipTools, only: [maybe_gunzip: 2, lowercase_headers: 1]
@@ -88,8 +89,13 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
            ) do
         {:ok, %HTTPoison.Response{} = response} ->
           # LiveView does not allow binary payloads. We can work-around that by using Base64, or using a custom channel.
-          # Make sure to unzip!
-          response_body = maybe_gunzip(response.body, lowercase_headers(response.headers))
+          # Unzip and reencode the response body if needed.
+          # We do not make any attempt to modify the XML prolog
+          # (e.g. `<?xml version="1.0" encoding="UTF-8"?>`) to match the target encoding.
+          # If the prolog is sent on some payloads, we may need to "string replace"
+          # that part too.
+          headers = lowercase_headers(response.headers)
+          response_body = response.body |> maybe_gunzip(headers) |> reencode_body_to_utf8(headers)
 
           socket
           |> assign(%{
