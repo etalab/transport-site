@@ -48,9 +48,8 @@ defmodule TransportWeb.ExploreControllerTest do
     doc = Floki.parse_document!(html)
 
     [{"title", _, [title]}] = Floki.find(doc, "title")
-    [{"h2", _, [h2]}] = Floki.find(doc, "h2")
 
     assert title == "Carte consolidée des arrêts GTFS (beta)"
-    assert h2 == "Carte consolidée des arrêts GTFS (beta)"
+    assert html =~ "<h2>Carte consolidée des arrêts GTFS (beta)</h2>"
   end
 end

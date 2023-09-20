@@ -1,8 +1,6 @@
 defmodule TransportWeb.ContactControllerTest do
   use TransportWeb.ConnCase, async: true
-  import Mox
   import Swoosh.TestAssertions
-  setup :verify_on_exit!
 
   test "Post contact form with honey pot filled", %{conn: conn} do
     conn
@@ -21,10 +19,8 @@ defmodule TransportWeb.ContactControllerTest do
       contact_path(conn, :send_mail, %{email: "human@user.fr", topic: "dataset", question: "where is my dataset?"})
     )
     |> get_flash(:info)
-    |> case do
-      nil -> assert true
-      msg -> refute msg =~ "🦊"
-    end
+    |> Kernel.=~("🦊")
+    |> refute
 
     assert_email_sent(
       from: {"PAN, Formulaire Contact", "contact@transport.beta.gouv.fr"},

@@ -175,9 +175,16 @@
   </div>
 </section>
 
+<section class="section section-white">
+  <%= live_render(@conn, TransportWeb.Live.FeedbackLive, session: %{"feature" => "gbfs-validation"}) %>
+</section>
+
 <script src={static_path(@conn, "/js/resourceviz.js")} />
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     createMap('map', "<%= @gbfs_url %>", "gbfs", "<%= get_session(@conn, :locale) %>")
   })
+</script>
+
+<script defer type="text/javascript" src={static_path(@conn, "/js/app.js")}>
 </script>
