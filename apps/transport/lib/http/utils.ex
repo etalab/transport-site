@@ -71,7 +71,9 @@ defmodule Transport.Http.Utils do
   end
 
   defp reencode_body(other, body) do
-    Logger.error("Need to implement re-encoding support for: #{other}")
+    message = "Need to implement re-encoding support for: #{other}"
+    Logger.error(message)
+    Sentry.capture_message("#{inspect(__MODULE__)}: #{message}")
     body
   end
 end
