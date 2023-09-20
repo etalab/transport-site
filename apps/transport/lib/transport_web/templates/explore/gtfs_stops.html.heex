@@ -11,5 +11,12 @@
 
 <div id="map" class="explore_map"></div>
 
+<section class="section section-white">
+  <%= live_render(@conn, TransportWeb.Live.FeedbackLive, session: %{"feature" => "gtfs-stops"}) %>
+</section>
+
 <script src={static_path(@conn, "/js/gtfs.js")}>
+</script>
+
+<script defer type="text/javascript" src={static_path(@conn, "/js/app.js")}>
 </script>
