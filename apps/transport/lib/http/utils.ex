@@ -27,16 +27,17 @@ defmodule Transport.Http.Utils do
 
   defp parse_charset([content_type]), do: parse_charset(content_type)
 
-  # Parse the content-type charset part and attempt to convert it to one of the two encodings we
-  # support at the moment (`:utf8` and `:latin1`), expressed as atoms expected by the Erlang-unicode module
+  # Parse the content-type charset part and attempt to convert it
+  # to one of the two encodings we support at the moment (`:utf8` and `:latin1`),
+  # expressed as atoms expected by the Erlang's unicode module
   # (see https://www.erlang.org/doc/man/unicode#type-encoding).
-  # 
+  #
   # Keep the original value if no match is found.
   defp parse_charset(content_type) when is_binary(content_type) do
     case Plug.Conn.Utils.content_type(content_type) do
       {:ok, _, _, %{"charset" => charset}} ->
-        # Case insensitive and ignore dashes
         cond do
+          # Case insensitive and ignore dashes
           charset =~ ~r/utf-?8/i -> :utf8
           charset =~ ~r/iso-?8859-?1/i -> :latin1
           true -> charset
@@ -49,12 +50,14 @@ defmodule Transport.Http.Utils do
 
   defp parse_charset(_), do: nil
 
-  # When the header isn't sent, the RFC spec says we should assume ISO-8859-1, but the default is
-  # actually different per format, eg, XML should be assumed UTF-8. We're going to not re-encode
-  # if it's not sent and assume UTF-8. This should be safe for most cases.
+  # When the header isn't sent, the RFC spec says we should assume ISO-8859-1
+  # but the default is actually different per format, eg, XML should be assumed UTF-8.
+  # We're going to not re-encode if it's not sent and assume UTF-8.
+  # This should be safe for most cases.
   defp reencode_body(nil, body), do: body
   defp reencode_body(:utf8, body), do: body
 
+  # Reencode the body from Latin 1 to UTF-8
   defp reencode_body(:latin1, body) do
     case :unicode.characters_to_binary(body, :latin1, :utf8) do
       {:error, binary, rest} ->

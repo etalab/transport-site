@@ -89,7 +89,10 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
            ) do
         {:ok, %HTTPoison.Response{} = response} ->
           # LiveView does not allow binary payloads. We can work-around that by using Base64, or using a custom channel.
-          # Unzip and reencode the response body if needed
+          # Unzip and reencode the response body if needed.
+          # We do not make any attempt to modify the XML prolog (e.g. `<?xml version="1.0" encoding="UTF-8"?>`) to match the target encoding.
+          # If the prolog is sent on some payloads, we may need to "string replace"
+          # that part too.
           headers = lowercase_headers(response.headers)
           response_body = response.body |> maybe_gunzip(headers) |> reencode_body_to_utf8(headers)
 
