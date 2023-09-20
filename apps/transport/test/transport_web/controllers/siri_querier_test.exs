@@ -123,8 +123,9 @@ defmodule TransportWeb.SIRIQuerierLiveTest do
     assert view |> element("#siri_response_error") |> render() =~ "Got an error"
 
     # re-encodes a latin1 body to UTF-8
+    # Express `£éduff` in latin1 as bytes first
     latin1 = <<163, 233, 100, 117, 102, 102>>
-    utf8 = "£éduff"
+    expected_utf8_conversion = "£éduff"
 
     Transport.HTTPoison.Mock
     |> expect(:post, fn ^endpoint_url, _body, [{"content-type", "text/xml"}], [recv_timeout: _] ->
@@ -139,7 +140,7 @@ defmodule TransportWeb.SIRIQuerierLiveTest do
     view |> element(~s{button[phx-click="execute_query"}) |> render_click()
 
     assert view |> element("#siri_response_wrapper") |> render() =~
-             ~s(<input type="hidden" value="#{utf8}" data-code="response_code_id")
+             ~s(<input type="hidden" value="#{expected_utf8_conversion}" data-code="response_code_id")
 
     refute view |> has_element?("#siri_response_error")
   end

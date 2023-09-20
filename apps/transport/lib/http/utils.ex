@@ -27,6 +27,11 @@ defmodule Transport.Http.Utils do
 
   defp parse_charset([content_type]), do: parse_charset(content_type)
 
+  # Parse the content-type charset part and attempt to convert it to one of the two encodings we
+  # support at the moment (`:utf8` and `:latin1`), expressed as atoms expected by the Erlang-unicode module
+  # (see https://www.erlang.org/doc/man/unicode#type-encoding).
+  # 
+  # Keep the original value if no match is found.
   defp parse_charset(content_type) when is_binary(content_type) do
     case Plug.Conn.Utils.content_type(content_type) do
       {:ok, _, _, %{"charset" => charset}} ->
