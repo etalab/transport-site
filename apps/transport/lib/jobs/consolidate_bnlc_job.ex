@@ -25,6 +25,17 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   @type dataset_not_found_error :: %{error: :dataset_not_found, dataset_slug: binary()}
 
   @impl Oban.Worker
+  def perform(%Oban.Job{args: %{"action" => "delete_s3_file", "filename" => filename}}) do
+    if filename |> String.starts_with?("bnlc") do
+      Transport.S3.delete_object!(:on_demand_validation, filename)
+      Logger.info("Deleted #{filename} on S3")
+      :ok
+    else
+      {:discard, "Cannot delete file, unexpected filename: #{inspect(filename)}"}
+    end
+  end
+
+  @impl Oban.Worker
   def perform(%Oban.Job{}) do
     consolidate()
   end
@@ -48,7 +59,9 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
       Logger.info("Sending the email recap")
 
-      send_email_recap(%{
+      upload_temporary_file()
+      |> schedule_deletion()
+      |> send_email_recap(%{
         dataset_errors: dataset_errors,
         validation_errors: validation_errors,
         download_errors: download_errors
@@ -58,13 +71,32 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     end
   end
 
-  @spec send_email_recap(consolidation_errors()) :: {:ok, any()} | {:error, any()}
-  def send_email_recap(%{} = errors) do
+  defp upload_temporary_file do
+    content = File.read!(@bnlc_path)
+    now = DateTime.utc_now() |> DateTime.truncate(:microsecond) |> DateTime.to_string() |> String.replace(" ", "_")
+    filename = "bnlc-#{now}.csv"
+    Transport.S3.upload_to_s3!(:on_demand_validation, content, filename)
+    filename
+  end
+
+  defp schedule_deletion(filename) do
+    # Delete temporary file in 4 weeks from S3
+    %{action: "delete_s3_file", filename: filename}
+    |> new(schedule_in: {4, :weeks})
+    |> Oban.insert!()
+
+    filename
+  end
+
+  @spec send_email_recap(binary(), consolidation_errors()) :: {:ok, any()} | {:error, any()}
+  def send_email_recap(filename, %{} = errors) do
     body =
       case format_errors(errors) do
         nil -> "✅ La consolidation s'est déroulée sans erreurs"
         txt when is_binary(txt) -> txt
       end
+
+    file_url = Transport.S3.permanent_url(:on_demand_validation, filename)
 
     Transport.EmailSender.impl().send_mail(
       "transport.data.gouv.fr",
@@ -73,7 +105,11 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
       Application.get_env(:transport, :contact_email),
       "Rapport de consolidation de la BNLC",
       "",
-      body
+      """
+      #{body}
+
+      🔗 <a href="#{file_url}">Fichier consolidé</a>
+      """
     )
   end
 

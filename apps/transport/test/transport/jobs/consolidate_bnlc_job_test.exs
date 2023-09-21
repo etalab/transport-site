@@ -616,6 +616,18 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
         end
       )
 
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.Operation.S3{} = operation ->
+        assert %ExAws.Operation.S3{
+                 bucket: "transport-data-gouv-fr-on-demand-validation-test",
+                 path: path,
+                 http_method: :put,
+                 service: :s3
+               } = operation
+
+        assert path =~ ~r"^bnlc-.*\.csv$"
+      end)
+
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn "transport.data.gouv.fr" = _display_name,
                                "contact@transport.beta.gouv.fr" = _from,
@@ -624,8 +636,10 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                                "Rapport de consolidation de la BNLC" = _subject,
                                "",
                                html_part ->
-        assert html_part ==
+        assert html_part =~
                  ~s{<h2>Ressources non valides par rapport au schéma etalab/schema-lieux-covoiturage</h2>\nRessource `Bar CSV` (<a href="https://data.gouv.fr/bar">Bar JDD</a>)}
+
+        # Make sure a link is there
 
         :ok
       end)
@@ -639,6 +653,31 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
              a,b,c\r
              d,e,f\r
              """ = File.read!(@tmp_path)
+    end
+  end
+
+  describe "deleting a temporary file" do
+    test "perform with a wrong filename" do
+      assert {:discard, ~s[Cannot delete file, unexpected filename: "foo"]} ==
+               perform_job(ConsolidateBNLCJob, %{"action" => "delete_s3_file", "filename" => "foo"})
+    end
+
+    test "perform with an appropriate filename" do
+      filename = "bnlc-#{Ecto.UUID.generate()}"
+
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.Operation.S3{} = operation ->
+        assert %ExAws.Operation.S3{
+                 bucket: "transport-data-gouv-fr-on-demand-validation-test",
+                 path: ^filename,
+                 http_method: :delete,
+                 service: :s3
+               } = operation
+
+        :ok
+      end)
+
+      assert :ok == perform_job(ConsolidateBNLCJob, %{"action" => "delete_s3_file", "filename" => filename})
     end
   end
 end
