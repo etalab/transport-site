@@ -57,7 +57,6 @@ defmodule TransportWeb.ExploreControllerTest do
     conn = conn |> get("/explore/gtfs-stops-data")
     json = json_response(conn, 422)
     assert json["error"] == "incorrect parameters"
-    # assert json["type"] == "FeatureCollection"
   end
 
   test "GET /explore/gtfs-stops-data with parameters", %{conn: conn} do
