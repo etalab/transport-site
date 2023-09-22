@@ -45,9 +45,7 @@
     <% end %>
   </td>
   <td class="bo_action_button">
-    <%= live_render(@conn, TransportWeb.Live.ValidateDatasetView,
-      session: %{"dataset_id" => @dataset.id, "locale" => get_session(@conn, :locale)}
-    ) %>
+    <%= live_render(@conn, TransportWeb.Live.ValidateDatasetView, session: %{"dataset_id" => @dataset.id}) %>
   </td>
   <td class="bo_action_button">
     <%= form_for @conn, backoffice_page_path(@conn, :edit, @dataset.id), [nodiv: true, method: "get"], fn _ -> %>
