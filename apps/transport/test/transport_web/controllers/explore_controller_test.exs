@@ -52,4 +52,27 @@ defmodule TransportWeb.ExploreControllerTest do
     assert title == "Carte consolidée des arrêts GTFS (beta)"
     assert html =~ "<h2>Carte consolidée des arrêts GTFS (beta)</h2>"
   end
+
+  test "GET /explore/gtfs-stops-data without parameters", %{conn: conn} do
+    conn = conn |> get("/explore/gtfs-stops-data")
+    json = json_response(conn, 422)
+    assert json["error"] == "incorrect parameters"
+  end
+
+  test "GET /explore/gtfs-stops-data with parameters", %{conn: conn} do
+    conn =
+      conn
+      |> get("/explore/gtfs-stops-data", %{
+        "south" => "48.8",
+        "east" => "2.4",
+        "west" => "2.2",
+        "north" => "48.9",
+        "width_pixels" => "1000",
+        "height_pixels" => "1000",
+        "zoom_level" => "12"
+      })
+
+    json = json_response(conn, 200)
+    assert json["data"]["type"] == "FeatureCollection"
+  end
 end
