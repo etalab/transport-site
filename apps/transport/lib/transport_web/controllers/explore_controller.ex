@@ -32,22 +32,23 @@ defmodule TransportWeb.ExploreController do
 
   @max_points 20_000
 
-  def gtfs_stops_data(conn, params) do
+  def gtfs_stops_data(
+        conn,
+        %{
+          "south" => south,
+          "east" => east,
+          "west" => west,
+          "north" => north,
+          "width_pixels" => width,
+          "height_pixels" => height,
+          "zoom_level" => zoom_level
+        } = _params
+      ) do
     if national_map_disabled?() do
       conn
       |> put_status(503)
       |> json(%{error: "temporarily unavailable"})
     else
-      %{
-        "south" => south,
-        "east" => east,
-        "west" => west,
-        "north" => north,
-        "width_pixels" => width,
-        "height_pixels" => height,
-        "zoom_level" => zoom_level
-      } = params
-
       {south, ""} = Float.parse(south)
       {east, ""} = Float.parse(east)
       {west, ""} = Float.parse(west)
@@ -83,5 +84,11 @@ defmodule TransportWeb.ExploreController do
         )
       end
     end
+  end
+
+  def gtfs_stops_data(conn, _params) do
+    conn
+    |> put_status(422)
+    |> json(%{error: "incorrect parameters"})
   end
 end
