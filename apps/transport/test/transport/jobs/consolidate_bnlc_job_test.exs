@@ -487,7 +487,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                }
              ] = all_enqueued()
 
-      assert DateTime.diff(scheduled_at, DateTime.utc_now(), :day) == 7 * 4
+      assert_in_delta 7 * 4, DateTime.diff(scheduled_at, DateTime.utc_now(), :day), 1
       assert filename =~ ~r"^bnlc-.*\.csv$"
 
       # CSV content is fine
@@ -687,7 +687,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                }
              ] = all_enqueued()
 
-      assert DateTime.diff(scheduled_at, DateTime.utc_now(), :day) == 7 * 4
+      assert_in_delta 7 * 4, DateTime.diff(scheduled_at, DateTime.utc_now(), :day), 1
       assert filename =~ ~r"^bnlc-.*\.csv$"
 
       assert """

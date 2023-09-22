@@ -31,13 +31,6 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   @type dataset_not_found_error :: %{error: :dataset_not_found, dataset_slug: binary()}
 
   @impl Oban.Worker
-  def perform(%Oban.Job{id: job_id}) do
-    return_value = consolidate()
-    Oban.Notifier.notify(Oban, :gossip, %{complete: job_id})
-    return_value
-  end
-
-  @impl Oban.Worker
   def perform(%Oban.Job{args: %{"action" => "delete_s3_file", "filename" => filename}}) do
     if filename |> String.starts_with?("bnlc") do
       Transport.S3.delete_object!(@s3_bucket, filename)
@@ -46,6 +39,13 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     else
       {:discard, "Cannot delete file, unexpected filename: #{inspect(filename)}"}
     end
+  end
+
+  @impl Oban.Worker
+  def perform(%Oban.Job{id: job_id}) do
+    return_value = consolidate()
+    Oban.Notifier.notify(Oban, :gossip, %{complete: job_id})
+    return_value
   end
 
   @spec consolidate() :: :ok | {:discard, binary()}
