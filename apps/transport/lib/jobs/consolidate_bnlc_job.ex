@@ -15,6 +15,12 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   @datasets_list_csv_url "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/datasets.csv"
   @bnlc_github_url "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv"
   @bnlc_path System.tmp_dir!() |> Path.join("bnlc.csv")
+  # The S3 bucket to use to upload the consolidated file, sent to our team for review.
+  # We use the `:on_demand_validation` one because this is a bucket holding temporary
+  # files.
+  # If at some point we see that we need a bucket to hold consolidated files temporarily
+  # we can create a specific one.
+  @s3_bucket :on_demand_validation
 
   # Custom types
   @type consolidation_errors :: %{dataset_errors: list(), validation_errors: list(), download_errors: list()}
@@ -27,7 +33,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"action" => "delete_s3_file", "filename" => filename}}) do
     if filename |> String.starts_with?("bnlc") do
-      Transport.S3.delete_object!(:on_demand_validation, filename)
+      Transport.S3.delete_object!(@s3_bucket, filename)
       Logger.info("Deleted #{filename} on S3")
       :ok
     else
@@ -75,7 +81,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     content = File.read!(@bnlc_path)
     now = DateTime.utc_now() |> DateTime.truncate(:microsecond) |> DateTime.to_string() |> String.replace(" ", "_")
     filename = "bnlc-#{now}.csv"
-    Transport.S3.upload_to_s3!(:on_demand_validation, content, filename)
+    Transport.S3.upload_to_s3!(@s3_bucket, content, filename)
     filename
   end
 
@@ -96,7 +102,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
         txt when is_binary(txt) -> txt
       end
 
-    file_url = Transport.S3.permanent_url(:on_demand_validation, filename)
+    file_url = Transport.S3.permanent_url(@s3_bucket, filename)
 
     Transport.EmailSender.impl().send_mail(
       "transport.data.gouv.fr",

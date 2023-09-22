@@ -447,6 +447,18 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
         end
       )
 
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.Operation.S3{} = operation ->
+        assert %ExAws.Operation.S3{
+                 bucket: "transport-data-gouv-fr-on-demand-validation-test",
+                 path: path,
+                 http_method: :put,
+                 service: :s3
+               } = operation
+
+        assert path =~ ~r"^bnlc-.*\.csv$"
+      end)
+
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn "transport.data.gouv.fr" = _display_name,
                                "contact@transport.beta.gouv.fr" = _from,
@@ -455,12 +467,26 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                                "Rapport de consolidation de la BNLC" = _subject,
                                "",
                                html_part ->
-        assert html_part == "✅ La consolidation s'est déroulée sans erreurs"
+        assert html_part =~ ~r"^✅ La consolidation s'est déroulée sans erreurs"
+
+        # Make sure a link is there
+        assert html_part =~
+                 ~r{🔗 <a href="https://transport-data-gouv-fr-on-demand-validation-test.cellar-c2.services.clever-cloud.com/bnlc-.*\.csv">Fichier consolidé</a>}
+
         :ok
       end)
 
       assert :ok == perform_job(ConsolidateBNLCJob, %{})
 
+      # A job has been enqueued and scheduled to delete the temporary file stored in the bucket
+      assert [
+              %Oban.Job{worker: "Transport.Jobs.ConsolidateBNLCJob", args: %{"action" => "delete_s3_file", "filename" => filename}, scheduled_at: scheduled_at}
+            ] = all_enqueued()
+
+      assert DateTime.diff(scheduled_at, DateTime.utc_now(), :day) == 7*4
+      assert filename =~ ~r"^bnlc-.*\.csv$"
+
+      # CSV content is fine
       assert """
              foo,bar,baz\r
              I,Love,CSV\r
@@ -640,11 +666,21 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                  ~s{<h2>Ressources non valides par rapport au schéma etalab/schema-lieux-covoiturage</h2>\nRessource `Bar CSV` (<a href="https://data.gouv.fr/bar">Bar JDD</a>)}
 
         # Make sure a link is there
+        assert html_part =~
+                 ~r{🔗 <a href="https://transport-data-gouv-fr-on-demand-validation-test.cellar-c2.services.clever-cloud.com/bnlc-.*\.csv">Fichier consolidé</a>}
 
         :ok
       end)
 
       assert :ok == perform_job(ConsolidateBNLCJob, %{})
+
+      # A job has been enqueued and scheduled to delete the temporary file stored in the bucket
+      assert [
+              %Oban.Job{worker: "Transport.Jobs.ConsolidateBNLCJob", args: %{"action" => "delete_s3_file", "filename" => filename}, scheduled_at: scheduled_at}
+            ] = all_enqueued()
+
+      assert DateTime.diff(scheduled_at, DateTime.utc_now(), :day) == 7*4
+      assert filename =~ ~r"^bnlc-.*\.csv$"
 
       assert """
              foo,bar,baz\r
