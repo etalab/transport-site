@@ -480,8 +480,12 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
       # A job has been enqueued and scheduled to delete the temporary file stored in the bucket
       assert [
-              %Oban.Job{worker: "Transport.Jobs.ConsolidateBNLCJob", args: %{"action" => "delete_s3_file", "filename" => filename}, scheduled_at: scheduled_at}
-            ] = all_enqueued()
+               %Oban.Job{
+                 worker: "Transport.Jobs.ConsolidateBNLCJob",
+                 args: %{"action" => "delete_s3_file", "filename" => filename},
+                 scheduled_at: scheduled_at
+               }
+             ] = all_enqueued()
 
       assert DateTime.diff(scheduled_at, DateTime.utc_now(), :day) == 7 * 4
       assert filename =~ ~r"^bnlc-.*\.csv$"
@@ -676,8 +680,12 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
       # A job has been enqueued and scheduled to delete the temporary file stored in the bucket
       assert [
-              %Oban.Job{worker: "Transport.Jobs.ConsolidateBNLCJob", args: %{"action" => "delete_s3_file", "filename" => filename}, scheduled_at: scheduled_at}
-            ] = all_enqueued()
+               %Oban.Job{
+                 worker: "Transport.Jobs.ConsolidateBNLCJob",
+                 args: %{"action" => "delete_s3_file", "filename" => filename},
+                 scheduled_at: scheduled_at
+               }
+             ] = all_enqueued()
 
       assert DateTime.diff(scheduled_at, DateTime.utc_now(), :day) == 7 * 4
       assert filename =~ ~r"^bnlc-.*\.csv$"
