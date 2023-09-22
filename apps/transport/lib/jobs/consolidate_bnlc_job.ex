@@ -74,6 +74,8 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
         validation_errors: validation_errors,
         download_errors: download_errors
       })
+
+      :ok
     end
   end
 
