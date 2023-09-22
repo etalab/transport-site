@@ -41,6 +41,7 @@ defmodule TransportWeb.Live.SendConsolidateBNLCView do
       end
 
     Oban.Notifier.unlisten([:gossip])
+    # Go back to the first state after 60s to let the end user consolidate again if they wish
     Process.send_after(self(), :reset, :timer.seconds(60))
     {:noreply, new_socket}
   end
