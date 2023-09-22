@@ -15,9 +15,7 @@
       </div>
 
       <div>
-        <%= live_render(@conn, TransportWeb.Live.ValidateDatasetView,
-          session: %{"dataset_id" => @dataset.id, "locale" => get_session(@conn, :locale)}
-        ) %>
+        <%= live_render(@conn, TransportWeb.Live.ValidateDatasetView, session: %{"dataset_id" => @dataset.id}) %>
       </div>
 
       <div>
@@ -27,9 +25,7 @@
       </div>
 
       <div :if={@dataset.type == "public-transit"}>
-        <%= live_render(@conn, TransportWeb.Live.ForceNeTExConversion,
-          session: %{"dataset_id" => @dataset.id, "locale" => get_session(@conn, :locale)}
-        ) %>
+        <%= live_render(@conn, TransportWeb.Live.ForceNeTExConversion, session: %{"dataset_id" => @dataset.id}) %>
       </div>
     </div>
 
@@ -154,7 +150,6 @@
         <%= live_render(@conn, TransportWeb.Live.SendNowOnNAPNotificationView,
           session: %{
             "dataset_id" => @dataset.id,
-            "locale" => get_session(@conn, :locale),
             "sent_reasons" =>
               @notifications_sent |> Enum.map(fn {{reason, _datetime}, _emails} -> reason end) |> Enum.uniq()
           }
