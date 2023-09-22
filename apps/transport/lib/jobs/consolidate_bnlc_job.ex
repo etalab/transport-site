@@ -25,8 +25,9 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   @type dataset_not_found_error :: %{error: :dataset_not_found, dataset_slug: binary()}
 
   @impl Oban.Worker
-  def perform(%Oban.Job{}) do
+  def perform(%Oban.Job{id: job_id}) do
     consolidate()
+    Oban.Notifier.notify(Oban, :gossip, %{complete: job_id})
   end
 
   @spec consolidate() :: :ok | {:discard, binary()}
@@ -53,8 +54,6 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
         validation_errors: validation_errors,
         download_errors: download_errors
       })
-
-      :ok
     end
   end
 
