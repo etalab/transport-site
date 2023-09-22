@@ -44,19 +44,13 @@ defmodule TransportWeb.ExploreController do
           "zoom_level" => zoom_level
         } = _params
       ) do
-    if national_map_disabled?() do
-      conn
-      |> put_status(503)
-      |> json(%{error: "temporarily unavailable"})
-    else
-      {south, ""} = Float.parse(south)
-      {east, ""} = Float.parse(east)
-      {west, ""} = Float.parse(west)
-      {north, ""} = Float.parse(north)
-      {width_px, ""} = Float.parse(width)
-      {height_px, ""} = Float.parse(height)
-      {zoom_level, ""} = Integer.parse(zoom_level)
-
+    with {south, ""} <- Float.parse(south),
+         {east, ""} <- Float.parse(east),
+         {west, ""} <- Float.parse(west),
+         {north, ""} <- Float.parse(north),
+         {width_px, ""} <- Float.parse(width),
+         {height_px, ""} <- Float.parse(height),
+         {zoom_level, ""} <- Integer.parse(zoom_level) do
       snap_x = abs((west - east) / (width_px / 5.0))
       snap_y = abs((north - south) / (height_px / 5.0))
 
@@ -83,6 +77,41 @@ defmodule TransportWeb.ExploreController do
           data: {:skip_json_encoding, Jason.encode!(%{type: "clustered", data: Jason.Fragment.new(data)})}
         )
       end
+    else
+      :error ->
+        conn
+        |> put_status(422)
+        |> json(%{error: "incorrect parameters"})
+    end
+  end
+
+  def gtfs_stops_data(
+        conn,
+        %{
+          "south" => south,
+          "east" => east,
+          "west" => west,
+          "north" => north
+        } = _params
+      ) do
+    with {south, ""} <- Float.parse(south),
+         {east, ""} <- Float.parse(east),
+         {west, ""} <- Float.parse(west),
+         {north, ""} <- Float.parse(north) do
+      count = Transport.GTFSData.count_points({north, south, east, west})
+
+      if count < @max_points do
+        conn |> json(Transport.GTFSData.build_detailed({north, south, east, west}))
+      else
+        conn
+        |> put_status(422)
+        |> json(%{error: "bounding box too large: too many points"})
+      end
+    else
+      :error ->
+        conn
+        |> put_status(422)
+        |> json(%{error: "incorrect parameters"})
     end
   end
 
