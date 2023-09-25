@@ -105,21 +105,6 @@ defmodule GBFS.PageCacheTest do
     {:telemetry_event, [:gbfs, :request, request_type], %{}, %{target: GBFS.Telemetry.target_for_network(network_name)}}
   end
 
-  defp setup_telemetry_handler do
-    events = Transport.Telemetry.gbfs_request_event_names()
-    events |> Enum.at(1) |> :telemetry.list_handlers() |> Enum.map(& &1.id) |> Enum.each(&:telemetry.detach/1)
-    test_pid = self()
-    # inspired by https://github.com/dashbitco/broadway/blob/main/test/broadway_test.exs
-    :telemetry.attach_many(
-      "test-handler-#{System.unique_integer()}",
-      events,
-      fn name, measurements, metadata, _ ->
-        send(test_pid, {:telemetry_event, name, measurements, metadata})
-      end,
-      nil
-    )
-  end
-
   # To be implemented later, but for now the error handling on that (Sentry etc)
   # is not clear (#1378)
   @tag :pending
