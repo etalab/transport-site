@@ -1,5 +1,11 @@
 defmodule GBFS.IndexControllerTest do
-  use GBFS.ConnCase, async: true
+  # This test is set to async because we need to enable the cache to test telemetry events
+  use GBFS.ConnCase, async: false
+  import AppConfigHelper
+
+  setup do
+    setup_telemetry_handler()
+  end
 
   describe "GET /" do
     test "returns correct absolute urls", %{conn: conn} do
@@ -19,8 +25,14 @@ defmodule GBFS.IndexControllerTest do
   end
 
   test "404 pages", %{conn: conn} do
+    # Enable PageCache + telemetry events
+    enable_cache()
+
     expected_regex = ~r"^Network not found. See available data:"
     assert conn |> get("/gbfs/foo") |> text_response(404) =~ expected_regex
     assert conn |> get("/gbfs/foo/gbfs.json") |> text_response(404) =~ expected_regex
+
+    # We did not receive telemetry events (ie metrics have not been saved to the database)
+    refute_receive {:telemetry_event, [:gbfs, :request, _], %{}, %{}}
   end
 end

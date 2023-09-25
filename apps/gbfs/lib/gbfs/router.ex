@@ -4,8 +4,12 @@ defmodule GBFS.Router do
   pipeline :api do
     plug(:accepts, ["json"])
     plug(CORSPlug, origin: "*", credentials: false)
-    plug(PageCache, ttl_seconds: 30, cache_name: GBFS.Application.cache_name())
     plug(TransportWeb.Plugs.AppSignalFilter)
+  end
+
+  pipeline :page_cache do
+    # Cache results and send telemetry events, storing metrics
+    plug(PageCache, ttl_seconds: 30, cache_name: GBFS.Application.cache_name())
   end
 
   pipeline :jcdecaux do
@@ -29,7 +33,7 @@ defmodule GBFS.Router do
   }
 
   scope "/gbfs", GBFS do
-    pipe_through(:api)
+    pipe_through([:api, :page_cache])
 
     scope "/vcub" do
       get("/gbfs.json", VCubController, :index)
@@ -61,8 +65,13 @@ defmodule GBFS.Router do
     scope "/" do
       pipe_through(:index_pipeline)
       get("/", IndexController, :index)
-      get("/*path", IndexController, :not_found)
     end
+  end
+
+  scope "/gbfs", GBFS do
+    # Only the `:api` pipeline, we don't want to cache the response or send telemetry events
+    pipe_through(:api)
+    get("/*path", IndexController, :not_found)
   end
 
   defp assign_jcdecaux(conn, _) do
