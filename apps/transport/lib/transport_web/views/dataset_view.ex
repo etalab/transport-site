@@ -356,10 +356,8 @@ defmodule TransportWeb.DatasetView do
   def licence_url(_), do: nil
 
   @spec description(Dataset.t() | Resource.t()) :: Phoenix.HTML.safe()
-  def description(instance) do
-    instance.description
-    |> markdown_to_safe_html!()
-  end
+  def description(%Dataset{description: description}), do: description |> markdown_to_safe_html!()
+  def description(%Resource{description: description}), do: description |> markdown_to_safe_html!()
 
   def markdown_to_safe_html!(md), do: MarkdownHandler.markdown_to_safe_html!(md)
 
@@ -522,8 +520,8 @@ defmodule TransportWeb.DatasetView do
   iex> display_odbl_osm_conditions?(%Dataset{licence: "odc-odbl", tags: [], custom_tags: nil})
   false
   """
-  def display_odbl_osm_conditions?(%Dataset{licence: "odc-odbl", tags: tags, custom_tags: custom_tags}) do
-    "openstreetmap" in tags or "licence-osm" in (custom_tags || [])
+  def display_odbl_osm_conditions?(%Dataset{licence: "odc-odbl", tags: tags} = dataset) do
+    "openstreetmap" in tags or Dataset.has_custom_tag?(dataset, "licence-osm")
   end
 
   def display_odbl_osm_conditions?(%Dataset{}), do: false
@@ -534,4 +532,12 @@ defmodule TransportWeb.DatasetView do
   end
 
   def related_gtfs_resource(%Resource{}), do: nil
+
+  @doc """
+  iex> seasonal_warning?(%DB.Dataset{custom_tags: ["saisonnier", "foo"]})
+  true
+  iex> seasonal_warning?(%DB.Dataset{custom_tags: ["foo"]})
+  false
+  """
+  def seasonal_warning?(%Dataset{} = dataset), do: DB.Dataset.has_custom_tag?(dataset, "saisonnier")
 end

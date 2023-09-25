@@ -605,3 +605,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Dataset scores"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "This transport service operates seasonally. The associated resources may be outdated depending on the time of year. Contact the data producer through Discussions for more information."
+msgstr ""
