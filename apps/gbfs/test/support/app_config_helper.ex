@@ -10,7 +10,7 @@ defmodule AppConfigHelper do
   end
 
   def setup_telemetry_handler do
-    events = Transport.Telemetry.gbfs_request_event_names()
+    events = Enum.map([:external, :internal], &[:gbfs, :request, &1])
     events |> Enum.at(1) |> :telemetry.list_handlers() |> Enum.map(& &1.id) |> Enum.each(&:telemetry.detach/1)
     test_pid = self()
     # inspired by https://github.com/dashbitco/broadway/blob/main/test/broadway_test.exs
