@@ -8,14 +8,17 @@ defmodule Downloader do
 
   def get(:http_poison, url) do
     %HTTPoison.Response{status_code: 200, body: body} =
-      HTTPoison.get!(url, [], follow_redirect: true, recv_timeout: 180_000)
+      HTTPoison.get!(url, [], follow_redirect: true, timeout: 180_000, recv_timeout: 180_000)
 
     body
   end
 
   def get(:req, url) do
-    # raw: true 
-    %{status: 200, body: body} = Req.get!(url, raw: true, decode_body: false, receive_timeout: 180_000)
+    # for now, do not ask the server for a compressed response, to mimic what's done by httpoison/hackney at the moment
+    # https://hexdocs.pm/req/Req.Steps.html#compressed/1
+    # also, do not decode the body as JSON (for instance)
+    # TODO: ask for compressed, but decompress it, without decoding it as JSON
+    %{status: 200, body: body} = Req.get!(url, compressed: false, decode_body: false, receive_timeout: 180_000)
     body
   end
 
@@ -51,8 +54,9 @@ defmodule Script do
 
     resources
     |> Enum.drop(1)
-    |> Enum.take(50)
-    |> Enum.filter(fn r -> r.id == 80856 end)
+    |> Enum.take(100)
+    |> Enum.reject(fn r -> r.id == 80731 end)
+    #    |> Enum.filter(fn r -> r.id == 80856 end)
     |> Enum.with_index()
     |> Enum.each(fn x = {resource, index} ->
       IO.inspect({resource.id, resource.url, index})
@@ -73,15 +77,24 @@ defmodule Script do
   end
 end
 
-# Script.run!()
+Script.run!()
 
-url =
-  "https://static.data.gouv.fr/resources/amenagements-cyclables-france-metropolitaine/20220709-004511/france-20220708.geojson"
+# url =
+#   "https://static.data.gouv.fr/resources/amenagements-cyclables-france-metropolitaine/20220709-004511/france-20220708.geojson"
 
-# h1 = Downloader.get(:http_poison, url)
+# # debugging
+# # :hackney_trace.enable(:max, :io)
 
-h2 = Downloader.get(:req, url)
+# import Transport.LogTimeTaken, only: [log_time_taken: 2]
 
-File.write!("something.gz", h2)
+# # log_time_taken("download with http poison", fn ->
+# #   h1 = Downloader.get(:http_poison, url)
+# # end)
 
-# IO.inspect(h2)
+# log_time_taken("download with req", fn ->
+#   h2 = Downloader.get(:req, url)
+# end)
+
+# # File.write!("something.gz", h2)
+
+# # IO.inspect(h2)
