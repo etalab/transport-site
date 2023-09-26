@@ -28,6 +28,7 @@ defmodule NotionClient do
     next_fn = fn
       :done ->
         {:halt, nil}
+
       {url, start_cursor} ->
         # https://developers.notion.com/reference/pagination
         json = %{page_size: 100}
@@ -35,7 +36,7 @@ defmodule NotionClient do
         options = http_options(notion_secret) |> Keyword.put(:json, json)
 
         %{status: 200, body: body} = Req.post!(url, options)
-        acc = if (cursor = body["next_cursor"]), do: {url, cursor}, else: :done
+        acc = if cursor = body["next_cursor"], do: {url, cursor}, else: :done
         {body["results"], acc}
     end
 
@@ -53,21 +54,22 @@ defmodule NotionClient do
     base_url = build_base_url(table_id)
 
     req = fn
-      nil -> 
+      nil ->
         nil
+
       {url, start_cursor} ->
         # https://developers.notion.com/reference/pagination
         json = %{page_size: 100}
         json = if start_cursor, do: Map.put(json, :start_cursor, start_cursor), else: json
         options = http_options(notion_secret) |> Keyword.put(:json, json)
         %{status: 200, body: body} = Req.post!(url, options)
-        acc = if (c = body["next_cursor"]), do: {url, c}, else: nil
+        acc = if c = body["next_cursor"], do: {url, c}, else: nil
         {body["results"], acc}
     end
 
     Stream.unfold({base_url, nil}, req)
     # https://hexdocs.pm/elixir/Stream.html#flat_map/2 is needed
-    |> Stream.flat_map(fn(x) -> x end)
+    |> Stream.flat_map(fn x -> x end)
   end
 end
 
@@ -76,7 +78,7 @@ defmodule Mapper do
     stream
     |> Stream.map(fn x -> x["properties"]["Nom"]["title"] |> List.first() |> Map.fetch!("plain_text") end)
     |> Stream.with_index()
-    |> Stream.each(&IO.inspect(&1, IEx.inspect_opts))
+    |> Stream.each(&IO.inspect(&1, IEx.inspect_opts()))
     |> Stream.run()
   end
 end
@@ -86,13 +88,13 @@ end
   "NOTION_ORGANIZATIONS_TABLE_ID" => notion_org_table_id
 } = EnvConfig.read!()
 
-IO.puts "========= database_items_via_stream_resource ========="
+IO.puts("========= database_items_via_stream_resource =========")
 
 NotionClient.database_items_via_stream_resource(notion_org_table_id, notion_secret)
 |> Stream.take(3)
 |> Mapper.run()
 
-IO.puts "========= database_items_via_stream_unfold ========="
+IO.puts("========= database_items_via_stream_unfold =========")
 
 NotionClient.database_items_via_stream_unfold(notion_org_table_id, notion_secret)
 |> Stream.take(2)
