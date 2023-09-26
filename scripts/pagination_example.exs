@@ -11,29 +11,25 @@ defmodule EnvConfig do
 end
 
 defmodule NotionClient do
-  def notion_headers(notion_secret) do
+  def http_options(notion_secret) do
     [auth: {:bearer, notion_secret}, headers: [{"Notion-Version", "2022-06-28"}]]
   end
 
   def database_items(table_id, notion_secret) do
     base_url = "https://api.notion.com/v1/databases/#{table_id}/query"
 
-    next_fn = fn acc ->
-      if acc == :done do
+    next_fn = fn
+      :done ->
         {:halt, nil}
-      else
-        {url, start_cursor} = acc
+      {url, start_cursor} ->
         # https://developers.notion.com/reference/pagination
-        json = %{
-          page_size: 100
-        }
+        json = %{page_size: 100}
         json = if start_cursor, do: Map.put(json, :start_cursor, start_cursor), else: json
-        options = notion_headers(notion_secret) |> Keyword.put(:json, json)
+        options = http_options(notion_secret) |> Keyword.put(:json, json)
 
         %{status: 200, body: body} = Req.post!(url, options)
-        acc = if body["next_cursor"], do: {url, body["next_cursor"]}, else: :done
+        acc = if (cursor = body["next_cursor"]), do: {url, cursor}, else: :done
         {body["results"], acc}
-      end
     end
 
     Stream.resource(
