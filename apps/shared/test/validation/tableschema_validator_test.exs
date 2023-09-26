@@ -16,7 +16,7 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
       setup_schemas_response()
       schema_version = "0.2.2"
       query = URI.encode_query(%{schema: schema_url(@schema_name, schema_version), url: @url, header_case: "false"})
-      expected_url = "https://validata-api.app.etalab.studio/validate?#{query}"
+      expected_url = "https://api.validata.etalab.studio/validate?#{query}"
 
       assert validator_api_url(@schema_name, @url, schema_version) == expected_url
     end
@@ -24,7 +24,7 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
     test "with latest version" do
       setup_schemas_response()
       query = URI.encode_query(%{schema: schema_url(@schema_name, "latest"), url: @url, header_case: "false"})
-      expected_url = "https://validata-api.app.etalab.studio/validate?#{query}"
+      expected_url = "https://api.validata.etalab.studio/validate?#{query}"
 
       assert validator_api_url(@schema_name, @url) == expected_url
     end
@@ -167,7 +167,7 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
 
   defp validata_response_with_body(body, status_code \\ 200) do
     query = URI.encode_query(%{schema: schema_url(@schema_name, "latest"), url: @url, header_case: "false"})
-    url = "https://validata-api.app.etalab.studio/validate?#{query}"
+    url = "https://api.validata.etalab.studio/validate?#{query}"
 
     Transport.HTTPoison.Mock
     |> expect(:get, fn ^url, [] = _headers, [recv_timeout: 180_000] = _options ->
