@@ -25,7 +25,7 @@ defmodule Shared.Validation.TableSchemaValidator do
   @behaviour Shared.Validation.TableSchemaValidator.Wrapper
   @timeout 180_000
   @validata_web_url URI.parse("https://validata.fr/table-schema")
-  @validata_api_url URI.parse("https://validata-api.app.etalab.studio/validate")
+  @validata_api_url URI.parse("https://api.validata.etalab.studio/validate")
   # https://git.opendatafrance.net/validata/validata-core/-/blob/75ee5258010fc43b6a164122eff2579c2adc01a7/validata_core/helpers.py#L152
   @structure_tags ["#head", "#structure"]
 
