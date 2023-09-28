@@ -1,6 +1,9 @@
 defmodule Transport.Jobs.ResourceHistoryValidataJSONJob do
   @moduledoc """
   Validate a `DB.ResourceHistory` with Transport.Validators.ValidataJson and stores the result in the database.
+
+  ⚠️ This job is not executed at the moment.
+  https://github.com/etalab/transport-site/issues/3492
   """
   use Oban.Worker, max_attempts: 3, queue: :resource_validation, tags: ["validation"]
   alias Transport.Jobs.ResourceHistorySchemaValidation
