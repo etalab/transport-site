@@ -127,7 +127,11 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
     reuser = insert_contact()
     dataset = insert(:dataset)
 
-    [{producer_1, :producer}, {producer_2, :producer}, {reuser, :reuser}]
+    # Should be ignored, the contact of a member of the transport.data.gouv.fr's org
+    admin_producer =
+      insert_contact(%{organizations: [sample_org(%{"name" => "Point d'Accès National transport.data.gouv.fr"})]})
+
+    [{producer_1, :producer}, {producer_2, :producer}, {reuser, :reuser}, {admin_producer, :producer}]
     |> Enum.each(fn {%DB.Contact{} = contact, role} ->
       insert(:notification_subscription,
         source: :admin,
@@ -178,7 +182,11 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
     reuser = insert_contact()
     dataset = insert(:dataset, custom_title: "Super JDD")
 
-    [{producer_1, :producer}, {producer_2, :producer}, {reuser, :reuser}]
+    %DB.Contact{id: admin_producer_id} =
+      admin_producer =
+      insert_contact(%{organizations: [sample_org(%{"name" => "Point d'Accès National transport.data.gouv.fr"})]})
+
+    [{producer_1, :producer}, {producer_2, :producer}, {reuser, :reuser}, {admin_producer, :producer}]
     |> Enum.each(fn {%DB.Contact{} = contact, role} ->
       insert(:notification_subscription,
         source: :admin,
@@ -188,6 +196,9 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
         contact: contact
       )
     end)
+
+    assert [%DB.Contact{id: ^admin_producer_id}] = PeriodicReminderProducersNotificationJob.admin_contacts()
+    assert [admin_producer.id] == PeriodicReminderProducersNotificationJob.admin_contact_ids()
 
     Transport.EmailSender.Mock
     |> expect(:send_mail, fn "transport.data.gouv.fr",
