@@ -192,7 +192,39 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
     |> DB.Repo.all()
     |> Enum.map(& &1.contact)
     |> Enum.uniq()
+    # transport.data.gouv.fr's members who are subscribed as "producers" shouldn't be included.
+    # they are dogfooding the feature
+    |> Enum.reject(fn %DB.Contact{id: contact_id} -> contact_id in admin_contact_ids() end)
     |> Enum.sort_by(&DB.Contact.display_name/1)
+  end
+
+  @doc """
+  A list of contact_ids for contacts who are members of the transport.data.gouv.fr's organization.
+
+  This list is cached because it is very stable over time and we need it for multiple
+  Oban jobs executed in parallel or one after another.
+  """
+  @spec admin_contact_ids() :: [integer()]
+  def admin_contact_ids do
+    Transport.Cache.API.fetch(
+      to_string(__MODULE__) <> ":admin_contact_ids",
+      fn -> Enum.map(admin_contacts(), & &1.id) end,
+      :timer.seconds(60)
+    )
+  end
+
+  @doc """
+  Fetches `DB.Contact` who are members of the transport.data.gouv.fr's organization.
+  """
+  @spec admin_contacts() :: [DB.Contact.t()]
+  def admin_contacts do
+    pan_org_name = Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
+
+    DB.Organization.base_query()
+    |> preload(:contacts)
+    |> where([organization: o], o.name == ^pan_org_name)
+    |> DB.Repo.one!()
+    |> Map.fetch!(:contacts)
   end
 
   @doc """

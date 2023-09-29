@@ -5,6 +5,7 @@ defmodule DB.Organization do
   use TypedEctoSchema
   use Ecto.Schema
   import Ecto.Changeset
+  import Ecto.Query
 
   @primary_key {:id, :string, []}
 
@@ -21,6 +22,8 @@ defmodule DB.Organization do
     many_to_many(:contacts, DB.Contact, join_through: "contacts_organizations", on_replace: :delete)
     has_many(:datasets, DB.Dataset)
   end
+
+  def base_query, do: from(o in __MODULE__, as: :organization)
 
   def changeset(struct, attrs \\ %{}) do
     struct
