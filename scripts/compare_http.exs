@@ -18,7 +18,9 @@ defmodule Downloader do
     # https://hexdocs.pm/req/Req.Steps.html#compressed/1
     # also, do not decode the body as JSON (for instance)
     # TODO: ask for compressed, but decompress it, without decoding it as JSON
-    %{status: 200, body: body} = Req.get!(url, compressed: false, decode_body: false, receive_timeout: 180_000)
+    %{status: 200, body: body} =
+      Req.get!(url, compressed: false, decode_body: false, receive_timeout: 180_000)
+
     body
   end
 
