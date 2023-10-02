@@ -91,6 +91,8 @@ defmodule Script do
 
       same =
         unless same do
+          # TODO: verify that the format is GTFS before unzipping
+
           # in theory, we have zip files here, compare a good part of their metadata
           # to ensure the body has the same semantics
           meta_1 = ZipTools.get_zip_metadata(req_body)
