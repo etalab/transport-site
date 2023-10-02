@@ -123,7 +123,7 @@ defmodule Datagouvfr.Client.Datasets do
   """
   @spec get_followers(String.t()) :: {atom, map}
   def get_followers(dataset_id) do
-    [@endpoint, dataset_id, "followers"]
+    [@endpoint, dataset_id, "followers", "?page_size=100"]
     |> Path.join()
     |> API.get()
   end
@@ -159,7 +159,7 @@ defmodule Datagouvfr.Client.Datasets do
     Enum.any?(
       followers,
       &(&1["follower"]["id"] == user_id)
-    ) or is_user_in_followers?(page[~c"next_page"], user_id, conn)
+    ) or is_user_in_followers?(page["next_page"], user_id, conn)
   end
 
   defp is_user_in_followers?(page_url, user_id, conn) when is_binary(page_url) do

@@ -42,8 +42,10 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   end
 
   @impl Oban.Worker
-  def perform(%Oban.Job{}) do
-    consolidate()
+  def perform(%Oban.Job{id: job_id}) do
+    return_value = consolidate()
+    Oban.Notifier.notify(Oban, :gossip, %{complete: job_id})
+    return_value
   end
 
   @spec consolidate() :: :ok | {:discard, binary()}
