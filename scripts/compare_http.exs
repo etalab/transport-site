@@ -7,10 +7,10 @@ defmodule Downloader do
   end
 
   def get(:http_poison, url) do
-    %HTTPoison.Response{status_code: 200, body: body} =
+    %HTTPoison.Response{status_code: status_code, body: body} =
       HTTPoison.get!(url, [], follow_redirect: true, timeout: 180_000, recv_timeout: 180_000)
 
-    body
+    {status_code, body}
   end
 
   def get(:req, url) do
@@ -18,10 +18,10 @@ defmodule Downloader do
     # https://hexdocs.pm/req/Req.Steps.html#compressed/1
     # also, do not decode the body as JSON (for instance)
     # TODO: ask for compressed, but decompress it, without decoding it as JSON
-    %{status: 200, body: body} =
+    %{status: status_code, body: body} =
       Req.get!(url, compressed: false, decode_body: false, receive_timeout: 180_000)
 
-    body
+    {status_code, body}
   end
 
   def cache_dir, do: Path.join(__ENV__.file, "../cache-dir") |> Path.expand()
@@ -32,13 +32,18 @@ defmodule Downloader do
     end
   end
 
+  import Transport.LogTimeTaken, only: [log_time_taken: 2]
+
   def cached_get(client, url) do
     cache_key = ["test-http", client, url_hash(url)] |> Enum.join("-")
     file_cache = Path.join(cache_dir(), cache_key)
     IO.puts("#{client |> inspect} #{url} -> #{file_cache}")
 
     unless File.exists?(file_cache) do
-      body = get(client, url)
+      {status_code, body} = log_time_taken("#{client} - #{url}", fn -> get(client, url) end)
+      unless status_code == 200 do
+        IO.puts "Warn: #{client} got status_code=#{status_code}"
+      end
       File.write!(file_cache, body)
     end
 
@@ -76,10 +81,13 @@ defmodule Script do
       DB.Resource
       |> DB.Repo.all()
 
+
+    # TODO: investigate on resource 81159 (url query escaping???)
     resources
-    |> Enum.drop(1)
-    |> Enum.take(100)
-    |> Enum.reject(fn r -> r.id == 80731 end)
+    # |> Enum.drop(1)
+    # |> Enum.take(100)
+    |> Enum.reject(fn r -> r.id == 80731 end) # timeout
+    |> Enum.reject(fn r -> r.id in [7934, 8488, 80702, 9869] end) # missing eocd record in zip file
     #    |> Enum.filter(fn r -> r.id == 80856 end)
     |> Enum.with_index()
     |> Enum.each(fn x = {resource, index} ->
@@ -113,7 +121,10 @@ defmodule Script do
           "Files downloaded by req & http_poison are not the same (even after decompressing zips if they are zips)"
         )
 
+        IO.puts "======== FAILURE - HALTING =========="
         System.halt()
+      else 
+        IO.puts "Files are the same"
       end
     end)
   end
@@ -121,22 +132,4 @@ end
 
 Script.run!()
 
-# url =
-#   "https://static.data.gouv.fr/resources/amenagements-cyclables-france-metropolitaine/20220709-004511/france-20220708.geojson"
-
-# # debugging
-# # :hackney_trace.enable(:max, :io)
-
-# import Transport.LogTimeTaken, only: [log_time_taken: 2]
-
-# # log_time_taken("download with http poison", fn ->
-# #   h1 = Downloader.get(:http_poison, url)
-# # end)
-
-# log_time_taken("download with req", fn ->
-#   h2 = Downloader.get(:req, url)
-# end)
-
-# # File.write!("something.gz", h2)
-
-# # IO.inspect(h2)
+IO.puts "Leaving..."
