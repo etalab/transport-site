@@ -407,8 +407,9 @@ defmodule TransportWeb.DatasetController do
 
   defp put_climate_resilience_bill_message(%Plug.Conn{} = conn, %{} = params) do
     if ClimateResilienceBill.display_data_reuse_panel?(params) do
-      conn
-      |> assign(:climate_resilience_bill_message, ClimateResilienceBill.data_reuse_message(params, Date.utc_today()))
+      # Article 122 loi climat et résilience, will be back
+      # https://github.com/etalab/transport-site/issues/3149
+      assign(conn, :climate_resilience_bill_message, ClimateResilienceBill.temporary_data_reuse_message(params))
     else
       conn
     end

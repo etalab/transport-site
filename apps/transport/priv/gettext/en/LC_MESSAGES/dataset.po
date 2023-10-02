@@ -111,3 +111,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "These datasets are subject to a data reuse obligation."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Some datasets in this category will be subject to a data reuse obligation."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "These datasets will be subject to a data reuse obligation."
+msgstr ""
