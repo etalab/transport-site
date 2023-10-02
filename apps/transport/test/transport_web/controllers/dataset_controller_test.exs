@@ -104,7 +104,7 @@ defmodule TransportWeb.DatasetControllerTest do
       [msg] = Floki.find(doc, "#climate-resilience-bill-panel")
 
       assert Floki.text(msg) =~
-               "Certaines données de cette catégorie font l'objet d'une intégration obligatoire depuis décembre 2022"
+               "Certaines données de cette catégorie feront l'objet d'une intégration obligatoire."
     end
 
     test "displayed when filtering for climate resilience bill datasets", %{conn: conn} do
@@ -112,7 +112,7 @@ defmodule TransportWeb.DatasetControllerTest do
       doc = conn |> html_response(200) |> Floki.parse_document!()
       [msg] = Floki.find(doc, "#climate-resilience-bill-panel")
 
-      assert Floki.text(msg) =~ "Ces jeux de données font l'objet d'une intégration obligatoire."
+      assert Floki.text(msg) =~ "Ces jeux de données feront l'objet d'une intégration obligatoire."
     end
 
     test "not displayed for locations", %{conn: conn} do

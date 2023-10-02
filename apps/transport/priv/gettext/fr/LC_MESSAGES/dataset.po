@@ -111,3 +111,11 @@ msgstr "à partir de"
 #, elixir-autogen, elixir-format
 msgid "These datasets are subject to a data reuse obligation."
 msgstr "Ces jeux de données font l'objet d'une intégration obligatoire."
+
+#, elixir-autogen, elixir-format
+msgid "Some datasets in this category will be subject to a data reuse obligation."
+msgstr "Certaines données de cette catégorie feront l'objet d'une intégration obligatoire."
+
+#, elixir-autogen, elixir-format
+msgid "These datasets will be subject to a data reuse obligation."
+msgstr "Ces jeux de données feront l'objet d'une intégration obligatoire."
