@@ -88,13 +88,29 @@ defmodule Script do
       req_body = Downloader.cached_get(:req, resource.url)
       http_poison_body = Downloader.cached_get(:http_poison, resource.url)
       same = http_poison_body == req_body
-      IO.inspect(same)
+
+      same =
+        unless same do
+          # in theory, we have zip files here, compare a good part of their metadata
+          # to ensure the body has the same semantics
+          meta_1 = ZipTools.get_zip_metadata(req_body)
+          meta_2 = ZipTools.get_zip_metadata(http_poison_body)
+
+          meta_1 == meta_2
+        else
+          same
+        end
 
       unless same do
         IO.inspect(req_body)
         IO.inspect(http_poison_body)
         IO.puts("resource_id=#{resource.id |> inspect}")
         IO.puts(resource.url)
+
+        IO.puts(
+          "Files downloaded by req & http_poison are not the same (even after decompressing zips if they are zips)"
+        )
+
         System.halt()
       end
     end)
