@@ -48,6 +48,28 @@ end
 
 Downloader.create_cache_dir()
 
+defmodule ZipTools do
+  def to_tmp_file(filename, content) do
+    dir = System.tmp_dir!()
+    tmp_file = Path.join(dir, filename)
+    File.write!(tmp_file, content)
+    tmp_file
+  end
+
+  # return the meta-data (list of files & checksums) of a given zip,
+  # after writing it to a temp file since it's not currently possible
+  # to read that from memory (https://github.com/akash-akya/unzip/issues/20)
+  #
+  # filtering out the `last_modified_datetime` because zenbus files are generated
+  # on the fly and it would hinder the comparison.
+  def get_zip_metadata(content) do
+    filename = to_tmp_file("zip_meta", content)
+
+    Transport.ZipMetaDataExtractor.extract!(filename)
+    |> Enum.map(fn x -> x |> Map.delete(:last_modified_datetime) end)
+  end
+end
+
 defmodule Script do
   def run!() do
     resources =
