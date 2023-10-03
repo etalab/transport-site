@@ -1,7 +1,12 @@
 Bonjour,
 
 <%= unless Enum.empty?(@datasets_now_climate_resilience) do %>
-Les jeux de données suivants font désormais l’objet d’une intégration obligatoire :
+<!--
+Article 122 loi climat et résilience, will be back
+https://github.com/etalab/transport-site/issues/3149
+Update text
+-->
+Les jeux de données suivants feront l’objet d’une intégration obligatoire :
 <%= for dataset <- @datasets_now_climate_resilience do %>
 <%= link_for_dataset(dataset) %>
 <% end %>

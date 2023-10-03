@@ -4,6 +4,7 @@ defmodule Transport.ClimateResilienceBill do
   of the Climate and Resilience bill.
   """
   import TransportWeb.Gettext
+  @relevant_dataset_types ["public-transit", "bike-scooter-sharing", "low-emission-zones"]
 
   @doc """
   Should we display the data reuse panel when listing/searching datasets.
@@ -20,6 +21,22 @@ defmodule Transport.ClimateResilienceBill do
   def display_data_reuse_panel?(%{"type" => dataset_type}), do: dataset_type in relevant_dataset_types()
 
   def display_data_reuse_panel?(_), do: false
+
+  # Article 122 loi climat et résilience, will be back
+  # https://github.com/etalab/transport-site/issues/3149
+  # Temporary message, replace with `data_reuse_message/2` after
+  def temporary_data_reuse_message(%{"loi-climat-resilience" => "true"}) do
+    dgettext("dataset", "These datasets will be subject to a data reuse obligation.")
+  end
+
+  def temporary_data_reuse_message(dataset_type)
+      when is_binary(dataset_type) and dataset_type in @relevant_dataset_types do
+    temporary_data_reuse_message(%{"type" => dataset_type})
+  end
+
+  def temporary_data_reuse_message(%{"type" => dataset_type}) when dataset_type in @relevant_dataset_types do
+    dgettext("dataset", "Some datasets in this category will be subject to a data reuse obligation.")
+  end
 
   @doc """
   iex> data_reuse_message(%{"loi-climat-resilience" => "true"}, ~D[2022-12-01])
@@ -95,7 +112,5 @@ defmodule Transport.ClimateResilienceBill do
   end
 
   @spec relevant_dataset_types() :: [binary()]
-  def relevant_dataset_types do
-    ["public-transit", "bike-scooter-sharing", "low-emission-zones"]
-  end
+  def relevant_dataset_types, do: @relevant_dataset_types
 end
