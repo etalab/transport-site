@@ -447,6 +447,22 @@ defmodule TransportWeb.DatasetControllerTest do
     end
   end
 
+  test "a banner is displayed for a seasonal dataset", %{conn: conn} do
+    dataset = insert(:dataset, is_active: true, custom_tags: ["saisonnier", "foo"])
+    set_empty_mocks()
+
+    assert TransportWeb.DatasetView.seasonal_warning?(dataset)
+
+    [{"p", [{"class", "notification"}], [content]}] =
+      conn
+      |> get(dataset_path(conn, :details, dataset.slug))
+      |> html_response(200)
+      |> Floki.parse_document!()
+      |> Floki.find(".notification")
+
+    assert content =~ "Le service de transport de ce jeu de donnée ne fonctionne pas toute l'année"
+  end
+
   test "gtfs-rt entities" do
     dataset = %{id: dataset_id} = insert(:dataset, type: "public-transit")
     %{id: resource_id_1} = insert(:resource, dataset_id: dataset_id, format: "gtfs-rt")

@@ -1028,12 +1028,18 @@ defmodule DB.Dataset do
   @doc """
   iex> display_climate_resilience_bill_badge?(%__MODULE__{custom_tags: ["licence-osm"]})
   false
-  iex> display_climate_resilience_bill_badge?(%__MODULE__{custom_tags: nil})
-  false
   iex> display_climate_resilience_bill_badge?(%__MODULE__{custom_tags: ["loi-climat-resilience", "foo"]})
   true
   """
-  def climate_resilience_bill?(%__MODULE__{custom_tags: custom_tags}) do
-    "loi-climat-resilience" in (custom_tags || [])
-  end
+  def climate_resilience_bill?(%__MODULE__{} = dataset), do: has_custom_tag?(dataset, "loi-climat-resilience")
+
+  @doc """
+  iex> has_custom_tag?(%__MODULE__{custom_tags: ["foo"]}, "foo")
+  true
+  iex> has_custom_tag?(%__MODULE__{custom_tags: ["foo"]}, "bar")
+  false
+  iex> has_custom_tag?(%__MODULE__{custom_tags: nil}, "bar")
+  false
+  """
+  def has_custom_tag?(%__MODULE__{custom_tags: custom_tags}, tag_name), do: tag_name in (custom_tags || [])
 end
