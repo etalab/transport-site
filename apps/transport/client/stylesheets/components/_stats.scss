@@ -203,26 +203,6 @@
     }
   }
 
-  .rt-viz {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(1em, 1fr));
-    grid-gap: 0.5em;
-    padding: 2em;
-    padding-top: 0;
-    margin: 0 auto;
-    width: 100%;
-
-    .item {
-      height: 1.25em;
-      width: 1.25em;
-      background-color: $blue;
-
-      &.non-standard {
-        background-color: $grey;
-      }
-    }
-  }
-
   .tile.bike-list {
     flex-grow: 0;
     flex-shrink: 1;

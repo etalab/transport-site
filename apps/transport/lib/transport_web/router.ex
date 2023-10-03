@@ -65,7 +65,6 @@ defmodule TransportWeb.Router do
   scope "/", TransportWeb do
     pipe_through(:browser)
     get("/", PageController, :index)
-    get("/real_time", PageController, :real_time)
     get("/missions", PageController, :missions)
     get("/loi-climat-resilience", PageController, :loi_climat_resilience)
     get("/accessibilite", PageController, :accessibility)

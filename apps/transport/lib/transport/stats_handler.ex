@@ -76,7 +76,6 @@ defmodule Transport.StatsHandler do
       aom_with_errors: Map.get(aoms_max_gtfs_severity, "Error", 0),
       aom_with_fatal: Map.get(aoms_max_gtfs_severity, "Fatal", 0),
       nb_official_public_transit_realtime: nb_official_public_transit_realtime(),
-      nb_unofficial_public_transit_realtime: nb_unofficial_public_transit_realtime(),
       nb_reusers: nb_reusers(),
       nb_reuses: nb_reuses(),
       nb_dataset_types: nb_dataset_types(),
@@ -150,10 +149,6 @@ defmodule Transport.StatsHandler do
       )
 
     Repo.aggregate(bikes_datasets, :count, :id)
-  end
-
-  defp nb_unofficial_public_transit_realtime do
-    Enum.count(CSVDocuments.real_time_providers())
   end
 
   defp nb_dataset_types do
