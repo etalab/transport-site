@@ -3,7 +3,7 @@ msgstr "Impossible d'accéder à la resource, réessayez"
 
 #, elixir-autogen, elixir-format
 msgid "Choose the resource you want to update"
-msgstr "Choisissez la ressource à mettre à modifier"
+msgstr "Choisissez la ressource à modifier"
 
 #, elixir-autogen, elixir-format
 msgid "File uploaded!"
@@ -110,10 +110,6 @@ msgid "Example : Paris GTFS dataset"
 msgstr "exemple : Horaires au format GTFS"
 
 #, elixir-autogen, elixir-format
-msgid "Visit the dataset page"
-msgstr "Voir la page du jeu de données"
-
-#, elixir-autogen, elixir-format
 msgid "Resource is not available on remote server"
 msgstr "La ressource n'est pas disponible sur le serveur distant"
 
@@ -172,3 +168,23 @@ msgstr "La clé (RequestorRef) à renseigner est <code class=\"inline\" id=\"sir
 #, elixir-autogen, elixir-format
 msgid "If you haven’t done it yet, think about <a href=\"%{link}\">validating your data</a> before publishing it."
 msgstr "Si vous ne l’avez pas encore fait, pensez à <a href=\"%{link}\">valider vos données</a> avant de les publier."
+
+#, elixir-autogen, elixir-format
+msgid "Choose the resource you want to delete"
+msgstr "Choisissez la ressource à supprimer"
+
+#, elixir-autogen, elixir-format
+msgid "Could not delete the resource"
+msgstr "Impossible de supprimer la ressource"
+
+#, elixir-autogen, elixir-format
+msgid "Delete the resource"
+msgstr "Supprimer la ressource"
+
+#, elixir-autogen, elixir-format
+msgid "Do you want to update the resource or delete it definitely?"
+msgstr "Souhaitez-vous mettre à jour la ressource ou la supprimer définitivement ?"
+
+#, elixir-autogen, elixir-format
+msgid "The resource has been deleted"
+msgstr "La ressource a été supprimée"

@@ -186,3 +186,7 @@ msgstr "Accéder aux statistiques de trafic pour vos flux gérés par le proxy d
 #, elixir-autogen, elixir-format
 msgid "Your proxy statistics"
 msgstr "Vos statistiques proxy"
+
+#, elixir-autogen, elixir-format
+msgid "Delete a resource"
+msgstr "Supprimer une resource"

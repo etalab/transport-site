@@ -110,10 +110,6 @@ msgid "Example : Paris GTFS dataset"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Visit the dataset page"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Resource is not available on remote server"
 msgstr ""
 
@@ -171,4 +167,24 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "If you haven’t done it yet, think about <a href=\"%{link}\">validating your data</a> before publishing it."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Choose the resource you want to delete"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Could not delete the resource"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Delete the resource"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Do you want to update the resource or delete it definitely?"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The resource has been deleted"
 msgstr ""

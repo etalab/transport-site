@@ -186,3 +186,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Your proxy statistics"
 msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Delete a resource"
+msgstr ""

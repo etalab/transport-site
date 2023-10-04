@@ -28,7 +28,7 @@
             <%= if @datasets == [] do %>
               <%= dgettext("espace-producteurs", "You have no resource to update for the moment") %>
             <% end %>
-            <%= for dataset <- @datasets do %>
+            <%= for dataset <- Enum.sort_by(@datasets, & &1.datagouv_title) do %>
               <div class="pt-24 panel dataset-item">
                 <strong><%= dataset.datagouv_title %></strong>
                 <div class="pt-12">
@@ -39,6 +39,10 @@
                   <%= link(dgettext("espace-producteurs", "Add a resource"),
                     to: resource_path(@conn, :form, dataset.datagouv_id),
                     class: "button-outline secondary small"
+                  ) %>
+                  <%= link(dgettext("espace-producteurs", "Delete a resource"),
+                    to: resource_path(@conn, :resources_list, dataset.datagouv_id, %{"mode" => "delete"}),
+                    class: "button-outline warning small"
                   ) %>
                 </div>
               </div>

@@ -50,6 +50,15 @@ defmodule TransportWeb.BreadCrumbs do
       ]
   end
 
+  def crumbs(conn, :delete_resource, id) do
+    crumbs(conn, :espace_producteur) ++
+      [
+        {dgettext("espace-producteurs", "Select a resource"),
+         resource_path(conn, :resources_list, id, %{"mode" => "delete"})},
+        {dgettext("espace-producteurs", "Delete a resource"), nil}
+      ]
+  end
+
   def crumbs(conn, :update_resource, id) do
     crumbs(conn, :select_resource, id) ++
       [
