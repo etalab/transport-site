@@ -40,6 +40,15 @@ const csrfToken = document.querySelector('meta[name=\'csrf\']').getAttribute('co
 const liveSocket = new LiveSocket('/live', Socket, { hooks: Hooks, params: { _csrf_token: csrfToken } })
 liveSocket.connect()
 
+// Track analytics events for DOM elements by a `data-tracking-category`.
+// The event will be recorded on a click event
+document.querySelectorAll('[data-tracking-category]').forEach(el => {
+    el.addEventListener('click', function (event) {
+        const name = event.dataset.trackingName || ''
+        window._paq.push(['trackEvent', event.dataset.trackingCategory, event.dataset.trackingAction, name])
+    })
+})
+
 // expose liveSocket on window for web console debug logs and latency simulation:
 // >> liveSocket.enableDebug()
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session

@@ -12,10 +12,6 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n>1);"
 
 #, elixir-autogen, elixir-format
-msgid "Add a resource"
-msgstr "Ajouter une ressource"
-
-#, elixir-autogen, elixir-format
 msgid "Adding a dataset guidelines"
 msgstr "Consultez le guide de publication"
 
@@ -190,3 +186,19 @@ msgstr "Vos statistiques proxy"
 #, elixir-autogen, elixir-format
 msgid "Delete a resource"
 msgstr "Supprimer une resource"
+
+#, elixir-autogen, elixir-format
+msgid "Add"
+msgstr "Ajouter"
+
+#, elixir-autogen, elixir-format
+msgid "Delete"
+msgstr "Supprimer"
+
+#, elixir-autogen, elixir-format
+msgid "Resources"
+msgstr "Ressources"
+
+#, elixir-autogen, elixir-format
+msgid "Update"
+msgstr "Modifier"

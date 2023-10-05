@@ -11,10 +11,6 @@ msgid ""
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Add a resource"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Adding a dataset guidelines"
 msgstr ""
 
@@ -188,4 +184,20 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Delete a resource"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Add"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Delete"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Resources"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Update"
 msgstr ""
