@@ -21,13 +21,12 @@ resource_id = Map.fetch!(@conn.params, "resource_id") %>
         >
           <%= dgettext("resource", "Delete the resource") %>
         </button>
-        <a href={resource_path(@conn, :form, dataset_id, resource_id)}>
-          <button
-            class="button-outline primary"
-            type="button"
-            data-tracking-category="espace_producteur"
-            data-tracking-action="abort_delete_update_resource"
-          >
+        <a
+          href={resource_path(@conn, :form, dataset_id, resource_id)}
+          data-tracking-category="espace_producteur"
+          data-tracking-action="abort_delete_update_resource"
+        >
+          <button class="button-outline primary" type="button">
             <%= dgettext("resource", "Update the resource") %>
           </button>
         </a>

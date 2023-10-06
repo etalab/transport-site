@@ -42,10 +42,12 @@ liveSocket.connect()
 
 // Track analytics events for DOM elements by a `data-tracking-category`.
 // The event will be recorded on a click event
+// See https://matomo.org/faq/reports/implement-event-tracking-with-matomo/#how-to-set-up-matomo-event-tracking-with-javascript
 document.querySelectorAll('[data-tracking-category]').forEach(el => {
     el.addEventListener('click', function (event) {
-        const name = event.dataset.trackingName || ''
-        window._paq.push(['trackEvent', event.dataset.trackingCategory, event.dataset.trackingAction, name])
+        const target = event.target
+        const name = target.dataset.trackingName || ''
+        window._paq.push(['trackEvent', target.dataset.trackingCategory, target.dataset.trackingAction, name])
     })
 })
 
