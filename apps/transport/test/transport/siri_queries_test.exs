@@ -125,8 +125,10 @@ defmodule Transport.SIRITest do
               <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
               <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
               <siri:Lines>
-                <siri:LineRef>#{line_001}</siri:LineRef>
-                <siri:LineRef>#{line_002}</siri:LineRef>
+                <siri:LineDirection>
+                  <siri:LineRef>#{line_001}</siri:LineRef>
+                  <siri:LineRef>#{line_002}</siri:LineRef>
+                </siri:LineDirection>
               </siri:Lines>
             </Request>
             <RequestExtension/>
