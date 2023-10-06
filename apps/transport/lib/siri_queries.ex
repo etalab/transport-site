@@ -81,11 +81,15 @@ defmodule Transport.SIRI do
   def line_refs_element([] = _line_refs), do: nil
 
   def line_refs_element(line_refs) do
-    line_refs = Enum.map(line_refs, &element("siri:LineRef", [], &1))
-
-    element("siri:Lines", [], [
-      element("siri:LineDirection", [], line_refs)
-    ])
+    element(
+      "siri:Lines",
+      [],
+      Enum.map(line_refs, fn line_ref ->
+        element("siri:LineDirection", [], [
+          element("siri:LineRef", [], line_ref)
+        ])
+      end)
+    )
   end
 
   def append_if_not_nil(list, nil), do: list
