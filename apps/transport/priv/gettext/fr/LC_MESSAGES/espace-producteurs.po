@@ -196,9 +196,11 @@ msgid "Delete"
 msgstr "Supprimer"
 
 #, elixir-autogen, elixir-format
-msgid "Resources"
-msgstr "Ressources"
-
-#, elixir-autogen, elixir-format
 msgid "Update"
 msgstr "Modifier"
+
+#, elixir-autogen, elixir-format
+msgid "1 resource"
+msgid_plural "%{count} resources"
+msgstr[0] "1 ressources"
+msgstr[1] "%{count} ressources"
