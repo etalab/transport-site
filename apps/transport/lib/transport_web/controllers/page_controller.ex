@@ -62,12 +62,6 @@ defmodule TransportWeb.PageController do
     |> render("single_page.html")
   end
 
-  def real_time(conn, _params) do
-    conn
-    |> assign(:providers, CSVDocuments.real_time_providers())
-    |> single_page(%{"page" => "real_time"})
-  end
-
   def accessibility(conn, _params) do
     single_page(conn, %{"page" => "accessibility"})
   end

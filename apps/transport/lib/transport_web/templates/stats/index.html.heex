@@ -219,7 +219,6 @@
                 Le site recense des données temps réel pour les transports en commun.<br />
                 Pour être référencée sur le PAN, les données doivent être accessibles sans authentification
                 et dans le format GTFS-RT, SIRI ou SIRI Lite.<br />
-                Les données temps réel qui ne respectent pas ces conditions sont référencées sur <a href="/real_time">une page à part</a>.<br />
                 <a href={explore_path(@conn, :index)}>Une carte temps réel</a>
                 présentant la position des véhicules contenus dans les flux GTFS-RT est disponible.<br /><br />
                 Retrouvez plus d’informations concernant le temps réel <a href="https://doc.transport.data.gouv.fr/producteurs/operateurs-de-transport-regulier-de-personnes/temps-reel-des-transports-en-commun">dans la documentation</a>.
@@ -231,18 +230,6 @@
                 <div>
                   <a href="/datasets?filter=has_realtime">Jeux de données standardisés et librement accessibles</a>
                 </div>
-              </div>
-              <div class="tile">
-                <h3><%= @nb_unofficial_public_transit_realtime %></h3>
-                <div><a href="/real_time">Jeux de données non officiellement référencés</a></div>
-              </div>
-              <div class="rt-viz">
-                <%= for _i <- 1..@nb_official_public_transit_realtime do %>
-                  <div class="item standard"></div>
-                <% end %>
-                <%= for _i <- 1..@nb_unofficial_public_transit_realtime do %>
-                  <div class="item non-standard"></div>
-                <% end %>
               </div>
             </div>
           </div>

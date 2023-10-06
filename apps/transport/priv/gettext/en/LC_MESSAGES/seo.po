@@ -48,10 +48,6 @@ msgid "Data quality evaluation"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Non standard real time transport open data"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "State of transport open data for french AOMs"
 msgstr ""
 
