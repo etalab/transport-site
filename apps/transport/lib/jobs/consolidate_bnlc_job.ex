@@ -98,10 +98,16 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
   @spec send_email_recap(binary(), consolidation_errors()) :: {:ok, any()} | {:error, any()}
   def send_email_recap(filename, %{} = errors) do
-    body =
+    {consolidation_status, body} =
       case format_errors(errors) do
-        nil -> "✅ La consolidation s'est déroulée sans erreurs"
-        txt when is_binary(txt) -> txt
+        nil -> {:ok, "✅ La consolidation s'est déroulée sans erreurs"}
+        txt when is_binary(txt) -> {:error, txt}
+      end
+
+    subject =
+      case consolidation_status do
+        :ok -> "[OK] Rapport de consolidation de la BNLC"
+        :error -> "[ERREUR] Rapport de consolidation de la BNLC"
       end
 
     file_url = Transport.S3.permanent_url(@s3_bucket, filename)
@@ -111,11 +117,11 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
       Application.get_env(:transport, :contact_email),
       Application.get_env(:transport, :bizdev_email),
       Application.get_env(:transport, :contact_email),
-      "Rapport de consolidation de la BNLC",
+      subject,
       "",
       """
       #{body}
-
+      <br/><br/>
       🔗 <a href="#{file_url}">Fichier consolidé</a>
       """
     )
