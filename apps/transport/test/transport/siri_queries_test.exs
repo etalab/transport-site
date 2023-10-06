@@ -127,6 +127,8 @@ defmodule Transport.SIRITest do
               <siri:Lines>
                 <siri:LineDirection>
                   <siri:LineRef>#{line_001}</siri:LineRef>
+                </siri:LineDirection>
+                <siri:LineDirection>
                   <siri:LineRef>#{line_002}</siri:LineRef>
                 </siri:LineDirection>
               </siri:Lines>
