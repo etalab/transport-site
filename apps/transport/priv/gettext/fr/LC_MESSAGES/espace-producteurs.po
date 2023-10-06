@@ -202,5 +202,5 @@ msgstr "Modifier"
 #, elixir-autogen, elixir-format
 msgid "1 resource"
 msgid_plural "%{count} resources"
-msgstr[0] "1 ressources"
+msgstr[0] "1 ressource"
 msgstr[1] "%{count} ressources"
