@@ -189,6 +189,10 @@ defmodule TransportWeb.ResourceController do
     |> render("list.html")
   end
 
+  @doc """
+  List resources for a dataset, prompting the user to choose a resource.
+  Used to either update OR delete a resource afterwards.
+  """
   @spec resources_list(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def resources_list(conn, %{"dataset_id" => dataset_id}) do
     conn
@@ -201,27 +205,53 @@ defmodule TransportWeb.ResourceController do
   end
 
   @spec form(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def form(conn, %{"dataset_id" => dataset_id} = args) do
+  def form(conn, %{"dataset_id" => dataset_id} = params) do
     conn
     |> assign_or_flash(
       fn -> Datasets.get(dataset_id) end,
       :dataset,
       "Unable to get resources, please retry."
     )
-    |> get_resource(args)
+    |> get_resource(params)
     |> render("form.html")
   end
 
-  defp get_resource(conn, %{"dataset_id" => _, "resource_id" => _} = args) do
-    assign_or_flash(
-      conn,
-      fn -> Resources.get(args) end,
+  def delete_resource_confirmation(%Plug.Conn{} = conn, %{"dataset_id" => _, "resource_id" => _} = params) do
+    conn |> get_resource(params) |> render("delete_resource_confirmation.html")
+  end
+
+  def delete(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id, "resource_id" => _} = params) do
+    with {:ok, _} <- Resources.delete(conn, params),
+         dataset when not is_nil(dataset) <-
+           Repo.get_by(Dataset, datagouv_id: dataset_id),
+         {:ok, _} <- ImportData.import_dataset_logged(dataset),
+         {:ok, _} <- Dataset.validate(dataset) do
+      conn
+      |> put_flash(:info, dgettext("resource", "The resource has been deleted"))
+      |> redirect(to: page_path(conn, :espace_producteur))
+    else
+      _ ->
+        conn
+        |> put_flash(:error, dgettext("resource", "Could not delete the resource"))
+        |> redirect(to: page_path(conn, :espace_producteur))
+    end
+  end
+
+  defp get_resource(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id, "resource_id" => _} = params) do
+    conn
+    |> assign_or_flash(
+      fn -> Datasets.get(dataset_id) end,
+      :dataset,
+      "Unable to get resources, please retry."
+    )
+    |> assign_or_flash(
+      fn -> Resources.get(params) end,
       :resource,
       "Unable to get resources, please retry."
     )
   end
 
-  defp get_resource(conn, _), do: conn
+  defp get_resource(%Plug.Conn{} = conn, _), do: conn
 
   @doc """
   `download` is in charge of downloading resources.
