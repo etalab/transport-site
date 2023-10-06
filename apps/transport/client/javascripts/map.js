@@ -462,16 +462,12 @@ function addRealTimePTMap (id, view) {
 
         return {
             weight: 1,
-            fillOpacity: 0,
+            fillOpacity: 0.6,
             color: 'grey'
         }
     }
 
-    const filter = feature => {
-        return true
-    }
-
-    const aomsFG = getAomsFG(onEachAomFeature, style, filter)
+    const aomsFG = getAomsFG(onEachAomFeature, style)
     aomsFG.addTo(map)
 
     if (view.display_legend) {
