@@ -38,7 +38,7 @@ defmodule Downloader do
     file_cache_status = file_cache <> ".status"
 
     unless File.exists?(file_cache) do
-      IO.puts "File does not exist #{file_cache}... (#{url} #{message})"
+      IO.puts("File does not exist #{file_cache}... (#{url} #{message})")
       {status_code, body} = get(client, url)
 
       File.write!(file_cache, body)
@@ -79,10 +79,14 @@ defmodule ZipTools do
   def get_zip_metadata(content) do
     filename = to_tmp_file("zip_meta", content)
     {output, exit_code} = System.cmd("unzip", ["-Z1", filename], stderr_to_stdout: true)
+
     cond do
-      exit_code == 0 -> output |> String.split("\n") |> Enum.sort
+      exit_code == 0 ->
+        output |> String.split("\n") |> Enum.sort()
+
       output =~ ~r/cannot find zipfile directory|signature not found/ ->
         :corrupt
+
       true ->
         raise "should not happen"
     end
@@ -93,65 +97,74 @@ defmodule Script do
   require Logger
 
   def run!() do
-    task = fn(resource) ->
+    task = fn resource ->
       # TODO: store status
       # Logger.debug "Downloading resource_id=#{resource.id} #{resource.url} (#{resource.title})"
-      resp_1 = try do
-        {status_code, body} = Downloader.cached_get(:http_poison, resource.url, "resource_id=#{resource.id}")
-        {:ok, {status_code, body}}
-      rescue
-        e ->
-          Logger.error "Error for resource_id=#{resource.id} #{resource.url} - #{e |> inspect}"
-          {:error, e}
-      end
+      resp_1 =
+        try do
+          {status_code, body} = Downloader.cached_get(:http_poison, resource.url, "resource_id=#{resource.id}")
+          {:ok, {status_code, body}}
+        rescue
+          e ->
+            Logger.error("Error for resource_id=#{resource.id} #{resource.url} - #{e |> inspect}")
+            {:error, e}
+        end
 
-      resp_2 = try do
-        url = resource.url |> String.replace("|", "|" |> URI.encode)
-        {status_code, body} = Downloader.cached_get(:req, url, "resource_id=#{resource.id}")
-        {:ok, {status_code, body}}
-      rescue
-        e ->
-          Logger.error "Error for resource_id=#{resource.id} #{resource.url} - #{e |> inspect}"
-          {:error, e}
-      end
+      resp_2 =
+        try do
+          url = resource.url |> String.replace("|", "|" |> URI.encode())
+          {status_code, body} = Downloader.cached_get(:req, url, "resource_id=#{resource.id}")
+          {:ok, {status_code, body}}
+        rescue
+          e ->
+            Logger.error("Error for resource_id=#{resource.id} #{resource.url} - #{e |> inspect}")
+            {:error, e}
+        end
 
       status_1 = resp_1 |> elem(1) |> elem(0)
       status_2 = resp_2 |> elem(1) |> elem(0)
 
       cond do
         status_1 != status_2 ->
-          IO.puts "warn: http_poison=#{status_1} req=#{status_2}"
+          IO.puts("warn: http_poison=#{status_1} req=#{status_2}")
+
         true ->
           nil
       end
 
-      same = (resp_1 == resp_2)
+      same = resp_1 == resp_2
 
       unless same do
         if resource.format == "GTFS" do
           {:ok, {status_code_1, body_1}} = resp_1
           {:ok, {status_code_2, body_2}} = resp_2
+
           try do
             meta_1 = ZipTools.get_zip_metadata(body_1)
             meta_2 = ZipTools.get_zip_metadata(body_2)
+
             cond do
-              (meta_1 == :corrupt) && (meta_2 == :corrupt) ->
+              meta_1 == :corrupt && meta_2 == :corrupt ->
                 :both_corrupt_gtfs
-              (meta_1 == :corrupt) && (meta_2 != :corrupt) ->
+
+              meta_1 == :corrupt && meta_2 != :corrupt ->
                 :http_poison_corrupt
-              (meta_1 != :corrupt) && (meta_2 == :corrupt) ->
+
+              meta_1 != :corrupt && meta_2 == :corrupt ->
                 :req_corrupt
+
               meta_1 != :corrupt && meta_2 != :corrupt && meta_1 == meta_2 ->
                 :same_gtfs_meta
+
               meta_1 != meta_2 ->
-                IO.puts "=============="
-                IO.inspect meta_1
-                IO.inspect meta_2
+                IO.puts("==============")
+                IO.inspect(meta_1)
+                IO.inspect(meta_2)
                 :different_gtfs
             end
           rescue
             e ->
-              IO.puts "Compare failed: #{e |> inspect}"
+              IO.puts("Compare failed: #{e |> inspect}")
               :compare_failed_gtfs
           end
         else
@@ -163,15 +176,16 @@ defmodule Script do
     end
 
     Transport.Jobs.ResourceHistoryAndValidationDispatcherJob.resources_to_historise()
-    |> Enum.reject(&(&1.dataset_id == 641)) # https://transport.data.gouv.fr/datasets/amenagements-cyclables-france-metropolitaine
+    #    |> Enum.reject(&(&1.dataset_id == 641)) # https://transport.data.gouv.fr/datasets/amenagements-cyclables-france-metropolitaine
     |> Task.async_stream(
       task,
-      max_concurrency: 5, # not too high initially or HTTPoison will raise errors
+      # not too high initially or HTTPoison will raise errors
+      max_concurrency: 5,
       timeout: :infinity
     )
-    |> Enum.map(fn({:ok, r}) -> r end)
-    |> Enum.frequencies
-    |> IO.inspect(IEx.inspect_opts)
+    |> Enum.map(fn {:ok, r} -> r end)
+    |> Enum.frequencies()
+    |> IO.inspect(IEx.inspect_opts())
 
     # |> Task.asyn
     # |> Enum.with_index()
