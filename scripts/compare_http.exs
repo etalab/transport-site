@@ -183,36 +183,12 @@ defmodule Script do
     |> Task.async_stream(
       task,
       # not too high initially or HTTPoison will raise errors
-      max_concurrency: 5,
+      max_concurrency: 50,
       timeout: :infinity
     )
     |> Enum.map(fn {:ok, r} -> r end)
     |> Enum.frequencies()
     |> IO.inspect(IEx.inspect_opts())
-
-    # |> Task.asyn
-    # |> Enum.with_index()
-    # |> Enum.each(fn x = {resource, index} ->
-    #
-    #   # # URI.encode(resource.url))
-    #   # req_body = Downloader.cached_get(:req, resource.url)
-    #   # same = http_poison_body == req_body
-
-    #   # same =
-    #   #   unless same do
-    #   #     # TODO: verify that the format is GTFS before unzipping
-
-    #   #     # in theory, we have zip files here, compare a good part of their metadata
-    #   #     # to ensure the body has the same semantics
-    #   #     meta_1 = ZipTools.get_zip_metadata(req_body)
-    #   #     meta_2 = ZipTools.get_zip_metadata(http_poison_body)
-
-    #   #     meta_1 == meta_2
-    #   #   else
-    #   #     same
-    #   #   end
-
-    # end)
   end
 end
 
