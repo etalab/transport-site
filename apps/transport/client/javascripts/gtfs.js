@@ -40,7 +40,7 @@ map.on('moveend', function (event) {
         zoom_level: map.getZoom()
     })
 
-    const url = `/explore/gtfs-stops-data?${params}`
+    const url = `/api/gtfs-stops?${params}`
 
     // https://coolors.co/gradient-palette/2655ff-ff9822?number=5 and https://coolors.co/gradient-palette/ff9822-ce1313?number=5
     const palette = [[38, 85, 255], [92, 102, 200], [147, 119, 145], [201, 135, 89], [255, 152, 34], [243, 119, 30], [231, 86, 27], [218, 52, 23], [206, 19, 19]]
@@ -80,8 +80,8 @@ map.on('moveend', function (event) {
                         return false
                     }
                 }
-            } else if (jsonResponse.type === 'detailed') {
-                const data = jsonResponse.data
+            } else if (jsonResponse.type === 'FeatureCollection') {
+                const data = jsonResponse
                 const geoJsonLayer = new GeoJsonLayer({
                     id: 'geojson-layer',
                     data,

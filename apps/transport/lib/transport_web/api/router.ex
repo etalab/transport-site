@@ -53,6 +53,9 @@ defmodule TransportWeb.API.Router do
     scope "/geo-query" do
       get("/", TransportWeb.API.GeoQueryController, :index)
     end
+
+    get("/gtfs-stops", TransportWeb.API.GTFSStopsController, :index)
+
   end
 
   @spec swagger_info :: %{info: %{title: binary(), version: binary()}}
