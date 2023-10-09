@@ -1,5 +1,8 @@
 #! mix run
 
+# NOTE: very dirty script I've used to compare behaviours of HTTPoison & Req on a largish number of files (~700)
+# before migrating clients.
+
 defmodule Downloader do
   def url_hash(url) do
     :crypto.hash(:sha256, :erlang.term_to_binary(url))
