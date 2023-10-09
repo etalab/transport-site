@@ -37,13 +37,16 @@ defmodule Downloader do
   def cached_get(client, url) do
     cache_key = ["test-http", client, url_hash(url)] |> Enum.join("-")
     file_cache = Path.join(cache_dir(), cache_key)
-    IO.puts("#{client |> inspect} #{url} -> #{file_cache}")
+    # IO.puts("#{client |> inspect} #{url} -> #{file_cache}")
 
     unless File.exists?(file_cache) do
-      {status_code, body} = log_time_taken("#{client} - #{url}", fn -> get(client, url) end)
+      # {status_code, body} = log_time_taken("#{client} - #{url}", fn -> get(client, url) end)
+      {status_code, body} = get(client, url)
+
       unless status_code == 200 do
-        IO.puts "Warn: #{client} got status_code=#{status_code}"
+        IO.puts(:stderr, "Warn: #{client} got status_code=#{status_code}")
       end
+
       File.write!(file_cache, body)
     end
 
@@ -70,8 +73,19 @@ defmodule ZipTools do
   def get_zip_metadata(content) do
     filename = to_tmp_file("zip_meta", content)
 
-    Transport.ZipMetaDataExtractor.extract!(filename)
-    |> Enum.map(fn x -> x |> Map.delete(:last_modified_datetime) end)
+    try do
+      data = Transport.ZipMetaDataExtractor.extract!(filename)
+
+      data
+      |> Enum.map(fn x -> x |> Map.take([:file_name]) end)
+    rescue
+      error ->
+        case error do
+          %MatchError{term: {:error, "Invalid zip file, missing EOCD record"}} ->
+            IO.puts(:stderr, "ZIP/EOCD")
+            nil
+        end
+    end
   end
 end
 
@@ -81,20 +95,46 @@ defmodule Script do
       DB.Resource
       |> DB.Repo.all()
 
-
-    # TODO: investigate on resource 81159 (url query escaping???)
     resources
     # |> Enum.drop(1)
     # |> Enum.take(100)
-    |> Enum.reject(fn r -> r.id == 80731 end) # timeout
-    |> Enum.reject(fn r -> r.id in [7934, 8488, 80702, 9869] end) # missing eocd record in zip file
-    #    |> Enum.filter(fn r -> r.id == 80856 end)
+    # timeout
+    |> Enum.reject(fn r -> r.id == 80731 end)
+    # missing eocd record in zip file
+    # |> Enum.reject(fn r ->
+    #   r.id in [
+    #     7934,
+    #     8488,
+    #     80702,
+    #     9869,
+    #     80533,
+    #     8119,
+    #     81099,
+    #     51449,
+    #     80846,
+    #     80652,
+    #     78984,
+    #     79818,
+    #     72633,
+    #     56170,
+    #     80500,
+    #     80526,
+    #     80444,
+    #     75168
+    #   ]
+    # end)
+    # URI encoding with pipes (?)
+    # |> Enum.filter(fn r -> r.id == 72633 end)
+    #    |> Enum.filter(fn r -> r.id == 81159 end) # URI encoding with pipes (?)
     |> Enum.with_index()
     |> Enum.each(fn x = {resource, index} ->
-      IO.inspect({resource.id, resource.url, index})
+      # IO.inspect({resource.id, resource.url, index})
 
-      req_body = Downloader.cached_get(:req, resource.url)
+      IO.puts(resource.id |> inspect)
+      IO.puts(resource.url)
       http_poison_body = Downloader.cached_get(:http_poison, resource.url)
+      # URI.encode(resource.url))
+      req_body = Downloader.cached_get(:req, resource.url)
       same = http_poison_body == req_body
 
       same =
@@ -121,10 +161,10 @@ defmodule Script do
           "Files downloaded by req & http_poison are not the same (even after decompressing zips if they are zips)"
         )
 
-        IO.puts "======== FAILURE - HALTING =========="
+        IO.puts("======== FAILURE - HALTING ==========")
         System.halt()
-      else 
-        IO.puts "Files are the same"
+      else
+        IO.puts("resource_id=#{resource.id} - OK - content is the same!")
       end
     end)
   end
@@ -132,4 +172,4 @@ end
 
 Script.run!()
 
-IO.puts "Leaving..."
+IO.puts("Leaving...")
