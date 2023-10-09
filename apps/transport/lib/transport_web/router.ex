@@ -65,7 +65,6 @@ defmodule TransportWeb.Router do
   scope "/", TransportWeb do
     pipe_through(:browser)
     get("/", PageController, :index)
-    get("/real_time", PageController, :real_time)
     get("/missions", PageController, :missions)
     get("/loi-climat-resilience", PageController, :loi_climat_resilience)
     get("/accessibilite", PageController, :accessibility)
@@ -137,6 +136,8 @@ defmodule TransportWeb.Router do
           post("/", ResourceController, :post_file)
           get("/_new_resource/", ResourceController, :form)
           get("/:resource_id/", ResourceController, :form)
+          get("/:resource_id/delete", ResourceController, :delete_resource_confirmation)
+          delete("/:resource_id/delete", ResourceController, :delete)
           post("/:resource_id/", ResourceController, :post_file)
         end
       end

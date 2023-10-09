@@ -464,7 +464,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                                "contact@transport.beta.gouv.fr" = _from,
                                "deploiement@transport.beta.gouv.fr" = _to,
                                "contact@transport.beta.gouv.fr" = _reply_to,
-                               "Rapport de consolidation de la BNLC" = _subject,
+                               "[OK] Rapport de consolidation de la BNLC" = _subject,
                                "",
                                html_part ->
         assert html_part =~ ~r"^✅ La consolidation s'est déroulée sans erreurs"
@@ -663,7 +663,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                                "contact@transport.beta.gouv.fr" = _from,
                                "deploiement@transport.beta.gouv.fr" = _to,
                                "contact@transport.beta.gouv.fr" = _reply_to,
-                               "Rapport de consolidation de la BNLC" = _subject,
+                               "[ERREUR] Rapport de consolidation de la BNLC" = _subject,
                                "",
                                html_part ->
         assert html_part =~

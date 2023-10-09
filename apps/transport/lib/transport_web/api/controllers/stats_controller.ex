@@ -4,7 +4,6 @@ defmodule TransportWeb.API.StatsController do
   import Ecto.Query
   alias Geo.JSON
   alias OpenApiSpex.Operation
-  alias Transport.CSVDocuments
   alias TransportWeb.API.Schemas.GeoJSONResponse
 
   @spec open_api_operation(any) :: Operation.t()
@@ -71,14 +70,6 @@ defmodule TransportWeb.API.StatsController do
       "features" => features
     }
 
-  @spec nb_non_standard_rt(binary()) :: non_neg_integer()
-  def nb_non_standard_rt(insee_commune_principale) do
-    CSVDocuments.real_time_providers()
-    |> Enum.filter(fn p -> p["aom_insee_principal"] == insee_commune_principale end)
-    |> Enum.to_list()
-    |> length
-  end
-
   @spec filter_neg(nil | integer()) :: nil | non_neg_integer()
   defp filter_neg(nil), do: nil
 
@@ -138,8 +129,7 @@ defmodule TransportWeb.API.StatsController do
             aom
             |> Map.get(:dataset_formats, [])
             |> Enum.filter(fn {_, v} -> v != nil end)
-            |> Enum.into(%{})
-            |> Map.put("non_standard_rt", nb_non_standard_rt(Map.get(aom, :insee_commune_principale))),
+            |> Enum.into(%{}),
           "dataset_types" => dataset_types
         }
       }

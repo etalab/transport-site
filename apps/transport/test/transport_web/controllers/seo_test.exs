@@ -101,11 +101,6 @@ defmodule TransportWeb.SeoMetadataTest do
     assert title =~ "Jeu de données ouvert GTFS - angers.zip pour Horaires Angers - Angers Métropôle"
   end
 
-  test "GET /real_time ", %{conn: conn} do
-    title = conn |> get("/real_time") |> html_response(200) |> title
-    assert title =~ "Liste des données temps-réel de transport en commun, non standardisées"
-  end
-
   test "GET /aoms ", %{conn: conn} do
     title = conn |> get("/aoms") |> html_response(200) |> title
     assert title =~ "État de l’ouverture des données de transport en commun pour les AOMs françaises"

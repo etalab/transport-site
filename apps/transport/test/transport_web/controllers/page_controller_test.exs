@@ -81,7 +81,10 @@ defmodule TransportWeb.PageControllerTest do
 
       {:ok, doc} = conn |> html_response(200) |> Floki.parse_document()
       assert Floki.find(doc, ".message--error") == []
-      assert doc |> Floki.find(".dataset-item strong") |> Enum.map(&Floki.text(&1)) == [datagouv_title]
+
+      assert doc |> Floki.find(".dataset-item h5") |> Enum.map(&(&1 |> Floki.text() |> String.trim())) == [
+               datagouv_title
+             ]
     end
 
     test "with an OAuth2 error", %{conn: conn} do

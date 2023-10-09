@@ -431,81 +431,52 @@ function addRealTimePTMap (id, view) {
         const gtfsRT = (format.gtfs_rt !== undefined ? format.gtfs_rt : 0)
         const siri = (format.siri !== undefined ? format.siri : 0)
         const siriLite = (format.siri_lite !== undefined ? format.siri_lite : 0)
-        const countOfficial = gtfsRT + siri + siriLite
-        const countNonStandardRT = format.non_standard_rt
+        const countRealTime = gtfsRT + siri + siriLite
 
-        if (countOfficial === undefined && countNonStandardRT === 0) {
+        if (countRealTime === undefined) {
             return null
         }
 
         let bind = `<strong>${name}</strong><br/>${type}`
-        if (countOfficial) {
-            const text = countOfficial === 1 ? 'Un jeu de données standardisé' : `${countOfficial} jeux de données standardisés`
+        if (countRealTime) {
+            const text = countRealTime === 1 ? 'Un jeu de données' : `${countRealTime} jeux de données`
             const aomId = feature.properties.id
             bind += `<br/><a href="/datasets/aom/${aomId}">${text}</a>`
-        }
-
-        if (countNonStandardRT) {
-            const text = 'jeu de données non officiellement référencé'
-            bind += `<br/><a href="/real_time">${text}</a>`
         }
         layer.bindPopup(bind)
     }
 
-    const styles = {
-        stdRT: {
-            weight: 1,
-            color: 'green',
-            fillOpacity: 0.5
-        },
-        nonStdRT: {
-            weight: 1,
-            color: 'red',
-            fillOpacity: 0.3
-        },
-        both: {
-            weight: 1,
-            color: lightGreen,
-            fillOpacity: 0.5,
-            opacity: 1
-        }
-    }
-
     const style = feature => {
         const format = feature.properties.dataset_formats
-        const hasStdRT = format.gtfs_rt !== undefined ||
+        const hasRealTime = format.gtfs_rt !== undefined ||
             format.siri !== undefined ||
             format.siri_lite !== undefined
-        const hasNonStdRT = format.non_standard_rt += 0
 
-        if (hasStdRT && !hasNonStdRT) {
-            return styles.stdRT
+        if (hasRealTime) {
+            return {
+                weight: 1,
+                color: 'green',
+                fillOpacity: 0.5
+            }
         }
-        if (hasNonStdRT && !hasStdRT) {
-            return styles.nonStdRT
+
+        return {
+            weight: 1,
+            fillOpacity: 0.6,
+            color: 'grey'
         }
-        return styles.both
     }
 
-    const filter = feature => {
-        const formats = feature.properties.dataset_formats
-        return formats.gtfs_rt !== undefined ||
-            formats.non_standard_rt !== 0 ||
-            formats.siri !== undefined ||
-            formats.siri_lite !== undefined
-    }
-
-    const aomsFG = getAomsFG(onEachAomFeature, style, filter)
+    const aomsFG = getAomsFG(onEachAomFeature, style)
     aomsFG.addTo(map)
 
     if (view.display_legend) {
         const legend = getLegend(
             '<h4>Disponibilité des horaires temps réel</h4>',
-            ['green', 'light-green', 'red'],
+            ['green', 'grey'],
             [
-                'Données intégralement ouvertes sur transport.data.gouv.fr',
-                'Données partiellement ouvertes sur transport.data.gouv.fr',
-                'Données non ouvertes sur transport.data.gouv.fr'
+                'Données disponibles sur transport.data.gouv.fr',
+                'Pas de données / Données non standardisées'
             ]
         )
         legend.addTo(map)
@@ -526,16 +497,15 @@ function addRealTimePtFormatMap (id, view) {
         const gtfsRT = format.gtfs_rt ?? 0
         const siri = format.siri ?? 0
         const siriLite = format.siri_lite ?? 0
-        const countOfficial = gtfsRT + siri + siriLite
+        const countRealTime = gtfsRT + siri + siriLite
 
-        const countNonStandardRT = format.non_standard_rt
-        if (countOfficial === undefined && countNonStandardRT === 0) {
+        if (countRealTime === undefined) {
             return null
         }
 
         let bind = `<div class="pb-6"><strong>${name}</strong><br/>${type}</div>`
-        if (countOfficial) {
-            const text = countOfficial === 1 ? 'Une ressource standardisée' : `${countOfficial} ressources standardisées`
+        if (countRealTime) {
+            const text = countRealTime === 1 ? 'Une ressource' : `${countRealTime} ressources`
             const commune = feature.properties.id
             bind += `<div class="pb-6"><a href="/datasets/aom/${commune}">${text}</a>`
             bind += '<br/>formats :'
@@ -552,10 +522,6 @@ function addRealTimePtFormatMap (id, view) {
             bind += ` ${formats.join(', ')}</div>`
         }
 
-        if (countNonStandardRT) {
-            const text = countNonStandardRT === 1 ? 'une ressource non officiellement référencée' : `${countNonStandardRT} ressources non officiellement référencées`
-            bind += `<a href="/real_time">${text}</a>`
-        }
         layer.bindPopup(bind)
     }
     const smallStripes = new Leaflet.StripePattern({ angle: -45, color: lightGreen, spaceColor: 'blue', spaceOpacity: 1, weight: 1, spaceWeight: 1, height: 2 })
@@ -563,11 +529,10 @@ function addRealTimePtFormatMap (id, view) {
     smallStripes.addTo(map)
     bigStripes.addTo(map)
     const legends = {
-        gtfs_rt: { label: 'GTFS RT', color: 'blue' },
+        gtfs_rt: { label: 'GTFS-RT', color: 'blue' },
         siri: { label: 'SIRI', color: 'light-green' },
-        gtfs_rt_siri: { label: 'GTFS RT + SIRI', color: 'stripes-green-light-green' },
+        gtfs_rt_siri: { label: 'GTFS-RT + SIRI', color: 'stripes-green-light-green' },
         siri_lite: { label: 'SIRI Lite', color: 'green' },
-        non_standard_rt: { label: 'Non standard', color: 'red' },
         multiple: { label: 'Multiple', color: 'orange' }
     }
 
@@ -579,17 +544,12 @@ function addRealTimePtFormatMap (id, view) {
         },
         siri: {
             weight: 1,
-            color: legends.siri.color,
+            color: lightGreen,
             fillOpacity: 0.3
         },
         siri_lite: {
             weight: 1,
             color: legends.siri_lite.color,
-            fillOpacity: 0.5
-        },
-        non_standard_rt: {
-            weight: 1,
-            color: legends.non_standard_rt.color,
             fillOpacity: 0.5
         },
         multiple: {
@@ -622,8 +582,7 @@ function addRealTimePtFormatMap (id, view) {
         const hasGtfsRt = format.gtfs_rt > 0
         const hasSiri = format.siri > 0
         const hasSiriLite = format.siri_lite > 0
-        const hasNonStandard = format.non_standard_rt > 0
-        const formatNb = [hasSiri, hasSiriLite, hasNonStandard, hasGtfsRt].filter(x => !!x).length
+        const formatNb = [hasSiri, hasSiriLite, hasGtfsRt].filter(x => !!x).length
         const hasMultipleFormats = formatNb > 1
 
         if (hasGtfsRt && hasSiri && formatNb === 2) {
@@ -636,8 +595,6 @@ function addRealTimePtFormatMap (id, view) {
             return styles.siri
         } else if (hasSiriLite) {
             return styles.siri_lite
-        } else if (hasNonStandard) {
-            return styles.non_standard_rt
         } else {
             return styles.unavailable
         }
@@ -646,7 +603,6 @@ function addRealTimePtFormatMap (id, view) {
     const filter = feature => {
         const formats = feature.properties.dataset_formats
         return formats.gtfs_rt !== undefined ||
-            formats.non_standard_rt !== 0 ||
             formats.siri !== undefined ||
             formats.siri_lite !== undefined
     }
