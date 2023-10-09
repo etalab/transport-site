@@ -32,23 +32,23 @@ defmodule Downloader do
     end
   end
 
-  def cached_get(client, url) do
+  def cached_get(client, url, message \\ "") do
     cache_key = ["test-http", client, url_hash(url)] |> Enum.join("-")
     file_cache = Path.join(cache_dir(), cache_key)
-    # IO.puts("#{client |> inspect} #{url} -> #{file_cache}")
+    file_cache_status = file_cache <> ".status"
 
     unless File.exists?(file_cache) do
-      # {status_code, body} = log_time_taken("#{client} - #{url}", fn -> get(client, url) end)
+      IO.puts "File does not exist #{file_cache}... (#{url} #{message})"
       {status_code, body} = get(client, url)
 
-      unless status_code == 200 do
-        IO.puts(:stderr, "Warn: #{client} got status_code=#{status_code}")
-      end
-
       File.write!(file_cache, body)
+      File.write!(file_cache_status, status_code |> to_string)
     end
 
-    File.read!(file_cache)
+    {
+      File.read!(file_cache_status),
+      File.read!(file_cache)
+    }
   end
 end
 
@@ -68,12 +68,24 @@ defmodule ZipTools do
   #
   # filtering out the `last_modified_datetime` because zenbus files are generated
   # on the fly and it would hinder the comparison.
-  def get_zip_metadata(content) do
+  def get_zip_metadata(:old, content) do
     filename = to_tmp_file("zip_meta", content)
 
     # TODO: delete tempfile
     Transport.ZipMetaDataExtractor.extract!(filename)
     |> Enum.map(fn x -> x |> Map.take([:file_name]) end)
+  end
+
+  def get_zip_metadata(content) do
+    filename = to_tmp_file("zip_meta", content)
+    {output, exit_code} = System.cmd("unzip", ["-Z1", filename], stderr_to_stdout: true)
+    cond do
+      exit_code == 0 -> output |> String.split("\n") |> Enum.sort
+      output =~ ~r/cannot find zipfile directory|signature not found/ ->
+        :corrupt
+      true ->
+        raise "should not happen"
+    end
   end
 end
 
@@ -82,19 +94,84 @@ defmodule Script do
 
   def run!() do
     task = fn(resource) ->
-      Logger.debug "Downloading resource_id=#{resource.id} #{resource.url} (#{resource.title})"
-      body = Downloader.cached_get(:http_poison, resource.url)
+      # TODO: store status
+      # Logger.debug "Downloading resource_id=#{resource.id} #{resource.url} (#{resource.title})"
+      resp_1 = try do
+        {status_code, body} = Downloader.cached_get(:http_poison, resource.url, "resource_id=#{resource.id}")
+        {:ok, {status_code, body}}
+      rescue
+        e ->
+          Logger.error "Error for resource_id=#{resource.id} #{resource.url} - #{e |> inspect}"
+          {:error, e}
+      end
+
+      resp_2 = try do
+        url = resource.url |> String.replace("|", "|" |> URI.encode)
+        {status_code, body} = Downloader.cached_get(:req, url, "resource_id=#{resource.id}")
+        {:ok, {status_code, body}}
+      rescue
+        e ->
+          Logger.error "Error for resource_id=#{resource.id} #{resource.url} - #{e |> inspect}"
+          {:error, e}
+      end
+
+      status_1 = resp_1 |> elem(1) |> elem(0)
+      status_2 = resp_2 |> elem(1) |> elem(0)
+
+      cond do
+        status_1 != status_2 ->
+          IO.puts "warn: http_poison=#{status_1} req=#{status_2}"
+        true ->
+          nil
+      end
+
+      same = (resp_1 == resp_2)
+
+      unless same do
+        if resource.format == "GTFS" do
+          {:ok, {status_code_1, body_1}} = resp_1
+          {:ok, {status_code_2, body_2}} = resp_2
+          try do
+            meta_1 = ZipTools.get_zip_metadata(body_1)
+            meta_2 = ZipTools.get_zip_metadata(body_2)
+            cond do
+              (meta_1 == :corrupt) && (meta_2 == :corrupt) ->
+                :both_corrupt_gtfs
+              (meta_1 == :corrupt) && (meta_2 != :corrupt) ->
+                :http_poison_corrupt
+              (meta_1 != :corrupt) && (meta_2 == :corrupt) ->
+                :req_corrupt
+              meta_1 != :corrupt && meta_2 != :corrupt && meta_1 == meta_2 ->
+                :same_gtfs_meta
+              meta_1 != meta_2 ->
+                IO.puts "=============="
+                IO.inspect meta_1
+                IO.inspect meta_2
+                :different_gtfs
+            end
+          rescue
+            e ->
+              IO.puts "Compare failed: #{e |> inspect}"
+              :compare_failed_gtfs
+          end
+        else
+          :different
+        end
+      else
+        :same
+      end
     end
 
     Transport.Jobs.ResourceHistoryAndValidationDispatcherJob.resources_to_historise()
+    |> Enum.reject(&(&1.dataset_id == 641)) # https://transport.data.gouv.fr/datasets/amenagements-cyclables-france-metropolitaine
     |> Task.async_stream(
       task,
-      max_concurrency: 50,
-      on_timeout: :kill_task,
-      timeout: 5_000
+      max_concurrency: 5, # not too high initially or HTTPoison will raise errors
+      timeout: :infinity
     )
-    |> Enum.count
-    |> IO.inspect
+    |> Enum.map(fn({:ok, r}) -> r end)
+    |> Enum.frequencies
+    |> IO.inspect(IEx.inspect_opts)
 
     # |> Task.asyn
     # |> Enum.with_index()
