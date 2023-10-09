@@ -51,8 +51,6 @@ defmodule TransportWeb.API.GTFSStopsControllerTest do
     assert json["type"] == "clustered"
   end
 
-  # NOT WORKING : (Postgrex.Error) ERREUR 42P01 (undefined_table) la relation « gtfs_stops_clusters_level_6 » n'existe pas
-
   test "GET /api/gtfs-stops with only coordinate parameters", %{conn: conn} do
     conn =
       conn
