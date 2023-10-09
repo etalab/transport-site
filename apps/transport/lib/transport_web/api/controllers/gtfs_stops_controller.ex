@@ -18,7 +18,8 @@ defmodule TransportWeb.API.GTFSStopsController do
 
       parsed_params[:count] < @max_points &&
           (parsed_params[:zoom_level] >= 10 || parsed_params[:only_coordinate_params]) ->
-        # If we’re on the map with a zoom high enough, or if we’re on the api point with a small count, we return the detailed data
+        # If we’re on the map with a zoom high enough, or if we’re on the api point with a small count
+        # we return the GTFS detailed data
         conn
         |> json(
           Transport.GTFSData.build_detailed(
