@@ -1,7 +1,33 @@
 defmodule TransportWeb.API.GTFSStopsController do
   use TransportWeb, :controller
+  alias OpenApiSpex.Operation
+  alias TransportWeb.API.Schemas.GeoJSONResponse
 
   @max_points 20_000
+
+  @spec open_api_operation(any) :: Operation.t()
+  def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
+
+  @spec index_operation :: OpenApiSpex.Operation.t()
+  def index_operation,
+    do: %Operation{
+      tags: ["gtfs"],
+      summary: "Lists stops from all GTFS files of transport.data.gouv.fr found inside a bounding box.",
+      description: ~s"This call returns the GTFS stops from all the datasets of transport.data.gouv.fr
+                      found inside the bounding box. The dataset ID is present in the answer amongst other data.
+                      This API point is experimental with no guarantee of stability or continuity,
+                      and was created to power the map at https://transport.data.gouv.fr/explore/gtfs-stops.",
+      operationId: "API.GTFSStopsController.index",
+      parameters: [
+        Operation.parameter(:south, :query, :number, "South (latitude)"),
+        Operation.parameter(:north, :query, :number, "North (latitude)"),
+        Operation.parameter(:west, :query, :number, "West (longitude)"),
+        Operation.parameter(:east, :query, :number, "East (longitude)")
+      ],
+      responses: %{
+        200 => Operation.response("GeoJSON", "application/json", GeoJSONResponse)
+      }
+    }
 
   @doc """
   This function is used both for the map at /explore/gtfs-stops or as standalone API endpoint

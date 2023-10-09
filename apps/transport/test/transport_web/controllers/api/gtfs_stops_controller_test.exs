@@ -1,6 +1,5 @@
 defmodule TransportWeb.API.GTFSStopsControllerTest do
   use TransportWeb.ConnCase, async: true
-
   import DB.Factory
 
   setup do
@@ -52,6 +51,8 @@ defmodule TransportWeb.API.GTFSStopsControllerTest do
   end
 
   test "GET /api/gtfs-stops with only coordinate parameters", %{conn: conn} do
+    insert(:gtfs_stops, %{stop_lat: 48.8, stop_lon: 2.4})
+
     conn =
       conn
       |> get("/api/gtfs-stops", %{
@@ -63,5 +64,7 @@ defmodule TransportWeb.API.GTFSStopsControllerTest do
 
     json = json_response(conn, 200)
     assert json["type"] == "FeatureCollection"
+
+    # Note: It’s not possible to test that the response is a GeoJSON (with a FeatureCollection) that matches the schema
   end
 end
