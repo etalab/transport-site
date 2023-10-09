@@ -3,7 +3,9 @@ defmodule TransportWeb.API.GTFSStopsController do
 
   @max_points 20_000
 
-  # This function is used both for the map at /explore/gtfs-stops or as standalone api point
+  @doc """
+  This function is used both for the map at /explore/gtfs-stops or as standalone API endpoint
+  """
   def index(
         conn,
         params
@@ -18,7 +20,7 @@ defmodule TransportWeb.API.GTFSStopsController do
 
       parsed_params[:count] < @max_points &&
           (parsed_params[:zoom_level] >= 10 || parsed_params[:only_coordinate_params]) ->
-        # If we’re on the map with a zoom high enough, or if we’re on the api point with a small count
+        # If we’re on the map with a zoom high enough, or if we’re on the API endpoint with a small count
         # we return the GTFS detailed data
         conn
         |> json(
@@ -40,7 +42,7 @@ defmodule TransportWeb.API.GTFSStopsController do
         |> json(%{type: "clustered", data: Jason.Fragment.new(data)})
 
       parsed_params[:only_coordinate_params] ->
-        #   In API mode, the bounding box may be too large
+        # In API mode, the bounding box may be too large
         conn
         |> put_status(422)
         |> json(%{error: "bounding box too large: too many points"})
