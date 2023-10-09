@@ -232,9 +232,13 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     Enum.each(resources_details, fn {_dataset_detail, %{@download_path_key => tmp_path, @separator_key => separator}} ->
       tmp_path
       |> File.stream!()
+      |> CSV.decode!(headers: true, field_transform: &String.trim/1, separator: separator)
+      # Keep only columns that are present in the BNLC, ignore extra columns
+      |> Stream.filter(&Map.take(&1, headers))
+      |> CSV.encode(headers: headers)
+      # Don't write the CSV header again each time, it has already been written
+      # because the BNLC is first in the file
       |> Stream.drop(1)
-      |> CSV.decode!(field_transform: &String.trim/1, separator: separator)
-      |> CSV.encode(headers: false)
       |> Enum.each(&IO.write(file, &1))
 
       File.rm!(tmp_path)
