@@ -52,6 +52,4 @@ defmodule TransportWeb.ExploreControllerTest do
     assert title == "Carte consolidée des arrêts GTFS (beta)"
     assert html =~ "<h2>Carte consolidée des arrêts GTFS (beta)</h2>"
   end
-
-
 end

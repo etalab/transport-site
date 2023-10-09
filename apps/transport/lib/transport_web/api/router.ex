@@ -55,7 +55,6 @@ defmodule TransportWeb.API.Router do
     end
 
     get("/gtfs-stops", TransportWeb.API.GTFSStopsController, :index)
-
   end
 
   @spec swagger_info :: %{info: %{title: binary(), version: binary()}}
