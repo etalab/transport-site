@@ -32,8 +32,6 @@ defmodule Downloader do
     end
   end
 
-  import Transport.LogTimeTaken, only: [log_time_taken: 2]
-
   def cached_get(client, url) do
     cache_key = ["test-http", client, url_hash(url)] |> Enum.join("-")
     file_cache = Path.join(cache_dir(), cache_key)
@@ -73,100 +71,54 @@ defmodule ZipTools do
   def get_zip_metadata(content) do
     filename = to_tmp_file("zip_meta", content)
 
-    try do
-      data = Transport.ZipMetaDataExtractor.extract!(filename)
-
-      data
-      |> Enum.map(fn x -> x |> Map.take([:file_name]) end)
-    rescue
-      error ->
-        case error do
-          %MatchError{term: {:error, "Invalid zip file, missing EOCD record"}} ->
-            IO.puts(:stderr, "ZIP/EOCD")
-            nil
-        end
-    end
+    # TODO: delete tempfile
+    Transport.ZipMetaDataExtractor.extract!(filename)
+    |> Enum.map(fn x -> x |> Map.take([:file_name]) end)
   end
 end
 
 defmodule Script do
+  require Logger
+
   def run!() do
-    resources =
-      DB.Resource
-      |> DB.Repo.all()
+    task = fn(resource) ->
+      Logger.debug "Downloading resource_id=#{resource.id} #{resource.url} (#{resource.title})"
+      body = Downloader.cached_get(:http_poison, resource.url)
+    end
 
-    resources
-    # |> Enum.drop(1)
-    # |> Enum.take(100)
-    # timeout
-    |> Enum.reject(fn r -> r.id == 80731 end)
-    # missing eocd record in zip file
-    # |> Enum.reject(fn r ->
-    #   r.id in [
-    #     7934,
-    #     8488,
-    #     80702,
-    #     9869,
-    #     80533,
-    #     8119,
-    #     81099,
-    #     51449,
-    #     80846,
-    #     80652,
-    #     78984,
-    #     79818,
-    #     72633,
-    #     56170,
-    #     80500,
-    #     80526,
-    #     80444,
-    #     75168
-    #   ]
+    Transport.Jobs.ResourceHistoryAndValidationDispatcherJob.resources_to_historise()
+    |> Task.async_stream(
+      task,
+      max_concurrency: 50,
+      on_timeout: :kill_task,
+      timeout: 5_000
+    )
+    |> Enum.count
+    |> IO.inspect
+
+    # |> Task.asyn
+    # |> Enum.with_index()
+    # |> Enum.each(fn x = {resource, index} ->
+    #
+    #   # # URI.encode(resource.url))
+    #   # req_body = Downloader.cached_get(:req, resource.url)
+    #   # same = http_poison_body == req_body
+
+    #   # same =
+    #   #   unless same do
+    #   #     # TODO: verify that the format is GTFS before unzipping
+
+    #   #     # in theory, we have zip files here, compare a good part of their metadata
+    #   #     # to ensure the body has the same semantics
+    #   #     meta_1 = ZipTools.get_zip_metadata(req_body)
+    #   #     meta_2 = ZipTools.get_zip_metadata(http_poison_body)
+
+    #   #     meta_1 == meta_2
+    #   #   else
+    #   #     same
+    #   #   end
+
     # end)
-    # URI encoding with pipes (?)
-    # |> Enum.filter(fn r -> r.id == 72633 end)
-    #    |> Enum.filter(fn r -> r.id == 81159 end) # URI encoding with pipes (?)
-    |> Enum.with_index()
-    |> Enum.each(fn x = {resource, index} ->
-      # IO.inspect({resource.id, resource.url, index})
-
-      IO.puts(resource.id |> inspect)
-      IO.puts(resource.url)
-      http_poison_body = Downloader.cached_get(:http_poison, resource.url)
-      # URI.encode(resource.url))
-      req_body = Downloader.cached_get(:req, resource.url)
-      same = http_poison_body == req_body
-
-      same =
-        unless same do
-          # TODO: verify that the format is GTFS before unzipping
-
-          # in theory, we have zip files here, compare a good part of their metadata
-          # to ensure the body has the same semantics
-          meta_1 = ZipTools.get_zip_metadata(req_body)
-          meta_2 = ZipTools.get_zip_metadata(http_poison_body)
-
-          meta_1 == meta_2
-        else
-          same
-        end
-
-      unless same do
-        IO.inspect(req_body)
-        IO.inspect(http_poison_body)
-        IO.puts("resource_id=#{resource.id |> inspect}")
-        IO.puts(resource.url)
-
-        IO.puts(
-          "Files downloaded by req & http_poison are not the same (even after decompressing zips if they are zips)"
-        )
-
-        IO.puts("======== FAILURE - HALTING ==========")
-        System.halt()
-      else
-        IO.puts("resource_id=#{resource.id} - OK - content is the same!")
-      end
-    end)
   end
 end
 
