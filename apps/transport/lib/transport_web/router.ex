@@ -361,9 +361,8 @@ defmodule TransportWeb.Router do
   defp check_export_secret_key(%Plug.Conn{params: params} = conn, _) do
     export_key_value = Map.get(params, "export_key", "")
     expected_value = Application.fetch_env!(:transport, :export_secret_key)
-    key_matches = Plug.Crypto.secure_compare(export_key_value, expected_value)
 
-    if expected_value not in [nil, ""] and key_matches do
+    if Plug.Crypto.secure_compare(export_key_value, expected_value) do
       conn
     else
       conn
