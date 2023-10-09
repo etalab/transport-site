@@ -77,7 +77,15 @@
 
   <h2>Exports</h2>
   <div>
-    <a class="button" href={backoffice_page_path(@conn, :download_resources_csv)} title="Export CSV des ressources">
+    <a
+      class="button"
+      href={
+        backoffice_page_path(@conn, :download_resources_csv, %{
+          "export_key" => Application.fetch_env!(:transport, :export_secret_key)
+        })
+      }
+      title="Export CSV des ressources"
+    >
       🗳 Export des ressources
     </a>
   </div>
