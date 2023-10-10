@@ -47,7 +47,8 @@ config :transport,
     on_demand_validation: "on-demand-validation-test",
     gtfs_diff: "gtfs-diff-test"
   },
-  workflow_notifier: Transport.Jobs.Workflow.ProcessNotifier
+  workflow_notifier: Transport.Jobs.Workflow.ProcessNotifier,
+  export_secret_key: "fake_export_secret_key"
 
 config :ex_aws,
   cellar_organisation_id: "fake-cellar_organisation_id"
@@ -120,11 +121,11 @@ config(
   siri_query_generator_impl: Transport.SIRIQueryGenerator.Mock
 )
 
-# The Swoosh test adapter works a bit like an embryo of Mox. 
+# The Swoosh test adapter works a bit like an embryo of Mox.
 # See: https://github.com/swoosh/swoosh/blob/main/lib/swoosh/adapters/test.ex
 #
 # It won't be as flexible in all situations (see https://github.com/swoosh/swoosh/issues/66).
-# 
+#
 # If this causes issues, we will have instead to create
 # a behaviour/wrapper around `Transport.Mailer`
 config :transport, Transport.Mailer, adapter: Swoosh.Adapters.Test
