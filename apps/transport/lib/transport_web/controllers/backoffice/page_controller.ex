@@ -151,6 +151,7 @@ defmodule TransportWeb.Backoffice.PageController do
         :aom,
         :notification_subscriptions,
         [notification_subscriptions: :contact],
+        [organization_object: :contacts],
         :legal_owners_aom,
         :legal_owners_region
       ])

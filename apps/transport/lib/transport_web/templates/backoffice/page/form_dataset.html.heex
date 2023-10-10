@@ -1,3 +1,4 @@
+<% contacts_in_org = Enum.sort_by(@dataset.organization_object.contacts, &DB.Contact.display_name/1) %>
 <div class="pt-48">
   <%= live_render(@conn, TransportWeb.EditDatasetLive,
     session: %{"dataset" => @dataset, "dataset_types" => @dataset_types, "regions" => @regions}
@@ -82,6 +83,17 @@
             <a href={backoffice_contact_path(@conn, :new)} target="_blank">
               <i class="fas fa-external-link"></i> Créer un contact
             </a>
+          </div>
+          <div :if={Enum.count(contacts_in_org) > 0}>
+            <p>
+              Contacts dans l'organisation s'étant déjà connectés au PAN
+            </p>
+            <ul>
+              <%= for contact <- contacts_in_org do %>
+                <% onclick_fn = ~s{getElementById("contact_id").value =} <> to_string(contact.id) %>
+                <li class="cursor-pointer" onclick={onclick_fn}><%= DB.Contact.display_name(contact) %></li>
+              <% end %>
+            </ul>
           </div>
         <% end %>
         <datalist id="contacts_datalist">
