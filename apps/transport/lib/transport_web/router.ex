@@ -43,6 +43,10 @@ defmodule TransportWeb.Router do
     plug(:transport_data_gouv_member)
   end
 
+  pipeline :backoffice_csv_export do
+    plug(:check_export_secret_key)
+  end
+
   scope "/", OpenApiSpex.Plug do
     pipe_through(:browser_no_csp)
 
@@ -208,6 +212,10 @@ defmodule TransportWeb.Router do
 
       get("/breaking_news", BreakingNewsController, :index)
       post("/breaking_news", BreakingNewsController, :update_breaking_news)
+    end
+
+    scope "/backoffice", Backoffice, as: :backoffice do
+      pipe_through([:backoffice_csv_export])
       get("/download_resources_csv", PageController, :download_resources_csv)
     end
 
@@ -349,7 +357,22 @@ defmodule TransportWeb.Router do
     |> Enum.any?(fn org -> org["slug"] == "equipe-transport-data-gouv-fr" end)
   end
 
-  defp transport_data_gouv_member(conn, _) do
+  # Check that a secret key is passed in the URL in the `export_key` query parameter
+  defp check_export_secret_key(%Plug.Conn{params: params} = conn, _) do
+    export_key_value = Map.get(params, "export_key", "")
+    expected_value = Application.fetch_env!(:transport, :export_secret_key)
+
+    if Plug.Crypto.secure_compare(export_key_value, expected_value) do
+      conn
+    else
+      conn
+      |> put_flash(:error, dgettext("alert", "You need to be a member of the transport.data.gouv.fr team."))
+      |> redirect(to: Helpers.page_path(conn, :login, redirect_path: current_path(conn)))
+      |> halt()
+    end
+  end
+
+  defp transport_data_gouv_member(%Plug.Conn{} = conn, _) do
     if is_transport_data_gouv_member?(conn.assigns[:current_user]) do
       conn
     else
