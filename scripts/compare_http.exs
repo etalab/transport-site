@@ -102,8 +102,6 @@ defmodule Script do
 
   def run!() do
     task = fn resource ->
-      # TODO: store status
-      # Logger.debug "Downloading resource_id=#{resource.id} #{resource.url} (#{resource.title})"
       resp_1 =
         try do
           {status_code, body} = Downloader.cached_get(:http_poison, resource.url, "resource_id=#{resource.id}")
