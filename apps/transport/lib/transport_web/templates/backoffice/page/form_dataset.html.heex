@@ -111,6 +111,7 @@
         <tr>
           <th>Contact</th>
           <th><%= dgettext("backoffice", "Notification reason") %></th>
+          <th>Source</th>
           <th>Actions</th>
         </tr>
         <%= for {contact, notification_subscriptions} <- @dataset.notification_subscriptions |> Enum.sort_by(&{&1.contact.last_name, &1.reason}) |> Enum.group_by(& &1.contact) do %>
@@ -131,6 +132,7 @@
                 </div>
               </td>
               <td><%= notification_subscription.reason %></td>
+              <td><%= notification_subscription.source %></td>
               <td>
                 <%= form_for @conn, backoffice_notification_subscription_path(@conn, :delete, notification_subscription.id), [method: "delete"], fn f -> %>
                   <%= hidden_input(f, :redirect_location, value: "dataset") %>
