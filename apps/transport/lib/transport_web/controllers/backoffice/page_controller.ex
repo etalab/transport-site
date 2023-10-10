@@ -343,17 +343,21 @@ defmodule TransportWeb.Backoffice.PageController do
       from resource_history rh
     ) rh on rh.resource_id = r.id and rh.row_number = 1
     left join (
-      select dr.dataset_id, string_agg(r.nom, ', ' order by r.nom) noms
-      from dataset_region_legal_owner dr
-      join region r on dr.region_id = r.id
-      group by 1
+      select
+        dataset_id,
+        string_agg(nom, ',' order by nom) noms
+      from (
+        select dr.dataset_id, r.nom nom
+        from dataset_region_legal_owner dr
+        join region r on dr.region_id = r.id
 
-      union
+        union
 
-      select da.dataset_id, string_agg(a.nom, ', ' order by a.nom) noms
-      from dataset_aom_legal_owner da
-      join aom a on da.aom_id = a.id
-      group by 1
+        select da.dataset_id, a.nom
+        from dataset_aom_legal_owner da
+        join aom a on da.aom_id = a.id
+      ) t
+      group by dataset_id
     ) legal_owners on legal_owners.dataset_id = d.id
     left join multi_validation mv on mv.resource_history_id = rh.id
     left join resource_metadata rm on rm.multi_validation_id = mv.id
