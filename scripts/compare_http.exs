@@ -75,7 +75,7 @@ defmodule ZipTools do
   def get_zip_metadata(:old, content) do
     filename = to_tmp_file("zip_meta", content)
 
-    # TODO: delete tempfile
+    # NOTE: it would be better to delete the tempfile after analysis
     Transport.ZipMetaDataExtractor.extract!(filename)
     |> Enum.map(fn x -> x |> Map.take([:file_name]) end)
   end
