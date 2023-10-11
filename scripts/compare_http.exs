@@ -193,7 +193,7 @@ defmodule Script do
   def show_large do
     task = fn resource ->
       {status_code, body} = Downloader.cached_get(:http_poison, resource.url, "resource_id=#{resource.id}")
-      {resource.dataset_id, body |> byte_size() |> Sizeable.filesize() , :crypto.hash(:sha256, body) |> Base.encode16()}
+      {resource.dataset_id, body |> byte_size(), :crypto.hash(:sha256, body) |> Base.encode16()}
     end
 
     Transport.Jobs.ResourceHistoryAndValidationDispatcherJob.resources_to_historise()
@@ -204,9 +204,9 @@ defmodule Script do
       timeout: :infinity
     )
     |> Enum.map(fn {:ok, x} -> x end)
-    |> Enum.filter(fn {_id, size} -> size > 100_000_000 end)
-    |> Enum.map(fn {id, s} -> id end)
-    |> Enum.uniq()
+    |> Enum.filter(fn {_id, size, hash} -> size > 100_000_000 end)
+    |> Enum.map(fn {id, s, hash} -> id end)
+    |> Enum.frequencies()
     |> Enum.each(&IO.inspect(&1))
   end
 end
