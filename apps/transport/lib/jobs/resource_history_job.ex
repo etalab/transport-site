@@ -41,9 +41,11 @@ defmodule Transport.Jobs.ResourceHistoryAndValidationDispatcherJob do
     query
     |> Repo.all()
     |> Enum.reject(
-      &(Resource.is_real_time?(&1) or Resource.is_documentation?(&1) or Dataset.should_skip_history?(&1.dataset))
+      &(Resource.is_real_time?(&1) or
+          Resource.is_documentation?(&1) or
+          Dataset.should_skip_history?(&1.dataset) or
+          hotfix_skip_history(&1))
     )
-    |> Enum.reject(&hotfix_skip_history(&1))
   end
 end
 
