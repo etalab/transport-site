@@ -193,10 +193,11 @@ defmodule Script do
   def show_large do
     task = fn resource ->
       {status_code, body} = Downloader.cached_get(:http_poison, resource.url, "resource_id=#{resource.id}")
-      {resource.dataset_id, body |> byte_size()}
+      {resource.dataset_id, body |> byte_size() |> Sizeable.filesize() , :crypto.hash(:sha256, body) |> Base.encode16()}
     end
 
     Transport.Jobs.ResourceHistoryAndValidationDispatcherJob.resources_to_historise()
+    # |> Enum.filter(fn(x) -> x.dataset_id == 641 end)
     |> Task.async_stream(
       task,
       max_concurrency: 10,
