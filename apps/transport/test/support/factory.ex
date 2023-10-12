@@ -264,7 +264,7 @@ defmodule DB.Factory do
   end
 
   def organization_factory do
-    %DB.Organization{}
+    %DB.Organization{id: Ecto.UUID.generate()}
   end
 
   def insert_contact(%{} = args \\ %{}) do

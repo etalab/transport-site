@@ -77,7 +77,15 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
   end
 
   test "notifications config and notifications sent are displayed", %{conn: conn} do
-    dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate(), slug: Ecto.UUID.generate())
+    organization = insert(:organization)
+
+    dataset =
+      insert(:dataset,
+        is_active: true,
+        datagouv_id: Ecto.UUID.generate(),
+        slug: Ecto.UUID.generate(),
+        organization_id: organization.id
+      )
 
     insert_notification(%{dataset: dataset, email: "foo@example.fr", reason: :expiration})
     insert_notification(%{dataset: dataset, email: "bar@example.fr", reason: :expiration})
