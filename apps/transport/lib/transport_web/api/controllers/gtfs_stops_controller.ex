@@ -21,6 +21,8 @@ defmodule TransportWeb.API.GTFSStopsController do
   - Map use :
    - if the bounding box contains too many points or the zoom level is not high enough, the API returns the clustered data.
    - otherwise, it returns the detailed data as a GeoJSON FeatureCollection.
+
+   The OpenAPI documentation only refers to the API use case, the map use case is not documented.
   """
 
   @spec index_operation :: OpenApiSpex.Operation.t()
