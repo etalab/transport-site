@@ -29,6 +29,7 @@ defmodule TransportWeb.DiscussionsLive do
             current_user: @current_user,
             socket: @socket,
             dataset: @dataset,
+            org_member_ids: @org_member_ids,
             locale: @locale
           ) %>
         <% end %>
@@ -59,23 +60,27 @@ defmodule TransportWeb.DiscussionsLive do
     Gettext.put_locale(locale)
 
     # async comments loading
-    send(self(), {:fetch_data_gouv_discussions, dataset.datagouv_id})
+    send(self(), {:fetch_data_gouv_discussions, dataset})
 
     {:ok, socket}
   end
 
-  def handle_info({:fetch_data_gouv_discussions, dataset_datagouv_id}, socket) do
-    discussions = Datagouvfr.Client.Discussions.Wrapper.get(dataset_datagouv_id)
+  def handle_info({:fetch_data_gouv_discussions, %DB.Dataset{} = dataset}, socket) do
+    discussions = Datagouvfr.Client.Discussions.Wrapper.get(dataset.datagouv_id)
+
+    {:ok, dataset_owner_organization} = Datagouvfr.Client.Organization.get(dataset.organization)
+    org_member_ids = dataset_owner_organization["members"] |> Enum.map(fn member -> member["user"]["id"] end) |> dbg()
+
 
     Phoenix.PubSub.broadcast(
       TransportWeb.PubSub,
-      "dataset_discussions_count:#{dataset_datagouv_id}",
+      "dataset_discussions_count:#{dataset.datagouv_id}",
       {:count, discussions |> length()}
     )
 
     socket =
       socket
-      |> assign(:discussions, discussions)
+      |> assign(discussions: discussions, org_member_ids: org_member_ids)
       |> push_event("discussions-loaded", %{
         ids: discussions |> Enum.filter(&discussion_should_be_closed?/1) |> Enum.map(& &1["id"])
       })

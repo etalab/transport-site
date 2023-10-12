@@ -7,8 +7,10 @@
     </span>
   </div>
 
+
   <div id={"comments-discussion-#{@discussion["id"]}"}>
     <%= for comment <- @discussion["discussion"] do %>
+      <% producer = comment["posted_by"]["id"] in @org_member_ids %>
       <div class="discussion-comment">
         <div>
           <img src={
@@ -20,9 +22,12 @@
           <div class="discussion-comment__header">
             <a href={comment["posted_by"]["page"]}>
               <%= comment["posted_by"]["first_name"] %> <%= comment["posted_by"]["last_name"] %>
+              <%= if producer, do: " (#{@dataset.organization})" %>
             </a>
+            &nbsp;
             <span><%= dgettext("page-dataset-details", "Posted on") %></span>
             <span><%= DateTimeDisplay.format_datetime_to_paris(comment["posted_on"], @locale) %></span>
+            <span :if={producer} class="label">Producteur de la donnée</span>
           </div>
           <div class="discussion-comment__content">
             <%= MarkdownHandler.markdown_to_safe_html!(comment["content"]) %>
