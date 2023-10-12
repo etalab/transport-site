@@ -8,6 +8,21 @@ defmodule TransportWeb.API.GTFSStopsController do
   @spec open_api_operation(any) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
 
+  @moduledoc """
+  This module is used both as a standalone API endpoint or for the map at /explore/gtfs-stops.
+  There is a single index entry function, that accepts either :
+  - API use : only the bounding box coordinates
+  - Map use : bounding box coordinates + map parameters (width, height, zoom level).
+
+  The behaviour is slightly different depending on the use case.
+  - API use :
+   - if the bounding box contains too many points, the API returns an error.
+   - otherwise, it returns the detailed data as a GeoJSON FeatureCollection.
+  - Map use :
+   - if the bounding box contains too many points or the zoom level is not high enough, the API returns the clustered data.
+   - otherwise, it returns the detailed data as a GeoJSON FeatureCollection.
+  """
+
   @spec index_operation :: OpenApiSpex.Operation.t()
   def index_operation,
     do: %Operation{
@@ -29,9 +44,6 @@ defmodule TransportWeb.API.GTFSStopsController do
       }
     }
 
-  @doc """
-  This function is used both for the map at /explore/gtfs-stops or as standalone API endpoint
-  """
   def index(
         conn,
         params
