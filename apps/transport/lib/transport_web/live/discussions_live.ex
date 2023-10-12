@@ -23,13 +23,15 @@ defmodule TransportWeb.DiscussionsLive do
 
     <%= if assigns[:discussions] do %>
       <div>
-        <%= Phoenix.View.render(TransportWeb.DatasetView, "_discussions.html",
-          discussions: @discussions,
-          current_user: @current_user,
-          socket: @socket,
-          dataset: @dataset,
-          locale: @locale
-        ) %>
+        <%= for discussion <- @discussions do %>
+          <%= Phoenix.View.render(TransportWeb.DatasetView, "_discussion.html",
+            discussion: discussion,
+            current_user: @current_user,
+            socket: @socket,
+            dataset: @dataset,
+            locale: @locale
+          ) %>
+        <% end %>
       </div>
     <% else %>
       <div>
