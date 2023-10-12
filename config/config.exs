@@ -123,7 +123,11 @@ config :transport,
   hasher_impl: Hasher,
   validator_selection: Transport.ValidatorsSelection.Impl,
   data_visualization: Transport.DataVisualization.Impl,
-  workflow_notifier: Transport.Jobs.Workflow.ObanNotifier
+  workflow_notifier: Transport.Jobs.Workflow.ObanNotifier,
+  # See `compare_http.exs` `show_large`, this is a hot-fix to avoid
+  # snapshotting very large resources, until we implement streaming
+  # See: http://transport.data.gouv.fr/datasets/641
+  skip_historize_dataset_ids: [641]
 
 # Datagouv IDs for national databases created automatically.
 # These are IDs used in staging, demo.data.gouv.fr

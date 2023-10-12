@@ -189,8 +189,29 @@ defmodule Script do
     |> Enum.frequencies()
     |> IO.inspect(IEx.inspect_opts())
   end
+
+  def show_large do
+    task = fn resource ->
+      {status_code, body} = Downloader.cached_get(:http_poison, resource.url, "resource_id=#{resource.id}")
+      {resource.dataset_id, body |> byte_size(), :crypto.hash(:sha256, body) |> Base.encode16()}
+    end
+
+    Transport.Jobs.ResourceHistoryAndValidationDispatcherJob.resources_to_historise()
+    # |> Enum.filter(fn(x) -> x.dataset_id == 641 end)
+    |> Task.async_stream(
+      task,
+      max_concurrency: 10,
+      timeout: :infinity
+    )
+    |> Enum.map(fn {:ok, x} -> x end)
+    |> Enum.filter(fn {_id, size, hash} -> size > 100_000_000 end)
+    |> Enum.map(fn {id, s, hash} -> id end)
+    |> Enum.frequencies()
+    |> Enum.each(&IO.inspect(&1))
+  end
 end
 
-Script.run!()
+# Script.run!()
+# Script.show_large()
 
 IO.puts("Leaving...")
