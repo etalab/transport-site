@@ -3,10 +3,9 @@
     <h4><i class="icon fas fa-comments"></i><%= @discussion["title"] %></h4>
 
     <span class="discussion-date">
-      <%= DateTimeDisplay.format_datetime_to_paris(@discussion["created"], @locale) %>
+      <%= DateTimeDisplay.format_date(@discussion["created"], @locale, iso_extended: true) %>
     </span>
   </div>
-
 
   <div id={"comments-discussion-#{@discussion["id"]}"}>
     <%= for comment <- @discussion["discussion"] do %>
@@ -24,9 +23,8 @@
               <%= comment["posted_by"]["first_name"] %> <%= comment["posted_by"]["last_name"] %>
               <%= if producer, do: " (#{@dataset.organization})" %>
             </a>
-            &nbsp;
-            <span><%= dgettext("page-dataset-details", "Posted on") %></span>
-            <span><%= DateTimeDisplay.format_datetime_to_paris(comment["posted_on"], @locale) %></span>
+            &nbsp; <span><%= dgettext("page-dataset-details", "Posted on") %></span>
+            <span><%= DateTimeDisplay.format_datetime_to_paris(comment["posted_on"], @locale, no_timezone: true) %></span>
             <span :if={producer} class="label">Producteur de la donnée</span>
           </div>
           <div class="discussion-comment__content">

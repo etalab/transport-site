@@ -71,7 +71,6 @@ defmodule TransportWeb.DiscussionsLive do
     {:ok, dataset_owner_organization} = Datagouvfr.Client.Organization.get(dataset.organization)
     org_member_ids = dataset_owner_organization["members"] |> Enum.map(fn member -> member["user"]["id"] end) |> dbg()
 
-
     Phoenix.PubSub.broadcast(
       TransportWeb.PubSub,
       "dataset_discussions_count:#{dataset.datagouv_id}",

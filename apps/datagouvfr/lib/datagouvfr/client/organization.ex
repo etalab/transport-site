@@ -1,5 +1,4 @@
 defmodule Datagouvfr.Client.Organization do
-
   alias Datagouvfr.Client.API
 
   @endpoint "organizations"

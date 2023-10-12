@@ -31,6 +31,10 @@ defmodule Shared.DateTimeDisplay do
 
   def format_date(nil, _), do: ""
 
+  def format_date(date, locale, iso_extended: true) do
+    date |> Timex.parse!("{ISO:Extended}") |> format_date(locale)
+  end
+
   @doc """
   Display a date from a DateTime
 
@@ -76,25 +80,9 @@ defmodule Shared.DateTimeDisplay do
   """
   def format_datetime_to_paris(dt, locale), do: format_datetime_to_paris(dt, locale, [])
 
-  def format_datetime_to_paris(%DateTime{} = dt, "en", options) do
-    format =
-      if Keyword.get(options, :with_seconds) do
-        "%Y-%m-%d at %H:%M:%S Europe/Paris"
-      else
-        "%Y-%m-%d at %H:%M Europe/Paris"
-      end
-
-    dt |> convert_to_paris_time() |> Calendar.strftime(format)
-  end
-
-  def format_datetime_to_paris(%DateTime{} = dt, _locale, options) do
-    format =
-      if Keyword.get(options, :with_seconds) do
-        "%d/%m/%Y à %H:%M:%S Europe/Paris"
-      else
-        "%d/%m/%Y à %Hh%M Europe/Paris"
-      end
-
+  def format_datetime_to_paris(%DateTime{} = dt, locale, options) do
+    format = get_localized_format(locale, options)
+    format = if !Keyword.get(options, :no_timezone), do: format <> " Europe/Paris", else: format
     dt |> convert_to_paris_time() |> Calendar.strftime(format)
   end
 
@@ -124,6 +112,22 @@ defmodule Shared.DateTimeDisplay do
     case Timex.Timezone.convert(ndt, "Europe/Paris") do
       %Timex.AmbiguousDateTime{after: dt} -> dt
       %DateTime{} = dt -> dt
+    end
+  end
+
+  defp get_localized_format("en", options) do
+    if Keyword.get(options, :with_seconds) do
+      "%Y-%m-%d at %H:%M:%S"
+    else
+      "%Y-%m-%d at %H:%M"
+    end
+  end
+
+  defp get_localized_format(_locale, options) do
+    if Keyword.get(options, :with_seconds) do
+      "%d/%m/%Y à %H:%M:%S"
+    else
+      "%d/%m/%Y à %Hh%M"
     end
   end
 end
