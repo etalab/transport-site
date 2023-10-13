@@ -18,6 +18,8 @@ defmodule Shared.DateTimeDisplay do
   "2022-03-01"
   iex> format_date(~U[2022-11-01 00:00:00Z], "en")
   "2022-11-01"
+  iex> format_date("2022-02-21T14:28:09.366000+00:00", "fr", iso_extended: true)
+  "21/02/2022"
   """
   @spec format_date(binary | Date.t() | DateTime.t(), binary() | nil) :: binary
   def format_date(%DateTime{} = datetime, locale), do: format_date(DateTime.to_date(datetime), locale)
@@ -77,6 +79,8 @@ defmodule Shared.DateTimeDisplay do
   # right after daylight hour change
   iex> format_datetime_to_paris("2022-03-27T01:00:00+00:00", "fr")
   "27/03/2022 à 03h00 Europe/Paris"
+  iex> format_datetime_to_paris("2022-03-27T01:00:00+00:00", "fr", no_timezone: true)
+  "27/03/2022 à 03h00"
   """
   def format_datetime_to_paris(dt, locale), do: format_datetime_to_paris(dt, locale, [])
 
