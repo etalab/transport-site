@@ -36,6 +36,6 @@ defmodule Datagouvfr.Client.Organization do
   def get(id) do
     @endpoint
     |> Path.join(id)
-    |> API.get()
+    |> API.get([{"x-fields", "{logo_thumbnail,members{user{id}}}"}])
   end
 end
