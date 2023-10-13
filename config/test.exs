@@ -62,7 +62,8 @@ config :datagouvfr,
   authentication_impl: Datagouvfr.Authentication.Mock,
   user_impl: Datagouvfr.Client.User.Mock,
   datagouvfr_reuses: Datagouvfr.Client.Reuses.Mock,
-  datagouvfr_discussions: Datagouvfr.Client.Discussions.Mock
+  datagouvfr_discussions: Datagouvfr.Client.Discussions.Mock,
+  organization_impl: Datagouvfr.Client.Organization.Mock
 
 # capture all info logs and up during tests
 config :logger, level: :debug

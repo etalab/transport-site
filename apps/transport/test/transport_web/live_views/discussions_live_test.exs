@@ -11,7 +11,7 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
   end
 
   test "render some discussions", %{conn: conn} do
-    dataset = insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate())
+    dataset = insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate(), organization: "PAN_org")
 
     Datagouvfr.Client.Discussions.Mock |> expect(:get, 1, fn ^datagouv_id -> discussions() end)
 

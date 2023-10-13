@@ -151,7 +151,8 @@ config :datagouvfr,
   authentication_impl: Datagouvfr.Authentication,
   user_impl: Datagouvfr.Client.User,
   datagouvfr_reuses: Datagouvfr.Client.Reuses,
-  datagouvfr_discussions: Datagouvfr.Client.Discussions
+  datagouvfr_discussions: Datagouvfr.Client.Discussions,
+  organization_impl: Datagouvfr.Client.Organization
 
 config :ex_json_schema,
        :remote_schema_resolver,
