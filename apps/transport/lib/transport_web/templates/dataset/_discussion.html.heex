@@ -25,7 +25,9 @@
             <a href={comment["posted_by"]["page"]}>
               <%= comment["posted_by"]["first_name"] %> <%= comment["posted_by"]["last_name"] %>
             </a>
-            <span :if={is_producer} class="label label--producer"><%= dgettext("page-dataset-details", "data producer") %></span>
+            <span :if={is_producer} class="label label--producer">
+              <%= dgettext("page-dataset-details", "data producer") %>
+            </span>
             <span class="discussion-date">
               <%= dgettext("page-dataset-details", "Posted on %{datetime}",
                 datetime: DateTimeDisplay.format_datetime_to_paris(comment["posted_on"], @locale, no_timezone: true)
