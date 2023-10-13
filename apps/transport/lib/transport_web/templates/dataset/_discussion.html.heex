@@ -12,10 +12,12 @@
       <% producer = comment["posted_by"]["id"] in @org_member_ids %>
       <div class="discussion-comment">
         <div>
-          <img src={
-            comment["posted_by"]["avatar_thumbnail"] ||
-              "https://www.data.gouv.fr/api/1/avatars/#{comment["posted_by"]["id"]}/52"
-          } />
+          <% avatar_src = cond do
+            user_avatar = comment["posted_by"]["avatar_thumbnail"] -> user_avatar
+            producer -> @org_logo_thumbnail
+            true -> "https://www.data.gouv.fr/api/1/avatars/#{comment["posted_by"]["id"]}/52"
+          end %>
+          <img src={avatar_src} />
         </div>
         <div>
           <div class="discussion-comment__header">

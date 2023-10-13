@@ -30,6 +30,7 @@ defmodule TransportWeb.DiscussionsLive do
             socket: @socket,
             dataset: @dataset,
             org_member_ids: @org_member_ids,
+            org_logo_thumbnail: @org_logo_thumbnail,
             locale: @locale
           ) %>
         <% end %>
@@ -69,7 +70,8 @@ defmodule TransportWeb.DiscussionsLive do
     discussions = Datagouvfr.Client.Discussions.Wrapper.get(dataset.datagouv_id)
 
     {:ok, dataset_owner_organization} = Datagouvfr.Client.Organization.get(dataset.organization)
-    org_member_ids = dataset_owner_organization["members"] |> Enum.map(fn member -> member["user"]["id"] end) |> dbg()
+    org_member_ids = dataset_owner_organization["members"] |> Enum.map(fn member -> member["user"]["id"] end)
+    org_logo_thumbnail = dataset_owner_organization["logo_thumbnail"]
 
     Phoenix.PubSub.broadcast(
       TransportWeb.PubSub,
@@ -79,7 +81,7 @@ defmodule TransportWeb.DiscussionsLive do
 
     socket =
       socket
-      |> assign(discussions: discussions, org_member_ids: org_member_ids)
+      |> assign(discussions: discussions, org_member_ids: org_member_ids, org_logo_thumbnail: org_logo_thumbnail)
       |> push_event("discussions-loaded", %{
         ids: discussions |> Enum.filter(&discussion_should_be_closed?/1) |> Enum.map(& &1["id"])
       })
