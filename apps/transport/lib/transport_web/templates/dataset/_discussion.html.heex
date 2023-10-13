@@ -12,11 +12,12 @@
       <% producer = comment["posted_by"]["id"] in @org_member_ids %>
       <div class="discussion-comment">
         <div>
-          <% avatar_src = cond do
-            user_avatar = comment["posted_by"]["avatar_thumbnail"] -> user_avatar
-            producer && @org_logo_thumbnail -> @org_logo_thumbnail
-            true -> "https://www.data.gouv.fr/api/1/avatars/#{comment["posted_by"]["id"]}/52"
-          end %>
+          <% avatar_src =
+            cond do
+              user_avatar = comment["posted_by"]["avatar_thumbnail"] -> user_avatar
+              producer && @org_logo_thumbnail -> @org_logo_thumbnail
+              true -> "https://www.data.gouv.fr/api/1/avatars/#{comment["posted_by"]["id"]}/52"
+            end %>
           <img src={avatar_src} />
         </div>
         <div>
@@ -26,7 +27,9 @@
               <%= if producer, do: " (#{@dataset.organization})" %>
             </a>
             &nbsp; <span><%= dgettext("page-dataset-details", "Posted on") %></span>
-            <span><%= DateTimeDisplay.format_datetime_to_paris(comment["posted_on"], @locale, no_timezone: true) %></span>
+            <span>
+              <%= DateTimeDisplay.format_datetime_to_paris(comment["posted_on"], @locale, no_timezone: true) %>
+            </span>
             <span :if={producer} class="label">Producteur de la donnée</span>
           </div>
           <div class="discussion-comment__content">

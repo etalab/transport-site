@@ -1,5 +1,7 @@
 defmodule Datagouvfr.Client.Organization.Wrapper do
-
+  @moduledoc """
+  A Wrapper to get Organization from data.gouv.fr API (or mock it for tests)
+  """
   @callback get(dataset_id :: binary()) :: {:ok, map()} | {:error, map()}
 
   defp impl, do: Application.get_env(:datagouvfr, :organization_impl)
@@ -16,12 +18,7 @@ defmodule Datagouvfr.Client.Organization.Mock do
   def get(_id) do
     {:ok, %{"members" => [%{"user" => %{"id" => "1"}}]}}
   end
-
-
-
 end
-
-
 
 defmodule Datagouvfr.Client.Organization do
   @moduledoc """
@@ -33,7 +30,7 @@ defmodule Datagouvfr.Client.Organization do
 
   @endpoint "organizations"
 
-   @doc """
+  @doc """
   Call to GET /api/1/organizations/:id/
   """
   def get(id) do

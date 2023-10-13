@@ -86,7 +86,7 @@ defmodule Shared.DateTimeDisplay do
 
   def format_datetime_to_paris(%DateTime{} = dt, locale, options) do
     format = get_localized_format(locale, options)
-    format = if !Keyword.get(options, :no_timezone), do: format <> " Europe/Paris", else: format
+    format = if Keyword.get(options, :no_timezone), do: format, else: format <> " Europe/Paris"
     dt |> convert_to_paris_time() |> Calendar.strftime(format)
   end
 
