@@ -26,11 +26,12 @@
               <%= comment["posted_by"]["first_name"] %> <%= comment["posted_by"]["last_name"] %>
               <%= if is_producer, do: " (#{@dataset.organization})" %>
             </a>
-            &nbsp; <span><%= dgettext("page-dataset-details", "Posted on") %></span>
-            <span>
-              <%= DateTimeDisplay.format_datetime_to_paris(comment["posted_on"], @locale, no_timezone: true) %>
+            <span :if={is_producer} class="label label--active"><%= dgettext("page-dataset-details", "data producer") %></span>
+            <span class="discussion-date">
+              <%= dgettext("page-dataset-details", "Posted on %{datetime}",
+                datetime: DateTimeDisplay.format_datetime_to_paris(comment["posted_on"], @locale, no_timezone: true)
+              ) %>
             </span>
-            <span :if={is_producer} class="label">Producteur de la donnée</span>
           </div>
           <div class="discussion-comment__content">
             <%= MarkdownHandler.markdown_to_safe_html!(comment["content"]) %>
