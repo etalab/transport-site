@@ -22,11 +22,6 @@ defmodule Transport.Jobs.ResourceHistoryAndValidationDispatcherJob do
     :ok
   end
 
-  # A way to skip (via hardcoded configuration) the historization of a given dataset
-  def hotfix_skip_history(resource) do
-    resource.dataset_id in Application.fetch_env!(:transport, :skip_historize_dataset_ids)
-  end
-
   def resources_to_historise(resource_id \\ nil) do
     base_query =
       Resource.base_query()
@@ -41,10 +36,7 @@ defmodule Transport.Jobs.ResourceHistoryAndValidationDispatcherJob do
     query
     |> Repo.all()
     |> Enum.reject(
-      &(Resource.is_real_time?(&1) or
-          Resource.is_documentation?(&1) or
-          Dataset.should_skip_history?(&1.dataset) or
-          hotfix_skip_history(&1))
+      &(Resource.is_real_time?(&1) or Resource.is_documentation?(&1) or Dataset.should_skip_history?(&1.dataset))
     )
   end
 end
