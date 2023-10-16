@@ -53,10 +53,12 @@ defmodule Transport.GTFSData do
       |> join(:left, [gs, di, rh, r], r in DB.Resource, on: rh.resource_id == r.id)
       |> join(:left, [gs, di, rh, r, d], d in DB.Dataset, on: r.dataset_id == d.id)
       |> select([gs, di, rh, r, d], %{
-        d_id: gs.data_import_id,
-        d_title: d.custom_title,
         stop_id: gs.stop_id,
         stop_name: gs.stop_name,
+        dataset_id: d.id,
+        dataset_title: d.custom_title,
+        resource_id: r.id,
+        resource_title: r.title,
         stop_lat: gs.stop_lat,
         stop_lon: gs.stop_lon,
         stop_location_type: gs.location_type
@@ -75,10 +77,14 @@ defmodule Transport.GTFSData do
               coordinates: [Map.fetch!(s, :stop_lon), Map.fetch!(s, :stop_lat)]
             },
             properties: %{
-              d_id: Map.fetch!(s, :d_id),
-              d_title: Map.fetch!(s, :d_title),
-              stop_name: Map.fetch!(s, :stop_name),
               stop_id: Map.fetch!(s, :stop_id),
+              stop_name: Map.fetch!(s, :stop_name),
+              dataset_id: Map.fetch!(s, :dataset_id),
+              dataset_title: Map.fetch!(s, :dataset_title),
+              resource_id: Map.fetch!(s, :resource_id),
+              resource_title: Map.fetch!(s, :resource_title),
+              stop_lat: Map.fetch!(s, :stop_lat),
+              stop_lon: Map.fetch!(s, :stop_lon),
               stop_location_type: Map.fetch!(s, :stop_location_type)
             }
           }
