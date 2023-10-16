@@ -77,6 +77,8 @@ defmodule TransportWeb.API.GTFSStopsController do
             {parsed_params[:snap_x], parsed_params[:snap_y]}
           )
 
+        # We mark the output with a "type" key to make sure the data is interpreted correctly
+        # on the client side.
         conn
         |> put_resp_content_type("application/json")
         |> json(%{type: "clustered", data: Jason.Fragment.new(data)})

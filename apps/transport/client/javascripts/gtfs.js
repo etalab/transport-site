@@ -54,6 +54,7 @@ map.on('moveend', function (event) {
         .then(jsonResponse => {
             let layer = null
             let tooltip = null
+            // clustered response is marked with a special type so that we can recognize it here
             if (jsonResponse.type === 'clustered') {
                 const data = jsonResponse.data.map(x => { return { lat: x[0], lon: x[1], count: x[2] } })
                 const maxCount = Math.max(...data.map(a => a.count))
@@ -80,7 +81,7 @@ map.on('moveend', function (event) {
                         return false
                     }
                 }
-            } else if (jsonResponse.type === 'FeatureCollection') {
+            } else if (jsonResponse.type === 'FeatureCollection') { // non-clustered response is GeoJSON, also with a "type" marker
                 const data = jsonResponse
                 const geoJsonLayer = new GeoJsonLayer({
                     id: 'geojson-layer',
