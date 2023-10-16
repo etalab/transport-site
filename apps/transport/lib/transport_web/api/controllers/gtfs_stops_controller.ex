@@ -32,7 +32,8 @@ defmodule TransportWeb.API.GTFSStopsController do
   def index_operation,
     do: %Operation{
       tags: ["gtfs"],
-      summary: "#{@experimental_summary} Lists stops from all GTFS files of transport.data.gouv.fr found inside a bounding box.",
+      summary:
+        "#{@experimental_summary} Lists stops from all GTFS files of transport.data.gouv.fr found inside a bounding box.",
       description: ~s"#{@experimental_description}
                       This call returns the GTFS stops from all the datasets of transport.data.gouv.fr
                       found inside the provided bounding box, up to #{@max_points} points (above that threshold, an error will be returned). The dataset ID is present in the answer amongst other data.
