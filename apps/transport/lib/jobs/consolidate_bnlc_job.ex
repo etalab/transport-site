@@ -98,10 +98,16 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
   @spec send_email_recap(binary(), consolidation_errors()) :: {:ok, any()} | {:error, any()}
   def send_email_recap(filename, %{} = errors) do
-    body =
+    {consolidation_status, body} =
       case format_errors(errors) do
-        nil -> "✅ La consolidation s'est déroulée sans erreurs"
-        txt when is_binary(txt) -> txt
+        nil -> {:ok, "✅ La consolidation s'est déroulée sans erreurs"}
+        txt when is_binary(txt) -> {:error, txt}
+      end
+
+    subject =
+      case consolidation_status do
+        :ok -> "[OK] Rapport de consolidation de la BNLC"
+        :error -> "[ERREUR] Rapport de consolidation de la BNLC"
       end
 
     file_url = Transport.S3.permanent_url(@s3_bucket, filename)
@@ -111,11 +117,11 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
       Application.get_env(:transport, :contact_email),
       Application.get_env(:transport, :bizdev_email),
       Application.get_env(:transport, :contact_email),
-      "Rapport de consolidation de la BNLC",
+      subject,
       "",
       """
       #{body}
-
+      <br/><br/>
       🔗 <a href="#{file_url}">Fichier consolidé</a>
       """
     )
@@ -226,9 +232,13 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     Enum.each(resources_details, fn {_dataset_detail, %{@download_path_key => tmp_path, @separator_key => separator}} ->
       tmp_path
       |> File.stream!()
+      |> CSV.decode!(headers: true, field_transform: &String.trim/1, separator: separator)
+      # Keep only columns that are present in the BNLC, ignore extra columns
+      |> Stream.filter(&Map.take(&1, headers))
+      |> CSV.encode(headers: headers)
+      # Don't write the CSV header again each time, it has already been written
+      # because the BNLC is first in the file
       |> Stream.drop(1)
-      |> CSV.decode!(field_transform: &String.trim/1, separator: separator)
-      |> CSV.encode(headers: false)
       |> Enum.each(&IO.write(file, &1))
 
       File.rm!(tmp_path)

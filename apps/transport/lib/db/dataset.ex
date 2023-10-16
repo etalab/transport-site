@@ -1014,13 +1014,16 @@ defmodule DB.Dataset do
 
   @doc """
   Should this dataset not be historicized?
+
+  iex> should_skip_history?(%DB.Dataset{type: "road-data"})
+  true
+  iex> should_skip_history?(%DB.Dataset{type: "public-transit"})
+  false
+  iex> should_skip_history?(%DB.Dataset{type: "public-transit", custom_tags: ["skip_history", "foo"]})
+  true
   """
-  def should_skip_history?(%__MODULE__{slug: slug, type: type}) do
-    type in ["bike-scooter-sharing", "car-motorbike-sharing", "road-data"] or
-      slug in [
-        "prix-des-carburants-en-france-flux-instantane",
-        "prix-des-carburants-en-france-flux-quotidien"
-      ]
+  def should_skip_history?(%__MODULE__{type: type} = dataset) do
+    type in ["bike-scooter-sharing", "car-motorbike-sharing", "road-data"] or has_custom_tag?(dataset, "skip_history")
   end
 
   def has_licence_ouverte?(%__MODULE__{licence: licence}), do: licence in @licences_ouvertes
@@ -1028,12 +1031,18 @@ defmodule DB.Dataset do
   @doc """
   iex> display_climate_resilience_bill_badge?(%__MODULE__{custom_tags: ["licence-osm"]})
   false
-  iex> display_climate_resilience_bill_badge?(%__MODULE__{custom_tags: nil})
-  false
   iex> display_climate_resilience_bill_badge?(%__MODULE__{custom_tags: ["loi-climat-resilience", "foo"]})
   true
   """
-  def climate_resilience_bill?(%__MODULE__{custom_tags: custom_tags}) do
-    "loi-climat-resilience" in (custom_tags || [])
-  end
+  def climate_resilience_bill?(%__MODULE__{} = dataset), do: has_custom_tag?(dataset, "loi-climat-resilience")
+
+  @doc """
+  iex> has_custom_tag?(%__MODULE__{custom_tags: ["foo"]}, "foo")
+  true
+  iex> has_custom_tag?(%__MODULE__{custom_tags: ["foo"]}, "bar")
+  false
+  iex> has_custom_tag?(%__MODULE__{custom_tags: nil}, "bar")
+  false
+  """
+  def has_custom_tag?(%__MODULE__{custom_tags: custom_tags}, tag_name), do: tag_name in (custom_tags || [])
 end

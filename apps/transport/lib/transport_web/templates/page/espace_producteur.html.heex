@@ -28,17 +28,36 @@
             <%= if @datasets == [] do %>
               <%= dgettext("espace-producteurs", "You have no resource to update for the moment") %>
             <% end %>
-            <%= for dataset <- @datasets do %>
+            <%= for dataset <- Enum.sort_by(@datasets, & &1.datagouv_title) do %>
+              <% dataset_path = dataset_path(@conn, :details, dataset.id)
+              nb_resources = dataset |> DB.Dataset.official_resources() |> Enum.count() %>
               <div class="pt-24 panel dataset-item">
-                <strong><%= dataset.datagouv_title %></strong>
+                <h5>
+                  <a href={dataset_path} target="_blank"><i class="icon fa fa-external-link" aria-hidden="true"></i></a>
+                  <%= dataset.datagouv_title %>
+                </h5>
+                <hr class="mb-0" />
+                <div class="pt-6">
+                  <%= dngettext("espace-producteurs", "1 resource", "%{count} resources", nb_resources) %>
+                </div>
                 <div class="pt-12">
-                  <%= link(dgettext("espace-producteurs", "Update a resource"),
+                  <%= link(dgettext("espace-producteurs", "Update"),
                     to: resource_path(@conn, :resources_list, dataset.datagouv_id),
-                    class: "button-outline primary small"
+                    class: "button-outline primary small",
+                    "data-tracking-category": "espace_producteur",
+                    "data-tracking-action": "update_resource_button"
                   ) %>
-                  <%= link(dgettext("espace-producteurs", "Add a resource"),
+                  <%= link(dgettext("espace-producteurs", "Add"),
                     to: resource_path(@conn, :form, dataset.datagouv_id),
-                    class: "button-outline secondary small"
+                    class: "button-outline secondary small",
+                    "data-tracking-category": "espace_producteur",
+                    "data-tracking-action": "add_resource_button"
+                  ) %>
+                  <%= link(dgettext("espace-producteurs", "Delete"),
+                    to: resource_path(@conn, :resources_list, dataset.datagouv_id, %{"mode" => "delete"}),
+                    class: "button-outline warning small",
+                    "data-tracking-category": "espace_producteur",
+                    "data-tracking-action": "delete_resource_button"
                   ) %>
                 </div>
               </div>
@@ -193,3 +212,5 @@
     </div>
   </section>
 </div>
+
+<script defer type="text/javascript" src={static_path(@conn, "/js/app.js")} />

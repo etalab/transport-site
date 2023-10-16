@@ -110,6 +110,10 @@ defmodule Datagouvfr.Client.Resources do
 
   def get(_), do: %{}
 
+  def delete(%Plug.Conn{} = conn, %{"dataset_id" => _, "resource_id" => _} = params) do
+    Client.delete(conn, make_path(params))
+  end
+
   @spec put_mime(map(), map()) :: map()
   defp put_mime(payload, params) do
     if Map.has_key?(@format_to_mime, params["format"]) do

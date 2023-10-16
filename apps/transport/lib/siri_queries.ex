@@ -78,22 +78,18 @@ defmodule Transport.SIRI do
     Saxy.encode!(doc)
   end
 
-  def build_line_refs(line_refs) do
-    # NOTE: we'll switch to proper well-escaped XML building later, this is research code
-    line_refs = line_refs |> Enum.map_join("\n", &"<siri:LineRef>#{&1}</siri:LineRef>")
-
-    """
-    <siri:Lines>
-      #{line_refs}
-    </siri:Lines>
-    """
-  end
-
   def line_refs_element([] = _line_refs), do: nil
 
   def line_refs_element(line_refs) do
-    line_refs = line_refs |> Enum.map(&element("siri:LineRef", [], &1))
-    element("siri:Lines", [], line_refs)
+    element(
+      "siri:Lines",
+      [],
+      Enum.map(line_refs, fn line_ref ->
+        element("siri:LineDirection", [], [
+          element("siri:LineRef", [], line_ref)
+        ])
+      end)
+    )
   end
 
   def append_if_not_nil(list, nil), do: list

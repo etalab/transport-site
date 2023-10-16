@@ -286,9 +286,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     Transport.HTTPoison.Mock
     |> expect(:get, fn ^other_url, [], [follow_redirect: true] ->
       body = """
-      "foo";"bar";"baz"
-      "a";"b";"c"
-      "d";"e";"f"
+      "foo";"bar";"baz";"extra_col"
+      "a";"b";"c";"its_a_trap"
+      "d";"e";"f";"should_be_ignored"
       """
 
       {:ok, %HTTPoison.Response{status_code: 200, body: body}}
@@ -424,8 +424,8 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       Transport.HTTPoison.Mock
       |> expect(:get, fn ^bar_url, [], [follow_redirect: true] ->
         body = """
-        foo,bar,baz
-        1,2,3
+        foo,bar,baz,extra_col
+        1,2,3,is_ignored
         """
 
         {:ok, %HTTPoison.Response{status_code: 200, body: body}}
@@ -464,7 +464,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                                "contact@transport.beta.gouv.fr" = _from,
                                "deploiement@transport.beta.gouv.fr" = _to,
                                "contact@transport.beta.gouv.fr" = _reply_to,
-                               "Rapport de consolidation de la BNLC" = _subject,
+                               "[OK] Rapport de consolidation de la BNLC" = _subject,
                                "",
                                html_part ->
         assert html_part =~ ~r"^✅ La consolidation s'est déroulée sans erreurs"
@@ -663,7 +663,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                                "contact@transport.beta.gouv.fr" = _from,
                                "deploiement@transport.beta.gouv.fr" = _to,
                                "contact@transport.beta.gouv.fr" = _reply_to,
-                               "Rapport de consolidation de la BNLC" = _subject,
+                               "[ERREUR] Rapport de consolidation de la BNLC" = _subject,
                                "",
                                html_part ->
         assert html_part =~

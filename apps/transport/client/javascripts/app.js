@@ -40,6 +40,17 @@ const csrfToken = document.querySelector('meta[name=\'csrf\']').getAttribute('co
 const liveSocket = new LiveSocket('/live', Socket, { hooks: Hooks, params: { _csrf_token: csrfToken } })
 liveSocket.connect()
 
+// Track analytics events for DOM elements by a `data-tracking-category`.
+// The event will be recorded on a click event
+// See https://matomo.org/faq/reports/implement-event-tracking-with-matomo/#how-to-set-up-matomo-event-tracking-with-javascript
+document.querySelectorAll('[data-tracking-category]').forEach(el => {
+    el.addEventListener('click', function (event) {
+        const target = event.target
+        const name = target.dataset.trackingName || ''
+        window._paq.push(['trackEvent', target.dataset.trackingCategory, target.dataset.trackingAction, name])
+    })
+})
+
 // expose liveSocket on window for web console debug logs and latency simulation:
 // >> liveSocket.enableDebug()
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session

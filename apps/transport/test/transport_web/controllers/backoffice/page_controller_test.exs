@@ -77,7 +77,15 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
   end
 
   test "notifications config and notifications sent are displayed", %{conn: conn} do
-    dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate(), slug: Ecto.UUID.generate())
+    organization = insert(:organization)
+
+    dataset =
+      insert(:dataset,
+        is_active: true,
+        datagouv_id: Ecto.UUID.generate(),
+        slug: Ecto.UUID.generate(),
+        organization_id: organization.id
+      )
 
     insert_notification(%{dataset: dataset, email: "foo@example.fr", reason: :expiration})
     insert_notification(%{dataset: dataset, email: "bar@example.fr", reason: :expiration})
@@ -115,10 +123,20 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
   end
 
   test "can download the resources CSV", %{conn: conn} do
+    # Being an admin is not enough
+    assert %URI{path: "/login/explanation"} =
+             conn
+             |> setup_admin_in_session()
+             |> get(Routes.backoffice_page_path(conn, :download_resources_csv))
+             |> redirected_to(302)
+             |> URI.parse()
+
+    # Can download the CSV if you provide the secret key in the URL
+    assert "fake_export_secret_key" == Application.fetch_env!(:transport, :export_secret_key)
+
     response =
       conn
-      |> setup_admin_in_session()
-      |> get(Routes.backoffice_page_path(conn, :download_resources_csv))
+      |> get(Routes.backoffice_page_path(conn, :download_resources_csv), %{"export_key" => "fake_export_secret_key"})
 
     assert response(response, 200)
     assert response_content_type(response, :csv) == "text/csv; charset=utf-8"
