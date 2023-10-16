@@ -1,8 +1,6 @@
 defmodule TransportWeb.API.GTFSStopsController do
   use TransportWeb, :controller
   alias OpenApiSpex.Operation
-  alias TransportWeb.API.Schemas.GeoJSONResponse
-  alias TransportWeb.API.Schemas.ErrorJSONResponse
 
   @max_points 20_000
   # NOTE: summary cannot include formatting apparently.
@@ -47,8 +45,8 @@ defmodule TransportWeb.API.GTFSStopsController do
         Operation.parameter(:east, :query, :number, "East (longitude)")
       ],
       responses: %{
-        200 => Operation.response("GeoJSON", "application/json", GeoJSONResponse),
-        422 => Operation.response("ErrorJSON", "application/json", ErrorJSONResponse)
+        200 => Operation.response("GeoJSON", "application/json", TransportWeb.API.Schemas.GeoJSONResponse),
+        422 => Operation.response("ErrorJSON", "application/json", TransportWeb.API.Schemas.ErrorJSONResponse)
       }
     }
 
