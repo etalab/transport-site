@@ -4,6 +4,10 @@ defmodule TransportWeb.API.GTFSStopsController do
   alias TransportWeb.API.Schemas.GeoJSONResponse
 
   @max_points 20_000
+  # NOTE: summary cannot include formatting apparently.
+  # DRYing this here for now, until more are published.
+  @experimental_summary "(experimental)"
+  @experimental_description "**This API point is experimental with no guarantee of stability or continuity, use at your own risk.**"
 
   @spec open_api_operation(any) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
@@ -29,11 +33,11 @@ defmodule TransportWeb.API.GTFSStopsController do
   def index_operation,
     do: %Operation{
       tags: ["gtfs"],
-      summary: "Lists stops from all GTFS files of transport.data.gouv.fr found inside a bounding box.",
-      description: ~s"This call returns the GTFS stops from all the datasets of transport.data.gouv.fr
-                      found inside the bounding box. The dataset ID is present in the answer amongst other data.
-                      This API point is experimental with no guarantee of stability or continuity,
-                      and was created to power the map at https://transport.data.gouv.fr/explore/gtfs-stops.",
+      summary: "#{@experimental_summary} Lists stops from all GTFS files of transport.data.gouv.fr found inside a bounding box.",
+      description: ~s"#{@experimental_description}
+                      This call returns the GTFS stops from all the datasets of transport.data.gouv.fr
+                      found inside the provided bounding box, up to #{@max_points} points (above that threshold, an error will be returned). The dataset ID is present in the answer amongst other data.
+                      This endpoint is used to power the map at https://transport.data.gouv.fr/explore/gtfs-stops.",
       operationId: "API.GTFSStopsController.index",
       parameters: [
         Operation.parameter(:south, :query, :number, "South (latitude)"),
