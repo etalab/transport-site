@@ -14,14 +14,14 @@ defmodule TransportWeb.API.GTFSStopsController do
   @moduledoc """
   This module is used both as a standalone API endpoint or for the map at /explore/gtfs-stops.
   There is a single index entry function, that accepts either :
-  - API use : only the bounding box coordinates
-  - Map use : bounding box coordinates + map parameters (width, height, zoom level).
+  - API use: only the bounding box coordinates
+  - Map use: bounding box coordinates + map parameters (width, height, zoom level).
 
   The behaviour is slightly different depending on the use case.
-  - API use :
+  - API use:
    - if the bounding box contains too many points, the API returns an error.
    - otherwise, it returns the detailed data as a GeoJSON FeatureCollection.
-  - Map use :
+  - Map use:
    - if the bounding box contains too many points or the zoom level is not high enough, the API returns the clustered data.
    - otherwise, it returns the detailed data as a GeoJSON FeatureCollection.
 
