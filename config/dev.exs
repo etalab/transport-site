@@ -19,6 +19,10 @@ config :transport, TransportWeb.Endpoint,
   # be added when needed here, we just added what we needed.
   reloadable_apps: [:shared, :transport, :unlock, :gbfs]
 
+# Uncomment this to avoid having to restart the app for each change in description
+# See https://github.com/open-api-spex/open_api_spex#serve-the-spec
+# config :open_api_spex, :cache_adapter, OpenApiSpex.Plug.NoneCache
+
 # watchers are also configured via config/runtime.exs
 
 config :transport, TransportWeb.Endpoint,
