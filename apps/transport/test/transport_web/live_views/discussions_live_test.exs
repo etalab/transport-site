@@ -30,6 +30,7 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
     assert render(view) =~ "Le titre de la question"
     assert render(view) =~ "Francis Chabouis"
     assert render(view) =~ "07/06/2023"
+    assert render(view) =~ "producteur de la donnée"
   end
 
   test "renders even if data.gouv is down", %{conn: conn} do
@@ -173,6 +174,6 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
   end
 
   defp organization() do
-    {:ok, %{"members" => [%{"user" => %{"id" => "1"}}]}}
+    {:ok, %{"members" => [%{"user" => %{"id" => "5e60d6668b4c410c429b8a4a"}}]}}
   end
 end
