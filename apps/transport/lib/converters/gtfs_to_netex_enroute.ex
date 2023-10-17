@@ -66,7 +66,7 @@ defmodule Transport.Converters.GTFSToNeTExEnRoute do
     :ok
   end
 
-  defp base_url() do
+  defp base_url do
     # Use Bypass with Req in the test environment, we need to change the base URL
     bypass = Process.get(:req_bypass)
 
