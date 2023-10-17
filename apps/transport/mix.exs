@@ -73,7 +73,7 @@ defmodule Transport.Mixfile do
       {:timex, "~> 3.7"},
       {:sentry, "~> 8.1"},
       {:scrivener, "~> 2.5"},
-      {:scrivener_html, git: "https://github.com/AntoineAugusti/scrivener_html.git", ref: "2cbe0d2ecdd74ead4e5b95bbe50ee316efc99176"},
+      {:scrivener_html, git: "https://github.com/etalab/scrivener_html.git", ref: "f0245703abf7d0ce2b48a0f7e96997def7649e5f"},
       {:scrivener_list, "~>2.0"},
       {:jason, "~> 1.1"},
       {:open_api_spex, "~> 3.8"},
