@@ -132,7 +132,7 @@ defmodule Transport.Mixfile do
       {:appsignal, "~> 2.0"},
       {:appsignal_phoenix, "~> 2.0"},
       {:vega_lite, "~> 0.1.7"},
-      {:req, "~> 0.3.11", only: :dev},
+      {:req, "~> 0.4.4"},
       {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
       {:swoosh, "~> 1.11"},
       {:phoenix_swoosh, "~> 1.0"},
