@@ -35,8 +35,6 @@ defmodule Transport.Converters.GTFSToNeTExEnRoute do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         json = Jason.decode!(body)
 
-        :ok
-
         case Map.fetch!(json, "status") do
           "success" ->
             Logger.info("Conversion ##{uuid} is finished. #{inspect(json)}")
