@@ -109,7 +109,7 @@ msgstr "Carte consolidée des arrêts GTFS (beta)"
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Consolidated GTFS stops map explanation"
-msgstr "Cette carte consolide tous les GTFS référencés sur ce site. En beta, peut inclure des éléments expirés ou des doublons (voir %{link}). Vos retours sont les bienvenus."
+msgstr "Cette carte consolide tous les GTFS référencés sur ce site. En beta, peut inclure des éléments expirés ou des doublons (voir %{github_issue_link}). La liste des arrêts est téléchargeable sur la page de ce <a href=\"%{gtfs_stops_dataset_path}\">jeu de données</a>. Il existe également une <a href=\"%{swagger_doc_path}\">API expérimentale</a> qui permet de rechercher les arrêts.<br>Vos retours sont les bienvenus."
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "irve-explanation"
