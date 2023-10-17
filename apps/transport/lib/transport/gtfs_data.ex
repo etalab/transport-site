@@ -55,6 +55,7 @@ defmodule Transport.GTFSData do
       |> select([gs, di, rh, r, d], %{
         stop_id: gs.stop_id,
         stop_name: gs.stop_name,
+        di_id: gs.data_import_id,
         dataset_id: d.id,
         dataset_title: d.custom_title,
         resource_id: r.id,
@@ -79,12 +80,11 @@ defmodule Transport.GTFSData do
             properties: %{
               stop_id: Map.fetch!(s, :stop_id),
               stop_name: Map.fetch!(s, :stop_name),
+              di_id: Map.fetch!(s, :di_id),
               dataset_id: Map.fetch!(s, :dataset_id),
               dataset_title: Map.fetch!(s, :dataset_title),
               resource_id: Map.fetch!(s, :resource_id),
               resource_title: Map.fetch!(s, :resource_title),
-              stop_lat: Map.fetch!(s, :stop_lat),
-              stop_lon: Map.fetch!(s, :stop_lon),
               stop_location_type: Map.fetch!(s, :stop_location_type)
             }
           }

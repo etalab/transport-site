@@ -40,21 +40,24 @@ defmodule Transport.GTFSDataTest do
       )
     end)
 
-    data_import
+    {data_import, resource, dataset}
   end
 
   test "build_detailed" do
-    data_import = insert_gtfs_stops([{2.5, 48.5}])
+    {data_import, resource, dataset} = insert_gtfs_stops([{2.5, 48.5}])
 
     assert Transport.GTFSData.build_detailed({3.333333, 2.333333, 48.866667, 48.266667}) == %{
              features: [
                %{
                  geometry: %{coordinates: [48.5, 2.5], type: "Point"},
                  properties: %{
-                   d_id: data_import.id,
-                   d_title: "Hello",
                    stop_id: "LOC:001",
                    stop_name: "L'arrêt 1",
+                   di_id: data_import.id,
+                   dataset_id: dataset.id,
+                   dataset_title: "Hello",
+                   resource_id: resource.id,
+                   resource_title: "GTFS.zip",
                    stop_location_type: nil
                  },
                  type: "Feature"
