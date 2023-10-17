@@ -62,7 +62,7 @@ defmodule Transport.Mixfile do
       {:httpoison, "~> 2.1"},
       {:phoenix, "~> 1.6.2"},
       {:phoenix_html, "~> 3.1"},
-      {:phoenix_markdown, git: "https://github.com/pzingg/phoenix_markdown.git", ref: "b2e5ff67c9ce9160d7ef1f66d0c859dfa6284a53"},
+      {:phoenix_markdown, "~> 1.0"},
       # Careful with the upgrade: https://github.com/etalab/transport-site/issues/3433
       {:phoenix_live_view, "~> 0.18.0"},
       {:html_sanitize_ex, "~> 1.4"},
