@@ -445,6 +445,21 @@ defmodule TransportWeb.API.Schemas do
     })
   end
 
+  defmodule ErrorJSONResponse do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "ErrorJSONResponse",
+      description: "Error Response in JSON",
+      type: :object,
+      properties: %{
+        error: %Schema{type: :string}
+      },
+      additionalProperties: false
+    })
+  end
+
   defmodule Publisher do
     @moduledoc false
     require OpenApiSpex
