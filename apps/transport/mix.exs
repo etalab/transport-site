@@ -62,7 +62,7 @@ defmodule Transport.Mixfile do
       {:httpoison, "~> 2.1"},
       {:phoenix, "~> 1.6.2"},
       {:phoenix_html, "~> 3.1"},
-      {:phoenix_markdown, "~> 1.0"},
+      {:phoenix_markdown, git: "https://github.com/pzingg/phoenix_markdown.git", ref: "b2e5ff67c9ce9160d7ef1f66d0c859dfa6284a53"},
       # Careful with the upgrade: https://github.com/etalab/transport-site/issues/3433
       {:phoenix_live_view, "~> 0.18.0"},
       {:html_sanitize_ex, "~> 1.4"},
@@ -73,7 +73,7 @@ defmodule Transport.Mixfile do
       {:timex, "~> 3.7"},
       {:sentry, "~> 8.1"},
       {:scrivener, "~> 2.5"},
-      {:scrivener_html, git: "https://github.com/mgwidmann/scrivener_html.git", ref: "9224d1"},
+      {:scrivener_html, git: "https://github.com/AntoineAugusti/scrivener_html.git", ref: "2cbe0d2ecdd74ead4e5b95bbe50ee316efc99176"},
       {:scrivener_list, "~>2.0"},
       {:jason, "~> 1.1"},
       {:open_api_spex, "~> 3.8"},
