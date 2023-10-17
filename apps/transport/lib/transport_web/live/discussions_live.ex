@@ -70,7 +70,7 @@ defmodule TransportWeb.DiscussionsLive do
     discussions = Datagouvfr.Client.Discussions.Wrapper.get(dataset.datagouv_id)
 
     {org_member_ids, org_logo_thumbnail} =
-      case Datagouvfr.Client.Organization.Wrapper.get(dataset.organization) do
+      case Datagouvfr.Client.Organization.Wrapper.get(dataset.organization, restrict_fields: true) do
         {:ok, dataset_owner_organization} ->
           {
             dataset_owner_organization["members"] |> Enum.map(fn member -> member["user"]["id"] end),
