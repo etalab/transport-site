@@ -14,6 +14,7 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
     dataset = insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate(), organization: "PAN_org")
 
     Datagouvfr.Client.Discussions.Mock |> expect(:get, 1, fn ^datagouv_id -> discussions() end)
+    Datagouvfr.Client.Organization.Mock |> expect(:get, 1, fn "PAN_org" -> organization() end)
 
     {:ok, view, _html} =
       live_isolated(conn, TransportWeb.DiscussionsLive,
@@ -36,6 +37,7 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
 
     # in case of request failure, the function returns an empty list.
     Datagouvfr.Client.Discussions.Mock |> expect(:get, 1, fn ^datagouv_id -> [] end)
+    Datagouvfr.Client.Organization.Mock |> expect(:get, 1, fn _id -> {:error, "error reason"} end)
 
     assert {:ok, view, _html} =
              live_isolated(conn, TransportWeb.DiscussionsLive,
@@ -168,5 +170,9 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
         }
       }
     ]
+  end
+
+  defp organization() do
+    {:ok, %{"members" => [%{"user" => %{"id" => "1"}}]}}
   end
 end

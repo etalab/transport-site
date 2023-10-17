@@ -3,3 +3,4 @@ Mox.defmock(Datagouvfr.Authentication.Mock, for: Datagouvfr.Authentication.Wrapp
 Mox.defmock(Datagouvfr.Client.User.Mock, for: Datagouvfr.Client.User.Wrapper)
 Mox.defmock(Datagouvfr.Client.Reuses.Mock, for: Datagouvfr.Client.Reuses.Wrapper)
 Mox.defmock(Datagouvfr.Client.Discussions.Mock, for: Datagouvfr.Client.Discussions.Wrapper)
+Mox.defmock(Datagouvfr.Client.Organization.Mock, for: Datagouvfr.Client.Discussions.Wrapper)

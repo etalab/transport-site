@@ -69,9 +69,17 @@ defmodule TransportWeb.DiscussionsLive do
   def handle_info({:fetch_data_gouv_discussions, %DB.Dataset{} = dataset}, socket) do
     discussions = Datagouvfr.Client.Discussions.Wrapper.get(dataset.datagouv_id)
 
-    {:ok, dataset_owner_organization} = Datagouvfr.Client.Organization.Wrapper.get(dataset.organization)
-    org_member_ids = dataset_owner_organization["members"] |> Enum.map(fn member -> member["user"]["id"] end)
-    org_logo_thumbnail = dataset_owner_organization["logo_thumbnail"]
+    {org_member_ids, org_logo_thumbnail} =
+      case Datagouvfr.Client.Organization.Wrapper.get(dataset.organization) do
+        {:ok, dataset_owner_organization} ->
+          {
+            dataset_owner_organization["members"] |> Enum.map(fn member -> member["user"]["id"] end),
+            dataset_owner_organization["logo_thumbnail"]
+          }
+
+        {:error, _} ->
+          {[], nil}
+      end
 
     Phoenix.PubSub.broadcast(
       TransportWeb.PubSub,
