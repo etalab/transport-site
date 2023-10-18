@@ -48,7 +48,7 @@ defmodule DB.ResourceHistory do
     |> limit(1)
   end
 
-  @spec latest_resource_history(DB.Resource.t()) :: DB.ResourceHistory.t() | nil
+  @spec latest_resource_history(DB.Resource.t() | integer()) :: DB.ResourceHistory.t() | nil
   def latest_resource_history(%DB.Resource{id: id}), do: latest_resource_history(id)
 
   def latest_resource_history(resource_id) do
