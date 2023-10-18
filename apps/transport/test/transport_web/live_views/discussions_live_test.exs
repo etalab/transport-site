@@ -14,7 +14,7 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
     dataset = insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate(), organization: "PAN_org")
 
     Datagouvfr.Client.Discussions.Mock |> expect(:get, 1, fn ^datagouv_id -> discussions() end)
-    Datagouvfr.Client.Organization.Mock |> expect(:get, 1, fn "PAN_org", _opts -> organization() end)
+    Datagouvfr.Client.Organization.Mock |> expect(:get, 1, fn "PAN_org", [restrict_fields: true] -> organization() end)
 
     {:ok, view, _html} =
       live_isolated(conn, TransportWeb.DiscussionsLive,
@@ -30,7 +30,7 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
     assert render(view) =~ "Le titre de la question"
     assert render(view) =~ "Francis Chabouis"
     assert render(view) =~ "07/06/2023"
-    assert render(view) =~ "producteur de la donnée"
+    assert render(view) =~ "Producteur de la donnée"
   end
 
   test "renders even if data.gouv is down", %{conn: conn} do
@@ -173,7 +173,7 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
     ]
   end
 
-  defp organization() do
+  defp organization do
     {:ok, %{"members" => [%{"user" => %{"id" => "5e60d6668b4c410c429b8a4a"}}]}}
   end
 end

@@ -3,11 +3,11 @@ defmodule Datagouvfr.Client.Organization.Wrapper do
   A Wrapper to get Organization from data.gouv.fr API (or mock it for tests)
   """
   @callback get(binary(), keyword()) :: {:ok, map()} | {:error, map()}
+  @callback get(binary()) :: {:ok, map()} | {:error, map()}
+  def get(id, opts), do: impl().get(id, opts)
+  def get(id), do: impl().get(id)
 
   defp impl, do: Application.get_env(:datagouvfr, :organization_impl)
-  def get(id, opts), do: impl().get(id, opts)
-
-  def get(id), do: impl().get(id)
 end
 
 defmodule Datagouvfr.Client.Organization do
@@ -15,19 +15,19 @@ defmodule Datagouvfr.Client.Organization do
   Implementation of data.gouv.fr API for Organization, see doc: https://doc.data.gouv.fr/api/reference/#/organizations
   """
   @behaviour Datagouvfr.Client.Organization.Wrapper
-
-  alias Datagouvfr.Client.API
-
   @endpoint "organizations"
+  alias Datagouvfr.Client.API
 
   @doc """
   Call to GET /api/1/organizations/:id/
   """
+  @impl true
   def get(id, opts \\ []) do
-    args = if opts[:restrict_fields], do: [{"x-fields", "{logo_thumbnail,members{user{id}}}"}], else: []
+    opts = Keyword.validate!(opts, restrict_fields: false)
+    headers = if opts[:restrict_fields], do: [{"x-fields", "{logo_thumbnail,members{user{id}}}"}], else: []
 
     @endpoint
     |> Path.join(id)
-    |> API.get(args)
+    |> API.get(headers)
   end
 end
