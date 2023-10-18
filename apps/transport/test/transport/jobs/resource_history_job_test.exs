@@ -566,14 +566,9 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
     insert(:resource,
       url: "https://example.com/file",
-      dataset:
-        insert(:dataset,
-          is_active: true,
-          type: "charging-stations",
-          slug: "prix-des-carburants-en-france-flux-quotidien"
-        ),
+      dataset: insert(:dataset, is_active: true, type: "charging-stations", custom_tags: ["skip_history"]),
       format: "GTFS",
-      title: "Ignored because the dataset slug is skipped",
+      title: "Ignored because it has the `skip_history` custom tag",
       datagouv_id: "9",
       is_community_resource: false
     )
