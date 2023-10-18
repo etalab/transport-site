@@ -1,0 +1,60 @@
+# Analyse puissance_nominale (IRVE)
+
+```elixir
+Mix.install([
+  {:req, "~> 0.4.0"},
+  {:nimble_csv, "~> 1.2"},
+  {:explorer, "~> 0.7.0"},
+  {:kino, "~> 0.11.0"},
+  {:kino_vega_lite, "~> 0.1.9"},
+  {:kino_explorer, "~> 0.1.10"}
+])
+```
+
+## Coup d'oeil de plus près au fichier consolidé
+
+On sait qu'il y a des puissances rapportées en watts et d'autres en kilowatts, or le schéma impose une utilisation du kilowatt. Dans ce notebook j'analyse de plus près les données pour voir combien de points de charge sont encore concernés (détermination du %), et voir quels sont les jeux concernés pour remonter l'info au producteur.
+
+```elixir
+# source: https://transport.data.gouv.fr/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques
+url = "https://www.data.gouv.fr/fr/datasets/r/8d9398ae-3037-48b2-be19-412c24561fbb"
+%{status: 200, body: body} = Req.get!(url, decode_body: false)
+df = Explorer.DataFrame.load_csv!(body, header: true, infer_schema_length: 200_000)
+
+df[:puissance_nominale]
+|> Explorer.Series.frequencies()
+```
+
+```elixir
+require Explorer.DataFrame
+df_2 = Explorer.DataFrame.mutate(df, suspect: puissance_nominale > 500)
+
+df_2[:suspect]
+|> Explorer.Series.frequencies()
+```
+
+```elixir
+VegaLite.new(width: 500)
+|> VegaLite.data_from_values(df_2, only: ["suspect"])
+|> VegaLite.mark(:arc, tooltip: true)
+|> VegaLite.encode_field(:theta, "suspect",
+  aggregate: :count,
+  type: :quantitative,
+  stack: :normalize
+)
+|> VegaLite.encode_field(:color, "suspect", type: :nominal)
+```
+
+Maintenant qu'on voit le volume des problèmes, on peut aller identifier les ressources concernées:
+
+```elixir
+df_3 = df_2 |> Explorer.DataFrame.filter(suspect == true)
+```
+
+```elixir
+df_3
+|> Explorer.DataFrame.group_by([:nom_amenageur, :datagouv_dataset_id])
+|> Explorer.DataFrame.summarise_with(
+  &[pdc_count: Explorer.Series.count(&1[:datagouv_dataset_id])]
+)
+```
