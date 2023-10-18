@@ -612,4 +612,4 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "data producer"
-msgstr ""
+msgstr "Data producer"
