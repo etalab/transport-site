@@ -8,7 +8,6 @@ defmodule Datagouvfr.Client.Organization.Wrapper do
   def get(id, opts), do: impl().get(id, opts)
 
   def get(id), do: impl().get(id)
-
 end
 
 defmodule Datagouvfr.Client.Organization do
