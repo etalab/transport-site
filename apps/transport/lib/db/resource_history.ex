@@ -48,28 +48,13 @@ defmodule DB.ResourceHistory do
     |> limit(1)
   end
 
+  @spec latest_resource_history(DB.Resource.t()) :: DB.ResourceHistory.t() | nil
   def latest_resource_history(%DB.Resource{id: id}), do: latest_resource_history(id)
 
   def latest_resource_history(resource_id) do
     resource_id
     |> latest_resource_history_query
     |> DB.Repo.one()
-  end
-
-  def latest_resource_history_payload(resource_id) do
-    resource_id
-    |> latest_resource_history_query
-    |> select([rh], rh.payload)
-    |> DB.Repo.one()
-  end
-
-  def latest_resource_history_infos(resource_id) do
-    resource_id
-    |> latest_resource_history_payload()
-    |> case do
-      %{"permanent_url" => url, "filesize" => filesize} -> %{url: url, filesize: filesize}
-      _ -> nil
-    end
   end
 
   @spec latest_dataset_resources_history_infos(integer()) :: map()
@@ -84,4 +69,20 @@ defmodule DB.ResourceHistory do
     |> DB.Repo.all()
     |> Enum.into(%{})
   end
+
+  @doc """
+  iex> is_gtfs_flex?(%DB.ResourceHistory{payload: %{"format" => "GTFS", "filenames" => ["stops.txt", "booking_rules.txt"]}})
+  true
+  iex> is_gtfs_flex?(%DB.ResourceHistory{payload: %{"format" => "GTFS", "filenames" => ["stops.txt", "locations.geojson"]}})
+  true
+  iex> is_gtfs_flex?(%DB.ResourceHistory{payload: %{"format" => "GTFS", "filenames" => ["stops.txt"]}})
+  false
+  """
+  @spec is_gtfs_flex?(DB.ResourceHistory.t()) :: boolean()
+  def is_gtfs_flex?(%__MODULE__{payload: %{"format" => "GTFS", "filenames" => filenames}}) do
+    # See https://gtfs.org/extensions/flex/ and search for "Add new file"
+    Enum.any?(filenames, &(&1 in ["booking_rules.txt", "locations.geojson"]))
+  end
+
+  def is_gtfs_flex?(%__MODULE__{}), do: false
 end
