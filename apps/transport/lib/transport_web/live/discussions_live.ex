@@ -23,13 +23,17 @@ defmodule TransportWeb.DiscussionsLive do
 
     <%= if assigns[:discussions] do %>
       <div>
-        <%= Phoenix.View.render(TransportWeb.DatasetView, "_discussions.html",
-          discussions: @discussions,
-          current_user: @current_user,
-          socket: @socket,
-          dataset: @dataset,
-          locale: @locale
-        ) %>
+        <%= for discussion <- @discussions do %>
+          <%= Phoenix.View.render(TransportWeb.DatasetView, "_discussion.html",
+            discussion: discussion,
+            current_user: @current_user,
+            socket: @socket,
+            dataset: @dataset,
+            org_member_ids: @org_member_ids,
+            org_logo_thumbnail: @org_logo_thumbnail,
+            locale: @locale
+          ) %>
+        <% end %>
       </div>
     <% else %>
       <div>
@@ -57,23 +61,35 @@ defmodule TransportWeb.DiscussionsLive do
     Gettext.put_locale(locale)
 
     # async comments loading
-    send(self(), {:fetch_data_gouv_discussions, dataset.datagouv_id})
+    send(self(), {:fetch_data_gouv_discussions, dataset})
 
     {:ok, socket}
   end
 
-  def handle_info({:fetch_data_gouv_discussions, dataset_datagouv_id}, socket) do
-    discussions = Datagouvfr.Client.Discussions.Wrapper.get(dataset_datagouv_id)
+  def handle_info({:fetch_data_gouv_discussions, %DB.Dataset{} = dataset}, socket) do
+    discussions = Datagouvfr.Client.Discussions.Wrapper.get(dataset.datagouv_id)
+
+    {org_member_ids, org_logo_thumbnail} =
+      case Datagouvfr.Client.Organization.Wrapper.get(dataset.organization, restrict_fields: true) do
+        {:ok, dataset_owner_organization} ->
+          {
+            dataset_owner_organization["members"] |> Enum.map(fn member -> member["user"]["id"] end),
+            dataset_owner_organization["logo_thumbnail"]
+          }
+
+        {:error, _} ->
+          {[], nil}
+      end
 
     Phoenix.PubSub.broadcast(
       TransportWeb.PubSub,
-      "dataset_discussions_count:#{dataset_datagouv_id}",
+      "dataset_discussions_count:#{dataset.datagouv_id}",
       {:count, discussions |> length()}
     )
 
     socket =
       socket
-      |> assign(:discussions, discussions)
+      |> assign(discussions: discussions, org_member_ids: org_member_ids, org_logo_thumbnail: org_logo_thumbnail)
       |> push_event("discussions-loaded", %{
         ids: discussions |> Enum.filter(&discussion_should_be_closed?/1) |> Enum.map(& &1["id"])
       })
