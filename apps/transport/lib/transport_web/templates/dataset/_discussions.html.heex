@@ -1,9 +1,0 @@
-<%= for discussion <- @discussions do %>
-  <%= render("_discussion.html",
-    discussion: discussion,
-    current_user: @current_user,
-    socket: @socket,
-    dataset: @dataset,
-    locale: @locale
-  ) %>
-<% end %>
