@@ -22,7 +22,12 @@ defmodule Datagouvfr.Client.Organization do
   Call to GET /api/1/organizations/:id/
   """
   @impl true
-  def get(id, opts \\ []) do
+  def get(id, opts \\ [])
+
+  # This case is defined because some datasets don’t have an organization and we may call this function with nil for discussions
+  def get(nil, _opts), do: {:error, %{}}
+
+  def get(id, opts) do
     opts = Keyword.validate!(opts, restrict_fields: false)
     headers = if opts[:restrict_fields], do: [{"x-fields", "{logo_thumbnail,members{user{id}}}"}], else: []
 
