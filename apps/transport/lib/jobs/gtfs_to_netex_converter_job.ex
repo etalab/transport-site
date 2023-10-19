@@ -63,7 +63,9 @@ defmodule Transport.GtfsToNeTExConverter do
   @moduledoc """
   Given a GTFS file path, convert it to NeTEx.
   """
-  @spec convert(binary(), binary()) :: :ok | {:error, any()}
+  @behaviour Transport.Converters.Converter
+
+  @impl true
   def convert(gtfs_file_path, netex_file_path) do
     binary_path = Path.join(Application.fetch_env!(:transport, :transport_tools_folder), "gtfs2netexfr")
     participant = Application.get_env(:transport, :domain_name)
@@ -76,4 +78,10 @@ defmodule Transport.GtfsToNeTExConverter do
       {:error, e} -> {:error, e}
     end
   end
+
+  @impl true
+  def converter, do: "hove/transit_model"
+
+  @impl true
+  def converter_version, do: "0.55.0"
 end

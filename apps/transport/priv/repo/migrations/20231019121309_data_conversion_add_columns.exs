@@ -1,0 +1,36 @@
+defmodule DB.Repo.Migrations.DataConversionAddColumns do
+  use Ecto.Migration
+
+  def up do
+    alter table("data_conversion") do
+      add :status, :string
+      add :converter, :string
+      add :converter_version, :string
+    end
+
+    drop unique_index("data_conversion", [:convert_from, :convert_to, :resource_history_uuid])
+
+    execute "update data_conversion set status = 'success'"
+    execute "update data_conversion set converter = 'hove/transit_model', converter_version = '0.55.0' where convert_to = 'NeTEx' and convert_from = 'GTFS'"
+    execute "update data_conversion set converter = 'rust-transit/gtfs-to-geojson', converter_version = '9ca9a25b895ba1b2fdf4d04e92895afec52d0608' where convert_to = 'GeoJSON' and convert_from = 'GTFS'"
+
+    alter table("data_conversion") do
+      modify :status, :varchar, null: false, from: {:string, null: true}
+      modify :converter, :varchar, null: false, from: {:string, null: true}
+      modify :converter_version, :varchar, null: false, from: {:string, null: true}
+    end
+
+    create index("data_conversion", [:convert_from, :convert_to, :converter])
+    create unique_index("data_conversion", [:convert_from, :convert_to, :converter, :resource_history_uuid])
+  end
+
+  def down do
+    alter table("data_conversion") do
+      drop :status
+      drop :converter
+      drop :converter_version
+    end
+
+    create unique_index("data_conversion", [:convert_from, :convert_to, :resource_history_uuid])
+  end
+end

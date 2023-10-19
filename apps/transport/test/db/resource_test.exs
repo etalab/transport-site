@@ -35,10 +35,14 @@ defmodule DB.ResourceTest do
     insert_resource_history(resource_id_2, uuid4 = Ecto.UUID.generate(), now)
 
     # we insert 1 conversion for each resource history
-    insert_data_conversion(uuid1, "url1", 10)
-    insert_data_conversion(uuid2, "url2", 12)
-    insert_data_conversion(uuid3, "url3", 10)
-    insert_data_conversion(uuid4, "url4", 10)
+    insert_geojson_data_conversion(uuid1, "url1", 10)
+    insert_geojson_data_conversion(uuid2, "url2", 12)
+    # Should be ignored, this is not the default converter
+    insert_geojson_data_conversion(uuid2, "url2", 14, "other_converter")
+    insert_geojson_data_conversion(uuid3, "url3", 10)
+
+    data_conversion_pending =
+      insert_geojson_data_conversion(uuid4, "url4", 10, DB.DataConversion.converter_to_use("GeoJSON"), "pending")
 
     assert %{url: "url2", filesize: 12, resource_history_last_up_to_date_at: _} =
              Resource.get_related_geojson_info(resource_id_1)
@@ -47,6 +51,13 @@ defmodule DB.ResourceTest do
 
     assert %{GeoJSON: %{url: "url2", filesize: 12, resource_history_last_up_to_date_at: _}} =
              Resource.get_related_files(%Resource{id: resource_id_1})
+
+    # Make sure that the conversion is found only when `status=success`
+    assert %{GeoJSON: nil, NeTEx: nil} == Resource.get_related_files(%Resource{id: resource_id_2})
+    data_conversion_pending |> Ecto.Changeset.change(%{status: :success}) |> DB.Repo.update!()
+
+    assert %{GeoJSON: %{url: "url4", filesize: 10, resource_history_last_up_to_date_at: _}, NeTEx: nil} =
+             Resource.get_related_files(%Resource{id: resource_id_2})
   end
 
   defp insert_resource_history(resource_id, uuid, datetime, time_delta_seconds \\ 0) do
@@ -57,11 +68,19 @@ defmodule DB.ResourceTest do
     })
   end
 
-  defp insert_data_conversion(uuid, permanent_url, filesize) do
+  defp insert_geojson_data_conversion(
+         uuid,
+         permanent_url,
+         filesize,
+         converter \\ "rust-transit/gtfs-to-geojson",
+         status \\ "success"
+       ) do
     insert(:data_conversion, %{
       resource_history_uuid: uuid,
       convert_from: "GTFS",
       convert_to: "GeoJSON",
+      converter: converter,
+      status: status,
       payload: %{permanent_url: permanent_url, filesize: filesize}
     })
   end
