@@ -43,6 +43,7 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
     assert question_comment_text =~ "Francis Chabouis"
     assert question_comment_text =~ "07/06/2023"
     refute question_comment_text =~ "Producteur de la donnée"
+    assert question_comment |> Floki.find("img") |> Floki.attribute("alt") == ["Francis Chabouis"]
     assert answer_comment_text =~ "Producteur de la donnée"
     assert answer_comment |> Floki.find("img") |> Floki.attribute("src") == [
              "https://demo-static.data.gouv.fr/avatars/85/53e0a3845e43eb87fb905032aaa389-100.png"
