@@ -1,3 +1,4 @@
+<% is_gtfs_flex = not is_nil(@resource_history) and DB.ResourceHistory.is_gtfs_flex?(@resource_history) %>
 <section>
   <% associated_geojson = get_associated_geojson(@related_files) %>
   <% associated_netex = get_associated_netex(@related_files) %>
@@ -82,9 +83,16 @@
       <% end %>
       <h2 id="validation-report" class="mt-48"><%= dgettext("validations", "Validation report") %></h2>
       <div class="panel" id="issues">
-        <%= unless @validation_summary do %>
+        <p :if={is_gtfs_flex} class="notification">
+          <%= dgettext(
+            "validations",
+            "This file contains the GTFS-Flex extension. We are not able to validate it for now."
+          ) %>
+        </p>
+        <%= if not is_gtfs_flex and is_nil(@validation_summary) do %>
           <%= dgettext("validations", "No validation available") %>
-        <% else %>
+        <% end %>
+        <%= unless is_nil(@validation_summary) do %>
           <%= if @issues.total_entries == 0 do %>
             <%= dgettext("validations", "No validation error") %>.
           <% else %>
