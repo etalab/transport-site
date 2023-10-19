@@ -84,7 +84,10 @@
       <h2 id="validation-report" class="mt-48"><%= dgettext("validations", "Validation report") %></h2>
       <div class="panel" id="issues">
         <p :if={is_gtfs_flex} class="notification">
-          <%= dgettext("validations", "This file is a GTFS Flex. We are not able to validate it for now.") %>
+          <%= dgettext(
+            "validations",
+            "This file contains the GTFS-Flex extension. We are not able to validate it for now."
+          ) %>
         </p>
         <%= if not is_gtfs_flex and is_nil(@validation_summary) do %>
           <%= dgettext("validations", "No validation available") %>

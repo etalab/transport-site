@@ -134,12 +134,12 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
     assert_received :validate!
   end
 
-  test "do not validate a GTFS Flex" do
+  test "do not validate a GTFS-Flex" do
     rh = insert(:resource_history, payload: %{"format" => "GTFS", "filenames" => ["locations.geojson", "stops.txt"]})
 
     assert DB.ResourceHistory.is_gtfs_flex?(rh)
 
-    assert {:discard, "ResourceHistory##{rh.id} is a GTFS Flex, we do not validate it"} ==
+    assert {:discard, "ResourceHistory##{rh.id} is a GTFS-Flex, we do not validate it"} ==
              Transport.Jobs.ResourceHistoryValidationJob
              |> perform_job(%{
                "resource_history_id" => rh.id,
