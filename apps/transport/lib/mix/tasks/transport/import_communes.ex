@@ -1,5 +1,5 @@
 defmodule Mix.Tasks.Transport.ImportCommunes do
-  @moduledoc "Import the communes"
+  @moduledoc "Import the communes. Run with `mix transport.import_communes`"
   @shortdoc "Refreshes the database table `commune` with the latest data"
   use Mix.Task
   import Ecto.Query
@@ -7,9 +7,9 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
   alias DB.{Commune, Region, Repo}
   require Logger
 
-  @communes_geojson_url "http://etalab-datasets.geo.data.gouv.fr/contours-administratifs/2022/geojson/communes-100m.geojson"
+  @communes_geojson_url "http://etalab-datasets.geo.data.gouv.fr/contours-administratifs/2023/geojson/communes-100m.geojson"
   # See https://github.com/etalab/decoupage-administratif
-  @communes_url "https://unpkg.com/@etalab/decoupage-administratif@2.2.1/data/communes.json"
+  @communes_url "https://unpkg.com/@etalab/decoupage-administratif@3.1.1/data/communes.json"
 
   def insert_or_update_commune(
         %{
@@ -42,9 +42,9 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
   end
 
   defp geojson_by_insee do
-    @communes_geojson_url
-    |> HTTPoison.get!(timeout: 15_000, recv_timeout: 15_000)
-    |> Map.fetch!(:body)
+    %{status: 200, body: body} = Req.get!(@communes_geojson_url, connect_options: [timeout: 15_000], receive_timeout: 15_000)
+
+    body
     |> Jason.decode!()
     |> Map.fetch!("features")
     |> Enum.into(%{}, fn record -> {record["properties"]["code"], record["geometry"]} end)
@@ -70,10 +70,9 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
   end
 
   defp load_etalab_communes(region_insees) do
-    @communes_url
-    |> HTTPoison.get!(timeout: 15_000, recv_timeout: 15_000)
-    |> Map.fetch!(:body)
-    |> Jason.decode!()
+    %{status: 200, body: body} = Req.get!(@communes_url, connect_options: [timeout: 15_000], receive_timeout: 15_000)
+
+    body
     |> Enum.filter(&(&1["type"] == "commune-actuelle" and &1["region"] in region_insees))
   end
 
