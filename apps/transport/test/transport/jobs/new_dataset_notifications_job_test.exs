@@ -28,9 +28,9 @@ defmodule Transport.Test.Transport.Jobs.NewDatasetNotificationsJobTest do
 
     Transport.EmailSender.Mock
     |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.data.gouv.fr",
                              ^email = _to,
-                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.data.gouv.fr",
                              "Nouveaux jeux de données référencés" = _subject,
                              plain_text_body,
                              "" = _html_part ->

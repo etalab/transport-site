@@ -58,9 +58,9 @@ defmodule Transport.Test.Transport.Jobs.DatasetsWithoutGTFSRTRelatedResourcesNot
 
     Transport.EmailSender.Mock
     |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.beta.gouv.fr",
-                             "contact@transport.beta.gouv.fr",
-                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.data.gouv.fr",
+                             "contact@transport.data.gouv.fr",
+                             "contact@transport.data.gouv.fr",
                              "Jeux de données GTFS-RT sans ressources liées" = _subject,
                              plain_text_body,
                              "" = _html_part ->

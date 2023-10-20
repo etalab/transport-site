@@ -27,8 +27,8 @@ defmodule Transport.DataCheckerTest do
 
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, subject, body, _html_body ->
-        assert from_email == "contact@transport.beta.gouv.fr"
-        assert to_email == "deploiement@transport.beta.gouv.fr"
+        assert from_email == "contact@transport.data.gouv.fr"
+        assert to_email == "deploiement@transport.data.gouv.fr"
         assert subject == "Jeux de données supprimés ou archivés"
         assert body =~ ~r/Certains jeux de données disparus sont réapparus sur data.gouv.fr/
         :ok
@@ -101,8 +101,8 @@ defmodule Transport.DataCheckerTest do
 
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, subject, body, _html_body ->
-        assert from_email == "contact@transport.beta.gouv.fr"
-        assert to_email == "deploiement@transport.beta.gouv.fr"
+        assert from_email == "contact@transport.data.gouv.fr"
+        assert to_email == "deploiement@transport.data.gouv.fr"
         assert subject == "Jeux de données supprimés ou archivés"
         assert body =~ ~r/Certains jeux de données ont disparus de data.gouv.fr/
         :ok
@@ -139,8 +139,8 @@ defmodule Transport.DataCheckerTest do
 
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, subject, body, _html_body ->
-        assert from_email == "contact@transport.beta.gouv.fr"
-        assert to_email == "deploiement@transport.beta.gouv.fr"
+        assert from_email == "contact@transport.data.gouv.fr"
+        assert to_email == "deploiement@transport.data.gouv.fr"
         assert subject == "Jeux de données supprimés ou archivés"
         assert body =~ ~r/Certains jeux de données sont indiqués comme archivés/
         :ok
@@ -242,8 +242,8 @@ defmodule Transport.DataCheckerTest do
       # a first mail to our team
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn _from_name,
-                               "contact@transport.beta.gouv.fr" = _from_email,
-                               "deploiement@transport.beta.gouv.fr" = _to_email,
+                               "contact@transport.data.gouv.fr" = _from_email,
+                               "deploiement@transport.data.gouv.fr" = _to_email,
                                _reply_to,
                                "Jeux de données arrivant à expiration" = _subject,
                                body,
@@ -259,7 +259,7 @@ defmodule Transport.DataCheckerTest do
       # a second mail to the email address in the notifications config
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn _from_name,
-                               "contact@transport.beta.gouv.fr" = _from_email,
+                               "contact@transport.data.gouv.fr" = _from_email,
                                ^producer_email = _to_email,
                                _reply_to,
                                "Jeu de données arrivant à expiration" = _subject,
@@ -305,9 +305,9 @@ defmodule Transport.DataCheckerTest do
 
     Transport.EmailSender.Mock
     |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.data.gouv.fr",
                              ^email = _to,
-                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.data.gouv.fr",
                              "Jeu de données arrivant à expiration" = _subject,
                              "" = _plain_text_body,
                              html_part ->
@@ -343,9 +343,9 @@ defmodule Transport.DataCheckerTest do
 
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn "transport.data.gouv.fr",
-                               "contact@transport.beta.gouv.fr",
+                               "contact@transport.data.gouv.fr",
                                ^email = _to,
-                               "contact@transport.beta.gouv.fr",
+                               "contact@transport.data.gouv.fr",
                                "Nouveaux jeux de données référencés" = _subject,
                                plain_text_body,
                                "" = _html_part ->
