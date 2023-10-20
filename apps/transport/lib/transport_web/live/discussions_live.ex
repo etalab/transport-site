@@ -69,7 +69,7 @@ defmodule TransportWeb.DiscussionsLive do
   def handle_info({:fetch_data_gouv_discussions, %DB.Dataset{} = dataset}, socket) do
     discussions = Datagouvfr.Client.Discussions.Wrapper.get(dataset.datagouv_id)
 
-    {org_member_ids, org_logo_thumbnail} = get_datagouv_org_infos(dataset.organization)
+    {org_member_ids, org_logo_thumbnail} = get_datagouv_org_infos(dataset)
 
     Phoenix.PubSub.broadcast(
       TransportWeb.PubSub,
@@ -107,24 +107,20 @@ defmodule TransportWeb.DiscussionsLive do
     DateTime.compare(two_months_ago, latest_comment_datetime) == :gt
   end
 
-  defp get_datagouv_org_infos(organization) do
-    get_datagouv_org = fn organization ->
-      case organization do
-        nil -> :no_organization
-        _ -> Datagouvfr.Client.Organization.Wrapper.get(organization, restrict_fields: true)
-      end
-    end
-
-    case get_datagouv_org.(organization) do
-      {:ok, dataset_owner_organization} ->
-        {
-          dataset_owner_organization["members"] |> Enum.map(fn member -> member["user"]["id"] end),
-          dataset_owner_organization["logo_thumbnail"]
-        }
+  defp get_datagouv_org_infos(%DB.Dataset{} = dataset) do
+    case organization_info(dataset) do
+      {:ok, %{"members" => members, "logo_thumbnail" => logo_thumbnail}} ->
+        {Enum.map(members, fn member -> member["user"]["id"] end), logo_thumbnail}
 
       _ ->
         {[], nil}
     end
+  end
+
+  defp organization_info(%DB.Dataset{organization: nil}), do: :no_organization
+
+  defp organization_info(%DB.Dataset{organization: organization}) when is_binary(organization) do
+    Datagouvfr.Client.Organization.Wrapper.get(organization, restrict_fields: true)
   end
 end
 
