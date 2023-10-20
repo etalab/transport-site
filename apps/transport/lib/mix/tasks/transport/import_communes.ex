@@ -1,5 +1,8 @@
 defmodule Mix.Tasks.Transport.ImportCommunes do
-  @moduledoc "Import the communes. Run with `mix transport.import_communes`"
+  @moduledoc """
+  Import or updates commune data (list, geometry) from official sources. Run with `mix transport.import_communes`.
+
+  """
   @shortdoc "Refreshes the database table `commune` with the latest data"
   use Mix.Task
   import Ecto.Query
@@ -7,10 +10,45 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
   alias DB.{Commune, Region, Repo}
   require Logger
 
+  # List of communes with their geometry, but lacking additional information
   @communes_geojson_url "http://etalab-datasets.geo.data.gouv.fr/contours-administratifs/2023/geojson/communes-100m.geojson"
+  # List of official communes with additional information (population, arrondissement, etc.)
   # See https://github.com/etalab/decoupage-administratif
   @communes_url "https://unpkg.com/@etalab/decoupage-administratif@3.1.1/data/communes.json"
 
+  @doc "Loads regions from the database and returns a list of tuples with INSEE code and id"
+  def regions_by_insee do
+    Region |> Repo.all() |> Enum.into(%{}, fn region -> {region.insee, region.id} end)
+  end
+
+  @doc "Loads GeoJSON data from the official source and returns a list of tuples with INSEE code and geometry"
+  def geojson_by_insee do
+    %{status: 200, body: body} = Req.get!(@communes_geojson_url, connect_options: [timeout: 15_000], receive_timeout: 15_000)
+
+    body
+    |> Jason.decode!() # Req doesn’t decode GeoJSON body automatically as it does for JSON
+    |> Map.fetch!("features")
+    |> Enum.into(%{}, fn record -> {record["properties"]["code"], record["geometry"]} end)
+  end
+
+  @doc"""
+  Loads communes from the official network source and returns a list of communes as maps.
+  Result is filtered, we only get:
+  - Current communes (there may have been communes deletions)
+  - Communes from the regions we have in the database
+  """
+  def load_etalab_communes(region_insees) do
+    %{status: 200, body: body} = Req.get!(@communes_url, connect_options: [timeout: 15_000], receive_timeout: 15_000)
+
+    body
+    |> Enum.filter(&(&1["type"] == "commune-actuelle" and &1["region"] in region_insees))
+  end
+
+  @doc """
+  First creates the commune (without geometry) if it doesn’t exist.
+  Then updates the commune with the new data through a changeset.
+  Returns a list of keys of changed fields for statistics.
+  """
   def insert_or_update_commune(
         %{
           "code" => insee,
@@ -22,32 +60,21 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
         regions,
         geojsons
       ) do
-    insee
-    |> get_or_create_commune()
-    |> Changeset.change(%{
-      insee: insee,
-      nom: nom,
-      region_id: Map.fetch!(regions, region_insee),
-      geom: build_geometry(geojsons, insee),
-      population: population,
-      siren: Map.get(params, "siren"),
-      arrondissement_insee: Map.get(params, "arrondissement"),
-      departement_insee: departement_insee
-    })
-    |> Repo.insert_or_update!()
-  end
-
-  defp regions_by_insee do
-    Region |> Repo.all() |> Enum.into(%{}, fn region -> {region.insee, region.id} end)
-  end
-
-  defp geojson_by_insee do
-    %{status: 200, body: body} = Req.get!(@communes_geojson_url, connect_options: [timeout: 15_000], receive_timeout: 15_000)
-
-    body
-    |> Jason.decode!()
-    |> Map.fetch!("features")
-    |> Enum.into(%{}, fn record -> {record["properties"]["code"], record["geometry"]} end)
+    changeset =
+      insee
+      |> get_or_create_commune()
+      |> Changeset.change(%{
+        insee: insee,
+        nom: nom,
+        region_id: Map.fetch!(regions, region_insee),
+        geom: build_geometry(geojsons, insee),
+        population: population,
+        siren: Map.get(params, "siren"),
+        arrondissement_insee: Map.get(params, "arrondissement"),
+        departement_insee: departement_insee
+      })
+    changeset |> Repo.insert_or_update!()
+    changeset.changes |> Map.keys()
   end
 
   defp get_or_create_commune(insee) do
@@ -69,24 +96,22 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
     %{geom | srid: 4326}
   end
 
-  defp load_etalab_communes(region_insees) do
-    %{status: 200, body: body} = Req.get!(@communes_url, connect_options: [timeout: 15_000], receive_timeout: 15_000)
 
-    body
-    |> Enum.filter(&(&1["type"] == "commune-actuelle" and &1["region"] in region_insees))
-  end
 
   def run(_params) do
     Logger.info("Importing communes")
 
     Mix.Task.run("app.start")
 
+    # Gets a list of tuples describing regions from the database
     regions = regions_by_insee()
-    geojsons = geojson_by_insee()
     region_insees = regions |> Map.keys()
-
+    # Gets a list of tuples describing communes GEOJSON from the network
+    geojsons = geojson_by_insee()
+    # Gets the official list of communes from the network and filter them to match database regions
     etalab_communes = load_etalab_communes(region_insees)
     etalab_insee = etalab_communes |> Enum.map(& &1["code"])
+    # Loads current communes INSEE list from the database
     communes_insee = Commune |> select([c], c.insee) |> Repo.all()
 
     nb_new = etalab_insee |> MapSet.new() |> MapSet.difference(MapSet.new(communes_insee)) |> Enum.count()
@@ -96,12 +121,18 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
     Logger.info("#{nb_new} new communes")
     Logger.info("#{nb_removed} communes should be removed")
 
+    Logger.info("Deleting removed communes…")
     Commune |> where([c], c.insee in ^removed_communes) |> Repo.delete_all()
 
+    Logger.info("Updating communes (including potentially incorrect geometry)…")
     disable_trigger()
-    etalab_communes |> Enum.each(&insert_or_update_commune(&1, regions, geojsons))
-    Logger.info("Finished. Enabling trigger and refreshing views.")
+    # Inserts new communes, updates existing ones (mainly geometry, but also names…)
+    changelist = etalab_communes |> Enum.map(&insert_or_update_commune(&1, regions, geojsons))
+    Logger.info("Finished. Count of changes: #{inspect(changelist |> List.flatten |> Enum.frequencies)}")
+
+    Logger.info("Ensure valid geometries and rectify if needed.")
     ensure_valid_geometries()
+    Logger.info("Enabling trigger and refreshing views.")
     enable_trigger()
   end
 
