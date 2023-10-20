@@ -20,7 +20,7 @@ msgid "Warnings"
 msgstr ""
 
 #, elixir-autogen
-msgid "Posted on"
+msgid "Posted on %{datetime}"
 msgstr ""
 
 #, elixir-autogen
@@ -609,3 +609,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "This transport service operates seasonally. The associated resources may be outdated depending on the time of year. Contact the data producer through Discussions for more information."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "data producer"
+msgstr "Data producer"

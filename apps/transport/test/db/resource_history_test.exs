@@ -8,6 +8,8 @@ defmodule DB.ResourceHistoryTest do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
+  doctest DB.ResourceHistory, import: true
+
   test "test fetch latest resource history payload for a resource" do
     now = DateTime.utc_now()
     past = now |> DateTime.add(-3 * 60)
@@ -26,29 +28,7 @@ defmodule DB.ResourceHistoryTest do
       payload: %{"permanent_url" => url = "url"}
     })
 
-    assert %{"permanent_url" => ^url} = latest_resource_history_payload(resource_id_2)
-  end
-
-  test "test fetch latest resource history infos for a resource" do
-    now = DateTime.utc_now()
-    past = now |> DateTime.add(-3 * 60)
-    pastpast = now |> DateTime.add(-6 * 60)
-
-    %{id: resource_id} = insert(:resource)
-    insert(:resource_history, %{resource_id: resource_id, inserted_at: pastpast})
-
-    insert(:resource_history, %{
-      resource_id: resource_id,
-      inserted_at: past,
-      payload: %{"permanent_url" => url = "url", "filesize" => size = 10}
-    })
-
-    assert %{url: url, filesize: size} == latest_resource_history_infos(resource_id)
-
-    # new resource history, no filesize
-    insert(:resource_history, %{resource_id: resource_id, inserted_at: now, payload: %{"permanent_url" => url}})
-
-    assert is_nil(latest_resource_history_infos(resource_id))
+    assert %DB.ResourceHistory{payload: %{"permanent_url" => ^url}} = latest_resource_history(resource_id_2)
   end
 
   test "test fetch latest resource history infos for a dataset" do

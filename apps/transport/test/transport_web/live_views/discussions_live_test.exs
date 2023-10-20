@@ -11,9 +11,12 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
   end
 
   test "render some discussions", %{conn: conn} do
-    dataset = insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate())
+    dataset = insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate(), organization: "producer_org")
 
     Datagouvfr.Client.Discussions.Mock |> expect(:get, 1, fn ^datagouv_id -> discussions() end)
+
+    Datagouvfr.Client.Organization.Mock
+    |> expect(:get, 1, fn "producer_org", [restrict_fields: true] -> organization() end)
 
     {:ok, view, _html} =
       live_isolated(conn, TransportWeb.DiscussionsLive,
@@ -25,10 +28,27 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
         }
       )
 
-    assert render(view) =~ "petite question"
-    assert render(view) =~ "Le titre de la question"
-    assert render(view) =~ "Francis Chabouis"
-    assert render(view) =~ "07/06/2023"
+    parsed_content = view |> render() |> Floki.parse_document!()
+
+    discussion_title_text =
+      parsed_content |> Floki.find(".discussion-title h4") |> Floki.text()
+
+    [question_comment, answer_comment] =
+      parsed_content |> Floki.find(".discussion-comment")
+
+    [question_comment_text, answer_comment_text] = [question_comment, answer_comment] |> Enum.map(&Floki.text/1)
+
+    assert discussion_title_text =~ "Le titre de la question"
+    assert question_comment_text =~ "petite question"
+    assert question_comment_text =~ "Francis Chabouis"
+    assert question_comment_text =~ "07/06/2023"
+    refute question_comment_text =~ "Producteur de la donnée"
+    assert question_comment |> Floki.find("img") |> Floki.attribute("alt") == ["Francis Chabouis"]
+    assert answer_comment_text =~ "Producteur de la donnée"
+
+    assert answer_comment |> Floki.find("img") |> Floki.attribute("src") == [
+             "https://demo-static.data.gouv.fr/avatars/85/53e0a3845e43eb87fb905032aaa389-100.png"
+           ]
   end
 
   test "renders even if data.gouv is down", %{conn: conn} do
@@ -36,6 +56,7 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
 
     # in case of request failure, the function returns an empty list.
     Datagouvfr.Client.Discussions.Mock |> expect(:get, 1, fn ^datagouv_id -> [] end)
+    Datagouvfr.Client.Organization.Mock |> expect(:get, 1, fn _id, _opts -> {:error, "error reason"} end)
 
     assert {:ok, view, _html} =
              live_isolated(conn, TransportWeb.DiscussionsLive,
@@ -148,6 +169,21 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
               "uri" => "https://demo.data.gouv.fr/api/1/users/francis-chabouis-1/"
             },
             "posted_on" => "2023-06-07T14:59:48.310000+00:00"
+          },
+          %{
+            "content" => "pouvez-vous répéter la question ?",
+            "posted_by" => %{
+              "avatar" => nil,
+              "avatar_thumbnail" => nil,
+              "class" => "User",
+              "first_name" => "Vincent",
+              "id" => "649ad29b9a7af3d61ded5785",
+              "last_name" => "Degove",
+              "page" => "https://demo.data.gouv.fr/fr/users/vincent-degove-1/",
+              "slug" => "vincent-degove-1",
+              "uri" => "https://demo.data.gouv.fr/api/1/users/vincent-degove-1/"
+            },
+            "posted_on" => "2023-06-07T14:59:48.310000+00:00"
           }
         ],
         "extras" => %{},
@@ -168,5 +204,13 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
         }
       }
     ]
+  end
+
+  defp organization do
+    {:ok,
+     %{
+       "logo_thumbnail" => "https://demo-static.data.gouv.fr/avatars/85/53e0a3845e43eb87fb905032aaa389-100.png",
+       "members" => [%{"user" => %{"id" => "649ad29b9a7af3d61ded5785"}}]
+     }}
   end
 end

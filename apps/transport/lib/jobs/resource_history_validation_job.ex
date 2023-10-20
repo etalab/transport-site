@@ -87,7 +87,15 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
     :ok
   end
 
-  defp validate(resource_history, validator, force_validation) do
+  defp validate(%DB.ResourceHistory{} = resource_history, validator, force_validation) do
+    if DB.ResourceHistory.is_gtfs_flex?(resource_history) do
+      {:discard, "ResourceHistory##{resource_history.id} is a GTFS-Flex, we do not validate it"}
+    else
+      run_validation(resource_history, validator, force_validation)
+    end
+  end
+
+  defp run_validation(%DB.ResourceHistory{} = resource_history, validator, force_validation) do
     case DB.MultiValidation.resource_history_latest_validation(resource_history.id, validator) do
       nil ->
         :ok = validator.validate_and_save(resource_history)
@@ -100,7 +108,7 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
           DB.Repo.delete(latest_validation)
           :ok
         else
-          {:cancel, "resource history #{resource_history.id} is already validated by #{Atom.to_string(validator)}"}
+          {:cancel, "ResourceHistory##{resource_history.id} is already validated by #{Atom.to_string(validator)}"}
         end
     end
   end
