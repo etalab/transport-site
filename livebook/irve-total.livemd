@@ -1,0 +1,110 @@
+# Analyse évolutions IRVE
+
+```elixir
+Mix.install([
+  {:ecto_sql, "~> 3.10"},
+  {:postgrex, ">= 0.0.0"},
+  {:kino_db, "~> 0.2.3"},
+  {:jason, "~> 1.4"},
+  {:req, "~> 0.4.0"},
+  {:nimble_csv, "~> 1.2"},
+  {:kino_vega_lite, "~> 0.1.10"}
+])
+```
+
+## Section
+
+<!-- livebook:{"attrs":{"database":"transport_repo","hostname":"localhost","password_secret":"","port":5432,"type":"postgres","use_ipv6":false,"use_ssl":false,"username":"postgres","variable":"conn"},"chunks":null,"kind":"Elixir.KinoDB.ConnectionCell","livebook_object":"smart_cell"} -->
+
+```elixir
+opts = [
+  hostname: "localhost",
+  port: 5432,
+  username: "postgres",
+  password: "",
+  database: "transport_repo"
+]
+
+{:ok, conn} = Kino.start_child({Postgrex, opts})
+```
+
+<!-- livebook:{"attrs":{"cache_query":true,"connection":{"type":"postgres","variable":"conn"},"data_frame_alias":"Elixir.Explorer.DataFrame","query":"select id, payload ->> 'permanent_url' as url, inserted_at \nfrom resource_history rh\nwhere rh.resource_id = 79624\norder by inserted_at asc","result_variable":"result","timeout":null},"chunks":null,"kind":"Elixir.KinoDB.SQLCell","livebook_object":"smart_cell"} -->
+
+```elixir
+result =
+  Postgrex.query!(
+    conn,
+    """
+    select id, payload ->> 'permanent_url' as url, inserted_at 
+    from resource_history rh
+    where rh.resource_id = 79624
+    order by inserted_at asc
+    """,
+    []
+  )
+```
+
+```elixir
+columns = ["id", "url", "inserted_at"]
+%{columns: columns, rows: rows} = result
+
+snapshots =
+  rows
+  |> Enum.map(fn x ->
+    columns
+    |> Enum.zip(x)
+    |> Map.new()
+  end)
+```
+
+```elixir
+path = Path.join(__ENV__.file, "../../scripts/irve/req_custom_cache.exs") |> Path.expand()
+Code.require_file(path)
+
+defmodule Query do
+  def cache_dir, do: Path.join(__ENV__.file, "../cache-dir") |> Path.expand()
+
+  def cached_get!(url) do
+    req = Req.new() |> CustomCache.attach()
+    Req.get!(req, url: url, receive_timeout: 25_000, custom_cache_dir: cache_dir())
+  end
+end
+
+:ok
+```
+
+```elixir
+task = fn row = %{"url" => url} ->
+  %{status: 200, body: body} = Query.cached_get!(url)
+  # NOTE: headers appear as one line at this stage
+  Map.put(row, "row_count", (body |> length()) - 1)
+end
+
+data =
+  snapshots
+  |> Task.async_stream(
+    task,
+    max_concurrency: 25,
+    on_timeout: :kill_task,
+    timeout: 25_000
+  )
+  |> Stream.map(fn {:ok, result} -> result end)
+  |> Stream.map(fn x -> Map.take(x, ["inserted_at", "row_count"]) end)
+  |> Enum.into([])
+```
+
+```elixir
+data
+|> Kino.DataTable.new()
+```
+
+<!-- livebook:{"attrs":{"chart_title":null,"height":null,"layers":[{"active":true,"chart_type":"bar","color_field":"row_count","color_field_aggregate":null,"color_field_bin":null,"color_field_scale_scheme":null,"color_field_type":"quantitative","data_variable":"data","geodata_color":"blue","latitude_field":null,"longitude_field":null,"x_field":"inserted_at","x_field_aggregate":null,"x_field_bin":null,"x_field_scale_type":null,"x_field_type":"temporal","y_field":"row_count","y_field_aggregate":null,"y_field_bin":null,"y_field_scale_type":null,"y_field_type":"quantitative"}],"vl_alias":"Elixir.VegaLite","width":800},"chunks":null,"kind":"Elixir.KinoVegaLite.ChartCell","livebook_object":"smart_cell"} -->
+
+```elixir
+VegaLite.new(width: 800)
+|> VegaLite.data_from_values(data, only: ["inserted_at", "row_count"])
+|> VegaLite.mark(:bar)
+|> VegaLite.encode_field(:x, "inserted_at", type: :temporal)
+|> VegaLite.encode_field(:y, "row_count", type: :quantitative)
+|> VegaLite.encode_field(:color, "row_count", type: :quantitative)
+```
