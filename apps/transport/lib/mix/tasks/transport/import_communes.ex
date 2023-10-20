@@ -23,15 +23,17 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
 
   @doc "Loads GeoJSON data from the official source and returns a list of tuples with INSEE code and geometry"
   def geojson_by_insee do
-    %{status: 200, body: body} = Req.get!(@communes_geojson_url, connect_options: [timeout: 15_000], receive_timeout: 15_000)
+    %{status: 200, body: body} =
+      Req.get!(@communes_geojson_url, connect_options: [timeout: 15_000], receive_timeout: 15_000)
 
     body
-    |> Jason.decode!() # Req doesn’t decode GeoJSON body automatically as it does for JSON
+    # Req doesn’t decode GeoJSON body automatically as it does for JSON
+    |> Jason.decode!()
     |> Map.fetch!("features")
     |> Enum.into(%{}, fn record -> {record["properties"]["code"], record["geometry"]} end)
   end
 
-  @doc"""
+  @doc """
   Loads communes from the official network source and returns a list of communes as maps.
   Result is filtered, we only get:
   - Current communes (there may have been communes deletions)
@@ -73,6 +75,7 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
         arrondissement_insee: Map.get(params, "arrondissement"),
         departement_insee: departement_insee
       })
+
     changeset |> Repo.insert_or_update!()
     changeset.changes |> Map.keys()
   end
@@ -95,8 +98,6 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
     {:ok, geom} = Geo.PostGIS.Geometry.cast(Map.fetch!(geojsons, insee))
     %{geom | srid: 4326}
   end
-
-
 
   def run(_params) do
     Logger.info("Importing communes")
@@ -128,7 +129,7 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
     disable_trigger()
     # Inserts new communes, updates existing ones (mainly geometry, but also names…)
     changelist = etalab_communes |> Enum.map(&insert_or_update_commune(&1, regions, geojsons))
-    Logger.info("Finished. Count of changes: #{inspect(changelist |> List.flatten |> Enum.frequencies)}")
+    Logger.info("Finished. Count of changes: #{inspect(changelist |> List.flatten() |> Enum.frequencies())}")
 
     Logger.info("Ensure valid geometries and rectify if needed.")
     ensure_valid_geometries()
