@@ -5,7 +5,6 @@ defmodule TransportWeb.API.AomController do
   import Ecto.Query
   alias Geo.JSON
   alias OpenApiSpex.Operation
-  alias TransportWeb.API.Schemas.{AOMResponse, GeoJSONResponse}
 
   @aom_fields [:nom, :insee_commune_principale, :departement, :forme_juridique, :siren]
 
@@ -23,7 +22,7 @@ defmodule TransportWeb.API.AomController do
         Operation.parameter(:lat, :query, :number, "Latitude")
       ],
       responses: %{
-        200 => Operation.response("AOM", "application/json", AOMResponse)
+        200 => Operation.response("AOM", "application/json", TransportWeb.API.Schemas.AOMResponse)
       }
     }
 
@@ -49,7 +48,7 @@ defmodule TransportWeb.API.AomController do
         Operation.parameter(:insee, :path, :string, "INSEE")
       ],
       responses: %{
-        200 => Operation.response("AOM", "application/json", AOMResponse)
+        200 => Operation.response("AOM", "application/json", TransportWeb.API.Schemas.AOMResponse)
       }
     }
 
@@ -95,7 +94,7 @@ defmodule TransportWeb.API.AomController do
       operationId: "API.AOMController.geojson_operation",
       parameters: [],
       responses: %{
-        200 => Operation.response("GeoJSON", "application/json", GeoJSONResponse)
+        200 => Operation.response("GeoJSON", "application/json", TransportWeb.API.Schemas.GeoJSONResponse)
       }
     }
 

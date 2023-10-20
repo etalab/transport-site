@@ -3,7 +3,6 @@ defmodule TransportWeb.API.PlacesController do
   alias DB.{Place, Repo}
   alias Helpers
   alias OpenApiSpex.Operation
-  alias TransportWeb.API.Schemas.AutocompleteResponse
   import Ecto.{Query}
 
   @spec open_api_operation(any) :: Operation.t()
@@ -83,7 +82,7 @@ defmodule TransportWeb.API.PlacesController do
       operationId: "API.DatasetController.datasets_autocomplete",
       parameters: [Operation.parameter(:q, :query, :string, "query")],
       responses: %{
-        200 => Operation.response("Dataset", "application/json", AutocompleteResponse)
+        200 => Operation.response("Dataset", "application/json", TransportWeb.API.Schemas.AutocompleteResponse)
       }
     }
   end
