@@ -31,7 +31,7 @@ defmodule DB.DataConversion do
     Map.fetch!(
       %{
         "GeoJSON" => Transport.GTFSToGeoJSONConverter.converter(),
-        "NeTEx" => Transport.GtfsToNeTExConverter.converter()
+        "NeTEx" => Transport.GTFSToNeTExConverter.converter()
       },
       to_string(convert_to)
     )

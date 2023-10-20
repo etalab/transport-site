@@ -20,7 +20,7 @@ defmodule Transport.Jobs.SingleGtfsToNetexConverterJob do
 
   @impl true
   def perform(%{args: %{"resource_history_id" => resource_history_id}}) do
-    GTFSGenericConverter.perform_single_conversion_job(resource_history_id, "NeTEx", Transport.GtfsToNeTExConverter)
+    GTFSGenericConverter.perform_single_conversion_job(resource_history_id, "NeTEx", Transport.GTFSToNeTExConverter)
   end
 
   @impl true
@@ -44,7 +44,7 @@ defmodule Transport.Jobs.DatasetGtfsToNetexConverterJob do
     dataset_id
     |> list_gtfs_last_resource_history()
     |> Enum.each(fn rh_id ->
-      GTFSGenericConverter.perform_single_conversion_job(rh_id, "NeTEx", Transport.GtfsToNeTExConverter)
+      GTFSGenericConverter.perform_single_conversion_job(rh_id, "NeTEx", Transport.GTFSToNeTExConverter)
     end)
   end
 
@@ -59,7 +59,7 @@ defmodule Transport.Jobs.DatasetGtfsToNetexConverterJob do
   end
 end
 
-defmodule Transport.GtfsToNeTExConverter do
+defmodule Transport.GTFSToNeTExConverter do
   @moduledoc """
   Given a GTFS file path, convert it to NeTEx.
   """

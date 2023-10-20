@@ -64,7 +64,7 @@ defmodule DB.Factory do
 
   def data_conversion_factory do
     %DB.DataConversion{
-      status: "success",
+      status: :success,
       converter: "my_converter",
       converter_version: Ecto.UUID.generate()
     }

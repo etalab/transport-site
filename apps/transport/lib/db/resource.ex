@@ -215,12 +215,11 @@ defmodule DB.Resource do
   def get_related_geojson_info(resource_id), do: get_related_conversion_info(resource_id, :GeoJSON)
   def get_related_netex_info(resource_id), do: get_related_conversion_info(resource_id, :NeTEx)
 
-  @spec get_related_conversion_info(integer() | nil, atom()) ::
+  @spec get_related_conversion_info(integer() | nil, :NeTEx | :GeoJSON) ::
           %{url: binary(), stable_url: binary(), filesize: binary(), resource_history_last_up_to_date_at: DateTime.t()}
           | nil
   def get_related_conversion_info(nil, _), do: nil
 
-  @spec get_related_conversion_info(integer(), :NeTEx | :GeoJSON) :: DB.ResourceHistory.t() | nil
   def get_related_conversion_info(resource_id, format) do
     converter = DB.DataConversion.converter_to_use(format)
 
