@@ -4,7 +4,6 @@ defmodule TransportWeb.API.DatasetController do
   alias Helpers
   alias OpenApiSpex.Operation
   alias DB.{AOM, Dataset, Repo, Resource}
-  alias TransportWeb.API.Schemas.{DatasetDetails, DatasetsResponse, GeoJSONResponse}
   alias Geo.{JSON, MultiPolygon}
 
   # The default (one minute) felt a bit too high for someone doing scripted operations
@@ -27,7 +26,7 @@ defmodule TransportWeb.API.DatasetController do
       operationId: "API.DatasetController.datasets",
       parameters: [],
       responses: %{
-        200 => Operation.response("DatasetsResponse", "application/json", DatasetsResponse)
+        200 => Operation.response("DatasetsResponse", "application/json", TransportWeb.API.Schemas.DatasetsResponse)
       }
     }
 
@@ -59,7 +58,7 @@ defmodule TransportWeb.API.DatasetController do
       operationId: "API.DatasetController.datasets_by_id",
       parameters: [Operation.parameter(:id, :path, :string, "datagouv id of the dataset you want to retrieve")],
       responses: %{
-        200 => Operation.response("DatasetDetails", "application/json", DatasetDetails)
+        200 => Operation.response("DatasetDetails", "application/json", TransportWeb.API.Schemas.DatasetDetails)
       }
     }
 
@@ -72,7 +71,7 @@ defmodule TransportWeb.API.DatasetController do
       operationId: "API.DatasetController.datasets_geojson_by_id",
       parameters: [Operation.parameter(:id, :path, :string, "id")],
       responses: %{
-        200 => Operation.response("Dataset", "application/json", GeoJSONResponse)
+        200 => Operation.response("Dataset", "application/json", TransportWeb.API.Schemas.GeoJSONResponse)
       }
     }
 
