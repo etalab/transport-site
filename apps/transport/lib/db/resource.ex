@@ -220,6 +220,7 @@ defmodule DB.Resource do
           | nil
   def get_related_conversion_info(nil, _), do: nil
 
+  @spec get_related_conversion_info(integer(), :NeTEx | :GeoJSON) :: DB.ResourceHistory.t() | nil
   def get_related_conversion_info(resource_id, format) do
     converter = DB.DataConversion.converter_to_use(format)
 

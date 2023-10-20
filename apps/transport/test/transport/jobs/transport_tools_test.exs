@@ -13,7 +13,7 @@ defmodule TransportWeb.TransportToolsTest do
     # See https://github.com/etalab/transport-site/issues/1820
     @tag :transport_tools
     test "check the GeoJSON conversion binary is accessible" do
-      {:error, msg} = Transport.GtfsToGeojsonConverter.convert("", "")
+      {:error, msg} = Transport.GTFSToGeoJSONConverter.convert("", "")
 
       # this is the error msg we would get if the binary file was not found
       assert msg != "rambo exited with 0"
@@ -22,7 +22,7 @@ defmodule TransportWeb.TransportToolsTest do
     @tag :transport_tools
     test "we can convert a gtfs to GeoJSON" do
       geojson_file = "test.geojson"
-      :ok = Transport.GtfsToGeojsonConverter.convert("#{__DIR__}/../../fixture/files/gtfs.zip", geojson_file)
+      :ok = Transport.GTFSToGeoJSONConverter.convert("#{__DIR__}/../../fixture/files/gtfs.zip", geojson_file)
       assert geojson_file |> File.read!() |> String.contains?("FeatureCollection")
       File.rm!(geojson_file)
     end

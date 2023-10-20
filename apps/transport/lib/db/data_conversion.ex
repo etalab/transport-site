@@ -30,17 +30,17 @@ defmodule DB.DataConversion do
   def converter_to_use(convert_to) do
     Map.fetch!(
       %{
-        "GeoJSON" => "rust-transit/gtfs-to-geojson",
-        "NeTEx" => "hove/transit_model"
+        "GeoJSON" => Transport.GTFSToGeoJSONConverter.converter(),
+        "NeTEx" => Transport.GtfsToNeTExConverter.converter()
       },
       to_string(convert_to)
     )
   end
 
-  @spec join_resource_history_with_data_conversion(Ecto.Query.t(), [binary()], [binary()]) :: Ecto.Query.t()
+  @spec join_resource_history_with_data_conversion(Ecto.Query.t(), [binary()], [binary()] | nil) :: Ecto.Query.t()
   @spec join_resource_history_with_data_conversion(Ecto.Query.t(), [binary()]) :: Ecto.Query.t()
-  def join_resource_history_with_data_conversion(%Ecto.Query{} = query, convert_tos, converters \\ []) do
-    converters = if Enum.empty?(converters), do: Enum.map(convert_tos, &converter_to_use/1), else: converters
+  def join_resource_history_with_data_conversion(%Ecto.Query{} = query, convert_tos, converters \\ nil) do
+    converters = converters || Enum.map(convert_tos, &converter_to_use/1)
 
     query
     |> join(:left, [resource_history: rh], dc in DB.DataConversion,
@@ -78,8 +78,7 @@ defmodule DB.DataConversion do
 
   @spec delete_data_conversions([map()]) :: :ok
   def delete_data_conversions(conversions) do
-    conversions
-    |> Enum.each(fn %{data_conversion_id: dc_id, s3_path: s3_path} ->
+    Enum.each(conversions, fn %{data_conversion_id: dc_id, s3_path: s3_path} ->
       Transport.S3.delete_object!(:history, s3_path)
       DB.DataConversion |> DB.Repo.get(dc_id) |> DB.Repo.delete!()
     end)

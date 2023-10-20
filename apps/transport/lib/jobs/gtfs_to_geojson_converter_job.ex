@@ -1,4 +1,4 @@
-defmodule Transport.Jobs.GtfsToGeojsonConverterJob do
+defmodule Transport.Jobs.GTFSToGeoJSONConverterJob do
   @moduledoc """
   This will enqueue GTFS -> GeoJSON conversion jobs for all GTFS resources found in ResourceHistory
   """
@@ -7,11 +7,11 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJob do
 
   @impl true
   def perform(%{}) do
-    GTFSGenericConverter.enqueue_all_conversion_jobs("GeoJSON", Transport.Jobs.SingleGtfsToGeojsonConverterJob)
+    GTFSGenericConverter.enqueue_all_conversion_jobs("GeoJSON", Transport.Jobs.SingleGTFSToGeoJSONConverterJob)
   end
 end
 
-defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJob do
+defmodule Transport.Jobs.SingleGTFSToGeoJSONConverterJob do
   @moduledoc """
   Conversion Job of a GTFS to a GeoJSON, saving the resulting file in S3
   """
@@ -20,11 +20,11 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJob do
 
   @impl true
   def perform(%{args: %{"resource_history_id" => resource_history_id}}) do
-    GTFSGenericConverter.perform_single_conversion_job(resource_history_id, "GeoJSON", Transport.GtfsToGeojsonConverter)
+    GTFSGenericConverter.perform_single_conversion_job(resource_history_id, "GeoJSON", Transport.GTFSToGeoJSONConverter)
   end
 end
 
-defmodule Transport.GtfsToGeojsonConverter do
+defmodule Transport.GTFSToGeoJSONConverter do
   @moduledoc """
   Given a GTFS file path, create from the file the corresponding geojson with the stops and line shapes if available.
   """

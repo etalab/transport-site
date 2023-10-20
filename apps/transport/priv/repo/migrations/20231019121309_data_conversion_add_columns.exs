@@ -11,7 +11,9 @@ defmodule DB.Repo.Migrations.DataConversionAddColumns do
     drop unique_index("data_conversion", [:convert_from, :convert_to, :resource_history_uuid])
 
     execute "update data_conversion set status = 'success'"
+    # https://github.com/etalab/transport-tools/blob/278f66679537981176f414de8027a86b1b0808ba/Dockerfile#L38
     execute "update data_conversion set converter = 'hove/transit_model', converter_version = '0.55.0' where convert_to = 'NeTEx' and convert_from = 'GTFS'"
+    # https://github.com/etalab/transport-tools/blob/278f66679537981176f414de8027a86b1b0808ba/Dockerfile#L8
     execute "update data_conversion set converter = 'rust-transit/gtfs-to-geojson', converter_version = '9ca9a25b895ba1b2fdf4d04e92895afec52d0608' where convert_to = 'GeoJSON' and convert_from = 'GTFS'"
 
     alter table("data_conversion") do
