@@ -4,7 +4,6 @@ defmodule TransportWeb.API.StatsController do
   import Ecto.Query
   alias Geo.JSON
   alias OpenApiSpex.Operation
-  alias TransportWeb.API.Schemas.GeoJSONResponse
 
   @spec open_api_operation(any) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
@@ -18,7 +17,7 @@ defmodule TransportWeb.API.StatsController do
       operationId: "API.StatsController.regions",
       parameters: [],
       responses: %{
-        200 => Operation.response("GeoJSON", "application/json", GeoJSONResponse)
+        200 => Operation.response("GeoJSON", "application/json", TransportWeb.API.Schemas.GeoJSONResponse)
       }
     }
 
@@ -31,7 +30,7 @@ defmodule TransportWeb.API.StatsController do
       operationId: "API.StatsController.index",
       parameters: [],
       responses: %{
-        200 => Operation.response("GeoJSON", "application/json", GeoJSONResponse)
+        200 => Operation.response("GeoJSON", "application/json", TransportWeb.API.Schemas.GeoJSONResponse)
       }
     }
 
@@ -44,7 +43,7 @@ defmodule TransportWeb.API.StatsController do
       operationId: "API.StatsController.bike_scooter_sharing",
       parameters: [],
       responses: %{
-        200 => Operation.response("GeoJSON", "application/json", GeoJSONResponse)
+        200 => Operation.response("GeoJSON", "application/json", TransportWeb.API.Schemas.GeoJSONResponse)
       }
     }
 
@@ -57,7 +56,7 @@ defmodule TransportWeb.API.StatsController do
       operationId: "API.StatsController.quality",
       parameters: [],
       responses: %{
-        200 => Operation.response("GeoJSON", "application/json", GeoJSONResponse)
+        200 => Operation.response("GeoJSON", "application/json", TransportWeb.API.Schemas.GeoJSONResponse)
       }
     }
 
