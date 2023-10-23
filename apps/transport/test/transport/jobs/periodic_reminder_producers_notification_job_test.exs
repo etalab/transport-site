@@ -202,9 +202,9 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
 
     Transport.EmailSender.Mock
     |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.data.gouv.fr",
                              ^email = _to,
-                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.data.gouv.fr",
                              subject,
                              "",
                              html ->
@@ -249,9 +249,9 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
 
     Transport.EmailSender.Mock
     |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.data.gouv.fr",
                              ^email = _to,
-                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.data.gouv.fr",
                              subject,
                              "",
                              html ->

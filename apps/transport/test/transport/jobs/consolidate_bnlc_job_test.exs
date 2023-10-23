@@ -461,9 +461,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn "transport.data.gouv.fr" = _display_name,
-                               "contact@transport.beta.gouv.fr" = _from,
-                               "deploiement@transport.beta.gouv.fr" = _to,
-                               "contact@transport.beta.gouv.fr" = _reply_to,
+                               "contact@transport.data.gouv.fr" = _from,
+                               "deploiement@transport.data.gouv.fr" = _to,
+                               "contact@transport.data.gouv.fr" = _reply_to,
                                "[OK] Rapport de consolidation de la BNLC" = _subject,
                                "",
                                html_part ->
@@ -660,9 +660,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn "transport.data.gouv.fr" = _display_name,
-                               "contact@transport.beta.gouv.fr" = _from,
-                               "deploiement@transport.beta.gouv.fr" = _to,
-                               "contact@transport.beta.gouv.fr" = _reply_to,
+                               "contact@transport.data.gouv.fr" = _from,
+                               "deploiement@transport.data.gouv.fr" = _to,
+                               "contact@transport.data.gouv.fr" = _reply_to,
                                "[ERREUR] Rapport de consolidation de la BNLC" = _subject,
                                "",
                                html_part ->
