@@ -24,9 +24,9 @@ defmodule Transport.Test.Transport.Jobs.DatasetsClimateResilienceBillNotLOLicenc
 
     Transport.EmailSender.Mock
     |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.beta.gouv.fr",
-                             "deploiement@transport.beta.gouv.fr",
-                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.data.gouv.fr",
+                             "deploiement@transport.data.gouv.fr",
+                             "contact@transport.data.gouv.fr",
                              "Jeux de données article 122 avec licence inappropriée",
                              "",
                              html_content ->

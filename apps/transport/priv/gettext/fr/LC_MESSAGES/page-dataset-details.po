@@ -20,8 +20,8 @@ msgid "Warnings"
 msgstr "Avertissements"
 
 #, elixir-autogen
-msgid "Posted on"
-msgstr "le"
+msgid "Posted on %{datetime}"
+msgstr "le %{datetime}"
 
 #, elixir-autogen
 msgid "Respond"
@@ -609,3 +609,7 @@ msgstr "Scores du jeu de données"
 #, elixir-autogen, elixir-format
 msgid "This transport service operates seasonally. The associated resources may be outdated depending on the time of year. Contact the data producer through Discussions for more information."
 msgstr "Le service de transport de ce jeu de donnée ne fonctionne pas toute l'année et les ressources associées peuvent être périmées selon la période de l'année. Nous vous invitons à contacter le producteur via les discussions pour plus d'information."
+
+#, elixir-autogen, elixir-format
+msgid "data producer"
+msgstr "Producteur de la donnée"

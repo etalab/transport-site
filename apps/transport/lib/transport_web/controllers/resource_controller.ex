@@ -27,7 +27,7 @@ defmodule TransportWeb.ResourceController do
         :uptime_per_day,
         DB.ResourceUnavailability.uptime_per_day(resource, availability_number_days())
       )
-      |> assign(:resource_history_infos, DB.ResourceHistory.latest_resource_history_infos(id))
+      |> assign(:resource_history, DB.ResourceHistory.latest_resource_history(id))
       |> assign(:gtfs_rt_feed, gtfs_rt_feed(conn, resource))
       |> assign(:gtfs_rt_entities, gtfs_rt_entities(resource))
       |> assign(:latest_validations_details, latest_validations_details(resource))

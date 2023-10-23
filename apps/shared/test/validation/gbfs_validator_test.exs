@@ -16,7 +16,7 @@ defmodule GBFSValidatorTest do
 
       assert [
                {"content-type", "application/json"},
-               {"user-agent", "contact@transport.beta.gouv.fr"}
+               {"user-agent", "contact@transport.data.gouv.fr"}
              ] == headers
 
       assert String.starts_with?(url, "https://gbfs-validator.netlify.app")

@@ -53,13 +53,13 @@ defmodule TransportWeb.FeedbackLiveTest do
     |> assert
 
     assert_email_sent(
-      from: {"Formulaire feedback", "contact@transport.beta.gouv.fr"},
-      to: "contact@transport.beta.gouv.fr",
+      from: {"Formulaire feedback", "contact@transport.data.gouv.fr"},
+      to: "contact@transport.data.gouv.fr",
       subject: "Nouvel avis pour on-demand-validation : j’aime",
       text_body:
         "Vous avez un nouvel avis sur le PAN.\nFonctionnalité : on-demand-validation\nNotation : j’aime\nAdresse e-mail : \n\nExplication : so useful for my GTFS files\n",
       html_body: nil,
-      reply_to: "contact@transport.beta.gouv.fr"
+      reply_to: "contact@transport.data.gouv.fr"
     )
   end
 

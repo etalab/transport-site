@@ -131,9 +131,9 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
 
     Transport.EmailSender.Mock
     |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.data.gouv.fr",
                              "foo@example.com" = _to,
-                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.data.gouv.fr",
                              subject,
                              "",
                              html ->
@@ -153,9 +153,9 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
 
     Transport.EmailSender.Mock
     |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.data.gouv.fr",
                              ^reuser_email,
-                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.data.gouv.fr",
                              subject,
                              "",
                              html ->
@@ -171,9 +171,9 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
 
     Transport.EmailSender.Mock
     |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.data.gouv.fr",
                              "bar@example.com" = _to,
-                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.data.gouv.fr",
                              subject,
                              "",
                              html ->

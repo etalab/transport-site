@@ -48,7 +48,8 @@ config :transport,
     gtfs_diff: "gtfs-diff-test"
   },
   workflow_notifier: Transport.Jobs.Workflow.ProcessNotifier,
-  export_secret_key: "fake_export_secret_key"
+  export_secret_key: "fake_export_secret_key",
+  enroute_token: "fake_enroute_token"
 
 config :ex_aws,
   cellar_organisation_id: "fake-cellar_organisation_id"
@@ -62,7 +63,8 @@ config :datagouvfr,
   authentication_impl: Datagouvfr.Authentication.Mock,
   user_impl: Datagouvfr.Client.User.Mock,
   datagouvfr_reuses: Datagouvfr.Client.Reuses.Mock,
-  datagouvfr_discussions: Datagouvfr.Client.Discussions.Mock
+  datagouvfr_discussions: Datagouvfr.Client.Discussions.Mock,
+  organization_impl: Datagouvfr.Client.Organization.Mock
 
 # capture all info logs and up during tests
 config :logger, level: :debug

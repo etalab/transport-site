@@ -407,3 +407,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "analyzing found differences..."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Please note that our GTFS validator does not validate the Flex and Fares v2 extensions."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "This file contains the GTFS-Flex extension. We are not able to validate it for now."
+msgstr ""

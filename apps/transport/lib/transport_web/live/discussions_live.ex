@@ -23,13 +23,17 @@ defmodule TransportWeb.DiscussionsLive do
 
     <%= if assigns[:discussions] do %>
       <div>
-        <%= Phoenix.View.render(TransportWeb.DatasetView, "_discussions.html",
-          discussions: @discussions,
-          current_user: @current_user,
-          socket: @socket,
-          dataset: @dataset,
-          locale: @locale
-        ) %>
+        <%= for discussion <- @discussions do %>
+          <%= Phoenix.View.render(TransportWeb.DatasetView, "_discussion.html",
+            discussion: discussion,
+            current_user: @current_user,
+            socket: @socket,
+            dataset: @dataset,
+            org_member_ids: @org_member_ids,
+            org_logo_thumbnail: @org_logo_thumbnail,
+            locale: @locale
+          ) %>
+        <% end %>
       </div>
     <% else %>
       <div>
@@ -57,23 +61,25 @@ defmodule TransportWeb.DiscussionsLive do
     Gettext.put_locale(locale)
 
     # async comments loading
-    send(self(), {:fetch_data_gouv_discussions, dataset.datagouv_id})
+    send(self(), {:fetch_data_gouv_discussions, dataset})
 
     {:ok, socket}
   end
 
-  def handle_info({:fetch_data_gouv_discussions, dataset_datagouv_id}, socket) do
-    discussions = Datagouvfr.Client.Discussions.Wrapper.get(dataset_datagouv_id)
+  def handle_info({:fetch_data_gouv_discussions, %DB.Dataset{} = dataset}, socket) do
+    discussions = Datagouvfr.Client.Discussions.Wrapper.get(dataset.datagouv_id)
+
+    {org_member_ids, org_logo_thumbnail} = get_datagouv_org_infos(dataset)
 
     Phoenix.PubSub.broadcast(
       TransportWeb.PubSub,
-      "dataset_discussions_count:#{dataset_datagouv_id}",
+      "dataset_discussions_count:#{dataset.datagouv_id}",
       {:count, discussions |> length()}
     )
 
     socket =
       socket
-      |> assign(:discussions, discussions)
+      |> assign(discussions: discussions, org_member_ids: org_member_ids, org_logo_thumbnail: org_logo_thumbnail)
       |> push_event("discussions-loaded", %{
         ids: discussions |> Enum.filter(&discussion_should_be_closed?/1) |> Enum.map(& &1["id"])
       })
@@ -99,6 +105,22 @@ defmodule TransportWeb.DiscussionsLive do
 
     two_months_ago = DateTime.utc_now() |> Timex.shift(months: -2)
     DateTime.compare(two_months_ago, latest_comment_datetime) == :gt
+  end
+
+  defp get_datagouv_org_infos(%DB.Dataset{} = dataset) do
+    case organization_info(dataset) do
+      {:ok, %{"members" => members, "logo_thumbnail" => logo_thumbnail}} ->
+        {Enum.map(members, fn member -> member["user"]["id"] end), logo_thumbnail}
+
+      _ ->
+        {[], nil}
+    end
+  end
+
+  defp organization_info(%DB.Dataset{organization: nil}), do: :no_organization
+
+  defp organization_info(%DB.Dataset{organization: organization}) when is_binary(organization) do
+    Datagouvfr.Client.Organization.Wrapper.get(organization, restrict_fields: true)
   end
 end
 

@@ -147,7 +147,8 @@ config :datagouvfr,
   authentication_impl: Datagouvfr.Authentication,
   user_impl: Datagouvfr.Client.User,
   datagouvfr_reuses: Datagouvfr.Client.Reuses,
-  datagouvfr_discussions: Datagouvfr.Client.Discussions
+  datagouvfr_discussions: Datagouvfr.Client.Discussions,
+  organization_impl: Datagouvfr.Client.Organization
 
 config :ex_json_schema,
        :remote_schema_resolver,
@@ -187,13 +188,14 @@ config :gettext, :default_locale, "fr"
 config :transport,
   domain_name: System.get_env("DOMAIN_NAME", "transport.data.gouv.fr"),
   export_secret_key: System.get_env("EXPORT_SECRET_KEY"),
+  enroute_token: System.get_env("ENROUTE_TOKEN"),
   max_import_concurrent_jobs: (System.get_env("MAX_IMPORT_CONCURRENT_JOBS") || "1") |> String.to_integer(),
   nb_days_to_keep_validations: 60,
   join_our_slack_link: "https://join.slack.com/t/transportdatagouvfr/shared_invite/zt-2n1n92ye-sdGQ9SeMh5BkgseaIzV8kA",
-  contact_email: "contact@transport.beta.gouv.fr",
-  bizdev_email: "deploiement@transport.beta.gouv.fr",
+  contact_email: "contact@transport.data.gouv.fr",
+  bizdev_email: "deploiement@transport.data.gouv.fr",
   tech_email: "tech@transport.data.gouv.fr",
-  security_email: "contact@transport.beta.gouv.fr",
+  security_email: "contact@transport.data.gouv.fr",
   transport_tools_folder: Path.absname("transport-tools/")
 
 # For now, never send session data (containing sensitive data in our case) nor params,
