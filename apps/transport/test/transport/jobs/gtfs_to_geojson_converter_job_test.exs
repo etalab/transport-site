@@ -1,10 +1,10 @@
-defmodule Transport.Jobs.GtfsToGeojsonConverterJobTest do
+defmodule Transport.Jobs.GTFSToGeoJSONConverterJobTest do
   use ExUnit.Case, async: true
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
   import Mox
 
-  alias Transport.Jobs.{GtfsToGeojsonConverterJob, SingleGtfsToGeojsonConverterJob}
+  alias Transport.Jobs.{GTFSToGeoJSONConverterJob, SingleGTFSToGeoJSONConverterJob}
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -41,9 +41,9 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJobTest do
 
     insert(:data_conversion, convert_from: "GTFS", convert_to: "GeoJSON", resource_history_uuid: uuid, payload: %{})
 
-    :ok = perform_job(GtfsToGeojsonConverterJob, %{})
+    :ok = perform_job(GTFSToGeoJSONConverterJob, %{})
 
     assert [%Oban.Job{args: %{"resource_history_id" => ^resource_history_id}}] =
-             all_enqueued(worker: SingleGtfsToGeojsonConverterJob)
+             all_enqueued(worker: SingleGTFSToGeoJSONConverterJob)
   end
 end

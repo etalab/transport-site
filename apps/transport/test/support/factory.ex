@@ -63,7 +63,11 @@ defmodule DB.Factory do
   end
 
   def data_conversion_factory do
-    %DB.DataConversion{}
+    %DB.DataConversion{
+      status: :success,
+      converter: "my_converter",
+      converter_version: Ecto.UUID.generate()
+    }
   end
 
   def resource_unavailability_factory do
