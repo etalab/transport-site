@@ -79,7 +79,7 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
     changeset_change_keys = changeset.changes |> Map.keys()
 
     unless Enum.empty?(changeset_change_keys -- [:geom, :population]) do
-      Logger.info("Important changes for Insee #{changeset.data.insee}. #{readable_changeset(changeset)}")
+      Logger.info("Important changes for INSEE #{changeset.data.insee}. #{readable_changeset(changeset)}")
     end
 
     changeset |> Repo.insert_or_update!()
@@ -105,10 +105,7 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
     %{geom | srid: 4326}
   end
 
-  defp readable_changeset(changeset) do
-    changes = changeset.changes
-    data = changeset.data
-
+  defp readable_changeset(%Ecto.Changeset{changes: changes, data: data} = changeset) do
     changes
     |> Map.keys()
     |> Enum.map_join(" ; ", fn key -> "#{key}: #{Map.get(data, key)} => #{Map.get(changes, key)}" end)
@@ -122,7 +119,7 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
     # Gets a list of tuples describing regions from the database
     regions = regions_by_insee()
     region_insees = regions |> Map.keys()
-    # Gets a list of tuples describing communes GEOJSON from the network
+    # Gets a list of tuples describing communes GeoJSON from the network
     geojsons = geojson_by_insee()
     # Gets the official list of communes from the network and filter them to match database regions
     etalab_communes = load_etalab_communes(region_insees)
@@ -135,8 +132,8 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
     removed_communes = communes_insee |> MapSet.new() |> MapSet.difference(MapSet.new(etalab_insee)) |> Enum.into([])
     nb_removed = removed_communes |> Enum.count()
 
-    Logger.info("#{nb_new} new communes. Insee codes: #{Enum.join(new_communes, ", ")}")
-    Logger.info("#{nb_removed} communes should be removed. Insee codes: #{Enum.join(removed_communes, ", ")}")
+    Logger.info("#{nb_new} new communes. INSEE codes: #{Enum.join(new_communes, ", ")}")
+    Logger.info("#{nb_removed} communes should be removed. INSEE codes: #{Enum.join(removed_communes, ", ")}")
 
     Logger.info("Deleting removed communes…")
     Commune |> where([c], c.insee in ^removed_communes) |> Repo.delete_all()
