@@ -105,7 +105,7 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
     %{geom | srid: 4326}
   end
 
-  defp readable_changeset(%Ecto.Changeset{changes: changes, data: data} = changeset) do
+  defp readable_changeset(%Ecto.Changeset{changes: changes, data: data}) do
     changes
     |> Map.keys()
     |> Enum.map_join(" ; ", fn key -> "#{key}: #{Map.get(data, key)} => #{Map.get(changes, key)}" end)
