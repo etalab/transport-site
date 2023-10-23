@@ -44,5 +44,5 @@ defmodule Transport.GTFSToGeoJSONConverter do
   def converter, do: "rust-transit/gtfs-to-geojson"
 
   @impl true
-  def converter_version, do: "9ca9a25b895ba1b2fdf4d04e92895afec52d0608"
+  def converter_version, do: "0.3.1"
 end
