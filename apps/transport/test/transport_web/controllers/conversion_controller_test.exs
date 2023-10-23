@@ -42,6 +42,7 @@ defmodule TransportWeb.ConversionControllerTest do
         resource_history_uuid: uuid1,
         convert_from: "GTFS",
         convert_to: "GeoJSON",
+        converter: DB.DataConversion.converter_to_use("GeoJSON"),
         payload: %{"permanent_url" => permanent_url = "https://example.com/url1", "filesize" => 42}
       )
 
