@@ -76,8 +76,14 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
         departement_insee: departement_insee
       })
 
+    changeset_change_keys = changeset.changes |> Map.keys()
+
+    unless Enum.empty?(changeset_change_keys -- [:geom, :population]) do
+      Logger.info("Important changes for Insee #{changeset.data.insee}. #{readable_changeset(changeset)}")
+    end
+
     changeset |> Repo.insert_or_update!()
-    changeset.changes |> Map.keys()
+    changeset_change_keys
   end
 
   defp get_or_create_commune(insee) do
@@ -99,6 +105,15 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
     %{geom | srid: 4326}
   end
 
+  defp readable_changeset(changeset) do
+    changes = changeset.changes
+    data = changeset.data
+
+    changes
+    |> Map.keys()
+    |> Enum.map_join(" ; ", fn key -> "#{key}: #{Map.get(data, key)} => #{Map.get(changes, key)}" end)
+  end
+
   def run(_params) do
     Logger.info("Importing communes")
 
@@ -115,12 +130,13 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
     # Loads current communes INSEE list from the database
     communes_insee = Commune |> select([c], c.insee) |> Repo.all()
 
-    nb_new = etalab_insee |> MapSet.new() |> MapSet.difference(MapSet.new(communes_insee)) |> Enum.count()
+    new_communes = etalab_insee |> MapSet.new() |> MapSet.difference(MapSet.new(communes_insee))
+    nb_new = new_communes |> Enum.count()
     removed_communes = communes_insee |> MapSet.new() |> MapSet.difference(MapSet.new(etalab_insee)) |> Enum.into([])
     nb_removed = removed_communes |> Enum.count()
 
-    Logger.info("#{nb_new} new communes")
-    Logger.info("#{nb_removed} communes should be removed")
+    Logger.info("#{nb_new} new communes. Insee codes: #{Enum.join(new_communes, ", ")}")
+    Logger.info("#{nb_removed} communes should be removed. Insee codes: #{Enum.join(removed_communes, ", ")}")
 
     Logger.info("Deleting removed communes…")
     Commune |> where([c], c.insee in ^removed_communes) |> Repo.delete_all()
