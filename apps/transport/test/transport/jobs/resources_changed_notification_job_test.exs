@@ -157,9 +157,9 @@ defmodule Transport.Test.Transport.Jobs.ResourcesChangedNotificationJobTest do
 
     assert_email_sent(fn %Swoosh.Email{} = sent ->
       assert %Swoosh.Email{
-               from: {"transport.data.gouv.fr", "contact@transport.beta.gouv.fr"},
+               from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
                to: [{"", ^email}],
-               reply_to: {"", "contact@transport.beta.gouv.fr"},
+               reply_to: {"", "contact@transport.data.gouv.fr"},
                subject: "Super JDD : ressources modifiées",
                text_body: nil,
                html_body: html_body

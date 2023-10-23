@@ -137,9 +137,9 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
 
     Transport.EmailSender.Mock
     |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.data.gouv.fr",
                              "foo@example.com" = _to,
-                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.data.gouv.fr",
                              subject,
                              _plain_text_body,
                              html_part ->
@@ -156,9 +156,9 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
 
     Transport.EmailSender.Mock
     |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.data.gouv.fr",
                              ^reuser_email = _to,
-                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.data.gouv.fr",
                              subject,
                              _plain_text_body,
                              html_part ->
@@ -174,9 +174,9 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
 
     Transport.EmailSender.Mock
     |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.data.gouv.fr",
                              "bar@example.com" = _to,
-                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.data.gouv.fr",
                              subject,
                              _plain_text_body,
                              html_part ->

@@ -120,8 +120,8 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
 
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn _from_name,
-                               "contact@transport.beta.gouv.fr" = _from_email,
-                               "deploiement@transport.beta.gouv.fr" = _to_email,
+                               "contact@transport.data.gouv.fr" = _from_email,
+                               "deploiement@transport.data.gouv.fr" = _to_email,
                                _reply_to,
                                "Nouveaux jeux de données à référencer - data.gouv.fr" = _subject,
                                body,
