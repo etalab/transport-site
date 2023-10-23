@@ -47,14 +47,12 @@ defmodule DB.DataConversion do
       on: fragment("(?->>'uuid')::uuid = ?", rh.payload, dc.resource_history_uuid),
       as: :data_conversion
     )
-    |> where(
-      [data_conversion: dc],
-      dc.convert_to in ^convert_tos and dc.status == :success and dc.converter in ^converters
-    )
+    |> where([data_conversion: dc], dc.convert_from = :GTFS and dc.convert_to in ^convert_tos)
+    |> where([data_conversion: dc], dc.status == :success and dc.converter in ^converters)
   end
 
-  @spec last_data_conversions(integer(), binary()) :: [map()]
-  def last_data_conversions(dataset_id, convert_to) do
+  @spec latest_data_conversions(integer(), binary()) :: [map()]
+  def latest_data_conversions(dataset_id, convert_to) do
     DB.Dataset.base_query()
     |> DB.ResourceHistory.join_dataset_with_latest_resource_history()
     |> join_resource_history_with_data_conversion([convert_to])
@@ -68,7 +66,7 @@ defmodule DB.DataConversion do
   end
 
   def force_refresh_netex_conversions(dataset_id) do
-    conversions = last_data_conversions(dataset_id, "NeTEx")
+    conversions = latest_data_conversions(dataset_id, "NeTEx")
     delete_data_conversions(conversions)
 
     %{"dataset_id" => dataset_id}

@@ -133,7 +133,7 @@ defmodule DB.DataConversionTest do
 
     conversions =
       dataset.id
-      |> DB.DataConversion.last_data_conversions("NeTEx")
+      |> DB.DataConversion.latest_data_conversions("NeTEx")
       |> Enum.sort_by(fn %{data_conversion_id: dc_id} -> dc_id end, :asc)
 
     assert [
