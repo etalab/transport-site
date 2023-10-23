@@ -47,7 +47,7 @@ defmodule DB.DataConversion do
       on: fragment("(?->>'uuid')::uuid = ?", rh.payload, dc.resource_history_uuid),
       as: :data_conversion
     )
-    |> where([data_conversion: dc], dc.convert_from = :GTFS and dc.convert_to in ^convert_tos)
+    |> where([data_conversion: dc], dc.convert_from == :GTFS and dc.convert_to in ^convert_tos)
     |> where([data_conversion: dc], dc.status == :success and dc.converter in ^converters)
   end
 
