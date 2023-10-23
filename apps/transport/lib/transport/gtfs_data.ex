@@ -44,7 +44,9 @@ defmodule Transport.GTFSData do
     )
   end
 
-  def build_detailed({north, south, east, west}) do
+  def build_detailed({north, south, east, west}, opts \\ []) do
+    [mode: mode] = Keyword.validate!(opts, mode: :map_mode)
+
     stops =
       {north, south, east, west}
       |> bounding_box_points()
@@ -56,14 +58,22 @@ defmodule Transport.GTFSData do
         stop_id: gs.stop_id,
         stop_name: gs.stop_name,
         di_id: gs.data_import_id,
-        dataset_id: d.id,
         dataset_title: d.custom_title,
-        resource_id: r.id,
-        resource_title: r.title,
         stop_lat: gs.stop_lat,
         stop_lon: gs.stop_lon,
         stop_location_type: gs.location_type
       })
+
+      stops = if mode == :api_mode do
+        stops
+        |> select_merge([gs, di, rh, r, d], %{
+          dataset_id: d.id,
+          resource_id: r.id,
+          resource_title: r.title
+        })
+      else
+        stops
+      end
 
     %{
       type: "FeatureCollection",
@@ -77,20 +87,35 @@ defmodule Transport.GTFSData do
               type: "Point",
               coordinates: [Map.fetch!(s, :stop_lon), Map.fetch!(s, :stop_lat)]
             },
-            properties: %{
-              stop_id: Map.fetch!(s, :stop_id),
-              stop_name: Map.fetch!(s, :stop_name),
-              di_id: Map.fetch!(s, :di_id),
-              dataset_id: Map.fetch!(s, :dataset_id),
-              dataset_title: Map.fetch!(s, :dataset_title),
-              resource_id: Map.fetch!(s, :resource_id),
-              resource_title: Map.fetch!(s, :resource_title),
-              stop_location_type: Map.fetch!(s, :stop_location_type)
-            }
+            properties: geojson_properties(s, mode)
           }
         end)
     }
   end
+
+  defp geojson_properties(s, :map_mode) do
+    %{
+      stop_id: Map.fetch!(s, :stop_id),
+      stop_name: Map.fetch!(s, :stop_name),
+      di_id: Map.fetch!(s, :di_id),
+      dataset_title: Map.fetch!(s, :dataset_title),
+      stop_location_type: Map.fetch!(s, :stop_location_type)
+    }
+  end
+
+  defp geojson_properties(s, :api_mode) do
+    %{
+      stop_id: Map.fetch!(s, :stop_id),
+      stop_name: Map.fetch!(s, :stop_name),
+      di_id: Map.fetch!(s, :di_id),
+      dataset_id: Map.fetch!(s, :dataset_id),
+      dataset_title: Map.fetch!(s, :dataset_title),
+      resource_id: Map.fetch!(s, :resource_id),
+      resource_title: Map.fetch!(s, :resource_title),
+      stop_location_type: Map.fetch!(s, :stop_location_type)
+    }
+  end
+
 
   def count_points({north, south, east, west}) do
     {north, south, east, west}

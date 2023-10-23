@@ -67,10 +67,12 @@ defmodule TransportWeb.API.GTFSStopsController do
           (parsed_params[:zoom_level] >= 10 || parsed_params[:only_coordinate_params]) ->
         # If we’re on the map with a zoom high enough, or if we’re on the API endpoint with a small count
         # we return the GTFS detailed data
+        mode = if parsed_params[:only_coordinate_params], do: :api_mode, else: :map_mode
         conn
         |> json(
           Transport.GTFSData.build_detailed(
-            {parsed_params[:north], parsed_params[:south], parsed_params[:east], parsed_params[:west]}
+            {parsed_params[:north], parsed_params[:south], parsed_params[:east], parsed_params[:west]},
+            mode: mode
           )
         )
 
