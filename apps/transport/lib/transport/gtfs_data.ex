@@ -64,7 +64,8 @@ defmodule Transport.GTFSData do
         stop_location_type: gs.location_type
       })
 
-      stops = if mode == :api_mode do
+    stops =
+      if mode == :api_mode do
         stops
         |> select_merge([gs, di, rh, r, d], %{
           dataset_id: d.id,
@@ -115,7 +116,6 @@ defmodule Transport.GTFSData do
       stop_location_type: Map.fetch!(s, :stop_location_type)
     }
   end
-
 
   def count_points({north, south, east, west}) do
     {north, south, east, west}
