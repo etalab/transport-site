@@ -52,7 +52,7 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
   end
 
   test "renders even if data.gouv is down", %{conn: conn} do
-    dataset = insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate())
+    dataset = insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate(), organization: "producer_org")
 
     # in case of request failure, the function returns an empty list.
     Datagouvfr.Client.Discussions.Mock |> expect(:get, 1, fn ^datagouv_id -> [] end)
@@ -70,6 +70,31 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
 
     # we render the view to make sure the async call to data.gouv is done
     assert render(view) =~ ""
+  end
+
+  test "renders even if there is no organization", %{conn: conn} do
+    dataset = insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate(), organization: nil)
+
+    Datagouvfr.Client.Discussions.Mock |> expect(:get, 1, fn ^datagouv_id -> discussions() end)
+
+    # No organization mock: shouldn’t be called.
+
+    {:ok, view, _html} =
+      live_isolated(conn, TransportWeb.DiscussionsLive,
+        session: %{
+          "dataset_datagouv_id" => datagouv_id,
+          "current_user" => %{"email" => "fc@tdg.fr"},
+          "dataset" => dataset,
+          "locale" => "fr"
+        }
+      )
+
+    parsed_content = view |> render() |> Floki.parse_document!()
+
+    discussion_title_text =
+      parsed_content |> Floki.find(".discussion-title h4") |> Floki.text()
+
+    assert discussion_title_text =~ "Le titre de la question"
   end
 
   test "the counter reacts to broadcasted messages", %{conn: conn} do
