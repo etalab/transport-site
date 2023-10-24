@@ -308,18 +308,24 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     end
   end
 
-  def relevant_http_headers(%HTTPoison.Response{headers: headers}) do
-    headers_to_keep = [
-      "content-disposition",
-      "content-encoding",
-      "content-length",
-      "content-type",
-      "etag",
-      "expires",
-      "if-modified-since",
-      "last-modified"
-    ]
+  @headers_to_keep [
+    "content-disposition",
+    "content-encoding",
+    "content-length",
+    "content-type",
+    "etag",
+    "expires",
+    "if-modified-since",
+    "last-modified"
+  ]
 
+  def relevant_http_headers(%HTTPoison.Response{headers: headers}) do
+    headers_to_keep = @headers_to_keep
+    headers |> Enum.into(%{}, fn {h, v} -> {String.downcase(h), v} end) |> Map.take(headers_to_keep)
+  end
+
+  def relevant_http_headers(%Req.Response{headers: headers}) do
+    headers_to_keep = @headers_to_keep
     headers |> Enum.into(%{}, fn {h, v} -> {String.downcase(h), v} end) |> Map.take(headers_to_keep)
   end
 
