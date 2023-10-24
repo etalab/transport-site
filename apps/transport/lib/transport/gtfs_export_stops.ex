@@ -24,13 +24,15 @@ defmodule Transport.GTFSExportStops do
       dataset_organisation: d.organization,
       dataset_id: d.id,
       resource_id: r.id,
+      resource_title: r.title,
       dataset_aom_id: d.aom_id,
       dataset_region_id: d.region_id,
+      di_id: di.id,
       stop_id: s.stop_id,
       stop_name: s.stop_name,
       stop_lat: s.stop_lat,
       stop_lon: s.stop_lon,
-      stop_location_type: s.location_type
+      location_type: s.location_type
     })
   end
 
@@ -39,13 +41,15 @@ defmodule Transport.GTFSExportStops do
     :dataset_organisation,
     :dataset_id,
     :resource_id,
+    :resource_title,
     :dataset_aom_id,
     :dataset_region_id,
+    :di_id,
     :stop_id,
     :stop_name,
     :stop_lat,
     :stop_lon,
-    :stop_location_type
+    :location_type
   ]
 
   def export_headers do
