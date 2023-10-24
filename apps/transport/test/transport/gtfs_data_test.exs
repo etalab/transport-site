@@ -43,6 +43,7 @@ defmodule Transport.GTFSDataTest do
     {data_import, resource, dataset}
   end
 
+  @tag :focus
   test "build_detailed for map" do
     {data_import, _resource, _dataset} = insert_gtfs_stops([{2.5, 48.5}])
 
@@ -54,8 +55,8 @@ defmodule Transport.GTFSDataTest do
                    stop_id: "LOC:001",
                    stop_name: "L'arrêt 1",
                    di_id: data_import.id,
-                   dataset_title: "Transports publics de Dehaven",
-                   stop_location_type: nil
+                   d_title: "Transports publics de Dehaven",
+                   location_type: nil
                  },
                  type: "Feature"
                }
@@ -64,6 +65,7 @@ defmodule Transport.GTFSDataTest do
            }
   end
 
+  @tag :focus
   test "build_detailed for API" do
     {data_import, resource, dataset} = insert_gtfs_stops([{2.5, 48.5}])
 
@@ -74,12 +76,12 @@ defmodule Transport.GTFSDataTest do
                  properties: %{
                    stop_id: "LOC:001",
                    stop_name: "L'arrêt 1",
-                   di_id: data_import.id,
+                   data_import_id: data_import.id,
                    dataset_id: dataset.id,
                    dataset_title: "Transports publics de Dehaven",
                    resource_id: resource.id,
                    resource_title: "GTFS.zip",
-                   stop_location_type: nil
+                   location_type: nil
                  },
                  type: "Feature"
                }

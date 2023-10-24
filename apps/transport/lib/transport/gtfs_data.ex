@@ -61,7 +61,7 @@ defmodule Transport.GTFSData do
         dataset_title: d.custom_title,
         stop_lat: gs.stop_lat,
         stop_lon: gs.stop_lon,
-        stop_location_type: gs.location_type
+        location_type: gs.location_type
       })
 
     stops =
@@ -99,8 +99,8 @@ defmodule Transport.GTFSData do
       stop_id: Map.fetch!(s, :stop_id),
       stop_name: Map.fetch!(s, :stop_name),
       di_id: Map.fetch!(s, :di_id),
-      dataset_title: Map.fetch!(s, :dataset_title),
-      stop_location_type: Map.fetch!(s, :stop_location_type)
+      d_title: Map.fetch!(s, :dataset_title),
+      location_type: Map.fetch!(s, :location_type)
     }
   end
 
@@ -108,12 +108,12 @@ defmodule Transport.GTFSData do
     %{
       stop_id: Map.fetch!(s, :stop_id),
       stop_name: Map.fetch!(s, :stop_name),
-      di_id: Map.fetch!(s, :di_id),
+      data_import_id: Map.fetch!(s, :di_id),
       dataset_id: Map.fetch!(s, :dataset_id),
       dataset_title: Map.fetch!(s, :dataset_title),
       resource_id: Map.fetch!(s, :resource_id),
       resource_title: Map.fetch!(s, :resource_title),
-      stop_location_type: Map.fetch!(s, :stop_location_type)
+      location_type: Map.fetch!(s, :location_type)
     }
   end
 
