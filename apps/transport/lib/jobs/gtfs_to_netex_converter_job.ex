@@ -1,4 +1,4 @@
-defmodule Transport.Jobs.GtfsToNetexConverterJob do
+defmodule Transport.Jobs.GTFSToNeTExConverterJob do
   @moduledoc """
   This will enqueue GTFS -> NeTEx conversion jobs for all GTFS resources found in ResourceHistory
   """
@@ -7,11 +7,11 @@ defmodule Transport.Jobs.GtfsToNetexConverterJob do
 
   @impl true
   def perform(%{}) do
-    GTFSGenericConverter.enqueue_all_conversion_jobs("NeTEx", Transport.Jobs.SingleGtfsToNetexConverterJob)
+    GTFSGenericConverter.enqueue_all_conversion_jobs("NeTEx", Transport.Jobs.SingleGTFSToNeTExConverterJob)
   end
 end
 
-defmodule Transport.Jobs.SingleGtfsToNetexConverterJob do
+defmodule Transport.Jobs.SingleGTFSToNeTExConverterJob do
   @moduledoc """
   Conversion Job of a GTFS to a NeTEx, saving the resulting file in S3
   """
@@ -20,7 +20,7 @@ defmodule Transport.Jobs.SingleGtfsToNetexConverterJob do
 
   @impl true
   def perform(%{args: %{"resource_history_id" => resource_history_id}}) do
-    GTFSGenericConverter.perform_single_conversion_job(resource_history_id, "NeTEx", Transport.GtfsToNeTExConverter)
+    GTFSGenericConverter.perform_single_conversion_job(resource_history_id, "NeTEx", Transport.GTFSToNeTExConverter)
   end
 
   @impl true
@@ -31,7 +31,7 @@ defmodule Transport.Jobs.SingleGtfsToNetexConverterJob do
   end
 end
 
-defmodule Transport.Jobs.DatasetGtfsToNetexConverterJob do
+defmodule Transport.Jobs.DatasetGTFSToNeTExConverterJob do
   @moduledoc """
   This will enqueue GTFS -> NeTEx conversions jobs for all GTFS resources linked to a dataset, but only for the most recent resource history
   """
@@ -44,7 +44,7 @@ defmodule Transport.Jobs.DatasetGtfsToNetexConverterJob do
     dataset_id
     |> list_gtfs_last_resource_history()
     |> Enum.each(fn rh_id ->
-      GTFSGenericConverter.perform_single_conversion_job(rh_id, "NeTEx", Transport.GtfsToNeTExConverter)
+      GTFSGenericConverter.perform_single_conversion_job(rh_id, "NeTEx", Transport.GTFSToNeTExConverter)
     end)
   end
 
@@ -59,11 +59,13 @@ defmodule Transport.Jobs.DatasetGtfsToNetexConverterJob do
   end
 end
 
-defmodule Transport.GtfsToNeTExConverter do
+defmodule Transport.GTFSToNeTExConverter do
   @moduledoc """
   Given a GTFS file path, convert it to NeTEx.
   """
-  @spec convert(binary(), binary()) :: :ok | {:error, any()}
+  @behaviour Transport.Converters.Converter
+
+  @impl true
   def convert(gtfs_file_path, netex_file_path) do
     binary_path = Path.join(Application.fetch_env!(:transport, :transport_tools_folder), "gtfs2netexfr")
     participant = Application.get_env(:transport, :domain_name)
@@ -76,4 +78,10 @@ defmodule Transport.GtfsToNeTExConverter do
       {:error, e} -> {:error, e}
     end
   end
+
+  @impl true
+  def converter, do: "hove/transit_model"
+
+  @impl true
+  def converter_version, do: "0.55.0"
 end

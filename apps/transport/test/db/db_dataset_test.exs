@@ -392,6 +392,7 @@ defmodule DB.DatasetDBTest do
       resource_history_uuid: uuid1,
       convert_from: "GTFS",
       convert_to: "GeoJSON",
+      converter: DB.DataConversion.converter_to_use("GeoJSON"),
       payload: %{"permanent_url" => "url1", "filesize" => 21}
     )
 
@@ -399,6 +400,7 @@ defmodule DB.DatasetDBTest do
       resource_history_uuid: uuid1,
       convert_from: "GTFS",
       convert_to: "NeTEx",
+      converter: DB.DataConversion.converter_to_use("NeTEx"),
       payload: %{"permanent_url" => "url11", "filesize" => 42}
     )
 
@@ -406,7 +408,18 @@ defmodule DB.DatasetDBTest do
       resource_history_uuid: uuid2,
       convert_from: "GTFS",
       convert_to: "GeoJSON",
+      converter: DB.DataConversion.converter_to_use("GeoJSON"),
       payload: %{"permanent_url" => "url2", "filesize" => 76}
+    )
+
+    # Should be ignored, status is `pending`
+    insert(:data_conversion,
+      resource_history_uuid: uuid2,
+      convert_from: "GTFS",
+      convert_to: "NeTEx",
+      converter: DB.DataConversion.converter_to_use("NeTEx"),
+      status: :pending,
+      payload: %{"permanent_url" => "url21", "filesize" => 43}
     )
 
     dataset = DB.Dataset |> preload(:resources) |> DB.Repo.get(dataset_id)

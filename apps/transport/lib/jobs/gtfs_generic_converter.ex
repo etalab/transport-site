@@ -129,6 +129,9 @@ defmodule Transport.Jobs.GTFSGenericConverter do
           %DataConversion{
             convert_from: :GTFS,
             convert_to: String.to_existing_atom(format),
+            status: :success,
+            converter: converter_module.converter(),
+            converter_version: converter_module.converter_version(),
             resource_history_uuid: resource_uuid,
             payload: %{
               filename: conversion_file_name,
