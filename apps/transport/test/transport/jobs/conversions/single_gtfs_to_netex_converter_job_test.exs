@@ -13,7 +13,14 @@ defmodule Transport.Jobs.SingleGTFSToNeTExConverterJobTest do
 
   test "existing conversion" do
     uuid = Ecto.UUID.generate()
-    insert(:data_conversion, convert_from: "GTFS", convert_to: "NeTEx", resource_history_uuid: uuid, payload: %{})
+
+    insert(:data_conversion,
+      convert_from: :GTFS,
+      convert_to: :NeTEx,
+      resource_history_uuid: uuid,
+      converter: DB.DataConversion.converter_to_use(:NeTEx),
+      payload: %{}
+    )
 
     %{id: resource_history_id} = insert(:resource_history, payload: %{"uuid" => uuid, "format" => "GTFS"})
 
@@ -71,8 +78,9 @@ defmodule Transport.Jobs.SingleGTFSToNeTExConverterJobTest do
     # a data_conversion row is recorded ✌️‍
     assert %DB.DataConversion{payload: %{"filesize" => 41, "filename" => "conversions/gtfs-to-netex/fff.netex.zip"}} =
              DB.Repo.get_by!(DB.DataConversion,
-               convert_from: "GTFS",
-               convert_to: "NeTEx",
+               convert_from: :GTFS,
+               convert_to: :NeTEx,
+               converter: DB.DataConversion.converter_to_use(:NeTEx),
                resource_history_uuid: uuid
              )
 
@@ -126,8 +134,9 @@ defmodule Transport.Jobs.SingleGTFSToNeTExConverterJobTest do
     assert_raise(Ecto.NoResultsError, fn ->
       DB.DataConversion
       |> DB.Repo.get_by!(
-        convert_from: "GTFS",
-        convert_to: "NeTEx",
+        convert_from: :GTFS,
+        convert_to: :NeTEx,
+        converter: DB.DataConversion.converter_to_use(:NeTEx),
         resource_history_uuid: uuid
       )
     end)

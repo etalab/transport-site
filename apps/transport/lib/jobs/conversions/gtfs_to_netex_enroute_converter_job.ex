@@ -1,4 +1,7 @@
 defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
+  @moduledoc """
+  Documentation should be written here.
+  """
   use Oban.Worker, max_attempts: 3, unique: [period: :infinity, fields: [:args, :queue, :worker]]
   alias Transport.Converters.GTFSToNeTExEnRoute
   import Ecto.Query
@@ -8,7 +11,9 @@ defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
     %DB.ResourceHistory{payload: %{"permanent_url" => permanent_url, "uuid" => rh_uuid}} =
       resource_history = DB.Repo.get!(DB.ResourceHistory, resource_history_id)
 
-    unless conversion_exists?(resource_history) do
+    if conversion_exists?(resource_history) do
+      {:discard, "An #{converter()} conversion already exists for ResourceHistory##{resource_history_id}"}
+    else
       tmp_filepath = tmp_path(resource_history)
 
       try do
@@ -28,15 +33,13 @@ defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
           |> DB.Repo.insert!()
 
         %{"action" => "poll", "data_conversion_id" => data_conversion_id, "attempt" => 1}
-        |> __MODULE__.new()
+        |> __MODULE__.new(schedule_in: 15)
         |> Oban.insert!()
 
         :ok
       after
         File.rm(tmp_filepath)
       end
-    else
-      {:discard, "An #{converter()} conversion already exists for ResourceHistory##{resource_history_id}"}
     end
   end
 
@@ -75,12 +78,12 @@ defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
 
   @spec update_data_conversion!(DB.DataConversion.t(), {atom(), map()}, pos_integer()) :: DB.DataConversion.t()
   defp update_data_conversion!(
-         %DB.DataConversion{payload: payload} = data_conversion,
+         %DB.DataConversion{payload: %{"converter" => %{"id" => conversion_id}} = payload} = data_conversion,
          {status, %{} = converter_result},
          attempt
        ) do
-    new_payload =
-      Map.replace!(payload, "converter", Map.merge(converter_result, %{"id" => conversion_id, "attempt" => attempt}))
+    converter_payload = Map.merge(converter_result, %{"id" => conversion_id, "attempt" => attempt})
+    new_payload = Map.replace!(payload, "converter", converter_payload)
 
     data_conversion
     |> Ecto.Changeset.change(%{payload: new_payload, status: status})
@@ -90,7 +93,7 @@ defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
   def next_polling_attempt_seconds(current_attempt) when current_attempt < 12, do: 10
   def next_polling_attempt_seconds(current_attempt) when current_attempt >= 13, do: 30
 
-  defp conversion_exists?(%DB.ResourceHistory{payload: %{"uuid" => rh_uuid}}) do
+  def conversion_exists?(%DB.ResourceHistory{payload: %{"uuid" => rh_uuid}}) do
     converter = converter()
 
     DB.DataConversion.base_query()
@@ -102,8 +105,8 @@ defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
     |> DB.Repo.exists?()
   end
 
-  defp tmp_path(%DB.ResourceHistory{id: id}) do
-    System.tmp_dir!() |> Path.join("conversion_gtfs_netex_enroute_#{id}}")
+  def tmp_path(%DB.ResourceHistory{id: id}) do
+    System.tmp_dir!() |> Path.join("enroute_conversion_gtfs_netex_#{id}}")
   end
 
   def converter, do: "enroute/gtfs-to-netex"
