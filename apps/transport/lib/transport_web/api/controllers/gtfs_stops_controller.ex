@@ -35,9 +35,10 @@ defmodule TransportWeb.API.GTFSStopsController do
       summary:
         "#{@experimental_summary} Lists stops from all GTFS files of transport.data.gouv.fr found inside a bounding box.",
       description: ~s"#{@experimental_description}
-                      This call returns the GTFS stops from all the datasets of transport.data.gouv.fr
+                      This call returns the GTFS stops from all the datasets of transport.data.gouv.fr as a GeoJSON FeatureCollection.
                       found inside the provided bounding box, up to #{@max_points} points (above that threshold, an error will be returned). The dataset ID is present in the answer amongst other data.
-                      This endpoint is used to power the map at https://transport.data.gouv.fr/explore/gtfs-stops.",
+                      This endpoint (with some slight differences) is used to power the map at https://transport.data.gouv.fr/explore/gtfs-stops.
+                      You can download a static version of the data at https://transport.data.gouv.fr/datasets/arrets-de-transport-en-france.",
       operationId: "API.GTFSStopsController.index",
       parameters: [
         Operation.parameter(:south, :query, :number, "South (latitude)"),
