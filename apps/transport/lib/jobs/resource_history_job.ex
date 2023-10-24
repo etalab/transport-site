@@ -72,7 +72,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
     notification =
       try do
-        %{resource_history_id: resource_history_id} = resource |> download_resource(path) |> process_download(resource)
+        %{resource_history_id: resource_history_id} = resource |> download_resource(:legacy, path) |> process_download(resource)
         %{"success" => true, "job_id" => job.id, "output" => %{resource_history_id: resource_history_id}}
       rescue
         e -> %{"success" => false, "job_id" => job.id, "reason" => inspect(e)}
@@ -242,7 +242,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     System.tmp_dir!() |> Path.join("resource_#{resource_id}_download")
   end
 
-  defp download_resource(%Resource{id: resource_id, url: url}, file_path) do
+  defp download_resource(:legacy, %Resource{id: resource_id, url: url}, file_path) do
     case http_client().get(url, [], follow_redirect: true, recv_timeout: 180_000) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body} = r} ->
         Logger.debug("Saving resource##{resource_id} to #{file_path}")
