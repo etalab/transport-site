@@ -1,9 +1,9 @@
-defmodule Transport.Jobs.SingleGtfsToNetexConverterJobTest do
+defmodule Transport.Jobs.SingleGTFSToNeTExConverterJobTest do
   use ExUnit.Case, async: true
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
   import Mox
-  alias Transport.Jobs.SingleGtfsToNetexConverterJob
+  alias Transport.Jobs.SingleGTFSToNeTExConverterJob
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -19,7 +19,7 @@ defmodule Transport.Jobs.SingleGtfsToNetexConverterJobTest do
 
     # no mox expectation set, and the test passes => conversion is properly skipped
     assert {:cancel, "Conversion is not needed"} ==
-             perform_job(SingleGtfsToNetexConverterJob, %{"resource_history_id" => resource_history_id})
+             perform_job(SingleGTFSToNeTExConverterJob, %{"resource_history_id" => resource_history_id})
   end
 
   test "launch a NeTEx conversion" do
@@ -66,7 +66,7 @@ defmodule Transport.Jobs.SingleGtfsToNetexConverterJobTest do
 
     # job succeed
     assert :ok ==
-             perform_job(SingleGtfsToNetexConverterJob, %{"resource_history_id" => resource_history_id})
+             perform_job(SingleGTFSToNeTExConverterJob, %{"resource_history_id" => resource_history_id})
 
     # a data_conversion row is recorded ✌️‍
     assert %DB.DataConversion{payload: %{"filesize" => 41, "filename" => "conversions/gtfs-to-netex/fff.netex.zip"}} =
@@ -111,7 +111,7 @@ defmodule Transport.Jobs.SingleGtfsToNetexConverterJobTest do
       {:error, "conversion failed"}
     end)
 
-    assert {:cancel, _} = perform_job(SingleGtfsToNetexConverterJob, %{"resource_history_id" => resource_history_id})
+    assert {:cancel, _} = perform_job(SingleGTFSToNeTExConverterJob, %{"resource_history_id" => resource_history_id})
 
     # ResourceHistory's payload is updated with the error information
     expected_payload =
