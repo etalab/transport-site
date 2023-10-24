@@ -242,6 +242,22 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     System.tmp_dir!() |> Path.join("resource_#{resource_id}_download")
   end
 
+  defp download_resource(:req, %Resource{id: resource_id, url: url}, file_path) do
+    # TODO: verify :line_or_bytes
+    file_stream = File.stream!(file_path)
+    req_options = [compressed: false, decode_body: false, receive_timeout: 180_000, into: file_stream]
+    case Req.get(url, req_options) do
+      {:ok, %{status_code: 200} = r} ->
+        Logger.debug("Saved resource##{resource_id} to #{file_path}")
+        # TODO: stop returning the body to avoid the corresponding memory allocation
+        {:ok, file_path, relevant_http_headers(r), File.read!(file_path)}
+      {:ok, %{status_code: status_code}} ->
+        {:error, "Got a non 200 status: #{status_code}"}
+      {:error, error} ->
+        {:error, "Got an error: #{error |> inspect}"}
+    end
+  end
+
   defp download_resource(:legacy, %Resource{id: resource_id, url: url}, file_path) do
     case http_client().get(url, [], follow_redirect: true, recv_timeout: 180_000) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body} = r} ->
