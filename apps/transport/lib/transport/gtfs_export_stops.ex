@@ -32,7 +32,7 @@ defmodule Transport.GTFSExportStops do
       stop_name: s.stop_name,
       stop_lat: s.stop_lat,
       stop_lon: s.stop_lon,
-      stop_location_type: s.location_type
+      location_type: s.location_type
     })
   end
 
@@ -49,7 +49,7 @@ defmodule Transport.GTFSExportStops do
     :stop_name,
     :stop_lat,
     :stop_lon,
-    :stop_location_type
+    :location_type
   ]
 
   def export_headers do
