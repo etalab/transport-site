@@ -21,7 +21,7 @@ defmodule Transport.GTFSDataTest do
 
   # input: arrays of lat/lon
   def insert_gtfs_stops(lat_lon_list) do
-    dataset = insert(:dataset, %{custom_title: "Hello", is_active: true})
+    dataset = insert(:dataset, %{custom_title: "Transports publics de Dehaven", is_active: true})
     resource = insert(:resource, dataset: dataset)
     resource_history = insert(:resource_history, resource: resource)
     data_import = insert(:data_import, resource_history: resource_history)
@@ -40,22 +40,48 @@ defmodule Transport.GTFSDataTest do
       )
     end)
 
-    data_import
+    {data_import, resource, dataset}
   end
 
-  test "build_detailed" do
-    data_import = insert_gtfs_stops([{2.5, 48.5}])
+  @tag :focus
+  test "build_detailed for map" do
+    {data_import, _resource, _dataset} = insert_gtfs_stops([{2.5, 48.5}])
 
     assert Transport.GTFSData.build_detailed({3.333333, 2.333333, 48.866667, 48.266667}) == %{
              features: [
                %{
                  geometry: %{coordinates: [48.5, 2.5], type: "Point"},
                  properties: %{
-                   d_id: data_import.id,
-                   d_title: "Hello",
                    stop_id: "LOC:001",
                    stop_name: "L'arrêt 1",
-                   stop_location_type: nil
+                   di_id: data_import.id,
+                   d_title: "Transports publics de Dehaven",
+                   location_type: nil
+                 },
+                 type: "Feature"
+               }
+             ],
+             type: "FeatureCollection"
+           }
+  end
+
+  @tag :focus
+  test "build_detailed for API" do
+    {data_import, resource, dataset} = insert_gtfs_stops([{2.5, 48.5}])
+
+    assert Transport.GTFSData.build_detailed({3.333333, 2.333333, 48.866667, 48.266667}, mode: :api_mode) == %{
+             features: [
+               %{
+                 geometry: %{coordinates: [48.5, 2.5], type: "Point"},
+                 properties: %{
+                   stop_id: "LOC:001",
+                   stop_name: "L'arrêt 1",
+                   data_import_id: data_import.id,
+                   dataset_id: dataset.id,
+                   dataset_title: "Transports publics de Dehaven",
+                   resource_id: resource.id,
+                   resource_title: "GTFS.zip",
+                   location_type: nil
                  },
                  type: "Feature"
                }
