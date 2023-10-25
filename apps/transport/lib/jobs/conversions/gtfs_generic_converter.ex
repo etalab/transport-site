@@ -1,6 +1,9 @@
 defmodule Transport.Jobs.GTFSGenericConverter do
   @moduledoc """
-  Provides some functions to convert GTFS to another format
+  Provides some functions to convert GTFS to another format.
+
+  Note that the EnRoute's GTFS to NeTEx converter does not use this class
+  because the conversion is not done locally but through an API.
   """
   alias DB.{DataConversion, Repo, ResourceHistory}
   import Ecto.Query
@@ -11,9 +14,15 @@ defmodule Transport.Jobs.GTFSGenericConverter do
   @doc """
   Enqueues conversion jobs for all resource history that need one.
   """
-  @spec enqueue_all_conversion_jobs(binary(), module()) :: :ok
+  @spec enqueue_all_conversion_jobs(binary(), module() | [module()]) :: :ok
+  def enqueue_all_conversion_jobs(format, conversion_job_modules)
+      when format in @allowed_formats and is_list(conversion_job_modules) do
+    Enum.each(conversion_job_modules, &enqueue_all_conversion_jobs(format, &1))
+  end
+
   def enqueue_all_conversion_jobs(format, conversion_job_module) when format in @allowed_formats do
     fatal_error_key = fatal_error_key(format)
+    converter = conversion_job_module.converter()
 
     query =
       ResourceHistory
@@ -25,10 +34,11 @@ defmodule Transport.Jobs.GTFSGenericConverter do
           AND NOT payload \\? ?
           AND
           payload ->>'uuid' NOT IN
-          (SELECT resource_history_uuid::text FROM data_conversion WHERE convert_from='GTFS' and convert_to=?)
+          (SELECT resource_history_uuid::text FROM data_conversion WHERE convert_from='GTFS' and convert_to=? and converter=?)
           """,
           ^fatal_error_key,
-          ^format
+          ^format,
+          ^converter
         )
       )
       |> select([r], r.id)
@@ -38,7 +48,7 @@ defmodule Transport.Jobs.GTFSGenericConverter do
     Repo.transaction(fn ->
       stream
       |> Stream.each(fn id ->
-        %{"resource_history_id" => id}
+        %{"resource_history_id" => id, "action" => "create"}
         |> conversion_job_module.new()
         |> Oban.insert()
       end)

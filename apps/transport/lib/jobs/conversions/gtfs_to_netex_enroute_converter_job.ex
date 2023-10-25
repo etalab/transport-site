@@ -1,13 +1,25 @@
 defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
   @moduledoc """
-  Documentation should be written here.
+  This Oban job is in charge of:
+  - action=create: creating a `DB.DataConversion` and asking EnRoute to convert a GTFS to NeTEx
+  - action=poll: polling the EnRoute's API to know if the conversion is still ongoing, done or failed
+  - action=download: downloading a conversion that is finished, saving it in our S3 and updating our database.
   """
-  use Oban.Worker, max_attempts: 3, unique: [period: :infinity, fields: [:args, :queue, :worker]]
+  use Oban.Worker,
+    queue: :enroute_conversions,
+    # This is *not* the maximum number of polling attempts, it is the maximum number
+    # of attempts per (job, args).
+    # The polling attempt number is present in the args.
+    max_attempts: 3,
+    tags: ["conversions"],
+    unique: [period: :infinity, fields: [:args, :queue, :worker]]
+
   alias Transport.Converters.GTFSToNeTExEnRoute
   import Ecto.Query
 
   # The maximum number of polling attempts before a timeout
-  # 720 attempts, waiting 30s between attempts = 6 hours
+  # 720 attempts, waiting 30s between attempts = 6 hours.
+  # See `next_polling_attempt_seconds/1`
   @max_attempts 720
 
   @impl true

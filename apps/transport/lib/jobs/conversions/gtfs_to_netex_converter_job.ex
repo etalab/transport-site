@@ -2,12 +2,15 @@ defmodule Transport.Jobs.GTFSToNeTExConverterJob do
   @moduledoc """
   This will enqueue GTFS -> NeTEx conversion jobs for all GTFS resources found in ResourceHistory
   """
-  use Oban.Worker, max_attempts: 3
+  use Oban.Worker, tags: ["conversions"], max_attempts: 3
   alias Transport.Jobs.GTFSGenericConverter
 
   @impl true
   def perform(%{}) do
-    GTFSGenericConverter.enqueue_all_conversion_jobs("NeTEx", Transport.Jobs.SingleGTFSToNeTExConverterJob)
+    GTFSGenericConverter.enqueue_all_conversion_jobs("NeTEx", [
+      Transport.Jobs.SingleGTFSToNeTExConverterJob,
+      Transport.Jobs.GTFSToNeTExEnRouteConverterJob
+    ])
   end
 end
 
@@ -15,8 +18,10 @@ defmodule Transport.Jobs.SingleGTFSToNeTExConverterJob do
   @moduledoc """
   Conversion Job of a GTFS to a NeTEx, saving the resulting file in S3
   """
-  use Oban.Worker, max_attempts: 3, queue: :heavy, unique: [period: :infinity]
+  use Oban.Worker, tags: ["conversions"], max_attempts: 3, queue: :heavy, unique: [period: :infinity]
   alias Transport.Jobs.GTFSGenericConverter
+
+  defdelegate converter(), to: Transport.GTFSToNeTExConverter
 
   @impl true
   def perform(%{args: %{"resource_history_id" => resource_history_id}}) do
@@ -35,7 +40,7 @@ defmodule Transport.Jobs.DatasetGTFSToNeTExConverterJob do
   @moduledoc """
   This will enqueue GTFS -> NeTEx conversions jobs for all GTFS resources linked to a dataset, but only for the most recent resource history
   """
-  use Oban.Worker, max_attempts: 3, queue: :heavy
+  use Oban.Worker, tags: ["conversions"], max_attempts: 3, queue: :heavy
   alias Transport.Jobs.GTFSGenericConverter
   import Ecto.Query
 
