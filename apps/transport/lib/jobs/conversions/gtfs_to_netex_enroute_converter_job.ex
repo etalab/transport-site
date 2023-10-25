@@ -6,7 +6,12 @@ defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
   alias Transport.Converters.GTFSToNeTExEnRoute
   import Ecto.Query
 
+  # The maximum number of polling attempts before a timeout
+  # 720 attempts, waiting 30s between attempts = 6 hours
+  @max_attempts 720
+
   @impl true
+  # Creating a conversion through the API and saving it in the database
   def perform(%Oban.Job{args: %{"action" => "create", "resource_history_id" => resource_history_id}}) do
     %DB.ResourceHistory{payload: %{"permanent_url" => permanent_url, "uuid" => rh_uuid}} =
       resource_history = DB.Repo.get!(DB.ResourceHistory, resource_history_id)
@@ -44,6 +49,20 @@ defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
   end
 
   @impl true
+  # Polling when attempt = max_attempts
+  def perform(%Oban.Job{
+        args: %{"action" => "poll", "data_conversion_id" => data_conversion_id, "attempt" => attempt}
+      })
+      when attempt == @max_attempts do
+    DB.DataConversion
+    |> DB.Repo.get!(data_conversion_id)
+    |> update_data_conversion!({:timeout, %{"stopped_at" => DateTime.utc_now()}}, attempt)
+
+    :ok
+  end
+
+  @impl true
+  # Polling, general case
   def perform(%Oban.Job{
         args: %{"action" => "poll", "data_conversion_id" => data_conversion_id, "attempt" => attempt} = job_args
       }) do
@@ -55,8 +74,7 @@ defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
         {:pending, %{}} = return ->
           update_data_conversion!(data_conversion, return, attempt)
 
-          job_args
-          |> Map.replace!("attempt", attempt + 1)
+          %{job_args | "attempt" => attempt + 1}
           |> __MODULE__.new(schedule_in: next_polling_attempt_seconds(attempt))
           |> Oban.insert!()
 
@@ -70,6 +88,8 @@ defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
         {:failed, %{}} = return ->
           update_data_conversion!(data_conversion, return, attempt)
       end
+
+      :ok
     else
       {:discard,
        "Unexpected status for DataConversion##{data_conversion_id}. It should be created or pending. #{inspect(data_conversion)}"}
@@ -83,10 +103,9 @@ defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
          attempt
        ) do
     converter_payload = Map.merge(converter_result, %{"id" => conversion_id, "attempt" => attempt})
-    new_payload = Map.replace!(payload, "converter", converter_payload)
 
     data_conversion
-    |> Ecto.Changeset.change(%{payload: new_payload, status: status})
+    |> Ecto.Changeset.change(%{payload: %{payload | "converter" => converter_payload}, status: status})
     |> DB.Repo.update!()
   end
 
