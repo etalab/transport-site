@@ -160,7 +160,9 @@ defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
   30
   """
   def next_polling_attempt_seconds(current_attempt) when current_attempt < 12, do: 10
-  def next_polling_attempt_seconds(current_attempt) when current_attempt >= 13 and current_attempt < @max_attempts, do: 30
+
+  def next_polling_attempt_seconds(current_attempt) when current_attempt >= 13 and current_attempt < @max_attempts,
+    do: 30
 
   def conversion_exists?(%DB.ResourceHistory{payload: %{"uuid" => rh_uuid}}) do
     converter = converter()
