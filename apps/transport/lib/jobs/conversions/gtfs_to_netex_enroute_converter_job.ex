@@ -78,8 +78,9 @@ defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
           |> __MODULE__.new(schedule_in: next_polling_attempt_seconds(attempt))
           |> Oban.insert!()
 
-        {:success, %{}} = return ->
-          update_data_conversion!(data_conversion, return, attempt)
+        {:success, %{} = metadata} ->
+          # Switching to `status=success` should be done when downloading the file
+          update_data_conversion!(data_conversion, {:pending, metadata}, attempt)
 
           %{"action" => "download", "data_conversion_id" => data_conversion_id}
           |> __MODULE__.new()
@@ -96,6 +97,44 @@ defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
     end
   end
 
+  @impl true
+  # Downloading a conversion that is finished
+  def perform(%Oban.Job{args: %{"action" => "download", "data_conversion_id" => data_conversion_id}}) do
+    %DB.DataConversion{
+      status: :pending,
+      resource_history_uuid: rh_uuid,
+      payload: %{"converter" => %{"id" => conversion_id} = payload}
+    } =
+      data_conversion = DB.Repo.get!(DB.DataConversion, data_conversion_id)
+
+    conversion_filename = "#{rh_uuid}.netex.zip"
+    conversion_filepath = System.tmp_dir!() |> Path.join(conversion_filename)
+    s3_filepath = "conversions/gtfs-to-netex/#{conversion_filename}"
+
+    try do
+      GTFSToNeTExEnRoute.download_conversion(conversion_id, File.stream!(conversion_filepath))
+      %File.Stat{size: filesize} = File.stat!(conversion_filepath)
+
+      Transport.S3.stream_to_s3!(:history, conversion_filepath, s3_filepath)
+
+      data_conversion
+      |> Ecto.Changeset.change(%{
+        status: :success,
+        payload:
+          Map.merge(payload, %{
+            filename: s3_filepath,
+            permanent_url: Transport.S3.permanent_url(:history, s3_filepath),
+            filesize: filesize
+          })
+      })
+      |> DB.Repo.update!()
+
+      :ok
+    after
+      File.rm(conversion_filepath)
+    end
+  end
+
   @spec update_data_conversion!(DB.DataConversion.t(), {atom(), map()}, pos_integer()) :: DB.DataConversion.t()
   defp update_data_conversion!(
          %DB.DataConversion{payload: %{"converter" => %{"id" => conversion_id}} = payload} = data_conversion,
@@ -109,8 +148,19 @@ defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
     |> DB.Repo.update!()
   end
 
+  @doc """
+  How many seconds should we wait before polling again?
+  Poll every 10s during the first 2 minutes and then wait for 30 seconds.
+
+  iex> next_polling_attempt_seconds(1)
+  10
+  iex> next_polling_attempt_seconds(15)
+  30
+  iex> next_polling_attempt_seconds(500)
+  30
+  """
   def next_polling_attempt_seconds(current_attempt) when current_attempt < 12, do: 10
-  def next_polling_attempt_seconds(current_attempt) when current_attempt >= 13, do: 30
+  def next_polling_attempt_seconds(current_attempt) when current_attempt >= 13 and current_attempt < @max_attempts, do: 30
 
   def conversion_exists?(%DB.ResourceHistory{payload: %{"uuid" => rh_uuid}}) do
     converter = converter()
@@ -129,5 +179,10 @@ defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
   end
 
   def converter, do: "enroute/gtfs-to-netex"
+
+  @doc """
+  The EnRoute converter version. Not available yet.
+  https://enroute.atlassian.net/servicedesk/customer/portal/1/SUPPORT-1091
+  """
   def converter_version, do: "current"
 end

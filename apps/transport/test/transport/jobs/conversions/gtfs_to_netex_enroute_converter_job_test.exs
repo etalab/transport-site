@@ -5,6 +5,8 @@ defmodule Transport.Test.Transport.Jobs.GTFSToNeTExEnRouteConverterJobTest do
   use Oban.Testing, repo: DB.Repo
   alias Transport.Jobs.GTFSToNeTExEnRouteConverterJob
 
+  doctest GTFSToNeTExEnRouteConverterJob, import: true
+
   setup :verify_on_exit!
 
   setup do
@@ -300,7 +302,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSToNeTExEnRouteConverterJobTest do
       # The DataConversion has been updated with the attempt number and metadata
       # returned by the conversion API
       assert %DB.DataConversion{
-               status: :success,
+               status: :pending,
                payload: %{
                  "converter" => %{
                    "attempt" => 1,
@@ -357,6 +359,70 @@ defmodule Transport.Test.Transport.Jobs.GTFSToNeTExEnRouteConverterJobTest do
       assert Enum.empty?(all_enqueued())
       {:ok, stopped_at, 0} = DateTime.from_iso8601(stopped_at_str)
       assert_in_delta DateTime.diff(DateTime.utc_now(), stopped_at), 0, 1
+    end
+  end
+
+  describe "action=download" do
+    test "success case", %{bypass: bypass} do
+      insert(:resource_history, payload: %{"uuid" => rh_uuid = Ecto.UUID.generate()})
+
+      %DB.DataConversion{id: data_conversion_id} =
+        data_conversion =
+        insert(:data_conversion,
+          resource_history_uuid: rh_uuid,
+          convert_from: :GTFS,
+          convert_to: :NeTEx,
+          converter: GTFSToNeTExEnRouteConverterJob.converter(),
+          payload: %{"converter" => %{"id" => conversion_uuid = Ecto.UUID.generate()}},
+          status: :pending
+        )
+
+      # Calls the EnRoute's API to download the conversion
+      Process.put(:req_bypass, bypass)
+
+      Bypass.expect_once(bypass, "GET", "#{conversion_uuid}/download", fn %Plug.Conn{} = conn ->
+        assert ["Token token=fake_enroute_token"] = Plug.Conn.get_req_header(conn, "authorization")
+        Plug.Conn.send_resp(conn, 200, "File content")
+      end)
+
+      # The download content is upload to our S3
+      filename = "#{rh_uuid}.netex.zip"
+      tmp_path = System.tmp_dir!() |> Path.join(filename)
+      s3_path = "conversions/gtfs-to-netex/#{filename}"
+
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.S3.Upload{
+                                src: %File.Stream{path: ^tmp_path},
+                                bucket: "transport-data-gouv-fr-resource-history-test",
+                                path: ^s3_path,
+                                opts: [acl: "public-read"],
+                                service: :s3
+                              } ->
+        :ok
+      end)
+
+      assert :ok ==
+               perform_job(GTFSToNeTExEnRouteConverterJob, %{
+                 "action" => "download",
+                 "data_conversion_id" => data_conversion_id
+               })
+
+      permanent_url =
+        "https://transport-data-gouv-fr-resource-history-test.cellar-c2.services.clever-cloud.com/#{s3_path}"
+
+      # The DataConversion is updated
+      assert %DB.DataConversion{
+               status: :success,
+               payload: %{
+                 "filename" => ^s3_path,
+                 # "File content" = 12 bytes
+                 "filesize" => 12,
+                 "id" => ^conversion_uuid,
+                 "permanent_url" => ^permanent_url
+               }
+             } = DB.Repo.reload!(data_conversion)
+
+      refute File.exists?(tmp_path)
     end
   end
 end
