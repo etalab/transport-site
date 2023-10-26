@@ -3,27 +3,28 @@ defmodule DB.Repo.Migrations.OnlyUsePostgis do
 
   def up do
     alter table(:region) do
-      add :geom, :geometry
+      add(:geom, :geometry)
     end
-    execute "UPDATE region SET geom=st_geomFromGeoJson(geometry::text)"
+
+    execute("UPDATE region SET geom=st_geomFromGeoJson(geometry::text)")
 
     alter table(:region) do
-      remove :geometry
+      remove(:geometry)
     end
 
     alter table(:aom) do
-      remove :geometry
+      remove(:geometry)
     end
   end
 
   def down do
     alter table(:region) do
-      remove :geom
-      add :geometry, :map
+      remove(:geom)
+      add(:geometry, :map)
     end
 
     alter table(:aom) do
-      add :geometry, :map
+      add(:geometry, :map)
     end
   end
 end

@@ -2,8 +2,8 @@ defmodule DB.Repo.Migrations.RenamePopulationColsAom do
   use Ecto.Migration
 
   def up do
-    rename table(:aom), :population_muni_2014, to: :population_municipale
-    rename table(:aom), :population_totale_2014, to: :population_totale
+    rename(table(:aom), :population_muni_2014, to: :population_municipale)
+    rename(table(:aom), :population_totale_2014, to: :population_totale)
 
     # same function as before, but use new column names for `population_totale`
     execute("""
@@ -66,8 +66,8 @@ defmodule DB.Repo.Migrations.RenamePopulationColsAom do
   end
 
   def down do
-    rename table(:aom), :population_municipale, to: :population_muni_2014
-    rename table(:aom), :population_totale, to: :population_totale_2014
+    rename(table(:aom), :population_municipale, to: :population_muni_2014)
+    rename(table(:aom), :population_totale, to: :population_totale_2014)
 
     # same function as before, but spatial columns becomes custom_title
     execute("""
