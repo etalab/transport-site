@@ -217,15 +217,17 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   """
   def consolidate_resources(resources_details) do
     file = File.open!(@bnlc_path, [:write, :utf8])
-    headers = bnlc_csv_headers()
+    bnlc_headers = bnlc_csv_headers()
+    final_headers = ["id_lieu"] ++ bnlc_headers
 
     %HTTPoison.Response{body: body, status_code: 200} = @bnlc_github_url |> http_client().get!()
 
     # Write first the header + content of the BNLC hosted on GitHub
     [body]
-    |> CSV.decode!(field_transform: &String.trim/1, headers: headers)
+    |> CSV.decode!(field_transform: &String.trim/1, headers: bnlc_headers)
     |> Stream.drop(1)
-    |> CSV.encode(headers: headers)
+    |> add_id_lieu_column()
+    |> CSV.encode(headers: final_headers)
     |> Enum.each(&IO.write(file, &1))
 
     # Append other valid resources to the file
@@ -234,14 +236,21 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
       |> File.stream!()
       |> CSV.decode!(headers: true, field_transform: &String.trim/1, separator: separator)
       # Keep only columns that are present in the BNLC, ignore extra columns
-      |> Stream.filter(&Map.take(&1, headers))
-      |> CSV.encode(headers: headers)
+      |> Stream.filter(&Map.take(&1, bnlc_headers))
+      |> add_id_lieu_column()
+      |> CSV.encode(headers: final_headers)
       # Don't write the CSV header again each time, it has already been written
       # because the BNLC is first in the file
       |> Stream.drop(1)
       |> Enum.each(&IO.write(file, &1))
 
       File.rm!(tmp_path)
+    end)
+  end
+
+  defp add_id_lieu_column(%Stream{} = stream) do
+    Stream.map(stream, fn %{"code_commune" => code_commune, "id_local" => id_local} = map ->
+      Map.put(map, "id_lieu", "#{code_commune}-#{id_local}")
     end)
   end
 
