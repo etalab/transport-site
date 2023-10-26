@@ -3,7 +3,11 @@ exclude = [:pending]
 # https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables
 extra_exclude =
   if System.get_env("CI") == "true" do
-    []
+    # Run :documentation_links only on Mondays
+    case Date.utc_today() |> Date.day_of_week() do
+      1 -> []
+      _ -> [:documentation_links]
+    end
   else
     [:transport_tools, :documentation_links]
   end
