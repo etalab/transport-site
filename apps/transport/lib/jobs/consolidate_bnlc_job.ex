@@ -249,8 +249,8 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   end
 
   defp add_id_lieu_column(%Stream{} = stream) do
-    Stream.map(stream, fn %{"code_commune" => code_commune, "id_local" => id_local} = map ->
-      Map.put(map, "id_lieu", "#{code_commune}-#{id_local}")
+    Stream.map(stream, fn %{"insee" => insee, "id_local" => id_local} = map ->
+      Map.put(map, "id_lieu", "#{insee}-#{id_local}")
     end)
   end
 

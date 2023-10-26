@@ -275,7 +275,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     Transport.HTTPoison.Mock
     |> expect(:get, fn ^url, [], [follow_redirect: true] ->
       body = """
-      foo,bar,baz,code_commune,id_local
+      foo,bar,baz,insee,id_local
       1,2,3,21231,1
       4,5,6,21231,2
       """
@@ -286,7 +286,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     Transport.HTTPoison.Mock
     |> expect(:get, fn ^other_url, [], [follow_redirect: true] ->
       body = """
-      "foo";"bar";"baz";"code_commune";"id_local";"extra_col"
+      "foo";"bar";"baz";"insee";"id_local";"extra_col"
       "a";"b";"c";"21231";"3";"its_a_trap"
       "d";"e";"f";"21231";"4";"should_be_ignored"
       """
@@ -303,7 +303,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       2,
       fn "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv" ->
         body = """
-        "foo","bar","baz","code_commune","id_local"
+        "foo","bar","baz","insee","id_local"
         I,Love,CSV,21231,5
         Very,Much,So,21231,6
         """
@@ -319,7 +319,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                "foo" => "I",
                "bar" => "Love",
                "baz" => "CSV",
-               "code_commune" => "21231",
+               "insee" => "21231",
                "id_local" => "5",
                "id_lieu" => "21231-5"
              },
@@ -327,7 +327,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                "foo" => "Very",
                "bar" => "Much",
                "baz" => "So",
-               "code_commune" => "21231",
+               "insee" => "21231",
                "id_local" => "6",
                "id_lieu" => "21231-6"
              },
@@ -335,7 +335,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                "foo" => "1",
                "bar" => "2",
                "baz" => "3",
-               "code_commune" => "21231",
+               "insee" => "21231",
                "id_local" => "1",
                "id_lieu" => "21231-1"
              },
@@ -343,7 +343,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                "foo" => "4",
                "bar" => "5",
                "baz" => "6",
-               "code_commune" => "21231",
+               "insee" => "21231",
                "id_local" => "2",
                "id_lieu" => "21231-2"
              },
@@ -351,7 +351,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                "foo" => "a",
                "bar" => "b",
                "baz" => "c",
-               "code_commune" => "21231",
+               "insee" => "21231",
                "id_local" => "3",
                "id_lieu" => "21231-3"
              },
@@ -359,7 +359,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                "foo" => "d",
                "bar" => "e",
                "baz" => "f",
-               "code_commune" => "21231",
+               "insee" => "21231",
                "id_local" => "4",
                "id_lieu" => "21231-4"
              }
@@ -370,7 +370,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     # We could change to just a newline, using the `delimiter` option:
     # https://hexdocs.pm/csv/CSV.html#encode/2
     assert """
-           id_lieu,foo,bar,baz,code_commune,id_local\r
+           id_lieu,foo,bar,baz,insee,id_local\r
            21231-5,I,Love,CSV,21231,5\r
            21231-6,Very,Much,So,21231,6\r
            21231-1,1,2,3,21231,1\r
@@ -455,7 +455,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       Transport.HTTPoison.Mock
       |> expect(:get, fn ^foo_url, [], [follow_redirect: true] ->
         body = """
-        "foo";"bar";"baz";"code_commune";"id_local"
+        "foo";"bar";"baz";"insee";"id_local"
         "a";"b";"c";"21231";"1"
         "d";"e";"f";"21231";"2"
         """
@@ -466,7 +466,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       Transport.HTTPoison.Mock
       |> expect(:get, fn ^bar_url, [], [follow_redirect: true] ->
         body = """
-        foo,bar,baz,code_commune,id_local,extra_col
+        foo,bar,baz,insee,id_local,extra_col
         1,2,3,21231,3,is_ignored
         """
 
@@ -480,7 +480,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
         2,
         fn "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv" ->
           body = """
-          "foo","bar","baz","code_commune","id_local"
+          "foo","bar","baz","insee","id_local"
           I,Love,CSV,21231,4
           Very,Much,So,21231,5
           """
@@ -534,7 +534,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
       # CSV content is fine
       assert """
-             id_lieu,foo,bar,baz,code_commune,id_local\r
+             id_lieu,foo,bar,baz,insee,id_local\r
              21231-4,I,Love,CSV,21231,4\r
              21231-5,Very,Much,So,21231,5\r
              21231-1,a,b,c,21231,1\r
@@ -664,7 +664,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       Transport.HTTPoison.Mock
       |> expect(:get, fn ^foo_url, [], [follow_redirect: true] ->
         body = """
-        "foo";"bar";"baz";"code_commune";"id_local"
+        "foo";"bar";"baz";"insee";"id_local"
         "a";"b";"c";"21231";"1"
         "d";"e";"f";"21231";"2"
         """
@@ -679,7 +679,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
         2,
         fn "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv" ->
           body = """
-          "foo","bar","baz","code_commune","id_local"
+          "foo","bar","baz","insee","id_local"
           I,Love,CSV,21231,3
           Very,Much,So,21231,4
           """
@@ -733,7 +733,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       assert filename =~ ~r"^bnlc-.*\.csv$"
 
       assert """
-             id_lieu,foo,bar,baz,code_commune,id_local\r
+             id_lieu,foo,bar,baz,insee,id_local\r
              21231-3,I,Love,CSV,21231,3\r
              21231-4,Very,Much,So,21231,4\r
              21231-1,a,b,c,21231,1\r
