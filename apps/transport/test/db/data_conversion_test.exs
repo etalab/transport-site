@@ -7,6 +7,8 @@ defmodule DB.DataConversionTest do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
+  doctest DB.DataConversion, import: true
+
   test "constraints on data_conversion table" do
     assert %{id: _data_conversion_id} =
              insert(:data_conversion,
@@ -71,6 +73,7 @@ defmodule DB.DataConversionTest do
     insert(:data_conversion,
       convert_from: "GTFS",
       convert_to: "NeTEx",
+      converter: DB.DataConversion.converter_to_use("NeTEx"),
       resource_history_uuid: uuid_old,
       payload: %{filename: "filename_old"}
     )
@@ -83,6 +86,7 @@ defmodule DB.DataConversionTest do
       insert(:data_conversion,
         convert_from: "GTFS",
         convert_to: "NeTEx",
+        converter: DB.DataConversion.converter_to_use("NeTEx"),
         resource_history_uuid: uuid,
         payload: %{filename: "filename"}
       )
@@ -91,6 +95,7 @@ defmodule DB.DataConversionTest do
     insert(:data_conversion,
       convert_from: "GTFS",
       convert_to: "GeoJSON",
+      converter: DB.DataConversion.converter_to_use("GeoJSON"),
       resource_history_uuid: uuid,
       payload: %{filename: "filename_bad_format"}
     )
@@ -105,6 +110,7 @@ defmodule DB.DataConversionTest do
       insert(:data_conversion,
         convert_from: "GTFS",
         convert_to: "NeTEx",
+        converter: DB.DataConversion.converter_to_use("NeTEx"),
         resource_history_uuid: uuid_2,
         payload: %{filename: "filename_2"}
       )
@@ -120,13 +126,14 @@ defmodule DB.DataConversionTest do
       insert(:data_conversion,
         convert_from: "GTFS",
         convert_to: "NeTEx",
+        converter: DB.DataConversion.converter_to_use("NeTEx"),
         resource_history_uuid: uuid_other,
         payload: %{filename: "filename"}
       )
 
     conversions =
       dataset.id
-      |> DB.DataConversion.last_data_conversions("NeTEx")
+      |> DB.DataConversion.latest_data_conversions("NeTEx")
       |> Enum.sort_by(fn %{data_conversion_id: dc_id} -> dc_id end, :asc)
 
     assert [
@@ -144,7 +151,7 @@ defmodule DB.DataConversionTest do
 
     # list candidate resource history for future conversions
     resource_history_ids =
-      dataset.id |> Transport.Jobs.DatasetGtfsToNetexConverterJob.list_gtfs_last_resource_history() |> Enum.sort()
+      dataset.id |> Transport.Jobs.DatasetGTFSToNeTExConverterJob.list_gtfs_last_resource_history() |> Enum.sort()
 
     assert [resource_history_1.id, resource_history_2.id] == resource_history_ids
   end
@@ -159,6 +166,7 @@ defmodule DB.DataConversionTest do
       insert(:data_conversion,
         convert_from: "GTFS",
         convert_to: "NeTEx",
+        converter: DB.DataConversion.converter_to_use("NeTEx"),
         resource_history_uuid: uuid,
         payload: %{filename: filename = "filepath/filename"}
       )
@@ -169,9 +177,10 @@ defmodule DB.DataConversionTest do
 
     # data conversion has been deleted
     assert_raise Ecto.NoResultsError, fn -> DB.DataConversion |> DB.Repo.get!(data_conversion.id) end
+
     # new conversion is enqueued
     assert_enqueued(
-      worker: Transport.Jobs.DatasetGtfsToNetexConverterJob,
+      worker: Transport.Jobs.DatasetGTFSToNeTExConverterJob,
       args: %{"dataset_id" => dataset.id}
     )
   end

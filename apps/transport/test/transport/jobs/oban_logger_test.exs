@@ -31,9 +31,9 @@ defmodule Transport.Test.Transport.Jobs.ObanLoggerTest do
     # Should be sent when failing at the last attempt
     Transport.EmailSender.Mock
     |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.data.gouv.fr",
                              "tech@transport.data.gouv.fr" = _to,
-                             "contact@transport.beta.gouv.fr",
+                             "contact@transport.data.gouv.fr",
                              "Échec de job Oban : Transport.Test.Transport.Jobs.ObanLoggerJobTag" = _subject,
                              plain_text_body,
                              "" = _html_part ->

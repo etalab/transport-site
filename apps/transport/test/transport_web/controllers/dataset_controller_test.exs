@@ -59,6 +59,7 @@ defmodule TransportWeb.DatasetControllerTest do
       resource_history_uuid: uuid,
       convert_from: "GTFS",
       convert_to: "NeTEx",
+      converter: DB.DataConversion.converter_to_use("NeTEx"),
       payload: %{"permanent_url" => conversion_url = "https://super-cellar-url.com/netex"}
     )
 

@@ -62,7 +62,8 @@ defmodule Transport.Mixfile do
       {:httpoison, "~> 2.1"},
       {:phoenix, "~> 1.6.2"},
       {:phoenix_html, "~> 3.1"},
-      {:phoenix_markdown, "~> 1.0"},
+      # Compilation issue for this dependency, see https://github.com/etalab/transport-site/issues/3499
+      {:phoenix_markdown, git: "https://github.com/pzingg/phoenix_markdown.git", ref: "b2e5ff67c9ce9160d7ef1f66d0c859dfa6284a53"},
       # Careful with the upgrade: https://github.com/etalab/transport-site/issues/3433
       {:phoenix_live_view, "~> 0.18.0"},
       {:html_sanitize_ex, "~> 1.4"},
@@ -73,7 +74,8 @@ defmodule Transport.Mixfile do
       {:timex, "~> 3.7"},
       {:sentry, "~> 8.1"},
       {:scrivener, "~> 2.5"},
-      {:scrivener_html, git: "https://github.com/mgwidmann/scrivener_html.git", ref: "9224d1"},
+      # Compilation issue for this dependency, see https://github.com/etalab/transport-site/issues/3499
+      {:scrivener_html, git: "https://github.com/etalab/scrivener_html.git", ref: "f0245703abf7d0ce2b48a0f7e96997def7649e5f"},
       {:scrivener_list, "~>2.0"},
       {:jason, "~> 1.1"},
       {:open_api_spex, "~> 3.8"},
@@ -132,7 +134,7 @@ defmodule Transport.Mixfile do
       {:appsignal, "~> 2.0"},
       {:appsignal_phoenix, "~> 2.0"},
       {:vega_lite, "~> 0.1.7"},
-      {:req, "~> 0.3.11", only: :dev},
+      {:req, "~> 0.4.4"},
       {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
       {:swoosh, "~> 1.11"},
       {:phoenix_swoosh, "~> 1.0"},

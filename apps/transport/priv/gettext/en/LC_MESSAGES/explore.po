@@ -109,7 +109,7 @@ msgstr "Consolidated GTFS stops map (beta)"
 
 #, elixir-autogen, elixir-format
 msgid "Consolidated GTFS stops map explanation"
-msgstr "This map consolidates all the GTFS referenced on this site. It is in beta and may include outdated or duplicate data (see %{link}). Feedback is most welcome."
+msgstr "This map consolidates all the GTFS referenced on this site. It is in beta and may include outdated or duplicate data (see %{github_issue_link}). The list of stops can be downloaded on <a href=\"%{gtfs_stops_dataset_path}\">this dataset page</a>. There is also an <a href=\"%{swagger_doc_path}\">experimental API</a> allowing to search amongst stops.<br> Feedback is most welcome."
 
 #, elixir-autogen, elixir-format
 msgid "irve-explanation"

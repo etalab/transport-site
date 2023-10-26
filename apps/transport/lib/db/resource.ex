@@ -215,12 +215,14 @@ defmodule DB.Resource do
   def get_related_geojson_info(resource_id), do: get_related_conversion_info(resource_id, :GeoJSON)
   def get_related_netex_info(resource_id), do: get_related_conversion_info(resource_id, :NeTEx)
 
-  @spec get_related_conversion_info(integer() | nil, atom()) ::
+  @spec get_related_conversion_info(integer() | nil, :NeTEx | :GeoJSON) ::
           %{url: binary(), stable_url: binary(), filesize: binary(), resource_history_last_up_to_date_at: DateTime.t()}
           | nil
   def get_related_conversion_info(nil, _), do: nil
 
   def get_related_conversion_info(resource_id, format) do
+    converter = DB.DataConversion.converter_to_use(format)
+
     DB.ResourceHistory
     |> join(:inner, [rh], dc in DB.DataConversion,
       as: :dc,
@@ -231,7 +233,11 @@ defmodule DB.Resource do
       filesize: fragment("(? ->> 'filesize')::int", dc.payload),
       resource_history_last_up_to_date_at: rh.last_up_to_date_at
     })
-    |> where([rh, dc], rh.resource_id == ^resource_id and dc.convert_to == ^format)
+    |> where(
+      [rh, dc],
+      rh.resource_id == ^resource_id and dc.convert_to == ^format and dc.status == :success and
+        dc.converter == ^converter
+    )
     |> order_by([rh, _], desc: rh.inserted_at)
     |> limit(1)
     |> DB.Repo.one()
