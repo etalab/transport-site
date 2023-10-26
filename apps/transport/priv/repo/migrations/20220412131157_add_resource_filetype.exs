@@ -3,7 +3,7 @@ defmodule DB.Repo.Migrations.AddResourceFiletype do
 
   def change do
     alter table(:resource) do
-      add :filetype, :string
+      add(:filetype, :string)
     end
   end
 end

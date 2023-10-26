@@ -3,7 +3,7 @@ defmodule DB.Repo.Migrations.ContactAddSecondaryPhoneNumber do
 
   def change do
     alter table(:contact) do
-      add :secondary_phone_number, :binary, null: true
+      add(:secondary_phone_number, :binary, null: true)
     end
   end
 end

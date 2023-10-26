@@ -3,7 +3,7 @@ defmodule DB.Repo.Migrations.AddMultiValidationArgs do
 
   def change do
     alter table(:multi_validation) do
-      add :oban_args, :jsonb
+      add(:oban_args, :jsonb)
     end
   end
 end

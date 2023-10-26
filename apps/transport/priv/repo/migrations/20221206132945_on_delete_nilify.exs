@@ -3,9 +3,7 @@ defmodule DB.Repo.Migrations.OnDeleteNilify do
 
   def change do
     alter table(:dataset_history) do
-      modify(:dataset_id, references(:dataset, on_delete: :nilify_all),
-        from: references(:dataset, on_delete: :nothing)
-      )
+      modify(:dataset_id, references(:dataset, on_delete: :nilify_all), from: references(:dataset, on_delete: :nothing))
     end
 
     alter table(:dataset_history_resources) do
