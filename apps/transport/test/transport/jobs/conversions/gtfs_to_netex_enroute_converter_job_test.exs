@@ -395,7 +395,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSToNeTExEnRouteConverterJobTest do
                                 src: %File.Stream{path: ^tmp_path},
                                 bucket: "transport-data-gouv-fr-resource-history-test",
                                 path: ^s3_path,
-                                opts: [acl: "public-read"],
+                                opts: [acl: :public_read],
                                 service: :s3
                               } ->
         :ok

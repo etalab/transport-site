@@ -44,7 +44,7 @@ defmodule Transport.Jobs.DatabaseBackupReplicationJob do
 
       tmp_path
       |> ExAws.S3.Upload.stream_file()
-      |> ExAws.S3.upload(bucket_name(:destination), upload_filename(dump), timeout: :timer.seconds(90))
+      |> ExAws.S3.upload(bucket_name(:destination), upload_filename(dump), acl: :private, timeout: :timer.seconds(90))
       |> request!(:destination)
     after
       File.rm(tmp_path)

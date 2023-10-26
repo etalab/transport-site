@@ -127,7 +127,7 @@ defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
       GTFSToNeTExEnRoute.download_conversion(conversion_id, File.stream!(conversion_filepath))
       %File.Stat{size: filesize} = File.stat!(conversion_filepath)
 
-      Transport.S3.stream_to_s3!(:history, conversion_filepath, s3_filepath)
+      Transport.S3.stream_to_s3!(:history, conversion_filepath, s3_filepath, acl: :public_read)
 
       data_conversion
       |> Ecto.Changeset.change(%{

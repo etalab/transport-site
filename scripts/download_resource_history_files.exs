@@ -45,7 +45,7 @@ defmodule SyncS3LatestResourceHistory do
         %HTTPoison.Response{status_code: 200, body: body} =
           Transport.Shared.Wrapper.HTTPoison.impl().get!(rh.payload["permanent_url"])
 
-        Transport.S3.upload_to_s3!(:history, body, rh.payload["filename"])
+        Transport.S3.upload_to_s3!(:history, body, rh.payload["filename"], acl: :public_read)
       end
     end)
   end
