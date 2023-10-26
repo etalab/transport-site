@@ -12,7 +12,7 @@ defmodule TransportWeb.API.Spec do
         title: "transport.data.gouv.fr API",
         version: "1.0",
         description: ~s"""
-          Extra <a href="https://doc.transport.data.gouv.fr/administration-des-donnees/outils/api">documentation</a>.
+          Extra <a href="https://doc.transport.data.gouv.fr/outils/outils-disponibles-sur-le-pan/api">documentation</a>.
 
           The structure of the returned data is detailed at the bottom (see `Schemas`) and on each query (click on `Schema` near `Example Value`).
 
