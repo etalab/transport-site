@@ -5,7 +5,7 @@ defmodule TransportWeb.ProxyRequestsCountLive do
   use Phoenix.LiveView, container: {:div, [class: "domain", id: "proxy-requests"]}
   import Ecto.Query
 
-  @doc_url "https://doc.transport.data.gouv.fr/foire-aux-questions-1/donnees-temps-reel-des-transports-en-commun#proxy-gtfs-rt"
+  @doc_url "https://doc.transport.data.gouv.fr/type-donnees/operateurs-de-transport-regulier-de-personnes/administration-des-donnees-transport-public-collectif/publier-des-donnees-temps-reel/serveur-proxy-gtfs-rt"
 
   def render(assigns) do
     ~H"""
