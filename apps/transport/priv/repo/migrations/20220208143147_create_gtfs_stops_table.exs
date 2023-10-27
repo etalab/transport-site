@@ -3,7 +3,7 @@ defmodule DB.Repo.Migrations.CreateGtfsStopsTable do
 
   def change do
     create table(:data_import) do
-      add :resource_history_id, references(:resource_history)
+      add(:resource_history_id, references(:resource_history))
     end
 
     create table(:gtfs_stops) do

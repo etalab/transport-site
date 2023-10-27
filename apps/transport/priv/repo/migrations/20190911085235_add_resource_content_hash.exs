@@ -3,7 +3,7 @@ defmodule DB.Repo.Migrations.AddResourceSha do
 
   def change do
     alter table(:resource) do
-      add :content_hash, :string
+      add(:content_hash, :string)
     end
   end
 end

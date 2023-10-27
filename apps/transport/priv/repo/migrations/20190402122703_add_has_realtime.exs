@@ -3,7 +3,7 @@ defmodule DB.Repo.Migrations.AddHasRealtime do
 
   def change do
     alter table(:dataset) do
-      add :has_realtime, :boolean, default: false
+      add(:has_realtime, :boolean, default: false)
     end
   end
 end

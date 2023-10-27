@@ -5,12 +5,12 @@ defmodule DB.Repo.Migrations.AddModesFeaturesIndex do
   def modes_index, do: "resource_metadata_modes_idx"
 
   def up do
-    execute "create index #{features_index()} on resource_metadata using GIN (features)"
-    execute "create index #{modes_index()} on resource_metadata using GIN (modes)"
+    execute("create index #{features_index()} on resource_metadata using GIN (features)")
+    execute("create index #{modes_index()} on resource_metadata using GIN (modes)")
   end
 
   def down do
-    execute "drop index #{features_index()}"
-    execute "drop index #{modes_index()}"
+    execute("drop index #{features_index()}")
+    execute("drop index #{modes_index()}")
   end
 end

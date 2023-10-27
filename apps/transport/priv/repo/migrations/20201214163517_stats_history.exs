@@ -7,6 +7,7 @@ defmodule DB.Repo.Migrations.StatsHistory do
       add(:metric, :string)
       add(:value, :decimal)
     end
+
     create(index(:stats_history, [:timestamp, :metric]))
   end
 end
