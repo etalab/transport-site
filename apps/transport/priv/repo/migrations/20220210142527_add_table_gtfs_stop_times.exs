@@ -9,16 +9,16 @@ defmodule DB.Repo.Migrations.AddTableGtfsStopTimes do
       add(:stop_sequence, :integer)
     end
 
-    execute """
+    execute("""
       alter table gtfs_stop_times add column arrival_time interval hour to second;
-    """
+    """)
 
-    execute """
+    execute("""
       alter table gtfs_stop_times add column departure_time interval hour to second;
-    """
+    """)
   end
 
   def down do
-    execute "drop table gtfs_stop_times;"
+    execute("drop table gtfs_stop_times;")
   end
 end

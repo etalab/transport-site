@@ -14,6 +14,7 @@ defmodule DB.Repo.Migrations.UpdateAomsFk do
     ON DELETE SET NULL;
     """)
   end
+
   def down do
     execute("""
     ALTER TABLE commune

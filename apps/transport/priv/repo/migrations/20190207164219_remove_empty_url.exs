@@ -2,7 +2,6 @@ defmodule DB.Repo.Migrations.RemoveEmptyUrl do
   use Ecto.Migration
 
   def change do
-    execute "DELETE FROM resource WHERE url IS NULL"
-
+    execute("DELETE FROM resource WHERE url IS NULL")
   end
 end

@@ -3,10 +3,10 @@ defmodule DB.Repo.Migrations.CreateRegion do
 
   def change do
     create table(:region) do
-      add :nom, :string
-      add :insee, :string
-      add :geometry, :map
-      add :is_completed, :boolean
+      add(:nom, :string)
+      add(:insee, :string)
+      add(:geometry, :map)
+      add(:is_completed, :boolean)
     end
   end
 end

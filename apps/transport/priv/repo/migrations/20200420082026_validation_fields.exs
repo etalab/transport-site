@@ -5,10 +5,12 @@ defmodule DB.Repo.Migrations.ValidationFields do
     alter table(:validations) do
       add(:max_error, :string)
     end
+
     alter table(:resource) do
       add(:start_date, :date)
       add(:end_date, :date)
     end
+
     create(index(:validations, [:max_error]))
     create(index(:resource, [:start_date, :end_date]))
 

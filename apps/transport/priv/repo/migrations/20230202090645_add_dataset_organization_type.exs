@@ -3,7 +3,7 @@ defmodule DB.Repo.Migrations.AddDatasetOrganizationType do
 
   def change do
     alter table(:dataset) do
-      add :organization_type, :string
+      add(:organization_type, :string)
     end
   end
 end
