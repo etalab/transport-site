@@ -396,18 +396,32 @@ defmodule Transport.DataCheckerTest do
       })
 
       refute Transport.DataChecker.has_expiration_notifications?(dataset)
+      assert "❌ pas de notification automatique" == Transport.DataChecker.expiration_notification_enabled_str(dataset)
     end
   end
 
   test "with a subscription from a producer" do
+    dataset = insert(:dataset)
+
+    insert(:notification_subscription, %{
+      reason: :dataset_with_error,
+      source: :admin,
+      role: :producer,
+      contact: insert_contact(),
+      dataset: dataset
+    })
+
+    refute Transport.DataChecker.has_expiration_notifications?(dataset)
+
     insert(:notification_subscription, %{
       reason: :expiration,
       source: :admin,
       role: :producer,
       contact: insert_contact(),
-      dataset: dataset = insert(:dataset)
+      dataset: dataset
     })
 
     assert Transport.DataChecker.has_expiration_notifications?(dataset)
+    assert "✅ notification automatique" == Transport.DataChecker.expiration_notification_enabled_str(dataset)
   end
 end
