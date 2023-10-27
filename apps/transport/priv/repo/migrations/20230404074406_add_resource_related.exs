@@ -8,7 +8,7 @@ defmodule DB.Repo.Migrations.AddResourceRelated do
       add(:reason, :string, null: false)
     end
 
-    create index(:resource_related, [:resource_src_id])
-    create index(:resource_related, [:reason])
+    create(index(:resource_related, [:resource_src_id]))
+    create(index(:resource_related, [:reason]))
   end
 end

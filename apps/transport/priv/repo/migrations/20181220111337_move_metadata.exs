@@ -3,21 +3,21 @@ defmodule DB.Repo.Migrations.MoveMetadata do
 
   def up do
     alter table(:dataset) do
-      remove :metadata
+      remove(:metadata)
     end
 
     alter table(:resource) do
-      add :metadata, :map
+      add(:metadata, :map)
     end
   end
 
   def down do
     alter table(:resource) do
-      remove :metadata
+      remove(:metadata)
     end
 
     alter table(:dataset) do
-      add :metadata, :map
+      add(:metadata, :map)
     end
   end
 end

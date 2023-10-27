@@ -3,7 +3,7 @@ defmodule DB.Repo.Migrations.AddTitleResource do
 
   def change do
     alter table(:resource) do
-      add :title, :string
+      add(:title, :string)
     end
   end
 end
