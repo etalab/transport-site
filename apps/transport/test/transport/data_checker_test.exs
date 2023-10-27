@@ -239,6 +239,17 @@ defmodule Transport.DataCheckerTest do
         dataset_id: dataset.id
       })
 
+      # Should be ignored, this subscription is for a reuser
+      %DB.Contact{id: reuser_id} = insert_contact()
+
+      insert(:notification_subscription, %{
+        reason: :expiration,
+        source: :admin,
+        role: :reuser,
+        contact_id: reuser_id,
+        dataset_id: dataset.id
+      })
+
       # a first mail to our team
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn _from_name,
@@ -372,5 +383,31 @@ defmodule Transport.DataCheckerTest do
     insert(:dataset, is_active: false, archived_at: DateTime.utc_now())
 
     assert 1 == Transport.DataChecker.count_archived_datasets()
+  end
+
+  describe "has_expiration_notifications?" do
+    test "with no subscriptions from producers" do
+      insert(:notification_subscription, %{
+        reason: :expiration,
+        source: :admin,
+        role: :reuser,
+        contact: insert_contact(),
+        dataset: dataset = insert(:dataset)
+      })
+
+      refute Transport.DataChecker.has_expiration_notifications?(dataset)
+    end
+  end
+
+  test "with a subscription from a producer" do
+    insert(:notification_subscription, %{
+      reason: :expiration,
+      source: :admin,
+      role: :producer,
+      contact: insert_contact(),
+      dataset: dataset = insert(:dataset)
+    })
+
+    assert Transport.DataChecker.has_expiration_notifications?(dataset)
   end
 end
