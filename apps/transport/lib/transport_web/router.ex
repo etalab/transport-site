@@ -11,6 +11,8 @@ defmodule TransportWeb.Router do
   pipeline :browser_no_csp do
     plug(:canonical_host)
 
+    plug(RemoteIp, headers: ["x-forwarded-for"])
+    plug(PhoenixDDoS)
     plug(:accepts, ["html"])
     plug(:fetch_session)
     plug(:fetch_live_flash)
