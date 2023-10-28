@@ -226,11 +226,15 @@ config :appsignal, :config,
     "Unlock.Controller#fetch"
   ]
 
-  config :phoenix_ddos,
+config :phoenix_ddos,
   protections: [
     # ip rate limit
-    {PhoenixDDoS.IpRateLimit, allowed: 100, period: {2, :minutes}},
-    {PhoenixDDoS.IpRateLimit, allowed: 10_000, period: {1, :hour}}
+    {PhoenixDDoS.IpRateLimit,
+     allowed: "PHOENIX_DDOS_MAX_2MIN_REQUESTS" |> System.get_env("500") |> Integer.parse() |> elem(0),
+     period: {2, :minutes}},
+    {PhoenixDDoS.IpRateLimit,
+     allowed: "PHOENIX_DDOS_MAX_1HOUR_REQUESTS" |> System.get_env("10000") |> Integer.parse() |> elem(0),
+     period: {1, :hour}}
     # ip rate limit on specific request_path
   ]
 
