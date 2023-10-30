@@ -10,15 +10,6 @@ defmodule TransportWeb.Router do
 
   pipeline :browser_no_csp do
     plug(:canonical_host)
-
-    plug(RemoteIp, headers: ["x-forwarded-for"])
-
-    plug(TransportWeb.Plugs.BlockUserAgent,
-      log_user_agent: System.get_env("LOG_USER_AGENT", "false"),
-      block_user_agent_keywords: System.get_env("BLOCK_USER_AGENT_KEYWORDS", "")
-    )
-
-    plug(PhoenixDDoS)
     plug(:accepts, ["html"])
     plug(:fetch_session)
     plug(:fetch_live_flash)
