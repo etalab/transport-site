@@ -76,7 +76,10 @@ config :logger,
 
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
-  metadata: [:request_id]
+  # :remote_ip is set by the dependency `remote_ip`
+  # `:http_*` are set by TransportWeb.Plugs.BlockUserAgent only
+  # when LOG_USER_AGENT=true
+  metadata: [:request_id, :remote_ip, :http_method, :http_path, :http_user_agent]
 
 config :scrivener_html,
   routes_helper: TransportWeb.Router.Helpers
