@@ -1,5 +1,18 @@
 defmodule TransportWeb.Plugs.BlockUserAgentTest do
-  use TransportWeb.ConnCase, async: true
+  use TransportWeb.ConnCase, async: false
+
+  setup do
+    System.put_env(
+      envs = [
+        {"LOG_USER_AGENT", "true"},
+        {"BLOCK_USER_AGENT_KEYWORDS", "Foo|Bar"}
+      ]
+    )
+
+    on_exit(fn ->
+      Enum.each(envs, fn {env_name, _} -> System.delete_env(env_name) end)
+    end)
+  end
 
   describe "init" do
     test "with strings" do
@@ -13,6 +26,10 @@ defmodule TransportWeb.Plugs.BlockUserAgentTest do
     test "with keywords" do
       assert [log_user_agent: false, block_user_agent_keywords: ["foo", "bar"]] =
                TransportWeb.Plugs.BlockUserAgent.init(block_user_agent_keywords: ["foo", "bar"], log_user_agent: false)
+    end
+
+    test "use env variables" do
+      assert :use_env_variables = TransportWeb.Plugs.BlockUserAgent.init(:use_env_variables)
     end
   end
 
@@ -32,6 +49,30 @@ defmodule TransportWeb.Plugs.BlockUserAgentTest do
                conn
                |> Plug.Conn.put_req_header("user-agent", "Mozilla FooBar")
                |> TransportWeb.Plugs.BlockUserAgent.call(log_user_agent: false, block_user_agent_keywords: ["nope"])
+    end
+
+    test "with environment variables", %{conn: conn} do
+      assert "Foo|Bar" == System.get_env("BLOCK_USER_AGENT_KEYWORDS")
+
+      text =
+        conn
+        |> Plug.Conn.put_req_header("user-agent", "Mozilla Foo")
+        |> TransportWeb.Plugs.BlockUserAgent.call(:use_env_variables)
+        |> text_response(401)
+
+      assert text == "Unauthorized"
+    end
+
+    test "with environment variables, homepage", %{conn: conn} do
+      assert "Foo|Bar" == System.get_env("BLOCK_USER_AGENT_KEYWORDS")
+
+      text =
+        conn
+        |> Plug.Conn.put_req_header("user-agent", "Mozilla Bar")
+        |> get("/")
+        |> text_response(401)
+
+      assert text == "Unauthorized"
     end
   end
 end

@@ -7,12 +7,19 @@ defmodule TransportWeb.Plugs.BlockUserAgent do
   Options:
   - log_user_agent: boolean or string
   - block_user_agent_keywords: list of keywords or string that will be split on `|`
+
+  If the plug is configured with a magic value, `:use_env_variables`, the
+  `call/2` method will be configured at runtime using environment variables.
+  - LOG_USER_AGENT
+  - BLOCK_USER_AGENT_KEYWORDS
   """
   require Logger
   import Plug.Conn
   @behaviour Plug
 
   @impl true
+  def init(:use_env_variables), do: :use_env_variables
+
   def init(log_user_agent: log_user_agent, block_user_agent_keywords: block_user_agent_keywords)
       when is_binary(log_user_agent) and is_binary(block_user_agent_keywords) do
     keywords = if block_user_agent_keywords == "", do: [], else: block_user_agent_keywords |> String.split("|")
@@ -28,6 +35,16 @@ defmodule TransportWeb.Plugs.BlockUserAgent do
   end
 
   @impl true
+  def call(%Plug.Conn{} = conn, :use_env_variables) do
+    options =
+      init(
+        log_user_agent: System.get_env("LOG_USER_AGENT", "false"),
+        block_user_agent_keywords: System.get_env("BLOCK_USER_AGENT_KEYWORDS", "")
+      )
+
+    call(conn, options)
+  end
+
   def call(%Plug.Conn{} = conn, options) do
     maybe_log_http_details(conn, Keyword.fetch!(options, :log_user_agent))
     maybe_block_request(conn, Keyword.fetch!(options, :block_user_agent_keywords))
