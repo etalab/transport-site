@@ -14,6 +14,8 @@ defmodule TransportWeb.Plugs.BlockUserAgentTest do
     end)
   end
 
+  doctest TransportWeb.Plugs.BlockUserAgent, import: true
+
   describe "init" do
     test "with strings" do
       assert [block_user_agent_keywords: [], log_user_agent: true] ==
@@ -73,6 +75,14 @@ defmodule TransportWeb.Plugs.BlockUserAgentTest do
         |> text_response(401)
 
       assert text == "Unauthorized"
+    end
+
+    test "does not crash when user-agent is not set", %{conn: conn} do
+      assert [] == get_req_header(conn, "user-agent")
+
+      assert %Plug.Conn{halted: false} =
+               conn
+               |> TransportWeb.Plugs.BlockUserAgent.call(log_user_agent: true, block_user_agent_keywords: [])
     end
   end
 end

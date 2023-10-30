@@ -51,7 +51,7 @@ defmodule TransportWeb.Plugs.BlockUserAgent do
   end
 
   defp maybe_log_http_details(%Plug.Conn{method: method, request_path: request_path} = conn, true = _log_user_agent) do
-    [user_agent] = get_req_header(conn, "user-agent")
+    user_agent = user_agent(conn)
     Logger.metadata(http_user_agent: user_agent)
     Logger.metadata(http_method: method)
     Logger.metadata(http_path: request_path)
@@ -62,7 +62,7 @@ defmodule TransportWeb.Plugs.BlockUserAgent do
   defp maybe_block_request(%Plug.Conn{} = conn, [] = _block_keywords), do: conn
 
   defp maybe_block_request(%Plug.Conn{request_path: request_path} = conn, keywords) do
-    [user_agent] = get_req_header(conn, "user-agent")
+    user_agent = user_agent(conn)
 
     if user_agent == "" or String.contains?(user_agent, keywords) do
       Logger.info("Blocked request #{request_path} by user-agent: #{user_agent}")
@@ -73,6 +73,21 @@ defmodule TransportWeb.Plugs.BlockUserAgent do
       |> halt()
     else
       conn
+    end
+  end
+
+  @doc """
+  iex> user_agent(%Plug.Conn{req_headers: [{"user-agent", "foo"}]})
+  "foo"
+  iex> user_agent(%Plug.Conn{req_headers: [{"accept", "application/json"}]})
+  "user-agent-not-set"
+  """
+  def user_agent(%Plug.Conn{} = conn) do
+    case get_req_header(conn, "user-agent") do
+      # HTTP request does not include a user agent.
+      # At the moment we allow it and replace with a static value
+      [] -> "user-agent-not-set"
+      [user_agent] -> user_agent
     end
   end
 end
