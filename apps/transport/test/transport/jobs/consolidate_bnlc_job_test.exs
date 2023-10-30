@@ -238,8 +238,8 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       :get!,
       fn "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv" ->
         body = """
-        "foo","bar","baz"
-        a,1,2
+        "foo","bar","baz","id_lieu"
+        a,1,2,3
         """
 
         %HTTPoison.Response{status_code: 200, body: body}
