@@ -248,7 +248,13 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     end)
   end
 
-  defp add_id_lieu_column(%Stream{} = stream) do
+  @doc """
+  The consolidation job is in charge of adding an extra column to the final file:
+  `id_lieu`.
+
+  Generate it by concatenating values found in each file: insee + id_local
+  """
+  def add_id_lieu_column(%Stream{} = stream) do
     Stream.map(stream, fn %{"insee" => insee, "id_local" => id_local} = map ->
       Map.put(map, "id_lieu", "#{insee}-#{id_local}")
     end)
