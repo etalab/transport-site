@@ -76,7 +76,10 @@ config :logger,
 
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
-  metadata: [:request_id]
+  # :remote_ip is set by the dependency `remote_ip`
+  # `:http_*` are set by TransportWeb.Plugs.BlockUserAgent only
+  # when LOG_USER_AGENT=true
+  metadata: [:request_id, :remote_ip, :http_method, :http_path, :http_user_agent]
 
 config :scrivener_html,
   routes_helper: TransportWeb.Router.Helpers
@@ -224,6 +227,18 @@ config :appsignal, :config,
     # Here this is a duplicate precaution to ensure we exclude proxy
     # traffic which generates a lot of AppSignal events
     "Unlock.Controller#fetch"
+  ]
+
+config :phoenix_ddos,
+  protections: [
+    # ip rate limit
+    {PhoenixDDoS.IpRateLimit,
+     allowed: "PHOENIX_DDOS_MAX_2MIN_REQUESTS" |> System.get_env("500") |> Integer.parse() |> elem(0),
+     period: {2, :minutes}},
+    {PhoenixDDoS.IpRateLimit,
+     allowed: "PHOENIX_DDOS_MAX_1HOUR_REQUESTS" |> System.get_env("10000") |> Integer.parse() |> elem(0),
+     period: {1, :hour}}
+    # ip rate limit on specific request_path
   ]
 
 # Import environment specific config. This must remain at the bottom

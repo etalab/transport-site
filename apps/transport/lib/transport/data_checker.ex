@@ -8,6 +8,8 @@ defmodule Transport.DataChecker do
   import Ecto.Query
   require Logger
 
+  @expiration_reason DB.NotificationSubscription.reason(:expiration)
+  @new_dataset_reason DB.NotificationSubscription.reason(:new_dataset)
   @default_outdated_data_delays [-7, -3, 0, 7, 14]
 
   @doc """
@@ -132,9 +134,7 @@ defmodule Transport.DataChecker do
       "* #{dataset.custom_title} - (#{Dataset.type_to_str(dataset.type)}) - #{link(dataset)}"
     end
 
-    reason = DB.NotificationSubscription.reason(:new_dataset)
-
-    reason
+    @new_dataset_reason
     |> DB.NotificationSubscription.subscriptions_for_reason()
     |> DB.NotificationSubscription.subscriptions_to_emails()
     |> Enum.each(fn email ->
@@ -164,12 +164,10 @@ defmodule Transport.DataChecker do
   end
 
   def send_outdated_data_notifications({delay, datasets} = payload) do
-    reason = DB.NotificationSubscription.reason(:expiration)
-
     Enum.each(datasets, fn dataset ->
       emails =
-        reason
-        |> DB.NotificationSubscription.subscriptions_for_reason(dataset)
+        @expiration_reason
+        |> DB.NotificationSubscription.subscriptions_for_reason_dataset_and_role(dataset, :producer)
         |> DB.NotificationSubscription.subscriptions_to_emails()
 
       emails
@@ -187,7 +185,7 @@ defmodule Transport.DataChecker do
           )
         )
 
-        save_notification(reason, dataset, email)
+        save_notification(@expiration_reason, dataset, email)
       end)
     end)
 
@@ -199,10 +197,8 @@ defmodule Transport.DataChecker do
   end
 
   def has_expiration_notifications?(%Dataset{} = dataset) do
-    reason = DB.NotificationSubscription.reason(:expiration)
-
-    reason
-    |> DB.NotificationSubscription.subscriptions_for_reason(dataset)
+    @expiration_reason
+    |> DB.NotificationSubscription.subscriptions_for_reason_dataset_and_role(dataset, :producer)
     |> Enum.count() > 0
   end
 

@@ -4,10 +4,6 @@ defmodule TransportWeb.CanonicalRoutingTest do
   import Phoenix.ConnTest
   @endpoint TransportWeb.Endpoint
 
-  setup do
-    Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-  end
-
   test "redirects browser calls to canonical browser for GET queries" do
     conn =
       build_conn()

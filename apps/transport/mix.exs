@@ -138,7 +138,10 @@ defmodule Transport.Mixfile do
       {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
       {:swoosh, "~> 1.11"},
       {:phoenix_swoosh, "~> 1.0"},
-      {:hackney, "~> 1.9"}
+      {:hackney, "~> 1.9"},
+      {:phoenix_ddos, "~> 1.1"},
+      # Highly recommended, this will makes sure we get the correct remote_ip
+      {:remote_ip, "~> 1.1"}
     ]
   end
 end
