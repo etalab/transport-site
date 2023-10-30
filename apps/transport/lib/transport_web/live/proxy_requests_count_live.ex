@@ -12,7 +12,7 @@ defmodule TransportWeb.ProxyRequestsCountLive do
     <h2>Requêtes temps-réel sur le proxy</h2>
     <p>
       transport.data.gouv.fr met à disposition des producteurs de données <a href={@doc_url}>un service de proxy</a>
-      permettant de diffuser des données temps réel aux formats GTFS-RT, GBFS et SIRI.
+      permettant de diffuser des données temps réel au format GTFS-RT.
     </p>
     <div :if={assigns[:data]}>
       <% ratio = Map.get(assigns[:data], "external", 0) / Map.get(assigns[:data], "internal", 1) %>
