@@ -39,13 +39,14 @@ defmodule TransportWeb.Endpoint do
   )
 
   plug(Plug.RequestId)
-  plug(Plug.Logger)
   plug(RemoteIp, headers: ["x-forwarded-for"])
 
   plug(TransportWeb.Plugs.BlockUserAgent,
     log_user_agent: System.get_env("LOG_USER_AGENT", "false"),
     block_user_agent_keywords: System.get_env("BLOCK_USER_AGENT_KEYWORDS", "")
   )
+
+  plug(Plug.Logger)
 
   plug(PhoenixDDoS)
 

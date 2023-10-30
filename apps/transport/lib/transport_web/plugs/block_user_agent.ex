@@ -28,14 +28,19 @@ defmodule TransportWeb.Plugs.BlockUserAgent do
   end
 
   @impl true
-  def call(%Plug.Conn{request_path: request_path} = conn, options) do
-    if Keyword.fetch!(options, :log_user_agent) do
-      [user_agent] = get_req_header(conn, "user-agent")
-      Logger.info("Handling request #{request_path} by user-agent: #{user_agent}")
-    end
-
+  def call(%Plug.Conn{} = conn, options) do
+    maybe_log_http_details(conn, Keyword.fetch!(options, :log_user_agent))
     maybe_block_request(conn, Keyword.fetch!(options, :block_user_agent_keywords))
   end
+
+  defp maybe_log_http_details(%Plug.Conn{method: method, request_path: request_path} = conn, true = _log_user_agent) do
+    [user_agent] = get_req_header(conn, "user-agent")
+    Logger.metadata(http_user_agent: user_agent)
+    Logger.metadata(http_method: method)
+    Logger.metadata(http_path: request_path)
+  end
+
+  defp maybe_log_http_details(%Plug.Conn{}, false = _log_user_agent), do: :ok
 
   defp maybe_block_request(%Plug.Conn{} = conn, [] = _block_keywords), do: conn
 
