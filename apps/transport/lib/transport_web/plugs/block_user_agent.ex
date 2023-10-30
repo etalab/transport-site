@@ -14,7 +14,7 @@ defmodule TransportWeb.Plugs.BlockUserAgent do
 
   @impl true
   def init(log_user_agent: log_user_agent, block_user_agent_keywords: block_user_agent_keywords)
-      when is_binary(log_user_agent) and is_binary(log_user_agent) do
+      when is_binary(log_user_agent) and is_binary(block_user_agent_keywords) do
     keywords = if block_user_agent_keywords == "", do: [], else: block_user_agent_keywords |> String.split("|")
 
     init(
