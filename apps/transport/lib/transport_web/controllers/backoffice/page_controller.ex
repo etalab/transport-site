@@ -331,7 +331,8 @@ defmodule TransportWeb.Backoffice.PageController do
       d.organization_id id_organisation,
       d.id id_dataset,
       r.id id_ressource,
-      freshness.score score_fraicheur
+      freshness_score.score score_fraicheur,
+      availability_score.score score_disponibilite
     from resource r
     join dataset d on d.id = r.dataset_id
     left join aom a on a.id = d.aom_id
@@ -361,13 +362,23 @@ defmodule TransportWeb.Backoffice.PageController do
     ) legal_owners on legal_owners.dataset_id = d.id
     left join multi_validation mv on mv.resource_history_id = rh.id
     left join resource_metadata rm on rm.multi_validation_id = mv.id
+    -- FIXME: we should be able to do a single query for `dataset_score`
     left join (
       select
-        ds.*,
+        ds.dataset_id,
+        ds.score,
         row_number() over (partition by ds.dataset_id order by ds.timestamp desc) row_number
       from dataset_score ds
       where ds.topic = 'freshness'
-    ) freshness on freshness.dataset_id = d.id and freshness.row_number = 1
+    ) freshness_score on freshness_score.dataset_id = d.id and freshness_score.row_number = 1
+    left join (
+      select
+        ds.dataset_id,
+        ds.score,
+        row_number() over (partition by ds.dataset_id order by ds.timestamp desc) row_number
+      from dataset_score ds
+      where ds.topic = 'availability'
+    ) availability_score on availability_score.dataset_id = d.id and availability_score.row_number = 1
     """)
   end
 end
