@@ -119,7 +119,8 @@ defmodule Transport.Jobs.SingleGTFSToNeTExHoveConverterJobTest do
       {:error, "conversion failed"}
     end)
 
-    assert {:cancel, _} = perform_job(SingleGTFSToNeTExHoveConverterJob, %{"resource_history_id" => resource_history_id})
+    assert {:cancel, _} =
+             perform_job(SingleGTFSToNeTExHoveConverterJob, %{"resource_history_id" => resource_history_id})
 
     # ResourceHistory's payload is updated with the error information
     expected_payload =
