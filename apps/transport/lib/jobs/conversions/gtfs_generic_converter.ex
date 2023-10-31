@@ -64,18 +64,25 @@ defmodule Transport.Jobs.GTFSGenericConverter do
 
   defp is_resource_gtfs?(_), do: false
 
-  @spec format_exists?(any(), binary()) :: boolean
-  defp format_exists?(%{payload: %{"uuid" => resource_uuid}}, format) when format in @allowed_formats do
+  @spec conversion_exists?(DB.ResourceHistory.t() | nil, binary()) :: boolean
+  @doc """
+  Checks if a conversion already exists for a `DB.ResourceHistory` and a target format.
+  """
+  def conversion_exists?(%DB.ResourceHistory{payload: %{"uuid" => resource_uuid}}, format)
+      when format in @allowed_formats do
     DataConversion
     |> Repo.get_by(
       convert_from: :GTFS,
       convert_to: format,
-      converter: DataConversion.converter_to_use(format),
+      converter: converter_for_format(format),
       resource_history_uuid: resource_uuid
     ) !== nil
   end
 
-  defp format_exists?(_, _), do: false
+  def conversion_exists?(nil, _), do: false
+
+  def converter_for_format("GeoJSON"), do: Transport.GTFSToGeoJSONConverter.converter()
+  def converter_for_format("NeTEx"), do: Transport.GTFSToNeTExHoveConverter.converter()
 
   @doc """
   Converts a resource_history to the targeted format, using a converter module
@@ -84,7 +91,7 @@ defmodule Transport.Jobs.GTFSGenericConverter do
   def perform_single_conversion_job(resource_history_id, format, converter_module) when format in @allowed_formats do
     resource_history = ResourceHistory |> Repo.get(resource_history_id)
 
-    case is_resource_gtfs?(resource_history) and not format_exists?(resource_history, format) do
+    case is_resource_gtfs?(resource_history) and not conversion_exists?(resource_history, format) do
       true ->
         generate_and_upload_conversion(resource_history, format, converter_module)
 

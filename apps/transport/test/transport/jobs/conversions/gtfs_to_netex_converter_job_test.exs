@@ -61,7 +61,7 @@ defmodule Transport.Jobs.GTFSToNeTExConverterJobTest do
                args: %{"resource_history_id" => ^resource_history_id, "action" => "create"}
              },
              %Oban.Job{
-               worker: "Transport.Jobs.SingleGTFSToNeTExConverterJob",
+               worker: "Transport.Jobs.SingleGTFSToNeTExHoveConverterJob",
                queue: "heavy",
                args: %{"resource_history_id" => ^resource_history_id}
              }

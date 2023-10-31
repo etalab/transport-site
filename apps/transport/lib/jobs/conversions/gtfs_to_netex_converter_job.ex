@@ -8,24 +8,24 @@ defmodule Transport.Jobs.GTFSToNeTExConverterJob do
   @impl true
   def perform(%{}) do
     GTFSGenericConverter.enqueue_all_conversion_jobs("NeTEx", [
-      Transport.Jobs.SingleGTFSToNeTExConverterJob,
+      Transport.Jobs.SingleGTFSToNeTExHoveConverterJob,
       Transport.Jobs.GTFSToNeTExEnRouteConverterJob
     ])
   end
 end
 
-defmodule Transport.Jobs.SingleGTFSToNeTExConverterJob do
+defmodule Transport.Jobs.SingleGTFSToNeTExHoveConverterJob do
   @moduledoc """
-  Conversion Job of a GTFS to a NeTEx, saving the resulting file in S3
+  Conversion job of a GTFS to a NeTEx using the Hover converter, saving the resulting file in S3
   """
   use Oban.Worker, tags: ["conversions"], max_attempts: 3, queue: :heavy, unique: [period: :infinity]
   alias Transport.Jobs.GTFSGenericConverter
 
-  defdelegate converter(), to: Transport.GTFSToNeTExConverter
+  defdelegate converter(), to: Transport.GTFSToNeTExHoveConverter
 
   @impl true
   def perform(%{args: %{"resource_history_id" => resource_history_id}}) do
-    GTFSGenericConverter.perform_single_conversion_job(resource_history_id, "NeTEx", Transport.GTFSToNeTExConverter)
+    GTFSGenericConverter.perform_single_conversion_job(resource_history_id, "NeTEx", Transport.GTFSToNeTExHoveConverter)
   end
 
   @impl true
@@ -41,15 +41,24 @@ defmodule Transport.Jobs.DatasetGTFSToNeTExConverterJob do
   This will enqueue GTFS -> NeTEx conversions jobs for all GTFS resources linked to a dataset, but only for the most recent resource history
   """
   use Oban.Worker, tags: ["conversions"], max_attempts: 3, queue: :heavy
-  alias Transport.Jobs.GTFSGenericConverter
   import Ecto.Query
 
   @impl true
   def perform(%{args: %{"dataset_id" => dataset_id}}) do
     dataset_id
     |> list_gtfs_last_resource_history()
-    |> Enum.each(fn rh_id ->
-      GTFSGenericConverter.perform_single_conversion_job(rh_id, "NeTEx", Transport.GTFSToNeTExConverter)
+    |> Enum.each(&enqueue_conversion_jobs/1)
+  end
+
+  defp enqueue_conversion_jobs(resource_history_id) do
+    [
+      Transport.Jobs.SingleGTFSToNeTExHoveConverterJob,
+      Transport.Jobs.GTFSToNeTExEnRouteConverterJob
+    ]
+    |> Enum.each(fn converter ->
+      %{"resource_history_id" => resource_history_id, "action" => "create"}
+      |> converter.new()
+      |> Oban.insert()
     end)
   end
 
@@ -64,7 +73,7 @@ defmodule Transport.Jobs.DatasetGTFSToNeTExConverterJob do
   end
 end
 
-defmodule Transport.GTFSToNeTExConverter do
+defmodule Transport.GTFSToNeTExHoveConverter do
   @moduledoc """
   Given a GTFS file path, convert it to NeTEx.
   """

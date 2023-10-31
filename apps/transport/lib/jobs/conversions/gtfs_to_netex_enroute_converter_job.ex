@@ -65,7 +65,7 @@ defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
   def perform(%Oban.Job{
         args: %{"action" => "poll", "data_conversion_id" => data_conversion_id, "attempt" => attempt}
       })
-      when attempt == @max_attempts do
+      when attempt >= @max_attempts do
     DB.DataConversion
     |> DB.Repo.get!(data_conversion_id)
     |> update_data_conversion!({:timeout, %{"stopped_at" => DateTime.utc_now()}}, attempt)
