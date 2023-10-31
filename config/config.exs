@@ -230,6 +230,8 @@ config :appsignal, :config,
   ]
 
 config :phoenix_ddos,
+  safelist_ips: "PHOENIX_DDOS_SAFELIST_IPS" |> System.get_env("") |> String.split("|") |> Enum.reject(&(&1 == "")),
+  blocklist_ips: "PHOENIX_DDOS_BLOCKLIST_IPS" |> System.get_env("") |> String.split("|") |> Enum.reject(&(&1 == "")),
   protections: [
     # ip rate limit
     {PhoenixDDoS.IpRateLimit,
