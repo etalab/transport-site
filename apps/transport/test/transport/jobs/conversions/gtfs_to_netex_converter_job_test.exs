@@ -4,6 +4,7 @@ defmodule Transport.Jobs.GTFSToNeTExConverterJobTest do
   import DB.Factory
   import Mox
   alias Transport.Jobs.GTFSToNeTExConverterJob
+  alias Transport.Jobs.DatasetGTFSToNeTExConverterJob
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -67,5 +68,46 @@ defmodule Transport.Jobs.GTFSToNeTExConverterJobTest do
              }
            ] =
              all_enqueued()
+  end
+
+  describe "DatasetGTFSToNeTExConverterJob" do
+    test "enqueues jobs" do
+      dataset = insert(:dataset)
+      gtfs_1 = insert(:resource, format: "GTFS", dataset: dataset)
+      gtfs_2 = insert(:resource, format: "GTFS", dataset: dataset)
+      netex = insert(:resource, format: "NeTEx", dataset: dataset)
+
+      insert(:resource_history, resource: gtfs_1)
+      insert(:resource_history, resource: netex)
+      %DB.ResourceHistory{id: rh_gtfs_1_id} = insert(:resource_history, resource: gtfs_1)
+      %DB.ResourceHistory{id: rh_gtfs_2_id} = insert(:resource_history, resource: gtfs_2)
+
+      assert :ok = perform_job(DatasetGTFSToNeTExConverterJob, %{"dataset_id" => dataset.id})
+
+      # Jobs are enqueued with 2 converters for the latest resource history for
+      # each GTFS resource
+      assert [
+               %Oban.Job{
+                 worker: "Transport.Jobs.GTFSToNeTExEnRouteConverterJob",
+                 args: %{"action" => "create", "resource_history_id" => ^rh_gtfs_2_id},
+                 tags: ["conversions"]
+               },
+               %Oban.Job{
+                 worker: "Transport.Jobs.SingleGTFSToNeTExHoveConverterJob",
+                 args: %{"action" => "create", "resource_history_id" => ^rh_gtfs_2_id},
+                 tags: ["conversions"]
+               },
+               %Oban.Job{
+                 worker: "Transport.Jobs.GTFSToNeTExEnRouteConverterJob",
+                 args: %{"action" => "create", "resource_history_id" => ^rh_gtfs_1_id},
+                 tags: ["conversions"]
+               },
+               %Oban.Job{
+                 worker: "Transport.Jobs.SingleGTFSToNeTExHoveConverterJob",
+                 args: %{"action" => "create", "resource_history_id" => ^rh_gtfs_1_id},
+                 tags: ["conversions"]
+               }
+             ] = all_enqueued()
+    end
   end
 end
