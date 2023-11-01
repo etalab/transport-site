@@ -77,9 +77,9 @@ config :logger,
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   # :remote_ip is set by the dependency `remote_ip`
-  # `:http_*` are set by TransportWeb.Plugs.RateLimiter only
+  # `:(method|path|user_agent)` are set by TransportWeb.Plugs.RateLimiter only
   # when LOG_USER_AGENT=true
-  metadata: [:request_id, :remote_ip, :http_method, :http_path, :http_user_agent]
+  metadata: [:request_id, :remote_ip, :method, :path, :user_agent]
 
 config :scrivener_html,
   routes_helper: TransportWeb.Router.Helpers

@@ -71,9 +71,9 @@ defmodule TransportWeb.Plugs.RateLimiter do
 
   defp maybe_log_http_details(%Plug.Conn{method: method, request_path: request_path} = conn, true = _log_user_agent) do
     user_agent = user_agent(conn)
-    Logger.metadata(http_user_agent: user_agent)
-    Logger.metadata(http_method: method)
-    Logger.metadata(http_path: request_path)
+    Logger.metadata(user_agent: user_agent)
+    Logger.metadata(method: method)
+    Logger.metadata(path: request_path)
     conn
   end
 
