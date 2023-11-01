@@ -3,8 +3,8 @@ defmodule Transport.Jobs.GTFSToNeTExConverterJobTest do
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
   import Mox
-  alias Transport.Jobs.GTFSToNeTExConverterJob
   alias Transport.Jobs.DatasetGTFSToNeTExConverterJob
+  alias Transport.Jobs.GTFSToNeTExConverterJob
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
