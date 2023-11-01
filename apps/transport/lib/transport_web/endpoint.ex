@@ -40,12 +40,8 @@ defmodule TransportWeb.Endpoint do
 
   plug(Plug.RequestId)
   plug(RemoteIp, headers: ["x-forwarded-for"])
-  # Can be configured with env variables:
-  # - LOG_USER_AGENT
-  # - BLOCK_USER_AGENT_KEYWORDS
-  plug(TransportWeb.Plugs.BlockUserAgent, :use_env_variables)
+  plug(TransportWeb.Plugs.RateLimiter, :use_env_variables)
   plug(Plug.Logger)
-  plug(PhoenixDDoS)
 
   plug(Plug.Parsers,
     parsers: [:urlencoded, :json, :multipart],
