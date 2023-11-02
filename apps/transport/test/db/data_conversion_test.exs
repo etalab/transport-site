@@ -151,7 +151,7 @@ defmodule DB.DataConversionTest do
 
     # list candidate resource history for future conversions
     resource_history_ids =
-      dataset.id |> Transport.Jobs.DatasetGtfsToNetexConverterJob.list_gtfs_last_resource_history() |> Enum.sort()
+      dataset.id |> Transport.Jobs.DatasetGTFSToNeTExConverterJob.list_gtfs_last_resource_history() |> Enum.sort()
 
     assert [resource_history_1.id, resource_history_2.id] == resource_history_ids
   end
@@ -180,7 +180,7 @@ defmodule DB.DataConversionTest do
 
     # new conversion is enqueued
     assert_enqueued(
-      worker: Transport.Jobs.DatasetGtfsToNetexConverterJob,
+      worker: Transport.Jobs.DatasetGTFSToNeTExConverterJob,
       args: %{"dataset_id" => dataset.id}
     )
   end

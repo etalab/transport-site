@@ -3,7 +3,7 @@ defmodule DB.Repo.Migrations.AddDatasetActivation do
 
   def change do
     alter table(:dataset) do
-        add :is_active, :boolean, default: true
+      add(:is_active, :boolean, default: true)
     end
   end
 end

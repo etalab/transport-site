@@ -53,6 +53,13 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
     assert [] == PageController.dataset_with_resource_under_90_availability()
   end
 
+  test "can load the dataset#new page", %{conn: conn} do
+    conn
+    |> setup_admin_in_session()
+    |> get(Routes.backoffice_page_path(conn, :new))
+    |> html_response(200)
+  end
+
   test "outdated datasets filter", %{conn: conn} do
     insert_outdated_resource_and_friends(custom_title: "un dataset outdated")
     insert_up_to_date_resource_and_friends(custom_title: "un dataset bien à jour")

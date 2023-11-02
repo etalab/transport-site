@@ -3,7 +3,7 @@ defmodule DB.Repo.Migrations.AddResourceDisplayPosition do
 
   def change do
     alter table(:resource) do
-      add :display_position, :integer
+      add(:display_position, :integer)
     end
   end
 end

@@ -2,10 +2,10 @@ defmodule DB.Repo.Migrations.CommuneToAom do
   use Ecto.Migration
 
   def up do
-    create unique_index(:aom, [:composition_res_id])
+    create(unique_index(:aom, [:composition_res_id]))
 
     alter table(:commune) do
-      add :aom_res_id, references(:aom, column: :composition_res_id)
+      add(:aom_res_id, references(:aom, column: :composition_res_id))
     end
 
     # flush()
@@ -14,10 +14,11 @@ defmodule DB.Repo.Migrations.CommuneToAom do
   end
 
   def down do
-    drop constraint(:commune, "commune_aom_res_id_fkey")
-    drop index(:aom, [:composition_res_id])
+    drop(constraint(:commune, "commune_aom_res_id_fkey"))
+    drop(index(:aom, [:composition_res_id]))
+
     alter table(:commune) do
-      remove :aom_res_id
+      remove(:aom_res_id)
     end
   end
 end

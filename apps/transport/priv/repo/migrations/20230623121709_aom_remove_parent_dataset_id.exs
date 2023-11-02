@@ -96,13 +96,13 @@ defmodule DB.Repo.Migrations.AomRemoveParentDatasetId do
     execute("UPDATE dataset SET id = id")
 
     alter table(:aom) do
-      remove :parent_dataset_id
+      remove(:parent_dataset_id)
     end
   end
 
   def down do
     alter table(:aom) do
-      add :parent_dataset_id, references ("dataset")
+      add(:parent_dataset_id, references("dataset"))
     end
 
     execute("""

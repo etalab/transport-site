@@ -1,10 +1,10 @@
-<% contacts_in_org = Enum.sort_by(@dataset.organization_object.contacts, &DB.Contact.display_name/1) %>
 <div class="pt-48">
   <%= live_render(@conn, TransportWeb.EditDatasetLive,
     session: %{"dataset" => @dataset, "dataset_types" => @dataset_types, "regions" => @regions}
   ) %>
 
   <%= unless is_nil(@dataset) do %>
+    <% contacts_in_org = Enum.sort_by(@dataset.organization_object.contacts, &DB.Contact.display_name/1) %>
     <div class="is-centered mt-48">
       <%= dgettext("backoffice", "Other actions on the dataset") %>
     </div>

@@ -3,7 +3,7 @@ defmodule DB.Repo.Migrations.DescriptionText do
 
   def change do
     alter table(:resource) do
-      modify :description, :text
+      modify(:description, :text)
     end
   end
 end

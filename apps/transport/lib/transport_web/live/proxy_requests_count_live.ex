@@ -5,14 +5,14 @@ defmodule TransportWeb.ProxyRequestsCountLive do
   use Phoenix.LiveView, container: {:div, [class: "domain", id: "proxy-requests"]}
   import Ecto.Query
 
-  @doc_url "https://doc.transport.data.gouv.fr/foire-aux-questions-1/donnees-temps-reel-des-transports-en-commun#proxy-gtfs-rt"
+  @doc_url "https://doc.transport.data.gouv.fr/type-donnees/operateurs-de-transport-regulier-de-personnes/administration-des-donnees-transport-public-collectif/publier-des-donnees-temps-reel/serveur-proxy-gtfs-rt"
 
   def render(assigns) do
     ~H"""
     <h2>Requêtes temps-réel sur le proxy</h2>
     <p>
       transport.data.gouv.fr met à disposition des producteurs de données <a href={@doc_url}>un service de proxy</a>
-      permettant de diffuser des données temps réel aux formats GTFS-RT, GBFS et SIRI.
+      permettant de diffuser des données temps réel au format GTFS-RT.
     </p>
     <div :if={assigns[:data]}>
       <% ratio = Map.get(assigns[:data], "external", 0) / Map.get(assigns[:data], "internal", 1) %>
