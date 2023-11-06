@@ -75,7 +75,7 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
 
       subscribed_as_producer?(contact) or org_has_published_dataset?
     end)
-    |> Enum.uniq()
+    |> Enum.uniq_by(& &1.id)
   end
 
   defp schedule_jobs(contacts, %DateTime{} = scheduled_at) do
