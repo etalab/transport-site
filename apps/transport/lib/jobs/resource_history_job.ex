@@ -72,7 +72,9 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
     notification =
       try do
-        %{resource_history_id: resource_history_id} = download_resource(:req, resource, path) |> process_download(resource)
+        %{resource_history_id: resource_history_id} =
+          download_resource(:req, resource, path) |> process_download(resource)
+
         %{"success" => true, "job_id" => job.id, "output" => %{resource_history_id: resource_history_id}}
       rescue
         e -> %{"success" => false, "job_id" => job.id, "reason" => inspect(e)}
@@ -247,13 +249,16 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     # TODO: verify :line_or_bytes
     file_stream = File.stream!(file_path)
     req_options = [compressed: false, decode_body: false, receive_timeout: 180_000, into: file_stream]
+
     case Req.get(url, req_options) do
       {:ok, %{status_code: 200} = r} ->
         Logger.debug("Saved resource##{resource_id} to #{file_path}")
         # TODO: stop returning the body to avoid the corresponding memory allocation
         {:ok, file_path, relevant_http_headers(r)}
+
       {:ok, %{status_code: status_code}} ->
         {:error, "Got a non 200 status: #{status_code}"}
+
       {:error, error} ->
         {:error, "Got an error: #{error |> inspect}"}
     end
