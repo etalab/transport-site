@@ -95,58 +95,57 @@ base_oban_conf = [repo: DB.Repo]
 # but not during dev or test
 # Be careful : there is "app_env :prod" in contrast  to :staging (ie production website vs prochainement)
 # and "config_env :prod" in contrast to :dev et :test
+oban_prod_crontab = [
+  {"0 */6 * * *", Transport.Jobs.ResourceHistoryAndValidationDispatcherJob},
+  {"30 */6 * * *", Transport.Jobs.GTFSToGeoJSONConverterJob},
+  {"0 4 * * *", Transport.Jobs.GTFSImportStopsJob},
+  # every 6 hours but not at the same time as other jobs
+  {"0 3,9,15,21 * * *", Transport.Jobs.GTFSToNeTExConverterJob},
+  {"20 8 * * *", Transport.Jobs.CleanOrphanConversionsJob},
+  {"0 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob},
+  {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}},
+  {"20 */2 * * *", Transport.Jobs.GTFSRTMetadataDispatcherJob},
+  {"30 */6 * * *", Transport.Jobs.BNLCToGeoData},
+  {"30 */6 * * *", Transport.Jobs.ParkingsRelaisToGeoData},
+  {"30 */6 * * *", Transport.Jobs.LowEmissionZonesToGeoData},
+  {"30 */6 * * *", Transport.Jobs.IRVEToGeoData},
+  {"15 10 * * *", Transport.Jobs.DatabaseBackupReplicationJob},
+  {"0 7 * * *", Transport.Jobs.GTFSRTMultiValidationDispatcherJob},
+  {"30 7 * * *", Transport.Jobs.GBFSMultiValidationDispatcherJob},
+  {"45 */3 * * *", Transport.Jobs.ResourceHistoryJSONSchemaValidationJob},
+  # Validata JSON is not properly maintained/monitored.
+  # Disable it for now.
+  # https://github.com/etalab/transport-site/issues/3492
+  # {"0 20 * * *", Transport.Jobs.ResourceHistoryValidataJSONJob},
+  {"15 */3 * * *", Transport.Jobs.ResourceHistoryTableSchemaValidationJob},
+  {"5 6 * * *", Transport.Jobs.NewDatagouvDatasetsJob},
+  {"0 6 * * *", Transport.Jobs.NewDatasetNotificationsJob},
+  {"0 21 * * *", Transport.Jobs.DatasetHistoryDispatcherJob},
+  # Should be executed after all `DatasetHistoryJob` have been executed
+  {"50 21 * * *", Transport.Jobs.ResourcesChangedNotificationJob},
+  {"0 22 * * *", Transport.Jobs.ArchiveMetricsJob},
+  {"15,45 * * * *", Transport.Jobs.MultiValidationWithErrorNotificationJob},
+  {"20,50 * * * *", Transport.Jobs.ResourceUnavailableNotificationJob},
+  {"30 6 * * 1", Transport.Jobs.DatasetsSwitchingClimateResilienceBillJob},
+  {"30 6 * * 1-5", Transport.Jobs.DatasetsClimateResilienceBillNotLOLicenceJob},
+  {"10 6 * * 1", Transport.Jobs.DatasetsWithoutGTFSRTRelatedResourcesNotificationJob},
+  {"45 2 * * *", Transport.Jobs.RemoveHistoryJob, args: %{schema_name: "etalab/schema-irve-dynamique", days_limit: 7}},
+  {"0 16 * * *", Transport.Jobs.DatasetQualityScoreDispatcher},
+  {"40 3 * * *", Transport.Jobs.UpdateContactsJob},
+  {"10 5 * * *", Transport.Jobs.NotificationSubscriptionProducerJob},
+  # "At 08:15 on Monday in March, June, and November.""
+  # The job will make sure that it's executed only on the first Monday of these months
+  {"15 8 * 3,6,11 1", Transport.Jobs.PeriodicReminderProducersNotificationJob}
+]
+
+# Make sure that all modules exist
+oban_prod_crontab |> Enum.map(&Code.ensure_compiled!(elem(&1, 1)))
+
 oban_crontab_all_envs =
   case config_env() do
-    :prod ->
-      [
-        {"0 */6 * * *", Transport.Jobs.ResourceHistoryAndValidationDispatcherJob},
-        {"30 */6 * * *", Transport.Jobs.GtfsToGeojsonConverterJob},
-        {"0 4 * * *", Transport.Jobs.GTFSImportStopsJob},
-        # every 6 hours but not at the same time as other jobs
-        {"0 3,9,15,21 * * *", Transport.Jobs.GtfsToNetexConverterJob},
-        {"20 8 * * *", Transport.Jobs.CleanOrphanConversionsJob},
-        {"0 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob},
-        {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}},
-        {"20 */2 * * *", Transport.Jobs.GTFSRTMetadataDispatcherJob},
-        {"30 */6 * * *", Transport.Jobs.BNLCToGeoData},
-        {"30 */6 * * *", Transport.Jobs.ParkingsRelaisToGeoData},
-        {"30 */6 * * *", Transport.Jobs.LowEmissionZonesToGeoData},
-        {"30 */6 * * *", Transport.Jobs.IRVEToGeoData},
-        {"15 10 * * *", Transport.Jobs.DatabaseBackupReplicationJob},
-        {"0 7 * * *", Transport.Jobs.GTFSRTMultiValidationDispatcherJob},
-        {"30 7 * * *", Transport.Jobs.GBFSMultiValidationDispatcherJob},
-        {"45 */3 * * *", Transport.Jobs.ResourceHistoryJSONSchemaValidationJob},
-        # Validata JSON is not properly maintained/monitored.
-        # Disable it for now.
-        # https://github.com/etalab/transport-site/issues/3492
-        # {"0 20 * * *", Transport.Jobs.ResourceHistoryValidataJSONJob},
-        {"15 */3 * * *", Transport.Jobs.ResourceHistoryTableSchemaValidationJob},
-        {"5 6 * * *", Transport.Jobs.NewDatagouvDatasetsJob},
-        {"0 6 * * *", Transport.Jobs.NewDatasetNotificationsJob},
-        {"0 21 * * *", Transport.Jobs.DatasetHistoryDispatcherJob},
-        # Should be executed after all `DatasetHistoryJob` have been executed
-        {"50 21 * * *", Transport.Jobs.ResourcesChangedNotificationJob},
-        {"0 22 * * *", Transport.Jobs.ArchiveMetricsJob},
-        {"15,45 * * * *", Transport.Jobs.MultiValidationWithErrorNotificationJob},
-        {"20,50 * * * *", Transport.Jobs.ResourceUnavailableNotificationJob},
-        {"30 6 * * 1", Transport.Jobs.DatasetsSwitchingClimateResilienceBillJob},
-        {"30 6 * * 1-5", Transport.Jobs.DatasetsClimateResilienceBillNotLOLicenceJob},
-        {"10 6 * * 1", Transport.Jobs.DatasetsWithoutGTFSRTRelatedResourcesNotificationJob},
-        {"45 2 * * *", Transport.Jobs.RemoveHistoryJob,
-         args: %{schema_name: "etalab/schema-irve-dynamique", days_limit: 7}},
-        {"0 16 * * *", Transport.Jobs.DatasetQualityScoreDispatcher},
-        {"40 3 * * *", Transport.Jobs.UpdateContactsJob},
-        {"10 5 * * *", Transport.Jobs.NotificationSubscriptionProducerJob},
-        # "At 08:15 on Monday in March, June, and November.""
-        # The job will make sure that it's executed only on the first Monday of these months
-        {"15 8 * 3,6,11 1", Transport.Jobs.PeriodicReminderProducersNotificationJob}
-      ]
-
-    :dev ->
-      []
-
-    :test ->
-      []
+    :prod -> oban_prod_crontab
+    :dev -> []
+    :test -> []
   end
 
 # Oban Jobs that only run on the production server.

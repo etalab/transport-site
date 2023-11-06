@@ -1,13 +1,13 @@
 defmodule DB.Repo.Migrations.InseeAomTable do
   use Ecto.Migration
-  def up do
 
+  def up do
     create table("commune") do
-      add :insee, :string
-      add :nom, :string
-      add :wikipedia, :string
-      add :surf_ha, :float
-      add :geom, :geometry
+      add(:insee, :string)
+      add(:nom, :string)
+      add(:wikipedia, :string)
+      add(:surf_ha, :float)
+      add(:geom, :geometry)
     end
 
     flush()
@@ -30,10 +30,10 @@ defmodule DB.Repo.Migrations.InseeAomTable do
     #   """)
     # end)
 
-    create index("commune", [:insee])
+    create(index("commune", [:insee]))
   end
 
   def down do
-    drop table("commune")
+    drop(table("commune"))
   end
 end

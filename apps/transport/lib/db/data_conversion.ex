@@ -70,7 +70,7 @@ defmodule DB.DataConversion do
     delete_data_conversions(conversions)
 
     %{"dataset_id" => dataset_id}
-    |> Transport.Jobs.DatasetGtfsToNetexConverterJob.new()
+    |> Transport.Jobs.DatasetGTFSToNeTExConverterJob.new()
     |> Oban.insert()
   end
 

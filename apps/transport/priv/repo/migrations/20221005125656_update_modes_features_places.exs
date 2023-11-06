@@ -103,7 +103,7 @@ defmodule DB.Repo.Migrations.UpdateModesFeaturesPlaces do
   end
 
   def down do
-     # we drop the old 'places' view, before recreating it
+    # we drop the old 'places' view, before recreating it
     execute("DROP TRIGGER IF EXISTS refresh_places_region_trigger ON region;")
     execute("DROP TRIGGER IF EXISTS refresh_places_aom_trigger ON aom;")
     execute("DROP TRIGGER IF EXISTS refresh_places_commune_trigger ON commune;")
@@ -209,5 +209,5 @@ defmodule DB.Repo.Migrations.UpdateModesFeaturesPlaces do
     FOR EACH STATEMENT
     EXECUTE PROCEDURE refresh_places();
     """)
-    end
   end
+end

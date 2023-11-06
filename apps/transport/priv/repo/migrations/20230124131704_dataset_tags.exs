@@ -3,9 +3,9 @@ defmodule DB.Repo.Migrations.DatasetTags do
 
   def change do
     alter table(:dataset) do
-      add :custom_tags, {:array, :string}
+      add(:custom_tags, {:array, :string})
     end
 
-    create index("dataset", [:custom_tags], using: :gin)
+    create(index("dataset", [:custom_tags], using: :gin))
   end
 end

@@ -64,24 +64,24 @@ defmodule DB.Repo.Migrations.CorrectDatasetPopulationUpdate do
     """)
 
     execute("""
-    CREATE OR REPLACE FUNCTION dataset_communes_update() RETURNS trigger as $$
-    BEGIN
+      CREATE OR REPLACE FUNCTION dataset_communes_update() RETURNS trigger as $$
+      BEGIN
 
-    IF NEW.dataset_id IS NOT NULL THEN
-      UPDATE dataset SET id = id WHERE id = NEW.dataset_id;
-    END IF;
+      IF NEW.dataset_id IS NOT NULL THEN
+        UPDATE dataset SET id = id WHERE id = NEW.dataset_id;
+      END IF;
 
-    RETURN NEW;
-    END
-    $$ LANGUAGE plpgsql;
-  """)
+      RETURN NEW;
+      END
+      $$ LANGUAGE plpgsql;
+    """)
 
-  execute("""
-  CREATE TRIGGER dataset_communes_update
-  AFTER INSERT OR UPDATE ON dataset_communes
-  FOR EACH ROW
-  EXECUTE PROCEDURE dataset_communes_update();
-  """)
+    execute("""
+    CREATE TRIGGER dataset_communes_update
+    AFTER INSERT OR UPDATE ON dataset_communes
+    FOR EACH ROW
+    EXECUTE PROCEDURE dataset_communes_update();
+    """)
 
     # Force update
     execute("UPDATE dataset SET id = id")

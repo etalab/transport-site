@@ -5,6 +5,7 @@ defmodule DB.Repo.Migrations.MoveFieldsToJsonb do
     alter table(:resource) do
       modify(:metadata, :jsonb)
     end
+
     alter table(:validations) do
       modify(:details, :jsonb)
       modify(:on_the_fly_validation_metadata, :jsonb)
