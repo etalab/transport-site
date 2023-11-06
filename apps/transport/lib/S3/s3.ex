@@ -1,3 +1,4 @@
+# TODO: backport version from https://github.com/etalab/transport-site/pull/3560 once it is merged
 defmodule Transport.S3 do
   @moduledoc """
   This module contains common code related to S3 object storage.
@@ -41,7 +42,7 @@ defmodule Transport.S3 do
   @spec stream_to_s3!(bucket_feature(), binary(), binary(), acl: atom()) :: any()
   def stream_to_s3!(feature, local_path, upload_path, options \\ []) do
     Logger.debug("Streaming #{local_path} to #{upload_path}")
-    options = Keyword.validate!(options, acl: :private)
+    options = Keyword.validate!(options,  acl: "public-read")
 
     local_path
     |> ExAws.S3.Upload.stream_file()
@@ -49,10 +50,10 @@ defmodule Transport.S3 do
     |> Transport.Wrapper.ExAWS.impl().request!()
   end
 
-  @spec upload_to_s3!(bucket_feature(), binary(), binary(), acl: atom()) :: any()
-  def upload_to_s3!(feature, body, path, options \\ []) do
+  @spec upload_to_s3!(bucket_feature(), binary(), binary()) :: any()
+  def upload_to_s3!(feature, body, path) do
     Logger.debug("Uploading file to #{path}")
-    options = Keyword.validate!(options, acl: :private)
+    options = Keyword.validate!([], acl: "public-read")
 
     feature
     |> Transport.S3.bucket_name()
