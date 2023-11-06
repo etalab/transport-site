@@ -16,7 +16,7 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
   @notification_reason DB.NotificationSubscription.reason(:periodic_reminder_producers)
 
   use Oban.Worker,
-    unique: [period: 60 * 60 * 60 * @min_days_before_sending_again],
+    unique: [period: 60 * 60 * 24 * @min_days_before_sending_again],
     max_attempts: 3,
     tags: ["notifications"]
 
