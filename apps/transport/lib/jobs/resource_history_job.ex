@@ -94,7 +94,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     Logger.debug("Got an error while downloading resource##{resource_id}: #{message}")
   end
 
-  defp process_download({:ok, resource_path, headers, body}, %Resource{} = resource) do
+  defp process_download({:ok, resource_path, headers}, %Resource{} = resource) do
     download_datetime = DateTime.utc_now()
 
     hash = resource_hash(resource, resource_path)
@@ -137,7 +137,8 @@ defmodule Transport.Jobs.ResourceHistoryJob do
               Map.merge(base, %{content_hash: hash, filesize: size})
           end
 
-        Transport.S3.upload_to_s3!(:history, body, filename)
+        # TODO: use streamed upload
+        Transport.S3.upload_to_s3!(:history, File.read!(resource_path), filename)
         %{id: resource_history_id} = store_resource_history!(resource, data)
 
         %{resource_history_id: resource_history_id}
@@ -250,7 +251,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
       {:ok, %{status_code: 200} = r} ->
         Logger.debug("Saved resource##{resource_id} to #{file_path}")
         # TODO: stop returning the body to avoid the corresponding memory allocation
-        {:ok, file_path, relevant_http_headers(r), File.read!(file_path)}
+        {:ok, file_path, relevant_http_headers(r)}
       {:ok, %{status_code: status_code}} ->
         {:error, "Got a non 200 status: #{status_code}"}
       {:error, error} ->
@@ -263,7 +264,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
       {:ok, %HTTPoison.Response{status_code: 200, body: body} = r} ->
         Logger.debug("Saving resource##{resource_id} to #{file_path}")
         File.write!(file_path, body)
-        {:ok, file_path, relevant_http_headers(r), body}
+        {:ok, file_path, relevant_http_headers(r)}
 
       {:ok, %HTTPoison.Response{status_code: status}} ->
         {:error, "Got a non 200 status: #{status}"}
