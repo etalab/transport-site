@@ -330,30 +330,28 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
           schema_version: schema_version = "0.4.1"
         )
 
-      Transport.HTTPoison.Mock
-      |> expect(:get, fn ^resource_url, _headers, options ->
-        assert options |> Keyword.fetch!(:follow_redirect) == true
-
-        {:ok,
-         %HTTPoison.Response{
-           status_code: 200,
-           body: csv_content,
-           headers: [{"Content-Type", "application/octet-stream"}, {"x-foo", "bar"}]
-         }}
+      Transport.Req.Mock
+      |> expect(:get, fn ^resource_url, options ->
+        assert options[:compressed] == false
+        assert options[:decode_body] == false
+        stream = options |> Keyword.fetch!(:into)
+        # fake write
+        File.write!(stream.path, csv_content)
+        {:ok, %Req.Response{status: 200, headers: [{"Content-Type", "application/octet-stream"}, {"x-foo", "bar"}]}}
       end)
 
       Transport.ExAWS.Mock
       # Resource upload
       |> expect(:request!, fn request ->
         bucket_name = Transport.S3.bucket_name(:history)
+        assert Map.has_key?(request, :body) == false
 
         assert %{
+                 src: %File.Stream{} = _,
                  service: :s3,
-                 http_method: :put,
                  path: path,
                  bucket: ^bucket_name,
-                 body: ^csv_content,
-                 headers: %{"x-amz-acl" => "public-read"}
+                 opts: [acl: :public_read]
                } = request
 
         assert String.starts_with?(path, "#{resource_id}/#{resource_id}.")
