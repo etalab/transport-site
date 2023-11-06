@@ -21,6 +21,7 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
 
     test "enqueues jobs for each contact" do
       dataset = insert(:dataset, organization_id: org_id = Ecto.UUID.generate())
+      insert(:dataset, organization_id: publisher_org_id = Ecto.UUID.generate())
       # Contact should be kept: it doesn't have orgs set but it's subscribed as a producer
       %DB.Contact{id: contact_id_without_org} = insert_contact()
 
@@ -41,11 +42,15 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
         contact: insert_contact()
       )
 
-      # Contact should be kept: no subscriptions but member of an org with published datasets
+      # Contact should be kept: no subscriptions but member of orgs
+      # with published datasets.
+      # A single job should be enqueued even if the contact is a member
+      # of multiple orgs with published datasets.
       %DB.Contact{id: contact_id_with_org} =
         insert_contact(%{
           organizations: [
-            sample_org(%{"id" => org_id})
+            sample_org(%{"id" => org_id}),
+            sample_org(%{"id" => publisher_org_id})
           ]
         })
 
