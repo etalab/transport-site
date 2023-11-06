@@ -249,7 +249,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     file_stream = File.stream!(file_path)
     req_options = [compressed: false, decode_body: false, receive_timeout: 180_000, into: file_stream]
 
-    case Req.get(url, req_options) do
+    case Transport.Req.impl().get(url, req_options) do
       {:ok, %{status: 200} = r} ->
         Logger.debug("Saved resource##{resource_id} to #{file_path}")
         # TODO: stop returning the body to avoid the corresponding memory allocation
