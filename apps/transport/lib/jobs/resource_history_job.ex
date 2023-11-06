@@ -252,7 +252,6 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     case Transport.Req.impl().get(url, req_options) do
       {:ok, %{status: 200} = r} ->
         Logger.debug("Saved resource##{resource_id} to #{file_path}")
-        # TODO: stop returning the body to avoid the corresponding memory allocation
         {:ok, file_path, relevant_http_headers(r)}
 
       {:ok, %{status: status_code}} ->
