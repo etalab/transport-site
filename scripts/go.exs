@@ -1,11 +1,12 @@
 import Ecto.Query
 
-Logger.configure(level: :info)
+Logger.configure(level: :debug)
 
 resource =
   DB.Resource
   |> order_by(desc: :id)
   |> limit(1)
+  |> where([r], r.id not in [81348, 81347])
   |> DB.Repo.one!()
 
 # |> IO.inspect(IEx.inspect_opts)
