@@ -21,6 +21,18 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   @gtfs_path "#{__DIR__}/../../../../shared/test/validation/gtfs.zip"
   @gtfs_content File.read!(@gtfs_path)
 
+  def setup_req_mock(resource_url, csv_content) do
+    Transport.Req.Mock
+    |> expect(:get, fn ^resource_url, options ->
+      assert options[:compressed] == false
+      assert options[:decode_body] == false
+      stream = options |> Keyword.fetch!(:into)
+      # fake write
+      File.write!(stream.path, csv_content)
+      {:ok, %Req.Response{status: 200, headers: [{"Content-Type", "application/octet-stream"}, {"x-foo", "bar"}]}}
+    end)
+  end
+
   describe "ResourceHistoryAndValidationDispatcherJob" do
     test "resources_to_historise" do
       ids = create_resources_for_history()
@@ -330,15 +342,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
           schema_version: schema_version = "0.4.1"
         )
 
-      Transport.Req.Mock
-      |> expect(:get, fn ^resource_url, options ->
-        assert options[:compressed] == false
-        assert options[:decode_body] == false
-        stream = options |> Keyword.fetch!(:into)
-        # fake write
-        File.write!(stream.path, csv_content)
-        {:ok, %Req.Response{status: 200, headers: [{"Content-Type", "application/octet-stream"}, {"x-foo", "bar"}]}}
-      end)
+      setup_req_mock(resource_url, csv_content)
 
       Transport.ExAWS.Mock
       # Resource upload
