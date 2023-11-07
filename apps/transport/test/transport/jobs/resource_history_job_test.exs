@@ -414,11 +414,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
           payload: %{"zip_metadata" => zip_metadata()}
         )
 
-      Transport.HTTPoison.Mock
-      |> expect(:get, fn ^resource_url, _headers, options ->
-        assert options |> Keyword.fetch!(:follow_redirect) == true
-        {:ok, %HTTPoison.Response{status_code: 200, body: @gtfs_content, headers: []}}
-      end)
+      setup_req_mock(resource_url, @gtfs_content)
 
       assert 1 == count_resource_history()
       assert :ok == perform_job(ResourceHistoryJob, %{resource_id: resource_id})
