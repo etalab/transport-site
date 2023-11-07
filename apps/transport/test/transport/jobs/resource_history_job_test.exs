@@ -33,6 +33,25 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
     end)
   end
 
+  def setup_aws_mock(resource_id) do
+    Transport.ExAWS.Mock
+    # Resource upload
+    |> expect(:request!, fn request ->
+      bucket_name = Transport.S3.bucket_name(:history)
+      assert Map.has_key?(request, :body) == false
+
+      assert %{
+               src: %File.Stream{} = _,
+               service: :s3,
+               path: path,
+               bucket: ^bucket_name,
+               opts: [acl: :public_read]
+             } = request
+
+      assert String.starts_with?(path, "#{resource_id}/#{resource_id}.")
+    end)
+  end
+
   describe "ResourceHistoryAndValidationDispatcherJob" do
     test "resources_to_historise" do
       ids = create_resources_for_history()
@@ -343,23 +362,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
         )
 
       setup_req_mock(resource_url, csv_content)
-
-      Transport.ExAWS.Mock
-      # Resource upload
-      |> expect(:request!, fn request ->
-        bucket_name = Transport.S3.bucket_name(:history)
-        assert Map.has_key?(request, :body) == false
-
-        assert %{
-                 src: %File.Stream{} = _,
-                 service: :s3,
-                 path: path,
-                 bucket: ^bucket_name,
-                 opts: [acl: :public_read]
-               } = request
-
-        assert String.starts_with?(path, "#{resource_id}/#{resource_id}.")
-      end)
+      setup_aws_mock(resource_id)
 
       Transport.Shared.Schemas.Mock
       |> expect(:transport_schemas, 1, fn ->
