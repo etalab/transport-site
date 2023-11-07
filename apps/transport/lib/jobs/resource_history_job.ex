@@ -73,7 +73,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     notification =
       try do
         %{resource_history_id: resource_history_id} =
-          download_resource(:req, resource, path) |> process_download(resource)
+          :req |> download_resource(resource, path) |> process_download(resource)
 
         %{"success" => true, "job_id" => job.id, "output" => %{resource_history_id: resource_history_id}}
       rescue
