@@ -21,7 +21,9 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   @gtfs_path "#{__DIR__}/../../../../shared/test/validation/gtfs.zip"
   @gtfs_content File.read!(@gtfs_path)
 
-  def setup_req_mock(resource_url, csv_content) do
+  def setup_req_mock(resource_url, csv_content, opts \\ []) do
+    opts = Keyword.validate!(opts, status: 200)
+
     Transport.Req.Mock
     |> expect(:get, fn ^resource_url, options ->
       assert options[:compressed] == false
@@ -29,7 +31,9 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       stream = options |> Keyword.fetch!(:into)
       # fake write
       File.write!(stream.path, csv_content)
-      {:ok, %Req.Response{status: 200, headers: [{"Content-Type", "application/octet-stream"}, {"x-foo", "bar"}]}}
+
+      {:ok,
+       %Req.Response{status: opts[:status], headers: [{"Content-Type", "application/octet-stream"}, {"x-foo", "bar"}]}}
     end)
   end
 
@@ -441,11 +445,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
           is_community_resource: false
         )
 
-      Transport.HTTPoison.Mock
-      |> expect(:get, fn ^resource_url, _headers, options ->
-        assert options == [follow_redirect: true]
-        {:ok, %HTTPoison.Response{status_code: 500, body: "", headers: []}}
-      end)
+      setup_req_mock(resource_url, "", status: 500)
 
       assert 0 == count_resource_history()
       assert :ok == perform_job(ResourceHistoryJob, %{resource_id: resource_id})
