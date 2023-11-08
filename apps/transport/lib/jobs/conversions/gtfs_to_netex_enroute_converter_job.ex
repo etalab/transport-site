@@ -170,7 +170,7 @@ defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
   30
   iex> next_polling_attempt_seconds(500)
   30
-  iex> Enum.each(1..max_polling_attempts(), &next_polling_attempt_seconds/1)
+  iex> Enum.each(1..max_polling_attempts() - 1, &next_polling_attempt_seconds/1)
   :ok
   """
   def next_polling_attempt_seconds(current_attempt) when current_attempt < 12, do: 10
