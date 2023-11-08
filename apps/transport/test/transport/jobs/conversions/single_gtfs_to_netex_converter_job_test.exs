@@ -1,9 +1,9 @@
-defmodule Transport.Jobs.SingleGTFSToNeTExConverterJobTest do
+defmodule Transport.Jobs.SingleGTFSToNeTExHoveConverterJobTest do
   use ExUnit.Case, async: true
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
   import Mox
-  alias Transport.Jobs.SingleGTFSToNeTExConverterJob
+  alias Transport.Jobs.SingleGTFSToNeTExHoveConverterJob
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -13,13 +13,20 @@ defmodule Transport.Jobs.SingleGTFSToNeTExConverterJobTest do
 
   test "existing conversion" do
     uuid = Ecto.UUID.generate()
-    insert(:data_conversion, convert_from: "GTFS", convert_to: "NeTEx", resource_history_uuid: uuid, payload: %{})
+
+    insert(:data_conversion,
+      convert_from: :GTFS,
+      convert_to: :NeTEx,
+      resource_history_uuid: uuid,
+      converter: DB.DataConversion.converter_to_use(:NeTEx),
+      payload: %{}
+    )
 
     %{id: resource_history_id} = insert(:resource_history, payload: %{"uuid" => uuid, "format" => "GTFS"})
 
     # no mox expectation set, and the test passes => conversion is properly skipped
     assert {:cancel, "Conversion is not needed"} ==
-             perform_job(SingleGTFSToNeTExConverterJob, %{"resource_history_id" => resource_history_id})
+             perform_job(SingleGTFSToNeTExHoveConverterJob, %{"resource_history_id" => resource_history_id})
   end
 
   test "launch a NeTEx conversion" do
@@ -66,13 +73,14 @@ defmodule Transport.Jobs.SingleGTFSToNeTExConverterJobTest do
 
     # job succeed
     assert :ok ==
-             perform_job(SingleGTFSToNeTExConverterJob, %{"resource_history_id" => resource_history_id})
+             perform_job(SingleGTFSToNeTExHoveConverterJob, %{"resource_history_id" => resource_history_id})
 
     # a data_conversion row is recorded ✌️‍
     assert %DB.DataConversion{payload: %{"filesize" => 41, "filename" => "conversions/gtfs-to-netex/fff.netex.zip"}} =
              DB.Repo.get_by!(DB.DataConversion,
-               convert_from: "GTFS",
-               convert_to: "NeTEx",
+               convert_from: :GTFS,
+               convert_to: :NeTEx,
+               converter: DB.DataConversion.converter_to_use(:NeTEx),
                resource_history_uuid: uuid
              )
 
@@ -111,7 +119,8 @@ defmodule Transport.Jobs.SingleGTFSToNeTExConverterJobTest do
       {:error, "conversion failed"}
     end)
 
-    assert {:cancel, _} = perform_job(SingleGTFSToNeTExConverterJob, %{"resource_history_id" => resource_history_id})
+    assert {:cancel, _} =
+             perform_job(SingleGTFSToNeTExHoveConverterJob, %{"resource_history_id" => resource_history_id})
 
     # ResourceHistory's payload is updated with the error information
     expected_payload =
@@ -126,8 +135,9 @@ defmodule Transport.Jobs.SingleGTFSToNeTExConverterJobTest do
     assert_raise(Ecto.NoResultsError, fn ->
       DB.DataConversion
       |> DB.Repo.get_by!(
-        convert_from: "GTFS",
-        convert_to: "NeTEx",
+        convert_from: :GTFS,
+        convert_to: :NeTEx,
+        converter: DB.DataConversion.converter_to_use(:NeTEx),
         resource_history_uuid: uuid
       )
     end)

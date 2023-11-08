@@ -3,8 +3,7 @@ defmodule Transport.Jobs.GTFSToGeoJSONConverterJobTest do
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
   import Mox
-
-  alias Transport.Jobs.{GTFSToGeoJSONConverterJob, SingleGTFSToGeoJSONConverterJob}
+  alias Transport.Jobs.GTFSToGeoJSONConverterJob
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -12,7 +11,7 @@ defmodule Transport.Jobs.GTFSToGeoJSONConverterJobTest do
 
   setup :verify_on_exit!
 
-  test "gtfs to gejson jobs are enqueued" do
+  test "GTFS to GeoJSON jobs are enqueued" do
     %{id: resource_history_id} =
       insert(:resource_history,
         datagouv_id: "1",
@@ -32,18 +31,24 @@ defmodule Transport.Jobs.GTFSToGeoJSONConverterJobTest do
       payload: %{"format" => "GTFS", "uuid" => Ecto.UUID.generate(), "conversion_GeoJSON_fatal_error" => true}
     )
 
-    # this resource_history should not get enqueued for conversion,
+    # This resource_history should not get enqueued for conversion,
     # as a matching data_conversion already exists
     insert(:resource_history,
       datagouv_id: "4",
       payload: %{"format" => "GTFS", uuid: uuid = Ecto.UUID.generate()}
     )
 
-    insert(:data_conversion, convert_from: "GTFS", convert_to: "GeoJSON", resource_history_uuid: uuid, payload: %{})
+    insert(:data_conversion,
+      convert_from: :GTFS,
+      convert_to: :GeoJSON,
+      converter: DB.DataConversion.converter_to_use(:GeoJSON),
+      resource_history_uuid: uuid,
+      payload: %{}
+    )
 
-    :ok = perform_job(GTFSToGeoJSONConverterJob, %{})
+    assert :ok = perform_job(GTFSToGeoJSONConverterJob, %{})
 
     assert [%Oban.Job{args: %{"resource_history_id" => ^resource_history_id}}] =
-             all_enqueued(worker: SingleGTFSToGeoJSONConverterJob)
+             all_enqueued()
   end
 end
