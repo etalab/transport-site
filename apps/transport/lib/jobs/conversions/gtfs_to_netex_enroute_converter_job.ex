@@ -193,7 +193,7 @@ defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
   end
 
   def tmp_path(%DB.ResourceHistory{id: id}) do
-    System.tmp_dir!() |> Path.join("enroute_conversion_gtfs_netex_#{id}}")
+    System.tmp_dir!() |> Path.join("enroute_conversion_gtfs_netex_#{id}")
   end
 
   def converter, do: "enroute/gtfs-to-netex"
