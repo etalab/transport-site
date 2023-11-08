@@ -413,14 +413,15 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
   @doc """
   From a list of resource object coming from the data.gouv.fr's API, download these (valid)
-  CSV files locally and guess the CSV separator.
+  CSV files locallyn, guess the CSV separator and try to decode the file.
 
   The temporary download path and the guessed CSV separator are added to the resource's payload.
 
   Possible errors:
   - cannot download the resource
+  - cannot decode the CSV file
   """
-  @spec download_resources([map()]) :: %{ok: [], errors: []}
+  @spec download_resources([map()]) :: %{ok: [], errors: [decode_error() | download_error()]}
   def download_resources(resources_details) do
     resources_details
     |> Enum.map(fn {dataset_details, %{"url" => resource_url} = resource} ->
@@ -436,7 +437,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   end
 
   @doc """
-  For a remote resource we can successfully download, we try to:
+  For a remote resource we successfully downloaded, we try to:
   - guess the CSV separator of the file (using the header line)
   - decode the CSV file with the guessed separator
   """
@@ -451,10 +452,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   end
 
   defp decode_csv(body, {dataset_details, %{@separator_key => separator, @download_path_key => path} = resource}) do
-    errors =
-      [body]
-      |> CSV.decode(separator: separator, unredact_exceptions: false)
-      |> Enum.filter(&(elem(&1, 0) == :error))
+    errors = [body] |> CSV.decode(separator: separator) |> Enum.filter(&(elem(&1, 0) == :error))
 
     if Enum.empty?(errors) do
       {:ok, {dataset_details, resource}}

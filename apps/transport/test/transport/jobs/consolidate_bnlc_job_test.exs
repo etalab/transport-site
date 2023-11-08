@@ -227,6 +227,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
     Transport.HTTPoison.Mock
     |> expect(:get, fn ^decode_error_url, [], [follow_redirect: true] ->
+      # Malformed CSV: unescaped double quotes: `""2"`
       body = """
       "foo","bar"
       "1",""2"
