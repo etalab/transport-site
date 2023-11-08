@@ -61,6 +61,7 @@
     <tr>
       <th>Jeu de données</th>
       <th><%= dgettext("backoffice", "Notification reason") %></th>
+      <th>Source</th>
       <th>Actions</th>
     </tr>
     <%= for {dataset, notification_subscriptions} <- subscriptions_with_dataset do %>
@@ -82,6 +83,7 @@
             <div class="small"><%= dataset.type %></div>
           </td>
           <td><%= notification_subscription.reason %></td>
+          <td><%= notification_subscription.source %></td>
           <td>
             <%= form_for @conn, backoffice_notification_subscription_path(@conn, :delete, notification_subscription.id), [method: "delete"], fn f -> %>
               <%= hidden_input(f, :redirect_location, value: "contact") %>
