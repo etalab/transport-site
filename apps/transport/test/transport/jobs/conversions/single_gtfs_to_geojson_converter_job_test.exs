@@ -24,7 +24,14 @@ defmodule Transport.Jobs.SingleGTFSToGeoJSONConverterJobTest do
 
   test "existing conversion" do
     uuid = Ecto.UUID.generate()
-    insert(:data_conversion, convert_from: "GTFS", convert_to: "GeoJSON", resource_history_uuid: uuid, payload: %{})
+
+    insert(:data_conversion,
+      convert_from: :GTFS,
+      convert_to: :GeoJSON,
+      resource_history_uuid: uuid,
+      converter: DB.DataConversion.converter_to_use(:GeoJSON),
+      payload: %{}
+    )
 
     %{id: resource_history_id} = insert(:resource_history, payload: %{"uuid" => uuid, "format" => "GTFS"})
 
@@ -65,8 +72,9 @@ defmodule Transport.Jobs.SingleGTFSToGeoJSONConverterJobTest do
     # a data_conversion row is recorded ✌️‍
     assert %DB.DataConversion{payload: %{"filesize" => 23, "filename" => "conversions/gtfs-to-geojson/fff.geojson"}} =
              DB.Repo.get_by!(DB.DataConversion,
-               convert_from: "GTFS",
-               convert_to: "GeoJSON",
+               convert_from: :GTFS,
+               convert_to: :GeoJSON,
+               converter: DB.DataConversion.converter_to_use(:GeoJSON),
                resource_history_uuid: uuid
              )
 
@@ -111,8 +119,9 @@ defmodule Transport.Jobs.SingleGTFSToGeoJSONConverterJobTest do
     assert_raise(Ecto.NoResultsError, fn ->
       DB.DataConversion
       |> DB.Repo.get_by!(
-        convert_from: "GTFS",
-        convert_to: "GeoJSON",
+        convert_from: :GTFS,
+        convert_to: :GeoJSON,
+        converter: DB.DataConversion.converter_to_use(:GeoJSON),
         resource_history_uuid: uuid
       )
     end)

@@ -341,7 +341,7 @@ defmodule Transport.Validators.GTFSRT do
 
   defp process_download({:ok, tmp_path, body}, %Resource{} = resource) do
     cellar_filename = upload_filename(resource, DateTime.utc_now())
-    Transport.S3.upload_to_s3!(:history, body, cellar_filename)
+    Transport.S3.upload_to_s3!(:history, body, cellar_filename, acl: :public_read)
     {:ok, tmp_path, cellar_filename}
   end
 

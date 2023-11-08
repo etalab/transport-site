@@ -30,7 +30,7 @@ defmodule TransportWeb.TransportToolsTest do
     @tag :transport_tools
     test "we can convert a gtfs to NeTEx" do
       netex_dir = "test_netex"
-      :ok = Transport.GTFSToNeTExConverter.convert("#{__DIR__}/../../fixture/files/gtfs.zip", netex_dir)
+      :ok = Transport.GTFSToNeTExHoveConverter.convert("#{__DIR__}/../../fixture/files/gtfs.zip", netex_dir)
       assert File.dir?(netex_dir)
       File.rm_rf!(netex_dir)
     end

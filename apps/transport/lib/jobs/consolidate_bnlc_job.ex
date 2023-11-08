@@ -83,7 +83,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     content = File.read!(@bnlc_path)
     now = DateTime.utc_now() |> DateTime.truncate(:microsecond) |> DateTime.to_string() |> String.replace(" ", "_")
     filename = "bnlc-#{now}.csv"
-    Transport.S3.upload_to_s3!(@s3_bucket, content, filename)
+    Transport.S3.upload_to_s3!(@s3_bucket, content, filename, acl: :public_read)
     filename
   end
 

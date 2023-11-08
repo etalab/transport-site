@@ -7,7 +7,7 @@ defmodule DB.DataConversion do
   import Ecto.Query
 
   typed_schema "data_conversion" do
-    field(:status, Ecto.Enum, values: [:created, :pending, :success, :failed])
+    field(:status, Ecto.Enum, values: [:created, :pending, :success, :failed, :timeout])
     field(:converter, :string)
     field(:converter_version, :string)
     field(:convert_from, Ecto.Enum, values: [:GTFS])
@@ -31,7 +31,7 @@ defmodule DB.DataConversion do
     Map.fetch!(
       %{
         "GeoJSON" => Transport.GTFSToGeoJSONConverter.converter(),
-        "NeTEx" => Transport.GTFSToNeTExConverter.converter()
+        "NeTEx" => Transport.GTFSToNeTExHoveConverter.converter()
       },
       to_string(convert_to)
     )

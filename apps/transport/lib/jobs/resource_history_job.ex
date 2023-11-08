@@ -137,7 +137,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
               Map.merge(base, %{content_hash: hash, filesize: size})
           end
 
-        Transport.S3.upload_to_s3!(:history, body, filename)
+        Transport.S3.upload_to_s3!(:history, body, filename, acl: :public_read)
         %{id: resource_history_id} = store_resource_history!(resource, data)
 
         %{resource_history_id: resource_history_id}

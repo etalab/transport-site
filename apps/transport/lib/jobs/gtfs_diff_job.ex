@@ -33,7 +33,8 @@ defmodule Transport.Jobs.GTFSDiff do
     Transport.S3.upload_to_s3!(
       :gtfs_diff,
       diff |> Transport.GTFSDiff.dump_diff(),
-      diff_file_name
+      diff_file_name,
+      acl: :public_read
     )
 
     Oban.Notifier.notify(Oban, :gossip, %{
