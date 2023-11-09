@@ -206,6 +206,7 @@ defmodule Transport.Validators.GTFSTransport do
       "InvalidUrl" => dgettext("gtfs-transport-validator", "Invalid url"),
       "InvalidTimezone" => dgettext("gtfs-transport-validator", "Invalid timezone"),
       "DuplicateStops" => dgettext("gtfs-transport-validator", "Duplicate stops"),
+      "DuplicateStopSequence" => dgettext("gtfs-transport-validator", "Duplicate stop sequence"),
       "MissingPrice" => dgettext("gtfs-transport-validator", "Missing price"),
       "InvalidCurrency" => dgettext("gtfs-transport-validator", "Invalid currency"),
       "InvalidTransfers" => dgettext("gtfs-transport-validator", "Invalid transfers"),
