@@ -94,7 +94,7 @@ defmodule Transport.ImportAOMs do
   defp normalize_forme(f), do: f
 
   def run do
-    aoms =
+    old_aoms =
       AOM
       |> Repo.all()
       |> Enum.map(fn aom -> {aom.composition_res_id, aom} end)
@@ -111,7 +111,7 @@ defmodule Transport.ImportAOMs do
           import_aoms(aom_to_add)
 
           migrate_aoms()
-          delete_old_aoms(aom_to_add, aoms)
+          delete_old_aoms(aom_to_add, old_aoms)
 
           # we load the join on cities
           import_insee_aom()
