@@ -63,7 +63,7 @@ defmodule Shared.Validation.TableSchemaValidator do
   end
 
   defp build_report(
-         %{"report" => %{"tasks" => tasks}, "_meta" => %{"validata-api-version" => validata_api_version}} = payload
+         %{"report" => %{"tasks" => tasks}, "_meta" => %{"validata-table-version" => validata_version}} = payload
        ) do
     if Enum.count(tasks) != 1 do
       raise "tasks should have a length of 1 for response #{payload}"
@@ -92,7 +92,7 @@ defmodule Shared.Validation.TableSchemaValidator do
       "errors_count" => nb_errors,
       "errors" => errors,
       "validator" => __MODULE__,
-      "validata_api_version" => validata_api_version
+      "validata_api_version" => validata_version
     }
   end
 
