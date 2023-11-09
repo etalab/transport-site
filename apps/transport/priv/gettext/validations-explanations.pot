@@ -121,3 +121,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Related stops"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "SubFolder"
+msgstr ""
