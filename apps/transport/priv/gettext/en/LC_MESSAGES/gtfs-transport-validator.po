@@ -162,3 +162,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Unused shape ID"
 msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Duplicate stop sequence"
+msgstr ""
