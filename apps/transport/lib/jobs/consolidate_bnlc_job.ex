@@ -413,7 +413,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
   @doc """
   From a list of resource object coming from the data.gouv.fr's API, download these (valid)
-  CSV files locallyn, guess the CSV separator and try to decode the file.
+  CSV files locally, guess the CSV separator and try to decode the file.
 
   The temporary download path and the guessed CSV separator are added to the resource's payload.
 
@@ -448,10 +448,13 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     path = System.tmp_dir!() |> Path.join("consolidate_bnlc_#{resource_id}")
     File.write!(path, body)
     resource = Map.merge(resource, %{@download_path_key => path, @separator_key => guess_csv_separator(body)})
-    decode_csv(body, {dataset_details, resource})
+    check_can_decode_csv(body, {dataset_details, resource})
   end
 
-  defp decode_csv(body, {dataset_details, %{@separator_key => separator, @download_path_key => path} = resource}) do
+  defp check_can_decode_csv(
+         body,
+         {dataset_details, %{@separator_key => separator, @download_path_key => path} = resource}
+       ) do
     errors = [body] |> CSV.decode(separator: separator) |> Enum.filter(&(elem(&1, 0) == :error))
 
     if Enum.empty?(errors) do
