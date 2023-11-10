@@ -11,6 +11,7 @@ defmodule DB.AOM do
   alias Geo.MultiPolygon
 
   typed_schema "aom" do
+    # composition_res_id matches the id_reseau attribute from the Cerema dataset it’s the official ID of the AOM
     field(:composition_res_id, :integer)
     field(:insee_commune_principale, :string)
     field(:departement, :string)
@@ -18,10 +19,8 @@ defmodule DB.AOM do
     field(:nom, :string)
     field(:forme_juridique, :string)
     field(:nombre_communes, :integer)
-    field(:population_municipale, :integer)
-    field(:population_totale, :integer)
+    field(:population, :integer)
     field(:surface, :string)
-    field(:commentaire, :string)
     field(:geom, Geo.PostGIS.Geometry) :: MultiPolygon.t()
 
     belongs_to(:region, Region)

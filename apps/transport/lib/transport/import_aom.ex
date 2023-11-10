@@ -63,10 +63,8 @@ defmodule Transport.ImportAOMs do
        nom: nom,
        forme_juridique: normalize_forme(line["Forme juridique"]),
        nombre_communes: to_int(line["Nombre de communes du RT"]),
-       population_municipale: to_int(line["Population municipale 2018"]),
-       population_totale: to_int(line["Population totale 2018"]),
+       population: to_int(line["Population"]),
        surface: line["Surface (km²)"] |> String.trim(),
-       commentaire: line["Commentaire"] |> String.trim(),
        region: new_region
      })}
   end
