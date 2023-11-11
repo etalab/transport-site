@@ -22,20 +22,20 @@ defmodule Mix.Tasks.Transport.ImportDepartements do
         },
         geojsons
       ) do
-
     changeset =
-    insee
-    |> get_or_create_departement()
-    |> Changeset.change(%{
-      insee: insee,
-      region_insee: region,
-      chef_lieu: chef_lieu,
-      nom: nom,
-      zone: zone,
-      geom: build_geometry(geojsons, insee)
-    })
+      insee
+      |> get_or_create_departement()
+      |> Changeset.change(%{
+        insee: insee,
+        region_insee: region,
+        chef_lieu: chef_lieu,
+        nom: nom,
+        zone: zone,
+        geom: build_geometry(geojsons, insee)
+      })
 
     changeset_change_keys = changeset.changes |> Map.keys()
+
     unless Enum.empty?(changeset_change_keys -- [:geom, :population]) do
       Logger.info("Important changes for INSEE #{insee}. #{readable_changeset(changeset)}")
     end

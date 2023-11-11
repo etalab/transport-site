@@ -1,23 +1,17 @@
 defmodule DB.Repo.Migrations.RemovePopulationMunicipaleFromAOM do
   use Ecto.Migration
 
-  def change do
+  def up do
     alter table(:aom) do
-      remove :population_municipale, :integer # CEREMA only provides one population column now
-      remove :commentaire, :string # This column was empty in database
+      # CEREMA only provides one population column now
+      remove(:population_municipale)
+      # This column was empty in database
+      remove(:commentaire)
     end
-    rename table(:aom), :population_totale, to: :population
 
-    execute(&execute_up/0, &execute_down/0)
+    rename(table(:aom), :population_totale, to: :population)
 
-    # Force update
-    execute("UPDATE dataset SET id = id", "")
-
-  end
-
-  defp execute_up do
-    repo().query!(
-    """
+    execute("""
     CREATE OR REPLACE FUNCTION dataset_search_update() RETURNS trigger as $$
     DECLARE
     nom text;
@@ -85,12 +79,21 @@ defmodule DB.Repo.Migrations.RemovePopulationMunicipaleFromAOM do
     RETURN NEW;
     END
     $$ LANGUAGE plpgsql;
-    """,  [], [log: :info])
+    """)
+
+    # Force update
+    execute("UPDATE dataset SET id = id", "")
   end
 
-  def execute_down do
-    repo().query!(
-    """
+  def down do
+    alter table(:aom) do
+      add(:population_municipale, :integer)
+      add(:commentaire, :string)
+    end
+
+    rename(table(:aom), :population, to: :population_totale)
+
+    execute("""
     CREATE OR REPLACE FUNCTION dataset_search_update() RETURNS trigger as $$
     DECLARE
     nom text;
@@ -158,6 +161,9 @@ defmodule DB.Repo.Migrations.RemovePopulationMunicipaleFromAOM do
     RETURN NEW;
     END
     $$ LANGUAGE plpgsql;
-    """,  [], [log: :info])
+    """)
+
+    # Force update
+    execute("UPDATE dataset SET id = id", "")
   end
 end
