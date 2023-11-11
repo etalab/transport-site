@@ -188,6 +188,8 @@ if config_env() == :dev do
     http: [port: System.get_env("PORT", "5000")],
     #  We also make sure to start the assets watcher only if the webserver is up, to avoid cluttering the logs.
     watchers: if(webserver, do: [npm: ["run", "--prefix", "apps/transport/client", "watch"]], else: [])
+
+  config :transport, DB.Repo, timeout: 30_000
 end
 
 if config_env() == :prod do
