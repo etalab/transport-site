@@ -42,7 +42,8 @@ defmodule TransportWeb.ResourceView do
         "UnusedShapeId" => "_unused_shape_issue.html",
         "InvalidShapeId" => "_invalid_shape_id_issue.html",
         "MissingId" => "_missing_id_issue.html",
-        "MissingName" => "_missing_name_issue.html"
+        "MissingName" => "_missing_name_issue.html",
+        "SubFolder" => "_subfolder_issue.html"
       },
       issue_type(issues.entries),
       "_generic_issue.html"

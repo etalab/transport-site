@@ -122,3 +122,7 @@ msgstr "Some stops within a trip have the same stop sequence value."
 #, elixir-autogen, elixir-format
 msgid "Related stops"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "SubFolder"
+msgstr ".txt files are in subfolder (%{folder}). Files must reside at the root level directly, not in a subfolder."

@@ -166,3 +166,7 @@ msgstr "Shape ID inutilisé"
 #, elixir-autogen, elixir-format
 msgid "Duplicate stop sequence"
 msgstr "Doublon de stop_sequence dans un trajet"
+
+#, elixir-autogen, elixir-format
+msgid "Files in a subfolder"
+msgstr "Fichiers dans un sous-dossier"
