@@ -162,3 +162,7 @@ msgstr "Shape ID invalide"
 #, elixir-autogen, elixir-format
 msgid "Unused shape ID"
 msgstr "Shape ID inutilisé"
+
+#, elixir-autogen, elixir-format
+msgid "Duplicate stop sequence"
+msgstr "Doublon de stop_sequence dans un trajet"

@@ -114,3 +114,11 @@ msgstr "Type d'objet"
 #, elixir-autogen, elixir-format
 msgid "Object ID"
 msgstr "Identifiant de l’objet"
+
+#, elixir-autogen, elixir-format
+msgid "DuplicateStopSequence"
+msgstr "Certains arrêts dans un même trajet ont la même valeur de stop_sequence."
+
+#, elixir-autogen, elixir-format
+msgid "Related stops"
+msgstr "Arrêts associés"
