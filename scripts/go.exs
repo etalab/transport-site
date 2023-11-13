@@ -1,20 +1,24 @@
-import Ecto.Query
+# Logger.configure(level: :debug)
 
-Logger.configure(level: :debug)
+resources = Transport.Jobs.ResourceHistoryAndValidationDispatcherJob.resources_to_historise()
 
-resource =
-  DB.Resource
-  |> order_by(desc: :id)
-  |> limit(1)
-  |> where([r], r.id not in [81348, 81347])
-  |> DB.Repo.one!()
+defmodule Downloader do
+  def handle(folder, resource) do
+    [:req, :legacy]
+    |> Enum.each(fn mode ->
+      file_path = Path.join(folder, "#{mode}-#{resource.id}.dat")
 
-# |> IO.inspect(IEx.inspect_opts)
+      unless File.exists?(file_path) do
+        IO.puts("Saving #{file_path}")
+        Transport.Jobs.ResourceHistoryJob.download_resource(:req, resource, file_path)
+      end
+    end)
+  end
+end
 
-IO.puts(resource.url)
+folder = Path.join(__ENV__.file, "../cache-dir") |> Path.expand()
 
-job = %Oban.Job{args: %{"resource_id" => resource.id}}
-
-Transport.Jobs.ResourceHistoryJob.perform(job)
-
-IO.puts("done!")
+resources
+|> Enum.each(fn resource ->
+  Downloader.handle(folder, resource)
+end)
