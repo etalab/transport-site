@@ -82,8 +82,14 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
            %{"title" => "Ressource avec erreurs", "schema" => %{"name" => @target_schema}}}
         ],
         download_errors: [
-          {%{"page" => "https://example.com/jdd_download_error", "title" => "JDD avec erreur de téléchargement"},
-           %{"title" => "Ressource indisponible", "schema" => %{"name" => @target_schema}}}
+          {:download,
+           {%{"page" => "https://example.com/jdd_download_error", "title" => "JDD avec erreur de téléchargement"},
+            %{"title" => "Ressource indisponible", "schema" => %{"name" => @target_schema}}}}
+        ],
+        decode_errors: [
+          {:decode,
+           {%{"page" => "https://example.com/jdd_decode_error", "title" => "JDD impossible à décoder"},
+            %{"title" => "Ressource mal formatée", "schema" => %{"name" => @target_schema}}}}
         ]
       }
 
@@ -98,12 +104,22 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
 
              <h2>Impossible de télécharger les ressources suivantes</h2>
-             Ressource `Ressource indisponible` (<a href="https://example.com/jdd_download_error">JDD avec erreur de téléchargement</a>)\
+             Ressource `Ressource indisponible` (<a href="https://example.com/jdd_download_error">JDD avec erreur de téléchargement</a>)
+
+
+             <h2>Impossible de décoder les fichiers CSV suivants</h2>
+             Ressource `Ressource mal formatée` (<a href="https://example.com/jdd_decode_error">JDD impossible à décoder</a>)\
              """ == ConsolidateBNLCJob.format_errors(errors)
     end
 
     test "nil when there are no errors" do
-      assert nil == ConsolidateBNLCJob.format_errors(%{dataset_errors: [], validation_errors: [], download_errors: []})
+      assert nil ==
+               ConsolidateBNLCJob.format_errors(%{
+                 dataset_errors: [],
+                 validation_errors: [],
+                 download_errors: [],
+                 decode_errors: []
+               })
     end
   end
 
@@ -154,7 +170,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     assert %{
              errors: [
                {:error, dataset_details, other_resource},
-               {:validation_error, other_dataset_details, validation_error_resource}
+               {:validator_unavailable_error, other_dataset_details, validation_error_resource}
              ],
              ok: [{dataset_details, resource}]
            } == ConsolidateBNLCJob.valid_datagouv_resources(datasets_details)
@@ -172,15 +188,26 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       "slug" => "foo"
     }
 
-    dataset_error_detail = %{
+    dataset_download_error_detail = %{
       "resources" => [
-        resource_error = %{
+        resource_download_error = %{
           "id" => Ecto.UUID.generate(),
           "schema" => %{"name" => @target_schema},
-          "url" => error_url = "https://example.com/other_file.csv"
+          "url" => download_error_url = "https://example.com/download_error.csv"
         }
       ],
       "slug" => "bar"
+    }
+
+    dataset_decode_error_detail = %{
+      "resources" => [
+        resource_decode_error = %{
+          "id" => resource_decode_error_id = Ecto.UUID.generate(),
+          "schema" => %{"name" => @target_schema},
+          "url" => decode_error_url = "https://example.com/decode_error.csv"
+        }
+      ],
+      "slug" => "baz"
     }
 
     Transport.HTTPoison.Mock
@@ -194,14 +221,39 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     end)
 
     Transport.HTTPoison.Mock
-    |> expect(:get, fn ^error_url, [], [follow_redirect: true] ->
+    |> expect(:get, fn ^download_error_url, [], [follow_redirect: true] ->
       {:ok, %HTTPoison.Response{status_code: 500, body: ""}}
     end)
 
-    resources_details = [{dataset_detail, resource}, {dataset_error_detail, resource_error}]
+    Transport.HTTPoison.Mock
+    |> expect(:get, fn ^decode_error_url, [], [follow_redirect: true] ->
+      # Malformed CSV: unescaped double quotes: `""2"`
+      body = """
+      "foo","bar"
+      "1",""2"
+      """
+
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}}
+    end)
+
+    resources_details = [
+      {dataset_detail, resource},
+      {dataset_download_error_detail, resource_download_error},
+      {dataset_decode_error_detail, resource_decode_error}
+    ]
 
     assert %{
-             errors: [{^dataset_error_detail, ^resource_error}],
+             errors: [
+               {:download, {^dataset_download_error_detail, ^resource_download_error}},
+               {:decode,
+                {^dataset_decode_error_detail,
+                 %{
+                   "id" => ^resource_decode_error_id,
+                   "csv_separator" => ?,,
+                   "tmp_download_path" => tmp_decode_error_download_path,
+                   "url" => ^decode_error_url
+                 }}}
+             ],
              ok: [
                {^dataset_detail,
                 %{"id" => ^resource_id, "url" => ^url, "csv_separator" => ?,, "tmp_download_path" => tmp_download_path}}
@@ -210,6 +262,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
     assert String.ends_with?(tmp_download_path, "consolidate_bnlc_#{resource_id}")
     assert File.exists?(tmp_download_path)
+    refute File.exists?(tmp_decode_error_download_path)
   end
 
   test "guess_csv_separator" do
