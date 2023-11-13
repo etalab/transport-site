@@ -15,6 +15,11 @@ defmodule Transport.Req.Behaviour do
 end
 
 defmodule Transport.Req do
+  @moduledoc """
+  The wrapper for the behaviour, which acts as a central access point for `Req` operations.
+  By default the implementation is itself & delegates to `Req` directly. During tests, a Mox
+  # is configured instead
+  """
   def impl, do: Application.get_env(:transport, :req_impl, __MODULE__)
 
   @behaviour Transport.Req.Behaviour
