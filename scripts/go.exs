@@ -10,7 +10,7 @@ defmodule Downloader do
 
       unless File.exists?(file_path) do
         IO.puts("Saving #{file_path}")
-        Transport.Jobs.ResourceHistoryJob.download_resource(:req, resource, file_path)
+        Transport.Jobs.ResourceHistoryJob.download_resource(mode, resource, file_path)
       end
     end)
   end
