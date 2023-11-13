@@ -244,7 +244,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     System.tmp_dir!() |> Path.join("resource_#{resource_id}_download")
   end
 
-  defp download_resource(:req, %Resource{id: resource_id, url: url}, file_path) do
+  def download_resource(:req, %Resource{id: resource_id, url: url}, file_path) do
     file_stream = File.stream!(file_path)
     req_options = [compressed: false, decode_body: false, receive_timeout: 180_000, into: file_stream]
 
@@ -261,7 +261,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     end
   end
 
-  defp download_resource(:legacy, %Resource{id: resource_id, url: url}, file_path) do
+  def download_resource(:legacy, %Resource{id: resource_id, url: url}, file_path) do
     case http_client().get(url, [], follow_redirect: true, recv_timeout: 180_000) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body} = r} ->
         Logger.debug("Saving resource##{resource_id} to #{file_path}")
