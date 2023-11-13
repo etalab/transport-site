@@ -170,13 +170,15 @@ defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
   30
   iex> next_polling_attempt_seconds(500)
   30
-  iex> Enum.each(1..@max_attempts, &next_polling_attempt_seconds/1)
+  iex> Enum.each(1..max_polling_attempts() - 1, &next_polling_attempt_seconds/1)
   :ok
   """
   def next_polling_attempt_seconds(current_attempt) when current_attempt < 12, do: 10
 
   def next_polling_attempt_seconds(current_attempt) when current_attempt >= 12 and current_attempt < @max_attempts,
     do: 30
+
+  def max_polling_attempts, do: @max_attempts
 
   def conversion_exists?(%DB.ResourceHistory{payload: %{"uuid" => rh_uuid}}) do
     converter = converter()
@@ -191,7 +193,7 @@ defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
   end
 
   def tmp_path(%DB.ResourceHistory{id: id}) do
-    System.tmp_dir!() |> Path.join("enroute_conversion_gtfs_netex_#{id}}")
+    System.tmp_dir!() |> Path.join("enroute_conversion_gtfs_netex_#{id}")
   end
 
   def converter, do: "enroute/gtfs-to-netex"

@@ -29,6 +29,7 @@ defmodule TransportWeb.ResourceView do
       %{
         "UnloadableModel" => "_unloadable_model_issue.html",
         "DuplicateStops" => "_duplicate_stops_issue.html",
+        "DuplicateStopSequence" => "_duplicate_stop_sequence_issue.html",
         "ExtraFile" => "_extra_file_issue.html",
         "MissingFile" => "_missing_file_issue.html",
         "NullDuration" => "_speed_issue.html",

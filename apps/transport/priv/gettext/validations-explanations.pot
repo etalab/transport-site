@@ -113,3 +113,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Object ID"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "DuplicateStopSequence"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Related stops"
+msgstr ""
