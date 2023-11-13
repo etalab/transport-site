@@ -3,9 +3,9 @@ defmodule DB.Repo.Migrations.CreatePartner do
 
   def change do
     create table(:partner) do
-      add :page, :string
-      add :api_uri, :string
-      add :name, :string
+      add(:page, :string)
+      add(:api_uri, :string)
+      add(:name, :string)
     end
   end
 end

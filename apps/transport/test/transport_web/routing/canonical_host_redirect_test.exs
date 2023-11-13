@@ -1,16 +1,10 @@
 defmodule TransportWeb.CanonicalRoutingTest do
-  # we used shared sandbox
-  use ExUnit.Case, async: true
+  use TransportWeb.ConnCase, async: true
   import Phoenix.ConnTest
-  @endpoint TransportWeb.Endpoint
 
-  setup do
-    Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-  end
-
-  test "redirects browser calls to canonical browser for GET queries" do
+  test "redirects browser calls to canonical browser for GET queries", %{conn: conn} do
     conn =
-      build_conn()
+      conn
       |> Map.put(:host, "www.another.domain.com")
       |> get(path = "/something?with=query&params=1")
 

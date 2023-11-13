@@ -1,6 +1,9 @@
 defmodule Transport.Jobs.GTFSGenericConverter do
   @moduledoc """
-  Provides some functions to convert GTFS to another format
+  Provides some functions to convert GTFS to another format.
+
+  Note that the EnRoute's GTFS to NeTEx converter does not use this class
+  because the conversion is not done locally but through an API.
   """
   alias DB.{DataConversion, Repo, ResourceHistory}
   import Ecto.Query
@@ -11,9 +14,15 @@ defmodule Transport.Jobs.GTFSGenericConverter do
   @doc """
   Enqueues conversion jobs for all resource history that need one.
   """
-  @spec enqueue_all_conversion_jobs(binary(), module()) :: :ok
+  @spec enqueue_all_conversion_jobs(binary(), module() | [module()]) :: :ok
+  def enqueue_all_conversion_jobs(format, conversion_job_modules)
+      when format in @allowed_formats and is_list(conversion_job_modules) do
+    Enum.each(conversion_job_modules, &enqueue_all_conversion_jobs(format, &1))
+  end
+
   def enqueue_all_conversion_jobs(format, conversion_job_module) when format in @allowed_formats do
     fatal_error_key = fatal_error_key(format)
+    converter = conversion_job_module.converter()
 
     query =
       ResourceHistory
@@ -25,10 +34,11 @@ defmodule Transport.Jobs.GTFSGenericConverter do
           AND NOT payload \\? ?
           AND
           payload ->>'uuid' NOT IN
-          (SELECT resource_history_uuid::text FROM data_conversion WHERE convert_from='GTFS' and convert_to=?)
+          (SELECT resource_history_uuid::text FROM data_conversion WHERE convert_from='GTFS' and convert_to=? and converter=?)
           """,
           ^fatal_error_key,
-          ^format
+          ^format,
+          ^converter
         )
       )
       |> select([r], r.id)
@@ -38,7 +48,7 @@ defmodule Transport.Jobs.GTFSGenericConverter do
     Repo.transaction(fn ->
       stream
       |> Stream.each(fn id ->
-        %{"resource_history_id" => id}
+        %{"resource_history_id" => id, "action" => "create"}
         |> conversion_job_module.new()
         |> Oban.insert()
       end)
@@ -54,13 +64,25 @@ defmodule Transport.Jobs.GTFSGenericConverter do
 
   defp is_resource_gtfs?(_), do: false
 
-  @spec format_exists?(any(), binary()) :: boolean
-  defp format_exists?(%{payload: %{"uuid" => resource_uuid}}, format) when format in @allowed_formats do
+  @spec conversion_exists?(DB.ResourceHistory.t() | nil, binary()) :: boolean
+  @doc """
+  Checks if a conversion already exists for a `DB.ResourceHistory` and a target format.
+  """
+  def conversion_exists?(%DB.ResourceHistory{payload: %{"uuid" => resource_uuid}}, format)
+      when format in @allowed_formats do
     DataConversion
-    |> Repo.get_by(convert_from: "GTFS", convert_to: format, resource_history_uuid: resource_uuid) !== nil
+    |> Repo.get_by(
+      convert_from: :GTFS,
+      convert_to: format,
+      converter: converter_for_format(format),
+      resource_history_uuid: resource_uuid
+    ) !== nil
   end
 
-  defp format_exists?(_, _), do: false
+  def conversion_exists?(nil, _), do: false
+
+  def converter_for_format("GeoJSON"), do: Transport.GTFSToGeoJSONConverter.converter()
+  def converter_for_format("NeTEx"), do: Transport.GTFSToNeTExHoveConverter.converter()
 
   @doc """
   Converts a resource_history to the targeted format, using a converter module
@@ -69,7 +91,7 @@ defmodule Transport.Jobs.GTFSGenericConverter do
   def perform_single_conversion_job(resource_history_id, format, converter_module) when format in @allowed_formats do
     resource_history = ResourceHistory |> Repo.get(resource_history_id)
 
-    case is_resource_gtfs?(resource_history) and not format_exists?(resource_history, format) do
+    case is_resource_gtfs?(resource_history) and not conversion_exists?(resource_history, format) do
       true ->
         generate_and_upload_conversion(resource_history, format, converter_module)
 
@@ -124,7 +146,7 @@ defmodule Transport.Jobs.GTFSGenericConverter do
           conversion_file_name =
             resource_filename |> conversion_file_name(format_lower) |> add_zip_extension(zip_conversion?)
 
-          Transport.S3.upload_to_s3!(:history, file, conversion_file_name)
+          Transport.S3.upload_to_s3!(:history, file, conversion_file_name, acl: :public_read)
 
           %DataConversion{
             convert_from: :GTFS,

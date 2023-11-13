@@ -3,7 +3,7 @@ defmodule DB.Repo.Migrations.ChangeSiren do
 
   def change do
     alter table(:aom) do
-      modify :siren, :string
+      modify(:siren, :string)
     end
   end
 end

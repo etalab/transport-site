@@ -162,7 +162,14 @@ extra_oban_conf =
     [testing: :manual]
   else
     [
-      queues: [default: 2, heavy: 1, on_demand_validation: 1, resource_validation: 1, workflow: 2],
+      queues: [
+        default: 2,
+        enroute_conversions: 2,
+        heavy: 1,
+        on_demand_validation: 1,
+        resource_validation: 1,
+        workflow: 2
+      ],
       plugins: [
         {Oban.Plugins.Pruner, max_age: 60 * 60 * 24},
         {Oban.Plugins.Lifeline, rescue_after: :timer.minutes(60)},

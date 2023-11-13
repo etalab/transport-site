@@ -29,6 +29,7 @@ defmodule TransportWeb.ResourceView do
       %{
         "UnloadableModel" => "_unloadable_model_issue.html",
         "DuplicateStops" => "_duplicate_stops_issue.html",
+        "DuplicateStopSequence" => "_duplicate_stop_sequence_issue.html",
         "ExtraFile" => "_extra_file_issue.html",
         "MissingFile" => "_missing_file_issue.html",
         "NullDuration" => "_speed_issue.html",
@@ -41,7 +42,8 @@ defmodule TransportWeb.ResourceView do
         "UnusedShapeId" => "_unused_shape_issue.html",
         "InvalidShapeId" => "_invalid_shape_id_issue.html",
         "MissingId" => "_missing_id_issue.html",
-        "MissingName" => "_missing_name_issue.html"
+        "MissingName" => "_missing_name_issue.html",
+        "SubFolder" => "_subfolder_issue.html"
       },
       issue_type(issues.entries),
       "_generic_issue.html"

@@ -3,7 +3,7 @@ defmodule DB.Repo.Migrations.NotificationsAddDatasetDatagouvId do
 
   def change do
     alter table(:notifications) do
-      add :dataset_datagouv_id, :string
+      add(:dataset_datagouv_id, :string)
     end
   end
 end

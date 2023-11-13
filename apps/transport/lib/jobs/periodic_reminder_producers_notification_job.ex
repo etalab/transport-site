@@ -11,11 +11,16 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
   Emails may be sent over multiple days if we have a large number to send, to
   avoid going over daily quotas and to spread the support load.
   """
-  use Oban.Worker, max_attempts: 3, tags: ["notifications"]
-  import Ecto.Query
-
+  @min_days_before_sending_again 90
   @max_emails_per_day 100
   @notification_reason DB.NotificationSubscription.reason(:periodic_reminder_producers)
+
+  use Oban.Worker,
+    unique: [period: 60 * 60 * 24 * @min_days_before_sending_again],
+    max_attempts: 3,
+    tags: ["notifications"]
+
+  import Ecto.Query
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: args, inserted_at: %DateTime{} = inserted_at}) when args == %{} or is_nil(args) do
@@ -70,6 +75,7 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
 
       subscribed_as_producer?(contact) or org_has_published_dataset?
     end)
+    |> Enum.uniq_by(& &1.id)
   end
 
   defp schedule_jobs(contacts, %DateTime{} = scheduled_at) do
@@ -89,7 +95,7 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
   end
 
   def sent_mail_recently?(%DB.Contact{email: email}) do
-    dt_limit = DateTime.utc_now() |> DateTime.add(-90, :day)
+    dt_limit = DateTime.utc_now() |> DateTime.add(-@min_days_before_sending_again, :day)
 
     DB.Notification
     |> where([n], n.email_hash == ^email and n.reason == ^@notification_reason and n.inserted_at >= ^dt_limit)

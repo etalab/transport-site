@@ -117,6 +117,9 @@ config :transport, Mailjet.Client,
   mailjet_user: "TEST_MJ_APIKEY_PUBLIC",
   mailjet_key: "TEST_MJ_APIKEY_PRIVATE"
 
+config :phoenix_ddos,
+  blocklist_ips: ["1.2.3.4"]
+
 config(
   :transport,
   email_sender_impl: Transport.EmailSender.Mock,

@@ -1,12 +1,10 @@
 defmodule TransportWeb.ProxyRoutingTest do
-  # we used shared sandbox
-  use ExUnit.Case, async: true
+  use TransportWeb.ConnCase, async: true
   import Phoenix.ConnTest
-  @endpoint TransportWeb.Endpoint
 
-  test "accepts proxy. subdomain calls and delegates them to unlock" do
+  test "accepts proxy. subdomain calls and delegates them to unlock", %{conn: conn} do
     conn =
-      build_conn()
+      conn
       |> Map.put(:host, "proxy.example.com")
       |> get("/")
 

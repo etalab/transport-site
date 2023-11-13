@@ -139,7 +139,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   end
 
   defp upload_to_s3(file_path, path) do
-    Transport.S3.upload_to_s3!(:gtfs_diff, File.read!(file_path), path)
+    Transport.S3.upload_to_s3!(:gtfs_diff, File.read!(file_path), path, acl: :public_read)
   end
 
   def uploads_are_valid(%{gtfs: %{entries: gtfs}}) do

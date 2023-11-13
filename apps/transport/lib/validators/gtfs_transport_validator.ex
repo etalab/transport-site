@@ -206,6 +206,7 @@ defmodule Transport.Validators.GTFSTransport do
       "InvalidUrl" => dgettext("gtfs-transport-validator", "Invalid url"),
       "InvalidTimezone" => dgettext("gtfs-transport-validator", "Invalid timezone"),
       "DuplicateStops" => dgettext("gtfs-transport-validator", "Duplicate stops"),
+      "DuplicateStopSequence" => dgettext("gtfs-transport-validator", "Duplicate stop sequence"),
       "MissingPrice" => dgettext("gtfs-transport-validator", "Missing price"),
       "InvalidCurrency" => dgettext("gtfs-transport-validator", "Invalid currency"),
       "InvalidTransfers" => dgettext("gtfs-transport-validator", "Invalid transfers"),
@@ -222,7 +223,8 @@ defmodule Transport.Validators.GTFSTransport do
       "InvalidStopParent" => dgettext("gtfs-transport-validator", "Invalid stop parent"),
       "IdNotAscii" => dgettext("gtfs-transport-validator", "ID is not ASCII-encoded"),
       "InvalidShapeId" => dgettext("gtfs-transport-validator", "Invalid shape ID"),
-      "UnusedShapeId" => dgettext("gtfs-transport-validator", "Unused shape ID")
+      "UnusedShapeId" => dgettext("gtfs-transport-validator", "Unused shape ID"),
+      "SubFolder" => dgettext("gtfs-transport-validator", "Files in a subfolder")
     }
 
   @spec is_gtfs_outdated(any()) :: boolean | nil

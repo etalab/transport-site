@@ -170,6 +170,7 @@ defmodule Transport.Test.Transport.Jobs.DatabaseBackupReplicationJobTest do
                bucket: @destination_bucket_name,
                path: path,
                service: :s3,
+               opts: [acl: :private, timeout: 90_000],
                src: %File.Stream{}
              } = operation
 

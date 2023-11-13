@@ -82,8 +82,14 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
            %{"title" => "Ressource avec erreurs", "schema" => %{"name" => @target_schema}}}
         ],
         download_errors: [
-          {%{"page" => "https://example.com/jdd_download_error", "title" => "JDD avec erreur de téléchargement"},
-           %{"title" => "Ressource indisponible", "schema" => %{"name" => @target_schema}}}
+          {:download,
+           {%{"page" => "https://example.com/jdd_download_error", "title" => "JDD avec erreur de téléchargement"},
+            %{"title" => "Ressource indisponible", "schema" => %{"name" => @target_schema}}}}
+        ],
+        decode_errors: [
+          {:decode,
+           {%{"page" => "https://example.com/jdd_decode_error", "title" => "JDD impossible à décoder"},
+            %{"title" => "Ressource mal formatée", "schema" => %{"name" => @target_schema}}}}
         ]
       }
 
@@ -98,12 +104,22 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
 
              <h2>Impossible de télécharger les ressources suivantes</h2>
-             Ressource `Ressource indisponible` (<a href="https://example.com/jdd_download_error">JDD avec erreur de téléchargement</a>)\
+             Ressource `Ressource indisponible` (<a href="https://example.com/jdd_download_error">JDD avec erreur de téléchargement</a>)
+
+
+             <h2>Impossible de décoder les fichiers CSV suivants</h2>
+             Ressource `Ressource mal formatée` (<a href="https://example.com/jdd_decode_error">JDD impossible à décoder</a>)\
              """ == ConsolidateBNLCJob.format_errors(errors)
     end
 
     test "nil when there are no errors" do
-      assert nil == ConsolidateBNLCJob.format_errors(%{dataset_errors: [], validation_errors: [], download_errors: []})
+      assert nil ==
+               ConsolidateBNLCJob.format_errors(%{
+                 dataset_errors: [],
+                 validation_errors: [],
+                 download_errors: [],
+                 decode_errors: []
+               })
     end
   end
 
@@ -154,7 +170,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     assert %{
              errors: [
                {:error, dataset_details, other_resource},
-               {:validation_error, other_dataset_details, validation_error_resource}
+               {:validator_unavailable_error, other_dataset_details, validation_error_resource}
              ],
              ok: [{dataset_details, resource}]
            } == ConsolidateBNLCJob.valid_datagouv_resources(datasets_details)
@@ -172,15 +188,26 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       "slug" => "foo"
     }
 
-    dataset_error_detail = %{
+    dataset_download_error_detail = %{
       "resources" => [
-        resource_error = %{
+        resource_download_error = %{
           "id" => Ecto.UUID.generate(),
           "schema" => %{"name" => @target_schema},
-          "url" => error_url = "https://example.com/other_file.csv"
+          "url" => download_error_url = "https://example.com/download_error.csv"
         }
       ],
       "slug" => "bar"
+    }
+
+    dataset_decode_error_detail = %{
+      "resources" => [
+        resource_decode_error = %{
+          "id" => resource_decode_error_id = Ecto.UUID.generate(),
+          "schema" => %{"name" => @target_schema},
+          "url" => decode_error_url = "https://example.com/decode_error.csv"
+        }
+      ],
+      "slug" => "baz"
     }
 
     Transport.HTTPoison.Mock
@@ -194,14 +221,39 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     end)
 
     Transport.HTTPoison.Mock
-    |> expect(:get, fn ^error_url, [], [follow_redirect: true] ->
+    |> expect(:get, fn ^download_error_url, [], [follow_redirect: true] ->
       {:ok, %HTTPoison.Response{status_code: 500, body: ""}}
     end)
 
-    resources_details = [{dataset_detail, resource}, {dataset_error_detail, resource_error}]
+    Transport.HTTPoison.Mock
+    |> expect(:get, fn ^decode_error_url, [], [follow_redirect: true] ->
+      # Malformed CSV: unescaped double quotes: `""2"`
+      body = """
+      "foo","bar"
+      "1",""2"
+      """
+
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}}
+    end)
+
+    resources_details = [
+      {dataset_detail, resource},
+      {dataset_download_error_detail, resource_download_error},
+      {dataset_decode_error_detail, resource_decode_error}
+    ]
 
     assert %{
-             errors: [{^dataset_error_detail, ^resource_error}],
+             errors: [
+               {:download, {^dataset_download_error_detail, ^resource_download_error}},
+               {:decode,
+                {^dataset_decode_error_detail,
+                 %{
+                   "id" => ^resource_decode_error_id,
+                   "csv_separator" => ?,,
+                   "tmp_download_path" => tmp_decode_error_download_path,
+                   "url" => ^decode_error_url
+                 }}}
+             ],
              ok: [
                {^dataset_detail,
                 %{"id" => ^resource_id, "url" => ^url, "csv_separator" => ?,, "tmp_download_path" => tmp_download_path}}
@@ -210,6 +262,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
     assert String.ends_with?(tmp_download_path, "consolidate_bnlc_#{resource_id}")
     assert File.exists?(tmp_download_path)
+    refute File.exists?(tmp_decode_error_download_path)
   end
 
   test "guess_csv_separator" do
@@ -238,8 +291,8 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       :get!,
       fn "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv" ->
         body = """
-        "foo","bar","baz"
-        a,1,2
+        "foo","bar","baz","id_lieu"
+        a,1,2,3
         """
 
         %HTTPoison.Response{status_code: 200, body: body}
@@ -275,9 +328,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     Transport.HTTPoison.Mock
     |> expect(:get, fn ^url, [], [follow_redirect: true] ->
       body = """
-      foo,bar,baz
-      1,2,3
-      4,5,6
+      foo,bar,baz,insee,id_local
+      1,2,3,21231,1
+      4,5,6,21231,2
       """
 
       {:ok, %HTTPoison.Response{status_code: 200, body: body}}
@@ -286,9 +339,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     Transport.HTTPoison.Mock
     |> expect(:get, fn ^other_url, [], [follow_redirect: true] ->
       body = """
-      "foo";"bar";"baz";"extra_col"
-      "a";"b";"c";"its_a_trap"
-      "d";"e";"f";"should_be_ignored"
+      "foo";"bar";"baz";"insee";"id_local";"extra_col"
+      "a";"b";"c";"21231";"3";"its_a_trap"
+      "d";"e";"f";"21231";"4";"should_be_ignored"
       """
 
       {:ok, %HTTPoison.Response{status_code: 200, body: body}}
@@ -303,9 +356,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       2,
       fn "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv" ->
         body = """
-        "foo","bar","baz"
-        I,Love,CSV
-        Very,Much,So
+        "foo","bar","baz","insee","id_local"
+        I,Love,CSV,21231,5
+        Very,Much,So,21231,6
         """
 
         %HTTPoison.Response{status_code: 200, body: body}
@@ -315,12 +368,54 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     assert :ok == ConsolidateBNLCJob.consolidate_resources(res)
 
     assert [
-             %{"foo" => "I", "bar" => "Love", "baz" => "CSV"},
-             %{"foo" => "Very", "bar" => "Much", "baz" => "So"},
-             %{"foo" => "1", "bar" => "2", "baz" => "3"},
-             %{"foo" => "4", "bar" => "5", "baz" => "6"},
-             %{"foo" => "a", "bar" => "b", "baz" => "c"},
-             %{"foo" => "d", "bar" => "e", "baz" => "f"}
+             %{
+               "foo" => "I",
+               "bar" => "Love",
+               "baz" => "CSV",
+               "insee" => "21231",
+               "id_local" => "5",
+               "id_lieu" => "21231-5"
+             },
+             %{
+               "foo" => "Very",
+               "bar" => "Much",
+               "baz" => "So",
+               "insee" => "21231",
+               "id_local" => "6",
+               "id_lieu" => "21231-6"
+             },
+             %{
+               "foo" => "1",
+               "bar" => "2",
+               "baz" => "3",
+               "insee" => "21231",
+               "id_local" => "1",
+               "id_lieu" => "21231-1"
+             },
+             %{
+               "foo" => "4",
+               "bar" => "5",
+               "baz" => "6",
+               "insee" => "21231",
+               "id_local" => "2",
+               "id_lieu" => "21231-2"
+             },
+             %{
+               "foo" => "a",
+               "bar" => "b",
+               "baz" => "c",
+               "insee" => "21231",
+               "id_local" => "3",
+               "id_lieu" => "21231-3"
+             },
+             %{
+               "foo" => "d",
+               "bar" => "e",
+               "baz" => "f",
+               "insee" => "21231",
+               "id_local" => "4",
+               "id_lieu" => "21231-4"
+             }
            ] == @tmp_path |> File.stream!() |> CSV.decode!(headers: true) |> Enum.to_list()
 
     # From https://datatracker.ietf.org/doc/html/rfc4180#section-2
@@ -328,13 +423,13 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     # We could change to just a newline, using the `delimiter` option:
     # https://hexdocs.pm/csv/CSV.html#encode/2
     assert """
-           foo,bar,baz\r
-           I,Love,CSV\r
-           Very,Much,So\r
-           1,2,3\r
-           4,5,6\r
-           a,b,c\r
-           d,e,f\r
+           id_lieu,foo,bar,baz,insee,id_local\r
+           21231-5,I,Love,CSV,21231,5\r
+           21231-6,Very,Much,So,21231,6\r
+           21231-1,1,2,3,21231,1\r
+           21231-2,4,5,6,21231,2\r
+           21231-3,a,b,c,21231,3\r
+           21231-4,d,e,f,21231,4\r
            """ = File.read!(@tmp_path)
 
     # Temporary files have been removed
@@ -413,9 +508,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       Transport.HTTPoison.Mock
       |> expect(:get, fn ^foo_url, [], [follow_redirect: true] ->
         body = """
-        "foo";"bar";"baz"
-        "a";"b";"c"
-        "d";"e";"f"
+        "foo";"bar";"baz";"insee";"id_local"
+        "a";"b";"c";"21231";"1"
+        "d";"e";"f";"21231";"2"
         """
 
         {:ok, %HTTPoison.Response{status_code: 200, body: body}}
@@ -424,8 +519,8 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       Transport.HTTPoison.Mock
       |> expect(:get, fn ^bar_url, [], [follow_redirect: true] ->
         body = """
-        foo,bar,baz,extra_col
-        1,2,3,is_ignored
+        foo,bar,baz,insee,id_local,extra_col
+        1,2,3,21231,3,is_ignored
         """
 
         {:ok, %HTTPoison.Response{status_code: 200, body: body}}
@@ -438,9 +533,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
         2,
         fn "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv" ->
           body = """
-          "foo","bar","baz"
-          I,Love,CSV
-          Very,Much,So
+          "foo","bar","baz","insee","id_local"
+          I,Love,CSV,21231,4
+          Very,Much,So,21231,5
           """
 
           %HTTPoison.Response{status_code: 200, body: body}
@@ -492,12 +587,12 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
       # CSV content is fine
       assert """
-             foo,bar,baz\r
-             I,Love,CSV\r
-             Very,Much,So\r
-             a,b,c\r
-             d,e,f\r
-             1,2,3\r
+             id_lieu,foo,bar,baz,insee,id_local\r
+             21231-4,I,Love,CSV,21231,4\r
+             21231-5,Very,Much,So,21231,5\r
+             21231-1,a,b,c,21231,1\r
+             21231-2,d,e,f,21231,2\r
+             21231-3,1,2,3,21231,3\r
              """ = File.read!(@tmp_path)
     end
 
@@ -622,9 +717,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       Transport.HTTPoison.Mock
       |> expect(:get, fn ^foo_url, [], [follow_redirect: true] ->
         body = """
-        "foo";"bar";"baz"
-        "a";"b";"c"
-        "d";"e";"f"
+        "foo";"bar";"baz";"insee";"id_local"
+        "a";"b";"c";"21231";"1"
+        "d";"e";"f";"21231";"2"
         """
 
         {:ok, %HTTPoison.Response{status_code: 200, body: body}}
@@ -637,9 +732,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
         2,
         fn "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv" ->
           body = """
-          "foo","bar","baz"
-          I,Love,CSV
-          Very,Much,So
+          "foo","bar","baz","insee","id_local"
+          I,Love,CSV,21231,3
+          Very,Much,So,21231,4
           """
 
           %HTTPoison.Response{status_code: 200, body: body}
@@ -691,11 +786,11 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       assert filename =~ ~r"^bnlc-.*\.csv$"
 
       assert """
-             foo,bar,baz\r
-             I,Love,CSV\r
-             Very,Much,So\r
-             a,b,c\r
-             d,e,f\r
+             id_lieu,foo,bar,baz,insee,id_local\r
+             21231-3,I,Love,CSV,21231,3\r
+             21231-4,Very,Much,So,21231,4\r
+             21231-1,a,b,c,21231,1\r
+             21231-2,d,e,f,21231,2\r
              """ = File.read!(@tmp_path)
     end
   end

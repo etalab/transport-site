@@ -3,12 +3,12 @@ defmodule DB.Repo.Migrations.MoreResourceMetadata do
 
   def change do
     alter table(:resource) do
-      add :last_update, :string
-      add :latest_url, :string
+      add(:last_update, :string)
+      add(:latest_url, :string)
     end
 
     alter table(:dataset) do
-      add :organization, :string
+      add(:organization, :string)
     end
   end
 end

@@ -23,7 +23,14 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   @s3_bucket :on_demand_validation
 
   # Custom types
-  @type consolidation_errors :: %{dataset_errors: list(), validation_errors: list(), download_errors: list()}
+  @type decode_error :: {:decode, {map(), map()}}
+  @type download_error :: {:download, {map(), map()}}
+  @type consolidation_errors :: %{
+          dataset_errors: list(),
+          validation_errors: list(),
+          download_errors: [download_error()],
+          decode_errors: [decode_error()]
+        }
   @type dataset_without_appropriate_resource_error :: %{
           error: :not_at_least_one_appropriate_resource,
           dataset_details: map()
@@ -57,11 +64,11 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     Logger.info("Finding valid resources…")
     %{ok: resources_details, errors: validation_errors} = valid_datagouv_resources(datasets_details)
 
-    if validation_errors |> Enum.filter(&match?({:validation_error, _, _}, &1)) |> Enum.any?() do
+    if validator_unavailable?(validation_errors) do
       {:discard, "Cannot consolidate the BNLC because the TableSchema validator is not available"}
     else
       Logger.info("Downloading resources…")
-      %{ok: download_details, errors: download_errors} = download_resources(resources_details)
+      %{ok: download_details, errors: download_or_decode_errors} = download_resources(resources_details)
       Logger.info("Creating a single file")
       consolidate_resources(download_details)
 
@@ -72,18 +79,25 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
       |> send_email_recap(%{
         dataset_errors: dataset_errors,
         validation_errors: validation_errors,
-        download_errors: download_errors
+        download_errors: Enum.filter(download_or_decode_errors, &match?({:download, _}, &1)),
+        decode_errors: Enum.filter(download_or_decode_errors, &match?({:decode, _}, &1))
       })
 
       :ok
     end
   end
 
+  defp validator_unavailable?(validation_errors) do
+    validation_errors
+    |> Enum.filter(&match?({:validator_unavailable_error, _, _}, &1))
+    |> Enum.any?()
+  end
+
   defp upload_temporary_file do
     content = File.read!(@bnlc_path)
     now = DateTime.utc_now() |> DateTime.truncate(:microsecond) |> DateTime.to_string() |> String.replace(" ", "_")
     filename = "bnlc-#{now}.csv"
-    Transport.S3.upload_to_s3!(@s3_bucket, content, filename)
+    Transport.S3.upload_to_s3!(@s3_bucket, content, filename, acl: :public_read)
     filename
   end
 
@@ -128,8 +142,8 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   end
 
   @spec format_errors(consolidation_errors()) :: binary() | nil
-  def format_errors(%{dataset_errors: _, validation_errors: _, download_errors: _} = errors) do
-    [&format_dataset_errors/1, &format_validation_errors/1, &format_download_errors/1]
+  def format_errors(%{dataset_errors: _, validation_errors: _, download_errors: _, decode_errors: _} = errors) do
+    [&format_dataset_errors/1, &format_validation_errors/1, &format_download_errors/1, &format_decode_errors/1]
     |> Enum.map_join("\n\n", fn fmt_fn -> fmt_fn.(errors) end)
     |> String.trim()
     |> case do
@@ -169,12 +183,33 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     """
   end
 
+  @spec format_download_errors(%{download_errors: [download_error()]}) :: binary()
   def format_download_errors(%{download_errors: []}), do: ""
 
   def format_download_errors(%{download_errors: download_errors}) do
+    errors =
+      Enum.map(download_errors, fn {:download, {dataset, resource}} ->
+        {dataset, resource}
+      end)
+
     """
     <h2>Impossible de télécharger les ressources suivantes</h2>
-    #{Enum.map_join(download_errors, "\n", &link_to_resource/1)}
+    #{Enum.map_join(errors, "\n", &link_to_resource/1)}
+    """
+  end
+
+  @spec format_decode_errors(%{decode_errors: [decode_error()]}) :: binary()
+  def format_decode_errors(%{decode_errors: []}), do: ""
+
+  def format_decode_errors(%{decode_errors: decode_errors}) do
+    errors =
+      Enum.map(decode_errors, fn {:decode, {dataset, resource}} ->
+        {dataset, resource}
+      end)
+
+    """
+    <h2>Impossible de décoder les fichiers CSV suivants</h2>
+    #{Enum.map_join(errors, "\n", &link_to_resource/1)}
     """
   end
 
@@ -206,7 +241,17 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   @spec bnlc_csv_headers() :: [binary()]
   def bnlc_csv_headers do
     %HTTPoison.Response{body: body, status_code: 200} = @bnlc_github_url |> http_client().get!()
-    [body] |> CSV.decode!(field_transform: &String.trim/1) |> Stream.take(1) |> Enum.to_list() |> hd()
+
+    [body]
+    |> CSV.decode!(field_transform: &String.trim/1)
+    |> Stream.take(1)
+    |> Enum.to_list()
+    |> hd()
+    # In the 0.2.0 schema version the `id_lieu` column was present.
+    # https://schema.data.gouv.fr/etalab/schema-lieux-covoiturage/0.2.8/documentation.html
+    # Starting with 0.3.0 `id_lieu` should not be present in the files
+    # we consolidate as we add it ourselves with `add_id_lieu_column/1`
+    |> Enum.reject(&(&1 == "id_lieu"))
   end
 
   @doc """
@@ -217,15 +262,17 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   """
   def consolidate_resources(resources_details) do
     file = File.open!(@bnlc_path, [:write, :utf8])
-    headers = bnlc_csv_headers()
+    bnlc_headers = bnlc_csv_headers()
+    final_headers = ["id_lieu"] ++ bnlc_headers
 
     %HTTPoison.Response{body: body, status_code: 200} = @bnlc_github_url |> http_client().get!()
 
     # Write first the header + content of the BNLC hosted on GitHub
     [body]
-    |> CSV.decode!(field_transform: &String.trim/1, headers: headers)
+    |> CSV.decode!(field_transform: &String.trim/1, headers: bnlc_headers)
     |> Stream.drop(1)
-    |> CSV.encode(headers: headers)
+    |> add_id_lieu_column()
+    |> CSV.encode(headers: final_headers)
     |> Enum.each(&IO.write(file, &1))
 
     # Append other valid resources to the file
@@ -234,14 +281,27 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
       |> File.stream!()
       |> CSV.decode!(headers: true, field_transform: &String.trim/1, separator: separator)
       # Keep only columns that are present in the BNLC, ignore extra columns
-      |> Stream.filter(&Map.take(&1, headers))
-      |> CSV.encode(headers: headers)
+      |> Stream.filter(&Map.take(&1, bnlc_headers))
+      |> add_id_lieu_column()
+      |> CSV.encode(headers: final_headers)
       # Don't write the CSV header again each time, it has already been written
       # because the BNLC is first in the file
       |> Stream.drop(1)
       |> Enum.each(&IO.write(file, &1))
 
       File.rm!(tmp_path)
+    end)
+  end
+
+  @doc """
+  The consolidation job is in charge of adding an extra column to the final file:
+  `id_lieu`.
+
+  Generate it by concatenating values found in each file: insee + id_local
+  """
+  def add_id_lieu_column(%Stream{} = stream) do
+    Stream.map(stream, fn %{"insee" => insee, "id_local" => id_local} = map ->
+      Map.put(map, "id_lieu", "#{insee}-#{id_local}")
     end)
   end
 
@@ -323,7 +383,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
   @spec valid_datagouv_resources([map()]) :: %{
           ok: [],
-          errors: [{:error, map(), map()} | {:validation_error, map(), map()}]
+          errors: [{:error, map(), map()} | {:validator_unavailable_error, map(), map()}]
         }
   @doc """
   Identifies valid resources according to the target schema.
@@ -331,14 +391,14 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
   Possible errors:
   - the resource is not valid according to the schema ({`:error`, _, _})
-  - the validator is not available ({`:validation_error`, _, _})
+  - the validator is not available ({`:validator_unavailable_error`, _, _})
   """
   def valid_datagouv_resources(datasets_details) do
     analyze_resource = fn dataset_details, %{"url" => resource_url} = resource ->
       case TableSchemaValidator.validate(@schema_name, resource_url) do
         %{"has_errors" => true} -> {:errors, {:error, dataset_details, resource}}
         %{"has_errors" => false} -> {:ok, {dataset_details, resource}}
-        nil -> {:errors, {:validation_error, dataset_details, resource}}
+        nil -> {:errors, {:validator_unavailable_error, dataset_details, resource}}
       end
     end
 
@@ -353,29 +413,59 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
   @doc """
   From a list of resource object coming from the data.gouv.fr's API, download these (valid)
-  CSV files locally and guess the CSV separator.
+  CSV files locally, guess the CSV separator and try to decode the file.
 
   The temporary download path and the guessed CSV separator are added to the resource's payload.
 
   Possible errors:
   - cannot download the resource
+  - cannot decode the CSV file
   """
-  @spec download_resources([map()]) :: %{ok: [], errors: []}
+  @spec download_resources([map()]) :: %{ok: [], errors: [decode_error() | download_error()]}
   def download_resources(resources_details) do
     resources_details
-    |> Enum.map(fn {dataset_details, %{"id" => resource_id, "url" => resource_url} = resource} ->
+    |> Enum.map(fn {dataset_details, %{"url" => resource_url} = resource} ->
       case http_client().get(resource_url, [], follow_redirect: true) do
-        {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-          path = System.tmp_dir!() |> Path.join("consolidate_bnlc_#{resource_id}")
-          File.write!(path, body)
-          resource = Map.merge(resource, %{@download_path_key => path, @separator_key => guess_csv_separator(body)})
-          {:ok, {dataset_details, resource}}
+        {:ok, %HTTPoison.Response{status_code: 200} = response} ->
+          guess_separator_and_decode({dataset_details, resource}, response)
 
         _ ->
-          {:errors, {dataset_details, resource}}
+          {:errors, {:download, {dataset_details, resource}}}
       end
     end)
     |> normalize_ok_errors()
+  end
+
+  @doc """
+  For a remote resource we successfully downloaded, we try to:
+  - guess the CSV separator of the file (using the header line)
+  - decode the CSV file with the guessed separator
+  """
+  def guess_separator_and_decode({dataset_details, %{"id" => resource_id} = resource}, %HTTPoison.Response{
+        status_code: 200,
+        body: body
+      }) do
+    path = System.tmp_dir!() |> Path.join("consolidate_bnlc_#{resource_id}")
+    File.write!(path, body)
+    resource = Map.merge(resource, %{@download_path_key => path, @separator_key => guess_csv_separator(body)})
+    check_can_decode_csv(body, {dataset_details, resource})
+  end
+
+  defp check_can_decode_csv(
+         body,
+         {dataset_details, %{@separator_key => separator, @download_path_key => path} = resource}
+       ) do
+    errors = [body] |> CSV.decode(separator: separator) |> Enum.filter(&(elem(&1, 0) == :error))
+
+    if Enum.empty?(errors) do
+      {:ok, {dataset_details, resource}}
+    else
+      # Could not decode the CSV:
+      # - we delete the temporary file since we will not include it in the consolidation
+      # - we return an error
+      File.rm!(path)
+      {:errors, {:decode, {dataset_details, resource}}}
+    end
   end
 
   @doc """
