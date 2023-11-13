@@ -1,4 +1,3 @@
-# TODO: backport version from https://github.com/etalab/transport-site/pull/3560 once it is merged
 defmodule Transport.S3 do
   @moduledoc """
   This module contains common code related to S3 object storage.
