@@ -28,6 +28,7 @@ folder = Path.join(__ENV__.file, "../cache-dir") |> Path.expand()
 resources
 # |> Enum.filter(fn x -> x.id == 79628 end)
 |> Enum.each(fn resource ->
+  IO.puts("Processing #{resource.id}...")
   Downloader.handle(folder, resource)
 end)
 
