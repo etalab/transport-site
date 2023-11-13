@@ -1,0 +1,4 @@
+<p>
+  <% folder = @issues |> hd() |> Map.fetch!("object_id") %>
+  <%= dgettext("validations-explanations", "SubFolder", folder: folder) %>
+</p>

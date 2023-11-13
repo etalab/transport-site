@@ -122,3 +122,7 @@ msgstr "Certains arrêts dans un même trajet ont la même valeur de stop_sequen
 #, elixir-autogen, elixir-format
 msgid "Related stops"
 msgstr "Arrêts associés"
+
+#, elixir-autogen, elixir-format
+msgid "SubFolder"
+msgstr "Les fichiers .txt sont dans un sous-dossier (%{folder}). Les fichiers doivent être à la racine de l'archive ZIP et non dans un sous-dossier."
