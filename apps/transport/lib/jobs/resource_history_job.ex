@@ -245,7 +245,6 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   end
 
   defp download_resource(:req, %Resource{id: resource_id, url: url}, file_path) do
-    # TODO: verify :line_or_bytes
     file_stream = File.stream!(file_path)
     req_options = [compressed: false, decode_body: false, receive_timeout: 180_000, into: file_stream]
 
