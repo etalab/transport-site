@@ -254,6 +254,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
         {:ok, file_path, relevant_http_headers(r)}
 
       {:ok, %{status: status_code}} ->
+        # NOTE: the file is still on disk at this point
         {:error, "Got a non 200 status: #{status_code}"}
 
       {:error, error} ->
