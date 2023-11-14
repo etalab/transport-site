@@ -17,10 +17,10 @@ defmodule Downloader do
           File.rm(file_path)
         end
 
-        File.write!(state_file_path, outcome |> inspect)
+        File.write!(state_file_path, outcome |> :erlang.term_to_binary())
       end
 
-      Code.eval_file(state_file_path)
+      File.read!(state_file_path) |> :erlang.binary_to_term()
     end)
   end
 end
