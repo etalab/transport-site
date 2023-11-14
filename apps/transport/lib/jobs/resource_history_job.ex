@@ -248,6 +248,9 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     file_stream = File.stream!(file_path)
     req_options = [compressed: false, decode_body: false, receive_timeout: 180_000, into: file_stream]
 
+    # temporary fix until we figure out what must be done (https://github.com/wojtekmach/req/issues/270)
+    url = url |> String.replace("|", URI.encode("|"))
+
     case Transport.Req.impl().get(url, req_options) do
       {:ok, %{status: 200} = r} ->
         Logger.debug("Saved resource##{resource_id} to #{file_path}")
