@@ -20,8 +20,10 @@ defmodule Downloader do
         File.write!(state_file_path, outcome |> :erlang.term_to_binary())
       end
 
-      File.read!(state_file_path) |> :erlang.binary_to_term()
+      {mode, File.read!(state_file_path) |> :erlang.binary_to_term()}
     end)
+    |> Enum.into(%{})
+    |> Map.put(:resource, resource)
   end
 end
 
@@ -51,20 +53,118 @@ defmodule Comparer do
 
     File.read!(checksum_file)
   end
+
+  def get_zip_metadata(filename) do
+    {output, exit_code} = System.cmd("unzip", ["-Z1", filename], stderr_to_stdout: true)
+
+    cond do
+      exit_code == 0 ->
+        output |> String.split("\n") |> Enum.sort() |> Enum.reject(fn x -> x == "" end)
+
+      output =~ ~r/cannot find zipfile directory|signature not found/ ->
+        :corrupt
+
+      true ->
+        raise "should not happen"
+    end
+  end
+
+  def compare_json(file_1, file_2) do
+    {output, 0} = System.shell("scripts/compare-json.sh #{file_1} #{file_2} 2>&1")
+    output == ""
+  end
+
+  def compare_csv(file_1, file_2) do
+    File.read!(file_1) |> String.split("\n") |> List.first() ==
+      File.read!(file_2) |> String.split("\n") |> List.first()
+  end
 end
 
-stream
-|> Stream.filter(fn x -> match?([{:ok, _, _}, {:ok, _, _}], x) end)
-|> Stream.filter(fn x ->
-  [{:ok, file_1, _}, {:ok, file_2, _}] = x
-  Comparer.checksum(file_1, :cached) != Comparer.checksum(file_2, :cached)
+all_ok =
+  stream
+  |> Stream.filter(fn x -> match?(%{legacy: {:ok, _, _}, req: {:ok, _, _}}, x) end)
+
+IO.puts("Download OK for both req & httpoison: count=#{all_ok |> Enum.count()}")
+IO.write("How many OK files are not equivalent in a way or another? ")
+
+all_ok
+|> Stream.map(fn x ->
+  {:ok, file_1, _} = x[:legacy]
+  {:ok, file_2, _} = x[:req]
+  same_checksum = Comparer.checksum(file_1, :cached) == Comparer.checksum(file_2, :cached)
+  Map.put(x, :same_checksum, same_checksum)
 end)
+|> Stream.filter(fn x -> !x[:same_checksum] end)
+|> Stream.map(fn x ->
+  {:ok, file_1, _} = x[:legacy]
+  {:ok, file_2, _} = x[:req]
+
+  x =
+    if x.resource.format == "GTFS" do
+      same_gtfs = Comparer.get_zip_metadata(file_1) == Comparer.get_zip_metadata(file_2)
+      Map.put(x, :same_gtfs, same_gtfs)
+    else
+      x
+    end
+
+  x =
+    if x.resource.format == "geojson" do
+      same_json = Comparer.compare_json(file_1, file_2)
+      Map.put(x, :same_json, same_json)
+    else
+      x
+    end
+
+  x =
+    if x.resource.format == "shp" do
+      same_shp = Comparer.get_zip_metadata(file_1) == Comparer.get_zip_metadata(file_2)
+      Map.put(x, :same_shp, same_shp)
+    else
+      x
+    end
+
+  x =
+    if x.resource.format == "NeTEx" do
+      # at this point, the non-equal NeTEx are all zip containing zips
+      same_zipped_netex = Comparer.get_zip_metadata(file_1) == Comparer.get_zip_metadata(file_2)
+      Map.put(x, :same_zipped_netex, same_zipped_netex)
+    else
+      x
+    end
+
+  x =
+    if x.resource.format == "csv" do
+      same_csv_headers = Comparer.compare_csv(file_1, file_2)
+      Map.put(x, :same_csv_headers, same_csv_headers)
+    else
+      x
+    end
+
+  x
+end)
+|> Stream.reject(fn x -> x.resource.format == "GTFS" && x[:same_gtfs] end)
+|> Stream.reject(fn x -> x.resource.format == "geojson" && x[:same_json] end)
+|> Stream.reject(fn x -> x.resource.format == "shp" && x[:same_shp] end)
+|> Stream.reject(fn x -> x.resource.format == "NeTEx" && x[:same_zipped_netex] end)
+|> Stream.reject(fn x -> x.resource.format == "csv" && x[:same_csv_headers] end)
 |> Enum.count()
 |> IO.puts()
+
+# |> Stream.take(1)
+# |> Stream.each(&IO.inspect(&1))
+# |> Stream.run()
+
+# |> Stream.filter(fn x ->
+#   [{:ok, file_1, _}, {:ok, file_2, _}] = x
+#
+# end)
+# |> Enum.count()
+# |> IO.puts()
 
 # - compter ceux qui sont 200 que pour httpoison, et par pour req: ce sont des régressions à étudier. Voir le contenu,
 #   mais aussi l'état. Je pense que les erreurs d'encodage d'urls porteront là dessus.
 # - compter ceux qui sont 200 pour req, mais pas pour httpoison. Vérifier que ce sont bien des améliorations
 # - voir ceux qui sont non-200 des deux côtés, et comparer.
+# - faire un rapport final
 
 IO.puts("============ done =============")
