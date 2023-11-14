@@ -28,10 +28,13 @@ end
 folder = Path.join(__ENV__.file, "../cache-dir") |> Path.expand()
 
 resources
-# |> Enum.filter(fn x -> x.id == 79628 end)
-|> Enum.map(fn resource ->
-  Downloader.handle(folder, resource)
-end)
-|> Enum.each(fn x -> IO.inspect(x, IEx.inspect_opts()) end)
+|> Task.async_stream(
+  fn x -> Downloader.handle(folder, x) end,
+  max_concurrency: 10,
+  timeout: :infinity
+)
+|> Stream.map(fn {:ok, x} -> x end)
+|> Stream.each(fn x -> IO.inspect(x, IEx.inspect_opts()) end)
+|> Stream.run()
 
 IO.puts("============ done =============")
