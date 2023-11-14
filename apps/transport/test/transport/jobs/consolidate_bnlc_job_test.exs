@@ -299,7 +299,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       end
     )
 
-    assert ["foo", "bar", "baz"] == ConsolidateBNLCJob.bnlc_csv_headers()
+    assert ["foo", "bar", "baz", "id_lieu"] == ConsolidateBNLCJob.bnlc_csv_headers()
   end
 
   test "consolidate_resources" do
@@ -356,9 +356,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       2,
       fn "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv" ->
         body = """
-        "foo","bar","baz","insee","id_local"
-        I,Love,CSV,21231,5
-        Very,Much,So,21231,6
+        "foo","bar","baz","id_lieu","insee","id_local"
+        I,Love,CSV,3,21231,5
+        Very,Much,So,4,21231,6
         """
 
         %HTTPoison.Response{status_code: 200, body: body}
