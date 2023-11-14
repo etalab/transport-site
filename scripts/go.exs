@@ -38,9 +38,6 @@ stream =
   )
   |> Stream.map(fn {:ok, x} -> x end)
 
-# TODOS:
-# - compter ceux qui sont 200 (donc :ok) des deux côtés, et vérifier la cohérence de la donnée approximativement
-
 defmodule Comparer do
   # compute checksum, using a checksum file for persistence since this is a costly operation
   def checksum(file, :cached) do
@@ -79,6 +76,8 @@ defmodule Comparer do
       File.read!(file_2) |> String.split("\n") |> List.first()
   end
 end
+
+IO.puts("Total considered resources: count=#{resources |> Enum.count()}")
 
 {all_ok, not_all_ok} =
   stream
@@ -152,21 +151,30 @@ end)
 
 IO.puts("Download not OK for at least one: count=#{not_all_ok |> Enum.count()}")
 
-# |> Stream.take(1)
-# |> Stream.each(&IO.inspect(&1))
-# |> Stream.run()
+{same_error, not_same_error} =
+  Enum.split_with(not_all_ok, fn x ->
+    case x do
+      %{req: {:error, err1}, legacy: {:error, err2}} ->
+        err1 == err2 && err1 |> String.starts_with?("Got a non 200 status")
 
-# |> Stream.filter(fn x ->
-#   [{:ok, file_1, _}, {:ok, file_2, _}] = x
-#
-# end)
-# |> Enum.count()
-# |> IO.puts()
+      _ ->
+        false
+    end
+  end)
 
-# - compter ceux qui sont 200 que pour httpoison, et par pour req: ce sont des régressions à étudier. Voir le contenu,
-#   mais aussi l'état. Je pense que les erreurs d'encodage d'urls porteront là dessus.
-# - compter ceux qui sont 200 pour req, mais pas pour httpoison. Vérifier que ce sont bien des améliorations
-# - voir ceux qui sont non-200 des deux côtés, et comparer.
-# - faire un rapport final
+IO.puts(
+  "Download not OK but req & httpoison lead to same http status error: count=" <>
+    (same_error |> Enum.count() |> inspect)
+)
+
+IO.puts("Other: " <> (not_same_error |> Enum.count() |> inspect()))
+
+not_same_error
+|> Enum.frequencies_by(fn x -> %{req: x[:req] |> elem(0), legacy: x[:legacy] |> elem(0)} end)
+|> IO.inspect(IEx.inspect_opts())
+
+not_same_error
+|> Enum.map(fn x -> x[:resource].url end)
+|> Enum.each(fn x -> IO.puts(x) end)
 
 IO.puts("============ done =============")
