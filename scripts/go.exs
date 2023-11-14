@@ -80,9 +80,9 @@ defmodule Comparer do
   end
 end
 
-all_ok =
+{all_ok, not_all_ok} =
   stream
-  |> Stream.filter(fn x -> match?(%{legacy: {:ok, _, _}, req: {:ok, _, _}}, x) end)
+  |> Enum.split_with(fn x -> match?(%{legacy: {:ok, _, _}, req: {:ok, _, _}}, x) end)
 
 IO.puts("Download OK for both req & httpoison: count=#{all_ok |> Enum.count()}")
 IO.write("How many OK files are not equivalent in a way or another? ")
@@ -149,6 +149,8 @@ end)
 |> Stream.reject(fn x -> x.resource.format == "csv" && x[:same_csv_headers] end)
 |> Enum.count()
 |> IO.puts()
+
+IO.puts("Download not OK for at least one: count=#{not_all_ok |> Enum.count()}")
 
 # |> Stream.take(1)
 # |> Stream.each(&IO.inspect(&1))
