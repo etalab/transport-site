@@ -177,4 +177,21 @@ not_same_error
 |> Enum.map(fn x -> x[:resource].url end)
 |> Enum.each(fn x -> IO.puts(x) end)
 
+same_error
+|> Enum.frequencies_by(fn x ->
+  x[:legacy] |> elem(1)
+end)
+|> IO.inspect()
+
+same_error
+|> Enum.group_by(fn x -> x[:legacy] |> elem(1) end, fn x ->
+  "https://transport.data.gouv.fr/resources/#{x.resource.id}"
+end)
+|> Enum.each(fn {k, v} ->
+  IO.puts("\n" <> k)
+
+  v
+  |> Enum.each(fn x -> IO.puts("* #{x}") end)
+end)
+
 IO.puts("============ done =============")
