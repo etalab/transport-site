@@ -359,4 +359,16 @@ defmodule DB.Resource do
       nil
     end
   end
+
+  @doc """
+  The proxy namespace for a resource. Defined in other Umbrella apps (`gbfs` and `unlock`).
+  Used in `metrics.target` and `metrics.event`.
+
+  iex> proxy_namespace(%DB.Resource{url: "https://transport.data.gouv.fr/gbfs/cergy-pontoise/gbfs.json", format: "gbfs"})
+  "gbfs"
+  iex> proxy_namespace(%DB.Resource{url: "https://proxy.transport.data.gouv.fr/resource/axeo-guingamp-gtfs-rt-vehicle-position", format: "gtfs-rt"})
+  "proxy"
+  """
+  def proxy_namespace(%__MODULE__{format: "gbfs"}), do: "gbfs"
+  def proxy_namespace(%__MODULE__{}), do: "proxy"
 end
