@@ -799,9 +799,9 @@ defmodule DB.Dataset do
   end
 
   @spec get_resources_related_files(any()) :: map()
-  def get_resources_related_files(%__MODULE__{resources: resources}) when is_list(resources) do
-    convert_to_values = Ecto.Enum.values(DB.DataConversion, :convert_to)
-    filler = convert_to_values |> Enum.into(%{}, &{&1, nil})
+  def get_resources_related_files(%__MODULE__{resources: resources} = dataset) when is_list(resources) do
+    convert_to_values = target_conversion_formats(dataset)
+    filler = DB.DataConversion |> Ecto.Enum.values(:convert_to) |> Enum.into(%{}, &{&1, nil})
 
     resource_ids = resources |> Enum.map(& &1.id)
 
@@ -839,6 +839,33 @@ defmodule DB.Dataset do
   end
 
   def get_resources_related_files(_), do: %{}
+
+  @doc """
+  The list of conversion formats we are interested in for a dataset.
+
+  Possible formats are handled by `DB.DataConversion`.
+  If the dataset contains at least a NeTEx resource, we are not interested in NeTEx conversions
+  UNLESS the dataset has a custom tag `keep_netex_conversions` we added ourselves.
+
+  iex> target_conversion_formats(%DB.Dataset{resources: [%DB.Resource{format: "gtfs"}]})
+  [:GeoJSON, :NeTEx]
+  iex> target_conversion_formats(%DB.Dataset{resources: [%DB.Resource{format: "gtfs"}, %DB.Resource{format: "NeTEx"}]})
+  [:GeoJSON]
+  iex> target_conversion_formats(%DB.Dataset{resources: [%DB.Resource{format: "gtfs"}, %DB.Resource{format: "NeTEx"}]})
+  [:GeoJSON]
+  """
+  @spec target_conversion_formats(DB.Dataset.t()) :: [atom()]
+  def target_conversion_formats(%__MODULE__{resources: resources} = dataset) when is_list(resources) do
+    available_formats = Ecto.Enum.values(DB.DataConversion, :convert_to)
+    keep_netex_conversions = has_custom_tag?(dataset, "keep_netex_conversions")
+    has_netex = Enum.any?(resources, &DB.Resource.is_netex?/1)
+
+    if has_netex and not keep_netex_conversions do
+      Enum.reject(available_formats, &(&1 == :NeTEx))
+    else
+      available_formats
+    end
+  end
 
   defp validate_siren(%Ecto.Changeset{} = changeset) do
     case get_change(changeset, :legal_owner_company_siren) do
@@ -1029,19 +1056,19 @@ defmodule DB.Dataset do
   def has_licence_ouverte?(%__MODULE__{licence: licence}), do: licence in @licences_ouvertes
 
   @doc """
-  iex> display_climate_resilience_bill_badge?(%__MODULE__{custom_tags: ["licence-osm"]})
+  iex> climate_resilience_bill?(%DB.Dataset{custom_tags: ["licence-osm"]})
   false
-  iex> display_climate_resilience_bill_badge?(%__MODULE__{custom_tags: ["loi-climat-resilience", "foo"]})
+  iex> climate_resilience_bill?(%DB.Dataset{custom_tags: ["loi-climat-resilience", "foo"]})
   true
   """
   def climate_resilience_bill?(%__MODULE__{} = dataset), do: has_custom_tag?(dataset, "loi-climat-resilience")
 
   @doc """
-  iex> has_custom_tag?(%__MODULE__{custom_tags: ["foo"]}, "foo")
+  iex> has_custom_tag?(%DB.Dataset{custom_tags: ["foo"]}, "foo")
   true
-  iex> has_custom_tag?(%__MODULE__{custom_tags: ["foo"]}, "bar")
+  iex> has_custom_tag?(%DB.Dataset{custom_tags: ["foo"]}, "bar")
   false
-  iex> has_custom_tag?(%__MODULE__{custom_tags: nil}, "bar")
+  iex> has_custom_tag?(%DB.Dataset{custom_tags: nil}, "bar")
   false
   """
   def has_custom_tag?(%__MODULE__{custom_tags: custom_tags}, tag_name), do: tag_name in (custom_tags || [])
