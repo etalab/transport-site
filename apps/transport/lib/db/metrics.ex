@@ -21,12 +21,7 @@ defmodule DB.Metrics do
   number of days.
   """
   def requests_over_last_days(%DB.Resource{} = resource, days) when is_integer(days) and days > 0 do
-    namespace =
-      cond do
-        DB.Resource.is_gtfs_rt?(resource) -> "proxy"
-        DB.Resource.is_gbfs?(resource) -> "gbfs"
-      end
-
+    namespace = DB.Resource.proxy_namespace(resource)
     date_from = %{DateTime.utc_now() | hour: 0, minute: 0, second: 0} |> DateTime.add(-days, :day)
     target = Enum.join([namespace, DB.Resource.proxy_slug(resource)], ":")
     external_event = Enum.join([namespace, "request", "external"], ":")
