@@ -21,8 +21,8 @@ defmodule Transport.ImportAOMs do
   require Logger
 
   # The 2 community resources stable urls
-  @aom_file "https://gist.githubusercontent.com/vdegove/71b4fe57fb4499d0a97fcc363678bf9f/raw/65412afd54cbebfb9da1ce246105169c16df0f5c/base-rt-2023-liste-aom-retravaille.csv"
-  @aom_insee_file "https://gist.githubusercontent.com/vdegove/71b4fe57fb4499d0a97fcc363678bf9f/raw/65412afd54cbebfb9da1ce246105169c16df0f5c/base-rt-2023-liste-communes-retravaille.csv"
+  @aom_file "https://gist.githubusercontent.com/vdegove/71b4fe57fb4499d0a97fcc363678bf9f/raw/eda40b42af2d32ba91d3819ec322f762b3198e5c/base-rt-2023-liste-aom-retravaille.csv"
+  @aom_insee_file "https://gist.githubusercontent.com/vdegove/71b4fe57fb4499d0a97fcc363678bf9f/raw/c8ffe0c94f5d674b23f7b573952dca57b31544c0/base-rt-2023-composition-communale-retravaille.csv"
   @ignored_aoms ["Saint-Martin"]
 
   @spec to_int(binary()) :: number() | nil
@@ -40,13 +40,11 @@ defmodule Transport.ImportAOMs do
 
   @spec changeset(AOM.t(), map()) :: {integer(), Ecto.Changeset.t()}
   def changeset(aom, line) do
-    insee =
-      (Repo.get_by(Commune, siren: line["N°SIREN Commune principale"]) ||
-         Repo.get_by(Commune, insee: line["N°SIREN Commune principale"])).insee
-
     nom = String.trim(line["Nom de l’AOM"])
 
-    new_region = Repo.get_by(Region, nom: normalize_region(line["Régions"]))
+    IO.puts(nom)
+    IO.puts(line["Région"])
+    new_region = Repo.get_by(Region, nom: normalize_region(line["Région"]))
 
     if !is_nil(aom.region) and !is_nil(new_region) and aom.region != new_region do
       Logger.info("aom #{nom} || previous region #{aom.region.nom} --- #{new_region.nom}")
@@ -57,12 +55,11 @@ defmodule Transport.ImportAOMs do
     {external_id,
      Ecto.Changeset.change(aom, %{
        composition_res_id: external_id,
-       insee_commune_principale: insee,
-       departement: line["Dep"] |> String.trim(),
+       departement: line["Département"] |> String.split(" - ") |> hd() |> String.trim,
        siren: line["N° SIREN"] |> String.trim(),
        nom: nom,
        forme_juridique: normalize_forme(line["Forme juridique"]),
-       nombre_communes: to_int(line["Nombre de communes du RT"]),
+       nombre_communes: to_int(line["Nombre de communes du RT"]), # This is inconsistent with the real number of communes…
        population: to_int(line["Population"]),
        surface: line["Surface (km²)"] |> String.trim(),
        region: new_region
@@ -98,6 +95,7 @@ defmodule Transport.ImportAOMs do
       |> Map.new(fn aom -> {aom.composition_res_id, aom} end)
 
     # get all the aom to import, outside of the transaction to reduce the time in the transaction
+    # this already builds the changeset
     aom_to_add = get_aom_to_import()
 
     {:ok, _} =
