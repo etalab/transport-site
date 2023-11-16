@@ -14,6 +14,14 @@ defmodule DB.Dataset do
   use Ecto.Schema
   use TypedEctoSchema
 
+  @type conversion_details :: %{
+          url: binary(),
+          filesize: pos_integer(),
+          resource_history_last_up_to_date_at: DateTime.t(),
+          format: binary(),
+          stable_url: binary()
+        }
+
   @licences_ouvertes ["fr-lo", "lov2"]
   @licence_mobilités_tag "licence-mobilités"
 
@@ -798,18 +806,19 @@ defmodule DB.Dataset do
     end
   end
 
-  @spec get_resources_related_files(any()) :: map()
+  @spec get_resources_related_files(any()) :: %{integer() => %{optional(atom()) => conversion_details() | nil}}
   def get_resources_related_files(%__MODULE__{resources: resources} = dataset) when is_list(resources) do
-    convert_to_values = target_conversion_formats(dataset)
-    filler = DB.DataConversion |> Ecto.Enum.values(:convert_to) |> Enum.into(%{}, &{&1, nil})
-
-    resource_ids = resources |> Enum.map(& &1.id)
+    target_formats = target_conversion_formats(dataset)
+    # The filler's purpose is to make sure we have a {conversion_format, nil} value
+    # for every resource, even if we don't have a conversion
+    filler = Enum.into(available_conversion_formats(), %{}, &{&1, nil})
+    resource_ids = Enum.map(resources, & &1.id)
 
     results =
       DB.Resource.base_query()
       |> where([resource: r], r.id in ^resource_ids)
       |> DB.ResourceHistory.join_resource_with_latest_resource_history()
-      |> DB.DataConversion.join_resource_history_with_data_conversion(convert_to_values)
+      |> DB.DataConversion.join_resource_history_with_data_conversion(target_formats)
       |> select(
         [resource: r, resource_history: rh, data_conversion: dc],
         {r.id,
@@ -833,7 +842,7 @@ defmodule DB.Dataset do
       end)
       |> Enum.into(%{}, fn {id, l} -> {id, Map.merge(filler, Enum.into(l, %{}))} end)
 
-    empty_results = resource_ids |> Enum.into(%{}, fn id -> {id, filler} end)
+    empty_results = Enum.into(resource_ids, %{}, fn id -> {id, filler} end)
 
     Map.merge(empty_results, results)
   end
@@ -856,16 +865,17 @@ defmodule DB.Dataset do
   """
   @spec target_conversion_formats(DB.Dataset.t()) :: [atom()]
   def target_conversion_formats(%__MODULE__{resources: resources} = dataset) when is_list(resources) do
-    available_formats = Ecto.Enum.values(DB.DataConversion, :convert_to)
     keep_netex_conversions = has_custom_tag?(dataset, "keep_netex_conversions")
     has_netex = Enum.any?(resources, &DB.Resource.is_netex?/1)
 
     if has_netex and not keep_netex_conversions do
-      Enum.reject(available_formats, &(&1 == :NeTEx))
+      Enum.reject(available_conversion_formats(), &(&1 == :NeTEx))
     else
-      available_formats
+      available_conversion_formats()
     end
   end
+
+  defp available_conversion_formats, do: Ecto.Enum.values(DB.DataConversion, :convert_to)
 
   defp validate_siren(%Ecto.Changeset{} = changeset) do
     case get_change(changeset, :legal_owner_company_siren) do
