@@ -36,41 +36,44 @@ defmodule DB.ResourceHistoryTest do
     past = now |> DateTime.add(-3 * 60)
     pastpast = now |> DateTime.add(-6 * 60)
 
-    %{id: dataset_id} = insert(:dataset)
+    dataset = insert(:dataset)
 
     # wrong dataset
     %{id: resource_id_0} = insert(:resource)
     insert(:resource_history, %{resource_id: resource_id_0, inserted_at: now})
 
     # no resource history payload
-    %{id: resource_id_1} = insert(:resource, %{dataset_id: dataset_id})
+    %{id: resource_id_1} = insert(:resource, dataset: dataset)
     insert(:resource_history, %{resource_id: resource_id_1, inserted_at: now})
 
     # no filesize in payload
-    %{id: resource_id_2} = insert(:resource, %{dataset_id: dataset_id})
+    %{id: resource_id_2} = insert(:resource, dataset: dataset)
     insert(:resource_history, %{resource_id: resource_id_2, inserted_at: pastpast})
 
     insert(:resource_history, %{
       resource_id: resource_id_2,
       inserted_at: past,
-      payload: %{"permanent_url" => url = "url"}
+      payload: %{"permanent_url" => r2_url = "r2_url"}
     })
 
     # all good
-    %{id: resource_id_3} = insert(:resource, %{dataset_id: dataset_id})
+    %{id: resource_id_3} = insert(:resource, dataset: dataset)
     insert(:resource_history, %{resource_id: resource_id_3, inserted_at: past})
 
     insert(:resource_history, %{
       resource_id: resource_id_3,
       inserted_at: now,
-      payload: %{"permanent_url" => url, "filesize" => filesize = "10"}
+      payload: %{"permanent_url" => r3_url = "r3_url", "filesize" => filesize = "10"}
     })
 
     assert %{
-             resource_id_1 => %{url: nil, filesize: nil},
-             resource_id_2 => %{url: url, filesize: nil},
-             resource_id_3 => %{url: url, filesize: filesize}
-           } == latest_dataset_resources_history_infos(dataset_id)
+             ^resource_id_1 => %DB.ResourceHistory{resource_id: ^resource_id_1, payload: %{}},
+             ^resource_id_2 => %DB.ResourceHistory{resource_id: ^resource_id_2, payload: %{"permanent_url" => ^r2_url}},
+             ^resource_id_3 => %DB.ResourceHistory{
+               resource_id: ^resource_id_3,
+               payload: %{"permanent_url" => ^r3_url, "filesize" => ^filesize}
+             }
+           } = latest_dataset_resources_history_infos(dataset)
   end
 
   test "composable query" do
