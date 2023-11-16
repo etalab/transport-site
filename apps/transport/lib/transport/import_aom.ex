@@ -21,8 +21,8 @@ defmodule Transport.ImportAOMs do
   require Logger
 
   # The 2 community resources stable urls
-  @aom_file "https://gist.githubusercontent.com/AntoineAugusti/8daac155f4d12b32ccd4e0a75bb964c7/raw/aoms.csv"
-  @aom_insee_file "https://gist.githubusercontent.com/AntoineAugusti/8daac155f4d12b32ccd4e0a75bb964c7/raw/aoms_insee.csv"
+  @aom_file "https://gist.githubusercontent.com/vdegove/71b4fe57fb4499d0a97fcc363678bf9f/raw/65412afd54cbebfb9da1ce246105169c16df0f5c/base-rt-2023-liste-aom-retravaille.csv"
+  @aom_insee_file "https://gist.githubusercontent.com/vdegove/71b4fe57fb4499d0a97fcc363678bf9f/raw/65412afd54cbebfb9da1ce246105169c16df0f5c/base-rt-2023-liste-communes-retravaille.csv"
   @ignored_aoms ["Saint-Martin"]
 
   @spec to_int(binary()) :: number() | nil
@@ -95,8 +95,7 @@ defmodule Transport.ImportAOMs do
     old_aoms =
       AOM
       |> Repo.all()
-      |> Enum.map(fn aom -> {aom.composition_res_id, aom} end)
-      |> Map.new()
+      |> Map.new(fn aom -> {aom.composition_res_id, aom} end)
 
     # get all the aom to import, outside of the transaction to reduce the time in the transaction
     aom_to_add = get_aom_to_import()
@@ -189,8 +188,8 @@ defmodule Transport.ImportAOMs do
     stream
     |> IO.binstream(:line)
     |> CSV.decode(separator: ?,, headers: true, validate_row_length: true)
-    |> Enum.map(fn {:ok, line} -> {line["siren_aom"], line["insee"]} end)
-    |> Enum.reject(fn {aom_siren, insee} -> aom_siren == "" || insee == "" || aom_siren not in Map.keys(aom_ids) end)
+    |> Enum.map(fn {:ok, line} -> {line["N° SIREN AOM"], line["N° INSEE"]} end)
+    |> Enum.reject(fn {aom_siren, insee} -> aom_siren == "" || aom_siren == "-" || insee == "" || aom_siren not in Map.keys(aom_ids) end)
     |> Enum.map(fn {aom_siren, insee} -> {aom_ids[aom_siren], insee} end)
     |> Enum.flat_map(fn {aom, insee} ->
       # To reduce the number of UPDATE in the DB, we first check which city needs to be updated
