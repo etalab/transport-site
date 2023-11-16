@@ -9,6 +9,8 @@ defmodule DB.DatasetDBTest do
   import ExUnit.CaptureLog
   import Ecto.Query
 
+  doctest DB.Dataset, import: true
+
   test "delete dataset associated to a commune" do
     commune = insert(:commune)
 
@@ -369,92 +371,164 @@ defmodule DB.DatasetDBTest do
            ] = all_enqueued()
   end
 
-  test "get resources related files (GeoJSON, NeTEx,...)" do
-    %{id: dataset_id} = insert(:dataset)
+  describe "get_resources_related_files" do
+    test "without a NeTEx resource" do
+      %{id: dataset_id} = insert(:dataset)
 
-    r1 = insert(:resource, dataset_id: dataset_id)
-    r2 = insert(:resource, dataset_id: dataset_id)
-    r3 = insert(:resource, dataset_id: dataset_id)
+      r1 = insert(:resource, dataset_id: dataset_id)
+      r2 = insert(:resource, dataset_id: dataset_id)
+      r3 = insert(:resource, dataset_id: dataset_id)
 
-    insert(:resource_history,
-      resource_id: r1.id,
-      payload: %{"uuid" => uuid1 = Ecto.UUID.generate()},
-      last_up_to_date_at: dt1 = DateTime.utc_now()
-    )
+      insert(:resource_history,
+        resource_id: r1.id,
+        payload: %{"uuid" => uuid1 = Ecto.UUID.generate()},
+        last_up_to_date_at: dt1 = DateTime.utc_now()
+      )
 
-    insert(:resource_history,
-      resource_id: r2.id,
-      payload: %{"uuid" => uuid2 = Ecto.UUID.generate()},
-      last_up_to_date_at: dt2 = DateTime.utc_now()
-    )
+      insert(:resource_history,
+        resource_id: r2.id,
+        payload: %{"uuid" => uuid2 = Ecto.UUID.generate()},
+        last_up_to_date_at: dt2 = DateTime.utc_now()
+      )
 
-    insert(:data_conversion,
-      resource_history_uuid: uuid1,
-      convert_from: "GTFS",
-      convert_to: "GeoJSON",
-      converter: DB.DataConversion.converter_to_use("GeoJSON"),
-      payload: %{"permanent_url" => "url1", "filesize" => 21}
-    )
+      insert(:data_conversion,
+        resource_history_uuid: uuid1,
+        convert_from: "GTFS",
+        convert_to: "GeoJSON",
+        converter: DB.DataConversion.converter_to_use("GeoJSON"),
+        payload: %{"permanent_url" => "url1", "filesize" => 21}
+      )
 
-    insert(:data_conversion,
-      resource_history_uuid: uuid1,
-      convert_from: "GTFS",
-      convert_to: "NeTEx",
-      converter: DB.DataConversion.converter_to_use("NeTEx"),
-      payload: %{"permanent_url" => "url11", "filesize" => 42}
-    )
+      insert(:data_conversion,
+        resource_history_uuid: uuid1,
+        convert_from: "GTFS",
+        convert_to: "NeTEx",
+        converter: DB.DataConversion.converter_to_use("NeTEx"),
+        payload: %{"permanent_url" => "url11", "filesize" => 42}
+      )
 
-    insert(:data_conversion,
-      resource_history_uuid: uuid2,
-      convert_from: "GTFS",
-      convert_to: "GeoJSON",
-      converter: DB.DataConversion.converter_to_use("GeoJSON"),
-      payload: %{"permanent_url" => "url2", "filesize" => 76}
-    )
+      insert(:data_conversion,
+        resource_history_uuid: uuid2,
+        convert_from: "GTFS",
+        convert_to: "GeoJSON",
+        converter: DB.DataConversion.converter_to_use("GeoJSON"),
+        payload: %{"permanent_url" => "url2", "filesize" => 76}
+      )
 
-    # Should be ignored, status is `pending`
-    insert(:data_conversion,
-      resource_history_uuid: uuid2,
-      convert_from: "GTFS",
-      convert_to: "NeTEx",
-      converter: DB.DataConversion.converter_to_use("NeTEx"),
-      status: :pending,
-      payload: %{"permanent_url" => "url21", "filesize" => 43}
-    )
+      # Should be ignored, status is `pending`
+      insert(:data_conversion,
+        resource_history_uuid: uuid2,
+        convert_from: "GTFS",
+        convert_to: "NeTEx",
+        converter: DB.DataConversion.converter_to_use("NeTEx"),
+        status: :pending,
+        payload: %{"permanent_url" => "url21", "filesize" => 43}
+      )
 
-    dataset = DB.Dataset |> preload(:resources) |> DB.Repo.get(dataset_id)
+      dataset = DB.Dataset |> preload(:resources) |> DB.Repo.get(dataset_id)
 
-    related_resources = DB.Dataset.get_resources_related_files(dataset)
+      related_resources = DB.Dataset.get_resources_related_files(dataset)
 
-    assert %{
-             r1.id => %{
-               GeoJSON: %{
-                 url: "url1",
-                 filesize: 21,
-                 resource_history_last_up_to_date_at: dt1,
-                 format: "GeoJSON",
-                 stable_url: "http://127.0.0.1:5100/resources/conversions/#{r1.id}/GeoJSON"
+      assert %{
+               r1.id => %{
+                 GeoJSON: %{
+                   url: "url1",
+                   filesize: 21,
+                   resource_history_last_up_to_date_at: dt1,
+                   format: "GeoJSON",
+                   stable_url: "http://127.0.0.1:5100/resources/conversions/#{r1.id}/GeoJSON"
+                 },
+                 NeTEx: %{
+                   url: "url11",
+                   filesize: 42,
+                   resource_history_last_up_to_date_at: dt1,
+                   format: "NeTEx",
+                   stable_url: "http://127.0.0.1:5100/resources/conversions/#{r1.id}/NeTEx"
+                 }
                },
-               NeTEx: %{
-                 url: "url11",
-                 filesize: 42,
-                 resource_history_last_up_to_date_at: dt1,
-                 format: "NeTEx",
-                 stable_url: "http://127.0.0.1:5100/resources/conversions/#{r1.id}/NeTEx"
-               }
-             },
-             r2.id => %{
-               GeoJSON: %{
-                 url: "url2",
-                 filesize: 76,
-                 resource_history_last_up_to_date_at: dt2,
-                 format: "GeoJSON",
-                 stable_url: "http://127.0.0.1:5100/resources/conversions/#{r2.id}/GeoJSON"
+               r2.id => %{
+                 GeoJSON: %{
+                   url: "url2",
+                   filesize: 76,
+                   resource_history_last_up_to_date_at: dt2,
+                   format: "GeoJSON",
+                   stable_url: "http://127.0.0.1:5100/resources/conversions/#{r2.id}/GeoJSON"
+                 },
+                 NeTEx: nil
                },
-               NeTEx: nil
-             },
-             r3.id => %{GeoJSON: nil, NeTEx: nil}
-           } == related_resources
+               r3.id => %{GeoJSON: nil, NeTEx: nil}
+             } == related_resources
+    end
+
+    test "with a GTFS and NeTEx resources in the same dataset" do
+      dataset = insert(:dataset)
+
+      gtfs = insert(:resource, dataset: dataset, format: "gtfs")
+      netex = insert(:resource, dataset: dataset, format: "NeTEx")
+
+      insert(:resource_history,
+        resource: gtfs,
+        payload: %{"uuid" => uuid1 = Ecto.UUID.generate()},
+        last_up_to_date_at: dt1 = DateTime.utc_now()
+      )
+
+      insert(:data_conversion,
+        resource_history_uuid: uuid1,
+        convert_from: "GTFS",
+        convert_to: "GeoJSON",
+        converter: DB.DataConversion.converter_to_use("GeoJSON"),
+        payload: %{"permanent_url" => "url1", "filesize" => 21}
+      )
+
+      insert(:data_conversion,
+        resource_history_uuid: uuid1,
+        convert_from: "GTFS",
+        convert_to: "NeTEx",
+        converter: DB.DataConversion.converter_to_use("NeTEx"),
+        payload: %{"permanent_url" => "url11", "filesize" => 42}
+      )
+
+      dataset = dataset |> DB.Repo.preload(:resources)
+
+      # Should not offer a NeTEx conversion for the GTFS file:
+      # we have a NeTEx resource
+      assert %{
+               gtfs.id => %{
+                 GeoJSON: %{
+                   url: "url1",
+                   filesize: 21,
+                   resource_history_last_up_to_date_at: dt1,
+                   format: "GeoJSON",
+                   stable_url: "http://127.0.0.1:5100/resources/conversions/#{gtfs.id}/GeoJSON"
+                 },
+                 NeTEx: nil
+               },
+               netex.id => %{GeoJSON: nil, NeTEx: nil}
+             } == DB.Dataset.get_resources_related_files(dataset)
+
+      # Should offer a NeTEx conversion for the GTFS even if we
+      # have a NeTEx resource because the dataset has the appropriate
+      # custom tag.
+      assert %{
+               gtfs.id => %{
+                 GeoJSON: %{
+                   url: "url1",
+                   filesize: 21,
+                   resource_history_last_up_to_date_at: dt1,
+                   format: "GeoJSON",
+                   stable_url: "http://127.0.0.1:5100/resources/conversions/#{gtfs.id}/GeoJSON"
+                 },
+                 NeTEx: %{
+                   url: "url11",
+                   filesize: 42,
+                   resource_history_last_up_to_date_at: dt1,
+                   format: "NeTEx",
+                   stable_url: "http://127.0.0.1:5100/resources/conversions/#{gtfs.id}/NeTEx"
+                 }
+               },
+               netex.id => %{GeoJSON: nil, NeTEx: nil}
+             } == DB.Dataset.get_resources_related_files(%{dataset | custom_tags: ["keep_netex_conversions"]})
+    end
   end
 
   test "count dataset by mode" do
@@ -608,5 +682,26 @@ defmodule DB.DatasetDBTest do
       assert [%DB.Dataset{id: ^dataset_id}] =
                DB.Organization |> DB.Repo.one!() |> DB.Repo.preload(:datasets) |> Map.fetch!(:datasets)
     end
+  end
+
+  test "target_conversion_formats" do
+    assert [:GeoJSON, :NeTEx] ==
+             DB.Dataset.target_conversion_formats(%DB.Dataset{resources: [%DB.Resource{format: "gtfs"}]})
+
+    assert [:GeoJSON] ==
+             DB.Dataset.target_conversion_formats(%DB.Dataset{
+               resources: [%DB.Resource{format: "gtfs"}, %DB.Resource{format: "NeTEx"}]
+             })
+
+    assert [:GeoJSON] ==
+             DB.Dataset.target_conversion_formats(%DB.Dataset{
+               resources: [%DB.Resource{format: "gtfs"}, %DB.Resource{format: "NeTEx"}]
+             })
+
+    assert [:GeoJSON, :NeTEx] ==
+             DB.Dataset.target_conversion_formats(%DB.Dataset{
+               resources: [%DB.Resource{format: "gtfs"}, %DB.Resource{format: "NeTEx"}],
+               custom_tags: ["keep_netex_conversions", "foo"]
+             })
   end
 end
