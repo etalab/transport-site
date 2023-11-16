@@ -247,11 +247,6 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     |> Stream.take(1)
     |> Enum.to_list()
     |> hd()
-    # In the 0.2.0 schema version the `id_lieu` column was present.
-    # https://schema.data.gouv.fr/etalab/schema-lieux-covoiturage/0.2.8/documentation.html
-    # Starting with 0.3.0 `id_lieu` should not be present in the files
-    # we consolidate as we add it ourselves with `add_id_lieu_column/1`
-    |> Enum.reject(&(&1 == "id_lieu"))
   end
 
   @doc """
@@ -263,7 +258,11 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   def consolidate_resources(resources_details) do
     file = File.open!(@bnlc_path, [:write, :utf8])
     bnlc_headers = bnlc_csv_headers()
-    final_headers = ["id_lieu"] ++ bnlc_headers
+    # In the 0.2.8 schema version the `id_lieu` column was present.
+    # https://schema.data.gouv.fr/etalab/schema-lieux-covoiturage/0.2.8/documentation.html
+    # Starting with 0.3.0 `id_lieu` should not be present in the files
+    # we consolidate as we add it ourselves with `add_id_lieu_column/1`
+    final_headers = ["id_lieu"] ++ Enum.reject(bnlc_headers, &(&1 == "id_lieu"))
 
     %HTTPoison.Response{body: body, status_code: 200} = @bnlc_github_url |> http_client().get!()
 

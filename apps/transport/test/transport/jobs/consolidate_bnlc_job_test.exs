@@ -299,7 +299,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       end
     )
 
-    assert ["foo", "bar", "baz"] == ConsolidateBNLCJob.bnlc_csv_headers()
+    assert ["foo", "bar", "baz", "id_lieu"] == ConsolidateBNLCJob.bnlc_csv_headers()
   end
 
   test "consolidate_resources" do
@@ -339,9 +339,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     Transport.HTTPoison.Mock
     |> expect(:get, fn ^other_url, [], [follow_redirect: true] ->
       body = """
-      "foo";"bar";"baz";"insee";"id_local";"extra_col"
-      "a";"b";"c";"21231";"3";"its_a_trap"
-      "d";"e";"f";"21231";"4";"should_be_ignored"
+      "foo";"bar";"baz";"insee";"id_local";"extra_col";"id_lieu"
+      "a";"b";"c";"21231";"3";"its_a_trap";"not_falling_for_this"
+      "d";"e";"f";"21231";"4";"should_be_ignored";"cant_mess_with_me"
       """
 
       {:ok, %HTTPoison.Response{status_code: 200, body: body}}
@@ -356,9 +356,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       2,
       fn "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv" ->
         body = """
-        "foo","bar","baz","insee","id_local"
-        I,Love,CSV,21231,5
-        Very,Much,So,21231,6
+        "foo","bar","baz","id_lieu","insee","id_local"
+        I,Love,CSV,3,21231,5
+        Very,Much,So,4,21231,6
         """
 
         %HTTPoison.Response{status_code: 200, body: body}
@@ -519,8 +519,8 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       Transport.HTTPoison.Mock
       |> expect(:get, fn ^bar_url, [], [follow_redirect: true] ->
         body = """
-        foo,bar,baz,insee,id_local,extra_col
-        1,2,3,21231,3,is_ignored
+        foo,bar,baz,insee,id_local,extra_col,id_lieu
+        1,2,3,21231,3,is_ignored,is_generated_again
         """
 
         {:ok, %HTTPoison.Response{status_code: 200, body: body}}
