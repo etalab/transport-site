@@ -231,6 +231,10 @@ if config_env() == :prod do
             "voies" => "3a5d0c66-aef9-4d68-841f-4fe81c9de980",
             "aires" => "673a16bf-49ec-4645-9da2-cf975d0aa0ea"
           }
+        },
+        bnlc: %{
+          dataset_id: "5d6eaffc8b4c417cdc452ac3",
+          resource_id: "4fd78dee-e122-4c0d-8bf6-ff55d79f3af1"
         }
       }
 

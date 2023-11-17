@@ -542,48 +542,12 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
         end
       )
 
-      Transport.ExAWS.Mock
-      |> expect(:request!, fn %ExAws.Operation.S3{} = operation ->
-        assert %ExAws.Operation.S3{
-                 bucket: "transport-data-gouv-fr-on-demand-validation-test",
-                 path: path,
-                 http_method: :put,
-                 service: :s3
-               } = operation
-
-        assert path =~ ~r"^bnlc-.*\.csv$"
-      end)
-
-      Transport.EmailSender.Mock
-      |> expect(:send_mail, fn "transport.data.gouv.fr" = _display_name,
-                               "contact@transport.data.gouv.fr" = _from,
-                               "deploiement@transport.data.gouv.fr" = _to,
-                               "contact@transport.data.gouv.fr" = _reply_to,
-                               "[OK] Rapport de consolidation de la BNLC" = _subject,
-                               "",
-                               html_part ->
-        assert html_part =~ ~r"^✅ La consolidation s'est déroulée sans erreurs"
-
-        # Make sure a link is there
-        assert html_part =~
-                 ~r{🔗 <a href="https://transport-data-gouv-fr-on-demand-validation-test.cellar-c2.services.clever-cloud.com/bnlc-.*\.csv">Fichier consolidé</a>}
-
-        :ok
-      end)
+      expect_s3_upload()
+      expect_ok_email_sent()
 
       assert :ok == perform_job(ConsolidateBNLCJob, %{})
 
-      # A job has been enqueued and scheduled to delete the temporary file stored in the bucket
-      assert [
-               %Oban.Job{
-                 worker: "Transport.Jobs.ConsolidateBNLCJob",
-                 args: %{"action" => "delete_s3_file", "filename" => filename},
-                 scheduled_at: scheduled_at
-               }
-             ] = all_enqueued()
-
-      assert_in_delta 7 * 4, DateTime.diff(scheduled_at, DateTime.utc_now(), :day), 1
-      assert filename =~ ~r"^bnlc-.*\.csv$"
+      expect_job_scheduled_to_remove_file()
 
       # CSV content is fine
       assert """
@@ -741,17 +705,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
         end
       )
 
-      Transport.ExAWS.Mock
-      |> expect(:request!, fn %ExAws.Operation.S3{} = operation ->
-        assert %ExAws.Operation.S3{
-                 bucket: "transport-data-gouv-fr-on-demand-validation-test",
-                 path: path,
-                 http_method: :put,
-                 service: :s3
-               } = operation
-
-        assert path =~ ~r"^bnlc-.*\.csv$"
-      end)
+      expect_s3_upload()
 
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn "transport.data.gouv.fr" = _display_name,
@@ -773,17 +727,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
       assert :ok == perform_job(ConsolidateBNLCJob, %{})
 
-      # A job has been enqueued and scheduled to delete the temporary file stored in the bucket
-      assert [
-               %Oban.Job{
-                 worker: "Transport.Jobs.ConsolidateBNLCJob",
-                 args: %{"action" => "delete_s3_file", "filename" => filename},
-                 scheduled_at: scheduled_at
-               }
-             ] = all_enqueued()
-
-      assert_in_delta 7 * 4, DateTime.diff(scheduled_at, DateTime.utc_now(), :day), 1
-      assert filename =~ ~r"^bnlc-.*\.csv$"
+      expect_job_scheduled_to_remove_file()
 
       assert """
              id_lieu,foo,bar,baz,insee,id_local\r
@@ -793,6 +737,51 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
              21231-2,d,e,f,21231,2\r
              """ = File.read!(@tmp_path)
     end
+  end
+
+  test "replace_file_on_datagouv" do
+    File.write!(@tmp_path, "fake_content")
+
+    expect_datagouv_http_call()
+
+    ConsolidateBNLCJob.replace_file_on_datagouv()
+
+    refute File.exists?(@tmp_path)
+  end
+
+  test "perform and update file on data.gouv.fr" do
+    Transport.HTTPoison.Mock
+    |> expect(
+      :get!,
+      fn "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/datasets.csv" ->
+        %HTTPoison.Response{status_code: 200, body: "dataset_url"}
+      end
+    )
+
+    Transport.HTTPoison.Mock
+    |> expect(
+      :get!,
+      2,
+      fn "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv" ->
+        body = """
+        "foo","bar","baz","insee","id_local"
+        I,Love,CSV,21231,3
+        Very,Much,So,21231,4
+        """
+
+        %HTTPoison.Response{status_code: 200, body: body}
+      end
+    )
+
+    expect_s3_upload()
+    expect_ok_email_sent()
+    expect_datagouv_http_call()
+
+    assert :ok == perform_job(ConsolidateBNLCJob, %{"action" => "datagouv_update"})
+
+    expect_job_scheduled_to_remove_file()
+
+    refute File.exists?(@tmp_path)
   end
 
   describe "deleting a temporary file" do
@@ -818,5 +807,69 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
       assert :ok == perform_job(ConsolidateBNLCJob, %{"action" => "delete_s3_file", "filename" => filename})
     end
+  end
+
+  defp expect_s3_upload do
+    Transport.ExAWS.Mock
+    |> expect(:request!, fn %ExAws.Operation.S3{} = operation ->
+      assert %ExAws.Operation.S3{
+               bucket: "transport-data-gouv-fr-on-demand-validation-test",
+               path: path,
+               http_method: :put,
+               service: :s3
+             } = operation
+
+      assert path =~ ~r"^bnlc-.*\.csv$"
+    end)
+  end
+
+  defp expect_datagouv_http_call do
+    tmp_path = @tmp_path
+
+    expected_url =
+      "https://demo.data.gouv.fr/api/1/datasets/5d6eaffc8b4c417cdc452ac3/resources/4fd78dee-e122-4c0d-8bf6-ff55d79f3af1/upload/"
+
+    Transport.HTTPoison.Mock
+    |> expect(:request, fn :post,
+                           ^expected_url,
+                           args,
+                           [{"content-type", "multipart/form-data"}, {"X-API-KEY", nil}],
+                           [follow_redirect: true] ->
+      {:multipart, [{:file, ^tmp_path, {"form-data", [name: "file", filename: "bnlc.csv"]}, []}]} = args
+      {:ok, %HTTPoison.Response{body: "", status_code: 200}}
+    end)
+  end
+
+  defp expect_job_scheduled_to_remove_file do
+    # A job has been enqueued and scheduled to delete the temporary file stored in the bucket
+    assert [
+             %Oban.Job{
+               worker: "Transport.Jobs.ConsolidateBNLCJob",
+               args: %{"action" => "delete_s3_file", "filename" => filename},
+               scheduled_at: scheduled_at
+             }
+           ] = all_enqueued()
+
+    assert_in_delta 7 * 4, DateTime.diff(scheduled_at, DateTime.utc_now(), :day), 1
+    assert filename =~ ~r"^bnlc-.*\.csv$"
+  end
+
+  defp expect_ok_email_sent do
+    Transport.EmailSender.Mock
+    |> expect(:send_mail, fn "transport.data.gouv.fr" = _display_name,
+                             "contact@transport.data.gouv.fr" = _from,
+                             "deploiement@transport.data.gouv.fr" = _to,
+                             "contact@transport.data.gouv.fr" = _reply_to,
+                             "[OK] Rapport de consolidation de la BNLC" = _subject,
+                             "",
+                             html_part ->
+      assert html_part =~ ~r"^✅ La consolidation s'est déroulée sans erreurs"
+
+      # Make sure a link is there
+      assert html_part =~
+               ~r{🔗 <a href="https://transport-data-gouv-fr-on-demand-validation-test.cellar-c2.services.clever-cloud.com/bnlc-.*\.csv">Fichier consolidé</a>}
+
+      :ok
+    end)
   end
 end
