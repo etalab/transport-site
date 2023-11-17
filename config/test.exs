@@ -42,6 +42,8 @@ config :transport,
   validator_selection: Transport.ValidatorsSelection.Mock,
   data_visualization: Transport.DataVisualization.Mock,
   unzip_s3_impl: Transport.Unzip.S3.Mock,
+  email_sender_impl: Transport.EmailSender.Mock,
+  siri_query_generator_impl: Transport.SIRIQueryGenerator.Mock,
   s3_buckets: %{
     history: "resource-history-test",
     on_demand_validation: "on-demand-validation-test",
@@ -94,9 +96,9 @@ config :transport, DB.Repo,
   # fix for https://github.com/etalab/transport-site/issues/2539
   queue_target: 5000
 
-# temporary stuff, yet this is not DRY
 config :transport,
   datagouvfr_site: "https://demo.data.gouv.fr",
+  datagouvfr_apikey: "fake-datagouv-api-key",
   # NOTE: some tests still rely on ExVCR cassettes at the moment. We configure the
   # expected host here, until we move to a behaviour-based testing instead.
   gtfs_validator_url: "https://validation.transport.data.gouv.fr"
@@ -119,12 +121,6 @@ config :transport, Mailjet.Client,
 
 config :phoenix_ddos,
   blocklist_ips: ["1.2.3.4"]
-
-config(
-  :transport,
-  email_sender_impl: Transport.EmailSender.Mock,
-  siri_query_generator_impl: Transport.SIRIQueryGenerator.Mock
-)
 
 # The Swoosh test adapter works a bit like an embryo of Mox.
 # See: https://github.com/swoosh/swoosh/blob/main/lib/swoosh/adapters/test.ex

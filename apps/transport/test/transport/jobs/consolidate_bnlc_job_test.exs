@@ -833,7 +833,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     |> expect(:request, fn :post,
                            ^expected_url,
                            args,
-                           [{"content-type", "multipart/form-data"}, {"X-API-KEY", nil}],
+                           [{"content-type", "multipart/form-data"}, {"X-API-KEY", "fake-datagouv-api-key"}],
                            [follow_redirect: true] ->
       {:multipart, [{:file, ^tmp_path, {"form-data", [name: "file", filename: "bnlc.csv"]}, []}]} = args
       {:ok, %HTTPoison.Response{body: "", status_code: 200}}
