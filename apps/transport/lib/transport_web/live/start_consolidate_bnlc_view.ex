@@ -11,8 +11,8 @@ defmodule TransportWeb.Live.SendConsolidateBNLCView do
     """
   end
 
-  def mount(_params, _session, socket) do
-    {:ok, socket |> assign_step(:first)}
+  def mount(_params, %{"button_texts" => _, "button_default_class" => _, "job_args" => _} = session, socket) do
+    {:ok, socket |> assign(session) |> assign_step(:first)}
   end
 
   def handle_event("dispatch_job", _value, socket) do
@@ -20,9 +20,9 @@ defmodule TransportWeb.Live.SendConsolidateBNLCView do
     {:noreply, socket}
   end
 
-  def handle_info(:dispatch, socket) do
+  def handle_info(:dispatch, %Phoenix.LiveView.Socket{assigns: %{"job_args" => job_args}} = socket) do
     new_socket =
-      case %{} |> Transport.Jobs.ConsolidateBNLCJob.new() |> Oban.insert() do
+      case job_args |> Transport.Jobs.ConsolidateBNLCJob.new() |> Oban.insert() do
         {:ok, %Oban.Job{id: job_id}} ->
           send(self(), {:wait_for_completion, job_id})
           assign_step(socket, :dispatched)
@@ -50,34 +50,31 @@ defmodule TransportWeb.Live.SendConsolidateBNLCView do
     {:noreply, socket |> assign_step(:first)}
   end
 
-  defp assign_step(socket, step) do
+  defp assign_step(%Phoenix.LiveView.Socket{} = socket, step) do
     assign(
       socket,
-      button_text: button_texts(step),
-      button_class: button_classes(step),
+      button_text: button_texts(socket, step),
+      button_class: button_classes(socket, step),
       button_disabled: step in @button_disabled
     )
   end
 
-  defp button_texts(step) do
+  defp button_texts(%Phoenix.LiveView.Socket{assigns: %{"button_texts" => button_texts}}, step) do
     Map.get(
-      %{
-        sent: "Rapport disponible par e-mail",
-        dispatched: "Consolidation en cours"
-      },
+      button_texts,
       step,
-      "Consolider à blanc"
+      Map.fetch!(button_texts, :default)
     )
   end
 
-  defp button_classes(step) do
+  defp button_classes(%Phoenix.LiveView.Socket{assigns: %{"button_default_class" => button_default_class}}, step) do
     Map.get(
       %{
         sent: "button success",
         dispatched: "button button-outlined secondary"
       },
       step,
-      "button"
+      button_default_class
     )
   end
 end
