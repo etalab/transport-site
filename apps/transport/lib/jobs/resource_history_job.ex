@@ -331,8 +331,21 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     headers |> Enum.into(%{}, fn {h, v} -> {String.downcase(h), v} end) |> Map.take(@headers_to_keep)
   end
 
+  @doc """
+    Extract only the HTTP headers we need. Concatenate them if multiple values are found (rare but can occur if we
+    allow more headers).
+
+    iex> relevant_http_headers(%Req.Response{headers: %{"foo" => ["bar"]}})
+    %{}
+    iex> relevant_http_headers(%Req.Response{headers: %{"content-type" => ["application/json"]}})
+    %{"content-type" => "application/json"}
+    iex> relevant_http_headers(%Req.Response{headers: %{"content-type" => ["application/json", "but-also/csv"]}})
+    %{"content-type" => "application/json,but-also/csv"}
+  """
   def relevant_http_headers(%Req.Response{headers: headers}) do
-    headers |> Enum.into(%{}, fn {h, v} -> {String.downcase(h), v} end) |> Map.take(@headers_to_keep)
+    headers
+    |> Map.take(@headers_to_keep)
+    |> Enum.into(%{}, fn {h, v} -> {String.downcase(h), v |> Enum.join(",")} end)
   end
 
   defp latest_schema_version_to_date(%Resource{schema_name: nil}), do: nil
