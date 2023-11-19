@@ -276,6 +276,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     end
   end
 
+  # NOTE: dead code, kept to allow comparison in the coming weeks if needed
   def download_resource(:legacy, %Resource{id: resource_id, url: url}, file_path) do
     case http_client().get(url, [], follow_redirect: true, recv_timeout: 180_000) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body} = r} ->
