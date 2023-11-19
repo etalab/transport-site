@@ -32,8 +32,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       # fake write
       File.write!(stream.path, csv_content)
 
-      headers = %{}
-
       response =
         %Req.Response{status: opts[:status], headers: %{}}
         |> Req.Response.put_header("Content-Type", "application/octet-stream")
