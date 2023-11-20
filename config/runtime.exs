@@ -221,8 +221,9 @@ if config_env() == :prod do
     timeout: 15_000
 
   if app_env == :production do
-    # Datagouv IDs for national databases created automatically and
-    # published by us on data.gouv.fr
+    # data.gouv.fr IDs for national databases created automatically and
+    # published by us on data.gouv.fr.
+    # Overrides values set in `config.exs`
     config :transport,
       consolidation: %{
         zfe: %{

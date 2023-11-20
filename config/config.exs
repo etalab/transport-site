@@ -138,6 +138,11 @@ config :transport,
         "voies" => "98c6bcdb-1205-4481-8859-f885290763f2",
         "aires" => "3ddd29ee-00dd-40af-bc98-3367adbd0289"
       }
+    },
+    # These are production IDs
+    bnlc: %{
+      dataset_id: "5d6eaffc8b4c417cdc452ac3",
+      resource_id: "4fd78dee-e122-4c0d-8bf6-ff55d79f3af1"
     }
   }
 

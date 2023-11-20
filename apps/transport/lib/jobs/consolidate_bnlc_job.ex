@@ -1,6 +1,19 @@
 defmodule Transport.Jobs.ConsolidateBNLCJob do
   @moduledoc """
-  Need to write some documentation
+  Consolidates a carpooling places database with multiple
+  valid `etalab/schema-lieux-covoiturage` resources published
+  on data.gouv.fr.
+
+  We use resources:
+  - listed in a CSV files we maintain on GitHub
+  - a single CSV file created when using https://contribuer.transport.data.gouv.fr
+
+  This job has multiple actions:
+  - action not set: consolidate resources, build a report, send it to us by e-mail
+  - action=delete_s3_file: deletes the temporary consolidated database we created
+    and uploaded on S3 when sending the report to our team
+  - action=datagouv_update: consolidate the database and replaces the file on
+    data.gouv.fr
   """
   use Oban.Worker, max_attempts: 3
   require Logger
@@ -49,6 +62,18 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   end
 
   @impl Oban.Worker
+  def perform(%Oban.Job{id: job_id, args: %{"action" => "datagouv_update"}}) do
+    return_value = consolidate()
+
+    if return_value == :ok do
+      replace_file_on_datagouv()
+    end
+
+    Oban.Notifier.notify(Oban, :gossip, %{complete: job_id})
+    return_value
+  end
+
+  @impl Oban.Worker
   def perform(%Oban.Job{id: job_id}) do
     return_value = consolidate()
     Oban.Notifier.notify(Oban, :gossip, %{complete: job_id})
@@ -85,6 +110,19 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
       :ok
     end
+  end
+
+  def replace_file_on_datagouv do
+    %{dataset_id: dataset_id, resource_id: resource_id} = consolidation_configuration()
+
+    Datagouvfr.Client.Resources.update(%{
+      "dataset_id" => dataset_id,
+      "resource_id" => resource_id,
+      "resource_file" => %{path: @bnlc_path, filename: "bnlc.csv"}
+    })
+
+    Logger.info("Updated file on data.gouv.fr")
+    File.rm!(@bnlc_path)
   end
 
   defp validator_unavailable?(validation_errors) do
@@ -505,4 +543,8 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   end
 
   defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
+
+  defp consolidation_configuration do
+    Map.fetch!(Application.fetch_env!(:transport, :consolidation), :bnlc)
+  end
 end
