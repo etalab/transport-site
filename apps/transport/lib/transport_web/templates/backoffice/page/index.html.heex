@@ -95,7 +95,30 @@
 
   <h2>Consolidation BNLC</h2>
   <div>
-    <%= live_render(@conn, TransportWeb.Live.SendConsolidateBNLCView, []) %>
+    <%= live_render(@conn, TransportWeb.Live.SendConsolidateBNLCView,
+      session: %{
+        "button_texts" => %{
+          sent: "Rapport disponible par e-mail",
+          dispatched: "Consolidation en cours",
+          default: "🧪 Consolider à blanc"
+        },
+        "button_default_class" => "button",
+        "job_args" => %{}
+      }
+    ) %>
+  </div>
+  <div>
+    <%= live_render(@conn, TransportWeb.Live.SendConsolidateBNLCView,
+      session: %{
+        "button_texts" => %{
+          sent: "Fichier mis à jour et rapport envoyé",
+          dispatched: "Consolidation en cours",
+          default: "📥 Consolider et remplacer sur data.gouv.fr"
+        },
+        "button_default_class" => "button warning-light",
+        "job_args" => %{"action" => "datagouv_update"}
+      }
+    ) %>
   </div>
 
   <h2><%= dgettext("backoffice", "Validations") %></h2>
