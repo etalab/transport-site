@@ -153,6 +153,26 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
            ]
   end
 
+  describe "contacts_in_org" do
+    test "org is not set" do
+      dataset = insert(:dataset, organization_id: nil)
+      assert [] == PageController.contacts_in_org(dataset |> DB.Repo.preload(organization_object: :contacts))
+    end
+
+    test "dataset is nil" do
+      assert [] == PageController.contacts_in_org(nil)
+    end
+
+    test "with contacts" do
+      organization = insert(:organization)
+      dataset = insert(:dataset, organization_id: organization.id)
+      %DB.Contact{id: contact_id} = insert_contact(%{organizations: [organization |> Map.from_struct()]})
+
+      assert [%DB.Contact{id: ^contact_id}] =
+               PageController.contacts_in_org(dataset |> DB.Repo.preload(organization_object: :contacts))
+    end
+  end
+
   defp insert_notification_at_datetime(%{} = args, %DateTime{} = datetime) do
     args
     |> insert_notification()
