@@ -52,6 +52,17 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   alias DB.{Resource, ResourceHistory}
   import Transport.Jobs.Workflow.Notifier, only: [notify_workflow: 2]
 
+  @headers_to_keep [
+    "content-disposition",
+    "content-encoding",
+    "content-length",
+    "content-type",
+    "etag",
+    "expires",
+    "if-modified-since",
+    "last-modified"
+  ]
+
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"resource_id" => resource_id}} = job) do
     Logger.info("Running ResourceHistoryJob for resource##{resource_id}")
@@ -72,7 +83,9 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
     notification =
       try do
-        %{resource_history_id: resource_history_id} = resource |> download_resource(path) |> process_download(resource)
+        %{resource_history_id: resource_history_id} =
+          :req |> download_resource(resource, path) |> process_download(resource)
+
         %{"success" => true, "job_id" => job.id, "output" => %{resource_history_id: resource_history_id}}
       rescue
         e -> %{"success" => false, "job_id" => job.id, "reason" => inspect(e)}
@@ -94,7 +107,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     Logger.debug("Got an error while downloading resource##{resource_id}: #{message}")
   end
 
-  defp process_download({:ok, resource_path, headers, body}, %Resource{} = resource) do
+  defp process_download({:ok, resource_path, headers}, %Resource{} = resource) do
     download_datetime = DateTime.utc_now()
 
     hash = resource_hash(resource, resource_path)
@@ -137,7 +150,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
               Map.merge(base, %{content_hash: hash, filesize: size})
           end
 
-        Transport.S3.upload_to_s3!(:history, body, filename, acl: :public_read)
+        Transport.S3.stream_to_s3!(:history, resource_path, filename, acl: :public_read)
         %{id: resource_history_id} = store_resource_history!(resource, data)
 
         %{resource_history_id: resource_history_id}
@@ -242,12 +255,34 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     System.tmp_dir!() |> Path.join("resource_#{resource_id}_download")
   end
 
-  defp download_resource(%Resource{id: resource_id, url: url}, file_path) do
+  def download_resource(:req, %Resource{id: resource_id, url: url}, file_path) do
+    file_stream = File.stream!(file_path)
+    req_options = [compressed: false, decode_body: false, receive_timeout: 180_000, into: file_stream]
+
+    # temporary fix until we figure out what must be done (https://github.com/wojtekmach/req/issues/270)
+    url = url |> String.replace("|", URI.encode("|"))
+
+    case Transport.Req.impl().get(url, req_options) do
+      {:ok, %{status: 200} = r} ->
+        Logger.debug("Saved resource##{resource_id} to #{file_path}")
+        {:ok, file_path, relevant_http_headers(r)}
+
+      {:ok, %{status: status_code}} ->
+        # NOTE: the file is still on disk at this point
+        {:error, "Got a non 200 status: #{status_code}"}
+
+      {:error, error} ->
+        {:error, "Got an error: #{error |> inspect}"}
+    end
+  end
+
+  # NOTE: dead code, kept to allow comparison in the coming weeks if needed
+  def download_resource(:legacy, %Resource{id: resource_id, url: url}, file_path) do
     case http_client().get(url, [], follow_redirect: true, recv_timeout: 180_000) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body} = r} ->
         Logger.debug("Saving resource##{resource_id} to #{file_path}")
         File.write!(file_path, body)
-        {:ok, file_path, relevant_http_headers(r), body}
+        {:ok, file_path, relevant_http_headers(r)}
 
       {:ok, %HTTPoison.Response{status_code: status}} ->
         {:error, "Got a non 200 status: #{status}"}
@@ -293,18 +328,24 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   end
 
   def relevant_http_headers(%HTTPoison.Response{headers: headers}) do
-    headers_to_keep = [
-      "content-disposition",
-      "content-encoding",
-      "content-length",
-      "content-type",
-      "etag",
-      "expires",
-      "if-modified-since",
-      "last-modified"
-    ]
+    headers |> Enum.into(%{}, fn {h, v} -> {String.downcase(h), v} end) |> Map.take(@headers_to_keep)
+  end
 
-    headers |> Enum.into(%{}, fn {h, v} -> {String.downcase(h), v} end) |> Map.take(headers_to_keep)
+  @doc """
+    Extract only the HTTP headers we need. Concatenate them if multiple values are found (rare but can occur if we
+    allow more headers).
+
+    iex> relevant_http_headers(%Req.Response{headers: %{"foo" => ["bar"]}})
+    %{}
+    iex> relevant_http_headers(%Req.Response{headers: %{"content-type" => ["application/json"]}})
+    %{"content-type" => "application/json"}
+    iex> relevant_http_headers(%Req.Response{headers: %{"content-type" => ["application/json", "but-also/csv"]}})
+    %{"content-type" => "application/json, but-also/csv"}
+  """
+  def relevant_http_headers(%Req.Response{headers: headers}) do
+    headers
+    |> Map.take(@headers_to_keep)
+    |> Enum.into(%{}, fn {h, v} -> {String.downcase(h), v |> Enum.join(", ")} end)
   end
 
   defp latest_schema_version_to_date(%Resource{schema_name: nil}), do: nil
