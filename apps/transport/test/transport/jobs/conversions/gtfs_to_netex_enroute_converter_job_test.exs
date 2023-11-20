@@ -193,7 +193,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSToNeTExEnRouteConverterJobTest do
                }
              ] = all_enqueued()
 
-      assert_in_delta DateTime.diff(scheduled_at, DateTime.utc_now()), 10, 1
+      assert_in_delta DateTime.diff(scheduled_at, DateTime.utc_now()), 30, 1
     end
 
     test "failed case" do

@@ -164,7 +164,7 @@ extra_oban_conf =
     [
       queues: [
         default: 2,
-        enroute_conversions: 2,
+        enroute_conversions: 10,
         heavy: 1,
         on_demand_validation: 1,
         resource_validation: 1,
