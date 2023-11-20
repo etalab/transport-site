@@ -43,7 +43,7 @@ defmodule Transport.Jobs.GTFSToNeTExConverterJobTest do
     insert(:data_conversion,
       convert_from: :GTFS,
       convert_to: :NeTEx,
-      converter: DB.DataConversion.converter_to_use(:NeTEx),
+      converter: "hove/transit_model",
       resource_history_uuid: uuid,
       payload: %{}
     )
