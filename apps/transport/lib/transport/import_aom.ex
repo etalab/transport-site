@@ -13,7 +13,7 @@ defmodule Transport.ImportAOMs do
 
   This is a one shot import task, run when the AOM have changed, at least every year.
 
-  The import can be launched from the site backoffice.
+  The import can be launched from the site backoffice, or through Transport.ImportAOMs.run()
   """
 
   import Ecto.{Query}
@@ -41,9 +41,6 @@ defmodule Transport.ImportAOMs do
   @spec changeset(AOM.t(), map()) :: {integer(), Ecto.Changeset.t()}
   def changeset(aom, line) do
     nom = String.trim(line["Nom de l’AOM"])
-
-    IO.puts(nom)
-    IO.puts(line["Région"])
     new_region = Repo.get_by(Region, nom: normalize_region(line["Région"]))
 
     if !is_nil(aom.region) and !is_nil(new_region) and aom.region != new_region do
@@ -96,32 +93,50 @@ defmodule Transport.ImportAOMs do
 
     # get all the aom to import, outside of the transaction to reduce the time in the transaction
     # this already builds the changeset
-    aom_to_add = get_aom_to_import()
+    aoms_to_add = get_aom_changeset_to_import() # Mapset of {composition_res_id, changeset}
 
-    {:ok, _} =
-      Repo.transaction(
-        fn ->
-          disable_trigger()
-          # we load all aoms
-          import_aoms(aom_to_add)
+    mapset_first_elem_diff = fn (a, b) -> a |> MapSet.new(&elem(&1, 0)) |> MapSet.difference(b |> MapSet.new(&elem(&1, 0))) end
+    new_aoms = mapset_first_elem_diff.(aoms_to_add, old_aoms)
+    removed_aoms = mapset_first_elem_diff.(old_aoms, aoms_to_add)
+    Logger.info("#{new_aoms |> Enum.count} new AOMs. reseau_id codes: #{Enum.join(new_aoms, ", ")}")
+    Logger.info("#{removed_aoms |> Enum.count} removed AOMs. reseau_id codes: #{Enum.join(new_aoms, ", ")}")
 
-          migrate_aoms()
-          delete_old_aoms(aom_to_add, old_aoms)
+    deleted_aom_datasets = DB.Dataset
+    |> where([d], d.aom_id in ^(removed_aoms |> MapSet.to_list()))
+    |> select([d], d.id)
+    |> DB.Repo.all()
 
-          # we load the join on cities
-          import_insee_aom()
-          enable_trigger()
-        end,
-        timeout: 1_000_000
-      )
+    Logger.info("Datasets still associated with deleted AOM as territory: #{Enum.join(deleted_aom_datasets, ", ")}")
 
-    # we can then compute the aom geometries (the union of each cities geometries)
-    compute_geom()
+    deleted_legal_owners = (from d in DB.Dataset, join: aom in assoc(d, :legal_owners_aom),  where: aom.id in  ^(removed_aoms |> MapSet.to_list()), select: d.id) |> DB.Repo.all() |> dbg
 
-    :ok
+
+    # {:ok, _} =
+    #   Repo.transaction(
+    #     fn ->
+    #       disable_trigger()
+    #       # we load all aoms
+    #       import_aoms(aoms_to_add)
+
+    #       migrate_aoms()
+    #       delete_old_aoms(aoms_to_add, old_aoms)
+
+    #       # TODO: add commune_principale to AOM
+
+    #       # we load the join on cities
+    #       import_insee_aom()
+    #       enable_trigger()
+    #     end,
+    #     timeout: 1_000_000
+    #   )
+
+    # # we can then compute the aom geometries (the union of each cities geometries)
+    # compute_geom()
+
+    # :ok
   end
 
-  defp get_aom_to_import do
+  defp get_aom_changeset_to_import do
     Logger.info("importing aoms")
 
     {:ok, %HTTPoison.Response{status_code: 200, body: body}} =
@@ -134,7 +149,13 @@ defmodule Transport.ImportAOMs do
     |> CSV.decode(separator: ?,, headers: true, validate_row_length: true)
     |> Enum.reject(fn {:ok, line} -> line["Id réseau"] in ["", nil] or line["Nom de l’AOM"] in @ignored_aoms end)
     |> Enum.map(fn {:ok, line} ->
-      AOM
+      existing_or_new_aom(line) |> Repo.preload(:region) |> changeset(line)
+    end)
+    |> MapSet.new()
+  end
+
+  defp existing_or_new_aom(line) do
+    AOM
       |> Repo.get_by(composition_res_id: to_int(line["Id réseau"]))
       |> case do
         nil ->
@@ -143,14 +164,10 @@ defmodule Transport.ImportAOMs do
         aom ->
           aom
       end
-      |> Repo.preload(:region)
-      |> changeset(line)
-    end)
-    |> MapSet.new()
   end
 
-  defp import_aoms(aom_to_add) do
-    aom_to_add |> Enum.each(fn {_id, aom} -> Repo.insert_or_update!(aom) end)
+  defp import_aoms(aoms_to_add) do
+    aoms_to_add |> Enum.each(fn {_id, aom} -> Repo.insert_or_update!(aom) end)
   end
 
   defp delete_old_aoms(aom_added, old_aoms) do
