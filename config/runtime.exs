@@ -225,15 +225,16 @@ if config_env() == :prod do
     # published by us on data.gouv.fr.
     # Overrides values set in `config.exs`
     config :transport,
-      consolidation: %{
-        zfe: %{
-          dataset_id: "625438b890bf88454b283a55",
-          resource_ids: %{
-            "voies" => "3a5d0c66-aef9-4d68-841f-4fe81c9de980",
-            "aires" => "673a16bf-49ec-4645-9da2-cf975d0aa0ea"
+      consolidation:
+        Map.merge(Application.fetch_env!(:transport, :consolidation), %{
+          zfe: %{
+            dataset_id: "625438b890bf88454b283a55",
+            resource_ids: %{
+              "voies" => "3a5d0c66-aef9-4d68-841f-4fe81c9de980",
+              "aires" => "673a16bf-49ec-4645-9da2-cf975d0aa0ea"
+            }
           }
-        }
-      }
+        })
 
     config :transport, Transport.Mailer,
       adapter: Swoosh.Adapters.Mailjet,
