@@ -32,6 +32,7 @@ config :transport, TransportWeb.Endpoint,
 config :ex_aws,
   access_key_id: System.fetch_env!("MINIO_ROOT_USER"),
   secret_access_key: System.fetch_env!("MINIO_ROOT_PASSWORD"),
+  cellar_url: "http://127.0.0.1:9000/~s",
   s3: [
     scheme: "http://",
     host: "127.0.0.1",

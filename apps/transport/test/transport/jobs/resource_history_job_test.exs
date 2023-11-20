@@ -21,6 +21,45 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   @gtfs_path "#{__DIR__}/../../../../shared/test/validation/gtfs.zip"
   @gtfs_content File.read!(@gtfs_path)
 
+  def setup_req_mock(resource_url, csv_content, opts \\ []) do
+    opts = Keyword.validate!(opts, status: 200)
+
+    Transport.Req.Mock
+    |> expect(:get, fn ^resource_url, options ->
+      assert options[:compressed] == false
+      assert options[:decode_body] == false
+      stream = options |> Keyword.fetch!(:into)
+      # fake write
+      File.write!(stream.path, csv_content)
+
+      response =
+        %Req.Response{status: opts[:status], headers: %{}}
+        |> Req.Response.put_header("Content-Type", "application/octet-stream")
+        |> Req.Response.put_header("x-foo", "bar")
+
+      {:ok, response}
+    end)
+  end
+
+  def setup_aws_mock(resource_id) do
+    Transport.ExAWS.Mock
+    # Resource upload
+    |> expect(:request!, fn request ->
+      bucket_name = Transport.S3.bucket_name(:history)
+      assert Map.has_key?(request, :body) == false
+
+      assert %{
+               src: %File.Stream{} = _,
+               service: :s3,
+               path: path,
+               bucket: ^bucket_name,
+               opts: [acl: :public_read]
+             } = request
+
+      assert String.starts_with?(path, "#{resource_id}/#{resource_id}.")
+    end)
+  end
+
   describe "ResourceHistoryAndValidationDispatcherJob" do
     test "resources_to_historise" do
       ids = create_resources_for_history()
@@ -242,34 +281,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
           is_community_resource: false
         )
 
-      Transport.HTTPoison.Mock
-      |> expect(:get, fn ^resource_url, _headers, options ->
-        assert options |> Keyword.fetch!(:follow_redirect) == true
-
-        {:ok,
-         %HTTPoison.Response{
-           status_code: 200,
-           body: @gtfs_content,
-           headers: [{"Content-Type", "application/octet-stream"}, {"x-foo", "bar"}]
-         }}
-      end)
-
-      Transport.ExAWS.Mock
-      # Resource upload
-      |> expect(:request!, fn request ->
-        bucket_name = Transport.S3.bucket_name(:history)
-
-        assert %{
-                 service: :s3,
-                 http_method: :put,
-                 path: path,
-                 bucket: ^bucket_name,
-                 body: @gtfs_content,
-                 headers: %{"x-amz-acl" => "public-read"}
-               } = request
-
-        assert String.starts_with?(path, "#{resource_id}/#{resource_id}.")
-      end)
+      setup_req_mock(resource_url, @gtfs_content)
+      setup_aws_mock(resource_id)
 
       assert 0 == count_resource_history()
       assert :ok == perform_job(ResourceHistoryJob, %{resource_id: resource_id})
@@ -330,34 +343,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
           schema_version: schema_version = "0.4.1"
         )
 
-      Transport.HTTPoison.Mock
-      |> expect(:get, fn ^resource_url, _headers, options ->
-        assert options |> Keyword.fetch!(:follow_redirect) == true
-
-        {:ok,
-         %HTTPoison.Response{
-           status_code: 200,
-           body: csv_content,
-           headers: [{"Content-Type", "application/octet-stream"}, {"x-foo", "bar"}]
-         }}
-      end)
-
-      Transport.ExAWS.Mock
-      # Resource upload
-      |> expect(:request!, fn request ->
-        bucket_name = Transport.S3.bucket_name(:history)
-
-        assert %{
-                 service: :s3,
-                 http_method: :put,
-                 path: path,
-                 bucket: ^bucket_name,
-                 body: ^csv_content,
-                 headers: %{"x-amz-acl" => "public-read"}
-               } = request
-
-        assert String.starts_with?(path, "#{resource_id}/#{resource_id}.")
-      end)
+      setup_req_mock(resource_url, csv_content)
+      setup_aws_mock(resource_id)
 
       Transport.Shared.Schemas.Mock
       |> expect(:transport_schemas, 1, fn ->
@@ -435,11 +422,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
           payload: %{"zip_metadata" => zip_metadata()}
         )
 
-      Transport.HTTPoison.Mock
-      |> expect(:get, fn ^resource_url, _headers, options ->
-        assert options |> Keyword.fetch!(:follow_redirect) == true
-        {:ok, %HTTPoison.Response{status_code: 200, body: @gtfs_content, headers: []}}
-      end)
+      setup_req_mock(resource_url, @gtfs_content)
 
       assert 1 == count_resource_history()
       assert :ok == perform_job(ResourceHistoryJob, %{resource_id: resource_id})
@@ -466,11 +449,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
           is_community_resource: false
         )
 
-      Transport.HTTPoison.Mock
-      |> expect(:get, fn ^resource_url, _headers, options ->
-        assert options == [follow_redirect: true]
-        {:ok, %HTTPoison.Response{status_code: 500, body: "", headers: []}}
-      end)
+      setup_req_mock(resource_url, "", status: 500)
 
       assert 0 == count_resource_history()
       assert :ok == perform_job(ResourceHistoryJob, %{resource_id: resource_id})
