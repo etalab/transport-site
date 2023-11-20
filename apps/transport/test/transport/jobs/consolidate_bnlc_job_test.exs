@@ -742,7 +742,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
   test "replace_file_on_datagouv" do
     File.write!(@tmp_path, "fake_content")
 
-    expect_datagouv_http_call()
+    expect_datagouv_upload_file_http_call()
 
     ConsolidateBNLCJob.replace_file_on_datagouv()
 
@@ -775,7 +775,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
     expect_s3_upload()
     expect_ok_email_sent()
-    expect_datagouv_http_call()
+    expect_datagouv_upload_file_http_call()
 
     assert :ok == perform_job(ConsolidateBNLCJob, %{"action" => "datagouv_update"})
 
@@ -823,7 +823,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     end)
   end
 
-  defp expect_datagouv_http_call do
+  defp expect_datagouv_upload_file_http_call do
     tmp_path = @tmp_path
 
     expected_url =

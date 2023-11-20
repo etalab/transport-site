@@ -1,6 +1,19 @@
 defmodule Transport.Jobs.ConsolidateBNLCJob do
   @moduledoc """
-  Need to write some documentation
+  Consolidates a carpooling places database with multiple
+  valid `etalab/schema-lieux-covoiturage` resources published
+  on data.gouv.fr.
+
+  We use resources:
+  - listed in a CSV files we maintain on GitHub
+  - a single CSV file created when using https://contribuer.transport.data.gouv.fr
+
+  This job has multiple actions:
+  - action not set: consolidate resources, build a report, send it to us by e-mail
+  - action=delete_s3_file: deletes the temporary consolidated database we created
+    and uploaded on S3 when sending the report to our team
+  - action=datagouv_update: consolidate the database and replaces the file on
+    data.gouv.fr
   """
   use Oban.Worker, max_attempts: 3
   require Logger
