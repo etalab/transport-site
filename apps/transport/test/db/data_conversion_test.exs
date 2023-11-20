@@ -131,6 +131,15 @@ defmodule DB.DataConversionTest do
         payload: %{filename: "filename"}
       )
 
+    _ignored_non_default_converter =
+      insert(:data_conversion,
+        convert_from: "GTFS",
+        convert_to: "NeTEx",
+        converter: "non-default-netex-converter",
+        resource_history_uuid: uuid_other,
+        payload: %{filename: "filename"}
+      )
+
     conversions =
       dataset.id
       |> DB.DataConversion.latest_data_conversions("NeTEx")
