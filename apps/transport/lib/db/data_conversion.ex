@@ -23,6 +23,8 @@ defmodule DB.DataConversion do
   @doc """
   Finds the default converter to use for a target format.
 
+  iex> converter_to_use(:NeTEx)
+  "enroute/gtfs-to-netex"
   iex> Enum.each(Ecto.Enum.values(DB.DataConversion, :convert_to), & converter_to_use/1)
   :ok
   """
@@ -31,7 +33,7 @@ defmodule DB.DataConversion do
     Map.fetch!(
       %{
         "GeoJSON" => Transport.GTFSToGeoJSONConverter.converter(),
-        "NeTEx" => Transport.GTFSToNeTExHoveConverter.converter()
+        "NeTEx" => Transport.Converters.GTFSToNeTExEnRoute.converter()
       },
       to_string(convert_to)
     )
