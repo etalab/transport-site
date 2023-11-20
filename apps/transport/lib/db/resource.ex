@@ -77,13 +77,11 @@ defmodule DB.Resource do
   end
 
   def filter_on_resource_id(query, resource_id) do
-    query
-    |> where([resource: r], r.id == ^resource_id)
+    query |> where([resource: r], r.id == ^resource_id)
   end
 
   def filter_on_dataset_id(query, dataset_id) do
-    query
-    |> where([resource: r], r.dataset_id == ^dataset_id)
+    query |> where([resource: r], r.dataset_id == ^dataset_id)
   end
 
   @spec endpoint() :: binary()

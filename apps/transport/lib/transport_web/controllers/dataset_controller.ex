@@ -57,7 +57,7 @@ defmodule TransportWeb.DatasetController do
           preload_validations: true
         )
       )
-      |> assign(:latest_resources_history_infos, DB.ResourceHistory.latest_dataset_resources_history_infos(dataset.id))
+      |> assign(:latest_resources_history_infos, DB.ResourceHistory.latest_dataset_resources_history_infos(dataset))
       |> assign(:notifications_sent, DB.Notification.recent_reasons_binned(dataset, days_notifications_sent()))
       |> assign(:dataset_scores, DB.DatasetScore.get_latest_scores(dataset, Ecto.Enum.values(DB.DatasetScore, :topic)))
       |> assign(:scores_chart, scores_chart(dataset))
