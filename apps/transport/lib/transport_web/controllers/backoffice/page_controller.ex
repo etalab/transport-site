@@ -169,6 +169,7 @@ defmodule TransportWeb.Backoffice.PageController do
     |> assign(:notifications_last_nb_days, notifications_last_nb_days())
     |> assign(:resources_with_history, DB.Dataset.last_resource_history(dataset_id))
     |> assign(:contacts_datalist, contacts_datalist())
+    |> assign(:contacts_in_org, contacts_in_org(conn.assigns[:dataset]))
     |> assign(
       :import_logs,
       LogsImport
@@ -178,6 +179,12 @@ defmodule TransportWeb.Backoffice.PageController do
     )
     |> render("form_dataset.html")
   end
+
+  defp contacts_in_org(%DB.Dataset{organization_object: organization_object}) do
+    Enum.sort_by(organization_object.contacts, &DB.Contact.display_name/1)
+  end
+
+  defp contacts_in_org(_), do: []
 
   defp contacts_datalist do
     DB.Contact.base_query()
