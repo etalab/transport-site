@@ -201,11 +201,6 @@ defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
     System.tmp_dir!() |> Path.join("enroute_conversion_gtfs_netex_#{id}")
   end
 
-  def converter, do: "enroute/gtfs-to-netex"
-
-  @doc """
-  The EnRoute converter version. Not available yet.
-  https://enroute.atlassian.net/servicedesk/customer/portal/1/SUPPORT-1091
-  """
-  def converter_version, do: "current"
+  defdelegate converter, to: GTFSToNeTExEnRoute
+  defdelegate converter_version, to: GTFSToNeTExEnRoute
 end

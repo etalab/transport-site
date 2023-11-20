@@ -4,6 +4,8 @@ defmodule Transport.Converters.GTFSToNeTExEnRoute do
   Documentation: https://documenter.getpostman.com/view/9203997/SzmfXwrp
   """
   require Logger
+  @behaviour Transport.Converters.Converter
+
   @base_url "https://chouette-convert.enroute.mobi/api/conversions"
 
   @doc """
@@ -65,6 +67,16 @@ defmodule Transport.Converters.GTFSToNeTExEnRoute do
     Req.get!(url, compressed: false, headers: auth_headers(), into: file_stream)
     :ok
   end
+
+  @impl Transport.Converters.Converter
+  def converter, do: "enroute/gtfs-to-netex"
+
+  @doc """
+  The EnRoute converter version. Not available yet.
+  https://enroute.atlassian.net/servicedesk/customer/portal/1/SUPPORT-1091
+  """
+  @impl Transport.Converters.Converter
+  def converter_version, do: "current"
 
   defp base_url do
     # Use Bypass with Req in the test environment, we need to change the base URL
