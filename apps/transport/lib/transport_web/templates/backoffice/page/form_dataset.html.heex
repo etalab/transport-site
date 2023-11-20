@@ -4,7 +4,6 @@
   ) %>
 
   <%= unless is_nil(@dataset) do %>
-    <% contacts_in_org = Enum.sort_by(@dataset.organization_object.contacts, &DB.Contact.display_name/1) %>
     <div class="is-centered mt-48">
       <%= dgettext("backoffice", "Other actions on the dataset") %>
     </div>
@@ -84,12 +83,12 @@
               <i class="fas fa-external-link"></i> Créer un contact
             </a>
           </div>
-          <div :if={Enum.count(contacts_in_org) > 0}>
+          <div :if={Enum.count(@contacts_in_org) > 0}>
             <p>
               Contacts dans l'organisation s'étant déjà connectés au PAN
             </p>
             <ul>
-              <%= for contact <- contacts_in_org do %>
+              <%= for contact <- @contacts_in_org do %>
                 <% onclick_fn = ~s{getElementById("contact_id").value =} <> to_string(contact.id) %>
                 <li class="pb-6">
                   <a href={backoffice_contact_path(@conn, :edit, contact.id)} target="_blank">
