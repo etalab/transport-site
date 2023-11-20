@@ -196,10 +196,18 @@ defmodule TransportWeb.ResourceView do
     live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive, type: type)
   end
 
+  @doc """
+  iex> geojson_with_viz?(%DB.Resource{format: "geojson"}, %DB.ResourceHistory{payload: %{"permanent_url" => "https://example.com/file", "filesize" => 42}})
+  true
+  iex> geojson_with_viz?(%DB.Resource{format: "GTFS"}, %DB.ResourceHistory{payload: %{"permanent_url" => "https://example.com/file", "filesize" => 42}})
+  false
+  iex> geojson_with_viz?(%DB.Resource{format: "geojson"}, nil)
+  false
+  """
   def geojson_with_viz?(%DB.Resource{format: "geojson"}, %DB.ResourceHistory{
-        payload: %{"url" => url, "filesize" => filesize}
+        payload: %{"permanent_url" => permanent_url, "filesize" => filesize}
       })
-      when not is_nil(filesize) and not is_nil(url),
+      when not is_nil(filesize) and not is_nil(permanent_url),
       do: true
 
   def geojson_with_viz?(_, _), do: false

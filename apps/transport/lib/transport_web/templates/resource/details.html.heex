@@ -58,7 +58,7 @@
               GenericGeojsonMap(
                 'resource-geojson',
                 'resource-geojson-info',
-                "<%= Map.fetch!(@resource_history.payload, "url") %>",
+                "<%= Map.fetch!(@resource_history.payload, "permanent_url") %>",
                 "<%= Map.fetch!(@resource_history.payload, "filesize") %>",
                 "<%= dgettext("validations", "Visualization is quite big") %>",
                 "<%= dgettext("validations", "Show anyway") %>"

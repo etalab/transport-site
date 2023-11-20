@@ -57,15 +57,12 @@ defmodule DB.ResourceHistory do
     |> DB.Repo.one()
   end
 
-  @spec latest_dataset_resources_history_infos(integer()) :: map()
-  def latest_dataset_resources_history_infos(dataset_id) do
+  @spec latest_dataset_resources_history_infos(DB.Dataset.t()) :: %{integer() => DB.ResourceHistory.t()}
+  def latest_dataset_resources_history_infos(%DB.Dataset{id: dataset_id}) do
     DB.Resource.base_query()
     |> DB.ResourceHistory.join_resource_with_latest_resource_history()
     |> DB.Resource.filter_on_dataset_id(dataset_id)
-    |> select(
-      [resource: r, resource_history: rh],
-      {r.id, %{url: fragment("payload->>'permanent_url'"), filesize: fragment("payload->>'filesize'")}}
-    )
+    |> select([resource: r, resource_history: rh], {r.id, rh})
     |> DB.Repo.all()
     |> Enum.into(%{})
   end

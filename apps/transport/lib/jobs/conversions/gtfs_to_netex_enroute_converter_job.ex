@@ -17,10 +17,10 @@ defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
   alias Transport.Converters.GTFSToNeTExEnRoute
   import Ecto.Query
 
-  # The maximum number of polling attempts before a timeout
-  # 720 attempts, waiting 30s between attempts = 6 hours.
+  # The maximum number of polling attempts before a timeout.
+  # Maximum time for a conversion to finish: 24 hours.
   # See `next_polling_attempt_seconds/1`
-  @max_attempts 720
+  @max_attempts 346
 
   @impl true
   # Creating a conversion through the API and saving it in the database
@@ -162,21 +162,26 @@ defmodule Transport.Jobs.GTFSToNeTExEnRouteConverterJob do
 
   @doc """
   How many seconds should we wait before polling again?
-  Poll every 10s during the first 2 minutes and then wait for 30 seconds.
+
+  Poll:
+  - every 30s during the first 10 minutes
+  - every minute between [10 minutes; 1 hour];
+  - every 5 minutes afterwards
 
   iex> next_polling_attempt_seconds(1)
-  10
-  iex> next_polling_attempt_seconds(15)
   30
-  iex> next_polling_attempt_seconds(500)
+  iex> next_polling_attempt_seconds(20)
   30
-  iex> Enum.each(1..max_polling_attempts() - 1, &next_polling_attempt_seconds/1)
-  :ok
+  iex> next_polling_attempt_seconds(50)
+  60
+  iex> next_polling_attempt_seconds(100)
+  300
+  iex> 1..max_polling_attempts() |> Enum.map(&next_polling_attempt_seconds/1) |> Enum.sum()
+  24*60*60
   """
-  def next_polling_attempt_seconds(current_attempt) when current_attempt < 12, do: 10
-
-  def next_polling_attempt_seconds(current_attempt) when current_attempt >= 12 and current_attempt < @max_attempts,
-    do: 30
+  def next_polling_attempt_seconds(current_attempt) when current_attempt <= 20, do: 30
+  def next_polling_attempt_seconds(current_attempt) when current_attempt <= 20 + 50, do: 60
+  def next_polling_attempt_seconds(current_attempt) when current_attempt <= @max_attempts, do: 5 * 60
 
   def max_polling_attempts, do: @max_attempts
 
