@@ -24,3 +24,6 @@ aom_filepath
   if String.to_integer(row["Nombre de communes du RT"]) != Enum.count(communes_list_for_aom), do:
     IO.puts("mismatch of number of communes for #{siren_aom} #{row["Nom de l’AOM"]}, AOM : #{Enum.count(communes_list_for_aom)}, RT : #{row["Nombre de communes du RT"]}")
 end)
+
+# NICE
+# (from d in DB.Dataset, join: aom in assoc(d, :legal_owners_aom), preload: [:legal_owners_aom]) |> first() |> DB.Repo.one()

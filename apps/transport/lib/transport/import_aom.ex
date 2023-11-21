@@ -99,16 +99,25 @@ defmodule Transport.ImportAOMs do
     new_aoms = mapset_first_elem_diff.(aoms_to_add, old_aoms)
     removed_aoms = mapset_first_elem_diff.(old_aoms, aoms_to_add)
     Logger.info("#{new_aoms |> Enum.count} new AOMs. reseau_id codes: #{Enum.join(new_aoms, ", ")}")
-    Logger.info("#{removed_aoms |> Enum.count} removed AOMs. reseau_id codes: #{Enum.join(new_aoms, ", ")}")
+    Logger.info("#{removed_aoms |> Enum.count} removed AOMs. reseau_id codes: #{Enum.join(removed_aoms, ", ")}")
 
+    # Some Ecto fun: two ways of joining through assoc, see https://hexdocs.pm/ecto/associations.html
     deleted_aom_datasets = DB.Dataset
-    |> where([d], d.aom_id in ^(removed_aoms |> MapSet.to_list()))
-    |> select([d], d.id)
+    |> join(:left, [d], aom in assoc(d, :aom))
+    |> where([d, aom], aom.composition_res_id in ^(removed_aoms |> MapSet.to_list()))
+    |> select([d, aom], [aom.id, aom.composition_res_id, d.id])
     |> DB.Repo.all()
+    |> Enum.group_by(&hd(&1))
+    Logger.info("Datasets still associated with deleted AOM as territory : #{inspect(deleted_aom_datasets)}")
 
-    Logger.info("Datasets still associated with deleted AOM as territory: #{Enum.join(deleted_aom_datasets, ", ")}")
+    deleted_legal_owners = (
+      from d in DB.Dataset,
+      join: aom in assoc(d, :legal_owners_aom), # This magically works with the many_to_many
+      where: aom.composition_res_id in  ^(removed_aoms |> MapSet.to_list()),
+      select: [aom.id, aom.composition_res_id, d.id]
+      ) |> DB.Repo.all() |> Enum.group_by(&hd(&1))
+    Logger.info("Datasets still associated with deleted AOM as legal owner: #{inspect(deleted_legal_owners)}")
 
-    deleted_legal_owners = (from d in DB.Dataset, join: aom in assoc(d, :legal_owners_aom),  where: aom.id in  ^(removed_aoms |> MapSet.to_list()), select: d.id) |> DB.Repo.all() |> dbg
 
 
     # {:ok, _} =
@@ -117,8 +126,8 @@ defmodule Transport.ImportAOMs do
     #       disable_trigger()
     #       # we load all aoms
     #       import_aoms(aoms_to_add)
-
-    #       migrate_aoms()
+    #       # Some datasets should change AOM
+    #       migrate_datasets_to_new_aoms()
     #       delete_old_aoms(aoms_to_add, old_aoms)
 
     #       # TODO: add commune_principale to AOM
@@ -264,8 +273,9 @@ defmodule Transport.ImportAOMs do
     Repo.query!("REFRESH MATERIALIZED VIEW places;")
   end
 
-  defp migrate_aoms do
+  defp migrate_datasets_to_new_aoms do
     queries = """
+    -- 2022
     -- Sainte-Menehould to CC de l'Argonne Champenoise
     update dataset set aom_id = (select id from aom where composition_res_id = 1163) where aom_id = 121;
     -- Vierzon to région CVL
@@ -296,6 +306,13 @@ defmodule Transport.ImportAOMs do
     update dataset set aom_id = (select id from aom where composition_res_id = 1114) where aom_id = 305;
     -- Neufchâteau to CC de l'Ouest Vosgien
     update dataset set aom_id = (select id from aom where composition_res_id = 1254) where aom_id = 304;
+    --
+    -- 2023
+    -- CC du Pays d'Issoudun (id : 230, res_id: 275) to Région Centre-Val de Loire (CC du Pays d'Issoudun) (res_id: 13608)
+    -- 440 (res_id: 1475)
+    -- 449 (res_id :1509)
+    -- 558 (res_id: 1469)
+    -- 677 (res_id: 1478)
     """
 
     queries |> String.split(";") |> Enum.each(&Repo.query!/1)
