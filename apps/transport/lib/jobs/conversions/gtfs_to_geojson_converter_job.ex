@@ -32,7 +32,6 @@ defmodule Transport.GTFSToGeoJSONConverter do
   """
   @behaviour Transport.Converters.Converter
 
-  @impl true
   def convert(gtfs_file_path, geojson_file_path) do
     binary_path = Path.join(Application.fetch_env!(:transport, :transport_tools_folder), "gtfs-geojson")
 

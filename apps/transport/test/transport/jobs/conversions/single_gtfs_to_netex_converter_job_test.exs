@@ -18,7 +18,7 @@ defmodule Transport.Jobs.SingleGTFSToNeTExHoveConverterJobTest do
       convert_from: :GTFS,
       convert_to: :NeTEx,
       resource_history_uuid: uuid,
-      converter: DB.DataConversion.converter_to_use(:NeTEx),
+      converter: "hove/transit_model",
       payload: %{}
     )
 
@@ -80,7 +80,7 @@ defmodule Transport.Jobs.SingleGTFSToNeTExHoveConverterJobTest do
              DB.Repo.get_by!(DB.DataConversion,
                convert_from: :GTFS,
                convert_to: :NeTEx,
-               converter: DB.DataConversion.converter_to_use(:NeTEx),
+               converter: "hove/transit_model",
                resource_history_uuid: uuid
              )
 
@@ -137,7 +137,6 @@ defmodule Transport.Jobs.SingleGTFSToNeTExHoveConverterJobTest do
       |> DB.Repo.get_by!(
         convert_from: :GTFS,
         convert_to: :NeTEx,
-        converter: DB.DataConversion.converter_to_use(:NeTEx),
         resource_history_uuid: uuid
       )
     end)
