@@ -268,7 +268,14 @@ defmodule DB.Factory do
   end
 
   def organization_factory do
-    %DB.Organization{id: Ecto.UUID.generate()}
+    %DB.Organization{
+      id: Ecto.UUID.generate(),
+      badges: [],
+      logo: "https://example.com/#{Ecto.UUID.generate()}.small.png",
+      logo_thumbnail: "https://example.com/#{Ecto.UUID.generate()}.small.png",
+      name: sequence(:name, fn i -> "organization_name_#{i}" end),
+      slug: sequence(:slug, fn i -> "organization_slug_#{i}" end)
+    }
   end
 
   def insert_contact(%{} = args \\ %{}) do
