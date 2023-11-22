@@ -2,7 +2,8 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
   use ExUnit.Case, async: true
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
-  import Transport.Jobs.{DatasetAvailabilityScore, DatasetFreshnessScore, DatasetQualityScore}
+
+  import Transport.Jobs.{DatasetAvailabilityScore, DatasetComplianceScore, DatasetFreshnessScore, DatasetQualityScore}
 
   doctest Transport.Jobs.DatasetQualityScore, import: true
 
@@ -314,6 +315,69 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
     end
   end
 
+  describe "current dataset compliance" do
+    test "GTFS-RT and documentation resources are ignored, GeoJSON with schema is used" do
+      dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true)
+
+      geojson_resource =
+        insert(:resource, dataset: dataset, format: "geojson", schema_name: "etalab/#{Ecto.UUID.generate()}")
+
+      rh_geojson_resource = insert(:resource_history, resource: geojson_resource)
+
+      # A documentation resource, with a ResourceHistory but no validation is ignored
+      insert(:resource_history, resource: insert(:resource, dataset: dataset, format: "pdf", type: "documentation"))
+
+      # Should be ignored: we don't use the GTFS-RT validator
+      insert(:multi_validation, %{
+        validator: Transport.Validators.GTFSRT.validator_name(),
+        resource: insert(:resource, dataset: dataset, format: "gtfs-rt"),
+        max_error: "ERROR"
+      })
+
+      insert(:multi_validation, %{
+        resource_history: rh_geojson_resource,
+        validator: Transport.Validators.EXJSONSchema.validator_name(),
+        result: %{"has_errors" => true},
+        inserted_at: DateTime.utc_now() |> DateTime.add(-45, :minute)
+      })
+
+      assert %{
+               score: 0,
+               details: %{
+                 resources: [%{compliance: 0.0, raw_measure: %{"has_errors" => true}, resource_id: geojson_resource.id}]
+               }
+             } == current_dataset_compliance(dataset.id)
+    end
+
+    test "with 2 GTFS: a Fatal and a Warning" do
+      dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true)
+
+      insert(:multi_validation, %{
+        resource_history:
+          insert(:resource_history, resource: gtfs_1 = insert(:resource, dataset: dataset, format: "GTFS")),
+        validator: Transport.Validators.GTFSTransport.validator_name(),
+        max_error: "Error"
+      })
+
+      insert(:multi_validation, %{
+        resource_history:
+          insert(:resource_history, resource: gtfs_2 = insert(:resource, dataset: dataset, format: "GTFS")),
+        validator: Transport.Validators.GTFSTransport.validator_name(),
+        max_error: "Warning"
+      })
+
+      assert %{
+               score: 0.5,
+               details: %{
+                 resources: [
+                   %{compliance: 0.0, raw_measure: %{"max_error" => "Error"}, resource_id: gtfs_1.id},
+                   %{compliance: 1.0, raw_measure: %{"max_error" => "Warning"}, resource_id: gtfs_2.id}
+                 ]
+               }
+             } == current_dataset_compliance(dataset.id)
+    end
+  end
+
   describe "last_dataset_score" do
     test "fetches the latest non-nil score for yesterday" do
       dataset = insert(:dataset, is_active: true)
@@ -324,23 +388,28 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       insert(:dataset_score, dataset: dataset, topic: :availability, score: 0.75, timestamp: yesterday_after)
       insert(:dataset_score, dataset: dataset, topic: :freshness, score: 1.0, timestamp: yesterday)
       insert(:dataset_score, dataset: dataset, topic: :freshness, score: nil, timestamp: yesterday_after)
+      insert(:dataset_score, dataset: dataset, topic: :compliance, score: 0.8, timestamp: yesterday)
+      insert(:dataset_score, dataset: dataset, topic: :compliance, score: nil, timestamp: yesterday_after)
 
       assert %DB.DatasetScore{score: 0.75, topic: :availability} = last_dataset_score(dataset.id, :availability)
       assert %DB.DatasetScore{score: 1.0, topic: :freshness} = last_dataset_score(dataset.id, :freshness)
+      assert %DB.DatasetScore{score: 0.8, topic: :compliance} = last_dataset_score(dataset.id, :compliance)
     end
 
     test "does not use scores if they are more than 7-day old" do
       dataset = insert(:dataset, is_active: true)
+      topics = Ecto.Enum.values(DB.DatasetScore, :topic)
 
       insert(:dataset_score,
         dataset: dataset,
-        topic: :availability,
+        topic: Enum.random(topics),
         score: 0.5,
         timestamp: DateTime.utc_now() |> DateTime.add(-8, :day)
       )
 
-      assert is_nil(last_dataset_score(dataset.id, :availability))
-      assert is_nil(last_dataset_score(dataset.id, :freshness))
+      Enum.each(topics, fn topic ->
+        assert is_nil(last_dataset_score(dataset.id, topic))
+      end)
     end
   end
 
@@ -368,7 +437,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       assert DB.DatasetScore |> DB.Repo.all() |> length() == 2
 
       # expected score is 0.5 * 0.9 + 1. * (1. - 0.9) = 0.55
-      # see exp_smoothing() function
+      # see exp_smoothing/3 function
       assert {
                :ok,
                %DB.DatasetScore{id: _id, topic: :availability, score: 0.55, timestamp: timestamp, details: details}
@@ -390,7 +459,59 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
     end
   end
 
-  describe "save dataset average freshness" do
+  describe "save_compliance_score" do
+    test "computes compliance from yesterday and today" do
+      dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true)
+
+      insert(:multi_validation, %{
+        resource_history:
+          insert(:resource_history,
+            resource: %DB.Resource{id: gtfs_id} = insert(:resource, dataset: dataset, format: "GTFS")
+          ),
+        validator: Transport.Validators.GTFSTransport.validator_name(),
+        max_error: "Warning"
+      })
+
+      # we save a compliance score for yesterday
+      insert(:dataset_score,
+        dataset_id: dataset.id,
+        topic: :compliance,
+        score: 0.5,
+        timestamp: DateTime.utc_now() |> DateTime.add(-1, :day)
+      )
+
+      # a score for another topic
+      insert(:dataset_score,
+        dataset_id: dataset.id,
+        topic: :freshness,
+        score: 1.0,
+        timestamp: DateTime.utc_now() |> DateTime.add(-1, :day)
+      )
+
+      assert DB.DatasetScore |> DB.Repo.all() |> length() == 2
+
+      # expected score is 0.5 * 0.95 + 1. * (1. - 0.95) = 0.525
+      # see exp_smoothing/3 function
+      assert {
+               :ok,
+               %DB.DatasetScore{
+                 id: _id,
+                 topic: :compliance,
+                 score: 0.525,
+                 timestamp: timestamp,
+                 details: %{
+                   previous_score: 0.5,
+                   resources: [%{compliance: 1.0, raw_measure: %{"max_error" => "Warning"}, resource_id: ^gtfs_id}]
+                 }
+               }
+             } = save_compliance_score(dataset.id)
+
+      assert DateTime.diff(timestamp, DateTime.utc_now(), :second) < 3
+      assert DB.DatasetScore |> DB.Repo.all() |> length() == 3
+    end
+  end
+
+  describe "save_freshness_score" do
     test "compute freshness from yesterday and today" do
       %{dataset: dataset, resource: %{id: resource_id}, resource_metadata: %{id: metadata_id}} =
         insert_up_to_date_resource_and_friends()
@@ -416,7 +537,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       {:ok, score} = save_freshness_score(dataset.id)
 
       # expected score is 0.5 * 0.9 + 1. * (1. - 0.9)
-      # see exp_smoothing() function
+      # see exp_smoothing/3 function
       assert %{id: _id, topic: :freshness, score: 0.55, timestamp: timestamp, details: details} = score
 
       assert DateTime.diff(timestamp, DateTime.utc_now()) < 3
@@ -440,6 +561,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
     test "no score yesterday" do
       %{dataset: dataset} = insert_up_to_date_resource_and_friends()
+
       # an irrelevant score
       insert(:dataset_score,
         dataset_id: dataset.id,
@@ -575,7 +697,10 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
   describe "DatasetQualityScore" do
     test "job saves multiple topics for a dataset" do
       assert DB.DatasetScore |> DB.Repo.all() |> Enum.empty?()
-      %{dataset: %DB.Dataset{id: dataset_id} = dataset} = insert_up_to_date_resource_and_friends()
+
+      %{dataset: %DB.Dataset{id: dataset_id} = dataset, resource: %DB.Resource{id: resource_id}} =
+        insert_up_to_date_resource_and_friends()
+
       assert :ok == perform_job(Transport.Jobs.DatasetQualityScore, %{"dataset_id" => dataset.id})
 
       assert [
@@ -590,7 +715,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                        "format" => "GTFS",
                        "freshness" => 1.0,
                        "raw_measure" => %{"end_date" => _, "start_date" => _},
-                       "resource_id" => _
+                       "resource_id" => ^resource_id
                      }
                    ]
                  }
@@ -601,7 +726,18 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                  score: 1.0,
                  details: %{
                    "previous_score" => nil,
-                   "resources" => [%{"availability" => 1.0, "raw_measure" => nil, "resource_id" => _}]
+                   "resources" => [%{"availability" => 1.0, "raw_measure" => nil, "resource_id" => ^resource_id}]
+                 }
+               },
+               %DB.DatasetScore{
+                 dataset_id: ^dataset_id,
+                 topic: :compliance,
+                 score: 1.0,
+                 details: %{
+                   "previous_score" => nil,
+                   "resources" => [
+                     %{"compliance" => 1.0, "raw_measure" => %{"max_error" => nil}, "resource_id" => ^resource_id}
+                   ]
                  }
                }
              ] = DB.DatasetScore |> DB.Repo.all()

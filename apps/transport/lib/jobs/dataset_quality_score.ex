@@ -30,6 +30,7 @@ defmodule Transport.Jobs.DatasetQualityScore do
   def perform(%Oban.Job{args: %{"dataset_id" => dataset_id}}) do
     Transport.Jobs.DatasetFreshnessScore.save_freshness_score(dataset_id)
     Transport.Jobs.DatasetAvailabilityScore.save_availability_score(dataset_id)
+    Transport.Jobs.DatasetComplianceScore.save_compliance_score(dataset_id)
     :ok
   end
 
@@ -63,12 +64,23 @@ defmodule Transport.Jobs.DatasetQualityScore do
   @doc """
   Exponential smoothing. See https://en.wikipedia.org/wiki/Exponential_smoothing
 
-  iex> exp_smoothing(0.5, 1)
+  iex> exp_smoothing(0.5, 1, :freshness)
   0.55
+  iex> exp_smoothing(0.5, 1, 0.9)
+  0.55
+  iex> exp_smoothing(0.5, 1, :compliance)
+  0.525
   """
-  @spec exp_smoothing(float, float) :: float
-  def exp_smoothing(previous_score, today_score) do
-    alpha = 0.9
+  @spec exp_smoothing(float(), float(), atom() | float()) :: float()
+  def exp_smoothing(previous_score, today_score, :compliance) do
+    exp_smoothing(previous_score, today_score, 0.95)
+  end
+
+  def exp_smoothing(previous_score, today_score, topic) when topic in [:freshness, :availability] do
+    exp_smoothing(previous_score, today_score, 0.9)
+  end
+
+  def exp_smoothing(previous_score, today_score, alpha) do
     alpha * previous_score + (1.0 - alpha) * today_score
   end
 
@@ -146,7 +158,7 @@ defmodule Transport.Jobs.DatasetQualityScore do
     computed_score =
       case last_score = last_dataset_score(dataset_id, topic) do
         %{score: previous_score} when is_float(previous_score) ->
-          exp_smoothing(previous_score, today_score)
+          exp_smoothing(previous_score, today_score, topic)
 
         _ ->
           today_score
@@ -164,10 +176,62 @@ defmodule Transport.Jobs.DatasetQualityScore do
     Map.fetch!(
       %{
         availability: &Transport.Jobs.DatasetAvailabilityScore.current_dataset_availability/1,
-        freshness: &Transport.Jobs.DatasetFreshnessScore.current_dataset_freshness/1
+        freshness: &Transport.Jobs.DatasetFreshnessScore.current_dataset_freshness/1,
+        compliance: &Transport.Jobs.DatasetComplianceScore.current_dataset_compliance/1
       },
       topic
     )
+  end
+end
+
+defmodule Transport.Jobs.DatasetComplianceScore do
+  @moduledoc """
+  Methods specific to the compliance component of a dataset score.
+  """
+  import Ecto.Query
+  import Transport.Jobs.DatasetQualityScore
+
+  @validators [
+    Transport.Validators.GTFSTransport,
+    Transport.Validators.TableSchema,
+    Transport.Validators.EXJSONSchema,
+    Transport.Validators.GBFSValidator
+  ]
+
+  @doc """
+  Computes and saves a compliance score for a dataset.
+  """
+  def save_compliance_score(dataset_id) do
+    save_dataset_score(dataset_id, :compliance)
+  end
+
+  @spec current_dataset_compliance(integer()) :: %{score: float | nil, details: map()}
+  def current_dataset_compliance(dataset_id) do
+    validation_details =
+      dataset_id
+      |> DB.MultiValidation.dataset_latest_validation(@validators)
+      |> Enum.reject(fn {_resource_id, [multi_validation]} -> is_nil(multi_validation) end)
+
+    current_dataset_infos = Enum.map(validation_details, &resource_compliance(&1))
+    score = current_dataset_infos |> Enum.map(fn %{compliance: compliance} -> compliance end) |> average()
+
+    %{score: score, details: %{resources: current_dataset_infos}}
+  end
+
+  @spec resource_compliance({integer(), [DB.MultiValidation.t()]}) :: %{
+          :compliance => float(),
+          :resource_id => integer(),
+          :raw_measure => map()
+        }
+  # Works for TableSchema + JSON Schema and GBFS
+  def resource_compliance({resource_id, [%DB.MultiValidation{result: %{"has_errors" => has_errors} = result}]}) do
+    compliance = if has_errors, do: 0.0, else: 1.0
+    %{compliance: compliance, resource_id: resource_id, raw_measure: result}
+  end
+
+  def resource_compliance({resource_id, [%DB.MultiValidation{max_error: max_error}]}) do
+    compliance = if max_error in ["Fatal", "Error"], do: 0.0, else: 1.0
+    %{compliance: compliance, resource_id: resource_id, raw_measure: %{"max_error" => max_error}}
   end
 end
 
@@ -186,7 +250,7 @@ defmodule Transport.Jobs.DatasetAvailabilityScore do
   - for each resource, give it a score based on its availability over the last 24 hours
   - we compute an average of those scores to get a score at the dataset level
    - that score is averaged with the dataset's last computed score, using exponential smoothing
-  (see the function `exp_smoothing/1` below). This allows a score to reflect not only the current
+  (see the function `exp_smoothing/3`). This allows a score to reflect not only the current
   dataset situation but also past situations.
 
   If any resource as an availability score of 0 (under 95% of availability over the last 24 hours),
@@ -291,7 +355,7 @@ defmodule Transport.Jobs.DatasetFreshnessScore do
   - for each resource, give it a score
   - we compute an average of those scores to get a score at the dataset level
   - that score is averaged with the dataset's last computed score, using exponential smoothing
-  (see the function `exp_smoothing/1`). This allows a score to reflect not only the current
+  (see the function `exp_smoothing/3`). This allows a score to reflect not only the current
   dataset situation but also past situations. Typically, a dataset that had outdated resources
   for the past year, but only up-to-date resources today is expected to have a low freshness score.
   The interest of exponential smoothing is to give past scores an increasingly small weight as time

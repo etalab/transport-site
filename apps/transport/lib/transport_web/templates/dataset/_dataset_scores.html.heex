@@ -1,25 +1,21 @@
 <div :if={@dataset_scores != %{}} class="light-grey pt-6">
-  <% freshness_score = Map.get(@dataset_scores, :freshness) %>
+  <% components = [
+    {:freshness, "fraicheur"},
+    {:availability, "disponibilité"},
+    {:compliance, "conformité"}
+  ] %>
+  <%= for {topic, description} <- components do %>
   <div>
-    <%= unless is_nil(freshness_score) do %>
-      Score fraicheur : <%= DB.DatasetScore.score_for_humans(freshness_score) %>
+    <% score = Map.get(@dataset_scores, topic) %>
+    <%= unless is_nil(score) do %>
+      Score <%= description %> : <%= DB.DatasetScore.score_for_humans(score) %>
       <span class="small">
-        <%= freshness_score.timestamp |> Shared.DateTimeDisplay.format_datetime_to_paris(@locale) %>
+        <%= score.timestamp |> Shared.DateTimeDisplay.format_datetime_to_paris(@locale) %>
       </span>
     <% else %>
-      Pas de score fraicheur
+      Pas de score <%= description %>
     <% end %>
   </div>
-  <% availability_score = Map.get(@dataset_scores, :availability) %>
-  <div>
-    <%= unless is_nil(availability_score) do %>
-      Score de disponibilité : <%= DB.DatasetScore.score_for_humans(availability_score) %>
-      <span class="small">
-        <%= availability_score.timestamp |> Shared.DateTimeDisplay.format_datetime_to_paris(@locale) %>
-      </span>
-    <% else %>
-      Pas de score de disponibilité
-    <% end %>
-  </div>
+  <% end %>
   <a href="#scores-chart">Voir plus</a>
 </div>
