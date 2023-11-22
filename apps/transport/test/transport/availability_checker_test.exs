@@ -6,31 +6,24 @@ defmodule Transport.AvailabilityCheckerTest do
 
   setup :verify_on_exit!
 
-  test "head supported, 200" do
-    Transport.HTTPoison.Mock
-    |> expect(:head, fn _url, [], [follow_redirect: true] ->
-      {:ok, %HTTPoison.Response{status_code: 200}}
-    end)
-
+  test "HEAD supported, 200" do
+    mock_head_with_status(200)
     assert AvailabilityChecker.available?("GTFS", "url200")
   end
 
-  test "head supported, 400" do
-    Transport.HTTPoison.Mock
-    |> expect(:head, fn _url, [], [follow_redirect: true] ->
-      {:ok, %HTTPoison.Response{status_code: 400}}
-    end)
-
+  test "HEAD supported, 400" do
+    mock_head_with_status(400)
     refute AvailabilityChecker.available?("GTFS", "url400")
   end
 
-  test "head supported, 500" do
-    Transport.HTTPoison.Mock
-    |> expect(:head, fn _url, [], [follow_redirect: true] ->
-      {:ok, %HTTPoison.Response{status_code: 500}}
-    end)
-
+  test "HEAD supported, 500" do
+    mock_head_with_status(500)
     refute AvailabilityChecker.available?("GTFS", "url500")
+  end
+
+  test "HEAD supported, 204" do
+    mock_head_with_status(204)
+    refute AvailabilityChecker.available?("GTFS", "url204")
   end
 
   describe "SIRI or SIRI Lite resource" do
@@ -65,24 +58,25 @@ defmodule Transport.AvailabilityCheckerTest do
     end
   end
 
-  test "head NOT supported, fallback on stream method" do
+  test "HEAD NOT supported, fallback on stream method" do
     test_fallback_to_stream(405)
   end
 
-  test "head requires auth, fallback on stream method" do
+  test "HEAD requires auth, fallback on stream method" do
     test_fallback_to_stream(401)
     test_fallback_to_stream(403)
   end
 
-  defp test_fallback_to_stream(status_code) do
-    Transport.HTTPoison.Mock
-    |> expect(:head, fn _url, [], [follow_redirect: true] ->
+  defp mock_head_with_status(status_code) do
+    expect(Transport.HTTPoison.Mock, :head, fn _url, [], [follow_redirect: true] ->
       {:ok, %HTTPoison.Response{status_code: status_code}}
     end)
+  end
 
-    streamer_mock = fn _url ->
-      {:ok, 200}
-    end
+  defp test_fallback_to_stream(status_code) do
+    mock_head_with_status(status_code)
+
+    streamer_mock = fn _url -> {:ok, 200} end
 
     with_mock HTTPStreamV2, fetch_status_follow_redirect: streamer_mock do
       assert AvailabilityChecker.available?("GTFS", "url")

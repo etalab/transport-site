@@ -50,7 +50,9 @@ defmodule Transport.AvailabilityChecker do
 
   def available?(format, url, false) when is_binary(url) do
     case http_client().head(url, [], follow_redirect: true) do
-      {:ok, %Response{status_code: code}} when code >= 200 and code < 300 ->
+      # See https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#successful_responses
+      # Other 2xx status codes don't seem appropriate here
+      {:ok, %Response{status_code: 200}} ->
         true
 
       {:ok, %Response{status_code: code}} when code in [401, 403, 405] ->
