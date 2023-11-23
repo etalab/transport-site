@@ -1,18 +1,29 @@
-defmodule DB.Repo.Migrations.RemovePopulationMunicipaleFromAOM do
+defmodule DB.Repo.Migrations.RemoveColumnsFromAOM do
   use Ecto.Migration
 
   def change do
+    execute("UPDATE aom SET departement = '0' || departement WHERE length(departement) = 1;", "")
+    execute("UPDATE aom SET departement = '988' WHERE departement = '98';", "")
+    rename table(:aom), :population_totale, to: :population
+
     alter table(:aom) do
       remove :population_municipale, :integer # CEREMA only provides one population column now
       remove :commentaire, :string # This column was empty in database
+      remove :region_name, :string # This column was empty in database, now we use the region relation
+      modify :departement, references(:departement, column: :insee, type: :string), from: :string
     end
-    rename table(:aom), :population_totale, to: :population
 
     execute(&execute_up/0, &execute_down/0)
 
     # Force update
     execute("UPDATE dataset SET id = id", "")
 
+  end
+
+  defp migrate_one_char_departement_insee do
+    """
+
+    """
   end
 
   defp execute_up do

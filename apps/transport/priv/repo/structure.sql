@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 15.4 (Debian 15.4-2.pgdg110+1)
--- Dumped by pg_dump version 16.0 (Debian 16.0-1.pgdg110+1)
+-- Dumped from database version 15.5 (Debian 15.5-1.pgdg110+1)
+-- Dumped by pg_dump version 16.1 (Debian 16.1-1.pgdg110+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -903,8 +903,7 @@ CREATE TABLE public.aom (
     id bigint NOT NULL,
     composition_res_id integer,
     insee_commune_principale character varying(255),
-    region_name character varying(255),
-    departement character varying(255),
+    departement_insee character varying(255),
     siren character varying(255),
     nom character varying(255),
     forme_juridique character varying(255),
