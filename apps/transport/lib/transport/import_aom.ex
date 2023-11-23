@@ -59,7 +59,7 @@ defmodule Transport.ImportAOMs do
        nombre_communes: to_int(line["Nombre de communes du RT"]), # This is inconsistent with the real number of communes…
        population: to_int(line["Population"]),
        surface: line["Surface (km²)"] |> String.trim(),
-       region: new_region
+       region: new_region # TODO : hasn’t worked, region is nullified…
      })}
   end
 
@@ -120,29 +120,29 @@ defmodule Transport.ImportAOMs do
 
 
 
-    # {:ok, _} =
-    #   Repo.transaction(
-    #     fn ->
-    #       disable_trigger()
-    #       # we load all aoms
-    #       import_aoms(aoms_to_add)
-    #       # Some datasets should change AOM
-    #       migrate_datasets_to_new_aoms()
-    #       delete_old_aoms(aoms_to_add, old_aoms)
+    {:ok, _} =
+      Repo.transaction(
+        fn ->
+          disable_trigger()
+          # we load all aoms
+          import_aoms(aoms_to_add)
+          # Some datasets should change AOM
+          migrate_datasets_to_new_aoms()
+          delete_old_aoms(aoms_to_add, old_aoms)
 
-    #       # TODO: add commune_principale to AOM
+          # TODO: add commune_principale to AOM
 
-    #       # we load the join on cities
-    #       import_insee_aom()
-    #       enable_trigger()
-    #     end,
-    #     timeout: 1_000_000
-    #   )
+          # we load the join on cities
+          import_insee_aom()
+          enable_trigger()
+        end,
+        timeout: 1_000_000
+      )
 
-    # # we can then compute the aom geometries (the union of each cities geometries)
-    # compute_geom()
+    # we can then compute the aom geometries (the union of each cities geometries)
+    compute_geom()
 
-    # :ok
+    :ok
   end
 
   defp get_aom_changeset_to_import do
@@ -273,8 +273,10 @@ defmodule Transport.ImportAOMs do
     Repo.query!("REFRESH MATERIALIZED VIEW places;")
   end
 
+
   defp migrate_datasets_to_new_aoms do
     queries = """
+    -- This could be mostly automatized, you just have to look for a commune of the old AOM and see where it was migrated.
     -- 2022
     -- Sainte-Menehould to CC de l'Argonne Champenoise
     update dataset set aom_id = (select id from aom where composition_res_id = 1163) where aom_id = 121;
@@ -308,11 +310,29 @@ defmodule Transport.ImportAOMs do
     update dataset set aom_id = (select id from aom where composition_res_id = 1254) where aom_id = 304;
     --
     -- 2023
+    -- [info] Datasets still associated with deleted AOM as territory :
+    -- %{230 => [[230, 275, 401]], 449 => [[449, 1509, 653]]}
+    -- [info] Datasets still associated with deleted AOM as legal owner:
+    -- %{230 => [[230, 275, 401], [230, 275, 338]],
+    -- 440 => [[440, 1475, 732]],
+    -- 449 => [[449, 1509, 653], [449, 1509, 787]],
+    -- 558 => [[558, 1469, 732]],
+    -- 677 => [[677, 1478, 732]]}
     -- CC du Pays d'Issoudun (id : 230, res_id: 275) to Région Centre-Val de Loire (CC du Pays d'Issoudun) (res_id: 13608)
-    -- 440 (res_id: 1475)
-    -- 449 (res_id :1509)
-    -- 558 (res_id: 1469)
-    -- 677 (res_id: 1478)
+    -- Migrates this dataset as both territory and legal owner https://transport.data.gouv.fr/datasets/issoudun-offre-theorique-mobilite-reseau-urbain
+    -- This one as legal owner https://transport.data.gouv.fr/datasets/arrets-itineraires-et-horaires-theoriques-des-reseaux-de-transport-des-membres-de-jvmalin
+    update dataset set aom_id = (select id from aom where composition_res_id = 13608) where aom_id = 230;
+    update dataset_aom_legal_owner set aom_id = (select id from aom where composition_res_id = 13608) where aom_id = 230;
+    -- CC Arve et Salève (id : 440, res_id: 1475) to SM4CC (res_id: 417)
+    -- CC Faucigny-Glières (id: 558, res_id :1509 to SM4CC (res_id: 417)
+    -- CC du Pays Rochois (id: 677, res_id: 1478 to SM4CC (res_id: 417)
+    -- There is a fourth CC in SM4CC, CC des Quatre Rivières (haute savoie)
+    -- Removes aggregate legal owner here https://transport.data.gouv.fr/datasets/agregat-oura but keeps SM4CC
+    delete from dataset_aom_legal_owner where aom_id in (440, 558, 677);
+    -- L'Île-d'Yeu (id: 449, res_id: 1509) to ILE D'YEU (res_id: 310);
+    -- Strange that res_id changes…
+    update dataset set aom_id = (select id from aom where composition_res_id = 310) where aom_id = 449;
+    update dataset_aom_legal_owner set aom_id = (select id from aom where composition_res_id = 310) where aom_id = 449;
     """
 
     queries |> String.split(";") |> Enum.each(&Repo.query!/1)
