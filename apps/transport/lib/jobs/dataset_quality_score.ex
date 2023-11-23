@@ -189,7 +189,7 @@ defmodule Transport.Jobs.DatasetComplianceScore do
   Methods specific to the compliance component of a dataset score.
   """
   import Ecto.Query
-  import Transport.Jobs.DatasetQualityScore
+  alias Transport.Jobs.DatasetQualityScore
 
   @validators [
     Transport.Validators.GTFSTransport,
@@ -200,9 +200,18 @@ defmodule Transport.Jobs.DatasetComplianceScore do
 
   @doc """
   Computes and saves a compliance score for a dataset.
+
+  To compute this score:
+  - get the dataset's current resources
+  - for each resource we validated using a list of validators (`@validators`),
+    give it a score (1 if it's valid, 0 if it has an error)
+  - we compute an average of those scores to get a score at the dataset level
+   - that score is averaged with the dataset's last computed score, using exponential smoothing
+  (see the function `exp_smoothing/3`). This allows a score to reflect not only the current
+  dataset situation but also past situations.
   """
   def save_compliance_score(dataset_id) do
-    save_dataset_score(dataset_id, :compliance)
+    DatasetQualityScore.save_dataset_score(dataset_id, :compliance)
   end
 
   @spec current_dataset_compliance(integer()) :: %{score: float | nil, details: map()}
@@ -213,7 +222,9 @@ defmodule Transport.Jobs.DatasetComplianceScore do
       |> Enum.reject(fn {_resource_id, [multi_validation]} -> is_nil(multi_validation) end)
 
     current_dataset_infos = Enum.map(validation_details, &resource_compliance(&1))
-    score = current_dataset_infos |> Enum.map(fn %{compliance: compliance} -> compliance end) |> average()
+
+    score =
+      current_dataset_infos |> Enum.map(fn %{compliance: compliance} -> compliance end) |> DatasetQualityScore.average()
 
     %{score: score, details: %{resources: current_dataset_infos}}
   end
@@ -229,6 +240,7 @@ defmodule Transport.Jobs.DatasetComplianceScore do
     %{compliance: compliance, resource_id: resource_id, raw_measure: result}
   end
 
+  # For GTFS resources
   def resource_compliance({resource_id, [%DB.MultiValidation{max_error: max_error}]}) do
     compliance = if max_error in ["Fatal", "Error"], do: 0.0, else: 1.0
     %{compliance: compliance, resource_id: resource_id, raw_measure: %{"max_error" => max_error}}
