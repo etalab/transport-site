@@ -21,9 +21,12 @@ defmodule Transport.ImportAOMs do
   require Logger
 
   # The 2 community resources stable urls
-  @aom_file "https://gist.githubusercontent.com/vdegove/71b4fe57fb4499d0a97fcc363678bf9f/raw/eda40b42af2d32ba91d3819ec322f762b3198e5c/base-rt-2023-liste-aom-retravaille.csv"
-  @aom_insee_file "https://gist.githubusercontent.com/vdegove/71b4fe57fb4499d0a97fcc363678bf9f/raw/c8ffe0c94f5d674b23f7b573952dca57b31544c0/base-rt-2023-composition-communale-retravaille.csv"
-  @ignored_aoms ["Saint-Martin"]
+  # To create the following file: just rename columns and export as CSV, no content modification needed
+  @aom_file "https://gist.githubusercontent.com/vdegove/42d134c59b286525ff412876be3b6547/raw/d631b46c9096c148d854fbd5e9710987efb22999/base-rt-2023-diffusion-v2-aoms.csv"
+  # To create the following file: just delete useless columns and export as CSV, no content modification needed
+  @aom_insee_file "https://gist.githubusercontent.com/vdegove/42d134c59b286525ff412876be3b6547/raw/d631b46c9096c148d854fbd5e9710987efb22999/base-rt-2023-diffusion-v2-communes.csv"
+
+  @ignored_aom_ids ["312"] # We don’t add collectivité d’outremer de Saint-Martin
 
   @spec to_int(binary()) :: number() | nil
   def to_int(""), do: nil
@@ -40,7 +43,7 @@ defmodule Transport.ImportAOMs do
 
   @spec changeset(AOM.t(), map()) :: {integer(), Ecto.Changeset.t()}
   def changeset(aom, line) do
-    nom = String.trim(line["Nom de l’AOM"])
+    nom = String.trim(line["Nom"])
     new_region = Repo.get_by(Region, nom: normalize_region(line["Région"]))
 
     if !is_nil(aom.region) and !is_nil(new_region) and aom.region != new_region do
@@ -52,14 +55,14 @@ defmodule Transport.ImportAOMs do
     {external_id,
      Ecto.Changeset.change(aom, %{
        composition_res_id: external_id,
-       departement: line["Département"] |> String.split(" - ") |> hd() |> String.trim,
+       departement: extract_departement_insee(line["Département"]),
        siren: line["N° SIREN"] |> String.trim(),
        nom: nom,
        forme_juridique: normalize_forme(line["Forme juridique"]),
-       nombre_communes: to_int(line["Nombre de communes du RT"]), # This is inconsistent with the real number of communes…
+       nombre_communes: to_int(line["Nombre de communes"]), # This is inconsistent with the real number of communes…
        population: to_int(line["Population"]),
        surface: line["Surface (km²)"] |> String.trim(),
-       region: new_region # TODO : hasn’t worked, region is nullified…
+       region: new_region
      })}
   end
 
@@ -84,6 +87,9 @@ defmodule Transport.ImportAOMs do
   defp normalize_forme("EPL"), do: "Établissement public local"
   defp normalize_forme("PETR"), do: "Pôle d'équilibre territorial et rural"
   defp normalize_forme(f), do: f
+
+  defp extract_departement_insee("977 - Collectivité d’outre-mer de Nouvelle Calédonie"), do: "988" # Oups
+  defp extract_departement_insee(insee_and_name), do: insee_and_name |> String.split(" - ") |> hd() |> String.trim
 
   def run do
     old_aoms =
@@ -156,7 +162,7 @@ defmodule Transport.ImportAOMs do
     stream
     |> IO.binstream(:line)
     |> CSV.decode(separator: ?,, headers: true, validate_row_length: true)
-    |> Enum.reject(fn {:ok, line} -> line["Id réseau"] in ["", nil] or line["Nom de l’AOM"] in @ignored_aoms end)
+    |> Enum.reject(fn {:ok, line} -> line["Id réseau"] in (["", nil] ++ @ignored_aom_ids) end)
     |> Enum.map(fn {:ok, line} ->
       existing_or_new_aom(line) |> Repo.preload(:region) |> changeset(line)
     end)
@@ -207,23 +213,20 @@ defmodule Transport.ImportAOMs do
 
     {:ok, stream} = StringIO.open(body)
 
-    aom_ids = AOM |> select([a], {a.siren, a.composition_res_id}) |> Repo.all() |> Enum.into(%{})
-
     stream
     |> IO.binstream(:line)
     |> CSV.decode(separator: ?,, headers: true, validate_row_length: true)
-    |> Enum.map(fn {:ok, line} -> {line["N° SIREN AOM"], line["N° INSEE"]} end)
-    |> Enum.reject(fn {aom_siren, insee} -> aom_siren == "" || aom_siren == "-" || insee == "" || aom_siren not in Map.keys(aom_ids) end)
-    |> Enum.map(fn {aom_siren, insee} -> {aom_ids[aom_siren], insee} end)
-    |> Enum.flat_map(fn {aom, insee} ->
+    |> Enum.map(fn {:ok, line} -> {line["N° INSEE"], line["Id réseau"]} end)
+    |> Enum.reject(fn {_insee, id_reseau} -> id_reseau == "" || id_reseau == "-" end)
+    |> Enum.flat_map(fn {insee, id_reseau} ->
       # To reduce the number of UPDATE in the DB, we first check which city needs to be updated
       Commune
-      |> where([c], c.insee == ^insee and (c.aom_res_id != ^aom or is_nil(c.aom_res_id)))
+      |> where([c], c.insee == ^insee and (c.aom_res_id != ^id_reseau or is_nil(c.aom_res_id)))
       |> select([c], c.id)
       |> Repo.all()
-      |> Enum.map(fn c -> {aom, c} end)
+      |> Enum.map(fn c -> {c, id_reseau} end)
     end)
-    |> Enum.reduce(%{}, fn {aom, commune}, commune_by_aom ->
+    |> Enum.reduce(%{}, fn {commune, aom}, commune_by_aom ->
       # Then we group those city by AO, to only do one UPDATE query for several cities
       commune_by_aom
       |> Map.update(aom, [commune], fn list_communes -> [commune | list_communes] end)
