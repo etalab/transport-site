@@ -409,9 +409,9 @@ defmodule TransportWeb.DatasetControllerTest do
       |> get(dataset_path(conn, :details, dataset.slug))
       |> html_response(200)
 
-    assert content =~ "Score fraicheur : 0.55"
-    assert content =~ "Score conformité : 0.8"
-    assert content =~ "Score disponibilité : \n"
+    assert content =~ "Score de fraicheur : 0.55"
+    assert content =~ "Score de conformité : 0.8"
+    assert content =~ "Score de disponibilité : \n"
   end
 
   test "does not display scores for non admins", %{conn: conn} do
@@ -427,7 +427,7 @@ defmodule TransportWeb.DatasetControllerTest do
     refute dataset |> DB.DatasetScore.get_latest_scores([:freshness]) |> Enum.empty?()
     set_empty_mocks()
     content = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200)
-    refute content =~ "Score fraicheur"
+    refute content =~ "Score de fraicheur"
   end
 
   describe "scores_chart" do

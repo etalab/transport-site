@@ -376,6 +376,26 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                }
              } == current_dataset_compliance(dataset.id)
     end
+
+    test "with a single GTFS with a Warning" do
+      dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true)
+
+      insert(:multi_validation, %{
+        resource_history:
+          insert(:resource_history, resource: gtfs = insert(:resource, dataset: dataset, format: "GTFS")),
+        validator: Transport.Validators.GTFSTransport.validator_name(),
+        max_error: "Warning"
+      })
+
+      assert %{
+               score: 1.0,
+               details: %{
+                 resources: [
+                   %{compliance: 1.0, raw_measure: %{"max_error" => "Warning"}, resource_id: gtfs.id}
+                 ]
+               }
+             } == current_dataset_compliance(dataset.id)
+    end
   end
 
   describe "last_dataset_score" do
@@ -413,7 +433,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
     end
   end
 
-  describe "save_availability_score" do
+  describe "save_dataset_score for availability" do
     test "computes availability from yesterday and today" do
       dataset = insert(:dataset, is_active: true)
       r1 = insert(:resource, dataset: dataset, is_community_resource: false)
@@ -441,7 +461,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       assert {
                :ok,
                %DB.DatasetScore{id: _id, topic: :availability, score: 0.55, timestamp: timestamp, details: details}
-             } = save_availability_score(dataset.id)
+             } = save_dataset_score(dataset.id, :availability)
 
       assert DateTime.diff(timestamp, DateTime.utc_now(), :second) < 3
       assert DB.DatasetScore |> DB.Repo.all() |> length() == 3
@@ -459,7 +479,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
     end
   end
 
-  describe "save_compliance_score" do
+  describe "save_dataset_score for compliance" do
     test "computes compliance from yesterday and today" do
       dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true)
 
@@ -504,14 +524,14 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                    resources: [%{compliance: 1.0, raw_measure: %{"max_error" => "Warning"}, resource_id: ^gtfs_id}]
                  }
                }
-             } = save_compliance_score(dataset.id)
+             } = save_dataset_score(dataset.id, :compliance)
 
       assert DateTime.diff(timestamp, DateTime.utc_now(), :second) < 3
       assert DB.DatasetScore |> DB.Repo.all() |> length() == 3
     end
   end
 
-  describe "save_freshness_score" do
+  describe "save_dataset_score for freshness" do
     test "compute freshness from yesterday and today" do
       %{dataset: dataset, resource: %{id: resource_id}, resource_metadata: %{id: metadata_id}} =
         insert_up_to_date_resource_and_friends()
@@ -534,7 +554,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
       assert DB.DatasetScore |> DB.Repo.all() |> length() == 2
 
-      {:ok, score} = save_freshness_score(dataset.id)
+      {:ok, score} = save_dataset_score(dataset.id, :freshness)
 
       # expected score is 0.5 * 0.9 + 1. * (1. - 0.9)
       # see exp_smoothing/3 function
@@ -572,7 +592,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
       assert DB.DatasetScore |> DB.Repo.all() |> length() == 1
 
-      {:ok, score} = save_freshness_score(dataset.id)
+      {:ok, score} = save_dataset_score(dataset.id, :freshness)
 
       # expected score is todays's score (no existing history)
       assert %{id: _id, topic: :freshness, score: 1.0, timestamp: timestamp} = score
@@ -585,7 +605,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       dataset = insert(:dataset)
       assert DB.DatasetScore |> DB.Repo.all() |> length() == 0
 
-      {:ok, score} = save_freshness_score(dataset.id)
+      {:ok, score} = save_dataset_score(dataset.id, :freshness)
 
       # expected score is nil
       assert %{id: _id, topic: :freshness, score: nil, timestamp: timestamp} = score
@@ -614,7 +634,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
       assert DB.DatasetScore |> DB.Repo.all() |> length() == 2
 
-      {:ok, score} = save_freshness_score(dataset.id)
+      {:ok, score} = save_dataset_score(dataset.id, :freshness)
 
       # score is computed with today's freshness and last non nil score.
       assert %{id: _id, topic: :freshness, score: 0.55, timestamp: timestamp} = score
@@ -635,7 +655,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
       assert DB.DatasetScore |> DB.Repo.all() |> length() == 1
 
-      {:ok, score} = save_freshness_score(dataset.id)
+      {:ok, score} = save_dataset_score(dataset.id, :freshness)
 
       # score is computed from scratch, previous score is not used
       assert %{id: _id, topic: :freshness, score: 1.0, timestamp: timestamp} = score
@@ -657,13 +677,13 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
         timestamp: DateTime.utc_now() |> DateTime.add(-1, :day)
       )
 
-      {:ok, score} = save_freshness_score(dataset.id)
+      {:ok, score} = save_dataset_score(dataset.id, :freshness)
       # score is computed with yesterday's score
       assert %{id: id1, topic: :freshness, score: 0.55, timestamp: _timestamp} = score
 
       # we force refresh the score computation
       # it should use yesterday's score again
-      {:ok, score} = save_freshness_score(dataset.id)
+      {:ok, score} = save_dataset_score(dataset.id, :freshness)
       assert %{id: id2, topic: :freshness, score: 0.55, timestamp: _timestamp} = score
       assert id2 > id1
     end
@@ -672,7 +692,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       dataset = insert(:dataset, is_active: true)
       %{id: resource_id} = insert(:resource, dataset_id: dataset.id, format: "csv", is_community_resource: false)
 
-      {:ok, score} = save_freshness_score(dataset.id)
+      {:ok, score} = save_dataset_score(dataset.id, :freshness)
 
       assert %{
                topic: :freshness,

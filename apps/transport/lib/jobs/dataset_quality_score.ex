@@ -28,10 +28,9 @@ defmodule Transport.Jobs.DatasetQualityScore do
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"dataset_id" => dataset_id}}) do
-    Transport.Jobs.DatasetFreshnessScore.save_freshness_score(dataset_id)
-    Transport.Jobs.DatasetAvailabilityScore.save_availability_score(dataset_id)
-    Transport.Jobs.DatasetComplianceScore.save_compliance_score(dataset_id)
-    :ok
+    DB.DatasetScore
+    |> Ecto.Enum.values(:topic)
+    |> Enum.each(fn topic -> save_dataset_score(dataset_id, topic) end)
   end
 
   @doc """
@@ -187,18 +186,7 @@ end
 defmodule Transport.Jobs.DatasetComplianceScore do
   @moduledoc """
   Methods specific to the compliance component of a dataset score.
-  """
-  import Ecto.Query
-  alias Transport.Jobs.DatasetQualityScore
 
-  @validators [
-    Transport.Validators.GTFSTransport,
-    Transport.Validators.TableSchema,
-    Transport.Validators.EXJSONSchema,
-    Transport.Validators.GBFSValidator
-  ]
-
-  @doc """
   Computes and saves a compliance score for a dataset.
 
   To compute this score:
@@ -210,10 +198,25 @@ defmodule Transport.Jobs.DatasetComplianceScore do
   (see the function `exp_smoothing/3`). This allows a score to reflect not only the current
   dataset situation but also past situations.
   """
-  def save_compliance_score(dataset_id) do
-    DatasetQualityScore.save_dataset_score(dataset_id, :compliance)
-  end
+  import Ecto.Query
+  alias Transport.Jobs.DatasetQualityScore
 
+  @validators [
+    Transport.Validators.GTFSTransport,
+    Transport.Validators.TableSchema,
+    Transport.Validators.EXJSONSchema,
+    Transport.Validators.GBFSValidator
+  ]
+
+  @gtfs_validator_name Transport.Validators.GTFSTransport.validator_name()
+  @validators_with_has_errors Enum.map(
+                                [
+                                  Transport.Validators.TableSchema,
+                                  Transport.Validators.EXJSONSchema,
+                                  Transport.Validators.GBFSValidator
+                                ],
+                                & &1.validator_name()
+                              )
   @spec current_dataset_compliance(integer()) :: %{score: float | nil, details: map()}
   def current_dataset_compliance(dataset_id) do
     validation_details =
@@ -235,13 +238,16 @@ defmodule Transport.Jobs.DatasetComplianceScore do
           :raw_measure => map()
         }
   # Works for TableSchema + JSON Schema and GBFS
-  def resource_compliance({resource_id, [%DB.MultiValidation{result: %{"has_errors" => has_errors} = result}]}) do
+  def resource_compliance(
+        {resource_id, [%DB.MultiValidation{validator: validator, result: %{"has_errors" => has_errors} = result}]}
+      )
+      when validator in @validators_with_has_errors do
     compliance = if has_errors, do: 0.0, else: 1.0
     %{compliance: compliance, resource_id: resource_id, raw_measure: result}
   end
 
   # For GTFS resources
-  def resource_compliance({resource_id, [%DB.MultiValidation{max_error: max_error}]}) do
+  def resource_compliance({resource_id, [%DB.MultiValidation{validator: @gtfs_validator_name, max_error: max_error}]}) do
     compliance = if max_error in ["Fatal", "Error"], do: 0.0, else: 1.0
     %{compliance: compliance, resource_id: resource_id, raw_measure: %{"max_error" => max_error}}
   end
@@ -250,11 +256,7 @@ end
 defmodule Transport.Jobs.DatasetAvailabilityScore do
   @moduledoc """
   Methods specific to the availability component of a dataset score.
-  """
-  import Ecto.Query
-  import Transport.Jobs.DatasetQualityScore
 
-  @doc """
   Saves and computes an availability score for a dataset.
 
   To compute this score:
@@ -269,9 +271,8 @@ defmodule Transport.Jobs.DatasetAvailabilityScore do
   the availability score of the dataset will be 0.
   The rationale is that the entire dataset may be unusable if a single resource cannot be fetched.
   """
-  def save_availability_score(dataset_id) do
-    save_dataset_score(dataset_id, :availability)
-  end
+  import Ecto.Query
+  import Transport.Jobs.DatasetQualityScore
 
   @spec current_dataset_availability(integer()) :: %{score: float | nil, details: map()}
   def current_dataset_availability(dataset_id) do
@@ -355,11 +356,7 @@ end
 defmodule Transport.Jobs.DatasetFreshnessScore do
   @moduledoc """
   Methods specific to the freshness component of a dataset score.
-  """
-  import Ecto.Query
-  import Transport.Jobs.DatasetQualityScore
 
-  @doc """
   Dataset "freshness" is the answer to the question: "When the data was downloaded, was it up-to-date?"
 
   To give a score, we proceed this way:
@@ -373,9 +370,8 @@ defmodule Transport.Jobs.DatasetFreshnessScore do
   The interest of exponential smoothing is to give past scores an increasingly small weight as time
   passes. To have a good score, a dataset must have up-to-date resources every day.
   """
-  def save_freshness_score(dataset_id) do
-    save_dataset_score(dataset_id, :freshness)
-  end
+  import Ecto.Query
+  import Transport.Jobs.DatasetQualityScore
 
   @spec current_dataset_freshness(integer()) :: %{score: float | nil, details: map()}
   def current_dataset_freshness(dataset_id) do
