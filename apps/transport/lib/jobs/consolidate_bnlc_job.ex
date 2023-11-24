@@ -288,6 +288,24 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   end
 
   @doc """
+  The CSV columns we will have in the final file.
+  We:
+  - add a `id_lieu` column at the beginning
+  - remove `id_lieu` if it was present in the BNLC file hosted on GitHub
+  - add `dataset_id` and `resource_id` to know for each line the associated resource/dataset
+    on data.gouv.fr
+  iex> final_csv_headers(["foo", "bar", "id_lieu"])
+  ["id_lieu", "foo", "bar", "dataset_id", "resource_id"]
+  """
+  def final_csv_headers(bnlc_headers) do
+    # In the 0.2.8 schema version the `id_lieu` column was present.
+    # https://schema.data.gouv.fr/etalab/schema-lieux-covoiturage/0.2.8/documentation.html
+    # Starting with 0.3.0 `id_lieu` should not be present in the files
+    # we consolidate as we add it ourselves with `add_columns/2`
+    ["id_lieu"] ++ Enum.reject(bnlc_headers, &(&1 == "id_lieu")) ++ ["dataset_id", "resource_id"]
+  end
+
+  @doc """
   Given a list of resources, previously prepared by `download_resources/1`,
   creates the BNLC final file and write on the local disk at `@bnlc_path`.
 
@@ -296,11 +314,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   def consolidate_resources(resources_details) do
     file = File.open!(@bnlc_path, [:write, :utf8])
     bnlc_headers = bnlc_csv_headers()
-    # In the 0.2.8 schema version the `id_lieu` column was present.
-    # https://schema.data.gouv.fr/etalab/schema-lieux-covoiturage/0.2.8/documentation.html
-    # Starting with 0.3.0 `id_lieu` should not be present in the files
-    # we consolidate as we add it ourselves with `add_id_lieu_column/1`
-    final_headers = ["id_lieu"] ++ Enum.reject(bnlc_headers, &(&1 == "id_lieu"))
+    final_headers = final_csv_headers(bnlc_headers)
 
     %HTTPoison.Response{body: body, status_code: 200} = @bnlc_github_url |> http_client().get!()
 
@@ -308,18 +322,23 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     [body]
     |> CSV.decode!(field_transform: &String.trim/1, headers: bnlc_headers)
     |> Stream.drop(1)
-    |> add_id_lieu_column()
+    # Magic `dataset_id` and `resource_id` values for the BNLC file hosted
+    # on GitHub as this is the only file not hosted/referenced on GitHub.
+    |> add_columns(%{dataset: %{"id" => "bnlc_github"}, resource: %{"id" => "bnlc_github"}})
     |> CSV.encode(headers: final_headers)
     |> Enum.each(&IO.write(file, &1))
 
     # Append other valid resources to the file
-    Enum.each(resources_details, fn {_dataset_detail, %{@download_path_key => tmp_path, @separator_key => separator}} ->
+    Enum.each(resources_details, fn {
+                                      dataset_details,
+                                      %{@download_path_key => tmp_path, @separator_key => separator} = resource_details
+                                    } ->
       tmp_path
       |> File.stream!()
       |> CSV.decode!(headers: true, field_transform: &String.trim/1, separator: separator)
       # Keep only columns that are present in the BNLC, ignore extra columns
       |> Stream.filter(&Map.take(&1, bnlc_headers))
-      |> add_id_lieu_column()
+      |> add_columns(%{dataset: dataset_details, resource: resource_details})
       |> CSV.encode(headers: final_headers)
       # Don't write the CSV header again each time, it has already been written
       # because the BNLC is first in the file
@@ -336,9 +355,13 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
   Generate it by concatenating values found in each file: insee + id_local
   """
-  def add_id_lieu_column(%Stream{} = stream) do
+  def add_columns(%Stream{} = stream, %{dataset: %{"id" => dataset_id}, resource: %{"id" => resource_id}}) do
     Stream.map(stream, fn %{"insee" => insee, "id_local" => id_local} = map ->
-      Map.put(map, "id_lieu", "#{insee}-#{id_local}")
+      Map.merge(map, %{
+        "id_lieu" => "#{insee}-#{id_local}",
+        "dataset_id" => dataset_id,
+        "resource_id" => resource_id
+      })
     end)
   end
 
