@@ -4,20 +4,22 @@ defmodule DB.Repo.Migrations.RemoveColumnsFromAOM do
   def change do
     execute("UPDATE aom SET departement = '0' || departement WHERE length(departement) = 1;", "")
     execute("UPDATE aom SET departement = '988' WHERE departement = '98';", "")
-    rename table(:aom), :population_totale, to: :population
+    rename(table(:aom), :population_totale, to: :population)
 
     alter table(:aom) do
-      remove :population_municipale, :integer # CEREMA only provides one population column now
-      remove :commentaire, :string # This column was empty in database
-      remove :region_name, :string # This column was empty in database, now we use the region relation
-      modify :departement, references(:departement, column: :insee, type: :string), from: :string
+      # CEREMA only provides one population column now
+      remove(:population_municipale, :integer)
+      # This column was empty in database
+      remove(:commentaire, :string)
+      # This column was empty in database, now we use the region relation
+      remove(:region_name, :string)
+      modify(:departement, references(:departement, column: :insee, type: :string), from: :string)
     end
 
     execute(&execute_up/0, &execute_down/0)
 
     # Force update
     execute("UPDATE dataset SET id = id", "")
-
   end
 
   defp migrate_one_char_departement_insee do
@@ -27,11 +29,11 @@ defmodule DB.Repo.Migrations.RemoveColumnsFromAOM do
   end
 
   defp execute_up do
-    repo().query!(sql_dataset_update_function("population"), [], [log: :info])
+    repo().query!(sql_dataset_update_function("population"), [], log: :info)
   end
 
   def execute_down do
-    repo().query!(sql_dataset_update_function("population_totale"), [], [log: :info])
+    repo().query!(sql_dataset_update_function("population_totale"), [], log: :info)
   end
 
   def sql_dataset_update_function(aom_population_attribute) do

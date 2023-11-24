@@ -26,7 +26,8 @@ defmodule Transport.ImportAOMs do
   # To create the following file: just delete useless columns and export as CSV, no content modification needed
   @aom_insee_file "https://gist.githubusercontent.com/vdegove/42d134c59b286525ff412876be3b6547/raw/d631b46c9096c148d854fbd5e9710987efb22999/base-rt-2023-diffusion-v2-communes.csv"
 
-  @ignored_aom_ids ["312"] # We don’t add collectivité d’outremer de Saint-Martin
+  # We don’t add collectivité d’outremer de Saint-Martin
+  @ignored_aom_ids ["312"]
 
   @spec to_int(binary()) :: number() | nil
   def to_int(""), do: nil
@@ -59,9 +60,11 @@ defmodule Transport.ImportAOMs do
        siren: line["N° SIREN"] |> String.trim(),
        nom: nom,
        forme_juridique: normalize_forme(line["Forme juridique"]),
-       nombre_communes: to_int(line["Nombre de communes"]), # This is inconsistent with the real number of communes…
+       # This is inconsistent with the real number of communes…
+       nombre_communes: to_int(line["Nombre de communes"]),
        population: to_int(line["Population"]),
-       surface: line["Surface (km²)"] |> String.trim() |> String.replace(",", "."), # Database stores a string, we could use a float
+       # Database stores a string, we could use a float
+       surface: line["Surface (km²)"] |> String.trim() |> String.replace(",", "."),
        region: new_region
      })}
   end
@@ -79,17 +82,13 @@ defmodule Transport.ImportAOMs do
   defp normalize_forme("CA"), do: "Communauté d'agglomération"
   defp normalize_forme("CU"), do: "Communauté urbaine"
   defp normalize_forme("CC"), do: "Communauté de communes"
-  defp normalize_forme("SIVU"), do: "Syndicat intercommunal à vocation unique"
   defp normalize_forme("METRO"), do: "Métropole"
-  defp normalize_forme("SMF"), do: "Syndicat mixte fermé"
-  defp normalize_forme("SMO"), do: "Syndicat mixte ouvert"
-  defp normalize_forme("EPA"), do: "Établissement public administratif"
-  defp normalize_forme("EPL"), do: "Établissement public local"
   defp normalize_forme("PETR"), do: "Pôle d'équilibre territorial et rural"
   defp normalize_forme(f), do: f
 
-  defp extract_departement_insee("977 - Collectivité d’outre-mer de Nouvelle Calédonie"), do: "988" # Oups
-  defp extract_departement_insee(insee_and_name), do: insee_and_name |> String.split(" - ") |> hd() |> String.trim
+  # Oups
+  defp extract_departement_insee("977 - Collectivité d’outre-mer de Nouvelle Calédonie"), do: "988"
+  defp extract_departement_insee(insee_and_name), do: insee_and_name |> String.split(" - ") |> hd() |> String.trim()
 
   def run do
     old_aoms =
@@ -99,32 +98,40 @@ defmodule Transport.ImportAOMs do
 
     # get all the aom to import, outside of the transaction to reduce the time in the transaction
     # this already builds the changeset
-    aoms_to_add = get_aom_changeset_to_import() # Mapset of {composition_res_id, changeset}
+    # Mapset of {composition_res_id, changeset}
+    aoms_to_add = get_aom_changeset_to_import()
 
-    mapset_first_elem_diff = fn (a, b) -> a |> MapSet.new(&elem(&1, 0)) |> MapSet.difference(b |> MapSet.new(&elem(&1, 0))) end
+    mapset_first_elem_diff = fn a, b ->
+      a |> MapSet.new(&elem(&1, 0)) |> MapSet.difference(b |> MapSet.new(&elem(&1, 0)))
+    end
+
     new_aoms = mapset_first_elem_diff.(aoms_to_add, old_aoms)
     removed_aoms = mapset_first_elem_diff.(old_aoms, aoms_to_add)
-    Logger.info("#{new_aoms |> Enum.count} new AOMs. reseau_id codes: #{Enum.join(new_aoms, ", ")}")
-    Logger.info("#{removed_aoms |> Enum.count} removed AOMs. reseau_id codes: #{Enum.join(removed_aoms, ", ")}")
+    Logger.info("#{new_aoms |> Enum.count()} new AOMs. reseau_id codes: #{Enum.join(new_aoms, ", ")}")
+    Logger.info("#{removed_aoms |> Enum.count()} removed AOMs. reseau_id codes: #{Enum.join(removed_aoms, ", ")}")
 
     # Some Ecto fun: two ways of joining through assoc, see https://hexdocs.pm/ecto/associations.html
-    deleted_aom_datasets = DB.Dataset
-    |> join(:left, [d], aom in assoc(d, :aom))
-    |> where([d, aom], aom.composition_res_id in ^(removed_aoms |> MapSet.to_list()))
-    |> select([d, aom], [aom.id, aom.composition_res_id, d.id])
-    |> DB.Repo.all()
-    |> Enum.group_by(&hd(&1))
+    deleted_aom_datasets =
+      DB.Dataset
+      |> join(:left, [d], aom in assoc(d, :aom))
+      |> where([d, aom], aom.composition_res_id in ^(removed_aoms |> MapSet.to_list()))
+      |> select([d, aom], [aom.id, aom.composition_res_id, d.id])
+      |> DB.Repo.all()
+      |> Enum.group_by(&hd(&1))
+
     Logger.info("Datasets still associated with deleted AOM as territory : #{inspect(deleted_aom_datasets)}")
 
-    deleted_legal_owners = (
-      from d in DB.Dataset,
-      join: aom in assoc(d, :legal_owners_aom), # This magically works with the many_to_many
-      where: aom.composition_res_id in  ^(removed_aoms |> MapSet.to_list()),
-      select: [aom.id, aom.composition_res_id, d.id]
-      ) |> DB.Repo.all() |> Enum.group_by(&hd(&1))
+    deleted_legal_owners =
+      from(d in DB.Dataset,
+        # This magically works with the many_to_many
+        join: aom in assoc(d, :legal_owners_aom),
+        where: aom.composition_res_id in ^(removed_aoms |> MapSet.to_list()),
+        select: [aom.id, aom.composition_res_id, d.id]
+      )
+      |> DB.Repo.all()
+      |> Enum.group_by(&hd(&1))
+
     Logger.info("Datasets still associated with deleted AOM as legal owner: #{inspect(deleted_legal_owners)}")
-
-
 
     {:ok, _} =
       Repo.transaction(
@@ -172,14 +179,14 @@ defmodule Transport.ImportAOMs do
 
   defp existing_or_new_aom(line) do
     AOM
-      |> Repo.get_by(composition_res_id: to_int(line["Id réseau"]))
-      |> case do
-        nil ->
-          %AOM{}
+    |> Repo.get_by(composition_res_id: to_int(line["Id réseau"]))
+    |> case do
+      nil ->
+        %AOM{}
 
-        aom ->
-          aom
-      end
+      aom ->
+        aom
+    end
   end
 
   defp import_aoms(aoms_to_add) do
@@ -270,20 +277,19 @@ defmodule Transport.ImportAOMs do
     Logger.info("set main commune")
 
     max_for_each_aom =
-      from c in DB.Commune,
-      where: not is_nil(c.aom_res_id),
-      group_by: c.aom_res_id,
-      select:  %{ aom_res_id: c.aom_res_id,
-        max_population: max(c.population)
-    }
+      from(c in DB.Commune,
+        where: not is_nil(c.aom_res_id),
+        group_by: c.aom_res_id,
+        select: %{aom_res_id: c.aom_res_id, max_population: max(c.population)}
+      )
 
     main_communes =
-      from c in DB.Commune,
-      where: not is_nil(c.aom_res_id),
-      join: max_for_each_aom in subquery(max_for_each_aom),
-      on: c.aom_res_id == max_for_each_aom.aom_res_id and c.population == max_for_each_aom.max_population,
-      select: [c.aom_res_id, c.insee]
-
+      from(c in DB.Commune,
+        where: not is_nil(c.aom_res_id),
+        join: max_for_each_aom in subquery(max_for_each_aom),
+        on: c.aom_res_id == max_for_each_aom.aom_res_id and c.population == max_for_each_aom.max_population,
+        select: [c.aom_res_id, c.insee]
+      )
 
     main_communes
     |> DB.Repo.all()
@@ -305,7 +311,6 @@ defmodule Transport.ImportAOMs do
     Repo.query!("ALTER TABLE commune ENABLE TRIGGER refresh_places_commune_trigger;")
     Repo.query!("REFRESH MATERIALIZED VIEW places;")
   end
-
 
   defp migrate_datasets_to_new_aoms do
     queries = """
