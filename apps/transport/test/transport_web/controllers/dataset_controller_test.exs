@@ -409,9 +409,9 @@ defmodule TransportWeb.DatasetControllerTest do
       |> get(dataset_path(conn, :details, dataset.slug))
       |> html_response(200)
 
-    assert content =~ "Score de fraicheur : 0.55"
-    assert content =~ "Score de conformité : 0.8"
-    assert content =~ "Score de disponibilité : \n"
+    assert content =~ "Score de fraicheur : 0.55"
+    assert content =~ "Score de conformité : 0.8"
+    assert content =~ "Score de disponibilité : \n"
   end
 
   test "does not display scores for non admins", %{conn: conn} do

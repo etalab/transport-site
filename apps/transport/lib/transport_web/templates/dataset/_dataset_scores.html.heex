@@ -8,7 +8,7 @@
     <div>
       <% score = Map.get(@dataset_scores, topic) %>
       <%= unless is_nil(score) do %>
-        Score de <%= description %>: <%= DB.DatasetScore.score_for_humans(score) %>
+        Score de <%= description %> : <%= DB.DatasetScore.score_for_humans(score) %>
         <span class="small">
           <%= score.timestamp |> Shared.DateTimeDisplay.format_datetime_to_paris(@locale) %>
         </span>
