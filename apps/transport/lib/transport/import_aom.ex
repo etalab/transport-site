@@ -147,7 +147,7 @@ defmodule Transport.ImportAOMs do
 
     # we can then compute the aom geometries (the union of each cities geometries)
     compute_geom()
-    find_main_commune()
+    set_main_commune()
 
     :ok
   end
@@ -266,33 +266,33 @@ defmodule Transport.ImportAOMs do
     )
   end
 
-  def find_main_commune do
-    Logger.info("finding main commune")
+  def set_main_commune do
+    Logger.info("set main commune")
 
-    Repo.update_all(
-      from(a in AOM,
-        update: [
-          set: [
-            commune_principale_id:
-              fragment(
-                """
-                  (
-                    SELECT
-                    commune.id
-                    FROM commune
-                    WHERE commune.aom_res_id = ?
-                    ORDER BY commune.population DESC
-                    LIMIT 1
-                  )
-                """,
-                a.composition_res_id
-              )
-          ]
-        ]
-      ),
-      [],
-      timeout: 1_000_000
-    )
+    max_for_each_aom =
+      from c in DB.Commune,
+      where: not is_nil(c.aom_res_id),
+      group_by: c.aom_res_id,
+      select:  %{ aom_res_id: c.aom_res_id,
+        max_population: max(c.population)
+    }
+
+    main_communes =
+      from c in DB.Commune,
+      where: not is_nil(c.aom_res_id),
+      join: max_for_each_aom in subquery(max_for_each_aom),
+      on: c.aom_res_id == max_for_each_aom.aom_res_id and c.population == max_for_each_aom.max_population,
+      select: [c.aom_res_id, c.insee]
+
+
+    main_communes
+    |> DB.Repo.all()
+    |> MapSet.new(fn [aom_res_id, insee] -> {aom_res_id, insee} end)
+    |> Enum.each(fn {aom_res_id, insee} ->
+      DB.AOM
+      |> where([a], a.composition_res_id == ^aom_res_id)
+      |> Repo.update_all(set: [insee_commune_principale: insee])
+    end)
   end
 
   defp disable_trigger do
@@ -310,37 +310,6 @@ defmodule Transport.ImportAOMs do
   defp migrate_datasets_to_new_aoms do
     queries = """
     -- This could be mostly automatized, you just have to look for a commune of the old AOM and see where it was migrated.
-    -- 2022
-    -- Sainte-Menehould to CC de l'Argonne Champenoise
-    update dataset set aom_id = (select id from aom where composition_res_id = 1163) where aom_id = 121;
-    -- Vierzon to région CVL
-    update dataset set aom_id = null, region_id = (select id from region where nom = 'Centre-Val de Loire') where aom_id = 126;
-    -- Sablé-sur-Sarthe to Communauté de communes du Pays Sabolien
-    update dataset set aom_id = (select id from aom where composition_res_id = 1290) where aom_id = 137;
-    -- Langres to PETR du Pays de Langres
-    update dataset set aom_id = (select id from aom where composition_res_id = 1172) where aom_id = 149;
-    -- Mayenne to CC Mayenne Communauté
-    update dataset set aom_id = (select id from aom where composition_res_id = 1277) where aom_id = 173;
-    -- Douarnenez to CC Douarnenez Communauté
-    update dataset set aom_id = (select id from aom where composition_res_id = 1375) where aom_id = 175;
-    -- Obernai to CC du Pays de Sainte-Odile
-    update dataset set aom_id = (select id from aom where composition_res_id = 1235) where aom_id = 210;
-    -- Nogent-le-Rotrou to CVL region
-    update dataset set aom_id = null, region_id = (select id from region where nom = 'Centre-Val de Loire') where aom_id = 215;
-    -- Mende, Figeac to Occitanie region
-    update dataset set aom_id = null, region_id = (select id from region where nom = 'Occitanie') where aom_id in (222, 223);
-    -- Tignes to Auvergne-Rhône-Alpes region
-    update dataset set aom_id = null, region_id = (select id from region where nom = 'Auvergne-Rhône-Alpes') where aom_id = 242;
-    -- Bernay to CC Intercom Bernay Terres de Normandie
-    update dataset set aom_id = (select id from aom where composition_res_id = 1108) where aom_id = 245;
-    -- Sud Estuaire to CC du Sud Estuaire
-    update dataset set aom_id = (select id from aom where composition_res_id = 1268) where aom_id = 246;
-    -- Oloron Sainte-Marie to CC du Haut Béarn
-    update dataset set aom_id = (select id from aom where composition_res_id = 1434) where aom_id = 248;
-    -- Granville to CC de Granville, Terre et Mer
-    update dataset set aom_id = (select id from aom where composition_res_id = 1114) where aom_id = 305;
-    -- Neufchâteau to CC de l'Ouest Vosgien
-    update dataset set aom_id = (select id from aom where composition_res_id = 1254) where aom_id = 304;
     --
     -- 2023
     -- [info] Datasets still associated with deleted AOM as territory :
