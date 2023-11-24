@@ -61,7 +61,7 @@ defmodule Transport.ImportAOMs do
        forme_juridique: normalize_forme(line["Forme juridique"]),
        nombre_communes: to_int(line["Nombre de communes"]), # This is inconsistent with the real number of communes…
        population: to_int(line["Population"]),
-       surface: line["Surface (km²)"] |> String.trim(),
+       surface: line["Surface (km²)"] |> String.trim() |> String.replace(",", "."), # Database stores a string, we could use a float
        region: new_region
      })}
   end
@@ -147,6 +147,7 @@ defmodule Transport.ImportAOMs do
 
     # we can then compute the aom geometries (the union of each cities geometries)
     compute_geom()
+    find_main_commune()
 
     :ok
   end
@@ -253,6 +254,35 @@ defmodule Transport.ImportAOMs do
                     ST_UNION(commune.geom)
                     FROM commune
                     WHERE commune.aom_res_id = ?
+                  )
+                """,
+                a.composition_res_id
+              )
+          ]
+        ]
+      ),
+      [],
+      timeout: 1_000_000
+    )
+  end
+
+  def find_main_commune do
+    Logger.info("finding main commune")
+
+    Repo.update_all(
+      from(a in AOM,
+        update: [
+          set: [
+            commune_principale_id:
+              fragment(
+                """
+                  (
+                    SELECT
+                    commune.id
+                    FROM commune
+                    WHERE commune.aom_res_id = ?
+                    ORDER BY commune.population DESC
+                    LIMIT 1
                   )
                 """,
                 a.composition_res_id
