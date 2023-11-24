@@ -201,22 +201,16 @@ defmodule Transport.Jobs.DatasetComplianceScore do
   import Ecto.Query
   alias Transport.Jobs.DatasetQualityScore
 
-  @validators [
-    Transport.Validators.GTFSTransport,
+  @validators_with_has_errors [
     Transport.Validators.TableSchema,
     Transport.Validators.EXJSONSchema,
     Transport.Validators.GBFSValidator
   ]
+  @gtfs_validator Transport.Validators.GTFSTransport
+  @validators [@gtfs_validator | @validators_with_has_errors]
+  @validators_with_has_errors_names Enum.map(@validators_with_has_errors, & &1.validator_name())
+  @gtfs_validator_name @gtfs_validator.validator_name()
 
-  @gtfs_validator_name Transport.Validators.GTFSTransport.validator_name()
-  @validators_with_has_errors Enum.map(
-                                [
-                                  Transport.Validators.TableSchema,
-                                  Transport.Validators.EXJSONSchema,
-                                  Transport.Validators.GBFSValidator
-                                ],
-                                & &1.validator_name()
-                              )
   @spec current_dataset_compliance(integer()) :: %{score: float | nil, details: map()}
   def current_dataset_compliance(dataset_id) do
     validation_details =
@@ -241,7 +235,7 @@ defmodule Transport.Jobs.DatasetComplianceScore do
   def resource_compliance(
         {resource_id, [%DB.MultiValidation{validator: validator, result: %{"has_errors" => has_errors} = result}]}
       )
-      when validator in @validators_with_has_errors do
+      when validator in @validators_with_has_errors_names do
     compliance = if has_errors, do: 0.0, else: 1.0
     %{compliance: compliance, resource_id: resource_id, raw_measure: result}
   end
