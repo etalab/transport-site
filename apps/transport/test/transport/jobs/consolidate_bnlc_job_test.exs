@@ -306,23 +306,25 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     dataset_detail = %{
       "resources" => [
         resource = %{
-          "id" => Ecto.UUID.generate(),
+          "id" => resource_id = Ecto.UUID.generate(),
           "schema" => %{"name" => @target_schema},
           "url" => url = "https://example.com/file.csv"
         }
       ],
-      "slug" => "foo"
+      "slug" => "foo",
+      "id" => dataset_id = Ecto.UUID.generate()
     }
 
     other_dataset_detail = %{
       "resources" => [
         other_resource = %{
-          "id" => Ecto.UUID.generate(),
+          "id" => other_resource_id = Ecto.UUID.generate(),
           "schema" => %{"name" => @target_schema},
           "url" => other_url = "https://example.com/other_file.csv"
         }
       ],
-      "slug" => "bar"
+      "slug" => "bar",
+      "id" => other_dataset_id = Ecto.UUID.generate()
     }
 
     Transport.HTTPoison.Mock
@@ -374,7 +376,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                "baz" => "CSV",
                "insee" => "21231",
                "id_local" => "5",
-               "id_lieu" => "21231-5"
+               "id_lieu" => "21231-5",
+               "dataset_id" => "bnlc_github",
+               "resource_id" => "bnlc_github"
              },
              %{
                "foo" => "Very",
@@ -382,7 +386,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                "baz" => "So",
                "insee" => "21231",
                "id_local" => "6",
-               "id_lieu" => "21231-6"
+               "id_lieu" => "21231-6",
+               "dataset_id" => "bnlc_github",
+               "resource_id" => "bnlc_github"
              },
              %{
                "foo" => "1",
@@ -390,7 +396,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                "baz" => "3",
                "insee" => "21231",
                "id_local" => "1",
-               "id_lieu" => "21231-1"
+               "id_lieu" => "21231-1",
+               "dataset_id" => dataset_id,
+               "resource_id" => resource_id
              },
              %{
                "foo" => "4",
@@ -398,7 +406,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                "baz" => "6",
                "insee" => "21231",
                "id_local" => "2",
-               "id_lieu" => "21231-2"
+               "id_lieu" => "21231-2",
+               "dataset_id" => dataset_id,
+               "resource_id" => resource_id
              },
              %{
                "foo" => "a",
@@ -406,7 +416,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                "baz" => "c",
                "insee" => "21231",
                "id_local" => "3",
-               "id_lieu" => "21231-3"
+               "id_lieu" => "21231-3",
+               "dataset_id" => other_dataset_id,
+               "resource_id" => other_resource_id
              },
              %{
                "foo" => "d",
@@ -414,7 +426,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                "baz" => "f",
                "insee" => "21231",
                "id_local" => "4",
-               "id_lieu" => "21231-4"
+               "id_lieu" => "21231-4",
+               "dataset_id" => other_dataset_id,
+               "resource_id" => other_resource_id
              }
            ] == @tmp_path |> File.stream!() |> CSV.decode!(headers: true) |> Enum.to_list()
 
@@ -423,14 +437,14 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     # We could change to just a newline, using the `delimiter` option:
     # https://hexdocs.pm/csv/CSV.html#encode/2
     assert """
-           id_lieu,foo,bar,baz,insee,id_local\r
-           21231-5,I,Love,CSV,21231,5\r
-           21231-6,Very,Much,So,21231,6\r
-           21231-1,1,2,3,21231,1\r
-           21231-2,4,5,6,21231,2\r
-           21231-3,a,b,c,21231,3\r
-           21231-4,d,e,f,21231,4\r
-           """ = File.read!(@tmp_path)
+           id_lieu,foo,bar,baz,insee,id_local,dataset_id,resource_id\r
+           21231-5,I,Love,CSV,21231,5,bnlc_github,bnlc_github\r
+           21231-6,Very,Much,So,21231,6,bnlc_github,bnlc_github\r
+           21231-1,1,2,3,21231,1,#{dataset_id},#{resource_id}\r
+           21231-2,4,5,6,21231,2,#{dataset_id},#{resource_id}\r
+           21231-3,a,b,c,21231,3,#{other_dataset_id},#{other_resource_id}\r
+           21231-4,d,e,f,21231,4,#{other_dataset_id},#{other_resource_id}\r
+           """ == File.read!(@tmp_path)
 
     # Temporary files have been removed
     [{_, r1}, {_, r2}] = res
@@ -455,11 +469,12 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       )
 
       foo_dataset_response = %{
+        "id" => foo_dataset_id = Ecto.UUID.generate(),
         "slug" => "foo",
         "resources" => [
           %{
             "schema" => %{"name" => @target_schema},
-            "id" => Ecto.UUID.generate(),
+            "id" => foo_resource_id = Ecto.UUID.generate(),
             "url" => foo_url = "https://example.com/foo.csv"
           },
           # Should be ignored, irrelevant resource
@@ -472,11 +487,12 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       }
 
       bar_dataset_response = %{
+        "id" => bar_dataset_id = Ecto.UUID.generate(),
         "slug" => "bar",
         "resources" => [
           %{
             "schema" => %{"name" => @target_schema},
-            "id" => Ecto.UUID.generate(),
+            "id" => bar_resource_id = Ecto.UUID.generate(),
             "url" => bar_url = "https://example.com/bar.csv"
           }
         ]
@@ -551,13 +567,13 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
       # CSV content is fine
       assert """
-             id_lieu,foo,bar,baz,insee,id_local\r
-             21231-4,I,Love,CSV,21231,4\r
-             21231-5,Very,Much,So,21231,5\r
-             21231-1,a,b,c,21231,1\r
-             21231-2,d,e,f,21231,2\r
-             21231-3,1,2,3,21231,3\r
-             """ = File.read!(@tmp_path)
+             id_lieu,foo,bar,baz,insee,id_local,dataset_id,resource_id\r
+             21231-4,I,Love,CSV,21231,4,bnlc_github,bnlc_github\r
+             21231-5,Very,Much,So,21231,5,bnlc_github,bnlc_github\r
+             21231-1,a,b,c,21231,1,#{foo_dataset_id},#{foo_resource_id}\r
+             21231-2,d,e,f,21231,2,#{foo_dataset_id},#{foo_resource_id}\r
+             21231-3,1,2,3,21231,3,#{bar_dataset_id},#{bar_resource_id}\r
+             """ == File.read!(@tmp_path)
     end
 
     test "stops when the schema validator is down" do
@@ -625,11 +641,12 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       )
 
       foo_dataset_response = %{
+        "id" => foo_dataset_id = Ecto.UUID.generate(),
         "slug" => "foo",
         "resources" => [
           %{
             "schema" => %{"name" => @target_schema},
-            "id" => Ecto.UUID.generate(),
+            "id" => foo_resource_id = Ecto.UUID.generate(),
             "url" => foo_url = "https://example.com/foo.csv"
           },
           # Should be ignored, irrelevant resource
@@ -642,6 +659,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       }
 
       bar_dataset_response = %{
+        "id" => Ecto.UUID.generate(),
         "slug" => "bar",
         "title" => "Bar JDD",
         "page" => "https://data.gouv.fr/bar",
@@ -730,12 +748,12 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       expect_job_scheduled_to_remove_file()
 
       assert """
-             id_lieu,foo,bar,baz,insee,id_local\r
-             21231-3,I,Love,CSV,21231,3\r
-             21231-4,Very,Much,So,21231,4\r
-             21231-1,a,b,c,21231,1\r
-             21231-2,d,e,f,21231,2\r
-             """ = File.read!(@tmp_path)
+             id_lieu,foo,bar,baz,insee,id_local,dataset_id,resource_id\r
+             21231-3,I,Love,CSV,21231,3,bnlc_github,bnlc_github\r
+             21231-4,Very,Much,So,21231,4,bnlc_github,bnlc_github\r
+             21231-1,a,b,c,21231,1,#{foo_dataset_id},#{foo_resource_id}\r
+             21231-2,d,e,f,21231,2,#{foo_dataset_id},#{foo_resource_id}\r
+             """ == File.read!(@tmp_path)
     end
   end
 
