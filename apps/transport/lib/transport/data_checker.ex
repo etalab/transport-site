@@ -10,7 +10,8 @@ defmodule Transport.DataChecker do
 
   @expiration_reason DB.NotificationSubscription.reason(:expiration)
   @new_dataset_reason DB.NotificationSubscription.reason(:new_dataset)
-  @default_outdated_data_delays [-7, -3, 0, 7, 14]
+  # If delay < 0, the resource is already expired
+  @default_outdated_data_delays [-90, -60, -30, -45, -15, -7, -3, 0, 7, 14]
 
   @doc """
   This method is a scheduled job which does two things:
@@ -170,17 +171,16 @@ defmodule Transport.DataChecker do
         |> DB.NotificationSubscription.subscriptions_for_reason_dataset_and_role(dataset, :producer)
         |> DB.NotificationSubscription.subscriptions_to_emails()
 
-      emails
-      |> Enum.each(fn email ->
+      Enum.each(emails, fn email ->
         Transport.EmailSender.impl().send_mail(
           "transport.data.gouv.fr",
           Application.get_env(:transport, :contact_email),
           email,
           Application.get_env(:transport, :contact_email),
-          "Jeu de données arrivant à expiration",
+          expiration_subject(delay),
           "",
           Phoenix.View.render_to_string(TransportWeb.EmailView, "expiration_producer.html",
-            delay_str: delay_str(delay, :expire),
+            delay_str: delay_str(delay, :périme),
             dataset: dataset
           )
         )
@@ -190,6 +190,22 @@ defmodule Transport.DataChecker do
     end)
 
     payload
+  end
+
+  @doc """
+  iex> expiration_subject(7)
+  "Jeu de données arrivant à expiration"
+  iex> expiration_subject(0)
+  "Jeu de données arrivant à expiration"
+  iex> expiration_subject(-3)
+  "Jeu de données périmé"
+  """
+  def expiration_subject(delay) when delay >= 0 do
+    "Jeu de données arrivant à expiration"
+  end
+
+  def expiration_subject(delay) when delay < 0 do
+    "Jeu de données périmé"
   end
 
   defp save_notification(reason, %Dataset{} = dataset, email) do
@@ -225,38 +241,40 @@ defmodule Transport.DataChecker do
     end
 
     """
-    Jeux de données #{delay_str(delay, :expirant)} :
+    Jeux de données #{delay_str(delay, :périmant)} :
 
     #{Enum.map_join(datasets, "\n", &dataset_str.(&1))}
     """
   end
 
   @doc """
-  iex> delay_str(0, :expirant)
-  "expirant demain"
-  iex> delay_str(0, :expire)
-  "expire demain"
-  iex> delay_str(2, :expirant)
-  "expirant dans 2 jours"
-  iex> delay_str(2, :expire)
-  "expire dans 2 jours"
-  iex> delay_str(-1, :expirant)
-  "expirés depuis hier"
-  iex> delay_str(-1, :expire)
-  "est expirée depuis hier"
-  iex> delay_str(-2, :expirant)
-  "expirés depuis 2 jours"
-  iex> delay_str(-2, :expire)
-  "est expirée depuis 2 jours"
+  iex> delay_str(0, :périmant)
+  "périmant demain"
+  iex> delay_str(0, :périme)
+  "périme demain"
+  iex> delay_str(2, :périmant)
+  "périmant dans 2 jours"
+  iex> delay_str(2, :périme)
+  "périme dans 2 jours"
+  iex> delay_str(-1, :périmant)
+  "périmé depuis hier"
+  iex> delay_str(-1, :périme)
+  "est périmé depuis hier"
+  iex> delay_str(-2, :périmant)
+  "périmés depuis 2 jours"
+  iex> delay_str(-2, :périme)
+  "est périmé depuis 2 jours"
+  iex> delay_str(-60, :périme)
+  "est périmé depuis 60 jours"
   """
-  @spec delay_str(integer(), :expire | :expirant) :: binary()
+  @spec delay_str(integer(), :périme | :périmant) :: binary()
   def delay_str(0, verb), do: "#{verb} demain"
   def delay_str(1, verb), do: "#{verb} dans 1 jour"
   def delay_str(d, verb) when d >= 2, do: "#{verb} dans #{d} jours"
-  def delay_str(-1, :expirant), do: "expirés depuis hier"
-  def delay_str(-1, :expire), do: "est expirée depuis hier"
-  def delay_str(d, :expirant) when d <= -2, do: "expirés depuis #{-d} jours"
-  def delay_str(d, :expire) when d <= -2, do: "est expirée depuis #{-d} jours"
+  def delay_str(-1, :périmant), do: "périmé depuis hier"
+  def delay_str(-1, :périme), do: "est périmé depuis hier"
+  def delay_str(d, :périmant) when d <= -2, do: "périmés depuis #{-d} jours"
+  def delay_str(d, :périme) when d <= -2, do: "est périmé depuis #{-d} jours"
 
   def link(%Dataset{slug: slug}), do: dataset_url(TransportWeb.Endpoint, :details, slug)
 

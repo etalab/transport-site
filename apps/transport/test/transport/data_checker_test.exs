@@ -259,7 +259,7 @@ defmodule Transport.DataCheckerTest do
                                "Jeux de données arrivant à expiration" = _subject,
                                body,
                                _html_body ->
-        assert body =~ ~r/Jeux de données expirant demain :/
+        assert body =~ ~r/Jeux de données périmant demain :/
 
         assert body =~
                  "#{dataset.custom_title} - http://127.0.0.1:5100/datasets/#{dataset.slug} (✅ notification automatique) ⚖️🗺️ article 122"
@@ -277,10 +277,10 @@ defmodule Transport.DataCheckerTest do
                                _body,
                                html_body ->
         assert html_body =~
-                 ~s(Une ressource associée au jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> expire demain.)
+                 ~s(Une ressource associée au jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> périme demain.)
 
         assert html_body =~
-                 ~s(<a href="https://doc.transport.data.gouv.fr/administration-des-donnees/procedures-de-publication/mettre-a-jour-des-donnees#remplacer-un-jeu-de-donnees-existant-plutot-quen-creer-un-nouveau">remplacer la ressource périmée par la nouvelle ressource</a>)
+                 ~s(<a href="https://doc.transport.data.gouv.fr/administration-des-donnees/procedures-de-publication/mettre-a-jour-des-donnees#remplacer-un-jeu-de-donnees-existant-plutot-quen-creer-un-nouveau">remplaçant la ressource périmée par la nouvelle</a>)
 
         refute html_body =~ "notification automatique"
         refute html_body =~ "article 122"

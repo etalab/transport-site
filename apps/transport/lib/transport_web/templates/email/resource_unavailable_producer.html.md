@@ -13,10 +13,8 @@ Pour corriger le problème pour cette fois-ci :
 Ces erreurs provoquent des difficultés pour les réutilisateurs. Nous vous invitons à corriger l’accès de vos données dès que possible.
 <% end %>
 
-Nous restons disponible pour vous accompagner si besoin.
-
-Merci par avance pour votre action,
+Nous restons disponibles pour vous accompagner si besoin.
 
 À bientôt,
 
-L’équipe du PAN
+L’équipe transport.data.gouv.fr

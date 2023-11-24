@@ -6,4 +6,6 @@ Les ressources <%= @resource_titles %> du jeu de données <%= link_for_dataset(@
 Le producteur de ces données a été informé de cette indisponibilité.
 <% end %>
 
-L’équipe du PAN
+À bientôt,
+
+L’équipe transport.data.gouv.f
