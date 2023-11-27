@@ -121,15 +121,15 @@ defmodule Transport.ImportAOMs do
 
     Logger.info("Datasets still associated with deleted AOM as territory : #{inspect(deleted_aom_datasets)}")
 
-    deleted_legal_owners =
+    deleted_legal_owners_query =
       from(d in DB.Dataset,
         # This magically works with the many_to_many
         join: aom in assoc(d, :legal_owners_aom),
         where: aom.composition_res_id in ^(removed_aoms |> MapSet.to_list()),
         select: [aom.id, aom.composition_res_id, d.id]
       )
-      |> DB.Repo.all()
-      |> Enum.group_by(&hd(&1))
+
+    deleted_legal_owners = deleted_legal_owners_query |> DB.Repo.all() |> Enum.group_by(&hd(&1))
 
     Logger.info("Datasets still associated with deleted AOM as legal owner: #{inspect(deleted_legal_owners)}")
 
@@ -142,9 +142,6 @@ defmodule Transport.ImportAOMs do
           # Some datasets should change AOM
           migrate_datasets_to_new_aoms()
           delete_old_aoms(aoms_to_add, old_aoms)
-
-          # TODO: add commune_principale to AOM
-
           # we load the join on cities
           import_insee_aom()
           enable_trigger()
@@ -172,7 +169,7 @@ defmodule Transport.ImportAOMs do
     |> CSV.decode(separator: ?,, headers: true, validate_row_length: true)
     |> Enum.reject(fn {:ok, line} -> line["Id réseau"] in (["", nil] ++ @ignored_aom_ids) end)
     |> Enum.map(fn {:ok, line} ->
-      existing_or_new_aom(line) |> Repo.preload(:region) |> changeset(line)
+      line |> existing_or_new_aom() |> Repo.preload(:region) |> changeset(line)
     end)
     |> MapSet.new()
   end
