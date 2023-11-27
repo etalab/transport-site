@@ -42,8 +42,10 @@ defmodule Transport.ImportAOMs do
     |> String.to_integer()
   end
 
-  @spec changeset(AOM.t(), map()) :: {integer(), Ecto.Changeset.t()}
-  def changeset(aom, line) do
+  @spec changeset(map()) :: {integer(), Ecto.Changeset.t()}
+  def changeset(line) do
+    aom = line |> existing_or_new_aom() |> Repo.preload(:region)
+
     nom = String.trim(line["Nom"])
     new_region = Repo.get_by(Region, nom: normalize_region(line["Région"]))
 
@@ -99,39 +101,9 @@ defmodule Transport.ImportAOMs do
     # get all the aom to import, outside of the transaction to reduce the time in the transaction
     # this already builds the changeset
     # Mapset of {composition_res_id, changeset}
-    aoms_to_add = get_aom_changeset_to_import()
+    aoms_to_add = get_aom_to_import() |> Enum.map(&changeset/1) |> MapSet.new()
 
-    mapset_first_elem_diff = fn a, b ->
-      a |> MapSet.new(&elem(&1, 0)) |> MapSet.difference(b |> MapSet.new(&elem(&1, 0)))
-    end
-
-    new_aoms = mapset_first_elem_diff.(aoms_to_add, old_aoms)
-    removed_aoms = mapset_first_elem_diff.(old_aoms, aoms_to_add)
-    Logger.info("#{new_aoms |> Enum.count()} new AOMs. reseau_id codes: #{Enum.join(new_aoms, ", ")}")
-    Logger.info("#{removed_aoms |> Enum.count()} removed AOMs. reseau_id codes: #{Enum.join(removed_aoms, ", ")}")
-
-    # Some Ecto fun: two ways of joining through assoc, see https://hexdocs.pm/ecto/associations.html
-    deleted_aom_datasets =
-      DB.Dataset
-      |> join(:left, [d], aom in assoc(d, :aom))
-      |> where([d, aom], aom.composition_res_id in ^(removed_aoms |> MapSet.to_list()))
-      |> select([d, aom], [aom.id, aom.composition_res_id, d.id])
-      |> DB.Repo.all()
-      |> Enum.group_by(&hd(&1))
-
-    Logger.info("Datasets still associated with deleted AOM as territory : #{inspect(deleted_aom_datasets)}")
-
-    deleted_legal_owners_query =
-      from(d in DB.Dataset,
-        # This magically works with the many_to_many
-        join: aom in assoc(d, :legal_owners_aom),
-        where: aom.composition_res_id in ^(removed_aoms |> MapSet.to_list()),
-        select: [aom.id, aom.composition_res_id, d.id]
-      )
-
-    deleted_legal_owners = deleted_legal_owners_query |> DB.Repo.all() |> Enum.group_by(&hd(&1))
-
-    Logger.info("Datasets still associated with deleted AOM as legal owner: #{inspect(deleted_legal_owners)}")
+    display_changes(old_aoms, aoms_to_add)
 
     {:ok, _} =
       Repo.transaction(
@@ -156,8 +128,8 @@ defmodule Transport.ImportAOMs do
     :ok
   end
 
-  defp get_aom_changeset_to_import do
-    Logger.info("importing aoms")
+  defp get_aom_to_import do
+    Logger.info("Importing Cerema file…")
 
     {:ok, %HTTPoison.Response{status_code: 200, body: body}} =
       HTTPoison.get(@aom_file, [], hackney: [follow_redirect: true])
@@ -167,11 +139,8 @@ defmodule Transport.ImportAOMs do
     stream
     |> IO.binstream(:line)
     |> CSV.decode(separator: ?,, headers: true, validate_row_length: true)
-    |> Enum.reject(fn {:ok, line} -> line["Id réseau"] in (["", nil] ++ @ignored_aom_ids) end)
-    |> Enum.map(fn {:ok, line} ->
-      line |> existing_or_new_aom() |> Repo.preload(:region) |> changeset(line)
-    end)
-    |> MapSet.new()
+    |> Enum.map(fn {:ok, line} -> line end)
+    |> Enum.reject(fn line -> line["Id réseau"] in (["", nil] ++ @ignored_aom_ids) end)
   end
 
   defp existing_or_new_aom(line) do
@@ -187,6 +156,7 @@ defmodule Transport.ImportAOMs do
   end
 
   defp import_aoms(aoms_to_add) do
+    Logger.info("importing AOMs…")
     aoms_to_add |> Enum.each(fn {_id, aom} -> Repo.insert_or_update!(aom) end)
   end
 
@@ -340,5 +310,39 @@ defmodule Transport.ImportAOMs do
     """
 
     queries |> String.split(";") |> Enum.each(&Repo.query!/1)
+  end
+
+  defp display_changes(old_aoms, aoms_to_add) do
+    mapset_first_elem_diff = fn a, b ->
+      a |> MapSet.new(&elem(&1, 0)) |> MapSet.difference(b |> MapSet.new(&elem(&1, 0)))
+    end
+
+    new_aoms = mapset_first_elem_diff.(aoms_to_add, old_aoms)
+    removed_aoms = mapset_first_elem_diff.(old_aoms, aoms_to_add)
+    Logger.info("#{new_aoms |> Enum.count()} new AOMs. reseau_id codes: #{Enum.join(new_aoms, ", ")}")
+    Logger.info("#{removed_aoms |> Enum.count()} removed AOMs. reseau_id codes: #{Enum.join(removed_aoms, ", ")}")
+
+    # Some Ecto fun: two ways of joining through assoc, see https://hexdocs.pm/ecto/associations.html
+    deleted_aom_datasets =
+      DB.Dataset
+      |> join(:left, [d], aom in assoc(d, :aom))
+      |> where([d, aom], aom.composition_res_id in ^(removed_aoms |> MapSet.to_list()))
+      |> select([d, aom], [aom.id, aom.composition_res_id, d.id])
+      |> DB.Repo.all()
+      |> Enum.group_by(&hd(&1))
+
+    Logger.info("Datasets still associated with deleted AOM as territory : #{inspect(deleted_aom_datasets)}")
+
+    deleted_legal_owners_query =
+      from(d in DB.Dataset,
+        # This magically works with the many_to_many
+        join: aom in assoc(d, :legal_owners_aom),
+        where: aom.composition_res_id in ^(removed_aoms |> MapSet.to_list()),
+        select: [aom.id, aom.composition_res_id, d.id]
+      )
+
+    deleted_legal_owners = deleted_legal_owners_query |> DB.Repo.all() |> Enum.group_by(&hd(&1))
+
+    Logger.info("Datasets still associated with deleted AOM as legal owner: #{inspect(deleted_legal_owners)}")
   end
 end
