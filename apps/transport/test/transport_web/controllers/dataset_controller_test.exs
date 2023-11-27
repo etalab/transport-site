@@ -383,6 +383,13 @@ defmodule TransportWeb.DatasetControllerTest do
 
     insert(:dataset_score,
       dataset: dataset,
+      timestamp: DateTime.utc_now() |> DateTime.add(-3, :hour),
+      score: 0.8,
+      topic: :compliance
+    )
+
+    insert(:dataset_score,
+      dataset: dataset,
       timestamp: DateTime.utc_now() |> DateTime.add(-1, :hour),
       score: nil,
       topic: :availability
@@ -390,7 +397,8 @@ defmodule TransportWeb.DatasetControllerTest do
 
     assert %{
              availability: %DB.DatasetScore{topic: :availability, score: nil},
-             freshness: %DB.DatasetScore{topic: :freshness, score: 0.549}
+             freshness: %DB.DatasetScore{topic: :freshness, score: 0.549},
+             compliance: %DB.DatasetScore{topic: :compliance, score: 0.8}
            } = dataset |> DB.DatasetScore.get_latest_scores(Ecto.Enum.values(DB.DatasetScore, :topic))
 
     set_empty_mocks()
@@ -401,7 +409,8 @@ defmodule TransportWeb.DatasetControllerTest do
       |> get(dataset_path(conn, :details, dataset.slug))
       |> html_response(200)
 
-    assert content =~ "Score fraicheur : 0.55"
+    assert content =~ "Score de fraicheur : 0.55"
+    assert content =~ "Score de conformité : 0.8"
     assert content =~ "Score de disponibilité : \n"
   end
 
@@ -418,7 +427,7 @@ defmodule TransportWeb.DatasetControllerTest do
     refute dataset |> DB.DatasetScore.get_latest_scores([:freshness]) |> Enum.empty?()
     set_empty_mocks()
     content = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200)
-    refute content =~ "Score fraicheur"
+    refute content =~ "Score de fraicheur"
   end
 
   describe "scores_chart" do

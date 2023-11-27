@@ -9,7 +9,7 @@ defmodule DB.DatasetScore do
 
   typed_schema "dataset_score" do
     belongs_to(:dataset, DB.Dataset)
-    field(:topic, Ecto.Enum, values: [:freshness, :availability])
+    field(:topic, Ecto.Enum, values: [:freshness, :availability, :compliance])
     field(:score, :float)
     field(:timestamp, :utc_datetime_usec)
     field(:details, :map)
