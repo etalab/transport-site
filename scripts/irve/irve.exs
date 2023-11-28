@@ -25,9 +25,12 @@ defmodule Streamer do
   Query one page, and use that to infer the list of all urls (for index-based pagination like data gouv)
   """
   def pages(base_url) do
-    data = get!(base_url <> "&page_size=100")
+    data = get!(url = base_url <> "&page_size=100")
+
     %{"total" => total, "page_size" => page_size} = data
     nb_pages = div(total, page_size) + 1
+
+    IO.puts "Processing #{url} (pages: #{nb_pages})"
 
     1..nb_pages
     |> Stream.map(&%{url: base_url <> "&page=#{&1}", source: base_url})
