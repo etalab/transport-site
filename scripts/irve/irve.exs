@@ -5,7 +5,7 @@ Mix.install([
   {:req, "~> 0.3.0"}
 ])
 
-Code.require_file("req_custom_cache.exs")
+Code.require_file(Path.join(__ENV__.file, "../req_custom_cache.exs"))
 
 defmodule Streamer do
   def cache_dir, do: Path.join(__ENV__.file, "../cache-dir") |> Path.expand()
