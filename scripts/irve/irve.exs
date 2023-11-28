@@ -38,11 +38,15 @@ defmodule Streamer do
 end
 
 # NOTE: currently not deduping, because I saw weird things while doing it
+
+# TODO: once done, also check the other sources (catch with a wider net).
+# But do not get lost in the process, so focus first on the "real thing".
 [
-  "https://www.data.gouv.fr/api/1/datasets/?tag=irve",
-  "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve",
-  "https://www.data.gouv.fr/api/1/datasets/?q=recharge+véhicules+électriques",
-  "https://www.data.gouv.fr/api/1/datasets/?q=irve"
+#  "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve",
+  "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve-statique",
+  # "https://www.data.gouv.fr/api/1/datasets/?tag=irve",
+  # "https://www.data.gouv.fr/api/1/datasets/?q=irve",
+  # "https://www.data.gouv.fr/api/1/datasets/?q=recharge+véhicules+électriques",
 ]
 |> Enum.map(&Streamer.pages(&1))
 |> Stream.concat()
