@@ -156,7 +156,7 @@ defmodule Transport.Jobs.DatasetQualityScore do
 
     computed_score =
       case last_score = last_dataset_score(dataset_id, topic) do
-        %{score: previous_score} when is_float(previous_score) ->
+        %{score: previous_score} when is_float(previous_score) and is_float(today_score) ->
           exp_smoothing(previous_score, today_score, topic)
 
         _ ->
