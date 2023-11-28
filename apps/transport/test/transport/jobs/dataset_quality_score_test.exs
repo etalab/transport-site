@@ -700,6 +700,31 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                details: %{previous_score: nil, resources: [%{resource_id: ^resource_id, format: "csv", freshness: nil}]}
              } = score
     end
+
+    test "last score is not nil and current's score is nil" do
+      %DB.Dataset{id: dataset_id} = insert(:dataset, is_active: true)
+      topic = :freshness
+
+      insert(:dataset_score,
+        dataset_id: dataset_id,
+        topic: topic,
+        score: 0.5,
+        timestamp: DateTime.utc_now() |> DateTime.add(-1, :day)
+      )
+
+      assert %DB.DatasetScore{dataset_id: ^dataset_id, score: 0.5, topic: ^topic} =
+               last_dataset_score(dataset_id, topic)
+
+      assert %{details: %{resources: []}, score: nil} == current_dataset_freshness(dataset_id)
+
+      assert {:ok,
+              %DB.DatasetScore{
+                dataset_id: ^dataset_id,
+                score: nil,
+                topic: ^topic,
+                details: %{previous_score: 0.5, resources: []}
+              }} = save_dataset_score(dataset_id, topic)
+    end
   end
 
   test "resource_ids_with_unavailabilities" do
