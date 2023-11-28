@@ -53,16 +53,7 @@ end
 |> Stream.map(fn %{url: url} = page -> Map.put(page, :data, Streamer.get!(url)) end)
 |> Stream.flat_map(fn page -> page[:data]["data"] end)
 |> Stream.map(fn dataset ->
-  for resource <- dataset["resources"] do
-    %{
-      dataset_id: Map.fetch!(dataset, "id"),
-      dataset_slug: Map.fetch!(dataset, "slug"),
-      dataset_page: Map.fetch!(dataset, "page"),
-      resource_id: Map.fetch!(resource, "id"),
-      resource_title: Map.fetch!(resource, "title"),
-      resource_last_modified: Map.fetch!(resource, "last_modified")
-    }
-  end
+  dataset["resources"]
 end)
 |> Stream.concat()
 |> Stream.each(fn x -> IO.inspect(x, IEx.inspect_opts()) end)
