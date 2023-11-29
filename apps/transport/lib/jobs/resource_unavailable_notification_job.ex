@@ -45,6 +45,7 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
     Enum.each(emails, fn email ->
       send_mail(email, :producer,
         dataset: dataset,
+        dataset_url: dataset_url(dataset),
         hours_consecutive_downtime: @hours_consecutive_downtime,
         deleted_recreated_on_datagouv: deleted_and_recreated_resource_hosted_on_datagouv(dataset, unavailabilities),
         resource_titles: Enum.map_join(unavailabilities, ", ", &resource_title/1)
