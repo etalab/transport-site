@@ -71,13 +71,8 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
     |> update_availability()
   end
 
-  defp check_availability({:updated, 200 = _status_code, %Resource{} = resource}) do
+  defp check_availability({:updated, %Resource{} = resource}) do
     {true, resource}
-  end
-
-  defp check_availability({:updated, status_code, %Resource{url: url} = resource})
-       when status_code != 200 do
-    perform_check(resource, url)
   end
 
   defp check_availability({:no_op, %Resource{} = resource}) do
@@ -99,9 +94,9 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
   # https://github.com/opendatateam/udata-ods/issues/250
   defp update_url(%Resource{filetype: "file", url: url, latest_url: latest_url} = resource) do
     case follow(latest_url) do
-      {:ok, status_code, final_url} when final_url != url ->
+      {:ok, 200 = _status_code, final_url} when final_url != url ->
         resource = resource |> Ecto.Changeset.change(%{url: final_url}) |> Repo.update!()
-        {:updated, status_code, resource}
+        {:updated, resource}
 
       _ ->
         {:no_op, resource}
@@ -112,7 +107,7 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
 
   defp historize_resource({:no_op, %Resource{}} = payload), do: payload
 
-  defp historize_resource({:updated, _status_code, %Resource{id: resource_id}} = payload) do
+  defp historize_resource({:updated, %Resource{id: resource_id}} = payload) do
     %{resource_id: resource_id}
     |> Transport.Jobs.ResourceHistoryJob.historize_and_validate_job(history_options: [unique: nil])
     |> Oban.insert!()
