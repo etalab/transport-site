@@ -209,6 +209,30 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
              ] = all_enqueued(worker: Transport.Jobs.Workflow)
     end
 
+    test "does not update resource.url if the status code is 404" do
+      %DB.Resource{} =
+        resource =
+        insert(:resource,
+          url: url = "https://static.data.gouv.fr/gtfs.zip",
+          latest_url: latest_url = "https://www.data.gouv.fr/latest_url",
+          is_available: true,
+          datagouv_id: "foo",
+          filetype: "file"
+        )
+
+      expect(Transport.HTTPoison.Mock, :get, fn ^latest_url ->
+        {:ok, %HTTPoison.Response{status_code: 404}}
+      end)
+
+      expect(Transport.AvailabilityChecker.Mock, :available?, fn _format, ^latest_url -> false end)
+
+      assert :ok == perform_job(ResourceUnavailableJob, %{"resource_id" => resource.id})
+
+      assert 1 == count_resource_unavailabilities()
+      assert %DB.Resource{is_available: false, url: ^url} = Repo.reload(resource)
+      assert [] == all_enqueued()
+    end
+
     test "does not perform a real availability check if the resource is bypassed" do
       url = "https://example.com/stop-monitoring"
 
