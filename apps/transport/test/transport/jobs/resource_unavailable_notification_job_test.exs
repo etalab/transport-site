@@ -167,7 +167,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
       assert html_part =~
                ~s(Les ressources #{resource_1.title}, #{resource_2.title} du jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> que vous réutilisez ne sont plus disponibles au téléchargement depuis plus de 6h.)
 
-      assert html_part =~ "Le producteur de ces données a été informé de cette indisponibilité."
+      assert html_part =~ "Nous avons déjà informé le producteur de ces données."
 
       :ok
     end)
