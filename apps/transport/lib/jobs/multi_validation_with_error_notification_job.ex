@@ -35,11 +35,10 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
   end
 
   defp send_to_reusers(emails, %DB.Dataset{} = dataset, producer_warned: producer_warned) do
-    Enum.each(emails, &send_mail(&1, :reuser,
-      dataset: dataset,
-      dataset_url: dataset_url(dataset),
-      producer_warned: producer_warned
-    ))
+    Enum.each(
+      emails,
+      &send_mail(&1, :reuser, dataset: dataset, producer_warned: producer_warned)
+    )
   end
 
   defp send_to_producers(emails, %DB.Dataset{} = dataset, multi_validations) do
@@ -47,7 +46,6 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
       emails,
       &send_mail(&1, :producer,
         dataset: dataset,
-        dataset_url: dataset_url(dataset),
         resources: Enum.map(multi_validations, fn mv -> mv.resource_history.resource end)
       )
     )
@@ -104,9 +102,5 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
     |> DB.NotificationSubscription.subscriptions_to_emails()
     |> MapSet.new()
     |> MapSet.difference(notifications_sent_recently(dataset))
-  end
-
-  defp dataset_url(%DB.Dataset{slug: slug}) do
-    TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, slug)
   end
 end
