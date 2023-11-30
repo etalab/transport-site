@@ -22,12 +22,6 @@ defmodule DB.Repo.Migrations.RemoveColumnsFromAOM do
     execute("UPDATE dataset SET id = id", "")
   end
 
-  defp migrate_one_char_departement_insee do
-    """
-
-    """
-  end
-
   defp execute_up do
     repo().query!(sql_dataset_update_function("population"), [], log: :info)
   end
