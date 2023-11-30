@@ -13,7 +13,7 @@ defmodule Mix.Tasks.Transport.ImportAoms do
 
   This is a one shot import task, run when the AOM have changed, at least every year.
 
-  The import can be launched hrough mix transport.import_aoms
+  The import can be launched through mix transport.import_aoms
   """
 
   @shortdoc "Refreshes the database table `aom` with the latest data"
@@ -48,7 +48,7 @@ defmodule Mix.Tasks.Transport.ImportAoms do
   def changeset(line) do
     aom = line |> existing_or_new_aom() |> Repo.preload(:region)
 
-    nom = String.trim(line["Nom"])
+    nom = normalize_nom(String.trim(line["Nom"]))
     new_region = Repo.get_by(Region, nom: normalize_region(line["Région"]))
 
     if !is_nil(aom.region) and !is_nil(new_region) and aom.region != new_region do
@@ -90,6 +90,11 @@ defmodule Mix.Tasks.Transport.ImportAoms do
   defp normalize_forme("PETR"), do: "Pôle d'équilibre territorial et rural"
   defp normalize_forme(f), do: f
 
+  @spec normalize_nom(binary()) :: binary()
+  defp normalize_nom("SIVOTU (nouvelle dénomination le 24/02/2010:AGGLOBUS)"), do: "Agglobus"
+  defp normalize_nom("ILE D'YEU"), do: "L'Île-d'Yeu"
+  defp normalize_nom(n), do: n
+
   # Oups
   defp extract_departement_insee("977 - Collectivité d’outre-mer de Nouvelle Calédonie"), do: "988"
   defp extract_departement_insee(insee_and_name), do: insee_and_name |> String.split(" - ") |> hd() |> String.trim()
@@ -126,8 +131,8 @@ defmodule Mix.Tasks.Transport.ImportAoms do
       )
 
     # we can then compute the aom geometries (the union of each cities geometries)
-    compute_geom()
-    set_main_commune()
+    # compute_geom()
+    # set_main_commune()
 
     :ok
   end
@@ -307,8 +312,7 @@ defmodule Mix.Tasks.Transport.ImportAoms do
     -- There is a fourth CC in SM4CC, CC des Quatre Rivières (haute savoie)
     -- Removes aggregate legal owner here https://transport.data.gouv.fr/datasets/agregat-oura but keeps SM4CC
     delete from dataset_aom_legal_owner where aom_id in (440, 558, 677);
-    -- L'Île-d'Yeu (id: 449, res_id: 1509) to ILE D'YEU (res_id: 310);
-    -- Strange that res_id changes…
+    -- L'Île-d'Yeu (id: 449, res_id: 1509) to L’Île-d’Yeu (res_id: 310);
     update dataset set aom_id = (select id from aom where composition_res_id = 310) where aom_id = 449;
     update dataset_aom_legal_owner set aom_id = (select id from aom where composition_res_id = 310) where aom_id = 449;
     """
