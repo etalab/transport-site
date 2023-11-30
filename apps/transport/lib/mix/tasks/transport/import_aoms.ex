@@ -102,6 +102,7 @@ defmodule Mix.Tasks.Transport.ImportAoms do
   def run(_params) do
     Logger.info("Starting AOM import")
     Mix.Task.run("app.start")
+
     old_aoms =
       AOM
       |> Repo.all()
@@ -131,8 +132,8 @@ defmodule Mix.Tasks.Transport.ImportAoms do
       )
 
     # we can then compute the aom geometries (the union of each cities geometries)
-    # compute_geom()
-    # set_main_commune()
+    compute_geom()
+    set_main_commune()
 
     :ok
   end
@@ -267,14 +268,25 @@ defmodule Mix.Tasks.Transport.ImportAoms do
         select: [c.aom_res_id, c.insee]
       )
 
-    main_communes
-    |> DB.Repo.all()
-    |> MapSet.new(fn [aom_res_id, insee] -> {aom_res_id, insee} end)
-    |> Enum.each(fn {aom_res_id, insee} ->
-      DB.AOM
-      |> where([a], a.composition_res_id == ^aom_res_id)
-      |> Repo.update_all(set: [insee_commune_principale: insee])
-    end)
+    main_communes =
+      main_communes
+      |> DB.Repo.all()
+      |> MapSet.new(fn [aom_res_id, insee] -> {aom_res_id, insee} end)
+
+    {:ok, _} =
+      Repo.transaction(fn ->
+        disable_trigger()
+
+        main_communes
+        |> Enum.each(fn {aom_res_id, insee} ->
+          AOM
+          |> Repo.get_by!(composition_res_id: aom_res_id)
+          |> Ecto.Changeset.change(%{insee_commune_principale: insee})
+          |> Repo.update()
+        end)
+
+        enable_trigger()
+      end)
   end
 
   defp disable_trigger do
