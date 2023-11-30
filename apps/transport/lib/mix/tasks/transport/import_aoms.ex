@@ -1,4 +1,4 @@
-defmodule Transport.ImportAOMs do
+defmodule Mix.Tasks.Transport.ImportAoms do
   @moduledoc """
   Import the AOM files and updates the database.
 
@@ -13,9 +13,11 @@ defmodule Transport.ImportAOMs do
 
   This is a one shot import task, run when the AOM have changed, at least every year.
 
-  The import can be launched from the site backoffice, or through Transport.ImportAOMs.run()
+  The import can be launched hrough mix transport.import_aoms
   """
 
+  @shortdoc "Refreshes the database table `aom` with the latest data"
+  use Mix.Task
   import Ecto.{Query}
   alias DB.{AOM, Commune, Region, Repo}
   require Logger
@@ -92,7 +94,9 @@ defmodule Transport.ImportAOMs do
   defp extract_departement_insee("977 - Collectivité d’outre-mer de Nouvelle Calédonie"), do: "988"
   defp extract_departement_insee(insee_and_name), do: insee_and_name |> String.split(" - ") |> hd() |> String.trim()
 
-  def run do
+  def run(_params) do
+    Logger.info("Starting AOM import")
+    Mix.Task.run("app.start")
     old_aoms =
       AOM
       |> Repo.all()
