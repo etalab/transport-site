@@ -413,6 +413,37 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                }
              } == current_dataset_compliance(dataset.id)
     end
+
+    test "handles validation_performed = false with 2 resources" do
+      dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true)
+      schema_name = "etalab/#{Ecto.UUID.generate()}"
+      zip_resource = insert(:resource, dataset: dataset, format: "zip", schema_name: schema_name)
+      geojson_resource = insert(:resource, dataset: dataset, format: "geojson", schema_name: schema_name)
+
+      insert(:multi_validation, %{
+        resource_history: insert(:resource_history, resource: geojson_resource),
+        validator: Transport.Validators.EXJSONSchema.validator_name(),
+        result: %{"has_errors" => false},
+        inserted_at: DateTime.utc_now() |> DateTime.add(-45, :minute)
+      })
+
+      insert(:multi_validation, %{
+        resource_history: insert(:resource_history, resource: zip_resource),
+        validator: Transport.Validators.EXJSONSchema.validator_name(),
+        result: %{"validation_performed" => false},
+        inserted_at: DateTime.utc_now() |> DateTime.add(-45, :minute)
+      })
+
+      assert %{
+               score: 1.0,
+               details: %{
+                 resources: [
+                   %{compliance: nil, raw_measure: %{"validation_performed" => false}, resource_id: zip_resource.id},
+                   %{compliance: 1.0, raw_measure: %{"has_errors" => false}, resource_id: geojson_resource.id}
+                 ]
+               }
+             } == current_dataset_compliance(dataset.id)
+    end
   end
 
   describe "last_dataset_score" do
