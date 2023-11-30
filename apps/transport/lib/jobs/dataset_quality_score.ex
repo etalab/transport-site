@@ -254,34 +254,23 @@ defmodule Transport.Jobs.DatasetAvailabilityScore do
   Saves and computes an availability score for a dataset.
 
   To compute this score:
-  - get the dataset's current resources
+  - get the dataset's current resources, excluding documentation resources
   - for each resource, give it a score based on its availability over the last 24 hours
   - we compute an average of those scores to get a score at the dataset level
    - that score is averaged with the dataset's last computed score, using exponential smoothing
   (see the function `exp_smoothing/3`). This allows a score to reflect not only the current
   dataset situation but also past situations.
-
-  If any resource as an availability score of 0 (under 95% of availability over the last 24 hours),
-  the availability score of the dataset will be 0.
-  The rationale is that the entire dataset may be unusable if a single resource cannot be fetched.
   """
   import Ecto.Query
   import Transport.Jobs.DatasetQualityScore
 
   @spec current_dataset_availability(integer()) :: %{score: float | nil, details: map()}
   def current_dataset_availability(dataset_id) do
-    resources = dataset_resources(dataset_id)
+    resources = dataset_id |> dataset_resources() |> Enum.reject(&DB.Resource.is_documentation?/1)
     current_dataset_infos = resources |> Enum.map(&resource_availability(&1))
     scores = current_dataset_infos |> Enum.map(fn %{availability: availability} -> availability end)
 
-    score =
-      if Enum.count(scores) > 0 and Enum.min(scores) == 0 do
-        0
-      else
-        average(scores)
-      end
-
-    %{score: score, details: %{resources: current_dataset_infos}}
+    %{score: average(scores), details: %{resources: current_dataset_infos}}
   end
 
   @spec resource_availability(DB.Resource.t()) :: %{
