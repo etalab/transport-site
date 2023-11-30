@@ -1,6 +1,6 @@
 Bonjour,
 
-Une ressource associée au jeu de données <%= link_for_dataset(@dataset) %> <%= @delay_str %>.
+Les données GTFS <%= @resource_titles %> associées au jeu de données <%= link_for_dataset(@dataset) %> <%= @delay_str %>.
 
 Nous vous invitons à les mettre à jour en [remplaçant la ressource périmée par la nouvelle](https://doc.transport.data.gouv.fr/administration-des-donnees/procedures-de-publication/mettre-a-jour-des-donnees#remplacer-un-jeu-de-donnees-existant-plutot-quen-creer-un-nouveau) afin que vos données puissent être utilisées par les différents acteurs.
 
