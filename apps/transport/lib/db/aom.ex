@@ -33,5 +33,5 @@ defmodule DB.AOM do
   def get(insee_commune_principale: nil), do: nil
   def get(insee_commune_principale: insee), do: Repo.get_by(AOM, insee_commune_principale: insee)
 
-  def created_in_2022?(%__MODULE__{composition_res_id: composition_res_id}), do: composition_res_id >= 1_000
+  def created_after_2021?(%__MODULE__{composition_res_id: composition_res_id}), do: composition_res_id >= 1_000
 end

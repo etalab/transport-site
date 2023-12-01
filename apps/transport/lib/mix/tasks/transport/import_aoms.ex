@@ -64,7 +64,7 @@ defmodule Mix.Tasks.Transport.ImportAoms do
        siren: line["N° SIREN"] |> String.trim(),
        nom: nom,
        forme_juridique: normalize_forme(line["Forme juridique"]),
-       # This is inconsistent with the real number of communes…
+       # This is inconsistent with the real number of communes for some lines
        nombre_communes: to_int(line["Nombre de communes"]),
        population: to_int(line["Population"]),
        # Database stores a string, we could use a float
