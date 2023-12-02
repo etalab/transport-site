@@ -13,11 +13,11 @@ defmodule Streamer do
   @doc """
   Execute HTTP query, unless the file is already in the disk cache.
   """
-  def get!(url) do
+  def get!(url, options \\ []) do
     url = URI.encode(url)
     # use the cache plugin
     req = Req.new() |> CustomCache.attach()
-    %{body: body, status: 200} = Req.get!(req, url: url, custom_cache_dir: cache_dir())
+    %{body: body, status: 200} = Req.get!(req, options |> Keyword.merge(url: url, custom_cache_dir: cache_dir()))
     body
   end
 
@@ -70,6 +70,8 @@ resources = [
   dataset["resources"]
 end)
 |> Stream.concat()
+#|> Stream.take(1)
+#|> Helper.inspect()
 |> Stream.map(fn(x) ->
   %{
     id: get_in(x, ["id"]),
@@ -78,6 +80,10 @@ end)
     validation_date: get_in(x, ["extras", "validation-report:validation_date"]),
     schema_name: get_in(x, ["schema", "name"]),
     schema_version: get_in(x, ["schema", "version"]),
+    filetype: get_in(x, ["filetype"]),
+    last_modified: get_in(x, ["last_modified"]),
+    # vs latest?
+    url: get_in(x, ["url"])
   }
 end)
 |> Stream.filter(fn(x) -> x[:schema_name] == "etalab/schema-irve-statique" end)
@@ -112,9 +118,22 @@ resources
 |> Enum.frequencies_by(fn(x) -> x[:schema_version] end)
 |> IO.inspect(IEx.inspect_opts |> Keyword.put(:label, "group_by(:schema_version)"))
 
-# Combien ça donne, en pourcentage ? (facile via dataframe si dispo?)
+resources
+|> Enum.frequencies_by(fn(x) -> x[:filetype] end)
+|> IO.inspect(IEx.inspect_opts |> Keyword.put(:label, "group_by(:filetype)"))
+
+resources
+# |> Enum.take(10)
+|> Enum.map(fn(x) ->
+  Streamer.get!(x[:url], compressed: false, decode_body: false)
+  |> String.split("\n")
+  |> hd()
+  |> String.contains?("id_pdc_itinerance")
+end)
+|> Enum.frequencies
+|> IO.inspect
+
 # Combien par "date de validation" breakdown ?
 # Combien par "date de mise à jour" (théorique ???)
 # Combien de PDC ça constitue ?
-# Tout télécharger ?
 # Tout revalider moi-même et vérifier ? Oui. Oui. On aura des surprises.
