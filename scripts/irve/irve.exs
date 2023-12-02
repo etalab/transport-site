@@ -37,11 +37,20 @@ defmodule Streamer do
   end
 end
 
+defmodule Helper do
+  # or: fn(i) -> i end
+  # or: &Function.identity/1
+  def inspect(stream, f \\ &(&1)) do
+    Stream.each(stream, fn(x) ->
+      IO.inspect(f.(x), IEx.inspect_opts)
+    end)
+  end
+end
 # NOTE: currently not deduping, because I saw weird things while doing it
 
 # TODO: once done, also check the other sources (catch with a wider net).
 # But do not get lost in the process, so focus first on the "real thing".
-[
+resources = [
 #  "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve",
   "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve-statique",
   # "https://www.data.gouv.fr/api/1/datasets/?tag=irve",
@@ -56,5 +65,35 @@ end
   dataset["resources"]
 end)
 |> Stream.concat()
-|> Stream.each(fn x -> IO.inspect(x, IEx.inspect_opts()) end)
-|> Stream.run()
+|> Stream.map(fn(x) ->
+  %{
+    id: get_in(x, ["id"]),
+    last_modified: get_in(x, ["last_modified"]),
+    valid: get_in(x, ["extras", "validation-report:valid_resource"]),
+    validation_date: get_in(x, ["extras", "validation-report:validation_date"]),
+    schema_name: get_in(x, ["schema", "name"]),
+    schema_version: get_in(x, ["schema", "version"]),
+  }
+end)
+|> Enum.into([])
+
+# TODO: show as tabular view (more compact)
+IO.puts "=== Sample ==="
+resources |> Enum.take(2) |> IO.inspect(IEx.inspect_opts)
+
+IO.puts "=== Stats ==="
+IO.inspect(%{count: resources |> length}, IEx.inspect_opts |> Keyword.put(:label, "total_count"))
+
+resources
+|> Enum.frequencies_by(fn(x) -> x[:valid] end)
+|> IO.inspect(IEx.inspect_opts |> Keyword.put(:label, "group_by(:valid)"))
+
+# Sample ?
+# Combien au total ?
+# Combien par statut valid ?
+# Combien par "version" du schéma ?
+# Combien par "date de validation" breakdown ?
+# Combien par "date de mise à jour" (théorique ???)
+# Combien de PDC ça constitue ?
+# Tout télécharger ?
+# Tout revalider moi-même et vérifier ? Oui. Oui. On aura des surprises.
