@@ -80,6 +80,7 @@ end)
     schema_version: get_in(x, ["schema", "version"]),
   }
 end)
+|> Stream.filter(fn(x) -> x[:schema_name] == "etalab/schema-irve-statique" end)
 |> Enum.into([])
 
 # TODO: show as tabular view (more compact)
@@ -89,14 +90,23 @@ resources |> Enum.take(2) |> IO.inspect(IEx.inspect_opts)
 IO.puts "=== Stats ==="
 IO.inspect(%{count: resources |> length}, IEx.inspect_opts |> Keyword.put(:label, "total_count"))
 
+# M'a aidé à me rendre compte que.. un gros paquet est invalide!
 resources
 |> Enum.frequencies_by(fn(x) -> x[:valid] end)
 |> IO.inspect(IEx.inspect_opts |> Keyword.put(:label, "group_by(:valid)"))
 
-# Sample ?
-# Combien au total ?
-# Combien par statut valid ?
-# Combien par "version" du schéma ?
+# M'a aidé à me rendre compte que... il y avait plusieurs schémas, car on recherche par "dataset",
+# mais après on travaille au niveau ressources, et donc on cherche par le "schéma de chaque ressource du dataset",
+# ce qui fait qu'il y a des choses en trop.
+resources
+|> Enum.frequencies_by(fn(x) -> x[:schema_name] end)
+|> IO.inspect(IEx.inspect_opts |> Keyword.put(:label, "group_by(:schema_name)"))
+
+resources
+|> Enum.frequencies_by(fn(x) -> x[:schema_version] end)
+|> IO.inspect(IEx.inspect_opts |> Keyword.put(:label, "group_by(:schema_version)"))
+
+# Combien ça donne, en pourcentage ? (facile via dataframe si dispo?)
 # Combien par "date de validation" breakdown ?
 # Combien par "date de mise à jour" (théorique ???)
 # Combien de PDC ça constitue ?
