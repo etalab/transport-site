@@ -95,6 +95,12 @@ resources
 |> Enum.frequencies_by(fn(x) -> x[:valid] end)
 |> IO.inspect(IEx.inspect_opts |> Keyword.put(:label, "group_by(:valid)"))
 
+# TODO: percent via dataframe if possible (simpler once we get used to it)
+resources
+|> Enum.frequencies_by(fn(x) -> x[:valid] end)
+|> Enum.map(fn({a,v}) -> (100 * v / (resources |> length) |> trunc() |> to_string)  <> "%" end)
+|> IO.inspect(IEx.inspect_opts |> Keyword.put(:label, "group_by(:valid) as %"))
+
 # M'a aidé à me rendre compte que... il y avait plusieurs schémas, car on recherche par "dataset",
 # mais après on travaille au niveau ressources, et donc on cherche par le "schéma de chaque ressource du dataset",
 # ce qui fait qu'il y a des choses en trop.
