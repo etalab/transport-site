@@ -25,15 +25,17 @@ defmodule Streamer do
   Query one page, and use that to infer the list of all urls (for index-based pagination like data gouv)
   """
   def pages(base_url) do
-    data = get!(url = base_url <> "&page_size=100")
+    page_size = 100
+    data = get!(url = base_url <> "&page_size=#{page_size}")
 
-    %{"total" => total, "page_size" => page_size} = data
+    # NOTE: using pattern matching to warn me about "silent limitations" on the page_size from data gouv
+    %{"total" => total, "page_size" => ^page_size} = data
     nb_pages = div(total, page_size) + 1
 
     IO.puts "Processing #{url} (pages: #{nb_pages})"
 
     1..nb_pages
-    |> Stream.map(&%{url: base_url <> "&page=#{&1}", source: base_url})
+    |> Stream.map(&%{url: base_url <> "&page=#{&1}&page_size=#{page_size}", source: base_url})
   end
 end
 
@@ -60,6 +62,9 @@ resources = [
 |> Enum.map(&Streamer.pages(&1))
 |> Stream.concat()
 |> Stream.map(fn %{url: url} = page -> Map.put(page, :data, Streamer.get!(url)) end)
+# |> Helper.inspect(fn(x) ->
+#   Map.take(x[:data], ["page", "page_size", "total"])
+# end)
 |> Stream.flat_map(fn page -> page[:data]["data"] end)
 |> Stream.map(fn dataset ->
   dataset["resources"]
