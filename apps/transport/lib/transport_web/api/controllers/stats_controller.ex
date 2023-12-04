@@ -75,8 +75,8 @@ defmodule TransportWeb.API.StatsController do
   defp filter_neg(val) when val < 0, do: nil
   defp filter_neg(val) when val >= 0, do: val
 
-  def new_aom_without_datasets?(%{created_in_2022: true, nb_datasets: 0}), do: true
-  def new_aom_without_datasets?(%{created_in_2022: true, dataset_types: %{pt: 0}}), do: true
+  def new_aom_without_datasets?(%{created_after_2021: true, nb_datasets: 0}), do: true
+  def new_aom_without_datasets?(%{created_after_2021: true, dataset_types: %{pt: 0}}), do: true
   def new_aom_without_datasets?(_), do: false
 
   @spec features(Ecto.Query.t()) :: [map()]
@@ -292,7 +292,7 @@ defmodule TransportWeb.API.StatsController do
     |> select([aom, aggregates_by_aom: d], %{
       geometry: aom.geom,
       id: aom.id,
-      created_in_2022: aom.composition_res_id >= 1_000,
+      created_after_2021: aom.composition_res_id >= 1_000,
       insee_commune_principale: aom.insee_commune_principale,
       nb_datasets: fragment("select count(id) from dataset where aom_id = ? and is_active", aom.id),
       dataset_formats: %{
@@ -400,7 +400,7 @@ defmodule TransportWeb.API.StatsController do
       %{
         geometry: aom.geom,
         id: aom.id,
-        created_in_2022: aom.composition_res_id >= 1_000,
+        created_after_2021: aom.composition_res_id >= 1_000,
         insee_commune_principale: aom.insee_commune_principale,
         nom: aom.nom,
         forme_juridique: aom.forme_juridique,

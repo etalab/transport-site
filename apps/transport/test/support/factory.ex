@@ -8,6 +8,27 @@ defmodule DB.Factory do
 
   # Ecto records
 
+  def departement_factory do
+    %DB.Departement{
+      insee: "38",
+      nom: "Isère",
+      geom: %Geo.Polygon{
+        coordinates: [
+          [
+            {55.0, 3.0},
+            {60.0, 3.0},
+            {60.0, 5.0},
+            {55.0, 5.0},
+            {55.0, 3.0}
+          ]
+        ],
+        srid: 4326,
+        properties: %{}
+      },
+      zone: "metro"
+    }
+  end
+
   def region_factory do
     %DB.Region{
       nom: sequence("region_nom")
