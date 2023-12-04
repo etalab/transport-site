@@ -169,4 +169,4 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Files in a subfolder"
-msgstr "Fichiers dans un sous-dossier"
+msgstr ""
