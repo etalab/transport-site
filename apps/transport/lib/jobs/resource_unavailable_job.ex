@@ -92,6 +92,9 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
 
   # GOTCHA: `filetype` is set to `"file"` for exports coming from ODS
   # https://github.com/opendatateam/udata-ods/issues/250
+  # We "leverage" this bug because we need to resolve the final URL for
+  # some ODS resources referenced as external links
+  # https://github.com/etalab/transport-site/issues/3470
   defp maybe_update_url(%Resource{filetype: "file", url: url, latest_url: latest_url} = resource) do
     case follow(latest_url) do
       {:ok, 200 = _status_code, final_url} when final_url != url ->
