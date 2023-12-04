@@ -286,7 +286,7 @@ defmodule Mix.Tasks.Transport.ImportAoms do
         end)
 
         enable_trigger()
-      end)
+      end, timeout: 1_000_000)
   end
 
   defp disable_trigger do
