@@ -65,7 +65,7 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
 
     Resource
     |> Repo.get!(resource_id)
-    |> update_url()
+    |> maybe_update_url()
     |> historize_resource()
     |> check_availability()
     |> update_availability()
@@ -92,7 +92,7 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
 
   # GOTCHA: `filetype` is set to `"file"` for exports coming from ODS
   # https://github.com/opendatateam/udata-ods/issues/250
-  defp update_url(%Resource{filetype: "file", url: url, latest_url: latest_url} = resource) do
+  defp maybe_update_url(%Resource{filetype: "file", url: url, latest_url: latest_url} = resource) do
     case follow(latest_url) do
       {:ok, 200 = _status_code, final_url} when final_url != url ->
         resource = resource |> Ecto.Changeset.change(%{url: final_url}) |> Repo.update!()
@@ -103,7 +103,7 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
     end
   end
 
-  defp update_url(%Resource{} = resource), do: {:no_op, resource}
+  defp maybe_update_url(%Resource{} = resource), do: {:no_op, resource}
 
   defp historize_resource({:no_op, %Resource{}} = payload), do: payload
 
