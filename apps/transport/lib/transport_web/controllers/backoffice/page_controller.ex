@@ -342,7 +342,8 @@ defmodule TransportWeb.Backoffice.PageController do
       d.id id_dataset,
       r.id id_ressource,
       freshness_score.score score_fraicheur,
-      availability_score.score score_disponibilite
+      availability_score.score score_disponibilite,
+      compliance_score.score score_conformite
     from resource r
     join dataset d on d.id = r.dataset_id
     left join aom a on a.id = d.aom_id
@@ -389,6 +390,14 @@ defmodule TransportWeb.Backoffice.PageController do
       from dataset_score ds
       where ds.topic = 'availability'
     ) availability_score on availability_score.dataset_id = d.id and availability_score.row_number = 1
+    left join (
+      select
+        ds.dataset_id,
+        ds.score,
+        row_number() over (partition by ds.dataset_id order by ds.timestamp desc) row_number
+      from dataset_score ds
+      where ds.topic = 'compliance'
+    ) compliance_score on compliance_score.dataset_id = d.id and compliance_score.row_number = 1
     """)
   end
 end
