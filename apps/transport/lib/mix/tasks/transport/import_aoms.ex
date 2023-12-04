@@ -274,19 +274,22 @@ defmodule Mix.Tasks.Transport.ImportAoms do
       |> MapSet.new(fn [aom_res_id, insee] -> {aom_res_id, insee} end)
 
     {:ok, _} =
-      Repo.transaction(fn ->
-        disable_trigger()
+      Repo.transaction(
+        fn ->
+          disable_trigger()
 
-        main_communes
-        |> Enum.each(fn {aom_res_id, insee} ->
-          AOM
-          |> Repo.get_by!(composition_res_id: aom_res_id)
-          |> Ecto.Changeset.change(%{insee_commune_principale: insee})
-          |> Repo.update()
-        end)
+          main_communes
+          |> Enum.each(fn {aom_res_id, insee} ->
+            AOM
+            |> Repo.get_by!(composition_res_id: aom_res_id)
+            |> Ecto.Changeset.change(%{insee_commune_principale: insee})
+            |> Repo.update()
+          end)
 
-        enable_trigger()
-      end, timeout: 1_000_000)
+          enable_trigger()
+        end,
+        timeout: 1_000_000
+      )
   end
 
   defp disable_trigger do
