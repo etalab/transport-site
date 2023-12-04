@@ -11,10 +11,10 @@ defmodule TransportWeb.AOMSController do
     :in_aggregate,
     :up_to_date,
     :has_realtime,
-    :population_municipale,
     :nom_commune,
     :insee_commune_principale,
-    :nombre_communes
+    :nombre_communes,
+    :population
   ]
 
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
@@ -38,7 +38,7 @@ defmodule TransportWeb.AOMSController do
       published: not Enum.empty?(all_datasets),
       in_aggregate: not Enum.empty?(aggregated_datasets),
       up_to_date: datasets_up_to_date,
-      population_municipale: aom.population_municipale,
+      population: aom.population,
       nom_commune: nom_commune,
       insee_commune_principale: aom.insee_commune_principale,
       nombre_communes: aom.nombre_communes,
