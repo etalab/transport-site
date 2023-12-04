@@ -258,8 +258,8 @@ defmodule TransportWeb.DatasetSearchControllerTest do
   end
 
   test "when searching for a region, use the population to sort" do
-    small_aom = insert(:aom, region: region = insert(:region), population_totale: 100)
-    big_aom = insert(:aom, region: region, population_totale: 200)
+    small_aom = insert(:aom, region: region = insert(:region), population: 100)
+    big_aom = insert(:aom, region: region, population: 200)
 
     # regional dataset: first result expected
     region_dataset = insert(:dataset, region_id: region.id, is_active: true, population: 0)

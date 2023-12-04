@@ -53,13 +53,6 @@
       <%= submit(dgettext("backoffice", "Import all datasets from data.gouv")) %>
     <% end %>
   </div>
-  <a
-    class="button warning-light"
-    href={backoffice_page_path(@conn, :import_all_aoms)}
-    title="Télécharge depuis data.gouv la dernière version de la liste des AOMs, puis les importe dans notre base."
-  >
-    <%= dgettext("backoffice", "Update all AOMs") %>
-  </a>
   <div>
     <a
       class="button warning-light"

@@ -212,19 +212,6 @@ defmodule TransportWeb.Backoffice.PageController do
     |> Enum.sort_by(fn {{_reason, %DateTime{} = dt}, _emails} -> dt end, {:desc, DateTime})
   end
 
-  def import_all_aoms(%Plug.Conn{} = conn, _params) do
-    conn =
-      try do
-        Transport.ImportAOMs.run()
-        conn |> put_flash(:info, "AOMs successfully imported")
-      rescue
-        e ->
-          conn |> put_flash(:error, "AOMs import failed. #{inspect(e)}")
-      end
-
-    conn |> redirect(to: backoffice_page_path(conn, :index))
-  end
-
   def dataset_with_resource_under_90_availability do
     query = """
     with down_ranges as (select *, tsrange(ru.start, ru.end) as down_range, tsrange(now()::timestamp - interval '30 day', now()::timestamp) as compute_range from resource_unavailability ru),

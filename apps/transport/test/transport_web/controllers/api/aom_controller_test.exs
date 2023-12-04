@@ -22,9 +22,11 @@ defmodule TransportWeb.API.AomControllerTest do
       properties: %{}
     }
 
+    insert(:departement)
+
     insert(:aom,
       geom: geom,
-      departement: "75",
+      departement: "38",
       forme_juridique: "Communauté de communes",
       insee_commune_principale: "38185",
       siren: "247400690"
@@ -36,7 +38,7 @@ defmodule TransportWeb.API.AomControllerTest do
     assert_response_schema(json, "AOMResponse", TransportWeb.API.Spec.spec())
 
     assert json == %{
-             "departement" => "75",
+             "departement" => "38",
              "forme_juridique" => "Communauté de communes",
              "insee_commune_principale" => "38185",
              "nom" => "Grenoble",

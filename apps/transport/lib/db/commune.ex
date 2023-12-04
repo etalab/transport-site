@@ -16,6 +16,7 @@ defmodule DB.Commune do
     field(:siren, :string)
     field(:arrondissement_insee, :string)
 
+    # In theory a commune has only one AOM, the reference is done through the composition_res_id attribute
     belongs_to(:aom_res, AOM, references: :composition_res_id)
     belongs_to(:region, Region)
     belongs_to(:departement, Departement, foreign_key: :departement_insee, references: :insee, type: :string)

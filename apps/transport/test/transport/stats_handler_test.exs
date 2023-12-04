@@ -40,7 +40,7 @@ defmodule Transport.StatsHandlerTest do
   end
 
   test "climate_resilience_bill_count" do
-    aom = insert(:aom, population_totale: 1_000)
+    aom = insert(:aom, population: 1_000)
     insert(:dataset, aom: aom, is_active: false, custom_tags: ["loi-climat-resilience"], type: "public-transit")
     insert(:dataset, aom: aom, is_active: true, custom_tags: ["loi-climat-resilience"], type: "public-transit")
     insert(:dataset, aom: aom, is_active: true, custom_tags: ["loi-climat-resilience"], type: "public-transit")
@@ -145,9 +145,9 @@ defmodule Transport.StatsHandlerTest do
   end
 
   test "uses legal owners to assign datasets to AOMs" do
-    aom1 = insert(:aom, population_totale: 1_000_000)
-    aom2 = insert(:aom, population_totale: 1_000_000)
-    insert(:aom, population_totale: 1_000_000)
+    aom1 = insert(:aom, population: 1_000_000)
+    aom2 = insert(:aom, population: 1_000_000)
+    insert(:aom, population: 1_000_000)
     insert(:dataset, type: "public-transit", is_active: true, legal_owners_aom: [aom2], aom: aom1)
 
     assert %{nb_aoms_with_data: 2, nb_aoms: 3, population_couverte: 2, population_totale: 3} = compute_stats()
