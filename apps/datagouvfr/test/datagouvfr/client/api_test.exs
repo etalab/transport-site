@@ -1,6 +1,6 @@
 defmodule Datagouvfr.Client.APITest do
-  use ExUnit.Case, async: true
-
+  # Need to be async: false because we swap application config in a test
+  use ExUnit.Case, async: false
   doctest Datagouvfr.Client.API, import: true
 
   import Datagouvfr.ApiFixtures
@@ -12,6 +12,10 @@ defmodule Datagouvfr.Client.APITest do
 
   @data_containing_1_element ["data_containing_1_element #1"]
   @data_containing_2_elements ["data_containing_2_elements #1", "data_containing_2_elements #2"]
+
+  setup do
+    {:ok, bypass: Bypass.open()}
+  end
 
   describe "Stream a data.gouv.fr resource" do
     test "when resource is NOT paginated" do
@@ -58,44 +62,6 @@ defmodule Datagouvfr.Client.APITest do
     end
   end
 
-  test "handles a 308 redirection" do
-    path = "foo"
-    url = "https://demo.data.gouv.fr/api/1/#{path}/"
-    location_url = "https://example/bar"
-
-    # A 308 response and then a 200 response
-    Transport.HTTPoison.Mock
-    |> expect(:request, fn :get, ^url, "", [], [follow_redirect: true] ->
-      {:ok, %HTTPoison.Response{status_code: 308, headers: [{"location", location_url}], request_url: url}}
-    end)
-
-    Transport.HTTPoison.Mock
-    |> expect(:request, fn :get, ^location_url, "", [], [follow_redirect: true] ->
-      {:ok, %HTTPoison.Response{status_code: 200, body: "{}"}}
-    end)
-
-    assert {:ok, %{}} == API.get(path)
-  end
-
-  test "handles a relative 308 redirection" do
-    path = "foo"
-    url = "https://demo.data.gouv.fr/api/1/#{path}/"
-    location_url = "/bar"
-
-    # A 308 response and then a 200 response
-    Transport.HTTPoison.Mock
-    |> expect(:request, fn :get, ^url, "", [], [follow_redirect: true] ->
-      {:ok, %HTTPoison.Response{status_code: 308, headers: [{"location", location_url}], request_url: url}}
-    end)
-
-    Transport.HTTPoison.Mock
-    |> expect(:request, fn :get, "https://demo.data.gouv.fr" <> ^location_url, "", [], [follow_redirect: true] ->
-      {:ok, %HTTPoison.Response{status_code: 200, body: "{}"}}
-    end)
-
-    assert {:ok, %{}} == API.get(path)
-  end
-
   describe "retry mechanism on timeout" do
     test "retries when there is a timeout" do
       path = "foo"
@@ -126,6 +92,34 @@ defmodule Datagouvfr.Client.APITest do
 
       assert {:error, %HTTPoison.Error{reason: :timeout}} == API.get(path)
     end
+  end
+
+  test "the API HTTP client follows a 308 redirection", %{bypass: bypass} do
+    http_client_mock = Application.fetch_env!(:transport, :httpoison_impl)
+    datagouvfr_site = Application.fetch_env!(:transport, :datagouvfr_site)
+
+    on_exit(fn ->
+      Application.put_env(:transport, :httpoison_impl, http_client_mock)
+      Application.put_env(:transport, :datagouvfr_site, datagouvfr_site)
+    end)
+
+    Application.put_env(:transport, :httpoison_impl, HTTPoison)
+    Application.put_env(:transport, :datagouvfr_site, "http://localhost:#{bypass.port}")
+
+    path = "/foo"
+    location_path = "/bar"
+
+    Bypass.expect_once(bypass, "GET", "/api/1#{path}", fn conn ->
+      conn
+      |> Plug.Conn.put_resp_header("location", location_path)
+      |> Plug.Conn.resp(308, "")
+    end)
+
+    Bypass.expect_once(bypass, "GET", location_path, fn conn ->
+      Plug.Conn.resp(conn, 200, "{}")
+    end)
+
+    assert {:ok, %{}} == API.get(path)
   end
 
   defp assert_stream_return_pages(resource_to_stream, expected_pages_data) do

@@ -28,6 +28,6 @@ defmodule DB.Organization do
   def changeset(struct, attrs \\ %{}) do
     struct
     |> cast(attrs, [:id, :slug, :name, :acronym, :logo, :logo_thumbnail, :badges, :metrics, :created_at])
-    |> validate_required([:id, :slug, :name, :logo, :logo_thumbnail, :badges])
+    |> validate_required([:id, :slug, :name, :badges])
   end
 end

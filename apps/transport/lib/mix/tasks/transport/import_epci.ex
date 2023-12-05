@@ -9,7 +9,7 @@ defmodule Mix.Tasks.Transport.ImportEPCI do
   alias DB.{EPCI, Repo}
   require Logger
 
-  @epci_file "https://unpkg.com/@etalab/decoupage-administratif@2.0.0/data/epci.json"
+  @epci_file "https://unpkg.com/@etalab/decoupage-administratif@3.1.1/data/epci.json"
 
   def run(params) do
     Logger.info("importing epci")
