@@ -1,6 +1,6 @@
 defmodule Datagouvfr.Client.APITest do
-  use ExUnit.Case, async: true
-
+  # Need to be async: false because we swap application config in a test
+  use ExUnit.Case, async: false
   doctest Datagouvfr.Client.API, import: true
 
   import Datagouvfr.ApiFixtures
@@ -12,6 +12,10 @@ defmodule Datagouvfr.Client.APITest do
 
   @data_containing_1_element ["data_containing_1_element #1"]
   @data_containing_2_elements ["data_containing_2_elements #1", "data_containing_2_elements #2"]
+
+  setup do
+    {:ok, bypass: Bypass.open()}
+  end
 
   describe "Stream a data.gouv.fr resource" do
     test "when resource is NOT paginated" do
@@ -88,6 +92,33 @@ defmodule Datagouvfr.Client.APITest do
 
       assert {:error, %HTTPoison.Error{reason: :timeout}} == API.get(path)
     end
+  end
+
+  test "the API HTTP client follows a 308 redirection", %{bypass: bypass} do
+    http_client_mock = Application.fetch_env!(:transport, :httpoison_impl)
+    datagouvfr_site = Application.fetch_env!(:transport, :datagouvfr_site)
+    Application.put_env(:transport, :httpoison_impl, HTTPoison)
+    Application.put_env(:transport, :datagouvfr_site, "http://localhost:#{bypass.port}")
+
+    on_exit(fn ->
+      Application.put_env(:transport, :httpoison_impl, http_client_mock)
+      Application.put_env(:transport, :datagouvfr_site, datagouvfr_site)
+    end)
+
+    path = "/foo"
+    location_path = "/bar"
+
+    Bypass.expect_once(bypass, "GET", "/api/1#{path}", fn conn ->
+      conn
+      |> Plug.Conn.put_resp_header("location", location_path)
+      |> Plug.Conn.resp(308, "")
+    end)
+
+    Bypass.expect_once(bypass, "GET", location_path, fn conn ->
+      Plug.Conn.resp(conn, 200, "{}")
+    end)
+
+    assert {:ok, %{}} == API.get(path)
   end
 
   defp assert_stream_return_pages(resource_to_stream, expected_pages_data) do
