@@ -26,8 +26,8 @@ defmodule TransportWeb.AOMSController do
 
     datasets_up_to_date =
       all_datasets
-      |> Enum.reject(&is_nil(&1.end_date))
-      |> Enum.any?(fn dataset -> Date.compare(dataset.end_date, Date.utc_today()) !== :lt end)
+      # |> Enum.reject(&is_nil(&1.end_date))
+      # |> Enum.any?(fn dataset -> Date.compare(dataset.end_date, Date.utc_today()) !== :lt end)
 
     datasets_realtime = Enum.any?(all_datasets, fn dataset -> dataset.has_realtime end)
 
@@ -58,15 +58,15 @@ defmodule TransportWeb.AOMSController do
   def aoms do
     datasets =
       Dataset.base_query()
-      |> Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+      # |> Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
       |> join(:left, [dataset: d], aom in AOM, on: d.aom_id == aom.id, as: :aom)
       |> where([dataset: d], d.type == "public-transit")
       |> select(
-        [dataset: d, metadata: m, aom: a],
+        [dataset: d, aom: a],
         %{
           aom_id: a.id,
           dataset_id: d.id,
-          end_date: fragment("TO_DATE(?->>'end_date', 'YYYY-MM-DD')", m.metadata),
+          # end_date: fragment("TO_DATE(?->>'end_date', 'YYYY-MM-DD')", m.metadata),
           has_realtime: d.has_realtime
         }
       )
