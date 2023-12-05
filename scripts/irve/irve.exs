@@ -77,6 +77,7 @@ resources =
   # |> Helper.inspect()
   |> Stream.map(fn x ->
     %{
+      # TODO: regroupement par "publicateur" contact opérateur SAV Izivia
       id: get_in(x, ["id"]),
       dataset_id: get_in(x, [:dataset_id]),
       last_modified: get_in(x, ["last_modified"]),
@@ -167,8 +168,10 @@ recent_stuff
 |> Enum.frequencies_by(fn x -> x[:valid] end)
 |> IO.inspect(IEx.inspect_opts() |> Keyword.put(:label, "group_by(:valid)"))
 
+# TODO: voir ce qui se passe avec un valide à l'écran dans data gouv
+
 recent_stuff
-|> Enum.filter(fn x -> x[:valid] != true end)
+|> Enum.filter(fn x -> x[:valid] == false end)
 |> Enum.sort_by(fn x -> -x[:line_count] end)
 |> Enum.map(fn x -> {x[:line_count], "https://www.data.gouv.fr/fr/datasets/" <> x[:dataset_id]} end)
 |> IO.inspect(limit: :infinity)
