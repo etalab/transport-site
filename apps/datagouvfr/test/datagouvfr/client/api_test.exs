@@ -97,13 +97,13 @@ defmodule Datagouvfr.Client.APITest do
   test "the API HTTP client follows a 308 redirection", %{bypass: bypass} do
     http_client_mock = Application.fetch_env!(:transport, :httpoison_impl)
     datagouvfr_site = Application.fetch_env!(:transport, :datagouvfr_site)
-    Application.put_env(:transport, :httpoison_impl, HTTPoison)
-    Application.put_env(:transport, :datagouvfr_site, "http://localhost:#{bypass.port}")
-
     on_exit(fn ->
       Application.put_env(:transport, :httpoison_impl, http_client_mock)
       Application.put_env(:transport, :datagouvfr_site, datagouvfr_site)
     end)
+
+    Application.put_env(:transport, :httpoison_impl, HTTPoison)
+    Application.put_env(:transport, :datagouvfr_site, "http://localhost:#{bypass.port}")
 
     path = "/foo"
     location_path = "/bar"
