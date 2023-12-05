@@ -13,7 +13,7 @@
       <% avatar_src =
         cond do
           user_avatar = comment["posted_by"]["avatar_thumbnail"] -> user_avatar
-          is_producer and @org_logo_thumbnail -> @org_logo_thumbnail
+          is_producer and not is_nil(@org_logo_thumbnail) -> @org_logo_thumbnail
           true -> "https://www.data.gouv.fr/api/1/avatars/#{comment["posted_by"]["id"]}/52"
         end %>
       <% commenter_full_name = comment["posted_by"]["first_name"] <> " " <> comment["posted_by"]["last_name"] %>
