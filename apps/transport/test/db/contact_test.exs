@@ -199,8 +199,9 @@ defmodule DB.ContactTest do
           "acronym" => nil,
           "badges" => [],
           "id" => Ecto.UUID.generate(),
-          "logo" => "https://static.data.gouv.fr/avatars/85/53e0a3845e43eb87fb905032aaa389-original.png",
-          "logo_thumbnail" => "https://static.data.gouv.fr/avatars/85/53e0a3845e43eb87fb905032aaa389-100.png",
+          # Can save an org without logos
+          "logo" => nil,
+          "logo_thumbnail" => nil,
           "name" => "Big Corp",
           "slug" => "foo"
         }
