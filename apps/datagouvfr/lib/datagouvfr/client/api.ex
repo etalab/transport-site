@@ -93,7 +93,6 @@ defmodule Datagouvfr.Client.API do
 
     method
     |> perform_request(url, body, headers, options)
-    |> maybe_redirect_308(method, body, headers, options)
     |> decode_body()
     |> post_process()
   end
@@ -115,38 +114,6 @@ defmodule Datagouvfr.Client.API do
       response ->
         response
     end
-  end
-
-  defp maybe_redirect_308(response, method, body, headers, options) do
-    # To be removed when https://github.com/etalab/transport-site/issues/1801 is fixed
-    case response do
-      {:ok, %HTTPoison.Response{status_code: 308, headers: response_headers, request_url: request_url}} ->
-        absolute_location_url = absolute_location_url(request_url, location_header(response_headers))
-        http_client().request(method, absolute_location_url, body, headers, options)
-
-      _ ->
-        response
-    end
-  end
-
-  @doc """
-  get the absolute url of a redirection location
-
-  iex> absolute_location_url("https://exemple.com/file/1", "https://exemple.com/fichier/1")
-  "https://exemple.com/fichier/1"
-
-  iex> absolute_location_url("https://exemple.com/file/1", "/fichier/1")
-  "https://exemple.com/fichier/1"
-
-  iex> absolute_location_url("https://exemple.com/file/1", "details/1")
-  "https://exemple.com/file/details/1"
-  """
-  def absolute_location_url(request_url, location) do
-    request_url |> URI.merge(location) |> URI.to_string()
-  end
-
-  defp location_header(headers) do
-    headers |> Enum.into(%{}, fn {k, v} -> {String.downcase(k), v} end) |> Map.get("location")
   end
 
   @spec stream(path(), method()) :: Enumerable.t()
