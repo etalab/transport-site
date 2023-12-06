@@ -756,9 +756,6 @@ defmodule Transport.ImportData do
       ...> |> ImportData.formated_format("bike-scooter-sharing", false)
       "json"
 
-      iex> formated_format(%{"title" => "Export au format GeoJSON", "format" => "json"}, "low-emission-zones", false)
-      "geojson"
-
       iex> formated_format(%{"url" => "https://data.strasbourg.eu/api/datasets/1.0/zfe_voie_exception/alternative_exports/zfe_voie_speciale_eurometropole_strasbourg_geojson", "format" => "a"}, "low-emission-zones", false)
       "geojson"
 
@@ -802,11 +799,8 @@ defmodule Transport.ImportData do
     end
   end
 
-  # Classify GeoJSONs from ODS as geojson instead of json
-  # See https://github.com/opendatateam/udata-ods/issues/211
-  defp is_geojson?(%{"title" => "Export au format GeoJSON"}, _), do: true
-  defp is_geojson?(%{"url" => url}, format), do: is_format?(format, ["geojson"]) or String.ends_with?(url, "geojson")
-  defp is_geojson?(_, format), do: is_format?(format, ["geojson"])
+  defp is_geojson?(%{"url" => url}, format), do: is_format?(format, "geojson") or String.ends_with?(url, "geojson")
+  defp is_geojson?(_, format), do: is_format?(format, "geojson")
 
   defp is_gbfs?(%{"url" => url}) do
     if String.contains?(url, "gbfs") do
