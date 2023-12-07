@@ -10,13 +10,15 @@ defmodule DB.Resource do
   require Logger
 
   typed_schema "resource" do
-    # real url
+    # The resource's real URL
     field(:url, :string)
     field(:format, :string)
     field(:last_import, :utc_datetime_usec)
     field(:title, :string)
     field(:last_update, :utc_datetime_usec)
-    # stable data.gouv.fr url if exists, else (for ODS gtfs as csv) it's the real url
+    # data.gouv.fr's stable URL:
+    # - for resources hosted on data.gouv.fr it redirects to static.data.gouv.fr
+    # - for others, it points to the final URL
     field(:latest_url, :string)
     field(:is_available, :boolean, default: true)
 
