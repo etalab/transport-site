@@ -115,7 +115,9 @@ defmodule TransportWeb.AOMSController do
       aggregated_datasets =
       repo_results
       |> Enum.group_by(& &1.aom_id, fn %{dataset_id: dataset_id} ->
-        dataset_by_dataset_id |> Map.get(dataset_id, %{})
+        # This is really not good: if there is an non GTFS dataset associated with an AOM, we still put it in the list
+        # So AOM will be considered as "done" even if it's not the case.
+        dataset_by_dataset_id |> Map.get(dataset_id, %{dataset_id: dataset_id, end_date: nil, has_realtime: false})
       end)
 
     dbg(aggregated_datasets, label: "aggregated_datasets")
