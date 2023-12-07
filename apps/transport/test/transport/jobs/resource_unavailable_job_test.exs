@@ -57,7 +57,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
       assert 1 == count_resource_unavailabilities()
       %ResourceUnavailability{resource_id: ^resource_id, start: start, end: nil} = ResourceUnavailability |> Repo.one!()
       assert DateTime.diff(DateTime.utc_now(), start) <= 1
-      assert %{is_available: false} = Repo.reload(resource)
+      assert %DB.Resource{is_available: false} = Repo.reload(resource)
     end
 
     test "when there is an ongoing unavailability and the resource stays unavailable" do
@@ -74,7 +74,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
       %ResourceUnavailability{resource_id: ^resource_id, start: ^start, end: nil} =
         ResourceUnavailability |> Repo.one!()
 
-      assert %{is_available: false} = Repo.reload(resource)
+      assert %DB.Resource{is_available: false} = Repo.reload(resource)
     end
 
     test "when there is an ongoing unavailability and the resource is now available" do
@@ -92,7 +92,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
         ResourceUnavailability |> Repo.one!()
 
       assert DateTime.diff(DateTime.utc_now(), date_end) <= 1
-      assert %{is_available: true} = Repo.reload(resource)
+      assert %DB.Resource{is_available: true} = Repo.reload(resource)
     end
 
     test "when there are no unavailabilities and the resource is available" do
@@ -103,7 +103,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
       assert :ok == perform_job(ResourceUnavailableJob, %{"resource_id" => resource.id})
 
       assert 0 == count_resource_unavailabilities()
-      assert %{is_available: true} = Repo.reload(resource)
+      assert %DB.Resource{is_available: true} = Repo.reload(resource)
     end
 
     test "uses latest_url when relevant" do
@@ -122,7 +122,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
       assert :ok == perform_job(ResourceUnavailableJob, %{"resource_id" => resource.id})
 
       assert 0 == count_resource_unavailabilities()
-      assert %{is_available: true} = Repo.reload(resource)
+      assert %DB.Resource{is_available: true} = Repo.reload(resource)
     end
 
     test "updates the resource's url when needed" do
@@ -145,15 +145,15 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
 
       Transport.HTTPoison.Mock
       |> expect(:get, fn ^new_url ->
-        {:ok, %HTTPoison.Response{status_code: 500}}
+        {:ok, %HTTPoison.Response{status_code: 200}}
       end)
 
-      Transport.AvailabilityChecker.Mock |> expect(:available?, fn _format, ^new_url -> false end)
+      # `Transport.AvailabilityChecker.Mock` is not called
 
       assert :ok == perform_job(ResourceUnavailableJob, %{"resource_id" => resource.id})
 
-      assert 1 == count_resource_unavailabilities()
-      assert %{is_available: false, url: ^new_url} = Repo.reload(resource)
+      assert 0 == count_resource_unavailabilities()
+      assert %DB.Resource{is_available: true, url: ^new_url} = Repo.reload(resource)
 
       assert [
                %{
@@ -209,6 +209,30 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
              ] = all_enqueued(worker: Transport.Jobs.Workflow)
     end
 
+    test "does not update resource.url if the status code is 404" do
+      %DB.Resource{} =
+        resource =
+        insert(:resource,
+          url: url = "https://static.data.gouv.fr/gtfs.zip",
+          latest_url: latest_url = "https://www.data.gouv.fr/latest_url",
+          is_available: true,
+          datagouv_id: "foo",
+          filetype: "file"
+        )
+
+      expect(Transport.HTTPoison.Mock, :get, fn ^latest_url ->
+        {:ok, %HTTPoison.Response{status_code: 404}}
+      end)
+
+      expect(Transport.AvailabilityChecker.Mock, :available?, fn _format, ^latest_url -> false end)
+
+      assert :ok == perform_job(ResourceUnavailableJob, %{"resource_id" => resource.id})
+
+      assert 1 == count_resource_unavailabilities()
+      assert %DB.Resource{is_available: false, url: ^url} = Repo.reload(resource)
+      assert [] == all_enqueued()
+    end
+
     test "does not perform a real availability check if the resource is bypassed" do
       url = "https://example.com/stop-monitoring"
 
@@ -253,7 +277,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
       assert :ok == perform_job(ResourceUnavailableJob, %{"resource_id" => resource.id})
 
       assert 0 == count_resource_unavailabilities()
-      assert %{is_available: true} = Repo.reload(resource)
+      assert %DB.Resource{is_available: true} = Repo.reload(resource)
     end
   end
 
