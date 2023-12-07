@@ -188,6 +188,10 @@ defmodule TransportWeb.Router do
         live("/cache", CacheLive)
       end
 
+      live_session :rate_limiter, root_layout: {TransportWeb.LayoutView, :app} do
+        live("/rate_limiter", RateLimiterLive)
+      end
+
       get("/import_aoms", PageController, :import_all_aoms)
 
       live_session :data_import_batch_report, root_layout: {TransportWeb.LayoutView, :app} do

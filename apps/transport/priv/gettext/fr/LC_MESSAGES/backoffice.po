@@ -290,3 +290,7 @@ msgstr "Conversions relancées"
 #, elixir-autogen, elixir-format
 msgid "AOM open data status"
 msgstr "Ouverture des données par AOM"
+
+#, elixir-autogen, elixir-format
+msgid "Rate limiter"
+msgstr ""
