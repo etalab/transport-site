@@ -72,10 +72,20 @@ defmodule TransportWeb.AOMSController do
       )
       |> Repo.all()
 
-    datasets_by_aom_id = datasets |> Enum.group_by(& &1.aom_id)
-    datasets_by_dataset_id = datasets |> Enum.group_by(& &1.dataset_id)
+    datasets |> Enum.group_by(& &1.dataset_id) |> Map.values |> Enum.map(&length/1) |> Enum.max |> dbg(label: "size of each group")
 
-    aggregated_datasets =
+    datasets_by_aom_id = datasets |> Enum.group_by(& &1.aom_id)
+    dataset_by_dataset_id = datasets |> Map.new(&{&1.dataset_id, &1})
+
+    # dbg(datasets_by_dataset_id, label: "datasets_by_datasets_id")
+    # Datasets with a key dataset to find them easily. The AOM ID inside is AOM as territory.
+    # datasets_by_dataset_id #=> %{
+    #   518 => [%{aom_id: nil, dataset_id: 518, end_date: xxx, has_realtime: true}],
+    #   401 => [%{aom_id: 950, dataset_id: 401, has_realtime: false}],
+    #   117 => [%{aom_id: 107, dataset_id: 117, has_realtime: false}],
+    #   377 => [%{aom_id: nil, dataset_id: 377, has_realtime: true}],
+
+    repo_results =
       AOM
       |> join(:inner, [aom], d in assoc(aom, :legal_owners_dataset), as: :legal_owners_dataset)
       |> where(
@@ -90,9 +100,34 @@ defmodule TransportWeb.AOMSController do
       )
       |> select([aom, legal_owners_dataset: d], %{aom_id: aom.id, dataset_id: d.id})
       |> Repo.all()
+
+      # List of tupples AOM / Legal owner dataset but as in the subquery we limit to only one dataset per AOM ? No.
+      dbg(repo_results, label: "repo_results")
+      # repo_results #=> [
+      #   %{aom_id: 5, dataset_id: 787},
+      #   %{aom_id: 9, dataset_id: 732},
+      #   %{aom_id: 15, dataset_id: 787},
+      #   %{aom_id: 17, dataset_id: 976},
+      #   %{aom_id: 19, dataset_id: 146},
+
+      repo_results |> Enum.group_by(& &1.aom_id) |> Map.values |> Enum.map(&length/1) |> Enum.max |> dbg(label: "size of each group")
+
+      aggregated_datasets =
+      repo_results
       |> Enum.group_by(& &1.aom_id, fn %{dataset_id: dataset_id} ->
-        datasets_by_dataset_id |> Map.fetch!(dataset_id) |> hd()
+        dataset_by_dataset_id |> Map.get(dataset_id, %{})
       end)
+
+    dbg(aggregated_datasets, label: "aggregated_datasets")
+    # We take back the list of AOMS from the repo result, and enrich it
+    # aggregated_datasets #=> %{
+    # 289 => [%{aom_id: nil, dataset_id: 732, has_realtime: false}],
+    # 309 => [%{aom_id: nil, dataset_id: 732, has_realtime: false}],
+    # 704 => [%{aom_id: nil, dataset_id: 176, has_realtime: false}],
+    # 621 => [%{aom_id: nil, dataset_id: 979, has_realtime: false}],
+    # 219 => [%{aom_id: nil, dataset_id: 38, has_realtime: false}],
+    # 492 => [%{aom_id: nil, dataset_id: 979, has_realtime: false}],
+    # 311 => [%{aom_id: nil, dataset_id: 176, has_realtime: false}],
 
     AOM
     |> join(:left, [aom], c in Commune, on: aom.insee_commune_principale == c.insee)
