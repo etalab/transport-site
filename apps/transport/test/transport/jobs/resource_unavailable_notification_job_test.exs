@@ -148,8 +148,10 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
       assert html_part =~
                ~s(Les ressources #{resource_1.title}, #{resource_2.title} dans votre jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> ne sont plus disponibles au téléchargement depuis plus de 6h.)
 
+      assert html_part =~ "Il semble que vous ayez supprimé puis créé une nouvelle ressource"
+
       assert html_part =~
-               "Il semble que vous ayez supprimé et créé une nouvelle ressource. Lors de la mise à jour de vos données, remplacez plutôt le fichier au sein de la ressource existante."
+               ~s(rendez-vous sur votre <a href="http://127.0.0.1:5100/espace_producteur">Espace Producteur</a> à partir duquel vous pourrez procéder à ces mises à jour)
 
       :ok
     end)
@@ -167,7 +169,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
       assert html_part =~
                ~s(Les ressources #{resource_1.title}, #{resource_2.title} du jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> que vous réutilisez ne sont plus disponibles au téléchargement depuis plus de 6h.)
 
-      assert html_part =~ "Le producteur de ces données a été informé de cette indisponibilité."
+      assert html_part =~ "Nous avons déjà informé le producteur de ces données."
 
       :ok
     end)
@@ -185,8 +187,10 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
       assert html_part =~
                ~s(Les ressources #{resource_gtfs.title} dans votre jeu de données <a href="http://127.0.0.1:5100/datasets/#{gtfs_dataset.slug}">#{gtfs_dataset.custom_title}</a> ne sont plus disponibles au téléchargement depuis plus de 6h.)
 
-      refute html_part =~ "Il semble que vous ayez supprimé et créé une nouvelle ressource."
-      assert html_part =~ "Ces erreurs provoquent des difficultés pour les réutilisateurs."
+      refute html_part =~ "Il semble que vous ayez supprimé puis créé une nouvelle ressource"
+
+      assert html_part =~
+               "Nous vous invitons à corriger l’accès à vos données dès que possible afin de ne pas perturber leur réutilisation."
 
       :ok
     end)

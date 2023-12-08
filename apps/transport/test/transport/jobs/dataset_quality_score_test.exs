@@ -213,6 +213,23 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
              } == current_dataset_availability(dataset.id)
     end
 
+    test "excludes documentation resources to compute the score" do
+      dataset = insert(:dataset, is_active: true)
+      r1 = insert(:resource, dataset: dataset, is_community_resource: false)
+      r2 = insert(:resource, dataset: dataset, is_community_resource: false, type: "documentation")
+
+      assert DB.Resource.is_documentation?(r2)
+
+      assert %{
+               details: %{
+                 resources: [
+                   %{availability: 1.0, raw_measure: nil, resource_id: r1.id}
+                 ]
+               },
+               score: 1.0
+             } == current_dataset_availability(dataset.id)
+    end
+
     test "2 resources, one down for a long time" do
       dataset = insert(:dataset, is_active: true)
       r1 = insert(:resource, dataset: dataset, is_community_resource: false)
@@ -226,7 +243,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                    %{availability: 0.0, raw_measure: 0, resource_id: r2.id}
                  ]
                },
-               score: 0.0
+               score: 0.5
              } == current_dataset_availability(dataset.id)
     end
 

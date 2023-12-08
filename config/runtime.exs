@@ -92,9 +92,11 @@ end
 base_oban_conf = [repo: DB.Repo]
 
 # Oban jobs that should run in every deployed environment (staging, prod)
-# but not during dev or test
-# Be careful : there is "app_env :prod" in contrast  to :staging (ie production website vs prochainement)
-# and "config_env :prod" in contrast to :dev et :test
+# but not during dev or test.
+#
+# - There is "app_env :prod" in contrast to :staging (ie production website vs prochainement)
+#   and "config_env :prod" in contrast to :dev et :test
+# - ⚠️ There is another legacy crontab in `Transport.Scheduler`, see `scheduler.ex`
 oban_prod_crontab = [
   {"0 */6 * * *", Transport.Jobs.ResourceHistoryAndValidationDispatcherJob},
   {"30 */6 * * *", Transport.Jobs.GTFSToGeoJSONConverterJob},

@@ -185,41 +185,58 @@ defmodule Transport.DataCheckerTest do
       )
     end
 
-    # 2 resources expiring on the same day
-    dataset = insert(:dataset, is_active: true)
+    # 2 GTFS resources expiring on the same day for a dataset
+    %DB.Dataset{id: dataset_id} = dataset = insert(:dataset, is_active: true)
     insert_fn.(today, dataset)
     insert_fn.(today, dataset)
 
-    assert [dataset.id] == today |> Transport.DataChecker.gtfs_datasets_expiring_on() |> Enum.map(& &1.id)
+    assert [
+             {%DB.Dataset{id: ^dataset_id},
+              [%DB.Resource{dataset_id: ^dataset_id}, %DB.Resource{dataset_id: ^dataset_id}]}
+           ] = today |> Transport.DataChecker.gtfs_datasets_expiring_on()
+
     assert [] == tomorrow |> Transport.DataChecker.gtfs_datasets_expiring_on()
     assert [] == yesterday |> Transport.DataChecker.gtfs_datasets_expiring_on()
 
     insert_fn.(tomorrow, dataset)
-    assert [dataset.id] == today |> Transport.DataChecker.gtfs_datasets_expiring_on() |> Enum.map(& &1.id)
-    assert [dataset.id] == tomorrow |> Transport.DataChecker.gtfs_datasets_expiring_on() |> Enum.map(& &1.id)
+
+    assert [
+             {%DB.Dataset{id: ^dataset_id},
+              [%DB.Resource{dataset_id: ^dataset_id}, %DB.Resource{dataset_id: ^dataset_id}]}
+           ] = today |> Transport.DataChecker.gtfs_datasets_expiring_on()
+
+    assert [
+             {%DB.Dataset{id: ^dataset_id}, [%DB.Resource{dataset_id: ^dataset_id}]}
+           ] = tomorrow |> Transport.DataChecker.gtfs_datasets_expiring_on()
+
     assert [] == yesterday |> Transport.DataChecker.gtfs_datasets_expiring_on()
 
     # Multiple datasets
-    d2 = insert(:dataset, is_active: true)
+    %DB.Dataset{id: d2_id} = d2 = insert(:dataset, is_active: true)
     insert_fn.(today, d2)
 
-    assert [dataset.id, d2.id] |> Enum.sort() ==
-             today |> Transport.DataChecker.gtfs_datasets_expiring_on() |> Enum.map(& &1.id) |> Enum.sort()
+    assert [
+             {%DB.Dataset{id: ^dataset_id},
+              [%DB.Resource{dataset_id: ^dataset_id}, %DB.Resource{dataset_id: ^dataset_id}]},
+             {%DB.Dataset{id: ^d2_id}, [%DB.Resource{dataset_id: ^d2_id}]}
+           ] = today |> Transport.DataChecker.gtfs_datasets_expiring_on()
   end
 
   describe "outdated_data job" do
     test "sends email to our team + relevant contact before expiry" do
-      dataset =
+      %DB.Dataset{id: dataset_id} =
+        dataset =
         insert(:dataset, is_active: true, custom_title: "Dataset custom title", custom_tags: ["loi-climat-resilience"])
 
       assert DB.Dataset.climate_resilience_bill?(dataset)
       # fake a resource expiring today
-      resource = insert(:resource, dataset: dataset, format: "GTFS")
+      %DB.Resource{id: resource_id} =
+        resource = insert(:resource, dataset: dataset, format: "GTFS", title: resource_title = "Super GTFS")
 
       multi_validation =
         insert(:multi_validation,
           validator: Transport.Validators.GTFSTransport.validator_name(),
-          resource_history: insert(:resource_history, resource_id: resource.id)
+          resource_history: insert(:resource_history, resource: resource)
         )
 
       insert(:resource_metadata,
@@ -227,7 +244,8 @@ defmodule Transport.DataCheckerTest do
         metadata: %{"end_date" => Date.utc_today()}
       )
 
-      assert [dataset.id] == Date.utc_today() |> Transport.DataChecker.gtfs_datasets_expiring_on() |> Enum.map(& &1.id)
+      assert [{%DB.Dataset{id: ^dataset_id}, [%DB.Resource{id: ^resource_id}]}] =
+               Date.utc_today() |> Transport.DataChecker.gtfs_datasets_expiring_on()
 
       %DB.Contact{id: contact_id, email: producer_email} = insert_contact()
 
@@ -259,7 +277,7 @@ defmodule Transport.DataCheckerTest do
                                "Jeux de données arrivant à expiration" = _subject,
                                body,
                                _html_body ->
-        assert body =~ ~r/Jeux de données expirant demain :/
+        assert body =~ ~r/Jeux de données périmant demain :/
 
         assert body =~
                  "#{dataset.custom_title} - http://127.0.0.1:5100/datasets/#{dataset.slug} (✅ notification automatique) ⚖️🗺️ article 122"
@@ -277,10 +295,10 @@ defmodule Transport.DataCheckerTest do
                                _body,
                                html_body ->
         assert html_body =~
-                 ~s(Une ressource associée au jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> expire demain.)
+                 ~s(Les données GTFS #{resource_title} associées au jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> périment demain.)
 
         assert html_body =~
-                 ~s(<a href="https://doc.transport.data.gouv.fr/administration-des-donnees/procedures-de-publication/mettre-a-jour-des-donnees#remplacer-un-jeu-de-donnees-existant-plutot-quen-creer-un-nouveau">remplacer la ressource périmée par la nouvelle ressource</a>)
+                 ~s(<a href="https://doc.transport.data.gouv.fr/administration-des-donnees/procedures-de-publication/mettre-a-jour-des-donnees#remplacer-un-jeu-de-donnees-existant-plutot-quen-creer-un-nouveau">remplaçant la ressource périmée par la nouvelle</a>)
 
         refute html_body =~ "notification automatique"
         refute html_body =~ "article 122"
@@ -326,7 +344,7 @@ defmodule Transport.DataCheckerTest do
       :ok
     end)
 
-    Transport.DataChecker.send_outdated_data_notifications({7, [dataset]})
+    Transport.DataChecker.send_outdated_data_notifications({7, [{dataset, []}]})
 
     assert [%DB.Notification{email: ^email, reason: :expiration, dataset_id: ^dataset_id}] =
              DB.Notification |> DB.Repo.all()
