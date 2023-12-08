@@ -35,7 +35,10 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
   end
 
   defp send_to_reusers(emails, %DB.Dataset{} = dataset, producer_warned: producer_warned) do
-    Enum.each(emails, &send_mail(&1, :reuser, dataset: dataset, producer_warned: producer_warned))
+    Enum.each(
+      emails,
+      &send_mail(&1, :reuser, dataset: dataset, producer_warned: producer_warned)
+    )
   end
 
   defp send_to_producers(emails, %DB.Dataset{} = dataset, multi_validations) do

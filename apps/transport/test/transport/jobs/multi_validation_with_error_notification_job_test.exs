@@ -164,7 +164,7 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
       assert html =~
                ~s(Des erreurs bloquantes ont été détectées dans le jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> que vous réutilisez.)
 
-      assert html =~ "Le producteur de ces données a été informé de ces erreurs."
+      assert html =~ "Nous avons déjà informé le producteur de ces données."
 
       :ok
     end)
