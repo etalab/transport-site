@@ -63,10 +63,14 @@ defmodule GBFS.JCDecauxControllerTest do
 
     ~w(gbfs system_information station_information station_status)a
     |> Enum.each(fn path ->
-      conn = conn |> get("/gbfs/#{contract}/#{path}.json")
+      response = conn |> get("/gbfs/#{contract}/#{path}.json")
       expected = "https://api.cyclocity.fr/contracts/#{destination_contract}/gbfs/#{path}.json"
-      assert redirected_to(conn, 301) == expected
+      assert redirected_to(response, 301) == expected
     end)
+
+    # Test 404
+    expected_regex = ~r"^Network not found. See available data:"
+    assert conn |> get("/gbfs/#{contract}/not_found") |> text_response(404) =~ expected_regex
   end
 
   defp setup_stations_response do
