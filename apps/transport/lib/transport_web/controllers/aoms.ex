@@ -17,6 +17,16 @@ defmodule TransportWeb.AOMSController do
     :population
   ]
 
+  @type dataset :: %{
+          required(:aom_id) => integer(),
+          required(:dataset_id) => integer(),
+          required(:end_date) => Date.t(),
+          required(:has_realtime) => boolean()
+        }
+
+  @type aom_id :: integer()
+  @type dataset_id :: integer()
+
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(conn, _params), do: render(conn, "index.html", aoms: aoms())
 
@@ -84,6 +94,7 @@ defmodule TransportWeb.AOMSController do
     |> to_string
   end
 
+  @spec gtfs_datasets() :: {%{required(aom_id) => [dataset]}, %{required(dataset_id) => dataset}}
   defp gtfs_datasets do
     gtfs_datasets =
       Dataset.base_query()
@@ -106,6 +117,7 @@ defmodule TransportWeb.AOMSController do
     {gtfs_datasets_by_aom_id, gtfs_dataset_by_dataset_id}
   end
 
+  @spec aggregated_datasets(%{required(dataset_id) => dataset}) :: %{required(aom_id) => [dataset]}
   defp aggregated_datasets(gtfs_dataset_by_dataset_id) do
     aggregated_datasets_in_db =
       AOM
