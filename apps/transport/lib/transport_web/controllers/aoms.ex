@@ -127,7 +127,7 @@ defmodule TransportWeb.AOMSController do
         d.id in subquery(
           Dataset.base_query()
           |> join(:inner, [dataset: d], aom in assoc(d, :legal_owners_aom), as: :aom)
-          |> join(:inner, [dataset: d], resource in assoc(d, :resources), as: :resource)
+          |> DB.Resource.join_dataset_with_resource()
           |> group_by([dataset: d], d.id)
           |> having([aom: a], count(a.id) >= 2)
           |> where([resource: r], r.format in ["GTFS", "NeTEx"])
