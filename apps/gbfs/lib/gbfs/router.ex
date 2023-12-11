@@ -79,7 +79,6 @@ defmodule GBFS.Router do
     # Only the `:api` pipeline, we don't want to cache the response or send telemetry events
     pipe_through(:api)
 
-
     Enum.map(@jcdecaux_redirected, fn contract ->
       scope "/" <> contract do
         pipe_through(:jcdecaux_redirect)

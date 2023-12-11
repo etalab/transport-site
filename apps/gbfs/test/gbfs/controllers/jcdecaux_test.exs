@@ -60,13 +60,15 @@ defmodule GBFS.JCDecauxControllerTest do
 
   defp assert_redirects_for_contract(conn, contract, options \\ []) do
     destination_contract = Keyword.get(options, :destination_contract, contract)
+
     ~w(gbfs system_information station_information station_status)a
-      |> Enum.each(fn path ->
+    |> Enum.each(fn path ->
       conn = conn |> get("/gbfs/#{contract}/#{path}.json")
       expected = "https://api.cyclocity.fr/contracts/#{destination_contract}/gbfs/#{path}.json"
       assert redirected_to(conn, 301) == expected
-      end)
+    end)
   end
+
   defp setup_stations_response do
     Transport.HTTPoison.Mock
     |> expect(:get, fn url ->
