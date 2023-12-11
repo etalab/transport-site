@@ -115,6 +115,20 @@ defmodule GBFS.JCDecauxController do
     |> render_response(conn)
   end
 
+  def redirect_contract(%Plug.Conn{assigns: %{contract_id: contract}} = conn, %{"path" => path}) do
+    if path in ["gbfs.json", "system_information.json", "station_information.json", "station_status.json"] do
+      redirect_contract_name = if contract == "cergy-pontoise", do: "cergy", else: contract
+      destination = "https://api.cyclocity.fr/contracts/#{redirect_contract_name}/gbfs/#{path}"
+      conn |> put_status(301) |> redirect(external: destination)
+    else
+      conn
+      |> put_status(:not_found)
+      |> text(
+        "Network not found. See available data: https://transport.data.gouv.fr/datasets?type=bike-scooter-sharing"
+      )
+    end
+  end
+
   defp render_response({:ok, data}, conn),
     do:
       conn

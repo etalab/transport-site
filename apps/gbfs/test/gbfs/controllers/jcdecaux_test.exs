@@ -41,8 +41,32 @@ defmodule GBFS.JCDecauxControllerTest do
       assert %{"error" => "jcdecaux service unavailable"} == json_response(conn, 502)
       assert logs =~ "impossible to query jcdecaux"
     end
+
+    test "for a redirected contract", %{conn: conn} do
+      [
+        "nantes",
+        "lyon",
+        "nancy",
+        "besancon",
+        "mulhouse"
+      ]
+      |> Enum.each(fn contract -> assert_redirects_for_contract(conn, contract) end)
+    end
+
+    test "redirects for cergy-pontoise", %{conn: conn} do
+      assert_redirects_for_contract(conn, "cergy-pontoise", destination_contract: "cergy")
+    end
   end
 
+  defp assert_redirects_for_contract(conn, contract, options \\ []) do
+    destination_contract = Keyword.get(options, :destination_contract, contract)
+    ~w(gbfs system_information station_information station_status)a
+      |> Enum.each(fn path ->
+      conn = conn |> get("/gbfs/#{contract}/#{path}.json")
+      expected = "https://api.cyclocity.fr/contracts/#{destination_contract}/gbfs/#{path}.json"
+      assert redirected_to(conn, 301) == expected
+      end)
+  end
   defp setup_stations_response do
     Transport.HTTPoison.Mock
     |> expect(:get, fn url ->

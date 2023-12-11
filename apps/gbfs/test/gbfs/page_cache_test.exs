@@ -32,7 +32,7 @@ defmodule GBFS.PageCacheTest do
     # the whole thing would need a bit more work.
     enable_cache()
 
-    url = "/gbfs/nantes/station_information.json"
+    url = "/gbfs/amiens/station_information.json"
 
     Transport.HTTPoison.Mock |> expect(:get, 1, fn _url -> {:ok, %HTTPoison.Response{status_code: 200, body: "{}"}} end)
 

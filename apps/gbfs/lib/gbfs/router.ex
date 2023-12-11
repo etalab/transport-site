@@ -16,21 +16,28 @@ defmodule GBFS.Router do
     plug(:assign_jcdecaux)
   end
 
+  pipeline :jcdecaux_redirect do
+    plug(:assign_jcdecaux_redirect)
+  end
+
   pipeline :index_pipeline do
     plug(:assign_index)
   end
 
   @reseaux_jcdecaux %{
     "amiens" => "Velam",
-    "besancon" => "VéloCité",
-    "cergy-pontoise" => "Velo2",
     "creteil" => "CristoLib",
-    "lyon" => "Vélo'v",
-    "mulhouse" => "VéloCité",
-    "nancy" => "vélOstan'lib",
-    "nantes" => "Bicloo",
     "toulouse" => "Vélô"
   }
+
+  @jcdecaux_redirected [
+    "nantes",
+    "lyon",
+    "cergy-pontoise",
+    "nancy",
+    "besancon",
+    "mulhouse"
+  ]
 
   scope "/gbfs", GBFS do
     pipe_through([:api, :page_cache])
@@ -71,6 +78,16 @@ defmodule GBFS.Router do
   scope "/gbfs", GBFS do
     # Only the `:api` pipeline, we don't want to cache the response or send telemetry events
     pipe_through(:api)
+
+
+    Enum.map(@jcdecaux_redirected, fn contract ->
+      scope "/" <> contract do
+        pipe_through(:jcdecaux_redirect)
+
+        get("/:path", JCDecauxController, :redirect_contract)
+      end
+    end)
+
     get("/*path", IndexController, :not_found)
   end
 
@@ -80,6 +97,11 @@ defmodule GBFS.Router do
     conn
     |> assign(:contract_id, contract_id)
     |> assign(:contract_name, @reseaux_jcdecaux[contract_id])
+  end
+
+  defp assign_jcdecaux_redirect(conn, _) do
+    [_, contract_id, _] = conn.path_info
+    conn |> assign(:contract_id, contract_id)
   end
 
   defp assign_index(conn, _) do
