@@ -66,13 +66,14 @@ defmodule TransportWeb.AOMsControllerTest do
 
     insert(:resource, title: "GTFS-flex TAD", dataset: dataset, format: "GTFS")
 
-
     assert %{
              nom: ^nom_aom,
              published: true,
              in_aggregate: true,
-             up_to_date: false, # The controller only gets up to date information for GTFS datasets
-             has_realtime: false # This is a quirk that could be corrected with some effort
+             # The controller only gets up to date information for GTFS datasets
+             up_to_date: false,
+             # This is a quirk that could be corrected with some effort
+             has_realtime: false
            } = TransportWeb.AOMSController.aoms() |> Enum.find(fn r -> r.nom == aom.nom end)
   end
 
