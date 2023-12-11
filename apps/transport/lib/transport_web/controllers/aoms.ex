@@ -57,11 +57,11 @@ defmodule TransportWeb.AOMSController do
   @spec aoms :: [map()]
   def aoms do
     # Let’s fetch all GTFS datasets.
-    # This doesn’t include GTFS-Flex, although they are in public-transport and have a GTFS format on resource.
+    # This doesn’t include GTFS-Flex, although they are in public-transit and have a GTFS format on resource.
     {gtfs_datasets_by_aom_id, gtfs_dataset_by_dataset_id} = get_gtfs_datasets()
 
-    # Some AOM data is present on aggregated datasets: the region publishes instead of the AOM.
-    # In this case, there is at least 2 legal owners on the dataset
+    # Some AOM data is present in aggregated datasets: the region publishes on behalf of the AOM.
+    # In this case, there are at least 2 legal owners on the dataset
     aggregated_datasets_by_aom_id = get_aggregated_datasets(gtfs_dataset_by_dataset_id)
 
     aoms_and_commune_principale = get_aom_and_commune_principale()
@@ -118,7 +118,7 @@ defmodule TransportWeb.AOMSController do
           |> join(:inner, [dataset: d], resource in assoc(d, :resources), as: :resource)
           |> group_by([dataset: d], d.id)
           |> having([aom: a], count(a.id) >= 2)
-          |> where([resource: r], r.format in ["GTFS", "NeTex"])
+          |> where([resource: r], r.format in ["GTFS", "NeTEx"])
           |> select([dataset: d], d.id)
         )
       )
@@ -131,7 +131,7 @@ defmodule TransportWeb.AOMSController do
           # Let’s enrich aggregated datasets with the GTFS dataset metadata if we have it
           gtfs_dataset_by_dataset_id,
           dataset_id,
-          # In case of a Netex or GTFS flex dataset, we don’t have the end_date
+          # In case of a NeTEx or GTFS-Flex dataset, we don’t have the end_date
           # We could have the realtime info by redoing the SQL query behing aggregated_datasets_in_db
           %{dataset_id: dataset_id, end_date: nil, has_realtime: false}
         )
