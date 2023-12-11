@@ -58,6 +58,33 @@ defmodule TransportWeb.AOMSController do
   def aoms do
     # Let’s fetch all GTFS datasets.
     # This doesn’t include GTFS-Flex, although they are in public-transport and have a GTFS format on resource.
+    {gtfs_datasets_by_aom_id, gtfs_dataset_by_dataset_id} = get_gtfs_datasets()
+
+    # Some AOM data is present on aggregated datasets: the region publishes instead of the AOM.
+    # In this case, there is at least 2 legal owners on the dataset
+    aggregated_datasets_by_aom_id = get_aggregated_datasets(gtfs_dataset_by_dataset_id)
+
+    aoms_and_commune_principale = get_aom_and_commune_principale()
+
+    aoms_and_commune_principale
+    |> Enum.map(fn {aom, nom_commune} ->
+      prepare_aom(
+        {aom, nom_commune},
+        Map.get(gtfs_datasets_by_aom_id, aom.id, []),
+        Map.get(aggregated_datasets_by_aom_id, aom.id, [])
+      )
+    end)
+  end
+
+  @spec csv_content() :: binary()
+  defp csv_content do
+    aoms()
+    |> CSV.encode(headers: @csv_headers)
+    |> Enum.to_list()
+    |> to_string
+  end
+
+  defp get_gtfs_datasets() do
     gtfs_datasets =
       Dataset.base_query()
       |> Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
@@ -76,9 +103,10 @@ defmodule TransportWeb.AOMSController do
 
     gtfs_datasets_by_aom_id = gtfs_datasets |> Enum.group_by(& &1.aom_id)
     gtfs_dataset_by_dataset_id = gtfs_datasets |> Map.new(&{&1.dataset_id, &1})
+    {gtfs_datasets_by_aom_id, gtfs_dataset_by_dataset_id}
+  end
 
-    # Some AOM data is present on aggregated datasets: the region publishes instead of the AOM.
-    # In this case, there is at least 2 legal owners on the dataset
+  defp get_aggregated_datasets(gtfs_dataset_by_dataset_id) do
     aggregated_datasets_in_db =
       AOM
       |> join(:inner, [aom], d in assoc(aom, :legal_owners_dataset), as: :legal_owners_dataset)
@@ -97,7 +125,6 @@ defmodule TransportWeb.AOMSController do
       |> select([aom, legal_owners_dataset: d], %{aom_id: aom.id, dataset_id: d.id})
       |> Repo.all()
 
-    aggregated_datasets =
       aggregated_datasets_in_db
       |> Enum.group_by(& &1.aom_id, fn %{dataset_id: dataset_id} ->
         Map.get(
@@ -109,26 +136,13 @@ defmodule TransportWeb.AOMSController do
           %{dataset_id: dataset_id, end_date: nil, has_realtime: false}
         )
       end)
+  end
 
+  defp get_aom_and_commune_principale() do
     AOM
     |> join(:left, [aom], c in Commune, on: aom.insee_commune_principale == c.insee)
     |> preload([:region])
     |> select([aom, commune], {aom, commune.nom})
     |> Repo.all()
-    |> Enum.map(fn {aom, nom_commune} ->
-      prepare_aom(
-        {aom, nom_commune},
-        Map.get(gtfs_datasets_by_aom_id, aom.id, []),
-        Map.get(aggregated_datasets, aom.id, [])
-      )
-    end)
-  end
-
-  @spec csv_content() :: binary()
-  defp csv_content do
-    aoms()
-    |> CSV.encode(headers: @csv_headers)
-    |> Enum.to_list()
-    |> to_string
   end
 end
