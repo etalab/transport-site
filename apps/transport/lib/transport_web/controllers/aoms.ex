@@ -17,12 +17,22 @@ defmodule TransportWeb.AOMSController do
     :population
   ]
 
+  @type dataset :: %{
+          required(:aom_id) => integer(),
+          required(:dataset_id) => integer(),
+          required(:end_date) => Date.t(),
+          required(:has_realtime) => boolean()
+        }
+
+  @type aom_id :: integer()
+  @type dataset_id :: integer()
+
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(conn, _params), do: render(conn, "index.html", aoms: aoms())
 
   @spec prepare_aom({AOM.t(), binary()}, list(), list()) :: map()
-  defp prepare_aom({aom, nom_commune}, datasets, aggregated_datasets) do
-    all_datasets = datasets ++ aggregated_datasets
+  defp prepare_aom({aom, nom_commune}, gtfs_datasets, aggregated_datasets) do
+    all_datasets = gtfs_datasets ++ aggregated_datasets
 
     datasets_up_to_date =
       all_datasets
@@ -56,7 +66,37 @@ defmodule TransportWeb.AOMSController do
 
   @spec aoms :: [map()]
   def aoms do
-    datasets =
+    # Let’s fetch all GTFS datasets.
+    # This doesn’t include GTFS-Flex, although they are in public-transit and have a GTFS format on resource.
+    {gtfs_datasets_by_aom_id, gtfs_dataset_by_dataset_id} = gtfs_datasets()
+
+    # Some AOM data is present in aggregated datasets: the region publishes on behalf of the AOM.
+    # In this case, there are at least 2 legal owners on the dataset
+    aggregated_datasets_by_aom_id = aggregated_datasets(gtfs_dataset_by_dataset_id)
+
+    aoms_and_commune_principale = aom_and_commune_principale()
+
+    aoms_and_commune_principale
+    |> Enum.map(fn {aom, nom_commune} ->
+      prepare_aom(
+        {aom, nom_commune},
+        Map.get(gtfs_datasets_by_aom_id, aom.id, []),
+        Map.get(aggregated_datasets_by_aom_id, aom.id, [])
+      )
+    end)
+  end
+
+  @spec csv_content() :: binary()
+  defp csv_content do
+    aoms()
+    |> CSV.encode(headers: @csv_headers)
+    |> Enum.to_list()
+    |> to_string
+  end
+
+  @spec gtfs_datasets() :: {%{required(aom_id) => [dataset]}, %{required(dataset_id) => dataset}}
+  defp gtfs_datasets do
+    gtfs_datasets =
       Dataset.base_query()
       |> Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
       |> join(:left, [dataset: d], aom in AOM, on: d.aom_id == aom.id, as: :aom)
@@ -72,10 +112,14 @@ defmodule TransportWeb.AOMSController do
       )
       |> Repo.all()
 
-    datasets_by_aom_id = datasets |> Enum.group_by(& &1.aom_id)
-    datasets_by_dataset_id = datasets |> Enum.group_by(& &1.dataset_id)
+    gtfs_datasets_by_aom_id = gtfs_datasets |> Enum.group_by(& &1.aom_id)
+    gtfs_dataset_by_dataset_id = gtfs_datasets |> Map.new(&{&1.dataset_id, &1})
+    {gtfs_datasets_by_aom_id, gtfs_dataset_by_dataset_id}
+  end
 
-    aggregated_datasets =
+  @spec aggregated_datasets(%{required(dataset_id) => dataset}) :: %{required(aom_id) => [dataset]}
+  defp aggregated_datasets(gtfs_dataset_by_dataset_id) do
+    aggregated_datasets_in_db =
       AOM
       |> join(:inner, [aom], d in assoc(aom, :legal_owners_dataset), as: :legal_owners_dataset)
       |> where(
@@ -83,32 +127,34 @@ defmodule TransportWeb.AOMSController do
         d.id in subquery(
           Dataset.base_query()
           |> join(:inner, [dataset: d], aom in assoc(d, :legal_owners_aom), as: :aom)
+          |> DB.Resource.join_dataset_with_resource()
           |> group_by([dataset: d], d.id)
           |> having([aom: a], count(a.id) >= 2)
+          |> where([resource: r], r.format in ["GTFS", "NeTEx"])
           |> select([dataset: d], d.id)
         )
       )
       |> select([aom, legal_owners_dataset: d], %{aom_id: aom.id, dataset_id: d.id})
       |> Repo.all()
-      |> Enum.group_by(& &1.aom_id, fn %{dataset_id: dataset_id} ->
-        datasets_by_dataset_id |> Map.fetch!(dataset_id) |> hd()
-      end)
 
+    aggregated_datasets_in_db
+    |> Enum.group_by(& &1.aom_id, fn %{dataset_id: dataset_id} ->
+      Map.get(
+        # Let’s enrich aggregated datasets with the GTFS dataset metadata if we have it
+        gtfs_dataset_by_dataset_id,
+        dataset_id,
+        # In case of a NeTEx or GTFS-Flex dataset, we don’t have the end_date
+        # We could have the realtime info by redoing the SQL query behing aggregated_datasets_in_db
+        %{dataset_id: dataset_id, end_date: nil, has_realtime: false}
+      )
+    end)
+  end
+
+  defp aom_and_commune_principale do
     AOM
     |> join(:left, [aom], c in Commune, on: aom.insee_commune_principale == c.insee)
     |> preload([:region])
     |> select([aom, commune], {aom, commune.nom})
     |> Repo.all()
-    |> Enum.map(fn {aom, nom_commune} ->
-      prepare_aom({aom, nom_commune}, Map.get(datasets_by_aom_id, aom.id, []), Map.get(aggregated_datasets, aom.id, []))
-    end)
-  end
-
-  @spec csv_content() :: binary()
-  defp csv_content do
-    aoms()
-    |> CSV.encode(headers: @csv_headers)
-    |> Enum.to_list()
-    |> to_string
   end
 end
