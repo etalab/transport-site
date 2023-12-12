@@ -7,6 +7,12 @@
         target="_blank"
       ><code>TransportWeb.Plugs.RateLimiter</code></a>.
     </p>
+    <p>
+      Le comptage des requêtes et le blocage d'une adresse IP est effectué par la librairie <a href="https://github.com/xward/phoenix_ddos"><code>phoenix_ddos</code></a>. Le backend est Cachex, qui utilise la RAM. Ainsi un redémarrage de l'application
+      <code>prod-site</code>
+      réinitialise les compteurs et les adresses IPs bloquées.
+    </p>
+
     <h2>Configuration</h2>
     <p>
       Plusieurs variables d'environnement permettent de configurer le fonctionnement. Il faut changer ces variables pour ajuster le comportement puis redémarrer l'application.
@@ -16,13 +22,13 @@
     <ul>
       <li>
         <code>PHOENIX_DDOS_MAX_2MIN_REQUESTS</code>
-        : nombre de requêtes max autorisée par période de 2 minutes. Valeur actuelle : <%= format_number(
+        : nombre de requêtes max autorisée par IP par période de 2 minutes. Valeur actuelle : <%= format_number(
           @phoenix_ddos_max_2min_requests
         ) %>
       </li>
       <li>
         <code>PHOENIX_DDOS_MAX_1HOUR_REQUESTS</code>
-        : nombre de requêtes max autorisée par période d'1 heure. Valeur actuelle : <%= format_number(
+        : nombre de requêtes max autorisée par IP par période d'1 heure. Valeur actuelle : <%= format_number(
           @phoenix_ddos_max_1hour_requests
         ) %>
       </li>
@@ -33,11 +39,13 @@
     <ul>
       <li>
         <code>PHOENIX_DDOS_SAFELIST_IPS</code>
-        : liste d'adresses IP autorisées. Valeur actuelle : <%= @phoenix_ddos_safelist_ips %>
+        : liste d'adresses IP <strong>toujours autorisées</strong>. Les valeurs doivent être séparées par des <code>|</code>. Valeur actuelle :
+        <code><%= @phoenix_ddos_safelist_ips %></code>
       </li>
       <li>
         <code>PHOENIX_DDOS_BLOCKLIST_IPS</code>
-        : liste d'adresses IP bloquées. Valeur actuelle : <%= @phoenix_ddos_blocklist_ips %>
+        : liste d'adresses IP <strong>toujours bloquées</strong>. Les valeurs doivent être séparées par des <code>|</code>. Valeur actuelle :
+        <code><%= @phoenix_ddos_blocklist_ips %></code>
       </li>
     </ul>
 
@@ -46,12 +54,18 @@
     <ul>
       <li>
         <code>LOG_USER_AGENT</code>
-        : active ou désactive le fait de logguer les user agents. Valeur actuelle : <%= @log_user_agent %>
+        : active ou désactive le fait de logguer les user agents. Valeurs possible : <code>true</code>
+        ou <code>false</code>. Valeur actuelle : <code><%= @log_user_agent %></code>
       </li>
-      <li><code>ALLOW_USER_AGENTS</code> : user agents autorisés. Valeur actuelle : <%= @allow_user_agents %></li>
+      <li>
+        <code>ALLOW_USER_AGENTS</code>
+        : user agents <strong>toujours autorisés</strong>. Les valeurs doivent être séparées par des <code>|</code>. Valeur actuelle :
+        <code><%= @allow_user_agents %></code>
+      </li>
       <li>
         <code>BLOCK_USER_AGENT_KEYWORDS</code>
-        : user agents bloqués. Valeur actuelle : <%= @block_user_agent_keywords %>
+        : user agents <strong>toujours bloqués</strong>. Les valeurs doivent être séparées par des <code>|</code>. Valeur actuelle :
+        <code><%= @block_user_agent_keywords %></code>
       </li>
     </ul>
 

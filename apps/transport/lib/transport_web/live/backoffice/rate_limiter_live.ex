@@ -61,6 +61,9 @@ defmodule TransportWeb.Backoffice.RateLimiterLive do
   end
 
   defp env_value_to_list(env_name) do
-    env_name |> System.get_env("") |> String.split("|") |> Enum.reject(&(&1 == "")) |> Enum.join(", ")
+    case System.get_env(env_name, "") do
+      "" -> "<vide>"
+      value -> value
+    end
   end
 end
