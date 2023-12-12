@@ -48,10 +48,13 @@ defmodule TransportWeb.Backoffice.RateLimiterLive do
     {:noreply, socket}
   end
 
-  defp ips_in_jail do
+  def ips_in_jail do
     # See https://github.com/xward/phoenix_ddos/blob/master/lib/phoenix_ddos/core/jail.ex
+    # The dependency does not a method for this feature at the moment, we're calling an
+    # internal API.
+    # https://github.com/xward/phoenix_ddos/issues/2
     {:ok, keys} = Cachex.keys(:phoenix_ddos_jail)
-    keys |> Enum.reject(&String.starts_with?(&1, "suspicious_"))
+    keys |> Enum.map(&to_string/1) |> Enum.reject(&String.starts_with?(&1, "suspicious_"))
   end
 
   defp env_value(env_value), do: System.get_env(env_value)
