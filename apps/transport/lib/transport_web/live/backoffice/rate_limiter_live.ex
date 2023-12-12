@@ -44,7 +44,7 @@ defmodule TransportWeb.Backoffice.RateLimiterLive do
   @impl true
   def handle_event("bail_ip_from_jail", %{"ip" => ip}, socket) do
     # See https://github.com/xward/phoenix_ddos/blob/feb07469ce318214cddb8e88ac18b5f94b3e31f2/lib/phoenix_ddos/core/jail.ex#L36
-    PhoenixDDoS.Jail.bail_out(ip)
+    ip |> to_charlist() |> PhoenixDDoS.Jail.bail_out()
     {:noreply, socket}
   end
 
