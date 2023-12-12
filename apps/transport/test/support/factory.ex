@@ -106,6 +106,10 @@ defmodule DB.Factory do
     }
   end
 
+  def epci_factory do
+    %DB.EPCI{}
+  end
+
   def data_import_factory do
     %DB.DataImport{}
   end
