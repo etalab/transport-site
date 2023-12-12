@@ -235,33 +235,31 @@ defmodule Transport.ImportData do
   end
 
   @spec read_datagouv_zone(map()) :: [binary()]
-  defp read_datagouv_zone(%{
-         "features" => [
-           %{
-             "properties" => %{
-               "level" => "fr:commune",
-               "keys" => %{
-                 "insee" => insee
-               }
-             }
-           }
-           | _
-         ]
-       }) do
+  def read_datagouv_zone(%{
+        "features" => [
+          %{
+            "properties" => %{
+              "level" => "fr:commune",
+              "code" => insee
+            }
+          }
+          | _
+        ]
+      }) do
     [insee]
   end
 
-  defp read_datagouv_zone(%{
-         "features" => [
-           %{
-             "properties" => %{
-               "level" => "fr:epci",
-               "code" => code
-             }
-           }
-           | _
-         ]
-       }) do
+  def read_datagouv_zone(%{
+        "features" => [
+          %{
+            "properties" => %{
+              "level" => "fr:epci",
+              "code" => code
+            }
+          }
+          | _
+        ]
+      }) do
     # For the EPCI we get the list of cities contained by the EPCI
     EPCI
     |> Repo.get_by(code: code)
@@ -275,12 +273,12 @@ defmodule Transport.ImportData do
     end
   end
 
-  defp read_datagouv_zone(%{"features" => [%{"id" => id} | _]}) do
+  def read_datagouv_zone(%{"features" => [%{"id" => id} | _]}) do
     Logger.info("For the moment we can only handle cities, we cannot handle the zone #{id}")
     []
   end
 
-  defp read_datagouv_zone(z) do
+  def read_datagouv_zone(z) do
     Logger.info("invalid format we cannot handle the zone #{inspect(z)}")
     []
   end
