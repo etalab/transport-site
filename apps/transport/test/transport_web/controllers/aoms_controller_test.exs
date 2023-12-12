@@ -48,6 +48,35 @@ defmodule TransportWeb.AOMsControllerTest do
            } = TransportWeb.AOMSController.aoms() |> Enum.find(fn r -> r.nom == aom.nom end)
   end
 
+  test "Having an aggregated dataset without GTFS associated validations works" do
+    %DB.AOM{nom: nom_aom} = aom = insert(:aom, nom: "Super AOM 76")
+    aom2 = insert(:aom)
+
+    dataset =
+      insert(:dataset,
+        region: insert(:region),
+        aom: nil,
+        legal_owners_aom: [aom, aom2],
+        is_active: true,
+        type: "public-transit",
+        has_realtime: true
+      )
+
+    assert is_nil(dataset.aom_id)
+
+    insert(:resource, title: "GTFS-flex TAD", dataset: dataset, format: "GTFS")
+
+    assert %{
+             nom: ^nom_aom,
+             published: true,
+             in_aggregate: true,
+             # The controller only gets up to date information for GTFS datasets
+             up_to_date: false,
+             # This is a quirk that could be corrected with some effort
+             has_realtime: false
+           } = TransportWeb.AOMSController.aoms() |> Enum.find(fn r -> r.nom == aom.nom end)
+  end
+
   test "displays AOM information with datasets" do
     aom = insert(:aom, nom: "aom")
     # insert 2 datasets, one is outdated
