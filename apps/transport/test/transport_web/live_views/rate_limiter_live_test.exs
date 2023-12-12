@@ -22,4 +22,10 @@ defmodule TransportWeb.Backoffice.RateLimiterLiveTest do
     |> get(@url)
     |> html_response(200)
   end
+
+  test "ips_in_jail" do
+    assert [] == TransportWeb.Backoffice.RateLimiterLive.ips_in_jail()
+    PhoenixDDoS.Jail.send(~c"108.128.238.17", {nil, %{jail_time: {1, :hour}}})
+    assert ["108.128.238.17"] == TransportWeb.Backoffice.RateLimiterLive.ips_in_jail()
+  end
 end
