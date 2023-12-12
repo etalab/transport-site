@@ -450,6 +450,8 @@ defmodule Transport.ImportData do
   iex> is_ods_resource?(%{"format" => "csv", "title" => "Export au format CSV"})
   true
   """
+  # Will soon be legacy, after DCAT migration
+  # (see https://github.com/etalab/transport-site/issues/3647)
   def is_ods_resource?(%{"title" => title})
       when title in ["Export au format CSV", "Export au format JSON"],
       do: true
@@ -457,7 +459,7 @@ defmodule Transport.ImportData do
   def is_ods_resource?(%{"harvest" => %{"uri" => uri}}) do
     # Possible URL:
     # https://data.angers.fr/api/explore/v2.1/catalog/datasets/angers-loire-metropole-horaires-reseau-irigo-gtfs-rt/exports/json
-    String.match?(uri, ~r{/api/explore/v(\d+\.\d+)/catalog/datasets/.*/exports/(json|csv)$})
+    String.match?(uri, ~r{/api/explore/v(\d+\.\d+)/catalog/datasets/.*/exports/(json|csv)$}i)
   end
 
   def is_ods_resource?(_), do: false
