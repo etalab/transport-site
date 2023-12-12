@@ -266,6 +266,40 @@ defmodule TransportWeb.API.StatsController do
     render(conn, data: {:skip_json_encoding, data |> geojson() |> Jason.encode!()})
   end
 
+  def write_aom_csv do
+    results = aom_features_query() |> features()
+
+    # To flatten everything
+    # csv_data =
+    #   results
+    #   |> Enum.map(fn %{"properties" => properties} -> properties end)
+    #   |> Enum.map(&Map.values/1) # Convert maps to lists
+    #   |> Enum.map(fn l -> l |> Enum.map(&inspect/1) end )
+    #   |> CSV.encode() |> Enum.to_list()
+
+    # To just get main columns
+    csv_data =
+      results
+      |> Enum.map(fn %{"properties" => properties} -> properties end)
+      |> Enum.map(fn %{
+                       "id" => id,
+                       "nom" => nom,
+                       "dataset_types" => dataset_types,
+                       "nb_other_datasets" => nb_other_datasets
+                     } ->
+        [
+          id,
+          nom,
+          dataset_types.pt,
+          nb_other_datasets
+        ]
+      end)
+      |> CSV.encode()
+      |> Enum.to_list()
+
+    File.write("aoms.csv", csv_data)
+  end
+
   @spec aom_features_query :: Ecto.Query.t()
   defp aom_features_query do
     nb_aggregates_dataset_by_aom =
