@@ -63,6 +63,10 @@ defmodule DB.Factory do
     }
   end
 
+  def dataset_monthly_metric do
+    %DB.DatasetMonthlyMetric{}
+  end
+
   def resource_factory do
     %DB.Resource{
       last_import: DateTime.utc_now(),
