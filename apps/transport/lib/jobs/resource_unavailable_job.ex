@@ -53,7 +53,7 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
   alias DB.{Repo, Resource, ResourceUnavailability}
 
   # Set this env variable to a list of `resource.id`s (comma separated) to bypass
-  # `AvailabilityChecker.available?`. This is *not* something that should be used
+  # `AvailabilityChecker.available?`. This is *not* something that should be used <- TODO
   # for too long or for too many resources.
   # Example values: `42,1337`
   # https://github.com/etalab/transport-site/issues/3470
@@ -92,7 +92,7 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
 
   # GOTCHA: `filetype` is set to `"file"` for exports coming from ODS
   # https://github.com/opendatateam/udata-ods/issues/250
-  # We "leverage" this bug because we need to resolve the final URL for
+  # We "leverage" this bug because we need to resolve the final URL for <- TODO
   # some ODS resources referenced as external links
   # https://github.com/etalab/transport-site/issues/3470
   defp maybe_update_url(%Resource{filetype: "file", url: url, latest_url: latest_url} = resource) do
