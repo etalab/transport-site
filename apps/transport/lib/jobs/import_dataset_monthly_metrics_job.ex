@@ -6,6 +6,7 @@ defmodule Transport.Jobs.ImportDatasetMonthlyMetricsJob do
   Records are not supposed to change in the past, except for the current month.
   """
   use Oban.Worker, max_attempts: 3
+  require Logger
 
   # Number of months to fetch for each dataset
   # 12*2 = 24 months
