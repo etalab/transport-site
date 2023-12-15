@@ -21,9 +21,11 @@ You can install this 2 different ways:
 ## Manual installation <a name="manual_install"></a>
 
   * Make sure you have **Elixir**, **Node**, **Yarn** and **Docker** installed and up-to-date
-    * **Elixir** is often installed with [asdf](https://asdf-vm.com/) since it makes it easy to handle different **Elixir** versions accross projects. The project needs at least **Elixir** 1.8 and **Erlang** 21.0
+    * **Elixir** is often installed with [asdf](https://asdf-vm.com/) since it makes it easy to handle different **Elixir** versions accross projects. The project needs at least **Elixir** 1.8 and **Erlang** 21.0 See below if you wish to install the right tooling versions through ASDF
   * Install Elixir dependencies with `mix deps.get`
   * Install Node.js dependencies with `mix yarn install`
+
+  ### Erlang, Elixir, NodeJS and Yarn installation through ASDF
 
 If you wish to use `asdf` (recommended), make sure to install the correct plugins:
 
@@ -31,8 +33,13 @@ If you wish to use `asdf` (recommended), make sure to install the correct plugin
 * `asdf plugin-add elixir` (https://github.com/asdf-vm/asdf-elixir)
 * `asdf plugin-add nodejs` (https://github.com/asdf-vm/asdf-nodejs)
 
-Installation can then be done with:
+Installation for Erlang, Elixir and NodeJS can then be done with:
 * `asdf install`
+
+For Yarn, bring your own version in your global .tool_versions:
+* `asdf plugin-add yarn` (https://github.com/twuni/asdf-yarn)
+* `asdf install yarn 1.22.19` (or any other version)
+* `asdf global yarn 1.22.19`
 
 ### Postgresql
 
@@ -47,6 +54,8 @@ Download depencies using `mix deps.get`.
 Reply "Yes" to the question "Shall I install Hex? (if running non-interactively, use "mix local.hex --force")".
 
 #### Creating a database
+
+Make sure you have a postgres user with postgres password, and that the identification methode is set to md5 in your `pg_hba.conf` file.
 
 Create the database with the command `mix ecto.create`.
 
