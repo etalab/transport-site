@@ -146,28 +146,28 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetMonthlyMetricsTestJob do
              %DB.DatasetMonthlyMetric{
                dataset_datagouv_id: ^d1_datagouv_id,
                year_month: "2023-12",
-               metric_name: :views,
-               count: 1337
-             },
-             %DB.DatasetMonthlyMetric{
-               dataset_datagouv_id: ^d1_datagouv_id,
-               year_month: "2023-12",
                metric_name: :downloads,
                count: 43
              },
              %DB.DatasetMonthlyMetric{
-               dataset_datagouv_id: ^d2_datagouv_id,
+               dataset_datagouv_id: ^d1_datagouv_id,
                year_month: "2023-12",
                metric_name: :views,
-               count: 0
+               count: 1337
              },
              %DB.DatasetMonthlyMetric{
                dataset_datagouv_id: ^d2_datagouv_id,
                year_month: "2023-12",
                metric_name: :downloads,
                count: 5
+             },
+             %DB.DatasetMonthlyMetric{
+               dataset_datagouv_id: ^d2_datagouv_id,
+               year_month: "2023-12",
+               metric_name: :views,
+               count: 0
              }
-           ] = DB.DatasetMonthlyMetric |> DB.Repo.all() |> Enum.sort_by(& &1.dataset_datagouv_id)
+           ] = DB.DatasetMonthlyMetric |> DB.Repo.all() |> Enum.sort_by(&{&1.dataset_datagouv_id, &1.metric_name})
   end
 
   defp setup_http_response(datagouv_id, data) do
