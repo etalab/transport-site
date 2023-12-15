@@ -63,7 +63,7 @@ defmodule DB.Factory do
     }
   end
 
-  def dataset_monthly_metric do
+  def dataset_monthly_metric_factory do
     %DB.DatasetMonthlyMetric{}
   end
 
