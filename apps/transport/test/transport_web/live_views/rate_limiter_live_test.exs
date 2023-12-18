@@ -25,16 +25,16 @@ defmodule TransportWeb.Backoffice.RateLimiterLiveTest do
   end
 
   test "ips_in_jail" do
-    assert [] == TransportWeb.Backoffice.RateLimiterLive.ips_in_jail()
+    assert [] == PhoenixDDoS.Jail.ips_in_jail()
     PhoenixDDoS.Jail.send(~c"108.128.238.17", {nil, %{jail_time: {1, :hour}}})
-    assert ["108.128.238.17"] == TransportWeb.Backoffice.RateLimiterLive.ips_in_jail()
+    assert ["108.128.238.17"] == PhoenixDDoS.Jail.ips_in_jail()
   end
 
   test "bail out IP", %{conn: conn} do
     ip = "108.128.238.17"
     ip |> to_charlist() |> PhoenixDDoS.Jail.send({nil, %{jail_time: {1, :hour}}})
     {:ok, view, html} = conn |> setup_admin_in_session() |> live(@url)
-    assert [ip] == TransportWeb.Backoffice.RateLimiterLive.ips_in_jail()
+    assert [ip] == PhoenixDDoS.Jail.ips_in_jail()
 
     assert html =~ ip
 
@@ -42,7 +42,7 @@ defmodule TransportWeb.Backoffice.RateLimiterLiveTest do
            |> element("button", "Retirer de la jail")
            |> render_click()
 
-    assert [] == TransportWeb.Backoffice.RateLimiterLive.ips_in_jail()
+    assert [] == PhoenixDDoS.Jail.ips_in_jail()
 
     send(view.pid, :update_data)
 
