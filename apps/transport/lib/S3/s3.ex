@@ -48,15 +48,4 @@ defmodule Transport.S3 do
     |> ExAws.S3.upload(Transport.S3.bucket_name(feature), upload_path, options)
     |> Transport.Wrapper.ExAWS.impl().request!()
   end
-
-  @spec upload_to_s3!(bucket_feature(), binary(), binary(), acl: atom()) :: any()
-  def upload_to_s3!(feature, body, path, options \\ []) do
-    Logger.debug("Uploading file to #{path}")
-    options = Keyword.validate!(options, acl: :private)
-
-    feature
-    |> Transport.S3.bucket_name()
-    |> ExAws.S3.put_object(path, body, options)
-    |> Transport.Wrapper.ExAWS.impl().request!()
-  end
 end

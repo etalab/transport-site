@@ -49,7 +49,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     [gtfs_file_name_2, gtfs_file_name_1] =
       consume_uploaded_entries(socket, :gtfs, fn %{path: path}, _entry ->
         file_name = Path.basename(path)
-        upload_to_s3(path, file_name)
+        stream_to_s3(path, file_name)
         {:ok, file_name}
       end)
 
@@ -138,8 +138,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     {:noreply, socket}
   end
 
-  defp upload_to_s3(file_path, path) do
-    Transport.S3.upload_to_s3!(:gtfs_diff, File.read!(file_path), path, acl: :public_read)
+  defp stream_to_s3(file_path, path) do
+    Transport.S3.stream_to_s3!(:gtfs_diff, file_path, path, acl: :public_read)
   end
 
   def uploads_are_valid(%{gtfs: %{entries: gtfs}}) do

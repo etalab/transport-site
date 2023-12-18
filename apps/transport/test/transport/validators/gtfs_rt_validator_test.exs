@@ -3,7 +3,6 @@ defmodule Transport.Validators.GTFSRTTest do
   use Oban.Testing, repo: DB.Repo
   import Ecto.Query
   import DB.Factory
-  alias Transport.Test.S3TestUtils
   alias Transport.Validators.GTFSRT
   import Mox
 
@@ -120,23 +119,28 @@ defmodule Transport.Validators.GTFSRTTest do
           url: gtfs_rt_no_errors_url
         )
 
-      Transport.HTTPoison.Mock
-      |> expect(:get!, fn ^gtfs_permanent_url, [], [follow_redirect: true] ->
-        %HTTPoison.Response{status_code: 200, body: "gtfs"}
+      Transport.Req.Mock
+      |> expect(:get, fn ^gtfs_rt_url, [compressed: false, decode_body: false, into: %File.Stream{path: stream_path}] ->
+        File.write!(stream_path, body = "gtfs-rt")
+        {:ok, %Req.Response{status: 200, body: body}}
       end)
 
-      Transport.HTTPoison.Mock
-      |> expect(:get, fn ^gtfs_rt_url, [], [follow_redirect: true] ->
-        {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs-rt"}}
+      Transport.Req.Mock
+      |> expect(:get, fn ^gtfs_rt_no_errors_url,
+                         [compressed: false, decode_body: false, into: %File.Stream{path: stream_path}] ->
+        File.write!(stream_path, body = "gtfs-rt")
+        {:ok, %Req.Response{status: 200, body: body}}
       end)
 
-      Transport.HTTPoison.Mock
-      |> expect(:get, fn ^gtfs_rt_no_errors_url, [], [follow_redirect: true] ->
-        {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs-rt"}}
+      Transport.Req.Mock
+      |> expect(:get, fn ^gtfs_permanent_url,
+                         [compressed: false, decode_body: false, into: %File.Stream{path: stream_path}] ->
+        File.write!(stream_path, "gtfs_content")
+        {:ok, %Req.Response{status: 200}}
       end)
 
-      S3TestUtils.s3_mocks_upload_file(gtfs_rt.id |> to_string())
-      S3TestUtils.s3_mocks_upload_file(gtfs_rt_no_errors.id |> to_string())
+      mock_s3_stream_upload(gtfs_rt)
+      mock_s3_stream_upload(gtfs_rt_no_errors)
 
       gtfs_path = GTFSRT.download_path(gtfs)
       gtfs_rt_path = GTFSRT.download_path(gtfs_rt)
@@ -287,17 +291,20 @@ defmodule Transport.Validators.GTFSRTTest do
           url: gtfs_rt_no_errors_url
         )
 
-      Transport.HTTPoison.Mock
-      |> expect(:get!, fn ^gtfs_permanent_url, [], [follow_redirect: true] ->
-        %HTTPoison.Response{status_code: 200, body: "gtfs"}
+      Transport.Req.Mock
+      |> expect(:get, fn ^gtfs_rt_url, [compressed: false, decode_body: false, into: %File.Stream{path: stream_path}] ->
+        File.write!(stream_path, body = "gtfs-rt")
+        {:ok, %Req.Response{status: 200, body: body}}
       end)
 
-      Transport.HTTPoison.Mock
-      |> expect(:get, fn ^gtfs_rt_url, [], [follow_redirect: true] ->
-        {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs-rt"}}
+      Transport.Req.Mock
+      |> expect(:get, fn ^gtfs_permanent_url,
+                         [compressed: false, decode_body: false, into: %File.Stream{path: stream_path}] ->
+        File.write!(stream_path, "gtfs_content")
+        {:ok, %Req.Response{status: 200}}
       end)
 
-      S3TestUtils.s3_mocks_upload_file(gtfs_rt.id |> to_string())
+      mock_s3_stream_upload(gtfs_rt)
 
       gtfs_path = GTFSRT.download_path(gtfs)
       gtfs_rt_path = GTFSRT.download_path(gtfs_rt)
@@ -390,17 +397,20 @@ defmodule Transport.Validators.GTFSRTTest do
           url: gtfs_rt_url
         )
 
-      Transport.HTTPoison.Mock
-      |> expect(:get!, fn ^gtfs_permanent_url, [], [follow_redirect: true] ->
-        %HTTPoison.Response{status_code: 200, body: "gtfs"}
+      Transport.Req.Mock
+      |> expect(:get, fn ^gtfs_rt_url, [compressed: false, decode_body: false, into: %File.Stream{path: stream_path}] ->
+        File.write!(stream_path, body = "gtfs-rt")
+        {:ok, %Req.Response{status: 200, body: body}}
       end)
 
-      Transport.HTTPoison.Mock
-      |> expect(:get, fn ^gtfs_rt_url, [], [follow_redirect: true] ->
-        {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs-rt"}}
+      Transport.Req.Mock
+      |> expect(:get, fn ^gtfs_permanent_url,
+                         [compressed: false, decode_body: false, into: %File.Stream{path: stream_path}] ->
+        File.write!(stream_path, "gtfs_content")
+        {:ok, %Req.Response{status: 200}}
       end)
 
-      S3TestUtils.s3_mocks_upload_file(gtfs_rt.id |> to_string())
+      mock_s3_stream_upload(gtfs_rt)
 
       gtfs_path = GTFSRT.download_path(gtfs)
       gtfs_rt_path = GTFSRT.download_path(gtfs_rt)
@@ -458,17 +468,20 @@ defmodule Transport.Validators.GTFSRTTest do
           url: gtfs_rt_url
         )
 
-      Transport.HTTPoison.Mock
-      |> expect(:get!, fn ^gtfs_permanent_url, [], [follow_redirect: true] ->
-        %HTTPoison.Response{status_code: 200, body: "gtfs"}
+      Transport.Req.Mock
+      |> expect(:get, fn ^gtfs_rt_url, [compressed: false, decode_body: false, into: %File.Stream{path: stream_path}] ->
+        File.write!(stream_path, body = "gtfs-rt")
+        {:ok, %Req.Response{status: 200, body: body}}
       end)
 
-      Transport.HTTPoison.Mock
-      |> expect(:get, fn ^gtfs_rt_url, [], [follow_redirect: true] ->
-        {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs-rt"}}
+      Transport.Req.Mock
+      |> expect(:get, fn ^gtfs_permanent_url,
+                         [compressed: false, decode_body: false, into: %File.Stream{path: stream_path}] ->
+        File.write!(stream_path, "gtfs_content")
+        {:ok, %Req.Response{status: 200}}
       end)
 
-      S3TestUtils.s3_mocks_upload_file(gtfs_rt.id |> to_string())
+      mock_s3_stream_upload(gtfs_rt)
 
       gtfs_path = GTFSRT.download_path(gtfs)
       gtfs_rt_path = GTFSRT.download_path(gtfs_rt)
@@ -576,4 +589,11 @@ defmodule Transport.Validators.GTFSRTTest do
   end
 
   defp validator_path, do: Path.join(Application.fetch_env!(:transport, :transport_tools_folder), @validator_filename)
+
+  defp mock_s3_stream_upload(%DB.Resource{id: resource_id}) do
+    Transport.Test.S3TestUtils.s3_mock_stream_file(
+      start_path: to_string(resource_id),
+      bucket: "transport-data-gouv-fr-resource-history-test"
+    )
+  end
 end
