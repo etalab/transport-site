@@ -290,3 +290,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "AOM open data status"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Rate limiter"
+msgstr ""

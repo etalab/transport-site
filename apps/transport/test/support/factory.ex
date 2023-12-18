@@ -63,6 +63,10 @@ defmodule DB.Factory do
     }
   end
 
+  def dataset_monthly_metric_factory do
+    %DB.DatasetMonthlyMetric{}
+  end
+
   def resource_factory do
     %DB.Resource{
       last_import: DateTime.utc_now(),
@@ -104,6 +108,10 @@ defmodule DB.Factory do
       nom: "Ballans",
       insee: "17031"
     }
+  end
+
+  def epci_factory do
+    %DB.EPCI{}
   end
 
   def data_import_factory do
