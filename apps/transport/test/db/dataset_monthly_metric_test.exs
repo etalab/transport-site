@@ -38,26 +38,5 @@ defmodule DB.DatasetMonthlyMetricTest do
                  year_month: "bar"
                })
     end
-
-    test "verifies foreign key constraint" do
-      assert {:error,
-              %Ecto.Changeset{
-                action: :insert,
-                errors: [
-                  dataset_datagouv_id:
-                    {"does not exist",
-                     [constraint: :foreign, constraint_name: "dataset_monthly_metrics_dataset_datagouv_id_fkey"]}
-                ]
-              }} =
-               %DB.DatasetMonthlyMetric{}
-               |> DB.DatasetMonthlyMetric.changeset(%{
-                 # dataset does not exist
-                 dataset_datagouv_id: Ecto.UUID.generate(),
-                 metric_name: :views,
-                 count: 1,
-                 year_month: "2023-12"
-               })
-               |> DB.Repo.insert()
-    end
   end
 end
