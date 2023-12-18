@@ -22,7 +22,7 @@ You can install this 2 different ways:
 
 ### 1. Install Elixir, Node and Yarn
 
-Make sure you have **Elixir**, **Node** and **Yarn** installed and up-to-date. **Docker** is optionnally needed if you want to run on your machine the [extra transport tools](https://github.com/etalab/transport-tools).
+Make sure you have **Elixir**, **Node.js** and **Yarn** installed and up-to-date. **Docker** is optionnally needed if you want to run on your machine the [extra transport tools](https://github.com/etalab/transport-tools).
 
 **Elixir** is often installed with [asdf](https://asdf-vm.com/) since it makes it easy to handle different **Elixir** versions accross projects.
 
@@ -32,17 +32,17 @@ If you wish to use `asdf` (recommended), make sure to install the correct plugin
 * `asdf plugin-add elixir` (https://github.com/asdf-vm/asdf-elixir)
 * `asdf plugin-add nodejs` (https://github.com/asdf-vm/asdf-nodejs)
 
-Installation for Erlang, Elixir and NodeJS can then be done with:
+Installation for Erlang, Elixir and Node.js can then be done with:
 * `asdf install`
 
-For Yarn, bring your own version or also use asdf :
+For Yarn, bring your version or also use asdf:
 * `asdf plugin-add yarn` (https://github.com/twuni/asdf-yarn)
 * `asdf install yarn 1.22.19` (or any other version)
 * `asdf global yarn 1.22.19`
 
 ### 2. Install PostgreSQL
 
-You also need an up to date postgresql with postgis installed. Version 14+ is recommended.
+You also need an up-to-date PostgreSQL with Postgis installed. Version 14+ is recommended.
 
 For Mac users, you can use https://postgresapp.com/.
 
@@ -55,7 +55,7 @@ For Mac users, you can use https://postgresapp.com/.
 
 Alternatively, you can use Docker, see the [Docker section](#docker-installation-).
 
-## Prepare the Postgresql database
+## Prepare the PostgreSQL database
 
 ### Creating a database
 
