@@ -313,9 +313,10 @@ defmodule Transport.Validators.GTFSRT do
   end
 
   defp download_latest_gtfs(%ResourceHistory{payload: %{"permanent_url" => url, "format" => "GTFS"}}, tmp_path) do
+    req_options = [compressed: false, decode_body: false, into: File.stream!(tmp_path)]
+
     unless File.exists?(tmp_path) do
-      %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(url, [], follow_redirect: true)
-      File.write!(tmp_path, body)
+      {:ok, %Req.Response{status: 200}} = Transport.Req.impl().get(url, req_options)
     end
   end
 
@@ -358,6 +359,5 @@ defmodule Transport.Validators.GTFSRT do
     "#{download_path(resource)}.results.json"
   end
 
-  defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
   defp remove_file(path), do: File.rm(path)
 end

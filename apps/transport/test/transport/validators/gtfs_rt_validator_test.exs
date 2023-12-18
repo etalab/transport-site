@@ -119,11 +119,6 @@ defmodule Transport.Validators.GTFSRTTest do
           url: gtfs_rt_no_errors_url
         )
 
-      Transport.HTTPoison.Mock
-      |> expect(:get!, fn ^gtfs_permanent_url, [], [follow_redirect: true] ->
-        %HTTPoison.Response{status_code: 200, body: "gtfs"}
-      end)
-
       Transport.Req.Mock
       |> expect(:get, fn ^gtfs_rt_url, [compressed: false, decode_body: false, into: %File.Stream{path: stream_path}] ->
         File.write!(stream_path, body = "gtfs-rt")
@@ -135,6 +130,13 @@ defmodule Transport.Validators.GTFSRTTest do
                          [compressed: false, decode_body: false, into: %File.Stream{path: stream_path}] ->
         File.write!(stream_path, body = "gtfs-rt")
         {:ok, %Req.Response{status: 200, body: body}}
+      end)
+
+      Transport.Req.Mock
+      |> expect(:get, fn ^gtfs_permanent_url,
+                         [compressed: false, decode_body: false, into: %File.Stream{path: stream_path}] ->
+        File.write!(stream_path, "gtfs_content")
+        {:ok, %Req.Response{status: 200}}
       end)
 
       mock_s3_stream_upload(gtfs_rt)
@@ -289,15 +291,17 @@ defmodule Transport.Validators.GTFSRTTest do
           url: gtfs_rt_no_errors_url
         )
 
-      Transport.HTTPoison.Mock
-      |> expect(:get!, fn ^gtfs_permanent_url, [], [follow_redirect: true] ->
-        %HTTPoison.Response{status_code: 200, body: "gtfs"}
-      end)
-
       Transport.Req.Mock
       |> expect(:get, fn ^gtfs_rt_url, [compressed: false, decode_body: false, into: %File.Stream{path: stream_path}] ->
         File.write!(stream_path, body = "gtfs-rt")
         {:ok, %Req.Response{status: 200, body: body}}
+      end)
+
+      Transport.Req.Mock
+      |> expect(:get, fn ^gtfs_permanent_url,
+                         [compressed: false, decode_body: false, into: %File.Stream{path: stream_path}] ->
+        File.write!(stream_path, "gtfs_content")
+        {:ok, %Req.Response{status: 200}}
       end)
 
       mock_s3_stream_upload(gtfs_rt)
@@ -393,15 +397,17 @@ defmodule Transport.Validators.GTFSRTTest do
           url: gtfs_rt_url
         )
 
-      Transport.HTTPoison.Mock
-      |> expect(:get!, fn ^gtfs_permanent_url, [], [follow_redirect: true] ->
-        %HTTPoison.Response{status_code: 200, body: "gtfs"}
-      end)
-
       Transport.Req.Mock
       |> expect(:get, fn ^gtfs_rt_url, [compressed: false, decode_body: false, into: %File.Stream{path: stream_path}] ->
         File.write!(stream_path, body = "gtfs-rt")
         {:ok, %Req.Response{status: 200, body: body}}
+      end)
+
+      Transport.Req.Mock
+      |> expect(:get, fn ^gtfs_permanent_url,
+                         [compressed: false, decode_body: false, into: %File.Stream{path: stream_path}] ->
+        File.write!(stream_path, "gtfs_content")
+        {:ok, %Req.Response{status: 200}}
       end)
 
       mock_s3_stream_upload(gtfs_rt)
@@ -462,15 +468,17 @@ defmodule Transport.Validators.GTFSRTTest do
           url: gtfs_rt_url
         )
 
-      Transport.HTTPoison.Mock
-      |> expect(:get!, fn ^gtfs_permanent_url, [], [follow_redirect: true] ->
-        %HTTPoison.Response{status_code: 200, body: "gtfs"}
-      end)
-
       Transport.Req.Mock
       |> expect(:get, fn ^gtfs_rt_url, [compressed: false, decode_body: false, into: %File.Stream{path: stream_path}] ->
         File.write!(stream_path, body = "gtfs-rt")
         {:ok, %Req.Response{status: 200, body: body}}
+      end)
+
+      Transport.Req.Mock
+      |> expect(:get, fn ^gtfs_permanent_url,
+                         [compressed: false, decode_body: false, into: %File.Stream{path: stream_path}] ->
+        File.write!(stream_path, "gtfs_content")
+        {:ok, %Req.Response{status: 200}}
       end)
 
       mock_s3_stream_upload(gtfs_rt)
