@@ -29,18 +29,19 @@ defmodule Transport.Jobs.GTFSDiff do
     diff = Transport.GTFSDiff.diff(unzip_1, unzip_2, notify)
 
     diff_file_name = "gtfs-diff-#{DateTime.utc_now() |> DateTime.to_unix()}.csv"
+    filepath = System.tmp_dir!() |> Path.join(diff_file_name)
 
-    Transport.S3.upload_to_s3!(
-      :gtfs_diff,
-      diff |> Transport.GTFSDiff.dump_diff(),
-      diff_file_name,
-      acl: :public_read
-    )
+    try do
+      Transport.GTFSDiff.dump_diff(diff, filepath)
+      Transport.S3.stream_to_s3!(:gtfs_diff, filepath, diff_file_name, acl: :public_read)
 
-    Oban.Notifier.notify(Oban, :gossip, %{
-      complete: job.id,
-      diff_file_url: Transport.S3.permanent_url(:gtfs_diff, diff_file_name)
-    })
+      Oban.Notifier.notify(Oban, :gossip, %{
+        complete: job.id,
+        diff_file_url: Transport.S3.permanent_url(:gtfs_diff, diff_file_name)
+      })
+    after
+      File.rm(filepath)
+    end
 
     Transport.S3.delete_object!(:gtfs_diff, gtfs_file_name_1)
     Transport.S3.delete_object!(:gtfs_diff, gtfs_file_name_2)

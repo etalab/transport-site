@@ -88,7 +88,7 @@ defmodule TransportWeb.ValidationControllerTest do
 
     test "with a GTFS", %{conn: conn} do
       Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
-      S3TestUtils.s3_mocks_upload_file("")
+      S3TestUtils.s3_mock_stream_file(start_path: "", bucket: "transport-data-gouv-fr-on-demand-validation-test")
       assert 0 == count_validations()
 
       conn =
@@ -154,7 +154,7 @@ defmodule TransportWeb.ValidationControllerTest do
       Transport.Shared.Schemas.Mock
       |> expect(:transport_schemas, 2, fn -> %{schema_name => %{"schema_type" => "tableschema", "title" => "foo"}} end)
 
-      S3TestUtils.s3_mocks_upload_file("")
+      S3TestUtils.s3_mock_stream_file(start_path: "", bucket: "transport-data-gouv-fr-on-demand-validation-test")
       assert 0 == count_validations()
 
       conn =

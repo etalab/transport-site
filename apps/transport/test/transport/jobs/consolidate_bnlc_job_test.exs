@@ -558,7 +558,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
         end
       )
 
-      expect_s3_upload()
+      expect_s3_stream_upload()
       expect_ok_email_sent()
 
       assert :ok == perform_job(ConsolidateBNLCJob, %{})
@@ -723,7 +723,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
         end
       )
 
-      expect_s3_upload()
+      expect_s3_stream_upload()
 
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn "transport.data.gouv.fr" = _display_name,
@@ -791,7 +791,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       end
     )
 
-    expect_s3_upload()
+    expect_s3_stream_upload()
     expect_ok_email_sent()
     expect_datagouv_upload_file_http_call()
 
@@ -827,16 +827,15 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     end
   end
 
-  defp expect_s3_upload do
+  defp expect_s3_stream_upload do
     Transport.ExAWS.Mock
-    |> expect(:request!, fn %ExAws.Operation.S3{} = operation ->
-      assert %ExAws.Operation.S3{
-               bucket: "transport-data-gouv-fr-on-demand-validation-test",
-               path: path,
-               http_method: :put,
-               service: :s3
-             } = operation
-
+    |> expect(:request!, fn %ExAws.S3.Upload{
+                              src: %File.Stream{},
+                              bucket: "transport-data-gouv-fr-on-demand-validation-test",
+                              path: path,
+                              opts: [acl: :public_read],
+                              service: :s3
+                            } ->
       assert path =~ ~r"^bnlc-.*\.csv$"
     end)
   end

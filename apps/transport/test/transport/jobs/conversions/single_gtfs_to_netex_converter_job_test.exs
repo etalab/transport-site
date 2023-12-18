@@ -69,7 +69,10 @@ defmodule Transport.Jobs.SingleGTFSToNeTExHoveConverterJobTest do
       {:ok, ""}
     end)
 
-    Transport.Test.S3TestUtils.s3_mocks_upload_file("conversions/gtfs-to-netex/")
+    Transport.Test.S3TestUtils.s3_mock_stream_file(
+      start_path: "conversions/gtfs-to-netex/",
+      bucket: "transport-data-gouv-fr-resource-history-test"
+    )
 
     # job succeed
     assert :ok ==
