@@ -37,24 +37,14 @@ defmodule TransportWeb.Backoffice.RateLimiterLive do
   defp update_data(socket) do
     assign(socket,
       last_updated_at: (Time.utc_now() |> Time.truncate(:second) |> to_string()) <> " UTC",
-      ips_in_jail: ips_in_jail()
+      ips_in_jail: PhoenixDDoS.Jail.ips_in_jail()
     )
   end
 
   @impl true
   def handle_event("bail_ip_from_jail", %{"ip" => ip}, socket) do
-    # See https://github.com/xward/phoenix_ddos/blob/feb07469ce318214cddb8e88ac18b5f94b3e31f2/lib/phoenix_ddos/core/jail.ex#L36
-    ip |> to_charlist() |> PhoenixDDoS.Jail.bail_out()
+    PhoenixDDoS.Jail.bail_out(ip)
     {:noreply, socket}
-  end
-
-  def ips_in_jail do
-    # See https://github.com/xward/phoenix_ddos/blob/master/lib/phoenix_ddos/core/jail.ex
-    # The dependency does not a method for this feature at the moment, we're calling an
-    # internal API.
-    # https://github.com/xward/phoenix_ddos/issues/2
-    {:ok, keys} = Cachex.keys(:phoenix_ddos_jail)
-    keys |> Enum.map(&to_string/1) |> Enum.reject(&String.starts_with?(&1, "suspicious_"))
   end
 
   defp env_value(env_value), do: System.get_env(env_value)
