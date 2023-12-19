@@ -334,6 +334,7 @@ defmodule Transport.GTFSDiff do
     [headers | body]
     |> CSV.dump_to_stream()
     |> Stream.into(File.stream!(filepath))
+    |> Stream.run()
   end
 
   def apply_delete(file, diff, primary_key) do
@@ -410,11 +411,3 @@ defmodule Transport.GTFSDiff do
     |> IO.iodata_to_binary()
   end
 end
-
-# usage
-
-# unzip_1 = Transport.GTFSDiff.unzip("path/to/gtfs_1.zip")
-# unzip_2 = Transport.GTFSDiff.unzip("path/to/gtfs_2.zip")
-
-# diff = Transport.GTFSDiff.diff(unzip_1, unzip_2)
-# File.write!("diff_output.txt", diff |> Transport.GTFSDiff.dump_diff())
