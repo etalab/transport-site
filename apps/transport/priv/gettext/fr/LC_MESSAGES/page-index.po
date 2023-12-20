@@ -56,7 +56,7 @@ msgstr "Autocars longue distance"
 msgid "Public transport - realtime traffic"
 msgstr "Transport public collectif - horaires temps réel"
 
-#, elixir-format
+#, elixir-format, elixir-autogen
 msgid "dataset"
 msgid_plural "datasets"
 msgstr[0] "%{count} jeu de données"
