@@ -95,8 +95,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
       assert """
              <h2>Erreurs liées aux jeux de données</h2>
-             Le slug du jeu de données `404-slug` est introuvable via l'API
-             Pas de ressources avec le schéma etalab/schema-lieux-covoiturage pour <a href=\"https://example.com/jdd\">JDD sans ressources</a>
+             Le slug du jeu de données `404-slug` est introuvable via l'API<br/>Pas de ressources avec le schéma etalab/schema-lieux-covoiturage pour <a href=\"https://example.com/jdd\">JDD sans ressources</a>
 
 
              <h2>Ressources non valides par rapport au schéma etalab/schema-lieux-covoiturage</h2>
