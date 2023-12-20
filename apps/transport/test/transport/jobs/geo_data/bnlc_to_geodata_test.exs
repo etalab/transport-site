@@ -11,6 +11,7 @@ defmodule Transport.Jobs.BNLCToGeoDataTest do
 
   setup :verify_on_exit!
 
+  @bnlc_datagouv_id "bnlc_fake_resource_id"
   @bnlc_content ~s("id_lieu","Xlong","Ylat","nbre_pl"\n"2A004-C-001","8.783403","41.9523692","0"\n"01024-C-001","5.158352778","46.28957222","5")
 
   test "import a BNLC to the DB" do
@@ -54,7 +55,7 @@ defmodule Transport.Jobs.BNLCToGeoDataTest do
 
     # insert bnlc resources
     insert(:resource, %{dataset_id: dataset_id, is_community_resource: true})
-    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id})
+    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, datagouv_id: @bnlc_datagouv_id})
     # insert bnlc resource history
     %{id: id_0} =
       insert(:resource_history, %{
