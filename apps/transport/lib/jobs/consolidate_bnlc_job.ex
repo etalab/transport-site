@@ -207,7 +207,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
     """
     <h2>Erreurs liées aux jeux de données</h2>
-    #{Enum.map_join(dataset_errors, "\n", fn el -> format.(el) end)}
+    #{Enum.map_join(dataset_errors, "<br/>", fn el -> format.(el) end)}
     """
   end
 
@@ -216,7 +216,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   def format_validation_errors(%{validation_errors: validation_errors}) do
     """
     <h2>Ressources non valides par rapport au schéma #{@schema_name}</h2>
-    #{Enum.map_join(validation_errors, "\n", &link_to_resource/1)}
+    #{Enum.map_join(validation_errors, "<br/>", &link_to_resource/1)}
     """
   end
 
@@ -231,7 +231,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
     """
     <h2>Impossible de télécharger les ressources suivantes</h2>
-    #{Enum.map_join(errors, "\n", &link_to_resource/1)}
+    #{Enum.map_join(errors, "<br/>", &link_to_resource/1)}
     """
   end
 
@@ -246,7 +246,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
     """
     <h2>Impossible de décoder les fichiers CSV suivants</h2>
-    #{Enum.map_join(errors, "\n", &link_to_resource/1)}
+    #{Enum.map_join(errors, "<br/>", &link_to_resource/1)}
     """
   end
 
