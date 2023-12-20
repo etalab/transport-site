@@ -1,6 +1,7 @@
 defmodule Transport.Test.Transport.Jobs.ImportDatasetMonthlyMetricsTestJob do
   use ExUnit.Case, async: true
   import DB.Factory
+  import Ecto.Query
   import Mox
   use Oban.Testing, repo: DB.Repo
   alias Transport.Jobs.ImportDatasetMonthlyMetricsJob
@@ -142,6 +143,8 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetMonthlyMetricsTestJob do
 
     assert :ok == perform_job(ImportDatasetMonthlyMetricsJob, %{})
 
+    assert 4 == DB.Repo.aggregate(DB.DatasetMonthlyMetric, :count, :id)
+
     assert [
              %DB.DatasetMonthlyMetric{
                dataset_datagouv_id: ^d1_datagouv_id,
@@ -154,7 +157,14 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetMonthlyMetricsTestJob do
                year_month: "2023-12",
                metric_name: :views,
                count: 1337
-             },
+             }
+           ] =
+             DB.DatasetMonthlyMetric
+             |> where([dmm], dmm.dataset_datagouv_id == ^d1_datagouv_id)
+             |> order_by([dmm], dmm.metric_name)
+             |> DB.Repo.all()
+
+    assert [
              %DB.DatasetMonthlyMetric{
                dataset_datagouv_id: ^d2_datagouv_id,
                year_month: "2023-12",
@@ -167,7 +177,11 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetMonthlyMetricsTestJob do
                metric_name: :views,
                count: 0
              }
-           ] = DB.DatasetMonthlyMetric |> DB.Repo.all() |> Enum.sort_by(&{&1.dataset_datagouv_id, &1.metric_name})
+           ] =
+             DB.DatasetMonthlyMetric
+             |> where([dmm], dmm.dataset_datagouv_id == ^d2_datagouv_id)
+             |> order_by([dmm], dmm.metric_name)
+             |> DB.Repo.all()
   end
 
   defp setup_http_response(datagouv_id, data) do
