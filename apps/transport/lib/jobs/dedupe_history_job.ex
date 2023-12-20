@@ -30,7 +30,7 @@ defmodule Transport.Jobs.DedupeHistoryJob do
   @moduledoc """
   Job removing duplicates for a specific datagouv_id.
   """
-  use Oban.Worker, unique: [period: 60 * 60, fields: [:args, :worker]], tags: ["history"], max_attempts: 3
+  use Oban.Worker, unique: [period: {1, :hour}, fields: [:args, :worker]], tags: ["history"], max_attempts: 3
   require Logger
   import Ecto.Query
   alias DB.{Repo, ResourceHistory}

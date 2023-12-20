@@ -89,7 +89,7 @@ if app_env == :staging do
     }
 end
 
-base_oban_conf = [repo: DB.Repo]
+base_oban_conf = [repo: DB.Repo, insert_trigger: false]
 
 # Oban jobs that should run in every deployed environment (staging, prod)
 # but not during dev or test.
