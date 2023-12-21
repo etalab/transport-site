@@ -41,14 +41,13 @@ end
 
 defmodule Transport.Jobs.ResourceUnavailableJob do
   @moduledoc """
-  Job checking if a resource is available over HTTP or not and
-  storing unavailabilities in that case.
-
-  It also updates the relevant resource and keeps up to the following fields:
-  - is_available (if the availability of the resource changes)
-  - url (if lastest_url points to a new URL)
+  This Job :
+  - Updates the url if needed by following the stable_url for files stored on data.gouv.fr
+  - Checks for all resources if a resource is available over HTTP or not
+  - If not : creates an unavailability in database
+  - Updates is_available if the availability of the resource has changed
   """
-  use Oban.Worker, unique: [period: {9, :minutes}], max_attempts: 5
+  use Oban.Worker, unique: [period: 60 * 9], max_attempts: 5
   require Logger
   alias DB.{Repo, Resource, ResourceUnavailability}
 
@@ -71,30 +70,7 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
     |> update_availability()
   end
 
-  defp check_availability({:updated, %Resource{} = resource}) do
-    {true, resource}
-  end
-
-  defp check_availability({:no_op, %Resource{} = resource}) do
-    perform_check(resource, Resource.download_url(resource))
-  end
-
-  defp perform_check(%Resource{id: resource_id, format: format} = resource, check_url) do
-    bypass_resource_ids = @bypass_ids_env_name |> System.get_env("") |> String.split(",")
-
-    if to_string(resource_id) in bypass_resource_ids do
-      Logger.info("is_available=true for resource##{resource_id} because the check is bypassed")
-      {true, resource}
-    else
-      {Transport.AvailabilityChecker.Wrapper.available?(format, check_url), resource}
-    end
-  end
-
-  # GOTCHA: `filetype` is set to `"file"` for exports coming from ODS
-  # https://github.com/opendatateam/udata-ods/issues/250
-  # We "leverage" this bug because we need to resolve the final URL for <- TODO
-  # some ODS resources referenced as external links
-  # https://github.com/etalab/transport-site/issues/3470
+  # We only update url for filetype : "file" = hosted on data.gouv.fr
   defp maybe_update_url(%Resource{filetype: "file", url: url, latest_url: latest_url} = resource) do
     case follow(latest_url) do
       {:ok, 200 = _status_code, final_url} when final_url != url ->
@@ -116,6 +92,25 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
     |> Oban.insert!()
 
     payload
+  end
+
+  defp check_availability({:updated, %Resource{} = resource}) do
+    {true, resource}
+  end
+
+  defp check_availability({:no_op, %Resource{} = resource}) do
+    perform_check(resource, Resource.download_url(resource))
+  end
+
+  defp perform_check(%Resource{id: resource_id, format: format} = resource, check_url) do
+    bypass_resource_ids = @bypass_ids_env_name |> System.get_env("") |> String.split(",")
+
+    if to_string(resource_id) in bypass_resource_ids do
+      Logger.info("is_available=true for resource##{resource_id} because the check is bypassed")
+      {true, resource}
+    else
+      {Transport.AvailabilityChecker.Wrapper.available?(format, check_url), resource}
+    end
   end
 
   defp update_availability({is_available, %Resource{} = resource}) do
