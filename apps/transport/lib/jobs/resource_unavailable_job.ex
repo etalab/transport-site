@@ -87,16 +87,15 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
     payload
   end
 
+  # We’ve just updated the URL by following it until we got a 200, so it’s available
   defp check_availability({:updated, %Resource{} = resource}) do
     {true, resource}
   end
 
-  defp check_availability({:no_op, %Resource{} = resource}) do
-    perform_check(resource, Resource.download_url(resource))
-  end
-
-  defp perform_check(%Resource{id: resource_id, format: format} = resource, check_url) do
-    {Transport.AvailabilityChecker.Wrapper.available?(format, check_url), resource}
+  defp check_availability({:no_op, %Resource{format: format} = resource}) do
+    download_url = Resource.download_url(resource)
+    is_available? = Transport.AvailabilityChecker.Wrapper.available?(format, download_url)
+    {is_available?, resource}
   end
 
   defp update_availability({is_available, %Resource{} = resource}) do
