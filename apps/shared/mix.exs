@@ -39,7 +39,7 @@ defmodule Shared.MixProject do
       {:httpoison, ">= 0.0.0"},
       {:req, "~> 0.4.0"},
       {:bypass, "~> 2.1", only: :test},
-      {:mox, "~> 1.0.0", only: :test},
+      {:mox, "~> 1.1", only: :test},
       # Mint is used by our HttpStream shared component, so we add an explicity dependency
       {:mint, "~> 1.2"},
       # Finch is used for built-in streaming

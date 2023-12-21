@@ -102,7 +102,20 @@ config :transport,
   datagouvfr_apikey: "fake-datagouv-api-key",
   # NOTE: some tests still rely on ExVCR cassettes at the moment. We configure the
   # expected host here, until we move to a behaviour-based testing instead.
-  gtfs_validator_url: "https://validation.transport.data.gouv.fr"
+  gtfs_validator_url: "https://validation.transport.data.gouv.fr",
+  consolidation: %{
+    zfe: %{
+      dataset_id: "zfe_fake_dataset_id",
+      resource_ids: %{
+        "voies" => "zfe_voies_fake_resource_id",
+        "aires" => "zfe_aires_fake_resource_id"
+      }
+    },
+    bnlc: %{
+      dataset_id: "bnlc_fake_dataset_id",
+      resource_id: "bnlc_fake_resource_id"
+    }
+  }
 
 secret_key_base = "SOME-LONG-SECRET-KEY-BASE-FOR-TESTING-SOME-LONG-SECRET-KEY-BASE-FOR-TESTING"
 

@@ -95,8 +95,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
       assert """
              <h2>Erreurs liées aux jeux de données</h2>
-             Le slug du jeu de données `404-slug` est introuvable via l'API
-             Pas de ressources avec le schéma etalab/schema-lieux-covoiturage pour <a href=\"https://example.com/jdd\">JDD sans ressources</a>
+             Le slug du jeu de données `404-slug` est introuvable via l'API<br/>Pas de ressources avec le schéma etalab/schema-lieux-covoiturage pour <a href=\"https://example.com/jdd\">JDD sans ressources</a>
 
 
              <h2>Ressources non valides par rapport au schéma etalab/schema-lieux-covoiturage</h2>
@@ -844,7 +843,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     tmp_path = @tmp_path
 
     expected_url =
-      "https://demo.data.gouv.fr/api/1/datasets/5d6eaffc8b4c417cdc452ac3/resources/4fd78dee-e122-4c0d-8bf6-ff55d79f3af1/upload/"
+      "https://demo.data.gouv.fr/api/1/datasets/bnlc_fake_dataset_id/resources/bnlc_fake_resource_id/upload/"
 
     Transport.HTTPoison.Mock
     |> expect(:request, fn :post,

@@ -245,7 +245,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
       assert String.ends_with?(path, "aires.geojson")
 
       assert url ==
-               "https://demo.data.gouv.fr/api/1/datasets/624ff4b1bbb449a550264040/resources/3ddd29ee-00dd-40af-bc98-3367adbd0289/upload/"
+               "https://demo.data.gouv.fr/api/1/datasets/zfe_fake_dataset_id/resources/zfe_aires_fake_resource_id/upload/"
 
       assert headers == [{"content-type", "multipart/form-data"}, {"X-API-KEY", "fake-datagouv-api-key"}]
       {:ok, %HTTPoison.Response{body: "", status_code: 200}}
@@ -257,7 +257,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
       assert String.ends_with?(path, "voies.geojson")
 
       assert url ==
-               "https://demo.data.gouv.fr/api/1/datasets/624ff4b1bbb449a550264040/resources/98c6bcdb-1205-4481-8859-f885290763f2/upload/"
+               "https://demo.data.gouv.fr/api/1/datasets/zfe_fake_dataset_id/resources/zfe_voies_fake_resource_id/upload/"
 
       assert headers == [{"content-type", "multipart/form-data"}, {"X-API-KEY", "fake-datagouv-api-key"}]
       {:ok, %HTTPoison.Response{body: "", status_code: 200}}

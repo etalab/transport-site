@@ -43,7 +43,7 @@ defmodule Datagouvfr.MixProject do
       {:shared, in_umbrella: true},
       {:vex, "~> 0.9"},
       {:exvcr, "~> 0.13", only: :test},
-      {:mox, "~> 1.0.0", only: :test},
+      {:mox, "~> 1.1", only: :test},
       {:sentry, "~> 8.1"},
       {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
     ]

@@ -94,7 +94,7 @@ defmodule Transport.Mixfile do
       {:phoenix_ecto, "~> 4.0"},
       {:sizeable, "~> 1.0"},
       {:plug_canonical_host, "~> 2.0"},
-      {:mox, "~> 1.0.0", only: :test},
+      {:mox, "~> 1.1", only: :test},
       # temporary fix until https://github.com/jayjun/rambo/pull/13 is merged
       # see https://github.com/etalab/transport-site/issues/2520.
       # Not perfect since this will impact `mix.lock`
