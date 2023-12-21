@@ -17,17 +17,19 @@ defmodule Mix.Tasks.Transport.ImportEpci do
 
     Mix.Task.run("app.start")
 
-    %{status: 200, body: body} = Req.get!(@epci_file, connect_options: [timeout: 15_000], receive_timeout: 15_000)
+    %{status: 200, body: json} = Req.get!(@epci_file, connect_options: [timeout: 15_000], receive_timeout: 15_000)
 
-    body|> Enum.each(&insert_epci/1)
+    check_communes_list(json)
 
-      # Remove EPCIs that have been removed
-      epci_codes = body |> Enum.map(& &1["code"])
-      EPCI |> where([e], e.code not in ^epci_codes) |> Repo.delete_all()
+    json |> Enum.each(&insert_epci/1)
 
-      nb_epci = Repo.aggregate(EPCI, :count, :id)
-      Logger.info("#{nb_epci} are now in database")
-      :ok
+    # Remove EPCIs that have been removed
+    epci_codes = json |> Enum.map(& &1["code"])
+    EPCI |> where([e], e.code not in ^epci_codes) |> Repo.delete_all()
+
+    nb_epci = Repo.aggregate(EPCI, :count, :id)
+    Logger.info("#{nb_epci} are now in database")
+    :ok
   end
 
   @spec get_or_create_epci(binary()) :: EPCI.t()
@@ -59,5 +61,20 @@ defmodule Mix.Tasks.Transport.ImportEpci do
   defp get_insees(members) do
     members
     |> Enum.map(fn m -> m["code"] end)
+  end
+
+  defp check_communes_list(body) do
+    all_communes =
+      body
+      |> Enum.map(fn epci ->
+        epci["membres"] |> Enum.map(& &1["code"])
+      end)
+      |> List.flatten()
+
+    duplicate_communes = all_communes -- Enum.uniq(all_communes)
+
+    if duplicate_communes != [] do
+      raise "One or multiple communes belong do different EPCI. List: #{duplicate_communes}"
+    end
   end
 end
