@@ -1,6 +1,7 @@
-defmodule Mix.Tasks.Transport.ImportEPCI do
+defmodule Mix.Tasks.Transport.ImportEpci do
   @moduledoc """
   Import the EPCI file to get the relation between the cities and the EPCI
+  Run : mix transport.import_epci
   """
 
   use Mix.Task
@@ -11,31 +12,22 @@ defmodule Mix.Tasks.Transport.ImportEPCI do
 
   @epci_file "https://unpkg.com/@etalab/decoupage-administratif@3.1.1/data/epci.json"
 
-  def run(params) do
-    Logger.info("importing epci")
+  def run(_params) do
+    Logger.info("Importing EPCIs")
 
-    if params[:no_start] do
-      HTTPoison.start()
-    else
-      Mix.Task.run("app.start", [])
-    end
+    Mix.Task.run("app.start")
 
-    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- HTTPoison.get(@epci_file),
-         {:ok, json} <- Jason.decode(body) do
-      json |> Enum.each(&insert_epci/1)
+    %{status: 200, body: body} = Req.get!(@epci_file, connect_options: [timeout: 15_000], receive_timeout: 15_000)
+
+    body|> Enum.each(&insert_epci/1)
 
       # Remove EPCIs that have been removed
-      epci_codes = Enum.map(json, & &1["code"])
+      epci_codes = body |> Enum.map(& &1["code"])
       EPCI |> where([e], e.code not in ^epci_codes) |> Repo.delete_all()
 
       nb_epci = Repo.aggregate(EPCI, :count, :id)
       Logger.info("#{nb_epci} are now in database")
       :ok
-    else
-      e ->
-        Logger.warning("impossible to fetch epci file, error #{inspect(e)}")
-        :error
-    end
   end
 
   @spec get_or_create_epci(binary()) :: EPCI.t()
