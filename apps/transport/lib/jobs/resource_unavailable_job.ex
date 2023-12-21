@@ -41,10 +41,9 @@ end
 
 defmodule Transport.Jobs.ResourceUnavailableJob do
   @moduledoc """
-  This Job :
-  - Updates the url if needed by following the stable_url for files stored on data.gouv.fr
-  - Checks for all resources if a resource is available over HTTP or not
-  - If not : creates an unavailability in database
+  This job:
+  - Updates the URL if needed by following the latest_url for files stored on data.gouv.fr
+  - For all resources, check whether a resource is available over HTTP. If not: it creates an unavailability in the database
   - Updates is_available if the availability of the resource has changed
   """
   use Oban.Worker, unique: [period: {9, :minutes}], max_attempts: 5
@@ -100,7 +99,7 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
   end
 
   defp update_resource({is_available, %Resource{} = resource}) do
-    resource |> Resource.changeset(%{is_available: is_available}) |> DB.Repo.update!()
+    resource = resource |> Resource.changeset(%{is_available: is_available}) |> DB.Repo.update!()
     {is_available, resource}
   end
 
