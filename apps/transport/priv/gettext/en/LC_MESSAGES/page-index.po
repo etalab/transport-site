@@ -56,7 +56,7 @@ msgstr ""
 msgid "Public transport - realtime traffic"
 msgstr ""
 
-#, elixir-format
+#, elixir-format, elixir-autogen
 msgid "dataset"
 msgid_plural "datasets"
 msgstr[0] "%{count} dataset"

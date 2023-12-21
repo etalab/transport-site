@@ -48,7 +48,7 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
   - is_available (if the availability of the resource changes)
   - url (if lastest_url points to a new URL)
   """
-  use Oban.Worker, unique: [period: 60 * 9], max_attempts: 5
+  use Oban.Worker, unique: [period: {9, :minutes}], max_attempts: 5
   require Logger
   alias DB.{Repo, Resource, ResourceUnavailability}
 
