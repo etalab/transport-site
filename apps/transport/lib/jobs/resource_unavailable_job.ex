@@ -61,7 +61,6 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
     |> historize_resource()
     |> check_availability()
     |> update_resource()
-    |> get_latest_resource_unavailability()
     |> create_or_update_resource_unavailability()
   end
 
