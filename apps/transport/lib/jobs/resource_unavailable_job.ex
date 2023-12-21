@@ -51,13 +51,6 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
   require Logger
   alias DB.{Repo, Resource, ResourceUnavailability}
 
-  # Set this env variable to a list of `resource.id`s (comma separated) to bypass
-  # `AvailabilityChecker.available?`. This is *not* something that should be used <- TODO
-  # for too long or for too many resources.
-  # Example values: `42,1337`
-  # https://github.com/etalab/transport-site/issues/3470
-  @bypass_ids_env_name "BYPASS_RESOURCE_AVAILABILITY_RESOURCE_IDS"
-
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"resource_id" => resource_id}}) do
     Logger.info("Running ResourceUnavailableJob for #{resource_id}")
@@ -103,14 +96,7 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
   end
 
   defp perform_check(%Resource{id: resource_id, format: format} = resource, check_url) do
-    bypass_resource_ids = @bypass_ids_env_name |> System.get_env("") |> String.split(",")
-
-    if to_string(resource_id) in bypass_resource_ids do
-      Logger.info("is_available=true for resource##{resource_id} because the check is bypassed")
-      {true, resource}
-    else
-      {Transport.AvailabilityChecker.Wrapper.available?(format, check_url), resource}
-    end
+    {Transport.AvailabilityChecker.Wrapper.available?(format, check_url), resource}
   end
 
   defp update_availability({is_available, %Resource{} = resource}) do
