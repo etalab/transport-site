@@ -47,7 +47,7 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
   - If not : creates an unavailability in database
   - Updates is_available if the availability of the resource has changed
   """
-  use Oban.Worker, unique: [period: 60 * 9], max_attempts: 5
+  use Oban.Worker, unique: [period: {9, :minutes}], max_attempts: 5
   require Logger
   alias DB.{Repo, Resource, ResourceUnavailability}
 
@@ -61,6 +61,7 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
     |> historize_resource()
     |> check_availability()
     |> update_resource()
+    |> get_latest_resource_unavailability()
     |> create_or_update_resource_unavailability()
   end
 
