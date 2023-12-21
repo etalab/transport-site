@@ -60,7 +60,8 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
     |> maybe_update_url()
     |> historize_resource()
     |> check_availability()
-    |> update_availability()
+    |> update_resource()
+    |> create_or_update_resource_unavailability()
   end
 
   # We only update url for filetype : "file" = hosted on data.gouv.fr
@@ -94,16 +95,16 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
 
   defp check_availability({:no_op, %Resource{format: format} = resource}) do
     download_url = Resource.download_url(resource)
-    is_available? = Transport.AvailabilityChecker.Wrapper.available?(format, download_url)
-    {is_available?, resource}
+    is_available = Transport.AvailabilityChecker.Wrapper.available?(format, download_url)
+    {is_available, resource}
   end
 
-  defp update_availability({is_available, %Resource{} = resource}) do
+  defp update_resource({is_available, %Resource{} = resource}) do
     resource |> Resource.changeset(%{is_available: is_available}) |> DB.Repo.update!()
-    create_resource_unavailability(is_available, resource)
+    {is_available, resource}
   end
 
-  def create_resource_unavailability(false = _is_available, %Resource{} = resource) do
+  def create_or_update_resource_unavailability({false = _is_available, %Resource{} = resource}) do
     case ResourceUnavailability.ongoing_unavailability(resource) do
       nil ->
         %ResourceUnavailability{resource: resource, start: now()}
@@ -116,7 +117,7 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
     end
   end
 
-  def create_resource_unavailability(true = _is_available, %Resource{} = resource) do
+  def create_or_update_resource_unavailability({true = _is_available, %Resource{} = resource}) do
     case ResourceUnavailability.ongoing_unavailability(resource) do
       %ResourceUnavailability{} = resource_unavailability ->
         resource_unavailability
