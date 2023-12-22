@@ -9,11 +9,12 @@ defmodule DB.EPCI do
   use TypedEctoSchema
 
   typed_schema "epci" do
-    field(:code, :string)
+    field(:insee, :string)
     field(:nom, :string)
+    field(:geom, Geo.PostGIS.Geometry) :: Geo.MultiPolygon.t()
 
-    # for the moment we don't need a link relational link to the Commune table,
-    # so we only store an array of insee code
+
+    # This is now a useless field, to be deleted in a future migration
     field(:communes_insee, {:array, :string}, default: [])
   end
 end

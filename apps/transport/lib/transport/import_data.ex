@@ -6,7 +6,7 @@ defmodule Transport.ImportData do
   alias Datagouvfr.Client.CommunityResources
   alias Helpers
   alias Opendatasoft.UrlExtractor
-  alias DB.{Dataset, EPCI, LogsImport, Repo, Resource}
+  alias DB.{Dataset, Commune, LogsImport, Repo, Resource}
   alias Transport.Shared.ResourceSchema
   require Logger
   import Ecto.Query
@@ -261,16 +261,10 @@ defmodule Transport.ImportData do
         ]
       }) do
     # For the EPCI we get the list of cities contained by the EPCI
-    EPCI
-    |> Repo.get_by(code: code)
-    |> case do
-      nil ->
-        Logger.warning("impossible to find epci #{code}, no cities associated to the dataset")
-        []
-
-      epci ->
-        epci.communes_insee
-    end
+    Commune
+    |> where([c], c.epci_insee == ^code)
+    |> select([c], c.insee)
+    |> Repo.all()
   end
 
   def read_datagouv_zone(%{"features" => [%{"id" => id} | _]}) do

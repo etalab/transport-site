@@ -11,6 +11,7 @@ defmodule Mix.Tasks.Transport.ImportEpci do
   require Logger
 
   @epci_file "https://unpkg.com/@etalab/decoupage-administratif@3.1.1/data/epci.json"
+  @epci_geojson_url "http://etalab-datasets.geo.data.gouv.fr/contours-administratifs/2023/geojson/epci-100m.geojson"
 
   def run(_params) do
     Logger.info("Importing EPCIs")
