@@ -95,26 +95,29 @@ defmodule TransportWeb.PageController do
     |> render("infos_producteurs.html")
   end
 
-  def robots_txt(conn, _params) do
-    # See http://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
-    content =
-      if Application.fetch_env!(:transport, :app_env) == :staging do
-        """
-        User-agent: *
-        Disallow: /
-        """
-      else
-        """
-        User-agent: *
-        Allow: /
-        Disallow: /backoffice/
-        Disallow: /validation/*
-        Disallow: /login/*
-        Disallow: /resources/conversions/*
-        """
-      end
+  def robots_txt(%Plug.Conn{} = conn, _params) do
+    # See http://www.robotstxt.org/robotstxt.html
+    # for documentation on how to use the robots.txt file
+    app_env = Application.fetch_env!(:transport, :app_env)
+    text(conn, robots_txt_content(app_env))
+  end
 
-    conn |> text(content)
+  def robots_txt_content(:staging = _app_env) do
+    """
+    User-agent: *
+    Disallow: /
+    """
+  end
+
+  def robots_txt_content(_app_env) do
+    """
+    User-agent: *
+    Allow: /
+    Disallow: /backoffice/
+    Disallow: /validation/*
+    Disallow: /login/*
+    Disallow: /resources/conversions/*
+    """
   end
 
   def security_txt(conn, _params) do

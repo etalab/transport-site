@@ -86,9 +86,6 @@ config :transport, :email_sender_impl, Transport.EmailSender.Dummy
 # Add a dev.secret.exs to use a real email provider
 config :transport, Transport.Mailer, adapter: Swoosh.Adapters.Local
 
-# Do not send events to Sentry
-config :sentry, dsn: nil
-
 # Uncomment if you want to disable all logs from the database
 # config :transport, DB.Repo, log: false
 

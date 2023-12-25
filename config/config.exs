@@ -185,6 +185,10 @@ config :transport,
   security_email: "contact@transport.data.gouv.fr",
   transport_tools_folder: Path.absname("transport-tools/")
 
+# Disable sending events to Sentry by default.
+# Events are sent in production and staging, configured in `runtime.exs`
+config :sentry, dsn: nil
+
 # For now, never send session data (containing sensitive data in our case) nor params,
 # even if this means less useful information.
 # See https://github.com/etalab/transport_deploy/issues/64
