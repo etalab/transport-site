@@ -145,6 +145,9 @@ config :phoenix_ddos,
 # a behaviour/wrapper around `Transport.Mailer`
 config :transport, Transport.Mailer, adapter: Swoosh.Adapters.Test
 
+# Do not send events to Sentry
+config :sentry, dsn: nil
+
 # avoid logging
 config :os_mon,
   start_memsup: false

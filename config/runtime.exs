@@ -223,6 +223,21 @@ if config_env() == :prod do
     # under "Queue config". For most users, configuring :timeout is enough, as it now includes both queue and query time
     timeout: 15_000
 
+  # Configure Sentry for production and staging.
+  # Check out https://sentry.io/settings/transport-data-gouv-fr/projects/transport-site/install/elixir/
+  config :sentry,
+    # Sentry events are only sent when `dsn` is not nil
+    # https://hexdocs.pm/sentry/upgrade-10-x.html#stop-using-included_environments
+    dsn: System.get_env("SENTRY_DSN"),
+    csp_url: System.get_env("SENTRY_CSP_URL"),
+    environment_name: "SENTRY_ENV" |> System.get_env() |> String.to_atom(),
+    enable_source_code_context: true,
+    # https://hexdocs.pm/sentry/Sentry.html#module-configuration
+    # > a list of paths to the root of your application's source code.
+    # > For umbrella apps, you should set this to all the application paths in your umbrella
+    root_source_code_path: File.cwd!() |> Path.join("apps/*") |> Path.wildcard(),
+    filter: Transport.Shared.SentryExceptionFilter
+
   if app_env == :production do
     # data.gouv.fr IDs for national databases created automatically and
     # published by us on data.gouv.fr.

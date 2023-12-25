@@ -70,7 +70,7 @@ config :phoenix, :format_encoders, json: Transport.Shared.ConditionalJSONEncoder
 config :logger,
   backends: [
     :console,
-    # error logs are also send to sentry
+    # Error logs are also send to Sentry
     Sentry.LoggerBackend
   ]
 
@@ -90,27 +90,6 @@ config :phoenix, :template_engines,
   leex: Phoenix.LiveView.Engine
 
 config :phoenix_markdown, :server_tags, :all
-
-# build sentry env based on Mix env, unless overriden (useful for staging)
-sentry_env_as_atom =
-  if v = System.get_env("SENTRY_ENV") do
-    v |> String.to_atom()
-  else
-    config_env()
-  end
-
-# check out https://sentry.io/settings/transport-data-gouv-fr/projects/transport-site/install/elixir/
-config :sentry,
-  dsn: System.get_env("SENTRY_DSN"),
-  csp_url: System.get_env("SENTRY_CSP_URL"),
-  environment_name: sentry_env_as_atom,
-  included_environments: [:prod, :staging],
-  enable_source_code_context: true,
-  root_source_code_path: File.cwd!(),
-  filter: Transport.Shared.SentryExceptionFilter,
-  # the key must be there for overriding during tests,
-  # so we set it to the default based on source code for now
-  send_result: :none
 
 config :transport,
   cache_impl: Transport.Cache.Cachex,
