@@ -70,7 +70,7 @@ config :phoenix, :format_encoders, json: Transport.Shared.ConditionalJSONEncoder
 config :logger,
   backends: [
     :console,
-    # Error logs are also send to Sentry
+    # Error logs are also sent to Sentry
     Sentry.LoggerBackend
   ]
 
