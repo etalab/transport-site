@@ -220,7 +220,7 @@ if config_env() == :prod do
     # The key used by Cloak. See `Transport.Vault`.
     # This value should be base64 encrypted
     # See https://github.com/danielberkompas/cloak#configuration
-    cloak_key: System.get_env("CLOAK_KEY"),
+    cloak_key: System.fetch_env!("CLOAK_KEY"),
     socket_options: [keepalive: true],
     # See https://hexdocs.pm/db_connection/DBConnection.html#start_link/2-queue-config
     # [Ecto.Repo] :pool_timeout is no longer supported in favor of a new queue system described in DBConnection.start_link/2
