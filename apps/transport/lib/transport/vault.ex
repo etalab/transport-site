@@ -5,10 +5,6 @@ defmodule Transport.Vault do
   """
   use Cloak.Vault, otp_app: :transport
 
-  # This value should be base64 encrypted
-  # See https://github.com/danielberkompas/cloak#configuration
-  @prod_config_env_name "CLOAK_KEY"
-
   @impl GenServer
   def init(config) do
     # See config recommendation
@@ -22,8 +18,8 @@ defmodule Transport.Vault do
   defp key do
     case Application.fetch_env!(:transport, :app_env) do
       env when env in [:production, :staging] ->
-        @prod_config_env_name
-        |> System.fetch_env!()
+        :transport
+        |> Application.fetch_env!(:cloak_key)
         |> Base.decode64!()
 
       _ ->

@@ -72,7 +72,7 @@ defmodule Transport.Mixfile do
       {:recon, "~> 2.4"},
       {:quantum, "~> 3.4"},
       {:timex, "~> 3.7"},
-      {:sentry, "~> 8.1"},
+      {:sentry, "~> 10.1"},
       {:scrivener, "~> 2.5"},
       # Compilation issue for this dependency, see https://github.com/etalab/transport-site/issues/3499
       {:scrivener_html, git: "https://github.com/etalab/scrivener_html.git", ref: "f0245703abf7d0ce2b48a0f7e96997def7649e5f"},
