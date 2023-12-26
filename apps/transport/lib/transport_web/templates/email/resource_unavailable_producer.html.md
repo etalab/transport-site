@@ -7,7 +7,7 @@ Il semble que vous ayez supprimé puis créé une nouvelle ressource : l’URL d
 
 Pour les prochaines mises à jour, afin de garantir une URL stable, nous vous invitons à remplacer votre ressource obsolète par la nouvelle.
 
-Pour cela, rendez-vous sur votre [Espace Producteur](<%= espace_producteur_url(:resource_unavailable_producer) %>) à partir duquel vous pourrez procéder à ces mises à jour.
+Pour cela, rendez-vous sur votre <%= link_for_espace_producteur(:resource_unavailable_producer) %> à partir duquel vous pourrez procéder à ces mises à jour.
 
 Retrouvez la procédure pas à pas [sur notre documentation](https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees).
 <% else %>
