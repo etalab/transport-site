@@ -217,10 +217,6 @@ if config_env() == :prod do
       tcp_keepalives_interval: "5",
       tcp_keepalives_count: "3"
     ],
-    # The key used by Cloak. See `Transport.Vault`.
-    # This value should be base64 encrypted
-    # See https://github.com/danielberkompas/cloak#configuration
-    cloak_key: System.fetch_env!("CLOAK_KEY"),
     socket_options: [keepalive: true],
     # See https://hexdocs.pm/db_connection/DBConnection.html#start_link/2-queue-config
     # [Ecto.Repo] :pool_timeout is no longer supported in favor of a new queue system described in DBConnection.start_link/2
@@ -247,6 +243,10 @@ if config_env() == :prod do
     # published by us on data.gouv.fr.
     # Overrides values set in `config.exs`
     config :transport,
+      # The key used by Cloak. See `Transport.Vault`.
+      # This value should be base64 encrypted
+      # See https://github.com/danielberkompas/cloak#configuration
+      cloak_key: System.fetch_env!("CLOAK_KEY"),
       consolidation:
         Map.merge(Application.fetch_env!(:transport, :consolidation), %{
           zfe: %{
