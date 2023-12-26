@@ -314,6 +314,7 @@ defmodule TransportWeb.Router do
   end
 
   defp assign_current_user(conn, _) do
+    # `current_user` is set by TransportWeb.SessionController.user_params_for_session/1
     assign(conn, :current_user, get_session(conn, :current_user))
   end
 
@@ -353,11 +354,9 @@ defmodule TransportWeb.Router do
   end
 
   # NOTE: method visibility set to public because we need to call the same logic from LiveView
-  def is_transport_data_gouv_member?(current_user) do
-    current_user
-    |> Map.get("organizations", [])
-    |> Enum.any?(fn org -> org["slug"] == "equipe-transport-data-gouv-fr" end)
-  end
+  # `current_user` is set by TransportWeb.SessionController.user_params_for_session/1
+  def is_transport_data_gouv_member?(%{"is_admin" => true} = _current_user), do: true
+  def is_transport_data_gouv_member?(_), do: false
 
   # Check that a secret key is passed in the URL in the `export_key` query parameter
   defp check_export_secret_key(%Plug.Conn{params: params} = conn, _) do

@@ -81,8 +81,13 @@
                   <% end %>
                 </div>
                 <div class="dropdown-content">
-                  <%= if admin?(assigns[:current_user]) do %>
+                  <%= if is_transport_data_gouv_member?(assigns[:current_user]) do %>
                     <%= link("Administration", to: "/backoffice") %>
+                  <% end %>
+                  <%= if Map.get(assigns[:current_user], "is_producer", false) do %>
+                    <%= link(gettext("Producer space"),
+                      to: page_path(@conn, :espace_producteur, utm_source: "menu_dropdown")
+                    ) %>
                   <% end %>
                   <a
                     class="navigation__link nagivation__link--logout"

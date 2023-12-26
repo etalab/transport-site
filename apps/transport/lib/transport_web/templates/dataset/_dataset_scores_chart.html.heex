@@ -1,4 +1,4 @@
-<section :if={admin?(@conn.assigns[:current_user])} class="pt-48">
+<section :if={is_transport_data_gouv_member?(@conn.assigns[:current_user])} class="pt-48">
   <h2><%= dgettext("page-dataset-details", "Dataset scores") %></h2>
   <div class="panel" id="scores-chart">
     <div id="vega-vis"></div>

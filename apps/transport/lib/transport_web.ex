@@ -42,6 +42,7 @@ defmodule TransportWeb do
       use TransportWeb.InputHelpers
 
       import TransportWeb.Router.Helpers
+      import TransportWeb.Router, only: [is_transport_data_gouv_member?: 1]
       import TransportWeb.ErrorHelpers
       import TransportWeb.InputHelpers
       import TransportWeb.Gettext

@@ -4,6 +4,7 @@ defmodule TransportWeb.SessionController do
   """
   use TransportWeb, :controller
   alias Datagouvfr.Authentication
+  import Ecto.Query
   require Logger
 
   def new(conn, _) do
@@ -127,24 +128,45 @@ defmodule TransportWeb.SessionController do
   end
 
   def save_current_user(%Plug.Conn{} = conn, %{} = user_params) do
-    conn |> put_session(:current_user, user_params |> user_params_for_session())
+    conn |> put_session(:current_user, user_params_for_session(user_params))
+  end
+
+  def user_params_for_session(%{} = params) do
+    params
+    # Remove the list of `organizations` from the final map: it's already stored in the database
+    # and maintained up-to-date by `Transport.Jobs.UpdateContactsJob`
+    # and it can be too big to be stored in a cookie
+    |> Map.delete("organizations")
+    # - `is_admin` is needed to check permissions
+    # - `is_producer` is used to get access to the "Espace producteur"
+    |> Map.merge(%{"is_producer" => is_producer?(params), "is_admin" => is_admin?(params)})
   end
 
   @doc """
-  iex> pan_org = %{"slug" => "equipe-transport-data-gouv-fr", "name" => "PAN"}
-  iex> other_org = %{"slug" => "foo-inc", "name" => "Foo Inc"}
-  iex> user_params_for_session(%{"foo" => "bar", "organizations" => [pan_org, other_org]})
-  %{"foo" => "bar", "organizations" => [pan_org]}
+  Are you a data producer?
+  You're a data producer if you're a member of an organization with an active dataset
+  on transport.data.gouv.fr.
+  This is set when you log in, we can refresh this field more often in the future.
   """
-  def user_params_for_session(%{} = params) do
-    Map.put(
-      params,
-      "organizations",
-      Enum.filter(
-        params["organizations"],
-        &match?(%{"slug" => "equipe-transport-data-gouv-fr"}, &1)
-      )
-    )
+  def is_producer?(%{"organizations" => orgs}) do
+    org_ids = Enum.map(orgs, & &1["id"])
+
+    DB.Dataset.base_query() |> where([dataset: d], d.organization_id in ^org_ids) |> DB.Repo.exists?()
+  end
+
+  @doc """
+  Are you a transport.data.gouv.fr admin?
+  You're an admin if you're a member of the PAN organization on data.gouv.fr.
+
+  iex> is_admin?(%{"organizations" => [%{"slug" => "equipe-transport-data-gouv-fr"}, %{"slug" => "foo"}]})
+  true
+  iex> is_admin?(%{"organizations" => [%{"slug" => "foo"}]})
+  false
+  iex> is_admin?(%{"organizations" => []})
+  false
+  """
+  def is_admin?(%{"organizations" => orgs}) do
+    Enum.any?(orgs, &(&1["slug"] == "equipe-transport-data-gouv-fr"))
   end
 
   defp get_redirect_path(%Plug.Conn{} = conn) do

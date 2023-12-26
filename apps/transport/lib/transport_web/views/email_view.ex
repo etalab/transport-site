@@ -15,4 +15,12 @@ defmodule TransportWeb.EmailView do
     url = TransportWeb.Router.Helpers.resource_url(TransportWeb.Endpoint, :details, id)
     link(title, to: url)
   end
+
+  def espace_producteur_url(view_name) do
+    TransportWeb.Router.Helpers.page_url(TransportWeb.Endpoint, :espace_producteur,
+      utm_source: "transactional_email",
+      utm_medium: "email",
+      utm_campaign: to_string(view_name)
+    )
+  end
 end

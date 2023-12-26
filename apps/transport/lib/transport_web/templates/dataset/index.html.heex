@@ -183,7 +183,7 @@
                         <a href={dataset_path(@conn, :details, dataset.slug)}>
                           <%= dataset.custom_title %>
                         </a>
-                        <%= if admin?(assigns[:current_user]) do %>
+                        <%= if is_transport_data_gouv_member?(assigns[:current_user]) do %>
                           <span class="dataset-backoffice-link">
                             <i class="fa fa-external-link-alt"></i>
                             <%= link("backoffice", to: backoffice_page_path(@conn, :edit, dataset.id)) %>

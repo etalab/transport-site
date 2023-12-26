@@ -13,7 +13,7 @@ Le saviez-vous ? Il est possible de vous inscrire à des notifications concernan
 
 Les notifications vous permettent d’être alerté en cas d’expiration, d’indisponibilité et d’erreurs de vos données.
 
-Pour vous inscrire, rien de plus simple : rendez-vous sur votre [Espace Producteur](<%= TransportWeb.Router.Helpers.page_url(TransportWeb.Endpoint, :espace_producteur) %>) dans le menu “Recevoir des notifications”.
+Pour vous inscrire, rien de plus simple : rendez-vous sur votre [Espace Producteur](<%= espace_producteur_url(:periodic_reminder_producer_without_subscriptions) %>) dans le menu “Recevoir des notifications”.
 
 Nous restons disponibles pour vous accompagner si besoin.
 
