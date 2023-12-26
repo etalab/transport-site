@@ -2,11 +2,8 @@ defmodule DB.Repo.Migrations.ImproveEpci do
   use Ecto.Migration
 
   def change do
-    alter table(:epci) do
-      add(:geom, :geometry)
-    end
 
-    rename table(:epci), :code, to: :insee # Same as other tables…
+    rename table(:epci), :code, to: :insee
     create(unique_index(:epci, [:insee]))
 
 
@@ -20,11 +17,21 @@ defmodule DB.Repo.Migrations.ImproveEpci do
       SET epci_insee = epci.insee
       FROM epci
       WHERE commune.insee = ANY(epci.communes_insee)
+    """,
+    """
+      UPDATE epci
+      SET communes_insee = ARRAY(
+        SELECT insee
+        FROM commune
+        WHERE commune.epci_insee = epci.insee
+      )
     """)
 
-
-
-
     create(index(:commune, [:epci_insee]))
+
+    alter table(:epci) do
+      add(:geom, :geometry)
+      remove :communes_insee, {:array, :string}, default: []
+    end
   end
 end
