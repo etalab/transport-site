@@ -4,7 +4,7 @@ defmodule DB.Commune do
   """
   use Ecto.Schema
   use TypedEctoSchema
-  alias DB.{AOM, Departement, Region, EPCI}
+  alias DB.{AOM, Departement, EPCI, Region}
   alias Geo.MultiPolygon
 
   typed_schema "commune" do

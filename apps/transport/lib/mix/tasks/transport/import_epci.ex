@@ -7,7 +7,7 @@ defmodule Mix.Tasks.Transport.ImportEpci do
   use Mix.Task
   import Ecto.Query
   alias Ecto.Changeset
-  alias DB.{EPCI, Repo, Commune}
+  alias DB.{Commune, EPCI, Repo}
   require Logger
 
   @epci_file "https://unpkg.com/@etalab/decoupage-administratif@3.1.1/data/epci.json"
@@ -21,7 +21,6 @@ defmodule Mix.Tasks.Transport.ImportEpci do
     %{status: 200, body: json} = Req.get!(@epci_file, connect_options: [timeout: 15_000], receive_timeout: 15_000)
     check_communes_list(json)
     geojsons = geojson_by_insee()
-
 
     json |> Enum.each(&insert_epci(&1, geojsons))
     json |> Enum.each(&update_communes_epci/1)
@@ -114,5 +113,5 @@ defmodule Mix.Tasks.Transport.ImportEpci do
   end
 
   defp ensure_valid_geometries,
-  do: Repo.query!("UPDATE epci SET geom = ST_MakeValid(geom) WHERE NOT ST_IsValid(geom);")
+    do: Repo.query!("UPDATE epci SET geom = ST_MakeValid(geom) WHERE NOT ST_IsValid(geom);")
 end
