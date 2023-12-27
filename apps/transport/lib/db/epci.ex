@@ -12,9 +12,7 @@ defmodule DB.EPCI do
     field(:insee, :string)
     field(:nom, :string)
     field(:geom, Geo.PostGIS.Geometry) :: Geo.MultiPolygon.t()
+    has_many :communes, DB.Commune, foreign_key: :epci_insee
 
-
-    # This is now a useless field, to be deleted in a future migration
-    field(:communes_insee, {:array, :string}, default: [])
   end
 end
