@@ -83,10 +83,6 @@ msgid "Learn more"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Regions covered"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Scheduled public transit"
 msgstr ""
 

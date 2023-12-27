@@ -43,10 +43,8 @@ defmodule TransportWeb.PageController do
       count_train: Dataset.count_by_mode("rail"),
       count_boat: Dataset.count_by_mode("ferry"),
       count_coach: Dataset.count_coach(),
-      count_regions: count_regions(),
       count_aoms: Repo.aggregate(AOM, :count, :id),
       count_aoms_with_dataset: count_aoms_with_dataset(),
-      count_regions_completed: count_regions_completed(),
       count_public_transport_has_realtime: Dataset.count_public_transport_has_realtime(),
       percent_population: percent_population(),
       reusers: CSVDocuments.reusers(),
@@ -218,14 +216,6 @@ defmodule TransportWeb.PageController do
   defp percent(_a, 0), do: 0
   defp percent(_a, nil), do: 0
   defp percent(a, b), do: Float.round(a / b * 100, 1)
-
-  defp count_regions do
-    Region |> where([r], r.nom != "National") |> select([r], count(r.id)) |> Repo.one!()
-  end
-
-  defp count_regions_completed do
-    Region |> where([r], r.is_completed == true) |> Repo.aggregate(:count, :id)
-  end
 
   defmodule Tile do
     @enforce_keys [:link, :icon, :title, :count]
