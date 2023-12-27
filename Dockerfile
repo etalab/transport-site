@@ -17,6 +17,8 @@ RUN mix deps.compile
 RUN cd apps/transport/client && yarn install && npm run build
 # assets digest must happen after the npm build step
 RUN mix phx.digest
+# Package source code for Sentry https://hexdocs.pm/sentry/upgrade-10-x.html
+RUN mix sentry.package_source_code
 
 EXPOSE 8080
 
