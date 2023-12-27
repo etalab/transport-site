@@ -23,9 +23,9 @@ apps/transport/priv/static/css/*
 apps/transport/priv/static/fonts/*
 apps/transport/priv/static/images/*
 apps/transport/priv/static/js/*
-# Environment varabiables files
+
+# Environment variables files
 /.env
-/.envrc
 
 # The config/prod.secret.exs file by default contains sensitive
 # data and you should not commit it into version control.
