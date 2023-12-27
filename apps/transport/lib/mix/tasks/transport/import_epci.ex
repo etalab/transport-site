@@ -1,7 +1,7 @@
-defmodule Mix.Tasks.Transport.ImportEpci do
+defmodule Mix.Tasks.Transport.ImportEPCI do
   @moduledoc """
   Import the EPCI file to get the relation between the cities and the EPCI
-  Run : mix transport.import_epci
+  Run : mix transport.importEPCI
   """
 
   use Mix.Task
