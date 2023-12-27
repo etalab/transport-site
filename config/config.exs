@@ -186,7 +186,7 @@ config :transport,
   transport_tools_folder: Path.absname("transport-tools/")
 
 # Disable sending events to Sentry by default.
-# Events are sent in production and staging, configured in `runtime.exs`
+# Events are sent in production and staging, configured in `prod.exs`
 config :sentry, dsn: nil
 
 # For now, never send session data (containing sensitive data in our case) nor params,
