@@ -228,10 +228,6 @@ if config_env() == :prod do
     # published by us on data.gouv.fr.
     # Overrides values set in `config.exs`
     config :transport,
-      # The key used by Cloak. See `Transport.Vault`.
-      # This value should be base64 encrypted
-      # See https://github.com/danielberkompas/cloak#configuration
-      cloak_key: System.fetch_env!("CLOAK_KEY"),
       consolidation:
         Map.merge(Application.fetch_env!(:transport, :consolidation), %{
           zfe: %{

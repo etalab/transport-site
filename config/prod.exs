@@ -11,6 +11,10 @@ config :transport, TransportWeb.Endpoint,
   ]
 
 config :transport,
+  # The key used by Cloak. See `Transport.Vault`.
+  # This value should be base64 encrypted
+  # See https://github.com/danielberkompas/cloak#configuration
+  cloak_key: System.get_env("CLOAK_KEY"),
   s3_buckets: %{
     history: "resource-history-prod",
     on_demand_validation: "on-demand-validation-prod",
