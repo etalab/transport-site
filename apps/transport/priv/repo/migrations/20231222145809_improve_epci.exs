@@ -1,4 +1,4 @@
-defmodule DB.Repo.Migrations.ImproveEpci do
+defmodule DB.Repo.Migrations.ImproveEPCI do
   use Ecto.Migration
 
   def change do

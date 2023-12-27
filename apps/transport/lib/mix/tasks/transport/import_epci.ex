@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.Transport.ImportEPCI do
   @moduledoc """
   Import the EPCI file to get the relation between the cities and the EPCI
-  Run : mix transport.importEPCI
+  Run: mix transport.importEPCI
   """
 
   use Mix.Task
@@ -72,7 +72,7 @@ defmodule Mix.Tasks.Transport.ImportEPCI do
     duplicate_communes = all_communes -- Enum.uniq(all_communes)
 
     if duplicate_communes != [] do
-      raise "One or multiple communes belong do different EPCI. List: #{duplicate_communes}"
+      raise "One or multiple communes belong to different EPCIs. List: #{duplicate_communes}"
     end
   end
 
