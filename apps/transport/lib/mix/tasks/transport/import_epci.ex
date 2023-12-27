@@ -7,7 +7,7 @@ defmodule Mix.Tasks.Transport.ImportEpci do
   use Mix.Task
   import Ecto.Query
   alias Ecto.Changeset
-  alias DB.{EPCI, Repo}
+  alias DB.{EPCI, Repo, Commune}
   require Logger
 
   @epci_file "https://unpkg.com/@etalab/decoupage-administratif@3.1.1/data/epci.json"
@@ -23,10 +23,11 @@ defmodule Mix.Tasks.Transport.ImportEpci do
     check_communes_list(json)
 
     json |> Enum.each(&insert_epci/1)
+    json |> Enum.each(&update_communes_epci/1)
 
     # Remove EPCIs that have been removed
     epci_codes = json |> Enum.map(& &1["code"])
-    EPCI |> where([e], e.code not in ^epci_codes) |> Repo.delete_all()
+    EPCI |> where([e], e.insee not in ^epci_codes) |> Repo.delete_all()
 
     nb_epci = Repo.aggregate(EPCI, :count, :id)
     Logger.info("#{nb_epci} are now in database")
@@ -36,7 +37,7 @@ defmodule Mix.Tasks.Transport.ImportEpci do
   @spec get_or_create_epci(binary()) :: EPCI.t()
   defp get_or_create_epci(code) do
     EPCI
-    |> Repo.get_by(code: code)
+    |> Repo.get_by(insee: code)
     |> case do
       nil ->
         %EPCI{}
@@ -47,21 +48,14 @@ defmodule Mix.Tasks.Transport.ImportEpci do
   end
 
   @spec insert_epci(map()) :: any()
-  defp insert_epci(%{"code" => code, "nom" => nom, "membres" => m}) do
+  defp insert_epci(%{"code" => code, "nom" => nom}) do
     code
     |> get_or_create_epci()
     |> Changeset.change(%{
-      code: code,
-      nom: nom,
-      communes_insee: get_insees(m)
+      insee: code,
+      nom: nom
     })
     |> Repo.insert_or_update()
-  end
-
-  @spec get_insees([map()]) :: [binary()]
-  defp get_insees(members) do
-    members
-    |> Enum.map(fn m -> m["code"] end)
   end
 
   defp check_communes_list(body) do
@@ -77,5 +71,25 @@ defmodule Mix.Tasks.Transport.ImportEpci do
     if duplicate_communes != [] do
       raise "One or multiple communes belong do different EPCI. List: #{duplicate_communes}"
     end
+  end
+
+  defp update_communes_epci(%{"code" => code, "membres" => m}) do
+    communes_arr = get_insees(m)
+    communes = Repo.all(from(c in Commune, where: c.insee in ^communes_arr))
+
+    communes
+    |> Enum.each(fn commune ->
+      commune
+      |> Changeset.change(epci_insee: code)
+      |> Repo.update()
+    end)
+
+    :ok
+  end
+
+  @spec get_insees([map()]) :: [binary()]
+  defp get_insees(members) do
+    members
+    |> Enum.map(fn m -> m["code"] end)
   end
 end
