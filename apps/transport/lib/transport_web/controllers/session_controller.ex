@@ -147,7 +147,7 @@ defmodule TransportWeb.SessionController do
   Are you a data producer?
   You're a data producer if you're a member of an organization with an active dataset
   on transport.data.gouv.fr.
-  This is set when you log in, we can refresh this field more often in the future.
+  This is set when you log in and refreshed when you visit your "Espace producteur".
   """
   def is_producer?(%{"organizations" => orgs}) do
     org_ids = Enum.map(orgs, & &1["id"])
