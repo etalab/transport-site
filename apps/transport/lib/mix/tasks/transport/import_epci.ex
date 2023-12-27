@@ -124,7 +124,7 @@ defmodule Mix.Tasks.Transport.ImportEPCI do
   defp normalize_type("METRO"), do: "Métropole"
   defp normalize_type("MET69"), do: "Métropole de Lyon"
 
-  @spec normalize_type(binary()) :: binary()
+  @spec normalize_mode_financement(binary()) :: binary()
   defp normalize_mode_financement("FPU"), do: "Fiscalité professionnelle unique"
   defp normalize_mode_financement("FA"), do: "Fiscalité additionnelle"
 end
