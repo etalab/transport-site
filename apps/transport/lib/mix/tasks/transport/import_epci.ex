@@ -50,12 +50,14 @@ defmodule Mix.Tasks.Transport.ImportEPCI do
   end
 
   @spec insert_epci(map(), map()) :: any()
-  defp insert_epci(%{"code" => code, "nom" => nom}, geojsons) do
+  defp insert_epci(%{"code" => code, "nom" => nom, "type" => type, "modeFinancement" => mode_financement}, geojsons) do
     code
     |> get_or_create_epci()
-    |> Changeset.change(%{
+    |> EPCI.changeset(%{
       insee: code,
       nom: nom,
+      type: normalize_type(type),
+      mode_financement: normalize_mode_financement(mode_financement),
       geom: build_geometry(geojsons, code)
     })
     |> Repo.insert_or_update()
@@ -114,4 +116,15 @@ defmodule Mix.Tasks.Transport.ImportEPCI do
 
   defp ensure_valid_geometries,
     do: Repo.query!("UPDATE epci SET geom = ST_MakeValid(geom) WHERE NOT ST_IsValid(geom);")
+
+  @spec normalize_type(binary()) :: binary()
+  defp normalize_type("CA"), do: "Communauté d'agglomération"
+  defp normalize_type("CU"), do: "Communauté urbaine"
+  defp normalize_type("CC"), do: "Communauté de communes"
+  defp normalize_type("METRO"), do: "Métropole"
+  defp normalize_type("MET69"), do: "Métropole de Lyon"
+
+  @spec normalize_type(binary()) :: binary()
+  defp normalize_mode_financement("FPU"), do: "Fiscalité professionnelle unique"
+  defp normalize_mode_financement("FA"), do: "Fiscalité additionnelle"
 end

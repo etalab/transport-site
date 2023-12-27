@@ -30,6 +30,8 @@ defmodule DB.Repo.Migrations.ImproveEPCI do
     )
 
     alter table(:epci) do
+      add(:type, :string)
+      add(:mode_financement, :string)
       add(:geom, :geometry)
       remove(:communes_insee, {:array, :string}, default: [])
     end
