@@ -79,6 +79,9 @@ defmodule TransportWeb.PageControllerTest do
         |> init_test_session(current_user: %{})
         |> get(page_path(conn, :espace_producteur))
 
+      # `is_producer` attribute has been set for the current user
+      assert %{"is_producer" => true} = conn |> get_session(:current_user)
+
       {:ok, doc} = conn |> html_response(200) |> Floki.parse_document()
       assert Floki.find(doc, ".message--error") == []
 

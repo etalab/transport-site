@@ -139,6 +139,7 @@ defmodule TransportWeb.SessionController do
     |> Map.delete("organizations")
     # - `is_admin` is needed to check permissions
     # - `is_producer` is used to get access to the "Espace producteur"
+    # `is_producer` is also refreshed when they visit their "Espace producteur"
     |> Map.merge(%{"is_producer" => is_producer?(params), "is_admin" => is_admin?(params)})
   end
 
