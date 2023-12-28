@@ -288,7 +288,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
         {:error, "Got a non 200 status: #{status}"}
 
       {:error, %HTTPoison.Error{reason: reason}} ->
-        {:error, "Got an error: #{reason}"}
+        {:error, "Got an error: #{inspect(reason)}"}
     end
   end
 
