@@ -39,9 +39,15 @@ defmodule Transport.GTFSRTTest do
     end
 
     test "HTTPoison error" do
-      setup_http_response(@url, {:error, %HTTPoison.Error{reason: "SSL problemz"}})
+      reason =
+        {:tls_alert,
+         {:certificate_expired,
+          ~c"TLS client: In state certify at ssl_handshake.erl:2065 generated CLIENT ALERT: Fatal - Certificate Expired\n"}}
 
-      assert {:error, "Got an HTTP error: SSL problemz"} == GTFSRT.decode_remote_feed(@url)
+      setup_http_response(@url, {:error, %HTTPoison.Error{reason: reason}})
+
+      {:error, reason} = GTFSRT.decode_remote_feed(@url)
+      assert reason =~ ~r"^Got an HTTP error:"
     end
   end
 
