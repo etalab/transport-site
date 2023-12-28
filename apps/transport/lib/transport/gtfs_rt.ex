@@ -26,7 +26,7 @@ defmodule Transport.GTFSRT do
         {:error, "Got a non 200 HTTP status code: #{status_code}"}
 
       {:error, %HTTPoison.Error{reason: reason}} ->
-        {:error, "Got an HTTP error: #{reason}"}
+        {:error, "Got an HTTP error: #{inspect(reason)}"}
     end
   end
 
