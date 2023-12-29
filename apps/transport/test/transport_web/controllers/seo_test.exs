@@ -60,7 +60,7 @@ defmodule TransportWeb.SeoMetadataTest do
   end
 
   test "GET / ", %{conn: conn} do
-    title = conn |> get("/") |> html_response(200) |> title
+    title = conn |> get(~p"/") |> html_response(200) |> title
     assert title =~ "Le Point d’Accès National aux données ouvertes de transport"
   end
 
@@ -70,45 +70,45 @@ defmodule TransportWeb.SeoMetadataTest do
   end
 
   test "GET /datasets/aom/4242 ", %{conn: conn} do
-    title = conn |> get("/datasets/aom/4242") |> html_response(200) |> title
+    title = conn |> get(~p"/datasets/aom/4242") |> html_response(200) |> title
     assert title =~ "AOM Angers Métropôle : Jeux de données ouverts"
   end
 
   test "GET /datasets/region/12 ", %{conn: conn} do
     region = Repo.get_by(Region, nom: "Pays de la Loire")
-    title = conn |> get("/datasets/region/#{region.id}") |> html_response(200) |> title
+    title = conn |> get(~p"/datasets/region/#{region.id}") |> html_response(200) |> title
     assert title =~ "Jeux de données ouverts de la région Pays de la Loire"
   end
 
   test "GET /datasets/commune/36044 ", %{conn: conn} do
-    title = conn |> get("/datasets/commune/36044") |> html_response(200) |> title
+    title = conn |> get(~p"/datasets/commune/36044") |> html_response(200) |> title
     assert title =~ "Jeux de données ouverts de la commune de Châteauroux"
   end
 
   test "GET /datasets?type=bike-scooter-sharing ", %{conn: conn} do
-    title = conn |> get("/datasets?type=bike-scooter-sharing") |> html_response(200) |> title
+    title = conn |> get(~p"/datasets?type=bike-scooter-sharing") |> html_response(200) |> title
     assert title =~ "Jeux de données ouverts de la catégorie Vélos et trottinettes en libre-service"
   end
 
   test "GET /dataset/:id ", %{conn: conn} do
     Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
-    title = conn |> get("/datasets/horaires-et-arrets-du-reseau-irigo-format-gtfs") |> html_response(200) |> title
+    title = conn |> get(~p"/datasets/horaires-et-arrets-du-reseau-irigo-format-gtfs") |> html_response(200) |> title
     assert title =~ "Horaires Angers - Données (GTFS) ouvertes - Angers Métropôle"
   end
 
   test "GET /resources/:id ", %{conn: conn} do
-    title = conn |> get("/resources/1234") |> html_response(200) |> title
+    title = conn |> get(~p"/resources/1234") |> html_response(200) |> title
     assert title =~ "Jeu de données ouvert GTFS - angers.zip pour Horaires Angers - Angers Métropôle"
   end
 
   test "GET /aoms ", %{conn: conn} do
-    title = conn |> get("/aoms") |> html_response(200) |> title
+    title = conn |> get(~p"/aoms") |> html_response(200) |> title
     assert title =~ "État de l’ouverture des données de transport en commun pour les AOMs françaises"
   end
 
   test "GET /validation ", %{conn: conn} do
     Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
-    title = conn |> get("/validation") |> html_response(200) |> title
+    title = conn |> get(~p"/validation") |> html_response(200) |> title
     assert title =~ "Évaluation de la qualité d’un fichier ou d’un flux"
   end
 end
