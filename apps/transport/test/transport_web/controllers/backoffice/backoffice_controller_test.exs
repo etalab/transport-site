@@ -47,7 +47,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     target_uri = URI.parse(redirected_to(conn, 302))
     assert target_uri.path == "/login/explanation"
     assert target_uri.query == URI.encode_query(redirect_path: "/backoffice")
-    assert get_flash(conn, :info) =~ "Vous devez être préalablement connecté"
+    assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Vous devez être préalablement connecté"
   end
 
   test "Check that you belong to the right organization", %{conn: conn} do
@@ -57,7 +57,9 @@ defmodule TransportWeb.BackofficeControllerTest do
       |> get(backoffice_page_path(conn, :index))
 
     assert redirected_to(conn, 302) =~ "/login/explanation"
-    assert get_flash(conn, :error) =~ "You need to be a member of the transport.data.gouv.fr team."
+
+    assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
+             "You need to be a member of the transport.data.gouv.fr team."
   end
 
   test "Show 'add new dataset' form", %{conn: conn} do
@@ -86,7 +88,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
     assert Resource |> Repo.all() |> length() == 0
 
-    assert get_flash(conn, :error) ==
+    assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
              "%{region: [\"Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv\"]}"
 
     assert [] == all_enqueued()
@@ -109,7 +111,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
     assert Resource |> Repo.all() |> length() == 0
 
-    assert get_flash(conn, :error) ==
+    assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
              "%{region: [\"Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv\"]}"
 
     assert [] == all_enqueued()
@@ -181,7 +183,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
     assert Resource |> where([r], not r.is_community_resource) |> Repo.all() |> length() == 1
     assert Resource |> where([r], r.is_community_resource) |> Repo.all() |> length() == 2
-    assert ["Dataset ajouté" | _] = get_flash(conn, :info)
+    assert ["Dataset ajouté" | _] = Phoenix.Flash.get(conn.assigns.flash, :info)
   end
 
   test "Add a dataset linked to aom", %{conn: conn} do
@@ -223,7 +225,7 @@ defmodule TransportWeb.BackofficeControllerTest do
 
     assert Resource |> where([r], not r.is_community_resource) |> Repo.all() |> length() == 1
     assert Resource |> where([r], r.is_community_resource) |> Repo.all() |> length() == 2
-    assert ["Dataset ajouté" | _] = get_flash(conn, :info)
+    assert ["Dataset ajouté" | _] = Phoenix.Flash.get(conn.assigns.flash, :info)
   end
 
   test "Add a dataset linked to cities", %{conn: conn} do
@@ -245,7 +247,7 @@ defmodule TransportWeb.BackofficeControllerTest do
 
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
     assert Resource |> Repo.all() |> length() == 1
-    assert ["Dataset ajouté" | _] = get_flash(conn, :info)
+    assert ["Dataset ajouté" | _] = Phoenix.Flash.get(conn.assigns.flash, :info)
   end
 
   test "Add a dataset linked to cities and to the country", %{conn: conn} do
@@ -271,7 +273,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert logs =~ "Vous devez remplir soit une région soit une AOM"
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
     assert Resource |> Repo.all() |> length() == 0
-    flash = get_flash(conn, :error)
+    flash = Phoenix.Flash.get(conn.assigns.flash, :error)
 
     assert flash =~
              "Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv"
@@ -300,7 +302,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     # is empty (but not null since it comes from a form)
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
     assert Resource |> Repo.all() |> length() == 1
-    assert ["Dataset ajouté" | _] = conn |> get_flash(:info)
+    assert ["Dataset ajouté" | _] = Phoenix.Flash.get(conn.assigns.flash, :info)
     %Resource{id: resource_id} = Resource |> Repo.one!()
 
     assert [
@@ -337,7 +339,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     # It should not be possible to link a dataset to either a region and to the whole country
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
     assert Resource |> Repo.all() |> length() == 0
-    flash = get_flash(conn, :error)
+    flash = Phoenix.Flash.get(conn.assigns.flash, :error)
     assert logs =~ "Un jeu de données ne peut pas être à la fois régional et national"
     assert flash =~ "Un jeu de données ne peut pas être à la fois régional et national"
   end

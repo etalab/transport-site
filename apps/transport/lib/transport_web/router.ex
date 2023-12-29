@@ -12,6 +12,7 @@ defmodule TransportWeb.Router do
     plug(:canonical_host)
     plug(:accepts, ["html"])
     plug(:fetch_session)
+    plug(:fetch_flash)
     plug(:fetch_live_flash)
     plug(:protect_from_forgery)
     plug(TransportWeb.Plugs.PutLocale)

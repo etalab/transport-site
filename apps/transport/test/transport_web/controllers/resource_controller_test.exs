@@ -757,6 +757,6 @@ defmodule TransportWeb.ResourceControllerTest do
 
     html = html_response(conn, 404)
     assert html =~ "Page non disponible"
-    assert get_flash(conn, :error) == "La ressource n'est pas disponible sur le serveur distant"
+    assert Phoenix.Flash.get(conn.assigns.flash, :error) == "La ressource n'est pas disponible sur le serveur distant"
   end
 end
