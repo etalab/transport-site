@@ -84,6 +84,8 @@ defmodule DB.Dataset do
     # we ask in the backoffice for a name to display
     # (used in the long title of a dataset and to find the associated datasets)
     field(:associated_territory_name, :string)
+
+    field(:search_payload, :map)
   end
 
   def base_query, do: from(d in DB.Dataset, as: :dataset, where: d.is_active)
