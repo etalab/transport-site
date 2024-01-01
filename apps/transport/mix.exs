@@ -74,8 +74,10 @@ defmodule Transport.Mixfile do
       {:timex, "~> 3.7"},
       {:sentry, "~> 10.1"},
       {:scrivener, "~> 2.5"},
-      # Compilation issue for this dependency, see https://github.com/etalab/transport-site/issues/3499
-      {:scrivener_html, git: "https://github.com/joydrive/scrivener_html.git", ref: "d6ac5ac4c0c94fc871a42817817b6d5c7b5d6b0c"},
+      # `scrivener_html` seems to be unmaintained!
+      # - Compilation issue for this dependency, see https://github.com/etalab/transport-site/issues/3499
+      # - was not updated to support Phoenix 1.7
+      {:scrivener_html, git: "https://github.com/transportdatagouvfr/scrivener_html.git", ref: "d6ac5ac4c0c94fc871a42817817b6d5c7b5d6b0c"},
       {:scrivener_list, "~>2.0"},
       {:jason, "~> 1.1"},
       {:open_api_spex, "~> 3.8"},
