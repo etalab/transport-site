@@ -63,6 +63,31 @@ defmodule Transport.OpsTests do
       assert {:ok, [~c"hosting.gitbook.com"]} == DNS.resolve("doc.#{@domain_name}", :cname)
       assert {:ok, [~c"stats.uptimerobot.com"]} == DNS.resolve("status.#{@domain_name}", :cname)
     end
+
+    test "MX records" do
+      {:ok, records} = DNS.resolve(@domain_name, :mx)
+      assert MapSet.new([{10, ~c"mx1.alwaysdata.com"}, {20, ~c"mx2.alwaysdata.com"}]) == MapSet.new(records)
+      assert {:ok, [{100, ~c"mx.sendgrid.net"}]} = DNS.resolve("front-mail.#{@domain_name}", :mx)
+    end
+
+    test "SPF, DKIM and DMARC" do
+      # SPF
+      {:ok, records} = DNS.resolve(@domain_name, :txt)
+
+      assert Enum.member?(records, [
+               ~c"v=spf1 include:spf.mailjet.com include:_spf.alwaysdata.com include:_spf.scw-tem.cloud include:servers.mcsv.net -all"
+             ])
+
+      assert {:ok, [[~c"v=spf1 include:sendgrid.net ~all"]]} = DNS.resolve("front-mail.#{@domain_name}", :txt)
+
+      # DKIM
+      assert {:ok, _} = DNS.resolve("37d278a7-e548-4029-a58d-111bdcf23d46._domainkey.#{@domain_name}", :txt)
+      assert {:ok, [~c"dkim2.mcsv.net"]} == DNS.resolve("k2._domainkey.#{@domain_name}", :cname)
+      assert {:ok, [~c"dkim3.mcsv.net"]} == DNS.resolve("k3._domainkey.#{@domain_name}", :cname)
+
+      # DMARC
+      assert {:ok, [[~c"v=DMARC1;p=quarantine;"]]} == DNS.resolve("_dmarc.#{@domain_name}", :txt)
+    end
   end
 
   def get_header!(headers, header) do
