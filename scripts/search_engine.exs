@@ -28,8 +28,14 @@ end
 defmodule Search.HomeLive do
   use Phoenix.LiveView, layout: {__MODULE__, :live}
 
+  use Phoenix.HTML, only: [text_input: 2]
+
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, :count, 0)}
+    {:ok,
+     socket
+     |> assign(:title, "")
+     |> assign(:format, "")
+     |> assign(:datasets, [])}
   end
 
   defp phx_vsn, do: Application.spec(:phoenix, :vsn)
@@ -58,19 +64,55 @@ defmodule Search.HomeLive do
   def render(assigns) do
     ~H"""
     <div class="px-4 py-5 my-5 text-center">
-      <span class="text-monospace"><%= @count %></span>
-      <button class="btn btn-outline-primary" phx-click="inc">+</button>
-      <button class="btn btn-outline-primary" phx-click="dec">-</button>
+      <.form :let={f} id="search" for={%{}} as={:config} phx-change="change_form" phx-submit="ignore">
+        <div>
+          <%= text_input(f, :title,
+            value: @title,
+            placeholder: "Title",
+            autocomplete: "off"
+          ) %>
+          <%= text_input(f, :format,
+            value: @format,
+            placeholder: "Resource Format",
+            autocomplete: "off"
+          ) %>
+        </div>
+      </.form>
+
+      <p>
+        <%= @datasets |> length %> datasets found
+      </p>
+      <table class="table">
+        <tbody>
+          <%= for dataset <- @datasets do %>
+            <tr>
+              <td><%= dataset.id %></td>
+              <td><%= dataset.title %></td>
+              <td><%= dataset.formats %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
     </div>
     """
   end
 
-  def handle_event("inc", _params, socket) do
-    {:noreply, assign(socket, :count, socket.assigns.count + 1)}
+  import Ecto.Query
+
+  def nil_if_blank(value) do
+    value = value |> String.trim()
+    if value == "", do: nil, else: value
   end
 
-  def handle_event("dec", _params, socket) do
-    {:noreply, assign(socket, :count, socket.assigns.count - 1)}
+  def handle_event("change_form", params, socket) do
+    datasets =
+      Searcher.search(title: nil_if_blank(params["config"]["title"]), format: nil_if_blank(params["config"]["format"]))
+
+    IO.inspect(datasets)
+
+    datasets = datasets |> Enum.map(&Searcher.render(&1))
+
+    {:noreply, assign(socket, :datasets, datasets)}
   end
 end
 
@@ -158,7 +200,7 @@ defmodule Searcher do
     %{
       id: item.id,
       title: item.custom_title,
-      formats: item.search_payload["formats"] |> Enum.join(", ")
+      formats: (item.search_payload["formats"] || []) |> Enum.join(", ")
     }
   end
 
