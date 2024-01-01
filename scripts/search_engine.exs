@@ -49,20 +49,48 @@ end
 defmodule Searcher do
   import Ecto.Query
 
-  def search(term) do
+  def maybe_search_title(query, nil), do: query
+
+  def maybe_search_title(query, search_title) do
+    safe_like_title = "%" <> DB.Contact.safe_like_pattern(search_title) <> "%"
+
+    query
+    |> where([d], fragment("search_payload->>'title' ilike ?", ^safe_like_title))
+  end
+
+  def maybe_search_resources_formats(query, nil), do: query
+
+  def maybe_search_resources_formats(query, search_format) do
+    query
+    |> where([d], fragment("search_payload #> Array['formats'] \\? ?", ^search_format))
+  end
+
+  def search(options) do
     from(d in DB.Dataset)
-    |> where([d], fragment("search_payload->>'title' ilike ?", ^term))
-    |> select([d], [:custom_title])
+    |> maybe_search_title(options[:title])
+    |> maybe_search_resources_formats(options[:format])
+    |> select([d], [:id, :custom_title, :search_payload])
     |> DB.Repo.all()
   end
 
+  def render(%{} = item) do
+    %{
+      id: item.id,
+      title: item.custom_title,
+      formats: item.search_payload["formats"] |> Enum.join(", ")
+    }
+  end
+
   def render(items) do
-    IO.ANSI.Table.start([:id, :custom_title])
-    IO.ANSI.Table.format(items)
+    IO.ANSI.Table.start([:id, :title, :formats])
+    IO.ANSI.Table.format(items |> Enum.map(&render(&1)))
   end
 end
 
 # SearchIndexer.reindex!()
 
-Searcher.search("%bibus%")
+Searcher.search(title: "bibus")
+|> Searcher.render()
+
+Searcher.search(format: "SIRI")
 |> Searcher.render()
