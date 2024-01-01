@@ -41,6 +41,9 @@ defmodule Search.HomeLive do
     </script>
     <script src={"https://cdn.jsdelivr.net/npm/phoenix_live_view@#{lv_vsn()}/priv/static/phoenix_live_view.min.js"}>
     </script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js">
+    </script>
     <script>
       let liveSocket = new window.LiveView.LiveSocket("/live", window.Phoenix.Socket)
       liveSocket.connect()
@@ -54,9 +57,11 @@ defmodule Search.HomeLive do
 
   def render(assigns) do
     ~H"""
-    <%= @count %>
-    <button phx-click="inc">+</button>
-    <button phx-click="dec">-</button>
+    <div class="px-4 py-5 my-5 text-center">
+      <span class="text-monospace"><%= @count %></span>
+      <button class="btn btn-outline-primary" phx-click="inc">+</button>
+      <button class="btn btn-outline-primary" phx-click="dec">-</button>
+    </div>
     """
   end
 
