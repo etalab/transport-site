@@ -1,3 +1,4 @@
+name: CI ops tests
 on: push
 
 jobs:
