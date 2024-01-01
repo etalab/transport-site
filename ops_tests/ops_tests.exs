@@ -82,6 +82,9 @@ defmodule Transport.OpsTests do
 
       # DKIM
       assert {:ok, _} = DNS.resolve("37d278a7-e548-4029-a58d-111bdcf23d46._domainkey.#{@domain_name}", :txt)
+      assert {:ok, _} = DNS.resolve("default._domainkey.#{@domain_name}", :txt)
+      assert {:ok, _} = DNS.resolve("fnt._domainkey.#{@domain_name}", :txt)
+      assert {:ok, _} = DNS.resolve("mailjet._domainkey.#{@domain_name}", :txt)
       assert {:ok, [~c"dkim2.mcsv.net"]} == DNS.resolve("k2._domainkey.#{@domain_name}", :cname)
       assert {:ok, [~c"dkim3.mcsv.net"]} == DNS.resolve("k3._domainkey.#{@domain_name}", :cname)
 
