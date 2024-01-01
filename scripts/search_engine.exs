@@ -2,6 +2,13 @@
 
 my_app_root = Path.join(__DIR__, "..")
 
+Application.put_env(:search, Search.Endpoint,
+  http: [ip: {127, 0, 0, 1}, port: 5001],
+  server: true,
+  live_view: [signing_salt: "aaaaaaaa"],
+  secret_key_base: String.duplicate("a", 64)
+)
+
 Mix.install(
   [
     {:my_app, path: my_app_root, env: :dev},
@@ -13,6 +20,75 @@ Mix.install(
 
 # NOTE: wondering if Flop (https://github.com/woylie/flop) could be a better fit than Scrivener (which is hardly maintained)
 # It provides cursor-based pagination as well as regular limit/offset stuff.
+
+defmodule Search.ErrorView do
+  def render(template, _), do: Phoenix.Controller.status_message_from_template(template)
+end
+
+defmodule Search.HomeLive do
+  use Phoenix.LiveView, layout: {__MODULE__, :live}
+
+  def mount(_params, _session, socket) do
+    {:ok, assign(socket, :count, 0)}
+  end
+
+  defp phx_vsn, do: Application.spec(:phoenix, :vsn)
+  defp lv_vsn, do: Application.spec(:phoenix_live_view, :vsn)
+
+  def render("live.html", assigns) do
+    ~H"""
+    <script src={"https://cdn.jsdelivr.net/npm/phoenix@#{phx_vsn()}/priv/static/phoenix.min.js"}>
+    </script>
+    <script src={"https://cdn.jsdelivr.net/npm/phoenix_live_view@#{lv_vsn()}/priv/static/phoenix_live_view.min.js"}>
+    </script>
+    <script>
+      let liveSocket = new window.LiveView.LiveSocket("/live", window.Phoenix.Socket)
+      liveSocket.connect()
+    </script>
+    <style>
+      * { font-size: 1.1em; }
+    </style>
+    <%= @inner_content %>
+    """
+  end
+
+  def render(assigns) do
+    ~H"""
+    <%= @count %>
+    <button phx-click="inc">+</button>
+    <button phx-click="dec">-</button>
+    """
+  end
+
+  def handle_event("inc", _params, socket) do
+    {:noreply, assign(socket, :count, socket.assigns.count + 1)}
+  end
+
+  def handle_event("dec", _params, socket) do
+    {:noreply, assign(socket, :count, socket.assigns.count - 1)}
+  end
+end
+
+defmodule Search.Router do
+  use Phoenix.Router
+  import Phoenix.LiveView.Router
+
+  pipeline :browser do
+    plug(:accepts, ["html"])
+  end
+
+  scope "/", Search do
+    pipe_through(:browser)
+
+    live("/", HomeLive, :index)
+  end
+end
+
+defmodule Search.Endpoint do
+  use Phoenix.Endpoint, otp_app: :search
+  socket("/live", Phoenix.LiveView.Socket)
+  plug(Search.Router)
+end
 
 defmodule SearchIndexer do
   import Ecto.Query
@@ -89,8 +165,11 @@ end
 
 # SearchIndexer.reindex!()
 
-Searcher.search(title: "bibus")
-|> Searcher.render()
+# Searcher.search(title: "bibus")
+# |> Searcher.render()
 
-Searcher.search(format: "SIRI")
-|> Searcher.render()
+# Searcher.search(format: "SIRI")
+# |> Searcher.render()
+
+{:ok, _} = Supervisor.start_link([Search.Endpoint], strategy: :one_for_one)
+Process.sleep(:infinity)
