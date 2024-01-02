@@ -35,7 +35,7 @@ defmodule Search.HomeLive do
      socket
      |> assign(:title, "")
      |> assign(:format, "")
-     |> assign(:datasets, [])}
+     |> update_datasets(%{"config" => %{}})}
   end
 
   defp phx_vsn, do: Application.spec(:phoenix, :vsn)
@@ -63,18 +63,18 @@ defmodule Search.HomeLive do
 
   def render(assigns) do
     ~H"""
-    <div class="px-4 py-5 my-5 text-center">
+    <div class="px-4 py-5 text-center">
       <.form :let={f} id="search" for={%{}} as={:config} phx-change="change_form" phx-submit="ignore">
         <div>
           <%= text_input(f, :title,
             value: @title,
             placeholder: "Title",
-            autocomplete: "off"
+            autocorrect: "off"
           ) %>
           <%= text_input(f, :format,
             value: @format,
             placeholder: "Resource Format",
-            autocomplete: "off"
+            autocorrect: "off"
           ) %>
         </div>
       </.form>
@@ -82,12 +82,12 @@ defmodule Search.HomeLive do
       <p>
         <%= @datasets |> length %> datasets found
       </p>
-      <table class="table">
+      <table class="table fs-6">
         <tbody>
           <%= for dataset <- @datasets do %>
             <tr>
               <td><%= dataset.id %></td>
-              <td><%= dataset.title %></td>
+              <td style="min-width: 30em;"><%= dataset.title %></td>
               <td><%= dataset.formats %></td>
             </tr>
           <% end %>
@@ -100,19 +100,24 @@ defmodule Search.HomeLive do
   import Ecto.Query
 
   def nil_if_blank(value) do
-    value = value |> String.trim()
+    value = (value || "") |> String.trim()
     if value == "", do: nil, else: value
   end
 
-  def handle_event("change_form", params, socket) do
+  def update_datasets(socket, params) do
+    # NOTE: could be improved here to tap directly in the assigns
     datasets =
-      Searcher.search(title: nil_if_blank(params["config"]["title"]), format: nil_if_blank(params["config"]["format"]))
+      Searcher.search(
+        title: nil_if_blank(get_in(params, ["config", "title"])),
+        format: nil_if_blank(get_in(params, ["config", "format"]))
+      )
+      |> Enum.map(&Searcher.render(&1))
 
-    IO.inspect(datasets)
+    assign(socket, :datasets, datasets)
+  end
 
-    datasets = datasets |> Enum.map(&Searcher.render(&1))
-
-    {:noreply, assign(socket, :datasets, datasets)}
+  def handle_event("change_form", params, socket) do
+    {:noreply, update_datasets(socket, params)}
   end
 end
 
