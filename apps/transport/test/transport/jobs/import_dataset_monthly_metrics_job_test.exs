@@ -103,7 +103,9 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetMonthlyMetricsTestJob do
                  dataset_datagouv_id: ^datagouv_id,
                  year_month: "2023-12",
                  metric_name: :views,
-                 count: 1337
+                 count: 1337,
+                 inserted_at: inserted_at,
+                 updated_at: updated_at
                },
                # Has been inserted
                %DB.DatasetMonthlyMetric{
@@ -113,6 +115,9 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetMonthlyMetricsTestJob do
                  count: 43
                }
              ] = DB.Repo.all(DB.DatasetMonthlyMetric)
+
+      # `updated_at` has been updated to reflect that this row has changed
+      assert DateTime.after?(updated_at, inserted_at)
     end
   end
 
