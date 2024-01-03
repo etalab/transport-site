@@ -61,7 +61,7 @@ defmodule DB.Factory do
       tags: [],
       type: "public-transit",
       logo: "https://example.com/#{Ecto.UUID.generate()}_small.png",
-      full_logo: "https://example.com/#{Ecto.UUID.generate()}_small.png",
+      full_logo: "https://example.com/#{Ecto.UUID.generate()}.png",
       frequency: "daily",
       has_realtime: false,
       is_active: true,
