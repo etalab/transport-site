@@ -3,9 +3,8 @@ defmodule TransportWeb.SeoMetadataTest do
   test seo metadata
   """
   use TransportWeb.ConnCase, async: false
-  use TransportWeb.ExternalCase
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
-  alias DB.{AOM, Dataset, Repo, Resource}
+  import DB.Factory
   import Mox
 
   setup :verify_on_exit!
@@ -16,33 +15,26 @@ defmodule TransportWeb.SeoMetadataTest do
     Mox.stub_with(Datagouvfr.Client.Discussions.Mock, Datagouvfr.Client.Discussions.Dummy)
     Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
 
-    {:ok, _} =
-      %Dataset{
-        created_at: DateTime.utc_now(),
-        last_update: DateTime.utc_now(),
-        description: "Un jeu de données",
-        licence: "odc-odbl",
-        datagouv_title: "Horaires et arrêts du réseau IRIGO - format GTFS",
-        custom_title: "Horaires Angers",
-        type: "public-transit",
-        slug: "horaires-et-arrets-du-reseau-irigo-format-gtfs",
-        datagouv_id: "5b4cd3a0b59508054dd496cd",
-        frequency: "yearly",
-        tags: [],
-        resources: [
-          %Resource{
-            last_update: DateTime.utc_now() |> DateTime.add(-6, :hour),
-            last_import: DateTime.utc_now() |> DateTime.add(-1, :hour),
-            url: "https://link.to/angers.zip",
-            description: "blabla on resource",
-            format: "GTFS",
-            title: "angers.zip",
-            id: 1234
-          }
-        ],
-        aom: %AOM{id: 4242, nom: "Angers Métropôle"}
-      }
-      |> Repo.insert()
+    insert(:dataset,
+      created_at: DateTime.utc_now(),
+      last_update: DateTime.utc_now(),
+      datagouv_title: "Horaires et arrêts du réseau IRIGO - format GTFS",
+      custom_title: "Horaires Angers",
+      type: "public-transit",
+      slug: "horaires-et-arrets-du-reseau-irigo-format-gtfs",
+      resources: [
+        %DB.Resource{
+          last_update: DateTime.utc_now() |> DateTime.add(-6, :hour),
+          last_import: DateTime.utc_now() |> DateTime.add(-1, :hour),
+          url: "https://link.to/angers.zip",
+          description: "blabla on resource",
+          format: "GTFS",
+          title: "angers.zip",
+          id: 1234
+        }
+      ],
+      aom: %DB.AOM{id: 4242, nom: "Angers Métropôle"}
+    )
 
     Mox.stub_with(Transport.HTTPoison.Mock, HTTPoison)
 
@@ -75,7 +67,7 @@ defmodule TransportWeb.SeoMetadataTest do
   end
 
   test "GET /datasets/region/12 ", %{conn: conn} do
-    region = Repo.get_by(Region, nom: "Pays de la Loire")
+    region = DB.Repo.get_by(DB.Region, nom: "Pays de la Loire")
     title = conn |> get("/datasets/region/#{region.id}") |> html_response(200) |> title
     assert title =~ "Jeux de données ouverts de la région Pays de la Loire"
   end
