@@ -35,6 +35,7 @@ defmodule Search.HomeLive do
      socket
      |> assign(:title, "")
      |> assign(:format, "")
+     |> assign(:mode, "")
      |> update_datasets(%{"config" => %{}})}
   end
 
@@ -76,6 +77,11 @@ defmodule Search.HomeLive do
             placeholder: "Resource Format",
             autocorrect: "off"
           ) %>
+          <%= text_input(f, :mode,
+            value: @mode,
+            placeholder: "Resource Mode",
+            autocorrect: "off"
+          ) %>
         </div>
       </.form>
 
@@ -89,6 +95,7 @@ defmodule Search.HomeLive do
               <td><%= dataset.id %></td>
               <td style="min-width: 30em;"><%= dataset.title %></td>
               <td><%= dataset.formats %></td>
+              <td><%= dataset.modes %></td>
             </tr>
           <% end %>
         </tbody>
@@ -109,7 +116,8 @@ defmodule Search.HomeLive do
     datasets =
       Searcher.search(
         title: nil_if_blank(get_in(params, ["config", "title"])),
-        format: nil_if_blank(get_in(params, ["config", "format"]))
+        format: nil_if_blank(get_in(params, ["config", "format"])),
+        mode: nil_if_blank(get_in(params, ["config", "mode"]))
       )
       |> Enum.map(&Searcher.render(&1))
 
@@ -149,17 +157,60 @@ defmodule SearchIndexer do
     from(d in DB.Dataset,
       join: r in assoc(d, :resources),
       preload: :resources
+      #      limit: 10
     )
     |> DB.Repo.all()
   end
 
+  def find_resource_history(resource_id) do
+    from(rh in DB.ResourceHistory)
+    |> where([rh], rh.resource_id == ^resource_id)
+    |> order_by([rh], {:desc, rh.inserted_at})
+    |> limit(1)
+    |> DB.Repo.one()
+  end
+
+  def find_resource_metadata(resource_history_id) do
+    from(rm in DB.ResourceMetadata)
+    |> where([rm], rm.resource_history_id == ^resource_history_id)
+    |> order_by([rh], {:desc, rh.inserted_at})
+    |> limit(1)
+    |> DB.Repo.one()
+  end
+
   def compute_payload(%DB.Dataset{} = dataset) do
+    # NOTE: not optimized for N+1 because performance is good enough for now
+    # TODO:
+    # - pour chaque ressource, trouver la metadata la plus récente
+    # - pour ça, passer par la resource history la plus récente
+
+    modes =
+      dataset.resources
+      |> Enum.map(fn r ->
+        rh_id = if x = find_resource_history(r.id), do: x.id, else: nil
+
+        if rh_id != nil do
+          rm = find_resource_metadata(rh_id)
+
+          if rm != nil do
+            rm.metadata["modes"]
+          else
+            nil
+          end
+        else
+          nil
+        end
+      end)
+      |> List.flatten()
+      |> Enum.reject(&(&1 == nil))
+
     %{
       id: dataset.id,
       datagouv_id: dataset.datagouv_id,
       title: dataset.custom_title,
       description: dataset.description,
-      formats: dataset.resources |> Enum.map(& &1.format)
+      formats: dataset.resources |> Enum.map(& &1.format),
+      modes: modes
     }
   end
 
@@ -193,10 +244,19 @@ defmodule Searcher do
     |> where([d], fragment("search_payload #> Array['formats'] \\? ?", ^search_format))
   end
 
+  # TODO: DRY
+  def maybe_search_resources_modes(query, nil), do: query
+
+  def maybe_search_resources_modes(query, mode) do
+    query
+    |> where([d], fragment("search_payload #> Array['modes'] \\? ?", ^mode))
+  end
+
   def search(options) do
     from(d in DB.Dataset)
     |> maybe_search_title(options[:title])
     |> maybe_search_resources_formats(options[:format])
+    |> maybe_search_resources_modes(options[:mode])
     |> select([d], [:id, :custom_title, :search_payload])
     |> DB.Repo.all()
   end
@@ -205,7 +265,8 @@ defmodule Searcher do
     %{
       id: item.id,
       title: item.custom_title,
-      formats: (item.search_payload["formats"] || []) |> Enum.join(", ")
+      formats: (item.search_payload["formats"] || []) |> Enum.join(", "),
+      modes: (item.search_payload["modes"] || []) |> Enum.join(", ")
     }
   end
 
@@ -215,7 +276,9 @@ defmodule Searcher do
   end
 end
 
-# SearchIndexer.reindex!()
+if System.get_env("REINDEX") == "1" do
+  SearchIndexer.reindex!()
+end
 
 # Searcher.search(title: "bibus")
 # |> Searcher.render()
@@ -223,5 +286,9 @@ end
 # Searcher.search(format: "SIRI")
 # |> Searcher.render()
 
-{:ok, _} = Supervisor.start_link([Search.Endpoint], strategy: :one_for_one)
-Process.sleep(:infinity)
+if System.get_env("RUN_SERVER") == "1" do
+  {:ok, _} = Supervisor.start_link([Search.Endpoint], strategy: :one_for_one)
+  Process.sleep(:infinity)
+end
+
+IO.puts("Done")
