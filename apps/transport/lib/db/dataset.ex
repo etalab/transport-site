@@ -975,41 +975,25 @@ defmodule DB.Dataset do
 
   defp cast_nation_dataset(changeset, _), do: changeset
 
-  @spec get_commune_by_insee(binary()) :: Commune.t() | nil
-  defp get_commune_by_insee(insee) do
-    Commune
-    |> Repo.get_by(insee: insee)
-    |> case do
-      nil ->
-        Logger.warning("Unable to find zone with INSEE #{insee}")
-        nil
-
-      commune ->
-        commune
-    end
-  end
-
   @spec cast_datagouv_zone(Ecto.Changeset.t(), map(), binary()) :: Ecto.Changeset.t()
   defp cast_datagouv_zone(changeset, _, nil) do
     changeset
-    |> change
     |> put_assoc(:communes, [])
   end
 
   defp cast_datagouv_zone(changeset, _, "") do
     changeset
-    |> change
     |> put_assoc(:communes, [])
   end
 
   defp cast_datagouv_zone(changeset, %{"zones" => zones_insee}, _associated_territory_name) do
     communes =
-      zones_insee
-      |> Enum.map(&get_commune_by_insee/1)
-      |> Enum.filter(fn z -> not is_nil(z) end)
+      # Fetch communes where the INSEE code is in the list of zones_insee
+      Commune
+      |> where([c], c.insee in ^zones_insee)
+      |> Repo.all()
 
     changeset
-    |> change
     |> put_assoc(:communes, communes)
   end
 
