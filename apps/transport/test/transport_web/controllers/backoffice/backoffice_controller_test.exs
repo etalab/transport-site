@@ -139,11 +139,9 @@ defmodule TransportWeb.BackofficeControllerTest do
     |> expect(:get!, fn "https://demo.data.gouv.fr/api/1/datasets/12/", [], _ ->
       body =
         %{
-          "created_at" => DateTime.utc_now(),
-          "last_update" => DateTime.utc_now(),
+          "id" => dataset_datagouv_id,
           "slug" => "dataset-slug",
           "type" => "public-transit",
-          "id" => dataset_datagouv_id,
           "resources" => [
             %{
               "last_modified" => DateTime.utc_now() |> DateTime.to_iso8601(),
@@ -153,6 +151,7 @@ defmodule TransportWeb.BackofficeControllerTest do
             }
           ]
         }
+        |> DB.Factory.datagouv_dataset_response()
         |> Jason.encode!()
 
       %HTTPoison.Response{body: body, status_code: 200}

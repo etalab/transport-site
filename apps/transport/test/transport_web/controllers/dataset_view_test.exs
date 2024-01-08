@@ -120,13 +120,14 @@ defmodule TransportWeb.DatasetViewTest do
   test "count_resources and count_documentation_resources" do
     dataset = insert(:dataset)
     insert(:resource, type: "documentation", url: "https://example.com/doc", dataset: dataset)
+    insert(:resource, type: "documentation", url: "https://example.com/more_doc", dataset: dataset)
     insert(:resource, type: "main", url: "https://example.com/file", dataset: dataset)
     insert(:resource, type: "main", url: "https://example.com/community", dataset: dataset, is_community_resource: true)
 
     dataset = dataset |> DB.Repo.preload(:resources)
 
-    assert count_resources(dataset) == 2
-    assert count_documentation_resources(dataset) == 1
+    assert count_resources(dataset) == 1
+    assert count_documentation_resources(dataset) == 2
   end
 
   describe "licence_link" do
