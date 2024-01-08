@@ -353,11 +353,6 @@ defmodule TransportWeb.Router do
     end
   end
 
-  # NOTE: method visibility set to public because we need to call the same logic from LiveView
-  # `current_user` is set by TransportWeb.SessionController.user_params_for_session/1
-  def is_transport_data_gouv_member?(%{"is_admin" => true} = _current_user), do: true
-  def is_transport_data_gouv_member?(_), do: false
-
   # Check that a secret key is passed in the URL in the `export_key` query parameter
   defp check_export_secret_key(%Plug.Conn{params: params} = conn, _) do
     export_key_value = Map.get(params, "export_key", "")
@@ -374,7 +369,7 @@ defmodule TransportWeb.Router do
   end
 
   defp transport_data_gouv_member(%Plug.Conn{} = conn, _) do
-    if is_transport_data_gouv_member?(conn.assigns[:current_user]) do
+    if TransportWeb.Session.is_admin?(conn) do
       conn
     else
       conn

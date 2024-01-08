@@ -188,14 +188,8 @@ defmodule TransportWeb.PageController do
 
     conn
     |> assign(:datasets, datasets)
-    |> refresh_is_producer(datasets)
+    |> TransportWeb.Session.set_is_producer(datasets)
     |> render("espace_producteur.html")
-  end
-
-  defp refresh_is_producer(%Plug.Conn{} = conn, datasets) do
-    is_producer = not Enum.empty?(datasets)
-    current_user = get_session(conn, :current_user, %{})
-    conn |> put_session(:current_user, Map.put(current_user, "is_producer", is_producer))
   end
 
   defp aoms_with_dataset do

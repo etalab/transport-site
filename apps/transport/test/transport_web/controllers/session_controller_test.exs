@@ -90,11 +90,11 @@ defmodule TransportWeb.SessionControllerTest do
   test "save_current_user", %{conn: conn} do
     pan_org = %{"slug" => "equipe-transport-data-gouv-fr", "name" => "PAN", "id" => org_id = Ecto.UUID.generate()}
 
-    assert is_admin?(%{"organizations" => [pan_org]})
-    refute is_producer?(%{"organizations" => [pan_org]})
+    assert TransportWeb.Session.is_admin?(%{"organizations" => [pan_org]})
+    refute TransportWeb.Session.is_producer?(%{"organizations" => [pan_org]})
     insert(:dataset, organization_id: org_id)
     # You're a producer if you're a member of an org with an active dataset
-    assert is_producer?(%{"organizations" => [pan_org]})
+    assert TransportWeb.Session.is_producer?(%{"organizations" => [pan_org]})
 
     user_params = %{"foo" => "bar", "organizations" => [pan_org]}
 

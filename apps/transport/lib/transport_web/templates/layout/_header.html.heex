@@ -81,10 +81,10 @@
                   <% end %>
                 </div>
                 <div class="dropdown-content">
-                  <%= if is_transport_data_gouv_member?(assigns[:current_user]) do %>
+                  <%= if TransportWeb.Session.is_admin?(@conn) do %>
                     <%= link("Administration", to: "/backoffice") %>
                   <% end %>
-                  <%= if Map.get(assigns[:current_user], "is_producer", false) do %>
+                  <%= if TransportWeb.Session.is_producer?(@conn) do %>
                     <%= link(gettext("Producer space"),
                       to: page_path(@conn, :espace_producteur, utm_source: "menu_dropdown")
                     ) %>
