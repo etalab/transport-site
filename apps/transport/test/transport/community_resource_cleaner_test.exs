@@ -13,7 +13,11 @@ defmodule Transport.CommunityResourcesCleanerTest do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
-  defp insert_dataset_associated_with_ressources(resources, datagouv_id \\ nil) do
+  defp insert_dataset_associated_with_ressources(resources) do
+    insert_dataset_associated_with_ressources(resources, Ecto.UUID.generate())
+  end
+
+  defp insert_dataset_associated_with_ressources(resources, datagouv_id) do
     :dataset
     |> insert(%{datagouv_id: datagouv_id})
     |> Repo.preload(:resources)
