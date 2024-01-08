@@ -128,13 +128,13 @@ defmodule TransportWeb.PageControllerTest do
   end
 
   describe "robots.txt" do
-    test "it works", %{conn: conn} do
+    test "200 response, doesn't disallow indexing everything", %{conn: conn} do
       refute conn |> get("/robots.txt") |> text_response(200) =~ ~r(Disallow: \/$)
     end
 
-    test "it works in staging with a different content", %{conn: conn} do
-      AppConfigHelper.change_app_config_temporarily(:transport, :app_env, :staging)
-      assert conn |> get("/robots.txt") |> text_response(200) =~ ~r(Disallow: \/$)
+    test "disallow indexing everything in staging" do
+      assert TransportWeb.PageController.robots_txt_content(:staging) =~ ~r(Disallow: \/$)
+      refute TransportWeb.PageController.robots_txt_content(:prod) =~ ~r(Disallow: \/$)
     end
   end
 

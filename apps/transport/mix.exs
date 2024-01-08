@@ -72,7 +72,7 @@ defmodule Transport.Mixfile do
       {:recon, "~> 2.4"},
       {:quantum, "~> 3.4"},
       {:timex, "~> 3.7"},
-      {:sentry, "~> 8.1"},
+      {:sentry, "~> 10.1"},
       {:scrivener, "~> 2.5"},
       # Compilation issue for this dependency, see https://github.com/etalab/transport-site/issues/3499
       {:scrivener_html, git: "https://github.com/etalab/scrivener_html.git", ref: "f0245703abf7d0ce2b48a0f7e96997def7649e5f"},
@@ -94,7 +94,7 @@ defmodule Transport.Mixfile do
       {:phoenix_ecto, "~> 4.0"},
       {:sizeable, "~> 1.0"},
       {:plug_canonical_host, "~> 2.0"},
-      {:mox, "~> 1.0.0", only: :test},
+      {:mox, "~> 1.1", only: :test},
       # temporary fix until https://github.com/jayjun/rambo/pull/13 is merged
       # see https://github.com/etalab/transport-site/issues/2520.
       # Not perfect since this will impact `mix.lock`

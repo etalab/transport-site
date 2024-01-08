@@ -313,24 +313,26 @@ defmodule Transport.Validators.GTFSRT do
   end
 
   defp download_latest_gtfs(%ResourceHistory{payload: %{"permanent_url" => url, "format" => "GTFS"}}, tmp_path) do
+    req_options = [compressed: false, decode_body: false, into: File.stream!(tmp_path)]
+
     unless File.exists?(tmp_path) do
-      %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(url, [], follow_redirect: true)
-      File.write!(tmp_path, body)
+      {:ok, %Req.Response{status: 200}} = Transport.Req.impl().get(url, req_options)
     end
   end
 
   defp download_resource(%Resource{id: resource_id, url: url, is_available: true, format: "gtfs-rt"}, tmp_path) do
-    case http_client().get(url, [], follow_redirect: true) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        Logger.debug("Saving resource #{resource_id} to #{tmp_path}")
-        File.write!(tmp_path, body)
-        {:ok, tmp_path, body}
+    req_options = [compressed: false, decode_body: false, into: File.stream!(tmp_path)]
 
-      {:ok, %HTTPoison.Response{status_code: status}} ->
+    case Transport.Req.impl().get(url, req_options) do
+      {:ok, %Req.Response{status: 200}} ->
+        Logger.debug("Saving resource #{resource_id} to #{tmp_path}")
+        {:ok, tmp_path}
+
+      {:ok, %Req.Response{status: status}} ->
         {:error, "Got a non 200 status: #{status}"}
 
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        {:error, "Got an error: #{reason}"}
+      error ->
+        {:error, "Got an error: #{inspect(error)}"}
     end
   end
 
@@ -339,9 +341,9 @@ defmodule Transport.Validators.GTFSRT do
     :error
   end
 
-  defp process_download({:ok, tmp_path, body}, %Resource{} = resource) do
+  defp process_download({:ok, tmp_path}, %Resource{} = resource) do
     cellar_filename = upload_filename(resource, DateTime.utc_now())
-    Transport.S3.upload_to_s3!(:history, body, cellar_filename, acl: :public_read)
+    Transport.S3.stream_to_s3!(:history, tmp_path, cellar_filename, acl: :public_read)
     {:ok, tmp_path, cellar_filename}
   end
 
@@ -357,6 +359,5 @@ defmodule Transport.Validators.GTFSRT do
     "#{download_path(resource)}.results.json"
   end
 
-  defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
   defp remove_file(path), do: File.rm(path)
 end

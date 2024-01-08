@@ -235,33 +235,31 @@ defmodule Transport.ImportData do
   end
 
   @spec read_datagouv_zone(map()) :: [binary()]
-  defp read_datagouv_zone(%{
-         "features" => [
-           %{
-             "properties" => %{
-               "level" => "fr:commune",
-               "keys" => %{
-                 "insee" => insee
-               }
-             }
-           }
-           | _
-         ]
-       }) do
+  def read_datagouv_zone(%{
+        "features" => [
+          %{
+            "properties" => %{
+              "level" => "fr:commune",
+              "code" => insee
+            }
+          }
+          | _
+        ]
+      }) do
     [insee]
   end
 
-  defp read_datagouv_zone(%{
-         "features" => [
-           %{
-             "properties" => %{
-               "level" => "fr:epci",
-               "code" => code
-             }
-           }
-           | _
-         ]
-       }) do
+  def read_datagouv_zone(%{
+        "features" => [
+          %{
+            "properties" => %{
+              "level" => "fr:epci",
+              "code" => code
+            }
+          }
+          | _
+        ]
+      }) do
     # For the EPCI we get the list of cities contained by the EPCI
     EPCI
     |> Repo.get_by(code: code)
@@ -275,12 +273,12 @@ defmodule Transport.ImportData do
     end
   end
 
-  defp read_datagouv_zone(%{"features" => [%{"id" => id} | _]}) do
+  def read_datagouv_zone(%{"features" => [%{"id" => id} | _]}) do
     Logger.info("For the moment we can only handle cities, we cannot handle the zone #{id}")
     []
   end
 
-  defp read_datagouv_zone(z) do
+  def read_datagouv_zone(z) do
     Logger.info("invalid format we cannot handle the zone #{inspect(z)}")
     []
   end
@@ -442,11 +440,27 @@ defmodule Transport.ImportData do
     end
   end
 
-  def is_ods_title?(%{"title" => title})
+  @doc """
+  iex> is_ods_resource?(%{"format" => "json", "title" => "GTFS (json)", "harvest" => %{"uri" => "https://data.angers.fr/api/explore/v2.1/catalog/datasets/angers-loire-metropole-horaires-reseau-irigo-gtfs-rt/exports/json"}})
+  true
+  iex> is_ods_resource?(%{"format" => "GTFS", "title" => "GTFS été"})
+  false
+  iex> is_ods_resource?(%{"format" => "csv", "title" => "Export au format CSV"})
+  true
+  """
+  # Will soon be legacy, after DCAT migration
+  # (see https://github.com/etalab/transport-site/issues/3647)
+  def is_ods_resource?(%{"title" => title})
       when title in ["Export au format CSV", "Export au format JSON"],
       do: true
 
-  def is_ods_title?(_), do: false
+  def is_ods_resource?(%{"harvest" => %{"uri" => uri}}) do
+    # Possible URL:
+    # https://data.angers.fr/api/explore/v2.1/catalog/datasets/angers-loire-metropole-horaires-reseau-irigo-gtfs-rt/exports/json
+    String.match?(uri, ~r{/api/explore/v(\d+\.\d+)/catalog/datasets/.*/exports/(json|csv)$}i)
+  end
+
+  def is_ods_resource?(_), do: false
 
   @doc """
   Is it a GTFS file?
@@ -467,6 +481,8 @@ defmodule Transport.ImportData do
   true
   iex> is_gtfs?(%{"description" => "gtfs", "title" => "Export au format CSV"})
   false
+  iex> is_gtfs?(%{"title" => "Angers GTFS (json)", "format" => "json", "harvest" => %{"uri" => "https://example.com/api/explore/v2.1/catalog/datasets/foo/exports/json"}})
+  false
   iex> is_gtfs?(%{"format" => "gtfs", "title" => "Export au format CSV"})
   true
   iex> is_gtfs?(%{"url" => "https://example.com/documentation-gtfs.pdf", "type" => "documentation"})
@@ -477,7 +493,7 @@ defmodule Transport.ImportData do
   def is_gtfs?(%{} = params) do
     cond do
       is_gtfs?(params["format"]) -> true
-      is_ods_title?(params) or is_documentation?(params) -> false
+      is_ods_resource?(params) or is_documentation?(params) -> false
       is_gtfs_rt?(params) -> false
       is_format?(params["url"], ["json", "csv", "shp", "pdf", "7z"]) -> false
       is_format?(params["format"], "NeTEx") -> false
@@ -507,6 +523,8 @@ defmodule Transport.ImportData do
   true
   iex> is_gtfs_rt?(%{"description" => "gtfs-rt", "title" => "Export au format CSV"})
   false
+  iex> is_gtfs_rt?(%{"format" => "json", "title" => "GTFS-RT vehicle positions", "description" => "gtfs-rt", "harvest" => %{"uri" => "https://example.com/api/explore/v2.1/catalog/datasets/foo/exports/json"}})
+  false
   iex> is_gtfs_rt?(%{"format" => "gtfs-rt", "title" => "Export au format CSV"})
   true
   """
@@ -514,7 +532,7 @@ defmodule Transport.ImportData do
   def is_gtfs_rt?(%{} = params) do
     cond do
       is_gtfs_rt?(params["format"]) -> true
-      is_ods_title?(params) or is_documentation?(params) -> false
+      is_ods_resource?(params) or is_documentation?(params) -> false
       is_gtfs_rt?(params["description"]) -> true
       is_gtfs_rt?(params["title"]) -> true
       is_gtfs_rt?(params["url"]) -> true
@@ -568,6 +586,8 @@ defmodule Transport.ImportData do
   true
   iex> is_siri?(%{"title" => "Export au format CSV", "format" => "SIRI"})
   false
+  iex> is_siri?(%{"title" => "Flux SIRI", "format" => "csv", "harvest" => %{"uri" => "https://example.com/api/explore/v2.1/catalog/datasets/foo/exports/json"}})
+  false
   iex> is_siri?(%{"title" => "https://api.okina.fr/gateway/cae/realtime", "format" => "bin", "description" => "API temps réel au format SIRI"})
   true
   iex> is_siri?(%{"type" => "documentation", "title" => "Documentation de l'API SIRI"})
@@ -577,7 +597,7 @@ defmodule Transport.ImportData do
   def is_siri?(%{} = params) do
     cond do
       is_siri_lite?(params) -> false
-      is_ods_title?(params) or is_documentation?(params) -> false
+      is_ods_resource?(params) or is_documentation?(params) -> false
       is_format?(params, "siri") -> true
       is_siri?(params["title"]) -> true
       is_siri?(params["description"]) -> true
@@ -601,7 +621,7 @@ defmodule Transport.ImportData do
   @spec is_siri_lite?(binary() | map()) :: boolean()
   def is_siri_lite?(params) do
     cond do
-      is_ods_title?(params) or is_documentation?(params) -> false
+      is_ods_resource?(params) or is_documentation?(params) -> false
       is_format?(params, "SIRI Lite") -> true
       true -> false
     end
@@ -680,12 +700,14 @@ defmodule Transport.ImportData do
   false
   iex> is_netex?(%{"title" => "Export au format CSV", "format" => "netex"})
   true
+  iex> is_netex?(%{"title" => "Angers NeTEx (json)", "format" => "json", "harvest" => %{"uri" => "https://example.com/api/explore/v2.1/catalog/datasets/foo/exports/json"}})
+  false
   """
   @spec is_netex?(binary() | map()) :: boolean()
   def is_netex?(%{} = params) do
     cond do
       is_netex?(params["format"]) -> true
-      is_ods_title?(params) or is_documentation?(params) -> false
+      is_ods_resource?(params) or is_documentation?(params) -> false
       is_netex?(params["title"]) -> true
       is_netex?(params["description"]) -> true
       is_netex?(params["url"]) -> true

@@ -2,7 +2,7 @@ defmodule Transport.Jobs.DatasetQualityScoreDispatcher do
   @moduledoc """
   Computes quality scores for a dataset
   """
-  use Oban.Worker, unique: [period: 60 * 60 * 20], max_attempts: 1
+  use Oban.Worker, unique: [period: {20, :hours}], max_attempts: 1
   import Ecto.Query
 
   @impl Oban.Worker
@@ -21,7 +21,7 @@ defmodule Transport.Jobs.DatasetQualityScore do
   @moduledoc """
   Computes quality scores for a dataset
   """
-  use Oban.Worker, unique: [period: 60 * 60 * 20], max_attempts: 1
+  use Oban.Worker, unique: [period: {20, :hours}], max_attempts: 1
   import Ecto.Query
 
   @type compute_score_fn :: (integer() -> %{score: nil | float(), details: map()})

@@ -212,7 +212,11 @@ defmodule TransportWeb.API.StatsControllerTest do
     insert(:dataset, type: "public-transit", is_active: true, legal_owners_aom: [aom])
     insert(:dataset, type: "public-transit", is_active: true, legal_owners_aom: [aom])
 
-    insert_resource_and_friends(Date.utc_today() |> Date.add(10), aom: aom, max_error: "Error")
+    insert_resource_and_friends(Date.utc_today() |> Date.add(10),
+      aom: aom,
+      max_error: "Error",
+      type: "low-emission-zones"
+    )
 
     assert [
              %{

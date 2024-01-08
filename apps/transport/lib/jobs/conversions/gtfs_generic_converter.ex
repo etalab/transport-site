@@ -140,13 +140,12 @@ defmodule Transport.Jobs.GTFSGenericConverter do
               conversion_output_path
             end
 
-          file = File.read!(path)
           %File.Stat{size: filesize} = File.stat!(path)
 
           conversion_file_name =
             resource_filename |> conversion_file_name(format_lower) |> add_zip_extension(zip_conversion?)
 
-          Transport.S3.upload_to_s3!(:history, file, conversion_file_name, acl: :public_read)
+          Transport.S3.stream_to_s3!(:history, path, conversion_file_name, acl: :public_read)
 
           %DataConversion{
             convert_from: :GTFS,

@@ -63,7 +63,10 @@ defmodule Transport.Jobs.SingleGTFSToGeoJSONConverterJobTest do
       {:ok, "this my geojson content"}
     end)
 
-    Transport.Test.S3TestUtils.s3_mocks_upload_file("conversions/gtfs-to-geojson/")
+    Transport.Test.S3TestUtils.s3_mock_stream_file(
+      start_path: "conversions/gtfs-to-geojson/",
+      bucket: "transport-data-gouv-fr-resource-history-test"
+    )
 
     # job succeed
     assert :ok ==

@@ -9,7 +9,10 @@ defmodule Transport.Jobs.BNLCToGeoData do
 
   @impl Oban.Worker
   def perform(%{}) do
-    [%DB.Resource{} = resource] = relevant_dataset() |> DB.Dataset.official_resources()
+    [%DB.Resource{} = resource] =
+      relevant_dataset()
+      |> Map.fetch!(:resources)
+      |> Enum.filter(fn %DB.Resource{datagouv_id: datagouv_id} -> datagouv_id == bnlc_datagouv_id() end)
 
     Transport.Jobs.BaseGeoData.import_replace_data(resource, &prepare_data_for_insert/2)
     :ok
@@ -39,5 +42,10 @@ defmodule Transport.Jobs.BNLCToGeoData do
     end
 
     Transport.Jobs.BaseGeoData.prepare_csv_data_for_import(body, prepare_data_fn)
+  end
+
+  defp bnlc_datagouv_id do
+    %{resource_id: resource_id} = Map.fetch!(Application.fetch_env!(:transport, :consolidation), :bnlc)
+    resource_id
   end
 end

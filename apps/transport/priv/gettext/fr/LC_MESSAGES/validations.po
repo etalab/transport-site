@@ -38,13 +38,13 @@ msgstr "ce lien permanent"
 msgid "Nice work, there are no issues!"
 msgstr "Félicitations, aucune erreur n'a été trouvée !"
 
-#, elixir-format
+#, elixir-format, elixir-autogen
 msgid "network"
 msgid_plural "networks"
 msgstr[0] "réseau"
 msgstr[1] "réseaux"
 
-#, elixir-format
+#, elixir-format, elixir-autogen
 msgid "transport mode"
 msgid_plural "transport modes"
 msgstr[0] "mode de transport"
@@ -107,7 +107,7 @@ msgstr "Le format GeoJSON ne contient que les informations géographiques de la 
 msgid "This resource is also available in the following formats:"
 msgstr "Cette ressource est également disponible dans les formats suivants :"
 
-#, elixir-format
+#, elixir-format, elixir-autogen
 msgctxt "errors"
 msgid "error"
 msgid_plural "errors"
@@ -186,7 +186,7 @@ msgstr "Validation effectuée en utilisant <a href=\"%{gtfs_link}\">le fichier G
 msgid "Warnings"
 msgstr "Avertissements"
 
-#, elixir-format, ex-autogen, fuzzy
+#, elixir-format, elixir-autogen, fuzzy
 msgctxt "warnings"
 msgid "warning"
 msgid_plural "warnings"

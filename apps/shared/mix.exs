@@ -39,7 +39,7 @@ defmodule Shared.MixProject do
       {:httpoison, ">= 0.0.0"},
       {:req, "~> 0.4.0"},
       {:bypass, "~> 2.1", only: :test},
-      {:mox, "~> 1.0.0", only: :test},
+      {:mox, "~> 1.1", only: :test},
       # Mint is used by our HttpStream shared component, so we add an explicity dependency
       {:mint, "~> 1.2"},
       # Finch is used for built-in streaming
@@ -52,7 +52,7 @@ defmodule Shared.MixProject do
       # otherwise running tests for an individual umbrella sub-app will raise error.
       # A better way to achieve this will be to configure it at runtime, like described
       # in https://github.com/getsentry/sentry-elixir/pull/472.
-      {:sentry, "~> 8.1"},
+      {:sentry, "~> 10.1"},
       # Similarly, Jason is configured as `json_library` by the main app, so it will
       # be required no matter what.
       {:jason, ">= 0.0.0"},
