@@ -69,16 +69,18 @@ defmodule Transport.Jobs.ImportDatasetMonthlyMetricsJob do
          dataset_datagouv_id
        ) do
     Enum.each([{:views, monthly_visit}, {:downloads, monthly_download_resource}], fn {metric_name, count} ->
+      count = count || 0
+
       %DB.DatasetMonthlyMetric{}
       |> DB.DatasetMonthlyMetric.changeset(%{
         dataset_datagouv_id: dataset_datagouv_id,
         year_month: metric_month,
         metric_name: metric_name,
-        count: count || 0
+        count: count
       })
       |> DB.Repo.insert!(
         conflict_target: [:dataset_datagouv_id, :year_month, :metric_name],
-        on_conflict: {:replace, [:count]}
+        on_conflict: [set: [count: count, updated_at: DateTime.utc_now()]]
       )
     end)
   end

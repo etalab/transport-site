@@ -239,10 +239,9 @@ See the [learning track document](learning_track.md).
 
 ## Development
 
-If you don't plan to work a lot on this project, the docker installation is way easier.
+If you don't plan to work a lot on this project, the Docker installation is way easier.
 
-You need a .env file, and can use .env.example to see which variables need to be set.
-(No need to setup the variable `PG_URL`, it is defined in the docker-compose.yml)
+Some environment variables may be needed to configure the app, see the files in the `config` folder.
 
 Then you only need to run:
   `docker-compose up`
