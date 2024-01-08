@@ -223,11 +223,11 @@ Some custom one shot tasks are available.
 
 To run a custom task: `mix <custom task>`
 
-* `Transport.ImportAOMs`: import the aom data from the cerema
-* `Transport.Import_communes`: import the french communes from data.gouv
-* `Transport.ImportEPCI`: import the french EPCI from data.gouv
-* `Transport.Import_departements`: import the french Départements from data.gouv
-* `Transport.OpenApiSpec`: generate an OpenAPI specification file
+* `mix Transport.ImportAOMs`: import the aom data from the cerema
+* `mix Transport.ImportCommunes`: import the french communes from data.gouv
+* `mix Transport.ImportEPCI`: import the french EPCI from data.gouv
+* `mix Transport.ImportDepartements`: import the french Départements from data.gouv
+* `mix Transport.OpenApiSpec`: generate an OpenAPI specification file
 
 ## Testing emails
 

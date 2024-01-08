@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Transport.ImportAOM do
+defmodule Mix.Tasks.Transport.ImportAOMs do
   @moduledoc """
   Import the AOM files and updates the database.
 

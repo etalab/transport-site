@@ -1,6 +1,6 @@
 defmodule Mix.Tasks.Transport.ImportCommunes do
   @moduledoc """
-  Import or updates commune data (list, geometry) from official sources. Run with `mix transport.import_communes`.
+  Import or updates commune data (list, geometry) from official sources. Run with `mix transport.ImportCommunes`.
 
   """
   @shortdoc "Refreshes the database table `commune` with the latest data"
