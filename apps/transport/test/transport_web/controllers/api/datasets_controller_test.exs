@@ -253,7 +253,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
 
   test "GET /api/datasets/:id *without* history, multi_validation and resource_metadata", %{conn: conn} do
     dataset =
-      %DB.Dataset{
+      insert(:dataset,
         custom_title: "title",
         is_active: true,
         type: "public-transit",
@@ -287,9 +287,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
         created_at: ~U[2021-12-23 13:30:40.000000Z],
         last_update: DateTime.utc_now(),
         aom: %DB.AOM{id: 4242, nom: "Angers Métropole", siren: "siren"}
-      }
-      |> DB.Repo.insert!()
-      |> DB.Repo.preload(:resources)
+      )
 
     Transport.History.Fetcher.Mock
     |> expect(:history_resources, fn _, options ->
