@@ -106,7 +106,7 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
           })
 
         {:error, %HTTPoison.Error{reason: reason}} ->
-          socket |> assign(siri_response_error: reason, siri_response_status_code: nil)
+          socket |> assign(siri_response_error: inspect(reason), siri_response_status_code: nil)
       end
 
     {:noreply, socket}
