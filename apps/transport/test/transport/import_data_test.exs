@@ -39,6 +39,7 @@ defmodule Transport.ImportDataTest do
         "id" => id || "resource1_id",
         "type" => "main",
         "filetype" => filetype || "remote",
+        "format" => "zip",
         "last_modified" => DateTime.utc_now() |> DateTime.add(-1, :hour) |> DateTime.to_iso8601(),
         "schema" => %{"name" => schema_name, "version" => schema_version}
       }
@@ -46,37 +47,11 @@ defmodule Transport.ImportDataTest do
   end
 
   def generate_dataset_payload(datagouv_id, resources \\ nil) do
-    resources = resources || generate_resources_payload()
-
-    %{
-      "title" => "dataset1",
-      "id" => datagouv_id,
-      "created_at" => DateTime.utc_now() |> to_string(),
-      "last_update" => DateTime.utc_now() |> to_string(),
-      "slug" => "dataset-slug",
-      "resources" => resources,
-      "organization" => %{
-        "id" => Ecto.UUID.generate(),
-        "name" => "Org " <> Ecto.UUID.generate(),
-        "badges" => [],
-        "logo" => "https://example.com/img.jpg",
-        "logo_thumbnail" => "https://example.com/img.small.jpg",
-        "slug" => Ecto.UUID.generate()
-      }
-    }
+    datagouv_dataset_response(%{"id" => datagouv_id, "resources" => resources || generate_resources_payload()})
   end
 
   def insert_national_dataset(datagouv_id) do
-    {:ok, changes} =
-      DB.Dataset.changeset(%{
-        "created_at" => DateTime.utc_now(),
-        "last_update" => DateTime.utc_now(),
-        "datagouv_id" => datagouv_id,
-        "slug" => "ma_limace",
-        "national_dataset" => "true"
-      })
-
-    DB.Repo.insert!(changes)
+    insert(:dataset, datagouv_id: datagouv_id, aom: nil, region_id: DB.Repo.get_by!(DB.Region, nom: "National").id)
   end
 
   def http_get_mock_200(datagouv_id, payload \\ nil) do
@@ -383,16 +358,16 @@ defmodule Transport.ImportDataTest do
     end
 
     test "for an EPCI" do
-      commune = insert(:commune)
-      epci = insert(:epci, code: "242320109", nom: "Le Pays Dunois", communes_insee: [commune.insee])
+      epci = insert(:epci, insee: "242320109", nom: "Le Pays Dunois")
+      commune = insert(:commune, epci_insee: "242320109")
       # Example: https://www.data.gouv.fr/api/1/spatial/zones/fr:epci:242320109/
       assert [commune.insee] ==
                ImportData.read_datagouv_zone(%{
                  "features" => [
                    %{
-                     "id" => "fr:epci:#{epci.code}",
+                     "id" => "fr:epci:#{epci.insee}",
                      "properties" => %{
-                       "code" => epci.code,
+                       "code" => epci.insee,
                        "level" => "fr:epci",
                        "name" => epci.nom,
                        "slug" => "Le-Pays-Dunois",
