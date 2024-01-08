@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Transport.ImportAoms do
+defmodule Mix.Tasks.Transport.ImportAOMs do
   @moduledoc """
   Import the AOM files and updates the database.
 
@@ -13,7 +13,7 @@ defmodule Mix.Tasks.Transport.ImportAoms do
 
   This is a one shot import task, run when the AOM have changed, at least every year.
 
-  The import can be launched through mix transport.import_aoms
+  The import can be launched through mix Transport.ImportAOMs
   """
 
   @shortdoc "Refreshes the database table `aom` with the latest data"

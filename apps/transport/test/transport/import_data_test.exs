@@ -358,16 +358,16 @@ defmodule Transport.ImportDataTest do
     end
 
     test "for an EPCI" do
-      commune = insert(:commune)
-      epci = insert(:epci, code: "242320109", nom: "Le Pays Dunois", communes_insee: [commune.insee])
+      epci = insert(:epci, insee: "242320109", nom: "Le Pays Dunois")
+      commune = insert(:commune, epci_insee: "242320109")
       # Example: https://www.data.gouv.fr/api/1/spatial/zones/fr:epci:242320109/
       assert [commune.insee] ==
                ImportData.read_datagouv_zone(%{
                  "features" => [
                    %{
-                     "id" => "fr:epci:#{epci.code}",
+                     "id" => "fr:epci:#{epci.insee}",
                      "properties" => %{
-                       "code" => epci.code,
+                       "code" => epci.insee,
                        "level" => "fr:epci",
                        "name" => epci.nom,
                        "slug" => "Le-Pays-Dunois",
