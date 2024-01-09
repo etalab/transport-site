@@ -127,24 +127,17 @@ defmodule TransportWeb.SessionController do
   end
 
   def save_current_user(%Plug.Conn{} = conn, %{} = user_params) do
-    conn |> put_session(:current_user, user_params |> user_params_for_session())
+    conn
+    |> put_session(:current_user, user_params_for_session(user_params))
+    |> TransportWeb.Session.set_is_producer(user_params)
+    |> TransportWeb.Session.set_is_admin(user_params)
   end
 
-  @doc """
-  iex> pan_org = %{"slug" => "equipe-transport-data-gouv-fr", "name" => "PAN"}
-  iex> other_org = %{"slug" => "foo-inc", "name" => "Foo Inc"}
-  iex> user_params_for_session(%{"foo" => "bar", "organizations" => [pan_org, other_org]})
-  %{"foo" => "bar", "organizations" => [pan_org]}
-  """
-  def user_params_for_session(%{} = params) do
-    Map.put(
-      params,
-      "organizations",
-      Enum.filter(
-        params["organizations"],
-        &match?(%{"slug" => "equipe-transport-data-gouv-fr"}, &1)
-      )
-    )
+  defp user_params_for_session(%{} = params) do
+    # Remove the list of `organizations` from the final map: it's already stored in the database
+    # and maintained up-to-date by `Transport.Jobs.UpdateContactsJob`
+    # and it can be too big to be stored in a cookie
+    Map.delete(params, "organizations")
   end
 
   defp get_redirect_path(%Plug.Conn{} = conn) do

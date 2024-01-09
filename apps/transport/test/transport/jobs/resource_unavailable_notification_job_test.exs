@@ -151,7 +151,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
       assert html_part =~ "Il semble que vous ayez supprimé puis créé une nouvelle ressource"
 
       assert html_part =~
-               ~s(rendez-vous sur votre <a href="http://127.0.0.1:5100/espace_producteur">Espace Producteur</a> à partir duquel vous pourrez procéder à ces mises à jour)
+               ~s(rendez-vous sur votre <a href="http://127.0.0.1:5100/espace_producteur?utm_source=transactional_email&amp;utm_medium=email&amp;utm_campaign=resource_unavailable_producer">Espace Producteur</a> à partir duquel vous pourrez procéder à ces mises à jour)
 
       :ok
     end)
