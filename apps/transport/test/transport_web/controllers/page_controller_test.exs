@@ -31,7 +31,7 @@ defmodule TransportWeb.PageControllerTest do
 
   test "I can see a log-in link on home", %{conn: conn} do
     # go to the home page
-    conn = conn |> get("/")
+    conn = conn |> get(~p"/")
     doc = html_response(conn, 200)
     html = doc |> Floki.parse_document!()
 
@@ -127,12 +127,12 @@ defmodule TransportWeb.PageControllerTest do
   end
 
   test "security.txt page", %{conn: conn} do
-    conn |> get("/.well-known/security.txt") |> text_response(200)
+    conn |> get(~p"/.well-known/security.txt") |> text_response(200)
   end
 
   describe "robots.txt" do
     test "200 response, doesn't disallow indexing everything", %{conn: conn} do
-      refute conn |> get("/robots.txt") |> text_response(200) =~ ~r(Disallow: \/$)
+      refute conn |> get(~p"/robots.txt") |> text_response(200) =~ ~r(Disallow: \/$)
     end
 
     test "disallow indexing everything in staging" do
@@ -155,7 +155,7 @@ defmodule TransportWeb.PageControllerTest do
   end
 
   test "budget page", %{conn: conn} do
-    conn |> get("/budget") |> redirected_to(302) =~ "https://doc.transport.data.gouv.fr"
+    conn |> get(~p"/budget") |> redirected_to(302) =~ "https://doc.transport.data.gouv.fr"
   end
 
   test "humans txt", %{conn: conn} do

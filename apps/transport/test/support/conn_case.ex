@@ -31,6 +31,8 @@ defmodule TransportWeb.ConnCase do
 
       # The default endpoint for testing
       @endpoint TransportWeb.Endpoint
+
+      use TransportWeb, :verified_routes
     end
   end
 

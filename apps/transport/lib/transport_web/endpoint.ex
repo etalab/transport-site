@@ -22,7 +22,7 @@ defmodule TransportWeb.Endpoint do
     at: "/",
     from: :transport,
     gzip: Mix.env() == :prod,
-    only: ~w(js css fonts images data favicon.ico documents BingSiteAuth.xml google5be4b09db1274976.html demo_rt.html)
+    only: TransportWeb.static_paths()
   )
 
   # Code reloading can be explicitly enabled under the

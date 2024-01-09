@@ -12,7 +12,7 @@ defmodule TransportWeb.Backoffice.BrokenUrlsControllerTest do
     target_uri = URI.parse(redirected_to(conn, 302))
     assert target_uri.path == "/login/explanation"
     assert target_uri.query == URI.encode_query(redirect_path: request_path)
-    assert get_flash(conn, :info) =~ "Vous devez être préalablement connecté"
+    assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Vous devez être préalablement connecté"
   end
 
   test "detects a broken URL", %{conn: conn} do
