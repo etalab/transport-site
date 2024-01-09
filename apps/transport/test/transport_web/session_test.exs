@@ -27,12 +27,30 @@ defmodule TransportWeb.SessionTest do
     test "is_admin?" do
       refute is_admin?(Plug.Test.init_test_session(%Plug.Conn{}, %{}))
       assert is_admin?(Plug.Test.init_test_session(%Plug.Conn{}, %{current_user: %{"is_admin" => true}}))
-      assert is_admin?(%{"is_admin" => true})
+      assert is_admin?(%Phoenix.LiveView.Socket{assigns: %{current_user: %{"is_admin" => true}}})
     end
 
     test "is_producer?" do
       assert is_producer?(Plug.Test.init_test_session(%Plug.Conn{}, %{current_user: %{"is_producer" => true}}))
       refute is_producer?(Plug.Test.init_test_session(%Plug.Conn{}, %{}))
+    end
+  end
+
+  describe "set_is_producer" do
+    test "no datasets" do
+      assert %{"is_producer" => false} ==
+               %Plug.Conn{}
+               |> Plug.Test.init_test_session(%{current_user: %{}})
+               |> set_is_producer([])
+               |> Plug.Conn.get_session(:current_user)
+    end
+
+    test "2 datasets" do
+      assert %{"is_producer" => true} ==
+               %Plug.Conn{}
+               |> Plug.Test.init_test_session(%{current_user: %{}})
+               |> set_is_producer([build(:dataset), build(:dataset)])
+               |> Plug.Conn.get_session(:current_user)
     end
   end
 
