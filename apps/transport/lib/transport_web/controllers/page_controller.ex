@@ -95,26 +95,29 @@ defmodule TransportWeb.PageController do
     |> render("infos_producteurs.html")
   end
 
-  def robots_txt(conn, _params) do
-    # See http://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
-    content =
-      if Application.fetch_env!(:transport, :app_env) == :staging do
-        """
-        User-agent: *
-        Disallow: /
-        """
-      else
-        """
-        User-agent: *
-        Allow: /
-        Disallow: /backoffice/
-        Disallow: /validation/*
-        Disallow: /login/*
-        Disallow: /resources/conversions/*
-        """
-      end
+  def robots_txt(%Plug.Conn{} = conn, _params) do
+    # See http://www.robotstxt.org/robotstxt.html
+    # for documentation on how to use the robots.txt file
+    app_env = Application.fetch_env!(:transport, :app_env)
+    text(conn, robots_txt_content(app_env))
+  end
 
-    conn |> text(content)
+  def robots_txt_content(:staging = _app_env) do
+    """
+    User-agent: *
+    Disallow: /
+    """
+  end
+
+  def robots_txt_content(_app_env) do
+    """
+    User-agent: *
+    Allow: /
+    Disallow: /backoffice/
+    Disallow: /validation/*
+    Disallow: /login/*
+    Disallow: /resources/conversions/*
+    """
   end
 
   def security_txt(conn, _params) do
@@ -199,9 +202,9 @@ defmodule TransportWeb.PageController do
 
   defp count_aoms_with_dataset, do: Repo.aggregate(aoms_with_dataset(), :count, :id)
 
-  defp population_with_dataset, do: Repo.aggregate(aoms_with_dataset(), :sum, :population_totale) || 0
+  defp population_with_dataset, do: Repo.aggregate(aoms_with_dataset(), :sum, :population) || 0
 
-  defp population_totale, do: Repo.aggregate(AOM, :sum, :population_totale)
+  defp population_totale, do: Repo.aggregate(AOM, :sum, :population)
 
   defp percent_population, do: percent(population_with_dataset(), population_totale())
 

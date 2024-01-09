@@ -7,10 +7,10 @@ Nous vous invitons à les corriger en vous appuyant sur les rapports de validati
 <%= link_for_resource(resource) %>
 <% end %>
 
-Nous restons disponible pour vous accompagner si besoin.
+Nous restons disponibles pour vous accompagner si besoin.
 
 Merci par avance pour votre action,
 
 À bientôt,
 
-L'équipe du PAN
+L’équipe transport.data.gouv.fr

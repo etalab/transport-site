@@ -178,7 +178,7 @@ defmodule TransportWeb.API.StatsControllerTest do
           geom: "SRID=4326;LINESTRING(1 1,2 2)" |> Geo.WKT.decode!()
         )
 
-      assert DB.AOM.created_in_2022?(aom)
+      assert DB.AOM.created_after_2021?(aom)
 
       assert [] ==
                TransportWeb.API.StatsController.quality_features_query() |> TransportWeb.API.StatsController.features()
@@ -186,7 +186,7 @@ defmodule TransportWeb.API.StatsControllerTest do
       # If created before 2022, it is present even without a dataset
       aom = aom |> Ecto.Changeset.change(%{composition_res_id: 500}) |> DB.Repo.update!()
 
-      refute DB.AOM.created_in_2022?(aom)
+      refute DB.AOM.created_after_2021?(aom)
 
       assert [%{"properties" => %{"dataset_count" => 0, "nom" => ^aom_nom}}] =
                TransportWeb.API.StatsController.quality_features_query() |> TransportWeb.API.StatsController.features()
@@ -195,7 +195,7 @@ defmodule TransportWeb.API.StatsControllerTest do
       aom = aom |> Ecto.Changeset.change(%{composition_res_id: 1_200}) |> DB.Repo.update!()
       insert(:dataset, is_active: true, aom: aom, type: "public-transit")
 
-      assert DB.AOM.created_in_2022?(aom)
+      assert DB.AOM.created_after_2021?(aom)
 
       assert [%{"properties" => %{"dataset_types" => %{pt: 1}, "nom" => ^aom_nom}}] =
                TransportWeb.API.StatsController.quality_features_query() |> TransportWeb.API.StatsController.features()
@@ -212,7 +212,11 @@ defmodule TransportWeb.API.StatsControllerTest do
     insert(:dataset, type: "public-transit", is_active: true, legal_owners_aom: [aom])
     insert(:dataset, type: "public-transit", is_active: true, legal_owners_aom: [aom])
 
-    insert_resource_and_friends(Date.utc_today() |> Date.add(10), aom: aom, max_error: "Error")
+    insert_resource_and_friends(Date.utc_today() |> Date.add(10),
+      aom: aom,
+      max_error: "Error",
+      type: "low-emission-zones"
+    )
 
     assert [
              %{

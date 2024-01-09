@@ -8,9 +8,11 @@ defmodule Transport.DataChecker do
   import Ecto.Query
   require Logger
 
+  @type delay_and_records :: {integer(), [{DB.Dataset.t(), [DB.Resource.t()]}]}
   @expiration_reason DB.NotificationSubscription.reason(:expiration)
   @new_dataset_reason DB.NotificationSubscription.reason(:new_dataset)
-  @default_outdated_data_delays [-7, -3, 0, 7, 14]
+  # If delay < 0, the resource is already expired
+  @default_outdated_data_delays [-90, -60, -30, -45, -15, -7, -3, 0, 7, 14]
 
   @doc """
   This method is a scheduled job which does two things:
@@ -103,11 +105,12 @@ defmodule Transport.DataChecker do
         date = Date.add(Date.utc_today(), delay) do
       {delay, gtfs_datasets_expiring_on(date)}
     end
-    |> Enum.reject(fn {_, d} -> d == [] end)
+    |> Enum.reject(fn {_, records} -> Enum.empty?(records) end)
     |> send_outdated_data_mail()
     |> Enum.map(&send_outdated_data_notifications/1)
   end
 
+  @spec gtfs_datasets_expiring_on(Date.t()) :: [{DB.Dataset.t(), [DB.Resource.t()]}]
   def gtfs_datasets_expiring_on(%Date{} = date) do
     DB.Dataset.base_query()
     |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
@@ -115,9 +118,11 @@ defmodule Transport.DataChecker do
       [metadata: m, resource: r],
       fragment("TO_DATE(?->>'end_date', 'YYYY-MM-DD')", m.metadata) == ^date and r.format == "GTFS"
     )
-    |> select([dataset: d], d)
+    |> select([dataset: d, resource: r], {d, r})
     |> distinct(true)
     |> DB.Repo.all()
+    |> Enum.group_by(fn {%DB.Dataset{} = d, _} -> d end, fn {_, %DB.Resource{} = r} -> r end)
+    |> Enum.to_list()
   end
 
   def possible_delays do
@@ -163,25 +168,26 @@ defmodule Transport.DataChecker do
     end)
   end
 
-  def send_outdated_data_notifications({delay, datasets} = payload) do
-    Enum.each(datasets, fn dataset ->
+  @spec send_outdated_data_notifications(delay_and_records()) :: delay_and_records()
+  def send_outdated_data_notifications({delay, records} = payload) do
+    Enum.each(records, fn {%DB.Dataset{} = dataset, resources} ->
       emails =
         @expiration_reason
         |> DB.NotificationSubscription.subscriptions_for_reason_dataset_and_role(dataset, :producer)
         |> DB.NotificationSubscription.subscriptions_to_emails()
 
-      emails
-      |> Enum.each(fn email ->
+      Enum.each(emails, fn email ->
         Transport.EmailSender.impl().send_mail(
           "transport.data.gouv.fr",
           Application.get_env(:transport, :contact_email),
           email,
           Application.get_env(:transport, :contact_email),
-          "Jeu de données arrivant à expiration",
+          email_subject(delay),
           "",
           Phoenix.View.render_to_string(TransportWeb.EmailView, "expiration_producer.html",
-            delay_str: delay_str(delay, :expire),
-            dataset: dataset
+            delay_str: delay_str(delay, :périment),
+            dataset: dataset,
+            resource_titles: resource_titles(resources)
           )
         )
 
@@ -190,6 +196,34 @@ defmodule Transport.DataChecker do
     end)
 
     payload
+  end
+
+  @doc """
+  iex> resource_titles([%DB.Resource{title: "B"}])
+  "B"
+  iex> resource_titles([%DB.Resource{title: "B"}, %DB.Resource{title: "A"}])
+  "A, B"
+  """
+  def resource_titles(resources) do
+    resources
+    |> Enum.sort_by(fn %DB.Resource{title: title} -> title end)
+    |> Enum.map_join(", ", fn %DB.Resource{title: title} -> title end)
+  end
+
+  @doc """
+  iex> email_subject(7)
+  "Jeu de données arrivant à expiration"
+  iex> email_subject(0)
+  "Jeu de données arrivant à expiration"
+  iex> email_subject(-3)
+  "Jeu de données périmé"
+  """
+  def email_subject(delay) when delay >= 0 do
+    "Jeu de données arrivant à expiration"
+  end
+
+  def email_subject(delay) when delay < 0 do
+    "Jeu de données périmé"
   end
 
   defp save_notification(reason, %Dataset{} = dataset, email) do
@@ -218,45 +252,50 @@ defmodule Transport.DataChecker do
     end
   end
 
-  defp make_str({delay, datasets}) do
+  @spec make_str(delay_and_records()) :: binary()
+  defp make_str({delay, records}) do
+    datasets = Enum.map(records, fn {%DB.Dataset{} = d, _} -> d end)
+
     dataset_str = fn %Dataset{} = dataset ->
       "#{link_and_name(dataset)} (#{expiration_notification_enabled_str(dataset)}) #{climate_resilience_str(dataset)}"
       |> String.trim()
     end
 
     """
-    Jeux de données #{delay_str(delay, :expirant)} :
+    Jeux de données #{delay_str(delay, :périmant)} :
 
     #{Enum.map_join(datasets, "\n", &dataset_str.(&1))}
     """
   end
 
   @doc """
-  iex> delay_str(0, :expirant)
-  "expirant demain"
-  iex> delay_str(0, :expire)
-  "expire demain"
-  iex> delay_str(2, :expirant)
-  "expirant dans 2 jours"
-  iex> delay_str(2, :expire)
-  "expire dans 2 jours"
-  iex> delay_str(-1, :expirant)
-  "expirés depuis hier"
-  iex> delay_str(-1, :expire)
-  "est expirée depuis hier"
-  iex> delay_str(-2, :expirant)
-  "expirés depuis 2 jours"
-  iex> delay_str(-2, :expire)
-  "est expirée depuis 2 jours"
+  iex> delay_str(0, :périmant)
+  "périmant demain"
+  iex> delay_str(0, :périment)
+  "périment demain"
+  iex> delay_str(2, :périmant)
+  "périmant dans 2 jours"
+  iex> delay_str(2, :périment)
+  "périment dans 2 jours"
+  iex> delay_str(-1, :périmant)
+  "périmé depuis hier"
+  iex> delay_str(-1, :périment)
+  "sont périmées depuis hier"
+  iex> delay_str(-2, :périmant)
+  "périmés depuis 2 jours"
+  iex> delay_str(-2, :périment)
+  "sont périmées depuis 2 jours"
+  iex> delay_str(-60, :périment)
+  "sont périmées depuis 60 jours"
   """
-  @spec delay_str(integer(), :expire | :expirant) :: binary()
+  @spec delay_str(integer(), :périment | :périmant) :: binary()
   def delay_str(0, verb), do: "#{verb} demain"
   def delay_str(1, verb), do: "#{verb} dans 1 jour"
   def delay_str(d, verb) when d >= 2, do: "#{verb} dans #{d} jours"
-  def delay_str(-1, :expirant), do: "expirés depuis hier"
-  def delay_str(-1, :expire), do: "est expirée depuis hier"
-  def delay_str(d, :expirant) when d <= -2, do: "expirés depuis #{-d} jours"
-  def delay_str(d, :expire) when d <= -2, do: "est expirée depuis #{-d} jours"
+  def delay_str(-1, :périmant), do: "périmé depuis hier"
+  def delay_str(-1, :périment), do: "sont périmées depuis hier"
+  def delay_str(d, :périmant) when d <= -2, do: "périmés depuis #{-d} jours"
+  def delay_str(d, :périment) when d <= -2, do: "sont périmées depuis #{-d} jours"
 
   def link(%Dataset{slug: slug}), do: dataset_url(TransportWeb.Endpoint, :details, slug)
 
@@ -267,30 +306,31 @@ defmodule Transport.DataChecker do
     " * #{custom_title} - #{link}"
   end
 
-  defp make_outdated_data_body(datasets) do
+  defp make_outdated_data_body(records) do
     """
     Bonjour,
 
     Voici un résumé des jeux de données arrivant à expiration
 
-    #{Enum.map_join(datasets, "\n---------------------\n", &make_str/1)}
+    #{Enum.map_join(records, "\n---------------------\n", &make_str/1)}
     """
   end
 
-  defp send_outdated_data_mail([] = _datasets), do: []
+  @spec send_outdated_data_mail([delay_and_records()]) :: [delay_and_records()]
+  defp send_outdated_data_mail([] = _records), do: []
 
-  defp send_outdated_data_mail(datasets) do
+  defp send_outdated_data_mail(records) do
     Transport.EmailSender.impl().send_mail(
       "transport.data.gouv.fr",
       Application.get_env(:transport, :contact_email),
       Application.get_env(:transport, :bizdev_email),
       Application.get_env(:transport, :contact_email),
       "Jeux de données arrivant à expiration",
-      make_outdated_data_body(datasets),
+      make_outdated_data_body(records),
       ""
     )
 
-    datasets
+    records
   end
 
   defp fmt_inactive_datasets([]), do: ""

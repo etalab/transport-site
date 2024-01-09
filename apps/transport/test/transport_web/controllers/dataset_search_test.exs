@@ -2,59 +2,53 @@ defmodule TransportWeb.DatasetSearchControllerTest do
   use TransportWeb.ConnCase, async: true
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
   import DB.Factory
-  alias DB.{AOM, Dataset, Repo, Resource}
-  import DB.Factory
 
   doctest TransportWeb.DatasetController
 
   setup do
-    {:ok, _} =
-      %Dataset{
-        created_at: DateTime.utc_now(),
-        last_update: DateTime.utc_now(),
-        description: "Un jeu de données",
-        licence: "odc-odbl",
-        datagouv_title: "Horaires et arrêts du réseau IRIGO - format GTFS",
-        custom_title: "Horaires Angers",
-        type: "public-transit",
-        slug: "horaires-et-arrets-du-reseau-irigo-format-gtfs",
-        datagouv_id: "5b4cd3a0b59508054dd496cd",
-        frequency: "yearly",
-        tags: [],
-        resources: [
-          %Resource{
-            last_update: DateTime.utc_now() |> DateTime.add(-6, :hour),
-            last_import: DateTime.utc_now() |> DateTime.add(-1, :hour),
-            url: "https://link.to/angers.zip",
-            title: "angers.zip"
-          }
-        ],
-        aom: %AOM{id: 4242, nom: "Angers Métropôle"}
-      }
-      |> Repo.insert()
+    insert(:dataset,
+      created_at: DateTime.utc_now(),
+      last_update: DateTime.utc_now(),
+      description: "Un jeu de données",
+      licence: "odc-odbl",
+      datagouv_title: "Horaires et arrêts du réseau IRIGO - format GTFS",
+      custom_title: "Horaires Angers",
+      type: "public-transit",
+      slug: "horaires-et-arrets-du-reseau-irigo-format-gtfs",
+      datagouv_id: "5b4cd3a0b59508054dd496cd",
+      frequency: "yearly",
+      tags: [],
+      resources: [
+        %DB.Resource{
+          last_update: DateTime.utc_now() |> DateTime.add(-6, :hour),
+          last_import: DateTime.utc_now() |> DateTime.add(-1, :hour),
+          url: "https://link.to/angers.zip",
+          title: "angers.zip"
+        }
+      ],
+      aom: %DB.AOM{id: 4242, nom: "Angers Métropôle"}
+    )
 
-    {:ok, _} =
-      %Dataset{
-        created_at: DateTime.utc_now(),
-        last_update: DateTime.utc_now(),
-        description: "Un autre jeu de données",
-        licence: "lov2",
-        datagouv_title: "offre de transport du réseau de LAVAL Agglomération (GTFS)",
-        custom_title: "Horaires Laval",
-        slug: "offre-de-transport-du-reseau-de-laval-agglomeration-gtfs",
-        type: "public-transit",
-        datagouv_id: "5bc493d08b4c416c84a69500",
-        frequency: "yearly",
-        tags: [],
-        resources: [
-          %Resource{
-            last_update: DateTime.utc_now() |> DateTime.add(-6, :hour),
-            last_import: DateTime.utc_now() |> DateTime.add(-1, :hour),
-            url: "https://link.to/angers.zip"
-          }
-        ]
-      }
-      |> Repo.insert()
+    insert(:dataset,
+      created_at: DateTime.utc_now(),
+      last_update: DateTime.utc_now(),
+      description: "Un autre jeu de données",
+      licence: "lov2",
+      datagouv_title: "offre de transport du réseau de LAVAL Agglomération (GTFS)",
+      custom_title: "Horaires Laval",
+      slug: "offre-de-transport-du-reseau-de-laval-agglomeration-gtfs",
+      type: "public-transit",
+      datagouv_id: "5bc493d08b4c416c84a69500",
+      frequency: "yearly",
+      tags: [],
+      resources: [
+        %DB.Resource{
+          last_update: DateTime.utc_now() |> DateTime.add(-6, :hour),
+          last_import: DateTime.utc_now() |> DateTime.add(-1, :hour),
+          url: "https://link.to/angers.zip"
+        }
+      ]
+    )
 
     :ok
   end
@@ -258,8 +252,8 @@ defmodule TransportWeb.DatasetSearchControllerTest do
   end
 
   test "when searching for a region, use the population to sort" do
-    small_aom = insert(:aom, region: region = insert(:region), population_totale: 100)
-    big_aom = insert(:aom, region: region, population_totale: 200)
+    small_aom = insert(:aom, region: region = insert(:region), population: 100)
+    big_aom = insert(:aom, region: region, population: 200)
 
     # regional dataset: first result expected
     region_dataset = insert(:dataset, region_id: region.id, is_active: true, population: 0)

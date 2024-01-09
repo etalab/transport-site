@@ -56,7 +56,7 @@ defmodule TransportWeb.ValidationController do
       }) do
     if is_valid_type?(type) do
       oban_args = build_oban_args(type)
-      upload_to_s3(file_path, Map.fetch!(oban_args, "filename"))
+      stream_to_s3(file_path, Map.fetch!(oban_args, "filename"))
 
       validation =
         %MultiValidation{
@@ -193,8 +193,8 @@ defmodule TransportWeb.ValidationController do
 
   def is_valid_type?(type), do: type in (select_options() |> Enum.map(&elem(&1, 1)))
 
-  defp upload_to_s3(file_path, path) do
-    Transport.S3.upload_to_s3!(:on_demand_validation, File.read!(file_path), path, acl: :public_read)
+  defp stream_to_s3(local_filepath, path) do
+    Transport.S3.stream_to_s3!(:on_demand_validation, local_filepath, path, acl: :public_read)
   end
 
   defp build_oban_args(%{"url" => url, "feed_url" => feed_url, "type" => "gtfs-rt"}) do

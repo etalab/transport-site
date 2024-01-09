@@ -166,10 +166,6 @@ msgid "Proxy configuration"
 msgstr "Configuration du proxy"
 
 #, elixir-autogen, elixir-format
-msgid "Update all AOMs"
-msgstr "Mettre à jour toutes les AOMs"
-
-#, elixir-autogen, elixir-format
 msgid "Jobs"
 msgstr "Jobs"
 
@@ -294,3 +290,7 @@ msgstr "Conversions relancées"
 #, elixir-autogen, elixir-format
 msgid "AOM open data status"
 msgstr "Ouverture des données par AOM"
+
+#, elixir-autogen, elixir-format
+msgid "Rate limiter"
+msgstr ""

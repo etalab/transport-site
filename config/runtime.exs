@@ -89,12 +89,14 @@ if app_env == :staging do
     }
 end
 
-base_oban_conf = [repo: DB.Repo]
+base_oban_conf = [repo: DB.Repo, insert_trigger: false]
 
 # Oban jobs that should run in every deployed environment (staging, prod)
-# but not during dev or test
-# Be careful : there is "app_env :prod" in contrast  to :staging (ie production website vs prochainement)
-# and "config_env :prod" in contrast to :dev et :test
+# but not during dev or test.
+#
+# - There is "app_env :prod" in contrast to :staging (ie production website vs prochainement)
+#   and "config_env :prod" in contrast to :dev et :test
+# - ⚠️ There is another legacy crontab in `Transport.Scheduler`, see `scheduler.ex`
 oban_prod_crontab = [
   {"0 */6 * * *", Transport.Jobs.ResourceHistoryAndValidationDispatcherJob},
   {"30 */6 * * *", Transport.Jobs.GTFSToGeoJSONConverterJob},
@@ -135,7 +137,8 @@ oban_prod_crontab = [
   {"10 5 * * *", Transport.Jobs.NotificationSubscriptionProducerJob},
   # "At 08:15 on Monday in March, June, and November.""
   # The job will make sure that it's executed only on the first Monday of these months
-  {"15 8 * 3,6,11 1", Transport.Jobs.PeriodicReminderProducersNotificationJob}
+  {"15 8 * 3,6,11 1", Transport.Jobs.PeriodicReminderProducersNotificationJob},
+  {"30 5 * * *", Transport.Jobs.ImportDatasetMonthlyMetricsJob}
 ]
 
 # Make sure that all modules exist

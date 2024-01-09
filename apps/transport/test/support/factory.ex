@@ -8,6 +8,27 @@ defmodule DB.Factory do
 
   # Ecto records
 
+  def departement_factory do
+    %DB.Departement{
+      insee: "38",
+      nom: "Isère",
+      geom: %Geo.Polygon{
+        coordinates: [
+          [
+            {55.0, 3.0},
+            {60.0, 3.0},
+            {60.0, 5.0},
+            {55.0, 5.0},
+            {55.0, 3.0}
+          ]
+        ],
+        srid: 4326,
+        properties: %{}
+      },
+      zone: "metro"
+    }
+  end
+
   def region_factory do
     %DB.Region{
       nom: sequence("region_nom")
@@ -38,8 +59,18 @@ defmodule DB.Factory do
       # NOTE: need to figure out how to pass aom/region together with changeset checks here
       aom: build(:aom),
       tags: [],
-      type: "public-transit"
+      type: "public-transit",
+      logo: "https://example.com/#{Ecto.UUID.generate()}_small.png",
+      full_logo: "https://example.com/#{Ecto.UUID.generate()}.png",
+      frequency: "daily",
+      has_realtime: false,
+      is_active: true,
+      nb_reuses: Enum.random(0..10)
     }
+  end
+
+  def dataset_monthly_metric_factory do
+    %DB.DatasetMonthlyMetric{}
   end
 
   def resource_factory do
@@ -83,6 +114,10 @@ defmodule DB.Factory do
       nom: "Ballans",
       insee: "17031"
     }
+  end
+
+  def epci_factory do
+    %DB.EPCI{}
   end
 
   def data_import_factory do
@@ -182,15 +217,17 @@ defmodule DB.Factory do
       region_id: Keyword.get(opts, :region_id),
       has_realtime: Keyword.get(opts, :has_realtime),
       type: Keyword.get(opts, :type),
-      aom: Keyword.get(opts, :aom),
+      aom: aom = Keyword.get(opts, :aom),
       custom_title: Keyword.get(opts, :custom_title)
     ]
 
     dataset_opts =
-      case Keyword.get(opts, :aom) do
+      aom
+      |> case do
         nil -> dataset_opts
         aom -> dataset_opts |> Keyword.merge(aom: aom)
       end
+      |> Enum.reject(fn {_, v} -> is_nil(v) end)
 
     dataset = Keyword.get(opts, :dataset, insert(:dataset, dataset_opts))
 
@@ -289,5 +326,29 @@ defmodule DB.Factory do
     }
     |> Map.merge(args)
     |> DB.Contact.insert!()
+  end
+
+  def datagouv_dataset_response(%{} = attributes \\ %{}) do
+    Map.merge(
+      %{
+        "id" => Ecto.UUID.generate(),
+        "title" => "dataset",
+        "created_at" => DateTime.utc_now() |> to_string(),
+        "last_update" => DateTime.utc_now() |> to_string(),
+        "slug" => "dataset-slug",
+        "license" => "lov2",
+        "frequency" => "daily",
+        "tags" => [],
+        "organization" => %{
+          "id" => Ecto.UUID.generate(),
+          "name" => "Org " <> Ecto.UUID.generate(),
+          "badges" => [],
+          "logo" => "https://example.com/img.jpg",
+          "logo_thumbnail" => "https://example.com/img.small.jpg",
+          "slug" => Ecto.UUID.generate()
+        }
+      },
+      attributes
+    )
   end
 end

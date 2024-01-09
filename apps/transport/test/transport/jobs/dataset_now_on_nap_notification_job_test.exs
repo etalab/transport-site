@@ -46,6 +46,9 @@ defmodule Transport.Test.Transport.Jobs.DatasetNowOnNAPNotificationJobTest do
       assert html_content =~
                ~s(Votre jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">Mon JDD</a> a bien été référencé)
 
+      assert html_content =~
+               ~s(Rendez-vous sur votre <a href="http://127.0.0.1:5100/espace_producteur">Espace Producteur</a)
+
       :ok
     end)
 

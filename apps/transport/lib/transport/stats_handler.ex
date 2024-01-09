@@ -41,9 +41,9 @@ defmodule Transport.StatsHandler do
         on: (d.id == legal_owners_dataset.id or d.aom_id == a.id) and d.is_active,
         as: :dataset
       )
-      |> group_by([a], [a.id, a.population_totale, a.region_id])
+      |> group_by([a], [a.id, a.population, a.region_id])
       |> select([a, dataset: d], %{
-        population: a.population_totale,
+        population: a.population,
         region_id: a.region_id,
         nb_datasets: count(d.id)
       })

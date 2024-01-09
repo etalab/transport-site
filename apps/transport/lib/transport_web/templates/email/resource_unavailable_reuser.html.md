@@ -3,7 +3,9 @@ Bonjour,
 Les ressources <%= @resource_titles %> du jeu de données <%= link_for_dataset(@dataset) %> que vous réutilisez ne sont plus disponibles au téléchargement depuis plus de <%= @hours_consecutive_downtime %>h.
 
 <%= if @producer_warned do %>
-Le producteur de ces données a été informé de cette indisponibilité.
+Nous avons déjà informé le producteur de ces données. Si l’indisponibilité perdure, vous pouvez contacter le producteur à partir de <%= link_for_dataset_discussions(@dataset) %>.
 <% end %>
 
-L’équipe du PAN
+À bientôt,
+
+L’équipe transport.data.gouv.fr

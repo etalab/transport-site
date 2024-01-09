@@ -19,17 +19,16 @@ defmodule Transport.Test.S3TestUtils do
     end)
   end
 
-  def s3_mocks_upload_file(assert_path) do
+  def s3_mock_stream_file(start_path: expected_start_path, bucket: expected_bucket) do
     Transport.ExAWS.Mock
-    |> expect(:request!, fn %{
-                              service: :s3,
-                              http_method: :put,
+    |> expect(:request!, fn %ExAws.S3.Upload{
+                              src: %File.Stream{},
+                              bucket: ^expected_bucket,
                               path: path,
-                              bucket: _bucket_name,
-                              body: _content,
-                              headers: %{"x-amz-acl" => "public-read"}
+                              opts: [acl: :public_read],
+                              service: :s3
                             } ->
-      assert(path |> String.starts_with?(assert_path))
+      assert String.starts_with?(path, expected_start_path)
     end)
   end
 

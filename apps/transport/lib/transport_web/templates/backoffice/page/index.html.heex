@@ -27,6 +27,10 @@
     <%= dgettext("backoffice", "Cache debug") %>
   </a>
 
+  <a class="button" href={backoffice_live_path(@conn, TransportWeb.Backoffice.RateLimiterLive)}>
+    <%= dgettext("backoffice", "Rate limiter") %>
+  </a>
+
   <a class="button" href={backoffice_live_path(@conn, TransportWeb.Backoffice.DataImportBatchReportLive)}>
     <%= dgettext("backoffice", "GTFS data import") %>
   </a>
@@ -53,13 +57,6 @@
       <%= submit(dgettext("backoffice", "Import all datasets from data.gouv")) %>
     <% end %>
   </div>
-  <a
-    class="button warning-light"
-    href={backoffice_page_path(@conn, :import_all_aoms)}
-    title="Télécharge depuis data.gouv la dernière version de la liste des AOMs, puis les importe dans notre base."
-  >
-    <%= dgettext("backoffice", "Update all AOMs") %>
-  </a>
   <div>
     <a
       class="button warning-light"

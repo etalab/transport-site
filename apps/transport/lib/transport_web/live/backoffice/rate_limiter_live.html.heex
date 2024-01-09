@@ -1,0 +1,101 @@
+<section class="pb-48">
+  <div class="container">
+    <h2>Plug</h2>
+    <p>
+      Le plug qui gère la logique de rate limiting, bloquer ou autoriser des requêtes est dans <a
+        href="https://github.com/etalab/transport-site/blob/master/apps/transport/lib/transport_web/plugs/rate_limiter.ex"
+        target="_blank"
+      ><code>TransportWeb.Plugs.RateLimiter</code></a>.
+    </p>
+    <p>
+      Le comptage des requêtes et le blocage d'une adresse IP est effectué par la librairie <a href="https://github.com/xward/phoenix_ddos"><code>phoenix_ddos</code></a>. Le backend est Cachex, qui utilise la RAM. Ainsi un redémarrage de l'application
+      <code>prod-site</code>
+      réinitialise les compteurs et les adresses IPs bloquées.
+    </p>
+
+    <h2>Configuration</h2>
+    <p>
+      Plusieurs variables d'environnement permettent de configurer le fonctionnement. Il faut changer ces variables pour ajuster le comportement puis redémarrer l'application.
+    </p>
+
+    <h4>Volume de requêtes</h4>
+    <ul>
+      <li>
+        <code>PHOENIX_DDOS_MAX_2MIN_REQUESTS</code>
+        : nombre de requêtes max autorisée par IP par période de 2 minutes. Valeur actuelle : <%= format_number(
+          @phoenix_ddos_max_2min_requests
+        ) %>
+      </li>
+      <li>
+        <code>PHOENIX_DDOS_MAX_1HOUR_REQUESTS</code>
+        : nombre de requêtes max autorisée par IP par période d'1 heure. Valeur actuelle : <%= format_number(
+          @phoenix_ddos_max_1hour_requests
+        ) %>
+      </li>
+    </ul>
+
+    <h4>Adresses IPs autorisées ou bloquées</h4>
+
+    <ul>
+      <li>
+        <code>PHOENIX_DDOS_SAFELIST_IPS</code>
+        : liste d'adresses IP <strong>toujours autorisées</strong>. Les valeurs doivent être séparées par des <code>|</code>. Valeur actuelle :
+        <code><%= @phoenix_ddos_safelist_ips %></code>
+      </li>
+      <li>
+        <code>PHOENIX_DDOS_BLOCKLIST_IPS</code>
+        : liste d'adresses IP <strong>toujours bloquées</strong>. Les valeurs doivent être séparées par des <code>|</code>. Valeur actuelle :
+        <code><%= @phoenix_ddos_blocklist_ips %></code>
+      </li>
+    </ul>
+
+    <h4>User-Agents</h4>
+
+    <ul>
+      <li>
+        <code>LOG_USER_AGENT</code>
+        : active ou désactive le fait de logguer les user agents. Valeurs possible : <code>true</code>
+        ou <code>false</code>. Valeur actuelle : <code><%= @log_user_agent %></code>
+      </li>
+      <li>
+        <code>ALLOW_USER_AGENTS</code>
+        : user agents <strong>toujours autorisés</strong>. Les valeurs doivent être séparées par des <code>|</code>. Valeur actuelle :
+        <code><%= @allow_user_agents %></code>
+      </li>
+      <li>
+        <code>BLOCK_USER_AGENT_KEYWORDS</code>
+        : user agents <strong>toujours bloqués</strong>. Les valeurs doivent être séparées par des <code>|</code>. Valeur actuelle :
+        <code><%= @block_user_agent_keywords %></code>
+      </li>
+    </ul>
+
+    <h2>Adresses IPs bloquées</h2>
+    <p>
+      <a href="https://github.com/xward/phoenix_ddos"><code>phoenix_ddos</code></a>
+      est la dépendance qui gère l'ajout/le retrait de la jail.
+    </p>
+
+    <p :if={Enum.empty?(@ips_in_jail)}>
+      Personne n'est bloqué actuellement.
+    </p>
+
+    <div :if={Enum.count(@ips_in_jail) > 0}>
+      <p>
+        Adresses IPs actuellement dans la jail :
+      </p>
+
+      <ul>
+        <%= for ip <- @ips_in_jail do %>
+          <li>
+            <%= ip %>
+            <button class="button small" phx-click="bail_ip_from_jail" phx-value-ip={ip}>
+              Retirer de la jail
+            </button>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+    <p class="small">Dernière mise à jour: <%= @last_updated_at %></p>
+  </div>
+</section>
+<script defer type="text/javascript" src={static_path(@socket, "/js/app.js")} />

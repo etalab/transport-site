@@ -53,4 +53,26 @@ defmodule Transport.Test.Transport.Jobs.UpdateContactsJobTest do
     assert [%DB.Organization{name: ^org_name, id: ^org_id}] = contact.organizations
     assert %DB.Contact{organization: ^org_name} = contact
   end
+
+  test "removes datagouv_user_id and organizations when API responds with 404 or 410" do
+    Enum.each([404, 410], fn status_code ->
+      contact =
+        insert_contact(%{
+          datagouv_user_id: user_id = Ecto.UUID.generate(),
+          organizations: [:organization |> build() |> Map.from_struct()]
+        })
+
+      url = "https://demo.data.gouv.fr/api/1/users/#{user_id}/"
+
+      Transport.HTTPoison.Mock
+      |> expect(:request, fn :get, ^url, "", [], [follow_redirect: true] ->
+        {:ok, %HTTPoison.Response{status_code: status_code, body: ""}}
+      end)
+
+      assert :ok == perform_job(UpdateContactsJob, %{contact_ids: [user_id]})
+
+      assert %DB.Contact{datagouv_user_id: nil, organizations: []} =
+               contact |> DB.Repo.reload!() |> DB.Repo.preload([:organizations])
+    end)
+  end
 end

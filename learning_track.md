@@ -15,12 +15,10 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 
 * Install the required tooling (Elixir/Erlang/Node/Postgres) - see readme
 * Restore a production database - see readme
-* Ask the team how to fill `.envrc` for minimal use (this will be improved later to avoid that)
 * Do not attempt to install the "validator" yet, nor to access the admin backoffice
 
 ### Run the test suite locally
 
-* Double-check `.envrc` values (this requirement will go away later)
 * Make sure to run ChromeDriver in a way or another
 * Run the test suite with `mix test`
 * Learn how to run a single test (see readme), as this is very useful for debugging
@@ -121,7 +119,7 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 
 * Compile the validator project with `cargo build --release`
 * Run it as a server with `./target/release/main`
-* Use the displayed host & port (e.g. `http://127.0.0.1:7878`) to fill your `.envrc` configuration (`export GTFS_VALIDATOR_URL=http://127.0.0.1:7878`)
+* Override in dev.secret.exs the `gtfs_validator_url` defined in dev.exs with the displayed host & port (e.g. `http://127.0.0.1:7878`)
 * Run the site with `mix phx.server`
 * Go to `http://localhost:5000/validate`
 * Upload a GTFS file
