@@ -155,7 +155,6 @@ defmodule SearchIndexer do
 
   def fetch_items do
     from(d in DB.Dataset,
-      join: r in assoc(d, :resources),
       preload: :resources
       #      limit: 10
     )
