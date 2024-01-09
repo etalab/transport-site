@@ -50,10 +50,10 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Vous devez être préalablement connecté"
   end
 
-  test "Check that you belong to the right organization", %{conn: conn} do
+  test "Check that you are an admin", %{conn: conn} do
     conn =
       conn
-      |> init_test_session(%{current_user: %{"organizations" => [%{"slug" => "pouet pouet"}]}})
+      |> init_test_session(%{current_user: %{"is_admin" => false}})
       |> get(backoffice_page_path(conn, :index))
 
     assert redirected_to(conn, 302) =~ "/login/explanation"
@@ -63,13 +63,7 @@ defmodule TransportWeb.BackofficeControllerTest do
   end
 
   test "Show 'add new dataset' form", %{conn: conn} do
-    conn =
-      conn
-      |> init_test_session(%{
-        current_user: %{"organizations" => [%{"slug" => "blurp"}, %{"slug" => "equipe-transport-data-gouv-fr"}]}
-      })
-      |> get(backoffice_page_path(conn, :index))
-
+    conn = conn |> setup_admin_in_session() |> get(backoffice_page_path(conn, :index))
     assert html_response(conn, 200) =~ "Ajouter un jeu de données"
   end
 

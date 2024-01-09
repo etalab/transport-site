@@ -81,8 +81,13 @@
                   <% end %>
                 </div>
                 <div class="dropdown-content">
-                  <%= if admin?(assigns[:current_user]) do %>
+                  <%= if TransportWeb.Session.is_admin?(@conn) do %>
                     <%= link("Administration", to: "/backoffice") %>
+                  <% end %>
+                  <%= if TransportWeb.Session.is_producer?(@conn) do %>
+                    <%= link(gettext("Producer space"),
+                      to: page_path(@conn, :espace_producteur, utm_source: "menu_dropdown")
+                    ) %>
                   <% end %>
                   <a
                     class="navigation__link nagivation__link--logout"

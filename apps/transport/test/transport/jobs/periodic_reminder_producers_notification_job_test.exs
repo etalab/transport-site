@@ -235,7 +235,7 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
                ~s(Il est possible de vous inscrire à des notifications concernant le jeu de données que vous gérez sur transport.data.gouv.fr, <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a>)
 
       assert html =~
-               ~s(Pour vous inscrire, rien de plus simple : rendez-vous sur votre <a href="http://127.0.0.1:5100/espace_producteur">Espace Producteur</a>)
+               ~s(Pour vous inscrire, rien de plus simple : rendez-vous sur votre <a href="http://127.0.0.1:5100/espace_producteur?utm_source=transactional_email&amp;utm_medium=email&amp;utm_campaign=periodic_reminder_producer_without_subscriptions">Espace Producteur</a>)
     end)
 
     assert :ok == perform_job(PeriodicReminderProducersNotificationJob, %{"contact_id" => contact.id})

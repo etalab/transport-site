@@ -186,7 +186,10 @@ defmodule TransportWeb.PageController do
           {conn, []}
       end
 
-    conn |> assign(:datasets, datasets) |> render("espace_producteur.html")
+    conn
+    |> assign(:datasets, datasets)
+    |> TransportWeb.Session.set_is_producer(datasets)
+    |> render("espace_producteur.html")
   end
 
   defp aoms_with_dataset do

@@ -40,12 +40,7 @@ defmodule TransportWeb.ConnCase do
     {:ok, conn: ConnTest.build_conn()}
   end
 
-  def setup_admin_in_session(conn) do
-    conn
-    |> init_test_session(%{
-      current_user: %{
-        "organizations" => [%{"slug" => "equipe-transport-data-gouv-fr"}]
-      }
-    })
+  def setup_admin_in_session(%Plug.Conn{} = conn) do
+    init_test_session(conn, %{current_user: %{"is_admin" => true}})
   end
 end
