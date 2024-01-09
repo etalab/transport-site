@@ -180,9 +180,6 @@ defmodule SearchIndexer do
 
   def compute_payload(%DB.Dataset{} = dataset) do
     # NOTE: not optimized for N+1 because performance is good enough for now
-    # TODO:
-    # - pour chaque ressource, trouver la metadata la plus récente
-    # - pour ça, passer par la resource history la plus récente
 
     modes =
       dataset.resources
@@ -244,7 +241,7 @@ defmodule Searcher do
     |> where([d], fragment("search_payload #> Array['formats'] \\? ?", ^search_format))
   end
 
-  # TODO: DRY
+  # NOTE: could be DRYed with formats
   def maybe_search_resources_modes(query, nil), do: query
 
   def maybe_search_resources_modes(query, mode) do
