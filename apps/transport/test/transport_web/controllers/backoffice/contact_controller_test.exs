@@ -12,7 +12,7 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
     target_uri = URI.parse(redirected_to(conn, 302))
     assert target_uri.path == "/login/explanation"
     assert target_uri.query == URI.encode_query(redirect_path: request_path)
-    assert get_flash(conn, :info) =~ "Vous devez être préalablement connecté"
+    assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Vous devez être préalablement connecté"
   end
 
   describe "index" do
@@ -90,7 +90,7 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
       assert %DB.Contact{first_name: "John", last_name: "Doe", email: "john@example.com", organization: "Corp Inc"} =
                DB.Repo.one!(DB.Contact)
 
-      assert get_flash(conn, :info) =~ "Contact mis à jour"
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Contact mis à jour"
     end
 
     test "redirects when there are errors", %{conn: conn} do
@@ -137,7 +137,7 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
         |> post(backoffice_contact_path(conn, :create, %{"contact" => args}))
 
       assert redirected_to(conn, 302) == backoffice_contact_path(conn, :index)
-      assert get_flash(conn, :info) =~ "Contact mis à jour"
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Contact mis à jour"
       assert %DB.Contact{last_name: ^new_last_name} = DB.Repo.reload!(contact)
     end
 
@@ -151,7 +151,7 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
         |> post(backoffice_contact_path(conn, :create, %{"contact" => %{"id" => contact.id, "email" => other_email}}))
 
       assert redirected_to(conn, 302) == backoffice_contact_path(conn, :index)
-      assert get_flash(conn, :error) =~ "Un contact existe déjà avec cette adresse e-mail"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Un contact existe déjà avec cette adresse e-mail"
       assert %DB.Contact{email: ^email} = DB.Repo.reload!(contact)
     end
 
@@ -196,7 +196,7 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
       |> post(backoffice_contact_path(conn, :delete, contact.id))
 
     assert redirected_to(conn, 302) == backoffice_contact_path(conn, :index)
-    assert get_flash(conn, :info) =~ "Le contact a été supprimé"
+    assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Le contact a été supprimé"
     assert is_nil(DB.Repo.reload(contact))
   end
 

@@ -19,7 +19,7 @@ defmodule TransportWeb.LayoutViewTest do
     render =
       conn
       |> init_test_session(current_user: current_user)
-      |> get("/")
+      |> get(~p"/")
       |> Map.get(:resp_body)
 
     assert render =~ current_user["avatar_thumbnail"]

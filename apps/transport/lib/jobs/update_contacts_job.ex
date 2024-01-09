@@ -25,12 +25,23 @@ defmodule Transport.Jobs.UpdateContactsJob do
     DB.Contact.base_query()
     |> where([contact: c], c.datagouv_user_id in ^ids)
     |> DB.Repo.all()
-    |> Enum.each(fn %DB.Contact{datagouv_user_id: datagouv_user_id} = contact ->
-      {:ok, %{"organizations" => organizations}} = Datagouvfr.Client.User.get(datagouv_user_id)
+    |> Enum.each(&update_contact/1)
+  end
 
-      contact
-      |> DB.Contact.changeset(%{organizations: organizations})
-      |> DB.Repo.update!()
-    end)
+  defp update_contact(%DB.Contact{datagouv_user_id: datagouv_user_id} = contact) do
+    # https://doc.data.gouv.fr/api/reference/#/users/get_user
+    # 404 status code: User not found
+    # 410 status code: User is not active or has been deleted
+    case Datagouvfr.Client.User.get(datagouv_user_id) do
+      {:ok, %{"organizations" => organizations}} ->
+        contact
+        |> DB.Contact.changeset(%{organizations: organizations})
+        |> DB.Repo.update!()
+
+      {:error, reason} when reason in [:not_found, :gone] ->
+        contact
+        |> DB.Contact.changeset(%{organizations: [], datagouv_user_id: nil})
+        |> DB.Repo.update!()
+    end
   end
 end
