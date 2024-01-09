@@ -16,8 +16,7 @@ defmodule TransportWeb do
   below. Instead, define any helper function in modules
   and import those modules here.
   """
-  def static_paths,
-    do: ~w(js css fonts images data favicon.ico documents BingSiteAuth.xml google5be4b09db1274976.html demo_rt.html)
+  def static_paths, do: ~w(css documents images js favicon.ico)
 
   def controller do
     quote do
