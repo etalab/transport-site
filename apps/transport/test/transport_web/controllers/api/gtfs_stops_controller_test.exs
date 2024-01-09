@@ -7,7 +7,7 @@ defmodule TransportWeb.API.GTFSStopsControllerTest do
   end
 
   test "GET /api/gtfs-stops without parameters", %{conn: conn} do
-    conn = conn |> get("/api/gtfs-stops")
+    conn = conn |> get(~p"/api/gtfs-stops")
     json = json_response(conn, 422)
     assert json["error"] == "incorrect parameters"
   end
@@ -15,7 +15,7 @@ defmodule TransportWeb.API.GTFSStopsControllerTest do
   test "GET /api/gtfs-stops with full map parameters", %{conn: conn} do
     conn =
       conn
-      |> get("/api/gtfs-stops", %{
+      |> get(~p"/api/gtfs-stops", %{
         "south" => "48.8",
         "east" => "2.4",
         "west" => "2.2",
@@ -36,7 +36,7 @@ defmodule TransportWeb.API.GTFSStopsControllerTest do
 
     conn =
       conn
-      |> get("/api/gtfs-stops", %{
+      |> get(~p"/api/gtfs-stops", %{
         "south" => "43.5326204268101",
         "east" => "22.6318359375",
         "west" => "-18.764648437500004",
@@ -55,7 +55,7 @@ defmodule TransportWeb.API.GTFSStopsControllerTest do
 
     conn =
       conn
-      |> get("/api/gtfs-stops", %{
+      |> get(~p"/api/gtfs-stops", %{
         "south" => "48.8",
         "east" => "2.4",
         "west" => "2.2",

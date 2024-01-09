@@ -16,7 +16,7 @@
   <h1>
     <%= @dataset.custom_title %>
   </h1>
-  <%= if admin?(assigns[:current_user]) do %>
+  <%= if TransportWeb.Session.is_admin?(@conn) do %>
     <i class="fa fa-external-link-alt"></i>
     <%= link("backoffice", to: backoffice_page_path(@conn, :edit, @dataset.id)) %>
     <%= render("_dataset_scores.html", dataset_scores: @dataset_scores, locale: locale) %>
