@@ -277,6 +277,8 @@ if System.get_env("REINDEX") == "1" do
   SearchIndexer.reindex!()
 end
 
+# Uncomment for fancy ANSI-console rendering
+
 # Searcher.search(title: "bibus")
 # |> Searcher.render()
 
