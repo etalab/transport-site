@@ -451,7 +451,7 @@ defmodule Transport.ImportData do
   def is_ods_resource?(%{"harvest" => %{"uri" => uri}}) do
     # Possible URL:
     # https://data.angers.fr/api/explore/v2.1/catalog/datasets/angers-loire-metropole-horaires-reseau-irigo-gtfs-rt/exports/json
-    String.match?(uri, ~r{/api/explore/v(\d+\.\d+)/catalog/datasets/.*/exports/(json|csv)$}i)
+    String.match?(uri, ~r{/api/explore/v\d+\.\d+/catalog/datasets/.*/exports/\w+$}i)
   end
 
   def is_ods_resource?(_), do: false
