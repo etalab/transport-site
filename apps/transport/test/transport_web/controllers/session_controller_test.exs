@@ -38,12 +38,23 @@ defmodule TransportWeb.SessionControllerTest do
 
     assert [] == DB.Repo.all(DB.Contact)
     conn = conn |> get(session_path(conn, :create, %{"code" => "secret"}))
+
     current_user = get_session(conn, :current_user)
 
+    assert %{
+             "id" => ^datagouv_user_id,
+             "email" => ^email,
+             "first_name" => ^first_name,
+             "last_name" => ^last_name,
+             "is_admin" => true,
+             # No active dataset for this users' organizations
+             "is_producer" => false
+           } = current_user
+
+    refute Map.has_key?(current_user, "avatar")
+    refute Map.has_key?(current_user, "organizations")
+
     assert redirected_to(conn, 302) == "/"
-    assert Map.has_key?(current_user, "id") == true
-    assert Map.has_key?(current_user, "avatar") == false
-    assert [%{"slug" => ^organization_slug}] = current_user["organizations"]
 
     # A `DB.Contact` has been created for this user
     assert [
@@ -77,10 +88,17 @@ defmodule TransportWeb.SessionControllerTest do
   end
 
   test "save_current_user", %{conn: conn} do
-    pan_org = %{"slug" => "equipe-transport-data-gouv-fr", "name" => "PAN"}
-    user_params = %{"foo" => "bar", "organizations" => [%{"slug" => "foo"}, pan_org]}
+    pan_org = %{"slug" => "equipe-transport-data-gouv-fr", "name" => "PAN", "id" => org_id = Ecto.UUID.generate()}
 
-    assert %{"foo" => "bar", "organizations" => [pan_org]} ==
+    assert TransportWeb.Session.is_admin?(%{"organizations" => [pan_org]})
+    refute TransportWeb.Session.is_producer?(%{"organizations" => [pan_org]})
+    insert(:dataset, organization_id: org_id)
+    # You're a producer if you're a member of an org with an active dataset
+    assert TransportWeb.Session.is_producer?(%{"organizations" => [pan_org]})
+
+    user_params = %{"foo" => "bar", "organizations" => [pan_org]}
+
+    assert %{"foo" => "bar", "is_admin" => true, "is_producer" => true} ==
              conn |> init_test_session(%{}) |> save_current_user(user_params) |> get_session(:current_user)
   end
 
