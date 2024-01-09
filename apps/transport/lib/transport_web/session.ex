@@ -20,12 +20,9 @@ defmodule TransportWeb.Session do
     set_session_attribute_attribute(conn, @is_producer_key_name, is_producer?(params))
   end
 
-  def set_is_producer(%Plug.Conn{} = conn, [%DB.Dataset{}] = _datasets_for_user) do
-    set_session_attribute_attribute(conn, @is_producer_key_name, true)
-  end
-
-  def set_is_producer(%Plug.Conn{} = conn, [] = _datasets_for_user) do
-    set_session_attribute_attribute(conn, @is_producer_key_name, false)
+  def set_is_producer(%Plug.Conn{} = conn, datasets_for_user) when is_list(datasets_for_user) do
+    is_producer = not Enum.empty?(datasets_for_user)
+    set_session_attribute_attribute(conn, @is_producer_key_name, is_producer)
   end
 
   @doc """
