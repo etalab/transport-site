@@ -986,9 +986,9 @@ defmodule DB.Dataset do
     |> put_assoc(:communes, [])
   end
 
+  # We’ll only cast datagouv zone if there is something written in the associated territory name in the backoffice
   defp cast_datagouv_zone(changeset, %{"zones" => zones_insee}, _associated_territory_name) do
     communes =
-      # Fetch communes where the INSEE code is in the list of zones_insee
       Commune
       |> where([c], c.insee in ^zones_insee)
       |> Repo.all()
