@@ -16,6 +16,8 @@ defmodule TransportWeb do
   below. Instead, define any helper function in modules
   and import those modules here.
   """
+  def static_paths,
+    do: ~w(js css fonts images data favicon.ico documents BingSiteAuth.xml google5be4b09db1274976.html demo_rt.html)
 
   def controller do
     quote do
@@ -26,6 +28,8 @@ defmodule TransportWeb do
       import TransportWeb.PaginationHelpers
       alias TransportWeb.ErrorView
       import Phoenix.LiveView.Controller
+
+      unquote(verified_routes())
     end
   end
 
@@ -54,6 +58,12 @@ defmodule TransportWeb do
     end
   end
 
+  def view_helpers do
+    quote do
+      unquote(verified_routes())
+    end
+  end
+
   def router do
     quote do
       use Phoenix.Router
@@ -75,6 +85,15 @@ defmodule TransportWeb do
   def serializer do
     quote do
       use JaSerializer
+    end
+  end
+
+  def verified_routes do
+    quote do
+      use Phoenix.VerifiedRoutes,
+        endpoint: TransportWeb.Endpoint,
+        router: TransportWeb.Router,
+        statics: TransportWeb.static_paths()
     end
   end
 

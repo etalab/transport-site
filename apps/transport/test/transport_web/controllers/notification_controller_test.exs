@@ -63,7 +63,7 @@ defmodule TransportWeb.NotificationControllerTest do
       conn_response = conn |> post(notification_path(conn, :create, args))
 
       assert redirected_to(conn_response, 302) == notification_path(conn, :index)
-      assert get_flash(conn_response, :info) =~ "La notification a été créée"
+      assert Phoenix.Flash.get(conn_response.assigns.flash, :info) =~ "La notification a été créée"
 
       assert [
                %DB.NotificationSubscription{
@@ -84,7 +84,7 @@ defmodule TransportWeb.NotificationControllerTest do
       conn_response = conn |> post(notification_path(conn, :create, Map.put(args, "dataset_with_error", "true")))
 
       assert redirected_to(conn_response, 302) == notification_path(conn, :index)
-      assert get_flash(conn_response, :info) =~ "La notification a été créée"
+      assert Phoenix.Flash.get(conn_response.assigns.flash, :info) =~ "La notification a été créée"
 
       assert Enum.sort([:dataset_with_error, :expiration, :resource_unavailable]) ==
                DB.NotificationSubscription.base_query()
@@ -111,7 +111,7 @@ defmodule TransportWeb.NotificationControllerTest do
     conn_response = conn |> delete(notification_path(conn, :delete, subscription_id))
 
     assert redirected_to(conn_response, 302) == notification_path(conn, :index)
-    assert get_flash(conn_response, :info) =~ "La notification a été supprimée"
+    assert Phoenix.Flash.get(conn_response.assigns.flash, :info) =~ "La notification a été supprimée"
 
     assert DB.NotificationSubscription |> DB.Repo.all() |> Enum.empty?()
   end
@@ -150,7 +150,7 @@ defmodule TransportWeb.NotificationControllerTest do
     conn_response = conn |> delete(notification_path(conn, :delete_for_dataset, dataset_id))
 
     assert redirected_to(conn_response, 302) == notification_path(conn, :index)
-    assert get_flash(conn_response, :info) =~ "Les notifications ont été supprimées"
+    assert Phoenix.Flash.get(conn_response.assigns.flash, :info) =~ "Les notifications ont été supprimées"
 
     assert [
              %DB.NotificationSubscription{
