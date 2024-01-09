@@ -4,7 +4,7 @@ defmodule DB.Commune do
   """
   use Ecto.Schema
   use TypedEctoSchema
-  alias DB.{AOM, Departement, Region}
+  alias DB.{AOM, Departement, EPCI, Region}
   alias Geo.MultiPolygon
 
   typed_schema "commune" do
@@ -20,5 +20,6 @@ defmodule DB.Commune do
     belongs_to(:aom_res, AOM, references: :composition_res_id)
     belongs_to(:region, Region)
     belongs_to(:departement, Departement, foreign_key: :departement_insee, references: :insee, type: :string)
+    belongs_to(:epci, EPCI, foreign_key: :epci_insee, references: :insee, type: :string)
   end
 end

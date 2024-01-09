@@ -31,7 +31,7 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
         |> post(backoffice_notification_subscription_path(conn, :create, args))
 
       assert redirected_to(conn_response, 302) == backoffice_page_path(conn, :edit, dataset_id) <> @target_html_anchor
-      assert get_flash(conn_response, :info) =~ "L'abonnement a été créé"
+      assert Phoenix.Flash.get(conn_response.assigns.flash, :info) =~ "L'abonnement a été créé"
 
       assert [
                %DB.NotificationSubscription{
@@ -55,7 +55,7 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
         |> post(backoffice_notification_subscription_path(conn, :create, Map.put(args, "dataset_with_error", "true")))
 
       assert redirected_to(conn_response, 302) == backoffice_page_path(conn, :edit, dataset_id) <> @target_html_anchor
-      assert get_flash(conn_response, :info) =~ "L'abonnement a été créé"
+      assert Phoenix.Flash.get(conn_response.assigns.flash, :info) =~ "L'abonnement a été créé"
 
       assert Enum.sort([:dataset_with_error, :expiration, :resource_unavailable]) ==
                DB.NotificationSubscription.base_query()
@@ -117,7 +117,7 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
       assert redirected_to(conn_response, 302) ==
                backoffice_contact_path(conn, :edit, contact_id) <> @target_html_anchor
 
-      assert get_flash(conn_response, :info) =~ "Abonnements mis à jour"
+      assert Phoenix.Flash.get(conn_response.assigns.flash, :info) =~ "Abonnements mis à jour"
 
       assert [
                %DB.NotificationSubscription{
@@ -157,7 +157,7 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
       })
 
     assert redirected_to(conn_response, 302) == backoffice_page_path(conn, :edit, dataset_id) <> @target_html_anchor
-    assert get_flash(conn_response, :info) =~ "L'abonnement a été supprimé"
+    assert Phoenix.Flash.get(conn_response.assigns.flash, :info) =~ "L'abonnement a été supprimé"
 
     assert DB.NotificationSubscription |> DB.Repo.all() |> Enum.empty?()
   end
@@ -201,7 +201,7 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
       )
 
     assert redirected_to(conn_response, 302) == backoffice_page_path(conn, :edit, dataset_id) <> @target_html_anchor
-    assert get_flash(conn_response, :info) =~ "Les abonnements ont été supprimés"
+    assert Phoenix.Flash.get(conn_response.assigns.flash, :info) =~ "Les abonnements ont été supprimés"
 
     assert [
              %DB.NotificationSubscription{

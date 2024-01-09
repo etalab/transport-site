@@ -28,7 +28,7 @@ defmodule TransportWeb.ExploreControllerTest do
   end
 
   test "GET /explore", %{conn: conn} do
-    conn = conn |> get("/explore")
+    conn = conn |> get(~p"/explore")
     html = html_response(conn, 200)
     assert html =~ "Exploration"
   end
@@ -36,14 +36,14 @@ defmodule TransportWeb.ExploreControllerTest do
   test "GET /explore/vehicle-positions", %{conn: conn} do
     redirect_path =
       conn
-      |> get("/explore/vehicle-positions")
+      |> get(~p"/explore/vehicle-positions")
       |> redirected_to(302)
 
     assert redirect_path == "/explore"
   end
 
   test "GET /explore/gtfs-stops", %{conn: conn} do
-    conn = conn |> get("/explore/gtfs-stops")
+    conn = conn |> get(~p"/explore/gtfs-stops")
     html = html_response(conn, 200)
     doc = Floki.parse_document!(html)
 
