@@ -267,15 +267,10 @@ defmodule TransportWeb.ResourceView do
   false
   iex> should_display_description?(%DB.Resource{description: "Bonjour", title: "Foo"})
   true
-  iex> should_display_description?(%DB.Resource{description: "Bonjour", title: "Export au format CSV"})
-  false
   """
   def should_display_description?(%DB.Resource{description: nil}), do: false
   def should_display_description?(%DB.Resource{title: nil}), do: false
-
-  def should_display_description?(%DB.Resource{title: title}) do
-    not String.starts_with?(title, "Export au format")
-  end
+  def should_display_description?(%DB.Resource{}), do: true
 
   def networks_start_end_dates(assigns) do
     end_date_class = fn end_date ->
