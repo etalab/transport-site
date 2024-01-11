@@ -3,8 +3,8 @@ defmodule DB.Repo.Migrations.AddResourceRelated do
 
   def change do
     create table(:resource_related, primary_key: false) do
-      add(:resource_src_id, references(:resource), on_delete: :delete_all, null: false)
-      add(:resource_dst_id, references(:resource), on_delete: :delete_all, null: false)
+      add(:resource_src_id, references(:resource, on_delete: :nothing), null: false)
+      add(:resource_dst_id, references(:resource, on_delete: :nothing), null: false)
       add(:reason, :string, null: false)
     end
 
