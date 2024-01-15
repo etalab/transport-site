@@ -30,7 +30,8 @@
             <% end %>
             <%= for dataset <- Enum.sort_by(@datasets, & &1.datagouv_title) do %>
               <% dataset_path = dataset_path(@conn, :details, dataset.id)
-              nb_resources = dataset |> DB.Dataset.official_resources() |> Enum.count() %>
+              nb_resources = dataset |> DB.Dataset.official_resources() |> Enum.count()
+              has_downloads_stats = Map.has_key?(@downloads_last_year, dataset.datagouv_id) %>
               <div class="pt-24 panel dataset-item">
                 <h5>
                   <a href={dataset_path} target="_blank"><i class="icon fa fa-external-link" aria-hidden="true"></i></a>
@@ -59,6 +60,21 @@
                     "data-tracking-category": "espace_producteur",
                     "data-tracking-action": "delete_resource_button"
                   ) %>
+                </div>
+                <div :if={has_downloads_stats and show_downloads_stats?(dataset)}>
+                  <% nb_downloads =
+                    nb_downloads_for_humans(
+                      Map.fetch!(@downloads_last_year, dataset.datagouv_id),
+                      get_session(@conn, :locale)
+                    ) %>
+                  <div class="pt-6">
+                    <i class="icon fa fa-download" aria-hidden="true"></i> <%= dgettext(
+                      "espace-producteurs",
+                      "%{nb_downloads} downloads in %{year}",
+                      nb_downloads: nb_downloads,
+                      year: @downloads_reference_year
+                    ) %>
+                  </div>
                 </div>
               </div>
             <% end %>

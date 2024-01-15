@@ -204,3 +204,7 @@ msgid "1 resource"
 msgid_plural "%{count} resources"
 msgstr[0] "1 ressource"
 msgstr[1] "%{count} ressources"
+
+#, elixir-autogen, elixir-format
+msgid "%{nb_downloads} downloads in %{year}"
+msgstr "%{nb_downloads} téléchargements en %{year}"

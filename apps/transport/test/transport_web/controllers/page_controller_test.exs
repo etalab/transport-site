@@ -69,10 +69,25 @@ defmodule TransportWeb.PageControllerTest do
     end
 
     test "renders successfully and finds datasets using organization IDs", %{conn: conn} do
-      %DB.Dataset{organization_id: organization_id} = insert(:dataset, datagouv_title: datagouv_title = "Foobar")
+      %DB.Dataset{organization_id: organization_id} =
+        dataset = insert(:dataset, datagouv_title: datagouv_title = "Foobar")
+
+      resource = insert(:resource, url: "https://static.data.gouv.fr/file", dataset: dataset)
+      assert DB.Resource.hosted_on_datagouv?(resource)
 
       Datagouvfr.Client.User.Mock
       |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
+
+      last_year = Date.utc_today().year - 1
+
+      insert(:dataset_monthly_metric,
+        dataset_datagouv_id: dataset.datagouv_id,
+        year_month: "#{last_year}-12",
+        metric_name: :downloads,
+        count: 120_250
+      )
+
+      assert dataset |> DB.Repo.preload(:resources) |> TransportWeb.PageView.show_downloads_stats?()
 
       conn =
         conn
@@ -88,6 +103,9 @@ defmodule TransportWeb.PageControllerTest do
       assert doc |> Floki.find(".dataset-item h5") |> Enum.map(&(&1 |> Floki.text() |> String.trim())) == [
                datagouv_title
              ]
+
+      # Download stats for last year are displayed
+      assert doc |> Floki.find(".dataset-item") |> Floki.text() =~ "120 k téléchargements en #{last_year}"
     end
 
     test "with an OAuth2 error", %{conn: conn} do
