@@ -7,17 +7,6 @@ defmodule Streamer do
   def cache_dir, do: Path.join(__ENV__.file, "../cache-dir") |> Path.expand()
 
   @doc """
-  Execute HTTP query, unless the file is already in the disk cache.
-  """
-  def get!(url, options \\ []) do
-    url = URI.encode(url)
-    # use the cache plugin
-    req = Req.new() |> CustomCache.attach()
-    %{body: body, status: 200} = Req.get!(req, options |> Keyword.merge(url: url, custom_cache_dir: cache_dir()))
-    body
-  end
-
-  @doc """
   Query one page, and use that to infer the list of all urls (for index-based pagination like data gouv)
   """
   def pages(base_url) do

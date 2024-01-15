@@ -27,3 +27,33 @@ defmodule Transport.Req do
   defdelegate get(url, options), to: Req
   defdelegate get!(url, options), to: Req
 end
+
+# Experimental: a higher-level http client. In flux! Subject to change!
+# Req allow better customisation and we should look into that.
+defmodule Transport.HTTPClient do
+  # TODO: pass an option to allow enabling the cache.
+  # NOTE: `custom_cache_dir` is read but caching should be opt-in
+  def get!(url, options) do
+    options = Keyword.validate!(options, [:custom_cache_dir, enable_cache: false])
+
+    url = URI.encode(url)
+    req = Req.new()
+
+    {enable_cache, options} = options |> Keyword.pop!(:enable_cache)
+
+    req =
+      if enable_cache do
+        req |> Transport.Shared.ReqCustomCache.attach()
+      else
+        req
+      end
+
+    resp = Req.get!(req, options |> Keyword.merge(url: url))
+    ensure_200_body(resp)
+  end
+
+  def ensure_200_body(resp) do
+    %{body: body, status: 200} = resp
+    body
+  end
+end
