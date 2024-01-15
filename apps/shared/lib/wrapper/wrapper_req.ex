@@ -34,7 +34,13 @@ defmodule Transport.HTTPClient do
   # TODO: pass an option to allow enabling the cache.
   # NOTE: `custom_cache_dir` is read but caching should be opt-in
   def get!(url, options) do
-    options = Keyword.validate!(options, [:custom_cache_dir, enable_cache: false])
+    options =
+      Keyword.validate!(options, [
+        :custom_cache_dir,
+        :decode_body,
+        :compressed,
+        enable_cache: false
+      ])
 
     url = URI.encode(url)
     req = Req.new()

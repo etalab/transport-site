@@ -6,19 +6,30 @@
 defmodule Streamer do
   def cache_dir, do: Path.join(__ENV__.file, "../cache-dir") |> Path.expand()
 
+  def http_options do
+    [
+      enable_cache: true,
+      custom_cache_dir: cache_dir()
+    ]
+  end
+
   @doc """
   Query one page, and use that to infer the list of all urls (for index-based pagination like data gouv)
   """
   def pages(base_url) do
     http_client = Transport.HTTPClient
     base_url = URI.encode(base_url)
-
-    options = [
-      enable_cache: true,
-      custom_cache_dir: cache_dir()
-    ]
+    options = http_options()
 
     Transport.HTTPPagination.naive_paginated_urls_stream(base_url, http_client, options)
+  end
+
+  def get!(url, options \\ []) do
+    http_client = Transport.HTTPClient
+    url = URI.encode(url)
+    options = options |> Keyword.merge(options)
+
+    http_client.get!(url, options)
   end
 end
 
@@ -34,8 +45,6 @@ end
 
 # NOTE: currently not deduping, because I saw weird things while doing it
 
-# TODO: once done, also check the other sources (catch with a wider net).
-# But do not get lost in the process, so focus first on the "real thing".
 datagouv_urls =
   [
     #  "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve",
@@ -46,14 +55,6 @@ datagouv_urls =
   ]
   |> Enum.map(&Streamer.pages(&1))
   |> Stream.concat()
-
-# TODO: fix the rest after refactoring
-
-datagouv_urls
-|> Stream.each(fn x -> IO.inspect(x) end)
-|> Stream.run()
-
-System.halt(0)
 
 resources =
   datagouv_urls
@@ -99,7 +100,6 @@ resources
 |> Enum.frequencies_by(fn x -> x[:valid] end)
 |> IO.inspect(IEx.inspect_opts() |> Keyword.put(:label, "group_by(:valid)"))
 
-# TODO: percent via dataframe if possible (simpler once we get used to it)
 resources
 |> Enum.frequencies_by(fn x -> x[:valid] end)
 |> Enum.map(fn {_, v} -> ((100 * v / (resources |> length)) |> trunc() |> to_string) <> "%" end)
@@ -173,3 +173,5 @@ recent_stuff
 # Combien par "date de mise à jour" (théorique ???)
 # Combien de PDC ça constitue ?
 # Tout revalider moi-même et vérifier ? Oui. Oui. On aura des surprises.
+
+IO.puts("Done")
