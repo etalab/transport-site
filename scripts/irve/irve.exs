@@ -36,7 +36,7 @@ end
 
 # TODO: once done, also check the other sources (catch with a wider net).
 # But do not get lost in the process, so focus first on the "real thing".
-resources =
+datagouv_urls =
   [
     #  "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve",
     "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve-statique"
@@ -46,6 +46,17 @@ resources =
   ]
   |> Enum.map(&Streamer.pages(&1))
   |> Stream.concat()
+
+# TODO: fix the rest after refactoring
+
+datagouv_urls
+|> Stream.each(fn x -> IO.inspect(x) end)
+|> Stream.run()
+
+System.halt(0)
+
+resources =
+  datagouv_urls
   |> Stream.map(fn %{url: url} = page -> Map.put(page, :data, Streamer.get!(url)) end)
   # |> Helper.inspect(fn(x) ->
   #   Map.take(x[:data], ["page", "page_size", "total"])
