@@ -1,11 +1,7 @@
+#! /usr/bin/env mix run
+
 # the basis of a mass-analysis script for IRVE files,
 # inspired by https://github.com/etalab/notebooks/blob/master/irve-v2/consolidation-irve-v2.ipynb
-
-Mix.install([
-  {:req, "~> 0.3.0"}
-])
-
-Code.require_file(Path.join(__ENV__.file, "../req_custom_cache.exs"))
 
 defmodule Streamer do
   def cache_dir, do: Path.join(__ENV__.file, "../cache-dir") |> Path.expand()
