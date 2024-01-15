@@ -12,6 +12,7 @@ defmodule Transport.Req.Behaviour do
   @type url() :: URI.t() | String.t()
   # Simplified version for our needs
   @callback get(url(), options :: keyword()) :: {:ok, Req.Response.t()} | {:error, Exception.t()}
+  @callback get!(url() | keyword() | Req.Request.t(), options :: keyword()) :: Req.Response.t()
 end
 
 defmodule Transport.Req do
