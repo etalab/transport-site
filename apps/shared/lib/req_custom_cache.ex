@@ -1,7 +1,11 @@
-defmodule CustomCache do
+defmodule Transport.Shared.ReqCustomCache do
   @moduledoc """
   A simple HTTP cache for `req` that do not use headers. If the file is not found
   on disk, the download will occur, otherwise response will be read from disk.
+
+  At this point, this module is more designed for development use (with production data)
+  than for production use (in particular, security implications of `:erlang.binary_to_term`
+  and `:erlang.term_to_binary`).
   """
   require Logger
 
