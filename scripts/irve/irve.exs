@@ -63,7 +63,6 @@ resources =
       # TODO: regroupement par "publicateur" contact opérateur SAV Izivia
       id: get_in(x, ["id"]),
       dataset_id: get_in(x, [:dataset_id]),
-      last_modified: get_in(x, ["last_modified"]),
       valid: get_in(x, ["extras", "validation-report:valid_resource"]),
       validation_date: get_in(x, ["extras", "validation-report:validation_date"]),
       schema_name: get_in(x, ["schema", "name"]),
