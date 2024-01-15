@@ -25,4 +25,5 @@ defmodule Transport.Req do
 
   @behaviour Transport.Req.Behaviour
   defdelegate get(url, options), to: Req
+  defdelegate get!(url, options), to: Req
 end
