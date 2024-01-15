@@ -10,17 +10,15 @@ defmodule Streamer do
   Query one page, and use that to infer the list of all urls (for index-based pagination like data gouv)
   """
   def pages(base_url) do
-    page_size = 100
-    data = get!(url = base_url <> "&page_size=#{page_size}")
+    http_client = Transport.HTTPClient
+    base_url = URI.encode(base_url)
 
-    # NOTE: using pattern matching to warn me about "silent limitations" on the page_size from data gouv
-    %{"total" => total, "page_size" => ^page_size} = data
-    nb_pages = div(total, page_size) + 1
+    options = [
+      enable_cache: true,
+      custom_cache_dir: cache_dir()
+    ]
 
-    IO.puts("Processing #{url} (pages: #{nb_pages})")
-
-    1..nb_pages
-    |> Stream.map(&%{url: base_url <> "&page=#{&1}&page_size=#{page_size}", source: base_url})
+    Transport.HTTPPagination.naive_paginated_urls_stream(base_url, http_client, options)
   end
 end
 
