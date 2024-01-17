@@ -35,4 +35,13 @@ defmodule GBFS.IndexControllerTest do
     # We did not receive telemetry events (ie metrics have not been saved to the database)
     refute_receive {:telemetry_event, [:gbfs, :request, _], %{}, %{}}
   end
+
+  test "rate limiter is not enabled for the GBFS app", %{conn: conn} do
+    [blocked_ip] = Application.fetch_env!(:phoenix_ddos, :blocklist_ips)
+
+    conn
+    |> Plug.Conn.put_req_header("x-forwarded-for", to_string(blocked_ip))
+    |> get("/gbfs")
+    |> json_response(200)
+  end
 end
