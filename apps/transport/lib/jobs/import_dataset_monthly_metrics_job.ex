@@ -2,7 +2,10 @@ defmodule Transport.Jobs.ImportDatasetMonthlyMetricsJob do
   @moduledoc """
   Import monthly metrics related to datasets coming from the data.gouv.fr's API.
 
-  This job is executed daily and imports metrics for all datasets for the last 2 years.
+  This job is executed daily and imports metrics for all datasets.
+  If dataset metrics have not been imported previously, we well fetch metrics for the last 2 years.
+  Otherwise we will fetch metrics only for the last 3 months.
+
   Records are not supposed to change in the past, except for the current month.
   """
   use Oban.Worker, max_attempts: 3
@@ -33,30 +36,39 @@ defmodule Transport.Jobs.ImportMonthlyMetrics do
   Shared methods to import monthly metrics from the data.gouv.fr's API.
   """
   require Logger
+  import Ecto.Query
 
   # Maximum number of months to fetch for each model
   # 12*2 = 24 months
   @nb_records 12 * 2
 
   @doc """
-  iex> api_url(:dataset, "datagouv_id")
+  iex> api_url(:dataset, "datagouv_id", page_size: 24)
   "https://metric-api.data.gouv.fr/api/datasets/data/?dataset_id__exact=datagouv_id&page_size=24&metric_month__sort=desc"
+  iex> api_url(:resource, "datagouv_id", page_size: 5)
+  "https://metric-api.data.gouv.fr/api/resources/data/?resource_id__exact=datagouv_id&page_size=5&metric_month__sort=desc"
   """
-  def api_url(model_name, datagouv_id, page_size \\ @nb_records) when model_name in [:dataset, :resource] do
+  def api_url(model_name, datagouv_id, page_size: page_size) when model_name in [:dataset, :resource] do
     model_name
     |> api_base_url()
-    |> URI.append_query(api_args(model_name, datagouv_id, page_size))
+    |> URI.append_query(api_args(model_name, datagouv_id: datagouv_id, page_size: page_size))
     |> URI.to_string()
   end
 
   def import_metrics(model_name, datagouv_id) when model_name in [:dataset, :resource] do
-    url = api_url(model_name, datagouv_id)
+    # If we already imported metrics for this model, fetch only the last 3 months
+    url =
+      if already_imported?(model_name, datagouv_id) do
+        api_url(model_name, datagouv_id, page_size: 3)
+      else
+        api_url(model_name, datagouv_id, page_size: @nb_records)
+      end
 
     case http_client().get(url, []) do
       {:ok, %Req.Response{status: 200, body: body}} ->
         body
         |> Map.fetch!("data")
-        |> Enum.each(fn data -> insert_or_update(model_name, data, datagouv_id) end)
+        |> Enum.each(fn data -> insert_or_update(model_name, datagouv_id, data) end)
 
       other ->
         Logger.error(
@@ -65,11 +77,15 @@ defmodule Transport.Jobs.ImportMonthlyMetrics do
     end
   end
 
-  defp insert_or_update(
-         model_name,
-         %{"metric_month" => metric_month} = data,
-         datagouv_id
-       )
+  def already_imported?(:dataset, datagouv_id) do
+    DB.DatasetMonthlyMetric |> where([d], d.dataset_datagouv_id == ^datagouv_id) |> DB.Repo.exists?()
+  end
+
+  def already_imported?(:resource, datagouv_id) do
+    DB.ResourceMonthlyMetric |> where([d], d.resource_datagouv_id == ^datagouv_id) |> DB.Repo.exists?()
+  end
+
+  defp insert_or_update(model_name, datagouv_id, %{"metric_month" => metric_month} = data)
        when model_name in [:dataset, :resource] do
     Enum.each(metrics(model_name, data), fn {metric_name, count} ->
       count = count || 0
@@ -100,20 +116,20 @@ defmodule Transport.Jobs.ImportMonthlyMetrics do
   end
 
   defp changeset(:dataset, %{datagouv_id: datagouv_id} = params) do
-    params = Map.merge(params, %{dataset_datagouv_id: datagouv_id})
+    params = Map.put(params, :dataset_datagouv_id, datagouv_id)
     DB.DatasetMonthlyMetric.changeset(%DB.DatasetMonthlyMetric{}, params)
   end
 
   defp changeset(:resource, %{datagouv_id: datagouv_id} = params) do
-    params = Map.merge(params, %{resource_datagouv_id: datagouv_id})
+    params = Map.put(params, :resource_datagouv_id, datagouv_id)
     DB.ResourceMonthlyMetric.changeset(%DB.ResourceMonthlyMetric{}, params)
   end
 
-  defp api_args(:dataset, datagouv_id, page_size) do
+  defp api_args(:dataset, datagouv_id: datagouv_id, page_size: page_size) do
     [dataset_id__exact: datagouv_id, page_size: page_size, metric_month__sort: "desc"] |> URI.encode_query()
   end
 
-  defp api_args(:resource, datagouv_id, page_size) do
+  defp api_args(:resource, datagouv_id: datagouv_id, page_size: page_size) do
     [resource_id__exact: datagouv_id, page_size: page_size, metric_month__sort: "desc"] |> URI.encode_query()
   end
 

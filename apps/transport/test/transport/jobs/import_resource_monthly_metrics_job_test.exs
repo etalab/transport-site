@@ -59,18 +59,27 @@ defmodule Transport.Test.Transport.Jobs.ImportResourceMonthlyMetricsTestJob do
         count: 42
       )
 
-      setup_http_response(datagouv_id, [
-        %{
-          "resource_id" => datagouv_id,
-          "metric_month" => "2023-12",
-          "monthly_download_resource" => 43
-        },
-        %{
-          "resource_id" => datagouv_id,
-          "metric_month" => "2023-11",
-          "monthly_download_resource" => 1337
-        }
-      ])
+      # This datagouv_id has already been imported, we should only fetch the
+      # 3 latest records
+      refute Transport.Jobs.ImportMonthlyMetrics.already_imported?(:resource, Ecto.UUID.generate())
+      assert Transport.Jobs.ImportMonthlyMetrics.already_imported?(:resource, datagouv_id)
+
+      setup_http_response(
+        datagouv_id,
+        [
+          %{
+            "resource_id" => datagouv_id,
+            "metric_month" => "2023-12",
+            "monthly_download_resource" => 43
+          },
+          %{
+            "resource_id" => datagouv_id,
+            "metric_month" => "2023-11",
+            "monthly_download_resource" => 1337
+          }
+        ],
+        page_size: 3
+      )
 
       assert [
                %DB.ResourceMonthlyMetric{
@@ -161,8 +170,9 @@ defmodule Transport.Test.Transport.Jobs.ImportResourceMonthlyMetricsTestJob do
              |> DB.Repo.all()
   end
 
-  defp setup_http_response(datagouv_id, data) do
-    metrics_api_url = Transport.Jobs.ImportMonthlyMetrics.api_url(:resource, datagouv_id)
+  defp setup_http_response(datagouv_id, data, options \\ []) do
+    page_size = Keyword.get(options, :page_size, 24)
+    metrics_api_url = Transport.Jobs.ImportMonthlyMetrics.api_url(:resource, datagouv_id, page_size: page_size)
 
     expect(Transport.Req.Mock, :get, fn ^metrics_api_url, [] ->
       {:ok, %Req.Response{status: 200, body: %{"data" => data}}}

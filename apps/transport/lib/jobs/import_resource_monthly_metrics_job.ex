@@ -2,7 +2,10 @@ defmodule Transport.Jobs.ImportResourceMonthlyMetricsJob do
   @moduledoc """
   Import monthly metrics related to resources coming from the data.gouv.fr's API.
 
-  This job is executed daily and imports metrics for all resources for the last 2 years.
+  This job is executed daily and imports metrics for all resources.
+  If resource metrics have not been imported previously, we well fetch metrics for the last 2 years.
+  Otherwise we will fetch metrics only for the last 3 months.
+
   Records are not supposed to change in the past, except for the current month.
   """
   use Oban.Worker, max_attempts: 3
