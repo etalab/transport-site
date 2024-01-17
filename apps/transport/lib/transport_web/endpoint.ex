@@ -40,7 +40,6 @@ defmodule TransportWeb.Endpoint do
 
   plug(Plug.RequestId)
   plug(RemoteIp, headers: ["x-forwarded-for"])
-  plug(TransportWeb.Plugs.RateLimiter, :use_env_variables)
   plug(Plug.Logger)
 
   plug(Plug.Parsers,
