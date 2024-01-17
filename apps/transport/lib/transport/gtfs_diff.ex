@@ -307,7 +307,7 @@ defmodule Transport.GTFSDiff do
     diff |> Enum.zip_with(id_range, &Map.merge(&1, %{id: &2}))
   end
 
-  def dump_diff(diff) do
+  def dump_diff(diff, filepath) do
     headers = ["id", "file", "action", "target", "identifier", "initial_value", "new_value", "note"]
 
     body =
@@ -331,11 +331,10 @@ defmodule Transport.GTFSDiff do
         ]
       end)
 
-    res = [headers | body]
-
-    res
-    |> CSV.dump_to_iodata()
-    |> IO.iodata_to_binary()
+    [headers | body]
+    |> CSV.dump_to_stream()
+    |> Stream.into(File.stream!(filepath))
+    |> Stream.run()
   end
 
   def apply_delete(file, diff, primary_key) do
@@ -412,11 +411,3 @@ defmodule Transport.GTFSDiff do
     |> IO.iodata_to_binary()
   end
 end
-
-# usage
-
-# unzip_1 = Transport.GTFSDiff.unzip("path/to/gtfs_1.zip")
-# unzip_2 = Transport.GTFSDiff.unzip("path/to/gtfs_2.zip")
-
-# diff = Transport.GTFSDiff.diff(unzip_1, unzip_2)
-# File.write!("diff_output.txt", diff |> Transport.GTFSDiff.dump_diff())

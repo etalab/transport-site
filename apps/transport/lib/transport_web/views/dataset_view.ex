@@ -15,13 +15,14 @@ defmodule TransportWeb.DatasetView do
   @gtfs_rt_validator_name Transport.Validators.GTFSRT.validator_name()
 
   @doc """
-  Count the number of resources (official + community), excluding resources with a `documentation` type.
+  Count the number of resources, excluding:
+  - community resources
+  - resources with a `documentation` type.
   """
   @spec count_resources(Dataset.t()) :: non_neg_integer
   def count_resources(dataset) do
-    nb_resources = Enum.count(official_available_resources(dataset))
-    nb_community_resources = Enum.count(community_resources(dataset))
-    nb_resources + nb_community_resources - count_documentation_resources(dataset)
+    nb_official_resources = dataset |> official_available_resources() |> Enum.count()
+    nb_official_resources - count_documentation_resources(dataset)
   end
 
   @spec count_documentation_resources(Dataset.t()) :: non_neg_integer

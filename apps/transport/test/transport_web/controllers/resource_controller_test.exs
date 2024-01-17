@@ -1,7 +1,6 @@
 defmodule TransportWeb.ResourceControllerTest do
   use TransportWeb.ConnCase, async: false
   use TransportWeb.DatabaseCase, cleanup: [:datasets], async: false
-  alias DB.{AOM, Dataset, Resource}
   import Plug.Test
   import Mox
   import DB.Factory
@@ -15,54 +14,52 @@ defmodule TransportWeb.ResourceControllerTest do
     Mox.stub_with(Transport.DataVisualization.Mock, Transport.DataVisualization.Impl)
     Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
 
-    {:ok, _} =
-      %Dataset{
-        created_at: DateTime.utc_now(),
-        last_update: DateTime.utc_now(),
-        slug: "slug-1",
-        resources: [
-          %Resource{
-            last_update: DateTime.utc_now() |> DateTime.add(-6, :hour),
-            last_import: DateTime.utc_now() |> DateTime.add(-1, :hour),
-            url: "https://link.to/angers.zip",
-            datagouv_id: "1",
-            format: "GTFS",
-            title: "GTFS",
-            description: "Une _très_ belle ressource"
-          },
-          %Resource{
-            last_update: DateTime.utc_now() |> DateTime.add(-6, :hour),
-            last_import: DateTime.utc_now() |> DateTime.add(-1, :hour),
-            url: "http://link.to/angers.zip?foo=bar",
-            datagouv_id: "2",
-            format: "GTFS"
-          },
-          %Resource{
-            last_update: DateTime.utc_now() |> DateTime.add(-6, :hour),
-            last_import: DateTime.utc_now() |> DateTime.add(-1, :hour),
-            url: "http://link.to/gbfs",
-            datagouv_id: "3",
-            format: "gbfs"
-          },
-          %Resource{
-            last_update: DateTime.utc_now() |> DateTime.add(-6, :hour),
-            last_import: DateTime.utc_now() |> DateTime.add(-1, :hour),
-            url: "http://link.to/file",
-            datagouv_id: "4",
-            schema_name: "etalab/foo",
-            format: "json"
-          },
-          %Resource{
-            last_update: DateTime.utc_now() |> DateTime.add(-6, :hour),
-            last_import: DateTime.utc_now() |> DateTime.add(-1, :hour),
-            url: "http://link.to/gtfs-rt",
-            datagouv_id: "5",
-            format: "gtfs-rt"
-          }
-        ],
-        aom: %AOM{id: 4242, nom: "Angers Métropôle"}
-      }
-      |> Repo.insert()
+    insert(:dataset,
+      created_at: DateTime.utc_now(),
+      last_update: DateTime.utc_now(),
+      slug: "slug-1",
+      resources: [
+        %DB.Resource{
+          last_update: DateTime.utc_now() |> DateTime.add(-6, :hour),
+          last_import: DateTime.utc_now() |> DateTime.add(-1, :hour),
+          url: "https://link.to/angers.zip",
+          datagouv_id: "1",
+          format: "GTFS",
+          title: "GTFS",
+          description: "Une _très_ belle ressource"
+        },
+        %DB.Resource{
+          last_update: DateTime.utc_now() |> DateTime.add(-6, :hour),
+          last_import: DateTime.utc_now() |> DateTime.add(-1, :hour),
+          url: "http://link.to/angers.zip?foo=bar",
+          datagouv_id: "2",
+          format: "GTFS"
+        },
+        %DB.Resource{
+          last_update: DateTime.utc_now() |> DateTime.add(-6, :hour),
+          last_import: DateTime.utc_now() |> DateTime.add(-1, :hour),
+          url: "http://link.to/gbfs",
+          datagouv_id: "3",
+          format: "gbfs"
+        },
+        %DB.Resource{
+          last_update: DateTime.utc_now() |> DateTime.add(-6, :hour),
+          last_import: DateTime.utc_now() |> DateTime.add(-1, :hour),
+          url: "http://link.to/file",
+          datagouv_id: "4",
+          schema_name: "etalab/foo",
+          format: "json"
+        },
+        %DB.Resource{
+          last_update: DateTime.utc_now() |> DateTime.add(-6, :hour),
+          last_import: DateTime.utc_now() |> DateTime.add(-1, :hour),
+          url: "http://link.to/gtfs-rt",
+          datagouv_id: "5",
+          format: "gtfs-rt"
+        }
+      ],
+      aom: %DB.AOM{id: 4242, nom: "Angers Métropôle"}
+    )
 
     :ok
   end
@@ -89,7 +86,7 @@ defmodule TransportWeb.ResourceControllerTest do
   end
 
   test "GTFS resource with associated NeTEx", %{conn: conn} do
-    resource = Resource |> Repo.get_by(datagouv_id: "2")
+    resource = DB.Resource |> DB.Repo.get_by(datagouv_id: "2")
     insert(:resource_history, resource_id: resource.id, payload: %{"uuid" => uuid = Ecto.UUID.generate()})
 
     insert(:data_conversion,
@@ -107,8 +104,8 @@ defmodule TransportWeb.ResourceControllerTest do
   end
 
   test "GBFS resource with multi-validation sends back 200", %{conn: conn} do
-    resource = Resource |> Repo.get_by(datagouv_id: "3")
-    assert Resource.is_gbfs?(resource)
+    resource = DB.Resource |> DB.Repo.get_by(datagouv_id: "3")
+    assert DB.Resource.is_gbfs?(resource)
 
     insert(:multi_validation, %{
       resource_history: insert(:resource_history, %{resource_id: resource.id}),
@@ -124,7 +121,7 @@ defmodule TransportWeb.ResourceControllerTest do
   end
 
   test "resource has its description displayed", %{conn: conn} do
-    resource = Resource |> Repo.get_by(datagouv_id: "1")
+    resource = DB.Resource |> DB.Repo.get_by(datagouv_id: "1")
 
     assert resource.description == "Une _très_ belle ressource"
     html = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
@@ -132,7 +129,7 @@ defmodule TransportWeb.ResourceControllerTest do
   end
 
   test "resource has download availability displayed", %{conn: conn} do
-    resource = Resource |> Repo.get_by(datagouv_id: "4")
+    resource = DB.Resource |> DB.Repo.get_by(datagouv_id: "4")
 
     Transport.Shared.Schemas.Mock
     |> expect(:schemas_by_type, 1, fn _type -> %{resource.schema_name => %{}} end)
@@ -183,14 +180,14 @@ defmodule TransportWeb.ResourceControllerTest do
       result: validation_result
     )
 
-    resource = Resource |> preload(:dataset) |> DB.Repo.get!(resource.id)
+    resource = DB.Resource |> preload(:dataset) |> DB.Repo.get!(resource.id)
 
     Transport.HTTPoison.Mock
     |> expect(:get, fn ^resource_url, [], [follow_redirect: true] ->
       {:ok, %HTTPoison.Response{status_code: 200, body: File.read!(@service_alerts_file)}}
     end)
 
-    assert Resource.is_gtfs_rt?(resource)
+    assert DB.Resource.is_gtfs_rt?(resource)
 
     content = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
 
@@ -213,22 +210,22 @@ defmodule TransportWeb.ResourceControllerTest do
   end
 
   test "gtfs-rt resource with feed decode error", %{conn: conn} do
-    %{url: url} = resource = Resource |> Repo.get_by(datagouv_id: "5")
+    %{url: url} = resource = DB.Resource |> DB.Repo.get_by(datagouv_id: "5")
 
     Transport.HTTPoison.Mock
     |> expect(:get, fn ^url, [], [follow_redirect: true] ->
       {:ok, %HTTPoison.Response{status_code: 502, body: ""}}
     end)
 
-    assert Resource.is_gtfs_rt?(resource)
+    assert DB.Resource.is_gtfs_rt?(resource)
     content = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
 
     assert content =~ "Impossible de décoder le flux GTFS-RT"
   end
 
   test "HEAD request for an HTTP resource", %{conn: conn} do
-    resource = Resource |> Repo.get_by(datagouv_id: "2")
-    refute Resource.can_direct_download?(resource)
+    resource = DB.Resource |> DB.Repo.get_by(datagouv_id: "2")
+    refute DB.Resource.can_direct_download?(resource)
 
     Transport.HTTPoison.Mock
     |> expect(:head, fn url, [] ->
@@ -243,22 +240,22 @@ defmodule TransportWeb.ResourceControllerTest do
     assert conn |> response(200) == ""
 
     # With a resource that can be directly downloaded
-    resource = Resource |> Repo.get_by(datagouv_id: "1")
-    assert Resource.can_direct_download?(resource)
+    resource = DB.Resource |> DB.Repo.get_by(datagouv_id: "1")
+    assert DB.Resource.can_direct_download?(resource)
     assert conn |> head(resource_path(conn, :download, resource.id)) |> response(404) == ""
   end
 
   test "downloading a resource that can be directly downloaded", %{conn: conn} do
-    resource = Resource |> Repo.get_by(datagouv_id: "1")
-    assert Resource.can_direct_download?(resource)
+    resource = DB.Resource |> DB.Repo.get_by(datagouv_id: "1")
+    assert DB.Resource.can_direct_download?(resource)
 
     location = conn |> get(resource_path(conn, :download, resource.id)) |> redirected_to
     assert location == resource.url
   end
 
   test "downloading a resource that cannot be directly downloaded", %{conn: conn} do
-    resource = Resource |> Repo.get_by(datagouv_id: "2")
-    refute Resource.can_direct_download?(resource)
+    resource = DB.Resource |> DB.Repo.get_by(datagouv_id: "2")
+    refute DB.Resource.can_direct_download?(resource)
 
     Transport.HTTPoison.Mock
     |> expect(:get, fn url, [], hackney: [follow_redirect: true] ->
@@ -274,8 +271,8 @@ defmodule TransportWeb.ResourceControllerTest do
   end
 
   test "downloading a resource that cannot be directly downloaded with a filename", %{conn: conn} do
-    resource = Resource |> Repo.get_by(datagouv_id: "2")
-    refute Resource.can_direct_download?(resource)
+    resource = DB.Resource |> DB.Repo.get_by(datagouv_id: "2")
+    refute DB.Resource.can_direct_download?(resource)
 
     Transport.HTTPoison.Mock
     |> expect(:get, fn url, [], hackney: [follow_redirect: true] ->
@@ -727,8 +724,8 @@ defmodule TransportWeb.ResourceControllerTest do
   end
 
   test "resources_related are displayed", %{conn: conn} do
-    %{url: gtfs_url} = gtfs_rt_resource = Repo.get_by(Resource, datagouv_id: "5", format: "gtfs-rt")
-    gtfs_resource = Repo.get_by(Resource, datagouv_id: "1", format: "GTFS")
+    %{url: gtfs_url} = gtfs_rt_resource = DB.Repo.get_by(DB.Resource, datagouv_id: "5", format: "gtfs-rt")
+    gtfs_resource = DB.Repo.get_by(DB.Resource, datagouv_id: "1", format: "GTFS")
 
     insert(:resource_related, resource_src: gtfs_rt_resource, resource_dst: gtfs_resource, reason: :gtfs_rt_gtfs)
 
@@ -744,8 +741,8 @@ defmodule TransportWeb.ResourceControllerTest do
   end
 
   defp test_remote_download_error(%Plug.Conn{} = conn, mock_status_code) do
-    resource = Resource |> Repo.get_by(datagouv_id: "2")
-    refute Resource.can_direct_download?(resource)
+    resource = DB.Resource |> DB.Repo.get_by(datagouv_id: "2")
+    refute DB.Resource.can_direct_download?(resource)
 
     Transport.HTTPoison.Mock
     |> expect(:get, fn url, [], hackney: [follow_redirect: true] ->
@@ -757,6 +754,6 @@ defmodule TransportWeb.ResourceControllerTest do
 
     html = html_response(conn, 404)
     assert html =~ "Page non disponible"
-    assert get_flash(conn, :error) == "La ressource n'est pas disponible sur le serveur distant"
+    assert Phoenix.Flash.get(conn.assigns.flash, :error) == "La ressource n'est pas disponible sur le serveur distant"
   end
 end

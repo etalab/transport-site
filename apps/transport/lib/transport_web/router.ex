@@ -12,6 +12,7 @@ defmodule TransportWeb.Router do
     plug(:canonical_host)
     plug(:accepts, ["html"])
     plug(:fetch_session)
+    plug(:fetch_flash)
     plug(:fetch_live_flash)
     plug(:protect_from_forgery)
     plug(TransportWeb.Plugs.PutLocale)
@@ -188,6 +189,10 @@ defmodule TransportWeb.Router do
         live("/cache", CacheLive)
       end
 
+      live_session :rate_limiter, root_layout: {TransportWeb.LayoutView, :app} do
+        live("/rate_limiter", RateLimiterLive)
+      end
+
       get("/import_aoms", PageController, :import_all_aoms)
 
       live_session :data_import_batch_report, root_layout: {TransportWeb.LayoutView, :app} do
@@ -310,6 +315,7 @@ defmodule TransportWeb.Router do
   end
 
   defp assign_current_user(conn, _) do
+    # `current_user` is set by TransportWeb.SessionController.user_params_for_session/1
     assign(conn, :current_user, get_session(conn, :current_user))
   end
 
@@ -348,13 +354,6 @@ defmodule TransportWeb.Router do
     end
   end
 
-  # NOTE: method visibility set to public because we need to call the same logic from LiveView
-  def is_transport_data_gouv_member?(current_user) do
-    current_user
-    |> Map.get("organizations", [])
-    |> Enum.any?(fn org -> org["slug"] == "equipe-transport-data-gouv-fr" end)
-  end
-
   # Check that a secret key is passed in the URL in the `export_key` query parameter
   defp check_export_secret_key(%Plug.Conn{params: params} = conn, _) do
     export_key_value = Map.get(params, "export_key", "")
@@ -371,7 +370,7 @@ defmodule TransportWeb.Router do
   end
 
   defp transport_data_gouv_member(%Plug.Conn{} = conn, _) do
-    if is_transport_data_gouv_member?(conn.assigns[:current_user]) do
+    if TransportWeb.Session.is_admin?(conn) do
       conn
     else
       conn

@@ -104,28 +104,6 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
            |> PeriodicReminderProducersNotificationJob.subscribed_as_producer?()
   end
 
-  test "other_contacts_in_orgs" do
-    org_id = Ecto.UUID.generate()
-
-    contact =
-      insert_contact(%{
-        organizations: [
-          sample_org(%{"id" => org_id}),
-          sample_org()
-        ]
-      })
-
-    %DB.Contact{id: other_contact_id} =
-      insert_contact(%{
-        organizations: [
-          sample_org(%{"id" => org_id})
-        ]
-      })
-
-    assert [%DB.Contact{id: ^other_contact_id}] =
-             PeriodicReminderProducersNotificationJob.other_contacts_in_orgs(contact)
-  end
-
   test "other_producers_subscribers" do
     producer_1 = insert_contact()
     %DB.Contact{id: producer_2_id} = producer_2 = insert_contact()
@@ -216,7 +194,7 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
       assert subject == "Rappel : vos notifications pour vos données sur transport.data.gouv.fr"
 
       assert html =~
-               ~s(Vous êtes susceptible de recevoir des notifications pour le jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a>)
+               ~s(Vous êtes inscrit à des notifications pour le jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a>)
 
       assert html =~ "Les autres personnes inscrites à ces notifications sont : Marina Loiseau."
     end)
@@ -237,15 +215,6 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
         ]
       })
 
-    insert_contact(%{
-      first_name: "Marina",
-      last_name: "Loiseau",
-      organizations: [
-        sample_org(%{"id" => org_id}),
-        sample_org()
-      ]
-    })
-
     dataset = insert(:dataset, custom_title: "Super JDD", organization_id: org_id)
 
     refute contact
@@ -263,12 +232,10 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
       assert subject == "Notifications pour vos données sur transport.data.gouv.fr"
 
       assert html =~
-               ~s(Vous gérez le jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a>)
-
-      assert html =~ "Pour vous faciliter la gestion de ces données, vous pouvez activer des notifications"
+               ~s(Il est possible de vous inscrire à des notifications concernant le jeu de données que vous gérez sur transport.data.gouv.fr, <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a>)
 
       assert html =~
-               "Les autres personnes pouvant s’inscrire à ces notifications et s’étant déjà connectées sont : Marina Loiseau."
+               ~s(Pour vous inscrire, rien de plus simple : rendez-vous sur votre <a href="http://127.0.0.1:5100/espace_producteur?utm_source=transactional_email&amp;utm_medium=email&amp;utm_campaign=periodic_reminder_producer_without_subscriptions">Espace Producteur</a>)
     end)
 
     assert :ok == perform_job(PeriodicReminderProducersNotificationJob, %{"contact_id" => contact.id})
@@ -286,27 +253,7 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
              perform_job(PeriodicReminderProducersNotificationJob, %{"contact_id" => contact.id})
   end
 
-  describe "manage_organization_url" do
-    test "single org" do
-      org_id = Ecto.UUID.generate()
-      contact = %{organizations: [sample_org(%{"id" => org_id})]} |> insert_contact() |> DB.Repo.preload(:organizations)
-      assert 1 == contact.organizations |> Enum.count()
-
-      assert "https://demo.data.gouv.fr/fr/admin/organization/#{org_id}/" ==
-               contact |> PeriodicReminderProducersNotificationJob.manage_organization_url()
-    end
-
-    test "multiple orgs" do
-      contact = %{organizations: [sample_org(), sample_org()]} |> insert_contact() |> DB.Repo.preload(:organizations)
-
-      assert 2 == contact.organizations |> Enum.count()
-
-      assert "https://demo.data.gouv.fr/fr/admin/" ==
-               contact |> PeriodicReminderProducersNotificationJob.manage_organization_url()
-    end
-  end
-
-  defp sample_org(%{} = args \\ %{}) do
+  defp sample_org(%{} = args) do
     Map.merge(
       %{
         "acronym" => nil,

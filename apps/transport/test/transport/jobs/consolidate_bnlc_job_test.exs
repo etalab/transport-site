@@ -95,8 +95,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
       assert """
              <h2>Erreurs liées aux jeux de données</h2>
-             Le slug du jeu de données `404-slug` est introuvable via l'API
-             Pas de ressources avec le schéma etalab/schema-lieux-covoiturage pour <a href=\"https://example.com/jdd\">JDD sans ressources</a>
+             Le slug du jeu de données `404-slug` est introuvable via l'API<br/>Pas de ressources avec le schéma etalab/schema-lieux-covoiturage pour <a href=\"https://example.com/jdd\">JDD sans ressources</a>
 
 
              <h2>Ressources non valides par rapport au schéma etalab/schema-lieux-covoiturage</h2>
@@ -558,7 +557,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
         end
       )
 
-      expect_s3_upload()
+      expect_s3_stream_upload()
       expect_ok_email_sent()
 
       assert :ok == perform_job(ConsolidateBNLCJob, %{})
@@ -723,7 +722,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
         end
       )
 
-      expect_s3_upload()
+      expect_s3_stream_upload()
 
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn "transport.data.gouv.fr" = _display_name,
@@ -791,7 +790,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       end
     )
 
-    expect_s3_upload()
+    expect_s3_stream_upload()
     expect_ok_email_sent()
     expect_datagouv_upload_file_http_call()
 
@@ -827,16 +826,15 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     end
   end
 
-  defp expect_s3_upload do
+  defp expect_s3_stream_upload do
     Transport.ExAWS.Mock
-    |> expect(:request!, fn %ExAws.Operation.S3{} = operation ->
-      assert %ExAws.Operation.S3{
-               bucket: "transport-data-gouv-fr-on-demand-validation-test",
-               path: path,
-               http_method: :put,
-               service: :s3
-             } = operation
-
+    |> expect(:request!, fn %ExAws.S3.Upload{
+                              src: %File.Stream{},
+                              bucket: "transport-data-gouv-fr-on-demand-validation-test",
+                              path: path,
+                              opts: [acl: :public_read],
+                              service: :s3
+                            } ->
       assert path =~ ~r"^bnlc-.*\.csv$"
     end)
   end
@@ -845,7 +843,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     tmp_path = @tmp_path
 
     expected_url =
-      "https://demo.data.gouv.fr/api/1/datasets/5d6eaffc8b4c417cdc452ac3/resources/4fd78dee-e122-4c0d-8bf6-ff55d79f3af1/upload/"
+      "https://demo.data.gouv.fr/api/1/datasets/bnlc_fake_dataset_id/resources/bnlc_fake_resource_id/upload/"
 
     Transport.HTTPoison.Mock
     |> expect(:request, fn :post,

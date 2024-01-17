@@ -206,7 +206,7 @@ msgstr "créé le"
 msgid "region"
 msgstr "région"
 
-#, elixir-format
+#, elixir-format, elixir-autogen
 msgid "result"
 msgid_plural "results"
 msgstr[0] "résultat"

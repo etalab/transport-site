@@ -146,3 +146,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Compare two GTFS files"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Producer space"
+msgstr ""

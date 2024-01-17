@@ -2,7 +2,7 @@ defmodule Transport.Jobs.DatasetHistoryDispatcherJob do
   @moduledoc """
   Job in charge of dispatching multiple `DatasetHistoryJob`
   """
-  use Oban.Worker, unique: [period: 60 * 60 * 20], tags: ["history"], max_attempts: 3
+  use Oban.Worker, unique: [period: {20, :hours}], tags: ["history"], max_attempts: 3
   require Logger
   import Ecto.Query
 
@@ -24,7 +24,7 @@ defmodule Transport.Jobs.DatasetHistoryJob do
   Job historicising a single dataset
   """
   use Oban.Worker,
-    unique: [period: 60 * 60 * 20, fields: [:args, :queue, :worker]],
+    unique: [period: {20, :hours}, fields: [:args, :queue, :worker]],
     tags: ["history"],
     max_attempts: 3
 

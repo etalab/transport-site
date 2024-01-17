@@ -2,7 +2,7 @@ defmodule Transport.Jobs.ResourceHistoryAndValidationDispatcherJob do
   @moduledoc """
   Job in charge of dispatching multiple `ResourceHistoryJob`
   """
-  use Oban.Worker, unique: [period: 60 * 60 * 5], tags: ["history"], max_attempts: 5
+  use Oban.Worker, unique: [period: {5, :hours}], tags: ["history"], max_attempts: 5
   require Logger
   import Ecto.Query
   alias DB.{Dataset, Repo, Resource}
@@ -45,7 +45,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   @moduledoc """
   Job historicising a single resource
   """
-  use Oban.Worker, unique: [period: 60 * 60 * 5, fields: [:args, :queue, :worker]], tags: ["history"], max_attempts: 5
+  use Oban.Worker, unique: [period: {5, :hours}, fields: [:args, :queue, :worker]], tags: ["history"], max_attempts: 5
   require Logger
   import Ecto.Query
   alias Transport.Shared.Schemas.Wrapper, as: Schemas
@@ -288,7 +288,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
         {:error, "Got a non 200 status: #{status}"}
 
       {:error, %HTTPoison.Error{reason: reason}} ->
-        {:error, "Got an error: #{reason}"}
+        {:error, "Got an error: #{inspect(reason)}"}
     end
   end
 

@@ -60,5 +60,7 @@ master
         IO.puts("* Now using git-version #{repo} @ #{sha2}")
       {{:git, repo, sha1}, {:hex, v2}} ->
         IO.puts("* Now using https://hex.pm/packages/#{dep} instead of #{repo} @ #{sha1}")
+      {{:hex, v1}, nil} ->
+        IO.puts("* REMOVED: #{dep}@#{v1}")
     end
 end)

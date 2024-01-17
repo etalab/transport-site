@@ -11,7 +11,6 @@ defmodule GBFS.MixProject do
       lockfile: "../../mix.lock",
       elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
@@ -38,11 +37,11 @@ defmodule GBFS.MixProject do
     [
       {:cachex, "~> 3.5"},
       {:httpoison, "~> 2.1"},
-      {:phoenix, "~> 1.6.2"},
+      {:phoenix, "~> 1.7.0"},
       {:sweet_xml, ">= 0.0.0"},
       {:jason, ">= 0.0.0"},
       {:cors_plug, "~> 3.0"},
-      {:sentry, "~> 8.1"},
+      {:sentry, "~> 10.1"},
       # Required for ConditionalJSONEncoder which is referenced by global config,
       # otherwise the tests won't run. Not sure if there's a better way for this,
       # since the GBFS app itself does not currently rely on conditional encoding.

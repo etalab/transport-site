@@ -31,7 +31,7 @@ defmodule TransportWeb.PageControllerTest do
 
   test "I can see a log-in link on home", %{conn: conn} do
     # go to the home page
-    conn = conn |> get("/")
+    conn = conn |> get(~p"/")
     doc = html_response(conn, 200)
     html = doc |> Floki.parse_document!()
 
@@ -45,20 +45,20 @@ defmodule TransportWeb.PageControllerTest do
     html = html_response(conn, 200)
     assert html =~ "disponible, valoriser et améliorer"
 
-    # # I have an explanation of what data.gouv.fr is
+    # I have an explanation of what data.gouv.fr is
     assert html =~ "plateforme ouverte des données publiques françaises"
 
-    # # I have an explanation of what the relationship is between data.gouv.fr and Transport
+    # I have an explanation of what the relationship is between data.gouv.fr and Transport
     assert html =~ "transport.data.gouv.fr est un site affilié à data.gouv.fr"
 
-    # # I have an explanation of what's going to happen and what I'm I supposed to do
+    # I have an explanation of what's going to happen and what I'm I supposed to do
     assert html =~ "créer un compte ou vous identifier avec votre compte data.gouv.fr"
     assert html =~ "autoriser transport.data.gouv.fr à utiliser votre compte data.gouv.fr"
 
-    # # I can click somewhere to start the log in / sign up process
+    # I can click somewhere to start the log in / sign up process
     assert html =~ "Se connecter"
 
-    # # I can click somewhere to ask for help
+    # I can click somewhere to ask for help
     assert html =~ "Nous contacter"
   end
 
@@ -78,6 +78,9 @@ defmodule TransportWeb.PageControllerTest do
         conn
         |> init_test_session(current_user: %{})
         |> get(page_path(conn, :espace_producteur))
+
+      # `is_producer` attribute has been set for the current user
+      assert %{"is_producer" => true} = conn |> get_session(:current_user)
 
       {:ok, doc} = conn |> html_response(200) |> Floki.parse_document()
       assert Floki.find(doc, ".message--error") == []
@@ -124,17 +127,17 @@ defmodule TransportWeb.PageControllerTest do
   end
 
   test "security.txt page", %{conn: conn} do
-    conn |> get("/.well-known/security.txt") |> text_response(200)
+    conn |> get(~p"/.well-known/security.txt") |> text_response(200)
   end
 
   describe "robots.txt" do
-    test "it works", %{conn: conn} do
-      refute conn |> get("/robots.txt") |> text_response(200) =~ ~r(Disallow: \/$)
+    test "200 response, doesn't disallow indexing everything", %{conn: conn} do
+      refute conn |> get(~p"/robots.txt") |> text_response(200) =~ ~r(Disallow: \/$)
     end
 
-    test "it works in staging with a different content", %{conn: conn} do
-      AppConfigHelper.change_app_config_temporarily(:transport, :app_env, :staging)
-      assert conn |> get("/robots.txt") |> text_response(200) =~ ~r(Disallow: \/$)
+    test "disallow indexing everything in staging" do
+      assert TransportWeb.PageController.robots_txt_content(:staging) =~ ~r(Disallow: \/$)
+      refute TransportWeb.PageController.robots_txt_content(:prod) =~ ~r(Disallow: \/$)
     end
   end
 
@@ -152,7 +155,7 @@ defmodule TransportWeb.PageControllerTest do
   end
 
   test "budget page", %{conn: conn} do
-    conn |> get("/budget") |> redirected_to(302) =~ "https://doc.transport.data.gouv.fr"
+    conn |> get(~p"/budget") |> redirected_to(302) =~ "https://doc.transport.data.gouv.fr"
   end
 
   test "humans txt", %{conn: conn} do
@@ -182,5 +185,26 @@ defmodule TransportWeb.PageControllerTest do
 
     content = conn |> get(page_path(conn, :humans_txt)) |> text_response(200)
     assert content == "# Membres actuels\nFoo\n\n# Anciens membres\nBar\nBaz"
+  end
+
+  test "menu has a link to producer space when the user is a producer", %{conn: conn} do
+    espace_producteur_path = page_path(conn, :espace_producteur, utm_source: "menu_dropdown")
+
+    has_menu_item? = fn %Plug.Conn{} = conn ->
+      conn
+      |> get(page_path(conn, :index))
+      |> html_response(200)
+      |> Floki.parse_document!()
+      |> Floki.find("nav .dropdown-content a")
+      |> Enum.any?(&(&1 == {"a", [{"href", espace_producteur_path}], ["Espace producteur"]}))
+    end
+
+    refute conn
+           |> init_test_session(current_user: %{"is_producer" => false})
+           |> has_menu_item?.()
+
+    assert conn
+           |> init_test_session(current_user: %{"is_producer" => true})
+           |> has_menu_item?.()
   end
 end

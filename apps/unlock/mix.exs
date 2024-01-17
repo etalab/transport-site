@@ -35,9 +35,9 @@ defmodule Unlock.MixProject do
 
   defp deps do
     [
-      {:phoenix, "~> 1.6.2"},
+      {:phoenix, "~> 1.7.0"},
       {:phoenix_html, "~> 3.1"},
-      {:sentry, "~> 8.1"},
+      {:sentry, "~> 10.1"},
       # required indirectly by sentry
       {:hackney, "~> 1.8"},
       {:jason, "~> 1.1"},
@@ -46,7 +46,7 @@ defmodule Unlock.MixProject do
       {:cachex, "~> 3.5"},
       {:cors_plug, "~> 3.0"},
       {:saxy, "~> 1.5"},
-      {:mox, "~> 1.0.0", only: :test},
+      {:mox, "~> 1.1", only: :test},
       {:ymlr, "~> 4.0", only: :test},
       {:ecto, "~> 3.7", only: :test},
       # required for `TransportWeb.Plugs.AppSignalFilter`

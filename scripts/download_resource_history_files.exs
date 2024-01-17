@@ -45,7 +45,14 @@ defmodule SyncS3LatestResourceHistory do
         %HTTPoison.Response{status_code: 200, body: body} =
           Transport.Shared.Wrapper.HTTPoison.impl().get!(rh.payload["permanent_url"])
 
-        Transport.S3.upload_to_s3!(:history, body, rh.payload["filename"], acl: :public_read)
+        tmp_path = System.tmp_dir!() |> Path.join(Ecto.UUID.generate())
+
+        try do
+          File.write!(tmp_path, body)
+          Transport.S3.stream_to_s3!(:history, tmp_path, rh.payload["filename"], acl: :public_read)
+        after
+          File.rm(tmp_path)
+        end
       end
     end)
   end

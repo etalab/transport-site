@@ -38,13 +38,13 @@ msgstr ""
 msgid "Nice work, there are no issues!"
 msgstr ""
 
-#, elixir-format
+#, elixir-format, elixir-autogen
 msgid "network"
 msgid_plural "networks"
 msgstr[0] ""
 msgstr[1] ""
 
-#, elixir-format
+#, elixir-format, elixir-autogen
 msgid "transport mode"
 msgid_plural "transport modes"
 msgstr[0] ""
@@ -107,7 +107,7 @@ msgstr ""
 msgid "This resource is also available in the following formats:"
 msgstr ""
 
-#, elixir-format
+#, elixir-format, elixir-autogen
 msgctxt "errors"
 msgid "error"
 msgid_plural "errors"
@@ -186,7 +186,7 @@ msgstr ""
 msgid "Warnings"
 msgstr ""
 
-#, elixir-format, ex-autogen, fuzzy
+#, elixir-format, elixir-autogen, fuzzy
 msgctxt "warnings"
 msgid "warning"
 msgid_plural "warnings"

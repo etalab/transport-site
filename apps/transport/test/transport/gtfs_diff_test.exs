@@ -1,12 +1,6 @@
 defmodule Transport.GTFSDiffTest do
   use ExUnit.Case, async: true
 
-  defp unzip(path) do
-    zip_file = Unzip.LocalFile.open(path)
-    {:ok, unzip} = Unzip.new(zip_file)
-    unzip
-  end
-
   describe "GTFS Diff" do
     test "2 identical files" do
       unzip_1 = unzip("test/fixture/files/gtfs_diff/gtfs.zip")
@@ -127,5 +121,44 @@ defmodule Transport.GTFSDiffTest do
                }
              ]
     end
+  end
+
+  describe "dump_diff" do
+    test "empty diff, file is created" do
+      tmp_path = System.tmp_dir!() |> Path.join(Ecto.UUID.generate())
+      refute File.exists?(tmp_path)
+      Transport.GTFSDiff.dump_diff([], tmp_path)
+      assert File.exists?(tmp_path)
+
+      assert [["id", "file", "action", "target", "identifier", "initial_value", "new_value", "note"]] ==
+               read_csv(tmp_path)
+
+      File.rm(tmp_path)
+    end
+
+    test "simple diff" do
+      diff = [%{action: "delete", file: "stops.txt", id: 1, identifier: %{"stop_id" => "near1"}, target: "row"}]
+      tmp_path = System.tmp_dir!() |> Path.join(Ecto.UUID.generate())
+      refute File.exists?(tmp_path)
+      Transport.GTFSDiff.dump_diff(diff, tmp_path)
+      assert File.exists?(tmp_path)
+
+      assert [
+               ["id", "file", "action", "target", "identifier", "initial_value", "new_value", "note"],
+               ["1", "stops.txt", "delete", "row", ~s({"stop_id":"near1"}), "", "", ""]
+             ] == read_csv(tmp_path)
+
+      File.rm(tmp_path)
+    end
+  end
+
+  defp unzip(path) do
+    zip_file = Unzip.LocalFile.open(path)
+    {:ok, unzip} = Unzip.new(zip_file)
+    unzip
+  end
+
+  defp read_csv(filepath) do
+    filepath |> File.read!() |> NimbleCSV.RFC4180.parse_string(skip_headers: false)
   end
 end

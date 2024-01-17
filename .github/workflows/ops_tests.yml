@@ -1,0 +1,14 @@
+name: CI ops tests
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Run ops tests
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - run: elixir ops_tests/ops_tests.exs
