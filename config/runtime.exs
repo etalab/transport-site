@@ -138,7 +138,8 @@ oban_prod_crontab = [
   # "At 08:15 on Monday in March, June, and November.""
   # The job will make sure that it's executed only on the first Monday of these months
   {"15 8 * 3,6,11 1", Transport.Jobs.PeriodicReminderProducersNotificationJob},
-  {"30 5 * * *", Transport.Jobs.ImportDatasetMonthlyMetricsJob}
+  {"30 5 * * *", Transport.Jobs.ImportDatasetMonthlyMetricsJob},
+  {"45 5 * * *", Transport.Jobs.ImportResourceMonthlyMetricsJob}
 ]
 
 # Make sure that all modules exist
