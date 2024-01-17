@@ -10,6 +10,7 @@ defmodule TransportWeb.Router do
 
   pipeline :browser_no_csp do
     plug(:canonical_host)
+    plug(TransportWeb.Plugs.RateLimiter, :use_env_variables)
     plug(:accepts, ["html"])
     plug(:fetch_session)
     plug(:fetch_flash)
