@@ -41,6 +41,7 @@
     <% end %>
 
     <div :if={not is_nil(@current_user) and is_nil(@discussion["closed"])} class="discussion-form">
+      <% current_user_in_org = @current_user["id"] in @org_member_ids %>
       <a href={"#reply-#{@discussion["id"]}"}>
         <%= dgettext("page-dataset-details", "Respond") %>
       </a>
@@ -48,7 +49,14 @@
         <%= form_for %{}, discussion_path(@socket, :post_answer, @dataset.datagouv_id, @discussion["id"]), fn f -> %>
           <%= textarea(f, :comment) %>
           <%= hidden_input(f, :dataset_slug, value: @dataset.slug) %>
-          <%= submit(dgettext("page-dataset-details", "Respond")) %>
+          <div class="form__group">
+            <button class="button" name="anwser" type="submit">
+              <%= dgettext("page-dataset-details", "Respond") %>
+            </button>
+            <button :if={current_user_in_org} class="button secondary" name="anwser_and_close" type="submit">
+              <%= dgettext("page-dataset-details", "Respond and close") %>
+            </button>
+          </div>
         <% end %>
       </div>
     </div>
