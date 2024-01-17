@@ -6,7 +6,7 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetMonthlyMetricsTestJob do
   use Oban.Testing, repo: DB.Repo
   alias Transport.Jobs.ImportDatasetMonthlyMetricsJob
 
-  doctest ImportDatasetMonthlyMetricsJob, import: true
+  doctest Transport.Jobs.ImportMonthlyMetrics, import: true
 
   setup :verify_on_exit!
 
@@ -35,7 +35,7 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetMonthlyMetricsTestJob do
 
       assert DB.DatasetMonthlyMetric |> DB.Repo.all() |> Enum.empty?()
 
-      ImportDatasetMonthlyMetricsJob.import_metrics(datagouv_id)
+      Transport.Jobs.ImportMonthlyMetrics.import_metrics(:dataset, datagouv_id)
 
       assert [
                %DB.DatasetMonthlyMetric{
@@ -94,7 +94,7 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetMonthlyMetricsTestJob do
                }
              ] = DB.Repo.all(DB.DatasetMonthlyMetric)
 
-      ImportDatasetMonthlyMetricsJob.import_metrics(datagouv_id)
+      Transport.Jobs.ImportMonthlyMetrics.import_metrics(:dataset, datagouv_id)
 
       assert [
                # Count has been updated, primary key is still the same
@@ -126,7 +126,8 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetMonthlyMetricsTestJob do
     %DB.Dataset{datagouv_id: d2_datagouv_id} = insert(:dataset)
     insert(:dataset, is_active: false)
 
-    assert [d1_datagouv_id, d2_datagouv_id] == ImportDatasetMonthlyMetricsJob.dataset_datagouv_ids()
+    assert MapSet.new([d1_datagouv_id, d2_datagouv_id]) ==
+             ImportDatasetMonthlyMetricsJob.dataset_datagouv_ids() |> MapSet.new()
 
     setup_http_response(d1_datagouv_id, [
       %{
@@ -190,7 +191,7 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetMonthlyMetricsTestJob do
   end
 
   defp setup_http_response(datagouv_id, data) do
-    metrics_api_url = ImportDatasetMonthlyMetricsJob.api_url(datagouv_id)
+    metrics_api_url = Transport.Jobs.ImportMonthlyMetrics.api_url(:dataset, datagouv_id)
 
     expect(Transport.Req.Mock, :get, fn ^metrics_api_url, [] ->
       {:ok, %Req.Response{status: 200, body: %{"data" => data}}}
