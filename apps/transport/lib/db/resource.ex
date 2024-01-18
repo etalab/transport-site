@@ -380,7 +380,10 @@ defmodule DB.Resource do
 
     if format in public_transport_formats and is_binary(schema_name) do
       changeset
-      |> add_error(:schema_name, "Public transport formats can’t have a schema set", resource_id: get_field(changeset, :id), resource_datagouv_id: get_field(changeset, :datagouv_id))
+      |> add_error(:schema_name, "Public transport formats can’t have a schema set",
+        resource_id: get_field(changeset, :id),
+        resource_datagouv_id: get_field(changeset, :datagouv_id)
+      )
     else
       changeset
     end
