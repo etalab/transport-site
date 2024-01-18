@@ -6,7 +6,7 @@ defmodule TransportWeb.ProxyRoutingTest do
     conn =
       conn
       |> Map.put(:host, "proxy.example.com")
-      |> get("/")
+      |> get(~p"/")
 
     [h] = Plug.Conn.get_resp_header(conn, "x-request-id")
     assert h

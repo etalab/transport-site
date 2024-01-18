@@ -64,16 +64,16 @@
     <main class="layout-main">
       <%= if has_flash(@conn) do %>
         <%= render(LayoutView, "_breaking_news.html", assigns) %>
-        <%= if get_flash(@conn, :info) do %>
-          <p class="notification"><%= get_flash(@conn, :info) %></p>
+        <%= if Phoenix.Flash.get(@flash, :info) do %>
+          <p class="notification"><%= Phoenix.Flash.get(@flash, :info) %></p>
         <% end %>
-        <%= if get_flash(@conn, :errors) do %>
-          <%= for error <- get_flash(@conn, :errors) do %>
+        <%= if Phoenix.Flash.get(@flash, :errors) do %>
+          <%= for error <- Phoenix.Flash.get(@flash, :errors) do %>
             <p class="notification message--error"><%= error %></p>
           <% end %>
         <% end %>
-        <%= if get_flash(@conn, :error) do %>
-          <p class="notification message--error"><%= get_flash(@conn, :error) %></p>
+        <%= if Phoenix.Flash.get(@flash, :error) do %>
+          <p class="notification message--error"><%= Phoenix.Flash.get(@flash, :error) %></p>
         <% end %>
       <% end %>
 

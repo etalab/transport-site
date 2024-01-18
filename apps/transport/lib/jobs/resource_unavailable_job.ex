@@ -41,23 +41,14 @@ end
 
 defmodule Transport.Jobs.ResourceUnavailableJob do
   @moduledoc """
-  Job checking if a resource is available over HTTP or not and
-  storing unavailabilities in that case.
-
-  It also updates the relevant resource and keeps up to the following fields:
-  - is_available (if the availability of the resource changes)
-  - url (if lastest_url points to a new URL)
+  This job:
+  - Updates the URL if needed by following the latest_url for files stored on data.gouv.fr
+  - For all resources, check whether a resource is available over HTTP. If not: it creates an unavailability in the database
+  - Updates is_available if the availability of the resource has changed
   """
   use Oban.Worker, unique: [period: {9, :minutes}], max_attempts: 5
   require Logger
   alias DB.{Repo, Resource, ResourceUnavailability}
-
-  # Set this env variable to a list of `resource.id`s (comma separated) to bypass
-  # `AvailabilityChecker.available?`. This is *not* something that should be used
-  # for too long or for too many resources.
-  # Example values: `42,1337`
-  # https://github.com/etalab/transport-site/issues/3470
-  @bypass_ids_env_name "BYPASS_RESOURCE_AVAILABILITY_RESOURCE_IDS"
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"resource_id" => resource_id}}) do
@@ -68,33 +59,11 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
     |> maybe_update_url()
     |> historize_resource()
     |> check_availability()
-    |> update_availability()
+    |> update_resource()
+    |> create_or_update_resource_unavailability()
   end
 
-  defp check_availability({:updated, %Resource{} = resource}) do
-    {true, resource}
-  end
-
-  defp check_availability({:no_op, %Resource{} = resource}) do
-    perform_check(resource, Resource.download_url(resource))
-  end
-
-  defp perform_check(%Resource{id: resource_id, format: format} = resource, check_url) do
-    bypass_resource_ids = @bypass_ids_env_name |> System.get_env("") |> String.split(",")
-
-    if to_string(resource_id) in bypass_resource_ids do
-      Logger.info("is_available=true for resource##{resource_id} because the check is bypassed")
-      {true, resource}
-    else
-      {Transport.AvailabilityChecker.Wrapper.available?(format, check_url), resource}
-    end
-  end
-
-  # GOTCHA: `filetype` is set to `"file"` for exports coming from ODS
-  # https://github.com/opendatateam/udata-ods/issues/250
-  # We "leverage" this bug because we need to resolve the final URL for
-  # some ODS resources referenced as external links
-  # https://github.com/etalab/transport-site/issues/3470
+  # We only update url for filetype : "file" = hosted on data.gouv.fr
   defp maybe_update_url(%Resource{filetype: "file", url: url, latest_url: latest_url} = resource) do
     case follow(latest_url) do
       {:ok, 200 = _status_code, final_url} when final_url != url ->
@@ -118,12 +87,23 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
     payload
   end
 
-  defp update_availability({is_available, %Resource{} = resource}) do
-    resource |> Resource.changeset(%{is_available: is_available}) |> DB.Repo.update!()
-    create_resource_unavailability(is_available, resource)
+  # We’ve just updated the URL by following it until we got a 200, so it’s available
+  defp check_availability({:updated, %Resource{} = resource}) do
+    {true, resource}
   end
 
-  def create_resource_unavailability(false = _is_available, %Resource{} = resource) do
+  defp check_availability({:no_op, %Resource{format: format} = resource}) do
+    download_url = Resource.download_url(resource)
+    is_available = Transport.AvailabilityChecker.Wrapper.available?(format, download_url)
+    {is_available, resource}
+  end
+
+  defp update_resource({is_available, %Resource{} = resource}) do
+    resource = resource |> Resource.changeset(%{is_available: is_available}) |> DB.Repo.update!()
+    {is_available, resource}
+  end
+
+  def create_or_update_resource_unavailability({false = _is_available, %Resource{} = resource}) do
     case ResourceUnavailability.ongoing_unavailability(resource) do
       nil ->
         %ResourceUnavailability{resource: resource, start: now()}
@@ -136,7 +116,7 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
     end
   end
 
-  def create_resource_unavailability(true = _is_available, %Resource{} = resource) do
+  def create_or_update_resource_unavailability({true = _is_available, %Resource{} = resource}) do
     case ResourceUnavailability.ongoing_unavailability(resource) do
       %ResourceUnavailability{} = resource_unavailability ->
         resource_unavailability

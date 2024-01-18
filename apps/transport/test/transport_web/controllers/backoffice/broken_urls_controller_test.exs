@@ -1,6 +1,5 @@
 defmodule TransportWeb.Backoffice.BrokenUrlsControllerTest do
   use TransportWeb.ConnCase, async: true
-  import Plug.Test
   import DB.Factory
   alias TransportWeb.Backoffice.BrokenUrlsController
 
@@ -13,7 +12,7 @@ defmodule TransportWeb.Backoffice.BrokenUrlsControllerTest do
     target_uri = URI.parse(redirected_to(conn, 302))
     assert target_uri.path == "/login/explanation"
     assert target_uri.query == URI.encode_query(redirect_path: request_path)
-    assert get_flash(conn, :info) =~ "Vous devez être préalablement connecté"
+    assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Vous devez être préalablement connecté"
   end
 
   test "detects a broken URL", %{conn: conn} do
@@ -24,12 +23,7 @@ defmodule TransportWeb.Backoffice.BrokenUrlsControllerTest do
     dataset_history_2 = insert(:dataset_history, dataset_id: dataset.id)
     insert(:dataset_history_resources, dataset_history_id: dataset_history_2.id, payload: %{"download_url" => "url2"})
 
-    conn =
-      conn
-      |> init_test_session(%{
-        current_user: %{"organizations" => [%{"slug" => "equipe-transport-data-gouv-fr"}]}
-      })
-      |> get(backoffice_broken_urls_path(conn, :index))
+    conn = conn |> setup_admin_in_session() |> get(backoffice_broken_urls_path(conn, :index))
 
     res = conn |> html_response(200)
     assert res =~ "Détection de changements d'URLs stables"
@@ -85,12 +79,7 @@ defmodule TransportWeb.Backoffice.BrokenUrlsControllerTest do
     dataset_history_2 = insert(:dataset_history, dataset_id: dataset.id)
     insert(:dataset_history_resources, dataset_history_id: dataset_history_2.id, payload: %{"download_url" => "url1"})
 
-    conn =
-      conn
-      |> init_test_session(%{
-        current_user: %{"organizations" => [%{"slug" => "equipe-transport-data-gouv-fr"}]}
-      })
-      |> get(backoffice_broken_urls_path(conn, :index))
+    conn = conn |> setup_admin_in_session() |> get(backoffice_broken_urls_path(conn, :index))
 
     # check we get a 200 if list is empty
     res = conn |> html_response(200)

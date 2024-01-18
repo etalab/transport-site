@@ -40,7 +40,7 @@ defmodule TransportWeb.NavTest do
     # we'll later use a proper stubbed implementation for all tests.
     with_mock Datagouvfr.Client.Discussions, get: fn _ -> [] end do
       # browse the home
-      conn = conn |> get("/")
+      conn = conn |> get(~p"/")
       html = html_response(conn, 200)
 
       # I can click to the a list of available datasets

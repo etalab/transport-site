@@ -4,9 +4,13 @@ defmodule TransportWeb.HeadersAndCookiesTest do
 
   test "sets expected headers", %{conn: conn} do
     conn = get(conn, "/")
-    assert get_resp_header(conn, "x-frame-options") == ["SAMEORIGIN"]
-    assert get_resp_header(conn, "x-xss-protection") == ["1; mode=block"]
+    # Correct with security practises recommend in February 2022
+    # https://github.com/phoenixframework/phoenix/pull/4677
+    assert get_resp_header(conn, "referrer-policy") == ["strict-origin-when-cross-origin"]
     assert get_resp_header(conn, "x-content-type-options") == ["nosniff"]
+    assert get_resp_header(conn, "x-download-options") == ["noopen"]
+    assert get_resp_header(conn, "x-frame-options") == ["SAMEORIGIN"]
+    assert get_resp_header(conn, "x-permitted-cross-domain-policies") == ["none"]
 
     [header] = get_resp_header(conn, "set-cookie")
     # 15 days, in seconds

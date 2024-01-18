@@ -93,7 +93,7 @@ defmodule TransportWeb.Plugs.RateLimiterTest do
       text =
         conn
         |> Plug.Conn.put_req_header("user-agent", "Mozilla Bar")
-        |> get("/")
+        |> get(~p"/")
         |> text_response(401)
 
       assert text == "Unauthorized"
@@ -117,7 +117,7 @@ defmodule TransportWeb.Plugs.RateLimiterTest do
       assert %Plug.Conn{status: 429} =
                conn
                |> Plug.Conn.put_req_header("x-forwarded-for", to_string(blocked_ip))
-               |> get("/")
+               |> get(~p"/")
     end
 
     test "does not block a request if user agent is allowed, even if IP is blocked", %{conn: conn} do
@@ -127,7 +127,7 @@ defmodule TransportWeb.Plugs.RateLimiterTest do
       conn
       |> Plug.Conn.put_req_header("x-forwarded-for", to_string(blocked_ip))
       |> Plug.Conn.put_req_header("user-agent", "SpecialUserAgent")
-      |> get("/robots.txt")
+      |> get(~p"/robots.txt")
       |> text_response(200)
     end
   end
