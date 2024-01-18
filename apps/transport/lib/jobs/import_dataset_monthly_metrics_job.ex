@@ -87,7 +87,9 @@ defmodule Transport.Jobs.ImportMonthlyMetrics do
 
   defp insert_or_update(model_name, datagouv_id, %{"metric_month" => metric_month} = data)
        when model_name in [:dataset, :resource] do
-    Enum.each(metrics(model_name, data), fn {metric_name, count} ->
+    model_name
+    |> metrics_for_model(data)
+    |> Enum.each(fn {metric_name, count} ->
       count = count || 0
 
       model_name
@@ -104,14 +106,14 @@ defmodule Transport.Jobs.ImportMonthlyMetrics do
     end)
   end
 
-  defp metrics(:dataset, %{
+  defp metrics_for_model(:dataset, %{
          "monthly_visit" => monthly_visit,
          "monthly_download_resource" => monthly_download_resource
        }) do
     [{:views, monthly_visit}, {:downloads, monthly_download_resource}]
   end
 
-  defp metrics(:resource, %{"monthly_download_resource" => monthly_download_resource}) do
+  defp metrics_for_model(:resource, %{"monthly_download_resource" => monthly_download_resource}) do
     [{:downloads, monthly_download_resource}]
   end
 
