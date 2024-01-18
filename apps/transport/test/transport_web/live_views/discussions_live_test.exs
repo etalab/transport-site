@@ -102,6 +102,50 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
     assert discussion_title_text =~ "Le titre de la question"
   end
 
+  test "answer and answer and close buttons", %{conn: conn} do
+    dataset =
+      insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate(), organization_id: org_id = Ecto.UUID.generate())
+
+    Datagouvfr.Client.Discussions.Mock |> expect(:get, 2, fn ^datagouv_id -> discussions() end)
+    Datagouvfr.Client.Organization.Mock |> expect(:get, 2, fn ^org_id, [restrict_fields: true] -> organization() end)
+
+    # When the current user *IS NOT* a member of the dataset organization
+    {:ok, view, _html} =
+      live_isolated(conn, TransportWeb.DiscussionsLive,
+        session: %{
+          "dataset_datagouv_id" => datagouv_id,
+          "current_user" => %{"email" => "fc@tdg.fr"},
+          "dataset" => dataset,
+          "locale" => "fr"
+        }
+      )
+
+    parsed_content = view |> render() |> Floki.parse_document!()
+    assert "Répondre" == parsed_content |> Floki.find(".discussion-form button") |> Floki.text() |> String.trim()
+
+    # When the current user *IS* a member of the dataset organization
+    user_id = organization() |> elem(1) |> Map.fetch!("members") |> hd() |> get_in(["user", "id"])
+
+    {:ok, view, _html} =
+      live_isolated(conn, TransportWeb.DiscussionsLive,
+        session: %{
+          "dataset_datagouv_id" => datagouv_id,
+          "current_user" => %{"email" => "fc@tdg.fr", "id" => user_id},
+          "dataset" => dataset,
+          "locale" => "fr"
+        }
+      )
+
+    # Two buttons: answer + answer and close
+    assert [
+             {"button", [{"class", "button"}, {"name", "anwser"}, {"type", "submit"}], [anwser_text]},
+             {"button", [{"class", "button secondary"}, {"name", "anwser_and_close"}, {"type", "submit"}],
+              [anwser_and_close_text]}
+           ] = view |> render() |> Floki.parse_document!() |> Floki.find(".discussion-form button")
+
+    assert ["Répondre", "Répondre et clore"] == Enum.map([anwser_text, anwser_and_close_text], &String.trim/1)
+  end
+
   test "the counter reacts to broadcasted messages", %{conn: conn} do
     {:ok, view, _html} =
       live_isolated(conn, TransportWeb.CountDiscussionsLive,
