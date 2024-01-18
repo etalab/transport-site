@@ -1,0 +1,23 @@
+<section class="container pt-48 pb-48">
+  <h1>Rapport IRVE</h1>
+  <table class="table mt-48">
+    <thead>
+      <tr>
+        <th>Ressource</th>
+        <th>Validité</th>
+        <th>Nb PDC</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for item <- @items do %>
+        <tr>
+          <td><%= item.resource %></td>
+          <td><%= item.validity %></td>
+          <td><%= item.count %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</section>
+<script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>
+</script>
