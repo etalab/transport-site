@@ -56,11 +56,12 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
   end
 
   test "renders even if data.gouv is down", %{conn: conn} do
-    dataset = insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate(), organization: "producer_org")
+    dataset =
+      insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate(), organization_id: org_id = Ecto.UUID.generate())
 
     # in case of request failure, the function returns an empty list.
     Datagouvfr.Client.Discussions.Mock |> expect(:get, 1, fn ^datagouv_id -> [] end)
-    Datagouvfr.Client.Organization.Mock |> expect(:get, 1, fn _id, _opts -> {:error, "error reason"} end)
+    Datagouvfr.Client.Organization.Mock |> expect(:get, 1, fn ^org_id, _opts -> {:error, "error reason"} end)
 
     assert {:ok, view, _html} =
              live_isolated(conn, TransportWeb.DiscussionsLive,
