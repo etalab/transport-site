@@ -197,10 +197,11 @@ defmodule DB.ResourceTest do
   end
 
   test "invalid resource" do
-    resource = %Resource{format: "GTFS", schema_name: "anything"}
+    resource = %Resource{format: "GTFS", schema_name: "anything", datagouv_id: datagouv_id = Ecto.UUID.generate()}
     assert %Ecto.Changeset{valid?: false} = changeset = Resource.changeset(resource, %{})
 
-    assert {"Public transport formats can’t have a schema set", [{:resource_id, nil}, {:resource_datagouv_id, nil}]} ==
+    assert {"Public transport formats can’t have a schema set",
+            [{:resource_id, nil}, {:resource_datagouv_id, datagouv_id}]} ==
              changeset.errors[:schema_name]
   end
 end
