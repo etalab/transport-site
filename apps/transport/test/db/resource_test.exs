@@ -198,7 +198,7 @@ defmodule DB.ResourceTest do
 
   test "invalid resource" do
     resource = %Resource{format: "GTFS", schema_name: "anything"}
-    changeset = Resource.changeset(resource, %{})
+    assert %Ecto.Changeset{valid?: false} = changeset = Resource.changeset(resource, %{})
     assert {"public transport formats can’t have schema name", []} == changeset.errors[:schema_name]
   end
 end

@@ -373,14 +373,14 @@ defmodule DB.Resource do
   def proxy_namespace(%__MODULE__{format: "gbfs"}), do: "gbfs"
   def proxy_namespace(%__MODULE__{}), do: "proxy"
 
-  def no_schema_name_for_public_transport(changeset) do
+  def no_schema_name_for_public_transport(%Ecto.Changeset{} = changeset) do
     schema_name = get_field(changeset, :schema_name)
     format = get_field(changeset, :format)
     public_transport_formats = ["GTFS", "gtfs-rt", "NeTEx", "SIRI", "SIRI Lite"]
 
     if format in public_transport_formats and is_binary(schema_name) do
       changeset
-      |> add_error(:schema_name, "public transport formats can’t have schema name")
+      |> add_error(:schema_name, "Public transport formats can’t have a schema set", resource_id: get_field(changeset, :id), resource_datagouv_id: get_field(changeset, :datagouv_id))
     else
       changeset
     end
