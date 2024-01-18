@@ -205,5 +205,5 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, elixir-autogen, elixir-format
-msgid "%{nb_downloads} downloads in %{year}"
+msgid "%{nb_downloads} <div class=\"tooltip\">downloads in %{year}<span class=\"tooltiptext\">Number of downloads for all the files hosted on data.gouv.fr</span></div>"
 msgstr ""

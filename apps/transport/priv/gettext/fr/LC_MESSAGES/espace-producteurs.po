@@ -206,5 +206,5 @@ msgstr[0] "1 ressource"
 msgstr[1] "%{count} ressources"
 
 #, elixir-autogen, elixir-format
-msgid "%{nb_downloads} downloads in %{year}"
-msgstr "%{nb_downloads} téléchargements en %{year}"
+msgid "%{nb_downloads} <div class=\"tooltip\">downloads in %{year}<span class=\"tooltiptext\">Number of downloads for all the files hosted on data.gouv.fr</span></div>"
+msgstr "%{nb_downloads} <div class=\"tooltip\">téléchargements en %{year}<span class=\"tooltiptext\">Nombre de téléchargements pour tous les fichiers hébergés sur data.gouv.fr</span></div>"

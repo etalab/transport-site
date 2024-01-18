@@ -68,11 +68,13 @@
                       get_session(@conn, :locale)
                     ) %>
                   <div class="pt-6">
-                    <i class="icon fa fa-download" aria-hidden="true"></i> <%= dgettext(
-                      "espace-producteurs",
-                      "%{nb_downloads} downloads in %{year}",
-                      nb_downloads: nb_downloads,
-                      year: @downloads_reference_year
+                    <i class="icon fa fa-download" aria-hidden="true"></i> <%= raw(
+                      dgettext(
+                        "espace-producteurs",
+                        ~s(%{nb_downloads} <div class="tooltip">downloads in %{year}<span class="tooltiptext">Number of downloads for all the files hosted on data.gouv.fr</span></div>),
+                        nb_downloads: nb_downloads,
+                        year: @downloads_reference_year
+                      )
                     ) %>
                   </div>
                 </div>
