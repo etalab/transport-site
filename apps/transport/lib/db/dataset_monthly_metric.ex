@@ -2,6 +2,12 @@ defmodule DB.DatasetMonthlyMetric do
   @moduledoc """
   Monthly metrics related to datasets as given by the data.gouv.fr
   API.
+
+  - `:downloads`: counts the number of `GET` requests for all the dataset resources,
+  as seen by the data.gouv.fr's infrastructure. It only makes sense for resources
+  hosted on data.gouv.fr, not for resources hosted on third party servers.
+  - `:views`: counts the number of `GET` requests on the dataset web page.
+
   Example: https://metric-api.data.gouv.fr/api/datasets/data/?metric_month__sort=asc&dataset_id__exact=5b3cc551c751df4822526c1c
   """
   use Ecto.Schema
