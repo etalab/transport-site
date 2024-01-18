@@ -11,12 +11,16 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
   end
 
   test "render some discussions", %{conn: conn} do
-    dataset = insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate(), organization: "producer_org")
+    dataset =
+      insert(:dataset,
+        datagouv_id: datagouv_id = Ecto.UUID.generate(),
+        organization_id: organization_id = Ecto.UUID.generate()
+      )
 
     Datagouvfr.Client.Discussions.Mock |> expect(:get, 1, fn ^datagouv_id -> discussions() end)
 
     Datagouvfr.Client.Organization.Mock
-    |> expect(:get, 1, fn "producer_org", [restrict_fields: true] -> organization() end)
+    |> expect(:get, 1, fn ^organization_id, [restrict_fields: true] -> organization() end)
 
     {:ok, view, _html} =
       live_isolated(conn, TransportWeb.DiscussionsLive,
@@ -52,11 +56,12 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
   end
 
   test "renders even if data.gouv is down", %{conn: conn} do
-    dataset = insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate(), organization: "producer_org")
+    dataset =
+      insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate(), organization_id: org_id = Ecto.UUID.generate())
 
     # in case of request failure, the function returns an empty list.
     Datagouvfr.Client.Discussions.Mock |> expect(:get, 1, fn ^datagouv_id -> [] end)
-    Datagouvfr.Client.Organization.Mock |> expect(:get, 1, fn _id, _opts -> {:error, "error reason"} end)
+    Datagouvfr.Client.Organization.Mock |> expect(:get, 1, fn ^org_id, _opts -> {:error, "error reason"} end)
 
     assert {:ok, view, _html} =
              live_isolated(conn, TransportWeb.DiscussionsLive,
@@ -73,7 +78,7 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
   end
 
   test "renders even if there is no organization", %{conn: conn} do
-    dataset = insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate(), organization: nil)
+    dataset = insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate(), organization_id: nil)
 
     Datagouvfr.Client.Discussions.Mock |> expect(:get, 1, fn ^datagouv_id -> discussions() end)
 
