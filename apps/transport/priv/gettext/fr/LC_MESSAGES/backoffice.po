@@ -294,3 +294,7 @@ msgstr "Ouverture des données par AOM"
 #, elixir-autogen, elixir-format
 msgid "Rate limiter"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "IRVE dashboard"
+msgstr ""
