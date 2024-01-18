@@ -195,4 +195,10 @@ defmodule DB.ResourceTest do
                "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/898dc67fb19fae2464c24a85a0557e8ccce18791/bnlc-.csv"
            }) == resource_url(TransportWeb.Endpoint, :download, id)
   end
+
+  test "invalid resource" do
+    resource = %Resource{format: "GTFS", schema_name: "anything"}
+    changeset = Resource.changeset(resource, %{})
+    assert {"public transport formats can’t have schema name", []} == changeset.errors[:schema_name]
+  end
 end

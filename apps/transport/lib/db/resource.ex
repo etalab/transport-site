@@ -116,6 +116,7 @@ defmodule DB.Resource do
       ]
     )
     |> validate_required([:url, :datagouv_id])
+    |> no_schema_name_for_public_transport()
   end
 
   @spec is_gtfs?(__MODULE__.t()) :: boolean()
@@ -371,4 +372,17 @@ defmodule DB.Resource do
   """
   def proxy_namespace(%__MODULE__{format: "gbfs"}), do: "gbfs"
   def proxy_namespace(%__MODULE__{}), do: "proxy"
+
+  def no_schema_name_for_public_transport(changeset) do
+    schema_name = get_field(changeset, :schema_name)
+    format = get_field(changeset, :format)
+    public_transport_formats = ["GTFS", "gtfs-rt", "NeTEx", "SIRI", "SIRI Lite"]
+
+    if format in public_transport_formats and is_binary(schema_name) do
+      changeset
+      |> add_error(:schema_name, "public transport formats can’t have schema name")
+    else
+      changeset
+    end
+  end
 end
