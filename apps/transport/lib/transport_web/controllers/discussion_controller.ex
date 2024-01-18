@@ -1,6 +1,6 @@
 defmodule TransportWeb.DiscussionController do
   use TransportWeb, :controller
-  alias Datagouvfr.Client.Discussions
+  alias Datagouvfr.Client.Discussions.Wrapper, as: Discussions
   require Logger
 
   @spec post_discussion(Plug.Conn.t(), map) :: Plug.Conn.t()
@@ -29,7 +29,7 @@ defmodule TransportWeb.DiscussionController do
         %{"discussion_id" => discussion_id, "comment" => comment, "dataset_slug" => dataset_slug} = params
       ) do
     conn
-    |> Discussions.post(discussion_id, comment, close: Map.has_key?(params, "anwser_and_close"))
+    |> Discussions.post(discussion_id, comment, close: Map.has_key?(params, "answer_and_close"))
     |> case do
       {:ok, _} ->
         conn

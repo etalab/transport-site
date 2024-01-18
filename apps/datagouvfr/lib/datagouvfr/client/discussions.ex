@@ -2,11 +2,19 @@ defmodule Datagouvfr.Client.Discussions.Wrapper do
   @moduledoc """
   A behavior for discussions
   """
+  alias Datagouvfr.Client.OAuth
+
   @callback get(binary()) :: []
+  def get(id), do: impl().get(id)
+
+  @callback post(Plug.Conn.t(), binary(), binary(), close: boolean()) :: OAuth.oauth2_response()
+  def post(%Plug.Conn{} = conn, discussion_id, comment, close: close),
+    do: impl().post(conn, discussion_id, comment, close: close)
+
+  @callback post(Plug.Conn.t(), binary(), binary(), binary()) :: OAuth.oauth2_response()
+  def post(%Plug.Conn{} = conn, dataset_id, title, comment), do: impl().post(conn, dataset_id, title, comment)
 
   defp impl, do: Application.fetch_env!(:datagouvfr, :datagouvfr_discussions)
-
-  def get(id), do: impl().get(id)
 end
 
 defmodule Datagouvfr.Client.Discussions.Dummy do
@@ -17,6 +25,12 @@ defmodule Datagouvfr.Client.Discussions.Dummy do
 
   @impl true
   def get(_), do: []
+
+  @impl true
+  def post(%Plug.Conn{}, _, _, close: _), do: {:ok, nil}
+
+  @impl true
+  def post(%Plug.Conn{}, _, _, _), do: {:ok, nil}
 end
 
 defmodule Datagouvfr.Client.Discussions do
@@ -43,6 +57,7 @@ defmodule Datagouvfr.Client.Discussions do
   end
 
   @spec post(Plug.Conn.t(), binary(), binary(), close: boolean()) :: Client.oauth2_response()
+  @impl true
   def post(%Plug.Conn{} = conn, discussion_id, comment, close: close) do
     Client.post(conn, Path.join(@endpoint, discussion_id), %{comment: comment, close: close}, [])
   end
@@ -54,6 +69,7 @@ defmodule Datagouvfr.Client.Discussions do
   Documentation: https://doc.data.gouv.fr/api/reference/#/discussions/create_discussion
   """
   @spec post(Plug.Conn.t(), binary, binary, binary) :: Client.oauth2_response()
+  @impl true
   def post(%Plug.Conn{} = conn, dataset_id, title, comment) when is_binary(comment) do
     payload = %{
       comment: comment,

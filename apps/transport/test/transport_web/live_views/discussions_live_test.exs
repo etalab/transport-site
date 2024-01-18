@@ -139,11 +139,11 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
     # Two buttons: answer + answer and close
     assert [
              {"button", [{"class", "button"}, {"name", "anwser"}, {"type", "submit"}], [anwser_text]},
-             {"button", [{"class", "button secondary"}, {"name", "anwser_and_close"}, {"type", "submit"}],
-              [anwser_and_close_text]}
+             {"button", [{"class", "button secondary"}, {"name", "answer_and_close"}, {"type", "submit"}],
+              [answer_and_close_text]}
            ] = view |> render() |> Floki.parse_document!() |> Floki.find(".discussion-form button")
 
-    assert ["Répondre", "Répondre et clore"] == Enum.map([anwser_text, anwser_and_close_text], &String.trim/1)
+    assert ["Répondre", "Répondre et clore"] == Enum.map([anwser_text, answer_and_close_text], &String.trim/1)
   end
 
   test "the counter reacts to broadcasted messages", %{conn: conn} do
