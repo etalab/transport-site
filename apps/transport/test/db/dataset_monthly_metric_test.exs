@@ -2,6 +2,8 @@ defmodule DB.DatasetMonthlyMetricTest do
   use ExUnit.Case, async: true
   import DB.Factory
 
+  doctest DB.DatasetMonthlyMetric, import: true
+
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
@@ -38,5 +40,45 @@ defmodule DB.DatasetMonthlyMetricTest do
                  year_month: "bar"
                })
     end
+  end
+
+  test "downloads_for_year" do
+    dataset = insert(:dataset)
+    other_dataset = insert(:dataset)
+
+    insert(:dataset_monthly_metric,
+      dataset_datagouv_id: dataset.datagouv_id,
+      year_month: "2023-12",
+      metric_name: :downloads,
+      count: 42
+    )
+
+    insert(:dataset_monthly_metric,
+      dataset_datagouv_id: dataset.datagouv_id,
+      year_month: "2023-01",
+      metric_name: :downloads,
+      count: 1_337
+    )
+
+    insert(:dataset_monthly_metric,
+      dataset_datagouv_id: other_dataset.datagouv_id,
+      year_month: "2023-10",
+      metric_name: :downloads,
+      count: 5
+    )
+
+    insert(:dataset_monthly_metric,
+      dataset_datagouv_id: dataset.datagouv_id,
+      year_month: "2023-12",
+      metric_name: :views,
+      count: 1
+    )
+
+    assert %{dataset.datagouv_id => 1_337 + 42} == DB.DatasetMonthlyMetric.downloads_for_year([dataset], 2023)
+
+    assert %{dataset.datagouv_id => 1_337 + 42, other_dataset.datagouv_id => 5} ==
+             DB.DatasetMonthlyMetric.downloads_for_year([dataset, other_dataset], 2023)
+
+    assert %{} == DB.DatasetMonthlyMetric.downloads_for_year([dataset, other_dataset], 2024)
   end
 end
