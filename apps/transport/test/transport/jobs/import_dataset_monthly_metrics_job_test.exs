@@ -138,22 +138,25 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetMonthlyMetricsTestJob do
     assert MapSet.new([d1_datagouv_id, d2_datagouv_id]) ==
              ImportDatasetMonthlyMetricsJob.dataset_datagouv_ids() |> MapSet.new()
 
-    setup_http_response(d1_datagouv_id, [
-      %{
-        "dataset_id" => d1_datagouv_id,
-        "metric_month" => "2023-12",
-        "monthly_visit" => 1337,
-        "monthly_download_resource" => 43
-      }
-    ])
-
-    setup_http_response(d2_datagouv_id, [
-      %{
-        "dataset_id" => d2_datagouv_id,
-        "metric_month" => "2023-12",
-        "monthly_visit" => nil,
-        "monthly_download_resource" => 5
-      }
+    setup_http_responses([
+      {d1_datagouv_id,
+       [
+         %{
+           "dataset_id" => d1_datagouv_id,
+           "metric_month" => "2023-12",
+           "monthly_visit" => 1337,
+           "monthly_download_resource" => 43
+         }
+       ]},
+      {d2_datagouv_id,
+       [
+         %{
+           "dataset_id" => d2_datagouv_id,
+           "metric_month" => "2023-12",
+           "monthly_visit" => nil,
+           "monthly_download_resource" => 5
+         }
+       ]}
     ])
 
     assert :ok == perform_job(ImportDatasetMonthlyMetricsJob, %{})
@@ -197,6 +200,18 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetMonthlyMetricsTestJob do
              |> where([dmm], dmm.dataset_datagouv_id == ^d2_datagouv_id)
              |> order_by([dmm], dmm.metric_name)
              |> DB.Repo.all()
+  end
+
+  defp setup_http_responses(data) when is_list(data) do
+    responses =
+      Enum.into(data, %{}, fn {datagouv_id, response} ->
+        {Transport.Jobs.ImportMonthlyMetrics.api_url(:dataset, datagouv_id, page_size: 24), response}
+      end)
+
+    # HTTP requests order is not important
+    expect(Transport.Req.Mock, :get, Enum.count(responses), fn url, [] ->
+      {:ok, %Req.Response{status: 200, body: %{"data" => Map.fetch!(responses, url)}}}
+    end)
   end
 
   defp setup_http_response(datagouv_id, data, options \\ []) do
