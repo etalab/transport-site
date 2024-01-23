@@ -274,9 +274,11 @@ defmodule TransportWeb.ResourceController do
     else
       case Transport.Shared.Wrapper.HTTPoison.impl().head(resource.url, []) do
         {:ok, %HTTPoison.Response{status_code: status_code, headers: headers}} ->
+          Logger.info("PROBE #1 - match")
           send_response_with_status_headers(conn, status_code, headers)
 
-        _ ->
+        e ->
+          Logger.info("PROBE #2 - no match - #{e |> inspect}")
           conn |> Plug.Conn.send_resp(:bad_gateway, "")
       end
     end
@@ -290,6 +292,7 @@ defmodule TransportWeb.ResourceController do
     else
       case Transport.Shared.Wrapper.HTTPoison.impl().get(resource.url, [], hackney: [follow_redirect: true]) do
         {:ok, %HTTPoison.Response{status_code: 200} = response} ->
+          Logger.info("PROBE #3 - match")
           headers = Enum.into(response.headers, %{}, &downcase_header(&1))
           %{"content-type" => content_type} = headers
 
@@ -299,7 +302,9 @@ defmodule TransportWeb.ResourceController do
             filename: Transport.FileDownloads.guess_filename(headers, resource.url)
           )
 
-        _ ->
+        e ->
+          Logger.info("PROBE #4 - no match - #{e |> inspect}")
+
           conn
           |> put_flash(:error, dgettext("resource", "Resource is not available on remote server"))
           |> put_status(:not_found)
