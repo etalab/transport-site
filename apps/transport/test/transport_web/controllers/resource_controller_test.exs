@@ -230,14 +230,21 @@ defmodule TransportWeb.ResourceControllerTest do
     Transport.HTTPoison.Mock
     |> expect(:head, fn url, [] ->
       assert url == resource.url
-      {:ok, %HTTPoison.Response{status_code: 200, headers: [{"Content-Type", "application/zip"}, {"foo", "bar"}]}}
+
+      {:ok,
+       %HTTPoison.Response{
+         status_code: 200,
+         headers: [{"Content-Type", "application/zip"}, {"foo", "bar"}, {"transfer-encoding", "chunked"}]
+       }}
     end)
 
-    conn = conn |> head(resource_path(conn, :download, resource.id))
+    assert %Plug.Conn{assigns: %{original_method: "HEAD"}, resp_body: "", status: 200} =
+             conn = conn |> head(resource_path(conn, :download, resource.id))
+
     assert ["application/zip"] == conn |> get_resp_header("content-type")
     assert ["bar"] == conn |> get_resp_header("foo")
-    assert conn.assigns[:original_method] == "HEAD"
-    assert conn |> response(200) == ""
+    # Header has been removed
+    assert [] == conn |> get_resp_header("transfer-encoding")
 
     # With a resource that can be directly downloaded
     resource = DB.Resource |> DB.Repo.get_by(datagouv_id: "1")

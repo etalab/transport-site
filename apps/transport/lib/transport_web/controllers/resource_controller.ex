@@ -274,11 +274,9 @@ defmodule TransportWeb.ResourceController do
     else
       case Transport.Shared.Wrapper.HTTPoison.impl().head(resource.url, []) do
         {:ok, %HTTPoison.Response{status_code: status_code, headers: headers}} ->
-          Logger.info("PROBE #1 - match")
-          send_response_with_status_headers(conn, status_code, headers)
+          send_head_response(conn, status_code, headers)
 
-        e ->
-          Logger.info("PROBE #2 - no match - #{e |> inspect}")
+        _ ->
           conn |> Plug.Conn.send_resp(:bad_gateway, "")
       end
     end
@@ -292,7 +290,6 @@ defmodule TransportWeb.ResourceController do
     else
       case Transport.Shared.Wrapper.HTTPoison.impl().get(resource.url, [], hackney: [follow_redirect: true]) do
         {:ok, %HTTPoison.Response{status_code: 200} = response} ->
-          Logger.info("PROBE #3 - match")
           headers = Enum.into(response.headers, %{}, &downcase_header(&1))
           %{"content-type" => content_type} = headers
 
@@ -302,9 +299,7 @@ defmodule TransportWeb.ResourceController do
             filename: Transport.FileDownloads.guess_filename(headers, resource.url)
           )
 
-        e ->
-          Logger.info("PROBE #4 - no match - #{e |> inspect}")
-
+        _ ->
           conn
           |> put_flash(:error, dgettext("resource", "Resource is not available on remote server"))
           |> put_status(:not_found)
@@ -316,8 +311,17 @@ defmodule TransportWeb.ResourceController do
 
   defp downcase_header({h, v}), do: {String.downcase(h), v}
 
-  defp send_response_with_status_headers(%Plug.Conn{} = conn, status_code, headers) do
+  defp send_head_response(%Plug.Conn{} = conn, status_code, headers) do
     headers
+    #  RFC 2616 section 4.4 https://datatracker.ietf.org/doc/html/rfc2616#section-4.4
+    # > If a Content-Length header field (section 14.13) is present, its
+    # > decimal value in OCTETs represents both the entity-length and the
+    # > transfer-length. The Content-Length header field MUST NOT be sent
+    # > if these two lengths are different (i.e., if a Transfer-Encoding
+    # > header field is present). If a message is received with both a
+    # > Transfer-Encoding header field and a Content-Length header field,
+    # > the latter MUST be ignored.
+    |> Enum.reject(fn {k, _} -> String.downcase(k) == "transfer-encoding" end)
     |> Enum.reduce(conn, fn {k, v}, conn -> Plug.Conn.put_resp_header(conn, String.downcase(k), v) end)
     |> Plug.Conn.send_resp(status_code, "")
   end
