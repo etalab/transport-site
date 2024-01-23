@@ -152,4 +152,13 @@ defmodule Transport.StatsHandlerTest do
 
     assert %{nb_aoms_with_data: 2, nb_aoms: 3, population_couverte: 2, population_totale: 3} = compute_stats()
   end
+
+  test "uses regions legal owners to count completed regions" do
+    region3 = insert(:region)
+    region4 = insert(:region)
+    # Note: there are now 4 regions in database, as per default, there is Nouvelle-Calédonie and National
+    aom = insert(:aom, population: 1_000_000, region: region3)
+    insert(:dataset, type: "public-transit", is_active: true, legal_owners_region: [region4], region: region3, aom: aom)
+    assert %{nb_regions_completed: 1, nb_regions: 4} = compute_stats()
+  end
 end

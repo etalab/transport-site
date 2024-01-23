@@ -51,7 +51,7 @@ defmodule Transport.StatsHandler do
 
     aoms_with_datasets = aoms |> Enum.filter(&(&1.nb_datasets > 0))
 
-    regions = Repo.all(from(r in Region, where: r.nom != "National"))
+    regions_stats = Region.count_datasets_by_region_as_legal_owners()
 
     aoms_max_gtfs_severity = compute_aom_gtfs_max_severity()
 
@@ -66,8 +66,8 @@ defmodule Transport.StatsHandler do
       nb_pt_datasets: Dataset.count_by_type("public-transit"),
       nb_aoms: Enum.count(aoms),
       nb_aoms_with_data: Enum.count(aoms_with_datasets),
-      nb_regions: Enum.count(regions),
-      nb_regions_completed: regions |> Enum.count(fn r -> r.is_completed end),
+      nb_regions: Enum.count(regions_stats),
+      nb_regions_completed: regions_stats |> Map.values() |> Enum.count(&(&1 > 0)),
       population_totale: get_population(aoms),
       population_couverte: get_population(aoms_with_datasets),
       ratio_aom_with_at_most_warnings:

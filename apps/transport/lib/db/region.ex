@@ -36,9 +36,9 @@ defmodule DB.Region do
         where: r.id != 14,
         left_join: drlo in subquery(subquery),
         on: r.id == drlo.region_id,
-        select: [r.id, drlo.count |> coalesce(0)]
+        select: {r.id, drlo.count |> coalesce(0)}
       )
 
-    query
+    query |> DB.Repo.all() |> Map.new()
   end
 end
