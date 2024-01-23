@@ -176,7 +176,7 @@
                 <div class="panel__content">
                   <div class="dataset__description">
                     <div class="dataset__image" data-provider={dataset.custom_title}>
-                      <%= img_tag(dataset.logo, alt: dataset.custom_title) %>
+                      <%= img_tag(DB.Dataset.logo(dataset), alt: dataset.custom_title) %>
                     </div>
                     <div class="dataset__infos">
                       <h3 class="dataset__title">

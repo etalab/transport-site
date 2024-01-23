@@ -98,6 +98,28 @@ defmodule TransportWeb.DatasetControllerTest do
     assert [] == Floki.find(doc, "#custom-message")
   end
 
+  test "custom logo is displayed", %{conn: conn} do
+    dataset =
+      insert(:dataset,
+        type: "public-transit",
+        is_active: true,
+        custom_title: custom_title = "Super JDD",
+        custom_logo: custom_logo = "https://example.com/logo_#{Ecto.UUID.generate()}.png"
+      )
+
+    assert DB.Dataset.logo(dataset) == custom_logo
+
+    assert [
+             {"div", [{"class", "dataset__image"}, {"data-provider", _}],
+              [{"img", [{"alt", ^custom_title}, {"src", ^custom_logo}], []}]}
+           ] =
+             conn
+             |> get(dataset_path(conn, :index))
+             |> html_response(200)
+             |> Floki.parse_document!()
+             |> Floki.find(".dataset__image")
+  end
+
   describe "climate and resilience bill" do
     test "displayed for public-transit", %{conn: conn} do
       conn = conn |> get(dataset_path(conn, :index, type: "public-transit"))
@@ -471,6 +493,26 @@ defmodule TransportWeb.DatasetControllerTest do
       |> Floki.find(".notification")
 
     assert content =~ "Le service de transport de ce jeu de donnée ne fonctionne pas toute l'année"
+  end
+
+  test "custom logo is displayed when set", %{conn: conn} do
+    dataset =
+      insert(:dataset,
+        is_active: true,
+        custom_title: custom_title = "Super JDD",
+        custom_full_logo: custom_full_logo = "https://example.com/logo_#{Ecto.UUID.generate()}.png"
+      )
+
+    set_empty_mocks()
+
+    assert DB.Dataset.full_logo(dataset) == custom_full_logo
+
+    assert [{"div", [{"class", "dataset__logo"}], [{"img", [{"alt", custom_title}, {"src", custom_full_logo}], []}]}] ==
+             conn
+             |> get(dataset_path(conn, :details, dataset.slug))
+             |> html_response(200)
+             |> Floki.parse_document!()
+             |> Floki.find(".dataset__logo")
   end
 
   test "gtfs-rt entities" do

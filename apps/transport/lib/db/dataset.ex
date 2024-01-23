@@ -48,6 +48,11 @@ defmodule DB.Dataset do
     field(:latest_data_gouv_comment_timestamp, :utc_datetime)
     field(:archived_at, :utc_datetime_usec)
     field(:custom_tags, {:array, :string}, default: [])
+    # URLs for custom logos.
+    # Currently we host custom logos in Cellar buckets.
+    # https://transport-data-gouv-fr-logos-(logos|staging|dev).cellar-c2.services.clever-cloud.com/
+    field(:custom_logo, :string)
+    field(:custom_full_logo, :string)
 
     timestamps(type: :utc_datetime_usec)
 
@@ -1068,4 +1073,23 @@ defmodule DB.Dataset do
   false
   """
   def has_custom_tag?(%__MODULE__{custom_tags: custom_tags}, tag_name), do: tag_name in (custom_tags || [])
+
+  @doc """
+  iex> logo(%DB.Dataset{logo: "https://example.com/logo.png", custom_logo: nil})
+  "https://example.com/logo.png"
+  iex> logo(%DB.Dataset{logo: "https://example.com/logo.png", custom_logo: "https://example.com/custom.png"})
+  "https://example.com/custom.png"
+  """
+  @spec logo(__MODULE__.t()) :: binary()
+  def logo(%__MODULE__{logo: logo, custom_logo: custom_logo}), do: custom_logo || logo
+
+  @doc """
+  iex> full_logo(%DB.Dataset{full_logo: "https://example.com/logo.png", custom_full_logo: nil})
+  "https://example.com/logo.png"
+  iex> full_logo(%DB.Dataset{full_logo: "https://example.com/logo.png", custom_full_logo: "https://example.com/custom.png"})
+  "https://example.com/custom.png"
+  """
+  @spec full_logo(__MODULE__.t()) :: binary()
+  def full_logo(%__MODULE__{full_logo: full_logo, custom_full_logo: custom_full_logo}),
+    do: custom_full_logo || full_logo
 end
