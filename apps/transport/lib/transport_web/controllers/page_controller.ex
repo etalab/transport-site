@@ -1,6 +1,6 @@
 defmodule TransportWeb.PageController do
   use TransportWeb, :controller
-  alias DB.{AOM, Dataset, Region, Repo}
+  alias DB.{AOM, Dataset, Repo}
   alias Transport.CSVDocuments
   import Ecto.Query
   import TransportWeb.DatasetView, only: [icon_type_path: 1]
