@@ -125,20 +125,23 @@ defmodule Transport.Test.Transport.Jobs.ImportResourceMonthlyMetricsTestJob do
     assert MapSet.new([r1_datagouv_id, r2_datagouv_id]) ==
              ImportResourceMonthlyMetricsJob.resource_datagouv_ids() |> MapSet.new()
 
-    setup_http_response(r1_datagouv_id, [
-      %{
-        "resource_id" => r1_datagouv_id,
-        "metric_month" => "2023-12",
-        "monthly_download_resource" => 43
-      }
-    ])
-
-    setup_http_response(r2_datagouv_id, [
-      %{
-        "resource_id" => r2_datagouv_id,
-        "metric_month" => "2023-12",
-        "monthly_download_resource" => 5
-      }
+    setup_http_responses([
+      {r1_datagouv_id,
+       [
+         %{
+           "resource_id" => r1_datagouv_id,
+           "metric_month" => "2023-12",
+           "monthly_download_resource" => 43
+         }
+       ]},
+      {r2_datagouv_id,
+       [
+         %{
+           "resource_id" => r2_datagouv_id,
+           "metric_month" => "2023-12",
+           "monthly_download_resource" => 5
+         }
+       ]}
     ])
 
     assert :ok == perform_job(ImportResourceMonthlyMetricsJob, %{})
@@ -168,6 +171,18 @@ defmodule Transport.Test.Transport.Jobs.ImportResourceMonthlyMetricsTestJob do
              DB.ResourceMonthlyMetric
              |> where([rmm], rmm.resource_datagouv_id == ^r2_datagouv_id)
              |> DB.Repo.all()
+  end
+
+  defp setup_http_responses(data) when is_list(data) do
+    responses =
+      Enum.into(data, %{}, fn {datagouv_id, response} ->
+        {Transport.Jobs.ImportMonthlyMetrics.api_url(:resource, datagouv_id, page_size: 24), response}
+      end)
+
+    # HTTP requests order is not important
+    expect(Transport.Req.Mock, :get, Enum.count(responses), fn url, [] ->
+      {:ok, %Req.Response{status: 200, body: %{"data" => Map.fetch!(responses, url)}}}
+    end)
   end
 
   defp setup_http_response(datagouv_id, data, options \\ []) do
