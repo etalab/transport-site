@@ -65,7 +65,7 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
       "resources" => [],
       "tags" => [],
       "description" => "",
-      "created_at" => "2022-11-01 00:01:00+00:00",
+      "internal" => %{"created_at_internal" => "2022-11-01 00:01:00+00:00"},
       "id" => Ecto.UUID.generate()
     }
 
@@ -73,7 +73,7 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
 
     datasets = [
       base,
-      %{base | "created_at" => "2022-10-30 00:00:00+00:00", "title" => "GTFS de Dijon"},
+      %{base | "internal" => %{"created_at_internal" => "2022-10-30 00:00:00+00:00"}, "title" => "GTFS de Dijon"},
       dataset_to_keep = %{base | "title" => "GTFS de Dijon"},
       %{base | "tags" => ["gbfs"], "id" => datagouv_id}
     ]
@@ -81,7 +81,13 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
     assert [false, true, true, true] == Enum.map(datasets, &NewDatagouvDatasetsJob.dataset_is_relevant?/1)
 
     assert [true, false, true, true] ==
-             Enum.map(datasets, &NewDatagouvDatasetsJob.after_datetime?(&1["created_at"], ~U[2022-11-01 00:00:00Z]))
+             Enum.map(
+               datasets,
+               &NewDatagouvDatasetsJob.after_datetime?(
+                 get_in(&1, ["internal", "created_at_internal"]),
+                 ~U[2022-11-01 00:00:00Z]
+               )
+             )
 
     assert [dataset_to_keep] == NewDatagouvDatasetsJob.filtered_datasets(datasets, ~U[2022-11-02 00:00:00Z])
   end
@@ -104,7 +110,9 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
         "resources" => [],
         "tags" => [],
         "description" => "",
-        "created_at" => DateTime.utc_now() |> DateTime.add(-23, :hour) |> DateTime.to_iso8601(),
+        "internal" => %{
+          "created_at_internal" => DateTime.utc_now() |> DateTime.add(-23, :hour) |> DateTime.to_iso8601()
+        },
         "page" => "https://example.com/link",
         "id" => Ecto.UUID.generate()
       }
