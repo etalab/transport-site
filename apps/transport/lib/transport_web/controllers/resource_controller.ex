@@ -309,22 +309,16 @@ defmodule TransportWeb.ResourceController do
     end
   end
 
-  defp downcase_header({h, v}), do: {String.downcase(h), v}
-
   defp send_head_response(%Plug.Conn{} = conn, status_code, headers) do
-    headers
-    #  RFC 2616 section 4.4 https://datatracker.ietf.org/doc/html/rfc2616#section-4.4
-    # > If a Content-Length header field (section 14.13) is present, its
-    # > decimal value in OCTETs represents both the entity-length and the
-    # > transfer-length. The Content-Length header field MUST NOT be sent
-    # > if these two lengths are different (i.e., if a Transfer-Encoding
-    # > header field is present). If a message is received with both a
-    # > Transfer-Encoding header field and a Content-Length header field,
-    # > the latter MUST be ignored.
-    |> Enum.reject(fn {k, _} -> String.downcase(k) == "transfer-encoding" end)
-    |> Enum.reduce(conn, fn {k, v}, conn -> Plug.Conn.put_resp_header(conn, String.downcase(k), v) end)
-    |> Plug.Conn.send_resp(status_code, "")
+    resp_headers =
+      headers
+      |> Enum.map(&downcase_header/1)
+      |> Enum.filter(fn {h, _v} -> Enum.member?(Shared.Proxy.forwarded_headers_allowlist(), h) end)
+
+    conn |> Plug.Conn.merge_resp_headers(resp_headers) |> Plug.Conn.send_resp(status_code, "")
   end
+
+  defp downcase_header({h, v}), do: {String.downcase(h), v}
 
   @spec post_file(Plug.Conn.t(), map) :: Plug.Conn.t()
   def post_file(conn, params) do

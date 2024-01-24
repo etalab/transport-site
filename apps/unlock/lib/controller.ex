@@ -51,16 +51,6 @@ defmodule Unlock.Controller do
     text(conn, "Unlock Proxy")
   end
 
-  # for now we use a allowlist which we'll gradually expand.
-  # make sure to avoid including "hop-by-hop" headers here.
-  @forwarded_headers_allowlist [
-    "content-type",
-    "content-length",
-    "date",
-    "last-modified",
-    "etag"
-  ]
-
   def fetch(conn, %{"id" => id}) do
     config = Application.fetch_env!(:unlock, :config_fetcher).fetch_config!()
 
@@ -231,8 +221,7 @@ defmodule Unlock.Controller do
 
   # Inspiration (MIT) here https://github.com/tallarium/reverse_proxy_plug
   defp filter_response_headers(headers) do
-    headers
-    |> Enum.filter(fn {h, _v} -> Enum.member?(@forwarded_headers_allowlist, h) end)
+    Enum.filter(headers, fn {h, _v} -> Enum.member?(Shared.Proxy.forwarded_headers_allowlist(), h) end)
   end
 
   defp prepare_response_headers(headers) do

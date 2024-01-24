@@ -234,7 +234,12 @@ defmodule TransportWeb.ResourceControllerTest do
       {:ok,
        %HTTPoison.Response{
          status_code: 200,
-         headers: [{"Content-Type", "application/zip"}, {"foo", "bar"}, {"transfer-encoding", "chunked"}]
+         headers: [
+           {"Content-Type", "application/zip"},
+           {"foo", "bar"},
+           {"transfer-encoding", "chunked"},
+           {"date", "date_value"}
+         ]
        }}
     end)
 
@@ -242,8 +247,9 @@ defmodule TransportWeb.ResourceControllerTest do
              conn = conn |> head(resource_path(conn, :download, resource.id))
 
     assert ["application/zip"] == conn |> get_resp_header("content-type")
-    assert ["bar"] == conn |> get_resp_header("foo")
-    # Header has been removed
+    assert ["date_value"] == conn |> get_resp_header("date")
+    # Headers absent from the allowlist have been removed
+    assert [] == conn |> get_resp_header("foo")
     assert [] == conn |> get_resp_header("transfer-encoding")
 
     # With a resource that can be directly downloaded
