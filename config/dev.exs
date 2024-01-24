@@ -74,7 +74,8 @@ config :transport,
     gtfs_diff: "gtfs-diff-dev"
   },
   # by default, use the production validator. This can be overriden with dev.secret.exs
-  gtfs_validator_url: "https://validation.transport.data.gouv.fr"
+  gtfs_validator_url: "https://validation.transport.data.gouv.fr",
+  logos_bucket_url: "https://transport-data-gouv-fr-logos-dev.cellar-c2.services.clever-cloud.com"
 
 config :oauth2, Datagouvfr.Authentication,
   site: datagouvfr_site,

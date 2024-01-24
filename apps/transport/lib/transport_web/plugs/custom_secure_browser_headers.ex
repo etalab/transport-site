@@ -41,7 +41,7 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
           default-src 'none';
           connect-src *;
           font-src *;
-          img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://www.data.gouv.fr https://*.dmcdn.net https://transport-data-gouv-fr-logos-prod.cellar-c2.services.clever-cloud.com;
+          img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://www.data.gouv.fr https://*.dmcdn.net #{Application.fetch_env!(:transport, :logos_bucket_url)};
           script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
           frame-src https://www.dailymotion.com/;
           style-src 'self' 'nonce-#{nonce}' #{vega_hash_values};
@@ -54,7 +54,7 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
             default-src 'none';
             connect-src *;
             font-src *;
-            img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://demo-static.data.gouv.fr https://www.data.gouv.fr https://demo.data.gouv.fr https://*.dmcdn.net https://transport-data-gouv-fr-logos-staging.cellar-c2.services.clever-cloud.com;
+            img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://demo-static.data.gouv.fr https://www.data.gouv.fr https://demo.data.gouv.fr https://*.dmcdn.net #{Application.fetch_env!(:transport, :logos_bucket_url)};
             script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
             frame-src https://www.dailymotion.com/;
             style-src 'self' 'nonce-#{nonce}' #{vega_hash_values};

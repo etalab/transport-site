@@ -50,7 +50,7 @@ defmodule DB.Dataset do
     field(:custom_tags, {:array, :string}, default: [])
     # URLs for custom logos.
     # Currently we host custom logos in Cellar buckets.
-    # https://transport-data-gouv-fr-logos-(logos|staging|dev).cellar-c2.services.clever-cloud.com/
+    # See config: `:transport, :logos_bucket_url`
     field(:custom_logo, :string)
     field(:custom_full_logo, :string)
 

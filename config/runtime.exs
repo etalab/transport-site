@@ -86,7 +86,8 @@ if app_env == :staging do
       history: "resource-history-staging",
       on_demand_validation: "on-demand-validation-staging",
       gtfs_diff: "gtfs-diff-staging"
-    }
+    },
+    logos_bucket_url: "https://transport-data-gouv-fr-logos-staging.cellar-c2.services.clever-cloud.com"
 end
 
 base_oban_conf = [repo: DB.Repo, insert_trigger: false]
@@ -248,7 +249,8 @@ if config_env() == :prod do
               "aires" => "673a16bf-49ec-4645-9da2-cf975d0aa0ea"
             }
           }
-        })
+        }),
+      logos_bucket_url: "https://transport-data-gouv-fr-logos-prod.cellar-c2.services.clever-cloud.com"
 
     config :transport, Transport.Mailer,
       adapter: Swoosh.Adapters.Mailjet,
