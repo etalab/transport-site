@@ -249,7 +249,7 @@
   <div class="dataset-metas">
     <div class="panel">
       <div class="dataset__logo">
-        <%= img_tag(@dataset.full_logo, alt: @dataset.custom_title) %>
+        <%= img_tag(DB.Dataset.full_logo(@dataset), alt: @dataset.custom_title) %>
       </div>
       <div>
         <i class="icon fa fa-map-marker-alt" /><%= Dataset.get_territory_or_nil(@dataset) %>
