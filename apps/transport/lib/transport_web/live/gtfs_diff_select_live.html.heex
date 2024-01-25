@@ -15,9 +15,8 @@
     <div id="gtfs-diff-input" phx-drop-target={@uploads.gtfs.ref}>
       <form id="upload-form" phx-submit="gtfs_diff" phx-change="validate">
         <div class="drop-zone panel">
-          <%= dgettext("validations", "Drop your GTFS files here or browse your local drive") %> <%= live_file_input(
-            @uploads.gtfs
-          ) %>
+          <%= dgettext("validations", "Drop your GTFS files here or browse your local drive") %>
+          <.live_file_input upload={@uploads.gtfs} />
         </div>
         <%= if assigns[:job_running] do %>
           <button class="button" disabled><%= dgettext("validations", "Compare") %></button>
