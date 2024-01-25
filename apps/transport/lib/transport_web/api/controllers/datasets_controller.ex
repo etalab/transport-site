@@ -56,7 +56,7 @@ defmodule TransportWeb.API.DatasetController do
       description:
         ~s"Returns the detailed version of a dataset, showing its resources, the resources history & conversions.",
       operationId: "API.DatasetController.datasets_by_id",
-      parameters: [Operation.parameter(:id, :path, :string, "datagouv id of the dataset you want to retrieve")],
+      parameters: [Operation.parameter(:id, :path, :string, "id or dataset id of the dataset you want to retrieve")],
       responses: %{
         200 => Operation.response("DatasetDetails", "application/json", TransportWeb.API.Schemas.DatasetDetails)
       }
@@ -78,9 +78,17 @@ defmodule TransportWeb.API.DatasetController do
   @spec by_id(Plug.Conn.t(), map) :: Plug.Conn.t()
   def by_id(%Plug.Conn{} = conn, %{"id" => datagouv_id}) do
     dataset =
-      Dataset
-      |> preload([:resources, :aom, :region, :communes])
-      |> Repo.get_by(datagouv_id: datagouv_id)
+      case Integer.parse(datagouv_id) do
+        {id, ""} ->
+          Dataset
+          |> preload([:resources, :aom, :region, :communes])
+          |> Repo.get(id)
+
+        _ ->
+          Dataset
+          |> preload([:resources, :aom, :region, :communes])
+          |> Repo.get_by(datagouv_id: datagouv_id)
+      end
 
     if is_nil(dataset) do
       conn |> put_status(404) |> render(%{errors: "dataset not found"})

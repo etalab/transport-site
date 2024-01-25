@@ -173,7 +173,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
     # check the result is in line with a query on this dataset
     # only difference: individual dataset adds information about history and conversions
     Transport.History.Fetcher.Mock
-    |> expect(:history_resources, fn _, options ->
+    |> expect(:history_resources, 2, fn _, options ->
       assert Keyword.equal?(options, preload_validations: false, max_records: 25)
       []
     end)
@@ -185,6 +185,9 @@ defmodule TransportWeb.API.DatasetControllerTest do
 
     json = conn |> get(Helpers.dataset_path(conn, :by_id, datagouv_id)) |> json_response(200)
     assert dataset_res == json
+    # Check that we have the same result as the previous call if tring by id instead of datagouv_id
+    json_by_id = conn |> get(Helpers.dataset_path(conn, :by_id, dataset.id)) |> json_response(200)
+    assert json == json_by_id
     assert_schema(json, "DatasetDetails", TransportWeb.API.Spec.spec())
   end
 

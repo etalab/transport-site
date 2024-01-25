@@ -711,9 +711,7 @@ defmodule TransportWeb.API.Schemas do
           type: :string,
           description: "Data gouv id for this dataset"
         },
-        id: %Schema{type: :integer,
-          description: "transport.data.gouv.fr's ID"
-        },
+        id: %Schema{type: :integer, description: "Internal id"},
         updated: %Schema{
           type: :string,
           format: :"date-time",
