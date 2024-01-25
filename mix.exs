@@ -50,7 +50,8 @@ defmodule Transport.MixProject do
         "credo --strict",
         "gettext.extract --check-up-to-date",
         "test"
-      ]
+      ],
+      "ecto.migrate": ["ecto.migrate", "ecto.dump"]
     ]
   end
 end
