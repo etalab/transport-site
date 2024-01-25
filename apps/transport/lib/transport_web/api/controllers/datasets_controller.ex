@@ -157,9 +157,7 @@ defmodule TransportWeb.API.DatasetController do
   defp transform_dataset(%Plug.Conn{} = conn, %Dataset{} = dataset),
     do: %{
       "datagouv_id" => dataset.datagouv_id,
-      # to help discoverability, we explicitly add the datagouv_id as the id
-      # (since it's used in /dataset/:id)
-      "id" => dataset.datagouv_id,
+      "id" => dataset.id,
       "title" => dataset.custom_title,
       "created_at" => dataset.created_at |> DateTime.to_date() |> Date.to_string(),
       "page_url" => TransportWeb.Router.Helpers.dataset_url(conn, :details, dataset.slug),
