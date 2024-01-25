@@ -78,7 +78,8 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
     dataset_ids = DB.Dataset.base_query() |> select([dataset: d], d.datagouv_id) |> DB.Repo.all()
 
     Enum.filter(datasets, fn dataset ->
-      dataset["id"] not in dataset_ids and after_datetime?(dataset["created_at"], a_day_ago) and
+      dataset["id"] not in dataset_ids and
+        after_datetime?(get_in(dataset, ["internal", "created_at_internal"]), a_day_ago) and
         dataset_is_relevant?(dataset)
     end)
   end
