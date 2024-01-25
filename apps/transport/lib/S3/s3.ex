@@ -3,7 +3,7 @@ defmodule Transport.S3 do
   This module contains common code related to S3 object storage.
   """
   require Logger
-  @type bucket_feature :: :history | :on_demand_validation | :gtfs_diff
+  @type bucket_feature :: :history | :on_demand_validation | :gtfs_diff | :logos
 
   @spec bucket_name(bucket_feature()) :: binary()
   def bucket_name(feature) do

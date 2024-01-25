@@ -66,6 +66,10 @@ defmodule TransportWeb.BreadCrumbs do
       ]
   end
 
+  def crumbs(conn, :edit_dataset, dataset_custom_title) do
+    crumbs(conn, :espace_producteur) ++ [{dataset_custom_title, nil}]
+  end
+
   def render_crumbs(crumbs_element) do
     content_tag :div, class: "breadcrumbs" do
       render_crumbs_elements(crumbs_element)

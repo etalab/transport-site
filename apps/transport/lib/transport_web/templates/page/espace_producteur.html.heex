@@ -37,7 +37,13 @@
                   <a href={dataset_path} target="_blank"><i class="icon fa fa-external-link" aria-hidden="true"></i></a>
                   <%= dataset.datagouv_title %>
                 </h5>
-                <hr class="mb-0" />
+                <%= link(dgettext("espace-producteurs", "Edit"),
+                  to: espace_producteur_path(@conn, :edit_dataset, dataset.id),
+                  class: "button-outline secondary small",
+                  "data-tracking-category": "espace_producteur",
+                  "data-tracking-action": "edit_dataset"
+                ) %>
+                <hr class="mb-0 mt-24" />
                 <div class="pt-6">
                   <%= dngettext("espace-producteurs", "1 resource", "%{count} resources", nb_resources) %>
                 </div>

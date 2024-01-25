@@ -208,3 +208,35 @@ msgstr[1] ""
 #, elixir-autogen, elixir-format
 msgid "%{nb_downloads} <div class=\"tooltip\">downloads in %{year}<span class=\"tooltiptext\">Number of downloads for all the files hosted on data.gouv.fr</span></div>"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Edit"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Update your logo"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Upload"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You can edit this dataset on <a href=\"%{datagouv_admin_url}\" target=\"_blank\">data.gouv.fr</a>."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You currently have a custom logo. If you want to remove or update it, please contact our team."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Your current logo"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Your custom logo"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Your logo has been received. We will get back to you soon."
+msgstr ""
