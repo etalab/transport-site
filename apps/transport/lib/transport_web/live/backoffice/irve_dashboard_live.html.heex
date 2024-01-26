@@ -3,17 +3,17 @@
   <table class="table mt-48">
     <thead>
       <tr>
-        <th>Ressource</th>
+        <th>Dataset ID</th>
         <th>Validité</th>
         <th>Nb PDC</th>
       </tr>
     </thead>
     <tbody>
-      <%= for item <- @items do %>
+      <%= for resource <- @processing_report["resources"] do %>
         <tr>
-          <td><%= item.resource %></td>
-          <td><%= item.validity %></td>
-          <td><%= item.count %></td>
+          <td><%= resource["dataset_id"] %></td>
+          <td><%= resource["valid"] %></td>
+          <td><%= resource["line_count"] %></td>
         </tr>
       <% end %>
     </tbody>

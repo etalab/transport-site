@@ -15,6 +15,11 @@ defmodule TransportWeb.Backoffice.IRVEDashboardLive do
 
   def assign_data(socket) do
     socket
-    |> assign(:items, [])
+    |> assign(:processing_report, latest_report!())
+  end
+
+  def latest_report! do
+    report = DB.Repo.one!(DB.ProcessingReport, order_by: {:desc, :id})
+    report.content
   end
 end
