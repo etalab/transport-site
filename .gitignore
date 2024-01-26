@@ -49,3 +49,4 @@ transport-tools
 apps/transport/client/yarn-error.log
 .miniorc
 livebook/cache-dir
+apps/transport/priv/repo/structure.sql
