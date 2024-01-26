@@ -613,3 +613,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "data producer"
 msgstr "Data producer"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Respond and close"
+msgstr ""
