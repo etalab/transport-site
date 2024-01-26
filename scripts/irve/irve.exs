@@ -55,6 +55,7 @@ datagouv_urls =
   ]
   |> Enum.map(&Streamer.pages(&1))
   |> Stream.concat()
+  |> Enum.into([])
 
 resources =
   datagouv_urls
