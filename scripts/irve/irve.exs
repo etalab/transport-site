@@ -3,6 +3,8 @@
 # the basis of a mass-analysis script for IRVE files,
 # inspired by https://github.com/etalab/notebooks/blob/master/irve-v2/consolidation-irve-v2.ipynb
 
+require Logger
+
 defmodule Streamer do
   def cache_dir, do: Path.join(__ENV__.file, "../cache-dir") |> Path.expand()
 
@@ -45,6 +47,8 @@ end
 
 # NOTE: currently not deduping, because I saw weird things while doing it
 
+Logger.info("Building paginated datagouv urls...")
+
 datagouv_urls =
   [
     #  "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve",
@@ -56,6 +60,8 @@ datagouv_urls =
   |> Enum.map(&Streamer.pages(&1))
   |> Stream.concat()
   |> Enum.into([])
+
+Logger.info("Retrieving each relevant datagouv page & listing resources (TODO: weirdly slow)")
 
 resources =
   datagouv_urls
@@ -89,7 +95,8 @@ resources =
   |> Stream.filter(fn x -> x[:schema_name] == "etalab/schema-irve-statique" end)
   |> Enum.into([])
 
-# TODO: show as tabular view (more compact)
+Logger.info("Sharing a few stats...")
+
 IO.puts("=== Sample ===")
 resources |> Enum.take(2) |> IO.inspect(IEx.inspect_opts())
 
@@ -121,9 +128,14 @@ resources
 |> Enum.frequencies_by(fn x -> x[:filetype] end)
 |> IO.inspect(IEx.inspect_opts() |> Keyword.put(:label, "group_by(:filetype)"))
 
+Logger.info("Fetching each IRVE resource so that we can retrieve PDC count... (must be parallelized, otherwise awful)")
+
 resources =
   resources
-  |> Enum.map(fn x ->
+  |> Enum.with_index()
+  |> Enum.map(fn {x, index} ->
+    IO.puts("Processing #{index}...")
+
     body = Streamer.get!(x[:url], compressed: false, decode_body: false) |> String.split("\n")
 
     first_line =
@@ -142,6 +154,8 @@ resources =
     |> Map.put(:first_line, first_line)
     |> Map.put(:line_count, line_count)
   end)
+
+Logger.info("Doing more stats...")
 
 resources
 # |> Enum.filter(fn x -> x[:id_pdc_itinerance_detected] == true && x[:old_schema] == true end)
@@ -174,6 +188,8 @@ recent_stuff
 # Combien par "date de mise à jour" (théorique ???)
 # Combien de PDC ça constitue ?
 # Tout revalider moi-même et vérifier ? Oui. Oui. On aura des surprises.
+
+Logger.info("Inserting report in DB...")
 
 %DB.ProcessingReport{}
 |> DB.ProcessingReport.changeset(%{content: %{resources: resources}})
