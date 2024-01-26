@@ -1,9 +1,9 @@
-defmodule Transport.ProcessingReport do
+defmodule DB.ProcessingReport do
   use Ecto.Schema
   import Ecto.Changeset
 
   schema "processing_reports" do
-    field :content, :map
+    field(:content, :map)
 
     timestamps()
   end
