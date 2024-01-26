@@ -175,4 +175,8 @@ recent_stuff
 # Combien de PDC ça constitue ?
 # Tout revalider moi-même et vérifier ? Oui. Oui. On aura des surprises.
 
+%DB.ProcessingReport{}
+|> DB.ProcessingReport.changeset(%{content: %{resources: resources}})
+|> DB.Repo.insert!()
+
 IO.puts("Done")
