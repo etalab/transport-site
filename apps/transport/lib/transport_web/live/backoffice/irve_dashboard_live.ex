@@ -18,8 +18,15 @@ defmodule TransportWeb.Backoffice.IRVEDashboardLive do
     |> assign(:processing_report, latest_report!())
   end
 
+  import Ecto.Query, only: [from: 2, first: 1]
+
   def latest_report! do
-    report = DB.Repo.one!(DB.ProcessingReport, order_by: {:desc, :id})
+    # TODO: sort by valid + nb pdc desc
+    report =
+      from(pr in DB.ProcessingReport, order_by: {:desc, :id}, limit: 1)
+      |> first()
+      |> DB.Repo.one()
+
     report.content
   end
 end
