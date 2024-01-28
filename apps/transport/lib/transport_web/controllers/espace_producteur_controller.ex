@@ -18,7 +18,7 @@ defmodule TransportWeb.EspaceProducteurController do
          %Plug.Conn{
            assigns: %{
              current_user: current_user,
-             dataset: %DB.Dataset{custom_title: custom_title, datagouv_id: datagouv_id}
+             dataset: %DB.Dataset{datagouv_id: datagouv_id, custom_title: custom_title}
            }
          } = conn,
          %Plug.Upload{path: filepath, filename: filename}
@@ -27,26 +27,22 @@ defmodule TransportWeb.EspaceProducteurController do
     destination_path = "tmp_#{datagouv_id}#{extension}"
     Transport.S3.stream_to_s3!(:logos, filepath, destination_path)
 
-    Transport.EmailSender.impl().send_mail(
-      "transport.data.gouv.fr",
-      Application.get_env(:transport, :contact_email),
-      Application.get_env(:transport, :contact_email),
-      Application.get_env(:transport, :contact_email),
-      "Logo personnalisé : #{custom_title}",
-      """
-      Bonjour,
+    subject = "Logo personnalisé : #{custom_title}"
 
-      Un logo personnalisé vient d'être envoyé.
+    """
+    Bonjour,
 
-      Scripts à exécuter :
-      s3cmd mv s3://#{Transport.S3.bucket_name(:logos)}/#{destination_path} /tmp/#{destination_path}
-      elixir scripts/custom_logo.exs /tmp/#{destination_path} #{datagouv_id}
+    Un logo personnalisé vient d'être envoyé.
 
-      Personne à contacter :
-      #{current_user["email"]}
-      """,
-      ""
-    )
+    Scripts à exécuter :
+    s3cmd mv s3://#{Transport.S3.bucket_name(:logos)}/#{destination_path} /tmp/#{destination_path}
+    elixir scripts/custom_logo.exs /tmp/#{destination_path} #{datagouv_id}
+
+    Personne à contacter :
+    #{current_user["email"]}
+    """
+    |> Transport.CustomLogoNotifier.custom_logo(subject)
+    |> Transport.Mailer.deliver()
 
     conn
   end
@@ -75,5 +71,17 @@ defmodule TransportWeb.EspaceProducteurController do
       {:error, _} -> []
     end
     |> Enum.find(fn %DB.Dataset{id: id} -> id == dataset_id end)
+  end
+end
+
+defmodule Transport.CustomLogoNotifier do
+  import Swoosh.Email
+
+  def custom_logo(html_body, subject) do
+    new()
+    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
+    |> to(Application.fetch_env!(:transport, :contact_email))
+    |> subject(subject)
+    |> html_body(html_body)
   end
 end

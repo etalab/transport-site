@@ -3,6 +3,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
   import DB.Factory
   import Plug.Test, only: [init_test_session: 2]
   import Mox
+  import Swoosh.TestAssertions
 
   setup :verify_on_exit!
 
@@ -111,30 +112,6 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       email_subject = "Logo personnalisé : #{custom_title}"
 
-      Transport.EmailSender.Mock
-      |> expect(:send_mail, fn "transport.data.gouv.fr" = _display_name,
-                               "contact@transport.data.gouv.fr" = _from,
-                               "contact@transport.data.gouv.fr" = _to,
-                               "contact@transport.data.gouv.fr" = _reply_to,
-                               ^email_subject,
-                               body,
-                               "" ->
-        assert body == """
-               Bonjour,
-
-               Un logo personnalisé vient d'être envoyé.
-
-               Scripts à exécuter :
-               s3cmd mv s3://transport-data-gouv-fr-logos-test/#{upload_path} /tmp/#{upload_path}
-               elixir scripts/custom_logo.exs /tmp/#{upload_path} #{datagouv_id}
-
-               Personne à contacter :
-               #{user_email}
-               """
-
-        :ok
-      end)
-
       conn =
         conn
         |> init_test_session(current_user: %{"email" => user_email})
@@ -146,6 +123,27 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) ==
                "Votre logo a bien été reçu. Nous reviendrons vers vous rapidement."
+
+      assert_email_sent(fn %Swoosh.Email{
+                             from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                             to: [{"", "contact@transport.data.gouv.fr"}],
+                             subject: ^email_subject,
+                             text_body: nil,
+                             html_body: html_body
+                           } ->
+        assert html_body == """
+               Bonjour,
+
+               Un logo personnalisé vient d'être envoyé.
+
+               Scripts à exécuter :
+               s3cmd mv s3://transport-data-gouv-fr-logos-test/#{upload_path} /tmp/#{upload_path}
+               elixir scripts/custom_logo.exs /tmp/#{upload_path} #{datagouv_id}
+
+               Personne à contacter :
+               #{user_email}
+               """
+      end)
     end
   end
 end
