@@ -1,7 +1,7 @@
 defmodule TransportWeb.EspaceProducteurController do
   use TransportWeb, :controller
 
-  plug(:find_dataset when action in [:edit_dataset, :upload_logo])
+  plug(:find_dataset_or_redirect when action in [:edit_dataset, :upload_logo])
 
   def edit_dataset(%Plug.Conn{} = conn, %{"dataset_id" => _}) do
     conn |> render("edit_dataset.html")
@@ -51,7 +51,7 @@ defmodule TransportWeb.EspaceProducteurController do
     conn
   end
 
-  defp find_dataset(%Plug.Conn{path_params: %{"dataset_id" => dataset_id}} = conn, _options) do
+  defp find_dataset_or_redirect(%Plug.Conn{path_params: %{"dataset_id" => dataset_id}} = conn, _options) do
     case find_dataset_for_user(conn, dataset_id) do
       %DB.Dataset{} = dataset ->
         conn |> assign(:dataset, dataset)
