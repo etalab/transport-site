@@ -97,36 +97,38 @@ resources =
 
 Logger.info("Sharing a few stats...")
 
-IO.puts("=== Sample ===")
-resources |> Enum.take(2) |> IO.inspect(IEx.inspect_opts())
+if System.get_env("SHOW_STATS") == "1" do
+  IO.puts("=== Sample ===")
+  resources |> Enum.take(2) |> IO.inspect(IEx.inspect_opts())
 
-IO.puts("=== Stats ===")
-IO.inspect(%{count: resources |> length}, IEx.inspect_opts() |> Keyword.put(:label, "total_count"))
+  IO.puts("=== Stats ===")
+  IO.inspect(%{count: resources |> length}, IEx.inspect_opts() |> Keyword.put(:label, "total_count"))
 
-# M'a aidé à me rendre compte que.. un gros paquet est invalide!
-resources
-|> Enum.frequencies_by(fn x -> x[:valid] end)
-|> IO.inspect(IEx.inspect_opts() |> Keyword.put(:label, "group_by(:valid)"))
+  # M'a aidé à me rendre compte que.. un gros paquet est invalide!
+  resources
+  |> Enum.frequencies_by(fn x -> x[:valid] end)
+  |> IO.inspect(IEx.inspect_opts() |> Keyword.put(:label, "group_by(:valid)"))
 
-resources
-|> Enum.frequencies_by(fn x -> x[:valid] end)
-|> Enum.map(fn {_, v} -> ((100 * v / (resources |> length)) |> trunc() |> to_string) <> "%" end)
-|> IO.inspect(IEx.inspect_opts() |> Keyword.put(:label, "group_by(:valid) as %"))
+  resources
+  |> Enum.frequencies_by(fn x -> x[:valid] end)
+  |> Enum.map(fn {_, v} -> ((100 * v / (resources |> length)) |> trunc() |> to_string) <> "%" end)
+  |> IO.inspect(IEx.inspect_opts() |> Keyword.put(:label, "group_by(:valid) as %"))
 
-# M'a aidé à me rendre compte que... il y avait plusieurs schémas, car on recherche par "dataset",
-# mais après on travaille au niveau ressources, et donc on cherche par le "schéma de chaque ressource du dataset",
-# ce qui fait qu'il y a des choses en trop.
-resources
-|> Enum.frequencies_by(fn x -> x[:schema_name] end)
-|> IO.inspect(IEx.inspect_opts() |> Keyword.put(:label, "group_by(:schema_name)"))
+  # M'a aidé à me rendre compte que... il y avait plusieurs schémas, car on recherche par "dataset",
+  # mais après on travaille au niveau ressources, et donc on cherche par le "schéma de chaque ressource du dataset",
+  # ce qui fait qu'il y a des choses en trop.
+  resources
+  |> Enum.frequencies_by(fn x -> x[:schema_name] end)
+  |> IO.inspect(IEx.inspect_opts() |> Keyword.put(:label, "group_by(:schema_name)"))
 
-resources
-|> Enum.frequencies_by(fn x -> x[:schema_version] end)
-|> IO.inspect(IEx.inspect_opts() |> Keyword.put(:label, "group_by(:schema_version)"))
+  resources
+  |> Enum.frequencies_by(fn x -> x[:schema_version] end)
+  |> IO.inspect(IEx.inspect_opts() |> Keyword.put(:label, "group_by(:schema_version)"))
 
-resources
-|> Enum.frequencies_by(fn x -> x[:filetype] end)
-|> IO.inspect(IEx.inspect_opts() |> Keyword.put(:label, "group_by(:filetype)"))
+  resources
+  |> Enum.frequencies_by(fn x -> x[:filetype] end)
+  |> IO.inspect(IEx.inspect_opts() |> Keyword.put(:label, "group_by(:filetype)"))
+end
 
 Logger.info("Fetching each IRVE resource so that we can retrieve PDC count... (must be parallelized, otherwise awful)")
 
@@ -136,23 +138,35 @@ resources =
   |> Enum.map(fn {x, index} ->
     IO.puts("Processing #{index}...")
 
-    body = Streamer.get!(x[:url], compressed: false, decode_body: false) |> String.split("\n")
+    try do
+      # TODO: parallelize this part (for production, uncached)
+      body =
+        Streamer.get!(x[:url], compressed: false, decode_body: false) |> String.split("\n")
 
-    first_line =
-      body
-      |> hd()
+      first_line =
+        body
+        |> hd()
 
-    line_count = (body |> length) - 1
+      line_count = (body |> length) - 1
 
-    id_detected = first_line |> String.contains?("id_pdc_itinerance")
-    # a field from v1, which does not end like a field in v2
-    old_schema = first_line |> String.contains?("ad_station")
+      id_detected = first_line |> String.contains?("id_pdc_itinerance")
+      # a field from v1, which does not end like a field in v2
+      old_schema = first_line |> String.contains?("ad_station")
 
-    x
-    |> Map.put(:id_pdc_itinerance_detected, id_detected)
-    |> Map.put(:old_schema, old_schema)
-    |> Map.put(:first_line, first_line)
-    |> Map.put(:line_count, line_count)
+      x
+      |> Map.put(:id_pdc_itinerance_detected, id_detected)
+      |> Map.put(:old_schema, old_schema)
+      |> Map.put(:first_line, first_line)
+      |> Map.put(:line_count, line_count)
+    rescue
+      e ->
+        Logger.info("Got error #{e |> inspect}, skipping")
+        nil
+    end
+  end)
+  |> Enum.reject(fn x -> is_nil(x) end)
+  |> Enum.map(fn x ->
+    Map.take(x, [:dataset_id, :valid, :line_count])
   end)
 
 Logger.info("Doing more stats...")
