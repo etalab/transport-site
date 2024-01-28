@@ -29,7 +29,7 @@ defmodule Streamer do
   def get!(url, options \\ []) do
     http_client = Transport.HTTPClient
     url = URI.encode(url)
-    options = options |> Keyword.merge(options)
+    options = options |> Keyword.merge(http_options())
 
     http_client.get!(url, options)
   end
@@ -61,7 +61,7 @@ datagouv_urls =
   |> Stream.concat()
   |> Enum.into([])
 
-Logger.info("Retrieving each relevant datagouv page & listing resources (TODO: weirdly slow)")
+Logger.info("Retrieving each relevant datagouv page & listing resources")
 
 resources =
   datagouv_urls
