@@ -208,3 +208,35 @@ msgstr[1] "%{count} ressources"
 #, elixir-autogen, elixir-format
 msgid "%{nb_downloads} <div class=\"tooltip\">downloads in %{year}<span class=\"tooltiptext\">Number of downloads for all the files hosted on data.gouv.fr</span></div>"
 msgstr "%{nb_downloads} <div class=\"tooltip\">téléchargements en %{year}<span class=\"tooltiptext\">Nombre de téléchargements pour tous les fichiers hébergés sur data.gouv.fr</span></div>"
+
+#, elixir-autogen, elixir-format
+msgid "Edit"
+msgstr "Éditer"
+
+#, elixir-autogen, elixir-format
+msgid "Update your logo"
+msgstr "Mettre à jour votre logo"
+
+#, elixir-autogen, elixir-format
+msgid "Upload"
+msgstr "Envoyer"
+
+#, elixir-autogen, elixir-format
+msgid "You can edit this dataset on <a href=\"%{datagouv_admin_url}\" target=\"_blank\">data.gouv.fr</a>."
+msgstr "Vous pouvez modifier ce jeu de données sur <a href=\"%{datagouv_admin_url}\" target=\"_blank\">data.gouv.fr</a>."
+
+#, elixir-autogen, elixir-format
+msgid "You currently have a custom logo. If you want to remove or update it, please contact our team."
+msgstr "Vous avez actuellement un logo personnalisé. Si vous souhaitez le retirer ou le mettre à jour, veuillez contacter notre équipe."
+
+#, elixir-autogen, elixir-format
+msgid "Your current logo"
+msgstr "Votre logo actuel"
+
+#, elixir-autogen, elixir-format
+msgid "Your custom logo"
+msgstr "Votre logo personnalisé"
+
+#, elixir-autogen, elixir-format
+msgid "Your logo has been received. We will get back to you soon."
+msgstr "Votre logo a bien été reçu. Nous reviendrons vers vous rapidement."

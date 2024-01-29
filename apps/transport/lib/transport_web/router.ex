@@ -82,6 +82,11 @@ defmodule TransportWeb.Router do
       pipe_through([:authenticated])
       get("/", PageController, :espace_producteur)
 
+      scope "/datasets" do
+        get("/:dataset_id/edit", EspaceProducteurController, :edit_dataset)
+        post("/:dataset_id/upload_logo", EspaceProducteurController, :upload_logo)
+      end
+
       scope "/notifications" do
         get("/", NotificationController, :index)
         post("/", NotificationController, :create)

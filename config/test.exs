@@ -48,7 +48,8 @@ config :transport,
   s3_buckets: %{
     history: "resource-history-test",
     on_demand_validation: "on-demand-validation-test",
-    gtfs_diff: "gtfs-diff-test"
+    gtfs_diff: "gtfs-diff-test",
+    logos: "logos-test"
   },
   workflow_notifier: Transport.Jobs.Workflow.ProcessNotifier,
   export_secret_key: "fake_export_secret_key",
