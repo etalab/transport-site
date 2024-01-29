@@ -128,10 +128,10 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                              from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
                              to: [{"", "contact@transport.data.gouv.fr"}],
                              subject: ^email_subject,
-                             text_body: nil,
-                             html_body: html_body
+                             text_body: text_body,
+                             html_body: nil
                            } ->
-        assert html_body == """
+        assert text_body == """
                Bonjour,
 
                Un logo personnalisé vient d'être envoyé.

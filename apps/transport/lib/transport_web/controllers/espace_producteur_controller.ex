@@ -77,11 +77,11 @@ end
 defmodule Transport.CustomLogoNotifier do
   import Swoosh.Email
 
-  def custom_logo(html_body, subject) do
+  def custom_logo(text_body, subject) do
     new()
     |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
     |> to(Application.fetch_env!(:transport, :contact_email))
     |> subject(subject)
-    |> html_body(html_body)
+    |> text_body(text_body)
   end
 end
