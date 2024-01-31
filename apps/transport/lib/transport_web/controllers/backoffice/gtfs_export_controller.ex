@@ -6,7 +6,10 @@ defmodule TransportWeb.Backoffice.GTFSExportController do
     conn =
       conn
       |> put_resp_content_type("text/csv")
-      |> put_resp_header("content-disposition", "attachment; filename=\"export.csv\"")
+      |> put_resp_header(
+        "content-disposition",
+        "attachment; filename=\"gtfs_stops_france_export_#{Date.utc_today() |> Date.to_iso8601()}.csv\""
+      )
       |> send_chunked(:ok)
 
     [Transport.GTFSExportStops.export_headers()]
