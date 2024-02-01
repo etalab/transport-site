@@ -81,6 +81,7 @@ defmodule TransportWeb.Router do
     scope "/espace_producteur" do
       pipe_through([:authenticated])
       get("/", PageController, :espace_producteur)
+      get("/proxy_statistics", EspaceProducteurController, :proxy_statistics)
 
       scope "/datasets" do
         get("/:dataset_id/edit", EspaceProducteurController, :edit_dataset)
@@ -129,11 +130,6 @@ defmodule TransportWeb.Router do
 
       scope "/conversions" do
         get("/:resource_id/:convert_to", ConversionController, :get)
-      end
-
-      scope "/show" do
-        pipe_through([:authenticated])
-        get("/proxy_statistics", ResourceController, :proxy_statistics)
       end
 
       scope "/update" do

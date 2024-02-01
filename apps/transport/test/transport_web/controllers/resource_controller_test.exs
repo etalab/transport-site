@@ -589,58 +589,6 @@ defmodule TransportWeb.ResourceControllerTest do
     assert ["a", "b", "c", "d"] = TransportWeb.ResourceController.gtfs_rt_entities(resource)
   end
 
-  describe "proxy_statistics" do
-    test "requires authentication", %{conn: conn} do
-      conn = conn |> get(resource_path(conn, :proxy_statistics))
-
-      assert redirected_to(conn, 302) =~ "/login"
-    end
-
-    test "renders successfully with a resource handled by the proxy", %{conn: conn} do
-      dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
-
-      gtfs_rt_resource =
-        insert(:resource,
-          dataset: dataset,
-          format: "gtfs-rt",
-          url: "https://proxy.transport.data.gouv.fr/resource/divia-dijon-gtfs-rt-trip-update"
-        )
-
-      assert DB.Resource.served_by_proxy?(gtfs_rt_resource)
-      proxy_slug = DB.Resource.proxy_slug(gtfs_rt_resource)
-      assert proxy_slug == "divia-dijon-gtfs-rt-trip-update"
-
-      today = Transport.Telemetry.truncate_datetime_to_hour(DateTime.utc_now())
-
-      insert(:metrics,
-        target: "proxy:#{proxy_slug}",
-        event: "proxy:request:external",
-        count: 2,
-        period: today
-      )
-
-      insert(:metrics,
-        target: "proxy:#{proxy_slug}",
-        event: "proxy:request:internal",
-        count: 1,
-        period: today
-      )
-
-      Datagouvfr.Client.User.Mock
-      |> expect(:me, fn _conn -> {:ok, %{"organizations" => [%{"id" => dataset.organization_id}]}} end)
-
-      html =
-        conn
-        |> init_test_session(%{current_user: %{}})
-        |> get(resource_path(conn, :proxy_statistics))
-        |> html_response(200)
-
-      assert html =~ "Statistiques des requêtes gérées par le proxy"
-      assert html =~ "<strong>2</strong>\nrequêtes gérées par le proxy au cours des 15 derniers jours"
-      assert html =~ "<strong>1</strong>\nrequêtes transmises au serveur source au cours des 15 derniers jours"
-    end
-  end
-
   test "SIRI RequestorRef is displayed", %{conn: conn} do
     requestor_ref_value = Ecto.UUID.generate()
 

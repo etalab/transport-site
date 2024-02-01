@@ -2,6 +2,7 @@ defmodule TransportWeb.EspaceProducteurController do
   use TransportWeb, :controller
 
   plug(:find_dataset_or_redirect when action in [:edit_dataset, :upload_logo, :remove_custom_logo])
+  plug(:find_datasets_or_redirect when action in [:proxy_statistics])
 
   def edit_dataset(%Plug.Conn{} = conn, %{"dataset_id" => _}) do
     conn |> render("edit_dataset.html")
@@ -32,6 +33,26 @@ defmodule TransportWeb.EspaceProducteurController do
     |> redirect(to: page_path(conn, :espace_producteur))
   end
 
+  @spec proxy_statistics(Plug.Conn.t(), map) :: Plug.Conn.t()
+  def proxy_statistics(%Plug.Conn{assigns: %{datasets: datasets}} = conn, _params) do
+    proxy_stats =
+      datasets
+      |> Enum.flat_map(& &1.resources)
+      |> Enum.filter(&DB.Resource.served_by_proxy?/1)
+      # Gotcha: this is a N+1 problem. Okay as long as a single producer
+      # does not have a lot of feeds/there is not a lot of traffic on this page
+      |> Enum.into(%{}, fn %DB.Resource{id: id} = resource ->
+        {id, DB.Metrics.requests_over_last_days(resource, proxy_requests_stats_nb_days())}
+      end)
+
+    conn
+    |> assign(:proxy_stats, proxy_stats)
+    |> assign(:proxy_requests_stats_nb_days, proxy_requests_stats_nb_days())
+    |> render("proxy_statistics.html")
+  end
+
+  defp proxy_requests_stats_nb_days, do: 15
+  
   defp upload_logo_and_send_email(
          %Plug.Conn{
            assigns: %{
@@ -53,8 +74,9 @@ defmodule TransportWeb.EspaceProducteurController do
     Un logo personnalisé vient d'être envoyé.
 
     Scripts à exécuter :
-    s3cmd mv s3://#{Transport.S3.bucket_name(:logos)}/#{destination_path} /tmp/#{destination_path}
+    s3cmd get s3://#{Transport.S3.bucket_name(:logos)}/#{destination_path} /tmp/#{destination_path}
     elixir scripts/custom_logo.exs /tmp/#{destination_path} #{datagouv_id}
+    s3cmd rm s3://#{Transport.S3.bucket_name(:logos)}/#{destination_path}
 
     Personne à contacter :
     #{current_user["email"]}
@@ -63,6 +85,21 @@ defmodule TransportWeb.EspaceProducteurController do
     |> Transport.Mailer.deliver()
 
     conn
+  end
+
+  defp find_datasets_or_redirect(%Plug.Conn{} = conn, _options) do
+    conn
+    |> DB.Dataset.datasets_for_user()
+    |> case do
+      datasets when is_list(datasets) ->
+        conn |> assign(:datasets, datasets)
+
+      {:error, _} ->
+        conn
+        |> put_flash(:error, dgettext("alert", "Unable to get all your resources for the moment"))
+        |> redirect(to: page_path(conn, :espace_producteur))
+        |> halt()
+    end
   end
 
   defp find_dataset_or_redirect(%Plug.Conn{path_params: %{"dataset_id" => dataset_id}} = conn, _options) do
