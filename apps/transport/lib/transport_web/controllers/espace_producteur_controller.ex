@@ -56,8 +56,9 @@ defmodule TransportWeb.EspaceProducteurController do
     Un logo personnalisé vient d'être envoyé.
 
     Scripts à exécuter :
-    s3cmd mv s3://#{Transport.S3.bucket_name(:logos)}/#{destination_path} /tmp/#{destination_path}
+    s3cmd get s3://#{Transport.S3.bucket_name(:logos)}/#{destination_path} /tmp/#{destination_path}
     elixir scripts/custom_logo.exs /tmp/#{destination_path} #{datagouv_id}
+    s3cmd rm s3://#{Transport.S3.bucket_name(:logos)}/#{destination_path}
 
     Personne à contacter :
     #{current_user["email"]}

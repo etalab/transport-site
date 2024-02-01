@@ -137,8 +137,9 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                Un logo personnalisé vient d'être envoyé.
 
                Scripts à exécuter :
-               s3cmd mv s3://transport-data-gouv-fr-logos-test/#{upload_path} /tmp/#{upload_path}
+               s3cmd get s3://transport-data-gouv-fr-logos-test/#{upload_path} /tmp/#{upload_path}
                elixir scripts/custom_logo.exs /tmp/#{upload_path} #{datagouv_id}
+               s3cmd rm s3://transport-data-gouv-fr-logos-test/#{upload_path}
 
                Personne à contacter :
                #{user_email}

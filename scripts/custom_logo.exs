@@ -4,7 +4,7 @@ Mix.install([{:image, "~> 0.37"}])
 
 require Logger
 
-cellar_base_url = "http://transport-data-gouv-fr-logos-prod.cellar-c2.services.clever-cloud.com/"
+cellar_base_url = "https://transport-data-gouv-fr-logos-prod.cellar-c2.services.clever-cloud.com/"
 
 {[], [src_path, datagouv_id]} = OptionParser.parse!(System.argv(), strict: [src_path: :string, datagouv_id: :string])
 
