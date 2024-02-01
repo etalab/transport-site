@@ -200,6 +200,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :info) == "Votre logo personnalisé a été supprimé."
 
       assert %DB.Dataset{custom_logo: nil, custom_full_logo: nil} = DB.Repo.reload!(dataset)
+    end
   end
 
   describe "proxy_statistics" do

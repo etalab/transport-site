@@ -52,7 +52,7 @@ defmodule TransportWeb.EspaceProducteurController do
   end
 
   defp proxy_requests_stats_nb_days, do: 15
-  
+
   defp upload_logo_and_send_email(
          %Plug.Conn{
            assigns: %{
