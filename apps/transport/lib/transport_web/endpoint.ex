@@ -43,10 +43,13 @@ defmodule TransportWeb.Endpoint do
   plug(Plug.Logger)
 
   plug(Plug.Parsers,
-    parsers: [:urlencoded, :json, :multipart],
+    parsers: [
+      :urlencoded,
+      :json,
+      {:multipart, length: 200_000_000}
+    ],
     pass: ["*/*"],
-    json_decoder: Jason,
-    length: 100_000_000
+    json_decoder: Jason
   )
 
   plug(Sentry.PlugContext)
