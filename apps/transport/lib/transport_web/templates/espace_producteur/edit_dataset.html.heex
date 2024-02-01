@@ -32,16 +32,13 @@
         <% end %>
       </div>
       <div :if={@dataset.custom_logo != nil}>
-        <div class="dataset__logo">
-          <p><%= dgettext("espace-producteurs", "Your current logo") %></p>
-          <%= img_tag(DB.Dataset.full_logo(@dataset), alt: @dataset.custom_title) %>
-        </div>
-        <p>
-          <%= dgettext(
-            "espace-producteurs",
-            "You currently have a custom logo. If you want to remove or update it, please contact our team."
-          ) %>
-        </p>
+        <%= form_for @conn, espace_producteur_path(@conn, :remove_custom_logo, @dataset.id), [ method: "delete"], fn _ -> %>
+          <div class="dataset__logo">
+            <p><%= dgettext("espace-producteurs", "Your current logo") %></p>
+            <%= img_tag(DB.Dataset.full_logo(@dataset), alt: @dataset.custom_title) %>
+          </div>
+          <%= submit(dgettext("espace-producteurs", "Remove the custom logo"), class: "button warning") %>
+        <% end %>
       </div>
     </div>
   </div>

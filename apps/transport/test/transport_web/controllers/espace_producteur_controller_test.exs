@@ -60,8 +60,10 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> get(espace_producteur_path(conn, :edit_dataset, dataset.id))
         |> html_response(200)
 
-      assert content =~
-               "Vous avez actuellement un logo personnalisé. Si vous souhaitez le retirer ou le mettre à jour, veuillez contacter notre équipe."
+      assert content
+             |> Floki.parse_document!()
+             |> Floki.find(~s{.espace-producteur-section button[type="submit"]})
+             |> Floki.text() =~ "Supprimer le logo personnalisé"
     end
   end
 
@@ -144,6 +146,59 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                #{user_email}
                """
       end)
+    end
+  end
+
+  describe "remove_custom_logo" do
+    test "requires authentication", %{conn: conn} do
+      conn = conn |> delete(espace_producteur_path(conn, :remove_custom_logo, 42))
+      assert redirected_to(conn, 302) =~ "/login"
+    end
+
+    test "redirects if you're not a member of the dataset organization", %{conn: conn} do
+      dataset = insert(:dataset)
+
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => []}} end)
+
+      conn =
+        conn
+        |> init_test_session(current_user: %{})
+        |> delete(espace_producteur_path(conn, :remove_custom_logo, dataset.id))
+
+      assert redirected_to(conn, 302) == page_path(conn, :espace_producteur)
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Impossible de récupérer ce jeu de données pour le moment"
+    end
+
+    test "deletes objects and resets custom logos", %{conn: conn} do
+      custom_logo_path = "#{Ecto.UUID.generate()}.png"
+      custom_full_logo_path = "#{Ecto.UUID.generate()}_full.png"
+      bucket_url = Transport.S3.permanent_url(:logos)
+
+      %DB.Dataset{organization_id: organization_id} =
+        dataset =
+        insert(:dataset,
+          custom_logo: Path.join(bucket_url, custom_logo_path),
+          custom_full_logo: Path.join(bucket_url, custom_full_logo_path)
+        )
+
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
+
+      Transport.Test.S3TestUtils.s3_mocks_delete_object(Transport.S3.bucket_name(:logos), custom_logo_path)
+      Transport.Test.S3TestUtils.s3_mocks_delete_object(Transport.S3.bucket_name(:logos), custom_full_logo_path)
+
+      conn =
+        conn
+        |> init_test_session(current_user: %{})
+        |> delete(espace_producteur_path(conn, :remove_custom_logo, dataset.id))
+
+      assert redirected_to(conn, 302) == page_path(conn, :espace_producteur)
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) == "Votre logo personnalisé a été supprimé."
+
+      assert %DB.Dataset{custom_logo: nil, custom_full_logo: nil} = DB.Repo.reload!(dataset)
     end
   end
 end
