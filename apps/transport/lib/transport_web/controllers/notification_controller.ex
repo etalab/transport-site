@@ -5,7 +5,7 @@ defmodule TransportWeb.NotificationController do
   use TransportWeb, :controller
   import Ecto.Query
 
-  def index(%Plug.Conn{assigns: %{current_user: current_user}} = conn, _) do
+  def index(%Plug.Conn{assigns: %{current_user: %{"id" => datagouv_user_id}}} = conn, _) do
     {conn, datasets} =
       case DB.Dataset.datasets_for_user(conn) do
         datasets when is_list(datasets) ->
@@ -16,9 +16,15 @@ defmodule TransportWeb.NotificationController do
           {conn, []}
       end
 
+
+    current_contact = DB.Repo.get_by(DB.Contact, datagouv_user_id: datagouv_user_id)
+
+    dbg(notification_subscriptions_for_datasets(datasets, current_contact))
+
     conn
     |> assign(:datasets, datasets)
-    |> assign(:notification_subscriptions, notification_subscriptions_for_user(current_user))
+    |> assign(:current_contact, current_contact)
+    |> assign(:notification_subscriptions, notification_subscriptions_for_datasets(datasets, current_contact))
     |> render("index.html")
   end
 
@@ -39,18 +45,25 @@ defmodule TransportWeb.NotificationController do
     |> redirect(to: notification_path(conn, :index))
   end
 
-  defp notification_subscriptions_for_user(%{"id" => datagouv_user_id}) do
+  defp notification_subscriptions_for_datasets(datasets, current_contact) do
+    dataset_ids = datasets |> Enum.map(& &1.id)
+
     DB.NotificationSubscription.base_query()
     |> DB.NotificationSubscription.join_with_contact()
+    |> preload(:contact)
     |> preload(:dataset)
     |> where(
       [notification_subscription: ns, contact: c],
-      c.datagouv_user_id == ^datagouv_user_id and not is_nil(ns.dataset_id)
+      ns.dataset_id in ^dataset_ids and not is_nil(ns.dataset_id)
+      and ns.role == :producer
+      and c.organization == ^current_contact.organization
     )
     |> DB.Repo.all()
     |> Enum.sort_by(&{&1.dataset.custom_title, &1.reason})
     |> Enum.group_by(& &1.dataset)
+    |> Map.new(fn {dataset, subscriptions} -> {dataset, Enum.group_by(subscriptions, & &1.reason)} end)
   end
+
 
   def delete_for_dataset(%Plug.Conn{assigns: %{current_user: %{"id" => datagouv_user_id}}} = conn, %{
         "dataset_id" => dataset_id
