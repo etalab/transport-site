@@ -1,9 +1,9 @@
 defmodule TransportWeb.EspaceProducteurControllerTest do
+  use Oban.Testing, repo: DB.Repo
   use TransportWeb.ConnCase, async: true
   import DB.Factory
   import Plug.Test, only: [init_test_session: 2]
   import Mox
-  import Swoosh.TestAssertions
 
   setup :verify_on_exit!
 
@@ -88,11 +88,10 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     end
 
     test "uploads the logo to S3, send an email and redirect", %{conn: conn} do
-      %DB.Dataset{organization_id: organization_id, datagouv_id: datagouv_id, custom_title: custom_title} =
-        dataset = insert(:dataset)
+      %DB.Dataset{organization_id: organization_id, datagouv_id: datagouv_id} = dataset = insert(:dataset)
 
       filename = "sample.jpg"
-      local_path = System.tmp_dir!() |> Path.join("#{filename}")
+      local_path = System.tmp_dir!() |> Path.join(filename)
       upload_path = "tmp_#{datagouv_id}.jpg"
       user_email = "john@example.com"
 
@@ -110,8 +109,6 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         :ok
       end)
 
-      email_subject = "Logo personnalisé : #{custom_title}"
-
       conn =
         conn
         |> init_test_session(current_user: %{"email" => user_email})
@@ -119,32 +116,17 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
           "upload" => %{"file" => %Plug.Upload{path: local_path, filename: filename}}
         })
 
+      assert [
+               %Oban.Job{
+                 worker: "Transport.Jobs.CustomLogoConversionJob",
+                 args: %{"datagouv_id" => ^datagouv_id, "path" => ^upload_path}
+               }
+             ] = all_enqueued()
+
       assert redirected_to(conn, 302) == page_path(conn, :espace_producteur)
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) ==
-               "Votre logo a bien été reçu. Nous reviendrons vers vous rapidement."
-
-      assert_email_sent(fn %Swoosh.Email{
-                             from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                             to: [{"", "contact@transport.data.gouv.fr"}],
-                             subject: ^email_subject,
-                             text_body: text_body,
-                             html_body: nil
-                           } ->
-        assert text_body == """
-               Bonjour,
-
-               Un logo personnalisé vient d'être envoyé.
-
-               Scripts à exécuter :
-               s3cmd get s3://transport-data-gouv-fr-logos-test/#{upload_path} /tmp/#{upload_path}
-               elixir scripts/custom_logo.exs /tmp/#{upload_path} #{datagouv_id}
-               s3cmd rm s3://transport-data-gouv-fr-logos-test/#{upload_path}
-
-               Personne à contacter :
-               #{user_email}
-               """
-      end)
+               "Votre logo a bien été reçu. Il sera remplacé dans quelques instants."
     end
   end
 

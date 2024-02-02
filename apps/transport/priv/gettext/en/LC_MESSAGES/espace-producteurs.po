@@ -238,5 +238,5 @@ msgid "Your custom logo"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Your logo has been received. We will get back to you soon."
+msgid "Your logo has been received. It will be replaced soon."
 msgstr ""

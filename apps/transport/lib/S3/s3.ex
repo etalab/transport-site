@@ -38,14 +38,24 @@ defmodule Transport.S3 do
     bucket |> ExAws.S3.delete_object(path) |> Transport.Wrapper.ExAWS.impl().request!()
   end
 
-  @spec stream_to_s3!(bucket_feature(), binary(), binary(), acl: atom()) :: any()
+  @spec stream_to_s3!(bucket_feature(), binary(), binary(), acl: atom(), cache_control: binary()) :: any()
   def stream_to_s3!(feature, local_path, upload_path, options \\ []) do
     Logger.debug("Streaming #{local_path} to #{upload_path}")
-    options = Keyword.validate!(options, acl: :private)
+    options = Keyword.validate!(options, [:cache_control, {:acl, :private}])
 
     local_path
     |> ExAws.S3.Upload.stream_file()
     |> ExAws.S3.upload(Transport.S3.bucket_name(feature), upload_path, options)
+    |> Transport.Wrapper.ExAWS.impl().request!()
+  end
+
+  @spec download_file(bucket_feature(), binary(), binary()) :: any()
+  def download_file(feature, remote_path, local_path) do
+    Logger.debug("Downloading #{remote_path} to #{local_path}")
+
+    feature
+    |> Transport.S3.bucket_name()
+    |> ExAws.S3.download_file(remote_path, local_path)
     |> Transport.Wrapper.ExAWS.impl().request!()
   end
 end
