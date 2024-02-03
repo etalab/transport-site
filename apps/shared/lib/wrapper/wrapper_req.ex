@@ -54,12 +54,6 @@ defmodule Transport.HTTPClient do
         req
       end
 
-    resp = Req.get!(req, options |> Keyword.merge(url: url))
-    ensure_200_body(resp)
-  end
-
-  def ensure_200_body(resp) do
-    %{body: body, status: 200} = resp
-    body
+    Req.get!(req, options |> Keyword.merge(url: url))
   end
 end
