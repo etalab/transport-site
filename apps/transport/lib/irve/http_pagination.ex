@@ -13,7 +13,7 @@ defmodule Transport do
     def naive_paginated_urls_stream(base_url, http_client, http_client_options) do
       # NOTE: could be made customisable
       page_size = 100
-      data = http_client.get!(url = base_url <> "&page_size=#{page_size}", http_client_options)
+      %{status: 200, body: data} = http_client.get!(url = base_url <> "&page_size=#{page_size}", http_client_options)
 
       # NOTE: using pattern matching to warn about "silent limitations" on the page_size from e.g. datagouv
       # This prevents from highly problematic holes in the sequence of data, if the remote server truncates
