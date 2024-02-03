@@ -29,13 +29,11 @@ defmodule Transport.Shared.ReqCustomCache do
   end
 
   def response_local_cache_step({request, response}) do
+    # NOTE: we'll need a way to let the caller customize which HTTP status codes must result
+    # into caching vs not (e.g. rate limit 429 should ideally not be cached, while 404 should etc)
     unless File.exists?(path = cache_path(request)) do
-      if response.status == 200 do
-        Logger.info("Saving file to cache (#{path})")
-        write_cache(path, response)
-      else
-        Logger.info("Status is #{response.status}, not saving file to disk")
-      end
+      Logger.info("Saving file to cache (#{path})")
+      write_cache(path, response)
     end
 
     {request, response}
