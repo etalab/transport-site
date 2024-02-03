@@ -65,7 +65,10 @@ Logger.info("Retrieving each relevant datagouv page & listing resources")
 
 resources =
   datagouv_urls
-  |> Stream.map(fn %{url: url} = page -> Map.put(page, :data, Streamer.get!(url)) end)
+  |> Stream.map(fn %{url: url} = page ->
+    %{status: 200, body: result} = Streamer.get!(url)
+    Map.put(page, :data, result)
+  end)
   # |> Helper.inspect(fn(x) ->
   #   Map.take(x[:data], ["page", "page_size", "total"])
   # end)
@@ -138,10 +141,14 @@ resources =
   |> Enum.map(fn {x, index} ->
     IO.puts("Processing #{index}...")
 
-    try do
-      # TODO: parallelize this part (for production, uncached)
-      body =
-        Streamer.get!(x[:url], compressed: false, decode_body: false) |> String.split("\n")
+    # TODO: parallelize this part (for production, uncached)
+    %{status: status, body: body} =
+      Streamer.get!(x[:url], compressed: false, decode_body: false)
+
+    x = x |> Map.put(:status, status)
+
+    if status == 200 do
+      body = body |> String.split("\n")
 
       first_line =
         body
@@ -158,10 +165,8 @@ resources =
       |> Map.put(:old_schema, old_schema)
       |> Map.put(:first_line, first_line)
       |> Map.put(:line_count, line_count)
-    rescue
-      e ->
-        Logger.info("Got error #{e |> inspect}, skipping")
-        nil
+    else
+      x
     end
   end)
   |> Enum.reject(fn x -> is_nil(x) end)
