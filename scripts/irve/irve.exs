@@ -5,98 +5,9 @@
 
 require Logger
 
-defmodule Streamer do
-  def cache_dir, do: Path.join(__ENV__.file, "../cache-dir") |> Path.expand()
-
-  def http_options do
-    [
-      enable_cache: true,
-      custom_cache_dir: cache_dir()
-    ]
-  end
-
-  @doc """
-  Query one page, and use that to infer the list of all urls (for index-based pagination like data gouv)
-  """
-  def pages(base_url) do
-    http_client = Transport.HTTPClient
-    base_url = URI.encode(base_url)
-    options = http_options()
-
-    Transport.HTTPPagination.naive_paginated_urls_stream(base_url, http_client, options)
-  end
-
-  def get!(url, options \\ []) do
-    http_client = Transport.HTTPClient
-    url = URI.encode(url)
-    options = options |> Keyword.merge(http_options())
-
-    http_client.get!(url, options)
-  end
-end
-
-defmodule Helper do
-  # or: fn(i) -> i end
-  # or: &Function.identity/1
-  def inspect(stream, f \\ & &1) do
-    Stream.each(stream, fn x ->
-      IO.inspect(f.(x), IEx.inspect_opts())
-    end)
-  end
-end
-
-# NOTE: currently not deduping, because I saw weird things while doing it
-
-Logger.info("Building paginated datagouv urls...")
-
-datagouv_urls =
-  [
-    #  "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve",
-    "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve-statique"
-    # "https://www.data.gouv.fr/api/1/datasets/?tag=irve",
-    # "https://www.data.gouv.fr/api/1/datasets/?q=irve",
-    # "https://www.data.gouv.fr/api/1/datasets/?q=recharge+véhicules+électriques",
-  ]
-  |> Enum.map(&Streamer.pages(&1))
-  |> Stream.concat()
-  |> Enum.into([])
-
 Logger.info("Retrieving each relevant datagouv page & listing resources")
 
-resources =
-  datagouv_urls
-  |> Stream.map(fn %{url: url} = page ->
-    %{status: 200, body: result} = Streamer.get!(url)
-    Map.put(page, :data, result)
-  end)
-  # |> Helper.inspect(fn(x) ->
-  #   Map.take(x[:data], ["page", "page_size", "total"])
-  # end)
-  |> Stream.flat_map(fn page -> page[:data]["data"] end)
-  |> Stream.map(fn dataset ->
-    dataset["resources"]
-    |> Enum.map(fn x -> Map.put(x, :dataset_id, dataset["id"]) end)
-  end)
-  |> Stream.concat()
-  # |> Stream.take(1)
-  # |> Helper.inspect()
-  |> Stream.map(fn x ->
-    %{
-      # TODO: regroupement par "publicateur" contact opérateur SAV Izivia
-      id: get_in(x, ["id"]),
-      dataset_id: get_in(x, [:dataset_id]),
-      valid: get_in(x, ["extras", "validation-report:valid_resource"]),
-      validation_date: get_in(x, ["extras", "validation-report:validation_date"]),
-      schema_name: get_in(x, ["schema", "name"]),
-      schema_version: get_in(x, ["schema", "version"]),
-      filetype: get_in(x, ["filetype"]),
-      last_modified: get_in(x, ["last_modified"]),
-      # vs latest?
-      url: get_in(x, ["url"])
-    }
-  end)
-  |> Stream.filter(fn x -> x[:schema_name] == "etalab/schema-irve-statique" end)
-  |> Enum.into([])
+resources = Transport.IRVE.Main.resources()
 
 Logger.info("Sharing a few stats...")
 
@@ -143,7 +54,7 @@ resources =
 
     # TODO: parallelize this part (for production, uncached)
     %{status: status, body: body} =
-      Streamer.get!(x[:url], compressed: false, decode_body: false)
+      Transport.IRVE.Streamer.get!(x[:url], compressed: false, decode_body: false)
 
     x = x |> Map.put(:status, status)
 
