@@ -46,44 +46,11 @@ end
 
 Logger.info("Fetching each IRVE resource so that we can retrieve PDC count... (must be parallelized, otherwise awful)")
 
-resources =
-  resources
-  |> Enum.with_index()
-  |> Enum.map(fn {x, index} ->
-    IO.puts("Processing #{index}...")
+resources = Transport.IRVE.Main.download_and_parse_all(resources)
 
-    # TODO: parallelize this part (for production, uncached)
-    %{status: status, body: body} =
-      Transport.IRVE.Streamer.get!(x[:url], compressed: false, decode_body: false)
+Logger.info("Inserting report in DB...")
 
-    x = x |> Map.put(:status, status)
-
-    if status == 200 do
-      body = body |> String.split("\n")
-
-      first_line =
-        body
-        |> hd()
-
-      line_count = (body |> length) - 1
-
-      id_detected = first_line |> String.contains?("id_pdc_itinerance")
-      # a field from v1, which does not end like a field in v2
-      old_schema = first_line |> String.contains?("ad_station")
-
-      x
-      |> Map.put(:id_pdc_itinerance_detected, id_detected)
-      |> Map.put(:old_schema, old_schema)
-      |> Map.put(:first_line, first_line)
-      |> Map.put(:line_count, line_count)
-    else
-      x
-    end
-  end)
-  |> Enum.reject(fn x -> is_nil(x) end)
-  |> Enum.map(fn x ->
-    Map.take(x, [:dataset_id, :valid, :line_count])
-  end)
+Transport.IRVE.Main.insert_report!(resources)
 
 Logger.info("Doing more stats...")
 
@@ -118,11 +85,5 @@ recent_stuff
 # Combien par "date de mise à jour" (théorique ???)
 # Combien de PDC ça constitue ?
 # Tout revalider moi-même et vérifier ? Oui. Oui. On aura des surprises.
-
-Logger.info("Inserting report in DB...")
-
-%DB.ProcessingReport{}
-|> DB.ProcessingReport.changeset(%{content: %{resources: resources}})
-|> DB.Repo.insert!()
 
 IO.puts("Done")

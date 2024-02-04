@@ -39,4 +39,50 @@ defmodule Transport.IRVE.Main do
     end)
     |> Stream.filter(fn x -> x[:schema_name] == "etalab/schema-irve-statique" end)
   end
+
+  def download_and_parse_all(resources) do
+    resources
+    |> Enum.with_index()
+    |> Enum.map(fn {x, index} ->
+      IO.puts("Processing #{index}...")
+
+      # TODO: parallelize this part (for production, uncached)
+      %{status: status, body: body} =
+        Transport.IRVE.Streamer.get!(x[:url], compressed: false, decode_body: false)
+
+      x = x |> Map.put(:status, status)
+
+      if status == 200 do
+        body = body |> String.split("\n")
+
+        first_line =
+          body
+          |> hd()
+
+        line_count = (body |> length) - 1
+
+        id_detected = first_line |> String.contains?("id_pdc_itinerance")
+        # a field from v1, which does not end like a field in v2
+        old_schema = first_line |> String.contains?("ad_station")
+
+        x
+        |> Map.put(:id_pdc_itinerance_detected, id_detected)
+        |> Map.put(:old_schema, old_schema)
+        |> Map.put(:first_line, first_line)
+        |> Map.put(:line_count, line_count)
+      else
+        x
+      end
+    end)
+    |> Enum.reject(fn x -> is_nil(x) end)
+    |> Enum.map(fn x ->
+      Map.take(x, [:dataset_id, :valid, :line_count])
+    end)
+  end
+
+  def insert_report!(resources) do
+    %DB.ProcessingReport{}
+    |> DB.ProcessingReport.changeset(%{content: %{resources: resources}})
+    |> DB.Repo.insert!()
+  end
 end
