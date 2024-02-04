@@ -17,6 +17,9 @@ erl_crash.dump
 # Code coverage output
 /**/cover
 
+# Data munging
+cache-dir
+
 # Since we are building assets from client,
 # we ignore priv/static.
 apps/transport/priv/static/css/*
