@@ -3,7 +3,7 @@ defmodule Transport.Repo.Migrations.CreateProcessingReports do
 
   def change do
     create table(:processing_reports) do
-      add :content, :map
+      add(:content, :map)
 
       timestamps()
     end
