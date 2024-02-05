@@ -16,10 +16,7 @@ defmodule TransportWeb.NotificationController do
           {conn, []}
       end
 
-
     current_contact = DB.Repo.get_by(DB.Contact, datagouv_user_id: datagouv_user_id)
-
-    dbg(notification_subscriptions_for_datasets(datasets, current_contact))
 
     conn
     |> assign(:datasets, datasets)
@@ -48,22 +45,13 @@ defmodule TransportWeb.NotificationController do
   defp notification_subscriptions_for_datasets(datasets, current_contact) do
     dataset_ids = datasets |> Enum.map(& &1.id)
 
-    DB.NotificationSubscription.base_query()
-    |> DB.NotificationSubscription.join_with_contact()
-    |> preload(:contact)
-    |> preload(:dataset)
-    |> where(
-      [notification_subscription: ns, contact: c],
-      ns.dataset_id in ^dataset_ids and not is_nil(ns.dataset_id)
-      and ns.role == :producer
-      and c.organization == ^current_contact.organization
-    )
-    |> DB.Repo.all()
+    notification_list = get_notifications(dataset_ids, current_contact)
+
+    notification_list
     |> Enum.sort_by(&{&1.dataset.custom_title, &1.reason})
     |> Enum.group_by(& &1.dataset)
     |> Map.new(fn {dataset, subscriptions} -> {dataset, Enum.group_by(subscriptions, & &1.reason)} end)
   end
-
 
   def delete_for_dataset(%Plug.Conn{assigns: %{current_user: %{"id" => datagouv_user_id}}} = conn, %{
         "dataset_id" => dataset_id
@@ -119,5 +107,19 @@ defmodule TransportWeb.NotificationController do
     |> select([notification_subscription: ns], ns.reason)
     |> DB.Repo.all()
     |> Enum.map(&to_string/1)
+  end
+
+  defp get_notifications(dataset_ids, current_contact) do
+    DB.NotificationSubscription.base_query()
+    |> DB.NotificationSubscription.join_with_contact()
+    |> preload(:contact)
+    |> preload(:dataset)
+    |> where(
+      [notification_subscription: ns, contact: c],
+      ns.dataset_id in ^dataset_ids and not is_nil(ns.dataset_id) and
+        ns.role == :producer and
+        c.organization == ^current_contact.organization
+    )
+    |> DB.Repo.all()
   end
 end
