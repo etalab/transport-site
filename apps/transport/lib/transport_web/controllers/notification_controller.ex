@@ -42,6 +42,24 @@ defmodule TransportWeb.NotificationController do
     |> redirect(to: notification_path(conn, :index))
   end
 
+  def toggle(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id} = params) do
+    existing_reasons = reasons_for_user_and_dataset(conn, dataset_id)
+    %DB.Contact{id: contact_id} = contact_for_user(conn)
+
+    # TODO : write the toggle function
+    # params
+    # |> picked_reasons()
+    # |> Enum.reject(&(&1 in existing_reasons))
+    # |> Enum.each(fn reason ->
+    #   %{contact_id: contact_id, dataset_id: dataset_id, reason: reason, source: :user, role: :producer}
+    #   |> DB.NotificationSubscription.insert!()
+    # end
+
+    conn
+    |> put_flash(:info, dgettext("espace-producteurs", "The notification has been created"))
+    |> redirect(to: notification_path(conn, :index))
+  end
+
   defp notification_subscriptions_for_datasets(datasets, current_contact) do
     dataset_ids = datasets |> Enum.map(& &1.id)
 
@@ -74,14 +92,15 @@ defmodule TransportWeb.NotificationController do
   end
 
   defp subgroup_by_contact(subscriptions, current_contact) do
-    {user_subscriptions, team_subscriptions} = Enum.split_with(subscriptions, & &1.contact == current_contact)
+    {user_subscriptions, team_subscriptions} = Enum.split_with(subscriptions, &(&1.contact == current_contact))
+
     user_subscription =
       case user_subscriptions do
-      [] -> nil
-      [subscription] -> subscription
-    end
-    %{user_subscription: user_subscription, team_subscriptions: team_subscriptions}
+        [] -> nil
+        [subscription] -> subscription
+      end
 
+    %{user_subscription: user_subscription, team_subscriptions: team_subscriptions}
   end
 
   def delete_for_dataset(%Plug.Conn{assigns: %{current_user: %{"id" => datagouv_user_id}}} = conn, %{
@@ -114,6 +133,7 @@ defmodule TransportWeb.NotificationController do
 
   defp picked_reasons(%{} = params) do
     possible_reasons = DB.NotificationSubscription.reasons_related_to_datasets() |> Enum.map(&to_string/1)
+
 
     params |> Map.filter(fn {k, v} -> k in possible_reasons and v == "true" end) |> Map.keys()
   end

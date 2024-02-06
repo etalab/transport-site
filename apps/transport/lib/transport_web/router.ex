@@ -94,6 +94,7 @@ defmodule TransportWeb.Router do
         post("/", NotificationController, :create)
         delete("/:id", NotificationController, :delete)
         delete("/datasets/:dataset_id", NotificationController, :delete_for_dataset)
+        post("/datasets/:dataset_id", NotificationController, :toggle)
       end
     end
 
