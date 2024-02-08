@@ -1,7 +1,7 @@
 defmodule TransportWeb.EspaceProducteurController do
   use TransportWeb, :controller
 
-  plug(:find_dataset_or_redirect when action in [:edit_dataset, :upload_logo])
+  plug(:find_dataset_or_redirect when action in [:edit_dataset, :upload_logo, :remove_custom_logo])
   plug(:find_datasets_or_redirect when action in [:proxy_statistics])
 
   def edit_dataset(%Plug.Conn{} = conn, %{"dataset_id" => _}) do
@@ -25,6 +25,24 @@ defmodule TransportWeb.EspaceProducteurController do
   end
 
   defp extension(filename), do: filename |> Path.extname() |> String.downcase()
+
+  def remove_custom_logo(%Plug.Conn{assigns: %{dataset: %DB.Dataset{} = dataset}} = conn, _) do
+    %DB.Dataset{custom_logo: custom_logo, custom_full_logo: custom_full_logo, datagouv_id: datagouv_id} = dataset
+    bucket_url = Transport.S3.permanent_url(:logos) <> "/"
+
+    [custom_logo, custom_full_logo]
+    |> Enum.map(fn url -> String.replace(url, bucket_url, "") end)
+    |> Enum.each(fn path -> Transport.S3.delete_object!(:logos, path) end)
+
+    {:ok, %Ecto.Changeset{} = changeset} =
+      DB.Dataset.changeset(%{"datagouv_id" => datagouv_id, "custom_logo" => nil, "custom_full_logo" => nil})
+
+    DB.Repo.update!(changeset)
+
+    conn
+    |> put_flash(:info, dgettext("espace-producteurs", "Your custom logo has been removed."))
+    |> redirect(to: page_path(conn, :espace_producteur))
+  end
 
   @spec proxy_statistics(Plug.Conn.t(), map) :: Plug.Conn.t()
   def proxy_statistics(%Plug.Conn{assigns: %{datasets: datasets}} = conn, _params) do

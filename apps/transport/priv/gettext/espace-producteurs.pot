@@ -225,10 +225,6 @@ msgid "You can edit this dataset on <a href=\"%{datagouv_admin_url}\" target=\"_
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "You currently have a custom logo. If you want to remove or update it, please contact our team."
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Your current logo"
 msgstr ""
 
@@ -238,4 +234,12 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Your logo has been received. It will be replaced soon."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Remove the custom logo"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Your custom logo has been removed."
 msgstr ""
