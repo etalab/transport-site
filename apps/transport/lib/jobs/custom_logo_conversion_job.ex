@@ -21,7 +21,7 @@ defmodule Transport.Jobs.CustomLogoConversionJob do
 
     local_path
     |> Image.thumbnail!(100)
-    |> Image.embed!(100, 100, background_color: :white)
+    |> Image.embed!(100, 100, background_color: :white, extend_mode: :white)
     |> Image.write!(logo_path)
 
     local_path
