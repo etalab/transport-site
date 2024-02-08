@@ -497,7 +497,9 @@ defmodule DB.Dataset do
       :latest_data_gouv_comment_timestamp,
       :archived_at,
       :custom_tags,
-      :legal_owner_company_siren
+      :legal_owner_company_siren,
+      :custom_logo,
+      :custom_full_logo
     ])
     |> update_change(:custom_title, &String.trim/1)
     |> cast_aom(params)
