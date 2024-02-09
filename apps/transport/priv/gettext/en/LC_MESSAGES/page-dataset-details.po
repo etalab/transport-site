@@ -602,10 +602,6 @@ msgstr ""
 msgid "loading discussions..."
 msgstr ""
 
-#, elixir-autogen, elixir-format, fuzzy
-msgid "Dataset scores"
-msgstr ""
-
 #, elixir-autogen, elixir-format
 msgid "This transport service operates seasonally. The associated resources may be outdated depending on the time of year. Contact the data producer through Discussions for more information."
 msgstr ""
@@ -616,4 +612,12 @@ msgstr "Data producer"
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Respond and close"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Quality indicators"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "transport.data.gouv.fr computes quality indicators daily to assess the quality of the published data. <i class=\"fa fa-external-link-alt\"></i> <a href=\"%{doc_url}\" target=\"_blank\">Learn more</a>."
 msgstr ""

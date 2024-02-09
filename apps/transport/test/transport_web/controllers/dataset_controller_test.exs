@@ -393,90 +393,16 @@ defmodule TransportWeb.DatasetControllerTest do
              |> Phoenix.HTML.safe_to_string()
   end
 
-  test "displays dataset scores for admins", %{conn: conn} do
+  test "quality indicators chart is displayed", %{conn: conn} do
     dataset = insert(:dataset, is_active: true)
-
-    insert(:dataset_score,
-      dataset: dataset,
-      timestamp: DateTime.utc_now() |> DateTime.add(-1, :hour),
-      score: 0.549,
-      topic: :freshness
-    )
-
-    insert(:dataset_score,
-      dataset: dataset,
-      timestamp: DateTime.utc_now() |> DateTime.add(-3, :hour),
-      score: 0.8,
-      topic: :compliance
-    )
-
-    insert(:dataset_score,
-      dataset: dataset,
-      timestamp: DateTime.utc_now() |> DateTime.add(-1, :hour),
-      score: nil,
-      topic: :availability
-    )
-
-    assert %{
-             availability: %DB.DatasetScore{topic: :availability, score: nil},
-             freshness: %DB.DatasetScore{topic: :freshness, score: 0.549},
-             compliance: %DB.DatasetScore{topic: :compliance, score: 0.8}
-           } = dataset |> DB.DatasetScore.get_latest_scores(Ecto.Enum.values(DB.DatasetScore, :topic))
-
     set_empty_mocks()
 
-    content =
-      conn
-      |> setup_admin_in_session()
-      |> get(dataset_path(conn, :details, dataset.slug))
-      |> html_response(200)
-
-    assert content =~ "Score de fraicheur : 0.55"
-    assert content =~ "Score de conformité : 0.8"
-    assert content =~ "Score de disponibilité : \n"
-  end
-
-  test "does not display scores for non admins", %{conn: conn} do
-    dataset = insert(:dataset, is_active: true)
-
-    insert(:dataset_score,
-      dataset: dataset,
-      timestamp: DateTime.utc_now() |> DateTime.add(-1, :hour),
-      score: 1,
-      topic: :freshness
-    )
-
-    refute dataset |> DB.DatasetScore.get_latest_scores([:freshness]) |> Enum.empty?()
-    set_empty_mocks()
-    content = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200)
-    refute content =~ "Score de fraicheur"
-  end
-
-  describe "scores_chart" do
-    test "is displayed for admins", %{conn: conn} do
-      dataset = insert(:dataset, is_active: true)
-      set_empty_mocks()
-
-      refute conn
-             |> setup_admin_in_session()
-             |> get(dataset_path(conn, :details, dataset.slug))
-             |> html_response(200)
-             |> Floki.parse_document!()
-             |> Floki.find("#scores-chart")
-             |> Enum.empty?()
-    end
-
-    test "is not displayed for regular users", %{conn: conn} do
-      dataset = insert(:dataset, is_active: true)
-      set_empty_mocks()
-
-      assert conn
-             |> get(dataset_path(conn, :details, dataset.slug))
-             |> html_response(200)
-             |> Floki.parse_document!()
-             |> Floki.find("#scores-chart")
-             |> Enum.empty?()
-    end
+    refute conn
+           |> get(dataset_path(conn, :details, dataset.slug))
+           |> html_response(200)
+           |> Floki.parse_document!()
+           |> Floki.find("#quality-indicators")
+           |> Enum.empty?()
   end
 
   test "a banner is displayed for a seasonal dataset", %{conn: conn} do

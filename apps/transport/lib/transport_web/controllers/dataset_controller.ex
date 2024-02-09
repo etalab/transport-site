@@ -59,7 +59,6 @@ defmodule TransportWeb.DatasetController do
       )
       |> assign(:latest_resources_history_infos, DB.ResourceHistory.latest_dataset_resources_history_infos(dataset))
       |> assign(:notifications_sent, DB.Notification.recent_reasons_binned(dataset, days_notifications_sent()))
-      |> assign(:dataset_scores, DB.DatasetScore.get_latest_scores(dataset, Ecto.Enum.values(DB.DatasetScore, :topic)))
       |> assign(:scores_chart, scores_chart(dataset))
       |> put_status(if dataset.is_active, do: :ok, else: :not_found)
       |> render("details.html")
@@ -84,7 +83,11 @@ defmodule TransportWeb.DatasetController do
       data
       |> Enum.reject(&match?(%DB.DatasetScore{score: nil}, &1))
       |> Enum.map(fn %DB.DatasetScore{topic: topic, timestamp: timestamp} = ds ->
-        %{"topic" => topic, "score" => DB.DatasetScore.score_for_humans(ds), "date" => timestamp |> DateTime.to_date()}
+        %{
+          "topic" => DB.DatasetScore.topic_for_humans(topic),
+          "score" => DB.DatasetScore.score_for_humans(ds),
+          "date" => DateTime.to_date(timestamp)
+        }
       end)
     )
     |> VegaLite.mark(:line, interpolate: "step-before", tooltip: true, strokeWidth: 3)

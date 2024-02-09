@@ -1,12 +1,21 @@
-<section :if={TransportWeb.Session.is_admin?(@conn)} class="pt-48">
-  <h2><%= dgettext("page-dataset-details", "Dataset scores") %></h2>
-  <div class="panel" id="scores-chart">
+<section id="quality-indicators">
+  <h2><%= dgettext("page-dataset-details", "Quality indicators") %></h2>
+  <div class="panel">
     <div id="vega-vis"></div>
-    <p class="small">Ceci est visible uniquement par les membres de transport.data.gouv.fr.</p>
-    <script src={static_path(@conn, "/js/vega.js")} nonce={@conn.assigns[:csp_nonce_value]} />
-    <script nonce={@conn.assigns[:csp_nonce_value]}>
-      const spec = <%= raw Jason.encode!(@scores_chart) %>;
-      window.vegaEmbed("#vega-vis", spec, {renderer: "svg"});
-    </script>
+    <p>
+      <%= raw(
+        dgettext(
+          "page-dataset-details",
+          ~s[transport.data.gouv.fr computes quality indicators daily to assess the quality of the published data. <i class="fa fa-external-link-alt"></i> <a href="%{doc_url}" target="_blank">Learn more</a>.],
+          doc_url: "https://doc.transport.data.gouv.fr"
+        )
+      ) %>
+    </p>
   </div>
 </section>
+
+<script src={static_path(@conn, "/js/vega.js")} nonce={@conn.assigns[:csp_nonce_value]} />
+<script nonce={@conn.assigns[:csp_nonce_value]}>
+  const spec = <%= raw Jason.encode!(@scores_chart) %>;
+  window.vegaEmbed("#vega-vis", spec, {renderer: "svg"});
+</script>
