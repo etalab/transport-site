@@ -8,12 +8,23 @@ defmodule TransportWeb.EspaceProducteurController do
     conn |> render("edit_dataset.html")
   end
 
-  def upload_logo(%Plug.Conn{} = conn, %{"dataset_id" => _, "upload" => %{"file" => %Plug.Upload{} = file}}) do
+  def upload_logo(
+        %Plug.Conn{assigns: %{dataset: %DB.Dataset{datagouv_id: datagouv_id}}} = conn,
+        %{"upload" => %{"file" => %Plug.Upload{path: filepath, filename: filename}}}
+      ) do
+    destination_path = "tmp_#{datagouv_id}#{extension(filename)}"
+    Transport.S3.stream_to_s3!(:logos, filepath, destination_path)
+
+    %{datagouv_id: datagouv_id, path: destination_path}
+    |> Transport.Jobs.CustomLogoConversionJob.new()
+    |> Oban.insert!()
+
     conn
-    |> upload_logo_and_send_email(file)
-    |> put_flash(:info, dgettext("espace-producteurs", "Your logo has been received. We will get back to you soon."))
+    |> put_flash(:info, dgettext("espace-producteurs", "Your logo has been received. It will be replaced soon."))
     |> redirect(to: page_path(conn, :espace_producteur))
   end
+
+  defp extension(filename), do: filename |> Path.extname() |> String.downcase()
 
   def remove_custom_logo(%Plug.Conn{assigns: %{dataset: %DB.Dataset{} = dataset}} = conn, _) do
     %DB.Dataset{custom_logo: custom_logo, custom_full_logo: custom_full_logo, datagouv_id: datagouv_id} = dataset
@@ -52,40 +63,6 @@ defmodule TransportWeb.EspaceProducteurController do
   end
 
   defp proxy_requests_stats_nb_days, do: 15
-
-  defp upload_logo_and_send_email(
-         %Plug.Conn{
-           assigns: %{
-             current_user: current_user,
-             dataset: %DB.Dataset{datagouv_id: datagouv_id, custom_title: custom_title}
-           }
-         } = conn,
-         %Plug.Upload{path: filepath, filename: filename}
-       ) do
-    extension = filename |> Path.extname() |> String.downcase()
-    destination_path = "tmp_#{datagouv_id}#{extension}"
-    Transport.S3.stream_to_s3!(:logos, filepath, destination_path)
-
-    subject = "Logo personnalisé : #{custom_title}"
-
-    """
-    Bonjour,
-
-    Un logo personnalisé vient d'être envoyé.
-
-    Scripts à exécuter :
-    s3cmd get s3://#{Transport.S3.bucket_name(:logos)}/#{destination_path} /tmp/#{destination_path}
-    elixir scripts/custom_logo.exs /tmp/#{destination_path} #{datagouv_id}
-    s3cmd rm s3://#{Transport.S3.bucket_name(:logos)}/#{destination_path}
-
-    Personne à contacter :
-    #{current_user["email"]}
-    """
-    |> Transport.CustomLogoNotifier.custom_logo(subject)
-    |> Transport.Mailer.deliver()
-
-    conn
-  end
 
   defp find_datasets_or_redirect(%Plug.Conn{} = conn, _options) do
     conn
@@ -126,17 +103,5 @@ defmodule TransportWeb.EspaceProducteurController do
       {:error, _} -> []
     end
     |> Enum.find(fn %DB.Dataset{id: id} -> id == dataset_id end)
-  end
-end
-
-defmodule Transport.CustomLogoNotifier do
-  import Swoosh.Email
-
-  def custom_logo(text_body, subject) do
-    new()
-    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
-    |> to(Application.fetch_env!(:transport, :contact_email))
-    |> subject(subject)
-    |> text_body(text_body)
   end
 end
