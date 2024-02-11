@@ -8,7 +8,8 @@ config :transport,
   s3_buckets: %{
     history: "resource-history-prod",
     on_demand_validation: "on-demand-validation-prod",
-    gtfs_diff: "gtfs-diff-prod"
+    gtfs_diff: "gtfs-diff-prod",
+    logos: "logos-prod"
   }
 
 # Configure Sentry for production and staging.

@@ -356,29 +356,6 @@ defmodule TransportWeb.ResourceController do
     end
   end
 
-  def proxy_requests_stats_nb_days, do: 15
-
-  @spec proxy_statistics(Plug.Conn.t(), map) :: Plug.Conn.t()
-  def proxy_statistics(conn, _params) do
-    {conn, datasets} = datasets_for_user(conn)
-
-    proxy_stats =
-      datasets
-      |> Enum.flat_map(& &1.resources)
-      |> Enum.filter(&DB.Resource.served_by_proxy?/1)
-      # Gotcha: this is a N+1 problem. Okay as long as a single producer
-      # does not have a lot of feeds/there is not a lot of traffic on this page
-      |> Enum.into(%{}, fn %DB.Resource{id: id} = resource ->
-        {id, DB.Metrics.requests_over_last_days(resource, proxy_requests_stats_nb_days())}
-      end)
-
-    conn
-    |> assign(:datasets, datasets)
-    |> assign(:proxy_stats, proxy_stats)
-    |> assign(:proxy_requests_stats_nb_days, proxy_requests_stats_nb_days())
-    |> render("proxy_statistics.html")
-  end
-
   defp assign_or_flash(conn, getter, kw, error) do
     case getter.() do
       {:ok, value} ->

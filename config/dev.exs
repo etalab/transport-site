@@ -71,11 +71,11 @@ config :transport,
   s3_buckets: %{
     history: "resource-history-dev",
     on_demand_validation: "on-demand-validation-dev",
-    gtfs_diff: "gtfs-diff-dev"
+    gtfs_diff: "gtfs-diff-dev",
+    logos: "logos-dev"
   },
   # by default, use the production validator. This can be overriden with dev.secret.exs
-  gtfs_validator_url: "https://validation.transport.data.gouv.fr",
-  logos_bucket_url: "https://transport-data-gouv-fr-logos-dev.cellar-c2.services.clever-cloud.com"
+  gtfs_validator_url: "https://validation.transport.data.gouv.fr"
 
 config :oauth2, Datagouvfr.Authentication,
   site: datagouvfr_site,

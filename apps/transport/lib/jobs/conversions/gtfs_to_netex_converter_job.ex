@@ -7,11 +7,10 @@ defmodule Transport.Jobs.GTFSToNeTExConverterJob do
 
   @impl true
   def perform(%{}) do
-    GTFSGenericConverter.enqueue_all_conversion_jobs("NeTEx", [
-      Transport.Jobs.SingleGTFSToNeTExHoveConverterJob,
-      Transport.Jobs.GTFSToNeTExEnRouteConverterJob
-    ])
+    GTFSGenericConverter.enqueue_all_conversion_jobs("NeTEx", netex_converters())
   end
+
+  def netex_converters, do: [Transport.Jobs.GTFSToNeTExEnRouteConverterJob]
 end
 
 defmodule Transport.Jobs.SingleGTFSToNeTExHoveConverterJob do
@@ -51,11 +50,7 @@ defmodule Transport.Jobs.DatasetGTFSToNeTExConverterJob do
   end
 
   defp enqueue_conversion_jobs(resource_history_id) do
-    [
-      Transport.Jobs.SingleGTFSToNeTExHoveConverterJob,
-      Transport.Jobs.GTFSToNeTExEnRouteConverterJob
-    ]
-    |> Enum.each(fn converter ->
+    Enum.each(Transport.Jobs.GTFSToNeTExConverterJob.netex_converters(), fn converter ->
       %{"resource_history_id" => resource_history_id, "action" => "create"}
       |> converter.new()
       |> Oban.insert()
