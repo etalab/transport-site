@@ -1,6 +1,6 @@
 # NOTE: "namespaced" to IRVE for now for simplicity, but this is obviously
 # something that is generic enough to be reused elsewhere & renamed easily.
-defmodule Transport.IRVE.HTTPagination do
+defmodule Transport.IRVE.HTTPPagination do
   @doc """
   Using a base url and an http client, generates a stream of pages urls using
   a naive algorithm to build all urls upfront instead of having to wait for each
