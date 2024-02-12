@@ -1,23 +1,41 @@
 <section class="container pt-48 pb-48">
-  <h1>Rapport IRVE</h1>
-  <table class="table mt-48">
-    <thead>
-      <tr>
-        <th>Dataset ID</th>
-        <th>Validité</th>
-        <th>Nb PDC</th>
-      </tr>
-    </thead>
-    <tbody>
-      <%= for resource <- @processing_report["resources"] do %>
+  <button class="button" phx-click="consolidate" disabled={@running}>Consolidate</button>
+  <%= if assigns[:completion_message] do %>
+    <%= @completion_message %>
+  <% end %>
+
+  <%= if @latest_report do %>
+    <h1>Rapport IRVE</h1>
+    <p>Généré à <%= @latest_report.inserted_at %> (<%= @latest_report.resources |> length %> ressources analysées)</p>
+    <table class="table mt-48">
+      <thead>
         <tr>
-          <td><%= resource["dataset_id"] %></td>
-          <td><%= resource["valid"] %></td>
-          <td><%= resource["line_count"] %></td>
+          <th>Dataset</th>
+          <th>Ressource</th>
+          <th>Validité</th>
+          <th>Nb PDC</th>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        <%= for resource <- @latest_report.resources do %>
+          <tr>
+            <td>
+              <.link target="_blank" href={"https://www.data.gouv.fr/fr/datasets/" <> resource["dataset_id"]}><%= resource["dataset_id"] %></.link>
+              &mdash;
+                <%= resource["dataset_title"] %>
+            </td>
+            <td>
+              <%= resource["resource_title"] %>            
+            </td>
+            <td>
+              <%= format_validity(resource["valid"]) %>
+            </td>
+            <td><%= resource["line_count"] %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
 </section>
 <script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>
 </script>
