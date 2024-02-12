@@ -20,7 +20,9 @@ defmodule Transport.Shared.ReqCustomCache do
   def request_local_cache_step(request) do
     # TODO: handle a form of expiration - for now it is acceptable to wipe out the whole folder manually for me
     # NOTE: race condition here, for parallel queries
-    if File.exists?(path = cache_path(request)) do
+    path = cache_path(request)
+
+    if File.exists?(path) do
       # Logger.info("File found in cache (#{path})")
       {request, load_cache(path)}
     else
@@ -31,7 +33,9 @@ defmodule Transport.Shared.ReqCustomCache do
   def response_local_cache_step({request, response}) do
     # NOTE: we'll need a way to let the caller customize which HTTP status codes must result
     # into caching vs not (e.g. rate limit 429 should ideally not be cached, while 404 should etc)
-    unless File.exists?(path = cache_path(request)) do
+    path = cache_path(request)
+
+    unless File.exists?(path) do
       Logger.info("Saving file to cache (#{path})")
       write_cache(path, response)
     end
@@ -40,7 +44,7 @@ defmodule Transport.Shared.ReqCustomCache do
   end
 
   # https://github.com/wojtekmach/req/blob/102b9aa6c6ff66f00403054a0093c4f06f6abc2f/lib/req/steps.ex#L1268
-  def cache_path(cache_dir, request = %{method: :get}) do
+  def cache_path(cache_dir, %{method: :get} = request) do
     cache_key =
       Enum.join(
         [

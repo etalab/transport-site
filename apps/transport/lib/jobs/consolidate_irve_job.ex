@@ -10,7 +10,7 @@ defmodule Transport.Jobs.ConsolidateIRVEJob do
     :ok
   end
 
-  def start_async_work() do
+  def start_async_work do
     job_pid = self()
 
     # NOTE: a call to `Task.async` normally requires a `Task.await` to ensure we monitor completion.
