@@ -1,4 +1,5 @@
 defmodule Transport.IRVE.Main do
+  require Logger
 
   @static_irve_datagouv_url "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve-statique"
 
@@ -12,13 +13,19 @@ defmodule Transport.IRVE.Main do
     |> Stream.flat_map(fn page -> page[:data]["data"] end)
     |> Stream.map(fn dataset ->
       dataset["resources"]
-      |> Enum.map(fn x -> Map.put(x, :dataset_id, dataset["id"]) end)
+      |> Enum.map(fn x ->
+        x
+        |> Map.put(:dataset_id, dataset["id"])
+        |> Map.put(:dataset_title, dataset["title"])
+      end)
     end)
     |> Stream.concat()
     |> Stream.map(fn x ->
       %{
-        id: get_in(x, ["id"]),
+        resource_id: get_in(x, ["id"]),
+        resource_title: get_in(x, ["title"]),
         dataset_id: get_in(x, [:dataset_id]),
+        dataset_title: get_in(x, [:dataset_title]),
         valid: get_in(x, ["extras", "validation-report:valid_resource"]),
         validation_date: get_in(x, ["extras", "validation-report:validation_date"]),
         schema_name: get_in(x, ["schema", "name"]),
@@ -32,17 +39,21 @@ defmodule Transport.IRVE.Main do
     |> Stream.filter(fn x -> x[:schema_name] == "etalab/schema-irve-statique" end)
   end
 
-  def download_and_parse_all(resources) do
-    resources
+  def download_and_parse_all(resources, progress_callback \\ nil) do
+    r = resources
+    count = r |> length()
+
+    r
     |> Enum.with_index()
     |> Enum.map(fn {x, index} ->
-      IO.puts("Processing #{index}...")
+      if progress_callback, do: progress_callback.(index)
+      Logger.info("IRVE - processing #{index} over #{count}...")
 
       # TODO: parallelize this part (for production, uncached)
       %{status: status, body: body} =
         Transport.IRVE.Streamer.get!(x[:url], compressed: false, decode_body: false)
 
-      x = x |> Map.put(:status, status)
+      x = x |> Map.put(:status, status) |> Map.put(:index, index)
 
       if status == 200 do
         body = body |> String.split("\n")
@@ -66,9 +77,8 @@ defmodule Transport.IRVE.Main do
         x
       end
     end)
-    |> Enum.reject(fn x -> is_nil(x) end)
     |> Enum.map(fn x ->
-      Map.take(x, [:dataset_id, :valid, :line_count])
+      Map.take(x, [:dataset_id, :dataset_title, :resource_id, :resource_title, :valid, :line_count, :index])
     end)
   end
 
