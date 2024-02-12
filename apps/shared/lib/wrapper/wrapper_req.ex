@@ -31,8 +31,6 @@ end
 # Experimental: a higher-level http client. In flux! Subject to change!
 # Req allow better customisation and we should look into that.
 defmodule Transport.HTTPClient do
-  # TODO: pass an option to allow enabling the cache.
-  # NOTE: `custom_cache_dir` is read but caching should be opt-in
   def get!(url, options) do
     options =
       Keyword.validate!(options, [
