@@ -4,10 +4,17 @@ defmodule Transport.IRVE.Streamer do
   def cache_dir, do: Path.join(__ENV__.file, "../../../../../cache-dir") |> Path.expand()
 
   def http_options do
-    [
-      enable_cache: true,
-      custom_cache_dir: cache_dir()
-    ]
+    # NOTE: useful when iterating in development, disabled by default
+    if Application.get_env(:transport, :irve_consolidation_caching, false) do
+      [
+        enable_cache: true,
+        custom_cache_dir: cache_dir()
+      ]
+    else
+      [
+        enable_cache: false
+      ]
+    end
   end
 
   @doc """
