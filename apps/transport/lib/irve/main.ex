@@ -1,12 +1,4 @@
 defmodule Transport.IRVE.Main do
-  # Kept here for reference (we may want to fish datasets out of them later)
-  # Some of them are completely outdated, but I'd rather keep the history here anyway.
-  @other_urls [
-    "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve",
-    "https://www.data.gouv.fr/api/1/datasets/?tag=irve",
-    "https://www.data.gouv.fr/api/1/datasets/?q=irve",
-    "https://www.data.gouv.fr/api/1/datasets/?q=recharge+véhicules+électriques"
-  ]
 
   @static_irve_datagouv_url "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve-statique"
 
