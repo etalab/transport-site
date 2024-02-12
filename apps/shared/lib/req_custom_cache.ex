@@ -18,7 +18,7 @@ defmodule Transport.Shared.ReqCustomCache do
   end
 
   def request_local_cache_step(request) do
-    # TODO: handle a form of expiration - for now it is acceptable to wipe out the whole folder manually for me
+    # NOTE: for now, no expiration is supported, you'll have to wipe-out the cache folder manually
     # NOTE: race condition here, for parallel queries
     path = cache_path(request)
 
