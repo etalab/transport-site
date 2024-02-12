@@ -20,12 +20,13 @@
         <%= for resource <- @latest_report.resources do %>
           <tr>
             <td>
-              <.link target="_blank" href={"https://www.data.gouv.fr/fr/datasets/" <> resource["dataset_id"]}><%= resource["dataset_id"] %></.link>
-              &mdash;
-                <%= resource["dataset_title"] %>
+              <.link target="_blank" href={"https://www.data.gouv.fr/fr/datasets/" <> resource["dataset_id"]}>
+                <%= resource["dataset_id"] %>
+              </.link>
+              &mdash; <%= resource["dataset_title"] %>
             </td>
             <td>
-              <%= resource["resource_title"] %>            
+              <%= resource["resource_title"] %>
             </td>
             <td>
               <%= format_validity(resource["valid"]) %>

@@ -8,9 +8,9 @@ defmodule TransportWeb.Backoffice.IRVEDashboardLive do
   def mount(_params, %{"current_user" => current_user} = _session, socket) do
     {:ok,
      ensure_admin_auth_or_redirect(socket, current_user, fn socket ->
-      :ok = Oban.Notifier.listen([:gossip])
+       :ok = Oban.Notifier.listen([:gossip])
 
-      socket
+       socket
        |> assign_data()
      end)}
   end
@@ -56,8 +56,10 @@ defmodule TransportWeb.Backoffice.IRVEDashboardLive do
       case args do
         %{"status" => "progress" = status, "progress" => progress} ->
           update_assigns({status, progress}, socket)
+
         %{"status" => "complete" = status} ->
           update_assigns({status}, socket)
+
         %{"status" => "failed" = status} ->
           update_assigns({status}, socket)
       end
@@ -68,7 +70,8 @@ defmodule TransportWeb.Backoffice.IRVEDashboardLive do
   import Ecto.Query, only: [from: 2, first: 1]
 
   def latest_report do
-    report = from(pr in DB.ProcessingReport, order_by: {:desc, :id}, limit: 1)
+    report =
+      from(pr in DB.ProcessingReport, order_by: {:desc, :id}, limit: 1)
       |> first()
       |> DB.Repo.one()
 
@@ -76,6 +79,7 @@ defmodule TransportWeb.Backoffice.IRVEDashboardLive do
   end
 
   def maybe_reformat_report(nil), do: nil
+
   def maybe_reformat_report(report) do
     %{
       inserted_at: report.inserted_at,
@@ -85,7 +89,7 @@ defmodule TransportWeb.Backoffice.IRVEDashboardLive do
 
   def sort_resources(resources) do
     resources
-    |> Enum.sort_by(fn(x) -> [x["line_count"]] end, :desc)
+    |> Enum.sort_by(fn x -> [x["line_count"]] end, :desc)
   end
 
   def format_validity(false), do: {:safe, "<strong class='red'>KO</strong>"}
