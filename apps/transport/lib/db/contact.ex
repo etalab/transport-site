@@ -1,6 +1,8 @@
 defmodule DB.Contact do
   @moduledoc """
   Represents a contact/user
+  A contact is created or updated each time a user logs in. See session controller.
+  Update includes the last login date and the organizations the user is part of.
   """
   use Ecto.Schema
   use TypedEctoSchema

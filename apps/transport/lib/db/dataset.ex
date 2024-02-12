@@ -842,6 +842,21 @@ defmodule DB.Dataset do
     end
   end
 
+  def datasets_for_user(%{"id" => datagouv_id}) do
+    case Datagouvfr.Client.User.get(datagouv_id) do
+      {:ok,  %{"organizations" => organizations}} ->
+        organization_ids = Enum.map(organizations, fn %{"id" => id} -> id end)
+
+        __MODULE__.base_query()
+        |> preload(:resources)
+        |> where([dataset: d], d.organization_id in ^organization_ids)
+        |> Repo.all()
+
+      error ->
+        error
+    end
+  end
+
   @spec get_resources_related_files(any()) :: %{integer() => %{optional(atom()) => conversion_details() | nil}}
   def get_resources_related_files(%__MODULE__{resources: resources} = dataset) when is_list(resources) do
     target_formats = target_conversion_formats(dataset)

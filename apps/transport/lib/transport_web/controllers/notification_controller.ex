@@ -80,7 +80,7 @@ defmodule TransportWeb.NotificationController do
       [notification_subscription: ns, contact: c],
       ns.dataset_id in ^dataset_ids and not is_nil(ns.dataset_id) and
         ns.role == :producer and
-        c.organization == ^current_contact.organization
+        c.organization == ^current_contact.organization # That’s not so good, it’s just a string
     )
     |> DB.Repo.all()
   end

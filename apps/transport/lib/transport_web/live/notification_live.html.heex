@@ -1,0 +1,36 @@
+<%= for dataset <- @datasets do %>
+<h2><%= dataset.custom_title %></h2>
+
+<.form :let={f} for={to_form(%{"dataset_id" => dataset.id})} phx-change="toggle" %>
+
+<table>
+  <tr>
+    <th>Reason</th>
+    <th>Subscribe</th>
+    <th>Other members</th>
+  </tr>
+<%= for reason <- DB.NotificationSubscription.reasons_related_to_datasets() do %>
+    <tr>
+        <td><%= DB.NotificationSubscription.reason_to_str(reason) %></td>
+        <td><% my_subscription = @subscriptions[dataset.id][reason][:user_subscription] %>
+            <div class="form__group">
+      <fieldset>
+        <label class="switch">
+          <%= checkbox f, reason, checked_value: (if my_subscription, do: true), phx_value_id: dataset.id, phx_value_reason: reason %>
+          <span class="slider"></span>
+        </label>
+        <%= reason %>
+      </fieldset>
+    </div>
+        </td>
+        <td><% team_subscriptions = @subscriptions[dataset.id][reason][:team_subscriptions] %>
+        <%= if team_subscriptions , do: team_subscriptions |> Enum.map(&(&1.contact |> DB.Contact.display_name())) |> Enum.join(", ") %>
+        </td>
+    </tr>
+
+<% end %>
+</table>
+</.form>
+<% end %>
+<script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}></script>
+```
