@@ -1,4 +1,4 @@
-# HTTP boilerplate, currently specific to IRVE, will be generalizable
+# TODO: rename, not aptly named, and document
 defmodule Transport.IRVE.Streamer do
   # the root phoenix path, to be improved of course
   def cache_dir, do: Path.join(__ENV__.file, "../../../../../cache-dir") |> Path.expand()
@@ -18,7 +18,7 @@ defmodule Transport.IRVE.Streamer do
   end
 
   @doc """
-  Query one page, and use that to infer the list of all urls (for index-based pagination like data gouv)
+  Return the list of all pages for a given query (by querying one page and inferring other pages).
   """
   def pages(base_url) do
     http_client = Transport.HTTPClient
