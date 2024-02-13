@@ -1,4 +1,15 @@
 defmodule Transport.Jobs.ConsolidateIRVEJob do
+  @moduledoc """
+  An Oban wrapper for the IRVE consolidation.
+
+  It ensures only a single instance can be enqueued and executed at once.
+
+  Data Gouv is queried for all static IRVE resources, then each resource is fetched via HTTP to estimate the
+  number of charging points, and a report is saved into the database.
+
+  Progress is broadcasted to the outside world via gossip using a specific `:type` marker.
+  """
+
   use Oban.Worker, max_attempts: 1, unique: [period: 3600, states: [:available, :scheduled, :executing]]
   require Logger
 
@@ -43,6 +54,7 @@ defmodule Transport.Jobs.ConsolidateIRVEJob do
     Oban.Notifier.notify(Oban, :gossip, %{type: :consolidation_irve, job_id: job_id, status: status, progress: progress})
   end
 
+  # recursive loop replacing `Task.await` (but we'd need to better handle errors here)
   def wait_for_work_completion(job_id) do
     receive do
       {:progress, percent} ->
