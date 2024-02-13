@@ -14,8 +14,7 @@ defmodule TransportWeb.NotificationLive do
         },
         socket
       ) do
-    # The following thing calls datagouv to get the org of the user, then the datasets of the org
-    # Shouldn’t we just update the orgs of the contact in database and use that instead?
+
     datasets =
       case DB.Dataset.datasets_for_user(current_user) do
         datasets when is_list(datasets) ->
@@ -35,7 +34,7 @@ defmodule TransportWeb.NotificationLive do
 
     socket =
       socket
-      # |> assign(:current_user, current_user)
+      |> assign(:current_contact, current_contact)
       |> assign(:locale, locale)
       |> assign(:datasets, datasets)
       |> assign(:subscriptions, subscriptions)
@@ -43,14 +42,17 @@ defmodule TransportWeb.NotificationLive do
     {:ok, socket}
   end
 
-  def handle_event("toggle", %{"dataset-id" => dataset_id, "reason" => reason}, socket) do
-    # toggle_subscription(id)
+  def handle_event("toggle", %{"dataset-id" => dataset_id, "subscription-id" => subscription_id, "reason" => reason, "action" => action}, socket) do
+    current_contact = socket.assigns.current_contact
+    toggle_subscription(current_contact, dataset_id, subscription_id, reason, action)
 
     # {:noreply, assign(socket, :subscriptions, fetch_subscriptions())} TODO
     {:noreply, socket}
   end
 
   defp notification_subscriptions_for_datasets(datasets, current_contact) do
+    # TODO : perhaps move to notification_subscription.ex
+
     dataset_ids = datasets |> Enum.map(& &1.id)
 
     subscriptions_list = load_subscriptions_for_datasets_and_contact(dataset_ids, current_contact)
@@ -62,6 +64,7 @@ defmodule TransportWeb.NotificationLive do
   end
 
   defp load_subscriptions_for_datasets_and_contact(dataset_ids, current_contact) do
+    # TODO Note Antoine : plutôt aller chercher les notifications à partir des datasets > même org.
     DB.NotificationSubscription.base_query()
     |> DB.NotificationSubscription.join_with_contact()
     |> preload(:contact)
@@ -71,7 +74,7 @@ defmodule TransportWeb.NotificationLive do
       # That’s not so good, it’s just a string
       ns.dataset_id in ^dataset_ids and not is_nil(ns.dataset_id) and
         ns.role == :producer and
-        c.organization == ^current_contact.organization
+        c.organization == ^current_contact.organization # TODO NOPE, it’s a display name, can be overriden
     )
     # we shouldn’t take all and select better
     |> DB.Repo.all()
@@ -95,8 +98,21 @@ defmodule TransportWeb.NotificationLive do
     %{user_subscription: user_subscription, team_subscriptions: team_subscriptions}
   end
 
-  defp toggle_subscription(id) do
-    # Toggle the subscription with the given ID
-    # Replace this with your actual code to toggle the subscription
+  defp toggle_subscription(current_contact, dataset_id, _subscription_id, reason, "turn_on") do
+    %{contact_id: current_contact.id, dataset_id: dataset_id, reason: reason, source: :user, role: :producer}
+    |> DB.NotificationSubscription.insert!()
+    #%DB.NotificationSubscription{
+    #  contact_id: current_contact.id, dataset_id: dataset_id, reason: reason, source: :user, role: :producer}
+    #|> DB.NotificationSubscription.changeset()
+    #|> DB.Repo.insert() # It may fail if the subscription already exists, could happen if the user double-clicks
+    # TODO: alert for creation?
+  end
+
+  defp toggle_subscription(current_contact, _dataset_id, subscription_id, reason, "turn_off") do
+    DB.NotificationSubscription.base_query()
+    |> where([notification_subscription: ns], ns.id == ^subscription_id and ns.contact_id == ^current_contact.id)
+    |> DB.Repo.one!()
+    |> DB.Repo.delete!()
+
   end
 end

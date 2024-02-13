@@ -1,7 +1,7 @@
 <%= for dataset <- @datasets do %>
   <h2><%= dataset.custom_title %></h2>
 
-  <.form :let={f} for={%{}} %>
+  <.form :let={f} for={%{}}>
     <table>
       <tr>
         <th>Reason</th>
@@ -19,9 +19,11 @@
                   <%= checkbox(
                     f,
                     reason,
-                    checked_value: if(my_subscription, do: true),
+                    checked: !is_nil(my_subscription),
                     phx_value_dataset_id: dataset.id,
                     phx_value_reason: reason,
+                    phx_value_subscription_id: if(my_subscription, do: my_subscription.id, else: ""),
+                    phx_value_action: if(my_subscription, do: "turn_off", else: "turn_on"),
                     phx_click: "toggle"
                   ) %>
                   <span class="slider"></span>
