@@ -78,9 +78,10 @@ defmodule TransportWeb.NotificationController do
     |> preload(:dataset)
     |> where(
       [notification_subscription: ns, contact: c],
+      # That’s not so good, it’s just a string
       ns.dataset_id in ^dataset_ids and not is_nil(ns.dataset_id) and
         ns.role == :producer and
-        c.organization == ^current_contact.organization # That’s not so good, it’s just a string
+        c.organization == ^current_contact.organization
     )
     |> DB.Repo.all()
   end
@@ -133,7 +134,6 @@ defmodule TransportWeb.NotificationController do
 
   defp picked_reasons(%{} = params) do
     possible_reasons = DB.NotificationSubscription.reasons_related_to_datasets() |> Enum.map(&to_string/1)
-
 
     params |> Map.filter(fn {k, v} -> k in possible_reasons and v == "true" end) |> Map.keys()
   end

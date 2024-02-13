@@ -203,9 +203,6 @@ defmodule TransportWeb.Router do
         live("/batch-report", DataImportBatchReportLive)
       end
 
-
-
-
       scope "/datasets" do
         get("/new", PageController, :new)
         get("/:id/edit", PageController, :edit)
@@ -310,7 +307,6 @@ defmodule TransportWeb.Router do
     live_session :notification, root_layout: {TransportWeb.LayoutView, :app} do
       live("/notifications", NotificationLive)
     end
-
 
     # Define a "catch all" route, rendering the 404 page.
     # By default pipelines are not invoked when a route is not found.

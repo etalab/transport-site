@@ -89,16 +89,21 @@
                   <% end %>
                 <% end %>
                 <%= form_for @conn, notification_path(@conn, :toggle, dataset), fn f -> %>
-
-                <div class="form__group">
-                  <fieldset>
-                    <label class="switch">
-                      <input type="checkbox" name="subscribe" id="" value={subscription_reason} checked={if my_subscription, do: true}/>
-                      <span class="slider"></span>
-                    </label>
-                  </fieldset>
-                </div>
-                <%= submit "Save" %>
+                  <div class="form__group">
+                    <fieldset>
+                      <label class="switch">
+                        <input
+                          type="checkbox"
+                          name="subscribe"
+                          id=""
+                          value={subscription_reason}
+                          checked={if my_subscription, do: true}
+                        />
+                        <span class="slider"></span>
+                      </label>
+                    </fieldset>
+                  </div>
+                  <%= submit("Save") %>
                 <% end %>
               </td>
               <td>

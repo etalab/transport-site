@@ -844,7 +844,7 @@ defmodule DB.Dataset do
 
   def datasets_for_user(%{"id" => datagouv_id}) do
     case Datagouvfr.Client.User.get(datagouv_id) do
-      {:ok,  %{"organizations" => organizations}} ->
+      {:ok, %{"organizations" => organizations}} ->
         organization_ids = Enum.map(organizations, fn %{"id" => id} -> id end)
 
         __MODULE__.base_query()

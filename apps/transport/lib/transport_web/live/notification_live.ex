@@ -6,52 +6,47 @@ defmodule TransportWeb.NotificationLive do
   import TransportWeb.Router.Helpers
   import TransportWeb.Gettext
 
-  def mount(_params, %{
-    "current_user" => current_user,
-    "locale" => locale
-  }, socket) do
+  def mount(
+        _params,
+        %{
+          "current_user" => current_user,
+          "locale" => locale
+        },
+        socket
+      ) do
+    # The following thing calls datagouv to get the org of the user, then the datasets of the org
+    # Shouldn’t we just update the orgs of the contact in database and use that instead?
+    datasets =
+      case DB.Dataset.datasets_for_user(current_user) do
+        datasets when is_list(datasets) ->
+          datasets
 
-  datasets =
-  # The following thing calls datagouv to get the org of the user, then the datasets of the org
-  # Shouldn’t we just update the orgs of the contact in database and use that instead?
-  case DB.Dataset.datasets_for_user(current_user) do
-      datasets when is_list(datasets) ->
-        datasets
+        {:error, _} ->
+          # TODO : dunno what to do here for a liveview. Render an error page?
+          []
+      end
 
-      {:error, _} ->
-        [] # TODO : dunno what to do here for a liveview. Render an error page?
-  end
+    # I don’t know what I’m doing here
+    Gettext.put_locale(locale)
 
-  Gettext.put_locale(locale) # I don’t know what I’m doing here
+    current_contact = DB.Repo.get_by(DB.Contact, datagouv_user_id: current_user["id"])
 
-  current_contact = DB.Repo.get_by(DB.Contact, datagouv_user_id: current_user["id"])
+    subscriptions = notification_subscriptions_for_datasets(datasets, current_contact)
 
-
-  subscriptions = notification_subscriptions_for_datasets(datasets, current_contact)
-
-  socket =
-    socket
-    # |> assign(:current_user, current_user)
-    |> assign(:locale, locale)
-    |> assign(:datasets, datasets)
-    |> assign(:subscriptions, subscriptions)
-
+    socket =
+      socket
+      # |> assign(:current_user, current_user)
+      |> assign(:locale, locale)
+      |> assign(:datasets, datasets)
+      |> assign(:subscriptions, subscriptions)
 
     {:ok, socket}
   end
 
-  def handle_event("toggle", params, socket) do
-    dbg(params)
-
+  def handle_event("toggle", %{"dataset-id" => dataset_id, "reason" => reason}, socket) do
     # toggle_subscription(id)
 
-    IO.puts("yooo")
     # {:noreply, assign(socket, :subscriptions, fetch_subscriptions())} TODO
-    {:noreply, socket}
-  end
-
-  def handle_event("toggle", params, socket) do
-    IO.puts("heeeeeey")
     {:noreply, socket}
   end
 
@@ -73,11 +68,13 @@ defmodule TransportWeb.NotificationLive do
     |> preload(:dataset)
     |> where(
       [notification_subscription: ns, contact: c],
+      # That’s not so good, it’s just a string
       ns.dataset_id in ^dataset_ids and not is_nil(ns.dataset_id) and
         ns.role == :producer and
-        c.organization == ^current_contact.organization # That’s not so good, it’s just a string
+        c.organization == ^current_contact.organization
     )
-    |> DB.Repo.all() # we shouldn’t take all and select better
+    # we shouldn’t take all and select better
+    |> DB.Repo.all()
   end
 
   defp group_by_reason_and_contact(subscriptions, current_contact) do
@@ -97,8 +94,6 @@ defmodule TransportWeb.NotificationLive do
 
     %{user_subscription: user_subscription, team_subscriptions: team_subscriptions}
   end
-
-
 
   defp toggle_subscription(id) do
     # Toggle the subscription with the given ID
