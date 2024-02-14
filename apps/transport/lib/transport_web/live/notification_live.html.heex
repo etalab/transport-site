@@ -1,46 +1,78 @@
-<%= for dataset <- @datasets do %>
-  <h2><%= dataset.custom_title %></h2>
+<div class="pt-48">
+  <div class="container pb-24">
+    <%= breadcrumbs([@socket, :notification_index]) %>
+  </div>
+</div>
 
-  <.form :let={f} for={%{}}>
-    <table>
-      <tr>
-        <th>Reason</th>
-        <th>Subscribe</th>
-        <th>Other members</th>
-      </tr>
-      <%= for reason <- DB.NotificationSubscription.reasons_related_to_datasets() do %>
-        <tr>
-          <td><%= DB.NotificationSubscription.reason_to_str(reason) %></td>
-          <td>
-            <% my_subscription = @subscriptions[dataset.id][reason][:user_subscription] %>
-            <div class="form__group">
-              <fieldset>
-                <label class="switch">
-                  <%= checkbox(
-                    f,
-                    reason,
-                    checked: !is_nil(my_subscription),
-                    phx_value_dataset_id: dataset.id,
-                    phx_value_reason: reason,
-                    phx_value_subscription_id: if(my_subscription, do: my_subscription.id, else: ""),
-                    phx_value_action: if(my_subscription, do: "turn_off", else: "turn_on"),
-                    phx_click: "toggle"
-                  ) %>
-                  <span class="slider"></span>
-                </label>
-              </fieldset>
-            </div>
-          </td>
-          <td>
-            <% team_subscriptions = @subscriptions[dataset.id][reason][:team_subscriptions] %>
-            <%= if team_subscriptions,
-              do: team_subscriptions |> Enum.map(&(&1.contact |> DB.Contact.display_name())) |> Enum.join(", ") %>
-          </td>
-        </tr>
+<section class="section producer-actions">
+  <div class="container">
+    <h2><%= dgettext("espace-producteurs", "Notifications settings") %></h2>
+    <div class="panel">
+      <p>
+        Les notifications vous aident à maintenir la qualité et l’accès à vos données, en vous avertissant automatiquement en cas de problème. Elles vous assurent que vos usagers aient un accès ininterrompu à vos données de transport à travers leurs applications (calcul d’itinéraire…).
+      </p>
+      <h5>Expiration de données</h5>
+      <p>Vous êtes averti 14 jours, 7 jours et 1 jour avant la dernière date couverte par vos données, tels que les horaires théoriques des transports collectifs.</p>
+      <h5>Erreurs de validation</h5>
+
+      <p>
+        Vous êtes averti lorsque le fichier ne respecte pas la norme (spécification/schéma) ou en cas d’erreur critique concernant la cohérence des données, empêchant leur réutilisation.
+      </p>
+
+      <h5>Ressources indisponibles</h5>
+
+      <p>
+       Vous êtes averti au bout de 6h consécutives pendant lesquelles votre fichier ne peut pas être téléchargé.
+      </p>
+    </div>
+
+    <div class="panel">
+      <%= for dataset <- @datasets do %>
+        <h3><%= dataset.custom_title %></h3>
+
+        <.form :let={f} for={%{}}>
+          <table>
+            <tr>
+              <th>Reason</th>
+              <th>Subscribe</th>
+              <th>Other members</th>
+            </tr>
+            <%= for reason <- DB.NotificationSubscription.reasons_related_to_datasets() do %>
+              <tr>
+                <td><%= DB.NotificationSubscription.reason_to_str(reason) %></td>
+                <td>
+                  <% my_subscription = @subscriptions[dataset.id][reason][:user_subscription] %>
+                  <div class="form__group">
+                    <fieldset>
+                      <label class="switch">
+                        <%= checkbox(
+                          f,
+                          reason,
+                          checked: !is_nil(my_subscription),
+                          phx_value_dataset_id: dataset.id,
+                          phx_value_reason: reason,
+                          phx_value_subscription_id: if(my_subscription, do: my_subscription.id, else: ""),
+                          phx_value_action: if(my_subscription, do: "turn_off", else: "turn_on"),
+                          phx_click: "toggle"
+                        ) %>
+                        <span class="slider"></span>
+                      </label>
+                    </fieldset>
+                  </div>
+                </td>
+                <td>
+                  <% team_subscriptions = @subscriptions[dataset.id][reason][:team_subscriptions] %>
+                  <%= if team_subscriptions,
+                    do: team_subscriptions |> Enum.map(&(&1.contact |> DB.Contact.display_name())) |> Enum.join(", ") %>
+                </td>
+              </tr>
+            <% end %>
+          </table>
+        </.form>
       <% end %>
-    </table>
-  </.form>
-<% end %>
+    </div>
+  </div>
+</section>
 <script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>
 </script>
 ```

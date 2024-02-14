@@ -5,6 +5,7 @@ defmodule TransportWeb.NotificationLive do
   import TransportWeb.InputHelpers
   import TransportWeb.Router.Helpers
   import TransportWeb.Gettext
+  import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
 
   def mount(
         _params,
@@ -14,7 +15,6 @@ defmodule TransportWeb.NotificationLive do
         },
         socket
       ) do
-
     datasets =
       case DB.Dataset.datasets_for_user(current_user) do
         datasets when is_list(datasets) ->
@@ -42,7 +42,11 @@ defmodule TransportWeb.NotificationLive do
     {:ok, socket}
   end
 
-  def handle_event("toggle", %{"dataset-id" => dataset_id, "subscription-id" => subscription_id, "reason" => reason, "action" => action}, socket) do
+  def handle_event(
+        "toggle",
+        %{"dataset-id" => dataset_id, "subscription-id" => subscription_id, "reason" => reason, "action" => action},
+        socket
+      ) do
     current_contact = socket.assigns.current_contact
     toggle_subscription(current_contact, dataset_id, subscription_id, reason, action)
 
@@ -72,9 +76,10 @@ defmodule TransportWeb.NotificationLive do
     |> where(
       [notification_subscription: ns, contact: c],
       # That’s not so good, it’s just a string
+      # TODO NOPE, it’s a display name, can be overriden
       ns.dataset_id in ^dataset_ids and not is_nil(ns.dataset_id) and
         ns.role == :producer and
-        c.organization == ^current_contact.organization # TODO NOPE, it’s a display name, can be overriden
+        c.organization == ^current_contact.organization
     )
     # we shouldn’t take all and select better
     |> DB.Repo.all()
@@ -101,10 +106,11 @@ defmodule TransportWeb.NotificationLive do
   defp toggle_subscription(current_contact, dataset_id, _subscription_id, reason, "turn_on") do
     %{contact_id: current_contact.id, dataset_id: dataset_id, reason: reason, source: :user, role: :producer}
     |> DB.NotificationSubscription.insert!()
-    #%DB.NotificationSubscription{
+
+    # %DB.NotificationSubscription{
     #  contact_id: current_contact.id, dataset_id: dataset_id, reason: reason, source: :user, role: :producer}
-    #|> DB.NotificationSubscription.changeset()
-    #|> DB.Repo.insert() # It may fail if the subscription already exists, could happen if the user double-clicks
+    # |> DB.NotificationSubscription.changeset()
+    # |> DB.Repo.insert() # It may fail if the subscription already exists, could happen if the user double-clicks
     # TODO: alert for creation?
   end
 
@@ -113,6 +119,5 @@ defmodule TransportWeb.NotificationLive do
     |> where([notification_subscription: ns], ns.id == ^subscription_id and ns.contact_id == ^current_contact.id)
     |> DB.Repo.one!()
     |> DB.Repo.delete!()
-
   end
 end
