@@ -15,17 +15,17 @@ defmodule TransportWeb.NotificationLive do
         },
         socket
       ) do
-    datasets =
+
+    {socket, datasets} =
       case DB.Dataset.datasets_for_user(current_user) do
         datasets when is_list(datasets) ->
-          datasets
+          {socket, datasets}
 
         {:error, _} ->
           # TODO : dunno what to do here for a liveview. Render an error page?
-          []
+          {socket |> put_flash(:error, dgettext("alert", "Unable to get all your resources for the moment")), []}
       end
 
-    # I don’t know what I’m doing here
     Gettext.put_locale(locale)
 
     current_contact = DB.Repo.get_by(DB.Contact, datagouv_user_id: current_user["id"])
@@ -47,11 +47,15 @@ defmodule TransportWeb.NotificationLive do
         %{"dataset-id" => dataset_id, "subscription-id" => subscription_id, "reason" => reason, "action" => action},
         socket
       ) do
-    current_contact = socket.assigns.current_contact
-    toggle_subscription(current_contact, dataset_id, subscription_id, reason, action)
+        current_contact = socket.assigns.current_contact
+    datasets = socket.assigns.datasets
 
-    # {:noreply, assign(socket, :subscriptions, fetch_subscriptions())} TODO
-    {:noreply, socket}
+
+    toggle_subscription(current_contact, dataset_id, subscription_id, reason, action)
+    subscriptions = notification_subscriptions_for_datasets(datasets, current_contact)
+
+    # TODO : alerts for success/failure
+    {:noreply, assign(socket, :subscriptions, subscriptions)}
   end
 
   defp notification_subscriptions_for_datasets(datasets, current_contact) do
@@ -59,29 +63,29 @@ defmodule TransportWeb.NotificationLive do
 
     dataset_ids = datasets |> Enum.map(& &1.id)
 
-    subscriptions_list = load_subscriptions_for_datasets_and_contact(dataset_ids, current_contact)
+    # TODO What I want : a list of lines contact <> dataset, through the contact_organisation table
+    # Something like (from "contacts_organizations", select: [:contact_id, :organization_id], where: "organization_id" in ^organization_ids) |> DB.Repo.all()
+
+    subscriptions_list = load_subscriptions_for_datasets(dataset_ids)
 
     subscriptions_list
-    |> Enum.sort_by(&{&1.dataset.custom_title, &1.reason})
-    |> Enum.group_by(& &1.dataset.id)
-    |> Map.new(fn {dataset, subscriptions} -> {dataset, group_by_reason_and_contact(subscriptions, current_contact)} end)
+    |> Enum.group_by(& &1.dataset_id)
+    |> Map.new(fn {dataset_id, subscriptions} -> {dataset_id, group_by_reason_and_contact(subscriptions, current_contact)} end)
   end
 
-  defp load_subscriptions_for_datasets_and_contact(dataset_ids, current_contact) do
+  defp load_subscriptions_for_datasets(dataset_ids) do
     # TODO Note Antoine : plutôt aller chercher les notifications à partir des datasets > même org.
+    # Faudrait faire un join avec les contacts et les organisations pour avoir les contacts qui sont dans la même org que le dataset
     DB.NotificationSubscription.base_query()
     |> DB.NotificationSubscription.join_with_contact()
     |> preload(:contact)
-    |> preload(:dataset)
     |> where(
       [notification_subscription: ns, contact: c],
-      # That’s not so good, it’s just a string
-      # TODO NOPE, it’s a display name, can be overriden
+
       ns.dataset_id in ^dataset_ids and not is_nil(ns.dataset_id) and
-        ns.role == :producer and
-        c.organization == ^current_contact.organization
+        ns.role == :producer
+
     )
-    # we shouldn’t take all and select better
     |> DB.Repo.all()
   end
 

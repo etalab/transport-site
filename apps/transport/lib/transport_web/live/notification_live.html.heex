@@ -46,7 +46,9 @@
         <%= for dataset <- @datasets do %>
           <.form :let={f} for={%{}}>
             <tr>
-              <th scope="row" colspan="3"><%= dataset.custom_title %></th>
+              <th scope="row" colspan="3">
+              <%= dataset.custom_title %>
+</th>
             </tr>
 
             <%= for reason <- DB.NotificationSubscription.reasons_related_to_datasets() do %>
@@ -75,7 +77,7 @@
                 </td>
                 <td>
                   <% team_subscriptions = @subscriptions[dataset.id][reason][:team_subscriptions] %>
-                  <%= if team_subscriptions do %>
+                  <%= if team_subscriptions && team_subscriptions != [] do %>
                     Autres abonnés : <%= team_subscriptions
                     |> Enum.map(&(&1.contact |> DB.Contact.display_name()))
                     |> Enum.join(", ") %>
