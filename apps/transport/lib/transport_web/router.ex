@@ -89,12 +89,8 @@ defmodule TransportWeb.Router do
         delete("/:dataset_id/custom_logo", EspaceProducteurController, :remove_custom_logo)
       end
 
-      scope "/notifications" do
-        get("/", NotificationController, :index)
-        post("/", NotificationController, :create)
-        delete("/:id", NotificationController, :delete)
-        delete("/datasets/:dataset_id", NotificationController, :delete_for_dataset)
-        post("/datasets/:dataset_id", NotificationController, :toggle)
+      live_session :notification, root_layout: {TransportWeb.LayoutView, :app} do
+        live("/notifications", EspaceProducteur.NotificationLive)
       end
     end
 
@@ -182,8 +178,7 @@ defmodule TransportWeb.Router do
       end
 
       live_session :backoffice_jobs, root_layout: {TransportWeb.LayoutView, :app} do
-        live("/jobs", JobsLive)
-      end
+        live("/jobs", JobsLive) end
 
       live_session :gbfs, root_layout: {TransportWeb.LayoutView, :app} do
         live("/gbfs", GBFSLive)
@@ -304,9 +299,7 @@ defmodule TransportWeb.Router do
         "https://blog.transport.data.gouv.fr/billets/donn%C3%A9es-p%C3%A9rim%C3%A9es-donn%C3%A9es-inutilis%C3%A9es/"
     )
 
-    live_session :notification, root_layout: {TransportWeb.LayoutView, :app} do
-      live("/notifications", NotificationLive)
-    end
+
 
     # Define a "catch all" route, rendering the 404 page.
     # By default pipelines are not invoked when a route is not found.

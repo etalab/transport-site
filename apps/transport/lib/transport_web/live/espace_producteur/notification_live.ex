@@ -1,4 +1,4 @@
-defmodule TransportWeb.NotificationLive do
+defmodule TransportWeb.EspaceProducteur.NotificationLive do
   use Phoenix.LiveView
   import Ecto.Query
   use TransportWeb.InputHelpers
