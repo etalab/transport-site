@@ -168,7 +168,7 @@
         latest_resources_history_infos: @latest_resources_history_infos
       ) %>
       <%= render("_reuser_message.html") %>
-      <%= render("_dataset_scores_chart.html", scores_chart: @scores_chart, conn: @conn) %>
+      <%= render("_dataset_scores_chart.html", scores_chart: @scores_chart, latest_scores: @latest_scores, conn: @conn) %>
       <%= render("_community_resources.html", dataset: @dataset) %>
     </section>
 

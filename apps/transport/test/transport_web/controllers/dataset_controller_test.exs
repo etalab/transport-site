@@ -395,14 +395,48 @@ defmodule TransportWeb.DatasetControllerTest do
 
   test "quality indicators chart is displayed", %{conn: conn} do
     dataset = insert(:dataset, is_active: true)
+
+    insert(:dataset_score,
+      dataset: dataset,
+      timestamp: DateTime.utc_now() |> DateTime.add(-24, :hour),
+      score: 0.3,
+      topic: :freshness
+    )
+
+    insert(:dataset_score,
+      dataset: dataset,
+      timestamp: DateTime.utc_now() |> DateTime.add(-1, :hour),
+      score: 0.549,
+      topic: :freshness
+    )
+
+    insert(:dataset_score,
+      dataset: dataset,
+      timestamp: DateTime.utc_now() |> DateTime.add(-3, :hour),
+      score: 0.8,
+      topic: :compliance
+    )
+
+    insert(:dataset_score,
+      dataset: dataset,
+      timestamp: DateTime.utc_now() |> DateTime.add(-1, :hour),
+      score: nil,
+      topic: :availability
+    )
+
     set_empty_mocks()
 
-    refute conn
-           |> get(dataset_path(conn, :details, dataset.slug))
-           |> html_response(200)
-           |> Floki.parse_document!()
-           |> Floki.find("#quality-indicators")
-           |> Enum.empty?()
+    content = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200) |> Floki.parse_document!()
+
+    refute content |> Floki.find("#quality-indicators") |> Enum.empty?()
+
+    assert [
+             {"table", [{"class", "table"}],
+              [
+                {"tr", [], [{"th", [], ["Conformité"]}, {"th", [], ["Fraicheur"]}]},
+                {"tr", [], [{"td", [], ["80%"]}, {"td", [], ["55%"]}]}
+              ]}
+           ] == content |> Floki.find("#quality-indicators table")
   end
 
   test "a banner is displayed for a seasonal dataset", %{conn: conn} do

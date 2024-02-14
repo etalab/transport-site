@@ -2,6 +2,19 @@
   <h2><%= dgettext("page-dataset-details", "Quality indicators") %></h2>
   <div class="panel">
     <div id="vega-vis"></div>
+    <h5><%= dgettext("page-dataset-details", "Latest quality indicators") %></h5>
+    <table class="table">
+      <tr>
+        <%= for {topic, _} <- @latest_scores do %>
+          <th><%= topic |> DB.DatasetScore.topic_for_humans() |> String.capitalize() %></th>
+        <% end %>
+      </tr>
+      <tr>
+        <%= for {_, score} <- @latest_scores do %>
+          <td><%= score %>%</td>
+        <% end %>
+      </tr>
+    </table>
     <p>
       <%= raw(
         dgettext(
