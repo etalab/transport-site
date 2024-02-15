@@ -10,20 +10,40 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
   @endpoint TransportWeb.Endpoint
   @url "/espace_producteur/notifications"
 
-  ## OLD CODE from notification controller
 
-  # import Plug.Test, only: [init_test_session: 2]
+  ## OLD CODE from notification controller
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
   test "requires login" do
-    conn = build_conn()
-    conn = get(conn, @url)
-    assert html_response(conn, 302)
-    # end
+      conn = build_conn()
+      conn = get(conn, @url)
+      assert html_response(conn, 302)
+
+
   end
+
+      test "displays existing subscriptions" do
+      %DB.Dataset{id: dataset_id, organization_id: organization_id} = insert(:dataset, custom_title: "Mon super JDD")
+      %DB.Contact{id: contact_id} = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+
+      insert(:notification_subscription,
+        contact_id: contact_id,
+        dataset_id: dataset_id,
+        reason: :expiration,
+        role: :producer,
+        source: :user
+      )
+
+      Datagouvfr.Client.User.Mock
+      |> expect(:get, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
+
+      conn = build_conn() |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+      content = conn |> get(@url) |> html_response(200)
+      assert content =~ "Mon super JDD"
+    end
 
   # setup :verify_on_exit!
 
@@ -32,25 +52,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
   #     assert conn |> get(notification_path(conn, :index)) |> redirected_to(302) =~ ~r"^/login/explanation"
   #   end
 
-  #   test "displays existing subscriptions", %{conn: conn} do
-  #     %DB.Dataset{id: dataset_id, organization_id: organization_id} = insert(:dataset, custom_title: "Mon super JDD")
-  #     %DB.Contact{id: contact_id} = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
 
-  #     insert(:notification_subscription,
-  #       contact_id: contact_id,
-  #       dataset_id: dataset_id,
-  #       reason: :expiration,
-  #       role: :producer,
-  #       source: :user
-  #     )
-
-  #     Datagouvfr.Client.User.Mock
-  #     |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
-
-  #     conn = conn |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
-  #     content = conn |> get(notification_path(conn, :index)) |> html_response(200)
-  #     assert content =~ "Mon super JDD"
-  #   end
   # end
 
   # describe "create" do

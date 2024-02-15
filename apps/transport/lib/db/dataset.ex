@@ -826,9 +826,8 @@ defmodule DB.Dataset do
   @doc """
   Find datasets present on the NAP for which the user is a member of the organization.
   """
-  @spec datasets_for_user(Plug.Conn.t()) :: [__MODULE__.t()] | {:error, OAuth2.Error.t()}
-  def datasets_for_user(%Plug.Conn{} = conn) do
-    case Datagouvfr.Client.User.Wrapper.impl().me(conn) do
+  def datasets_for_user(conn_or_user) do
+    case my_user_fun(conn_or_user) do
       {:ok, %{"organizations" => organizations}} ->
         organization_ids = Enum.map(organizations, fn %{"id" => id} -> id end)
 
@@ -842,20 +841,15 @@ defmodule DB.Dataset do
     end
   end
 
-  def datasets_for_user(%{"id" => datagouv_id}) do
-    case Datagouvfr.Client.User.get(datagouv_id) do
-      {:ok, %{"organizations" => organizations}} ->
-        organization_ids = Enum.map(organizations, fn %{"id" => id} -> id end)
-
-        __MODULE__.base_query()
-        |> preload(:resources)
-        |> where([dataset: d], d.organization_id in ^organization_ids)
-        |> Repo.all()
-
-      error ->
-        error
-    end
+  def my_user_fun(%Plug.Conn{} = conn) do
+    Datagouvfr.Client.User.Wrapper.impl().me(conn)
   end
+
+  def my_user_fun(%{"id" => datagouv_id}) do
+    Datagouvfr.Client.User.Wrapper.impl().get(datagouv_id)
+  end
+
+
 
   @spec get_resources_related_files(any()) :: %{integer() => %{optional(atom()) => conversion_details() | nil}}
   def get_resources_related_files(%__MODULE__{resources: resources} = dataset) when is_list(resources) do

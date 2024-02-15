@@ -4,6 +4,8 @@ defmodule Datagouvfr.Client.User.Wrapper do
   """
   @callback me(Plug.Conn.t()) :: {:error, map()} | {:ok, map()}
 
+  @callback get(String.t()) :: {atom, any()}
+
   def impl, do: Application.get_env(:datagouvfr, :user_impl)
 end
 
@@ -33,6 +35,9 @@ defmodule Datagouvfr.Client.User.Dummy do
            }
          ]
        }}
+
+  @impl Datagouvfr.Client.User.Wrapper
+  def get(_id), do: {:ok, %{"id" => "user_id_1"}}
 end
 
 defmodule Datagouvfr.Client.User do
