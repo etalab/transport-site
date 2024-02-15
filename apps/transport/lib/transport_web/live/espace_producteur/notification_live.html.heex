@@ -47,8 +47,8 @@
           <.form :let={f} for={%{}}>
             <tr>
               <th scope="row" colspan="3">
-              <%= dataset.custom_title %>
-</th>
+                <%= dataset.custom_title %>
+              </th>
             </tr>
 
             <%= for reason <- DB.NotificationSubscription.reasons_related_to_datasets() do %>

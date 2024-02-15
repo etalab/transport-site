@@ -15,7 +15,6 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
         },
         socket
       ) do
-
     {socket, datasets} =
       case DB.Dataset.datasets_for_user(current_user) do
         datasets when is_list(datasets) ->
@@ -47,9 +46,8 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
         %{"dataset-id" => dataset_id, "subscription-id" => subscription_id, "reason" => reason, "action" => action},
         socket
       ) do
-        current_contact = socket.assigns.current_contact
+    current_contact = socket.assigns.current_contact
     datasets = socket.assigns.datasets
-
 
     toggle_subscription(current_contact, dataset_id, subscription_id, reason, action)
     subscriptions = notification_subscriptions_for_datasets(datasets, current_contact)
@@ -70,21 +68,22 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
 
     subscriptions_list
     |> Enum.group_by(& &1.dataset_id)
-    |> Map.new(fn {dataset_id, subscriptions} -> {dataset_id, group_by_reason_and_contact(subscriptions, current_contact)} end)
+    |> Map.new(fn {dataset_id, subscriptions} ->
+      {dataset_id, group_by_reason_and_contact(subscriptions, current_contact)}
+    end)
   end
 
   defp load_subscriptions_for_datasets(dataset_ids) do
     # TODO Note Antoine : plutôt aller chercher les notifications à partir des datasets > même org.
-    # Faudrait faire un join avec les contacts et les organisations pour avoir les contacts qui sont dans la même org que le dataset
+    # Faudrait faire un join avec les contacts et les organisations
+    # pour avoir les contacts qui sont dans la même org que le dataset
     DB.NotificationSubscription.base_query()
     |> DB.NotificationSubscription.join_with_contact()
     |> preload(:contact)
     |> where(
       [notification_subscription: ns, contact: c],
-
       ns.dataset_id in ^dataset_ids and not is_nil(ns.dataset_id) and
         ns.role == :producer
-
     )
     |> DB.Repo.all()
   end

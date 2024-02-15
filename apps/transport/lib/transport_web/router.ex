@@ -178,7 +178,8 @@ defmodule TransportWeb.Router do
       end
 
       live_session :backoffice_jobs, root_layout: {TransportWeb.LayoutView, :app} do
-        live("/jobs", JobsLive) end
+        live("/jobs", JobsLive)
+      end
 
       live_session :gbfs, root_layout: {TransportWeb.LayoutView, :app} do
         live("/gbfs", GBFSLive)
@@ -298,8 +299,6 @@ defmodule TransportWeb.Router do
       external:
         "https://blog.transport.data.gouv.fr/billets/donn%C3%A9es-p%C3%A9rim%C3%A9es-donn%C3%A9es-inutilis%C3%A9es/"
     )
-
-
 
     # Define a "catch all" route, rendering the 404 page.
     # By default pipelines are not invoked when a route is not found.
