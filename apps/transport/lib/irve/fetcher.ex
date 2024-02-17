@@ -1,5 +1,5 @@
 # TODO: rename, not aptly named, and document
-defmodule Transport.IRVE.Streamer do
+defmodule Transport.IRVE.Fetcher do
   # the root phoenix path, to be improved of course
   def cache_dir, do: Path.join(__ENV__.file, "../../../../../cache-dir") |> Path.expand()
 

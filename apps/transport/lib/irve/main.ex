@@ -5,9 +5,9 @@ defmodule Transport.IRVE.Main do
 
   def resources do
     @static_irve_datagouv_url
-    |> Transport.IRVE.Streamer.pages()
+    |> Transport.IRVE.Fetcher.pages()
     |> Stream.map(fn %{url: url} = page ->
-      %{status: 200, body: result} = Transport.IRVE.Streamer.get!(url)
+      %{status: 200, body: result} = Transport.IRVE.Fetcher.get!(url)
       Map.put(page, :data, result)
     end)
     |> Stream.flat_map(fn page -> page[:data]["data"] end)
@@ -51,7 +51,7 @@ defmodule Transport.IRVE.Main do
 
       # TODO: parallelize this part (for production, uncached)
       %{status: status, body: body} =
-        Transport.IRVE.Streamer.get!(x[:url], compressed: false, decode_body: false)
+        Transport.IRVE.Fetcher.get!(x[:url], compressed: false, decode_body: false)
 
       x = x |> Map.put(:status, status) |> Map.put(:index, index)
 
