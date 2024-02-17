@@ -1,5 +1,10 @@
-# TODO: rename, not aptly named, and document
 defmodule Transport.IRVE.Fetcher do
+  @moduledoc """
+  A central point for HTTP fetching, including:
+  - data gouv pagination
+  - individual resource fetching
+  """
+
   # the root phoenix path, to be improved of course
   def cache_dir, do: Path.join(__ENV__.file, "../../../../../cache-dir") |> Path.expand()
 
