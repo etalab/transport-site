@@ -13,7 +13,8 @@ defmodule Transport.IRVE.Extractor do
   def resources do
     @static_irve_datagouv_url
     |> Transport.IRVE.Fetcher.pages()
-    |> Stream.map(&process_data_gouv_page/1)
+    |> Task.async_stream(&process_data_gouv_page/1, on_timeout: :kill_task, max_concurrency: 10)
+    |> Stream.map(fn {:ok, result} -> result end)
     |> Stream.flat_map(fn page -> page[:data]["data"] end)
     |> Stream.map(&unpack_resources/1)
     |> Stream.concat()
@@ -22,7 +23,6 @@ defmodule Transport.IRVE.Extractor do
     |> Enum.into([])
   end
 
-  # TODO: parallelize
   def process_data_gouv_page(%{url: url} = page) do
     Logger.info("Fetching data gouv page #{url}")
     %{status: 200, body: result} = Transport.IRVE.Fetcher.get!(url)
