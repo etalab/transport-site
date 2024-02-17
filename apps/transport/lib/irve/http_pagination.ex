@@ -9,6 +9,8 @@ defmodule Transport.IRVE.HTTPPagination do
   in the future though.
   """
 
+  require Logger
+
   @doc """
   Using a base url and an http client, generates a stream of pages urls using
   a naive algorithm to build all urls upfront instead of having to wait for each
@@ -30,7 +32,7 @@ defmodule Transport.IRVE.HTTPPagination do
     %{"total" => total, "page_size" => ^page_size} = data
     nb_pages = div(total, page_size) + 1
 
-    IO.puts("Processing #{url} (pages: #{nb_pages})")
+    Logger.info("Generating paginated urls from #{url} (pages: #{nb_pages})")
 
     # NOTE: contract may change for something more flexible
     1..nb_pages
