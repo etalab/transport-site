@@ -61,42 +61,48 @@ defmodule Transport.IRVE.Extractor do
 
     r
     |> Enum.with_index()
-    |> Enum.map(fn {x, index} ->
-      if progress_callback, do: progress_callback.(index)
-      Logger.info("IRVE - processing #{index} over #{count}...")
-
-      # TODO: parallelize this part (for production, uncached)
-      %{status: status, body: body} =
-        Transport.IRVE.Fetcher.get!(x[:url], compressed: false, decode_body: false)
-
-      x = x |> Map.put(:status, status) |> Map.put(:index, index)
-
-      if status == 200 do
-        body = body |> String.split("\n")
-
-        first_line =
-          body
-          |> hd()
-
-        line_count = (body |> length) - 1
-
-        id_detected = first_line |> String.contains?("id_pdc_itinerance")
-        # a field from v1, which does not end like a field in v2
-        old_schema = first_line |> String.contains?("ad_station")
-
-        x
-        |> Map.put(:id_pdc_itinerance_detected, id_detected)
-        |> Map.put(:old_schema, old_schema)
-        |> Map.put(:first_line, first_line)
-        |> Map.put(:line_count, line_count)
-      else
-        x
-      end
-    end)
+    |> Task.async_stream(
+      fn {row, index} ->
+        if progress_callback, do: progress_callback.(index)
+        Logger.info("IRVE - processing #{index} over #{count}...")
+        download_and_parse_one(row, index)
+      end,
+      timeout: 100_000,
+      on_timeout: :kill_task,
+      max_concurrency: 2
+    )
+    |> Enum.map(fn {:ok, x} -> x end)
     |> Enum.map(fn x ->
       Map.take(x, [:dataset_id, :dataset_title, :resource_id, :resource_title, :valid, :line_count, :index])
     end)
   end
+
+  def download_and_parse_one(row, index) do
+    %{status: status, body: body} =
+      Transport.IRVE.Fetcher.get!(row[:url], compressed: false, decode_body: false)
+
+    row
+    |> Map.put(:status, status)
+    |> Map.put(:index, index)
+    |> then(fn x -> process_body(x, body) end)
+  end
+
+  def process_body(%{status: 200} = row, body) do
+    body = body |> String.split("\n")
+    first_line = body |> hd()
+    line_count = (body |> length) - 1
+    id_detected = first_line |> String.contains?("id_pdc_itinerance")
+    # a field from v1, which does not end like a field in v2
+    old_schema = first_line |> String.contains?("ad_station")
+
+    row
+    |> Map.put(:id_pdc_itinerance_detected, id_detected)
+    |> Map.put(:old_schema, old_schema)
+    |> Map.put(:first_line, first_line)
+    |> Map.put(:line_count, line_count)
+  end
+
+  def process_body(row), do: row
 
   def insert_report!(resources) do
     %DB.ProcessingReport{}
