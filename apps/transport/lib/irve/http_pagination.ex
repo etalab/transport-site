@@ -1,6 +1,14 @@
-# NOTE: "namespaced" to IRVE for now for simplicity, but this is obviously
-# something that is generic enough to be reused elsewhere & renamed easily.
 defmodule Transport.IRVE.HTTPPagination do
+  @moduledoc """
+  Although namespaced under IRVE for simplicity, this is more data-gouv specific.
+
+  This provides a paginating strategy based on the idea of generating all paginated
+  urls at once, based on the first page response, instead of waiting for each link.
+
+  Works at the moment, could need more work if data gouv changes of behaviour
+  in the future though.
+  """
+
   @doc """
   Using a base url and an http client, generates a stream of pages urls using
   a naive algorithm to build all urls upfront instead of having to wait for each
