@@ -28,9 +28,12 @@ defmodule Transport.Req do
   defdelegate get!(url, options), to: Req
 end
 
-# Experimental: a higher-level http client. In flux! Subject to change!
-# Req allow better customisation and we should look into that.
 defmodule Transport.HTTPClient do
+  @moduledoc """
+  An experimental Req higher-level wrapper client that we can Mox, supporting
+  easy opt-in cache enabling (crucial for large HTTP development locally).
+  """
+
   def get!(url, options) do
     options =
       Keyword.validate!(options, [
