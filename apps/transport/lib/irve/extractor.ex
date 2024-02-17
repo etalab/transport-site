@@ -1,4 +1,11 @@
 defmodule Transport.IRVE.Extractor do
+  @moduledoc """
+  Higher level module responsible for the overall ETL work:
+  - stream of data gouv IRVE resources meta-data
+  - extra data added thanks to individual resource body fetching
+  - report structure and insertion in database
+  """
+
   require Logger
 
   @static_irve_datagouv_url "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve-statique"
