@@ -13,37 +13,46 @@ defmodule Transport.IRVE.Extractor do
   def resources do
     @static_irve_datagouv_url
     |> Transport.IRVE.Fetcher.pages()
-    |> Stream.map(fn %{url: url} = page ->
-      %{status: 200, body: result} = Transport.IRVE.Fetcher.get!(url)
-      Map.put(page, :data, result)
-    end)
+    |> Stream.map(&process_data_gouv_page/1)
     |> Stream.flat_map(fn page -> page[:data]["data"] end)
-    |> Stream.map(fn dataset ->
-      dataset["resources"]
-      |> Enum.map(fn x ->
-        x
-        |> Map.put(:dataset_id, dataset["id"])
-        |> Map.put(:dataset_title, dataset["title"])
-      end)
-    end)
+    |> Stream.map(&unpack_resources/1)
     |> Stream.concat()
-    |> Stream.map(fn x ->
-      %{
-        resource_id: get_in(x, ["id"]),
-        resource_title: get_in(x, ["title"]),
-        dataset_id: get_in(x, [:dataset_id]),
-        dataset_title: get_in(x, [:dataset_title]),
-        valid: get_in(x, ["extras", "validation-report:valid_resource"]),
-        validation_date: get_in(x, ["extras", "validation-report:validation_date"]),
-        schema_name: get_in(x, ["schema", "name"]),
-        schema_version: get_in(x, ["schema", "version"]),
-        filetype: get_in(x, ["filetype"]),
-        last_modified: get_in(x, ["last_modified"]),
-        # vs latest?
-        url: get_in(x, ["url"])
-      }
-    end)
+    |> Stream.map(&remap_fields/1)
     |> Stream.filter(fn x -> x[:schema_name] == "etalab/schema-irve-statique" end)
+    |> Enum.into([])
+  end
+
+  # TODO: parallelize
+  def process_data_gouv_page(%{url: url} = page) do
+    Logger.info("Fetching data gouv page #{url}")
+    %{status: 200, body: result} = Transport.IRVE.Fetcher.get!(url)
+    Map.put(page, :data, result)
+  end
+
+  def unpack_resources(dataset) do
+    dataset["resources"]
+    |> Enum.map(fn x ->
+      x
+      |> Map.put(:dataset_id, dataset["id"])
+      |> Map.put(:dataset_title, dataset["title"])
+    end)
+  end
+
+  def remap_fields(row) do
+    %{
+      resource_id: get_in(row, ["id"]),
+      resource_title: get_in(row, ["title"]),
+      dataset_id: get_in(row, [:dataset_id]),
+      dataset_title: get_in(row, [:dataset_title]),
+      valid: get_in(row, ["erowtras", "validation-report:valid_resource"]),
+      validation_date: get_in(row, ["erowtras", "validation-report:validation_date"]),
+      schema_name: get_in(row, ["schema", "name"]),
+      schema_version: get_in(row, ["schema", "version"]),
+      filetype: get_in(row, ["filetype"]),
+      last_modified: get_in(row, ["last_modified"]),
+      # vs latest?
+      url: get_in(row, ["url"])
+    }
   end
 
   def download_and_parse_all(resources, progress_callback \\ nil) do
