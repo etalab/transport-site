@@ -7,7 +7,7 @@ require Logger
 
 Logger.info("Retrieving each relevant datagouv page & listing resources")
 
-resources = Transport.IRVE.Main.resources()
+resources = Transport.IRVE.Extractor.resources()
 
 Logger.info("Sharing a few stats...")
 
@@ -46,11 +46,11 @@ end
 
 Logger.info("Fetching each IRVE resource so that we can retrieve PDC count... (must be parallelized, otherwise awful)")
 
-resources = Transport.IRVE.Main.download_and_parse_all(resources)
+resources = Transport.IRVE.Extractor.download_and_parse_all(resources)
 
 Logger.info("Inserting report in DB...")
 
-Transport.IRVE.Main.insert_report!(resources)
+Transport.IRVE.Extractor.insert_report!(resources)
 
 Logger.info("Doing more stats...")
 

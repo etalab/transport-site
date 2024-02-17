@@ -1,4 +1,4 @@
-defmodule Transport.IRVE.Main do
+defmodule Transport.IRVE.Extractor do
   require Logger
 
   @static_irve_datagouv_url "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve-statique"

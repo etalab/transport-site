@@ -31,15 +31,15 @@ defmodule Transport.Jobs.ConsolidateIRVEJob do
       try do
         Logger.info("IRVE: starting consolidation...")
         send(job_pid, {:progress, 0})
-        resources = Transport.IRVE.Main.resources() |> Enum.into([])
+        resources = Transport.IRVE.Extractor.resources() |> Enum.into([])
 
         count = resources |> length()
         Logger.info("IRVE: processing #{count} resources...")
         cb = fn index -> send(job_pid, {:progress, (100.0 * index / count) |> trunc()}) end
-        resources = Transport.IRVE.Main.download_and_parse_all(resources, cb)
+        resources = Transport.IRVE.Extractor.download_and_parse_all(resources, cb)
 
         Logger.info("IRVE: saving report...")
-        Transport.IRVE.Main.insert_report!(resources)
+        Transport.IRVE.Extractor.insert_report!(resources)
 
         send(job_pid, {:complete})
       rescue
