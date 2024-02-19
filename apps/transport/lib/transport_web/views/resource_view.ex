@@ -336,4 +336,11 @@ defmodule TransportWeb.ResourceView do
       nil
     end
   end
+
+  def format_nil_or_number(nil, _locale), do: ""
+  def format_nil_or_number(value, locale), do: Helpers.format_number(value, locale: locale)
+
+  def yes_no_icon(nil), do: ""
+  def yes_no_icon(value) when value > 0, do: "✅"
+  def yes_no_icon(_), do: "❌"
 end

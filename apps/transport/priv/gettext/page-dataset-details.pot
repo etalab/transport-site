@@ -519,10 +519,6 @@ msgid "Displaying the last %{nb} backed up resources."
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Missing features that <a href=\"%{doc_link}\" target=\"_blank\">can be specified in GTFS</a>:"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Data published by"
 msgstr ""
 
@@ -624,4 +620,72 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "transport.data.gouv.fr computes quality indicators daily to assess the quality of the published data. <i class=\"fa fa-external-link-alt\"></i> <a href=\"%{doc_url}\" target=\"_blank\">Learn more</a>."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Description"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Fare attributes"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Fare rules"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "File or field"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Line color"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Line long name"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Line short name or line number"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "On-demand transport"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Quantity"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Status"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Stop accessibility"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The possibility of carrying a bicycle in the vehicle"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Transfers"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Trip accessibility"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Trip headsign"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Trip shapes"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The following table displays if the file/field is present in the GTFS."
 msgstr ""
