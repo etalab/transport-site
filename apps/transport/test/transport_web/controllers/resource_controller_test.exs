@@ -384,7 +384,7 @@ defmodule TransportWeb.ResourceControllerTest do
               }
             },
             "stats" => %{
-              "lines_with_short_name_count" => 5
+              "routes_with_short_name_count" => 5
             }
           },
           modes: ["ferry"]

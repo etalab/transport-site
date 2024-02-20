@@ -76,20 +76,20 @@ stats = @metadata["stats"] %>
       <tr>
         <td><%= dgettext("page-dataset-details", "Line short name or line number") %></td>
         <td lang="en"><code>routes.txt</code> — <code>route_short_name</code></td>
-        <td><%= yes_no_icon(stats["lines_with_short_name_count"]) %></td>
-        <td><%= format_nil_or_number(stats["lines_with_short_name_count"], locale) %></td>
+        <td><%= yes_no_icon(stats["routes_with_short_name_count"]) %></td>
+        <td><%= format_nil_or_number(stats["routes_with_short_name_count"], locale) %></td>
       </tr>
       <tr>
         <td><%= dgettext("page-dataset-details", "Line long name") %></td>
         <td lang="en"><code>routes.txt</code> — <code>route_long_name</code></td>
-        <td><%= yes_no_icon(stats["lines_with_long_name_count"]) %></td>
-        <td><%= format_nil_or_number(stats["lines_with_long_name_count"], locale) %></td>
+        <td><%= yes_no_icon(stats["routes_with_long_name_count"]) %></td>
+        <td><%= format_nil_or_number(stats["routes_with_long_name_count"], locale) %></td>
       </tr>
       <tr>
         <td><%= dgettext("page-dataset-details", "Line color") %></td>
         <td lang="en"><code>routes.txt</code> — <code>route_color</code></td>
-        <td><%= yes_no_icon(stats["lines_with_custom_color_count"]) %></td>
-        <td><%= format_nil_or_number(stats["lines_with_custom_color_count"], locale) %></td>
+        <td><%= yes_no_icon(stats["routes_with_custom_color_count"]) %></td>
+        <td><%= format_nil_or_number(stats["routes_with_custom_color_count"], locale) %></td>
       </tr>
       <tr>
         <td><%= dgettext("page-dataset-details", "Trip headsign") %></td>

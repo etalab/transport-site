@@ -322,18 +322,18 @@ defmodule Transport.Validators.GTFSTransport do
   @doc """
   Outputs a tag if at least 80% of GTFS routes have a custom color.
 
-  iex> has_route_colors_tag(%{"stats" => %{"lines_with_custom_color_count" => 8, "lines_count" => 10}})
+  iex> has_route_colors_tag(%{"stats" => %{"routes_with_custom_color_count" => 8, "routes_count" => 10}})
   ["couleurs des lignes"]
-  iex> has_route_colors_tag(%{"stats" => %{"lines_with_custom_color_count" => 7, "lines_count" => 10}})
+  iex> has_route_colors_tag(%{"stats" => %{"routes_with_custom_color_count" => 7, "routes_count" => 10}})
   []
-  iex> has_route_colors_tag(%{"stats" => %{"lines_with_custom_color_count" => 0, "lines_count" => 0}})
+  iex> has_route_colors_tag(%{"stats" => %{"routes_with_custom_color_count" => 0, "routes_count" => 0}})
   []
   """
   @spec has_route_colors_tag(map()) :: [binary()]
   def has_route_colors_tag(%{
-        "stats" => %{"lines_with_custom_color_count" => with_colors_count, "lines_count" => lines_count}
+        "stats" => %{"routes_with_custom_color_count" => with_colors_count, "routes_count" => routes_count}
       })
-      when with_colors_count / lines_count * 100 >= 80,
+      when with_colors_count / routes_count * 100 >= 80,
       do: ["couleurs des lignes"]
 
   def has_route_colors_tag(_), do: []

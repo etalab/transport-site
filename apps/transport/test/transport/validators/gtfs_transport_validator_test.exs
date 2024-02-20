@@ -87,7 +87,7 @@ defmodule Transport.Validators.GtfsTransportValidatorTest do
 
     assert ["couleurs des lignes"] ==
              GTFSTransport.find_tags_from_metadata(%{
-               "stats" => %{"lines_with_custom_color_count" => 4, "lines_count" => 5}
+               "stats" => %{"routes_with_custom_color_count" => 4, "routes_count" => 5}
              })
 
     assert GTFSTransport.find_tags_from_metadata(%{"lines_with_custom_color_count" => 0, "has_fares" => false}) == []
