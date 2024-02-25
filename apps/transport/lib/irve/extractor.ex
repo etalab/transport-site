@@ -11,6 +11,11 @@ defmodule Transport.IRVE.Extractor do
 
   @static_irve_datagouv_url "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve-statique"
 
+  @doc """
+  Fetches the list of all `schema-irve-statique` resources from data gouv, using parallelized pagination.
+
+  The code fetches datasets, then unpack resources belonging to each dataset.
+  """
   def resources do
     @static_irve_datagouv_url
     |> Transport.IRVE.Fetcher.pages()
@@ -24,12 +29,18 @@ defmodule Transport.IRVE.Extractor do
     |> Enum.into([])
   end
 
+  @doc """
+  Retrieve one page of resource results from data gouv.
+  """
   def process_data_gouv_page(%{url: url} = page) do
     Logger.info("Fetching data gouv page #{url}")
     %{status: 200, body: result} = Transport.IRVE.Fetcher.get!(url)
     Map.put(page, :data, result)
   end
 
+  @doc """
+  Return all resources for a given dataset, keeping a bit of dataset information around.
+  """
   def unpack_resources(dataset) do
     dataset["resources"]
     |> Enum.map(fn x ->
@@ -39,23 +50,31 @@ defmodule Transport.IRVE.Extractor do
     end)
   end
 
-  def remap_fields(row) do
+  @doc """
+  Extract resource fields we want to use.
+  """
+  def remap_fields(resource) do
     %{
-      resource_id: get_in(row, ["id"]),
-      resource_title: get_in(row, ["title"]),
-      dataset_id: get_in(row, [:dataset_id]),
-      dataset_title: get_in(row, [:dataset_title]),
-      valid: get_in(row, ["erowtras", "validation-report:valid_resource"]),
-      validation_date: get_in(row, ["erowtras", "validation-report:validation_date"]),
-      schema_name: get_in(row, ["schema", "name"]),
-      schema_version: get_in(row, ["schema", "version"]),
-      filetype: get_in(row, ["filetype"]),
-      last_modified: get_in(row, ["last_modified"]),
+      resource_id: get_in(resource, ["id"]),
+      resource_title: get_in(resource, ["title"]),
+      dataset_id: get_in(resource, [:dataset_id]),
+      dataset_title: get_in(resource, [:dataset_title]),
+      valid: get_in(resource, ["erowtras", "validation-report:valid_resource"]),
+      validation_date: get_in(resource, ["erowtras", "validation-report:validation_date"]),
+      schema_name: get_in(resource, ["schema", "name"]),
+      schema_version: get_in(resource, ["schema", "version"]),
+      filetype: get_in(resource, ["filetype"]),
+      last_modified: get_in(resource, ["last_modified"]),
       # vs latest?
-      url: get_in(row, ["url"])
+      url: get_in(resource, ["url"])
     }
   end
 
+  @doc """
+  Parallel-download & prepare a large list of resources.
+
+  The optional callback helps updating the UI, if any.
+  """
   def download_and_parse_all(resources, progress_callback \\ nil) do
     r = resources
     count = r |> length()
@@ -82,6 +101,9 @@ defmodule Transport.IRVE.Extractor do
     end)
   end
 
+  @doc """
+  Download a given resource, keep HTTP status around, and extract some metadata.
+  """
   def download_and_parse_one(row, index) do
     %{status: status, body: body} =
       Transport.IRVE.Fetcher.get!(row[:url], compressed: false, decode_body: false)
@@ -89,10 +111,14 @@ defmodule Transport.IRVE.Extractor do
     row
     |> Map.put(:status, status)
     |> Map.put(:index, index)
-    |> then(fn x -> process_body(x, body) end)
+    |> then(fn x -> process_resource_body(x, body) end)
   end
 
-  def process_body(%{status: 200} = row, body) do
+  @doc """
+  For a given resource and corresponding body, enrich data with
+  extra stuff like estimated number of charge points.
+  """
+  def process_resource_body(%{status: 200} = row, body) do
     body = body |> String.split("\n")
     first_line = body |> hd()
     line_count = (body |> length) - 1
@@ -109,6 +135,9 @@ defmodule Transport.IRVE.Extractor do
 
   def process_body(row), do: row
 
+  @doc """
+  Save the outcome in the database for reporting.
+  """
   def insert_report!(resources) do
     %DB.ProcessingReport{}
     |> DB.ProcessingReport.changeset(%{content: %{resources: resources}})
