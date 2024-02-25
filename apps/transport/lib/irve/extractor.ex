@@ -7,6 +7,7 @@ defmodule Transport.IRVE.Extractor do
   """
 
   require Logger
+  import Transport.LogTimeTaken
 
   @static_irve_datagouv_url "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve-statique"
 
@@ -64,12 +65,14 @@ defmodule Transport.IRVE.Extractor do
     |> Task.async_stream(
       fn {row, index} ->
         if progress_callback, do: progress_callback.(index)
-        Logger.info("IRVE - processing #{index} over #{count}...")
-        download_and_parse_one(row, index)
+
+        log_time_taken("IRVE - processing #{index} over #{count} (#{row[:url]})", fn ->
+          download_and_parse_one(row, index)
+        end)
       end,
       timeout: 100_000,
       on_timeout: :kill_task,
-      max_concurrency: 2
+      max_concurrency: 25
     )
     |> Enum.map(fn {:ok, x} -> x end)
     |> Enum.map(fn x ->
