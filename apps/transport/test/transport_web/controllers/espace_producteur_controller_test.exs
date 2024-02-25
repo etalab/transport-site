@@ -181,7 +181,10 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) == "Votre logo personnalisé a été supprimé."
 
-      assert %DB.Dataset{custom_logo: nil, custom_full_logo: nil} = DB.Repo.reload!(dataset)
+      assert %DB.Dataset{custom_logo: nil, custom_full_logo: nil, custom_logo_changed_at: custom_logo_changed_at} =
+               DB.Repo.reload!(dataset)
+
+      assert DateTime.diff(custom_logo_changed_at, DateTime.utc_now(), :second) < 3
     end
   end
 

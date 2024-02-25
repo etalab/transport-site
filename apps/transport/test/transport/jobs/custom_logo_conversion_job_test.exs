@@ -50,7 +50,13 @@ defmodule Transport.Test.Transport.Jobs.CustomLogoConversionJobTest do
     expected_logo_url = Transport.S3.permanent_url(:logos, logo_filename)
     expected_full_logo_url = Transport.S3.permanent_url(:logos, full_logo_filename)
 
-    assert %DB.Dataset{custom_logo: ^expected_logo_url, custom_full_logo: ^expected_full_logo_url} =
+    assert %DB.Dataset{
+             custom_logo: ^expected_logo_url,
+             custom_full_logo: ^expected_full_logo_url,
+             custom_logo_changed_at: custom_logo_changed_at
+           } =
              DB.Repo.reload!(dataset)
+
+    assert DateTime.diff(custom_logo_changed_at, DateTime.utc_now(), :second) < 3
   end
 end

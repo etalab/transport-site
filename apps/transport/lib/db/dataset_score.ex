@@ -6,6 +6,7 @@ defmodule DB.DatasetScore do
   use TypedEctoSchema
   import Ecto.Query
   import Ecto.Changeset
+  import TransportWeb.Gettext, only: [dgettext: 2]
 
   typed_schema "dataset_score" do
     belongs_to(:dataset, DB.Dataset)
@@ -85,9 +86,27 @@ defmodule DB.DatasetScore do
   iex> score_for_humans(%DB.DatasetScore{score: nil})
   nil
   iex> score_for_humans(%DB.DatasetScore{score: 0.123})
-  0.12
+  12
   """
-  @spec score_for_humans(__MODULE__.t()) :: nil | float()
+  @spec score_for_humans(__MODULE__.t()) :: nil | integer()
   def score_for_humans(%__MODULE__{score: nil}), do: nil
-  def score_for_humans(%__MODULE__{score: score}), do: Float.round(score, 2)
+  def score_for_humans(%__MODULE__{score: score}), do: Kernel.round(score * 100)
+
+  @doc """
+  iex> DB.DatasetScore |> Ecto.Enum.values(:topic) |> Enum.each(&topic_for_humans/1)
+  :ok
+  """
+  @spec topic_for_humans(atom() | binary()) :: binary()
+  def topic_for_humans(topic) when is_atom(topic), do: topic |> to_string() |> topic_for_humans()
+
+  def topic_for_humans(topic) when is_binary(topic) do
+    Map.fetch!(
+      %{
+        "freshness" => dgettext("db-dataset-score", "freshness"),
+        "availability" => dgettext("db-dataset-score", "availability"),
+        "compliance" => dgettext("db-dataset-score", "compliance")
+      },
+      topic
+    )
+  end
 end

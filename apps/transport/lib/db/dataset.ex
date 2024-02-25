@@ -53,6 +53,7 @@ defmodule DB.Dataset do
     # See config: `:transport, :logos_bucket_url`
     field(:custom_logo, :string)
     field(:custom_full_logo, :string)
+    field(:custom_logo_changed_at, :utc_datetime_usec)
 
     timestamps(type: :utc_datetime_usec)
 
@@ -499,7 +500,8 @@ defmodule DB.Dataset do
       :custom_tags,
       :legal_owner_company_siren,
       :custom_logo,
-      :custom_full_logo
+      :custom_full_logo,
+      :custom_logo_changed_at
     ])
     |> update_change(:custom_title, &String.trim/1)
     |> cast_aom(params)
@@ -513,6 +515,7 @@ defmodule DB.Dataset do
     |> has_real_time()
     |> validate_organization_type()
     |> add_organization(params)
+    |> maybe_set_custom_logo_changed_at()
     |> put_assoc(:legal_owners_aom, legal_owners_aom)
     |> put_assoc(:legal_owners_region, legal_owners_region)
     |> case do
@@ -538,6 +541,14 @@ defmodule DB.Dataset do
   end
 
   defp add_organization(%Ecto.Changeset{} = changeset, _), do: changeset
+
+  defp maybe_set_custom_logo_changed_at(%Ecto.Changeset{} = changeset) do
+    if changed?(changeset, :custom_logo) do
+      put_change(changeset, :custom_logo_changed_at, DateTime.utc_now())
+    else
+      changeset
+    end
+  end
 
   defp get_legal_owners_aom(dataset, params) do
     case params["legal_owners_aom"] do

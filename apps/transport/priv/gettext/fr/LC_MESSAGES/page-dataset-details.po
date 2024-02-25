@@ -603,10 +603,6 @@ msgid "loading discussions..."
 msgstr "chargement des discussions..."
 
 #, elixir-autogen, elixir-format
-msgid "Dataset scores"
-msgstr "Scores du jeu de données"
-
-#, elixir-autogen, elixir-format
 msgid "This transport service operates seasonally. The associated resources may be outdated depending on the time of year. Contact the data producer through Discussions for more information."
 msgstr "Le service de transport de ce jeu de donnée ne fonctionne pas toute l'année et les ressources associées peuvent être périmées selon la période de l'année. Nous vous invitons à contacter le producteur via les discussions pour plus d'information."
 
@@ -617,3 +613,15 @@ msgstr "Producteur de la donnée"
 #, elixir-autogen, elixir-format
 msgid "Respond and close"
 msgstr "Répondre et clore"
+
+#, elixir-autogen, elixir-format
+msgid "Quality indicators"
+msgstr "Indicateurs qualité"
+
+#, elixir-autogen, elixir-format
+msgid "Latest quality indicators"
+msgstr "Derniers indicateurs qualité"
+
+#, elixir-autogen, elixir-format
+msgid "transport.data.gouv.fr computes quality indicators daily to assess the quality of the published data. <i class=\"fa fa-external-link-alt\"></i> <a href=\"%{doc_url}\" target=\"_blank\">Learn more</a>."
+msgstr "transport.data.gouv.fr calcule des indicateurs qualité de manière quotidienne afin de mieux appréhender les données publiées. <i class=\"fa fa-external-link-alt\"></i> <a href=\"%{doc_url}\" target=\"_blank\">En savoir plus</a>."
