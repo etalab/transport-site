@@ -138,6 +138,7 @@ defmodule Transport.Mixfile do
       {:vega_lite, "~> 0.1.7"},
       {:req, "~> 0.4.4"},
       {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
+      {:excoveralls, "~> 0.10", only: :test},
       {:swoosh, "~> 1.11"},
       {:phoenix_swoosh, "~> 1.0"},
       {:hackney, "~> 1.9"},
