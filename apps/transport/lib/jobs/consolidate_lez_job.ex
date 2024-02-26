@@ -36,6 +36,11 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
       "nom" => "Toulouse Métropole",
       "siren" => "243100518",
       "forme_juridique" => "Métropole"
+    },
+    "Clermont Auvergne Métropole" => %{
+      "nom" => "Clermont Auvergne Métropole",
+      "siren" => "246300701",
+      "forme_juridique" => "Métropole"
     }
   }
 
