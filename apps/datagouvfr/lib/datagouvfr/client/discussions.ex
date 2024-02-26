@@ -2,11 +2,19 @@ defmodule Datagouvfr.Client.Discussions.Wrapper do
   @moduledoc """
   A behavior for discussions
   """
+  alias Datagouvfr.Client.OAuth
+
   @callback get(binary()) :: []
+  def get(id), do: impl().get(id)
+
+  @callback post(Plug.Conn.t(), binary(), binary(), close: boolean()) :: OAuth.oauth2_response()
+  def post(%Plug.Conn{} = conn, discussion_id, comment, close: close),
+    do: impl().post(conn, discussion_id, comment, close: close)
+
+  @callback post(Plug.Conn.t(), binary(), binary(), binary()) :: OAuth.oauth2_response()
+  def post(%Plug.Conn{} = conn, dataset_id, title, comment), do: impl().post(conn, dataset_id, title, comment)
 
   defp impl, do: Application.fetch_env!(:datagouvfr, :datagouvfr_discussions)
-
-  def get(id), do: impl().get(id)
 end
 
 defmodule Datagouvfr.Client.Discussions.Dummy do
@@ -17,6 +25,12 @@ defmodule Datagouvfr.Client.Discussions.Dummy do
 
   @impl true
   def get(_), do: []
+
+  @impl true
+  def post(%Plug.Conn{}, _, _, close: _), do: {:ok, nil}
+
+  @impl true
+  def post(%Plug.Conn{}, _, _, _), do: {:ok, nil}
 end
 
 defmodule Datagouvfr.Client.Discussions do
@@ -32,32 +46,45 @@ defmodule Datagouvfr.Client.Discussions do
   @endpoint "discussions"
 
   @doc """
-  Call to post /api/1/discussions/:id/
-  You can see documentation here: https://www.data.gouv.fr/fr/apidoc/#!/discussions/comment_discussion
+  Comment a discussion.
+
+  POST to /api/1/discussions/:id/
+  Documentation: https://doc.data.gouv.fr/api/reference/#/discussions/comment_discussion
   """
   @spec post(Plug.Conn.t(), binary(), binary()) :: Client.oauth2_response()
-  def post(%Plug.Conn{} = conn, id_, comment) do
-    Client.post(conn, Path.join(@endpoint, id_), %{comment: comment}, [])
+  def post(%Plug.Conn{} = conn, discussion_id, comment) do
+    post(conn, discussion_id, comment, close: false)
+  end
+
+  @spec post(Plug.Conn.t(), binary(), binary(), close: boolean()) :: Client.oauth2_response()
+  @impl true
+  def post(%Plug.Conn{} = conn, discussion_id, comment, close: close) do
+    Client.post(conn, Path.join(@endpoint, discussion_id), %{comment: comment, close: close}, [])
   end
 
   @doc """
-  Call to post /api/1/discussions/
-  You can see documentation here: https://www.data.gouv.fr/fr/apidoc/#!/discussions/create_discussion
+  Create a new discussion.
+
+  POST to /api/1/discussions/
+  Documentation: https://doc.data.gouv.fr/api/reference/#/discussions/create_discussion
   """
-  @spec post(binary(), binary(), binary(), boolean()) :: Client.oauth2_response()
-  def post(id_, title, comment, blank) when is_binary(id_) do
-    headers = [API.api_key_headers()]
+  @spec post(Plug.Conn.t(), binary, binary, binary) :: Client.oauth2_response()
+  @impl true
+  def post(%Plug.Conn{} = conn, dataset_id, title, comment) when is_binary(comment) do
+    payload = %{
+      comment: comment,
+      title: title,
+      subject: %{class: "Dataset", id: dataset_id}
+    }
 
-    API.post(@endpoint, payload_post(id_, title, comment), headers, blank)
-  end
-
-  @spec post(Plug.Conn.t(), binary, binary, binary, nil | any) :: Client.oauth2_response()
-  def post(%Plug.Conn{} = conn, id_, title, comment, extras \\ nil) do
-    Client.post(conn, @endpoint, payload_post(id_, title, comment, extras), [])
+    Client.post(conn, @endpoint, payload, [])
   end
 
   @doc """
-  Call to GET /api/1/discussions/
+  List discussions for a specific model.
+
+  GET to /api/1/discussions/
+  Documentation: https://doc.data.gouv.fr/api/reference/#/discussions/list_discussions
   """
   @impl true
   def get(id) do
@@ -71,16 +98,5 @@ defmodule Datagouvfr.Client.Discussions do
         Logger.error("When fetching discussions for id #{id}: #{inspect(error)}")
         []
     end
-  end
-
-  @spec payload_post(binary(), binary(), binary(), [] | nil) :: map()
-  defp payload_post(id_, title, comment, extras \\ nil) do
-    payload = %{
-      comment: comment,
-      title: title,
-      subject: %{class: "Dataset", id: id_}
-    }
-
-    if is_nil(extras), do: payload, else: Map.put(payload, :extras, extras)
   end
 end

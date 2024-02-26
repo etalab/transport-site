@@ -274,7 +274,7 @@ defmodule TransportWeb.ResourceController do
     else
       case Transport.Shared.Wrapper.HTTPoison.impl().head(resource.url, []) do
         {:ok, %HTTPoison.Response{status_code: status_code, headers: headers}} ->
-          send_response_with_status_headers(conn, status_code, headers)
+          send_head_response(conn, status_code, headers)
 
         _ ->
           conn |> Plug.Conn.send_resp(:bad_gateway, "")
@@ -309,13 +309,16 @@ defmodule TransportWeb.ResourceController do
     end
   end
 
-  defp downcase_header({h, v}), do: {String.downcase(h), v}
+  defp send_head_response(%Plug.Conn{} = conn, status_code, headers) do
+    resp_headers =
+      headers
+      |> Enum.map(&downcase_header/1)
+      |> Enum.filter(fn {h, _v} -> Enum.member?(Shared.Proxy.forwarded_headers_allowlist(), h) end)
 
-  defp send_response_with_status_headers(%Plug.Conn{} = conn, status_code, headers) do
-    headers
-    |> Enum.reduce(conn, fn {k, v}, conn -> Plug.Conn.put_resp_header(conn, String.downcase(k), v) end)
-    |> Plug.Conn.send_resp(status_code, "")
+    conn |> Plug.Conn.merge_resp_headers(resp_headers) |> Plug.Conn.send_resp(status_code, "")
   end
+
+  defp downcase_header({h, v}), do: {String.downcase(h), v}
 
   @spec post_file(Plug.Conn.t(), map) :: Plug.Conn.t()
   def post_file(conn, params) do
@@ -351,29 +354,6 @@ defmodule TransportWeb.ResourceController do
         |> put_flash(:error, dgettext("resource", "Unable to upload file"))
         |> form(params)
     end
-  end
-
-  def proxy_requests_stats_nb_days, do: 15
-
-  @spec proxy_statistics(Plug.Conn.t(), map) :: Plug.Conn.t()
-  def proxy_statistics(conn, _params) do
-    {conn, datasets} = datasets_for_user(conn)
-
-    proxy_stats =
-      datasets
-      |> Enum.flat_map(& &1.resources)
-      |> Enum.filter(&DB.Resource.served_by_proxy?/1)
-      # Gotcha: this is a N+1 problem. Okay as long as a single producer
-      # does not have a lot of feeds/there is not a lot of traffic on this page
-      |> Enum.into(%{}, fn %DB.Resource{id: id} = resource ->
-        {id, DB.Metrics.requests_over_last_days(resource, proxy_requests_stats_nb_days())}
-      end)
-
-    conn
-    |> assign(:datasets, datasets)
-    |> assign(:proxy_stats, proxy_stats)
-    |> assign(:proxy_requests_stats_nb_days, proxy_requests_stats_nb_days())
-    |> render("proxy_statistics.html")
   end
 
   defp assign_or_flash(conn, getter, kw, error) do

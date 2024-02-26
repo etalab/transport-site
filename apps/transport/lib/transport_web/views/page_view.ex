@@ -24,4 +24,23 @@ defmodule TransportWeb.PageView do
   def show_proxy_stats_block?(datasets) do
     datasets |> Enum.flat_map(& &1.resources) |> Enum.any?(&DB.Resource.served_by_proxy?/1)
   end
+
+  @spec show_downloads_stats?(DB.Dataset.t()) :: boolean()
+  def show_downloads_stats?(%DB.Dataset{resources: resources}) do
+    Enum.any?(resources, &DB.Resource.hosted_on_datagouv?/1)
+  end
+
+  @doc """
+  iex> nb_downloads_for_humans(2_400_420, "fr")
+  "2 M"
+  iex> nb_downloads_for_humans(215_500, "fr")
+  "216 k"
+  iex> nb_downloads_for_humans(1_200, "fr")
+  "1 k"
+  iex> nb_downloads_for_humans(623, "fr")
+  "623"
+  """
+  def nb_downloads_for_humans(value, locale) do
+    Transport.Cldr.Number.to_string!(value, format: :short, locale: locale)
+  end
 end

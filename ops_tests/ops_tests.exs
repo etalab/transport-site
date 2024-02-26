@@ -37,6 +37,10 @@ defmodule Transport.OpsTests do
     assert_redirect(from: "https://www.#{@domain_name}", to: "https://#{@domain_name}/")
   end
 
+  test "redirects HTTP to HTTPS" do
+    assert_redirect(from: "http://#{@domain_name}", to: "https://#{@domain_name}/")
+  end
+
   describe "Check DNS records" do
     test "main A/CNAME records" do
       {:ok, ips} = DNS.resolve(@domain_name, :a)

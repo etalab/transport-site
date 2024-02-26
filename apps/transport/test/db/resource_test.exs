@@ -195,4 +195,13 @@ defmodule DB.ResourceTest do
                "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/898dc67fb19fae2464c24a85a0557e8ccce18791/bnlc-.csv"
            }) == resource_url(TransportWeb.Endpoint, :download, id)
   end
+
+  test "invalid resource" do
+    resource = %Resource{format: "GTFS", schema_name: "anything", datagouv_id: datagouv_id = Ecto.UUID.generate()}
+    assert %Ecto.Changeset{valid?: false} = changeset = Resource.changeset(resource, %{})
+
+    assert {"Public transport formats can’t have a schema set",
+            [{:resource_id, nil}, {:resource_datagouv_id, datagouv_id}]} ==
+             changeset.errors[:schema_name]
+  end
 end

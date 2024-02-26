@@ -59,8 +59,7 @@ defmodule TransportWeb.DatasetController do
       )
       |> assign(:latest_resources_history_infos, DB.ResourceHistory.latest_dataset_resources_history_infos(dataset))
       |> assign(:notifications_sent, DB.Notification.recent_reasons_binned(dataset, days_notifications_sent()))
-      |> assign(:dataset_scores, DB.DatasetScore.get_latest_scores(dataset, Ecto.Enum.values(DB.DatasetScore, :topic)))
-      |> assign(:scores_chart, scores_chart(dataset))
+      |> assign_scores(dataset)
       |> put_status(if dataset.is_active, do: :ok, else: :not_found)
       |> render("details.html")
     else
@@ -73,26 +72,39 @@ defmodule TransportWeb.DatasetController do
     end
   end
 
-  def scores_chart(%DB.Dataset{} = dataset) do
-    data = DB.DatasetScore.scores_over_last_days(dataset, 30 * 3)
+  def assign_scores(%Plug.Conn{} = conn, %DB.Dataset{} = dataset) do
+    data =
+      dataset
+      |> DB.DatasetScore.scores_over_last_days(30 * 3)
+      |> Enum.reject(&match?(%DB.DatasetScore{score: nil}, &1))
 
     # See https://hexdocs.pm/vega_lite/
     # and https://vega.github.io/vega-lite/docs/
-    [width: "container", height: 250]
-    |> VegaLite.new()
-    |> VegaLite.data_from_values(
+    scores_chart =
+      [width: "container", height: 250]
+      |> VegaLite.new()
+      |> VegaLite.data_from_values(
+        Enum.map(data, fn %DB.DatasetScore{topic: topic, timestamp: timestamp} = ds ->
+          %{
+            "topic" => DB.DatasetScore.topic_for_humans(topic),
+            "score" => DB.DatasetScore.score_for_humans(ds),
+            "date" => DateTime.to_date(timestamp)
+          }
+        end)
+      )
+      |> VegaLite.mark(:line, interpolate: "step-before", tooltip: true, strokeWidth: 3)
+      |> VegaLite.encode_field(:x, "date", type: :temporal)
+      |> VegaLite.encode_field(:y, "score", type: :quantitative)
+      |> VegaLite.encode_field(:color, "topic", type: :nominal)
+      |> VegaLite.config(axis: [grid: false])
+      |> VegaLite.to_spec()
+
+    latest_scores =
       data
-      |> Enum.reject(&match?(%DB.DatasetScore{score: nil}, &1))
-      |> Enum.map(fn %DB.DatasetScore{topic: topic, timestamp: timestamp} = ds ->
-        %{"topic" => topic, "score" => DB.DatasetScore.score_for_humans(ds), "date" => timestamp |> DateTime.to_date()}
-      end)
-    )
-    |> VegaLite.mark(:line, interpolate: "step-before", tooltip: true, strokeWidth: 3)
-    |> VegaLite.encode_field(:x, "date", type: :temporal)
-    |> VegaLite.encode_field(:y, "score", type: :quantitative)
-    |> VegaLite.encode_field(:color, "topic", type: :nominal)
-    |> VegaLite.config(axis: [grid: false])
-    |> VegaLite.to_spec()
+      |> Enum.group_by(fn %DB.DatasetScore{topic: topic} -> topic end)
+      |> Map.new(fn {topic, scores} -> {topic, scores |> List.last() |> DB.DatasetScore.score_for_humans()} end)
+
+    merge_assigns(conn, %{scores_chart: scores_chart, latest_scores: latest_scores})
   end
 
   def validators_to_use,

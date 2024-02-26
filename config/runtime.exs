@@ -85,7 +85,8 @@ if app_env == :staging do
     s3_buckets: %{
       history: "resource-history-staging",
       on_demand_validation: "on-demand-validation-staging",
-      gtfs_diff: "gtfs-diff-staging"
+      gtfs_diff: "gtfs-diff-staging",
+      logos: "logos-staging"
     }
 end
 
@@ -138,7 +139,8 @@ oban_prod_crontab = [
   # "At 08:15 on Monday in March, June, and November.""
   # The job will make sure that it's executed only on the first Monday of these months
   {"15 8 * 3,6,11 1", Transport.Jobs.PeriodicReminderProducersNotificationJob},
-  {"30 5 * * *", Transport.Jobs.ImportDatasetMonthlyMetricsJob}
+  {"30 5 * * *", Transport.Jobs.ImportDatasetMonthlyMetricsJob},
+  {"45 5 * * *", Transport.Jobs.ImportResourceMonthlyMetricsJob}
 ]
 
 # Make sure that all modules exist
@@ -222,6 +224,16 @@ if config_env() == :prod do
     # [Ecto.Repo] :pool_timeout is no longer supported in favor of a new queue system described in DBConnection.start_link/2
     # under "Queue config". For most users, configuring :timeout is enough, as it now includes both queue and query time
     timeout: 15_000
+
+  config :transport, TransportWeb.Endpoint,
+    http: [port: System.get_env("PORT"), compress: true],
+    url: [scheme: "https", host: System.get_env("DOMAIN_NAME"), port: 443],
+    cache_static_manifest: "priv/static/cache_manifest.json",
+    secret_key_base: System.get_env("SECRET_KEY_BASE"),
+    force_ssl: [rewrite_on: [:x_forwarded_proto]],
+    live_view: [
+      signing_salt: System.get_env("SECRET_KEY_BASE")
+    ]
 
   if app_env == :production do
     # data.gouv.fr IDs for national databases created automatically and

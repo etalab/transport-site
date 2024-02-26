@@ -48,6 +48,12 @@ defmodule DB.Dataset do
     field(:latest_data_gouv_comment_timestamp, :utc_datetime)
     field(:archived_at, :utc_datetime_usec)
     field(:custom_tags, {:array, :string}, default: [])
+    # URLs for custom logos.
+    # Currently we host custom logos in Cellar buckets.
+    # See config: `:transport, :logos_bucket_url`
+    field(:custom_logo, :string)
+    field(:custom_full_logo, :string)
+    field(:custom_logo_changed_at, :utc_datetime_usec)
 
     timestamps(type: :utc_datetime_usec)
 
@@ -492,7 +498,10 @@ defmodule DB.Dataset do
       :latest_data_gouv_comment_timestamp,
       :archived_at,
       :custom_tags,
-      :legal_owner_company_siren
+      :legal_owner_company_siren,
+      :custom_logo,
+      :custom_full_logo,
+      :custom_logo_changed_at
     ])
     |> update_change(:custom_title, &String.trim/1)
     |> cast_aom(params)
@@ -506,6 +515,7 @@ defmodule DB.Dataset do
     |> has_real_time()
     |> validate_organization_type()
     |> add_organization(params)
+    |> maybe_set_custom_logo_changed_at()
     |> put_assoc(:legal_owners_aom, legal_owners_aom)
     |> put_assoc(:legal_owners_region, legal_owners_region)
     |> case do
@@ -531,6 +541,14 @@ defmodule DB.Dataset do
   end
 
   defp add_organization(%Ecto.Changeset{} = changeset, _), do: changeset
+
+  defp maybe_set_custom_logo_changed_at(%Ecto.Changeset{} = changeset) do
+    if changed?(changeset, :custom_logo) do
+      put_change(changeset, :custom_logo_changed_at, DateTime.utc_now())
+    else
+      changeset
+    end
+  end
 
   defp get_legal_owners_aom(dataset, params) do
     case params["legal_owners_aom"] do
@@ -1068,4 +1086,23 @@ defmodule DB.Dataset do
   false
   """
   def has_custom_tag?(%__MODULE__{custom_tags: custom_tags}, tag_name), do: tag_name in (custom_tags || [])
+
+  @doc """
+  iex> logo(%DB.Dataset{logo: "https://example.com/logo.png", custom_logo: nil})
+  "https://example.com/logo.png"
+  iex> logo(%DB.Dataset{logo: "https://example.com/logo.png", custom_logo: "https://example.com/custom.png"})
+  "https://example.com/custom.png"
+  """
+  @spec logo(__MODULE__.t()) :: binary()
+  def logo(%__MODULE__{logo: logo, custom_logo: custom_logo}), do: custom_logo || logo
+
+  @doc """
+  iex> full_logo(%DB.Dataset{full_logo: "https://example.com/logo.png", custom_full_logo: nil})
+  "https://example.com/logo.png"
+  iex> full_logo(%DB.Dataset{full_logo: "https://example.com/logo.png", custom_full_logo: "https://example.com/custom.png"})
+  "https://example.com/custom.png"
+  """
+  @spec full_logo(__MODULE__.t()) :: binary()
+  def full_logo(%__MODULE__{full_logo: full_logo, custom_full_logo: custom_full_logo}),
+    do: custom_full_logo || full_logo
 end

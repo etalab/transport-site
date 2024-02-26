@@ -59,7 +59,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert redirected_to(conn, 302) =~ "/login/explanation"
 
     assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
-             "You need to be a member of the transport.data.gouv.fr team."
+             "Vous devez être un membre de l'équipe transport.data.gouv.fr."
   end
 
   test "Show 'add new dataset' form", %{conn: conn} do

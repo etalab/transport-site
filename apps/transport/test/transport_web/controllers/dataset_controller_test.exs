@@ -98,6 +98,28 @@ defmodule TransportWeb.DatasetControllerTest do
     assert [] == Floki.find(doc, "#custom-message")
   end
 
+  test "custom logo is displayed", %{conn: conn} do
+    dataset =
+      insert(:dataset,
+        type: "public-transit",
+        is_active: true,
+        custom_title: custom_title = "Super JDD",
+        custom_logo: custom_logo = "https://example.com/logo_#{Ecto.UUID.generate()}.png"
+      )
+
+    assert DB.Dataset.logo(dataset) == custom_logo
+
+    assert [
+             {"div", [{"class", "dataset__image"}, {"data-provider", _}],
+              [{"img", [{"alt", ^custom_title}, {"src", ^custom_logo}], []}]}
+           ] =
+             conn
+             |> get(dataset_path(conn, :index))
+             |> html_response(200)
+             |> Floki.parse_document!()
+             |> Floki.find(".dataset__image")
+  end
+
   describe "climate and resilience bill" do
     test "displayed for public-transit", %{conn: conn} do
       conn = conn |> get(dataset_path(conn, :index, type: "public-transit"))
@@ -371,8 +393,15 @@ defmodule TransportWeb.DatasetControllerTest do
              |> Phoenix.HTML.safe_to_string()
   end
 
-  test "displays dataset scores for admins", %{conn: conn} do
+  test "quality indicators chart is displayed", %{conn: conn} do
     dataset = insert(:dataset, is_active: true)
+
+    insert(:dataset_score,
+      dataset: dataset,
+      timestamp: DateTime.utc_now() |> DateTime.add(-24, :hour),
+      score: 0.3,
+      topic: :freshness
+    )
 
     insert(:dataset_score,
       dataset: dataset,
@@ -395,66 +424,19 @@ defmodule TransportWeb.DatasetControllerTest do
       topic: :availability
     )
 
-    assert %{
-             availability: %DB.DatasetScore{topic: :availability, score: nil},
-             freshness: %DB.DatasetScore{topic: :freshness, score: 0.549},
-             compliance: %DB.DatasetScore{topic: :compliance, score: 0.8}
-           } = dataset |> DB.DatasetScore.get_latest_scores(Ecto.Enum.values(DB.DatasetScore, :topic))
-
     set_empty_mocks()
 
-    content =
-      conn
-      |> setup_admin_in_session()
-      |> get(dataset_path(conn, :details, dataset.slug))
-      |> html_response(200)
+    content = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200) |> Floki.parse_document!()
 
-    assert content =~ "Score de fraicheur : 0.55"
-    assert content =~ "Score de conformité : 0.8"
-    assert content =~ "Score de disponibilité : \n"
-  end
+    refute content |> Floki.find("#quality-indicators") |> Enum.empty?()
 
-  test "does not display scores for non admins", %{conn: conn} do
-    dataset = insert(:dataset, is_active: true)
-
-    insert(:dataset_score,
-      dataset: dataset,
-      timestamp: DateTime.utc_now() |> DateTime.add(-1, :hour),
-      score: 1,
-      topic: :freshness
-    )
-
-    refute dataset |> DB.DatasetScore.get_latest_scores([:freshness]) |> Enum.empty?()
-    set_empty_mocks()
-    content = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200)
-    refute content =~ "Score de fraicheur"
-  end
-
-  describe "scores_chart" do
-    test "is displayed for admins", %{conn: conn} do
-      dataset = insert(:dataset, is_active: true)
-      set_empty_mocks()
-
-      refute conn
-             |> setup_admin_in_session()
-             |> get(dataset_path(conn, :details, dataset.slug))
-             |> html_response(200)
-             |> Floki.parse_document!()
-             |> Floki.find("#scores-chart")
-             |> Enum.empty?()
-    end
-
-    test "is not displayed for regular users", %{conn: conn} do
-      dataset = insert(:dataset, is_active: true)
-      set_empty_mocks()
-
-      assert conn
-             |> get(dataset_path(conn, :details, dataset.slug))
-             |> html_response(200)
-             |> Floki.parse_document!()
-             |> Floki.find("#scores-chart")
-             |> Enum.empty?()
-    end
+    assert [
+             {"table", [{"class", "table"}],
+              [
+                {"tr", [], [{"th", [], ["Conformité"]}, {"th", [], ["Fraicheur"]}]},
+                {"tr", [], [{"td", [], ["80%"]}, {"td", [], ["55%"]}]}
+              ]}
+           ] == content |> Floki.find("#quality-indicators table")
   end
 
   test "a banner is displayed for a seasonal dataset", %{conn: conn} do
@@ -471,6 +453,26 @@ defmodule TransportWeb.DatasetControllerTest do
       |> Floki.find(".notification")
 
     assert content =~ "Le service de transport de ce jeu de donnée ne fonctionne pas toute l'année"
+  end
+
+  test "custom logo is displayed when set", %{conn: conn} do
+    dataset =
+      insert(:dataset,
+        is_active: true,
+        custom_title: custom_title = "Super JDD",
+        custom_full_logo: custom_full_logo = "https://example.com/logo_#{Ecto.UUID.generate()}.png"
+      )
+
+    set_empty_mocks()
+
+    assert DB.Dataset.full_logo(dataset) == custom_full_logo
+
+    assert [{"div", [{"class", "dataset__logo"}], [{"img", [{"alt", custom_title}, {"src", custom_full_logo}], []}]}] ==
+             conn
+             |> get(dataset_path(conn, :details, dataset.slug))
+             |> html_response(200)
+             |> Floki.parse_document!()
+             |> Floki.find(".dataset__logo")
   end
 
   test "gtfs-rt entities" do

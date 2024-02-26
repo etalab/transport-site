@@ -19,7 +19,6 @@
   <%= if TransportWeb.Session.is_admin?(@conn) do %>
     <i class="fa fa-external-link-alt"></i>
     <%= link("backoffice", to: backoffice_page_path(@conn, :edit, @dataset.id)) %>
-    <%= render("_dataset_scores.html", dataset_scores: @dataset_scores, locale: locale) %>
   <% end %>
 </div>
 <div class="dataset-page">
@@ -35,6 +34,9 @@
         <a href="#dataset-resources">
           <%= dgettext("page-dataset-details", "Resources") %> (<%= count_resources(@dataset) %>)
         </a>
+      </div>
+      <div class="menu-item">
+        <a href="#quality-indicators"><%= dgettext("page-dataset-details", "Quality indicators") %></a>
       </div>
       <div class="menu-item">
         <a href="#community-resources"><%= dgettext("page-dataset-details", "Community resources") %></a>
@@ -166,6 +168,7 @@
         latest_resources_history_infos: @latest_resources_history_infos
       ) %>
       <%= render("_reuser_message.html") %>
+      <%= render("_dataset_scores_chart.html", scores_chart: @scores_chart, latest_scores: @latest_scores, conn: @conn) %>
       <%= render("_community_resources.html", dataset: @dataset) %>
     </section>
 
@@ -226,7 +229,6 @@
         </div>
       </section>
     <% end %>
-    <%= render("_dataset_scores_chart.html", scores_chart: @scores_chart, conn: @conn) %>
     <%= render("_dataset_resources_history.html", history_resources: @history_resources, locale: locale, conn: @conn) %>
     <%= unless is_nil(@other_datasets) or @other_datasets == [] do %>
       <section class="pt-48" id="dataset-other-datasets">
@@ -249,7 +251,7 @@
   <div class="dataset-metas">
     <div class="panel">
       <div class="dataset__logo">
-        <%= img_tag(@dataset.full_logo, alt: @dataset.custom_title) %>
+        <%= img_tag(DB.Dataset.full_logo(@dataset), alt: @dataset.custom_title) %>
       </div>
       <div>
         <i class="icon fa fa-map-marker-alt" /><%= Dataset.get_territory_or_nil(@dataset) %>

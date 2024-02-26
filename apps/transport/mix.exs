@@ -143,7 +143,8 @@ defmodule Transport.Mixfile do
       {:hackney, "~> 1.9"},
       {:phoenix_ddos, "~> 1.1"},
       # Highly recommended, this will makes sure we get the correct remote_ip
-      {:remote_ip, "~> 1.1"}
+      {:remote_ip, "~> 1.1"},
+      {:image, "~> 0.42.0"}
     ]
   end
 end

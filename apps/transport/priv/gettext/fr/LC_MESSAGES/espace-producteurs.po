@@ -204,3 +204,43 @@ msgid "1 resource"
 msgid_plural "%{count} resources"
 msgstr[0] "1 ressource"
 msgstr[1] "%{count} ressources"
+
+#, elixir-autogen, elixir-format
+msgid "%{nb_downloads} <div class=\"tooltip\">downloads in %{year}<span class=\"tooltiptext\">Number of downloads for all the files hosted on data.gouv.fr</span></div>"
+msgstr "%{nb_downloads} <div class=\"tooltip\">téléchargements en %{year}<span class=\"tooltiptext\">Nombre de téléchargements pour tous les fichiers hébergés sur data.gouv.fr</span></div>"
+
+#, elixir-autogen, elixir-format
+msgid "Edit"
+msgstr "Éditer"
+
+#, elixir-autogen, elixir-format
+msgid "Update your logo"
+msgstr "Mettre à jour votre logo"
+
+#, elixir-autogen, elixir-format
+msgid "Upload"
+msgstr "Envoyer"
+
+#, elixir-autogen, elixir-format
+msgid "You can edit this dataset on <a href=\"%{datagouv_admin_url}\" target=\"_blank\">data.gouv.fr</a>."
+msgstr "Vous pouvez modifier ce jeu de données sur <a href=\"%{datagouv_admin_url}\" target=\"_blank\">data.gouv.fr</a>."
+
+#, elixir-autogen, elixir-format
+msgid "Your current logo"
+msgstr "Votre logo actuel"
+
+#, elixir-autogen, elixir-format
+msgid "Your custom logo"
+msgstr "Votre logo personnalisé"
+
+#, elixir-autogen, elixir-format
+msgid "Your logo has been received. It will be replaced soon."
+msgstr "Votre logo a bien été reçu. Il sera remplacé dans quelques instants."
+
+#, elixir-autogen, elixir-format
+msgid "Remove the custom logo"
+msgstr "Supprimer le logo personnalisé"
+
+#, elixir-autogen, elixir-format
+msgid "Your custom logo has been removed."
+msgstr "Votre logo personnalisé a été supprimé."

@@ -6,7 +6,7 @@ defmodule Transport.MixProject do
       apps_path: "apps",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      aliases: aliases(),
+      aliases: aliases(Mix.env()),
       test_coverage: [tool: ExCoveralls],
       dialyzer: [
         plt_add_deps: :app_tree,
@@ -52,5 +52,13 @@ defmodule Transport.MixProject do
         "test"
       ]
     ]
+  end
+
+  defp aliases(:dev) do
+    aliases() ++ ["ecto.migrate": ["ecto.migrate", "ecto.dump"]]
+  end
+
+  defp aliases(_env) do
+    aliases()
   end
 end

@@ -34,11 +34,13 @@ defmodule Transport.Test.S3TestUtils do
 
   def s3_mocks_delete_object(expected_bucket, expected_path) do
     Transport.ExAWS.Mock
-    |> expect(:request!, fn request ->
-      assert(request.service == :s3)
-      assert(request.http_method == :delete)
-      assert(request.path == expected_path)
-      assert(request.bucket == expected_bucket)
+    |> expect(:request!, fn %ExAws.Operation.S3{
+                              bucket: ^expected_bucket,
+                              path: ^expected_path,
+                              http_method: :delete,
+                              service: :s3
+                            } ->
+      :ok
     end)
   end
 end

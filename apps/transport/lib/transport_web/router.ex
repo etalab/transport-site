@@ -10,6 +10,7 @@ defmodule TransportWeb.Router do
 
   pipeline :browser_no_csp do
     plug(:canonical_host)
+    plug(TransportWeb.Plugs.RateLimiter, :use_env_variables)
     plug(:accepts, ["html"])
     plug(:fetch_session)
     plug(:fetch_flash)
@@ -80,6 +81,13 @@ defmodule TransportWeb.Router do
     scope "/espace_producteur" do
       pipe_through([:authenticated])
       get("/", PageController, :espace_producteur)
+      get("/proxy_statistics", EspaceProducteurController, :proxy_statistics)
+
+      scope "/datasets" do
+        get("/:dataset_id/edit", EspaceProducteurController, :edit_dataset)
+        post("/:dataset_id/upload_logo", EspaceProducteurController, :upload_logo)
+        delete("/:dataset_id/custom_logo", EspaceProducteurController, :remove_custom_logo)
+      end
 
       scope "/notifications" do
         get("/", NotificationController, :index)
@@ -108,11 +116,11 @@ defmodule TransportWeb.Router do
       get("/region/:region", DatasetController, :by_region)
       get("/commune/:insee_commune", DatasetController, :by_commune_insee)
 
-      scope "/:dataset_id" do
+      scope "/:dataset_datagouv_id" do
         pipe_through([:authenticated])
         post("/followers", FollowerController, :toggle)
         post("/discussions", DiscussionController, :post_discussion)
-        post("/discussions/:id_", DiscussionController, :post_answer)
+        post("/discussions/:discussion_id", DiscussionController, :post_answer)
       end
     end
 
@@ -122,11 +130,6 @@ defmodule TransportWeb.Router do
 
       scope "/conversions" do
         get("/:resource_id/:convert_to", ConversionController, :get)
-      end
-
-      scope "/show" do
-        pipe_through([:authenticated])
-        get("/proxy_statistics", ResourceController, :proxy_statistics)
       end
 
       scope "/update" do

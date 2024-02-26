@@ -5,7 +5,7 @@ resource_id = Map.fetch!(@conn.params, "resource_id") %>
     <%= breadcrumbs([@conn, :delete_resource, dataset_id]) %>
   </div>
 </section>
-<section class="resource-update-section">
+<section class="espace-producteur-section">
   <div class="container pt-24">
     <strong><%= @dataset["title"] %> > <%= @resource["title"] %></strong>
     <%= form_for @conn, resource_path(@conn, :delete, dataset_id, resource_id), [method: "delete", class: "pt-48"], fn _ -> %>

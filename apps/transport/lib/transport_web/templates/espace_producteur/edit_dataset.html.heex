@@ -1,0 +1,45 @@
+<% datagouv_admin_url = "https://www.data.gouv.fr/admin/dataset/#{@dataset.datagouv_id}/" %>
+<section class="pt-48">
+  <div class="container pb-24">
+    <%= breadcrumbs([@conn, :edit_dataset, @dataset.custom_title]) %>
+  </div>
+</section>
+<section class="espace-producteur-section">
+  <div class="container pt-24">
+    <div class="panel">
+      <h2><%= @dataset.custom_title %></h2>
+      <p>
+        <%= raw(
+          dgettext(
+            "espace-producteurs",
+            ~s(You can edit this dataset on <a href="%{datagouv_admin_url}" target="_blank">data.gouv.fr</a>.),
+            datagouv_admin_url: datagouv_admin_url
+          )
+        ) %>
+      </p>
+      <h3><%= dgettext("espace-producteurs", "Update your logo") %></h3>
+      <div :if={is_nil(@dataset.custom_logo)}>
+        <%= form_for @conn, espace_producteur_path(@conn, :upload_logo, @dataset.id), [as: "upload", multipart: :true], fn f -> %>
+          <div class="dataset__logo">
+            <p><%= dgettext("espace-producteurs", "Your current logo") %></p>
+            <%= img_tag(DB.Dataset.full_logo(@dataset), alt: @dataset.custom_title) %>
+          </div>
+          <p>
+            <%= dgettext("espace-producteurs", "Your custom logo") %>
+          </p>
+          <%= file_input(f, :file, accept: "image/png, image/jpeg", required: true) %>
+          <%= submit(dgettext("espace-producteurs", "Upload")) %>
+        <% end %>
+      </div>
+      <div :if={@dataset.custom_logo != nil}>
+        <%= form_for @conn, espace_producteur_path(@conn, :remove_custom_logo, @dataset.id), [ method: "delete"], fn _ -> %>
+          <div class="dataset__logo">
+            <p><%= dgettext("espace-producteurs", "Your current logo") %></p>
+            <%= img_tag(DB.Dataset.full_logo(@dataset), alt: @dataset.custom_title) %>
+          </div>
+          <%= submit(dgettext("espace-producteurs", "Remove the custom logo"), class: "button warning") %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>

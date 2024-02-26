@@ -166,6 +166,41 @@ defmodule DB.DatasetDBTest do
     end
   end
 
+  describe "custom_logo_changed_at is set when updating custom_logo" do
+    test "does not set custom_logo_changed_at when changing unrelated things" do
+      {:ok, %Ecto.Changeset{changes: changes}} =
+        Dataset.changeset(%{
+          "datagouv_id" => "1",
+          "slug" => "slug",
+          "national_dataset" => "true",
+          "custom_title" => "foo"
+        })
+
+      refute Map.has_key?(changes, :custom_logo_changed_at)
+    end
+
+    test "sets custom_logo_changed_at when changing custom_logo" do
+      assert {:ok, %Ecto.Changeset{changes: %{custom_logo_changed_at: custom_logo_changed_at}}} =
+               Dataset.changeset(%{
+                 "datagouv_id" => "1",
+                 "slug" => "slug",
+                 "national_dataset" => "true",
+                 "custom_title" => "foo",
+                 "custom_logo" => "https://example.com/pic.jpg"
+               })
+
+      assert DateTime.diff(custom_logo_changed_at, DateTime.utc_now(), :second) < 3
+    end
+
+    test "does not update fields when custom_logo is already set" do
+      dataset =
+        insert(:dataset, custom_logo: "https://example.com/pic.jpg", custom_logo_changed_at: DateTime.utc_now())
+
+      {:ok, %Ecto.Changeset{changes: changes}} = Dataset.changeset(%{"datagouv_id" => dataset.datagouv_id})
+      assert changes == %{}
+    end
+  end
+
   describe "mobility-licence" do
     test "does not change the licence if the magic custom tag is not set" do
       insert(:dataset, licence: "lov2", datagouv_id: datagouv_id = Ecto.UUID.generate(), custom_tags: nil)

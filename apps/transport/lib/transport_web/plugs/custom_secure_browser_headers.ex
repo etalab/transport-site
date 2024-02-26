@@ -34,6 +34,8 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
     vega_hash_values =
       "'sha256-9uoGUaZm3j6W7+Fh2wfvjI8P7zXcclRw5tVUu3qKZa0=' 'sha256-MmUum7+PiN7Rz79EUMm0OmUFWjCx6NZ97rdjoIbTnAg='"
 
+    logos_bucket_url = Transport.S3.permanent_url(:logos)
+
     csp_content =
       case app_env do
         :production ->
@@ -41,7 +43,7 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
           default-src 'none';
           connect-src *;
           font-src *;
-          img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://www.data.gouv.fr https://*.dmcdn.net;
+          img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://www.data.gouv.fr https://*.dmcdn.net #{logos_bucket_url};
           script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
           frame-src https://www.dailymotion.com/;
           style-src 'self' 'nonce-#{nonce}' #{vega_hash_values};
@@ -54,7 +56,7 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
             default-src 'none';
             connect-src *;
             font-src *;
-            img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://demo-static.data.gouv.fr https://www.data.gouv.fr https://demo.data.gouv.fr https://*.dmcdn.net;
+            img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://demo-static.data.gouv.fr https://www.data.gouv.fr https://demo.data.gouv.fr https://*.dmcdn.net #{logos_bucket_url};
             script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
             frame-src https://www.dailymotion.com/;
             style-src 'self' 'nonce-#{nonce}' #{vega_hash_values};
