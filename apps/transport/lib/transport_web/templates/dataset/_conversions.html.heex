@@ -5,7 +5,7 @@
   <div>
     <%= for {_, %{format: human_format, stable_url: stable_url}} <- Enum.sort_by(conversions, fn {_, %{format: format}} -> format end, :asc) do %>
       <a class="download-button" rel="nofollow" href={stable_url}>
-        <button class="button-outline secondary small">
+        <button class="button-outline secondary no-border small">
           <i class="icon icon--download" aria-hidden="true"></i><%= dgettext("page-dataset-details", "Download") %> <%= human_format %>
         </button>
       </a>
