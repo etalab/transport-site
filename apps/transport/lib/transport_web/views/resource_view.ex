@@ -97,26 +97,6 @@ defmodule TransportWeb.ResourceView do
 
   def has_associated_files(_, _), do: false
 
-  def has_associated_file(%{} = resources_related_files, resource_id, get_associated_file) do
-    resources_related_files
-    |> Map.get(resource_id)
-    |> get_associated_file.()
-    |> case do
-      nil -> false
-      _ -> true
-    end
-  end
-
-  def has_associated_file(_, _, _), do: false
-
-  def has_associated_geojson(resources_related_files, resource_id) do
-    has_associated_file(resources_related_files, resource_id, &get_associated_geojson/1)
-  end
-
-  def has_associated_netex(resources_related_files, resource_id) do
-    has_associated_file(resources_related_files, resource_id, &get_associated_netex/1)
-  end
-
   def get_associated_geojson(%{GeoJSON: geojson_details}), do: geojson_details
   def get_associated_geojson(_), do: nil
 

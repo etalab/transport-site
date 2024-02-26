@@ -271,10 +271,6 @@ msgid "during validation"
 msgstr "lors de la validation"
 
 #, elixir-autogen, elixir-format
-msgid "Data visualization available!"
-msgstr "Visualisation des données disponible !"
-
-#, elixir-autogen, elixir-format
 msgid "Download"
 msgstr "Télécharger"
 
@@ -297,10 +293,6 @@ msgstr "Visualisation temps-réel de "
 #, elixir-autogen, elixir-format
 msgid "Visualization of the resource"
 msgstr "Visualisation de la ressource"
-
-#, elixir-autogen, elixir-format
-msgid "Dataset modes"
-msgstr "Modes présents dans le jeu de données"
 
 #, elixir-autogen, elixir-format
 msgid "Features available in the resource:"
@@ -689,3 +681,11 @@ msgstr "Tracés d'itinéraires"
 #, elixir-autogen, elixir-format
 msgid "The following table displays if the file/field is present in the GTFS."
 msgstr "Le tableau ci-dessous affiche si le fichier/champ est présent dans le GTFS."
+
+#, elixir-autogen, elixir-format
+msgid "Availability rate"
+msgstr "Taux de disponibilité"
+
+#, elixir-autogen, elixir-format
+msgid "Latest modification"
+msgstr "Dernière modification"

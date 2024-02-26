@@ -182,7 +182,8 @@ defmodule TransportWeb.DatasetControllerTest do
 
     conn = conn |> get(dataset_path(conn, :details, slug))
     assert conn |> html_response(200) =~ "1 information"
-    assert conn |> html_response(200) =~ "ferry"
+    # Dataset modes are not displayed
+    refute conn |> html_response(200) =~ "ferry"
   end
 
   test "show number of errors for a GBFS", %{conn: conn} do
