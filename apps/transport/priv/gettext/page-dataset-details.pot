@@ -271,10 +271,6 @@ msgid "during validation"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Data visualization available!"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Download"
 msgstr ""
 
@@ -296,10 +292,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Visualization of the resource"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Dataset modes"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -624,4 +616,12 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "transport.data.gouv.fr computes quality indicators daily to assess the quality of the published data. <i class=\"fa fa-external-link-alt\"></i> <a href=\"%{doc_url}\" target=\"_blank\">Learn more</a>."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Availability rate"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Latest modification"
 msgstr ""

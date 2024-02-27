@@ -187,10 +187,6 @@
   .button-outline:hover {
     background-color: transparent;
   }
-  .button-outline.secondary {
-    border: none;
-    background-color: transparent;
-  }
   h4 {
     display: inline-block;
     margin-bottom: 0;
@@ -207,8 +203,9 @@
       flex-wrap: wrap;
       align-items: flex-end;
       justify-content: space-between;
-      .button-outline.secondary {
+      .button-outline.secondary.no-border {
         padding: 0 12px 0 0;
+        border: none;
       }
     }
   }
