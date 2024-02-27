@@ -660,7 +660,7 @@ msgstr "Accessibilité de l'arrêt"
 
 #, elixir-autogen, elixir-format
 msgid "The possibility of carrying a bicycle in the vehicle"
-msgstr "La possibilité de transporter un vélo dans le véhicule "
+msgstr "Possibilité d’emport de vélo"
 
 #, elixir-autogen, elixir-format
 msgid "Transfers"
@@ -680,7 +680,7 @@ msgstr "Tracés d'itinéraires"
 
 #, elixir-autogen, elixir-format
 msgid "The following table displays if the file/field is present in the GTFS."
-msgstr "Le tableau ci-dessous affiche si le fichier/champ est présent dans le GTFS."
+msgstr "Le tableau ci-dessous affiche si le fichier ou le champ est présent dans le GTFS."
 
 #, elixir-autogen, elixir-format
 msgid "Availability rate"
