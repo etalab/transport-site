@@ -280,11 +280,16 @@ defmodule Transport.Jobs.DatasetAvailabilityScore do
 
   @spec current_dataset_availability(integer()) :: %{score: float | nil, details: map()}
   def current_dataset_availability(dataset_id) do
-    resources = dataset_id |> dataset_resources() |> Enum.reject(&DB.Resource.is_documentation?/1)
-    current_dataset_infos = resources |> Enum.map(&resource_availability(&1))
-    scores = current_dataset_infos |> Enum.map(fn %{availability: availability} -> availability end)
+    relevant_resources = dataset_id |> dataset_resources() |> Enum.reject(&DB.Resource.is_documentation?/1)
 
-    %{score: average(scores), details: %{resources: current_dataset_infos}}
+    if Enum.empty?(relevant_resources) do
+      %{score: 0.0, details: %{resources: []}}
+    else
+      current_dataset_infos = Enum.map(relevant_resources, &resource_availability(&1))
+      scores = current_dataset_infos |> Enum.map(fn %{availability: availability} -> availability end)
+
+      %{score: average(scores), details: %{resources: current_dataset_infos}}
+    end
   end
 
   @spec resource_availability(DB.Resource.t()) :: %{
