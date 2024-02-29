@@ -16,7 +16,7 @@ defmodule Transport.IRVE.ExtractorTest do
     }
   end
 
-  def build_page_payload() do
+  def build_page_payload do
     %{
       "data" => [
         %{
