@@ -7,28 +7,18 @@
 <section class="section producer-actions">
   <div class="container">
     <div class="panel">
-      <p>
-        Les notifications vous aident à maintenir la qualité et l’accès à vos données, en vous avertissant automatiquement en cas de problème. Elles vous assurent que vos usagers aient un accès ininterrompu à vos données de transport à travers leurs applications (calcul d’itinéraire…).
-      </p>
-      <h5>Expiration de données</h5>
-      <p>
-        Vous êtes averti 14 jours, 7 jours et 1 jour avant la dernière date couverte par vos données, tels que les horaires théoriques des transports collectifs.
-      </p>
-      <h5>Erreurs de validation</h5>
 
-      <p>
-        Vous êtes averti lorsque le fichier ne respecte pas la norme (spécification/schéma) ou en cas d’erreur critique concernant la cohérence des données, empêchant leur réutilisation.
-      </p>
-
-      <h5>Ressources indisponibles</h5>
-
-      <p>
-        Vous êtes averti au bout de 6h consécutives pendant lesquelles votre fichier ne peut pas être téléchargé.
-      </p>
+      <p><%= dgettext("espace-producteurs", "notifications are good for you")%></p>
+      <h5><%=dgettext("espace-producteurs", "Data expiration") %></h5>
+      <p><%=dgettext("espace-producteurs", "data expiration notification explanation") %></p>
+      <h5><%=dgettext("espace-producteurs", "Validation errors") %></h5>
+      <p><%=dgettext("espace-producteurs", "validation errors notification explanation") %></p>
+      <h5><%=dgettext("espace-producteurs", "Unavailable resources") %></h5>
+      <p><%=dgettext("espace-producteurs", "unavailable resources notification explanation") %></p>
     </div>
 
     <div class="panel">
-      <h2>Gérer mes notifications</h2>
+      <h2><%=dgettext("espace-producteurs", "Manage my notifications") %></h2>
       <table class="table">
         <tr>
           <td></td>
@@ -36,7 +26,7 @@
             <fieldset>
               <label class="switch">
                 <input type="checkbox" name="show-chat" id="show-chat" value="show-chat" />
-                <span class="slider"></span> &nbsp;<strong>Activer toutes les notifications</strong>
+                <span class="slider"></span> &nbsp;<strong><%=dgettext("espace-producteurs", "Turn on all notifications") %></strong>
               </label>
             </fieldset>
           </td>

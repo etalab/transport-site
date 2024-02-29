@@ -100,43 +100,11 @@ msgid "Transport proxy statistics"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Actions"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Dataset"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Manage notifications"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Notification reason"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Receive helpful notifications about the data you publish."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Delete all"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Create"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "<a href=\"%{doc_url}\" target=\"_blank\">Learn more</a> about how notifications work and when they are sent."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Create a notification"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Existing notifications"
 msgstr ""
 
 #, elixir-autogen, elixir-format, fuzzy
@@ -145,26 +113,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Receive notifications"
-msgstr ""
-
-#, elixir-autogen, elixir-format, fuzzy
-msgid "Here you can see your existing notifications. You can delete notifications for a dataset entirely in one click or one at a time."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "The notification has been created"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "The notification has been deleted"
-msgstr ""
-
-#, elixir-autogen, elixir-format, fuzzy
-msgid "The notifications have been deleted"
-msgstr ""
-
-#, elixir-autogen, elixir-format, fuzzy
-msgid "You do not have notifications yet. They will show up here."
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -243,4 +191,40 @@ msgstr ""
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Your custom logo has been removed."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "notifications are good for you"
+msgstr "Notifications help you maintain the quality and availability of your data, by warning you automatically if a problem arises. They ensure that the end users of your data keep a continous access to them through their daily apps (route calculation…)"
+
+#, elixir-autogen, elixir-format
+msgid "Data expiration"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Validation errors"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Unavailable resources"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "data expiration notification explanation"
+msgstr "You are warned 14 days, 7 days and 1 day before the last date covered by your data, such as public transport timetables."
+
+#, elixir-autogen, elixir-format
+msgid "validation errors notification explanation"
+msgstr "You are warned if the file doesn't respect the norm, or if the file is unusable because of a critical error with data consistency."
+
+#, elixir-autogen, elixir-format
+msgid "unavailable resources notification explanation"
+msgstr "You are warned if your file couldn't be downloaded during 6 consecutive hours."
+
+#, elixir-autogen, elixir-format
+msgid "Manage my notifications"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Turn on all notifications"
 msgstr ""
