@@ -511,10 +511,6 @@ msgid "Displaying the last %{nb} backed up resources."
 msgstr "Affiche les %{nb} dernières ressources historisées."
 
 #, elixir-autogen, elixir-format
-msgid "Missing features that <a href=\"%{doc_link}\" target=\"_blank\">can be specified in GTFS</a>:"
-msgstr "Données absentes mais <a href=\"%{doc_link}\" target=\"_blank\">possibles à modéliser en GTFS</a> :"
-
-#, elixir-autogen, elixir-format
 msgid "Data published by"
 msgstr "Données publiées par"
 
@@ -617,6 +613,74 @@ msgstr "Derniers indicateurs qualité"
 #, elixir-autogen, elixir-format
 msgid "transport.data.gouv.fr computes quality indicators daily to assess the quality of the published data. <i class=\"fa fa-external-link-alt\"></i> <a href=\"%{doc_url}\" target=\"_blank\">Learn more</a>."
 msgstr "transport.data.gouv.fr calcule des indicateurs qualité de manière quotidienne afin de mieux appréhender les données publiées. <i class=\"fa fa-external-link-alt\"></i> <a href=\"%{doc_url}\" target=\"_blank\">En savoir plus</a>."
+
+#, elixir-autogen, elixir-format
+msgid "Description"
+msgstr "Description"
+
+#, elixir-autogen, elixir-format
+msgid "Fare attributes"
+msgstr "Attributs tarifaires"
+
+#, elixir-autogen, elixir-format
+msgid "Fare rules"
+msgstr "Règles tarifaires"
+
+#, elixir-autogen, elixir-format
+msgid "File or field"
+msgstr "Fichier ou champ"
+
+#, elixir-autogen, elixir-format
+msgid "Line color"
+msgstr "Couleur de la ligne"
+
+#, elixir-autogen, elixir-format
+msgid "Line long name"
+msgstr "Nom long de la ligne"
+
+#, elixir-autogen, elixir-format
+msgid "Line short name or line number"
+msgstr "Nom court ou n° de la ligne"
+
+#, elixir-autogen, elixir-format
+msgid "On-demand transport"
+msgstr "Transport à la demande"
+
+#, elixir-autogen, elixir-format
+msgid "Quantity"
+msgstr "Quantité"
+
+#, elixir-autogen, elixir-format
+msgid "Status"
+msgstr "Statut"
+
+#, elixir-autogen, elixir-format
+msgid "Stop accessibility"
+msgstr "Accessibilité de l'arrêt"
+
+#, elixir-autogen, elixir-format
+msgid "The possibility of carrying a bicycle in the vehicle"
+msgstr "Possibilité d’emport de vélo"
+
+#, elixir-autogen, elixir-format
+msgid "Transfers"
+msgstr "Correspondances"
+
+#, elixir-autogen, elixir-format
+msgid "Trip accessibility"
+msgstr "Accessibilité de la course"
+
+#, elixir-autogen, elixir-format
+msgid "Trip headsign"
+msgstr "Destination de la course"
+
+#, elixir-autogen, elixir-format
+msgid "Trip shapes"
+msgstr "Tracés d'itinéraires"
+
+#, elixir-autogen, elixir-format
+msgid "The following table displays if the file/field is present in the GTFS."
+msgstr "Le tableau ci-dessous affiche si le fichier ou le champ est présent dans le GTFS."
 
 #, elixir-autogen, elixir-format
 msgid "Availability rate"

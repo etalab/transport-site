@@ -259,7 +259,6 @@ defmodule Transport.Validators.GTFSTransport do
 
   def is_gtfs_outdated(_), do: nil
 
-  # all those functions come from resource.ex, but now live here as they are related to this validator
   @spec find_tags(map()) :: [binary()]
   def find_tags(metadata) do
     gtfs_base_tags()
@@ -312,6 +311,9 @@ defmodule Transport.Validators.GTFSTransport do
   def has_shapes_tag(_), do: []
 
   # check if the resource contains some On Demand Transport (odt) tags
+  @spec has_odt_tag?(map()) :: boolean()
+  def has_odt_tag?(value), do: has_odt_tag(value) != []
+
   @spec has_odt_tag(map()) :: [binary()]
   def has_odt_tag(%{"some_stops_need_phone_agency" => true}), do: ["transport à la demande"]
   def has_odt_tag(%{"some_stops_need_phone_driver" => true}), do: ["transport à la demande"]
@@ -320,16 +322,18 @@ defmodule Transport.Validators.GTFSTransport do
   @doc """
   Outputs a tag if at least 80% of GTFS routes have a custom color.
 
-  iex> has_route_colors_tag(%{"lines_with_custom_color_count" => 8, "lines_count" => 10})
+  iex> has_route_colors_tag(%{"stats" => %{"routes_with_custom_color_count" => 8, "routes_count" => 10}})
   ["couleurs des lignes"]
-  iex> has_route_colors_tag(%{"lines_with_custom_color_count" => 7, "lines_count" => 10})
+  iex> has_route_colors_tag(%{"stats" => %{"routes_with_custom_color_count" => 7, "routes_count" => 10}})
   []
-  iex> has_route_colors_tag(%{"lines_with_custom_color_count" => 0, "lines_count" => 0})
+  iex> has_route_colors_tag(%{"stats" => %{"routes_with_custom_color_count" => 0, "routes_count" => 0}})
   []
   """
   @spec has_route_colors_tag(map()) :: [binary()]
-  def has_route_colors_tag(%{"lines_with_custom_color_count" => with_colors_count, "lines_count" => lines_count})
-      when with_colors_count / lines_count * 100 >= 80,
+  def has_route_colors_tag(%{
+        "stats" => %{"routes_with_custom_color_count" => with_colors_count, "routes_count" => routes_count}
+      })
+      when with_colors_count / routes_count * 100 >= 80,
       do: ["couleurs des lignes"]
 
   def has_route_colors_tag(_), do: []
@@ -339,13 +343,15 @@ defmodule Transport.Validators.GTFSTransport do
   def has_pathways_tag(_), do: []
 
   @spec has_bike_accessibility(map()) :: [binary()]
-  def has_bike_accessibility(%{"trips_with_bike_info_count" => n}) when is_integer(n) and n > 0,
+  def has_bike_accessibility(%{"stats" => %{"trips_with_bike_info_count" => n}}) when is_integer(n) and n > 0,
     do: ["informations sur l'accessibilité à vélo"]
 
   def has_bike_accessibility(_), do: []
 
   @spec has_wheelchair_accessibility(map()) :: [binary()]
-  def has_wheelchair_accessibility(%{"trips_with_wheelchair_info_count" => n1, "stops_with_wheelchair_info_count" => n2})
+  def has_wheelchair_accessibility(%{
+        "stats" => %{"trips_with_wheelchair_info_count" => n1, "stops_with_wheelchair_info_count" => n2}
+      })
       when is_integer(n1) and is_integer(n2) and (n1 > 0 or n2 > 0),
       do: ["informations sur l'accessibilité en fauteuil roulant"]
 
