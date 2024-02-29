@@ -25,12 +25,12 @@ defmodule Transport.IRVE.Fetcher do
   @doc """
   Return the list of all pages for a given query (by querying one page and inferring other pages).
   """
-  def pages(base_url) do
+  def pages(base_url, pagination_options \\ []) do
     http_client = Transport.HTTPClient
     base_url = URI.encode(base_url)
     options = http_options()
 
-    Transport.IRVE.HTTPPagination.naive_paginated_urls_stream(base_url, http_client, options)
+    Transport.IRVE.HTTPPagination.naive_paginated_urls_stream(base_url, http_client, options, pagination_options)
   end
 
   def get!(url, options \\ []) do
