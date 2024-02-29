@@ -55,6 +55,6 @@ defmodule Transport.HTTPClient do
         req
       end
 
-    Req.get!(req, options |> Keyword.merge(url: url))
+    Transport.Req.impl().get!(req, options |> Keyword.merge(url: url))
   end
 end
