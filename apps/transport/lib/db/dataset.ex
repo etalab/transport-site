@@ -849,8 +849,6 @@ defmodule DB.Dataset do
     Datagouvfr.Client.User.Wrapper.impl().get(datagouv_id)
   end
 
-
-
   @spec get_resources_related_files(any()) :: %{integer() => %{optional(atom()) => conversion_details() | nil}}
   def get_resources_related_files(%__MODULE__{resources: resources} = dataset) when is_list(resources) do
     target_formats = target_conversion_formats(dataset)

@@ -2,7 +2,6 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
   use Phoenix.LiveView
   import Ecto.Query
   use TransportWeb.InputHelpers
-  import TransportWeb.InputHelpers
   import TransportWeb.Router.Helpers
   import TransportWeb.Gettext
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
@@ -119,7 +118,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
 
   defp toggle_subscription(current_contact, _dataset_id, subscription_id, reason, "turn_off") do
     DB.NotificationSubscription.base_query()
-    |> where([notification_subscription: ns], ns.id == ^subscription_id and ns.contact_id == ^current_contact.id)
+    |> where([notification_subscription: ns], ns.id == ^subscription_id and ns.contact_id == ^current_contact.id and ns.reason == ^reason)
     |> DB.Repo.one!()
     |> DB.Repo.delete!()
   end
