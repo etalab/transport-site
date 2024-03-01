@@ -84,6 +84,36 @@ defmodule Transport.IRVE.ExtractorTest do
            ]
   end
 
-  # test "download_and_parse_all"
+  test "given a list of resources, download & analyze them via #download_and_parse_all" do
+    resources = [
+      orig_resource = %{
+        url: expected_url = "https://static.data.gouv.fr/resources/something/something.csv",
+        dataset_id: "the-dataset-id",
+        dataset_title: "the-dataset-title",
+        resource_id: "the-resource-id",
+        resource_title: "the-resource-title",
+        valid: true
+      }
+    ]
+
+    Transport.Req.Mock
+    |> expect(:get!, fn _request, options ->
+      assert options[:url] == expected_url
+
+      %Req.Response{
+        status: 200,
+        body: "id_pdc_itinerance\nFR123\nFR456\nFR789"
+      }
+    end)
+
+    # parsed resources must be enriched with line count & index, and url removed
+    assert Transport.IRVE.Extractor.download_and_parse_all(resources) == [
+             orig_resource
+             |> Map.put(:index, 0)
+             |> Map.put(:line_count, 3)
+             |> Map.delete(:url)
+           ]
+  end
+
   # test "insert_report!"
 end
