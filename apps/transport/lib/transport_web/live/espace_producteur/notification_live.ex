@@ -81,11 +81,15 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
 
     subscriptions_list = load_subscriptions_for_datasets(dataset_ids)
 
-    subscriptions_list
-    |> Enum.group_by(& &1.dataset_id)
-    |> Map.new(fn {dataset_id, subscriptions} ->
-      {dataset_id, group_by_reason_and_contact(subscriptions, current_contact)}
-    end)
+    Enum.reduce(subscriptions_list, subscription_empty_map(dataset_ids), fn subscription, acc ->
+      if subscription.contact == current_contact do
+        acc |> put_in([subscription.dataset_id, subscription.reason, :user_subscription], subscription)
+      else
+        acc |> put_in([subscription.dataset_id, subscription.reason, :team_subscriptions],
+        [subscription | acc[subscription.dataset_id][subscription.reason][:team_subscriptions]])
+      end
+    end
+    )
   end
 
   defp load_subscriptions_for_datasets(dataset_ids) do
@@ -101,24 +105,6 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
         ns.role == :producer
     )
     |> DB.Repo.all()
-  end
-
-  defp group_by_reason_and_contact(subscriptions, current_contact) do
-    subscriptions
-    |> Enum.group_by(& &1.reason)
-    |> Map.new(fn {reason, subscriptions} -> {reason, subgroup_by_contact(subscriptions, current_contact)} end)
-  end
-
-  defp subgroup_by_contact(subscriptions, current_contact) do
-    {user_subscriptions, team_subscriptions} = Enum.split_with(subscriptions, &(&1.contact == current_contact))
-
-    user_subscription =
-      case user_subscriptions do
-        [] -> nil
-        [subscription] -> subscription
-      end
-
-    %{user_subscription: user_subscription, team_subscriptions: team_subscriptions}
   end
 
   defp toggle_subscription(current_contact, dataset_id, _subscription_id, reason, "turn_on") do
@@ -152,11 +138,18 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
     end)
   end
 
-
-
   defp toggle_all_subscriptions(current_contact, old_subscriptions, "turn_off") do
     Enum.each(old_subscriptions, fn {_, {reason, %{user_subscription: user_subscription, team_subscriptions: _}}} ->
       "prout"
+    end)
+  end
+
+  defp subscription_empty_map(dataset_ids) do
+    Map.new(dataset_ids, fn dataset_id ->
+      reason_map = DB.NotificationSubscription.reasons_related_to_datasets()
+      |> Map.new(fn reason -> {reason, %{user_subscription: nil, team_subscriptions: []}} end)
+
+      {dataset_id, reason_map}
     end)
   end
 end
