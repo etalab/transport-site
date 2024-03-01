@@ -18,7 +18,7 @@ stats = @metadata["stats"] %>
         <li>
           <div>
             <div class="networks-list">
-              <%= dgettext("validations", "calendar span by network") %> :
+              <%= dgettext("validations", "calendar span by network:") %>
               <.networks_start_end_dates
                 networks_start_end_dates={networks_start_end_dates}
                 locale={get_session(@conn, :locale)}
@@ -40,11 +40,17 @@ stats = @metadata["stats"] %>
         <%= dngettext("validations", "transport mode", "transport modes", length(@modes)) %> :
         <strong><%= Enum.join(@modes, ", ") %></strong>
       </li>
-      <li :if={@metadata["stop_points_count"] != nil}>
-        <%= dgettext("validations", "number of stop points") %> : <strong><%= @metadata["stop_points_count"] %></strong>
+      <li :if={stats["routes_count"] != nil}>
+        <%= dgettext("validations", "number of routes:") %>
+        <strong><%= format_nil_or_number(stats["routes_count"], locale) %></strong>
       </li>
-      <li :if={@metadata["stop_areas_count"] != nil}>
-        <%= dgettext("validations", "number of stop areas") %> : <strong><%= @metadata["stop_areas_count"] %></strong>
+      <li :if={stats["stop_points_count"] != nil}>
+        <%= dgettext("validations", "number of stop points:") %>
+        <strong><%= format_nil_or_number(stats["stop_points_count"], locale) %></strong>
+      </li>
+      <li :if={stats["stop_areas_count"] != nil}>
+        <%= dgettext("validations", "number of stop areas:") %>
+        <strong><%= format_nil_or_number(stats["stop_areas_count"], locale) %></strong>
       </li>
     </ul>
   </div>

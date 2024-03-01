@@ -71,14 +71,6 @@ msgid "Validation report"
 msgstr "Rapport de validation"
 
 #, elixir-autogen, elixir-format
-msgid "number of stop areas"
-msgstr "nombre de zones d'arrêts (stop areas)"
-
-#, elixir-autogen, elixir-format
-msgid "number of stop points"
-msgstr "nombre de stops (stop points)"
-
-#, elixir-autogen, elixir-format
 msgid "to"
 msgstr "au"
 
@@ -290,10 +282,6 @@ msgid "Validation carried out using the <a href=\"%{gtfs_link}\">current GTFS fi
 msgstr "Validation effectuée en utilisant <a href=\"%{gtfs_link}\">le fichier GTFS en vigueur</a> le %{date} avec <a href=\"%{validator_url}\" target=\"_blank\">le validateur GTFS du <abbr title=\"Point d'Accès National\">PAN</abbr></a>."
 
 #, elixir-autogen, elixir-format
-msgid "calendar span by network"
-msgstr "couverture calendaire par réseau"
-
-#, elixir-autogen, elixir-format
 msgid "from"
 msgstr "du"
 
@@ -416,3 +404,19 @@ msgstr "Veuillez noter que notre validateur GTFS n'est pas en mesure de valider 
 #, elixir-autogen, elixir-format
 msgid "This file contains the GTFS-Flex extension. We are not able to validate it for now."
 msgstr "Ce fichier contient l'extension GTFS-Flex. Nous ne sommes pas en mesure de le valider pour le moment."
+
+#, elixir-autogen, elixir-format
+msgid "calendar span by network:"
+msgstr "couverture calendaire par réseau :"
+
+#, elixir-autogen, elixir-format
+msgid "number of routes:"
+msgstr "nombre de lignes :"
+
+#, elixir-autogen, elixir-format
+msgid "number of stop areas:"
+msgstr "nombre de zones d'arrêts :"
+
+#, elixir-autogen, elixir-format
+msgid "number of stop points:"
+msgstr "nombre d'arrêts :"
