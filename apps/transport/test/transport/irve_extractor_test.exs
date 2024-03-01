@@ -1,6 +1,7 @@
 defmodule Transport.IRVE.ExtractorTest do
   use ExUnit.Case, async: true
   import Mox
+  setup :verify_on_exit!
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
