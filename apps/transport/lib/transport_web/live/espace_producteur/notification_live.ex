@@ -29,6 +29,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
     current_contact = DB.Repo.get_by(DB.Contact, datagouv_user_id: current_user["id"])
 
     subscriptions = notification_subscriptions_for_datasets(datasets, current_contact)
+    all_notifications_enabled = false
 
     socket =
       socket
@@ -36,6 +37,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
       |> assign(:locale, locale)
       |> assign(:datasets, datasets)
       |> assign(:subscriptions, subscriptions)
+      |> assign(:all_notifications_enabled, all_notifications_enabled)
 
     {:ok, socket}
   end
@@ -50,9 +52,23 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
 
     toggle_subscription(current_contact, dataset_id, subscription_id, reason, action)
     subscriptions = notification_subscriptions_for_datasets(datasets, current_contact)
+    all_notifications_enabled = false
 
     # TODO : alerts for success/failure
-    {:noreply, assign(socket, :subscriptions, subscriptions)}
+    {:noreply, assign(socket, subscriptions: subscriptions, all_notifications_enabled: all_notifications_enabled)}
+  end
+
+  def handle_event("toggle-all", %{"action" => action}, socket) do
+    current_contact = socket.assigns.current_contact
+    datasets = socket.assigns.datasets
+    old_subscriptions = socket.assigns.subscriptions
+
+    toggle_all_subscriptions(current_contact, old_subscriptions, action)
+
+    subscriptions = notification_subscriptions_for_datasets(datasets, current_contact)
+
+    all_notifications_enabled = true
+    {:noreply, assign(socket, subscriptions: subscriptions, all_notifications_enabled: all_notifications_enabled)}
   end
 
   defp notification_subscriptions_for_datasets(datasets, current_contact) do
@@ -121,5 +137,26 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
     |> where([notification_subscription: ns], ns.id == ^subscription_id and ns.contact_id == ^current_contact.id and ns.reason == ^reason)
     |> DB.Repo.one!()
     |> DB.Repo.delete!()
+  end
+
+  defp toggle_all_subscriptions(current_contact, old_subscriptions, "turn_on") do
+    # TODO : check if the subscription already exists
+    # TODO : alert for creation?
+    IO.inspect(old_subscriptions)
+    Enum.each(old_subscriptions, fn {dataset_id, reason_map} ->
+      Enum.each(reason_map, fn {reason, %{user_subscription: user_subscription, team_subscriptions: _}} ->
+        if is_nil(user_subscription) do
+          toggle_subscription(current_contact, dataset_id, nil, reason, "turn_on")
+        end
+      end)
+    end)
+  end
+
+
+
+  defp toggle_all_subscriptions(current_contact, old_subscriptions, "turn_off") do
+    Enum.each(old_subscriptions, fn {_, {reason, %{user_subscription: user_subscription, team_subscriptions: _}}} ->
+      "prout"
+    end)
   end
 end
