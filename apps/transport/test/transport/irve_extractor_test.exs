@@ -120,6 +120,4 @@ defmodule Transport.IRVE.ExtractorTest do
              |> Map.delete(:url)
            ]
   end
-
-  # test "insert_report!"
 end
