@@ -44,7 +44,7 @@ defmodule Transport.Jobs.ConsolidateIRVEJob do
         send(job_pid, {:complete})
       rescue
         error ->
-          Logger.error("IRVE: error - #{error |> inspect}")
+          Logger.error("IRVE:" <> Exception.format(:error, error, __STACKTRACE__))
           send(job_pid, {:failed})
       end
     end)
