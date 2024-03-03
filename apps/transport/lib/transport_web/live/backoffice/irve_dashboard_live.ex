@@ -15,10 +15,31 @@ defmodule TransportWeb.Backoffice.IRVEDashboardLive do
      end)}
   end
 
+  @doc """
+  A quick and dirty filter on some interesting fields, using downcase matching.
+  """
+  def must_list_resource?(resource, filter) do
+    filter = filter |> String.downcase() |> String.trim()
+
+    filter == "" ||
+      String.contains?(resource["dataset_organisation_name"] |> String.downcase(), filter) ||
+      String.contains?(format_validity(resource["valid"]) |> inspect |> String.downcase(), filter)
+  end
+
   def assign_data(socket) do
     socket
     |> assign(:running, false)
     |> assign(:latest_report, latest_report())
+    |> assign(:filter, "")
+  end
+
+  @impl true
+  def handle_event("change_form", params, socket) do
+    socket =
+      socket
+      |> assign(:filter, params["config"]["filter"])
+
+    {:noreply, socket}
   end
 
   @impl true
