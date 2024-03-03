@@ -23,6 +23,10 @@ defmodule Transport.IRVE.ExtractorTest do
         %{
           "id" => "the-dataset-id",
           "title" => "the-dataset-title",
+          "organization" => %{
+            "name" => "the-org",
+            "page" => "http://the-org"
+          },
           "resources" => [
             %{
               "schema" => %{
@@ -71,6 +75,8 @@ defmodule Transport.IRVE.ExtractorTest do
              %{
                dataset_id: "the-dataset-id",
                dataset_title: "the-dataset-title",
+               dataset_organisation_name: "the-org",
+               dataset_organisation_url: "http://the-org",
                resource_id: "the-resource-id",
                resource_title: "the-resource-title",
                schema_name: "etalab/schema-irve-statique",

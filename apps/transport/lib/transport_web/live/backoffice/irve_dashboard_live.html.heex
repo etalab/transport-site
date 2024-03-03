@@ -11,6 +11,7 @@
       <thead>
         <tr>
           <th>Dataset</th>
+          <th>Org</th>
           <th>Ressource</th>
           <th>Validité</th>
           <th>Nb PDC</th>
@@ -24,6 +25,11 @@
                 <%= resource["dataset_id"] %>
               </.link>
               &mdash; <%= resource["dataset_title"] %>
+            </td>
+            <td>
+              <.link target="_blank" href={resource["dataset_organisation_url"]}>
+                <%= resource["dataset_organisation_name"] %>
+              </.link>
             </td>
             <td>
               <%= resource["resource_title"] %>
