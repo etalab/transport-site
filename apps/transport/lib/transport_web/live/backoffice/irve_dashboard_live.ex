@@ -88,6 +88,12 @@ defmodule TransportWeb.Backoffice.IRVEDashboardLive do
     {:noreply, socket}
   end
 
+  # ignore other gossip
+  @impl true
+  def handle_info({:notification, :gossip, _args}, socket) do
+    {:noreply, socket}
+  end
+
   import Ecto.Query, only: [from: 2, first: 1]
 
   def latest_report do
