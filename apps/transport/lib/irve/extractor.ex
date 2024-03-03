@@ -118,6 +118,8 @@ defmodule Transport.IRVE.Extractor do
         :resource_title,
         :valid,
         :line_count,
+        :filetype,
+        :last_modified,
         :index
       ])
     end)

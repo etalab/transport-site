@@ -12,7 +12,7 @@
         <tr>
           <th>Dataset</th>
           <th>Org</th>
-          <th>Ressource</th>
+          <th>Ressource (Nom / FileType / LastModified)</th>
           <th>Validité</th>
           <th>Nb&nbsp;PDC</th>
         </tr>
@@ -32,6 +32,7 @@
             </td>
             <td>
               <%= resource["resource_title"] %>
+              <br /> <%= resource["filetype"] %> &mdash; <%= resource["last_modified"] |> String.slice(0..15) %>
             </td>
             <td>
               <%= format_validity(resource["valid"]) %>
