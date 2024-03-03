@@ -39,14 +39,20 @@ defmodule Transport.IRVE.Extractor do
   end
 
   @doc """
+  A quick imitation of `get_in` but raising error in case one of the keys is missing
+  """
+  def fetch_in!(list, [key]), do: Map.fetch!(list, key)
+  def fetch_in!(list, [key | keys]), do: fetch_in!(Map.fetch!(list, key), keys)
+
+  @doc """
   Return all resources for a given dataset, keeping a bit of dataset information around.
   """
   def unpack_resources(dataset) do
     dataset["resources"]
     |> Enum.map(fn x ->
       x
-      |> Map.put(:dataset_id, dataset["id"])
-      |> Map.put(:dataset_title, dataset["title"])
+      |> Map.put(:dataset_id, fetch_in!(dataset, ["id"]))
+      |> Map.put(:dataset_title, fetch_in!(dataset, ["title"]))
     end)
   end
 
@@ -54,19 +60,21 @@ defmodule Transport.IRVE.Extractor do
   Extract resource fields we want to use.
   """
   def remap_fields(resource) do
+    # using mandatory `fetch_in!` wherever I could, but `get_in` when occurrences
+    # showed missing data
     %{
-      resource_id: get_in(resource, ["id"]),
-      resource_title: get_in(resource, ["title"]),
-      dataset_id: get_in(resource, [:dataset_id]),
-      dataset_title: get_in(resource, [:dataset_title]),
+      resource_id: fetch_in!(resource, ["id"]),
+      resource_title: fetch_in!(resource, ["title"]),
+      dataset_id: fetch_in!(resource, [:dataset_id]),
+      dataset_title: fetch_in!(resource, [:dataset_title]),
       valid: get_in(resource, ["extras", "validation-report:valid_resource"]),
       validation_date: get_in(resource, ["extras", "validation-report:validation_date"]),
       schema_name: get_in(resource, ["schema", "name"]),
       schema_version: get_in(resource, ["schema", "version"]),
-      filetype: get_in(resource, ["filetype"]),
-      last_modified: get_in(resource, ["last_modified"]),
+      filetype: fetch_in!(resource, ["filetype"]),
+      last_modified: fetch_in!(resource, ["last_modified"]),
       # vs latest?
-      url: get_in(resource, ["url"])
+      url: fetch_in!(resource, ["url"])
     }
   end
 
@@ -97,7 +105,15 @@ defmodule Transport.IRVE.Extractor do
     )
     |> Enum.map(fn {:ok, x} -> x end)
     |> Enum.map(fn x ->
-      Map.take(x, [:dataset_id, :dataset_title, :resource_id, :resource_title, :valid, :line_count, :index])
+      Map.take(x, [
+        :dataset_id,
+        :dataset_title,
+        :resource_id,
+        :resource_title,
+        :valid,
+        :line_count,
+        :index
+      ])
     end)
   end
 
