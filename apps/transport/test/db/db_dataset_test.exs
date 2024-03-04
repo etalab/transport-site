@@ -584,6 +584,12 @@ defmodule DB.DatasetDBTest do
     assert DB.Dataset.count_coach() == 1
   end
 
+  test "count_by_custom_tag" do
+    assert 0 == DB.Dataset.count_by_custom_tag("foo")
+    insert(:dataset, type: "public-transit", is_active: true, custom_tags: ["bar", "foo"])
+    assert 1 == DB.Dataset.count_by_custom_tag("foo")
+  end
+
   test "correct organization type" do
     insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate())
 
