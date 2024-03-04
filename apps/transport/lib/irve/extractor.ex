@@ -103,7 +103,7 @@ defmodule Transport.IRVE.Extractor do
       end,
       timeout: 100_000,
       on_timeout: :kill_task,
-      # Going higher will work, but there is a risk that rate-limiter & throttling
+      # Going higher will work, but there is a risk that data gouv rate-limiter & throttling
       # will kick-in, impacting other processes from our same IP address
       max_concurrency: 10
     )
