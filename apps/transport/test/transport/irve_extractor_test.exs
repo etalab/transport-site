@@ -50,7 +50,7 @@ defmodule Transport.IRVE.ExtractorTest do
   end
 
   test "paginates data gouv to retrieve all relevant resources metadata via #resources call" do
-    # TO DO: introduce a bit of pagination
+    # NOTE: pagination is not really tested at the moment, but that's good enough for the current scope of use
 
     # initial request helps computing the number of pages & generating urls
     Transport.Req.Mock
