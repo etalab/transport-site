@@ -59,12 +59,6 @@ resources
 |> Enum.frequencies_by(fn x -> Map.take(x, [:id_pdc_itinerance_detected, :old_schema]) end)
 |> IO.inspect()
 
-# Format pourris ?
-# Ancien schéma ? (en étant sûr)
-# => Les invalides avec le bon format ?
-# Tableau de pilotage
-# invalides 2.2.0 ->
-
 recent_stuff =
   resources
   |> Enum.filter(fn x -> x[:id_pdc_itinerance_detected] end)
@@ -73,17 +67,10 @@ recent_stuff
 |> Enum.frequencies_by(fn x -> x[:valid] end)
 |> IO.inspect(IEx.inspect_opts() |> Keyword.put(:label, "group_by(:valid)"))
 
-# TODO: voir ce qui se passe avec un valide à l'écran dans data gouv
-
 recent_stuff
 |> Enum.filter(fn x -> x[:valid] == false end)
 |> Enum.sort_by(fn x -> -x[:line_count] end)
 |> Enum.map(fn x -> {x[:line_count], "https://www.data.gouv.fr/fr/datasets/" <> x[:dataset_id]} end)
 |> IO.inspect(limit: :infinity)
-
-# Combien par "date de validation" breakdown ?
-# Combien par "date de mise à jour" (théorique ???)
-# Combien de PDC ça constitue ?
-# Tout revalider moi-même et vérifier ? Oui. Oui. On aura des surprises.
 
 IO.puts("Done")
