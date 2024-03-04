@@ -240,10 +240,13 @@ defmodule DB.Dataset do
 
   defp filter_by_climate_resilience_bill(%Ecto.Query{} = query, _), do: query
 
-  @spec filter_by_custom_tag(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_custom_tag(%Ecto.Query{} = query, %{"custom_tag" => custom_tag}) do
+  @spec filter_by_custom_tag(Ecto.Query.t(), binary() | map()) :: Ecto.Query.t()
+  defp filter_by_custom_tag(%Ecto.Query{} = query, custom_tag) when is_binary(custom_tag) do
     where(query, [dataset: d], fragment("? = any(?)", ^custom_tag, d.custom_tags))
   end
+
+  defp filter_by_custom_tag(%Ecto.Query{} = query, %{"custom_tag" => custom_tag}),
+    do: filter_by_custom_tag(query, custom_tag)
 
   defp filter_by_custom_tag(%Ecto.Query{} = query, _), do: query
 
@@ -644,9 +647,7 @@ defmodule DB.Dataset do
 
   @spec count_by_custom_tag(binary()) :: non_neg_integer()
   def count_by_custom_tag(custom_tag) do
-    base_query()
-    |> where([dataset: d], fragment("? = any(?)", ^custom_tag, d.custom_tags))
-    |> Repo.aggregate(:count, :id)
+    base_query() |> filter_by_custom_tag(custom_tag) |> Repo.aggregate(:count, :id)
   end
 
   @spec get_by_slug(binary) :: {:ok, __MODULE__.t()} | {:error, binary()}
