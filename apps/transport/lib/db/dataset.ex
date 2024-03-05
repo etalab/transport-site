@@ -235,10 +235,20 @@ defmodule DB.Dataset do
 
   @spec filter_by_climate_resilience_bill(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_climate_resilience_bill(%Ecto.Query{} = query, %{"loi-climat-resilience" => "true"}) do
-    where(query, [dataset: d], fragment("'loi-climat-resilience' = any(?)", d.custom_tags))
+    filter_by_custom_tag(query, %{"custom_tag" => "loi-climat-resilience"})
   end
 
   defp filter_by_climate_resilience_bill(%Ecto.Query{} = query, _), do: query
+
+  @spec filter_by_custom_tag(Ecto.Query.t(), binary() | map()) :: Ecto.Query.t()
+  defp filter_by_custom_tag(%Ecto.Query{} = query, custom_tag) when is_binary(custom_tag) do
+    where(query, [dataset: d], fragment("? = any(?)", ^custom_tag, d.custom_tags))
+  end
+
+  defp filter_by_custom_tag(%Ecto.Query{} = query, %{"custom_tag" => custom_tag}),
+    do: filter_by_custom_tag(query, custom_tag)
+
+  defp filter_by_custom_tag(%Ecto.Query{} = query, _), do: query
 
   @spec filter_by_feature(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_feature(query, %{"features" => [feature]})
@@ -377,6 +387,7 @@ defmodule DB.Dataset do
       |> filter_by_commune(params)
       |> filter_by_licence(params)
       |> filter_by_climate_resilience_bill(params)
+      |> filter_by_custom_tag(params)
       |> filter_by_fulltext(params)
       |> select([dataset: d], d.id)
 
@@ -632,6 +643,11 @@ defmodule DB.Dataset do
     __MODULE__
     |> where([d], d.has_realtime and d.is_active and d.type == "public-transit")
     |> Repo.aggregate(:count, :id)
+  end
+
+  @spec count_by_custom_tag(binary()) :: non_neg_integer()
+  def count_by_custom_tag(custom_tag) do
+    base_query() |> filter_by_custom_tag(custom_tag) |> Repo.aggregate(:count, :id)
   end
 
   @spec get_by_slug(binary) :: {:ok, __MODULE__.t()} | {:error, binary()}
