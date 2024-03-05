@@ -4,11 +4,10 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
   import Phoenix.LiveViewTest
   import DB.Factory
   import Mox
+  import Ecto.Query
 
   @endpoint TransportWeb.Endpoint
   @url "/espace_producteur/notifications"
-
-  ## OLD CODE from notification controller
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -78,6 +77,70 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
       "reason" => "expiration",
       "action" => "turn_off"
     })
+
+    assert [] = DB.NotificationSubscription |> DB.Repo.all()
+  end
+
+  test "only have correct notifications showing" do
+  end
+
+  @tag :focus
+  test "toggle all on and off" do
+    %DB.Dataset{id: dataset_id_1, organization_id: organization_id} = insert(:dataset, custom_title: "Mon super JDD")
+
+    %DB.Dataset{id: dataset_id_2, organization_id: ^organization_id} =
+      insert(:dataset, custom_title: "Mon autre JDD", organization_id: organization_id)
+
+    %DB.Contact{id: contact_id} = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+
+    # Let’s have at least one subscription in base
+
+    notification =
+      %DB.NotificationSubscription{
+        contact_id: ^contact_id,
+        dataset_id: ^dataset_id_1,
+        reason: :expiration,
+        role: :producer,
+        source: :user
+      } =
+      insert(
+        :notification_subscription,
+        contact_id: contact_id,
+        dataset_id: dataset_id_1,
+        reason: :expiration,
+        role: :producer,
+        source: :user
+      )
+
+    conn = build_conn() |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+
+    Datagouvfr.Client.User.Mock
+    |> expect(:get, 2, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
+
+    conn = conn |> get(@url)
+
+    {:ok, view, _html} = live(conn)
+
+    assert [^notification] = DB.NotificationSubscription |> DB.Repo.all()
+
+    render_change(view, "toggle-all", %{"action" => "turn_on"})
+
+    notifications =
+      DB.NotificationSubscription
+      |> select([n], [n.dataset_id, n.reason])
+      |> order_by([n], [n.dataset_id, n.reason])
+      |> DB.Repo.all()
+
+    assert [
+             [^dataset_id_1, :dataset_with_error],
+             [^dataset_id_1, :expiration],
+             [^dataset_id_1, :resource_unavailable],
+             [^dataset_id_2, :dataset_with_error],
+             [^dataset_id_2, :expiration],
+             [^dataset_id_2, :resource_unavailable]
+           ] = notifications
+
+    render_change(view, "toggle-all", %{"action" => "turn_off"})
 
     assert [] = DB.NotificationSubscription |> DB.Repo.all()
   end

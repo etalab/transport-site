@@ -29,7 +29,6 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
     current_contact = DB.Repo.get_by(DB.Contact, datagouv_user_id: current_user["id"])
 
     subscriptions = notification_subscriptions_for_datasets(datasets, current_contact)
-    all_notifications_enabled = all_notifications_enabled(subscriptions)
 
     socket =
       socket
@@ -85,11 +84,13 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
       if subscription.contact == current_contact do
         acc |> put_in([subscription.dataset_id, subscription.reason, :user_subscription], subscription)
       else
-        acc |> put_in([subscription.dataset_id, subscription.reason, :team_subscriptions],
-        [subscription | acc[subscription.dataset_id][subscription.reason][:team_subscriptions]])
+        acc
+        |> put_in(
+          [subscription.dataset_id, subscription.reason, :team_subscriptions],
+          [subscription | acc[subscription.dataset_id][subscription.reason][:team_subscriptions]]
+        )
       end
-    end
-    )
+    end)
   end
 
   defp load_subscriptions_for_datasets(dataset_ids) do
@@ -120,7 +121,10 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
 
   defp toggle_subscription(current_contact, _dataset_id, subscription_id, reason, "turn_off") do
     DB.NotificationSubscription.base_query()
-    |> where([notification_subscription: ns], ns.id == ^subscription_id and ns.contact_id == ^current_contact.id and ns.reason == ^reason)
+    |> where(
+      [notification_subscription: ns],
+      ns.id == ^subscription_id and ns.contact_id == ^current_contact.id and ns.reason == ^reason
+    )
     |> DB.Repo.one!()
     |> DB.Repo.delete!()
   end
@@ -128,7 +132,6 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
   defp toggle_all_subscriptions(current_contact, old_subscriptions, "turn_on") do
     # TODO : check if the subscription already exists
     # TODO : alert for creation?
-    IO.inspect(old_subscriptions)
     Enum.each(old_subscriptions, fn {dataset_id, reason_map} ->
       Enum.each(reason_map, fn {reason, %{user_subscription: user_subscription, team_subscriptions: _}} ->
         if is_nil(user_subscription) do
@@ -138,7 +141,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
     end)
   end
 
-  defp toggle_all_subscriptions(current_contact, old_subscriptions, "turn_off") do
+  defp toggle_all_subscriptions(current_contact, _old_subscriptions, "turn_off") do
     DB.NotificationSubscription.base_query()
     |> where([notification_subscription: ns], ns.contact_id == ^current_contact.id and ns.role == :producer)
     |> DB.Repo.delete_all()
@@ -146,8 +149,9 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
 
   defp subscription_empty_map(dataset_ids) do
     Map.new(dataset_ids, fn dataset_id ->
-      reason_map = DB.NotificationSubscription.reasons_related_to_datasets()
-      |> Map.new(fn reason -> {reason, %{user_subscription: nil, team_subscriptions: []}} end)
+      reason_map =
+        DB.NotificationSubscription.reasons_related_to_datasets()
+        |> Map.new(fn reason -> {reason, %{user_subscription: nil, team_subscriptions: []}} end)
 
       {dataset_id, reason_map}
     end)
