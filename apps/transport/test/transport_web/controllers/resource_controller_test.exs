@@ -384,6 +384,9 @@ defmodule TransportWeb.ResourceControllerTest do
               }
             },
             "stats" => %{
+              "stop_points_count" => 1_322,
+              "stop_areas_count" => 30,
+              "routes_count" => 123,
               "routes_with_short_name_count" => 5
             }
           },
@@ -395,6 +398,9 @@ defmodule TransportWeb.ResourceControllerTest do
     content = conn |> get(resource_path(conn, :details, resource_id)) |> html_response(200)
     assert content =~ "Rapport de validation"
     assert content =~ "ferry"
+    assert content =~ ~r"nombre de lignes :(\s*)<strong>123</strong>"
+    assert content =~ ~r"nombre d&#39;arrêts :(\s*)<strong>1 322</strong>"
+    assert content =~ ~r"nombre de zones d&#39;arrêts :(\s*)<strong>30</strong>"
     assert content =~ "couverture calendaire par réseau"
     assert content =~ "3CM"
     assert content =~ "30/09/2022"
