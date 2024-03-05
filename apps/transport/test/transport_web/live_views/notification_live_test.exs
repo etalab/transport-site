@@ -81,7 +81,6 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
     assert [] = DB.NotificationSubscription |> DB.Repo.all()
   end
 
-  @tag :focus
   test "only have correct notifications showing" do
     %DB.Organization{id: organization_id} = insert(:organization)
     %DB.Organization{id: foreign_organization_id} = insert(:organization)
@@ -89,7 +88,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
     %DB.Dataset{id: dataset_id, organization_id: ^organization_id} =
       insert(:dataset, custom_title: "Mon super JDD", organization_id: organization_id)
 
-    %DB.Contact{id: contact_id} =
+    %DB.Contact{id: _contact_id} =
       insert_contact(%{
         datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
         organizations: [%{id: organization_id}]

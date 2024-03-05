@@ -138,6 +138,21 @@ defmodule DB.NotificationSubscription do
     |> DB.Repo.all()
   end
 
+  def producer_subscriptions_for_datasets(dataset_ids) do
+    base_query()
+    |> join_with_contact()
+    |> join(:left, [contact: c], c in assoc(c, :organizations), as: :organization)
+    |> join(:left, [notification_subscription: ns], ns in assoc(ns, :dataset), as: :dataset)
+    |> preload(:contact)
+    |> where(
+      [notification_subscription: ns, organization: o, dataset: d],
+      ns.dataset_id in ^dataset_ids and not is_nil(ns.dataset_id) and
+        ns.role == :producer and
+        d.organization_id == o.id
+    )
+    |> DB.Repo.all()
+  end
+
   @spec subscriptions_for_dataset_and_role(DB.Dataset.t(), role()) :: [__MODULE__.t()]
   def subscriptions_for_dataset_and_role(%DB.Dataset{id: dataset_id}, role) when role in @possible_roles do
     base_query()

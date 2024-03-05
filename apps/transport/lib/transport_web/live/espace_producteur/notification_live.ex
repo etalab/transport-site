@@ -71,11 +71,9 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
   end
 
   defp notification_subscriptions_for_datasets(datasets, current_contact) do
-    # TODO : perhaps move to notification_subscription.ex
-
     dataset_ids = datasets |> Enum.map(& &1.id)
 
-    subscriptions_list = load_subscriptions_for_datasets(dataset_ids)
+    subscriptions_list = DB.NotificationSubscription.producer_subscriptions_for_datasets(dataset_ids)
 
     Enum.reduce(subscriptions_list, subscription_empty_map(dataset_ids), fn subscription, acc ->
       if subscription.contact == current_contact do
@@ -88,28 +86,6 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
         )
       end
     end)
-  end
-
-  defp load_subscriptions_for_datasets(dataset_ids) do
-    # TODO Note Antoine : plutôt aller chercher les notifications à partir des datasets > même org.
-    # Faudrait faire un join avec les contacts et les organisations
-    # pour avoir les contacts qui sont dans la même org que le dataset
-
-    # TODO What I want : a list of lines contact <> dataset, through the contact_organisation table
-    # Something like (from "contacts_organizations", select: [:contact_id, :organization_id], where: "organization_id" in ^organization_ids) |> DB.Repo.all()
-
-    DB.NotificationSubscription.base_query()
-    |> DB.NotificationSubscription.join_with_contact()
-    |> join(:left, [contact: c], c in assoc(c, :organizations), as: :organization)
-    |> join(:left, [notification_subscription: ns], ns in assoc(ns, :dataset), as: :dataset)
-    |> preload(:contact)
-    |> where(
-      [notification_subscription: ns, organization: o, dataset: d],
-      ns.dataset_id in ^dataset_ids and not is_nil(ns.dataset_id) and
-        ns.role == :producer and
-        d.organization_id == o.id
-    )
-    |> DB.Repo.all()
   end
 
   defp toggle_subscription(current_contact, dataset_id, _subscription_id, reason, "turn_on") do
