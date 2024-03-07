@@ -151,6 +151,8 @@ defmodule DB.NotificationSubscription do
         d.organization_id == o.id
     )
     |> DB.Repo.all()
+    |> MapSet.new()
+    |> Enum.sort_by(& &1.contact_id) # This is to ensure that the tests are deterministic
   end
 
   @spec subscriptions_for_dataset_and_role(DB.Dataset.t(), role()) :: [__MODULE__.t()]
