@@ -17,11 +17,10 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
     {socket, datasets} =
       case DB.Dataset.datasets_for_user(current_user) do
         datasets when is_list(datasets) ->
-          {socket, datasets}
+          {socket |> assign(:error, nil), datasets}
 
         {:error, _} ->
-          # TODO : dunno what to do here for a liveview. Render an error page?
-          {socket |> put_flash(:error, dgettext("alert", "Unable to get all your resources for the moment")), []}
+          {socket |> assign(:error, dgettext("alert", "Unable to get all your resources for the moment")), []}
       end
 
     Gettext.put_locale(locale)

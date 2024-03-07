@@ -18,7 +18,8 @@
 
     <div class="panel">
       <h2><%= dgettext("espace-producteurs", "Manage my notifications") %></h2>
-      <table class="table">
+      <div :if={@error} class="notification error"><%= @error %></div>
+      <table :if={!@error} class="table">
         <.form :let={f} for={%{}}>
           <tr>
             <td></td>

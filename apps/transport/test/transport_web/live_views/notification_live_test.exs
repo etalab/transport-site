@@ -39,6 +39,15 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
     assert content =~ "Mon super JDD"
   end
 
+  test "displays an error message if we can’t retrieve user orgs (and thus datasets) through data.gouv.fr" do
+    Datagouvfr.Client.User.Mock
+    |> expect(:get, fn _ -> {:error, %HTTPoison.Error{reason: :nxdomain, id: nil}} end)
+
+    conn = build_conn() |> init_test_session(%{current_user: %{"id" => Ecto.UUID.generate()}})
+    content = conn |> get(@url) |> html_response(200)
+    assert content =~ "Une erreur a eu lieu lors de la récupération de vos ressources"
+  end
+
   test "toggle on and then off a notification" do
     %DB.Dataset{id: dataset_id, organization_id: organization_id} = insert(:dataset, custom_title: "Mon super JDD")
     %DB.Contact{id: contact_id} = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
