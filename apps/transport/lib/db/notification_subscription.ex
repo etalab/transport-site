@@ -152,7 +152,8 @@ defmodule DB.NotificationSubscription do
     )
     |> DB.Repo.all()
     |> MapSet.new()
-    |> Enum.sort_by(& &1.contact_id) # This is to ensure that the tests are deterministic
+    # This is to ensure that the tests are deterministic
+    |> Enum.sort_by(& &1.contact_id)
   end
 
   @spec subscriptions_for_dataset_and_role(DB.Dataset.t(), role()) :: [__MODULE__.t()]

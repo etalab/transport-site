@@ -9,6 +9,8 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
   @endpoint TransportWeb.Endpoint
   @url "/espace_producteur/notifications"
 
+  setup :verify_on_exit!
+
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
@@ -21,9 +23,15 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
 
   test "displays existing subscriptions" do
     %DB.Organization{id: organization_id} = insert(:organization)
-    %DB.Dataset{id: dataset_id, organization_id: ^organization_id} = insert(:dataset, custom_title: "Mon super JDD", organization_id: organization_id)
-    %DB.Contact{id: contact_id} = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
-    organizations: [%{id: organization_id}]})
+
+    %DB.Dataset{id: dataset_id, organization_id: ^organization_id} =
+      insert(:dataset, custom_title: "Mon super JDD", organization_id: organization_id)
+
+    %DB.Contact{id: contact_id} =
+      insert_contact(%{
+        datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
+        organizations: [%{id: organization_id}]
+      })
 
     insert(:notification_subscription,
       contact_id: contact_id,
@@ -52,9 +60,15 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
 
   test "toggle on and then off a notification" do
     %DB.Organization{id: organization_id} = insert(:organization)
-    %DB.Dataset{id: dataset_id, organization_id: ^organization_id} = insert(:dataset, custom_title: "Mon super JDD", organization_id: organization_id)
-    %DB.Contact{id: contact_id} = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
-    organizations: [%{id: organization_id}]})
+
+    %DB.Dataset{id: dataset_id, organization_id: ^organization_id} =
+      insert(:dataset, custom_title: "Mon super JDD", organization_id: organization_id)
+
+    %DB.Contact{id: contact_id} =
+      insert_contact(%{
+        datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
+        organizations: [%{id: organization_id}]
+      })
 
     conn = build_conn() |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
 
@@ -158,13 +172,18 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
 
   test "toggle all on and off" do
     %DB.Organization{id: organization_id} = insert(:organization)
-    %DB.Dataset{id: dataset_id_1, organization_id: ^organization_id} = insert(:dataset, custom_title: "Mon super JDD", organization_id: organization_id)
+
+    %DB.Dataset{id: dataset_id_1, organization_id: ^organization_id} =
+      insert(:dataset, custom_title: "Mon super JDD", organization_id: organization_id)
 
     %DB.Dataset{id: dataset_id_2, organization_id: ^organization_id} =
       insert(:dataset, custom_title: "Mon autre JDD", organization_id: organization_id)
 
-    %DB.Contact{id: contact_id} = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
-    organizations: [%{id: organization_id}]})
+    %DB.Contact{id: contact_id} =
+      insert_contact(%{
+        datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
+        organizations: [%{id: organization_id}]
+      })
 
     # Let’s have at least one subscription in base
 

@@ -52,7 +52,6 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
     subscriptions = notification_subscriptions_for_datasets(datasets, current_contact)
     all_notifications_enabled = all_notifications_enabled(subscriptions)
 
-    # TODO : alerts for success/failure
     {:noreply, assign(socket, subscriptions: subscriptions, all_notifications_enabled: all_notifications_enabled)}
   end
 
@@ -90,12 +89,6 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
   defp toggle_subscription(current_contact, dataset_id, _subscription_id, reason, "turn_on") do
     %{contact_id: current_contact.id, dataset_id: dataset_id, reason: reason, source: :user, role: :producer}
     |> DB.NotificationSubscription.insert!()
-
-    # %DB.NotificationSubscription{
-    #  contact_id: current_contact.id, dataset_id: dataset_id, reason: reason, source: :user, role: :producer}
-    # |> DB.NotificationSubscription.changeset()
-    # |> DB.Repo.insert() # It may fail if the subscription already exists, could happen if the user double-clicks
-    # TODO: alert for creation?
   end
 
   defp toggle_subscription(current_contact, _dataset_id, subscription_id, reason, "turn_off") do
@@ -109,8 +102,6 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
   end
 
   defp toggle_all_subscriptions(current_contact, old_subscriptions, "turn_on") do
-    # TODO : check if the subscription already exists
-    # TODO : alert for creation?
     Enum.each(old_subscriptions, fn {dataset_id, reason_map} ->
       Enum.each(reason_map, fn {reason, %{user_subscription: user_subscription, team_subscriptions: _}} ->
         if is_nil(user_subscription) do
