@@ -12,7 +12,8 @@ defmodule TransportWeb.Live.SendConsolidateBNLCView do
   end
 
   def mount(_params, %{"button_texts" => _, "button_default_class" => _, "job_args" => _} = session, socket) do
-    {:ok, socket |> assign(session) |> assign_step(:first)}
+    sessions_params = Map.new(session, fn {k, v} -> {String.to_existing_atom(k), v} end)
+    {:ok, socket |> assign(sessions_params) |> assign_step(:first)}
   end
 
   def handle_event("dispatch_job", _value, socket) do
@@ -20,7 +21,7 @@ defmodule TransportWeb.Live.SendConsolidateBNLCView do
     {:noreply, socket}
   end
 
-  def handle_info(:dispatch, %Phoenix.LiveView.Socket{assigns: %{"job_args" => job_args}} = socket) do
+  def handle_info(:dispatch, %Phoenix.LiveView.Socket{assigns: %{job_args: job_args}} = socket) do
     new_socket =
       case job_args |> Transport.Jobs.ConsolidateBNLCJob.new() |> Oban.insert() do
         {:ok, %Oban.Job{id: job_id}} ->
@@ -59,7 +60,7 @@ defmodule TransportWeb.Live.SendConsolidateBNLCView do
     )
   end
 
-  defp button_texts(%Phoenix.LiveView.Socket{assigns: %{"button_texts" => button_texts}}, step) do
+  defp button_texts(%Phoenix.LiveView.Socket{assigns: %{button_texts: button_texts}}, step) do
     Map.get(
       button_texts,
       step,
@@ -67,7 +68,7 @@ defmodule TransportWeb.Live.SendConsolidateBNLCView do
     )
   end
 
-  defp button_classes(%Phoenix.LiveView.Socket{assigns: %{"button_default_class" => button_default_class}}, step) do
+  defp button_classes(%Phoenix.LiveView.Socket{assigns: %{button_default_class: button_default_class}}, step) do
     Map.get(
       %{
         sent: "button success",
