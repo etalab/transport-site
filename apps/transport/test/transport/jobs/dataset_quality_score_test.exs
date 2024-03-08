@@ -263,6 +263,14 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                score: 0.75
              } == current_dataset_availability(dataset.id)
     end
+
+    test "a dataset with 0 resources" do
+      dataset = insert(:dataset, is_active: true)
+
+      assert [] == dataset |> DB.Repo.preload(:resources) |> Map.fetch!(:resources)
+
+      assert %{score: 0.0, details: %{resources: []}} == current_dataset_availability(dataset.id)
+    end
   end
 
   describe "current dataset freshness" do

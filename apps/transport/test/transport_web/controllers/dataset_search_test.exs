@@ -184,6 +184,18 @@ defmodule TransportWeb.DatasetSearchControllerTest do
              %{"type" => "public-transit", "loi-climat-resilience" => "true"} |> Dataset.list_datasets() |> Repo.all()
   end
 
+  test "searching with a custom tag" do
+    %DB.Dataset{id: dataset_id} =
+      insert(:dataset, type: "public-transit", is_active: true, custom_tags: ["bar", "foo"])
+
+    assert 3 == %{"type" => "public-transit"} |> Dataset.list_datasets() |> Repo.all() |> Enum.count()
+
+    assert [%DB.Dataset{id: ^dataset_id}] =
+             %{"type" => "public-transit", "custom_tag" => "foo"} |> Dataset.list_datasets() |> Repo.all()
+
+    assert 1 == DB.Dataset.count_by_custom_tag("foo")
+  end
+
   test "searching for datasets in an AOM" do
     aom = insert(:aom)
     aom2 = insert(:aom)

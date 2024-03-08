@@ -203,7 +203,9 @@ defmodule TransportWeb.DatasetView do
       "real-time-public-transit" => "bus-stop.svg",
       "long-distance-coach" => "bus.svg",
       "train" => "train.svg",
-      "boat" => "boat.svg"
+      "boat" => "boat.svg",
+      # Custom tags
+      "paris2024" => "olympics.svg"
     }
 
     if Map.has_key?(icons, type), do: "/images/icons/#{Map.get(icons, type)}"
