@@ -31,14 +31,14 @@ defmodule TransportWeb.Backoffice.IRVEDashboardLive do
     socket
     |> assign(:running, false)
     |> assign(:latest_report, latest_report())
-    |> assign(:filter, "")
+    |> assign(:filtering_expression, "")
   end
 
   @impl true
   def handle_event("change_form", params, socket) do
     socket =
       socket
-      |> assign(:filter, params["config"]["filter"])
+      |> assign(:filtering_expression, params["config"]["filtering_expression"])
 
     {:noreply, socket}
   end

@@ -8,8 +8,11 @@
     <h1>Rapport IRVE</h1>
     <p>Généré à <%= @latest_report.inserted_at %> (<%= @latest_report.resources |> length %> ressources analysées)</p>
 
-    <.form :let={f} id="filter" for={%{}} as={:config} phx-change="change_form" phx-submit="ignore">
-      <%= text_input(f, :filter, value: @filter, placeholder: "Filtre (org / validité uniquement)") %>
+    <.form :let={f} id="filtering_expression" for={%{}} as={:config} phx-change="change_form" phx-submit="ignore">
+      <%= text_input(f, :filtering_expression,
+        value: @filtering_expression,
+        placeholder: "Filtre (org / validité uniquement)"
+      ) %>
     </.form>
     <table class="table mt-48">
       <thead>
@@ -23,7 +26,7 @@
       </thead>
       <tbody>
         <%= for resource <- @latest_report.resources do %>
-          <tr :if={must_list_resource?(resource, @filter)}>
+          <tr :if={must_list_resource?(resource, @filtering_expression)}>
             <td>
               <.link target="_blank" href={"https://www.data.gouv.fr/fr/datasets/" <> resource["dataset_id"]}>
                 <%= resource["dataset_title"] %>
