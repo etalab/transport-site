@@ -56,7 +56,7 @@ defmodule TransportWeb.Backoffice.IRVEDashboardLive do
   def update_assigns({"progress", progress}, socket) do
     socket
     |> assign(:running, true)
-    |> assign(:completion_message, "#{progress}% complete...")
+    |> assign(:completion_message, "#{progress}% complete…")
   end
 
   def update_assigns({"complete"}, socket) do
