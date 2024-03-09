@@ -4,6 +4,7 @@ defmodule TransportWeb.Backoffice.IRVEDashboardLive do
   import TransportWeb.Backoffice.JobsLive, only: [ensure_admin_auth_or_redirect: 3]
   import TransportWeb.Router.Helpers
   import Helpers, only: [format_number: 1]
+  import Ecto.Query, only: [last: 2]
 
   @impl true
   def mount(_params, %{"current_user" => current_user} = _session, socket) do
@@ -94,8 +95,6 @@ defmodule TransportWeb.Backoffice.IRVEDashboardLive do
   def handle_info({:notification, :gossip, _args}, socket) do
     {:noreply, socket}
   end
-
-  import Ecto.Query, only: [from: 2, last: 2]
 
   def latest_report do
     report =
