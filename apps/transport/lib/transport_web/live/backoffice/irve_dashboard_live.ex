@@ -117,7 +117,7 @@ defmodule TransportWeb.Backoffice.IRVEDashboardLive do
 
   def sort_resources(resources) do
     resources
-    |> Enum.sort_by(fn x -> [x["line_count"]] end, :desc)
+    |> Enum.sort_by(fn x -> x["line_count"] end, :desc)
   end
 
   def format_validity(false), do: {:safe, "<strong class='red'>KO</strong>"}
