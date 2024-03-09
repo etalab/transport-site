@@ -19,12 +19,12 @@ defmodule TransportWeb.Backoffice.IRVEDashboardLive do
   @doc """
   A quick and dirty filter on some interesting fields, using downcase matching.
   """
-  def must_list_resource?(resource, filter) do
-    filter = filter |> String.downcase() |> String.trim()
+  def must_list_resource?(resource, filtering_expression) do
+    filtering_expression = filtering_expression |> String.downcase() |> String.trim()
 
-    filter == "" ||
-      String.contains?(resource["dataset_organisation_name"] |> String.downcase(), filter) ||
-      String.contains?(format_validity(resource["valid"]) |> inspect |> String.downcase(), filter)
+    filtering_expression == "" ||
+      String.contains?(resource["dataset_organisation_name"] |> String.downcase(), filtering_expression) ||
+      String.contains?(format_validity(resource["valid"]) |> inspect |> String.downcase(), filtering_expression)
   end
 
   def assign_data(socket) do
