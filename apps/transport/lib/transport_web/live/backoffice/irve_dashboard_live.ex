@@ -95,12 +95,12 @@ defmodule TransportWeb.Backoffice.IRVEDashboardLive do
     {:noreply, socket}
   end
 
-  import Ecto.Query, only: [from: 2, first: 1]
+  import Ecto.Query, only: [from: 2, last: 2]
 
   def latest_report do
     report =
-      from(pr in DB.ProcessingReport, order_by: {:desc, :id}, limit: 1)
-      |> first()
+      DB.ProcessingReport
+      |> last(:id)
       |> DB.Repo.one()
 
     maybe_reformat_report(report)
