@@ -3,6 +3,7 @@ defmodule TransportWeb.Backoffice.IRVEDashboardLive do
   use Phoenix.HTML
   import TransportWeb.Backoffice.JobsLive, only: [ensure_admin_auth_or_redirect: 3]
   import TransportWeb.Router.Helpers
+  import Helpers, only: [format_number: 1]
 
   @impl true
   def mount(_params, %{"current_user" => current_user} = _session, socket) do
