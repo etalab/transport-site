@@ -130,7 +130,7 @@ defmodule Transport.IRVE.Extractor do
   Download a given resource, keep HTTP status around, and extract some metadata.
   """
   def download_and_parse_one(row, index) do
-    %{status: status, body: body} =
+    %Req.Response{status: status, body: body} =
       Transport.IRVE.Fetcher.get!(row[:url], compressed: false, decode_body: false)
 
     row
