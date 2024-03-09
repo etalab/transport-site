@@ -43,10 +43,10 @@ defmodule TransportWeb.Backoffice.IRVEDashboardLive do
   end
 
   @impl true
-  def handle_event("consolidate", _, socket) do
+  def handle_event("analyze", _, socket) do
     # NOTE: the job is configured to be unique including executing state, so the rest
     # of the code here does not rely on the job id and assumes it is indeed unique
-    Transport.Jobs.ConsolidateIRVEJob.new(%{})
+    Transport.Jobs.AnalyzeIRVEJob.new(%{})
     |> Oban.insert!()
 
     {:noreply, socket}
@@ -72,7 +72,7 @@ defmodule TransportWeb.Backoffice.IRVEDashboardLive do
   end
 
   @impl true
-  def handle_info({:notification, :gossip, %{"type" => "consolidation_irve"} = args}, socket) do
+  def handle_info({:notification, :gossip, %{"type" => "analyze_irve"} = args}, socket) do
     socket =
       case args do
         %{"status" => "progress" = status, "progress" => progress} ->

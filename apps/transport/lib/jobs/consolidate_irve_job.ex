@@ -1,13 +1,13 @@
-defmodule Transport.Jobs.ConsolidateIRVEJob do
+defmodule Transport.Jobs.AnalyzeIRVEJob do
   @moduledoc """
-  An Oban wrapper for the IRVE consolidation.
+  An Oban wrapper for the IRVE mass-scan & analyze job.
 
-  It ensures only a single instance can be enqueued and executed at once.
+  This wrapper ensures only a single instance can be enqueued and executed at once.
 
   Data Gouv is queried for all static IRVE resources, then each resource is fetched via HTTP to estimate the
   number of charging points, and a report is saved into the database.
 
-  Progress is broadcasted to the outside world via gossip using a specific `:type` marker.
+  Progress is broadcasted to the "outside world" (other parts of the app) via gossip using a specific `:type` marker.
   """
 
   use Oban.Worker, max_attempts: 1, unique: [period: 3600, states: [:available, :scheduled, :executing]]
@@ -29,7 +29,7 @@ defmodule Transport.Jobs.ConsolidateIRVEJob do
     # See https://hexdocs.pm/oban/reporting-progress.html for inspiration.
     Task.async(fn ->
       try do
-        Logger.info("IRVE: starting consolidation...")
+        Logger.info("IRVE: starting global analyse...")
         send(job_pid, {:progress, 0})
         resources = Transport.IRVE.Extractor.resources() |> Enum.into([])
 
@@ -51,7 +51,12 @@ defmodule Transport.Jobs.ConsolidateIRVEJob do
   end
 
   def notify(job_id, status, progress \\ nil) do
-    Oban.Notifier.notify(Oban, :gossip, %{type: :consolidation_irve, job_id: job_id, status: status, progress: progress})
+    Oban.Notifier.notify(Oban, :gossip, %{
+      "type" => "analyze_irve",
+      "job_id" => job_id,
+      "status" => status,
+      "progress" => progress
+    })
   end
 
   # recursive loop replacing `Task.await` (but we'd need to better handle errors here)

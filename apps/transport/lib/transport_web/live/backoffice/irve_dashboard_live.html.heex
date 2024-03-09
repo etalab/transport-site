@@ -1,5 +1,5 @@
 <section class="container pt-48 pb-48">
-  <button class="button" phx-click="consolidate" disabled={@running}>Lancer l'analyse consolidée</button>
+  <button class="button" phx-click="analyze" disabled={@running}>Lancer l'analyse consolidée</button>
   <%= if assigns[:completion_message] do %>
     <%= @completion_message %>
   <% end %>
