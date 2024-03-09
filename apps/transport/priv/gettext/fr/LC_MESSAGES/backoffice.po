@@ -297,4 +297,4 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "IRVE dashboard"
-msgstr ""
+msgstr "Suivi des IRVE"
