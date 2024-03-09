@@ -41,11 +41,11 @@ defmodule Transport.Jobs.AnalyzeIRVEJob do
         Logger.info("IRVE: saving report...")
         Transport.IRVE.Extractor.insert_report!(resources)
 
-        send(job_pid, {:complete})
+        send(job_pid, :complete)
       rescue
         error ->
           Logger.error("IRVE:" <> Exception.format(:error, error, __STACKTRACE__))
-          send(job_pid, {:failed})
+          send(job_pid, :failed)
       end
     end)
   end
@@ -66,10 +66,10 @@ defmodule Transport.Jobs.AnalyzeIRVEJob do
         notify(job_id, :progress, percent)
         wait_for_work_completion(job_id)
 
-      {:complete} ->
+      :complete ->
         notify(job_id, :complete)
 
-      {:failed} ->
+      :failed ->
         notify(job_id, :failed)
     after
       30_000 ->
