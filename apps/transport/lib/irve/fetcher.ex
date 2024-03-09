@@ -27,7 +27,6 @@ defmodule Transport.IRVE.Fetcher do
   """
   def pages(base_url, pagination_options \\ []) do
     http_client = Transport.HTTPClient
-    base_url = URI.encode(base_url)
     options = http_options()
 
     Transport.IRVE.HTTPPagination.naive_paginated_urls_stream(base_url, http_client, options, pagination_options)
@@ -35,7 +34,6 @@ defmodule Transport.IRVE.Fetcher do
 
   def get!(url, options \\ []) do
     http_client = Transport.HTTPClient
-    url = URI.encode(url)
     options = options |> Keyword.merge(http_options())
 
     http_client.get!(url, options)

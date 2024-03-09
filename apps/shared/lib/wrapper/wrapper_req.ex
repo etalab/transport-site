@@ -43,7 +43,6 @@ defmodule Transport.HTTPClient do
         enable_cache: false
       ])
 
-    url = URI.encode(url)
     req = Req.new()
 
     {enable_cache, options} = options |> Keyword.pop!(:enable_cache)
