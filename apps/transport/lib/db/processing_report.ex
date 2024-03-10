@@ -12,7 +12,7 @@ defmodule DB.ProcessingReport do
   schema "processing_reports" do
     field(:content, :map)
 
-    timestamps()
+    timestamps(type: :utc_datetime_usec)
   end
 
   @doc false
