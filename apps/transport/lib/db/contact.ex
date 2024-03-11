@@ -31,6 +31,7 @@ defmodule DB.Contact do
 
     has_many(:notification_subscriptions, DB.NotificationSubscription, on_delete: :delete_all)
     many_to_many(:organizations, DB.Organization, join_through: "contacts_organizations", on_replace: :delete)
+    many_to_many(:followed_datasets, DB.Dataset, join_through: "dataset_followers", on_replace: :delete)
   end
 
   def base_query, do: from(c in __MODULE__, as: :contact)
