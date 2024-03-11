@@ -25,7 +25,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
 
     Gettext.put_locale(locale)
 
-    current_contact = DB.Repo.get_by(DB.Contact, datagouv_user_id: current_user["id"])
+    current_contact = DB.Repo.get_by!(DB.Contact, datagouv_user_id: current_user["id"])
 
     subscriptions = notification_subscriptions_for_datasets(datasets, current_contact)
 
@@ -55,7 +55,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
     {:noreply, assign(socket, subscriptions: subscriptions, all_notifications_enabled: all_notifications_enabled)}
   end
 
-  def handle_event("toggle-all", %{"action" => action}, socket) do
+  def handle_event("toggle-all", %{"action" => action}, socket) when action in ["turn_on", "turn_off"] do
     current_contact = socket.assigns.current_contact
     datasets = socket.assigns.datasets
     old_subscriptions = socket.assigns.subscriptions
@@ -130,7 +130,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
     end)
   end
 
-  defp all_notifications_enabled(subscriptions) do
+  defp all_notifications_enabled?(subscriptions) do
     Enum.all?(subscriptions, fn {_, reason_map} ->
       Enum.all?(reason_map, fn {_, %{user_subscription: user_subscription, team_subscriptions: _}} ->
         not is_nil(user_subscription)

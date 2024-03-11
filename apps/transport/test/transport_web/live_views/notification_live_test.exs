@@ -93,6 +93,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
                contact_id: ^contact_id,
                dataset_id: ^dataset_id,
                source: :user,
+               role: :producer,
                reason: :expiration,
                id: subscription_id
              }
