@@ -6,28 +6,19 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
   import TransportWeb.Gettext
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
 
-  def mount(
-        _params,
-        %{
-          "current_user" => current_user,
-          "locale" => locale
-        },
-        socket
-      ) do
-    {socket, datasets} =
-      case DB.Dataset.datasets_for_user(current_user) do
-        datasets when is_list(datasets) ->
-          {socket |> assign(:error, nil), datasets}
-
-        {:error, _} ->
-          {socket |> assign(:error, dgettext("alert", "Unable to get all your resources for the moment")), []}
-      end
-
+  def mount(_params, %{"current_user" => current_user, "locale" => locale}, socket) do
     Gettext.put_locale(locale)
 
-    current_contact = DB.Repo.get_by!(DB.Contact, datagouv_user_id: current_user["id"])
+    {socket, datasets, current_contact, subscriptions} =
+      case DB.Dataset.datasets_for_user(current_user) do
+        datasets when is_list(datasets) ->
+          current_contact = DB.Repo.get_by!(DB.Contact, datagouv_user_id: current_user["id"])
+          subscriptions = notification_subscriptions_for_datasets(datasets, current_contact)
+          {socket |> assign(:error, nil), datasets, current_contact, subscriptions}
 
-    subscriptions = notification_subscriptions_for_datasets(datasets, current_contact)
+        {:error, _} ->
+          {socket |> assign(:error, dgettext("alert", "Unable to get all your resources for the moment")), [], nil, %{}}
+      end
 
     socket =
       socket
