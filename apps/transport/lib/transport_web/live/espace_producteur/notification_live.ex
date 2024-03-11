@@ -35,7 +35,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
       |> assign(:locale, locale)
       |> assign(:datasets, datasets)
       |> assign(:subscriptions, subscriptions)
-      |> assign(:all_notifications_enabled, all_notifications_enabled(subscriptions))
+      |> assign(:all_notifications_enabled, all_notifications_enabled?(subscriptions))
 
     {:ok, socket}
   end
@@ -50,7 +50,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
 
     toggle_subscription(current_contact, dataset_id, subscription_id, reason, action)
     subscriptions = notification_subscriptions_for_datasets(datasets, current_contact)
-    all_notifications_enabled = all_notifications_enabled(subscriptions)
+    all_notifications_enabled = all_notifications_enabled?(subscriptions)
 
     {:noreply, assign(socket, subscriptions: subscriptions, all_notifications_enabled: all_notifications_enabled)}
   end
@@ -64,7 +64,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
 
     subscriptions = notification_subscriptions_for_datasets(datasets, current_contact)
 
-    all_notifications_enabled = all_notifications_enabled(subscriptions)
+    all_notifications_enabled = all_notifications_enabled?(subscriptions)
     {:noreply, assign(socket, subscriptions: subscriptions, all_notifications_enabled: all_notifications_enabled)}
   end
 
