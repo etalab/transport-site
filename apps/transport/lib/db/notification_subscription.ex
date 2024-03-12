@@ -63,7 +63,6 @@ defmodule DB.NotificationSubscription do
     |> join(:inner, [notification_subscription: ns], c in DB.Contact, on: ns.contact_id == c.id, as: :contact)
   end
 
-  # Perhaps remove if unused
   def insert!(%{} = fields), do: %__MODULE__{} |> changeset(fields) |> DB.Repo.insert!()
 
   def changeset(struct, attrs \\ %{}) do
