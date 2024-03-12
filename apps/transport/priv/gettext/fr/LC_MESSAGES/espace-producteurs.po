@@ -195,7 +195,7 @@ msgstr "Votre logo personnalisé a été supprimé."
 
 #, elixir-autogen, elixir-format
 msgid "notifications are good for you"
-msgstr "Les notifications vous aident à maintenir la qualité et l’accès à vos données, en vous avertissant automatiquement en cas de problème. Elles vous assurent que vos usagers aient un accès ininterrompu à vos données de transport à travers leurs applications (calcul d’itinéraire…)."
+msgstr "Les notifications vous aident à maintenir la qualité et l’accès à vos données, en vous alertant automatiquement en cas de problème. Elles vous assurent que vos usagers aient un accès ininterrompu à vos données de transport à travers leurs applications (calcul d’itinéraire…)."
 
 #, elixir-autogen, elixir-format
 msgid "Data expiration"
@@ -212,15 +212,15 @@ msgstr "Resources indisponibles"
 
 #, elixir-autogen, elixir-format
 msgid "data expiration notification explanation"
-msgstr "Vous êtes averti 14 jours, 7 jours et 1 jour avant la dernière date couverte par vos données, tels que les horaires théoriques des transports collectifs."
+msgstr "Vous êtes alerté à l'approche et après la date de fin du calendrier de fonctionnement."
 
 #, elixir-autogen, elixir-format
 msgid "validation errors notification explanation"
-msgstr "Vous êtes averti lorsque le fichier ne respecte pas la norme (spécification/schéma) ou en cas d’erreur critique concernant la cohérence des données, empêchant leur réutilisation."
+msgstr "Vous êtes alerté lorsque votre fichier ne respecte pas les spécifications des normes/standards/schémas correspondants."
 
 #, elixir-autogen, elixir-format
 msgid "unavailable resources notification explanation"
-msgstr "Vous êtes averti au bout de 6h consécutives pendant lesquelles votre fichier ne peut pas être téléchargé."
+msgstr "Vous êtes alerté au bout de 6h consécutives pendant lesquelles votre fichier ne peut pas être téléchargé."
 
 #, elixir-autogen, elixir-format
 msgid "Manage my notifications"

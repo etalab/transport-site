@@ -78,7 +78,7 @@
                     |> Enum.map(&(&1.contact |> DB.Contact.display_name()))
                     |> Enum.join(", ") %>
                   <% else %>
-                    <i>Aucun autre membre de votre organisation n’est abonné à cette notification.</i>
+                    <i class="is-grey">Aucun autre membre de votre organisation n’est abonné à cette notification.</i>
                   <% end %>
                 </td>
               </tr>

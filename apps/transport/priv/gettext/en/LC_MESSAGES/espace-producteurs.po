@@ -211,11 +211,11 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "data expiration notification explanation"
-msgstr "You are warned 14 days, 7 days and 1 day before the last date covered by your data, such as public transport timetables."
+msgstr "You are warned before and after the last date covered by your data."
 
 #, elixir-autogen, elixir-format
 msgid "validation errors notification explanation"
-msgstr "You are warned if the file doesn't respect the norm, or if the file is unusable because of a critical error with data consistency."
+msgstr "You are warned if the file doesn't respect the norm, rendering the file unusable."
 
 #, elixir-autogen, elixir-format
 msgid "unavailable resources notification explanation"
