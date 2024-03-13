@@ -92,7 +92,6 @@ defmodule DB.Dataset do
     field(:associated_territory_name, :string)
 
     field(:search_payload, :map)
-
     many_to_many(:followers, DB.Contact, join_through: "dataset_followers", on_replace: :delete)
   end
 

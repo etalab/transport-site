@@ -73,6 +73,10 @@ defmodule DB.Factory do
     %DB.DatasetMonthlyMetric{}
   end
 
+  def dataset_follower_factory do
+    %DB.DatasetFollower{}
+  end
+
   def resource_monthly_metric_factory do
     %DB.ResourceMonthlyMetric{}
   end
