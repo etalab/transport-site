@@ -107,7 +107,6 @@ defmodule Transport.IRVE.Extractor do
       # will kick-in, impacting other processes from our same IP address
       max_concurrency: 10
     )
-    # TODO: test case with {:exit, :timeout} tuple here, error is not handled correctly
     |> Enum.map(fn {:ok, x} -> x end)
     |> Enum.map(fn x ->
       Map.take(x, [
