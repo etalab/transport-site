@@ -1,4 +1,4 @@
-defmodule Transport.Test.Transport.Jobs.ImportResourceMonthlyMetricsTestJob do
+defmodule Transport.Test.Transport.Jobs.ImportResourceMonthlyMetricsJobTest do
   use ExUnit.Case, async: true
   import DB.Factory
   import Ecto.Query

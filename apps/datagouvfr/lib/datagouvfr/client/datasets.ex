@@ -119,13 +119,13 @@ defmodule Datagouvfr.Client.Datasets do
   end
 
   @doc """
-  Get folowers of a dataset
+  Fetch **only user IDs** following a dataset.
   """
   @spec get_followers(String.t()) :: {atom, map}
   def get_followers(dataset_id) do
-    [@endpoint, dataset_id, "followers", "?page_size=100"]
+    [@endpoint, dataset_id, "followers", "?page_size=500"]
     |> Path.join()
-    |> API.get()
+    |> API.get([{"x-fields", "data{follower{id}}, next_page"}])
   end
 
   @doc """
