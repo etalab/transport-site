@@ -1,7 +1,11 @@
-defmodule CustomCache do
+defmodule Transport.Shared.ReqCustomCache do
   @moduledoc """
   A simple HTTP cache for `req` that do not use headers. If the file is not found
   on disk, the download will occur, otherwise response will be read from disk.
+
+  At this point, this module is more designed for development use (with production data)
+  than for production use (in particular, security implications of `:erlang.binary_to_term`
+  and `:erlang.term_to_binary`).
   """
   require Logger
 
@@ -14,9 +18,11 @@ defmodule CustomCache do
   end
 
   def request_local_cache_step(request) do
-    # TODO: handle a form of expiration - for now it is acceptable to wipe out the whole folder manually for me
+    # NOTE: for now, no expiration is supported, you'll have to wipe-out the cache folder manually
     # NOTE: race condition here, for parallel queries
-    if File.exists?(path = cache_path(request)) do
+    path = cache_path(request)
+
+    if File.exists?(path) do
       # Logger.info("File found in cache (#{path})")
       {request, load_cache(path)}
     else
@@ -25,20 +31,20 @@ defmodule CustomCache do
   end
 
   def response_local_cache_step({request, response}) do
-    unless File.exists?(path = cache_path(request)) do
-      if response.status == 200 do
-        Logger.info("Saving file to cache (#{path})")
-        write_cache(path, response)
-      else
-        Logger.info("Status is #{response.status}, not saving file to disk")
-      end
+    # NOTE: we'll need a way to let the caller customize which HTTP status codes must result
+    # into caching vs not (e.g. rate limit 429 should ideally not be cached, while 404 should etc)
+    path = cache_path(request)
+
+    unless File.exists?(path) do
+      Logger.info("Saving file to cache (#{path})")
+      write_cache(path, response)
     end
 
     {request, response}
   end
 
   # https://github.com/wojtekmach/req/blob/102b9aa6c6ff66f00403054a0093c4f06f6abc2f/lib/req/steps.ex#L1268
-  def cache_path(cache_dir, request = %{method: :get}) do
+  def cache_path(cache_dir, %{method: :get} = request) do
     cache_key =
       Enum.join(
         [

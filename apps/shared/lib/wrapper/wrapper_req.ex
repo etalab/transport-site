@@ -12,6 +12,7 @@ defmodule Transport.Req.Behaviour do
   @type url() :: URI.t() | String.t()
   # Simplified version for our needs
   @callback get(url(), options :: keyword()) :: {:ok, Req.Response.t()} | {:error, Exception.t()}
+  @callback get!(url() | keyword() | Req.Request.t(), options :: keyword()) :: Req.Response.t()
 end
 
 defmodule Transport.Req do
@@ -24,4 +25,35 @@ defmodule Transport.Req do
 
   @behaviour Transport.Req.Behaviour
   defdelegate get(url, options), to: Req
+  defdelegate get!(url, options), to: Req
+end
+
+defmodule Transport.HTTPClient do
+  @moduledoc """
+  An experimental Req higher-level wrapper client that we can Mox, supporting
+  easy opt-in cache enabling (crucial for large HTTP development locally).
+  """
+
+  def get!(url, options) do
+    options =
+      Keyword.validate!(options, [
+        :custom_cache_dir,
+        :decode_body,
+        :compressed,
+        enable_cache: false
+      ])
+
+    req = Req.new()
+
+    {enable_cache, options} = options |> Keyword.pop!(:enable_cache)
+
+    req =
+      if enable_cache do
+        req |> Transport.Shared.ReqCustomCache.attach()
+      else
+        req
+      end
+
+    Transport.Req.impl().get!(req, options |> Keyword.merge(url: url))
+  end
 end

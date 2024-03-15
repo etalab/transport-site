@@ -294,3 +294,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Rate limiter"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "IRVE dashboard"
+msgstr ""
