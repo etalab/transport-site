@@ -1,6 +1,6 @@
 ---
-title: Prototype d'un rapport de calculateur national avec OpenTripPlanner
-date: 2024-03-15T08:00:33.395Z
+title: "Rapport : prototype d'un calculateur national avec OpenTripPlanner"
+date: 2024-03-15T08:00:00.000Z
 tags:
   - retour d'expérience
 description: Partage d'une étude du déploiement d'OpenTripPlanner pour réaliser
