@@ -1,6 +1,7 @@
 defmodule DB.DatasetFollower do
   @moduledoc """
   Represents contacts following datasets.
+  We insert data **only for existing contacts and datasets.**
   """
   use Ecto.Schema
   use TypedEctoSchema
