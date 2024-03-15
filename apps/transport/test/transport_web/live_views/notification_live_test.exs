@@ -42,18 +42,18 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
     )
 
     Datagouvfr.Client.User.Mock
-    |> expect(:get, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
+    |> expect(:me, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
-    conn = build_conn() |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+    conn = build_conn() |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, token: %{}})
     content = conn |> get(@url) |> html_response(200)
     assert content =~ "Mon super JDD"
   end
 
   test "displays an error message if we can’t retrieve user orgs (and thus datasets) through data.gouv.fr" do
     Datagouvfr.Client.User.Mock
-    |> expect(:get, fn _ -> {:error, %HTTPoison.Error{reason: :nxdomain, id: nil}} end)
+    |> expect(:me, fn _ -> {:error, %HTTPoison.Error{reason: :nxdomain, id: nil}} end)
 
-    conn = build_conn() |> init_test_session(%{current_user: %{"id" => Ecto.UUID.generate()}})
+    conn = build_conn() |> init_test_session(%{current_user: %{"id" => Ecto.UUID.generate()}, token: %{}})
     content = conn |> get(@url) |> html_response(200)
     assert content =~ "Une erreur a eu lieu lors de la récupération de vos ressources"
   end
@@ -70,10 +70,10 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
         organizations: [%{id: organization_id}]
       })
 
-    conn = build_conn() |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+    conn = build_conn() |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, token: %{}})
 
     Datagouvfr.Client.User.Mock
-    |> expect(:get, 2, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
+    |> expect(:me, 2, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
     conn = conn |> get(@url)
 
@@ -163,9 +163,9 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
     )
 
     Datagouvfr.Client.User.Mock
-    |> expect(:get, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
+    |> expect(:me, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
-    conn = build_conn() |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+    conn = build_conn() |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, token: %{}})
     content = conn |> get(@url) |> html_response(200)
     assert content =~ "Autres abonnés : Liste de diffusion service transport, Marina Loiseau"
     refute content =~ "Mikhaïl Karlov"
@@ -205,10 +205,10 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
         source: :user
       )
 
-    conn = build_conn() |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+    conn = build_conn() |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, token: %{}})
 
     Datagouvfr.Client.User.Mock
-    |> expect(:get, 2, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
+    |> expect(:me, 2, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
     conn = conn |> get(@url)
 

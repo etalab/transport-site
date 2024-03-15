@@ -2,9 +2,7 @@ defmodule Datagouvfr.Client.User.Wrapper do
   @moduledoc """
   A wrapper for the User module, useful for testing purposes
   """
-  @callback me(Plug.Conn.t()) :: {:error, map()} | {:ok, map()}
-
-  @callback get(String.t()) :: {atom, any()}
+  @callback me(Plug.Conn.t() | OAuth2.AccessToken.t()) :: {:error, map()} | {:ok, map()}
 
   def impl, do: Application.get_env(:datagouvfr, :user_impl)
 end
@@ -35,9 +33,6 @@ defmodule Datagouvfr.Client.User.Dummy do
            }
          ]
        }}
-
-  @impl Datagouvfr.Client.User.Wrapper
-  def get(_id), do: {:ok, %{"id" => "user_id_1"}}
 end
 
 defmodule Datagouvfr.Client.User do
@@ -54,9 +49,10 @@ defmodule Datagouvfr.Client.User do
   Call to GET /api/1/me/
   You can see documentation here: http://www.data.gouv.fr/fr/apidoc/#!/me/
   """
-  @spec me(Plug.Conn.t(), [binary()]) :: {:error, OAuth2.Error.t()} | {:ok, OAuth2.Response.t()}
-  def me(%Plug.Conn{} = conn, exclude_fields \\ []) do
-    Client.get(conn, "me", [{"x-fields", xfields(exclude_fields)}])
+  @spec me(Plug.Conn.t() | OAuth2.AccessToken.t(), [binary()]) ::
+          {:error, OAuth2.Error.t()} | {:ok, OAuth2.Response.t()}
+  def me(conn_or_token, exclude_fields \\ []) do
+    Client.get(conn_or_token, "me", [{"x-fields", xfields(exclude_fields)}])
   end
 
   @doc """

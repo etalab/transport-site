@@ -6,11 +6,11 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
   import TransportWeb.Gettext
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
 
-  def mount(_params, %{"current_user" => current_user, "locale" => locale}, socket) do
+  def mount(_params, %{"current_user" => current_user, "locale" => locale, "token" => token}, socket) do
     Gettext.put_locale(locale)
 
     {socket, datasets, current_contact, subscriptions} =
-      case DB.Dataset.datasets_for_user(current_user) do
+      case DB.Dataset.datasets_for_user(token) do
         datasets when is_list(datasets) ->
           current_contact = DB.Repo.get_by!(DB.Contact, datagouv_user_id: current_user["id"])
           subscriptions = notification_subscriptions_for_datasets(datasets, current_contact)
