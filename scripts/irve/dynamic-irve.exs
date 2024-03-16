@@ -9,9 +9,12 @@ url = "https://www.data.gouv.fr/api/1/datasets/?#{URI.encode_query(params)}"
 defmodule Query do
   def cache_dir, do: Path.join(__ENV__.file, "../cache-dir") |> Path.expand()
 
-  def cached_get!(url) do
-    req = Req.new() |> CustomCache.attach()
-    Req.get!(req, url: url, custom_cache_dir: cache_dir())
+  def cached_get!(url, options \\ []) do
+    Transport.HTTPClient.get!(url,
+      decode_body: options |> Keyword.get(:decode_body, true),
+      custom_cache_dir: cache_dir(),
+      enable_cache: true
+    )
   end
 end
 
