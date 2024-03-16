@@ -61,31 +61,27 @@ defmodule IRVECheck do
     body
   end
 
-  def get_headers(url) do
-    [get_body(url)]
+  def parse_csv(body) do
+    [body]
+    |> CSV.decode!(headers: true)
+    |> Enum.to_list()
+  end
+
+  def get_headers(body) do
+    [body]
     # quick first decode to get the headers, even if the file has no rows
     |> CSV.decode!(headers: false)
     |> Enum.take(1)
     |> List.first()
   end
 
-  def is_dynamic_irve?(url) do
-    headers = url |> get_headers()
-
+  def is_dynamic_irve?(headers) do
     "id_pdc_itinerance" in headers && "etat_pdc" in headers
   end
 
-  def rows_in_file(url) do
-    [get_body(url)]
-    |> CSV.decode!(headers: true)
-    |> Enum.to_list()
-    |> length()
-  end
-
-  def time_window(url) do
+  def time_window(rows) do
     data =
-      [get_body(url)]
-      |> CSV.decode!(headers: true)
+      rows
       |> Enum.map(fn x -> (x["horodatage"] || "???") |> String.slice(0, 10) end)
       |> Enum.to_list()
       |> Enum.sort()
@@ -99,13 +95,17 @@ IO.puts("========== #{resources |> length()} candidates ==========\n\n")
 rows =
   resources
   |> Enum.map(fn r ->
+    body = IRVECheck.get_body(r["url"])
+    rows = IRVECheck.parse_csv(body)
+    headers = IRVECheck.get_headers(body)
+
     %{
       dataset_url: r["dataset_url"],
       organization: r["organization"],
       resource_url: r["url"],
-      dynamic_irve_likely: IRVECheck.is_dynamic_irve?(r["url"]),
-      time_window: IRVECheck.time_window(r["url"]),
-      rows_in_file: IRVECheck.rows_in_file(r["url"])
+      dynamic_irve_likely: IRVECheck.is_dynamic_irve?(headers),
+      time_window: IRVECheck.time_window(rows),
+      rows_in_file: rows |> length()
     }
   end)
 
