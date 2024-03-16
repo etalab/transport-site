@@ -46,6 +46,10 @@ resources =
       r
       |> Map.put("dataset_url", dataset["page"])
       |> Map.put("organization", dataset["organization"]["name"])
+      |> Map.put("valid", get_in(r, ["extras", "validation-report:valid_resource"]))
+      |> Map.put("validation_date", get_in(r, ["extras", "validation-report:validation_date"]))
+      |> Map.put("schema_name", get_in(r, ["schema", "name"]))
+      |> Map.put("schema_version", get_in(r, ["schema", "version"]))
     end)
   end)
   |> Enum.reject(fn r ->
@@ -105,17 +109,44 @@ rows =
       resource_url: r["url"],
       dynamic_irve_likely: IRVECheck.is_dynamic_irve?(headers),
       time_window: IRVECheck.time_window(rows),
-      rows_in_file: rows |> length()
+      rows: rows |> length(),
+      valid: r["valid"],
+      v_date: r["validation_date"],
+      schema_name: r["schema_name"],
+      schema_version: r["schema_version"]
     }
   end)
 
 IO.inspect(rows, IEx.inspect_opts())
 
-IO.ANSI.Table.start([:organization, :dynamic_irve_likely, :rows_in_file, :dataset_url],
-  sort_specs: [desc: :rows_in_file]
+IO.ANSI.Table.start(
+  [
+    :organization,
+    :dynamic_irve_likely,
+    :rows,
+    #    :dataset_url,
+    :valid,
+    :v_date,
+    :schema_name,
+    :schema_version
+  ],
+  sort_specs: [desc: :rows],
+  max_width: :infinity
 )
 
 IO.ANSI.Table.format(rows)
+IO.ANSI.Table.stop()
 
-# TODO: improve speed for iterative work
-# TODO: list validation and validation date
+IO.ANSI.Table.start(
+  [
+    :organization,
+    :dynamic_irve_likely,
+    :rows,
+    :dataset_url,
+    :valid
+  ],
+  sort_specs: [desc: :rows],
+  max_width: :infinity
+)
+
+IO.ANSI.Table.format(rows)
