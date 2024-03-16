@@ -40,8 +40,6 @@ resources =
     r["id"] == "5ef6ddff-2f98-4300-9e6e-1b47ea4ab779"
   end)
 
-# IO.inspect resources |> Enum.map &(&1["url"])
-
 defmodule IRVECheck do
   def is_dynamic_irve?(url) do
     %{status: 200, body: body} = Query.cached_get!(url)
