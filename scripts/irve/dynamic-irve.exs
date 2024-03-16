@@ -73,6 +73,13 @@ defmodule IRVECheck do
     "id_pdc_itinerance" in headers && "etat_pdc" in headers
   end
 
+  def rows_in_file(url) do
+    [get_body(url)]
+    |> CSV.decode!(headers: true)
+    |> Enum.to_list()
+    |> length()
+  end
+
   def time_window(url) do
     data =
       [get_body(url)]
@@ -85,14 +92,18 @@ defmodule IRVECheck do
   end
 end
 
+IO.puts("========== #{resources |> length()} candidates ==========\n\n")
+
 resources
 |> Enum.each(fn r ->
-  IO.puts("\n" <> r["dataset_url"])
-
-  IO.puts(
-    r["url"] <>
-      " --- " <>
-      if(IRVECheck.is_dynamic_irve?(r["url"]), do: "dynamique:OK", else: "dynamique:KO") <>
-      " " <> (IRVECheck.time_window(r["url"]) |> inspect)
+  IO.inspect(
+    %{
+      dataset_url: r["dataset_url"],
+      resource_url: r["url"],
+      dynamic_irve_likely: IRVECheck.is_dynamic_irve?(r["url"]),
+      time_window: IRVECheck.time_window(r["url"]),
+      rows_in_file: IRVECheck.rows_in_file(r["url"])
+    },
+    IEx.inspect_opts()
   )
 end)
