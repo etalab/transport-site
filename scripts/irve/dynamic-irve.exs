@@ -41,24 +41,29 @@ resources =
   end)
 
 defmodule IRVECheck do
-  def is_dynamic_irve?(url) do
-    %{status: 200, body: body} = Query.cached_get!(url)
+  def get_body(url) do
+    # control the decoding ourselves ; by default Req would decode via CSV itself
+    %{status: 200, body: body} = Query.cached_get!(url, decode_body: false)
+    body
+  end
 
+  def get_headers(url) do
+    [get_body(url)]
     # quick first decode to get the headers, even if the file has no rows
-    data =
-      [body]
-      |> CSV.decode!(headers: false)
-      |> Enum.take(1)
-      |> List.first()
+    |> CSV.decode!(headers: false)
+    |> Enum.take(1)
+    |> List.first()
+  end
 
-    "id_pdc_itinerance" in data && "etat_pdc" in data
+  def is_dynamic_irve?(url) do
+    headers = url |> get_headers()
+
+    "id_pdc_itinerance" in headers && "etat_pdc" in headers
   end
 
   def time_window(url) do
-    %{status: 200, body: body} = Query.cached_get!(url)
-
     data =
-      [body]
+      [get_body(url)]
       |> CSV.decode!(headers: true)
       |> Enum.map(fn x -> (x["horodatage"] || "???") |> String.slice(0, 10) end)
       |> Enum.to_list()
@@ -75,7 +80,7 @@ resources
   IO.puts(
     r["url"] <>
       " --- " <>
-      if(IRVECheck.is_dynamic_irve?(r["url"]), do: "OK", else: "KO") <>
+      if(IRVECheck.is_dynamic_irve?(r["url"]), do: "dynamique:OK", else: "dynamique:KO") <>
       " " <> (IRVECheck.time_window(r["url"]) |> inspect)
   )
 end)
