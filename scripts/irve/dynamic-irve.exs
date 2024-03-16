@@ -1,3 +1,15 @@
+my_app_root = Path.join(__DIR__, "../..")
+
+# hybrid setup to rely on the whole app setup but increment with a specificy dependency
+Mix.install(
+  [
+    {:my_app, path: my_app_root, env: :dev},
+    {:io_ansi_table, "~> 1.0"}
+  ],
+  config_path: Path.join(my_app_root, "config/config.exs"),
+  lockfile: Path.join(my_app_root, "mix.lock")
+)
+
 params = %{
   page: 1,
   page_size: 500,
