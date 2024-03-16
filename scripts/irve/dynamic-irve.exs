@@ -43,7 +43,9 @@ resources =
     dataset["resources"]
     |> Enum.filter(fn r -> r["schema"]["name"] == "etalab/schema-irve-dynamique" end)
     |> Enum.map(fn r ->
-      Map.put(r, "dataset_url", dataset["page"])
+      r
+      |> Map.put("dataset_url", dataset["page"])
+      |> Map.put("organization", dataset["organization"]["name"])
     end)
   end)
   |> Enum.reject(fn r ->
@@ -94,16 +96,23 @@ end
 
 IO.puts("========== #{resources |> length()} candidates ==========\n\n")
 
-resources
-|> Enum.each(fn r ->
-  IO.inspect(
+rows =
+  resources
+  |> Enum.map(fn r ->
     %{
       dataset_url: r["dataset_url"],
+      organization: r["organization"],
       resource_url: r["url"],
       dynamic_irve_likely: IRVECheck.is_dynamic_irve?(r["url"]),
       time_window: IRVECheck.time_window(r["url"]),
       rows_in_file: IRVECheck.rows_in_file(r["url"])
-    },
-    IEx.inspect_opts()
-  )
-end)
+    }
+  end)
+
+IO.inspect(rows, IEx.inspect_opts())
+
+IO.ANSI.Table.start([:organization, :dynamic_irve_likely, :rows_in_file, :dataset_url],
+  sort_specs: [desc: :rows_in_file]
+)
+
+IO.ANSI.Table.format(rows)
