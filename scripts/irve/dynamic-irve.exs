@@ -94,6 +94,26 @@ defmodule IRVECheck do
   end
 end
 
+defmodule FrictionlessValidator do
+  @latest_dynamic_irve_schema "https://schema.data.gouv.fr/schemas/etalab/schema-irve-dynamique/latest/schema-dynamique.json"
+
+  def validate(file_url, schema \\ @latest_dynamic_irve_schema) do
+    cmd = "frictionless"
+    args = ["validate", file_url, "--schema", schema, "--json"]
+    debug_cmd = [cmd, args] |> List.flatten() |> Enum.join(" ")
+
+    {output, result} = System.cmd(cmd, args)
+
+    case result do
+      0 ->
+        {:ok, Jason.decode!(output)}
+
+      1 ->
+        {:error, Jason.decode!(output)}
+    end
+  end
+end
+
 IO.puts("========== #{resources |> length()} candidates ==========\n\n")
 
 rows =
