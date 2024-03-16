@@ -100,7 +100,7 @@ defmodule FrictionlessValidator do
   def validate(file_url, schema \\ @latest_dynamic_irve_schema) do
     cmd = "frictionless"
     args = ["validate", file_url, "--schema", schema, "--json"]
-    debug_cmd = [cmd, args] |> List.flatten() |> Enum.join(" ")
+    _debug_cmd = [cmd, args] |> List.flatten() |> Enum.join(" ")
 
     {output, result} = System.cmd(cmd, args)
 
@@ -123,14 +123,20 @@ rows =
     rows = IRVECheck.parse_csv(body)
     headers = IRVECheck.get_headers(body)
 
+    {local_valid, validation_result} = FrictionlessValidator.validate(r["url"])
+
+    File.write!(r["id"], validation_result |> Jason.encode!() |> Jason.Formatter.pretty_print())
+
     %{
       dataset_url: r["dataset_url"],
+      r_id: r["id"],
       organization: r["organization"],
       resource_url: r["url"],
       dynamic_irve_likely: IRVECheck.is_dynamic_irve?(headers),
       time_window: IRVECheck.time_window(rows),
       rows: rows |> length(),
       valid: r["valid"],
+      local_valid: local_valid,
       v_date: r["validation_date"],
       schema_name: r["schema_name"],
       schema_version: r["schema_version"]
@@ -142,10 +148,12 @@ IO.inspect(rows, IEx.inspect_opts())
 IO.ANSI.Table.start(
   [
     :organization,
+    :r_id,
     :dynamic_irve_likely,
     :rows,
     #    :dataset_url,
     :valid,
+    :local_valid,
     :v_date,
     :schema_name,
     :schema_version
