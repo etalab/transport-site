@@ -116,3 +116,6 @@ IO.ANSI.Table.start([:organization, :dynamic_irve_likely, :rows_in_file, :datase
 )
 
 IO.ANSI.Table.format(rows)
+
+# TODO: improve speed for iterative work
+# TODO: list validation and validation date
