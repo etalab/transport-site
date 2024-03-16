@@ -1,11 +1,3 @@
-Mix.install([
-  {:req, "~> 0.3.9"},
-  {:jason, "~> 1.4"},
-  {:csv, "~> 3.0"}
-])
-
-Code.require_file(__DIR__ <> "/req_custom_cache.exs")
-
 params = %{
   page: 1,
   page_size: 500,
