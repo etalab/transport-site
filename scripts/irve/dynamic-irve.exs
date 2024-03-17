@@ -125,6 +125,15 @@ defmodule FrictionlessValidator do
         {:error, Jason.decode!(output)}
     end
   end
+
+  # quick and dirty parsing
+  def errors_summary(output) do
+    output["tasks"]
+    |> Enum.map(& &1["errors"])
+    |> List.flatten()
+    |> Enum.map(& &1["message"])
+    |> Enum.take(5)
+  end
 end
 
 IO.puts("========== #{resources |> length()} candidates ==========\n\n")
