@@ -22,11 +22,19 @@ defmodule Query do
   def cache_dir, do: Path.join(__ENV__.file, "../cache-dir") |> Path.expand()
 
   def cached_get!(url, options \\ []) do
-    Transport.HTTPClient.get!(url,
+    options = [
       decode_body: options |> Keyword.get(:decode_body, true),
-      custom_cache_dir: cache_dir(),
-      enable_cache: true
-    )
+      enable_cache: options |> Keyword.get(:enable_cache, false)
+    ]
+
+    options =
+      if options[:enable_cache] do
+        Keyword.merge(options, custom_cache_dir: cache_dir())
+      else
+        options
+      end
+
+    Transport.HTTPClient.get!(url, options)
   end
 end
 
