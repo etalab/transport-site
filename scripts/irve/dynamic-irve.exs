@@ -157,7 +157,7 @@ rows =
       r_id: r["id"],
       organization: r["organization"],
       resource_url: r["url"],
-      dynamic_irve_likely: IRVECheck.is_dynamic_irve?(headers),
+      dyn_irve_likely: IRVECheck.is_dynamic_irve?(headers),
       time_window: IRVECheck.time_window(rows),
       rows: rows |> length(),
       valid: r["valid"],
@@ -174,7 +174,7 @@ IO.ANSI.Table.start(
   [
     :organization,
     :r_id,
-    :dynamic_irve_likely,
+    :dyn_irve_likely,
     :rows,
     #    :dataset_url,
     :valid,
@@ -193,7 +193,7 @@ IO.ANSI.Table.stop()
 IO.ANSI.Table.start(
   [
     :organization,
-    :dynamic_irve_likely,
+    :dyn_irve_likely,
     :rows,
     :dataset_url,
     :valid
