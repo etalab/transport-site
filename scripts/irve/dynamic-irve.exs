@@ -38,7 +38,8 @@ defmodule Query do
   end
 end
 
-%{status: 200, body: datasets} = Query.cached_get!(url)
+# disabling cache because one dataset is refreshed very frequently, caching leads to 404
+%{status: 200, body: datasets} = Query.cached_get!(url, enable_cache: false)
 
 # ensure there is only one page + grab the data
 unless is_nil(datasets["next_page"]), do: raise("should not have next page")
