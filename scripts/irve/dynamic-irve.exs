@@ -103,11 +103,15 @@ defmodule IRVECheck do
   end
 end
 
+# very brittle (false positives & false negatives) at the moment, but helped me a bit already
+# Waiting for feedback on https://github.com/frictionlessdata/frictionless-py/issues/1646
 defmodule FrictionlessValidator do
   @latest_dynamic_irve_schema "https://schema.data.gouv.fr/schemas/etalab/schema-irve-dynamique/latest/schema-dynamique.json"
 
   def validate(file_url, schema \\ @latest_dynamic_irve_schema) do
     cmd = "frictionless"
+    # NOTE: I tried using `--schema-sync` as an attempt to avoid failure
+    # when an optional field column's header is missing.
     args = ["validate", file_url, "--schema", schema, "--json"]
     _debug_cmd = [cmd, args] |> List.flatten() |> Enum.join(" ")
 
