@@ -47,7 +47,7 @@ defmodule Unlock.MixProject do
       {:cors_plug, "~> 3.0"},
       {:saxy, "~> 1.5"},
       {:mox, "~> 1.1", only: :test},
-      {:ymlr, "~> 4.0", only: :test},
+      {:ymlr, "~> 5.0", only: :test},
       {:ecto, "~> 3.7", only: :test},
       # required for `TransportWeb.Plugs.AppSignalFilter`
       {:shared, in_umbrella: true},
