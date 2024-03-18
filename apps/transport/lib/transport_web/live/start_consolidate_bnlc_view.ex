@@ -11,9 +11,21 @@ defmodule TransportWeb.Live.SendConsolidateBNLCView do
     """
   end
 
-  def mount(_params, %{"button_texts" => _, "button_default_class" => _, "job_args" => _} = session, socket) do
-    sessions_params = Map.new(session, fn {k, v} -> {String.to_existing_atom(k), v} end)
-    {:ok, socket |> assign(sessions_params) |> assign_step(:first)}
+  def mount(
+        _params,
+        %{"button_texts" => button_texts, "button_default_class" => button_default_class, "job_args" => job_args},
+        socket
+      ) do
+    socket =
+      socket
+      |> assign(
+        button_texts: button_texts,
+        button_default_class: button_default_class,
+        job_args: job_args
+      )
+      |> assign_step(:first)
+
+    {:ok, socket}
   end
 
   def handle_event("dispatch_job", _value, socket) do
