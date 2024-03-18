@@ -21,10 +21,7 @@ defmodule Transport.ImportData do
   def import_all_datasets do
     Logger.info("reimporting all active datasets")
 
-    datasets =
-      Dataset
-      |> where([d], d.is_active == true)
-      |> Repo.all()
+    datasets = Dataset.base_query() |> Dataset.include_hidden_datasets() |> Repo.all()
 
     results =
       ImportTaskSupervisor

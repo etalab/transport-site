@@ -9,6 +9,7 @@ defmodule Transport.Jobs.DatasetHistoryDispatcherJob do
   @impl Oban.Worker
   def perform(_job) do
     DB.Dataset.base_query()
+    |> DB.Dataset.include_hidden_datasets()
     |> DB.Repo.all()
     |> Enum.map(fn dataset ->
       %{dataset_id: dataset.id} |> Transport.Jobs.DatasetHistoryJob.new()
@@ -95,6 +96,7 @@ defmodule Transport.Jobs.DatasetHistoryJob do
       DB.MultiValidation |> distinct([mv], mv.resource_id) |> order_by([mv], asc: mv.resource_id, desc: mv.inserted_at)
 
     DB.Dataset.base_query()
+    |> DB.Dataset.include_hidden_datasets()
     |> where([dataset: d], d.id == ^dataset_id)
     |> join(:left, [dataset: d], r in DB.Resource, on: d.id == r.dataset_id, as: :resource)
     |> join(:left, [resource: r], rh in DB.ResourceHistory,

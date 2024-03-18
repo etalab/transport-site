@@ -133,6 +133,26 @@ defmodule DB.DatasetDBTest do
       assert {:ok, %Ecto.Changeset{changes: %{has_realtime: false}}} = changeset
     end
 
+    test "is_hidden=true" do
+      assert {:ok, %Ecto.Changeset{changes: %{is_hidden: true}}} =
+               Dataset.changeset(%{
+                 "datagouv_id" => "1",
+                 "slug" => "ma_limace",
+                 "insee" => "38185",
+                 "custom_tags" => ["masqué"]
+               })
+    end
+
+    test "is_hidden=false" do
+      assert {:ok, %Ecto.Changeset{changes: %{is_hidden: false}}} =
+               Dataset.changeset(%{
+                 "datagouv_id" => "1",
+                 "slug" => "ma_limace",
+                 "insee" => "38185",
+                 "custom_tags" => ["not_hidden"]
+               })
+    end
+
     test "siren is validated" do
       {{:error, _}, logs} =
         with_log(fn ->
@@ -744,5 +764,15 @@ defmodule DB.DatasetDBTest do
                resources: [%DB.Resource{format: "gtfs"}, %DB.Resource{format: "NeTEx"}],
                custom_tags: ["keep_netex_conversions", "foo"]
              })
+  end
+
+  test "include_hidden_datasets" do
+    %DB.Dataset{id: dataset_id} = insert(:dataset)
+    %DB.Dataset{id: hidden_dataset_id} = insert(:dataset, is_hidden: true)
+
+    assert [%DB.Dataset{id: ^dataset_id}] = DB.Dataset.base_query() |> DB.Repo.all()
+
+    assert [%DB.Dataset{id: ^dataset_id}, %DB.Dataset{id: ^hidden_dataset_id}] =
+             DB.Dataset.base_query() |> DB.Dataset.include_hidden_datasets() |> order_by(:id) |> DB.Repo.all()
   end
 end

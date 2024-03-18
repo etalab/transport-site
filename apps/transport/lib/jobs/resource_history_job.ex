@@ -23,12 +23,14 @@ defmodule Transport.Jobs.ResourceHistoryAndValidationDispatcherJob do
   end
 
   def resources_to_historise(resource_id \\ nil) do
+    dataset_ids = DB.Dataset.base_query() |> DB.Dataset.include_hidden_datasets() |> select([dataset: d], d.id)
+
     base_query =
-      Resource.base_query()
-      |> join(:inner, [resource: r], d in DB.Dataset, on: d.id == r.dataset_id and d.is_active, as: :dataset)
+      DB.Resource.base_query()
       |> where([resource: r], not is_nil(r.url) and not is_nil(r.title))
       |> where([resource: r], not r.is_community_resource)
       |> where([resource: r], like(r.url, "http%"))
+      |> where([resource: r], r.dataset_id in subquery(dataset_ids))
       |> preload(:dataset)
 
     query = if is_nil(resource_id), do: base_query, else: where(base_query, [resource: r], r.id == ^resource_id)

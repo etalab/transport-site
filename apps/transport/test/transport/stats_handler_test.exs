@@ -152,4 +152,14 @@ defmodule Transport.StatsHandlerTest do
 
     assert %{nb_aoms_with_data: 2, nb_aoms: 3, population_couverte: 2, population_totale: 3} = compute_stats()
   end
+
+  test "ignores hidden datasets" do
+    aom = insert(:aom, population: 1_000_000)
+    insert(:resource, dataset: insert(:dataset, aom: aom, is_active: true), format: "GTFS")
+
+    hidden_dataset = insert(:dataset, aom: aom, is_active: true, is_hidden: true)
+    insert(:resource, dataset: hidden_dataset, format: "GTFS")
+
+    assert %{nb_datasets: 1, nb_gtfs: 1, nb_pt_datasets: 1} = compute_stats()
+  end
 end

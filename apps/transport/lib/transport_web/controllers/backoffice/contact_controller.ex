@@ -93,9 +93,10 @@ defmodule TransportWeb.Backoffice.ContactController do
     |> DB.Repo.all()
   end
 
-  defp datasets_datalist do
+  def datasets_datalist do
     DB.Dataset.base_query()
-    |> select([dataset: d], [:id, :custom_title, :type])
+    |> DB.Dataset.include_hidden_datasets()
+    |> select([dataset: d], [:id, :custom_title, :type, :is_hidden])
     |> order_by([dataset: d], asc: d.custom_title)
     |> distinct(true)
     |> DB.Repo.all()

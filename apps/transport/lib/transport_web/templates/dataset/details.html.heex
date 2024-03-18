@@ -11,6 +11,9 @@
     ) %>
   </div>
 <% end %>
+<div :if={@dataset.is_hidden} class="notification full-width">
+  <%= dgettext("page-dataset-details", "This dataset is hidden") %>
+</div>
 <div class="dataset-title-div" id="dataset-top">
   <%= dgettext("page-dataset-details", "dataset") %>
   <h1>

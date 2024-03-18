@@ -264,8 +264,8 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
              } == current_dataset_availability(dataset.id)
     end
 
-    test "a dataset with 0 resources" do
-      dataset = insert(:dataset, is_active: true)
+    test "an hidden dataset with 0 resources" do
+      dataset = insert(:dataset, is_active: true, is_hidden: true)
 
       assert [] == dataset |> DB.Repo.preload(:resources) |> Map.fetch!(:resources)
 
@@ -847,25 +847,25 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
   describe "DatasetQualityScoreDispatcher" do
     test "jobs are enqueued" do
-      dataset_1 = insert(:dataset)
-      dataset_2 = insert(:dataset)
-      dataset_3 = insert(:dataset, is_active: false)
+      active_dataset = insert(:dataset, is_active: true, is_hidden: false)
+      hidden_dataset = insert(:dataset, is_active: true, is_hidden: true)
+      inactive_dataset = insert(:dataset, is_active: false)
 
       assert :ok == perform_job(Transport.Jobs.DatasetQualityScoreDispatcher, %{})
 
       assert_enqueued(
         worker: Transport.Jobs.DatasetQualityScore,
-        args: %{"dataset_id" => dataset_1.id}
+        args: %{"dataset_id" => active_dataset.id}
       )
 
       assert_enqueued(
         worker: Transport.Jobs.DatasetQualityScore,
-        args: %{"dataset_id" => dataset_2.id}
+        args: %{"dataset_id" => hidden_dataset.id}
       )
 
       refute_enqueued(
         worker: Transport.Jobs.DatasetQualityScore,
-        args: %{"dataset_id" => dataset_3.id}
+        args: %{"dataset_id" => inactive_dataset.id}
       )
     end
   end

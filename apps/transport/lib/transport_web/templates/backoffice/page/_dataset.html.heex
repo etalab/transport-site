@@ -8,6 +8,7 @@
     <strong>
       <%= @dataset.custom_title %>
     </strong>
+    <span :if={@dataset.is_hidden} class="label"><%= dgettext("backoffice", "Hidden") %></span>
   </td>
   <td>
     <%= @dataset.organization %>

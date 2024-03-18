@@ -5,7 +5,7 @@ defmodule Transport.Jobs.ResourcesUnavailableDispatcherJob do
   use Oban.Worker, max_attempts: 3
   require Logger
   import Ecto.Query
-  alias DB.{Dataset, Repo, Resource, ResourceUnavailability}
+  alias DB.{Repo, Resource, ResourceUnavailability}
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: args}) do
@@ -23,11 +23,11 @@ defmodule Transport.Jobs.ResourcesUnavailableDispatcherJob do
   end
 
   def resources_to_check(false = _only_unavailable) do
-    Resource
-    |> join(:inner, [r], d in Dataset, on: r.dataset_id == d.id and d.is_active)
-    |> where([r], not r.is_community_resource)
-    |> where([r], like(r.url, "http%"))
-    |> select([r], r.id)
+    DB.Dataset.base_query()
+    |> DB.Dataset.include_hidden_datasets()
+    |> DB.Resource.join_dataset_with_resource()
+    |> where([resource: r], not r.is_community_resource and like(r.url, "http%"))
+    |> select([resource: r], r.id)
     |> Repo.all()
   end
 

@@ -42,6 +42,25 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
       assert [%{args: %{"resource_id" => ^resource_id}}] = all_enqueued(worker: ResourceUnavailableJob)
       refute_enqueued(worker: ResourcesUnavailableDispatcherJob)
     end
+
+    test "includes hidden datasets" do
+      %DB.Resource{id: resource_id} =
+        insert(:resource,
+          dataset: insert(:dataset, is_active: true),
+          is_community_resource: false,
+          url: "https://example.com/#{Ecto.UUID.generate()}"
+        )
+
+      %DB.Resource{id: other_resource_id} =
+        insert(:resource,
+          dataset: insert(:dataset, is_active: true, is_hidden: true),
+          is_community_resource: false,
+          url: "https://example.com/#{Ecto.UUID.generate()}"
+        )
+
+      assert MapSet.new([resource_id, other_resource_id]) ==
+               MapSet.new(ResourcesUnavailableDispatcherJob.resources_to_check(false))
+    end
   end
 
   describe "ResourceUnavailableJob" do

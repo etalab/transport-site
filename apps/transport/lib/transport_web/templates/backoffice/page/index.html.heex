@@ -162,6 +162,11 @@
           ) %>
         </div>
         <div>
+          <%= link(dgettext("backoffice", "Hidden datasets"),
+            to: backoffice_page_path(@conn, :index, %{"filter" => "hidden"}) <> "#list_datasets"
+          ) %>
+        </div>
+        <div>
           <%= link(dgettext("backoffice", "GTFS with fatal failure"),
             to: backoffice_page_path(@conn, :index, %{"filter" => "not_compliant"}) <> "#list_datasets"
           ) %>

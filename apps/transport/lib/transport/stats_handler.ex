@@ -3,7 +3,7 @@ defmodule Transport.StatsHandler do
   Compute statistics on the datasets
   Also contains a function called periodically to store the stats in the DB
   """
-  alias DB.{AOM, Dataset, Region, Repo, Resource, StatsHistory}
+  alias DB.{AOM, Dataset, Region, Repo, StatsHistory}
   alias Transport.CSVDocuments
   import Ecto.Query
   require Logger
@@ -75,14 +75,14 @@ defmodule Transport.StatsHandler do
       ratio_aom_good_quality: ratio_aom_good_quality(aoms_max_gtfs_severity, total_aom_with_gtfs_datasets),
       aom_with_errors: Map.get(aoms_max_gtfs_severity, "Error", 0),
       aom_with_fatal: Map.get(aoms_max_gtfs_severity, "Fatal", 0),
-      nb_official_public_transit_realtime: nb_official_public_transit_realtime(),
+      nb_official_public_transit_realtime: DB.Dataset.count_public_transport_has_realtime(),
       nb_reusers: nb_reusers(),
       nb_reuses: nb_reuses(),
       nb_dataset_types: nb_dataset_types(),
       nb_gtfs: count_dataset_with_format("GTFS"),
       nb_netex: count_dataset_with_format("NeTEx"),
       nb_bss_datasets: count_dataset_with_format("gbfs"),
-      nb_bikes_scooter_datasets: nb_bikes_scooters(),
+      nb_bikes_scooter_datasets: DB.Dataset.count_by_type("bike-scooter-sharing"),
       nb_gtfs_rt: count_dataset_with_format("gtfs-rt"),
       gtfs_rt_types: count_feed_types_gtfs_rt(),
       climate_resilience_bill_count: count_datasets_climate_resilience_bill(),
@@ -132,25 +132,6 @@ defmodule Transport.StatsHandler do
     |> Kernel.round()
   end
 
-  defp nb_official_public_transit_realtime do
-    rt_datasets =
-      from(d in Dataset,
-        where: d.has_realtime and d.is_active and d.type == "public-transit"
-      )
-
-    Repo.aggregate(rt_datasets, :count, :id)
-  end
-
-  @spec nb_bikes_scooters() :: integer
-  defp nb_bikes_scooters do
-    bikes_datasets =
-      from(d in Dataset,
-        where: d.type == "bike-scooter-sharing" and d.is_active
-      )
-
-    Repo.aggregate(bikes_datasets, :count, :id)
-  end
-
   defp nb_dataset_types do
     Dataset
     |> select([d], count(d.type, :distinct))
@@ -166,11 +147,10 @@ defmodule Transport.StatsHandler do
   end
 
   def count_dataset_with_format(format) do
-    Resource
-    |> join(:inner, [r], d in Dataset, on: r.dataset_id == d.id)
-    |> where([_r, d], d.is_active)
-    |> select([r], count(r.dataset_id, :distinct))
-    |> where([r], r.format == ^format)
+    Dataset.base_query()
+    |> DB.Resource.join_dataset_with_resource()
+    |> where([resource: r], r.format == ^format)
+    |> select([resource: r], count(r.dataset_id, :distinct))
     |> Repo.one()
   end
 
