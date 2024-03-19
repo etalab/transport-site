@@ -434,8 +434,8 @@ defmodule TransportWeb.DatasetControllerTest do
     assert [
              {"table", [{"class", "table"}],
               [
-                {"tr", [], [{"th", [], ["Fraicheur"]}, {"th", [], ["Conformité"]}]},
-                {"tr", [], [{"td", [], ["55%"]}, {"td", [], ["80%"]}]}
+                {"tr", [], [{"th", [], ["Conformité"]}, {"th", [], ["Fraicheur"]}]},
+                {"tr", [], [{"td", [], ["80%"]}, {"td", [], ["55%"]}]}
               ]}
            ] == content |> Floki.find("#quality-indicators table")
   end

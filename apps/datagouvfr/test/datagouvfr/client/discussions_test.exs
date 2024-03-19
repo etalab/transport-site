@@ -21,7 +21,7 @@ defmodule Datagouvfr.Client.DiscussionTest do
                {"content-type", "application/json"}
              ]
 
-      assert body == ~s({"title":"#{title}","comment":"#{comment}","subject":{"id":"#{datagouv_id}","class":"Dataset"}})
+      assert body == ~s({"comment":"#{comment}","subject":{"class":"Dataset","id":"#{datagouv_id}"},"title":"#{title}"})
       json(%{"title" => title, "discussion" => [%{"content" => comment}]}, status: 201)
     end)
 
