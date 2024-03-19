@@ -160,9 +160,9 @@ defmodule Transport.Validators.GTFSTransport do
     |> Enum.min_by(fn {severity, _count} -> severity |> severities() |> Map.get(:level) end)
   end
 
-  @spec is_mine?(any) :: boolean()
-  def is_mine?(%{validator: validator}), do: validator == validator_name()
-  def is_mine?(_), do: false
+  @spec mine?(any) :: boolean()
+  def mine?(%{validator: validator}), do: validator == validator_name()
+  def mine?(_), do: false
 
   @doc """
   Returns the maximum issue severity found
