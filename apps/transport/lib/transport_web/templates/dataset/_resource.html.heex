@@ -3,11 +3,11 @@
 <% unavailabilities = @resources_infos.unavailabilities %>
 <% resources_updated_at = @resources_infos.resources_updated_at %>
 <% [validation] = @resources_infos.validations |> Map.get(@resource.id) %>
-<% is_gtfs_outdated = Transport.Validators.GTFSTransport.is_gtfs_outdated(validation) %>
+<% gtfs_outdated? = Transport.Validators.GTFSTransport.gtfs_outdated?(validation) %>
 <% related_gtfs_resource = related_gtfs_resource(@resource) %>
 
 <div
-  class={"panel resource #{valid_panel_class(@resource, is_gtfs_outdated)}"}
+  class={"panel resource #{valid_panel_class(@resource, gtfs_outdated?)}"}
   title={resource_tooltip_content(@resource)}
 >
   <h4><%= @resource.title %></h4>
@@ -27,7 +27,7 @@
         <i class="icon icon--calendar-alt" aria-hidden="true"></i>
         <span><%= start_date |> DateTimeDisplay.format_date(locale) %></span>
         <i class="icon icon--right-arrow ml-05-em" aria-hidden="true"></i>
-        <span class={outdated_class(is_gtfs_outdated)}><%= end_date |> DateTimeDisplay.format_date(locale) %></span>
+        <span class={outdated_class(gtfs_outdated?)}><%= end_date |> DateTimeDisplay.format_date(locale) %></span>
       </div>
     <% end %>
   <% end %>
@@ -80,16 +80,16 @@
   </div>
 
   <%= if Resource.is_gtfs?(@resource) or not @resource.is_available do %>
-    <div class={"resource-status-corner #{resource_class(@resource.is_available, is_gtfs_outdated)}"}>
+    <div class={"resource-status-corner #{resource_class(@resource.is_available, gtfs_outdated?)}"}>
       <span class={resource_span_class(@resource)}>
         <%= unless @resource.is_available do %>
           <%= dgettext("page-dataset-details", "Not") %> <br />
           <%= dgettext("page-dataset-details", "available") %>
         <% else %>
-          <%= if is_gtfs_outdated == true do %>
+          <%= if gtfs_outdated? == true do %>
             <%= dgettext("page-dataset-details", "Outdated") %>
           <% end %>
-          <%= if is_gtfs_outdated == false do %>
+          <%= if gtfs_outdated? == false do %>
             <%= dgettext("page-dataset-details", "Up to date") %>
           <% end %>
         <% end %>

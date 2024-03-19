@@ -227,25 +227,25 @@ defmodule Transport.Validators.GTFSTransport do
       "SubFolder" => dgettext("gtfs-transport-validator", "Files in a subfolder")
     }
 
-  @spec is_gtfs_outdated(any()) :: boolean | nil
+  @spec gtfs_outdated?(any()) :: boolean | nil
   @doc """
   true if the gtfs is outdated
   false if not
   nil if we don't know
 
   iex> validation = %DB.MultiValidation{validator: validator_name(), metadata: %DB.ResourceMetadata{metadata: %{"end_date" => "1900-01-01"}}}
-  iex> is_gtfs_outdated(validation)
+  iex> gtfs_outdated?(validation)
   true
   iex> validation = %DB.MultiValidation{validator: validator_name(), metadata: %DB.ResourceMetadata{metadata: %{"end_date" => "2900-01-01"}}}
-  iex> is_gtfs_outdated(validation)
+  iex> gtfs_outdated?(validation)
   false
-  iex> is_gtfs_outdated(%DB.MultiValidation{})
+  iex> gtfs_outdated?(%DB.MultiValidation{})
   nil
   iex> validation = %DB.MultiValidation{validator: validator_name(), metadata: %DB.ResourceMetadata{metadata: %{"end_date" => Date.utc_today() |> Date.to_iso8601()}}}
-  iex> is_gtfs_outdated(validation)
+  iex> gtfs_outdated?(validation)
   true
   """
-  def is_gtfs_outdated(%DB.MultiValidation{validator: @validator_name} = multi_validation) do
+  def gtfs_outdated?(%DB.MultiValidation{validator: @validator_name} = multi_validation) do
     multi_validation
     |> DB.MultiValidation.get_metadata_info("end_date")
     |> case do
@@ -257,7 +257,7 @@ defmodule Transport.Validators.GTFSTransport do
     end
   end
 
-  def is_gtfs_outdated(_), do: nil
+  def gtfs_outdated?(_), do: nil
 
   @spec find_tags(map()) :: [binary()]
   def find_tags(metadata) do
