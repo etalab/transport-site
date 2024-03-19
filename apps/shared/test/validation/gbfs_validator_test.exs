@@ -55,7 +55,7 @@ defmodule GBFSValidatorTest do
 
   test "can encode summary" do
     assert """
-           {"errors_count":0,"has_errors":false,"validator":"validator_module","validator_version":"31c5325","version_detected":"1.1","version_validated":"1.1"}\
+           {"validator":"validator_module","errors_count":0,"has_errors":false,"version_detected":"1.1","version_validated":"1.1","validator_version":"31c5325"}\
            """ ==
              Jason.encode!(%Summary{
                errors_count: 0,
