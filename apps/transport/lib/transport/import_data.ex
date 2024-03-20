@@ -368,7 +368,7 @@ defmodule Transport.ImportData do
   @spec get_valid_documentation_resources([map()]) :: [map()]
   def get_valid_documentation_resources(resources) do
     resources
-    |> Enum.filter(&(documentation?(&1) or is_documentation_format?(&1)))
+    |> Enum.filter(&(documentation?(&1) or documentation_format?(&1)))
     |> Enum.map(fn resource -> %{resource | "type" => "documentation"} end)
   end
 
@@ -560,9 +560,9 @@ defmodule Transport.ImportData do
   Only used for the `public-transit` type, other types use
   `documentation?/1` which is stricter.
 
-  iex> is_documentation_format?("PDF")
+  iex> documentation_format?("PDF")
   true
-  iex> is_documentation_format?("GTFS")
+  iex> documentation_format?("GTFS")
   false
   """
   def documentation_format?(%{"format" => format}), do: documentation_format?(format)
