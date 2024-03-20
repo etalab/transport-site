@@ -103,7 +103,7 @@ defmodule DB.Dataset do
   def archived?(%__MODULE__{archived_at: nil}), do: false
   def archived?(%__MODULE__{archived_at: %DateTime{}}), do: true
 
-  @spec is_active?(__MODULE__.t()) :: boolean()
+  @spec active?(__MODULE__.t()) :: boolean()
   def active?(%__MODULE__{is_active: is_active}), do: is_active
 
   @doc """

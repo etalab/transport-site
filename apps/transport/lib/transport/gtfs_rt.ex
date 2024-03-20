@@ -101,7 +101,7 @@ defmodule Transport.GTFSRT do
         header_text: best_translation(el.header_text, requested_language),
         description_text: best_translation(el.description_text, requested_language),
         url: best_translation(el.url, requested_language),
-        is_active: is_active?(el.active_period),
+        is_active: active?(el.active_period),
         current_active_period: current_active_period(el.active_period)
       }
     end)
