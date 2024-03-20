@@ -54,7 +54,7 @@ defmodule TransportWeb.ValidationController do
   def validate(%Plug.Conn{} = conn, %{
         "upload" => %{"file" => %{path: file_path, filename: filename}, "type" => type}
       }) do
-    if is_valid_type?(type) do
+    if valid_type?(type) do
       oban_args = build_oban_args(type)
       stream_to_s3(file_path, Map.fetch!(oban_args, "filename"))
 

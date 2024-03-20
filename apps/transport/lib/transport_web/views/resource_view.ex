@@ -169,7 +169,7 @@ defmodule TransportWeb.ResourceView do
         true -> ""
       end
 
-    unless type == "" or TransportWeb.ValidationController.is_valid_type?(type) do
+    unless type == "" or TransportWeb.ValidationController.valid_type?(type) do
       raise "#{type} is not a valid type for on demand validation"
     end
 
