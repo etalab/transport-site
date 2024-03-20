@@ -144,7 +144,7 @@ defmodule DB.Resource do
   def siri_lite?(%__MODULE__{format: "SIRI Lite"}), do: true
   def siri_lite?(_), do: false
 
-  @spec is_documentation?(__MODULE__.t()) :: boolean
+  @spec documentation?(__MODULE__.t()) :: boolean
   def documentation?(%__MODULE__{type: "documentation"}), do: true
   def documentation?(_), do: false
 

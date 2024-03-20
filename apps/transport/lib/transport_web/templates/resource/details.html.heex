@@ -37,7 +37,7 @@
         <%= render("_requestor_ref.html", resource: @resource, conn: @conn) %>
       <% end %>
 
-      <%= unless DB.Resource.is_documentation?(@resource) do %>
+      <%= unless DB.Resource.documentation?(@resource) do %>
         <%= render("_validation_report.html",
           resource: @resource,
           multi_validation: @multi_validation,

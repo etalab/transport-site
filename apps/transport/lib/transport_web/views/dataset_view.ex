@@ -27,7 +27,7 @@ defmodule TransportWeb.DatasetView do
 
   @spec count_documentation_resources(Dataset.t()) :: non_neg_integer
   def count_documentation_resources(dataset) do
-    dataset |> official_available_resources() |> Stream.filter(&Resource.is_documentation?/1) |> Enum.count()
+    dataset |> official_available_resources() |> Stream.filter(&Resource.documentation?/1) |> Enum.count()
   end
 
   @spec count_discussions(any) :: [45, ...] | non_neg_integer
@@ -328,7 +328,7 @@ defmodule TransportWeb.DatasetView do
     |> Stream.reject(&Resource.gtfs?/1)
     |> Stream.reject(&Resource.netex?/1)
     |> Stream.reject(&Resource.is_real_time?/1)
-    |> Stream.reject(&Resource.is_documentation?/1)
+    |> Stream.reject(&Resource.documentation?/1)
     |> Stream.reject(&Resource.has_schema?/1)
     |> Enum.to_list()
     |> Enum.sort_by(& &1.display_position)
@@ -337,7 +337,7 @@ defmodule TransportWeb.DatasetView do
   def official_documentation_resources(dataset) do
     dataset
     |> official_available_resources()
-    |> Enum.filter(&Resource.is_documentation?/1)
+    |> Enum.filter(&Resource.documentation?/1)
   end
 
   def real_time_public_transit?(%Dataset{type: "public-transit"} = dataset) do
@@ -398,7 +398,7 @@ defmodule TransportWeb.DatasetView do
       when type == "carpooling-areas" or type == "private-parking" or type == "charging-stations" do
     resources
     |> Enum.filter(fn r -> r.format == "csv" end)
-    |> Enum.reject(fn r -> Resource.is_community_resource?(r) or Resource.is_documentation?(r) end)
+    |> Enum.reject(fn r -> Resource.is_community_resource?(r) or Resource.documentation?(r) end)
     |> Enum.max_by(& &1.last_update, DateTime, fn -> nil end)
   end
 
@@ -408,7 +408,7 @@ defmodule TransportWeb.DatasetView do
     |> Enum.filter(fn r -> r.format == "gbfs" or String.ends_with?(r.url, "gbfs.json") end)
     |> Enum.reject(fn r ->
       String.contains?(r.url, "station_status") or String.contains?(r.url, "station_information") or
-        Resource.is_community_resource?(r) or Resource.is_documentation?(r)
+        Resource.is_community_resource?(r) or Resource.documentation?(r)
     end)
     |> Enum.max_by(& &1.last_update, DateTime, fn -> nil end)
   end
@@ -421,7 +421,7 @@ defmodule TransportWeb.DatasetView do
     end)
     # Display zones and not special roads
     |> Enum.reject(fn r ->
-      String.contains?(r.url, "voie") or Resource.is_community_resource?(r) or Resource.is_documentation?(r)
+      String.contains?(r.url, "voie") or Resource.is_community_resource?(r) or Resource.documentation?(r)
     end)
     |> Enum.max_by(& &1.last_update, DateTime, fn -> nil end)
   end

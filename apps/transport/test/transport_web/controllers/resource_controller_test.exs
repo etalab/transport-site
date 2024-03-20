@@ -341,7 +341,7 @@ defmodule TransportWeb.ResourceControllerTest do
         type: "documentation"
       })
 
-    assert DB.Resource.is_documentation?(resource)
+    assert DB.Resource.documentation?(resource)
 
     refute conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200) =~ "Rapport de validation"
   end

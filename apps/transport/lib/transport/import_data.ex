@@ -368,7 +368,7 @@ defmodule Transport.ImportData do
   @spec get_valid_documentation_resources([map()]) :: [map()]
   def get_valid_documentation_resources(resources) do
     resources
-    |> Enum.filter(&(is_documentation?(&1) or is_documentation_format?(&1)))
+    |> Enum.filter(&(documentation?(&1) or is_documentation_format?(&1)))
     |> Enum.map(fn resource -> %{resource | "type" => "documentation"} end)
   end
 
@@ -487,7 +487,7 @@ defmodule Transport.ImportData do
   def gtfs?(%{} = params) do
     cond do
       gtfs?(params["format"]) -> true
-      is_ods_resource?(params) or is_documentation?(params) -> false
+      is_ods_resource?(params) or documentation?(params) -> false
       gtfs_rt?(params) -> false
       is_format?(params["url"], ["json", "csv", "shp", "pdf", "7z"]) -> false
       is_format?(params["format"], "NeTEx") -> false
@@ -526,7 +526,7 @@ defmodule Transport.ImportData do
   def gtfs_rt?(%{} = params) do
     cond do
       gtfs_rt?(params["format"]) -> true
-      is_ods_resource?(params) or is_documentation?(params) -> false
+      is_ods_resource?(params) or documentation?(params) -> false
       gtfs_rt?(params["description"]) -> true
       gtfs_rt?(params["title"]) -> true
       gtfs_rt?(params["url"]) -> true
@@ -538,27 +538,27 @@ defmodule Transport.ImportData do
   def gtfs_rt?(_), do: false
 
   @doc """
-  iex> is_documentation?(%{"format" => "gtfs"})
+  iex> documentation?(%{"format" => "gtfs"})
   false
-  iex> is_documentation?(%{"format" => "csv"})
+  iex> documentation?(%{"format" => "csv"})
   false
-  iex> is_documentation?(%{"format" => "PDF"})
+  iex> documentation?(%{"format" => "PDF"})
   false
-  iex> is_documentation?(%{"type" => "documentation", "format" => "docx"})
+  iex> documentation?(%{"type" => "documentation", "format" => "docx"})
   true
-  iex> is_documentation?(nil)
+  iex> documentation?(nil)
   false
-  iex> is_documentation?("pdf")
+  iex> documentation?("pdf")
   false
   """
-  @spec is_documentation?(any()) :: boolean()
+  @spec documentation?(any()) :: boolean()
   def documentation?(%{"type" => "documentation"}), do: true
   def documentation?(_), do: false
 
   @doc """
   Determines if a format is likely a documentation format.
   Only used for the `public-transit` type, other types use
-  `is_documentation?/1` which is stricter.
+  `documentation?/1` which is stricter.
 
   iex> is_documentation_format?("PDF")
   true
@@ -591,7 +591,7 @@ defmodule Transport.ImportData do
   def siri?(%{} = params) do
     cond do
       siri_lite?(params) -> false
-      is_ods_resource?(params) or is_documentation?(params) -> false
+      is_ods_resource?(params) or documentation?(params) -> false
       is_format?(params, "siri") -> true
       siri?(params["title"]) -> true
       siri?(params["description"]) -> true
@@ -615,7 +615,7 @@ defmodule Transport.ImportData do
   @spec siri_lite?(binary() | map()) :: boolean()
   def siri_lite?(params) do
     cond do
-      is_ods_resource?(params) or is_documentation?(params) -> false
+      is_ods_resource?(params) or documentation?(params) -> false
       is_format?(params, "SIRI Lite") -> true
       true -> false
     end
@@ -701,7 +701,7 @@ defmodule Transport.ImportData do
   def netex?(%{} = params) do
     cond do
       netex?(params["format"]) -> true
-      is_ods_resource?(params) or is_documentation?(params) -> false
+      is_ods_resource?(params) or documentation?(params) -> false
       netex?(params["title"]) -> true
       netex?(params["description"]) -> true
       netex?(params["url"]) -> true

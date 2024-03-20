@@ -218,7 +218,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       r1 = insert(:resource, dataset: dataset, is_community_resource: false)
       r2 = insert(:resource, dataset: dataset, is_community_resource: false, type: "documentation")
 
-      assert DB.Resource.is_documentation?(r2)
+      assert DB.Resource.documentation?(r2)
 
       assert %{
                details: %{
