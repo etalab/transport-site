@@ -808,7 +808,7 @@ defmodule Transport.ImportData do
       gtfs?(resource) -> "GTFS"
       siri_lite?(format) -> "SIRI Lite"
       siri?(format) -> "SIRI"
-      is_geojson?(resource, format) -> "geojson"
+      geojson?(resource, format) -> "geojson"
       type == "public-transit" and not is_documentation and not is_community_resource -> "GTFS"
       type in ["bike-scooter-sharing", "car-motorbike-sharing"] and gbfs?(resource) -> "gbfs"
       true -> format
