@@ -123,7 +123,7 @@ defmodule DB.Resource do
   def gtfs?(%__MODULE__{format: "GTFS"}), do: true
   def gtfs?(_), do: false
 
-  @spec is_gbfs?(__MODULE__.t()) :: boolean
+  @spec gbfs?(__MODULE__.t()) :: boolean
   def gbfs?(%__MODULE__{format: "gbfs"}), do: true
   def gbfs?(_), do: false
 
@@ -154,7 +154,7 @@ defmodule DB.Resource do
 
   @spec is_real_time?(__MODULE__.t()) :: boolean
   def real_time?(%__MODULE__{} = resource) do
-    is_gtfs_rt?(resource) or is_gbfs?(resource) or is_siri_lite?(resource) or is_siri?(resource)
+    is_gtfs_rt?(resource) or gbfs?(resource) or is_siri_lite?(resource) or is_siri?(resource)
   end
 
   @doc """

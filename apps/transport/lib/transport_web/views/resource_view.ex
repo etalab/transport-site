@@ -164,7 +164,7 @@ defmodule TransportWeb.ResourceView do
     type =
       cond do
         DB.Resource.gtfs?(resource) -> "gtfs"
-        DB.Resource.is_gbfs?(resource) -> "gbfs"
+        DB.Resource.gbfs?(resource) -> "gbfs"
         not is_nil(resource.schema_name) -> resource.schema_name
         true -> ""
       end

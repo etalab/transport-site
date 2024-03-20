@@ -15,7 +15,7 @@ defmodule Transport.Validators.GBFSValidatorTest do
     %DB.Resource{id: resource_id} =
       resource = insert(:resource, url: url = "https://example.com/gbfs.json", format: "gbfs")
 
-    assert DB.Resource.is_gbfs?(resource)
+    assert DB.Resource.gbfs?(resource)
 
     Transport.Shared.GBFSMetadata.Mock
     |> expect(:compute_feed_metadata, fn ^url, "https://www.example.com" ->

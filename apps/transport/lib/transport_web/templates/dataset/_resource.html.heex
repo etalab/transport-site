@@ -139,7 +139,7 @@
           <% end %>
         </div>
       <% end %>
-      <%= if Resource.is_gbfs?(@resource) do %>
+      <%= if Resource.gbfs?(@resource) do %>
         <%= for version <- validation |> get_metadata_info("versions", []) do %>
           <a href={gbfs_documentation_link(version)} target="_blank">
             <span class="label version">

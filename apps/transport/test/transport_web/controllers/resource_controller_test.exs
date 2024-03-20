@@ -105,7 +105,7 @@ defmodule TransportWeb.ResourceControllerTest do
 
   test "GBFS resource with multi-validation sends back 200", %{conn: conn} do
     resource = DB.Resource |> DB.Repo.get_by(datagouv_id: "3")
-    assert DB.Resource.is_gbfs?(resource)
+    assert DB.Resource.gbfs?(resource)
 
     insert(:multi_validation, %{
       resource_history: insert(:resource_history, %{resource_id: resource.id}),
