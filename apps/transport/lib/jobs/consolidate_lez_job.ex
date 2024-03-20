@@ -91,7 +91,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
     do: Path.join(System.tmp_dir!(), filename)
 
   def type(%Resource{dataset: %Dataset{type: @lez_dataset_type}} = resource) do
-    if is_voie?(resource), do: "voies", else: "aires"
+    if voie?(resource), do: "voies", else: "aires"
   end
 
   @doc """
