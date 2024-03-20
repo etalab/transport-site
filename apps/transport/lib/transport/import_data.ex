@@ -435,16 +435,16 @@ defmodule Transport.ImportData do
   end
 
   @doc """
-  iex> is_ods_resource?(%{"format" => "json", "title" => "GTFS (json)", "harvest" => %{"uri" => "https://data.angers.fr/api/explore/v2.1/catalog/datasets/angers-loire-metropole-horaires-reseau-irigo-gtfs-rt/exports/json"}})
+  iex> ods_resource?(%{"format" => "json", "title" => "GTFS (json)", "harvest" => %{"uri" => "https://data.angers.fr/api/explore/v2.1/catalog/datasets/angers-loire-metropole-horaires-reseau-irigo-gtfs-rt/exports/json"}})
   true
-  iex> is_ods_resource?(%{"format" => "GTFS", "title" => "GTFS été"})
+  iex> ods_resource?(%{"format" => "GTFS", "title" => "GTFS été"})
   false
-  iex> is_ods_resource?(%{"format" => "csv", "title" => "Export au format CSV"})
+  iex> ods_resource?(%{"format" => "csv", "title" => "Export au format CSV"})
   true
   """
   # Will soon be legacy, after DCAT migration
   # (see https://github.com/etalab/transport-site/issues/3647)
-  def is_ods_resource?(%{"title" => title})
+  def ods_resource?(%{"title" => title})
       when title in ["Export au format CSV", "Export au format JSON"],
       do: true
 
@@ -487,7 +487,7 @@ defmodule Transport.ImportData do
   def gtfs?(%{} = params) do
     cond do
       gtfs?(params["format"]) -> true
-      is_ods_resource?(params) or documentation?(params) -> false
+      ods_resource?(params) or documentation?(params) -> false
       gtfs_rt?(params) -> false
       format?(params["url"], ["json", "csv", "shp", "pdf", "7z"]) -> false
       format?(params["format"], "NeTEx") -> false
@@ -526,7 +526,7 @@ defmodule Transport.ImportData do
   def gtfs_rt?(%{} = params) do
     cond do
       gtfs_rt?(params["format"]) -> true
-      is_ods_resource?(params) or documentation?(params) -> false
+      ods_resource?(params) or documentation?(params) -> false
       gtfs_rt?(params["description"]) -> true
       gtfs_rt?(params["title"]) -> true
       gtfs_rt?(params["url"]) -> true
@@ -591,7 +591,7 @@ defmodule Transport.ImportData do
   def siri?(%{} = params) do
     cond do
       siri_lite?(params) -> false
-      is_ods_resource?(params) or documentation?(params) -> false
+      ods_resource?(params) or documentation?(params) -> false
       format?(params, "siri") -> true
       siri?(params["title"]) -> true
       siri?(params["description"]) -> true
@@ -615,7 +615,7 @@ defmodule Transport.ImportData do
   @spec siri_lite?(binary() | map()) :: boolean()
   def siri_lite?(params) do
     cond do
-      is_ods_resource?(params) or documentation?(params) -> false
+      ods_resource?(params) or documentation?(params) -> false
       format?(params, "SIRI Lite") -> true
       true -> false
     end
@@ -701,7 +701,7 @@ defmodule Transport.ImportData do
   def netex?(%{} = params) do
     cond do
       netex?(params["format"]) -> true
-      is_ods_resource?(params) or documentation?(params) -> false
+      ods_resource?(params) or documentation?(params) -> false
       netex?(params["title"]) -> true
       netex?(params["description"]) -> true
       netex?(params["url"]) -> true
