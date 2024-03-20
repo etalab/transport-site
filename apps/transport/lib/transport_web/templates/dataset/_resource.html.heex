@@ -163,7 +163,7 @@
         </a>
         <a class="download-button" href={DB.Resource.download_url(@resource, @conn)}>
           <button class="button-outline primary small">
-            <%= if Resource.is_real_time?(@resource) do %>
+            <%= if Resource.real_time?(@resource) do %>
               <i class="icon icon--link" aria-hidden="true"></i><%= dgettext("page-dataset-details", "Browse the API") %>
             <% else %>
               <i class="icon icon--download" aria-hidden="true"></i><%= dgettext("page-dataset-details", "Download") %>

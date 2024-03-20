@@ -152,7 +152,7 @@ defmodule DB.Resource do
   def community_resource?(%__MODULE__{is_community_resource: true}), do: true
   def community_resource?(_), do: false
 
-  @spec is_real_time?(__MODULE__.t()) :: boolean
+  @spec real_time?(__MODULE__.t()) :: boolean
   def real_time?(%__MODULE__{} = resource) do
     gtfs_rt?(resource) or gbfs?(resource) or siri_lite?(resource) or siri?(resource)
   end

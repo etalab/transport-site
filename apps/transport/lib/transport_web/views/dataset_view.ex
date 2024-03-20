@@ -307,7 +307,7 @@ defmodule TransportWeb.DatasetView do
     do:
       dataset
       |> official_available_resources()
-      |> Enum.filter(&Resource.is_real_time?/1)
+      |> Enum.filter(&Resource.real_time?/1)
 
   def netex_official_resources(dataset),
     do:
@@ -327,7 +327,7 @@ defmodule TransportWeb.DatasetView do
     |> official_available_resources()
     |> Stream.reject(&Resource.gtfs?/1)
     |> Stream.reject(&Resource.netex?/1)
-    |> Stream.reject(&Resource.is_real_time?/1)
+    |> Stream.reject(&Resource.real_time?/1)
     |> Stream.reject(&Resource.documentation?/1)
     |> Stream.reject(&Resource.has_schema?/1)
     |> Enum.to_list()
@@ -487,7 +487,7 @@ defmodule TransportWeb.DatasetView do
   def validity_period(_), do: %{}
 
   def show_resource_last_update(resources_updated_at, %DB.Resource{id: id} = resource, locale) do
-    if Resource.is_real_time?(resource) do
+    if Resource.real_time?(resource) do
       dgettext("page-dataset-details", "real-time")
     else
       resources_updated_at

@@ -802,7 +802,7 @@ defmodule DB.Dataset do
     {real_time_resources, static_resources} =
       dataset
       |> official_resources()
-      |> Enum.split_with(&Resource.is_real_time?/1)
+      |> Enum.split_with(&Resource.real_time?/1)
 
     # unique period is set to nil, to force the resource history job to be executed
     static_resources
@@ -1045,7 +1045,7 @@ defmodule DB.Dataset do
   end
 
   defp has_real_time(changeset) do
-    has_realtime = changeset |> get_field(:resources) |> Enum.any?(&Resource.is_real_time?/1)
+    has_realtime = changeset |> get_field(:resources) |> Enum.any?(&Resource.real_time?/1)
     changeset |> change(has_realtime: has_realtime)
   end
 
