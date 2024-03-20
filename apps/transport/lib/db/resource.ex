@@ -131,7 +131,7 @@ defmodule DB.Resource do
   def netex?(%__MODULE__{format: "NeTEx"}), do: true
   def netex?(_), do: false
 
-  @spec is_gtfs_rt?(__MODULE__.t()) :: boolean
+  @spec gtfs_rt?(__MODULE__.t()) :: boolean
   def gtfs_rt?(%__MODULE__{format: "gtfs-rt"}), do: true
   def gtfs_rt?(%__MODULE__{format: "gtfsrt"}), do: true
   def gtfs_rt?(_), do: false
@@ -154,7 +154,7 @@ defmodule DB.Resource do
 
   @spec is_real_time?(__MODULE__.t()) :: boolean
   def real_time?(%__MODULE__{} = resource) do
-    is_gtfs_rt?(resource) or gbfs?(resource) or is_siri_lite?(resource) or is_siri?(resource)
+    gtfs_rt?(resource) or gbfs?(resource) or is_siri_lite?(resource) or is_siri?(resource)
   end
 
   @doc """

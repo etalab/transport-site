@@ -187,7 +187,7 @@ defmodule TransportWeb.ResourceControllerTest do
       {:ok, %HTTPoison.Response{status_code: 200, body: File.read!(@service_alerts_file)}}
     end)
 
-    assert DB.Resource.is_gtfs_rt?(resource)
+    assert DB.Resource.gtfs_rt?(resource)
 
     content = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
 
@@ -217,7 +217,7 @@ defmodule TransportWeb.ResourceControllerTest do
       {:ok, %HTTPoison.Response{status_code: 502, body: ""}}
     end)
 
-    assert DB.Resource.is_gtfs_rt?(resource)
+    assert DB.Resource.gtfs_rt?(resource)
     content = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
 
     assert content =~ "Impossible de décoder le flux GTFS-RT"

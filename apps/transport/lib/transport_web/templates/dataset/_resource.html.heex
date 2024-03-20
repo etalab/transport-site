@@ -131,7 +131,7 @@
 
   <div class="resource-panel-bottom">
     <div class="resource-features">
-      <%= if Resource.is_gtfs_rt?(@resource) and not Enum.empty?(Map.get(@resources_infos.gtfs_rt_entities, @resource.id, [])) do %>
+      <%= if Resource.gtfs_rt?(@resource) and not Enum.empty?(Map.get(@resources_infos.gtfs_rt_entities, @resource.id, [])) do %>
         <%= dgettext("page-dataset-details", "Features available in the resource:") %>
         <div>
           <%= for entity <- Map.fetch!(@resources_infos.gtfs_rt_entities, @resource.id) do %>

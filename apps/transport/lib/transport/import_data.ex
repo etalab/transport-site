@@ -398,7 +398,7 @@ defmodule Transport.ImportData do
   def get_valid_gtfs_rt_resources(resources) do
     resources =
       cond do
-        !Enum.empty?(l = Enum.filter(resources, &is_gtfs_rt?/1)) -> l
+        !Enum.empty?(l = Enum.filter(resources, &gtfs_rt?/1)) -> l
         !Enum.empty?(l = UrlExtractor.get_gtfs_rt_csv_resources(resources)) -> l
         true -> []
       end
@@ -488,7 +488,7 @@ defmodule Transport.ImportData do
     cond do
       gtfs?(params["format"]) -> true
       is_ods_resource?(params) or is_documentation?(params) -> false
-      is_gtfs_rt?(params) -> false
+      gtfs_rt?(params) -> false
       is_format?(params["url"], ["json", "csv", "shp", "pdf", "7z"]) -> false
       is_format?(params["format"], "NeTEx") -> false
       netex?(params["title"]) -> false
@@ -498,43 +498,43 @@ defmodule Transport.ImportData do
     end
   end
 
-  def gtfs?(str), do: is_format?(str, "gtfs") and not is_gtfs_rt?(str)
+  def gtfs?(str), do: is_format?(str, "gtfs") and not gtfs_rt?(str)
 
   @doc """
   Is it a GTFS-RT feed?
 
   ## Examples
 
-  iex> is_gtfs_rt?(%{"format" => "pb", "url" => "https://example.com/GtfsRt/GtfsRT.TCRA.pb"})
+  iex> gtfs_rt?(%{"format" => "pb", "url" => "https://example.com/GtfsRt/GtfsRT.TCRA.pb"})
   true
-  iex> is_gtfs_rt?(%{"format" => "pb", "url" => "https://example.com/feed.pb", "title" => "GTFS-RT réseau ORIZO"})
+  iex> gtfs_rt?(%{"format" => "pb", "url" => "https://example.com/feed.pb", "title" => "GTFS-RT réseau ORIZO"})
   true
-  iex> is_gtfs_rt?(%{"format" => "gtfs-rt"})
+  iex> gtfs_rt?(%{"format" => "gtfs-rt"})
   true
-  iex> Enum.all?(["GTFS RT", "gtfs rt", "GTFS-RT"], &is_gtfs_rt?/1)
+  iex> Enum.all?(["GTFS RT", "gtfs rt", "GTFS-RT"], &gtfs_rt?/1)
   true
-  iex> Enum.all?(["GTFS RTM", "gtfs théorique", "ZIP GTFS"], &(! is_gtfs_rt?(&1)))
+  iex> Enum.all?(["GTFS RTM", "gtfs théorique", "ZIP GTFS"], &(! gtfs_rt?(&1)))
   true
-  iex> is_gtfs_rt?(%{"description" => "gtfs-rt", "title" => "Export au format CSV"})
+  iex> gtfs_rt?(%{"description" => "gtfs-rt", "title" => "Export au format CSV"})
   false
-  iex> is_gtfs_rt?(%{"format" => "json", "title" => "GTFS-RT vehicle positions", "description" => "gtfs-rt", "harvest" => %{"uri" => "https://example.com/api/explore/v2.1/catalog/datasets/foo/exports/json"}})
+  iex> gtfs_rt?(%{"format" => "json", "title" => "GTFS-RT vehicle positions", "description" => "gtfs-rt", "harvest" => %{"uri" => "https://example.com/api/explore/v2.1/catalog/datasets/foo/exports/json"}})
   false
-  iex> is_gtfs_rt?(%{"format" => "gtfs-rt", "title" => "Export au format CSV"})
+  iex> gtfs_rt?(%{"format" => "gtfs-rt", "title" => "Export au format CSV"})
   true
   """
-  @spec is_gtfs_rt?(binary() | map()) :: boolean()
+  @spec gtfs_rt?(binary() | map()) :: boolean()
   def gtfs_rt?(%{} = params) do
     cond do
-      is_gtfs_rt?(params["format"]) -> true
+      gtfs_rt?(params["format"]) -> true
       is_ods_resource?(params) or is_documentation?(params) -> false
-      is_gtfs_rt?(params["description"]) -> true
-      is_gtfs_rt?(params["title"]) -> true
-      is_gtfs_rt?(params["url"]) -> true
+      gtfs_rt?(params["description"]) -> true
+      gtfs_rt?(params["title"]) -> true
+      gtfs_rt?(params["url"]) -> true
       true -> false
     end
   end
 
-  def is_gtfs_rt?(str) when is_binary(str), do: String.match?(str, ~r/\b(gtfs-rt|gtfsrt|gtfs rt)\b/i)
+  def gtfs_rt?(str) when is_binary(str), do: String.match?(str, ~r/\b(gtfs-rt|gtfsrt|gtfs rt)\b/i)
   def gtfs_rt?(_), do: false
 
   @doc """
@@ -803,7 +803,7 @@ defmodule Transport.ImportData do
     is_documentation = Map.get(resource, "type", "") == "documentation"
 
     cond do
-      is_gtfs_rt?(format) -> "gtfs-rt"
+      gtfs_rt?(format) -> "gtfs-rt"
       netex?(resource) -> "NeTEx"
       gtfs?(resource) -> "GTFS"
       is_siri_lite?(format) -> "SIRI Lite"
