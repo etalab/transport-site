@@ -27,8 +27,6 @@ defmodule Patcher do
       "trigger" => method_name
     } = issue
 
-    content = File.read!(filename)
-
     assert String.starts_with?(method_name, "is_")
     new_method_name = build_new_method_name(method_name)
 
