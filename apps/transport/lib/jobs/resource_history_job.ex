@@ -185,7 +185,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
       |> limit(1)
       |> DB.Repo.one()
 
-    case {history, is_same_resource?(history, resource_hash)} do
+    case {history, same_resource?(history, resource_hash)} do
       {nil, _} -> true
       {_history, false} -> true
       {history, true} -> {false, history}

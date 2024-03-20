@@ -106,7 +106,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
         )
 
       assert 1 == count_resource_history()
-      assert ResourceHistoryJob.is_same_resource?(resource_history, zip_metadata())
+      assert ResourceHistoryJob.same_resource?(resource_history, zip_metadata())
 
       assert {false, %{id: ^resource_history_id}} =
                ResourceHistoryJob.should_store_resource?(%DB.Resource{id: resource_id}, zip_metadata())
@@ -123,7 +123,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
         )
 
       assert 1 == count_resource_history()
-      assert ResourceHistoryJob.is_same_resource?(resource_history, content_hash)
+      assert ResourceHistoryJob.same_resource?(resource_history, content_hash)
 
       assert {false, %{id: ^resource_history_id}} =
                ResourceHistoryJob.should_store_resource?(%DB.Resource{id: resource_id}, content_hash)
@@ -202,14 +202,14 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
     end
   end
 
-  describe "is_same_resource?" do
+  describe "same_resource?" do
     test "successful" do
-      assert ResourceHistoryJob.is_same_resource?(
+      assert ResourceHistoryJob.same_resource?(
                %DB.ResourceHistory{payload: %{"zip_metadata" => zip_metadata()}},
                zip_metadata()
              )
 
-      assert ResourceHistoryJob.is_same_resource?(
+      assert ResourceHistoryJob.same_resource?(
                %DB.ResourceHistory{payload: %{"content_hash" => "content_hash"}},
                "content_hash"
              )
@@ -217,30 +217,30 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
     test "failures" do
       # For ZIPs
-      refute ResourceHistoryJob.is_same_resource?(
+      refute ResourceHistoryJob.same_resource?(
                %DB.ResourceHistory{payload: %{"zip_metadata" => zip_metadata()}},
                zip_metadata() |> Enum.map(fn m -> Map.put(m, "sha256", "foo") end)
              )
 
-      refute ResourceHistoryJob.is_same_resource?(
+      refute ResourceHistoryJob.same_resource?(
                %DB.ResourceHistory{payload: %{"zip_metadata" => zip_metadata()}},
                zip_metadata() |> Enum.take(2)
              )
 
-      refute ResourceHistoryJob.is_same_resource?(
+      refute ResourceHistoryJob.same_resource?(
                %DB.ResourceHistory{payload: %{"zip_metadata" => zip_metadata() |> Enum.take(2)}},
                zip_metadata()
              )
 
-      refute ResourceHistoryJob.is_same_resource?(%DB.ResourceHistory{payload: %{"zip_metadata" => zip_metadata()}}, [])
+      refute ResourceHistoryJob.same_resource?(%DB.ResourceHistory{payload: %{"zip_metadata" => zip_metadata()}}, [])
 
-      refute ResourceHistoryJob.is_same_resource?(
+      refute ResourceHistoryJob.same_resource?(
                %DB.ResourceHistory{payload: %{"zip_metadata" => [%{"file_name" => "folder/a.txt", "sha256" => "sha"}]}},
                [%{"file_name" => "a.txt", "sha256" => "sha"}]
              )
 
       # For regular files
-      refute ResourceHistoryJob.is_same_resource?(%DB.ResourceHistory{payload: %{"content_hash" => "foo"}}, "")
+      refute ResourceHistoryJob.same_resource?(%DB.ResourceHistory{payload: %{"content_hash" => "foo"}}, "")
     end
   end
 
