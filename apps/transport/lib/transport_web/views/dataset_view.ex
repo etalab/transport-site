@@ -313,7 +313,7 @@ defmodule TransportWeb.DatasetView do
     do:
       dataset
       |> official_available_resources()
-      |> Enum.filter(&Resource.is_netex?/1)
+      |> Enum.filter(&Resource.netex?/1)
 
   def schemas_resources(dataset) do
     dataset
@@ -326,7 +326,7 @@ defmodule TransportWeb.DatasetView do
     dataset
     |> official_available_resources()
     |> Stream.reject(&Resource.gtfs?/1)
-    |> Stream.reject(&Resource.is_netex?/1)
+    |> Stream.reject(&Resource.netex?/1)
     |> Stream.reject(&Resource.is_real_time?/1)
     |> Stream.reject(&Resource.is_documentation?/1)
     |> Stream.reject(&Resource.has_schema?/1)

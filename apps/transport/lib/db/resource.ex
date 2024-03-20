@@ -127,7 +127,7 @@ defmodule DB.Resource do
   def gbfs?(%__MODULE__{format: "gbfs"}), do: true
   def gbfs?(_), do: false
 
-  @spec is_netex?(__MODULE__.t()) :: boolean
+  @spec netex?(__MODULE__.t()) :: boolean
   def netex?(%__MODULE__{format: "NeTEx"}), do: true
   def netex?(_), do: false
 

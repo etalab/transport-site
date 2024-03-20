@@ -903,7 +903,7 @@ defmodule DB.Dataset do
   @spec target_conversion_formats(DB.Dataset.t()) :: [atom()]
   def target_conversion_formats(%__MODULE__{resources: resources} = dataset) when is_list(resources) do
     keep_netex_conversions = has_custom_tag?(dataset, "keep_netex_conversions")
-    has_netex = Enum.any?(resources, &DB.Resource.is_netex?/1)
+    has_netex = Enum.any?(resources, &DB.Resource.netex?/1)
 
     if has_netex and not keep_netex_conversions do
       Enum.reject(available_conversion_formats(), &(&1 == :NeTEx))

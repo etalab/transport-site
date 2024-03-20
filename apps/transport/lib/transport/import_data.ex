@@ -386,7 +386,7 @@ defmodule Transport.ImportData do
   def get_valid_netex_resources(resources) do
     resources =
       cond do
-        !Enum.empty?(l = Enum.filter(resources, &is_netex?/1)) -> l
+        !Enum.empty?(l = Enum.filter(resources, &netex?/1)) -> l
         !Enum.empty?(l = UrlExtractor.get_netex_csv_resources(resources)) -> l
         true -> []
       end
@@ -491,7 +491,7 @@ defmodule Transport.ImportData do
       is_gtfs_rt?(params) -> false
       is_format?(params["url"], ["json", "csv", "shp", "pdf", "7z"]) -> false
       is_format?(params["format"], "NeTEx") -> false
-      is_netex?(params["title"]) -> false
+      netex?(params["title"]) -> false
       gtfs?(params["description"]) -> true
       gtfs?(params["title"]) -> true
       true -> false
@@ -680,31 +680,31 @@ defmodule Transport.ImportData do
   Is the resource a NeTEx file?
 
   ## Examples
-  iex> is_netex?(%{"format" => "netex"})
+  iex> netex?(%{"format" => "netex"})
   true
-  iex> is_netex?(%{"description" => "Un super fichier NeTEx.", "format" => "zip"})
+  iex> netex?(%{"description" => "Un super fichier NeTEx.", "format" => "zip"})
   true
-  iex> is_netex?(%{"url" => "https://example.com/netex.zip", "format" => "zip"})
+  iex> netex?(%{"url" => "https://example.com/netex.zip", "format" => "zip"})
   true
-  iex> is_netex?(%{"url" => "https://example.com/export.zip", "format" => "zip", "title" => "Export NeTEx été"})
+  iex> netex?(%{"url" => "https://example.com/export.zip", "format" => "zip", "title" => "Export NeTEx été"})
   true
-  iex> is_netex?(%{"url" => "https://example.com/gtfs.zip", "format" => "zip"})
+  iex> netex?(%{"url" => "https://example.com/gtfs.zip", "format" => "zip"})
   false
-  iex> is_netex?(%{"url" => "https://example.com/doc-netex.pdf", "type" => "documentation"})
+  iex> netex?(%{"url" => "https://example.com/doc-netex.pdf", "type" => "documentation"})
   false
-  iex> is_netex?(%{"title" => "Export au format CSV", "format" => "netex"})
+  iex> netex?(%{"title" => "Export au format CSV", "format" => "netex"})
   true
-  iex> is_netex?(%{"title" => "Angers NeTEx (json)", "format" => "json", "harvest" => %{"uri" => "https://example.com/api/explore/v2.1/catalog/datasets/foo/exports/json"}})
+  iex> netex?(%{"title" => "Angers NeTEx (json)", "format" => "json", "harvest" => %{"uri" => "https://example.com/api/explore/v2.1/catalog/datasets/foo/exports/json"}})
   false
   """
-  @spec is_netex?(binary() | map()) :: boolean()
+  @spec netex?(binary() | map()) :: boolean()
   def netex?(%{} = params) do
     cond do
-      is_netex?(params["format"]) -> true
+      netex?(params["format"]) -> true
       is_ods_resource?(params) or is_documentation?(params) -> false
-      is_netex?(params["title"]) -> true
-      is_netex?(params["description"]) -> true
-      is_netex?(params["url"]) -> true
+      netex?(params["title"]) -> true
+      netex?(params["description"]) -> true
+      netex?(params["url"]) -> true
       true -> false
     end
   end
@@ -804,7 +804,7 @@ defmodule Transport.ImportData do
 
     cond do
       is_gtfs_rt?(format) -> "gtfs-rt"
-      is_netex?(resource) -> "NeTEx"
+      netex?(resource) -> "NeTEx"
       gtfs?(resource) -> "GTFS"
       is_siri_lite?(format) -> "SIRI Lite"
       is_siri?(format) -> "SIRI"
