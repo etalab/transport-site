@@ -31,7 +31,7 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
         gtfs_rt_feed: maybe_gtfs_rt_feed(socket, validation)
       )
 
-    unless is_final_state?(socket) do
+    unless final_state?(socket) do
       schedule_next_update_data()
     end
 
