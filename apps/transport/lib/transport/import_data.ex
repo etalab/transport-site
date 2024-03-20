@@ -412,7 +412,7 @@ defmodule Transport.ImportData do
   """
   @spec get_valid_siri_resources([map()]) :: [map()]
   def get_valid_siri_resources(resources) do
-    resources |> Enum.filter(&is_siri?/1) |> Enum.map(fn r -> %{r | "format" => "SIRI"} end)
+    resources |> Enum.filter(&siri?/1) |> Enum.map(fn r -> %{r | "format" => "SIRI"} end)
   end
 
   @spec get_valid_siri_lite_resources([map()]) :: [map()]
@@ -572,30 +572,30 @@ defmodule Transport.ImportData do
   end
 
   @doc """
-  iex> is_siri?("siri lite")
+  iex> siri?("siri lite")
   false
-  iex> is_siri?("SIRI")
+  iex> siri?("SIRI")
   true
-  iex> is_siri?(%{"format" => "SIRI"})
+  iex> siri?(%{"format" => "SIRI"})
   true
-  iex> is_siri?(%{"title" => "Export au format CSV", "format" => "SIRI"})
+  iex> siri?(%{"title" => "Export au format CSV", "format" => "SIRI"})
   false
-  iex> is_siri?(%{"title" => "Flux SIRI", "format" => "csv", "harvest" => %{"uri" => "https://example.com/api/explore/v2.1/catalog/datasets/foo/exports/json"}})
+  iex> siri?(%{"title" => "Flux SIRI", "format" => "csv", "harvest" => %{"uri" => "https://example.com/api/explore/v2.1/catalog/datasets/foo/exports/json"}})
   false
-  iex> is_siri?(%{"title" => "https://api.okina.fr/gateway/cae/realtime", "format" => "bin", "description" => "API temps réel au format SIRI"})
+  iex> siri?(%{"title" => "https://api.okina.fr/gateway/cae/realtime", "format" => "bin", "description" => "API temps réel au format SIRI"})
   true
-  iex> is_siri?(%{"type" => "documentation", "title" => "Documentation de l'API SIRI"})
+  iex> siri?(%{"type" => "documentation", "title" => "Documentation de l'API SIRI"})
   false
   """
-  @spec is_siri?(binary() | map()) :: boolean()
+  @spec siri?(binary() | map()) :: boolean()
   def siri?(%{} = params) do
     cond do
       is_siri_lite?(params) -> false
       is_ods_resource?(params) or is_documentation?(params) -> false
       is_format?(params, "siri") -> true
-      is_siri?(params["title"]) -> true
-      is_siri?(params["description"]) -> true
-      is_siri?(params["url"]) -> true
+      siri?(params["title"]) -> true
+      siri?(params["description"]) -> true
+      siri?(params["url"]) -> true
       true -> false
     end
   end
@@ -807,7 +807,7 @@ defmodule Transport.ImportData do
       netex?(resource) -> "NeTEx"
       gtfs?(resource) -> "GTFS"
       is_siri_lite?(format) -> "SIRI Lite"
-      is_siri?(format) -> "SIRI"
+      siri?(format) -> "SIRI"
       is_geojson?(resource, format) -> "geojson"
       type == "public-transit" and not is_documentation and not is_community_resource -> "GTFS"
       type in ["bike-scooter-sharing", "car-motorbike-sharing"] and gbfs?(resource) -> "gbfs"

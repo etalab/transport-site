@@ -635,7 +635,7 @@ defmodule TransportWeb.ResourceControllerTest do
         dataset: insert(:dataset, custom_tags: ["requestor_ref:#{requestor_ref_value}", "foo"])
       )
 
-    assert DB.Resource.is_siri?(resource)
+    assert DB.Resource.siri?(resource)
     assert requestor_ref_value == DB.Resource.requestor_ref(resource)
 
     html = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)

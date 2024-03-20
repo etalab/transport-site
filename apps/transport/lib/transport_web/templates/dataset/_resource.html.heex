@@ -170,7 +170,7 @@
             <% end %>
           </button>
         </a>
-        <%= if Resource.is_siri?(@resource) do %>
+        <%= if Resource.siri?(@resource) do %>
           <% siri_querier_params = [
             endpoint_url: @resource.url,
             requestor_ref: Resource.requestor_ref(@resource),
