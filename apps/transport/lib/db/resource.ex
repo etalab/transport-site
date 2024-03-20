@@ -140,7 +140,7 @@ defmodule DB.Resource do
   def siri?(%__MODULE__{format: "SIRI"}), do: true
   def siri?(_), do: false
 
-  @spec is_siri_lite?(__MODULE__.t()) :: boolean
+  @spec siri_lite?(__MODULE__.t()) :: boolean
   def siri_lite?(%__MODULE__{format: "SIRI Lite"}), do: true
   def siri_lite?(_), do: false
 
@@ -154,7 +154,7 @@ defmodule DB.Resource do
 
   @spec is_real_time?(__MODULE__.t()) :: boolean
   def real_time?(%__MODULE__{} = resource) do
-    gtfs_rt?(resource) or gbfs?(resource) or is_siri_lite?(resource) or siri?(resource)
+    gtfs_rt?(resource) or gbfs?(resource) or siri_lite?(resource) or siri?(resource)
   end
 
   @doc """

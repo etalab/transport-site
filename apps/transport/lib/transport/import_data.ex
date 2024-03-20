@@ -417,7 +417,7 @@ defmodule Transport.ImportData do
 
   @spec get_valid_siri_lite_resources([map()]) :: [map()]
   def get_valid_siri_lite_resources(resources) do
-    resources |> Enum.filter(&is_siri_lite?/1) |> Enum.map(fn r -> %{r | "format" => "SIRI Lite"} end)
+    resources |> Enum.filter(&siri_lite?/1) |> Enum.map(fn r -> %{r | "format" => "SIRI Lite"} end)
   end
 
   @spec get_community_resources(map()) :: [map()]
@@ -590,7 +590,7 @@ defmodule Transport.ImportData do
   @spec siri?(binary() | map()) :: boolean()
   def siri?(%{} = params) do
     cond do
-      is_siri_lite?(params) -> false
+      siri_lite?(params) -> false
       is_ods_resource?(params) or is_documentation?(params) -> false
       is_format?(params, "siri") -> true
       siri?(params["title"]) -> true
@@ -600,19 +600,19 @@ defmodule Transport.ImportData do
     end
   end
 
-  def siri?(format), do: not is_siri_lite?(format) and is_format?(format, "siri")
+  def siri?(format), do: not siri_lite?(format) and is_format?(format, "siri")
 
   @doc """
-  iex> is_siri_lite?("siri lite")
+  iex> siri_lite?("siri lite")
   true
-  iex> is_siri_lite?("siri-lite")
+  iex> siri_lite?("siri-lite")
   true
-  iex> is_siri_lite?("SIRI Lite")
+  iex> siri_lite?("SIRI Lite")
   true
-  iex> is_siri_lite?("SIRI")
+  iex> siri_lite?("SIRI")
   false
   """
-  @spec is_siri_lite?(binary() | map()) :: boolean()
+  @spec siri_lite?(binary() | map()) :: boolean()
   def siri_lite?(params) do
     cond do
       is_ods_resource?(params) or is_documentation?(params) -> false
@@ -806,7 +806,7 @@ defmodule Transport.ImportData do
       gtfs_rt?(format) -> "gtfs-rt"
       netex?(resource) -> "NeTEx"
       gtfs?(resource) -> "GTFS"
-      is_siri_lite?(format) -> "SIRI Lite"
+      siri_lite?(format) -> "SIRI Lite"
       siri?(format) -> "SIRI"
       is_geojson?(resource, format) -> "geojson"
       type == "public-transit" and not is_documentation and not is_community_resource -> "GTFS"
