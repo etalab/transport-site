@@ -26,26 +26,29 @@ defmodule Patcher do
       "line_no" => line_no,
       "trigger" => method_name
     } = issue
+
     content = File.read!(filename)
 
     assert String.starts_with?(method_name, "is_")
     new_method_name = build_new_method_name(method_name)
 
-    IO.puts "Replacing #{method_name} by #{new_method_name} in #{filename}"
-    content = filename
-    |> File.read!()
-    |> String.split("\n")
-    |> Enum.with_index()
-    |> Enum.map(fn({line, index}) ->
-      if index == line_no - 1 do
-        # ensure we're seeing the same thing as Credo
-        assert String.slice(line, (column-1..column_end-2)) == method_name
-        line |> String.replace(method_name, new_method_name)
-      else
-        line
-      end
-    end)
-    |> Enum.join("\n")
+    IO.puts("Replacing #{method_name} by #{new_method_name} in #{filename}:#{line_no}")
+
+    content =
+      filename
+      |> File.read!()
+      |> String.split("\n")
+      |> Enum.with_index()
+      |> Enum.map(fn {line, index} ->
+        if index == line_no - 1 do
+          # ensure we're seeing the same thing as Credo
+          assert String.slice(line, (column - 1)..(column_end - 2)) == method_name
+          line |> String.replace(method_name, new_method_name)
+        else
+          line
+        end
+      end)
+      |> Enum.join("\n")
 
     File.write!(filename, content)
   end
@@ -55,5 +58,5 @@ file
 |> File.read!()
 |> Jason.decode!()
 |> Map.get("issues")
-|> Enum.filter(fn(x) -> x["check"] == "Credo.Check.Readability.PredicateFunctionNames" end)
-|> Enum.each(fn(x) -> Patcher.patch_call(x) end)
+|> Enum.filter(fn x -> x["check"] == "Credo.Check.Readability.PredicateFunctionNames" end)
+|> Enum.each(fn x -> Patcher.patch_call(x) end)
