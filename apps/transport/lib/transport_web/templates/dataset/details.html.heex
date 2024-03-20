@@ -4,7 +4,7 @@
     <%= dgettext("page-dataset-details", "This dataset has been removed from data.gouv.fr") %>
   </div>
 <% end %>
-<%= if @dataset.is_active and DB.Dataset.is_archived?(@dataset) do %>
+<%= if @dataset.is_active and DB.Dataset.archived?(@dataset) do %>
   <div class="notification error full-width">
     <%= dgettext("page-dataset-details", "This dataset has been archived from data.gouv.fr on %{date}",
       date: DateTimeDisplay.format_datetime_to_date(@dataset.archived_at, locale)

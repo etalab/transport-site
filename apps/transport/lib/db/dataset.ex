@@ -99,7 +99,7 @@ defmodule DB.Dataset do
   def archived, do: base_query() |> where([dataset: d], not is_nil(d.archived_at))
   def inactive, do: from(d in DB.Dataset, as: :dataset, where: not d.is_active)
 
-  @spec is_archived?(__MODULE__.t()) :: boolean()
+  @spec archived?(__MODULE__.t()) :: boolean()
   def archived?(%__MODULE__{archived_at: nil}), do: false
   def archived?(%__MODULE__{archived_at: %DateTime{}}), do: true
 
