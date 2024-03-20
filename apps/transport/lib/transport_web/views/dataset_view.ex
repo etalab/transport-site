@@ -278,7 +278,7 @@ defmodule TransportWeb.DatasetView do
   def valid_panel_class(%DB.Resource{is_available: false}, _), do: "invalid-resource-panel"
 
   def valid_panel_class(%DB.Resource{} = r, is_outdated) do
-    if Resource.is_gtfs?(r) && is_outdated do
+    if Resource.gtfs?(r) && is_outdated do
       "invalid-resource-panel"
     else
       ""
@@ -295,7 +295,7 @@ defmodule TransportWeb.DatasetView do
     do:
       dataset
       |> official_available_resources()
-      |> Enum.filter(&Resource.is_gtfs?/1)
+      |> Enum.filter(&Resource.gtfs?/1)
 
   def unavailable_resources(dataset),
     do:
@@ -325,7 +325,7 @@ defmodule TransportWeb.DatasetView do
   def other_official_resources(dataset) do
     dataset
     |> official_available_resources()
-    |> Stream.reject(&Resource.is_gtfs?/1)
+    |> Stream.reject(&Resource.gtfs?/1)
     |> Stream.reject(&Resource.is_netex?/1)
     |> Stream.reject(&Resource.is_real_time?/1)
     |> Stream.reject(&Resource.is_documentation?/1)

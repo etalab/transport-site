@@ -119,7 +119,7 @@ defmodule DB.Resource do
     |> no_schema_name_for_public_transport()
   end
 
-  @spec is_gtfs?(__MODULE__.t()) :: boolean()
+  @spec gtfs?(__MODULE__.t()) :: boolean()
   def gtfs?(%__MODULE__{format: "GTFS"}), do: true
   def gtfs?(_), do: false
 

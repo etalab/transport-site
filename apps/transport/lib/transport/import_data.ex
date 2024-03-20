@@ -375,7 +375,7 @@ defmodule Transport.ImportData do
   @spec get_valid_gtfs_resources([map()]) :: [map()]
   def get_valid_gtfs_resources(resources) do
     cond do
-      !Enum.empty?(l = Enum.filter(resources, &is_gtfs?/1)) -> l
+      !Enum.empty?(l = Enum.filter(resources, &gtfs?/1)) -> l
       !Enum.empty?(l = Enum.filter(resources, &is_zip?/1)) -> l
       !Enum.empty?(l = UrlExtractor.get_gtfs_csv_resources(resources)) -> l
       true -> []
@@ -461,39 +461,39 @@ defmodule Transport.ImportData do
 
   ## Examples
 
-  iex> is_gtfs?("NeTEx")
+  iex> gtfs?("NeTEx")
   false
-  iex> is_gtfs?("sncf.tgv.GtFs.zip.tar.gz.7z")
+  iex> gtfs?("sncf.tgv.GtFs.zip.tar.gz.7z")
   true
-  iex> is_gtfs?(%{"format" => "gtfs-rt"})
+  iex> gtfs?(%{"format" => "gtfs-rt"})
   false
-  iex> is_gtfs?(%{"format" => "pb", "url" => "https://example.com/GtfsRt/GtfsRT.TCRA.pb"})
+  iex> gtfs?(%{"format" => "pb", "url" => "https://example.com/GtfsRt/GtfsRT.TCRA.pb"})
   false
-  iex> is_gtfs?(%{"format" => "gtfs", "description" => "Lien vers le fichier GTFS utilisé avec le GTFS-RT."})
+  iex> gtfs?(%{"format" => "gtfs", "description" => "Lien vers le fichier GTFS utilisé avec le GTFS-RT."})
   true
-  iex> is_gtfs?(%{"format" => "zip", "title" => "GTFS RTM", "url" => "https://example.com/api/Export/v1/GetExportedDataFile?ExportFormat=Gtfs&OperatorCode=RTM"})
+  iex> gtfs?(%{"format" => "zip", "title" => "GTFS RTM", "url" => "https://example.com/api/Export/v1/GetExportedDataFile?ExportFormat=Gtfs&OperatorCode=RTM"})
   true
-  iex> is_gtfs?(%{"description" => "gtfs", "title" => "Export au format CSV"})
+  iex> gtfs?(%{"description" => "gtfs", "title" => "Export au format CSV"})
   false
-  iex> is_gtfs?(%{"title" => "Angers GTFS (json)", "format" => "json", "harvest" => %{"uri" => "https://example.com/api/explore/v2.1/catalog/datasets/foo/exports/json"}})
+  iex> gtfs?(%{"title" => "Angers GTFS (json)", "format" => "json", "harvest" => %{"uri" => "https://example.com/api/explore/v2.1/catalog/datasets/foo/exports/json"}})
   false
-  iex> is_gtfs?(%{"format" => "gtfs", "title" => "Export au format CSV"})
+  iex> gtfs?(%{"format" => "gtfs", "title" => "Export au format CSV"})
   true
-  iex> is_gtfs?(%{"url" => "https://example.com/documentation-gtfs.pdf", "type" => "documentation"})
+  iex> gtfs?(%{"url" => "https://example.com/documentation-gtfs.pdf", "type" => "documentation"})
   false
   """
-  @spec is_gtfs?(map()) :: boolean()
+  @spec gtfs?(map()) :: boolean()
   # credo:disable-for-next-line
-  def is_gtfs?(%{} = params) do
+  def gtfs?(%{} = params) do
     cond do
-      is_gtfs?(params["format"]) -> true
+      gtfs?(params["format"]) -> true
       is_ods_resource?(params) or is_documentation?(params) -> false
       is_gtfs_rt?(params) -> false
       is_format?(params["url"], ["json", "csv", "shp", "pdf", "7z"]) -> false
       is_format?(params["format"], "NeTEx") -> false
       is_netex?(params["title"]) -> false
-      is_gtfs?(params["description"]) -> true
-      is_gtfs?(params["title"]) -> true
+      gtfs?(params["description"]) -> true
+      gtfs?(params["title"]) -> true
       true -> false
     end
   end
@@ -805,7 +805,7 @@ defmodule Transport.ImportData do
     cond do
       is_gtfs_rt?(format) -> "gtfs-rt"
       is_netex?(resource) -> "NeTEx"
-      is_gtfs?(resource) -> "GTFS"
+      gtfs?(resource) -> "GTFS"
       is_siri_lite?(format) -> "SIRI Lite"
       is_siri?(format) -> "SIRI"
       is_geojson?(resource, format) -> "geojson"

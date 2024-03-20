@@ -163,7 +163,7 @@ defmodule TransportWeb.ResourceView do
   def on_demand_validation_link(conn, %DB.Resource{} = resource) do
     type =
       cond do
-        DB.Resource.is_gtfs?(resource) -> "gtfs"
+        DB.Resource.gtfs?(resource) -> "gtfs"
         DB.Resource.is_gbfs?(resource) -> "gbfs"
         not is_nil(resource.schema_name) -> resource.schema_name
         true -> ""
@@ -308,7 +308,7 @@ defmodule TransportWeb.ResourceView do
         %DB.Resource{format: "gtfs-rt", dataset: %DB.Dataset{resources: resources}},
         nil = _multi_validation
       ) do
-    gtfs_resources = resources |> Enum.filter(&DB.Resource.is_gtfs?/1)
+    gtfs_resources = resources |> Enum.filter(&DB.Resource.gtfs?/1)
 
     if Enum.count(gtfs_resources) == 1 do
       hd(gtfs_resources)
