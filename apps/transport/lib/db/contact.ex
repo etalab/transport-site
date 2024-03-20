@@ -78,7 +78,7 @@ defmodule DB.Contact do
   def display_name(%__MODULE__{first_name: first_name, last_name: last_name, mailing_list_title: title} = object) do
     cond do
       human?(object) -> "#{first_name} #{last_name}"
-      is_mailing_list?(object) -> title
+      mailing_list?(object) -> title
     end
   end
 
@@ -91,9 +91,9 @@ defmodule DB.Contact do
   def human?(%__MODULE__{mailing_list_title: title}), do: is_nil(title)
 
   @doc """
-  iex> is_mailing_list?(%DB.Contact{first_name: "John", last_name: "Doe", mailing_list_title: nil})
+  iex> mailing_list?(%DB.Contact{first_name: "John", last_name: "Doe", mailing_list_title: nil})
   false
-  iex> is_mailing_list?(%DB.Contact{first_name: nil, last_name: nil, mailing_list_title: "Service SIG"})
+  iex> mailing_list?(%DB.Contact{first_name: nil, last_name: nil, mailing_list_title: "Service SIG"})
   true
   """
   def mailing_list?(%__MODULE__{} = object), do: !human?(object)
