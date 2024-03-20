@@ -270,7 +270,7 @@
           text: Dataset.type_to_str(@dataset.type),
           icon: icon_type_path(@dataset)
         ) %>
-        <%= if is_real_time_public_transit?(@dataset) do %>
+        <%= if real_time_public_transit?(@dataset) do %>
           <%= render("_dataset_type.html",
             conn: @conn,
             link: dataset_path(@conn, :index, type: "public-transit", filter: "has_realtime"),
