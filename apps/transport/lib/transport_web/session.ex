@@ -17,7 +17,7 @@ defmodule TransportWeb.Session do
   """
   @spec set_is_producer(Plug.Conn.t(), map() | [DB.Dataset.t()]) :: Plug.Conn.t()
   def set_is_producer(%Plug.Conn{} = conn, %{"organizations" => _} = params) do
-    set_session_attribute_attribute(conn, @is_producer_key_name, is_producer?(params))
+    set_session_attribute_attribute(conn, @is_producer_key_name, producer?(params))
   end
 
   def set_is_producer(%Plug.Conn{} = conn, datasets_for_user) when is_list(datasets_for_user) do

@@ -10,11 +10,11 @@ defmodule TransportWeb.SessionTest do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
-  test "is_producer?" do
-    refute is_producer?(%{"organizations" => [pan_org()]})
+  test "producer?" do
+    refute producer?(%{"organizations" => [pan_org()]})
     insert(:dataset, organization_id: @pan_org_id)
     # You're a producer if you're a member of an org with an active dataset
-    assert is_producer?(%{"organizations" => [pan_org()]})
+    assert producer?(%{"organizations" => [pan_org()]})
   end
 
   test "admin?" do
@@ -30,9 +30,9 @@ defmodule TransportWeb.SessionTest do
       assert admin?(%Phoenix.LiveView.Socket{assigns: %{current_user: %{"is_admin" => true}}})
     end
 
-    test "is_producer?" do
-      assert is_producer?(Plug.Test.init_test_session(%Plug.Conn{}, %{current_user: %{"is_producer" => true}}))
-      refute is_producer?(Plug.Test.init_test_session(%Plug.Conn{}, %{}))
+    test "producer?" do
+      assert producer?(Plug.Test.init_test_session(%Plug.Conn{}, %{current_user: %{"is_producer" => true}}))
+      refute producer?(Plug.Test.init_test_session(%Plug.Conn{}, %{}))
     end
   end
 

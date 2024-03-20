@@ -84,7 +84,7 @@
                   <%= if TransportWeb.Session.admin?(@conn) do %>
                     <%= link("Administration", to: "/backoffice") %>
                   <% end %>
-                  <%= if TransportWeb.Session.is_producer?(@conn) do %>
+                  <%= if TransportWeb.Session.producer?(@conn) do %>
                     <%= link(gettext("Producer space"),
                       to: page_path(@conn, :espace_producteur, utm_source: "menu_dropdown")
                     ) %>
