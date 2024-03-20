@@ -17,17 +17,17 @@ defmodule TransportWeb.SessionTest do
     assert is_producer?(%{"organizations" => [pan_org()]})
   end
 
-  test "is_admin?" do
-    refute is_admin?(%{"organizations" => []})
-    refute is_admin?(%{"organizations" => [%{"slug" => "foo"}]})
-    assert is_admin?(%{"organizations" => [pan_org()]})
+  test "admin?" do
+    refute admin?(%{"organizations" => []})
+    refute admin?(%{"organizations" => [%{"slug" => "foo"}]})
+    assert admin?(%{"organizations" => [pan_org()]})
   end
 
   describe "reader" do
-    test "is_admin?" do
-      refute is_admin?(Plug.Test.init_test_session(%Plug.Conn{}, %{}))
-      assert is_admin?(Plug.Test.init_test_session(%Plug.Conn{}, %{current_user: %{"is_admin" => true}}))
-      assert is_admin?(%Phoenix.LiveView.Socket{assigns: %{current_user: %{"is_admin" => true}}})
+    test "admin?" do
+      refute admin?(Plug.Test.init_test_session(%Plug.Conn{}, %{}))
+      assert admin?(Plug.Test.init_test_session(%Plug.Conn{}, %{current_user: %{"is_admin" => true}}))
+      assert admin?(%Phoenix.LiveView.Socket{assigns: %{current_user: %{"is_admin" => true}}})
     end
 
     test "is_producer?" do

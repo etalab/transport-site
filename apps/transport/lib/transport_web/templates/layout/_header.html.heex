@@ -81,7 +81,7 @@
                   <% end %>
                 </div>
                 <div class="dropdown-content">
-                  <%= if TransportWeb.Session.is_admin?(@conn) do %>
+                  <%= if TransportWeb.Session.admin?(@conn) do %>
                     <%= link("Administration", to: "/backoffice") %>
                   <% end %>
                   <%= if TransportWeb.Session.is_producer?(@conn) do %>

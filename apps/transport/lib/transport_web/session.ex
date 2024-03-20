@@ -30,7 +30,7 @@ defmodule TransportWeb.Session do
   You're an admin if you're a member of the PAN organization on data.gouv.fr.
   """
   def set_is_admin(%Plug.Conn{} = conn, %{"organizations" => _} = params) do
-    set_session_attribute_attribute(conn, @is_admin_key_name, is_admin?(params))
+    set_session_attribute_attribute(conn, @is_admin_key_name, admin?(params))
   end
 
   def admin?(%{"organizations" => orgs}) do
