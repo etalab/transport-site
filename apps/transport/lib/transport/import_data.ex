@@ -489,8 +489,8 @@ defmodule Transport.ImportData do
       gtfs?(params["format"]) -> true
       is_ods_resource?(params) or documentation?(params) -> false
       gtfs_rt?(params) -> false
-      is_format?(params["url"], ["json", "csv", "shp", "pdf", "7z"]) -> false
-      is_format?(params["format"], "NeTEx") -> false
+      format?(params["url"], ["json", "csv", "shp", "pdf", "7z"]) -> false
+      format?(params["format"], "NeTEx") -> false
       netex?(params["title"]) -> false
       gtfs?(params["description"]) -> true
       gtfs?(params["title"]) -> true
@@ -498,7 +498,7 @@ defmodule Transport.ImportData do
     end
   end
 
-  def gtfs?(str), do: is_format?(str, "gtfs") and not gtfs_rt?(str)
+  def gtfs?(str), do: format?(str, "gtfs") and not gtfs_rt?(str)
 
   @doc """
   Is it a GTFS-RT feed?
@@ -568,7 +568,7 @@ defmodule Transport.ImportData do
   def documentation_format?(%{"format" => format}), do: documentation_format?(format)
 
   def documentation_format?(format) do
-    is_format?(format, ["pdf", "svg", "html"])
+    format?(format, ["pdf", "svg", "html"])
   end
 
   @doc """
@@ -592,7 +592,7 @@ defmodule Transport.ImportData do
     cond do
       siri_lite?(params) -> false
       is_ods_resource?(params) or documentation?(params) -> false
-      is_format?(params, "siri") -> true
+      format?(params, "siri") -> true
       siri?(params["title"]) -> true
       siri?(params["description"]) -> true
       siri?(params["url"]) -> true
@@ -600,7 +600,7 @@ defmodule Transport.ImportData do
     end
   end
 
-  def siri?(format), do: not siri_lite?(format) and is_format?(format, "siri")
+  def siri?(format), do: not siri_lite?(format) and format?(format, "siri")
 
   @doc """
   iex> siri_lite?("siri lite")
@@ -616,23 +616,23 @@ defmodule Transport.ImportData do
   def siri_lite?(params) do
     cond do
       is_ods_resource?(params) or documentation?(params) -> false
-      is_format?(params, "SIRI Lite") -> true
+      format?(params, "SIRI Lite") -> true
       true -> false
     end
   end
 
   @doc """
   check the format
-      iex> is_format?("NeTEx", ["GTFS", "NeTEx"])
+      iex> format?("NeTEx", ["GTFS", "NeTEx"])
       true
 
-      iex> is_format?("pouet", ["GTFS", "NeTEx"])
+      iex> format?("pouet", ["GTFS", "NeTEx"])
       false
 
-      iex> is_format?(%{"format" => "NeTEx"}, "NeTEx")
+      iex> format?(%{"format" => "NeTEx"}, "NeTEx")
       true
   """
-  @spec is_format?(binary() | map(), binary() | [binary()]) :: boolean
+  @spec format?(binary() | map(), binary() | [binary()]) :: boolean
   def format?(nil, _), do: false
   def format?(%{"format" => format}, expected), do: format?(format, expected)
   def format?(value, [head | tail]), do: format?(value, head) || format?(value, tail)
@@ -674,7 +674,7 @@ defmodule Transport.ImportData do
   def zip?(%{"mime" => nil, "format" => format}), do: zip?(format)
   def zip?(%{"mime" => mime, "format" => nil}), do: zip?(mime)
   def zip?(%{"mime" => mime, "format" => format}), do: zip?(mime) || zip?(format)
-  def zip?(str), do: is_format?(str, "zip")
+  def zip?(str), do: format?(str, "zip")
 
   @doc """
   Is the resource a NeTEx file?
@@ -709,7 +709,7 @@ defmodule Transport.ImportData do
     end
   end
 
-  def netex?(s), do: is_format?(s, "NeTEx")
+  def netex?(s), do: format?(s, "NeTEx")
 
   @doc """
   Check for download uri, returns ["no_download_url"] if there's no download_url
@@ -815,8 +815,8 @@ defmodule Transport.ImportData do
     end
   end
 
-  defp geojson?(%{"url" => url}, format), do: is_format?(format, "geojson") or String.ends_with?(url, "geojson")
-  defp geojson?(_, format), do: is_format?(format, "geojson")
+  defp geojson?(%{"url" => url}, format), do: format?(format, "geojson") or String.ends_with?(url, "geojson")
+  defp geojson?(_, format), do: format?(format, "geojson")
 
   defp gbfs?(%{"url" => url}) do
     if String.contains?(url, "gbfs") do
