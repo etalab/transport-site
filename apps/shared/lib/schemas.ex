@@ -14,8 +14,8 @@ defmodule Transport.Shared.Schemas.Wrapper do
 
   def schema_type(schema_name) do
     cond do
-      is_tableschema?(schema_name) -> "tableschema"
-      is_jsonschema?(schema_name) -> "jsonschema"
+      tableschema?(schema_name) -> "tableschema"
+      jsonschema?(schema_name) -> "jsonschema"
     end
   end
 
