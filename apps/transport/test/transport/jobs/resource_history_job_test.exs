@@ -398,7 +398,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
           is_community_resource: true
         )
 
-      assert DB.Resource.is_community_resource?(resource)
+      assert DB.Resource.community_resource?(resource)
 
       assert {:cancel, "Resource should not be historicised"} ==
                perform_job(ResourceHistoryJob, %{resource_id: resource.id})

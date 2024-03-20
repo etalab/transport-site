@@ -148,7 +148,7 @@ defmodule DB.Resource do
   def documentation?(%__MODULE__{type: "documentation"}), do: true
   def documentation?(_), do: false
 
-  @spec is_community_resource?(__MODULE__.t()) :: boolean
+  @spec community_resource?(__MODULE__.t()) :: boolean
   def community_resource?(%__MODULE__{is_community_resource: true}), do: true
   def community_resource?(_), do: false
 

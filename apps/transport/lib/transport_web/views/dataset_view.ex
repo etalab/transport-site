@@ -398,7 +398,7 @@ defmodule TransportWeb.DatasetView do
       when type == "carpooling-areas" or type == "private-parking" or type == "charging-stations" do
     resources
     |> Enum.filter(fn r -> r.format == "csv" end)
-    |> Enum.reject(fn r -> Resource.is_community_resource?(r) or Resource.documentation?(r) end)
+    |> Enum.reject(fn r -> Resource.community_resource?(r) or Resource.documentation?(r) end)
     |> Enum.max_by(& &1.last_update, DateTime, fn -> nil end)
   end
 
@@ -408,7 +408,7 @@ defmodule TransportWeb.DatasetView do
     |> Enum.filter(fn r -> r.format == "gbfs" or String.ends_with?(r.url, "gbfs.json") end)
     |> Enum.reject(fn r ->
       String.contains?(r.url, "station_status") or String.contains?(r.url, "station_information") or
-        Resource.is_community_resource?(r) or Resource.documentation?(r)
+        Resource.community_resource?(r) or Resource.documentation?(r)
     end)
     |> Enum.max_by(& &1.last_update, DateTime, fn -> nil end)
   end
@@ -421,7 +421,7 @@ defmodule TransportWeb.DatasetView do
     end)
     # Display zones and not special roads
     |> Enum.reject(fn r ->
-      String.contains?(r.url, "voie") or Resource.is_community_resource?(r) or Resource.documentation?(r)
+      String.contains?(r.url, "voie") or Resource.community_resource?(r) or Resource.documentation?(r)
     end)
     |> Enum.max_by(& &1.last_update, DateTime, fn -> nil end)
   end
