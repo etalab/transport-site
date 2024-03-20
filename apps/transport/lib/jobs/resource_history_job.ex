@@ -133,7 +133,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
         }
 
         data =
-          case is_zip?(resource) do
+          case zip?(resource) do
             true ->
               total_compressed_size = hash |> Enum.map(& &1.compressed_size) |> Enum.sum()
 
@@ -212,7 +212,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   end
 
   defp resource_hash(%Resource{} = resource, resource_path) do
-    case is_zip?(resource) do
+    case zip?(resource) do
       true ->
         try do
           Transport.ZipMetaDataExtractor.extract!(resource_path)
@@ -315,7 +315,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     ".csv.zip"
   """
   def file_extension(%Resource{format: format} = resource) do
-    case is_zip?(resource) do
+    case zip?(resource) do
       true ->
         ".zip"
 

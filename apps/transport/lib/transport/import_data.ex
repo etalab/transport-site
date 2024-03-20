@@ -376,7 +376,7 @@ defmodule Transport.ImportData do
   def get_valid_gtfs_resources(resources) do
     cond do
       !Enum.empty?(l = Enum.filter(resources, &gtfs?/1)) -> l
-      !Enum.empty?(l = Enum.filter(resources, &is_zip?/1)) -> l
+      !Enum.empty?(l = Enum.filter(resources, &zip?/1)) -> l
       !Enum.empty?(l = UrlExtractor.get_gtfs_csv_resources(resources)) -> l
       true -> []
     end
@@ -658,19 +658,19 @@ defmodule Transport.ImportData do
   Is the ressource a zip file?
 
   ## Examples
-      iex> is_zip?(%{"mime" => "application/zip", "format" => nil})
+      iex> zip?(%{"mime" => "application/zip", "format" => nil})
       true
 
-      iex> is_zip?(%{"mime" => nil, "format" => "zip"})
+      iex> zip?(%{"mime" => nil, "format" => "zip"})
       true
 
-      iex> is_zip?(%{"mime" => nil, "format" => "ZIP"})
+      iex> zip?(%{"mime" => nil, "format" => "ZIP"})
       true
 
-      iex> is_zip?(%{"mime" => "application/exe", "format" => nil})
+      iex> zip?(%{"mime" => "application/exe", "format" => nil})
       false
   """
-  @spec is_zip?(binary() | map()) :: boolean()
+  @spec zip?(binary() | map()) :: boolean()
   def zip?(%{"mime" => nil, "format" => format}), do: zip?(format)
   def zip?(%{"mime" => mime, "format" => nil}), do: zip?(mime)
   def zip?(%{"mime" => mime, "format" => format}), do: zip?(mime) || zip?(format)
