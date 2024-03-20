@@ -88,7 +88,7 @@ defmodule DB.Contact do
   iex> is_human?(%DB.Contact{first_name: nil, last_name: nil, mailing_list_title: "Service SIG"})
   false
   """
-  def is_human?(%__MODULE__{mailing_list_title: title}), do: is_nil(title)
+  def human?(%__MODULE__{mailing_list_title: title}), do: is_nil(title)
 
   @doc """
   iex> is_mailing_list?(%DB.Contact{first_name: "John", last_name: "Doe", mailing_list_title: nil})
@@ -96,7 +96,7 @@ defmodule DB.Contact do
   iex> is_mailing_list?(%DB.Contact{first_name: nil, last_name: nil, mailing_list_title: "Service SIG"})
   true
   """
-  def is_mailing_list?(%__MODULE__{} = object), do: !is_human?(object)
+  def mailing_list?(%__MODULE__{} = object), do: !is_human?(object)
 
   def changeset(struct, attrs \\ %{}) do
     struct

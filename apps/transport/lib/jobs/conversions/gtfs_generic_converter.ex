@@ -60,9 +60,9 @@ defmodule Transport.Jobs.GTFSGenericConverter do
 
   defp fatal_error_key(format) when format in @allowed_formats, do: "conversion_#{format}_fatal_error"
 
-  defp is_resource_gtfs?(%{payload: %{"format" => "GTFS"}}), do: true
+  defp resource_gtfs?(%{payload: %{"format" => "GTFS"}}), do: true
 
-  defp is_resource_gtfs?(_), do: false
+  defp resource_gtfs?(_), do: false
 
   @spec conversion_exists?(DB.ResourceHistory.t() | nil, binary()) :: boolean
   @doc """

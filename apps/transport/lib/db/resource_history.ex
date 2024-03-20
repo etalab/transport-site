@@ -76,10 +76,10 @@ defmodule DB.ResourceHistory do
   false
   """
   @spec is_gtfs_flex?(DB.ResourceHistory.t()) :: boolean()
-  def is_gtfs_flex?(%__MODULE__{payload: %{"format" => "GTFS", "filenames" => filenames}}) do
+  def gtfs_flex?(%__MODULE__{payload: %{"format" => "GTFS", "filenames" => filenames}}) do
     # See https://gtfs.org/extensions/flex/ and search for "Add new file"
     Enum.any?(filenames, &(&1 in ["booking_rules.txt", "locations.geojson"]))
   end
 
-  def is_gtfs_flex?(%__MODULE__{}), do: false
+  def gtfs_flex?(%__MODULE__{}), do: false
 end

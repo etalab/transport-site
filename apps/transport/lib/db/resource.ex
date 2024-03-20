@@ -120,40 +120,40 @@ defmodule DB.Resource do
   end
 
   @spec is_gtfs?(__MODULE__.t()) :: boolean()
-  def is_gtfs?(%__MODULE__{format: "GTFS"}), do: true
-  def is_gtfs?(_), do: false
+  def gtfs?(%__MODULE__{format: "GTFS"}), do: true
+  def gtfs?(_), do: false
 
   @spec is_gbfs?(__MODULE__.t()) :: boolean
-  def is_gbfs?(%__MODULE__{format: "gbfs"}), do: true
-  def is_gbfs?(_), do: false
+  def gbfs?(%__MODULE__{format: "gbfs"}), do: true
+  def gbfs?(_), do: false
 
   @spec is_netex?(__MODULE__.t()) :: boolean
-  def is_netex?(%__MODULE__{format: "NeTEx"}), do: true
-  def is_netex?(_), do: false
+  def netex?(%__MODULE__{format: "NeTEx"}), do: true
+  def netex?(_), do: false
 
   @spec is_gtfs_rt?(__MODULE__.t()) :: boolean
-  def is_gtfs_rt?(%__MODULE__{format: "gtfs-rt"}), do: true
-  def is_gtfs_rt?(%__MODULE__{format: "gtfsrt"}), do: true
-  def is_gtfs_rt?(_), do: false
+  def gtfs_rt?(%__MODULE__{format: "gtfs-rt"}), do: true
+  def gtfs_rt?(%__MODULE__{format: "gtfsrt"}), do: true
+  def gtfs_rt?(_), do: false
 
   @spec is_siri?(__MODULE__.t()) :: boolean
-  def is_siri?(%__MODULE__{format: "SIRI"}), do: true
-  def is_siri?(_), do: false
+  def siri?(%__MODULE__{format: "SIRI"}), do: true
+  def siri?(_), do: false
 
   @spec is_siri_lite?(__MODULE__.t()) :: boolean
-  def is_siri_lite?(%__MODULE__{format: "SIRI Lite"}), do: true
-  def is_siri_lite?(_), do: false
+  def siri_lite?(%__MODULE__{format: "SIRI Lite"}), do: true
+  def siri_lite?(_), do: false
 
   @spec is_documentation?(__MODULE__.t()) :: boolean
-  def is_documentation?(%__MODULE__{type: "documentation"}), do: true
-  def is_documentation?(_), do: false
+  def documentation?(%__MODULE__{type: "documentation"}), do: true
+  def documentation?(_), do: false
 
   @spec is_community_resource?(__MODULE__.t()) :: boolean
-  def is_community_resource?(%__MODULE__{is_community_resource: true}), do: true
-  def is_community_resource?(_), do: false
+  def community_resource?(%__MODULE__{is_community_resource: true}), do: true
+  def community_resource?(_), do: false
 
   @spec is_real_time?(__MODULE__.t()) :: boolean
-  def is_real_time?(%__MODULE__{} = resource) do
+  def real_time?(%__MODULE__{} = resource) do
     is_gtfs_rt?(resource) or is_gbfs?(resource) or is_siri_lite?(resource) or is_siri?(resource)
   end
 
@@ -316,7 +316,7 @@ defmodule DB.Resource do
     end
   end
 
-  defp is_link_to_folder?(%URI{path: path}) do
+  defp link_to_folder?(%URI{path: path}) do
     path |> Path.basename() |> :filename.extension() == ""
   end
 

@@ -168,7 +168,7 @@ defmodule Datagouvfr.Client.Datasets do
     |> is_user_in_followers?(user_id, conn)
   end
 
-  defp is_user_in_followers?(_, _, _), do: false
+  defp user_in_followers?(_, _, _), do: false
 
   @spec accumulator_atomizer({any(), any()}, map()) :: map()
   def accumulator_atomizer({key, value}, m) do

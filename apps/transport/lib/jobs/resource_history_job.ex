@@ -197,15 +197,15 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   the latest resource_history's row in the database by comparing sha256
   hashes for all files in the ZIP.
   """
-  def is_same_resource?(%ResourceHistory{payload: %{"zip_metadata" => rh_zip_metadata}}, zip_metadata) do
+  def same_resource?(%ResourceHistory{payload: %{"zip_metadata" => rh_zip_metadata}}, zip_metadata) do
     MapSet.equal?(set_of_sha256(rh_zip_metadata), set_of_sha256(zip_metadata))
   end
 
-  def is_same_resource?(%ResourceHistory{payload: %{"content_hash" => rh_content_hash}}, content_hash) do
+  def same_resource?(%ResourceHistory{payload: %{"content_hash" => rh_content_hash}}, content_hash) do
     rh_content_hash == content_hash
   end
 
-  def is_same_resource?(nil, _), do: false
+  def same_resource?(nil, _), do: false
 
   def set_of_sha256(items) do
     items |> Enum.map(&{map_get(&1, :file_name), map_get(&1, :sha256)}) |> MapSet.new()
@@ -231,7 +231,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     Map.get(map, key) || Map.get(map, to_string(key))
   end
 
-  defp is_zip?(%Resource{format: format}), do: format in ["NeTEx", "GTFS"]
+  defp zip?(%Resource{format: format}), do: format in ["NeTEx", "GTFS"]
 
   defp store_resource_history!(%Resource{datagouv_id: datagouv_id, id: resource_id}, payload) do
     Logger.debug("Saving ResourceHistory for resource##{resource_id}")

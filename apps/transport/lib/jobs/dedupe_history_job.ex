@@ -55,11 +55,11 @@ defmodule Transport.Jobs.DedupeHistoryJob do
     :ok
   end
 
-  def is_same?(%ResourceHistory{payload: %{"content_hash" => a}}, %ResourceHistory{payload: %{"content_hash" => b}}) do
+  def same?(%ResourceHistory{payload: %{"content_hash" => a}}, %ResourceHistory{payload: %{"content_hash" => b}}) do
     a == b
   end
 
-  def is_same?(
+  def same?(
         %ResourceHistory{payload: %{"zip_metadata" => _}} = r1,
         %ResourceHistory{payload: %{"zip_metadata" => _}} = r2
       ) do

@@ -108,7 +108,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
   The current logic looks for the keyword `voie` in the URL/filename.
   We could also inspect the GeoJSON payload and look for `MultiLineString`|`MultiLine`
   """
-  def is_voie?(%Resource{url: url, dataset: %Dataset{type: @lez_dataset_type}}) do
+  def voie?(%Resource{url: url, dataset: %Dataset{type: @lez_dataset_type}}) do
     url |> String.downcase() |> String.contains?("voie")
   end
 

@@ -50,7 +50,7 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
     Process.send_after(self(), :update_data, 1_000)
   end
 
-  defp is_final_state?(socket) do
+  defp final_state?(socket) do
     case socket_value(socket, :validation) do
       %DB.MultiValidation{oban_args: oban_args} -> oban_args["state"] in ["error", "completed"]
       _ -> false

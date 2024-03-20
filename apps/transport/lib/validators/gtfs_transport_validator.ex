@@ -161,8 +161,8 @@ defmodule Transport.Validators.GTFSTransport do
   end
 
   @spec is_mine?(any) :: boolean()
-  def is_mine?(%{validator: validator}), do: validator == validator_name()
-  def is_mine?(_), do: false
+  def mine?(%{validator: validator}), do: validator == validator_name()
+  def mine?(_), do: false
 
   @doc """
   Returns the maximum issue severity found
@@ -245,7 +245,7 @@ defmodule Transport.Validators.GTFSTransport do
   iex> is_gtfs_outdated(validation)
   true
   """
-  def is_gtfs_outdated(%DB.MultiValidation{validator: @validator_name} = multi_validation) do
+  def gtfs_outdated?(%DB.MultiValidation{validator: @validator_name} = multi_validation) do
     multi_validation
     |> DB.MultiValidation.get_metadata_info("end_date")
     |> case do
@@ -257,7 +257,7 @@ defmodule Transport.Validators.GTFSTransport do
     end
   end
 
-  def is_gtfs_outdated(_), do: nil
+  def gtfs_outdated?(_), do: nil
 
   @spec find_tags(map()) :: [binary()]
   def find_tags(metadata) do

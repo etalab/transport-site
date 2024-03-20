@@ -448,13 +448,13 @@ defmodule Transport.ImportData do
       when title in ["Export au format CSV", "Export au format JSON"],
       do: true
 
-  def is_ods_resource?(%{"harvest" => %{"uri" => uri}}) do
+  def ods_resource?(%{"harvest" => %{"uri" => uri}}) do
     # Possible URL:
     # https://data.angers.fr/api/explore/v2.1/catalog/datasets/angers-loire-metropole-horaires-reseau-irigo-gtfs-rt/exports/json
     String.match?(uri, ~r{/api/explore/v\d+\.\d+/catalog/datasets/.*/exports/\w+$}i)
   end
 
-  def is_ods_resource?(_), do: false
+  def ods_resource?(_), do: false
 
   @doc """
   Is it a GTFS file?
@@ -498,7 +498,7 @@ defmodule Transport.ImportData do
     end
   end
 
-  def is_gtfs?(str), do: is_format?(str, "gtfs") and not is_gtfs_rt?(str)
+  def gtfs?(str), do: is_format?(str, "gtfs") and not is_gtfs_rt?(str)
 
   @doc """
   Is it a GTFS-RT feed?
@@ -523,7 +523,7 @@ defmodule Transport.ImportData do
   true
   """
   @spec is_gtfs_rt?(binary() | map()) :: boolean()
-  def is_gtfs_rt?(%{} = params) do
+  def gtfs_rt?(%{} = params) do
     cond do
       is_gtfs_rt?(params["format"]) -> true
       is_ods_resource?(params) or is_documentation?(params) -> false
@@ -535,7 +535,7 @@ defmodule Transport.ImportData do
   end
 
   def is_gtfs_rt?(str) when is_binary(str), do: String.match?(str, ~r/\b(gtfs-rt|gtfsrt|gtfs rt)\b/i)
-  def is_gtfs_rt?(_), do: false
+  def gtfs_rt?(_), do: false
 
   @doc """
   iex> is_documentation?(%{"format" => "gtfs"})
@@ -552,8 +552,8 @@ defmodule Transport.ImportData do
   false
   """
   @spec is_documentation?(any()) :: boolean()
-  def is_documentation?(%{"type" => "documentation"}), do: true
-  def is_documentation?(_), do: false
+  def documentation?(%{"type" => "documentation"}), do: true
+  def documentation?(_), do: false
 
   @doc """
   Determines if a format is likely a documentation format.
@@ -565,9 +565,9 @@ defmodule Transport.ImportData do
   iex> is_documentation_format?("GTFS")
   false
   """
-  def is_documentation_format?(%{"format" => format}), do: is_documentation_format?(format)
+  def documentation_format?(%{"format" => format}), do: documentation_format?(format)
 
-  def is_documentation_format?(format) do
+  def documentation_format?(format) do
     is_format?(format, ["pdf", "svg", "html"])
   end
 
@@ -588,7 +588,7 @@ defmodule Transport.ImportData do
   false
   """
   @spec is_siri?(binary() | map()) :: boolean()
-  def is_siri?(%{} = params) do
+  def siri?(%{} = params) do
     cond do
       is_siri_lite?(params) -> false
       is_ods_resource?(params) or is_documentation?(params) -> false
@@ -600,7 +600,7 @@ defmodule Transport.ImportData do
     end
   end
 
-  def is_siri?(format), do: not is_siri_lite?(format) and is_format?(format, "siri")
+  def siri?(format), do: not is_siri_lite?(format) and is_format?(format, "siri")
 
   @doc """
   iex> is_siri_lite?("siri lite")
@@ -613,7 +613,7 @@ defmodule Transport.ImportData do
   false
   """
   @spec is_siri_lite?(binary() | map()) :: boolean()
-  def is_siri_lite?(params) do
+  def siri_lite?(params) do
     cond do
       is_ods_resource?(params) or is_documentation?(params) -> false
       is_format?(params, "SIRI Lite") -> true
@@ -633,12 +633,12 @@ defmodule Transport.ImportData do
       true
   """
   @spec is_format?(binary() | map(), binary() | [binary()]) :: boolean
-  def is_format?(nil, _), do: false
-  def is_format?(%{"format" => format}, expected), do: is_format?(format, expected)
-  def is_format?(value, [head | tail]), do: is_format?(value, head) || is_format?(value, tail)
-  def is_format?(_, []), do: false
+  def format?(nil, _), do: false
+  def format?(%{"format" => format}, expected), do: format?(format, expected)
+  def format?(value, [head | tail]), do: format?(value, head) || format?(value, tail)
+  def format?(_, []), do: false
 
-  def is_format?(str, expected),
+  def format?(str, expected),
     do: String.contains?(clean_format(str), clean_format(expected))
 
   @doc """
@@ -671,10 +671,10 @@ defmodule Transport.ImportData do
       false
   """
   @spec is_zip?(binary() | map()) :: boolean()
-  def is_zip?(%{"mime" => nil, "format" => format}), do: is_zip?(format)
-  def is_zip?(%{"mime" => mime, "format" => nil}), do: is_zip?(mime)
-  def is_zip?(%{"mime" => mime, "format" => format}), do: is_zip?(mime) || is_zip?(format)
-  def is_zip?(str), do: is_format?(str, "zip")
+  def zip?(%{"mime" => nil, "format" => format}), do: zip?(format)
+  def zip?(%{"mime" => mime, "format" => nil}), do: zip?(mime)
+  def zip?(%{"mime" => mime, "format" => format}), do: zip?(mime) || zip?(format)
+  def zip?(str), do: is_format?(str, "zip")
 
   @doc """
   Is the resource a NeTEx file?
@@ -698,7 +698,7 @@ defmodule Transport.ImportData do
   false
   """
   @spec is_netex?(binary() | map()) :: boolean()
-  def is_netex?(%{} = params) do
+  def netex?(%{} = params) do
     cond do
       is_netex?(params["format"]) -> true
       is_ods_resource?(params) or is_documentation?(params) -> false
@@ -709,7 +709,7 @@ defmodule Transport.ImportData do
     end
   end
 
-  def is_netex?(s), do: is_format?(s, "NeTEx")
+  def netex?(s), do: is_format?(s, "NeTEx")
 
   @doc """
   Check for download uri, returns ["no_download_url"] if there's no download_url
@@ -815,10 +815,10 @@ defmodule Transport.ImportData do
     end
   end
 
-  defp is_geojson?(%{"url" => url}, format), do: is_format?(format, "geojson") or String.ends_with?(url, "geojson")
-  defp is_geojson?(_, format), do: is_format?(format, "geojson")
+  defp geojson?(%{"url" => url}, format), do: is_format?(format, "geojson") or String.ends_with?(url, "geojson")
+  defp geojson?(_, format), do: is_format?(format, "geojson")
 
-  defp is_gbfs?(%{"url" => url}) do
+  defp gbfs?(%{"url" => url}) do
     if String.contains?(url, "gbfs") do
       Enum.all?(["free_bike", "station"] |> Enum.map(fn w -> not String.contains?(url, w) end))
     else

@@ -126,9 +126,9 @@ defmodule Transport.GTFSRT do
     end
   end
 
-  def is_active?([]), do: true
+  def active?([]), do: true
 
-  def is_active?(time_ranges) do
+  def active?(time_ranges) do
     time_ranges |> Enum.map(&is_current?/1) |> Enum.any?()
   end
 
@@ -145,7 +145,7 @@ defmodule Transport.GTFSRT do
     DateTime.from_unix!(timestamp)
   end
 
-  def is_current?(%TimeRange{start: nil, end: nil}), do: true
+  def current?(%TimeRange{start: nil, end: nil}), do: true
 
   def is_current?(%TimeRange{start: start, end: nil}) when not is_nil(start) do
     DateTime.compare(to_datetime(start), DateTime.utc_now()) == :lt
@@ -155,7 +155,7 @@ defmodule Transport.GTFSRT do
     DateTime.compare(to_datetime(date_end), DateTime.utc_now()) == :gt
   end
 
-  def is_current?(%TimeRange{start: date_start, end: date_end}) do
+  def current?(%TimeRange{start: date_start, end: date_end}) do
     is_current?(%TimeRange{start: date_start}) and is_current?(%TimeRange{end: date_end})
   end
 
