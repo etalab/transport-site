@@ -36,10 +36,10 @@ defmodule Transport.ValidatorsSelection.Impl do
 
   def validators(%{schema_name: schema_name}) when not is_nil(schema_name) do
     cond do
-      Schemas.is_tableschema?(schema_name) ->
+      Schemas.tableschema?(schema_name) ->
         [Transport.Validators.TableSchema]
 
-      Schemas.is_jsonschema?(schema_name) ->
+      Schemas.jsonschema?(schema_name) ->
         [Transport.Validators.EXJSONSchema]
 
       true ->

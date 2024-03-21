@@ -6,7 +6,7 @@ defmodule Transport.Jobs.GTFSRTMetadataDispatcherJob do
   """
   use Oban.Worker, max_attempts: 3
   import Ecto.Query
-  alias DB.{Dataset, Repo, Resource, ResourceMetadata}
+  alias DB.{Repo, Resource, ResourceMetadata}
 
   @metadata_max_nb_days 90
 
@@ -32,10 +32,10 @@ defmodule Transport.Jobs.GTFSRTMetadataDispatcherJob do
   end
 
   def relevant_resources do
-    Resource
-    |> join(:inner, [r], d in Dataset, on: r.dataset_id == d.id)
-    |> where([_r, d], d.is_active)
-    |> where([r, _d], r.format == "gtfs-rt" and r.is_available)
+    DB.Dataset.base_query()
+    |> DB.Resource.join_dataset_with_resource()
+    |> where([resource: r], r.format == "gtfs-rt" and r.is_available)
+    |> select([resource: r], r)
     |> Repo.all()
   end
 end

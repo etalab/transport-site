@@ -30,7 +30,7 @@ defmodule TransportWeb.DatasetControllerTest do
 
     dataset = dataset |> DB.Repo.preload(:resources)
 
-    assert DB.Resource.is_documentation?(resource)
+    assert DB.Resource.documentation?(resource)
     assert Enum.empty?(TransportWeb.DatasetView.other_official_resources(dataset))
     assert 1 == Enum.count(TransportWeb.DatasetView.official_documentation_resources(dataset))
 
@@ -508,6 +508,27 @@ defmodule TransportWeb.DatasetControllerTest do
 
     assert [%{count: 2, licence: "licence-ouverte"}, %{count: 1, licence: "odc-odbl"}] ==
              TransportWeb.DatasetController.get_licences(%{"type" => "low-emission-zones"})
+  end
+
+  test "hidden datasets", %{conn: conn} do
+    hidden_dataset = insert(:dataset, is_hidden: true, is_active: true)
+
+    # Dataset is not listed
+    refute conn
+           |> get(dataset_path(conn, :index))
+           |> html_response(200) =~ hidden_dataset.custom_title
+
+    set_empty_mocks()
+
+    # Dataset can be seen on the details page, with a banner
+    [{"div", [{"class", "notification full-width"}], [content]}] =
+      conn
+      |> get(dataset_path(conn, :details, hidden_dataset.slug))
+      |> html_response(200)
+      |> Floki.parse_document!()
+      |> Floki.find(".notification")
+
+    assert content =~ "Ce jeu de données est masqué"
   end
 
   defp set_empty_mocks do

@@ -82,6 +82,10 @@ defmodule TransportWeb.EditDatasetLive do
         session: %{"dataset" => @dataset, "form" => f}
       ) %>
 
+      <p :if={not is_nil(@dataset) and @dataset.is_hidden} class="notification">
+        Ce jeu de données est masqué
+      </p>
+
       <div :if={@dataset_organization} class="panel mt-48">
         <div class="panel-explanation">
           <%= dgettext("backoffice", "published by") %>

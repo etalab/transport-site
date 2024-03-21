@@ -133,6 +133,26 @@ defmodule DB.DatasetDBTest do
       assert {:ok, %Ecto.Changeset{changes: %{has_realtime: false}}} = changeset
     end
 
+    test "is_hidden=true" do
+      assert {:ok, %Ecto.Changeset{changes: %{is_hidden: true}}} =
+               Dataset.changeset(%{
+                 "datagouv_id" => "1",
+                 "slug" => "ma_limace",
+                 "insee" => "38185",
+                 "custom_tags" => ["masqué"]
+               })
+    end
+
+    test "is_hidden=false" do
+      assert {:ok, %Ecto.Changeset{changes: %{is_hidden: false}}} =
+               Dataset.changeset(%{
+                 "datagouv_id" => "1",
+                 "slug" => "ma_limace",
+                 "insee" => "38185",
+                 "custom_tags" => ["not_hidden"]
+               })
+    end
+
     test "siren is validated" do
       {{:error, _}, logs} =
         with_log(fn ->
@@ -744,5 +764,24 @@ defmodule DB.DatasetDBTest do
                resources: [%DB.Resource{format: "gtfs"}, %DB.Resource{format: "NeTEx"}],
                custom_tags: ["keep_netex_conversions", "foo"]
              })
+  end
+
+  test "query scopes" do
+    %DB.Dataset{} = active_dataset = insert(:dataset, is_active: true)
+    %DB.Dataset{} = hidden_dataset = insert(:dataset, is_active: true, is_hidden: true)
+    %DB.Dataset{} = inactive_dataset = insert(:dataset, is_active: false)
+    %DB.Dataset{} = archived_dataset = insert(:dataset, is_active: true, archived_at: DateTime.utc_now())
+
+    ids = fn datasets ->
+      datasets |> Enum.map(fn %DB.Dataset{id: id} -> id end) |> MapSet.new()
+    end
+
+    assert ids.([active_dataset, archived_dataset]) == DB.Dataset.base_query() |> DB.Repo.all() |> ids.()
+    assert ids.([archived_dataset]) == DB.Dataset.archived() |> DB.Repo.all() |> ids.()
+    assert ids.([inactive_dataset]) == DB.Dataset.inactive() |> DB.Repo.all() |> ids.()
+    assert ids.([hidden_dataset]) == DB.Dataset.hidden() |> DB.Repo.all() |> ids.()
+
+    assert ids.([active_dataset, hidden_dataset, archived_dataset]) ==
+             DB.Dataset.base_with_hidden_datasets() |> DB.Repo.all() |> ids.()
   end
 end

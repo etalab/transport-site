@@ -21,10 +21,10 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
       )
 
     assert ConsolidateLEZsJob.type(zfe_aire) == "aires"
-    refute ConsolidateLEZsJob.is_voie?(zfe_aire)
+    refute ConsolidateLEZsJob.voie?(zfe_aire)
 
     assert ConsolidateLEZsJob.type(zfe_voies) == "voies"
-    assert ConsolidateLEZsJob.is_voie?(zfe_voies)
+    assert ConsolidateLEZsJob.voie?(zfe_voies)
   end
 
   test "relevant_resources" do

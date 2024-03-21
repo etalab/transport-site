@@ -27,11 +27,8 @@ defmodule Transport.CommentsChecker do
 
   @spec fetch_new_comments :: [comments_with_context()]
   def fetch_new_comments do
-    Dataset
-    |> where([d], d.is_active == true)
-    |> select([:id, :datagouv_id, :latest_data_gouv_comment_timestamp])
-    |> Repo.all()
-    |> Enum.map(fn %{datagouv_id: datagouv_id, latest_data_gouv_comment_timestamp: current_ts} = dataset ->
+    Enum.map(relevant_datasets(), fn %{datagouv_id: datagouv_id, latest_data_gouv_comment_timestamp: current_ts} =
+                                       dataset ->
       comments =
         datagouv_id
         |> Discussions.get()
@@ -42,6 +39,13 @@ defmodule Transport.CommentsChecker do
 
       {dataset, datagouv_id, title, comments}
     end)
+  end
+
+  @spec relevant_datasets() :: [DB.Dataset.t()]
+  def relevant_datasets do
+    DB.Dataset.base_query()
+    |> select([:id, :datagouv_id, :latest_data_gouv_comment_timestamp])
+    |> DB.Repo.all()
   end
 
   @spec count_comments([comments_with_context()]) :: integer

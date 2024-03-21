@@ -7,7 +7,7 @@ defmodule Transport.Jobs.DatasetQualityScoreDispatcher do
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
-    DB.Dataset.base_query()
+    DB.Dataset.base_with_hidden_datasets()
     |> select([dataset: d], d.id)
     |> DB.Repo.all()
     |> Enum.map(&(%{dataset_id: &1} |> Transport.Jobs.DatasetQualityScore.new()))
@@ -280,7 +280,7 @@ defmodule Transport.Jobs.DatasetAvailabilityScore do
 
   @spec current_dataset_availability(integer()) :: %{score: float | nil, details: map()}
   def current_dataset_availability(dataset_id) do
-    relevant_resources = dataset_id |> dataset_resources() |> Enum.reject(&DB.Resource.is_documentation?/1)
+    relevant_resources = dataset_id |> dataset_resources() |> Enum.reject(&DB.Resource.documentation?/1)
 
     if Enum.empty?(relevant_resources) do
       %{score: 0.0, details: %{resources: []}}

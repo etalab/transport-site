@@ -185,6 +185,12 @@ defmodule Transport.DataCheckerTest do
       )
     end
 
+    # Ignores hidden or inactive datasets
+    insert_fn.(today, insert(:dataset, is_active: false))
+    insert_fn.(today, insert(:dataset, is_active: true, is_hidden: true))
+
+    assert [] == today |> Transport.DataChecker.gtfs_datasets_expiring_on()
+
     # 2 GTFS resources expiring on the same day for a dataset
     %DB.Dataset{id: dataset_id} = dataset = insert(:dataset, is_active: true)
     insert_fn.(today, dataset)

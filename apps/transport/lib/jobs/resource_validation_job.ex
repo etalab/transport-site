@@ -11,7 +11,7 @@ defmodule Transport.Jobs.ResourceValidationJob do
   def perform(%Oban.Job{args: %{"resource_id" => resource_id}}) when is_integer(resource_id) do
     resource = DB.Resource |> DB.Repo.get!(resource_id)
 
-    if DB.Resource.is_real_time?(resource) do
+    if DB.Resource.real_time?(resource) do
       resource
       |> Transport.ValidatorsSelection.validators()
       |> Enum.each(fn validator -> validator.validate_and_save(resource) end)

@@ -133,25 +133,25 @@ defmodule Transport.GTFSRTTest do
            ) == "bonjour"
   end
 
-  test "is_current?" do
-    assert GTFSRT.is_current?(timerange(-5, nil))
-    assert GTFSRT.is_current?(timerange(-5, 5))
-    assert GTFSRT.is_current?(timerange(nil, 5))
-    refute GTFSRT.is_current?(timerange(-10, -5))
-    refute GTFSRT.is_current?(timerange(10, nil))
-    refute GTFSRT.is_current?(timerange(10, 20))
+  test "current?" do
+    assert GTFSRT.current?(timerange(-5, nil))
+    assert GTFSRT.current?(timerange(-5, 5))
+    assert GTFSRT.current?(timerange(nil, 5))
+    refute GTFSRT.current?(timerange(-10, -5))
+    refute GTFSRT.current?(timerange(10, nil))
+    refute GTFSRT.current?(timerange(10, 20))
   end
 
-  test "is_active?" do
-    assert GTFSRT.is_active?([])
-    assert GTFSRT.is_active?([timerange(nil, 5)])
+  test "active?" do
+    assert GTFSRT.active?([])
+    assert GTFSRT.active?([timerange(nil, 5)])
 
-    assert GTFSRT.is_active?([
+    assert GTFSRT.active?([
              timerange(-10, -5),
              timerange(nil, 5)
            ])
 
-    refute GTFSRT.is_active?([timerange(-10, -5)])
+    refute GTFSRT.active?([timerange(-10, -5)])
   end
 
   test "current_active_period" do

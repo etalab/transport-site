@@ -42,4 +42,13 @@ defmodule TransportWeb.CustomTagsLiveTest do
 
     assert rendered_view =~ "requestor_ref:OPENDATA"
   end
+
+  test "tags_suggestions" do
+    insert(:dataset, is_active: true, custom_tags: ["foo"])
+    insert(:dataset, is_active: true, custom_tags: ["foo", "bar"])
+    insert(:dataset, is_active: true, is_hidden: true, custom_tags: ["baz"])
+    insert(:dataset, is_active: false, custom_tags: ["nope"])
+
+    assert ["bar", "baz", "foo"] == TransportWeb.CustomTagsLive.tags_suggestions()
+  end
 end
