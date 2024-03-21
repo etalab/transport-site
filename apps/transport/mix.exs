@@ -129,7 +129,7 @@ defmodule Transport.Mixfile do
       {:phoenix_live_dashboard, "~> 0.8"},
       {:ecto_psql_extras, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
-      {:telemetry_metrics, "~> 0.4"},
+      {:telemetry_metrics, "~> 1.0"},
       {:luhn, "~> 0.3.0"},
       {:ex_phone_number, "~> 0.3"},
       {:appsignal, "~> 2.0"},
