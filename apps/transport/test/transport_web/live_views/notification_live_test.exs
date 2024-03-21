@@ -109,7 +109,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
     assert [] = DB.NotificationSubscription |> DB.Repo.all()
   end
 
-  test "only have correct notifications showing" do
+  test "only have correct colleague notifications showing" do
     %DB.Organization{id: organization_id} = insert(:organization)
     %DB.Organization{id: foreign_organization_id} = insert(:organization)
 
@@ -133,18 +133,22 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
         organizations: [%{id: organization_id}]
       })
 
+    %DB.Contact{id: contact_id_3} =
+      insert_contact(%{first_name: "Henri", last_name: "Duflot", organizations: [%{id: organization_id}]})
+
     %DB.Contact{id: foreign_contact} =
       insert_contact(%{first_name: "Mikhaïl", last_name: "Karlov", organizations: [%{id: foreign_organization_id}]})
 
+    # Should show, normal colleague
     insert(:notification_subscription,
       contact_id: contact_id_2,
       dataset_id: dataset_id,
       reason: :expiration,
       role: :producer,
-      source: :user
+      source: :admin
     )
 
-    # Here our team subscribed also a mailing list
+    # Here our team subscribed also a mailing list, should show
     insert(:notification_subscription,
       contact_id: mailing_list_id,
       dataset_id: dataset_id,
@@ -162,6 +166,15 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
       source: :user
     )
 
+    # Yet another trap, it’s a reuser notification
+    insert(:notification_subscription,
+    contact_id: contact_id_3,
+    dataset_id: dataset_id,
+    reason: :expiration,
+    role: :reuser,
+    source: :user
+  )
+
     Datagouvfr.Client.User.Mock
     |> expect(:me, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
@@ -169,6 +182,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
     content = conn |> get(@url) |> html_response(200)
     assert content =~ "Autres abonnés : Liste de diffusion service transport, Marina Loiseau"
     refute content =~ "Mikhaïl Karlov"
+    refute content =~ "Henri Duflot"
   end
 
   test "toggle all on and off" do
