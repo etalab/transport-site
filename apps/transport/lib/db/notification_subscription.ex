@@ -150,7 +150,7 @@ defmodule DB.NotificationSubscription do
         d.organization_id == o.id
     )
     |> DB.Repo.all()
-    |> MapSet.new()
+    |> Enum.uniq_by(& &1.id)
     # This is to ensure that the tests are deterministic
     |> Enum.sort_by(& &1.contact_id)
   end
