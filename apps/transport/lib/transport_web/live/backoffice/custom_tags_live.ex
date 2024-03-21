@@ -62,7 +62,8 @@ defmodule TransportWeb.CustomTagsLive do
       },
       %{
         name: "masqué",
-        doc: "Masque ce jeu de données des statistiques et de la recherche"
+        doc:
+          "Masque ce jeu de données des statistiques, de la recherche et de l'API. Le jeu reste accessible via son URL directe (web et API)."
       }
     ]
   end
