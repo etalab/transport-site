@@ -131,6 +131,7 @@
         {Credo.Check.Readability.Specs, false},
 
         # Allowing for now functions like is_gtfs?
+        # See https://github.com/etalab/transport-site/issues/3822
         {Credo.Check.Readability.PredicateFunctionNames, false}
       ]
     }
