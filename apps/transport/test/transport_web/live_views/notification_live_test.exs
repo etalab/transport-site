@@ -33,13 +33,14 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
         organizations: [%{id: organization_id}]
       })
 
-    insert(:notification_subscription,
-      contact_id: contact_id,
-      dataset_id: dataset_id,
-      reason: :expiration,
-      role: :producer,
-      source: :user
-    )
+    %DB.NotificationSubscription{id: subscription_id} =
+      insert(:notification_subscription,
+        contact_id: contact_id,
+        dataset_id: dataset_id,
+        reason: :expiration,
+        role: :producer,
+        source: :user
+      )
 
     Datagouvfr.Client.User.Mock
     |> expect(:me, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
@@ -47,6 +48,19 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
     conn = build_conn() |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, token: %{}})
     content = conn |> get(@url) |> html_response(200)
     assert content =~ "Mon super JDD"
+
+    doc = content |> Floki.parse_document!()
+
+    [{"input", switch_attr, []}] =
+      doc
+      |> Floki.find(".producer-actions .container .panel table tr td .form__group fieldset .switch input")
+      |> Floki.find("[value=true]")
+      |> Floki.find("[checked=checked]")
+
+    switch_attr = Map.new(switch_attr)
+
+    assert ["expiration", Integer.to_string(dataset_id), Integer.to_string(subscription_id)] ==
+             [switch_attr["id"], switch_attr["phx-value-dataset-id"], switch_attr["phx-value-subscription-id"]]
   end
 
   test "displays an error message if we can’t retrieve user orgs (and thus datasets) through data.gouv.fr" do
@@ -168,12 +182,12 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
 
     # Yet another trap, it’s a reuser notification
     insert(:notification_subscription,
-    contact_id: contact_id_3,
-    dataset_id: dataset_id,
-    reason: :expiration,
-    role: :reuser,
-    source: :user
-  )
+      contact_id: contact_id_3,
+      dataset_id: dataset_id,
+      reason: :expiration,
+      role: :reuser,
+      source: :user
+    )
 
     Datagouvfr.Client.User.Mock
     |> expect(:me, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
