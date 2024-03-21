@@ -31,15 +31,15 @@ defmodule Transport.Test.Transport.Jobs.DedupeHistoryJobTest do
     end
   end
 
-  describe "is_same?" do
+  describe "same?" do
     test "same objects" do
-      assert DedupeHistoryJob.is_same?(resource_history_with_shas(["a", "b"]), resource_history_with_shas(["b", "a"]))
+      assert DedupeHistoryJob.same?(resource_history_with_shas(["a", "b"]), resource_history_with_shas(["b", "a"]))
     end
 
     test "different objects" do
-      refute DedupeHistoryJob.is_same?(resource_history_with_shas(["a"]), resource_history_with_shas(["b"]))
+      refute DedupeHistoryJob.same?(resource_history_with_shas(["a"]), resource_history_with_shas(["b"]))
 
-      refute DedupeHistoryJob.is_same?(resource_history_with_shas(["a"]), resource_history_with_shas(["a", "b"]))
+      refute DedupeHistoryJob.same?(resource_history_with_shas(["a"]), resource_history_with_shas(["a", "b"]))
     end
   end
 

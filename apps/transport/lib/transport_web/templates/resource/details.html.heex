@@ -37,7 +37,7 @@
         <%= render("_requestor_ref.html", resource: @resource, conn: @conn) %>
       <% end %>
 
-      <%= unless DB.Resource.is_documentation?(@resource) do %>
+      <%= unless DB.Resource.documentation?(@resource) do %>
         <%= render("_validation_report.html",
           resource: @resource,
           multi_validation: @multi_validation,
@@ -68,7 +68,7 @@
         </div>
       <% end %>
 
-      <%= if DB.Resource.is_gtfs_rt?(@resource) do %>
+      <%= if DB.Resource.gtfs_rt?(@resource) do %>
         <%= render("_gtfs_rt.html",
           gtfs_rt_feed: @gtfs_rt_feed,
           conn: @conn,

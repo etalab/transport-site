@@ -30,7 +30,7 @@ defmodule TransportWeb.DatasetControllerTest do
 
     dataset = dataset |> DB.Repo.preload(:resources)
 
-    assert DB.Resource.is_documentation?(resource)
+    assert DB.Resource.documentation?(resource)
     assert Enum.empty?(TransportWeb.DatasetView.other_official_resources(dataset))
     assert 1 == Enum.count(TransportWeb.DatasetView.official_documentation_resources(dataset))
 

@@ -4,7 +4,7 @@
     <%= dgettext("page-dataset-details", "This dataset has been removed from data.gouv.fr") %>
   </div>
 <% end %>
-<%= if @dataset.is_active and DB.Dataset.is_archived?(@dataset) do %>
+<%= if @dataset.is_active and DB.Dataset.archived?(@dataset) do %>
   <div class="notification error full-width">
     <%= dgettext("page-dataset-details", "This dataset has been archived from data.gouv.fr on %{date}",
       date: DateTimeDisplay.format_datetime_to_date(@dataset.archived_at, locale)
@@ -19,7 +19,7 @@
   <h1>
     <%= @dataset.custom_title %>
   </h1>
-  <%= if TransportWeb.Session.is_admin?(@conn) do %>
+  <%= if TransportWeb.Session.admin?(@conn) do %>
     <i class="fa fa-external-link-alt"></i>
     <%= link("backoffice", to: backoffice_page_path(@conn, :edit, @dataset.id)) %>
   <% end %>
@@ -273,7 +273,7 @@
           text: Dataset.type_to_str(@dataset.type),
           icon: icon_type_path(@dataset)
         ) %>
-        <%= if is_real_time_public_transit?(@dataset) do %>
+        <%= if real_time_public_transit?(@dataset) do %>
           <%= render("_dataset_type.html",
             conn: @conn,
             link: dataset_path(@conn, :index, type: "public-transit", filter: "has_realtime"),

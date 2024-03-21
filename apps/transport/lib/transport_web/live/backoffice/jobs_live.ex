@@ -32,7 +32,7 @@ defmodule TransportWeb.Backoffice.JobsLive do
   def ensure_admin_auth_or_redirect(socket, current_user, func) do
     socket = assign(socket, current_user: current_user)
 
-    if TransportWeb.Session.is_admin?(socket) do
+    if TransportWeb.Session.admin?(socket) do
       # We track down the current admin so that it can be used by next actions
       # Then call the remaining code, which is expected to return the socket
       func.(socket)

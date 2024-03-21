@@ -105,7 +105,7 @@ defmodule TransportWeb.ResourceControllerTest do
 
   test "GBFS resource with multi-validation sends back 200", %{conn: conn} do
     resource = DB.Resource |> DB.Repo.get_by(datagouv_id: "3")
-    assert DB.Resource.is_gbfs?(resource)
+    assert DB.Resource.gbfs?(resource)
 
     insert(:multi_validation, %{
       resource_history: insert(:resource_history, %{resource_id: resource.id}),
@@ -187,7 +187,7 @@ defmodule TransportWeb.ResourceControllerTest do
       {:ok, %HTTPoison.Response{status_code: 200, body: File.read!(@service_alerts_file)}}
     end)
 
-    assert DB.Resource.is_gtfs_rt?(resource)
+    assert DB.Resource.gtfs_rt?(resource)
 
     content = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
 
@@ -217,7 +217,7 @@ defmodule TransportWeb.ResourceControllerTest do
       {:ok, %HTTPoison.Response{status_code: 502, body: ""}}
     end)
 
-    assert DB.Resource.is_gtfs_rt?(resource)
+    assert DB.Resource.gtfs_rt?(resource)
     content = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
 
     assert content =~ "Impossible de décoder le flux GTFS-RT"
@@ -341,7 +341,7 @@ defmodule TransportWeb.ResourceControllerTest do
         type: "documentation"
       })
 
-    assert DB.Resource.is_documentation?(resource)
+    assert DB.Resource.documentation?(resource)
 
     refute conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200) =~ "Rapport de validation"
   end
@@ -635,7 +635,7 @@ defmodule TransportWeb.ResourceControllerTest do
         dataset: insert(:dataset, custom_tags: ["requestor_ref:#{requestor_ref_value}", "foo"])
       )
 
-    assert DB.Resource.is_siri?(resource)
+    assert DB.Resource.siri?(resource)
     assert requestor_ref_value == DB.Resource.requestor_ref(resource)
 
     html = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)

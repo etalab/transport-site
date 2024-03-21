@@ -17,7 +17,7 @@ defmodule TransportWeb.Session do
   """
   @spec set_is_producer(Plug.Conn.t(), map() | [DB.Dataset.t()]) :: Plug.Conn.t()
   def set_is_producer(%Plug.Conn{} = conn, %{"organizations" => _} = params) do
-    set_session_attribute_attribute(conn, @is_producer_key_name, is_producer?(params))
+    set_session_attribute_attribute(conn, @is_producer_key_name, producer?(params))
   end
 
   def set_is_producer(%Plug.Conn{} = conn, datasets_for_user) when is_list(datasets_for_user) do
@@ -30,26 +30,26 @@ defmodule TransportWeb.Session do
   You're an admin if you're a member of the PAN organization on data.gouv.fr.
   """
   def set_is_admin(%Plug.Conn{} = conn, %{"organizations" => _} = params) do
-    set_session_attribute_attribute(conn, @is_admin_key_name, is_admin?(params))
+    set_session_attribute_attribute(conn, @is_admin_key_name, admin?(params))
   end
 
-  def is_admin?(%{"organizations" => orgs}) do
+  def admin?(%{"organizations" => orgs}) do
     Enum.any?(orgs, &(&1["slug"] == "equipe-transport-data-gouv-fr"))
   end
 
-  def is_admin?(%Plug.Conn{} = conn) do
+  def admin?(%Plug.Conn{} = conn) do
     conn |> current_user() |> Map.get(@is_admin_key_name, false)
   end
 
-  def is_admin?(%Phoenix.LiveView.Socket{assigns: %{current_user: current_user}}) do
+  def admin?(%Phoenix.LiveView.Socket{assigns: %{current_user: current_user}}) do
     Map.get(current_user, @is_admin_key_name, false)
   end
 
-  def is_producer?(%Plug.Conn{} = conn) do
+  def producer?(%Plug.Conn{} = conn) do
     conn |> current_user() |> Map.get(@is_producer_key_name, false)
   end
 
-  def is_producer?(%{"organizations" => orgs}) do
+  def producer?(%{"organizations" => orgs}) do
     org_ids = Enum.map(orgs, & &1["id"])
     DB.Dataset.base_query() |> where([dataset: d], d.organization_id in ^org_ids) |> DB.Repo.exists?()
   end
