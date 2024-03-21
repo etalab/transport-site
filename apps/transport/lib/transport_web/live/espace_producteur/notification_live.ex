@@ -95,9 +95,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
   defp toggle_all_subscriptions(current_contact, old_subscriptions, "turn_on") do
     Enum.each(old_subscriptions, fn {dataset_id, reason_map} ->
       reason_map
-      |> Map.filter(fn {_, %{user_subscription: user_subscription, team_subscriptions: _}} ->
-        is_nil(user_subscription)
-      end)
+      |> Map.filter(fn {_, v} -> match?(%{user_subscription: nil}, v) end)
       |> Map.keys()
       |> Enum.each(fn reason ->
         toggle_subscription(current_contact, dataset_id, nil, reason, "turn_on")
