@@ -233,6 +233,22 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
         source: :user
       )
 
+    not_to_be_deleted_notification =
+      %DB.NotificationSubscription{
+        contact_id: ^contact_id,
+        reason: :new_dataset,
+        role: :producer,
+        source: :admin
+      } =
+      insert(
+        :notification_subscription,
+        contact_id: contact_id,
+        dataset_id: nil,
+        reason: :new_dataset,
+        role: :producer,
+        source: :admin
+      )
+
     conn = build_conn() |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, token: %{}})
 
     Datagouvfr.Client.User.Mock
@@ -242,7 +258,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
 
     {:ok, view, _html} = live(conn)
 
-    assert [^notification] = DB.NotificationSubscription |> DB.Repo.all()
+    assert [^notification, ^not_to_be_deleted_notification] = DB.NotificationSubscription |> DB.Repo.all()
 
     render_change(view, "toggle-all", %{"action" => "turn_on"})
 
@@ -258,11 +274,12 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
              [^dataset_id_1, :resource_unavailable],
              [^dataset_id_2, :dataset_with_error],
              [^dataset_id_2, :expiration],
-             [^dataset_id_2, :resource_unavailable]
+             [^dataset_id_2, :resource_unavailable],
+             [nil, :new_dataset]
            ] = notifications
 
     render_change(view, "toggle-all", %{"action" => "turn_off"})
 
-    assert [] = DB.NotificationSubscription |> DB.Repo.all()
+    assert [not_to_be_deleted_notification] = DB.NotificationSubscription |> DB.Repo.all()
   end
 end

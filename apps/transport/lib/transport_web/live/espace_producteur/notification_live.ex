@@ -105,7 +105,10 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
 
   defp toggle_all_subscriptions(current_contact, _old_subscriptions, "turn_off") do
     DB.NotificationSubscription.base_query()
-    |> where([notification_subscription: ns], ns.contact_id == ^current_contact.id and ns.role == :producer)
+    |> where(
+      [notification_subscription: ns],
+      ns.contact_id == ^current_contact.id and ns.role == :producer and not is_nil(ns.dataset_id)
+    )
     |> DB.Repo.delete_all()
   end
 
