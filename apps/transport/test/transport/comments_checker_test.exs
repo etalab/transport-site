@@ -20,6 +20,14 @@ defmodule Transport.CommentsCheckerTest do
     end
   end
 
+  test "relevant_datasets" do
+    %DB.Dataset{id: dataset_id} = insert(:dataset, is_active: true)
+    insert(:dataset, is_active: true, is_hidden: true)
+    insert(:dataset, is_active: false)
+
+    assert [%DB.Dataset{id: ^dataset_id}] = CommentsChecker.relevant_datasets()
+  end
+
   test "check for new comments on data.gouv.fr" do
     %{id: dataset_id} = insert(:dataset, datagouv_title: "dataset 1")
     %DB.Contact{id: contact_id, email: email} = insert_contact()

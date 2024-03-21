@@ -474,8 +474,9 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   end
 
   defp create_resources_for_history do
-    %{id: active_dataset_id} = insert(:dataset, is_active: true, type: "public-transit")
-    %{id: inactive_dataset_id} = insert(:dataset, is_active: false, type: "public-transit")
+    %DB.Dataset{id: active_dataset_id} = insert(:dataset, is_active: true, type: "public-transit")
+    %DB.Dataset{id: hidden_dataset_id} = insert(:dataset, is_active: true, is_hidden: true, type: "public-transit")
+    %DB.Dataset{id: inactive_dataset_id} = insert(:dataset, is_active: false, type: "public-transit")
 
     %{id: id_gtfs} =
       insert(:resource,
@@ -555,7 +556,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
     %{id: id_csv} =
       insert(:resource,
         url: "https://example.com/file.csv",
-        dataset_id: active_dataset_id,
+        dataset_id: hidden_dataset_id,
         format: "csv",
         title: "CSV file without a datagouv_id",
         datagouv_id: nil,

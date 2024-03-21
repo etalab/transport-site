@@ -37,6 +37,13 @@ defmodule TransportWeb.CustomTagsLive do
     """
   end
 
+  def tags_suggestions do
+    DB.Dataset.base_with_hidden_datasets()
+    |> select([d], fragment("distinct unnest(custom_tags)"))
+    |> DB.Repo.all()
+    |> Enum.sort()
+  end
+
   defp tags_documentation do
     [
       %{name: "licence-mobilités", doc: "Applique la licence mobilités pour ce jeu de données"},
@@ -52,6 +59,11 @@ defmodule TransportWeb.CustomTagsLive do
         name: "keep_netex_conversions",
         doc:
           "Conserve les conversions NeTEx automatiques pour ce jeu de données, même s'il contient des ressources NeTEx"
+      },
+      %{
+        name: "masqué",
+        doc:
+          "Masque ce jeu de données des statistiques, de la recherche et de l'API. Le jeu reste accessible via son URL directe (web et API)."
       }
     ]
   end
@@ -69,18 +81,13 @@ defmodule TransportWeb.CustomTagsLive do
     {:ok, mount_assigns(socket, [], f)}
   end
 
-  def mount_assigns(socket, custom_tags, form) do
-    tag_suggestions =
-      DB.Dataset.base_query()
-      |> select([d], fragment("distinct unnest(custom_tags)"))
-      |> DB.Repo.all()
-      |> Enum.sort()
-
-    socket
-    |> assign(:custom_tags, custom_tags)
-    |> assign(:tags_documentation, tags_documentation())
-    |> assign(:form, form)
-    |> assign(:tag_suggestions, tag_suggestions)
+  def mount_assigns(%Phoenix.LiveView.Socket{} = socket, custom_tags, form) do
+    assign(socket,
+      custom_tags: custom_tags,
+      tags_documentation: tags_documentation(),
+      form: form,
+      tag_suggestions: tags_suggestions()
+    )
   end
 
   def handle_event("add_tag", %{"key" => "Enter", "value" => tag}, socket) do
