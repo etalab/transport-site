@@ -17,10 +17,7 @@ defmodule TransportWeb.Backoffice.JobsLive do
      ensure_admin_auth_or_redirect(socket, current_user, fn socket ->
        if connected?(socket), do: schedule_next_update_data()
 
-       socket
-       |> assign(%{search_worker: :search_worker})
-       |> assign(%{worker: worker})
-       |> update_data()
+       socket |> assign(%{worker: worker}) |> update_data()
      end)}
   end
 
@@ -35,7 +32,7 @@ defmodule TransportWeb.Backoffice.JobsLive do
   def ensure_admin_auth_or_redirect(socket, current_user, func) do
     socket = assign(socket, current_user: current_user)
 
-    if TransportWeb.Session.is_admin?(socket) do
+    if TransportWeb.Session.admin?(socket) do
       # We track down the current admin so that it can be used by next actions
       # Then call the remaining code, which is expected to return the socket
       func.(socket)
@@ -126,7 +123,7 @@ defmodule TransportWeb.Backoffice.JobsLive do
   end
 
   @impl true
-  def handle_event("filter", %{"search_worker" => %{"worker" => worker}}, socket) do
+  def handle_event("filter", %{"worker" => worker}, socket) do
     socket =
       socket
       |> push_patch(to: backoffice_live_path(socket, TransportWeb.Backoffice.JobsLive, worker: worker))

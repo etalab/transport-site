@@ -34,7 +34,7 @@ defmodule TransportWeb.ResourceController do
       |> assign(:multi_validation, latest_validation(resource))
       |> put_resource_flash(resource.dataset.is_active)
 
-    if Resource.is_gtfs?(resource) do
+    if Resource.gtfs?(resource) do
       render_gtfs_details(conn, params, resource)
     else
       conn |> assign(:resource, resource) |> render("details.html")

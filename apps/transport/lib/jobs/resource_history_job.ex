@@ -36,7 +36,7 @@ defmodule Transport.Jobs.ResourceHistoryAndValidationDispatcherJob do
     query
     |> Repo.all()
     |> Enum.reject(
-      &(Resource.is_real_time?(&1) or Resource.is_documentation?(&1) or Dataset.should_skip_history?(&1.dataset))
+      &(Resource.real_time?(&1) or Resource.documentation?(&1) or Dataset.should_skip_history?(&1.dataset))
     )
   end
 end
@@ -133,7 +133,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
         }
 
         data =
-          case is_zip?(resource) do
+          case zip?(resource) do
             true ->
               total_compressed_size = hash |> Enum.map(& &1.compressed_size) |> Enum.sum()
 
@@ -185,7 +185,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
       |> limit(1)
       |> DB.Repo.one()
 
-    case {history, is_same_resource?(history, resource_hash)} do
+    case {history, same_resource?(history, resource_hash)} do
       {nil, _} -> true
       {_history, false} -> true
       {history, true} -> {false, history}
@@ -197,22 +197,22 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   the latest resource_history's row in the database by comparing sha256
   hashes for all files in the ZIP.
   """
-  def is_same_resource?(%ResourceHistory{payload: %{"zip_metadata" => rh_zip_metadata}}, zip_metadata) do
+  def same_resource?(%ResourceHistory{payload: %{"zip_metadata" => rh_zip_metadata}}, zip_metadata) do
     MapSet.equal?(set_of_sha256(rh_zip_metadata), set_of_sha256(zip_metadata))
   end
 
-  def is_same_resource?(%ResourceHistory{payload: %{"content_hash" => rh_content_hash}}, content_hash) do
+  def same_resource?(%ResourceHistory{payload: %{"content_hash" => rh_content_hash}}, content_hash) do
     rh_content_hash == content_hash
   end
 
-  def is_same_resource?(nil, _), do: false
+  def same_resource?(nil, _), do: false
 
   def set_of_sha256(items) do
     items |> Enum.map(&{map_get(&1, :file_name), map_get(&1, :sha256)}) |> MapSet.new()
   end
 
   defp resource_hash(%Resource{} = resource, resource_path) do
-    case is_zip?(resource) do
+    case zip?(resource) do
       true ->
         try do
           Transport.ZipMetaDataExtractor.extract!(resource_path)
@@ -231,7 +231,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     Map.get(map, key) || Map.get(map, to_string(key))
   end
 
-  defp is_zip?(%Resource{format: format}), do: format in ["NeTEx", "GTFS"]
+  defp zip?(%Resource{format: format}), do: format in ["NeTEx", "GTFS"]
 
   defp store_resource_history!(%Resource{datagouv_id: datagouv_id, id: resource_id}, payload) do
     Logger.debug("Saving ResourceHistory for resource##{resource_id}")
@@ -315,7 +315,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     ".csv.zip"
   """
   def file_extension(%Resource{format: format} = resource) do
-    case is_zip?(resource) do
+    case zip?(resource) do
       true ->
         ".zip"
 

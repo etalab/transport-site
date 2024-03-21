@@ -99,12 +99,12 @@ defmodule DB.Dataset do
   def archived, do: base_query() |> where([dataset: d], not is_nil(d.archived_at))
   def inactive, do: from(d in DB.Dataset, as: :dataset, where: not d.is_active)
 
-  @spec is_archived?(__MODULE__.t()) :: boolean()
-  def is_archived?(%__MODULE__{archived_at: nil}), do: false
-  def is_archived?(%__MODULE__{archived_at: %DateTime{}}), do: true
+  @spec archived?(__MODULE__.t()) :: boolean()
+  def archived?(%__MODULE__{archived_at: nil}), do: false
+  def archived?(%__MODULE__{archived_at: %DateTime{}}), do: true
 
-  @spec is_active?(__MODULE__.t()) :: boolean()
-  def is_active?(%__MODULE__{is_active: is_active}), do: is_active
+  @spec active?(__MODULE__.t()) :: boolean()
+  def active?(%__MODULE__{is_active: is_active}), do: is_active
 
   @doc """
   Creates a query with the following inner joins:
@@ -766,13 +766,13 @@ defmodule DB.Dataset do
 
   @spec official_resources(__MODULE__.t()) :: list(Resource.t())
   def official_resources(%__MODULE__{resources: resources}),
-    do: resources |> Stream.reject(&DB.Resource.is_community_resource?/1) |> Enum.to_list()
+    do: resources |> Stream.reject(&DB.Resource.community_resource?/1) |> Enum.to_list()
 
   def official_resources(%__MODULE__{}), do: []
 
   @spec community_resources(__MODULE__.t()) :: list(Resource.t())
   def community_resources(%__MODULE__{resources: resources}),
-    do: resources |> Stream.filter(&DB.Resource.is_community_resource?/1) |> Enum.to_list()
+    do: resources |> Stream.filter(&DB.Resource.community_resource?/1) |> Enum.to_list()
 
   def community_resources(%__MODULE__{}), do: []
 
@@ -802,7 +802,7 @@ defmodule DB.Dataset do
     {real_time_resources, static_resources} =
       dataset
       |> official_resources()
-      |> Enum.split_with(&Resource.is_real_time?/1)
+      |> Enum.split_with(&Resource.real_time?/1)
 
     # unique period is set to nil, to force the resource history job to be executed
     static_resources
@@ -903,7 +903,7 @@ defmodule DB.Dataset do
   @spec target_conversion_formats(DB.Dataset.t()) :: [atom()]
   def target_conversion_formats(%__MODULE__{resources: resources} = dataset) when is_list(resources) do
     keep_netex_conversions = has_custom_tag?(dataset, "keep_netex_conversions")
-    has_netex = Enum.any?(resources, &DB.Resource.is_netex?/1)
+    has_netex = Enum.any?(resources, &DB.Resource.netex?/1)
 
     if has_netex and not keep_netex_conversions do
       Enum.reject(available_conversion_formats(), &(&1 == :NeTEx))
@@ -1045,7 +1045,7 @@ defmodule DB.Dataset do
   end
 
   defp has_real_time(changeset) do
-    has_realtime = changeset |> get_field(:resources) |> Enum.any?(&Resource.is_real_time?/1)
+    has_realtime = changeset |> get_field(:resources) |> Enum.any?(&Resource.real_time?/1)
     changeset |> change(has_realtime: has_realtime)
   end
 
