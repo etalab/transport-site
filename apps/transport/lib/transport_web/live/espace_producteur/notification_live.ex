@@ -114,11 +114,11 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
 
   defp subscription_empty_map(dataset_ids) do
     Map.new(dataset_ids, fn dataset_id ->
-      reason_map =
+      reasons_map =
         DB.NotificationSubscription.reasons_related_to_datasets()
         |> Map.new(fn reason -> {reason, %{user_subscription: nil, team_subscriptions: []}} end)
 
-      {dataset_id, reason_map}
+      {dataset_id, reasons_map}
     end)
   end
 
