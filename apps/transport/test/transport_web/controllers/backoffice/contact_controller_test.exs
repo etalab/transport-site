@@ -211,6 +211,17 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
     assert ["Disney", "Doe", "FooBar", "Oppenheimer"] == ContactController.search_datalist()
   end
 
+  test "datasets_datalist" do
+    %DB.Dataset{id: active_dataset_id} = insert(:dataset, is_active: true, custom_title: "B")
+    %DB.Dataset{id: hidden_dataset_id} = insert(:dataset, is_active: true, is_hidden: true, custom_title: "A")
+    insert(:dataset, is_active: false, is_hidden: false, custom_title: "C")
+
+    assert [
+             %DB.Dataset{id: ^hidden_dataset_id, custom_title: "A", is_hidden: true},
+             %DB.Dataset{id: ^active_dataset_id, custom_title: "B", is_hidden: false}
+           ] = ContactController.datasets_datalist()
+  end
+
   defp sample_contact_args(%{} = args \\ %{}) do
     Map.merge(
       %{

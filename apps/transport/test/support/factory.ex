@@ -65,12 +65,17 @@ defmodule DB.Factory do
       frequency: "daily",
       has_realtime: false,
       is_active: true,
+      is_hidden: false,
       nb_reuses: Enum.random(0..10)
     }
   end
 
   def dataset_monthly_metric_factory do
     %DB.DatasetMonthlyMetric{}
+  end
+
+  def dataset_follower_factory do
+    %DB.DatasetFollower{}
   end
 
   def resource_monthly_metric_factory do

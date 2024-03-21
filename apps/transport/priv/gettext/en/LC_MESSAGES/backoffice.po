@@ -294,3 +294,15 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Rate limiter"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "IRVE dashboard"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Hidden"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Hidden datasets"
+msgstr "Hidden"

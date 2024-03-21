@@ -42,7 +42,7 @@ defmodule Transport.Jobs.DedupeHistoryJob do
     if Enum.count(objects) > 1 do
       to_delete =
         1..(Enum.count(objects) - 1)
-        |> Enum.filter(&is_same?(Enum.at(objects, &1), Enum.at(objects, &1 - 1)))
+        |> Enum.filter(&same?(Enum.at(objects, &1), Enum.at(objects, &1 - 1)))
         |> Enum.map(&Enum.at(objects, &1))
 
       ids = to_delete |> Enum.map(& &1.id)
@@ -55,11 +55,11 @@ defmodule Transport.Jobs.DedupeHistoryJob do
     :ok
   end
 
-  def is_same?(%ResourceHistory{payload: %{"content_hash" => a}}, %ResourceHistory{payload: %{"content_hash" => b}}) do
+  def same?(%ResourceHistory{payload: %{"content_hash" => a}}, %ResourceHistory{payload: %{"content_hash" => b}}) do
     a == b
   end
 
-  def is_same?(
+  def same?(
         %ResourceHistory{payload: %{"zip_metadata" => _}} = r1,
         %ResourceHistory{payload: %{"zip_metadata" => _}} = r2
       ) do

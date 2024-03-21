@@ -33,13 +33,13 @@ defmodule Transport.Jobs.DatasetsClimateResilienceBillNotLOLicenceJob do
 
   def relevant_datasets do
     DB.Dataset.base_query()
-    |> where([dataset: d], fragment("'loi-climat-resilience' = any(?)", d.custom_tags))
+    |> DB.Dataset.filter_by_custom_tag("loi-climat-resilience")
     |> DB.Repo.all()
     |> Enum.reject(&DB.Dataset.has_licence_ouverte?/1)
   end
 
   def remove_climate_resilience_bill_tag(datasets) do
-    ids = datasets |> Enum.map(& &1.id)
+    ids = Enum.map(datasets, & &1.id)
 
     DB.Dataset.base_query()
     |> where([dataset: d], d.id in ^ids)

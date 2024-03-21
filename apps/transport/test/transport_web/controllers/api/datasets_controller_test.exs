@@ -24,6 +24,13 @@ defmodule TransportWeb.API.DatasetControllerTest do
     assert_schema(json, "DatasetsResponse", api_spec)
   end
 
+  test "GET /api/datasets does not include inactive or hidden datasets", %{conn: conn} do
+    insert(:dataset, is_active: false)
+    insert(:dataset, is_active: true, is_hidden: true)
+
+    assert [] == conn |> get(Helpers.dataset_path(conn, :datasets)) |> json_response(200)
+  end
+
   test "GET /api/datasets then /api/datasets/:id *with* history, multi_validation and resource_metadata",
        %{conn: conn} do
     dataset =
@@ -172,11 +179,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
 
     # check the result is in line with a query on this dataset
     # only difference: individual dataset adds information about history and conversions
-    Transport.History.Fetcher.Mock
-    |> expect(:history_resources, fn _, options ->
-      assert Keyword.equal?(options, preload_validations: false, max_records: 25)
-      []
-    end)
+    setup_empty_history_resources()
 
     dataset_res =
       dataset_res
@@ -289,11 +292,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
         aom: %DB.AOM{id: 4242, nom: "Angers Métropole", siren: "siren"}
       )
 
-    Transport.History.Fetcher.Mock
-    |> expect(:history_resources, fn _, options ->
-      assert Keyword.equal?(options, preload_validations: false, max_records: 25)
-      []
-    end)
+    setup_empty_history_resources()
 
     path = Helpers.dataset_path(conn, :by_id, dataset.datagouv_id)
 
@@ -412,11 +411,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
       payload: %{"permanent_url" => "https://example.com/url1", "filesize" => filesize = 43}
     )
 
-    Transport.History.Fetcher.Mock
-    |> expect(:history_resources, fn _, options ->
-      assert Keyword.equal?(options, preload_validations: false, max_records: 25)
-      []
-    end)
+    setup_empty_history_resources()
 
     path = Helpers.dataset_path(conn, :by_id, dataset.datagouv_id)
 
@@ -485,6 +480,17 @@ defmodule TransportWeb.API.DatasetControllerTest do
     assert_schema(json, "DatasetDetails", TransportWeb.API.Spec.spec())
   end
 
+  test "GET /api/datasets/:id with an hidden dataset", %{conn: conn} do
+    %DB.Dataset{datagouv_id: datagouv_id} = insert(:dataset, is_active: true, is_hidden: true)
+
+    setup_empty_history_resources()
+
+    assert %{"datagouv_id" => ^datagouv_id} =
+             conn
+             |> get(Helpers.dataset_path(conn, :by_id, datagouv_id))
+             |> json_response(200)
+  end
+
   test "gtfs-rt features are filled", %{conn: conn} do
     dataset_1 = insert(:dataset, datagouv_id: datagouv_id_1 = Ecto.UUID.generate())
     resource_1 = insert(:resource, dataset_id: dataset_1.id, format: "gtfs-rt")
@@ -492,11 +498,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
     insert(:resource_metadata, resource_id: resource_1.id, features: ["a", "b"])
     insert(:resource_metadata, resource_id: resource_1.id, features: ["c"])
 
-    Transport.History.Fetcher.Mock
-    |> expect(:history_resources, fn _, options ->
-      assert Keyword.equal?(options, preload_validations: false, max_records: 25)
-      []
-    end)
+    setup_empty_history_resources()
 
     # call to specific dataset
     path = Helpers.dataset_path(conn, :by_id, datagouv_id_1)
@@ -532,6 +534,13 @@ defmodule TransportWeb.API.DatasetControllerTest do
              |> Enum.at(0)
              |> Map.get("features")
              |> Enum.sort()
+  end
+
+  defp setup_empty_history_resources do
+    expect(Transport.History.Fetcher.Mock, :history_resources, fn %DB.Dataset{}, options ->
+      assert Keyword.equal?(options, preload_validations: false, max_records: 25)
+      []
+    end)
   end
 
   defp resource_page_url(%DB.Resource{id: id}) do

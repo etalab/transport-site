@@ -78,7 +78,7 @@ defmodule TransportWeb.PageController do
   def loi_climat_resilience(conn, _params) do
     datasets_counts =
       DB.Dataset.base_query()
-      |> where([dataset: d], fragment("'loi-climat-resilience' = any(?)", d.custom_tags))
+      |> DB.Dataset.filter_by_custom_tag("loi-climat-resilience")
       |> group_by([dataset: d], d.type)
       |> select([dataset: d], %{type: d.type, count: count(d.id)})
       |> order_by([dataset: d], desc: count(d.id))

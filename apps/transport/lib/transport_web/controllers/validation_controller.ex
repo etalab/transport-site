@@ -54,7 +54,7 @@ defmodule TransportWeb.ValidationController do
   def validate(%Plug.Conn{} = conn, %{
         "upload" => %{"file" => %{path: file_path, filename: filename}, "type" => type}
       }) do
-    if is_valid_type?(type) do
+    if valid_type?(type) do
       oban_args = build_oban_args(type)
       stream_to_s3(file_path, Map.fetch!(oban_args, "filename"))
 
@@ -191,7 +191,7 @@ defmodule TransportWeb.ValidationController do
     ["GTFS", "NeTEx", "GTFS-RT", "GBFS"] |> Enum.map(&{&1, String.downcase(&1)}) |> Kernel.++(schemas)
   end
 
-  def is_valid_type?(type), do: type in (select_options() |> Enum.map(&elem(&1, 1)))
+  def valid_type?(type), do: type in (select_options() |> Enum.map(&elem(&1, 1)))
 
   defp stream_to_s3(local_filepath, path) do
     Transport.S3.stream_to_s3!(:on_demand_validation, local_filepath, path, acl: :public_read)

@@ -689,3 +689,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Latest modification"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "This dataset is hidden"
+msgstr ""

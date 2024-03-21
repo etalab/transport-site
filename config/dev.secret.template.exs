@@ -28,6 +28,9 @@ config :transport, TransportWeb.Endpoint,
     signing_salt: secret_key_base
   ]
 
+# if you need to work on IRVE dashboard, turn this on
+config :transport, :irve_consolidation_caching, true
+
 # for minio local S3 support. See `.miniorc`
 config :ex_aws,
   access_key_id: System.fetch_env!("MINIO_ROOT_USER"),
