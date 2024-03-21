@@ -38,8 +38,7 @@ defmodule TransportWeb.CustomTagsLive do
   end
 
   def tags_suggestions do
-    DB.Dataset.base_query()
-    |> DB.Dataset.include_hidden_datasets()
+    DB.Dataset.base_with_hidden_datasets()
     |> select([d], fragment("distinct unnest(custom_tags)"))
     |> DB.Repo.all()
     |> Enum.sort()

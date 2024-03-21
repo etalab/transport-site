@@ -104,6 +104,8 @@ defmodule DB.Dataset do
   def archived, do: base_query() |> where([dataset: d], not is_nil(d.archived_at))
   def inactive, do: from(d in DB.Dataset, as: :dataset, where: not d.is_active)
   def hidden, do: from(d in DB.Dataset, as: :dataset, where: d.is_active and d.is_hidden)
+  def include_hidden_datasets(%Ecto.Query{} = query), do: or_where(query, [dataset: d], d.is_hidden)
+  def base_with_hidden_datasets, do: base_query() |> include_hidden_datasets()
 
   @spec archived?(__MODULE__.t()) :: boolean()
   def archived?(%__MODULE__{archived_at: nil}), do: false
@@ -111,8 +113,6 @@ defmodule DB.Dataset do
 
   @spec active?(__MODULE__.t()) :: boolean()
   def active?(%__MODULE__{is_active: is_active}), do: is_active
-
-  def include_hidden_datasets(%Ecto.Query{} = query), do: or_where(query, [dataset: d], d.is_hidden)
 
   @doc """
   Creates a query with the following inner joins:
@@ -130,8 +130,7 @@ defmodule DB.Dataset do
   Returns a list of resources, with their last resource_history preloaded
   """
   def last_resource_history(dataset_id) do
-    DB.Dataset.base_query()
-    |> DB.Dataset.include_hidden_datasets()
+    DB.Dataset.base_with_hidden_datasets()
     |> where([dataset: d], d.id == ^dataset_id)
     |> join(:left, [dataset: d], r in DB.Resource, on: d.id == r.dataset_id, as: :resource)
     |> join(:left, [resource: r], rh in DB.ResourceHistory,

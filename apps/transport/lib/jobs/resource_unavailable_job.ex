@@ -23,8 +23,7 @@ defmodule Transport.Jobs.ResourcesUnavailableDispatcherJob do
   end
 
   def resources_to_check(false = _only_unavailable) do
-    DB.Dataset.base_query()
-    |> DB.Dataset.include_hidden_datasets()
+    DB.Dataset.base_with_hidden_datasets()
     |> DB.Resource.join_dataset_with_resource()
     |> where([resource: r], not r.is_community_resource and like(r.url, "http%"))
     |> select([resource: r], r.id)

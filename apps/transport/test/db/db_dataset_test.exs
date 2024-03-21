@@ -766,13 +766,22 @@ defmodule DB.DatasetDBTest do
              })
   end
 
-  test "include_hidden_datasets" do
-    %DB.Dataset{id: dataset_id} = insert(:dataset)
-    %DB.Dataset{id: hidden_dataset_id} = insert(:dataset, is_hidden: true)
+  test "query scopes" do
+    %DB.Dataset{} = active_dataset = insert(:dataset, is_active: true)
+    %DB.Dataset{} = hidden_dataset = insert(:dataset, is_active: true, is_hidden: true)
+    %DB.Dataset{} = inactive_dataset = insert(:dataset, is_active: false)
+    %DB.Dataset{} = archived_dataset = insert(:dataset, is_active: true, archived_at: DateTime.utc_now())
 
-    assert [%DB.Dataset{id: ^dataset_id}] = DB.Dataset.base_query() |> DB.Repo.all()
+    ids = fn datasets ->
+      datasets |> Enum.map(fn %DB.Dataset{id: id} -> id end) |> MapSet.new()
+    end
 
-    assert [%DB.Dataset{id: ^dataset_id}, %DB.Dataset{id: ^hidden_dataset_id}] =
-             DB.Dataset.base_query() |> DB.Dataset.include_hidden_datasets() |> order_by(:id) |> DB.Repo.all()
+    assert ids.([active_dataset, archived_dataset]) == DB.Dataset.base_query() |> DB.Repo.all() |> ids.()
+    assert ids.([archived_dataset]) == DB.Dataset.archived() |> DB.Repo.all() |> ids.()
+    assert ids.([inactive_dataset]) == DB.Dataset.inactive() |> DB.Repo.all() |> ids.()
+    assert ids.([hidden_dataset]) == DB.Dataset.hidden() |> DB.Repo.all() |> ids.()
+
+    assert ids.([active_dataset, hidden_dataset, archived_dataset]) ==
+             DB.Dataset.base_with_hidden_datasets() |> DB.Repo.all() |> ids.()
   end
 end

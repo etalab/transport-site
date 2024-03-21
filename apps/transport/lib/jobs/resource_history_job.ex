@@ -23,7 +23,7 @@ defmodule Transport.Jobs.ResourceHistoryAndValidationDispatcherJob do
   end
 
   def resources_to_historise(resource_id \\ nil) do
-    dataset_ids = DB.Dataset.base_query() |> DB.Dataset.include_hidden_datasets() |> select([dataset: d], d.id)
+    dataset_ids = DB.Dataset.base_with_hidden_datasets() |> select([dataset: d], d.id)
 
     base_query =
       DB.Resource.base_query()

@@ -7,8 +7,7 @@ defmodule Transport.Jobs.DatasetQualityScoreDispatcher do
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
-    DB.Dataset.base_query()
-    |> DB.Dataset.include_hidden_datasets()
+    DB.Dataset.base_with_hidden_datasets()
     |> select([dataset: d], d.id)
     |> DB.Repo.all()
     |> Enum.map(&(%{dataset_id: &1} |> Transport.Jobs.DatasetQualityScore.new()))
