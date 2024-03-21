@@ -11,6 +11,14 @@ defmodule TransportWeb.Backoffice.ContactView do
     PaginationHelpers.pagination_links(conn, contacts, kwargs)
   end
 
+  defp dataset_title(%DB.Dataset{custom_title: custom_title, type: type, is_hidden: false}) do
+    "#{custom_title} (#{type})"
+  end
+
+  defp dataset_title(%DB.Dataset{custom_title: custom_title, type: type, is_hidden: true}) do
+    "#{custom_title} (#{type}) — masqué"
+  end
+
   defp notification_subscriptions_with_dataset(records) do
     records
     |> Enum.reject(&is_nil(&1.dataset_id))
