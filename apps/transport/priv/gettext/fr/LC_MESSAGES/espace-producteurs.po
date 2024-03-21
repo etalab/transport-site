@@ -202,30 +202,37 @@ msgid "Data expiration"
 msgstr "Expiration de données"
 
 #, elixir-autogen, elixir-format
-msgid "Validation errors"
-msgstr "Erreurs de validation"
-
-
-#, elixir-autogen, elixir-format
-msgid "Unavailable resources"
-msgstr "Resources indisponibles"
-
-#, elixir-autogen, elixir-format
-msgid "data expiration notification explanation"
-msgstr "Vous êtes alerté à l'approche et après la date de fin du calendrier de fonctionnement."
-
-#, elixir-autogen, elixir-format
-msgid "validation errors notification explanation"
-msgstr "Vous êtes alerté lorsque votre fichier ne respecte pas les spécifications des normes/standards/schémas correspondants."
-
-#, elixir-autogen, elixir-format
-msgid "unavailable resources notification explanation"
-msgstr "Vous êtes alerté au bout de 6h consécutives pendant lesquelles votre fichier ne peut pas être téléchargé."
-
-#, elixir-autogen, elixir-format
 msgid "Manage my notifications"
 msgstr "Gérer vos notifications"
 
 #, elixir-autogen, elixir-format
 msgid "Turn on all notifications"
 msgstr "Activer toutes les notifications"
+
+#, elixir-autogen, elixir-format
+msgid "Unavailable resources"
+msgstr "Resources indisponibles"
+
+#, elixir-autogen, elixir-format
+msgid "Validation errors"
+msgstr "Erreurs de validation"
+
+#, elixir-autogen, elixir-format
+msgid "data expiration notification explanation"
+msgstr "Vous êtes alerté à l'approche et après la date de fin du calendrier de fonctionnement."
+
+#, elixir-autogen, elixir-format
+msgid "unavailable resources notification explanation"
+msgstr "Vous êtes alerté au bout de 6h consécutives pendant lesquelles votre fichier ne peut pas être téléchargé."
+
+#, elixir-autogen, elixir-format
+msgid "validation errors notification explanation"
+msgstr "Vous êtes alerté lorsque votre fichier ne respecte pas les spécifications des normes/standards/schémas correspondants."
+
+#, elixir-autogen, elixir-format
+msgid "Nobody else is subscribed to this notification"
+msgstr "Aucun autre membre de votre organisation n’est abonné à cette notification."
+
+#, elixir-autogen, elixir-format
+msgid "other subscribed contacts"
+msgstr "Autres abonnés : %{names}"

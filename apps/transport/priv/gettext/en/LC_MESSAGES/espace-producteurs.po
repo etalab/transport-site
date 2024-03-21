@@ -202,7 +202,11 @@ msgid "Data expiration"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Validation errors"
+msgid "Manage my notifications"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Turn on all notifications"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -210,21 +214,25 @@ msgid "Unavailable resources"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "data expiration notification explanation"
-msgstr "You are warned before and after the last date covered by your data."
+msgid "Validation errors"
+msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "validation errors notification explanation"
-msgstr "You are warned if the file doesn't respect the norm, rendering the file unusable."
+msgid "data expiration notification explanation"
+msgstr "You are warned before and after the last date covered by your data."
 
 #, elixir-autogen, elixir-format
 msgid "unavailable resources notification explanation"
 msgstr "You are warned if your file couldn't be downloaded during 6 consecutive hours."
 
 #, elixir-autogen, elixir-format
-msgid "Manage my notifications"
+msgid "validation errors notification explanation"
+msgstr "You are warned if the file doesn't respect the norm, rendering the file unusable."
+
+#, elixir-autogen, elixir-format
+msgid "Nobody else is subscribed to this notification"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Turn on all notifications"
-msgstr ""
+msgid "other subscribed contacts"
+msgstr "Other subscribed contacts: %{names}"

@@ -227,3 +227,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "validation errors notification explanation"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Nobody else is subscribed to this notification"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "other subscribed contacts"
+msgstr ""

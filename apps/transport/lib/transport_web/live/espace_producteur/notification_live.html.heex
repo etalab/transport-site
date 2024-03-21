@@ -74,9 +74,13 @@
                 <td>
                   <% team_subscriptions = @subscriptions[dataset.id][reason][:team_subscriptions] %>
                   <%= if team_subscriptions && team_subscriptions != [] do %>
-                    Autres abonnés : <%= Enum.map_join(team_subscriptions, ", ", &(&1.contact |> DB.Contact.display_name())) %>
+                    <% other_subscribers_names =
+                      Enum.map_join(team_subscriptions, ", ", &(&1.contact |> DB.Contact.display_name())) %>
+                    <%= dgettext("espace-producteurs", "other subscribed contacts", names: other_subscribers_names) %>
                   <% else %>
-                    <i class="is-grey">Aucun autre membre de votre organisation n’est abonné à cette notification.</i>
+                    <i class="is-grey">
+                      <%= dgettext("espace-producteurs", "Nobody else is subscribed to this notification") %>
+                    </i>
                   <% end %>
                 </td>
               </tr>
