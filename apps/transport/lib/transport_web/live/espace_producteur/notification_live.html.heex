@@ -74,9 +74,7 @@
                 <td>
                   <% team_subscriptions = @subscriptions[dataset.id][reason][:team_subscriptions] %>
                   <%= if team_subscriptions && team_subscriptions != [] do %>
-                    Autres abonnés : <%= team_subscriptions
-                    |> Enum.map(&(&1.contact |> DB.Contact.display_name()))
-                    |> Enum.join(", ") %>
+                    Autres abonnés : <%= Enum.map_join(team_subscriptions, ", ", &(&1.contact |> DB.Contact.display_name())) %>
                   <% else %>
                     <i class="is-grey">Aucun autre membre de votre organisation n’est abonné à cette notification.</i>
                   <% end %>
