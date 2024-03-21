@@ -101,7 +101,7 @@ defmodule Transport.GTFSRT do
         header_text: best_translation(el.header_text, requested_language),
         description_text: best_translation(el.description_text, requested_language),
         url: best_translation(el.url, requested_language),
-        is_active: is_active?(el.active_period),
+        is_active: active?(el.active_period),
         current_active_period: current_active_period(el.active_period)
       }
     end)
@@ -126,15 +126,15 @@ defmodule Transport.GTFSRT do
     end
   end
 
-  def is_active?([]), do: true
+  def active?([]), do: true
 
-  def is_active?(time_ranges) do
-    time_ranges |> Enum.map(&is_current?/1) |> Enum.any?()
+  def active?(time_ranges) do
+    time_ranges |> Enum.map(&current?/1) |> Enum.any?()
   end
 
   def current_active_period(time_ranges) do
     time_ranges
-    |> Enum.filter(&is_current?/1)
+    |> Enum.filter(&current?/1)
     |> Enum.map(fn tr -> %{start: to_datetime(tr.start), end: to_datetime(tr.end)} end)
     |> List.first()
   end
@@ -145,18 +145,18 @@ defmodule Transport.GTFSRT do
     DateTime.from_unix!(timestamp)
   end
 
-  def is_current?(%TimeRange{start: nil, end: nil}), do: true
+  def current?(%TimeRange{start: nil, end: nil}), do: true
 
-  def is_current?(%TimeRange{start: start, end: nil}) when not is_nil(start) do
+  def current?(%TimeRange{start: start, end: nil}) when not is_nil(start) do
     DateTime.compare(to_datetime(start), DateTime.utc_now()) == :lt
   end
 
-  def is_current?(%TimeRange{start: nil, end: date_end}) when not is_nil(date_end) do
+  def current?(%TimeRange{start: nil, end: date_end}) when not is_nil(date_end) do
     DateTime.compare(to_datetime(date_end), DateTime.utc_now()) == :gt
   end
 
-  def is_current?(%TimeRange{start: date_start, end: date_end}) do
-    is_current?(%TimeRange{start: date_start}) and is_current?(%TimeRange{end: date_end})
+  def current?(%TimeRange{start: date_start, end: date_end}) do
+    current?(%TimeRange{start: date_start}) and current?(%TimeRange{end: date_end})
   end
 
   defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
