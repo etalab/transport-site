@@ -14,8 +14,12 @@ defmodule Transport.Test.Transport.Jobs.NewDatasetNotificationsJobTest do
   test "relevant_datasets" do
     %{id: d1_id} = insert(:dataset, inserted_at: hours_ago(23), is_active: true)
     %{id: d2_id} = insert(:dataset, inserted_at: hours_ago(1), is_active: true)
+    # Too old
     insert(:dataset, inserted_at: hours_ago(25), is_active: true)
+    # Inactive
     insert(:dataset, inserted_at: hours_ago(5), is_active: false)
+    # Hidden
+    insert(:dataset, inserted_at: hours_ago(5), is_active: true, is_hidden: true)
 
     assert [%DB.Dataset{id: ^d1_id}, %DB.Dataset{id: ^d2_id}] =
              DateTime.utc_now() |> NewDatasetNotificationsJob.relevant_datasets() |> Enum.sort(&(&1.id < &2.id))

@@ -21,9 +21,11 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMetadataJobTest do
     test "selects appropriate resources" do
       active_dataset = insert(:dataset, is_active: true)
       inactive_dataset = insert(:dataset, is_active: false)
+      hidden_dataset = insert(:dataset, is_active: true, is_hidden: true)
       insert(:resource, is_available: true, format: "gbfs")
       insert(:resource, is_available: false, format: "gtfs-rt")
       insert(:resource, is_available: true, format: "gtfs-rt", dataset: inactive_dataset)
+      insert(:resource, is_available: true, format: "gtfs-rt", dataset: hidden_dataset)
       %{id: resource_id} = insert(:resource, is_available: true, format: "gtfs-rt", dataset: active_dataset)
 
       assert :ok == perform_job(GTFSRTMetadataDispatcherJob, %{})
