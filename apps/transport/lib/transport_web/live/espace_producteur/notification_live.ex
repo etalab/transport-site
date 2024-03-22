@@ -62,7 +62,11 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
   defp notification_subscriptions_for_datasets(datasets, current_contact) do
     dataset_ids = datasets |> Enum.map(& &1.id)
 
-    subscriptions_list = DB.NotificationSubscription.producer_subscriptions_for_datasets(dataset_ids)
+    subscriptions_list =
+      dataset_ids
+      |> DB.NotificationSubscription.producer_subscriptions_for_datasets(current_contact.id)
+      |> Enum.uniq_by(& &1.id)
+      |> Enum.reverse()
 
     Enum.reduce(subscriptions_list, subscription_empty_map(dataset_ids), fn subscription, acc ->
       if subscription.contact == current_contact do

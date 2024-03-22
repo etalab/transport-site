@@ -33,6 +33,8 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
         organizations: [%{id: organization_id}]
       })
 
+    insert_admin()
+
     %DB.NotificationSubscription{id: subscription_id} =
       insert(:notification_subscription,
         contact_id: contact_id,
@@ -83,6 +85,8 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
         datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
         organizations: [%{id: organization_id}]
       })
+
+    insert_admin()
 
     conn = build_conn() |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, token: %{}})
 
@@ -153,6 +157,8 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
     %DB.Contact{id: foreign_contact} =
       insert_contact(%{first_name: "Mikhaïl", last_name: "Karlov", organizations: [%{id: foreign_organization_id}]})
 
+    insert_admin()
+
     # Should show, normal colleague
     insert(:notification_subscription,
       contact_id: contact_id_2,
@@ -171,7 +177,9 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
       source: :admin
     )
 
-    # It’s a trap! We subscribed a foreign contact because there wasn’t yet reuser notifications
+    # We subscribed a foreign contact, this should show as well.
+    # We’re ok with that: we suscribe people from other orgs to our datasets but we want producers to know it.
+    # This is because they’re kind of colleagues – it may be the operator vs transport authority.
     insert(:notification_subscription,
       contact_id: foreign_contact,
       dataset_id: dataset_id,
@@ -180,7 +188,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
       source: :user
     )
 
-    # Yet another trap, it’s a reuser notification
+    # This is a trap: it’s a reuser notification
     insert(:notification_subscription,
       contact_id: contact_id_3,
       dataset_id: dataset_id,
@@ -194,8 +202,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
 
     conn = build_conn() |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, token: %{}})
     content = conn |> get(@url) |> html_response(200)
-    assert content =~ "Autres abonnés : Liste de diffusion service transport, Marina Loiseau"
-    refute content =~ "Mikhaïl Karlov"
+    assert content =~ "Autres abonnés : Liste de diffusion service transport, Marina Loiseau, Mikhaïl Karlov"
     refute content =~ "Henri Duflot"
   end
 
@@ -213,6 +220,8 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
         datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
         organizations: [%{id: organization_id}]
       })
+
+    insert_admin()
 
     # Let’s have at least one subscription in base
 
@@ -281,5 +290,21 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
     render_change(view, "toggle-all", %{"action" => "turn_off"})
 
     assert [^not_to_be_deleted_notification] = DB.NotificationSubscription |> DB.Repo.all()
+  end
+
+  defp insert_admin do
+    insert_contact(%{
+      organizations: [
+        %{
+          "name" => "Point d'Accès National transport.data.gouv.fr",
+          "acronym" => nil,
+          "badges" => [],
+          "id" => Ecto.UUID.generate(),
+          "logo" => "https://example.com/original.png",
+          "logo_thumbnail" => "https://example.com/100.png",
+          "slug" => "foo" <> Ecto.UUID.generate()
+        }
+      ]
+    })
   end
 end

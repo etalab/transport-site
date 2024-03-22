@@ -137,22 +137,31 @@ defmodule DB.NotificationSubscription do
     |> DB.Repo.all()
   end
 
-  def producer_subscriptions_for_datasets(dataset_ids) do
-    base_query()
-    |> join_with_contact()
-    |> join(:left, [contact: c], c in assoc(c, :organizations), as: :organization)
-    |> join(:left, [notification_subscription: ns], ns in assoc(ns, :dataset), as: :dataset)
+  def producer_subscriptions_for_datasets(dataset_ids, contact_id) do
+    DB.NotificationSubscription.base_query()
     |> preload(:contact)
     |> where(
-      [notification_subscription: ns, organization: o, dataset: d],
-      ns.dataset_id in ^dataset_ids and not is_nil(ns.dataset_id) and
-        ns.role == :producer and
-        d.organization_id == o.id
+      [notification_subscription: ns],
+      ns.role == :producer and ns.dataset_id in ^dataset_ids
     )
     |> DB.Repo.all()
-    |> Enum.uniq_by(& &1.id)
-    # This is to ensure that the tests are deterministic
-    |> Enum.sort_by(& &1.contact_id)
+    # transport.data.gouv.fr's members who are subscribed as "producers" shouldn't be included.
+    # they are dogfooding the feature
+    |> filter_out_admin_subscription(contact_id)
+    # Alphabetical order (and helps tests)
+    |> Enum.sort_by(&DB.Contact.display_name(&1.contact))
+  end
+
+  def filter_out_admin_subscription(subscriptions, contact_id) do
+    admin_ids = DB.Contact.admin_contact_ids()
+
+    if contact_id in admin_ids do
+      subscriptions
+    else
+      Enum.reject(subscriptions, fn %DB.NotificationSubscription{contact: %DB.Contact{id: contact_id}} ->
+        contact_id in admin_ids
+      end)
+    end
   end
 
   @spec subscriptions_for_dataset_and_role(DB.Dataset.t(), role()) :: [__MODULE__.t()]
