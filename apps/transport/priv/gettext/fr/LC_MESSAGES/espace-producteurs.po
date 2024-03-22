@@ -231,7 +231,7 @@ msgstr "Vous êtes alerté lorsque votre fichier ne respecte pas les spécificat
 
 #, elixir-autogen, elixir-format
 msgid "Nobody else is subscribed to this notification"
-msgstr "Aucun autre membre de votre organisation n’est abonné à cette notification."
+msgstr "Aucun autre membre de votre organisation n’est abonné à cette notification"
 
 #, elixir-autogen, elixir-format
 msgid "other subscribed contacts"
