@@ -1,4 +1,15 @@
 defmodule Transport.RuntimeConfiguration do
+  defmodule SystemEnvProvider do
+    @callback get_env(String.t()) :: String.t() | nil
+
+    defmodule RealImpl do
+      @behaviour SystemEnvProvider
+      defdelegate get_env(key), to: System
+    end
+
+    def impl, do: RealImpl
+  end
+
   def build_config(env_provider, config_env) do
     case config_env do
       :prod ->

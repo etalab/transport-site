@@ -8,7 +8,8 @@ require Logger
 # and secrets from environment variables or elsewhere. Do not define
 # any compile-time configuration in here, as it won't be applied.
 
-{worker, webserver} = Transport.RuntimeConfiguration.build_config(System, config_env())
+{worker, webserver} =
+  Transport.RuntimeConfiguration.build_config(Transport.RuntimeConfiguration.SystemEnvProvider.impl(), config_env())
 
 worker = worker == "1"
 webserver = webserver == "1"
