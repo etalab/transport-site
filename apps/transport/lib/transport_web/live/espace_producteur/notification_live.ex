@@ -34,11 +34,8 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
   def handle_event(
         "toggle",
         %{"dataset-id" => dataset_id, "subscription-id" => subscription_id, "reason" => reason, "action" => action},
-        socket
+        %Phoenix.LiveView.Socket{assigns: %{current_contact: current_contact, datasets: datasets}} = socket
       ) do
-    current_contact = socket.assigns.current_contact
-    datasets = socket.assigns.datasets
-
     toggle_subscription(current_contact, dataset_id, subscription_id, reason, action)
     subscriptions = notification_subscriptions_for_datasets(datasets, current_contact)
     all_notifications_enabled = all_notifications_enabled?(subscriptions)
@@ -46,11 +43,14 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
     {:noreply, assign(socket, subscriptions: subscriptions, all_notifications_enabled: all_notifications_enabled)}
   end
 
-  def handle_event("toggle-all", %{"action" => action}, socket) when action in ["turn_on", "turn_off"] do
-    current_contact = socket.assigns.current_contact
-    datasets = socket.assigns.datasets
-    old_subscriptions = socket.assigns.subscriptions
-
+  def handle_event(
+        "toggle-all",
+        %{"action" => action},
+        %Phoenix.LiveView.Socket{
+          assigns: %{current_contact: current_contact, datasets: datasets, subscriptions: old_subscriptions}
+        } = socket
+      )
+      when action in ["turn_on", "turn_off"] do
     toggle_all_subscriptions(current_contact, old_subscriptions, action)
 
     subscriptions = notification_subscriptions_for_datasets(datasets, current_contact)
@@ -60,15 +60,14 @@ defmodule TransportWeb.EspaceProducteur.NotificationLive do
   end
 
   defp notification_subscriptions_for_datasets(datasets, current_contact) do
-    dataset_ids = datasets |> Enum.map(& &1.id)
+    dataset_ids = Enum.map(datasets, & &1.id)
 
-    subscriptions_list =
-      dataset_ids
-      |> DB.NotificationSubscription.producer_subscriptions_for_datasets(current_contact.id)
-      |> Enum.uniq_by(& &1.id)
-      |> Enum.reverse()
-
-    Enum.reduce(subscriptions_list, subscription_empty_map(dataset_ids), fn subscription, acc ->
+    dataset_ids
+    |> DB.NotificationSubscription.producer_subscriptions_for_datasets(current_contact.id)
+    |> Enum.uniq_by(& &1.id)
+    # keep alphabetical order while injecting with reduce
+    |> Enum.reverse()
+    |> Enum.reduce(subscription_empty_map(dataset_ids), fn subscription, acc ->
       if subscription.contact == current_contact do
         acc |> put_in([subscription.dataset_id, subscription.reason, :user_subscription], subscription)
       else
