@@ -60,9 +60,9 @@ defmodule Transport.Jobs.GTFSGenericConverter do
 
   defp fatal_error_key(format) when format in @allowed_formats, do: "conversion_#{format}_fatal_error"
 
-  defp is_resource_gtfs?(%{payload: %{"format" => "GTFS"}}), do: true
+  defp resource_gtfs?(%{payload: %{"format" => "GTFS"}}), do: true
 
-  defp is_resource_gtfs?(_), do: false
+  defp resource_gtfs?(_), do: false
 
   @spec conversion_exists?(DB.ResourceHistory.t() | nil, binary()) :: boolean
   @doc """
@@ -91,7 +91,7 @@ defmodule Transport.Jobs.GTFSGenericConverter do
   def perform_single_conversion_job(resource_history_id, format, converter_module) when format in @allowed_formats do
     resource_history = ResourceHistory |> Repo.get(resource_history_id)
 
-    case is_resource_gtfs?(resource_history) and not conversion_exists?(resource_history, format) do
+    case resource_gtfs?(resource_history) and not conversion_exists?(resource_history, format) do
       true ->
         generate_and_upload_conversion(resource_history, format, converter_module)
 

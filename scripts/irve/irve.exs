@@ -1,62 +1,76 @@
+#! /usr/bin/env mix run
+
 # the basis of a mass-analysis script for IRVE files,
 # inspired by https://github.com/etalab/notebooks/blob/master/irve-v2/consolidation-irve-v2.ipynb
 
-Mix.install([
-  {:req, "~> 0.3.0"}
-])
+require Logger
 
-Code.require_file("req_custom_cache.exs")
+Logger.info("Retrieving each relevant datagouv page & listing resources")
 
-defmodule Streamer do
-  def cache_dir, do: Path.join(__ENV__.file, "../cache-dir") |> Path.expand()
+resources = Transport.IRVE.Extractor.resources()
 
-  @doc """
-  Execute HTTP query, unless the file is already in the disk cache.
-  """
-  def get!(url) do
-    url = URI.encode(url)
-    # use the cache plugin
-    req = Req.new() |> CustomCache.attach()
-    %{body: body, status: 200} = Req.get!(req, url: url, custom_cache_dir: cache_dir())
-    body
-  end
+Logger.info("Sharing a few stats...")
 
-  @doc """
-  Query one page, and use that to infer the list of all urls (for index-based pagination like data gouv)
-  """
-  def pages(base_url) do
-    data = get!(base_url <> "&page_size=100")
-    %{"total" => total, "page_size" => page_size} = data
-    nb_pages = div(total, page_size) + 1
+if System.get_env("SHOW_STATS") == "1" do
+  IO.puts("=== Sample ===")
+  resources |> Enum.take(2) |> IO.inspect(IEx.inspect_opts())
 
-    1..nb_pages
-    |> Stream.map(&%{url: base_url <> "&page=#{&1}", source: base_url})
-  end
+  IO.puts("=== Stats ===")
+  IO.inspect(%{count: resources |> length}, IEx.inspect_opts() |> Keyword.put(:label, "total_count"))
+
+  # M'a aidé à me rendre compte que.. un gros paquet est invalide!
+  resources
+  |> Enum.frequencies_by(fn x -> x[:valid] end)
+  |> IO.inspect(IEx.inspect_opts() |> Keyword.put(:label, "group_by(:valid)"))
+
+  resources
+  |> Enum.frequencies_by(fn x -> x[:valid] end)
+  |> Enum.map(fn {_, v} -> ((100 * v / (resources |> length)) |> trunc() |> to_string) <> "%" end)
+  |> IO.inspect(IEx.inspect_opts() |> Keyword.put(:label, "group_by(:valid) as %"))
+
+  # M'a aidé à me rendre compte que... il y avait plusieurs schémas, car on recherche par "dataset",
+  # mais après on travaille au niveau ressources, et donc on cherche par le "schéma de chaque ressource du dataset",
+  # ce qui fait qu'il y a des choses en trop.
+  resources
+  |> Enum.frequencies_by(fn x -> x[:schema_name] end)
+  |> IO.inspect(IEx.inspect_opts() |> Keyword.put(:label, "group_by(:schema_name)"))
+
+  resources
+  |> Enum.frequencies_by(fn x -> x[:schema_version] end)
+  |> IO.inspect(IEx.inspect_opts() |> Keyword.put(:label, "group_by(:schema_version)"))
+
+  resources
+  |> Enum.frequencies_by(fn x -> x[:filetype] end)
+  |> IO.inspect(IEx.inspect_opts() |> Keyword.put(:label, "group_by(:filetype)"))
 end
 
-# NOTE: currently not deduping, because I saw weird things while doing it
-[
-  "https://www.data.gouv.fr/api/1/datasets/?tag=irve",
-  "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve",
-  "https://www.data.gouv.fr/api/1/datasets/?q=recharge+véhicules+électriques",
-  "https://www.data.gouv.fr/api/1/datasets/?q=irve"
-]
-|> Enum.map(&Streamer.pages(&1))
-|> Stream.concat()
-|> Stream.map(fn %{url: url} = page -> Map.put(page, :data, Streamer.get!(url)) end)
-|> Stream.flat_map(fn page -> page[:data]["data"] end)
-|> Stream.map(fn dataset ->
-  for resource <- dataset["resources"] do
-    %{
-      dataset_id: Map.fetch!(dataset, "id"),
-      dataset_slug: Map.fetch!(dataset, "slug"),
-      dataset_page: Map.fetch!(dataset, "page"),
-      resource_id: Map.fetch!(resource, "id"),
-      resource_title: Map.fetch!(resource, "title"),
-      resource_last_modified: Map.fetch!(resource, "last_modified")
-    }
-  end
-end)
-|> Stream.concat()
-|> Stream.each(fn x -> IO.inspect(x, IEx.inspect_opts()) end)
-|> Stream.run()
+Logger.info("Fetching each IRVE resource so that we can retrieve PDC count... (must be parallelized, otherwise awful)")
+
+resources = Transport.IRVE.Extractor.download_and_parse_all(resources)
+
+Logger.info("Inserting report in DB...")
+
+Transport.IRVE.Extractor.insert_report!(resources)
+
+Logger.info("Doing more stats...")
+
+resources
+# |> Enum.filter(fn x -> x[:id_pdc_itinerance_detected] == true && x[:old_schema] == true end)
+|> Enum.frequencies_by(fn x -> Map.take(x, [:id_pdc_itinerance_detected, :old_schema]) end)
+|> IO.inspect()
+
+recent_stuff =
+  resources
+  |> Enum.filter(fn x -> x[:id_pdc_itinerance_detected] end)
+
+recent_stuff
+|> Enum.frequencies_by(fn x -> x[:valid] end)
+|> IO.inspect(IEx.inspect_opts() |> Keyword.put(:label, "group_by(:valid)"))
+
+recent_stuff
+|> Enum.filter(fn x -> x[:valid] == false end)
+|> Enum.sort_by(fn x -> -x[:line_count] end)
+|> Enum.map(fn x -> {x[:line_count], "https://www.data.gouv.fr/fr/datasets/" <> x[:dataset_id]} end)
+|> IO.inspect(limit: :infinity)
+
+IO.puts("Done")

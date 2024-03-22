@@ -21,10 +21,7 @@ defmodule Transport.ImportData do
   def import_all_datasets do
     Logger.info("reimporting all active datasets")
 
-    datasets =
-      Dataset
-      |> where([d], d.is_active == true)
-      |> Repo.all()
+    datasets = DB.Dataset.base_with_hidden_datasets() |> Repo.all()
 
     results =
       ImportTaskSupervisor
@@ -368,15 +365,15 @@ defmodule Transport.ImportData do
   @spec get_valid_documentation_resources([map()]) :: [map()]
   def get_valid_documentation_resources(resources) do
     resources
-    |> Enum.filter(&(is_documentation?(&1) or is_documentation_format?(&1)))
+    |> Enum.filter(&(documentation?(&1) or documentation_format?(&1)))
     |> Enum.map(fn resource -> %{resource | "type" => "documentation"} end)
   end
 
   @spec get_valid_gtfs_resources([map()]) :: [map()]
   def get_valid_gtfs_resources(resources) do
     cond do
-      !Enum.empty?(l = Enum.filter(resources, &is_gtfs?/1)) -> l
-      !Enum.empty?(l = Enum.filter(resources, &is_zip?/1)) -> l
+      !Enum.empty?(l = Enum.filter(resources, &gtfs?/1)) -> l
+      !Enum.empty?(l = Enum.filter(resources, &zip?/1)) -> l
       !Enum.empty?(l = UrlExtractor.get_gtfs_csv_resources(resources)) -> l
       true -> []
     end
@@ -386,7 +383,7 @@ defmodule Transport.ImportData do
   def get_valid_netex_resources(resources) do
     resources =
       cond do
-        !Enum.empty?(l = Enum.filter(resources, &is_netex?/1)) -> l
+        !Enum.empty?(l = Enum.filter(resources, &netex?/1)) -> l
         !Enum.empty?(l = UrlExtractor.get_netex_csv_resources(resources)) -> l
         true -> []
       end
@@ -398,7 +395,7 @@ defmodule Transport.ImportData do
   def get_valid_gtfs_rt_resources(resources) do
     resources =
       cond do
-        !Enum.empty?(l = Enum.filter(resources, &is_gtfs_rt?/1)) -> l
+        !Enum.empty?(l = Enum.filter(resources, &gtfs_rt?/1)) -> l
         !Enum.empty?(l = UrlExtractor.get_gtfs_rt_csv_resources(resources)) -> l
         true -> []
       end
@@ -412,12 +409,12 @@ defmodule Transport.ImportData do
   """
   @spec get_valid_siri_resources([map()]) :: [map()]
   def get_valid_siri_resources(resources) do
-    resources |> Enum.filter(&is_siri?/1) |> Enum.map(fn r -> %{r | "format" => "SIRI"} end)
+    resources |> Enum.filter(&siri?/1) |> Enum.map(fn r -> %{r | "format" => "SIRI"} end)
   end
 
   @spec get_valid_siri_lite_resources([map()]) :: [map()]
   def get_valid_siri_lite_resources(resources) do
-    resources |> Enum.filter(&is_siri_lite?/1) |> Enum.map(fn r -> %{r | "format" => "SIRI Lite"} end)
+    resources |> Enum.filter(&siri_lite?/1) |> Enum.map(fn r -> %{r | "format" => "SIRI Lite"} end)
   end
 
   @spec get_community_resources(map()) :: [map()]
@@ -435,210 +432,210 @@ defmodule Transport.ImportData do
   end
 
   @doc """
-  iex> is_ods_resource?(%{"format" => "json", "title" => "GTFS (json)", "harvest" => %{"uri" => "https://data.angers.fr/api/explore/v2.1/catalog/datasets/angers-loire-metropole-horaires-reseau-irigo-gtfs-rt/exports/json"}})
+  iex> ods_resource?(%{"format" => "json", "title" => "GTFS (json)", "harvest" => %{"uri" => "https://data.angers.fr/api/explore/v2.1/catalog/datasets/angers-loire-metropole-horaires-reseau-irigo-gtfs-rt/exports/json"}})
   true
-  iex> is_ods_resource?(%{"format" => "GTFS", "title" => "GTFS été"})
+  iex> ods_resource?(%{"format" => "GTFS", "title" => "GTFS été"})
   false
-  iex> is_ods_resource?(%{"format" => "csv", "title" => "Export au format CSV"})
+  iex> ods_resource?(%{"format" => "csv", "title" => "Export au format CSV"})
   true
   """
   # Will soon be legacy, after DCAT migration
   # (see https://github.com/etalab/transport-site/issues/3647)
-  def is_ods_resource?(%{"title" => title})
+  def ods_resource?(%{"title" => title})
       when title in ["Export au format CSV", "Export au format JSON"],
       do: true
 
-  def is_ods_resource?(%{"harvest" => %{"uri" => uri}}) do
+  def ods_resource?(%{"harvest" => %{"uri" => uri}}) do
     # Possible URL:
     # https://data.angers.fr/api/explore/v2.1/catalog/datasets/angers-loire-metropole-horaires-reseau-irigo-gtfs-rt/exports/json
     String.match?(uri, ~r{/api/explore/v\d+\.\d+/catalog/datasets/.*/exports/\w+$}i)
   end
 
-  def is_ods_resource?(_), do: false
+  def ods_resource?(_), do: false
 
   @doc """
   Is it a GTFS file?
 
   ## Examples
 
-  iex> is_gtfs?("NeTEx")
+  iex> gtfs?("NeTEx")
   false
-  iex> is_gtfs?("sncf.tgv.GtFs.zip.tar.gz.7z")
+  iex> gtfs?("sncf.tgv.GtFs.zip.tar.gz.7z")
   true
-  iex> is_gtfs?(%{"format" => "gtfs-rt"})
+  iex> gtfs?(%{"format" => "gtfs-rt"})
   false
-  iex> is_gtfs?(%{"format" => "pb", "url" => "https://example.com/GtfsRt/GtfsRT.TCRA.pb"})
+  iex> gtfs?(%{"format" => "pb", "url" => "https://example.com/GtfsRt/GtfsRT.TCRA.pb"})
   false
-  iex> is_gtfs?(%{"format" => "gtfs", "description" => "Lien vers le fichier GTFS utilisé avec le GTFS-RT."})
+  iex> gtfs?(%{"format" => "gtfs", "description" => "Lien vers le fichier GTFS utilisé avec le GTFS-RT."})
   true
-  iex> is_gtfs?(%{"format" => "zip", "title" => "GTFS RTM", "url" => "https://example.com/api/Export/v1/GetExportedDataFile?ExportFormat=Gtfs&OperatorCode=RTM"})
+  iex> gtfs?(%{"format" => "zip", "title" => "GTFS RTM", "url" => "https://example.com/api/Export/v1/GetExportedDataFile?ExportFormat=Gtfs&OperatorCode=RTM"})
   true
-  iex> is_gtfs?(%{"description" => "gtfs", "title" => "Export au format CSV"})
+  iex> gtfs?(%{"description" => "gtfs", "title" => "Export au format CSV"})
   false
-  iex> is_gtfs?(%{"title" => "Angers GTFS (json)", "format" => "json", "harvest" => %{"uri" => "https://example.com/api/explore/v2.1/catalog/datasets/foo/exports/json"}})
+  iex> gtfs?(%{"title" => "Angers GTFS (json)", "format" => "json", "harvest" => %{"uri" => "https://example.com/api/explore/v2.1/catalog/datasets/foo/exports/json"}})
   false
-  iex> is_gtfs?(%{"format" => "gtfs", "title" => "Export au format CSV"})
+  iex> gtfs?(%{"format" => "gtfs", "title" => "Export au format CSV"})
   true
-  iex> is_gtfs?(%{"url" => "https://example.com/documentation-gtfs.pdf", "type" => "documentation"})
+  iex> gtfs?(%{"url" => "https://example.com/documentation-gtfs.pdf", "type" => "documentation"})
   false
   """
-  @spec is_gtfs?(map()) :: boolean()
+  @spec gtfs?(map()) :: boolean()
   # credo:disable-for-next-line
-  def is_gtfs?(%{} = params) do
+  def gtfs?(%{} = params) do
     cond do
-      is_gtfs?(params["format"]) -> true
-      is_ods_resource?(params) or is_documentation?(params) -> false
-      is_gtfs_rt?(params) -> false
-      is_format?(params["url"], ["json", "csv", "shp", "pdf", "7z"]) -> false
-      is_format?(params["format"], "NeTEx") -> false
-      is_netex?(params["title"]) -> false
-      is_gtfs?(params["description"]) -> true
-      is_gtfs?(params["title"]) -> true
+      gtfs?(params["format"]) -> true
+      ods_resource?(params) or documentation?(params) -> false
+      gtfs_rt?(params) -> false
+      format?(params["url"], ["json", "csv", "shp", "pdf", "7z"]) -> false
+      format?(params["format"], "NeTEx") -> false
+      netex?(params["title"]) -> false
+      gtfs?(params["description"]) -> true
+      gtfs?(params["title"]) -> true
       true -> false
     end
   end
 
-  def is_gtfs?(str), do: is_format?(str, "gtfs") and not is_gtfs_rt?(str)
+  def gtfs?(str), do: format?(str, "gtfs") and not gtfs_rt?(str)
 
   @doc """
   Is it a GTFS-RT feed?
 
   ## Examples
 
-  iex> is_gtfs_rt?(%{"format" => "pb", "url" => "https://example.com/GtfsRt/GtfsRT.TCRA.pb"})
+  iex> gtfs_rt?(%{"format" => "pb", "url" => "https://example.com/GtfsRt/GtfsRT.TCRA.pb"})
   true
-  iex> is_gtfs_rt?(%{"format" => "pb", "url" => "https://example.com/feed.pb", "title" => "GTFS-RT réseau ORIZO"})
+  iex> gtfs_rt?(%{"format" => "pb", "url" => "https://example.com/feed.pb", "title" => "GTFS-RT réseau ORIZO"})
   true
-  iex> is_gtfs_rt?(%{"format" => "gtfs-rt"})
+  iex> gtfs_rt?(%{"format" => "gtfs-rt"})
   true
-  iex> Enum.all?(["GTFS RT", "gtfs rt", "GTFS-RT"], &is_gtfs_rt?/1)
+  iex> Enum.all?(["GTFS RT", "gtfs rt", "GTFS-RT"], &gtfs_rt?/1)
   true
-  iex> Enum.all?(["GTFS RTM", "gtfs théorique", "ZIP GTFS"], &(! is_gtfs_rt?(&1)))
+  iex> Enum.all?(["GTFS RTM", "gtfs théorique", "ZIP GTFS"], &(! gtfs_rt?(&1)))
   true
-  iex> is_gtfs_rt?(%{"description" => "gtfs-rt", "title" => "Export au format CSV"})
+  iex> gtfs_rt?(%{"description" => "gtfs-rt", "title" => "Export au format CSV"})
   false
-  iex> is_gtfs_rt?(%{"format" => "json", "title" => "GTFS-RT vehicle positions", "description" => "gtfs-rt", "harvest" => %{"uri" => "https://example.com/api/explore/v2.1/catalog/datasets/foo/exports/json"}})
+  iex> gtfs_rt?(%{"format" => "json", "title" => "GTFS-RT vehicle positions", "description" => "gtfs-rt", "harvest" => %{"uri" => "https://example.com/api/explore/v2.1/catalog/datasets/foo/exports/json"}})
   false
-  iex> is_gtfs_rt?(%{"format" => "gtfs-rt", "title" => "Export au format CSV"})
+  iex> gtfs_rt?(%{"format" => "gtfs-rt", "title" => "Export au format CSV"})
   true
   """
-  @spec is_gtfs_rt?(binary() | map()) :: boolean()
-  def is_gtfs_rt?(%{} = params) do
+  @spec gtfs_rt?(binary() | map()) :: boolean()
+  def gtfs_rt?(%{} = params) do
     cond do
-      is_gtfs_rt?(params["format"]) -> true
-      is_ods_resource?(params) or is_documentation?(params) -> false
-      is_gtfs_rt?(params["description"]) -> true
-      is_gtfs_rt?(params["title"]) -> true
-      is_gtfs_rt?(params["url"]) -> true
+      gtfs_rt?(params["format"]) -> true
+      ods_resource?(params) or documentation?(params) -> false
+      gtfs_rt?(params["description"]) -> true
+      gtfs_rt?(params["title"]) -> true
+      gtfs_rt?(params["url"]) -> true
       true -> false
     end
   end
 
-  def is_gtfs_rt?(str) when is_binary(str), do: String.match?(str, ~r/\b(gtfs-rt|gtfsrt|gtfs rt)\b/i)
-  def is_gtfs_rt?(_), do: false
+  def gtfs_rt?(str) when is_binary(str), do: String.match?(str, ~r/\b(gtfs-rt|gtfsrt|gtfs rt)\b/i)
+  def gtfs_rt?(_), do: false
 
   @doc """
-  iex> is_documentation?(%{"format" => "gtfs"})
+  iex> documentation?(%{"format" => "gtfs"})
   false
-  iex> is_documentation?(%{"format" => "csv"})
+  iex> documentation?(%{"format" => "csv"})
   false
-  iex> is_documentation?(%{"format" => "PDF"})
+  iex> documentation?(%{"format" => "PDF"})
   false
-  iex> is_documentation?(%{"type" => "documentation", "format" => "docx"})
+  iex> documentation?(%{"type" => "documentation", "format" => "docx"})
   true
-  iex> is_documentation?(nil)
+  iex> documentation?(nil)
   false
-  iex> is_documentation?("pdf")
+  iex> documentation?("pdf")
   false
   """
-  @spec is_documentation?(any()) :: boolean()
-  def is_documentation?(%{"type" => "documentation"}), do: true
-  def is_documentation?(_), do: false
+  @spec documentation?(any()) :: boolean()
+  def documentation?(%{"type" => "documentation"}), do: true
+  def documentation?(_), do: false
 
   @doc """
   Determines if a format is likely a documentation format.
   Only used for the `public-transit` type, other types use
-  `is_documentation?/1` which is stricter.
+  `documentation?/1` which is stricter.
 
-  iex> is_documentation_format?("PDF")
+  iex> documentation_format?("PDF")
   true
-  iex> is_documentation_format?("GTFS")
+  iex> documentation_format?("GTFS")
   false
   """
-  def is_documentation_format?(%{"format" => format}), do: is_documentation_format?(format)
+  def documentation_format?(%{"format" => format}), do: documentation_format?(format)
 
-  def is_documentation_format?(format) do
-    is_format?(format, ["pdf", "svg", "html"])
+  def documentation_format?(format) do
+    format?(format, ["pdf", "svg", "html"])
   end
 
   @doc """
-  iex> is_siri?("siri lite")
+  iex> siri?("siri lite")
   false
-  iex> is_siri?("SIRI")
+  iex> siri?("SIRI")
   true
-  iex> is_siri?(%{"format" => "SIRI"})
+  iex> siri?(%{"format" => "SIRI"})
   true
-  iex> is_siri?(%{"title" => "Export au format CSV", "format" => "SIRI"})
+  iex> siri?(%{"title" => "Export au format CSV", "format" => "SIRI"})
   false
-  iex> is_siri?(%{"title" => "Flux SIRI", "format" => "csv", "harvest" => %{"uri" => "https://example.com/api/explore/v2.1/catalog/datasets/foo/exports/json"}})
+  iex> siri?(%{"title" => "Flux SIRI", "format" => "csv", "harvest" => %{"uri" => "https://example.com/api/explore/v2.1/catalog/datasets/foo/exports/json"}})
   false
-  iex> is_siri?(%{"title" => "https://api.okina.fr/gateway/cae/realtime", "format" => "bin", "description" => "API temps réel au format SIRI"})
+  iex> siri?(%{"title" => "https://api.okina.fr/gateway/cae/realtime", "format" => "bin", "description" => "API temps réel au format SIRI"})
   true
-  iex> is_siri?(%{"type" => "documentation", "title" => "Documentation de l'API SIRI"})
+  iex> siri?(%{"type" => "documentation", "title" => "Documentation de l'API SIRI"})
   false
   """
-  @spec is_siri?(binary() | map()) :: boolean()
-  def is_siri?(%{} = params) do
+  @spec siri?(binary() | map()) :: boolean()
+  def siri?(%{} = params) do
     cond do
-      is_siri_lite?(params) -> false
-      is_ods_resource?(params) or is_documentation?(params) -> false
-      is_format?(params, "siri") -> true
-      is_siri?(params["title"]) -> true
-      is_siri?(params["description"]) -> true
-      is_siri?(params["url"]) -> true
+      siri_lite?(params) -> false
+      ods_resource?(params) or documentation?(params) -> false
+      format?(params, "siri") -> true
+      siri?(params["title"]) -> true
+      siri?(params["description"]) -> true
+      siri?(params["url"]) -> true
       true -> false
     end
   end
 
-  def is_siri?(format), do: not is_siri_lite?(format) and is_format?(format, "siri")
+  def siri?(format), do: not siri_lite?(format) and format?(format, "siri")
 
   @doc """
-  iex> is_siri_lite?("siri lite")
+  iex> siri_lite?("siri lite")
   true
-  iex> is_siri_lite?("siri-lite")
+  iex> siri_lite?("siri-lite")
   true
-  iex> is_siri_lite?("SIRI Lite")
+  iex> siri_lite?("SIRI Lite")
   true
-  iex> is_siri_lite?("SIRI")
+  iex> siri_lite?("SIRI")
   false
   """
-  @spec is_siri_lite?(binary() | map()) :: boolean()
-  def is_siri_lite?(params) do
+  @spec siri_lite?(binary() | map()) :: boolean()
+  def siri_lite?(params) do
     cond do
-      is_ods_resource?(params) or is_documentation?(params) -> false
-      is_format?(params, "SIRI Lite") -> true
+      ods_resource?(params) or documentation?(params) -> false
+      format?(params, "SIRI Lite") -> true
       true -> false
     end
   end
 
   @doc """
   check the format
-      iex> is_format?("NeTEx", ["GTFS", "NeTEx"])
+      iex> format?("NeTEx", ["GTFS", "NeTEx"])
       true
 
-      iex> is_format?("pouet", ["GTFS", "NeTEx"])
+      iex> format?("pouet", ["GTFS", "NeTEx"])
       false
 
-      iex> is_format?(%{"format" => "NeTEx"}, "NeTEx")
+      iex> format?(%{"format" => "NeTEx"}, "NeTEx")
       true
   """
-  @spec is_format?(binary() | map(), binary() | [binary()]) :: boolean
-  def is_format?(nil, _), do: false
-  def is_format?(%{"format" => format}, expected), do: is_format?(format, expected)
-  def is_format?(value, [head | tail]), do: is_format?(value, head) || is_format?(value, tail)
-  def is_format?(_, []), do: false
+  @spec format?(binary() | map(), binary() | [binary()]) :: boolean
+  def format?(nil, _), do: false
+  def format?(%{"format" => format}, expected), do: format?(format, expected)
+  def format?(value, [head | tail]), do: format?(value, head) || format?(value, tail)
+  def format?(_, []), do: false
 
-  def is_format?(str, expected),
+  def format?(str, expected),
     do: String.contains?(clean_format(str), clean_format(expected))
 
   @doc """
@@ -658,58 +655,58 @@ defmodule Transport.ImportData do
   Is the ressource a zip file?
 
   ## Examples
-      iex> is_zip?(%{"mime" => "application/zip", "format" => nil})
+      iex> zip?(%{"mime" => "application/zip", "format" => nil})
       true
 
-      iex> is_zip?(%{"mime" => nil, "format" => "zip"})
+      iex> zip?(%{"mime" => nil, "format" => "zip"})
       true
 
-      iex> is_zip?(%{"mime" => nil, "format" => "ZIP"})
+      iex> zip?(%{"mime" => nil, "format" => "ZIP"})
       true
 
-      iex> is_zip?(%{"mime" => "application/exe", "format" => nil})
+      iex> zip?(%{"mime" => "application/exe", "format" => nil})
       false
   """
-  @spec is_zip?(binary() | map()) :: boolean()
-  def is_zip?(%{"mime" => nil, "format" => format}), do: is_zip?(format)
-  def is_zip?(%{"mime" => mime, "format" => nil}), do: is_zip?(mime)
-  def is_zip?(%{"mime" => mime, "format" => format}), do: is_zip?(mime) || is_zip?(format)
-  def is_zip?(str), do: is_format?(str, "zip")
+  @spec zip?(binary() | map()) :: boolean()
+  def zip?(%{"mime" => nil, "format" => format}), do: zip?(format)
+  def zip?(%{"mime" => mime, "format" => nil}), do: zip?(mime)
+  def zip?(%{"mime" => mime, "format" => format}), do: zip?(mime) || zip?(format)
+  def zip?(str), do: format?(str, "zip")
 
   @doc """
   Is the resource a NeTEx file?
 
   ## Examples
-  iex> is_netex?(%{"format" => "netex"})
+  iex> netex?(%{"format" => "netex"})
   true
-  iex> is_netex?(%{"description" => "Un super fichier NeTEx.", "format" => "zip"})
+  iex> netex?(%{"description" => "Un super fichier NeTEx.", "format" => "zip"})
   true
-  iex> is_netex?(%{"url" => "https://example.com/netex.zip", "format" => "zip"})
+  iex> netex?(%{"url" => "https://example.com/netex.zip", "format" => "zip"})
   true
-  iex> is_netex?(%{"url" => "https://example.com/export.zip", "format" => "zip", "title" => "Export NeTEx été"})
+  iex> netex?(%{"url" => "https://example.com/export.zip", "format" => "zip", "title" => "Export NeTEx été"})
   true
-  iex> is_netex?(%{"url" => "https://example.com/gtfs.zip", "format" => "zip"})
+  iex> netex?(%{"url" => "https://example.com/gtfs.zip", "format" => "zip"})
   false
-  iex> is_netex?(%{"url" => "https://example.com/doc-netex.pdf", "type" => "documentation"})
+  iex> netex?(%{"url" => "https://example.com/doc-netex.pdf", "type" => "documentation"})
   false
-  iex> is_netex?(%{"title" => "Export au format CSV", "format" => "netex"})
+  iex> netex?(%{"title" => "Export au format CSV", "format" => "netex"})
   true
-  iex> is_netex?(%{"title" => "Angers NeTEx (json)", "format" => "json", "harvest" => %{"uri" => "https://example.com/api/explore/v2.1/catalog/datasets/foo/exports/json"}})
+  iex> netex?(%{"title" => "Angers NeTEx (json)", "format" => "json", "harvest" => %{"uri" => "https://example.com/api/explore/v2.1/catalog/datasets/foo/exports/json"}})
   false
   """
-  @spec is_netex?(binary() | map()) :: boolean()
-  def is_netex?(%{} = params) do
+  @spec netex?(binary() | map()) :: boolean()
+  def netex?(%{} = params) do
     cond do
-      is_netex?(params["format"]) -> true
-      is_ods_resource?(params) or is_documentation?(params) -> false
-      is_netex?(params["title"]) -> true
-      is_netex?(params["description"]) -> true
-      is_netex?(params["url"]) -> true
+      netex?(params["format"]) -> true
+      ods_resource?(params) or documentation?(params) -> false
+      netex?(params["title"]) -> true
+      netex?(params["description"]) -> true
+      netex?(params["url"]) -> true
       true -> false
     end
   end
 
-  def is_netex?(s), do: is_format?(s, "NeTEx")
+  def netex?(s), do: format?(s, "NeTEx")
 
   @doc """
   Check for download uri, returns ["no_download_url"] if there's no download_url
@@ -803,22 +800,22 @@ defmodule Transport.ImportData do
     is_documentation = Map.get(resource, "type", "") == "documentation"
 
     cond do
-      is_gtfs_rt?(format) -> "gtfs-rt"
-      is_netex?(resource) -> "NeTEx"
-      is_gtfs?(resource) -> "GTFS"
-      is_siri_lite?(format) -> "SIRI Lite"
-      is_siri?(format) -> "SIRI"
-      is_geojson?(resource, format) -> "geojson"
+      gtfs_rt?(format) -> "gtfs-rt"
+      netex?(resource) -> "NeTEx"
+      gtfs?(resource) -> "GTFS"
+      siri_lite?(format) -> "SIRI Lite"
+      siri?(format) -> "SIRI"
+      geojson?(resource, format) -> "geojson"
       type == "public-transit" and not is_documentation and not is_community_resource -> "GTFS"
-      type in ["bike-scooter-sharing", "car-motorbike-sharing"] and is_gbfs?(resource) -> "gbfs"
+      type in ["bike-scooter-sharing", "car-motorbike-sharing"] and gbfs?(resource) -> "gbfs"
       true -> format
     end
   end
 
-  defp is_geojson?(%{"url" => url}, format), do: is_format?(format, "geojson") or String.ends_with?(url, "geojson")
-  defp is_geojson?(_, format), do: is_format?(format, "geojson")
+  defp geojson?(%{"url" => url}, format), do: format?(format, "geojson") or String.ends_with?(url, "geojson")
+  defp geojson?(_, format), do: format?(format, "geojson")
 
-  defp is_gbfs?(%{"url" => url}) do
+  defp gbfs?(%{"url" => url}) do
     if String.contains?(url, "gbfs") do
       Enum.all?(["free_bike", "station"] |> Enum.map(fn w -> not String.contains?(url, w) end))
     else

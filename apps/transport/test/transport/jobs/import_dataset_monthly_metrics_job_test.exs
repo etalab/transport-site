@@ -1,4 +1,4 @@
-defmodule Transport.Test.Transport.Jobs.ImportDatasetMonthlyMetricsTestJob do
+defmodule Transport.Test.Transport.Jobs.ImportDatasetMonthlyMetricsJobTest do
   use ExUnit.Case, async: true
   import DB.Factory
   import Ecto.Query
@@ -134,6 +134,7 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetMonthlyMetricsTestJob do
     %DB.Dataset{datagouv_id: d1_datagouv_id} = insert(:dataset)
     %DB.Dataset{datagouv_id: d2_datagouv_id} = insert(:dataset)
     insert(:dataset, is_active: false)
+    insert(:dataset, is_active: true, is_hidden: true)
 
     assert MapSet.new([d1_datagouv_id, d2_datagouv_id]) ==
              ImportDatasetMonthlyMetricsJob.dataset_datagouv_ids() |> MapSet.new()

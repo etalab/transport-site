@@ -689,3 +689,7 @@ msgstr "Taux de disponibilité"
 #, elixir-autogen, elixir-format
 msgid "Latest modification"
 msgstr "Dernière modification"
+
+#, elixir-autogen, elixir-format
+msgid "This dataset is hidden"
+msgstr "Ce jeu de données est masqué"

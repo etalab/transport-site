@@ -199,6 +199,10 @@ defmodule TransportWeb.Router do
         live("/batch-report", DataImportBatchReportLive)
       end
 
+      live_session :irve_dashboard, root_layout: {TransportWeb.LayoutView, :app} do
+        live("/irve-dashboard", IRVEDashboardLive)
+      end
+
       scope "/datasets" do
         get("/new", PageController, :new)
         get("/:id/edit", PageController, :edit)
@@ -370,7 +374,7 @@ defmodule TransportWeb.Router do
   end
 
   defp transport_data_gouv_member(%Plug.Conn{} = conn, _) do
-    if TransportWeb.Session.is_admin?(conn) do
+    if TransportWeb.Session.admin?(conn) do
       conn
     else
       conn

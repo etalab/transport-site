@@ -100,14 +100,14 @@ defmodule Transport.Test.Transport.Jobs.DatasetHistoryJobTest do
   end
 
   test "enqueue all dataset history jobs" do
-    %{id: id_1} = insert(:dataset)
-    %{id: id_2} = insert(:dataset)
-    %{id: id_3} = insert(:dataset, is_active: false)
+    %DB.Dataset{id: active_dataset_id} = insert(:dataset, is_active: true, is_hidden: false)
+    %DB.Dataset{id: hidden_dataset_id} = insert(:dataset, is_active: true, is_hidden: true)
+    %DB.Dataset{id: inactive_dataset_id} = insert(:dataset, is_active: false)
 
     assert :ok = perform_job(Transport.Jobs.DatasetHistoryDispatcherJob, %{})
 
-    assert_enqueued([worker: Transport.Jobs.DatasetHistoryJob, args: %{"dataset_id" => id_1}], 50)
-    assert_enqueued([worker: Transport.Jobs.DatasetHistoryJob, args: %{"dataset_id" => id_2}], 50)
-    refute_enqueued([worker: Transport.Jobs.DatasetHistoryJob, args: %{"dataset_id" => id_3}], 50)
+    assert_enqueued(worker: Transport.Jobs.DatasetHistoryJob, args: %{"dataset_id" => active_dataset_id})
+    assert_enqueued(worker: Transport.Jobs.DatasetHistoryJob, args: %{"dataset_id" => hidden_dataset_id})
+    refute_enqueued(worker: Transport.Jobs.DatasetHistoryJob, args: %{"dataset_id" => inactive_dataset_id})
   end
 end

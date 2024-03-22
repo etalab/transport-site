@@ -284,4 +284,10 @@ defmodule TransportWeb.DatasetSearchControllerTest do
 
     assert list_datasets.(%{}) != list_datasets.(%{"region" => region.id |> to_string()})
   end
+
+  test "hidden datasets are not included" do
+    hidden_dataset = insert(:dataset, is_active: true, is_hidden: true)
+
+    refute hidden_dataset.id in (%{} |> DB.Dataset.list_datasets() |> DB.Repo.all() |> Enum.map(& &1.id))
+  end
 end

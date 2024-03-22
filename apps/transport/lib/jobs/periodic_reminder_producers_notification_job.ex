@@ -108,7 +108,7 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
       |> DB.Repo.preload(:datasets)
       |> Enum.flat_map(& &1.datasets)
       |> Enum.uniq()
-      |> Enum.filter(&DB.Dataset.is_active?/1)
+      |> Enum.filter(&DB.Dataset.active?/1)
       |> Enum.sort_by(fn %DB.Dataset{custom_title: custom_title} -> custom_title end)
 
     Transport.EmailSender.impl().send_mail(

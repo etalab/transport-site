@@ -1,4 +1,4 @@
-<% is_gtfs_flex = not is_nil(@resource_history) and DB.ResourceHistory.is_gtfs_flex?(@resource_history)
+<% is_gtfs_flex = not is_nil(@resource_history) and DB.ResourceHistory.gtfs_flex?(@resource_history)
 associated_geojson = get_associated_geojson(@related_files)
 associated_netex = get_associated_netex(@related_files) %>
 <section>
