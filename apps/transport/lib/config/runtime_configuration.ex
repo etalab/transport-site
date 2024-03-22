@@ -1,10 +1,12 @@
 defmodule Transport.RuntimeConfiguration do
   defmodule SystemEnvProvider do
     @callback get_env(String.t()) :: String.t() | nil
+    @callback get_env(String.t(), String.t()) :: String.t() | nil
 
     defmodule RealImpl do
       @behaviour SystemEnvProvider
       defdelegate get_env(key), to: System
+      defdelegate get_env(key, default), to: System
     end
 
     def impl, do: RealImpl
