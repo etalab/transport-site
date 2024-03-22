@@ -8,32 +8,7 @@ require Logger
 # and secrets from environment variables or elsewhere. Do not define
 # any compile-time configuration in here, as it won't be applied.
 
-defmodule RuntimeApplicationConfig do
-  def build_config(env_provider, config_env) do
-    case config_env do
-      :prod ->
-        {
-          env_provider.get_env("WORKER") || raise("expected the WORKER environment variable to be set"),
-          env_provider.get_env("WEBSERVER") || raise("expected the WEBSERVER variable to be set")
-        }
-
-      :dev ->
-        # By default in dev, the application will be both a worker and a webserver
-        {
-          env_provider.get_env("WORKER", "1"),
-          env_provider.get_env("WEBSERVER", "1")
-        }
-
-      :test ->
-        {
-          "0",
-          "0"
-        }
-    end
-  end
-end
-
-{worker, webserver} = RuntimeApplicationConfig.build_config(System, config_env())
+{worker, webserver} = Transport.RuntimeConfiguration.build_config(System, config_env())
 
 worker = worker == "1"
 webserver = webserver == "1"
