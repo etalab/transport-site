@@ -280,6 +280,6 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
 
     render_change(view, "toggle-all", %{"action" => "turn_off"})
 
-    assert [not_to_be_deleted_notification] = DB.NotificationSubscription |> DB.Repo.all()
+    assert [^not_to_be_deleted_notification] = DB.NotificationSubscription |> DB.Repo.all()
   end
 end
