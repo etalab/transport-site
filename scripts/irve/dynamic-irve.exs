@@ -89,6 +89,10 @@ defmodule IRVECheck do
     enable_cache = Keyword.get(options, :enable_cache, false)
     # control the decoding ourselves ; by default Req would decode via CSV itself
     %{status: status, body: body} = Query.cached_get!(url, decode_body: false, enable_cache: enable_cache)
+    if status != 200 do
+      Mix.shell.error "Failed to fetch data for #{url} (http_status=#{status}), halting!"
+      System.halt(1)
+    end
     body
   end
 
