@@ -6,17 +6,23 @@ end
 
 cache_dir = CacheDir.cache_dir()
 
-use_cache = case System.get_env("CACHE", "NONE") do
-  "NONE" -> 
-    IO.puts "Cache set to :none"
-    :none
-  "LOW" ->
-    IO.puts "Cache set to :partial - only data gouv pagination will be cached (you might need to `rm -rf #{cache_dir}`)"
-    :partial
-  "ALL" -> 
-    IO.puts "Cache set to :all - everything is cached (you might need to `rm -rf #{cache_dir}`)"
-    :all
-end
+use_cache =
+  case System.get_env("CACHE", "NONE") do
+    "NONE" ->
+      IO.puts("Cache set to :none")
+      :none
+
+    "LOW" ->
+      IO.puts(
+        "Cache set to :partial - only data gouv pagination will be cached (you might need to `rm -rf #{cache_dir}`)"
+      )
+
+      :partial
+
+    "ALL" ->
+      IO.puts("Cache set to :all - everything is cached (you might need to `rm -rf #{cache_dir}`)")
+      :all
+  end
 
 # hybrid setup to rely on the whole app setup but increment with a specificy dependency
 Mix.install(
@@ -89,10 +95,12 @@ defmodule IRVECheck do
     enable_cache = Keyword.get(options, :enable_cache, false)
     # control the decoding ourselves ; by default Req would decode via CSV itself
     %{status: status, body: body} = Query.cached_get!(url, decode_body: false, enable_cache: enable_cache)
+
     if status != 200 do
-      Mix.shell.error "Failed to fetch data for #{url} (http_status=#{status}), halting!"
+      Mix.shell().error("Failed to fetch data for #{url} (http_status=#{status}), halting!")
       System.halt(1)
     end
+
     body
   end
 
@@ -186,7 +194,7 @@ IO.puts("========== #{resources |> length()} candidates ==========\n\n")
 rows =
   resources
   |> Enum.map(fn r ->
-    IO.puts "Processing #{r["id"]} (#{r["dataset_url"]} by #{r["organization"]})..."
+    IO.puts("Processing #{r["id"]} (#{r["dataset_url"]} by #{r["organization"]})...")
     body = IRVECheck.get_body(r["url"], enable_cache: use_cache == :all)
     rows = IRVECheck.parse_csv(body)
     headers = IRVECheck.get_headers(body)
@@ -194,7 +202,7 @@ rows =
     {local_valid, validation_output} = FrictionlessValidator.validate(r["url"])
 
     really_local_valid = FrictionlessValidator.really_valid?(validation_output)
-    output_file = CacheDir.cache_dir |> Path.join("dyn-irve-" <> r["id"])
+    output_file = CacheDir.cache_dir() |> Path.join("dyn-irve-" <> r["id"])
 
     File.write!(
       output_file,
