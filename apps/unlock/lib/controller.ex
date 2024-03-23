@@ -143,7 +143,7 @@ defmodule Unlock.Controller do
 
     # once we assert that, the rest of the processing is easy
     # TODO: handle errors gracefully
-    [id_field = "id_pdc_itinerance" | _rest] = headers
+    ["id_pdc_itinerance" | _rest] = headers
 
     # Only keeping the id for now, on purpose
     rows = if options[:limit], do: Stream.take(rows, options[:limit]), else: rows
