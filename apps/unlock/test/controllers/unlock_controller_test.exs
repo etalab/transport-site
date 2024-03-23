@@ -464,6 +464,9 @@ defmodule Unlock.ControllerTest do
   end
 
   describe "Aggregate item support" do
+    # TODO: test remote 500, remote 404, remote 302, technical error, remote content type
+    # TODO: status, caching/TTL of main feed, "limit" mode, source tracing via extra column
+
     test "handles GET /resource/:slug" do
       slug = "an-existing-aggregate-identifier"
 
