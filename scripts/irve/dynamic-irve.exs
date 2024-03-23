@@ -134,6 +134,29 @@ defmodule FrictionlessValidator do
     |> Enum.map(& &1["message"])
     |> Enum.take(5)
   end
+
+  # See https://github.com/frictionlessdata/frictionless-py/issues/1646
+  # Frictionless will generate a "valid" report for files it did not actually
+  # look at it full. As a temporary work-around, I noticed that when this
+  # happens, the `labels` field is an empty array, whereas when validation did
+  # occur for real, it contains the fields we expect. So this heuristic leverages
+  # that empiric observation to try to work-around that uncertainty.
+  def did_validation_really_occur?(output) do
+    %{
+      "tasks" => [
+        %{
+          "labels" => labels
+        }
+      ]
+    } = output
+
+    "id_pdc_itinerance" in labels
+  end
+
+  def really_valid?(output) do
+    did_validation_really_occur?(output) &&
+      match?(%{"errors" => 0, "warnings" => 0}, output["stats"])
+  end
 end
 
 IO.puts("========== #{resources |> length()} candidates ==========\n\n")
