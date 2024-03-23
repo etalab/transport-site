@@ -463,6 +463,32 @@ defmodule Unlock.ControllerTest do
     test "times out without locking the whole thing"
   end
 
+  describe "Aggregate item support" do
+    test "handles GET /resource/:slug" do
+      slug = "an-existing-aggregate-identifier"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.Aggregate{
+          identifier: slug,
+          feeds: []
+        }
+      })
+
+      resp =
+        build_conn()
+        |> get("/resource/an-existing-aggregate-identifier")
+
+      # TODO: assert on actual content, with 2 source feeds with different TTLs
+
+      assert resp.status == 501
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-aggregate-identifier"}}
+
+      verify!(Unlock.HTTP.Client.Mock)
+    end
+  end
+
   defp setup_telemetry_handler do
     events = Unlock.Telemetry.proxy_request_event_names()
 
