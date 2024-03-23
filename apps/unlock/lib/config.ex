@@ -27,6 +27,13 @@ defmodule Unlock.Config do
     defstruct [:identifier, :target_url, :requestor_ref, request_headers: []]
   end
 
+  defmodule Item.Aggregate do
+    @enforce_keys [:identifier, :feeds]
+
+    # TODO: add @type, and add more structure to feeds, most likely
+    defstruct [:identifier, :feeds]
+  end
+
   defmodule Fetcher do
     @moduledoc """
     A behaviour + shared methods for config fetching.
