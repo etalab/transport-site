@@ -112,8 +112,8 @@ defmodule FrictionlessValidator do
     cmd = "frictionless"
     # NOTE: I tried using `--schema-sync` as an attempt to avoid failure
     # when an optional field column's header is missing.
-    args = ["validate", file_url, "--schema", schema, "--json"]
-    _debug_cmd = [cmd, args] |> List.flatten() |> Enum.join(" ")
+    args = ["validate", file_url, "--schema", schema, "--json", "--format", "csv"]
+    # IO.puts [cmd, args] |> List.flatten() |> Enum.join(" ")
 
     {output, result} = System.cmd(cmd, args)
 
