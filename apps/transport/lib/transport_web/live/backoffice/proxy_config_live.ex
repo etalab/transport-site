@@ -80,6 +80,17 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     }
   end
 
+  defp extract_config(proxy_base_url, %Unlock.Config.Item.Aggregate{} = resource) do
+    %{
+      unique_slug: resource.identifier,
+      proxy_url: Transport.Proxy.resource_url(proxy_base_url, resource.identifier),
+      original_url: nil,
+      # TODO: decide if we want to cache the overall feed or not, depending on aggregating costs
+      # (most likely: yes)
+      ttl: nil
+    }
+  end
+
   defp event_names do
     Telemetry.proxy_request_event_names() |> Enum.map(&Telemetry.database_event_name/1)
   end
