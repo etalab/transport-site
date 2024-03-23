@@ -191,11 +191,14 @@ rows =
     rows = IRVECheck.parse_csv(body)
     headers = IRVECheck.get_headers(body)
 
-    {local_valid, validation_result} = FrictionlessValidator.validate(r["url"])
+    {local_valid, validation_output} = FrictionlessValidator.validate(r["url"])
+
+    really_local_valid = FrictionlessValidator.really_valid?(validation_output)
+    output_file = CacheDir.cache_dir |> Path.join("dyn-irve-" <> r["id"])
 
     File.write!(
-      "cache-dir/dyn-irve-" <> r["id"],
-      validation_result |> Jason.encode!() |> Jason.Formatter.pretty_print()
+      output_file,
+      validation_output |> Jason.encode!() |> Jason.Formatter.pretty_print()
     )
 
     %{
@@ -208,10 +211,13 @@ rows =
       rows: rows |> length(),
       valid: r["valid"],
       local_valid: local_valid,
+      really_local_valid: really_local_valid,
+      frictionless_output_file: output_file,
       v_date: r["validation_date"],
       schema_name: r["schema_name"],
       schema_version: r["schema_version"],
-      local_validation_errors: FrictionlessValidator.errors_summary(validation_result)
+      local_validation_errors: FrictionlessValidator.errors_summary(validation_output),
+      local_validation_stats: validation_output |> Map.fetch!("stats")
     }
   end)
 
@@ -226,6 +232,7 @@ IO.ANSI.Table.start(
     #    :dataset_url,
     :valid,
     :local_valid,
+    :really_local_valid,
     :v_date,
     :schema_name,
     :schema_version
@@ -257,7 +264,8 @@ IO.ANSI.Table.start(
     :organization,
     :rows,
     :local_valid,
-    :local_validation_errors
+    :really_local_valid,
+    :one_error
   ],
   sort_specs: [desc: :rows],
   max_width: :infinity
@@ -267,7 +275,29 @@ exploded_rows =
   rows
   |> Enum.flat_map(fn r ->
     r[:local_validation_errors]
-    |> Enum.map(fn x -> r |> Map.put(:local_validation_errors, x) end)
+    |> Enum.map(fn x -> r |> Map.put(:one_error, x) end)
   end)
 
 IO.ANSI.Table.format(exploded_rows)
+IO.ANSI.Table.stop()
+
+rows =
+  rows
+  |> Enum.map(fn r ->
+    Map.update!(r, :local_validation_stats, &inspect/1)
+  end)
+
+IO.ANSI.Table.start(
+  [
+    :organization,
+    :rows,
+    :local_valid,
+    :local_validation_stats,
+    :frictionless_output_file
+  ],
+  sort_specs: [desc: :rows],
+  max_width: :infinity
+)
+
+IO.ANSI.Table.format(rows)
+IO.ANSI.Table.stop()
