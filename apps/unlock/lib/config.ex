@@ -41,6 +41,14 @@ defmodule Unlock.Config do
     @callback fetch_config!() :: list(Item)
     @callback clear_config_cache!() :: any
 
+    def convert_yaml_item_to_struct(%{"type" => "aggregate"} = item) do
+      %Item.Aggregate{
+        identifier: Map.fetch!(item, "identifier"),
+        # PROBABLY: use stronger typing for each feed, and decide if I want to reuse existing code paths or not
+        feeds: Map.fetch!(item, "feeds")
+      }
+    end
+
     def convert_yaml_item_to_struct(%{"type" => "siri"} = item) do
       %Item.SIRI{
         identifier: Map.fetch!(item, "identifier"),
