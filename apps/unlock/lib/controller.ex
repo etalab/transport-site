@@ -119,12 +119,14 @@ defmodule Unlock.Controller do
   # (unless we decide we don't want to rely on that too much). So instead of bringing `Req` here,
   # which we could also do later with a bit more work, it's easier to implement a home-baked redirect here.
   def get_with_maybe_redirect(url, remaining_tries \\ 2) do
-    if remaining_tries == 0, do: raise "TooManyRedirect"
+    if remaining_tries == 0, do: raise("TooManyRedirect")
+
     case response = Unlock.HTTP.Client.impl().get!(url, []) do
       %{status: 302} ->
         [target_url] = for {"location", value} <- response.headers, do: value
         get_with_maybe_redirect(target_url, remaining_tries - 1)
-      _ -> 
+
+      _ ->
         response
     end
   end
