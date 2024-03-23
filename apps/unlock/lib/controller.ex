@@ -100,6 +100,11 @@ defmodule Unlock.Controller do
     end)
   end
 
+  defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.Aggregate{} = item) do
+    Telemetry.trace_request(item.identifier, :external)
+    send_resp(conn, 501, "Not Yet Implemented")
+  end
+
   defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.Generic.HTTP{} = item) do
     Telemetry.trace_request(item.identifier, :external)
     response = fetch_remote(item)
