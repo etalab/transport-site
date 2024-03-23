@@ -100,6 +100,7 @@ defmodule Unlock.Controller do
     end)
   end
 
+  # NOTE: most of this processing will be extracted to a separate file/module
   defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.Aggregate{} = item) do
     Telemetry.trace_request(item.identifier, :external)
 
