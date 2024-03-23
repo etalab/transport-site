@@ -1,5 +1,23 @@
 my_app_root = Path.join(__DIR__, "../..")
 
+defmodule CacheDir do
+  def cache_dir, do: Path.join(__ENV__.file, "../cache-dir") |> Path.expand()
+end
+
+cache_dir = CacheDir.cache_dir()
+
+use_cache = case System.get_env("CACHE", "NONE") do
+  "NONE" -> 
+    IO.puts "Cache set to :none"
+    :none
+  "LOW" ->
+    IO.puts "Cache set to :partial - only data gouv pagination will be cached (you might need to `rm -rf #{cache_dir}`)"
+    :partial
+  "ALL" -> 
+    IO.puts "Cache set to :all - everything is cached (you might need to `rm -rf #{cache_dir}`)"
+    :all
+end
+
 # hybrid setup to rely on the whole app setup but increment with a specificy dependency
 Mix.install(
   [
@@ -19,8 +37,6 @@ params = %{
 url = "https://www.data.gouv.fr/api/1/datasets/?#{URI.encode_query(params)}"
 
 defmodule Query do
-  def cache_dir, do: Path.join(__ENV__.file, "../cache-dir") |> Path.expand()
-
   def cached_get!(url, options \\ []) do
     options = [
       decode_body: options |> Keyword.get(:decode_body, true),
@@ -29,7 +45,7 @@ defmodule Query do
 
     options =
       if options[:enable_cache] do
-        Keyword.merge(options, custom_cache_dir: cache_dir())
+        Keyword.merge(options, custom_cache_dir: CacheDir.cache_dir())
       else
         options
       end
@@ -38,8 +54,9 @@ defmodule Query do
   end
 end
 
-# disabling cache because one dataset is refreshed very frequently, caching leads to 404
-%{status: 200, body: datasets} = Query.cached_get!(url, enable_cache: false)
+# disabling cache by default because one dataset is refreshed very frequently, caching leads to 404
+# but letting the CLI decide if this must be cached via `CACHE=LOW` or `ALL`
+%{status: 200, body: datasets} = Query.cached_get!(url, enable_cache: use_cache != :none)
 
 # ensure there is only one page + grab the data
 unless is_nil(datasets["next_page"]), do: raise("should not have next page")
@@ -68,9 +85,10 @@ resources =
   end)
 
 defmodule IRVECheck do
-  def get_body(url) do
+  def get_body(url, options \\ []) do
+    enable_cache = Keyword.get(options, :enable_cache, false)
     # control the decoding ourselves ; by default Req would decode via CSV itself
-    %{status: 200, body: body} = Query.cached_get!(url, decode_body: false)
+    %{status: status, body: body} = Query.cached_get!(url, decode_body: false, enable_cache: enable_cache)
     body
   end
 
@@ -164,7 +182,8 @@ IO.puts("========== #{resources |> length()} candidates ==========\n\n")
 rows =
   resources
   |> Enum.map(fn r ->
-    body = IRVECheck.get_body(r["url"])
+    IO.puts "Processing #{r["id"]} (#{r["dataset_url"]} by #{r["organization"]})..."
+    body = IRVECheck.get_body(r["url"], enable_cache: use_cache == :all)
     rows = IRVECheck.parse_csv(body)
     headers = IRVECheck.get_headers(body)
 
