@@ -479,6 +479,8 @@ defmodule Unlock.ControllerTest do
         |> get("/resource/an-existing-aggregate-identifier")
 
       # TODO: assert on actual content, with 2 source feeds with different TTLs
+      # TODO: implement redirected case
+      # TODO: ensure internal events are traced
 
       assert resp.status == 501
 

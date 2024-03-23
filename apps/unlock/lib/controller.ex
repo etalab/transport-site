@@ -102,7 +102,31 @@ defmodule Unlock.Controller do
 
   defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.Aggregate{} = item) do
     Telemetry.trace_request(item.identifier, :external)
+
+    item.feeds
+    |> Task.async_stream(fn(sub_item) ->
+      Telemetry.trace_request(item.identifier <> ":" <> sub_item["identifier"], :internal)
+      Logger.debug("Fetching aggregated sub-item #{sub_item["identifier"]} at #{sub_item["target_url"]}")
+      %{status: status} = get_with_maybe_redirect(sub_item |> Map.fetch!("target_url"))
+      Logger.debug("#{sub_item["identifier"]} responded with HTTP code #{status}")
+    end, max_concurrency: 10)
+    |> Stream.run()
+
     send_resp(conn, 501, "Not Yet Implemented")
+  end
+
+  # `Finch` does not support redirects, and we likely will want to support data gouv stable urls
+  # (unless we decide we don't want to rely on that too much). So instead of bringing `Req` here,
+  # which we could also do later with a bit more work, it's easier to implement a home-baked redirect here.
+  def get_with_maybe_redirect(url, remaining_tries \\ 2) do
+    if remaining_tries == 0, do: raise "TooManyRedirect"
+    case response = Unlock.HTTP.Client.impl().get!(url, []) do
+      %{status: 302} ->
+        [target_url] = for {"location", value} <- response.headers, do: value
+        get_with_maybe_redirect(target_url, remaining_tries - 1)
+      _ -> 
+        response
+    end
   end
 
   defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.Generic.HTTP{} = item) do
