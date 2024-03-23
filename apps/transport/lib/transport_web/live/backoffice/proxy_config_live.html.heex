@@ -33,7 +33,7 @@
           <td><%= resource.unique_slug %></td>
           <% # TODO: use regular link helper %>
           <td><a href={resource.proxy_url}>lien</a></td>
-          <td><a href={resource.original_url}>lien</a></td>
+          <td><a :if={resource.original_url} href={resource.original_url}>lien</a></td>
           <td><%= resource.ttl %></td>
           <!-- optional stuff, only available when cache is loaded -->
           <td><%= resource[:cache_size] %></td>
