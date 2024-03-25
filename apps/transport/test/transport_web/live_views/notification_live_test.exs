@@ -267,7 +267,8 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
 
     {:ok, view, _html} = live(conn)
 
-    assert [^notification, ^not_to_be_deleted_notification] = DB.NotificationSubscription |> DB.Repo.all()
+    assert [^notification, ^not_to_be_deleted_notification] =
+             DB.NotificationSubscription |> order_by(asc: :id) |> DB.Repo.all()
 
     render_change(view, "toggle-all", %{"action" => "turn_on"})
 
@@ -278,14 +279,14 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
       |> DB.Repo.all()
 
     assert [
-             [^dataset_id_1, :dataset_with_error],
-             [^dataset_id_1, :expiration],
-             [^dataset_id_1, :resource_unavailable],
-             [^dataset_id_2, :dataset_with_error],
-             [^dataset_id_2, :expiration],
-             [^dataset_id_2, :resource_unavailable],
+             [dataset_id_1, :dataset_with_error],
+             [dataset_id_1, :expiration],
+             [dataset_id_1, :resource_unavailable],
+             [dataset_id_2, :dataset_with_error],
+             [dataset_id_2, :expiration],
+             [dataset_id_2, :resource_unavailable],
              [nil, :new_dataset]
-           ] = notifications
+           ] == notifications
 
     render_change(view, "toggle-all", %{"action" => "turn_off"})
 
