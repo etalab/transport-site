@@ -33,6 +33,7 @@ master = Scanner.scan(master_mix_lock)
 current = Scanner.scan(File.read!("./mix.lock"))
 
 IO.puts "### Changelogs\n"
+IO.puts "(initially generated with `elixir generate_deps_changelogs.exs`)\n"
 
 master
 |> Enum.each(fn {dep, old} ->

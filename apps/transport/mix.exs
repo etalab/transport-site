@@ -129,7 +129,7 @@ defmodule Transport.Mixfile do
       {:phoenix_live_dashboard, "~> 0.8"},
       {:ecto_psql_extras, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
-      {:telemetry_metrics, "~> 0.4"},
+      {:telemetry_metrics, "~> 1.0"},
       {:luhn, "~> 0.3.0"},
       {:ex_phone_number, "~> 0.3"},
       {:appsignal, "~> 2.0"},
@@ -144,7 +144,7 @@ defmodule Transport.Mixfile do
       {:phoenix_ddos, "~> 1.1"},
       # Highly recommended, this will makes sure we get the correct remote_ip
       {:remote_ip, "~> 1.1"},
-      {:image, "~> 0.42.0"}
+      {:image, "~> 0.42"}
     ]
   end
 end
