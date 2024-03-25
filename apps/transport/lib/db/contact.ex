@@ -162,8 +162,7 @@ defmodule DB.Contact do
 
   def organization_name(orgs) do
     certified_orgs =
-      orgs
-      |> Enum.filter(fn %DB.Organization{badges: badges} -> Enum.any?(badges, &match?(%{"kind" => "certified"}, &1)) end)
+      Enum.filter(orgs, fn %DB.Organization{badges: badges} -> %{"kind" => "certified"} in badges end)
 
     case certified_orgs do
       [] -> orgs |> List.first() |> Map.fetch!(:name)
