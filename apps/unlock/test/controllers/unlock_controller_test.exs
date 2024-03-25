@@ -463,6 +463,70 @@ defmodule Unlock.ControllerTest do
     test "times out without locking the whole thing"
   end
 
+  describe "Aggregate item support" do
+    # TODO: test remote 500, remote 404, remote 302, technical error, remote content type
+    # TODO: status, caching/TTL of main feed, "limit" mode, source tracing via extra column
+
+    test "handles GET /resource/:slug" do
+      slug = "an-existing-aggregate-identifier"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.Aggregate{
+          identifier: slug,
+          feeds: [
+            %{
+              "identifier" => "first-remote",
+              "target_url" => url = "http://localhost:1234"
+            },
+            %{
+              "identifier" => "second-remote",
+              "target_url" => second_url = "http://localhost:5678"
+            }
+          ]
+        }
+      })
+
+      # Processing is concurrent and while the output is "ordered" by design, the requests
+      # are not guaranteed to come in the right order, so we have to cheat a bit here.
+      # We introduce flexibility to ensure whatever target is processed first, 2 queries are made
+      # and the rest (order & content) is tested by the final assertion on response body.
+
+      responses = %{
+        url => "id_pdc_itinerance\nFR123",
+        second_url => "id_pdc_itinerance\nFR456"
+      }
+
+      response_function = fn url, _request_headers ->
+        %Unlock.HTTP.Response{
+          body: responses |> Map.fetch!(url),
+          status: 200,
+          headers: []
+        }
+      end
+
+      Unlock.HTTP.Client.Mock
+      |> expect(:get!, 2, response_function)
+
+      resp =
+        build_conn()
+        |> get("/resource/an-existing-aggregate-identifier")
+
+      assert resp.status == 200
+      assert resp.resp_body == "id_pdc_itinerance\r\nFR123\r\nFR456\r\n"
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-aggregate-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-aggregate-identifier:first-remote"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-aggregate-identifier:second-remote"}}
+
+      verify!(Unlock.HTTP.Client.Mock)
+    end
+  end
+
   defp setup_telemetry_handler do
     events = Unlock.Telemetry.proxy_request_event_names()
 

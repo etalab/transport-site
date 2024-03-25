@@ -27,12 +27,27 @@ defmodule Unlock.Config do
     defstruct [:identifier, :target_url, :requestor_ref, request_headers: []]
   end
 
+  defmodule Item.Aggregate do
+    @enforce_keys [:identifier, :feeds]
+
+    # TODO: add @type, and add more structure to feeds, most likely
+    defstruct [:identifier, :feeds]
+  end
+
   defmodule Fetcher do
     @moduledoc """
     A behaviour + shared methods for config fetching.
     """
     @callback fetch_config!() :: list(Item)
     @callback clear_config_cache!() :: any
+
+    def convert_yaml_item_to_struct(%{"type" => "aggregate"} = item) do
+      %Item.Aggregate{
+        identifier: Map.fetch!(item, "identifier"),
+        # PROBABLY: use stronger typing for each feed, and decide if I want to reuse existing code paths or not
+        feeds: Map.fetch!(item, "feeds")
+      }
+    end
 
     def convert_yaml_item_to_struct(%{"type" => "siri"} = item) do
       %Item.SIRI{
