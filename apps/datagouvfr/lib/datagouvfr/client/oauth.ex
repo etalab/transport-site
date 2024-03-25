@@ -71,8 +71,5 @@ defmodule Datagouvfr.Client.OAuth do
   end
 
   @spec get_client(OAuth2.AccessToken.t()) :: OAuth2.Client.t()
-  def get_client(%OAuth2.AccessToken{} = token) do
-    token
-    |> Authentication.client()
-  end
+  def get_client(%OAuth2.AccessToken{} = token), do: Authentication.client(token)
 end
