@@ -40,6 +40,7 @@ defmodule Transport.HTTPClient do
         :custom_cache_dir,
         :decode_body,
         :compressed,
+        :into,
         enable_cache: false
       ])
 
