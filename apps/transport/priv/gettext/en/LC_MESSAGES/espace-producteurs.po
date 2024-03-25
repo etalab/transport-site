@@ -227,7 +227,7 @@ msgstr "You are warned if your file couldn't be downloaded during 6 consecutive 
 
 #, elixir-autogen, elixir-format
 msgid "validation errors notification explanation"
-msgstr "You are warned if the file doesn't respect the norm, rendering the file unusable."
+msgstr "You are warned if the file doesn't respect the standard, rendering the file unusable."
 
 #, elixir-autogen, elixir-format
 msgid "Nobody else is subscribed to this notification"
