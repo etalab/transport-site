@@ -83,6 +83,7 @@
         {Credo.Check.Readability.ModuleNames},
         {Credo.Check.Readability.ParenthesesOnZeroArityDefs},
         {Credo.Check.Readability.ParenthesesInCondition},
+        {Credo.Check.Readability.PredicateFunctionNames},
         {Credo.Check.Readability.PreferImplicitTry},
         {Credo.Check.Readability.RedundantBlankLines},
         {Credo.Check.Readability.StringSigils},
@@ -128,11 +129,10 @@
 
         # Deprecated checks (these will be deleted after a grace period)
         #
-        {Credo.Check.Readability.Specs, false},
+        {Credo.Check.Readability.Specs, false}
 
-        # Allowing for now functions like is_gtfs?
-        # See https://github.com/etalab/transport-site/issues/3822
-        {Credo.Check.Readability.PredicateFunctionNames, false}
+        # Custom checks can be created using `mix credo.gen.check`.
+        #
       ]
     }
   ]
