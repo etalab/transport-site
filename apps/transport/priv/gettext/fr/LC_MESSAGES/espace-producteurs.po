@@ -236,3 +236,7 @@ msgstr "Aucun autre membre de votre organisation n’est abonné à cette notifi
 #, elixir-autogen, elixir-format
 msgid "other subscribed contacts"
 msgstr "Autres abonnés : %{names}"
+
+#, elixir-autogen, elixir-format
+msgid "Turn on"
+msgstr "Activer"

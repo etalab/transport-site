@@ -235,3 +235,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "other subscribed contacts"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Turn on"
+msgstr ""
