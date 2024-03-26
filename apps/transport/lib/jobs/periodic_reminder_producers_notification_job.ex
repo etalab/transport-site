@@ -162,48 +162,11 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
   def other_producers_subscribers(%DB.Contact{id: contact_id, notification_subscriptions: subscriptions}) do
     dataset_ids = subscriptions |> Enum.map(& &1.dataset_id) |> Enum.uniq()
 
-    DB.NotificationSubscription.base_query()
-    |> preload(:contact)
-    |> where(
-      [notification_subscription: ns],
-      ns.contact_id != ^contact_id and ns.role == :producer and ns.dataset_id in ^dataset_ids
-    )
-    |> DB.Repo.all()
+    dataset_ids
+    |> DB.NotificationSubscription.producer_subscriptions_for_datasets(contact_id)
     |> Enum.map(& &1.contact)
     |> Enum.uniq()
-    # transport.data.gouv.fr's members who are subscribed as "producers" shouldn't be included.
-    # they are dogfooding the feature
-    |> Enum.reject(fn %DB.Contact{id: contact_id} -> contact_id in admin_contact_ids() end)
-    |> Enum.sort_by(&DB.Contact.display_name/1)
-  end
-
-  @doc """
-  A list of contact_ids for contacts who are members of the transport.data.gouv.fr's organization.
-
-  This list is cached because it is very stable over time and we need it for multiple
-  Oban jobs executed in parallel or one after another.
-  """
-  @spec admin_contact_ids() :: [integer()]
-  def admin_contact_ids do
-    Transport.Cache.API.fetch(
-      to_string(__MODULE__) <> ":admin_contact_ids",
-      fn -> Enum.map(admin_contacts(), & &1.id) end,
-      :timer.seconds(60)
-    )
-  end
-
-  @doc """
-  Fetches `DB.Contact` who are members of the transport.data.gouv.fr's organization.
-  """
-  @spec admin_contacts() :: [DB.Contact.t()]
-  def admin_contacts do
-    pan_org_name = Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
-
-    DB.Organization.base_query()
-    |> preload(:contacts)
-    |> where([organization: o], o.name == ^pan_org_name)
-    |> DB.Repo.one!()
-    |> Map.fetch!(:contacts)
+    |> Enum.reject(&(&1.id == contact_id))
   end
 
   @doc """

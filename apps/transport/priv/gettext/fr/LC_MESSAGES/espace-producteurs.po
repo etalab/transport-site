@@ -100,44 +100,12 @@ msgid "Transport proxy statistics"
 msgstr "Statistiques du proxy Transport"
 
 #, elixir-autogen, elixir-format
-msgid "Actions"
-msgstr "Actions"
-
-#, elixir-autogen, elixir-format
-msgid "Dataset"
-msgstr "Jeu de données"
-
-#, elixir-autogen, elixir-format
 msgid "Manage notifications"
 msgstr "Gérer vos notifications"
 
 #, elixir-autogen, elixir-format
-msgid "Notification reason"
-msgstr "Motif de notification"
-
-#, elixir-autogen, elixir-format
 msgid "Receive helpful notifications about the data you publish."
 msgstr "Recevez des notifications pertinentes à propos des données que vous publiez."
-
-#, elixir-autogen, elixir-format
-msgid "Delete all"
-msgstr "Tout supprimer"
-
-#, elixir-autogen, elixir-format
-msgid "Create"
-msgstr "Créer"
-
-#, elixir-autogen, elixir-format
-msgid "<a href=\"%{doc_url}\" target=\"_blank\">Learn more</a> about how notifications work and when they are sent."
-msgstr "<a href=\"%{doc_url}\" target=\"_blank\">Apprenez-en plus</a> sur le fonctionnement des notifications et quand elles sont envoyées."
-
-#, elixir-autogen, elixir-format
-msgid "Create a notification"
-msgstr "Créer une notification"
-
-#, elixir-autogen, elixir-format
-msgid "Existing notifications"
-msgstr "Notifications existantes"
 
 #, elixir-autogen, elixir-format
 msgid "Notifications settings"
@@ -146,26 +114,6 @@ msgstr "Gestion des notifications"
 #, elixir-autogen, elixir-format
 msgid "Receive notifications"
 msgstr "Recevoir des notifications"
-
-#, elixir-autogen, elixir-format
-msgid "Here you can see your existing notifications. You can delete notifications for a dataset entirely in one click or one at a time."
-msgstr "Ici vous pouvez voir vos notifications existantes. Vous pouvez supprimer toutes vos notifications pour un jeu de données en une fois ou un motif à la fois."
-
-#, elixir-autogen, elixir-format
-msgid "The notification has been created"
-msgstr "La notification a été créée"
-
-#, elixir-autogen, elixir-format
-msgid "The notification has been deleted"
-msgstr "La notification a été supprimée"
-
-#, elixir-autogen, elixir-format
-msgid "The notifications have been deleted"
-msgstr "Les notifications ont été supprimées"
-
-#, elixir-autogen, elixir-format
-msgid "You do not have notifications yet. They will show up here."
-msgstr "Vous n'avez pas encore activé de notifications. Elles apparaitront ici."
 
 #, elixir-autogen, elixir-format
 msgid "Validate a file or a feed"
@@ -244,3 +192,55 @@ msgstr "Supprimer le logo personnalisé"
 #, elixir-autogen, elixir-format
 msgid "Your custom logo has been removed."
 msgstr "Votre logo personnalisé a été supprimé."
+
+#, elixir-autogen, elixir-format
+msgid "notifications are good for you"
+msgstr "Les notifications vous aident à maintenir la qualité et l’accès à vos données, en vous alertant automatiquement en cas de problème. Elles vous assurent que vos usagers aient un accès ininterrompu à vos données de transport à travers leurs applications (calcul d’itinéraire…)."
+
+#, elixir-autogen, elixir-format
+msgid "Data expiration"
+msgstr "Expiration de données"
+
+#, elixir-autogen, elixir-format
+msgid "Manage my notifications"
+msgstr "Gérer vos notifications"
+
+#, elixir-autogen, elixir-format
+msgid "Unavailable resources"
+msgstr "Resources indisponibles"
+
+#, elixir-autogen, elixir-format
+msgid "Validation errors"
+msgstr "Erreurs de validation"
+
+#, elixir-autogen, elixir-format
+msgid "data expiration notification explanation"
+msgstr "Vous êtes alerté à l'approche et après la date de fin du calendrier de fonctionnement."
+
+#, elixir-autogen, elixir-format
+msgid "unavailable resources notification explanation"
+msgstr "Vous êtes alerté au bout de 6h consécutives pendant lesquelles votre fichier ne peut pas être téléchargé."
+
+#, elixir-autogen, elixir-format
+msgid "validation errors notification explanation"
+msgstr "Vous êtes alerté lorsque votre fichier ne respecte pas les spécifications des normes/standards/schémas correspondants."
+
+#, elixir-autogen, elixir-format
+msgid "Nobody else is subscribed to this notification"
+msgstr "Aucun autre membre de votre organisation n’est abonné à cette notification"
+
+#, elixir-autogen, elixir-format
+msgid "other subscribed contacts"
+msgstr "Autres abonnés : %{names}"
+
+#, elixir-autogen, elixir-format
+msgid "All notifications"
+msgstr "Toutes les notifications"
+
+#, elixir-autogen, elixir-format
+msgid "Off"
+msgstr "Désactivé"
+
+#, elixir-autogen, elixir-format
+msgid "On"
+msgstr "Activé"
