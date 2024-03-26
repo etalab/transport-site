@@ -5,6 +5,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
   import DB.Factory
   import Mox
   import Ecto.Query
+  import TransportWeb.Router.Helpers
   use TransportWeb, :verified_routes
 
   setup :verify_on_exit!
@@ -15,7 +16,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
 
   test "requires login" do
     conn = build_conn()
-    conn = get(conn, ~p"/espace_producteur/notifications")
+    conn = get(conn, live_path(conn, TransportWeb.EspaceProducteur.NotificationLive))
     assert html_response(conn, 302)
   end
 
@@ -46,7 +47,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
     |> expect(:me, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
     conn = build_conn() |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, token: %{}})
-    content = conn |> get(~p"/espace_producteur/notifications") |> html_response(200)
+    content = conn |> get(live_path(conn, TransportWeb.EspaceProducteur.NotificationLive)) |> html_response(200)
     assert content =~ "Mon super JDD"
 
     doc = content |> Floki.parse_document!()
@@ -68,7 +69,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
     |> expect(:me, fn _ -> {:error, %HTTPoison.Error{reason: :nxdomain, id: nil}} end)
 
     conn = build_conn() |> init_test_session(%{current_user: %{"id" => Ecto.UUID.generate()}, token: %{}})
-    content = conn |> get(~p"/espace_producteur/notifications") |> html_response(200)
+    content = conn |> get(live_path(conn, TransportWeb.EspaceProducteur.NotificationLive)) |> html_response(200)
     assert content =~ "Une erreur a eu lieu lors de la récupération de vos ressources"
   end
 
@@ -91,7 +92,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
     Datagouvfr.Client.User.Mock
     |> expect(:me, 2, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
-    conn = conn |> get(~p"/espace_producteur/notifications")
+    conn = conn |> get(live_path(conn, TransportWeb.EspaceProducteur.NotificationLive))
 
     {:ok, view, _html} = live(conn)
 
@@ -199,7 +200,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
     |> expect(:me, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
     conn = build_conn() |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, token: %{}})
-    content = conn |> get(~p"/espace_producteur/notifications") |> html_response(200)
+    content = conn |> get(live_path(conn, TransportWeb.EspaceProducteur.NotificationLive)) |> html_response(200)
     assert content =~ "Autres abonnés : Liste de diffusion service transport, Marina Loiseau, Mikhaïl Karlov"
     refute content =~ "Henri Duflot"
   end
@@ -261,7 +262,7 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
     Datagouvfr.Client.User.Mock
     |> expect(:me, 2, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
-    conn = conn |> get(~p"/espace_producteur/notifications")
+    conn = conn |> get(live_path(conn, TransportWeb.EspaceProducteur.NotificationLive))
 
     {:ok, view, _html} = live(conn)
 
