@@ -831,9 +831,9 @@ defmodule DB.Dataset do
   @doc """
   Find datasets present on the NAP for which the user is a member of the organization.
   """
-  @spec datasets_for_user(Plug.Conn.t()) :: [__MODULE__.t()] | {:error, OAuth2.Error.t()}
-  def datasets_for_user(%Plug.Conn{} = conn) do
-    case Datagouvfr.Client.User.Wrapper.impl().me(conn) do
+  @spec datasets_for_user(Plug.Conn.t() | OAuth2.AccessToken.t()) :: [__MODULE__.t()] | {:error, OAuth2.Error.t()}
+  def datasets_for_user(conn_or_token) do
+    case Datagouvfr.Client.User.Wrapper.impl().me(conn_or_token) do
       {:ok, %{"organizations" => organizations}} ->
         organization_ids = Enum.map(organizations, fn %{"id" => id} -> id end)
 
