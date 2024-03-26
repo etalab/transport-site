@@ -118,3 +118,11 @@
     margin-right: .5em;
   }
 }
+
+.icon---animated-heart {
+  cursor: pointer;
+  transition: color 500ms linear;
+  &.active {
+    color: red;
+  }
+}
