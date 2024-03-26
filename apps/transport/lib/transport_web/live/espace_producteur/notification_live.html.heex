@@ -22,9 +22,12 @@
       <table :if={!@error} class="table">
         <.form :let={f} for={%{}}>
           <tr>
-            <td></td>
+            <td><strong><%= dgettext("espace-producteurs", "All notifications") %></strong></td>
             <td>
               <fieldset>
+                <span {if @all_notifications_enabled, do: [class: "is-grey"], else: []}>
+                  <%= dgettext("espace-producteurs", "Off") %>&nbsp;
+                </span>
                 <label class="switch">
                   <%= checkbox(
                     f,
@@ -34,7 +37,9 @@
                     phx_click: "toggle-all"
                   ) %>
                   <span class="slider"></span>
-                  &nbsp;<strong><%= dgettext("espace-producteurs", "Turn on all notifications") %></strong>
+                  <span {if !@all_notifications_enabled, do: [class: "is-grey"], else: []}>
+                    &nbsp;<%= dgettext("espace-producteurs", "On") %>
+                  </span>
                 </label>
               </fieldset>
             </td>
@@ -54,6 +59,9 @@
                 <td>
                   <div class="form__group">
                     <fieldset>
+                      <span {if my_subscription, do: [class: "is-grey"], else: []}>
+                        <%= dgettext("espace-producteurs", "Off") %>&nbsp;
+                      </span>
                       <label class="switch">
                         <%= checkbox(
                           f,
@@ -66,7 +74,9 @@
                           phx_click: "toggle"
                         ) %>
                         <span class="slider"></span>
-                        &nbsp;<%= dgettext("espace-producteurs", "Turn on") %>
+                        <span {if !my_subscription, do: [class: "is-grey"], else: []}>
+                          &nbsp;<%= dgettext("espace-producteurs", "On") %>
+                        </span>
                       </label>
                     </fieldset>
                   </div>

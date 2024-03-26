@@ -206,10 +206,6 @@ msgid "Manage my notifications"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Turn on all notifications"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Unavailable resources"
 msgstr ""
 
@@ -238,5 +234,13 @@ msgid "other subscribed contacts"
 msgstr "Other subscribed contacts: %{names}"
 
 #, elixir-autogen, elixir-format
-msgid "Turn on"
+msgid "All notifications"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Off"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "On"
 msgstr ""
