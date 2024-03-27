@@ -191,19 +191,7 @@ msgid "Display less"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Subscribe to comments"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Unsubscribe to comments"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Log in"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "to subscribe to comments of this dataset."
 msgstr ""
 
 #, elixir-autogen, elixir-format
