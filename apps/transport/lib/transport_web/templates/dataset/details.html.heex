@@ -184,24 +184,6 @@
       <section class="pt-48" id="dataset-discussions">
         <h2>Discussions</h2>
         <div class="dataset-details__discussions panel">
-          <div class="pb-48">
-            <%= if @current_user do %>
-              <%= form_for @conn, follower_path(@conn, :toggle, @dataset.datagouv_id), [class: "form"], fn _f -> %>
-                <button class="button">
-                  <%= if @is_subscribed do %>
-                    <%= dgettext("page-dataset-details", "Unsubscribe to comments") %>
-                  <% else %>
-                    <%= dgettext("page-dataset-details", "Subscribe to comments") %>
-                  <% end %>
-                </button>
-              <% end %>
-            <% else %>
-              <%= link(
-                dgettext("page-dataset-details", "Log in"),
-                to: page_path(@conn, :login, redirect_path: current_path(@conn))
-              ) %> <%= dgettext("page-dataset-details", "to subscribe to comments of this dataset.") %>
-            <% end %>
-          </div>
           <%= live_render(@conn, TransportWeb.DiscussionsLive,
             session: %{
               "current_user" => @current_user,

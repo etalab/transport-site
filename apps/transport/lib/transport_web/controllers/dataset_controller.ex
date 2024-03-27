@@ -1,7 +1,6 @@
 defmodule TransportWeb.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Authentication
-  alias Datagouvfr.Client.Datasets
   alias DB.{AOM, Commune, Dataset, DatasetGeographicView, Region, Repo}
   alias Transport.ClimateResilienceBill
   import Ecto.Query
@@ -47,7 +46,6 @@ defmodule TransportWeb.DatasetController do
       |> assign(:resources_related_files, DB.Dataset.get_resources_related_files(dataset))
       |> assign(:territory, territory)
       |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
-      |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.datagouv_id))
       |> assign(:other_datasets, Dataset.get_other_datasets(dataset))
       |> assign(:resources_infos, resources_infos(dataset))
       |> assign(

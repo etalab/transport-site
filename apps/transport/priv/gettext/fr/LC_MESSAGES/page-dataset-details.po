@@ -191,20 +191,8 @@ msgid "Display less"
 msgstr "Voir moins"
 
 #, elixir-autogen, elixir-format
-msgid "Subscribe to comments"
-msgstr "S'abonner aux discussions de ce jeu de données"
-
-#, elixir-autogen, elixir-format
-msgid "Unsubscribe to comments"
-msgstr "Se désabonner des discussions de ce jeu de données"
-
-#, elixir-autogen, elixir-format
 msgid "Log in"
 msgstr "Identifiez-vous"
-
-#, elixir-autogen, elixir-format
-msgid "to subscribe to comments of this dataset."
-msgstr "pour vous abonner aux discussions de ce jeu de données."
 
 #, elixir-autogen, elixir-format
 msgid "No error detected"
