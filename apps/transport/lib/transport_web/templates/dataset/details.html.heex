@@ -198,8 +198,8 @@
             <div id="new_discussion" class="discussion-modal">
               <%= form_for @conn, discussion_path(@conn, :post_discussion, @dataset.datagouv_id), fn f -> %>
                 <%= hidden_input(f, :dataset_slug, value: @dataset.slug) %>
-                <%= text_input(f, :title, placeholder: dgettext("page-dataset-details", "Title")) %>
-                <%= textarea_autoexpand(f, :comment) %>
+                <%= text_input(f, :title, placeholder: dgettext("page-dataset-details", "Title"), required: true) %>
+                <%= textarea_autoexpand(f, :comment, required: true) %>
                 <%= submit(dgettext("page-dataset-details", "Start a new discussion")) %>
               <% end %>
             </div>
