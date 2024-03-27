@@ -121,6 +121,13 @@ defmodule TransportWeb.InputHelpers do
     form_group(Form.textarea(form, field, opts))
   end
 
+  def textarea_autoexpand(form, field, opts \\ []) do
+    opts = opts |> Keyword.put_new(:phx, hook: "TextareaAutoexpand")
+    form_group(autoexpand_wrapper(Form.textarea(form, field, opts)))
+  end
+
+  def autoexpand_wrapper(content), do: content_tag(:div, content, class: "autoexpand")
+
   def file_input(form, field, opts \\ []) do
     label = Keyword.get(opts, :label)
     opts = Keyword.drop(opts, [:label])
