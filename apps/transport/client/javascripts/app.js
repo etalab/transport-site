@@ -27,6 +27,12 @@ Hooks.SyntaxColoring = {
         Prism.highlightElement(target)
     }
 }
+Hooks.TextareaAutoexpand = {
+    mounted () {
+        this.el.addEventListener("input", event =>
+            event.target.parentNode.dataset.replicatedValue = event.target.value)
+    }
+}
 
 window.addEventListener('phx:backoffice-form-reset', () => {
     document.getElementById('custom_tag').value = ''
