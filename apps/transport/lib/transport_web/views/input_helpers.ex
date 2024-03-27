@@ -122,7 +122,7 @@ defmodule TransportWeb.InputHelpers do
   end
 
   def textarea_autoexpand(form, field, opts \\ []) do
-    opts = opts |> Keyword.put_new(:phx, [hook: "TextareaAutoexpand"])
+    opts = opts |> Keyword.put_new(:phx, hook: "TextareaAutoexpand")
     form_group(autoexpand_wrapper(Form.textarea(form, field, opts)))
   end
 

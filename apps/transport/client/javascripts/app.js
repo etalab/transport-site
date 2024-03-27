@@ -29,8 +29,9 @@ Hooks.SyntaxColoring = {
 }
 Hooks.TextareaAutoexpand = {
     mounted () {
-        this.el.addEventListener("input", event =>
-            event.target.parentNode.dataset.replicatedValue = event.target.value)
+        this.el.addEventListener('input', event => {
+            event.target.parentNode.dataset.replicatedValue = event.target.value
+        })
     }
 }
 
