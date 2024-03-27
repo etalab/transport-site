@@ -9,26 +9,7 @@ require Logger
 # any compile-time configuration in here, as it won't be applied.
 
 {worker, webserver} =
-  case config_env() do
-    :prod ->
-      {
-        System.get_env("WORKER") || raise("expected the WORKER environment variable to be set"),
-        System.get_env("WEBSERVER") || raise("expected the WEBSERVER variable to be set")
-      }
-
-    :dev ->
-      # By default in dev, the application will be both a worker and a webserver
-      {
-        System.get_env("WORKER", "1"),
-        System.get_env("WEBSERVER", "1")
-      }
-
-    :test ->
-      {
-        "0",
-        "0"
-      }
-  end
+  Transport.RuntimeConfiguration.build_config(Transport.RuntimeConfiguration.SystemEnvProvider.impl(), config_env())
 
 worker = worker == "1"
 webserver = webserver == "1"
