@@ -285,6 +285,23 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     assert list_datasets.(%{}) != list_datasets.(%{"region" => region.id |> to_string()})
   end
 
+  test "uses population and custom_title to sort by default" do
+    small_aom = insert(:aom, population: 100)
+    big_aom = insert(:aom, population: 200)
+    type = "private-parking"
+
+    # small population: last result expected
+    small_dataset = insert(:dataset, is_active: true, type: type, aom: small_aom, custom_title: "AAA")
+    # equal population, alphabetical order expected
+    big_dataset_1 = insert(:dataset, is_active: true, type: type, aom: big_aom, custom_title: "ABC")
+    big_dataset_2 = insert(:dataset, is_active: true, type: type, aom: big_aom, custom_title: "BBB")
+    # national dataset, population is null
+    national_dataset = insert(:dataset, is_active: true, type: type, population: nil)
+
+    assert [national_dataset.id, big_dataset_1.id, big_dataset_2.id, small_dataset.id] ==
+             %{"type" => type} |> Dataset.list_datasets() |> DB.Repo.all() |> Enum.map(& &1.id)
+  end
+
   test "hidden datasets are not included" do
     hidden_dataset = insert(:dataset, is_active: true, is_hidden: true)
 

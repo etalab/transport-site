@@ -451,7 +451,11 @@ defmodule DB.Dataset do
         fragment(
           "case when organization = ? and custom_title ilike 'base nationale%' then 1 else 0 end",
           ^pan_publisher
-        )
+        ),
+      # Gotcha, population can be null for datasets covering France/Europe
+      # https://github.com/etalab/transport-site/issues/3848
+      desc: fragment("coalesce(population, 100000000)"),
+      asc: :custom_title
     )
   end
 
