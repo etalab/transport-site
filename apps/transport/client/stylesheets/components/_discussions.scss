@@ -39,46 +39,6 @@
     margin-bottom: 0;
   }
 
-  textarea {
-    min-height: 10em;
-  }
-
-  // Auto expanding textarea, deeply inspired by https://css-tricks.com/the-cleanest-trick-for-autogrowing-textareas/
-  .autoexpand {
-    /* easy way to plop the elements on top of each other and have them both sized based on the tallest one's height */
-    display: grid;
-
-    &::after {
-      /* Note the weird space! Needed to preventy jumpy behavior */
-      content: attr(data-replicated-value) " ";
-
-      /* This is how textarea text behaves */
-      white-space: pre-wrap;
-
-      /* Hidden from view, clicks, and screen readers */
-      visibility: hidden;
-    }
-
-    > textarea {
-      /* You could leave this, but after a user resizes, then it ruins the auto sizing */
-      resize: none;
-
-      /* Firefox shows scrollbar on growth, you can hide like this. */
-      overflow: hidden;
-    }
-
-    &::after, > textarea {
-      /* Identical styling required!! */
-      font: inherit;
-      padding: 0.5em 0.875em;
-      border: 1px solid var(--theme-border);
-      border-radius: var(--theme-border-radius);
-
-      /* Place on top of each other */
-      grid-area: 1 / 1 / 2 / 2;
-    }
-  }
-
   .discussion__post {
     padding-top: 2em;
   }
@@ -92,9 +52,51 @@
   }
 }
 
+.discussion-modal, .discussion {
+  textarea {
+    min-height: 10em;
+  }
+}
+
 .discussion-modal {
   display: none;
   &:target {
     display: block;
+  }
+}
+
+// Auto expanding textarea, deeply inspired by https://css-tricks.com/the-cleanest-trick-for-autogrowing-textareas/
+.autoexpand {
+  /* easy way to plop the elements on top of each other and have them both sized based on the tallest one's height */
+  display: grid;
+
+  &::after {
+    /* Note the weird space! Needed to preventy jumpy behavior */
+    content: attr(data-replicated-value) " ";
+
+    /* This is how textarea text behaves */
+    white-space: pre-wrap;
+
+    /* Hidden from view, clicks, and screen readers */
+    visibility: hidden;
+  }
+
+  > textarea {
+    /* You could leave this, but after a user resizes, then it ruins the auto sizing */
+    resize: none;
+
+    /* Firefox shows scrollbar on growth, you can hide like this. */
+    overflow: hidden;
+  }
+
+  &::after, > textarea {
+    /* Identical styling required!! */
+    font: inherit;
+    padding: 0.5em 0.875em;
+    border: 1px solid var(--theme-border);
+    border-radius: var(--theme-border-radius);
+
+    /* Place on top of each other */
+    grid-area: 1 / 1 / 2 / 2;
   }
 }

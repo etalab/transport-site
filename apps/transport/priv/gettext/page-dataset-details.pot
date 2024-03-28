@@ -681,3 +681,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "This dataset is hidden"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Your comment"
+msgstr ""
