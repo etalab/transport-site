@@ -89,7 +89,7 @@ defmodule Hasher do
 
   def get_file_hash(file_path) do
     file_path
-    |> File.stream!([], 2048)
+    |> File.stream!(2048)
     |> compute_checksum(:sha256)
   end
 

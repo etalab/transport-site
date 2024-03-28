@@ -77,7 +77,7 @@ defmodule TransportWeb.Backoffice.PageView do
   def unaccent(nil), do: ""
 
   def unaccent(value) when is_binary(value) do
-    ~R<\p{Mn}>u
+    ~r/\p{Mn}/u
     |> Regex.replace(value |> :unicode.characters_to_nfd_binary(), "")
     |> :unicode.characters_to_nfc_binary()
   end
