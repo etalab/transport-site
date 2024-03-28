@@ -681,3 +681,7 @@ msgstr "Dernière modification"
 #, elixir-autogen, elixir-format
 msgid "This dataset is hidden"
 msgstr "Ce jeu de données est masqué"
+
+#, elixir-autogen, elixir-format
+msgid "Your comment"
+msgstr "Votre commentaire"
