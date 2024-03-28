@@ -85,7 +85,9 @@
           <h4><%= dgettext("validations", "Differences Overview") %></h4>
           <%= dgettext(
             "validations",
-            "Based on the generated GTFS Diff file, we can show you an overview of the differences found."
+            "The GTFS file %{gtfs_file_name_2} has differences with the GTFS file %{gtfs_file_name_1}, as summarized below:",
+            gtfs_file_name_1: @gtfs_file_name_1,
+            gtfs_file_name_2: @gtfs_file_name_2
           ) %>
           <div class="summary">
             <div :if={@diff_summary["add"]}>
