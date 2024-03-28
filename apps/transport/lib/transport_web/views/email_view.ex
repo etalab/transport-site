@@ -1,9 +1,13 @@
 defmodule TransportWeb.EmailView do
   use TransportWeb, :view
 
-  def link_for_dataset(%DB.Dataset{slug: slug, custom_title: custom_title}) do
+  def link_for_dataset_section(%DB.Dataset{} = dataset, :discussion) do
+    link_for_dataset(dataset, "#dataset-discussions")
+  end
+
+  def link_for_dataset(%DB.Dataset{slug: slug, custom_title: custom_title}, anchor \\ "") do
     url = TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, slug)
-    link(custom_title, to: url)
+    link(custom_title, to: url <> anchor)
   end
 
   def link_for_dataset_discussions(%DB.Dataset{slug: slug}) do
