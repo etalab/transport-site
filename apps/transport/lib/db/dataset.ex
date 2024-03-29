@@ -451,7 +451,11 @@ defmodule DB.Dataset do
         fragment(
           "case when organization = ? and custom_title ilike 'base nationale%' then 1 else 0 end",
           ^pan_publisher
-        )
+        ),
+      # Gotcha, population can be null for datasets covering France/Europe
+      # https://github.com/etalab/transport-site/issues/3848
+      desc: fragment("coalesce(population, 100000000)"),
+      asc: :custom_title
     )
   end
 
@@ -831,9 +835,9 @@ defmodule DB.Dataset do
   @doc """
   Find datasets present on the NAP for which the user is a member of the organization.
   """
-  @spec datasets_for_user(Plug.Conn.t()) :: [__MODULE__.t()] | {:error, OAuth2.Error.t()}
-  def datasets_for_user(%Plug.Conn{} = conn) do
-    case Datagouvfr.Client.User.Wrapper.impl().me(conn) do
+  @spec datasets_for_user(Plug.Conn.t() | OAuth2.AccessToken.t()) :: [__MODULE__.t()] | {:error, OAuth2.Error.t()}
+  def datasets_for_user(conn_or_token) do
+    case Datagouvfr.Client.User.Wrapper.impl().me(conn_or_token) do
       {:ok, %{"organizations" => organizations}} ->
         organization_ids = Enum.map(organizations, fn %{"id" => id} -> id end)
 

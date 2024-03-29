@@ -180,8 +180,8 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
       )
     end)
 
-    assert [%DB.Contact{id: ^admin_producer_id}] = PeriodicReminderProducersNotificationJob.admin_contacts()
-    assert [admin_producer.id] == PeriodicReminderProducersNotificationJob.admin_contact_ids()
+    assert [%DB.Contact{id: ^admin_producer_id}] = DB.Contact.admin_contacts()
+    assert [admin_producer.id] == DB.Contact.admin_contact_ids()
 
     Transport.EmailSender.Mock
     |> expect(:send_mail, fn "transport.data.gouv.fr",
