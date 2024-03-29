@@ -496,7 +496,6 @@ defmodule TransportWeb.DatasetControllerTest do
       insert_contact(%{datagouv_user_id: contact_datagouv_id = Ecto.UUID.generate()})
 
       mock_empty_history_resources()
-      mock_empty_followers(dataset)
 
       refute conn
              |> init_test_session(%{current_user: %{"is_admin" => true, "id" => contact_datagouv_id}})
@@ -568,15 +567,6 @@ defmodule TransportWeb.DatasetControllerTest do
     |> expect(:history_resources, fn _, options ->
       assert Keyword.equal?(options, preload_validations: true, max_records: 25)
       []
-    end)
-  end
-
-  defp mock_empty_followers(%DB.Dataset{datagouv_id: datagouv_id}) do
-    url = "https://demo.data.gouv.fr/api/1/datasets/#{datagouv_id}/followers/?page_size=500"
-
-    Transport.HTTPoison.Mock
-    |> expect(:request, fn :get, ^url, "", [{"x-fields", "data{follower{id}}, next_page"}], [follow_redirect: true] ->
-      {:ok, %HTTPoison.Response{status_code: 200, body: ""}}
     end)
   end
 end
