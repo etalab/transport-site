@@ -53,5 +53,32 @@ defmodule DB.DatasetFollowerTest do
              contact |> DB.Repo.preload(:followed_datasets) |> Map.fetch!(:followed_datasets)
   end
 
+  test "follows_dataset" do
+    %DB.Contact{id: contact_id} = contact = insert_contact()
+    %DB.Dataset{id: dataset_id} = dataset = insert(:dataset)
+
+    refute DB.DatasetFollower.follows_dataset?(nil, dataset)
+    refute DB.DatasetFollower.follows_dataset?(contact, dataset)
+
+    %{dataset_id: dataset_id, contact_id: contact_id, source: :datagouv} |> changeset() |> DB.Repo.insert!()
+
+    assert DB.DatasetFollower.follows_dataset?(contact, dataset)
+  end
+
+  test "follow! and unfollow!" do
+    %DB.Contact{} = contact = insert_contact()
+    %DB.Dataset{} = dataset = insert(:dataset)
+
+    refute DB.DatasetFollower.follows_dataset?(contact, dataset)
+
+    DB.DatasetFollower.follow!(contact, dataset, source: :follow_button)
+
+    assert DB.DatasetFollower.follows_dataset?(contact, dataset)
+
+    DB.DatasetFollower.unfollow!(contact, dataset)
+
+    refute DB.DatasetFollower.follows_dataset?(contact, dataset)
+  end
+
   defp changeset(args), do: DatasetFollower.changeset(%DatasetFollower{}, args)
 end
