@@ -26,6 +26,12 @@ Les champs obligatoires sont des informations sur :
 
 Un contact créé depuis le backoffice n'a pas de `datagouv_user_id`. Si la personne se connecte plus tard sur le PAN avec l'adresse e-mail associée au contact les comptes sont "liés" et on reprend le `datagouv_user_id`.
 
+## Protection des données
+
+L'adresse e-mail (`email`) et le numéro de téléphone (`phone_number`) sont stockés de manière chiffrée en base de données.
+
+La colonne `email_hash` permet de retrouver un contact par son adresse e-mail.
+
 ## Cycle de vie
 
 ### Créations
