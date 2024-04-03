@@ -1,4 +1,9 @@
 defmodule Unlock.AggregateProcessor do
+  @moduledoc """
+  The aggregate processor is able to consolidate (Dynamic IRVE CSV only for now, but the name has been kept
+  generic as it could quite be made generic) multiple feeds as one.
+  """
+
   require Logger
 
   def process_resource(item) do
