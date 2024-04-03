@@ -9,7 +9,7 @@ defmodule Unlock.AggregateProcessor do
   def process_resource(item) do
     headers = ["id_pdc_itinerance"]
 
-    rows =
+    rows_stream =
       item.feeds
       |> Task.async_stream(
         &process_sub_item(item, &1),
@@ -21,7 +21,7 @@ defmodule Unlock.AggregateProcessor do
       |> Stream.concat()
 
     [headers]
-    |> Stream.concat(rows)
+    |> Stream.concat(rows_stream)
     |> Enum.into([])
     |> NimbleCSV.RFC4180.dump_to_iodata()
   end
