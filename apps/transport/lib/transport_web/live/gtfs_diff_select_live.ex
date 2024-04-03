@@ -48,10 +48,11 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
 
   def handle_info(:enqueue_job, socket) do
     [gtfs_file_name_2, gtfs_file_name_1] =
-      consume_uploaded_entries(socket, :gtfs, fn %{path: path}, entry ->
+      consume_uploaded_entries(socket, :gtfs, fn %{path: path},
+                                                 %Phoenix.LiveView.UploadEntry{client_name: original_file_name} ->
         file_name = Path.basename(path)
         stream_to_s3(path, file_name)
-        {:ok, %{uploaded_file_name: file_name, original_file_name: entry.client_name}}
+        {:ok, %{uploaded_file_name: file_name, original_file_name: original_file_name}}
       end)
 
     :ok = Oban.Notifier.listen([:gossip])
@@ -108,8 +109,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
          %{
            "complete" => job_id,
            "diff_file_url" => diff_file_url,
-           "gtfs_file_name_1" => gtfs_file_name_1,
-           "gtfs_file_name_2" => gtfs_file_name_2
+           "gtfs_original_file_name_1" => gtfs_original_file_name_1,
+           "gtfs_original_file_name_2" => gtfs_original_file_name_2
          }},
         %{assigns: %{job_id: job_id}} = socket
       ) do
@@ -119,8 +120,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     {:noreply,
      socket
      |> assign(:diff_file_url, diff_file_url)
-     |> assign(:gtfs_file_name_1, gtfs_file_name_1)
-     |> assign(:gtfs_file_name_2, gtfs_file_name_2)
+     |> assign(:gtfs_original_file_name_1, gtfs_original_file_name_1)
+     |> assign(:gtfs_original_file_name_2, gtfs_original_file_name_2)
      |> assign(:diff_logs, [])
      |> assign(:job_running, false)}
   end

@@ -40,8 +40,8 @@ defmodule Transport.Jobs.GTFSDiff do
       Oban.Notifier.notify(Oban, :gossip, %{
         complete: job.id,
         diff_file_url: Transport.S3.permanent_url(:gtfs_diff, diff_file_name),
-        gtfs_file_name_1: gtfs_original_file_name_1,
-        gtfs_file_name_2: gtfs_original_file_name_2
+        gtfs_original_file_name_1: gtfs_original_file_name_1,
+        gtfs_original_file_name_2: gtfs_original_file_name_2
       })
     after
       File.rm(filepath)
