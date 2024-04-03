@@ -28,6 +28,9 @@ defmodule Unlock.Config do
   end
 
   defmodule Item.Aggregate do
+    @moduledoc """
+    Intermediate structure for aggregated configured items.
+    """
     @enforce_keys [:identifier, :feeds]
 
     # TODO: add @type, and add more structure to feeds, most likely
