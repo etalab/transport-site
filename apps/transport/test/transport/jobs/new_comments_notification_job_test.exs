@@ -18,15 +18,15 @@ defmodule Transport.Test.Transport.Jobs.NewCommentsNotificationJobTest do
     test "a weekday excluding Monday" do
       # Ignored: inactive
       insert(:dataset,
-        is_active: true,
-        is_hidden: true,
+        is_active: false,
+        is_hidden: false,
         latest_data_gouv_comment_timestamp: ~U[2024-03-27 10:00:00.00Z]
       )
 
       # Ignored: hidden
       insert(:dataset,
-        is_active: false,
-        is_hidden: false,
+        is_active: true,
+        is_hidden: true,
         latest_data_gouv_comment_timestamp: ~U[2024-03-27 12:00:00.00Z]
       )
 
@@ -51,15 +51,15 @@ defmodule Transport.Test.Transport.Jobs.NewCommentsNotificationJobTest do
     test "on a Monday" do
       # Ignored: inactive
       insert(:dataset,
-        is_active: true,
-        is_hidden: true,
+        is_active: false,
+        is_hidden: false,
         latest_data_gouv_comment_timestamp: ~U[2024-03-30 10:00:00.00Z]
       )
 
       # Ignored: hidden
       insert(:dataset,
-        is_active: false,
-        is_hidden: false,
+        is_active: true,
+        is_hidden: true,
         latest_data_gouv_comment_timestamp: ~U[2024-03-30 12:00:00.00Z]
       )
 
