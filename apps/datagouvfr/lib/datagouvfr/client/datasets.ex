@@ -129,18 +129,6 @@ defmodule Datagouvfr.Client.Datasets do
   end
 
   @doc """
-  Is current_user subscribed to this dataset?
-  """
-  @spec current_user_subscribed?(Plug.Conn.t(), String.t()) :: boolean
-  def current_user_subscribed?(%Plug.Conn{assigns: %{current_user: %{"id" => user_id}}} = conn, dataset_id) do
-    dataset_id
-    |> get_followers()
-    |> user_in_followers?(user_id, conn)
-  end
-
-  def current_user_subscribed?(_, _), do: false
-
-  @doc """
   Call to GET /api/1/datasets/:id/
   You can see documentation here: http://www.data.gouv.fr/fr/apidoc/#!/datasets/put_dataset
   """
@@ -150,25 +138,6 @@ defmodule Datagouvfr.Client.Datasets do
     |> Path.join(id)
     |> API.get()
   end
-
-  # private functions
-
-  # Check if user_id is in followers, if it's not, check in next page if there's one
-  @spec user_in_followers?({:ok, map()} | binary(), binary(), Plug.Conn.t()) :: boolean()
-  defp user_in_followers?({:ok, %{"data" => followers} = page}, user_id, conn) when is_list(followers) do
-    Enum.any?(
-      followers,
-      &(&1["follower"]["id"] == user_id)
-    ) or user_in_followers?(page["next_page"], user_id, conn)
-  end
-
-  defp user_in_followers?(page_url, user_id, conn) when is_binary(page_url) do
-    conn
-    |> OAuthClient.get(page_url)
-    |> user_in_followers?(user_id, conn)
-  end
-
-  defp user_in_followers?(_, _, _), do: false
 
   @spec accumulator_atomizer({any(), any()}, map()) :: map()
   def accumulator_atomizer({key, value}, m) do

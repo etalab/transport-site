@@ -47,7 +47,7 @@
       </a>
       <div id={"reply-#{@discussion["id"]}"} class="discussion-modal">
         <%= form_for %{}, discussion_path(@socket, :post_answer, @dataset.datagouv_id, @discussion["id"]), fn f -> %>
-          <%= textarea(f, :comment) %>
+          <%= textarea_autoexpand(f, :comment) %>
           <%= hidden_input(f, :dataset_slug, value: @dataset.slug) %>
           <div class="form__group">
             <button class="button" name="anwser" type="submit">

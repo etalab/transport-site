@@ -30,5 +30,15 @@
 <script src={static_path(@conn, "/js/vega.js")} nonce={@conn.assigns[:csp_nonce_value]} />
 <script nonce={@conn.assigns[:csp_nonce_value]}>
   const spec = <%= raw Jason.encode!(@scores_chart) %>;
+
+  // Make sure the chart has got the appropriate width.
+  // It may be too large at the beginning, listen to resize
+  // events and rerender the chart.
+  // https://talk.observablehq.com/t/embedding-vega-lite-charts-that-have-width-value-set-to-container-leads-to-null-width-until-window-is-resized/6120/6
+  // https://github.com/vega/react-vega/issues/85#issuecomment-1826421132
+  new ResizeObserver(() => {
+    window.dispatchEvent(new Event("resize"));
+  }).observe(document.getElementById("vega-vis"));
+
   window.vegaEmbed("#vega-vis", spec, {renderer: "svg"});
 </script>

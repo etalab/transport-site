@@ -178,7 +178,7 @@ defmodule TransportWeb.DatasetControllerTest do
       metadata: %DB.ResourceMetadata{metadata: %{}, modes: ["ferry", "bus"]}
     })
 
-    set_empty_mocks()
+    mock_empty_history_resources()
 
     conn = conn |> get(dataset_path(conn, :details, slug))
     assert conn |> html_response(200) =~ "1 information"
@@ -200,7 +200,7 @@ defmodule TransportWeb.DatasetControllerTest do
       metadata: %{metadata: %{}}
     })
 
-    set_empty_mocks()
+    mock_empty_history_resources()
 
     conn = conn |> get(dataset_path(conn, :details, dataset.slug))
     assert conn |> html_response(200) =~ "1 erreur"
@@ -210,7 +210,7 @@ defmodule TransportWeb.DatasetControllerTest do
     %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug"})
     insert(:resource, %{dataset_id: dataset_id, format: "gtfs-rt", url: "url"})
 
-    set_empty_mocks()
+    mock_empty_history_resources()
 
     conn = conn |> get(dataset_path(conn, :details, slug))
     assert conn |> html_response(200) =~ "Données temps réel"
@@ -220,7 +220,7 @@ defmodule TransportWeb.DatasetControllerTest do
     test "ODbL licence with specific conditions", %{conn: conn} do
       insert(:dataset, %{slug: slug = "dataset-slug", licence: "odc-odbl"})
 
-      set_empty_mocks()
+      mock_empty_history_resources()
 
       conn = conn |> get(dataset_path(conn, :details, slug))
       assert conn |> html_response(200) =~ "Conditions Particulières"
@@ -229,7 +229,7 @@ defmodule TransportWeb.DatasetControllerTest do
     test "ODbL licence with openstreetmap tag", %{conn: conn} do
       insert(:dataset, %{slug: slug = "dataset-slug", licence: "odc-odbl", tags: ["openstreetmap"]})
 
-      set_empty_mocks()
+      mock_empty_history_resources()
 
       conn = conn |> get(dataset_path(conn, :details, slug))
       refute conn |> html_response(200) =~ "Conditions Particulières"
@@ -239,7 +239,7 @@ defmodule TransportWeb.DatasetControllerTest do
     test "licence ouverte licence", %{conn: conn} do
       insert(:dataset, %{slug: slug = "dataset-slug", licence: "lov2"})
 
-      set_empty_mocks()
+      mock_empty_history_resources()
 
       conn = conn |> get(dataset_path(conn, :details, slug))
       assert conn |> html_response(200) =~ "Licence Ouverte — version 2.0"
@@ -267,7 +267,7 @@ defmodule TransportWeb.DatasetControllerTest do
       result: %{"validation_performed" => false}
     })
 
-    set_empty_mocks()
+    mock_empty_history_resources()
 
     conn |> get(dataset_path(conn, :details, slug)) |> html_response(200)
   end
@@ -275,7 +275,7 @@ defmodule TransportWeb.DatasetControllerTest do
   test "with an inactive dataset", %{conn: conn} do
     insert(:dataset, is_active: false, slug: slug = "dataset-slug")
 
-    set_empty_mocks()
+    mock_empty_history_resources()
 
     assert conn |> get(dataset_path(conn, :details, slug)) |> html_response(404) =~
              "Ce jeu de données a été supprimé de data.gouv.fr"
@@ -284,7 +284,7 @@ defmodule TransportWeb.DatasetControllerTest do
   test "with an archived dataset", %{conn: conn} do
     insert(:dataset, is_active: true, slug: slug = "dataset-slug", archived_at: DateTime.utc_now())
 
-    set_empty_mocks()
+    mock_empty_history_resources()
 
     assert conn |> get(dataset_path(conn, :details, slug)) |> html_response(200) =~
              "Ce jeu de données a été archivé de data.gouv.fr"
@@ -358,7 +358,7 @@ defmodule TransportWeb.DatasetControllerTest do
     gtfs_rt = insert(:resource, dataset: dataset, url: "https://example.com/gtfs-rt", format: "gtfs-rt")
     insert(:resource_related, resource_src: gtfs_rt, resource_dst: gtfs, reason: :gtfs_rt_gtfs)
 
-    set_empty_mocks()
+    mock_empty_history_resources()
 
     assert conn |> get(dataset_path(conn, :details, slug)) |> html_response(200) =~
              ~s{<i class="icon fa fa-link" aria-hidden="true"></i>\n<a class="dark" href="#{resource_path(conn, :details, gtfs.id)}">GTFS</a>}
@@ -367,7 +367,7 @@ defmodule TransportWeb.DatasetControllerTest do
   test "dataset#details with notifications sent recently", %{conn: conn} do
     dataset = insert(:dataset, is_active: true)
     insert_notification(%{dataset: dataset, reason: :expiration, email: Ecto.UUID.generate() <> "@example.com"})
-    set_empty_mocks()
+    mock_empty_history_resources()
 
     doc = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200) |> Floki.parse_document!()
     [msg] = Floki.find(doc, "#notifications-sent")
@@ -380,7 +380,7 @@ defmodule TransportWeb.DatasetControllerTest do
     resource = insert(:resource, dataset: dataset, url: "https://example.com/siri", format: "SIRI")
     assert DB.Resource.requestor_ref(resource) == requestor_ref
 
-    set_empty_mocks()
+    mock_empty_history_resources()
     {html, _} = with_log(fn -> conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200) end)
 
     assert html =~
@@ -425,7 +425,7 @@ defmodule TransportWeb.DatasetControllerTest do
       topic: :availability
     )
 
-    set_empty_mocks()
+    mock_empty_history_resources()
 
     content = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200) |> Floki.parse_document!()
 
@@ -442,7 +442,7 @@ defmodule TransportWeb.DatasetControllerTest do
 
   test "a banner is displayed for a seasonal dataset", %{conn: conn} do
     dataset = insert(:dataset, is_active: true, custom_tags: ["saisonnier", "foo"])
-    set_empty_mocks()
+    mock_empty_history_resources()
 
     assert TransportWeb.DatasetView.seasonal_warning?(dataset)
 
@@ -464,7 +464,7 @@ defmodule TransportWeb.DatasetControllerTest do
         custom_full_logo: custom_full_logo = "https://example.com/logo_#{Ecto.UUID.generate()}.png"
       )
 
-    set_empty_mocks()
+    mock_empty_history_resources()
 
     assert DB.Dataset.full_logo(dataset) == custom_full_logo
 
@@ -474,6 +474,37 @@ defmodule TransportWeb.DatasetControllerTest do
              |> html_response(200)
              |> Floki.parse_document!()
              |> Floki.find(".dataset__logo")
+  end
+
+  describe "dataset#details: favorite icon" do
+    test "hidden if you're not an admin", %{conn: conn} do
+      dataset = insert(:dataset)
+
+      mock_empty_history_resources()
+
+      assert [] ==
+               conn
+               |> init_test_session(%{current_user: %{"is_admin" => false}})
+               |> get(dataset_path(conn, :details, dataset.slug))
+               |> html_response(200)
+               |> Floki.parse_document!()
+               |> Floki.find(".follow-dataset-icon")
+    end
+
+    test "shown if you're an admin", %{conn: conn} do
+      dataset = insert(:dataset)
+      insert_contact(%{datagouv_user_id: contact_datagouv_id = Ecto.UUID.generate()})
+
+      mock_empty_history_resources()
+
+      refute conn
+             |> init_test_session(%{current_user: %{"is_admin" => true, "id" => contact_datagouv_id}})
+             |> get(dataset_path(conn, :details, dataset.slug))
+             |> html_response(200)
+             |> Floki.parse_document!()
+             |> Floki.find(".follow-dataset-icon")
+             |> Enum.empty?()
+    end
   end
 
   test "gtfs-rt entities" do
@@ -518,7 +549,7 @@ defmodule TransportWeb.DatasetControllerTest do
            |> get(dataset_path(conn, :index))
            |> html_response(200) =~ hidden_dataset.custom_title
 
-    set_empty_mocks()
+    mock_empty_history_resources()
 
     # Dataset can be seen on the details page, with a banner
     [{"div", [{"class", "notification full-width"}], [content]}] =
@@ -531,7 +562,7 @@ defmodule TransportWeb.DatasetControllerTest do
     assert content =~ "Ce jeu de données est masqué"
   end
 
-  defp set_empty_mocks do
+  defp mock_empty_history_resources do
     Transport.History.Fetcher.Mock
     |> expect(:history_resources, fn _, options ->
       assert Keyword.equal?(options, preload_validations: true, max_records: 25)

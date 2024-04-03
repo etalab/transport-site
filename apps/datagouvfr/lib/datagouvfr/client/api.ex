@@ -70,7 +70,7 @@ defmodule Datagouvfr.Client.API do
   end
 
   @spec request(
-          :delete | :get | :head | :options | :patch | :post | :put,
+          method(),
           path(),
           any(),
           [{binary(), binary()}],
