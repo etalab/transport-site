@@ -77,10 +77,21 @@ defmodule Unlock.Controller do
     end)
   end
 
+  defp to_nil_or_integer(nil), do: nil
+  defp to_nil_or_integer(data), do: String.to_integer(data)
+  defp to_boolean(nil), do: false
+  defp to_boolean("1"), do: true
+
   # NOTE: most of this processing will be extracted to a separate file/module
   defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.Aggregate{} = item) do
     Unlock.Telemetry.trace_request(item.identifier, :external)
-    body_response = Unlock.AggregateProcessor.process_resource(item)
+    Logger.debug("Parameters: #{conn.query_params["pok"] |> inspect}")
+    options = [
+      # TODO: clean this up
+      limit_per_source: conn.query_params["limit_per_source"] |> to_nil_or_integer(),
+      include_origin: conn.query_params["include_origin"] |> to_boolean()
+    ]
+    body_response = Unlock.AggregateProcessor.process_resource(item, options)
     send_resp(conn, 200, body_response)
   end
 

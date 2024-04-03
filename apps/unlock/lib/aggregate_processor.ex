@@ -6,8 +6,14 @@ defmodule Unlock.AggregateProcessor do
 
   require Logger
 
-  def process_resource(item) do
+  def process_resource(item, options \\ []) do
+    options = Keyword.validate!(options, [
+      :limit_per_source,
+      :include_origin
+    ])
+
     headers = ["id_pdc_itinerance"]
+    headers = if options[:include_origin], do: headers ++ ["origin"], else: headers
 
     rows_stream =
       item.feeds
