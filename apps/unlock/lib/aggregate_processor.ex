@@ -12,13 +12,7 @@ defmodule Unlock.AggregateProcessor do
     rows =
       item.feeds
       |> Task.async_stream(
-        fn sub_item ->
-          Unlock.Telemetry.trace_request(item.identifier <> ":" <> sub_item["identifier"], :internal)
-          Logger.debug("Fetching aggregated sub-item #{sub_item["identifier"]} at #{sub_item["target_url"]}")
-          %{status: status, body: body} = get_with_maybe_redirect(sub_item |> Map.fetch!("target_url"))
-          Logger.debug("#{sub_item["identifier"]} responded with HTTP code #{status} (#{body |> byte_size} bytes)")
-          process_csv_payload(body)
-        end,
+        &process_sub_item(item, &1),
         max_concurrency: 10,
         # this is the default, but highlighted for maintenance clarity
         ordered: true
@@ -31,6 +25,14 @@ defmodule Unlock.AggregateProcessor do
     |> Enum.into([])
     |> NimbleCSV.RFC4180.dump_to_iodata()
   end
+
+  def process_sub_item(item, sub_item) do
+    Unlock.Telemetry.trace_request(item.identifier <> ":" <> sub_item["identifier"], :internal)
+    Logger.debug("Fetching aggregated sub-item #{sub_item["identifier"]} at #{sub_item["target_url"]}")
+    %{status: status, body: body} = get_with_maybe_redirect(sub_item |> Map.fetch!("target_url"))
+    Logger.debug("#{sub_item["identifier"]} responded with HTTP code #{status} (#{body |> byte_size} bytes)")
+    process_csv_payload(body)
+end
 
   # NOTE: we could avoid "decoding" the payload, but doing so will allow us
   # to integrate live validation (e.g. of id_pdc_itinerance against static database)
