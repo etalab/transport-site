@@ -60,36 +60,92 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
   end
 
   test "filtered_datasets" do
+    thursday_at_noon = ~U[2022-10-27 12:00:00Z]
+    friday_at_noon = ~U[2022-10-28 12:00:00Z]
+    saturday_at_noon = ~U[2022-10-29 12:00:00Z]
+    monday_night = ~U[2022-10-31 03:00:00Z]
+    monday_at_noon = ~U[2022-10-31 12:00:00Z]
+    tuesday_at_noon = ~U[2022-11-01 12:00:00Z]
+    wednesday_night = ~U[2022-11-02 03:00:00Z]
+
     base = %{
       "title" => "",
       "resources" => [],
       "tags" => [],
       "description" => "",
-      "internal" => %{"created_at_internal" => "2022-11-01 00:01:00+00:00"},
+      "internal" => %{"created_at_internal" => DateTime.to_string(tuesday_at_noon)},
       "id" => Ecto.UUID.generate()
     }
 
     insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate(), is_active: true)
 
+    created_on_thursday = %{
+      base
+      | "internal" => %{"created_at_internal" => DateTime.to_string(thursday_at_noon)},
+        "title" => "GTFS de Dôle (jeudi)"
+    }
+
+    created_on_friday = %{
+      base
+      | "internal" => %{"created_at_internal" => DateTime.to_string(friday_at_noon)},
+        "title" => "GTFS de Dôle (vendredi)"
+    }
+
+    created_on_friday_but_already_imported = %{
+      created_on_friday
+      | "tags" => ["gbfs"],
+        "id" => datagouv_id
+    }
+
+    created_on_saturday = %{
+      base
+      | "internal" => %{"created_at_internal" => DateTime.to_string(saturday_at_noon)},
+        "title" => "GTFS de Besançon (samedi)"
+    }
+
+    created_on_monday = %{
+      base
+      | "internal" => %{"created_at_internal" => DateTime.to_string(monday_at_noon)},
+        "title" => "GTFS de Macon (lundi)"
+    }
+
+    created_on_tuesday = %{base | "title" => "GTFS de Dijon (mardi)"}
+
+    created_on_tuesday_but_already_imported = %{
+      created_on_tuesday
+      | "tags" => ["gbfs"],
+        "id" => datagouv_id
+    }
+
     datasets = [
+      created_on_thursday,
+      created_on_friday,
+      created_on_friday_but_already_imported,
+      created_on_saturday,
+      created_on_monday,
       base,
-      %{base | "internal" => %{"created_at_internal" => "2022-10-30 00:00:00+00:00"}, "title" => "GTFS de Dijon"},
-      dataset_to_keep = %{base | "title" => "GTFS de Dijon"},
-      %{base | "tags" => ["gbfs"], "id" => datagouv_id}
+      created_on_tuesday,
+      created_on_tuesday_but_already_imported
     ]
 
-    assert [false, true, true, true] == Enum.map(datasets, &NewDatagouvDatasetsJob.dataset_is_relevant?/1)
+    assert [true, true, true, true, true, false, true, true] ==
+             Enum.map(datasets, &NewDatagouvDatasetsJob.dataset_is_relevant?/1)
 
-    assert [true, false, true, true] ==
-             Enum.map(
-               datasets,
-               &NewDatagouvDatasetsJob.after_datetime?(
-                 get_in(&1, ["internal", "created_at_internal"]),
-                 ~U[2022-11-01 00:00:00Z]
-               )
-             )
+    assert [created_on_tuesday] == filtered_datasets_as_of(datasets, wednesday_night)
 
-    assert [dataset_to_keep] == NewDatagouvDatasetsJob.filtered_datasets(datasets, ~U[2022-11-02 00:00:00Z])
+    assert [created_on_friday, created_on_saturday] ==
+             filtered_datasets_as_of(datasets, monday_night)
+  end
+
+  defp filtered_datasets_as_of(datasets, %DateTime{} = then) do
+    NewDatagouvDatasetsJob.filtered_datasets(as_of(datasets, then), then)
+  end
+
+  defp as_of(datasets, %DateTime{} = then) do
+    Enum.reject(
+      datasets,
+      &NewDatagouvDatasetsJob.after_datetime?(get_in(&1, ["internal", "created_at_internal"]), then)
+    )
   end
 
   describe "perform" do
@@ -135,6 +191,8 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
                                body,
                                _html_body ->
         assert body =~ ~s(* #{dataset["title"]} - #{dataset["page"]})
+
+        assert body =~ ~s(Les jeux de données suivants ont été ajoutés sur data.gouv.fr dans les dernières 24h)
       end)
 
       assert :ok == perform_job(NewDatagouvDatasetsJob, %{}, inserted_at: DateTime.utc_now())

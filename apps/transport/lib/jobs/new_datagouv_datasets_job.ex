@@ -46,6 +46,8 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
     datasets = filtered_datasets(datasets, inserted_at)
 
     unless Enum.empty?(datasets) do
+      duration = window(DateTime.to_date(inserted_at)) * -24
+
       Transport.EmailSender.impl().send_mail(
         "transport.data.gouv.fr",
         Application.get_env(:transport, :contact_email),
@@ -55,7 +57,7 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
         """
         Bonjour,
 
-        Les jeux de données suivants ont été ajoutés sur data.gouv.fr dans les dernières 24h et sont susceptibles d'avoir leur place sur le PAN :
+        Les jeux de données suivants ont été ajoutés sur data.gouv.fr dans les dernières #{duration}h et sont susceptibles d'avoir leur place sur le PAN :
 
         #{Enum.map_join(datasets, "\n", &link_and_name/1)}
 
@@ -74,14 +76,33 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
   end
 
   def filtered_datasets(datasets, %DateTime{} = inserted_at) do
-    a_day_ago = DateTime.add(inserted_at, -1, :day)
     dataset_ids = DB.Dataset.base_query() |> select([dataset: d], d.datagouv_id) |> DB.Repo.all()
 
     Enum.filter(datasets, fn dataset ->
       dataset["id"] not in dataset_ids and
-        after_datetime?(get_in(dataset, ["internal", "created_at_internal"]), a_day_ago) and
+        after_datetime?(get_in(dataset, ["internal", "created_at_internal"]), starting_date(inserted_at)) and
         dataset_is_relevant?(dataset)
     end)
+  end
+
+  def starting_date(%DateTime{} = inserted_at) do
+    DateTime.add(inserted_at, window(DateTime.to_date(inserted_at)), :day)
+  end
+
+  @doc """
+  iex> window(~D[2024-04-01])
+  -3
+  iex> window(~D[2024-04-02])
+  -1
+  iex> window(~D[2024-04-03])
+  -1
+  """
+  def window(%Date{} = inserted_at) do
+    if inserted_at |> Date.day_of_week() == 1 do
+      -3
+    else
+      -1
+    end
   end
 
   def after_datetime?(created_at, %DateTime{} = dt_limit) when is_binary(created_at) do
