@@ -745,47 +745,6 @@ defmodule DB.Dataset do
     end
   end
 
-  @spec get_covered_area_names(__MODULE__.t()) :: binary | [any]
-  def get_covered_area_names(%__MODULE__{aom_id: aom_id}) when not is_nil(aom_id) do
-    get_covered_area_names(
-      "select string_agg(nom, ', ' ORDER BY nom) from commune group by aom_res_id having aom_res_id = (select composition_res_id from aom where id = $1)",
-      aom_id
-    )
-  end
-
-  def get_covered_area_names(%__MODULE__{region_id: region_id}) when not is_nil(region_id) do
-    get_covered_area_names(
-      "select string_agg(distinct(departement), ', ') from aom where region_id = $1",
-      region_id
-    )
-  end
-
-  def get_covered_area_names(%__MODULE__{communes: communes}) when length(communes) != 0 do
-    communes
-    |> Enum.map(fn c -> c.nom end)
-    # credo:disable-for-next-line
-    |> Enum.join(", ")
-  end
-
-  def get_covered_area_names(_), do: "National"
-
-  @spec get_covered_area_names(binary, binary()) :: [binary()]
-  def get_covered_area_names(query, id) do
-    query
-    |> Repo.query([id])
-    |> case do
-      {:ok, %{rows: [names | _]}} ->
-        Enum.reject(names, &(&1 == nil))
-
-      {:ok, %{rows: []}} ->
-        ""
-
-      {:error, error} ->
-        Logger.error(error)
-        ""
-    end
-  end
-
   @spec official_resources(__MODULE__.t()) :: list(Resource.t())
   def official_resources(%__MODULE__{resources: resources}),
     do: resources |> Stream.reject(&DB.Resource.community_resource?/1) |> Enum.to_list()
