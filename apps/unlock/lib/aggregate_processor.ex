@@ -18,7 +18,7 @@ defmodule Unlock.AggregateProcessor do
     rows_stream =
       item.feeds
       |> Task.async_stream(
-        &process_sub_item(item, &1),
+        &process_sub_item(item, &1, options),
         max_concurrency: 10,
         # this is the default, but highlighted for maintenance clarity
         ordered: true
@@ -32,18 +32,18 @@ defmodule Unlock.AggregateProcessor do
     |> NimbleCSV.RFC4180.dump_to_iodata()
   end
 
-  def process_sub_item(item, sub_item) do
+  def process_sub_item(item, sub_item, options) do
     Unlock.Telemetry.trace_request(item.identifier <> ":" <> sub_item["identifier"], :internal)
     Logger.debug("Fetching aggregated sub-item #{sub_item["identifier"]} at #{sub_item["target_url"]}")
     %{status: status, body: body} = get_with_maybe_redirect(sub_item |> Map.fetch!("target_url"))
     Logger.debug("#{sub_item["identifier"]} responded with HTTP code #{status} (#{body |> byte_size} bytes)")
-    process_csv_payload(body)
+    process_csv_payload(body, sub_item["identifier"], options)
 end
 
   # NOTE: we could avoid "decoding" the payload, but doing so will allow us
   # to integrate live validation (e.g. of id_pdc_itinerance against static database)
   # more easily, with less refactoring.
-  def process_csv_payload(body, options \\ []) do
+  def process_csv_payload(body, origin, options \\ []) do
     [headers | rows] = NimbleCSV.RFC4180.parse_string(body, skip_headers: false)
 
     # SEE: https://specs.frictionlessdata.io/table-schema/#descriptor
@@ -55,10 +55,16 @@ end
     ["id_pdc_itinerance" | _rest] = headers
 
     # Only keeping the id for now, on purpose
-    rows = if options[:limit], do: Stream.take(rows, options[:limit]), else: rows
+    rows = if options[:limit_per_source], do: Stream.take(rows, options[:limit_per_source]), else: rows
+
+    mapper = if options[:include_origin] do
+      fn([id | _rest]) -> [id, origin] end
+    else
+      fn([id | _rest]) -> [id] end
+    end
 
     rows
-    |> Stream.map(fn [id | _rest] -> [id] end)
+    |> Stream.map(&mapper.(&1))
   end
 
   # `Finch` does not support redirects, and we likely will want to support data gouv stable urls
