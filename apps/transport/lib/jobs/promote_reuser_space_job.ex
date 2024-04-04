@@ -1,7 +1,7 @@
 defmodule Transport.Jobs.PromoteReuserSpaceJob do
   @moduledoc """
-  Send an email to a contact just after following a dataset for
-  the first time.
+  Sends an email to a contact when they follow a dataset for
+  the first time using the button.
   """
   use Oban.Worker, unique: [period: :infinity], max_attempts: 3
 
