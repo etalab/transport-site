@@ -24,6 +24,7 @@ defmodule DB.Dataset do
 
   @licences_ouvertes ["fr-lo", "lov2"]
   @licence_mobilités_tag "licence-mobilités"
+  @hidden_dataset_custom_tag_value "masqué"
 
   typed_schema "dataset" do
     field(:datagouv_id, :string)
@@ -43,6 +44,7 @@ defmodule DB.Dataset do
     field(:organization_type, :string)
     field(:has_realtime, :boolean)
     field(:is_active, :boolean)
+    field(:is_hidden, :boolean)
     field(:population, :integer)
     field(:nb_reuses, :integer)
     field(:latest_data_gouv_comment_timestamp, :utc_datetime)
@@ -95,16 +97,22 @@ defmodule DB.Dataset do
     many_to_many(:followers, DB.Contact, join_through: "dataset_followers", on_replace: :delete)
   end
 
-  def base_query, do: from(d in DB.Dataset, as: :dataset, where: d.is_active)
+  def base_query do
+    from(d in DB.Dataset, as: :dataset, where: d.is_active and not d.is_hidden)
+  end
+
   def archived, do: base_query() |> where([dataset: d], not is_nil(d.archived_at))
   def inactive, do: from(d in DB.Dataset, as: :dataset, where: not d.is_active)
+  def hidden, do: from(d in DB.Dataset, as: :dataset, where: d.is_active and d.is_hidden)
+  def include_hidden_datasets(%Ecto.Query{} = query), do: or_where(query, [dataset: d], d.is_hidden)
+  def base_with_hidden_datasets, do: base_query() |> include_hidden_datasets()
 
-  @spec is_archived?(__MODULE__.t()) :: boolean()
-  def is_archived?(%__MODULE__{archived_at: nil}), do: false
-  def is_archived?(%__MODULE__{archived_at: %DateTime{}}), do: true
+  @spec archived?(__MODULE__.t()) :: boolean()
+  def archived?(%__MODULE__{archived_at: nil}), do: false
+  def archived?(%__MODULE__{archived_at: %DateTime{}}), do: true
 
-  @spec is_active?(__MODULE__.t()) :: boolean()
-  def is_active?(%__MODULE__{is_active: is_active}), do: is_active
+  @spec active?(__MODULE__.t()) :: boolean()
+  def active?(%__MODULE__{is_active: is_active}), do: is_active
 
   @doc """
   Creates a query with the following inner joins:
@@ -122,7 +130,7 @@ defmodule DB.Dataset do
   Returns a list of resources, with their last resource_history preloaded
   """
   def last_resource_history(dataset_id) do
-    DB.Dataset.base_query()
+    DB.Dataset.base_with_hidden_datasets()
     |> where([dataset: d], d.id == ^dataset_id)
     |> join(:left, [dataset: d], r in DB.Resource, on: d.id == r.dataset_id, as: :resource)
     |> join(:left, [resource: r], rh in DB.ResourceHistory,
@@ -242,14 +250,14 @@ defmodule DB.Dataset do
   defp filter_by_climate_resilience_bill(%Ecto.Query{} = query, _), do: query
 
   @spec filter_by_custom_tag(Ecto.Query.t(), binary() | map()) :: Ecto.Query.t()
-  defp filter_by_custom_tag(%Ecto.Query{} = query, custom_tag) when is_binary(custom_tag) do
-    where(query, [dataset: d], fragment("? = any(?)", ^custom_tag, d.custom_tags))
+  def filter_by_custom_tag(%Ecto.Query{} = query, custom_tag) when is_binary(custom_tag) do
+    where(query, [dataset: d], ^custom_tag in d.custom_tags)
   end
 
-  defp filter_by_custom_tag(%Ecto.Query{} = query, %{"custom_tag" => custom_tag}),
+  def filter_by_custom_tag(%Ecto.Query{} = query, %{"custom_tag" => custom_tag}),
     do: filter_by_custom_tag(query, custom_tag)
 
-  defp filter_by_custom_tag(%Ecto.Query{} = query, _), do: query
+  def filter_by_custom_tag(%Ecto.Query{} = query, _), do: query
 
   @spec filter_by_feature(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_feature(query, %{"features" => [feature]})
@@ -355,10 +363,6 @@ defmodule DB.Dataset do
 
   defp filter_by_commune(query, _), do: query
 
-  @spec filter_by_active(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_active(query, %{"list_inactive" => true}), do: query
-  defp filter_by_active(query, _), do: where(query, [d], d.is_active)
-
   @spec filter_by_licence(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_licence(query, %{"licence" => "licence-ouverte"}),
     do: where(query, [d], d.licence in @licences_ouvertes)
@@ -378,7 +382,6 @@ defmodule DB.Dataset do
     q =
       base_query()
       |> distinct([dataset: d], d.id)
-      |> filter_by_active(params)
       |> filter_by_region(params)
       |> filter_by_feature(params)
       |> filter_by_mode(params)
@@ -448,7 +451,11 @@ defmodule DB.Dataset do
         fragment(
           "case when organization = ? and custom_title ilike 'base nationale%' then 1 else 0 end",
           ^pan_publisher
-        )
+        ),
+      # Gotcha, population can be null for datasets covering France/Europe
+      # https://github.com/etalab/transport-site/issues/3848
+      desc: fragment("coalesce(population, 100000000)"),
+      asc: :custom_title
     )
   end
 
@@ -525,6 +532,7 @@ defmodule DB.Dataset do
     |> validate_territory_mutual_exclusion()
     |> maybe_overwrite_licence()
     |> has_real_time()
+    |> set_is_hidden()
     |> validate_organization_type()
     |> add_organization(params)
     |> maybe_set_custom_logo_changed_at()
@@ -631,8 +639,8 @@ defmodule DB.Dataset do
 
   @spec count_by_type(binary()) :: any()
   def count_by_type(type) do
-    __MODULE__
-    |> where([d], d.type == ^type and d.is_active)
+    base_query()
+    |> where([d], d.type == ^type)
     |> Repo.aggregate(:count, :id)
   end
 
@@ -641,8 +649,8 @@ defmodule DB.Dataset do
 
   @spec count_public_transport_has_realtime :: number()
   def count_public_transport_has_realtime do
-    __MODULE__
-    |> where([d], d.has_realtime and d.is_active and d.type == "public-transit")
+    base_query()
+    |> where([d], d.has_realtime and d.type == "public-transit")
     |> Repo.aggregate(:count, :id)
   end
 
@@ -766,13 +774,13 @@ defmodule DB.Dataset do
 
   @spec official_resources(__MODULE__.t()) :: list(Resource.t())
   def official_resources(%__MODULE__{resources: resources}),
-    do: resources |> Stream.reject(&DB.Resource.is_community_resource?/1) |> Enum.to_list()
+    do: resources |> Stream.reject(&DB.Resource.community_resource?/1) |> Enum.to_list()
 
   def official_resources(%__MODULE__{}), do: []
 
   @spec community_resources(__MODULE__.t()) :: list(Resource.t())
   def community_resources(%__MODULE__{resources: resources}),
-    do: resources |> Stream.filter(&DB.Resource.is_community_resource?/1) |> Enum.to_list()
+    do: resources |> Stream.filter(&DB.Resource.community_resource?/1) |> Enum.to_list()
 
   def community_resources(%__MODULE__{}), do: []
 
@@ -802,7 +810,7 @@ defmodule DB.Dataset do
     {real_time_resources, static_resources} =
       dataset
       |> official_resources()
-      |> Enum.split_with(&Resource.is_real_time?/1)
+      |> Enum.split_with(&Resource.real_time?/1)
 
     # unique period is set to nil, to force the resource history job to be executed
     static_resources
@@ -827,9 +835,9 @@ defmodule DB.Dataset do
   @doc """
   Find datasets present on the NAP for which the user is a member of the organization.
   """
-  @spec datasets_for_user(Plug.Conn.t()) :: [__MODULE__.t()] | {:error, OAuth2.Error.t()}
-  def datasets_for_user(%Plug.Conn{} = conn) do
-    case Datagouvfr.Client.User.Wrapper.impl().me(conn) do
+  @spec datasets_for_user(Plug.Conn.t() | OAuth2.AccessToken.t()) :: [__MODULE__.t()] | {:error, OAuth2.Error.t()}
+  def datasets_for_user(conn_or_token) do
+    case Datagouvfr.Client.User.Wrapper.impl().me(conn_or_token) do
       {:ok, %{"organizations" => organizations}} ->
         organization_ids = Enum.map(organizations, fn %{"id" => id} -> id end)
 
@@ -903,7 +911,7 @@ defmodule DB.Dataset do
   @spec target_conversion_formats(DB.Dataset.t()) :: [atom()]
   def target_conversion_formats(%__MODULE__{resources: resources} = dataset) when is_list(resources) do
     keep_netex_conversions = has_custom_tag?(dataset, "keep_netex_conversions")
-    has_netex = Enum.any?(resources, &DB.Resource.is_netex?/1)
+    has_netex = Enum.any?(resources, &DB.Resource.netex?/1)
 
     if has_netex and not keep_netex_conversions do
       Enum.reject(available_conversion_formats(), &(&1 == :NeTEx))
@@ -1045,8 +1053,15 @@ defmodule DB.Dataset do
   end
 
   defp has_real_time(changeset) do
-    has_realtime = changeset |> get_field(:resources) |> Enum.any?(&Resource.is_real_time?/1)
+    has_realtime = changeset |> get_field(:resources) |> Enum.any?(&Resource.real_time?/1)
     changeset |> change(has_realtime: has_realtime)
+  end
+
+  defp set_is_hidden(%Ecto.Changeset{} = changeset) do
+    is_hidden =
+      has_custom_tag?(%__MODULE__{custom_tags: get_field(changeset, :custom_tags)}, @hidden_dataset_custom_tag_value)
+
+    change(changeset, is_hidden: is_hidden)
   end
 
   @spec resources_content_updated_at(__MODULE__.t()) :: map()

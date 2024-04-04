@@ -27,7 +27,7 @@ defmodule TransportWeb.DatasetView do
 
   @spec count_documentation_resources(Dataset.t()) :: non_neg_integer
   def count_documentation_resources(dataset) do
-    dataset |> official_available_resources() |> Stream.filter(&Resource.is_documentation?/1) |> Enum.count()
+    dataset |> official_available_resources() |> Stream.filter(&Resource.documentation?/1) |> Enum.count()
   end
 
   @spec count_discussions(any) :: [45, ...] | non_neg_integer
@@ -278,7 +278,7 @@ defmodule TransportWeb.DatasetView do
   def valid_panel_class(%DB.Resource{is_available: false}, _), do: "invalid-resource-panel"
 
   def valid_panel_class(%DB.Resource{} = r, is_outdated) do
-    if Resource.is_gtfs?(r) && is_outdated do
+    if Resource.gtfs?(r) && is_outdated do
       "invalid-resource-panel"
     else
       ""
@@ -295,7 +295,7 @@ defmodule TransportWeb.DatasetView do
     do:
       dataset
       |> official_available_resources()
-      |> Enum.filter(&Resource.is_gtfs?/1)
+      |> Enum.filter(&Resource.gtfs?/1)
 
   def unavailable_resources(dataset),
     do:
@@ -307,13 +307,13 @@ defmodule TransportWeb.DatasetView do
     do:
       dataset
       |> official_available_resources()
-      |> Enum.filter(&Resource.is_real_time?/1)
+      |> Enum.filter(&Resource.real_time?/1)
 
   def netex_official_resources(dataset),
     do:
       dataset
       |> official_available_resources()
-      |> Enum.filter(&Resource.is_netex?/1)
+      |> Enum.filter(&Resource.netex?/1)
 
   def schemas_resources(dataset) do
     dataset
@@ -325,10 +325,10 @@ defmodule TransportWeb.DatasetView do
   def other_official_resources(dataset) do
     dataset
     |> official_available_resources()
-    |> Stream.reject(&Resource.is_gtfs?/1)
-    |> Stream.reject(&Resource.is_netex?/1)
-    |> Stream.reject(&Resource.is_real_time?/1)
-    |> Stream.reject(&Resource.is_documentation?/1)
+    |> Stream.reject(&Resource.gtfs?/1)
+    |> Stream.reject(&Resource.netex?/1)
+    |> Stream.reject(&Resource.real_time?/1)
+    |> Stream.reject(&Resource.documentation?/1)
     |> Stream.reject(&Resource.has_schema?/1)
     |> Enum.to_list()
     |> Enum.sort_by(& &1.display_position)
@@ -337,14 +337,14 @@ defmodule TransportWeb.DatasetView do
   def official_documentation_resources(dataset) do
     dataset
     |> official_available_resources()
-    |> Enum.filter(&Resource.is_documentation?/1)
+    |> Enum.filter(&Resource.documentation?/1)
   end
 
-  def is_real_time_public_transit?(%Dataset{type: "public-transit"} = dataset) do
+  def real_time_public_transit?(%Dataset{type: "public-transit"} = dataset) do
     not Enum.empty?(real_time_official_resources(dataset))
   end
 
-  def is_real_time_public_transit?(%Dataset{}), do: false
+  def real_time_public_transit?(%Dataset{}), do: false
 
   def community_resources(dataset), do: Dataset.community_resources(dataset)
 
@@ -398,7 +398,7 @@ defmodule TransportWeb.DatasetView do
       when type == "carpooling-areas" or type == "private-parking" or type == "charging-stations" do
     resources
     |> Enum.filter(fn r -> r.format == "csv" end)
-    |> Enum.reject(fn r -> Resource.is_community_resource?(r) or Resource.is_documentation?(r) end)
+    |> Enum.reject(fn r -> Resource.community_resource?(r) or Resource.documentation?(r) end)
     |> Enum.max_by(& &1.last_update, DateTime, fn -> nil end)
   end
 
@@ -408,7 +408,7 @@ defmodule TransportWeb.DatasetView do
     |> Enum.filter(fn r -> r.format == "gbfs" or String.ends_with?(r.url, "gbfs.json") end)
     |> Enum.reject(fn r ->
       String.contains?(r.url, "station_status") or String.contains?(r.url, "station_information") or
-        Resource.is_community_resource?(r) or Resource.is_documentation?(r)
+        Resource.community_resource?(r) or Resource.documentation?(r)
     end)
     |> Enum.max_by(& &1.last_update, DateTime, fn -> nil end)
   end
@@ -421,7 +421,7 @@ defmodule TransportWeb.DatasetView do
     end)
     # Display zones and not special roads
     |> Enum.reject(fn r ->
-      String.contains?(r.url, "voie") or Resource.is_community_resource?(r) or Resource.is_documentation?(r)
+      String.contains?(r.url, "voie") or Resource.community_resource?(r) or Resource.documentation?(r)
     end)
     |> Enum.max_by(& &1.last_update, DateTime, fn -> nil end)
   end
@@ -487,7 +487,7 @@ defmodule TransportWeb.DatasetView do
   def validity_period(_), do: %{}
 
   def show_resource_last_update(resources_updated_at, %DB.Resource{id: id} = resource, locale) do
-    if Resource.is_real_time?(resource) do
+    if Resource.real_time?(resource) do
       dgettext("page-dataset-details", "real-time")
     else
       resources_updated_at

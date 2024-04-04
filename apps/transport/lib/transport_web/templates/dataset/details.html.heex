@@ -4,19 +4,22 @@
     <%= dgettext("page-dataset-details", "This dataset has been removed from data.gouv.fr") %>
   </div>
 <% end %>
-<%= if @dataset.is_active and DB.Dataset.is_archived?(@dataset) do %>
+<%= if @dataset.is_active and DB.Dataset.archived?(@dataset) do %>
   <div class="notification error full-width">
     <%= dgettext("page-dataset-details", "This dataset has been archived from data.gouv.fr on %{date}",
       date: DateTimeDisplay.format_datetime_to_date(@dataset.archived_at, locale)
     ) %>
   </div>
 <% end %>
+<div :if={@dataset.is_hidden} class="notification full-width">
+  <%= dgettext("page-dataset-details", "This dataset is hidden") %>
+</div>
 <div class="dataset-title-div" id="dataset-top">
   <%= dgettext("page-dataset-details", "dataset") %>
   <h1>
     <%= @dataset.custom_title %>
   </h1>
-  <%= if TransportWeb.Session.is_admin?(@conn) do %>
+  <%= if TransportWeb.Session.admin?(@conn) do %>
     <i class="fa fa-external-link-alt"></i>
     <%= link("backoffice", to: backoffice_page_path(@conn, :edit, @dataset.id)) %>
   <% end %>
@@ -181,29 +184,8 @@
       <section class="pt-48" id="dataset-discussions">
         <h2>Discussions</h2>
         <div class="dataset-details__discussions panel">
-          <div class="pb-48">
-            <%= if @current_user do %>
-              <%= form_for @conn, follower_path(@conn, :toggle, @dataset.datagouv_id), [class: "form"], fn _f -> %>
-                <button class="button">
-                  <%= if @is_subscribed do %>
-                    <%= dgettext("page-dataset-details", "Unsubscribe to comments") %>
-                  <% else %>
-                    <%= dgettext("page-dataset-details", "Subscribe to comments") %>
-                  <% end %>
-                </button>
-              <% end %>
-            <% else %>
-              <%= link(
-                dgettext("page-dataset-details", "Log in"),
-                to: page_path(@conn, :login, redirect_path: current_path(@conn))
-              ) %> <%= dgettext("page-dataset-details", "to subscribe to comments of this dataset.") %>
-            <% end %>
-          </div>
           <%= live_render(@conn, TransportWeb.DiscussionsLive,
-            session: %{
-              "current_user" => @current_user,
-              "dataset" => @dataset
-            }
+            session: %{"current_user" => @current_user, "dataset" => @dataset}
           ) %>
 
           <%= if @current_user do %>
@@ -213,8 +195,14 @@
             <div id="new_discussion" class="discussion-modal">
               <%= form_for @conn, discussion_path(@conn, :post_discussion, @dataset.datagouv_id), fn f -> %>
                 <%= hidden_input(f, :dataset_slug, value: @dataset.slug) %>
-                <%= text_input(f, :title, placeholder: dgettext("page-dataset-details", "Title")) %>
-                <%= textarea(f, :comment) %>
+                <div class="form__group">
+                  <%= label(f, :title, dgettext("page-dataset-details", "Title"), class: "required") %>
+                  <%= text_input(f, :title, required: true) %>
+                </div>
+                <div class="form__group">
+                  <%= label(f, :comment, dgettext("page-dataset-details", "Your comment"), class: "required") %>
+                  <%= textarea_autoexpand(f, :comment, required: true) %>
+                </div>
                 <%= submit(dgettext("page-dataset-details", "Start a new discussion")) %>
               <% end %>
             </div>
@@ -250,6 +238,11 @@
   </div>
   <div class="dataset-metas">
     <div class="panel">
+      <%= if TransportWeb.Session.admin?(@conn) do %>
+        <%= live_render(@conn, TransportWeb.Live.FollowDatasetLive,
+          session: %{"current_user" => @current_user, "dataset_id" => @dataset.id}
+        ) %>
+      <% end %>
       <div class="dataset__logo">
         <%= img_tag(DB.Dataset.full_logo(@dataset), alt: @dataset.custom_title) %>
       </div>
@@ -270,7 +263,7 @@
           text: Dataset.type_to_str(@dataset.type),
           icon: icon_type_path(@dataset)
         ) %>
-        <%= if is_real_time_public_transit?(@dataset) do %>
+        <%= if real_time_public_transit?(@dataset) do %>
           <%= render("_dataset_type.html",
             conn: @conn,
             link: dataset_path(@conn, :index, type: "public-transit", filter: "has_realtime"),

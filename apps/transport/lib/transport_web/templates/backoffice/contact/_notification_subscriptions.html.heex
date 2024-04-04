@@ -17,7 +17,7 @@
     <% end %>
     <datalist id="datasets_datalist">
       <%= for dataset <- @datasets_datalist do %>
-        <option value={dataset.id}><%= "#{dataset.custom_title} (#{dataset.type})" %></option>
+        <option value={dataset.id}><%= dataset_title(dataset) %></option>
       <% end %>
     </datalist>
     <%= label f, :reasons, class: "pt-12" do %>

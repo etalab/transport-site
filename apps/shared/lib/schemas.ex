@@ -10,20 +10,20 @@ defmodule Transport.Shared.Schemas.Wrapper do
   @callback transport_schemas() :: map()
   def transport_schemas, do: impl().transport_schemas()
 
-  def is_known_schema?(schema_name), do: Map.has_key?(transport_schemas(), schema_name)
+  def known_schema?(schema_name), do: Map.has_key?(transport_schemas(), schema_name)
 
   def schema_type(schema_name) do
     cond do
-      is_tableschema?(schema_name) -> "tableschema"
-      is_jsonschema?(schema_name) -> "jsonschema"
+      tableschema?(schema_name) -> "tableschema"
+      jsonschema?(schema_name) -> "jsonschema"
     end
   end
 
-  def is_tableschema?(schema_name) do
+  def tableschema?(schema_name) do
     Map.has_key?(schemas_by_type("tableschema"), schema_name)
   end
 
-  def is_jsonschema?(schema_name) do
+  def jsonschema?(schema_name) do
     Map.has_key?(schemas_by_type("jsonschema"), schema_name)
   end
 

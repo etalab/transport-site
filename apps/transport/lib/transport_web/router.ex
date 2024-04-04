@@ -89,12 +89,13 @@ defmodule TransportWeb.Router do
         delete("/:dataset_id/custom_logo", EspaceProducteurController, :remove_custom_logo)
       end
 
-      scope "/notifications" do
-        get("/", NotificationController, :index)
-        post("/", NotificationController, :create)
-        delete("/:id", NotificationController, :delete)
-        delete("/datasets/:dataset_id", NotificationController, :delete_for_dataset)
+      live_session :notification, root_layout: {TransportWeb.LayoutView, :app} do
+        live("/notifications", EspaceProducteur.NotificationLive)
       end
+    end
+
+    scope "/espace_reutilisateur" do
+      get("/", ReuserSpaceController, :espace_reutilisateur)
     end
 
     get("/stats", StatsController, :index)
@@ -118,7 +119,6 @@ defmodule TransportWeb.Router do
 
       scope "/:dataset_datagouv_id" do
         pipe_through([:authenticated])
-        post("/followers", FollowerController, :toggle)
         post("/discussions", DiscussionController, :post_discussion)
         post("/discussions/:discussion_id", DiscussionController, :post_answer)
       end
@@ -377,7 +377,7 @@ defmodule TransportWeb.Router do
   end
 
   defp transport_data_gouv_member(%Plug.Conn{} = conn, _) do
-    if TransportWeb.Session.is_admin?(conn) do
+    if TransportWeb.Session.admin?(conn) do
       conn
     else
       conn

@@ -191,19 +191,7 @@ msgid "Display less"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Subscribe to comments"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Unsubscribe to comments"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Log in"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "to subscribe to comments of this dataset."
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -688,4 +676,20 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Latest modification"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "This dataset is hidden"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Your comment"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Dataset added to your favorites! Personalise your settings from your <a href=\"%{url}\" target=\"_blank\">reuser space</a>."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "<a href=\"%{url}\">Log in or sign up</a> to benefit from dataset services."
 msgstr ""

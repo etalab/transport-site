@@ -1,6 +1,9 @@
 defmodule DB.Contact do
   @moduledoc """
   Represents a contact/user
+  A contact is created or updated each time a user logs in, see session controller.
+  Update through session controller includes the last login date and the organizations the user is part of.
+  Transport.Jobs.UpdateContactsJob also updates regularly the contacts.
   """
   use Ecto.Schema
   use TypedEctoSchema
@@ -77,26 +80,26 @@ defmodule DB.Contact do
   """
   def display_name(%__MODULE__{first_name: first_name, last_name: last_name, mailing_list_title: title} = object) do
     cond do
-      is_human?(object) -> "#{first_name} #{last_name}"
-      is_mailing_list?(object) -> title
+      human?(object) -> "#{first_name} #{last_name}"
+      mailing_list?(object) -> title
     end
   end
 
   @doc """
-  iex> is_human?(%DB.Contact{first_name: "John", last_name: "Doe", mailing_list_title: nil})
+  iex> human?(%DB.Contact{first_name: "John", last_name: "Doe", mailing_list_title: nil})
   true
-  iex> is_human?(%DB.Contact{first_name: nil, last_name: nil, mailing_list_title: "Service SIG"})
+  iex> human?(%DB.Contact{first_name: nil, last_name: nil, mailing_list_title: "Service SIG"})
   false
   """
-  def is_human?(%__MODULE__{mailing_list_title: title}), do: is_nil(title)
+  def human?(%__MODULE__{mailing_list_title: title}), do: is_nil(title)
 
   @doc """
-  iex> is_mailing_list?(%DB.Contact{first_name: "John", last_name: "Doe", mailing_list_title: nil})
+  iex> mailing_list?(%DB.Contact{first_name: "John", last_name: "Doe", mailing_list_title: nil})
   false
-  iex> is_mailing_list?(%DB.Contact{first_name: nil, last_name: nil, mailing_list_title: "Service SIG"})
+  iex> mailing_list?(%DB.Contact{first_name: nil, last_name: nil, mailing_list_title: "Service SIG"})
   true
   """
-  def is_mailing_list?(%__MODULE__{} = object), do: !is_human?(object)
+  def mailing_list?(%__MODULE__{} = object), do: !human?(object)
 
   def changeset(struct, attrs \\ %{}) do
     struct
@@ -276,5 +279,36 @@ defmodule DB.Contact do
 
   defp put_hashed_fields(%Ecto.Changeset{} = changeset) do
     changeset |> put_change(:email_hash, get_field(changeset, :email))
+  end
+
+  @doc """
+  A list of contact_ids for contacts who are members of the transport.data.gouv.fr's organization.
+
+  This list is cached because it is very stable over time and we need it for multiple
+  Oban jobs executed in parallel or one after another.
+  Used for now to exclude transport.data.gouv.fr members
+  when showing to a producer who are his fellow producers subscribed to notifications.
+  """
+  @spec admin_contact_ids() :: [integer()]
+  def admin_contact_ids do
+    Transport.Cache.API.fetch(
+      to_string(__MODULE__) <> ":admin_contact_ids",
+      fn -> Enum.map(admin_contacts(), & &1.id) end,
+      :timer.seconds(60)
+    )
+  end
+
+  @doc """
+  Fetches `DB.Contact` who are members of the transport.data.gouv.fr's organization.
+  """
+  @spec admin_contacts() :: [DB.Contact.t()]
+  def admin_contacts do
+    pan_org_name = Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
+
+    DB.Organization.base_query()
+    |> preload(:contacts)
+    |> where([organization: o], o.name == ^pan_org_name)
+    |> DB.Repo.one!()
+    |> Map.fetch!(:contacts)
   end
 end

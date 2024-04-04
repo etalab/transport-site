@@ -119,42 +119,42 @@ defmodule DB.Resource do
     |> no_schema_name_for_public_transport()
   end
 
-  @spec is_gtfs?(__MODULE__.t()) :: boolean()
-  def is_gtfs?(%__MODULE__{format: "GTFS"}), do: true
-  def is_gtfs?(_), do: false
+  @spec gtfs?(__MODULE__.t()) :: boolean()
+  def gtfs?(%__MODULE__{format: "GTFS"}), do: true
+  def gtfs?(_), do: false
 
-  @spec is_gbfs?(__MODULE__.t()) :: boolean
-  def is_gbfs?(%__MODULE__{format: "gbfs"}), do: true
-  def is_gbfs?(_), do: false
+  @spec gbfs?(__MODULE__.t()) :: boolean
+  def gbfs?(%__MODULE__{format: "gbfs"}), do: true
+  def gbfs?(_), do: false
 
-  @spec is_netex?(__MODULE__.t()) :: boolean
-  def is_netex?(%__MODULE__{format: "NeTEx"}), do: true
-  def is_netex?(_), do: false
+  @spec netex?(__MODULE__.t()) :: boolean
+  def netex?(%__MODULE__{format: "NeTEx"}), do: true
+  def netex?(_), do: false
 
-  @spec is_gtfs_rt?(__MODULE__.t()) :: boolean
-  def is_gtfs_rt?(%__MODULE__{format: "gtfs-rt"}), do: true
-  def is_gtfs_rt?(%__MODULE__{format: "gtfsrt"}), do: true
-  def is_gtfs_rt?(_), do: false
+  @spec gtfs_rt?(__MODULE__.t()) :: boolean
+  def gtfs_rt?(%__MODULE__{format: "gtfs-rt"}), do: true
+  def gtfs_rt?(%__MODULE__{format: "gtfsrt"}), do: true
+  def gtfs_rt?(_), do: false
 
-  @spec is_siri?(__MODULE__.t()) :: boolean
-  def is_siri?(%__MODULE__{format: "SIRI"}), do: true
-  def is_siri?(_), do: false
+  @spec siri?(__MODULE__.t()) :: boolean
+  def siri?(%__MODULE__{format: "SIRI"}), do: true
+  def siri?(_), do: false
 
-  @spec is_siri_lite?(__MODULE__.t()) :: boolean
-  def is_siri_lite?(%__MODULE__{format: "SIRI Lite"}), do: true
-  def is_siri_lite?(_), do: false
+  @spec siri_lite?(__MODULE__.t()) :: boolean
+  def siri_lite?(%__MODULE__{format: "SIRI Lite"}), do: true
+  def siri_lite?(_), do: false
 
-  @spec is_documentation?(__MODULE__.t()) :: boolean
-  def is_documentation?(%__MODULE__{type: "documentation"}), do: true
-  def is_documentation?(_), do: false
+  @spec documentation?(__MODULE__.t()) :: boolean
+  def documentation?(%__MODULE__{type: "documentation"}), do: true
+  def documentation?(_), do: false
 
-  @spec is_community_resource?(__MODULE__.t()) :: boolean
-  def is_community_resource?(%__MODULE__{is_community_resource: true}), do: true
-  def is_community_resource?(_), do: false
+  @spec community_resource?(__MODULE__.t()) :: boolean
+  def community_resource?(%__MODULE__{is_community_resource: true}), do: true
+  def community_resource?(_), do: false
 
-  @spec is_real_time?(__MODULE__.t()) :: boolean
-  def is_real_time?(%__MODULE__{} = resource) do
-    is_gtfs_rt?(resource) or is_gbfs?(resource) or is_siri_lite?(resource) or is_siri?(resource)
+  @spec real_time?(__MODULE__.t()) :: boolean
+  def real_time?(%__MODULE__{} = resource) do
+    gtfs_rt?(resource) or gbfs?(resource) or siri_lite?(resource) or siri?(resource)
   end
 
   @doc """
@@ -309,14 +309,14 @@ defmodule DB.Resource do
     hosted_on_bison_fute = parsed_url.host == Application.fetch_env!(:transport, :bison_fute_host)
 
     cond do
-      hosted_on_bison_fute -> is_link_to_folder?(parsed_url)
+      hosted_on_bison_fute -> link_to_folder?(parsed_url)
       hosted_on_datagouv?(resource) -> true
       String.match?(url, object_storage_regex) -> true
       true -> false
     end
   end
 
-  defp is_link_to_folder?(%URI{path: path}) do
+  defp link_to_folder?(%URI{path: path}) do
     path |> Path.basename() |> :filename.extension() == ""
   end
 

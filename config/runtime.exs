@@ -121,8 +121,9 @@ oban_prod_crontab = [
   # https://github.com/etalab/transport-site/issues/3492
   # {"0 20 * * *", Transport.Jobs.ResourceHistoryValidataJSONJob},
   {"15 */3 * * *", Transport.Jobs.ResourceHistoryTableSchemaValidationJob},
-  {"5 6 * * *", Transport.Jobs.NewDatagouvDatasetsJob},
+  {"5 6 * * 1-5", Transport.Jobs.NewDatagouvDatasetsJob},
   {"0 6 * * *", Transport.Jobs.NewDatasetNotificationsJob},
+  {"0 8 * * 1-5", Transport.Jobs.NewCommentsNotificationJob},
   {"0 21 * * *", Transport.Jobs.DatasetHistoryDispatcherJob},
   # Should be executed after all `DatasetHistoryJob` have been executed
   {"50 21 * * *", Transport.Jobs.ResourcesChangedNotificationJob},
