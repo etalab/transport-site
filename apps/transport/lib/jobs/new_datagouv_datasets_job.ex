@@ -46,6 +46,8 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
     datasets = filtered_datasets(datasets, inserted_at)
 
     unless Enum.empty?(datasets) do
+      duration = window(DateTime.to_date(inserted_at)) * -24
+
       Transport.EmailSender.impl().send_mail(
         "transport.data.gouv.fr",
         Application.get_env(:transport, :contact_email),
@@ -55,7 +57,7 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
         """
         Bonjour,
 
-        Les jeux de données suivants ont été ajoutés sur data.gouv.fr dans les dernières 24h et sont susceptibles d'avoir leur place sur le PAN :
+        Les jeux de données suivants ont été ajoutés sur data.gouv.fr dans les dernières #{duration}h et sont susceptibles d'avoir leur place sur le PAN :
 
         #{Enum.map_join(datasets, "\n", &link_and_name/1)}
 
