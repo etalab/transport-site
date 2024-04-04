@@ -94,6 +94,10 @@ defmodule TransportWeb.Router do
       end
     end
 
+    scope "/espace_reutilisateur" do
+      get("/", ReuserSpaceController, :espace_reutilisateur)
+    end
+
     get("/stats", StatsController, :index)
     get("/atom.xml", AtomController, :index)
     post("/send_mail", ContactController, :send_mail)
