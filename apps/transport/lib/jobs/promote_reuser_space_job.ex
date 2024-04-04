@@ -29,7 +29,7 @@ defmodule Transport.PromoteReuserSpaceNotifier do
     |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
     |> to(email)
     |> reply_to(Application.fetch_env!(:transport, :contact_email))
-    |> subject("Découvrez l'Espace réutilisateur")
+    |> subject("Gestion de vos favoris dans votre espace réutilisateur")
     |> render_body("promote_reuser_space.html")
   end
 end

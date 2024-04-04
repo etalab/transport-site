@@ -18,7 +18,7 @@ defmodule Transport.Test.Transport.Jobs.PromoteReuserSpaceJobTest do
                from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
                to: [{"", ^email}],
                reply_to: {"", "contact@transport.data.gouv.fr"},
-               subject: "Découvrez l'Espace réutilisateur",
+               subject: "Gestion de vos favoris dans votre espace réutilisateur",
                text_body: nil,
                html_body: html_body
              } = sent
