@@ -1,5 +1,6 @@
 defmodule Transport.TransportWeb.FollowDatasetLiveTest do
   use TransportWeb.ConnCase, async: true
+  use Oban.Testing, repo: DB.Repo
   import Phoenix.LiveViewTest
   import DB.Factory
   import Mox
@@ -104,6 +105,10 @@ defmodule Transport.TransportWeb.FollowDatasetLiveTest do
     assert [%DB.DatasetFollower{dataset_id: ^dataset_id, contact_id: ^contact_id, source: :follow_button}] =
              DB.DatasetFollower |> DB.Repo.all()
 
+    # Enqueued a job to promote the reuser space
+    assert [%Oban.Job{worker: "Transport.Jobs.PromoteReuserSpaceJob", args: %{"contact_id" => ^contact_id}}] =
+             all_enqueued()
+
     # The user is subscribed to all reasons
     assert [
              %DB.NotificationSubscription{
@@ -138,6 +143,56 @@ defmodule Transport.TransportWeb.FollowDatasetLiveTest do
              DB.NotificationSubscription
              |> DB.Repo.all()
              |> Enum.sort_by(fn %DB.NotificationSubscription{reason: reason} -> reason end)
+  end
+
+  test "does not enqueue a job if the user already follows a dataset", %{conn: conn} do
+    %DB.Dataset{id: dataset_id} = insert(:dataset)
+    %DB.Dataset{id: other_dataset_id} = insert(:dataset)
+    %DB.Contact{id: contact_id} = contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+
+    insert(:dataset_follower, contact_id: contact_id, dataset_id: other_dataset_id, source: :follow_button)
+
+    {:ok, view, _html} =
+      live_isolated(conn, TransportWeb.Live.FollowDatasetLive,
+        session: %{
+          "dataset_id" => dataset_id,
+          "current_user" => %{"id" => contact.datagouv_user_id}
+        }
+      )
+
+    assert_renders_grey_heart(view)
+
+    # Clicking the heart icon
+    view |> element("div i") |> render_click()
+
+    assert_renders_red_heart(view, with_banner: true)
+
+    assert [] == all_enqueued()
+  end
+
+  describe "maybe_promote_reuser_space" do
+    test "enqueues a job if the user already follows a dataset but not through the button" do
+      %DB.Dataset{id: dataset_id} = insert(:dataset)
+      %DB.Contact{id: contact_id} = contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+
+      insert(:dataset_follower, contact_id: contact_id, dataset_id: dataset_id, source: :datagouv)
+
+      TransportWeb.Live.FollowDatasetLive.maybe_promote_reuser_space(contact)
+
+      assert [%Oban.Job{worker: "Transport.Jobs.PromoteReuserSpaceJob", args: %{"contact_id" => ^contact_id}}] =
+               all_enqueued()
+    end
+
+    test "does not enqueue a job if the user already follows a dataset through the button" do
+      %DB.Dataset{id: dataset_id} = insert(:dataset)
+      %DB.Contact{id: contact_id} = contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+
+      insert(:dataset_follower, contact_id: contact_id, dataset_id: dataset_id, source: :follow_button)
+
+      TransportWeb.Live.FollowDatasetLive.maybe_promote_reuser_space(contact)
+
+      assert [] == all_enqueued()
+    end
   end
 
   describe "maybe_subscribe_to_daily_new_comments" do

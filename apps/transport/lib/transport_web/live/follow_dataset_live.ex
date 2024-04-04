@@ -90,6 +90,7 @@ defmodule TransportWeb.Live.FollowDatasetLive do
       DB.DatasetFollower.unfollow!(contact, dataset)
       delete_notification_subscriptions(contact, dataset)
     else
+      maybe_promote_reuser_space(contact)
       DB.DatasetFollower.follow!(contact, dataset, source: :follow_button)
       create_notification_subscriptions(contact, dataset)
       # Hide banner after 10s
@@ -102,6 +103,19 @@ defmodule TransportWeb.Live.FollowDatasetLive do
   @impl true
   def handle_info(:hide_banner, %Phoenix.LiveView.Socket{} = socket) do
     {:noreply, assign(socket, :display_banner?, false)}
+  end
+
+  def maybe_promote_reuser_space(%DB.Contact{id: contact_id}) do
+    already_followed_a_dataset? =
+      DB.DatasetFollower
+      |> where([df], df.contact_id == ^contact_id and df.source == :follow_button)
+      |> DB.Repo.exists?()
+
+    unless already_followed_a_dataset? do
+      %{contact_id: contact_id}
+      |> Transport.Jobs.PromoteReuserSpaceJob.new()
+      |> Oban.insert!()
+    end
   end
 
   defp create_notification_subscriptions(%DB.Contact{id: contact_id} = contact, %DB.Dataset{id: dataset_id}) do
