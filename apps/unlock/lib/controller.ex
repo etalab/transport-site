@@ -80,6 +80,7 @@ defmodule Unlock.Controller do
   defp to_nil_or_integer(nil), do: nil
   defp to_nil_or_integer(data), do: String.to_integer(data)
   defp to_boolean(nil), do: false
+  defp to_boolean("0"), do: false
   defp to_boolean("1"), do: true
 
   # NOTE: most of this processing will be extracted to a separate file/module
