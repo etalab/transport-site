@@ -64,9 +64,10 @@ defmodule Transport.CommentsChecker do
 
     email_content = Phoenix.View.render_to_string(TransportWeb.EmailView, "index.html", comments_with_context: comments)
 
+    # Notifications for reusers are handled by `NewCommentsNotificationJob`
     emails =
       @notification_reason
-      |> DB.NotificationSubscription.subscriptions_for_reason()
+      |> DB.NotificationSubscription.subscriptions_for_reason_and_role(:producer)
       |> DB.NotificationSubscription.subscriptions_to_emails()
 
     Enum.each(emails, fn email ->
