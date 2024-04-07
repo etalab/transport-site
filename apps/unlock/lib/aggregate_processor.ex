@@ -44,6 +44,7 @@ end
   # to integrate live validation (e.g. of id_pdc_itinerance against static database)
   # more easily, with less refactoring.
   def process_csv_payload(body, origin, options \\ []) do
+    # NOTE: currently fully in RAM - an improvement point for later
     [headers | rows] = NimbleCSV.RFC4180.parse_string(body, skip_headers: false)
 
     # SEE: https://specs.frictionlessdata.io/table-schema/#descriptor
