@@ -6,13 +6,15 @@ defmodule Unlock.AggregateProcessor do
 
   require Logger
 
+  @schema_fields Unlock.DynamicIRVESchema.build_schema_fields_list()
+
   def process_resource(item, options \\ []) do
     options = Keyword.validate!(options, [
       :limit_per_source,
       :include_origin
     ])
 
-    headers = ["id_pdc_itinerance"]
+    headers = @schema_fields
     headers = if options[:include_origin], do: headers ++ ["origin"], else: headers
 
     rows_stream =
@@ -33,12 +35,22 @@ defmodule Unlock.AggregateProcessor do
   end
 
   def process_sub_item(item, sub_item, options) do
-    Unlock.Telemetry.trace_request(item.identifier <> ":" <> sub_item["identifier"], :internal)
-    Logger.debug("Fetching aggregated sub-item #{sub_item["identifier"]} at #{sub_item["target_url"]}")
+    origin = sub_item["identifier"]
+
+    Unlock.Telemetry.trace_request(item.identifier <> ":" <> origin, :internal)
+    Logger.debug("Fetching aggregated sub-item #{origin} at #{sub_item["target_url"]}")
     %{status: status, body: body} = get_with_maybe_redirect(sub_item |> Map.fetch!("target_url"))
-    Logger.debug("#{sub_item["identifier"]} responded with HTTP code #{status} (#{body |> byte_size} bytes)")
-    process_csv_payload(body, sub_item["identifier"], options)
-end
+    Logger.debug("#{origin} responded with HTTP code #{status} (#{body |> byte_size} bytes)")
+    # TODO: wrap both the data AND status in a tuple, so that we can store both in Cachex
+    # and provide decent observability
+    try do
+      process_csv_payload(body, origin, options)
+    catch
+      {:non_matching_headers, headers} ->
+        Logger.info "Broken stream for origin #{origin} (headers are #{headers |> inspect})"
+        []
+    end
+  end
 
   # NOTE: we could avoid "decoding" the payload, but doing so will allow us
   # to integrate live validation (e.g. of id_pdc_itinerance against static database)
@@ -60,9 +72,9 @@ end
     rows = if options[:limit_per_source], do: Stream.take(rows, options[:limit_per_source]), else: rows
 
     mapper = if options[:include_origin] do
-      fn([id | _rest]) -> [id, origin] end
+      fn(columns) -> columns ++ [origin] end
     else
-      fn([id | _rest]) -> [id] end
+      fn(columns) -> columns end
     end
 
     rows
