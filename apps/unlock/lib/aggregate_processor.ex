@@ -52,8 +52,9 @@ end
     # The number of elements in fields array SHOULD be the same as the number of fields in the CSV file.
 
     # once we assert that, the rest of the processing is easy
-    # TODO: handle errors gracefully
-    ["id_pdc_itinerance" | _rest] = headers
+    unless headers == @schema_fields do
+      throw({:non_matching_headers, headers})
+    end
 
     # Only keeping the id for now, on purpose
     rows = if options[:limit_per_source], do: Stream.take(rows, options[:limit_per_source]), else: rows
