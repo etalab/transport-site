@@ -13,16 +13,13 @@ defmodule Transport.S3 do
 
   @spec permanent_url(bucket_feature(), binary()) :: binary()
   def permanent_url(feature, path \\ "") do
-    host = :io_lib.format(Application.fetch_env!(:ex_aws, :cellar_url), [bucket_name(feature)])
-    host |> to_string() |> URI.merge(path) |> URI.to_string()
-  end
+    base_url = :io_lib.format(Application.fetch_env!(:ex_aws, :cellar_url), [bucket_name(feature)]) |> to_string()
 
-  @spec all_permanent_urls_domains() :: [binary()]
-  def all_permanent_urls_domains do
-    :transport
-    |> Application.fetch_env!(:s3_buckets)
-    |> Map.keys()
-    |> Enum.map(&Transport.S3.permanent_url(&1, "/"))
+    if String.length(path) > 0 do
+      base_url |> URI.parse() |> URI.append_path("/" <> path) |> URI.to_string()
+    else
+      base_url
+    end
   end
 
   @spec bucket_names() :: [binary()]

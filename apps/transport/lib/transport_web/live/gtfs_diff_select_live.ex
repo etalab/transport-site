@@ -48,18 +48,21 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
 
   def handle_info(:enqueue_job, socket) do
     [gtfs_file_name_2, gtfs_file_name_1] =
-      consume_uploaded_entries(socket, :gtfs, fn %{path: path}, _entry ->
+      consume_uploaded_entries(socket, :gtfs, fn %{path: path},
+                                                 %Phoenix.LiveView.UploadEntry{client_name: original_file_name} ->
         file_name = Path.basename(path)
         stream_to_s3(path, file_name)
-        {:ok, file_name}
+        {:ok, %{uploaded_file_name: file_name, original_file_name: original_file_name}}
       end)
 
     :ok = Oban.Notifier.listen([:gossip])
 
     %{id: job_id} =
       %{
-        gtfs_file_name_1: gtfs_file_name_1,
-        gtfs_file_name_2: gtfs_file_name_2,
+        gtfs_file_name_1: gtfs_file_name_1.uploaded_file_name,
+        gtfs_file_name_2: gtfs_file_name_2.uploaded_file_name,
+        gtfs_original_file_name_1: gtfs_file_name_1.original_file_name,
+        gtfs_original_file_name_2: gtfs_file_name_2.original_file_name,
         bucket: Transport.S3.bucket_name(:gtfs_diff)
       }
       |> Transport.Jobs.GTFSDiff.new()
@@ -102,7 +105,13 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
 
   # job is complete
   def handle_info(
-        {:notification, :gossip, %{"complete" => job_id, "diff_file_url" => diff_file_url}},
+        {:notification, :gossip,
+         %{
+           "complete" => job_id,
+           "diff_file_url" => diff_file_url,
+           "gtfs_original_file_name_1" => gtfs_original_file_name_1,
+           "gtfs_original_file_name_2" => gtfs_original_file_name_2
+         }},
         %{assigns: %{job_id: job_id}} = socket
       ) do
     send(self(), {:generate_diff_summary, diff_file_url})
@@ -111,6 +120,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     {:noreply,
      socket
      |> assign(:diff_file_url, diff_file_url)
+     |> assign(:gtfs_original_file_name_1, gtfs_original_file_name_1)
+     |> assign(:gtfs_original_file_name_2, gtfs_original_file_name_2)
      |> assign(:diff_logs, [])
      |> assign(:job_running, false)}
   end
