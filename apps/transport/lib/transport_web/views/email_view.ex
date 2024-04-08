@@ -1,6 +1,14 @@
 defmodule TransportWeb.EmailView do
   use TransportWeb, :view
-  import TransportWeb.Router.Helpers
+
+  import TransportWeb.Router.Helpers,
+    # Use only *_url helpers, not *_path as we need absolute URLs
+    only: [
+      dataset_url: 3,
+      resource_url: 3,
+      page_url: 3,
+      reuser_space_url: 3
+    ]
 
   def link_for_dataset_section(%DB.Dataset{} = dataset, :discussion) do
     link_for_dataset(dataset, "#dataset-discussions")
@@ -34,7 +42,7 @@ defmodule TransportWeb.EmailView do
 
   def link_for_reuser_space(view_name) do
     url =
-      reuser_space_path(TransportWeb.Endpoint, :espace_reutilisateur,
+      reuser_space_url(TransportWeb.Endpoint, :espace_reutilisateur,
         utm_source: "transactional_email",
         utm_medium: "email",
         utm_campaign: to_string(view_name)

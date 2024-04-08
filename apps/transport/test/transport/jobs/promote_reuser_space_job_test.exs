@@ -27,7 +27,7 @@ defmodule Transport.Test.Transport.Jobs.PromoteReuserSpaceJobTest do
                "Vous venez d’ajouter votre 1er favori pour suivre un jeu de données référencé sur le PAN et nous vous en félicitons !"
 
       assert html_body =~
-               ~s(Rendez-vous sur votre <a href="/espace_reutilisateur?utm_source=transactional_email&amp;utm_medium=email&amp;utm_campaign=promote_reuser_space">Espace réutilisateur</a> pour personnaliser vos préférences)
+               ~s(Rendez-vous sur votre <a href="http://127.0.0.1:5100/espace_reutilisateur?utm_source=transactional_email&amp;utm_medium=email&amp;utm_campaign=promote_reuser_space">Espace réutilisateur</a> pour personnaliser vos préférences)
     end)
   end
 end
