@@ -160,14 +160,14 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
       assert :ok == perform_job(NewDatagouvDatasetsJob, %{}, inserted_at: DateTime.utc_now())
     end
 
-    test "sends an email" do
+    defp test_email_sending(%DateTime{} = inserted_at, expected_body) do
       dataset = %{
         "title" => "GTFS de Dijon",
         "resources" => [],
         "tags" => [],
         "description" => "",
         "internal" => %{
-          "created_at_internal" => DateTime.utc_now() |> DateTime.add(-23, :hour) |> DateTime.to_iso8601()
+          "created_at_internal" => inserted_at |> DateTime.add(-23, :hour) |> DateTime.to_iso8601()
         },
         "page" => "https://example.com/link",
         "id" => Ecto.UUID.generate()
@@ -192,12 +192,28 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
                                _html_body ->
         assert body =~ ~s(* #{dataset["title"]} - #{dataset["page"]})
 
-        hours = NewDatagouvDatasetsJob.window(DateTime.to_date(DateTime.utc_now())) * -24
-
-        assert body =~ ~s(Les jeux de données suivants ont été ajoutés sur data.gouv.fr dans les dernières #{hours}h)
+        assert body =~ expected_body
       end)
 
-      assert :ok == perform_job(NewDatagouvDatasetsJob, %{}, inserted_at: DateTime.utc_now())
+      assert :ok == perform_job(NewDatagouvDatasetsJob, %{}, inserted_at: inserted_at)
+    end
+
+    test "sends an email on monday" do
+      monday_night = ~U[2022-10-31 03:00:00Z]
+
+      test_email_sending(
+        monday_night,
+        ~s(Les jeux de données suivants ont été ajoutés sur data.gouv.fr dans les dernières 72h)
+      )
+    end
+
+    test "sends an email on other week day" do
+      wednesday_night = ~U[2022-11-02 03:00:00Z]
+
+      test_email_sending(
+        wednesday_night,
+        ~s(Les jeux de données suivants ont été ajoutés sur data.gouv.fr dans les dernières 24h)
+      )
     end
   end
 end
