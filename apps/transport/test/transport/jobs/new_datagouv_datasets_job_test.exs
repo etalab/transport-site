@@ -192,7 +192,9 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
                                _html_body ->
         assert body =~ ~s(* #{dataset["title"]} - #{dataset["page"]})
 
-        assert body =~ ~s(Les jeux de données suivants ont été ajoutés sur data.gouv.fr dans les dernières 24h)
+        hours = NewDatagouvDatasetsJob.window(DateTime.to_date(DateTime.utc_now())) * -24
+
+        assert body =~ ~s(Les jeux de données suivants ont été ajoutés sur data.gouv.fr dans les dernières #{hours}h)
       end)
 
       assert :ok == perform_job(NewDatagouvDatasetsJob, %{}, inserted_at: DateTime.utc_now())
