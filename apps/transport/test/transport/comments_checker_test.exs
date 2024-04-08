@@ -39,6 +39,14 @@ defmodule Transport.CommentsCheckerTest do
       role: :producer
     })
 
+    # Should be ignored: reuser
+    insert(:notification_subscription, %{
+      reason: :daily_new_comments,
+      source: :user,
+      contact_id: insert_contact().id,
+      role: :reuser
+    })
+
     # when the dataset is created, no comment timestamp is stored
     assert_dataset_ts(dataset_id, nil)
 

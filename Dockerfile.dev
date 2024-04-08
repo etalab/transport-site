@@ -1,4 +1,4 @@
-FROM ghcr.io/etalab/transport-ops:elixir-1.15.5-erlang-24.3.4.13-ubuntu-focal-20230126-transport-tools-1.0.7
+FROM ghcr.io/etalab/transport-ops:elixir-1.16.2-erlang-25.3.2.10-ubuntu-focal-20240216-transport-tools-1.0.7
 
 RUN apt-get install -y git inotify-tools postgresql-client>=11
 
