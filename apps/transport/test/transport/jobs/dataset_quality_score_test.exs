@@ -58,7 +58,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
       assert %{
                format: "GTFS",
-               freshness: 0.0,
+               freshness: +0.0,
                raw_measure: %{end_date: _, start_date: _},
                resource_id: _
              } = resource_freshness(resource)
@@ -127,7 +127,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
         metadata: %{"feed_timestamp_delay" => 1000}
       )
 
-      assert %{format: "gbfs", freshness: 0.0, raw_measure: 1000, resource_id: _} = resource_freshness(resource)
+      assert %{format: "gbfs", freshness: +0.0, raw_measure: 1000, resource_id: _} = resource_freshness(resource)
     end
 
     test "GBFS resource without metadata for today" do
@@ -178,7 +178,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       insert(:resource_unavailability, start: hours_ago(2), resource: resource)
 
       assert %{
-               availability: 0.0,
+               availability: +0.0,
                raw_measure: (22 / 24 * 100) |> Float.floor(1),
                resource_id: resource.id
              } == resource_availability(resource)
@@ -240,7 +240,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                details: %{
                  resources: [
                    %{availability: 1.0, raw_measure: nil, resource_id: r1.id},
-                   %{availability: 0.0, raw_measure: 0, resource_id: r2.id}
+                   %{availability: +0.0, raw_measure: 0, resource_id: r2.id}
                  ]
                },
                score: 0.5
@@ -269,7 +269,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
       assert [] == dataset |> DB.Repo.preload(:resources) |> Map.fetch!(:resources)
 
-      assert %{score: 0.0, details: %{resources: []}} == current_dataset_availability(dataset.id)
+      assert %{score: +0.0, details: %{resources: []}} == current_dataset_availability(dataset.id)
     end
   end
 
@@ -298,7 +298,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                    },
                    %{
                      format: "gtfs-rt",
-                     freshness: 0.0,
+                     freshness: +0.0,
                      raw_measure: 1000,
                      resource_id: ^resource_id_2
                    }
@@ -319,12 +319,12 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
       # average freshness for only 1 resource with freshness information available
       assert %{
-               score: 0.0,
+               score: +0.0,
                details: %{
                  resources: [
                    %{
                      format: "GTFS",
-                     freshness: 0.0,
+                     freshness: +0.0,
                      raw_measure: %{end_date: _, start_date: _},
                      resource_id: ^resource_id
                    },
@@ -369,7 +369,9 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       assert %{
                score: 0,
                details: %{
-                 resources: [%{compliance: 0.0, raw_measure: %{"has_errors" => true}, resource_id: geojson_resource.id}]
+                 resources: [
+                   %{compliance: +0.0, raw_measure: %{"has_errors" => true}, resource_id: geojson_resource.id}
+                 ]
                }
              } == current_dataset_compliance(dataset.id)
     end
@@ -395,7 +397,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                score: 0.5,
                details: %{
                  resources: [
-                   %{compliance: 0.0, raw_measure: %{"max_error" => "Error"}, resource_id: gtfs_1.id},
+                   %{compliance: +0.0, raw_measure: %{"max_error" => "Error"}, resource_id: gtfs_1.id},
                    %{compliance: 1.0, raw_measure: %{"max_error" => "Warning"}, resource_id: gtfs_2.id}
                  ]
                }
