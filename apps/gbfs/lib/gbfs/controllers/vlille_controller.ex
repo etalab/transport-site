@@ -5,7 +5,7 @@ defmodule GBFS.VLilleController do
 
   plug(:put_view, GBFS.FeedView)
 
-  @rt_url "https://www.data.gouv.fr/fr/datasets/r/6d66af27-7a26-4263-b610-4ecf5fb34369"
+  @rt_url "https://www.data.gouv.fr/fr/datasets/r/5c91eaef-ada7-4dee-8f2d-bbbe7b2fc1bc"
   @gbfs_version "2.0"
   @ttl 60
 
@@ -68,27 +68,29 @@ defmodule GBFS.VLilleController do
   defp get_station_status do
     convert_station_status = fn records ->
       stations =
-        Enum.map(records, fn r ->
+        records
+        |> Enum.filter(fn r -> r["etat"] == "EN SERVICE" end)
+        |> Enum.map(fn r ->
           {:ok, dt, _offset} =
             try do
-              DateTime.from_iso8601(r["fields"]["datemiseajour"])
+              DateTime.from_iso8601(r["datemiseajour"])
             rescue
               e ->
                 Sentry.capture_exception(e,
                   stacktrace: __STACKTRACE__,
-                  extra: %{extra: "r[\"fields\"] value is #{inspect(r["fields"])}"}
+                  extra: %{extra: "value is #{inspect(r)}"}
                 )
 
                 reraise e, __STACKTRACE__
             end
 
           last_reported = DateTime.to_unix(dt)
-          is_open = r["fields"]["etat"] == "EN SERVICE"
+          is_open = r["etatconnexion"] == "CONNECTÉ"
 
           %{
-            station_id: r["recordid"],
-            num_bikes_available: r["fields"]["nbvelosdispo"],
-            num_docks_available: r["fields"]["nbplacesdispo"],
+            station_id: r["libelle"],
+            num_bikes_available: r["nbvelosdispo"],
+            num_docks_available: r["nbplacesdispo"],
             is_installed: is_open,
             is_renting: is_open,
             is_returning: is_open,
@@ -106,16 +108,16 @@ defmodule GBFS.VLilleController do
   defp get_station_information do
     convert_station_information = fn records ->
       stations =
-        Enum.map(records, fn r ->
-          [lat, lon] = r["geometry"]["coordinates"]
-
+        records
+        |> Enum.filter(fn r -> r["etat"] == "EN SERVICE" end)
+        |> Enum.map(fn r ->
           %{
-            station_id: r["recordid"],
-            name: r["fields"]["nom"],
-            lat: lon,
-            lon: lat,
-            address: r["fields"]["adresse"] <> ", " <> r["fields"]["commune"],
-            capacity: r["fields"]["nbvelosdispo"] + r["fields"]["nbplacesdispo"]
+            station_id: r["libelle"],
+            name: r["nom"],
+            lat: r["localisation"]["lat"],
+            lon: r["localisation"]["lon"],
+            address: r["adresse"] <> ", " <> r["commune"],
+            capacity: r["nbvelosdispo"] + r["nbplacesdispo"]
           }
         end)
 

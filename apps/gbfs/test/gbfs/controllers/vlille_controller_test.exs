@@ -30,12 +30,12 @@ defmodule GBFS.VlilleControllerTest do
                "data" => %{
                  "stations" => [
                    %{
-                     "address" => "104-122 Bld VICTOR HUGO, LILLE",
-                     "capacity" => 12,
-                     "lat" => 50.62195,
-                     "lon" => 3.06038,
-                     "name" => "GANTOIS",
-                     "station_id" => "788fb404ffb8978f726e8057c1b874e2cb37b941"
+                     "address" => "ROND POINT DE L'EUROPE, ROUBAIX",
+                     "capacity" => 10,
+                     "lat" => 50.689762,
+                     "lon" => 3.177179,
+                     "name" => "MOTTE BOSSUT",
+                     "station_id" => 231
                    }
                  ]
                },
@@ -55,13 +55,13 @@ defmodule GBFS.VlilleControllerTest do
                "data" => %{
                  "stations" => [
                    %{
-                     "is_installed" => true,
-                     "is_renting" => true,
-                     "is_returning" => true,
-                     "last_reported" => 1_636_016_599,
-                     "num_bikes_available" => 1,
-                     "num_docks_available" => 11,
-                     "station_id" => "788fb404ffb8978f726e8057c1b874e2cb37b941"
+                     "is_installed" => false,
+                     "is_renting" => false,
+                     "is_returning" => false,
+                     "last_reported" => 1_669_715_236,
+                     "num_bikes_available" => 0,
+                     "num_docks_available" => 10,
+                     "station_id" => 231
                    }
                  ]
                },
@@ -81,13 +81,13 @@ defmodule GBFS.VlilleControllerTest do
   defp setup_stations_response do
     Transport.HTTPoison.Mock
     |> expect(:get, fn url, [], hackney: [follow_redirect: true] ->
-      assert url == "https://www.data.gouv.fr/fr/datasets/r/6d66af27-7a26-4263-b610-4ecf5fb34369"
+      assert url == "https://www.data.gouv.fr/fr/datasets/r/5c91eaef-ada7-4dee-8f2d-bbbe7b2fc1bc"
 
       {:ok,
        %HTTPoison.Response{
          status_code: 200,
          body: """
-          [{"datasetid": "vlille-realtime", "recordid": "788fb404ffb8978f726e8057c1b874e2cb37b941", "fields": {"etat": "EN SERVICE", "etatconnexion": "CONNECTED", "nbvelosdispo": 1, "nbplacesdispo": 11, "commune": "LILLE", "type": "AVEC TPE", "libelle": 170, "datemiseajour": "2021-11-04T10:03:19+01:00", "localisation": [50.62195, 3.06038], "nom": "GANTOIS", "adresse": "104-122 Bld VICTOR HUGO", "geo": [50.62195, 3.06038]}, "geometry": {"type": "Point", "coordinates": [3.06038, 50.62195]}, "record_timestamp": "2021-11-04T10:06:03.610+01:00"}]
+          [{"libelle": 231, "nom": "MOTTE BOSSUT", "adresse": "ROND POINT DE L'EUROPE", "commune": "ROUBAIX", "etat": "EN SERVICE", "type": "AVEC TPE", "geo": {"lon": 3.177179, "lat": 50.689762}, "nbplacesdispo": 10, "nbvelosdispo": 0, "etatconnexion": "D\u00c9CONNECT\u00c9", "localisation": {"lon": 3.177179, "lat": 50.689762}, "datemiseajour": "2022-11-29T09:47:16+00:00"}]
          """,
          headers: [{"Content-Type", "application/json"}]
        }}
