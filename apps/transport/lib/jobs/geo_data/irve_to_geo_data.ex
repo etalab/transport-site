@@ -7,7 +7,8 @@ defmodule Transport.Jobs.IRVEToGeoData do
   require Logger
 
   @datagouv_organization_id "646b7187b50b2a93b1ae3d45"
-  @resource_datagouv_id "8d9398ae-3037-48b2-be19-412c24561fbb"
+  # https://www.data.gouv.fr/fr/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques/#/resources/eb76d20a-8501-400e-b336-d85724de5435
+  @resource_datagouv_id "eb76d20a-8501-400e-b336-d85724de5435"
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
