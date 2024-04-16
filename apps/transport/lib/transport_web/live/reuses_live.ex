@@ -23,7 +23,9 @@ defmodule TransportWeb.ReusesLive do
                 <img src={reuse["image"]} alt={reuse["title"]} />
                 <div class="reuse__links">
                   <.link href={reuse["url"]}><%= dgettext("page-dataset-details", "Website") %></.link>
-                  <.link href={reuse["page"]}><%= dgettext("page-dataset-details", "See on data.gouv.fr") %></.link>
+                  <.link href={reuse["page"]} target="__blank">
+                    <%= dgettext("page-dataset-details", "See on data.gouv.fr") %>
+                  </.link>
                 </div>
                 <div class="reuse__details">
                   <div>
