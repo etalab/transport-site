@@ -310,4 +310,23 @@ defmodule DB.Contact do
     |> DB.Repo.one!()
     |> Map.fetch!(:contacts)
   end
+
+  @doc """
+  Fetches `DB.Contact` that didn't log in since a given datetime.
+  """
+  @spec list_inactive_contacts(DateTime.t()) :: [DB.Contact.t()]
+  def list_inactive_contacts(%DateTime{} = threshold) do
+    base_query()
+    |> where([contact: c], c.last_login_at < ^threshold)
+    |> order_by(asc: :last_login_at)
+    |> DB.Repo.all()
+  end
+
+  @doc """
+  Delete `DB.Contact` that didn't log in since a given datetime.
+  """
+  @spec delete_inactive_contacts(DateTime.t()) :: :ok
+  def delete_inactive_contacts(%DateTime{} = threshold) do
+    list_inactive_contacts(threshold) |> Enum.each(&DB.Repo.delete/1)
+  end
 end
