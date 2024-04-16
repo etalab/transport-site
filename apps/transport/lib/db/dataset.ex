@@ -610,7 +610,7 @@ defmodule DB.Dataset do
       dgettext("db-dataset", "See on data.gouv.fr"),
       to: datagouv_url(dataset),
       role: "link",
-      target: "__blank"
+      target: "_blank"
     )
   end
 
