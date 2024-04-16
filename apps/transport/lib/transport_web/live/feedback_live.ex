@@ -12,15 +12,16 @@ defmodule TransportWeb.Live.FeedbackLive do
   """
 
   @feedback_rating_values ["like", "neutral", "dislike"]
-  @feedback_features ["gtfs-stops", "on-demand-validation", "gbfs-validation"]
+  @feedback_features ["gtfs-stops", "on-demand-validation", "gbfs-validation", "reuser-space"]
 
-  def mount(_params, %{"feature" => feature, "locale" => locale} = session, socket)
+  def mount(_params, %{"feature" => feature, "locale" => locale, "csp_nonce_value" => nonce} = session, socket)
       when feature in @feedback_features do
     current_email = session |> get_in(["current_user", "email"])
 
     socket =
       socket
       |> assign(
+        nonce: nonce,
         feature: feature,
         current_email: current_email,
         feedback_sent: false,

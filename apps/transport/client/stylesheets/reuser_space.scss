@@ -1,0 +1,45 @@
+.reuser-space {
+  .row {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+
+    &> * {
+      max-width: 25em;
+      margin-right: var(--space-m);
+      margin-left: 0;
+    }
+
+    .dataset__panel {
+      margin-top: 1em;
+    }
+  }
+}
+
+.action-panel {
+  display: flex;
+  flex-grow: 1;
+
+  img.picto {
+    height: 40px;
+    padding-right: 12px;
+    margin-top: -5px;
+  }
+
+  a.button {
+    background-color: var(--primary-color-producer);
+  }
+}
+
+form.search-followed-datasets {
+  max-width: 100%;
+
+  input#search {
+    padding-left: 30px;
+    width: 350px;
+  }
+
+  .form__group {
+    margin-top: 0;
+    display: inline-block;
+  }
+}

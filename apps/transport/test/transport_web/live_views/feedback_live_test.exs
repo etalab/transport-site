@@ -12,7 +12,7 @@ defmodule TransportWeb.FeedbackLiveTest do
   test "Render the feedback component", %{conn: conn} do
     {:ok, _view, html} =
       live_isolated(conn, TransportWeb.Live.FeedbackLive,
-        session: %{"feature" => "on-demand-validation", "locale" => "fr"}
+        session: %{"feature" => "on-demand-validation", "locale" => "fr", "csp_nonce_value" => Ecto.UUID.generate()}
       )
 
     assert html =~ "Qu’avez-vous pensé de cette page ?"
@@ -21,7 +21,7 @@ defmodule TransportWeb.FeedbackLiveTest do
   test "Post feedback form with honey pot filled", %{conn: conn} do
     {:ok, view, _html} =
       live_isolated(conn, TransportWeb.Live.FeedbackLive,
-        session: %{"feature" => "on-demand-validation", "locale" => "fr"}
+        session: %{"feature" => "on-demand-validation", "locale" => "fr", "csp_nonce_value" => Ecto.UUID.generate()}
       )
 
     view
@@ -36,7 +36,7 @@ defmodule TransportWeb.FeedbackLiveTest do
   test "Post feedback form without honey pot", %{conn: conn} do
     {:ok, view, _html} =
       live_isolated(conn, TransportWeb.Live.FeedbackLive,
-        session: %{"feature" => "on-demand-validation", "locale" => "fr"}
+        session: %{"feature" => "on-demand-validation", "locale" => "fr", "csp_nonce_value" => Ecto.UUID.generate()}
       )
 
     view
@@ -66,7 +66,7 @@ defmodule TransportWeb.FeedbackLiveTest do
   test "Post invalid parameters in feedback form and check it doesn’t crash", %{conn: conn} do
     {:ok, view, _html} =
       live_isolated(conn, TransportWeb.Live.FeedbackLive,
-        session: %{"feature" => "on-demand-validation", "locale" => "fr"}
+        session: %{"feature" => "on-demand-validation", "locale" => "fr", "csp_nonce_value" => Ecto.UUID.generate()}
       )
 
     {view, logs} =

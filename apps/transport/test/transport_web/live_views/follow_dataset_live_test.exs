@@ -1,4 +1,4 @@
-defmodule Transport.TransportWeb.FollowDatasetLiveTest do
+defmodule TransportWeb.Live.FollowDatasetLiveTest do
   use TransportWeb.ConnCase, async: true
   use Oban.Testing, repo: DB.Repo
   import Phoenix.LiveViewTest
