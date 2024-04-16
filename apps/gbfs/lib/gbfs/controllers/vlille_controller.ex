@@ -5,7 +5,8 @@ defmodule GBFS.VLilleController do
 
   plug(:put_view, GBFS.FeedView)
 
-  @rt_url "https://www.data.gouv.fr/fr/datasets/r/5c91eaef-ada7-4dee-8f2d-bbbe7b2fc1bc"
+  # https://www.data.gouv.fr/fr/datasets/vlille-disponibilite-en-temps-reel/
+  @rt_url "https://www.data.gouv.fr/fr/datasets/r/ee846604-5a31-4ac5-b536-9069fa2e3791"
   @gbfs_version "2.0"
   @ttl 60
 
