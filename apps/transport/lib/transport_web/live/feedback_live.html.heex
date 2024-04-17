@@ -47,7 +47,7 @@
   <p :if={@feedback_sent} class="notification"><%= dgettext("feedback", "Thanks for your feedback!") %></p>
   <p :if={@feedback_error}><%= gettext("There has been an error, try again later") %></p>
 
-  <script>
+  <script nonce={@nonce}>
     document.querySelectorAll(".feedback-selector label").forEach(
       function(el) {
       el.addEventListener('click', function() {

@@ -28,7 +28,8 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
           "dataset_datagouv_id" => datagouv_id,
           "current_user" => %{"email" => "fc@tdg.fr"},
           "dataset" => dataset,
-          "locale" => "fr"
+          "locale" => "fr",
+          "csp_nonce_value" => Ecto.UUID.generate()
         }
       )
 
@@ -69,7 +70,8 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
                  "dataset_datagouv_id" => datagouv_id,
                  "current_user" => %{"email" => "fc@tdg.fr"},
                  "dataset" => dataset,
-                 "locale" => "fr"
+                 "locale" => "fr",
+                 "csp_nonce_value" => Ecto.UUID.generate()
                }
              )
 
@@ -90,7 +92,8 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
           "dataset_datagouv_id" => datagouv_id,
           "current_user" => %{"email" => "fc@tdg.fr"},
           "dataset" => dataset,
-          "locale" => "fr"
+          "locale" => "fr",
+          "csp_nonce_value" => Ecto.UUID.generate()
         }
       )
 
@@ -116,7 +119,8 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
           "dataset_datagouv_id" => datagouv_id,
           "current_user" => %{"email" => "fc@tdg.fr"},
           "dataset" => dataset,
-          "locale" => "fr"
+          "locale" => "fr",
+          "csp_nonce_value" => Ecto.UUID.generate()
         }
       )
 
@@ -132,7 +136,8 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
           "dataset_datagouv_id" => datagouv_id,
           "current_user" => %{"email" => "fc@tdg.fr", "id" => user_id},
           "dataset" => dataset,
-          "locale" => "fr"
+          "locale" => "fr",
+          "csp_nonce_value" => Ecto.UUID.generate()
         }
       )
 
