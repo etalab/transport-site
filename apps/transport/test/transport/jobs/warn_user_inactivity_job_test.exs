@@ -10,19 +10,19 @@ defmodule Transport.Test.Transport.Jobs.WarnUserInactivityJobTest do
   end
 
   test "prune a single contact" do
-    prunable = DateTime.utc_now() |> DateTime.add(-400, :day)
-
-    %DB.Contact{id: pruned_contact_id} = insert_contact(%{last_login_at: prunable})
+    insert_contact_inactive_since(%{days: 400})
 
     assert :ok == perform_job(WarnUserInactivityJob, %{})
 
-    assert nil == DB.Repo.get(DB.Contact, pruned_contact_id)
+    assert_no_email_sent()
+
+    assert 0 == DB.Repo.aggregate(DB.Contact, :count)
   end
 
   test "warn first time 30 days before deadline" do
-    %DB.Contact{email: _} = insert_contact_inactive_since(%{days: 359})
+    %DB.Contact{} = insert_contact_inactive_since(%{days: 359})
     %DB.Contact{email: email} = insert_contact_inactive_since(%{days: 360})
-    %DB.Contact{email: _} = insert_contact_inactive_since(%{days: 361})
+    %DB.Contact{} = insert_contact_inactive_since(%{days: 361})
 
     assert :ok == perform_job(WarnUserInactivityJob, %{})
 
@@ -30,12 +30,14 @@ defmodule Transport.Test.Transport.Jobs.WarnUserInactivityJobTest do
       "Vous avez un compte utilisateur associé à l‘adresse email <strong>#{email}</strong> sur <a href=\"https://transport.data.gouv.fr\">transport.data.gouv.fr</a>.",
       "Dans 1 mois nous supprimerons votre compte conformément aux règles en vigueur concernant les données utilisateur."
     ])
+
+    assert 3 == DB.Repo.aggregate(DB.Contact, :count)
   end
 
   test "warn first time 15 days before deadline" do
-    %DB.Contact{email: _} = insert_contact_inactive_since(%{days: 374})
+    %DB.Contact{} = insert_contact_inactive_since(%{days: 374})
     %DB.Contact{email: email} = insert_contact_inactive_since(%{days: 375})
-    %DB.Contact{email: _} = insert_contact_inactive_since(%{days: 376})
+    %DB.Contact{} = insert_contact_inactive_since(%{days: 376})
 
     assert :ok == perform_job(WarnUserInactivityJob, %{})
 
@@ -43,12 +45,14 @@ defmodule Transport.Test.Transport.Jobs.WarnUserInactivityJobTest do
       "Vous avez un compte utilisateur associé à l‘adresse email <strong>#{email}</strong> sur <a href=\"https://transport.data.gouv.fr\">transport.data.gouv.fr</a>.",
       "Dans 2 semaines nous supprimerons votre compte conformément aux règles en vigueur concernant les données utilisateur."
     ])
+
+    assert 3 == DB.Repo.aggregate(DB.Contact, :count)
   end
 
   test "warn first time the day before deadline" do
-    %DB.Contact{email: _} = insert_contact_inactive_since(%{days: 388})
+    %DB.Contact{} = insert_contact_inactive_since(%{days: 388})
     %DB.Contact{email: email} = insert_contact_inactive_since(%{days: 389})
-    %DB.Contact{email: _} = insert_contact_inactive_since(%{days: 390})
+    %DB.Contact{} = insert_contact_inactive_since(%{days: 390})
 
     assert :ok == perform_job(WarnUserInactivityJob, %{})
 
@@ -56,6 +60,8 @@ defmodule Transport.Test.Transport.Jobs.WarnUserInactivityJobTest do
       "Vous avez un compte utilisateur associé à l‘adresse email <strong>#{email}</strong> sur <a href=\"https://transport.data.gouv.fr\">transport.data.gouv.fr</a>.",
       "Demain nous supprimerons votre compte conformément aux règles en vigueur concernant les données utilisateur."
     ])
+
+    assert 2 == DB.Repo.aggregate(DB.Contact, :count)
   end
 
   defp insert_contact_inactive_since(%{days: days}) do
