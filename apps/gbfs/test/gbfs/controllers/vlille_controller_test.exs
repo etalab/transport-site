@@ -81,7 +81,7 @@ defmodule GBFS.VlilleControllerTest do
   defp setup_stations_response do
     Transport.HTTPoison.Mock
     |> expect(:get, fn url, [], hackney: [follow_redirect: true] ->
-      assert url == "https://www.data.gouv.fr/fr/datasets/r/5c91eaef-ada7-4dee-8f2d-bbbe7b2fc1bc"
+      assert url == "https://www.data.gouv.fr/fr/datasets/r/ee846604-5a31-4ac5-b536-9069fa2e3791"
 
       {:ok,
        %HTTPoison.Response{
