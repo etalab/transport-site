@@ -29,7 +29,7 @@ msgstr "Pas de résultats"
 
 #, elixir-autogen, elixir-format
 msgid "Notification bell"
-msgstr "Icone de notifications"
+msgstr "Icône de notifications"
 
 #, elixir-autogen, elixir-format
 msgid "Receive helpful notifications about the data you follow."
