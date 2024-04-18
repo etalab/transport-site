@@ -1,8 +1,7 @@
 <% is_producer = @role == :producer
 colspan = if is_producer, do: 3, else: 2
 breadcrumb = if is_producer, do: :espace_producteur_notifications, else: :reuser_space_notifications
-display_error = is_producer and not is_nil(@error)
-%>
+display_error = is_producer and not is_nil(@error) %>
 <div class="pt-48">
   <div class="container pb-24">
     <%= breadcrumbs([@socket, breadcrumb]) %>
