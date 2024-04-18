@@ -22,7 +22,7 @@
     </datalist>
     <%= label f, :reasons, class: "pt-12" do %>
       <%= dgettext("backoffice", "Notification reason") %>
-      <%= for reason <- DB.NotificationSubscription.reasons_related_to_datasets() do %>
+      <%= for reason <- DB.NotificationSubscription.reasons_related_to_datasets(:producer) do %>
         <%= label f, reason do %>
           <%= checkbox(f, reason, hidden_input: false, value: true) %>
           <%= reason %>

@@ -50,3 +50,20 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Actions"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "data expiration notification explanation"
+msgstr "You are warned ahead of the last date covered by the data."
+
+#, elixir-autogen, elixir-format
+msgid "unavailable resources notification explanation"
+msgstr "You are warned if a resource couldn't be downloaded during 6 consecutive hours."
+
+#, elixir-autogen, elixir-format
+msgid "validation errors notification explanation"
+msgstr "You are warned if a resource doesn't respect the standard, rendering it unusable."
+
+#, elixir-autogen, elixir-format
+msgid "resources changed notification explanation"
+msgstr "You are warned if a resource is added, removed or if its URL changed."
+

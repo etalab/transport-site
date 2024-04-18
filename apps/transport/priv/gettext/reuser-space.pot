@@ -50,3 +50,19 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Actions"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "data expiration notification explanation"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "resources changed notification explanation"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "unavailable resources notification explanation"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "validation errors notification explanation"
+msgstr ""
