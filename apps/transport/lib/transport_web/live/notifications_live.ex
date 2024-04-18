@@ -26,7 +26,6 @@ defmodule TransportWeb.Live.NotificationsLive do
       assign(socket, %{
         current_contact: current_contact,
         role: role,
-        error: nil,
         datasets: datasets,
         subscriptions: subscriptions,
         all_notifications_enabled: all_notifications_enabled?(subscriptions),

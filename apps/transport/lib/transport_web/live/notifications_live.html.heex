@@ -1,6 +1,8 @@
 <% is_producer = @role == :producer
 colspan = if is_producer, do: 3, else: 2
-breadcrumb = if is_producer, do: :espace_producteur_notifications, else: :reuser_space_notifications %>
+breadcrumb = if is_producer, do: :espace_producteur_notifications, else: :reuser_space_notifications
+display_error = is_producer and not is_nil(@error)
+%>
 <div class="pt-48">
   <div class="container pb-24">
     <%= breadcrumbs([@socket, breadcrumb]) %>
@@ -10,7 +12,7 @@ breadcrumb = if is_producer, do: :espace_producteur_notifications, else: :reuser
 <section class="section producer-actions">
   <div class="container">
     <h2><%= dgettext("espace-producteurs", "Manage my notifications") %></h2>
-    <div :if={@error} class="notification error"><%= @error %></div>
+    <div :if={display_error} class="notification error"><%= @error %></div>
 
     <div :if={is_producer} class="panel mb-24">
       <p><%= dgettext("espace-producteurs", "notifications are good for you") %></p>
@@ -27,8 +29,8 @@ breadcrumb = if is_producer, do: :espace_producteur_notifications, else: :reuser
       <% end %>
     </div>
 
-    <div class="panel mt-24">
-      <table :if={!@error} class="table">
+    <div :if={!display_error} class="panel mt-24">
+      <table class="table">
         <.form :let={f} for={%{}}>
           <tr>
             <td><strong><%= dgettext("espace-producteurs", "All notifications") %></strong></td>
