@@ -1,12 +1,13 @@
-defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
-  use ExUnit.Case, async: true
+defmodule TransportWeb.Live.NotificationsLiveTest do
+  use TransportWeb.ConnCase, async: true
   use TransportWeb.LiveCase
-  import Phoenix.LiveViewTest
   import DB.Factory
-  import Mox
   import Ecto.Query
-  import TransportWeb.Router.Helpers
-  use TransportWeb, :verified_routes
+  import Mox
+  import Phoenix.LiveViewTest
+
+  @producer_url espace_producteur_path(TransportWeb.Endpoint, :notifications)
+  @reuser_url reuser_space_path(TransportWeb.Endpoint, :notifications)
 
   setup :verify_on_exit!
 
@@ -14,13 +15,11 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
-  test "requires login" do
-    conn = build_conn()
-    conn = get(conn, live_path(conn, TransportWeb.EspaceProducteur.NotificationLive))
-    assert html_response(conn, 302)
+  test "requires login", %{conn: conn} do
+    conn |> get(@producer_url) |> html_response(302)
   end
 
-  test "displays existing subscriptions" do
+  test "displays existing subscriptions for a producer", %{conn: conn} do
     %DB.Organization{id: organization_id} = insert(:organization)
 
     %DB.Dataset{id: dataset_id, organization_id: ^organization_id} =
@@ -46,8 +45,8 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
     Datagouvfr.Client.User.Mock
     |> expect(:me, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
-    conn = build_conn() |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, token: %{}})
-    content = conn |> get(live_path(conn, TransportWeb.EspaceProducteur.NotificationLive)) |> html_response(200)
+    conn = conn |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, token: %{}})
+    content = conn |> get(@producer_url) |> html_response(200)
     assert content =~ "Mon super JDD"
 
     doc = content |> Floki.parse_document!()
@@ -64,69 +63,146 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
              [switch_attr["id"], switch_attr["phx-value-dataset-id"], switch_attr["phx-value-subscription-id"]]
   end
 
-  test "displays an error message if we can’t retrieve user orgs (and thus datasets) through data.gouv.fr" do
+  test "displays existing subscriptions for a reuser", %{conn: conn} do
+    %DB.Dataset{id: dataset_id} = insert(:dataset, custom_title: custom_title = "Mon super JDD")
+
+    %DB.Contact{id: contact_id} = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+
+    insert(:dataset_follower, contact_id: contact_id, dataset_id: dataset_id, source: :follow_button)
+
+    %DB.NotificationSubscription{id: subscription_id} =
+      insert(:notification_subscription,
+        contact_id: contact_id,
+        dataset_id: dataset_id,
+        reason: :expiration,
+        role: :reuser,
+        source: :user
+      )
+
+    content =
+      conn
+      |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+      |> get(@reuser_url)
+      |> html_response(200)
+
+    assert content =~ custom_title
+
+    [{"input", switch_attr, []}] =
+      content
+      |> Floki.parse_document!()
+      |> Floki.find(".producer-actions .container .panel table tr td .form__group fieldset .switch input")
+      |> Floki.find("[value=true]")
+      |> Floki.find("[checked=checked]")
+
+    switch_attr = Map.new(switch_attr)
+
+    assert ["expiration", Integer.to_string(dataset_id), Integer.to_string(subscription_id)] ==
+             [switch_attr["id"], switch_attr["phx-value-dataset-id"], switch_attr["phx-value-subscription-id"]]
+  end
+
+  test "displays an error message if we can’t retrieve user orgs (and thus datasets) through data.gouv.fr", %{
+    conn: conn
+  } do
     Datagouvfr.Client.User.Mock
     |> expect(:me, fn _ -> {:error, %HTTPoison.Error{reason: :nxdomain, id: nil}} end)
 
-    conn = build_conn() |> init_test_session(%{current_user: %{"id" => Ecto.UUID.generate()}, token: %{}})
-    content = conn |> get(live_path(conn, TransportWeb.EspaceProducteur.NotificationLive)) |> html_response(200)
+    conn = conn |> init_test_session(%{current_user: %{"id" => Ecto.UUID.generate()}, token: %{}})
+    content = conn |> get(@producer_url) |> html_response(200)
     assert content =~ "Une erreur a eu lieu lors de la récupération de vos ressources"
   end
 
-  test "toggle on and then off a notification" do
-    %DB.Organization{id: organization_id} = insert(:organization)
+  describe "toggle on and then off a notification" do
+    test "for a producer", %{conn: conn} do
+      %DB.Organization{id: organization_id} = insert(:organization)
 
-    %DB.Dataset{id: dataset_id, organization_id: ^organization_id} =
-      insert(:dataset, custom_title: "Mon super JDD", organization_id: organization_id)
+      %DB.Dataset{id: dataset_id, organization_id: ^organization_id} =
+        insert(:dataset, custom_title: "Mon super JDD", organization_id: organization_id)
 
-    %DB.Contact{id: contact_id} =
-      insert_contact(%{
-        datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
-        organizations: [%{id: organization_id}]
+      %DB.Contact{id: contact_id} =
+        insert_contact(%{
+          datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
+          organizations: [%{id: organization_id}]
+        })
+
+      insert_admin()
+
+      conn = conn |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, token: %{}})
+
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, 2, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
+
+      {:ok, view, _html} = conn |> get(@producer_url) |> live()
+
+      assert [] = DB.NotificationSubscription |> DB.Repo.all()
+
+      render_change(view, :toggle, %{
+        "dataset-id" => dataset_id,
+        "subscription-id" => "",
+        "reason" => "expiration",
+        "action" => "turn_on"
       })
 
-    insert_admin()
+      assert [
+               %DB.NotificationSubscription{
+                 contact_id: ^contact_id,
+                 dataset_id: ^dataset_id,
+                 source: :user,
+                 role: :producer,
+                 reason: :expiration,
+                 id: subscription_id
+               }
+             ] = DB.NotificationSubscription |> DB.Repo.all()
 
-    conn = build_conn() |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, token: %{}})
+      render_change(view, :toggle, %{
+        "dataset-id" => dataset_id,
+        "subscription-id" => subscription_id,
+        "reason" => "expiration",
+        "action" => "turn_off"
+      })
 
-    Datagouvfr.Client.User.Mock
-    |> expect(:me, 2, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
+      assert [] = DB.NotificationSubscription |> DB.Repo.all()
+    end
 
-    conn = conn |> get(live_path(conn, TransportWeb.EspaceProducteur.NotificationLive))
+    test "for a reuser", %{conn: conn} do
+      %DB.Dataset{id: dataset_id} = insert(:dataset)
+      %DB.Contact{id: contact_id} = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+      insert(:dataset_follower, contact_id: contact_id, dataset_id: dataset_id, source: :follow_button)
 
-    {:ok, view, _html} = live(conn)
+      {:ok, view, _html} =
+        conn |> init_test_session(%{current_user: %{"id" => datagouv_user_id}}) |> get(@reuser_url) |> live()
 
-    assert [] = DB.NotificationSubscription |> DB.Repo.all()
+      assert [] = DB.NotificationSubscription |> DB.Repo.all()
 
-    render_change(view, :toggle, %{
-      "dataset-id" => dataset_id,
-      "subscription-id" => "",
-      "reason" => "expiration",
-      "action" => "turn_on"
-    })
+      render_change(view, :toggle, %{
+        "dataset-id" => dataset_id,
+        "subscription-id" => "",
+        "reason" => "expiration",
+        "action" => "turn_on"
+      })
 
-    assert [
-             %DB.NotificationSubscription{
-               contact_id: ^contact_id,
-               dataset_id: ^dataset_id,
-               source: :user,
-               role: :producer,
-               reason: :expiration,
-               id: subscription_id
-             }
-           ] = DB.NotificationSubscription |> DB.Repo.all()
+      assert [
+               %DB.NotificationSubscription{
+                 contact_id: ^contact_id,
+                 dataset_id: ^dataset_id,
+                 source: :user,
+                 role: :reuser,
+                 reason: :expiration,
+                 id: subscription_id
+               }
+             ] = DB.NotificationSubscription |> DB.Repo.all()
 
-    render_change(view, :toggle, %{
-      "dataset-id" => dataset_id,
-      "subscription-id" => subscription_id,
-      "reason" => "expiration",
-      "action" => "turn_off"
-    })
+      render_change(view, :toggle, %{
+        "dataset-id" => dataset_id,
+        "subscription-id" => subscription_id,
+        "reason" => "expiration",
+        "action" => "turn_off"
+      })
 
-    assert [] = DB.NotificationSubscription |> DB.Repo.all()
+      assert [] = DB.NotificationSubscription |> DB.Repo.all()
+    end
   end
 
-  test "only have correct colleague notifications showing" do
+  test "only have correct colleague notifications showing", %{conn: conn} do
     %DB.Organization{id: organization_id} = insert(:organization)
     %DB.Organization{id: foreign_organization_id} = insert(:organization)
 
@@ -199,13 +275,13 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
     Datagouvfr.Client.User.Mock
     |> expect(:me, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
-    conn = build_conn() |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, token: %{}})
-    content = conn |> get(live_path(conn, TransportWeb.EspaceProducteur.NotificationLive)) |> html_response(200)
+    conn = conn |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, token: %{}})
+    content = conn |> get(@producer_url) |> html_response(200)
     assert content =~ "Autres abonnés : Liste de diffusion service transport, Marina Loiseau, Mikhaïl Karlov"
     refute content =~ "Henri Duflot"
   end
 
-  test "toggle all on and off" do
+  test "toggle all on and off", %{conn: conn} do
     %DB.Organization{id: organization_id} = insert(:organization)
 
     %DB.Dataset{id: dataset_id_1, organization_id: ^organization_id} =
@@ -257,14 +333,12 @@ defmodule TransportWeb.EspaceProducteur.NotificationLiveTest do
         source: :admin
       )
 
-    conn = build_conn() |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, token: %{}})
+    conn = conn |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, token: %{}})
 
     Datagouvfr.Client.User.Mock
     |> expect(:me, 2, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
-    conn = conn |> get(live_path(conn, TransportWeb.EspaceProducteur.NotificationLive))
-
-    {:ok, view, _html} = live(conn)
+    {:ok, view, _html} = conn |> get(@producer_url) |> live()
 
     assert [^notification, ^not_to_be_deleted_notification] =
              DB.NotificationSubscription |> order_by(asc: :id) |> DB.Repo.all()

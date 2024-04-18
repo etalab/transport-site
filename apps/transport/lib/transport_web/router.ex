@@ -89,13 +89,17 @@ defmodule TransportWeb.Router do
         delete("/:dataset_id/custom_logo", EspaceProducteurController, :remove_custom_logo)
       end
 
-      live_session :notification, root_layout: {TransportWeb.LayoutView, :app} do
-        live("/notifications", EspaceProducteur.NotificationLive)
+      live_session :espace_producteur, session: %{"role" => :producer}, root_layout: {TransportWeb.LayoutView, :app} do
+        live("/notifications", Live.NotificationsLive, :notifications, as: :espace_producteur)
       end
     end
 
     scope "/espace_reutilisateur" do
       get("/", ReuserSpaceController, :espace_reutilisateur)
+
+      live_session :reuser_space, session: %{"role" => :reuser}, root_layout: {TransportWeb.LayoutView, :app} do
+        live("/notifications", Live.NotificationsLive, :notifications, as: :reuser_space)
+      end
     end
 
     get("/stats", StatsController, :index)

@@ -138,6 +138,13 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
                role: :reuser,
                contact_id: ^contact_id,
                dataset_id: ^dataset_id
+             },
+             %DB.NotificationSubscription{
+               reason: :resources_changed,
+               source: :user,
+               role: :reuser,
+               contact_id: ^contact_id,
+               dataset_id: ^dataset_id
              }
            ] =
              DB.NotificationSubscription

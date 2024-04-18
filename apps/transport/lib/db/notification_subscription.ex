@@ -87,6 +87,17 @@ defmodule DB.NotificationSubscription do
   @spec reasons_related_to_datasets :: [reason()]
   def reasons_related_to_datasets, do: @reasons_related_to_datasets
 
+  @doc """
+  iex> reasons_related_to_datasets(:reuser) != reasons_related_to_datasets(:producer)
+  true
+  """
+  @spec reasons_related_to_datasets(role()) :: [reason()]
+  def reasons_related_to_datasets(:reuser) do
+    reasons_related_to_datasets() ++ [reason(:resources_changed)]
+  end
+
+  def reasons_related_to_datasets(:producer), do: reasons_related_to_datasets()
+
   @spec platform_wide_reasons :: [reason()]
   def platform_wide_reasons, do: @platform_wide_reasons
 
@@ -181,9 +192,10 @@ defmodule DB.NotificationSubscription do
   iex> possible_reasons() |> Enum.each(&reason_to_str/1)
   :ok
   """
+  @spec reason_to_str(reason() | binary()) :: binary()
   def reason_to_str(reason) when is_binary(reason), do: reason |> String.to_existing_atom() |> reason_to_str()
 
-  def reason_to_str(reason) when is_atom(reason) do
+  def reason_to_str(reason) do
     Map.fetch!(
       %{
         expiration: dgettext("notification_subscription", "expiration"),
