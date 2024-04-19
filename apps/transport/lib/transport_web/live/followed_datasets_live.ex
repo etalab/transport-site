@@ -117,10 +117,11 @@ defmodule TransportWeb.Live.FollowedDatasetsLive do
     {:noreply, filter_datasets(socket, params)}
   end
 
-  def filter_datasets(%Phoenix.LiveView.Socket{assigns: %{datasets: datasets}} = socket, %{
-        "search" => search,
-        "type" => type
-      }) do
+  def filter_datasets(
+        %Phoenix.LiveView.Socket{assigns: %{datasets: datasets}} = socket,
+        %{"search" => search} = params
+      ) do
+    type = Map.get(params, "type", "")
     filtered_datasets = datasets |> filter_by_type(type) |> filter_by_search(search)
 
     socket |> assign(%{filtered_datasets: filtered_datasets, search: search, type: type})
