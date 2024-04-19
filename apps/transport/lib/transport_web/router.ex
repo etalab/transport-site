@@ -95,6 +95,7 @@ defmodule TransportWeb.Router do
     end
 
     scope "/espace_reutilisateur" do
+      pipe_through([:authenticated])
       get("/", ReuserSpaceController, :espace_reutilisateur)
 
       live_session :reuser_space, session: %{"role" => :reuser}, root_layout: {TransportWeb.LayoutView, :app} do
