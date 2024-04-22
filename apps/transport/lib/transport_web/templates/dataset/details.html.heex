@@ -258,6 +258,14 @@
           </b>
         </div>
       </div>
+      <%= if Enum.count(@dataset.legal_owners_aom) > 0 || Enum.count(@dataset.legal_owners_region) > 0 do %>
+      <div class="pt-12">
+          <span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "Data owned by") %></span>
+          <div class="dataset-type-info">
+            <%= @dataset.legal_owners_aom ++ @dataset.legal_owners_region |> Enum.map_join(", ", & &1.nom) %>
+          </div>
+        </div>
+        <% end %>
       <div class="pt-12">
         <span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "Data type") %></span>
         <%= render("_dataset_type.html",
