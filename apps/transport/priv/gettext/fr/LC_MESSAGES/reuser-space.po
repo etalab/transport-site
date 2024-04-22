@@ -50,19 +50,3 @@ msgstr "Jeux de données suivis"
 #, elixir-autogen, elixir-format
 msgid "Actions"
 msgstr "Actions"
-
-#, elixir-autogen, elixir-format
-msgid "data expiration notification explanation"
-msgstr "Vous êtes alerté à l'approche de la date de fin du calendrier de fonctionnement."
-
-#, elixir-autogen, elixir-format
-msgid "unavailable resources notification explanation"
-msgstr "Vous êtes alerté au bout de 6h consécutives pendant lesquelles une ressource ne peut pas être téléchargée."
-
-#, elixir-autogen, elixir-format
-msgid "validation errors notification explanation"
-msgstr "Vous êtes alerté lorsqu'une ressource ne respecte pas les spécifications des normes/standards/schémas correspondants."
-
-#, elixir-autogen, elixir-format
-msgid "resources changed notification explanation"
-msgstr "Vous êtes alerté lorsque des ressources sont ajoutées, supprimées ou que l'URL est modifiée."
