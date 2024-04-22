@@ -16,7 +16,11 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
   end
 
   test "requires login", %{conn: conn} do
-    conn |> get(@producer_url) |> html_response(302)
+    Enum.each([@producer_url, @reuser_url], fn url ->
+      conn = conn |> get(url)
+      assert "/login/explanation?" <> URI.encode_query(redirect_path: url) == redirected_to(conn, 302)
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Vous devez être préalablement connecté"
+    end)
   end
 
   test "displays existing subscriptions for a producer", %{conn: conn} do
@@ -78,6 +82,15 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
         role: :reuser,
         source: :user
       )
+
+    # Unrelated (no dataset ID), should not be an issue
+    insert(:notification_subscription,
+      contact_id: contact_id,
+      dataset_id: nil,
+      reason: :daily_new_comments,
+      role: :reuser,
+      source: :user
+    )
 
     content =
       conn
