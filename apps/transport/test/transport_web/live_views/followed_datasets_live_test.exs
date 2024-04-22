@@ -63,6 +63,16 @@ defmodule TransportWeb.Live.FollowedDatasetsLiveTest do
       )
 
     refute has_element?(view, "form select")
+
+    assert ["Divia"] == dataset_titles(view)
+
+    form = view |> element("form")
+
+    assert ["Divia"] == form |> search_by_value("via") |> dataset_titles()
+
+    # No results
+    assert [] == form |> search_by_value("nope") |> dataset_titles()
+    assert has_element?(view, ".notification", "Pas de résultats")
   end
 
   defp search_by_value(%Phoenix.LiveViewTest.Element{} = el, value) do

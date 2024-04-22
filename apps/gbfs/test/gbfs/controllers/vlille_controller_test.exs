@@ -35,7 +35,7 @@ defmodule GBFS.VlilleControllerTest do
                      "lat" => 50.689762,
                      "lon" => 3.177179,
                      "name" => "MOTTE BOSSUT",
-                     "station_id" => 231
+                     "station_id" => "231"
                    }
                  ]
                },
@@ -61,7 +61,7 @@ defmodule GBFS.VlilleControllerTest do
                      "last_reported" => 1_669_715_236,
                      "num_bikes_available" => 0,
                      "num_docks_available" => 10,
-                     "station_id" => 231
+                     "station_id" => "231"
                    }
                  ]
                },
