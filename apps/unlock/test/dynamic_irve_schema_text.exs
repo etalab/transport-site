@@ -2,12 +2,7 @@ defmodule Unlock.DynamicIRVESchemaTest do
   use ExUnit.Case, async: false
 
   test "enumerates current fields" do
-    field_names =
-      Unlock.DynamicIRVESchema.schema_content()
-      |> get_in(["fields"])
-      |> Enum.map(& &1["name"])
-
-    assert field_names == [
+    assert Unlock.DynamicIRVESchema.build_schema_fields_list() == [
              "id_pdc_itinerance",
              "etat_pdc",
              "occupation_pdc",
