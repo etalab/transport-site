@@ -42,8 +42,8 @@ defmodule Unlock.AggregateProcessor do
     Logger.debug("Fetching aggregated sub-item #{origin} at #{sub_item["target_url"]}")
     %{status: status, body: body} = get_with_maybe_redirect(sub_item |> Map.fetch!("target_url"))
     Logger.debug("#{origin} responded with HTTP code #{status} (#{body |> byte_size} bytes)")
-    # TODO: wrap both the data AND status in a tuple, so that we can store both in Cachex
-    # and provide decent observability
+    # NOTE: at this point of deployment, having a log in case of error will be good enough.
+    # We can later expose to the public with an alternate sub-url for observability.
     try do
       process_csv_payload(body, origin, options)
     catch
