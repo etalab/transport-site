@@ -485,7 +485,7 @@ defmodule Unlock.ControllerTest do
             headers
             |> Enum.map(fn c -> Map.fetch!(row, c) end)
           end)
-        
+
         # NOTE: not using the csv library to generate csv here on purpose, so that
         # we can actually test the behaviour with a different code path.
         [headers | rows]

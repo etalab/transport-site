@@ -9,10 +9,11 @@ defmodule Unlock.AggregateProcessor do
   @schema_fields Unlock.DynamicIRVESchema.build_schema_fields_list()
 
   def process_resource(item, options \\ []) do
-    options = Keyword.validate!(options, [
-      :limit_per_source,
-      :include_origin
-    ])
+    options =
+      Keyword.validate!(options, [
+        :limit_per_source,
+        :include_origin
+      ])
 
     headers = @schema_fields
     headers = if options[:include_origin], do: headers ++ ["origin"], else: headers
@@ -47,7 +48,7 @@ defmodule Unlock.AggregateProcessor do
       process_csv_payload(body, origin, options)
     catch
       {:non_matching_headers, headers} ->
-        Logger.info "Broken stream for origin #{origin} (headers are #{headers |> inspect})"
+        Logger.info("Broken stream for origin #{origin} (headers are #{headers |> inspect})")
         []
     end
   end
@@ -71,11 +72,12 @@ defmodule Unlock.AggregateProcessor do
     # Only keeping the id for now, on purpose
     rows = if options[:limit_per_source], do: Stream.take(rows, options[:limit_per_source]), else: rows
 
-    mapper = if options[:include_origin] do
-      fn(columns) -> columns ++ [origin] end
-    else
-      fn(columns) -> columns end
-    end
+    mapper =
+      if options[:include_origin] do
+        fn columns -> columns ++ [origin] end
+      else
+        fn columns -> columns end
+      end
 
     rows
     |> Stream.map(&mapper.(&1))

@@ -11,6 +11,6 @@ defmodule Unlock.DynamicIRVESchema do
   def build_schema_fields_list do
     schema_content()
     |> Map.fetch!("fields")
-    |> Enum.map(fn(field) -> Map.fetch!(field, "name") end)
+    |> Enum.map(fn field -> Map.fetch!(field, "name") end)
   end
 end

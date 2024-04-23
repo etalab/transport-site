@@ -94,6 +94,7 @@ defmodule Unlock.Controller do
       limit_per_source: conn.query_params["limit_per_source"] |> to_nil_or_integer(),
       include_origin: conn.query_params["include_origin"] |> to_boolean()
     ]
+
     body_response = Unlock.AggregateProcessor.process_resource(item, options)
     send_resp(conn, 200, body_response)
   end
