@@ -31,7 +31,7 @@ defmodule Unlock.Config do
     @moduledoc """
     Intermediate structure for aggregated configured items.
     """
-    @enforce_keys [:identifier, :feeds, :ttl]
+    @enforce_keys [:identifier, :feeds]
 
     # NOTE: feeds are just maps with `identifier` and `target_url` at the moment.
     defstruct [:identifier, :feeds, :ttl]
