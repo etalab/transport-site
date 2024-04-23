@@ -67,10 +67,14 @@ msgstr "You are warned if a resource couldn't be downloaded during 6 consecutive
 msgid "validation errors notification explanation"
 msgstr "You are warned if a resource doesn't respect the standard, rendering it unusable."
 
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Global notifications"
 msgstr ""
 
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Notifications by dataset"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "notifications are good for you"
+msgstr "Email notifications alert you to quality or availability issues that could affect your reuse of transport data. To activate notifications for a dataset, first add it to your favorites (❤️ icon on the dataset page).<br/><br/>You can also follow the general activity of transport.data.gouv.fr through comments and new datasets."

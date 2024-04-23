@@ -14,8 +14,9 @@ display_error = is_producer and not is_nil(@error) %>
     <h2><%= dgettext("espace-producteurs", "Manage my notifications") %></h2>
     <div :if={display_error} class="notification error"><%= @error %></div>
 
-    <div :if={is_producer} class="panel mb-24">
-      <p><%= dgettext("espace-producteurs", "notifications are good for you") %></p>
+    <div class="panel mb-24">
+      <p :if={is_producer}><%= dgettext("espace-producteurs", "notifications are good for you") %></p>
+      <p :if={is_reuser}><%= raw(dgettext("reuser-space", "notifications are good for you")) %></p>
     </div>
 
     <div class="row">
