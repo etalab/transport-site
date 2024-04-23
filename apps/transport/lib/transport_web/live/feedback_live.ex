@@ -17,13 +17,13 @@ defmodule TransportWeb.Live.FeedbackLive do
   def mount(_params, %{"feature" => feature, "locale" => locale, "csp_nonce_value" => nonce} = session, socket)
       when feature in @feedback_features do
     current_email = session |> get_in(["current_user", "email"])
+    form = %DB.Feedback{} |> DB.Feedback.changeset(%{email: current_email, feature: feature}) |> to_form()
 
     socket =
       socket
       |> assign(
         nonce: nonce,
-        feature: feature,
-        current_email: current_email,
+        form: form,
         feedback_sent: false,
         feedback_error: false
       )
@@ -42,19 +42,24 @@ defmodule TransportWeb.Live.FeedbackLive do
 
   def handle_event(
         "submit",
-        %{"feedback" => %{"rating" => rating, "explanation" => explanation, "email" => email, "feature" => feature}},
+        %{
+          "feedback" =>
+            %{"rating" => rating, "explanation" => explanation, "email" => email, "feature" => feature} =
+              feedback_params
+        },
         socket
       )
       when rating in @feedback_rating_values and feature in @feedback_features do
     %{email: email, explanation: explanation} = sanitize_inputs(%{email: email, explanation: explanation})
 
+    changeset = %DB.Feedback{} |> DB.Feedback.changeset(feedback_params)
     feedback_email = TransportWeb.ContactEmail.feedback(rating, explanation, email, feature)
 
-    case Transport.Mailer.deliver(feedback_email) do
-      {:ok, _} ->
-        {:noreply, socket |> assign(:feedback_sent, true)}
-
-      {:error, _} ->
+    with {:ok, _feedback} <- DB.Repo.insert(changeset),
+         {:ok, _} <- Transport.Mailer.deliver(feedback_email) do
+      {:noreply, socket |> assign(:feedback_sent, true)}
+    else
+      _error ->
         {:noreply, socket |> assign(:feedback_error, true)}
     end
   end
