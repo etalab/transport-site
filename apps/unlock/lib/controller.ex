@@ -163,8 +163,8 @@ defmodule Unlock.Controller do
     |> send_resp(response.status, body)
   end
 
-  defp fetch_remote(%Unlock.Config.Item.Generic.HTTP{} = item) do
-    comp_fn = fn _key ->
+  def build_comp_fn(%Unlock.Config.Item.Generic.HTTP{} = item) do
+    fn _key ->
       Logger.info("Processing proxy request for identifier #{item.identifier}")
 
       try do
@@ -186,12 +186,14 @@ defmodule Unlock.Controller do
           {:ignore, bad_gateway_response()}
       end
     end
+  end
 
+  defp fetch_remote(%Unlock.Config.Item.Generic.HTTP{} = item) do
     cache_name = Unlock.Shared.cache_name()
     cache_key = Unlock.Shared.cache_key(item.identifier)
     # NOTE: concurrent calls to `fetch` with the same key will result (here)
     # in only one fetching call, which is a nice guarantee (avoid overloading of target)
-    outcome = Cachex.fetch(cache_name, cache_key, comp_fn)
+    outcome = Cachex.fetch(cache_name, cache_key, build_comp_fn(item))
 
     case outcome do
       {:ok, result} ->
