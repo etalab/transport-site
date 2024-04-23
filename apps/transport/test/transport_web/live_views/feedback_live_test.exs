@@ -7,6 +7,10 @@ defmodule TransportWeb.FeedbackLiveTest do
 
   setup :verify_on_exit!
 
+  setup do
+    Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+  end
+
   @endpoint TransportWeb.Endpoint
 
   test "Render the feedback component", %{conn: conn} do
@@ -61,6 +65,15 @@ defmodule TransportWeb.FeedbackLiveTest do
       html_body: nil,
       reply_to: "contact@transport.data.gouv.fr"
     )
+
+    feedback = DB.Feedback |> Ecto.Query.last() |> DB.Repo.one()
+
+    assert {feedback.rating, feedback.explanation, feedback.feature, feedback.email} == {
+             :like,
+             "so useful for my GTFS files",
+             :"on-demand-validation",
+             nil
+           }
   end
 
   test "Post invalid parameters in feedback form and check it doesn’t crash", %{conn: conn} do
