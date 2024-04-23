@@ -90,7 +90,6 @@ defmodule Unlock.Controller do
     conn = conn |> Plug.Conn.fetch_query_params()
 
     options = [
-      # TODO: clean this up
       limit_per_source: conn.query_params["limit_per_source"] |> to_nil_or_integer(),
       include_origin: conn.query_params["include_origin"] |> to_boolean()
     ]
