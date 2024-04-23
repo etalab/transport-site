@@ -163,21 +163,25 @@ defmodule Unlock.Controller do
     |> send_resp(response.status, body)
   end
 
+  def fetch_data(%Unlock.Config.Item.Generic.HTTP{} = item) do
+    response = Unlock.HTTP.Client.impl().get!(item.target_url, item.request_headers)
+    size = byte_size(response.body)
+
+    if size > @max_allowed_cached_byte_size do
+      Logger.warning("Payload is too large (#{size} bytes > #{@max_allowed_cached_byte_size}). Skipping cache.")
+      {:ignore, response}
+    else
+      {:commit, response, ttl: :timer.seconds(item.ttl)}
+    end
+  end
+
   def build_comp_fn(%Unlock.Config.Item.Generic.HTTP{} = item) do
     fn _key ->
       Logger.info("Processing proxy request for identifier #{item.identifier}")
 
       try do
         Unlock.Telemetry.trace_request(item.identifier, :internal)
-        response = Unlock.HTTP.Client.impl().get!(item.target_url, item.request_headers)
-        size = byte_size(response.body)
-
-        if size > @max_allowed_cached_byte_size do
-          Logger.warning("Payload is too large (#{size} bytes > #{@max_allowed_cached_byte_size}). Skipping cache.")
-          {:ignore, response}
-        else
-          {:commit, response, ttl: :timer.seconds(item.ttl)}
-        end
+        fetch_data(item)
       rescue
         e ->
           # NOTE: if an error occurs around the HTTP query, then
