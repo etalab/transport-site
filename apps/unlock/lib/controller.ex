@@ -86,6 +86,9 @@ defmodule Unlock.Controller do
   # NOTE: most of this processing will be extracted to a separate file/module
   defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.Aggregate{} = item) do
     Unlock.Telemetry.trace_request(item.identifier, :external)
+    # NOTE: required for tests to work.
+    conn = conn |> Plug.Conn.fetch_query_params()
+
     options = [
       # TODO: clean this up
       limit_per_source: conn.query_params["limit_per_source"] |> to_nil_or_integer(),
