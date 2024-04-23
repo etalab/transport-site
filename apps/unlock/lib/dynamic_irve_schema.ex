@@ -1,4 +1,9 @@
 defmodule Unlock.DynamicIRVESchema do
+  @moduledoc """
+  A module providing programmatic access to the dynamic IRVE schema,
+  as stored in the source code.
+  """
+
   def schema_content do
     __ENV__.file
     |> Path.join("../../meta/schema-irve-dynamique.json")
