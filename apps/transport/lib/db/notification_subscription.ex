@@ -101,6 +101,21 @@ defmodule DB.NotificationSubscription do
   @spec platform_wide_reasons :: [reason()]
   def platform_wide_reasons, do: @platform_wide_reasons
 
+  @doc """
+  iex> platform_wide_reasons(:reuser) != platform_wide_reasons(:producer)
+  true
+  iex> platform_wide_reasons(:producer)
+  []
+  iex> platform_wide_reasons(:reuser)
+  [:new_dataset, :daily_new_comments]
+  """
+  @spec platform_wide_reasons(role()) :: [reason()]
+  def platform_wide_reasons(:reuser) do
+    Enum.reject(platform_wide_reasons(), &(&1 == reason(:datasets_switching_climate_resilience_bill)))
+  end
+
+  def platform_wide_reasons(:producer), do: []
+
   @spec possible_reasons :: [reason()]
   def possible_reasons, do: @all_reasons
 
