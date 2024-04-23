@@ -44,19 +44,16 @@ defmodule TransportWeb.Live.FeedbackLive do
         "submit",
         %{
           "feedback" =>
-            %{"rating" => rating, "explanation" => explanation, "email" => email, "feature" => feature} =
+            %{"rating" => rating, "feature" => feature} =
               feedback_params
         },
         socket
       )
       when rating in @feedback_rating_values and feature in @feedback_features do
-    %{email: email, explanation: explanation} = sanitize_inputs(%{email: email, explanation: explanation})
-
     changeset = %DB.Feedback{} |> DB.Feedback.changeset(feedback_params)
-    feedback_email = TransportWeb.ContactEmail.feedback(rating, explanation, email, feature)
 
-    with {:ok, _feedback} <- DB.Repo.insert(changeset),
-         {:ok, _} <- Transport.Mailer.deliver(feedback_email) do
+    with {:ok, feedback} <- DB.Repo.insert(changeset),
+         {:ok, _} <- deliver_mail(feedback, feature) do
       {:noreply, socket |> assign(:feedback_sent, true)}
     else
       _error ->
@@ -69,5 +66,8 @@ defmodule TransportWeb.Live.FeedbackLive do
     {:noreply, socket |> assign(:feedback_error, true)}
   end
 
-  defp sanitize_inputs(map), do: Map.new(map, fn {k, v} -> {k, v |> String.trim() |> HtmlSanitizeEx.strip_tags()} end)
+  defp deliver_mail(feedback, feature) do
+    feedback_email = TransportWeb.ContactEmail.feedback(feedback.rating, feedback.explanation, feedback.email, feature)
+    Transport.Mailer.deliver(feedback_email)
+  end
 end

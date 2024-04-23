@@ -19,8 +19,20 @@ defmodule DB.Feedback do
     feedback
     |> cast(attrs, [:rating, :explanation, :email, :feature])
     |> validate_required([:rating, :feature, :explanation])
+    |> sanitize_inputs([:explanation, :email])
     |> validate_format(:email, ~r/@/)
     |> lowercase_email()
+  end
+
+  defp sanitize_inputs(changeset, keys) do
+    Enum.reduce(keys, changeset, fn key, acc -> sanitize_field(acc, key) end)
+  end
+
+  defp sanitize_field(changeset, key) do
+    case get_change(changeset, key) do
+      nil -> changeset
+      value -> put_change(changeset, key, value |> String.trim() |> HtmlSanitizeEx.strip_tags())
+    end
   end
 
   defp lowercase_email(%Ecto.Changeset{} = changeset) do

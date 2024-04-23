@@ -50,7 +50,7 @@ defmodule TransportWeb.FeedbackLiveTest do
         email: "",
         feature: "on-demand-validation",
         rating: "like",
-        explanation: "so useful for my GTFS files"
+        explanation: "  so useful for my GTFS files  "
       }
     })
     |> Kernel.=~("Merci d’avoir laissé votre avis !")

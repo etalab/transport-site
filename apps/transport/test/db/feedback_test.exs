@@ -9,14 +9,15 @@ defmodule DB.FeedbackTest do
     %DB.Feedback{}
     |> DB.Feedback.changeset(%{
       rating: :like,
-      explanation: "Awesome map!",
+      explanation: "<love>Awesome map!</love>",
       feature: :"gtfs-stops",
-      email: "Malotru@example.com"
+      email: "Malotru@example.coM   "
     })
     |> DB.Repo.insert()
 
     feedback = DB.Feedback |> Ecto.Query.last() |> DB.Repo.one()
 
     assert feedback.email == "malotru@example.com"
+    assert feedback.explanation == "Awesome map!"
   end
 end
