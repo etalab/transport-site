@@ -19,8 +19,6 @@ defmodule Unlock.Telemetry do
 
   def gbfs_request_event_names, do: @gbfs_request_types |> Enum.map(&gbfs_request_event_name/1)
 
-  # TODO: verify scope - this has been backported from controller
-
   # NOTE: to be DRYed with what is in the "transport" app later (`telemetry.ex`), if we stop using an umbrella app.
   # Currently we would have a circular dependency, or would have to move all this to `shared`.
 
