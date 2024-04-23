@@ -6,6 +6,7 @@ defmodule TransportWeb.Live.NotificationsLive do
   import TransportWeb.Gettext
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
 
+  @impl true
   def mount(
         _params,
         %{"current_user" => %{"id" => user_id}, "locale" => locale, "role" => :reuser = role},
@@ -28,30 +29,16 @@ defmodule TransportWeb.Live.NotificationsLive do
         role: role,
         datasets: datasets,
         subscriptions: subscriptions,
+        subscribed_platform_wide_reasons: subscribed_platform_wide_reasons(current_contact),
         all_notifications_enabled: all_notifications_enabled?(subscriptions),
-        available_reasons: [
-          %{
-            reason: DB.NotificationSubscription.reason(:expiration),
-            explanations: dgettext("reuser-space", "data expiration notification explanation")
-          },
-          %{
-            reason: DB.NotificationSubscription.reason(:dataset_with_error),
-            explanations: dgettext("reuser-space", "validation errors notification explanation")
-          },
-          %{
-            reason: DB.NotificationSubscription.reason(:resource_unavailable),
-            explanations: dgettext("reuser-space", "unavailable resources notification explanation")
-          },
-          %{
-            reason: DB.NotificationSubscription.reason(:resources_changed),
-            explanations: dgettext("reuser-space", "resources changed notification explanation")
-          }
-        ]
+        platform_wide_reasons: DB.NotificationSubscription.platform_wide_reasons(role),
+        available_reasons: available_reasons(role)
       })
 
     {:ok, socket}
   end
 
+  @impl true
   def mount(
         _params,
         %{"current_user" => current_user, "locale" => locale, "token" => token, "role" => :producer = role},
@@ -77,30 +64,20 @@ defmodule TransportWeb.Live.NotificationsLive do
         datasets: datasets,
         subscriptions: subscriptions,
         all_notifications_enabled: all_notifications_enabled?(subscriptions),
-        available_reasons: [
-          %{
-            reason: DB.NotificationSubscription.reason(:expiration),
-            explanations: dgettext("espace-producteurs", "data expiration notification explanation")
-          },
-          %{
-            reason: DB.NotificationSubscription.reason(:dataset_with_error),
-            explanations: dgettext("espace-producteurs", "validation errors notification explanation")
-          },
-          %{
-            reason: DB.NotificationSubscription.reason(:resource_unavailable),
-            explanations: dgettext("espace-producteurs", "unavailable resources notification explanation")
-          }
-        ]
+        available_reasons: available_reasons(role)
       })
 
     {:ok, socket}
   end
 
+  @impl true
+  # Toggle for a dataset reason
   def handle_event(
         "toggle",
         %{"dataset-id" => dataset_id, "subscription-id" => subscription_id, "reason" => reason, "action" => action},
         %Phoenix.LiveView.Socket{} = socket
-      ) do
+      )
+      when action in ["turn_on", "turn_off"] do
     toggle_subscription(socket, dataset_id, subscription_id, reason, action)
     subscriptions = notification_subscriptions_for_datasets(socket)
     all_notifications_enabled = all_notifications_enabled?(subscriptions)
@@ -108,6 +85,20 @@ defmodule TransportWeb.Live.NotificationsLive do
     {:noreply, assign(socket, subscriptions: subscriptions, all_notifications_enabled: all_notifications_enabled)}
   end
 
+  @impl true
+  # Toggle for a platform-wide reason
+  def handle_event(
+        "toggle",
+        %{"reason" => reason, "action" => action},
+        %Phoenix.LiveView.Socket{assigns: %{current_contact: %DB.Contact{} = contact}} = socket
+      )
+      when action in ["turn_on", "turn_off"] do
+    toggle_platform_wide_subscription(socket, reason, action)
+
+    {:noreply, assign(socket, subscribed_platform_wide_reasons: subscribed_platform_wide_reasons(contact))}
+  end
+
+  @impl true
   def handle_event("toggle-all", %{"action" => action}, %Phoenix.LiveView.Socket{} = socket)
       when action in ["turn_on", "turn_off"] do
     toggle_all_subscriptions(socket, action)
@@ -116,6 +107,16 @@ defmodule TransportWeb.Live.NotificationsLive do
     all_notifications_enabled = all_notifications_enabled?(subscriptions)
 
     {:noreply, assign(socket, subscriptions: subscriptions, all_notifications_enabled: all_notifications_enabled)}
+  end
+
+  defp subscribed_platform_wide_reasons(%DB.Contact{id: contact_id}) do
+    DB.NotificationSubscription.base_query()
+    |> where(
+      [notification_subscription: ns],
+      is_nil(ns.dataset_id) and ns.contact_id == ^contact_id and ns.role == :reuser
+    )
+    |> select([notification_subscription: ns], ns.reason)
+    |> DB.Repo.all()
   end
 
   defp notification_subscriptions_for_datasets(%Phoenix.LiveView.Socket{assigns: assigns}) do
@@ -181,6 +182,26 @@ defmodule TransportWeb.Live.NotificationsLive do
     |> DB.Repo.delete!()
   end
 
+  defp toggle_platform_wide_subscription(
+         %Phoenix.LiveView.Socket{assigns: %{current_contact: current_contact}},
+         reason,
+         "turn_on"
+       ) do
+    %{contact_id: current_contact.id, dataset_id: nil, reason: reason, source: :user, role: :reuser}
+    |> DB.NotificationSubscription.insert!()
+  end
+
+  defp toggle_platform_wide_subscription(
+         %Phoenix.LiveView.Socket{assigns: %{current_contact: %DB.Contact{id: contact_id}}},
+         reason,
+         "turn_off"
+       ) do
+    DB.NotificationSubscription.base_query()
+    |> where([notification_subscription: ns], ns.contact_id == ^contact_id and ns.reason == ^reason)
+    |> DB.Repo.one!()
+    |> DB.Repo.delete!()
+  end
+
   defp toggle_all_subscriptions(
          %Phoenix.LiveView.Socket{assigns: %{subscriptions: old_subscriptions}} = socket,
          "turn_on"
@@ -201,7 +222,7 @@ defmodule TransportWeb.Live.NotificationsLive do
   end
 
   defp toggle_all_subscriptions(
-         %Phoenix.LiveView.Socket{assigns: %{current_contact: %{id: contact_id}, role: role}},
+         %Phoenix.LiveView.Socket{assigns: %{current_contact: %DB.Contact{id: contact_id}, role: role}},
          "turn_off"
        ) do
     DB.NotificationSubscription.base_query()
@@ -227,5 +248,43 @@ defmodule TransportWeb.Live.NotificationsLive do
         not is_nil(user_subscription)
       end)
     end)
+  end
+
+  defp available_reasons(:reuser) do
+    [
+      %{
+        reason: DB.NotificationSubscription.reason(:expiration),
+        explanations: dgettext("reuser-space", "data expiration notification explanation")
+      },
+      %{
+        reason: DB.NotificationSubscription.reason(:dataset_with_error),
+        explanations: dgettext("reuser-space", "validation errors notification explanation")
+      },
+      %{
+        reason: DB.NotificationSubscription.reason(:resource_unavailable),
+        explanations: dgettext("reuser-space", "unavailable resources notification explanation")
+      },
+      %{
+        reason: DB.NotificationSubscription.reason(:resources_changed),
+        explanations: dgettext("reuser-space", "resources changed notification explanation")
+      }
+    ]
+  end
+
+  defp available_reasons(:producer) do
+    [
+      %{
+        reason: DB.NotificationSubscription.reason(:expiration),
+        explanations: dgettext("espace-producteurs", "data expiration notification explanation")
+      },
+      %{
+        reason: DB.NotificationSubscription.reason(:dataset_with_error),
+        explanations: dgettext("espace-producteurs", "validation errors notification explanation")
+      },
+      %{
+        reason: DB.NotificationSubscription.reason(:resource_unavailable),
+        explanations: dgettext("espace-producteurs", "unavailable resources notification explanation")
+      }
+    ]
   end
 end

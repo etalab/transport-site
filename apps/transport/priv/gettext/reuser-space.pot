@@ -66,3 +66,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "validation errors notification explanation"
 msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Global notifications"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Notifications by dataset"
+msgstr ""

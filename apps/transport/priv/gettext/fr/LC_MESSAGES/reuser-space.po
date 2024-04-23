@@ -56,6 +56,10 @@ msgid "data expiration notification explanation"
 msgstr "Vous êtes alerté à l'approche de la date de fin du calendrier de fonctionnement."
 
 #, elixir-autogen, elixir-format
+msgid "resources changed notification explanation"
+msgstr "Vous êtes alerté lorsque des ressources sont ajoutées, supprimées ou que l'URL est modifiée."
+
+#, elixir-autogen, elixir-format
 msgid "unavailable resources notification explanation"
 msgstr "Vous êtes alerté au bout de 6h consécutives pendant lesquelles une ressource ne peut pas être téléchargée."
 
@@ -64,5 +68,9 @@ msgid "validation errors notification explanation"
 msgstr "Vous êtes alerté lorsqu'une ressource ne respecte pas les spécifications des normes/standards/schémas correspondants."
 
 #, elixir-autogen, elixir-format
-msgid "resources changed notification explanation"
-msgstr "Vous êtes alerté lorsque des ressources sont ajoutées, supprimées ou que l'URL est modifiée."
+msgid "Global notifications"
+msgstr "Notifications générales"
+
+#, elixir-autogen, elixir-format
+msgid "Notifications by dataset"
+msgstr "Notifications par jeu de données"
