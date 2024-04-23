@@ -1,6 +1,7 @@
 defmodule TransitRealtime.FeedHeader.Incrementality do
   @moduledoc false
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, enum: true, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:FULL_DATASET, 0)
   field(:DIFFERENTIAL, 1)
@@ -8,7 +9,8 @@ end
 
 defmodule TransitRealtime.TripUpdate.StopTimeUpdate.ScheduleRelationship do
   @moduledoc false
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, enum: true, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:SCHEDULED, 0)
   field(:SKIPPED, 1)
@@ -18,7 +20,8 @@ end
 
 defmodule TransitRealtime.VehiclePosition.VehicleStopStatus do
   @moduledoc false
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, enum: true, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:INCOMING_AT, 0)
   field(:STOPPED_AT, 1)
@@ -27,7 +30,8 @@ end
 
 defmodule TransitRealtime.VehiclePosition.CongestionLevel do
   @moduledoc false
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, enum: true, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:UNKNOWN_CONGESTION_LEVEL, 0)
   field(:RUNNING_SMOOTHLY, 1)
@@ -38,7 +42,8 @@ end
 
 defmodule TransitRealtime.VehiclePosition.OccupancyStatus do
   @moduledoc false
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, enum: true, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:EMPTY, 0)
   field(:MANY_SEATS_AVAILABLE, 1)
@@ -53,7 +58,8 @@ end
 
 defmodule TransitRealtime.Alert.Cause do
   @moduledoc false
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, enum: true, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:UNKNOWN_CAUSE, 1)
   field(:OTHER_CAUSE, 2)
@@ -71,7 +77,8 @@ end
 
 defmodule TransitRealtime.Alert.Effect do
   @moduledoc false
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, enum: true, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:NO_SERVICE, 1)
   field(:REDUCED_SERVICE, 2)
@@ -88,7 +95,8 @@ end
 
 defmodule TransitRealtime.Alert.SeverityLevel do
   @moduledoc false
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, enum: true, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:UNKNOWN_SEVERITY, 1)
   field(:INFO, 2)
@@ -98,7 +106,8 @@ end
 
 defmodule TransitRealtime.TripDescriptor.ScheduleRelationship do
   @moduledoc false
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, enum: true, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:SCHEDULED, 0)
   field(:ADDED, 1)
@@ -111,7 +120,8 @@ end
 
 defmodule TransitRealtime.VehicleDescriptor.WheelchairAccessible do
   @moduledoc false
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, enum: true, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:NO_VALUE, 0)
   field(:UNKNOWN, 1)
@@ -119,9 +129,20 @@ defmodule TransitRealtime.VehicleDescriptor.WheelchairAccessible do
   field(:WHEELCHAIR_INACCESSIBLE, 3)
 end
 
+defmodule TransitRealtime.Stop.WheelchairBoarding do
+  @moduledoc false
+
+  use Protobuf, enum: true, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
+
+  field(:UNKNOWN, 0)
+  field(:AVAILABLE, 1)
+  field(:NOT_AVAILABLE, 2)
+end
+
 defmodule TransitRealtime.FeedMessage do
   @moduledoc false
-  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:header, 1, required: true, type: TransitRealtime.FeedHeader)
   field(:entity, 2, repeated: true, type: TransitRealtime.FeedEntity)
@@ -131,7 +152,8 @@ end
 
 defmodule TransitRealtime.FeedHeader do
   @moduledoc false
-  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:gtfs_realtime_version, 1, required: true, type: :string)
 
@@ -149,7 +171,8 @@ end
 
 defmodule TransitRealtime.FeedEntity do
   @moduledoc false
-  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:id, 1, required: true, type: :string)
   field(:is_deleted, 2, optional: true, type: :bool, default: false)
@@ -157,13 +180,16 @@ defmodule TransitRealtime.FeedEntity do
   field(:vehicle, 4, optional: true, type: TransitRealtime.VehiclePosition)
   field(:alert, 5, optional: true, type: TransitRealtime.Alert)
   field(:shape, 6, optional: true, type: TransitRealtime.Shape)
+  field(:stop, 7, optional: true, type: TransitRealtime.Stop)
+  field(:trip_modifications, 8, optional: true, type: TransitRealtime.TripModifications)
 
   extensions([{1000, 2000}, {9000, 10000}])
 end
 
 defmodule TransitRealtime.TripUpdate.StopTimeEvent do
   @moduledoc false
-  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:delay, 1, optional: true, type: :int32)
   field(:time, 2, optional: true, type: :int64)
@@ -174,7 +200,8 @@ end
 
 defmodule TransitRealtime.TripUpdate.StopTimeUpdate.StopTimeProperties do
   @moduledoc false
-  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:assigned_stop_id, 1, optional: true, type: :string)
 
@@ -183,7 +210,8 @@ end
 
 defmodule TransitRealtime.TripUpdate.StopTimeUpdate do
   @moduledoc false
-  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:stop_sequence, 1, optional: true, type: :uint32)
   field(:stop_id, 4, optional: true, type: :string)
@@ -213,7 +241,8 @@ end
 
 defmodule TransitRealtime.TripUpdate.TripProperties do
   @moduledoc false
-  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:trip_id, 1, optional: true, type: :string)
   field(:start_date, 2, optional: true, type: :string)
@@ -225,7 +254,8 @@ end
 
 defmodule TransitRealtime.TripUpdate do
   @moduledoc false
-  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:trip, 1, required: true, type: TransitRealtime.TripDescriptor)
   field(:vehicle, 3, optional: true, type: TransitRealtime.VehicleDescriptor)
@@ -239,7 +269,8 @@ end
 
 defmodule TransitRealtime.VehiclePosition.CarriageDetails do
   @moduledoc false
-  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:id, 1, optional: true, type: :string)
   field(:label, 2, optional: true, type: :string)
@@ -259,7 +290,8 @@ end
 
 defmodule TransitRealtime.VehiclePosition do
   @moduledoc false
-  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:trip, 1, optional: true, type: TransitRealtime.TripDescriptor)
   field(:vehicle, 8, optional: true, type: TransitRealtime.VehicleDescriptor)
@@ -300,7 +332,8 @@ end
 
 defmodule TransitRealtime.Alert do
   @moduledoc false
-  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:active_period, 1, repeated: true, type: TransitRealtime.TimeRange)
   field(:informed_entity, 5, repeated: true, type: TransitRealtime.EntitySelector)
@@ -342,7 +375,8 @@ end
 
 defmodule TransitRealtime.TimeRange do
   @moduledoc false
-  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:start, 1, optional: true, type: :uint64)
   field(:end, 2, optional: true, type: :uint64)
@@ -352,7 +386,8 @@ end
 
 defmodule TransitRealtime.Position do
   @moduledoc false
-  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:latitude, 1, required: true, type: :float)
   field(:longitude, 2, required: true, type: :float)
@@ -363,9 +398,19 @@ defmodule TransitRealtime.Position do
   extensions([{1000, 2000}, {9000, 10000}])
 end
 
+defmodule TransitRealtime.TripDescriptor.ModifiedTripSelector do
+  @moduledoc false
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
+
+  field(:modifications_id, 1, optional: true, type: :string)
+  field(:affected_trip_id, 2, optional: true, type: :string)
+end
+
 defmodule TransitRealtime.TripDescriptor do
   @moduledoc false
-  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:trip_id, 1, optional: true, type: :string)
   field(:route_id, 5, optional: true, type: :string)
@@ -379,12 +424,18 @@ defmodule TransitRealtime.TripDescriptor do
     enum: true
   )
 
+  field(:modified_trip, 7,
+    optional: true,
+    type: TransitRealtime.TripDescriptor.ModifiedTripSelector
+  )
+
   extensions([{1000, 2000}, {9000, 10000}])
 end
 
 defmodule TransitRealtime.VehicleDescriptor do
   @moduledoc false
-  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:id, 1, optional: true, type: :string)
   field(:label, 2, optional: true, type: :string)
@@ -402,7 +453,8 @@ end
 
 defmodule TransitRealtime.EntitySelector do
   @moduledoc false
-  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:agency_id, 1, optional: true, type: :string)
   field(:route_id, 2, optional: true, type: :string)
@@ -416,7 +468,8 @@ end
 
 defmodule TransitRealtime.TranslatedString.Translation do
   @moduledoc false
-  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:text, 1, required: true, type: :string)
   field(:language, 2, optional: true, type: :string)
@@ -426,7 +479,8 @@ end
 
 defmodule TransitRealtime.TranslatedString do
   @moduledoc false
-  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:translation, 1, repeated: true, type: TransitRealtime.TranslatedString.Translation)
 
@@ -435,7 +489,8 @@ end
 
 defmodule TransitRealtime.TranslatedImage.LocalizedImage do
   @moduledoc false
-  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:url, 1, required: true, type: :string)
   field(:media_type, 2, required: true, type: :string)
@@ -446,7 +501,8 @@ end
 
 defmodule TransitRealtime.TranslatedImage do
   @moduledoc false
-  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:localized_image, 1, repeated: true, type: TransitRealtime.TranslatedImage.LocalizedImage)
 
@@ -455,10 +511,102 @@ end
 
 defmodule TransitRealtime.Shape do
   @moduledoc false
-  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto2
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
 
   field(:shape_id, 1, optional: true, type: :string)
   field(:encoded_polyline, 2, optional: true, type: :string)
+
+  extensions([{1000, 2000}, {9000, 10000}])
+end
+
+defmodule TransitRealtime.Stop do
+  @moduledoc false
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
+
+  field(:stop_id, 1, optional: true, type: :string)
+  field(:stop_code, 2, optional: true, type: TransitRealtime.TranslatedString)
+  field(:stop_name, 3, optional: true, type: TransitRealtime.TranslatedString)
+  field(:tts_stop_name, 4, optional: true, type: TransitRealtime.TranslatedString)
+  field(:stop_desc, 5, optional: true, type: TransitRealtime.TranslatedString)
+  field(:stop_lat, 6, optional: true, type: :float)
+  field(:stop_lon, 7, optional: true, type: :float)
+  field(:zone_id, 8, optional: true, type: :string)
+  field(:stop_url, 9, optional: true, type: TransitRealtime.TranslatedString)
+  field(:parent_station, 11, optional: true, type: :string)
+  field(:stop_timezone, 12, optional: true, type: :string)
+
+  field(:wheelchair_boarding, 13,
+    optional: true,
+    type: TransitRealtime.Stop.WheelchairBoarding,
+    default: :UNKNOWN,
+    enum: true
+  )
+
+  field(:level_id, 14, optional: true, type: :string)
+  field(:platform_code, 15, optional: true, type: TransitRealtime.TranslatedString)
+
+  extensions([{1000, 2000}, {9000, 10000}])
+end
+
+defmodule TransitRealtime.TripModifications.Modification do
+  @moduledoc false
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
+
+  field(:start_stop_selector, 1, optional: true, type: TransitRealtime.StopSelector)
+  field(:end_stop_selector, 2, optional: true, type: TransitRealtime.StopSelector)
+  field(:propagated_modification_delay, 3, optional: true, type: :int32, default: 0)
+  field(:replacement_stops, 4, repeated: true, type: TransitRealtime.ReplacementStop)
+  field(:service_alert_id, 5, optional: true, type: :string)
+  field(:last_modified_time, 6, optional: true, type: :uint64)
+
+  extensions([{1000, 2000}, {9000, 10000}])
+end
+
+defmodule TransitRealtime.TripModifications.SelectedTrips do
+  @moduledoc false
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
+
+  field(:trip_ids, 1, repeated: true, type: :string)
+  field(:shape_id, 2, optional: true, type: :string)
+
+  extensions([{1000, 2000}, {9000, 10000}])
+end
+
+defmodule TransitRealtime.TripModifications do
+  @moduledoc false
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
+
+  field(:selected_trips, 1, repeated: true, type: TransitRealtime.TripModifications.SelectedTrips)
+  field(:start_times, 2, repeated: true, type: :string)
+  field(:service_dates, 3, repeated: true, type: :string)
+  field(:modifications, 4, repeated: true, type: TransitRealtime.TripModifications.Modification)
+
+  extensions([{1000, 2000}, {9000, 10000}])
+end
+
+defmodule TransitRealtime.StopSelector do
+  @moduledoc false
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
+
+  field(:stop_sequence, 1, optional: true, type: :uint32)
+  field(:stop_id, 2, optional: true, type: :string)
+
+  extensions([{1000, 2000}, {9000, 10000}])
+end
+
+defmodule TransitRealtime.ReplacementStop do
+  @moduledoc false
+
+  use Protobuf, protoc_gen_elixir_version: "0.12.0", syntax: :proto2
+
+  field(:travel_time_to_stop, 1, optional: true, type: :int32)
+  field(:stop_id, 2, optional: true, type: :string)
 
   extensions([{1000, 2000}, {9000, 10000}])
 end

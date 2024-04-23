@@ -41,16 +41,6 @@ defmodule TransportWeb.SeoMetadataTest do
     :ok
   end
 
-  defp title(page) do
-    ~r|.*<title>(.*)</title>.*|
-    |> Regex.run(page)
-    |> case do
-      [_ | [title | _]] -> title
-      # if not found return all
-      _ -> page
-    end
-  end
-
   test "GET / ", %{conn: conn} do
     title = conn |> get(~p"/") |> html_response(200) |> title
     assert title =~ "Le Point d’Accès National aux données ouvertes de transport"
@@ -102,5 +92,20 @@ defmodule TransportWeb.SeoMetadataTest do
     Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
     title = conn |> get(~p"/validation") |> html_response(200) |> title
     assert title =~ "Évaluation de la qualité d’un fichier ou d’un flux"
+  end
+
+  test "GET /espace_reutilisateur", %{conn: conn} do
+    contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+
+    assert "Espace réutilisateur" ==
+             conn
+             |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+             |> get(reuser_space_path(conn, :espace_reutilisateur))
+             |> html_response(200)
+             |> title()
+  end
+
+  defp title(page) do
+    page |> Floki.parse_document!() |> Floki.find("title") |> Floki.text()
   end
 end

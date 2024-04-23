@@ -1,0 +1,68 @@
+## This file is a PO Template file.
+##
+## "msgid"s here are often extracted from source code.
+## Add new messages manually only if they're dynamic
+## messages that can't be statically extracted.
+##
+## Run "mix gettext.extract" to bring this file up to
+## date. Leave "msgstr"s empty as changing them here has no
+## effect: edit them in PO (.po) files instead.
+#
+msgid ""
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "All"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Data type"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Manage notifications"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "No results"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Notification bell"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Receive helpful notifications about the data you follow."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Receive notifications"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Reuser space"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Followed datasets"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Actions"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "data expiration notification explanation"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "resources changed notification explanation"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "unavailable resources notification explanation"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "validation errors notification explanation"
+msgstr ""

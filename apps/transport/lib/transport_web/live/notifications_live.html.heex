@@ -1,25 +1,35 @@
+<% is_producer = @role == :producer
+colspan = if is_producer, do: 3, else: 2
+breadcrumb = if is_producer, do: :espace_producteur_notifications, else: :reuser_space_notifications
+display_error = is_producer and not is_nil(@error) %>
 <div class="pt-48">
   <div class="container pb-24">
-    <%= breadcrumbs([@socket, :notification_index]) %>
+    <%= breadcrumbs([@socket, breadcrumb]) %>
   </div>
 </div>
 
 <section class="section producer-actions">
   <div class="container">
-    <div class="panel">
+    <h2><%= dgettext("espace-producteurs", "Manage my notifications") %></h2>
+    <div :if={display_error} class="notification error"><%= @error %></div>
+
+    <div :if={is_producer} class="panel mb-24">
       <p><%= dgettext("espace-producteurs", "notifications are good for you") %></p>
-      <h5><%= dgettext("espace-producteurs", "Data expiration") %></h5>
-      <p><%= dgettext("espace-producteurs", "data expiration notification explanation") %></p>
-      <h5><%= dgettext("espace-producteurs", "Validation errors") %></h5>
-      <p><%= dgettext("espace-producteurs", "validation errors notification explanation") %></p>
-      <h5><%= dgettext("espace-producteurs", "Unavailable resources") %></h5>
-      <p><%= dgettext("espace-producteurs", "unavailable resources notification explanation") %></p>
     </div>
 
-    <div class="panel">
-      <h2><%= dgettext("espace-producteurs", "Manage my notifications") %></h2>
-      <div :if={@error} class="notification error"><%= @error %></div>
-      <table :if={!@error} class="table">
+    <div class="row">
+      <%= for %{reason: reason, explanations: explanations} <- @available_reasons do %>
+        <div class="card">
+          <div class="card__content">
+            <h5><%= DB.NotificationSubscription.reason_to_str(reason) %></h5>
+            <p><%= explanations %></p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div :if={!display_error} class="panel mt-24">
+      <table class="table">
         <.form :let={f} for={%{}}>
           <tr>
             <td><strong><%= dgettext("espace-producteurs", "All notifications") %></strong></td>
@@ -43,16 +53,16 @@
                 </label>
               </fieldset>
             </td>
-            <td></td>
+            <td :if={is_producer}></td>
           </tr>
           <%= for dataset <- @datasets do %>
             <tr>
-              <th scope="row" colspan="3">
+              <th scope="row" colspan={colspan}>
                 <%= dataset.custom_title %>
               </th>
             </tr>
 
-            <%= for reason <- DB.NotificationSubscription.reasons_related_to_datasets() do %>
+            <%= for %{reason: reason} <- @available_reasons do %>
               <tr>
                 <% my_subscription = @subscriptions[dataset.id][reason][:user_subscription] %>
                 <td><%= DB.NotificationSubscription.reason_to_str(reason) %></td>
@@ -81,7 +91,7 @@
                     </fieldset>
                   </div>
                 </td>
-                <td>
+                <td :if={is_producer}>
                   <% team_subscriptions = @subscriptions[dataset.id][reason][:team_subscriptions] %>
                   <%= if team_subscriptions && team_subscriptions != [] do %>
                     <% other_subscribers_names =
@@ -103,4 +113,3 @@
 </section>
 <script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>
 </script>
-```

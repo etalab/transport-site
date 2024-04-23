@@ -14,6 +14,7 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
     conn
     # used by the phoenix LivedDashboard to allow secure inlined CSS
     |> Plug.Conn.assign(:csp_nonce_value, nonce)
+    |> Plug.Conn.put_session(:csp_nonce_value, nonce)
     |> Phoenix.Controller.put_secure_browser_headers(csp_headers)
   end
 

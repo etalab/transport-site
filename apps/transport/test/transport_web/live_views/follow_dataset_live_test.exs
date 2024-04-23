@@ -1,4 +1,4 @@
-defmodule Transport.TransportWeb.FollowDatasetLiveTest do
+defmodule TransportWeb.Live.FollowDatasetLiveTest do
   use TransportWeb.ConnCase, async: true
   use Oban.Testing, repo: DB.Repo
   import Phoenix.LiveViewTest
@@ -134,6 +134,13 @@ defmodule Transport.TransportWeb.FollowDatasetLiveTest do
              },
              %DB.NotificationSubscription{
                reason: :resource_unavailable,
+               source: :user,
+               role: :reuser,
+               contact_id: ^contact_id,
+               dataset_id: ^dataset_id
+             },
+             %DB.NotificationSubscription{
+               reason: :resources_changed,
                source: :user,
                role: :reuser,
                contact_id: ^contact_id,

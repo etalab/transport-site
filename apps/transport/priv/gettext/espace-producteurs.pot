@@ -197,19 +197,7 @@ msgid "notifications are good for you"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Data expiration"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Manage my notifications"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Unavailable resources"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Validation errors"
 msgstr ""
 
 #, elixir-autogen, elixir-format

@@ -65,6 +65,7 @@ defmodule TransportWeb.InputHelpers do
   @spec search_input(Phoenix.HTML.Form.t(), atom() | binary(), Keyword.t()) :: any
   def search_input(form, field, opts \\ []) do
     icon = content_tag(:i, "", class: "fas icon--magnifier", id: "magnifier")
+    opts = Keyword.put(opts, :type, "search")
 
     form_group(
       content_tag(

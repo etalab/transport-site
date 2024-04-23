@@ -1,0 +1,68 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n>1);\n"
+
+#, elixir-autogen, elixir-format
+msgid "All"
+msgstr "Tout"
+
+#, elixir-autogen, elixir-format
+msgid "Data type"
+msgstr "Type de données"
+
+#, elixir-autogen, elixir-format
+msgid "Manage notifications"
+msgstr "Gérer vos notifications"
+
+#, elixir-autogen, elixir-format
+msgid "No results"
+msgstr "Pas de résultats"
+
+#, elixir-autogen, elixir-format
+msgid "Notification bell"
+msgstr "Icône de notifications"
+
+#, elixir-autogen, elixir-format
+msgid "Receive helpful notifications about the data you follow."
+msgstr "Recevez des notifications pertinentes à propos des données que vous suivez."
+
+#, elixir-autogen, elixir-format
+msgid "Receive notifications"
+msgstr "Recevoir des notifications"
+
+#, elixir-autogen, elixir-format
+msgid "Reuser space"
+msgstr "Espace réutilisateur"
+
+#, elixir-autogen, elixir-format
+msgid "Followed datasets"
+msgstr "Jeux de données suivis"
+
+#, elixir-autogen, elixir-format
+msgid "Actions"
+msgstr "Actions"
+
+#, elixir-autogen, elixir-format
+msgid "data expiration notification explanation"
+msgstr "Vous êtes alerté à l'approche de la date de fin du calendrier de fonctionnement."
+
+#, elixir-autogen, elixir-format
+msgid "unavailable resources notification explanation"
+msgstr "Vous êtes alerté au bout de 6h consécutives pendant lesquelles une ressource ne peut pas être téléchargée."
+
+#, elixir-autogen, elixir-format
+msgid "validation errors notification explanation"
+msgstr "Vous êtes alerté lorsqu'une ressource ne respecte pas les spécifications des normes/standards/schémas correspondants."
+
+#, elixir-autogen, elixir-format
+msgid "resources changed notification explanation"
+msgstr "Vous êtes alerté lorsque des ressources sont ajoutées, supprimées ou que l'URL est modifiée."
