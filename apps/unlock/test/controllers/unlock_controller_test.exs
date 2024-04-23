@@ -478,7 +478,7 @@ defmodule Unlock.ControllerTest do
     # maps are unordered, and in this case the columns
     # MUST be ordered (by spec)
     defmodule Helper do
-      def data_as_csv(headers, rows_as_maps) do
+      def data_as_csv(headers, rows_as_maps, line_separator) do
         rows =
           rows_as_maps
           |> Enum.map(fn row ->
@@ -490,7 +490,9 @@ defmodule Unlock.ControllerTest do
         # we can actually test the behaviour with a different code path.
         [headers | rows]
         |> Enum.map(fn data -> data |> Enum.join(",") end)
-        |> Enum.join("\r\n")
+        # NOTE: not using `Enum.join` here because we want file-trailing CR-LF
+        |> Enum.map(fn data -> data <> line_separator end)
+        |> Enum.join()
       end
     end
 
