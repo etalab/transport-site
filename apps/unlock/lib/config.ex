@@ -31,10 +31,10 @@ defmodule Unlock.Config do
     @moduledoc """
     Intermediate structure for aggregated configured items.
     """
-    @enforce_keys [:identifier, :feeds]
+    @enforce_keys [:identifier, :feeds, :ttl]
 
-    # TODO: add @type, and add more structure to feeds, most likely
-    defstruct [:identifier, :feeds]
+    # NOTE: feeds are just maps with `identifier` and `target_url` at the moment.
+    defstruct [:identifier, :feeds, :ttl]
   end
 
   defmodule Fetcher do
@@ -48,7 +48,8 @@ defmodule Unlock.Config do
       %Item.Aggregate{
         identifier: Map.fetch!(item, "identifier"),
         # PROBABLY: use stronger typing for each feed, and decide if I want to reuse existing code paths or not
-        feeds: Map.fetch!(item, "feeds")
+        feeds: Map.fetch!(item, "feeds"),
+        ttl: Map.get(item, "ttl", 10)
       }
     end
 
