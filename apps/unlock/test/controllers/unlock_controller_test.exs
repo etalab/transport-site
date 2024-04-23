@@ -544,11 +544,11 @@ defmodule Unlock.ControllerTest do
       # are not guaranteed to come in the right order, so we have to cheat a bit here.
       # We introduce flexibility to ensure whatever target is processed first, 2 queries are made
       # and the rest (order & content) is tested by the final assertion on response body.
-      headers =
-        responses = %{
-          url => Helper.data_as_csv(@expected_headers, @first_data_row),
-          second_url => Helper.data_as_csv(@expected_headers, @second_data_row)
-        }
+      responses = %{
+        # On line separators: both "\r\n" (Windows) and "\n" (Linux, generally) can be seen
+        url => Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n"),
+        second_url => Helper.data_as_csv(@expected_headers, [@second_data_row], "\n")
+      }
 
       response_function = fn url, _request_headers ->
         %Unlock.HTTP.Response{
@@ -567,7 +567,8 @@ defmodule Unlock.ControllerTest do
         |> get("/resource/an-existing-aggregate-identifier")
 
       assert resp.status == 200
-      assert resp.resp_body == "id_pdc_itinerance\r\nFR123\r\nFR456\r\n"
+      # Note: TIL: NimbleCSV.RFC4180.dump_to_iodata generates "\r\n" (apparently)
+      assert resp.resp_body == Helper.data_as_csv(@expected_headers, [@first_data_row, @second_data_row], "\r\n")
 
       assert_received {:telemetry_event, [:proxy, :request, :external], %{},
                        %{target: "proxy:an-existing-aggregate-identifier"}}
