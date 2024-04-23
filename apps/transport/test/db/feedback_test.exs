@@ -15,9 +15,6 @@ defmodule DB.FeedbackTest do
     })
     |> DB.Repo.insert()
 
-    feedback = DB.Feedback |> Ecto.Query.last() |> DB.Repo.one()
-
-    assert feedback.email == "malotru@example.com"
-    assert feedback.explanation == "Awesome map!"
+    assert DB.Feedback{email: "malotru@example.com", explanation: "Awesome map!"} = DB.Feedback |> Ecto.Query.last() |> DB.Repo.one!()
   end
 end
