@@ -11,8 +11,8 @@ defmodule TransportWeb.Live.FeedbackLive do
   If you add feedback for a new feature, add it to the list of features.
   """
 
-  @feedback_rating_values ["like", "neutral", "dislike"]
-  @feedback_features ["gtfs-stops", "on-demand-validation", "gbfs-validation", "reuser-space"]
+  @feedback_rating_values DB.Feedback.ratings() |> Enum.map(&Atom.to_string/1)
+  @feedback_features DB.Feedback.features() |> Enum.map(&Atom.to_string/1)
 
   def mount(_params, %{"feature" => feature, "locale" => locale, "csp_nonce_value" => nonce} = session, socket)
       when feature in @feedback_features do

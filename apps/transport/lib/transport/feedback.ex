@@ -6,11 +6,20 @@ defmodule DB.Feedback do
   use TypedEctoSchema
   import Ecto.Changeset
 
+  @features [
+    :"gtfs-stops",
+    :"on-demand-validation",
+    :"gbfs-validation",
+    :"reuser-space"
+  ]
+
+  @ratings [:like, :neutral, :dislike]
+
   schema "feedback" do
     field(:email, DB.Encrypted.Binary)
     field(:explanation, :string)
-    field(:feature, Ecto.Enum, values: [:"gtfs-stops", :"on-demand-validation", :"gbfs-validation", :"reuser-space"])
-    field(:rating, Ecto.Enum, values: [:like, :neutral, :dislike])
+    field(:feature, Ecto.Enum, values: @features)
+    field(:rating, Ecto.Enum, values: @ratings)
 
     timestamps()
   end
@@ -23,6 +32,10 @@ defmodule DB.Feedback do
     |> validate_format(:email, ~r/@/)
     |> lowercase_email()
   end
+
+  def features, do: @features
+
+  def ratings, do: @ratings
 
   defp sanitize_inputs(changeset, keys) do
     Enum.reduce(keys, changeset, fn key, acc -> sanitize_field(acc, key) end)
