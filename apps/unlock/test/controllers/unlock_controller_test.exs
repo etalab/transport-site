@@ -490,9 +490,7 @@ defmodule Unlock.ControllerTest do
         # we can actually test the behaviour with a different code path.
         [headers | rows]
         |> Enum.map(fn data -> data |> Enum.join(",") end)
-        # NOTE: not using `Enum.join` here because we want file-trailing CR-LF
-        |> Enum.map(fn data -> data <> line_separator end)
-        |> Enum.join()
+        |> Enum.map_join(fn data -> data <> line_separator end)
       end
     end
 
