@@ -464,6 +464,58 @@ defmodule Unlock.ControllerTest do
   end
 
   describe "Aggregate item support" do
+    @expected_headers [
+      "id_pdc_itinerance",
+      "etat_pdc",
+      "occupation_pdc",
+      "horodatage",
+      "etat_prise_type_2",
+      "etat_prise_type_combo_ccs",
+      "etat_prise_type_chademo",
+      "etat_prise_type_ef"
+    ]
+
+    # maps are unordered, and in this case the columns
+    # MUST be ordered (by spec)
+    defmodule Helper do
+      def data_as_csv(headers, rows_as_maps) do
+        rows =
+          rows_as_maps
+          |> Enum.map(fn row ->
+            headers
+            |> Enum.map(fn c -> Map.fetch!(row, c) end)
+          end)
+
+        #   # NOTE: not using the csv library to generate csv here on purpose, so that
+        #   # we can actually test the behaviour with a different code path.
+        [headers | rows]
+        |> Enum.map(fn data -> data |> Enum.join(",") end)
+        |> Enum.join("\r\n")
+      end
+    end
+
+    @first_data_row %{
+      "id_pdc_itinerance" => "FR123",
+      "etat_pdc" => "xyz",
+      "occupation_pdc" => "xyz",
+      "horodatage" => "xyz",
+      "etat_prise_type_2" => "xyz",
+      "etat_prise_type_combo_ccs" => "xyz",
+      "etat_prise_type_chademo" => "xyz",
+      "etat_prise_type_ef" => "xyz"
+    }
+
+    @second_data_row %{
+      "id_pdc_itinerance" => "FR456",
+      "etat_pdc" => "xyz",
+      "occupation_pdc" => "xyz",
+      "horodatage" => "xyz",
+      "etat_prise_type_2" => "xyz",
+      "etat_prise_type_combo_ccs" => "xyz",
+      "etat_prise_type_chademo" => "xyz",
+      "etat_prise_type_ef" => "xyz"
+    }
+
     # TODO: test remote 500, remote 404, remote 302, technical error, remote content type
     # TODO: status, caching/TTL of main feed, "limit" mode, source tracing via extra column
 
@@ -490,11 +542,11 @@ defmodule Unlock.ControllerTest do
       # are not guaranteed to come in the right order, so we have to cheat a bit here.
       # We introduce flexibility to ensure whatever target is processed first, 2 queries are made
       # and the rest (order & content) is tested by the final assertion on response body.
-
-      responses = %{
-        url => "id_pdc_itinerance\nFR123",
-        second_url => "id_pdc_itinerance\nFR456"
-      }
+      headers =
+        responses = %{
+          url => Helper.data_as_csv(@expected_headers, @first_data_row),
+          second_url => Helper.data_as_csv(@expected_headers, @second_data_row)
+        }
 
       response_function = fn url, _request_headers ->
         %Unlock.HTTP.Response{
@@ -509,6 +561,7 @@ defmodule Unlock.ControllerTest do
 
       resp =
         build_conn()
+        |> fetch_query_params()
         |> get("/resource/an-existing-aggregate-identifier")
 
       assert resp.status == 200
