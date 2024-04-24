@@ -36,9 +36,7 @@ defmodule Unlock.AggregateProcessor do
     |> NimbleCSV.RFC4180.dump_to_iodata()
   end
 
-  def process_sub_item(item, sub_item, options) do
-    origin = sub_item["identifier"]
-
+  def process_sub_item(item, %{"identifier" => origin} = sub_item, options) do
     Unlock.Telemetry.trace_request(item.identifier <> ":" <> origin, :internal)
     Logger.debug("Fetching aggregated sub-item #{origin} at #{sub_item["target_url"]}")
     %{status: status, body: body} = get_with_maybe_redirect(sub_item |> Map.fetch!("target_url"))
@@ -58,6 +56,12 @@ defmodule Unlock.AggregateProcessor do
       Logger.info("Non-200 response for origin #{origin}, response has been dropped")
       []
     end
+  rescue
+    # Since the code is ran via `Task.async_stream`, we wrap it with a rescue block, otherwise
+    # the whole consolidated response will stop and a 500 will be generated
+    e ->
+      Logger.warning("Error occurred during processing origin #{origin} (#{e |> inspect}), response has been dropped")
+      []
   end
 
   # NOTE: we could avoid "decoding" the payload, but doing so will allow us

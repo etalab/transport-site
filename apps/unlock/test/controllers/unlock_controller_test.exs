@@ -579,6 +579,70 @@ defmodule Unlock.ControllerTest do
 
     # TODO: DRY all this with pre-baked setup, once I have all the cases figured out
     # TODO: test 200 feed with bogus content, should be dropped as well
+
+    test "does not block the whole consolidated feed when one sub-feed generates a technical error" do
+      slug = "an-existing-aggregate-identifier"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.Aggregate{
+          identifier: slug,
+          feeds: [
+            %{
+              "identifier" => "first-remote",
+              "target_url" => url = "http://localhost:1234"
+            },
+            %{
+              "identifier" => "second-remote",
+              "target_url" => second_url = "http://localhost:5678"
+            }
+          ]
+        }
+      })
+
+      responses = %{
+        url => {200, Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")},
+        second_url => fn -> raise %Mint.TransportError{reason: :nxdomain} end
+      }
+
+      response_function = fn url, _request_headers ->
+        data = Map.fetch!(responses, url)
+        {status, body} = if is_function(data), do: data.(), else: data
+
+        %Unlock.HTTP.Response{
+          body: body,
+          status: status,
+          headers: []
+        }
+      end
+
+      Unlock.HTTP.Client.Mock
+      |> expect(:get!, 2, response_function)
+
+      logs =
+        capture_log(fn ->
+          resp =
+            build_conn()
+            |> fetch_query_params()
+            |> get("/resource/an-existing-aggregate-identifier")
+
+          assert resp.status == 200
+          assert resp.resp_body == Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")
+
+          assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                           %{target: "proxy:an-existing-aggregate-identifier"}}
+
+          assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                           %{target: "proxy:an-existing-aggregate-identifier:first-remote"}}
+
+          assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                           %{target: "proxy:an-existing-aggregate-identifier:second-remote"}}
+        end)
+
+      assert logs =~ ~r|Error occurred during processing origin second-remote (.*) response has been dropped|
+
+      verify!(Unlock.HTTP.Client.Mock)
+    end
+
     test "hides a non-200 feed from the output without polluting 200 feeds" do
       slug = "an-existing-aggregate-identifier"
 
