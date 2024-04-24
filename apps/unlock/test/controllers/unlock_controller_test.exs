@@ -516,9 +516,6 @@ defmodule Unlock.ControllerTest do
       "etat_prise_type_ef" => "xyz"
     }
 
-    # TODO: test remote 500, remote 404, remote 302, technical error, remote content type
-    # TODO: status, caching/TTL of main feed, "limit" mode, source tracing via extra column
-
     test "handles GET /resource/:slug" do
       slug = "an-existing-aggregate-identifier"
 
@@ -579,6 +576,9 @@ defmodule Unlock.ControllerTest do
 
       verify!(Unlock.HTTP.Client.Mock)
     end
+
+    # TODO: test remote 500, remote 404, remote 302, technical error, remote content type
+    # TODO: status, caching/TTL of main feed, "limit" mode, source tracing via extra column
   end
 
   defp setup_telemetry_handler do
