@@ -577,6 +577,8 @@ defmodule Unlock.ControllerTest do
       verify!(Unlock.HTTP.Client.Mock)
     end
 
+    # TODO: DRY all this with pre-baked setup, once I have all the cases figured out
+    # TODO: test 200 feed with bogus content, should be dropped as well
     test "hides a non-200 feed from the output without polluting 200 feeds" do
       slug = "an-existing-aggregate-identifier"
 
