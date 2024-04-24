@@ -42,14 +42,20 @@ defmodule Unlock.AggregateProcessor do
     Logger.debug("Fetching aggregated sub-item #{origin} at #{sub_item["target_url"]}")
     %{status: status, body: body} = get_with_maybe_redirect(sub_item |> Map.fetch!("target_url"))
     Logger.debug("#{origin} responded with HTTP code #{status} (#{body |> byte_size} bytes)")
-    # NOTE: at this point of deployment, having a log in case of error will be good enough.
-    # We can later expose to the public with an alternate sub-url for observability.
-    try do
-      process_csv_payload(body, origin, options)
-    catch
-      {:non_matching_headers, headers} ->
-        Logger.info("Broken stream for origin #{origin} (headers are #{headers |> inspect})")
-        []
+
+    if status == 200 do
+      # NOTE: at this point of deployment, having a log in case of error will be good enough.
+      # We can later expose to the public with an alternate sub-url for observability.
+      try do
+        process_csv_payload(body, origin, options)
+      catch
+        {:non_matching_headers, headers} ->
+          Logger.info("Broken stream for origin #{origin} (headers are #{headers |> inspect})")
+          []
+      end
+    else
+      Logger.info("Non-200 response for origin #{origin}, response has been dropped")
+      []
     end
   end
 

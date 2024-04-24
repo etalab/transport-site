@@ -577,6 +577,63 @@ defmodule Unlock.ControllerTest do
       verify!(Unlock.HTTP.Client.Mock)
     end
 
+    test "hides a non-200 feed from the output without polluting 200 feeds" do
+      slug = "an-existing-aggregate-identifier"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.Aggregate{
+          identifier: slug,
+          feeds: [
+            %{
+              "identifier" => "first-remote",
+              "target_url" => url = "http://localhost:1234"
+            },
+            %{
+              "identifier" => "second-remote",
+              "target_url" => second_url = "http://localhost:5678"
+            }
+          ]
+        }
+      })
+
+      responses = %{
+        url => {200, Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")},
+        second_url => {500, Helper.data_as_csv(@expected_headers, [@second_data_row], "\n")}
+      }
+
+      response_function = fn url, _request_headers ->
+        {status, body} = Map.fetch!(responses, url)
+
+        %Unlock.HTTP.Response{
+          body: body,
+          status: status,
+          headers: []
+        }
+      end
+
+      Unlock.HTTP.Client.Mock
+      |> expect(:get!, 2, response_function)
+
+      resp =
+        build_conn()
+        |> fetch_query_params()
+        |> get("/resource/an-existing-aggregate-identifier")
+
+      assert resp.status == 200
+      assert resp.resp_body == Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-aggregate-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-aggregate-identifier:first-remote"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-aggregate-identifier:second-remote"}}
+
+      verify!(Unlock.HTTP.Client.Mock)
+    end
+
     # TODO: test remote 500, remote 404, remote 302, technical error, remote content type
     # TODO: status, caching/TTL of main feed, "limit" mode, source tracing via extra column
   end
