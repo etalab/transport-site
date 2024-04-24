@@ -25,6 +25,7 @@ defmodule Unlock.AggregateProcessor do
         max_concurrency: 10,
         # this is the default, but highlighted for maintenance clarity
         ordered: true
+        # TODO: handle timeouts here (log + "no op")
       )
       |> Stream.map(fn {:ok, stream} -> stream end)
       |> Stream.concat()
