@@ -1,4 +1,4 @@
-defmodule DB.Feedback do
+defmodule DB.UserFeedback do
   @moduledoc """
   Stores feedback from users about the application sent through the feedback form
   """
@@ -15,7 +15,7 @@ defmodule DB.Feedback do
 
   @ratings [:like, :neutral, :dislike]
 
-  typed_schema "feedback" do
+  typed_schema "user_feedback" do
     field(:email, DB.Encrypted.Binary)
     field(:explanation, :string)
     field(:feature, Ecto.Enum, values: @features)

@@ -1,4 +1,4 @@
-defmodule DB.FeedbackTest do
+defmodule DB.UserFeedbackTest do
   use ExUnit.Case, async: true
   import Ecto.Query
 
@@ -7,8 +7,8 @@ defmodule DB.FeedbackTest do
   end
 
   test "can save and read a feedback with encrypted email" do
-    %DB.Feedback{}
-    |> DB.Feedback.changeset(%{
+    %DB.UserFeedback{}
+    |> DB.UserFeedback.changeset(%{
       rating: :like,
       explanation: "<love>Awesome map!</love>",
       feature: :gtfs_stops,
@@ -18,10 +18,10 @@ defmodule DB.FeedbackTest do
 
     expected_email = "malotru@example.com"
 
-    assert %DB.Feedback{email: ^expected_email, explanation: "Awesome map!"} =
-             DB.Feedback |> Ecto.Query.last() |> DB.Repo.one!()
+    assert %DB.UserFeedback{email: ^expected_email, explanation: "Awesome map!"} =
+             DB.UserFeedback |> Ecto.Query.last() |> DB.Repo.one!()
 
     # Cannot get rows by using the email, because values are encrypted
-    refute DB.Feedback |> where([f], f.email == ^expected_email) |> DB.Repo.exists?()
+    refute DB.UserFeedback |> where([f], f.email == ^expected_email) |> DB.Repo.exists?()
   end
 end

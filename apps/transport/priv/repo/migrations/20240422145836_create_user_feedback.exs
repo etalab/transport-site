@@ -1,8 +1,8 @@
-defmodule Transport.Repo.Migrations.CreateFeedback do
+defmodule Transport.Repo.Migrations.CreateUserFeedback do
   use Ecto.Migration
 
   def change do
-    create table(:feedback) do
+    create table(:user_feedback) do
       add(:rating, :string, null: false)
       add(:explanation, :text, null: false)
       add(:email, :binary)

@@ -66,16 +66,16 @@ defmodule TransportWeb.FeedbackLiveTest do
       reply_to: "contact@transport.data.gouv.fr"
     )
 
-    assert %DB.Feedback{
+    assert %DB.UserFeedback{
              rating: :like,
              explanation: "so useful for my GTFS files",
              feature: :on_demand_validation,
              email: nil
-           } = DB.Feedback |> Ecto.Query.last() |> DB.Repo.one()
+           } = DB.UserFeedback |> Ecto.Query.last() |> DB.Repo.one()
   end
 
   test "Post invalid parameters in feedback form and check it doesn’t crash", %{conn: conn} do
-    feedback_count = DB.Feedback |> DB.Repo.aggregate(:count, :id)
+    feedback_count = DB.UserFeedback |> DB.Repo.aggregate(:count, :id)
 
     {:ok, view, _html} =
       live_isolated(conn, TransportWeb.Live.FeedbackLive,
@@ -93,7 +93,7 @@ defmodule TransportWeb.FeedbackLiveTest do
     assert logs =~ "Bad parameters for feedback"
     assert_no_email_sent()
     # Nothing should have been inserted in the database
-    assert feedback_count == DB.Feedback |> DB.Repo.aggregate(:count, :id)
+    assert feedback_count == DB.UserFeedback |> DB.Repo.aggregate(:count, :id)
   end
 
   test "Is correctly included in the validation Liveview", %{conn: conn} do
