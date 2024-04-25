@@ -15,7 +15,7 @@ defmodule DB.Feedback do
 
   @ratings [:like, :neutral, :dislike]
 
-  schema "feedback" do
+  typed_schema "feedback" do
     field(:email, DB.Encrypted.Binary)
     field(:explanation, :string)
     field(:feature, Ecto.Enum, values: @features)

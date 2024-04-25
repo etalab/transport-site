@@ -22,6 +22,6 @@ defmodule DB.FeedbackTest do
              DB.Feedback |> Ecto.Query.last() |> DB.Repo.one!()
 
     # Cannot get rows by using the email, because values are encrypted
-    assert DB.Feedback |> where([f], f.email == ^expected_email) |> DB.Repo.all() |> Enum.empty?()
+    refute DB.Feedback |> where([f], f.email == ^expected_email) |> DB.Repo.exists?()
   end
 end
