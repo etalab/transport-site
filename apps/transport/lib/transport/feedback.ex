@@ -7,10 +7,10 @@ defmodule DB.Feedback do
   import Ecto.Changeset
 
   @features [
-    :"gtfs-stops",
-    :"on-demand-validation",
-    :"gbfs-validation",
-    :"reuser-space"
+    :gtfs_stops,
+    :on_demand_validation,
+    :gbfs_validation,
+    :reuser_space
   ]
 
   @ratings [:like, :neutral, :dislike]

@@ -16,7 +16,7 @@ defmodule TransportWeb.FeedbackLiveTest do
   test "Render the feedback component", %{conn: conn} do
     {:ok, _view, html} =
       live_isolated(conn, TransportWeb.Live.FeedbackLive,
-        session: %{"feature" => "on-demand-validation", "locale" => "fr", "csp_nonce_value" => Ecto.UUID.generate()}
+        session: %{"feature" => "on_demand_validation", "locale" => "fr", "csp_nonce_value" => Ecto.UUID.generate()}
       )
 
     assert html =~ "Qu’avez-vous pensé de cette page ?"
@@ -25,7 +25,7 @@ defmodule TransportWeb.FeedbackLiveTest do
   test "Post feedback form with honey pot filled", %{conn: conn} do
     {:ok, view, _html} =
       live_isolated(conn, TransportWeb.Live.FeedbackLive,
-        session: %{"feature" => "on-demand-validation", "locale" => "fr", "csp_nonce_value" => Ecto.UUID.generate()}
+        session: %{"feature" => "on_demand_validation", "locale" => "fr", "csp_nonce_value" => Ecto.UUID.generate()}
       )
 
     view
@@ -40,7 +40,7 @@ defmodule TransportWeb.FeedbackLiveTest do
   test "Post feedback form without honey pot", %{conn: conn} do
     {:ok, view, _html} =
       live_isolated(conn, TransportWeb.Live.FeedbackLive,
-        session: %{"feature" => "on-demand-validation", "locale" => "fr", "csp_nonce_value" => Ecto.UUID.generate()}
+        session: %{"feature" => "on_demand_validation", "locale" => "fr", "csp_nonce_value" => Ecto.UUID.generate()}
       )
 
     view
@@ -48,7 +48,7 @@ defmodule TransportWeb.FeedbackLiveTest do
     |> render_submit(%{
       feedback: %{
         email: "",
-        feature: "on-demand-validation",
+        feature: "on_demand_validation",
         rating: "like",
         explanation: "  so useful for my GTFS files  "
       }
@@ -59,9 +59,9 @@ defmodule TransportWeb.FeedbackLiveTest do
     assert_email_sent(
       from: {"Formulaire feedback", "contact@transport.data.gouv.fr"},
       to: "contact@transport.data.gouv.fr",
-      subject: "Nouvel avis pour on-demand-validation : j’aime",
+      subject: "Nouvel avis pour on_demand_validation : j’aime",
       text_body:
-        "Vous avez un nouvel avis sur le PAN.\nFonctionnalité : on-demand-validation\nNotation : j’aime\nAdresse e-mail : \n\nExplication : so useful for my GTFS files\n",
+        "Vous avez un nouvel avis sur le PAN.\nFonctionnalité : on_demand_validation\nNotation : j’aime\nAdresse e-mail : \n\nExplication : so useful for my GTFS files\n",
       html_body: nil,
       reply_to: "contact@transport.data.gouv.fr"
     )
@@ -69,7 +69,7 @@ defmodule TransportWeb.FeedbackLiveTest do
     assert %DB.Feedback{
              rating: :like,
              explanation: "so useful for my GTFS files",
-             feature: :"on-demand-validation",
+             feature: :on_demand_validation,
              email: nil
            } = DB.Feedback |> Ecto.Query.last() |> DB.Repo.one()
   end
@@ -79,7 +79,7 @@ defmodule TransportWeb.FeedbackLiveTest do
 
     {:ok, view, _html} =
       live_isolated(conn, TransportWeb.Live.FeedbackLive,
-        session: %{"feature" => "on-demand-validation", "locale" => "fr", "csp_nonce_value" => Ecto.UUID.generate()}
+        session: %{"feature" => "on_demand_validation", "locale" => "fr", "csp_nonce_value" => Ecto.UUID.generate()}
       )
 
     {view, logs} =

@@ -11,7 +11,7 @@ defmodule DB.FeedbackTest do
     |> DB.Feedback.changeset(%{
       rating: :like,
       explanation: "<love>Awesome map!</love>",
-      feature: :"gtfs-stops",
+      feature: :gtfs_stops,
       email: "Malotru@example.coM   "
     })
     |> DB.Repo.insert()
