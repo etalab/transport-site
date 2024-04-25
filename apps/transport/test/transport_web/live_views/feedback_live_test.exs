@@ -75,6 +75,8 @@ defmodule TransportWeb.FeedbackLiveTest do
   end
 
   test "Post invalid parameters in feedback form and check it doesn’t crash", %{conn: conn} do
+    feedback_count = DB.Feedback |> DB.Repo.aggregate(:count, :id)
+
     {:ok, view, _html} =
       live_isolated(conn, TransportWeb.Live.FeedbackLive,
         session: %{"feature" => "on-demand-validation", "locale" => "fr", "csp_nonce_value" => Ecto.UUID.generate()}
@@ -88,10 +90,10 @@ defmodule TransportWeb.FeedbackLiveTest do
       end)
 
     assert view =~ "Il y a eu une erreur réessayez."
-
     assert logs =~ "Bad parameters for feedback"
-
     assert_no_email_sent()
+    # Nothing should have been inserted in the database
+    assert feedback_count == DB.Feedback |> DB.Repo.aggregate(:count, :id)
   end
 
   test "Is correctly included in the validation Liveview", %{conn: conn} do
