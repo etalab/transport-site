@@ -66,14 +66,12 @@ defmodule TransportWeb.FeedbackLiveTest do
       reply_to: "contact@transport.data.gouv.fr"
     )
 
-    assert %DB.Feedback{rating: :like, explanation: "so useful for my GTFS files", feature: :"on-demand-validation", email: nil} = DB.Feedback |> Ecto.Query.last() |> DB.Repo.one()
-
-    assert {feedback.rating, feedback.explanation, feedback.feature, feedback.email} == {
-             :like,
-             "so useful for my GTFS files",
-             :"on-demand-validation",
-             nil
-           }
+    assert %DB.Feedback{
+             rating: :like,
+             explanation: "so useful for my GTFS files",
+             feature: :"on-demand-validation",
+             email: nil
+           } = DB.Feedback |> Ecto.Query.last() |> DB.Repo.one()
   end
 
   test "Post invalid parameters in feedback form and check it doesn’t crash", %{conn: conn} do
