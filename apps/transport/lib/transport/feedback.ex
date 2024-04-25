@@ -31,6 +31,7 @@ defmodule DB.Feedback do
     |> sanitize_inputs([:explanation, :email])
     |> validate_format(:email, ~r/@/)
     |> lowercase_email()
+    |> validate_length(:explanation, max: 10_000)
   end
 
   @spec features() :: [atom()]

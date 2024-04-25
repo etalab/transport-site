@@ -4,7 +4,7 @@ defmodule Transport.Repo.Migrations.CreateFeedback do
   def change do
     create table(:feedback) do
       add(:rating, :string, null: false)
-      add(:explanation, :string, null: false)
+      add(:explanation, :text, null: false)
       add(:email, :binary)
       add(:feature, :string, null: false)
 
