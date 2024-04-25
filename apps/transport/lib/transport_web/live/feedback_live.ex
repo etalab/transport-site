@@ -53,7 +53,7 @@ defmodule TransportWeb.Live.FeedbackLive do
     changeset = %DB.Feedback{} |> DB.Feedback.changeset(feedback_params)
 
     with {:ok, feedback} <- DB.Repo.insert(changeset),
-         {:ok, _} <- deliver_mail(feedback, feature) do
+         {:ok, _} <- deliver_mail(feedback) do
       {:noreply, socket |> assign(:feedback_sent, true)}
     else
       _error ->
@@ -66,8 +66,11 @@ defmodule TransportWeb.Live.FeedbackLive do
     {:noreply, socket |> assign(:feedback_error, true)}
   end
 
-  defp deliver_mail(feedback, feature) do
-    feedback_email = TransportWeb.ContactEmail.feedback(feedback.rating, feedback.explanation, feedback.email, feature)
+  @spec deliver_mail(DB.Feedback.t()) :: {:ok, term} | {:error, term}
+  defp deliver_mail(feedback) do
+    feedback_email =
+      TransportWeb.ContactEmail.feedback(feedback.rating, feedback.explanation, feedback.email, feedback.feature)
+
     Transport.Mailer.deliver(feedback_email)
   end
 end
