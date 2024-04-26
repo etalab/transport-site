@@ -50,6 +50,7 @@ defmodule Unlock.Config do
       |> Map.put_new("ttl", 10)
       |> convert_yaml_item_to_struct()
     end
+
     def convert_yaml_item_to_struct(%{"type" => "aggregate"} = item) do
       %Item.Aggregate{
         identifier: Map.fetch!(item, "identifier"),
