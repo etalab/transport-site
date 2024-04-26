@@ -106,7 +106,7 @@ defmodule DB.NotificationSubscription do
   iex> platform_wide_reasons(:reuser) != platform_wide_reasons(:producer)
   true
   iex> platform_wide_reasons(:producer)
-  []
+  [:new_dataset, :datasets_switching_climate_resilience_bill, :daily_new_comments]
   iex> platform_wide_reasons(:reuser)
   [:new_dataset, :daily_new_comments]
   """
@@ -115,7 +115,7 @@ defmodule DB.NotificationSubscription do
     Enum.reject(platform_wide_reasons(), &(&1 == reason(:datasets_switching_climate_resilience_bill)))
   end
 
-  def platform_wide_reasons(:producer), do: []
+  def platform_wide_reasons(:producer), do: @platform_wide_reasons
 
   @spec possible_reasons :: [reason()]
   def possible_reasons, do: @all_reasons
@@ -171,7 +171,7 @@ defmodule DB.NotificationSubscription do
       [notification_subscription: ns],
       ns.role == :producer and
         ns.dataset_id in ^dataset_ids and
-        ns.reason in reasons_related_to_datasets(:producer)
+        ns.reason in ^reasons_related_to_datasets(:producer)
     )
     |> DB.Repo.all()
     # transport.data.gouv.fr's members who are subscribed as "producers" shouldn't be included.
