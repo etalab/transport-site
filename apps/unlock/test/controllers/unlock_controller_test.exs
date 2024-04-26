@@ -516,24 +516,32 @@ defmodule Unlock.ControllerTest do
       "etat_prise_type_ef" => "xyz"
     }
 
-    test "handles GET /resource/:slug" do
-      slug = "an-existing-aggregate-identifier"
-
+    def setup_aggregate_proxy_config(slug) do
       setup_proxy_config(%{
         slug => %Unlock.Config.Item.Aggregate{
           identifier: slug,
           feeds: [
-            %{
-              "identifier" => "first-remote",
-              "target_url" => url = "http://localhost:1234"
+            %Unlock.Config.Item.Generic.HTTP{
+              identifier: "first-remote",
+              target_url: url = "http://localhost:1234",
+              ttl: 10
             },
-            %{
-              "identifier" => "second-remote",
-              "target_url" => second_url = "http://localhost:5678"
+            %Unlock.Config.Item.Generic.HTTP{
+              identifier: "second-remote",
+              target_url: second_url = "http://localhost:5678",
+              ttl: 10
             }
           ]
         }
       })
+
+      {url, second_url}
+    end
+
+    test "handles GET /resource/:slug" do
+      slug = "an-existing-aggregate-identifier"
+
+      {url, second_url} = setup_aggregate_proxy_config(slug)
 
       # Processing is concurrent and while the output is "ordered" by design, the requests
       # are not guaranteed to come in the right order, so we have to cheat a bit here.
@@ -583,21 +591,7 @@ defmodule Unlock.ControllerTest do
     test "does not block the whole consolidated feed when one sub-feed generates a technical error" do
       slug = "an-existing-aggregate-identifier"
 
-      setup_proxy_config(%{
-        slug => %Unlock.Config.Item.Aggregate{
-          identifier: slug,
-          feeds: [
-            %{
-              "identifier" => "first-remote",
-              "target_url" => url = "http://localhost:1234"
-            },
-            %{
-              "identifier" => "second-remote",
-              "target_url" => second_url = "http://localhost:5678"
-            }
-          ]
-        }
-      })
+      {url, second_url} = setup_aggregate_proxy_config(slug)
 
       responses = %{
         url => {200, Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")},
@@ -646,21 +640,7 @@ defmodule Unlock.ControllerTest do
     test "hides a non-200 feed from the output without polluting 200 feeds" do
       slug = "an-existing-aggregate-identifier"
 
-      setup_proxy_config(%{
-        slug => %Unlock.Config.Item.Aggregate{
-          identifier: slug,
-          feeds: [
-            %{
-              "identifier" => "first-remote",
-              "target_url" => url = "http://localhost:1234"
-            },
-            %{
-              "identifier" => "second-remote",
-              "target_url" => second_url = "http://localhost:5678"
-            }
-          ]
-        }
-      })
+      {url, second_url} = setup_aggregate_proxy_config(slug)
 
       responses = %{
         url => {200, Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")},
