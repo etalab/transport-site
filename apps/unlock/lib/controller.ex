@@ -16,14 +16,6 @@ defmodule Unlock.Controller do
   require Logger
   import Unlock.GunzipTools
 
-  defmodule ProxyCacheEntry do
-    @moduledoc """
-    The structure we use to persist HTTP responses we got from the remote servers.
-    """
-    @enforce_keys [:body, :headers, :status]
-    defstruct [:body, :headers, :status]
-  end
-
   def index(conn, _params) do
     text(conn, "Unlock Proxy")
   end
