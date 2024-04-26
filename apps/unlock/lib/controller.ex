@@ -53,12 +53,6 @@ defmodule Unlock.Controller do
       |> send_resp(500, "Internal Error")
   end
 
-  # We put a hard limit on what can be cached, and otherwise will just
-  # send back without caching. This means the remote server is less protected
-  # temporarily, but also that we do not blow up our whole architecture due to
-  # RAM consumption
-  @max_allowed_cached_byte_size 20 * 1024 * 1024
-
   # In particular, it can be desirable to let the config override "content-disposition"
   # to specify a filename (in the case of IRVE data for instance, which is CSV and most
   # users expect it to download as a file, contrary to other formats)
@@ -155,25 +149,13 @@ defmodule Unlock.Controller do
     |> send_resp(response.status, body)
   end
 
-  def fetch_data(%Unlock.Config.Item.Generic.HTTP{} = item) do
-    response = Unlock.HTTP.Client.impl().get!(item.target_url, item.request_headers)
-    size = byte_size(response.body)
-
-    if size > @max_allowed_cached_byte_size do
-      Logger.warning("Payload is too large (#{size} bytes > #{@max_allowed_cached_byte_size}). Skipping cache.")
-      {:ignore, response}
-    else
-      {:commit, response, ttl: :timer.seconds(item.ttl)}
-    end
-  end
-
   defp fetch_remote(%Unlock.Config.Item.Generic.HTTP{} = item) do
     comp_fn = fn _key ->
       Logger.info("Processing proxy request for identifier #{item.identifier}")
 
       try do
         Unlock.Telemetry.trace_request(item.identifier, :internal)
-        fetch_data(item)
+        Unlock.CachedFetch.fetch_data(item)
       rescue
         e ->
           # NOTE: if an error occurs around the HTTP query, then
