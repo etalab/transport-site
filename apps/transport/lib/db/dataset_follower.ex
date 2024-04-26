@@ -15,6 +15,8 @@ defmodule DB.DatasetFollower do
     timestamps(type: :utc_datetime_usec)
   end
 
+  def base_query, do: from(df in __MODULE__, as: :dataset_follower)
+
   def changeset(%__MODULE__{} = struct, attrs \\ %{}) do
     struct
     |> cast(attrs, [:dataset_id, :contact_id, :source])
