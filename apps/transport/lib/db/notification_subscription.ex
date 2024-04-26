@@ -74,13 +74,14 @@ defmodule DB.NotificationSubscription do
     |> unique_constraint([:contact_id, :dataset_id, :reason],
       name: :notification_subscription_contact_id_dataset_id_reason_index
     )
+    |> validate_reason_by_role_and_dataset_presence()
   end
 
   defp maybe_assoc_constraint_dataset(%Ecto.Changeset{} = changeset) do
-    if get_field(changeset, :reason) in (reasons_related_to_datasets() ++ @hidden_reasons_related_to_datasets) do
-      changeset |> validate_required(:dataset_id) |> assoc_constraint(:dataset)
+    if get_field(changeset, :dataset_id) do
+      changeset |> assoc_constraint(:dataset)
     else
-      changeset |> validate_inclusion(:dataset_id, [nil])
+      changeset
     end
   end
 
@@ -228,5 +229,26 @@ defmodule DB.NotificationSubscription do
       },
       reason
     )
+  end
+
+  defp validate_reason_by_role_and_dataset_presence(changeset) do
+    role = get_field(changeset, :role)
+    reason = get_field(changeset, :reason)
+    dataset_id = get_field(changeset, :dataset_id)
+
+    valid_reasons =
+      case {role, dataset_id} do
+        {:producer, nil} -> @platform_wide_reasons ++ @hidden_platform_wide_reasons
+        {:producer, _} -> @reasons_related_to_datasets
+        {:reuser, nil} -> @platform_wide_reasons
+        {:reuser, _} -> @reasons_related_to_datasets ++ @hidden_reasons_related_to_datasets
+        _ -> @all_reasons
+      end
+
+    if reason in valid_reasons do
+      changeset
+    else
+      add_error(changeset, :reason, "is not valid for the given role and dataset presence")
+    end
   end
 end

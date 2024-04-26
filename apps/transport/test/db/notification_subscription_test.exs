@@ -32,16 +32,6 @@ defmodule DB.NotificationSubscriptionTest do
                dataset_id: dataset.id
              })
 
-    # `dataset_id` can't be blank and should exist if the `reason` is related to a dataset
-    assert %Ecto.Changeset{valid?: false, errors: [dataset_id: {"can't be blank", [validation: :required]}]} =
-             changeset.(%{
-               source: :admin,
-               role: :producer,
-               reason: :expiration,
-               contact_id: contact.id,
-               dataset_id: nil
-             })
-
     assert {:error, %Ecto.Changeset{valid?: false, errors: [dataset: {"does not exist", _}]}} =
              %{
                source: :admin,
@@ -79,6 +69,33 @@ defmodule DB.NotificationSubscriptionTest do
                source: :foo,
                reason: :datasets_switching_climate_resilience_bill,
                contact_id: contact.id
+             })
+
+    # Some reasons can’t be possible depending on dataset presence or role
+    assert %Ecto.Changeset{
+             valid?: false,
+             errors: [
+               {:reason, {"is not valid for the given role and dataset presence", []}}
+             ]
+           } =
+             changeset.(%{
+               role: :producer,
+               source: :admin,
+               reason: :resources_changed,
+               contact_id: contact.id,
+               dataset_id: dataset.id
+             })
+
+    assert %Ecto.Changeset{
+             valid?: false,
+             errors: [reason: {"is not valid for the given role and dataset presence", []}]
+           } =
+             changeset.(%{
+               source: :admin,
+               role: :producer,
+               reason: :expiration,
+               contact_id: contact.id,
+               dataset_id: nil
              })
   end
 end
