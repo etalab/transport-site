@@ -168,7 +168,9 @@ defmodule DB.NotificationSubscription do
     |> preload(:contact)
     |> where(
       [notification_subscription: ns],
-      ns.role == :producer and ns.dataset_id in ^dataset_ids
+      ns.role == :producer and
+        ns.dataset_id in ^dataset_ids and
+        ns.reason in @reasons_related_to_datasets
     )
     |> DB.Repo.all()
     # transport.data.gouv.fr's members who are subscribed as "producers" shouldn't be included.
