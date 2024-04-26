@@ -16,14 +16,16 @@ defmodule TransportWeb.Live.FeedbackLive do
 
   def mount(_params, %{"feature" => feature, "locale" => locale, "csp_nonce_value" => nonce} = session, socket)
       when feature in @feedback_features do
-    current_email = session |> get_in(["current_user", "email"])
-    form = %DB.UserFeedback{} |> DB.UserFeedback.changeset(%{email: current_email, feature: feature}) |> to_form()
+    current_user_email = session |> get_in(["current_user", "email"])
+    current_user_id = session |> get_in(["current_user", "id"])
+    form = %DB.UserFeedback{} |> DB.UserFeedback.changeset(%{email: current_user_email, feature: feature}) |> to_form()
 
     socket =
       socket
       |> assign(
         nonce: nonce,
         form: form,
+        current_user_id: current_user_id,
         feedback_sent: false,
         feedback_error: false
       )
@@ -51,6 +53,7 @@ defmodule TransportWeb.Live.FeedbackLive do
       )
       when rating in @feedback_rating_values and feature in @feedback_features do
     changeset = %DB.UserFeedback{} |> DB.UserFeedback.changeset(feedback_params)
+    changeset = changeset |> DB.UserFeedback.assoc_contact_from_user_id(socket.assigns.current_user_id)
 
     with {:ok, feedback} <- DB.Repo.insert(changeset),
          {:ok, _} <- deliver_mail(feedback) do

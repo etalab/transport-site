@@ -20,6 +20,7 @@ defmodule DB.UserFeedback do
     field(:explanation, :string)
     field(:feature, Ecto.Enum, values: @features)
     field(:rating, Ecto.Enum, values: @ratings)
+    belongs_to(:contact, DB.Contact)
 
     timestamps(type: :utc_datetime_usec)
   end
@@ -39,6 +40,17 @@ defmodule DB.UserFeedback do
 
   @spec ratings() :: [atom()]
   def ratings, do: @ratings
+
+  def assoc_contact_from_user_id(changeset, user_id) do
+    case user_id do
+      nil ->
+        changeset
+
+      _ ->
+        current_contact = DB.Repo.get_by!(DB.Contact, datagouv_user_id: user_id)
+        changeset |> Ecto.Changeset.put_assoc(:contact, current_contact)
+    end
+  end
 
   defp sanitize_inputs(%Ecto.Changeset{} = changeset, keys) do
     Enum.reduce(keys, changeset, fn key, acc -> sanitize_field(acc, key) end)
