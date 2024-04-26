@@ -47,10 +47,10 @@ defmodule Unlock.AggregateProcessor do
     |> NimbleCSV.RFC4180.dump_to_iodata()
   end
 
-  def process_sub_item(item, %{"identifier" => origin} = sub_item, options) do
+  def process_sub_item(item, %{identifier: origin} = sub_item, options) do
     Unlock.Telemetry.trace_request(item.identifier <> ":" <> origin, :internal)
-    Logger.debug("Fetching aggregated sub-item #{origin} at #{sub_item["target_url"]}")
-    %{status: status, body: body} = get_with_maybe_redirect(sub_item |> Map.fetch!("target_url"))
+    Logger.debug("Fetching aggregated sub-item #{origin} at #{sub_item.target_url}")
+    %{status: status, body: body} = get_with_maybe_redirect(sub_item.target_url)
     Logger.debug("#{origin} responded with HTTP code #{status} (#{body |> byte_size} bytes)")
 
     if status == 200 do
