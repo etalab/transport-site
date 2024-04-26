@@ -24,10 +24,21 @@ defmodule Unlock.AggregateProcessor do
         &process_sub_item(item, &1, options),
         max_concurrency: 10,
         # this is the default, but highlighted for maintenance clarity
-        ordered: true
-        # TODO: handle timeouts here (log + "no op")
+        ordered: true,
+        # only kill the relevant sub-task, not the whole processing
+        on_timeout: :kill_task,
+        # make sure to pass the sub-item to the exit (used for logging)
+        zip_input_on_exit: true
       )
-      |> Stream.map(fn {:ok, stream} -> stream end)
+      |> Stream.map(fn
+        {:ok, stream} ->
+          stream
+
+        {:exit, {sub_item, :timeout}} ->
+          # NOTE: this codepath is not tested at the moment
+          Logger.warning("Timeout for #{sub_item["identifier"]}, response has been dropped")
+          []
+      end)
       |> Stream.concat()
 
     [headers]

@@ -701,6 +701,7 @@ defmodule Unlock.ControllerTest do
     end
 
     # TODO: test remote 500, remote 404, remote 302, technical error, remote content type
+    # TODO: test time-out (specific code path with Elixir 1.14+ features)
     # TODO: status, caching/TTL of main feed, "limit" mode, source tracing via extra column
   end
 
