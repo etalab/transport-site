@@ -33,7 +33,6 @@ defmodule Unlock.Config do
     """
     @enforce_keys [:identifier, :feeds]
 
-    # NOTE: feeds are just maps with `identifier` and `target_url` at the moment.
     defstruct [:identifier, :feeds, :ttl]
   end
 
@@ -44,11 +43,17 @@ defmodule Unlock.Config do
     @callback fetch_config!() :: list(Item)
     @callback clear_config_cache!() :: any
 
+    def convert_aggregate_sub_item(sub_item) do
+      sub_item
+      |> Map.put("type", "generic-http")
+      # Use a default 10-second TTL for sub-feeeds, unless specified in the config
+      |> Map.put_new("ttl", 10)
+      |> convert_yaml_item_to_struct()
+    end
     def convert_yaml_item_to_struct(%{"type" => "aggregate"} = item) do
       %Item.Aggregate{
         identifier: Map.fetch!(item, "identifier"),
-        # PROBABLY: use stronger typing for each feed, and decide if I want to reuse existing code paths or not
-        feeds: Map.fetch!(item, "feeds"),
+        feeds: item |> Map.fetch!("feeds") |> Enum.map(&convert_aggregate_sub_item(&1)),
         ttl: Map.get(item, "ttl", 10)
       }
     end
