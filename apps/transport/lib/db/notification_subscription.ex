@@ -171,7 +171,7 @@ defmodule DB.NotificationSubscription do
       [notification_subscription: ns],
       ns.role == :producer and
         ns.dataset_id in ^dataset_ids and
-        ns.reason in @reasons_related_to_datasets
+        ns.reason in reasons_related_to_datasets(:producer)
     )
     |> DB.Repo.all()
     # transport.data.gouv.fr's members who are subscribed as "producers" shouldn't be included.
@@ -238,10 +238,10 @@ defmodule DB.NotificationSubscription do
 
     valid_reasons =
       case {role, dataset_id} do
-        {:producer, nil} -> @platform_wide_reasons ++ @hidden_platform_wide_reasons
-        {:producer, _} -> @reasons_related_to_datasets
-        {:reuser, nil} -> @platform_wide_reasons
-        {:reuser, _} -> @reasons_related_to_datasets ++ @hidden_reasons_related_to_datasets
+        {:producer, nil} -> platform_wide_reasons(:producer) ++ [:periodic_reminder_producers]
+        {:producer, _id} -> reasons_related_to_datasets(:producer)
+        {:reuser, nil} -> platform_wide_reasons(:reuser)
+        {:reuser, _id} -> reasons_related_to_datasets(:reuser)
         _ -> @all_reasons
       end
 
