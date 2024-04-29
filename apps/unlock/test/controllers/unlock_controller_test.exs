@@ -632,7 +632,7 @@ defmodule Unlock.ControllerTest do
                            %{target: "proxy:an-existing-aggregate-identifier:second-remote"}}
         end)
 
-      assert logs =~ ~r|Error occurred during processing origin second-remote (.*) response has been dropped|
+      assert logs =~ ~r|Non-200 response for origin second-remote, response has been dropped|
 
       verify!(Unlock.HTTP.Client.Mock)
     end

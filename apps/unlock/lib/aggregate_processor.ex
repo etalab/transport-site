@@ -8,7 +8,7 @@ defmodule Unlock.AggregateProcessor do
 
   @schema_fields Unlock.DynamicIRVESchema.build_schema_fields_list()
 
-  def process_resource(item, options \\ []) do
+  def process_resource(%Unlock.Config.Item.Aggregate{} = item, options \\ []) do
     options =
       Keyword.validate!(options, [
         :limit_per_source,
@@ -47,10 +47,45 @@ defmodule Unlock.AggregateProcessor do
     |> NimbleCSV.RFC4180.dump_to_iodata()
   end
 
+  def cached_fetch(item, %Unlock.Config.Item.Generic.HTTP{identifier: origin} = sub_item) do
+    comp_fn = fn _key ->
+      get_function = fn i -> get_with_maybe_redirect(i.target_url) end
+      Unlock.CachedFetch.fetch_data(sub_item, get_function)
+    end
+
+    cache_name = Unlock.Shared.cache_name()
+    cache_key = Unlock.Shared.cache_key(item.identifier, origin)
+    outcome = Cachex.fetch(cache_name, cache_key, comp_fn)
+
+    case outcome do
+      {:ok, result} ->
+        Logger.info("Proxy response for #{item.identifier}:#{origin} served from cache")
+        result
+
+      {:commit, result, _options} ->
+        result
+
+      {:ignore, result} ->
+        # Too large - not expected to occur in nominal circumstances
+        Logger.info("Cache has been skipped for proxy response")
+        result
+
+      {:error, _error} ->
+        # NOTE: we'll want to have some monitoring here, but not using Sentry
+        # because in case of troubles, we will blow up our quota.
+        Logger.error("Error while fetching key #{cache_key}")
+        # Bad gateway - which will be processed upstream
+        %Unlock.HTTP.Response{status: 502, body: "", headers: []}
+    end
+  end
+
   def process_sub_item(item, %{identifier: origin} = sub_item, options) do
     Unlock.Telemetry.trace_request(item.identifier <> ":" <> origin, :internal)
     Logger.debug("Fetching aggregated sub-item #{origin} at #{sub_item.target_url}")
-    %{status: status, body: body} = get_with_maybe_redirect(sub_item.target_url)
+
+    %{status: status, body: body} =
+      cached_fetch(item, %Unlock.Config.Item.Generic.HTTP{identifier: origin} = sub_item)
+
     Logger.debug("#{origin} responded with HTTP code #{status} (#{body |> byte_size} bytes)")
 
     if status == 200 do
