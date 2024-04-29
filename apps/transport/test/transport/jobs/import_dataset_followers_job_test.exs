@@ -30,7 +30,7 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetFollowersJobTest do
     setup_http_responses([
       {
         dataset,
-        # Should only create a row for `contact`:
+        # Should only create a DatasetFollower row for `contact`:
         # - 2nd follower is not a known contact
         # - `contact_producer` is a member of the dataset organization and we don't create rows for producers
         %{

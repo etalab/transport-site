@@ -7,7 +7,7 @@ defmodule Transport.Jobs.ImportDatasetFollowersJob do
 
   We clean up contacts following datasets for which they are a producer
   at the beginning of the job to handle:
-  - contacts leaving organizations
+  - contacts joining organizations
   - previous bad states.
   """
   use Oban.Worker, max_attempts: 3
