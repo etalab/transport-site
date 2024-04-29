@@ -171,7 +171,7 @@
 <section class="section section-white">
   <%= live_render(@socket, TransportWeb.Live.FeedbackLive,
     id: "feedback-form",
-    session: %{"feature" => "on-demand-validation"}
+    session: %{"feature" => "on_demand_validation"}
   ) %>
 </section>
 <script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>
