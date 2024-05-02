@@ -18,6 +18,7 @@ defmodule TransportWeb.DiscussionsLive do
             "discussion"
           )
         )
+        if (location.hash) location.href = location.hash;
       })
     </script>
 
