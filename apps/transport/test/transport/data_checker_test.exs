@@ -268,7 +268,7 @@ defmodule Transport.DataCheckerTest do
 
       insert(:notification_subscription, %{
         reason: :expiration,
-        source: :admin,
+        source: :user,
         role: :reuser,
         contact_id: reuser_id,
         dataset_id: dataset.id
@@ -371,8 +371,8 @@ defmodule Transport.DataCheckerTest do
 
       insert(:notification_subscription, %{
         reason: :new_dataset,
-        source: :admin,
-        role: :producer,
+        source: :user,
+        role: :reuser,
         contact_id: contact_id
       })
 
@@ -413,7 +413,7 @@ defmodule Transport.DataCheckerTest do
     test "with no subscriptions from producers" do
       insert(:notification_subscription, %{
         reason: :expiration,
-        source: :admin,
+        source: :user,
         role: :reuser,
         contact: insert_contact(),
         dataset: dataset = insert(:dataset)

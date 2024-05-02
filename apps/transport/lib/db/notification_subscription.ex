@@ -119,22 +119,6 @@ defmodule DB.NotificationSubscription do
   @spec possible_reasons :: [reason()]
   def possible_reasons, do: @all_reasons
 
-  @spec subscriptions_for_reason(atom()) :: [__MODULE__.t()]
-  def subscriptions_for_reason(reason) do
-    base_query()
-    |> preload([:contact])
-    |> where([notification_subscription: ns], ns.reason == ^reason and is_nil(ns.dataset_id))
-    |> DB.Repo.all()
-  end
-
-  @spec subscriptions_for_reason(atom(), DB.Dataset.t()) :: [__MODULE__.t()]
-  def subscriptions_for_reason(reason, %DB.Dataset{id: dataset_id}) do
-    base_query()
-    |> preload([:contact])
-    |> where([notification_subscription: ns], ns.reason == ^reason and ns.dataset_id == ^dataset_id)
-    |> DB.Repo.all()
-  end
-
   @spec subscriptions_for_reason_dataset_and_role(atom(), DB.Dataset.t(), role()) :: [__MODULE__.t()]
   def subscriptions_for_reason_dataset_and_role(reason, %DB.Dataset{id: dataset_id}, role)
       when role in @possible_roles do
