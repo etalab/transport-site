@@ -56,14 +56,9 @@ defmodule TransportWeb.ContactEmail do
   end
 
   def feedback(rating, explanation, email, feature) do
-    rating_t = %{"like" => "j’aime", "neutral" => "neutre", "dislike" => "mécontent"}
+    rating_t = %{like: "j’aime", neutral: "neutre", dislike: "mécontent"}
 
-    reply_email =
-      if email == "" do
-        Application.fetch_env!(:transport, :contact_email)
-      else
-        email
-      end
+    reply_email = if email, do: email, else: Application.fetch_env!(:transport, :contact_email)
 
     feedback_content = """
     Vous avez un nouvel avis sur le PAN.
