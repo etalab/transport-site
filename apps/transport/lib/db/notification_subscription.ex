@@ -323,9 +323,10 @@ defmodule DB.NotificationSubscription do
   defp validate_reason_is_allowed_for_subscriptions(changeset) do
     reason = get_field(changeset, :reason)
 
-    case get_in(@reasons_rules, [reason, :disallow_subscription]) do
-      true -> add_error(changeset, :reason, "is not allowed for subscription")
-      _ -> changeset
+    if reason in subscribable_reasons() do
+      changeset
+    else
+      add_error(changeset, :reason, "is not allowed for subscription")
     end
   end
 
@@ -333,11 +334,10 @@ defmodule DB.NotificationSubscription do
     role = get_field(changeset, :role)
     reason = get_field(changeset, :reason)
 
-    with possible_roles <- get_in(@reasons_rules, [reason, :possible_roles]),
-         true <- Enum.member?(possible_roles, role) do
+    if reason in reasons_for_role(role) do
       changeset
     else
-      _ -> add_error(changeset, :reason, "is not allowed for the given role")
+      add_error(changeset, :reason, "is not allowed for the given role")
     end
   end
 
@@ -345,10 +345,10 @@ defmodule DB.NotificationSubscription do
     reason = get_field(changeset, :reason)
     dataset_id = get_field(changeset, :dataset_id)
 
-    case get_in(@reasons_rules, [reason, :scope]) do
-      :dataset when dataset_id != nil -> changeset
-      :platform when dataset_id == nil -> changeset
-      _ -> add_error(changeset, :reason, "is not allowed for the given dataset presence")
+    cond do
+      dataset_id == nil && reason in platform_wide_reasons() -> changeset
+      dataset_id != nil && reason in reasons_related_to_datasets() -> changeset
+      true -> add_error(changeset, :reason, "is not allowed for the given dataset presence")
     end
   end
 end
