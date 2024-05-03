@@ -155,14 +155,6 @@ defmodule DB.NotificationSubscription do
     |> DB.Repo.all()
   end
 
-  @spec subscriptions_for_dataset(DB.Dataset.t()) :: [__MODULE__.t()]
-  def subscriptions_for_dataset(%DB.Dataset{id: dataset_id}) do
-    base_query()
-    |> preload([:contact])
-    |> where([notification_subscription: ns], ns.dataset_id == ^dataset_id)
-    |> DB.Repo.all()
-  end
-
   def producer_subscriptions_for_datasets(dataset_ids, contact_id) do
     DB.NotificationSubscription.base_query()
     |> preload(:contact)
