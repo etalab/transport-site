@@ -66,7 +66,7 @@ defmodule DB.NotificationSubscriptionTest do
     assert %Ecto.Changeset{
              valid?: false,
              errors: [
-               reason: {"is not valid for the given role and dataset presence", _},
+               reason: {"is not allowed for the given role", _},
                source: {"is invalid", _},
                role: {"is invalid", _}
              ]
@@ -82,7 +82,7 @@ defmodule DB.NotificationSubscriptionTest do
     assert %Ecto.Changeset{
              valid?: false,
              errors: [
-               {:reason, {"is not valid for the given role and dataset presence", []}}
+               {:reason, {"is not allowed for the given role", _}}
              ]
            } =
              changeset.(%{
@@ -95,7 +95,7 @@ defmodule DB.NotificationSubscriptionTest do
 
     assert %Ecto.Changeset{
              valid?: false,
-             errors: [reason: {"is not valid for the given role and dataset presence", []}]
+             errors: [reason: {"is not allowed for the given dataset presence", _}]
            } =
              changeset.(%{
                source: :admin,
@@ -104,5 +104,18 @@ defmodule DB.NotificationSubscriptionTest do
                contact_id: contact.id,
                dataset_id: nil
              })
+
+      # Some reasons are only there to create individual notifications and are not allowed as subscriptions
+      assert %Ecto.Changeset{
+      valid?: false,
+      errors: [reason: {"is not allowed for subscription", _}]
+    } =
+      changeset.(%{
+        source: :admin,
+        role: :producer,
+        reason: :periodic_reminder_producers,
+        contact_id: contact.id,
+        dataset_id: nil
+      })
   end
 end

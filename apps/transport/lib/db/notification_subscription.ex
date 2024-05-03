@@ -38,11 +38,6 @@ defmodule DB.NotificationSubscription do
       scope: :dataset,
       possible_roles: [:producer, :reuser]
     },
-    dataset_now_on_nap: %{
-      scope: :dataset,
-      possible_roles: [:producer],
-      disallow_subscription: true
-    },
     resources_changed: %{
       scope: :dataset,
       possible_roles: [:reuser]
@@ -58,6 +53,11 @@ defmodule DB.NotificationSubscription do
     daily_new_comments: %{
       scope: :platform,
       possible_roles: [:producer, :reuser]
+    },
+    dataset_now_on_nap: %{
+      scope: :dataset,
+      possible_roles: [:producer],
+      disallow_subscription: true
     },
     periodic_reminder_producers: %{
       scope: :platform,
@@ -116,7 +116,8 @@ defmodule DB.NotificationSubscription do
       name: :notification_subscription_contact_id_dataset_id_reason_index
     )
     |> validate_reason_is_allowed_for_subscriptions()
-    |> validate_reason_by_role_and_scope()
+    |> validate_reason_by_role()
+    |> validate_reason_by_scope()
   end
 
   defp maybe_assoc_constraint_dataset(%Ecto.Changeset{} = changeset) do
@@ -282,21 +283,26 @@ defmodule DB.NotificationSubscription do
     end
   end
 
-  defp validate_reason_by_role_and_scope(changeset) do
+  defp validate_reason_by_role(changeset) do
     role = get_field(changeset, :role)
+    reason = get_field(changeset, :reason)
+
+    with possible_roles <- get_in(@reasons_rules, [reason, :possible_roles]),
+    true <- Enum.member?(possible_roles, role) do
+      changeset
+    else
+      _ -> add_error(changeset, :reason, "is not allowed for the given role")
+    end
+  end
+
+  defp validate_reason_by_scope(changeset) do
     reason = get_field(changeset, :reason)
     dataset_id = get_field(changeset, :dataset_id)
 
-    with {:ok, reason_rule} <- Map.fetch(@reasons_rules, reason),
-         true <- Enum.member?(reason_rule.possible_roles, role),
-         true <-
-           (case reason_rule.scope do
-              :dataset -> dataset_id != nil
-              :platform -> dataset_id == nil
-            end) do
-      changeset
-    else
-      _ -> add_error(changeset, :reason, "is not valid for the given role and dataset presence")
+    case get_in(@reasons_rules, [reason, :scope]) do
+      :dataset when dataset_id != nil -> changeset
+      :platform when dataset_id == nil -> changeset
+      _ -> add_error(changeset, :reason, "is not allowed for the given dataset presence")
     end
   end
 end
