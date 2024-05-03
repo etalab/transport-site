@@ -7,23 +7,13 @@ defmodule DB.NotificationSubscription do
   import Ecto.{Changeset, Query}
   import TransportWeb.Gettext, only: [dgettext: 2]
 
-  # These notification reasons are required to have a `dataset_id` set
-  @reasons_related_to_datasets [:expiration, :dataset_with_error, :resource_unavailable]
-  # These notification reasons are also required to have a `dataset_id` set
-  # but are not made visible to users
-  @hidden_reasons_related_to_datasets [:dataset_now_on_nap, :resources_changed]
-  # These notification reasons are *not* linked to a specific dataset, `dataset_id` should be nil
-  @platform_wide_reasons [:new_dataset, :datasets_switching_climate_resilience_bill, :daily_new_comments]
-  # These notifications should not be linked to a dataset and should be hidden from users: they
-  # should not be able to subscribe to these reasons.
-  @hidden_platform_wide_reasons [:periodic_reminder_producers]
-
-  @all_reasons @reasons_related_to_datasets ++
-                 @platform_wide_reasons ++
-                 @hidden_reasons_related_to_datasets ++
-                 @hidden_platform_wide_reasons
-
   @possible_roles [:producer, :reuser]
+
+  # Rules explanations for reasons:
+  # Reasons are scoped either to a specific dataset or to the platform.
+  # (In some cases for reusers, «platform» means scoped to followed datasets, not all datasets.)
+  # Reasons can be subscribed to by either producers or reusers.
+  # Some reasons are only there to create individual notifications and are not allowed as subscriptions, see `disallow_subscription`.
 
   @reasons_rules %{
     expiration: %{
@@ -48,7 +38,7 @@ defmodule DB.NotificationSubscription do
     },
     datasets_switching_climate_resilience_bill: %{
       scope: :platform,
-      possible_roles: [:producer, :reuser]
+      possible_roles: [:producer]
     },
     daily_new_comments: %{
       scope: :platform,
@@ -65,6 +55,8 @@ defmodule DB.NotificationSubscription do
       disallow_subscription: true
     }
   }
+
+  @all_reasons @reasons_rules |> Map.keys()
 
   # https://elixirforum.com/t/using-module-attributes-in-typespec-definitions-to-reduce-duplication/42374/2
   types = Enum.reduce(@possible_roles, &{:|, [], [&1, &2]})
@@ -128,40 +120,94 @@ defmodule DB.NotificationSubscription do
     end
   end
 
-  @spec reasons_related_to_datasets :: [reason()]
-  def reasons_related_to_datasets, do: @reasons_related_to_datasets
-
-  @doc """
-  iex> reasons_related_to_datasets(:reuser) != reasons_related_to_datasets(:producer)
-  true
-  """
-  @spec reasons_related_to_datasets(role()) :: [reason()]
-  def reasons_related_to_datasets(:reuser) do
-    reasons_related_to_datasets() ++ [reason(:resources_changed)]
-  end
-
-  def reasons_related_to_datasets(:producer), do: reasons_related_to_datasets()
-
-  @spec platform_wide_reasons :: [reason()]
-  def platform_wide_reasons, do: @platform_wide_reasons
-
-  @doc """
-  iex> platform_wide_reasons(:reuser) != platform_wide_reasons(:producer)
-  true
-  iex> platform_wide_reasons(:producer)
-  [:new_dataset, :datasets_switching_climate_resilience_bill, :daily_new_comments]
-  iex> platform_wide_reasons(:reuser)
-  [:new_dataset, :daily_new_comments]
-  """
-  @spec platform_wide_reasons(role()) :: [reason()]
-  def platform_wide_reasons(:reuser) do
-    Enum.reject(platform_wide_reasons(), &(&1 == reason(:datasets_switching_climate_resilience_bill)))
-  end
-
-  def platform_wide_reasons(:producer), do: @platform_wide_reasons
-
   @spec possible_reasons :: [reason()]
   def possible_reasons, do: @all_reasons
+
+  @doc """
+  iex > @subscribable_reasons
+  [:expiration, :dataset_with_error, :resource_unavailable, :resources_changed, :new_dataset, :datasets_switching_climate_resilience_bill, :daily_new_comments]
+  """
+  @spec subscribable_reasons :: [reason()]
+  def subscribable_reasons do
+    @reasons_rules
+    |> Map.filter(fn
+      {_, %{disallow_subscription: true}} -> false
+      _ -> true
+    end)
+    |> Map.keys()
+  end
+
+  def non_subscribable_reasons do
+    @reasons_rules
+    |> Map.filter(fn
+      {_, %{disallow_subscription: true}} -> true
+      _ -> false
+    end)
+    |> Map.keys()
+  end
+
+  @doc """
+  iex > reasons_for_role(:reuser)
+  [:expiration, :dataset_with_error, :resource_unavailable, :resources_changed, :new_dataset, :daily_new_comments]
+  """
+  @spec reasons_for_role(role()) :: [reason()]
+  def reasons_for_role(role) do
+    @reasons_rules
+    |> Map.filter(fn
+      {_, %{possible_roles: possible_roles}} -> role in possible_roles
+      _ -> false
+    end)
+    |> Map.keys()
+  end
+
+  @spec reasons_related_to_datasets :: [reason()]
+  def reasons_related_to_datasets do
+    @reasons_rules
+    |> Map.filter(fn
+      {_, %{scope: :dataset}} -> true
+      _ -> false
+    end)
+    |> Map.keys()
+  end
+
+  @spec platform_wide_reasons :: [reason()]
+  def platform_wide_reasons do
+    @reasons_rules
+    |> Map.filter(fn
+      {_, %{scope: :platform}} -> true
+      _ -> false
+    end)
+    |> Map.keys()
+  end
+
+  @doc """
+  iex> subscribable_reasons_related_to_datasets(:reuser) != subscribable_reasons_related_to_datasets(:producer)
+  true
+  """
+  @spec subscribable_reasons_related_to_datasets(role()) :: [reason()]
+  def subscribable_reasons_related_to_datasets(role) do
+    MapSet.new(reasons_related_to_datasets())
+    |> MapSet.intersection(MapSet.new(reasons_for_role(role)))
+    |> MapSet.intersection(MapSet.new(subscribable_reasons()))
+    |> MapSet.to_list()
+  end
+
+  @doc """
+  iex> subscribable_platform_wide_reasons(:reuser) != subscribable_platform_wide_reasons(:producer)
+  true
+  iex> subscribable_platform_wide_reasons(:producer)
+  [:daily_new_comments, :datasets_switching_climate_resilience_bill, :new_dataset]
+  iex> subscribable_platform_wide_reasons(:reuser)
+  [:daily_new_comments, :new_dataset]
+  """
+  @spec subscribable_platform_wide_reasons(role()) :: [reason()]
+  def subscribable_platform_wide_reasons(role) do
+    platform_wide_reasons()
+    |> MapSet.new()
+    |> MapSet.intersection(MapSet.new(reasons_for_role(role)))
+    |> MapSet.intersection(MapSet.new(subscribable_reasons()))
+    |> MapSet.to_list()
+  end
 
   @spec subscriptions_for_reason(atom()) :: [__MODULE__.t()]
   def subscriptions_for_reason(reason) do
@@ -214,7 +260,7 @@ defmodule DB.NotificationSubscription do
       [notification_subscription: ns],
       ns.role == :producer and
         ns.dataset_id in ^dataset_ids and
-        ns.reason in ^reasons_related_to_datasets(:producer)
+        ns.reason in ^subscribable_reasons_related_to_datasets(:producer)
     )
     |> DB.Repo.all()
     # transport.data.gouv.fr's members who are subscribed as "producers" shouldn't be included.
@@ -288,7 +334,7 @@ defmodule DB.NotificationSubscription do
     reason = get_field(changeset, :reason)
 
     with possible_roles <- get_in(@reasons_rules, [reason, :possible_roles]),
-    true <- Enum.member?(possible_roles, role) do
+         true <- Enum.member?(possible_roles, role) do
       changeset
     else
       _ -> add_error(changeset, :reason, "is not allowed for the given role")

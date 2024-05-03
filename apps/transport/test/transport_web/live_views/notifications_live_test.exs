@@ -126,17 +126,6 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
 
     # Platform-wide subscription switches
     assert [
-             {"input", [{"name", "new_dataset"}, {"type", "hidden"}, {"value", "false"}], []},
-             {"input",
-              [
-                {"id", "new_dataset"},
-                {"name", "new_dataset"},
-                {"phx-click", "toggle"},
-                {"phx-value-action", "turn_on"},
-                {"phx-value-reason", "new_dataset"},
-                {"type", "checkbox"},
-                {"value", "true"}
-              ], []},
              {"input", [{"name", "daily_new_comments"}, {"type", "hidden"}, {"value", "false"}], []},
              {"input",
               [
@@ -148,7 +137,18 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
                 {"phx-value-reason", "daily_new_comments"},
                 {"type", "checkbox"},
                 {"value", "true"}
-              ], []}
+              ], []},
+              {"input", [{"name", "new_dataset"}, {"type", "hidden"}, {"value", "false"}], []},
+              {"input",
+               [
+                 {"id", "new_dataset"},
+                 {"name", "new_dataset"},
+                 {"phx-click", "toggle"},
+                 {"phx-value-action", "turn_on"},
+                 {"phx-value-reason", "new_dataset"},
+                 {"type", "checkbox"},
+                 {"value", "true"}
+               ], []},
            ] ==
              content
              |> Floki.parse_document!()

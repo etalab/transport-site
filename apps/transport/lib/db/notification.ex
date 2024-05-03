@@ -41,7 +41,10 @@ defmodule DB.Notification do
   @spec recent_reasons_binned(DB.Dataset.t(), pos_integer()) :: [%{reason: atom, timestamp: DateTime.t()}]
   def recent_reasons_binned(%DB.Dataset{id: dataset_id}, nb_days) when is_integer(nb_days) and nb_days > 0 do
     datetime_limit = DateTime.add(DateTime.utc_now(), -nb_days, :day)
-    possible_reasons = DB.NotificationSubscription.reasons_related_to_datasets()
+
+    possible_reasons =
+      DB.NotificationSubscription.reasons_related_to_datasets() --
+        DB.NotificationSubscription.non_subscribable_reasons()
 
     base_query()
     |> where(

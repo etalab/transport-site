@@ -105,17 +105,17 @@ defmodule DB.NotificationSubscriptionTest do
                dataset_id: nil
              })
 
-      # Some reasons are only there to create individual notifications and are not allowed as subscriptions
-      assert %Ecto.Changeset{
-      valid?: false,
-      errors: [reason: {"is not allowed for subscription", _}]
-    } =
-      changeset.(%{
-        source: :admin,
-        role: :producer,
-        reason: :periodic_reminder_producers,
-        contact_id: contact.id,
-        dataset_id: nil
-      })
+    # Some reasons are only there to create individual notifications and are not allowed as subscriptions
+    assert %Ecto.Changeset{
+             valid?: false,
+             errors: [reason: {"is not allowed for subscription", _}]
+           } =
+             changeset.(%{
+               source: :admin,
+               role: :producer,
+               reason: :periodic_reminder_producers,
+               contact_id: contact.id,
+               dataset_id: nil
+             })
   end
 end
