@@ -10,10 +10,10 @@ defmodule DB.NotificationSubscription do
   @possible_roles [:producer, :reuser]
 
   # Rules explanations for reasons:
-  # Reasons are scoped either to a specific dataset or to the platform.
+  # 1. Reasons are scoped either to a specific dataset or to the platform.
   # (In some cases for reusers, «platform» means scoped to followed datasets, not all datasets.)
-  # Reasons can be subscribed to by either producers or reusers.
-  # Some reasons are only there to create individual notifications and are not allowed as subscriptions, see `disallow_subscription`.
+  # 2. Reasons can be subscribed to by either producers or reusers.
+  # 3. Some reasons are only there to create individual notifications and are not allowed as subscriptions.
 
   @reasons_rules %{
     expiration: %{
@@ -122,10 +122,10 @@ defmodule DB.NotificationSubscription do
   end
 
   defp maybe_assoc_constraint_dataset(%Ecto.Changeset{} = changeset) do
-    if get_field(changeset, :dataset_id) do
-      changeset |> assoc_constraint(:dataset)
-    else
+    if is_nil(get_field(changeset, :dataset_id)) do
       changeset
+    else
+      changeset |> assoc_constraint(:dataset)
     end
   end
 
