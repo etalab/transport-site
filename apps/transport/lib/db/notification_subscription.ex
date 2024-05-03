@@ -18,41 +18,50 @@ defmodule DB.NotificationSubscription do
   @reasons_rules %{
     expiration: %{
       scope: :dataset,
-      possible_roles: [:producer, :reuser]
+      possible_roles: [:producer, :reuser],
+      string: dgettext("notification_subscription", "expiration")
     },
     dataset_with_error: %{
       scope: :dataset,
-      possible_roles: [:producer, :reuser]
+      possible_roles: [:producer, :reuser],
+      string: dgettext("notification_subscription", "dataset_with_error")
     },
     resource_unavailable: %{
       scope: :dataset,
-      possible_roles: [:producer, :reuser]
+      possible_roles: [:producer, :reuser],
+      string: dgettext("notification_subscription", "resource_unavailable")
     },
     resources_changed: %{
       scope: :dataset,
-      possible_roles: [:reuser]
+      possible_roles: [:reuser],
+      string: dgettext("notification_subscription", "resources_changed")
     },
     new_dataset: %{
       scope: :platform,
-      possible_roles: [:reuser, :producer]
+      possible_roles: [:reuser, :producer],
+      string: dgettext("notification_subscription", "new_dataset")
     },
     datasets_switching_climate_resilience_bill: %{
       scope: :platform,
-      possible_roles: [:producer]
+      possible_roles: [:producer],
+      string: dgettext("notification_subscription", "datasets_switching_climate_resilience_bill")
     },
     daily_new_comments: %{
       scope: :platform,
-      possible_roles: [:producer, :reuser]
+      possible_roles: [:producer, :reuser],
+      string: dgettext("notification_subscription", "daily_new_comments")
     },
     dataset_now_on_nap: %{
       scope: :dataset,
       possible_roles: [:producer],
-      disallow_subscription: true
+      disallow_subscription: true,
+      string: dgettext("notification_subscription", "dataset_now_on_nap")
     },
     periodic_reminder_producers: %{
       scope: :platform,
       possible_roles: [:producer],
-      disallow_subscription: true
+      disallow_subscription: true,
+      string: dgettext("notification_subscription", "periodic_reminder_producers")
     }
   }
 
@@ -303,21 +312,7 @@ defmodule DB.NotificationSubscription do
   def reason_to_str(reason) when is_binary(reason), do: reason |> String.to_existing_atom() |> reason_to_str()
 
   def reason_to_str(reason) do
-    Map.fetch!(
-      %{
-        expiration: dgettext("notification_subscription", "expiration"),
-        dataset_with_error: dgettext("notification_subscription", "dataset_with_error"),
-        resource_unavailable: dgettext("notification_subscription", "resource_unavailable"),
-        dataset_now_on_nap: dgettext("notification_subscription", "dataset_now_on_nap"),
-        new_dataset: dgettext("notification_subscription", "new_dataset"),
-        datasets_switching_climate_resilience_bill:
-          dgettext("notification_subscription", "datasets_switching_climate_resilience_bill"),
-        daily_new_comments: dgettext("notification_subscription", "daily_new_comments"),
-        resources_changed: dgettext("notification_subscription", "resources_changed"),
-        periodic_reminder_producers: dgettext("notification_subscription", "periodic_reminder_producers")
-      },
-      reason
-    )
+    get_in(@reasons_rules, [reason, :string])
   end
 
   defp validate_reason_is_allowed_for_subscriptions(changeset) do
