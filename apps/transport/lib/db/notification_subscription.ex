@@ -25,6 +25,47 @@ defmodule DB.NotificationSubscription do
 
   @possible_roles [:producer, :reuser]
 
+  @reasons_rules %{
+    expiration: %{
+      scope: :dataset,
+      possible_roles: [:producer, :reuser]
+    },
+    dataset_with_error: %{
+      scope: :dataset,
+      possible_roles: [:producer, :reuser]
+    },
+    resource_unavailable: %{
+      scope: :dataset,
+      possible_roles: [:producer, :reuser]
+    },
+    dataset_now_on_nap: %{
+      scope: :dataset,
+      possible_roles: [:producer],
+      disallow_subscription: true
+    },
+    resources_changed: %{
+      scope: :dataset,
+      possible_roles: [:reuser]
+    },
+    new_dataset: %{
+      scope: :platform,
+      possible_roles: [:reuser, :producer]
+    },
+    datasets_switching_climate_resilience_bill: %{
+      scope: :platform,
+      possible_roles: [:producer, :reuser]
+    },
+    daily_new_comments: %{
+      scope: :platform,
+      possible_roles: [:producer, :reuser]
+    },
+    periodic_reminder_producers: %{
+      scope: :platform,
+      possible_roles: [:producer],
+      disallow_subscription: true
+    }
+  }
+
   # https://elixirforum.com/t/using-module-attributes-in-typespec-definitions-to-reduce-duplication/42374/2
   types = Enum.reduce(@possible_roles, &{:|, [], [&1, &2]})
   @type role :: unquote(types)
@@ -74,7 +115,8 @@ defmodule DB.NotificationSubscription do
     |> unique_constraint([:contact_id, :dataset_id, :reason],
       name: :notification_subscription_contact_id_dataset_id_reason_index
     )
-    |> validate_reason_by_role_and_dataset_presence()
+    |> validate_reason_is_allowed_for_subscriptions()
+    |> validate_reason_by_role_and_scope()
   end
 
   defp maybe_assoc_constraint_dataset(%Ecto.Changeset{} = changeset) do
@@ -231,24 +273,30 @@ defmodule DB.NotificationSubscription do
     )
   end
 
-  defp validate_reason_by_role_and_dataset_presence(changeset) do
+  defp validate_reason_is_allowed_for_subscriptions(changeset) do
+    reason = get_field(changeset, :reason)
+
+    case get_in(@reasons_rules, [reason, :disallow_subscription]) do
+      true -> add_error(changeset, :reason, "is not allowed for subscription")
+      _ -> changeset
+    end
+  end
+
+  defp validate_reason_by_role_and_scope(changeset) do
     role = get_field(changeset, :role)
     reason = get_field(changeset, :reason)
     dataset_id = get_field(changeset, :dataset_id)
 
-    valid_reasons =
-      case {role, dataset_id} do
-        {:producer, nil} -> platform_wide_reasons(:producer) ++ [:periodic_reminder_producers]
-        {:producer, _id} -> reasons_related_to_datasets(:producer)
-        {:reuser, nil} -> platform_wide_reasons(:reuser)
-        {:reuser, _id} -> reasons_related_to_datasets(:reuser)
-        _ -> @all_reasons
-      end
-
-    if reason in valid_reasons do
+    with {:ok, reason_rule} <- Map.fetch(@reasons_rules, reason),
+         true <- Enum.member?(reason_rule.possible_roles, role),
+         true <-
+           (case reason_rule.scope do
+              :dataset -> dataset_id != nil
+              :platform -> dataset_id == nil
+            end) do
       changeset
     else
-      add_error(changeset, :reason, "is not valid for the given role and dataset presence")
+      _ -> add_error(changeset, :reason, "is not valid for the given role and dataset presence")
     end
   end
 end

@@ -63,7 +63,14 @@ defmodule DB.NotificationSubscriptionTest do
              |> DB.Repo.insert()
 
     # `source` and `role` are enums
-    assert %Ecto.Changeset{valid?: false, errors: [source: {"is invalid", _}, role: {"is invalid", _}]} =
+    assert %Ecto.Changeset{
+             valid?: false,
+             errors: [
+               reason: {"is not valid for the given role and dataset presence", _},
+               source: {"is invalid", _},
+               role: {"is invalid", _}
+             ]
+           } =
              changeset.(%{
                role: :foo,
                source: :foo,
