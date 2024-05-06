@@ -39,10 +39,32 @@ defmodule Unlock.EnforceTTL do
     (cache_key |> proxy_config()).ttl * 1000
   end
 
+  # Figure out which proxy config item corresponds to a given cache key
   defp proxy_config(cache_key) do
     config = Application.fetch_env!(:unlock, :config_fetcher).fetch_config!()
 
-    Map.fetch!(config, String.replace_prefix(cache_key, cache_prefix(), ""))
+    parts =
+      cache_key
+      |> String.replace_prefix(cache_prefix(), "")
+      |> String.split(":")
+
+    proxy_config_item(config, parts)
+  end
+
+  # "regular" items (`resource:identifier`)
+  def proxy_config_item(config, [identifier]) do
+    Map.fetch!(config, identifier)
+  end
+
+  # "aggregate" sub-items (`resource:identifier:sub_identifier`)
+  def proxy_config_item(config, [identifier, sub_identifier]) do
+    [sub_item] =
+      config
+      |> Map.fetch!(identifier)
+      |> Map.fetch!(:feeds)
+      |> Enum.filter(&(&1.identifier == sub_identifier))
+
+    sub_item
   end
 
   defp schedule_work do

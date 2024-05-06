@@ -43,6 +43,37 @@ defmodule Unlock.EnforceTTLTest do
     assert ["resource:with_ttl", "no_prefix"] == Cachex.keys!(cache_name())
   end
 
+  test "supports aggregate sub-keys" do
+    ttl_config_value = 10
+    slug = "some-slug"
+
+    setup_proxy_config(%{
+      "no_ttl" => %Unlock.Config.Item.Aggregate{
+        identifier: slug,
+        ttl: 10,
+        feeds: [
+          %Unlock.Config.Item.Generic.HTTP{
+            identifier: "first-remote",
+            target_url: "http://localhost:1234",
+            ttl: 10
+          }
+        ]
+      }
+    })
+
+    assert ttl_config_value < Unlock.Shared.default_cache_expiration_seconds()
+
+    assert [] == cache_keys()
+    # this uses composite keys
+    cache_put(cache_key("no_ttl:first-remote"))
+
+    assert ["resource:no_ttl:first-remote"] == cache_keys()
+
+    Unlock.EnforceTTL.handle_info(:work, %{})
+
+    # TODO: add a couple of extra assertions here
+  end
+
   def setup_proxy_config(config) do
     Unlock.Config.Fetcher.Mock
     |> stub(:fetch_config!, fn -> config end)
