@@ -25,7 +25,7 @@ defmodule Transport.Jobs.ResourcesChangedNotificationJob do
     subject = "#{dataset.custom_title} : ressources modifiées"
 
     @notification_reason
-    |> DB.NotificationSubscription.subscriptions_for_reason()
+    |> DB.NotificationSubscription.subscriptions_for_reason_and_role(:reuser)
     |> DB.NotificationSubscription.subscriptions_to_emails()
     |> Enum.each(fn email ->
       resources_changed_email = Transport.ResourcesChangedNotifier.resources_changed(email, subject, dataset)
