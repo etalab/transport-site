@@ -1,4 +1,5 @@
 <% is_producer = @role == :producer
+is_reuser = not is_producer
 colspan = if is_producer, do: 3, else: 2
 breadcrumb = if is_producer, do: :espace_producteur_notifications, else: :reuser_space_notifications
 display_error = is_producer and not is_nil(@error) %>
@@ -13,8 +14,9 @@ display_error = is_producer and not is_nil(@error) %>
     <h2><%= dgettext("espace-producteurs", "Manage my notifications") %></h2>
     <div :if={display_error} class="notification error"><%= @error %></div>
 
-    <div :if={is_producer} class="panel mb-24">
-      <p><%= dgettext("espace-producteurs", "notifications are good for you") %></p>
+    <div class="panel mb-24">
+      <p :if={is_producer}><%= dgettext("espace-producteurs", "notifications are good for you") %></p>
+      <p :if={is_reuser}><%= raw(dgettext("reuser-space", "notifications are good for you")) %></p>
     </div>
 
     <div class="row">
@@ -29,7 +31,45 @@ display_error = is_producer and not is_nil(@error) %>
     </div>
 
     <div :if={!display_error} class="panel mt-24">
-      <table class="table">
+      <div :if={is_reuser} data-content="platform-wide-notifications">
+        <h3><%= dgettext("reuser-space", "Global notifications") %></h3>
+        <table class="table">
+          <.form :let={f} for={%{}}>
+            <%= for reason <- @platform_wide_reasons do %>
+              <% subscribed = reason in @subscribed_platform_wide_reasons %>
+              <tr>
+                <td><%= DB.NotificationSubscription.reason_to_str(reason) %></td>
+                <td>
+                  <div class="form__group">
+                    <fieldset>
+                      <span {if subscribed, do: [class: "is-grey"], else: []}>
+                        <%= dgettext("espace-producteurs", "Off") %>&nbsp;
+                      </span>
+                      <label class="switch">
+                        <%= checkbox(
+                          f,
+                          reason,
+                          checked: subscribed,
+                          phx_value_reason: reason,
+                          phx_value_action: if(subscribed, do: "turn_off", else: "turn_on"),
+                          phx_click: "toggle"
+                        ) %>
+                        <span class="slider"></span>
+                        <span {if not subscribed, do: [class: "is-grey"], else: []}>
+                          &nbsp;<%= dgettext("espace-producteurs", "On") %>
+                        </span>
+                      </label>
+                    </fieldset>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </.form>
+        </table>
+      </div>
+
+      <h3 :if={is_reuser}><%= dgettext("reuser-space", "Notifications by dataset") %></h3>
+      <table class="table" data-content="dataset-notifications">
         <.form :let={f} for={%{}}>
           <tr>
             <td><strong><%= dgettext("espace-producteurs", "All notifications") %></strong></td>

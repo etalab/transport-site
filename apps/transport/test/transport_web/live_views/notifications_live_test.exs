@@ -57,7 +57,7 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
 
     [{"input", switch_attr, []}] =
       doc
-      |> Floki.find(".producer-actions .container .panel table tr td .form__group fieldset .switch input")
+      |> Floki.find(~s|table[data-content="dataset-notifications"] tr td .form__group fieldset .switch input|)
       |> Floki.find("[value=true]")
       |> Floki.find("[checked=checked]")
 
@@ -65,6 +65,9 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
 
     assert ["expiration", Integer.to_string(dataset_id), Integer.to_string(subscription_id)] ==
              [switch_attr["id"], switch_attr["phx-value-dataset-id"], switch_attr["phx-value-subscription-id"]]
+
+    # Platform-wide subscriptions are not displayed
+    assert [] == doc |> Floki.find(~s|div[data-content="platform-wide-notifications"]|)
   end
 
   test "displays existing subscriptions for a reuser", %{conn: conn} do
@@ -83,7 +86,6 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
         source: :user
       )
 
-    # Unrelated (no dataset ID), should not be an issue
     insert(:notification_subscription,
       contact_id: contact_id,
       dataset_id: nil,
@@ -103,7 +105,7 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
     [{"input", switch_attr, []}] =
       content
       |> Floki.parse_document!()
-      |> Floki.find(".producer-actions .container .panel table tr td .form__group fieldset .switch input")
+      |> Floki.find(~s|table[data-content="dataset-notifications"] tr td .form__group fieldset .switch input|)
       |> Floki.find("[value=true]")
       |> Floki.find("[checked=checked]")
 
@@ -111,6 +113,38 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
 
     assert ["expiration", Integer.to_string(dataset_id), Integer.to_string(subscription_id)] ==
              [switch_attr["id"], switch_attr["phx-value-dataset-id"], switch_attr["phx-value-subscription-id"]]
+
+    # Platform-wide subscription switches
+    assert [
+             {"input", [{"name", "new_dataset"}, {"type", "hidden"}, {"value", "false"}], []},
+             {"input",
+              [
+                {"id", "new_dataset"},
+                {"name", "new_dataset"},
+                {"phx-click", "toggle"},
+                {"phx-value-action", "turn_on"},
+                {"phx-value-reason", "new_dataset"},
+                {"type", "checkbox"},
+                {"value", "true"}
+              ], []},
+             {"input", [{"name", "daily_new_comments"}, {"type", "hidden"}, {"value", "false"}], []},
+             {"input",
+              [
+                {"checked", "checked"},
+                {"id", "daily_new_comments"},
+                {"name", "daily_new_comments"},
+                {"phx-click", "toggle"},
+                {"phx-value-action", "turn_off"},
+                {"phx-value-reason", "daily_new_comments"},
+                {"type", "checkbox"},
+                {"value", "true"}
+              ], []}
+           ] ==
+             content
+             |> Floki.parse_document!()
+             |> Floki.find(
+               ~s|div[data-content="platform-wide-notifications"] tr td .form__group fieldset .switch input|
+             )
   end
 
   test "displays an error message if we can’t retrieve user orgs (and thus datasets) through data.gouv.fr", %{
@@ -210,6 +244,31 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
         "reason" => "expiration",
         "action" => "turn_off"
       })
+
+      assert [] = DB.NotificationSubscription |> DB.Repo.all()
+    end
+
+    test "platform-wide reason for a reuser", %{conn: conn} do
+      %DB.Contact{id: contact_id} = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+
+      {:ok, view, _html} =
+        conn |> init_test_session(%{current_user: %{"id" => datagouv_user_id}}) |> get(@reuser_url) |> live()
+
+      assert [] = DB.NotificationSubscription |> DB.Repo.all()
+
+      render_change(view, :toggle, %{"reason" => "new_dataset", "action" => "turn_on"})
+
+      assert [
+               %DB.NotificationSubscription{
+                 contact_id: ^contact_id,
+                 dataset_id: nil,
+                 source: :user,
+                 role: :reuser,
+                 reason: :new_dataset
+               }
+             ] = DB.NotificationSubscription |> DB.Repo.all()
+
+      render_change(view, :toggle, %{"reason" => "new_dataset", "action" => "turn_off"})
 
       assert [] = DB.NotificationSubscription |> DB.Repo.all()
     end

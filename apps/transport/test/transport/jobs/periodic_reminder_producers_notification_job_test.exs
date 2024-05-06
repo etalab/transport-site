@@ -35,7 +35,7 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
 
       # Contact should be ignored: it's a reuser
       insert(:notification_subscription,
-        source: :admin,
+        source: :user,
         role: :reuser,
         reason: :expiration,
         dataset: dataset,

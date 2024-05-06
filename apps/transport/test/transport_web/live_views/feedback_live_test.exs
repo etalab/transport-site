@@ -7,12 +7,16 @@ defmodule TransportWeb.FeedbackLiveTest do
 
   setup :verify_on_exit!
 
+  setup do
+    Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+  end
+
   @endpoint TransportWeb.Endpoint
 
   test "Render the feedback component", %{conn: conn} do
     {:ok, _view, html} =
       live_isolated(conn, TransportWeb.Live.FeedbackLive,
-        session: %{"feature" => "on-demand-validation", "locale" => "fr", "csp_nonce_value" => Ecto.UUID.generate()}
+        session: %{"feature" => "on_demand_validation", "locale" => "fr", "csp_nonce_value" => Ecto.UUID.generate()}
       )
 
     assert html =~ "Qu’avez-vous pensé de cette page ?"
@@ -21,7 +25,7 @@ defmodule TransportWeb.FeedbackLiveTest do
   test "Post feedback form with honey pot filled", %{conn: conn} do
     {:ok, view, _html} =
       live_isolated(conn, TransportWeb.Live.FeedbackLive,
-        session: %{"feature" => "on-demand-validation", "locale" => "fr", "csp_nonce_value" => Ecto.UUID.generate()}
+        session: %{"feature" => "on_demand_validation", "locale" => "fr", "csp_nonce_value" => Ecto.UUID.generate()}
       )
 
     view
@@ -36,7 +40,7 @@ defmodule TransportWeb.FeedbackLiveTest do
   test "Post feedback form without honey pot", %{conn: conn} do
     {:ok, view, _html} =
       live_isolated(conn, TransportWeb.Live.FeedbackLive,
-        session: %{"feature" => "on-demand-validation", "locale" => "fr", "csp_nonce_value" => Ecto.UUID.generate()}
+        session: %{"feature" => "on_demand_validation", "locale" => "fr", "csp_nonce_value" => Ecto.UUID.generate()}
       )
 
     view
@@ -44,9 +48,9 @@ defmodule TransportWeb.FeedbackLiveTest do
     |> render_submit(%{
       feedback: %{
         email: "",
-        feature: "on-demand-validation",
+        feature: "on_demand_validation",
         rating: "like",
-        explanation: "so useful for my GTFS files"
+        explanation: "  so useful for my GTFS files  "
       }
     })
     |> Kernel.=~("Merci d’avoir laissé votre avis !")
@@ -55,18 +59,27 @@ defmodule TransportWeb.FeedbackLiveTest do
     assert_email_sent(
       from: {"Formulaire feedback", "contact@transport.data.gouv.fr"},
       to: "contact@transport.data.gouv.fr",
-      subject: "Nouvel avis pour on-demand-validation : j’aime",
+      subject: "Nouvel avis pour on_demand_validation : j’aime",
       text_body:
-        "Vous avez un nouvel avis sur le PAN.\nFonctionnalité : on-demand-validation\nNotation : j’aime\nAdresse e-mail : \n\nExplication : so useful for my GTFS files\n",
+        "Vous avez un nouvel avis sur le PAN.\nFonctionnalité : on_demand_validation\nNotation : j’aime\nAdresse e-mail : \n\nExplication : so useful for my GTFS files\n",
       html_body: nil,
       reply_to: "contact@transport.data.gouv.fr"
     )
+
+    assert %DB.UserFeedback{
+             rating: :like,
+             explanation: "so useful for my GTFS files",
+             feature: :on_demand_validation,
+             email: nil
+           } = DB.UserFeedback |> Ecto.Query.last() |> DB.Repo.one()
   end
 
   test "Post invalid parameters in feedback form and check it doesn’t crash", %{conn: conn} do
+    feedback_count = DB.UserFeedback |> DB.Repo.aggregate(:count, :id)
+
     {:ok, view, _html} =
       live_isolated(conn, TransportWeb.Live.FeedbackLive,
-        session: %{"feature" => "on-demand-validation", "locale" => "fr", "csp_nonce_value" => Ecto.UUID.generate()}
+        session: %{"feature" => "on_demand_validation", "locale" => "fr", "csp_nonce_value" => Ecto.UUID.generate()}
       )
 
     {view, logs} =
@@ -77,10 +90,10 @@ defmodule TransportWeb.FeedbackLiveTest do
       end)
 
     assert view =~ "Il y a eu une erreur réessayez."
-
     assert logs =~ "Bad parameters for feedback"
-
     assert_no_email_sent()
+    # Nothing should have been inserted in the database
+    assert feedback_count == DB.UserFeedback |> DB.Repo.aggregate(:count, :id)
   end
 
   test "Is correctly included in the validation Liveview", %{conn: conn} do

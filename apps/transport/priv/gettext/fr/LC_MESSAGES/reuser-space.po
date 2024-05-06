@@ -53,7 +53,11 @@ msgstr "Actions"
 
 #, elixir-autogen, elixir-format
 msgid "data expiration notification explanation"
-msgstr "Vous êtes alerté à l'approche de la date de fin du calendrier de fonctionnement."
+msgstr "Vous êtes alerté à l’approche de la date de fin du calendrier de fonctionnement."
+
+#, elixir-autogen, elixir-format
+msgid "resources changed notification explanation"
+msgstr "Vous êtes alerté lorsque des ressources sont ajoutées, supprimées ou que l’URL est modifiée."
 
 #, elixir-autogen, elixir-format
 msgid "unavailable resources notification explanation"
@@ -61,8 +65,16 @@ msgstr "Vous êtes alerté au bout de 6h consécutives pendant lesquelles une re
 
 #, elixir-autogen, elixir-format
 msgid "validation errors notification explanation"
-msgstr "Vous êtes alerté lorsqu'une ressource ne respecte pas les spécifications des normes/standards/schémas correspondants."
+msgstr "Vous êtes alerté lorsqu’une ressource ne respecte pas les spécifications des normes/standards/schémas correspondants."
 
 #, elixir-autogen, elixir-format
-msgid "resources changed notification explanation"
-msgstr "Vous êtes alerté lorsque des ressources sont ajoutées, supprimées ou que l'URL est modifiée."
+msgid "Global notifications"
+msgstr "Notifications générales"
+
+#, elixir-autogen, elixir-format
+msgid "Notifications by dataset"
+msgstr "Notifications par jeu de données"
+
+#, elixir-autogen, elixir-format
+msgid "notifications are good for you"
+msgstr "Les notifications e-mail vous préviennent des problèmes de qualité ou d’indisponibilité qui pourraient affecter vos réutilisations des données de transport. Afin d’activer les notifications sur un jeu de données, mettez-le d’abord en favori (icône ❤️ sur la page du jeu de donnée).<br/><br/>Vous pouvez également suivre l’activité générale de transport.data.gouv.fr à travers les commentaires et nouveaux jeux de données"

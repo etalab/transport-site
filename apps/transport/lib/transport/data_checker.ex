@@ -140,7 +140,7 @@ defmodule Transport.DataChecker do
     end
 
     @new_dataset_reason
-    |> DB.NotificationSubscription.subscriptions_for_reason()
+    |> DB.NotificationSubscription.subscriptions_for_reason_and_role(:reuser)
     |> DB.NotificationSubscription.subscriptions_to_emails()
     |> Enum.each(fn email ->
       Transport.EmailSender.impl().send_mail(

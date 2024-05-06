@@ -23,7 +23,7 @@ defmodule Transport.Jobs.DatasetsSwitchingClimateResilienceBillJob do
   def send_email(datasets_previously_climate_resilience, datasets_now_climate_resilience) do
     emails =
       @notification_reason
-      |> DB.NotificationSubscription.subscriptions_for_reason()
+      |> DB.NotificationSubscription.subscriptions_for_reason_and_role(:reuser)
       |> DB.NotificationSubscription.subscriptions_to_emails()
 
     Enum.each(emails, fn email ->

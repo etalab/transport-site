@@ -68,7 +68,7 @@ defmodule Transport.CompaniesTest do
       host: "recherche-entreprises.api.gouv.fr",
       port: 443,
       path: "/search",
-      query: "q=#{siren}"
+      query: "mtm_campaign=transport-data-gouv-fr&q=#{siren}"
     }
 
     Transport.HTTPoison.Mock |> expect(:get, fn ^uri -> response end)
