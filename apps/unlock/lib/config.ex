@@ -45,7 +45,8 @@ defmodule Unlock.Config do
 
     def convert_aggregate_sub_item(sub_item) do
       sub_item
-      |> Map.put("type", "generic-http")
+      # Default to generic-http (typically used for IRVE)
+      |> Map.put_new("type", "generic-http")
       # Use a default 10-second TTL for sub-feeeds, unless specified in the config
       |> Map.put_new("ttl", 10)
       |> convert_yaml_item_to_struct()
