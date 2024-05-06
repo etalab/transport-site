@@ -139,10 +139,7 @@ defmodule DB.NotificationSubscription do
   @spec subscribable_reasons :: [reason()]
   def subscribable_reasons do
     @reasons_rules
-    |> Map.filter(fn
-      {_, %{disallow_subscription: true}} -> false
-      _ -> true
-    end)
+    |> Map.reject(& Map.get(&1, :disallow_subscription, false))
     |> Map.keys()
   end
 
