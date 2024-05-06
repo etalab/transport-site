@@ -146,7 +146,7 @@ defmodule DB.NotificationSubscription do
     |> Map.keys()
   end
 
-  def non_subscribable_reasons do
+  def unsuscribable_reasons do
     @reasons_rules
     |> Map.filter(fn
       {_, %{disallow_subscription: true}} -> true

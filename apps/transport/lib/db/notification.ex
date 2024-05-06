@@ -44,7 +44,7 @@ defmodule DB.Notification do
 
     possible_reasons =
       DB.NotificationSubscription.reasons_related_to_datasets() --
-        DB.NotificationSubscription.non_subscribable_reasons()
+        DB.NotificationSubscription.unsuscribable_reasons()
 
     base_query()
     |> where(
