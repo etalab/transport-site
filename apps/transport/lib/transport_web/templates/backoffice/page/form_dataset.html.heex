@@ -20,7 +20,7 @@
 
       <div>
         <%= form_for @conn, backoffice_dataset_path(@conn, :delete, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
-          <%= submit("Supprimer", class: "button", nodiv: true) %>
+          <%= submit("Déréférencer", class: "button", nodiv: true) %>
         <% end %>
       </div>
 
@@ -70,7 +70,7 @@
     </div>
 
     <div id="notification_subscriptions" class="dashboard-description mt-48">
-      <h3>Abonnements aux notifications</h3>
+      <h3>Abonnements aux notifications des producteurs</h3>
 
       <h4>Créer un abonnement</h4>
       <%= form_for @conn, backoffice_notification_subscription_path(@conn, :create), [], fn f -> %>
@@ -85,7 +85,7 @@
           </div>
           <div :if={Enum.count(@contacts_in_org) > 0}>
             <p>
-              Contacts dans l'organisation s'étant déjà connectés au PAN
+              Producteurs s'étant déjà connectés au PAN
             </p>
             <ul>
               <%= for contact <- @contacts_in_org do %>
