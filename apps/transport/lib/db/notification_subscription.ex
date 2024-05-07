@@ -215,9 +215,9 @@ defmodule DB.NotificationSubscription do
   iex> subscribable_platform_wide_reasons(:reuser) != subscribable_platform_wide_reasons(:producer)
   true
   iex> subscribable_platform_wide_reasons(:producer)
-  [:daily_new_comments, :datasets_switching_climate_resilience_bill, :new_dataset]
+  [:daily_new_comments]
   iex> subscribable_platform_wide_reasons(:reuser)
-  [:daily_new_comments, :new_dataset]
+  [:daily_new_comments, :datasets_switching_climate_resilience_bill, :new_dataset]
   """
   @spec subscribable_platform_wide_reasons(role()) :: [reason()]
   def subscribable_platform_wide_reasons(role) do
