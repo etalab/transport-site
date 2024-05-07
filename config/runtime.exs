@@ -69,10 +69,9 @@ end
 
 # on staging, allow override of configuration so that we can target other branches
 if app_env == :staging do
-  # NOTE: will use an env variable later here
-  config :unlock,
-    github_config_url:
-      "https://raw.githubusercontent.com/etalab/transport-proxy-config/dynamic-irve-config/proxy-config.yml"
+  if url = System.get_env("TRANSPORT_PROXY_CONFIG_GITHUB_URL") do
+    config :unlock, github_config_url: url
+  end
 end
 
 domain_name =
