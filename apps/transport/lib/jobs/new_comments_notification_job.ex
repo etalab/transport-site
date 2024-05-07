@@ -25,7 +25,7 @@ defmodule Transport.Jobs.NewCommentsNotificationJob do
       |> DB.Repo.all()
 
     contact
-    |> Transport.NewCommentsNotifier.new_comments(datasets)
+    |> Transport.UserNotifier.new_comments(datasets)
     |> Transport.Mailer.deliver()
 
     Enum.each(datasets, fn %DB.Dataset{} = dataset -> save_notification(dataset, contact) end)
@@ -85,21 +85,5 @@ defmodule Transport.Jobs.NewCommentsNotificationJob do
 
   def save_notification(%DB.Dataset{} = dataset, %DB.Contact{email: email}) do
     DB.Notification.insert!(@notification_reason, dataset, email)
-  end
-end
-
-defmodule Transport.NewCommentsNotifier do
-  @moduledoc """
-  Module in charge of building the email.
-  """
-  use Phoenix.Swoosh, view: TransportWeb.EmailView
-
-  def new_comments(%DB.Contact{email: email}, datasets) do
-    new()
-    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
-    |> to(email)
-    |> reply_to(Application.fetch_env!(:transport, :contact_email))
-    |> subject("Nouveaux commentaires")
-    |> render_body("new_comments_reuser.html", %{datasets: datasets})
   end
 end

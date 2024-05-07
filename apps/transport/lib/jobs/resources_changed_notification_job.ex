@@ -28,7 +28,7 @@ defmodule Transport.Jobs.ResourcesChangedNotificationJob do
     |> DB.NotificationSubscription.subscriptions_for_reason_and_role(:reuser)
     |> DB.NotificationSubscription.subscriptions_to_emails()
     |> Enum.each(fn email ->
-      resources_changed_email = Transport.ResourcesChangedNotifier.resources_changed(email, subject, dataset)
+      resources_changed_email = Transport.UserNotifier.resources_changed(email, subject, dataset)
       Transport.Mailer.deliver(resources_changed_email)
       save_notification(dataset, email)
     end)
@@ -71,22 +71,5 @@ defmodule Transport.Jobs.ResourcesChangedNotificationJob do
     )
     |> where([today, _yesterday], today.date == ^today)
     |> DB.Repo.all()
-  end
-end
-
-defmodule Transport.ResourcesChangedNotifier do
-  use Phoenix.Swoosh, view: TransportWeb.EmailView
-
-  @moduledoc """
-  Module in charge of building the email notifying resources have changed.
-  """
-
-  def resources_changed(email, subject, %DB.Dataset{} = dataset) do
-    new()
-    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
-    |> to(email)
-    |> reply_to(Application.fetch_env!(:transport, :contact_email))
-    |> subject(subject)
-    |> render_body("resources_changed.html", %{dataset: dataset})
   end
 end

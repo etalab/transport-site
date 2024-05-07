@@ -72,7 +72,7 @@ defmodule TransportWeb.Live.FeedbackLive do
   @spec deliver_mail(DB.UserFeedback.t()) :: {:ok, term} | {:error, term}
   defp deliver_mail(feedback) do
     feedback_email =
-      TransportWeb.ContactEmail.feedback(feedback.rating, feedback.explanation, feedback.email, feedback.feature)
+      Transport.UserNotifier.feedback(feedback.rating, feedback.explanation, feedback.email, feedback.feature)
 
     Transport.Mailer.deliver(feedback_email)
   end
