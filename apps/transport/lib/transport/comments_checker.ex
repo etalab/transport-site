@@ -62,7 +62,10 @@ defmodule Transport.CommentsChecker do
   def handle_new_comments(comments_number, comments) do
     Logger.info("#{comments_number} new comment(s), sending emails")
 
-    email_content = Phoenix.View.render_to_string(TransportWeb.EmailView, "index.html", comments_with_context: comments)
+    email_content =
+      Phoenix.View.render_to_string(TransportWeb.EmailView, "new_comments_producer.html",
+        comments_with_context: comments
+      )
 
     # Notifications for reusers are handled by `NewCommentsNotificationJob`
     emails =
