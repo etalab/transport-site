@@ -10,10 +10,13 @@ defmodule DB.NotificationSubscription do
   @possible_roles [:producer, :reuser]
 
   # Rules explanations for reasons:
-  # 1. Reasons are scoped either to a specific dataset or to the platform.
+  # 1. scope: reasons are scoped either to a specific dataset or to the platform.
   # (In some cases for reusers, «platform» means scoped to followed datasets, not all datasets.)
-  # 2. Reasons can be subscribed to by either producers or reusers.
-  # 3. Some reasons are only there to create individual notifications and are not allowed as subscriptions.
+  # 2. possible roles: reasons can be subscribed to by either producers or reusers.
+  # 3. disallow_subscription: some reasons can’t be subscribed to,
+  # but they exist because they are valid for notifications.
+  # (In this case, it’s the plaftform that decides whent to send them, without the user subscribing to them.)
+  # 4. hide_from_user: some reasons are hidden from the user interface, but can be subscribed in CLI or backoffice.
 
   @reasons_rules %{
     expiration: %{
@@ -38,11 +41,13 @@ defmodule DB.NotificationSubscription do
     },
     datasets_switching_climate_resilience_bill: %{
       scope: :platform,
-      possible_roles: [:reuser]
+      possible_roles: [:reuser],
+      hide_from_user: [:reuser]
     },
     daily_new_comments: %{
       scope: :platform,
-      possible_roles: [:producer, :reuser]
+      possible_roles: [:producer, :reuser],
+      hide_from_user: [:producer]
     },
     dataset_now_on_nap: %{
       scope: :dataset,
@@ -160,6 +165,20 @@ defmodule DB.NotificationSubscription do
     |> Map.keys()
   end
 
+  @doc """
+  iex > hidden_reasons_for_roles([:reuser])
+  [:datasets_switching_climate_resilience_bill]
+  """
+  @spec hidden_reasons_for_roles([role()]) :: [reason()]
+  def hidden_reasons_for_roles(roles) do
+    @reasons_rules
+    |> Map.filter(fn
+      {_, %{hide_from_user: hide_from_user}} -> roles in hide_from_user
+      _ -> false
+    end)
+    |> Map.keys()
+  end
+
   @spec reasons_related_to_datasets :: [reason()]
   def reasons_related_to_datasets do
     @reasons_rules
@@ -184,7 +203,6 @@ defmodule DB.NotificationSubscription do
   iex> subscribable_reasons_related_to_datasets(:reuser) != subscribable_reasons_related_to_datasets(:producer)
   true
   """
-
   @spec subscribable_reasons_related_to_datasets(role()) :: [reason()]
   def subscribable_reasons_related_to_datasets(role) do
     MapSet.new(reasons_related_to_datasets())
@@ -208,6 +226,15 @@ defmodule DB.NotificationSubscription do
     |> MapSet.intersection(MapSet.new(reasons_for_role(role)))
     |> MapSet.intersection(MapSet.new(subscribable_reasons()))
     |> MapSet.to_list()
+  end
+
+  @doc """
+  iex > shown_subscribable_platform_wide_reasons(:reuser)
+  [:daily_new_comments, :new_dataset]
+  """
+  @spec shown_subscribable_platform_wide_reasons(role()) :: [reason()]
+  def shown_subscribable_platform_wide_reasons(role) do
+    subscribable_platform_wide_reasons(role) -- hidden_reasons_for_roles(role)
   end
 
   @spec subscriptions_for_reason_dataset_and_role(atom(), DB.Dataset.t(), role()) :: [__MODULE__.t()]

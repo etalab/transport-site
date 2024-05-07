@@ -31,7 +31,7 @@ defmodule TransportWeb.Live.NotificationsLive do
         subscriptions: subscriptions,
         subscribed_platform_wide_reasons: subscribed_platform_wide_reasons(current_contact),
         all_notifications_enabled: all_notifications_enabled?(subscriptions),
-        platform_wide_reasons: DB.NotificationSubscription.subscribable_platform_wide_reasons(role),
+        platform_wide_reasons: DB.NotificationSubscription.shown_subscribable_platform_wide_reasons(role),
         available_reasons: available_reasons(role)
       })
 
