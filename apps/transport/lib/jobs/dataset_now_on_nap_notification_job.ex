@@ -17,20 +17,8 @@ defmodule Transport.Jobs.DatasetNowOnNAPNotificationJob do
     |> MapSet.new()
     |> MapSet.difference(email_addresses_already_sent(dataset))
     |> Enum.each(fn email ->
-      Transport.EmailSender.impl().send_mail(
-        "transport.data.gouv.fr",
-        Application.get_env(:transport, :contact_email),
-        email,
-        Application.get_env(:transport, :contact_email),
-        "Votre jeu de données a été référencé sur transport.data.gouv.fr",
-        "",
-        Phoenix.View.render_to_string(TransportWeb.EmailView, "dataset_now_on_nap.html",
-          dataset_url: TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, dataset.slug),
-          dataset_custom_title: dataset.custom_title,
-          contact_email_address: Application.get_env(:transport, :contact_email)
-        )
-      )
-
+      now_on_nap_email = Transport.UserNotifier.dataset_now_on_nap(email, dataset)
+      Transport.Mailer.deliver(now_on_nap_email)
       save_notification(dataset, email)
     end)
 

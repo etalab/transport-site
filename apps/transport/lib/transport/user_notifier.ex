@@ -76,4 +76,17 @@ defmodule Transport.UserNotifier do
     |> subject("Gestion de vos favoris dans votre espace réutilisateur")
     |> render_body("promote_reuser_space.html")
   end
+
+  def dataset_now_on_nap(email, dataset) do
+    new()
+    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
+    |> to(email)
+    |> reply_to(Application.fetch_env!(:transport, :contact_email))
+    |> subject("Votre jeu de données a été référencé sur transport.data.gouv.fr")
+    |> render_body("dataset_now_on_nap.html", %{
+      dataset_url: TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, dataset.slug),
+      dataset_custom_title: dataset.custom_title,
+      contact_email_address: Application.get_env(:transport, :contact_email)
+    })
+  end
 end
