@@ -18,50 +18,41 @@ defmodule DB.NotificationSubscription do
   @reasons_rules %{
     expiration: %{
       scope: :dataset,
-      possible_roles: [:producer, :reuser],
-      string: dgettext("notification_subscription", "expiration")
+      possible_roles: [:producer, :reuser]
     },
     dataset_with_error: %{
       scope: :dataset,
-      possible_roles: [:producer, :reuser],
-      string: dgettext("notification_subscription", "dataset_with_error")
+      possible_roles: [:producer, :reuser]
     },
     resource_unavailable: %{
       scope: :dataset,
-      possible_roles: [:producer, :reuser],
-      string: dgettext("notification_subscription", "resource_unavailable")
+      possible_roles: [:producer, :reuser]
     },
     resources_changed: %{
       scope: :dataset,
-      possible_roles: [:reuser],
-      string: dgettext("notification_subscription", "resources_changed")
+      possible_roles: [:reuser]
     },
     new_dataset: %{
       scope: :platform,
-      possible_roles: [:reuser, :producer],
-      string: dgettext("notification_subscription", "new_dataset")
+      possible_roles: [:reuser, :producer]
     },
     datasets_switching_climate_resilience_bill: %{
       scope: :platform,
-      possible_roles: [:producer],
-      string: dgettext("notification_subscription", "datasets_switching_climate_resilience_bill")
+      possible_roles: [:producer]
     },
     daily_new_comments: %{
       scope: :platform,
-      possible_roles: [:producer, :reuser],
-      string: dgettext("notification_subscription", "daily_new_comments")
+      possible_roles: [:producer, :reuser]
     },
     dataset_now_on_nap: %{
       scope: :dataset,
       possible_roles: [:producer],
-      disallow_subscription: true,
-      string: dgettext("notification_subscription", "dataset_now_on_nap")
+      disallow_subscription: true
     },
     periodic_reminder_producers: %{
       scope: :platform,
       possible_roles: [:producer],
-      disallow_subscription: true,
-      string: dgettext("notification_subscription", "periodic_reminder_producers")
+      disallow_subscription: true
     }
   }
 
@@ -193,6 +184,7 @@ defmodule DB.NotificationSubscription do
   iex> subscribable_reasons_related_to_datasets(:reuser) != subscribable_reasons_related_to_datasets(:producer)
   true
   """
+
   @spec subscribable_reasons_related_to_datasets(role()) :: [reason()]
   def subscribable_reasons_related_to_datasets(role) do
     MapSet.new(reasons_related_to_datasets())
@@ -305,6 +297,8 @@ defmodule DB.NotificationSubscription do
   end
 
   @doc """
+  The following configuration map for translations can’t be merged in the global configuration map
+  because module attributes are compiled and not evaluated, which would freeze the translation to default locale.
   iex> possible_reasons() |> Enum.each(&reason_to_str/1)
   :ok
   """
@@ -312,7 +306,21 @@ defmodule DB.NotificationSubscription do
   def reason_to_str(reason) when is_binary(reason), do: reason |> String.to_existing_atom() |> reason_to_str()
 
   def reason_to_str(reason) do
-    get_in(@reasons_rules, [reason, :string])
+    Map.fetch!(
+      %{
+        expiration: dgettext("notification_subscription", "expiration"),
+        dataset_with_error: dgettext("notification_subscription", "dataset_with_error"),
+        resource_unavailable: dgettext("notification_subscription", "resource_unavailable"),
+        dataset_now_on_nap: dgettext("notification_subscription", "dataset_now_on_nap"),
+        new_dataset: dgettext("notification_subscription", "new_dataset"),
+        datasets_switching_climate_resilience_bill:
+          dgettext("notification_subscription", "datasets_switching_climate_resilience_bill"),
+        daily_new_comments: dgettext("notification_subscription", "daily_new_comments"),
+        resources_changed: dgettext("notification_subscription", "resources_changed"),
+        periodic_reminder_producers: dgettext("notification_subscription", "periodic_reminder_producers")
+      },
+      reason
+    )
   end
 
   defp validate_reason_is_allowed_for_subscriptions(changeset) do
