@@ -2,10 +2,8 @@ defmodule Transport.Test.Transport.Jobs.DatasetsWithoutGTFSRTRelatedResourcesNot
   use ExUnit.Case, async: true
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
-  import Mox
+  import Swoosh.TestAssertions
   alias Transport.Jobs.DatasetsWithoutGTFSRTRelatedResourcesNotificationJob
-
-  setup :verify_on_exit!
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -56,19 +54,20 @@ defmodule Transport.Test.Transport.Jobs.DatasetsWithoutGTFSRTRelatedResourcesNot
 
     assert [%DB.Dataset{id: ^dataset_id}] = DatasetsWithoutGTFSRTRelatedResourcesNotificationJob.relevant_datasets()
 
-    Transport.EmailSender.Mock
-    |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.data.gouv.fr",
-                             "contact@transport.data.gouv.fr",
-                             "contact@transport.data.gouv.fr",
-                             "Jeux de données GTFS-RT sans ressources liées" = _subject,
-                             plain_text_body,
-                             "" = _html_part ->
+    assert :ok == perform_job(DatasetsWithoutGTFSRTRelatedResourcesNotificationJob, %{})
+
+    assert_email_sent(fn %Swoosh.Email{} = sent ->
+      assert %Swoosh.Email{
+               from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+               to: [{"", "contact@transport.data.gouv.fr"}],
+               reply_to: {"", "contact@transport.data.gouv.fr"},
+               subject: "Jeux de données GTFS-RT sans ressources liées",
+               text_body: plain_text_body,
+               html_body: nil
+             } = sent
+
       assert plain_text_body =~ ~r/des liens entre les ressources GTFS-RT et GTFS sont manquants/
       assert plain_text_body =~ ~r/Super JDD/
-      :ok
     end)
-
-    assert :ok == perform_job(DatasetsWithoutGTFSRTRelatedResourcesNotificationJob, %{})
   end
 end

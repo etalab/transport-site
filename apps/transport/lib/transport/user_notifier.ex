@@ -50,6 +50,31 @@ defmodule Transport.UserNotifier do
     |> html_body(report_content)
   end
 
+  def datasets_without_gtfs_rt_related_resources(datasets) do
+    links = Enum.map_join(datasets, "\n", fn %DB.Dataset{slug: slug, custom_title: custom_title} ->
+      link = TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, slug)
+      "* #{custom_title} - #{link}"
+    end)
+
+    text_body = """
+    Bonjour,
+
+    Les jeux de données suivants contiennent plusieurs GTFS et des liens entre les ressources GTFS-RT et GTFS sont manquants :
+
+    #{links}
+
+    L’équipe transport.data.gouv.fr
+
+    """
+
+    new()
+    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
+    |> to(Application.fetch_env!(:transport, :contact_email))
+    |> reply_to(Application.fetch_env!(:transport, :contact_email))
+    |> subject("Jeux de données GTFS-RT sans ressources liées")
+    |> text_body(text_body)
+  end
+
   def resources_changed(email, subject, %DB.Dataset{} = dataset) do
     new()
     |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
