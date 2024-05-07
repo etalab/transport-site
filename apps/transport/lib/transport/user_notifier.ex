@@ -36,6 +36,20 @@ defmodule Transport.UserNotifier do
     |> text_body(feedback_content)
   end
 
+  def bnlc_consolidation_report(subject, body, file_url) do
+    report_content = """
+    #{body}
+    <br/><br/>
+    🔗 <a href="#{file_url}">Fichier consolidé</a>
+    """
+
+    new()
+    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
+    |> to(Application.get_env(:transport, :bizdev_email))
+    |> subject(subject)
+    |> html_body(report_content)
+  end
+
   def resources_changed(email, subject, %DB.Dataset{} = dataset) do
     new()
     |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
