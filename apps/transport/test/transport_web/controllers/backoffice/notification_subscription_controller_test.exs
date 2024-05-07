@@ -76,35 +76,19 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
         reason: :expiration
       )
 
-      # An existing subscription not linked to a dataset
-      insert(:notification_subscription,
-        dataset_id: nil,
-        source: :admin,
-        role: :producer,
-        contact_id: contact_id,
-        reason: :datasets_switching_climate_resilience_bill
-      )
-
       assert [
                %DB.NotificationSubscription{
                  contact_id: ^contact_id,
                  dataset_id: ^dataset_id,
                  source: :admin,
                  reason: :expiration
-               },
-               %DB.NotificationSubscription{
-                 contact_id: ^contact_id,
-                 dataset_id: nil,
-                 source: :admin,
-                 reason: :datasets_switching_climate_resilience_bill
                }
              ] = DB.NotificationSubscription |> DB.Repo.all()
 
       args = %{
         "redirect_location" => "contact",
         "contact_id" => contact_id,
-        "datasets_switching_climate_resilience_bill" => "false",
-        "new_dataset" => "true",
+        "daily_new_comments" => "true",
         # Not a valid reason, should be ignored
         "foobar" => "true"
       }
@@ -122,15 +106,15 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
       assert [
                %DB.NotificationSubscription{
                  contact_id: ^contact_id,
-                 dataset_id: ^dataset_id,
+                 dataset_id: nil,
                  source: :admin,
-                 reason: :expiration
+                 reason: :daily_new_comments
                },
                %DB.NotificationSubscription{
                  contact_id: ^contact_id,
-                 dataset_id: nil,
+                 dataset_id: ^dataset_id,
                  source: :admin,
-                 reason: :new_dataset
+                 reason: :expiration
                }
              ] = DB.NotificationSubscription |> DB.Repo.all() |> Enum.sort_by(& &1.reason)
     end

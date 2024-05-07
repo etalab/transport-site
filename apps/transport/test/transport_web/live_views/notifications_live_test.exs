@@ -46,6 +46,16 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
         source: :user
       )
 
+    # This notification shouldn’t exist as the reason isn’t a producer one, but is there in database
+    # It should be filtered out
+    insert(:notification_subscription,
+      contact_id: contact_id,
+      dataset_id: dataset_id,
+      reason: :resources_changed,
+      role: :producer,
+      source: :user
+    )
+
     Datagouvfr.Client.User.Mock
     |> expect(:me, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
@@ -116,17 +126,6 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
 
     # Platform-wide subscription switches
     assert [
-             {"input", [{"name", "new_dataset"}, {"type", "hidden"}, {"value", "false"}], []},
-             {"input",
-              [
-                {"id", "new_dataset"},
-                {"name", "new_dataset"},
-                {"phx-click", "toggle"},
-                {"phx-value-action", "turn_on"},
-                {"phx-value-reason", "new_dataset"},
-                {"type", "checkbox"},
-                {"value", "true"}
-              ], []},
              {"input", [{"name", "daily_new_comments"}, {"type", "hidden"}, {"value", "false"}], []},
              {"input",
               [
@@ -136,6 +135,17 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
                 {"phx-click", "toggle"},
                 {"phx-value-action", "turn_off"},
                 {"phx-value-reason", "daily_new_comments"},
+                {"type", "checkbox"},
+                {"value", "true"}
+              ], []},
+             {"input", [{"name", "new_dataset"}, {"type", "hidden"}, {"value", "false"}], []},
+             {"input",
+              [
+                {"id", "new_dataset"},
+                {"name", "new_dataset"},
+                {"phx-click", "toggle"},
+                {"phx-value-action", "turn_on"},
+                {"phx-value-reason", "new_dataset"},
                 {"type", "checkbox"},
                 {"value", "true"}
               ], []}
