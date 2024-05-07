@@ -3,6 +3,7 @@ defmodule Transport.UserNotifier do
 
   @moduledoc """
   Module in charge of building emails.
+  First all admin emails, then all user emails.
   """
 
   def contact(email, subject, question) do
@@ -51,10 +52,11 @@ defmodule Transport.UserNotifier do
   end
 
   def datasets_without_gtfs_rt_related_resources(datasets) do
-    links = Enum.map_join(datasets, "\n", fn %DB.Dataset{slug: slug, custom_title: custom_title} ->
-      link = TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, slug)
-      "* #{custom_title} - #{link}"
-    end)
+    links =
+      Enum.map_join(datasets, "\n", fn %DB.Dataset{slug: slug, custom_title: custom_title} ->
+        link = TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, slug)
+        "* #{custom_title} - #{link}"
+      end)
 
     text_body = """
     Bonjour,
@@ -73,6 +75,15 @@ defmodule Transport.UserNotifier do
     |> reply_to(Application.fetch_env!(:transport, :contact_email))
     |> subject("Jeux de données GTFS-RT sans ressources liées")
     |> text_body(text_body)
+  end
+
+  def datasets_climate_resilience_bill_inappropriate_licence(datasets) do
+    new()
+    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
+    |> to(Application.fetch_env!(:transport, :bizdev_email))
+    |> reply_to(Application.fetch_env!(:transport, :contact_email))
+    |> subject("Jeux de données article 122 avec licence inappropriée")
+    |> render_body("datasets_climate_resilience_bill_inappropriate_licence.html", %{datasets: datasets})
   end
 
   def resources_changed(email, subject, %DB.Dataset{} = dataset) do
