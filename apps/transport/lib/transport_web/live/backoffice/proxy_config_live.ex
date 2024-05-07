@@ -57,6 +57,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     |> Enum.map(fn resource ->
       proxy_base_url
       |> extract_config(resource)
+      |> Map.put(:resource, resource)
       |> add_cache_state()
       |> add_stats(stats)
     end)
@@ -85,9 +86,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
       unique_slug: resource.identifier,
       proxy_url: Transport.Proxy.resource_url(proxy_base_url, resource.identifier),
       original_url: nil,
-      # TODO: decide if we want to cache the overall feed or not, depending on aggregating costs
-      # (most likely: yes)
-      ttl: nil
+      # At time of writing, the global feed is not cached
+      ttl: "N/A"
     }
   end
 
@@ -108,9 +108,12 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
 
     Map.merge(item, %{
       stats_external_requests: Map.get(counts, db_filter_for_event(:external), 0),
-      stats_internal_requests: Map.get(counts, db_filter_for_event(:internal), 0)
+      stats_internal_requests: Map.get(counts, db_filter_for_event(:internal), internal_default(item.resource))
     })
   end
+
+  def internal_default(%Unlock.Config.Item.Aggregate{}), do: nil
+  def internal_default(_), do: 0
 
   defp add_cache_state(item) do
     cache_key = item.unique_slug |> Unlock.Shared.cache_key()
