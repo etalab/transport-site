@@ -12,7 +12,7 @@ defmodule Transport.Jobs.DatasetNowOnNAPNotificationJob do
     dataset = DB.Repo.get!(DB.Dataset, dataset_id)
 
     dataset
-    |> DB.NotificationSubscription.subscriptions_for_dataset()
+    |> DB.NotificationSubscription.subscriptions_for_dataset_and_role(:producer)
     |> DB.NotificationSubscription.subscriptions_to_emails()
     |> MapSet.new()
     |> MapSet.difference(email_addresses_already_sent(dataset))

@@ -187,7 +187,7 @@ defmodule TransportWeb.EditDatasetLive do
             <%= InputHelpers.submit(dgettext("backoffice", "Add")) %>
           <% else %>
             <%= hidden_input(f, :action, value: "edit") %>
-            <%= InputHelpers.submit(dgettext("backoffice", "Edit")) %>
+            <%= InputHelpers.submit(dgettext("backoffice", "Save")) %>
           <% end %>
         </div>
         <div>
