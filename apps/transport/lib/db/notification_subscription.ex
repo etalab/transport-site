@@ -169,11 +169,11 @@ defmodule DB.NotificationSubscription do
   iex > hidden_reasons_for_roles([:reuser])
   [:datasets_switching_climate_resilience_bill]
   """
-  @spec hidden_reasons_for_roles([role()]) :: [reason()]
-  def hidden_reasons_for_roles(roles) do
+  @spec hidden_reasons_for_role(role()) :: [reason()]
+  def hidden_reasons_for_role(role) do
     @reasons_rules
     |> Map.filter(fn
-      {_, %{hide_from_user: hide_from_user}} -> roles in hide_from_user
+      {_, %{hide_from_user: hide_from_user}} -> role in hide_from_user
       _ -> false
     end)
     |> Map.keys()
@@ -234,7 +234,7 @@ defmodule DB.NotificationSubscription do
   """
   @spec shown_subscribable_platform_wide_reasons(role()) :: [reason()]
   def shown_subscribable_platform_wide_reasons(role) do
-    subscribable_platform_wide_reasons(role) -- hidden_reasons_for_roles(role)
+    subscribable_platform_wide_reasons(role) -- hidden_reasons_for_role(role)
   end
 
   @spec subscriptions_for_reason_dataset_and_role(atom(), DB.Dataset.t(), role()) :: [__MODULE__.t()]
