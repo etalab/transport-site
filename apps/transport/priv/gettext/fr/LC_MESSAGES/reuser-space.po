@@ -78,3 +78,27 @@ msgstr "Notifications par jeu de données"
 #, elixir-autogen, elixir-format
 msgid "notifications are good for you"
 msgstr "Les notifications e-mail vous préviennent des problèmes de qualité ou d’indisponibilité qui pourraient affecter vos réutilisations des données de transport. Afin d’activer les notifications sur un jeu de données, mettez-le d’abord en favori (icône ❤️ sur la page du jeu de donnée).<br/><br/>Vous pouvez également suivre l’activité générale de transport.data.gouv.fr à travers les commentaires et nouveaux jeux de données"
+
+#, elixir-autogen, elixir-format
+msgid "Access your reuser space"
+msgstr "Accédez à votre espace réutilisateur"
+
+#, elixir-autogen, elixir-format
+msgid "Set up notifications"
+msgstr "Gérez vos notifications"
+
+#, elixir-autogen, elixir-format
+msgid "To log in, you will be redirected to data.gouv.fr, the open platform for French public data"
+msgstr "Pour vous identifier vous allez être redirigé vers data.gouv.fr, la plateforme ouverte des données publiques françaises."
+
+#, elixir-autogen, elixir-format
+msgid "Welcome!"
+msgstr "Bienvenue !"
+
+#, elixir-autogen, elixir-format
+msgid "transport.data.gouv.fr helps you follow the data you reuse"
+msgstr "transport.data.gouv.fr vous aide à suivre les données que vous réutilisez"
+
+#, elixir-autogen, elixir-format
+msgid "transport.data.gouv.fr is affiliated with data.gouv.fr, the open platform for French public data"
+msgstr "transport.data.gouv.fr est affilié à data.gouv.fr : la plateforme ouverte des données publiques françaises"
