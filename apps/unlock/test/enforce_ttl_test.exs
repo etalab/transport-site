@@ -30,6 +30,9 @@ defmodule Unlock.EnforceTTLTest do
 
     assert ttl_config_value < Unlock.Shared.default_cache_expiration_seconds()
 
+    # NOTE: this test would be better served with individual assertions + runs
+    # but to get there needs a bit more work.
+
     # proxy cache keys should be empty
     assert [] == cache_keys()
     # a non-bogus proxy entry: its TTL will make it expire
