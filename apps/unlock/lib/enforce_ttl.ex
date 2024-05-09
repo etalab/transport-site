@@ -5,6 +5,14 @@ defmodule Unlock.EnforceTTL do
   If a cache key does not have a TTL or if its TTL
   is greater than the item's configuration,
   it is deleted.
+
+  This module is a work-around for an issue we faced with Cachex, see:
+  - https://github.com/etalab/transport-site/issues/2028
+  - https://github.com/etalab/transport-site/pull/2961
+  - https://github.com/whitfin/cachex/issues/304
+
+  At time of writing, it is believed that the issue still occur in rare occasions:
+  - https://github.com/etalab/transport-site/issues/2976
   """
   use GenServer
   import Unlock.Shared
