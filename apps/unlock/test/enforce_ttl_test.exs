@@ -30,17 +30,31 @@ defmodule Unlock.EnforceTTLTest do
 
     assert ttl_config_value < Unlock.Shared.default_cache_expiration_seconds()
 
+    # proxy cache keys should be empty
     assert [] == cache_keys()
+    # a non-bogus proxy entry: its TTL will make it expire
     cache_put(cache_key("with_ttl"), :timer.seconds(5))
+    # a bogus proxy entry: its TTL is not set, causing it to never expire.
+    # these are the one which are dangerous (see `EnforceTTL` documentation)
+    # and which we want to remove
     cache_put(cache_key("no_ttl"))
+    # a non-proxy entry: we do not want to impact those
     cache_put("no_prefix")
 
+    # initially, the list of proxy cache keys should include only 2 entries
     assert ["resource:with_ttl", "resource:no_ttl"] == cache_keys()
 
+    # this is expected to remove bogus entries (the ones without a TTL),
+    # which would otherwise remain "available but stale" forever
     Unlock.EnforceTTL.handle_info(:work, %{})
 
+    # explicitely written, the bogus key should not be there anymore
+    refute "resource:no_ttl" in cache_keys()
+    # a bit redundant, but exactly the non-bogus keys should be there
     assert ["resource:with_ttl"] == cache_keys()
-    assert ["resource:with_ttl", "no_prefix"] == Cachex.keys!(cache_name())
+
+    # non-proxy keys should still be there too
+    assert "no_prefix" in Cachex.keys!(cache_name())
   end
 
   test "supports aggregate sub-keys" do
