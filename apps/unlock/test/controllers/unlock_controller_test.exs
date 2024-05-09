@@ -554,9 +554,7 @@ defmodule Unlock.ControllerTest do
     end
 
     test "handles GET /resource/:slug" do
-      slug = "an-existing-aggregate-identifier"
-
-      {url, second_url} = setup_aggregate_proxy_config(slug)
+      {url, second_url} = setup_aggregate_proxy_config("an-existing-aggregate-identifier")
 
       setup_remote_responses(%{
         # On line separators: both "\r\n" (Windows) and "\n" (Linux, generally) can be seen
