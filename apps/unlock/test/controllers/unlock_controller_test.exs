@@ -579,6 +579,8 @@ defmodule Unlock.ControllerTest do
       assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
                        %{target: "proxy:an-existing-aggregate-identifier:second-remote"}}
 
+      # TODO: add logs assertions
+
       verify!(Unlock.HTTP.Client.Mock)
     end
 
@@ -599,6 +601,8 @@ defmodule Unlock.ControllerTest do
       # does not include second (bogus) data, but still includes first (non bogus) data
       assert resp.resp_body == Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")
       refute String.contains?(resp.resp_body, "foo")
+
+      # TODO: add logs assertion
 
       verify!(Unlock.HTTP.Client.Mock)
     end
@@ -651,12 +655,16 @@ defmodule Unlock.ControllerTest do
       assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
                        %{target: "proxy:an-existing-aggregate-identifier:second-remote"}}
 
+      # TODO - assert metric only on bogus feed event (we still want it)
+      # TODO - assert logs
+
       verify!(Unlock.HTTP.Client.Mock)
     end
 
-    # TODO: test remote 500, remote 404, remote 302, technical error, remote content type
-    # TODO: test time-out (specific code path with Elixir 1.14+ features)
-    # TODO: status, caching/TTL of main feed, "limit" mode, source tracing via extra column
+    test "handles 302 in sub-feed gracefully"
+    test "async stream timeout (specific code path)"
+    test "limit mode"
+    test "source tracing"
   end
 
   defp setup_telemetry_handler do
