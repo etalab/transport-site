@@ -566,7 +566,6 @@ defmodule Unlock.ControllerTest do
 
       resp =
         build_conn()
-        |> fetch_query_params()
         |> get("/resource/an-existing-aggregate-identifier")
 
       assert resp.status == 200
@@ -602,7 +601,6 @@ defmodule Unlock.ControllerTest do
         capture_log(fn ->
           resp =
             build_conn()
-            |> fetch_query_params()
             |> get("/resource/an-existing-aggregate-identifier")
 
           assert resp.status == 200
@@ -635,7 +633,6 @@ defmodule Unlock.ControllerTest do
 
       resp =
         build_conn()
-        |> fetch_query_params()
         |> get("/resource/an-existing-aggregate-identifier")
 
       assert resp.status == 200
