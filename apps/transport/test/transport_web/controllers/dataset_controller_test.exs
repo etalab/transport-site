@@ -145,6 +145,76 @@ defmodule TransportWeb.DatasetControllerTest do
     end
   end
 
+  describe "heart icons" do
+    test "not displayed when logged out", %{conn: conn} do
+      insert(:dataset, type: "public-transit", is_active: true)
+
+      assert [
+               {"div", [{"class", "dataset__type"}],
+                [{"img", [{"alt", "public-transit"}, {"src", "/images/icons/bus.svg"}], []}]}
+             ] =
+               conn
+               |> get(dataset_path(conn, :index))
+               |> html_response(200)
+               |> Floki.parse_document!()
+               |> Floki.find(".dataset__type")
+    end
+
+    test "displayed accordingly for producer, following and nothing", %{conn: conn} do
+      organization = insert(:organization)
+
+      contact =
+        insert_contact(%{
+          datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
+          organizations: [organization |> Map.from_struct()]
+        })
+
+      insert(:dataset, organization_id: organization.id, custom_title: "A")
+      followed_dataset = insert(:dataset, custom_title: "B")
+      insert(:dataset_follower, contact_id: contact.id, dataset_id: followed_dataset.id)
+      insert(:dataset, custom_title: "C")
+
+      document =
+        conn
+        |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+        |> get(dataset_path(conn, :index))
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      assert ["A", "B", "C"] ==
+               document |> Floki.find(".dataset__title") |> Enum.map(&(&1 |> Floki.text() |> String.trim()))
+
+      assert [
+               {"i", [{"class", "fa fa-heart producer"}], []},
+               {"i", [{"class", "fa fa-heart following"}], []},
+               {"i", [{"class", "fa fa-heart"}], []}
+             ] =
+               Floki.find(document, ".dataset__type i.fa-heart")
+    end
+  end
+
+  test "dataset_heart_values" do
+    organization = insert(:organization)
+
+    contact =
+      insert_contact(%{
+        datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
+        organizations: [organization |> Map.from_struct()]
+      })
+
+    producer_dataset = insert(:dataset, organization_id: organization.id)
+    insert(:dataset_follower, contact_id: contact.id, dataset: followed_dataset = insert(:dataset))
+    nothing_dataset = insert(:dataset)
+
+    datasets = DB.Repo.all(DB.Dataset)
+
+    assert %{
+             producer_dataset.id => :producer,
+             followed_dataset.id => :following,
+             nothing_dataset.id => nil
+           } == TransportWeb.DatasetController.dataset_heart_values(%{"id" => datagouv_user_id}, datasets)
+  end
+
   test "has_validity_period?" do
     assert TransportWeb.DatasetView.has_validity_period?(%DB.ResourceHistory{
              validations: [
