@@ -582,12 +582,29 @@ defmodule Unlock.ControllerTest do
       verify!(Unlock.HTTP.Client.Mock)
     end
 
-    # TODO: test 200 feed with bogus content, should be dropped as well
+    test "drops bogus 200 sub-feed content safely" do
+      {url, second_url} = setup_aggregate_proxy_config("an-existing-aggregate-identifier")
 
-    test "does not block the whole consolidated feed when one sub-feed generates a technical error" do
-      slug = "an-existing-aggregate-identifier"
+      setup_remote_responses(%{
+        url => {200, Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")},
+        second_url => {200, Helper.data_as_csv(["foo"], [%{"foo" => "bar"}], "\n")}
+      })
 
-      {url, second_url} = setup_aggregate_proxy_config(slug)
+      resp =
+        build_conn()
+        |> get("/resource/an-existing-aggregate-identifier")
+
+      # we consider that the overall response is OK (and will provide observability of bogus feeds elsewhere)
+      assert resp.status == 200
+      # does not include second (bogus) data, but still includes first (non bogus) data
+      assert resp.resp_body == Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")
+      refute String.contains?(resp.resp_body, "foo")
+
+      verify!(Unlock.HTTP.Client.Mock)
+    end
+
+    test "drops sub-feed raising exception (e.g. request hard error)" do
+      {url, second_url} = setup_aggregate_proxy_config("an-existing-aggregate-identifier")
 
       setup_remote_responses(%{
         url => {200, Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")},
