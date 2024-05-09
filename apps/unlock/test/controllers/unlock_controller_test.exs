@@ -538,31 +538,31 @@ defmodule Unlock.ControllerTest do
       {url, second_url}
     end
 
+    def setup_remote_responses(responses) do
+      # Processing is concurrent and while the output is "ordered" by design, the requests
+      # are not guaranteed to come in the right order, so we have to cheat a bit here.
+      # We introduce flexibility to ensure whatever target is processed first, N queries are made
+      # and the rest (order & content) is tested by the final assertion on response body.
+      response_function = fn url, _request_headers ->
+        data = Map.fetch!(responses, url)
+        {status, body} = if is_function(data), do: data.(), else: data
+        %Unlock.HTTP.Response{body: body, status: status, headers: []}
+      end
+
+      Unlock.HTTP.Client.Mock
+      |> expect(:get!, responses |> Map.keys() |> length(), response_function)
+    end
+
     test "handles GET /resource/:slug" do
       slug = "an-existing-aggregate-identifier"
 
       {url, second_url} = setup_aggregate_proxy_config(slug)
 
-      # Processing is concurrent and while the output is "ordered" by design, the requests
-      # are not guaranteed to come in the right order, so we have to cheat a bit here.
-      # We introduce flexibility to ensure whatever target is processed first, 2 queries are made
-      # and the rest (order & content) is tested by the final assertion on response body.
-      responses = %{
+      setup_remote_responses(%{
         # On line separators: both "\r\n" (Windows) and "\n" (Linux, generally) can be seen
-        url => Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n"),
-        second_url => Helper.data_as_csv(@expected_headers, [@second_data_row], "\n")
-      }
-
-      response_function = fn url, _request_headers ->
-        %Unlock.HTTP.Response{
-          body: responses |> Map.fetch!(url),
-          status: 200,
-          headers: []
-        }
-      end
-
-      Unlock.HTTP.Client.Mock
-      |> expect(:get!, 2, response_function)
+        url => {200, Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")},
+        second_url => {200, Helper.data_as_csv(@expected_headers, [@second_data_row], "\n")}
+      })
 
       resp =
         build_conn()
@@ -593,24 +593,10 @@ defmodule Unlock.ControllerTest do
 
       {url, second_url} = setup_aggregate_proxy_config(slug)
 
-      responses = %{
+      setup_remote_responses(%{
         url => {200, Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")},
         second_url => fn -> raise %Mint.TransportError{reason: :nxdomain} end
-      }
-
-      response_function = fn url, _request_headers ->
-        data = Map.fetch!(responses, url)
-        {status, body} = if is_function(data), do: data.(), else: data
-
-        %Unlock.HTTP.Response{
-          body: body,
-          status: status,
-          headers: []
-        }
-      end
-
-      Unlock.HTTP.Client.Mock
-      |> expect(:get!, 2, response_function)
+      })
 
       logs =
         capture_log(fn ->
@@ -642,23 +628,10 @@ defmodule Unlock.ControllerTest do
 
       {url, second_url} = setup_aggregate_proxy_config(slug)
 
-      responses = %{
+      setup_remote_responses(%{
         url => {200, Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")},
         second_url => {500, Helper.data_as_csv(@expected_headers, [@second_data_row], "\n")}
-      }
-
-      response_function = fn url, _request_headers ->
-        {status, body} = Map.fetch!(responses, url)
-
-        %Unlock.HTTP.Response{
-          body: body,
-          status: status,
-          headers: []
-        }
-      end
-
-      Unlock.HTTP.Client.Mock
-      |> expect(:get!, 2, response_function)
+      })
 
       resp =
         build_conn()
