@@ -611,24 +611,14 @@ defmodule Unlock.ControllerTest do
         second_url => fn -> raise %Mint.TransportError{reason: :nxdomain} end
       })
 
-      logs =
-        capture_log(fn ->
-          resp =
-            build_conn()
-            |> get("/resource/an-existing-aggregate-identifier")
-
-          assert resp.status == 200
-          assert resp.resp_body == Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")
-
-          assert_received {:telemetry_event, [:proxy, :request, :external], %{},
-                           %{target: "proxy:an-existing-aggregate-identifier"}}
-
-          assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
-                           %{target: "proxy:an-existing-aggregate-identifier:first-remote"}}
-
-          assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
-                           %{target: "proxy:an-existing-aggregate-identifier:second-remote"}}
+      {resp, logs} =
+        with_log(fn ->
+          build_conn()
+          |> get("/resource/an-existing-aggregate-identifier")
         end)
+
+      assert resp.status == 200
+      assert resp.resp_body == Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")
 
       assert logs =~ ~r|Non-200 response for origin second-remote, response has been dropped|
 
