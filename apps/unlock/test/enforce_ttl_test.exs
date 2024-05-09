@@ -65,12 +65,17 @@ defmodule Unlock.EnforceTTLTest do
     slug = "some-slug"
 
     setup_proxy_config(%{
-      "no_ttl" => %Unlock.Config.Item.Aggregate{
+      "aggregate" => %Unlock.Config.Item.Aggregate{
         identifier: slug,
         ttl: 10,
         feeds: [
           %Unlock.Config.Item.Generic.HTTP{
             identifier: "first-remote",
+            target_url: "http://localhost:1234",
+            ttl: 10
+          },
+          %Unlock.Config.Item.Generic.HTTP{
+            identifier: "second-remote",
             target_url: "http://localhost:1234",
             ttl: 10
           }
@@ -80,15 +85,19 @@ defmodule Unlock.EnforceTTLTest do
 
     assert ttl_config_value < Unlock.Shared.default_cache_expiration_seconds()
 
-    assert [] == cache_keys()
-    # this uses composite keys
-    cache_put(cache_key("no_ttl:first-remote"))
+    # create a cache entry without cachex TTL to reproduce the bug
+    # this case uses composite keys (for aggregate support)
+    cache_put(cache_key("aggregate:first-remote"), nil)
+    # create a non-bogus entry with proper Cachex TTL
+    cache_put(cache_key("aggregate:second-remote"), :timer.seconds(5))
 
-    assert ["resource:no_ttl:first-remote"] == cache_keys()
-
+    assert ["resource:aggregate:first-remote", "resource:aggregate:second-remote"] == cache_keys()
     Unlock.EnforceTTL.handle_info(:work, %{})
 
-    # TODO: add a couple of extra assertions here
+    # bogus cache key should have been removed
+    refute "resource:aggregate:first-remote" in cache_keys()
+    # the other one should remain
+    assert ["resource:aggregate:second-remote"] == cache_keys()
   end
 
   def setup_proxy_config(config) do
