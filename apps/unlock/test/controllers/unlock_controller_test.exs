@@ -582,7 +582,6 @@ defmodule Unlock.ControllerTest do
       verify!(Unlock.HTTP.Client.Mock)
     end
 
-    # TODO: DRY all this with pre-baked setup, once I have all the cases figured out
     # TODO: test 200 feed with bogus content, should be dropped as well
 
     test "does not block the whole consolidated feed when one sub-feed generates a technical error" do
