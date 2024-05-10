@@ -697,7 +697,6 @@ defmodule Unlock.ControllerTest do
       verify!(Unlock.HTTP.Client.Mock)
     end
 
-    test "handles 302 in sub-feed gracefully"
     test "async stream timeout (specific code path)"
     test "limit mode"
     test "source tracing"
