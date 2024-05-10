@@ -556,7 +556,6 @@ defmodule Unlock.ControllerTest do
       |> expect(:get!, responses |> Map.keys() |> length(), response_function)
     end
 
-    @tag :focus
     test "handles GET /resource/:slug" do
       {url, second_url} = setup_aggregate_proxy_config("an-existing-aggregate-identifier")
 
