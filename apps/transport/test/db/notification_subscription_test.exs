@@ -17,7 +17,7 @@ defmodule DB.NotificationSubscriptionTest do
     # valid cases
     assert %Ecto.Changeset{valid?: true} =
              changeset.(%{
-               role: :producer,
+               role: :reuser,
                source: :admin,
                reason: :datasets_switching_climate_resilience_bill,
                contact_id: contact.id
@@ -30,16 +30,6 @@ defmodule DB.NotificationSubscriptionTest do
                reason: :expiration,
                contact_id: contact.id,
                dataset_id: dataset.id
-             })
-
-    # `dataset_id` can't be blank and should exist if the `reason` is related to a dataset
-    assert %Ecto.Changeset{valid?: false, errors: [dataset_id: {"can't be blank", [validation: :required]}]} =
-             changeset.(%{
-               source: :admin,
-               role: :producer,
-               reason: :expiration,
-               contact_id: contact.id,
-               dataset_id: nil
              })
 
     assert {:error, %Ecto.Changeset{valid?: false, errors: [dataset: {"does not exist", _}]}} =
@@ -57,7 +47,7 @@ defmodule DB.NotificationSubscriptionTest do
     assert %Ecto.Changeset{valid?: false, errors: [contact_id: {"can't be blank", [validation: :required]}]} =
              changeset.(%{
                source: :admin,
-               role: :producer,
+               role: :reuser,
                reason: :datasets_switching_climate_resilience_bill,
                contact_id: nil
              })
@@ -65,7 +55,7 @@ defmodule DB.NotificationSubscriptionTest do
     assert {:error, %Ecto.Changeset{valid?: false, errors: [contact: {"does not exist", _}]}} =
              %{
                source: :admin,
-               role: :producer,
+               role: :reuser,
                reason: :datasets_switching_climate_resilience_bill,
                contact_id: -1
              }
@@ -73,12 +63,59 @@ defmodule DB.NotificationSubscriptionTest do
              |> DB.Repo.insert()
 
     # `source` and `role` are enums
-    assert %Ecto.Changeset{valid?: false, errors: [source: {"is invalid", _}, role: {"is invalid", _}]} =
+    assert %Ecto.Changeset{
+             valid?: false,
+             errors: [
+               reason: {"is not allowed for the given role", _},
+               source: {"is invalid", _},
+               role: {"is invalid", _}
+             ]
+           } =
              changeset.(%{
                role: :foo,
                source: :foo,
                reason: :datasets_switching_climate_resilience_bill,
                contact_id: contact.id
+             })
+
+    # Some reasons can’t be possible depending on dataset presence or role
+    assert %Ecto.Changeset{
+             valid?: false,
+             errors: [
+               {:reason, {"is not allowed for the given role", _}}
+             ]
+           } =
+             changeset.(%{
+               role: :producer,
+               source: :admin,
+               reason: :resources_changed,
+               contact_id: contact.id,
+               dataset_id: dataset.id
+             })
+
+    assert %Ecto.Changeset{
+             valid?: false,
+             errors: [reason: {"is not allowed for the given dataset presence", _}]
+           } =
+             changeset.(%{
+               source: :admin,
+               role: :producer,
+               reason: :expiration,
+               contact_id: contact.id,
+               dataset_id: nil
+             })
+
+    # Some reasons are only there to create individual notifications and are not allowed as subscriptions
+    assert %Ecto.Changeset{
+             valid?: false,
+             errors: [reason: {"is not allowed for subscription", _}]
+           } =
+             changeset.(%{
+               source: :admin,
+               role: :producer,
+               reason: :periodic_reminder_producers,
+               contact_id: contact.id,
+               dataset_id: nil
              })
   end
 end
