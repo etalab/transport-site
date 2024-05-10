@@ -1,5 +1,9 @@
 defmodule Transport.Platform do
-  # NOTE: duplicate from `mix.exs`, a bit complicated to DRY apparently
+  @moduledoc """
+  A little heuristic to determine if the code is running on a Mac M1.
+
+  Duplicate from `mix.exs`, a bit complicated to DRY apparently.
+  """
   def apple_silicon? do
     :system_architecture
     |> :erlang.system_info()
