@@ -475,9 +475,11 @@ defmodule Unlock.ControllerTest do
       "etat_prise_type_ef"
     ]
 
-    # maps are unordered, and in this case the columns
-    # MUST be ordered (by spec)
     defmodule Helper do
+      @doc """
+      Given an ordered list of headers, and rows as maps (which are inherently unordered), build
+      a CSV respecting the exact set of headers in the right orders (as `TableSchema` dictates by default)
+      """
       def data_as_csv(headers, rows_as_maps, line_separator) do
         rows =
           rows_as_maps
@@ -494,27 +496,19 @@ defmodule Unlock.ControllerTest do
       end
     end
 
-    @first_data_row %{
-      "id_pdc_itinerance" => "FR123",
-      "etat_pdc" => "xyz",
-      "occupation_pdc" => "xyz",
-      "horodatage" => "xyz",
-      "etat_prise_type_2" => "xyz",
-      "etat_prise_type_combo_ccs" => "xyz",
-      "etat_prise_type_chademo" => "xyz",
-      "etat_prise_type_ef" => "xyz"
-    }
-
-    @second_data_row %{
-      "id_pdc_itinerance" => "FR456",
-      "etat_pdc" => "xyz",
-      "occupation_pdc" => "xyz",
-      "horodatage" => "xyz",
-      "etat_prise_type_2" => "xyz",
-      "etat_prise_type_combo_ccs" => "xyz",
-      "etat_prise_type_chademo" => "xyz",
-      "etat_prise_type_ef" => "xyz"
-    }
+    def build_unique_data_row() do
+      # Not very respectful of the schema at the moment, but good enough for the tests
+      %{
+        "id_pdc_itinerance" => "FRA12" <> (Ecto.UUID.generate() |> String.upcase()),
+        "etat_pdc" => "xyz",
+        "occupation_pdc" => "xyz",
+        "horodatage" => "xyz",
+        "etat_prise_type_2" => "xyz",
+        "etat_prise_type_combo_ccs" => "xyz",
+        "etat_prise_type_chademo" => "xyz",
+        "etat_prise_type_ef" => "xyz"
+      }
+    end
 
     def setup_aggregate_proxy_config(slug) do
       setup_proxy_config(%{
@@ -561,8 +555,8 @@ defmodule Unlock.ControllerTest do
 
       setup_remote_responses(%{
         # On line separators: both "\r\n" (Windows) and "\n" (Linux, generally) can be seen
-        url => {200, Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")},
-        second_url => {200, Helper.data_as_csv(@expected_headers, [@second_data_row], "\n")}
+        url => {200, Helper.data_as_csv(@expected_headers, [first_data_row = build_unique_data_row()], "\r\n")},
+        second_url => {200, Helper.data_as_csv(@expected_headers, [second_data_row = build_unique_data_row()], "\n")}
       })
 
       {resp, logs} =
@@ -573,7 +567,7 @@ defmodule Unlock.ControllerTest do
 
       assert resp.status == 200
       # Note: TIL: NimbleCSV.RFC4180.dump_to_iodata generates "\r\n" (apparently)
-      assert resp.resp_body == Helper.data_as_csv(@expected_headers, [@first_data_row, @second_data_row], "\r\n")
+      assert resp.resp_body == Helper.data_as_csv(@expected_headers, [first_data_row, second_data_row], "\r\n")
 
       assert_received {:telemetry_event, [:proxy, :request, :external], %{},
                        %{target: "proxy:an-existing-aggregate-identifier"}}
@@ -597,7 +591,7 @@ defmodule Unlock.ControllerTest do
         end)
 
       assert resp.status == 200
-      assert resp.resp_body == Helper.data_as_csv(@expected_headers, [@first_data_row, @second_data_row], "\r\n")
+      assert resp.resp_body == Helper.data_as_csv(@expected_headers, [first_data_row, second_data_row], "\r\n")
 
       assert logs =~ ~r|Proxy response for an-existing-aggregate-identifier:first-remote served from cache|
       assert logs =~ ~r|Proxy response for an-existing-aggregate-identifier:second-remote served from cache|
@@ -607,7 +601,7 @@ defmodule Unlock.ControllerTest do
       {url, second_url} = setup_aggregate_proxy_config("an-existing-aggregate-identifier")
 
       setup_remote_responses(%{
-        url => {200, Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")},
+        url => {200, Helper.data_as_csv(@expected_headers, [first_data_row = build_unique_data_row()], "\r\n")},
         second_url => {200, Helper.data_as_csv(["foo"], [%{"foo" => "bar"}], "\n")}
       })
 
@@ -620,7 +614,7 @@ defmodule Unlock.ControllerTest do
       # we consider that the overall response is OK (and will provide observability of bogus feeds elsewhere)
       assert resp.status == 200
       # does not include second (bogus) data, but still includes first (non bogus) data
-      assert resp.resp_body == Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")
+      assert resp.resp_body == Helper.data_as_csv(@expected_headers, [first_data_row], "\r\n")
       refute String.contains?(resp.resp_body, "foo")
 
       assert logs =~ ~r|Broken stream for origin second-remote \(headers are \["foo"\]\)|
@@ -632,7 +626,7 @@ defmodule Unlock.ControllerTest do
       {url, second_url} = setup_aggregate_proxy_config("an-existing-aggregate-identifier")
 
       setup_remote_responses(%{
-        url => {200, Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")},
+        url => {200, Helper.data_as_csv(@expected_headers, [first_data_row = build_unique_data_row()], "\r\n")},
         # this is swallowed by the code and interpreted as 502
         second_url => fn -> raise %Mint.TransportError{reason: :nxdomain} end
       })
@@ -644,7 +638,7 @@ defmodule Unlock.ControllerTest do
         end)
 
       assert resp.status == 200
-      assert resp.resp_body == Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")
+      assert resp.resp_body == Helper.data_as_csv(@expected_headers, [first_data_row], "\r\n")
 
       assert logs =~ ~r|Non-200 response for origin second-remote \(status=502\), response has been dropped|
 
@@ -657,8 +651,8 @@ defmodule Unlock.ControllerTest do
       {url, second_url} = setup_aggregate_proxy_config(slug)
 
       setup_remote_responses(%{
-        url => {200, Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")},
-        second_url => {500, Helper.data_as_csv(@expected_headers, [@second_data_row], "\n")}
+        url => {200, Helper.data_as_csv(@expected_headers, [first_data_row = build_unique_data_row()], "\r\n")},
+        second_url => {500, Helper.data_as_csv(@expected_headers, [second_data_row = build_unique_data_row()], "\n")}
       })
 
       {resp, logs} =
@@ -669,7 +663,8 @@ defmodule Unlock.ControllerTest do
 
       assert resp.status == 200
       # bogus content (500) is left out
-      assert resp.resp_body == Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")
+      refute String.contains?(resp.resp_body, second_data_row |> Map.fetch!("id_pdc_itinerance"))
+      assert resp.resp_body == Helper.data_as_csv(@expected_headers, [first_data_row], "\r\n")
 
       # we still want the event on the bogus remote
       assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
@@ -686,9 +681,10 @@ defmodule Unlock.ControllerTest do
       {url, second_url} = setup_aggregate_proxy_config(slug)
 
       setup_remote_responses(%{
-        url => {200, Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")},
+        url => {200, Helper.data_as_csv(@expected_headers, [first_data_row = build_unique_data_row()], "\r\n")},
         second_url => {302, "", [{"location", "http://localhost/redirected"}]},
-        "http://localhost/redirected" => {200, Helper.data_as_csv(@expected_headers, [@second_data_row], "\r\n")}
+        "http://localhost/redirected" =>
+          {200, Helper.data_as_csv(@expected_headers, [second_data_row = build_unique_data_row()], "\r\n")}
       })
 
       {resp, logs} =
@@ -699,7 +695,7 @@ defmodule Unlock.ControllerTest do
 
       assert resp.status == 200
       # both rows are found
-      assert resp.resp_body == Helper.data_as_csv(@expected_headers, [@first_data_row, @second_data_row], "\r\n")
+      assert resp.resp_body == Helper.data_as_csv(@expected_headers, [first_data_row, second_data_row], "\r\n")
 
       # we still want the event on the bogus remote
       assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
@@ -731,7 +727,7 @@ defmodule Unlock.ControllerTest do
       flag_pid = spawn(fn -> :timer.sleep(10_000) end)
 
       setup_remote_responses(%{
-        url => {200, Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")},
+        url => {200, Helper.data_as_csv(@expected_headers, [first_data_row = build_unique_data_row()], "\r\n")},
         # second call: wait until the flag process has stopped
         second_url => fn ->
           ref = Process.monitor(flag_pid)
@@ -760,7 +756,7 @@ defmodule Unlock.ControllerTest do
       assert logs =~ ~r|Timeout for origin second-remote, response has been dropped|
 
       # first part must still be there despite the second part timeout
-      assert resp.resp_body == Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")
+      assert resp.resp_body == Helper.data_as_csv(@expected_headers, [first_data_row], "\r\n")
 
       # finally, kill the
       Process.exit(flag_pid, :kill)
@@ -775,10 +771,21 @@ defmodule Unlock.ControllerTest do
     test "limit mode allows to only get a sample of each source" do
       {url, second_url} = setup_aggregate_proxy_config("an-existing-aggregate-identifier")
 
-      # TODO: make each row unique
       setup_remote_responses(%{
-        url => {200, Helper.data_as_csv(@expected_headers, [@first_data_row, @second_data_row], "\r\n")},
-        second_url => {200, Helper.data_as_csv(@expected_headers, [@first_data_row, @second_data_row], "\n")}
+        url =>
+          {200,
+           Helper.data_as_csv(
+             @expected_headers,
+             [row_one_one = build_unique_data_row(), _row_one_two = build_unique_data_row()],
+             "\r\n"
+           )},
+        second_url =>
+          {200,
+           Helper.data_as_csv(
+             @expected_headers,
+             [row_two_one = build_unique_data_row(), _row_two_two = build_unique_data_row()],
+             "\n"
+           )}
       })
 
       resp =
@@ -786,17 +793,16 @@ defmodule Unlock.ControllerTest do
         |> get("/resource/an-existing-aggregate-identifier", limit_per_source: 1)
 
       assert resp.status == 200
-      assert resp.resp_body == Helper.data_as_csv(@expected_headers, [@first_data_row, @first_data_row], "\r\n")
+      assert resp.resp_body == Helper.data_as_csv(@expected_headers, [row_one_one, row_two_one], "\r\n")
       verify!(Unlock.HTTP.Client.Mock)
     end
 
     test "source tracing adds one column to identify each remote" do
       {url, second_url} = setup_aggregate_proxy_config("an-existing-aggregate-identifier")
 
-      # TODO: make each row unique
       setup_remote_responses(%{
-        url => {200, Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")},
-        second_url => {200, Helper.data_as_csv(@expected_headers, [@second_data_row], "\n")}
+        url => {200, Helper.data_as_csv(@expected_headers, [first_data_row = build_unique_data_row()], "\r\n")},
+        second_url => {200, Helper.data_as_csv(@expected_headers, [second_data_row = build_unique_data_row()], "\n")}
       })
 
       resp =
@@ -806,8 +812,8 @@ defmodule Unlock.ControllerTest do
       assert resp.status == 200
 
       expected_headers = @expected_headers ++ ["origin"]
-      first_output_row = @first_data_row |> Map.put("origin", "first-remote")
-      second_output_row = @second_data_row |> Map.put("origin", "second-remote")
+      first_output_row = first_data_row |> Map.put("origin", "first-remote")
+      second_output_row = second_data_row |> Map.put("origin", "second-remote")
 
       assert resp.resp_body ==
                Helper.data_as_csv(expected_headers, [first_output_row, second_output_row], "\r\n")
