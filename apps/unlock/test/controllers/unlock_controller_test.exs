@@ -642,19 +642,24 @@ defmodule Unlock.ControllerTest do
         second_url => {500, Helper.data_as_csv(@expected_headers, [@second_data_row], "\n")}
       })
 
-      resp =
-        build_conn()
-        |> get("/resource/an-existing-aggregate-identifier")
+      {resp, logs} =
+        with_log(fn ->
+          build_conn()
+          |> get("/resource/an-existing-aggregate-identifier")
+        end)
 
       assert resp.status == 200
+      # bogus content (500) is left out
       assert resp.resp_body == Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")
 
-      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
-                       %{target: "proxy:an-existing-aggregate-identifier"}}
-
+      # we still want the event on the bogus remote
       assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
-                       %{target: "proxy:an-existing-aggregate-identifier:first-remote"}}
+                       %{target: "proxy:an-existing-aggregate-identifier:second-remote"}}
 
+      assert logs =~ ~r|Non-200 response for origin second-remote \(status=500\), response has been dropped|
+
+      verify!(Unlock.HTTP.Client.Mock)
+    end
       assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
                        %{target: "proxy:an-existing-aggregate-identifier:second-remote"}}
 
