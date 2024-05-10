@@ -592,9 +592,11 @@ defmodule Unlock.ControllerTest do
         second_url => {200, Helper.data_as_csv(["foo"], [%{"foo" => "bar"}], "\n")}
       })
 
-      resp =
-        build_conn()
-        |> get("/resource/an-existing-aggregate-identifier")
+      {resp, logs} =
+        with_log(fn ->
+          build_conn()
+          |> get("/resource/an-existing-aggregate-identifier")
+        end)
 
       # we consider that the overall response is OK (and will provide observability of bogus feeds elsewhere)
       assert resp.status == 200
@@ -602,7 +604,7 @@ defmodule Unlock.ControllerTest do
       assert resp.resp_body == Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")
       refute String.contains?(resp.resp_body, "foo")
 
-      # TODO: add logs assertion
+      assert logs =~ ~r|Broken stream for origin second-remote \(headers are \["foo"\]\)|
 
       verify!(Unlock.HTTP.Client.Mock)
     end
