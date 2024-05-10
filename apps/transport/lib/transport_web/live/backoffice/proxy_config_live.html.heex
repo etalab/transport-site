@@ -41,11 +41,7 @@
           <td><%= resource[:cache_ttl] %></td>
           <!-- computed stuff -->
           <td><%= Helpers.format_number(resource[:stats_external_requests]) %></td>
-          <td>
-            <%= if resource[:stats_internal_request],
-              do: Helpers.format_number(resource[:stats_internal_requests]),
-              else: "N/C" %>
-          </td>
+          <td><%= Helpers.format_number_maybe_nil(resource[:stats_internal_requests], nil: "N/C") %></td>
         </tr>
       <% end %>
     </tbody>
