@@ -51,6 +51,7 @@ defmodule Unlock.AggregateProcessor do
   def cached_fetch(item, %Unlock.Config.Item.Generic.HTTP{identifier: origin} = sub_item) do
     comp_fn = fn _key ->
       get_function = fn i -> get_with_maybe_redirect(i.target_url) end
+      # NOTE: reuse shared function, a bit confusing but helps DRYing things a bit
       Unlock.CachedFetch.fetch_data(sub_item, get_function)
     end
 
@@ -58,6 +59,8 @@ defmodule Unlock.AggregateProcessor do
     cache_key = Unlock.Shared.cache_key(item.identifier, origin)
     outcome = Cachex.fetch(cache_name, cache_key, comp_fn)
 
+    # NOTE: this code is quite similar to `Unlock.Controller.fetch_remote`, we should
+    # be able to DRY things out at some point.
     case outcome do
       {:ok, result} ->
         Logger.info("Proxy response for #{item.identifier}:#{origin} served from cache")
