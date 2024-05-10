@@ -21,11 +21,20 @@
   z-index: 1;
   bottom: 125%;
   left: 50%;
-  margin-left: -50px;
+  margin-left: -75px;
 
   /* Fade in tooltip */
   opacity: 0;
   transition: opacity 0.3s;
+
+  &.left {
+    top: -30%;
+    right: 105%;
+    bottom: 0;
+    left: auto;
+    margin-left: 0;
+    height: fit-content;
+  }
 }
 
 /* Tooltip arrow */
@@ -38,6 +47,14 @@
   border-width: 5px;
   border-style: solid;
   border-color: var(--theme-border) transparent transparent transparent;
+}
+
+.tooltip .tooltiptext.left::after {
+  top: 50%;
+  left: 100%;
+  margin-top: -5px;
+  margin-left: 0;
+  border-color: transparent transparent transparent var(--theme-border);
 }
 
 /* Show the tooltip text when you mouse over the tooltip container */

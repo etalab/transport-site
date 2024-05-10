@@ -62,21 +62,6 @@
     display: flex;
     flex-wrap: wrap;
   }
-  .follow-dataset-icon {
-    text-align: right;
-
-    p.notification {
-      text-align: left;
-      transition: all 1s;
-      opacity: 0;
-      display: none;
-      &.active {
-        display: block;
-        animation: fade-in 1s;
-        opacity: 1;
-      }
-    }
-  }
 }
 
 @keyframes fade-in {
@@ -625,4 +610,24 @@ hr {
   max-width: 900px;
   margin: 1em auto;
   display: block;
+}
+
+.follow-dataset-icon {
+  text-align: right;
+
+  a:hover {
+    background: transparent;
+  }
+
+  p.notification {
+    text-align: left;
+    transition: all 1s;
+    opacity: 0;
+    display: none;
+    &.active {
+      display: block;
+      animation: fade-in 1s;
+      opacity: 1;
+    }
+  }
 }
