@@ -545,8 +545,11 @@ defmodule Unlock.ControllerTest do
       # and the rest (order & content) is tested by the final assertion on response body.
       response_function = fn url, _request_headers ->
         data = Map.fetch!(responses, url)
-        {status, body} = if is_function(data), do: data.(), else: data
-        %Unlock.HTTP.Response{body: body, status: status, headers: []}
+        # allow function to define data
+        data = if is_function(data), do: data.(), else: data
+        # append optional response headers
+        {status, body, headers} = if match?({_a, _b}, data), do: Tuple.append(data, []), else: data
+        %Unlock.HTTP.Response{body: body, status: status, headers: headers}
       end
 
       Unlock.HTTP.Client.Mock
@@ -660,11 +663,36 @@ defmodule Unlock.ControllerTest do
 
       verify!(Unlock.HTTP.Client.Mock)
     end
+
+    test "handles 302 in sub-feed gracefully" do
+      slug = "an-existing-aggregate-identifier"
+
+      {url, second_url} = setup_aggregate_proxy_config(slug)
+
+      setup_remote_responses(%{
+        url => {200, Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")},
+        second_url => {302, "", [{"location", "http://localhost/redirected"}]},
+        "http://localhost/redirected" => {200, Helper.data_as_csv(@expected_headers, [@second_data_row], "\r\n")}
+      })
+
+      {resp, logs} =
+        with_log(fn ->
+          build_conn()
+          |> get("/resource/an-existing-aggregate-identifier")
+        end)
+
+      assert resp.status == 200
+      # both rows are found
+      assert resp.resp_body == Helper.data_as_csv(@expected_headers, [@first_data_row, @second_data_row], "\r\n")
+
+      # we still want the event on the bogus remote
       assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
                        %{target: "proxy:an-existing-aggregate-identifier:second-remote"}}
 
-      # TODO - assert metric only on bogus feed event (we still want it)
-      # TODO - assert logs
+      assert logs =~ ~r|second-remote responded with HTTP code 200|
+
+      verify!(Unlock.HTTP.Client.Mock)
+    end
 
       verify!(Unlock.HTTP.Client.Mock)
     end
