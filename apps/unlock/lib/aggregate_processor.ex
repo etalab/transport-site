@@ -100,7 +100,7 @@ defmodule Unlock.AggregateProcessor do
           []
       end
     else
-      Logger.info("Non-200 response for origin #{origin}, response has been dropped")
+      Logger.info("Non-200 response for origin #{origin} (status=#{status}), response has been dropped")
       []
     end
   rescue

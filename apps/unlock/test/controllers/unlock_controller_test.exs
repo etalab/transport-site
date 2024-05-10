@@ -609,11 +609,12 @@ defmodule Unlock.ControllerTest do
       verify!(Unlock.HTTP.Client.Mock)
     end
 
-    test "drops sub-feed raising exception (e.g. request hard error)" do
+    test "drops sub-feed raising exception with simulated 502 (e.g. request hard error)" do
       {url, second_url} = setup_aggregate_proxy_config("an-existing-aggregate-identifier")
 
       setup_remote_responses(%{
         url => {200, Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")},
+        # this is swallowed by the code and interpreted as 502
         second_url => fn -> raise %Mint.TransportError{reason: :nxdomain} end
       })
 
@@ -626,7 +627,7 @@ defmodule Unlock.ControllerTest do
       assert resp.status == 200
       assert resp.resp_body == Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")
 
-      assert logs =~ ~r|Non-200 response for origin second-remote, response has been dropped|
+      assert logs =~ ~r|Non-200 response for origin second-remote \(status=502\), response has been dropped|
 
       verify!(Unlock.HTTP.Client.Mock)
     end
