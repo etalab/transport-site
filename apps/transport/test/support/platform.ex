@@ -1,5 +1,5 @@
 defmodule Transport.Platform do
-  # NOTE: duplicate from `mix.exs`, good enough for now
+  # NOTE: duplicate from `mix.exs`, a bit complicated to DRY apparently
   def apple_silicon? do
     :system_architecture
     |> :erlang.system_info()
