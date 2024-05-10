@@ -772,8 +772,48 @@ defmodule Unlock.ControllerTest do
       verify!(Unlock.HTTP.Client.Mock)
     end
 
-    test "limit mode"
-    test "source tracing"
+    test "limit mode allows to only get a sample of each source" do
+      {url, second_url} = setup_aggregate_proxy_config("an-existing-aggregate-identifier")
+
+      # TODO: make each row unique
+      setup_remote_responses(%{
+        url => {200, Helper.data_as_csv(@expected_headers, [@first_data_row, @second_data_row], "\r\n")},
+        second_url => {200, Helper.data_as_csv(@expected_headers, [@first_data_row, @second_data_row], "\n")}
+      })
+
+      resp =
+        build_conn()
+        |> get("/resource/an-existing-aggregate-identifier", limit_per_source: 1)
+
+      assert resp.status == 200
+      assert resp.resp_body == Helper.data_as_csv(@expected_headers, [@first_data_row, @first_data_row], "\r\n")
+      verify!(Unlock.HTTP.Client.Mock)
+    end
+
+    test "source tracing adds one column to identify each remote" do
+      {url, second_url} = setup_aggregate_proxy_config("an-existing-aggregate-identifier")
+
+      # TODO: make each row unique
+      setup_remote_responses(%{
+        url => {200, Helper.data_as_csv(@expected_headers, [@first_data_row], "\r\n")},
+        second_url => {200, Helper.data_as_csv(@expected_headers, [@second_data_row], "\n")}
+      })
+
+      resp =
+        build_conn()
+        |> get("/resource/an-existing-aggregate-identifier", include_origin: 1)
+
+      assert resp.status == 200
+
+      expected_headers = @expected_headers ++ ["origin"]
+      first_output_row = @first_data_row |> Map.put("origin", "first-remote")
+      second_output_row = @second_data_row |> Map.put("origin", "second-remote")
+
+      assert resp.resp_body ==
+               Helper.data_as_csv(expected_headers, [first_output_row, second_output_row], "\r\n")
+
+      verify!(Unlock.HTTP.Client.Mock)
+    end
   end
 
   defp setup_telemetry_handler do
