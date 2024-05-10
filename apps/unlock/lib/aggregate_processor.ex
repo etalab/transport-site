@@ -25,6 +25,8 @@ defmodule Unlock.AggregateProcessor do
         max_concurrency: 10,
         # this is the default, but highlighted for maintenance clarity
         ordered: true,
+        # allow override from tests, default to 5 seconds which is `async_stream` default
+        timeout: Process.get(:override_aggregate_processor_async_timeout, 5_000),
         # only kill the relevant sub-task, not the whole processing
         on_timeout: :kill_task,
         # make sure to pass the sub-item to the exit (used for logging)
@@ -37,7 +39,7 @@ defmodule Unlock.AggregateProcessor do
         {:exit, {sub_item, :timeout}} ->
           # TODO: this codepath is broken. A previous attempt to test lead to
           # transient failures elsewhere.
-          Logger.warning("Timeout for #{sub_item["identifier"]}, response has been dropped")
+          Logger.warning("Timeout for origin #{sub_item.identifier}, response has been dropped")
           []
       end)
       |> Stream.concat()
