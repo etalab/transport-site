@@ -556,6 +556,7 @@ defmodule Unlock.ControllerTest do
       |> expect(:get!, responses |> Map.keys() |> length(), response_function)
     end
 
+    @tag :focus
     test "handles GET /resource/:slug" do
       {url, second_url} = setup_aggregate_proxy_config("an-existing-aggregate-identifier")
 
@@ -565,9 +566,11 @@ defmodule Unlock.ControllerTest do
         second_url => {200, Helper.data_as_csv(@expected_headers, [@second_data_row], "\n")}
       })
 
-      resp =
-        build_conn()
-        |> get("/resource/an-existing-aggregate-identifier")
+      {resp, logs} =
+        with_log(fn ->
+          build_conn()
+          |> get("/resource/an-existing-aggregate-identifier")
+        end)
 
       assert resp.status == 200
       # Note: TIL: NimbleCSV.RFC4180.dump_to_iodata generates "\r\n" (apparently)
@@ -582,9 +585,23 @@ defmodule Unlock.ControllerTest do
       assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
                        %{target: "proxy:an-existing-aggregate-identifier:second-remote"}}
 
-      # TODO: add logs assertions
+      assert logs =~ ~r|first-remote responded with HTTP code 200|
+      assert logs =~ ~r|second-remote responded with HTTP code 200|
 
       verify!(Unlock.HTTP.Client.Mock)
+
+      # more calls should not result in any real query
+      {resp, logs} =
+        with_log(fn ->
+          build_conn()
+          |> get("/resource/an-existing-aggregate-identifier")
+        end)
+
+      assert resp.status == 200
+      assert resp.resp_body == Helper.data_as_csv(@expected_headers, [@first_data_row, @second_data_row], "\r\n")
+
+      assert logs =~ ~r|Proxy response for an-existing-aggregate-identifier:first-remote served from cache|
+      assert logs =~ ~r|Proxy response for an-existing-aggregate-identifier:second-remote served from cache|
     end
 
     test "drops bogus 200 sub-feed content safely" do
