@@ -496,7 +496,7 @@ defmodule Unlock.ControllerTest do
       end
     end
 
-    def build_unique_data_row() do
+    def build_unique_data_row do
       # Not very respectful of the schema at the moment, but good enough for the tests
       %{
         "id_pdc_itinerance" => "FRA12" <> (Ecto.UUID.generate() |> String.upcase()),
