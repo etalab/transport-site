@@ -78,8 +78,8 @@ msgid "Show all datasets"
 msgstr "Montrer tous les jeux de données"
 
 #, elixir-autogen, elixir-format
-msgid "Edit"
-msgstr "Éditer"
+msgid "Save"
+msgstr "Enregistrer"
 
 #, elixir-autogen, elixir-format
 msgid "Edit a dataset"
