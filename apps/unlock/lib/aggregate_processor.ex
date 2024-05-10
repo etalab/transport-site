@@ -35,7 +35,8 @@ defmodule Unlock.AggregateProcessor do
           stream
 
         {:exit, {sub_item, :timeout}} ->
-          # NOTE: this codepath is not tested at the moment
+          # TODO: this codepath is broken. A previous attempt to test lead to
+          # transient failures elsewhere.
           Logger.warning("Timeout for #{sub_item["identifier"]}, response has been dropped")
           []
       end)
