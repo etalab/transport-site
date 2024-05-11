@@ -53,14 +53,14 @@ defmodule Helpers do
 
   ## Examples
 
-  iex> Helpers.format_number_maybe_nil(12_345, nil: "N/C")
+  iex> Helpers.format_number_maybe_nil(12_345, nil_result: "N/C")
   "12 345"
 
-  iex> Helpers.format_number_maybe_nil(nil, nil: "N/C")
+  iex> Helpers.format_number_maybe_nil(nil, nil_result: "N/C")
   "N/C"
   """
-  def format_number_maybe_nil(nil, options), do: options |> Keyword.fetch!(nil)
-  def format_number_maybe_nil(n, options), do: format_number(n, options |> Keyword.delete(nil))
+  def format_number_maybe_nil(nil, options), do: options |> Keyword.fetch!(:nil_result)
+  def format_number_maybe_nil(n, options), do: format_number(n, options |> Keyword.delete(:nil_result))
 
   @spec last_updated([DB.Resource.t()]) :: binary()
   def last_updated(resources) do
