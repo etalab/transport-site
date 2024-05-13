@@ -18,7 +18,7 @@ defmodule TransportWeb.DiscussionsLive do
             "discussion"
           )
         )
-        # scroll to the right place after discussions have been loaded
+        // Scroll to the right place after discussions have been loaded
         if (location.hash) location.href = location.hash;
       })
     </script>
