@@ -22,14 +22,17 @@ defmodule TransportWeb.DatasetController do
         false -> conn
       end
 
+    datasets = get_datasets(params)
+
     conn
-    |> assign(:datasets, get_datasets(params))
+    |> assign(:datasets, datasets)
     |> assign(:types, get_types(params))
     |> assign(:licences, get_licences(params))
     |> assign(:number_realtime_datasets, get_realtime_count(params))
     |> assign(:number_climate_resilience_bill_datasets, climate_resilience_bill_count(params))
     |> assign(:order_by, params["order_by"])
     |> assign(:q, Map.get(params, "q"))
+    |> put_dataset_heart_values(datasets)
     |> put_empty_message(params)
     |> put_category_custom_message(params)
     |> put_climate_resilience_bill_message(params)
@@ -467,4 +470,47 @@ defmodule TransportWeb.DatasetController do
       )
 
   defp put_page_title(conn, _), do: conn
+
+  defp put_dataset_heart_values(%Plug.Conn{assigns: %{current_user: current_user}} = conn, datasets) do
+    if is_nil(current_user) do
+      conn
+    else
+      assign(conn, :dataset_heart_values, dataset_heart_values(current_user, datasets))
+    end
+  end
+
+  @doc """
+  Compute, for each dataset displayed on the current page, what the heart icon$
+  should look like.
+
+  The current user can be a producer/follow the dataset or nothing (not a producer and not following it).
+  """
+  def dataset_heart_values(%{"id" => datagouv_user_id} = _current_user, datasets) do
+    dataset_ids = Enum.map(datasets, & &1.id)
+
+    contact_org_ids =
+      DB.Contact.base_query()
+      |> join(:left, [contact: c], c in assoc(c, :organizations), as: :organization)
+      |> where([contact: c], c.datagouv_user_id == ^datagouv_user_id)
+      |> select([organization: o], o.id)
+      |> DB.Repo.all()
+
+    followed_dataset_ids =
+      DB.Contact.base_query()
+      |> join(:left, [contact: c], c in assoc(c, :followed_datasets), as: :dataset)
+      |> where([contact: c, dataset: d], c.datagouv_user_id == ^datagouv_user_id and d.id in ^dataset_ids)
+      |> select([dataset: d], d.id)
+      |> DB.Repo.all()
+
+    Map.new(datasets, fn %DB.Dataset{id: dataset_id, organization_id: organization_id} ->
+      value =
+        cond do
+          organization_id in contact_org_ids -> :producer
+          dataset_id in followed_dataset_ids -> :following
+          true -> nil
+        end
+
+      {dataset_id, value}
+    end)
+  end
 end
