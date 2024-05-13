@@ -693,3 +693,15 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "<a href=\"%{url}\">Log in or sign up</a> to benefit from dataset services."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Manage your dataset"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Follow this dataset"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Manage services for this dataset"
+msgstr ""
