@@ -125,4 +125,20 @@ defmodule Transport.UserNotifier do
       contact_email_address: Application.get_env(:transport, :contact_email)
     })
   end
+
+  def datasets_switching_climate_resilience_bill(
+        email,
+        datasets_previously_climate_resilience,
+        datasets_now_climate_resilience
+      ) do
+    new()
+    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
+    |> to(email)
+    |> reply_to(Application.fetch_env!(:transport, :contact_email))
+    |> subject("Loi climat et résilience : suivi des jeux de données")
+    |> render_body("datasets_switching_climate_resilience_bill.html", %{
+      datasets_now_climate_resilience: Enum.map(datasets_now_climate_resilience, &Enum.at(&1, 1)),
+      datasets_previously_climate_resilience: Enum.map(datasets_previously_climate_resilience, &Enum.at(&1, 1))
+    })
+  end
 end
