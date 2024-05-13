@@ -18,9 +18,9 @@ defmodule Unlock.AggregateProcessor do
 
   Each sub-item result is cached in its own `Cachex` key.
 
-  The consolidated feed isn't, on purpose at the moment, because it allows a bit of dynamic behaviour
+  The consolidated feed isn't cached, on purpose at the moment, because it allows a bit of dynamic behaviour
   which is helpful (we will still be able to cache the global feed later, but if we do so we will want to
-  make sure the overall TTL does not increase too much.
+  make sure the overall TTL does not increase too much).
 
   NOTE: special care will be needed as we add more feeds, if the risk of timeout increases: the total
   computation delay, in case of timeouts, will increase accordingly, as the global consolidation has to
