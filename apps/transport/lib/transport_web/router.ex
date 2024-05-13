@@ -48,6 +48,11 @@ defmodule TransportWeb.Router do
     plug(:check_export_secret_key)
   end
 
+  pipeline :producer_space do
+    plug(:browser)
+    plug(:authentication_required, destination_path: "/infos_producteurs")
+  end
+
   scope "/", OpenApiSpex.Plug do
     pipe_through(:browser_no_csp)
 
@@ -80,7 +85,7 @@ defmodule TransportWeb.Router do
     get("/humans.txt", PageController, :humans_txt)
 
     scope "/espace_producteur" do
-      pipe_through([:authenticated])
+      pipe_through([:producer_space])
       get("/", PageController, :espace_producteur)
       get("/proxy_statistics", EspaceProducteurController, :proxy_statistics)
 
@@ -354,12 +359,27 @@ defmodule TransportWeb.Router do
     end
   end
 
-  defp authentication_required(conn, _) do
+  @doc """
+  Checks if the user is logged-in or not and redirects accordingly.
+
+  If the user is logged-in, do nothing.
+  If the user is not logged-in, redirects to the login page which then redirects
+  to the previous page.
+
+  Available options:
+  - `destination_path`: instead of redirecting to the login page, redirect to this path
+  """
+  def authentication_required(%Plug.Conn{} = conn, nil), do: authentication_required(conn, [])
+
+  def authentication_required(%Plug.Conn{} = conn, options) do
+    login_path = Helpers.page_path(conn, :login, redirect_path: current_path(conn))
+    destination_path = Keyword.get(options, :destination_path, login_path)
+
     case conn.assigns[:current_user] do
       nil ->
         conn
         |> put_flash(:info, dgettext("alert", "You need to be connected before doing this."))
-        |> redirect(to: Helpers.page_path(conn, :login, redirect_path: current_path(conn)))
+        |> redirect(to: destination_path)
         |> halt()
 
       _ ->

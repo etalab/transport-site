@@ -15,12 +15,18 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
-  test "requires login", %{conn: conn} do
-    Enum.each([@producer_url, @reuser_url], fn url ->
-      conn = conn |> get(url)
-      assert "/login/explanation?" <> URI.encode_query(redirect_path: url) == redirected_to(conn, 302)
+  describe "requires login" do
+    test "as a producer", %{conn: conn} do
+      conn = conn |> get(@producer_url)
+      assert redirected_to(conn, 302) == page_path(conn, :infos_producteurs)
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Vous devez être préalablement connecté"
-    end)
+    end
+
+    test "as a reuser", %{conn: conn} do
+      conn = conn |> get(@reuser_url)
+      assert redirected_to(conn, 302) == "/login/explanation?" <> URI.encode_query(redirect_path: @reuser_url)
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Vous devez être préalablement connecté"
+    end
   end
 
   test "displays existing subscriptions for a producer", %{conn: conn} do
