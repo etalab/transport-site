@@ -196,7 +196,7 @@
                     </div>
                   </div>
                   <div class="dataset__type">
-                    <%= unless is_nil(@current_user) do %>
+                    <%= if TransportWeb.Session.admin?(@conn) do %>
                       <i class={heart_class(@dataset_heart_values, dataset)}></i>
                     <% end %>
                     <%= unless is_nil(icon_type_path(dataset)) do %>

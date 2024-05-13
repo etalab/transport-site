@@ -160,7 +160,25 @@ defmodule TransportWeb.DatasetControllerTest do
                |> Floki.find(".dataset__type")
     end
 
-    test "displayed accordingly for producer, following and nothing", %{conn: conn} do
+    test "non admin: hidden for now now", %{conn: conn} do
+      contact = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+
+      insert(:dataset, custom_title: "A")
+      followed_dataset = insert(:dataset, custom_title: "B")
+      insert(:dataset_follower, contact_id: contact.id, dataset_id: followed_dataset.id)
+
+      document =
+        conn
+        |> init_test_session(%{current_user: %{"id" => datagouv_user_id, "is_admin" => false}})
+        |> get(dataset_path(conn, :index))
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      assert ["A", "B"] == dataset_titles(document)
+      assert [] == Floki.find(document, ".dataset__type i.fa-heart")
+    end
+
+    test "admin: displayed accordingly for producer, following and nothing", %{conn: conn} do
       organization = insert(:organization)
 
       contact =
@@ -176,14 +194,12 @@ defmodule TransportWeb.DatasetControllerTest do
 
       document =
         conn
-        |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+        |> init_test_session(%{current_user: %{"id" => datagouv_user_id, "is_admin" => true}})
         |> get(dataset_path(conn, :index))
         |> html_response(200)
         |> Floki.parse_document!()
 
-      assert ["A", "B", "C"] ==
-               document |> Floki.find(".dataset__title") |> Enum.map(&(&1 |> Floki.text() |> String.trim()))
-
+      assert ["A", "B", "C"] == dataset_titles(document)
       assert [
                {"i", [{"class", "fa fa-heart producer"}], []},
                {"i", [{"class", "fa fa-heart following"}], []},
@@ -638,5 +654,9 @@ defmodule TransportWeb.DatasetControllerTest do
       assert Keyword.equal?(options, preload_validations: true, max_records: 25)
       []
     end)
+  end
+
+  defp dataset_titles(document) do
+    document |> Floki.find(".dataset__title > a") |> Enum.map(&(&1 |> Floki.text() |> String.trim()))
   end
 end
