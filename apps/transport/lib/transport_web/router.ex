@@ -79,6 +79,7 @@ defmodule TransportWeb.Router do
     get("/loi-climat-resilience", PageController, :loi_climat_resilience)
     get("/accessibilite", PageController, :accessibility)
     get("/infos_producteurs", PageController, :infos_producteurs)
+    get("/infos_reutilisateurs", PageController, :infos_reutilisateurs)
     get("/robots.txt", PageController, :robots_txt)
     get("/.well-known/security.txt", PageController, :security_txt)
     get("/humans.txt", PageController, :humans_txt)
