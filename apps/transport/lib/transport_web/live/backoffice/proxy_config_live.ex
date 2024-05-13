@@ -45,7 +45,11 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
 
   defp config_module, do: Application.fetch_env!(:unlock, :config_fetcher)
 
-  defp get_proxy_configuration(proxy_base_url, stats_days) do
+  @doc """
+  Builds a list of maps containing what we need on display on screen, based on configuration
+  plus a bit of cache state and statistics.
+  """
+  def get_proxy_configuration(proxy_base_url, stats_days) do
     # NOTE: if the stats query becomes too costly, we will be able to throttle it every N seconds instead,
     # using a simple cache. At the moment, `get_proxy_configuration` is called once per frame, and not
     # once per item.
@@ -57,11 +61,14 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     |> Enum.map(fn resource ->
       proxy_base_url
       |> extract_config(resource)
-      |> Map.put(:resource, resource)
       |> add_cache_state()
       |> add_stats(stats)
     end)
   end
+
+  # We do not display the internal count for aggregate item at the moment
+  def internal_count_default_value(%Unlock.Config.Item.Aggregate{}), do: nil
+  def internal_count_default_value(_), do: 0
 
   defp extract_config(proxy_base_url, %Unlock.Config.Item.Generic.HTTP{} = resource) do
     %{
@@ -87,7 +94,9 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
       proxy_url: Transport.Proxy.resource_url(proxy_base_url, resource.identifier),
       original_url: nil,
       # At time of writing, the global feed is not cached
-      ttl: "N/A"
+      ttl: "N/A",
+      # Could be better served with a view helper at some point, but good enough for now
+      internal_count_default_value: internal_count_default_value(resource)
     }
   end
 
@@ -108,12 +117,9 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
 
     Map.merge(item, %{
       stats_external_requests: Map.get(counts, db_filter_for_event(:external), 0),
-      stats_internal_requests: Map.get(counts, db_filter_for_event(:internal), internal_default(item.resource))
+      stats_internal_requests: Map.get(counts, db_filter_for_event(:internal), item.internal_count_default_value)
     })
   end
-
-  def internal_default(%Unlock.Config.Item.Aggregate{}), do: nil
-  def internal_default(_), do: 0
 
   defp add_cache_state(item) do
     cache_key = item.unique_slug |> Unlock.Shared.cache_key()
