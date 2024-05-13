@@ -1,5 +1,8 @@
 /* from https://www.w3schools.com/howto/howto_css_tooltip.asp */
 /* Tooltip container */
+
+$tooltip-width: 150px !default;
+
 .tooltip {
   position: relative;
   display: inline-block;
@@ -8,7 +11,7 @@
 /* Tooltip text */
 .tooltip .tooltiptext {
   visibility: hidden;
-  width: 150px;
+  width: $tooltip-width;
   background-color: var(--theme-background-white);
   color: var(--theme-dark-text);
   text-align: center;
@@ -21,7 +24,7 @@
   z-index: 1;
   bottom: 125%;
   left: 50%;
-  margin-left: -75px;
+  margin-left: -($tooltip-width / 2);
 
   /* Fade in tooltip */
   opacity: 0;
