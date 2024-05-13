@@ -66,10 +66,6 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     end)
   end
 
-  # We do not display the internal count for aggregate item at the moment
-  def internal_count_default_value(%Unlock.Config.Item.Aggregate{}), do: nil
-  def internal_count_default_value(_), do: 0
-
   defp extract_config(proxy_base_url, %Unlock.Config.Item.Generic.HTTP{} = resource) do
     %{
       unique_slug: resource.identifier,
@@ -95,8 +91,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
       original_url: nil,
       # At time of writing, the global feed is not cached
       ttl: "N/A",
-      # Could be better served with a view helper at some point, but good enough for now
-      internal_count_default_value: internal_count_default_value(resource)
+      # We do not display the internal count for aggregate item at the moment
+      internal_count_default_value: nil
     }
   end
 
@@ -117,7 +113,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
 
     Map.merge(item, %{
       stats_external_requests: Map.get(counts, db_filter_for_event(:external), 0),
-      stats_internal_requests: Map.get(counts, db_filter_for_event(:internal), item.internal_count_default_value)
+      stats_internal_requests:
+        Map.get(counts, db_filter_for_event(:internal), Map.get(item, :internal_count_default_value, 0))
     })
   end
 
