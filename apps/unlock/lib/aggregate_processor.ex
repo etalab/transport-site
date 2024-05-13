@@ -6,8 +6,22 @@ defmodule Unlock.AggregateProcessor do
 
   require Logger
 
+  # We actually look into the schema to build this. This is preliminary work
+  # to add live validation later here.
   @schema_fields Unlock.DynamicIRVESchema.build_schema_fields_list()
 
+  @doc """
+  Given an aggregate item, achieve concurrent querying of all sub-items and consolidate the outputs.
+
+  This implementation safely handles technical errors, non-200 responses and timeouts by returning empty
+  lists so that the consolidated feed is still made available.
+
+  Each sub-item result is cached in its own `Cachex` key.
+
+  The consolidated feed isn't, on purpose at the moment, because it allows a bit of dynamic behaviour
+  which is helpful (we will still be able to cache the global feed later, but if we do so we will want to
+  make sure the overall TTL does not increase too much.
+  """
   def process_resource(%Unlock.Config.Item.Aggregate{} = item, options \\ []) do
     options =
       Keyword.validate!(options, [
@@ -48,6 +62,18 @@ defmodule Unlock.AggregateProcessor do
     |> NimbleCSV.RFC4180.dump_to_iodata()
   end
 
+  @doc """
+  Probably one of the most complicated parts of the proxy.
+
+  A computation function is built to query the data via HTTP, but only if `Cachex`
+  asks for it (based on expiry dates & TTL registered with the caching key).
+
+  `Cachex` ensures uniqueness of concurrent calls & RAM storage, returning tuples to
+  hint us what happened.
+
+  This code needs to be DRYed ultimately (see `Controller.fetch_remote`), and simplified
+  via an extraction of the caching logic in a specific place.
+  """
   def cached_fetch(item, %Unlock.Config.Item.Generic.HTTP{identifier: origin} = sub_item) do
     comp_fn = fn _key ->
       get_function = fn i -> get_with_maybe_redirect(i.target_url) end
