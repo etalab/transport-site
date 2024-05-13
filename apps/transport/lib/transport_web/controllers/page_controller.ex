@@ -96,6 +96,8 @@ defmodule TransportWeb.PageController do
     |> render("infos_producteurs.html")
   end
 
+  def infos_reutilisateurs(%Plug.Conn{} = conn, _params), do: render(conn, "infos_reutilisateurs.html")
+
   def robots_txt(%Plug.Conn{} = conn, _params) do
     # See http://www.robotstxt.org/robotstxt.html
     # for documentation on how to use the robots.txt file

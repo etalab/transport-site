@@ -193,6 +193,36 @@ defmodule TransportWeb.PageControllerTest do
     assert item |> Floki.text() =~ "Identifiez-vous"
   end
 
+  describe "infos_reutilisateurs" do
+    test "for logged-out users", %{conn: conn} do
+      conn = conn |> get(page_path(conn, :infos_reutilisateurs))
+      body = html_response(conn, 200)
+      assert body =~ "transport.data.gouv.fr vous aide à suivre les données que vous réutilisez"
+
+      {:ok, doc} = Floki.parse_document(body)
+      [item] = doc |> Floki.find(".panel-producteurs a.button")
+
+      assert Floki.attribute(item, "href") == ["/login/explanation?redirect_path=%2Finfos_reutilisateurs"]
+      assert item |> Floki.text() =~ "Identifiez-vous"
+    end
+
+    test "for logged-in users", %{conn: conn} do
+      conn =
+        conn
+        |> init_test_session(current_user: %{"is_producer" => false})
+        |> get(page_path(conn, :infos_reutilisateurs))
+
+      body = html_response(conn, 200)
+      assert body =~ "transport.data.gouv.fr vous aide à suivre les données que vous réutilisez"
+
+      {:ok, doc} = Floki.parse_document(body)
+      [item] = doc |> Floki.find(".panel-producteurs a.button")
+
+      assert Floki.attribute(item, "href") == ["/espace_reutilisateur?utm_source=reuser_infos_page"]
+      assert item |> Floki.text() =~ "Accédez à votre espace réutilisateur"
+    end
+  end
+
   test "404 page", %{conn: conn} do
     conn = conn |> get("/this-page-does-not-exist")
     html = html_response(conn, 404)

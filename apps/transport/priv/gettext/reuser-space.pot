@@ -78,3 +78,27 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "notifications are good for you"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Access your reuser space"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Set up notifications"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "To log in, you will be redirected to data.gouv.fr, the open platform for French public data"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Welcome!"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "transport.data.gouv.fr helps you follow the data you reuse"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "transport.data.gouv.fr is affiliated with data.gouv.fr, the open platform for French public data"
+msgstr ""
