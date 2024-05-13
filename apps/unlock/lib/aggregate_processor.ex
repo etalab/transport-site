@@ -111,6 +111,10 @@ defmodule Unlock.AggregateProcessor do
     end
   end
 
+  @doc """
+  Process a sub-item (sub-feed of the aggregate item), "safely" returning an empty list
+  should any error occur.
+  """
   def process_sub_item(item, %{identifier: origin} = sub_item, options) do
     Unlock.Telemetry.trace_request(item.identifier <> ":" <> origin, :internal)
     Logger.debug("Fetching aggregated sub-item #{origin} at #{sub_item.target_url}")
