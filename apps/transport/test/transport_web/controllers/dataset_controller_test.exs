@@ -200,6 +200,7 @@ defmodule TransportWeb.DatasetControllerTest do
         |> Floki.parse_document!()
 
       assert ["A", "B", "C"] == dataset_titles(document)
+
       assert [
                {"i", [{"class", "fa fa-heart producer"}], []},
                {"i", [{"class", "fa fa-heart following"}], []},
