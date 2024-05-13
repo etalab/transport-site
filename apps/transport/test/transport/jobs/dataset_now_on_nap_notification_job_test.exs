@@ -35,6 +35,15 @@ defmodule Transport.Test.Transport.Jobs.DatasetNowOnNAPNotificationJobTest do
       })
     end)
 
+    # Should be ignored, it's a reuser
+    insert(:notification_subscription, %{
+      reason: :expiration,
+      source: :user,
+      role: :reuser,
+      contact: insert_contact(),
+      dataset: dataset
+    })
+
     Transport.EmailSender.Mock
     |> expect(:send_mail, fn "transport.data.gouv.fr",
                              "contact@transport.data.gouv.fr",

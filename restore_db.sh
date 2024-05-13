@@ -27,6 +27,8 @@ pg_restore -h $HOST -U $USER_NAME -d $DB_NAME --format=c --no-owner --clean --no
 
 echo "Truncating contact table"
 psql -h $HOST -U $USER_NAME -d $DB_NAME -c 'TRUNCATE TABLE contact CASCADE'
+echo "Truncating feedback table"
+psql -h $HOST -U $USER_NAME -d $DB_NAME -c 'TRUNCATE TABLE feedback CASCADE'
 
 # https://stackoverflow.com/a/1885534
 read -p "Do you want to remove already enqueued Oban jobs? " -n 1 -r

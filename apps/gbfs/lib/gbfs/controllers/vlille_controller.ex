@@ -89,7 +89,7 @@ defmodule GBFS.VLilleController do
           is_open = r["etatconnexion"] == "CONNECTÉ"
 
           %{
-            station_id: r["libelle"],
+            station_id: to_string(r["libelle"]),
             num_bikes_available: r["nbvelosdispo"],
             num_docks_available: r["nbplacesdispo"],
             is_installed: is_open,
@@ -113,7 +113,7 @@ defmodule GBFS.VLilleController do
         |> Enum.filter(fn r -> r["etat"] == "EN SERVICE" end)
         |> Enum.map(fn r ->
           %{
-            station_id: r["libelle"],
+            station_id: to_string(r["libelle"]),
             name: r["nom"],
             lat: r["localisation"]["lat"],
             lon: r["localisation"]["lon"],

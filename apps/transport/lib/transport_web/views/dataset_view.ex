@@ -543,4 +543,15 @@ defmodule TransportWeb.DatasetView do
   false
   """
   def seasonal_warning?(%Dataset{} = dataset), do: DB.Dataset.has_custom_tag?(dataset, "saisonnier")
+
+  @doc """
+  iex> heart_class(%{42 => :producer}, %DB.Dataset{id: 42})
+  "fa fa-heart producer"
+  iex> heart_class(%{42 => nil}, %DB.Dataset{id: 42})
+  "fa fa-heart"
+  """
+  def heart_class(dataset_heart_values, %DB.Dataset{id: dataset_id}) do
+    value = dataset_heart_values |> Map.fetch!(dataset_id) |> to_string()
+    "fa fa-heart #{value}" |> String.trim()
+  end
 end

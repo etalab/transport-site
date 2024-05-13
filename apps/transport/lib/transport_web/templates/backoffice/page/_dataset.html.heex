@@ -14,12 +14,12 @@
     <%= @dataset.organization %>
   </td>
   <td class="is-centered">
-    <a href={dataset_path(@conn, :details, @dataset.slug)}>
+    <a href={dataset_path(@conn, :details, @dataset.slug)} target="_blank">
       <i class="fa fa-link"></i>
     </a>
   </td>
   <td class="is-centered">
-    <a href={Dataset.datagouv_url(@dataset)}>
+    <a href={Dataset.datagouv_url(@dataset)} target="_blank">
       <i class="fa fa-link"></i>
     </a>
   </td>
@@ -50,12 +50,12 @@
   </td>
   <td class="bo_action_button">
     <%= form_for @conn, backoffice_page_path(@conn, :edit, @dataset.id), [nodiv: true, method: "get"], fn _ -> %>
-      <%= submit("Editer", class: "button", nodiv: true) %>
+      <%= submit("Éditer", class: "button", nodiv: true) %>
     <% end %>
   </td>
   <td class="bo_action_button">
     <%= form_for @conn, backoffice_dataset_path(@conn, :delete, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
-      <%= submit("Supprimer", class: "button", nodiv: true) %>
+      <%= submit("Déréférencer", class: "button", nodiv: true) %>
     <% end %>
   </td>
 </tr>
