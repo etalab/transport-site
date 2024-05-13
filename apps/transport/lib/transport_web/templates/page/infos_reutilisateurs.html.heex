@@ -34,7 +34,10 @@ These CSS classes may be removed (soon?) when switching to the DSFR.
               "To log in, you will be redirected to data.gouv.fr, the open platform for French public data"
             ) %>
           </div>
-          <a class="button" href={page_path(@conn, :login, redirect_path: current_path(@conn))}>
+          <a
+            class="button"
+            href={page_path(@conn, :login, redirect_path: reuser_space_path(@conn, :espace_reutilisateur))}
+          >
             <%= dgettext("page-dataset-details", "Log in") %>
           </a>
         </div>

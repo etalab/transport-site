@@ -24,7 +24,7 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
 
     test "as a reuser", %{conn: conn} do
       conn = conn |> get(@reuser_url)
-      assert redirected_to(conn, 302) == "/login/explanation?" <> URI.encode_query(redirect_path: @reuser_url)
+      assert redirected_to(conn, 302) == page_path(conn, :infos_reutilisateurs)
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Vous devez être préalablement connecté"
     end
   end
