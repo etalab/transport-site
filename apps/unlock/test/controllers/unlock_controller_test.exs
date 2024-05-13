@@ -758,7 +758,7 @@ defmodule Unlock.ControllerTest do
       # first part must still be there despite the second part timeout
       assert resp.resp_body == Helper.data_as_csv(@expected_headers, [first_data_row], "\r\n")
 
-      # finally, kill the
+      # finally, kill the flag process so that the Mox call ends up in a cleaner fashion
       Process.exit(flag_pid, :kill)
       wait_til_dead(flag_pid)
       # Empirically, it appears we still need a bit of delay here to avoid
