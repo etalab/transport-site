@@ -11,7 +11,7 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
   describe "espace_reutilisateur" do
     test "logged out", %{conn: conn} do
       conn = conn |> get(@home_url)
-      assert "/login/explanation?" <> URI.encode_query(redirect_path: @home_url) == redirected_to(conn, 302)
+      assert redirected_to(conn, 302) == page_path(conn, :infos_reutilisateurs)
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Vous devez être préalablement connecté"
     end
 

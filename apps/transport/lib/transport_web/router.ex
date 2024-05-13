@@ -53,6 +53,11 @@ defmodule TransportWeb.Router do
     plug(:authentication_required, destination_path: "/infos_producteurs")
   end
 
+  pipeline :reuser_space do
+    plug(:browser)
+    plug(:authentication_required, destination_path: "/infos_reutilisateurs")
+  end
+
   scope "/", OpenApiSpex.Plug do
     pipe_through(:browser_no_csp)
 
@@ -101,7 +106,7 @@ defmodule TransportWeb.Router do
     end
 
     scope "/espace_reutilisateur" do
-      pipe_through([:authenticated])
+      pipe_through([:reuser_space])
       get("/", ReuserSpaceController, :espace_reutilisateur)
 
       live_session :reuser_space, session: %{"role" => :reuser}, root_layout: {TransportWeb.LayoutView, :app} do

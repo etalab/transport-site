@@ -220,7 +220,7 @@ defmodule TransportWeb.PageControllerTest do
       {:ok, doc} = Floki.parse_document(body)
       [item] = doc |> Floki.find(".panel-producteurs a.button")
 
-      assert Floki.attribute(item, "href") == ["/login/explanation?redirect_path=%2Finfos_reutilisateurs"]
+      assert Floki.attribute(item, "href") == ["/login/explanation?redirect_path=%2Fespace_reutilisateur"]
       assert item |> Floki.text() =~ "Identifiez-vous"
     end
 
