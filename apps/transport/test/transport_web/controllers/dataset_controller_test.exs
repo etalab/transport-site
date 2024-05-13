@@ -160,7 +160,7 @@ defmodule TransportWeb.DatasetControllerTest do
                |> Floki.find(".dataset__type")
     end
 
-    test "non admin: hidden for now now", %{conn: conn} do
+    test "non admin: hidden for now", %{conn: conn} do
       contact = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
 
       insert(:dataset, custom_title: "A")
