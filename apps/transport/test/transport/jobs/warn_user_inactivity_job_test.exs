@@ -19,6 +19,8 @@ defmodule Transport.Test.Transport.Jobs.WarnUserInactivityJobTest do
     assert 0 == DB.Repo.aggregate(DB.Contact, :count)
   end
 
+  @login_prompt ~r/Pour conserver votre compte, il vous suffira de <a href="https?:\/\/[^\\]+\/login\/explanation\?redirect_path=%2F">vous reconnecter<\/a>./
+
   test "warn first time 30 days before deadline" do
     %DB.Contact{} = insert_contact_inactive_since(%{days: 359})
     %DB.Contact{email: email} = insert_contact_inactive_since(%{days: 360})
@@ -28,7 +30,8 @@ defmodule Transport.Test.Transport.Jobs.WarnUserInactivityJobTest do
 
     assert_warning_is_sent(email, "Votre compte sera supprimé dans 1 mois", [
       "Vous avez un compte utilisateur associé à l‘adresse email <strong>#{email}</strong> sur <a href=\"https://transport.data.gouv.fr\">transport.data.gouv.fr</a>.",
-      "Dans 1 mois nous supprimerons votre compte conformément aux règles en vigueur concernant les données utilisateur."
+      "Dans 1 mois nous supprimerons votre compte conformément aux règles en vigueur concernant les données utilisateur.",
+      @login_prompt
     ])
 
     assert 3 == DB.Repo.aggregate(DB.Contact, :count)
@@ -43,7 +46,8 @@ defmodule Transport.Test.Transport.Jobs.WarnUserInactivityJobTest do
 
     assert_warning_is_sent(email, "Votre compte sera supprimé dans 2 semaines", [
       "Vous avez un compte utilisateur associé à l‘adresse email <strong>#{email}</strong> sur <a href=\"https://transport.data.gouv.fr\">transport.data.gouv.fr</a>.",
-      "Dans 2 semaines nous supprimerons votre compte conformément aux règles en vigueur concernant les données utilisateur."
+      "Dans 2 semaines nous supprimerons votre compte conformément aux règles en vigueur concernant les données utilisateur.",
+      @login_prompt
     ])
 
     assert 3 == DB.Repo.aggregate(DB.Contact, :count)
@@ -58,7 +62,8 @@ defmodule Transport.Test.Transport.Jobs.WarnUserInactivityJobTest do
 
     assert_warning_is_sent(email, "Votre compte sera supprimé demain", [
       "Vous avez un compte utilisateur associé à l‘adresse email <strong>#{email}</strong> sur <a href=\"https://transport.data.gouv.fr\">transport.data.gouv.fr</a>.",
-      "Demain nous supprimerons votre compte conformément aux règles en vigueur concernant les données utilisateur."
+      "Demain nous supprimerons votre compte conformément aux règles en vigueur concernant les données utilisateur.",
+      @login_prompt
     ])
 
     assert 2 == DB.Repo.aggregate(DB.Contact, :count)
