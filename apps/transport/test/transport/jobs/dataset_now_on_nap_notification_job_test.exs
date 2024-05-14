@@ -44,15 +44,17 @@ defmodule Transport.Test.Transport.Jobs.DatasetNowOnNAPNotificationJobTest do
 
     assert :ok == perform_job(DatasetNowOnNAPNotificationJob, %{"dataset_id" => dataset_id})
 
-    html_content = ~s(Votre jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">Mon JDD</a> a bien été référencé)
+    html_content =
+      ~s(Votre jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">Mon JDD</a> a bien été référencé)
 
     assert_email_sent(
-               from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-               to: [{"", email}],
-               reply_to: {"", "contact@transport.data.gouv.fr"},
-               subject: "Votre jeu de données a été référencé sur transport.data.gouv.fr",
-               text_body: nil,
-               html_body: ~r/#{html_content}/)
+      from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+      to: [{"", email}],
+      reply_to: {"", "contact@transport.data.gouv.fr"},
+      subject: "Votre jeu de données a été référencé sur transport.data.gouv.fr",
+      text_body: nil,
+      html_body: ~r/#{html_content}/
+    )
 
     # Logs have been saved
     assert [

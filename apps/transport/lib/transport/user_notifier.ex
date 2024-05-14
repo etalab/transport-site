@@ -141,4 +141,22 @@ defmodule Transport.UserNotifier do
       datasets_previously_climate_resilience: Enum.map(datasets_previously_climate_resilience, &Enum.at(&1, 1))
     })
   end
+
+  def multi_validation_with_error_notification(email, role, dataset, args) do
+    # Transport.EmailSender.impl().send_mail(
+    #   "transport.data.gouv.fr",
+    #   Application.get_env(:transport, :contact_email),
+    #   email,
+    #   Application.get_env(:transport, :contact_email),
+    #   "Erreurs détectées dans le jeu de données #{dataset.custom_title}",
+    #   "",
+    #   Phoenix.View.render_to_string(TransportWeb.EmailView, "#{@notification_reason}_#{role}.html", args)
+    # )
+    new()
+    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
+    |> to(email)
+    |> reply_to(Application.fetch_env!(:transport, :contact_email))
+    |> subject("Erreurs détectées dans le jeu de données #{dataset.custom_title}")
+    |> render_body("dataset_with_error_#{role}.html", args)
+  end
 end

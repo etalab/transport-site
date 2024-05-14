@@ -54,15 +54,9 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
   defp send_mail(email, role, args) do
     dataset = Keyword.fetch!(args, :dataset)
 
-    Transport.EmailSender.impl().send_mail(
-      "transport.data.gouv.fr",
-      Application.get_env(:transport, :contact_email),
-      email,
-      Application.get_env(:transport, :contact_email),
-      "Erreurs détectées dans le jeu de données #{dataset.custom_title}",
-      "",
-      Phoenix.View.render_to_string(TransportWeb.EmailView, "#{@notification_reason}_#{role}.html", args)
-    )
+    email
+    |> Transport.UserNotifier.multi_validation_with_error_notification(role, dataset, args)
+    |> Transport.Mailer.deliver()
 
     save_notification(dataset, email)
   end

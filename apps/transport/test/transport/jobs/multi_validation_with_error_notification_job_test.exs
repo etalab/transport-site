@@ -3,10 +3,8 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
   import Ecto.Query
-  import Mox
+  import Swoosh.TestAssertions
   alias Transport.Jobs.MultiValidationWithErrorNotificationJob
-
-  setup :verify_on_exit!
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -129,14 +127,10 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
       dataset_id: gtfs_dataset.id
     })
 
-    Transport.EmailSender.Mock
-    |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.data.gouv.fr",
-                             "foo@example.com" = _to,
-                             "contact@transport.data.gouv.fr",
-                             subject,
-                             "",
-                             html ->
+    assert :ok == perform_job(MultiValidationWithErrorNotificationJob, %{})
+
+    assert_email_sent(fn %Swoosh.Email{to: to, subject: subject, html_body: html} ->
+      assert to == [{"", "foo@example.com"}]
       assert subject == "Erreurs détectées dans le jeu de données #{dataset.custom_title}"
 
       assert html =~
@@ -147,36 +141,25 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
 
       assert html =~
                ~s(<a href="http://127.0.0.1:5100/resources/#{resource_2.id}">#{resource_2.title}</a>)
-
-      :ok
     end)
 
-    Transport.EmailSender.Mock
-    |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.data.gouv.fr",
-                             ^reuser_email,
-                             "contact@transport.data.gouv.fr",
-                             subject,
-                             "",
-                             html ->
+    assert_email_sent(fn %Swoosh.Email{to: to, subject: subject, html_body: html} ->
+      assert to == [{"", reuser_email}]
       assert subject == "Erreurs détectées dans le jeu de données #{dataset.custom_title}"
 
       assert html =~
                ~s(Des erreurs bloquantes ont été détectées dans le jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> que vous réutilisez.)
 
       assert html =~ "Nous avons déjà informé le producteur de ces données."
-
-      :ok
     end)
 
-    Transport.EmailSender.Mock
-    |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.data.gouv.fr",
-                             "bar@example.com" = _to,
-                             "contact@transport.data.gouv.fr",
-                             subject,
-                             "",
-                             html ->
+    assert_email_sent(fn %Swoosh.Email{
+                           from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                           to: to,
+                           subject: subject,
+                           html_body: html
+                         } ->
+      assert to == [{"", "bar@example.com"}]
       assert subject == "Erreurs détectées dans le jeu de données #{gtfs_dataset.custom_title}"
 
       assert html =~
@@ -184,11 +167,10 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
 
       assert html =~
                ~s(<a href="http://127.0.0.1:5100/resources/#{resource_gtfs.id}">#{resource_gtfs.title}</a>)
-
-      :ok
     end)
 
-    assert :ok == perform_job(MultiValidationWithErrorNotificationJob, %{})
+    # Checks no other emails have been sent
+    assert_no_email_sent()
 
     # Logs have been saved
     recent_dt = DateTime.utc_now() |> DateTime.add(-1, :second)
