@@ -105,4 +105,4 @@ msgstr "transport.data.gouv.fr est affilié à data.gouv.fr : la plateforme ouve
 
 #, elixir-autogen, elixir-format
 msgid "reuser-space-intro"
-msgstr "Pour ajouter un favori et bénéficier des services de suivi et d'amélioration de la qualité des des jeux de données que vous réutilisez, vous devez au préalable vous connecter puis cliquer sur l'icône ❤️ sur la page du jeu de données."
+msgstr "Pour ajouter un favori et bénéficier des services de suivi et d'amélioration de la qualité des jeux de données que vous réutilisez, vous devez au préalable vous connecter puis cliquer sur l'icône ❤️ sur la page du jeu de données."
