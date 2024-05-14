@@ -9,8 +9,11 @@ defmodule Transport.Test.Transport.Jobs.WarnUserInactivityJobTest do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
+  # 2 years + 1 month
+  @inactivity_limit 30 * 25
+
   test "prune a single contact" do
-    insert_contact_inactive_since(%{days: 400})
+    insert_contact_inactive_since(%{days: @inactivity_limit + 10})
 
     assert :ok == perform_job(WarnUserInactivityJob, %{})
 
@@ -22,9 +25,9 @@ defmodule Transport.Test.Transport.Jobs.WarnUserInactivityJobTest do
   @login_prompt ~r/Pour conserver votre compte, il vous suffira de <a href="https?:\/\/[^\\]+\/login\/explanation\?redirect_path=%2F">vous reconnecter<\/a>./
 
   test "warn first time 30 days before deadline" do
-    %DB.Contact{} = insert_contact_inactive_since(%{days: 359})
-    %DB.Contact{email: email} = insert_contact_inactive_since(%{days: 360})
-    %DB.Contact{} = insert_contact_inactive_since(%{days: 361})
+    %DB.Contact{} = insert_contact_inactive_since(%{days: @inactivity_limit - 31})
+    %DB.Contact{email: email} = insert_contact_inactive_since(%{days: @inactivity_limit - 30})
+    %DB.Contact{} = insert_contact_inactive_since(%{days: @inactivity_limit - 29})
 
     assert :ok == perform_job(WarnUserInactivityJob, %{})
 
@@ -38,9 +41,9 @@ defmodule Transport.Test.Transport.Jobs.WarnUserInactivityJobTest do
   end
 
   test "warn first time 15 days before deadline" do
-    %DB.Contact{} = insert_contact_inactive_since(%{days: 374})
-    %DB.Contact{email: email} = insert_contact_inactive_since(%{days: 375})
-    %DB.Contact{} = insert_contact_inactive_since(%{days: 376})
+    %DB.Contact{} = insert_contact_inactive_since(%{days: @inactivity_limit - 14})
+    %DB.Contact{email: email} = insert_contact_inactive_since(%{days: @inactivity_limit - 15})
+    %DB.Contact{} = insert_contact_inactive_since(%{days: @inactivity_limit - 16})
 
     assert :ok == perform_job(WarnUserInactivityJob, %{})
 
@@ -54,9 +57,9 @@ defmodule Transport.Test.Transport.Jobs.WarnUserInactivityJobTest do
   end
 
   test "warn first time the day before deadline" do
-    %DB.Contact{} = insert_contact_inactive_since(%{days: 388})
-    %DB.Contact{email: email} = insert_contact_inactive_since(%{days: 389})
-    %DB.Contact{} = insert_contact_inactive_since(%{days: 390})
+    %DB.Contact{} = insert_contact_inactive_since(%{days: @inactivity_limit - 2})
+    %DB.Contact{email: email} = insert_contact_inactive_since(%{days: @inactivity_limit - 1})
+    %DB.Contact{} = insert_contact_inactive_since(%{days: @inactivity_limit})
 
     assert :ok == perform_job(WarnUserInactivityJob, %{})
 

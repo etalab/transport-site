@@ -18,8 +18,8 @@ defmodule Transport.Jobs.WarnUserInactivityJob do
     :ok
   end
 
-  defp inactivity_threshold(now), do: DateTime.add(now, -30 * 12, :day)
-  defp pruning_threshold(now), do: DateTime.add(now, -30 * 13, :day)
+  defp inactivity_threshold(now), do: DateTime.add(now, -30 * 24, :day)
+  defp pruning_threshold(now), do: DateTime.add(now, -30 * 25, :day)
 
   defp warn_inactive_contact(%DateTime{} = pruning_dt, %DB.Contact{} = contact) do
     days_until_pruning = DateTime.diff(contact.last_login_at, pruning_dt, :day)
