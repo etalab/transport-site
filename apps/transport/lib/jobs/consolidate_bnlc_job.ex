@@ -333,7 +333,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
                                       %{@download_path_key => tmp_path, @separator_key => separator} = resource_details
                                     } ->
       tmp_path
-      |> File.stream!()
+      |> File.stream!([:trim_bom, encoding: :utf8])
       |> CSV.decode!(headers: true, field_transform: &String.trim/1, separator: separator)
       # Keep only columns that are present in the BNLC, ignore extra columns
       |> Stream.filter(&Map.take(&1, bnlc_headers))
