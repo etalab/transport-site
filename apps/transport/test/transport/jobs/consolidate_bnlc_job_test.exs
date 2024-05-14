@@ -328,8 +328,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
     Transport.HTTPoison.Mock
     |> expect(:get, fn ^url, [], [follow_redirect: true] ->
+      # A CSV with BOM (byte order mark)
       body = """
-      foo,bar,baz,insee,id_local
+      \uFEFFfoo,bar,baz,insee,id_local
       1,2,3,21231,1
       4,5,6,21231,2
       """
@@ -533,8 +534,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
       Transport.HTTPoison.Mock
       |> expect(:get, fn ^bar_url, [], [follow_redirect: true] ->
+        # A CSV with BOM (byte order mark)
         body = """
-        foo,bar,baz,insee,id_local,extra_col,id_lieu
+        \uFEFFfoo,bar,baz,insee,id_local,extra_col,id_lieu
         1,2,3,21231,3,is_ignored,is_generated_again
         """
 
