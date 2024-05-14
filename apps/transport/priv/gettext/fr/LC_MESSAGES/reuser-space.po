@@ -32,8 +32,8 @@ msgid "Notification bell"
 msgstr "Icône de notifications"
 
 #, elixir-autogen, elixir-format
-msgid "Receive helpful notifications about the data you follow."
-msgstr "Recevez des notifications pertinentes à propos des données que vous suivez."
+msgid "Receive helpful notifications about your favorite datasets."
+msgstr "Recevez des notifications pertinentes à propos de vos jeux de données favoris."
 
 #, elixir-autogen, elixir-format
 msgid "Receive notifications"
@@ -44,8 +44,8 @@ msgid "Reuser space"
 msgstr "Espace réutilisateur"
 
 #, elixir-autogen, elixir-format
-msgid "Followed datasets"
-msgstr "Jeux de données suivis"
+msgid "Favorite datasets"
+msgstr "Jeux de données favoris"
 
 #, elixir-autogen, elixir-format
 msgid "Actions"
@@ -102,3 +102,7 @@ msgstr "transport.data.gouv.fr vous aide à suivre les données que vous réutil
 #, elixir-autogen, elixir-format
 msgid "transport.data.gouv.fr is affiliated with data.gouv.fr, the open platform for French public data"
 msgstr "transport.data.gouv.fr est affilié à data.gouv.fr : la plateforme ouverte des données publiques françaises"
+
+#, elixir-autogen, elixir-format
+msgid "reuser-space-intro"
+msgstr "Pour ajouter un favori et bénéficier des services de suivi et d'amélioration de la qualité des des jeux de données que vous réutilisez, vous devez au préalable vous connecter puis cliquer sur l'icône ❤️ sur la page du jeu de données."

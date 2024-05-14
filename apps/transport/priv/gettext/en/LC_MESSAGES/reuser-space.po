@@ -32,7 +32,7 @@ msgid "Notification bell"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Receive helpful notifications about the data you follow."
+msgid "Receive helpful notifications about your favorite datasets."
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -44,7 +44,7 @@ msgid "Reuser space"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Followed datasets"
+msgid "Favorite datasets"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -102,3 +102,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "transport.data.gouv.fr is affiliated with data.gouv.fr, the open platform for French public data"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "reuser-space-intro"
+msgstr "To add a favorite and benefit from monitoring and quality improvement services for the datasets you reuse, you must first log in and then click on the ❤️ icon on the dataset page."
