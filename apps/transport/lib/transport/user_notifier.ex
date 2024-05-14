@@ -86,38 +86,32 @@ defmodule Transport.UserNotifier do
     |> render_body("datasets_climate_resilience_bill_inappropriate_licence.html", %{datasets: datasets})
   end
 
+  # Starting from here, all the functions are used to send emails to users
+
   def resources_changed(email, subject, %DB.Dataset{} = dataset) do
-    new()
-    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
-    |> to(email)
-    |> reply_to(Application.fetch_env!(:transport, :contact_email))
+    email
+    |> common_email_options()
     |> subject(subject)
     |> render_body("resources_changed.html", %{dataset: dataset})
   end
 
   def new_comments(%DB.Contact{email: email}, datasets) do
-    new()
-    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
-    |> to(email)
-    |> reply_to(Application.fetch_env!(:transport, :contact_email))
+    email
+    |> common_email_options()
     |> subject("Nouveaux commentaires")
     |> render_body("new_comments_reuser.html", %{datasets: datasets})
   end
 
   def promote_reuser_space(email) do
-    new()
-    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
-    |> to(email)
-    |> reply_to(Application.fetch_env!(:transport, :contact_email))
+    email
+    |> common_email_options()
     |> subject("Gestion de vos favoris dans votre espace réutilisateur")
     |> render_body("promote_reuser_space.html")
   end
 
   def dataset_now_on_nap(email, dataset) do
-    new()
-    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
-    |> to(email)
-    |> reply_to(Application.fetch_env!(:transport, :contact_email))
+    email
+    |> common_email_options()
     |> subject("Votre jeu de données a été référencé sur transport.data.gouv.fr")
     |> render_body("dataset_now_on_nap.html", %{
       dataset_url: TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, dataset.slug),
@@ -131,10 +125,8 @@ defmodule Transport.UserNotifier do
         datasets_previously_climate_resilience,
         datasets_now_climate_resilience
       ) do
-    new()
-    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
-    |> to(email)
-    |> reply_to(Application.fetch_env!(:transport, :contact_email))
+    email
+    |> common_email_options()
     |> subject("Loi climat et résilience : suivi des jeux de données")
     |> render_body("datasets_switching_climate_resilience_bill.html", %{
       datasets_now_climate_resilience: Enum.map(datasets_now_climate_resilience, &Enum.at(&1, 1)),
@@ -142,21 +134,24 @@ defmodule Transport.UserNotifier do
     })
   end
 
-  def multi_validation_with_error_notification(email, role, dataset, args) do
-    # Transport.EmailSender.impl().send_mail(
-    #   "transport.data.gouv.fr",
-    #   Application.get_env(:transport, :contact_email),
-    #   email,
-    #   Application.get_env(:transport, :contact_email),
-    #   "Erreurs détectées dans le jeu de données #{dataset.custom_title}",
-    #   "",
-    #   Phoenix.View.render_to_string(TransportWeb.EmailView, "#{@notification_reason}_#{role}.html", args)
-    # )
+  def multi_validation_with_error_notification(email, :producer, dataset: dataset, resources: resources) do
+    email
+    |> common_email_options()
+    |> subject("Erreurs détectées dans le jeu de données #{dataset.custom_title}")
+    |> render_body("dataset_with_error_producer.html", dataset: dataset, resources: resources)
+  end
+
+  def multi_validation_with_error_notification(email, :reuser, dataset: dataset, producer_warned: producer_warned) do
+    email
+    |> common_email_options()
+    |> subject("Erreurs détectées dans le jeu de données #{dataset.custom_title}")
+    |> render_body("dataset_with_error_reuser.html", dataset: dataset, producer_warned: producer_warned)
+  end
+
+  defp common_email_options(email) do
     new()
     |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
     |> to(email)
     |> reply_to(Application.fetch_env!(:transport, :contact_email))
-    |> subject("Erreurs détectées dans le jeu de données #{dataset.custom_title}")
-    |> render_body("dataset_with_error_#{role}.html", args)
   end
 end

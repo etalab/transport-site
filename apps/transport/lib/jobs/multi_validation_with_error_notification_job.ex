@@ -52,13 +52,11 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
   end
 
   defp send_mail(email, role, args) do
-    dataset = Keyword.fetch!(args, :dataset)
-
     email
-    |> Transport.UserNotifier.multi_validation_with_error_notification(role, dataset, args)
+    |> Transport.UserNotifier.multi_validation_with_error_notification(role, args)
     |> Transport.Mailer.deliver()
 
-    save_notification(dataset, email)
+    save_notification(Keyword.fetch!(args, :dataset), email)
   end
 
   def notifications_sent_recently(%DB.Dataset{id: dataset_id}) do
