@@ -15,7 +15,7 @@ defmodule Transport.Test.Transport.Jobs.ImportResourceMonthlyMetricsJobTest do
   describe "import_metrics" do
     test "base case" do
       %DB.Resource{datagouv_id: resource_datagouv_id} = insert(:resource)
-      %DB.Dataset{datagouv_id: dataset_datagouv_id } = insert(:dataset)
+      %DB.Dataset{datagouv_id: dataset_datagouv_id} = insert(:dataset)
 
       setup_http_response(resource_datagouv_id, [
         %{
@@ -56,7 +56,7 @@ defmodule Transport.Test.Transport.Jobs.ImportResourceMonthlyMetricsJobTest do
 
     test "replaces existing records" do
       %DB.Resource{datagouv_id: resource_datagouv_id} = insert(:resource)
-      %DB.Dataset{datagouv_id: dataset_datagouv_id } = insert(:dataset)
+      %DB.Dataset{datagouv_id: dataset_datagouv_id} = insert(:dataset)
 
       insert(:resource_monthly_metric,
         resource_datagouv_id: resource_datagouv_id,
@@ -133,8 +133,8 @@ defmodule Transport.Test.Transport.Jobs.ImportResourceMonthlyMetricsJobTest do
   test "perform" do
     %DB.Resource{datagouv_id: r1_datagouv_id} = insert(:resource)
     %DB.Resource{datagouv_id: r2_datagouv_id} = insert(:resource)
-    %DB.Dataset{datagouv_id: d1_datagouv_id } = insert(:dataset)
-    %DB.Dataset{datagouv_id: d2_datagouv_id } = insert(:dataset)
+    %DB.Dataset{datagouv_id: d1_datagouv_id} = insert(:dataset)
+    %DB.Dataset{datagouv_id: d2_datagouv_id} = insert(:dataset)
 
     assert MapSet.new([r1_datagouv_id, r2_datagouv_id]) ==
              ImportResourceMonthlyMetricsJob.resource_datagouv_ids() |> MapSet.new()
