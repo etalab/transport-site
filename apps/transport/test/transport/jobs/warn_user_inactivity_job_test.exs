@@ -79,8 +79,6 @@ defmodule Transport.Test.Transport.Jobs.WarnUserInactivityJobTest do
   end
 
   defp assert_warning_is_sent(email, subject, body_parts) do
-    assert :ok == perform_job(WarnUserInactivityJob, %{})
-
     assert_email_sent(fn %Swoosh.Email{} = sent ->
       assert %Swoosh.Email{
                from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
