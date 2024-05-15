@@ -58,7 +58,7 @@ defmodule TransportWeb.Session do
   A temporary helper method to determine if we should display "reuser space features".
   Convenient method to find various entrypoints in the codebase.
 
-  At the moment we only allow transport.data.gouv.fr's member but we could
+  At the moment we only allow transport.data.gouv.fr members but we could
   allow specific logged-in users in the future.
   """
   def display_reuser_space?(%Plug.Conn{} = conn), do: admin?(conn)
