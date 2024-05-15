@@ -20,7 +20,7 @@ defmodule DB.ResourceMonthlyMetric do
   def changeset(struct, attrs \\ %{}) do
     struct
     |> cast(attrs, [:resource_datagouv_id, :dataset_datagouv_id, :year_month, :metric_name, :count])
-    |> validate_required([:resource_datagouv_id, :dataset_datagouv_id, :year_month, :metric_name, :count])
+    |> validate_required([:resource_datagouv_id, :year_month, :metric_name, :count])
     |> validate_format(:year_month, ~r/\A2\d{3}-(0[1-9]|1[012])\z/)
     |> validate_number(:count, greater_than_or_equal_to: 0)
   end
