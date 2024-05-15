@@ -54,6 +54,15 @@ defmodule TransportWeb.Session do
     DB.Dataset.base_query() |> where([dataset: d], d.organization_id in ^org_ids) |> DB.Repo.exists?()
   end
 
+  @doc """
+  A temporary helper method to determine if we should display "reuser space features".
+  Convenient method to find various entrypoints in the codebase.
+
+  At the moment we only allow transport.data.gouv.fr members but we could
+  allow specific logged-in users in the future.
+  """
+  def display_reuser_space?(%Plug.Conn{} = conn), do: admin?(conn)
+
   @spec set_session_attribute_attribute(Plug.Conn.t(), binary(), boolean()) :: Plug.Conn.t()
   defp set_session_attribute_attribute(%Plug.Conn{} = conn, key, value) do
     current_user = current_user(conn)
