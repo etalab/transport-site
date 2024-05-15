@@ -42,3 +42,14 @@ df[:supposed_format]
 |> IO.inspect(IEx.inspect_opts())
 |> Explorer.Series.frequencies()
 |> IO.inspect(IEx.inspect_opts())
+
+# incorporate macros
+require Explorer.DataFrame
+
+netex =
+  df
+  |> Explorer.DataFrame.filter(supposed_format == "NeTEx")
+  |> IO.inspect(IEx.inspect_opts())
+
+netex[:url]
+|> IO.inspect(IEx.inspect_opts())
