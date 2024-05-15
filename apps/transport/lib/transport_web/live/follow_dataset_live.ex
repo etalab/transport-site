@@ -25,8 +25,8 @@ defmodule TransportWeb.Live.FollowDatasetLive do
         <%= Phoenix.HTML.raw(
           dgettext(
             "page-dataset-details",
-            ~s|<a href="%{url}">Log in or sign up</a> to benefit from dataset services.|,
-            url: page_path(@socket, :login, redirect_path: dataset_path(@socket, :details, @dataset.slug))
+            ~s|<a href="%{url}" target="_blank">Log in or sign up</a> to benefit from dataset services.|,
+            url: page_path(@socket, :infos_reutilisateurs)
           )
         ) %>
       </p>
