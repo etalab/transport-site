@@ -143,23 +143,6 @@ defmodule Transport.Test.Transport.Jobs.DatasetsSwitchingClimateResilienceBillJo
                ~s(Les jeux de données suivants faisaient l’objet d’une intégration obligatoire et ne font plus l’objet de cette obligation :\n\n<a href="http://127.0.0.1:5100/datasets/#{d2.slug}">#{d2.custom_title}</a>)
     end)
 
-    # Transport.EmailSender.Mock
-    # |> expect(:send_mail, fn "transport.data.gouv.fr",
-    #                          "contact@transport.data.gouv.fr",
-    #                          ^email,
-    #                          "contact@transport.data.gouv.fr",
-    #                          "Loi climat et résilience : suivi des jeux de données" = _subject,
-    #                          "" = _plain_text,
-    #                          html ->
-    #   assert html =~
-    #            ~s(Les jeux de données suivants feront l’objet d’une intégration obligatoire :\n\n<a href="http://127.0.0.1:5100/datasets/#{d1.slug}">#{d1.custom_title}</a>)
-
-    #   assert html =~
-    #            ~s(Les jeux de données suivants faisaient l’objet d’une intégration obligatoire et ne font plus l’objet de cette obligation :\n\n<a href="http://127.0.0.1:5100/datasets/#{d2.slug}">#{d2.custom_title}</a>)
-
-    #   :ok
-    # end)
-
     # Logs have been saved
     assert [
              %DB.Notification{email: ^email, reason: :datasets_switching_climate_resilience_bill, dataset_id: ^d1_id},
