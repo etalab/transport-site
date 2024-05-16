@@ -202,6 +202,24 @@ defmodule Transport.UserNotifier do
     )
   end
 
+  def periodic_reminder_producers_no_subscriptions(email, datasets) do
+    email
+    |> common_email_options()
+    |> subject("Notifications pour vos données sur transport.data.gouv.fr")
+    |> render_body("producer_without_subscriptions.html", %{datasets: datasets})
+  end
+
+  def periodic_reminder_producers_with_subscriptions(email, datasets_subscribed, other_producers_subscribers) do
+    email
+    |> common_email_options()
+    |> subject("Rappel : vos notifications pour vos données sur transport.data.gouv.fr")
+    |> render_body("producer_with_subscriptions.html", %{
+      datasets_subscribed: datasets_subscribed,
+      has_other_producers_subscribers: not Enum.empty?(other_producers_subscribers),
+      other_producers_subscribers: Enum.map_join(other_producers_subscribers, ", ", &DB.Contact.display_name/1)
+    })
+  end
+
   defp common_email_options(email) do
     new()
     |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})

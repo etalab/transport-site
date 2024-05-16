@@ -3,11 +3,9 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
   import DB.Factory
   use Oban.Testing, repo: DB.Repo
   alias Transport.Jobs.PeriodicReminderProducersNotificationJob
-  import Mox
+  import Swoosh.TestAssertions
 
   doctest PeriodicReminderProducersNotificationJob, import: true
-
-  setup :verify_on_exit!
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -183,14 +181,14 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
     assert [%DB.Contact{id: ^admin_producer_id}] = DB.Contact.admin_contacts()
     assert [admin_producer.id] == DB.Contact.admin_contact_ids()
 
-    Transport.EmailSender.Mock
-    |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.data.gouv.fr",
-                             ^email = _to,
-                             "contact@transport.data.gouv.fr",
-                             subject,
-                             "",
-                             html ->
+    assert :ok == perform_job(PeriodicReminderProducersNotificationJob, %{"contact_id" => producer_1.id})
+
+    assert_email_sent(fn %Swoosh.Email{
+                           from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                           to: [{"", ^email}],
+                           subject: subject,
+                           html_body: html
+                         } ->
       assert subject == "Rappel : vos notifications pour vos données sur transport.data.gouv.fr"
 
       assert html =~
@@ -198,8 +196,6 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
 
       assert html =~ "Les autres personnes inscrites à ces notifications sont : Marina Loiseau."
     end)
-
-    assert :ok == perform_job(PeriodicReminderProducersNotificationJob, %{"contact_id" => producer_1.id})
 
     assert [%DB.Notification{reason: :periodic_reminder_producers, email: ^email}] = DB.Notification |> DB.Repo.all()
   end
@@ -221,14 +217,14 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
            |> DB.Repo.preload(:notification_subscriptions)
            |> PeriodicReminderProducersNotificationJob.subscribed_as_producer?()
 
-    Transport.EmailSender.Mock
-    |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.data.gouv.fr",
-                             ^email = _to,
-                             "contact@transport.data.gouv.fr",
-                             subject,
-                             "",
-                             html ->
+    assert :ok == perform_job(PeriodicReminderProducersNotificationJob, %{"contact_id" => contact.id})
+
+    assert_email_sent(fn %Swoosh.Email{
+                           from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                           to: [{"", ^email}],
+                           subject: subject,
+                           html_body: html
+                         } ->
       assert subject == "Notifications pour vos données sur transport.data.gouv.fr"
 
       assert html =~
@@ -237,8 +233,6 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
       assert html =~
                ~s(Pour vous inscrire, rien de plus simple : rendez-vous sur votre <a href="http://127.0.0.1:5100/espace_producteur?utm_source=transactional_email&amp;utm_medium=email&amp;utm_campaign=periodic_reminder_producer_without_subscriptions">Espace Producteur</a>)
     end)
-
-    assert :ok == perform_job(PeriodicReminderProducersNotificationJob, %{"contact_id" => contact.id})
 
     assert [%DB.Notification{reason: :periodic_reminder_producers, email: ^email}] = DB.Notification |> DB.Repo.all()
   end
