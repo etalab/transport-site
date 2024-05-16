@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # NOTE: set -e cannot be used at the moment because of pg_restore will actually generate
 # errors/warnings, which stops the script. A better way to handle errors must be found.
 
