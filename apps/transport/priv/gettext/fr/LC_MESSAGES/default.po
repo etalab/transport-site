@@ -150,3 +150,7 @@ msgstr "Comparer deux GTFS"
 #, elixir-autogen, elixir-format
 msgid "Producer space"
 msgstr "Espace producteur"
+
+#, elixir-autogen, elixir-format
+msgid "Reuser space"
+msgstr "Espace réutilisateur"

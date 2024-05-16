@@ -11,6 +11,8 @@ defmodule TransportWeb.DatasetController do
   import Phoenix.HTML
   require Logger
 
+  plug(:assign_current_contact when action in [:details])
+
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(%Plug.Conn{} = conn, params), do: list_datasets(conn, params, true)
 
@@ -61,6 +63,8 @@ defmodule TransportWeb.DatasetController do
       |> assign(:latest_resources_history_infos, DB.ResourceHistory.latest_dataset_resources_history_infos(dataset))
       |> assign(:notifications_sent, DB.Notification.recent_reasons_binned(dataset, days_notifications_sent()))
       |> assign_scores(dataset)
+      |> assign_is_producer(dataset)
+      |> assign_follows_dataset(dataset)
       |> put_status(if dataset.is_active, do: :ok, else: :not_found)
       |> render("details.html")
     else
@@ -71,6 +75,30 @@ defmodule TransportWeb.DatasetController do
       nil ->
         redirect_to_slug_or_404(conn, slug_or_id)
     end
+  end
+
+  defp assign_follows_dataset(
+         %Plug.Conn{assigns: %{current_contact: current_contact}} = conn,
+         %DB.Dataset{} = dataset
+       ) do
+    assign(conn, :follows_dataset, DB.DatasetFollower.follows_dataset?(current_contact, dataset))
+  end
+
+  defp assign_is_producer(
+         %Plug.Conn{assigns: %{current_contact: current_contact}} = conn,
+         %DB.Dataset{organization_id: organization_id}
+       ) do
+    is_producer =
+      if is_nil(current_contact) do
+        false
+      else
+        DB.Contact.base_query()
+        |> join(:inner, [contact: c], c in assoc(c, :organizations), as: :organization)
+        |> where([contact: c, organization: o], c.id == ^current_contact.id and o.id == ^organization_id)
+        |> DB.Repo.exists?()
+      end
+
+    assign(conn, :is_producer, is_producer)
   end
 
   def assign_scores(%Plug.Conn{} = conn, %DB.Dataset{} = dataset) do
@@ -512,5 +540,16 @@ defmodule TransportWeb.DatasetController do
 
       {dataset_id, value}
     end)
+  end
+
+  defp assign_current_contact(%Plug.Conn{assigns: %{current_user: current_user}} = conn, _options) do
+    current_contact =
+      if is_nil(current_user) do
+        nil
+      else
+        DB.Repo.get_by!(DB.Contact, datagouv_user_id: Map.fetch!(current_user, "id"))
+      end
+
+    assign(conn, :current_contact, current_contact)
   end
 end

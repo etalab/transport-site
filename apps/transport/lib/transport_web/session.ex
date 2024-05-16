@@ -60,8 +60,17 @@ defmodule TransportWeb.Session do
 
   At the moment we only allow transport.data.gouv.fr members but we could
   allow specific logged-in users in the future.
+
+  `:force_display_reuser_space` is currently set in a few tests to test things
+  while not being an admin (because being an admin may not be appropriate in the test).
   """
-  def display_reuser_space?(%Plug.Conn{} = conn), do: admin?(conn)
+  def display_reuser_space?(%Plug.Conn{} = conn) do
+    if Mix.env() == :test do
+      get_session(conn, :force_display_reuser_space, false) or admin?(conn)
+    else
+      admin?(conn)
+    end
+  end
 
   @spec set_session_attribute_attribute(Plug.Conn.t(), binary(), boolean()) :: Plug.Conn.t()
   defp set_session_attribute_attribute(%Plug.Conn{} = conn, key, value) do
