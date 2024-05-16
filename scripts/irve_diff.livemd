@@ -1,0 +1,58 @@
+# Différences sur la base consolidée IRVE statique
+
+```elixir
+Mix.install([
+  {:explorer, "~> 0.8.2"},
+  {:kino, "~> 0.12.3"},
+  {:req, "~> 0.4.0"}
+])
+```
+
+## Données d'entrée
+
+```elixir
+# les backups sont sur https://transport.data.gouv.fr/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques#backed-up-resources
+input_1 =
+  Kino.Input.textarea("Première URL IRVE:",
+    default: "https://www.data.gouv.fr/fr/datasets/r/eb76d20a-8501-400e-b336-d85724de5435"
+  )
+  |> Kino.render()
+
+# voir https://transport.data.gouv.fr/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques
+input_2 =
+  Kino.Input.textarea("Deuxième URL IRVE:",
+    default:
+      "https://transport-data-gouv-fr-resource-history-prod.cellar-c2.services.clever-cloud.com/81743/81743.20240516.080742.795646.csv"
+  )
+  |> Kino.render()
+
+Kino.nothing()
+```
+
+```elixir
+%{status: 200, body: data_1} = Req.get!(input_1 |> Kino.Input.read())
+%{status: 200, body: data_2} = Req.get!(input_2 |> Kino.Input.read())
+
+:ok
+```
+
+```elixir
+df1 = Explorer.DataFrame.load_csv!(data_1, infer_schema_length: nil)
+df2 = Explorer.DataFrame.load_csv!(data_2, infer_schema_length: nil)
+
+ids_1 = df1[:id_pdc_itinerance]
+ids_2 = df2[:id_pdc_itinerance]
+
+:ok
+```
+
+```elixir
+ids_1 = ids_1 |> Explorer.Series.to_list()
+ids_2 = ids_2 |> Explorer.Series.to_list()
+
+:ok
+```
+
+```elixir
+ids_1 == ids_2
+```
