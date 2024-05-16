@@ -86,6 +86,26 @@ defmodule Transport.UserNotifier do
     |> render_body("datasets_climate_resilience_bill_inappropriate_licence.html", %{datasets: datasets})
   end
 
+  def new_datagouv_datasets(datasets, duration) do
+    text_body = """
+    Bonjour,
+
+    Les jeux de données suivants ont été ajoutés sur data.gouv.fr dans les dernières #{duration}h et sont susceptibles d'avoir leur place sur le PAN :
+
+    #{Enum.map_join(datasets, "\n", &link_and_name/1)}
+
+    ---
+    Vous pouvez consulter et modifier les règles de cette tâche : https://github.com/etalab/transport-site/blob/master/apps/transport/lib/jobs/new_datagouv_datasets_job.ex
+    """
+
+    new()
+    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
+    |> to(Application.fetch_env!(:transport, :bizdev_email))
+    |> reply_to(Application.fetch_env!(:transport, :contact_email))
+    |> subject("Nouveaux jeux de données à référencer - data.gouv.fr")
+    |> text_body(text_body)
+  end
+
   # Starting from here, all the functions are used to send emails to users
 
   def resources_changed(email, subject, %DB.Dataset{} = dataset) do
@@ -153,5 +173,9 @@ defmodule Transport.UserNotifier do
     |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
     |> to(email)
     |> reply_to(Application.fetch_env!(:transport, :contact_email))
+  end
+
+  defp link_and_name(%{"title" => title, "page" => page}) do
+    ~s(* #{title} - #{page})
   end
 end

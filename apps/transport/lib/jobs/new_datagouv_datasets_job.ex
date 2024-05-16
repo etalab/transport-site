@@ -47,32 +47,10 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
 
     unless Enum.empty?(datasets) do
       duration = window(DateTime.to_date(inserted_at)) * -24
-
-      Transport.EmailSender.impl().send_mail(
-        "transport.data.gouv.fr",
-        Application.get_env(:transport, :contact_email),
-        Application.get_env(:transport, :bizdev_email),
-        Application.get_env(:transport, :contact_email),
-        "Nouveaux jeux de données à référencer - data.gouv.fr",
-        """
-        Bonjour,
-
-        Les jeux de données suivants ont été ajoutés sur data.gouv.fr dans les dernières #{duration}h et sont susceptibles d'avoir leur place sur le PAN :
-
-        #{Enum.map_join(datasets, "\n", &link_and_name/1)}
-
-        ---
-        Vous pouvez consulter et modifier les règles de cette tâche : https://github.com/etalab/transport-site/blob/master/apps/transport/lib/jobs/new_datagouv_datasets_job.ex
-        """,
-        ""
-      )
+      Transport.Mailer.deliver(Transport.UserNotifier.new_datagouv_datasets(datasets, duration))
     end
 
     :ok
-  end
-
-  def link_and_name(%{"title" => title, "page" => page}) do
-    ~s(* #{title} - #{page})
   end
 
   def filtered_datasets(datasets, %DateTime{} = inserted_at) do
