@@ -1,0 +1,34 @@
+<div data-section="dataset-header-links">
+  <%= if TransportWeb.Session.admin?(@conn) do %>
+    <i class="fa fa-external-link-alt"></i>
+    <%= link("Backoffice", to: backoffice_page_path(@conn, :edit, @dataset.id)) %> &middot;
+  <% end %>
+  <%= if TransportWeb.Session.display_reuser_space?(@conn) do %>
+    <i class="fa fa-external-link-alt"></i>
+    <%= if @current_user do %>
+      <%= if @is_producer do %>
+        <%= link(dgettext("default", "Producer space"),
+          to: page_path(@conn, :espace_producteur, utm_campaign: "dataset_details"),
+          target: "_blank"
+        ) %>
+      <% else %>
+        <%= if @follows_dataset do %>
+          <%= link(dgettext("default", "Reuser space"),
+            to: reuser_space_path(@conn, :datasets_edit, @dataset.id, utm_campaign: "dataset_details"),
+            target: "_blank"
+          ) %>
+        <% else %>
+          <%= link(dgettext("default", "Reuser space"),
+            to: reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "dataset_details"),
+            target: "_blank"
+          ) %>
+        <% end %>
+      <% end %>
+    <% else %>
+      <%= link(dgettext("default", "Reuser space"),
+        to: page_path(@conn, :infos_reutilisateurs, utm_campaign: "dataset_details"),
+        target: "_blank"
+      ) %>
+    <% end %>
+  <% end %>
+</div>

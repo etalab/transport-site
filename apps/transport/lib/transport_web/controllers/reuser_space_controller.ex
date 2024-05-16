@@ -11,4 +11,6 @@ defmodule TransportWeb.ReuserSpaceController do
     |> assign(:followed_datasets_ids, followed_datasets_ids)
     |> render("index.html")
   end
+
+  def datasets_edit(%Plug.Conn{} = conn, _), do: text(conn, "Coming later")
 end

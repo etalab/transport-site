@@ -108,6 +108,7 @@ defmodule TransportWeb.Router do
     scope "/espace_reutilisateur" do
       pipe_through([:reuser_space])
       get("/", ReuserSpaceController, :espace_reutilisateur)
+      get("/datasets/:dataset_id", ReuserSpaceController, :datasets_edit)
 
       live_session :reuser_space, session: %{"role" => :reuser}, root_layout: {TransportWeb.LayoutView, :app} do
         live("/notifications", Live.NotificationsLive, :notifications, as: :reuser_space)
