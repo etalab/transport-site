@@ -23,20 +23,20 @@ else
     exit 1
 fi
 
-pg_restore -h $HOST -U $USER_NAME -d $DB_NAME --format=c --no-owner --clean --no-acl $BACKUP_PATH
+pg_restore -h "$HOST" -U "$USER_NAME" -d "$DB_NAME" --format=c --no-owner --clean --no-acl "$BACKUP_PATH"
 
 echo "Truncating contact table"
-psql -h $HOST -U $USER_NAME -d $DB_NAME -c 'TRUNCATE TABLE contact CASCADE'
+psql -h "$HOST" -U "$USER_NAME" -d "$DB_NAME" -c 'TRUNCATE TABLE contact CASCADE'
 echo "Truncating feedback table"
-psql -h $HOST -U $USER_NAME -d $DB_NAME -c 'TRUNCATE TABLE feedback CASCADE'
+psql -h "$HOST" -U "$USER_NAME" -d "$DB_NAME" -c 'TRUNCATE TABLE feedback CASCADE'
 
 # https://stackoverflow.com/a/1885534
 read -p "Do you want to remove already enqueued Oban jobs? " -n 1 -r
 echo    # (optional) move to a new line
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
-    psql -h $HOST -U $USER_NAME -d $DB_NAME -c 'DELETE from oban_jobs'
+    psql -h "$HOST" -U "$USER_NAME" -d "$DB_NAME" -c 'DELETE from oban_jobs'
 fi
 
 # Don't let database files hang around
-rm $BACKUP_PATH
+rm "$BACKUP_PATH"
