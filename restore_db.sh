@@ -31,7 +31,7 @@ echo "Truncating feedback table"
 psql -h "$HOST" -U "$USER_NAME" -d "$DB_NAME" -c 'TRUNCATE TABLE feedback CASCADE'
 
 # https://stackoverflow.com/a/1885534
-read -p "Do you want to remove already enqueued Oban jobs? " -n 1 -r
+read -p "Do you want to remove already enqueued Oban jobs? [y/N] " -n 1 -r
 echo    # (optional) move to a new line
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
