@@ -168,6 +168,40 @@ defmodule Transport.UserNotifier do
     |> render_body("dataset_with_error_reuser.html", dataset: dataset, producer_warned: producer_warned)
   end
 
+  def resource_unavailable(email, :producer,
+        dataset: dataset,
+        hours_consecutive_downtime: hours_consecutive_downtime,
+        deleted_recreated_on_datagouv: deleted_recreated_on_datagouv,
+        resource_titles: resource_titles
+      ) do
+    email
+    |> common_email_options()
+    |> subject("Ressources indisponibles dans le jeu de données #{dataset.custom_title}")
+    |> render_body("resource_unavailable_producer.html",
+      dataset: dataset,
+      hours_consecutive_downtime: hours_consecutive_downtime,
+      deleted_recreated_on_datagouv: deleted_recreated_on_datagouv,
+      resource_titles: resource_titles
+    )
+  end
+
+  def resource_unavailable(email, :reuser,
+        dataset: dataset,
+        hours_consecutive_downtime: hours_consecutive_downtime,
+        producer_warned: producer_warned,
+        resource_titles: resource_titles
+      ) do
+    email
+    |> common_email_options()
+    |> subject("Ressources indisponibles dans le jeu de données #{dataset.custom_title}")
+    |> render_body("resource_unavailable_reuser.html",
+      dataset: dataset,
+      hours_consecutive_downtime: hours_consecutive_downtime,
+      producer_warned: producer_warned,
+      resource_titles: resource_titles
+    )
+  end
+
   defp common_email_options(email) do
     new()
     |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
