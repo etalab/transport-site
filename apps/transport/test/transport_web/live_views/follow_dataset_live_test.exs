@@ -309,7 +309,7 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
                  [
                    {"div", [{"class", "tooltip"}],
                     [
-                      {"a", [{"href", "/espace_producteur?utm_source=follow_dataset_heart"}, {"target", "_blank"}],
+                      {"a", [{"href", "/espace_producteur?utm_campaign=follow_dataset_heart"}, {"target", "_blank"}],
                        [{"i", [{"class", "fa fa-heart fa-2x producer"}], []}]},
                       {"span", [{"class", "tooltiptext left"}], ["Gérez votre jeu de données"]}
                     ]}
@@ -352,7 +352,8 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
                       "div",
                       [{"class", "tooltip"}],
                       [
-                        {"a", [{"href", "/espace_reutilisateur?utm_source=follow_dataset_heart"}, {"target", "_blank"}],
+                        {"a",
+                         [{"href", "/espace_reutilisateur?utm_campaign=follow_dataset_heart"}, {"target", "_blank"}],
                          [{"i", [{"class", "fa fa-heart fa-2x icon---animated-heart active"}], []}]},
                         {"span", [{"class", "tooltiptext left"}], ["Gérez les services liés à ce jeu de données"]}
                       ]
@@ -362,7 +363,8 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
                       [{"class", "notification active"}],
                       [
                         "\n    Jeu de données ajouté à vos favoris ! Personnalisez vos préférences depuis votre ",
-                        {"a", [{"href", "/espace_reutilisateur?utm_source=follow_dataset_heart"}, {"target", "_blank"}],
+                        {"a",
+                         [{"href", "/espace_reutilisateur?utm_campaign=follow_dataset_heart"}, {"target", "_blank"}],
                          ["espace réutilisateur"]},
                         ".\n  "
                       ]
@@ -385,7 +387,8 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
                       "div",
                       [{"class", "tooltip"}],
                       [
-                        {"a", [{"href", "/espace_reutilisateur?utm_source=follow_dataset_heart"}, {"target", "_blank"}],
+                        {"a",
+                         [{"href", "/espace_reutilisateur?utm_campaign=follow_dataset_heart"}, {"target", "_blank"}],
                          [{"i", [{"class", "fa fa-heart fa-2x icon---animated-heart active"}], []}]},
                         {"span", [{"class", "tooltiptext left"}], ["Gérez les services liés à ce jeu de données"]}
                       ]

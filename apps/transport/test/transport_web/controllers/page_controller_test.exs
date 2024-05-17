@@ -206,7 +206,7 @@ defmodule TransportWeb.PageControllerTest do
       {:ok, doc} = Floki.parse_document(body)
       [item] = doc |> Floki.find(".panel-producteurs a.button")
 
-      assert Floki.attribute(item, "href") == ["/espace_producteur?utm_source=producer_infos_page"]
+      assert Floki.attribute(item, "href") == ["/espace_producteur?utm_campaign=producer_infos_page"]
       assert item |> Floki.text() =~ "Accédez à votre espace producteur"
     end
   end
@@ -236,7 +236,7 @@ defmodule TransportWeb.PageControllerTest do
       {:ok, doc} = Floki.parse_document(body)
       [item] = doc |> Floki.find(".panel-producteurs a.button")
 
-      assert Floki.attribute(item, "href") == ["/espace_reutilisateur?utm_source=reuser_infos_page"]
+      assert Floki.attribute(item, "href") == ["/espace_reutilisateur?utm_campaign=reuser_infos_page"]
       assert item |> Floki.text() =~ "Accédez à votre espace réutilisateur"
     end
   end
@@ -309,7 +309,7 @@ defmodule TransportWeb.PageControllerTest do
   end
 
   test "menu has a link to producer space when the user is a producer", %{conn: conn} do
-    espace_producteur_path = page_path(conn, :espace_producteur, utm_source: "menu_dropdown")
+    espace_producteur_path = page_path(conn, :espace_producteur, utm_campaign: "menu_dropdown")
 
     has_menu_item? = fn %Plug.Conn{} = conn ->
       conn
