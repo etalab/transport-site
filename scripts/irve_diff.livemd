@@ -37,8 +37,11 @@ Kino.nothing()
 ```
 
 ```elixir
-df1 = Explorer.DataFrame.load_csv!(data_1, infer_schema_length: nil)
-df2 = Explorer.DataFrame.load_csv!(data_2, infer_schema_length: nil)
+df1 =
+  Explorer.DataFrame.load_csv!(data_1, infer_schema_length: nil, columns: [:id_pdc_itinerance])
+
+df2 =
+  Explorer.DataFrame.load_csv!(data_2, infer_schema_length: nil, columns: [:id_pdc_itinerance])
 
 ids_1 = df1[:id_pdc_itinerance]
 ids_2 = df2[:id_pdc_itinerance]
@@ -54,5 +57,6 @@ ids_2 = ids_2 |> Explorer.Series.to_list()
 ```
 
 ```elixir
-ids_1 == ids_2
+(ids_2 -- ids_1)
+|> Kino
 ```
