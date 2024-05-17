@@ -80,11 +80,24 @@ defmodule TransportWeb.SessionController do
         |> DB.Contact.changeset(%{email: email})
         |> DB.Repo.update!()
 
+      # First login on the platform.
+      # - we created the contact on the backoffice: fill `datagouv_user_id`
+      # - create the contact for the first time using OAuth details
       nil ->
-        find_contact_by_email_or_create(user_params)
+        contact = find_contact_by_email_or_create(user_params)
+        maybe_promote_producer_space(contact)
+        contact
     end
     |> DB.Contact.changeset(%{last_login_at: DateTime.utc_now(), organizations: organizations})
     |> DB.Repo.update!()
+  end
+
+  defp maybe_promote_producer_space(%DB.Contact{id: contact_id}) do
+    # Schedule the job in a few seconds to make sure the record has been
+    # inserted and we properly updated organizations.
+    # The job is scheduled for all contacts when they login for the first time
+    # and does stuff only if the contact is a producer.
+    %{contact_id: contact_id} |> Transport.Jobs.PromoteProducerSpaceJob.new(schedule_in: 5) |> Oban.insert!()
   end
 
   defp find_contact_by_email_or_create(%{
