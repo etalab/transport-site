@@ -1,3 +1,5 @@
+<!-- livebook:{"persist_outputs":true} -->
+
 # Comparateurs de fichiers "IRVE statiques"
 
 ```elixir
@@ -73,6 +75,17 @@ join
 |> DF.collect()
 ```
 
+<!-- livebook:{"output":true} -->
+
+```text
+#Explorer.DataFrame<
+  Polars[2 x 3]
+  datagouv_resource_id string ["c34dcef5-a22a-4a6d-811d-48ed5067f1d2", "b11113db-875d-41c7-8673-0cf8ad43e917"]
+  datagouv_organization_or_owner string ["alize-charge", "eco-movement"]
+  datagouv_resource_id_count u32 [12501, 15]
+>
+```
+
 ### Identifiants uniquement dans la nouvelle ressource ("ajoutés")
 
 ```elixir
@@ -82,4 +95,15 @@ join
 |> DF.summarise(datagouv_resource_id_right_count: count(datagouv_resource_id_right))
 |> DF.sort_by(desc: datagouv_resource_id_right_count)
 |> DF.collect()
+```
+
+<!-- livebook:{"output":true} -->
+
+```text
+#Explorer.DataFrame<
+  Polars[3 x 3]
+  datagouv_resource_id_right string ["dfa6fed2-4a11-457a-8b64-a43642427ec4", "b11113db-875d-41c7-8673-0cf8ad43e917", "d9c287ad-7260-4228-90e4-b0fc681b1c40"]
+  datagouv_organization_or_owner_right string ["totalenergies-marketing-france", "eco-movement", "sas-road54"]
+  datagouv_resource_id_right_count u32 [34, 33, 4]
+>
 ```
