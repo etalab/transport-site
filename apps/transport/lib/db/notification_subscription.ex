@@ -72,9 +72,11 @@ defmodule DB.NotificationSubscription do
   typed_schema "notification_subscription" do
     field(:reason, Ecto.Enum, values: @all_reasons)
 
-    # Useful to know if the subscription has been created by an admin
-    # from the backoffice (`:admin`) or by the user (`:user`)
-    field(:source, Ecto.Enum, values: [:admin, :user])
+    # The subscription source:
+    # - `:admin`: created by an admin from the backoffice
+    # - `:user`: by the user using self-service tools
+    # - `automation:<slug>`: created by the system, the slug adds more details about the source
+    field(:source, Ecto.Enum, values: [:admin, :user, :"automation:promote_producer_space"])
     field(:role, Ecto.Enum, values: @possible_roles)
 
     belongs_to(:contact, DB.Contact)

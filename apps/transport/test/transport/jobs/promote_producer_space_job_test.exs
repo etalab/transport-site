@@ -44,6 +44,8 @@ defmodule Transport.Test.Transport.Jobs.PromoteProducerSpaceJobTest do
 
       # The contact has been subscribed to all producer reasons for the dataset.
       # The existing subscription did not interfere.
+      producer_reasons = DB.NotificationSubscription.subscribable_reasons_related_to_datasets(:producer)
+
       subscriptions =
         DB.NotificationSubscription.base_query()
         |> select([notification_subscription: ns], %{
@@ -54,9 +56,14 @@ defmodule Transport.Test.Transport.Jobs.PromoteProducerSpaceJobTest do
         })
         |> DB.Repo.all()
 
+      assert %{admin: 1, "automation:promote_producer_space": Enum.count(producer_reasons) - 1} ==
+               DB.NotificationSubscription.base_query()
+               |> select([notification_subscription: ns], ns.source)
+               |> DB.Repo.all()
+               |> Enum.frequencies()
+
       expected_subscriptions =
-        DB.NotificationSubscription.subscribable_reasons_related_to_datasets(:producer)
-        |> MapSet.new(fn reason ->
+        MapSet.new(producer_reasons, fn reason ->
           %{dataset_id: dataset.id, role: :producer, contact_id: contact_id, reason: reason}
         end)
 

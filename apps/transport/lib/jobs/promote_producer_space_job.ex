@@ -41,7 +41,7 @@ defmodule Transport.Jobs.PromoteProducerSpaceJob do
       # and we leverage the changeset to ignore those.
       DB.NotificationSubscription.insert(%{
         role: :producer,
-        source: :admin,
+        source: :"automation:promote_producer_space",
         reason: reason,
         contact_id: contact_id,
         dataset_id: dataset_id
