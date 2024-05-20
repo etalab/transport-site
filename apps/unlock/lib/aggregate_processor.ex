@@ -78,7 +78,7 @@ defmodule Unlock.AggregateProcessor do
   This code needs to be DRYed ultimately (see `Controller.fetch_remote`), and simplified
   via an extraction of the caching logic in a specific place.
   """
-  def cached_fetch(item, %Unlock.Config.Item.Generic.HTTP{identifier: origin} = sub_item) do
+  def cached_fetch(%Unlock.Config.Item.Aggregate{} = item, %Unlock.Config.Item.Generic.HTTP{identifier: origin} = sub_item) do
     comp_fn = fn _key ->
       get_function = fn i -> get_with_maybe_redirect(i.target_url) end
       # NOTE: reuse shared function, a bit confusing but helps DRYing things a bit
