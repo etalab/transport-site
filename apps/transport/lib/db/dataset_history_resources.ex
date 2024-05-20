@@ -13,5 +13,6 @@ defmodule DB.DatasetHistoryResources do
     belongs_to(:resource_metadata, DB.ResourceMetadata)
     belongs_to(:validation, DB.MultiValidation)
     field(:payload, :map)
+    field(:datagouv_id, :string)
   end
 end
