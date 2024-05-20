@@ -78,7 +78,7 @@ defmodule Transport.Jobs.DatasetHistoryJob do
               latest_url: resource.latest_url,
               download_url: DB.Resource.download_url(resource)
             },
-            datagouv_id: resource.datagouv_id
+            resource_datagouv_id: resource.datagouv_id
           }
         end)
     }

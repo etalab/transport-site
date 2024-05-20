@@ -71,7 +71,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetHistoryJobTest do
              resource_metadata_id: nil,
              validation_id: nil,
              payload: %{"url" => "url1"},
-             datagouv_id: ^r1_datagouv_id
+             resource_datagouv_id: ^r1_datagouv_id
            } = dhr1
 
     dhr2 = dataset_history_resources |> Enum.find(&(&1.resource_id == r2.id))
@@ -81,7 +81,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetHistoryJobTest do
              resource_metadata_id: ^rm_id_latest,
              validation_id: ^rmv_id_latest,
              payload: %{"url" => "url2"},
-             datagouv_id: ^r2_datagouv_id
+             resource_datagouv_id: ^r2_datagouv_id
            } = dhr2
 
     dhr3 = dataset_history_resources |> Enum.find(&(&1.resource_id == r3.id))
@@ -91,7 +91,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetHistoryJobTest do
              resource_metadata_id: ^rm_id_latest_3,
              validation_id: ^rmv_id_latest_3,
              payload: %{"url" => "url3"},
-             datagouv_id: ^r3_datagouv_id
+             resource_datagouv_id: ^r3_datagouv_id
            } = dhr3
 
     dhr4 = dataset_history_resources |> Enum.find(&(&1.resource_id == r4.id))
