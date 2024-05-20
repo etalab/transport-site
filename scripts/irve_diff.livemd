@@ -13,6 +13,11 @@ Mix.install([
 
 ## Données d'entrée
 
+⚠️ Ce notebook contient certaines limitations non traitées pour le moment (mais qui ne sont pas gênantes pour en retirer une valeur immédiate et qu'on traitera plus tard éventuellement):
+
+* L'unicité des `id_pdc_itinerance` n'est pas vérifiée, or un `join` est fait dessus.
+* Le filtrage des valeurs "Non Renseigné" n'est pas fait sur cette colonne
+
 Pour comparer les identifiants de points de charge entre deux fichiers, il nous faut leurs URLs (qu'on peut tirer par exemple de l'historique de la ressource sur https://transport.data.gouv.fr/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques#backed-up-resources)
 
 ```elixir
