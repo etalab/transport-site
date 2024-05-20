@@ -1,0 +1,85 @@
+# Comparateurs de fichiers "IRVE statiques"
+
+```elixir
+Mix.install([
+  {:explorer, "~> 0.8.2"},
+  {:kino, "~> 0.12.3"},
+  {:req, "~> 0.4.0"},
+  {:kino_explorer, "~> 0.1.11"}
+])
+```
+
+## Données d'entrée
+
+Pour comparer les identifiants de points de charge entre deux fichiers, il nous faut leurs URLs (qu'on peut tirer par exemple de l'historique de la ressource sur https://transport.data.gouv.fr/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques#backed-up-resources)
+
+```elixir
+# les backups sont sur https://transport.data.gouv.fr/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques#backed-up-resources
+input_1 =
+  Kino.Input.textarea("Première URL IRVE (\"ancien\" fichier):",
+    default:
+      "https://transport-data-gouv-fr-resource-history-prod.cellar-c2.services.clever-cloud.com/81623/81623.20240515.150958.211590.csv"
+  )
+  |> Kino.render()
+
+# voir https://transport.data.gouv.fr/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques
+input_2 =
+  Kino.Input.textarea("Deuxième URL IRVE (\"nouveau\" fichier):",
+    default:
+      "https://transport-data-gouv-fr-resource-history-prod.cellar-c2.services.clever-cloud.com/81743/81743.20240516.080742.795646.csv"
+  )
+```
+
+On peut télécharger le contenu correspondant à ces URLs:
+
+```elixir
+%{status: 200, body: data_1} = Req.get!(input_1 |> Kino.Input.read())
+%{status: 200, body: data_2} = Req.get!(input_2 |> Kino.Input.read())
+Kino.nothing()
+```
+
+On peut ensuite analyser les données avec des `DataFrame`:
+
+```elixir
+alias Explorer.DataFrame, as: DF
+# pour les macros
+require DF
+
+df1 = DF.load_csv!(data_1, infer_schema_length: nil)
+df2 = DF.load_csv!(data_2, infer_schema_length: nil)
+
+# pour aller voir les données de plus près...
+# df1 |> Kino.render()
+
+# Une jointure `outer` 
+# (https://github.com/elixir-explorer/explorer/blob/main/notebooks/exploring_explorer.livemd#joins) 
+# permet de déterminer les identifiants qui sont uniquement dans la première ressource, 
+# uniquement dans la deuxième, ou dans les deux:
+join = DF.join(df1, df2, how: :outer, on: :id_pdc_itinerance)
+
+Kino.nothing()
+```
+
+### Identifiants uniquement dans l'ancienne ressource ("supprimés" de la nouvelle ressource)
+
+⚠️ si un grand nombre d'identifiants ont disparu, cela peut indiquer un souci (ressource devenue invalide, souci lors d'une aggrégation réalisée par un producteur etc).
+
+```elixir
+join
+|> DF.filter(is_nil(id_pdc_itinerance_right))
+|> DF.group_by([:datagouv_resource_id, :datagouv_organization_or_owner])
+|> DF.summarise(datagouv_resource_id_count: count(datagouv_resource_id))
+|> DF.sort_by(desc: datagouv_resource_id_count)
+|> DF.collect()
+```
+
+### Identifiants uniquement dans la nouvelle ressource ("ajoutés")
+
+```elixir
+join
+|> DF.filter(is_nil(id_pdc_itinerance))
+|> DF.group_by([:datagouv_resource_id_right, :datagouv_organization_or_owner_right])
+|> DF.summarise(datagouv_resource_id_right_count: count(datagouv_resource_id_right))
+|> DF.sort_by(desc: datagouv_resource_id_right_count)
+|> DF.collect()
+```
