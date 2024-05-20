@@ -49,7 +49,7 @@ defmodule Unlock.Config do
       sub_item
       # Default to generic-http (typically used for IRVE)
       |> Map.put_new("type", "generic-http")
-      # Use a default 10-second TTL for sub-feeeds, unless specified in the config
+      # Use a default 10-second TTL for sub-feeds, unless specified in the config
       |> Map.put_new("ttl", 10)
       |> convert_yaml_item_to_struct()
     end
