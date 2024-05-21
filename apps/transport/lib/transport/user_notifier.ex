@@ -227,6 +227,27 @@ defmodule Transport.UserNotifier do
     })
   end
 
+  def new_datasets(email, datasets) do
+    dataset_link_fn = fn %DB.Dataset{} = dataset ->
+      "* #{dataset.custom_title} - (#{DB.Dataset.type_to_str(dataset.type)}) - #{link(dataset)}"
+    end
+
+    text_content = """
+    Bonjour,
+
+    Les jeux de données suivants ont été référencés récemment :
+
+    #{datasets |> Enum.sort_by(& &1.type) |> Enum.map_join("\n", &dataset_link_fn.(&1))}
+
+    L’équipe transport.data.gouv.fr
+    """
+
+    email
+    |> common_email_options()
+    |> subject("Nouveaux jeux de données référencés")
+    |> text_body(text_content)
+  end
+
   defp common_email_options(email) do
     new()
     |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
@@ -237,4 +258,6 @@ defmodule Transport.UserNotifier do
   defp link_and_name(%{"title" => title, "page" => page}) do
     ~s(* #{title} - #{page})
   end
+
+  defp link(%DB.Dataset{slug: slug}), do: TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, slug)
 end

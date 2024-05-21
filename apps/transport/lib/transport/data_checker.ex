@@ -135,31 +135,13 @@ defmodule Transport.DataChecker do
   def send_new_dataset_notifications([]), do: :ok
 
   def send_new_dataset_notifications(datasets) do
-    dataset_link_fn = fn %Dataset{} = dataset ->
-      "* #{dataset.custom_title} - (#{Dataset.type_to_str(dataset.type)}) - #{link(dataset)}"
-    end
-
     @new_dataset_reason
     |> DB.NotificationSubscription.subscriptions_for_reason_and_role(:reuser)
     |> DB.NotificationSubscription.subscriptions_to_emails()
     |> Enum.each(fn email ->
-      Transport.EmailSender.impl().send_mail(
-        "transport.data.gouv.fr",
-        Application.get_env(:transport, :contact_email),
-        email,
-        Application.get_env(:transport, :contact_email),
-        "Nouveaux jeux de données référencés",
-        """
-        Bonjour,
-
-        Les jeux de données suivants ont été référencés récemment :
-
-        #{datasets |> Enum.sort_by(& &1.type) |> Enum.map_join("\n", &dataset_link_fn.(&1))}
-
-        L’équipe transport.data.gouv.fr
-        """,
-        ""
-      )
+      email
+      |> Transport.UserNotifier.new_datasets(datasets)
+      |> Transport.Mailer.deliver()
 
       datasets
       |> Enum.each(fn %Dataset{} = dataset ->
@@ -297,8 +279,6 @@ defmodule Transport.DataChecker do
   def delay_str(d, :périmant) when d <= -2, do: "périmés depuis #{-d} jours"
   def delay_str(d, :périment) when d <= -2, do: "sont périmées depuis #{-d} jours"
 
-  def link(%Dataset{slug: slug}), do: dataset_url(TransportWeb.Endpoint, :details, slug)
-
   @spec link_and_name(Dataset.t()) :: binary()
   def link_and_name(%Dataset{custom_title: custom_title} = dataset) do
     link = link(dataset)
@@ -406,4 +386,6 @@ defmodule Transport.DataChecker do
       ""
     )
   end
+
+  defp link(%Dataset{slug: slug}), do: dataset_url(TransportWeb.Endpoint, :details, slug)
 end

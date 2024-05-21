@@ -2,6 +2,7 @@ defmodule Transport.DataCheckerTest do
   use ExUnit.Case, async: true
   import Mox
   import DB.Factory
+  import Swoosh.TestAssertions
 
   doctest Transport.DataChecker, import: true
 
@@ -376,28 +377,19 @@ defmodule Transport.DataCheckerTest do
         contact_id: contact_id
       })
 
-      Transport.EmailSender.Mock
-      |> expect(:send_mail, fn "transport.data.gouv.fr",
-                               "contact@transport.data.gouv.fr",
-                               ^email = _to,
-                               "contact@transport.data.gouv.fr",
-                               "Nouveaux jeux de données référencés" = _subject,
-                               plain_text_body,
-                               "" = _html_part ->
-        assert plain_text_body =~ ~r/^Bonjour/
-
-        assert plain_text_body =~
-                 "* Super JDD - (Transport public collectif - horaires théoriques) - http://127.0.0.1:5100/datasets/#{slug}"
-
-        :ok
-      end)
-
       Transport.DataChecker.send_new_dataset_notifications([dataset])
+
+      assert_email_sent(
+        from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+        to: email,
+        subject: "Nouveaux jeux de données référencés",
+        text_body:
+          ~r"Super JDD - \(Transport public collectif - horaires théoriques\) - http://127.0.0.1:5100/datasets/#{slug}",
+        html_body: nil
+      )
 
       assert [%DB.Notification{email: ^email, reason: :new_dataset, dataset_id: ^dataset_id}] =
                DB.Notification |> DB.Repo.all()
-
-      verify!(Transport.EmailSender.Mock)
     end
   end
 
