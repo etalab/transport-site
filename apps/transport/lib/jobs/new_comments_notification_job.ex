@@ -25,7 +25,7 @@ defmodule Transport.Jobs.NewCommentsNotificationJob do
       |> DB.Repo.all()
 
     contact
-    |> Transport.UserNotifier.new_comments(datasets)
+    |> Transport.UserNotifier.new_comments_reuser(datasets)
     |> Transport.Mailer.deliver()
 
     Enum.each(datasets, fn %DB.Dataset{} = dataset -> save_notification(dataset, contact) end)

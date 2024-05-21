@@ -115,11 +115,18 @@ defmodule Transport.UserNotifier do
     |> render_body("resources_changed.html", %{dataset: dataset})
   end
 
-  def new_comments(%DB.Contact{email: email}, datasets) do
+  def new_comments_reuser(%DB.Contact{email: email}, datasets) do
     email
     |> common_email_options()
-    |> subject("Nouveaux commentaires")
+    |> subject("Nouveaux commentaires sur transport.data.gouv.fr")
     |> render_body("new_comments_reuser.html", %{datasets: datasets})
+  end
+
+  def new_comments_producer(email, comments_number, comments) do
+    email
+    |> common_email_options()
+    |> subject("#{comments_number} nouveaux commentaires sur transport.data.gouv.fr")
+    |> render_body("new_comments_producer.html", comments_with_context: comments)
   end
 
   def promote_reuser_space(email) do

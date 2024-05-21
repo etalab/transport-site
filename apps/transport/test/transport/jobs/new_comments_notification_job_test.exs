@@ -176,7 +176,7 @@ defmodule Transport.Test.Transport.Jobs.NewCommentsNotificationJobTest do
                from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
                to: [{"", ^email}],
                reply_to: {"", "contact@transport.data.gouv.fr"},
-               subject: "Nouveaux commentaires",
+               subject: "Nouveaux commentaires sur transport.data.gouv.fr",
                text_body: nil,
                html_body: html_body
              } = sent
