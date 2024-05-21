@@ -83,7 +83,10 @@ defmodule Unlock.AggregateProcessor do
         %Unlock.Config.Item.Generic.HTTP{identifier: origin} = sub_item
       ) do
     comp_fn = fn _key ->
-      get_function = fn %Item.Generic.HTTP{target_url: target_url} -> get_with_maybe_redirect(target_url) end
+      get_function = fn %Unlock.Config.Item.Generic.HTTP{target_url: target_url} ->
+        get_with_maybe_redirect(target_url)
+      end
+
       # NOTE: reuse shared function, a bit confusing but helps DRYing things a bit
       Unlock.CachedFetch.fetch_data(sub_item, get_function)
     end
