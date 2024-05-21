@@ -126,7 +126,7 @@ defmodule Unlock.AggregateProcessor do
         %Unlock.Config.Item.Generic.HTTP{identifier: origin} = sub_item,
         options
       ) do
-    Unlock.Telemetry.trace_request(item.identifier <> ":" <> origin, :internal)
+    Unlock.Telemetry.trace_request([item.identifier, origin], :internal)
     Logger.debug("Fetching aggregated sub-item #{origin} at #{sub_item.target_url}")
 
     %{status: status, body: body} =

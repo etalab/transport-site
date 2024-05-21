@@ -24,8 +24,15 @@ defmodule Unlock.Telemetry do
 
   @proxy_requests [:internal, :external]
 
-  def target_for_identifier(item_identifier) do
-    "proxy:#{item_identifier}"
+  @separator ":"
+
+  def target_for_identifier(item_identifier) when is_binary(item_identifier) do
+    "proxy" <> @separator <> item_identifier
+  end
+
+  # aggregate feed support - which we could generalize in the future
+  def target_for_identifier([item_identifier, sub_item_identifier]) do
+    target_for_identifier(item_identifier <> @separator <> sub_item_identifier)
   end
 
   # This call will result in synchronous invoke of all registered handlers for the specified events.
