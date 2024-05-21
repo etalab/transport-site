@@ -13,7 +13,8 @@ defmodule Transport.Test.Transport.Jobs.WarnUserInactivityJobTest do
   @inactivity_limit 30 * 25
 
   test "prune a single contact" do
-    insert_contact_inactive_since(%{days: @inactivity_limit + 10})
+    now = DateTime.utc_now()
+    insert_contact_inactive_since(now, %{days: @inactivity_limit + 10})
 
     assert :ok == perform_job(WarnUserInactivityJob, %{})
 
@@ -25,9 +26,10 @@ defmodule Transport.Test.Transport.Jobs.WarnUserInactivityJobTest do
   @login_prompt ~r/Pour conserver votre compte, il vous suffira de <a href="https?:\/\/[^\\]+\/login\/explanation\?redirect_path=%2F">vous reconnecter<\/a>./
 
   test "warn first time 30 days before deadline" do
-    %DB.Contact{} = insert_contact_inactive_since(%{days: @inactivity_limit - 31})
-    %DB.Contact{email: email} = insert_contact_inactive_since(%{days: @inactivity_limit - 30})
-    %DB.Contact{} = insert_contact_inactive_since(%{days: @inactivity_limit - 29})
+    now = DateTime.utc_now()
+    %DB.Contact{} = insert_contact_inactive_since(now, %{days: @inactivity_limit - 31})
+    %DB.Contact{email: email} = insert_contact_inactive_since(now, %{days: @inactivity_limit - 30})
+    %DB.Contact{} = insert_contact_inactive_since(now, %{days: @inactivity_limit - 29})
 
     assert :ok == perform_job(WarnUserInactivityJob, %{})
 
@@ -41,9 +43,10 @@ defmodule Transport.Test.Transport.Jobs.WarnUserInactivityJobTest do
   end
 
   test "warn first time 15 days before deadline" do
-    %DB.Contact{} = insert_contact_inactive_since(%{days: @inactivity_limit - 14})
-    %DB.Contact{email: email} = insert_contact_inactive_since(%{days: @inactivity_limit - 15})
-    %DB.Contact{} = insert_contact_inactive_since(%{days: @inactivity_limit - 16})
+    now = DateTime.utc_now()
+    %DB.Contact{} = insert_contact_inactive_since(now, %{days: @inactivity_limit - 14})
+    %DB.Contact{email: email} = insert_contact_inactive_since(now, %{days: @inactivity_limit - 15})
+    %DB.Contact{} = insert_contact_inactive_since(now, %{days: @inactivity_limit - 16})
 
     assert :ok == perform_job(WarnUserInactivityJob, %{})
 
@@ -57,9 +60,10 @@ defmodule Transport.Test.Transport.Jobs.WarnUserInactivityJobTest do
   end
 
   test "warn first time the day before deadline" do
-    %DB.Contact{} = insert_contact_inactive_since(%{days: @inactivity_limit - 2})
-    %DB.Contact{email: email} = insert_contact_inactive_since(%{days: @inactivity_limit - 1})
-    %DB.Contact{} = insert_contact_inactive_since(%{days: @inactivity_limit})
+    now = DateTime.utc_now()
+    %DB.Contact{} = insert_contact_inactive_since(now, %{days: @inactivity_limit - 2})
+    %DB.Contact{email: email} = insert_contact_inactive_since(now, %{days: @inactivity_limit - 1})
+    %DB.Contact{} = insert_contact_inactive_since(now, %{days: @inactivity_limit})
 
     assert :ok == perform_job(WarnUserInactivityJob, %{})
 
@@ -72,8 +76,8 @@ defmodule Transport.Test.Transport.Jobs.WarnUserInactivityJobTest do
     assert 2 == DB.Repo.aggregate(DB.Contact, :count)
   end
 
-  defp insert_contact_inactive_since(%{days: days}) do
-    last_login_at = DateTime.utc_now() |> DateTime.add(0 - days, :day)
+  defp insert_contact_inactive_since(now, %{days: days}) do
+    last_login_at = DateTime.add(now, 0 - days, :day)
 
     insert_contact(%{last_login_at: last_login_at})
   end
