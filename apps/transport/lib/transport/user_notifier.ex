@@ -106,6 +106,192 @@ defmodule Transport.UserNotifier do
     |> text_body(text_body)
   end
 
+  def expiration_admin(records) do
+    text_body = """
+    Bonjour,
+
+    Voici un résumé des jeux de données arrivant à expiration
+
+    #{Enum.map_join(records, "\n---------------------\n", &expiration_str/1)}
+    """
+
+    new()
+    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
+    |> to(Application.fetch_env!(:transport, :bizdev_email))
+    |> reply_to(Application.fetch_env!(:transport, :contact_email))
+    |> subject("Jeux de données arrivant à expiration")
+    |> text_body(text_body)
+  end
+
+  def inactive_datasets(reactivated_datasets, inactive_datasets, archived_datasets) do
+    reactivated_datasets_str = fmt_reactivated_datasets(reactivated_datasets)
+    inactive_datasets_str = fmt_inactive_datasets(inactive_datasets)
+    archived_datasets_str = fmt_archived_datasets(archived_datasets)
+
+    text_body =
+      """
+      Bonjour,
+      #{inactive_datasets_str}
+      #{reactivated_datasets_str}
+      #{archived_datasets_str}
+
+      Il faut peut être creuser pour savoir si c'est normal.
+
+      """
+
+    new()
+    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
+    |> to(Application.fetch_env!(:transport, :bizdev_email))
+    |> reply_to(Application.fetch_env!(:transport, :contact_email))
+    |> subject("Jeux de données supprimés ou archivés")
+    |> text_body(text_body)
+  end
+
+  defp expiration_str({delay, records}) do
+    datasets = Enum.map(records, fn {%DB.Dataset{} = d, _} -> d end)
+
+    dataset_str = fn %DB.Dataset{} = dataset ->
+      "#{link_and_name_2(dataset)} (#{expiration_notification_enabled_str(dataset)}) #{climate_resilience_str(dataset)}"
+      |> String.trim()
+    end
+
+    """
+    Jeux de données #{delay_str(delay, :périmant)} :
+
+    #{Enum.map_join(datasets, "\n", &dataset_str.(&1))}
+    """
+  end
+
+  def expiration_notification_enabled_str(%DB.Dataset{} = dataset) do
+    if has_expiration_notifications?(dataset) do
+      "✅ notification automatique"
+    else
+      "❌ pas de notification automatique"
+    end
+  end
+
+  defp climate_resilience_str(%DB.Dataset{} = dataset) do
+    if DB.Dataset.climate_resilience_bill?(dataset) do
+      "⚖️🗺️ article 122"
+    else
+      ""
+    end
+  end
+
+  def has_expiration_notifications?(%DB.Dataset{} = dataset) do
+    DB.NotificationSubscription.reason(:expiration)
+    |> DB.NotificationSubscription.subscriptions_for_reason_dataset_and_role(dataset, :producer)
+    |> Enum.count() > 0
+  end
+
+  defp fmt_inactive_datasets([]), do: ""
+
+  defp fmt_inactive_datasets(inactive_datasets) do
+    datasets_str = Enum.map_join(inactive_datasets, "\n", &link_and_name_2(&1))
+
+    """
+    Certains jeux de données ont disparus de data.gouv.fr :
+    #{datasets_str}
+    """
+  end
+
+  defp fmt_reactivated_datasets([]), do: ""
+
+  defp fmt_reactivated_datasets(reactivated_datasets) do
+    datasets_str = Enum.map_join(reactivated_datasets, "\n", &link_and_name_2(&1))
+
+    """
+    Certains jeux de données disparus sont réapparus sur data.gouv.fr :
+    #{datasets_str}
+    """
+  end
+
+  defp fmt_archived_datasets([]), do: ""
+
+  defp fmt_archived_datasets(archived_datasets) do
+    datasets_str = Enum.map_join(archived_datasets, "\n", &link_and_name_2(&1))
+
+    """
+    Certains jeux de données sont indiqués comme archivés sur data.gouv.fr :
+    #{datasets_str}
+
+    #{count_archived_datasets()} jeux de données sont archivés. Retrouvez-les dans le backoffice : #{backoffice_archived_datasets_url()}
+    """
+  end
+
+  @spec link_and_name_2(DB.Dataset.t()) :: binary()
+  def link_and_name_2(%DB.Dataset{custom_title: custom_title} = dataset) do
+    link = link(dataset)
+
+    " * #{custom_title} - #{link}"
+  end
+
+  def count_archived_datasets do
+    DB.Dataset.archived() |> DB.Repo.aggregate(:count, :id)
+  end
+
+  defp backoffice_archived_datasets_url do
+    TransportWeb.Router.Helpers.backoffice_page_url(TransportWeb.Endpoint, :index, %{"filter" => "archived"}) <>
+      "#list_datasets"
+  end
+
+  @doc """
+  iex> email_subject(7)
+  "Jeu de données arrivant à expiration"
+  iex> email_subject(0)
+  "Jeu de données arrivant à expiration"
+  iex> email_subject(-3)
+  "Jeu de données périmé"
+  """
+  def email_subject(delay) when delay >= 0 do
+    "Jeu de données arrivant à expiration"
+  end
+
+  def email_subject(delay) when delay < 0 do
+    "Jeu de données périmé"
+  end
+
+  @doc """
+  iex> delay_str(0, :périmant)
+  "périmant demain"
+  iex> delay_str(0, :périment)
+  "périment demain"
+  iex> delay_str(2, :périmant)
+  "périmant dans 2 jours"
+  iex> delay_str(2, :périment)
+  "périment dans 2 jours"
+  iex> delay_str(-1, :périmant)
+  "périmé depuis hier"
+  iex> delay_str(-1, :périment)
+  "sont périmées depuis hier"
+  iex> delay_str(-2, :périmant)
+  "périmés depuis 2 jours"
+  iex> delay_str(-2, :périment)
+  "sont périmées depuis 2 jours"
+  iex> delay_str(-60, :périment)
+  "sont périmées depuis 60 jours"
+  """
+  @spec delay_str(integer(), :périment | :périmant) :: binary()
+  def delay_str(0, verb), do: "#{verb} demain"
+  def delay_str(1, verb), do: "#{verb} dans 1 jour"
+  def delay_str(d, verb) when d >= 2, do: "#{verb} dans #{d} jours"
+  def delay_str(-1, :périmant), do: "périmé depuis hier"
+  def delay_str(-1, :périment), do: "sont périmées depuis hier"
+  def delay_str(d, :périmant) when d <= -2, do: "périmés depuis #{-d} jours"
+  def delay_str(d, :périment) when d <= -2, do: "sont périmées depuis #{-d} jours"
+
+  @doc """
+  iex> resource_titles([%DB.Resource{title: "B"}])
+  "B"
+  iex> resource_titles([%DB.Resource{title: "B"}, %DB.Resource{title: "A"}])
+  "A, B"
+  """
+  def resource_titles(resources) do
+    resources
+    |> Enum.sort_by(fn %DB.Resource{title: title} -> title end)
+    |> Enum.map_join(", ", fn %DB.Resource{title: title} -> title end)
+  end
+
   # Starting from here, all the functions are used to send emails to users
 
   def resources_changed(email, subject, %DB.Dataset{} = dataset) do
@@ -246,6 +432,17 @@ defmodule Transport.UserNotifier do
     |> common_email_options()
     |> subject("Nouveaux jeux de données référencés")
     |> text_body(text_content)
+  end
+
+  def expiration_producer(email, dataset, resources, delay) do
+    email
+    |> common_email_options()
+    |> subject(email_subject(delay))
+    |> render_body("expiration_producer.html",
+      delay_str: delay_str(delay, :périment),
+      dataset: dataset,
+      resource_titles: resource_titles(resources)
+    )
   end
 
   defp common_email_options(email) do
