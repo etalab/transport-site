@@ -183,7 +183,7 @@ defmodule Unlock.AggregateProcessor do
       end
 
     rows
-    |> Stream.map(&mapper.(&1))
+    |> Stream.map(mapper)
   end
 
   # `Finch` does not support redirects, and we likely will want to support data gouv stable urls
