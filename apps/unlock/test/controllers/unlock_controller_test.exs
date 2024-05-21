@@ -598,10 +598,10 @@ defmodule Unlock.ControllerTest do
     end
 
     test "drops bogus 200 sub-feed content safely" do
-      {url, second_url} = setup_aggregate_proxy_config("an-existing-aggregate-identifier")
+      {first_url, second_url} = setup_aggregate_proxy_config("an-existing-aggregate-identifier")
 
       setup_remote_responses(%{
-        url => {200, Helper.data_as_csv(@expected_headers, [first_data_row = build_unique_data_row()], "\r\n")},
+        first_url => {200, Helper.data_as_csv(@expected_headers, [first_data_row = build_unique_data_row()], "\r\n")},
         second_url => {200, Helper.data_as_csv(["foo"], [%{"foo" => "bar"}], "\n")}
       })
 
@@ -623,10 +623,10 @@ defmodule Unlock.ControllerTest do
     end
 
     test "drops sub-feed raising exception with simulated 502 (e.g. request hard error)" do
-      {url, second_url} = setup_aggregate_proxy_config("an-existing-aggregate-identifier")
+      {first_url, second_url} = setup_aggregate_proxy_config("an-existing-aggregate-identifier")
 
       setup_remote_responses(%{
-        url => {200, Helper.data_as_csv(@expected_headers, [first_data_row = build_unique_data_row()], "\r\n")},
+        first_url => {200, Helper.data_as_csv(@expected_headers, [first_data_row = build_unique_data_row()], "\r\n")},
         # this is swallowed by the code and interpreted as 502
         second_url => fn -> raise %Mint.TransportError{reason: :nxdomain} end
       })
@@ -648,10 +648,10 @@ defmodule Unlock.ControllerTest do
     test "hides a non-200 feed from the output without polluting 200 feeds" do
       slug = "an-existing-aggregate-identifier"
 
-      {url, second_url} = setup_aggregate_proxy_config(slug)
+      {first_url, second_url} = setup_aggregate_proxy_config(slug)
 
       setup_remote_responses(%{
-        url => {200, Helper.data_as_csv(@expected_headers, [first_data_row = build_unique_data_row()], "\r\n")},
+        first_url => {200, Helper.data_as_csv(@expected_headers, [first_data_row = build_unique_data_row()], "\r\n")},
         second_url => {500, Helper.data_as_csv(@expected_headers, [second_data_row = build_unique_data_row()], "\n")}
       })
 
@@ -678,10 +678,10 @@ defmodule Unlock.ControllerTest do
     test "handles 302 in sub-feed gracefully" do
       slug = "an-existing-aggregate-identifier"
 
-      {url, second_url} = setup_aggregate_proxy_config(slug)
+      {first_url, second_url} = setup_aggregate_proxy_config(slug)
 
       setup_remote_responses(%{
-        url => {200, Helper.data_as_csv(@expected_headers, [first_data_row = build_unique_data_row()], "\r\n")},
+        first_url => {200, Helper.data_as_csv(@expected_headers, [first_data_row = build_unique_data_row()], "\r\n")},
         second_url => {302, "", [{"location", "http://localhost/redirected"}]},
         "http://localhost/redirected" =>
           {200, Helper.data_as_csv(@expected_headers, [second_data_row = build_unique_data_row()], "\r\n")}
@@ -717,7 +717,7 @@ defmodule Unlock.ControllerTest do
 
     # NOTE: this test can be simplified if we stop using `Cachex` directly during tests & instead use a Behaviour
     test "drops data safely when meeting async stream timeout" do
-      {url, second_url} = setup_aggregate_proxy_config("an-existing-aggregate-identifier")
+      {first_url, second_url} = setup_aggregate_proxy_config("an-existing-aggregate-identifier")
 
       # This is what simulates the timeout (a long duration, longer than the `Task.async_stream` `:timout` parameter).
       # For technical reasons probably caused by the fact that we use global state via Cachex
@@ -727,7 +727,7 @@ defmodule Unlock.ControllerTest do
       flag_pid = spawn(fn -> :timer.sleep(10_000) end)
 
       setup_remote_responses(%{
-        url => {200, Helper.data_as_csv(@expected_headers, [first_data_row = build_unique_data_row()], "\r\n")},
+        first_url => {200, Helper.data_as_csv(@expected_headers, [first_data_row = build_unique_data_row()], "\r\n")},
         # second call: wait until the flag process has stopped
         second_url => fn ->
           ref = Process.monitor(flag_pid)
@@ -769,10 +769,10 @@ defmodule Unlock.ControllerTest do
     end
 
     test "limit mode allows to only get a sample of each source" do
-      {url, second_url} = setup_aggregate_proxy_config("an-existing-aggregate-identifier")
+      {first_url, second_url} = setup_aggregate_proxy_config("an-existing-aggregate-identifier")
 
       setup_remote_responses(%{
-        url =>
+        first_url =>
           {200,
            Helper.data_as_csv(
              @expected_headers,
@@ -798,10 +798,10 @@ defmodule Unlock.ControllerTest do
     end
 
     test "source tracing adds one column to identify each remote" do
-      {url, second_url} = setup_aggregate_proxy_config("an-existing-aggregate-identifier")
+      {first_url, second_url} = setup_aggregate_proxy_config("an-existing-aggregate-identifier")
 
       setup_remote_responses(%{
-        url => {200, Helper.data_as_csv(@expected_headers, [first_data_row = build_unique_data_row()], "\r\n")},
+        first_url => {200, Helper.data_as_csv(@expected_headers, [first_data_row = build_unique_data_row()], "\r\n")},
         second_url => {200, Helper.data_as_csv(@expected_headers, [second_data_row = build_unique_data_row()], "\n")}
       })
 
