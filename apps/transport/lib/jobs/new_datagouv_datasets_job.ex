@@ -47,7 +47,7 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
 
     unless Enum.empty?(datasets) do
       duration = window(DateTime.to_date(inserted_at)) * -24
-      Transport.Mailer.deliver(Transport.UserNotifier.new_datagouv_datasets(datasets, duration))
+      Transport.Mailer.deliver(Transport.AdminNotifier.new_datagouv_datasets(datasets, duration))
     end
 
     :ok

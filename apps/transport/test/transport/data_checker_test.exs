@@ -373,7 +373,7 @@ defmodule Transport.DataCheckerTest do
     insert(:dataset, is_active: true, archived_at: DateTime.utc_now())
     insert(:dataset, is_active: false, archived_at: DateTime.utc_now())
 
-    assert 1 == Transport.UserNotifier.count_archived_datasets()
+    assert 1 == Transport.AdminNotifier.count_archived_datasets()
   end
 
   describe "has_expiration_notifications?" do
@@ -386,8 +386,8 @@ defmodule Transport.DataCheckerTest do
         dataset: dataset = insert(:dataset)
       })
 
-      refute Transport.UserNotifier.has_expiration_notifications?(dataset)
-      assert "❌ pas de notification automatique" == Transport.UserNotifier.expiration_notification_enabled_str(dataset)
+      refute Transport.AdminNotifier.has_expiration_notifications?(dataset)
+      assert "❌ pas de notification automatique" == Transport.AdminNotifier.expiration_notification_enabled_str(dataset)
     end
   end
 
@@ -402,7 +402,7 @@ defmodule Transport.DataCheckerTest do
       dataset: dataset
     })
 
-    refute Transport.UserNotifier.has_expiration_notifications?(dataset)
+    refute Transport.AdminNotifier.has_expiration_notifications?(dataset)
 
     insert(:notification_subscription, %{
       reason: :expiration,
@@ -412,7 +412,7 @@ defmodule Transport.DataCheckerTest do
       dataset: dataset
     })
 
-    assert Transport.UserNotifier.has_expiration_notifications?(dataset)
-    assert "✅ notification automatique" == Transport.UserNotifier.expiration_notification_enabled_str(dataset)
+    assert Transport.AdminNotifier.has_expiration_notifications?(dataset)
+    assert "✅ notification automatique" == Transport.AdminNotifier.expiration_notification_enabled_str(dataset)
   end
 end

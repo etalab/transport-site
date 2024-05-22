@@ -27,7 +27,7 @@ defmodule Transport.Jobs.ObanLogger do
         nil
       ) do
     if email_on_failure_tag() in tags and attempt == max_attempts do
-      worker |> Transport.UserNotifier.oban_failure() |> Transport.Mailer.deliver()
+      worker |> Transport.AdminNotifier.oban_failure() |> Transport.Mailer.deliver()
     end
 
     Logger.warning(

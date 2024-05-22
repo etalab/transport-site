@@ -17,7 +17,7 @@ defmodule TransportWeb.ContactController do
     %{email: email, subject: subject, question: question} =
       sanitize_inputs(%{email: email, subject: subject, question: question})
 
-    contact_email = Transport.UserNotifier.contact(email, subject, question)
+    contact_email = Transport.AdminNotifier.contact(email, subject, question)
 
     case Transport.Mailer.deliver(contact_email) do
       {:ok, _} ->
