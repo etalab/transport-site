@@ -74,7 +74,6 @@ defmodule Transport.CommentsCheckerTest do
       )
 
       assert number_new_comments == 1
-      verify!(Transport.EmailSender.Mock)
       assert_dataset_ts(dataset_id, ~U[2020-01-01T12:00:00.000100Z])
     end
 
@@ -85,7 +84,6 @@ defmodule Transport.CommentsCheckerTest do
       assert_no_email_sent()
 
       assert number_new_comments == 0
-      verify!(Transport.EmailSender.Mock)
       assert_dataset_ts(dataset_id, ~U[2020-01-01T12:00:00.000100Z])
     end
 
@@ -114,7 +112,6 @@ defmodule Transport.CommentsCheckerTest do
       )
 
       assert number_new_comments == 1
-      verify!(Transport.EmailSender.Mock)
       assert_dataset_ts(dataset_id, ~U[2021-01-01T12:00:00.000200Z])
     end
 
