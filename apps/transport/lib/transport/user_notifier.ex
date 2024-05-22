@@ -147,6 +147,15 @@ defmodule Transport.UserNotifier do
     |> text_body(text_body)
   end
 
+  def oban_failure(worker) do
+    new()
+    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
+    |> to(Application.fetch_env!(:transport, :tech_email))
+    |> reply_to(Application.fetch_env!(:transport, :contact_email))
+    |> subject("Échec de job Oban : #{worker}")
+    |> text_body("Un job Oban #{worker} vient d'échouer, il serait bien d'investiguer.")
+  end
+
   defp expiration_str({delay, records}) do
     datasets = Enum.map(records, fn {%DB.Dataset{} = d, _} -> d end)
 
