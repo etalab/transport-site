@@ -43,7 +43,6 @@ config :transport,
   validator_selection: Transport.ValidatorsSelection.Mock,
   data_visualization: Transport.DataVisualization.Mock,
   unzip_s3_impl: Transport.Unzip.S3.Mock,
-  email_sender_impl: Transport.EmailSender.Mock,
   siri_query_generator_impl: Transport.SIRIQueryGenerator.Mock,
   s3_buckets: %{
     history: "resource-history-test",
@@ -126,13 +125,6 @@ config :transport, TransportWeb.Endpoint,
     # NOTE: unsure if this is actually great to reuse the same value
     signing_salt: secret_key_base
   ]
-
-# NOTE: adding some explicit values so that we can test the
-# behaviour of the client with regard to those credentials,
-# but these are not real keys.
-config :transport, Mailjet.Client,
-  mailjet_user: "TEST_MJ_APIKEY_PUBLIC",
-  mailjet_key: "TEST_MJ_APIKEY_PRIVATE"
 
 config :phoenix_ddos,
   blocklist_ips: ["1.2.3.4"]
