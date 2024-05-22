@@ -10,23 +10,24 @@
 # rights your pg user doesn't have. Example:
 # ./restore_db.sh --skip-extensions <path_to_backup>
 #
-# With the flag `--truncate-jobs`, you can skip the prompt and automatically truncate Oban jobs. Example:
-# ./restore_db.sh --truncate-jobs <path_to_backup>
+# With the flag `--preserve-oban-jobs`, Oban jobs won't be truncated. It is
+# risky. Example:
+# ./restore_db.sh --preserve-oban-jobs <path_to_backup>
 #
 # The flags must be the first args.
 
-VALID_ARGS=$(getopt --options=h --longoptions=help,skip-extensions,truncate-jobs --name "$0" -- "$@") || exit 1
+VALID_ARGS=$(getopt --options=h --longoptions=help,skip-extensions,preserve-oban-jobs --name "$0" -- "$@") || exit 1
 
 eval set -- "$VALID_ARGS"
 
 should_skip_extensions=false
-should_truncate_jobs=false
+should_preserve_oban_jobs=false
 
 function usage() {
   echo "Usage:"
   echo " $0 (-h|--help) -- this message"
-  echo " $0 [--skip-extensions] [--truncate-jobs] <absolute_path_to_backup>"
-  echo " $0 [--skip-extensions] [--truncate-jobs] <db_name> <host> <user_name> <password> <absolute_path_to_backup>"
+  echo " $0 [--skip-extensions] [--preserve-oban-jobs] <absolute_path_to_backup>"
+  echo " $0 [--skip-extensions] [--preserve-oban-jobs] <db_name> <host> <user_name> <password> <absolute_path_to_backup>"
   exit 1
 }
 
@@ -41,8 +42,8 @@ while true; do
       shift 1
       ;;
 
-    --truncate-jobs)
-      should_truncate_jobs=true
+    --preserve-oban-jobs)
+      should_preserve_oban_jobs=true
       shift 1
       ;;
 
@@ -80,27 +81,16 @@ else
   pg_restore -h "$HOST" -U "$USER_NAME" -d "$DB_NAME" --format=c --no-owner --clean --no-acl "$BACKUP_PATH"
 fi
 
-function truncate_jobs() {
-  sql 'TRUNCATE TABLE oban_jobs'
-}
-
 echo "Truncating contact table"
 sql 'TRUNCATE TABLE contact CASCADE'
 
 echo "Truncating feedback table"
 sql 'TRUNCATE TABLE feedback CASCADE'
 
-if [ "$should_truncate_jobs" = true ]
+if [ "$should_preserve_oban_jobs" = false ]
 then
-  truncate_jobs
-else
-  # https://stackoverflow.com/a/1885534
-  read -p "Do you want to remove already enqueued Oban jobs? [y/N] " -n 1 -r
-  echo    # (optional) move to a new line
-  if [[ $REPLY =~ ^[Yy]$ ]]
-  then
-    truncate_jobs
-  fi
+  echo "Truncating oban_jobs table"
+  sql 'TRUNCATE TABLE oban_jobs'
 fi
 
 # Don't let database files hang around
