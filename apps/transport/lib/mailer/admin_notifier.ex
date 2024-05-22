@@ -6,10 +6,7 @@ defmodule Transport.AdminNotifier do
   """
 
   def contact(email, subject, question) do
-    new()
-    |> from({"PAN, Formulaire Contact", Application.fetch_env!(:transport, :contact_email)})
-    |> to(Application.fetch_env!(:transport, :contact_email))
-    |> reply_to(email)
+    notify_contact("PAN, Formulaire Contact", email)
     |> subject(subject)
     |> text_body(question)
   end
@@ -28,10 +25,7 @@ defmodule Transport.AdminNotifier do
     Explication : #{explanation}
     """
 
-    new()
-    |> from({"Formulaire feedback", Application.fetch_env!(:transport, :contact_email)})
-    |> to(Application.fetch_env!(:transport, :contact_email))
-    |> reply_to(reply_email)
+    notify_contact("Formulaire feedback", reply_email)
     |> subject("Nouvel avis pour #{feature} : #{rating_t[rating]}")
     |> text_body(feedback_content)
   end
@@ -43,9 +37,7 @@ defmodule Transport.AdminNotifier do
     🔗 <a href="#{file_url}">Fichier consolidé</a>
     """
 
-    new()
-    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
-    |> to(Application.get_env(:transport, :bizdev_email))
+    notify_bidzev()
     |> subject(subject)
     |> html_body(report_content)
   end
@@ -68,19 +60,13 @@ defmodule Transport.AdminNotifier do
 
     """
 
-    new()
-    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
-    |> to(Application.fetch_env!(:transport, :contact_email))
-    |> reply_to(Application.fetch_env!(:transport, :contact_email))
+    notify_bidzev()
     |> subject("Jeux de données GTFS-RT sans ressources liées")
     |> text_body(text_body)
   end
 
   def datasets_climate_resilience_bill_inappropriate_licence(datasets) do
-    new()
-    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
-    |> to(Application.fetch_env!(:transport, :bizdev_email))
-    |> reply_to(Application.fetch_env!(:transport, :contact_email))
+    notify_bidzev()
     |> subject("Jeux de données article 122 avec licence inappropriée")
     |> render_body("datasets_climate_resilience_bill_inappropriate_licence.html", %{datasets: datasets})
   end
@@ -97,10 +83,7 @@ defmodule Transport.AdminNotifier do
     Vous pouvez consulter et modifier les règles de cette tâche : https://github.com/etalab/transport-site/blob/master/apps/transport/lib/jobs/new_datagouv_datasets_job.ex
     """
 
-    new()
-    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
-    |> to(Application.fetch_env!(:transport, :bizdev_email))
-    |> reply_to(Application.fetch_env!(:transport, :contact_email))
+    notify_bidzev()
     |> subject("Nouveaux jeux de données à référencer - data.gouv.fr")
     |> text_body(text_body)
   end
@@ -114,10 +97,7 @@ defmodule Transport.AdminNotifier do
     #{Enum.map_join(records, "\n---------------------\n", &expiration_str/1)}
     """
 
-    new()
-    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
-    |> to(Application.fetch_env!(:transport, :bizdev_email))
-    |> reply_to(Application.fetch_env!(:transport, :contact_email))
+    notify_bidzev()
     |> subject("Jeux de données arrivant à expiration")
     |> text_body(text_body)
   end
@@ -138,21 +118,38 @@ defmodule Transport.AdminNotifier do
 
       """
 
-    new()
-    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
-    |> to(Application.fetch_env!(:transport, :bizdev_email))
-    |> reply_to(Application.fetch_env!(:transport, :contact_email))
+    notify_bidzev()
     |> subject("Jeux de données supprimés ou archivés")
     |> text_body(text_body)
   end
 
   def oban_failure(worker) do
+    notify_tech()
+    |> subject("Échec de job Oban : #{worker}")
+    |> text_body("Un job Oban #{worker} vient d'échouer, il serait bien d'investiguer.")
+  end
+
+  # Utility functions from here
+
+  defp notify_bidzev do
+    new()
+    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
+    |> to(Application.fetch_env!(:transport, :bizdev_email))
+    |> reply_to(Application.fetch_env!(:transport, :contact_email))
+  end
+
+  defp notify_tech do
     new()
     |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
     |> to(Application.fetch_env!(:transport, :tech_email))
     |> reply_to(Application.fetch_env!(:transport, :contact_email))
-    |> subject("Échec de job Oban : #{worker}")
-    |> text_body("Un job Oban #{worker} vient d'échouer, il serait bien d'investiguer.")
+  end
+
+  defp notify_contact(form_name, email) do
+    new()
+    |> from({form_name, Application.fetch_env!(:transport, :contact_email)})
+    |> to(Application.fetch_env!(:transport, :contact_email))
+    |> reply_to(email)
   end
 
   defp expiration_str({delay, records}) do

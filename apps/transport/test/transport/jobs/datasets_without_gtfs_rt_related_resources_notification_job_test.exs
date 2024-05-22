@@ -56,16 +56,13 @@ defmodule Transport.Test.Transport.Jobs.DatasetsWithoutGTFSRTRelatedResourcesNot
 
     assert :ok == perform_job(DatasetsWithoutGTFSRTRelatedResourcesNotificationJob, %{})
 
-    assert_email_sent(fn %Swoosh.Email{} = sent ->
-      assert %Swoosh.Email{
-               from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-               to: [{"", "contact@transport.data.gouv.fr"}],
-               reply_to: {"", "contact@transport.data.gouv.fr"},
-               subject: "Jeux de données GTFS-RT sans ressources liées",
-               text_body: plain_text_body,
-               html_body: nil
-             } = sent
-
+    assert_email_sent(fn %Swoosh.Email{
+      from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+      to: [{"", "deploiement@transport.data.gouv.fr"}],
+      reply_to: {"", "contact@transport.data.gouv.fr"},
+      subject: "Jeux de données GTFS-RT sans ressources liées",
+      text_body: plain_text_body
+    }  ->
       assert plain_text_body =~ ~r/des liens entre les ressources GTFS-RT et GTFS sont manquants/
       assert plain_text_body =~ ~r/Super JDD/
     end)
