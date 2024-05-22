@@ -9,7 +9,11 @@
 # With the flag `--skip-extensions`, you can also skip extensions restoration as those might require administrative
 # rights your pg user doesn't have. Example:
 # ./restore_db.sh --skip-extensions <path_to_backup>
-# The flag must be the first arg.
+#
+# With the flag `--truncate-jobs`, you can skip the prompt and automatically truncate Oban jobs. Example:
+# ./restore_db.sh --preserve-oban-jobs <path_to_backup>
+#
+# The flags must be the first args.
 
 VALID_ARGS=$(getopt --options=h --longoptions=help,skip-extensions,truncate-jobs --name "$0" -- "$@") || exit 1
 
