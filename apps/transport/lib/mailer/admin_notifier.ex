@@ -71,13 +71,13 @@ defmodule Transport.AdminNotifier do
     |> render_body("datasets_climate_resilience_bill_inappropriate_licence.html", %{datasets: datasets})
   end
 
-  def new_datagouv_datasets(datasets, duration) do
+  def new_datagouv_datasets(datagouv_datasets, duration) do
     text_body = """
     Bonjour,
 
     Les jeux de données suivants ont été ajoutés sur data.gouv.fr dans les dernières #{duration}h et sont susceptibles d'avoir leur place sur le PAN :
 
-    #{Enum.map_join(datasets, "\n", &link_and_name/1)}
+    #{Enum.map_join(datagouv_datasets, "\n", &link_and_name_from_datagouv_payload/1)}
 
     ---
     Vous pouvez consulter et modifier les règles de cette tâche : https://github.com/etalab/transport-site/blob/master/apps/transport/lib/jobs/new_datagouv_datasets_job.ex
@@ -156,7 +156,7 @@ defmodule Transport.AdminNotifier do
     datasets = Enum.map(records, fn {%DB.Dataset{} = d, _} -> d end)
 
     dataset_str = fn %DB.Dataset{} = dataset ->
-      "#{link_and_name_2(dataset)} (#{expiration_notification_enabled_str(dataset)}) #{climate_resilience_str(dataset)}"
+      "#{link_and_name(dataset)} (#{expiration_notification_enabled_str(dataset)}) #{climate_resilience_str(dataset)}"
       |> String.trim()
     end
 
@@ -192,7 +192,7 @@ defmodule Transport.AdminNotifier do
   defp fmt_inactive_datasets([]), do: ""
 
   defp fmt_inactive_datasets(inactive_datasets) do
-    datasets_str = Enum.map_join(inactive_datasets, "\n", &link_and_name_2(&1))
+    datasets_str = Enum.map_join(inactive_datasets, "\n", &link_and_name(&1))
 
     """
     Certains jeux de données ont disparus de data.gouv.fr :
@@ -203,7 +203,7 @@ defmodule Transport.AdminNotifier do
   defp fmt_reactivated_datasets([]), do: ""
 
   defp fmt_reactivated_datasets(reactivated_datasets) do
-    datasets_str = Enum.map_join(reactivated_datasets, "\n", &link_and_name_2(&1))
+    datasets_str = Enum.map_join(reactivated_datasets, "\n", &link_and_name(&1))
 
     """
     Certains jeux de données disparus sont réapparus sur data.gouv.fr :
@@ -214,7 +214,7 @@ defmodule Transport.AdminNotifier do
   defp fmt_archived_datasets([]), do: ""
 
   defp fmt_archived_datasets(archived_datasets) do
-    datasets_str = Enum.map_join(archived_datasets, "\n", &link_and_name_2(&1))
+    datasets_str = Enum.map_join(archived_datasets, "\n", &link_and_name(&1))
 
     """
     Certains jeux de données sont indiqués comme archivés sur data.gouv.fr :
@@ -222,13 +222,6 @@ defmodule Transport.AdminNotifier do
 
     #{count_archived_datasets()} jeux de données sont archivés. Retrouvez-les dans le backoffice : #{backoffice_archived_datasets_url()}
     """
-  end
-
-  @spec link_and_name_2(DB.Dataset.t()) :: binary()
-  def link_and_name_2(%DB.Dataset{custom_title: custom_title} = dataset) do
-    link = link(dataset)
-
-    " * #{custom_title} - #{link}"
   end
 
   def count_archived_datasets do
@@ -241,8 +234,7 @@ defmodule Transport.AdminNotifier do
   end
 
   @doc """
-  Common to both notifiers.
-  If refactored or moved elsewhere, don’t forget to change or delete Transport.NotifiersTest.
+  Common to both notifiers. If refactored or moved elsewhere, don’t forget to change or delete Transport.NotifiersTest.
   iex> delay_str(0, :périmant)
   "périmant demain"
   iex> delay_str(0, :périment)
@@ -271,9 +263,17 @@ defmodule Transport.AdminNotifier do
   def delay_str(d, :périmant) when d <= -2, do: "périmés depuis #{-d} jours"
   def delay_str(d, :périment) when d <= -2, do: "sont périmées depuis #{-d} jours"
 
-  defp link_and_name(%{"title" => title, "page" => page}) do
+  defp link_and_name_from_datagouv_payload(%{"title" => title, "page" => page}) do
     ~s(* #{title} - #{page})
   end
+
+  @spec link_and_name(DB.Dataset.t()) :: binary()
+  def link_and_name(%DB.Dataset{custom_title: custom_title} = dataset) do
+    link = link(dataset)
+
+    " * #{custom_title} - #{link}"
+  end
+
 
   defp link(%DB.Dataset{slug: slug}), do: TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, slug)
 end

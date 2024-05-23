@@ -148,7 +148,7 @@ defmodule Transport.UserNotifier do
   def expiration_producer(email, dataset, resources, delay) do
     email
     |> common_email_options()
-    |> subject(email_subject(delay))
+    |> subject(expiration_email_subject(delay))
     |> render_body("expiration_producer.html",
       delay_str: delay_str(delay, :périment),
       dataset: dataset,
@@ -206,18 +206,18 @@ defmodule Transport.UserNotifier do
   def delay_str(d, :périment) when d <= -2, do: "sont périmées depuis #{-d} jours"
 
   @doc """
-  iex> email_subject(7)
+  iex> expiration_email_subject(7)
   "Jeu de données arrivant à expiration"
-  iex> email_subject(0)
+  iex> expiration_email_subject(0)
   "Jeu de données arrivant à expiration"
-  iex> email_subject(-3)
+  iex> expiration_email_subject(-3)
   "Jeu de données périmé"
   """
-  def email_subject(delay) when delay >= 0 do
+  def expiration_email_subject(delay) when delay >= 0 do
     "Jeu de données arrivant à expiration"
   end
 
-  def email_subject(delay) when delay < 0 do
+  def expiration_email_subject(delay) when delay < 0 do
     "Jeu de données périmé"
   end
 
