@@ -171,16 +171,14 @@ defmodule Transport.Test.Transport.Jobs.NewCommentsNotificationJobTest do
              })
 
     # Email has been sent
-    assert_email_sent(fn %Swoosh.Email{} = sent ->
-      assert %Swoosh.Email{
-               from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-               to: [{"", ^email}],
-               reply_to: {"", "contact@transport.data.gouv.fr"},
-               subject: "Nouveaux commentaires sur transport.data.gouv.fr",
-               text_body: nil,
-               html_body: html_body
-             } = sent
-
+    assert_email_sent(fn %Swoosh.Email{
+                           from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                           to: [{"", ^email}],
+                           reply_to: {"", "contact@transport.data.gouv.fr"},
+                           subject: "Nouveaux commentaires sur transport.data.gouv.fr",
+                           text_body: nil,
+                           html_body: html_body
+                         } ->
       assert remove_whitespace(html_body) == remove_whitespace(~s|
       <p>
       Bonjour,</p>

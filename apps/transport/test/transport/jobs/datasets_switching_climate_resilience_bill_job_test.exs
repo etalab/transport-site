@@ -126,16 +126,14 @@ defmodule Transport.Test.Transport.Jobs.DatasetsSwitchingClimateResilienceBillJo
 
     assert :ok == perform_job(DatasetsSwitchingClimateResilienceBillJob, %{}, inserted_at: ~U[2023-04-21 06:00:00.000Z])
 
-    assert_email_sent(fn %Swoosh.Email{} = sent ->
-      assert %Swoosh.Email{
-               from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-               to: [{"", ^email}],
-               reply_to: {"", "contact@transport.data.gouv.fr"},
-               subject: "Loi climat et résilience : suivi des jeux de données",
-               text_body: nil,
-               html_body: html_body
-             } = sent
-
+    assert_email_sent(fn %Swoosh.Email{
+                           from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                           to: [{"", ^email}],
+                           reply_to: {"", "contact@transport.data.gouv.fr"},
+                           subject: "Loi climat et résilience : suivi des jeux de données",
+                           text_body: nil,
+                           html_body: html_body
+                         } ->
       assert html_body =~
                ~s(Les jeux de données suivants feront l’objet d’une intégration obligatoire :\n\n<a href="http://127.0.0.1:5100/datasets/#{d1.slug}">#{d1.custom_title}</a>)
 

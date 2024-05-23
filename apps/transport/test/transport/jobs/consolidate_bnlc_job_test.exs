@@ -859,14 +859,12 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
   end
 
   defp assert_ok_email_sent do
-    assert_email_sent(fn %Swoosh.Email{} = sent ->
-      assert %Swoosh.Email{
-               from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-               to: [{"", "deploiement@transport.data.gouv.fr"}],
-               subject: "[OK] Rapport de consolidation de la BNLC",
-               html_body: html_body
-             } = sent
-
+    assert_email_sent(fn %Swoosh.Email{
+                           from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                           to: [{"", "deploiement@transport.data.gouv.fr"}],
+                           subject: "[OK] Rapport de consolidation de la BNLC",
+                           html_body: html_body
+                         } ->
       assert html_body =~ ~r"^✅ La consolidation s'est déroulée sans erreurs"
 
       assert html_body =~
@@ -875,14 +873,12 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
   end
 
   defp assert_ko_email_sent do
-    assert_email_sent(fn %Swoosh.Email{} = sent ->
-      assert %Swoosh.Email{
-               from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-               to: [{"", "deploiement@transport.data.gouv.fr"}],
-               subject: "[ERREUR] Rapport de consolidation de la BNLC",
-               html_body: html_body
-             } = sent
-
+    assert_email_sent(fn %Swoosh.Email{
+                           from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                           to: [{"", "deploiement@transport.data.gouv.fr"}],
+                           subject: "[ERREUR] Rapport de consolidation de la BNLC",
+                           html_body: html_body
+                         } ->
       assert html_body =~
                ~s{<h2>Ressources non valides par rapport au schéma etalab/schema-lieux-covoiturage</h2>\nRessource `Bar CSV` (<a href="https://data.gouv.fr/bar">Bar JDD</a>)}
 

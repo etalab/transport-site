@@ -22,19 +22,14 @@ defmodule Transport.Test.Transport.Jobs.DatasetsClimateResilienceBillNotLOLicenc
 
     assert :ok == perform_job(DatasetsClimateResilienceBillNotLOLicenceJob, %{})
 
-    assert_email_sent(fn %Swoosh.Email{} = sent ->
-      assert %Swoosh.Email{
-               from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-               to: [{"", "deploiement@transport.data.gouv.fr"}],
-               reply_to: {"", "contact@transport.data.gouv.fr"},
-               subject: "Jeux de données article 122 avec licence inappropriée",
-               text_body: nil,
-               html_body: html_body
-             } = sent
-
-      assert html_body =~
-               ~s(Les jeux de données suivants sont soumis à une obligation de réutilisation en vertu de l'article 122 de la loi climat et résilience mais ne sont plus publiés avec une licence ouverte)
-    end)
+    assert_email_sent(
+      from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+      to: "deploiement@transport.data.gouv.fr",
+      subject: "Jeux de données article 122 avec licence inappropriée",
+      text_body: nil,
+      html_body:
+        ~r(Les jeux de données suivants sont soumis à une obligation de réutilisation en vertu de l'article 122 de la loi climat et résilience mais ne sont plus publiés avec une licence ouverte)
+    )
 
     assert [
              %DB.Dataset{custom_tags: ["foo"], licence: "odc-odbl"},
