@@ -17,7 +17,10 @@ defmodule Transport.Test.Transport.Jobs.ExpirationNotificationJobTest do
     a_week_ago = Date.add(today, -7)
     yesterday = Date.add(today, -1)
     a_week_from_now = Date.add(today, 7)
+
+    # 2 resources expiring on the same date, does not include the dataset twice
     %{dataset: %DB.Dataset{} = d1} = insert_resource_and_friends(today)
+    insert_resource_and_friends(today, dataset: d1)
     %{dataset: %DB.Dataset{} = d2} = insert_resource_and_friends(yesterday)
     %{dataset: %DB.Dataset{} = d3} = insert_resource_and_friends(a_week_ago)
     %{dataset: %DB.Dataset{} = d4} = insert_resource_and_friends(a_week_from_now)
@@ -90,7 +93,9 @@ defmodule Transport.Test.Transport.Jobs.ExpirationNotificationJobTest do
     a_week_ago = Date.add(today, -7)
     yesterday = Date.add(today, -1)
     a_week_from_now = Date.add(today, 7)
+    # 2 resources expiring on the same date, does not include the dataset twice
     %{dataset: %DB.Dataset{id: d1_id} = d1} = insert_resource_and_friends(today)
+    insert_resource_and_friends(today, dataset: d1)
     %{dataset: %DB.Dataset{} = d2} = insert_resource_and_friends(yesterday)
     %{dataset: %DB.Dataset{} = d3} = insert_resource_and_friends(a_week_ago)
     %{dataset: %DB.Dataset{id: d4_id} = d4} = insert_resource_and_friends(a_week_from_now)

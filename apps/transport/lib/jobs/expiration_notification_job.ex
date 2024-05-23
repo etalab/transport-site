@@ -180,6 +180,7 @@ defmodule Transport.Jobs.ExpirationNotificationJob do
           dataset_id: d.id,
           end_date: fragment("TO_DATE(?->>'end_date', 'YYYY-MM-DD')", m.metadata)
         })
+        |> distinct(true)
         |> DB.Repo.all()
         # Example output: a map with %{expiration_delay, [dataset_ids]}
         # `%{-7 => [468, 600], 0 => [656, 919, 790, 931]}`
