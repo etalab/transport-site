@@ -30,6 +30,7 @@ defmodule Transport.Jobs.ResourcesChangedNotificationJob do
     |> Enum.each(fn email ->
       Transport.UserNotifier.resources_changed(email, subject, dataset)
       |> Transport.Mailer.deliver()
+
       save_notification(dataset, email)
     end)
   end

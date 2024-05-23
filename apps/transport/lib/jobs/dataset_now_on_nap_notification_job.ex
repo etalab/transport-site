@@ -19,6 +19,7 @@ defmodule Transport.Jobs.DatasetNowOnNAPNotificationJob do
     |> Enum.each(fn email ->
       Transport.UserNotifier.dataset_now_on_nap(email, dataset)
       |> Transport.Mailer.deliver()
+
       save_notification(dataset, email)
     end)
 

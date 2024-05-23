@@ -191,6 +191,7 @@ defmodule Transport.DataChecker do
   defp send_outdated_data_mail(records) do
     Transport.AdminNotifier.expiration(records)
     |> Transport.Mailer.deliver()
+
     records
   end
 
