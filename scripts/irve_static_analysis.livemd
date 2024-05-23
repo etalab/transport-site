@@ -1,0 +1,51 @@
+# Analyse du résultat de la consolidation IRVE statique
+
+```elixir
+Mix.install([
+  {:explorer, "~> 0.8.2"},
+  {:kino, "~> 0.12.3"},
+  {:req, "~> 0.4.0"},
+  {:kino_explorer, "~> 0.1.11"}
+])
+```
+
+## Section
+
+```elixir
+url =
+  Kino.Input.url("URL du fichier IRVE statique à analyser:",
+    default: "https://www.data.gouv.fr/fr/datasets/r/eb76d20a-8501-400e-b336-d85724de5435"
+  )
+```
+
+```elixir
+%{status: 200, body: body} = Req.get!(url |> Kino.Input.read())
+Kino.nothing()
+```
+
+```elixir
+alias Explorer.DataFrame, as: DF
+require DF
+
+data = Explorer.DataFrame.load_csv!(body, infer_schema_length: nil)
+
+# data |> Explorer.DataFrame.describe() |> Kino.render()
+
+data
+|> Explorer.DataFrame.frequencies([:id_pdc_itinerance])
+|> Explorer.DataFrame.filter(counts > 1)
+```
+
+```elixir
+data
+|> Explorer.DataFrame.frequencies([:id_pdc_itinerance])
+|> Explorer.DataFrame.filter(counts > 1)
+```
+
+```elixir
+toto =
+  data
+  |> DF.lazy()
+  |> DF.filter(id_pdc_itinerance == "FRA68P680210015")
+  |> DF.select("datagouv_organization_or_owner")
+```
