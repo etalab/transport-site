@@ -11,7 +11,7 @@
 # ./restore_db.sh --skip-extensions <path_to_backup>
 #
 # With the flag `--truncate-jobs`, you can skip the prompt and automatically truncate Oban jobs. Example:
-# ./restore_db.sh --preserve-oban-jobs <path_to_backup>
+# ./restore_db.sh --truncate-jobs <path_to_backup>
 #
 # The flags must be the first args.
 
