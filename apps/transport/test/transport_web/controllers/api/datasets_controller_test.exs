@@ -261,22 +261,33 @@ defmodule TransportWeb.API.DatasetControllerTest do
         licence: "lov2",
         datagouv_id: "datagouv",
         slug: "slug-1",
+        resources: [
+          resource1 =
+            insert(:resource,
+              last_import: DateTime.utc_now(),
+              last_update: last_update_gtfs = DateTime.utc_now() |> DateTime.add(-2, :hour),
+              url: "https://link.to/file.zip",
+              latest_url: "https://static.data.gouv.fr/foo",
+              datagouv_id: "1",
+              type: "main",
+              format: "GTFS",
+              title: "The title"
+            ),
+          insert(:resource,
+            last_import: DateTime.utc_now(),
+            last_update: last_update_geojson = DateTime.utc_now() |> DateTime.add(-1, :hour),
+            url: "http://link.to/file.zip?foo=bar",
+            latest_url: "http://static.data.gouv.fr/?foo=bar",
+            datagouv_id: "2",
+            type: "main",
+            format: "geojson",
+            schema_name: "etalab/schema-zfe",
+            title: "The other title"
+          )
+        ],
         created_at: ~U[2021-12-23 13:30:40.000000Z],
         last_update: DateTime.utc_now(),
         aom: %DB.AOM{id: 4242, nom: "Angers Métropole", siren: "siren"}
-      )
-
-    resource1 =
-      insert(:resource,
-        dataset_id: dataset.id,
-        last_import: DateTime.utc_now(),
-        last_update: last_update_gtfs = DateTime.utc_now() |> DateTime.add(-2, :hour),
-        url: "https://link.to/file.zip",
-        latest_url: "https://static.data.gouv.fr/foo",
-        datagouv_id: "1",
-        type: "main",
-        format: "GTFS",
-        title: "The title"
       )
 
     insert(:resource_metadata,
@@ -286,22 +297,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
           validator: Transport.Validators.GTFSTransport.validator_name()
         )
     )
-
-    resource2 =
-      insert(:resource,
-        dataset_id: dataset.id,
-        last_import: DateTime.utc_now(),
-        last_update: last_update_geojson = DateTime.utc_now() |> DateTime.add(-1, :hour),
-        url: "http://link.to/file.zip?foo=bar",
-        latest_url: "http://static.data.gouv.fr/?foo=bar",
-        datagouv_id: "2",
-        type: "main",
-        format: "geojson",
-        schema_name: "etalab/schema-zfe",
-        title: "The other title"
-      )
-
-    resources = [resource1, resource2]
 
     setup_empty_history_resources()
 
@@ -326,8 +321,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
              "resources" => [
                %{
                  "is_available" => true,
-                 "id" => Enum.find(resources, &(&1.format == "GTFS")).id,
-                 "page_url" => resources |> Enum.find(&(&1.format == "GTFS")) |> resource_page_url(),
+                 "id" => Enum.find(dataset.resources, &(&1.format == "GTFS")).id,
+                 "page_url" => dataset.resources |> Enum.find(&(&1.format == "GTFS")) |> resource_page_url(),
                  "datagouv_id" => "1",
                  "filesize" => 42,
                  "type" => "main",
@@ -342,8 +337,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
                },
                %{
                  "is_available" => true,
-                 "id" => Enum.find(resources, &(&1.format == "geojson")).id,
-                 "page_url" => resources |> Enum.find(&(&1.format == "geojson")) |> resource_page_url(),
+                 "id" => Enum.find(dataset.resources, &(&1.format == "geojson")).id,
+                 "page_url" => dataset.resources |> Enum.find(&(&1.format == "geojson")) |> resource_page_url(),
                  "datagouv_id" => "2",
                  "type" => "main",
                  "format" => "geojson",
