@@ -54,19 +54,19 @@ while true; do
 done
 
 if test "$#" -eq 1; then
-    DB_NAME="transport_repo"
-    USER_NAME="postgres"
-    BACKUP_PATH=$1
-    HOST="localhost"
-    export PGPASSWORD="postgres"
+  DB_NAME="transport_repo"
+  USER_NAME="postgres"
+  BACKUP_PATH=$1
+  HOST="localhost"
+  export PGPASSWORD="postgres"
 elif test "$#" -eq 5; then
-    DB_NAME=$1
-    HOST=$2
-    USER_NAME=$3
-    export PGPASSWORD=$4
-    BACKUP_PATH=$5
+  DB_NAME=$1
+  HOST=$2
+  USER_NAME=$3
+  export PGPASSWORD=$4
+  BACKUP_PATH=$5
 else
-    usage
+  usage
 fi
 
 function sql() {
