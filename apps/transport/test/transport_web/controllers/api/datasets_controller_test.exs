@@ -52,8 +52,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
         latest_url: "https://static.data.gouv.fr/foo",
         datagouv_id: "1",
         type: "main",
-        format: "GTFS",
-        filesize: 42
+        format: "GTFS"
       )
 
     resource_2 =
@@ -63,8 +62,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
         latest_url: "https://static.data.gouv.fr/foo2",
         datagouv_id: "2",
         type: "main",
-        format: "GTFS",
-        filesize: 43
+        format: "GTFS"
       )
 
     gbfs_resource =
@@ -82,7 +80,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
     insert(:resource_metadata,
       multi_validation:
         insert(:multi_validation,
-          resource_history: insert(:resource_history, resource_id: resource_1.id),
+          resource_history: insert(:resource_history, resource_id: resource_1.id, payload: %{"filesize" => 42}),
           validator: Transport.Validators.GTFSTransport.validator_name()
         ),
       modes: ["bus"],
@@ -93,7 +91,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
     insert(:resource_metadata,
       multi_validation:
         insert(:multi_validation,
-          resource_history: insert(:resource_history, resource_id: resource_2.id),
+          resource_history: insert(:resource_history, resource_id: resource_2.id, payload: %{"filesize" => 43}),
           validator: Transport.Validators.GTFSTransport.validator_name()
         ),
       modes: ["skate"],
@@ -263,34 +261,47 @@ defmodule TransportWeb.API.DatasetControllerTest do
         licence: "lov2",
         datagouv_id: "datagouv",
         slug: "slug-1",
-        resources: [
-          %DB.Resource{
-            last_import: DateTime.utc_now(),
-            last_update: last_update_gtfs = DateTime.utc_now() |> DateTime.add(-2, :hour),
-            url: "https://link.to/file.zip",
-            latest_url: "https://static.data.gouv.fr/foo",
-            datagouv_id: "1",
-            type: "main",
-            format: "GTFS",
-            filesize: 42,
-            title: "The title"
-          },
-          %DB.Resource{
-            last_import: DateTime.utc_now(),
-            last_update: last_update_geojson = DateTime.utc_now() |> DateTime.add(-1, :hour),
-            url: "http://link.to/file.zip?foo=bar",
-            latest_url: "http://static.data.gouv.fr/?foo=bar",
-            datagouv_id: "2",
-            type: "main",
-            format: "geojson",
-            schema_name: "etalab/schema-zfe",
-            title: "The other title"
-          }
-        ],
         created_at: ~U[2021-12-23 13:30:40.000000Z],
         last_update: DateTime.utc_now(),
         aom: %DB.AOM{id: 4242, nom: "Angers Métropole", siren: "siren"}
       )
+
+    resource1 =
+      insert(:resource,
+        dataset_id: dataset.id,
+        last_import: DateTime.utc_now(),
+        last_update: last_update_gtfs = DateTime.utc_now() |> DateTime.add(-2, :hour),
+        url: "https://link.to/file.zip",
+        latest_url: "https://static.data.gouv.fr/foo",
+        datagouv_id: "1",
+        type: "main",
+        format: "GTFS",
+        title: "The title"
+      )
+
+    insert(:resource_metadata,
+      multi_validation:
+        insert(:multi_validation,
+          resource_history: insert(:resource_history, resource_id: resource1.id, payload: %{"filesize" => 42}),
+          validator: Transport.Validators.GTFSTransport.validator_name()
+        )
+    )
+
+    resource2 =
+      insert(:resource,
+        dataset_id: dataset.id,
+        last_import: DateTime.utc_now(),
+        last_update: last_update_geojson = DateTime.utc_now() |> DateTime.add(-1, :hour),
+        url: "http://link.to/file.zip?foo=bar",
+        latest_url: "http://static.data.gouv.fr/?foo=bar",
+        datagouv_id: "2",
+        type: "main",
+        format: "geojson",
+        schema_name: "etalab/schema-zfe",
+        title: "The other title"
+      )
+
+    resources = [resource1, resource2]
 
     setup_empty_history_resources()
 
@@ -315,8 +326,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
              "resources" => [
                %{
                  "is_available" => true,
-                 "id" => Enum.find(dataset.resources, &(&1.format == "GTFS")).id,
-                 "page_url" => dataset.resources |> Enum.find(&(&1.format == "GTFS")) |> resource_page_url(),
+                 "id" => Enum.find(resources, &(&1.format == "GTFS")).id,
+                 "page_url" => resources |> Enum.find(&(&1.format == "GTFS")) |> resource_page_url(),
                  "datagouv_id" => "1",
                  "filesize" => 42,
                  "type" => "main",
@@ -325,12 +336,14 @@ defmodule TransportWeb.API.DatasetControllerTest do
                  "updated" => last_update_gtfs |> DateTime.to_iso8601(),
                  "url" => "https://static.data.gouv.fr/foo",
                  "conversions" => %{},
-                 "title" => "The title"
+                 "title" => "The title",
+                 "features" => [],
+                 "modes" => []
                },
                %{
                  "is_available" => true,
-                 "id" => Enum.find(dataset.resources, &(&1.format == "geojson")).id,
-                 "page_url" => dataset.resources |> Enum.find(&(&1.format == "geojson")) |> resource_page_url(),
+                 "id" => Enum.find(resources, &(&1.format == "geojson")).id,
+                 "page_url" => resources |> Enum.find(&(&1.format == "geojson")) |> resource_page_url(),
                  "datagouv_id" => "2",
                  "type" => "main",
                  "format" => "geojson",
@@ -372,8 +385,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
         latest_url: "https://static.data.gouv.fr/foo",
         datagouv_id: "1",
         type: "main",
-        format: "GTFS",
-        filesize: 42
+        format: "GTFS"
       )
 
     gbfs_resource =
@@ -388,7 +400,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
     resource_history =
       insert(:resource_history,
         resource_id: resource.id,
-        payload: %{"uuid" => uuid1 = Ecto.UUID.generate()},
+        payload: %{"uuid" => uuid1 = Ecto.UUID.generate(), "filesize" => 42},
         last_up_to_date_at: last_up_to_date_at = DateTime.utc_now()
       )
 

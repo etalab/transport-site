@@ -251,6 +251,16 @@ defmodule TransportWeb.API.DatasetController do
 
   defp get_metadata(_), do: nil
 
+  defp get_payload(%Resource{format: "GTFS", resource_history: resource_history}) do
+    resource_history
+    |> Enum.at(0)
+    |> Map.get(:payload)
+  rescue
+    _ -> nil
+  end
+
+  defp get_payload(_), do: nil
+
   @spec transform_resource(Resource.t()) :: map()
   defp transform_resource(resource) do
     metadata = get_metadata(resource)
@@ -260,6 +270,8 @@ defmodule TransportWeb.API.DatasetController do
         %{metadata: metadata_content} -> metadata_content
         _ -> nil
       end
+
+    payload = get_payload(resource)
 
     %{
       "page_url" => TransportWeb.Router.Helpers.resource_url(TransportWeb.Endpoint, :details, resource.id),
@@ -274,10 +286,10 @@ defmodule TransportWeb.API.DatasetController do
       "start_calendar_validity" => metadata_content && Map.get(metadata, "start_date"),
       "type" => resource.type,
       "format" => resource.format,
+      "filesize" => payload && Map.get(payload, "filesize"),
       "community_resource_publisher" => resource.community_resource_publisher,
       "metadata" => metadata_content,
       "original_resource_url" => resource.original_resource_url,
-      "filesize" => resource.filesize,
       "modes" => metadata && Map.get(metadata, :modes),
       "features" => metadata && Map.get(metadata, :features),
       "schema_name" => resource.schema_name,
