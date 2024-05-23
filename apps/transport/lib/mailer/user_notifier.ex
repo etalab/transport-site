@@ -176,7 +176,7 @@ defmodule Transport.UserNotifier do
   end
 
   @doc """
-  Common to both notifiers
+  Common to both notifiers. If refactored or moved elsewhere, don’t forget to change or delete Transport.NotifiersTest.
   iex> delay_str(0, :périmant)
   "périmant demain"
   iex> delay_str(0, :périment)
