@@ -84,9 +84,6 @@ fi
 echo "Truncating contact table"
 sql 'TRUNCATE TABLE contact CASCADE'
 
-echo "Truncating user_feedback table"
-sql 'TRUNCATE TABLE user_feedback CASCADE'
-
 if [ "$should_preserve_oban_jobs" = false ]
 then
   echo "Truncating oban_jobs table"
