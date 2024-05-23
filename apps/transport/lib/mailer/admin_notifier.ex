@@ -268,12 +268,11 @@ defmodule Transport.AdminNotifier do
   end
 
   @spec link_and_name(DB.Dataset.t()) :: binary()
-  def link_and_name(%DB.Dataset{custom_title: custom_title} = dataset) do
+  defp link_and_name(%DB.Dataset{custom_title: custom_title} = dataset) do
     link = link(dataset)
 
     " * #{custom_title} - #{link}"
   end
-
 
   defp link(%DB.Dataset{slug: slug}), do: TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, slug)
 end

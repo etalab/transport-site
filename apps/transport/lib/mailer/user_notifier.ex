@@ -156,6 +156,8 @@ defmodule Transport.UserNotifier do
     )
   end
 
+  # From here, utility functions.
+
   defp common_email_options(email) do
     new()
     |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
