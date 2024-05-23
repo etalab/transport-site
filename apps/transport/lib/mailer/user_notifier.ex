@@ -3,6 +3,7 @@ defmodule Transport.UserNotifier do
   Module in charge of building emails for end users (producers, reusers, etc.)
   """
   use Phoenix.Swoosh, view: TransportWeb.EmailView
+  import Transport.AdminNotifier, only: [delay_str: 2]
 
   def resources_changed(email, subject, %DB.Dataset{} = dataset) do
     email
@@ -165,6 +166,7 @@ defmodule Transport.UserNotifier do
   end
 
   @doc """
+  If all doctests are removed from here, change Transport.NotifiersTest to stop calling this module.
   iex> resource_titles([%DB.Resource{title: "B"}])
   "B"
   iex> resource_titles([%DB.Resource{title: "B"}, %DB.Resource{title: "A"}])
@@ -175,36 +177,6 @@ defmodule Transport.UserNotifier do
     |> Enum.sort_by(fn %DB.Resource{title: title} -> title end)
     |> Enum.map_join(", ", fn %DB.Resource{title: title} -> title end)
   end
-
-  @doc """
-  Common to both notifiers. If refactored or moved elsewhere, don’t forget to change or delete Transport.NotifiersTest.
-  iex> delay_str(0, :périmant)
-  "périmant demain"
-  iex> delay_str(0, :périment)
-  "périment demain"
-  iex> delay_str(2, :périmant)
-  "périmant dans 2 jours"
-  iex> delay_str(2, :périment)
-  "périment dans 2 jours"
-  iex> delay_str(-1, :périmant)
-  "périmé depuis hier"
-  iex> delay_str(-1, :périment)
-  "sont périmées depuis hier"
-  iex> delay_str(-2, :périmant)
-  "périmés depuis 2 jours"
-  iex> delay_str(-2, :périment)
-  "sont périmées depuis 2 jours"
-  iex> delay_str(-60, :périment)
-  "sont périmées depuis 60 jours"
-  """
-  @spec delay_str(integer(), :périment | :périmant) :: binary()
-  def delay_str(0, verb), do: "#{verb} demain"
-  def delay_str(1, verb), do: "#{verb} dans 1 jour"
-  def delay_str(d, verb) when d >= 2, do: "#{verb} dans #{d} jours"
-  def delay_str(-1, :périmant), do: "périmé depuis hier"
-  def delay_str(-1, :périment), do: "sont périmées depuis hier"
-  def delay_str(d, :périmant) when d <= -2, do: "périmés depuis #{-d} jours"
-  def delay_str(d, :périment) when d <= -2, do: "sont périmées depuis #{-d} jours"
 
   @doc """
   iex> expiration_email_subject(7)
