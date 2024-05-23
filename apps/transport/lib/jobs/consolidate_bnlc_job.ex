@@ -163,8 +163,8 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
     file_url = Transport.S3.permanent_url(@s3_bucket, filename)
 
-    email = Transport.AdminNotifier.bnlc_consolidation_report(subject, body, file_url)
-    Transport.Mailer.deliver(email)
+    Transport.AdminNotifier.bnlc_consolidation_report(subject, body, file_url)
+    |> Transport.Mailer.deliver()
   end
 
   @spec format_errors(consolidation_errors()) :: binary() | nil

@@ -1,9 +1,8 @@
 defmodule Transport.AdminNotifier do
-  use Phoenix.Swoosh, view: TransportWeb.EmailView
-
   @moduledoc """
   Module in charge of building emails sent to the admin team (bizdev, tech, etc.)
   """
+  use Phoenix.Swoosh, view: TransportWeb.EmailView
 
   def contact(email, subject, question) do
     notify_contact("PAN, Formulaire Contact", email)

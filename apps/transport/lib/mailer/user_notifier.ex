@@ -1,9 +1,8 @@
 defmodule Transport.UserNotifier do
-  use Phoenix.Swoosh, view: TransportWeb.EmailView
-
   @moduledoc """
   Module in charge of building emails for end users (producers, reusers, etc.)
   """
+  use Phoenix.Swoosh, view: TransportWeb.EmailView
 
   def resources_changed(email, subject, %DB.Dataset{} = dataset) do
     email

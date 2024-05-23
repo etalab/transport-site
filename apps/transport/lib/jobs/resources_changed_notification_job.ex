@@ -28,8 +28,8 @@ defmodule Transport.Jobs.ResourcesChangedNotificationJob do
     |> DB.NotificationSubscription.subscriptions_for_reason_and_role(:reuser)
     |> DB.NotificationSubscription.subscriptions_to_emails()
     |> Enum.each(fn email ->
-      resources_changed_email = Transport.UserNotifier.resources_changed(email, subject, dataset)
-      Transport.Mailer.deliver(resources_changed_email)
+      Transport.UserNotifier.resources_changed(email, subject, dataset)
+      |> Transport.Mailer.deliver()
       save_notification(dataset, email)
     end)
   end

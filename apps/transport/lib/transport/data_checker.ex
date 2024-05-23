@@ -189,8 +189,8 @@ defmodule Transport.DataChecker do
   defp send_outdated_data_mail([] = _records), do: []
 
   defp send_outdated_data_mail(records) do
-    email_content = Transport.AdminNotifier.expiration(records)
-    Transport.Mailer.deliver(email_content)
+    Transport.AdminNotifier.expiration(records)
+    |> Transport.Mailer.deliver()
     records
   end
 
@@ -199,9 +199,7 @@ defmodule Transport.DataChecker do
     do: nil
 
   defp send_inactive_datasets_mail(reactivated_datasets, inactive_datasets, archived_datasets) do
-    email_content =
-      Transport.AdminNotifier.inactive_datasets(reactivated_datasets, inactive_datasets, archived_datasets)
-
-    Transport.Mailer.deliver(email_content)
+    Transport.AdminNotifier.inactive_datasets(reactivated_datasets, inactive_datasets, archived_datasets)
+    |> Transport.Mailer.deliver()
   end
 end

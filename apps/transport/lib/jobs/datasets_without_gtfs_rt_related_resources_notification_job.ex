@@ -14,8 +14,8 @@ defmodule Transport.Jobs.DatasetsWithoutGTFSRTRelatedResourcesNotificationJob do
   def send_email([]), do: :ok
 
   def send_email(datasets) do
-    email = Transport.AdminNotifier.datasets_without_gtfs_rt_related_resources(datasets)
-    Transport.Mailer.deliver(email)
+    Transport.AdminNotifier.datasets_without_gtfs_rt_related_resources(datasets)
+    |> Transport.Mailer.deliver()
     :ok
   end
 

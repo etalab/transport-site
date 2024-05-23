@@ -17,8 +17,8 @@ defmodule Transport.Jobs.DatasetNowOnNAPNotificationJob do
     |> MapSet.new()
     |> MapSet.difference(email_addresses_already_sent(dataset))
     |> Enum.each(fn email ->
-      now_on_nap_email = Transport.UserNotifier.dataset_now_on_nap(email, dataset)
-      Transport.Mailer.deliver(now_on_nap_email)
+      Transport.UserNotifier.dataset_now_on_nap(email, dataset)
+      |> Transport.Mailer.deliver()
       save_notification(dataset, email)
     end)
 

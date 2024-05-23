@@ -13,8 +13,8 @@ defmodule Transport.Jobs.DatasetsClimateResilienceBillNotLOLicenceJob do
     remove_climate_resilience_bill_tag(datasets)
 
     unless Enum.empty?(datasets) do
-      mail = Transport.AdminNotifier.datasets_climate_resilience_bill_inappropriate_licence(datasets)
-      Transport.Mailer.deliver(mail)
+       Transport.AdminNotifier.datasets_climate_resilience_bill_inappropriate_licence(datasets)
+      |> Transport.Mailer.deliver()
     end
 
     :ok
