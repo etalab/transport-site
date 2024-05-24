@@ -155,4 +155,13 @@ defmodule Transport.Test.Transport.Jobs.ExpirationNotificationJobTest do
              %DB.Notification{reason: :expiration, email: ^contact_email, dataset_id: ^d4_id}
            ] = DB.Notification |> DB.Repo.all() |> Enum.sort_by(& &1.dataset_id)
   end
+
+  test "cannot dispatch the same job twice for the same contact/date" do
+    enqueue_job = fn ->
+      %{contact_id: 42, digest_date: Date.utc_today()} |> ExpirationNotificationJob.new() |> Oban.insert!()
+    end
+
+    assert %Oban.Job{conflict?: false, unique: %{fields: [:args, :queue, :worker], period: 72_000}} = enqueue_job.()
+    assert %Oban.Job{conflict?: true, unique: nil} = enqueue_job.()
+  end
 end
