@@ -156,6 +156,22 @@ defmodule Transport.UserNotifier do
     )
   end
 
+  def promote_producer_space(email) do
+    contact_email = Application.fetch_env!(:transport, :contact_email)
+
+    email
+    |> common_email_options()
+    |> subject("Bienvenue ! Découvrez votre Espace producteur")
+    |> render_body("promote_producer_space.html", %{contact_email_address: contact_email})
+  end
+
+  def warn_inactivity(email, horizon) do
+    email
+    |> common_email_options()
+    |> subject("Votre compte sera supprimé #{String.downcase(horizon)}")
+    |> render_body("warn_inactivity.html", contact_email: email, horizon: horizon)
+  end
+
   # From here, utility functions.
 
   defp common_email_options(email) do
