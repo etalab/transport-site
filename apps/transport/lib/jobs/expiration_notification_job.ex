@@ -67,10 +67,7 @@ defmodule Transport.Jobs.ExpirationNotificationJob do
   end
 
   defp send_email(%DB.Contact{email: email}, html) do
-    {:ok, _} =
-      email
-      |> Transport.ExpirationNotifier.reuser_email(html)
-      |> Transport.Mailer.deliver()
+    {:ok, _} = Transport.UserNotifier.expiration_reuser(email, html) |> Transport.Mailer.deliver()
   end
 
   @spec save_notifications(DB.Contact.t(), %{delay() => datasets()}) :: :ok
@@ -206,21 +203,5 @@ defmodule Transport.Jobs.ExpirationNotificationJob do
   @spec delays_and_dates(Date.t()) :: %{delay() => Date.t()}
   def delays_and_dates(%Date{} = date) do
     Map.new(@default_outdated_data_delays, fn delay -> {delay, Date.add(date, delay)} end)
-  end
-end
-
-defmodule Transport.ExpirationNotifier do
-  @moduledoc """
-  Module in charge of building the email.
-  """
-  use Phoenix.Swoosh, view: TransportWeb.EmailView
-
-  def reuser_email(email, html) do
-    new()
-    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
-    |> to(email)
-    |> reply_to(Application.fetch_env!(:transport, :contact_email))
-    |> subject("Suivi des jeux de données favoris arrivant à expiration")
-    |> render_body("expiration_reuser.html", %{expiration_content: html})
   end
 end

@@ -156,6 +156,13 @@ defmodule Transport.UserNotifier do
     )
   end
 
+  def expiration_reuser(email, html) do
+    email
+    |> common_email_options()
+    |> subject("Suivi des jeux de données favoris arrivant à expiration")
+    |> render_body("expiration_reuser.html", %{expiration_content: html})
+  end
+
   # From here, utility functions.
 
   defp common_email_options(email) do
