@@ -83,16 +83,14 @@ defmodule Transport.Test.Transport.Jobs.WarnUserInactivityJobTest do
   end
 
   defp assert_warning_is_sent(email, subject, body_parts) do
-    assert_email_sent(fn %Swoosh.Email{} = sent ->
-      assert %Swoosh.Email{
-               from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-               to: [{"", ^email}],
-               reply_to: {"", "contact@transport.data.gouv.fr"},
-               subject: ^subject,
-               text_body: nil,
-               html_body: html_body
-             } = sent
-
+    assert_email_sent(fn %Swoosh.Email{
+                           from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                           to: [{"", ^email}],
+                           reply_to: {"", "contact@transport.data.gouv.fr"},
+                           subject: ^subject,
+                           text_body: nil,
+                           html_body: html_body
+                         } ->
       Enum.each(body_parts, fn body_part ->
         assert simplify_whitespaces(html_body) =~ body_part
       end)

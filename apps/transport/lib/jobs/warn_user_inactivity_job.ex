@@ -47,23 +47,6 @@ defmodule Transport.Jobs.WarnUserInactivityJob do
   end
 
   defp actually_warn_inactive_contact(email, horizon) do
-    Transport.WarnUserInactivityNotifier.warn_inactivity(email, horizon)
-    |> Transport.Mailer.deliver()
-  end
-end
-
-defmodule Transport.WarnUserInactivityNotifier do
-  @moduledoc """
-  Module in charge of building the emails.
-  """
-  use Phoenix.Swoosh, view: TransportWeb.EmailView
-
-  def warn_inactivity(email, horizon) do
-    new()
-    |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
-    |> reply_to(Application.fetch_env!(:transport, :contact_email))
-    |> to(email)
-    |> subject("Votre compte sera supprimé #{String.downcase(horizon)}")
-    |> render_body("warn_inactivity.html", contact_email: email, horizon: horizon)
+    {:ok, _} = Transport.UserNotifier.warn_inactivity(email, horizon) |> Transport.Mailer.deliver()
   end
 end

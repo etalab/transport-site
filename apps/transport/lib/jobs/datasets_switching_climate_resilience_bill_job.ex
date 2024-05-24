@@ -27,18 +27,12 @@ defmodule Transport.Jobs.DatasetsSwitchingClimateResilienceBillJob do
       |> DB.NotificationSubscription.subscriptions_to_emails()
 
     Enum.each(emails, fn email ->
-      Transport.EmailSender.impl().send_mail(
-        "transport.data.gouv.fr",
-        Application.get_env(:transport, :contact_email),
-        email,
-        Application.get_env(:transport, :contact_email),
-        "Loi climat et résilience : suivi des jeux de données",
-        "",
-        Phoenix.View.render_to_string(TransportWeb.EmailView, "datasets_switching_climate_resilience_bill.html", %{
-          datasets_now_climate_resilience: Enum.map(datasets_now_climate_resilience, &Enum.at(&1, 1)),
-          datasets_previously_climate_resilience: Enum.map(datasets_previously_climate_resilience, &Enum.at(&1, 1))
-        })
+      email
+      |> Transport.UserNotifier.datasets_switching_climate_resilience_bill(
+        datasets_previously_climate_resilience,
+        datasets_now_climate_resilience
       )
+      |> Transport.Mailer.deliver()
     end)
 
     save_notifications(datasets_previously_climate_resilience ++ datasets_now_climate_resilience, emails)

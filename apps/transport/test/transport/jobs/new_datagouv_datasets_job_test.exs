@@ -3,6 +3,7 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
   import Mox
+  import Swoosh.TestAssertions
   alias Transport.Jobs.NewDatagouvDatasetsJob
 
   setup :verify_on_exit!
@@ -182,20 +183,17 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
         %HTTPoison.Response{status_code: 200, body: Jason.encode!(%{"data" => [dataset]})}
       end)
 
-      Transport.EmailSender.Mock
-      |> expect(:send_mail, fn _from_name,
-                               "contact@transport.data.gouv.fr" = _from_email,
-                               "deploiement@transport.data.gouv.fr" = _to_email,
-                               _reply_to,
-                               "Nouveaux jeux de données à référencer - data.gouv.fr" = _subject,
-                               body,
-                               _html_body ->
-        assert body =~ ~s(* #{dataset["title"]} - #{dataset["page"]})
+      assert :ok == perform_job(NewDatagouvDatasetsJob, %{}, inserted_at: inserted_at)
 
+      assert_email_sent(fn %Swoosh.Email{
+                             from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                             to: [{"", "deploiement@transport.data.gouv.fr"}],
+                             subject: "Nouveaux jeux de données à référencer - data.gouv.fr",
+                             text_body: body
+                           } ->
+        assert body =~ ~s(* #{dataset["title"]} - #{dataset["page"]})
         assert body =~ expected_body
       end)
-
-      assert :ok == perform_job(NewDatagouvDatasetsJob, %{}, inserted_at: inserted_at)
     end
 
     test "sends an email on monday" do

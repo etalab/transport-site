@@ -111,35 +111,23 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
       |> Enum.filter(&DB.Dataset.active?/1)
       |> Enum.sort_by(fn %DB.Dataset{custom_title: custom_title} -> custom_title end)
 
-    Transport.EmailSender.impl().send_mail(
-      "transport.data.gouv.fr",
-      Application.get_env(:transport, :contact_email),
-      contact.email,
-      Application.get_env(:transport, :contact_email),
-      "Notifications pour vos données sur transport.data.gouv.fr",
-      "",
-      Phoenix.View.render_to_string(TransportWeb.EmailView, "producer_without_subscriptions.html", %{datasets: datasets})
-    )
+    contact.email
+    |> Transport.UserNotifier.periodic_reminder_producers_no_subscriptions(datasets)
+    |> Transport.Mailer.deliver()
 
     DB.Notification.insert!(@notification_reason, contact.email)
   end
 
   defp send_mail_producer_with_subscriptions(%DB.Contact{} = contact) do
     other_producers_subscribers = contact |> other_producers_subscribers()
+    datasets_subscribed = contact |> datasets_subscribed_as_producer()
 
-    Transport.EmailSender.impl().send_mail(
-      "transport.data.gouv.fr",
-      Application.get_env(:transport, :contact_email),
-      contact.email,
-      Application.get_env(:transport, :contact_email),
-      "Rappel : vos notifications pour vos données sur transport.data.gouv.fr",
-      "",
-      Phoenix.View.render_to_string(TransportWeb.EmailView, "producer_with_subscriptions.html", %{
-        datasets_subscribed: contact |> datasets_subscribed_as_producer(),
-        has_other_producers_subscribers: not Enum.empty?(other_producers_subscribers),
-        other_producers_subscribers: Enum.map_join(other_producers_subscribers, ", ", &DB.Contact.display_name/1)
-      })
+    contact.email
+    |> Transport.UserNotifier.periodic_reminder_producers_with_subscriptions(
+      datasets_subscribed,
+      other_producers_subscribers
     )
+    |> Transport.Mailer.deliver()
 
     DB.Notification.insert!(@notification_reason, contact.email)
   end

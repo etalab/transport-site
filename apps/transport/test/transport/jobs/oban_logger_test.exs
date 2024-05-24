@@ -11,9 +11,7 @@ defmodule Transport.Test.Transport.Jobs.ObanLoggerTest do
   use ExUnit.Case, async: true
   @moduletag :capture_log
   use Oban.Testing, repo: DB.Repo
-  import Mox
-
-  setup :verify_on_exit!
+  import Swoosh.TestAssertions
 
   test "sends an email on failure if the appropriate tag is set" do
     assert {:error, "failed"} == perform_job(Transport.Test.Transport.Jobs.ObanLoggerJobTag, %{}, tags: [])
@@ -28,26 +26,22 @@ defmodule Transport.Test.Transport.Jobs.ObanLoggerTest do
                max_attempts: 2
              )
 
+    assert_no_email_sent()
+
     # Should be sent when failing at the last attempt
-    Transport.EmailSender.Mock
-    |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.data.gouv.fr",
-                             "tech@transport.data.gouv.fr" = _to,
-                             "contact@transport.data.gouv.fr",
-                             "Échec de job Oban : Transport.Test.Transport.Jobs.ObanLoggerJobTag" = _subject,
-                             plain_text_body,
-                             "" = _html_part ->
-      assert plain_text_body ==
-               "Un job Oban Transport.Test.Transport.Jobs.ObanLoggerJobTag vient d'échouer, il serait bien d'investiguer."
-
-      :ok
-    end)
-
     assert {:error, "failed"} ==
              perform_job(Transport.Test.Transport.Jobs.ObanLoggerJobTag, %{},
                tags: [Transport.Jobs.ObanLogger.email_on_failure_tag()],
                attempt: 2,
                max_attempts: 2
              )
+
+    assert_email_sent(
+      from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+      to: "tech@transport.data.gouv.fr",
+      subject: "Échec de job Oban : Transport.Test.Transport.Jobs.ObanLoggerJobTag",
+      text_body:
+        "Un job Oban Transport.Test.Transport.Jobs.ObanLoggerJobTag vient d'échouer, il serait bien d'investiguer."
+    )
   end
 end

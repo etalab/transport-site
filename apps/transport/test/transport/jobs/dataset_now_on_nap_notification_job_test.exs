@@ -3,10 +3,8 @@ defmodule Transport.Test.Transport.Jobs.DatasetNowOnNAPNotificationJobTest do
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
   import Ecto.Query
-  import Mox
   alias Transport.Jobs.DatasetNowOnNAPNotificationJob
-
-  setup :verify_on_exit!
+  import Swoosh.TestAssertions
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -44,24 +42,19 @@ defmodule Transport.Test.Transport.Jobs.DatasetNowOnNAPNotificationJobTest do
       dataset: dataset
     })
 
-    Transport.EmailSender.Mock
-    |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.data.gouv.fr",
-                             ^email,
-                             "contact@transport.data.gouv.fr",
-                             "Votre jeu de données a été référencé sur transport.data.gouv.fr",
-                             "",
-                             html_content ->
-      assert html_content =~
-               ~s(Votre jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">Mon JDD</a> a bien été référencé)
-
-      assert html_content =~
-               ~s(Rendez-vous sur votre <a href="http://127.0.0.1:5100/espace_producteur?utm_source=transactional_email&amp;utm_medium=email&amp;utm_campaign=dataset_now_on_nap">Espace Producteur</a)
-
-      :ok
-    end)
-
     assert :ok == perform_job(DatasetNowOnNAPNotificationJob, %{"dataset_id" => dataset_id})
+
+    html_content =
+      ~s(Votre jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">Mon JDD</a> a bien été référencé)
+
+    assert_email_sent(
+      from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+      to: [{"", email}],
+      reply_to: {"", "contact@transport.data.gouv.fr"},
+      subject: "Votre jeu de données a été référencé sur transport.data.gouv.fr",
+      text_body: nil,
+      html_body: ~r/#{html_content}/
+    )
 
     # Logs have been saved
     assert [

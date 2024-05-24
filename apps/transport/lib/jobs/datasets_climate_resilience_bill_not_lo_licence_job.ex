@@ -13,19 +13,8 @@ defmodule Transport.Jobs.DatasetsClimateResilienceBillNotLOLicenceJob do
     remove_climate_resilience_bill_tag(datasets)
 
     unless Enum.empty?(datasets) do
-      Transport.EmailSender.impl().send_mail(
-        "transport.data.gouv.fr",
-        Application.get_env(:transport, :contact_email),
-        Application.get_env(:transport, :bizdev_email),
-        Application.get_env(:transport, :contact_email),
-        "Jeux de données article 122 avec licence inappropriée",
-        "",
-        Phoenix.View.render_to_string(
-          TransportWeb.EmailView,
-          "datasets_climate_resilience_bill_inappropriate_licence.html",
-          datasets: datasets
-        )
-      )
+      Transport.AdminNotifier.datasets_climate_resilience_bill_inappropriate_licence(datasets)
+      |> Transport.Mailer.deliver()
     end
 
     :ok

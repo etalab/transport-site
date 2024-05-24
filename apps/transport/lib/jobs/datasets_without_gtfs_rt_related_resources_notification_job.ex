@@ -14,30 +14,10 @@ defmodule Transport.Jobs.DatasetsWithoutGTFSRTRelatedResourcesNotificationJob do
   def send_email([]), do: :ok
 
   def send_email(datasets) do
-    Transport.EmailSender.impl().send_mail(
-      "transport.data.gouv.fr",
-      Application.get_env(:transport, :contact_email),
-      Application.get_env(:transport, :contact_email),
-      Application.get_env(:transport, :contact_email),
-      "Jeux de données GTFS-RT sans ressources liées",
-      """
-      Bonjour,
-
-      Les jeux de données suivants contiennent plusieurs GTFS et des liens entre les ressources GTFS-RT et GTFS sont manquants :
-
-      #{Enum.map_join(datasets, "\n", &link/1)}
-
-      L’équipe transport.data.gouv.fr
-      """,
-      ""
-    )
+    Transport.AdminNotifier.datasets_without_gtfs_rt_related_resources(datasets)
+    |> Transport.Mailer.deliver()
 
     :ok
-  end
-
-  def link(%DB.Dataset{slug: slug, custom_title: custom_title}) do
-    link = TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, slug)
-    "* #{custom_title} - #{link}"
   end
 
   @doc """

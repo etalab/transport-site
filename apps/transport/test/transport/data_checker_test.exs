@@ -2,6 +2,7 @@ defmodule Transport.DataCheckerTest do
   use ExUnit.Case, async: true
   import Mox
   import DB.Factory
+  import Swoosh.TestAssertions
 
   doctest Transport.DataChecker, import: true
 
@@ -25,23 +26,21 @@ defmodule Transport.DataCheckerTest do
         {:ok, %HTTPoison.Response{status_code: 200, body: ~s({"archived":null})}}
       end)
 
-      Transport.EmailSender.Mock
-      |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, subject, body, _html_body ->
-        assert from_email == "contact@transport.data.gouv.fr"
-        assert to_email == "deploiement@transport.data.gouv.fr"
-        assert subject == "Jeux de données supprimés ou archivés"
-        assert body =~ ~r/Certains jeux de données disparus sont réapparus sur data.gouv.fr/
-        :ok
-      end)
-
       # running the job (...)
       Transport.DataChecker.inactive_data()
+
+      assert_email_sent(
+        from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+        to: "deploiement@transport.data.gouv.fr",
+        subject: "Jeux de données supprimés ou archivés",
+        text_body: ~r/Certains jeux de données disparus sont réapparus sur data.gouv.fr/,
+        html_body: nil
+      )
 
       # should result into marking the dataset back as active
       assert %DB.Dataset{is_active: true} = DB.Repo.reload!(dataset)
 
       verify!(Transport.HTTPoison.Mock)
-      verify!(Transport.EmailSender.Mock)
     end
 
     test "warns our team of datasets disappearing on data gouv and mark them as such locally" do
@@ -99,17 +98,16 @@ defmodule Transport.DataCheckerTest do
         {:ok, %HTTPoison.Response{status_code: 410, body: "{\"message\": \"Dataset has been deleted\"}"}}
       end)
 
-      Transport.EmailSender.Mock
-      |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, subject, body, _html_body ->
-        assert from_email == "contact@transport.data.gouv.fr"
-        assert to_email == "deploiement@transport.data.gouv.fr"
-        assert subject == "Jeux de données supprimés ou archivés"
-        assert body =~ ~r/Certains jeux de données ont disparus de data.gouv.fr/
-        :ok
-      end)
-
       # running the job (...)
       Transport.DataChecker.inactive_data()
+
+      assert_email_sent(
+        from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+        to: "deploiement@transport.data.gouv.fr",
+        subject: "Jeux de données supprimés ou archivés",
+        text_body: ~r/Certains jeux de données ont disparus de data.gouv.fr/,
+        html_body: nil
+      )
 
       # should result into marking the dataset as inactive
       assert %DB.Dataset{is_active: false} = DB.Repo.reload!(dataset)
@@ -121,7 +119,6 @@ defmodule Transport.DataCheckerTest do
       assert %DB.Dataset{is_active: false} = DB.Repo.reload!(dataset_410)
 
       verify!(Transport.HTTPoison.Mock)
-      verify!(Transport.EmailSender.Mock)
     end
 
     test "sends an email when a dataset is now archived" do
@@ -137,19 +134,17 @@ defmodule Transport.DataCheckerTest do
         {:ok, %HTTPoison.Response{status_code: 200, body: Jason.encode!(%{"archived" => archived})}}
       end)
 
-      Transport.EmailSender.Mock
-      |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, subject, body, _html_body ->
-        assert from_email == "contact@transport.data.gouv.fr"
-        assert to_email == "deploiement@transport.data.gouv.fr"
-        assert subject == "Jeux de données supprimés ou archivés"
-        assert body =~ ~r/Certains jeux de données sont indiqués comme archivés/
-        :ok
-      end)
-
       Transport.DataChecker.inactive_data()
 
+      assert_email_sent(
+        from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+        to: "deploiement@transport.data.gouv.fr",
+        subject: "Jeux de données supprimés ou archivés",
+        text_body: ~r/Certains jeux de données sont indiqués comme archivés/,
+        html_body: nil
+      )
+
       verify!(Transport.HTTPoison.Mock)
-      verify!(Transport.EmailSender.Mock)
     end
 
     test "does not send email if nothing has disappeared or reappeared" do
@@ -158,13 +153,11 @@ defmodule Transport.DataCheckerTest do
       Transport.HTTPoison.Mock
       |> expect(:head, 0, fn _ -> nil end)
 
-      Transport.EmailSender.Mock
-      |> expect(:send_mail, 0, fn _, _, _, _, _, _, _ -> nil end)
-
       Transport.DataChecker.inactive_data()
 
+      assert_no_email_sent()
+
       verify!(Transport.HTTPoison.Mock)
-      verify!(Transport.EmailSender.Mock)
     end
   end
 
@@ -274,55 +267,44 @@ defmodule Transport.DataCheckerTest do
         dataset_id: dataset.id
       })
 
+      Transport.DataChecker.outdated_data()
+
       # a first mail to our team
-      Transport.EmailSender.Mock
-      |> expect(:send_mail, fn _from_name,
-                               "contact@transport.data.gouv.fr" = _from_email,
-                               "deploiement@transport.data.gouv.fr" = _to_email,
-                               _reply_to,
-                               "Jeux de données arrivant à expiration" = _subject,
-                               body,
-                               _html_body ->
+
+      assert_email_sent(fn %Swoosh.Email{
+                             from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                             to: [{"", "deploiement@transport.data.gouv.fr"}],
+                             subject: "Jeux de données arrivant à expiration",
+                             text_body: body
+                           } ->
         assert body =~ ~r/Jeux de données périmant demain :/
 
         assert body =~
                  "#{dataset.custom_title} - http://127.0.0.1:5100/datasets/#{dataset.slug} (✅ notification automatique) ⚖️🗺️ article 122"
-
-        :ok
       end)
 
       # a second mail to the email address in the notifications config
-      Transport.EmailSender.Mock
-      |> expect(:send_mail, fn _from_name,
-                               "contact@transport.data.gouv.fr" = _from_email,
-                               ^producer_email = _to_email,
-                               _reply_to,
-                               "Jeu de données arrivant à expiration" = _subject,
-                               _body,
-                               html_body ->
+
+      assert_email_sent(fn %Swoosh.Email{
+                             from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                             to: [{"", ^producer_email}],
+                             subject: "Jeu de données arrivant à expiration",
+                             html_body: html_body
+                           } ->
+        refute html_body =~ "notification automatique"
+        refute html_body =~ "article 122"
+
         assert html_body =~
                  ~s(Les données GTFS #{resource_title} associées au jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> périment demain.)
 
         assert html_body =~
                  ~s(<a href="https://doc.transport.data.gouv.fr/administration-des-donnees/procedures-de-publication/mettre-a-jour-des-donnees#remplacer-un-jeu-de-donnees-existant-plutot-quen-creer-un-nouveau">remplaçant la ressource périmée par la nouvelle</a>)
-
-        refute html_body =~ "notification automatique"
-        refute html_body =~ "article 122"
-        :ok
       end)
-
-      Transport.DataChecker.outdated_data()
-
-      verify!(Transport.EmailSender.Mock)
     end
 
     test "outdated_data job with nothing to send should not send email" do
-      Transport.EmailSender.Mock
-      |> expect(:send_mail, 0, fn _, _, _, _, _, _, _ -> nil end)
-
       Transport.DataChecker.outdated_data()
-
-      verify!(Transport.EmailSender.Mock)
+      assert_no_email_sent()
     end
   end
 
@@ -338,24 +320,18 @@ defmodule Transport.DataCheckerTest do
       dataset_id: dataset.id
     })
 
-    Transport.EmailSender.Mock
-    |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.data.gouv.fr",
-                             ^email = _to,
-                             "contact@transport.data.gouv.fr",
-                             "Jeu de données arrivant à expiration" = _subject,
-                             "" = _plain_text_body,
-                             html_part ->
-      assert html_part =~ ~r/Bonjour/
-      :ok
-    end)
-
     Transport.DataChecker.send_outdated_data_notifications({7, [{dataset, []}]})
+
+    assert_email_sent(
+      from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+      to: email,
+      subject: "Jeu de données arrivant à expiration",
+      text_body: nil,
+      html_body: ~r/Bonjour/
+    )
 
     assert [%DB.Notification{email: ^email, reason: :expiration, dataset_id: ^dataset_id}] =
              DB.Notification |> DB.Repo.all()
-
-    verify!(Transport.EmailSender.Mock)
   end
 
   describe "send_new_dataset_notifications" do
@@ -376,76 +352,19 @@ defmodule Transport.DataCheckerTest do
         contact_id: contact_id
       })
 
-      Transport.EmailSender.Mock
-      |> expect(:send_mail, fn "transport.data.gouv.fr",
-                               "contact@transport.data.gouv.fr",
-                               ^email = _to,
-                               "contact@transport.data.gouv.fr",
-                               "Nouveaux jeux de données référencés" = _subject,
-                               plain_text_body,
-                               "" = _html_part ->
-        assert plain_text_body =~ ~r/^Bonjour/
-
-        assert plain_text_body =~
-                 "* Super JDD - (Transport public collectif - horaires théoriques) - http://127.0.0.1:5100/datasets/#{slug}"
-
-        :ok
-      end)
-
       Transport.DataChecker.send_new_dataset_notifications([dataset])
+
+      assert_email_sent(
+        from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+        to: email,
+        subject: "Nouveaux jeux de données référencés",
+        text_body:
+          ~r"Super JDD - \(Transport public collectif - horaires théoriques\) - http://127.0.0.1:5100/datasets/#{slug}",
+        html_body: nil
+      )
 
       assert [%DB.Notification{email: ^email, reason: :new_dataset, dataset_id: ^dataset_id}] =
                DB.Notification |> DB.Repo.all()
-
-      verify!(Transport.EmailSender.Mock)
     end
-  end
-
-  test "count_archived_datasets" do
-    insert(:dataset, is_active: true, archived_at: nil)
-    insert(:dataset, is_active: true, archived_at: DateTime.utc_now())
-    insert(:dataset, is_active: false, archived_at: DateTime.utc_now())
-
-    assert 1 == Transport.DataChecker.count_archived_datasets()
-  end
-
-  describe "has_expiration_notifications?" do
-    test "with no subscriptions from producers" do
-      insert(:notification_subscription, %{
-        reason: :expiration,
-        source: :user,
-        role: :reuser,
-        contact: insert_contact(),
-        dataset: dataset = insert(:dataset)
-      })
-
-      refute Transport.DataChecker.has_expiration_notifications?(dataset)
-      assert "❌ pas de notification automatique" == Transport.DataChecker.expiration_notification_enabled_str(dataset)
-    end
-  end
-
-  test "with a subscription from a producer" do
-    dataset = insert(:dataset)
-
-    insert(:notification_subscription, %{
-      reason: :dataset_with_error,
-      source: :admin,
-      role: :producer,
-      contact: insert_contact(),
-      dataset: dataset
-    })
-
-    refute Transport.DataChecker.has_expiration_notifications?(dataset)
-
-    insert(:notification_subscription, %{
-      reason: :expiration,
-      source: :admin,
-      role: :producer,
-      contact: insert_contact(),
-      dataset: dataset
-    })
-
-    assert Transport.DataChecker.has_expiration_notifications?(dataset)
-    assert "✅ notification automatique" == Transport.DataChecker.expiration_notification_enabled_str(dataset)
   end
 end

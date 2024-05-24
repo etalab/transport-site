@@ -17,7 +17,7 @@ defmodule TransportWeb.ContactController do
     %{email: email, subject: subject, question: question} =
       sanitize_inputs(%{email: email, subject: subject, question: question})
 
-    contact_email = TransportWeb.ContactEmail.contact(email, subject, question)
+    contact_email = Transport.AdminNotifier.contact(email, subject, question)
 
     case Transport.Mailer.deliver(contact_email) do
       {:ok, _} ->
@@ -41,39 +41,4 @@ defmodule TransportWeb.ContactController do
   end
 
   defp sanitize_inputs(map), do: Map.new(map, fn {k, v} -> {k, v |> String.trim() |> HtmlSanitizeEx.strip_tags()} end)
-end
-
-defmodule TransportWeb.ContactEmail do
-  import Swoosh.Email
-
-  def contact(email, subject, question) do
-    new()
-    |> from({"PAN, Formulaire Contact", Application.fetch_env!(:transport, :contact_email)})
-    |> to(Application.fetch_env!(:transport, :contact_email))
-    |> reply_to(email)
-    |> subject(subject)
-    |> text_body(question)
-  end
-
-  def feedback(rating, explanation, email, feature) do
-    rating_t = %{like: "j’aime", neutral: "neutre", dislike: "mécontent"}
-
-    reply_email = if email, do: email, else: Application.fetch_env!(:transport, :contact_email)
-
-    feedback_content = """
-    Vous avez un nouvel avis sur le PAN.
-    Fonctionnalité : #{feature}
-    Notation : #{rating_t[rating]}
-    Adresse e-mail : #{email}
-
-    Explication : #{explanation}
-    """
-
-    new()
-    |> from({"Formulaire feedback", Application.fetch_env!(:transport, :contact_email)})
-    |> to(Application.fetch_env!(:transport, :contact_email))
-    |> reply_to(reply_email)
-    |> subject("Nouvel avis pour #{feature} : #{rating_t[rating]}")
-    |> text_body(feedback_content)
-  end
 end

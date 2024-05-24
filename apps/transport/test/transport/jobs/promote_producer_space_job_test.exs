@@ -70,16 +70,14 @@ defmodule Transport.Test.Transport.Jobs.PromoteProducerSpaceJobTest do
       assert Enum.count(subscriptions) == subscriptions |> MapSet.new() |> Enum.count()
       assert expected_subscriptions == MapSet.new(subscriptions)
 
-      assert_email_sent(fn %Swoosh.Email{} = sent ->
-        assert %Swoosh.Email{
-                 from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                 to: [{"", ^contact_email}],
-                 reply_to: {"", "contact@transport.data.gouv.fr"},
-                 subject: "Bienvenue ! Découvrez votre Espace producteur",
-                 text_body: nil,
-                 html_body: html_body
-               } = sent
-
+      assert_email_sent(fn %Swoosh.Email{
+                             from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                             to: [{"", ^contact_email}],
+                             reply_to: {"", "contact@transport.data.gouv.fr"},
+                             subject: "Bienvenue ! Découvrez votre Espace producteur",
+                             text_body: nil,
+                             html_body: html_body
+                           } ->
         assert html_body =~ "Bienvenue sur le Point d’Accès National aux données de transport"
 
         assert html_body =~
