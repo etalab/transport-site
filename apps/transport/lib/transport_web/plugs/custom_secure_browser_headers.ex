@@ -10,12 +10,13 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
   def call(conn, _opts) do
     nonce = generate_nonce()
     csp_headers = csp_headers(Application.fetch_env!(:transport, :app_env), nonce)
+    headers = Map.merge(csp_headers, %{"x-frame-options" => "DENY"})
 
     conn
     # used by the phoenix LivedDashboard to allow secure inlined CSS
     |> Plug.Conn.assign(:csp_nonce_value, nonce)
     |> Plug.Conn.put_session(:csp_nonce_value, nonce)
-    |> Phoenix.Controller.put_secure_browser_headers(csp_headers)
+    |> Phoenix.Controller.put_secure_browser_headers(headers)
   end
 
   @doc """
