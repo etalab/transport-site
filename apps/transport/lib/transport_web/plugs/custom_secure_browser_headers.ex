@@ -44,6 +44,7 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
           default-src 'none';
           connect-src *;
           font-src *;
+          frame-ancestors 'none';
           img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://www.data.gouv.fr https://*.dmcdn.net #{logos_bucket_url};
           script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
           frame-src https://www.dailymotion.com/;
@@ -57,6 +58,7 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
             default-src 'none';
             connect-src *;
             font-src *;
+            frame-ancestors 'none';
             img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://demo-static.data.gouv.fr https://www.data.gouv.fr https://demo.data.gouv.fr https://*.dmcdn.net #{logos_bucket_url};
             script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
             frame-src https://www.dailymotion.com/;
