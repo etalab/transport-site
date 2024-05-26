@@ -241,6 +241,29 @@ defmodule DB.ContactTest do
              |> Enum.count()
   end
 
+  test "inactive contacts" do
+    date1 = ~U[2022-04-01 13:00:00Z]
+    date2 = ~U[2023-04-01 13:00:00Z]
+    date3 = ~U[2024-04-01 13:00:00Z]
+    date4 = ~U[2024-04-15 13:00:00Z]
+
+    inactive = insert_contact(%{last_login_at: date1})
+    active = insert_contact(%{last_login_at: date3})
+
+    assert [inactive.id, active.id] == list_inactive_contact_ids(date4)
+    assert [inactive.id] == list_inactive_contact_ids(date2)
+
+    DB.Contact.delete_inactive_contacts(date2)
+
+    assert [active.id] == list_inactive_contact_ids(date4)
+    assert [] == list_inactive_contact_ids(date2)
+  end
+
+  defp list_inactive_contact_ids(datetime) do
+    DB.Contact.list_inactive_contacts(datetime)
+    |> Enum.map(fn %DB.Contact{id: contact_id} -> contact_id end)
+  end
+
   defp sample_contact_args do
     %{
       first_name: "John",

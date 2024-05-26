@@ -28,7 +28,7 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
     # Clicking the heart icon
     view |> element("div i") |> render_click()
 
-    assert_renders_logged_out_div(view, with_banner: true, dataset_slug: dataset.slug)
+    assert_renders_logged_out_div(view, with_banner: true)
   end
 
   test "when current_user is a producer of the dataset", %{conn: conn} do
@@ -267,8 +267,8 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
     end
   end
 
-  defp assert_renders_logged_out_div(%Phoenix.LiveViewTest.View{} = view, with_banner: true, dataset_slug: dataset_slug) do
-    login_url = "/login/explanation?redirect_path=%2Fdatasets%2F#{dataset_slug}"
+  defp assert_renders_logged_out_div(%Phoenix.LiveViewTest.View{} = view, with_banner: true) do
+    infos_url = page_path(TransportWeb.Endpoint, :infos_reutilisateurs)
 
     assert [
              {"div", _,
@@ -279,7 +279,10 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
                    {
                      "p",
                      [{"class", "notification active"}],
-                     [{"a", [{"href", ^login_url}], _}, _]
+                     [
+                       {"a", [{"href", ^infos_url}, {"target", "_blank"}], ["Inscrivez-vous ou connectez-vous"]},
+                       _
+                     ]
                    }
                  ]}
               ]}
@@ -306,7 +309,7 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
                  [
                    {"div", [{"class", "tooltip"}],
                     [
-                      {"a", [{"href", "/espace_producteur?utm_source=follow_dataset_heart"}, {"target", "_blank"}],
+                      {"a", [{"href", "/espace_producteur?utm_campaign=follow_dataset_heart"}, {"target", "_blank"}],
                        [{"i", [{"class", "fa fa-heart fa-2x producer"}], []}]},
                       {"span", [{"class", "tooltiptext left"}], ["Gérez votre jeu de données"]}
                     ]}
@@ -349,7 +352,8 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
                       "div",
                       [{"class", "tooltip"}],
                       [
-                        {"a", [{"href", "/espace_reutilisateur?utm_source=follow_dataset_heart"}, {"target", "_blank"}],
+                        {"a",
+                         [{"href", "/espace_reutilisateur?utm_campaign=follow_dataset_heart"}, {"target", "_blank"}],
                          [{"i", [{"class", "fa fa-heart fa-2x icon---animated-heart active"}], []}]},
                         {"span", [{"class", "tooltiptext left"}], ["Gérez les services liés à ce jeu de données"]}
                       ]
@@ -359,7 +363,8 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
                       [{"class", "notification active"}],
                       [
                         "\n    Jeu de données ajouté à vos favoris ! Personnalisez vos préférences depuis votre ",
-                        {"a", [{"href", "/espace_reutilisateur?utm_source=follow_dataset_heart"}, {"target", "_blank"}],
+                        {"a",
+                         [{"href", "/espace_reutilisateur?utm_campaign=follow_dataset_heart"}, {"target", "_blank"}],
                          ["espace réutilisateur"]},
                         ".\n  "
                       ]
@@ -382,7 +387,8 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
                       "div",
                       [{"class", "tooltip"}],
                       [
-                        {"a", [{"href", "/espace_reutilisateur?utm_source=follow_dataset_heart"}, {"target", "_blank"}],
+                        {"a",
+                         [{"href", "/espace_reutilisateur?utm_campaign=follow_dataset_heart"}, {"target", "_blank"}],
                          [{"i", [{"class", "fa fa-heart fa-2x icon---animated-heart active"}], []}]},
                         {"span", [{"class", "tooltiptext left"}], ["Gérez les services liés à ce jeu de données"]}
                       ]

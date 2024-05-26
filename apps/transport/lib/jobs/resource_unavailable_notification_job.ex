@@ -52,18 +52,8 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
   end
 
   defp send_mail(email, role, args) do
+    email |> Transport.UserNotifier.resource_unavailable(role, args) |> Transport.Mailer.deliver()
     dataset = Keyword.fetch!(args, :dataset)
-
-    Transport.EmailSender.impl().send_mail(
-      "transport.data.gouv.fr",
-      Application.get_env(:transport, :contact_email),
-      email,
-      Application.get_env(:transport, :contact_email),
-      "Ressources indisponibles dans le jeu de données #{dataset.custom_title}",
-      "",
-      Phoenix.View.render_to_string(TransportWeb.EmailView, "#{@notification_reason}_#{role}.html", args)
-    )
-
     save_notification(dataset, email)
   end
 

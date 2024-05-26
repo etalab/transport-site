@@ -210,6 +210,106 @@ defmodule TransportWeb.DatasetControllerTest do
     end
   end
 
+  describe "header links" do
+    test "logged out", %{conn: conn} do
+      mock_empty_history_resources()
+
+      dataset = insert(:dataset)
+
+      assert [
+               {"a",
+                [
+                  {"href", page_path(conn, :infos_reutilisateurs, utm_campaign: "dataset_details")},
+                  {"target", "_blank"}
+                ], ["Espace réutilisateur"]}
+             ] ==
+               conn
+               |> init_test_session(%{force_display_reuser_space: true})
+               |> dataset_header_links(dataset)
+    end
+
+    test "logged-in, producer", %{conn: conn} do
+      mock_empty_history_resources()
+      organization = insert(:organization)
+
+      insert_contact(%{
+        datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
+        organizations: [organization |> Map.from_struct()]
+      })
+
+      dataset = insert(:dataset, organization_id: organization.id)
+
+      assert [
+               {"a",
+                [{"href", page_path(conn, :espace_producteur, utm_campaign: "dataset_details")}, {"target", "_blank"}],
+                ["Espace producteur"]}
+             ] ==
+               conn
+               |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, force_display_reuser_space: true})
+               |> dataset_header_links(dataset)
+    end
+
+    test "logged-in, follows the dataset", %{conn: conn} do
+      mock_empty_history_resources()
+      contact = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+      dataset = insert(:dataset)
+      insert(:dataset_follower, contact_id: contact.id, dataset_id: dataset.id, source: :follow_button)
+
+      assert [
+               {"a",
+                [
+                  {"href", reuser_space_path(conn, :datasets_edit, dataset.id, utm_campaign: "dataset_details")},
+                  {"target", "_blank"}
+                ], ["Espace réutilisateur"]}
+             ] ==
+               conn
+               |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, force_display_reuser_space: true})
+               |> dataset_header_links(dataset)
+    end
+
+    test "logged-in, does not follow the dataset", %{conn: conn} do
+      mock_empty_history_resources()
+      insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+      dataset = insert(:dataset)
+
+      assert [
+               {"a",
+                [
+                  {"href", reuser_space_path(conn, :espace_reutilisateur, utm_campaign: "dataset_details")},
+                  {"target", "_blank"}
+                ], ["Espace réutilisateur"]}
+             ] ==
+               conn
+               |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, force_display_reuser_space: true})
+               |> dataset_header_links(dataset)
+    end
+
+    test "for an admin, producer", %{conn: conn} do
+      mock_empty_history_resources()
+      organization = insert(:organization)
+
+      insert_contact(%{
+        datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
+        organizations: [organization |> Map.from_struct()]
+      })
+
+      dataset = insert(:dataset, organization_id: organization.id)
+
+      assert [
+               {"a", [{"href", backoffice_page_path(conn, :edit, dataset.id)}], ["Backoffice"]},
+               {"a",
+                [{"href", page_path(conn, :espace_producteur, utm_campaign: "dataset_details")}, {"target", "_blank"}],
+                ["Espace producteur"]}
+             ] ==
+               conn
+               |> init_test_session(%{
+                 current_user: %{"id" => datagouv_user_id, "is_admin" => true},
+                 force_display_reuser_space: true
+               })
+               |> dataset_header_links(dataset)
+    end
+  end
+
   test "dataset_heart_values" do
     organization = insert(:organization)
 
@@ -571,7 +671,6 @@ defmodule TransportWeb.DatasetControllerTest do
 
       assert [] ==
                conn
-               |> init_test_session(%{current_user: %{"is_admin" => false}})
                |> get(dataset_path(conn, :details, dataset.slug))
                |> html_response(200)
                |> Floki.parse_document!()
@@ -659,5 +758,13 @@ defmodule TransportWeb.DatasetControllerTest do
 
   defp dataset_titles(document) do
     document |> Floki.find(".dataset__title > a") |> Enum.map(&(&1 |> Floki.text() |> String.trim()))
+  end
+
+  defp dataset_header_links(%Plug.Conn{} = conn, %DB.Dataset{} = dataset) do
+    conn
+    |> get(dataset_path(conn, :details, dataset.slug))
+    |> html_response(200)
+    |> Floki.parse_document!()
+    |> Floki.find(~s|div[data-section="dataset-header-links"] a|)
   end
 end

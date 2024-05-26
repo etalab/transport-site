@@ -691,7 +691,7 @@ msgid "Dataset added to your favorites! Personalise your settings from your <a h
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "<a href=\"%{url}\">Log in or sign up</a> to benefit from dataset services."
+msgid "<a href=\"%{url}\" target=\"_blank\">Log in or sign up</a> to benefit from dataset services."
 msgstr ""
 
 #, elixir-autogen, elixir-format
