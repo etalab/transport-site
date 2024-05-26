@@ -38,7 +38,7 @@ defmodule Transport.NeTEx.StopPlacesStreamingParser do
   end
 
   def handle_event(:end_element, "StopPlace" = node, state) do
-    if state[:callback], do: state[:callback].(state.current_stop_place)
+    state = if state[:callback], do: state[:callback].(state), else: state
     {:ok, %{state | current_stop_place: nil, capture: false, current_tree: []}}
   end
 
@@ -63,13 +63,18 @@ defmodule Transport.NeTEx.StopPlacesStreamingParser do
   def handle_event(_, _, state), do: {:ok, state}
 end
 
-unzip
-|> Unzip.file_stream!("Arrets.xml")
-|> Stream.map(&IO.iodata_to_binary(&1))
-|> Saxy.parse_stream(Transport.NeTEx.StopPlacesStreamingParser, %{
-  capture: false,
-  current_tree: [],
-  callback: fn x -> IO.inspect(x, IEx.inspect_opts()) end
-})
+{:ok, state} =
+  unzip
+  |> Unzip.file_stream!("Arrets.xml")
+  |> Stream.map(&IO.iodata_to_binary(&1))
+  |> Saxy.parse_stream(Transport.NeTEx.StopPlacesStreamingParser, %{
+    capture: false,
+    current_tree: [],
+    stops: [],
+    callback: fn state ->
+      #    IO.inspect(state.current_stop_place, IEx.inspect_opts())
+      state |> update_in([:stops], &(&1 ++ [state.current_stop_place]))
+    end
+  })
 
-IO.puts("ok")
+IO.inspect(state.stops, IEx.inspect_opts())
