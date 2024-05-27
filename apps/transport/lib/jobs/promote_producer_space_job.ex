@@ -24,10 +24,7 @@ defmodule Transport.Jobs.PromoteProducerSpaceJob do
     unless Enum.empty?(datasets) do
       create_producer_subscriptions(contact, datasets)
 
-      {:ok, _} =
-        contact.email
-        |> Transport.PromoteProducerSpaceNotifier.promote_producer_space()
-        |> Transport.Mailer.deliver()
+      {:ok, _} = Transport.UserNotifier.promote_producer_space(contact.email) |> Transport.Mailer.deliver()
     end
 
     :ok
@@ -47,23 +44,5 @@ defmodule Transport.Jobs.PromoteProducerSpaceJob do
         dataset_id: dataset_id
       })
     end
-  end
-end
-
-defmodule Transport.PromoteProducerSpaceNotifier do
-  @moduledoc """
-  Module in charge of building the email.
-  """
-  use Phoenix.Swoosh, view: TransportWeb.EmailView
-
-  def promote_producer_space(email) do
-    contact_email = Application.fetch_env!(:transport, :contact_email)
-
-    new()
-    |> from({"transport.data.gouv.fr", contact_email})
-    |> to(email)
-    |> reply_to(contact_email)
-    |> subject("Bienvenue ! Découvrez votre Espace producteur")
-    |> render_body("promote_producer_space.html", %{contact_email_address: contact_email})
   end
 end
