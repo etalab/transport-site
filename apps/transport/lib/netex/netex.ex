@@ -8,6 +8,10 @@ defmodule Transport.NeTEx do
   are stacked in a list (all in memory at once).
   """
   def read_stop_places(%Unzip{} = unzip, file_name) do
+    unless (ext = Path.extname(file_name)) == ".xml" do
+      raise "Insupported file extension (#{ext}) for file #{file_name}"
+    end
+
     {:ok, state} =
       unzip
       |> Unzip.file_stream!(file_name)
