@@ -50,6 +50,8 @@ defmodule DB.Resource do
     field(:type, :string)
     field(:display_position, :integer)
 
+    field(:search_points, Geo.PostGIS.Geometry)
+
     belongs_to(:dataset, Dataset)
 
     has_many(:validations, DB.MultiValidation)
@@ -112,7 +114,8 @@ defmodule DB.Resource do
         :filesize,
         :filetype,
         :type,
-        :display_position
+        :display_position,
+        :search_points
       ]
     )
     |> validate_required([:url, :datagouv_id])
