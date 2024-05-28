@@ -8,24 +8,36 @@ defmodule Transport.NeTEx do
   are stacked in a list (all in memory at once).
   """
   def read_stop_places(%Unzip{} = unzip, file_name) do
-    unless (ext = Path.extname(file_name)) == ".xml" do
-      raise "Insupported file extension (#{ext}) for file #{file_name}"
+    extension = Path.extname(file_name)
+
+    cond do
+      # Entry names ending with a slash `/` are directories. Skip them.
+      # https://github.com/akash-akya/unzip/blob/689a1ca7a134ab2aeb79c8c4f8492d61fa3e09a0/lib/unzip.ex#L69
+      String.ends_with?(file_name, "/") ->
+        []
+
+      extension |> String.downcase() == ".zip" ->
+        raise "Insupported zip inside zip for file #{file_name}"
+
+      extension |> String.downcase() != ".xml" ->
+        raise "Insupported file extension (#{extension}) for file #{file_name}"
+
+      true ->
+        {:ok, state} =
+          unzip
+          |> Unzip.file_stream!(file_name)
+          |> Stream.map(&IO.iodata_to_binary(&1))
+          |> Saxy.parse_stream(Transport.NeTEx.StopPlacesStreamingParser, %{
+            capture: false,
+            current_tree: [],
+            stop_places: [],
+            callback: fn state ->
+              state |> update_in([:stop_places], &(&1 ++ [state.current_stop_place]))
+            end
+          })
+
+        state.stop_places
     end
-
-    {:ok, state} =
-      unzip
-      |> Unzip.file_stream!(file_name)
-      |> Stream.map(&IO.iodata_to_binary(&1))
-      |> Saxy.parse_stream(Transport.NeTEx.StopPlacesStreamingParser, %{
-        capture: false,
-        current_tree: [],
-        stop_places: [],
-        callback: fn state ->
-          state |> update_in([:stop_places], &(&1 ++ [state.current_stop_place]))
-        end
-      })
-
-    state.stop_places
   end
 
   @doc """
