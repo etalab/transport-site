@@ -69,14 +69,37 @@ netex =
       |> Map.put("local_path", file)
     end,
     max_concurrency: 10,
-    timeout: 50_000
+    timeout: 120_000
   )
   |> Stream.map(fn {:ok, result} -> result end)
-  |> Stream.take(1)
-  |> Stream.map(fn r ->
-    metadata =
-      r["local_path"]
-      |> Transport.ZipMetaDataExtractor.extract!()
-      |> IO.inspect(IEx.inspect_opts())
-  end)
+  |> Stream.reject(&is_nil(&1))
+  |> Task.async_stream(
+    fn r ->
+      IO.puts("Processing file #{r["id"]}")
+
+      try do
+        resource = DB.Repo.get_by!(DB.Resource, id: r["id"])
+
+        # temporary caching
+        unless resource.search_points do
+          coordinates =
+            Transport.NeTEx.read_all_stop_places(r["local_path"])
+            |> Enum.flat_map(fn {_file, stops} -> stops end)
+            # some stop places have no latitude in NeTEx
+            |> Enum.reject(fn p -> is_nil(p[:latitude]) end)
+            |> Enum.map(fn %{latitude: lat, longitude: lon} -> {lon, lat} end)
+
+          search_points = %Geo.MultiPoint{coordinates: coordinates, srid: 4326}
+
+          DB.Repo.get_by!(DB.Resource, id: r["id"])
+          |> DB.Resource.changeset(%{search_points: search_points})
+          |> DB.Repo.update!()
+        end
+      rescue
+        e -> IO.puts("Som'thing bad happened")
+      end
+    end,
+    max_concurrency: 5,
+    timeout: 60_000 * 5
+  )
   |> Stream.run()
