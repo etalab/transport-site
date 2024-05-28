@@ -51,7 +51,7 @@ defmodule Transport.NeTEx do
       unzip
       |> Unzip.list_entries()
       |> Enum.map(fn metadata ->
-        Logger.info("Processing #{metadata.file_name}")
+        Logger.debug("Processing #{metadata.file_name}")
 
         {
           metadata.file_name,
