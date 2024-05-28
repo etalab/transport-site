@@ -46,11 +46,10 @@ defmodule Transport.NeTEx do
   A higher level method, recommended for general use. Given a NeTEx zip archive stored
   on disk,
   """
-  def read_all_stop_places(zip_file_name, zip_metadata \\ nil) do
-    zip_metadata = zip_metadata || zip_file_name |> Transport.ZipMetaDataExtractor.extract!()
-
+  def read_all_stop_places(zip_file_name) do
     with_zip_file_handle(zip_file_name, fn unzip ->
-      zip_metadata
+      unzip
+      |> Unzip.list_entries()
       |> Enum.map(fn metadata ->
         Logger.info("Processing #{metadata.file_name}")
 
