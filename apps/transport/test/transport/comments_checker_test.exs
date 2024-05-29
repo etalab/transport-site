@@ -5,6 +5,7 @@ defmodule Transport.CommentsCheckerTest do
   import DB.Factory
   import Mock
   import Mox
+  import Swoosh.TestAssertions
   setup :verify_on_exit!
 
   setup do
@@ -65,25 +66,24 @@ defmodule Transport.CommentsCheckerTest do
     end
 
     with_mock Datagouvfr.Client.API, get: get_mock do
-      Transport.EmailSender.Mock
-      |> expect(:send_mail, 1, fn _, _, _, _, _, _, _ -> {:ok, "envoyé !"} end)
-
       number_new_comments = CommentsChecker.check_for_new_comments()
 
+      assert_email_sent(
+        subject: "1 nouveaux commentaires sur transport.data.gouv.fr",
+        to: [email]
+      )
+
       assert number_new_comments == 1
-      verify!(Transport.EmailSender.Mock)
       assert_dataset_ts(dataset_id, ~U[2020-01-01T12:00:00.000100Z])
     end
 
     # second run: we shouldn't find new comment
     with_mock Datagouvfr.Client.API, get: get_mock do
-      Transport.EmailSender.Mock
-      |> expect(:send_mail, 0, fn _, _, _, _, _, _, _ -> {:ok, "envoyé !"} end)
-
       number_new_comments = CommentsChecker.check_for_new_comments()
 
+      assert_no_email_sent()
+
       assert number_new_comments == 0
-      verify!(Transport.EmailSender.Mock)
       assert_dataset_ts(dataset_id, ~U[2020-01-01T12:00:00.000100Z])
     end
 
@@ -104,13 +104,14 @@ defmodule Transport.CommentsCheckerTest do
     end
 
     with_mock Datagouvfr.Client.API, get: get_mock do
-      Transport.EmailSender.Mock
-      |> expect(:send_mail, 1, fn _, _, _, _, _, _, _ -> {:ok, "envoyé !"} end)
-
       number_new_comments = CommentsChecker.check_for_new_comments()
 
+      assert_email_sent(
+        subject: "1 nouveaux commentaires sur transport.data.gouv.fr",
+        to: [email]
+      )
+
       assert number_new_comments == 1
-      verify!(Transport.EmailSender.Mock)
       assert_dataset_ts(dataset_id, ~U[2021-01-01T12:00:00.000200Z])
     end
 
