@@ -156,6 +156,13 @@ defmodule Transport.UserNotifier do
     )
   end
 
+  def expiration_reuser(email, html) do
+    email
+    |> common_email_options()
+    |> subject("Suivi des jeux de données favoris arrivant à expiration")
+    |> render_body("expiration_reuser.html", %{expiration_content: html})
+  end
+
   def promote_producer_space(email) do
     contact_email = Application.fetch_env!(:transport, :contact_email)
 
