@@ -166,7 +166,7 @@ defmodule Transport.StatsHandlerTest do
   test "counts the number of IRVE lines in GeoData" do
     %{id: dataset_id} = insert_irve_dataset()
 
-    assert 0 == count_irve_geo_data_lines()
+    assert 0 == count_geo_data_lines(:irve)
     # Insert a GeoDataImport imported from the IRVE dataset and associated GeoData lines
     # TODO : reactore from geo_query_controller_test.exs
 
@@ -198,7 +198,7 @@ defmodule Transport.StatsHandlerTest do
       }
     })
 
-    assert 2 == count_irve_geo_data_lines()
+    assert 2 == count_geo_data_lines(:irve)
   end
 
   defp insert_irve_dataset do

@@ -88,7 +88,7 @@ defmodule Transport.StatsHandler do
       climate_resilience_bill_count: count_datasets_climate_resilience_bill(),
       nb_siri: count_dataset_with_format("SIRI"),
       nb_siri_lite: count_dataset_with_format("SIRI Lite"),
-      count_irve_geo_data_lines: count_irve_geo_data_lines()
+      count_irve_geo_data_lines: count_geo_data_lines(:irve)
     }
   end
 
@@ -239,9 +239,10 @@ defmodule Transport.StatsHandler do
     sum / nb_aom_with_data
   end
 
-  def count_irve_geo_data_lines() do
-    case Transport.Jobs.IRVEToGeoData.relevant_dataset() do
+  def count_geo_data_lines(feature) do
+    case relevant_dataset(feature) do
       nil ->
+        # Either the dataset of the feature is not (yet) in database – or the feature doesn’t exist
         0
 
       dataset ->
@@ -250,4 +251,7 @@ defmodule Transport.StatsHandler do
         |> DB.GeoData.count_lines_for_geo_data_import()
     end
   end
+
+  defp relevant_dataset(:irve), do: Transport.Jobs.IRVEToGeoData.relevant_dataset()
+  defp relevant_dataset(_), do: nil
 end
