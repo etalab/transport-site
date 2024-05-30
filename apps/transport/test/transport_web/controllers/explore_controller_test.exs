@@ -4,25 +4,10 @@ defmodule TransportWeb.ExploreControllerTest do
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-
-    pan_org = Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
-
-    insert(:dataset, %{type: "carpooling-areas", organization: pan_org})
-
-    insert(:dataset, %{type: "private-parking", custom_title: "Base nationale des parcs relais", organization: pan_org})
-
-    insert(:dataset, %{
-      type: "low-emission-zones",
-      custom_title: "Base Nationale des Zones à Faibles Émissions (BNZFE)",
-      organization: pan_org
-    })
-
-    insert(:dataset, %{
-      type: "charging-stations",
-      custom_title: "Infrastructures de Recharge pour Véhicules Électriques - IRVE",
-      organization: "data.gouv.fr",
-      organization_id: "646b7187b50b2a93b1ae3d45"
-    })
+    insert_bnlc_dataset()
+    insert_parcs_relais_dataset()
+    insert_zfe_dataset()
+    insert_irve_dataset()
 
     :ok
   end
