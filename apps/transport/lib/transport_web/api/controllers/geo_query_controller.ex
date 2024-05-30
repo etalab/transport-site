@@ -36,7 +36,7 @@ defmodule TransportWeb.API.GeoQueryController do
         transform_fn: &zfe_geojson/1
       },
       "irve" => %{
-        dataset: Transport.Jobs.IRVEToGeoData.relevant_dataset(),
+        dataset: DB.GeoDataDataset.irve_dataset(),
         transform_fn: &irve_geojson/1
       }
     }

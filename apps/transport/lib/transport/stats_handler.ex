@@ -252,6 +252,6 @@ defmodule Transport.StatsHandler do
     end
   end
 
-  defp relevant_dataset(:irve), do: Transport.Jobs.IRVEToGeoData.relevant_dataset()
+  defp relevant_dataset(:irve), do: DB.GeoDataDataset.irve_dataset()
   defp relevant_dataset(_), do: nil
 end

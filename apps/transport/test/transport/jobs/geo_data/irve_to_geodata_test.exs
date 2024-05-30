@@ -39,7 +39,7 @@ defmodule Transport.Jobs.IRVEToGeoDataTest do
 
   test "Finds the relevant dataset" do
     %DB.Dataset{id: dataset_id} = insert_irve_dataset()
-    assert %DB.Dataset{id: ^dataset_id} = IRVEToGeoData.relevant_dataset()
+    assert %DB.Dataset{id: ^dataset_id} = DB.GeoDataDataset.irve_dataset()
   end
 
   test "IRVE data update logic" do
