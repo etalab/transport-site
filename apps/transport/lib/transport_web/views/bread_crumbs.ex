@@ -54,6 +54,10 @@ defmodule TransportWeb.BreadCrumbs do
       ]
   end
 
+  def crumbs(conn, :datasets_edit, dataset_custom_title) do
+    crumbs(conn, :reuser_space) ++ [{dataset_custom_title, nil}]
+  end
+
   def crumbs(conn, :select_resource, id) do
     crumbs(conn, :espace_producteur) ++
       [
