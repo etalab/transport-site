@@ -24,7 +24,7 @@ $tooltip-width: 150px !default;
   z-index: 1;
   bottom: 125%;
   left: 50%;
-  margin-left: -($tooltip-width / 2);
+  margin-left: -(calc($tooltip-width / 2));
 
   /* Fade in tooltip */
   opacity: 0;
