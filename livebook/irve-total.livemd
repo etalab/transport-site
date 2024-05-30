@@ -58,14 +58,14 @@ snapshots =
 ```
 
 ```elixir
-path = Path.join(__ENV__.file, "../../scripts/irve/req_custom_cache.exs") |> Path.expand()
+path = Path.join(__ENV__.file, "../../apps/shared/lib/req_custom_cache.ex") |> Path.expand()
 Code.require_file(path)
 
 defmodule Query do
   def cache_dir, do: Path.join(__ENV__.file, "../cache-dir") |> Path.expand()
 
   def cached_get!(url) do
-    req = Req.new() |> CustomCache.attach()
+    req = Req.new() |> Transport.Shared.ReqCustomCache.attach()
     Req.get!(req, url: url, receive_timeout: 100_000, custom_cache_dir: cache_dir())
   end
 end
