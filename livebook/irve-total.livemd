@@ -28,7 +28,7 @@ opts = [
 {:ok, conn} = Kino.start_child({Postgrex, opts})
 ```
 
-<!-- livebook:{"attrs":{"cache_query":true,"connection":{"type":"postgres","variable":"conn"},"data_frame_alias":"Elixir.Explorer.DataFrame","query":"select id, payload ->> 'permanent_url' as url, inserted_at \nfrom resource_history rh\nwhere rh.resource_id = 79624\norder by inserted_at asc","result_variable":"result","timeout":null},"chunks":null,"kind":"Elixir.KinoDB.SQLCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":{"cache_query":true,"connection":{"type":"postgres","variable":"conn"},"data_frame_alias":"Elixir.Explorer.DataFrame","query":"select id, payload ->> 'permanent_url' as url, inserted_at \nfrom resource_history rh\nwhere rh.resource_id = 81623\norder by inserted_at asc","result_variable":"result","timeout":null},"chunks":null,"kind":"Elixir.KinoDB.SQLCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 result =
@@ -37,7 +37,7 @@ result =
     """
     select id, payload ->> 'permanent_url' as url, inserted_at 
     from resource_history rh
-    where rh.resource_id = 79624
+    where rh.resource_id = 81623
     order by inserted_at asc
     """,
     []
