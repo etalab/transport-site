@@ -41,6 +41,7 @@ defmodule TransportWeb.ReuserSpaceController do
            conn,
          _options
        ) do
+    # This query makes sure that the dataset is in the user's favorites
     DB.Contact.base_query()
     |> join(:inner, [contact: c], d in assoc(c, :followed_datasets), as: :dataset)
     |> where([contact: c], c.datagouv_user_id == ^datagouv_user_id)
