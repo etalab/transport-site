@@ -152,7 +152,6 @@ defmodule TransportWeb.API.GeoQueryControllerTest do
     insert_zfe_dataset()
     insert_bnlc_dataset()
     %{id: dataset_id} = insert_irve_dataset()
-
     insert_imported_irve_geo_data(dataset_id)
 
     assert_expected_geojson(conn,
