@@ -47,7 +47,7 @@ while true; do
       break
       ;;
 
-    --*)
+    --* | -*)
       echo "Unrecognized option \"$1\""
       usage
       ;;
