@@ -47,11 +47,7 @@ defmodule Transport.Jobs.BNLCToGeoDataTest do
     assert [] = DB.GeoDataImport |> DB.Repo.all()
 
     # insert bnlc dataset
-    %DB.Dataset{id: dataset_id} =
-      insert(:dataset, %{
-        type: "carpooling-areas",
-        organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
-      })
+    %DB.Dataset{id: dataset_id} = insert_bnlc_dataset()
 
     # insert bnlc resources
     insert(:resource, %{dataset_id: dataset_id, is_community_resource: true})
