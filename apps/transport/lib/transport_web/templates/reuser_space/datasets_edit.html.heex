@@ -12,7 +12,7 @@
             Here we will have soon a few words highlighting how dangerous this action is. We also offer a complimentary escape option.
           </p>
           <%= form_for %{}, reuser_space_path(@conn, :unfavorite, @dataset.id), [class: "no-margin", method: "post"], fn _ -> %>
-            <div class="form__group">
+            <div class="form__group button__group">
               <button
                 class="button warning"
                 type="submit"
@@ -23,11 +23,11 @@
               </button>
               <a
                 href="#"
-                class="no-bg"
+                class="button secondary"
                 data-tracking-category="reuser_space"
                 data-tracking-action="abort_unfavorite_dataset"
               >
-                <button class="button secondary" type="button"><%= dgettext("reuser-space", "Cancel") %></button>
+                <%= dgettext("reuser-space", "Cancel") %>
               </a>
             </div>
           <% end %>
