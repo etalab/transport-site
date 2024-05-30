@@ -50,4 +50,10 @@ defmodule TransportWeb.EmailView do
 
     link("Espace réutilisateur", to: url)
   end
+
+  def link_for_login do
+    url = page_url(TransportWeb.Endpoint, :login, redirect_path: "/")
+
+    link("vous reconnecter", to: url)
+  end
 end

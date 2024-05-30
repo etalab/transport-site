@@ -65,7 +65,8 @@ defmodule TransportWeb.PageControllerTest do
   describe "GET /espace_producteur" do
     test "requires authentication", %{conn: conn} do
       conn = conn |> get(page_path(conn, :espace_producteur))
-      assert redirected_to(conn, 302) =~ "/login"
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Vous devez être préalablement connecté"
+      assert redirected_to(conn, 302) == page_path(conn, :infos_producteurs)
     end
 
     test "renders successfully and finds datasets using organization IDs", %{conn: conn} do
@@ -180,17 +181,34 @@ defmodule TransportWeb.PageControllerTest do
     end
   end
 
-  test "GET /producteurs for non-authenticated users", %{conn: conn} do
-    conn = conn |> get(page_path(conn, :infos_producteurs))
-    body = html_response(conn, 200)
-    assert body =~ "transport.data.gouv.fr vous aide à publier vos données"
+  describe "infos_producteurs" do
+    test "for logged-out users", %{conn: conn} do
+      conn = conn |> get(page_path(conn, :infos_producteurs))
+      body = html_response(conn, 200)
+      assert body =~ "transport.data.gouv.fr vous aide à publier vos données"
 
-    {:ok, doc} = Floki.parse_document(body)
-    [item] = doc |> Floki.find(".panel-producteurs a.button")
+      {:ok, doc} = Floki.parse_document(body)
+      [item] = doc |> Floki.find(".panel-producteurs a.button")
 
-    # behavior expected for non-authenticated users
-    assert Floki.attribute(item, "href") == ["/login/explanation?redirect_path=%2Finfos_producteurs"]
-    assert item |> Floki.text() =~ "Identifiez-vous"
+      assert Floki.attribute(item, "href") == ["/login/explanation?redirect_path=%2Fespace_producteur"]
+      assert item |> Floki.text() =~ "Identifiez-vous"
+    end
+
+    test "for logged-in users", %{conn: conn} do
+      conn =
+        conn
+        |> init_test_session(current_user: %{"is_producer" => true})
+        |> get(page_path(conn, :infos_producteurs))
+
+      body = html_response(conn, 200)
+      assert body =~ "transport.data.gouv.fr vous aide à publier vos données"
+
+      {:ok, doc} = Floki.parse_document(body)
+      [item] = doc |> Floki.find(".panel-producteurs a.button")
+
+      assert Floki.attribute(item, "href") == ["/espace_producteur?utm_campaign=producer_infos_page"]
+      assert item |> Floki.text() =~ "Accédez à votre espace producteur"
+    end
   end
 
   describe "infos_reutilisateurs" do
@@ -202,7 +220,7 @@ defmodule TransportWeb.PageControllerTest do
       {:ok, doc} = Floki.parse_document(body)
       [item] = doc |> Floki.find(".panel-producteurs a.button")
 
-      assert Floki.attribute(item, "href") == ["/login/explanation?redirect_path=%2Finfos_reutilisateurs"]
+      assert Floki.attribute(item, "href") == ["/login/explanation?redirect_path=%2Fespace_reutilisateur"]
       assert item |> Floki.text() =~ "Identifiez-vous"
     end
 
@@ -218,7 +236,7 @@ defmodule TransportWeb.PageControllerTest do
       {:ok, doc} = Floki.parse_document(body)
       [item] = doc |> Floki.find(".panel-producteurs a.button")
 
-      assert Floki.attribute(item, "href") == ["/espace_reutilisateur?utm_source=reuser_infos_page"]
+      assert Floki.attribute(item, "href") == ["/espace_reutilisateur?utm_campaign=reuser_infos_page"]
       assert item |> Floki.text() =~ "Accédez à votre espace réutilisateur"
     end
   end
@@ -291,7 +309,7 @@ defmodule TransportWeb.PageControllerTest do
   end
 
   test "menu has a link to producer space when the user is a producer", %{conn: conn} do
-    espace_producteur_path = page_path(conn, :espace_producteur, utm_source: "menu_dropdown")
+    espace_producteur_path = page_path(conn, :espace_producteur, utm_campaign: "menu_dropdown")
 
     has_menu_item? = fn %Plug.Conn{} = conn ->
       conn

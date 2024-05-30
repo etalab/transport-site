@@ -11,41 +11,62 @@ defmodule TransportWeb.Live.FollowDatasetLive do
   """
   use Phoenix.LiveView
   import Ecto.Query
-  import TransportWeb.Gettext, only: [dgettext: 3]
+  import TransportWeb.Gettext, only: [dgettext: 2, dgettext: 3]
   import TransportWeb.Router.Helpers
 
   @impl true
   def render(assigns) do
     ~H"""
+    <% reuser_space_path = reuser_space_path(@socket, :espace_reutilisateur, utm_campaign: "follow_dataset_heart")
+    producer_space_path = page_path(@socket, :espace_producteur, utm_campaign: "follow_dataset_heart") %>
     <div :if={is_nil(@current_user)} class="follow-dataset-icon">
       <i class={@heart_class} phx-click="nudge_signup"></i>
       <p :if={@display_banner?} class="notification active">
         <%= Phoenix.HTML.raw(
           dgettext(
             "page-dataset-details",
-            ~s|<a href="%{url}">Log in or sign up</a> to benefit from dataset services.|,
-            url: page_path(@socket, :login, redirect_path: dataset_path(@socket, :details, @dataset.slug))
+            ~s|<a href="%{url}" target="_blank">Log in or sign up</a> to benefit from dataset services.|,
+            url: page_path(@socket, :infos_reutilisateurs)
           )
         ) %>
       </p>
     </div>
     <div :if={not is_nil(@current_user) and not @producer?} class="follow-dataset-icon">
-      <i class={@heart_class} phx-click="toggle"></i>
+      <div :if={not @follows_dataset?} class="tooltip">
+        <i class={@heart_class} phx-click="follow"></i>
+        <span class="tooltiptext left"><%= dgettext("page-dataset-details", "Follow this dataset") %></span>
+      </div>
+      <div :if={@follows_dataset?} class="tooltip">
+        <a href={reuser_space_path} target="_blank">
+          <i class={@heart_class}></i>
+        </a>
+        <span class="tooltiptext left"><%= dgettext("page-dataset-details", "Manage services for this dataset") %></span>
+      </div>
       <p :if={@display_banner?} class="notification active">
         <%= Phoenix.HTML.raw(
           dgettext(
             "page-dataset-details",
             ~s|Dataset added to your favorites! Personalise your settings from your <a href="%{url}" target="_blank">reuser space</a>.|,
-            url: reuser_space_path(@socket, :espace_reutilisateur)
+            url: reuser_space_path
           )
         ) %>
       </p>
+    </div>
+    <div :if={@producer?} class="follow-dataset-icon">
+      <div class="tooltip">
+        <a href={producer_space_path} target="_blank">
+          <i class={@heart_class}></i>
+        </a>
+        <span class="tooltiptext left"><%= dgettext("page-dataset-details", "Manage your dataset") %></span>
+      </div>
     </div>
     """
   end
 
   @impl true
-  def mount(_params, %{"current_user" => current_user, "dataset_id" => dataset_id}, socket) do
+  def mount(_params, %{"current_user" => current_user, "dataset_id" => dataset_id, "locale" => locale}, socket) do
+    Gettext.put_locale(locale)
+
     socket =
       socket
       |> assign(%{
@@ -61,11 +82,12 @@ defmodule TransportWeb.Live.FollowDatasetLive do
 
   defp set_computed_assigns(%Phoenix.LiveView.Socket{assigns: %{dataset: dataset, contact: contact}} = socket) do
     follows_dataset? = DB.DatasetFollower.follows_dataset?(contact, dataset)
+    producer? = producer?(contact, dataset)
 
     assign(socket, %{
       follows_dataset?: follows_dataset?,
-      producer?: producer?(contact, dataset),
-      heart_class: heart_class(follows_dataset?: follows_dataset?)
+      producer?: producer?,
+      heart_class: heart_class(producer?: producer?, follows_dataset?: follows_dataset?)
     })
   end
 
@@ -76,28 +98,18 @@ defmodule TransportWeb.Live.FollowDatasetLive do
 
   @impl true
   def handle_event(
-        "toggle",
+        "follow",
         _,
-        %Phoenix.LiveView.Socket{
-          assigns: %{
-            dataset: %DB.Dataset{} = dataset,
-            contact: %DB.Contact{} = contact,
-            follows_dataset?: follows_dataset?
-          }
-        } = socket
+        %Phoenix.LiveView.Socket{assigns: %{dataset: %DB.Dataset{} = dataset, contact: %DB.Contact{} = contact}} =
+          socket
       ) do
-    if follows_dataset? do
-      DB.DatasetFollower.unfollow!(contact, dataset)
-      delete_notification_subscriptions(contact, dataset)
-    else
-      maybe_promote_reuser_space(contact)
-      DB.DatasetFollower.follow!(contact, dataset, source: :follow_button)
-      create_notification_subscriptions(contact, dataset)
-      # Hide banner after 10s
-      Process.send_after(self(), :hide_banner, 10_000)
-    end
+    maybe_promote_reuser_space(contact)
+    DB.DatasetFollower.follow!(contact, dataset, source: :follow_button)
+    create_notification_subscriptions(contact, dataset)
+    # Hide banner after 10s
+    Process.send_after(self(), :hide_banner, 10_000)
 
-    {:noreply, socket |> assign(:display_banner?, not follows_dataset?) |> set_computed_assigns()}
+    {:noreply, socket |> assign(:display_banner?, true) |> set_computed_assigns()}
   end
 
   @impl true
@@ -161,12 +173,6 @@ defmodule TransportWeb.Live.FollowDatasetLive do
     end
   end
 
-  defp delete_notification_subscriptions(%DB.Contact{id: contact_id}, %DB.Dataset{id: dataset_id}) do
-    DB.NotificationSubscription.base_query()
-    |> where([notification_subscription: ns], ns.contact_id == ^contact_id and ns.dataset_id == ^dataset_id)
-    |> DB.Repo.delete_all()
-  end
-
   # Case where the user is not authenticated
   defp contact(nil = _current_user), do: nil
 
@@ -183,6 +189,15 @@ defmodule TransportWeb.Live.FollowDatasetLive do
     |> DB.Repo.exists?()
   end
 
-  defp heart_class(follows_dataset?: false), do: "fa fa-heart fa-2x icon---animated-heart"
-  defp heart_class(follows_dataset?: true), do: heart_class(follows_dataset?: false) <> " active"
+  defp heart_class(options) do
+    if Keyword.get(options, :producer?) do
+      "fa fa-heart fa-2x producer"
+    else
+      if Keyword.get(options, :follows_dataset?) do
+        heart_class(follows_dataset?: false) <> " active"
+      else
+        "fa fa-heart fa-2x icon---animated-heart"
+      end
+    end
+  end
 end

@@ -3,6 +3,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
   @moduletag :capture_log
   use Oban.Testing, repo: DB.Repo
   import Mox
+  import Swoosh.TestAssertions
   alias Transport.Jobs.ConsolidateBNLCJob
 
   @target_schema "etalab/schema-lieux-covoiturage"
@@ -328,8 +329,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
     Transport.HTTPoison.Mock
     |> expect(:get, fn ^url, [], [follow_redirect: true] ->
+      # A CSV with BOM (byte order mark)
       body = """
-      foo,bar,baz,insee,id_local
+      \uFEFFfoo,bar,baz,insee,id_local
       1,2,3,21231,1
       4,5,6,21231,2
       """
@@ -533,8 +535,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
       Transport.HTTPoison.Mock
       |> expect(:get, fn ^bar_url, [], [follow_redirect: true] ->
+        # A CSV with BOM (byte order mark)
         body = """
-        foo,bar,baz,insee,id_local,extra_col,id_lieu
+        \uFEFFfoo,bar,baz,insee,id_local,extra_col,id_lieu
         1,2,3,21231,3,is_ignored,is_generated_again
         """
 
@@ -558,10 +561,10 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       )
 
       expect_s3_stream_upload()
-      expect_ok_email_sent()
 
       assert :ok == perform_job(ConsolidateBNLCJob, %{})
 
+      assert_ok_email_sent()
       expect_job_scheduled_to_remove_file()
 
       # CSV content is fine
@@ -724,25 +727,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
       expect_s3_stream_upload()
 
-      Transport.EmailSender.Mock
-      |> expect(:send_mail, fn "transport.data.gouv.fr" = _display_name,
-                               "contact@transport.data.gouv.fr" = _from,
-                               "deploiement@transport.data.gouv.fr" = _to,
-                               "contact@transport.data.gouv.fr" = _reply_to,
-                               "[ERREUR] Rapport de consolidation de la BNLC" = _subject,
-                               "",
-                               html_part ->
-        assert html_part =~
-                 ~s{<h2>Ressources non valides par rapport au schéma etalab/schema-lieux-covoiturage</h2>\nRessource `Bar CSV` (<a href="https://data.gouv.fr/bar">Bar JDD</a>)}
-
-        # Make sure a link is there
-        assert html_part =~
-                 ~r{🔗 <a href="https://transport-data-gouv-fr-on-demand-validation-test.cellar-c2.services.clever-cloud.com/bnlc-.*\.csv">Fichier consolidé</a>}
-
-        :ok
-      end)
-
       assert :ok == perform_job(ConsolidateBNLCJob, %{})
+
+      assert_ko_email_sent()
 
       expect_job_scheduled_to_remove_file()
 
@@ -791,10 +778,11 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     )
 
     expect_s3_stream_upload()
-    expect_ok_email_sent()
     expect_datagouv_upload_file_http_call()
 
     assert :ok == perform_job(ConsolidateBNLCJob, %{"action" => "datagouv_update"})
+
+    assert_ok_email_sent()
 
     expect_job_scheduled_to_remove_file()
 
@@ -870,22 +858,32 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     assert filename =~ ~r"^bnlc-.*\.csv$"
   end
 
-  defp expect_ok_email_sent do
-    Transport.EmailSender.Mock
-    |> expect(:send_mail, fn "transport.data.gouv.fr" = _display_name,
-                             "contact@transport.data.gouv.fr" = _from,
-                             "deploiement@transport.data.gouv.fr" = _to,
-                             "contact@transport.data.gouv.fr" = _reply_to,
-                             "[OK] Rapport de consolidation de la BNLC" = _subject,
-                             "",
-                             html_part ->
-      assert html_part =~ ~r"^✅ La consolidation s'est déroulée sans erreurs"
+  defp assert_ok_email_sent do
+    assert_email_sent(fn %Swoosh.Email{
+                           from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                           to: [{"", "deploiement@transport.data.gouv.fr"}],
+                           subject: "[OK] Rapport de consolidation de la BNLC",
+                           html_body: html_body
+                         } ->
+      assert html_body =~ ~r"^✅ La consolidation s'est déroulée sans erreurs"
 
-      # Make sure a link is there
-      assert html_part =~
+      assert html_body =~
                ~r{🔗 <a href="https://transport-data-gouv-fr-on-demand-validation-test.cellar-c2.services.clever-cloud.com/bnlc-.*\.csv">Fichier consolidé</a>}
+    end)
+  end
 
-      :ok
+  defp assert_ko_email_sent do
+    assert_email_sent(fn %Swoosh.Email{
+                           from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                           to: [{"", "deploiement@transport.data.gouv.fr"}],
+                           subject: "[ERREUR] Rapport de consolidation de la BNLC",
+                           html_body: html_body
+                         } ->
+      assert html_body =~
+               ~s{<h2>Ressources non valides par rapport au schéma etalab/schema-lieux-covoiturage</h2>\nRessource `Bar CSV` (<a href="https://data.gouv.fr/bar">Bar JDD</a>)}
+
+      assert html_body =~
+               ~r{🔗 <a href="https://transport-data-gouv-fr-on-demand-validation-test.cellar-c2.services.clever-cloud.com/bnlc-.*\.csv">Fichier consolidé</a>}
     end)
   end
 end

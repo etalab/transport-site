@@ -130,6 +130,7 @@ oban_prod_crontab = [
   {"15 */3 * * *", Transport.Jobs.ResourceHistoryTableSchemaValidationJob},
   {"5 6 * * 1-5", Transport.Jobs.NewDatagouvDatasetsJob},
   {"0 6 * * *", Transport.Jobs.NewDatasetNotificationsJob},
+  {"30 6 * * *", Transport.Jobs.ExpirationNotificationJob},
   {"0 8 * * 1-5", Transport.Jobs.NewCommentsNotificationJob},
   {"0 21 * * *", Transport.Jobs.DatasetHistoryDispatcherJob},
   # Should be executed after all `DatasetHistoryJob` have been executed
@@ -149,7 +150,8 @@ oban_prod_crontab = [
   {"15 8 * 3,6,11 1", Transport.Jobs.PeriodicReminderProducersNotificationJob},
   {"15 5 * * *", Transport.Jobs.ImportDatasetFollowersJob},
   {"30 5 * * *", Transport.Jobs.ImportDatasetMonthlyMetricsJob},
-  {"45 5 * * *", Transport.Jobs.ImportResourceMonthlyMetricsJob}
+  {"45 5 * * *", Transport.Jobs.ImportResourceMonthlyMetricsJob},
+  {"0 8 * * *", Transport.Jobs.WarnUserInactivityJob}
 ]
 
 # Make sure that all modules exist

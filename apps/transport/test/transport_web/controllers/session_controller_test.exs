@@ -1,4 +1,5 @@
 defmodule TransportWeb.SessionControllerTest do
+  use Oban.Testing, repo: DB.Repo
   use TransportWeb.ConnCase, async: true
   import DB.Factory
   import Mox
@@ -128,6 +129,8 @@ defmodule TransportWeb.SessionControllerTest do
 
       assert contact.email == new_email
       assert_in_delta contact.last_login_at |> DateTime.to_unix(), DateTime.utc_now() |> DateTime.to_unix(), 1
+
+      assert all_enqueued() |> Enum.empty?()
     end
 
     test "when contact exists with a mailing_list_title, don't update (first|last)_name" do
@@ -151,10 +154,12 @@ defmodule TransportWeb.SessionControllerTest do
 
       assert %DB.Contact{first_name: nil, last_name: nil, mailing_list_title: ^mailing_list_title} = contact
       assert_in_delta contact.last_login_at |> DateTime.to_unix(), DateTime.utc_now() |> DateTime.to_unix(), 1
+
+      assert all_enqueued() |> Enum.empty?()
     end
 
     test "can find a contact using its email address and sets the datagouv_user_id" do
-      %DB.Contact{datagouv_user_id: nil} = contact = insert_contact()
+      %DB.Contact{id: contact_id, datagouv_user_id: nil} = contact = insert_contact()
 
       find_or_create_contact(%{
         "id" => datagouv_user_id = Ecto.UUID.generate(),
@@ -171,6 +176,14 @@ defmodule TransportWeb.SessionControllerTest do
                contact
 
       assert_in_delta contact.last_login_at |> DateTime.to_unix(), DateTime.utc_now() |> DateTime.to_unix(), 1
+
+      assert [
+               %Oban.Job{
+                 worker: "Transport.Jobs.PromoteProducerSpaceJob",
+                 args: %{"contact_id" => ^contact_id},
+                 state: "scheduled"
+               }
+             ] = all_enqueued()
     end
 
     test "creates a contact when it doesn't exist" do
@@ -196,6 +209,7 @@ defmodule TransportWeb.SessionControllerTest do
 
       assert [
                %DB.Contact{
+                 id: contact_id,
                  first_name: ^first_name,
                  last_name: ^last_name,
                  datagouv_user_id: ^datagouv_user_id,
@@ -210,6 +224,14 @@ defmodule TransportWeb.SessionControllerTest do
              ] = DB.Organization |> DB.Repo.all()
 
       assert_in_delta last_login_at |> DateTime.to_unix(), DateTime.utc_now() |> DateTime.to_unix(), 1
+
+      assert [
+               %Oban.Job{
+                 worker: "Transport.Jobs.PromoteProducerSpaceJob",
+                 args: %{"contact_id" => ^contact_id},
+                 state: "scheduled"
+               }
+             ] = all_enqueued()
     end
   end
 end

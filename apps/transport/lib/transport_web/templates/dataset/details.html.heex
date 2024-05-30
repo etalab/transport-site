@@ -16,13 +16,14 @@
 </div>
 <div class="dataset-title-div" id="dataset-top">
   <%= dgettext("page-dataset-details", "dataset") %>
-  <h1>
-    <%= @dataset.custom_title %>
-  </h1>
-  <%= if TransportWeb.Session.admin?(@conn) do %>
-    <i class="fa fa-external-link-alt"></i>
-    <%= link("backoffice", to: backoffice_page_path(@conn, :edit, @dataset.id)) %>
-  <% end %>
+  <h1><%= @dataset.custom_title %></h1>
+  <%= render("_header_links.html",
+    conn: @conn,
+    dataset: @dataset,
+    current_user: @current_user,
+    is_producer: @is_producer,
+    follows_dataset: @follows_dataset
+  ) %>
 </div>
 <div class="dataset-page">
   <div class="dataset-menu-container">
@@ -238,7 +239,7 @@
   </div>
   <div class="dataset-metas">
     <div class="panel">
-      <%= if TransportWeb.Session.admin?(@conn) do %>
+      <%= if TransportWeb.Session.display_reuser_space?(@conn) do %>
         <%= live_render(@conn, TransportWeb.Live.FollowDatasetLive,
           session: %{"current_user" => @current_user, "dataset_id" => @dataset.id}
         ) %>

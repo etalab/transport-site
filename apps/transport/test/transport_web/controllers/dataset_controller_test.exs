@@ -145,6 +145,193 @@ defmodule TransportWeb.DatasetControllerTest do
     end
   end
 
+  describe "heart icons" do
+    test "not displayed when logged out", %{conn: conn} do
+      insert(:dataset, type: "public-transit", is_active: true)
+
+      assert [
+               {"div", [{"class", "dataset__type"}],
+                [{"img", [{"alt", "public-transit"}, {"src", "/images/icons/bus.svg"}], []}]}
+             ] =
+               conn
+               |> get(dataset_path(conn, :index))
+               |> html_response(200)
+               |> Floki.parse_document!()
+               |> Floki.find(".dataset__type")
+    end
+
+    test "non admin: hidden for now", %{conn: conn} do
+      contact = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+
+      insert(:dataset, custom_title: "A")
+      followed_dataset = insert(:dataset, custom_title: "B")
+      insert(:dataset_follower, contact_id: contact.id, dataset_id: followed_dataset.id)
+
+      document =
+        conn
+        |> init_test_session(%{current_user: %{"id" => datagouv_user_id, "is_admin" => false}})
+        |> get(dataset_path(conn, :index))
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      assert ["A", "B"] == dataset_titles(document)
+      assert [] == Floki.find(document, ".dataset__type i.fa-heart")
+    end
+
+    test "admin: displayed accordingly for producer, following and nothing", %{conn: conn} do
+      organization = insert(:organization)
+
+      contact =
+        insert_contact(%{
+          datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
+          organizations: [organization |> Map.from_struct()]
+        })
+
+      insert(:dataset, organization_id: organization.id, custom_title: "A")
+      followed_dataset = insert(:dataset, custom_title: "B")
+      insert(:dataset_follower, contact_id: contact.id, dataset_id: followed_dataset.id)
+      insert(:dataset, custom_title: "C")
+
+      document =
+        conn
+        |> init_test_session(%{current_user: %{"id" => datagouv_user_id, "is_admin" => true}})
+        |> get(dataset_path(conn, :index))
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      assert ["A", "B", "C"] == dataset_titles(document)
+
+      assert [
+               {"i", [{"class", "fa fa-heart producer"}], []},
+               {"i", [{"class", "fa fa-heart following"}], []},
+               {"i", [{"class", "fa fa-heart"}], []}
+             ] =
+               Floki.find(document, ".dataset__type i.fa-heart")
+    end
+  end
+
+  describe "header links" do
+    test "logged out", %{conn: conn} do
+      mock_empty_history_resources()
+
+      dataset = insert(:dataset)
+
+      assert [
+               {"a",
+                [
+                  {"href", page_path(conn, :infos_reutilisateurs, utm_campaign: "dataset_details")},
+                  {"target", "_blank"}
+                ], ["Espace réutilisateur"]}
+             ] ==
+               conn
+               |> init_test_session(%{force_display_reuser_space: true})
+               |> dataset_header_links(dataset)
+    end
+
+    test "logged-in, producer", %{conn: conn} do
+      mock_empty_history_resources()
+      organization = insert(:organization)
+
+      insert_contact(%{
+        datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
+        organizations: [organization |> Map.from_struct()]
+      })
+
+      dataset = insert(:dataset, organization_id: organization.id)
+
+      assert [
+               {"a",
+                [{"href", page_path(conn, :espace_producteur, utm_campaign: "dataset_details")}, {"target", "_blank"}],
+                ["Espace producteur"]}
+             ] ==
+               conn
+               |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, force_display_reuser_space: true})
+               |> dataset_header_links(dataset)
+    end
+
+    test "logged-in, follows the dataset", %{conn: conn} do
+      mock_empty_history_resources()
+      contact = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+      dataset = insert(:dataset)
+      insert(:dataset_follower, contact_id: contact.id, dataset_id: dataset.id, source: :follow_button)
+
+      assert [
+               {"a",
+                [
+                  {"href", reuser_space_path(conn, :datasets_edit, dataset.id, utm_campaign: "dataset_details")},
+                  {"target", "_blank"}
+                ], ["Espace réutilisateur"]}
+             ] ==
+               conn
+               |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, force_display_reuser_space: true})
+               |> dataset_header_links(dataset)
+    end
+
+    test "logged-in, does not follow the dataset", %{conn: conn} do
+      mock_empty_history_resources()
+      insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+      dataset = insert(:dataset)
+
+      assert [
+               {"a",
+                [
+                  {"href", reuser_space_path(conn, :espace_reutilisateur, utm_campaign: "dataset_details")},
+                  {"target", "_blank"}
+                ], ["Espace réutilisateur"]}
+             ] ==
+               conn
+               |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, force_display_reuser_space: true})
+               |> dataset_header_links(dataset)
+    end
+
+    test "for an admin, producer", %{conn: conn} do
+      mock_empty_history_resources()
+      organization = insert(:organization)
+
+      insert_contact(%{
+        datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
+        organizations: [organization |> Map.from_struct()]
+      })
+
+      dataset = insert(:dataset, organization_id: organization.id)
+
+      assert [
+               {"a", [{"href", backoffice_page_path(conn, :edit, dataset.id)}], ["Backoffice"]},
+               {"a",
+                [{"href", page_path(conn, :espace_producteur, utm_campaign: "dataset_details")}, {"target", "_blank"}],
+                ["Espace producteur"]}
+             ] ==
+               conn
+               |> init_test_session(%{
+                 current_user: %{"id" => datagouv_user_id, "is_admin" => true},
+                 force_display_reuser_space: true
+               })
+               |> dataset_header_links(dataset)
+    end
+  end
+
+  test "dataset_heart_values" do
+    organization = insert(:organization)
+
+    contact =
+      insert_contact(%{
+        datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
+        organizations: [organization |> Map.from_struct()]
+      })
+
+    producer_dataset = insert(:dataset, organization_id: organization.id)
+    insert(:dataset_follower, contact_id: contact.id, dataset: followed_dataset = insert(:dataset))
+    nothing_dataset = insert(:dataset)
+
+    datasets = DB.Repo.all(DB.Dataset)
+
+    assert %{
+             producer_dataset.id => :producer,
+             followed_dataset.id => :following,
+             nothing_dataset.id => nil
+           } == TransportWeb.DatasetController.dataset_heart_values(%{"id" => datagouv_user_id}, datasets)
+  end
+
   test "has_validity_period?" do
     assert TransportWeb.DatasetView.has_validity_period?(%DB.ResourceHistory{
              validations: [
@@ -484,7 +671,6 @@ defmodule TransportWeb.DatasetControllerTest do
 
       assert [] ==
                conn
-               |> init_test_session(%{current_user: %{"is_admin" => false}})
                |> get(dataset_path(conn, :details, dataset.slug))
                |> html_response(200)
                |> Floki.parse_document!()
@@ -568,5 +754,17 @@ defmodule TransportWeb.DatasetControllerTest do
       assert Keyword.equal?(options, preload_validations: true, max_records: 25)
       []
     end)
+  end
+
+  defp dataset_titles(document) do
+    document |> Floki.find(".dataset__title > a") |> Enum.map(&(&1 |> Floki.text() |> String.trim()))
+  end
+
+  defp dataset_header_links(%Plug.Conn{} = conn, %DB.Dataset{} = dataset) do
+    conn
+    |> get(dataset_path(conn, :details, dataset.slug))
+    |> html_response(200)
+    |> Floki.parse_document!()
+    |> Floki.find(~s|div[data-section="dataset-header-links"] a|)
   end
 end

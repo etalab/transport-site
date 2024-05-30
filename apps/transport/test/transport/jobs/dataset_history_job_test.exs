@@ -20,11 +20,13 @@ defmodule Transport.Test.Transport.Jobs.DatasetHistoryJobTest do
 
     # a resource with multiple resource history
     r1 = insert(:resource, dataset_id: dataset.id, url: "url1")
+    r1_datagouv_id = r1.datagouv_id
     insert(:resource_history, resource_id: r1.id)
     %{id: rh_id_latest} = insert(:resource_history, resource_id: r1.id)
 
     # a resource with multiple resource metadata and validations
     r2 = insert(:resource, dataset_id: dataset.id, url: "url2")
+    r2_datagouv_id = r2.datagouv_id
     insert(:resource_metadata, resource_id: r2.id)
     %{id: rm_id_latest} = insert(:resource_metadata, resource_id: r2.id)
     insert(:multi_validation, resource_id: r2.id)
@@ -32,6 +34,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetHistoryJobTest do
 
     # another resource with multiple resource metadata and validations
     r3 = insert(:resource, dataset_id: dataset.id, url: "url3")
+    r3_datagouv_id = r3.datagouv_id
     insert(:resource_metadata, resource_id: r3.id)
     %{id: rm_id_latest_3} = insert(:resource_metadata, resource_id: r3.id)
     insert(:multi_validation, resource_id: r3.id)
@@ -67,7 +70,8 @@ defmodule Transport.Test.Transport.Jobs.DatasetHistoryJobTest do
              resource_history_id: ^rh_id_latest,
              resource_metadata_id: nil,
              validation_id: nil,
-             payload: %{"url" => "url1"}
+             payload: %{"url" => "url1"},
+             resource_datagouv_id: ^r1_datagouv_id
            } = dhr1
 
     dhr2 = dataset_history_resources |> Enum.find(&(&1.resource_id == r2.id))
@@ -76,7 +80,8 @@ defmodule Transport.Test.Transport.Jobs.DatasetHistoryJobTest do
              resource_history_id: nil,
              resource_metadata_id: ^rm_id_latest,
              validation_id: ^rmv_id_latest,
-             payload: %{"url" => "url2"}
+             payload: %{"url" => "url2"},
+             resource_datagouv_id: ^r2_datagouv_id
            } = dhr2
 
     dhr3 = dataset_history_resources |> Enum.find(&(&1.resource_id == r3.id))
@@ -85,7 +90,8 @@ defmodule Transport.Test.Transport.Jobs.DatasetHistoryJobTest do
              resource_history_id: nil,
              resource_metadata_id: ^rm_id_latest_3,
              validation_id: ^rmv_id_latest_3,
-             payload: %{"url" => "url3"}
+             payload: %{"url" => "url3"},
+             resource_datagouv_id: ^r3_datagouv_id
            } = dhr3
 
     dhr4 = dataset_history_resources |> Enum.find(&(&1.resource_id == r4.id))

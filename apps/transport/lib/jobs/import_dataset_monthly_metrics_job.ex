@@ -93,18 +93,24 @@ defmodule Transport.Jobs.ImportMonthlyMetrics do
       count = count || 0
 
       model_name
-      |> changeset(%{
-        datagouv_id: datagouv_id,
-        year_month: metric_month,
-        metric_name: metric_name,
-        count: count
-      })
+      |> changeset(
+        %{
+          datagouv_id: datagouv_id,
+          year_month: metric_month,
+          metric_name: metric_name,
+          count: count
+        },
+        data
+      )
       |> DB.Repo.insert!(
         conflict_target: [String.to_existing_atom("#{model_name}_datagouv_id"), :year_month, :metric_name],
-        on_conflict: [set: [count: count, updated_at: DateTime.utc_now()]]
+        on_conflict: [set: [count: count, updated_at: DateTime.utc_now()] ++ on_conflict(model_name, data)]
       )
     end)
   end
+
+  defp on_conflict(:dataset, _), do: []
+  defp on_conflict(:resource, %{"dataset_id" => dataset_datagouv_id}), do: [dataset_datagouv_id: dataset_datagouv_id]
 
   defp metrics_for_model(:dataset, %{
          "monthly_visit" => monthly_visit,
@@ -117,13 +123,17 @@ defmodule Transport.Jobs.ImportMonthlyMetrics do
     [{:downloads, monthly_download_resource}]
   end
 
-  defp changeset(:dataset, %{datagouv_id: datagouv_id} = params) do
-    params = Map.put(params, :dataset_datagouv_id, datagouv_id)
+  defp changeset(:dataset, %{datagouv_id: dataset_datagouv_id} = params, _data) do
+    params = Map.put(params, :dataset_datagouv_id, dataset_datagouv_id)
     DB.DatasetMonthlyMetric.changeset(%DB.DatasetMonthlyMetric{}, params)
   end
 
-  defp changeset(:resource, %{datagouv_id: datagouv_id} = params) do
-    params = Map.put(params, :resource_datagouv_id, datagouv_id)
+  defp changeset(:resource, %{datagouv_id: resource_datagouv_id} = params, %{"dataset_id" => dataset_datagouv_id}) do
+    params =
+      params
+      |> Map.put(:resource_datagouv_id, resource_datagouv_id)
+      |> Map.put(:dataset_datagouv_id, dataset_datagouv_id)
+
     DB.ResourceMonthlyMetric.changeset(%DB.ResourceMonthlyMetric{}, params)
   end
 

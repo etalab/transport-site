@@ -217,7 +217,7 @@ defmodule DB.Factory do
 
   The function returns a map with all the created DB structures
   """
-  def insert_resource_and_friends(end_date, opts) do
+  def insert_resource_and_friends(end_date, opts \\ []) do
     def_opts = [resource_available: true, is_active: true, resource_history_payload: %{}]
     opts = Keyword.merge(def_opts, opts)
 

@@ -691,5 +691,17 @@ msgid "Dataset added to your favorites! Personalise your settings from your <a h
 msgstr "Jeu de données ajouté à vos favoris ! Personnalisez vos préférences depuis votre <a href=\"%{url}\" target=\"_blank\">espace réutilisateur</a>."
 
 #, elixir-autogen, elixir-format
-msgid "<a href=\"%{url}\">Log in or sign up</a> to benefit from dataset services."
-msgstr "<a href=\"%{url}\">Inscrivez-vous ou connectez-vous</a> pour bénéficier des services liés aux jeux de données."
+msgid "<a href=\"%{url}\" target=\"_blank\">Log in or sign up</a> to benefit from dataset services."
+msgstr "<a href=\"%{url}\" target=\"_blank\">Inscrivez-vous ou connectez-vous</a> pour bénéficier des services liés aux jeux de données."
+
+#, elixir-autogen, elixir-format
+msgid "Manage your dataset"
+msgstr "Gérez votre jeu de données"
+
+#, elixir-autogen, elixir-format
+msgid "Follow this dataset"
+msgstr "Suivre ce jeu de données"
+
+#, elixir-autogen, elixir-format
+msgid "Manage services for this dataset"
+msgstr "Gérez les services liés à ce jeu de données"

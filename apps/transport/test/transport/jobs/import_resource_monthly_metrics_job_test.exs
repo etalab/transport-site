@@ -14,16 +14,19 @@ defmodule Transport.Test.Transport.Jobs.ImportResourceMonthlyMetricsJobTest do
 
   describe "import_metrics" do
     test "base case" do
-      %DB.Resource{datagouv_id: datagouv_id} = insert(:resource)
+      %DB.Resource{datagouv_id: resource_datagouv_id} = insert(:resource)
+      %DB.Dataset{datagouv_id: dataset_datagouv_id} = insert(:dataset)
 
-      setup_http_response(datagouv_id, [
+      setup_http_response(resource_datagouv_id, [
         %{
-          "resource_id" => datagouv_id,
+          "resource_id" => resource_datagouv_id,
+          "dataset_id" => dataset_datagouv_id,
           "metric_month" => "2022-08",
           "monthly_download_resource" => 557_626
         },
         %{
-          "resource_id" => datagouv_id,
+          "resource_id" => resource_datagouv_id,
+          "dataset_id" => dataset_datagouv_id,
           "metric_month" => "2022-07",
           "monthly_download_resource" => 343_617
         }
@@ -31,17 +34,19 @@ defmodule Transport.Test.Transport.Jobs.ImportResourceMonthlyMetricsJobTest do
 
       assert DB.ResourceMonthlyMetric |> DB.Repo.all() |> Enum.empty?()
 
-      Transport.Jobs.ImportMonthlyMetrics.import_metrics(:resource, datagouv_id)
+      Transport.Jobs.ImportMonthlyMetrics.import_metrics(:resource, resource_datagouv_id)
 
       assert [
                %DB.ResourceMonthlyMetric{
-                 resource_datagouv_id: ^datagouv_id,
+                 resource_datagouv_id: ^resource_datagouv_id,
+                 dataset_datagouv_id: ^dataset_datagouv_id,
                  year_month: "2022-08",
                  metric_name: :downloads,
                  count: 557_626
                },
                %DB.ResourceMonthlyMetric{
-                 resource_datagouv_id: ^datagouv_id,
+                 resource_datagouv_id: ^resource_datagouv_id,
+                 dataset_datagouv_id: ^dataset_datagouv_id,
                  year_month: "2022-07",
                  metric_name: :downloads,
                  count: 343_617
@@ -50,10 +55,11 @@ defmodule Transport.Test.Transport.Jobs.ImportResourceMonthlyMetricsJobTest do
     end
 
     test "replaces existing records" do
-      %DB.Resource{datagouv_id: datagouv_id} = insert(:resource)
+      %DB.Resource{datagouv_id: resource_datagouv_id} = insert(:resource)
+      %DB.Dataset{datagouv_id: dataset_datagouv_id} = insert(:dataset)
 
       insert(:resource_monthly_metric,
-        resource_datagouv_id: datagouv_id,
+        resource_datagouv_id: resource_datagouv_id,
         year_month: "2023-12",
         metric_name: :downloads,
         count: 42
@@ -62,18 +68,20 @@ defmodule Transport.Test.Transport.Jobs.ImportResourceMonthlyMetricsJobTest do
       # This datagouv_id has already been imported, we should only fetch the
       # 3 latest records
       refute Transport.Jobs.ImportMonthlyMetrics.already_imported?(:resource, Ecto.UUID.generate())
-      assert Transport.Jobs.ImportMonthlyMetrics.already_imported?(:resource, datagouv_id)
+      assert Transport.Jobs.ImportMonthlyMetrics.already_imported?(:resource, resource_datagouv_id)
 
       setup_http_response(
-        datagouv_id,
+        resource_datagouv_id,
         [
           %{
-            "resource_id" => datagouv_id,
+            "resource_id" => resource_datagouv_id,
+            "dataset_id" => dataset_datagouv_id,
             "metric_month" => "2023-12",
             "monthly_download_resource" => 43
           },
           %{
-            "resource_id" => datagouv_id,
+            "resource_id" => resource_datagouv_id,
+            "dataset_id" => dataset_datagouv_id,
             "metric_month" => "2023-11",
             "monthly_download_resource" => 1337
           }
@@ -84,20 +92,23 @@ defmodule Transport.Test.Transport.Jobs.ImportResourceMonthlyMetricsJobTest do
       assert [
                %DB.ResourceMonthlyMetric{
                  id: metric_id,
-                 resource_datagouv_id: ^datagouv_id,
+                 resource_datagouv_id: ^resource_datagouv_id,
+                 # older metrics might not have the datagouv_dataset_id
+                 dataset_datagouv_id: nil,
                  year_month: "2023-12",
                  metric_name: :downloads,
                  count: 42
                }
              ] = DB.Repo.all(DB.ResourceMonthlyMetric)
 
-      Transport.Jobs.ImportMonthlyMetrics.import_metrics(:resource, datagouv_id)
+      Transport.Jobs.ImportMonthlyMetrics.import_metrics(:resource, resource_datagouv_id)
 
       assert [
-               # Count has been updated, primary key is still the same
+               # Count and dataset_datagouv_id have been updated, primary key is still the same
                %DB.ResourceMonthlyMetric{
                  id: ^metric_id,
-                 resource_datagouv_id: ^datagouv_id,
+                 resource_datagouv_id: ^resource_datagouv_id,
+                 dataset_datagouv_id: ^dataset_datagouv_id,
                  year_month: "2023-12",
                  metric_name: :downloads,
                  count: 43,
@@ -106,7 +117,8 @@ defmodule Transport.Test.Transport.Jobs.ImportResourceMonthlyMetricsJobTest do
                },
                # Has been inserted
                %DB.ResourceMonthlyMetric{
-                 resource_datagouv_id: ^datagouv_id,
+                 resource_datagouv_id: ^resource_datagouv_id,
+                 dataset_datagouv_id: ^dataset_datagouv_id,
                  year_month: "2023-11",
                  metric_name: :downloads,
                  count: 1337
@@ -121,6 +133,8 @@ defmodule Transport.Test.Transport.Jobs.ImportResourceMonthlyMetricsJobTest do
   test "perform" do
     %DB.Resource{datagouv_id: r1_datagouv_id} = insert(:resource)
     %DB.Resource{datagouv_id: r2_datagouv_id} = insert(:resource)
+    %DB.Dataset{datagouv_id: d1_datagouv_id} = insert(:dataset)
+    %DB.Dataset{datagouv_id: d2_datagouv_id} = insert(:dataset)
 
     assert MapSet.new([r1_datagouv_id, r2_datagouv_id]) ==
              ImportResourceMonthlyMetricsJob.resource_datagouv_ids() |> MapSet.new()
@@ -130,6 +144,7 @@ defmodule Transport.Test.Transport.Jobs.ImportResourceMonthlyMetricsJobTest do
        [
          %{
            "resource_id" => r1_datagouv_id,
+           "dataset_id" => d1_datagouv_id,
            "metric_month" => "2023-12",
            "monthly_download_resource" => 43
          }
@@ -138,6 +153,7 @@ defmodule Transport.Test.Transport.Jobs.ImportResourceMonthlyMetricsJobTest do
        [
          %{
            "resource_id" => r2_datagouv_id,
+           "dataset_id" => d2_datagouv_id,
            "metric_month" => "2023-12",
            "monthly_download_resource" => 5
          }
@@ -151,6 +167,7 @@ defmodule Transport.Test.Transport.Jobs.ImportResourceMonthlyMetricsJobTest do
     assert [
              %DB.ResourceMonthlyMetric{
                resource_datagouv_id: ^r1_datagouv_id,
+               dataset_datagouv_id: ^d1_datagouv_id,
                year_month: "2023-12",
                metric_name: :downloads,
                count: 43
@@ -163,6 +180,7 @@ defmodule Transport.Test.Transport.Jobs.ImportResourceMonthlyMetricsJobTest do
     assert [
              %DB.ResourceMonthlyMetric{
                resource_datagouv_id: ^r2_datagouv_id,
+               dataset_datagouv_id: ^d2_datagouv_id,
                year_month: "2023-12",
                metric_name: :downloads,
                count: 5
@@ -175,8 +193,8 @@ defmodule Transport.Test.Transport.Jobs.ImportResourceMonthlyMetricsJobTest do
 
   defp setup_http_responses(data) when is_list(data) do
     responses =
-      Enum.into(data, %{}, fn {datagouv_id, response} ->
-        {Transport.Jobs.ImportMonthlyMetrics.api_url(:resource, datagouv_id, page_size: 24), response}
+      Enum.into(data, %{}, fn {resource_datagouv_id, response} ->
+        {Transport.Jobs.ImportMonthlyMetrics.api_url(:resource, resource_datagouv_id, page_size: 24), response}
       end)
 
     # HTTP requests order is not important
@@ -185,9 +203,9 @@ defmodule Transport.Test.Transport.Jobs.ImportResourceMonthlyMetricsJobTest do
     end)
   end
 
-  defp setup_http_response(datagouv_id, data, options \\ []) do
+  defp setup_http_response(resource_datagouv_id, data, options \\ []) do
     page_size = Keyword.get(options, :page_size, 24)
-    metrics_api_url = Transport.Jobs.ImportMonthlyMetrics.api_url(:resource, datagouv_id, page_size: page_size)
+    metrics_api_url = Transport.Jobs.ImportMonthlyMetrics.api_url(:resource, resource_datagouv_id, page_size: page_size)
 
     expect(Transport.Req.Mock, :get, fn ^metrics_api_url, [] ->
       {:ok, %Req.Response{status: 200, body: %{"data" => data}}}
