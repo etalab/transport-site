@@ -36,7 +36,7 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Vous devez être préalablement connecté"
     end
 
-    test "logged in, requested dataset is not the user's favorites", %{conn: conn} do
+    test "logged in, the requested dataset is not in the user's favorites", %{conn: conn} do
       contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
       dataset = insert(:dataset)
 
@@ -65,7 +65,7 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
   end
 
   describe "unfavorite" do
-    test "requested dataset is not the user's favorites", %{conn: conn} do
+    test "requested dataset is not in the user's favorites", %{conn: conn} do
       contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
       dataset = insert(:dataset)
 
