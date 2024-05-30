@@ -1,0 +1,40 @@
+<section class="container pt-48 pb-24">
+  <%= breadcrumbs([@conn, :datasets_edit, @dataset.custom_title]) %>
+</section>
+<section class="reuser-space-section">
+  <div class="container pt-24">
+    <div class="panel">
+      <h2><%= @dataset.custom_title %></h2>
+      <a href="#modal" class="button warning"><%= dgettext("reuser-space", "Remove from favorites") %></a>
+      <div class="modal__backdrop" id="modal">
+        <div class="modal">
+          <p>
+            Here we will have soon a few words highlighting how dangerous this action is. We also offer a complimentary escape option.
+          </p>
+          <%= form_for %{}, reuser_space_path(@conn, :unfavorite, @dataset.id), [class: "no-margin", method: "post"], fn _ -> %>
+            <div class="form__group">
+              <button
+                class="button warning"
+                type="submit"
+                data-tracking-category="reuser_space"
+                data-tracking-action="confirm_unfavorite_dataset"
+              >
+                <%= dgettext("reuser-space", "Remove from favorites") %>
+              </button>
+              <a
+                href="#"
+                class="no-bg"
+                data-tracking-category="reuser_space"
+                data-tracking-action="abort_unfavorite_dataset"
+              >
+                <button class="button secondary" type="button"><%= dgettext("reuser-space", "Cancel") %></button>
+              </a>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script defer type="text/javascript" src={static_path(@conn, "/js/app.js")} />

@@ -17,6 +17,15 @@
   }
 }
 
+.reuser-space-section {
+  background-color: var(--theme-background-grey);
+  min-height: 80vh;
+
+  a.no-bg:hover {
+    background: none;
+  }
+}
+
 .action-panel {
   display: flex;
   flex-grow: 1;
