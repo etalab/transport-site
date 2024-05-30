@@ -16,10 +16,6 @@
 #
 # The flags must be the first args.
 
-VALID_ARGS=$(getopt --options=h --longoptions=help,skip-extensions,preserve-oban-jobs --name "$0" -- "$@") || exit 1
-
-eval set -- "$VALID_ARGS"
-
 should_skip_extensions=false
 should_preserve_oban_jobs=false
 
@@ -50,6 +46,13 @@ while true; do
     --) shift;
       break
       ;;
+
+    --*)
+      echo "Unrecognized option \"$1\""
+      usage
+      ;;
+
+    *) break;;
   esac
 done
 
