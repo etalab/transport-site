@@ -156,12 +156,9 @@ defmodule TransportWeb.API.GeoQueryControllerTest do
     %{id: resource_history_id} = insert(:resource_history, %{payload: %{"dataset_id" => dataset_id}})
     %{id: geo_data_import_id} = insert(:geo_data_import, %{resource_history_id: resource_history_id})
 
-    point1 = %Geo.Point{coordinates: {1, 1}, srid: 4326}
-    point2 = %Geo.Point{coordinates: {2, 2}, srid: 4326}
-
     insert(:geo_data, %{
       geo_data_import_id: geo_data_import_id,
-      geom: point1,
+      geom: %Geo.Point{coordinates: {1, 1}, srid: 4326},
       payload: %{
         "nom_enseigne" => "Recharge Super 95",
         "id_station_itinerance" => "FRELCPEYSPC",
@@ -172,7 +169,7 @@ defmodule TransportWeb.API.GeoQueryControllerTest do
 
     insert(:geo_data, %{
       geo_data_import_id: geo_data_import_id,
-      geom: point2,
+      geom: %Geo.Point{coordinates: {2, 2}, srid: 4326},
       payload: %{
         "nom_enseigne" => "Recharge Super 95",
         "id_station_itinerance" => "FRELCPBLOHM",
@@ -230,37 +227,5 @@ defmodule TransportWeb.API.GeoQueryControllerTest do
       |> json_response(200)
 
     assert MapSet.new(features) == MapSet.new(expected_features)
-  end
-
-  defp insert_bnlc_dataset do
-    insert(:dataset, %{
-      type: "carpooling-areas",
-      organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
-    })
-  end
-
-  defp insert_parcs_relais_dataset do
-    insert(:dataset, %{
-      type: "private-parking",
-      custom_title: "Base nationale des parcs relais",
-      organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
-    })
-  end
-
-  defp insert_zfe_dataset do
-    insert(:dataset, %{
-      type: "low-emission-zones",
-      custom_title: "Base Nationale des Zones à Faibles Émissions (BNZFE)",
-      organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
-    })
-  end
-
-  defp insert_irve_dataset do
-    insert(:dataset, %{
-      type: "charging-stations",
-      custom_title: "Infrastructures de Recharge pour Véhicules Électriques - IRVE",
-      organization: "data.gouv.fr",
-      organization_id: "646b7187b50b2a93b1ae3d45"
-    })
   end
 end

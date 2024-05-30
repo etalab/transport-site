@@ -165,48 +165,8 @@ defmodule Transport.StatsHandlerTest do
 
   test "counts the number of IRVE lines in GeoData" do
     %{id: dataset_id} = insert_irve_dataset()
-
     assert 0 == count_geo_data_lines(:irve)
-    # Insert a GeoDataImport imported from the IRVE dataset and associated GeoData lines
-    # TODO : reactore from geo_query_controller_test.exs
-
-    %{id: resource_history_id} = insert(:resource_history, %{payload: %{"dataset_id" => dataset_id}})
-    %{id: geo_data_import_id} = insert(:geo_data_import, %{resource_history_id: resource_history_id})
-
-    point1 = %Geo.Point{coordinates: {1, 1}, srid: 4326}
-    point2 = %Geo.Point{coordinates: {2, 2}, srid: 4326}
-
-    insert(:geo_data, %{
-      geo_data_import_id: geo_data_import_id,
-      geom: point1,
-      payload: %{
-        "nom_enseigne" => "Recharge Super 95",
-        "id_station_itinerance" => "FRELCPEYSPC",
-        "nom_station" => "Dehaven Centre",
-        "nbre_pdc" => 2
-      }
-    })
-
-    insert(:geo_data, %{
-      geo_data_import_id: geo_data_import_id,
-      geom: point2,
-      payload: %{
-        "nom_enseigne" => "Recharge Super 95",
-        "id_station_itinerance" => "FRELCPBLOHM",
-        "nom_station" => "Gemina Port",
-        "nbre_pdc" => 3
-      }
-    })
-
+    insert_imported_irve_geo_data(dataset_id)
     assert 2 == count_geo_data_lines(:irve)
-  end
-
-  defp insert_irve_dataset do
-    insert(:dataset, %{
-      type: "charging-stations",
-      custom_title: "Infrastructures de Recharge pour Véhicules Électriques - IRVE",
-      organization: "data.gouv.fr",
-      organization_id: "646b7187b50b2a93b1ae3d45"
-    })
   end
 end
