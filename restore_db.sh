@@ -21,9 +21,9 @@ should_preserve_oban_jobs=false
 
 function usage() {
   echo "Usage:"
-  echo " $0 (-h|--help) -- this message"
-  echo " $0 [--skip-extensions] [--preserve-oban-jobs] <absolute_path_to_backup>"
-  echo " $0 [--skip-extensions] [--preserve-oban-jobs] <db_name> <host> <user_name> <password> <absolute_path_to_backup>"
+  echo " $0 (-h|--help)"
+  echo " $0 [--skip-extensions] [--preserve-oban-jobs] (--) <absolute_path_to_backup>"
+  echo " $0 [--skip-extensions] [--preserve-oban-jobs] (--) <db_name> <host> <user_name> <password> <absolute_path_to_backup>"
   exit 1
 }
 
