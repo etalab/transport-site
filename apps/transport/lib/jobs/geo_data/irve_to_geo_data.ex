@@ -43,6 +43,6 @@ defmodule Transport.Jobs.IRVEToGeoData do
     DB.Dataset.base_query()
     |> preload(:resources)
     |> where([d], d.type == "charging-stations" and d.organization_id == @datagouv_organization_id)
-    |> DB.Repo.one!()
+    |> DB.Repo.one()
   end
 end

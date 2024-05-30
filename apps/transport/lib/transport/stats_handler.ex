@@ -87,7 +87,8 @@ defmodule Transport.StatsHandler do
       gtfs_rt_types: count_feed_types_gtfs_rt(),
       climate_resilience_bill_count: count_datasets_climate_resilience_bill(),
       nb_siri: count_dataset_with_format("SIRI"),
-      nb_siri_lite: count_dataset_with_format("SIRI Lite")
+      nb_siri_lite: count_dataset_with_format("SIRI Lite"),
+      count_irve_geo_data_lines: count_irve_geo_data_lines()
     }
   end
 
@@ -236,5 +237,17 @@ defmodule Transport.StatsHandler do
         Map.get(aom_max_severity, "NoError", 0)
 
     sum / nb_aom_with_data
+  end
+
+  def count_irve_geo_data_lines() do
+    case Transport.Jobs.IRVEToGeoData.relevant_dataset() do
+      nil ->
+        0
+
+      dataset ->
+        dataset.id
+        |> DB.GeoDataImport.dataset_latest_geo_data_import()
+        |> DB.GeoData.count_lines_for_geo_data_import()
+    end
   end
 end
