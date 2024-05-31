@@ -1,4 +1,4 @@
-defmodule DB.GeoDataDataset do
+defmodule Transport.ConsolidatedDataset do
   @moduledoc """
   A module to hold configuration of the datasets used in geodata queries and access them easily.
   """
@@ -20,7 +20,7 @@ defmodule DB.GeoDataDataset do
 
   def bnlc_resource do
     [resource] =
-      DB.GeoDataDataset.bnlc_dataset()
+      bnlc_dataset()
       |> DB.Dataset.official_resources()
       |> Enum.filter(fn %DB.Resource{datagouv_id: datagouv_id} -> datagouv_id == bnlc_datagouv_id() end)
 

@@ -7,7 +7,8 @@ defmodule Transport.Jobs.LowEmissionZonesToGeoData do
 
   @impl Oban.Worker
   def perform(%{}) do
-    DB.GeoDataDataset.zfe_resource() |> Transport.Jobs.BaseGeoData.import_replace_data(&prepare_data_for_insert/2)
+    Transport.ConsolidatedDataset.zfe_resource()
+    |> Transport.Jobs.BaseGeoData.import_replace_data(&prepare_data_for_insert/2)
 
     :ok
   end
