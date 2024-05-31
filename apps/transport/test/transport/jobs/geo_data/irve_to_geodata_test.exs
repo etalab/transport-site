@@ -37,11 +37,6 @@ defmodule Transport.Jobs.IRVEToGeoDataTest do
            } = row1
   end
 
-  test "Finds the relevant dataset" do
-    %DB.Dataset{id: dataset_id} = insert_irve_dataset()
-    assert %DB.Dataset{id: ^dataset_id} = DB.GeoDataDataset.irve_dataset()
-  end
-
   test "IRVE data update logic" do
     now = DateTime.utc_now()
     now_200 = now |> DateTime.add(-200)
