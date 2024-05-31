@@ -3,9 +3,9 @@ defmodule TransportWeb.ExploreController do
 
   def index(conn, _params) do
     conn
-    |> assign(:bnlc_dataset, Transport.Jobs.BNLCToGeoData.relevant_dataset())
-    |> assign(:parcs_relais_dataset, Transport.Jobs.ParkingsRelaisToGeoData.relevant_dataset())
-    |> assign(:zfe_dataset, Transport.Jobs.LowEmissionZonesToGeoData.relevant_dataset())
+    |> assign(:bnlc_dataset, DB.GeoDataDataset.bnlc_dataset())
+    |> assign(:parcs_relais_dataset, DB.GeoDataDataset.parkings_relais_dataset())
+    |> assign(:zfe_dataset, DB.GeoDataDataset.zfe_dataset())
     |> assign(:irve_dataset, DB.GeoDataDataset.irve_dataset())
     |> render("explore.html")
   end

@@ -26,13 +26,13 @@ defmodule TransportWeb.API.GeoQueryController do
 
   defp config do
     %{
-      "bnlc" => %{dataset: Transport.Jobs.BNLCToGeoData.relevant_dataset(), transform_fn: &bnlc_geojson/1},
+      "bnlc" => %{dataset: DB.GeoDataDataset.bnlc_dataset(), transform_fn: &bnlc_geojson/1},
       "parkings-relais" => %{
-        dataset: Transport.Jobs.ParkingsRelaisToGeoData.relevant_dataset(),
+        dataset: DB.GeoDataDataset.parkings_relais_dataset(),
         transform_fn: &parkings_relais_geojson/1
       },
       "zfe" => %{
-        dataset: Transport.Jobs.LowEmissionZonesToGeoData.relevant_dataset(),
+        dataset: DB.GeoDataDataset.zfe_dataset(),
         transform_fn: &zfe_geojson/1
       },
       "irve" => %{
