@@ -1,6 +1,6 @@
 <%= raw ~s(<div lang=fr>) %>
 
-Le Ministère chargé des transports s’engage à rendre ses sites web, intranet, extranet et ses progiciels accessibles (et ses applications mobiles et mobilier urbain numérique) conformément à l’article 47 de la loi n°2005-102 du 11 février 2005.
+Le Ministère de la Transition Écologique et de la Cohésion des Territoires s’engage à rendre ses sites web, intranet, extranet et ses progiciels accessibles (et ses applications mobiles et mobilier urbain numérique) conformément à l’article 47 de la loi n°2005-102 du 11 février 2005.
 
 À cette fin, elle met en œuvre la stratégie et les actions suivantes :
 - Fournir un site web accessible ;
