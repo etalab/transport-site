@@ -107,6 +107,7 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
     %DB.Contact{id: producer_2_id} = producer_2 = insert_contact()
     reuser = insert_contact()
     dataset = insert(:dataset)
+    other_dataset = insert(:dataset)
 
     # Should be ignored, the contact of a member of the transport.data.gouv.fr's org
     admin_producer =
@@ -123,9 +124,22 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
       )
     end)
 
+    # Subscribed as a reuser to another dataset and a producer has notifications enabled.
+    # Should not list the other producer.
+    [{producer_1, :reuser}, {producer_2, :producer}]
+    |> Enum.each(fn {%DB.Contact{} = current_contact, role} ->
+      insert(:notification_subscription,
+        source: :admin,
+        role: role,
+        reason: :expiration,
+        dataset: other_dataset,
+        contact: current_contact
+      )
+    end)
+
     assert [%DB.Contact{id: ^producer_2_id}] =
              producer_1
-             |> DB.Repo.preload(:notification_subscriptions)
+             |> DB.Repo.preload(notification_subscriptions: [:dataset])
              |> PeriodicReminderProducersNotificationJob.other_producers_subscribers()
   end
 
