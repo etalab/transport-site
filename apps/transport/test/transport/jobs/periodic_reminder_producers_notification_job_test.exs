@@ -160,8 +160,10 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
   test "send mail to producer with subscriptions" do
     %DB.Contact{email: email} = producer_1 = insert_contact()
     producer_2 = insert_contact(%{first_name: "Marina", last_name: "Loiseau"})
+    producer_3 = insert_contact(%{first_name: "Foo", last_name: "Baz"})
     reuser = insert_contact()
     dataset = insert(:dataset, custom_title: "Super JDD")
+    other_dataset = insert(:dataset)
 
     %DB.Contact{id: admin_producer_id} =
       admin_producer =
@@ -174,6 +176,19 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
         role: role,
         reason: :expiration,
         dataset: dataset,
+        contact: contact
+      )
+    end)
+
+    # Subscribed as a reuser to another dataset and a producer has notifications enabled.
+    # Should not list the other producer.
+    [{producer_1, :reuser}, {producer_3, :producer}]
+    |> Enum.each(fn {%DB.Contact{} = contact, role} ->
+      insert(:notification_subscription,
+        source: :admin,
+        role: role,
+        reason: :expiration,
+        dataset: other_dataset,
         contact: contact
       )
     end)
