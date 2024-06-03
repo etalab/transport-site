@@ -22,4 +22,14 @@ defmodule Transport.ConsolidatedDatasetTest do
 
     assert %DB.Dataset{id: ^dataset_id} = Transport.ConsolidatedDataset.parkings_relais_dataset()
   end
+
+  test "Finds the right resource" do
+    %DB.Dataset{id: dataset_id} = insert_zfe_dataset()
+    insert(:resource, dataset_id: dataset_id, format: "csv", title: "Identifiants des ZFE")
+
+    %DB.Resource{id: resource_geojson_id} =
+      insert(:resource, dataset_id: dataset_id, format: "geojson", title: "aires.geojson")
+
+    assert %DB.Resource{id: ^resource_geojson_id} = Transport.ConsolidatedDataset.zfe_resource()
+  end
 end
