@@ -55,7 +55,11 @@ defmodule Unlock.MixProject do
       {:appsignal, "~> 2.0"},
       {:appsignal_phoenix, "~> 2.0"},
       {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
-      {:excoveralls, "~> 0.10", only: :test}
+      {:excoveralls, "~> 0.10", only: :test},
+      # Not something we want to encourage, but required to
+      # properly test Finch-based code. Migrating to Req is
+      # a better idea here ultimately
+      {:bypass, "~> 2.1", only: :test}
     ]
   end
 end
