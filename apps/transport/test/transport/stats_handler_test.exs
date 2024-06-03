@@ -92,11 +92,14 @@ defmodule Transport.StatsHandlerTest do
       stats
       |> Map.keys()
       |> Enum.map(&to_string/1)
-      |> Enum.reject(&String.starts_with?(&1, ["gtfs_rt_types", "climate_resilience_bill_count"]))
+      |> Enum.reject(
+        &String.starts_with?(&1, ["gtfs_rt_types", "climate_resilience_bill_count", "count_geo_data_lines"])
+      )
 
     assert MapSet.subset?(MapSet.new(stats_metrics), MapSet.new(all_metrics))
     assert Enum.member?(all_metrics, "gtfs_rt_types::vehicle_positions")
     assert Enum.member?(all_metrics, "gtfs_rt_types::trip_updates")
+    assert Enum.member?(all_metrics, "count_geo_data_lines::irve")
 
     expected = Decimal.new("2")
     assert %{value: ^expected} = DB.Repo.get_by!(DB.StatsHistory, metric: "gtfs_rt_types::vehicle_positions")

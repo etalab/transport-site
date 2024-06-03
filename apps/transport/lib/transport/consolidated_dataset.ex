@@ -13,7 +13,7 @@ defmodule Transport.ConsolidatedDataset do
     DB.Dataset.base_query()
     |> preload(:resources)
     |> where([d], d.type == "carpooling-areas" and d.organization == ^transport_publisher_label)
-    |> DB.Repo.one!()
+    |> DB.Repo.one()
   end
 
   def bnlc_resource do
@@ -57,7 +57,7 @@ defmodule Transport.ConsolidatedDataset do
       d.type == "private-parking" and d.organization == ^transport_publisher_label and
         d.custom_title == "Base nationale des parcs relais"
     )
-    |> DB.Repo.one!()
+    |> DB.Repo.one()
   end
 
   def parkings_relais_resource do
@@ -72,7 +72,7 @@ defmodule Transport.ConsolidatedDataset do
     DB.Dataset.base_query()
     |> preload(:resources)
     |> where([d], d.type == "low-emission-zones" and d.organization == ^transport_publisher_label)
-    |> DB.Repo.one!()
+    |> DB.Repo.one()
   end
 
   def zfe_resource do

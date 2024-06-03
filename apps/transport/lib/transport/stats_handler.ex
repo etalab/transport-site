@@ -19,7 +19,7 @@ defmodule Transport.StatsHandler do
   end
 
   defp store_stat_history(key, values, %DateTime{} = timestamp)
-       when key in [:gtfs_rt_types, :climate_resilience_bill_count] do
+       when key in [:gtfs_rt_types, :climate_resilience_bill_count, :count_geo_data_lines] do
     Enum.map(values, fn {type, count} ->
       store_stat_history("#{key}::#{type}", count, timestamp)
     end)
@@ -88,7 +88,7 @@ defmodule Transport.StatsHandler do
       climate_resilience_bill_count: count_datasets_climate_resilience_bill(),
       nb_siri: count_dataset_with_format("SIRI"),
       nb_siri_lite: count_dataset_with_format("SIRI Lite"),
-      count_irve_geo_data_lines: count_geo_data_lines(:irve)
+      count_geo_data_lines: count_geo_data_lines()
     }
   end
 
@@ -239,10 +239,14 @@ defmodule Transport.StatsHandler do
     sum / nb_aom_with_data
   end
 
+  def count_geo_data_lines do
+    [:bnlc, :bnls, :irve, :zfe] |> Map.new(fn feature -> {feature, count_geo_data_lines(feature)} end)
+  end
+
   def count_geo_data_lines(feature) do
     case relevant_dataset(feature) do
       nil ->
-        # Either the dataset of the feature is not (yet) in database – or the feature doesn’t exist
+        # The dataset of the feature is not (yet) in database
         0
 
       dataset ->
@@ -252,6 +256,8 @@ defmodule Transport.StatsHandler do
     end
   end
 
+  defp relevant_dataset(:bnlc), do: Transport.ConsolidatedDataset.bnlc_dataset()
+  defp relevant_dataset(:bnls), do: Transport.ConsolidatedDataset.parkings_relais_dataset()
   defp relevant_dataset(:irve), do: Transport.ConsolidatedDataset.irve_dataset()
-  defp relevant_dataset(_), do: nil
+  defp relevant_dataset(:zfe), do: Transport.ConsolidatedDataset.zfe_dataset()
 end
