@@ -537,7 +537,7 @@ defmodule Unlock.ControllerTest do
       # are not guaranteed to come in the right order, so we have to cheat a bit here.
       # We introduce flexibility to ensure whatever target is processed first, N queries are made
       # and the rest (order & content) is tested by the final assertion on response body.
-      response_function = fn url, _request_headers, options ->
+      response_function = fn url, _request_headers, _options ->
         data = Map.fetch!(responses, url)
         # allow function to define data
         data = if is_function(data), do: data.(), else: data
