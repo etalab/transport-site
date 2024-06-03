@@ -590,6 +590,10 @@ defmodule Unlock.ControllerTest do
           |> get("/resource/an-existing-aggregate-identifier")
         end)
 
+      raise(
+        "TODO: assert that only external must be logged, & fix code (buggy at the moment) - leverage Process.info(self(), :messages) if needed"
+      )
+
       assert resp.status == 200
       assert resp.resp_body == Helper.data_as_csv(@expected_headers, [first_data_row, second_data_row], "\r\n")
 
