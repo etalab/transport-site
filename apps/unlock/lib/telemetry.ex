@@ -19,6 +19,8 @@ defmodule Unlock.Telemetry do
 
   def gbfs_request_event_names, do: @gbfs_request_types |> Enum.map(&gbfs_request_event_name/1)
 
+  # NOTE: we need to investigate why we also have `@proxy_request_types`
+  # with something in reverse order.
   @proxy_requests [:internal, :external]
 
   @separator ":"
