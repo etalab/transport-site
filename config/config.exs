@@ -122,6 +122,9 @@ config :transport,
     bnlc: %{
       dataset_id: "5d6eaffc8b4c417cdc452ac3",
       resource_id: "4fd78dee-e122-4c0d-8bf6-ff55d79f3af1"
+    },
+    irve: %{
+      resource_id: "eb76d20a-8501-400e-b336-d85724de5435"
     }
   }
 
