@@ -170,7 +170,7 @@ defmodule Unlock.Config do
       github_token = Application.fetch_env!(:unlock, :github_auth_token)
 
       %{status: 200, body: body} =
-        Unlock.HTTP.Client.impl().get!(config_url, [{"Authorization", "token #{github_token}"}])
+        Unlock.HTTP.Client.impl().get!(config_url, [{"Authorization", "token #{github_token}"}], [])
 
       body
     end

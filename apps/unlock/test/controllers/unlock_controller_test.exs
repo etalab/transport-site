@@ -233,7 +233,7 @@ defmodule Unlock.ControllerTest do
       ]
 
       Unlock.HTTP.Client.Mock
-      |> expect(:get!, fn url, _headers = [] ->
+      |> expect(:get!, fn url, _headers, _options = [] ->
         assert url == target_url
 
         %Unlock.HTTP.Response{
@@ -290,7 +290,7 @@ defmodule Unlock.ControllerTest do
 
       # subsequent queries should work based on cache
       Unlock.HTTP.Client.Mock
-      |> expect(:get!, 0, fn _url, _headers -> nil end)
+      |> expect(:get!, 0, fn _url, _headers, _options -> nil end)
 
       {:ok, ttl} = Cachex.ttl(Unlock.Cachex, "resource:an-existing-identifier")
       assert_in_delta ttl / 1000.0, ttl_in_seconds, 1
@@ -328,7 +328,7 @@ defmodule Unlock.ControllerTest do
       })
 
       Unlock.HTTP.Client.Mock
-      |> expect(:get!, fn url, _headers = [] ->
+      |> expect(:get!, fn url, _headers = [], _options ->
         assert url == target_url
 
         %Unlock.HTTP.Response{
@@ -372,7 +372,7 @@ defmodule Unlock.ControllerTest do
       })
 
       Unlock.HTTP.Client.Mock
-      |> expect(:get!, fn _url, request_headers ->
+      |> expect(:get!, fn _url, request_headers, _options ->
         # The important assertion is here!
         assert request_headers == [{"SomeHeader", "SomeValue"}]
 
@@ -404,7 +404,7 @@ defmodule Unlock.ControllerTest do
       })
 
       Unlock.HTTP.Client.Mock
-      |> expect(:get!, fn _url, _request_headers ->
+      |> expect(:get!, fn _url, _request_headers, _options ->
         %Unlock.HTTP.Response{
           body: "content",
           status: 200,
@@ -437,7 +437,7 @@ defmodule Unlock.ControllerTest do
       })
 
       Unlock.HTTP.Client.Mock
-      |> expect(:get!, fn ^url, _request_headers ->
+      |> expect(:get!, fn ^url, _request_headers, _options ->
         raise RuntimeError
       end)
 
@@ -537,7 +537,7 @@ defmodule Unlock.ControllerTest do
       # are not guaranteed to come in the right order, so we have to cheat a bit here.
       # We introduce flexibility to ensure whatever target is processed first, N queries are made
       # and the rest (order & content) is tested by the final assertion on response body.
-      response_function = fn url, _request_headers ->
+      response_function = fn url, _request_headers, options ->
         data = Map.fetch!(responses, url)
         # allow function to define data
         data = if is_function(data), do: data.(), else: data
@@ -675,35 +675,28 @@ defmodule Unlock.ControllerTest do
       verify!(Unlock.HTTP.Client.Mock)
     end
 
-    test "handles 302 in sub-feed gracefully" do
+    test "passes `max_redirects` option to Finch wrapper" do
+      # not very elegant test, giving another hint that it would
+      # be a good idea to migrate to `Req` here to leverage
+      # its testing facilities ultimately
       slug = "an-existing-aggregate-identifier"
-
       {first_url, second_url} = setup_aggregate_proxy_config(slug)
+      main_pid = self()
+      body = Helper.data_as_csv(@expected_headers, [build_unique_data_row()], "\r\n")
 
-      setup_remote_responses(%{
-        first_url => {200, Helper.data_as_csv(@expected_headers, [first_data_row = build_unique_data_row()], "\r\n")},
-        second_url => {302, "", [{"location", "http://localhost/redirected"}]},
-        "http://localhost/redirected" =>
-          {200, Helper.data_as_csv(@expected_headers, [second_data_row = build_unique_data_row()], "\r\n")}
-      })
+      Unlock.HTTP.Client.Mock
+      |> expect(:get!, 2, fn a, b, c ->
+        # NOTE: we need a messaging trick here because expectations are
+        # not properly asserted due to how errors are handled underneath
+        send(main_pid, {:query_parameters, a, b, c})
+        %Unlock.HTTP.Response{body: body, headers: [], status: 200}
+      end)
 
-      {resp, logs} =
-        with_log(fn ->
-          build_conn()
-          |> get("/resource/an-existing-aggregate-identifier")
-        end)
+      build_conn()
+      |> get("/resource/an-existing-aggregate-identifier")
 
-      assert resp.status == 200
-      # both rows are found
-      assert resp.resp_body == Helper.data_as_csv(@expected_headers, [first_data_row, second_data_row], "\r\n")
-
-      # we still want the event on the bogus remote
-      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
-                       %{target: "proxy:an-existing-aggregate-identifier:second-remote"}}
-
-      assert logs =~ ~r|second-remote responded with HTTP code 200|
-
-      verify!(Unlock.HTTP.Client.Mock)
+      assert_received {:query_parameters, ^first_url, [], [max_redirects: 2]}
+      assert_received {:query_parameters, ^second_url, [], [max_redirects: 2]}
     end
 
     def wait_til_dead(pid) do

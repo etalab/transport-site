@@ -83,12 +83,7 @@ defmodule Unlock.AggregateProcessor do
         %Unlock.Config.Item.Generic.HTTP{identifier: origin} = sub_item
       ) do
     comp_fn = fn _key ->
-      get_function = fn %Unlock.Config.Item.Generic.HTTP{target_url: target_url} ->
-        get_with_maybe_redirect(target_url)
-      end
-
-      # NOTE: reuse shared function, a bit confusing but helps DRYing things a bit
-      Unlock.CachedFetch.fetch_data(sub_item, get_function)
+      Unlock.CachedFetch.fetch_data(sub_item, max_redirects: 2)
     end
 
     cache_name = Unlock.Shared.cache_name()
@@ -184,21 +179,5 @@ defmodule Unlock.AggregateProcessor do
 
     rows
     |> Stream.map(mapper)
-  end
-
-  # `Finch` does not support redirects, and we likely will want to support data gouv stable urls
-  # (unless we decide we don't want to rely on that too much). So instead of bringing `Req` here,
-  # which we could also do later with a bit more work, it's easier to implement a home-baked redirect here.
-  def get_with_maybe_redirect(url, remaining_tries \\ 2) do
-    if remaining_tries == 0, do: raise("TooManyRedirect")
-
-    case response = Unlock.HTTP.Client.impl().get!(url, []) do
-      %{status: 302} ->
-        [target_url] = for {"location", value} <- response.headers, do: value
-        get_with_maybe_redirect(target_url, remaining_tries - 1)
-
-      _ ->
-        response
-    end
   end
 end

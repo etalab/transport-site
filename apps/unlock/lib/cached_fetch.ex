@@ -11,8 +11,8 @@ defmodule Unlock.CachedFetch do
   # RAM consumption
   @max_allowed_cached_byte_size 20 * 1024 * 1024
 
-  def fetch_data(%Unlock.Config.Item.Generic.HTTP{} = item, get_function \\ &default_get_function(&1)) do
-    response = get_function.(item)
+  def fetch_data(%Unlock.Config.Item.Generic.HTTP{} = item, http_client_options \\ []) do
+    response = Unlock.HTTP.Client.impl().get!(item.target_url, item.request_headers, http_client_options)
     size = byte_size(response.body)
 
     if size > @max_allowed_cached_byte_size do
@@ -21,9 +21,5 @@ defmodule Unlock.CachedFetch do
     else
       {:commit, response, ttl: :timer.seconds(item.ttl)}
     end
-  end
-
-  def default_get_function(item) do
-    Unlock.HTTP.Client.impl().get!(item.target_url, item.request_headers)
   end
 end
