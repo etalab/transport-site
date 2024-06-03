@@ -59,7 +59,7 @@
 
   <table :if={Enum.count(subscriptions_with_dataset) > 0} class="table mt-48 dashboard-description">
     <tr>
-      <th>Jeu de données</th>
+      <th><%= dgettext("backoffice", "Dataset") %></th>
       <th><%= dgettext("backoffice", "Role") %></th>
       <th><%= dgettext("backoffice", "Notification reason") %></th>
       <th>Source</th>

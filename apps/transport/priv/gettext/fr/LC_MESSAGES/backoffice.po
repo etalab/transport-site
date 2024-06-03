@@ -310,3 +310,7 @@ msgstr "Masqués"
 #, elixir-autogen, elixir-format
 msgid "Role"
 msgstr "Rôle"
+
+#, elixir-autogen, elixir-format
+msgid "Dataset"
+msgstr "Jeu de données"
