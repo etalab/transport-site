@@ -231,6 +231,66 @@ defmodule Transport.ImportDataTest do
     assert Map.get(resource_updated, :id) == resource_id
   end
 
+  test "resist collisions upon ressource URL update" do
+    insert_national_dataset(datagouv_id = "dataset1_id")
+
+    assert db_count(DB.Dataset) == 1
+    assert db_count(DB.Resource) == 0
+
+    with_mock HTTPoison, get!: http_get_mock_200(datagouv_id), head: http_head_mock() do
+      with_mock Datagouvfr.Client.CommunityResources, get: fn _ -> {:ok, []} end do
+        with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock() do
+          ImportData.import_all_datasets()
+        end
+      end
+    end
+
+    assert db_count(DB.Dataset) == 1
+    assert db_count(DB.Resource) == 1
+
+    [resource] = DB.Resource |> DB.Repo.all()
+    assert Map.get(resource, :title) == "resource1"
+    assert Map.get(resource, :filetype) == "remote"
+    assert Map.get(resource, :type) == "main"
+    assert Map.get(resource, :display_position) == 0
+    assert Map.get(resource, :url) == "http://localhost:4321/resource1"
+
+    # import 2: somebody changed the resource1's URL and use the previous URL
+    # for a new resource
+    payload_2 =
+      generate_dataset_payload(
+        datagouv_id,
+        generate_resources_payload(
+          "new title !!! fresh !!!",
+          "http://localhost:4321/resource1/bis",
+          existing_datagouv_id = "resource1_id"
+        ) ++
+          generate_resources_payload(
+            "new title !!! fresh !!!",
+            "http://localhost:4321/resource1",
+            new_datagouv_id = "resource2_id"
+          )
+      )
+
+    with_mock HTTPoison, get!: http_get_mock_200(datagouv_id, payload_2), head: http_head_mock() do
+      with_mock Datagouvfr.Client.CommunityResources, get: fn _ -> {:ok, []} end do
+        with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock() do
+          ImportData.import_all_datasets()
+        end
+      end
+    end
+
+    assert db_count(DB.Dataset) == 1
+    assert db_count(DB.Resource) == 2
+
+    [resource_updated, new_resource] = DB.Resource |> DB.Repo.all()
+    # assert that the resources URLs have been updated without collisions
+    assert Map.get(resource_updated, :datagouv_id) == existing_datagouv_id
+    assert Map.get(new_resource, :datagouv_id) == new_datagouv_id
+    assert Map.get(resource_updated, :url) == "http://localhost:4321/resource1/bis"
+    assert Map.get(new_resource, :url) == "http://localhost:4321/resource1"
+  end
+
   test "import dataset with a community resource" do
     insert_national_dataset(datagouv_id = "dataset1_id")
     assert db_count(DB.Dataset) == 1
