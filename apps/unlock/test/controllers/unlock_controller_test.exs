@@ -702,6 +702,7 @@ defmodule Unlock.ControllerTest do
       build_conn()
       |> get("/resource/an-existing-aggregate-identifier")
 
+      # assert that the expected max_redirects count has been passed
       assert_received {:query_parameters, ^first_url, [], [max_redirects: 2]}
       assert_received {:query_parameters, ^second_url, [], [max_redirects: 2]}
     end
