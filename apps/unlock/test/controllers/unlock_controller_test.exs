@@ -578,6 +578,8 @@ defmodule Unlock.ControllerTest do
       assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
                        %{target: "proxy:an-existing-aggregate-identifier:second-remote"}}
 
+      refute_received {:telemetry_event, _, _, _}
+
       assert logs =~ ~r|first-remote responded with HTTP code 200|
       assert logs =~ ~r|second-remote responded with HTTP code 200|
 
@@ -835,6 +837,8 @@ defmodule Unlock.ControllerTest do
       "test-handler-#{System.unique_integer()}",
       events,
       fn name, measurements, metadata, _ ->
+        # NOTE: if you change the tuple size, please review all
+        # `refute_received` calls to make sure they remain useful.
         send(test_pid, {:telemetry_event, name, measurements, metadata})
       end,
       nil
