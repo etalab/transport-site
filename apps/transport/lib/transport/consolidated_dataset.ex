@@ -77,10 +77,7 @@ defmodule Transport.ConsolidatedDataset do
   end
 
   def get_resource(dataset, filter_fn) do
-    [resource] =
-      dataset
-      |> DB.Dataset.official_resources()
-      |> filter_fn.()
+    [resource] = dataset |> DB.Dataset.official_resources() |> filter_fn.()
 
     resource
   end
