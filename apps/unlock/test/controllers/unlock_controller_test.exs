@@ -826,10 +826,17 @@ defmodule Unlock.ControllerTest do
   defp setup_telemetry_handler do
     events = Unlock.Telemetry.proxy_request_event_names()
 
+    # NOTE: this is deregistering the `apps/transport`
+    # handlers, which will otherwise create Ecto records.
+    # Also see https://github.com/etalab/transport-site/issues/3975
+    # since there is over-coupling of `apps/transport` tests which
+    # could bring your database to a broken state for tests if you
+    # comment the detach temporarily while running the tests.
+    # Situation to be improved, obviously.
     events
-    |> Enum.at(1)
-    |> :telemetry.list_handlers()
+    |> Enum.flat_map(&:telemetry.list_handlers(&1))
     |> Enum.map(& &1.id)
+    |> Enum.uniq()
     |> Enum.each(&:telemetry.detach/1)
 
     test_pid = self()
