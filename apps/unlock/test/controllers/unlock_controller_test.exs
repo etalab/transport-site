@@ -590,15 +590,16 @@ defmodule Unlock.ControllerTest do
           |> get("/resource/an-existing-aggregate-identifier")
         end)
 
-      raise(
-        "TODO: assert that only external must be logged, & fix code (buggy at the moment) - leverage Process.info(self(), :messages) if needed"
-      )
-
       assert resp.status == 200
       assert resp.resp_body == Helper.data_as_csv(@expected_headers, [first_data_row, second_data_row], "\r\n")
 
       assert logs =~ ~r|Proxy response for an-existing-aggregate-identifier:first-remote served from cache|
       assert logs =~ ~r|Proxy response for an-existing-aggregate-identifier:second-remote served from cache|
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-aggregate-identifier"}}
+
+      refute_received {:telemetry_event, _, _, _}
     end
 
     test "drops bogus 200 sub-feed content safely" do
