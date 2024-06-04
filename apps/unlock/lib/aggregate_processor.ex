@@ -83,6 +83,7 @@ defmodule Unlock.AggregateProcessor do
         %Unlock.Config.Item.Generic.HTTP{identifier: origin} = sub_item
       ) do
     comp_fn = fn _key ->
+      Unlock.Telemetry.trace_request([item.identifier, origin], :internal)
       Unlock.CachedFetch.fetch_data(sub_item, max_redirects: 2)
     end
 
@@ -121,7 +122,6 @@ defmodule Unlock.AggregateProcessor do
         %Unlock.Config.Item.Generic.HTTP{identifier: origin} = sub_item,
         options
       ) do
-    Unlock.Telemetry.trace_request([item.identifier, origin], :internal)
     Logger.debug("Fetching aggregated sub-item #{origin} at #{sub_item.target_url}")
 
     %{status: status, body: body} =
