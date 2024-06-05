@@ -127,6 +127,7 @@
       <table :if={Enum.count(@dataset.notification_subscriptions) > 0} class="table">
         <tr>
           <th>Contact</th>
+          <th><%= dgettext("backoffice", "Role") %></th>
           <th><%= dgettext("backoffice", "Notification reason") %></th>
           <th>Source</th>
           <th>Actions</th>
@@ -148,6 +149,7 @@
                   <% end %>
                 </div>
               </td>
+              <td><%= notification_subscription.role %></td>
               <td><%= notification_subscription.reason %></td>
               <td><%= notification_subscription.source %></td>
               <td>

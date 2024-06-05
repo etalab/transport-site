@@ -16,18 +16,14 @@
 #
 # The flags must be the first args.
 
-VALID_ARGS=$(getopt --options=h --longoptions=help,skip-extensions,preserve-oban-jobs --name "$0" -- "$@") || exit 1
-
-eval set -- "$VALID_ARGS"
-
 should_skip_extensions=false
 should_preserve_oban_jobs=false
 
 function usage() {
   echo "Usage:"
-  echo " $0 (-h|--help) -- this message"
-  echo " $0 [--skip-extensions] [--preserve-oban-jobs] <absolute_path_to_backup>"
-  echo " $0 [--skip-extensions] [--preserve-oban-jobs] <db_name> <host> <user_name> <password> <absolute_path_to_backup>"
+  echo " $0 (-h|--help)"
+  echo " $0 [--skip-extensions] [--preserve-oban-jobs] (--) <absolute_path_to_backup>"
+  echo " $0 [--skip-extensions] [--preserve-oban-jobs] (--) <db_name> <host> <user_name> <password> <absolute_path_to_backup>"
   exit 1
 }
 
@@ -50,6 +46,13 @@ while true; do
     --) shift;
       break
       ;;
+
+    --* | -*)
+      echo "Unrecognized option \"$1\""
+      usage
+      ;;
+
+    *) break;;
   esac
 done
 
