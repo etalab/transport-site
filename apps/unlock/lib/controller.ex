@@ -69,7 +69,6 @@ defmodule Unlock.Controller do
   defp to_boolean("0"), do: false
   defp to_boolean("1"), do: true
 
-  # NOTE: most of this processing will be extracted to a separate file/module
   defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.Aggregate{} = item) do
     Unlock.Telemetry.trace_request(item.identifier, :external)
     # NOTE: required for tests to work, and doesn't hurt in production (idempotent afaik)
