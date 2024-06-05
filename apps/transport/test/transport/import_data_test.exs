@@ -285,6 +285,7 @@ defmodule Transport.ImportDataTest do
 
     [resource_updated, new_resource] = DB.Resource |> DB.Repo.all()
     # assert that the resources URLs have been updated without collisions
+    assert Map.get(resource_updated, :id) == Map.get(resource, :id)
     assert Map.get(resource_updated, :datagouv_id) == existing_datagouv_id
     assert Map.get(new_resource, :datagouv_id) == new_datagouv_id
     assert Map.get(resource_updated, :url) == "http://localhost:4321/resource1/bis"

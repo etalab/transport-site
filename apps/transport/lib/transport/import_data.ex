@@ -294,7 +294,7 @@ defmodule Transport.ImportData do
       # Only protect against reuse in the same dataset.
       # See #3976.
       siblings =
-        resource_datagouv_ids |> Enum.reject(fn resource_id -> resource_id == dataset["id"] end)
+        resource_datagouv_ids |> Enum.reject(fn resource_id -> resource_id == resource["id"] end)
 
       existing_resource = get_existing_resource(resource, dataset["id"], siblings) || %{}
 
