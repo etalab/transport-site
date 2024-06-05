@@ -19,10 +19,6 @@ defmodule Unlock.Telemetry do
 
   def gbfs_request_event_names, do: @gbfs_request_types |> Enum.map(&gbfs_request_event_name/1)
 
-  # NOTE: we need to investigate why we also have `@proxy_request_types`
-  # with something in reverse order.
-  @proxy_requests [:internal, :external]
-
   @separator ":"
 
   def target_for_identifier(item_identifier) when is_binary(item_identifier) do
@@ -36,7 +32,7 @@ defmodule Unlock.Telemetry do
 
   # This call will result in synchronous invoke of all registered handlers for the specified events.
   # (for instance, check out `Transport.Telemetry#handle_event`, available at time of writing)
-  def trace_request(item_identifier, request_type) when request_type in @proxy_requests do
+  def trace_request(item_identifier, request_type) when request_type in @proxy_request_types do
     :telemetry.execute([:proxy, :request, request_type], %{}, %{
       target: target_for_identifier(item_identifier)
     })
