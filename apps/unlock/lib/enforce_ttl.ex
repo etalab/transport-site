@@ -54,7 +54,7 @@ defmodule Unlock.EnforceTTL do
     parts =
       cache_key
       |> String.replace_prefix(cache_prefix(), "")
-      |> String.split(":")
+      |> String.split(Unlock.Shared.cache_separator())
 
     proxy_config_item(config, parts)
   end

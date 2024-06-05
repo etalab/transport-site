@@ -19,7 +19,7 @@ defmodule Unlock.Telemetry do
 
   def gbfs_request_event_names, do: @gbfs_request_types |> Enum.map(&gbfs_request_event_name/1)
 
-  @separator ":"
+  @separator Unlock.Shared.cache_separator()
 
   def target_for_identifier(item_identifier) when is_binary(item_identifier) do
     "proxy" <> @separator <> item_identifier
