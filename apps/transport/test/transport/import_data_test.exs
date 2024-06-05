@@ -231,7 +231,7 @@ defmodule Transport.ImportDataTest do
     assert Map.get(resource_updated, :id) == resource_id
   end
 
-  test "resist collisions upon ressource URL update" do
+  test "resist collisions upon resource URL update" do
     insert_national_dataset(datagouv_id = "dataset1_id")
 
     assert db_count(DB.Dataset) == 1
