@@ -64,6 +64,11 @@ defmodule TransportWeb.Live.FollowedDatasetsLive do
               </div>
             </div>
           </div>
+          <div class="panel__extra">
+            <a href={reuser_space_path(@socket, :datasets_edit, dataset.id)} class="no-bg">
+              <button class="button-outline primary small"><%= dgettext("reuser-space", "Edit") %></button>
+            </a>
+          </div>
         </div>
       <% end %>
     </div>

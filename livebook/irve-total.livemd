@@ -28,7 +28,7 @@ opts = [
 {:ok, conn} = Kino.start_child({Postgrex, opts})
 ```
 
-<!-- livebook:{"attrs":{"cache_query":true,"connection":{"type":"postgres","variable":"conn"},"data_frame_alias":"Elixir.Explorer.DataFrame","query":"select id, payload ->> 'permanent_url' as url, inserted_at \nfrom resource_history rh\nwhere rh.resource_id = 79624\norder by inserted_at asc","result_variable":"result","timeout":null},"chunks":null,"kind":"Elixir.KinoDB.SQLCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":{"cache_query":true,"connection":{"type":"postgres","variable":"conn"},"data_frame_alias":"Elixir.Explorer.DataFrame","query":"select id, payload ->> 'permanent_url' as url, inserted_at \nfrom resource_history rh\nwhere rh.resource_id = 81623\norder by inserted_at asc","result_variable":"result","timeout":null},"chunks":null,"kind":"Elixir.KinoDB.SQLCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 result =
@@ -37,7 +37,7 @@ result =
     """
     select id, payload ->> 'permanent_url' as url, inserted_at 
     from resource_history rh
-    where rh.resource_id = 79624
+    where rh.resource_id = 81623
     order by inserted_at asc
     """,
     []
@@ -58,14 +58,14 @@ snapshots =
 ```
 
 ```elixir
-path = Path.join(__ENV__.file, "../../scripts/irve/req_custom_cache.exs") |> Path.expand()
+path = Path.join(__ENV__.file, "../../apps/shared/lib/req_custom_cache.ex") |> Path.expand()
 Code.require_file(path)
 
 defmodule Query do
   def cache_dir, do: Path.join(__ENV__.file, "../cache-dir") |> Path.expand()
 
   def cached_get!(url) do
-    req = Req.new() |> CustomCache.attach()
+    req = Req.new() |> Transport.Shared.ReqCustomCache.attach()
     Req.get!(req, url: url, receive_timeout: 100_000, custom_cache_dir: cache_dir())
   end
 end
@@ -87,7 +87,7 @@ data =
     task,
     max_concurrency: 25,
     on_timeout: :kill_task,
-    timeout: 25_000
+    timeout: 50_000
   )
   |> Stream.map(fn {:ok, result} -> result end)
   |> Stream.map(fn x -> Map.take(x, ["inserted_at", "row_count"]) end)

@@ -338,7 +338,7 @@ function createMap (id, resourceUrl, resourceFormat, lang = 'fr') {
         createCSVmap(id, resourceUrl)
     } else if (resourceFormat === 'gbfs' || resourceUrl.endsWith('gbfs.json')) {
         createGBFSmap(id, resourceUrl, lang)
-    } else if (resourceUrl.endsWith('.geojson') || resourceUrl.endsWith('.json')) {
+    } else if (resourceFormat === 'geojson' || resourceUrl.endsWith('.geojson') || resourceUrl.endsWith('.json')) {
         createGeojsonMap(id, resourceUrl)
     } else {
         removeViz(`vizualisation of the resource ${resourceUrl} has failed : not recognized file extension`)
