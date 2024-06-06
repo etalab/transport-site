@@ -209,7 +209,7 @@ defmodule TransportWeb.DatasetController do
   end
 
   defp unavailabilities(%Dataset{id: id, resources: resources}) do
-    Transport.Cache.API.fetch("unavailabilities_dataset_#{id}", fn ->
+    Transport.Cache.fetch("unavailabilities_dataset_#{id}", fn ->
       resources
       |> Enum.into(%{}, fn resource ->
         {resource.id,
