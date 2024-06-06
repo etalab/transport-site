@@ -282,6 +282,10 @@ defmodule Transport.ImportData do
       |> Enum.concat(get_community_resources(dataset))
       |> Enum.uniq_by(fn resource -> resource["url"] end)
 
+    # List of resources to avoid collisions when some resource URL is
+    # reused for a new one.
+    # Only protect against reuse in the same dataset.
+    # See #3976.
     resource_datagouv_ids =
       resources |> Enum.map(fn resource -> resource["id"] end)
 
@@ -289,14 +293,7 @@ defmodule Transport.ImportData do
     |> Enum.map_reduce(0, fn resource, display_position ->
       is_community_resource = resource["is_community_resource"] == true
 
-      # List of sibling resources to avoid collisions when some resource URL is
-      # reused for a new one.
-      # Only protect against reuse in the same dataset.
-      # See #3976.
-      siblings =
-        resource_datagouv_ids |> Enum.reject(fn resource_id -> resource_id == resource["id"] end)
-
-      existing_resource = get_existing_resource(resource, dataset["id"], siblings) || %{}
+      existing_resource = get_existing_resource(resource, dataset["id"], resource_datagouv_ids) || %{}
 
       resource =
         resource
