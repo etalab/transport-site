@@ -283,7 +283,6 @@ defmodule Transport.ImportDataTest do
     assert Map.get(resource_updated, :id) == Map.get(resource, :id)
     assert Map.get(resource_updated, :datagouv_id) == new_datagouv_id
     assert Map.get(resource_updated, :url) == "http://localhost:4321/resource1"
-    # IO.inspect({resource, resource_updated}, label: "URL recycling")
   end
 
   test "resist collisions upon resource URL update" do
