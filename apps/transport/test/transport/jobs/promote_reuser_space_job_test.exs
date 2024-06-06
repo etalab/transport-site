@@ -15,7 +15,7 @@ defmodule Transport.Test.Transport.Jobs.PromoteReuserSpaceJobTest do
 
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"", ^email}],
+                           to: [{"John Doe", ^email}],
                            reply_to: {"", "contact@transport.data.gouv.fr"},
                            subject: "Gestion de vos favoris dans votre espace réutilisateur",
                            text_body: nil,
@@ -27,5 +27,15 @@ defmodule Transport.Test.Transport.Jobs.PromoteReuserSpaceJobTest do
       assert html_body =~
                ~s(Rendez-vous sur votre <a href="http://127.0.0.1:5100/espace_reutilisateur?utm_source=transactional_email&amp;utm_medium=email&amp;utm_campaign=promote_reuser_space">Espace réutilisateur</a> pour personnaliser vos préférences)
     end)
+
+    assert [
+             %DB.Notification{
+               reason: :promote_reuser_space,
+               contact_id: ^contact_id,
+               email: ^email,
+               role: :reuser,
+               dataset_id: nil
+             }
+           ] = DB.Notification |> DB.Repo.all()
   end
 end

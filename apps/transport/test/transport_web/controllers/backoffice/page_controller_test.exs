@@ -94,8 +94,8 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
         organization_id: organization.id
       )
 
-    insert_notification(%{dataset: dataset, email: "foo@example.fr", reason: :expiration})
-    insert_notification(%{dataset: dataset, email: "bar@example.fr", reason: :expiration})
+    insert_notification(%{dataset: dataset, role: :producer, email: "foo@example.fr", reason: :expiration})
+    insert_notification(%{dataset: dataset, role: :producer, email: "bar@example.fr", reason: :expiration})
 
     response =
       conn
@@ -112,10 +112,25 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
     now = DateTime.utc_now()
     five_hours_ago = DateTime.add(now, -5, :hour)
 
-    insert_notification_at_datetime(%{dataset: dataset, email: "foo@example.fr", reason: :expiration}, now)
-    insert_notification_at_datetime(%{dataset: dataset, email: "bar@example.fr", reason: :expiration}, now)
-    insert_notification_at_datetime(%{dataset: dataset, email: "bar@example.fr", reason: :expiration}, five_hours_ago)
-    insert_notification_at_datetime(%{dataset: dataset, email: "baz@example.fr", reason: :expiration}, five_hours_ago)
+    insert_notification_at_datetime(
+      %{dataset: dataset, role: :producer, email: "foo@example.fr", reason: :expiration},
+      now
+    )
+
+    insert_notification_at_datetime(
+      %{dataset: dataset, role: :producer, email: "bar@example.fr", reason: :expiration},
+      now
+    )
+
+    insert_notification_at_datetime(
+      %{dataset: dataset, role: :producer, email: "bar@example.fr", reason: :expiration},
+      five_hours_ago
+    )
+
+    insert_notification_at_datetime(
+      %{dataset: dataset, role: :producer, email: "baz@example.fr", reason: :expiration},
+      five_hours_ago
+    )
 
     now_truncated = %{DateTime.truncate(now, :second) | second: 0}
     five_hours_ago_truncated = %{DateTime.truncate(five_hours_ago, :second) | second: 0}

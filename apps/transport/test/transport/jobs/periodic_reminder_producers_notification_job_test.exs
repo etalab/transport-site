@@ -172,7 +172,7 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
   end
 
   test "send mail to producer with subscriptions" do
-    %DB.Contact{email: email} = producer_1 = insert_contact()
+    %DB.Contact{id: contact_id, email: email} = producer_1 = insert_contact()
     producer_2 = insert_contact(%{first_name: "Marina", last_name: "Loiseau"})
     producer_3 = insert_contact(%{first_name: "Foo", last_name: "Baz"})
     reuser = insert_contact()
@@ -214,7 +214,7 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
 
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"", ^email}],
+                           to: [{"John Doe", ^email}],
                            subject: subject,
                            html_body: html
                          } ->
@@ -226,13 +226,22 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
       assert html =~ "Les autres personnes inscrites à ces notifications sont : Marina Loiseau."
     end)
 
-    assert [%DB.Notification{reason: :periodic_reminder_producers, email: ^email}] = DB.Notification |> DB.Repo.all()
+    assert [
+             %DB.Notification{
+               reason: :periodic_reminder_producers,
+               email: ^email,
+               contact_id: ^contact_id,
+               dataset_id: nil,
+               role: :producer,
+               payload: %{"template_type" => "producer_with_subscriptions"}
+             }
+           ] = DB.Notification |> DB.Repo.all()
   end
 
   test "send mail to producer without subscriptions" do
     org_id = Ecto.UUID.generate()
 
-    %DB.Contact{email: email} =
+    %DB.Contact{id: contact_id, email: email} =
       contact =
       insert_contact(%{
         organizations: [
@@ -250,7 +259,7 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
 
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"", ^email}],
+                           to: [{"John Doe", ^email}],
                            subject: subject,
                            html_body: html
                          } ->
@@ -263,13 +272,28 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
                ~s(Pour vous inscrire, rien de plus simple : rendez-vous sur votre <a href="http://127.0.0.1:5100/espace_producteur?utm_source=transactional_email&amp;utm_medium=email&amp;utm_campaign=periodic_reminder_producer_without_subscriptions">Espace Producteur</a>)
     end)
 
-    assert [%DB.Notification{reason: :periodic_reminder_producers, email: ^email}] = DB.Notification |> DB.Repo.all()
+    assert [
+             %DB.Notification{
+               reason: :periodic_reminder_producers,
+               email: ^email,
+               contact_id: ^contact_id,
+               dataset_id: nil,
+               role: :producer,
+               payload: %{"template_type" => "producer_without_subscriptions"}
+             }
+           ] = DB.Notification |> DB.Repo.all()
   end
 
   test "makes sure the email has not been sent recently already" do
     contact = insert_contact()
     refute PeriodicReminderProducersNotificationJob.sent_mail_recently?(contact)
-    DB.Notification.insert!(:periodic_reminder_producers, contact.email)
+
+    insert_notification(%{
+      email: contact.email,
+      reason: DB.NotificationSubscription.reason(:periodic_reminder_producers),
+      role: :producer
+    })
+
     assert PeriodicReminderProducersNotificationJob.sent_mail_recently?(contact)
 
     assert {:discard, "Mail has already been sent recently"} ==

@@ -117,18 +117,19 @@ defmodule Transport.Test.Transport.Jobs.DatasetsSwitchingClimateResilienceBillJo
 
     %DB.Contact{id: contact_id, email: email} = insert_contact()
 
-    insert(:notification_subscription, %{
-      reason: :datasets_switching_climate_resilience_bill,
-      source: :admin,
-      role: :reuser,
-      contact_id: contact_id
-    })
+    %DB.NotificationSubscription{id: ns_id} =
+      insert(:notification_subscription, %{
+        reason: :datasets_switching_climate_resilience_bill,
+        source: :admin,
+        role: :reuser,
+        contact_id: contact_id
+      })
 
     assert :ok == perform_job(DatasetsSwitchingClimateResilienceBillJob, %{}, inserted_at: ~U[2023-04-21 06:00:00.000Z])
 
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"", ^email}],
+                           to: [{"John Doe", ^email}],
                            reply_to: {"", "contact@transport.data.gouv.fr"},
                            subject: "Loi climat et résilience : suivi des jeux de données",
                            text_body: nil,
@@ -143,8 +144,16 @@ defmodule Transport.Test.Transport.Jobs.DatasetsSwitchingClimateResilienceBillJo
 
     # Logs have been saved
     assert [
-             %DB.Notification{email: ^email, reason: :datasets_switching_climate_resilience_bill, dataset_id: ^d1_id},
-             %DB.Notification{email: ^email, reason: :datasets_switching_climate_resilience_bill, dataset_id: ^d2_id}
+             %DB.Notification{
+               contact_id: ^contact_id,
+               email: ^email,
+               reason: :datasets_switching_climate_resilience_bill,
+               dataset_id: nil,
+               notification_subscription_id: ^ns_id,
+               payload: %{"dataset_ids" => dataset_ids}
+             }
            ] = DB.Notification |> DB.Repo.all() |> Enum.sort_by(& &1.dataset_id)
+
+    assert MapSet.new(dataset_ids) == MapSet.new([d1_id, d2_id])
   end
 end

@@ -136,33 +136,26 @@ defmodule Transport.DataChecker do
   def send_new_dataset_notifications(datasets) do
     @new_dataset_reason
     |> DB.NotificationSubscription.subscriptions_for_reason_and_role(:reuser)
-    |> DB.NotificationSubscription.subscriptions_to_emails()
-    |> Enum.each(fn email ->
-      email
+    |> Enum.each(fn %DB.NotificationSubscription{contact: %DB.Contact{} = contact} = subscription ->
+      contact
       |> Transport.UserNotifier.new_datasets(datasets)
       |> Transport.Mailer.deliver()
 
-      datasets
-      |> Enum.each(fn %Dataset{} = dataset ->
-        save_notification(:new_dataset, dataset, email)
-      end)
+      DB.Notification.insert!(subscription, payload: %{"dataset_ids" => Enum.map(datasets, & &1.id)})
     end)
   end
 
   @spec send_outdated_data_notifications(delay_and_records()) :: delay_and_records()
   def send_outdated_data_notifications({delay, records} = payload) do
     Enum.each(records, fn {%DB.Dataset{} = dataset, resources} ->
-      emails =
-        @expiration_reason
-        |> DB.NotificationSubscription.subscriptions_for_reason_dataset_and_role(dataset, :producer)
-        |> DB.NotificationSubscription.subscriptions_to_emails()
-
-      Enum.each(emails, fn email ->
-        email
+      @expiration_reason
+      |> DB.NotificationSubscription.subscriptions_for_reason_dataset_and_role(dataset, :producer)
+      |> Enum.each(fn %DB.NotificationSubscription{contact: %DB.Contact{} = contact} = subscription ->
+        contact
         |> Transport.UserNotifier.expiration_producer(dataset, resources, delay)
         |> Transport.Mailer.deliver()
 
-        save_notification(@expiration_reason, dataset, email)
+        DB.Notification.insert!(dataset, subscription)
       end)
     end)
 
@@ -179,10 +172,6 @@ defmodule Transport.DataChecker do
     resources
     |> Enum.sort_by(fn %DB.Resource{title: title} -> title end)
     |> Enum.map_join(", ", fn %DB.Resource{title: title} -> title end)
-  end
-
-  defp save_notification(reason, %Dataset{} = dataset, email) do
-    DB.Notification.insert!(reason, dataset, email)
   end
 
   @spec send_outdated_data_mail([delay_and_records()]) :: [delay_and_records()]

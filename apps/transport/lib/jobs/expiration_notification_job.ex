@@ -66,17 +66,21 @@ defmodule Transport.Jobs.ExpirationNotificationJob do
     :ok
   end
 
-  defp send_email(%DB.Contact{email: email}, html) do
-    {:ok, _} = Transport.UserNotifier.expiration_reuser(email, html) |> Transport.Mailer.deliver()
+  defp send_email(%DB.Contact{} = contact, html) do
+    {:ok, _} = Transport.UserNotifier.expiration_reuser(contact, html) |> Transport.Mailer.deliver()
   end
 
   @spec save_notifications(DB.Contact.t(), %{delay() => datasets()}) :: :ok
-  defp save_notifications(%DB.Contact{email: email}, delays_and_datasets) do
+  defp save_notifications(%DB.Contact{} = contact, delays_and_datasets) do
     delays_and_datasets
     |> Map.values()
     |> List.flatten()
     |> Enum.each(fn %DB.Dataset{} = dataset ->
-      DB.Notification.insert!(@notification_reason, dataset, email)
+      DB.Notification.insert!(dataset, %DB.NotificationSubscription{
+        reason: @notification_reason,
+        role: :reuser,
+        contact: contact
+      })
     end)
   end
 

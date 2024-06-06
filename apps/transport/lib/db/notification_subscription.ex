@@ -58,6 +58,16 @@ defmodule DB.NotificationSubscription do
       scope: :platform,
       possible_roles: [:producer],
       disallow_subscription: true
+    },
+    promote_producer_space: %{
+      scope: :platform,
+      possible_roles: [:producer],
+      disallow_subscription: true
+    },
+    promote_reuser_space: %{
+      scope: :platform,
+      possible_roles: [:reuser],
+      disallow_subscription: true
     }
   }
 
@@ -156,6 +166,9 @@ defmodule DB.NotificationSubscription do
     end)
     |> Map.keys()
   end
+
+  @spec possible_roles() :: [role()]
+  def possible_roles, do: @possible_roles
 
   @doc """
   iex > reasons_for_role(:reuser)
@@ -326,7 +339,9 @@ defmodule DB.NotificationSubscription do
           dgettext("notification_subscription", "datasets_switching_climate_resilience_bill"),
         daily_new_comments: dgettext("notification_subscription", "daily_new_comments"),
         resources_changed: dgettext("notification_subscription", "resources_changed"),
-        periodic_reminder_producers: dgettext("notification_subscription", "periodic_reminder_producers")
+        periodic_reminder_producers: dgettext("notification_subscription", "periodic_reminder_producers"),
+        promote_producer_space: dgettext("notification_subscription", "promote_producer_space"),
+        promote_reuser_space: dgettext("notification_subscription", "promote_reuser_space")
       },
       reason
     )

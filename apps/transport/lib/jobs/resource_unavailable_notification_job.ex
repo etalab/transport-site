@@ -21,17 +21,18 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
     inserted_at
     |> relevant_unavailabilities()
     |> Enum.each(fn {%DB.Dataset{} = dataset, unavailabilities} ->
-      producer_emails = emails_list(dataset, :producer)
-      send_to_producers(producer_emails, dataset, unavailabilities)
+      producer_subscriptions = subscriptions(dataset, :producer)
+      send_to_producers(producer_subscriptions, dataset, unavailabilities)
 
-      reuser_emails = emails_list(dataset, :reuser)
-      send_to_reusers(reuser_emails, dataset, unavailabilities, producer_warned: not Enum.empty?(producer_emails))
+      dataset
+      |> subscriptions(:reuser)
+      |> send_to_reusers(dataset, unavailabilities, producer_warned: not Enum.empty?(producer_subscriptions))
     end)
   end
 
-  defp send_to_reusers(emails, %DB.Dataset{} = dataset, unavailabilities, producer_warned: producer_warned) do
-    Enum.each(emails, fn email ->
-      send_mail(email, :reuser,
+  defp send_to_reusers(subscriptions, %DB.Dataset{} = dataset, unavailabilities, producer_warned: producer_warned) do
+    Enum.each(subscriptions, fn subscription ->
+      send_mail(subscription,
         dataset: dataset,
         hours_consecutive_downtime: @hours_consecutive_downtime,
         producer_warned: producer_warned,
@@ -40,9 +41,9 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
     end)
   end
 
-  defp send_to_producers(emails, dataset, unavailabilities) do
-    Enum.each(emails, fn email ->
-      send_mail(email, :producer,
+  defp send_to_producers(subscriptions, dataset, unavailabilities) do
+    Enum.each(subscriptions, fn subscription ->
+      send_mail(subscription,
         dataset: dataset,
         hours_consecutive_downtime: @hours_consecutive_downtime,
         deleted_recreated_on_datagouv: deleted_and_recreated_resource_hosted_on_datagouv(dataset, unavailabilities),
@@ -51,20 +52,12 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
     end)
   end
 
-  defp send_mail(email, role, args) do
-    email |> Transport.UserNotifier.resource_unavailable(role, args) |> Transport.Mailer.deliver()
-    dataset = Keyword.fetch!(args, :dataset)
-    save_notification(dataset, email)
-  end
-
-  def notifications_sent_recently(%DB.Dataset{id: dataset_id}) do
-    datetime_limit = DateTime.utc_now() |> DateTime.add(-@nb_days_before_sending_notification_again, :day)
-
-    DB.Notification
-    |> where([n], n.inserted_at >= ^datetime_limit and n.dataset_id == ^dataset_id and n.reason == @notification_reason)
-    |> select([n], n.email)
-    |> DB.Repo.all()
-    |> MapSet.new()
+  defp send_mail(
+         %DB.NotificationSubscription{role: role, contact: %DB.Contact{} = contact} = notification,
+         [{:dataset, %DB.Dataset{} = dataset} | _] = args
+       ) do
+    {:ok, _} = contact |> Transport.UserNotifier.resource_unavailable(role, args) |> Transport.Mailer.deliver()
+    DB.Notification.insert!(dataset, notification)
   end
 
   @doc """
@@ -111,16 +104,28 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
     |> Enum.group_by(& &1.resource.dataset)
   end
 
-  defp save_notification(%DB.Dataset{} = dataset, email) do
-    DB.Notification.insert!(@notification_reason, dataset, email)
-  end
-
-  defp emails_list(%DB.Dataset{} = dataset, role) do
+  defp subscriptions(%DB.Dataset{} = dataset, role) do
     @notification_reason
     |> DB.NotificationSubscription.subscriptions_for_reason_dataset_and_role(dataset, role)
-    |> DB.NotificationSubscription.subscriptions_to_emails()
-    |> MapSet.new()
-    |> MapSet.difference(notifications_sent_recently(dataset))
+    |> reject_already_sent(dataset)
+  end
+
+  defp reject_already_sent(notification_subscriptions, %DB.Dataset{} = dataset) do
+    already_sent_emails = email_addresses_already_sent(dataset)
+
+    Enum.reject(notification_subscriptions, fn %DB.NotificationSubscription{contact: %DB.Contact{email: email}} ->
+      email in already_sent_emails
+    end)
+  end
+
+  def email_addresses_already_sent(%DB.Dataset{id: dataset_id}) do
+    datetime_limit = DateTime.utc_now() |> DateTime.add(-@nb_days_before_sending_notification_again, :day)
+
+    DB.Notification
+    |> where([n], n.inserted_at >= ^datetime_limit and n.dataset_id == ^dataset_id and n.reason == @notification_reason)
+    |> select([n], n.email)
+    |> distinct(true)
+    |> DB.Repo.all()
   end
 
   defp resource_title(%DB.ResourceUnavailability{resource: %DB.Resource{title: title}}) do

@@ -5,15 +5,15 @@ defmodule Transport.UserNotifier do
   use Phoenix.Swoosh, view: TransportWeb.EmailView
   import Transport.AdminNotifier, only: [delay_str: 2]
 
-  def resources_changed(email, subject, %DB.Dataset{} = dataset) do
-    email
+  def resources_changed(%DB.Contact{} = contact, subject, %DB.Dataset{} = dataset) do
+    contact
     |> common_email_options()
     |> subject(subject)
     |> render_body("resources_changed.html", %{dataset: dataset})
   end
 
-  def new_comments_reuser(%DB.Contact{email: email}, datasets) do
-    email
+  def new_comments_reuser(%DB.Contact{} = contact, datasets) do
+    contact
     |> common_email_options()
     |> subject("Nouveaux commentaires sur transport.data.gouv.fr")
     |> render_body("new_comments_reuser.html", %{datasets: datasets})
@@ -26,15 +26,15 @@ defmodule Transport.UserNotifier do
     |> render_body("new_comments_producer.html", comments_with_context: comments)
   end
 
-  def promote_reuser_space(email) do
-    email
+  def promote_reuser_space(%DB.Contact{} = contact) do
+    contact
     |> common_email_options()
     |> subject("Gestion de vos favoris dans votre espace réutilisateur")
     |> render_body("promote_reuser_space.html")
   end
 
-  def dataset_now_on_nap(email, dataset) do
-    email
+  def dataset_now_on_nap(%DB.Contact{} = contact, dataset) do
+    contact
     |> common_email_options()
     |> subject("Votre jeu de données a été référencé sur transport.data.gouv.fr")
     |> render_body("dataset_now_on_nap.html", %{
@@ -45,11 +45,11 @@ defmodule Transport.UserNotifier do
   end
 
   def datasets_switching_climate_resilience_bill(
-        email,
+        %DB.Contact{} = contact,
         datasets_previously_climate_resilience,
         datasets_now_climate_resilience
       ) do
-    email
+    contact
     |> common_email_options()
     |> subject("Loi climat et résilience : suivi des jeux de données")
     |> render_body("datasets_switching_climate_resilience_bill.html", %{
@@ -58,15 +58,21 @@ defmodule Transport.UserNotifier do
     })
   end
 
-  def multi_validation_with_error_notification(email, :producer, dataset: dataset, resources: resources) do
-    email
+  def multi_validation_with_error_notification(%DB.Contact{} = contact, :producer,
+        dataset: dataset,
+        resources: resources
+      ) do
+    contact
     |> common_email_options()
     |> subject("Erreurs détectées dans le jeu de données #{dataset.custom_title}")
     |> render_body("dataset_with_error_producer.html", dataset: dataset, resources: resources)
   end
 
-  def multi_validation_with_error_notification(email, :reuser, dataset: dataset, producer_warned: producer_warned) do
-    email
+  def multi_validation_with_error_notification(%DB.Contact{} = contact, :reuser,
+        dataset: dataset,
+        producer_warned: producer_warned
+      ) do
+    contact
     |> common_email_options()
     |> subject("Erreurs détectées dans le jeu de données #{dataset.custom_title}")
     |> render_body("dataset_with_error_reuser.html", dataset: dataset, producer_warned: producer_warned)
@@ -106,15 +112,19 @@ defmodule Transport.UserNotifier do
     )
   end
 
-  def periodic_reminder_producers_no_subscriptions(email, datasets) do
-    email
+  def periodic_reminder_producers_no_subscriptions(%DB.Contact{} = contact, datasets) do
+    contact
     |> common_email_options()
     |> subject("Notifications pour vos données sur transport.data.gouv.fr")
     |> render_body("producer_without_subscriptions.html", %{datasets: datasets})
   end
 
-  def periodic_reminder_producers_with_subscriptions(email, datasets_subscribed, other_producers_subscribers) do
-    email
+  def periodic_reminder_producers_with_subscriptions(
+        %DB.Contact{} = contact,
+        datasets_subscribed,
+        other_producers_subscribers
+      ) do
+    contact
     |> common_email_options()
     |> subject("Rappel : vos notifications pour vos données sur transport.data.gouv.fr")
     |> render_body("producer_with_subscriptions.html", %{
@@ -124,7 +134,7 @@ defmodule Transport.UserNotifier do
     })
   end
 
-  def new_datasets(email, datasets) do
+  def new_datasets(%DB.Contact{} = contact, datasets) do
     dataset_link_fn = fn %DB.Dataset{} = dataset ->
       "* #{dataset.custom_title} - (#{DB.Dataset.type_to_str(dataset.type)}) - #{link(dataset)}"
     end
@@ -139,14 +149,14 @@ defmodule Transport.UserNotifier do
     L’équipe transport.data.gouv.fr
     """
 
-    email
+    contact
     |> common_email_options()
     |> subject("Nouveaux jeux de données référencés")
     |> text_body(text_content)
   end
 
-  def expiration_producer(email, dataset, resources, delay) do
-    email
+  def expiration_producer(%DB.Contact{} = contact, dataset, resources, delay) do
+    contact
     |> common_email_options()
     |> subject(expiration_email_subject(delay))
     |> render_body("expiration_producer.html",
@@ -156,17 +166,17 @@ defmodule Transport.UserNotifier do
     )
   end
 
-  def expiration_reuser(email, html) do
-    email
+  def expiration_reuser(%DB.Contact{} = contact, html) do
+    contact
     |> common_email_options()
     |> subject("Suivi des jeux de données favoris arrivant à expiration")
     |> render_body("expiration_reuser.html", %{expiration_content: html})
   end
 
-  def promote_producer_space(email) do
+  def promote_producer_space(%DB.Contact{} = contact) do
     contact_email = Application.fetch_env!(:transport, :contact_email)
 
-    email
+    contact
     |> common_email_options()
     |> subject("Bienvenue ! Découvrez votre Espace producteur")
     |> render_body("promote_producer_space.html", %{contact_email_address: contact_email})
@@ -181,10 +191,10 @@ defmodule Transport.UserNotifier do
 
   # From here, utility functions.
 
-  defp common_email_options(email) do
+  defp common_email_options(recipient) do
     new()
     |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
-    |> to(email)
+    |> to(recipient)
     |> reply_to(Application.fetch_env!(:transport, :contact_email))
   end
 

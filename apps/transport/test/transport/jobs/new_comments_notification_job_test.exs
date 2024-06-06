@@ -163,6 +163,14 @@ defmodule Transport.Test.Transport.Jobs.NewCommentsNotificationJobTest do
     insert(:dataset_follower, dataset_id: dataset_id, contact_id: contact_id, source: :datagouv)
     insert(:dataset_follower, dataset_id: other_followed_dataset.id, contact_id: contact_id, source: :datagouv)
 
+    %DB.NotificationSubscription{id: ns_id} =
+      insert(:notification_subscription,
+        contact_id: contact_id,
+        source: :user,
+        reason: :daily_new_comments,
+        role: :reuser
+      )
+
     # Perform the job for a single contact
     assert :ok ==
              perform_job(NewCommentsNotificationJob, %{
@@ -173,7 +181,7 @@ defmodule Transport.Test.Transport.Jobs.NewCommentsNotificationJobTest do
     # Email has been sent
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"", ^email}],
+                           to: [{"John Doe", ^email}],
                            reply_to: {"", "contact@transport.data.gouv.fr"},
                            subject: "Nouveaux commentaires sur transport.data.gouv.fr",
                            text_body: nil,
@@ -196,7 +204,17 @@ defmodule Transport.Test.Transport.Jobs.NewCommentsNotificationJobTest do
     end)
 
     # Notification has been saved
-    assert [%DB.Notification{reason: :daily_new_comments, dataset_id: ^dataset_id, email: ^email}] =
+    assert [
+             %DB.Notification{
+               reason: :daily_new_comments,
+               role: :reuser,
+               dataset_id: nil,
+               email: ^email,
+               payload: %{"dataset_ids" => [^dataset_id]},
+               notification_subscription_id: ^ns_id,
+               contact_id: ^contact_id
+             }
+           ] =
              DB.Notification |> DB.Repo.all()
   end
 

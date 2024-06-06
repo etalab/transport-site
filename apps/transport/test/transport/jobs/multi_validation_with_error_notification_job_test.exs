@@ -76,13 +76,14 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
     })
 
     already_sent_email = "alreadysent@example.fr"
-    insert_notification(%{dataset: dataset, reason: :dataset_with_error, email: already_sent_email})
+    insert_notification(%{dataset: dataset, role: :producer, reason: :dataset_with_error, email: already_sent_email})
     # Should be ignored because this is for another reason
-    insert_notification(%{dataset: dataset, reason: :expiration, email: "foo@example.com"})
+    insert_notification(%{dataset: dataset, role: :producer, reason: :expiration, email: "foo@example.com"})
     # Should be ignored because it's for another dataset
-    insert_notification(%{dataset: gtfs_dataset, reason: :dataset_with_error, email: "foo@example.com"})
+    insert_notification(%{dataset: gtfs_dataset, role: :producer, reason: :dataset_with_error, email: "foo@example.com"})
+
     # Should be ignored because it's too old
-    %{dataset: dataset, reason: :dataset_with_error, email: "foo@example.com"}
+    %{dataset: dataset, role: :producer, reason: :dataset_with_error, email: "foo@example.com"}
     |> insert_notification()
     |> Ecto.Changeset.change(%{inserted_at: DateTime.utc_now() |> DateTime.add(-20, :day)})
     |> DB.Repo.update!()
@@ -130,7 +131,7 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
     assert :ok == perform_job(MultiValidationWithErrorNotificationJob, %{})
 
     assert_email_sent(fn %Swoosh.Email{to: to, subject: subject, html_body: html} ->
-      assert to == [{"", "foo@example.com"}]
+      assert to == [{"John Doe", "foo@example.com"}]
       assert subject == "Erreurs détectées dans le jeu de données #{dataset.custom_title}"
 
       assert html =~
@@ -144,7 +145,7 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
     end)
 
     assert_email_sent(fn %Swoosh.Email{to: to, subject: subject, html_body: html} ->
-      assert to == [{"", reuser_email}]
+      assert to == [{"John Doe", reuser_email}]
       assert subject == "Erreurs détectées dans le jeu de données #{dataset.custom_title}"
 
       assert html =~
@@ -159,7 +160,7 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
                            subject: subject,
                            html_body: html
                          } ->
-      assert to == [{"", "bar@example.com"}]
+      assert to == [{"John Doe", "bar@example.com"}]
       assert subject == "Erreurs détectées dans le jeu de données #{gtfs_dataset.custom_title}"
 
       assert html =~
@@ -179,7 +180,9 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
            |> where(
              [n],
              n.email_hash == ^"foo@example.com" and n.dataset_id == ^dataset_id and n.inserted_at >= ^recent_dt and
-               n.reason == :dataset_with_error
+               n.reason == :dataset_with_error and
+               n.role == :producer and
+               not is_nil(n.notification_subscription_id)
            )
            |> DB.Repo.exists?()
 
@@ -187,7 +190,9 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
            |> where(
              [n],
              n.email_hash == ^reuser_email and n.dataset_id == ^dataset_id and n.inserted_at >= ^recent_dt and
-               n.reason == :dataset_with_error
+               n.reason == :dataset_with_error and
+               n.role == :reuser and
+               not is_nil(n.notification_subscription_id)
            )
            |> DB.Repo.exists?()
 
@@ -195,27 +200,51 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
            |> where(
              [n],
              n.email_hash == ^"bar@example.com" and n.dataset_id == ^gtfs_dataset_id and n.inserted_at >= ^recent_dt and
-               n.reason == :dataset_with_error
+               n.reason == :dataset_with_error and
+               n.role == :producer and
+               not is_nil(n.notification_subscription_id)
            )
            |> DB.Repo.exists?()
   end
 
-  test "notifications_sent_recently" do
+  test "email_addresses_already_sent" do
     dataset = insert(:dataset)
 
-    %{dataset: dataset, reason: :dataset_with_error, email: "foo@example.com", inserted_at: add_days(-6)}
+    %{
+      dataset: dataset,
+      role: :producer,
+      reason: :dataset_with_error,
+      email: "foo@example.com",
+      inserted_at: add_days(-6)
+    }
+    |> insert_notification()
+
+    # For a reuser
+    %{
+      dataset: dataset,
+      role: :reuser,
+      reason: :dataset_with_error,
+      email: "baz@example.com",
+      inserted_at: add_days(-6)
+    }
     |> insert_notification()
 
     # Too old
-    %{dataset: dataset, reason: :dataset_with_error, email: "bar@example.com", inserted_at: add_days(-8)}
+    %{
+      dataset: dataset,
+      role: :producer,
+      reason: :dataset_with_error,
+      email: "bar@example.com",
+      inserted_at: add_days(-8)
+    }
     |> insert_notification()
 
     # Another reason
-    %{dataset: dataset, reason: :expiration, email: "baz@example.com", inserted_at: add_days(-6)}
+    %{dataset: dataset, role: :producer, reason: :expiration, email: "baz@example.com", inserted_at: add_days(-6)}
     |> insert_notification()
 
-    assert MapSet.new(["foo@example.com"]) ==
-             MultiValidationWithErrorNotificationJob.notifications_sent_recently(dataset)
+    assert MapSet.new(["baz@example.com", "foo@example.com"]) ==
+             dataset |> MultiValidationWithErrorNotificationJob.email_addresses_already_sent() |> MapSet.new()
   end
 
   defp add_days(days), do: DateTime.utc_now() |> DateTime.add(days, :day)

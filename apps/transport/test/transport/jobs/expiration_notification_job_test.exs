@@ -137,7 +137,7 @@ defmodule Transport.Test.Transport.Jobs.ExpirationNotificationJobTest do
     assert_email_sent(fn %Swoosh.Email{
                            subject: "Suivi des jeux de données favoris arrivant à expiration",
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"", ^contact_email}],
+                           to: [{"John Doe", ^contact_email}],
                            text_body: nil,
                            html_body: html
                          } ->
@@ -151,8 +151,8 @@ defmodule Transport.Test.Transport.Jobs.ExpirationNotificationJobTest do
     end)
 
     assert [
-             %DB.Notification{reason: :expiration, email: ^contact_email, dataset_id: ^d1_id},
-             %DB.Notification{reason: :expiration, email: ^contact_email, dataset_id: ^d4_id}
+             %DB.Notification{reason: :expiration, role: :reuser, email: ^contact_email, dataset_id: ^d1_id},
+             %DB.Notification{reason: :expiration, role: :reuser, email: ^contact_email, dataset_id: ^d4_id}
            ] = DB.Notification |> DB.Repo.all() |> Enum.sort_by(& &1.dataset_id)
   end
 
