@@ -107,4 +107,42 @@ defmodule Unlock.ConfigFetcherTest do
              ]
     end
   end
+
+  describe "for aggregated items" do
+    test "it parses basic information" do
+      yaml_config = """
+      ---
+      feeds:
+        - identifier: "consolidation"
+          type: "aggregate"
+          feeds:
+            - identifier: abdcd
+              target_url: http://localhost:1234
+              ttl: 100
+            - identifier: efghi
+              target_url: https://localhost:1235
+      """
+
+      assert parse_config(yaml_config) == [
+               %Unlock.Config.Item.Aggregate{
+                 identifier: "consolidation",
+                 ttl: 10,
+                 feeds: [
+                   %Unlock.Config.Item.Generic.HTTP{
+                     identifier: "abdcd",
+                     target_url: "http://localhost:1234",
+                     ttl: 100,
+                     subtype: "generic-http"
+                   },
+                   %Unlock.Config.Item.Generic.HTTP{
+                     identifier: "efghi",
+                     target_url: "https://localhost:1235",
+                     ttl: 10,
+                     subtype: "generic-http"
+                   }
+                 ]
+               }
+             ]
+    end
+  end
 end
