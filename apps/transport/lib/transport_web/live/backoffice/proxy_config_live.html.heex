@@ -33,7 +33,7 @@
           <td><%= resource.unique_slug %></td>
           <% # TODO: use regular link helper %>
           <td><a href={resource.proxy_url}>lien</a></td>
-          <td><a href={resource.original_url}>lien</a></td>
+          <td><a :if={resource.original_url} href={resource.original_url}>lien</a></td>
           <td><%= resource.ttl %></td>
           <!-- optional stuff, only available when cache is loaded -->
           <td><%= resource[:cache_size] %></td>
@@ -41,7 +41,7 @@
           <td><%= resource[:cache_ttl] %></td>
           <!-- computed stuff -->
           <td><%= Helpers.format_number(resource[:stats_external_requests]) %></td>
-          <td><%= Helpers.format_number(resource[:stats_internal_requests]) %></td>
+          <td><%= Helpers.format_number_maybe_nil(resource[:stats_internal_requests], nil_result: "N/C") %></td>
         </tr>
       <% end %>
     </tbody>
