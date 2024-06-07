@@ -68,6 +68,11 @@ defmodule DB.NotificationSubscription do
       scope: :platform,
       possible_roles: [:reuser],
       disallow_subscription: true
+    },
+    warn_user_inactivity: %{
+      scope: :platform,
+      possible_roles: [:producer, :reuser],
+      disallow_subscription: true
     }
   }
 
@@ -313,11 +318,6 @@ defmodule DB.NotificationSubscription do
     |> DB.Repo.all()
   end
 
-  @spec subscriptions_to_emails([__MODULE__.t()]) :: [binary()]
-  def subscriptions_to_emails(subscriptions) do
-    subscriptions |> Enum.map(& &1.contact.email)
-  end
-
   @doc """
   The following configuration map for translations can’t be merged in the global configuration map
   because module attributes are compiled and not evaluated, which would freeze the translation to default locale.
@@ -341,7 +341,8 @@ defmodule DB.NotificationSubscription do
         resources_changed: dgettext("notification_subscription", "resources_changed"),
         periodic_reminder_producers: dgettext("notification_subscription", "periodic_reminder_producers"),
         promote_producer_space: dgettext("notification_subscription", "promote_producer_space"),
-        promote_reuser_space: dgettext("notification_subscription", "promote_reuser_space")
+        promote_reuser_space: dgettext("notification_subscription", "promote_reuser_space"),
+        warn_user_inactivity: dgettext("notification_subscription", "warn_user_inactivity")
       },
       reason
     )

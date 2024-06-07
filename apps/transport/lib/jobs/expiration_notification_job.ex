@@ -76,11 +76,15 @@ defmodule Transport.Jobs.ExpirationNotificationJob do
     |> Map.values()
     |> List.flatten()
     |> Enum.each(fn %DB.Dataset{} = dataset ->
-      DB.Notification.insert!(dataset, %DB.NotificationSubscription{
-        reason: @notification_reason,
-        role: :reuser,
-        contact: contact
-      })
+      subscription =
+        DB.Repo.get_by!(DB.NotificationSubscription,
+          contact_id: contact.id,
+          dataset_id: dataset.id,
+          reason: @notification_reason,
+          role: :reuser
+        )
+
+      DB.Notification.insert!(dataset, %{subscription | contact: contact})
     end)
   end
 

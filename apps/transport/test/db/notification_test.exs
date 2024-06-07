@@ -29,8 +29,14 @@ defmodule DB.NotificationTest do
   end
 
   test "can insert without a dataset" do
-    insert_notification(%{reason: :periodic_reminder_producers, email: email = Ecto.UUID.generate() <> "@example.fr", role: :producer})
-    assert [%DB.Notification{reason: :periodic_reminder_producers, email: ^email, role: :producer}] = DB.Notification |> DB.Repo.all()
+    insert_notification(%{
+      reason: :periodic_reminder_producers,
+      email: email = Ecto.UUID.generate() <> "@example.fr",
+      role: :producer
+    })
+
+    assert [%DB.Notification{reason: :periodic_reminder_producers, email: ^email, role: :producer}] =
+             DB.Notification |> DB.Repo.all()
   end
 
   test "recent_reasons_binned" do
@@ -42,11 +48,29 @@ defmodule DB.NotificationTest do
     # Should be ignored, this is an hidden reason
     insert_notification(%{dataset: dataset, role: :producer, reason: :dataset_now_on_nap, email: email})
 
-    insert_notification(%{dataset: dataset, role: :producer, reason: :dataset_with_error, email: email, inserted_at: %{yesterday | hour: 10, minute: 22}})
+    insert_notification(%{
+      dataset: dataset,
+      role: :producer,
+      reason: :dataset_with_error,
+      email: email,
+      inserted_at: %{yesterday | hour: 10, minute: 22}
+    })
 
-    insert_notification(%{dataset: dataset, role: :producer, reason: :dataset_with_error, email: other_email, inserted_at: %{yesterday | hour: 10, minute: 22}})
+    insert_notification(%{
+      dataset: dataset,
+      role: :producer,
+      reason: :dataset_with_error,
+      email: other_email,
+      inserted_at: %{yesterday | hour: 10, minute: 22}
+    })
 
-    insert_notification(%{dataset: dataset, role: :producer, reason: :expiration, email: email, inserted_at: %{yesterday | hour: 12, minute: 44}})
+    insert_notification(%{
+      dataset: dataset,
+      role: :producer,
+      reason: :expiration,
+      email: email,
+      inserted_at: %{yesterday | hour: 12, minute: 44}
+    })
 
     yesterday_time = fn hour, minute -> %{yesterday | hour: hour, minute: minute, second: 0, microsecond: {0, 6}} end
 

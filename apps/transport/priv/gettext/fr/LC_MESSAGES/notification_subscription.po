@@ -54,3 +54,7 @@ msgstr "Mise en avant de l'Espace producteur"
 #, elixir-autogen, elixir-format
 msgid "promote_reuser_space"
 msgstr "Mise en avant de l'Espace réutilisateur"
+
+#, elixir-autogen, elixir-format
+msgid "warn_user_inactivity"
+msgstr "Avertissement d'inactivité"

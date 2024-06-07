@@ -19,8 +19,8 @@ defmodule Transport.UserNotifier do
     |> render_body("new_comments_reuser.html", %{datasets: datasets})
   end
 
-  def new_comments_producer(email, comments_number, comments) do
-    email
+  def new_comments_producer(%DB.Contact{} = contact, comments_number, comments) do
+    contact
     |> common_email_options()
     |> subject("#{comments_number} nouveaux commentaires sur transport.data.gouv.fr")
     |> render_body("new_comments_producer.html", comments_with_context: comments)
@@ -78,13 +78,13 @@ defmodule Transport.UserNotifier do
     |> render_body("dataset_with_error_reuser.html", dataset: dataset, producer_warned: producer_warned)
   end
 
-  def resource_unavailable(email, :producer,
+  def resource_unavailable(%DB.Contact{} = contact, :producer,
         dataset: dataset,
         hours_consecutive_downtime: hours_consecutive_downtime,
         deleted_recreated_on_datagouv: deleted_recreated_on_datagouv,
         resource_titles: resource_titles
       ) do
-    email
+    contact
     |> common_email_options()
     |> subject("Ressources indisponibles dans le jeu de données #{dataset.custom_title}")
     |> render_body("resource_unavailable_producer.html",
@@ -95,13 +95,13 @@ defmodule Transport.UserNotifier do
     )
   end
 
-  def resource_unavailable(email, :reuser,
+  def resource_unavailable(%DB.Contact{} = contact, :reuser,
         dataset: dataset,
         hours_consecutive_downtime: hours_consecutive_downtime,
         producer_warned: producer_warned,
         resource_titles: resource_titles
       ) do
-    email
+    contact
     |> common_email_options()
     |> subject("Ressources indisponibles dans le jeu de données #{dataset.custom_title}")
     |> render_body("resource_unavailable_reuser.html",
@@ -182,8 +182,8 @@ defmodule Transport.UserNotifier do
     |> render_body("promote_producer_space.html", %{contact_email_address: contact_email})
   end
 
-  def warn_inactivity(email, horizon) do
-    email
+  def warn_inactivity(%DB.Contact{email: email} = contact, horizon) do
+    contact
     |> common_email_options()
     |> subject("Votre compte sera supprimé #{String.downcase(horizon)}")
     |> render_body("warn_inactivity.html", contact_email: email, horizon: horizon)
@@ -191,10 +191,10 @@ defmodule Transport.UserNotifier do
 
   # From here, utility functions.
 
-  defp common_email_options(recipient) do
+  defp common_email_options(%DB.Contact{} = contact) do
     new()
     |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
-    |> to(recipient)
+    |> to(contact)
     |> reply_to(Application.fetch_env!(:transport, :contact_email))
   end
 

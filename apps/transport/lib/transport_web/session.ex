@@ -49,6 +49,10 @@ defmodule TransportWeb.Session do
     conn |> current_user() |> Map.get(@is_producer_key_name, false)
   end
 
+  def producer?(%DB.Contact{organizations: organizations}) do
+    producer?(%{"organizations" => organizations})
+  end
+
   def producer?(%{"organizations" => orgs}) do
     org_ids = Enum.map(orgs, & &1["id"])
     DB.Dataset.base_query() |> where([dataset: d], d.organization_id in ^org_ids) |> DB.Repo.exists?()

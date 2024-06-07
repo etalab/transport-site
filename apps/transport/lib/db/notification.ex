@@ -66,18 +66,6 @@ defmodule DB.Notification do
     |> DB.Repo.insert!()
   end
 
-  def insert!(reason, email) do
-    %__MODULE__{}
-    |> changeset(%{reason: reason, email: email})
-    |> DB.Repo.insert!()
-  end
-
-  def insert!(reason, %DB.Dataset{id: dataset_id, datagouv_id: datagouv_id}, email) do
-    %__MODULE__{}
-    |> changeset(%{reason: reason, dataset_id: dataset_id, dataset_datagouv_id: datagouv_id, email: email})
-    |> DB.Repo.insert!()
-  end
-
   @doc """
   Gets a list of notifications' reasons and times sent related to a specific dataset over a given number of days.
   Notifications are binned according to a 5-minute window.

@@ -53,11 +53,11 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
   end
 
   defp send_mail(
-         %DB.NotificationSubscription{role: role, contact: %DB.Contact{} = contact} = notification,
+         %DB.NotificationSubscription{role: role, contact: %DB.Contact{} = contact} = subscription,
          [{:dataset, %DB.Dataset{} = dataset} | _] = args
        ) do
     {:ok, _} = contact |> Transport.UserNotifier.resource_unavailable(role, args) |> Transport.Mailer.deliver()
-    DB.Notification.insert!(dataset, notification)
+    DB.Notification.insert!(dataset, subscription)
   end
 
   @doc """
