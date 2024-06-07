@@ -240,11 +240,12 @@ defmodule Transport.StatsHandler do
   end
 
   def count_geo_data_lines do
-    [:bnlc, :bnls, :irve, :zfe] |> Map.new(fn feature -> {feature, count_geo_data_lines(feature)} end)
+    Transport.ConsolidatedDataset.geo_data_datasets()
+    |> Map.new(fn feature -> {feature, count_geo_data_lines(feature)} end)
   end
 
   def count_geo_data_lines(feature) do
-    case relevant_dataset(feature) do
+    case Transport.ConsolidatedDataset.dataset(feature) do
       nil ->
         # The dataset of the feature is not (yet) in database
         0
@@ -255,9 +256,4 @@ defmodule Transport.StatsHandler do
         |> DB.GeoData.count_lines_for_geo_data_import()
     end
   end
-
-  defp relevant_dataset(:bnlc), do: Transport.ConsolidatedDataset.bnlc_dataset()
-  defp relevant_dataset(:bnls), do: Transport.ConsolidatedDataset.parkings_relais_dataset()
-  defp relevant_dataset(:irve), do: Transport.ConsolidatedDataset.irve_dataset()
-  defp relevant_dataset(:zfe), do: Transport.ConsolidatedDataset.zfe_dataset()
 end

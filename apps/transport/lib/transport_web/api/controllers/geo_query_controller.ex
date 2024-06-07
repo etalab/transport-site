@@ -26,17 +26,17 @@ defmodule TransportWeb.API.GeoQueryController do
 
   defp config do
     %{
-      "bnlc" => %{dataset: Transport.ConsolidatedDataset.bnlc_dataset(), transform_fn: &bnlc_geojson/1},
+      "bnlc" => %{dataset: Transport.ConsolidatedDataset.dataset(:bnlc), transform_fn: &bnlc_geojson/1},
       "parkings-relais" => %{
-        dataset: Transport.ConsolidatedDataset.parkings_relais_dataset(),
+        dataset: Transport.ConsolidatedDataset.dataset(:parkings_relais),
         transform_fn: &parkings_relais_geojson/1
       },
       "zfe" => %{
-        dataset: Transport.ConsolidatedDataset.zfe_dataset(),
+        dataset: Transport.ConsolidatedDataset.dataset(:zfe),
         transform_fn: &zfe_geojson/1
       },
       "irve" => %{
-        dataset: Transport.ConsolidatedDataset.irve_dataset(),
+        dataset: Transport.ConsolidatedDataset.dataset(:irve),
         transform_fn: &irve_geojson/1
       }
     }

@@ -8,7 +8,7 @@ defmodule Transport.ConsolidatedDatasetTest do
 
   test "Finds the IRVE Dataset" do
     %DB.Dataset{id: dataset_id} = insert_irve_dataset()
-    assert %DB.Dataset{id: ^dataset_id} = Transport.ConsolidatedDataset.irve_dataset()
+    assert %DB.Dataset{id: ^dataset_id} = Transport.ConsolidatedDataset.dataset(:irve)
   end
 
   test "finds the parking relais dataset (and not BNLS)" do
@@ -21,7 +21,7 @@ defmodule Transport.ConsolidatedDatasetTest do
       organization_id: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_id)
     })
 
-    assert %DB.Dataset{id: ^dataset_id} = Transport.ConsolidatedDataset.parkings_relais_dataset()
+    assert %DB.Dataset{id: ^dataset_id} = Transport.ConsolidatedDataset.dataset(:parkings_relais)
   end
 
   test "Finds the right resource" do

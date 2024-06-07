@@ -3,10 +3,10 @@ defmodule TransportWeb.ExploreController do
 
   def index(conn, _params) do
     conn
-    |> assign(:bnlc_dataset, Transport.ConsolidatedDataset.bnlc_dataset())
-    |> assign(:parcs_relais_dataset, Transport.ConsolidatedDataset.parkings_relais_dataset())
-    |> assign(:zfe_dataset, Transport.ConsolidatedDataset.zfe_dataset())
-    |> assign(:irve_dataset, Transport.ConsolidatedDataset.irve_dataset())
+    |> assign(:bnlc_dataset, Transport.ConsolidatedDataset.dataset(:bnlc))
+    |> assign(:parcs_relais_dataset, Transport.ConsolidatedDataset.dataset(:parkings_relais))
+    |> assign(:zfe_dataset, Transport.ConsolidatedDataset.dataset(:zfe))
+    |> assign(:irve_dataset, Transport.ConsolidatedDataset.dataset(:irve))
     |> render("explore.html")
   end
 
