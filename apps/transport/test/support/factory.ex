@@ -373,7 +373,8 @@ defmodule DB.Factory do
   def insert_bnlc_dataset do
     insert(:dataset, %{
       type: "carpooling-areas",
-      organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
+      organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
+      organization_id: "5abca8d588ee386ee6ece479"
     })
   end
 
@@ -381,7 +382,8 @@ defmodule DB.Factory do
     insert(:dataset, %{
       type: "private-parking",
       custom_title: "Base nationale des parcs relais",
-      organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
+      organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
+      organization_id: "5abca8d588ee386ee6ece479"
     })
   end
 
@@ -389,7 +391,8 @@ defmodule DB.Factory do
     insert(:dataset, %{
       type: "low-emission-zones",
       custom_title: "Base Nationale des Zones à Faibles Émissions (BNZFE)",
-      organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
+      organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
+      organization_id: "5abca8d588ee386ee6ece479"
     })
   end
 

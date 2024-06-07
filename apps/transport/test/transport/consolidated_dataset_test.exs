@@ -17,7 +17,8 @@ defmodule Transport.ConsolidatedDatasetTest do
     insert(:dataset, %{
       type: "private-parking",
       custom_title: "Base Nationale des Lieux de Stationnement",
-      organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
+      organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
+      organization_id: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_id)
     })
 
     assert %DB.Dataset{id: ^dataset_id} = Transport.ConsolidatedDataset.parkings_relais_dataset()

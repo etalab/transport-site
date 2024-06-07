@@ -8,7 +8,8 @@ config :transport, datagouvfr_apikey: System.get_env("DATAGOUVFR_API_KEY")
 
 config :transport,
   datagouvfr_transport_publisher_label: "Point d'Accès National transport.data.gouv.fr",
-  datagouvfr_publisher_label: "data.gouv.fr"
+  datagouvfr_transport_publisher_id: "5abca8d588ee386ee6ece479",
+  datagouvfr_publisher_id: "646b7187b50b2a93b1ae3d45"
 
 # Configure data.gouv.fr authentication
 

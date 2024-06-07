@@ -59,15 +59,15 @@ defmodule Transport.ConsolidatedDataset do
   end
 
   defp base_consolidated_dataset_query(dataset_type, publisher, additional_fn \\ fn q -> q end) do
-    publisher_label =
+    publisher_id =
       case publisher do
-        :datagouvfr -> datagouv_publisher_label()
-        :transport -> transport_publisher_label()
+        :datagouvfr -> datagouv_publisher_id()
+        :transport -> transport_publisher_id()
       end
 
     DB.Dataset.base_query()
     |> preload(:resources)
-    |> where([d], d.type == ^dataset_type and d.organization == ^publisher_label)
+    |> where([d], d.type == ^dataset_type and d.organization_id == ^publisher_id)
     |> additional_fn.()
     |> DB.Repo.one()
   end
@@ -82,12 +82,12 @@ defmodule Transport.ConsolidatedDataset do
     resource
   end
 
-  defp transport_publisher_label do
-    Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
+  defp transport_publisher_id do
+    Application.fetch_env!(:transport, :datagouvfr_transport_publisher_id)
   end
 
-  defp datagouv_publisher_label do
-    Application.fetch_env!(:transport, :datagouvfr_publisher_label)
+  defp datagouv_publisher_id do
+    Application.fetch_env!(:transport, :datagouvfr_publisher_id)
   end
 
   defp bnlc_resource_id do

@@ -31,7 +31,11 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
     dataset = insert(:dataset, type: "low-emission-zones", organization: "Sample")
 
     pan_dataset =
-      insert(:dataset, type: "low-emission-zones", organization: "Point d'Accès National transport.data.gouv.fr")
+      insert(:dataset,
+        type: "low-emission-zones",
+        organization: "Point d'Accès National transport.data.gouv.fr",
+        organization_id: "5abca8d588ee386ee6ece479"
+      )
 
     zfe_aire =
       insert(:resource, dataset: dataset, url: "https://example.com/aires.geojson", schema_name: "etalab/schema-zfe")
