@@ -82,7 +82,7 @@ defmodule TransportWeb.ResourceController do
   defp gtfs_rt_feed(conn, %Resource{format: "gtfs-rt", url: url, id: id}) do
     lang = get_session(conn, :locale)
 
-    Transport.Cache.API.fetch(
+    Transport.Cache.fetch(
       "gtfs_rt_feed_#{id}_#{lang}",
       fn ->
         case Transport.GTFSRT.decode_remote_feed(url) do

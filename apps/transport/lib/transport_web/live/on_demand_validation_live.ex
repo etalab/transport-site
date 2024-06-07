@@ -80,7 +80,7 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
     lang = socket_value(socket, :locale)
     url = Map.fetch!(validation.oban_args, "gtfs_rt_url")
 
-    Transport.Cache.API.fetch(
+    Transport.Cache.fetch(
       "gtfs_rt_feed_validation_#{validation.id}_#{lang}",
       fn ->
         case Transport.GTFSRT.decode_remote_feed(url) do

@@ -16,17 +16,17 @@ defmodule TransportWeb.API.StatsControllerTest do
       # return original computed payload
       mock = fn unquote(cache_key), x -> x.() end
 
-      with_mock Transport.Cache.API, fetch: mock do
+      with_mock Transport.Cache, fetch: mock do
         conn = conn |> get(unquote(route))
         %{"features" => _features} = json_response(conn, 200)
-        assert_called_exactly(Transport.Cache.API.fetch(:_, :_), 1)
+        assert_called_exactly(Transport.Cache.fetch(:_, :_), 1)
       end
     end
 
     test "GET #{route} (returns the cached value as is)", %{conn: conn} do
       mock = fn unquote(cache_key), _ -> %{hello: 123} |> Jason.encode!() end
 
-      with_mock Transport.Cache.API, fetch: mock do
+      with_mock Transport.Cache, fetch: mock do
         conn = conn |> get(unquote(route))
         assert json_response(conn, 200) == %{"hello" => 123}
       end

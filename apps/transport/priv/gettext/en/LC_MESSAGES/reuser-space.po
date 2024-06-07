@@ -106,3 +106,19 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "reuser-space-intro"
 msgstr "To add a favorite and benefit from monitoring and quality improvement services for the datasets you reuse, you must first log in and then click on the ❤️ icon on the dataset page."
+
+#, elixir-autogen, elixir-format
+msgid "%{dataset_title} has been removed from your favorites"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Cancel"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Edit"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Remove from favorites"
+msgstr ""

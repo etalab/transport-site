@@ -70,13 +70,13 @@ defmodule Transport.Test.Transport.Jobs.NotificationSubscriptionProducerJobTest 
              %DB.NotificationSubscription{
                role: :producer,
                reason: :dataset_with_error,
-               source: :admin,
+               source: :"automation:migrate_from_reuser_to_producer",
                contact_id: ^producer_id,
                dataset_id: ^dataset_id
              },
              %DB.NotificationSubscription{
                reason: :expiration,
-               source: :admin,
+               source: :"automation:migrate_from_reuser_to_producer",
                role: :producer,
                contact_id: ^producer_id,
                dataset_id: ^dataset_id
@@ -90,7 +90,7 @@ defmodule Transport.Test.Transport.Jobs.NotificationSubscriptionProducerJobTest 
              },
              %DB.NotificationSubscription{
                reason: :resource_unavailable,
-               source: :admin,
+               source: :"automation:migrate_from_reuser_to_producer",
                role: :producer,
                contact_id: ^producer_id,
                dataset_id: ^dataset_id

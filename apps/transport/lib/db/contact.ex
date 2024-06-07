@@ -291,7 +291,7 @@ defmodule DB.Contact do
   """
   @spec admin_contact_ids() :: [integer()]
   def admin_contact_ids do
-    Transport.Cache.API.fetch(
+    Transport.Cache.fetch(
       to_string(__MODULE__) <> ":admin_contact_ids",
       fn -> Enum.map(admin_contacts(), & &1.id) end,
       :timer.seconds(60)

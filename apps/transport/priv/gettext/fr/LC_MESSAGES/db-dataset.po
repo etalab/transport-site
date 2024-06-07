@@ -90,3 +90,11 @@ msgstr "Comptage des mobilités"
 #, elixir-autogen, elixir-format
 msgid "Organization type is invalid"
 msgstr "Le type d'organisation (publicateur) est invalide"
+
+#, elixir-autogen, elixir-format
+msgid "Carpooling lines"
+msgstr "Lignes de covoiturage"
+
+#, elixir-autogen, elixir-format
+msgid "Carpooling offers"
+msgstr "Offres de covoiturage"
