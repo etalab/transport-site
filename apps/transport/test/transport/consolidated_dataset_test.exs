@@ -31,6 +31,6 @@ defmodule Transport.ConsolidatedDatasetTest do
     %DB.Resource{id: resource_geojson_id} =
       insert(:resource, dataset_id: dataset_id, format: "geojson", title: "aires.geojson")
 
-    assert %DB.Resource{id: ^resource_geojson_id} = Transport.ConsolidatedDataset.zfe_resource()
+    assert %DB.Resource{id: ^resource_geojson_id} = Transport.ConsolidatedDataset.resource(:zfe)
   end
 end

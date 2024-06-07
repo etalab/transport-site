@@ -7,7 +7,7 @@ defmodule Transport.Jobs.IRVEToGeoData do
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
-    Transport.ConsolidatedDataset.irve_resource()
+    Transport.ConsolidatedDataset.resource(:irve)
     |> Transport.Jobs.BaseGeoData.import_replace_data(&prepare_data_for_insert/2)
 
     :ok

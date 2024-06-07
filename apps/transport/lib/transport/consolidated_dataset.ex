@@ -30,53 +30,39 @@ defmodule Transport.ConsolidatedDataset do
     |> DB.Repo.one()
   end
 
-  def additional_ecto_query(query, :parkings_relais) do
+  def resource(name) do
+    [resource] =
+      Transport.ConsolidatedDataset.dataset(name)
+      |> DB.Dataset.official_resources()
+      |> filter_official_resources(name)
+
+    resource
+  end
+
+  # This filter has been moved from previous code but is fragile
+  defp additional_ecto_query(query, :parkings_relais) do
     query |> where([d], d.custom_title == "Base nationale des parcs relais")
   end
 
-  def additional_ecto_query(q, _), do: q
+  defp additional_ecto_query(q, _), do: q
 
-  def bnlc_resource do
-    filter_fn = fn resources ->
-      Enum.filter(resources, fn %DB.Resource{datagouv_id: datagouv_id} -> datagouv_id == bnlc_resource_id() end)
-    end
-
-    get_resource(dataset(:bnlc), filter_fn)
+  # Following filters have been moved from previous code but are fragile
+  # There should be a better and more unified way to be sure we find the right official resource
+  defp filter_official_resources(resources, :bnlc) do
+    Enum.filter(resources, fn %DB.Resource{datagouv_id: datagouv_id} -> datagouv_id == bnlc_resource_id() end)
   end
 
-  def irve_resource do
-    filter_fn = fn resources ->
-      irve_resource_id = irve_resource_id()
-      Enum.filter(resources, &match?(%DB.Resource{datagouv_id: ^irve_resource_id, format: "csv"}, &1))
-    end
-
-    get_resource(dataset(:irve), filter_fn)
+  defp filter_official_resources(resources, :irve) do
+    irve_resource_id = irve_resource_id()
+    Enum.filter(resources, &match?(%DB.Resource{datagouv_id: ^irve_resource_id, format: "csv"}, &1))
   end
 
-  def parkings_relais_resource do
-    filter_fn = fn resources ->
-      Enum.filter(resources, &(&1.format == "csv"))
-    end
-
-    get_resource(dataset(:parkings_relais), filter_fn)
+  defp filter_official_resources(resources, :parkings_relais) do
+    Enum.filter(resources, &(&1.format == "csv"))
   end
 
-  def zfe_resource do
-    filter_fn = fn resources ->
-      Enum.filter(resources, &(&1.title == "aires.geojson"))
-    end
-
-    get_resource(dataset(:zfe), filter_fn)
-  end
-
-  def get_resource(nil, _filter_fn) do
-    nil
-  end
-
-  def get_resource(dataset, filter_fn) do
-    [resource] = dataset |> DB.Dataset.official_resources() |> filter_fn.()
-
-    resource
+  defp filter_official_resources(resources, :zfe) do
+    Enum.filter(resources, &(&1.title == "aires.geojson"))
   end
 
   defp publisher_id(:datagouvfr) do

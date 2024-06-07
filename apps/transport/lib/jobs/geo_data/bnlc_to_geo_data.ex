@@ -8,7 +8,7 @@ defmodule Transport.Jobs.BNLCToGeoData do
 
   @impl Oban.Worker
   def perform(%{}) do
-    Transport.ConsolidatedDataset.bnlc_resource()
+    Transport.ConsolidatedDataset.resource(:bnlc)
     |> Transport.Jobs.BaseGeoData.import_replace_data(&prepare_data_for_insert/2)
 
     :ok
