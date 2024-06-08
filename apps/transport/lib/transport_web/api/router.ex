@@ -17,6 +17,11 @@ defmodule TransportWeb.API.Router do
     plug(TransportWeb.API.Plugs.PublicCache, max_age: 60)
   end
 
+  scope "/api/v2" do
+    pipe_through([:accept_json])
+    get("/resources", TransportWeb.API.V2.Controller, :resources)
+  end
+
   scope "/api/" do
     pipe_through([:accept_json, :api])
     get("/", TransportWeb.Redirect, to: "/swaggerui")
