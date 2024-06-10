@@ -313,13 +313,14 @@ defmodule Transport.DataCheckerTest do
     %{id: dataset_id} = dataset = insert(:dataset)
     %DB.Contact{id: contact_id, email: email} = contact = insert_contact()
 
-    insert(:notification_subscription, %{
-      reason: :expiration,
-      source: :admin,
-      role: :producer,
-      contact_id: contact_id,
-      dataset_id: dataset.id
-    })
+    %DB.NotificationSubscription{id: ns_id} =
+      insert(:notification_subscription, %{
+        reason: :expiration,
+        source: :admin,
+        role: :producer,
+        contact_id: contact_id,
+        dataset_id: dataset.id
+      })
 
     Transport.DataChecker.send_outdated_data_notifications({7, [{dataset, []}]})
 
@@ -331,7 +332,17 @@ defmodule Transport.DataCheckerTest do
       html_body: ~r/Bonjour/
     )
 
-    assert [%DB.Notification{email: ^email, reason: :expiration, dataset_id: ^dataset_id}] =
+    assert [
+             %DB.Notification{
+               contact_id: ^contact_id,
+               email: ^email,
+               reason: :expiration,
+               dataset_id: ^dataset_id,
+               notification_subscription_id: ^ns_id,
+               role: :producer,
+               payload: %{"delay" => 7}
+             }
+           ] =
              DB.Notification |> DB.Repo.all()
   end
 

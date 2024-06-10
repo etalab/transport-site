@@ -84,7 +84,7 @@ defmodule Transport.Jobs.ExpirationNotificationJob do
           role: :reuser
         )
 
-      DB.Notification.insert!(dataset, %{subscription | contact: contact})
+      DB.Notification.insert!(dataset, %DB.NotificationSubscription{subscription | contact: contact})
     end)
   end
 

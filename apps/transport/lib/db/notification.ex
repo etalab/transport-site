@@ -47,12 +47,22 @@ defmodule DB.Notification do
     |> DB.Repo.insert!()
   end
 
-  def insert!(%DB.Dataset{id: dataset_id, datagouv_id: datagouv_id}, %DB.NotificationSubscription{
-        id: ns_id,
-        role: role,
-        reason: reason,
-        contact: %DB.Contact{id: contact_id, email: email}
-      }) do
+  def insert!(dataset, subscription, payload \\ nil)
+
+  def insert!(%DB.Dataset{} = dataset, %DB.NotificationSubscription{} = subscription, payload: payload) do
+    insert!(dataset, subscription, payload)
+  end
+
+  def insert!(
+        %DB.Dataset{id: dataset_id, datagouv_id: datagouv_id},
+        %DB.NotificationSubscription{
+          id: ns_id,
+          role: role,
+          reason: reason,
+          contact: %DB.Contact{id: contact_id, email: email}
+        },
+        payload
+      ) do
     %__MODULE__{}
     |> changeset(%{
       role: role,
@@ -61,7 +71,8 @@ defmodule DB.Notification do
       dataset_datagouv_id: datagouv_id,
       contact_id: contact_id,
       email: email,
-      notification_subscription_id: ns_id
+      notification_subscription_id: ns_id,
+      payload: payload
     })
     |> DB.Repo.insert!()
   end

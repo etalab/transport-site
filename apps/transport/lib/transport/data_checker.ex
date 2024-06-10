@@ -155,7 +155,7 @@ defmodule Transport.DataChecker do
         |> Transport.UserNotifier.expiration_producer(dataset, resources, delay)
         |> Transport.Mailer.deliver()
 
-        DB.Notification.insert!(dataset, subscription)
+        DB.Notification.insert!(dataset, subscription, payload: %{"delay" => delay})
       end)
     end)
 

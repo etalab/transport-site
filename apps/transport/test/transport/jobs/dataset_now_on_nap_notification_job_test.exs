@@ -21,7 +21,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetNowOnNAPNotificationJobTest do
       email: already_sent_email = Ecto.UUID.generate() <> "@example.fr"
     })
 
-    %DB.Contact{email: email} = contact = insert_contact()
+    %DB.Contact{id: contact_id, email: email} = contact = insert_contact()
 
     ~w(resource_unavailable expiration)a
     |> Enum.each(fn reason ->
@@ -63,9 +63,17 @@ defmodule Transport.Test.Transport.Jobs.DatasetNowOnNAPNotificationJobTest do
                reason: :dataset_now_on_nap,
                role: :producer,
                dataset_id: ^dataset_id,
-               email: ^already_sent_email
+               email: ^already_sent_email,
+               notification_subscription_id: nil
              },
-             %DB.Notification{reason: :dataset_now_on_nap, role: :producer, dataset_id: ^dataset_id, email: ^email}
+             %DB.Notification{
+               reason: :dataset_now_on_nap,
+               role: :producer,
+               dataset_id: ^dataset_id,
+               email: ^email,
+               notification_subscription_id: nil,
+               contact_id: ^contact_id
+             }
            ] = DB.Notification |> order_by([n], asc: n.inserted_at) |> DB.Repo.all()
   end
 end

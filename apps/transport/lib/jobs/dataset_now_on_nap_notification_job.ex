@@ -18,14 +18,26 @@ defmodule Transport.Jobs.DatasetNowOnNAPNotificationJob do
     |> DB.NotificationSubscription.subscriptions_for_dataset_and_role(:producer)
     |> Enum.uniq_by(fn %DB.NotificationSubscription{contact_id: contact_id} -> contact_id end)
     |> reject_already_sent(dataset)
-    |> Enum.each(fn %DB.NotificationSubscription{contact: %DB.Contact{} = contact} = notification_subscription ->
+    |> Enum.each(fn %DB.NotificationSubscription{contact: %DB.Contact{} = contact} ->
       Transport.UserNotifier.dataset_now_on_nap(contact, dataset)
       |> Transport.Mailer.deliver()
 
-      DB.Notification.insert!(dataset, %{notification_subscription | reason: @notification_reason})
+      save_notification(contact, dataset)
     end)
 
     Oban.Notifier.notify(Oban, :gossip, %{complete: job_id})
+  end
+
+  defp save_notification(%DB.Contact{id: contact_id, email: email}, %DB.Dataset{id: dataset_id}) do
+    %DB.Notification{}
+    |> DB.Notification.changeset(%{
+      reason: @notification_reason,
+      dataset_id: dataset_id,
+      email: email,
+      contact_id: contact_id,
+      role: :producer
+    })
+    |> DB.Repo.insert!()
   end
 
   defp reject_already_sent(notification_subscriptions, %DB.Dataset{} = dataset) do
