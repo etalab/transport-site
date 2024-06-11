@@ -248,12 +248,10 @@ defmodule Transport.ImportDataTest do
     assert db_count(DB.Dataset) == 1
     assert db_count(DB.Resource) == 1
 
-    [resource] = DB.Resource |> DB.Repo.all()
-    assert Map.get(resource, :title) == "resource1"
-    assert Map.get(resource, :filetype) == "remote"
-    assert Map.get(resource, :type) == "main"
-    assert Map.get(resource, :display_position) == 0
-    assert Map.get(resource, :url) == "http://localhost:4321/resource1"
+    [
+    %DB.Resource{title: "resource1", filetype: "remote", type: "main", display_position: 0, url: "http://localhost:4321/resource1"}
+    ] = DB.Resource |> DB.Repo.all()
+
 
     # import 2: the original resources has been dropped and recreated with the
     # same URL
