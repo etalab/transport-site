@@ -345,7 +345,7 @@ defmodule Transport.ImportDataTest do
     assert Map.get(resource_updated, :url) == "http://localhost:4321/resource1/bis"
     assert Map.get(new_resource, :url) == "http://localhost:4321/resource1"
 
-    # import 3: Second's resource has been recreated with a the same URL
+    # import 3: Second resource has been recreated with the same URL
     payload_3 =
       generate_dataset_payload(
         datagouv_id,
