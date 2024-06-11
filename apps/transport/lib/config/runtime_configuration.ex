@@ -6,7 +6,7 @@ defmodule Transport.RuntimeConfiguration do
 
   defmodule SystemEnvProvider do
     @moduledoc """
-    A behaviour wrapping the sub-part of `System.get_env`  calls required by
+    A behaviour wrapping the sub-part of `System.get_env` calls required by
     the current `runtime.exs` configuration. We define this boundary/interface
     to help stub the environment variables during tests, and ensure we can get
     robust well-tested production configuration.
