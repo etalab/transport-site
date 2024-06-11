@@ -3,6 +3,7 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
   import Mox
+  import Swoosh.TestAssertions
   alias Transport.Jobs.NewDatagouvDatasetsJob
 
   setup :verify_on_exit!
@@ -60,36 +61,92 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
   end
 
   test "filtered_datasets" do
+    thursday_at_noon = ~U[2022-10-27 12:00:00Z]
+    friday_at_noon = ~U[2022-10-28 12:00:00Z]
+    saturday_at_noon = ~U[2022-10-29 12:00:00Z]
+    monday_night = ~U[2022-10-31 03:00:00Z]
+    monday_at_noon = ~U[2022-10-31 12:00:00Z]
+    tuesday_at_noon = ~U[2022-11-01 12:00:00Z]
+    wednesday_night = ~U[2022-11-02 03:00:00Z]
+
     base = %{
       "title" => "",
       "resources" => [],
       "tags" => [],
       "description" => "",
-      "internal" => %{"created_at_internal" => "2022-11-01 00:01:00+00:00"},
+      "internal" => %{"created_at_internal" => DateTime.to_string(tuesday_at_noon)},
       "id" => Ecto.UUID.generate()
     }
 
     insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate(), is_active: true)
 
+    created_on_thursday = %{
+      base
+      | "internal" => %{"created_at_internal" => DateTime.to_string(thursday_at_noon)},
+        "title" => "GTFS de Dôle (jeudi)"
+    }
+
+    created_on_friday = %{
+      base
+      | "internal" => %{"created_at_internal" => DateTime.to_string(friday_at_noon)},
+        "title" => "GTFS de Dôle (vendredi)"
+    }
+
+    created_on_friday_but_already_imported = %{
+      created_on_friday
+      | "tags" => ["gbfs"],
+        "id" => datagouv_id
+    }
+
+    created_on_saturday = %{
+      base
+      | "internal" => %{"created_at_internal" => DateTime.to_string(saturday_at_noon)},
+        "title" => "GTFS de Besançon (samedi)"
+    }
+
+    created_on_monday = %{
+      base
+      | "internal" => %{"created_at_internal" => DateTime.to_string(monday_at_noon)},
+        "title" => "GTFS de Macon (lundi)"
+    }
+
+    created_on_tuesday = %{base | "title" => "GTFS de Dijon (mardi)"}
+
+    created_on_tuesday_but_already_imported = %{
+      created_on_tuesday
+      | "tags" => ["gbfs"],
+        "id" => datagouv_id
+    }
+
     datasets = [
+      created_on_thursday,
+      created_on_friday,
+      created_on_friday_but_already_imported,
+      created_on_saturday,
+      created_on_monday,
       base,
-      %{base | "internal" => %{"created_at_internal" => "2022-10-30 00:00:00+00:00"}, "title" => "GTFS de Dijon"},
-      dataset_to_keep = %{base | "title" => "GTFS de Dijon"},
-      %{base | "tags" => ["gbfs"], "id" => datagouv_id}
+      created_on_tuesday,
+      created_on_tuesday_but_already_imported
     ]
 
-    assert [false, true, true, true] == Enum.map(datasets, &NewDatagouvDatasetsJob.dataset_is_relevant?/1)
+    assert [true, true, true, true, true, false, true, true] ==
+             Enum.map(datasets, &NewDatagouvDatasetsJob.dataset_is_relevant?/1)
 
-    assert [true, false, true, true] ==
-             Enum.map(
-               datasets,
-               &NewDatagouvDatasetsJob.after_datetime?(
-                 get_in(&1, ["internal", "created_at_internal"]),
-                 ~U[2022-11-01 00:00:00Z]
-               )
-             )
+    assert [created_on_tuesday] == filtered_datasets_as_of(datasets, wednesday_night)
 
-    assert [dataset_to_keep] == NewDatagouvDatasetsJob.filtered_datasets(datasets, ~U[2022-11-02 00:00:00Z])
+    assert [created_on_friday, created_on_saturday] ==
+             filtered_datasets_as_of(datasets, monday_night)
+  end
+
+  defp filtered_datasets_as_of(datasets, %DateTime{} = then) do
+    NewDatagouvDatasetsJob.filtered_datasets(as_of(datasets, then), then)
+  end
+
+  defp as_of(datasets, %DateTime{} = then) do
+    Enum.reject(
+      datasets,
+      &NewDatagouvDatasetsJob.after_datetime?(get_in(&1, ["internal", "created_at_internal"]), then)
+    )
   end
 
   describe "perform" do
@@ -104,14 +161,14 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
       assert :ok == perform_job(NewDatagouvDatasetsJob, %{}, inserted_at: DateTime.utc_now())
     end
 
-    test "sends an email" do
+    defp test_email_sending(%DateTime{} = inserted_at, expected_body) do
       dataset = %{
         "title" => "GTFS de Dijon",
         "resources" => [],
         "tags" => [],
         "description" => "",
         "internal" => %{
-          "created_at_internal" => DateTime.utc_now() |> DateTime.add(-23, :hour) |> DateTime.to_iso8601()
+          "created_at_internal" => inserted_at |> DateTime.add(-23, :hour) |> DateTime.to_iso8601()
         },
         "page" => "https://example.com/link",
         "id" => Ecto.UUID.generate()
@@ -126,18 +183,35 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
         %HTTPoison.Response{status_code: 200, body: Jason.encode!(%{"data" => [dataset]})}
       end)
 
-      Transport.EmailSender.Mock
-      |> expect(:send_mail, fn _from_name,
-                               "contact@transport.data.gouv.fr" = _from_email,
-                               "deploiement@transport.data.gouv.fr" = _to_email,
-                               _reply_to,
-                               "Nouveaux jeux de données à référencer - data.gouv.fr" = _subject,
-                               body,
-                               _html_body ->
-        assert body =~ ~s(* #{dataset["title"]} - #{dataset["page"]})
-      end)
+      assert :ok == perform_job(NewDatagouvDatasetsJob, %{}, inserted_at: inserted_at)
 
-      assert :ok == perform_job(NewDatagouvDatasetsJob, %{}, inserted_at: DateTime.utc_now())
+      assert_email_sent(fn %Swoosh.Email{
+                             from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                             to: [{"", "deploiement@transport.data.gouv.fr"}],
+                             subject: "Nouveaux jeux de données à référencer - data.gouv.fr",
+                             text_body: body
+                           } ->
+        assert body =~ ~s(* #{dataset["title"]} - #{dataset["page"]})
+        assert body =~ expected_body
+      end)
+    end
+
+    test "sends an email on monday" do
+      monday_night = ~U[2022-10-31 03:00:00Z]
+
+      test_email_sending(
+        monday_night,
+        ~s(Les jeux de données suivants ont été ajoutés sur data.gouv.fr dans les dernières 72h)
+      )
+    end
+
+    test "sends an email on other week day" do
+      wednesday_night = ~U[2022-11-02 03:00:00Z]
+
+      test_email_sending(
+        wednesday_night,
+        ~s(Les jeux de données suivants ont été ajoutés sur data.gouv.fr dans les dernières 24h)
+      )
     end
   end
 end

@@ -1,5 +1,8 @@
 /* from https://www.w3schools.com/howto/howto_css_tooltip.asp */
 /* Tooltip container */
+
+$tooltip-width: 150px !default;
+
 .tooltip {
   position: relative;
   display: inline-block;
@@ -8,7 +11,7 @@
 /* Tooltip text */
 .tooltip .tooltiptext {
   visibility: hidden;
-  width: 150px;
+  width: $tooltip-width;
   background-color: var(--theme-background-white);
   color: var(--theme-dark-text);
   text-align: center;
@@ -21,11 +24,20 @@
   z-index: 1;
   bottom: 125%;
   left: 50%;
-  margin-left: -50px;
+  margin-left: -(calc($tooltip-width / 2));
 
   /* Fade in tooltip */
   opacity: 0;
   transition: opacity 0.3s;
+
+  &.left {
+    top: -30%;
+    right: 105%;
+    bottom: 0;
+    left: auto;
+    margin-left: 0;
+    height: fit-content;
+  }
 }
 
 /* Tooltip arrow */
@@ -38,6 +50,14 @@
   border-width: 5px;
   border-style: solid;
   border-color: var(--theme-border) transparent transparent transparent;
+}
+
+.tooltip .tooltiptext.left::after {
+  top: 50%;
+  left: 100%;
+  margin-top: -5px;
+  margin-left: 0;
+  border-color: transparent transparent transparent var(--theme-border);
 }
 
 /* Show the tooltip text when you mouse over the tooltip container */

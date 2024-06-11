@@ -2,10 +2,8 @@ defmodule Transport.Test.Transport.Jobs.NewDatasetNotificationsJobTest do
   use ExUnit.Case, async: true
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
-  import Mox
+  import Swoosh.TestAssertions
   alias Transport.Jobs.NewDatasetNotificationsJob
-
-  setup :verify_on_exit!
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -28,21 +26,17 @@ defmodule Transport.Test.Transport.Jobs.NewDatasetNotificationsJobTest do
   test "perform" do
     %DB.Dataset{id: dataset_id} = insert(:dataset, inserted_at: hours_ago(23), is_active: true)
     %DB.Contact{id: contact_id, email: email} = insert_contact()
-    insert(:notification_subscription, %{reason: :new_dataset, source: :admin, role: :producer, contact_id: contact_id})
-
-    Transport.EmailSender.Mock
-    |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.data.gouv.fr",
-                             ^email = _to,
-                             "contact@transport.data.gouv.fr",
-                             "Nouveaux jeux de données référencés" = _subject,
-                             plain_text_body,
-                             "" = _html_part ->
-      assert plain_text_body =~ ~r/Bonjour/
-      :ok
-    end)
+    insert(:notification_subscription, %{reason: :new_dataset, source: :admin, role: :reuser, contact_id: contact_id})
 
     assert :ok == perform_job(NewDatasetNotificationsJob, %{}, inserted_at: DateTime.utc_now())
+
+    assert_email_sent(
+      from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+      to: email,
+      subject: "Nouveaux jeux de données référencés",
+      text_body: ~r/Bonjour/,
+      html_body: nil
+    )
 
     # Logs have been saved
     assert [%DB.Notification{email: ^email, reason: :new_dataset, dataset_id: ^dataset_id}] =

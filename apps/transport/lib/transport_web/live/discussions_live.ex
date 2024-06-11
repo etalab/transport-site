@@ -7,7 +7,7 @@ defmodule TransportWeb.DiscussionsLive do
 
   def render(assigns) do
     ~H"""
-    <script>
+    <script nonce={@nonce}>
       window.addEventListener('phx:discussions-loaded', (event) => {
         event.detail.ids.forEach(id =>
           addSeeMore(
@@ -18,6 +18,8 @@ defmodule TransportWeb.DiscussionsLive do
             "discussion"
           )
         )
+        // Scroll to the right place after discussions have been loaded
+        if (location.hash) location.href = location.hash;
       })
     </script>
 
@@ -48,7 +50,8 @@ defmodule TransportWeb.DiscussionsLive do
         %{
           "current_user" => current_user,
           "dataset" => dataset,
-          "locale" => locale
+          "locale" => locale,
+          "csp_nonce_value" => nonce
         },
         socket
       ) do
@@ -57,6 +60,7 @@ defmodule TransportWeb.DiscussionsLive do
       |> assign(:current_user, current_user)
       |> assign(:dataset, dataset)
       |> assign(:locale, locale)
+      |> assign(:nonce, nonce)
 
     Gettext.put_locale(locale)
 

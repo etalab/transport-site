@@ -3,11 +3,9 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
   import DB.Factory
   use Oban.Testing, repo: DB.Repo
   alias Transport.Jobs.PeriodicReminderProducersNotificationJob
-  import Mox
+  import Swoosh.TestAssertions
 
   doctest PeriodicReminderProducersNotificationJob, import: true
-
-  setup :verify_on_exit!
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -35,7 +33,7 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
 
       # Contact should be ignored: it's a reuser
       insert(:notification_subscription,
-        source: :admin,
+        source: :user,
         role: :reuser,
         reason: :expiration,
         dataset: dataset,
@@ -109,6 +107,7 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
     %DB.Contact{id: producer_2_id} = producer_2 = insert_contact()
     reuser = insert_contact()
     dataset = insert(:dataset)
+    other_dataset = insert(:dataset)
 
     # Should be ignored, the contact of a member of the transport.data.gouv.fr's org
     admin_producer =
@@ -125,9 +124,22 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
       )
     end)
 
+    # Subscribed as a reuser to another dataset and a producer has notifications enabled.
+    # Should not list the other producer.
+    [{producer_1, :reuser}, {producer_2, :producer}]
+    |> Enum.each(fn {%DB.Contact{} = current_contact, role} ->
+      insert(:notification_subscription,
+        source: :admin,
+        role: role,
+        reason: :expiration,
+        dataset: other_dataset,
+        contact: current_contact
+      )
+    end)
+
     assert [%DB.Contact{id: ^producer_2_id}] =
              producer_1
-             |> DB.Repo.preload(:notification_subscriptions)
+             |> DB.Repo.preload(notification_subscriptions: [:dataset])
              |> PeriodicReminderProducersNotificationJob.other_producers_subscribers()
   end
 
@@ -162,8 +174,10 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
   test "send mail to producer with subscriptions" do
     %DB.Contact{email: email} = producer_1 = insert_contact()
     producer_2 = insert_contact(%{first_name: "Marina", last_name: "Loiseau"})
+    producer_3 = insert_contact(%{first_name: "Foo", last_name: "Baz"})
     reuser = insert_contact()
     dataset = insert(:dataset, custom_title: "Super JDD")
+    other_dataset = insert(:dataset)
 
     %DB.Contact{id: admin_producer_id} =
       admin_producer =
@@ -180,17 +194,30 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
       )
     end)
 
+    # Subscribed as a reuser to another dataset and a producer has notifications enabled.
+    # Should not list the other producer.
+    [{producer_1, :reuser}, {producer_3, :producer}]
+    |> Enum.each(fn {%DB.Contact{} = contact, role} ->
+      insert(:notification_subscription,
+        source: :admin,
+        role: role,
+        reason: :expiration,
+        dataset: other_dataset,
+        contact: contact
+      )
+    end)
+
     assert [%DB.Contact{id: ^admin_producer_id}] = DB.Contact.admin_contacts()
     assert [admin_producer.id] == DB.Contact.admin_contact_ids()
 
-    Transport.EmailSender.Mock
-    |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.data.gouv.fr",
-                             ^email = _to,
-                             "contact@transport.data.gouv.fr",
-                             subject,
-                             "",
-                             html ->
+    assert :ok == perform_job(PeriodicReminderProducersNotificationJob, %{"contact_id" => producer_1.id})
+
+    assert_email_sent(fn %Swoosh.Email{
+                           from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                           to: [{"", ^email}],
+                           subject: subject,
+                           html_body: html
+                         } ->
       assert subject == "Rappel : vos notifications pour vos données sur transport.data.gouv.fr"
 
       assert html =~
@@ -198,8 +225,6 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
 
       assert html =~ "Les autres personnes inscrites à ces notifications sont : Marina Loiseau."
     end)
-
-    assert :ok == perform_job(PeriodicReminderProducersNotificationJob, %{"contact_id" => producer_1.id})
 
     assert [%DB.Notification{reason: :periodic_reminder_producers, email: ^email}] = DB.Notification |> DB.Repo.all()
   end
@@ -221,14 +246,14 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
            |> DB.Repo.preload(:notification_subscriptions)
            |> PeriodicReminderProducersNotificationJob.subscribed_as_producer?()
 
-    Transport.EmailSender.Mock
-    |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.data.gouv.fr",
-                             ^email = _to,
-                             "contact@transport.data.gouv.fr",
-                             subject,
-                             "",
-                             html ->
+    assert :ok == perform_job(PeriodicReminderProducersNotificationJob, %{"contact_id" => contact.id})
+
+    assert_email_sent(fn %Swoosh.Email{
+                           from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                           to: [{"", ^email}],
+                           subject: subject,
+                           html_body: html
+                         } ->
       assert subject == "Notifications pour vos données sur transport.data.gouv.fr"
 
       assert html =~
@@ -237,8 +262,6 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
       assert html =~
                ~s(Pour vous inscrire, rien de plus simple : rendez-vous sur votre <a href="http://127.0.0.1:5100/espace_producteur?utm_source=transactional_email&amp;utm_medium=email&amp;utm_campaign=periodic_reminder_producer_without_subscriptions">Espace Producteur</a>)
     end)
-
-    assert :ok == perform_job(PeriodicReminderProducersNotificationJob, %{"contact_id" => contact.id})
 
     assert [%DB.Notification{reason: :periodic_reminder_producers, email: ^email}] = DB.Notification |> DB.Repo.all()
   end

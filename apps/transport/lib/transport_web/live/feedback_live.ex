@@ -11,18 +11,21 @@ defmodule TransportWeb.Live.FeedbackLive do
   If you add feedback for a new feature, add it to the list of features.
   """
 
-  @feedback_rating_values ["like", "neutral", "dislike"]
-  @feedback_features ["gtfs-stops", "on-demand-validation", "gbfs-validation"]
+  @feedback_rating_values DB.UserFeedback.ratings() |> Enum.map(&Atom.to_string/1)
+  @feedback_features DB.UserFeedback.features() |> Enum.map(&Atom.to_string/1)
 
-  def mount(_params, %{"feature" => feature, "locale" => locale} = session, socket)
+  def mount(_params, %{"feature" => feature, "locale" => locale, "csp_nonce_value" => nonce} = session, socket)
       when feature in @feedback_features do
-    current_email = session |> get_in(["current_user", "email"])
+    current_user_email = session |> get_in(["current_user", "email"])
+    current_user_id = session |> get_in(["current_user", "id"])
+    form = %DB.UserFeedback{} |> DB.UserFeedback.changeset(%{email: current_user_email, feature: feature}) |> to_form()
 
     socket =
       socket
       |> assign(
-        feature: feature,
-        current_email: current_email,
+        nonce: nonce,
+        form: form,
+        current_user_id: current_user_id,
         feedback_sent: false,
         feedback_error: false
       )
@@ -41,19 +44,22 @@ defmodule TransportWeb.Live.FeedbackLive do
 
   def handle_event(
         "submit",
-        %{"feedback" => %{"rating" => rating, "explanation" => explanation, "email" => email, "feature" => feature}},
+        %{
+          "feedback" =>
+            %{"rating" => rating, "feature" => feature} =
+              feedback_params
+        },
         socket
       )
       when rating in @feedback_rating_values and feature in @feedback_features do
-    %{email: email, explanation: explanation} = sanitize_inputs(%{email: email, explanation: explanation})
+    changeset = %DB.UserFeedback{} |> DB.UserFeedback.changeset(feedback_params)
+    changeset = changeset |> DB.UserFeedback.assoc_contact_from_user_id(socket.assigns.current_user_id)
 
-    feedback_email = TransportWeb.ContactEmail.feedback(rating, explanation, email, feature)
-
-    case Transport.Mailer.deliver(feedback_email) do
-      {:ok, _} ->
-        {:noreply, socket |> assign(:feedback_sent, true)}
-
-      {:error, _} ->
+    with {:ok, feedback} <- DB.Repo.insert(changeset),
+         {:ok, _} <- deliver_mail(feedback) do
+      {:noreply, socket |> assign(:feedback_sent, true)}
+    else
+      _error ->
         {:noreply, socket |> assign(:feedback_error, true)}
     end
   end
@@ -63,5 +69,11 @@ defmodule TransportWeb.Live.FeedbackLive do
     {:noreply, socket |> assign(:feedback_error, true)}
   end
 
-  defp sanitize_inputs(map), do: Map.new(map, fn {k, v} -> {k, v |> String.trim() |> HtmlSanitizeEx.strip_tags()} end)
+  @spec deliver_mail(DB.UserFeedback.t()) :: {:ok, term} | {:error, term}
+  defp deliver_mail(feedback) do
+    feedback_email =
+      Transport.AdminNotifier.feedback(feedback.rating, feedback.explanation, feedback.email, feedback.feature)
+
+    Transport.Mailer.deliver(feedback_email)
+  end
 end

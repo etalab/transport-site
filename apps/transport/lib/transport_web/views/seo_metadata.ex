@@ -72,6 +72,11 @@ defmodule TransportWeb.SeoMetadata do
       title: dgettext("seo", "Climate and Resilience bill: compulsory data reuse")
     }
 
+  def metadata(TransportWeb.ReuserSpaceView, _),
+    do: %{
+      title: dgettext("seo", "Reuser space")
+    }
+
   def metadata(_, %{live_module: TransportWeb.Live.OnDemandValidationSelectLive}),
     do: %{
       title: dgettext("seo", "Data quality evaluation")

@@ -163,19 +163,8 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
     file_url = Transport.S3.permanent_url(@s3_bucket, filename)
 
-    Transport.EmailSender.impl().send_mail(
-      "transport.data.gouv.fr",
-      Application.get_env(:transport, :contact_email),
-      Application.get_env(:transport, :bizdev_email),
-      Application.get_env(:transport, :contact_email),
-      subject,
-      "",
-      """
-      #{body}
-      <br/><br/>
-      🔗 <a href="#{file_url}">Fichier consolidé</a>
-      """
-    )
+    Transport.AdminNotifier.bnlc_consolidation_report(subject, body, file_url)
+    |> Transport.Mailer.deliver()
   end
 
   @spec format_errors(consolidation_errors()) :: binary() | nil
@@ -333,7 +322,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
                                       %{@download_path_key => tmp_path, @separator_key => separator} = resource_details
                                     } ->
       tmp_path
-      |> File.stream!()
+      |> File.stream!([:trim_bom, encoding: :utf8])
       |> CSV.decode!(headers: true, field_transform: &String.trim/1, separator: separator)
       # Keep only columns that are present in the BNLC, ignore extra columns
       |> Stream.filter(&Map.take(&1, bnlc_headers))

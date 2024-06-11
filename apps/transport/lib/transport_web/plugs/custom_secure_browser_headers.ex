@@ -10,11 +10,13 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
   def call(conn, _opts) do
     nonce = generate_nonce()
     csp_headers = csp_headers(Application.fetch_env!(:transport, :app_env), nonce)
+    headers = Map.merge(csp_headers, %{"x-frame-options" => "DENY"})
 
     conn
     # used by the phoenix LivedDashboard to allow secure inlined CSS
     |> Plug.Conn.assign(:csp_nonce_value, nonce)
-    |> Phoenix.Controller.put_secure_browser_headers(csp_headers)
+    |> Plug.Conn.put_session(:csp_nonce_value, nonce)
+    |> Phoenix.Controller.put_secure_browser_headers(headers)
   end
 
   @doc """
@@ -43,6 +45,7 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
           default-src 'none';
           connect-src *;
           font-src *;
+          frame-ancestors 'none';
           img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://www.data.gouv.fr https://*.dmcdn.net #{logos_bucket_url};
           script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
           frame-src https://www.dailymotion.com/;
@@ -56,6 +59,7 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
             default-src 'none';
             connect-src *;
             font-src *;
+            frame-ancestors 'none';
             img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://demo-static.data.gouv.fr https://www.data.gouv.fr https://demo.data.gouv.fr https://*.dmcdn.net #{logos_bucket_url};
             script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
             frame-src https://www.dailymotion.com/;

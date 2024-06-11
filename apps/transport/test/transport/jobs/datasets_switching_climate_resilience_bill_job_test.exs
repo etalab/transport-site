@@ -2,12 +2,10 @@ defmodule Transport.Test.Transport.Jobs.DatasetsSwitchingClimateResilienceBillJo
   use ExUnit.Case, async: true
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
-  import Mox
+  import Swoosh.TestAssertions
   alias Transport.Jobs.DatasetsSwitchingClimateResilienceBillJob
 
   doctest DatasetsSwitchingClimateResilienceBillJob, import: true
-
-  setup :verify_on_exit!
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -122,28 +120,26 @@ defmodule Transport.Test.Transport.Jobs.DatasetsSwitchingClimateResilienceBillJo
     insert(:notification_subscription, %{
       reason: :datasets_switching_climate_resilience_bill,
       source: :admin,
-      role: :producer,
+      role: :reuser,
       contact_id: contact_id
     })
 
-    Transport.EmailSender.Mock
-    |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.data.gouv.fr",
-                             ^email,
-                             "contact@transport.data.gouv.fr",
-                             "Loi climat et résilience : suivi des jeux de données" = _subject,
-                             "" = _plain_text,
-                             html ->
-      assert html =~
+    assert :ok == perform_job(DatasetsSwitchingClimateResilienceBillJob, %{}, inserted_at: ~U[2023-04-21 06:00:00.000Z])
+
+    assert_email_sent(fn %Swoosh.Email{
+                           from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                           to: [{"", ^email}],
+                           reply_to: {"", "contact@transport.data.gouv.fr"},
+                           subject: "Loi climat et résilience : suivi des jeux de données",
+                           text_body: nil,
+                           html_body: html_body
+                         } ->
+      assert html_body =~
                ~s(Les jeux de données suivants feront l’objet d’une intégration obligatoire :\n\n<a href="http://127.0.0.1:5100/datasets/#{d1.slug}">#{d1.custom_title}</a>)
 
-      assert html =~
+      assert html_body =~
                ~s(Les jeux de données suivants faisaient l’objet d’une intégration obligatoire et ne font plus l’objet de cette obligation :\n\n<a href="http://127.0.0.1:5100/datasets/#{d2.slug}">#{d2.custom_title}</a>)
-
-      :ok
     end)
-
-    assert :ok == perform_job(DatasetsSwitchingClimateResilienceBillJob, %{}, inserted_at: ~U[2023-04-21 06:00:00.000Z])
 
     # Logs have been saved
     assert [

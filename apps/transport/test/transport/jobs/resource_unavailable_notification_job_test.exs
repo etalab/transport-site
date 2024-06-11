@@ -4,6 +4,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
   import DB.Factory
   import Ecto.Query
   import Mox
+  import Swoosh.TestAssertions
   alias Transport.Jobs.ResourceUnavailableNotificationJob
 
   setup :verify_on_exit!
@@ -135,14 +136,15 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
       dataset_id: gtfs_dataset.id
     })
 
-    Transport.EmailSender.Mock
-    |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.data.gouv.fr",
-                             "foo@example.com" = _to,
-                             "contact@transport.data.gouv.fr",
-                             subject,
-                             _plain_text_body,
-                             html_part ->
+    assert :ok == perform_job(ResourceUnavailableNotificationJob, %{})
+
+    # Emails have been sent
+    assert_email_sent(fn %Swoosh.Email{
+                           from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                           to: [{"", "foo@example.com"}],
+                           subject: subject,
+                           html_body: html_part
+                         } ->
       assert subject == "Ressources indisponibles dans le jeu de données #{dataset.custom_title}"
 
       assert html_part =~
@@ -152,36 +154,28 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
 
       assert html_part =~
                ~s(rendez-vous sur votre <a href="http://127.0.0.1:5100/espace_producteur?utm_source=transactional_email&amp;utm_medium=email&amp;utm_campaign=resource_unavailable_producer">Espace Producteur</a> à partir duquel vous pourrez procéder à ces mises à jour)
-
-      :ok
     end)
 
-    Transport.EmailSender.Mock
-    |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.data.gouv.fr",
-                             ^reuser_email = _to,
-                             "contact@transport.data.gouv.fr",
-                             subject,
-                             _plain_text_body,
-                             html_part ->
+    assert_email_sent(fn %Swoosh.Email{
+                           from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                           to: [{"", ^reuser_email}],
+                           subject: subject,
+                           html_body: html_part
+                         } ->
       assert subject == "Ressources indisponibles dans le jeu de données #{dataset.custom_title}"
 
       assert html_part =~
                ~s(Les ressources #{resource_1.title}, #{resource_2.title} du jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> que vous réutilisez ne sont plus disponibles au téléchargement depuis plus de 6h.)
 
       assert html_part =~ "Nous avons déjà informé le producteur de ces données."
-
-      :ok
     end)
 
-    Transport.EmailSender.Mock
-    |> expect(:send_mail, fn "transport.data.gouv.fr",
-                             "contact@transport.data.gouv.fr",
-                             "bar@example.com" = _to,
-                             "contact@transport.data.gouv.fr",
-                             subject,
-                             _plain_text_body,
-                             html_part ->
+    assert_email_sent(fn %Swoosh.Email{
+                           from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                           to: [{"", "bar@example.com"}],
+                           subject: subject,
+                           html_body: html_part
+                         } ->
       assert subject == "Ressources indisponibles dans le jeu de données #{gtfs_dataset.custom_title}"
 
       assert html_part =~
@@ -191,11 +185,9 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
 
       assert html_part =~
                "Nous vous invitons à corriger l’accès à vos données dès que possible afin de ne pas perturber leur réutilisation."
-
-      :ok
     end)
 
-    assert :ok == perform_job(ResourceUnavailableNotificationJob, %{})
+    assert_no_email_sent()
 
     # Logs have been saved
     recent_dt = DateTime.utc_now() |> DateTime.add(-1, :second)

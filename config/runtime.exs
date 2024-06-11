@@ -48,6 +48,13 @@ if config_env() == :prod and not app_env_is_valid do
   raise("APP_ENV must be set to production or staging while in production")
 end
 
+# on staging, allow override of configuration so that we can target other branches
+if app_env == :staging do
+  if url = System.get_env("TRANSPORT_PROXY_CONFIG_GITHUB_URL") do
+    config :unlock, github_config_url: url
+  end
+end
+
 domain_name =
   case config_env() do
     :prod -> System.fetch_env!("DOMAIN_NAME")
@@ -102,8 +109,10 @@ oban_prod_crontab = [
   # https://github.com/etalab/transport-site/issues/3492
   # {"0 20 * * *", Transport.Jobs.ResourceHistoryValidataJSONJob},
   {"15 */3 * * *", Transport.Jobs.ResourceHistoryTableSchemaValidationJob},
-  {"5 6 * * *", Transport.Jobs.NewDatagouvDatasetsJob},
+  {"5 6 * * 1-5", Transport.Jobs.NewDatagouvDatasetsJob},
   {"0 6 * * *", Transport.Jobs.NewDatasetNotificationsJob},
+  {"30 6 * * *", Transport.Jobs.ExpirationNotificationJob},
+  {"0 8 * * 1-5", Transport.Jobs.NewCommentsNotificationJob},
   {"0 21 * * *", Transport.Jobs.DatasetHistoryDispatcherJob},
   # Should be executed after all `DatasetHistoryJob` have been executed
   {"50 21 * * *", Transport.Jobs.ResourcesChangedNotificationJob},
@@ -122,7 +131,8 @@ oban_prod_crontab = [
   {"15 8 * 3,6,11 1", Transport.Jobs.PeriodicReminderProducersNotificationJob},
   {"15 5 * * *", Transport.Jobs.ImportDatasetFollowersJob},
   {"30 5 * * *", Transport.Jobs.ImportDatasetMonthlyMetricsJob},
-  {"45 5 * * *", Transport.Jobs.ImportResourceMonthlyMetricsJob}
+  {"45 5 * * *", Transport.Jobs.ImportResourceMonthlyMetricsJob},
+  {"0 8 * * *", Transport.Jobs.WarnUserInactivityJob}
 ]
 
 # Make sure that all modules exist

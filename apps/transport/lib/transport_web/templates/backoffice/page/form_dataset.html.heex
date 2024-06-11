@@ -20,7 +20,7 @@
 
       <div>
         <%= form_for @conn, backoffice_dataset_path(@conn, :delete, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
-          <%= submit("Supprimer", class: "button", nodiv: true) %>
+          <%= submit("Déréférencer", class: "button", nodiv: true) %>
         <% end %>
       </div>
 
@@ -70,7 +70,7 @@
     </div>
 
     <div id="notification_subscriptions" class="dashboard-description mt-48">
-      <h3>Abonnements aux notifications</h3>
+      <h3>Abonnements aux notifications des producteurs</h3>
 
       <h4>Créer un abonnement</h4>
       <%= form_for @conn, backoffice_notification_subscription_path(@conn, :create), [], fn f -> %>
@@ -85,7 +85,7 @@
           </div>
           <div :if={Enum.count(@contacts_in_org) > 0}>
             <p>
-              Contacts dans l'organisation s'étant déjà connectés au PAN
+              Producteurs s'étant déjà connectés au PAN
             </p>
             <ul>
               <%= for contact <- @contacts_in_org do %>
@@ -113,7 +113,7 @@
         </datalist>
         <%= label f, :reasons, class: "pt-12" do %>
           <%= dgettext("backoffice", "Notification reason") %>
-          <%= for reason <- DB.NotificationSubscription.reasons_related_to_datasets() do %>
+          <%= for reason <- DB.NotificationSubscription.subscribable_reasons_related_to_datasets(:producer) do %>
             <%= label f, reason do %>
               <%= checkbox(f, reason, hidden_input: false, value: true) %>
               <%= reason %>
@@ -127,6 +127,7 @@
       <table :if={Enum.count(@dataset.notification_subscriptions) > 0} class="table">
         <tr>
           <th>Contact</th>
+          <th><%= dgettext("backoffice", "Role") %></th>
           <th><%= dgettext("backoffice", "Notification reason") %></th>
           <th>Source</th>
           <th>Actions</th>
@@ -148,6 +149,7 @@
                   <% end %>
                 </div>
               </td>
+              <td><%= notification_subscription.role %></td>
               <td><%= notification_subscription.reason %></td>
               <td><%= notification_subscription.source %></td>
               <td>

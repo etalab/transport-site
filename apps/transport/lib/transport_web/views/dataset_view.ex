@@ -181,6 +181,10 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
+  @doc """
+  iex> DB.Dataset.types() |> Enum.map(&icon_type_path/1) |> Enum.filter(&is_nil/1)
+  []
+  """
   def icon_type_path(%{type: type}) do
     # If you add an upcoming type be sure to add the black and the grey version.
     # The upcoming ("grey") version should be named `<filename>-grey.svg`
@@ -189,6 +193,8 @@ defmodule TransportWeb.DatasetView do
       "bike-scooter-sharing" => "bicycle-scooter.svg",
       "bike-way" => "bike-way.svg",
       "carpooling-areas" => "car.svg",
+      "carpooling-lines" => "car.svg",
+      "carpooling-offers" => "car.svg",
       "charging-stations" => "charge-station.svg",
       "air-transport" => "plane.svg",
       "road-data" => "roads.svg",
@@ -543,4 +549,15 @@ defmodule TransportWeb.DatasetView do
   false
   """
   def seasonal_warning?(%Dataset{} = dataset), do: DB.Dataset.has_custom_tag?(dataset, "saisonnier")
+
+  @doc """
+  iex> heart_class(%{42 => :producer}, %DB.Dataset{id: 42})
+  "fa fa-heart producer"
+  iex> heart_class(%{42 => nil}, %DB.Dataset{id: 42})
+  "fa fa-heart"
+  """
+  def heart_class(dataset_heart_values, %DB.Dataset{id: dataset_id}) do
+    value = dataset_heart_values |> Map.fetch!(dataset_id) |> to_string()
+    "fa fa-heart #{value}" |> String.trim()
+  end
 end

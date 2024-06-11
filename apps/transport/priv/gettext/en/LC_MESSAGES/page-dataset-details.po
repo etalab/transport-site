@@ -685,3 +685,23 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Your comment"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Dataset added to your favorites! Personalise your settings from your <a href=\"%{url}\" target=\"_blank\">reuser space</a>."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "<a href=\"%{url}\" target=\"_blank\">Log in or sign up</a> to benefit from dataset services."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Manage your dataset"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Follow this dataset"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Manage services for this dataset"
+msgstr ""

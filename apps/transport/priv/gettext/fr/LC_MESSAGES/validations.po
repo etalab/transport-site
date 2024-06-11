@@ -322,10 +322,6 @@ msgid "Previous validations"
 msgstr "Validations précédentes"
 
 #, elixir-autogen, elixir-format
-msgid "Based on the generated GTFS Diff file, we can show you an overview of the differences found."
-msgstr "À partir du fichier GTFS Diff généré, nous pouvons vous montrer un résumé des différences trouvées."
-
-#, elixir-autogen, elixir-format
 msgid "Differences Overview"
 msgstr "Résumé"
 
@@ -420,3 +416,7 @@ msgstr "nombre de zones d'arrêts :"
 #, elixir-autogen, elixir-format
 msgid "number of stop points:"
 msgstr "nombre d'arrêts :"
+
+#, elixir-autogen, elixir-format
+msgid "The GTFS file %{gtfs_original_file_name_2} has differences with the GTFS file %{gtfs_original_file_name_1}, as summarized below:"
+msgstr "Le fichier GTFS %{gtfs_original_file_name_2} comporte les différences ci-dessous par rapport au fichier GTFS %{gtfs_original_file_name_1} :"

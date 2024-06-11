@@ -1,0 +1,124 @@
+## This file is a PO Template file.
+##
+## "msgid"s here are often extracted from source code.
+## Add new messages manually only if they're dynamic
+## messages that can't be statically extracted.
+##
+## Run "mix gettext.extract" to bring this file up to
+## date. Leave "msgstr"s empty as changing them here has no
+## effect: edit them in PO (.po) files instead.
+#
+msgid ""
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "All"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Data type"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Manage notifications"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "No results"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Notification bell"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Receive helpful notifications about your favorite datasets."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Receive notifications"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Reuser space"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Favorite datasets"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Actions"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "data expiration notification explanation"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "resources changed notification explanation"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "unavailable resources notification explanation"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "validation errors notification explanation"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Global notifications"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Notifications by dataset"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "notifications are good for you"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Access your reuser space"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Set up notifications"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "To log in, you will be redirected to data.gouv.fr, the open platform for French public data"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Welcome!"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "transport.data.gouv.fr helps you follow the data you reuse"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "transport.data.gouv.fr is affiliated with data.gouv.fr, the open platform for French public data"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "reuser-space-intro"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "%{dataset_title} has been removed from your favorites"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Cancel"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Edit"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Remove from favorites"
+msgstr ""

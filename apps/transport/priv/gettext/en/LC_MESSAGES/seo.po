@@ -58,3 +58,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Climate and Resilience bill: compulsory data reuse"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Reuser space"
+msgstr ""

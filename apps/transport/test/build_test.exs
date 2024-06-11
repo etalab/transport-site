@@ -25,6 +25,10 @@ defmodule TransportWeb.BuildTest do
     version
   end
 
+  # Skip next test on Mac M1, where it will always (currently) fail
+  # See https://github.com/etalab/transport-site/issues/2520
+  if Transport.Platform.apple_silicon?(), do: @tag(:pending)
+
   test "rambo rust wrapper compiles and runs" do
     {:ok, %{out: "hello\n"}} = Rambo.run("echo", ["hello"])
   end

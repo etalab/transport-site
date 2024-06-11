@@ -6,7 +6,9 @@ defmodule Transport.Companies do
   See a sample response:
   https://recherche-entreprises.api.gouv.fr/search?q=420495178
   """
-  @endpoint URI.new!("https://recherche-entreprises.api.gouv.fr/search")
+
+  # `mtm_campaign`: https://github.com/etalab/transport-site/issues/3902
+  @endpoint URI.new!("https://recherche-entreprises.api.gouv.fr/search?mtm_campaign=transport-data-gouv-fr")
 
   @doc """
   Find a company registered in France using its SIREN or one of its SIRET number.
@@ -71,7 +73,7 @@ defmodule Transport.Companies do
     host: "recherche-entreprises.api.gouv.fr",
     path: "/search",
     port: 443,
-    query: "q=420495178",
+    query: "mtm_campaign=transport-data-gouv-fr&q=420495178",
     scheme: "https"
   }
   """

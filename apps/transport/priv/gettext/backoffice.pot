@@ -78,7 +78,7 @@ msgid "Show all datasets"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Edit"
+msgid "Save"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -305,4 +305,12 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Hidden datasets"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Role"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Dataset"
 msgstr ""

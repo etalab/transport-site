@@ -20,7 +20,7 @@ defmodule TransportWeb.PageController do
     # combined with the fact our HTTP monitor checks the url every minute, should
     # allow regular traffic for most users
     temporary_ttl = :timer.minutes(15)
-    Transport.Cache.API.fetch("home-index-stats", fn -> compute_home_index_stats() end, temporary_ttl)
+    Transport.Cache.fetch("home-index-stats", fn -> compute_home_index_stats() end, temporary_ttl)
   end
 
   defp put_breaking_news(conn, %{level: level, msg: msg}) do
@@ -95,6 +95,8 @@ defmodule TransportWeb.PageController do
     |> assign(:mailchimp_newsletter_url, Application.get_env(:transport, :mailchimp_newsletter_url))
     |> render("infos_producteurs.html")
   end
+
+  def infos_reutilisateurs(%Plug.Conn{} = conn, _params), do: render(conn, "infos_reutilisateurs.html")
 
   def robots_txt(%Plug.Conn{} = conn, _params) do
     # See http://www.robotstxt.org/robotstxt.html

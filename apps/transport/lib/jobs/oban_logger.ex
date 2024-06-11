@@ -23,11 +23,11 @@ defmodule Transport.Jobs.ObanLogger do
           id: id,
           worker: worker,
           job: %Oban.Job{tags: tags, attempt: attempt, max_attempts: max_attempts}
-        } = meta,
+        },
         nil
       ) do
     if email_on_failure_tag() in tags and attempt == max_attempts do
-      send_email_to_tech(meta)
+      worker |> Transport.AdminNotifier.oban_failure() |> Transport.Mailer.deliver()
     end
 
     Logger.warning(
@@ -36,16 +36,4 @@ defmodule Transport.Jobs.ObanLogger do
   end
 
   def setup, do: :telemetry.attach("oban-logger", [:oban, :job, :exception], &handle_event/4, nil)
-
-  defp send_email_to_tech(%{worker: worker}) do
-    Transport.EmailSender.impl().send_mail(
-      "transport.data.gouv.fr",
-      Application.get_env(:transport, :contact_email),
-      Application.get_env(:transport, :tech_email),
-      Application.get_env(:transport, :contact_email),
-      "Échec de job Oban : #{worker}",
-      "Un job Oban #{worker} vient d'échouer, il serait bien d'investiguer.",
-      ""
-    )
-  end
 end

@@ -198,19 +198,7 @@ msgid "notifications are good for you"
 msgstr "Notifications help you maintain the quality and availability of your data, by warning you automatically if a problem arises. They ensure that the end users of your data keep a continous access to them through their daily apps (route calculation…)"
 
 #, elixir-autogen, elixir-format
-msgid "Data expiration"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Manage my notifications"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Unavailable resources"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Validation errors"
 msgstr ""
 
 #, elixir-autogen, elixir-format

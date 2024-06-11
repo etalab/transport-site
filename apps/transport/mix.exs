@@ -64,7 +64,7 @@ defmodule Transport.Mixfile do
       {:phoenix_html, "~> 3.1"},
       # Compilation issue for this dependency, see https://github.com/etalab/transport-site/issues/3499
       {:phoenix_markdown, git: "https://github.com/pzingg/phoenix_markdown.git", ref: "b2e5ff67c9ce9160d7ef1f66d0c859dfa6284a53"},
-      {:phoenix_live_view, "~> 0.19.5"},
+      {:phoenix_live_view, "~> 0.20.14"},
       {:html_sanitize_ex, "~> 1.4"},
       {:floki, ">= 0.0.0", only: :test},
       {:plug_cowboy, "~> 2.3"},

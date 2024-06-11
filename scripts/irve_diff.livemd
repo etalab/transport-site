@@ -1,0 +1,114 @@
+<!-- livebook:{"persist_outputs":true} -->
+
+# Comparateurs de fichiers "IRVE statiques"
+
+```elixir
+Mix.install([
+  {:explorer, "~> 0.8.2"},
+  {:kino, "~> 0.12.3"},
+  {:req, "~> 0.4.0"},
+  {:kino_explorer, "~> 0.1.11"}
+])
+```
+
+## Données d'entrée
+
+⚠️ Ce notebook contient certaines limitations non traitées pour le moment (mais qui ne sont pas gênantes pour en retirer une valeur immédiate et qu'on traitera plus tard éventuellement):
+
+* L'unicité des `id_pdc_itinerance` n'est pas vérifiée, or un `join` est fait dessus.
+* Le filtrage des valeurs "Non Renseigné" n'est pas fait sur cette colonne
+
+Pour comparer les identifiants de points de charge entre deux fichiers, il nous faut leurs URLs (qu'on peut tirer par exemple de l'historique de la ressource sur https://transport.data.gouv.fr/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques#backed-up-resources)
+
+```elixir
+# les backups sont sur https://transport.data.gouv.fr/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques#backed-up-resources
+input_1 =
+  Kino.Input.textarea("Première URL IRVE (\"ancien\" fichier):",
+    default:
+      "https://transport-data-gouv-fr-resource-history-prod.cellar-c2.services.clever-cloud.com/81623/81623.20240515.150958.211590.csv"
+  )
+  |> Kino.render()
+
+# voir https://transport.data.gouv.fr/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques
+input_2 =
+  Kino.Input.textarea("Deuxième URL IRVE (\"nouveau\" fichier):",
+    default:
+      "https://transport-data-gouv-fr-resource-history-prod.cellar-c2.services.clever-cloud.com/81743/81743.20240516.080742.795646.csv"
+  )
+```
+
+On peut télécharger le contenu correspondant à ces URLs:
+
+```elixir
+%{status: 200, body: data_1} = Req.get!(input_1 |> Kino.Input.read())
+%{status: 200, body: data_2} = Req.get!(input_2 |> Kino.Input.read())
+Kino.nothing()
+```
+
+On peut ensuite analyser les données avec des `DataFrame`:
+
+```elixir
+alias Explorer.DataFrame, as: DF
+# pour les macros
+require DF
+
+df1 = DF.load_csv!(data_1, infer_schema_length: nil)
+df2 = DF.load_csv!(data_2, infer_schema_length: nil)
+
+# pour aller voir les données de plus près...
+# df1 |> Kino.render()
+
+# Une jointure `outer` 
+# (https://github.com/elixir-explorer/explorer/blob/main/notebooks/exploring_explorer.livemd#joins) 
+# permet de déterminer les identifiants qui sont uniquement dans la première ressource, 
+# uniquement dans la deuxième, ou dans les deux:
+join = DF.join(df1, df2, how: :outer, on: :id_pdc_itinerance)
+
+Kino.nothing()
+```
+
+### Identifiants uniquement dans l'ancienne ressource ("supprimés" de la nouvelle ressource)
+
+⚠️ si un grand nombre d'identifiants ont disparu, cela peut indiquer un souci (ressource devenue invalide, souci lors d'une aggrégation réalisée par un producteur etc).
+
+```elixir
+join
+|> DF.filter(is_nil(id_pdc_itinerance_right))
+|> DF.group_by([:datagouv_resource_id, :datagouv_organization_or_owner])
+|> DF.summarise(id_pdc_itinerance_count: count(id_pdc_itinerance))
+|> DF.sort_by(desc: id_pdc_itinerance_count)
+|> DF.collect()
+```
+
+<!-- livebook:{"output":true} -->
+
+```text
+#Explorer.DataFrame<
+  Polars[2 x 3]
+  datagouv_resource_id string ["c34dcef5-a22a-4a6d-811d-48ed5067f1d2", "b11113db-875d-41c7-8673-0cf8ad43e917"]
+  datagouv_organization_or_owner string ["alize-charge", "eco-movement"]
+  id_pdc_itinerance_count u32 [12501, 15]
+>
+```
+
+### Identifiants uniquement dans la nouvelle ressource ("ajoutés")
+
+```elixir
+join
+|> DF.filter(is_nil(id_pdc_itinerance))
+|> DF.group_by([:datagouv_resource_id_right, :datagouv_organization_or_owner_right])
+|> DF.summarise(id_pdc_itinerance_right_count: count(id_pdc_itinerance_right))
+|> DF.sort_by(desc: id_pdc_itinerance_right_count)
+|> DF.collect()
+```
+
+<!-- livebook:{"output":true} -->
+
+```text
+#Explorer.DataFrame<
+  Polars[3 x 3]
+  datagouv_resource_id_right string ["dfa6fed2-4a11-457a-8b64-a43642427ec4", "b11113db-875d-41c7-8673-0cf8ad43e917", "d9c287ad-7260-4228-90e4-b0fc681b1c40"]
+  datagouv_organization_or_owner_right string ["totalenergies-marketing-france", "eco-movement", "sas-road54"]
+  id_pdc_itinerance_right_count u32 [34, 33, 4]
+>
+```

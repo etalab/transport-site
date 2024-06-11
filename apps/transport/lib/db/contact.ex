@@ -35,6 +35,7 @@ defmodule DB.Contact do
     has_many(:notification_subscriptions, DB.NotificationSubscription, on_delete: :delete_all)
     many_to_many(:organizations, DB.Organization, join_through: "contacts_organizations", on_replace: :delete)
     many_to_many(:followed_datasets, DB.Dataset, join_through: "dataset_followers", on_replace: :delete)
+    has_many(:user_feedbacks, DB.UserFeedback, on_delete: :nilify_all)
   end
 
   def base_query, do: from(c in __MODULE__, as: :contact)
@@ -165,8 +166,7 @@ defmodule DB.Contact do
 
   def organization_name(orgs) do
     certified_orgs =
-      orgs
-      |> Enum.filter(fn %DB.Organization{badges: badges} -> Enum.any?(badges, &match?(&1, %{"kind" => "certified"})) end)
+      Enum.filter(orgs, fn %DB.Organization{badges: badges} -> %{"kind" => "certified"} in badges end)
 
     case certified_orgs do
       [] -> orgs |> List.first() |> Map.fetch!(:name)
@@ -291,7 +291,7 @@ defmodule DB.Contact do
   """
   @spec admin_contact_ids() :: [integer()]
   def admin_contact_ids do
-    Transport.Cache.API.fetch(
+    Transport.Cache.fetch(
       to_string(__MODULE__) <> ":admin_contact_ids",
       fn -> Enum.map(admin_contacts(), & &1.id) end,
       :timer.seconds(60)
@@ -310,5 +310,24 @@ defmodule DB.Contact do
     |> where([organization: o], o.name == ^pan_org_name)
     |> DB.Repo.one!()
     |> Map.fetch!(:contacts)
+  end
+
+  @doc """
+  Fetches `DB.Contact` that didn't log in since a given datetime.
+  """
+  @spec list_inactive_contacts(DateTime.t()) :: [DB.Contact.t()]
+  def list_inactive_contacts(%DateTime{} = threshold) do
+    base_query()
+    |> where([contact: c], c.last_login_at < ^threshold)
+    |> order_by(asc: :last_login_at)
+    |> DB.Repo.all()
+  end
+
+  @doc """
+  Delete `DB.Contact` that didn't log in since a given datetime.
+  """
+  @spec delete_inactive_contacts(DateTime.t()) :: :ok
+  def delete_inactive_contacts(%DateTime{} = threshold) do
+    list_inactive_contacts(threshold) |> Enum.each(&DB.Repo.delete/1)
   end
 end

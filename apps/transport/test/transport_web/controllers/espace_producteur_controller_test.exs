@@ -13,8 +13,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
   describe "edit_dataset" do
     test "requires authentication", %{conn: conn} do
-      conn = conn |> get(espace_producteur_path(conn, :edit_dataset, 42))
-      assert redirected_to(conn, 302) =~ "/login"
+      conn |> get(espace_producteur_path(conn, :edit_dataset, 42)) |> assert_redirects_to_info_page()
     end
 
     test "redirects if you're not a member of the dataset organization", %{conn: conn} do
@@ -69,8 +68,9 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
   describe "upload_logo" do
     test "requires authentication", %{conn: conn} do
-      conn = conn |> post(espace_producteur_path(conn, :upload_logo, 42), %{"upload" => %{"file" => %Plug.Upload{}}})
-      assert redirected_to(conn, 302) =~ "/login"
+      conn
+      |> post(espace_producteur_path(conn, :upload_logo, 42), %{"upload" => %{"file" => %Plug.Upload{}}})
+      |> assert_redirects_to_info_page()
     end
 
     test "redirects if you're not a member of the dataset organization", %{conn: conn} do
@@ -134,8 +134,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
   describe "remove_custom_logo" do
     test "requires authentication", %{conn: conn} do
-      conn = conn |> delete(espace_producteur_path(conn, :remove_custom_logo, 42))
-      assert redirected_to(conn, 302) =~ "/login"
+      conn |> delete(espace_producteur_path(conn, :remove_custom_logo, 42)) |> assert_redirects_to_info_page()
     end
 
     test "redirects if you're not a member of the dataset organization", %{conn: conn} do
@@ -190,9 +189,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
   describe "proxy_statistics" do
     test "requires authentication", %{conn: conn} do
-      conn = conn |> get(espace_producteur_path(conn, :proxy_statistics))
-
-      assert redirected_to(conn, 302) =~ "/login"
+      conn |> get(espace_producteur_path(conn, :proxy_statistics)) |> assert_redirects_to_info_page()
     end
 
     test "redirects when there is an error when fetching datasets", %{conn: conn} do
@@ -252,5 +249,10 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       assert html =~ "<strong>2</strong>\nrequêtes gérées par le proxy au cours des 15 derniers jours"
       assert html =~ "<strong>1</strong>\nrequêtes transmises au serveur source au cours des 15 derniers jours"
     end
+  end
+
+  defp assert_redirects_to_info_page(%Plug.Conn{} = conn) do
+    Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Vous devez être préalablement connecté"
+    assert redirected_to(conn, 302) == page_path(conn, :infos_producteurs)
   end
 end

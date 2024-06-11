@@ -1,0 +1,124 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n>1);\n"
+
+#, elixir-autogen, elixir-format
+msgid "All"
+msgstr "Tout"
+
+#, elixir-autogen, elixir-format
+msgid "Data type"
+msgstr "Type de données"
+
+#, elixir-autogen, elixir-format
+msgid "Manage notifications"
+msgstr "Gérer vos notifications"
+
+#, elixir-autogen, elixir-format
+msgid "No results"
+msgstr "Pas de résultats"
+
+#, elixir-autogen, elixir-format
+msgid "Notification bell"
+msgstr "Icône de notifications"
+
+#, elixir-autogen, elixir-format
+msgid "Receive helpful notifications about your favorite datasets."
+msgstr "Recevez des notifications pertinentes à propos de vos jeux de données favoris."
+
+#, elixir-autogen, elixir-format
+msgid "Receive notifications"
+msgstr "Recevoir des notifications"
+
+#, elixir-autogen, elixir-format
+msgid "Reuser space"
+msgstr "Espace réutilisateur"
+
+#, elixir-autogen, elixir-format
+msgid "Favorite datasets"
+msgstr "Jeux de données favoris"
+
+#, elixir-autogen, elixir-format
+msgid "Actions"
+msgstr "Actions"
+
+#, elixir-autogen, elixir-format
+msgid "data expiration notification explanation"
+msgstr "Vous êtes alerté à l’approche de la date de fin du calendrier de fonctionnement."
+
+#, elixir-autogen, elixir-format
+msgid "resources changed notification explanation"
+msgstr "Vous êtes alerté lorsque des ressources sont ajoutées, supprimées ou que l’URL est modifiée."
+
+#, elixir-autogen, elixir-format
+msgid "unavailable resources notification explanation"
+msgstr "Vous êtes alerté au bout de 6h consécutives pendant lesquelles une ressource ne peut pas être téléchargée."
+
+#, elixir-autogen, elixir-format
+msgid "validation errors notification explanation"
+msgstr "Vous êtes alerté lorsqu’une ressource ne respecte pas les spécifications des normes/standards/schémas correspondants."
+
+#, elixir-autogen, elixir-format
+msgid "Global notifications"
+msgstr "Notifications générales"
+
+#, elixir-autogen, elixir-format
+msgid "Notifications by dataset"
+msgstr "Notifications par jeu de données"
+
+#, elixir-autogen, elixir-format
+msgid "notifications are good for you"
+msgstr "Les notifications e-mail vous préviennent des problèmes de qualité ou d’indisponibilité qui pourraient affecter vos réutilisations des données de transport. Afin d’activer les notifications sur un jeu de données, mettez-le d’abord en favori (icône ❤️ sur la page du jeu de donnée).<br/><br/>Vous pouvez également suivre l’activité générale de transport.data.gouv.fr à travers les commentaires et nouveaux jeux de données"
+
+#, elixir-autogen, elixir-format
+msgid "Access your reuser space"
+msgstr "Accédez à votre espace réutilisateur"
+
+#, elixir-autogen, elixir-format
+msgid "Set up notifications"
+msgstr "Gérez vos notifications"
+
+#, elixir-autogen, elixir-format
+msgid "To log in, you will be redirected to data.gouv.fr, the open platform for French public data"
+msgstr "Pour vous identifier vous allez être redirigé vers data.gouv.fr, la plateforme ouverte des données publiques françaises."
+
+#, elixir-autogen, elixir-format
+msgid "Welcome!"
+msgstr "Bienvenue !"
+
+#, elixir-autogen, elixir-format
+msgid "transport.data.gouv.fr helps you follow the data you reuse"
+msgstr "transport.data.gouv.fr vous aide à suivre les données que vous réutilisez"
+
+#, elixir-autogen, elixir-format
+msgid "transport.data.gouv.fr is affiliated with data.gouv.fr, the open platform for French public data"
+msgstr "transport.data.gouv.fr est affilié à data.gouv.fr : la plateforme ouverte des données publiques françaises"
+
+#, elixir-autogen, elixir-format
+msgid "reuser-space-intro"
+msgstr "Pour ajouter un favori et bénéficier des services de suivi et d'amélioration de la qualité des jeux de données que vous réutilisez, vous devez au préalable vous connecter puis cliquer sur l'icône ❤️ sur la page du jeu de données."
+
+#, elixir-autogen, elixir-format
+msgid "%{dataset_title} has been removed from your favorites"
+msgstr "%{dataset_title} a été retiré de vos favoris"
+
+#, elixir-autogen, elixir-format
+msgid "Cancel"
+msgstr "Annuler"
+
+#, elixir-autogen, elixir-format
+msgid "Edit"
+msgstr "Éditer"
+
+#, elixir-autogen, elixir-format
+msgid "Remove from favorites"
+msgstr "Retirer de vos favoris"

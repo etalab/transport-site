@@ -1,6 +1,6 @@
 <div class="container">
   <h2><%= dgettext("feedback", "Leave your feedback") %></h2>
-  <.form :let={f} :if={!@feedback_sent} for={%{}} as={:feedback} phx-submit="submit" class="feedback-form no-margin">
+  <.form :let={f} :if={!@feedback_sent} for={@form} as={:feedback} phx-submit="submit" class="feedback-form no-margin">
     <div class="form__group feedback-selector">
       <fieldset>
         <legend><%= dgettext("feedback", "What's your feedback on this page?") %></legend>
@@ -28,7 +28,7 @@
 
       <div class="form__group">
         <%= label(f, :email, dgettext("feedback", "Your email (optional)")) %>
-        <%= text_input(f, :email, type: "email", value: @current_email) %>
+        <%= text_input(f, :email, type: "email") %>
       </div>
 
       <%= text_input(f, :name,
@@ -38,7 +38,7 @@
         autocomplete: "off"
       ) %>
 
-      <%= hidden_input(f, :feature, value: @feature) %>
+      <%= hidden_input(f, :feature) %>
 
       <%= submit(dgettext("feedback", "Send the feedback"), class: "button") %>
     </div>
@@ -47,7 +47,7 @@
   <p :if={@feedback_sent} class="notification"><%= dgettext("feedback", "Thanks for your feedback!") %></p>
   <p :if={@feedback_error}><%= gettext("There has been an error, try again later") %></p>
 
-  <script>
+  <script nonce={@nonce}>
     document.querySelectorAll(".feedback-selector label").forEach(
       function(el) {
       el.addEventListener('click', function() {
