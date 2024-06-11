@@ -309,7 +309,7 @@ defmodule Transport.ImportDataTest do
     assert Map.get(resource, :display_position) == 0
     assert Map.get(resource, :url) == "http://localhost:4321/resource1"
 
-    # import 2: somebody changed the resource1's URL and use the previous URL
+    # import 2: somebody changed the resource1's URL and used the previous URL
     # for a new resource
     payload_2 =
       generate_dataset_payload(
