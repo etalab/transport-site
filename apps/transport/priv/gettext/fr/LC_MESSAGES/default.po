@@ -156,5 +156,5 @@ msgid "Reuser space"
 msgstr "Espace réutilisateur"
 
 #, elixir-autogen, elixir-format
-msgid "AccesLibre Mobilités"
+msgid "Accèslibre Mobilités"
 msgstr ""
