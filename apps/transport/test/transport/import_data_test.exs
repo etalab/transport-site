@@ -249,9 +249,14 @@ defmodule Transport.ImportDataTest do
     assert db_count(DB.Resource) == 1
 
     [
-    %DB.Resource{title: "resource1", filetype: "remote", type: "main", display_position: 0, url: "http://localhost:4321/resource1"}
+      %DB.Resource{
+        title: "resource1",
+        filetype: "remote",
+        type: "main",
+        display_position: 0,
+        url: "http://localhost:4321/resource1"
+      } = resource
     ] = DB.Resource |> DB.Repo.all()
-
 
     # import 2: the original resources has been dropped and recreated with the
     # same URL
