@@ -139,7 +139,7 @@ defmodule Transport.Test.Transport.Jobs.ResourcesChangedNotificationJobTest do
 
   test "perform with a dataset_id" do
     %DB.Dataset{id: dataset_id} = dataset = insert(:dataset, custom_title: "Super JDD")
-    %DB.Contact{id: contact_id, email: email} = insert_contact()
+    %DB.Contact{id: contact_id, email: email} = contact = insert_contact()
 
     %DB.NotificationSubscription{id: ns_id} =
       insert(:notification_subscription, %{
@@ -165,7 +165,7 @@ defmodule Transport.Test.Transport.Jobs.ResourcesChangedNotificationJobTest do
 
     assert_email_sent(
       from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-      to: {"John Doe", email},
+      to: {DB.Contact.display_name(contact), email},
       reply_to: {"", "contact@transport.data.gouv.fr"},
       subject: "Super JDD : ressources modifiées",
       text_body: nil,

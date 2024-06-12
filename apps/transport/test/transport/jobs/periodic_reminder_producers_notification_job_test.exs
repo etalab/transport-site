@@ -212,9 +212,11 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
 
     assert :ok == perform_job(PeriodicReminderProducersNotificationJob, %{"contact_id" => producer_1.id})
 
+    display_name = DB.Contact.display_name(producer_1)
+
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"John Doe", ^email}],
+                           to: [{^display_name, ^email}],
                            subject: subject,
                            html_body: html
                          } ->
@@ -257,9 +259,11 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
 
     assert :ok == perform_job(PeriodicReminderProducersNotificationJob, %{"contact_id" => contact.id})
 
+    display_name = DB.Contact.display_name(contact)
+
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"John Doe", ^email}],
+                           to: [{^display_name, ^email}],
                            subject: subject,
                            html_body: html
                          } ->

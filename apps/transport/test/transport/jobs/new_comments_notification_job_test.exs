@@ -143,7 +143,7 @@ defmodule Transport.Test.Transport.Jobs.NewCommentsNotificationJobTest do
   end
 
   test "perform for a single contact" do
-    %DB.Contact{id: contact_id, email: email} = insert_contact()
+    %DB.Contact{id: contact_id, email: email} = contact = insert_contact()
     other_followed_dataset = insert(:dataset)
 
     %DB.Dataset{id: dataset_id} =
@@ -179,9 +179,11 @@ defmodule Transport.Test.Transport.Jobs.NewCommentsNotificationJobTest do
              })
 
     # Email has been sent
+    display_name = DB.Contact.display_name(contact)
+
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"John Doe", ^email}],
+                           to: [{^display_name, ^email}],
                            reply_to: {"", "contact@transport.data.gouv.fr"},
                            subject: "Nouveaux commentaires sur transport.data.gouv.fr",
                            text_body: nil,

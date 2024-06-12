@@ -114,8 +114,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
     setup_dataset_response(dataset, resource_1.url, DateTime.utc_now() |> DateTime.add(-6, :hour))
 
     %DB.Contact{id: already_sent_contact_id} = insert_contact(%{email: already_sent_email})
-    %DB.Contact{id: foo_contact_id} = insert_contact(%{email: "foo@example.com"})
-    %DB.Contact{id: reuser_contact_id} = insert_contact(%{email: reuser_email = "reuser@example.com"})
+    %DB.Contact{id: foo_contact_id} = foo_contact = insert_contact(%{email: "foo@example.com"})
+    %DB.Contact{id: reuser_contact_id} = reuser_contact = insert_contact(%{email: reuser_email = "reuser@example.com"})
 
     insert(:notification_subscription, %{
       reason: :resource_unavailable,
@@ -141,7 +141,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
       dataset_id: dataset.id
     })
 
-    %DB.Contact{id: bar_contact_id} = insert_contact(%{email: "bar@example.com"})
+    %DB.Contact{id: bar_contact_id} = bar_contact = insert_contact(%{email: "bar@example.com"})
 
     insert(:notification_subscription, %{
       reason: :resource_unavailable,
@@ -154,9 +154,11 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
     assert :ok == perform_job(ResourceUnavailableNotificationJob, %{})
 
     # Emails have been sent
+    display_name = DB.Contact.display_name(foo_contact)
+
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"John Doe", "foo@example.com"}],
+                           to: [{^display_name, "foo@example.com"}],
                            subject: subject,
                            html_body: html_part
                          } ->
@@ -171,9 +173,11 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
                ~s(rendez-vous sur votre <a href="http://127.0.0.1:5100/espace_producteur?utm_source=transactional_email&amp;utm_medium=email&amp;utm_campaign=resource_unavailable_producer">Espace Producteur</a> à partir duquel vous pourrez procéder à ces mises à jour)
     end)
 
+    display_name = DB.Contact.display_name(reuser_contact)
+
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"John Doe", ^reuser_email}],
+                           to: [{^display_name, ^reuser_email}],
                            subject: subject,
                            html_body: html_part
                          } ->
@@ -185,9 +189,11 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
       assert html_part =~ "Nous avons déjà informé le producteur de ces données."
     end)
 
+    display_name = DB.Contact.display_name(bar_contact)
+
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"John Doe", "bar@example.com"}],
+                           to: [{^display_name, "bar@example.com"}],
                            subject: subject,
                            html_body: html_part
                          } ->

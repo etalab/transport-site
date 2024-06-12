@@ -115,7 +115,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetsSwitchingClimateResilienceBillJo
       payload: %{"custom_tags" => ["loi-climat-resilience"]}
     )
 
-    %DB.Contact{id: contact_id, email: email} = insert_contact()
+    %DB.Contact{id: contact_id, email: email} = contact = insert_contact()
 
     %DB.NotificationSubscription{id: ns_id} =
       insert(:notification_subscription, %{
@@ -127,9 +127,11 @@ defmodule Transport.Test.Transport.Jobs.DatasetsSwitchingClimateResilienceBillJo
 
     assert :ok == perform_job(DatasetsSwitchingClimateResilienceBillJob, %{}, inserted_at: ~U[2023-04-21 06:00:00.000Z])
 
+    display_name = DB.Contact.display_name(contact)
+
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"John Doe", ^email}],
+                           to: [{^display_name, ^email}],
                            reply_to: {"", "contact@transport.data.gouv.fr"},
                            subject: "Loi climat et résilience : suivi des jeux de données",
                            text_body: nil,

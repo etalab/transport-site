@@ -93,8 +93,8 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
     |> DB.Repo.update!()
 
     %DB.Contact{id: already_sent_contact_id} = insert_contact(%{email: already_sent_email})
-    %DB.Contact{id: foo_contact_id} = insert_contact(%{email: "foo@example.com"})
-    %DB.Contact{id: reuser_contact_id} = insert_contact(%{email: reuser_email = "reuser@example.com"})
+    %DB.Contact{id: foo_contact_id} = foo_contact = insert_contact(%{email: "foo@example.com"})
+    %DB.Contact{id: reuser_contact_id} = reuser_contact = insert_contact(%{email: reuser_email = "reuser@example.com"})
 
     # Subscriptions for a contact who was already warned, a producer and a reuser
     insert(:notification_subscription, %{
@@ -124,7 +124,7 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
       })
 
     # Contact + subscription for another dataset
-    %DB.Contact{id: bar_contact_id} = insert_contact(%{email: "bar@example.com"})
+    %DB.Contact{id: bar_contact_id} = bar_contact = insert_contact(%{email: "bar@example.com"})
 
     %DB.NotificationSubscription{id: subscription_bar_id} =
       insert(:notification_subscription, %{
@@ -138,7 +138,7 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
     assert :ok == perform_job(MultiValidationWithErrorNotificationJob, %{})
 
     assert_email_sent(fn %Swoosh.Email{to: to, subject: subject, html_body: html} ->
-      assert to == [{"John Doe", "foo@example.com"}]
+      assert to == [{DB.Contact.display_name(foo_contact), foo_contact.email}]
       assert subject == "Erreurs détectées dans le jeu de données #{dataset.custom_title}"
 
       assert html =~
@@ -152,7 +152,7 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
     end)
 
     assert_email_sent(fn %Swoosh.Email{to: to, subject: subject, html_body: html} ->
-      assert to == [{"John Doe", reuser_email}]
+      assert to == [{DB.Contact.display_name(reuser_contact), reuser_email}]
       assert subject == "Erreurs détectées dans le jeu de données #{dataset.custom_title}"
 
       assert html =~
@@ -167,7 +167,7 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
                            subject: subject,
                            html_body: html
                          } ->
-      assert to == [{"John Doe", "bar@example.com"}]
+      assert to == [{DB.Contact.display_name(bar_contact), bar_contact.email}]
       assert subject == "Erreurs détectées dans le jeu de données #{gtfs_dataset.custom_title}"
 
       assert html =~

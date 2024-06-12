@@ -134,10 +134,12 @@ defmodule Transport.Test.Transport.Jobs.ExpirationNotificationJobTest do
                inserted_at: DateTime.utc_now()
              )
 
+    display_name = DB.Contact.display_name(contact)
+
     assert_email_sent(fn %Swoosh.Email{
                            subject: "Suivi des jeux de données favoris arrivant à expiration",
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"John Doe", ^contact_email}],
+                           to: [{^display_name, ^contact_email}],
                            text_body: nil,
                            html_body: html
                          } ->

@@ -10,12 +10,14 @@ defmodule Transport.Test.Transport.Jobs.PromoteReuserSpaceJobTest do
   end
 
   test "perform" do
-    %DB.Contact{email: email, id: contact_id} = insert_contact()
+    %DB.Contact{email: email, id: contact_id} = contact = insert_contact()
     assert :ok == perform_job(PromoteReuserSpaceJob, %{"contact_id" => contact_id})
+
+    display_name = DB.Contact.display_name(contact)
 
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"John Doe", ^email}],
+                           to: [{^display_name, ^email}],
                            reply_to: {"", "contact@transport.data.gouv.fr"},
                            subject: "Gestion de vos favoris dans votre espace réutilisateur",
                            text_body: nil,

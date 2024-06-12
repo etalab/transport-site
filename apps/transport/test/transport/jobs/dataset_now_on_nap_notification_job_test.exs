@@ -50,7 +50,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetNowOnNAPNotificationJobTest do
 
     assert_email_sent(
       from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-      to: [{"John Doe", email}],
+      to: [{DB.Contact.display_name(contact), email}],
       reply_to: {"", "contact@transport.data.gouv.fr"},
       subject: "Votre jeu de données a été référencé sur transport.data.gouv.fr",
       text_body: nil,
