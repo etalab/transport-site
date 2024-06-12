@@ -44,6 +44,7 @@ defmodule DB.NotificationTest do
     yesterday = DateTime.add(DateTime.utc_now(), -1, :day)
     email = Ecto.UUID.generate() <> "@example.com"
     other_email = Ecto.UUID.generate() <> "@example.com"
+    reuser_email = Ecto.UUID.generate() <> "@example.com"
 
     # Should be ignored, this is an hidden reason
     insert_notification(%{dataset: dataset, role: :producer, reason: :dataset_now_on_nap, email: email})
@@ -70,6 +71,23 @@ defmodule DB.NotificationTest do
       reason: :expiration,
       email: email,
       inserted_at: %{yesterday | hour: 12, minute: 44}
+    })
+
+    # Should be ignored: it's not for an enabled reason
+    insert_notification(%{
+      role: :producer,
+      reason: :promote_producer_space,
+      email: email,
+      inserted_at: %{yesterday | hour: 15, minute: 32}
+    })
+
+    # Should be ignored: it's for a reuser
+    insert_notification(%{
+      dataset: dataset,
+      role: :reuser,
+      reason: :expiration,
+      email: reuser_email,
+      inserted_at: %{yesterday | hour: 11, minute: 42}
     })
 
     yesterday_time = fn hour, minute -> %{yesterday | hour: hour, minute: minute, second: 0, microsecond: {0, 6}} end

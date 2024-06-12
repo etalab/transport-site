@@ -150,8 +150,8 @@ defmodule DB.NotificationSubscription do
   def possible_reasons, do: @all_reasons
 
   @doc """
-  iex > @subscribable_reasons
-  [:expiration, :dataset_with_error, :resource_unavailable, :resources_changed, :new_dataset, :datasets_switching_climate_resilience_bill, :daily_new_comments]
+  iex> subscribable_reasons() |> MapSet.new()
+  MapSet.new([:daily_new_comments, :dataset_with_error, :datasets_switching_climate_resilience_bill, :expiration, :new_dataset, :resource_unavailable, :resources_changed])
   """
   @spec subscribable_reasons :: [reason()]
   def subscribable_reasons do
@@ -176,8 +176,8 @@ defmodule DB.NotificationSubscription do
   def possible_roles, do: @possible_roles
 
   @doc """
-  iex > reasons_for_role(:reuser)
-  [:expiration, :dataset_with_error, :resource_unavailable, :resources_changed, :new_dataset, :daily_new_comments]
+  iex> reasons_for_role(:reuser) |> MapSet.new()
+  MapSet.new([:daily_new_comments, :dataset_with_error, :datasets_switching_climate_resilience_bill, :expiration, :new_dataset, :promote_reuser_space, :resource_unavailable, :resources_changed, :warn_user_inactivity])
   """
   @spec reasons_for_role(role()) :: [reason()]
   def reasons_for_role(role) do
@@ -190,7 +190,7 @@ defmodule DB.NotificationSubscription do
   end
 
   @doc """
-  iex > hidden_reasons_for_roles([:reuser])
+  iex> hidden_reasons_for_role(:reuser)
   [:datasets_switching_climate_resilience_bill]
   """
   @spec hidden_reasons_for_role(role()) :: [reason()]
@@ -253,7 +253,7 @@ defmodule DB.NotificationSubscription do
   end
 
   @doc """
-  iex > shown_subscribable_platform_wide_reasons(:reuser)
+  iex> shown_subscribable_platform_wide_reasons(:reuser)
   [:daily_new_comments, :new_dataset]
   """
   @spec shown_subscribable_platform_wide_reasons(role()) :: [reason()]

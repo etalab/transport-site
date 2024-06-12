@@ -50,9 +50,13 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
     %{id: gtfs_dataset_id} =
       gtfs_dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true, custom_title: "Dataset GTFS")
 
-    resource_1 = insert(:resource, dataset: dataset, format: "geojson", title: "GeoJSON 1")
-    resource_2 = insert(:resource, dataset: dataset, format: "geojson", title: "GeoJSON 2")
-    resource_gtfs = insert(:resource, dataset: gtfs_dataset, format: "GTFS")
+    %DB.Resource{id: resource_1_id} =
+      resource_1 = insert(:resource, dataset: dataset, format: "geojson", title: "GeoJSON 1")
+
+    %DB.Resource{id: resource_2_id} =
+      resource_2 = insert(:resource, dataset: dataset, format: "geojson", title: "GeoJSON 2")
+
+    %DB.Resource{id: resource_gtfs_id} = resource_gtfs = insert(:resource, dataset: gtfs_dataset, format: "GTFS")
     rh_resource_1 = insert(:resource_history, resource: resource_1)
     rh_resource_2 = insert(:resource_history, resource: resource_2)
     rh_resource_gtfs = insert(:resource_history, resource: resource_gtfs)
@@ -101,32 +105,35 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
       dataset_id: dataset.id
     })
 
-    insert(:notification_subscription, %{
-      reason: :dataset_with_error,
-      source: :admin,
-      role: :producer,
-      contact_id: foo_contact_id,
-      dataset_id: dataset.id
-    })
+    %DB.NotificationSubscription{id: subscription_foo_id} =
+      insert(:notification_subscription, %{
+        reason: :dataset_with_error,
+        source: :admin,
+        role: :producer,
+        contact_id: foo_contact_id,
+        dataset_id: dataset.id
+      })
 
-    insert(:notification_subscription, %{
-      reason: :dataset_with_error,
-      source: :user,
-      role: :reuser,
-      contact_id: reuser_contact_id,
-      dataset_id: dataset.id
-    })
+    %DB.NotificationSubscription{id: subscription_reuser_id} =
+      insert(:notification_subscription, %{
+        reason: :dataset_with_error,
+        source: :user,
+        role: :reuser,
+        contact_id: reuser_contact_id,
+        dataset_id: dataset.id
+      })
 
     # Contact + subscription for another dataset
     %DB.Contact{id: bar_contact_id} = insert_contact(%{email: "bar@example.com"})
 
-    insert(:notification_subscription, %{
-      reason: :dataset_with_error,
-      source: :admin,
-      role: :producer,
-      contact_id: bar_contact_id,
-      dataset_id: gtfs_dataset.id
-    })
+    %DB.NotificationSubscription{id: subscription_bar_id} =
+      insert(:notification_subscription, %{
+        reason: :dataset_with_error,
+        source: :admin,
+        role: :producer,
+        contact_id: bar_contact_id,
+        dataset_id: gtfs_dataset.id
+      })
 
     assert :ok == perform_job(MultiValidationWithErrorNotificationJob, %{})
 
@@ -176,35 +183,50 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
     # Logs have been saved
     recent_dt = DateTime.utc_now() |> DateTime.add(-1, :second)
 
-    assert DB.Notification
-           |> where(
-             [n],
-             n.email_hash == ^"foo@example.com" and n.dataset_id == ^dataset_id and n.inserted_at >= ^recent_dt and
-               n.reason == :dataset_with_error and
-               n.role == :producer and
-               not is_nil(n.notification_subscription_id)
-           )
-           |> DB.Repo.exists?()
+    assert %DB.Notification{
+             role: :producer,
+             payload: %{
+               "resource_formats" => ["geojson", "geojson"],
+               "resource_ids" => [^resource_1_id, ^resource_2_id],
+               "job_id" => job_id
+             },
+             notification_subscription_id: ^subscription_foo_id
+           } =
+             DB.Notification.base_query()
+             |> where(
+               [notification: n],
+               n.email_hash == ^"foo@example.com" and n.dataset_id == ^dataset_id and n.inserted_at >= ^recent_dt and
+                 n.reason == :dataset_with_error
+             )
+             |> DB.Repo.one!()
 
-    assert DB.Notification
-           |> where(
-             [n],
-             n.email_hash == ^reuser_email and n.dataset_id == ^dataset_id and n.inserted_at >= ^recent_dt and
-               n.reason == :dataset_with_error and
-               n.role == :reuser and
-               not is_nil(n.notification_subscription_id)
-           )
-           |> DB.Repo.exists?()
+    assert %DB.Notification{
+             role: :reuser,
+             reason: :dataset_with_error,
+             payload: %{"producer_warned" => true, "job_id" => reuser_job_id},
+             notification_subscription_id: ^subscription_reuser_id
+           } =
+             DB.Notification.base_query()
+             |> where(
+               [notification: n],
+               n.email_hash == ^reuser_email and n.dataset_id == ^dataset_id and n.inserted_at >= ^recent_dt
+             )
+             |> DB.Repo.one!()
 
-    assert DB.Notification
-           |> where(
-             [n],
-             n.email_hash == ^"bar@example.com" and n.dataset_id == ^gtfs_dataset_id and n.inserted_at >= ^recent_dt and
-               n.reason == :dataset_with_error and
-               n.role == :producer and
-               not is_nil(n.notification_subscription_id)
-           )
-           |> DB.Repo.exists?()
+    assert %DB.Notification{
+             role: :producer,
+             reason: :dataset_with_error,
+             payload: %{"resource_formats" => ["GTFS"], "resource_ids" => [^resource_gtfs_id], "job_id" => bar_job_id},
+             notification_subscription_id: ^subscription_bar_id
+           } =
+             DB.Notification.base_query()
+             |> where(
+               [notification: n],
+               n.email_hash == ^"bar@example.com" and n.dataset_id == ^gtfs_dataset_id and n.inserted_at >= ^recent_dt
+             )
+             |> DB.Repo.one!()
+
+    assert MapSet.new([job_id, reuser_job_id, bar_job_id]) |> Enum.count() == 1
   end
 
   test "email_addresses_already_sent" do

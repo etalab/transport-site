@@ -60,7 +60,8 @@ defmodule Transport.UserNotifier do
 
   def multi_validation_with_error_notification(%DB.Contact{} = contact, :producer,
         dataset: dataset,
-        resources: resources
+        resources: resources,
+        job_id: _
       ) do
     contact
     |> common_email_options()
@@ -70,7 +71,8 @@ defmodule Transport.UserNotifier do
 
   def multi_validation_with_error_notification(%DB.Contact{} = contact, :reuser,
         dataset: dataset,
-        producer_warned: producer_warned
+        producer_warned: producer_warned,
+        job_id: _
       ) do
     contact
     |> common_email_options()
@@ -82,7 +84,9 @@ defmodule Transport.UserNotifier do
         dataset: dataset,
         hours_consecutive_downtime: hours_consecutive_downtime,
         deleted_recreated_on_datagouv: deleted_recreated_on_datagouv,
-        resource_titles: resource_titles
+        resource_titles: resource_titles,
+        unavailabilities: _,
+        job_id: _
       ) do
     contact
     |> common_email_options()
@@ -99,7 +103,9 @@ defmodule Transport.UserNotifier do
         dataset: dataset,
         hours_consecutive_downtime: hours_consecutive_downtime,
         producer_warned: producer_warned,
-        resource_titles: resource_titles
+        resource_titles: resource_titles,
+        unavailabilities: _,
+        job_id: _
       ) do
     contact
     |> common_email_options()

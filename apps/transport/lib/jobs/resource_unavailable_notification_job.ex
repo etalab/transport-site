@@ -17,47 +17,91 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
   @notification_reason DB.NotificationSubscription.reason(:resource_unavailable)
 
   @impl Oban.Worker
-  def perform(%Oban.Job{inserted_at: %DateTime{} = inserted_at}) do
+  def perform(%Oban.Job{id: job_id, inserted_at: %DateTime{} = inserted_at}) do
     inserted_at
     |> relevant_unavailabilities()
     |> Enum.each(fn {%DB.Dataset{} = dataset, unavailabilities} ->
       producer_subscriptions = subscriptions(dataset, :producer)
-      send_to_producers(producer_subscriptions, dataset, unavailabilities)
+      send_to_producers(producer_subscriptions, dataset, unavailabilities, job_id: job_id)
 
       dataset
       |> subscriptions(:reuser)
-      |> send_to_reusers(dataset, unavailabilities, producer_warned: not Enum.empty?(producer_subscriptions))
+      |> send_to_reusers(dataset, unavailabilities,
+        producer_warned: not Enum.empty?(producer_subscriptions),
+        job_id: job_id
+      )
     end)
   end
 
-  defp send_to_reusers(subscriptions, %DB.Dataset{} = dataset, unavailabilities, producer_warned: producer_warned) do
+  defp send_to_reusers(subscriptions, %DB.Dataset{} = dataset, unavailabilities,
+         producer_warned: producer_warned,
+         job_id: job_id
+       ) do
     Enum.each(subscriptions, fn subscription ->
       send_mail(subscription,
         dataset: dataset,
         hours_consecutive_downtime: @hours_consecutive_downtime,
         producer_warned: producer_warned,
-        resource_titles: Enum.map_join(unavailabilities, ", ", &resource_title/1)
+        resource_titles: Enum.map_join(unavailabilities, ", ", &resource_title/1),
+        unavailabilities: unavailabilities,
+        job_id: job_id
       )
     end)
   end
 
-  defp send_to_producers(subscriptions, dataset, unavailabilities) do
+  defp send_to_producers(subscriptions, %DB.Dataset{} = dataset, unavailabilities, job_id: job_id) do
     Enum.each(subscriptions, fn subscription ->
       send_mail(subscription,
         dataset: dataset,
         hours_consecutive_downtime: @hours_consecutive_downtime,
         deleted_recreated_on_datagouv: deleted_and_recreated_resource_hosted_on_datagouv(dataset, unavailabilities),
-        resource_titles: Enum.map_join(unavailabilities, ", ", &resource_title/1)
+        resource_titles: Enum.map_join(unavailabilities, ", ", &resource_title/1),
+        unavailabilities: unavailabilities,
+        job_id: job_id
       )
     end)
   end
 
   defp send_mail(
          %DB.NotificationSubscription{role: role, contact: %DB.Contact{} = contact} = subscription,
-         [{:dataset, %DB.Dataset{} = dataset} | _] = args
+         args
        ) do
     {:ok, _} = contact |> Transport.UserNotifier.resource_unavailable(role, args) |> Transport.Mailer.deliver()
-    DB.Notification.insert!(dataset, subscription)
+    save_notification(subscription, args)
+  end
+
+  defp save_notification(%DB.NotificationSubscription{role: :reuser} = subscription, args) do
+    %DB.Dataset{} = dataset = Keyword.fetch!(args, :dataset)
+    unavailabilities = Keyword.fetch!(args, :unavailabilities)
+
+    DB.Notification.insert!(dataset, subscription,
+      payload: %{
+        "resource_ids" =>
+          Enum.map(unavailabilities, fn %DB.ResourceUnavailability{resource: %DB.Resource{id: resource_id}} ->
+            resource_id
+          end),
+        "producer_warned" => Keyword.fetch!(args, :producer_warned),
+        "hours_consecutive_downtime" => Keyword.fetch!(args, :hours_consecutive_downtime),
+        "job_id" => Keyword.fetch!(args, :job_id)
+      }
+    )
+  end
+
+  defp save_notification(%DB.NotificationSubscription{role: :producer} = subscription, args) do
+    %DB.Dataset{} = dataset = Keyword.fetch!(args, :dataset)
+    unavailabilities = Keyword.fetch!(args, :unavailabilities)
+
+    DB.Notification.insert!(dataset, subscription,
+      payload: %{
+        "resource_ids" =>
+          Enum.map(unavailabilities, fn %DB.ResourceUnavailability{resource: %DB.Resource{id: resource_id}} ->
+            resource_id
+          end),
+        "deleted_recreated_on_datagouv" => Keyword.fetch!(args, :deleted_recreated_on_datagouv),
+        "hours_consecutive_downtime" => Keyword.fetch!(args, :hours_consecutive_downtime),
+        "job_id" => Keyword.fetch!(args, :job_id)
+      }
+    )
   end
 
   @doc """

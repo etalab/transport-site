@@ -50,7 +50,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
     %{id: gtfs_dataset_id} =
       gtfs_dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true, custom_title: "Dataset GTFS")
 
-    resource_1 =
+    %DB.Resource{id: resource_1_id} =
+      resource_1 =
       insert(:resource,
         dataset: dataset,
         format: "geojson",
@@ -58,7 +59,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
         url: "https://static.data.gouv.fr/file.geojson"
       )
 
-    resource_2 =
+    %DB.Resource{id: resource_2_id} =
+      resource_2 =
       insert(:resource,
         dataset: dataset,
         format: "geojson",
@@ -66,7 +68,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
         url: "https://static.data.gouv.fr/other_file.geojson"
       )
 
-    resource_gtfs = insert(:resource, dataset: gtfs_dataset, format: "GTFS", url: "https://example/file.zip")
+    %DB.Resource{id: resource_gtfs_id} =
+      resource_gtfs = insert(:resource, dataset: gtfs_dataset, format: "GTFS", url: "https://example/file.zip")
 
     insert(:resource_unavailability,
       start: DateTime.add(DateTime.utc_now(), -6 * 60 - 29, :minute),
@@ -206,32 +209,54 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
 
     assert DB.Notification |> DB.Repo.aggregate(:count) == 7
 
-    assert DB.Notification
-           |> where(
-             [n],
-             n.email_hash == ^"foo@example.com" and n.dataset_id == ^dataset_id and n.inserted_at >= ^recent_dt and
-               n.reason == :resource_unavailable and
-               n.role == :producer
-           )
-           |> DB.Repo.exists?()
+    assert %DB.Notification{
+             role: :producer,
+             payload: %{
+               "deleted_recreated_on_datagouv" => true,
+               "hours_consecutive_downtime" => 6,
+               "resource_ids" => [^resource_1_id, ^resource_2_id],
+               "job_id" => job_id_1
+             }
+           } =
+             DB.Notification.base_query()
+             |> where(
+               [notification: n],
+               n.email_hash == ^"foo@example.com" and n.inserted_at >= ^recent_dt and n.reason == :resource_unavailable and
+                 n.dataset_id == ^dataset_id
+             )
+             |> DB.Repo.one!()
 
-    assert DB.Notification
-           |> where(
-             [n],
-             n.email_hash == ^reuser_email and n.dataset_id == ^dataset_id and n.inserted_at >= ^recent_dt and
-               n.reason == :resource_unavailable and
-               n.role == :reuser
-           )
-           |> DB.Repo.exists?()
+    assert %DB.Notification{
+             dataset_id: ^dataset_id,
+             reason: :resource_unavailable,
+             role: :reuser,
+             payload: %{
+               "hours_consecutive_downtime" => 6,
+               "producer_warned" => true,
+               "resource_ids" => [^resource_1_id, ^resource_2_id],
+               "job_id" => job_id_2
+             }
+           } =
+             DB.Notification.base_query()
+             |> where([notification: n], n.email_hash == ^reuser_email and n.inserted_at >= ^recent_dt)
+             |> DB.Repo.one!()
 
-    assert DB.Notification
-           |> where(
-             [n],
-             n.email_hash == ^"bar@example.com" and n.dataset_id == ^gtfs_dataset_id and n.inserted_at >= ^recent_dt and
-               n.reason == :resource_unavailable and
-               n.role == :producer
-           )
-           |> DB.Repo.exists?()
+    assert %DB.Notification{
+             dataset_id: ^gtfs_dataset_id,
+             role: :producer,
+             reason: :resource_unavailable,
+             payload: %{
+               "deleted_recreated_on_datagouv" => false,
+               "hours_consecutive_downtime" => 6,
+               "resource_ids" => [^resource_gtfs_id],
+               "job_id" => job_id_3
+             }
+           } =
+             DB.Notification.base_query()
+             |> where([notification: n], n.email_hash == ^"bar@example.com" and n.inserted_at >= ^recent_dt)
+             |> DB.Repo.one!()
+
+    assert MapSet.new([job_id_1, job_id_2, job_id_3]) |> Enum.count() == 1
   end
 
   describe "created_resource_hosted_on_datagouv_recently?" do

@@ -85,15 +85,15 @@ defmodule DB.Notification do
   def recent_reasons_binned(%DB.Dataset{id: dataset_id}, nb_days) when is_integer(nb_days) and nb_days > 0 do
     datetime_limit = DateTime.add(DateTime.utc_now(), -nb_days, :day)
 
-    possible_reasons =
-      DB.NotificationSubscription.reasons_related_to_datasets() --
-        DB.NotificationSubscription.unsuscribable_reasons()
+    enabled_reasons = [
+      DB.NotificationSubscription.reason(:dataset_with_error),
+      DB.NotificationSubscription.reason(:expiration),
+      DB.NotificationSubscription.reason(:resource_unavailable)
+    ]
 
     base_query()
-    |> where(
-      [notification: n],
-      n.inserted_at >= ^datetime_limit and n.dataset_id == ^dataset_id and n.reason in ^possible_reasons
-    )
+    |> where([notification: n], n.reason in ^enabled_reasons and n.role == :producer)
+    |> where([notification: n], n.inserted_at >= ^datetime_limit and n.dataset_id == ^dataset_id)
     # The function date_bin “bins” the input timestamp into the specified interval (the stride)
     # aligned with a specified origin.
     # https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-BIN
