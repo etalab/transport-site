@@ -3,6 +3,7 @@ defmodule Transport.StatsHandlerTest do
   import DB.Factory
   import Ecto.Query
   import Transport.StatsHandler
+  @moduletag :focus
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)

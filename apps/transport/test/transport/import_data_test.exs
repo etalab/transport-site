@@ -7,6 +7,7 @@ defmodule Transport.ImportDataTest do
   import ExUnit.CaptureLog
   import Ecto.Query
   doctest ImportData, import: true
+  @moduletag :focus
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)

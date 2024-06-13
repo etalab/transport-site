@@ -1,6 +1,7 @@
 defmodule Transport.ConsolidatedDatasetTest do
   use ExUnit.Case, async: true
   import DB.Factory
+  @moduletag :focus
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
