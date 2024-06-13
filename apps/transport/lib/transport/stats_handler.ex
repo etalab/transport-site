@@ -245,15 +245,8 @@ defmodule Transport.StatsHandler do
   end
 
   def count_geo_data_lines(feature) do
-    case Transport.ConsolidatedDataset.dataset(feature) do
-      nil ->
-        # The dataset of the feature is not (yet) in database
-        0
-
-      dataset ->
-        dataset.id
-        |> DB.GeoDataImport.dataset_latest_geo_data_import()
-        |> DB.GeoData.count_lines_for_geo_data_import()
-    end
+    Transport.ConsolidatedDataset.dataset(feature).id
+    |> DB.GeoDataImport.dataset_latest_geo_data_import()
+    |> DB.GeoData.count_lines_for_geo_data_import()
   end
 end

@@ -27,12 +27,12 @@ defmodule Transport.ConsolidatedDataset do
     |> preload(:resources)
     |> where([d], d.type == ^dataset_type and d.organization_id == ^publisher_id)
     |> additional_ecto_query(name)
-    |> DB.Repo.one()
+    |> DB.Repo.one!()
   end
 
   def resource(name) do
     [resource] =
-      Transport.ConsolidatedDataset.dataset(name)
+      dataset(name)
       |> DB.Dataset.official_resources()
       |> filter_official_resources(name)
 

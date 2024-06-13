@@ -366,7 +366,8 @@ defmodule DB.Factory do
       type: "charging-stations",
       custom_title: "Infrastructures de Recharge pour Véhicules Électriques - IRVE",
       organization: "data.gouv.fr",
-      organization_id: "646b7187b50b2a93b1ae3d45"
+      organization_id: "646b7187b50b2a93b1ae3d45",
+      aom: nil
     })
   end
 
@@ -374,7 +375,8 @@ defmodule DB.Factory do
     insert(:dataset, %{
       type: "carpooling-areas",
       organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
-      organization_id: "5abca8d588ee386ee6ece479"
+      organization_id: "5abca8d588ee386ee6ece479",
+      aom: nil
     })
   end
 
@@ -383,7 +385,8 @@ defmodule DB.Factory do
       type: "private-parking",
       custom_title: "Base nationale des parcs relais",
       organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
-      organization_id: "5abca8d588ee386ee6ece479"
+      organization_id: "5abca8d588ee386ee6ece479",
+      aom: nil
     })
   end
 
@@ -392,7 +395,8 @@ defmodule DB.Factory do
       type: "low-emission-zones",
       custom_title: "Base Nationale des Zones à Faibles Émissions (BNZFE)",
       organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
-      organization_id: "5abca8d588ee386ee6ece479"
+      organization_id: "5abca8d588ee386ee6ece479",
+      aom: nil
     })
   end
 

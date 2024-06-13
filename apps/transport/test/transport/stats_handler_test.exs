@@ -6,6 +6,11 @@ defmodule Transport.StatsHandlerTest do
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    insert_bnlc_dataset()
+    insert_irve_dataset()
+    insert_parcs_relais_dataset()
+    insert_zfe_dataset()
+    :ok
   end
 
   test "compute_stats" do
@@ -163,13 +168,12 @@ defmodule Transport.StatsHandlerTest do
     hidden_dataset = insert(:dataset, aom: aom, is_active: true, is_hidden: true)
     insert(:resource, dataset: hidden_dataset, format: "GTFS")
 
-    assert %{nb_datasets: 1, nb_gtfs: 1, nb_pt_datasets: 1} = compute_stats()
+    assert %{nb_datasets: 5, nb_gtfs: 1, nb_pt_datasets: 1} = compute_stats()
   end
 
   test "counts the number of IRVE lines in GeoData" do
-    %{id: dataset_id} = insert_irve_dataset()
     assert 0 == count_geo_data_lines(:irve)
-    insert_imported_irve_geo_data(dataset_id)
+    insert_imported_irve_geo_data(Transport.ConsolidatedDataset.dataset(:irve).id)
     assert 2 == count_geo_data_lines(:irve)
   end
 end
