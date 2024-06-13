@@ -67,6 +67,13 @@ if config_env() == :prod and not app_env_is_valid do
   raise("APP_ENV must be set to production or staging while in production")
 end
 
+# on staging, allow override of configuration so that we can target other branches
+if app_env == :staging do
+  if url = System.get_env("TRANSPORT_PROXY_CONFIG_GITHUB_URL") do
+    config :unlock, github_config_url: url
+  end
+end
+
 domain_name =
   case config_env() do
     :prod -> System.fetch_env!("DOMAIN_NAME")

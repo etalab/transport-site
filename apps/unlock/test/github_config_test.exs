@@ -36,7 +36,7 @@ defmodule UnlockGitHubConfigTest do
 
     # the config module is expected to reach out to GitHub (here with a fake url)
     Unlock.HTTP.Client.Mock
-    |> expect(:get!, fn url, headers ->
+    |> expect(:get!, fn url, headers, _options ->
       assert url == "https://localhost/some-github-url"
       assert headers == [{"Authorization", "token some-test-github-auth-token"}]
 
@@ -63,7 +63,7 @@ defmodule UnlockGitHubConfigTest do
 
     # client must not call the data anymore
     Unlock.HTTP.Client.Mock
-    |> expect(:get!, 0, fn _url, _headers -> nil end)
+    |> expect(:get!, 0, fn _url, _headers, _options -> nil end)
 
     # yet data must not change
     assert Unlock.Config.GitHub.fetch_config!() == data
