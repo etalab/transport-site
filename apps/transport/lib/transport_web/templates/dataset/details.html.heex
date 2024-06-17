@@ -253,7 +253,7 @@
       <div class="pt-12">
         <span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "Data published by") %></span>
         <div class="dataset-type-info">
-          <b><%= @dataset.organization %></b>
+          <b><%= link(@dataset.organization, to: dataset_path(@conn, :index, organization_id: @dataset.organization_id)) %></b>
         </div>
       </div>
       <div class="pt-12">
