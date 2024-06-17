@@ -216,6 +216,14 @@ defmodule TransportWeb.DatasetSearchControllerTest do
              %{"aom" => to_string(aom2.id)} |> Dataset.list_datasets() |> Repo.all()
   end
 
+  test "search for datasets published by an organization" do
+    %DB.Organization{id: org_id} = insert(:organization)
+    %Dataset{id: dataset_id} = insert(:dataset, organization_id: org_id, is_active: true)
+
+    assert [%Dataset{id: ^dataset_id}] =
+             %{"organization_id" => to_string(org_id)} |> Dataset.list_datasets() |> Repo.all()
+  end
+
   test "a dataset labelled as base nationale published by us is first without filters" do
     %{id: base_nationale_dataset_id} =
       insert(:dataset,
