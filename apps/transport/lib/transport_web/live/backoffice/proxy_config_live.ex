@@ -45,7 +45,11 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
 
   defp config_module, do: Application.fetch_env!(:unlock, :config_fetcher)
 
-  defp get_proxy_configuration(proxy_base_url, stats_days) do
+  @doc """
+  Builds a list of maps containing what we need on display on screen, based on configuration
+  plus a bit of cache state and statistics.
+  """
+  def get_proxy_configuration(proxy_base_url, stats_days) do
     # NOTE: if the stats query becomes too costly, we will be able to throttle it every N seconds instead,
     # using a simple cache. At the moment, `get_proxy_configuration` is called once per frame, and not
     # once per item.
@@ -80,6 +84,18 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     }
   end
 
+  defp extract_config(proxy_base_url, %Unlock.Config.Item.Aggregate{} = resource) do
+    %{
+      unique_slug: resource.identifier,
+      proxy_url: Transport.Proxy.resource_url(proxy_base_url, resource.identifier),
+      original_url: nil,
+      # At time of writing, the global feed is not cached
+      ttl: "N/A",
+      # We do not display the internal count for aggregate item at the moment
+      internal_count_default_value: nil
+    }
+  end
+
   defp event_names do
     Telemetry.proxy_request_event_names() |> Enum.map(&Telemetry.database_event_name/1)
   end
@@ -92,12 +108,13 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   end
 
   defp add_stats(item, stats) do
-    metrics_target = Unlock.Controller.Telemetry.target_for_identifier(item.unique_slug)
+    metrics_target = Unlock.Telemetry.target_for_identifier(item.unique_slug)
     counts = stats[metrics_target] || %{}
 
     Map.merge(item, %{
       stats_external_requests: Map.get(counts, db_filter_for_event(:external), 0),
-      stats_internal_requests: Map.get(counts, db_filter_for_event(:internal), 0)
+      stats_internal_requests:
+        Map.get(counts, db_filter_for_event(:internal), Map.get(item, :internal_count_default_value, 0))
     })
   end
 

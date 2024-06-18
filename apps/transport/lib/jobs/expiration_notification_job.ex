@@ -167,7 +167,7 @@ defmodule Transport.Jobs.ExpirationNotificationJob do
   """
   @spec gtfs_expiring_on_target_dates(Date.t()) :: %{delay() => dataset_ids()}
   def gtfs_expiring_on_target_dates(%Date{} = reference_date) do
-    Transport.Cache.API.fetch(
+    Transport.Cache.fetch(
       to_string(__MODULE__) <> ":gtfs_expiring_on_target_dates:#{reference_date}",
       fn ->
         delays_and_dates = delays_and_dates(reference_date)

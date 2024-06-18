@@ -90,3 +90,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Organization type is invalid"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Carpooling lines"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Carpooling offers"
+msgstr ""

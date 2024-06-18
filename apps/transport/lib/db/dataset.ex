@@ -152,6 +152,8 @@ defmodule DB.Dataset do
     do: %{
       "public-transit" => dgettext("db-dataset", "Public transit - static schedules"),
       "carpooling-areas" => dgettext("db-dataset", "Carpooling areas"),
+      "carpooling-lines" => dgettext("db-dataset", "Carpooling lines"),
+      "carpooling-offers" => dgettext("db-dataset", "Carpooling offers"),
       "charging-stations" => dgettext("db-dataset", "Charging & refuelling stations"),
       "air-transport" => dgettext("db-dataset", "Air transport"),
       "bike-scooter-sharing" => dgettext("db-dataset", "Bike and scooter sharing"),

@@ -16,37 +16,6 @@ defmodule Unlock.Controller do
   require Logger
   import Unlock.GunzipTools
 
-  defmodule ProxyCacheEntry do
-    @moduledoc """
-    The structure we use to persist HTTP responses we got from the remote servers.
-    """
-    @enforce_keys [:body, :headers, :status]
-    defstruct [:body, :headers, :status]
-  end
-
-  defmodule Telemetry do
-    # NOTE: to be DRYed with what is in the "transport" app later (`telemetry.ex`), if we stop using an umbrella app.
-    # Currently we would have a circular dependency, or would have to move all this to `shared`.
-
-    @proxy_requests [:internal, :external]
-
-    @moduledoc """
-    A quick place to centralize definition of tracing events and targets
-    """
-
-    def target_for_identifier(item_identifier) do
-      "proxy:#{item_identifier}"
-    end
-
-    # This call will result in synchronous invoke of all registered handlers for the specified events.
-    # (for instance, check out `Transport.Telemetry#handle_event`, available at time of writing)
-    def trace_request(item_identifier, request_type) when request_type in @proxy_requests do
-      :telemetry.execute([:proxy, :request, request_type], %{}, %{
-        target: target_for_identifier(item_identifier)
-      })
-    end
-  end
-
   def index(conn, _params) do
     text(conn, "Unlock Proxy")
   end
@@ -84,12 +53,6 @@ defmodule Unlock.Controller do
       |> send_resp(500, "Internal Error")
   end
 
-  # We put a hard limit on what can be cached, and otherwise will just
-  # send back without caching. This means the remote server is less protected
-  # temporarily, but also that we do not blow up our whole architecture due to
-  # RAM consumption
-  @max_allowed_cached_byte_size 20 * 1024 * 1024
-
   # In particular, it can be desirable to let the config override "content-disposition"
   # to specify a filename (in the case of IRVE data for instance, which is CSV and most
   # users expect it to download as a file, contrary to other formats)
@@ -100,8 +63,28 @@ defmodule Unlock.Controller do
     end)
   end
 
+  defp to_nil_or_integer(nil), do: nil
+  defp to_nil_or_integer(data), do: String.to_integer(data)
+  defp to_boolean(nil), do: false
+  defp to_boolean("0"), do: false
+  defp to_boolean("1"), do: true
+
+  defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.Aggregate{} = item) do
+    Unlock.Telemetry.trace_request(item.identifier, :external)
+    # NOTE: required for tests to work, and doesn't hurt in production (idempotent afaik)
+    conn = conn |> Plug.Conn.fetch_query_params()
+
+    options = [
+      limit_per_source: conn.query_params["limit_per_source"] |> to_nil_or_integer(),
+      include_origin: conn.query_params["include_origin"] |> to_boolean()
+    ]
+
+    body_response = Unlock.AggregateProcessor.process_resource(item, options)
+    send_resp(conn, 200, body_response)
+  end
+
   defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.Generic.HTTP{} = item) do
-    Telemetry.trace_request(item.identifier, :external)
+    Unlock.Telemetry.trace_request(item.identifier, :external)
     response = fetch_remote(item)
 
     response.headers
@@ -170,16 +153,8 @@ defmodule Unlock.Controller do
       Logger.info("Processing proxy request for identifier #{item.identifier}")
 
       try do
-        Telemetry.trace_request(item.identifier, :internal)
-        response = Unlock.HTTP.Client.impl().get!(item.target_url, item.request_headers)
-        size = byte_size(response.body)
-
-        if size > @max_allowed_cached_byte_size do
-          Logger.warning("Payload is too large (#{size} bytes > #{@max_allowed_cached_byte_size}). Skipping cache.")
-          {:ignore, response}
-        else
-          {:commit, response, ttl: :timer.seconds(item.ttl)}
-        end
+        Unlock.Telemetry.trace_request(item.identifier, :internal)
+        Unlock.CachedFetch.fetch_data(item)
       rescue
         e ->
           # NOTE: if an error occurs around the HTTP query, then

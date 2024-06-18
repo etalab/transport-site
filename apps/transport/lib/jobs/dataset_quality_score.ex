@@ -339,7 +339,7 @@ defmodule Transport.Jobs.DatasetAvailabilityScore do
   this data across jobs.
   """
   def resource_ids_with_unavailabilities do
-    Transport.Cache.API.fetch(
+    Transport.Cache.fetch(
       to_string(__MODULE__) <> ":unavailabilities_resource_ids",
       fn ->
         dt_limit = DateTime.utc_now() |> DateTime.add(-1, :day)

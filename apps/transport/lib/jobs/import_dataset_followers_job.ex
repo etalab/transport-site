@@ -87,7 +87,7 @@ defmodule Transport.Jobs.ImportDatasetFollowersJob do
           binary() => %{contact_id: integer(), datagouv_user_id: binary(), organization_ids: [binary() | nil]}
         }
   def contact_details do
-    Transport.Cache.API.fetch(
+    Transport.Cache.fetch(
       "#{__MODULE__}:contact_details",
       fn ->
         DB.Contact.base_query()
