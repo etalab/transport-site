@@ -8,35 +8,53 @@ require Logger
 
 Application.put_env(:transport, :irve_consolidation_caching, true)
 
-schema_file = "cache-dir/schema-irve-statique.json"
+schema_url = "https://schema.data.gouv.fr/schemas/etalab/schema-irve-statique/latest/schema-statique.json"
+schema_file_path = "cache-dir/schema-irve-statique.json"
 
-unless File.exists?(schema_file) do
-  %{status: 200} =
-    Transport.HTTPClient.get!(
-      "https://schema.data.gouv.fr/schemas/etalab/schema-irve-statique/latest/schema-statique.json",
-      into: File.stream!(schema_file)
-    )
-end
-
-Transport.IRVE.Extractor.resources()
-|> Stream.map(fn r ->
-  data_file = Path.join("cache-dir", r.resource_id <> ".dat")
-  status_file = data_file <> ".status.json"
-
-  unless File.exists?(data_file) do
-    Logger.info("Processing #{data_file}...")
-    %{status: status} = Transport.HTTPClient.get!(r.url, decode_body: false, into: File.stream!(data_file))
-    File.write!(status_file, %{status: status} |> Jason.encode!())
+defmodule Script do
+  # useful to cache schema path
+  def download_if_needed!(url, file_path) do
+    unless File.exists?(file_path) do
+      %{status: 200} = Transport.HTTPClient.get!(url, into: File.stream!(file_path))
+    end
   end
 
-  r
-  |> Map.put(:data_file_name, data_file)
-  |> Map.put(:status, File.read!(status_file) |> Jason.decode!() |> Map.fetch!("status"))
-end)
+  def file_path_for_resource(resource_id), do: Path.join("cache-dir", resource_id <> ".dat")
+  def status_file_path_for_resource(resource_id), do: file_path_for_resource(resource_id) <> ".status.json"
+
+  # cache a resource file, including if it is non-200 (but timeout wasn't necessary to support here)
+  # HTTP status is stored in a secondary JSON file
+  def cached_resource_download(resource_id, url) do
+    data_file = file_path_for_resource(resource_id)
+    status_file = status_file_path_for_resource(resource_id)
+
+    unless File.exists?(data_file) do
+      Logger.info("Downloading #{data_file}...")
+      %{status: status} = Transport.HTTPClient.get!(url, decode_body: false, into: File.stream!(data_file))
+      File.write!(status_file, %{status: status} |> Jason.encode!())
+    end
+
+    %{
+      data_file_path: data_file,
+      http_status: status_file |> File.read!() |> Jason.decode!() |> Map.fetch!("status")
+    }
+  end
+end
+
+Script.download_if_needed!(schema_url, schema_file_path)
+
+Transport.IRVE.Extractor.resources()
+|> Task.async_stream(
+  fn r ->
+    r |> Map.merge(Script.cached_resource_download(r.resource_id, r.url))
+  end,
+  max_concurrency: 50
+)
+|> Stream.map(fn {:ok, r} -> r end)
 # |> Stream.take(1)
 |> Stream.each(fn
-  %{status: 200} = x ->
+  %{http_status: 200} = x ->
     IO.inspect(x, IEx.inspect_opts())
-    IO.inspect(Transport.IRVE.FrictionlessCLIValidator.validate(x.data_file_name, schema_file), IEx.inspect_opts())
+    IO.inspect(Transport.IRVE.FrictionlessCLIValidator.validate(x.data_file_path, schema_file_path), IEx.inspect_opts())
 end)
 |> Stream.run()
