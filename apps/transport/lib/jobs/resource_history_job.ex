@@ -341,22 +341,32 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     iex> relevant_http_headers(%Req.Response{headers: %{"content-type" => ["application/json", "but-also/csv"]}})
     %{"content-type" => "application/json, but-also/csv"}
 
-    Supports latin1 (ISO-8859-1) headers
+    Resist to ill-formed attachments (https://github.com/etalab/transport-site/issues/3984)
 
-    iex> relevant_http_headers(%Req.Response{headers: %{"content-disposition" => ["attachment", <<102, 105, 108, 101, 110, 97, 109, 101, 61, 233, 46, 122, 105, 112>>]}})
-    %{"content-disposition" => "attachment, filename=é.zip"}
+    Supports latin1 (ISO-8859-1) headers
+    iex> relevant_http_headers(%Req.Response{headers: %{"content-disposition" => ["attachment", <<102, 105, 108, 101, 110, 97, 109, 101, 61, 233, 232, 46, 122, 105, 112>>]}})
+    %{"content-disposition" => "attachment, filename=éè.zip"}
+
+    Still support UTF-8 header (http2)
+    iex> relevant_http_headers(%Req.Response{headers: %{"content-disposition" => ["attachment", "filename=éè.zip"]}})
+    %{"content-disposition" => "attachment, filename=éè.zip"}
   """
   def relevant_http_headers(%Req.Response{headers: headers}) do
     headers
     |> Map.take(@headers_to_keep)
-    |> Enum.into(%{}, fn {h, v} -> {String.downcase(h), v |> Enum.map_join(", ", &decode_header/1)} end)
+    |> Enum.into(%{}, fn {h, v} -> {String.downcase(h), v |> Enum.map_join(", ", &cleanup_header/1)} end)
   end
 
-  defp decode_header(as_latin1) when is_binary(as_latin1) do
-    :unicode.characters_to_binary(:erlang.binary_to_list(as_latin1), :latin1)
+  defp cleanup_header(binary) do
+    binary
+    |> :binary.replace(<<224>>, "à")
+    |> :binary.replace(<<226>>, "â")
+    |> :binary.replace(<<232>>, "è")
+    |> :binary.replace(<<233>>, "é")
+    |> :binary.replace(<<234>>, "ê")
+    |> :binary.replace(<<244>>, "ô")
+    |> :binary.replace(<<249>>, "ù")
   end
-
-  defp decode_header(str), do: str
 
   defp latest_schema_version_to_date(%Resource{schema_name: nil}), do: nil
 
