@@ -66,7 +66,7 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
   defp save_notification(%DB.Dataset{} = dataset, %DB.NotificationSubscription{role: :reuser} = subscription, args) do
     producer_warned = Keyword.fetch!(args, :producer_warned)
     job_id = Keyword.fetch!(args, :job_id)
-    DB.Notification.insert!(dataset, subscription, payload: %{"producer_warned" => producer_warned, "job_id" => job_id})
+    DB.Notification.insert!(dataset, subscription, payload: %{producer_warned: producer_warned, job_id: job_id})
   end
 
   defp save_notification(%DB.Dataset{} = dataset, %DB.NotificationSubscription{role: :producer} = subscription, args) do

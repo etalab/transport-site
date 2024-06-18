@@ -76,13 +76,13 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
 
     DB.Notification.insert!(dataset, subscription,
       payload: %{
-        "resource_ids" =>
+        resource_ids:
           Enum.map(unavailabilities, fn %DB.ResourceUnavailability{resource: %DB.Resource{id: resource_id}} ->
             resource_id
           end),
-        "producer_warned" => Keyword.fetch!(args, :producer_warned),
-        "hours_consecutive_downtime" => Keyword.fetch!(args, :hours_consecutive_downtime),
-        "job_id" => Keyword.fetch!(args, :job_id)
+        producer_warned: Keyword.fetch!(args, :producer_warned),
+        hours_consecutive_downtime: Keyword.fetch!(args, :hours_consecutive_downtime),
+        job_id: Keyword.fetch!(args, :job_id)
       }
     )
   end
@@ -93,13 +93,13 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
 
     DB.Notification.insert!(dataset, subscription,
       payload: %{
-        "resource_ids" =>
+        resource_ids:
           Enum.map(unavailabilities, fn %DB.ResourceUnavailability{resource: %DB.Resource{id: resource_id}} ->
             resource_id
           end),
-        "deleted_recreated_on_datagouv" => Keyword.fetch!(args, :deleted_recreated_on_datagouv),
-        "hours_consecutive_downtime" => Keyword.fetch!(args, :hours_consecutive_downtime),
-        "job_id" => Keyword.fetch!(args, :job_id)
+        deleted_recreated_on_datagouv: Keyword.fetch!(args, :deleted_recreated_on_datagouv),
+        hours_consecutive_downtime: Keyword.fetch!(args, :hours_consecutive_downtime),
+        job_id: Keyword.fetch!(args, :job_id)
       }
     )
   end

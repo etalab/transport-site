@@ -141,7 +141,7 @@ defmodule Transport.DataChecker do
       |> Transport.UserNotifier.new_datasets(datasets)
       |> Transport.Mailer.deliver()
 
-      DB.Notification.insert!(subscription, payload: %{"dataset_ids" => Enum.map(datasets, & &1.id)})
+      DB.Notification.insert!(subscription, payload: %{dataset_ids: Enum.map(datasets, & &1.id)})
     end)
   end
 
@@ -155,7 +155,7 @@ defmodule Transport.DataChecker do
         |> Transport.UserNotifier.expiration_producer(dataset, resources, delay)
         |> Transport.Mailer.deliver()
 
-        DB.Notification.insert!(dataset, subscription, payload: %{"delay" => delay})
+        DB.Notification.insert!(dataset, subscription, payload: %{delay: delay})
       end)
     end)
 

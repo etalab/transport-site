@@ -20,7 +20,7 @@ defmodule Transport.Jobs.ResourcesChangedNotificationJob do
   end
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"dataset_id" => dataset_id}}) do
+  def perform(%Oban.Job{id: job_id, args: %{"dataset_id" => dataset_id}}) do
     dataset = DB.Dataset |> DB.Repo.get!(dataset_id)
     subject = "#{dataset.custom_title} : ressources modifiées"
 
@@ -30,7 +30,7 @@ defmodule Transport.Jobs.ResourcesChangedNotificationJob do
       Transport.UserNotifier.resources_changed(contact, subject, dataset)
       |> Transport.Mailer.deliver()
 
-      DB.Notification.insert!(dataset, subscription)
+      DB.Notification.insert!(dataset, subscription, payload: %{job_id: job_id})
     end)
   end
 

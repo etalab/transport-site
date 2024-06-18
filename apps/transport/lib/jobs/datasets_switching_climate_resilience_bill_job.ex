@@ -34,7 +34,7 @@ defmodule Transport.Jobs.DatasetsSwitchingClimateResilienceBillJob do
       )
       |> Transport.Mailer.deliver()
 
-      DB.Notification.insert!(subscription, payload: %{"dataset_ids" => dataset_ids})
+      DB.Notification.insert!(subscription, payload: %{dataset_ids: dataset_ids})
     end)
 
     :ok

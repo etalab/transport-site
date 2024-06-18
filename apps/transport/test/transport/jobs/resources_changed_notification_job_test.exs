@@ -159,7 +159,8 @@ defmodule Transport.Test.Transport.Jobs.ResourcesChangedNotificationJobTest do
                dataset_id: ^dataset_id,
                role: :reuser,
                contact_id: ^contact_id,
-               notification_subscription_id: ^ns_id
+               notification_subscription_id: ^ns_id,
+               payload: %{"job_id" => _}
              }
            ] = DB.Notification |> DB.Repo.all()
 
