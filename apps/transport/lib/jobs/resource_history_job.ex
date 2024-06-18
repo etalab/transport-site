@@ -358,14 +358,13 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   end
 
   defp cleanup_header(binary) do
-    binary
-    |> :binary.replace(<<224>>, "à", [:global])
-    |> :binary.replace(<<226>>, "â", [:global])
-    |> :binary.replace(<<232>>, "è", [:global])
-    |> :binary.replace(<<233>>, "é", [:global])
-    |> :binary.replace(<<234>>, "ê", [:global])
-    |> :binary.replace(<<244>>, "ô", [:global])
-    |> :binary.replace(<<249>>, "ù", [:global])
+    if String.valid?(binary) do
+      # UTF-8 binary, nothing to do
+      binary
+    else
+      # Latin1 binary (old specification), let's transcode
+      :erlang.binary_to_list(binary) |> :unicode.characters_to_binary(:latin1, :utf8)
+    end
   end
 
   defp latest_schema_version_to_date(%Resource{schema_name: nil}), do: nil
