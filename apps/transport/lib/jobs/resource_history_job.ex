@@ -344,8 +344,8 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     Resist to ill-formed attachments (https://github.com/etalab/transport-site/issues/3984)
 
     Supports latin1 (ISO-8859-1) headers
-    iex> relevant_http_headers(%Req.Response{headers: %{"content-disposition" => ["attachment", <<102, 105, 108, 101, 110, 97, 109, 101, 61, 233, 232, 46, 122, 105, 112>>]}})
-    %{"content-disposition" => "attachment, filename=éè.zip"}
+    iex> relevant_http_headers(%Req.Response{headers: %{"content-disposition" => ["attachment", <<102, 105, 108, 101, 110, 97, 109, 101, 61, 233, 233, 232, 46, 122, 105, 112>>]}})
+    %{"content-disposition" => "attachment, filename=ééè.zip"}
 
     Still support UTF-8 header (http2)
     iex> relevant_http_headers(%Req.Response{headers: %{"content-disposition" => ["attachment", "filename=éè.zip"]}})
@@ -359,13 +359,13 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
   defp cleanup_header(binary) do
     binary
-    |> :binary.replace(<<224>>, "à")
-    |> :binary.replace(<<226>>, "â")
-    |> :binary.replace(<<232>>, "è")
-    |> :binary.replace(<<233>>, "é")
-    |> :binary.replace(<<234>>, "ê")
-    |> :binary.replace(<<244>>, "ô")
-    |> :binary.replace(<<249>>, "ù")
+    |> :binary.replace(<<224>>, "à", [:global])
+    |> :binary.replace(<<226>>, "â", [:global])
+    |> :binary.replace(<<232>>, "è", [:global])
+    |> :binary.replace(<<233>>, "é", [:global])
+    |> :binary.replace(<<234>>, "ê", [:global])
+    |> :binary.replace(<<244>>, "ô", [:global])
+    |> :binary.replace(<<249>>, "ù", [:global])
   end
 
   defp latest_schema_version_to_date(%Resource{schema_name: nil}), do: nil
