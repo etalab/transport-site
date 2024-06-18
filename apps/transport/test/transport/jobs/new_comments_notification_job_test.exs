@@ -157,7 +157,7 @@ defmodule Transport.Test.Transport.Jobs.NewCommentsNotificationJobTest do
     %DB.Dataset{id: other_dataset_id} =
       insert(:dataset, latest_data_gouv_comment_timestamp: ~U[2024-03-29 10:00:00.00Z])
 
-    # Identifies two datasets as relevant
+    # Identifies three datasets as relevant
     assert [%DB.Dataset{id: ^dataset1_id}, %DB.Dataset{id: ^dataset2_id}, %DB.Dataset{id: ^other_dataset_id}] =
              ~U[2024-04-01 09:00:00.00Z]
              |> NewCommentsNotificationJob.relevant_datasets_query()
@@ -220,7 +220,7 @@ defmodule Transport.Test.Transport.Jobs.NewCommentsNotificationJobTest do
                role: :reuser,
                dataset_id: nil,
                email: ^email,
-               payload: %{"dataset_ids" => [^dataset_id]},
+               payload: %{"dataset_ids" => [^dataset1_id, ^dataset2_id]},
                notification_subscription_id: ^ns_id,
                contact_id: ^contact_id
              }
