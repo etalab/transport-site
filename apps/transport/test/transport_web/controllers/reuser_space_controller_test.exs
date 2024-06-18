@@ -59,7 +59,7 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
              |> get(reuser_space_path(conn, :datasets_edit, dataset.id))
              |> html_response(200)
              |> Floki.parse_document!()
-             |> Floki.find("h2")
+             |> Floki.find(".reuser-space-section h2")
              |> Floki.text() == dataset.custom_title
     end
   end
