@@ -15,7 +15,7 @@ defmodule CounterCache do
   end
 
   def maybe_where(query, nil), do: query
-  def maybe_where(query, ids), do: query |> where([dataset: d], d.id in ^ids)
+  def maybe_where(query, dataset_ids), do: query |> where([dataset: d], d.id in ^dataset_ids)
 end
 
 CounterCache.resources_with_modes(ids_with_heterogeneous_modes)
