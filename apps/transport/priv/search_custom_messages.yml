@@ -119,7 +119,7 @@
 
         Ces données respectent le [schéma national des aires de covoiturage](https://schema.data.gouv.fr/etalab/schema-lieux-covoiturage/).
 
-        Une [base nationale des lieux de covoiturage (BNLC)](https://transport.data.gouv.fr/datasets/base-nationale-des-lieux-de-covoiturage) est disponible. Elle respecte le schéma et est mise à jour par l’équipe du point national à partir des données conformes publiées sur data.gouv.fr.
+        Une [base nationale des lieux de covoiturage (BNLC)](https://transport.data.gouv.fr/datasets/base-nationale-des-lieux-de-covoiturage) est disponible. Elle respecte le schéma et est mise à jour par l’équipe du Point d’Accès National à partir des données conformes publiées sur data.gouv.fr.
 
     en: |
         The datasets in this category describe carpooling areas in France.
