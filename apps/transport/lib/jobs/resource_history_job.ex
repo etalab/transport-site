@@ -356,10 +356,10 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   def relevant_http_headers(%Req.Response{headers: headers}) do
     headers
     |> Map.take(@headers_to_keep)
-    |> Enum.into(%{}, fn {h, v} -> {String.downcase(h), v |> Enum.map_join(", ", &cleanup_header/1)} end)
+    |> Enum.into(%{}, fn {h, v} -> {String.downcase(h), v |> Enum.map_join(", ", &cleanup_header(h, &1))} end)
   end
 
-  defp cleanup_header(binary) do
+  defp cleanup_header("content-disposition", binary) do
     if String.valid?(binary) do
       # UTF-8 binary, nothing to do
       binary
@@ -368,6 +368,8 @@ defmodule Transport.Jobs.ResourceHistoryJob do
       :erlang.binary_to_list(binary) |> :unicode.characters_to_binary(:latin1, :utf8)
     end
   end
+
+  defp cleanup_header(_header, binary), do: binary
 
   defp latest_schema_version_to_date(%Resource{schema_name: nil}), do: nil
 
