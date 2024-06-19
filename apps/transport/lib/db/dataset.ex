@@ -309,6 +309,14 @@ defmodule DB.Dataset do
 
   defp filter_by_mode(query, _), do: query
 
+  defp filter_by_mode_v2(query, %{"modes_v2" => modes}) when is_list(modes) do
+    query
+    |> join(:inner, [dataset: d], r in DB.Resource, on: r.dataset_id == d.id, as: :resource)
+    |> where([resource: r], fragment("?->'gtfs_modes' @> ?", r.counter_cache, ^modes))
+  end
+
+  defp filter_by_mode_v2(query, _), do: query
+
   @spec filter_by_type(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_type(query, %{"type" => type}), do: where(query, [d], d.type == ^type)
   defp filter_by_type(query, _), do: query
@@ -394,6 +402,7 @@ defmodule DB.Dataset do
       |> filter_by_region(params)
       |> filter_by_feature(params)
       |> filter_by_mode(params)
+      |> filter_by_mode_v2(params)
       |> filter_by_category(params)
       |> filter_by_type(params)
       |> filter_by_aom(params)
