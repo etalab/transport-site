@@ -32,14 +32,12 @@ defmodule Transport.Jobs.PromoteProducerSpaceJob do
   end
 
   defp save_notification(%DB.Contact{id: contact_id, email: email}) do
-    %DB.Notification{}
-    |> DB.Notification.changeset(%{
+    DB.Notification.insert!(%{
       contact_id: contact_id,
       email: email,
       reason: DB.NotificationSubscription.reason(:promote_producer_space),
       role: :producer
     })
-    |> DB.Repo.insert!()
   end
 
   defp create_producer_subscriptions(%DB.Contact{id: contact_id}, datasets) do

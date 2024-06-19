@@ -29,15 +29,13 @@ defmodule Transport.Jobs.DatasetNowOnNAPNotificationJob do
   end
 
   defp save_notification(%DB.Contact{id: contact_id, email: email}, %DB.Dataset{id: dataset_id}) do
-    %DB.Notification{}
-    |> DB.Notification.changeset(%{
+    DB.Notification.insert!(%{
       reason: @notification_reason,
       dataset_id: dataset_id,
       email: email,
       contact_id: contact_id,
       role: :producer
     })
-    |> DB.Repo.insert!()
   end
 
   defp reject_already_sent(notification_subscriptions, %DB.Dataset{} = dataset) do

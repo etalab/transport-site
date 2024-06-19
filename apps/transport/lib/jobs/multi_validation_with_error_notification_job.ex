@@ -66,20 +66,18 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
   defp save_notification(%DB.Dataset{} = dataset, %DB.NotificationSubscription{role: :reuser} = subscription, args) do
     producer_warned = Keyword.fetch!(args, :producer_warned)
     job_id = Keyword.fetch!(args, :job_id)
-    DB.Notification.insert!(dataset, subscription, payload: %{producer_warned: producer_warned, job_id: job_id})
+    DB.Notification.insert!(dataset, subscription, %{producer_warned: producer_warned, job_id: job_id})
   end
 
   defp save_notification(%DB.Dataset{} = dataset, %DB.NotificationSubscription{role: :producer} = subscription, args) do
     resources = Keyword.fetch!(args, :resources)
     job_id = Keyword.fetch!(args, :job_id)
 
-    DB.Notification.insert!(dataset, subscription,
-      payload: %{
-        "resource_ids" => Enum.map(resources, fn %DB.Resource{id: resource_id} -> resource_id end),
-        "resource_formats" => Enum.map(resources, fn %DB.Resource{format: format} -> format end),
-        "job_id" => job_id
-      }
-    )
+    DB.Notification.insert!(dataset, subscription, %{
+      resource_ids: Enum.map(resources, fn %DB.Resource{id: resource_id} -> resource_id end),
+      resource_formats: Enum.map(resources, fn %DB.Resource{format: format} -> format end),
+      job_id: job_id
+    })
   end
 
   def relevant_validations(%DateTime{} = inserted_at) do

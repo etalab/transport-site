@@ -50,15 +50,13 @@ defmodule Transport.Jobs.WarnUserInactivityJob do
   end
 
   defp save_notification(%DB.Contact{} = contact, horizon) do
-    %DB.Notification{}
-    |> DB.Notification.changeset(%{
+    DB.Notification.insert!(%{
       reason: @notification_reason,
       role: role(contact),
       contact_id: contact.id,
       email: contact.email,
       payload: %{"horizon" => horizon}
     })
-    |> DB.Repo.insert!()
   end
 
   defp role(%DB.Contact{} = contact) do

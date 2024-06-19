@@ -17,13 +17,11 @@ defmodule Transport.Jobs.PromoteReuserSpaceJob do
   end
 
   defp save_notification(%DB.Contact{id: contact_id, email: email}) do
-    %DB.Notification{}
-    |> DB.Notification.changeset(%{
+    DB.Notification.insert!(%{
       contact_id: contact_id,
       email: email,
       reason: DB.NotificationSubscription.reason(:promote_reuser_space),
       role: :reuser
     })
-    |> DB.Repo.insert!()
   end
 end

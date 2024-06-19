@@ -133,15 +133,13 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
   end
 
   defp save_notification(%DB.Contact{id: contact_id, email: email}, template_type: template_type) do
-    %DB.Notification{}
-    |> DB.Notification.changeset(%{
+    DB.Notification.insert!(%{
       contact_id: contact_id,
       email: email,
       reason: @notification_reason,
       role: :producer,
       payload: %{"template_type" => template_type}
     })
-    |> DB.Repo.insert!()
   end
 
   @spec datasets_subscribed_as_producer(DB.Contact.t()) :: [DB.Dataset.t()]

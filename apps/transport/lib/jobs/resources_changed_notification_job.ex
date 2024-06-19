@@ -30,7 +30,7 @@ defmodule Transport.Jobs.ResourcesChangedNotificationJob do
       Transport.UserNotifier.resources_changed(contact, subject, dataset)
       |> Transport.Mailer.deliver()
 
-      DB.Notification.insert!(dataset, subscription, payload: %{job_id: job_id})
+      DB.Notification.insert!(dataset, subscription, %{job_id: job_id})
     end)
   end
 

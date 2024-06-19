@@ -74,34 +74,30 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
     %DB.Dataset{} = dataset = Keyword.fetch!(args, :dataset)
     unavailabilities = Keyword.fetch!(args, :unavailabilities)
 
-    DB.Notification.insert!(dataset, subscription,
-      payload: %{
-        resource_ids:
-          Enum.map(unavailabilities, fn %DB.ResourceUnavailability{resource: %DB.Resource{id: resource_id}} ->
-            resource_id
-          end),
-        producer_warned: Keyword.fetch!(args, :producer_warned),
-        hours_consecutive_downtime: Keyword.fetch!(args, :hours_consecutive_downtime),
-        job_id: Keyword.fetch!(args, :job_id)
-      }
-    )
+    DB.Notification.insert!(dataset, subscription, %{
+      resource_ids:
+        Enum.map(unavailabilities, fn %DB.ResourceUnavailability{resource: %DB.Resource{id: resource_id}} ->
+          resource_id
+        end),
+      producer_warned: Keyword.fetch!(args, :producer_warned),
+      hours_consecutive_downtime: Keyword.fetch!(args, :hours_consecutive_downtime),
+      job_id: Keyword.fetch!(args, :job_id)
+    })
   end
 
   defp save_notification(%DB.NotificationSubscription{role: :producer} = subscription, args) do
     %DB.Dataset{} = dataset = Keyword.fetch!(args, :dataset)
     unavailabilities = Keyword.fetch!(args, :unavailabilities)
 
-    DB.Notification.insert!(dataset, subscription,
-      payload: %{
-        resource_ids:
-          Enum.map(unavailabilities, fn %DB.ResourceUnavailability{resource: %DB.Resource{id: resource_id}} ->
-            resource_id
-          end),
-        deleted_recreated_on_datagouv: Keyword.fetch!(args, :deleted_recreated_on_datagouv),
-        hours_consecutive_downtime: Keyword.fetch!(args, :hours_consecutive_downtime),
-        job_id: Keyword.fetch!(args, :job_id)
-      }
-    )
+    DB.Notification.insert!(dataset, subscription, %{
+      resource_ids:
+        Enum.map(unavailabilities, fn %DB.ResourceUnavailability{resource: %DB.Resource{id: resource_id}} ->
+          resource_id
+        end),
+      deleted_recreated_on_datagouv: Keyword.fetch!(args, :deleted_recreated_on_datagouv),
+      hours_consecutive_downtime: Keyword.fetch!(args, :hours_consecutive_downtime),
+      job_id: Keyword.fetch!(args, :job_id)
+    })
   end
 
   @doc """

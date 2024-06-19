@@ -26,6 +26,8 @@ defmodule DB.Notification do
 
   def base_query, do: from(n in __MODULE__, as: :notification)
 
+  def insert!(args) when is_map(args), do: %__MODULE__{} |> changeset(args) |> DB.Repo.insert!()
+
   def insert!(
         %DB.NotificationSubscription{
           id: ns_id,
@@ -35,8 +37,7 @@ defmodule DB.Notification do
         },
         args
       ) do
-    %__MODULE__{}
-    |> changeset(%{
+    insert!(%{
       notification_subscription_id: ns_id,
       role: role,
       reason: reason,
@@ -44,13 +45,6 @@ defmodule DB.Notification do
       email: email,
       payload: Keyword.get(args, :payload, %{})
     })
-    |> DB.Repo.insert!()
-  end
-
-  def insert!(dataset, subscription, payload \\ nil)
-
-  def insert!(%DB.Dataset{} = dataset, %DB.NotificationSubscription{} = subscription, payload: payload) do
-    insert!(dataset, subscription, payload)
   end
 
   def insert!(
@@ -61,10 +55,9 @@ defmodule DB.Notification do
           reason: reason,
           contact: %DB.Contact{id: contact_id, email: email}
         },
-        payload
+        payload \\ nil
       ) do
-    %__MODULE__{}
-    |> changeset(%{
+    insert!(%{
       role: role,
       reason: reason,
       dataset_id: dataset_id,
@@ -74,7 +67,6 @@ defmodule DB.Notification do
       notification_subscription_id: ns_id,
       payload: payload
     })
-    |> DB.Repo.insert!()
   end
 
   @doc """
