@@ -115,18 +115,44 @@
       value: carpooling-areas
   msg:
     fr: |
-        Les jeux de données de cette catégorie décrivent les aires de covoiturage en France.
+        Les jeux de données de cette catégorie décrivent les lieux de covoiturage en France.
 
         Ces données respectent le [schéma national des aires de covoiturage](https://schema.data.gouv.fr/etalab/schema-lieux-covoiturage/).
 
-        Pour contribuer à cette base, vous pouvez utiliser [cet outil](https://contribuer.transport.data.gouv.fr/).
+        Une [base nationale des lieux de covoiturage (BNLC)](https://transport.data.gouv.fr/datasets/base-nationale-des-lieux-de-covoiturage) est disponible. Elle respecte le schéma et est mise à jour par l’équipe du Point d’Accès National à partir des données conformes publiées sur data.gouv.fr.
 
     en: |
         The datasets in this category describe carpooling areas in France.
 
         These data comply with the [national schema for carpooling areas](https://schema.data.gouv.fr/etalab/schema-lieux-covoiturage/).
 
-        To contribute to this database, you can use [this tool](https://contribuer.transport.data.gouv.fr/).
+        A [national database](https://transport.data.gouv.fr/datasets/base-nationale-des-lieux-de-covoiturage) is available. It complies with the scheme and is updated by the NAP team using compliant data published on data.gouv.fr.
+
+- category: carpooling-lines
+  search_params:
+    - key: type
+      value: carpooling-lines
+  msg:
+    fr: |
+        Les jeux de données de cette catégorie décrivent les lignes de covoiturage en France.
+
+    en: |
+        The datasets in this category describe carpooling lines in France.
+
+- category: carpooling-offers
+  search_params:
+    - key: type
+      value: carpooling-offers
+  msg:
+    fr: |
+        Les jeux de données de cette catégorie décrivent les offres de covoiturage planifiées du quotidien en France.
+
+        Les données respectent le [standard-covoiturage](https://github.com/fabmob/standard-covoiturage/).
+
+    en: |
+        The datasets in this category describe daily scheduled carpooling offers in France.
+
+        These data comply with the [standard-covoiturage](https://github.com/fabmob/standard-covoiturage/).
 
 - category: bike-scooter-sharing
   search_params:
