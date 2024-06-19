@@ -116,9 +116,25 @@ msgid "Cancel"
 msgstr "Annuler"
 
 #, elixir-autogen, elixir-format
-msgid "Edit"
-msgstr "Éditer"
+msgid "Remove from favorites"
+msgstr "Supprimer de vos favoris"
 
 #, elixir-autogen, elixir-format
-msgid "Remove from favorites"
-msgstr "Retirer de vos favoris"
+msgid "Discussions"
+msgstr "Discussions"
+
+#, elixir-autogen, elixir-format
+msgid "Improved data sharing"
+msgstr "Repartage des données améliorées"
+
+#, elixir-autogen, elixir-format
+msgid "Manage"
+msgstr "Gérer"
+
+#, elixir-autogen, elixir-format
+msgid "This feature is coming soon!"
+msgstr "Cette fonctionnalité arrive bientôt !"
+
+#, elixir-autogen, elixir-format
+msgid "Warning, you are going to remove \"%{dataset_title}\" from your favorites. You will lose any settings or actions you previously performed on this dataset."
+msgstr "Attention, vous allez supprimer le jeu de données \"%{dataset_title}\" de vos favoris. Vous allez perdre tous les paramétrages ou actions que vous avez réalisés précédemment sur ce jeu de données."

@@ -372,6 +372,13 @@ defmodule DB.Dataset do
   defp filter_by_licence(query, %{"licence" => licence}), do: where(query, [d], d.licence == ^licence)
   defp filter_by_licence(query, _), do: query
 
+  @spec filter_by_organization(Ecto.Query.t(), map()) :: Ecto.Query.t()
+  defp filter_by_organization(query, %{"organization_id" => organization_id}) do
+    where(query, [d], d.organization_id == ^organization_id)
+  end
+
+  defp filter_by_organization(query, _), do: query
+
   @spec list_datasets(map()) :: Ecto.Query.t()
   def list_datasets(%{} = params) do
     params
@@ -394,6 +401,7 @@ defmodule DB.Dataset do
       |> filter_by_licence(params)
       |> filter_by_climate_resilience_bill(params)
       |> filter_by_custom_tag(params)
+      |> filter_by_organization(params)
       |> filter_by_fulltext(params)
       |> select([dataset: d], d.id)
 
