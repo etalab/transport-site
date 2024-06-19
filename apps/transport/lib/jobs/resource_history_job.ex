@@ -350,6 +350,8 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     Still support UTF-8 header (http2)
     iex> relevant_http_headers(%Req.Response{headers: %{"content-disposition" => ["attachment", "filename=éè.zip"]}})
     %{"content-disposition" => "attachment, filename=éè.zip"}
+    iex> relevant_http_headers(%Req.Response{headers: %{"content-disposition" => [~S(attachment, filename=éè.zip)]}})
+    %{"content-disposition" => "attachment, filename=éè.zip"}
   """
   def relevant_http_headers(%Req.Response{headers: headers}) do
     headers
