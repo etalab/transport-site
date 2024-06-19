@@ -35,20 +35,6 @@ defmodule GBFS.Router do
   scope "/gbfs", GBFS do
     pipe_through([:api, :page_cache])
 
-    scope "/vcub" do
-      get("/gbfs.json", VCubController, :index)
-      get("/system_information.json", VCubController, :system_information)
-      get("/station_information.json", VCubController, :station_information)
-      get("/station_status.json", VCubController, :station_status)
-    end
-
-    scope "/vlille" do
-      get("/gbfs.json", VLilleController, :index)
-      get("/system_information.json", VLilleController, :system_information)
-      get("/station_information.json", VLilleController, :station_information)
-      get("/station_status.json", VLilleController, :station_status)
-    end
-
     @reseaux_jcdecaux
     |> Map.keys()
     |> Enum.map(fn contract ->
@@ -83,10 +69,6 @@ defmodule GBFS.Router do
   end
 
   defp assign_index(conn, _) do
-    conn
-    |> assign(
-      :networks,
-      ["vcub", "vlille"] ++ (@reseaux_jcdecaux |> Map.keys())
-    )
+    assign(conn, :networks, Map.keys(@reseaux_jcdecaux))
   end
 end
