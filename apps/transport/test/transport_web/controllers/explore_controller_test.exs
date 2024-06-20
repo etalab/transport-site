@@ -1,7 +1,6 @@
 defmodule TransportWeb.ExploreControllerTest do
   use TransportWeb.ConnCase, async: true
   import DB.Factory
-  @moduletag :focus
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
