@@ -1,7 +1,12 @@
 import Ecto.Query
 
+# interesting ids I kept around for experimenting with
 ids_with_heterogeneous_modes = [614, 362, 146]
 
+# TODO: move to app code (this works)
+# TODO: add a couple of unit tests
+# TODO: schedule a job
+# MAYBE: discussion a better cache invalidation
 defmodule CounterCache do
   @doc """
   Build the query to retrieve one line per "resource <-> modes" with its dataset (for GTFS resources only).
