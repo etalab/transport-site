@@ -5,7 +5,6 @@ defmodule TransportWeb.API.StatsControllerTest do
   import DB.Factory
   import OpenApiSpex.TestAssertions
 
-
   @cached_features_routes [
     {"/api/stats", "api-stats-aoms"},
     {"/api/stats/regions", "api-stats-regions"},
