@@ -4,7 +4,6 @@ defmodule Transport.Jobs.LowEmissionZonesToGeoDataTest do
   alias Transport.Jobs.{BaseGeoData, LowEmissionZonesToGeoData}
   import DB.Factory
   import Mox
-  @moduletag :focus
 
   doctest LowEmissionZonesToGeoData, import: true
 

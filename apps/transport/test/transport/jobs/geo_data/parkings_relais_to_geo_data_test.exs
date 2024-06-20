@@ -4,7 +4,6 @@ defmodule Transport.Jobs.ParkingsRelaisToGeoDataTest do
   alias Transport.Jobs.{BaseGeoData, ParkingsRelaisToGeoData}
   import DB.Factory
   import Mox
-  @moduletag :focus
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
