@@ -1,6 +1,9 @@
 defmodule Transport.CounterCache do
-  import Ecto.Query
+  @moduledoc """
+  This module is responsible for updating the `counter_cache` field of the `resources` table.
+  """
 
+  import Ecto.Query
 
   def cache_modes_on_resources do
     resources_with_modes()
@@ -8,6 +11,9 @@ defmodule Transport.CounterCache do
     |> DB.Repo.all()
     # |> IO.inspect(IEx.inspect_opts() |> Keyword.merge(limit: :infinity))
     |> apply_all_updates!()
+    # |> IO.inspect(IEx.inspect_opts())
+
+    :ok
   end
 
   @doc """

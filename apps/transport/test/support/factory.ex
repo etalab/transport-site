@@ -87,6 +87,7 @@ defmodule DB.Factory do
       last_import: DateTime.utc_now(),
       last_update: DateTime.utc_now(),
       title: "GTFS.zip",
+      counter_cache: %{},
       # NOTE: we should use real urls here (but something safe on localhost?)
       latest_url: "url",
       url: "url",
