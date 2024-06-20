@@ -11,7 +11,6 @@ defmodule Transport.CounterCache do
     |> DB.Repo.all()
     # |> IO.inspect(IEx.inspect_opts() |> Keyword.merge(limit: :infinity))
     |> apply_all_updates!()
-    # |> IO.inspect(IEx.inspect_opts())
   end
 
   @doc """

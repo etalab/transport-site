@@ -296,7 +296,7 @@ defmodule DB.Dataset do
 
   defp filter_by_feature(query, _), do: query
 
-  # TODO: replace this by the `filter_by_mode_v2` implementation once we
+  # replace this by the `filter_by_mode_v2` implementation once we
   # have properly asserted the non-regression
   @spec filter_by_mode(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_mode(query, %{"modes" => modes}) when is_list(modes) do
