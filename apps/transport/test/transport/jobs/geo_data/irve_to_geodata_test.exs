@@ -4,6 +4,8 @@ defmodule Transport.Jobs.IRVEToGeoDataTest do
   alias Transport.Jobs.{BaseGeoData, IRVEToGeoData}
   import DB.Factory
   import Mox
+  @moduletag :focus
+
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)

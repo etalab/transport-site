@@ -4,6 +4,8 @@ defmodule TransportWeb.API.StatsControllerTest do
   import Mock
   import DB.Factory
   import OpenApiSpex.TestAssertions
+  @moduletag :focus
+
 
   @cached_features_routes [
     {"/api/stats", "api-stats-aoms"},

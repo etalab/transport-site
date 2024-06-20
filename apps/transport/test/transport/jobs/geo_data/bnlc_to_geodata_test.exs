@@ -4,6 +4,7 @@ defmodule Transport.Jobs.BNLCToGeoDataTest do
   alias Transport.Jobs.{BaseGeoData, BNLCToGeoData}
   import DB.Factory
   import Mox
+  @moduletag :focus
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)

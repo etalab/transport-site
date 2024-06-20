@@ -13,6 +13,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
   import Ecto.Query
   alias DB.{AOM, Dataset, MultiValidation, Repo, Resource, ResourceHistory}
   alias Transport.CSVDocuments
+  @moduletag :focus
 
   @schema_name "etalab/schema-zfe"
   @lez_dataset_type "low-emission-zones"
