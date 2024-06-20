@@ -123,7 +123,7 @@
 
         <%= submit("Créer un abonnement") %>
       <% end %>
-      <h4>Abonnements existants</h4>
+      <h4><%= dgettext("backoffice", "Existing subscriptions") %></h4>
       <table :if={Enum.count(@dataset.notification_subscriptions) > 0} class="table">
         <tr>
           <th>Contact</th>
@@ -165,7 +165,7 @@
         <% end %>
       </table>
       <p :if={Enum.empty?(@dataset.notification_subscriptions)} class="mt-48 notification">
-        Il n'y a pas d'abonnements à des notifications pour ce jeu de données.
+        <%= dgettext("backoffice", "There's no notification subscriptions for this contact.") %>
       </p>
       <div :if={Enum.count(@dataset.notification_subscriptions) > 0}>
         <%= live_render(@conn, TransportWeb.Live.SendNowOnNAPNotificationView,

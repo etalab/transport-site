@@ -314,3 +314,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Dataset"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "There's no notification subscriptions for this contact."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Existing subscriptions"
+msgstr ""
