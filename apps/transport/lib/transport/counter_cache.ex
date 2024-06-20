@@ -12,14 +12,12 @@ defmodule Transport.CounterCache do
     # |> IO.inspect(IEx.inspect_opts() |> Keyword.merge(limit: :infinity))
     |> apply_all_updates!()
     # |> IO.inspect(IEx.inspect_opts())
-
-    :ok
   end
 
   @doc """
   Build the query to retrieve one line per "resource <-> modes" with its dataset (for GTFS resources only).
   """
-  @spec resources_with_modes([integer()]) :: Ecto.Query.t()
+  @spec resources_with_modes([integer()] | nil) :: Ecto.Query.t()
   def resources_with_modes(optional_dataset_ids \\ nil) do
     DB.Dataset.base_query()
     |> maybe_where(optional_dataset_ids)
@@ -29,10 +27,9 @@ defmodule Transport.CounterCache do
   @doc """
   Prepare a list of maps compatible with a bulk values update (https://hexdocs.pm/ecto/Ecto.Query.API.html#values/2)
   """
-  @type update_resource_modes_list :: [%{resource_id: integer(), resource_gtfs_modes: [String.t()]}]
-  @spec prepare_update_values(Ecto.Query.t()) :: update_resource_modes_list
-  def prepare_update_values(records) do
-    records
+  @spec prepare_update_values(Ecto.Query.t()) :: Ecto.Query.t()
+  def prepare_update_values(query) do
+    query
     |> select([resource: r, metadata: m], %{resource_id: r.id, resource_gtfs_modes: m.modes})
   end
 
@@ -40,6 +37,7 @@ defmodule Transport.CounterCache do
   Given a list of planned updates, for each resource, in batch, update the `counter_cache`
   field to contain a JSONB map with `gtfs_modes` array.
   """
+  @type update_resource_modes_list :: [%{resource_id: integer(), resource_gtfs_modes: [String.t()]}]
   @spec apply_all_updates!(update_resource_modes_list) :: any()
   def apply_all_updates!(updates) do
     types = %{resource_id: :integer, resource_gtfs_modes: {:array, :string}}
