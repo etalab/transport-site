@@ -1,6 +1,15 @@
 defmodule Transport.CounterCache do
   import Ecto.Query
 
+
+  def cache_modes_on_resources do
+    resources_with_modes()
+    |> prepare_update_values()
+    |> DB.Repo.all()
+    # |> IO.inspect(IEx.inspect_opts() |> Keyword.merge(limit: :infinity))
+    |> apply_all_updates!()
+  end
+
   @doc """
   Build the query to retrieve one line per "resource <-> modes" with its dataset (for GTFS resources only).
   """
