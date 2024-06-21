@@ -3,7 +3,6 @@ defmodule Transport.StatsHandlerTest do
   import DB.Factory
   import Ecto.Query
   import Transport.StatsHandler
-  @moduletag :focus
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -123,6 +122,7 @@ defmodule Transport.StatsHandlerTest do
     assert count_resources == 1
   end
 
+  @tag :focus
   test "compute aom max severity" do
     aom_1 = insert(:aom)
     %{dataset: dataset} = insert_up_to_date_resource_and_friends(max_error: "Error", aom: aom_1)
