@@ -344,8 +344,8 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     Resist to ill-formed attachments (https://github.com/etalab/transport-site/issues/3984)
 
     Supports latin1 (ISO-8859-1) headers
-    iex> relevant_http_headers(%Req.Response{headers: %{"content-disposition" => ["attachment", <<102, 105, 108, 101, 110, 97, 109, 101, 61, 233, 233, 232, 46, 122, 105, 112>>]}})
-    %{"content-disposition" => "attachment, filename=ééè.zip"}
+    iex> relevant_http_headers(%Req.Response{headers: %{"content-disposition" => ["attachment; filename=\\"" <> <<233, 233, 232>> <> ".zip\\""]}})
+    %{"content-disposition" => "attachment; filename=\\"ééè.zip\\""}
 
     Still support UTF-8 header (http2)
     iex> relevant_http_headers(%Req.Response{headers: %{"content-disposition" => ["attachment; filename=\\"éè.zip\\""]}})
