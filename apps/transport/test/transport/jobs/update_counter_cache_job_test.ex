@@ -8,7 +8,7 @@ defmodule Transport.Test.Transport.Jobs.UpdateCounterCacheJobTest do
   alias Transport.Jobs.UpdateCounterCacheJob
 
   setup do
-    Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
   test "perform" do
