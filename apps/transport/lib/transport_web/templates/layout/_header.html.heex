@@ -18,6 +18,16 @@
         </a>
         <ul class="nav__links top-nav-links">
           <li class="nav__item">
+            <div class="dropdown">
+              <%= gettext("Data") %>
+              <div class="dropdown-content">
+                <%= link(gettext("Datasets"), to: dataset_path(@conn, :index)) %>
+                <%= link(gettext("Exploration map"), to: explore_path(@conn, :index)) %>
+                <%= link(gettext("National GTFS stops map"), to: explore_path(@conn, :gtfs_stops)) %>
+              </div>
+            </div>
+          </li>
+          <li class="nav__item">
             <%= link(gettext("Documentation"), to: "https://doc.transport.data.gouv.fr") %>
           </li>
           <li class="nav__item">
@@ -31,15 +41,14 @@
                   to: live_path(@conn, TransportWeb.Live.GTFSDiffSelectLive)
                 ) %>
                 <%= link(gettext("SIRI query generator"), to: live_path(@conn, TransportWeb.Live.SIRIQuerierLive)) %>
-                <%= link(gettext("Exploration map"), to: explore_path(@conn, :index)) %>
-                <%= link(gettext("National GTFS stops map"), to: explore_path(@conn, :gtfs_stops)) %>
+
                 <%= link(gettext("Accèslibre Mobilités"), to: "https://mtes-mct.github.io/alm-docs/", target: "_blank") %>
                 <%= link(gettext("Service status"), to: "https://stats.uptimerobot.com/q7nqyiO9yQ", target: "_blank") %>
               </div>
             </div>
           </li>
           <li class="nav__item">
-            <%= link(gettext("Producer infos"), to: page_path(@conn, :infos_producteurs)) %>
+            <%= link(gettext("Statistics"), to: stats_path(@conn, :index)) %>
           </li>
           <li class="nav__item">
             <div class="dropdown">
