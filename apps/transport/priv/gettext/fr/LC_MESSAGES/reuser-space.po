@@ -77,7 +77,7 @@ msgstr "Notifications par jeu de données"
 
 #, elixir-autogen, elixir-format
 msgid "notifications are good for you"
-msgstr "Les notifications e-mail vous préviennent des problèmes de qualité ou d’indisponibilité qui pourraient affecter vos réutilisations des données de transport. Afin d’activer les notifications sur un jeu de données, mettez-le d’abord en favori (icône ❤️ sur la page du jeu de donnée).<br/><br/>Vous pouvez également suivre l’activité générale de transport.data.gouv.fr à travers les commentaires et nouveaux jeux de données"
+msgstr "Les notifications e-mail vous préviennent des problèmes de qualité ou d’indisponibilité qui pourraient affecter vos réutilisations des données de transport. Afin d’activer les notifications sur un jeu de données, mettez-le d’abord en favori (icône ❤️ sur la page du jeu de donnée).<br/><br/>Vous pouvez également suivre l’activité générale de transport.data.gouv.fr à travers les commentaires et nouveaux jeux de données."
 
 #, elixir-autogen, elixir-format
 msgid "Access your reuser space"
