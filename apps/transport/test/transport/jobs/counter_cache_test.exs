@@ -12,7 +12,9 @@ defmodule Transport.Test.Transport.CounterCacheTest do
     # Second resource with empty modes
     %{resource: %{id: resource_empty_metadata_id} = resource_empty_metadata} = insert_up_to_date_resource_and_friends()
     # Third resource has no validation
-    %DB.Resource{id: resource_no_validation_id} = resource_no_validation = insert(:resource, dataset: insert(:dataset), format: "GTFS")
+    %DB.Resource{id: resource_no_validation_id} =
+      resource_no_validation =
+      insert(:resource, dataset: insert(:dataset), format: "GTFS")
 
     assert resource.counter_cache == %{}
     assert resource_empty_metadata.counter_cache == %{}
