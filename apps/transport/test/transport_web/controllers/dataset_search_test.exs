@@ -2,6 +2,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
   use TransportWeb.ConnCase, async: true
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
   import DB.Factory
+  @moduletag :focus
 
   doctest TransportWeb.DatasetController
 
@@ -53,7 +54,6 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     :ok
   end
 
-  @tag :focus
   test "GET /datasets title", %{conn: conn} do
     conn = conn |> get(dataset_path(conn, :index))
     # titre de la page
