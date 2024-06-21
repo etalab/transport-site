@@ -1,7 +1,7 @@
 <section class="container pt-48 pb-24">
   <%= breadcrumbs([@conn, :datasets_edit, @dataset.custom_title]) %>
 </section>
-<section class="reuser-space-section">
+<section class="reuser-space-section pb-48">
   <div class="container pt-24">
     <h2 class="mb-0"><%= @dataset.custom_title %></h2>
     <div class="align-right pb-24">
@@ -12,9 +12,7 @@
     </div>
     <div class="panel">
       <h3><%= dgettext("reuser-space", "Manage notifications") %></h3>
-      <p class="notification">
-        <%= dgettext("reuser-space", "This feature is coming soon!") %>
-      </p>
+      <%= live_render(@conn, TransportWeb.Live.DatasetNotificationsLive, session: %{"dataset_id" => @dataset.id}) %>
     </div>
     <div class="panel">
       <h3><%= dgettext("reuser-space", "Improved data sharing") %></h3>

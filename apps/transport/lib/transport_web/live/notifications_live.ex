@@ -119,23 +119,25 @@ defmodule TransportWeb.Live.NotificationsLive do
     |> DB.Repo.all()
   end
 
-  defp notification_subscriptions_for_datasets(%Phoenix.LiveView.Socket{assigns: assigns}) do
+  def notification_subscriptions_for_datasets(%Phoenix.LiveView.Socket{assigns: assigns}) do
     notification_subscriptions_for_datasets(assigns.datasets, assigns.current_contact, assigns.role)
   end
 
-  defp notification_subscriptions_for_datasets(datasets, current_contact, :reuser = role) do
+  def notification_subscriptions_for_datasets(datasets, current_contact, :reuser = role) do
+    dataset_ids = Enum.map(datasets, fn %DB.Dataset{id: id} -> id end)
+
     current_contact
     |> DB.Repo.preload(:notification_subscriptions, force: true)
     |> Map.fetch!(:notification_subscriptions)
     |> Enum.reject(fn %DB.NotificationSubscription{dataset_id: dataset_id, role: ns_role} ->
-      is_nil(dataset_id) or ns_role != role
+      dataset_id not in dataset_ids or ns_role != role
     end)
     |> Enum.reduce(subscriptions_empty_map(role, datasets), fn %DB.NotificationSubscription{} = subscription, acc ->
       put_in(acc, [subscription.dataset_id, subscription.reason, :user_subscription], subscription)
     end)
   end
 
-  defp notification_subscriptions_for_datasets(datasets, current_contact, :producer = role) do
+  def notification_subscriptions_for_datasets(datasets, current_contact, :producer = role) do
     datasets
     |> Enum.map(fn %DB.Dataset{id: id} -> id end)
     |> DB.NotificationSubscription.producer_subscriptions_for_datasets(current_contact.id)
@@ -250,7 +252,7 @@ defmodule TransportWeb.Live.NotificationsLive do
     end)
   end
 
-  defp available_reasons(:reuser) do
+  def available_reasons(:reuser) do
     [
       %{
         reason: DB.NotificationSubscription.reason(:expiration),
@@ -271,7 +273,7 @@ defmodule TransportWeb.Live.NotificationsLive do
     ]
   end
 
-  defp available_reasons(:producer) do
+  def available_reasons(:producer) do
     [
       %{
         reason: DB.NotificationSubscription.reason(:expiration),
