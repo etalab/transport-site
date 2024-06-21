@@ -322,7 +322,8 @@ defmodule Transport.DataCheckerTest do
         dataset_id: dataset.id
       })
 
-    Transport.DataChecker.send_outdated_data_notifications({7, [{dataset, []}]})
+    job_id = 42
+    Transport.DataChecker.send_outdated_data_notifications({7, [{dataset, []}]}, job_id)
 
     assert_email_sent(
       from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
@@ -340,7 +341,7 @@ defmodule Transport.DataCheckerTest do
                dataset_id: ^dataset_id,
                notification_subscription_id: ^ns_id,
                role: :producer,
-               payload: %{"delay" => 7}
+               payload: %{"delay" => 7, "job_id" => ^job_id}
              }
            ] =
              DB.Notification |> DB.Repo.all()
@@ -383,7 +384,7 @@ defmodule Transport.DataCheckerTest do
                  reason: :new_dataset,
                  role: :reuser,
                  dataset_id: nil,
-                 payload: %{"dataset_ids" => [^dataset_id]},
+                 payload: %{"dataset_ids" => [^dataset_id], "job_id" => _},
                  notification_subscription_id: ^ns_id
                }
              ] =

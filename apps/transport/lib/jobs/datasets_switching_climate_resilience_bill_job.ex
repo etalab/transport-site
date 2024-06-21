@@ -21,9 +21,8 @@ defmodule Transport.Jobs.DatasetsSwitchingClimateResilienceBillJob do
   def send_email([], []), do: :ok
 
   def send_email(datasets_previously_climate_resilience, datasets_now_climate_resilience) do
-    dataset_ids =
-      (datasets_previously_climate_resilience ++ datasets_now_climate_resilience)
-      |> Enum.map(fn [_, %DB.Dataset{id: dataset_id}, _] -> dataset_id end)
+    previously_ids = dataset_ids(datasets_previously_climate_resilience)
+    now_ids = dataset_ids(datasets_now_climate_resilience)
 
     DB.NotificationSubscription.subscriptions_for_reason_and_role(@notification_reason, :reuser)
     |> Enum.each(fn %DB.NotificationSubscription{contact: %DB.Contact{} = contact} = subscription ->
@@ -34,10 +33,21 @@ defmodule Transport.Jobs.DatasetsSwitchingClimateResilienceBillJob do
       )
       |> Transport.Mailer.deliver()
 
-      DB.Notification.insert!(subscription, payload: %{dataset_ids: dataset_ids})
+      DB.Notification.insert!(
+        subscription,
+        %{
+          dataset_ids: previously_ids ++ now_ids,
+          datasets_previously_climate_resilience_ids: previously_ids,
+          datasets_now_climate_resilience_ids: now_ids
+        }
+      )
     end)
 
     :ok
+  end
+
+  defp dataset_ids(payload) do
+    Enum.map(payload, fn [_, %DB.Dataset{id: dataset_id}, _] -> dataset_id end)
   end
 
   def datasets_previously_climate_resilience_bill(result) do

@@ -82,7 +82,7 @@ defmodule Transport.CommentsChecker do
       |> Enum.reject(fn {%Dataset{}, _datagouv_id, _title, comments} -> Enum.empty?(comments) end)
       |> Enum.map(fn {%Dataset{id: dataset_id}, _datagouv_id, _title, _comments} -> dataset_id end)
 
-    DB.Notification.insert!(subscription, payload: %{dataset_ids: dataset_ids})
+    DB.Notification.insert!(subscription, %{dataset_ids: dataset_ids})
   end
 
   @spec update_all_datasets_ts([comments_with_context()]) :: []

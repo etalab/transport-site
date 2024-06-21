@@ -35,7 +35,7 @@ defmodule DB.Notification do
           reason: reason,
           contact: %DB.Contact{id: contact_id, email: email}
         },
-        args
+        %{} = payload
       ) do
     insert!(%{
       notification_subscription_id: ns_id,
@@ -43,7 +43,7 @@ defmodule DB.Notification do
       reason: reason,
       contact_id: contact_id,
       email: email,
-      payload: Keyword.get(args, :payload, %{})
+      payload: payload
     })
   end
 
@@ -55,7 +55,9 @@ defmodule DB.Notification do
           reason: reason,
           contact: %DB.Contact{id: contact_id, email: email}
         },
-        payload \\ nil
+        # `payload` should always include a `job_id` to find other
+        # `DB.Notification` rows that have been sent in the same batch.
+        %{job_id: _} = payload
       ) do
     insert!(%{
       role: role,

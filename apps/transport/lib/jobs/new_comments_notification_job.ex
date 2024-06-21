@@ -33,7 +33,7 @@ defmodule Transport.Jobs.NewCommentsNotificationJob do
     |> Transport.UserNotifier.new_comments_reuser(datasets)
     |> Transport.Mailer.deliver()
 
-    DB.Notification.insert!(subscription, payload: %{dataset_ids: Enum.map(datasets, & &1.id)})
+    DB.Notification.insert!(subscription, %{dataset_ids: Enum.map(datasets, & &1.id)})
     :ok
   end
 

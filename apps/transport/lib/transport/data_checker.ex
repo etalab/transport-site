@@ -100,13 +100,17 @@ defmodule Transport.DataChecker do
   end
 
   def outdated_data do
+    # Generated as an integer rather than a UUID because `payload.job_id`
+    # for other notifications are %Oban.Job.id (bigint).
+    job_id = Enum.random(1..Integer.pow(2, 63))
+
     for delay <- possible_delays(),
         date = Date.add(Date.utc_today(), delay) do
       {delay, gtfs_datasets_expiring_on(date)}
     end
     |> Enum.reject(fn {_, records} -> Enum.empty?(records) end)
     |> send_outdated_data_mail()
-    |> Enum.map(&send_outdated_data_notifications/1)
+    |> Enum.map(&send_outdated_data_notifications(&1, job_id))
   end
 
   @spec gtfs_datasets_expiring_on(Date.t()) :: [{DB.Dataset.t(), [DB.Resource.t()]}]
@@ -134,6 +138,10 @@ defmodule Transport.DataChecker do
   def send_new_dataset_notifications([]), do: :ok
 
   def send_new_dataset_notifications(datasets) do
+    # Generated as an integer rather than a UUID because `payload.job_id`
+    # for other notifications are %Oban.Job.id (bigint).
+    job_id = Enum.random(1..Integer.pow(2, 63))
+
     @new_dataset_reason
     |> DB.NotificationSubscription.subscriptions_for_reason_and_role(:reuser)
     |> Enum.each(fn %DB.NotificationSubscription{contact: %DB.Contact{} = contact} = subscription ->
@@ -141,12 +149,12 @@ defmodule Transport.DataChecker do
       |> Transport.UserNotifier.new_datasets(datasets)
       |> Transport.Mailer.deliver()
 
-      DB.Notification.insert!(subscription, payload: %{dataset_ids: Enum.map(datasets, & &1.id)})
+      DB.Notification.insert!(subscription, %{dataset_ids: Enum.map(datasets, & &1.id), job_id: job_id})
     end)
   end
 
-  @spec send_outdated_data_notifications(delay_and_records()) :: delay_and_records()
-  def send_outdated_data_notifications({delay, records} = payload) do
+  @spec send_outdated_data_notifications(delay_and_records(), integer()) :: delay_and_records()
+  def send_outdated_data_notifications({delay, records} = payload, job_id) do
     Enum.each(records, fn {%DB.Dataset{} = dataset, resources} ->
       @expiration_reason
       |> DB.NotificationSubscription.subscriptions_for_reason_dataset_and_role(dataset, :producer)
@@ -155,7 +163,7 @@ defmodule Transport.DataChecker do
         |> Transport.UserNotifier.expiration_producer(dataset, resources, delay)
         |> Transport.Mailer.deliver()
 
-        DB.Notification.insert!(dataset, subscription, %{delay: delay})
+        DB.Notification.insert!(dataset, subscription, %{delay: delay, job_id: job_id})
       end)
     end)
 

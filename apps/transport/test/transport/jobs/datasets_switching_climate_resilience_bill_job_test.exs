@@ -152,7 +152,11 @@ defmodule Transport.Test.Transport.Jobs.DatasetsSwitchingClimateResilienceBillJo
                reason: :datasets_switching_climate_resilience_bill,
                dataset_id: nil,
                notification_subscription_id: ^ns_id,
-               payload: %{"dataset_ids" => dataset_ids}
+               payload: %{
+                 "dataset_ids" => dataset_ids,
+                 "datasets_previously_climate_resilience_ids" => [^d2_id],
+                 "datasets_now_climate_resilience_ids" => [^d1_id]
+               }
              }
            ] = DB.Notification |> DB.Repo.all() |> Enum.sort_by(& &1.dataset_id)
 
