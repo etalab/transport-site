@@ -153,7 +153,7 @@ oban_prod_crontab = [
   {"30 5 * * *", Transport.Jobs.ImportDatasetMonthlyMetricsJob},
   {"45 5 * * *", Transport.Jobs.ImportResourceMonthlyMetricsJob},
   {"0 8 * * *", Transport.Jobs.WarnUserInactivityJob},
-  {"30 6 * * *", Transport.Jobs.UpdateCounterCacheJob}
+  {"*/5 * * * *", Transport.Jobs.UpdateCounterCacheJob}
 ]
 
 # Make sure that all modules exist
