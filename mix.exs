@@ -36,7 +36,7 @@ defmodule Transport.MixProject do
 
   defp aliases do
     [
-      test: ["ecto.create --quiet", "ecto.migrate", "test"],
+      test: ["ecto.create --quiet", "ecto.seed", "ecto.migrate", "test"],
       "phx.migrate_phx.server": ["ecto.migrate", "phx.server"],
       check_all: [
         "format --check-formatted",
@@ -52,6 +52,10 @@ defmodule Transport.MixProject do
         "test"
       ]
     ]
+  end
+
+  defp aliases(:test) do
+    aliases() ++ ["ecto.seed": "run apps/transport/priv/repo/seeds.exs"]
   end
 
   defp aliases(:dev) do
