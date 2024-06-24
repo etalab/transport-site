@@ -97,13 +97,15 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
     insert_notification(%{dataset: dataset, email: "user1@example.fr", reason: :expiration})
     insert_notification(%{dataset: dataset, email: "user2@example.fr", reason: :expiration})
 
-    response =
+    doc =
       conn
       |> setup_admin_in_session()
       |> get(Routes.backoffice_page_path(conn, :edit, dataset.id))
       |> html_response(200)
+      |> Floki.parse_document!()
 
-    assert response =~ "user1@example.fr, user2@example.fr"
+    assert "user1@example.fr, user2@example.fr" ==
+             doc |> Floki.find("#notifications_sent table td:nth-child(3)") |> Floki.text()
   end
 
   test "notifications_sent sort order and grouping works" do

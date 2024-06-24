@@ -29,7 +29,7 @@
       </div>
     </div>
 
-    <div class="dashboard-description mt-48">
+    <div id="resource_historization" class="dashboard-description mt-48">
       <h3><%= dgettext("backoffice", "Resource historization") %></h3>
 
       <%= if Dataset.should_skip_history?(@dataset) do %>
@@ -85,7 +85,7 @@
           </div>
           <div :if={Enum.count(@contacts_in_org) > 0}>
             <p>
-              Producteurs s'étant déjà connectés au PAN
+              Producteurs s’étant déjà connectés au PAN
             </p>
             <ul>
               <%= for contact <- @contacts_in_org do %>
@@ -123,7 +123,7 @@
 
         <%= submit("Créer un abonnement") %>
       <% end %>
-      <h4><%= dgettext("backoffice", "Existing subscriptions") %></h4>
+      <h4 id="existing_subscriptions"><%= dgettext("backoffice", "Existing subscriptions") %></h4>
       <table :if={Enum.count(@dataset.notification_subscriptions) > 0} class="table">
         <tr>
           <th>Contact</th>
@@ -191,7 +191,7 @@
         ) %>
       </div>
     </div>
-    <div :if={Enum.count(@notifications_sent) > 0} class="dashboard-description mt-48">
+    <div :if={Enum.count(@notifications_sent) > 0} id="notifications_sent" class="dashboard-description mt-48">
       <h3><%= dgettext("backoffice", "Notifications sent") %></h3>
 
       <p>
