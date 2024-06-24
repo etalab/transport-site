@@ -131,8 +131,8 @@
           <th>Source</th>
           <th>Actions</th>
         </tr>
-        <%= for {contact, notification_subscriptions} <- @dataset.notification_subscriptions |> Enum.sort_by(&{&1.contact.last_name, &1.reason}) |> Enum.group_by(& &1.contact) do %>
-          <%= for {notification_subscription, index} <- Enum.with_index(notification_subscriptions |> Enum.filter(fn sub -> sub.role == :producer end)) do %>
+        <%= for {contact, notification_subscriptions} <- @subscriptions_by_producer do %>
+          <%= for {notification_subscription, index} <- Enum.with_index(notification_subscriptions) do %>
             <tr>
               <td :if={index == 0} rowspan={Enum.count(notification_subscriptions)}>
                 <a href={backoffice_contact_path(@conn, :edit, contact.id)}>
