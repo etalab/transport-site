@@ -124,7 +124,7 @@
         <%= submit("Créer un abonnement") %>
       <% end %>
       <h4 id="existing_subscriptions"><%= dgettext("backoffice", "Existing subscriptions") %></h4>
-      <table :if={Enum.count(@dataset.notification_subscriptions) > 0} class="table">
+      <table :if={Enum.count(@dataset.notification_subscriptions) > 0} id="existing_subscriptions_table" class="table">
         <tr>
           <th>Contact</th>
           <th><%= dgettext("backoffice", "Notification reason") %></th>

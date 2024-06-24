@@ -108,6 +108,27 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
              doc |> Floki.find("#notifications_sent table td:nth-child(3)") |> Floki.text()
   end
 
+  test "notification subscriptions", %{conn: conn} do
+    organization = insert(:organization)
+
+    dataset =
+      insert(:dataset,
+        is_active: true,
+        datagouv_id: Ecto.UUID.generate(),
+        slug: Ecto.UUID.generate(),
+        organization_id: organization.id
+      )
+
+    doc =
+      conn
+      |> setup_admin_in_session()
+      |> get(Routes.backoffice_page_path(conn, :edit, dataset.id))
+      |> html_response(200)
+      |> Floki.parse_document!()
+
+    assert doc |> Floki.find("#existing_subscriptions_table tr td:nth-child(1)") |> Floki.text() =~ "User One"
+  end
+
   test "notifications_sent sort order and grouping works" do
     dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate(), slug: Ecto.UUID.generate())
 
