@@ -157,7 +157,7 @@ defmodule TransportWeb.Backoffice.PageController do
       conn.assigns[:dataset].notification_subscriptions
       |> Enum.filter(fn sub -> sub.role == :reuser end)
 
-    reusers =
+    reusers_count =
       reuser_subscriptions
       |> Enum.sort_by(&{&1.contact.last_name, &1.reason})
       |> Enum.group_by(& &1.contact)
@@ -172,8 +172,8 @@ defmodule TransportWeb.Backoffice.PageController do
     |> assign(:resources_with_history, DB.Dataset.last_resource_history(dataset_id))
     |> assign(:contacts_datalist, contacts_datalist())
     |> assign(:contacts_in_org, contacts_in_org(conn.assigns[:dataset]))
-    |> assign(:reusers, reusers)
-    |> assign(:reuser_subscriptions, reuser_subscriptions |> Enum.count())
+    |> assign(:reusers_count, reusers_count)
+    |> assign(:reuser_subscriptions_count, reuser_subscriptions |> Enum.count())
     |> assign(
       :import_logs,
       LogsImport

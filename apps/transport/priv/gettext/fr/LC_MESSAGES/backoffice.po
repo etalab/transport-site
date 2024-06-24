@@ -326,11 +326,11 @@ msgstr "Abonnements existants"
 #, elixir-autogen, elixir-format
 msgid "reuser-subscription-count"
 msgid_plural "reuser-subscriptions-count"
-msgstr[0] "Ainsi que %{reuser_subscriptions} abonnement de"
-msgstr[1] "Ainsi que %{reuser_subscriptions} abonnements de"
+msgstr[0] "Ainsi que %{reuser_subscriptions_count} abonnement de"
+msgstr[1] "Ainsi que %{reuser_subscriptions_count} abonnements de"
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "reuser-count"
 msgid_plural "reusers-count"
-msgstr[0] "%{reusers} réutilisateur."
-msgstr[1] "%{reusers} réutilisateurs."
+msgstr[0] "%{reusers_count} réutilisateur."
+msgstr[1] "%{reusers_count} réutilisateurs."

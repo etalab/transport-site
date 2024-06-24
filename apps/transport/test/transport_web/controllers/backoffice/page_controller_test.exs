@@ -94,8 +94,8 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
         organization_id: organization.id
       )
 
-    insert_notification(%{dataset: dataset, email: "foo@example.fr", reason: :expiration})
-    insert_notification(%{dataset: dataset, email: "bar@example.fr", reason: :expiration})
+    insert_notification(%{dataset: dataset, email: "user1@example.fr", reason: :expiration})
+    insert_notification(%{dataset: dataset, email: "user2@example.fr", reason: :expiration})
 
     response =
       conn
@@ -103,7 +103,7 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
       |> get(Routes.backoffice_page_path(conn, :edit, dataset.id))
       |> html_response(200)
 
-    assert response =~ "bar@example.fr, foo@example.fr"
+    assert response =~ "user1@example.fr, user2@example.fr"
   end
 
   test "notifications_sent sort order and grouping works" do
@@ -112,10 +112,10 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
     now = DateTime.utc_now()
     five_hours_ago = DateTime.add(now, -5, :hour)
 
-    insert_notification_at_datetime(%{dataset: dataset, email: "foo@example.fr", reason: :expiration}, now)
-    insert_notification_at_datetime(%{dataset: dataset, email: "bar@example.fr", reason: :expiration}, now)
-    insert_notification_at_datetime(%{dataset: dataset, email: "bar@example.fr", reason: :expiration}, five_hours_ago)
-    insert_notification_at_datetime(%{dataset: dataset, email: "baz@example.fr", reason: :expiration}, five_hours_ago)
+    insert_notification_at_datetime(%{dataset: dataset, email: "user1@example.fr", reason: :expiration}, now)
+    insert_notification_at_datetime(%{dataset: dataset, email: "user2@example.fr", reason: :expiration}, now)
+    insert_notification_at_datetime(%{dataset: dataset, email: "user2@example.fr", reason: :expiration}, five_hours_ago)
+    insert_notification_at_datetime(%{dataset: dataset, email: "user3@example.fr", reason: :expiration}, five_hours_ago)
 
     now_truncated = %{DateTime.truncate(now, :second) | second: 0}
     five_hours_ago_truncated = %{DateTime.truncate(five_hours_ago, :second) | second: 0}
@@ -125,8 +125,8 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
              {{:expiration, ^five_hours_ago_truncated}, emails_2}
            ] = PageController.notifications_sent(dataset)
 
-    assert emails_1 |> Enum.sort() == ["bar@example.fr", "foo@example.fr"]
-    assert emails_2 |> Enum.sort() == ["bar@example.fr", "baz@example.fr"]
+    assert emails_1 |> Enum.sort() == ["user1@example.fr", "user2@example.fr"]
+    assert emails_2 |> Enum.sort() == ["user2@example.fr", "user3@example.fr"]
   end
 
   test "can download the resources CSV", %{conn: conn} do

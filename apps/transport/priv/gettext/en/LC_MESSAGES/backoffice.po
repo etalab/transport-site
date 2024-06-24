@@ -326,11 +326,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "reuser-subscription-count"
 msgid_plural "reuser-subscriptions-count"
-msgstr[0] "Along with %{reuser_subscriptions} subscription from"
-msgstr[1] "Along with %{reuser_subscriptions} subscriptions from"
+msgstr[0] "Along with %{reuser_subscriptions_count} subscription from"
+msgstr[1] "Along with %{reuser_subscriptions_count} subscriptions from"
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "reuser-count"
 msgid_plural "reusers-count"
-msgstr[0] "%{reusers} reuser."
-msgstr[1] "%{reusers} reusers."
+msgstr[0] "%{reusers_count} reuser."
+msgstr[1] "%{reusers_count} reusers."

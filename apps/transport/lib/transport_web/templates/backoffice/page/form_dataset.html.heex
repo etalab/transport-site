@@ -162,11 +162,21 @@
           <% end %>
         <% end %>
       </table>
-      <p :if={@reusers > 0}>
-        <%= dngettext("backoffice", "reuser-subscription-count", "reuser-subscriptions-count", @reuser_subscriptions,
-          reuser_subscriptions: @reuser_subscriptions
+      <p :if={@reusers_count > 0}>
+        <%= dngettext(
+          "backoffice",
+          "reuser-subscription-count",
+          "reuser-subscriptions-count",
+          @reuser_subscriptions_count,
+          reuser_subscriptions_count: @reuser_subscriptions_count
         ) %>
-        <%= dngettext("backoffice", "reuser-count", "reusers-count", @reusers, reusers: @reusers) %>
+        <%= dngettext(
+          "backoffice",
+          "reuser-count",
+          "reusers-count",
+          @reusers_count,
+          reusers_count: @reusers_count
+        ) %>
       </p>
       <p :if={Enum.empty?(@dataset.notification_subscriptions)} class="mt-48 notification">
         <%= dgettext("backoffice", "There's no notification subscriptions for this contact.") %>
