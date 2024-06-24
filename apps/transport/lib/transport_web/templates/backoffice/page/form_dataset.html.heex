@@ -179,7 +179,7 @@
         ) %>
       </p>
       <p :if={Enum.empty?(@dataset.notification_subscriptions)} class="mt-48 notification">
-        <%= dgettext("backoffice", "There's no notification subscriptions for this contact.") %>
+        <%= dgettext("backoffice", "There are no notification subscriptions for this contact.") %>
       </p>
       <div :if={Enum.count(@dataset.notification_subscriptions) > 0}>
         <%= live_render(@conn, TransportWeb.Live.SendNowOnNAPNotificationView,

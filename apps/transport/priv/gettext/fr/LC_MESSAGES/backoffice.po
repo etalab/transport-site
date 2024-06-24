@@ -316,7 +316,7 @@ msgid "Dataset"
 msgstr "Jeu de données"
 
 #, elixir-autogen, elixir-format
-msgid "There's no notification subscriptions for this contact."
+msgid "There are no notification subscriptions for this contact."
 msgstr "Il n’y a pas d’abonnements à des notifications pour ce contact."
 
 #, elixir-autogen, elixir-format
