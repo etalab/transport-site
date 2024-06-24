@@ -313,9 +313,13 @@ defmodule DB.Dataset do
 
   defp filter_by_mode_v2(query, %{"modes_v2" => modes}) when is_list(modes) do
     query
-    |> join(:inner, [dataset: d], r in DB.Resource, on: r.dataset_id == d.id, as: :resource)
-    |> where([resource: r], fragment("?->'gtfs_modes' @> ?", r.counter_cache, ^modes))
+    # Using specific jointure name: if piping with filter_by_feature it will not conflict
+    |> join(:inner, [dataset: d], r in assoc(d, :resources), as: :resource_for_mode)
+    |> where([resource_for_mode: r], fragment("?->'gtfs_modes' @> ?", r.counter_cache, ^modes))
   end
+
+  defp filter_by_mode_v2(query, %{"modes_v2" => mode}) when is_binary(mode),
+    do: query |> filter_by_mode_v2(%{"modes_v2" => [mode]})
 
   defp filter_by_mode_v2(query, _), do: query
 
