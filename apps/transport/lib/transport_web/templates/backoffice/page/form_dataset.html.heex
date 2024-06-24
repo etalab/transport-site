@@ -162,6 +162,9 @@
           <% end %>
         <% end %>
       </table>
+      <p :if={Enum.count(@dataset.notification_subscriptions) > 0} class="small">
+        Cette liste ne concerne que les producteurs.
+      </p>
       <p :if={@reusers_count > 0}>
         <%= dngettext(
           "backoffice",
