@@ -34,23 +34,12 @@ defmodule Transport.CustomSearchMessage do
 
   @doc """
   we have found a message matching a query if all the message search parameters are in the query.
-  First clause is temporary code to get the same message as `modes`, for `modes_v2`.
-
 
   iex> Transport.CustomSearchMessage.message_matches_query?(%{"type" => "bus", "locale" => "en"}, %{"search_params" => [%{"key" => "type", "value" => "bus"}]})
   true
   iex> Transport.CustomSearchMessage.message_matches_query?(%{"type" => "bus", "locale" => "en"}, %{"search_params" => [%{"key" => "type", "value" => "bus"}, %{"key" => "modes", "value" => "xxx"}]})
   false
   """
-
-  def message_matches_query?(%{"modes_v2" => modes} = query_params, messages) do
-    message_matches_query?(
-      query_params
-      |> Map.delete("modes_v2")
-      |> Map.put("modes", modes),
-      messages
-    )
-  end
 
   def message_matches_query?(query_params, %{"search_params" => message_search_params} = _messages) do
     message_search_params
