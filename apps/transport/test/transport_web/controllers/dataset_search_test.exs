@@ -82,10 +82,6 @@ defmodule TransportWeb.DatasetSearchControllerTest do
       datasets = %{"modes" => ["rollerblades"]} |> DB.Dataset.list_datasets() |> DB.Repo.all()
       assert datasets |> Enum.map(& &1.id) |> Enum.sort() == [dataset_1_id, dataset_2_id]
 
-      # Doesn’t crash if we search a mode that is not a list
-      [dataset_bus] = %{"modes" => "bus"} |> DB.Dataset.list_datasets() |> DB.Repo.all()
-      assert dataset_bus.id == dataset_bus_id
-
       # Doesn’t crash if we mix the search with other filters
       assert [] == %{"modes" => ["bus"], "features" => ["realtime"]} |> DB.Dataset.list_datasets() |> DB.Repo.all()
 

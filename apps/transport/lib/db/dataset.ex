@@ -303,9 +303,6 @@ defmodule DB.Dataset do
     |> where([resource_for_mode: r], fragment("?->'gtfs_modes' @> ?", r.counter_cache, ^modes))
   end
 
-  defp filter_by_mode(query, %{"modes" => mode}) when is_binary(mode),
-    do: query |> filter_by_mode(%{"modes" => [mode]})
-
   defp filter_by_mode(query, _), do: query
 
   @spec filter_by_type(Ecto.Query.t(), map()) :: Ecto.Query.t()
