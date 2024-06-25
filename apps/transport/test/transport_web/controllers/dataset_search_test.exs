@@ -73,7 +73,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
       %DB.Resource{dataset_id: dataset_2_id} =
         insert(:resource, counter_cache: %{gtfs_modes: ["rollerblades", "tramway"]}, dataset: insert(:dataset))
 
-      %DB.Resource{dataset_id: dataset_bus_id} =
+      %DB.Resource{} =
         insert(:resource, counter_cache: %{gtfs_modes: ["bus"]}, dataset: insert(:dataset))
 
       %DB.Resource{} = insert(:resource, counter_cache: %{gtfs_modes: []}, dataset: insert(:dataset))

@@ -296,6 +296,7 @@ defmodule DB.Dataset do
 
   defp filter_by_feature(query, _), do: query
 
+  @spec filter_by_mode(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_mode(query, %{"modes" => modes}) when is_list(modes) do
     query
     # Using specific jointure name: if piping with filter_by_feature it will not conflict
