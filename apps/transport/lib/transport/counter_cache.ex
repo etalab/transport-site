@@ -5,6 +5,11 @@ defmodule Transport.CounterCache do
 
   import Ecto.Query
 
+  @doc """
+  Take all the (GTFS) resources with at least one associated GTFS metadata, and
+  update the `counter_cache` columns with modes information. This is done to avoid
+  costly runtime joins.
+  """
   def cache_modes_on_resources(optional_dataset_ids \\ nil) do
     resources_with_modes(optional_dataset_ids)
     |> prepare_update_values()
