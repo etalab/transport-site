@@ -5,11 +5,10 @@ defmodule Transport.CounterCache do
 
   import Ecto.Query
 
-  def cache_modes_on_resources do
-    resources_with_modes()
+  def cache_modes_on_resources(optional_dataset_ids \\ nil) do
+    resources_with_modes(optional_dataset_ids)
     |> prepare_update_values()
     |> DB.Repo.all()
-    # |> IO.inspect(IEx.inspect_opts() |> Keyword.merge(limit: :infinity))
     |> apply_all_updates!()
   end
 
@@ -34,7 +33,13 @@ defmodule Transport.CounterCache do
 
   @doc """
   Given a list of planned updates, for each resource, in batch, update the `counter_cache`
-  field to contain a JSONB map with `gtfs_modes` array.
+  field to contain a JSONB map with `gtfs_modes` array. Example of SQL generated:
+  UPDATE "resource" AS r0
+  SET "counter_cache" = jsonb_build_object('gtfs_modes', v1."resource_gtfs_modes")
+  FROM (
+    VALUES ($1::varchar[],$2::bigint),($3::varchar[],$4::bigint)
+    ) AS v1 ("resource_gtfs_modes","resource_id")
+  WHERE (r0."id" = v1."resource_id") [["tramway"], 80705, ["bus", "funicular"], 80223]
   """
   @type update_resource_modes_list :: [%{resource_id: integer(), resource_gtfs_modes: [String.t()]}]
   @spec apply_all_updates!(update_resource_modes_list) :: any()
