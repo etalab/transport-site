@@ -39,7 +39,8 @@ defmodule Transport.CounterCache do
   FROM (
     VALUES ($1::varchar[],$2::bigint),($3::varchar[],$4::bigint)
     ) AS v1 ("resource_gtfs_modes","resource_id")
-  WHERE (r0."id" = v1."resource_id") [["tramway"], 80705, ["bus", "funicular"], 80223]
+  WHERE (r0."id" = v1."resource_id")
+  [["tramway"], 80705, ["bus", "funicular"], 80223]
   """
   @type update_resource_modes_list :: [%{resource_id: integer(), resource_gtfs_modes: [String.t()]}]
   @spec apply_all_updates!(update_resource_modes_list) :: any()
