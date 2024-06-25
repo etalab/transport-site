@@ -154,3 +154,7 @@ msgstr "Espace producteur"
 #, elixir-autogen, elixir-format
 msgid "Reuser space"
 msgstr "Espace réutilisateur"
+
+#, elixir-autogen, elixir-format
+msgid "Accèslibre Mobilités"
+msgstr ""
