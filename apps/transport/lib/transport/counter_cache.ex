@@ -10,18 +10,17 @@ defmodule Transport.CounterCache do
   update the `counter_cache` columns with modes information. This is done to avoid
   costly runtime joins.
   """
-  def cache_modes_on_resources(optional_dataset_ids \\ nil) do
-    resources_with_modes(optional_dataset_ids)
+  def cache_modes_on_resources() do
+    resources_with_modes()
     |> prepare_update_values()
     |> DB.Repo.all()
     |> apply_all_updates!()
   end
 
   # Build the query to retrieve one line per "resource <-> modes" with its dataset (for GTFS resources only).
-  @spec resources_with_modes([integer()] | nil) :: Ecto.Query.t()
-  defp resources_with_modes(optional_dataset_ids \\ nil) do
+  @spec resources_with_modes() :: Ecto.Query.t()
+  defp resources_with_modes() do
     DB.Dataset.base_query()
-    |> maybe_where(optional_dataset_ids)
     |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
   end
 
@@ -55,7 +54,4 @@ defmodule Transport.CounterCache do
     )
     |> DB.Repo.update_all([])
   end
-
-  defp maybe_where(query, nil), do: query
-  defp maybe_where(query, dataset_ids), do: query |> where([dataset: d], d.id in ^dataset_ids)
 end
