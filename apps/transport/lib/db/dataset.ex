@@ -296,32 +296,17 @@ defmodule DB.Dataset do
 
   defp filter_by_feature(query, _), do: query
 
-  # replace this by the `filter_by_mode_v2` implementation once we
-  # have properly asserted the non-regression
-  @spec filter_by_mode(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_mode(query, %{"modes" => modes}) when is_list(modes) do
-    query
-    |> DB.ResourceHistory.join_dataset_with_latest_resource_history()
-    |> DB.MultiValidation.join_resource_history_with_latest_validation(
-      Transport.Validators.GTFSTransport.validator_name()
-    )
-    |> DB.ResourceMetadata.join_validation_with_metadata()
-    |> where([metadata: rm], fragment("? @> ?::varchar[]", rm.modes, ^modes))
-  end
-
-  defp filter_by_mode(query, _), do: query
-
-  defp filter_by_mode_v2(query, %{"modes_v2" => modes}) when is_list(modes) do
     query
     # Using specific jointure name: if piping with filter_by_feature it will not conflict
     |> join(:inner, [dataset: d], r in assoc(d, :resources), as: :resource_for_mode)
     |> where([resource_for_mode: r], fragment("?->'gtfs_modes' @> ?", r.counter_cache, ^modes))
   end
 
-  defp filter_by_mode_v2(query, %{"modes_v2" => mode}) when is_binary(mode),
-    do: query |> filter_by_mode_v2(%{"modes_v2" => [mode]})
+  defp filter_by_mode(query, %{"modes" => mode}) when is_binary(mode),
+    do: query |> filter_by_mode(%{"modes" => [mode]})
 
-  defp filter_by_mode_v2(query, _), do: query
+  defp filter_by_mode(query, _), do: query
 
   @spec filter_by_type(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_type(query, %{"type" => type}), do: where(query, [d], d.type == ^type)
@@ -408,7 +393,6 @@ defmodule DB.Dataset do
       |> filter_by_region(params)
       |> filter_by_feature(params)
       |> filter_by_mode(params)
-      |> filter_by_mode_v2(params)
       |> filter_by_category(params)
       |> filter_by_type(params)
       |> filter_by_aom(params)
