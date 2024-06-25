@@ -109,15 +109,29 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
   end
 
   test "notification subscriptions", %{conn: conn} do
-    organization = insert(:organization)
+    producer = insert_contact(%{last_name: "Dupont"})
+    reuser = insert_contact(%{last_name: "Dupond"})
 
-    dataset =
-      insert(:dataset,
-        is_active: true,
-        datagouv_id: Ecto.UUID.generate(),
-        slug: Ecto.UUID.generate(),
-        organization_id: organization.id
+    dataset = insert(:dataset, custom_title: "Super JDD")
+
+    [{producer, :producer}, {reuser, :reuser}]
+    |> Enum.each(fn {%DB.Contact{} = contact, role} ->
+      insert(:notification_subscription,
+        source: :admin,
+        role: role,
+        reason: :expiration,
+        dataset: dataset,
+        contact: contact
       )
+
+      insert(:notification_subscription,
+        source: :admin,
+        role: role,
+        reason: :dataset_with_error,
+        dataset: dataset,
+        contact: contact
+      )
+    end)
 
     doc =
       conn
@@ -126,7 +140,18 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
       |> html_response(200)
       |> Floki.parse_document!()
 
-    assert doc |> Floki.find("#existing_subscriptions_table tr td:nth-child(1)") |> Floki.text() =~ "User One"
+    text_for_cell = fn row, cell ->
+      doc |> Floki.find("#existing_subscriptions_table tr:nth-child(#{row}) td:nth-child(#{cell})") |> Floki.text()
+    end
+
+    assert text_for_cell.(2, 1) =~ "Dupont"
+    assert text_for_cell.(2, 2) =~ "dataset_with_error"
+    assert text_for_cell.(2, 3) =~ "admin"
+    assert text_for_cell.(3, 1) =~ "expiration"
+    assert text_for_cell.(3, 2) =~ "admin"
+
+    assert doc |> Floki.find("#reuser_subscriptions") |> Floki.text() |> String.replace(~r/\s/, " ") =~
+             "Ainsi que 2 abonnements de 1 réutilisateur."
   end
 
   test "notifications_sent sort order and grouping works" do
@@ -194,6 +219,72 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
       assert [%DB.Contact{id: ^contact_id}] =
                PageController.contacts_in_org(dataset |> DB.Repo.preload(organization_object: :contacts))
     end
+  end
+
+  describe "subscriptions_by_producer" do
+    test "ignore reusers" do
+      producer_1 = insert_contact(%{last_name: "Dupont"})
+      producer_2 = insert_contact(%{last_name: "Loiseau"})
+
+      admin_producer =
+        insert_contact(%{
+          last_name: "Castafiore",
+          organizations: [sample_org(%{"name" => "Point d'Accès National transport.data.gouv.fr"})]
+        })
+
+      reuser = insert_contact(%{last_name: "Dupond"})
+
+      dataset = insert(:dataset, custom_title: "Super JDD")
+
+      [{producer_1, :producer}, {producer_2, :producer}, {reuser, :reuser}, {admin_producer, :producer}]
+      |> Enum.each(fn {%DB.Contact{} = contact, role} ->
+        insert(:notification_subscription,
+          source: :admin,
+          role: role,
+          reason: :expiration,
+          dataset: dataset,
+          contact: contact
+        )
+
+        insert(:notification_subscription,
+          source: :admin,
+          role: role,
+          reason: :dataset_with_error,
+          dataset: dataset,
+          contact: contact
+        )
+      end)
+
+      dataset = PageController.load_dataset(dataset.id)
+
+      subscriptions_by_producer = PageController.subscriptions_by_producer(dataset)
+
+      contacts =
+        subscriptions_by_producer
+        |> Enum.map(fn {contact, _} -> contact end)
+
+      # contact are sorted by last name & reason, and restricted to producers
+      assert Enum.map(contacts, & &1.id) == [admin_producer.id, producer_1.id, producer_2.id]
+
+      assert Enum.all?(subscriptions_by_producer, fn {_, subscriptions} ->
+               Enum.map(subscriptions, & &1.reason) == [:dataset_with_error, :expiration]
+             end)
+    end
+  end
+
+  defp sample_org(%{} = args) do
+    Map.merge(
+      %{
+        "acronym" => nil,
+        "badges" => [],
+        "id" => Ecto.UUID.generate(),
+        "logo" => "https://example.com/original.png",
+        "logo_thumbnail" => "https://example.com/100.png",
+        "name" => "Big Corp",
+        "slug" => "foo" <> Ecto.UUID.generate()
+      },
+      args
+    )
   end
 
   defp insert_notification_at_datetime(%{} = args, %DateTime{} = datetime) do

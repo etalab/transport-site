@@ -138,16 +138,7 @@ defmodule TransportWeb.Backoffice.PageController do
 
   def edit(%Plug.Conn{} = conn, %{"id" => dataset_id}) do
     conn =
-      Dataset
-      |> preload([
-        :aom,
-        :notification_subscriptions,
-        [notification_subscriptions: :contact],
-        [organization_object: :contacts],
-        :legal_owners_aom,
-        :legal_owners_region
-      ])
-      |> Repo.get(dataset_id)
+      load_dataset(dataset_id)
       |> case do
         nil -> put_flash(conn, :error, dgettext("backoffice", "Unable to find dataset"))
         dataset -> assign(conn, :dataset, dataset)
@@ -159,8 +150,7 @@ defmodule TransportWeb.Backoffice.PageController do
 
     reusers_count =
       reuser_subscriptions
-      |> Enum.sort_by(&{&1.contact.last_name, &1.reason})
-      |> Enum.group_by(& &1.contact)
+      |> Enum.uniq_by(& &1.contact)
       |> Enum.count()
 
     conn
@@ -185,15 +175,26 @@ defmodule TransportWeb.Backoffice.PageController do
     |> render("form_dataset.html")
   end
 
+  def load_dataset(dataset_id) do
+    Dataset
+    |> preload([
+      :aom,
+      :notification_subscriptions,
+      [notification_subscriptions: :contact],
+      [organization_object: :contacts],
+      :legal_owners_aom,
+      :legal_owners_region
+    ])
+    |> Repo.get(dataset_id)
+  end
+
   def subscriptions_by_producer(%DB.Dataset{} = dataset) do
     dataset.notification_subscriptions
-      |> Enum.sort_by(&{&1.contact.last_name, &1.reason})
-      |> Enum.group_by(& &1.contact)
-      |> Map.to_list()
-      |> Enum.map(fn {contact, notification_subscriptions} ->
-           {contact, notification_subscriptions |> Enum.filter(fn sub -> sub.role == :producer end)}
-         end)
-      |> Map.new()
+    |> Enum.filter(fn sub -> sub.role == :producer end)
+    |> Enum.sort_by(&{&1.contact.last_name, &1.reason})
+    |> Enum.group_by(& &1.contact)
+    |> Map.to_list()
+    |> Enum.sort_by(fn {contact, _} -> contact.last_name end)
   end
 
   def contacts_in_org(%DB.Dataset{organization_object: %DB.Organization{} = organization_object}) do
