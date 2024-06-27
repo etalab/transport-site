@@ -50,6 +50,10 @@ defmodule DB.Resource do
     field(:type, :string)
     field(:display_position, :integer)
 
+    # a JSON field used to compute and keep a counter cache of costly
+    # elements, so that queries can be optimized
+    field(:counter_cache, :map)
+
     belongs_to(:dataset, Dataset)
 
     has_many(:validations, DB.MultiValidation)
