@@ -299,12 +299,9 @@ defmodule DB.Dataset do
   @spec filter_by_mode(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_mode(query, %{"modes" => modes}) when is_list(modes) do
     query
-    |> DB.ResourceHistory.join_dataset_with_latest_resource_history()
-    |> DB.MultiValidation.join_resource_history_with_latest_validation(
-      Transport.Validators.GTFSTransport.validator_name()
-    )
-    |> DB.ResourceMetadata.join_validation_with_metadata()
-    |> where([metadata: rm], fragment("? @> ?::varchar[]", rm.modes, ^modes))
+    # Using specific jointure name: if piping with filter_by_feature it will not conflict
+    |> join(:inner, [dataset: d], r in assoc(d, :resources), as: :resource_for_mode)
+    |> where([resource_for_mode: r], fragment("?->'gtfs_modes' @> ?", r.counter_cache, ^modes))
   end
 
   defp filter_by_mode(query, _), do: query
