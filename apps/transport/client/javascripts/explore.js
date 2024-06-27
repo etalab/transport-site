@@ -173,7 +173,7 @@ function updateIRVELayer (geojson) {
 
 function trackEvent (layer) {
     // https://matomo.org/faq/reports/implement-event-tracking-with-matomo/#how-to-set-up-matomo-event-tracking-with-javascript
-    // `windown._paq` is only defined in production (in templates/layout/app.html.heex)
+    // `window._paq` is only defined in production (in templates/layout/app.html.heex)
     if (window._paq) {
         window._paq.push(['trackEvent', 'explore-map', 'enable-layer', layer])
     }
