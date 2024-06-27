@@ -114,6 +114,7 @@ defmodule Transport.Mixfile do
       {:unzip, "~> 0.8"},
       {:protobuf, "~> 0.11"},
       {:nimble_csv, "~> 1.2.0"},
+      {:nimble_parsec, "~> 1.4.0"},
       {:explorer, "~> 0.8.2"},
       {:kino, "~> 0.6", only: :dev},
       # db
