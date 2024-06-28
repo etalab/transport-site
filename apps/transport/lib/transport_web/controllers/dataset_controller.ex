@@ -89,7 +89,7 @@ defmodule TransportWeb.DatasetController do
          %DB.Dataset{organization_id: organization_id}
        ) do
     is_producer =
-      if is_nil(current_contact) do
+      if Enum.any?([current_contact, organization_id], &is_nil/1) do
         false
       else
         DB.Contact.base_query()
