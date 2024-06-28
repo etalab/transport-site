@@ -468,6 +468,16 @@ defmodule TransportWeb.DatasetControllerTest do
              "Ce jeu de données a été supprimé de data.gouv.fr"
   end
 
+  test "dataset#details loads when dataset.organization_id is nil", %{conn: conn} do
+    # To be removed when https://github.com/etalab/transport-site/issues/4018
+    # is done and existing datasets have been migrated
+    dataset = insert(:dataset, is_active: true, organization_id: nil)
+
+    mock_empty_history_resources()
+
+    conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200)
+  end
+
   test "with an archived dataset", %{conn: conn} do
     insert(:dataset, is_active: true, slug: slug = "dataset-slug", archived_at: DateTime.utc_now())
 
