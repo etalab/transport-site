@@ -51,10 +51,10 @@
     <%= submit("Mettre à jour les abonnements") %>
   <% end %>
 
-  <h3>Abonnements existants</h3>
+  <h3><%= dgettext("backoffice", "Existing subscriptions") %></h3>
 
   <p :if={Enum.empty?(@notification_subscriptions)} class="notification">
-    Il n'y a pas d'abonnements à des notifications pour ce contact.
+    <%= dgettext("backoffice", "There are no notification subscriptions for this contact.") %>
   </p>
 
   <table :if={Enum.count(subscriptions_with_dataset) > 0} class="table mt-48 dashboard-description">

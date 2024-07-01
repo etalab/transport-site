@@ -138,20 +138,20 @@ defmodule TransportWeb.Backoffice.PageController do
 
   def edit(%Plug.Conn{} = conn, %{"id" => dataset_id}) do
     conn =
-      Dataset
-      |> preload([
-        :aom,
-        :notification_subscriptions,
-        [notification_subscriptions: :contact],
-        [organization_object: :contacts],
-        :legal_owners_aom,
-        :legal_owners_region
-      ])
-      |> Repo.get(dataset_id)
+      load_dataset(dataset_id)
       |> case do
         nil -> put_flash(conn, :error, dgettext("backoffice", "Unable to find dataset"))
         dataset -> assign(conn, :dataset, dataset)
       end
+
+    reuser_subscriptions =
+      conn.assigns[:dataset].notification_subscriptions
+      |> Enum.filter(fn sub -> sub.role == :reuser end)
+
+    reusers_count =
+      reuser_subscriptions
+      |> Enum.uniq_by(& &1.contact)
+      |> Enum.count()
 
     conn
     |> assign(:dataset_id, dataset_id)
@@ -162,6 +162,9 @@ defmodule TransportWeb.Backoffice.PageController do
     |> assign(:resources_with_history, DB.Dataset.last_resource_history(dataset_id))
     |> assign(:contacts_datalist, contacts_datalist())
     |> assign(:contacts_in_org, contacts_in_org(conn.assigns[:dataset]))
+    |> assign(:subscriptions_by_producer, subscriptions_by_producer(conn.assigns[:dataset]))
+    |> assign(:reusers_count, reusers_count)
+    |> assign(:reuser_subscriptions_count, reuser_subscriptions |> Enum.count())
     |> assign(
       :import_logs,
       LogsImport
@@ -170,6 +173,28 @@ defmodule TransportWeb.Backoffice.PageController do
       |> Repo.all()
     )
     |> render("form_dataset.html")
+  end
+
+  def load_dataset(dataset_id) do
+    DB.Dataset
+    |> preload([
+      :aom,
+      :notification_subscriptions,
+      [notification_subscriptions: :contact],
+      [organization_object: :contacts],
+      :legal_owners_aom,
+      :legal_owners_region
+    ])
+    |> Repo.get(dataset_id)
+  end
+
+  def subscriptions_by_producer(%DB.Dataset{} = dataset) do
+    dataset.notification_subscriptions
+    |> Enum.filter(fn sub -> sub.role == :producer end)
+    |> Enum.sort_by(&{&1.contact.last_name, &1.reason})
+    |> Enum.group_by(& &1.contact)
+    |> Map.to_list()
+    |> Enum.sort_by(fn {contact, _} -> contact.last_name end)
   end
 
   def contacts_in_org(%DB.Dataset{organization_object: %DB.Organization{} = organization_object}) do

@@ -29,7 +29,7 @@
       </div>
     </div>
 
-    <div class="dashboard-description mt-48">
+    <div id="resource_historization" class="dashboard-description mt-48">
       <h3><%= dgettext("backoffice", "Resource historization") %></h3>
 
       <%= if Dataset.should_skip_history?(@dataset) do %>
@@ -85,7 +85,7 @@
           </div>
           <div :if={Enum.count(@contacts_in_org) > 0}>
             <p>
-              Producteurs s'étant déjà connectés au PAN
+              Producteurs s’étant déjà connectés au PAN
             </p>
             <ul>
               <%= for contact <- @contacts_in_org do %>
@@ -123,16 +123,15 @@
 
         <%= submit("Créer un abonnement") %>
       <% end %>
-      <h4>Abonnements existants</h4>
-      <table :if={Enum.count(@dataset.notification_subscriptions) > 0} class="table">
+      <h4 id="existing_subscriptions"><%= dgettext("backoffice", "Existing subscriptions") %></h4>
+      <table :if={Enum.count(@dataset.notification_subscriptions) > 0} id="existing_subscriptions_table" class="table">
         <tr>
           <th>Contact</th>
-          <th><%= dgettext("backoffice", "Role") %></th>
           <th><%= dgettext("backoffice", "Notification reason") %></th>
           <th>Source</th>
           <th>Actions</th>
         </tr>
-        <%= for {contact, notification_subscriptions} <- @dataset.notification_subscriptions |> Enum.sort_by(&{&1.contact.last_name, &1.reason}) |> Enum.group_by(& &1.contact) do %>
+        <%= for {contact, notification_subscriptions} <- @subscriptions_by_producer do %>
           <%= for {notification_subscription, index} <- Enum.with_index(notification_subscriptions) do %>
             <tr>
               <td :if={index == 0} rowspan={Enum.count(notification_subscriptions)}>
@@ -149,7 +148,6 @@
                   <% end %>
                 </div>
               </td>
-              <td><%= notification_subscription.role %></td>
               <td><%= notification_subscription.reason %></td>
               <td><%= notification_subscription.source %></td>
               <td>
@@ -164,8 +162,27 @@
           <% end %>
         <% end %>
       </table>
+      <p :if={Enum.count(@dataset.notification_subscriptions) > 0} class="small">
+        Cette liste ne concerne que les producteurs.
+      </p>
+      <p :if={@reusers_count > 0} id="reuser_subscriptions">
+        <%= dngettext(
+          "backoffice",
+          "reuser-subscription-count",
+          "reuser-subscriptions-count",
+          @reuser_subscriptions_count,
+          reuser_subscriptions_count: @reuser_subscriptions_count
+        ) %>
+        <%= dngettext(
+          "backoffice",
+          "reuser-count",
+          "reusers-count",
+          @reusers_count,
+          reusers_count: @reusers_count
+        ) %>
+      </p>
       <p :if={Enum.empty?(@dataset.notification_subscriptions)} class="mt-48 notification">
-        Il n'y a pas d'abonnements à des notifications pour ce jeu de données.
+        <%= dgettext("backoffice", "There are no notification subscriptions for this contact.") %>
       </p>
       <div :if={Enum.count(@dataset.notification_subscriptions) > 0}>
         <%= live_render(@conn, TransportWeb.Live.SendNowOnNAPNotificationView,
@@ -177,7 +194,7 @@
         ) %>
       </div>
     </div>
-    <div :if={Enum.count(@notifications_sent) > 0} class="dashboard-description mt-48">
+    <div :if={Enum.count(@notifications_sent) > 0} id="notifications_sent" class="dashboard-description mt-48">
       <h3><%= dgettext("backoffice", "Notifications sent") %></h3>
 
       <p>
