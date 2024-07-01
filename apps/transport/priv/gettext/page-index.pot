@@ -159,10 +159,6 @@ msgid "Use our APIs"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Use the map"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "You can also"
 msgstr ""
 
@@ -204,4 +200,16 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Learn more about our missions"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Producer space"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Reuser space"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Validate your data"
 msgstr ""
