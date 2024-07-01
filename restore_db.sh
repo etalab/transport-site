@@ -10,6 +10,14 @@
 # rights your pg user doesn't have. Example:
 # ./restore_db.sh --skip-extensions <path_to_backup>
 #
+# With the flag `--preserve-contacts`, contacts and related tables won't be
+# truncated. It is risky. Example:
+# ./restore_db.sh --preserve-contacts <path_to_backup>
+#
+# With the flag `--preserve-user-feedback`, user_feedback table won't be
+# truncated. It is risky. Example:
+# ./restore_db.sh --preserve-contacts <path_to_backup>
+#
 # With the flag `--preserve-oban-jobs`, Oban jobs won't be truncated. It is
 # risky. Example:
 # ./restore_db.sh --preserve-oban-jobs <path_to_backup>
@@ -17,13 +25,15 @@
 # The flags must be the first args.
 
 should_skip_extensions=false
+should_preserve_contacts=false
+should_preserve_user_feedback=false
 should_preserve_oban_jobs=false
 
 function usage() {
   echo "Usage:"
   echo " $0 (-h|--help)"
-  echo " $0 [--skip-extensions] [--preserve-oban-jobs] (--) <absolute_path_to_backup>"
-  echo " $0 [--skip-extensions] [--preserve-oban-jobs] (--) <db_name> <host> <user_name> <password> <absolute_path_to_backup>"
+  echo " $0 [--skip-extensions] [--preserve-contacts] [--preserve-user-feedback] [--preserve-oban-jobs] (--) <absolute_path_to_backup>"
+  echo " $0 [--skip-extensions] [--preserve-contacts] [--preserve-user-feedback] [--preserve-oban-jobs] (--) <db_name> <host> <user_name> <password> <absolute_path_to_backup>"
   exit 1
 }
 
@@ -35,6 +45,16 @@ while true; do
 
     --skip-extensions)
       should_skip_extensions=true
+      shift 1
+      ;;
+
+    --preserve-contacts)
+      should_preserve_contacts=true
+      shift 1
+      ;;
+
+    --preserve-user-feedback)
+      should_preserve_user_feedback=true
       shift 1
       ;;
 
@@ -84,11 +104,17 @@ else
   pg_restore -h "$HOST" -U "$USER_NAME" -d "$DB_NAME" --format=c --no-owner --clean --no-acl "$BACKUP_PATH"
 fi
 
-echo "Truncating contact table"
-sql 'TRUNCATE TABLE contact CASCADE'
+if [ "$should_preserve_contacts" = false ]
+then
+  echo "Truncating contact table"
+  sql 'TRUNCATE TABLE contact CASCADE'
+fi
 
-echo "Truncating user_feedback table"
-sql 'TRUNCATE TABLE user_feedback CASCADE'
+if [ "$should_preserve_user_feedback" = false ]
+then
+  echo "Truncating user_feedback table"
+  sql 'TRUNCATE TABLE user_feedback CASCADE'
+fi
 
 if [ "$should_preserve_oban_jobs" = false ]
 then

@@ -159,10 +159,6 @@ msgid "Use our APIs"
 msgstr "Utiliser nos API"
 
 #, elixir-autogen, elixir-format
-msgid "Use the map"
-msgstr "Rechercher sur la carte"
-
-#, elixir-autogen, elixir-format
 msgid "You can also"
 msgstr "Vous pouvez également"
 
@@ -205,3 +201,15 @@ msgstr "Ils nous aident dans notre mission"
 #, elixir-autogen, elixir-format
 msgid "Learn more about our missions"
 msgstr "Découvrez les missions que nous menons"
+
+#, elixir-autogen, elixir-format
+msgid "Producer space"
+msgstr "Espace producteur"
+
+#, elixir-autogen, elixir-format
+msgid "Reuser space"
+msgstr "Espace réutilisateur"
+
+#, elixir-autogen, elixir-format
+msgid "Validate your data"
+msgstr "Valider ses données"
