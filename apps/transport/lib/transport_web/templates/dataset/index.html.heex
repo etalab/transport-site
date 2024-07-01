@@ -229,12 +229,13 @@
                 </div>
               </div>
             <% end %>
+            <div>
+              <%= pagination_links(@conn, @datasets) %>
+            </div>
           <% end %>
         </div>
       </div>
-      <div class="shortlist__pagination">
-        <%= pagination_links(@conn, @datasets) %>
-      </div>
+
       <div class="api-link">
         <i class="fas fa-cogs"></i>
         <% # NOTE: the syntax_highlight flag is there just because otherwise we get a match error
