@@ -176,7 +176,7 @@ defmodule TransportWeb.Backoffice.PageController do
   end
 
   def load_dataset(dataset_id) do
-    Dataset
+    DB.Dataset
     |> preload([
       :aom,
       :notification_subscriptions,
