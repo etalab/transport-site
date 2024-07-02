@@ -69,7 +69,8 @@ defmodule Transport.Test.Transport.Jobs.WarnUserInactivityJobTest do
                role: :reuser,
                contact_id: ^contact_id,
                email: ^email,
-               payload: %{"horizon" => 15}
+               payload: %{"horizon" => 15},
+               notification_subscription_id: nil
              }
            ] = DB.Notification |> DB.Repo.all()
   end
@@ -99,7 +100,8 @@ defmodule Transport.Test.Transport.Jobs.WarnUserInactivityJobTest do
                role: :reuser,
                contact_id: ^contact_id,
                email: ^email,
-               payload: %{"horizon" => 1}
+               payload: %{"horizon" => 1},
+               notification_subscription_id: nil
              }
            ] = DB.Notification |> DB.Repo.all()
   end

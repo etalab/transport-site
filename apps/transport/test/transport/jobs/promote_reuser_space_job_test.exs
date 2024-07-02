@@ -36,7 +36,8 @@ defmodule Transport.Test.Transport.Jobs.PromoteReuserSpaceJobTest do
                contact_id: ^contact_id,
                email: ^email,
                role: :reuser,
-               dataset_id: nil
+               dataset_id: nil,
+               notification_subscription_id: nil
              }
            ] = DB.Notification |> DB.Repo.all()
   end

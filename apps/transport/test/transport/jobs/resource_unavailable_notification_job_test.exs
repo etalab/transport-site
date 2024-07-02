@@ -125,31 +125,34 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
       dataset_id: dataset.id
     })
 
-    insert(:notification_subscription, %{
-      reason: :resource_unavailable,
-      source: :admin,
-      role: :producer,
-      contact_id: foo_contact_id,
-      dataset_id: dataset.id
-    })
+    %DB.NotificationSubscription{id: ns_1} =
+      insert(:notification_subscription, %{
+        reason: :resource_unavailable,
+        source: :admin,
+        role: :producer,
+        contact_id: foo_contact_id,
+        dataset_id: dataset.id
+      })
 
-    insert(:notification_subscription, %{
-      reason: :resource_unavailable,
-      source: :user,
-      role: :reuser,
-      contact_id: reuser_contact_id,
-      dataset_id: dataset.id
-    })
+    %DB.NotificationSubscription{id: ns_2} =
+      insert(:notification_subscription, %{
+        reason: :resource_unavailable,
+        source: :user,
+        role: :reuser,
+        contact_id: reuser_contact_id,
+        dataset_id: dataset.id
+      })
 
     %DB.Contact{id: bar_contact_id} = bar_contact = insert_contact(%{email: "bar@example.com"})
 
-    insert(:notification_subscription, %{
-      reason: :resource_unavailable,
-      source: :admin,
-      role: :producer,
-      contact_id: bar_contact_id,
-      dataset_id: gtfs_dataset.id
-    })
+    %DB.NotificationSubscription{id: ns_3} =
+      insert(:notification_subscription, %{
+        reason: :resource_unavailable,
+        source: :admin,
+        role: :producer,
+        contact_id: bar_contact_id,
+        dataset_id: gtfs_dataset.id
+      })
 
     assert :ok == perform_job(ResourceUnavailableNotificationJob, %{})
 
@@ -216,6 +219,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
     assert DB.Notification |> DB.Repo.aggregate(:count) == 7
 
     assert %DB.Notification{
+             notification_subscription_id: ^ns_1,
              role: :producer,
              payload: %{
                "deleted_recreated_on_datagouv" => true,
@@ -233,6 +237,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
              |> DB.Repo.one!()
 
     assert %DB.Notification{
+             notification_subscription_id: ^ns_2,
              dataset_id: ^dataset_id,
              reason: :resource_unavailable,
              role: :reuser,
@@ -248,6 +253,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
              |> DB.Repo.one!()
 
     assert %DB.Notification{
+             notification_subscription_id: ^ns_3,
              dataset_id: ^gtfs_dataset_id,
              role: :producer,
              reason: :resource_unavailable,

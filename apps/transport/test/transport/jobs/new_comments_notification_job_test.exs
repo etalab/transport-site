@@ -220,9 +220,9 @@ defmodule Transport.Test.Transport.Jobs.NewCommentsNotificationJobTest do
                role: :reuser,
                dataset_id: nil,
                email: ^email,
+               contact_id: ^contact_id,
                payload: %{"dataset_ids" => [^dataset1_id, ^dataset2_id]},
-               notification_subscription_id: ^ns_id,
-               contact_id: ^contact_id
+               notification_subscription_id: ^ns_id
              }
            ] =
              DB.Notification |> DB.Repo.all()

@@ -43,10 +43,10 @@ defmodule Transport.Test.Transport.Jobs.NewDatasetNotificationsJobTest do
     # Logs have been saved
     assert [
              %DB.Notification{
+               contact_id: ^contact_id,
                email: ^email,
                reason: :new_dataset,
                dataset_id: nil,
-               contact_id: ^contact_id,
                notification_subscription_id: ^ns_id,
                payload: %{"dataset_ids" => [^dataset_id]}
              }

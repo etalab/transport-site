@@ -93,7 +93,8 @@ defmodule Transport.Test.Transport.Jobs.PromoteProducerSpaceJobTest do
                  contact_id: ^contact_id,
                  email: ^contact_email,
                  role: :producer,
-                 dataset_id: nil
+                 dataset_id: nil,
+                 notification_subscription_id: nil
                }
              ] = DB.Notification |> DB.Repo.all()
     end

@@ -154,11 +154,11 @@ defmodule Transport.Test.Transport.Jobs.ResourcesChangedNotificationJobTest do
     # Logs have been saved
     assert [
              %DB.Notification{
+               contact_id: ^contact_id,
                email: ^email,
                reason: :resources_changed,
                dataset_id: ^dataset_id,
                role: :reuser,
-               contact_id: ^contact_id,
                notification_subscription_id: ^ns_id,
                payload: %{"job_id" => _}
              }

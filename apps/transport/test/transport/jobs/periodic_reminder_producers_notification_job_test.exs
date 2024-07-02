@@ -235,7 +235,8 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
                contact_id: ^contact_id,
                dataset_id: nil,
                role: :producer,
-               payload: %{"template_type" => "producer_with_subscriptions"}
+               payload: %{"template_type" => "producer_with_subscriptions"},
+               notification_subscription_id: nil
              }
            ] = DB.Notification |> DB.Repo.all()
   end
@@ -283,7 +284,8 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
                contact_id: ^contact_id,
                dataset_id: nil,
                role: :producer,
-               payload: %{"template_type" => "producer_without_subscriptions"}
+               payload: %{"template_type" => "producer_without_subscriptions"},
+               notification_subscription_id: nil
              }
            ] = DB.Notification |> DB.Repo.all()
   end
