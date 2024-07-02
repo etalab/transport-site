@@ -62,18 +62,11 @@ defmodule TransportWeb.Session do
   A temporary helper method to determine if we should display "reuser space features".
   Convenient method to find various entrypoints in the codebase.
 
-  At the moment we only allow transport.data.gouv.fr members but we could
-  allow specific logged-in users in the future.
-
-  `:force_display_reuser_space` is currently set in a few tests to test things
-  while not being an admin (because being an admin may not be appropriate in the test).
+  Enable it for everybody but keep a "kill switch" to disable it quickly
+  by setting an environment variable and rebooting the app.
   """
-  def display_reuser_space?(%Plug.Conn{} = conn) do
-    if Mix.env() == :test do
-      get_session(conn, :force_display_reuser_space, false) or admin?(conn)
-    else
-      admin?(conn)
-    end
+  def display_reuser_space?(%Plug.Conn{}) do
+    not Application.fetch_env!(:transport, :disable_reuser_space)
   end
 
   @spec set_session_attribute_attribute(Plug.Conn.t(), binary(), boolean()) :: Plug.Conn.t()

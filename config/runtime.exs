@@ -37,8 +37,9 @@ webserver = webserver == "1"
 config :transport,
   worker: worker,
   webserver: webserver,
-  # kill switch
-  disable_national_gtfs_map: System.get_env("DISABLE_NATIONAL_GTFS_MAP") == "1"
+  # kill switches: set specific variable environments to disable features
+  disable_reuser_space: System.get_env("DISABLE_REUSER_SPACE") in ["1", "true"],
+  disable_national_gtfs_map: System.get_env("DISABLE_NATIONAL_GTFS_MAP") in ["1", "true"]
 
 config :unlock,
   enforce_ttl: webserver
