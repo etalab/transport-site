@@ -15,7 +15,7 @@ defmodule DB.NotificationSubscription do
   # 2. possible roles: reasons can be subscribed to by either producers or reusers.
   # 3. disallow_subscription: some reasons can’t be subscribed to,
   # but they exist because they are valid for notifications.
-  # (In this case, it’s the plaftform that decides whent to send them, without the user subscribing to them.)
+  # (In this case, it’s the platform that decides when to send them, without the user subscribing to them.)
   # 4. hide_from_user: some reasons are hidden from the user interface, but can be subscribed in CLI or backoffice.
 
   @reasons_rules %{
