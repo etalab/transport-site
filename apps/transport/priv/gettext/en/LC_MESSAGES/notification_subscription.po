@@ -46,3 +46,15 @@ msgstr "Dataset resources changed"
 #, elixir-autogen, elixir-format
 msgid "periodic_reminder_producers"
 msgstr "Periodic reminder for producers"
+
+#, elixir-autogen, elixir-format
+msgid "promote_producer_space"
+msgstr "Promote producer space"
+
+#, elixir-autogen, elixir-format
+msgid "promote_reuser_space"
+msgstr "Promote reuser space"
+
+#, elixir-autogen, elixir-format
+msgid "warn_user_inactivity"
+msgstr "Inactivity warning"

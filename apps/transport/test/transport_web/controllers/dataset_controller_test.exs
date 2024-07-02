@@ -563,7 +563,14 @@ defmodule TransportWeb.DatasetControllerTest do
 
   test "dataset#details with notifications sent recently", %{conn: conn} do
     dataset = insert(:dataset, is_active: true)
-    insert_notification(%{dataset: dataset, reason: :expiration, email: Ecto.UUID.generate() <> "@example.com"})
+
+    insert_notification(%{
+      dataset: dataset,
+      role: :producer,
+      reason: :expiration,
+      email: Ecto.UUID.generate() <> "@example.com"
+    })
+
     mock_empty_history_resources()
 
     doc = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200) |> Floki.parse_document!()

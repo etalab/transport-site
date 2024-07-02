@@ -30,15 +30,16 @@ defmodule Transport.CommentsCheckerTest do
   end
 
   test "check for new comments on data.gouv.fr" do
-    %{id: dataset_id} = insert(:dataset, datagouv_title: "dataset 1")
-    %DB.Contact{id: contact_id, email: email} = insert_contact()
+    %DB.Dataset{id: dataset_id} = insert(:dataset, datagouv_title: "dataset 1")
+    %DB.Contact{id: contact_id, email: email} = contact = insert_contact()
 
-    insert(:notification_subscription, %{
-      reason: :daily_new_comments,
-      source: :admin,
-      contact_id: contact_id,
-      role: :producer
-    })
+    %DB.NotificationSubscription{id: ns_id} =
+      insert(:notification_subscription, %{
+        reason: :daily_new_comments,
+        source: :admin,
+        contact_id: contact_id,
+        role: :producer
+      })
 
     # Should be ignored: reuser
     insert(:notification_subscription, %{
@@ -70,7 +71,7 @@ defmodule Transport.CommentsCheckerTest do
 
       assert_email_sent(
         subject: "1 nouveaux commentaires sur transport.data.gouv.fr",
-        to: [email]
+        to: [{DB.Contact.display_name(contact), contact.email}]
       )
 
       assert number_new_comments == 1
@@ -108,7 +109,7 @@ defmodule Transport.CommentsCheckerTest do
 
       assert_email_sent(
         subject: "1 nouveaux commentaires sur transport.data.gouv.fr",
-        to: [email]
+        to: [{DB.Contact.display_name(contact), contact.email}]
       )
 
       assert number_new_comments == 1
@@ -117,8 +118,24 @@ defmodule Transport.CommentsCheckerTest do
 
     # Logs have been saved
     assert [
-             %DB.Notification{email: ^email, reason: :daily_new_comments, dataset_id: ^dataset_id},
-             %DB.Notification{email: ^email, reason: :daily_new_comments, dataset_id: ^dataset_id}
+             %DB.Notification{
+               reason: :daily_new_comments,
+               role: :producer,
+               dataset_id: nil,
+               contact_id: ^contact_id,
+               email: ^email,
+               notification_subscription_id: ^ns_id,
+               payload: %{"dataset_ids" => [^dataset_id]}
+             },
+             %DB.Notification{
+               reason: :daily_new_comments,
+               role: :producer,
+               dataset_id: nil,
+               contact_id: ^contact_id,
+               email: ^email,
+               notification_subscription_id: ^ns_id,
+               payload: %{"dataset_ids" => [^dataset_id]}
+             }
            ] = DB.Notification |> DB.Repo.all()
   end
 

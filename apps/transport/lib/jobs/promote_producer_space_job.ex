@@ -24,10 +24,20 @@ defmodule Transport.Jobs.PromoteProducerSpaceJob do
     unless Enum.empty?(datasets) do
       create_producer_subscriptions(contact, datasets)
 
-      {:ok, _} = Transport.UserNotifier.promote_producer_space(contact.email) |> Transport.Mailer.deliver()
+      {:ok, _} = Transport.UserNotifier.promote_producer_space(contact) |> Transport.Mailer.deliver()
+      save_notification(contact)
     end
 
     :ok
+  end
+
+  defp save_notification(%DB.Contact{id: contact_id, email: email}) do
+    DB.Notification.insert!(%{
+      contact_id: contact_id,
+      email: email,
+      reason: DB.NotificationSubscription.reason(:promote_producer_space),
+      role: :producer
+    })
   end
 
   defp create_producer_subscriptions(%DB.Contact{id: contact_id}, datasets) do

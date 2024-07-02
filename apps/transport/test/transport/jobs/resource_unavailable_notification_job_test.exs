@@ -50,7 +50,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
     %{id: gtfs_dataset_id} =
       gtfs_dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true, custom_title: "Dataset GTFS")
 
-    resource_1 =
+    %DB.Resource{id: resource_1_id} =
+      resource_1 =
       insert(:resource,
         dataset: dataset,
         format: "geojson",
@@ -58,7 +59,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
         url: "https://static.data.gouv.fr/file.geojson"
       )
 
-    resource_2 =
+    %DB.Resource{id: resource_2_id} =
+      resource_2 =
       insert(:resource,
         dataset: dataset,
         format: "geojson",
@@ -66,7 +68,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
         url: "https://static.data.gouv.fr/other_file.geojson"
       )
 
-    resource_gtfs = insert(:resource, dataset: gtfs_dataset, format: "GTFS", url: "https://example/file.zip")
+    %DB.Resource{id: resource_gtfs_id} =
+      resource_gtfs = insert(:resource, dataset: gtfs_dataset, format: "GTFS", url: "https://example/file.zip")
 
     insert(:resource_unavailability,
       start: DateTime.add(DateTime.utc_now(), -6 * 60 - 29, :minute),
@@ -87,20 +90,32 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
     )
 
     already_sent_email = "alreadysent@example.fr"
-    insert_notification(%{dataset: dataset, reason: :resource_unavailable, email: already_sent_email})
+    insert_notification(%{dataset: dataset, role: :producer, reason: :resource_unavailable, email: already_sent_email})
     # Should be ignored because this is for another reason
-    insert_notification(%{dataset: dataset, reason: :expiration, email: "foo@example.com"})
+    insert_notification(%{dataset: dataset, role: :producer, reason: :expiration, email: "foo@example.com"})
     # Should be ignored because it's for another dataset
-    insert_notification(%{dataset: gtfs_dataset, reason: :resource_unavailable, email: "foo@example.com"})
+    insert_notification(%{
+      dataset: gtfs_dataset,
+      role: :producer,
+      reason: :resource_unavailable,
+      email: "foo@example.com"
+    })
+
     # Should be ignored because it's too old
-    %{dataset: dataset, reason: :resource_unavailable, email: "foo@example.com", inserted_at: add_days(-8)}
+    %{
+      dataset: dataset,
+      role: :producer,
+      reason: :resource_unavailable,
+      email: "foo@example.com",
+      inserted_at: add_days(-8)
+    }
     |> insert_notification()
 
     setup_dataset_response(dataset, resource_1.url, DateTime.utc_now() |> DateTime.add(-6, :hour))
 
     %DB.Contact{id: already_sent_contact_id} = insert_contact(%{email: already_sent_email})
-    %DB.Contact{id: foo_contact_id} = insert_contact(%{email: "foo@example.com"})
-    %DB.Contact{id: reuser_contact_id} = insert_contact(%{email: reuser_email = "reuser@example.com"})
+    %DB.Contact{id: foo_contact_id} = foo_contact = insert_contact(%{email: "foo@example.com"})
+    %DB.Contact{id: reuser_contact_id} = reuser_contact = insert_contact(%{email: reuser_email = "reuser@example.com"})
 
     insert(:notification_subscription, %{
       reason: :resource_unavailable,
@@ -110,38 +125,43 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
       dataset_id: dataset.id
     })
 
-    insert(:notification_subscription, %{
-      reason: :resource_unavailable,
-      source: :admin,
-      role: :producer,
-      contact_id: foo_contact_id,
-      dataset_id: dataset.id
-    })
+    %DB.NotificationSubscription{id: ns_1} =
+      insert(:notification_subscription, %{
+        reason: :resource_unavailable,
+        source: :admin,
+        role: :producer,
+        contact_id: foo_contact_id,
+        dataset_id: dataset.id
+      })
 
-    insert(:notification_subscription, %{
-      reason: :resource_unavailable,
-      source: :user,
-      role: :reuser,
-      contact_id: reuser_contact_id,
-      dataset_id: dataset.id
-    })
+    %DB.NotificationSubscription{id: ns_2} =
+      insert(:notification_subscription, %{
+        reason: :resource_unavailable,
+        source: :user,
+        role: :reuser,
+        contact_id: reuser_contact_id,
+        dataset_id: dataset.id
+      })
 
-    %DB.Contact{id: bar_contact_id} = insert_contact(%{email: "bar@example.com"})
+    %DB.Contact{id: bar_contact_id} = bar_contact = insert_contact(%{email: "bar@example.com"})
 
-    insert(:notification_subscription, %{
-      reason: :resource_unavailable,
-      source: :admin,
-      role: :producer,
-      contact_id: bar_contact_id,
-      dataset_id: gtfs_dataset.id
-    })
+    %DB.NotificationSubscription{id: ns_3} =
+      insert(:notification_subscription, %{
+        reason: :resource_unavailable,
+        source: :admin,
+        role: :producer,
+        contact_id: bar_contact_id,
+        dataset_id: gtfs_dataset.id
+      })
 
     assert :ok == perform_job(ResourceUnavailableNotificationJob, %{})
 
     # Emails have been sent
+    display_name = DB.Contact.display_name(foo_contact)
+
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"", "foo@example.com"}],
+                           to: [{^display_name, "foo@example.com"}],
                            subject: subject,
                            html_body: html_part
                          } ->
@@ -156,9 +176,11 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
                ~s(rendez-vous sur votre <a href="http://127.0.0.1:5100/espace_producteur?utm_source=transactional_email&amp;utm_medium=email&amp;utm_campaign=resource_unavailable_producer">Espace Producteur</a> à partir duquel vous pourrez procéder à ces mises à jour)
     end)
 
+    display_name = DB.Contact.display_name(reuser_contact)
+
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"", ^reuser_email}],
+                           to: [{^display_name, ^reuser_email}],
                            subject: subject,
                            html_body: html_part
                          } ->
@@ -170,9 +192,11 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
       assert html_part =~ "Nous avons déjà informé le producteur de ces données."
     end)
 
+    display_name = DB.Contact.display_name(bar_contact)
+
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"", "bar@example.com"}],
+                           to: [{^display_name, "bar@example.com"}],
                            subject: subject,
                            html_body: html_part
                          } ->
@@ -194,29 +218,57 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
 
     assert DB.Notification |> DB.Repo.aggregate(:count) == 7
 
-    assert DB.Notification
-           |> where(
-             [n],
-             n.email_hash == ^"foo@example.com" and n.dataset_id == ^dataset_id and n.inserted_at >= ^recent_dt and
-               n.reason == :resource_unavailable
-           )
-           |> DB.Repo.exists?()
+    assert %DB.Notification{
+             notification_subscription_id: ^ns_1,
+             role: :producer,
+             payload: %{
+               "deleted_recreated_on_datagouv" => true,
+               "hours_consecutive_downtime" => 6,
+               "resource_ids" => [^resource_1_id, ^resource_2_id],
+               "job_id" => job_id_1
+             }
+           } =
+             DB.Notification.base_query()
+             |> where(
+               [notification: n],
+               n.email_hash == ^"foo@example.com" and n.inserted_at >= ^recent_dt and n.reason == :resource_unavailable and
+                 n.dataset_id == ^dataset_id
+             )
+             |> DB.Repo.one!()
 
-    assert DB.Notification
-           |> where(
-             [n],
-             n.email_hash == ^reuser_email and n.dataset_id == ^dataset_id and n.inserted_at >= ^recent_dt and
-               n.reason == :resource_unavailable
-           )
-           |> DB.Repo.exists?()
+    assert %DB.Notification{
+             notification_subscription_id: ^ns_2,
+             dataset_id: ^dataset_id,
+             reason: :resource_unavailable,
+             role: :reuser,
+             payload: %{
+               "hours_consecutive_downtime" => 6,
+               "producer_warned" => true,
+               "resource_ids" => [^resource_1_id, ^resource_2_id],
+               "job_id" => job_id_2
+             }
+           } =
+             DB.Notification.base_query()
+             |> where([notification: n], n.email_hash == ^reuser_email and n.inserted_at >= ^recent_dt)
+             |> DB.Repo.one!()
 
-    assert DB.Notification
-           |> where(
-             [n],
-             n.email_hash == ^"bar@example.com" and n.dataset_id == ^gtfs_dataset_id and n.inserted_at >= ^recent_dt and
-               n.reason == :resource_unavailable
-           )
-           |> DB.Repo.exists?()
+    assert %DB.Notification{
+             notification_subscription_id: ^ns_3,
+             dataset_id: ^gtfs_dataset_id,
+             role: :producer,
+             reason: :resource_unavailable,
+             payload: %{
+               "deleted_recreated_on_datagouv" => false,
+               "hours_consecutive_downtime" => 6,
+               "resource_ids" => [^resource_gtfs_id],
+               "job_id" => job_id_3
+             }
+           } =
+             DB.Notification.base_query()
+             |> where([notification: n], n.email_hash == ^"bar@example.com" and n.inserted_at >= ^recent_dt)
+             |> DB.Repo.one!()
+
+    assert MapSet.new([job_id_1, job_id_2, job_id_3]) |> Enum.count() == 1
   end
 
   describe "created_resource_hosted_on_datagouv_recently?" do
@@ -245,21 +297,33 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
     end
   end
 
-  test "notifications_sent_recently" do
+  test "email_addresses_already_sent" do
     dataset = insert(:dataset)
 
-    %{dataset: dataset, reason: :resource_unavailable, email: "foo@example.com", inserted_at: add_days(-6)}
+    %{
+      dataset: dataset,
+      role: :producer,
+      reason: :resource_unavailable,
+      email: "foo@example.com",
+      inserted_at: add_days(-6)
+    }
     |> insert_notification()
 
     # Too old
-    %{dataset: dataset, reason: :resource_unavailable, email: "bar@example.com", inserted_at: add_days(-8)}
+    %{
+      dataset: dataset,
+      role: :producer,
+      reason: :resource_unavailable,
+      email: "bar@example.com",
+      inserted_at: add_days(-8)
+    }
     |> insert_notification()
 
     # Another reason
-    %{dataset: dataset, reason: :expiration, email: "baz@example.com", inserted_at: add_days(-6)}
+    %{dataset: dataset, role: :producer, reason: :expiration, email: "baz@example.com", inserted_at: add_days(-6)}
     |> insert_notification()
 
-    assert MapSet.new(["foo@example.com"]) == ResourceUnavailableNotificationJob.notifications_sent_recently(dataset)
+    assert ["foo@example.com"] == ResourceUnavailableNotificationJob.email_addresses_already_sent(dataset)
   end
 
   defp add_days(days), do: DateTime.utc_now() |> DateTime.add(days, :day)

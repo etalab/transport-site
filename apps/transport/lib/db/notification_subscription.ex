@@ -15,7 +15,7 @@ defmodule DB.NotificationSubscription do
   # 2. possible roles: reasons can be subscribed to by either producers or reusers.
   # 3. disallow_subscription: some reasons can’t be subscribed to,
   # but they exist because they are valid for notifications.
-  # (In this case, it’s the plaftform that decides whent to send them, without the user subscribing to them.)
+  # (In this case, it’s the platform that decides when to send them, without the user subscribing to them.)
   # 4. hide_from_user: some reasons are hidden from the user interface, but can be subscribed in CLI or backoffice.
 
   @reasons_rules %{
@@ -57,6 +57,21 @@ defmodule DB.NotificationSubscription do
     periodic_reminder_producers: %{
       scope: :platform,
       possible_roles: [:producer],
+      disallow_subscription: true
+    },
+    promote_producer_space: %{
+      scope: :platform,
+      possible_roles: [:producer],
+      disallow_subscription: true
+    },
+    promote_reuser_space: %{
+      scope: :platform,
+      possible_roles: [:reuser],
+      disallow_subscription: true
+    },
+    warn_user_inactivity: %{
+      scope: :platform,
+      possible_roles: [:producer, :reuser],
       disallow_subscription: true
     }
   }
@@ -135,8 +150,8 @@ defmodule DB.NotificationSubscription do
   def possible_reasons, do: @all_reasons
 
   @doc """
-  iex > @subscribable_reasons
-  [:expiration, :dataset_with_error, :resource_unavailable, :resources_changed, :new_dataset, :datasets_switching_climate_resilience_bill, :daily_new_comments]
+  iex> subscribable_reasons() |> MapSet.new()
+  MapSet.new([:daily_new_comments, :dataset_with_error, :datasets_switching_climate_resilience_bill, :expiration, :new_dataset, :resource_unavailable, :resources_changed])
   """
   @spec subscribable_reasons :: [reason()]
   def subscribable_reasons do
@@ -157,9 +172,12 @@ defmodule DB.NotificationSubscription do
     |> Map.keys()
   end
 
+  @spec possible_roles() :: [role()]
+  def possible_roles, do: @possible_roles
+
   @doc """
-  iex > reasons_for_role(:reuser)
-  [:expiration, :dataset_with_error, :resource_unavailable, :resources_changed, :new_dataset, :daily_new_comments]
+  iex> reasons_for_role(:reuser) |> MapSet.new()
+  MapSet.new([:daily_new_comments, :dataset_with_error, :datasets_switching_climate_resilience_bill, :expiration, :new_dataset, :promote_reuser_space, :resource_unavailable, :resources_changed, :warn_user_inactivity])
   """
   @spec reasons_for_role(role()) :: [reason()]
   def reasons_for_role(role) do
@@ -172,7 +190,7 @@ defmodule DB.NotificationSubscription do
   end
 
   @doc """
-  iex > hidden_reasons_for_roles([:reuser])
+  iex> hidden_reasons_for_role(:reuser)
   [:datasets_switching_climate_resilience_bill]
   """
   @spec hidden_reasons_for_role(role()) :: [reason()]
@@ -235,7 +253,7 @@ defmodule DB.NotificationSubscription do
   end
 
   @doc """
-  iex > shown_subscribable_platform_wide_reasons(:reuser)
+  iex> shown_subscribable_platform_wide_reasons(:reuser)
   [:daily_new_comments, :new_dataset]
   """
   @spec shown_subscribable_platform_wide_reasons(role()) :: [reason()]
@@ -300,11 +318,6 @@ defmodule DB.NotificationSubscription do
     |> DB.Repo.all()
   end
 
-  @spec subscriptions_to_emails([__MODULE__.t()]) :: [binary()]
-  def subscriptions_to_emails(subscriptions) do
-    subscriptions |> Enum.map(& &1.contact.email)
-  end
-
   @doc """
   The following configuration map for translations can’t be merged in the global configuration map
   because module attributes are compiled and not evaluated, which would freeze the translation to default locale.
@@ -326,7 +339,10 @@ defmodule DB.NotificationSubscription do
           dgettext("notification_subscription", "datasets_switching_climate_resilience_bill"),
         daily_new_comments: dgettext("notification_subscription", "daily_new_comments"),
         resources_changed: dgettext("notification_subscription", "resources_changed"),
-        periodic_reminder_producers: dgettext("notification_subscription", "periodic_reminder_producers")
+        periodic_reminder_producers: dgettext("notification_subscription", "periodic_reminder_producers"),
+        promote_producer_space: dgettext("notification_subscription", "promote_producer_space"),
+        promote_reuser_space: dgettext("notification_subscription", "promote_reuser_space"),
+        warn_user_inactivity: dgettext("notification_subscription", "warn_user_inactivity")
       },
       reason
     )

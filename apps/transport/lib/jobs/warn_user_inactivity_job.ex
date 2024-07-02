@@ -5,6 +5,7 @@ defmodule Transport.Jobs.WarnUserInactivityJob do
   Later prune accounts that didn't take the chance.
   """
   use Oban.Worker
+  @notification_reason DB.NotificationSubscription.reason(:warn_user_inactivity)
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{}}) do
@@ -28,25 +29,43 @@ defmodule Transport.Jobs.WarnUserInactivityJob do
         DateTime.to_date(pruning_dt)
       )
 
-    case days_until_pruning do
-      30 ->
-        {:ok, _} =
-          actually_warn_inactive_contact(contact.email, "Dans 1 mois")
-
-      15 ->
-        {:ok, _} =
-          actually_warn_inactive_contact(contact.email, "Dans 2 semaines")
-
-      1 ->
-        {:ok, _} =
-          actually_warn_inactive_contact(contact.email, "Demain")
-
-      _ ->
-        {}
+    if days_until_pruning in horizon_days() do
+      actually_warn_inactive_contact(contact, days_until_pruning)
     end
   end
 
-  defp actually_warn_inactive_contact(email, horizon) do
-    {:ok, _} = Transport.UserNotifier.warn_inactivity(email, horizon) |> Transport.Mailer.deliver()
+  defp actually_warn_inactive_contact(%DB.Contact{} = contact, horizon) do
+    {:ok, _} = Transport.UserNotifier.warn_inactivity(contact, horizon_txt(horizon)) |> Transport.Mailer.deliver()
+    save_notification(contact, horizon)
+  end
+
+  def horizon_days, do: [30, 15, 1]
+
+  @doc """
+  iex> Enum.each(Transport.Jobs.WarnUserInactivityJob.horizon_days(), &horizon_txt/1)
+  :ok
+  """
+  def horizon_txt(horizon) do
+    Map.fetch!(%{30 => "Dans 1 mois", 15 => "Dans 2 semaines", 1 => "Demain"}, horizon)
+  end
+
+  defp save_notification(%DB.Contact{} = contact, horizon) do
+    DB.Notification.insert!(%{
+      reason: @notification_reason,
+      role: role(contact),
+      contact_id: contact.id,
+      email: contact.email,
+      payload: %{"horizon" => horizon}
+    })
+  end
+
+  defp role(%DB.Contact{} = contact) do
+    contact = contact |> DB.Repo.preload(:organizations)
+
+    if TransportWeb.Session.producer?(contact) do
+      :producer
+    else
+      :reuser
+    end
   end
 end

@@ -331,3 +331,10 @@ defmodule DB.Contact do
     list_inactive_contacts(threshold) |> Enum.each(&DB.Repo.delete/1)
   end
 end
+
+# See https://hexdocs.pm/swoosh/Swoosh.Email.Recipient.html
+defimpl Swoosh.Email.Recipient, for: DB.Contact do
+  def format(%DB.Contact{email: email} = contact) do
+    {DB.Contact.display_name(contact), email}
+  end
+end
