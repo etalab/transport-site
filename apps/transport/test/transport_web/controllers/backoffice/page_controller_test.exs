@@ -104,7 +104,7 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
       |> html_response(200)
       |> Floki.parse_document!()
 
-    assert "user1@example.fr, user2@example.fr" ==
+    assert "bar@example.fr, foo@example.fr" ==
              doc |> Floki.find("#notifications_sent table td:nth-child(3)") |> Floki.text()
   end
 
@@ -188,8 +188,8 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
              {{:expiration, ^five_hours_ago_truncated}, emails_2}
            ] = PageController.notifications_sent(dataset)
 
-    assert emails_1 |> Enum.sort() == ["user1@example.fr", "user2@example.fr"]
-    assert emails_2 |> Enum.sort() == ["user2@example.fr", "user3@example.fr"]
+    assert emails_1 |> Enum.sort() == ["bar@example.fr", "foo@example.fr"]
+    assert emails_2 |> Enum.sort() == ["bar@example.fr", "baz@example.fr"]
   end
 
   test "can download the resources CSV", %{conn: conn} do
