@@ -26,6 +26,10 @@ defmodule DB.Notification do
 
   def base_query, do: from(n in __MODULE__, as: :notification)
 
+  # This `insert!/1` clause should be used when saving notifications
+  # without a subscriptions.
+  # This is used for unavoidable notifications: warning about inactivity,
+  # periodic reminder, promoting user spaces etc.
   def insert!(args) when is_map(args), do: %__MODULE__{} |> changeset(args) |> DB.Repo.insert!()
 
   def insert!(
