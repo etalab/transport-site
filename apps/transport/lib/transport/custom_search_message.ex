@@ -40,6 +40,7 @@ defmodule Transport.CustomSearchMessage do
   iex> Transport.CustomSearchMessage.message_matches_query?(%{"type" => "bus", "locale" => "en"}, %{"search_params" => [%{"key" => "type", "value" => "bus"}, %{"key" => "modes", "value" => "xxx"}]})
   false
   """
+
   def message_matches_query?(query_params, %{"search_params" => message_search_params} = _messages) do
     message_search_params
     |> Enum.all?(fn %{"key" => msg_key, "value" => msg_value} ->

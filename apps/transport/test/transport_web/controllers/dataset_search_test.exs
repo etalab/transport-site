@@ -67,22 +67,26 @@ defmodule TransportWeb.DatasetSearchControllerTest do
 
   describe "list datasets" do
     test "with modes" do
-      %{dataset: dataset_1} = insert_resource_and_friends(Date.utc_today(), modes: ["rollerblades"])
+      %DB.Resource{dataset_id: dataset_1_id} =
+        insert(:resource, counter_cache: %{gtfs_modes: ["rollerblades"]}, dataset: insert(:dataset))
 
-      # we insert a dataset + resource + resource_history, and "modes" contains "rollerblades"
-      %{dataset: dataset_2, resource: resource} = insert_resource_and_friends(Date.utc_today(), modes: ["rollerblades"])
+      %DB.Resource{dataset_id: dataset_2_id} =
+        insert(:resource, counter_cache: %{gtfs_modes: ["rollerblades", "tramway"]}, dataset: insert(:dataset))
 
-      # we insert a more recent resource_history for the same resource, but modes is now empty.
-      # This dataset should appear in the results!
-      insert_resource_and_friends(Date.utc_today(), modes: nil, dataset: dataset_2, resource: resource)
+      %DB.Resource{} =
+        insert(:resource, counter_cache: %{gtfs_modes: ["bus"]}, dataset: insert(:dataset))
 
-      %{dataset: dataset_3} = insert_resource_and_friends(Date.utc_today(), modes: ["rollerblades", "bus"])
+      %DB.Resource{} = insert(:resource, counter_cache: %{gtfs_modes: []}, dataset: insert(:dataset))
+      %DB.Resource{} = insert(:resource, counter_cache: nil, dataset: insert(:dataset))
 
       datasets = %{"modes" => ["rollerblades"]} |> DB.Dataset.list_datasets() |> DB.Repo.all()
-      assert datasets |> Enum.map(& &1.id) |> Enum.sort() == [dataset_1.id, dataset_3.id]
+      assert datasets |> Enum.map(& &1.id) |> Enum.sort() == [dataset_1_id, dataset_2_id]
 
-      [dataset] = %{"modes" => ["bus"]} |> DB.Dataset.list_datasets() |> DB.Repo.all()
-      assert dataset.id == dataset_3.id
+      # Doesn’t crash if we mix the search with other filters
+      assert [] == %{"modes" => ["bus"], "features" => ["realtime"]} |> DB.Dataset.list_datasets() |> DB.Repo.all()
+
+      # Doesn’t crash and sends back the whole list if we search for nil
+      refute Enum.empty?(%{"modes" => nil} |> DB.Dataset.list_datasets() |> DB.Repo.all())
     end
 
     test "with features" do

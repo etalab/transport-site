@@ -105,6 +105,7 @@ base_oban_conf = [repo: DB.Repo, insert_trigger: false]
 # - There is "app_env :prod" in contrast to :staging (ie production website vs prochainement)
 #   and "config_env :prod" in contrast to :dev et :test
 # - ⚠️ There is another legacy crontab in `Transport.Scheduler`, see `scheduler.ex`
+# See https://hexdocs.pm/oban/Oban.html#module-cron-expressions
 oban_prod_crontab = [
   {"0 */6 * * *", Transport.Jobs.ResourceHistoryAndValidationDispatcherJob},
   {"30 */6 * * *", Transport.Jobs.GTFSToGeoJSONConverterJob},
@@ -151,7 +152,8 @@ oban_prod_crontab = [
   {"15 5 * * *", Transport.Jobs.ImportDatasetFollowersJob},
   {"30 5 * * *", Transport.Jobs.ImportDatasetMonthlyMetricsJob},
   {"45 5 * * *", Transport.Jobs.ImportResourceMonthlyMetricsJob},
-  {"0 8 * * *", Transport.Jobs.WarnUserInactivityJob}
+  {"0 8 * * *", Transport.Jobs.WarnUserInactivityJob},
+  {"*/5 * * * *", Transport.Jobs.UpdateCounterCacheJob}
 ]
 
 # Make sure that all modules exist
