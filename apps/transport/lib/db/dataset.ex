@@ -797,6 +797,7 @@ defmodule DB.Dataset do
     dataset
     |> official_resources()
     |> Enum.map(& &1.format)
+    |> Enum.reject(&is_nil/1)
     |> Enum.sort()
     |> Enum.dedup()
   end
