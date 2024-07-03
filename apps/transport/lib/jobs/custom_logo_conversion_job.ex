@@ -21,11 +21,13 @@ defmodule Transport.Jobs.CustomLogoConversionJob do
 
     local_path
     |> Image.thumbnail!(100)
+    |> Image.flatten!(background_color: :white)
     |> Image.embed!(100, 100, background_color: :white, extend_mode: :white)
     |> Image.write!(logo_path)
 
     local_path
     |> Image.thumbnail!(500)
+    |> Image.flatten!(background_color: :white)
     |> Image.write!(full_logo_path)
 
     stream_to_s3(logo_path, logo_filename)
