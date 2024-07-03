@@ -1,0 +1,71 @@
+# Les transports en commun à Rochefort (17)
+
+```elixir
+my_app_root = Path.join(__DIR__, "..")
+
+Mix.install(
+  [
+    {:my_app, path: my_app_root, env: :dev},
+    {:sweet_xml, "~> 0.7.4"}
+  ],
+  config_path: Path.join(my_app_root, "config/config.exs"),
+  lockfile: Path.join(my_app_root, "mix.lock")
+)
+```
+
+## Let's go
+
+En tant que développeur vivant sur Rochefort, j’ai vu qu’il y avait de la donnée temps réel sur cette ville. Le site de mobilité étant tout pourri, je me suis demandé si je pouvais faire quelque chose avec un effort raisonnable.
+
+Je vais ici
+
+https://transport.data.gouv.fr/datasets/arrets-horaires-et-parcours-theoriques-des-reseaux-naq-roc-nva-m-1
+
+Je vois qu’on a:
+GTFS
+NeTEx
+SIRI
+
+Je regarde le flux SIRI de plus près:
+
+https://transport.data.gouv.fr/tools/siri-querier?endpoint_url=https%3A%2F%2Fapi.okina.fr%2Fgateway%2Fnam%2Frealtime%2Fanshar%2Fws%2Fservices%2F%3FdatasetId%3DCA_ROCHEFORT_OCEAN&requestor_ref=opendata&query_template=LinesDiscovery
+
+Je vois qu’on peut “découvrir les lignes”, mais quelles sont-elles ?
+
+Préparons une requête pour avoir la liste des lignes.
+
+```elixir
+timestamp = TransportWeb.Live.SIRIQuerierLive.build_timestamp()
+message_id = TransportWeb.Live.SIRIQuerierLive.build_message_id()
+requestor_ref = "opendata"
+
+query = Transport.SIRI.lines_discovery(timestamp, requestor_ref, message_id)
+
+IO.puts(query)
+```
+
+```elixir
+defmodule XMLRenderer do
+  use Kino.JS
+
+  def new(xml) do
+    Kino.JS.new(__MODULE__, xml)
+  end
+
+  asset "main.js" do
+    """
+    export function init(ctx, xml) {
+      ctx.importJS("https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js")
+      ctx.importJS("https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js")
+      ctx.importCSS("https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css")
+
+      ctx.root.innerHTML = xml
+    }
+    """
+  end
+end
+```
+
+```elixir
+XMLRenderer.new(query)
+```
