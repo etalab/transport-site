@@ -183,7 +183,7 @@ defmodule Transport.AdminNotifier do
   end
 
   def has_expiration_notifications?(%DB.Dataset{} = dataset) do
-    DB.NotificationSubscription.reason(:expiration)
+    Transport.NotificationReason.reason(:expiration)
     |> DB.NotificationSubscription.subscriptions_for_reason_dataset_and_role(dataset, :producer)
     |> Enum.count() > 0
   end

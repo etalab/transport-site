@@ -6,7 +6,7 @@ defmodule Transport.Jobs.DatasetsSwitchingClimateResilienceBillJob do
   """
   use Oban.Worker, max_attempts: 3, tags: ["notifications"]
   import Ecto.Query
-  @notification_reason DB.NotificationSubscription.reason(:datasets_switching_climate_resilience_bill)
+  @notification_reason Transport.NotificationReason.reason(:datasets_switching_climate_resilience_bill)
 
   @impl Oban.Worker
   def perform(%Oban.Job{inserted_at: %DateTime{} = inserted_at}) do

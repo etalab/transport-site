@@ -8,8 +8,8 @@ defmodule Transport.DataChecker do
   require Logger
 
   @type delay_and_records :: {integer(), [{DB.Dataset.t(), [DB.Resource.t()]}]}
-  @expiration_reason DB.NotificationSubscription.reason(:expiration)
-  @new_dataset_reason DB.NotificationSubscription.reason(:new_dataset)
+  @expiration_reason Transport.NotificationReason.reason(:expiration)
+  @new_dataset_reason Transport.NotificationReason.reason(:new_dataset)
   # If delay < 0, the resource is already expired
   @default_outdated_data_delays [-90, -60, -30, -45, -15, -7, -3, 0, 7, 14]
 

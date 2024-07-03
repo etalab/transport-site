@@ -35,13 +35,13 @@ defmodule Transport.Jobs.PromoteProducerSpaceJob do
     DB.Notification.insert!(%{
       contact_id: contact_id,
       email: email,
-      reason: DB.NotificationSubscription.reason(:promote_producer_space),
+      reason: Transport.NotificationReason.reason(:promote_producer_space),
       role: :producer
     })
   end
 
   defp create_producer_subscriptions(%DB.Contact{id: contact_id}, datasets) do
-    reasons = DB.NotificationSubscription.subscribable_reasons_related_to_datasets(:producer)
+    reasons = Transport.NotificationReason.subscribable_reasons_related_to_datasets(:producer)
 
     for reason <- reasons, %DB.Dataset{id: dataset_id} <- datasets do
       # Do not use `insert!/1`: we may try to insert duplicates (existing subscriptions)

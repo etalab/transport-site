@@ -28,7 +28,7 @@ defmodule TransportWeb.Backoffice.NotificationSubscriptionController do
   end
 
   def create(%Plug.Conn{} = conn, %{"contact_id" => contact_id, "redirect_location" => "contact"} = params) do
-    possible_reasons = DB.NotificationSubscription.subscribable_platform_wide_reasons(:producer)
+    possible_reasons = Transport.NotificationReason.subscribable_platform_wide_reasons(:producer)
     picked_reasons = params |> picked_reasons()
 
     DB.NotificationSubscription.base_query()
@@ -74,7 +74,7 @@ defmodule TransportWeb.Backoffice.NotificationSubscriptionController do
   end
 
   defp picked_reasons(%{} = params) do
-    possible_reasons = DB.NotificationSubscription.possible_reasons() |> Enum.map(&to_string/1)
+    possible_reasons = Transport.NotificationReason.all_reasons() |> Enum.map(&to_string/1)
 
     params |> Map.filter(fn {k, v} -> k in possible_reasons and v == "true" end) |> Map.keys()
   end

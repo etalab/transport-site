@@ -11,7 +11,7 @@ defmodule Transport.Jobs.NewCommentsNotificationJob do
   """
   use Oban.Worker, max_attempts: 3, tags: ["notifications"]
   import Ecto.Query
-  @notification_reason DB.NotificationSubscription.reason(:daily_new_comments)
+  @notification_reason Transport.NotificationReason.reason(:daily_new_comments)
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"contact_id" => contact_id, "dataset_ids" => dataset_ids}}) do

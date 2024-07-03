@@ -20,7 +20,7 @@ defmodule Transport.Jobs.ExpirationNotificationJob do
   @type datasets() :: [DB.Dataset.t()]
 
   import Ecto.Query
-  @notification_reason DB.NotificationSubscription.reason(:expiration)
+  @notification_reason Transport.NotificationReason.reason(:expiration)
   # If delay < 0, the resource is already expired
   @default_outdated_data_delays [-30, -7, 0, 7, 14]
 

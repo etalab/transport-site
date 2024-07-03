@@ -45,7 +45,7 @@ defmodule Transport.Test.Transport.Jobs.PromoteProducerSpaceJobTest do
 
       # The contact has been subscribed to all producer reasons for the dataset.
       # The existing subscription did not interfere.
-      producer_reasons = DB.NotificationSubscription.subscribable_reasons_related_to_datasets(:producer)
+      producer_reasons = Transport.NotificationReason.subscribable_reasons_related_to_datasets(:producer)
 
       subscriptions =
         DB.NotificationSubscription.base_query()

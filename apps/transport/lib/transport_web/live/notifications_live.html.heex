@@ -23,7 +23,7 @@ display_error = is_producer and not is_nil(@error) %>
       <%= for %{reason: reason, explanations: explanations} <- @available_reasons do %>
         <div class="card">
           <div class="card__content">
-            <h5><%= DB.NotificationSubscription.reason_to_str(reason) %></h5>
+            <h5><%= Transport.NotificationReason.reason_to_str(reason) %></h5>
             <p><%= explanations %></p>
           </div>
         </div>
@@ -38,7 +38,7 @@ display_error = is_producer and not is_nil(@error) %>
             <%= for reason <- @platform_wide_reasons do %>
               <% subscribed = reason in @subscribed_platform_wide_reasons %>
               <tr>
-                <td><%= DB.NotificationSubscription.reason_to_str(reason) %></td>
+                <td><%= Transport.NotificationReason.reason_to_str(reason) %></td>
                 <td>
                   <div class="form__group">
                     <fieldset>
@@ -105,7 +105,7 @@ display_error = is_producer and not is_nil(@error) %>
             <%= for %{reason: reason} <- @available_reasons do %>
               <tr>
                 <% my_subscription = @subscriptions[dataset.id][reason][:user_subscription] %>
-                <td><%= DB.NotificationSubscription.reason_to_str(reason) %></td>
+                <td><%= Transport.NotificationReason.reason_to_str(reason) %></td>
                 <td>
                   <div class="form__group">
                     <fieldset>

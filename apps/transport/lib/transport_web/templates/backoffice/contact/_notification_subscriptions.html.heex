@@ -22,7 +22,7 @@
     </datalist>
     <%= label f, :reasons, class: "pt-12" do %>
       <%= dgettext("backoffice", "Notification reason") %>
-      <%= for reason <- DB.NotificationSubscription.subscribable_reasons_related_to_datasets(:producer) do %>
+      <%= for reason <- Transport.NotificationReason.subscribable_reasons_related_to_datasets(:producer) do %>
         <%= label f, reason do %>
           <%= checkbox(f, reason, hidden_input: false, value: true) %>
           <%= reason %>
@@ -40,7 +40,7 @@
     <%= hidden_input(f, :contact_id, value: @contact_id) %>
     <%= label f, :reasons, class: "pt-12" do %>
       <%= dgettext("backoffice", "Notification reason") %>
-      <%= for reason <- DB.NotificationSubscription.subscribable_platform_wide_reasons(:producer) do %>
+      <%= for reason <- Transport.NotificationReason.subscribable_platform_wide_reasons(:producer) do %>
         <%= label f, reason do %>
           <%= checkbox(f, reason, hidden_input: false, value: reason in reasons_subscribed_without_dataset) %>
           <%= reason %>

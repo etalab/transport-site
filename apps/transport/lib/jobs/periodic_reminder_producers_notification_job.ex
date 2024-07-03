@@ -13,7 +13,7 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
   """
   @min_days_before_sending_again 90
   @max_emails_per_day 100
-  @notification_reason DB.NotificationSubscription.reason(:periodic_reminder_producers)
+  @notification_reason Transport.NotificationReason.reason(:periodic_reminder_producers)
 
   use Oban.Worker,
     unique: [period: {@min_days_before_sending_again, :days}],
