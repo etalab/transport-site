@@ -10,6 +10,7 @@
   <div id={"comments-discussion-#{@discussion["id"]}"}>
     <%= for comment <- @discussion["discussion"] do %>
       <% is_producer = comment["posted_by"]["id"] in @org_member_ids %>
+      <% is_admin = comment["posted_by"]["id"] in @admin_member_ids %>
       <% avatar_src =
         cond do
           user_avatar = comment["posted_by"]["avatar_thumbnail"] -> user_avatar
@@ -24,8 +25,11 @@
         <div>
           <div class="discussion-comment__header">
             <a href={comment["posted_by"]["page"]}><%= commenter_full_name %></a>
-            <span :if={is_producer} class="label label--producer">
+            <span :if={is_producer} class="label label--role">
               <%= dgettext("page-dataset-details", "data producer") %>
+            </span>
+            <span :if={is_admin} class="label label--role">
+              transport.data.gouv.fr
             </span>
             <span class="discussion-date">
               <%= dgettext("page-dataset-details", "Posted on %{datetime}",
