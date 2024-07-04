@@ -25,7 +25,7 @@ defmodule Transport.Jobs.ExpirationNotificationJob do
   @default_outdated_data_delays [-30, -7, 0, 7, 14]
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"contact_id" => contact_id, "digest_date" => digest_date}}) do
+  def perform(%Oban.Job{id: job_id, args: %{"contact_id" => contact_id, "digest_date" => digest_date}}) do
     contact = DB.Repo.get!(DB.Contact, contact_id)
     subscribed_dataset_ids = subscribed_dataset_ids_for_expiration(contact)
 
@@ -41,7 +41,7 @@ defmodule Transport.Jobs.ExpirationNotificationJob do
       |> Map.reject(fn {_delay, datasets} -> Enum.empty?(datasets) end)
 
     send_email(contact, email_body(filtered_expiration_data))
-    save_notifications(contact, filtered_expiration_data)
+    save_notifications(contact, filtered_expiration_data, job_id)
 
     :ok
   end
@@ -66,17 +66,25 @@ defmodule Transport.Jobs.ExpirationNotificationJob do
     :ok
   end
 
-  defp send_email(%DB.Contact{email: email}, html) do
-    {:ok, _} = Transport.UserNotifier.expiration_reuser(email, html) |> Transport.Mailer.deliver()
+  defp send_email(%DB.Contact{} = contact, html) do
+    {:ok, _} = Transport.UserNotifier.expiration_reuser(contact, html) |> Transport.Mailer.deliver()
   end
 
-  @spec save_notifications(DB.Contact.t(), %{delay() => datasets()}) :: :ok
-  defp save_notifications(%DB.Contact{email: email}, delays_and_datasets) do
+  @spec save_notifications(DB.Contact.t(), %{delay() => datasets()}, integer()) :: :ok
+  defp save_notifications(%DB.Contact{} = contact, delays_and_datasets, job_id) do
     delays_and_datasets
     |> Map.values()
     |> List.flatten()
     |> Enum.each(fn %DB.Dataset{} = dataset ->
-      DB.Notification.insert!(@notification_reason, dataset, email)
+      subscription =
+        DB.Repo.get_by!(DB.NotificationSubscription,
+          contact_id: contact.id,
+          dataset_id: dataset.id,
+          reason: @notification_reason,
+          role: :reuser
+        )
+
+      DB.Notification.insert!(dataset, %DB.NotificationSubscription{subscription | contact: contact}, %{job_id: job_id})
     end)
   end
 

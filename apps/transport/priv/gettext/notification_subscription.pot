@@ -46,3 +46,15 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "periodic_reminder_producers"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "promote_producer_space"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "promote_reuser_space"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "warn_user_inactivity"
+msgstr ""

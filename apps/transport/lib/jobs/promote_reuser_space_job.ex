@@ -9,11 +9,19 @@ defmodule Transport.Jobs.PromoteReuserSpaceJob do
   def perform(%Oban.Job{args: %{"contact_id" => contact_id}}) do
     contact = DB.Repo.get!(DB.Contact, contact_id)
 
-    {:ok, _} =
-      contact.email
-      |> Transport.UserNotifier.promote_reuser_space()
-      |> Transport.Mailer.deliver()
+    {:ok, _} = contact |> Transport.UserNotifier.promote_reuser_space() |> Transport.Mailer.deliver()
+
+    save_notification(contact)
 
     :ok
+  end
+
+  defp save_notification(%DB.Contact{id: contact_id, email: email}) do
+    DB.Notification.insert!(%{
+      contact_id: contact_id,
+      email: email,
+      reason: DB.NotificationSubscription.reason(:promote_reuser_space),
+      role: :reuser
+    })
   end
 end

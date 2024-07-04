@@ -25,6 +25,7 @@ defmodule Transport.Test.Transport.Jobs.PromoteProducerSpaceJobTest do
       organization = insert(:organization)
 
       %DB.Contact{id: contact_id, email: contact_email} =
+        contact =
         insert_contact(%{organizations: [organization |> Map.from_struct()]})
 
       dataset = insert(:dataset, organization_id: organization.id)
@@ -70,9 +71,11 @@ defmodule Transport.Test.Transport.Jobs.PromoteProducerSpaceJobTest do
       assert Enum.count(subscriptions) == subscriptions |> MapSet.new() |> Enum.count()
       assert expected_subscriptions == MapSet.new(subscriptions)
 
+      display_name = DB.Contact.display_name(contact)
+
       assert_email_sent(fn %Swoosh.Email{
                              from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                             to: [{"", ^contact_email}],
+                             to: [{^display_name, ^contact_email}],
                              reply_to: {"", "contact@transport.data.gouv.fr"},
                              subject: "Bienvenue ! Découvrez votre Espace producteur",
                              text_body: nil,
@@ -84,7 +87,16 @@ defmodule Transport.Test.Transport.Jobs.PromoteProducerSpaceJobTest do
                  ~s(Rendez-vous sur votre <a href="http://127.0.0.1:5100/espace_producteur?utm_source=transactional_email&amp;utm_medium=email&amp;utm_campaign=promote_producer_space">Espace Producteur</a> pour mettre à jour vos données ou paramétrer vos notifications)
       end)
 
-      assert DB.Notification |> DB.Repo.all() |> Enum.empty?()
+      assert [
+               %DB.Notification{
+                 reason: :promote_producer_space,
+                 contact_id: ^contact_id,
+                 email: ^contact_email,
+                 role: :producer,
+                 dataset_id: nil,
+                 notification_subscription_id: nil
+               }
+             ] = DB.Notification |> DB.Repo.all()
     end
   end
 end

@@ -111,25 +111,35 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
       |> Enum.filter(&DB.Dataset.active?/1)
       |> Enum.sort_by(fn %DB.Dataset{custom_title: custom_title} -> custom_title end)
 
-    contact.email
+    contact
     |> Transport.UserNotifier.periodic_reminder_producers_no_subscriptions(datasets)
     |> Transport.Mailer.deliver()
 
-    DB.Notification.insert!(@notification_reason, contact.email)
+    save_notification(contact, template_type: "producer_without_subscriptions")
   end
 
   defp send_mail_producer_with_subscriptions(%DB.Contact{} = contact) do
     other_producers_subscribers = contact |> other_producers_subscribers()
     datasets_subscribed = contact |> datasets_subscribed_as_producer()
 
-    contact.email
+    contact
     |> Transport.UserNotifier.periodic_reminder_producers_with_subscriptions(
       datasets_subscribed,
       other_producers_subscribers
     )
     |> Transport.Mailer.deliver()
 
-    DB.Notification.insert!(@notification_reason, contact.email)
+    save_notification(contact, template_type: "producer_with_subscriptions")
+  end
+
+  defp save_notification(%DB.Contact{id: contact_id, email: email}, template_type: template_type) do
+    DB.Notification.insert!(%{
+      contact_id: contact_id,
+      email: email,
+      reason: @notification_reason,
+      role: :producer,
+      payload: %{"template_type" => template_type}
+    })
   end
 
   @spec datasets_subscribed_as_producer(DB.Contact.t()) :: [DB.Dataset.t()]

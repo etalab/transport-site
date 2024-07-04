@@ -29,3 +29,7 @@ msgstr "Une erreur a eu lieu lors de la récupération de vos ressources"
 #, elixir-autogen, elixir-format
 msgid "Unable to get this dataset for the moment"
 msgstr "Impossible de récupérer ce jeu de données pour le moment"
+
+#, elixir-autogen, elixir-format
+msgid "This feature is currently not available."
+msgstr "La fonctionnalité n'est pas disponible pour le moment."

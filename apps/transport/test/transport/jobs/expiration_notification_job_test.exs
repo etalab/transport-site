@@ -100,15 +100,16 @@ defmodule Transport.Test.Transport.Jobs.ExpirationNotificationJobTest do
     %{dataset: %DB.Dataset{} = d3} = insert_resource_and_friends(a_week_ago)
     %{dataset: %DB.Dataset{id: d4_id} = d4} = insert_resource_and_friends(a_week_from_now)
 
-    %DB.Contact{email: contact_email} = contact = insert_contact()
+    %DB.Contact{id: contact_id, email: contact_email} = contact = insert_contact()
 
-    insert(:notification_subscription,
-      contact_id: contact.id,
-      dataset_id: d1.id,
-      reason: :expiration,
-      role: :reuser,
-      source: :user
-    )
+    %DB.NotificationSubscription{id: ns1_id} =
+      insert(:notification_subscription,
+        contact_id: contact.id,
+        dataset_id: d1.id,
+        reason: :expiration,
+        role: :reuser,
+        source: :user
+      )
 
     insert(:notification_subscription,
       contact_id: contact.id,
@@ -118,13 +119,14 @@ defmodule Transport.Test.Transport.Jobs.ExpirationNotificationJobTest do
       source: :user
     )
 
-    insert(:notification_subscription,
-      contact_id: contact.id,
-      dataset_id: d4.id,
-      reason: :expiration,
-      role: :reuser,
-      source: :user
-    )
+    %DB.NotificationSubscription{id: ns4_id} =
+      insert(:notification_subscription,
+        contact_id: contact.id,
+        dataset_id: d4.id,
+        reason: :expiration,
+        role: :reuser,
+        source: :user
+      )
 
     assert %{-7 => [d3.id], 0 => [d1.id], 7 => [d4.id]} ==
              ExpirationNotificationJob.gtfs_expiring_on_target_dates(today)
@@ -134,10 +136,12 @@ defmodule Transport.Test.Transport.Jobs.ExpirationNotificationJobTest do
                inserted_at: DateTime.utc_now()
              )
 
+    display_name = DB.Contact.display_name(contact)
+
     assert_email_sent(fn %Swoosh.Email{
                            subject: "Suivi des jeux de données favoris arrivant à expiration",
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"", ^contact_email}],
+                           to: [{^display_name, ^contact_email}],
                            text_body: nil,
                            html_body: html
                          } ->
@@ -151,9 +155,27 @@ defmodule Transport.Test.Transport.Jobs.ExpirationNotificationJobTest do
     end)
 
     assert [
-             %DB.Notification{reason: :expiration, email: ^contact_email, dataset_id: ^d1_id},
-             %DB.Notification{reason: :expiration, email: ^contact_email, dataset_id: ^d4_id}
+             %DB.Notification{
+               reason: :expiration,
+               role: :reuser,
+               email: ^contact_email,
+               contact_id: ^contact_id,
+               dataset_id: ^d1_id,
+               notification_subscription_id: ^ns1_id,
+               payload: %{"job_id" => job_id1}
+             },
+             %DB.Notification{
+               reason: :expiration,
+               role: :reuser,
+               email: ^contact_email,
+               contact_id: ^contact_id,
+               dataset_id: ^d4_id,
+               notification_subscription_id: ^ns4_id,
+               payload: %{"job_id" => job_id2}
+             }
            ] = DB.Notification |> DB.Repo.all() |> Enum.sort_by(& &1.dataset_id)
+
+    assert [job_id1, job_id2] |> Enum.reject(&is_nil/1) |> Enum.uniq() |> Enum.count() == 1
   end
 
   test "cannot dispatch the same job twice for the same contact/date" do
