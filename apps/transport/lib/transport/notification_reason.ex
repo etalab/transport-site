@@ -14,7 +14,6 @@ defmodule Transport.NotificationReason do
 
   import TransportWeb.Gettext, only: [dgettext: 2]
 
-  # TODO : undup?
   @possible_roles [:producer, :reuser]
 
   @reasons_rules %{
@@ -78,7 +77,6 @@ defmodule Transport.NotificationReason do
   @all_reasons @reasons_rules |> Map.keys()
 
   # https://elixirforum.com/t/using-module-attributes-in-typespec-definitions-to-reduce-duplication/42374/2
-  # TODO : dedup roles !
   types = Enum.reduce(@possible_roles, &{:|, [], [&1, &2]})
   @type role :: unquote(types)
   types = Enum.reduce(@all_reasons, &{:|, [], [&1, &2]})

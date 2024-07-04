@@ -7,12 +7,6 @@ defmodule DB.NotificationSubscription do
   import Ecto.{Changeset, Query}
   import Transport.NotificationReason
 
-  @possible_roles [:producer, :reuser]
-
-  # https://elixirforum.com/t/using-module-attributes-in-typespec-definitions-to-reduce-duplication/42374/2
-  types = Enum.reduce(@possible_roles, &{:|, [], [&1, &2]})
-  @type role :: unquote(types)
-
   typed_schema "notification_subscription" do
     field(:reason, Ecto.Enum, values: all_reasons())
 
@@ -24,7 +18,7 @@ defmodule DB.NotificationSubscription do
       values: [:admin, :user, :"automation:promote_producer_space", :"automation:migrate_from_reuser_to_producer"]
     )
 
-    field(:role, Ecto.Enum, values: @possible_roles)
+    field(:role, Ecto.Enum, values: possible_roles())
 
     belongs_to(:contact, DB.Contact)
     belongs_to(:dataset, DB.Dataset)
@@ -64,9 +58,10 @@ defmodule DB.NotificationSubscription do
     end
   end
 
-  @spec subscriptions_for_reason_dataset_and_role(atom(), DB.Dataset.t(), role()) :: [__MODULE__.t()]
-  def subscriptions_for_reason_dataset_and_role(reason, %DB.Dataset{id: dataset_id}, role)
-      when role in @possible_roles do
+  @spec subscriptions_for_reason_dataset_and_role(atom(), DB.Dataset.t(), Transport.NotificationReason.role()) :: [
+          __MODULE__.t()
+        ]
+  def subscriptions_for_reason_dataset_and_role(reason, %DB.Dataset{id: dataset_id}, role) do
     base_query()
     |> preload([:contact])
     |> where(
@@ -76,8 +71,8 @@ defmodule DB.NotificationSubscription do
     |> DB.Repo.all()
   end
 
-  @spec subscriptions_for_reason_and_role(atom(), role()) :: [__MODULE__.t()]
-  def subscriptions_for_reason_and_role(reason, role) when role in @possible_roles do
+  @spec subscriptions_for_reason_and_role(atom(), Transport.NotificationReason.role()) :: [__MODULE__.t()]
+  def subscriptions_for_reason_and_role(reason, role) do
     base_query()
     |> preload([:contact])
     |> where([notification_subscription: ns], ns.reason == ^reason and is_nil(ns.dataset_id) and ns.role == ^role)
@@ -113,8 +108,8 @@ defmodule DB.NotificationSubscription do
     end
   end
 
-  @spec subscriptions_for_dataset_and_role(DB.Dataset.t(), role()) :: [__MODULE__.t()]
-  def subscriptions_for_dataset_and_role(%DB.Dataset{id: dataset_id}, role) when role in @possible_roles do
+  @spec subscriptions_for_dataset_and_role(DB.Dataset.t(), Transport.NotificationReason.role()) :: [__MODULE__.t()]
+  def subscriptions_for_dataset_and_role(%DB.Dataset{id: dataset_id}, role) do
     base_query()
     |> preload([:contact])
     |> where([notification_subscription: ns], ns.dataset_id == ^dataset_id and ns.role == ^role)
