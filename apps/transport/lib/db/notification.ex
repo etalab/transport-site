@@ -121,6 +121,8 @@ defmodule DB.Notification do
     |> validate_required([:reason, :email, :role])
     |> validate_format(:email, ~r/@/)
     |> put_hashed_fields()
+    |> DB.NotificationSubscription.validate_reason_by_role()
+    |> DB.NotificationSubscription.validate_reason_by_scope()
   end
 
   defp put_hashed_fields(%Ecto.Changeset{} = changeset) do

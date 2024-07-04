@@ -126,7 +126,8 @@ defmodule DB.NotificationSubscription do
     end
   end
 
-  defp validate_reason_by_role(changeset) do
+  #  The two following functions are also used for the DB.Notification chaneset!
+  def validate_reason_by_role(changeset) do
     role = get_field(changeset, :role)
     reason = get_field(changeset, :reason)
 
@@ -137,7 +138,7 @@ defmodule DB.NotificationSubscription do
     end
   end
 
-  defp validate_reason_by_scope(changeset) do
+  def validate_reason_by_scope(changeset) do
     reason = get_field(changeset, :reason)
     dataset_id = get_field(changeset, :dataset_id)
 
