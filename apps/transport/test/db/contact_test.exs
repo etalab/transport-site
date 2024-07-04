@@ -259,6 +259,16 @@ defmodule DB.ContactTest do
     assert [] == list_inactive_contact_ids(date2)
   end
 
+  test "admin_contact* methods" do
+    admin_org = build(:organization, name: "Point d'Accès National transport.data.gouv.fr")
+    %DB.Contact{id: admin_id} = admin_contact = insert_contact(%{organizations: [Map.from_struct(admin_org)]})
+    insert_contact()
+
+    assert [%DB.Contact{id: ^admin_id}] = DB.Contact.admin_contacts()
+    assert [admin_id] == DB.Contact.admin_contact_ids()
+    assert [admin_contact.datagouv_user_id] == DB.Contact.admin_datagouv_ids()
+  end
+
   defp list_inactive_contact_ids(datetime) do
     DB.Contact.list_inactive_contacts(datetime)
     |> Enum.map(fn %DB.Contact{id: contact_id} -> contact_id end)
