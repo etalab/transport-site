@@ -17,6 +17,42 @@
           )
         ) %>
       </p>
+      # TODO : traduire
+      # TODO : flex au lieu de table
+      <h3><%= dgettext("espace-producteurs", "Edit resources") %></h3>
+      <div>
+        <table class="table mt-24">
+          <%= for resource <- @dataset.resources do %>
+            <tr>
+              <td><%= resource.title %></td>
+              <td>
+                <%= link(dgettext("espace-producteurs", "Edit resource"),
+                  ## ATTENTION : ancien fonctionnement, ça prenait les identifiants qui arrivaient en live de data.gouv.fr (je crois)
+                  ## à vérifier si pertinent
+                  to: resource_path(@conn, :form, @dataset.datagouv_id, resource.datagouv_id),
+                  class: "button-outline primary small",
+                  "data-tracking-category": "espace_producteur",
+                  "data-tracking-action": "update_resource_button"
+                ) %>
+              </td>
+              <td>
+                <%= link(dgettext("espace-producteurs", "Delete resource"),
+                  to: resource_path(@conn, :delete_resource_confirmation, @dataset.datagouv_id, resource.datagouv_id),
+                  class: "button-outline secondary small",
+                  "data-tracking-category": "espace_producteur",
+                  "data-tracking-action": "add_resource_button"
+                ) %>
+              </td>
+            </tr>
+          <% end %>
+        </table>
+        <%= link(dgettext("espace-producteurs", "Add a resource"),
+          to: resource_path(@conn, :form, @dataset.datagouv_id),
+          class: "button primary",
+          "data-tracking-category": "espace_producteur",
+          "data-tracking-action": "add_resource_button"
+        ) %>
+      </div>
       <h3><%= dgettext("espace-producteurs", "Update your logo") %></h3>
       <div :if={is_nil(@dataset.custom_logo)}>
         <%= form_for @conn, espace_producteur_path(@conn, :upload_logo, @dataset.id), [as: "upload", multipart: :true], fn f -> %>

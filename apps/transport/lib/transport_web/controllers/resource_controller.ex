@@ -183,6 +183,7 @@ defmodule TransportWeb.ResourceController do
   """
   @spec resources_list(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def resources_list(conn, %{"dataset_id" => dataset_id}) do
+    # TODO supprimer
     case Datagouvfr.Client.Datasets.get(dataset_id) do
       {:ok, dataset} ->
         conn

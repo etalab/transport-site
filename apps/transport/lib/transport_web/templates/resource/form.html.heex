@@ -3,7 +3,7 @@
   <section class="pt-48 pb-24">
     <div class="container">
       <%= if new_resource do %>
-        <%= breadcrumbs([@conn, :new_resource]) %>
+        <%= breadcrumbs([@conn, :new_resource]) %> # TODO : modifier le breadcrumb
       <% else %>
         <%= breadcrumbs([@conn, :update_resource, @dataset["id"]]) %>
       <% end %>

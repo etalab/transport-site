@@ -1,4 +1,4 @@
-<% mode = Map.get(@conn.params, "mode", "update") %>
+<% mode = Map.get(@conn.params, "mode", "update") %> # TODO Suprimer
 <section class="pt-48">
   <div class="container pb-24">
     <%= breadcrumbs([@conn, :select_resource, @dataset["id"]]) %>
