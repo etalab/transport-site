@@ -178,17 +178,6 @@ defmodule TransportWeb.ResourceController do
     end
   end
 
-  def choose_action(conn, _), do: render(conn, "choose_action.html")
-
-  @spec datasets_list(Plug.Conn.t(), any()) :: Plug.Conn.t()
-  def datasets_list(conn, _params) do
-    {conn, datasets} = datasets_for_user(conn)
-
-    conn
-    |> assign(:datasets, datasets)
-    |> render("list.html")
-  end
-
   @doc """
   List resources for a dataset, prompting the user to choose a resource.
   Used to either update OR delete a resource afterwards.
@@ -368,17 +357,6 @@ defmodule TransportWeb.ResourceController do
         conn
         |> assign(kw, [])
         |> put_flash(:error, Gettext.dgettext(TransportWeb.Gettext, "resource", error))
-    end
-  end
-
-  defp datasets_for_user(%Plug.Conn{} = conn) do
-    case DB.Dataset.datasets_for_user(conn) do
-      datasets when is_list(datasets) ->
-        {conn, datasets}
-
-      {:error, _} ->
-        conn = conn |> put_flash(:error, dgettext("alert", "Unable to get all your resources for the moment"))
-        {conn, []}
     end
   end
 end

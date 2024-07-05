@@ -1,7 +1,6 @@
 defmodule TransportWeb.ResourceControllerTest do
   use TransportWeb.ConnCase, async: false
   use TransportWeb.DatabaseCase, cleanup: [:datasets], async: false
-  import Plug.Test
   import Mox
   import DB.Factory
   import ExUnit.CaptureLog
@@ -62,21 +61,6 @@ defmodule TransportWeb.ResourceControllerTest do
     )
 
     :ok
-  end
-
-  test "I can see my datasets", %{conn: conn} do
-    %DB.Dataset{datagouv_title: datagouv_title, organization_id: organization_id} = insert(:dataset)
-
-    Datagouvfr.Client.User.Mock
-    |> expect(:me, fn _conn -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
-
-    html =
-      conn
-      |> init_test_session(%{current_user: %{}})
-      |> get(resource_path(conn, :datasets_list))
-      |> html_response(200)
-
-    assert html =~ datagouv_title
   end
 
   test "Non existing resource raises a Ecto.NoResultsError (interpreted as a 404 thanks to phoenix_ecto)", %{conn: conn} do
