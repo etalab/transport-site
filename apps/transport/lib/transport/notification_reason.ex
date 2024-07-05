@@ -83,9 +83,7 @@ defmodule Transport.NotificationReason do
   @type reason :: unquote(types)
 
   @spec all_reasons :: [reason()]
-  def all_reasons do
-    @all_reasons
-  end
+  def all_reasons, do: @all_reasons
 
   @doc """
   This method provides a consistent manner to reference a `Transport.NotificationReason.reason`.
@@ -99,9 +97,8 @@ defmodule Transport.NotificationReason do
   def reason(reason) when reason in @all_reasons, do: reason
 
   @doc """
-  This is also used in DB.Notification, but not for now in DB.NotificationSubscription.
+  This is also used in `DB.Notification`, but not for now in `DB.NotificationSubscription`.
   """
-
   @spec possible_roles() :: [role()]
   def possible_roles, do: @possible_roles
 
