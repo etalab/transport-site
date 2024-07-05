@@ -141,24 +141,10 @@ defmodule Transport.UserNotifier do
   end
 
   def new_datasets(%DB.Contact{} = contact, datasets) do
-    dataset_link_fn = fn %DB.Dataset{} = dataset ->
-      "* #{dataset.custom_title} - (#{DB.Dataset.type_to_str(dataset.type)}) - #{link(dataset)}"
-    end
-
-    text_content = """
-    Bonjour,
-
-    Les jeux de données suivants ont été référencés récemment :
-
-    #{datasets |> Enum.sort_by(& &1.type) |> Enum.map_join("\n", &dataset_link_fn.(&1))}
-
-    L’équipe transport.data.gouv.fr
-    """
-
     contact
     |> common_email_options()
     |> subject("Nouveaux jeux de données référencés")
-    |> text_body(text_content)
+    |> render_body("new_dataset.html", datasets: datasets)
   end
 
   def expiration_producer(%DB.Contact{} = contact, dataset, resources, delay) do
@@ -232,6 +218,4 @@ defmodule Transport.UserNotifier do
   def expiration_email_subject(delay) when delay < 0 do
     "Jeu de données périmé"
   end
-
-  defp link(%DB.Dataset{slug: slug}), do: TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, slug)
 end

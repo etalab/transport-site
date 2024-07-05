@@ -353,8 +353,7 @@ defmodule Transport.DataCheckerTest do
     end
 
     test "with datasets" do
-      %DB.Dataset{id: dataset_id, slug: slug} =
-        dataset = insert(:dataset, custom_title: "Super JDD", type: "public-transit", slug: Ecto.UUID.generate())
+      %DB.Dataset{id: dataset_id} = dataset = insert(:dataset, type: "public-transit")
 
       %DB.Contact{id: contact_id, email: email} = contact = insert_contact()
 
@@ -372,9 +371,9 @@ defmodule Transport.DataCheckerTest do
         from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
         to: {DB.Contact.display_name(contact), email},
         subject: "Nouveaux jeux de données référencés",
-        text_body:
-          ~r"Super JDD - \(Transport public collectif - horaires théoriques\) - http://127.0.0.1:5100/datasets/#{slug}",
-        html_body: nil
+        text_body: nil,
+        html_body:
+          ~r|<li><a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> - \(Transport public collectif - horaires théoriques\)</li>|
       )
 
       assert [

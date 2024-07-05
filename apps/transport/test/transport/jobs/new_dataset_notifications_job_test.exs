@@ -36,8 +36,8 @@ defmodule Transport.Test.Transport.Jobs.NewDatasetNotificationsJobTest do
       from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
       to: {DB.Contact.display_name(contact), email},
       subject: "Nouveaux jeux de données référencés",
-      text_body: ~r/Bonjour/,
-      html_body: nil
+      text_body: nil,
+      html_body: ~r|<p>Bonjour,</p>|
     )
 
     # Logs have been saved
