@@ -8,6 +8,18 @@
   <div class="container pt-24">
     <div class="panel">
       <h2><%= @dataset.custom_title %></h2>
+      # TODO : traduire
+      # TODO : flex au lieu de table
+      <h3><%= dgettext("espace-producteurs", "Edit resources") %></h3>
+      <p>
+        <%= dgettext(
+          "espace-producteurs",
+          ~s(If you need to replace a resource with a more up-to-date one, choose "Update a resource".)
+        ) %>
+      </p>
+      <a href="https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees">
+        <%= dgettext("espace-producteurs", "Updating a dataset guidelines") %>
+      </a>
       <p>
         <%= raw(
           dgettext(
@@ -17,9 +29,6 @@
           )
         ) %>
       </p>
-      # TODO : traduire
-      # TODO : flex au lieu de table
-      <h3><%= dgettext("espace-producteurs", "Edit resources") %></h3>
       <div>
         <table class="table mt-24">
           <%= for resource <- @dataset.resources do %>

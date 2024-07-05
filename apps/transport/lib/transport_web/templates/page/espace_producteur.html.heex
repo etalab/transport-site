@@ -13,15 +13,6 @@
             <img class="picto" src={static_path(@conn, "/images/producteurs/picto-maj.png")} alt="" />
             <div>
               <h4 class="with-link"><%= dgettext("espace-producteurs", "Update a dataset") %></h4>
-              <p>
-                <%= dgettext(
-                  "espace-producteurs",
-                  ~s(If you need to replace a resource with a more up-to-date one, choose "Update a resource".)
-                ) %>
-              </p>
-              <a href="https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees">
-                <%= dgettext("espace-producteurs", "Updating a dataset guidelines") %>
-              </a>
             </div>
           </div>
           <div class="resource-list">
@@ -39,33 +30,13 @@
                 </h5>
                 <%= link(dgettext("espace-producteurs", "Edit"),
                   to: espace_producteur_path(@conn, :edit_dataset, dataset.id),
-                  class: "button-outline secondary small",
+                  class: "button primary",
                   "data-tracking-category": "espace_producteur",
                   "data-tracking-action": "edit_dataset"
                 ) %>
                 <hr class="mb-0 mt-24" />
                 <div class="pt-6">
                   <%= dngettext("espace-producteurs", "1 resource", "%{count} resources", nb_resources) %>
-                </div>
-                <div class="pt-12">
-                  <%= link(dgettext("espace-producteurs", "Update"),
-                    to: resource_path(@conn, :resources_list, dataset.datagouv_id),
-                    class: "button-outline primary small",
-                    "data-tracking-category": "espace_producteur",
-                    "data-tracking-action": "update_resource_button"
-                  ) %>
-                  <%= link(dgettext("espace-producteurs", "Add"),
-                    to: resource_path(@conn, :form, dataset.datagouv_id),
-                    class: "button-outline secondary small",
-                    "data-tracking-category": "espace_producteur",
-                    "data-tracking-action": "add_resource_button"
-                  ) %>
-                  <%= link(dgettext("espace-producteurs", "Delete"),
-                    to: resource_path(@conn, :resources_list, dataset.datagouv_id, %{"mode" => "delete"}),
-                    class: "button-outline warning small",
-                    "data-tracking-category": "espace_producteur",
-                    "data-tracking-action": "delete_resource_button"
-                  ) %>
                 </div>
                 <div :if={has_downloads_stats and show_downloads_stats?(dataset)}>
                   <% nb_downloads =
