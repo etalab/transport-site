@@ -51,11 +51,12 @@
     flex-basis: 300px;
     flex-grow: 1;
   }
-  .checklist-header {
-    display: flex;
-    img {
-      padding-right: 12px;
-    }
+}
+
+.panel .left-flex-image {
+  display: flex;
+  img {
+    padding-right: 12px;
   }
 }
 

@@ -8,27 +8,46 @@
   <div class="container pt-24">
     <div class="panel">
       <h2><%= @dataset.custom_title %></h2>
-      # TODO : traduire
-      # TODO : flex au lieu de table
-      <h3><%= dgettext("espace-producteurs", "Edit resources") %></h3>
-      <p>
-        <%= dgettext(
+      <div class="panel">
+          <div class="left-flex-image">
+            <img
+              height="60"
+              src={static_path(@conn, "/images/producteurs/streamline-icon-employee-checklist.png")}
+              alt=""
+            />
+            <div>
+              <h4><%= dgettext("espace-producteurs", "Publishing best practices") %></h4>
+              <p>
+                <%= raw(
+                  dgettext(
+                    "espace-producteurs",
+                    "Our team maintains a comprehensive documentation detailing how to publish and keep up to date your data on %{link}.",
+                    link:
+                      safe_to_string(
+                        link(dgettext("espace-producteurs", "our documentation"),
+                          to: "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees",
+                          target: "_blank"
+                        )
+                      )
+                  )
+                ) %>
+          <strong>
+          <%= dgettext(
           "espace-producteurs",
-          ~s(If you need to replace a resource with a more up-to-date one, choose "Update a resource".)
-        ) %>
-      </p>
-      <a href="https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees">
-        <%= dgettext("espace-producteurs", "Updating a dataset guidelines") %>
-      </a>
-      <p>
-        <%= raw(
+          ~s(If you want to publish an update to your data, please update an existing resource in the following list rather than publish a new one.)
+        ) %></strong>
+        <br>
+                <%= raw(
           dgettext(
             "espace-producteurs",
-            ~s(You can edit this dataset on <a href="%{datagouv_admin_url}" target="_blank">data.gouv.fr</a>.),
+            ~s(You can also edit this dataset on <a href="%{datagouv_admin_url}" target="_blank">data.gouv.fr</a>.),
             datagouv_admin_url: datagouv_admin_url
           )
         ) %>
-      </p>
+              </p>
+            </div>
+          </div>
+        </div>
       <div>
         <table class="table mt-24">
           <%= for resource <- @dataset.resources do %>
@@ -36,8 +55,6 @@
               <td><%= resource.title %></td>
               <td>
                 <%= link(dgettext("espace-producteurs", "Edit resource"),
-                  ## ATTENTION : ancien fonctionnement, ça prenait les identifiants qui arrivaient en live de data.gouv.fr (je crois)
-                  ## à vérifier si pertinent
                   to: resource_path(@conn, :form, @dataset.datagouv_id, resource.datagouv_id),
                   class: "button-outline primary small",
                   "data-tracking-category": "espace_producteur",
@@ -64,7 +81,7 @@
       </div>
       <h3><%= dgettext("espace-producteurs", "Update your logo") %></h3>
       <div :if={is_nil(@dataset.custom_logo)}>
-        <%= form_for @conn, espace_producteur_path(@conn, :upload_logo, @dataset.id), [as: "upload", multipart: :true], fn f -> %>
+        <%= form_for @conn, espace_producteur_path(@conn, :upload_logo, @dataset.id), [as: "upload", multipart: :true, class: "no-margin"], fn f -> %>
           <div class="dataset__logo">
             <p><%= dgettext("espace-producteurs", "Your current logo") %></p>
             <%= img_tag(DB.Dataset.full_logo(@dataset), alt: @dataset.custom_title) %>
@@ -77,7 +94,7 @@
         <% end %>
       </div>
       <div :if={@dataset.custom_logo != nil}>
-        <%= form_for @conn, espace_producteur_path(@conn, :remove_custom_logo, @dataset.id), [ method: "delete"], fn _ -> %>
+        <%= form_for @conn, espace_producteur_path(@conn, :remove_custom_logo, @dataset.id), [ method: "delete", class: "no-margin"], fn _ -> %>
           <div class="dataset__logo">
             <p><%= dgettext("espace-producteurs", "Your current logo") %></p>
             <%= img_tag(DB.Dataset.full_logo(@dataset), alt: @dataset.custom_title) %>

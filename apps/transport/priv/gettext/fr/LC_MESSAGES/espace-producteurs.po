@@ -60,10 +60,6 @@ msgid "Your producer space"
 msgstr "Votre espace producteur"
 
 #, elixir-autogen, elixir-format
-msgid "Updating a dataset guidelines"
-msgstr "Consultez le guide de mise à jour"
-
-#, elixir-autogen, elixir-format
 msgid "What would you like to do?"
 msgstr "Que souhaitez-vous faire ?"
 
@@ -86,10 +82,6 @@ msgstr "Notre équipe tient à jour une documentation détaillant comment publie
 #, elixir-autogen, elixir-format
 msgid "our documentation"
 msgstr "notre documentation"
-
-#, elixir-autogen, elixir-format
-msgid "If you need to replace a resource with a more up-to-date one, choose \"Update a resource\"."
-msgstr "Si vous souhaitez remplacer une ressource par une version plus à jour, choisissez \"Modifier une ressource\""
 
 #, elixir-autogen, elixir-format
 msgid "See statistics"
@@ -136,18 +128,6 @@ msgid "Delete a resource"
 msgstr "Supprimer une resource"
 
 #, elixir-autogen, elixir-format
-msgid "Add"
-msgstr "Ajouter"
-
-#, elixir-autogen, elixir-format
-msgid "Delete"
-msgstr "Supprimer"
-
-#, elixir-autogen, elixir-format
-msgid "Update"
-msgstr "Modifier"
-
-#, elixir-autogen, elixir-format
 msgid "1 resource"
 msgid_plural "%{count} resources"
 msgstr[0] "1 ressource"
@@ -168,10 +148,6 @@ msgstr "Mettre à jour votre logo"
 #, elixir-autogen, elixir-format
 msgid "Upload"
 msgstr "Envoyer"
-
-#, elixir-autogen, elixir-format
-msgid "You can edit this dataset on <a href=\"%{datagouv_admin_url}\" target=\"_blank\">data.gouv.fr</a>."
-msgstr "Vous pouvez modifier ce jeu de données sur <a href=\"%{datagouv_admin_url}\" target=\"_blank\">data.gouv.fr</a>."
 
 #, elixir-autogen, elixir-format
 msgid "Your current logo"
@@ -232,3 +208,23 @@ msgstr "Désactivé"
 #, elixir-autogen, elixir-format
 msgid "On"
 msgstr "Activé"
+
+#, elixir-autogen, elixir-format
+msgid "Add a resource"
+msgstr "Ajouter une resource"
+
+#, elixir-autogen, elixir-format
+msgid "Delete resource"
+msgstr "Supprimer la resource"
+
+#, elixir-autogen, elixir-format
+msgid "Edit resource"
+msgstr "Modifier la resource"
+
+#, elixir-autogen, elixir-format
+msgid "If you want to publish an update to your data, please update an existing resource in the following list rather than publish a new one."
+msgstr "Si vous souhaitez mettre à jour vos données, veuillez modifier une resource existante dans la liste ci-dessous plutôt qu’en créer une nouvelle."
+
+#, elixir-autogen, elixir-format
+msgid "You can also edit this dataset on <a href=\"%{datagouv_admin_url}\" target=\"_blank\">data.gouv.fr</a>."
+msgstr "Vous pouvez aussi modifier ce jeu de données sur <a href=\"%{datagouv_admin_url}\" target=\"_blank\">data.gouv.fr</a>."
