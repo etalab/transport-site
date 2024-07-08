@@ -7,13 +7,14 @@ defmodule Transport.Jobs.CustomLogoConversionJob do
   use Oban.Worker, max_attempts: 3
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"datagouv_id" => datagouv_id, "path" => path}}) do
+  def perform(%Oban.Job{args: %{"datagouv_id" => datagouv_id, "path" => path}, inserted_at: %DateTime{} = inserted_at}) do
     %DB.Dataset{datagouv_id: datagouv_id} = DB.Repo.get_by!(DB.Dataset, datagouv_id: datagouv_id)
     local_path = Path.join(System.tmp_dir!(), path)
     extension = local_path |> Path.extname() |> String.downcase()
+    timestamp = DateTime.to_unix(inserted_at)
 
-    logo_filename = "#{datagouv_id}#{extension}"
-    full_logo_filename = "#{datagouv_id}_full#{extension}"
+    logo_filename = "#{datagouv_id}.#{timestamp}#{extension}"
+    full_logo_filename = "#{datagouv_id}_full.#{timestamp}#{extension}"
     logo_path = Path.join(System.tmp_dir!(), logo_filename)
     full_logo_path = Path.join(System.tmp_dir!(), full_logo_filename)
 
