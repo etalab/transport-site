@@ -15,7 +15,7 @@ defmodule Transport.CommentsChecker do
   @type datagouv_comment :: map()
   @type comments_with_context :: {%Dataset{}, datagouv_id(), title(), [datagouv_comment()]}
 
-  @notification_reason DB.NotificationSubscription.reason(:daily_new_comments)
+  @notification_reason Transport.NotificationReason.reason(:daily_new_comments)
 
   def check_for_new_comments do
     comments_with_context = fetch_new_comments()

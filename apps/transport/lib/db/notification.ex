@@ -5,9 +5,10 @@ defmodule DB.Notification do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
+  import Transport.NotificationReason
 
   schema "notifications" do
-    field(:reason, Ecto.Enum, values: Ecto.Enum.mappings(DB.NotificationSubscription, :reason))
+    field(:reason, Ecto.Enum, values: all_reasons())
 
     belongs_to(:dataset, DB.Dataset)
     belongs_to(:contact, DB.Contact)
@@ -18,7 +19,8 @@ defmodule DB.Notification do
     # Should be used to search rows matching an email address
     # https://hexdocs.pm/cloak_ecto/install.html#usage
     field(:email_hash, Cloak.Ecto.SHA256)
-    field(:role, Ecto.Enum, values: DB.NotificationSubscription.possible_roles())
+    # Possible roles come from Transport.NotificationReason
+    field(:role, Ecto.Enum, values: possible_roles())
     field(:payload, :map)
 
     timestamps(type: :utc_datetime_usec)
@@ -84,9 +86,9 @@ defmodule DB.Notification do
     datetime_limit = DateTime.add(DateTime.utc_now(), -nb_days, :day)
 
     enabled_reasons = [
-      DB.NotificationSubscription.reason(:dataset_with_error),
-      DB.NotificationSubscription.reason(:expiration),
-      DB.NotificationSubscription.reason(:resource_unavailable)
+      reason(:dataset_with_error),
+      reason(:expiration),
+      reason(:resource_unavailable)
     ]
 
     base_query()
@@ -119,6 +121,8 @@ defmodule DB.Notification do
     |> validate_required([:reason, :email, :role])
     |> validate_format(:email, ~r/@/)
     |> put_hashed_fields()
+    |> DB.NotificationSubscription.validate_reason_by_role()
+    |> DB.NotificationSubscription.validate_reason_by_scope()
   end
 
   defp put_hashed_fields(%Ecto.Changeset{} = changeset) do

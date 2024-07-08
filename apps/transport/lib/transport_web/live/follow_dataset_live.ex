@@ -133,7 +133,7 @@ defmodule TransportWeb.Live.FollowDatasetLive do
   defp create_notification_subscriptions(%DB.Contact{id: contact_id} = contact, %DB.Dataset{id: dataset_id}) do
     maybe_subscribe_to_daily_new_comments(contact)
 
-    Enum.each(DB.NotificationSubscription.subscribable_reasons_related_to_datasets(:reuser), fn reason ->
+    Enum.each(Transport.NotificationReason.subscribable_reasons_related_to_datasets(:reuser), fn reason ->
       DB.NotificationSubscription.insert!(%{
         contact_id: contact_id,
         dataset_id: dataset_id,

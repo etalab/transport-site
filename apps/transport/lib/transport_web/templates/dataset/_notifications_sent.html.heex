@@ -19,7 +19,7 @@
         <tbody>
           <%= for notification_sent <- @notifications_sent do %>
             <tr>
-              <td><%= DB.NotificationSubscription.reason_to_str(notification_sent.reason) %></td>
+              <td><%= Transport.NotificationReason.reason_to_str(notification_sent.reason) %></td>
               <td><%= DateTimeDisplay.format_datetime_to_paris(notification_sent.timestamp, @locale) %></td>
             </tr>
           <% end %>

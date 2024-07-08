@@ -20,7 +20,7 @@ defmodule Transport.Jobs.PromoteReuserSpaceJob do
     DB.Notification.insert!(%{
       contact_id: contact_id,
       email: email,
-      reason: DB.NotificationSubscription.reason(:promote_reuser_space),
+      reason: Transport.NotificationReason.reason(:promote_reuser_space),
       role: :reuser
     })
   end

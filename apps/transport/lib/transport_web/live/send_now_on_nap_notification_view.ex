@@ -27,7 +27,7 @@ defmodule TransportWeb.Live.SendNowOnNAPNotificationView do
 
   defp display_button?(dataset_id, sent_reasons) do
     dataset = DB.Repo.get!(DB.Dataset, dataset_id)
-    not_sent = DB.NotificationSubscription.reason(:dataset_now_on_nap) not in sent_reasons
+    not_sent = Transport.NotificationReason.reason(:dataset_now_on_nap) not in sent_reasons
     recently_added?(dataset) and not_sent
   end
 

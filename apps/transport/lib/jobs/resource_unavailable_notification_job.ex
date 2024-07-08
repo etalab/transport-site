@@ -14,7 +14,7 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
 
   @hours_consecutive_downtime 6
   @nb_days_before_sending_notification_again 7
-  @notification_reason DB.NotificationSubscription.reason(:resource_unavailable)
+  @notification_reason Transport.NotificationReason.reason(:resource_unavailable)
 
   @impl Oban.Worker
   def perform(%Oban.Job{id: job_id, inserted_at: %DateTime{} = inserted_at}) do

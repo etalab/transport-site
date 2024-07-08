@@ -8,7 +8,7 @@ defmodule Transport.Jobs.ResourcesChangedNotificationJob do
   """
   use Oban.Worker, max_attempts: 3, tags: ["notifications"]
   import Ecto.Query
-  @notification_reason DB.NotificationSubscription.reason(:resources_changed)
+  @notification_reason Transport.NotificationReason.reason(:resources_changed)
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: args}) when is_nil(args) or args == %{} do

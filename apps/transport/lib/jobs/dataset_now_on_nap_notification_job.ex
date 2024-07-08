@@ -5,7 +5,7 @@ defmodule Transport.Jobs.DatasetNowOnNAPNotificationJob do
   use Oban.Worker, max_attempts: 3, tags: ["notifications"], unique: [period: :infinity]
   import Ecto.Query
 
-  @notification_reason DB.NotificationSubscription.reason(:dataset_now_on_nap)
+  @notification_reason Transport.NotificationReason.reason(:dataset_now_on_nap)
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"dataset_id" => dataset_id}, id: job_id}) do

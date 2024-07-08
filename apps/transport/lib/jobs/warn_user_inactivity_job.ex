@@ -5,7 +5,7 @@ defmodule Transport.Jobs.WarnUserInactivityJob do
   Later prune accounts that didn't take the chance.
   """
   use Oban.Worker
-  @notification_reason DB.NotificationSubscription.reason(:warn_user_inactivity)
+  @notification_reason Transport.NotificationReason.reason(:warn_user_inactivity)
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{}}) do

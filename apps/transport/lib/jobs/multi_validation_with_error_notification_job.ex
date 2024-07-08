@@ -14,7 +14,7 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
   import Ecto.Query
 
   @nb_days_before_sending_notification_again 7
-  @notification_reason DB.NotificationSubscription.reason(:dataset_with_error)
+  @notification_reason Transport.NotificationReason.reason(:dataset_with_error)
   @enabled_validators [
     Transport.Validators.GTFSTransport,
     Transport.Validators.TableSchema,

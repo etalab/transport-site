@@ -2,7 +2,7 @@
   <%= for %{reason: reason, explanations: explanations} <- @available_reasons do %>
     <div class="card">
       <div class="card__content">
-        <h5><%= DB.NotificationSubscription.reason_to_str(reason) %></h5>
+        <h5><%= Transport.NotificationReason.reason_to_str(reason) %></h5>
         <p><%= explanations %></p>
       </div>
     </div>
@@ -18,7 +18,7 @@
     <%= for %{reason: reason} <- @available_reasons do %>
       <tr>
         <% subscription = @subscriptions[@dataset.id][reason][:user_subscription] %>
-        <td><%= DB.NotificationSubscription.reason_to_str(reason) %></td>
+        <td><%= Transport.NotificationReason.reason_to_str(reason) %></td>
         <td>
           <div class="form__group">
             <fieldset>

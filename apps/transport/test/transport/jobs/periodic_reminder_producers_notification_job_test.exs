@@ -296,7 +296,7 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
 
     insert_notification(%{
       email: contact.email,
-      reason: DB.NotificationSubscription.reason(:periodic_reminder_producers),
+      reason: Transport.NotificationReason.reason(:periodic_reminder_producers),
       role: :producer
     })
 

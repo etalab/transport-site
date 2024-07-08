@@ -31,7 +31,7 @@ defmodule TransportWeb.Live.NotificationsLive do
         subscriptions: subscriptions,
         subscribed_platform_wide_reasons: subscribed_platform_wide_reasons(current_contact),
         all_notifications_enabled: all_notifications_enabled?(subscriptions),
-        platform_wide_reasons: DB.NotificationSubscription.shown_subscribable_platform_wide_reasons(role),
+        platform_wide_reasons: Transport.NotificationReason.shown_subscribable_platform_wide_reasons(role),
         available_reasons: available_reasons(role)
       })
 
@@ -237,7 +237,7 @@ defmodule TransportWeb.Live.NotificationsLive do
 
   defp subscriptions_empty_map(role, datasets) do
     reasons =
-      Map.new(DB.NotificationSubscription.subscribable_reasons_related_to_datasets(role), fn reason ->
+      Map.new(Transport.NotificationReason.subscribable_reasons_related_to_datasets(role), fn reason ->
         {reason, %{user_subscription: nil, team_subscriptions: []}}
       end)
 
@@ -255,19 +255,19 @@ defmodule TransportWeb.Live.NotificationsLive do
   def available_reasons(:reuser) do
     [
       %{
-        reason: DB.NotificationSubscription.reason(:expiration),
+        reason: Transport.NotificationReason.reason(:expiration),
         explanations: dgettext("reuser-space", "data expiration notification explanation")
       },
       %{
-        reason: DB.NotificationSubscription.reason(:dataset_with_error),
+        reason: Transport.NotificationReason.reason(:dataset_with_error),
         explanations: dgettext("reuser-space", "validation errors notification explanation")
       },
       %{
-        reason: DB.NotificationSubscription.reason(:resource_unavailable),
+        reason: Transport.NotificationReason.reason(:resource_unavailable),
         explanations: dgettext("reuser-space", "unavailable resources notification explanation")
       },
       %{
-        reason: DB.NotificationSubscription.reason(:resources_changed),
+        reason: Transport.NotificationReason.reason(:resources_changed),
         explanations: dgettext("reuser-space", "resources changed notification explanation")
       }
     ]
@@ -276,15 +276,15 @@ defmodule TransportWeb.Live.NotificationsLive do
   def available_reasons(:producer) do
     [
       %{
-        reason: DB.NotificationSubscription.reason(:expiration),
+        reason: Transport.NotificationReason.reason(:expiration),
         explanations: dgettext("espace-producteurs", "data expiration notification explanation")
       },
       %{
-        reason: DB.NotificationSubscription.reason(:dataset_with_error),
+        reason: Transport.NotificationReason.reason(:dataset_with_error),
         explanations: dgettext("espace-producteurs", "validation errors notification explanation")
       },
       %{
-        reason: DB.NotificationSubscription.reason(:resource_unavailable),
+        reason: Transport.NotificationReason.reason(:resource_unavailable),
         explanations: dgettext("espace-producteurs", "unavailable resources notification explanation")
       }
     ]
