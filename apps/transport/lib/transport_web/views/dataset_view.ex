@@ -550,12 +550,19 @@ defmodule TransportWeb.DatasetView do
   """
   def seasonal_warning?(%Dataset{} = dataset), do: DB.Dataset.has_custom_tag?(dataset, "saisonnier")
 
+  @doc """
+  Should we display a banner highlighting that the NeTEx profile for parkings will be the standard soon.
+
+  https://github.com/etalab/transport-site/issues/4043
+  """
+  @spec parking_profile_warning?(DB.Dataset.t() | Plug.Conn.t()) :: boolean()
   def parking_profile_warning?(%DB.Dataset{type: "private-parking", datagouv_id: datagouv_id}) do
-    # See https://github.com/etalab/transport-site/issues/4043
     datagouv_id in ["5ea1add4a5a7dac3af82310a", "63692c99da0527c2b541e02b"]
   end
 
-  def parking_profile_warning?(%DB.Dataset{}), do: false
+  def parking_profile_warning?(%Plug.Conn{params: %{"type" => "private-parking"}}), do: true
+
+  def parking_profile_warning?(_), do: false
 
   @doc """
   iex> heart_class(%{42 => :producer}, %DB.Dataset{id: 42})
