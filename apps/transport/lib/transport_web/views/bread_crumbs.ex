@@ -54,7 +54,7 @@ defmodule TransportWeb.BreadCrumbs do
       ]
   end
 
-  def crumbs(conn, :delete_resource, id) do
+  def crumbs(conn, :delete_resource) do
     # Same than below, can’t really link to edit dataset page
     crumbs(conn, :espace_producteur) ++
       [

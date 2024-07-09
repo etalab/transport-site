@@ -68,10 +68,6 @@ msgid "You have no resource to update for the moment"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Select a resource"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "New resource"
 msgstr ""
 
