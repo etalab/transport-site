@@ -653,34 +653,14 @@ defmodule TransportWeb.DatasetControllerTest do
 
     assert TransportWeb.DatasetView.seasonal_warning?(dataset)
 
-    content =
+    [{"p", [{"class", "notification"}], [content]}] =
       conn
       |> get(dataset_path(conn, :details, dataset.slug))
       |> html_response(200)
       |> Floki.parse_document!()
       |> Floki.find(".notification")
-      |> Floki.text()
 
     assert content =~ "Le service de transport de ce jeu de donnée ne fonctionne pas toute l'année"
-  end
-
-  test "banner for parking datasets", %{conn: conn} do
-    # See https://github.com/etalab/transport-site/issues/4043
-    # This datagouv_id is for a target parking dataset
-    dataset = insert(:dataset, is_active: true, type: "private-parking", datagouv_id: "5ea1add4a5a7dac3af82310a")
-    mock_empty_history_resources()
-
-    assert TransportWeb.DatasetView.parking_profile_warning?(dataset)
-
-    content =
-      conn
-      |> get(dataset_path(conn, :details, dataset.slug))
-      |> html_response(200)
-      |> Floki.parse_document!()
-      |> Floki.find(".notification")
-      |> Floki.text()
-
-    assert content =~ "En raison de la publication du profil France Parkings de la norme NeTEx"
   end
 
   test "custom logo is displayed when set", %{conn: conn} do
