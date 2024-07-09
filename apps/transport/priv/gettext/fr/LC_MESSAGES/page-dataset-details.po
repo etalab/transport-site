@@ -705,7 +705,3 @@ msgstr "Suivre ce jeu de données"
 #, elixir-autogen, elixir-format
 msgid "Manage services for this dataset"
 msgstr "Gérez les services liés à ce jeu de données"
-
-#, elixir-autogen, elixir-format
-msgid "Due to the release of the French profile “Parkings” applicable to NeTEx, available on <a href=\"https://normes.transport.data.gouv.fr/normes/netex/parkings/\" target=\"_blank\">normes.transport.data.gouv.fr</a>, the national datasets related to car parks and park-and-ride will be deleted on September 1st 2024."
-msgstr "En raison de la publication du profil France Parkings de la norme NeTEx disponible sur <a href=\"https://normes.transport.data.gouv.fr/normes/netex/parkings/\" target=\"_blank\">normes.transport.data.gouv.fr</a>, les bases nationales des lieux de stationnements hors voirie et des parcs relais seront supprimées le 1er septembre 2024."
