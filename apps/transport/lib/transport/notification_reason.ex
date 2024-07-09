@@ -74,6 +74,8 @@ defmodule Transport.NotificationReason do
     }
   }
 
+  @platform_reasons @reasons_rules |> Map.filter(fn {_, attributes} -> attributes.scope == :platform end) |> Map.keys()
+  @dataset_reasons @reasons_rules |> Map.filter(fn {_, attributes} -> attributes.scope == :dataset end) |> Map.keys()
   @all_reasons @reasons_rules |> Map.keys()
 
   # https://elixirforum.com/t/using-module-attributes-in-typespec-definitions-to-reduce-duplication/42374/2
@@ -81,6 +83,10 @@ defmodule Transport.NotificationReason do
   @type role :: unquote(types)
   types = Enum.reduce(@all_reasons, &{:|, [], [&1, &2]})
   @type reason :: unquote(types)
+  types = Enum.reduce(@platform_reasons, &{:|, [], [&1, &2]})
+  @type platform_reason :: unquote(types)
+  types = Enum.reduce(@dataset_reasons, &{:|, [], [&1, &2]})
+  @type dataset_reason :: unquote(types)
 
   @spec all_reasons :: [reason()]
   def all_reasons, do: @all_reasons
@@ -153,25 +159,11 @@ defmodule Transport.NotificationReason do
     |> Map.keys()
   end
 
-  @spec reasons_related_to_datasets :: [reason()]
-  def reasons_related_to_datasets do
-    @reasons_rules
-    |> Map.filter(fn
-      {_, %{scope: :dataset}} -> true
-      _ -> false
-    end)
-    |> Map.keys()
-  end
+  @spec reasons_related_to_datasets :: [dataset_reason()]
+  def reasons_related_to_datasets, do: @dataset_reasons
 
-  @spec platform_wide_reasons :: [reason()]
-  def platform_wide_reasons do
-    @reasons_rules
-    |> Map.filter(fn
-      {_, %{scope: :platform}} -> true
-      _ -> false
-    end)
-    |> Map.keys()
-  end
+  @spec platform_wide_reasons :: [platform_reason()]
+  def platform_wide_reasons, do: @platform_reasons
 
   @doc """
   iex> subscribable_reasons_related_to_datasets(:reuser) != subscribable_reasons_related_to_datasets(:producer)
