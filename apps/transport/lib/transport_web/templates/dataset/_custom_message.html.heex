@@ -1,4 +1,12 @@
 <div class="container container_max_700px">
+  <div :if={parking_profile_warning?(@conn)} class="notification mt-0 error">
+    <%= raw(
+      dgettext(
+        "page-dataset-details",
+        ~s(Due to the release of the French profile “Parkings” applicable to NeTEx, available on <a href="https://normes.transport.data.gouv.fr/normes/netex/parkings/" target="_blank">normes.transport.data.gouv.fr</a>, the national datasets related to car parks and park-and-ride will be deleted on September 1st 2024.)
+      )
+    ) %>
+  </div>
   <div class="panel mb-24" id="custom-message">
     <%= markdown_to_safe_html!(@msg) %>
   </div>

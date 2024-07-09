@@ -322,4 +322,17 @@ defmodule TransportWeb.DatasetSearchControllerTest do
 
     refute hidden_dataset.id in (%{} |> DB.Dataset.list_datasets() |> DB.Repo.all() |> Enum.map(& &1.id))
   end
+
+  test "NeTEx profile banner for private parking", %{conn: conn} do
+    content =
+      conn
+      |> get(dataset_path(conn, :index), %{type: "private-parking"})
+      |> html_response(200)
+      |> Floki.parse_document!()
+      |> Floki.find(".notification.error")
+      |> Floki.text()
+
+    assert content =~
+             "En raison de la publication du profil France Parkings de la norme NeTEx disponible sur normes.transport.data.gouv.fr"
+  end
 end
