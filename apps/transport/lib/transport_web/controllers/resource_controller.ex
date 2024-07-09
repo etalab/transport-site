@@ -179,6 +179,7 @@ defmodule TransportWeb.ResourceController do
 
   @spec form(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def form(conn, %{"dataset_id" => dataset_id} = params) do
+    # This shows a form with data coming directly from the datagouv API for fresh data
     with {:ok, dataset} <- Datagouvfr.Client.Datasets.get(dataset_id),
          # Resource and resource_id may be nil in case of a new resource
          resource <- assign_resource_from_dataset_payload(dataset, params["resource_id"]) do

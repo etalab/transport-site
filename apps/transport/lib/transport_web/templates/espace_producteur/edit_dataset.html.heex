@@ -1,7 +1,7 @@
 <% datagouv_admin_url = "https://www.data.gouv.fr/admin/dataset/#{@dataset.datagouv_id}/" %>
 <section class="pt-48">
   <div class="container pb-24">
-    <%= breadcrumbs([@conn, :edit_dataset, @dataset.custom_title]) %>
+    <%= breadcrumbs([@conn, :edit_dataset, @dataset.custom_title, @dataset.id]) %>
   </div>
 </section>
 <section class="espace-producteur-section">
@@ -9,41 +9,42 @@
     <div class="panel">
       <h2><%= @dataset.custom_title %></h2>
       <p><%= dgettext("espace-producteurs", "full-edition-on-data-gouv-fr") %></p>
-              <%= link(dgettext("espace-producteurs", "Edit on data.gouv.fr"),
-          to: resource_path(@conn, :form, @dataset.datagouv_id),
-          class: "button primary",
-          target: "_blank",
-          "data-tracking-category": "espace_producteur",
-          "data-tracking-action": "edit_on_data_gouv_fr_button"
-        ) %>
+      <%= link(dgettext("espace-producteurs", "Edit on data.gouv.fr"),
+        to: datagouv_admin_url,
+        class: "button primary",
+        target: "_blank",
+        "data-tracking-category": "espace_producteur",
+        "data-tracking-action": "edit_on_data_gouv_fr_button"
+      ) %>
 
       <h3><%= dgettext("espace-producteurs", "Resources") %></h3>
 
       <div class="panel">
-          <div class="left-flex-image">
-            <img
-              height="60"
-              src={static_path(@conn, "/images/producteurs/streamline-icon-employee-checklist.png")}
-              alt=""
-            />
-            <div>
-              <p>
-                <%= raw(
-                  dgettext(
-                    "espace-producteurs",
-                    "Our team maintains a comprehensive documentation",
-                    link: "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees"
-                  )
+        <div class="left-flex-image">
+          <img
+            height="60"
+            src={static_path(@conn, "/images/producteurs/streamline-icon-employee-checklist.png")}
+            alt=""
+          />
+          <div>
+            <p>
+              <%= raw(
+                dgettext(
+                  "espace-producteurs",
+                  "Our team maintains a comprehensive documentation",
+                  link: "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees"
+                )
+              ) %>
+              <strong>
+                <%= dgettext(
+                  "espace-producteurs",
+                  ~s(If you want to publish an update to your data, please update an existing resource in the following list rather than publish a new one.)
                 ) %>
-          <strong>
-          <%= dgettext(
-          "espace-producteurs",
-          ~s(If you want to publish an update to your data, please update an existing resource in the following list rather than publish a new one.)
-        ) %></strong>
-              </p>
-            </div>
+              </strong>
+            </p>
           </div>
         </div>
+      </div>
       <div>
         <table class="table mt-24">
           <%= for resource <- @dataset.resources do %>

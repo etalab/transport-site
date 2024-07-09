@@ -5,6 +5,9 @@ defmodule TransportWeb.EspaceProducteurController do
   plug(:find_datasets_or_redirect when action in [:proxy_statistics])
 
   def edit_dataset(%Plug.Conn{} = conn, %{"dataset_id" => _}) do
+    # This page is linked to the resources edition form, but we show on the table the latest resource in database
+    # While the resource edition page shows the latest resource from the API…
+    # This can lead to confusive links
     conn |> render("edit_dataset.html")
   end
 
