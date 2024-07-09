@@ -550,6 +550,13 @@ defmodule TransportWeb.DatasetView do
   """
   def seasonal_warning?(%Dataset{} = dataset), do: DB.Dataset.has_custom_tag?(dataset, "saisonnier")
 
+  def parking_profile_warning?(%DB.Dataset{type: "private-parking", datagouv_id: datagouv_id}) do
+    # See https://github.com/etalab/transport-site/issues/4043
+    datagouv_id in ["5ea1add4a5a7dac3af82310a", "63692c99da0527c2b541e02b"]
+  end
+
+  def parking_profile_warning?(%DB.Dataset{}), do: false
+
   @doc """
   iex> heart_class(%{42 => :producer}, %DB.Dataset{id: 42})
   "fa fa-heart producer"
