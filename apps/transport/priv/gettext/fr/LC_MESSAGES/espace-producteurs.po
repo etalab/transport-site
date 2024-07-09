@@ -76,14 +76,6 @@ msgid "New resource"
 msgstr "Nouvelle ressource"
 
 #, elixir-autogen, elixir-format
-msgid "Our team maintains a comprehensive documentation detailing how to publish and keep up to date your data on %{link}."
-msgstr "Notre équipe tient à jour une documentation détaillant comment publier et maintenir à jour des données sur %{link}."
-
-#, elixir-autogen, elixir-format
-msgid "our documentation"
-msgstr "notre documentation"
-
-#, elixir-autogen, elixir-format
 msgid "See statistics"
 msgstr "Voir les statistiques"
 
@@ -226,5 +218,17 @@ msgid "If you want to publish an update to your data, please update an existing 
 msgstr "Si vous souhaitez mettre à jour vos données, veuillez modifier une resource existante dans la liste ci-dessous plutôt qu’en créer une nouvelle."
 
 #, elixir-autogen, elixir-format
-msgid "You can also edit this dataset on <a href=\"%{datagouv_admin_url}\" target=\"_blank\">data.gouv.fr</a>."
-msgstr "Vous pouvez aussi modifier ce jeu de données sur <a href=\"%{datagouv_admin_url}\" target=\"_blank\">data.gouv.fr</a>."
+msgid "Edit on data.gouv.fr"
+msgstr "Modifier sur data.gouv.fr"
+
+#, elixir-autogen, elixir-format
+msgid "Resources"
+msgstr "Ressources"
+
+#, elixir-autogen, elixir-format
+msgid "full-edition-on-data-gouv-fr"
+msgstr "Vous pouvez facilement mettre à jour sur cette page certains éléments de votre jeu de données. Pour avoir accès à l’édition complète, rendez-vous sur data.gouv.fr."
+
+#, elixir-autogen, elixir-format
+msgid "Our team maintains a comprehensive documentation"
+msgstr "Notre équipe tient à jour <a href=\"%{link}\", target=\"_blank\">une documentation détaillant comment publier et maintenir à jour des données</a>."

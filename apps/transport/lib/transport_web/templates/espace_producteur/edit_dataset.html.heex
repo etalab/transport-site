@@ -5,9 +5,20 @@
   </div>
 </section>
 <section class="espace-producteur-section">
-  <div class="container pt-24">
+  <div class="container pt-24 pb-24">
     <div class="panel">
       <h2><%= @dataset.custom_title %></h2>
+      <p><%= dgettext("espace-producteurs", "full-edition-on-data-gouv-fr") %></p>
+              <%= link(dgettext("espace-producteurs", "Edit on data.gouv.fr"),
+          to: resource_path(@conn, :form, @dataset.datagouv_id),
+          class: "button primary",
+          target: "_blank",
+          "data-tracking-category": "espace_producteur",
+          "data-tracking-action": "edit_on_data_gouv_fr_button"
+        ) %>
+
+      <h3><%= dgettext("espace-producteurs", "Resources") %></h3>
+
       <div class="panel">
           <div class="left-flex-image">
             <img
@@ -16,19 +27,12 @@
               alt=""
             />
             <div>
-              <h4><%= dgettext("espace-producteurs", "Publishing best practices") %></h4>
               <p>
                 <%= raw(
                   dgettext(
                     "espace-producteurs",
-                    "Our team maintains a comprehensive documentation detailing how to publish and keep up to date your data on %{link}.",
-                    link:
-                      safe_to_string(
-                        link(dgettext("espace-producteurs", "our documentation"),
-                          to: "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees",
-                          target: "_blank"
-                        )
-                      )
+                    "Our team maintains a comprehensive documentation",
+                    link: "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees"
                   )
                 ) %>
           <strong>
@@ -36,14 +40,6 @@
           "espace-producteurs",
           ~s(If you want to publish an update to your data, please update an existing resource in the following list rather than publish a new one.)
         ) %></strong>
-        <br>
-                <%= raw(
-          dgettext(
-            "espace-producteurs",
-            ~s(You can also edit this dataset on <a href="%{datagouv_admin_url}" target="_blank">data.gouv.fr</a>.),
-            datagouv_admin_url: datagouv_admin_url
-          )
-        ) %>
               </p>
             </div>
           </div>

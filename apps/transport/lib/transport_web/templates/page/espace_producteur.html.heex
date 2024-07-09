@@ -189,14 +189,8 @@
                 <%= raw(
                   dgettext(
                     "espace-producteurs",
-                    "Our team maintains a comprehensive documentation detailing how to publish and keep up to date your data on %{link}.",
-                    link:
-                      safe_to_string(
-                        link(dgettext("espace-producteurs", "our documentation"),
-                          to: "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees",
-                          target: "_blank"
-                        )
-                      )
+                    "Our team maintains a comprehensive documentation",
+                    link: "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees"
                   )
                 ) %>
               </p>

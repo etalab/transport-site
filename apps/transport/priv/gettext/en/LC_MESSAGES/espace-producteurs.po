@@ -76,14 +76,6 @@ msgid "New resource"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Our team maintains a comprehensive documentation detailing how to publish and keep up to date your data on %{link}."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "our documentation"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "See statistics"
 msgstr ""
 
@@ -226,5 +218,17 @@ msgid "If you want to publish an update to your data, please update an existing 
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "You can also edit this dataset on <a href=\"%{datagouv_admin_url}\" target=\"_blank\">data.gouv.fr</a>."
+msgid "Edit on data.gouv.fr"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Resources"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "full-edition-on-data-gouv-fr"
+msgstr "You can easily edit on this page some elements of your dataset. For an advanced edition, please go on data.gouv.fr."
+
+#, elixir-autogen, elixir-format
+msgid "Our team maintains a comprehensive documentation"
+msgstr "Our team maintains <a href=\"%{link}\", target=\"_blank\">a comprehensive documentation</a> detailing how to publish and keep up to date your data"
