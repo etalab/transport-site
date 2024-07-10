@@ -58,9 +58,11 @@ defmodule DB.NotificationSubscription do
     end
   end
 
-  @spec subscriptions_for_reason_dataset_and_role(atom(), DB.Dataset.t(), Transport.NotificationReason.role()) :: [
-          __MODULE__.t()
-        ]
+  @spec subscriptions_for_reason_dataset_and_role(
+          Transport.NotificationReason.dataset_reason(),
+          DB.Dataset.t(),
+          Transport.NotificationReason.role()
+        ) :: [__MODULE__.t()]
   def subscriptions_for_reason_dataset_and_role(reason, %DB.Dataset{id: dataset_id}, role) do
     base_query()
     |> preload([:contact])
@@ -71,7 +73,10 @@ defmodule DB.NotificationSubscription do
     |> DB.Repo.all()
   end
 
-  @spec subscriptions_for_reason_and_role(atom(), Transport.NotificationReason.role()) :: [__MODULE__.t()]
+  @spec subscriptions_for_reason_and_role(
+          Transport.NotificationReason.platform_reason(),
+          Transport.NotificationReason.role()
+        ) :: [__MODULE__.t()]
   def subscriptions_for_reason_and_role(reason, role) do
     base_query()
     |> preload([:contact])

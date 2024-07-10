@@ -24,8 +24,7 @@ defmodule Transport.Jobs.ResourcesChangedNotificationJob do
     dataset = DB.Dataset |> DB.Repo.get!(dataset_id)
     subject = "#{dataset.custom_title} : ressources modifiées"
 
-    @notification_reason
-    |> DB.NotificationSubscription.subscriptions_for_reason_and_role(:reuser)
+    DB.NotificationSubscription.subscriptions_for_reason_dataset_and_role(@notification_reason, dataset, :reuser)
     |> Enum.each(fn %DB.NotificationSubscription{contact: %DB.Contact{} = contact} = subscription ->
       Transport.UserNotifier.resources_changed(contact, subject, dataset)
       |> Transport.Mailer.deliver()
