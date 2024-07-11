@@ -135,7 +135,8 @@ config :datagouvfr,
   user_impl: Datagouvfr.Client.User,
   datagouvfr_reuses: Datagouvfr.Client.Reuses,
   datagouvfr_discussions: Datagouvfr.Client.Discussions,
-  organization_impl: Datagouvfr.Client.Organization
+  organization_impl: Datagouvfr.Client.Organization,
+  datasets_impl: Datagouvfr.Client.Datasets.External
 
 config :ex_json_schema,
        :remote_schema_resolver,
