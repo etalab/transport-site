@@ -548,7 +548,10 @@ defmodule TransportWeb.DatasetView do
   iex> seasonal_warning?(%DB.Dataset{custom_tags: ["foo"]})
   false
   """
-  def seasonal_warning?(%Dataset{} = dataset), do: DB.Dataset.has_custom_tag?(dataset, "saisonnier")
+  def seasonal_warning?(%DB.Dataset{} = dataset), do: DB.Dataset.has_custom_tag?(dataset, "saisonnier")
+
+  def authentication_required?(%DB.Dataset{} = dataset),
+    do: DB.Dataset.has_custom_tag?(dataset, "authentification_requise")
 
   @doc """
   iex> heart_class(%{42 => :producer}, %DB.Dataset{id: 42})
