@@ -4,6 +4,7 @@ defmodule TransportWeb.ResourceControllerTest do
   import Mox
   import DB.Factory
   import ExUnit.CaptureLog
+  import Plug.Test, only: [init_test_session: 2]
 
   setup :verify_on_exit!
 
@@ -720,6 +721,73 @@ defmodule TransportWeb.ResourceControllerTest do
     assert html_response =~ ~s(<h2 id="related-resources">Ressources associées</h2>)
     assert html_response =~ "Fichier GTFS associé"
   end
+
+  test "we can show the form of a resource", %{conn: conn} do
+    Mox.defmock(Datagouvfr.Client.Datasets.Mock, for: Datagouvfr.Client.Datasets)
+    Mox.defmock(Datagouvfr.Client.Resources.Mock, for: Datagouvfr.Client.Resources)
+    # TO see with the reviewer: this works, but I wonder if I shouldn’t define a stub that falls back to the external impl
+    # Based on doc here https://hexdocs.pm/mox/Mox.html
+    # One last note, if the mock is used throughout the test suite,
+    # you might want the implementation to fall back to a stub (or actual) implementation when no expectations are defined.
+    # You can use stub_with/2 in a case template that is used throughout your test suite
+    Application.put_env(:datagouvfr, :datasets_impl, Datagouvfr.Client.Datasets.Mock)
+    Application.put_env(:datagouvfr, :resources_impl, Datagouvfr.Client.Resources.Mock)
+
+    conn = conn |> init_test_session(%{current_user: %{}})
+    resource_datagouv_id = "resource_dataset_id"
+    dataset_datagouv_id = "dataset_datagouv_id"
+
+    Datagouvfr.Client.Datasets.Mock
+    |> expect(:get, 2, fn _ ->
+      {:ok,
+       %{
+         "id" => dataset_datagouv_id,
+         "resources" => [
+           %{
+             "filetype" => "remote",
+             "format" => "csv",
+             "id" => resource_datagouv_id,
+             "title" => "bnlc.csv",
+             "type" => "main",
+             "url" => "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv"
+           }
+         ],
+         "title" => "Base Nationale des Lieux de Covoiturage"
+       }}
+    end)
+
+    Datagouvfr.Client.Resources.Mock
+    |> expect(:get, fn %{"resource_id" => ^resource_datagouv_id, "dataset_id" => ^dataset_datagouv_id} ->
+      %{
+        "filetype" => "remote",
+        "format" => "csv",
+        "title" => "bnlc.csv",
+        "url" => "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv"
+      }
+    end)
+
+    html = conn |> get(resource_path(conn, :form, dataset_datagouv_id, resource_datagouv_id)) |> html_response(200)
+    assert html =~ "Modification d’une ressource"
+    assert html =~ "Base Nationale des Lieux de Covoiturage"
+    assert html =~ "bnlc.csv"
+    assert html =~ "csv"
+    assert html =~ "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv"
+
+    Application.put_env(:datagouvfr, :datasets_impl, Datagouvfr.Client.Datasets.External)
+    Application.put_env(:datagouvfr, :resources_impl, Datagouvfr.Client.Resources.External)
+  end
+
+  # test "we can update a resource", %{conn: conn} do
+  # TODO
+  # end
+
+  # test "we can delete a resource", %{conn: conn} do
+  # TODO
+  # end
+
+  # test "we can add a new resource", %{conn: conn} do
+  # TODO
+  # end
 
   defp test_remote_download_error(%Plug.Conn{} = conn, mock_status_code) do
     resource = DB.Resource |> DB.Repo.get_by(datagouv_id: "2")

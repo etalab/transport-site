@@ -135,7 +135,6 @@ defmodule Datagouvfr.Client.Resources.External do
     |> API.get()
     |> case do
       {:ok, resource} -> resource |> Map.take(@fields)
-      _ -> %{}
     end
   end
 

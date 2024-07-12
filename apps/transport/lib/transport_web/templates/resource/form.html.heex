@@ -1,4 +1,5 @@
 <% resource = Enum.find(@dataset["resources"], &(&1["id"] == @conn.params["resource_id"])) %>
+
 <% new_resource = is_nil(resource) %>
 <div class="add-update-resource">
   <section class="pt-48 pb-24">
