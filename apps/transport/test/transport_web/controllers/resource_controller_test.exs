@@ -764,6 +764,34 @@ defmodule TransportWeb.ResourceControllerTest do
     assert html =~ "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv"
   end
 
+  test "we can show the form for a new resource", %{conn: conn} do
+    conn = conn |> init_test_session(%{current_user: %{}})
+    dataset_datagouv_id = "dataset_datagouv_id"
+
+    Datagouvfr.Client.Datasets.Mock
+    |> expect(:get, 1, fn _ ->
+      {:ok,
+       %{
+         "id" => dataset_datagouv_id,
+         "resources" => [
+           %{
+             "filetype" => "remote",
+             "format" => "csv",
+             "id" => "resource_datagouv_id",
+             "title" => "bnlc.csv",
+             "type" => "main",
+             "url" => "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv"
+           }
+         ],
+         "title" => "Base Nationale des Lieux de Covoiturage"
+       }}
+    end)
+
+    html = conn |> get(resource_path(conn, :form, dataset_datagouv_id)) |> html_response(200)
+    assert html =~ "Nouvelle ressource"
+    assert html =~ "Base Nationale des Lieux de Covoiturage"
+  end
+
   # test "we can update a resource", %{conn: conn} do
   # TODO
   # end
