@@ -722,17 +722,7 @@ defmodule TransportWeb.ResourceControllerTest do
     assert html_response =~ "Fichier GTFS associé"
   end
 
-  test "we can show the form of a resource", %{conn: conn} do
-    Mox.defmock(Datagouvfr.Client.Datasets.Mock, for: Datagouvfr.Client.Datasets)
-    Mox.defmock(Datagouvfr.Client.Resources.Mock, for: Datagouvfr.Client.Resources)
-    # TO see with the reviewer: this works, but I wonder if I shouldn’t define a stub that falls back to the external impl
-    # Based on doc here https://hexdocs.pm/mox/Mox.html
-    # One last note, if the mock is used throughout the test suite,
-    # you might want the implementation to fall back to a stub (or actual) implementation when no expectations are defined.
-    # You can use stub_with/2 in a case template that is used throughout your test suite
-    Application.put_env(:datagouvfr, :datasets_impl, Datagouvfr.Client.Datasets.Mock)
-    Application.put_env(:datagouvfr, :resources_impl, Datagouvfr.Client.Resources.Mock)
-
+  test "we can show the form of an existing resource", %{conn: conn} do
     conn = conn |> init_test_session(%{current_user: %{}})
     resource_datagouv_id = "resource_dataset_id"
     dataset_datagouv_id = "dataset_datagouv_id"
@@ -772,9 +762,6 @@ defmodule TransportWeb.ResourceControllerTest do
     assert html =~ "bnlc.csv"
     assert html =~ "csv"
     assert html =~ "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv"
-
-    Application.put_env(:datagouvfr, :datasets_impl, Datagouvfr.Client.Datasets.External)
-    Application.put_env(:datagouvfr, :resources_impl, Datagouvfr.Client.Resources.External)
   end
 
   # test "we can update a resource", %{conn: conn} do

@@ -9,6 +9,9 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    # Using the real implementation for the moment, and then it fallsback on HTTPoison.Mock
+    Mox.stub_with(Datagouvfr.Client.Datasets.Mock, Datagouvfr.Client.Datasets.External)
+    :ok
   end
 
   test "update a dataset custom title", %{conn: conn} do

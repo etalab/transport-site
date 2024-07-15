@@ -67,7 +67,11 @@ config :datagouvfr,
   user_impl: Datagouvfr.Client.User.Mock,
   datagouvfr_reuses: Datagouvfr.Client.Reuses.Mock,
   datagouvfr_discussions: Datagouvfr.Client.Discussions.Mock,
-  organization_impl: Datagouvfr.Client.Organization.Mock
+  organization_impl: Datagouvfr.Client.Organization.Mock,
+  # The two following implementations are often overriden with Mox.stubs_with/2 in tests
+  # Because legacy tests mock at a lower level (HTTPoison), we need to keep the same behavior for now
+  datasets_impl: Datagouvfr.Client.Datasets.Mock,
+  resources_impl: Datagouvfr.Client.Resources.Mock
 
 # capture all info logs and up during tests
 config :logger, level: :debug
