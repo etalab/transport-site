@@ -33,8 +33,8 @@ defmodule Transport.DataCheckerTest do
         from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
         to: "deploiement@transport.data.gouv.fr",
         subject: "Jeux de données supprimés ou archivés",
-        text_body: ~r/Certains jeux de données disparus sont réapparus sur data.gouv.fr/,
-        html_body: nil
+        text_body: nil,
+        html_body: ~r/Certains jeux de données disparus sont réapparus sur data.gouv.fr/
       )
 
       # should result into marking the dataset back as active
@@ -105,8 +105,8 @@ defmodule Transport.DataCheckerTest do
         from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
         to: "deploiement@transport.data.gouv.fr",
         subject: "Jeux de données supprimés ou archivés",
-        text_body: ~r/Certains jeux de données ont disparus de data.gouv.fr/,
-        html_body: nil
+        text_body: nil,
+        html_body: ~r/Certains jeux de données ont disparus de data.gouv.fr/
       )
 
       # should result into marking the dataset as inactive
@@ -140,8 +140,8 @@ defmodule Transport.DataCheckerTest do
         from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
         to: "deploiement@transport.data.gouv.fr",
         subject: "Jeux de données supprimés ou archivés",
-        text_body: ~r/Certains jeux de données sont indiqués comme archivés/,
-        html_body: nil
+        text_body: nil,
+        html_body: ~r/Certains jeux de données sont indiqués comme archivés/
       )
 
       verify!(Transport.HTTPoison.Mock)
@@ -275,12 +275,13 @@ defmodule Transport.DataCheckerTest do
                              from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
                              to: [{"", "deploiement@transport.data.gouv.fr"}],
                              subject: "Jeux de données arrivant à expiration",
-                             text_body: body
+                             text_body: nil,
+                             html_body: body
                            } ->
         assert body =~ ~r/Jeux de données périmant demain :/
 
         assert body =~
-                 "#{dataset.custom_title} - http://127.0.0.1:5100/datasets/#{dataset.slug} (✅ notification automatique) ⚖️🗺️ article 122"
+                 ~s|<li><a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> - ✅ notification automatique ⚖️🗺️ article 122</li>|
       end)
 
       # a second mail to the email address in the notifications config

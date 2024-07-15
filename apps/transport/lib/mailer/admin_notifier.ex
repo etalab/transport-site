@@ -42,26 +42,19 @@ defmodule Transport.AdminNotifier do
   end
 
   def datasets_without_gtfs_rt_related_resources(datasets) do
-    links =
-      Enum.map_join(datasets, "\n", fn %DB.Dataset{slug: slug, custom_title: custom_title} ->
-        link = TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, slug)
-        "* #{custom_title} - #{link}"
-      end)
-
-    text_body = """
-    Bonjour,
-
-    Les jeux de données suivants contiennent plusieurs GTFS et des liens entre les ressources GTFS-RT et GTFS sont manquants :
-
-    #{links}
-
-    L’équipe transport.data.gouv.fr
-
-    """
-
     notify_bidzev()
     |> subject("Jeux de données GTFS-RT sans ressources liées")
-    |> text_body(text_body)
+    |> html_body("""
+    <p>Bonjour,</p>
+
+    <p>Les jeux de données suivants contiennent plusieurs GTFS et des liens entre les ressources GTFS-RT et GTFS sont manquants :</p>
+
+    <ul>
+    #{Enum.map_join(datasets, "", &link_and_name/1)}
+    </ul>
+
+    <p>L’équipe transport.data.gouv.fr</p>
+    """)
   end
 
   def datasets_climate_resilience_bill_inappropriate_licence(datasets) do
@@ -71,34 +64,32 @@ defmodule Transport.AdminNotifier do
   end
 
   def new_datagouv_datasets(datagouv_datasets, duration) do
-    text_body = """
-    Bonjour,
-
-    Les jeux de données suivants ont été ajoutés sur data.gouv.fr dans les dernières #{duration}h et sont susceptibles d'avoir leur place sur le PAN :
-
-    #{Enum.map_join(datagouv_datasets, "\n", &link_and_name_from_datagouv_payload/1)}
-
-    ---
-    Vous pouvez consulter et modifier les règles de cette tâche : https://github.com/etalab/transport-site/blob/master/apps/transport/lib/jobs/new_datagouv_datasets_job.ex
-    """
-
     notify_bidzev()
     |> subject("Nouveaux jeux de données à référencer - data.gouv.fr")
-    |> text_body(text_body)
+    |> html_body("""
+    <p>Bonjour,</p>
+
+    <p>Les jeux de données suivants ont été ajoutés sur data.gouv.fr dans les dernières #{duration}h et sont susceptibles d'avoir leur place sur le PAN :</p>
+
+    <ul>
+    #{Enum.map_join(datagouv_datasets, "", &link_and_name_from_datagouv_payload/1)}
+    </ul>
+    <br/>
+    <hr>
+    <p>Vous pouvez consulter et modifier <a href="https://github.com/etalab/transport-site/blob/master/apps/transport/lib/jobs/new_datagouv_datasets_job.ex">les règles de cette tâche</a>.</p>
+    """)
   end
 
   def expiration(records) do
-    text_body = """
-    Bonjour,
-
-    Voici un résumé des jeux de données arrivant à expiration
-
-    #{Enum.map_join(records, "\n---------------------\n", &expiration_str/1)}
-    """
-
     notify_bidzev()
     |> subject("Jeux de données arrivant à expiration")
-    |> text_body(text_body)
+    |> html_body("""
+    <p>Bonjour,</p>
+
+    <p>Voici un résumé des jeux de données arrivant à expiration</p>
+
+    #{Enum.map_join(records, "<hr>", &expiration_str/1)}
+    """)
   end
 
   def inactive_datasets(reactivated_datasets, inactive_datasets, archived_datasets) do
@@ -106,20 +97,16 @@ defmodule Transport.AdminNotifier do
     inactive_datasets_str = fmt_inactive_datasets(inactive_datasets)
     archived_datasets_str = fmt_archived_datasets(archived_datasets)
 
-    text_body =
-      """
-      Bonjour,
-      #{inactive_datasets_str}
-      #{reactivated_datasets_str}
-      #{archived_datasets_str}
-
-      Il faut peut être creuser pour savoir si c'est normal.
-
-      """
-
     notify_bidzev()
     |> subject("Jeux de données supprimés ou archivés")
-    |> text_body(text_body)
+    |> html_body("""
+    <p>Bonjour,</p>
+    #{inactive_datasets_str}
+    #{reactivated_datasets_str}
+    #{archived_datasets_str}
+
+    <p>Il faut peut être creuser pour savoir si c'est normal.</p>
+    """)
   end
 
   def oban_failure(worker) do
@@ -155,14 +142,15 @@ defmodule Transport.AdminNotifier do
     datasets = Enum.map(records, fn {%DB.Dataset{} = d, _} -> d end)
 
     dataset_str = fn %DB.Dataset{} = dataset ->
-      "#{link_and_name(dataset)} (#{expiration_notification_enabled_str(dataset)}) #{climate_resilience_str(dataset)}"
-      |> String.trim()
+      link_and_name(dataset, " - #{expiration_notification_enabled_str(dataset)}#{climate_resilience_str(dataset)}")
     end
 
     """
-    Jeux de données #{delay_str(delay, :périmant)} :
+    <p>Jeux de données #{delay_str(delay, :périmant)} :</p>
 
+    <ul>
     #{Enum.map_join(datasets, "\n", &dataset_str.(&1))}
+    </ul>
     """
   end
 
@@ -176,7 +164,7 @@ defmodule Transport.AdminNotifier do
 
   defp climate_resilience_str(%DB.Dataset{} = dataset) do
     if DB.Dataset.climate_resilience_bill?(dataset) do
-      "⚖️🗺️ article 122"
+      " ⚖️🗺️ article 122"
     else
       ""
     end
@@ -191,35 +179,35 @@ defmodule Transport.AdminNotifier do
   defp fmt_inactive_datasets([]), do: ""
 
   defp fmt_inactive_datasets(inactive_datasets) do
-    datasets_str = Enum.map_join(inactive_datasets, "\n", &link_and_name(&1))
-
     """
-    Certains jeux de données ont disparus de data.gouv.fr :
-    #{datasets_str}
+    <p>Certains jeux de données ont disparus de data.gouv.fr :</p>
+    <ul>
+    #{Enum.map_join(inactive_datasets, "", &link_and_name/1)}
+    </ul>
     """
   end
 
   defp fmt_reactivated_datasets([]), do: ""
 
   defp fmt_reactivated_datasets(reactivated_datasets) do
-    datasets_str = Enum.map_join(reactivated_datasets, "\n", &link_and_name(&1))
-
     """
-    Certains jeux de données disparus sont réapparus sur data.gouv.fr :
-    #{datasets_str}
+    <p>Certains jeux de données disparus sont réapparus sur data.gouv.fr :</p>
+    <ul>
+    #{Enum.map_join(reactivated_datasets, "", &link_and_name/1)}
+    </ul>
     """
   end
 
   defp fmt_archived_datasets([]), do: ""
 
   defp fmt_archived_datasets(archived_datasets) do
-    datasets_str = Enum.map_join(archived_datasets, "\n", &link_and_name(&1))
-
     """
-    Certains jeux de données sont indiqués comme archivés sur data.gouv.fr :
-    #{datasets_str}
+    <p>Certains jeux de données sont indiqués comme archivés sur data.gouv.fr :</p>
+    <ul>
+    #{Enum.map_join(archived_datasets, "", &link_and_name/1)}
+    </ul>
 
-    #{count_archived_datasets()} jeux de données sont archivés. Retrouvez-les dans le backoffice : #{backoffice_archived_datasets_url()}
+    <p>#{count_archived_datasets()} jeux de données sont archivés. Retrouvez-les <a href="#{backoffice_archived_datasets_url()}">dans le backoffice</a>.</p>
     """
   end
 
@@ -263,15 +251,14 @@ defmodule Transport.AdminNotifier do
   def delay_str(d, :périment) when d <= -2, do: "sont périmées depuis #{-d} jours"
 
   defp link_and_name_from_datagouv_payload(%{"title" => title, "page" => page}) do
-    ~s(* #{title} - #{page})
+    link = Phoenix.HTML.Link.link(title, to: page) |> Phoenix.HTML.safe_to_string()
+    "<li>#{link}</li>"
   end
 
-  @spec link_and_name(DB.Dataset.t()) :: binary()
-  defp link_and_name(%DB.Dataset{custom_title: custom_title} = dataset) do
-    link = link(dataset)
-
-    " * #{custom_title} - #{link}"
+  @spec link_and_name(DB.Dataset.t(), binary()) :: binary()
+  defp link_and_name(%DB.Dataset{slug: slug, custom_title: custom_title}, extra_content \\ "") do
+    url = TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, slug)
+    link = Phoenix.HTML.Link.link(custom_title, to: url) |> Phoenix.HTML.safe_to_string()
+    "<li>#{link}#{extra_content}</li>"
   end
-
-  defp link(%DB.Dataset{slug: slug}), do: TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, slug)
 end

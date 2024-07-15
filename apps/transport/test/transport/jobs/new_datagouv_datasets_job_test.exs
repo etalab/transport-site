@@ -189,9 +189,10 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
                              from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
                              to: [{"", "deploiement@transport.data.gouv.fr"}],
                              subject: "Nouveaux jeux de données à référencer - data.gouv.fr",
-                             text_body: body
+                             text_body: nil,
+                             html_body: body
                            } ->
-        assert body =~ ~s(* #{dataset["title"]} - #{dataset["page"]})
+        assert body =~ ~s(<a href="#{dataset["page"]}">#{dataset["title"]}</a>)
         assert body =~ expected_body
       end)
     end

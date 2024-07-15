@@ -46,7 +46,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetsWithoutGTFSRTRelatedResourcesNot
   end
 
   test "perform" do
-    %{dataset: %DB.Dataset{id: dataset_id} = dataset, resource: %DB.Resource{format: "GTFS"}} =
+    %{dataset: %DB.Dataset{id: dataset_id, slug: slug} = dataset, resource: %DB.Resource{format: "GTFS"}} =
       insert_up_to_date_resource_and_friends(custom_title: "Super JDD")
 
     insert_up_to_date_resource_and_friends(dataset: dataset)
@@ -61,10 +61,11 @@ defmodule Transport.Test.Transport.Jobs.DatasetsWithoutGTFSRTRelatedResourcesNot
                            to: [{"", "deploiement@transport.data.gouv.fr"}],
                            reply_to: {"", "contact@transport.data.gouv.fr"},
                            subject: "Jeux de données GTFS-RT sans ressources liées",
-                           text_body: plain_text_body
+                           text_body: nil,
+                           html_body: html_body
                          } ->
-      assert plain_text_body =~ ~r/des liens entre les ressources GTFS-RT et GTFS sont manquants/
-      assert plain_text_body =~ ~r/Super JDD/
+      assert html_body =~ ~r/des liens entre les ressources GTFS-RT et GTFS sont manquants/
+      assert html_body =~ ~r|<a href="http://127.0.0.1:5100/datasets/#{slug}">Super JDD</a>|
     end)
   end
 end
