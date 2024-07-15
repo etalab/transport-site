@@ -40,7 +40,6 @@ defmodule DB.Resource do
     # (this is done for OpenDataSoft)
     field(:datagouv_id, :string)
 
-    field(:filesize, :integer)
     # Can be `remote` or `file`. `file` are for files uploaded and hosted
     # on data.gouv.fr
     field(:filetype, :string)
@@ -113,7 +112,6 @@ defmodule DB.Resource do
         :community_resource_publisher,
         :original_resource_url,
         :description,
-        :filesize,
         :filetype,
         :type,
         :display_position
