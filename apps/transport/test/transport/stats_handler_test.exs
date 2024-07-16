@@ -153,12 +153,13 @@ defmodule Transport.StatsHandlerTest do
   end
 
   test "uses legal owners to assign datasets to AOMs" do
+    # There are existing datasets and AOMs in the database since we inserted some datasets in the setup method
     aom1 = insert(:aom, population: 1_000_000)
     aom2 = insert(:aom, population: 1_000_000)
     insert(:aom, population: 1_000_000)
     insert(:dataset, type: "public-transit", is_active: true, legal_owners_aom: [aom2], aom: aom1)
 
-    assert %{nb_aoms_with_data: 2, nb_aoms: 3, population_couverte: 2, population_totale: 3} = compute_stats()
+    assert %{nb_aoms_with_data: 6, nb_aoms: 7, population_couverte: 6, population_totale: 7} = compute_stats()
   end
 
   test "ignores hidden datasets" do
