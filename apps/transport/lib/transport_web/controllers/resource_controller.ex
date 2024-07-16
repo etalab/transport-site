@@ -195,13 +195,20 @@ defmodule TransportWeb.ResourceController do
 
   @spec form(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def form(conn, %{"dataset_id" => dataset_id} = params) do
+    conn =
+      conn
+      |> assign_or_flash(
+        fn -> Datasets.get(dataset_id) end,
+        :dataset,
+        "Unable to get resources, please retry."
+      )
+
+    # There may or may not be a resource_id in params: depending if it’s for a new one or editing an existing one
+    # This code will be better in a next PR with probably two clauses on form/2
+    resource = Enum.find(conn.assigns[:dataset]["resources"], &(&1["id"] == params["resource_id"]))
+
     conn
-    |> assign_or_flash(
-      fn -> Datasets.get(dataset_id) end,
-      :dataset,
-      "Unable to get resources, please retry."
-    )
-    |> get_resource(params)
+    |> assign(:resource, resource)
     |> render("form.html")
   end
 
@@ -224,20 +231,6 @@ defmodule TransportWeb.ResourceController do
         |> put_flash(:error, dgettext("resource", "Could not delete the resource"))
         |> redirect(to: page_path(conn, :espace_producteur))
     end
-  end
-
-  defp get_resource(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id, "resource_id" => _} = params) do
-    conn
-    |> assign_or_flash(
-      fn -> Datasets.get(dataset_id) end,
-      :dataset,
-      "Unable to get resources, please retry."
-    )
-    |> assign_or_flash(
-      fn -> Resources.get(params) end,
-      :resource,
-      "Unable to get resources, please retry."
-    )
   end
 
   defp get_resource(%Plug.Conn{} = conn, _), do: conn

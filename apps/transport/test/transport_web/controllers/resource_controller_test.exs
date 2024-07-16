@@ -728,7 +728,7 @@ defmodule TransportWeb.ResourceControllerTest do
     dataset_datagouv_id = "dataset_datagouv_id"
 
     Datagouvfr.Client.Datasets.Mock
-    |> expect(:get, 2, fn _ ->
+    |> expect(:get, 1, fn _ ->
       {:ok,
        %{
          "id" => dataset_datagouv_id,
@@ -744,16 +744,6 @@ defmodule TransportWeb.ResourceControllerTest do
          ],
          "title" => "Base Nationale des Lieux de Covoiturage"
        }}
-    end)
-
-    Datagouvfr.Client.Resources.Mock
-    |> expect(:get, fn %{"resource_id" => ^resource_datagouv_id, "dataset_id" => ^dataset_datagouv_id} ->
-      %{
-        "filetype" => "remote",
-        "format" => "csv",
-        "title" => "bnlc.csv",
-        "url" => "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv"
-      }
     end)
 
     html = conn |> get(resource_path(conn, :form, dataset_datagouv_id, resource_datagouv_id)) |> html_response(200)

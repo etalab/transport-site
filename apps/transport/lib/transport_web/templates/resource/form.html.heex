@@ -1,6 +1,4 @@
-<% resource = Enum.find(@dataset["resources"], &(&1["id"] == @conn.params["resource_id"])) %>
-
-<% new_resource = is_nil(resource) %>
+<% new_resource = is_nil(@resource) %>
 <div class="add-update-resource">
   <section class="pt-48 pb-24">
     <div class="container">
@@ -57,7 +55,7 @@
               <%= text_input(f, :title,
                 label: dgettext("resource", "title"),
                 placeholder: dgettext("resource", "Example : Paris GTFS dataset"),
-                value: resource["title"]
+                value: @resource["title"]
               ) %>
               <%= text_input(
                 f,
@@ -72,23 +70,23 @@
                     ]
                   end,
                 placeholder: "GTFS, NeTEx, …",
-                value: resource["format"]
+                value: @resource["format"]
               ) %>
               <div class="pt-48">
                 <%= if new_resource do %>
-                  <%= render("_upload_file.html", resource: resource, f: f, conn: @conn) %>
+                  <%= render("_upload_file.html", resource: @resource, f: f, conn: @conn) %>
                   <div class="choose-or">
                     - <%= dgettext("resource", "or") %> -
                   </div>
-                  <%= render("_specify_url.html", resource: resource, f: f, conn: @conn) %>
+                  <%= render("_specify_url.html", resource: @resource, f: f, conn: @conn) %>
                   <div class="choose-submit pt-24">
                     <%= submit(dgettext("resource", "Add the resource"), class: "button primary") %>
                   </div>
                 <% else %>
-                  <%= if remote?(resource) do %>
-                    <%= render("_specify_url.html", resource: resource, f: f, conn: @conn) %>
+                  <%= if remote?(@resource) do %>
+                    <%= render("_specify_url.html", resource: @resource, f: f, conn: @conn) %>
                   <% else %>
-                    <%= render("_upload_file.html", resource: resource, f: f, conn: @conn) %>
+                    <%= render("_upload_file.html", resource: @resource, f: f, conn: @conn) %>
                   <% end %>
                   <div class="choose-submit pt-24">
                     <%= submit(dgettext("resource", "Update the resource"), class: "button primary") %>
