@@ -14,14 +14,6 @@ msgid "Unable to upload file"
 msgstr "Impossible de mettre à jour le fichier"
 
 #, elixir-autogen, elixir-format
-msgid "Publish a new dataset"
-msgstr "Publier un nouveau jeu de données"
-
-#, elixir-autogen, elixir-format
-msgid "Update an existing dataset"
-msgstr "Mettre à jour un jeu de données existant"
-
-#, elixir-autogen, elixir-format
 msgid "Resource updated with URL!"
 msgstr "Ressource mise à jour avec une URL !"
 
@@ -40,14 +32,6 @@ msgstr "ou"
 #, elixir-autogen, elixir-format
 msgid "I'm not sure. Learn more."
 msgstr "Je ne suis pas sûr·e. En savoir plus."
-
-#, elixir-autogen, elixir-format
-msgid "Select a dataset to update it."
-msgstr "Sélectionnez un jeu de données pour le mettre à jour."
-
-#, elixir-autogen, elixir-format
-msgid "Select this dataset"
-msgstr "Selectionner ce jeu de données."
 
 #, elixir-autogen, elixir-format
 msgid "Add a new resource"
