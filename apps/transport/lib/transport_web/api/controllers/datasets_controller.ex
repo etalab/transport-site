@@ -33,7 +33,7 @@ defmodule TransportWeb.API.DatasetController do
   @spec datasets(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def datasets(%Plug.Conn{} = conn, _params) do
     comp_fn = fn -> prepare_datasets_index_data(conn) end
-    data = Transport.Cache.API.fetch("api-datasets-index", comp_fn, @cache_ttl)
+    data = Transport.Cache.fetch("api-datasets-index", comp_fn, @cache_ttl)
 
     render(conn, %{data: data})
   end
@@ -86,7 +86,7 @@ defmodule TransportWeb.API.DatasetController do
       conn |> put_status(404) |> render(%{errors: "dataset not found"})
     else
       comp_fn = fn -> prepare_dataset_detail_data(conn, dataset) end
-      data = Transport.Cache.API.fetch("api-datasets-#{datagouv_id}", comp_fn, @cache_ttl)
+      data = Transport.Cache.fetch("api-datasets-#{datagouv_id}", comp_fn, @cache_ttl)
 
       conn |> assign(:data, data) |> render()
     end

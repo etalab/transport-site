@@ -16,7 +16,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
 
   setup :verify_on_exit!
 
-  def setup_proxy_config(slug, siri_slug) do
+  def setup_proxy_config(slug, siri_slug, aggregate_slug) do
     config = %{
       slug => %Unlock.Config.Item.Generic.HTTP{
         identifier: slug,
@@ -27,6 +27,10 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
         identifier: siri_slug,
         target_url: "http://localhost/some-siri-resource",
         requestor_ref: "secret"
+      },
+      aggregate_slug => %Unlock.Config.Item.Aggregate{
+        identifier: aggregate_slug,
+        feeds: []
       }
     }
 
@@ -53,7 +57,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
   test "disconnected and connected mount refresh stats", %{conn: conn} do
     item_id = "gtfs-rt-slug"
     siri_item_id = "siri-slug"
-    setup_proxy_config(item_id, siri_item_id)
+    aggregate_item_id = "aggregate-slug"
+    setup_proxy_config(item_id, siri_item_id, aggregate_item_id)
 
     add_events(item_id)
 
@@ -63,7 +68,13 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
     response = html_response(conn, 200)
     assert response =~ "Configuration du Proxy"
 
+    # NOTE: alphabetical slug order
     assert [
+             %{
+               "Identifiant" => "aggregate-slug",
+               "Req ext 7j" => "0",
+               "Req int 7j" => "N/C"
+             },
              %{
                "Identifiant" => "gtfs-rt-slug",
                "Req ext 7j" => "2",
@@ -83,12 +94,13 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
     send(view.pid, :update_data)
 
     assert [
+             _aggregate_item,
              %{
                "Identifiant" => "gtfs-rt-slug",
                "Req ext 7j" => "4",
                "Req int 7j" => "2"
              },
-             _second_item
+             _siri_item
            ] = extract_data_from_html(render(view))
   end
 end

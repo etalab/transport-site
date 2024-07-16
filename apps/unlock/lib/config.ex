@@ -27,12 +27,42 @@ defmodule Unlock.Config do
     defstruct [:identifier, :target_url, :requestor_ref, request_headers: []]
   end
 
+  defmodule Item.Aggregate do
+    @moduledoc """
+    Intermediate structure for aggregated configured items.
+
+    Feeds (sub-items) are strongly typed
+    """
+    @enforce_keys [:identifier, :feeds]
+
+    defstruct [:identifier, :feeds, :ttl]
+  end
+
   defmodule Fetcher do
     @moduledoc """
     A behaviour + shared methods for config fetching.
     """
     @callback fetch_config!() :: list(Item)
     @callback clear_config_cache!() :: any
+
+    def convert_aggregate_sub_item(sub_item) do
+      sub_item
+      # Default to generic-http (typically used for IRVE)
+      |> Map.put_new("type", "generic-http")
+      # Use a default 10-second TTL for sub-feeds, unless specified in the config
+      |> Map.put_new("ttl", 10)
+      |> convert_yaml_item_to_struct()
+    end
+
+    def convert_yaml_item_to_struct(%{"type" => "aggregate"} = item) do
+      %Item.Aggregate{
+        identifier: Map.fetch!(item, "identifier"),
+        # NOTE: ultimately a map (key = identifier) would be better than an array here,
+        # but that will do for now as the number of items is low
+        feeds: item |> Map.fetch!("feeds") |> Enum.map(&convert_aggregate_sub_item(&1)),
+        ttl: Map.get(item, "ttl", 10)
+      }
+    end
 
     def convert_yaml_item_to_struct(%{"type" => "siri"} = item) do
       %Item.SIRI{
@@ -140,7 +170,7 @@ defmodule Unlock.Config do
       github_token = Application.fetch_env!(:unlock, :github_auth_token)
 
       %{status: 200, body: body} =
-        Unlock.HTTP.Client.impl().get!(config_url, [{"Authorization", "token #{github_token}"}])
+        Unlock.HTTP.Client.impl().get!(config_url, [{"Authorization", "token #{github_token}"}], [])
 
       body
     end

@@ -115,20 +115,23 @@ defmodule Transport.Test.Transport.Jobs.DatasetsSwitchingClimateResilienceBillJo
       payload: %{"custom_tags" => ["loi-climat-resilience"]}
     )
 
-    %DB.Contact{id: contact_id, email: email} = insert_contact()
+    %DB.Contact{id: contact_id, email: email} = contact = insert_contact()
 
-    insert(:notification_subscription, %{
-      reason: :datasets_switching_climate_resilience_bill,
-      source: :admin,
-      role: :reuser,
-      contact_id: contact_id
-    })
+    %DB.NotificationSubscription{id: ns_id} =
+      insert(:notification_subscription, %{
+        reason: :datasets_switching_climate_resilience_bill,
+        source: :admin,
+        role: :reuser,
+        contact_id: contact_id
+      })
 
     assert :ok == perform_job(DatasetsSwitchingClimateResilienceBillJob, %{}, inserted_at: ~U[2023-04-21 06:00:00.000Z])
 
+    display_name = DB.Contact.display_name(contact)
+
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"", ^email}],
+                           to: [{^display_name, ^email}],
                            reply_to: {"", "contact@transport.data.gouv.fr"},
                            subject: "Loi climat et résilience : suivi des jeux de données",
                            text_body: nil,
@@ -143,8 +146,20 @@ defmodule Transport.Test.Transport.Jobs.DatasetsSwitchingClimateResilienceBillJo
 
     # Logs have been saved
     assert [
-             %DB.Notification{email: ^email, reason: :datasets_switching_climate_resilience_bill, dataset_id: ^d1_id},
-             %DB.Notification{email: ^email, reason: :datasets_switching_climate_resilience_bill, dataset_id: ^d2_id}
+             %DB.Notification{
+               contact_id: ^contact_id,
+               email: ^email,
+               reason: :datasets_switching_climate_resilience_bill,
+               dataset_id: nil,
+               notification_subscription_id: ^ns_id,
+               payload: %{
+                 "dataset_ids" => dataset_ids,
+                 "datasets_previously_climate_resilience_ids" => [^d2_id],
+                 "datasets_now_climate_resilience_ids" => [^d1_id]
+               }
+             }
            ] = DB.Notification |> DB.Repo.all() |> Enum.sort_by(& &1.dataset_id)
+
+    assert MapSet.new(dataset_ids) == MapSet.new([d1_id, d2_id])
   end
 end

@@ -41,6 +41,7 @@ defmodule Unlock.MixProject do
       # required indirectly by sentry
       {:hackney, "~> 1.8"},
       {:jason, "~> 1.1"},
+      {:nimble_csv, "~> 1.1"},
       {:finch, "~> 0.8"},
       {:yaml_elixir, "~> 2.7"},
       {:cachex, "~> 3.5"},
@@ -54,7 +55,11 @@ defmodule Unlock.MixProject do
       {:appsignal, "~> 2.0"},
       {:appsignal_phoenix, "~> 2.0"},
       {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
-      {:excoveralls, "~> 0.10", only: :test}
+      {:excoveralls, "~> 0.10", only: :test},
+      # Not something we want to encourage, but required to
+      # properly test Finch-based code. Migrating to Req is
+      # a better idea here ultimately
+      {:bypass, "~> 2.1", only: :test}
     ]
   end
 end

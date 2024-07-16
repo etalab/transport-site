@@ -1,0 +1,11 @@
+<p>Bonjour,</p>
+
+<p>Les jeux de données suivants ont été référencés récemment :</p>
+
+<ul>
+  <%= for dataset <- @datasets do %>
+    <li><%= link_for_dataset_with_type(dataset) %></li>
+  <% end %>
+</ul>
+
+<p>L’équipe transport.data.gouv.fr</p>

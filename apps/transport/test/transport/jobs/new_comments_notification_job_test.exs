@@ -143,62 +143,90 @@ defmodule Transport.Test.Transport.Jobs.NewCommentsNotificationJobTest do
   end
 
   test "perform for a single contact" do
-    %DB.Contact{id: contact_id, email: email} = insert_contact()
+    %DB.Contact{id: contact_id, email: email} = contact = insert_contact()
     other_followed_dataset = insert(:dataset)
 
-    %DB.Dataset{id: dataset_id} =
-      dataset =
+    %DB.Dataset{id: dataset1_id} =
+      dataset1 =
+      insert(:dataset, latest_data_gouv_comment_timestamp: ~U[2024-03-29 10:00:00.00Z])
+
+    %DB.Dataset{id: dataset2_id} =
+      dataset2 =
       insert(:dataset, latest_data_gouv_comment_timestamp: ~U[2024-03-29 10:00:00.00Z])
 
     %DB.Dataset{id: other_dataset_id} =
       insert(:dataset, latest_data_gouv_comment_timestamp: ~U[2024-03-29 10:00:00.00Z])
 
-    # Identifies two datasets as relevant
-    assert [%DB.Dataset{id: ^dataset_id}, %DB.Dataset{id: ^other_dataset_id}] =
+    # Identifies three datasets as relevant
+    assert [%DB.Dataset{id: ^dataset1_id}, %DB.Dataset{id: ^dataset2_id}, %DB.Dataset{id: ^other_dataset_id}] =
              ~U[2024-04-01 09:00:00.00Z]
              |> NewCommentsNotificationJob.relevant_datasets_query()
              |> DB.Repo.all()
              |> Enum.sort_by(& &1.id)
 
-    insert(:dataset_follower, dataset_id: dataset_id, contact_id: contact_id, source: :datagouv)
+    insert(:dataset_follower, dataset_id: dataset1_id, contact_id: contact_id, source: :datagouv)
+    insert(:dataset_follower, dataset_id: dataset2_id, contact_id: contact_id, source: :datagouv)
     insert(:dataset_follower, dataset_id: other_followed_dataset.id, contact_id: contact_id, source: :datagouv)
+
+    %DB.NotificationSubscription{id: ns_id} =
+      insert(:notification_subscription,
+        contact_id: contact_id,
+        source: :user,
+        reason: :daily_new_comments,
+        role: :reuser
+      )
 
     # Perform the job for a single contact
     assert :ok ==
              perform_job(NewCommentsNotificationJob, %{
                "contact_id" => contact_id,
-               "dataset_ids" => [dataset_id, other_dataset_id]
+               "dataset_ids" => [dataset1_id, dataset2_id, other_dataset_id]
              })
 
     # Email has been sent
+    display_name = DB.Contact.display_name(contact)
+
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"", ^email}],
+                           to: [{^display_name, ^email}],
                            reply_to: {"", "contact@transport.data.gouv.fr"},
                            subject: "Nouveaux commentaires sur transport.data.gouv.fr",
                            text_body: nil,
                            html_body: html_body
                          } ->
       assert remove_whitespace(html_body) == remove_whitespace(~s|
+      <p>Bonjour,</p>
+
       <p>
-      Bonjour,</p>
-      <p>
-      Des discussions ont eu lieu sur certains jeux de données que vous suivez. Vous pouvez prendre connaissance de ces échanges.</p>
-      <p>
+        Des discussions ont eu lieu sur certains jeux de données que vous suivez. Vous pouvez prendre connaissance de ces échanges.
       </p>
+
       <ul>
         <li>
-        <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}#dataset-discussions">#{dataset.custom_title}</a>
+        <a href="http://127.0.0.1:5100/datasets/#{dataset1.slug}#dataset-discussions">#{dataset1.custom_title}</a>
         </li>
-        </ul>
-      <p>
-      L’équipe transport.data.gouv.fr</p>|)
+        <li>
+        <a href="http://127.0.0.1:5100/datasets/#{dataset2.slug}#dataset-discussions">#{dataset2.custom_title}</a>
+        </li>
+      </ul>
+
+      <p>L’équipe transport.data.gouv.fr</p>|)
     end)
 
     # Notification has been saved
-    assert [%DB.Notification{reason: :daily_new_comments, dataset_id: ^dataset_id, email: ^email}] =
+    assert [
+             %DB.Notification{
+               reason: :daily_new_comments,
+               role: :reuser,
+               dataset_id: nil,
+               email: ^email,
+               contact_id: ^contact_id,
+               payload: %{"dataset_ids" => [^dataset1_id, ^dataset2_id]},
+               notification_subscription_id: ^ns_id
+             }
+           ] =
              DB.Notification |> DB.Repo.all()
   end
 
-  defp remove_whitespace(value), do: value |> String.replace(" ", "") |> String.trim()
+  defp remove_whitespace(value), do: value |> String.replace(~r/\s/, "") |> String.trim()
 end

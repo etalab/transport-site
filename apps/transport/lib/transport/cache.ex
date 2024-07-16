@@ -1,4 +1,4 @@
-defmodule Transport.Cache.API do
+defmodule Transport.Cache do
   @moduledoc """
   This behaviour defines the API for caching, with alternative implementations.
   """
@@ -14,7 +14,7 @@ defmodule Transport.Cache.Cachex do
   @moduledoc """
   Cache utility for transport
   """
-  @behaviour Transport.Cache.API
+  @behaviour Transport.Cache
 
   require Logger
 
@@ -89,7 +89,7 @@ defmodule Transport.Cache.Null do
   @moduledoc """
   A non-caching cache to be used by tests mostly.
   """
-  @behaviour Transport.Cache.API
+  @behaviour Transport.Cache
 
   def fetch(_cache_key, value_fn, _expire_value), do: value_fn.()
 end

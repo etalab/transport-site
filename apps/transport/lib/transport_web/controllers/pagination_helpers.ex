@@ -11,10 +11,10 @@ defmodule TransportWeb.PaginationHelpers do
         {int, _} -> int
       end
 
-    %Scrivener.Config{page_number: page_number, page_size: 10}
+    %Scrivener.Config{page_number: page_number, page_size: 20}
   end
 
-  def make_pagination_config(_), do: %Scrivener.Config{page_number: 1, page_size: 10}
+  def make_pagination_config(_), do: %Scrivener.Config{page_number: 1, page_size: 20}
 
   def pagination_links(_, %{total_pages: 1}), do: ""
 

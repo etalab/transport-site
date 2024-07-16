@@ -196,7 +196,7 @@
                     </div>
                   </div>
                   <div class="dataset__type">
-                    <%= if TransportWeb.Session.display_reuser_space?(@conn) do %>
+                    <%= if not is_nil(@current_user) and TransportWeb.Session.display_reuser_space?(@conn) do %>
                       <i class={heart_class(@dataset_heart_values, dataset)}></i>
                     <% end %>
                     <%= unless is_nil(icon_type_path(dataset)) do %>
@@ -229,12 +229,13 @@
                 </div>
               </div>
             <% end %>
+            <div>
+              <%= pagination_links(@conn, @datasets) %>
+            </div>
           <% end %>
         </div>
       </div>
-      <div class="shortlist__pagination">
-        <%= pagination_links(@conn, @datasets) %>
-      </div>
+
       <div class="api-link">
         <i class="fas fa-cogs"></i>
         <% # NOTE: the syntax_highlight flag is there just because otherwise we get a match error

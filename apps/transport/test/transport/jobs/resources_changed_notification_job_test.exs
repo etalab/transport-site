@@ -137,32 +137,53 @@ defmodule Transport.Test.Transport.Jobs.ResourcesChangedNotificationJobTest do
              all_enqueued()
   end
 
-  test "perform with a dataset_id" do
-    %DB.Dataset{id: dataset_id} = dataset = insert(:dataset, custom_title: "Super JDD")
-    %DB.Contact{id: contact_id, email: email} = insert_contact()
+  describe "perform with a dataset_id" do
+    test "with a subscription" do
+      %DB.Dataset{id: dataset_id} = dataset = insert(:dataset, custom_title: "Super JDD")
+      %DB.Contact{id: contact_id, email: email} = contact = insert_contact()
 
-    insert(:notification_subscription, %{
-      reason: :resources_changed,
-      source: :admin,
-      role: :reuser,
-      contact_id: contact_id
-    })
+      %DB.NotificationSubscription{id: ns_id} =
+        insert(:notification_subscription, %{
+          dataset_id: dataset_id,
+          reason: :resources_changed,
+          source: :admin,
+          role: :reuser,
+          contact_id: contact_id
+        })
 
-    assert :ok == perform_job(ResourcesChangedNotificationJob, %{"dataset_id" => dataset_id})
+      assert :ok == perform_job(ResourcesChangedNotificationJob, %{"dataset_id" => dataset_id})
 
-    # Logs have been saved
-    assert [
-             %DB.Notification{email: ^email, reason: :resources_changed, dataset_id: ^dataset_id}
-           ] = DB.Notification |> DB.Repo.all()
+      # Logs have been saved
+      assert [
+               %DB.Notification{
+                 contact_id: ^contact_id,
+                 email: ^email,
+                 reason: :resources_changed,
+                 dataset_id: ^dataset_id,
+                 role: :reuser,
+                 notification_subscription_id: ^ns_id,
+                 payload: %{"job_id" => _}
+               }
+             ] = DB.Notification |> DB.Repo.all()
 
-    assert_email_sent(
-      from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-      to: email,
-      reply_to: {"", "contact@transport.data.gouv.fr"},
-      subject: "Super JDD : ressources modifiées",
-      text_body: nil,
-      html_body:
-        ~r(Les ressources du jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> viennent d’être modifiées)
-    )
+      assert_email_sent(
+        from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+        to: {DB.Contact.display_name(contact), email},
+        reply_to: {"", "contact@transport.data.gouv.fr"},
+        subject: "Super JDD : ressources modifiées",
+        text_body: nil,
+        html_body:
+          ~r(Les ressources du jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> viennent d’être modifiées)
+      )
+    end
+  end
+
+  test "without subscriptions" do
+    dataset = insert(:dataset)
+
+    assert :ok == perform_job(ResourcesChangedNotificationJob, %{"dataset_id" => dataset.id})
+
+    assert [] = DB.Notification |> DB.Repo.all()
+    assert_no_email_sent()
   end
 end

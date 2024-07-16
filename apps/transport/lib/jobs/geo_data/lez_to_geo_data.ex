@@ -40,6 +40,8 @@ defmodule Transport.Jobs.LowEmissionZonesToGeoData do
   true
   iex> filter_dates(%{"properties" => %{"date_debut" => "2200-01-01", "date_fin" => nil}})
   false
+  iex> filter_dates(%{"properties" => %{"date_debut" => "2200-01-01"}})
+  false
   iex> filter_dates(%{"properties" => %{}})
   true
   """
@@ -50,7 +52,7 @@ defmodule Transport.Jobs.LowEmissionZonesToGeoData do
         date_range = Date.range(Date.from_iso8601!(date_debut), Date.from_iso8601!(date_fin))
         Date.utc_today() in date_range
 
-      %{"date_debut" => date_debut, "date_fin" => date_fin} when date_fin in [nil, "null"] ->
+      %{"date_debut" => date_debut} ->
         Date.compare(Date.utc_today(), Date.from_iso8601!(date_debut)) == :gt
 
       _ ->

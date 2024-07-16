@@ -257,7 +257,7 @@ defmodule TransportWeb.API.StatsController do
       |> Jason.encode!()
     end
 
-    data = Transport.Cache.API.fetch(cache_key, comp_fn)
+    data = Transport.Cache.fetch(cache_key, comp_fn)
 
     render(conn, data: {:skip_json_encoding, data})
   end

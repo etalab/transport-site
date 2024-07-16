@@ -31,7 +31,7 @@ defmodule TransportWeb.Live.NotificationsLive do
         subscriptions: subscriptions,
         subscribed_platform_wide_reasons: subscribed_platform_wide_reasons(current_contact),
         all_notifications_enabled: all_notifications_enabled?(subscriptions),
-        platform_wide_reasons: DB.NotificationSubscription.shown_subscribable_platform_wide_reasons(role),
+        platform_wide_reasons: Transport.NotificationReason.shown_subscribable_platform_wide_reasons(role),
         available_reasons: available_reasons(role)
       })
 
@@ -119,23 +119,25 @@ defmodule TransportWeb.Live.NotificationsLive do
     |> DB.Repo.all()
   end
 
-  defp notification_subscriptions_for_datasets(%Phoenix.LiveView.Socket{assigns: assigns}) do
+  def notification_subscriptions_for_datasets(%Phoenix.LiveView.Socket{assigns: assigns}) do
     notification_subscriptions_for_datasets(assigns.datasets, assigns.current_contact, assigns.role)
   end
 
-  defp notification_subscriptions_for_datasets(datasets, current_contact, :reuser = role) do
+  def notification_subscriptions_for_datasets(datasets, current_contact, :reuser = role) do
+    dataset_ids = Enum.map(datasets, fn %DB.Dataset{id: id} -> id end)
+
     current_contact
     |> DB.Repo.preload(:notification_subscriptions, force: true)
     |> Map.fetch!(:notification_subscriptions)
     |> Enum.reject(fn %DB.NotificationSubscription{dataset_id: dataset_id, role: ns_role} ->
-      is_nil(dataset_id) or ns_role != role
+      dataset_id not in dataset_ids or ns_role != role
     end)
     |> Enum.reduce(subscriptions_empty_map(role, datasets), fn %DB.NotificationSubscription{} = subscription, acc ->
       put_in(acc, [subscription.dataset_id, subscription.reason, :user_subscription], subscription)
     end)
   end
 
-  defp notification_subscriptions_for_datasets(datasets, current_contact, :producer = role) do
+  def notification_subscriptions_for_datasets(datasets, current_contact, :producer = role) do
     datasets
     |> Enum.map(fn %DB.Dataset{id: id} -> id end)
     |> DB.NotificationSubscription.producer_subscriptions_for_datasets(current_contact.id)
@@ -235,7 +237,7 @@ defmodule TransportWeb.Live.NotificationsLive do
 
   defp subscriptions_empty_map(role, datasets) do
     reasons =
-      Map.new(DB.NotificationSubscription.subscribable_reasons_related_to_datasets(role), fn reason ->
+      Map.new(Transport.NotificationReason.subscribable_reasons_related_to_datasets(role), fn reason ->
         {reason, %{user_subscription: nil, team_subscriptions: []}}
       end)
 
@@ -250,39 +252,39 @@ defmodule TransportWeb.Live.NotificationsLive do
     end)
   end
 
-  defp available_reasons(:reuser) do
+  def available_reasons(:reuser) do
     [
       %{
-        reason: DB.NotificationSubscription.reason(:expiration),
+        reason: Transport.NotificationReason.reason(:expiration),
         explanations: dgettext("reuser-space", "data expiration notification explanation")
       },
       %{
-        reason: DB.NotificationSubscription.reason(:dataset_with_error),
+        reason: Transport.NotificationReason.reason(:dataset_with_error),
         explanations: dgettext("reuser-space", "validation errors notification explanation")
       },
       %{
-        reason: DB.NotificationSubscription.reason(:resource_unavailable),
+        reason: Transport.NotificationReason.reason(:resource_unavailable),
         explanations: dgettext("reuser-space", "unavailable resources notification explanation")
       },
       %{
-        reason: DB.NotificationSubscription.reason(:resources_changed),
+        reason: Transport.NotificationReason.reason(:resources_changed),
         explanations: dgettext("reuser-space", "resources changed notification explanation")
       }
     ]
   end
 
-  defp available_reasons(:producer) do
+  def available_reasons(:producer) do
     [
       %{
-        reason: DB.NotificationSubscription.reason(:expiration),
+        reason: Transport.NotificationReason.reason(:expiration),
         explanations: dgettext("espace-producteurs", "data expiration notification explanation")
       },
       %{
-        reason: DB.NotificationSubscription.reason(:dataset_with_error),
+        reason: Transport.NotificationReason.reason(:dataset_with_error),
         explanations: dgettext("espace-producteurs", "validation errors notification explanation")
       },
       %{
-        reason: DB.NotificationSubscription.reason(:resource_unavailable),
+        reason: Transport.NotificationReason.reason(:resource_unavailable),
         explanations: dgettext("espace-producteurs", "unavailable resources notification explanation")
       }
     ]

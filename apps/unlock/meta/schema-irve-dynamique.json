@@ -1,0 +1,165 @@
+{
+    "$schema": "https://frictionlessdata.io/schemas/table-schema.json",
+    "name": "schema-irve-dynamique",
+    "title": "IRVE dynamique",
+    "description": "Spécification du fichier d'échange relatif aux données concernant la localisation géographique et les caractéristiques techniques des stations et des points de recharge pour véhicules électriques",
+    "countryCode": "FR",
+    "homepage": "https://github.com/etalab/schema-irve",
+    "path": "https://raw.githubusercontent.com/etalab/schema-irve/v2.3.0/dynamique/schema-dynamique.json",
+    "resources": [
+        {
+            "title": "Exemple de fichier IRVE valide",
+            "path": "https://raw.githubusercontent.com/etalab/schema-irve/v2.3.0/dynamique/exemple-valide-dynamique.csv"
+        }
+    ],
+    "sources": [
+        {
+            "title": "Décret n° 2017-26 du 12 janvier 2017 relatif aux infrastructures de recharge pour véhicules électriques et portant diverses mesures de transposition de la directive 2014/94/UE du Parlement européen et du Conseil du 22 octobre 2014 sur le déploiement d’une infrastructure pour carburants alternatifs",
+            "path": "https://www.legifrance.gouv.fr/jo_pdf.do?id=JORFTEXT000033860620"
+        },
+        {
+            "title": "Arrêté du 12 janvier 2017 relatif aux données concernant la localisation géographique et les caractéristiques techniques des stations et des points de recharge pour véhicules électriques",
+            "path": "https://www.legifrance.gouv.fr/jo_pdf.do?id=JORFTEXT000033860733"
+        },
+        {
+            "title": "Arrêté du 12 janvier 2017 précisant les dispositions relatives aux identifiants des unités d’exploitation pour la recharge des véhicules électriques",
+            "path": "https://www.legifrance.gouv.fr/jo_pdf.do?id=JORFTEXT000033860743"
+        },
+        {
+            "title": "Définition et structure des identifiants attribués par l'Association Française pour l'Itinérance de la Recharge Electrique des Véhicules (AFIREV)",
+            "path": "http://www.afirev.fr/fr/informations-generales/"
+        }
+    ],
+    "created": "2022-10-28",
+    "lastModified": "2024-01-16",
+    "version": "v2.3.0",
+    "contributors": [
+        {
+            "title": "Geoffrey Aldebert",
+            "email": "geoffrey.aldebert@data.gouv.fr",
+            "organisation": "Etalab",
+            "role": "author"
+        },
+        {
+            "title": "Christina Laumond",
+            "email": "christina.laumond@beta.gouv.fr",
+            "organisation": "transport.data.gouv.fr",
+            "role": "author"
+        },
+        {
+            "title": "Thibaut Barrère",
+            "email": "thibaut.barrere@beta.gouv.fr",
+            "organisation": "transport.data.gouv.fr",
+            "role": "author"
+        }
+    ],
+    "fields": [
+        {
+            "name": "id_pdc_itinerance",
+            "description": "L'identifiant du point de recharge, tel qu'apparaissant dans le schéma statique. Doit permettre de faire le lien entre le dynamique et le statique.",
+            "example": "FRA68E680210015",
+            "type": "string",
+            "constraints": {
+                "required": true,
+                "pattern": "^[A-Z]{2}[A-Z0-9]{4,33}$"
+            }
+        },
+        {
+            "name": "etat_pdc",
+            "description": "`etat_pdc` caractérise l’état de fonctionnement du point de recharge : est-il en service ou hors service ? En l’absence d’information, etat_pdc sera égal à ‘inconnu’.",
+            "example": "en_service",
+            "type": "string",
+            "constraints": {
+                "required": true,
+                "enum": [
+                    "en_service",
+                    "hors_service",
+                    "inconnu"
+                ]
+            }
+        },
+        {
+            "name": "occupation_pdc",
+            "description": "`occupation_pdc` caractérise l’occupation du point de recharge : est-il libre, occupé ou réservé ? En l’absence d’information, occupation_pdc sera égal à ‘inconnu’.",
+            "example": "occupe",
+            "type": "string",
+            "constraints": {
+                "required": true,
+                "enum": [
+                    "libre",
+                    "occupe",
+                    "reserve",
+                    "inconnu"
+                ]
+            }
+        },
+        {
+            "name": "horodatage",
+            "description": "Indique la date et heure de remontée de l’information publiée, formaté selon la norme ISO 8601",
+            "example": "2023-01-30T10:27:50+01:00",
+            "type": "datetime",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "etat_prise_type_2",
+            "description": "`etat_prise_type_2` indique l’état de fonctionnement du connecteur T2 : est-il fonctionnel ou hors-service ? En l’absence d’information, indiquer ‘inconnu’. En l’absence de connecteur de ce type sur le point de recharge, laisser une chaîne de caractère vide.",
+            "example": "fonctionnel",
+            "type": "string",
+            "constraints": {
+                "required": false,
+                "enum": [
+                    "fonctionnel",
+                    "hors_service",
+                    "inconnu"
+                ]
+            }
+        },
+        {
+            "name": "etat_prise_type_combo_ccs",
+            "description": "`etat_prise_type_combo_ccs` indique l’état de fonctionnement du connecteur Combo CCS : est-il fonctionnel ou hors-service ? En l’absence d’information, indiquer ‘inconnu’. En l’absence de connecteur de ce type sur le point de recharge, laisser une chaîne de caractère vide.",
+            "example": "hors_service",
+            "type": "string",
+            "constraints": {
+                "required": false,
+                "enum": [
+                    "fonctionnel",
+                    "hors_service",
+                    "inconnu"
+                ]
+            }
+        },
+        {
+            "name": "etat_prise_type_chademo",
+            "description": "`etat_prise_type_chademo` indique l’état de fonctionnement du connecteur Chademo : est-il fonctionnel ou hors-service ? En l’absence d’information, indiquer ‘inconnu’. En l’absence de connecteur de ce type sur le point de recharge, laisser une chaîne de caractère vide.",
+            "example": "inconnu",
+            "type": "string",
+            "constraints": {
+                "required": false,
+                "enum": [
+                    "fonctionnel",
+                    "hors_service",
+                    "inconnu"
+                ]
+            }
+        },
+        {
+            "name": "etat_prise_type_ef",
+            "description": "`etat_prise_type_ef` indique l’état de fonctionnement du connecteur EF : est-il fonctionnel ou hors-service ? En l’absence d’information, indiquer ‘inconnu’. En l’absence de connecteur de ce type sur le point de recharge, laisser une chaîne de caractère vide.",
+            "example": "fonctionnel",
+            "type": "string",
+            "constraints": {
+                "required": false,
+                "enum": [
+                    "fonctionnel",
+                    "hors_service",
+                    "inconnu"
+                ]
+            }
+        }
+    ],
+    "missingValues": [
+        ""
+    ]
+}

@@ -299,12 +299,9 @@ defmodule DB.Dataset do
   @spec filter_by_mode(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_mode(query, %{"modes" => modes}) when is_list(modes) do
     query
-    |> DB.ResourceHistory.join_dataset_with_latest_resource_history()
-    |> DB.MultiValidation.join_resource_history_with_latest_validation(
-      Transport.Validators.GTFSTransport.validator_name()
-    )
-    |> DB.ResourceMetadata.join_validation_with_metadata()
-    |> where([metadata: rm], fragment("? @> ?::varchar[]", rm.modes, ^modes))
+    # Using specific jointure name: if piping with filter_by_feature it will not conflict
+    |> join(:inner, [dataset: d], r in assoc(d, :resources), as: :resource_for_mode)
+    |> where([resource_for_mode: r], fragment("?->'gtfs_modes' @> ?", r.counter_cache, ^modes))
   end
 
   defp filter_by_mode(query, _), do: query
@@ -372,6 +369,13 @@ defmodule DB.Dataset do
   defp filter_by_licence(query, %{"licence" => licence}), do: where(query, [d], d.licence == ^licence)
   defp filter_by_licence(query, _), do: query
 
+  @spec filter_by_organization(Ecto.Query.t(), map()) :: Ecto.Query.t()
+  defp filter_by_organization(query, %{"organization_id" => organization_id}) do
+    where(query, [d], d.organization_id == ^organization_id)
+  end
+
+  defp filter_by_organization(query, _), do: query
+
   @spec list_datasets(map()) :: Ecto.Query.t()
   def list_datasets(%{} = params) do
     params
@@ -394,6 +398,7 @@ defmodule DB.Dataset do
       |> filter_by_licence(params)
       |> filter_by_climate_resilience_bill(params)
       |> filter_by_custom_tag(params)
+      |> filter_by_organization(params)
       |> filter_by_fulltext(params)
       |> select([dataset: d], d.id)
 
@@ -792,6 +797,7 @@ defmodule DB.Dataset do
     dataset
     |> official_resources()
     |> Enum.map(& &1.format)
+    |> Enum.reject(&is_nil/1)
     |> Enum.sort()
     |> Enum.dedup()
   end

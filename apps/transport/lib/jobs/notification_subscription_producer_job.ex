@@ -42,7 +42,7 @@ defmodule Transport.Jobs.NotificationSubscriptionProducerJob do
   end
 
   defp create_subscriptions(%{contact_id: _, dataset_id: _} = attrs) do
-    DB.NotificationSubscription.subscribable_reasons_related_to_datasets(:producer)
+    Transport.NotificationReason.subscribable_reasons_related_to_datasets(:producer)
     |> Enum.each(fn reason ->
       DB.NotificationSubscription.insert!(
         Map.merge(%{role: :producer, source: :"automation:migrate_from_reuser_to_producer", reason: reason}, attrs)

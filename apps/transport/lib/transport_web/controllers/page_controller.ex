@@ -20,7 +20,7 @@ defmodule TransportWeb.PageController do
     # combined with the fact our HTTP monitor checks the url every minute, should
     # allow regular traffic for most users
     temporary_ttl = :timer.minutes(15)
-    Transport.Cache.API.fetch("home-index-stats", fn -> compute_home_index_stats() end, temporary_ttl)
+    Transport.Cache.fetch("home-index-stats", fn -> compute_home_index_stats() end, temporary_ttl)
   end
 
   defp put_breaking_news(conn, %{level: level, msg: msg}) do
@@ -276,6 +276,8 @@ defmodule TransportWeb.PageController do
       type_tile(conn, "road-data"),
       type_tile(conn, "low-emission-zones"),
       type_tile(conn, "carpooling-areas"),
+      type_tile(conn, "carpooling-lines"),
+      type_tile(conn, "carpooling-offers"),
       type_tile(conn, "charging-stations"),
       type_tile(conn, "private-parking"),
       type_tile(conn, "locations"),

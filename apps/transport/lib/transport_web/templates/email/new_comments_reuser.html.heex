@@ -1,0 +1,15 @@
+<p>Bonjour,</p>
+
+<p>
+  Des discussions ont eu lieu sur certains jeux de données que vous suivez. Vous pouvez prendre connaissance de ces échanges.
+</p>
+
+<ul>
+  <%= for dataset <- @datasets do %>
+    <li><%= link_for_dataset_section(dataset, :discussion) %></li>
+  <% end %>
+</ul>
+
+<p>
+  L’équipe transport.data.gouv.fr
+</p>

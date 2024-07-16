@@ -18,6 +18,16 @@
         </a>
         <ul class="nav__links top-nav-links">
           <li class="nav__item">
+            <div class="dropdown">
+              <%= gettext("Data") %>
+              <div class="dropdown-content">
+                <%= link(gettext("Datasets"), to: dataset_path(@conn, :index)) %>
+                <%= link(gettext("Exploration map"), to: explore_path(@conn, :index)) %>
+                <%= link(gettext("National GTFS stops map"), to: explore_path(@conn, :gtfs_stops)) %>
+              </div>
+            </div>
+          </li>
+          <li class="nav__item">
             <%= link(gettext("Documentation"), to: "https://doc.transport.data.gouv.fr") %>
           </li>
           <li class="nav__item">
@@ -31,14 +41,14 @@
                   to: live_path(@conn, TransportWeb.Live.GTFSDiffSelectLive)
                 ) %>
                 <%= link(gettext("SIRI query generator"), to: live_path(@conn, TransportWeb.Live.SIRIQuerierLive)) %>
-                <%= link(gettext("Exploration map"), to: explore_path(@conn, :index)) %>
-                <%= link(gettext("National GTFS stops map"), to: explore_path(@conn, :gtfs_stops)) %>
+
+                <%= link(gettext("Accèslibre Mobilités"), to: "https://mtes-mct.github.io/alm-docs/", target: "_blank") %>
                 <%= link(gettext("Service status"), to: "https://stats.uptimerobot.com/q7nqyiO9yQ", target: "_blank") %>
               </div>
             </div>
           </li>
           <li class="nav__item">
-            <%= link(gettext("Producer infos"), to: page_path(@conn, :infos_producteurs)) %>
+            <%= link(gettext("Statistics"), to: stats_path(@conn, :index)) %>
           </li>
           <li class="nav__item">
             <div class="dropdown">
@@ -69,6 +79,7 @@
             <li class="nav__item">
               <div class="dropdown">
                 <div class="user-name-display">
+                  <img :if={avatar_url(@conn)} src={avatar_url(@conn)} alt="Avatar" class="nav__avatar" />
                   <span class="nav__username">
                     <%= if assigns[:current_user]["first_name"] && assigns[:current_user]["last_name"] do %>
                       <%= assigns[:current_user]["first_name"] %> <%= assigns[:current_user]["last_name"] %>
@@ -76,9 +87,6 @@
                       <%= gettext("My account") %>
                     <% end %>
                   </span>
-                  <%= if assigns[:current_user]["avatar_thumbnail"] do %>
-                    <img src={assigns[:current_user]["avatar_thumbnail"]} alt="" class="nav__avatar" />
-                  <% end %>
                 </div>
                 <div class="dropdown-content">
                   <%= if TransportWeb.Session.admin?(@conn) do %>
@@ -87,6 +95,11 @@
                   <%= if TransportWeb.Session.producer?(@conn) do %>
                     <%= link(gettext("Producer space"),
                       to: page_path(@conn, :espace_producteur, utm_campaign: "menu_dropdown")
+                    ) %>
+                  <% end %>
+                  <%= if TransportWeb.Session.display_reuser_space?(@conn) do %>
+                    <%= link(gettext("Reuser space"),
+                      to: reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "menu_dropdown")
                     ) %>
                   <% end %>
                   <a

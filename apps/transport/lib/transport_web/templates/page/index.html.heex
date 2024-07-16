@@ -4,6 +4,17 @@
       <div class="home-title">
         <h1><%= dgettext("page-index", "title") %></h1>
         <h2><%= dgettext("page-index", "subtitle") %></h2>
+        <a href={page_path(@conn, :espace_producteur, utm_campaign: "home_button")} class="button">
+          <%= dgettext("page-index", "Producer space") %>
+        </a>
+        <%= if TransportWeb.Session.display_reuser_space?(@conn) do %>
+          <a
+            href={reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "home_button")}
+            class="button reuser-space"
+          >
+            <%= dgettext("page-index", "Reuser space") %>
+          </a>
+        <% end %>
       </div>
       <div class="home-search">
         <div class="searchBar">
@@ -27,9 +38,9 @@
           <h4><%= dgettext("page-index", "You can also") %></h4>
           <div class="home-other-search-methods">
             <div class="search-method">
-              <a href={stats_path(@conn, :index)}>
-                <img src={static_path(@conn, "/images/icons/map.png")} alt="Cartes" />
-                <%= dgettext("page-index", "Use the map") %>
+              <a href={live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)}>
+                <img src={static_path(@conn, "/images/icons/validate.svg")} alt="Validation" />
+                <%= dgettext("page-index", "Validate your data") %>
               </a>
             </div>
             <div class="search-method">
@@ -40,7 +51,7 @@
             </div>
             <div class="search-method">
               <a href={dataset_path(@conn, :index, order_by: "most_recent")}>
-                <img src={static_path(@conn, "/images/icons/recently-added-datasets.png")} alt="API" />
+                <img src={static_path(@conn, "/images/icons/recently-added-datasets.png")} alt="Data" />
                 <%= dgettext("page-index", "See newly added datasets") %>
               </a>
             </div>
@@ -187,7 +198,7 @@
     <p class="text-center">
       <%= dgettext("page-index", "reusers list description") %>
       <%= link(dgettext("page-index", "Learn more"),
-        to: "https://doc.transport.data.gouv.fr/outils/outils-disponibles-sur-le-pan"
+        to: "https://doc.transport.data.gouv.fr/reutilisations-des-donnees/reutilisation-des-donnees"
       ) %>.
     </p>
   </div>

@@ -35,11 +35,15 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
     %DB.Dataset{id: dataset_id, organization_id: ^organization_id} =
       insert(:dataset, custom_title: "Mon super JDD", organization_id: organization_id)
 
+    other_dataset = insert(:dataset)
+
     %DB.Contact{id: contact_id} =
       insert_contact(%{
         datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
         organizations: [%{id: organization_id}]
       })
+
+    other_contact = insert_contact()
 
     insert_admin()
 
@@ -51,6 +55,24 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
         role: :producer,
         source: :user
       )
+
+    # Ignored: another dataset
+    insert(:notification_subscription,
+      contact_id: contact_id,
+      dataset_id: other_dataset.id,
+      reason: :dataset_with_error,
+      role: :reuser,
+      source: :user
+    )
+
+    # Ignored: another contact
+    insert(:notification_subscription,
+      contact_id: other_contact.id,
+      dataset_id: dataset_id,
+      reason: :dataset_with_error,
+      role: :reuser,
+      source: :user
+    )
 
     # This notification shouldn’t exist as the reason isn’t a producer one, but is there in database
     # It should be filtered out
@@ -88,8 +110,10 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
 
   test "displays existing subscriptions for a reuser", %{conn: conn} do
     %DB.Dataset{id: dataset_id} = insert(:dataset, custom_title: custom_title = "Mon super JDD")
+    other_dataset = insert(:dataset)
 
     %DB.Contact{id: contact_id} = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+    other_contact = insert_contact()
 
     insert(:dataset_follower, contact_id: contact_id, dataset_id: dataset_id, source: :follow_button)
 
@@ -102,6 +126,25 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
         source: :user
       )
 
+    # Ignored: another dataset
+    insert(:notification_subscription,
+      contact_id: contact_id,
+      dataset_id: other_dataset.id,
+      reason: :dataset_with_error,
+      role: :reuser,
+      source: :user
+    )
+
+    # Ignored: another contact
+    insert(:notification_subscription,
+      contact_id: other_contact.id,
+      dataset_id: dataset_id,
+      reason: :dataset_with_error,
+      role: :reuser,
+      source: :user
+    )
+
+    # Platform-wide reason
     insert(:notification_subscription,
       contact_id: contact_id,
       dataset_id: nil,
@@ -387,7 +430,6 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
     insert_admin()
 
     # Let’s have at least one subscription in base
-
     notification =
       %DB.NotificationSubscription{
         contact_id: ^contact_id,

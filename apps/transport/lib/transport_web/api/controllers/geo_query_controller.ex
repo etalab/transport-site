@@ -15,7 +15,7 @@ defmodule TransportWeb.API.GeoQueryController do
         |> transform_geojson(feature_atom)
       end
 
-      geojson = Transport.Cache.API.fetch("#{slug}_data", get_geojson, :timer.hours(1))
+      geojson = Transport.Cache.fetch("#{slug}_data", get_geojson, :timer.hours(1))
       conn |> json(geojson)
     else
       render_404(conn)

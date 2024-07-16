@@ -33,8 +33,8 @@ defmodule Transport.DataCheckerTest do
         from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
         to: "deploiement@transport.data.gouv.fr",
         subject: "Jeux de données supprimés ou archivés",
-        text_body: ~r/Certains jeux de données disparus sont réapparus sur data.gouv.fr/,
-        html_body: nil
+        text_body: nil,
+        html_body: ~r/Certains jeux de données disparus sont réapparus sur data.gouv.fr/
       )
 
       # should result into marking the dataset back as active
@@ -105,8 +105,8 @@ defmodule Transport.DataCheckerTest do
         from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
         to: "deploiement@transport.data.gouv.fr",
         subject: "Jeux de données supprimés ou archivés",
-        text_body: ~r/Certains jeux de données ont disparus de data.gouv.fr/,
-        html_body: nil
+        text_body: nil,
+        html_body: ~r/Certains jeux de données ont disparus de data.gouv.fr/
       )
 
       # should result into marking the dataset as inactive
@@ -140,8 +140,8 @@ defmodule Transport.DataCheckerTest do
         from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
         to: "deploiement@transport.data.gouv.fr",
         subject: "Jeux de données supprimés ou archivés",
-        text_body: ~r/Certains jeux de données sont indiqués comme archivés/,
-        html_body: nil
+        text_body: nil,
+        html_body: ~r/Certains jeux de données sont indiqués comme archivés/
       )
 
       verify!(Transport.HTTPoison.Mock)
@@ -246,7 +246,7 @@ defmodule Transport.DataCheckerTest do
       assert [{%DB.Dataset{id: ^dataset_id}, [%DB.Resource{id: ^resource_id}]}] =
                Date.utc_today() |> Transport.DataChecker.gtfs_datasets_expiring_on()
 
-      %DB.Contact{id: contact_id, email: producer_email} = insert_contact()
+      %DB.Contact{id: contact_id, email: email} = contact = insert_contact()
 
       insert(:notification_subscription, %{
         reason: :expiration,
@@ -275,19 +275,21 @@ defmodule Transport.DataCheckerTest do
                              from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
                              to: [{"", "deploiement@transport.data.gouv.fr"}],
                              subject: "Jeux de données arrivant à expiration",
-                             text_body: body
+                             text_body: nil,
+                             html_body: body
                            } ->
         assert body =~ ~r/Jeux de données périmant demain :/
 
         assert body =~
-                 "#{dataset.custom_title} - http://127.0.0.1:5100/datasets/#{dataset.slug} (✅ notification automatique) ⚖️🗺️ article 122"
+                 ~s|<li><a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> - ✅ notification automatique ⚖️🗺️ article 122</li>|
       end)
 
       # a second mail to the email address in the notifications config
+      display_name = DB.Contact.display_name(contact)
 
       assert_email_sent(fn %Swoosh.Email{
                              from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                             to: [{"", ^producer_email}],
+                             to: [{^display_name, ^email}],
                              subject: "Jeu de données arrivant à expiration",
                              html_body: html_body
                            } ->
@@ -310,27 +312,39 @@ defmodule Transport.DataCheckerTest do
 
   test "send_outdated_data_notifications" do
     %{id: dataset_id} = dataset = insert(:dataset)
-    %DB.Contact{id: contact_id, email: email} = insert_contact()
+    %DB.Contact{id: contact_id, email: email} = contact = insert_contact()
 
-    insert(:notification_subscription, %{
-      reason: :expiration,
-      source: :admin,
-      role: :producer,
-      contact_id: contact_id,
-      dataset_id: dataset.id
-    })
+    %DB.NotificationSubscription{id: ns_id} =
+      insert(:notification_subscription, %{
+        reason: :expiration,
+        source: :admin,
+        role: :producer,
+        contact_id: contact_id,
+        dataset_id: dataset.id
+      })
 
-    Transport.DataChecker.send_outdated_data_notifications({7, [{dataset, []}]})
+    job_id = 42
+    Transport.DataChecker.send_outdated_data_notifications({7, [{dataset, []}]}, job_id)
 
     assert_email_sent(
       from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-      to: email,
+      to: {DB.Contact.display_name(contact), email},
       subject: "Jeu de données arrivant à expiration",
       text_body: nil,
       html_body: ~r/Bonjour/
     )
 
-    assert [%DB.Notification{email: ^email, reason: :expiration, dataset_id: ^dataset_id}] =
+    assert [
+             %DB.Notification{
+               contact_id: ^contact_id,
+               email: ^email,
+               reason: :expiration,
+               dataset_id: ^dataset_id,
+               notification_subscription_id: ^ns_id,
+               role: :producer,
+               payload: %{"delay" => 7, "job_id" => ^job_id}
+             }
+           ] =
              DB.Notification |> DB.Repo.all()
   end
 
@@ -340,30 +354,40 @@ defmodule Transport.DataCheckerTest do
     end
 
     test "with datasets" do
-      %DB.Dataset{id: dataset_id, slug: slug} =
-        dataset = insert(:dataset, custom_title: "Super JDD", type: "public-transit", slug: Ecto.UUID.generate())
+      %DB.Dataset{id: dataset_id} = dataset = insert(:dataset, type: "public-transit")
 
-      %DB.Contact{id: contact_id, email: email} = insert_contact()
+      %DB.Contact{id: contact_id, email: email} = contact = insert_contact()
 
-      insert(:notification_subscription, %{
-        reason: :new_dataset,
-        source: :user,
-        role: :reuser,
-        contact_id: contact_id
-      })
+      %DB.NotificationSubscription{id: ns_id} =
+        insert(:notification_subscription, %{
+          reason: :new_dataset,
+          source: :user,
+          role: :reuser,
+          contact_id: contact_id
+        })
 
       Transport.DataChecker.send_new_dataset_notifications([dataset])
 
       assert_email_sent(
         from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-        to: email,
+        to: {DB.Contact.display_name(contact), email},
         subject: "Nouveaux jeux de données référencés",
-        text_body:
-          ~r"Super JDD - \(Transport public collectif - horaires théoriques\) - http://127.0.0.1:5100/datasets/#{slug}",
-        html_body: nil
+        text_body: nil,
+        html_body:
+          ~r|<li><a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> - \(Transport public collectif - horaires théoriques\)</li>|
       )
 
-      assert [%DB.Notification{email: ^email, reason: :new_dataset, dataset_id: ^dataset_id}] =
+      assert [
+               %DB.Notification{
+                 contact_id: ^contact_id,
+                 email: ^email,
+                 reason: :new_dataset,
+                 role: :reuser,
+                 dataset_id: nil,
+                 payload: %{"dataset_ids" => [^dataset_id], "job_id" => _},
+                 notification_subscription_id: ^ns_id
+               }
+             ] =
                DB.Notification |> DB.Repo.all()
     end
   end

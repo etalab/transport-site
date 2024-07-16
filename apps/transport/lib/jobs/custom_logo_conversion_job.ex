@@ -7,13 +7,14 @@ defmodule Transport.Jobs.CustomLogoConversionJob do
   use Oban.Worker, max_attempts: 3
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"datagouv_id" => datagouv_id, "path" => path}}) do
+  def perform(%Oban.Job{args: %{"datagouv_id" => datagouv_id, "path" => path}, inserted_at: %DateTime{} = inserted_at}) do
     %DB.Dataset{datagouv_id: datagouv_id} = DB.Repo.get_by!(DB.Dataset, datagouv_id: datagouv_id)
     local_path = Path.join(System.tmp_dir!(), path)
     extension = local_path |> Path.extname() |> String.downcase()
+    timestamp = DateTime.to_unix(inserted_at)
 
-    logo_filename = "#{datagouv_id}#{extension}"
-    full_logo_filename = "#{datagouv_id}_full#{extension}"
+    logo_filename = "#{datagouv_id}.#{timestamp}#{extension}"
+    full_logo_filename = "#{datagouv_id}_full.#{timestamp}#{extension}"
     logo_path = Path.join(System.tmp_dir!(), logo_filename)
     full_logo_path = Path.join(System.tmp_dir!(), full_logo_filename)
 
@@ -21,11 +22,13 @@ defmodule Transport.Jobs.CustomLogoConversionJob do
 
     local_path
     |> Image.thumbnail!(100)
+    |> Image.flatten!(background_color: :white)
     |> Image.embed!(100, 100, background_color: :white, extend_mode: :white)
     |> Image.write!(logo_path)
 
     local_path
     |> Image.thumbnail!(500)
+    |> Image.flatten!(background_color: :white)
     |> Image.write!(full_logo_path)
 
     stream_to_s3(logo_path, logo_filename)

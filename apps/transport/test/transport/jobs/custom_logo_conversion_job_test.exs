@@ -16,8 +16,10 @@ defmodule Transport.Test.Transport.Jobs.CustomLogoConversionJobTest do
     remote_path = "#{Ecto.UUID.generate()}.png"
     local_path = Path.join(System.tmp_dir!(), remote_path)
 
-    logo_filename = "#{datagouv_id}.png"
-    full_logo_filename = "#{datagouv_id}_full.png"
+    inserted_at = DateTime.utc_now()
+    inserted_at_unix = DateTime.to_unix(inserted_at)
+    logo_filename = "#{datagouv_id}.#{inserted_at_unix}.png"
+    full_logo_filename = "#{datagouv_id}_full.#{inserted_at_unix}.png"
 
     Transport.ExAWS.Mock
     |> expect(:request!, fn %ExAws.S3.Download{
@@ -44,7 +46,12 @@ defmodule Transport.Test.Transport.Jobs.CustomLogoConversionJobTest do
 
     Transport.Test.S3TestUtils.s3_mocks_delete_object(Transport.S3.bucket_name(:logos), remote_path)
 
-    assert :ok == perform_job(CustomLogoConversionJob, %{"datagouv_id" => datagouv_id, "path" => remote_path})
+    assert :ok ==
+             perform_job(
+               CustomLogoConversionJob,
+               %{"datagouv_id" => datagouv_id, "path" => remote_path},
+               inserted_at: inserted_at
+             )
 
     refute File.exists?(local_path)
     expected_logo_url = Transport.S3.permanent_url(:logos, logo_filename)

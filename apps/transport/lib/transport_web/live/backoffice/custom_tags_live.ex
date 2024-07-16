@@ -38,13 +38,17 @@ defmodule TransportWeb.CustomTagsLive do
   end
 
   def tags_suggestions do
-    DB.Dataset.base_with_hidden_datasets()
-    |> select([d], fragment("distinct unnest(custom_tags)"))
-    |> DB.Repo.all()
-    |> Enum.sort()
+    tags_in_database =
+      DB.Dataset.base_with_hidden_datasets()
+      |> select([dataset: d], fragment("distinct unnest(custom_tags)"))
+      |> DB.Repo.all()
+
+    documented_tags = Enum.map(tags_documentation(), & &1.name)
+
+    (tags_in_database ++ documented_tags) |> Enum.sort() |> Enum.dedup()
   end
 
-  defp tags_documentation do
+  def tags_documentation do
     [
       %{name: "licence-mobilités", doc: "Applique la licence mobilités pour ce jeu de données"},
       %{
@@ -64,6 +68,10 @@ defmodule TransportWeb.CustomTagsLive do
         name: "masqué",
         doc:
           "Masque ce jeu de données des statistiques, de la recherche et de l'API. Le jeu reste accessible via son URL directe (web et API)."
+      },
+      %{
+        name: "authentification_requise",
+        doc: "Indique sur la page du JDD qu'il est nécessaire de s'authentifier pour accéder aux données."
       }
     ]
   end
