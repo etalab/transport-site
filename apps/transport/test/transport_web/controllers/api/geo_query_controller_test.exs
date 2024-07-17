@@ -76,7 +76,7 @@ defmodule TransportWeb.API.GeoQueryControllerTest do
     })
 
     assert_expected_geojson(conn,
-      data: "parkings-relais",
+      data: "parkings_relais",
       expected_features: [
         %{
           "geometry" => %{"coordinates" => [1, 1], "type" => "Point"},

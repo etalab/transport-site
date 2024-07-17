@@ -3,7 +3,7 @@ defmodule TransportWeb.API.GeoQueryController do
   import Ecto.Query
 
   def index(%Plug.Conn{} = conn, %{"data" => slug}) do
-    feature_atom = slug |> String.replace("-", "_") |> String.to_atom()
+    feature_atom = slug |> String.to_atom()
 
     if feature_atom in Transport.ConsolidatedDataset.geo_data_datasets() do
       dataset = Transport.ConsolidatedDataset.dataset(feature_atom)
