@@ -114,6 +114,9 @@ config :transport,
     bnlc: %{
       dataset_id: "bnlc_fake_dataset_id",
       resource_id: "bnlc_fake_resource_id"
+    },
+    irve: %{
+      resource_id: "eb76d20a-8501-400e-b336-d85724de5435"
     }
   }
 

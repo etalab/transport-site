@@ -43,12 +43,7 @@ defmodule Transport.Jobs.ParkingsRelaisToGeoDataTest do
     assert [] = DB.GeoData |> DB.Repo.all()
     assert [] = DB.GeoDataImport |> DB.Repo.all()
 
-    %DB.Dataset{id: dataset_id} =
-      insert(:dataset, %{
-        type: "private-parking",
-        custom_title: "Base nationale des parcs relais",
-        organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
-      })
+    %DB.Dataset{id: dataset_id} = insert_parcs_relais_dataset()
 
     insert(:resource, %{dataset_id: dataset_id, is_community_resource: true})
     %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, title: "parking-relais.csv", format: "csv"})

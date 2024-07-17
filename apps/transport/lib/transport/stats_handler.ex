@@ -19,7 +19,7 @@ defmodule Transport.StatsHandler do
   end
 
   defp store_stat_history(key, values, %DateTime{} = timestamp)
-       when key in [:gtfs_rt_types, :climate_resilience_bill_count] do
+       when key in [:gtfs_rt_types, :climate_resilience_bill_count, :count_geo_data_lines] do
     Enum.map(values, fn {type, count} ->
       store_stat_history("#{key}::#{type}", count, timestamp)
     end)
@@ -87,7 +87,8 @@ defmodule Transport.StatsHandler do
       gtfs_rt_types: count_feed_types_gtfs_rt(),
       climate_resilience_bill_count: count_datasets_climate_resilience_bill(),
       nb_siri: count_dataset_with_format("SIRI"),
-      nb_siri_lite: count_dataset_with_format("SIRI Lite")
+      nb_siri_lite: count_dataset_with_format("SIRI Lite"),
+      count_geo_data_lines: count_geo_data_lines()
     }
   end
 
@@ -236,5 +237,16 @@ defmodule Transport.StatsHandler do
         Map.get(aom_max_severity, "NoError", 0)
 
     sum / nb_aom_with_data
+  end
+
+  def count_geo_data_lines do
+    Transport.ConsolidatedDataset.geo_data_datasets()
+    |> Map.new(fn feature -> {feature, count_geo_data_lines(feature)} end)
+  end
+
+  def count_geo_data_lines(feature) do
+    Transport.ConsolidatedDataset.dataset(feature).id
+    |> DB.GeoDataImport.dataset_latest_geo_data_import()
+    |> DB.GeoData.count_lines_for_geo_data_import()
   end
 end

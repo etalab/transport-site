@@ -237,6 +237,11 @@ defmodule TransportWeb.API.StatsControllerTest do
       resource: insert(:resource, format: "gtfs-rt")
     )
 
+    insert_bnlc_dataset()
+    insert_parcs_relais_dataset()
+    insert_irve_dataset()
+    insert_zfe_dataset()
+
     conn2 = conn |> get(TransportWeb.Router.Helpers.stats_path(conn, :index))
     assert conn2 |> html_response(200) =~ ~s(<span title="service_alerts">Info trafic</span> : 2)
   end
