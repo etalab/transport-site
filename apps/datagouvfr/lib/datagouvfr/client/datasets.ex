@@ -1,6 +1,7 @@
 defmodule Datagouvfr.Client.Datasets do
   @moduledoc """
-  A Wrapper to get Datasets from data.gouv.fr API (or mock it for tests)
+  A wrapper to get datasets from data.gouv.fr API (or mock it for tests)
+  See https://doc.data.gouv.fr/api/reference/#/datasets
   """
 
   import Datagouvfr.Gettext
