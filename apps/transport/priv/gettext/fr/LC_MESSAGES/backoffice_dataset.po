@@ -12,8 +12,8 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n>1);"
 
 #, elixir-autogen, elixir-format
-msgid "Dataset deleted"
-msgstr "Jeu de données supprimé"
+msgid "Dataset unlisted"
+msgstr "Jeu de données déréférencé"
 
 #, elixir-autogen, elixir-format
 msgid "Dataset imported with success"
@@ -26,6 +26,10 @@ msgstr "Impossible d'importer le jeu de données"
 #, elixir-autogen, elixir-format
 msgid "Could not add dataset"
 msgstr "Impossible d'ajouter le jeu de données"
+
+#, elixir-autogen, elixir-format
+msgid "Could not unlist dataset"
+msgstr "Impossible de déréférencer le jeu de données"
 
 #, elixir-autogen, elixir-format
 msgid "Dataset added with success"

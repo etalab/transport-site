@@ -44,13 +44,6 @@ msgstr "Jeux de données ajouté avec succès"
 msgid "Dataset not imported"
 msgstr "Échec à l’import du jeu de données"
 
-#, elixir-autogen
-msgid "Could not delete dataset"
-msgstr "Impossible de supprimer le jeu de données"
-
-msgid "Dataset deleted"
-msgstr "Jeu de données supprimé"
-
 msgid "Could not add dataset"
 msgstr "Impossible d’ajouter le jeu de données"
 
