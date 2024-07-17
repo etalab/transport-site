@@ -76,18 +76,6 @@ defmodule Datagouvfr.Client.Datasets do
   def get_infos_from_url(url), do: impl().get_infos_from_url(url)
 
   @doc """
-  Make a user follow a dataset
-  """
-  @callback post_followers(Plug.Conn.t(), String.t()) :: {atom, map}
-  def post_followers(%Plug.Conn{} = conn, dataset_id), do: impl().post_followers(conn, dataset_id)
-
-  @doc """
-  Make a user unfollow a dataset
-  """
-  @callback delete_followers(Plug.Conn.t(), String.t()) :: {atom, map}
-  def delete_followers(%Plug.Conn{} = conn, dataset_id), do: impl().delete_followers(conn, dataset_id)
-
-  @doc """
   Fetch **only user IDs** following a dataset.
   """
   @callback get_followers(String.t()) :: {atom, map}
@@ -109,7 +97,6 @@ defmodule Datagouvfr.Client.Datasets.External do
   """
 
   alias Datagouvfr.Client.API
-  alias Datagouvfr.Client.OAuth, as: OAuthClient
   require Logger
   alias Helpers
 
@@ -140,28 +127,6 @@ defmodule Datagouvfr.Client.Datasets.External do
     else
       _ -> nil
     end
-  end
-
-  @doc """
-  Make a user follow a dataset
-  """
-  @spec post_followers(Plug.Conn.t(), String.t()) :: {atom, map}
-  def post_followers(%Plug.Conn{} = conn, dataset_id) do
-    OAuthClient.post(
-      conn,
-      Path.join([@endpoint, dataset_id, "followers"])
-    )
-  end
-
-  @doc """
-  Make a user unfollow a dataset
-  """
-  @spec delete_followers(Plug.Conn.t(), String.t()) :: {atom, map}
-  def delete_followers(%Plug.Conn{} = conn, dataset_id) do
-    OAuthClient.delete(
-      conn,
-      Path.join([@endpoint, dataset_id, "followers"])
-    )
   end
 
   @doc """
