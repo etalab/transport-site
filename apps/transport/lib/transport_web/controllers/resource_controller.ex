@@ -183,36 +183,52 @@ defmodule TransportWeb.ResourceController do
   """
   @spec resources_list(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def resources_list(conn, %{"dataset_id" => dataset_id}) do
-    conn
-    |> assign_or_flash(
-      fn -> Datagouvfr.Client.Datasets.get(dataset_id) end,
-      :dataset,
-      "Unable to get resources, please retry."
-    )
-    |> render("resources_list.html")
+    case Datagouvfr.Client.Datasets.get(dataset_id) do
+      {:ok, dataset} ->
+        conn
+        |> assign(:dataset, dataset)
+        |> render("resources_list.html")
+    _ ->
+      conn
+      |> put_flash(:error, Gettext.dgettext(TransportWeb.Gettext, "resource", "Unable to get resources, please retry."))
+      |> put_view(ErrorView)
+      |> render("404.html")
+    end
   end
 
   @spec form(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def form(conn, %{"dataset_id" => dataset_id} = params) do
-    conn =
+    with {:ok, dataset} <- Datagouvfr.Client.Datasets.get(dataset_id),
+       # Resource and resource_id may be nil in case of a new resource
+       resource <- assign_resource_from_dataset_payload(dataset, params["resource_id"]) do
       conn
-      |> assign_or_flash(
-        fn -> Datagouvfr.Client.Datasets.get(dataset_id) end,
-        :dataset,
-        "Unable to get resources, please retry."
-      )
-
-    # There may or may not be a resource_id in params: depending if it’s for a new one or editing an existing one
-    # This code will be better in a next PR with probably two clauses on form/2
-    resource = Enum.find(conn.assigns[:dataset]["resources"], &(&1["id"] == params["resource_id"]))
-
-    conn
-    |> assign(:resource, resource)
-    |> render("form.html")
+      |> assign(:dataset, dataset)
+      |> assign(:resource, resource)
+      |> render("form.html")
+       else
+        _ ->
+          conn
+          |> put_flash(:error, Gettext.dgettext(TransportWeb.Gettext, "resource", "Unable to get resources, please retry."))
+          |> put_view(ErrorView)
+          |> render("404.html")
+        end
   end
 
-  def delete_resource_confirmation(%Plug.Conn{} = conn, %{"dataset_id" => _, "resource_id" => _} = params) do
-    conn |> get_resource(params) |> render("delete_resource_confirmation.html")
+  def delete_resource_confirmation(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id, "resource_id" => resource_id}) do
+    with {:ok, dataset} <- Datagouvfr.Client.Datasets.get(dataset_id),
+    # Resource and resource_id may be nil in case of a new resource
+    resource when not is_nil(resource) <- assign_resource_from_dataset_payload(dataset, resource_id) do
+   conn
+   |> assign(:dataset, dataset)
+   |> assign(:resource, resource)
+   |> render("delete_resource_confirmation.html")
+    else
+     _ ->
+       conn
+       |> put_flash(:error, Gettext.dgettext(TransportWeb.Gettext, "resource", "Unable to get resources, please retry."))
+       |> put_view(ErrorView)
+       |> render("404.html")
+     end
   end
 
   def delete(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id, "resource_id" => _} = params) do
@@ -231,8 +247,6 @@ defmodule TransportWeb.ResourceController do
         |> redirect(to: page_path(conn, :espace_producteur))
     end
   end
-
-  defp get_resource(%Plug.Conn{} = conn, _), do: conn
 
   @doc """
   `download` is in charge of downloading resources.
@@ -337,18 +351,17 @@ defmodule TransportWeb.ResourceController do
     end
   end
 
-  defp assign_or_flash(conn, getter, kw, error) do
-    case getter.() do
-      {:ok, value} ->
-        assign(conn, kw, value)
+  defp assign_resource_from_dataset_payload(%Plug.Conn{assigns: %{dataset: dataset}} = conn, params) do
+    # There may or may not be a resource_id in params: depending if it’s for a new one or editing an existing one
+    # This code will be better in a next PR with probably two clauses on form/2
+    dbg(dataset)
+    resource = Enum.find(dataset["resources"], &(&1["id"] == params["resource_id"]))
 
-      value when is_map(value) ->
-        assign(conn, kw, value)
+    conn
+    |> assign(:resource, resource)
+  end
 
-      {:error, _error} ->
-        conn
-        |> assign(kw, [])
-        |> put_flash(:error, Gettext.dgettext(TransportWeb.Gettext, "resource", error))
-    end
+  defp assign_resource_from_dataset_payload(dataset, resource_id) do
+    Enum.find(dataset["resources"], &(&1["id"] == resource_id))
   end
 end
