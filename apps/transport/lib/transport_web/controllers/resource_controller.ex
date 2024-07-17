@@ -361,15 +361,6 @@ defmodule TransportWeb.ResourceController do
     end
   end
 
-  defp assign_resource_from_dataset_payload(%Plug.Conn{assigns: %{dataset: dataset}} = conn, params) do
-    # There may or may not be a resource_id in params: depending if it’s for a new one or editing an existing one
-    # This code will be better in a next PR with probably two clauses on form/2
-    resource = Enum.find(dataset["resources"], &(&1["id"] == params["resource_id"]))
-
-    conn
-    |> assign(:resource, resource)
-  end
-
   defp assign_resource_from_dataset_payload(dataset, resource_id) do
     Enum.find(dataset["resources"], &(&1["id"] == resource_id))
   end
