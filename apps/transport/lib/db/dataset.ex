@@ -451,12 +451,12 @@ defmodule DB.Dataset do
   end
 
   def order_datasets(datasets, _params) do
-    pan_publisher = Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
+    pan_publisher = Application.fetch_env!(:transport, :datagouvfr_transport_publisher_id)
 
     order_by(datasets,
       desc:
         fragment(
-          "case when organization = ? and custom_title ilike 'base nationale%' then 1 else 0 end",
+          "case when organization_id = ? and custom_title ilike 'base nationale%' then 1 else 0 end",
           ^pan_publisher
         ),
       # Gotcha, population can be null for datasets covering France/Europe

@@ -2,11 +2,12 @@ defmodule TransportWeb.ExploreController do
   use TransportWeb, :controller
 
   def index(conn, _params) do
+    consolidated_datasets_assigns =
+      Transport.ConsolidatedDataset.geo_data_datasets()
+      |> Map.new(&{String.to_atom("#{&1}_dataset"), Transport.ConsolidatedDataset.dataset(&1)})
+
     conn
-    |> assign(:bnlc_dataset, Transport.Jobs.BNLCToGeoData.relevant_dataset())
-    |> assign(:parcs_relais_dataset, Transport.Jobs.ParkingsRelaisToGeoData.relevant_dataset())
-    |> assign(:zfe_dataset, Transport.Jobs.LowEmissionZonesToGeoData.relevant_dataset())
-    |> assign(:irve_dataset, Transport.Jobs.IRVEToGeoData.relevant_dataset())
+    |> merge_assigns(consolidated_datasets_assigns)
     |> render("explore.html")
   end
 

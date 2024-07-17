@@ -4,27 +4,14 @@ defmodule Transport.Jobs.BNLCToGeoData do
   in the geo_data table
   """
   use Oban.Worker, max_attempts: 3
-  import Ecto.Query
   require Logger
 
   @impl Oban.Worker
   def perform(%{}) do
-    [%DB.Resource{} = resource] =
-      relevant_dataset()
-      |> Map.fetch!(:resources)
-      |> Enum.filter(fn %DB.Resource{datagouv_id: datagouv_id} -> datagouv_id == bnlc_datagouv_id() end)
+    Transport.ConsolidatedDataset.resource(:bnlc)
+    |> Transport.Jobs.BaseGeoData.import_replace_data(&prepare_data_for_insert/2)
 
-    Transport.Jobs.BaseGeoData.import_replace_data(resource, &prepare_data_for_insert/2)
     :ok
-  end
-
-  def relevant_dataset do
-    transport_publisher_label = Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
-
-    DB.Dataset.base_query()
-    |> preload(:resources)
-    |> where([d], d.type == "carpooling-areas" and d.organization == ^transport_publisher_label)
-    |> DB.Repo.one!()
   end
 
   def prepare_data_for_insert(body, geo_data_import_id) do
@@ -42,10 +29,5 @@ defmodule Transport.Jobs.BNLCToGeoData do
     end
 
     Transport.Jobs.BaseGeoData.prepare_csv_data_for_import(body, prepare_data_fn)
-  end
-
-  defp bnlc_datagouv_id do
-    %{resource_id: resource_id} = Map.fetch!(Application.fetch_env!(:transport, :consolidation), :bnlc)
-    resource_id
   end
 end

@@ -33,4 +33,11 @@ defmodule DB.GeoData do
 
     query |> DB.Repo.one()
   end
+
+  def count_lines_for_geo_data_import(nil), do: 0
+
+  @spec count_lines_for_geo_data_import(DB.GeoDataImport.t()) :: integer()
+  def count_lines_for_geo_data_import(geo_data_import) do
+    from(g in DB.GeoData, where: g.geo_data_import_id == ^geo_data_import.id, select: count(g.id)) |> DB.Repo.one!()
+  end
 end
