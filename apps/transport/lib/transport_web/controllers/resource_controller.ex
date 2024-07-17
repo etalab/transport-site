@@ -198,7 +198,7 @@ defmodule TransportWeb.ResourceController do
     conn =
       conn
       |> assign_or_flash(
-        fn -> Datasets.get(dataset_id) end,
+        fn -> Datagouvfr.Client.Datasets.get(dataset_id) end,
         :dataset,
         "Unable to get resources, please retry."
       )

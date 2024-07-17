@@ -9,7 +9,7 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-    # Using the real implementation for the moment, and then it fallsback on HTTPoison.Mock
+    # Using the real implementation for the moment, then it falls back on `HTTPoison.Mock`
     Mox.stub_with(Datagouvfr.Client.Datasets.Mock, Datagouvfr.Client.Datasets.External)
     :ok
   end

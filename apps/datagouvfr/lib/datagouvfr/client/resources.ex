@@ -1,6 +1,7 @@
 defmodule Datagouvfr.Client.Resources do
   @moduledoc """
-  A Wrapper to get Resources from data.gouv.fr API (or mock it for tests)
+  A wrapper to get resources from data.gouv.fr API (or mock it for tests)
+  See https://doc.data.gouv.fr/api/reference/#/datasets
   """
 
   @doc """

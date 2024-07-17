@@ -13,7 +13,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
   setup :verify_on_exit!
 
   setup do
-    # Using the real implementation for the moment, and then it fallsback on HTTPoison.Mock
+    # Using the real implementation for the moment, then it falls back on `HTTPoison.Mock`
     Mox.stub_with(Datagouvfr.Client.Resources.Mock, Datagouvfr.Client.Resources.External)
     Mox.stub_with(Datagouvfr.Client.Datasets.Mock, Datagouvfr.Client.Datasets.External)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
