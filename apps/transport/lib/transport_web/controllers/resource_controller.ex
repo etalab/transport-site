@@ -1,6 +1,5 @@
 defmodule TransportWeb.ResourceController do
   use TransportWeb, :controller
-  alias Datagouvfr.Client.{Datasets, Resources}
   alias DB.{Dataset, Repo, Resource}
   alias Transport.DataVisualization
   alias Transport.ImportData
@@ -186,7 +185,7 @@ defmodule TransportWeb.ResourceController do
   def resources_list(conn, %{"dataset_id" => dataset_id}) do
     conn
     |> assign_or_flash(
-      fn -> Datasets.get(dataset_id) end,
+      fn -> Datagouvfr.Client.Datasets.get(dataset_id) end,
       :dataset,
       "Unable to get resources, please retry."
     )
@@ -217,7 +216,7 @@ defmodule TransportWeb.ResourceController do
   end
 
   def delete(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id, "resource_id" => _} = params) do
-    with {:ok, _} <- Resources.delete(conn, params),
+    with {:ok, _} <- Datagouvfr.Client.Resources.delete(conn, params),
          dataset when not is_nil(dataset) <-
            Repo.get_by(Dataset, datagouv_id: dataset_id),
          {:ok, _} <- ImportData.import_dataset_logged(dataset),
@@ -311,7 +310,7 @@ defmodule TransportWeb.ResourceController do
         dgettext("resource", "Resource updated with URL!")
       end
 
-    with {:ok, _} <- Resources.update(conn, params),
+    with {:ok, _} <- Datagouvfr.Client.Resources.update(conn, params),
          dataset when not is_nil(dataset) <-
            Repo.get_by(Dataset, datagouv_id: params["dataset_id"]),
          {:ok, _} <- ImportData.import_dataset_logged(dataset),
