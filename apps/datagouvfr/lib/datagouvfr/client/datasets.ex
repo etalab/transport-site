@@ -95,7 +95,7 @@ defmodule Datagouvfr.Client.Datasets do
 
   @doc """
   Call to GET /api/1/datasets/:id/
-  You can see documentation here: http://www.data.gouv.fr/fr/apidoc/#!/datasets/put_dataset
+  You can see documentation here: https://doc.data.gouv.fr/api/reference/#/datasets/get_dataset
   """
   @callback get(String.t()) :: {atom, any}
   def get(id), do: impl().get(id)
@@ -176,7 +176,7 @@ defmodule Datagouvfr.Client.Datasets.External do
 
   @doc """
   Call to GET /api/1/datasets/:id/
-  You can see documentation here: http://www.data.gouv.fr/fr/apidoc/#!/datasets/put_dataset
+  You can see documentation here: https://doc.data.gouv.fr/api/reference/#/datasets/get_dataset
   """
   @spec get(String.t()) :: {atom, any}
   def get(id) do
