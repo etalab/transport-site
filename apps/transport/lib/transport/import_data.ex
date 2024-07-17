@@ -500,8 +500,8 @@ defmodule Transport.ImportData do
       format?(params["url"], ["json", "csv", "shp", "pdf", "7z"]) -> false
       format?(params["format"], "NeTEx") -> false
       netex?(params["title"]) -> false
-      gtfs?(params["description"]) -> true
       gtfs?(params["title"]) -> true
+      gtfs?(params["description"]) -> true
       true -> false
     end
   end
@@ -535,8 +535,8 @@ defmodule Transport.ImportData do
     cond do
       gtfs_rt?(params["format"]) -> true
       ods_resource?(params) or documentation?(params) -> false
-      gtfs_rt?(params["description"]) -> true
       gtfs_rt?(params["title"]) -> true
+      gtfs_rt?(params["description"]) -> true
       gtfs_rt?(params["url"]) -> true
       true -> false
     end
@@ -617,28 +617,36 @@ defmodule Transport.ImportData do
   true
   iex> siri_lite?("SIRI Lite")
   true
+  iex> siri_lite?(%{"title" => "SIRI-Lite stop monitoring", "url" => "https://example.com/utw/ws/siri/2.0/stop-monitoring.json?AccountKey=opendata-flux-gtfs-rt", "format" => "octet-stream", "description" => "Informations au format SIRI-Lite"})
+  true
   iex> siri_lite?("SIRI")
   false
   """
   @spec siri_lite?(binary() | map()) :: boolean()
-  def siri_lite?(params) do
+  def siri_lite?(%{} = params) do
     cond do
       ods_resource?(params) or documentation?(params) -> false
       format?(params, "SIRI Lite") -> true
+      siri_lite?(params["title"]) -> true
+      siri_lite?(params["description"]) -> true
+      siri_lite?(params["url"]) -> true
       true -> false
     end
   end
 
+  def siri_lite?(format), do: format?(format, "SIRI Lite")
+
   @doc """
-  check the format
-      iex> format?("NeTEx", ["GTFS", "NeTEx"])
-      true
+  Does a format matches another format/list of candidate formats?
 
-      iex> format?("pouet", ["GTFS", "NeTEx"])
-      false
-
-      iex> format?(%{"format" => "NeTEx"}, "NeTEx")
-      true
+  iex> format?("NeTEx", ["GTFS", "NeTEx"])
+  true
+  iex> format?("pouet", ["GTFS", "NeTEx"])
+  false
+  iex> format?(%{"format" => "NeTEx"}, "NeTEx")
+  true
+  iex> format?("siri lite", "SIRI-Lite")
+  true
   """
   @spec format?(binary() | map(), binary() | [binary()]) :: boolean
   def format?(nil, _), do: false
