@@ -8,7 +8,7 @@ defmodule Datagouvfr.Client.Resources do
   Update a file, without using the OAuth client, to update
   files published by the PAN org on data.gouv.fr.
   """
-  @callback update(map) :: Datagouvfr.Client.OAuth.oauth2_response() | nil
+  @callback update(map) :: Datagouvfr.Client.API.response() | nil
   def update(map), do: impl().update(map)
 
   @doc """
