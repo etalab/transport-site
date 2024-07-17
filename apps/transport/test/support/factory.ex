@@ -361,4 +361,70 @@ defmodule DB.Factory do
       attributes
     )
   end
+
+  def insert_irve_dataset do
+    insert(:dataset, %{
+      type: "charging-stations",
+      custom_title: "Infrastructures de Recharge pour Véhicules Électriques - IRVE",
+      organization: "data.gouv.fr",
+      organization_id: "646b7187b50b2a93b1ae3d45",
+      aom: build(:aom, population: 1_000_000)
+    })
+  end
+
+  def insert_bnlc_dataset do
+    insert(:dataset, %{
+      type: "carpooling-areas",
+      organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
+      organization_id: "5abca8d588ee386ee6ece479",
+      aom: build(:aom, population: 1_000_000)
+    })
+  end
+
+  def insert_parcs_relais_dataset do
+    insert(:dataset, %{
+      type: "private-parking",
+      custom_title: "Base nationale des parcs relais",
+      organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
+      organization_id: "5abca8d588ee386ee6ece479",
+      aom: build(:aom, population: 1_000_000)
+    })
+  end
+
+  def insert_zfe_dataset do
+    insert(:dataset, %{
+      type: "low-emission-zones",
+      custom_title: "Base Nationale des Zones à Faibles Émissions (BNZFE)",
+      organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
+      organization_id: "5abca8d588ee386ee6ece479",
+      aom: build(:aom, population: 1_000_000)
+    })
+  end
+
+  def insert_imported_irve_geo_data(dataset_id) do
+    %{id: resource_history_id} = insert(:resource_history, %{payload: %{"dataset_id" => dataset_id}})
+    %{id: geo_data_import_id} = insert(:geo_data_import, %{resource_history_id: resource_history_id})
+
+    insert(:geo_data, %{
+      geo_data_import_id: geo_data_import_id,
+      geom: %Geo.Point{coordinates: {1, 1}, srid: 4326},
+      payload: %{
+        "nom_enseigne" => "Recharge Super 95",
+        "id_station_itinerance" => "FRELCPEYSPC",
+        "nom_station" => "Dehaven Centre",
+        "nbre_pdc" => 2
+      }
+    })
+
+    insert(:geo_data, %{
+      geo_data_import_id: geo_data_import_id,
+      geom: %Geo.Point{coordinates: {2, 2}, srid: 4326},
+      payload: %{
+        "nom_enseigne" => "Recharge Super 95",
+        "id_station_itinerance" => "FRELCPBLOHM",
+        "nom_station" => "Gemina Port",
+        "nbre_pdc" => 3
+      }
+    })
+  end
 end

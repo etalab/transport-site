@@ -119,7 +119,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
     |> join(:inner, [r], d in Dataset,
       on:
         r.dataset_id == d.id and d.type == @lez_dataset_type and
-          d.organization != ^own_publisher
+          d.organization_id != ^own_publisher
     )
     |> where([r], r.schema_name == @schema_name)
     |> preload(dataset: [:aom])
@@ -191,7 +191,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
   end
 
   def pan_publisher do
-    Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
+    Application.fetch_env!(:transport, :datagouvfr_transport_publisher_id)
   end
 
   def resource_id_for_type(type) do

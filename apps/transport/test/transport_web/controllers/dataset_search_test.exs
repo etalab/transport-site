@@ -236,7 +236,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
       insert(:dataset,
         type: "public-transit",
         custom_title: "Base nationale des GTFS",
-        organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
+        organization_id: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_id)
       )
 
     results = %{"type" => "public-transit"} |> Dataset.list_datasets() |> Repo.all()

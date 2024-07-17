@@ -125,7 +125,7 @@ document.getElementById('bnlc-check').addEventListener('change', (event) => {
 document.getElementById('parkings_relais-check').addEventListener('change', (event) => {
     if (event.currentTarget.checked) {
         trackEvent('parkings-relais')
-        fetch('/api/geo-query?data=parkings-relais')
+        fetch('/api/geo-query?data=parkings_relais')
             .then(data => updateParkingsRelaisLayer(data.json()))
     } else {
         updateParkingsRelaisLayer(null)

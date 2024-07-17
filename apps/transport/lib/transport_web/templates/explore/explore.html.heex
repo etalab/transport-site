@@ -1,6 +1,6 @@
 <% real_time_datasets = dataset_path(@conn, :index, type: "public-transit", filter: "has_realtime") %>
 <% bnlc_link = dataset_path(@conn, :details, @bnlc_dataset.slug) %>
-<% parcs_relais_link = dataset_path(@conn, :details, @parcs_relais_dataset.slug) %>
+<% parcs_relais_link = dataset_path(@conn, :details, @parkings_relais_dataset.slug) %>
 <% zfe_link = dataset_path(@conn, :details, @zfe_dataset.slug) %>
 <% irve_link = dataset_path(@conn, :details, @irve_dataset.slug) %>
 <div class="container dataset-page-top">
