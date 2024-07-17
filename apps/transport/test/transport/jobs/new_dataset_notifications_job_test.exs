@@ -25,21 +25,32 @@ defmodule Transport.Test.Transport.Jobs.NewDatasetNotificationsJobTest do
 
   test "perform" do
     %DB.Dataset{id: dataset_id} = insert(:dataset, inserted_at: hours_ago(23), is_active: true)
-    %DB.Contact{id: contact_id, email: email} = insert_contact()
-    insert(:notification_subscription, %{reason: :new_dataset, source: :admin, role: :reuser, contact_id: contact_id})
+    %DB.Contact{id: contact_id, email: email} = contact = insert_contact()
+
+    %DB.NotificationSubscription{id: ns_id} =
+      insert(:notification_subscription, %{reason: :new_dataset, source: :admin, role: :reuser, contact_id: contact_id})
 
     assert :ok == perform_job(NewDatasetNotificationsJob, %{}, inserted_at: DateTime.utc_now())
 
     assert_email_sent(
       from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-      to: email,
+      to: {DB.Contact.display_name(contact), email},
       subject: "Nouveaux jeux de données référencés",
-      text_body: ~r/Bonjour/,
-      html_body: nil
+      text_body: nil,
+      html_body: ~r|<p>Bonjour,</p>|
     )
 
     # Logs have been saved
-    assert [%DB.Notification{email: ^email, reason: :new_dataset, dataset_id: ^dataset_id}] =
+    assert [
+             %DB.Notification{
+               contact_id: ^contact_id,
+               email: ^email,
+               reason: :new_dataset,
+               dataset_id: nil,
+               notification_subscription_id: ^ns_id,
+               payload: %{"dataset_ids" => [^dataset_id]}
+             }
+           ] =
              DB.Notification |> DB.Repo.all()
   end
 

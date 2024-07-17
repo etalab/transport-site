@@ -4,13 +4,18 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
   import DB.Factory
   import Mox
 
+  @admin_datagouv_id "5e60d6668b4c410c429b8a4a"
+
   setup :verify_on_exit!
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    %{admin_org: insert(:organization, name: "Point d'Accès National transport.data.gouv.fr")}
   end
 
-  test "render some discussions", %{conn: conn} do
+  test "render some discussions", %{conn: conn, admin_org: admin_org} do
+    insert_contact(%{datagouv_user_id: @admin_datagouv_id, organizations: [Map.from_struct(admin_org)]})
+
     dataset =
       insert(:dataset,
         datagouv_id: datagouv_id = Ecto.UUID.generate(),
@@ -38,18 +43,26 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
     discussion_title_text =
       parsed_content |> Floki.find(".discussion-title h4") |> Floki.text()
 
-    [question_comment, answer_comment] =
-      parsed_content |> Floki.find(".discussion-comment")
-
-    [question_comment_text, answer_comment_text] = [question_comment, answer_comment] |> Enum.map(&Floki.text/1)
+    [question_comment, answer_comment] = Floki.find(parsed_content, ".discussion-comment")
+    question_comment_text = Floki.text(question_comment)
 
     assert discussion_title_text =~ "Le titre de la question"
     assert question_comment_text =~ "petite question"
     assert question_comment_text =~ "Francis Chabouis"
     assert question_comment_text =~ "07/06/2023"
     refute question_comment_text =~ "Producteur de la donnée"
+
+    # This user is a member of transport.data.gouv.fr
+    assert [@admin_datagouv_id] == DB.Contact.admin_datagouv_ids()
+
+    assert question_comment |> Floki.find(".label.label--role") |> Floki.text() |> String.trim() ==
+             "transport.data.gouv.fr"
+
     assert question_comment |> Floki.find("img") |> Floki.attribute("alt") == ["Francis Chabouis"]
-    assert answer_comment_text =~ "Producteur de la donnée"
+
+    # Producer badge
+    assert answer_comment |> Floki.find(".label.label--role") |> Floki.text() |> String.trim() =~
+             "Producteur de la donnée"
 
     assert answer_comment |> Floki.find("img") |> Floki.attribute("src") == [
              "https://demo-static.data.gouv.fr/avatars/85/53e0a3845e43eb87fb905032aaa389-100.png"
@@ -241,7 +254,7 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
                 "https://demo-static.data.gouv.fr/avatars/66/831b849f1c454683bbc9253c5ee191-500.png",
               "class" => "User",
               "first_name" => "Francis",
-              "id" => "5e60d6668b4c410c429b8a4a",
+              "id" => @admin_datagouv_id,
               "last_name" => "Chabouis",
               "page" => "https://demo.data.gouv.fr/fr/users/francis-chabouis-1/",
               "slug" => "francis-chabouis-1",

@@ -173,14 +173,17 @@ function updateIRVELayer (geojson) {
 
 function trackEvent (layer) {
     // https://matomo.org/faq/reports/implement-event-tracking-with-matomo/#how-to-set-up-matomo-event-tracking-with-javascript
-    window._paq.push(['trackEvent', 'explore-map', 'enable-layer', layer])
+    // `window._paq` is only defined in production (in templates/layout/app.html.heex)
+    if (window._paq) {
+        window._paq.push(['trackEvent', 'explore-map', 'enable-layer', layer])
+    }
 }
 
 function createPointsLayer (geojson, id) {
     const fillColor = {
         'bnlc-layer': [255, 174, 0, 100],
         'parkings_relais-layer': [0, 33, 70, 100],
-        'zfe-layer': [155, 89, 182, 100],
+        'zfe-layer': [52, 8, 143, 100],
         'irve-layer': [245, 40, 145, 100]
     }[id]
 
@@ -192,6 +195,7 @@ function createPointsLayer (geojson, id) {
         filled: true,
         extruded: false,
         pointType: 'circle',
+        opacity: 1,
         getFillColor: fillColor,
         getPointRadius: 1000,
         pointRadiusUnits: 'meters',

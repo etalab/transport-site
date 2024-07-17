@@ -15,7 +15,7 @@ defmodule Transport.CommentsChecker do
   @type datagouv_comment :: map()
   @type comments_with_context :: {%Dataset{}, datagouv_id(), title(), [datagouv_comment()]}
 
-  @notification_reason DB.NotificationSubscription.reason(:daily_new_comments)
+  @notification_reason Transport.NotificationReason.reason(:daily_new_comments)
 
   def check_for_new_comments do
     comments_with_context = fetch_new_comments()
@@ -63,29 +63,26 @@ defmodule Transport.CommentsChecker do
     Logger.info("#{comments_number} new comment(s), sending emails")
 
     # Notifications for reusers are handled by `NewCommentsNotificationJob`
-    emails =
-      @notification_reason
-      |> DB.NotificationSubscription.subscriptions_for_reason_and_role(:producer)
-      |> DB.NotificationSubscription.subscriptions_to_emails()
+    DB.NotificationSubscription.subscriptions_for_reason_and_role(@notification_reason, :producer)
+    |> Enum.each(fn %DB.NotificationSubscription{contact: %DB.Contact{} = contact} = subscription ->
+      {:ok, _} =
+        Transport.UserNotifier.new_comments_producer(contact, comments_number, comments) |> Transport.Mailer.deliver()
 
-    Enum.each(emails, fn email ->
-      email
-      |> Transport.UserNotifier.new_comments_producer(comments_number, comments)
-      |> Transport.Mailer.deliver()
+      save_notification(comments, subscription)
     end)
 
     update_all_datasets_ts(comments)
-    save_notifications(comments, emails)
 
     :ok
   end
 
-  def save_notifications(comments_with_context, emails) do
-    comments_with_context
-    |> Enum.reject(fn {%Dataset{}, _datagouv_id, _title, comments} -> Enum.empty?(comments) end)
-    |> Enum.each(fn {%Dataset{} = dataset, _datagouv_id, _title, _comments} ->
-      Enum.each(emails, fn email -> DB.Notification.insert!(@notification_reason, dataset, email) end)
-    end)
+  def save_notification(comments_with_context, %DB.NotificationSubscription{} = subscription) do
+    dataset_ids =
+      comments_with_context
+      |> Enum.reject(fn {%Dataset{}, _datagouv_id, _title, comments} -> Enum.empty?(comments) end)
+      |> Enum.map(fn {%Dataset{id: dataset_id}, _datagouv_id, _title, _comments} -> dataset_id end)
+
+    DB.Notification.insert!(subscription, %{dataset_ids: dataset_ids})
   end
 
   @spec update_all_datasets_ts([comments_with_context()]) :: []

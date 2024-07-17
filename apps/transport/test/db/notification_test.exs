@@ -12,9 +12,9 @@ defmodule DB.NotificationTest do
 
     email = "foo@example.fr"
     other_email = Ecto.UUID.generate() <> "@example.com"
-    insert_notification(%{dataset: dataset, reason: :dataset_with_error, email: email})
-    insert_notification(%{dataset: dataset, reason: :dataset_with_error, email: email})
-    insert_notification(%{dataset: dataset, reason: :dataset_with_error, email: other_email})
+    insert_notification(%{dataset: dataset, role: :producer, reason: :dataset_with_error, email: email})
+    insert_notification(%{dataset: dataset, role: :producer, reason: :dataset_with_error, email: email})
+    insert_notification(%{dataset: dataset, role: :producer, reason: :dataset_with_error, email: other_email})
 
     # Can query using the hash column dedicated to search
     rows = DB.Notification |> where([n], n.email_hash == ^email) |> DB.Repo.all()
@@ -29,8 +29,14 @@ defmodule DB.NotificationTest do
   end
 
   test "can insert without a dataset" do
-    DB.Notification.insert!(:periodic_reminder_producers, email = Ecto.UUID.generate() <> "@example.fr")
-    assert [%DB.Notification{reason: :periodic_reminder_producers, email: ^email}] = DB.Notification |> DB.Repo.all()
+    insert_notification(%{
+      reason: :periodic_reminder_producers,
+      email: email = Ecto.UUID.generate() <> "@example.fr",
+      role: :producer
+    })
+
+    assert [%DB.Notification{reason: :periodic_reminder_producers, email: ^email, role: :producer}] =
+             DB.Notification |> DB.Repo.all()
   end
 
   test "recent_reasons_binned" do
@@ -38,23 +44,51 @@ defmodule DB.NotificationTest do
     yesterday = DateTime.add(DateTime.utc_now(), -1, :day)
     email = Ecto.UUID.generate() <> "@example.com"
     other_email = Ecto.UUID.generate() <> "@example.com"
+    reuser_email = Ecto.UUID.generate() <> "@example.com"
 
     # Should be ignored, this is an hidden reason
-    insert_notification(%{dataset: dataset, reason: :dataset_now_on_nap, email: email})
+    insert_notification(%{dataset: dataset, role: :producer, reason: :dataset_now_on_nap, email: email})
 
-    insert_notification(%{dataset: dataset, reason: :dataset_with_error, email: email}, %{
-      yesterday
-      | hour: 10,
-        minute: 22
+    insert_notification(%{
+      dataset: dataset,
+      role: :producer,
+      reason: :dataset_with_error,
+      email: email,
+      inserted_at: %{yesterday | hour: 10, minute: 22}
     })
 
-    insert_notification(%{dataset: dataset, reason: :dataset_with_error, email: other_email}, %{
-      yesterday
-      | hour: 10,
-        minute: 22
+    insert_notification(%{
+      dataset: dataset,
+      role: :producer,
+      reason: :dataset_with_error,
+      email: other_email,
+      inserted_at: %{yesterday | hour: 10, minute: 22}
     })
 
-    insert_notification(%{dataset: dataset, reason: :expiration, email: email}, %{yesterday | hour: 12, minute: 44})
+    insert_notification(%{
+      dataset: dataset,
+      role: :producer,
+      reason: :expiration,
+      email: email,
+      inserted_at: %{yesterday | hour: 12, minute: 44}
+    })
+
+    # Should be ignored: it's not for an enabled reason
+    insert_notification(%{
+      role: :producer,
+      reason: :promote_producer_space,
+      email: email,
+      inserted_at: %{yesterday | hour: 15, minute: 32}
+    })
+
+    # Should be ignored: it's for a reuser
+    insert_notification(%{
+      dataset: dataset,
+      role: :reuser,
+      reason: :expiration,
+      email: reuser_email,
+      inserted_at: %{yesterday | hour: 11, minute: 42}
+    })
 
     yesterday_time = fn hour, minute -> %{yesterday | hour: hour, minute: minute, second: 0, microsecond: {0, 6}} end
 
@@ -62,9 +96,5 @@ defmodule DB.NotificationTest do
              %{reason: :expiration, timestamp: yesterday_time.(12, 40)},
              %{reason: :dataset_with_error, timestamp: yesterday_time.(10, 20)}
            ] == DB.Notification.recent_reasons_binned(dataset, 7)
-  end
-
-  defp insert_notification(%{} = args, %DateTime{} = inserted_at) do
-    args |> insert_notification() |> Ecto.Changeset.change(%{inserted_at: inserted_at}) |> DB.Repo.update!()
   end
 end

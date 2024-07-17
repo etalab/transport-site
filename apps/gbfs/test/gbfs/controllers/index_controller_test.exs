@@ -20,7 +20,7 @@ defmodule GBFS.IndexControllerTest do
       # which means we can fix data for the test
       # see bottom of GBFS.Router for the static definition.
       # we're looking both to ensure we have a full url here, and that the path is as expected
-      assert first_href == "http://localhost/gbfs/vcub/gbfs.json"
+      assert first_href == "http://localhost/gbfs/amiens/gbfs.json"
     end
   end
 

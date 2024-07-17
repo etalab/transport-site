@@ -87,6 +87,7 @@ defmodule DB.Factory do
       last_import: DateTime.utc_now(),
       last_update: DateTime.utc_now(),
       title: "GTFS.zip",
+      counter_cache: %{},
       # NOTE: we should use real urls here (but something safe on localhost?)
       latest_url: "url",
       url: "url",
@@ -367,7 +368,7 @@ defmodule DB.Factory do
       custom_title: "Infrastructures de Recharge pour Véhicules Électriques - IRVE",
       organization: "data.gouv.fr",
       organization_id: "646b7187b50b2a93b1ae3d45",
-      aom: nil
+      aom: build(:aom, population: 1_000_000)
     })
   end
 
@@ -376,7 +377,7 @@ defmodule DB.Factory do
       type: "carpooling-areas",
       organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
       organization_id: "5abca8d588ee386ee6ece479",
-      aom: nil
+      aom: build(:aom, population: 1_000_000)
     })
   end
 
@@ -386,7 +387,7 @@ defmodule DB.Factory do
       custom_title: "Base nationale des parcs relais",
       organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
       organization_id: "5abca8d588ee386ee6ece479",
-      aom: nil
+      aom: build(:aom, population: 1_000_000)
     })
   end
 
@@ -396,7 +397,7 @@ defmodule DB.Factory do
       custom_title: "Base Nationale des Zones à Faibles Émissions (BNZFE)",
       organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
       organization_id: "5abca8d588ee386ee6ece479",
-      aom: nil
+      aom: build(:aom, population: 1_000_000)
     })
   end
 

@@ -11,11 +11,16 @@ defmodule Transport.Jobs.NewCommentsNotificationJob do
   """
   use Oban.Worker, max_attempts: 3, tags: ["notifications"]
   import Ecto.Query
-  @notification_reason DB.NotificationSubscription.reason(:daily_new_comments)
+  @notification_reason Transport.NotificationReason.reason(:daily_new_comments)
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"contact_id" => contact_id, "dataset_ids" => dataset_ids}}) do
-    contact = DB.Repo.get!(DB.Contact, contact_id)
+    subscription =
+      DB.NotificationSubscription
+      |> DB.Repo.get_by!(reason: @notification_reason, contact_id: contact_id)
+      |> DB.Repo.preload(:contact)
+
+    contact = Map.fetch!(subscription, :contact)
 
     datasets =
       DB.Contact.base_query()
@@ -28,7 +33,8 @@ defmodule Transport.Jobs.NewCommentsNotificationJob do
     |> Transport.UserNotifier.new_comments_reuser(datasets)
     |> Transport.Mailer.deliver()
 
-    Enum.each(datasets, fn %DB.Dataset{} = dataset -> save_notification(dataset, contact) end)
+    DB.Notification.insert!(subscription, %{dataset_ids: Enum.map(datasets, & &1.id)})
+    :ok
   end
 
   @impl Oban.Worker
@@ -81,9 +87,5 @@ defmodule Transport.Jobs.NewCommentsNotificationJob do
   """
   def nb_days_delay(%Date{} = date) do
     if Date.day_of_week(date) == 1, do: 3, else: 1
-  end
-
-  def save_notification(%DB.Dataset{} = dataset, %DB.Contact{email: email}) do
-    DB.Notification.insert!(@notification_reason, dataset, email)
   end
 end

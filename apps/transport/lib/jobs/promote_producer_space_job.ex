@@ -24,14 +24,24 @@ defmodule Transport.Jobs.PromoteProducerSpaceJob do
     unless Enum.empty?(datasets) do
       create_producer_subscriptions(contact, datasets)
 
-      {:ok, _} = Transport.UserNotifier.promote_producer_space(contact.email) |> Transport.Mailer.deliver()
+      {:ok, _} = Transport.UserNotifier.promote_producer_space(contact) |> Transport.Mailer.deliver()
+      save_notification(contact)
     end
 
     :ok
   end
 
+  defp save_notification(%DB.Contact{id: contact_id, email: email}) do
+    DB.Notification.insert!(%{
+      contact_id: contact_id,
+      email: email,
+      reason: Transport.NotificationReason.reason(:promote_producer_space),
+      role: :producer
+    })
+  end
+
   defp create_producer_subscriptions(%DB.Contact{id: contact_id}, datasets) do
-    reasons = DB.NotificationSubscription.subscribable_reasons_related_to_datasets(:producer)
+    reasons = Transport.NotificationReason.subscribable_reasons_related_to_datasets(:producer)
 
     for reason <- reasons, %DB.Dataset{id: dataset_id} <- datasets do
       # Do not use `insert!/1`: we may try to insert duplicates (existing subscriptions)

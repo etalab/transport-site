@@ -1,40 +1,69 @@
 <section class="container pt-48 pb-24">
   <%= breadcrumbs([@conn, :datasets_edit, @dataset.custom_title]) %>
 </section>
-<section class="reuser-space-section">
+<section class="reuser-space-section pb-48">
   <div class="container pt-24">
+    <h2 class="mb-0"><%= @dataset.custom_title %></h2>
+    <div class="align-right pb-24">
+      <a href="#modal" class="button warning">
+        <i class="icon fas fa-trash"></i>
+        <%= dgettext("reuser-space", "Remove from favorites") %>
+      </a>
+    </div>
     <div class="panel">
-      <h2><%= @dataset.custom_title %></h2>
-      <a href="#modal" class="button warning"><%= dgettext("reuser-space", "Remove from favorites") %></a>
-      <div class="modal__backdrop" id="modal">
-        <div class="modal">
-          <p>
-            Here we will have soon a few words highlighting how dangerous this action is. We also offer a complimentary escape option.
-          </p>
-          <%= form_for %{}, reuser_space_path(@conn, :unfavorite, @dataset.id), [class: "no-margin", method: "post"], fn _ -> %>
-            <div class="form__group button__group">
-              <button
-                class="button warning"
-                type="submit"
-                data-tracking-category="reuser_space"
-                data-tracking-action="confirm_unfavorite_dataset"
-              >
-                <%= dgettext("reuser-space", "Remove from favorites") %>
-              </button>
-              <a
-                href="#"
-                class="button secondary"
-                data-tracking-category="reuser_space"
-                data-tracking-action="abort_unfavorite_dataset"
-              >
-                <%= dgettext("reuser-space", "Cancel") %>
-              </a>
-            </div>
-          <% end %>
-        </div>
+      <h3><%= dgettext("reuser-space", "Manage notifications") %></h3>
+      <%= live_render(@conn, TransportWeb.Live.DatasetNotificationsLive, session: %{"dataset_id" => @dataset.id}) %>
+    </div>
+    <div class="panel">
+      <h3><%= dgettext("reuser-space", "Improved data sharing") %></h3>
+      <p class="notification">
+        <%= dgettext("reuser-space", "This feature is coming soon!") %>
+      </p>
+    </div>
+    <div class="panel">
+      <h3><%= dgettext("reuser-space", "Discussions") %></h3>
+      <p class="notification">
+        <%= dgettext("reuser-space", "This feature is coming soon!") %>
+      </p>
+    </div>
+    <div class="modal__backdrop" id="modal">
+      <div class="modal">
+        <p>
+          <%= dgettext(
+            "reuser-space",
+            ~s|Warning, you are going to remove "%{dataset_title}" from your favorites. You will lose any settings or actions you previously performed on this dataset.|,
+            dataset_title: @dataset.custom_title
+          ) %>
+        </p>
+        <%= form_for %{}, reuser_space_path(@conn, :unfavorite, @dataset.id), [class: "no-margin", method: "post"], fn _ -> %>
+          <div class="form__group button__group">
+            <button
+              class="button warning"
+              type="submit"
+              data-tracking-category="reuser_space"
+              data-tracking-action="confirm_unfavorite_dataset"
+            >
+              <i class="icon fas fa-trash"></i>
+              <%= dgettext("reuser-space", "Remove from favorites") %>
+            </button>
+            <a
+              href="#"
+              class="button secondary"
+              data-tracking-category="reuser_space"
+              data-tracking-action="abort_unfavorite_dataset"
+            >
+              <%= dgettext("reuser-space", "Cancel") %>
+            </a>
+          </div>
+        <% end %>
       </div>
     </div>
   </div>
 </section>
-
+<section class="section section-white">
+  <%= live_render(@conn, TransportWeb.Live.FeedbackLive,
+    id: "feedback-form",
+    session: %{"feature" => "reuser_space"}
+  ) %>
+</section>
 <script defer type="text/javascript" src={static_path(@conn, "/js/app.js")} />

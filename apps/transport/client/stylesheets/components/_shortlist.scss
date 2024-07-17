@@ -2,12 +2,6 @@
   display: flex;
 }
 
-.shortlist__pagination {
-  margin: 1em 0;
-  display: flex;
-  justify-content: flex-end;
-}
-
 .shortlist .side-pane {
   padding: 0;
   margin-right: 2em;
@@ -220,10 +214,6 @@
     flex-direction: column;
   }
 
-  .shortlist__pagination {
-    justify-content: center;
-  }
-
   .shortlist .side-pane {
     order: 2;
     margin-right: 0;
@@ -245,7 +235,7 @@
     flex-direction: column;
   }
 
-  .shortlist__pagination .pagination {
+  .pagination {
     justify-content: center;
   }
 }

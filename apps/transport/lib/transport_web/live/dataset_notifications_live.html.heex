@@ -1,0 +1,50 @@
+<div class="row">
+  <%= for %{reason: reason, explanations: explanations} <- @available_reasons do %>
+    <div class="card">
+      <div class="card__content">
+        <h5><%= Transport.NotificationReason.reason_to_str(reason) %></h5>
+        <p><%= explanations %></p>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<table class="table mt-24">
+  <.form :let={f} for={%{}}>
+    <tr>
+      <th scope="row" colspan="2"><%= @dataset.custom_title %></th>
+    </tr>
+
+    <%= for %{reason: reason} <- @available_reasons do %>
+      <tr>
+        <% subscription = @subscriptions[@dataset.id][reason][:user_subscription] %>
+        <td><%= Transport.NotificationReason.reason_to_str(reason) %></td>
+        <td>
+          <div class="form__group">
+            <fieldset>
+              <span {if subscription, do: [class: "is-grey"], else: []}>
+                <%= dgettext("espace-producteurs", "Off") %>&nbsp;
+              </span>
+              <label class="switch">
+                <%= checkbox(
+                  f,
+                  reason,
+                  checked: !is_nil(subscription),
+                  phx_value_dataset_id: @dataset.id,
+                  phx_value_reason: reason,
+                  phx_value_subscription_id: if(subscription, do: subscription.id, else: ""),
+                  phx_value_action: if(subscription, do: "turn_off", else: "turn_on"),
+                  phx_click: "toggle"
+                ) %>
+                <span class="slider"></span>
+                <span {if !subscription, do: [class: "is-grey"], else: []}>
+                  &nbsp;<%= dgettext("espace-producteurs", "On") %>
+                </span>
+              </label>
+            </fieldset>
+          </div>
+        </td>
+      </tr>
+    <% end %>
+  </.form>
+</table>

@@ -143,7 +143,7 @@ defmodule Transport.Test.Transport.Jobs.NewCommentsNotificationJobTest do
   end
 
   test "perform for a single contact" do
-    %DB.Contact{id: contact_id, email: email} = insert_contact()
+    %DB.Contact{id: contact_id, email: email} = contact = insert_contact()
     other_followed_dataset = insert(:dataset)
 
     %DB.Dataset{id: dataset1_id} =
@@ -157,7 +157,7 @@ defmodule Transport.Test.Transport.Jobs.NewCommentsNotificationJobTest do
     %DB.Dataset{id: other_dataset_id} =
       insert(:dataset, latest_data_gouv_comment_timestamp: ~U[2024-03-29 10:00:00.00Z])
 
-    # Identifies two datasets as relevant
+    # Identifies three datasets as relevant
     assert [%DB.Dataset{id: ^dataset1_id}, %DB.Dataset{id: ^dataset2_id}, %DB.Dataset{id: ^other_dataset_id}] =
              ~U[2024-04-01 09:00:00.00Z]
              |> NewCommentsNotificationJob.relevant_datasets_query()
@@ -168,6 +168,14 @@ defmodule Transport.Test.Transport.Jobs.NewCommentsNotificationJobTest do
     insert(:dataset_follower, dataset_id: dataset2_id, contact_id: contact_id, source: :datagouv)
     insert(:dataset_follower, dataset_id: other_followed_dataset.id, contact_id: contact_id, source: :datagouv)
 
+    %DB.NotificationSubscription{id: ns_id} =
+      insert(:notification_subscription,
+        contact_id: contact_id,
+        source: :user,
+        reason: :daily_new_comments,
+        role: :reuser
+      )
+
     # Perform the job for a single contact
     assert :ok ==
              perform_job(NewCommentsNotificationJob, %{
@@ -176,9 +184,11 @@ defmodule Transport.Test.Transport.Jobs.NewCommentsNotificationJobTest do
              })
 
     # Email has been sent
+    display_name = DB.Contact.display_name(contact)
+
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"", ^email}],
+                           to: [{^display_name, ^email}],
                            reply_to: {"", "contact@transport.data.gouv.fr"},
                            subject: "Nouveaux commentaires sur transport.data.gouv.fr",
                            text_body: nil,
@@ -203,10 +213,17 @@ defmodule Transport.Test.Transport.Jobs.NewCommentsNotificationJobTest do
       <p>L’équipe transport.data.gouv.fr</p>|)
     end)
 
-    # Notifications have been saved
+    # Notification has been saved
     assert [
-             %DB.Notification{reason: :daily_new_comments, dataset_id: ^dataset1_id, email: ^email},
-             %DB.Notification{reason: :daily_new_comments, dataset_id: ^dataset2_id, email: ^email}
+             %DB.Notification{
+               reason: :daily_new_comments,
+               role: :reuser,
+               dataset_id: nil,
+               email: ^email,
+               contact_id: ^contact_id,
+               payload: %{"dataset_ids" => [^dataset1_id, ^dataset2_id]},
+               notification_subscription_id: ^ns_id
+             }
            ] =
              DB.Notification |> DB.Repo.all()
   end

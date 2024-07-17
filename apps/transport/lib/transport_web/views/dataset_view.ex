@@ -192,9 +192,9 @@ defmodule TransportWeb.DatasetView do
       "public-transit" => "bus.svg",
       "bike-scooter-sharing" => "bicycle-scooter.svg",
       "bike-way" => "bike-way.svg",
-      "carpooling-areas" => "car.svg",
-      "carpooling-lines" => "car.svg",
-      "carpooling-offers" => "car.svg",
+      "carpooling-areas" => "carpooling-areas.svg",
+      "carpooling-lines" => "carpooling-lines.svg",
+      "carpooling-offers" => "carpooling-offers.svg",
       "charging-stations" => "charge-station.svg",
       "air-transport" => "plane.svg",
       "road-data" => "roads.svg",
@@ -548,7 +548,10 @@ defmodule TransportWeb.DatasetView do
   iex> seasonal_warning?(%DB.Dataset{custom_tags: ["foo"]})
   false
   """
-  def seasonal_warning?(%Dataset{} = dataset), do: DB.Dataset.has_custom_tag?(dataset, "saisonnier")
+  def seasonal_warning?(%DB.Dataset{} = dataset), do: DB.Dataset.has_custom_tag?(dataset, "saisonnier")
+
+  def authentication_required?(%DB.Dataset{} = dataset),
+    do: DB.Dataset.has_custom_tag?(dataset, "authentification_requise")
 
   @doc """
   iex> heart_class(%{42 => :producer}, %DB.Dataset{id: 42})

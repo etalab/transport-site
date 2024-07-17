@@ -37,8 +37,9 @@ webserver = webserver == "1"
 config :transport,
   worker: worker,
   webserver: webserver,
-  # kill switch
-  disable_national_gtfs_map: System.get_env("DISABLE_NATIONAL_GTFS_MAP") == "1"
+  # kill switches: set specific variable environments to disable features
+  disable_reuser_space: System.get_env("DISABLE_REUSER_SPACE") in ["1", "true"],
+  disable_national_gtfs_map: System.get_env("DISABLE_NATIONAL_GTFS_MAP") in ["1", "true"]
 
 config :unlock,
   enforce_ttl: webserver
@@ -105,6 +106,7 @@ base_oban_conf = [repo: DB.Repo, insert_trigger: false]
 # - There is "app_env :prod" in contrast to :staging (ie production website vs prochainement)
 #   and "config_env :prod" in contrast to :dev et :test
 # - ⚠️ There is another legacy crontab in `Transport.Scheduler`, see `scheduler.ex`
+# See https://hexdocs.pm/oban/Oban.html#module-cron-expressions
 oban_prod_crontab = [
   {"0 */6 * * *", Transport.Jobs.ResourceHistoryAndValidationDispatcherJob},
   {"30 */6 * * *", Transport.Jobs.GTFSToGeoJSONConverterJob},
@@ -151,7 +153,8 @@ oban_prod_crontab = [
   {"15 5 * * *", Transport.Jobs.ImportDatasetFollowersJob},
   {"30 5 * * *", Transport.Jobs.ImportDatasetMonthlyMetricsJob},
   {"45 5 * * *", Transport.Jobs.ImportResourceMonthlyMetricsJob},
-  {"0 8 * * *", Transport.Jobs.WarnUserInactivityJob}
+  {"0 8 * * *", Transport.Jobs.WarnUserInactivityJob},
+  {"*/5 * * * *", Transport.Jobs.UpdateCounterCacheJob}
 ]
 
 # Make sure that all modules exist

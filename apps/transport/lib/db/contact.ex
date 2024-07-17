@@ -282,7 +282,7 @@ defmodule DB.Contact do
   end
 
   @doc """
-  A list of contact_ids for contacts who are members of the transport.data.gouv.fr's organization.
+  A list of contact IDs for contacts who are members of the transport.data.gouv.fr's organization.
 
   This list is cached because it is very stable over time and we need it for multiple
   Oban jobs executed in parallel or one after another.
@@ -295,6 +295,20 @@ defmodule DB.Contact do
       to_string(__MODULE__) <> ":admin_contact_ids",
       fn -> Enum.map(admin_contacts(), & &1.id) end,
       :timer.seconds(60)
+    )
+  end
+
+  @doc """
+  A list of datagouv user IDs for contacts who are members of the transport.data.gouv.fr's organization.
+
+  This list is cached because it is very stable over time.
+  """
+  @spec admin_datagouv_ids() :: [binary()]
+  def admin_datagouv_ids do
+    Transport.Cache.fetch(
+      to_string(__MODULE__) <> ":admin_datagouv_ids",
+      fn -> Enum.map(admin_contacts(), & &1.datagouv_user_id) end,
+      :timer.minutes(60)
     )
   end
 
@@ -329,5 +343,12 @@ defmodule DB.Contact do
   @spec delete_inactive_contacts(DateTime.t()) :: :ok
   def delete_inactive_contacts(%DateTime{} = threshold) do
     list_inactive_contacts(threshold) |> Enum.each(&DB.Repo.delete/1)
+  end
+end
+
+# See https://hexdocs.pm/swoosh/Swoosh.Email.Recipient.html
+defimpl Swoosh.Email.Recipient, for: DB.Contact do
+  def format(%DB.Contact{email: email} = contact) do
+    {DB.Contact.display_name(contact), email}
   end
 end
