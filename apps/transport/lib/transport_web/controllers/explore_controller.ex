@@ -4,8 +4,7 @@ defmodule TransportWeb.ExploreController do
   def index(conn, _params) do
     consolidated_datasets_assigns =
       Transport.ConsolidatedDataset.geo_data_datasets()
-      |> Enum.map(&{String.to_atom("#{&1}_dataset"), Transport.ConsolidatedDataset.dataset(&1)})
-      |> Map.new()
+      |> Map.new(&{String.to_atom("#{&1}_dataset"), Transport.ConsolidatedDataset.dataset(&1)})
 
     conn
     |> merge_assigns(consolidated_datasets_assigns)
