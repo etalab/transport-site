@@ -17,7 +17,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
   @schema_name "etalab/schema-zfe"
   @lez_dataset_type "low-emission-zones"
   @dataset_org_to_publisher %{
-    "Mairie de Paris" => %{
+    "Ville de Paris" => %{
       "nom" => "Ville de Paris",
       "siren" => "217500016",
       "forme_juridique" => "Autre collectivité territoriale"

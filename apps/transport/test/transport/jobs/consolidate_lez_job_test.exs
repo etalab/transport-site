@@ -201,7 +201,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
     end
 
     test "without an AOM" do
-      dataset = insert(:dataset, type: "low-emission-zones", organization: "Mairie de Paris", aom: nil)
+      dataset = insert(:dataset, type: "low-emission-zones", organization: "Ville de Paris", aom: nil)
 
       zfe_aire =
         insert(:resource,
