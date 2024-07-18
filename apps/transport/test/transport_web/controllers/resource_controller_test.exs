@@ -1,10 +1,10 @@
 defmodule TransportWeb.ResourceControllerTest do
   use TransportWeb.ConnCase, async: false
   use TransportWeb.DatabaseCase, cleanup: [:datasets], async: false
-  import Plug.Test
   import Mox
   import DB.Factory
   import ExUnit.CaptureLog
+  import Plug.Test, only: [init_test_session: 2]
 
   setup :verify_on_exit!
 
@@ -62,21 +62,6 @@ defmodule TransportWeb.ResourceControllerTest do
     )
 
     :ok
-  end
-
-  test "I can see my datasets", %{conn: conn} do
-    %DB.Dataset{datagouv_title: datagouv_title, organization_id: organization_id} = insert(:dataset)
-
-    Datagouvfr.Client.User.Mock
-    |> expect(:me, fn _conn -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
-
-    html =
-      conn
-      |> init_test_session(%{current_user: %{}})
-      |> get(resource_path(conn, :datasets_list))
-      |> html_response(200)
-
-    assert html =~ datagouv_title
   end
 
   test "Non existing resource raises a Ecto.NoResultsError (interpreted as a 404 thanks to phoenix_ecto)", %{conn: conn} do
@@ -736,6 +721,78 @@ defmodule TransportWeb.ResourceControllerTest do
     assert html_response =~ ~s(<h2 id="related-resources">Ressources associées</h2>)
     assert html_response =~ "Fichier GTFS associé"
   end
+
+  test "we can show the form of an existing resource", %{conn: conn} do
+    conn = conn |> init_test_session(%{current_user: %{}})
+    resource_datagouv_id = "resource_dataset_id"
+    dataset_datagouv_id = "dataset_datagouv_id"
+
+    Datagouvfr.Client.Datasets.Mock
+    |> expect(:get, 1, fn _ ->
+      {:ok,
+       %{
+         "id" => dataset_datagouv_id,
+         "resources" => [
+           %{
+             "filetype" => "remote",
+             "format" => "csv",
+             "id" => resource_datagouv_id,
+             "title" => "bnlc.csv",
+             "type" => "main",
+             "url" => "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv"
+           }
+         ],
+         "title" => "Base Nationale des Lieux de Covoiturage"
+       }}
+    end)
+
+    html = conn |> get(resource_path(conn, :form, dataset_datagouv_id, resource_datagouv_id)) |> html_response(200)
+    assert html =~ "Modification d’une ressource"
+    assert html =~ "Base Nationale des Lieux de Covoiturage"
+    assert html =~ "bnlc.csv"
+    assert html =~ "csv"
+    assert html =~ "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv"
+  end
+
+  test "we can show the form for a new resource", %{conn: conn} do
+    conn = conn |> init_test_session(%{current_user: %{}})
+    dataset_datagouv_id = "dataset_datagouv_id"
+
+    Datagouvfr.Client.Datasets.Mock
+    |> expect(:get, 1, fn _ ->
+      {:ok,
+       %{
+         "id" => dataset_datagouv_id,
+         "resources" => [
+           %{
+             "filetype" => "remote",
+             "format" => "csv",
+             "id" => "resource_datagouv_id",
+             "title" => "bnlc.csv",
+             "type" => "main",
+             "url" => "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv"
+           }
+         ],
+         "title" => "Base Nationale des Lieux de Covoiturage"
+       }}
+    end)
+
+    html = conn |> get(resource_path(conn, :form, dataset_datagouv_id)) |> html_response(200)
+    assert html =~ "Nouvelle ressource"
+    assert html =~ "Base Nationale des Lieux de Covoiturage"
+  end
+
+  # test "we can update a resource", %{conn: conn} do
+  # TODO
+  # end
+
+  # test "we can delete a resource", %{conn: conn} do
+  # TODO
+  # end
+
+  # test "we can add a new resource", %{conn: conn} do
+  # TODO
+  # end
 
   defp test_remote_download_error(%Plug.Conn{} = conn, mock_status_code) do
     resource = DB.Resource |> DB.Repo.get_by(datagouv_id: "2")

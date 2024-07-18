@@ -7,6 +7,8 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
   setup :verify_on_exit!
 
   setup do
+    # Using the real implementation for the moment, then it falls back on `HTTPoison.Mock`
+    Mox.stub_with(Datagouvfr.Client.Resources.Mock, Datagouvfr.Client.Resources.External)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
