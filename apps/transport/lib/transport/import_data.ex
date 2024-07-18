@@ -489,8 +489,8 @@ defmodule Transport.ImportData do
       format?(params["url"], ["json", "csv", "shp", "pdf", "7z"]) -> false
       format?(params["format"], "NeTEx") -> false
       netex?(params["title"]) -> false
-      gtfs?(params["description"]) -> true
       gtfs?(params["title"]) -> true
+      gtfs?(params["description"]) -> true
       true -> false
     end
   end
@@ -519,13 +519,13 @@ defmodule Transport.ImportData do
   iex> gtfs_rt?(%{"format" => "gtfs-rt", "title" => "Export au format CSV"})
   true
   """
-  @spec gtfs_rt?(binary() | map()) :: boolean()
+  @spec gtfs_rt?(binary() | map() | nil) :: boolean()
   def gtfs_rt?(%{} = params) do
     cond do
       gtfs_rt?(params["format"]) -> true
       ods_resource?(params) or documentation?(params) -> false
-      gtfs_rt?(params["description"]) -> true
       gtfs_rt?(params["title"]) -> true
+      gtfs_rt?(params["description"]) -> true
       gtfs_rt?(params["url"]) -> true
       true -> false
     end
@@ -584,7 +584,7 @@ defmodule Transport.ImportData do
   iex> siri?(%{"type" => "documentation", "title" => "Documentation de l'API SIRI"})
   false
   """
-  @spec siri?(binary() | map()) :: boolean()
+  @spec siri?(binary() | map() | nil) :: boolean()
   def siri?(%{} = params) do
     cond do
       siri_lite?(params) -> false
@@ -606,32 +606,42 @@ defmodule Transport.ImportData do
   true
   iex> siri_lite?("SIRI Lite")
   true
+  iex> siri_lite?(%{"format" => "SIRI-Lite"})
+  true
+  iex> siri_lite?(%{"title" => "SIRI-Lite stop monitoring", "url" => "https://example.com/utw/ws/siri/2.0/stop-monitoring.json?AccountKey=opendata-flux-gtfs-rt", "format" => "octet-stream", "description" => "Informations au format SIRI-Lite"})
+  true
   iex> siri_lite?("SIRI")
   false
   """
-  @spec siri_lite?(binary() | map()) :: boolean()
-  def siri_lite?(params) do
+  @spec siri_lite?(binary() | map() | nil) :: boolean()
+  def siri_lite?(%{} = params) do
     cond do
       ods_resource?(params) or documentation?(params) -> false
       format?(params, "SIRI Lite") -> true
+      siri_lite?(params["title"]) -> true
+      siri_lite?(params["description"]) -> true
+      siri_lite?(params["url"]) -> true
       true -> false
     end
   end
 
+  def siri_lite?(format), do: format?(format, "SIRI Lite")
+
   @doc """
-  check the format
-      iex> format?("NeTEx", ["GTFS", "NeTEx"])
-      true
+  Does a format matches another format/list of candidate formats?
 
-      iex> format?("pouet", ["GTFS", "NeTEx"])
-      false
-
-      iex> format?(%{"format" => "NeTEx"}, "NeTEx")
-      true
+  iex> format?("NeTEx", ["GTFS", "NeTEx"])
+  true
+  iex> format?("pouet", ["GTFS", "NeTEx"])
+  false
+  iex> format?(%{"format" => "NeTEx"}, "NeTEx")
+  true
+  iex> format?("siri lite", "SIRI-Lite")
+  true
   """
-  @spec format?(binary() | map(), binary() | [binary()]) :: boolean
+  @spec format?(binary() | map() | nil, binary() | [binary()]) :: boolean
   def format?(nil, _), do: false
-  def format?(%{"format" => format}, expected), do: format?(format, expected)
+  def format?(%{"format" => declared_format}, expected), do: format?(declared_format, expected)
   def format?(value, [head | tail]), do: format?(value, head) || format?(value, tail)
   def format?(_, []), do: false
 
@@ -667,7 +677,7 @@ defmodule Transport.ImportData do
       iex> zip?(%{"mime" => "application/exe", "format" => nil})
       false
   """
-  @spec zip?(binary() | map()) :: boolean()
+  @spec zip?(binary() | map() | nil) :: boolean()
   def zip?(%{"mime" => nil, "format" => format}), do: zip?(format)
   def zip?(%{"mime" => mime, "format" => nil}), do: zip?(mime)
   def zip?(%{"mime" => mime, "format" => format}), do: zip?(mime) || zip?(format)
@@ -694,7 +704,7 @@ defmodule Transport.ImportData do
   iex> netex?(%{"title" => "Angers NeTEx (json)", "format" => "json", "harvest" => %{"uri" => "https://example.com/api/explore/v2.1/catalog/datasets/foo/exports/json"}})
   false
   """
-  @spec netex?(binary() | map()) :: boolean()
+  @spec netex?(binary() | map() | nil) :: boolean()
   def netex?(%{} = params) do
     cond do
       netex?(params["format"]) -> true
