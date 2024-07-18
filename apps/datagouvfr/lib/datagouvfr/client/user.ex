@@ -47,7 +47,7 @@ defmodule Datagouvfr.Client.User do
 
   @doc """
   Call to GET /api/1/me/
-  You can see documentation here: http://www.data.gouv.fr/fr/apidoc/#!/me/
+  You can see documentation here: https://doc.data.gouv.fr/api/reference/#/me/
   """
   @spec me(Plug.Conn.t() | OAuth2.AccessToken.t(), [binary()]) ::
           {:error, OAuth2.Error.t()} | {:ok, OAuth2.Response.t()}

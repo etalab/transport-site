@@ -44,13 +44,6 @@ msgstr ""
 msgid "Dataset not imported"
 msgstr ""
 
-#, elixir-autogen
-msgid "Could not delete dataset"
-msgstr ""
-
-msgid "Dataset deleted"
-msgstr ""
-
 msgid "Could not add dataset"
 msgstr ""
 

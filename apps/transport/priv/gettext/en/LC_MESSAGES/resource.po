@@ -14,14 +14,6 @@ msgid "Unable to upload file"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Publish a new dataset"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Update an existing dataset"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Resource updated with URL!"
 msgstr ""
 
@@ -39,14 +31,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "I'm not sure. Learn more."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Select a dataset to update it."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Select this dataset"
 msgstr ""
 
 #, elixir-autogen, elixir-format

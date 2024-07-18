@@ -138,7 +138,11 @@ config :datagouvfr,
   user_impl: Datagouvfr.Client.User,
   datagouvfr_reuses: Datagouvfr.Client.Reuses,
   datagouvfr_discussions: Datagouvfr.Client.Discussions,
-  organization_impl: Datagouvfr.Client.Organization
+  organization_impl: Datagouvfr.Client.Organization,
+  # The two following implementations are also used in tests, except if specifically overriden to use a mock
+  # Because legacy tests mock at a lower level (HTTPoison), we need to keep the same behavior for now
+  datasets_impl: Datagouvfr.Client.Datasets.External,
+  resources_impl: Datagouvfr.Client.Resources.External
 
 config :ex_json_schema,
        :remote_schema_resolver,

@@ -12,7 +12,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);"
 
 #, elixir-autogen, elixir-format
-msgid "Dataset deleted"
+msgid "Dataset unlisted"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -25,6 +25,10 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Could not add dataset"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Could not unlist dataset"
 msgstr ""
 
 #, elixir-autogen, elixir-format

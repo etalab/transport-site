@@ -7,6 +7,8 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
   setup :verify_on_exit!
 
   setup do
+    # Using the real implementation for the moment, then it falls back on `HTTPoison.Mock`
+    Mox.stub_with(Datagouvfr.Client.Resources.Mock, Datagouvfr.Client.Resources.External)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
@@ -199,7 +201,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
     end
 
     test "without an AOM" do
-      dataset = insert(:dataset, type: "low-emission-zones", organization: "Mairie de Paris", aom: nil)
+      dataset = insert(:dataset, type: "low-emission-zones", organization: "Ville de Paris", aom: nil)
 
       zfe_aire =
         insert(:resource,
