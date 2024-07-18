@@ -1,10 +1,42 @@
 defmodule Datagouvfr.Client.Resources do
   @moduledoc """
+  A wrapper to get resources from data.gouv.fr API (or mock it for tests)
+  See https://doc.data.gouv.fr/api/reference/#/datasets
+  """
+
+  @doc """
+  Update a file, without using the OAuth client, to update
+  files published by the PAN org on data.gouv.fr.
+  """
+  @callback update(map) :: Datagouvfr.Client.API.response() | nil
+  def update(map), do: impl().update(map)
+
+  @doc """
+  Different update cases, see the real API module for more details
+  """
+  @callback update(Plug.Conn.t(), map) :: Datagouvfr.Client.OAuth.oauth2_response() | nil
+  def update(conn, map), do: impl().update(conn, map)
+
+  @callback get(map) :: map
+  def get(%{"resource_id" => _id} = params), do: impl().get(params)
+
+  def get(_), do: %{}
+
+  @callback delete(Plug.Conn.t(), map) :: Datagouvfr.Client.OAuth.oauth2_response()
+  def delete(%Plug.Conn{} = conn, %{"dataset_id" => _, "resource_id" => _} = params), do: impl().delete(conn, params)
+
+  def impl, do: Application.get_env(:datagouvfr, :resources_impl)
+end
+
+defmodule Datagouvfr.Client.Resources.External do
+  @moduledoc """
   Abstraction of data.gouv.fr resource
   See https://doc.data.gouv.fr/api/reference/#/datasets for reference
   """
   alias Datagouvfr.Client.API
   alias Datagouvfr.Client.OAuth, as: Client
+
+  @behaviour Datagouvfr.Client.Resources
 
   @format_to_mime %{
     "GTFS" => "application/zip",
@@ -107,8 +139,6 @@ defmodule Datagouvfr.Client.Resources do
       _ -> %{}
     end
   end
-
-  def get(_), do: %{}
 
   def delete(%Plug.Conn{} = conn, %{"dataset_id" => _, "resource_id" => _} = params) do
     Client.delete(conn, make_path(params))

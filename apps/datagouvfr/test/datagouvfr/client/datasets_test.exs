@@ -12,6 +12,8 @@ defmodule Datagouvfr.Client.DatasetsTest do
     slug = "slug" <> Ecto.UUID.generate()
     url = "https://demo.data.gouv.fr/api/1/datasets/#{slug}/"
 
+    Mox.stub_with(Datagouvfr.Client.Datasets.Mock, Datagouvfr.Client.Datasets.External)
+
     Transport.HTTPoison.Mock
     |> expect(:request, fn :get, ^url, "", [], [follow_redirect: true] ->
       {:ok, %HTTPoison.Response{status_code: 200, body: Jason.encode!(%{id: id})}}

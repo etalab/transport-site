@@ -8,6 +8,8 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetFollowersJobTest do
   setup :verify_on_exit!
 
   setup do
+    # Using the real implementation for the moment, then it falls back on `HTTPoison.Mock`
+    Mox.stub_with(Datagouvfr.Client.Datasets.Mock, Datagouvfr.Client.Datasets.External)
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
