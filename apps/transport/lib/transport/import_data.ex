@@ -547,9 +547,16 @@ defmodule Transport.ImportData do
   false
   iex> documentation?("pdf")
   false
+  iex> documentation?(%{"type" => "main", "title" => "Documentation SIRI"})
+  true
   """
   @spec documentation?(any()) :: boolean()
   def documentation?(%{"type" => "documentation"}), do: true
+
+  def documentation?(%{"title" => resource_title}) do
+    String.match?(resource_title, ~r/\bdocumentation\b/i)
+  end
+
   def documentation?(_), do: false
 
   @doc """
