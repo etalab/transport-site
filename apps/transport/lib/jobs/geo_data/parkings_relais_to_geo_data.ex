@@ -3,28 +3,13 @@ defmodule Transport.Jobs.ParkingsRelaisToGeoData do
   Job in charge of taking the parking relais stored in the Base nationale des parcs relais and storing the result in the `geo_data` table.
   """
   use Oban.Worker, max_attempts: 3
-  import Ecto.Query
 
   @impl Oban.Worker
   def perform(%{}) do
-    [resource] = relevant_dataset() |> DB.Dataset.official_resources() |> Enum.filter(&(&1.format == "csv"))
-
-    Transport.Jobs.BaseGeoData.import_replace_data(resource, &prepare_data_for_insert/2)
+    Transport.ConsolidatedDataset.resource(:parkings_relais)
+    |> Transport.Jobs.BaseGeoData.import_replace_data(&prepare_data_for_insert/2)
 
     :ok
-  end
-
-  def relevant_dataset do
-    transport_publisher_label = Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
-
-    DB.Dataset.base_query()
-    |> preload(:resources)
-    |> where(
-      [d],
-      d.type == "private-parking" and d.organization == ^transport_publisher_label and
-        d.custom_title == "Base nationale des parcs relais"
-    )
-    |> DB.Repo.one!()
   end
 
   defp pr_count(""), do: 0

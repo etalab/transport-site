@@ -14,7 +14,7 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
   import Ecto.Query
 
   @nb_days_before_sending_notification_again 7
-  @notification_reason DB.NotificationSubscription.reason(:dataset_with_error)
+  @notification_reason Transport.NotificationReason.reason(:dataset_with_error)
   @enabled_validators [
     Transport.Validators.GTFSTransport,
     Transport.Validators.TableSchema,
@@ -22,55 +22,62 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
   ]
 
   @impl Oban.Worker
-  def perform(%Oban.Job{inserted_at: %DateTime{} = inserted_at}) do
+  def perform(%Oban.Job{id: job_id, inserted_at: %DateTime{} = inserted_at}) do
     inserted_at
     |> relevant_validations()
     |> Enum.each(fn {%DB.Dataset{} = dataset, multi_validations} ->
-      producer_emails = dataset |> emails_list(:producer)
-      send_to_producers(producer_emails, dataset, multi_validations)
+      producer_subscriptions = dataset |> subscriptions(:producer)
+      send_to_producers(producer_subscriptions, dataset, multi_validations, job_id: job_id)
 
-      reuser_emails = dataset |> emails_list(:reuser)
-      send_to_reusers(reuser_emails, dataset, producer_warned: not Enum.empty?(producer_emails))
+      dataset
+      |> subscriptions(:reuser)
+      |> send_to_reusers(dataset, producer_warned: not Enum.empty?(producer_subscriptions), job_id: job_id)
     end)
   end
 
-  defp send_to_reusers(emails, %DB.Dataset{} = dataset, producer_warned: producer_warned) do
+  defp send_to_reusers(subscriptions, %DB.Dataset{} = dataset, producer_warned: producer_warned, job_id: job_id) do
     Enum.each(
-      emails,
-      &send_mail(&1, :reuser, dataset: dataset, producer_warned: producer_warned)
+      subscriptions,
+      &send_mail(&1, dataset: dataset, producer_warned: producer_warned, job_id: job_id)
     )
   end
 
-  defp send_to_producers(emails, %DB.Dataset{} = dataset, multi_validations) do
+  defp send_to_producers(subscriptions, %DB.Dataset{} = dataset, multi_validations, job_id: job_id) do
     Enum.each(
-      emails,
-      &send_mail(&1, :producer,
+      subscriptions,
+      &send_mail(&1,
         dataset: dataset,
-        resources: Enum.map(multi_validations, fn mv -> mv.resource_history.resource end)
+        resources: Enum.map(multi_validations, fn mv -> mv.resource_history.resource end),
+        job_id: job_id
       )
     )
   end
 
-  defp send_mail(email, role, args) do
-    email
-    |> Transport.UserNotifier.multi_validation_with_error_notification(role, args)
+  defp send_mail(
+         %DB.NotificationSubscription{role: role, contact: %DB.Contact{} = contact} = subscription,
+         [{:dataset, %DB.Dataset{} = dataset} | _] = args
+       ) do
+    Transport.UserNotifier.multi_validation_with_error_notification(contact, role, args)
     |> Transport.Mailer.deliver()
 
-    save_notification(Keyword.fetch!(args, :dataset), email)
+    save_notification(dataset, subscription, args)
   end
 
-  def notifications_sent_recently(%DB.Dataset{id: dataset_id}) do
-    datetime_limit = DateTime.utc_now() |> DateTime.add(-@nb_days_before_sending_notification_again, :day)
-
-    DB.Notification
-    |> where([n], n.inserted_at >= ^datetime_limit and n.dataset_id == ^dataset_id and n.reason == @notification_reason)
-    |> select([n], n.email)
-    |> DB.Repo.all()
-    |> MapSet.new()
+  defp save_notification(%DB.Dataset{} = dataset, %DB.NotificationSubscription{role: :reuser} = subscription, args) do
+    producer_warned = Keyword.fetch!(args, :producer_warned)
+    job_id = Keyword.fetch!(args, :job_id)
+    DB.Notification.insert!(dataset, subscription, %{producer_warned: producer_warned, job_id: job_id})
   end
 
-  defp save_notification(%DB.Dataset{} = dataset, email) do
-    DB.Notification.insert!(@notification_reason, dataset, email)
+  defp save_notification(%DB.Dataset{} = dataset, %DB.NotificationSubscription{role: :producer} = subscription, args) do
+    resources = Keyword.fetch!(args, :resources)
+    job_id = Keyword.fetch!(args, :job_id)
+
+    DB.Notification.insert!(dataset, subscription, %{
+      resource_ids: Enum.map(resources, fn %DB.Resource{id: resource_id} -> resource_id end),
+      resource_formats: Enum.map(resources, fn %DB.Resource{format: format} -> format end),
+      job_id: job_id
+    })
   end
 
   def relevant_validations(%DateTime{} = inserted_at) do
@@ -88,11 +95,27 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
     |> Enum.group_by(& &1.resource_history.resource.dataset)
   end
 
-  defp emails_list(%DB.Dataset{} = dataset, role) do
+  defp subscriptions(%DB.Dataset{} = dataset, role) do
     @notification_reason
     |> DB.NotificationSubscription.subscriptions_for_reason_dataset_and_role(dataset, role)
-    |> DB.NotificationSubscription.subscriptions_to_emails()
-    |> MapSet.new()
-    |> MapSet.difference(notifications_sent_recently(dataset))
+    |> reject_already_sent(dataset)
+  end
+
+  defp reject_already_sent(notification_subscriptions, %DB.Dataset{} = dataset) do
+    already_sent_emails = email_addresses_already_sent(dataset)
+
+    Enum.reject(notification_subscriptions, fn %DB.NotificationSubscription{contact: %DB.Contact{email: email}} ->
+      email in already_sent_emails
+    end)
+  end
+
+  def email_addresses_already_sent(%DB.Dataset{id: dataset_id}) do
+    datetime_limit = DateTime.utc_now() |> DateTime.add(-@nb_days_before_sending_notification_again, :day)
+
+    DB.Notification
+    |> where([n], n.inserted_at >= ^datetime_limit and n.dataset_id == ^dataset_id and n.reason == @notification_reason)
+    |> select([n], n.email)
+    |> distinct(true)
+    |> DB.Repo.all()
   end
 end

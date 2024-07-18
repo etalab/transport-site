@@ -68,12 +68,7 @@ defmodule Transport.Jobs.LowEmissionZonesToGeoDataTest do
     assert [] = DB.GeoData |> DB.Repo.all()
     assert [] = DB.GeoDataImport |> DB.Repo.all()
 
-    %DB.Dataset{id: dataset_id} =
-      insert(:dataset, %{
-        type: "low-emission-zones",
-        custom_title: "Base Nationale des Zones à Faibles Émissions (BNZFE)",
-        organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
-      })
+    %DB.Dataset{id: dataset_id} = insert_zfe_dataset()
 
     %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, title: "aires.geojson", format: "geojson"})
     # these should be ignored

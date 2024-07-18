@@ -314,3 +314,23 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Dataset"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "There are no notification subscriptions for this contact."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Existing subscriptions"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "reuser-subscription-count"
+msgid_plural "reuser-subscriptions-count"
+msgstr[0] "Along with %{reuser_subscriptions_count} subscription from"
+msgstr[1] "Along with %{reuser_subscriptions_count} subscriptions from"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "reuser-count"
+msgid_plural "reusers-count"
+msgstr[0] "%{reusers_count} reuser."
+msgstr[1] "%{reusers_count} reusers."

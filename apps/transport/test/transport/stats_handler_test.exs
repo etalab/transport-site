@@ -6,6 +6,11 @@ defmodule Transport.StatsHandlerTest do
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    insert_bnlc_dataset()
+    insert_irve_dataset()
+    insert_parcs_relais_dataset()
+    insert_zfe_dataset()
+    :ok
   end
 
   test "compute_stats" do
@@ -92,11 +97,14 @@ defmodule Transport.StatsHandlerTest do
       stats
       |> Map.keys()
       |> Enum.map(&to_string/1)
-      |> Enum.reject(&String.starts_with?(&1, ["gtfs_rt_types", "climate_resilience_bill_count"]))
+      |> Enum.reject(
+        &String.starts_with?(&1, ["gtfs_rt_types", "climate_resilience_bill_count", "count_geo_data_lines"])
+      )
 
     assert MapSet.subset?(MapSet.new(stats_metrics), MapSet.new(all_metrics))
     assert Enum.member?(all_metrics, "gtfs_rt_types::vehicle_positions")
     assert Enum.member?(all_metrics, "gtfs_rt_types::trip_updates")
+    assert Enum.member?(all_metrics, "count_geo_data_lines::irve")
 
     expected = Decimal.new("2")
     assert %{value: ^expected} = DB.Repo.get_by!(DB.StatsHistory, metric: "gtfs_rt_types::vehicle_positions")
@@ -145,12 +153,13 @@ defmodule Transport.StatsHandlerTest do
   end
 
   test "uses legal owners to assign datasets to AOMs" do
+    # There are existing datasets and AOMs in the database since we inserted some datasets in the setup method
     aom1 = insert(:aom, population: 1_000_000)
     aom2 = insert(:aom, population: 1_000_000)
     insert(:aom, population: 1_000_000)
     insert(:dataset, type: "public-transit", is_active: true, legal_owners_aom: [aom2], aom: aom1)
 
-    assert %{nb_aoms_with_data: 2, nb_aoms: 3, population_couverte: 2, population_totale: 3} = compute_stats()
+    assert %{nb_aoms_with_data: 6, nb_aoms: 7, population_couverte: 6, population_totale: 7} = compute_stats()
   end
 
   test "ignores hidden datasets" do
@@ -160,6 +169,12 @@ defmodule Transport.StatsHandlerTest do
     hidden_dataset = insert(:dataset, aom: aom, is_active: true, is_hidden: true)
     insert(:resource, dataset: hidden_dataset, format: "GTFS")
 
-    assert %{nb_datasets: 1, nb_gtfs: 1, nb_pt_datasets: 1} = compute_stats()
+    assert %{nb_datasets: 5, nb_gtfs: 1, nb_pt_datasets: 1} = compute_stats()
+  end
+
+  test "counts the number of IRVE lines in GeoData" do
+    assert 0 == count_geo_data_lines(:irve)
+    insert_imported_irve_geo_data(Transport.ConsolidatedDataset.dataset(:irve).id)
+    assert 2 == count_geo_data_lines(:irve)
   end
 end

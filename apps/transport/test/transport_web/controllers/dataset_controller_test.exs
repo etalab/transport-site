@@ -160,7 +160,7 @@ defmodule TransportWeb.DatasetControllerTest do
                |> Floki.find(".dataset__type")
     end
 
-    test "non admin: hidden for now", %{conn: conn} do
+    test "non admin", %{conn: conn} do
       contact = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
 
       insert(:dataset, custom_title: "A")
@@ -175,7 +175,11 @@ defmodule TransportWeb.DatasetControllerTest do
         |> Floki.parse_document!()
 
       assert ["A", "B"] == dataset_titles(document)
-      assert [] == Floki.find(document, ".dataset__type i.fa-heart")
+
+      assert [
+               {"i", [{"class", "fa fa-heart"}], []},
+               {"i", [{"class", "fa fa-heart following"}], []}
+             ] == Floki.find(document, ".dataset__type i.fa-heart")
     end
 
     test "admin: displayed accordingly for producer, following and nothing", %{conn: conn} do
@@ -245,7 +249,7 @@ defmodule TransportWeb.DatasetControllerTest do
                 ["Espace producteur"]}
              ] ==
                conn
-               |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, force_display_reuser_space: true})
+               |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
                |> dataset_header_links(dataset)
     end
 
@@ -263,7 +267,7 @@ defmodule TransportWeb.DatasetControllerTest do
                 ], ["Espace réutilisateur"]}
              ] ==
                conn
-               |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, force_display_reuser_space: true})
+               |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
                |> dataset_header_links(dataset)
     end
 
@@ -280,7 +284,7 @@ defmodule TransportWeb.DatasetControllerTest do
                 ], ["Espace réutilisateur"]}
              ] ==
                conn
-               |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, force_display_reuser_space: true})
+               |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
                |> dataset_header_links(dataset)
     end
 
@@ -303,8 +307,7 @@ defmodule TransportWeb.DatasetControllerTest do
              ] ==
                conn
                |> init_test_session(%{
-                 current_user: %{"id" => datagouv_user_id, "is_admin" => true},
-                 force_display_reuser_space: true
+                 current_user: %{"id" => datagouv_user_id, "is_admin" => true}
                })
                |> dataset_header_links(dataset)
     end
@@ -563,7 +566,14 @@ defmodule TransportWeb.DatasetControllerTest do
 
   test "dataset#details with notifications sent recently", %{conn: conn} do
     dataset = insert(:dataset, is_active: true)
-    insert_notification(%{dataset: dataset, reason: :expiration, email: Ecto.UUID.generate() <> "@example.com"})
+
+    insert_notification(%{
+      dataset: dataset,
+      role: :producer,
+      reason: :expiration,
+      email: Ecto.UUID.generate() <> "@example.com"
+    })
+
     mock_empty_history_resources()
 
     doc = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200) |> Floki.parse_document!()
@@ -637,20 +647,29 @@ defmodule TransportWeb.DatasetControllerTest do
            ] == content |> Floki.find("#quality-indicators table")
   end
 
-  test "a banner is displayed for a seasonal dataset", %{conn: conn} do
-    dataset = insert(:dataset, is_active: true, custom_tags: ["saisonnier", "foo"])
-    mock_empty_history_resources()
+  describe "information banners are displayed" do
+    test "a seasonal dataset", %{conn: conn} do
+      dataset = insert(:dataset, is_active: true, custom_tags: ["saisonnier", "foo"])
+      assert TransportWeb.DatasetView.seasonal_warning?(dataset)
 
-    assert TransportWeb.DatasetView.seasonal_warning?(dataset)
+      dataset_has_banner_with_text(
+        conn,
+        dataset,
+        "Le service de transport de ce jeu de donnée ne fonctionne pas toute l'année"
+      )
+    end
 
-    [{"p", [{"class", "notification"}], [content]}] =
-      conn
-      |> get(dataset_path(conn, :details, dataset.slug))
-      |> html_response(200)
-      |> Floki.parse_document!()
-      |> Floki.find(".notification")
+    test "a dataset with authentication required", %{conn: conn} do
+      dataset = insert(:dataset, is_active: true, custom_tags: ["authentification_requise"])
 
-    assert content =~ "Le service de transport de ce jeu de donnée ne fonctionne pas toute l'année"
+      assert TransportWeb.DatasetView.authentication_required?(dataset)
+
+      dataset_has_banner_with_text(
+        conn,
+        dataset,
+        "Le producteur requiert une authentification pour accéder aux données"
+      )
+    end
   end
 
   test "custom logo is displayed when set", %{conn: conn} do
@@ -674,12 +693,14 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   describe "dataset#details: favorite icon" do
-    test "hidden if you're not an admin", %{conn: conn} do
+    test "logged-out: nudge signup", %{conn: conn} do
       dataset = insert(:dataset)
 
       mock_empty_history_resources()
 
-      assert [] ==
+      assert [
+               {"div", [{"class", "follow-dataset-icon"}], [{"i", [{"class", _}, {"phx-click", "nudge_signup"}], []}]}
+             ] =
                conn
                |> get(dataset_path(conn, :details, dataset.slug))
                |> html_response(200)
@@ -693,13 +714,22 @@ defmodule TransportWeb.DatasetControllerTest do
 
       mock_empty_history_resources()
 
-      refute conn
-             |> init_test_session(%{current_user: %{"is_admin" => true, "id" => contact_datagouv_id}})
-             |> get(dataset_path(conn, :details, dataset.slug))
-             |> html_response(200)
-             |> Floki.parse_document!()
-             |> Floki.find(".follow-dataset-icon")
-             |> Enum.empty?()
+      assert [
+               {"div", [{"class", "follow-dataset-icon"}],
+                [
+                  {"div", [{"class", "tooltip"}],
+                   [
+                     {"i", [{"class", _}, {"phx-click", "follow"}], []},
+                     {"span", [{"class", "tooltiptext left"}], ["Suivre ce jeu de données"]}
+                   ]}
+                ]}
+             ] =
+               conn
+               |> init_test_session(%{current_user: %{"is_admin" => true, "id" => contact_datagouv_id}})
+               |> get(dataset_path(conn, :details, dataset.slug))
+               |> html_response(200)
+               |> Floki.parse_document!()
+               |> Floki.find(".follow-dataset-icon")
     end
   end
 
@@ -776,5 +806,19 @@ defmodule TransportWeb.DatasetControllerTest do
     |> html_response(200)
     |> Floki.parse_document!()
     |> Floki.find(~s|div[data-section="dataset-header-links"] a|)
+  end
+
+  defp dataset_has_banner_with_text(%Plug.Conn{} = conn, %DB.Dataset{slug: slug}, text) do
+    mock_empty_history_resources()
+
+    content =
+      conn
+      |> get(dataset_path(conn, :details, slug))
+      |> html_response(200)
+      |> Floki.parse_document!()
+      |> Floki.find(".notification")
+      |> Floki.text()
+
+    assert content =~ text
   end
 end

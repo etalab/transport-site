@@ -355,6 +355,7 @@ defmodule DB.DatasetDBTest do
     insert(:resource, format: "GTFS", dataset: dataset)
     insert(:resource, format: "zip", dataset: dataset, is_community_resource: true)
     insert(:resource, format: "csv", dataset: dataset)
+    insert(:resource, format: nil, dataset: dataset)
 
     assert ["GTFS", "csv"] == dataset |> DB.Repo.preload(:resources) |> Dataset.formats()
   end

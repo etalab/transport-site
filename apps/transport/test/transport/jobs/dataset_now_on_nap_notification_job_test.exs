@@ -17,10 +17,11 @@ defmodule Transport.Test.Transport.Jobs.DatasetNowOnNAPNotificationJobTest do
     insert_notification(%{
       dataset: dataset,
       reason: :dataset_now_on_nap,
+      role: :producer,
       email: already_sent_email = Ecto.UUID.generate() <> "@example.fr"
     })
 
-    %DB.Contact{email: email} = contact = insert_contact()
+    %DB.Contact{id: contact_id, email: email} = contact = insert_contact()
 
     ~w(resource_unavailable expiration)a
     |> Enum.each(fn reason ->
@@ -49,7 +50,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetNowOnNAPNotificationJobTest do
 
     assert_email_sent(
       from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-      to: [{"", email}],
+      to: [{DB.Contact.display_name(contact), email}],
       reply_to: {"", "contact@transport.data.gouv.fr"},
       subject: "Votre jeu de données a été référencé sur transport.data.gouv.fr",
       text_body: nil,
@@ -58,8 +59,21 @@ defmodule Transport.Test.Transport.Jobs.DatasetNowOnNAPNotificationJobTest do
 
     # Logs have been saved
     assert [
-             %DB.Notification{reason: :dataset_now_on_nap, dataset_id: ^dataset_id, email: ^already_sent_email},
-             %DB.Notification{reason: :dataset_now_on_nap, dataset_id: ^dataset_id, email: ^email}
+             %DB.Notification{
+               reason: :dataset_now_on_nap,
+               role: :producer,
+               dataset_id: ^dataset_id,
+               email: ^already_sent_email,
+               notification_subscription_id: nil
+             },
+             %DB.Notification{
+               reason: :dataset_now_on_nap,
+               role: :producer,
+               dataset_id: ^dataset_id,
+               email: ^email,
+               notification_subscription_id: nil,
+               contact_id: ^contact_id
+             }
            ] = DB.Notification |> order_by([n], asc: n.inserted_at) |> DB.Repo.all()
   end
 end

@@ -24,6 +24,11 @@ defmodule TransportWeb.EmailView do
     link("l’espace de discussion du jeu de données", to: url <> "#dataset-discussions")
   end
 
+  def link_for_dataset_with_type(%DB.Dataset{type: type} = dataset) do
+    link = link_for_dataset(dataset) |> Phoenix.HTML.safe_to_string()
+    Phoenix.HTML.raw(link <> " - (#{DB.Dataset.type_to_str(type)})")
+  end
+
   def link_for_resource(%DB.Resource{id: id, title: title}) do
     url = resource_url(TransportWeb.Endpoint, :details, id)
     link(title, to: url)

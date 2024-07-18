@@ -46,3 +46,15 @@ msgstr "Modification des ressources"
 #, elixir-autogen, elixir-format
 msgid "periodic_reminder_producers"
 msgstr "Rappels périodiques pour les producteurs"
+
+#, elixir-autogen, elixir-format
+msgid "promote_producer_space"
+msgstr "Mise en avant de l’Espace producteur"
+
+#, elixir-autogen, elixir-format
+msgid "promote_reuser_space"
+msgstr "Mise en avant de l’Espace réutilisateur"
+
+#, elixir-autogen, elixir-format
+msgid "warn_user_inactivity"
+msgstr "Avertissement d’inactivité"

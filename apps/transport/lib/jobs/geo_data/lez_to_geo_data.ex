@@ -4,24 +4,13 @@ defmodule Transport.Jobs.LowEmissionZonesToGeoData do
   and storing the result in the `geo_data` table.
   """
   use Oban.Worker, max_attempts: 3
-  import Ecto.Query
 
   @impl Oban.Worker
   def perform(%{}) do
-    [resource] = relevant_dataset() |> DB.Dataset.official_resources() |> Enum.filter(&(&1.title == "aires.geojson"))
-
-    Transport.Jobs.BaseGeoData.import_replace_data(resource, &prepare_data_for_insert/2)
+    Transport.ConsolidatedDataset.resource(:zfe)
+    |> Transport.Jobs.BaseGeoData.import_replace_data(&prepare_data_for_insert/2)
 
     :ok
-  end
-
-  def relevant_dataset do
-    transport_publisher_label = Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
-
-    DB.Dataset.base_query()
-    |> preload(:resources)
-    |> where([d], d.type == "low-emission-zones" and d.organization == ^transport_publisher_label)
-    |> DB.Repo.one!()
   end
 
   def prepare_data_for_insert(body, geo_data_import_id) do
@@ -51,6 +40,8 @@ defmodule Transport.Jobs.LowEmissionZonesToGeoData do
   true
   iex> filter_dates(%{"properties" => %{"date_debut" => "2200-01-01", "date_fin" => nil}})
   false
+  iex> filter_dates(%{"properties" => %{"date_debut" => "2200-01-01"}})
+  false
   iex> filter_dates(%{"properties" => %{}})
   true
   """
@@ -61,7 +52,7 @@ defmodule Transport.Jobs.LowEmissionZonesToGeoData do
         date_range = Date.range(Date.from_iso8601!(date_debut), Date.from_iso8601!(date_fin))
         Date.utc_today() in date_range
 
-      %{"date_debut" => date_debut, "date_fin" => date_fin} when date_fin in [nil, "null"] ->
+      %{"date_debut" => date_debut} ->
         Date.compare(Date.utc_today(), Date.from_iso8601!(date_debut)) == :gt
 
       _ ->

@@ -84,10 +84,6 @@ msgid "Producer informations"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Producer infos"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "My account"
 msgstr ""
 
@@ -157,4 +153,16 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Accèslibre Mobilités"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Data"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Datasets"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Statistics"
 msgstr ""

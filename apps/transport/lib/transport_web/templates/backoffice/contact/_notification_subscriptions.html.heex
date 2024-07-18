@@ -22,7 +22,7 @@
     </datalist>
     <%= label f, :reasons, class: "pt-12" do %>
       <%= dgettext("backoffice", "Notification reason") %>
-      <%= for reason <- DB.NotificationSubscription.subscribable_reasons_related_to_datasets(:producer) do %>
+      <%= for reason <- Transport.NotificationReason.subscribable_reasons_related_to_datasets(:producer) do %>
         <%= label f, reason do %>
           <%= checkbox(f, reason, hidden_input: false, value: true) %>
           <%= reason %>
@@ -40,7 +40,7 @@
     <%= hidden_input(f, :contact_id, value: @contact_id) %>
     <%= label f, :reasons, class: "pt-12" do %>
       <%= dgettext("backoffice", "Notification reason") %>
-      <%= for reason <- DB.NotificationSubscription.subscribable_platform_wide_reasons(:producer) do %>
+      <%= for reason <- Transport.NotificationReason.subscribable_platform_wide_reasons(:producer) do %>
         <%= label f, reason do %>
           <%= checkbox(f, reason, hidden_input: false, value: reason in reasons_subscribed_without_dataset) %>
           <%= reason %>
@@ -51,10 +51,10 @@
     <%= submit("Mettre à jour les abonnements") %>
   <% end %>
 
-  <h3>Abonnements existants</h3>
+  <h3><%= dgettext("backoffice", "Existing subscriptions") %></h3>
 
   <p :if={Enum.empty?(@notification_subscriptions)} class="notification">
-    Il n'y a pas d'abonnements à des notifications pour ce contact.
+    <%= dgettext("backoffice", "There are no notification subscriptions for this contact.") %>
   </p>
 
   <table :if={Enum.count(subscriptions_with_dataset) > 0} class="table mt-48 dashboard-description">

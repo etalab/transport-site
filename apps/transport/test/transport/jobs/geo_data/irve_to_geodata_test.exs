@@ -17,13 +17,6 @@ defmodule Transport.Jobs.IRVEToGeoDataTest do
   ,,info@ionity.eu,IONITY,info@ionity.eu,33187210891,IONITY GMBH,FRIONE417100,FRIONE417100,IONITY Giberville Sud,Station dédiée à la recharge rapide,"Aire de Giberville Sud, Km 220, A13, 14730 Giberville",14301,"[-0.277238, 49.166932]",5,FRIONE4171,FRIONE4171,350,FALSE,TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,FALSE,TRUE,0.69€ / kwh,Accès libre,FALSE,24/7,Accessible mais non réservé PMR,Hauteur maximale 3m,FALSE,Direct,50017455185930,2021-11-18,Recharge jusqu'à 350KW - CCS,2023-03-21,TRUE,2024-01-19T07:47:22.735000+00:00,5b597823c751df57045198a4,78356665-f3f2-4588-aca0-a5cb1606d86d,ionity-gmbh,2023-03-30T14:20:56.532000+00:00,-0.277238,49.166932,14730,Giberville,True,True
   """
 
-  @dataset_info %{
-    type: "charging-stations",
-    custom_title: "Infrastructures de Recharge pour Véhicules Électriques - IRVE",
-    organization: "data.gouv.fr",
-    organization_id: "646b7187b50b2a93b1ae3d45"
-  }
-
   test "import an IRVE to the DB" do
     %{id: id} = insert(:geo_data_import)
     BaseGeoData.insert_data(@irve_content, id, &IRVEToGeoData.prepare_data_for_insert/2)
@@ -44,11 +37,6 @@ defmodule Transport.Jobs.IRVEToGeoDataTest do
            } = row1
   end
 
-  test "Finds the relevant dataset" do
-    %DB.Dataset{id: dataset_id} = insert(:dataset, @dataset_info)
-    assert %DB.Dataset{id: ^dataset_id} = IRVEToGeoData.relevant_dataset()
-  end
-
   test "IRVE data update logic" do
     now = DateTime.utc_now()
     now_200 = now |> DateTime.add(-200)
@@ -59,7 +47,7 @@ defmodule Transport.Jobs.IRVEToGeoDataTest do
     assert [] = DB.GeoData |> DB.Repo.all()
     assert [] = DB.GeoDataImport |> DB.Repo.all()
 
-    %DB.Dataset{id: dataset_id} = insert(:dataset, @dataset_info)
+    %DB.Dataset{id: dataset_id} = insert_irve_dataset()
 
     # We don’t want to match community resources (but want to have them in base)
     insert(:resource, %{

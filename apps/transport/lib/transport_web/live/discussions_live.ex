@@ -31,6 +31,7 @@ defmodule TransportWeb.DiscussionsLive do
             current_user: @current_user,
             socket: @socket,
             dataset: @dataset,
+            admin_member_ids: @admin_member_ids,
             org_member_ids: @org_member_ids,
             org_logo_thumbnail: @org_logo_thumbnail,
             locale: @locale
@@ -83,7 +84,12 @@ defmodule TransportWeb.DiscussionsLive do
 
     socket =
       socket
-      |> assign(discussions: discussions, org_member_ids: org_member_ids, org_logo_thumbnail: org_logo_thumbnail)
+      |> assign(
+        discussions: discussions,
+        org_member_ids: org_member_ids,
+        org_logo_thumbnail: org_logo_thumbnail,
+        admin_member_ids: DB.Contact.admin_datagouv_ids()
+      )
       |> push_event("discussions-loaded", %{
         ids: discussions |> Enum.filter(&discussion_should_be_closed?/1) |> Enum.map(& &1["id"])
       })
@@ -92,9 +98,11 @@ defmodule TransportWeb.DiscussionsLive do
   end
 
   @doc """
-    Decides if a discussion coming from data.gouv.fr API should be dislayed as closed for a less cluttered UI
-    A discussion is closed if it has a "closed" key with a value (same behaviour than on data.gouv.fr)
-    or if the last comment inside the discussion is older than 2 months (because people often forget to close discussions)
+  Decides if a discussion coming from data.gouv.fr API should be displayed as closed for a less cluttered UI.
+
+  A discussion is closed if:
+  - it has a "closed" key with a value (same behaviour than on data.gouv.fr)
+  - if the last comment inside the discussion is older than 2 months (because people often forget to close discussions)
   """
   def discussion_should_be_closed?(%{"closed" => closed}) when not is_nil(closed), do: true
 

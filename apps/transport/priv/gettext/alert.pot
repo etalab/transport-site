@@ -29,3 +29,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Unable to get this dataset for the moment"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "This feature is currently not available."
+msgstr ""

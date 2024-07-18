@@ -51,10 +51,10 @@ defmodule Transport.ImportData do
     {:ok, _result} = Repo.query("REFRESH MATERIALIZED VIEW places;")
   end
 
-  defp generate_import_logs!(
-         %Dataset{id: dataset_id, datagouv_id: datagouv_id},
-         options
-       ) do
+  def generate_import_logs!(
+        %Dataset{id: dataset_id, datagouv_id: datagouv_id},
+        options
+      ) do
     success = options |> Keyword.fetch!(:success)
     msg = options |> Keyword.get(:msg)
 
@@ -276,24 +276,13 @@ defmodule Transport.ImportData do
 
   @spec get_resources(map(), binary()) :: [map()]
   def get_resources(dataset, type) do
-    resources =
-      dataset
-      |> get_valid_resources(type)
-      |> Enum.concat(get_community_resources(dataset))
-      |> Enum.uniq_by(fn resource -> resource["url"] end)
-
-    # List of resources to avoid collisions when some resource URL is
-    # reused for a new one.
-    # Only protect against reuse in the same dataset.
-    # See #3976.
-    resource_datagouv_ids =
-      resources |> Enum.map(fn resource -> resource["id"] end)
-
-    resources
+    dataset
+    |> get_valid_resources(type)
+    |> Enum.concat(get_community_resources(dataset))
+    |> Enum.uniq_by(fn resource -> resource["url"] end)
     |> Enum.map_reduce(0, fn resource, display_position ->
       is_community_resource = resource["is_community_resource"] == true
-
-      existing_resource = get_existing_resource(resource, dataset["id"], resource_datagouv_ids) || %{}
+      existing_resource = get_existing_resource(resource, dataset["id"]) || %{}
 
       resource =
         resource
@@ -852,10 +841,10 @@ defmodule Transport.ImportData do
   def get_title(%{"title" => title}) when not is_nil(title), do: title
   def get_title(%{"url" => url}), do: Helpers.filename_from_url(url)
 
-  @spec get_existing_resource(map(), binary(), list()) :: Resource.t() | nil
+  @spec get_existing_resource(map(), binary()) :: Resource.t() | nil
   # ODS CSV resources are identified only with their URL, as their resource datagouv id is not unique.
   # For regular resources, we can identify them by resource datagouv id or by their url.
-  defp get_existing_resource(%{"is_ods_csv" => true, "url" => url}, dataset_datagouv_id, _) do
+  defp get_existing_resource(%{"is_ods_csv" => true, "url" => url}, dataset_datagouv_id) do
     Resource
     |> join(:left, [r], d in Dataset, on: r.dataset_id == d.id)
     |> where([r], r.url == ^url)
@@ -864,19 +853,10 @@ defmodule Transport.ImportData do
     |> Repo.one()
   end
 
-  defp get_existing_resource(
-         %{"url" => url, "id" => resource_datagouv_id},
-         dataset_datagouv_id,
-         siblings
-       ) do
+  defp get_existing_resource(%{"url" => url, "id" => datagouv_id}, dataset_datagouv_id) do
     Resource
     |> join(:left, [r], d in Dataset, on: r.dataset_id == d.id)
-    |> where(
-      [r, _d],
-      # Support URL reuse without collision. See #3976.
-      r.datagouv_id == ^resource_datagouv_id or
-        (r.datagouv_id not in ^siblings and r.url == ^url)
-    )
+    |> where([r, _d], r.datagouv_id == ^datagouv_id or r.url == ^url)
     |> where([_r, d], d.datagouv_id == ^dataset_datagouv_id)
     |> select([r], map(r, [:id]))
     |> Repo.one()
