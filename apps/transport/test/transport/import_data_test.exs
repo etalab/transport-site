@@ -24,32 +24,6 @@ defmodule Transport.ImportDataTest do
     :ok
   end
 
-  def generate_resources_payload(
-        title \\ nil,
-        url \\ nil,
-        id \\ nil,
-        schema_name \\ nil,
-        schema_version \\ nil,
-        filetype \\ nil
-      ) do
-    [
-      %{
-        "title" => title || "resource1",
-        "url" => url || "http://localhost:4321/resource1",
-        "id" => id || "resource1_id",
-        "type" => "main",
-        "filetype" => filetype || "remote",
-        "format" => "zip",
-        "last_modified" => DateTime.utc_now() |> DateTime.add(-1, :hour) |> DateTime.to_iso8601(),
-        "schema" => %{"name" => schema_name, "version" => schema_version}
-      }
-    ]
-  end
-
-  def generate_dataset_payload(datagouv_id, resources \\ nil) do
-    datagouv_dataset_response(%{"id" => datagouv_id, "resources" => resources || generate_resources_payload()})
-  end
-
   def insert_national_dataset(datagouv_id) do
     insert(:dataset, datagouv_id: datagouv_id, aom: nil, region_id: DB.Repo.get_by!(DB.Region, nom: "National").id)
   end

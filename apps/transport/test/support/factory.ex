@@ -338,30 +338,6 @@ defmodule DB.Factory do
     |> DB.Contact.insert!()
   end
 
-  def datagouv_dataset_response(%{} = attributes \\ %{}) do
-    Map.merge(
-      %{
-        "id" => Ecto.UUID.generate(),
-        "title" => "dataset",
-        "created_at" => DateTime.utc_now() |> to_string(),
-        "last_update" => DateTime.utc_now() |> to_string(),
-        "slug" => "dataset-slug",
-        "license" => "lov2",
-        "frequency" => "daily",
-        "tags" => [],
-        "organization" => %{
-          "id" => Ecto.UUID.generate(),
-          "name" => "Org " <> Ecto.UUID.generate(),
-          "badges" => [],
-          "logo" => "https://example.com/img.jpg",
-          "logo_thumbnail" => "https://example.com/img.small.jpg",
-          "slug" => Ecto.UUID.generate()
-        }
-      },
-      attributes
-    )
-  end
-
   def insert_irve_dataset do
     insert(:dataset, %{
       type: "charging-stations",
@@ -426,5 +402,55 @@ defmodule DB.Factory do
         "nbre_pdc" => 3
       }
     })
+  end
+
+  def generate_dataset_payload(datagouv_id, resources \\ nil) do
+    datagouv_dataset_response(%{"id" => datagouv_id, "resources" => resources || generate_resources_payload()})
+  end
+
+  def datagouv_dataset_response(%{} = attributes \\ %{}) do
+    Map.merge(
+      %{
+        "id" => Ecto.UUID.generate(),
+        "title" => "dataset",
+        "created_at" => DateTime.utc_now() |> to_string(),
+        "last_update" => DateTime.utc_now() |> to_string(),
+        "slug" => "dataset-slug",
+        "license" => "lov2",
+        "frequency" => "daily",
+        "tags" => [],
+        "organization" => %{
+          "id" => Ecto.UUID.generate(),
+          "name" => "Org " <> Ecto.UUID.generate(),
+          "badges" => [],
+          "logo" => "https://example.com/img.jpg",
+          "logo_thumbnail" => "https://example.com/img.small.jpg",
+          "slug" => Ecto.UUID.generate()
+        }
+      },
+      attributes
+    )
+  end
+
+  def generate_resources_payload(
+        title \\ nil,
+        url \\ nil,
+        id \\ nil,
+        schema_name \\ nil,
+        schema_version \\ nil,
+        filetype \\ nil
+      ) do
+    [
+      %{
+        "title" => title || "resource1",
+        "url" => url || "http://localhost:4321/resource1",
+        "id" => id || "resource1_id",
+        "type" => "main",
+        "filetype" => filetype || "remote",
+        "format" => "zip",
+        "last_modified" => DateTime.utc_now() |> DateTime.add(-1, :hour) |> DateTime.to_iso8601(),
+        "schema" => %{"name" => schema_name, "version" => schema_version}
+      }
+    ]
   end
 end

@@ -782,15 +782,61 @@ defmodule TransportWeb.ResourceControllerTest do
     assert html =~ "Base Nationale des Lieux de Covoiturage"
   end
 
-  # test "we can update a resource", %{conn: conn} do
+  test "we can add a new resource with an URL", %{conn: conn} do
+    %DB.Dataset{datagouv_id: dataset_datagouv_id} = insert(:dataset)
+    conn = conn |> init_test_session(%{current_user: %{}})
+
+    # We expect a call to the function Datagouvfr.Client.Resource.update/2, but this is indeed to create a new resource.
+    # There is a clause in the real client that does a POST call for a new resource if there is no resource_id
+    Datagouvfr.Client.Resources.Mock
+    |> expect(:update, fn _conn,
+                          %{
+                            "dataset_id" => ^dataset_datagouv_id,
+                            "format" => "csv",
+                            "title" => "Test",
+                            "url" => "https://example.com/my_csv_resource.csv"
+                          } = _params ->
+      # We don’t really care about API answer, as it is discarded and not used (see controller code)
+      {:ok, %{}}
+    end)
+
+    # We need to mock other things too:
+    # Adding a new resource triggers an ImportData, and then a validation.
+    Transport.HTTPoison.Mock
+    |> expect(
+      :get!,
+      fn _url, [], hackney: [follow_redirect: true] ->
+        %HTTPoison.Response{body: Jason.encode!(generate_dataset_payload(dataset_datagouv_id)), status_code: 200}
+      end
+    )
+
+    Datagouvfr.Client.CommunityResources.Mock |> expect(:get, fn _ -> {:ok, []} end)
+    Mox.stub_with(Transport.AvailabilityChecker.Mock, Transport.AvailabilityChecker.Dummy)
+
+    location =
+      conn
+      |> post(
+        resource_path(conn, :post_file, dataset_datagouv_id),
+        %{
+          "dataset_id" => dataset_datagouv_id,
+          "format" => "csv",
+          "title" => "Test",
+          "url" => "https://example.com/my_csv_resource.csv"
+        }
+      )
+      |> redirected_to
+
+    assert location == dataset_path(conn, :details, dataset_datagouv_id)
+    # No need to really check content of dataset and resources in database,
+    # because the response of Datagouv.Client.Resources.update is discarded.
+    # We would just check that import_data works correctly, while this is already tested elsewhere.
+  end
+
+  # test "we can show the delete confirmation page", %{conn: conn} do
   # TODO
   # end
 
   # test "we can delete a resource", %{conn: conn} do
-  # TODO
-  # end
-
-  # test "we can add a new resource", %{conn: conn} do
   # TODO
   # end
 

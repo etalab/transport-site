@@ -120,6 +120,8 @@ defmodule Transport.ImportData do
 
     # We'll have to verify the behaviour of hackney/httpoison for follow_redirect: how
     # many redirects are allowed? Is an error raised after a while or not? etc.
+    # Oh this is awful. Really, a direct call with the HTTP client instead of using the datagouv API client module?
+    # Hu, ok, because of redirects.
     response = http_client.get!(url, [], hackney: [follow_redirect: true])
     json = Jason.decode!(response.body)
     {:ok, dataset} = prepare_dataset_from_data_gouv_response(json, type)
