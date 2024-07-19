@@ -1,4 +1,10 @@
 defmodule Transport.NeTEx do
+  @moduledoc """
+  A first implementation of on-the-fly NeTEx (zip) archive traversal.
+
+  The current implementation is specialized into extracting `StopPlace`s, but the code
+  will be generalized for other uses in a later PR.
+  """
   require Logger
 
   @doc """
@@ -56,7 +62,9 @@ defmodule Transport.NeTEx do
 
   @doc """
   A higher level method, recommended for general use. Given a NeTEx zip archive stored
-  on disk,
+  on disk, return the list of `StopPlace`s per file contained in the archive.
+
+  See tests for actual output. Will be refactored soonish.
   """
   def read_all_stop_places(zip_file_name) do
     with_zip_file_handle(zip_file_name, fn unzip ->
