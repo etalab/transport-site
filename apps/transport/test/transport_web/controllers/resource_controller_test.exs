@@ -772,16 +772,7 @@ defmodule TransportWeb.ResourceControllerTest do
 
     # We need to mock other things too:
     # Adding a new resource triggers an ImportData, and then a validation.
-    Transport.HTTPoison.Mock
-    |> expect(
-      :get!,
-      fn _url, [], hackney: [follow_redirect: true] ->
-        %HTTPoison.Response{body: Jason.encode!(generate_dataset_payload(dataset_datagouv_id)), status_code: 200}
-      end
-    )
-
-    Datagouvfr.Client.CommunityResources.Mock |> expect(:get, fn _ -> {:ok, []} end)
-    Mox.stub_with(Transport.AvailabilityChecker.Mock, Transport.AvailabilityChecker.Dummy)
+    mocks_for_import_data_etc(dataset_datagouv_id)
 
     location =
       conn
@@ -821,9 +812,32 @@ defmodule TransportWeb.ResourceControllerTest do
     assert html =~ "Souhaitez-vous mettre à jour la ressource ou la supprimer définitivement ?"
   end
 
-  # test "we can delete a resource", %{conn: conn} do
-  # TODO
-  # end
+  test "we can delete a resource", %{conn: conn} do
+    %DB.Dataset{datagouv_id: dataset_datagouv_id, resources: [%DB.Resource{datagouv_id: resource_datagouv_id}]} =
+      insert(:dataset, resources: [insert(:resource)])
+
+    conn = conn |> init_test_session(%{current_user: %{}})
+
+    Datagouvfr.Client.Resources.Mock
+    |> expect(:delete, fn _conn, %{"dataset_id" => ^dataset_datagouv_id, "resource_id" => ^resource_datagouv_id} ->
+      # We don’t really care about API answer, as it is discarded and not used (see controller code)
+      {:ok, %{}}
+    end)
+
+    # We need to mock other things too:
+    # Adding a new resource triggers an ImportData, and then a validation.
+    mocks_for_import_data_etc(dataset_datagouv_id)
+
+    location =
+      conn
+      |> delete(resource_path(conn, :delete, dataset_datagouv_id, resource_datagouv_id))
+      |> redirected_to
+
+    assert location == page_path(conn, :espace_producteur)
+    # No need to really check content of dataset and resources in database,
+    # because the response of Datagouv.Client.Resources.update is discarded.
+    # We would just check that import_data works correctly, while this is already tested elsewhere.
+  end
 
   defp test_remote_download_error(%Plug.Conn{} = conn, mock_status_code) do
     resource = DB.Resource |> DB.Repo.get_by(datagouv_id: "2")
@@ -858,5 +872,18 @@ defmodule TransportWeb.ResourceControllerTest do
            "csv"
          )
      })}
+  end
+
+  defp mocks_for_import_data_etc(dataset_datagouv_id) do
+    Transport.HTTPoison.Mock
+    |> expect(
+      :get!,
+      fn _url, [], hackney: [follow_redirect: true] ->
+        %HTTPoison.Response{body: Jason.encode!(generate_dataset_payload(dataset_datagouv_id)), status_code: 200}
+      end
+    )
+
+    Datagouvfr.Client.CommunityResources.Mock |> expect(:get, fn _ -> {:ok, []} end)
+    Mox.stub_with(Transport.AvailabilityChecker.Mock, Transport.AvailabilityChecker.Dummy)
   end
 end
