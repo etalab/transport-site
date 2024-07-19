@@ -728,22 +728,8 @@ defmodule TransportWeb.ResourceControllerTest do
     dataset_datagouv_id = "dataset_datagouv_id"
 
     Datagouvfr.Client.Datasets.Mock
-    |> expect(:get, 1, fn _ ->
-      {:ok,
-       %{
-         "id" => dataset_datagouv_id,
-         "resources" => [
-           %{
-             "filetype" => "remote",
-             "format" => "csv",
-             "id" => resource_datagouv_id,
-             "title" => "bnlc.csv",
-             "type" => "main",
-             "url" => "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv"
-           }
-         ],
-         "title" => "Base Nationale des Lieux de Covoiturage"
-       }}
+    |> expect(:get, 1, fn ^dataset_datagouv_id ->
+      dataset_datagouv_get_response(dataset_datagouv_id, resource_datagouv_id)
     end)
 
     html = conn |> get(resource_path(conn, :form, dataset_datagouv_id, resource_datagouv_id)) |> html_response(200)
@@ -759,23 +745,7 @@ defmodule TransportWeb.ResourceControllerTest do
     dataset_datagouv_id = "dataset_datagouv_id"
 
     Datagouvfr.Client.Datasets.Mock
-    |> expect(:get, 1, fn _ ->
-      {:ok,
-       %{
-         "id" => dataset_datagouv_id,
-         "resources" => [
-           %{
-             "filetype" => "remote",
-             "format" => "csv",
-             "id" => "resource_datagouv_id",
-             "title" => "bnlc.csv",
-             "type" => "main",
-             "url" => "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv"
-           }
-         ],
-         "title" => "Base Nationale des Lieux de Covoiturage"
-       }}
-    end)
+    |> expect(:get, 1, fn ^dataset_datagouv_id -> dataset_datagouv_get_response(dataset_datagouv_id) end)
 
     html = conn |> get(resource_path(conn, :form, dataset_datagouv_id)) |> html_response(200)
     assert html =~ "Nouvelle ressource"
@@ -855,5 +825,23 @@ defmodule TransportWeb.ResourceControllerTest do
     html = html_response(conn, 404)
     assert html =~ "Page non disponible"
     assert Phoenix.Flash.get(conn.assigns.flash, :error) == "La ressource n'est pas disponible sur le serveur distant"
+  end
+
+  defp dataset_datagouv_get_response(dataset_datagouv_id, resource_datagouv_id \\ nil) do
+    {:ok,
+     datagouv_dataset_response(%{
+       "id" => dataset_datagouv_id,
+       "title" => "Base Nationale des Lieux de Covoiturage",
+       "resources" =>
+         generate_resources_payload(
+           "bnlc.csv",
+           "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv",
+           resource_datagouv_id,
+           nil,
+           nil,
+           nil,
+           "csv"
+         )
+     })}
   end
 end
