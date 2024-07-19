@@ -122,8 +122,8 @@ defmodule TransportWeb.Backoffice.DatasetController do
     |> Repo.delete()
     |> flash(
       conn,
-      dgettext("backoffice_dataset", "Dataset deleted"),
-      dgettext("backoffice", "Could not delete dataset")
+      dgettext("backoffice_dataset", "Dataset unlisted"),
+      dgettext("backoffice_dataset", "Could not unlist dataset")
     )
     |> redirect_to_index()
   end

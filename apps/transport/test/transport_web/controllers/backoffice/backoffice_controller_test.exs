@@ -21,6 +21,8 @@ defmodule TransportWeb.BackofficeControllerTest do
     Mox.stub_with(Datagouvfr.Authentication.Mock, Datagouvfr.Authentication.Dummy)
     Mox.stub_with(Datagouvfr.Client.User.Mock, Datagouvfr.Client.User.Dummy)
     Mox.stub_with(Transport.DataVisualization.Mock, Transport.DataVisualization.Impl)
+    # Using the real implementation for the moment, then it falls back on `HTTPoison.Mock`
+    Mox.stub_with(Datagouvfr.Client.Datasets.Mock, Datagouvfr.Client.Datasets.External)
     :ok
   end
 
