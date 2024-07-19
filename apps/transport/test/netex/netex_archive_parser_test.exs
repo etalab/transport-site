@@ -18,7 +18,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
   end
 
   # not fully correct XML, but close enough for what we want to test
-  def some_netex_content() do
+  def some_netex_content do
     """
       <StopPlace id="FR:HELLO:POYARTIN:001">
       <Name>Poyartin</Name>
