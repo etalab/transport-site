@@ -1,4 +1,26 @@
 defmodule Transport.NeTEx.StopPlacesStreamingParser do
+  @moduledoc """
+  This module is a `Saxy` streaming XML parser, able to scan very large XML files
+  in a way that does not overload the memory (element by element).
+
+  It is a first stab at reading NeTEx files to pick `StopPlace`s.
+
+  Limitations:
+  - There are other locations in a NeTEx file where to find stops, and also other concepts (`Quay`),
+    but this is already providing a first basis on which we'll iterate.
+  - The result is an accumulated array (not a stream), which is not actually a problem given the
+    current size of the output, but this could be changed in the future.
+  - The scanning structure is hard-coded, and we will want later to use something more flexible
+    (à la XPath), maybe via macros or real XPath calls, but this is good enough for now.
+
+  How it works:
+  - Detect `StopPlace` elements
+  - Extract their `id` attribute
+  - Underneath, find the `Centroid/Location/[Latitude|Longitude]` nodes
+
+  Some `StopPlace`s do not have any `Centroid` nor `Latitude|Longitude`, but are still scanned.
+  """
+
   @behaviour Saxy.Handler
   import ExUnit.Assertions
 
@@ -7,6 +29,8 @@ defmodule Transport.NeTEx.StopPlacesStreamingParser do
     value
   end
 
+  # NOTE: currently parsing as floats, which are limited in terms of precision,
+  # but more work on precision will be done later.
   def parse_float!(binary) do
     {value, ""} = Float.parse(binary)
     value
