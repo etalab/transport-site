@@ -47,12 +47,12 @@
       </div>
       <div>
         <table class="table mt-24">
-          <%= for resource <- @dataset.resources do %>
+          <%= for resource <- @datagouv_dataset["resources"] do %>
             <tr>
-              <td><%= resource.title %></td>
+              <td><%= resource["title"] %></td>
               <td>
                 <%= link(dgettext("espace-producteurs", "Edit resource"),
-                  to: resource_path(@conn, :form, @dataset.datagouv_id, resource.datagouv_id),
+                  to: resource_path(@conn, :form, @datagouv_dataset["id"], resource["id"]),
                   class: "button-outline primary small",
                   "data-tracking-category": "espace_producteur",
                   "data-tracking-action": "update_resource_button"
@@ -60,7 +60,7 @@
               </td>
               <td>
                 <%= link(dgettext("espace-producteurs", "Delete resource"),
-                  to: resource_path(@conn, :delete_resource_confirmation, @dataset.datagouv_id, resource.datagouv_id),
+                  to: resource_path(@conn, :delete_resource_confirmation, @datagouv_dataset["id"], resource["id"]),
                   class: "button-outline secondary small",
                   "data-tracking-category": "espace_producteur",
                   "data-tracking-action": "add_resource_button"
