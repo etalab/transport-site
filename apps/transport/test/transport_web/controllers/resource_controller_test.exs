@@ -802,9 +802,24 @@ defmodule TransportWeb.ResourceControllerTest do
     # We would just check that import_data works correctly, while this is already tested elsewhere.
   end
 
-  # test "we can show the delete confirmation page", %{conn: conn} do
-  # TODO
-  # end
+  test "we can show the delete confirmation page", %{conn: conn} do
+    conn = conn |> init_test_session(%{current_user: %{}})
+    resource_datagouv_id = "resource_dataset_id"
+    dataset_datagouv_id = "dataset_datagouv_id"
+
+    Datagouvfr.Client.Datasets.Mock
+    |> expect(:get, 1, fn ^dataset_datagouv_id ->
+      dataset_datagouv_get_response(dataset_datagouv_id, resource_datagouv_id)
+    end)
+
+    html =
+      conn
+      |> get(resource_path(conn, :delete_resource_confirmation, dataset_datagouv_id, resource_datagouv_id))
+      |> html_response(200)
+
+    assert html =~ "bnlc.csv"
+    assert html =~ "Souhaitez-vous mettre à jour la ressource ou la supprimer définitivement ?"
+  end
 
   # test "we can delete a resource", %{conn: conn} do
   # TODO
