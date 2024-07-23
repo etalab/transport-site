@@ -7,6 +7,10 @@
 
   <h3>Créer un abonnement</h3>
 
+  <p class="notification">
+    ℹ️ Les abonnements créés depuis le backoffice sont créés avec le rôle de <code><b>producer</b></code>. Les réutilisateurs doivent utiliser l'espace réutilisateur en autonomie.
+  </p>
+
   <h4>Lié à un jeu de données</h4>
 
   <%= form_for @conn, backoffice_notification_subscription_path(@conn, :create), [], fn f -> %>
@@ -83,7 +87,7 @@
             </div>
             <div class="small"><%= dataset.type %></div>
           </td>
-          <td><%= notification_subscription.role %></td>
+          <td><span class={role_class(notification_subscription)}><%= notification_subscription.role %></span></td>
           <td><%= notification_subscription.reason %></td>
           <td><%= notification_subscription.source %></td>
           <td>
