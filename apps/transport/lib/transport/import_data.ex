@@ -872,7 +872,7 @@ defmodule Transport.ImportData do
 
   defp get_existing_resource_by_url(url, dataset_datagouv_id) do
     Resource
-    |> join(:left, [r], d in Dataset, on: r.dataset_id == d.id)
+    |> join(:inner, [r], d in Dataset, on: r.dataset_id == d.id)
     |> where([r, d], r.url == ^url and d.datagouv_id == ^dataset_datagouv_id)
     |> select([r], map(r, [:id]))
     |> Repo.one()
@@ -880,7 +880,7 @@ defmodule Transport.ImportData do
 
   defp get_existing_resource_by_datagouv_id(resource_datagouv_id, dataset_datagouv_id) do
     Resource
-    |> join(:left, [r], d in Dataset, on: r.dataset_id == d.id)
+    |> join(:inner, [r], d in Dataset, on: r.dataset_id == d.id)
     |> where([r, d], r.datagouv_id == ^resource_datagouv_id and d.datagouv_id == ^dataset_datagouv_id)
     |> select([r], map(r, [:id]))
     |> Repo.one()
