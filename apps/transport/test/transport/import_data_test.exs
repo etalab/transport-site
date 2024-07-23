@@ -24,26 +24,21 @@ defmodule Transport.ImportDataTest do
     :ok
   end
 
-  def generate_resources_payload(
-        title \\ nil,
-        url \\ nil,
-        id \\ nil,
-        schema_name \\ nil,
-        schema_version \\ nil,
-        filetype \\ nil
-      ) do
-    [
-      %{
-        "title" => title || "resource1",
-        "url" => url || "http://localhost:4321/resource1",
-        "id" => id || "resource1_id",
-        "type" => "main",
-        "filetype" => filetype || "remote",
-        "format" => "zip",
-        "last_modified" => DateTime.utc_now() |> DateTime.add(-1, :hour) |> DateTime.to_iso8601(),
-        "schema" => %{"name" => schema_name, "version" => schema_version}
-      }
-    ]
+  def generate_resources_payload(opts \\ []) do
+    [generate_resource_payload(opts)]
+  end
+
+  def generate_resource_payload(opts \\ []) do
+    %{
+      "title" => Keyword.get(opts, :title, "resource1"),
+      "url" => Keyword.get(opts, :url, "http://localhost:4321/resource1"),
+      "id" => Keyword.get(opts, :id, "resource1_id"),
+      "type" => "main",
+      "filetype" => Keyword.get(opts, :filetype, "remote"),
+      "format" => "zip",
+      "last_modified" => DateTime.utc_now() |> DateTime.add(-1, :hour) |> DateTime.to_iso8601(),
+      "schema" => %{"name" => Keyword.get(opts, :schema_name), "version" => Keyword.get(opts, :schema_version)}
+    }
   end
 
   def generate_dataset_payload(datagouv_id, resources \\ nil) do
@@ -94,6 +89,23 @@ defmodule Transport.ImportDataTest do
 
   def db_count(type) do
     DB.Repo.aggregate(type, :count, :id)
+  end
+
+  defp mock_data_gouv(datagouv_id, dataset_payload) do
+    with_mock HTTPoison, get!: http_get_mock_200(datagouv_id, dataset_payload), head: http_head_mock() do
+      with_mock Datagouvfr.Client.CommunityResources, get: fn _ -> {:ok, []} end do
+        with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock() do
+          ImportData.import_all_datasets()
+        end
+      end
+    end
+  end
+
+  defp list_resources do
+    DB.Resource
+    |> order_by([r], r.id)
+    |> DB.Repo.all()
+    |> Enum.map(fn resource -> {resource.id, resource.url} end)
   end
 
   test "hello world des imports" do
@@ -171,9 +183,9 @@ defmodule Transport.ImportDataTest do
       generate_dataset_payload(
         datagouv_id,
         generate_resources_payload(
-          new_title = "new title !!! fresh !!!",
-          "http://localhost:4321/resource1",
-          new_datagouv_id = "resource2_id"
+          title: new_title = "new title !!! fresh !!!",
+          url: "http://localhost:4321/resource1",
+          id: new_datagouv_id = "resource2_id"
         )
       )
 
@@ -203,9 +215,9 @@ defmodule Transport.ImportDataTest do
       generate_dataset_payload(
         datagouv_id,
         generate_resources_payload(
-          new_title,
-          _new_url = "https://example.com/" <> Ecto.UUID.generate(),
-          new_datagouv_id
+          title: new_title,
+          url: "https://example.com/" <> Ecto.UUID.generate(),
+          id: new_datagouv_id
         )
       )
 
@@ -231,6 +243,162 @@ defmodule Transport.ImportDataTest do
     assert Map.get(resource_updated, :id) == resource_id
   end
 
+  test "handle resource deletion" do
+    insert_national_dataset(datagouv_id = "dataset1_id")
+
+    assert db_count(DB.Dataset) == 1
+    assert db_count(DB.Resource) == 0
+
+    payload_1 =
+      generate_dataset_payload(datagouv_id, [
+        generate_resource_payload(
+          title: "Resource 1",
+          url: "http://localhost:4321/resource1",
+          id: "resource1"
+        ),
+        generate_resource_payload(
+          title: "Resource 2",
+          url: "http://localhost:4321/resource2",
+          id: "resource2"
+        )
+      ])
+
+    mock_data_gouv(datagouv_id, payload_1)
+
+    assert db_count(DB.Dataset) == 1
+    assert db_count(DB.Resource) == 2
+
+    # import 2
+    payload_2 =
+      generate_dataset_payload(datagouv_id, [
+        generate_resource_payload(
+          title: "Resource 1",
+          url: "http://localhost:4321/resource1",
+          id: "resource1"
+        )
+      ])
+
+    mock_data_gouv(datagouv_id, payload_2)
+
+    assert db_count(DB.Dataset) == 1
+    assert db_count(DB.Resource) == 1
+  end
+
+  test "handle resource recycling" do
+    insert_national_dataset(datagouv_id = "dataset1_id")
+
+    assert db_count(DB.Dataset) == 1
+    assert db_count(DB.Resource) == 0
+
+    # setup
+    setup_payload =
+      generate_dataset_payload(datagouv_id, [
+        generate_resource_payload(
+          title: "Resource 1",
+          url: "http://localhost:4321/resource1",
+          id: "resource1"
+        ),
+        generate_resource_payload(
+          title: "Resource 2",
+          url: "http://localhost:4321/resource2",
+          id: "resource2"
+        ),
+        generate_resource_payload(
+          title: "Resource 3",
+          url: "http://localhost:4321/resource3",
+          id: "resource3"
+        )
+      ])
+
+    mock_data_gouv(datagouv_id, setup_payload)
+
+    assert db_count(DB.Dataset) == 1
+
+    [{id1, url1}, {_id2, url2}, {id3, url3}] = list_resources()
+
+    assert url1 == "http://localhost:4321/resource1"
+    assert url2 == "http://localhost:4321/resource2"
+    assert url3 == "http://localhost:4321/resource3"
+
+    # import 1
+    payload_1 =
+      generate_dataset_payload(datagouv_id, [
+        generate_resource_payload(
+          title: "Resource 1",
+          url: "http://localhost:4321/resource2",
+          id: "resource1"
+        ),
+        generate_resource_payload(
+          title: "Resource 3",
+          url: "http://localhost:4321/resource3",
+          id: "resource3"
+        )
+      ])
+
+    mock_data_gouv(datagouv_id, payload_1)
+
+    assert db_count(DB.Dataset) == 1
+
+    assert [{id1, "http://localhost:4321/resource2"}, {id3, "http://localhost:4321/resource3"}] == list_resources()
+
+    # import 2
+    payload_2 =
+      generate_dataset_payload(datagouv_id, [
+        generate_resource_payload(
+          title: "Resource 1",
+          url: "http://localhost:4321/resource2",
+          id: "resource1"
+        ),
+        generate_resource_payload(
+          title: "Resource 3",
+          url: "http://localhost:4321/resource3",
+          id: "resource3"
+        ),
+        generate_resource_payload(
+          title: "Resource 4",
+          url: "http://localhost:4321/resource1",
+          id: "resource4"
+        )
+      ])
+
+    mock_data_gouv(datagouv_id, payload_2)
+
+    assert db_count(DB.Dataset) == 1
+
+    [{updated_id1, url1}, {updated_id2, url2}, {id4, url3}] = list_resources()
+
+    assert updated_id1 == id1
+    assert updated_id2 == id3
+    assert url1 == "http://localhost:4321/resource2"
+    assert url2 == "http://localhost:4321/resource3"
+    assert url3 == "http://localhost:4321/resource1"
+
+    # import 3
+    payload_3 =
+      generate_dataset_payload(datagouv_id, [
+        generate_resource_payload(
+          title: "Resource 3",
+          url: "http://localhost:4321/resource3",
+          id: "resource3"
+        ),
+        generate_resource_payload(
+          title: "Resource 1",
+          url: "http://localhost:4321/resource2",
+          id: "resource4"
+        )
+      ])
+
+    mock_data_gouv(datagouv_id, payload_3)
+
+    assert db_count(DB.Dataset) == 1
+
+    [{updated_id1, url1}, {updated_id2, url2}] = list_resources()
+    assert updated_id1 == id3
+    assert updated_id2 == id4
+    assert url1 == "http://localhost:4321/resource3"
+    assert url2 == "http://localhost:4321/resource2"
+  end
+
   test "import dataset with a community resource" do
     insert_national_dataset(datagouv_id = "dataset1_id")
     assert db_count(DB.Dataset) == 1
@@ -247,11 +415,11 @@ defmodule Transport.ImportDataTest do
         get: fn _ ->
           {:ok,
            generate_resources_payload(
-             community_resource_title,
-             "http://example.com/file",
-             "1",
-             schema_name,
-             schema_version
+             title: community_resource_title,
+             url: "http://example.com/file",
+             id: "1",
+             schema_name: schema_name,
+             schema_version: schema_version
            )}
         end do
         with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock() do
