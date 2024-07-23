@@ -24,36 +24,20 @@ defmodule Transport.ImportDataTest do
     :ok
   end
 
-  def generate_resources_payload(
-        title \\ nil,
-        url \\ nil,
-        id \\ nil,
-        schema_name \\ nil,
-        schema_version \\ nil,
-        filetype \\ nil
-      ) do
-    [
-      generate_resource_payload(title, url, id, schema_name, schema_version, filetype)
-    ]
+  def generate_resources_payload(opts \\ []) do
+    [generate_resource_payload(opts)]
   end
 
-  def generate_resource_payload(
-        title \\ nil,
-        url \\ nil,
-        id \\ nil,
-        schema_name \\ nil,
-        schema_version \\ nil,
-        filetype \\ nil
-      ) do
+  def generate_resource_payload(opts \\ []) do
     %{
-      "title" => title || "resource1",
-      "url" => url || "http://localhost:4321/resource1",
-      "id" => id || "resource1_id",
+      "title" => Keyword.get(opts, :title, "resource1"),
+      "url" => Keyword.get(opts, :url, "http://localhost:4321/resource1"),
+      "id" => Keyword.get(opts, :id, "resource1_id"),
       "type" => "main",
-      "filetype" => filetype || "remote",
+      "filetype" => Keyword.get(opts, :filetype, "remote"),
       "format" => "zip",
       "last_modified" => DateTime.utc_now() |> DateTime.add(-1, :hour) |> DateTime.to_iso8601(),
-      "schema" => %{"name" => schema_name, "version" => schema_version}
+      "schema" => %{"name" => Keyword.get(opts, :schema_name), "version" => Keyword.get(opts, :schema_version)}
     }
   end
 
@@ -199,9 +183,9 @@ defmodule Transport.ImportDataTest do
       generate_dataset_payload(
         datagouv_id,
         generate_resources_payload(
-          new_title = "new title !!! fresh !!!",
-          "http://localhost:4321/resource1",
-          new_datagouv_id = "resource2_id"
+          title: new_title = "new title !!! fresh !!!",
+          url: "http://localhost:4321/resource1",
+          id: new_datagouv_id = "resource2_id"
         )
       )
 
@@ -231,9 +215,9 @@ defmodule Transport.ImportDataTest do
       generate_dataset_payload(
         datagouv_id,
         generate_resources_payload(
-          new_title,
-          _new_url = "https://example.com/" <> Ecto.UUID.generate(),
-          new_datagouv_id
+          title: new_title,
+          url: "https://example.com/" <> Ecto.UUID.generate(),
+          id: new_datagouv_id
         )
       )
 
@@ -268,14 +252,14 @@ defmodule Transport.ImportDataTest do
     payload_1 =
       generate_dataset_payload(datagouv_id, [
         generate_resource_payload(
-          "Resource 1",
-          "http://localhost:4321/resource1",
-          "resource1"
+          title: "Resource 1",
+          url: "http://localhost:4321/resource1",
+          id: "resource1"
         ),
         generate_resource_payload(
-          "Resource 2",
-          "http://localhost:4321/resource2",
-          "resource2"
+          title: "Resource 2",
+          url: "http://localhost:4321/resource2",
+          id: "resource2"
         )
       ])
 
@@ -288,9 +272,9 @@ defmodule Transport.ImportDataTest do
     payload_2 =
       generate_dataset_payload(datagouv_id, [
         generate_resource_payload(
-          "Resource 1",
-          "http://localhost:4321/resource1",
-          "resource1"
+          title: "Resource 1",
+          url: "http://localhost:4321/resource1",
+          id: "resource1"
         )
       ])
 
@@ -310,19 +294,19 @@ defmodule Transport.ImportDataTest do
     setup_payload =
       generate_dataset_payload(datagouv_id, [
         generate_resource_payload(
-          "Resource 1",
-          "http://localhost:4321/resource1",
-          "resource1"
+          title: "Resource 1",
+          url: "http://localhost:4321/resource1",
+          id: "resource1"
         ),
         generate_resource_payload(
-          "Resource 2",
-          "http://localhost:4321/resource2",
-          "resource2"
+          title: "Resource 2",
+          url: "http://localhost:4321/resource2",
+          id: "resource2"
         ),
         generate_resource_payload(
-          "Resource 3",
-          "http://localhost:4321/resource3",
-          "resource3"
+          title: "Resource 3",
+          url: "http://localhost:4321/resource3",
+          id: "resource3"
         )
       ])
 
@@ -340,14 +324,14 @@ defmodule Transport.ImportDataTest do
     payload_1 =
       generate_dataset_payload(datagouv_id, [
         generate_resource_payload(
-          "Resource 1",
-          "http://localhost:4321/resource2",
-          "resource1"
+          title: "Resource 1",
+          url: "http://localhost:4321/resource2",
+          id: "resource1"
         ),
         generate_resource_payload(
-          "Resource 3",
-          "http://localhost:4321/resource3",
-          "resource3"
+          title: "Resource 3",
+          url: "http://localhost:4321/resource3",
+          id: "resource3"
         )
       ])
 
@@ -361,19 +345,19 @@ defmodule Transport.ImportDataTest do
     payload_2 =
       generate_dataset_payload(datagouv_id, [
         generate_resource_payload(
-          "Resource 1",
-          "http://localhost:4321/resource2",
-          "resource1"
+          title: "Resource 1",
+          url: "http://localhost:4321/resource2",
+          id: "resource1"
         ),
         generate_resource_payload(
-          "Resource 3",
-          "http://localhost:4321/resource3",
-          "resource3"
+          title: "Resource 3",
+          url: "http://localhost:4321/resource3",
+          id: "resource3"
         ),
         generate_resource_payload(
-          "Resource 4",
-          "http://localhost:4321/resource1",
-          "resource4"
+          title: "Resource 4",
+          url: "http://localhost:4321/resource1",
+          id: "resource4"
         )
       ])
 
@@ -393,14 +377,14 @@ defmodule Transport.ImportDataTest do
     payload_3 =
       generate_dataset_payload(datagouv_id, [
         generate_resource_payload(
-          "Resource 3",
-          "http://localhost:4321/resource3",
-          "resource3"
+          title: "Resource 3",
+          url: "http://localhost:4321/resource3",
+          id: "resource3"
         ),
         generate_resource_payload(
-          "Resource 1",
-          "http://localhost:4321/resource2",
-          "resource4"
+          title: "Resource 1",
+          url: "http://localhost:4321/resource2",
+          id: "resource4"
         )
       ])
 
@@ -431,11 +415,11 @@ defmodule Transport.ImportDataTest do
         get: fn _ ->
           {:ok,
            generate_resources_payload(
-             community_resource_title,
-             "http://example.com/file",
-             "1",
-             schema_name,
-             schema_version
+             title: community_resource_title,
+             url: "http://example.com/file",
+             id: "1",
+             schema_name: schema_name,
+             schema_version: schema_version
            )}
         end do
         with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock() do
