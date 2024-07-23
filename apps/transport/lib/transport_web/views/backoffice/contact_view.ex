@@ -11,6 +11,10 @@ defmodule TransportWeb.Backoffice.ContactView do
     PaginationHelpers.pagination_links(conn, contacts, kwargs)
   end
 
+  @spec role_class(DB.Notification.t() | DB.NotificationSubscription.t()) :: binary()
+  defp role_class(%{role: :producer}), do: "label"
+  defp role_class(%{role: :reuser}), do: "label label--inactive"
+
   defp dataset_title(%DB.Dataset{custom_title: custom_title, type: type, is_hidden: false}) do
     "#{custom_title} (#{type})"
   end

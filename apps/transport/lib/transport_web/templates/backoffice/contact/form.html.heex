@@ -95,4 +95,10 @@
     notification_subscriptions: @notification_subscriptions,
     conn: @conn
   ) %>
+  <%= render("_notifications.html",
+    creating_contact: creating_contact,
+    notifications: @notifications,
+    notifications_months_limit: @notifications_months_limit,
+    conn: @conn
+  ) %>
 </div>

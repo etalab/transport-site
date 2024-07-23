@@ -56,11 +56,15 @@ defmodule TransportWeb.Backoffice.ContactController do
   end
 
   defp render_form(%Plug.Conn{assigns: assigns} = conn) do
+    contact_id = Map.get(assigns, :contact_id)
+
     conn
     |> assign(:existing_organizations, contact_values_for_field(:organization))
     |> assign(:existing_job_titles, contact_values_for_field(:job_title))
     |> assign(:datasets_datalist, datasets_datalist())
-    |> assign(:notification_subscriptions, notification_subscriptions_for_contact(Map.get(assigns, :contact_id)))
+    |> assign(:notification_subscriptions, notification_subscriptions_for_contact(contact_id))
+    |> assign(:notifications, notifications_for_contact(contact_id))
+    |> assign(:notifications_months_limit, notifications_months_limit())
     |> render("form.html")
   end
 
@@ -109,4 +113,20 @@ defmodule TransportWeb.Backoffice.ContactController do
   end
 
   defp notification_subscriptions_for_contact(nil), do: []
+
+  defp notifications_for_contact(contact_id) when is_binary(contact_id) do
+    datetime_limit = DateTime.utc_now() |> DateTime.add(-30 * notifications_months_limit(), :day)
+
+    DB.Notification.base_query()
+    |> preload(:dataset)
+    |> where([notification: n], n.contact_id == ^contact_id)
+    |> where([notification: n], n.inserted_at >= ^datetime_limit)
+    |> order_by([notification: n], desc: n.inserted_at)
+    |> DB.Repo.all()
+  end
+
+  defp notifications_for_contact(nil), do: []
+
+  @spec notifications_months_limit :: pos_integer()
+  def notifications_months_limit, do: 6
 end
