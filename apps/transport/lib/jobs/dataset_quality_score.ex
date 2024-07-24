@@ -48,17 +48,11 @@ defmodule Transport.Jobs.DatasetQualityScore do
   iex> build_details(nil, %{score: 1.0})
   %{previous_score: 1.0}
   """
-  def build_details(%{} = details, %{score: previous_score}) when is_float(previous_score) do
-    Map.merge(details, %{previous_score: previous_score})
+  def build_details(%{} = details, %{} = last_score) do
+    Map.merge(details, %{previous_score: Map.get(last_score, :score)})
   end
 
-  def build_details(%{} = details, _last_dataset_freshness) do
-    Map.merge(details, %{previous_score: nil})
-  end
-
-  def build_details(_details, last_dataset_freshness) do
-    build_details(%{}, last_dataset_freshness)
-  end
+  def build_details(details, last_score), do: build_details(details || %{}, last_score || %{})
 
   @doc """
   Exponential smoothing. See https://en.wikipedia.org/wiki/Exponential_smoothing
@@ -163,7 +157,10 @@ defmodule Transport.Jobs.DatasetQualityScore do
           today_score
       end
 
-    %{score: computed_score, details: build_details(details, last_score)}
+    %{
+      score: computed_score,
+      details: details |> build_details(last_score) |> Map.put(:today_score, today_score)
+    }
   end
 
   @doc """
