@@ -3,7 +3,7 @@
 ExUnit.start()
 
 Mix.install([
-  {:req, "~> 0.4.8"},
+  {:req, "~> 0.5.4"},
   {:dns, "~> 2.4.0"}
 ])
 
@@ -13,10 +13,15 @@ defmodule Transport.OpsTests do
   # See https://developers.clever-cloud.com/doc/administrate/domain-names/#your-application-runs-in-the-europeparis-par-zone
   @domain_name "transport.data.gouv.fr"
   @clever_cloud_ip_addresses [
-    {46, 252, 181, 103},
-    {46, 252, 181, 104},
-    {185, 42, 117, 108},
-    {185, 42, 117, 109}
+    {91, 208, 207, 214},
+    {91, 208, 207, 215},
+    {91, 208, 207, 216},
+    {91, 208, 207, 217},
+    {91, 208, 207, 218},
+    {91, 208, 207, 220},
+    {91, 208, 207, 221},
+    {91, 208, 207, 222},
+    {91, 208, 207, 223}
   ]
 
   test "correct DOMAIN_NAME for prod-worker" do
