@@ -76,7 +76,7 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "explanations"
-msgstr "This is the automated evalation of the GTFS datafile. "
+msgstr "This is the automated evaluation of the %{format} datafile. "
 "This validation only considers the datastructure and does not give any information about completeness nor exactitude of the timetables. "
 
 #, elixir-autogen, elixir-format
@@ -419,4 +419,8 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "The GTFS file %{gtfs_original_file_name_2} has differences with the GTFS file %{gtfs_original_file_name_1}, as summarized below:"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "NeTEx review report"
 msgstr ""

@@ -1,0 +1,23 @@
+<table class="table">
+  <tr>
+    <th><%= dgettext("validations-explanations", "Message") %></th>
+    <th><%= dgettext("validations-explanations", "Location") %></th>
+    <th><%= dgettext("validations-explanations", "Debug") %></th>
+  </tr>
+
+  <%= for issue <- @issues do %>
+    <tr>
+      <td><%= issue["message"] %></td>
+      <td>
+        <%= if is_nil(issue["resource"]) or is_nil(issue["resource"]["filename"]) or is_nil(issue["resource"]["line"]) do %>
+          <%= dgettext("validations-explanations", "Unknown location") %>
+        <% else %>
+          <%= issue["resource"]["filename"] %>:<%= issue["resource"]["line"] %>
+        <% end %>
+      </td>
+      <td>
+        <code><%= to_string(Jason.encode!(issue, pretty: true)) %></code>
+      </td>
+    </tr>
+  <% end %>
+</table>

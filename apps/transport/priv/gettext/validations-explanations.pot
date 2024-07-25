@@ -129,3 +129,19 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "NegativeStopDuration"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Location"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Message"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Unknown location"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Debug"
+msgstr ""

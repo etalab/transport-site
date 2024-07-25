@@ -2,7 +2,6 @@ defmodule TransportWeb.ResourceView do
   use TransportWeb, :view
   use Phoenix.Component
   import TransportWeb.PaginationHelpers
-  import Transport.Validators.GTFSTransport
   import Phoenix.Controller, only: [current_url: 2]
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
 
@@ -20,9 +19,6 @@ defmodule TransportWeb.ResourceView do
   def format_related_objects(related_objects) do
     for %{"id" => id, "name" => name} <- related_objects, do: content_tag(:li, "#{name} (#{id})")
   end
-
-  def issue_type([]), do: nil
-  def issue_type([h | _]), do: h["issue_type"]
 
   def gtfs_template(issues) do
     template =
@@ -47,11 +43,22 @@ defmodule TransportWeb.ResourceView do
           "SubFolder" => "_subfolder_issue.html",
           "NegativeStopDuration" => "_negative_stop_duration_issue.html"
         },
-        issue_type(issues.entries),
+        Transport.Validators.GTFSTransport.issue_type(issues.entries),
         "_generic_issue.html"
       )
 
     "_gtfs#{template}"
+  end
+
+  def netex_template(issues) do
+    template =
+      Map.get(
+        %{},
+        Transport.Validators.NeTEx.issue_type(issues.entries),
+        "_generic_issue.html"
+      )
+
+    "_netex#{template}"
   end
 
   @spec action_path(Plug.Conn.t()) :: any

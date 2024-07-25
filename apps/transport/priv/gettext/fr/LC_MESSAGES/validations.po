@@ -76,7 +76,7 @@ msgstr "au"
 
 #, elixir-autogen, elixir-format
 msgid "explanations"
-msgstr "Voici le bilan automatisé sur la qualité du fichier GTFS. "
+msgstr "Voici le bilan automatisé sur la qualité du fichier %{format}. "
 "Cette validation ne concerne que la structure des données et pas la complétude ni l’exactitude des horaires. "
 
 #, elixir-autogen, elixir-format
@@ -420,3 +420,7 @@ msgstr "nombre d'arrêts :"
 #, elixir-autogen, elixir-format
 msgid "The GTFS file %{gtfs_original_file_name_2} has differences with the GTFS file %{gtfs_original_file_name_1}, as summarized below:"
 msgstr "Le fichier GTFS %{gtfs_original_file_name_2} comporte les différences ci-dessous par rapport au fichier GTFS %{gtfs_original_file_name_1} :"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "NeTEx review report"
+msgstr "Rapport de l’analyse de fichier NeTEx"

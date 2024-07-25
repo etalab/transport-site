@@ -35,7 +35,7 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
       schedule_next_update_data()
     end
 
-    if gtfs_validation_completed?(socket) do
+    if gtfs_or_netex_validation_completed?(socket) do
       redirect(socket, to: socket_value(socket, :current_url))
     else
       socket
@@ -57,10 +57,10 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
     end
   end
 
-  defp gtfs_validation_completed?(socket) do
+  defp gtfs_or_netex_validation_completed?(socket) do
     case socket_value(socket, :validation) do
       %DB.MultiValidation{oban_args: oban_args} ->
-        oban_args["type"] == "gtfs" and oban_args["state"] == "completed"
+        oban_args["type"] in ["gtfs", "netex"] and oban_args["state"] == "completed"
 
       _ ->
         false

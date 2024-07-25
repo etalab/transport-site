@@ -419,3 +419,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "The GTFS file %{gtfs_original_file_name_2} has differences with the GTFS file %{gtfs_original_file_name_1}, as summarized below:"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "NeTEx review report"
+msgstr ""

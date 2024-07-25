@@ -6,7 +6,7 @@ defmodule TransportWeb.ResourceController do
   require Logger
   import Ecto.Query
 
-  import TransportWeb.ResourceView, only: [issue_type: 1, latest_validations_nb_days: 0]
+  import TransportWeb.ResourceView, only: [latest_validations_nb_days: 0]
   import TransportWeb.DatasetView, only: [availability_number_days: 0]
 
   @enabled_validators MapSet.new([
@@ -146,7 +146,7 @@ defmodule TransportWeb.ResourceController do
 
     issue_type =
       case params["issue_type"] do
-        nil -> issue_type(issues)
+        nil -> Transport.Validators.GTFSTransport.issue_type(issues)
         issue_type -> issue_type
       end
 

@@ -130,3 +130,19 @@ msgstr "Les fichiers .txt sont dans un sous-dossier (%{folder}). Les fichiers do
 #, elixir-autogen, elixir-format
 msgid "NegativeStopDuration"
 msgstr "L'heure de départ d'un arrêt (departure_time) est antérieure à son heure d'arrivée (arrival_time)."
+
+#, elixir-autogen, elixir-format
+msgid "Location"
+msgstr "Emplacement"
+
+#, elixir-autogen, elixir-format
+msgid "Message"
+msgstr "Message"
+
+#, elixir-autogen, elixir-format
+msgid "Unknown location"
+msgstr "Emplacement inconnu"
+
+#, elixir-autogen, elixir-format
+msgid "Debug"
+msgstr ""
