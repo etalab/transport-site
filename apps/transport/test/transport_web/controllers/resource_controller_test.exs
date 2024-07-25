@@ -755,7 +755,7 @@ defmodule TransportWeb.ResourceControllerTest do
     assert html =~ "Ajouter une nouvelle ressource"
   end
 
-  test "we can add a new resource with an URL", %{conn: conn} do
+  test "we can add a new resource with a URL", %{conn: conn} do
     %DB.Dataset{datagouv_id: dataset_datagouv_id} = insert(:dataset)
     conn = conn |> init_test_session(%{current_user: %{}})
 
