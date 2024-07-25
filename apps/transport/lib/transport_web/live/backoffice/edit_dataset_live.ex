@@ -278,9 +278,9 @@ defmodule TransportWeb.EditDatasetLive do
     do: [
       "AOM",
       "Réseau",
-      "Fournisseur de système",
       "Opérateur de transport",
-      "Syndicat Mixte",
+      "Partenariat régional",
+      "Fournisseur de système",
       "Autre"
     ]
 
