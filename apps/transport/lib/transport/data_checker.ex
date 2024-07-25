@@ -2,12 +2,12 @@ defmodule Transport.DataChecker do
   @moduledoc """
   Use to check data, and act about it, like send email
   """
-  alias Datagouvfr.Client.Datasets
   alias DB.{Dataset, Repo}
   import Ecto.Query
   require Logger
 
   @type delay_and_records :: {integer(), [{DB.Dataset.t(), [DB.Resource.t()]}]}
+  @type dataset_status :: :active | :inactive | :ignore | :no_producer | {:archived, DateTime.t()}
   @expiration_reason Transport.NotificationReason.reason(:expiration)
   @new_dataset_reason Transport.NotificationReason.reason(:new_dataset)
   # If delay < 0, the resource is already expired
@@ -36,7 +36,11 @@ defmodule Transport.DataChecker do
     # Some datasets marked as active in our database may have disappeared
     # on the data gouv side, mark them as inactive.
     current_nb_active_datasets = Repo.aggregate(Dataset.base_query(), :count, :id)
-    inactive_datasets = for {%Dataset{is_active: true} = dataset, :inactive} <- datasets_statuses, do: dataset
+
+    inactive_datasets =
+      for {%DB.Dataset{is_active: true} = dataset, status} <- datasets_statuses,
+          status in [:inactive, :no_producer],
+          do: dataset
 
     inactive_ids = Enum.map(inactive_datasets, & &1.id)
     desactivates_over_10_percent_datasets = Enum.count(inactive_datasets) > current_nb_active_datasets * 10 / 100
@@ -60,23 +64,26 @@ defmodule Transport.DataChecker do
     send_inactive_datasets_mail(to_reactivate_datasets, inactive_datasets, archived_datasets)
   end
 
-  @spec datasets_datagouv_statuses :: list
+  @spec datasets_datagouv_statuses :: [{DB.Dataset.t(), dataset_status()}]
   def datasets_datagouv_statuses do
-    Dataset
+    DB.Dataset
     |> order_by(:id)
-    |> Repo.all()
+    |> DB.Repo.all()
     |> Enum.map(&{&1, dataset_status(&1)})
   end
 
-  @spec dataset_status(Dataset.t()) :: :active | :inactive | :ignore | {:archived, DateTime.t()}
-  defp dataset_status(%Dataset{datagouv_id: datagouv_id}) do
-    case Datasets.get(datagouv_id) do
+  @spec dataset_status(DB.Dataset.t()) :: dataset_status()
+  defp dataset_status(%DB.Dataset{datagouv_id: datagouv_id}) do
+    case Datagouvfr.Client.Datasets.get(datagouv_id) do
       {:ok, %{"archived" => nil}} ->
         :active
 
       {:ok, %{"archived" => archived}} ->
         {:ok, datetime, 0} = DateTime.from_iso8601(archived)
         {:archived, datetime}
+
+      {:ok, %{"organization" => nil, "owner" => nil}} ->
+        :no_producer
 
       {:error, %HTTPoison.Error{} = error} ->
         Sentry.capture_message(
