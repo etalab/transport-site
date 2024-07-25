@@ -10,8 +10,9 @@ Mix.install([
 defmodule Transport.OpsTests do
   use ExUnit.Case, async: true
 
-  # See https://developers.clever-cloud.com/doc/administrate/domain-names/#your-application-runs-in-the-europeparis-par-zone
   @domain_name "transport.data.gouv.fr"
+  # See https://developers.clever-cloud.com/doc/administrate/domain-names/#your-application-runs-in-the-europeparis-par-zone
+  @clever_cloud_par_region_domain ~c"domain.par.clever-cloud.com"
   @clever_cloud_ip_addresses [
     {91, 208, 207, 214},
     {91, 208, 207, 215},
@@ -47,6 +48,11 @@ defmodule Transport.OpsTests do
   end
 
   describe "Check DNS records" do
+    test "IP addresses for load balancers match the PAR zone CNAME record" do
+      {:ok, ips} = DNS.resolve(@clever_cloud_par_region_domain, :a)
+      assert MapSet.new(ips) == MapSet.new(@clever_cloud_ip_addresses)
+    end
+
     test "main A/CNAME records" do
       {:ok, ips} = DNS.resolve(@domain_name, :a)
       assert MapSet.new(ips) == MapSet.new(@clever_cloud_ip_addresses)
@@ -63,7 +69,7 @@ defmodule Transport.OpsTests do
       ]
       |> Enum.each(fn subdomain ->
         record = "#{subdomain}.#{@domain_name}"
-        assert {:ok, [~c"domain.par.clever-cloud.com"]} == DNS.resolve(record, :cname), "Wrong DNS record for #{record}"
+        assert {:ok, [@clever_cloud_par_region_domain]} == DNS.resolve(record, :cname), "Wrong DNS record for #{record}"
       end)
 
       # Satellite websites
