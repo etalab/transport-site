@@ -118,6 +118,8 @@ defmodule Transport.ImportData do
 
     http_client = Transport.Shared.Wrapper.HTTPoison.impl()
 
+    # We use a direct call with the HTTP client instead of using the datagouv API client module
+    # because of redirects.
     # We'll have to verify the behaviour of hackney/httpoison for follow_redirect: how
     # many redirects are allowed? Is an error raised after a while or not? etc.
     response = http_client.get!(url, [], hackney: [follow_redirect: true])
