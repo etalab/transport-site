@@ -748,8 +748,11 @@ defmodule TransportWeb.ResourceControllerTest do
     |> expect(:get, 1, fn ^dataset_datagouv_id -> dataset_datagouv_get_response(dataset_datagouv_id) end)
 
     html = conn |> get(resource_path(conn, :form, dataset_datagouv_id)) |> html_response(200)
+    # Breadcrumb
     assert html =~ "Nouvelle ressource"
     assert html =~ "Base Nationale des Lieux de Covoiturage"
+    # Title
+    assert html =~ "Ajouter une nouvelle ressource"
   end
 
   test "we can add a new resource with an URL", %{conn: conn} do
@@ -856,20 +859,17 @@ defmodule TransportWeb.ResourceControllerTest do
     assert Phoenix.Flash.get(conn.assigns.flash, :error) == "La ressource n'est pas disponible sur le serveur distant"
   end
 
-  defp dataset_datagouv_get_response(dataset_datagouv_id, resource_datagouv_id \\ nil) do
+  defp dataset_datagouv_get_response(dataset_datagouv_id, resource_datagouv_id \\ "resource_id_1") do
     {:ok,
      datagouv_dataset_response(%{
        "id" => dataset_datagouv_id,
        "title" => "Base Nationale des Lieux de Covoiturage",
        "resources" =>
          generate_resources_payload(
-           "bnlc.csv",
-           "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv",
-           resource_datagouv_id,
-           nil,
-           nil,
-           nil,
-           "csv"
+           title: "bnlc.csv",
+           url: "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv",
+           id: resource_datagouv_id,
+           format: "csv"
          )
      })}
   end

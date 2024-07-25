@@ -432,26 +432,20 @@ defmodule DB.Factory do
     )
   end
 
-  def generate_resources_payload(
-        title \\ nil,
-        url \\ nil,
-        id \\ nil,
-        schema_name \\ nil,
-        schema_version \\ nil,
-        filetype \\ nil,
-        format \\ nil
-      ) do
-    [
-      %{
-        "title" => title || "resource1",
-        "url" => url || "http://localhost:4321/resource1",
-        "id" => id || "resource1_id",
-        "type" => "main",
-        "filetype" => filetype || "remote",
-        "format" => format || "zip",
-        "last_modified" => DateTime.utc_now() |> DateTime.add(-1, :hour) |> DateTime.to_iso8601(),
-        "schema" => %{"name" => schema_name, "version" => schema_version}
-      }
-    ]
+  def generate_resources_payload(opts \\ []) do
+    [generate_resource_payload(opts)]
+  end
+
+  def generate_resource_payload(opts \\ []) do
+    %{
+      "title" => Keyword.get(opts, :title, "resource1"),
+      "url" => Keyword.get(opts, :url, "http://localhost:4321/resource1"),
+      "id" => Keyword.get(opts, :id, "resource1_id"),
+      "type" => "main",
+      "filetype" => Keyword.get(opts, :filetype, "remote"),
+      "format" => Keyword.get(opts, :format, "zip"),
+      "last_modified" => DateTime.utc_now() |> DateTime.add(-1, :hour) |> DateTime.to_iso8601(),
+      "schema" => %{"name" => Keyword.get(opts, :schema_name), "version" => Keyword.get(opts, :schema_version)}
+    }
   end
 end

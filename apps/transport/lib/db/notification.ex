@@ -3,11 +3,12 @@ defmodule DB.Notification do
   A list of emails notifications sent, with email addresses encrypted
   """
   use Ecto.Schema
+  use TypedEctoSchema
   import Ecto.Changeset
   import Ecto.Query
   import Transport.NotificationReason
 
-  schema "notifications" do
+  typed_schema "notifications" do
     field(:reason, Ecto.Enum, values: all_reasons())
 
     belongs_to(:dataset, DB.Dataset)
