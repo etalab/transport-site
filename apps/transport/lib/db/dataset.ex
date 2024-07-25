@@ -101,6 +101,7 @@ defmodule DB.Dataset do
     from(d in DB.Dataset, as: :dataset, where: d.is_active and not d.is_hidden)
   end
 
+  def all_datasets, do: from(d in DB.Dataset, as: :dataset)
   def archived, do: base_query() |> where([dataset: d], not is_nil(d.archived_at))
   def inactive, do: from(d in DB.Dataset, as: :dataset, where: not d.is_active)
   def hidden, do: from(d in DB.Dataset, as: :dataset, where: d.is_active and d.is_hidden)
@@ -130,7 +131,7 @@ defmodule DB.Dataset do
   Returns a list of resources, with their last resource_history preloaded
   """
   def last_resource_history(dataset_id) do
-    DB.Dataset.base_with_hidden_datasets()
+    DB.Dataset.all_datasets()
     |> where([dataset: d], d.id == ^dataset_id)
     |> join(:left, [dataset: d], r in DB.Resource, on: d.id == r.dataset_id, as: :resource)
     |> join(:left, [resource: r], rh in DB.ResourceHistory,

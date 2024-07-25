@@ -32,6 +32,10 @@ defmodule TransportWeb.EditDatasetLive do
         </div>
       <% end %>
 
+      <p :if={not is_nil(@dataset) and not @dataset.is_active} class="notification warning">
+        Ce jeu de données a été supprimé de data.gouv.fr. Il faudrait probablement remplacer son URL source ou le déréférencer.
+      </p>
+
       <div class="pt-24">
         <%= InputHelpers.text_input(f, :url,
           placeholder: dgettext("backoffice", "Dataset's url"),
