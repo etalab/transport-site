@@ -20,8 +20,8 @@ msgid "Contact us"
 msgstr "Contacter l'équipe"
 
 #, elixir-autogen, elixir-format
-msgid "Get your mobility data on the National Access Point. You will be redirected to data.gouv.fr to have your data published."
-msgstr "Référencez vos données de mobilité sur le Point d'Accès National. Vous serez redirigé sur data.gouv.fr pour publier votre nouveau jeu de données."
+msgid "Before we can reference your mobility data on the National Access Point, you need to upload it on data.gouv.fr by publishing a new dataset."
+msgstr "Afin que nous puissions référencer vos données de mobilité sur le Point d'Accès National, vous devez les ajouter sur data.gouv.fr en publiant un nouveau jeu de données."
 
 #, elixir-autogen, elixir-format
 msgid "If you have any question on how to publish or update your data and you can't find an anwser on the website, do not hesitate, contact us:"
