@@ -71,8 +71,6 @@ defmodule Transport.Jobs.ImportDatasetFollowersJob do
     end
   end
 
-  def contact_is_producer?({_, %{organization_ids: _}}, %DB.Dataset{organization_id: nil}), do: false
-
   def contact_is_producer?({_, %{organization_ids: contact_org_ids}}, %DB.Dataset{organization_id: dataset_org_id}) do
     dataset_org_id in contact_org_ids
   end

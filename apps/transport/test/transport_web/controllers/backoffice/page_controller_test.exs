@@ -231,11 +231,6 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
   end
 
   describe "contacts_in_org" do
-    test "org is not set" do
-      dataset = insert(:dataset, organization_id: nil)
-      assert [] == PageController.contacts_in_org(dataset |> DB.Repo.preload(organization_object: :contacts))
-    end
-
     test "dataset is nil" do
       assert [] == PageController.contacts_in_org(nil)
     end

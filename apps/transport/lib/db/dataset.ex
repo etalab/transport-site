@@ -528,7 +528,8 @@ defmodule DB.Dataset do
       :legal_owner_company_siren,
       :custom_logo,
       :custom_full_logo,
-      :custom_logo_changed_at
+      :custom_logo_changed_at,
+      :organization_id
     ])
     |> update_change(:custom_title, &String.trim/1)
     |> cast_aom(params)
@@ -543,6 +544,7 @@ defmodule DB.Dataset do
     |> set_is_hidden()
     |> validate_organization_type()
     |> add_organization(params)
+    |> validate_required([:organization_id])
     |> maybe_set_custom_logo_changed_at()
     |> put_assoc(:legal_owners_aom, legal_owners_aom)
     |> put_assoc(:legal_owners_region, legal_owners_region)
@@ -566,6 +568,9 @@ defmodule DB.Dataset do
       DB.Organization.changeset(DB.Repo.get(DB.Organization, id) || %DB.Organization{}, org)
     )
     |> put_change(:organization, name)
+    # `put_assoc` already sets `organization_id` but we set it again
+    # to pass `validate_required([:organization_id])`
+    |> put_change(:organization_id, id)
   end
 
   defp add_organization(%Ecto.Changeset{} = changeset, _), do: changeset
