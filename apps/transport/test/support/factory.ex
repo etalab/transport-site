@@ -338,30 +338,6 @@ defmodule DB.Factory do
     |> DB.Contact.insert!()
   end
 
-  def datagouv_dataset_response(%{} = attributes \\ %{}) do
-    Map.merge(
-      %{
-        "id" => Ecto.UUID.generate(),
-        "title" => "dataset",
-        "created_at" => DateTime.utc_now() |> to_string(),
-        "last_update" => DateTime.utc_now() |> to_string(),
-        "slug" => "dataset-slug",
-        "license" => "lov2",
-        "frequency" => "daily",
-        "tags" => [],
-        "organization" => %{
-          "id" => Ecto.UUID.generate(),
-          "name" => "Org " <> Ecto.UUID.generate(),
-          "badges" => [],
-          "logo" => "https://example.com/img.jpg",
-          "logo_thumbnail" => "https://example.com/img.small.jpg",
-          "slug" => Ecto.UUID.generate()
-        }
-      },
-      attributes
-    )
-  end
-
   def insert_irve_dataset do
     insert(:dataset, %{
       type: "charging-stations",
@@ -426,5 +402,50 @@ defmodule DB.Factory do
         "nbre_pdc" => 3
       }
     })
+  end
+
+  def generate_dataset_payload(datagouv_id, resources \\ nil) do
+    datagouv_dataset_response(%{"id" => datagouv_id, "resources" => resources || generate_resources_payload()})
+  end
+
+  def datagouv_dataset_response(%{} = attributes \\ %{}) do
+    Map.merge(
+      %{
+        "id" => Ecto.UUID.generate(),
+        "title" => "dataset",
+        "created_at" => DateTime.utc_now() |> to_string(),
+        "last_update" => DateTime.utc_now() |> to_string(),
+        "slug" => "dataset-slug",
+        "license" => "lov2",
+        "frequency" => "daily",
+        "tags" => [],
+        "organization" => %{
+          "id" => Ecto.UUID.generate(),
+          "name" => "Org " <> Ecto.UUID.generate(),
+          "badges" => [],
+          "logo" => "https://example.com/img.jpg",
+          "logo_thumbnail" => "https://example.com/img.small.jpg",
+          "slug" => Ecto.UUID.generate()
+        }
+      },
+      attributes
+    )
+  end
+
+  def generate_resources_payload(opts \\ []) do
+    [generate_resource_payload(opts)]
+  end
+
+  def generate_resource_payload(opts \\ []) do
+    %{
+      "title" => Keyword.get(opts, :title, "resource1"),
+      "url" => Keyword.get(opts, :url, "http://localhost:4321/resource1"),
+      "id" => Keyword.get(opts, :id, "resource1_id"),
+      "type" => "main",
+      "filetype" => Keyword.get(opts, :filetype, "remote"),
+      "format" => Keyword.get(opts, :format, "zip"),
+      "last_modified" => DateTime.utc_now() |> DateTime.add(-1, :hour) |> DateTime.to_iso8601(),
+      "schema" => %{"name" => Keyword.get(opts, :schema_name), "version" => Keyword.get(opts, :schema_version)}
+    }
   end
 end
