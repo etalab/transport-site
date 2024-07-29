@@ -170,3 +170,7 @@ msgstr "Doublon de stop_sequence dans un trajet"
 #, elixir-autogen, elixir-format
 msgid "Files in a subfolder"
 msgstr "Fichiers dans un sous-dossier"
+
+#, elixir-autogen, elixir-format
+msgid "Negative stop duration"
+msgstr "Temps d'arrêt négatif"
