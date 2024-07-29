@@ -13,7 +13,7 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "daily_new_comments"
-msgstr "Daily list of new comments"
+msgstr "Comments added to your favorites (daily summary)"
 
 #, elixir-autogen, elixir-format
 msgid "dataset_with_error"
