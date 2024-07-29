@@ -170,3 +170,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Files in a subfolder"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Negative stop duration"
+msgstr ""

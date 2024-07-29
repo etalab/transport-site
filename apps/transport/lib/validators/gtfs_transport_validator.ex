@@ -224,7 +224,8 @@ defmodule Transport.Validators.GTFSTransport do
       "IdNotAscii" => dgettext("gtfs-transport-validator", "ID is not ASCII-encoded"),
       "InvalidShapeId" => dgettext("gtfs-transport-validator", "Invalid shape ID"),
       "UnusedShapeId" => dgettext("gtfs-transport-validator", "Unused shape ID"),
-      "SubFolder" => dgettext("gtfs-transport-validator", "Files in a subfolder")
+      "SubFolder" => dgettext("gtfs-transport-validator", "Files in a subfolder"),
+      "NegativeStopDuration" => dgettext("gtfs-transport-validator", "Negative stop duration")
     }
 
   @spec gtfs_outdated?(any()) :: boolean | nil

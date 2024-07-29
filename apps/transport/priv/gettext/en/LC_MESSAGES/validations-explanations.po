@@ -126,3 +126,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "SubFolder"
 msgstr ".txt files are in subfolder (%{folder}). Files must reside at the root level directly, not in a subfolder."
+
+#, elixir-autogen, elixir-format
+msgid "NegativeStopDuration"
+msgstr "The departure time at a stop is earlier than its arrival time."
