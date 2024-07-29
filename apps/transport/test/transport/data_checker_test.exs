@@ -19,14 +19,8 @@ defmodule Transport.DataCheckerTest do
       # we create a dataset which is considered not active on our side
       dataset = insert(:dataset, is_active: false)
 
-      # but which is found (= active?) on data gouv side
-      url = "https://demo.data.gouv.fr/api/1/datasets/#{dataset.datagouv_id}/"
-
-      Transport.HTTPoison.Mock
-      |> expect(:request, fn :get, ^url, "", [], [follow_redirect: true] ->
-        # the dataset is found on datagouv
-        {:ok, %HTTPoison.Response{status_code: 200, body: ~s({"archived":null})}}
-      end)
+      # the dataset is found on datagouv
+      setup_datagouv_response(dataset, 200, %{archived: nil})
 
       # running the job
       Transport.DataChecker.inactive_data()
@@ -41,8 +35,6 @@ defmodule Transport.DataCheckerTest do
 
       # should result into marking the dataset back as active
       assert %DB.Dataset{is_active: true} = DB.Repo.reload!(dataset)
-
-      verify!(Transport.HTTPoison.Mock)
     end
 
     test "warns our team of datasets disappearing on data gouv and mark them as such locally" do
@@ -50,12 +42,7 @@ defmodule Transport.DataCheckerTest do
       # of desactivating more than 10% of active datasets
       Enum.each(1..25, fn _ ->
         dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
-        api_url = "https://demo.data.gouv.fr/api/1/datasets/#{dataset.datagouv_id}/"
-
-        Transport.HTTPoison.Mock
-        |> expect(:request, fn :get, ^api_url, "", [], [follow_redirect: true] ->
-          {:ok, %HTTPoison.Response{status_code: 200, body: ~s({"archived":null})}}
-        end)
+        setup_datagouv_response(dataset, 200, %{archived: nil})
       end)
 
       # Getting timeout errors, should be ignored
@@ -70,44 +57,24 @@ defmodule Transport.DataCheckerTest do
       # We create a dataset which is considered active on our side
       # but which is not found (=> inactive) on data gouv side
       dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
-      api_url = "https://demo.data.gouv.fr/api/1/datasets/#{dataset.datagouv_id}/"
-
-      Transport.HTTPoison.Mock
-      |> expect(:request, fn :get, ^api_url, "", [], [follow_redirect: true] ->
-        # the dataset is not found on datagouv
-        {:ok, %HTTPoison.Response{status_code: 404, body: ""}}
-      end)
+      setup_datagouv_response(dataset, 404, %{})
 
       # We create a dataset which is considered active on our side
       # but we get a 500 error on data gouv side => we should not deactivate it
       dataset_500 = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
-      api_url_500 = "https://demo.data.gouv.fr/api/1/datasets/#{dataset_500.datagouv_id}/"
 
-      Transport.HTTPoison.Mock
-      |> expect(:request, fn :get, ^api_url_500, "", [], [follow_redirect: true] ->
-        # data.gouv answers with a 500
-        {:ok, %HTTPoison.Response{status_code: 500, body: ""}}
-      end)
+      setup_datagouv_response(dataset_500, 500, %{})
 
       # we create a dataset which is considered active on our side
       # but private on datagouv, resulting on a HTTP code 410
       dataset_410 = insert(:dataset, is_active: true)
-      url_410 = "https://demo.data.gouv.fr/api/1/datasets/#{dataset_410.datagouv_id}/"
 
-      Transport.HTTPoison.Mock
-      |> expect(:request, fn :get, ^url_410, "", [], [follow_redirect: true] ->
-        # the dataset is found on datagouv
-        {:ok, %HTTPoison.Response{status_code: 410, body: "{\"message\": \"Dataset has been deleted\"}"}}
-      end)
+      setup_datagouv_response(dataset_410, 410, %{})
 
       # This dataset does not have a producer anymore
       dataset_no_producer = insert(:dataset, is_active: true)
-      url_no_producer = "https://demo.data.gouv.fr/api/1/datasets/#{dataset_no_producer.datagouv_id}/"
 
-      Transport.HTTPoison.Mock
-      |> expect(:request, fn :get, ^url_no_producer, "", [], [follow_redirect: true] ->
-        {:ok, %HTTPoison.Response{status_code: 200, body: Jason.encode!(%{owner: nil, organization: nil})}}
-      end)
+      setup_datagouv_response(dataset_no_producer, 200, %{owner: nil, organization: nil, archived: nil})
 
       # running the job
       Transport.DataChecker.inactive_data()
@@ -130,22 +97,12 @@ defmodule Transport.DataCheckerTest do
       assert %DB.Dataset{is_active: false} = DB.Repo.reload!(dataset_410)
       # no owner or organization: we should deactivate the dataset
       assert %DB.Dataset{is_active: false} = DB.Repo.reload!(dataset_no_producer)
-
-      verify!(Transport.HTTPoison.Mock)
     end
 
     test "sends an email when a dataset is now archived" do
       dataset = insert(:dataset, is_active: true)
 
-      # dataset is now archived on data.gouv.fr
-      url = "https://demo.data.gouv.fr/api/1/datasets/#{dataset.datagouv_id}/"
-
-      Transport.HTTPoison.Mock
-      |> expect(:request, fn :get, ^url, "", [], [follow_redirect: true] ->
-        archived = DateTime.utc_now() |> DateTime.add(-10, :hour) |> DateTime.to_string()
-        # the dataset is not found on datagouv
-        {:ok, %HTTPoison.Response{status_code: 200, body: Jason.encode!(%{"archived" => archived})}}
-      end)
+      setup_datagouv_response(dataset, 200, %{archived: DateTime.utc_now() |> DateTime.add(-10, :hour)})
 
       Transport.DataChecker.inactive_data()
 
@@ -156,8 +113,6 @@ defmodule Transport.DataCheckerTest do
         text_body: nil,
         html_body: ~r/Certains jeux de données sont indiqués comme archivés/
       )
-
-      verify!(Transport.HTTPoison.Mock)
     end
 
     test "does not send email if nothing has disappeared or reappeared" do
@@ -169,8 +124,6 @@ defmodule Transport.DataCheckerTest do
       Transport.DataChecker.inactive_data()
 
       assert_no_email_sent()
-
-      verify!(Transport.HTTPoison.Mock)
     end
   end
 
@@ -403,5 +356,62 @@ defmodule Transport.DataCheckerTest do
              ] =
                DB.Notification |> DB.Repo.all()
     end
+  end
+
+  describe "dataset_status" do
+    test "active" do
+      dataset = %DB.Dataset{datagouv_id: Ecto.UUID.generate()}
+
+      setup_datagouv_response(dataset, 200, %{archived: nil})
+
+      assert :active = Transport.DataChecker.dataset_status(dataset)
+    end
+
+    test "archived" do
+      dataset = %DB.Dataset{datagouv_id: Ecto.UUID.generate()}
+
+      setup_datagouv_response(dataset, 200, %{archived: datetime = DateTime.utc_now()})
+
+      assert {:archived, datetime} == Transport.DataChecker.dataset_status(dataset)
+    end
+
+    test "inactive" do
+      dataset = %DB.Dataset{datagouv_id: Ecto.UUID.generate()}
+
+      Enum.each([404, 410], fn status ->
+        setup_datagouv_response(dataset, status, %{})
+
+        assert :inactive = Transport.DataChecker.dataset_status(dataset)
+      end)
+    end
+
+    test "no_producer" do
+      dataset = %DB.Dataset{datagouv_id: Ecto.UUID.generate()}
+
+      setup_datagouv_response(dataset, 200, %{owner: nil, organization: nil, archived: nil})
+
+      assert :no_producer = Transport.DataChecker.dataset_status(dataset)
+    end
+
+    test "ignore" do
+      dataset = %DB.Dataset{datagouv_id: datagouv_id = Ecto.UUID.generate()}
+      url = "https://demo.data.gouv.fr/api/1/datasets/#{datagouv_id}/"
+
+      Transport.HTTPoison.Mock
+      |> expect(:request, 3, fn :get, ^url, "", [], [follow_redirect: true] ->
+        {:error, %HTTPoison.Error{reason: :timeout}}
+      end)
+
+      assert :ignore = Transport.DataChecker.dataset_status(dataset)
+    end
+  end
+
+  defp setup_datagouv_response(%DB.Dataset{datagouv_id: datagouv_id}, status, body) do
+    url = "https://demo.data.gouv.fr/api/1/datasets/#{datagouv_id}/"
+
+    Transport.HTTPoison.Mock
+    |> expect(:request, fn :get, ^url, "", [], [follow_redirect: true] ->
+      {:ok, %HTTPoison.Response{status_code: status, body: Jason.encode!(body)}}
+    end)
   end
 end
