@@ -129,8 +129,6 @@ defmodule TransportWeb.DiscussionsLive do
     end
   end
 
-  defp organization_info(%DB.Dataset{organization_id: nil}), do: :no_organization
-
   defp organization_info(%DB.Dataset{organization_id: organization_id}) when is_binary(organization_id) do
     Datagouvfr.Client.Organization.Wrapper.get(organization_id, restrict_fields: true)
   end

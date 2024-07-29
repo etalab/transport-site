@@ -46,7 +46,13 @@ defmodule DB.DatasetDBTest do
     end
 
     test "with insee code of a commune linked to an aom, it works" do
-      assert {:ok, _} = Dataset.changeset(%{"datagouv_id" => "1", "slug" => "ma_limace", "insee" => "38185"})
+      assert {:ok, _} =
+               Dataset.changeset(%{
+                 "datagouv_id" => "1",
+                 "slug" => "ma_limace",
+                 "insee" => "38185",
+                 "organization_id" => Ecto.UUID.generate()
+               })
     end
 
     test "with datagouv_zone only, it fails" do
@@ -68,7 +74,8 @@ defmodule DB.DatasetDBTest do
                  "datagouv_id" => "1",
                  "slug" => "ma_limace",
                  "zones" => ["38185"],
-                 "associated_territory_name" => "paris"
+                 "associated_territory_name" => "paris",
+                 "organization_id" => Ecto.UUID.generate()
                })
     end
 
@@ -77,7 +84,8 @@ defmodule DB.DatasetDBTest do
                Dataset.changeset(%{
                  "datagouv_id" => "1",
                  "slug" => "ma_limace",
-                 "national_dataset" => "true"
+                 "national_dataset" => "true",
+                 "organization_id" => Ecto.UUID.generate()
                })
     end
 
@@ -115,7 +123,8 @@ defmodule DB.DatasetDBTest do
           "resources" => [
             %{"format" => "gbfs", "url" => "coucou", "datagouv_id" => "pouet"},
             %{"format" => "gtfs", "url" => "coucou", "datagouv_id" => "pouet"}
-          ]
+          ],
+          "organization_id" => Ecto.UUID.generate()
         })
 
       assert {:ok, %Ecto.Changeset{changes: %{has_realtime: true}}} = changeset
@@ -125,6 +134,7 @@ defmodule DB.DatasetDBTest do
       changeset =
         Dataset.changeset(%{
           "datagouv_id" => "1",
+          "organization_id" => Ecto.UUID.generate(),
           "slug" => "ma_limace",
           "insee" => "38185",
           "resources" => [%{"format" => "gtfs", "url" => "coucou", "datagouv_id" => "pouet"}]
@@ -139,7 +149,8 @@ defmodule DB.DatasetDBTest do
                  "datagouv_id" => "1",
                  "slug" => "ma_limace",
                  "insee" => "38185",
-                 "custom_tags" => ["masqué"]
+                 "custom_tags" => ["masqué"],
+                 "organization_id" => Ecto.UUID.generate()
                })
     end
 
@@ -149,7 +160,8 @@ defmodule DB.DatasetDBTest do
                  "datagouv_id" => "1",
                  "slug" => "ma_limace",
                  "insee" => "38185",
-                 "custom_tags" => ["not_hidden"]
+                 "custom_tags" => ["not_hidden"],
+                 "organization_id" => Ecto.UUID.generate()
                })
     end
 
@@ -171,7 +183,8 @@ defmodule DB.DatasetDBTest do
                  "datagouv_id" => "1",
                  "slug" => "slug",
                  "national_dataset" => "true",
-                 "legal_owner_company_siren" => "552049447"
+                 "legal_owner_company_siren" => "552049447",
+                 "organization_id" => Ecto.UUID.generate()
                })
     end
 
@@ -181,8 +194,23 @@ defmodule DB.DatasetDBTest do
                  "datagouv_id" => "1",
                  "slug" => "slug",
                  "national_dataset" => "true",
-                 "custom_title" => "  Foo "
+                 "custom_title" => "  Foo ",
+                 "organization_id" => Ecto.UUID.generate()
                })
+    end
+
+    test "organization_id should be set" do
+      {res, _} =
+        with_log(fn ->
+          DB.Dataset.changeset(%{
+            "datagouv_id" => "1",
+            "slug" => "slug",
+            "national_dataset" => "true",
+            "custom_title" => "Foo"
+          })
+        end)
+
+      assert res == {:error, ~s|%{organization_id: ["can't be blank"]}|}
     end
   end
 
@@ -193,7 +221,8 @@ defmodule DB.DatasetDBTest do
           "datagouv_id" => "1",
           "slug" => "slug",
           "national_dataset" => "true",
-          "custom_title" => "foo"
+          "custom_title" => "foo",
+          "organization_id" => Ecto.UUID.generate()
         })
 
       refute Map.has_key?(changes, :custom_logo_changed_at)
@@ -206,7 +235,8 @@ defmodule DB.DatasetDBTest do
                  "slug" => "slug",
                  "national_dataset" => "true",
                  "custom_title" => "foo",
-                 "custom_logo" => "https://example.com/pic.jpg"
+                 "custom_logo" => "https://example.com/pic.jpg",
+                 "organization_id" => Ecto.UUID.generate()
                })
 
       assert DateTime.diff(custom_logo_changed_at, DateTime.utc_now(), :second) < 3
@@ -691,6 +721,14 @@ defmodule DB.DatasetDBTest do
 
     %{region_id: national_region_id} = DB.Repo.update!(changeset)
     assert national_region_id != region_id
+  end
+
+  test "cannot insert a dataset with a nil organization_id" do
+    message = ~r|null value in column "organization_id" of relation "dataset" violates not-null constraint|
+
+    assert_raise Postgrex.Error, message, fn ->
+      insert(:dataset, organization_id: nil)
+    end
   end
 
   describe "organization" do
