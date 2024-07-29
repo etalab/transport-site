@@ -73,17 +73,17 @@ defmodule Transport.DataChecker do
   end
 
   @spec dataset_status(DB.Dataset.t()) :: dataset_status()
-  defp dataset_status(%DB.Dataset{datagouv_id: datagouv_id}) do
+  def dataset_status(%DB.Dataset{datagouv_id: datagouv_id}) do
     case Datagouvfr.Client.Datasets.get(datagouv_id) do
+      {:ok, %{"organization" => nil, "owner" => nil}} ->
+        :no_producer
+
       {:ok, %{"archived" => nil}} ->
         :active
 
       {:ok, %{"archived" => archived}} ->
         {:ok, datetime, 0} = DateTime.from_iso8601(archived)
         {:archived, datetime}
-
-      {:ok, %{"organization" => nil, "owner" => nil}} ->
-        :no_producer
 
       {:error, %HTTPoison.Error{} = error} ->
         Sentry.capture_message(
