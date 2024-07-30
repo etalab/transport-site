@@ -118,4 +118,23 @@ defmodule DB.NotificationSubscriptionTest do
                dataset_id: nil
              })
   end
+
+  test "delete a subscription attached to a notification" do
+    contact = insert_contact()
+
+    ns =
+      insert(:notification_subscription, %{
+        reason: :daily_new_comments,
+        source: :admin,
+        contact_id: contact.id,
+        role: :producer
+      })
+      |> DB.Repo.preload(:contact)
+
+    %DB.Notification{} = notification = DB.Notification.insert!(ns, %{})
+
+    DB.Repo.delete!(ns)
+
+    %DB.Notification{notification_subscription_id: nil} = DB.Repo.reload!(notification)
+  end
 end
