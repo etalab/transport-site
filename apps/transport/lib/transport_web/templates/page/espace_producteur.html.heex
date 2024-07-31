@@ -10,7 +10,7 @@
       <div class="producer-actions-flex">
         <div class="panel">
           <div class="update-header pb-24">
-            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-maj.png")} alt="" />
+            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-maj.svg")} alt="" />
             <div>
               <h4 class="with-link"><%= dgettext("espace-producteurs", "Update a dataset") %></h4>
             </div>
@@ -61,7 +61,7 @@
         </div>
         <div>
           <div class="panel espace-producer-panel">
-            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-check.png")} alt="" />
+            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-check.svg")} alt="" />
             <div>
               <div class="publish-header">
                 <h4 class="with-link"><%= dgettext("espace-producteurs", "Validate your datasets") %></h4>
@@ -80,7 +80,7 @@
             </div>
           </div>
           <div class="panel espace-producer-panel">
-            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-publier.png")} alt="" />
+            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-publier.svg")} alt="" />
             <div>
               <div class="publish-header">
                 <h4 class="with-link"><%= dgettext("espace-producteurs", "Publish a dataset") %></h4>
@@ -123,7 +123,7 @@
             </div>
           </div>
           <div :if={show_proxy_stats_block?(@datasets)} class="panel espace-producer-panel">
-            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-trend.png")} alt="" />
+            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-trend.svg")} alt="" />
             <div>
               <div class="publish-header">
                 <h4><%= dgettext("espace-producteurs", "Your proxy statistics") %></h4>

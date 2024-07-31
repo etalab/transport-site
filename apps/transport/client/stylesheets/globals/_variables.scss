@@ -90,3 +90,8 @@ $fa-font-path:                '~@fortawesome/fontawesome-free/webfonts' !default
 
 $space-l: 2em !default;
 $space-xs: 0.5em !default;
+
+:root {
+  --primary-color-producer: var(--theme-primary);
+  --primary-color-reuser: #00ac8c;
+}
