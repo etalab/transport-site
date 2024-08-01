@@ -1,10 +1,10 @@
-defmodule Transport.EnrouteChouetteValidClientTest do
+defmodule Transport.EnRouteChouetteValidClientTest do
   use ExUnit.Case, async: true
   import Mox
 
-  alias Transport.EnrouteChouetteValidClient
+  alias Transport.EnRouteChouetteValidClient
 
-  doctest Transport.EnrouteChouetteValidClient, import: true
+  doctest Transport.EnRouteChouetteValidClient, import: true
 
   setup :verify_on_exit!
 
@@ -38,7 +38,7 @@ defmodule Transport.EnrouteChouetteValidClientTest do
       %HTTPoison.Response{status_code: 201, body: response_body}
     end)
 
-    assert "d8e2b6c2-b1e5-4890-84d4-9b761a445882" == EnrouteChouetteValidClient.create_a_validation(tmp_file)
+    assert "d8e2b6c2-b1e5-4890-84d4-9b761a445882" == EnRouteChouetteValidClient.create_a_validation(tmp_file)
   end
 
   describe "get a validation" do
@@ -64,7 +64,7 @@ defmodule Transport.EnrouteChouetteValidClientTest do
         %HTTPoison.Response{status_code: 200, body: response_body}
       end)
 
-      assert :pending == EnrouteChouetteValidClient.get_a_validation(validation_id)
+      assert :pending == EnRouteChouetteValidClient.get_a_validation(validation_id)
     end
 
     test "successful" do
@@ -90,7 +90,7 @@ defmodule Transport.EnrouteChouetteValidClientTest do
         %HTTPoison.Response{status_code: 200, body: response_body}
       end)
 
-      assert {:successful, url} == EnrouteChouetteValidClient.get_a_validation(validation_id)
+      assert {:successful, url} == EnRouteChouetteValidClient.get_a_validation(validation_id)
     end
 
     test "warning" do
@@ -116,7 +116,7 @@ defmodule Transport.EnrouteChouetteValidClientTest do
         %HTTPoison.Response{status_code: 200, body: response_body}
       end)
 
-      assert :warning == EnrouteChouetteValidClient.get_a_validation(validation_id)
+      assert :warning == EnRouteChouetteValidClient.get_a_validation(validation_id)
     end
 
     test "failed" do
@@ -142,7 +142,7 @@ defmodule Transport.EnrouteChouetteValidClientTest do
         %HTTPoison.Response{status_code: 200, body: response_body}
       end)
 
-      assert :failed == EnrouteChouetteValidClient.get_a_validation(validation_id)
+      assert :failed == EnRouteChouetteValidClient.get_a_validation(validation_id)
     end
   end
 
@@ -196,7 +196,7 @@ defmodule Transport.EnrouteChouetteValidClientTest do
       %HTTPoison.Response{status_code: 200, body: response_body}
     end)
 
-    {^url, messages} = EnrouteChouetteValidClient.get_messages(validation_id)
+    {^url, messages} = EnRouteChouetteValidClient.get_messages(validation_id)
     assert length(messages) == 3
   end
 end

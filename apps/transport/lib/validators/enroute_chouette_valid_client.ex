@@ -1,6 +1,6 @@
-defmodule Transport.EnrouteChouetteValidClient.Wrapper do
+defmodule Transport.EnRouteChouetteValidClient.Wrapper do
   @moduledoc """
-  A client for the Enroute Chouette Valid API.
+  A client for the enRoute Chouette Valid API.
   Documentation: https://documenter.getpostman.com/view/9950294/2sA3e2gVEE
   """
 
@@ -12,15 +12,15 @@ defmodule Transport.EnrouteChouetteValidClient.Wrapper do
   def impl, do: Application.get_env(:transport, :enroute_validator_client)
 end
 
-defmodule Transport.EnrouteChouetteValidClient do
+defmodule Transport.EnRouteChouetteValidClient do
   @moduledoc """
-  Implementation of the Enroute Chouette Valid API client.
+  Implementation of the enRoute Chouette Valid API client.
   """
-  @behaviour Transport.EnrouteChouetteValidClient.Wrapper
+  @behaviour Transport.EnRouteChouetteValidClient.Wrapper
 
   @base_url "https://chouette-valid.enroute.mobi/api/validations"
 
-  @impl Transport.EnrouteChouetteValidClient.Wrapper
+  @impl Transport.EnRouteChouetteValidClient.Wrapper
   def create_a_validation(filepath) do
     form =
       {:multipart,
@@ -33,7 +33,7 @@ defmodule Transport.EnrouteChouetteValidClient do
     body |> Jason.decode!() |> Map.fetch!("id")
   end
 
-  @impl Transport.EnrouteChouetteValidClient.Wrapper
+  @impl Transport.EnRouteChouetteValidClient.Wrapper
   def get_a_validation(validation_id) do
     url = validation_url(validation_id)
 
@@ -48,7 +48,7 @@ defmodule Transport.EnrouteChouetteValidClient do
     end
   end
 
-  @impl Transport.EnrouteChouetteValidClient.Wrapper
+  @impl Transport.EnRouteChouetteValidClient.Wrapper
   def get_messages(validation_id) do
     url = Path.join([validation_url(validation_id), "messages"])
 
