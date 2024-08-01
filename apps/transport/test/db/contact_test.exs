@@ -269,6 +269,25 @@ defmodule DB.ContactTest do
     assert [admin_contact.datagouv_user_id] == DB.Contact.admin_datagouv_ids()
   end
 
+  test "delete a contact attached to a notification" do
+    contact = insert_contact()
+
+    ns =
+      insert(:notification_subscription, %{
+        reason: :daily_new_comments,
+        source: :admin,
+        contact_id: contact.id,
+        role: :producer
+      })
+      |> DB.Repo.preload(:contact)
+
+    %DB.Notification{} = notification = DB.Notification.insert!(ns, %{})
+
+    DB.Repo.delete!(contact)
+
+    %DB.Notification{contact_id: nil} = DB.Repo.reload!(notification)
+  end
+
   defp list_inactive_contact_ids(datetime) do
     DB.Contact.list_inactive_contacts(datetime)
     |> Enum.map(fn %DB.Contact{id: contact_id} -> contact_id end)
