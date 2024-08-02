@@ -105,7 +105,8 @@ config :transport,
   hasher_impl: Hasher,
   validator_selection: Transport.ValidatorsSelection.Impl,
   data_visualization: Transport.DataVisualization.Impl,
-  workflow_notifier: Transport.Jobs.Workflow.ObanNotifier
+  workflow_notifier: Transport.Jobs.Workflow.ObanNotifier,
+  enroute_validator_client: Transport.EnRouteChouetteValidClient
 
 # Datagouv IDs for national databases created automatically.
 # These are IDs used in staging, demo.data.gouv.fr
@@ -183,6 +184,7 @@ config :transport,
   domain_name: System.get_env("DOMAIN_NAME", "transport.data.gouv.fr"),
   export_secret_key: System.get_env("EXPORT_SECRET_KEY"),
   enroute_token: System.get_env("ENROUTE_TOKEN"),
+  enroute_validation_token: System.get_env("ENROUTE_VALIDATION_TOKEN"),
   max_import_concurrent_jobs: (System.get_env("MAX_IMPORT_CONCURRENT_JOBS") || "1") |> String.to_integer(),
   nb_days_to_keep_validations: 60,
   join_our_slack_link: "https://join.slack.com/t/transportdatagouvfr/shared_invite/zt-2n1n92ye-sdGQ9SeMh5BkgseaIzV8kA",
