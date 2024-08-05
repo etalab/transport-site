@@ -33,8 +33,8 @@ display_error = is_producer and not is_nil(@error) %>
     <div :if={!display_error} class="panel mt-24">
       <div :if={is_reuser} data-content="platform-wide-notifications">
         <h3><%= dgettext("reuser-space", "Global notifications") %></h3>
-        <table class="table">
-          <.form :let={f} for={%{}}>
+        <.form :let={f} for={%{}} class="full-width">
+          <table class="table">
             <%= for reason <- @platform_wide_reasons do %>
               <% subscribed = reason in @subscribed_platform_wide_reasons %>
               <tr>
@@ -64,13 +64,13 @@ display_error = is_producer and not is_nil(@error) %>
                 </td>
               </tr>
             <% end %>
-          </.form>
-        </table>
+          </table>
+        </.form>
       </div>
 
       <h3 :if={is_reuser}><%= dgettext("reuser-space", "Notifications by dataset") %></h3>
-      <table class="table" data-content="dataset-notifications">
-        <.form :let={f} for={%{}}>
+      <.form :let={f} for={%{}} class="full-width">
+        <table class="table" data-content="dataset-notifications">
           <tr>
             <td><strong><%= dgettext("espace-producteurs", "All notifications") %></strong></td>
             <td>
@@ -146,8 +146,8 @@ display_error = is_producer and not is_nil(@error) %>
               </tr>
             <% end %>
           <% end %>
-        </.form>
-      </table>
+        </table>
+      </.form>
     </div>
   </div>
 </section>
