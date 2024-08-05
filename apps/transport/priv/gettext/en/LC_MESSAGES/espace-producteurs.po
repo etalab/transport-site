@@ -218,13 +218,13 @@ msgid "Edit on data.gouv.fr"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Resources"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "full-edition-on-data-gouv-fr"
 msgstr "You can easily edit on this page some elements of your dataset. For an advanced edition, please go on data.gouv.fr."
 
 #, elixir-autogen, elixir-format
 msgid "Our team maintains a comprehensive documentation"
 msgstr "Our team maintains <a href=\"%{link}\", target=\"_blank\">a comprehensive documentation</a> detailing how to publish and keep up to date your data"
+
+#, elixir-autogen, elixir-format
+msgid "Manage your resources"
+msgstr ""

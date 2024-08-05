@@ -1,23 +1,13 @@
 <% datagouv_admin_url = "https://www.data.gouv.fr/admin/dataset/#{@dataset.datagouv_id}/" %>
-<section class="pt-48">
-  <div class="container pb-24">
-    <%= breadcrumbs([@conn, :edit_dataset, @dataset.custom_title, @dataset.id]) %>
-  </div>
+<section class="container pt-48 pb-24">
+  <%= breadcrumbs([@conn, :edit_dataset, @dataset.custom_title, @dataset.id]) %>
 </section>
-<section class="espace-producteur-section">
-  <div class="container pt-24 pb-24">
-    <div class="panel">
-      <h2><%= @dataset.custom_title %></h2>
-      <p><%= dgettext("espace-producteurs", "full-edition-on-data-gouv-fr") %></p>
-      <%= link(dgettext("espace-producteurs", "Edit on data.gouv.fr"),
-        to: datagouv_admin_url,
-        class: "button primary",
-        target: "_blank",
-        "data-tracking-category": "espace_producteur",
-        "data-tracking-action": "edit_on_data_gouv_fr_button"
-      ) %>
+<section class="espace-producteur-section pb-48">
+  <div class="container pt-24">
+    <h2><%= @dataset.custom_title %></h2>
 
-      <h3><%= dgettext("espace-producteurs", "Resources") %></h3>
+    <div class="panel">
+      <h3><%= dgettext("espace-producteurs", "Manage your resources") %></h3>
 
       <div class="panel">
         <div class="left-flex-image">
@@ -48,34 +38,52 @@
       <div>
         <table class="table mt-24">
           <%= for resource <- @datagouv_dataset["resources"] do %>
+            <% format =
+              Enum.find_value(
+                @dataset.resources,
+                fn %DB.Resource{datagouv_id: resource_datagouv_id, format: format} ->
+                  if resource["id"] == resource_datagouv_id, do: format
+                end
+              ) %>
             <tr>
-              <td><%= resource["title"] %></td>
-              <td>
+              <td><%= resource["title"] %> <span :if={format} class="label"><%= format %></span></td>
+              <td class="align-right">
                 <%= link(dgettext("espace-producteurs", "Edit resource"),
                   to: resource_path(@conn, :form, @datagouv_dataset["id"], resource["id"]),
                   class: "button-outline primary small",
                   "data-tracking-category": "espace_producteur",
                   "data-tracking-action": "update_resource_button"
                 ) %>
-              </td>
-              <td>
                 <%= link(dgettext("espace-producteurs", "Delete resource"),
                   to: resource_path(@conn, :delete_resource_confirmation, @datagouv_dataset["id"], resource["id"]),
-                  class: "button-outline secondary small",
+                  class: "button-outline warning small",
                   "data-tracking-category": "espace_producteur",
-                  "data-tracking-action": "add_resource_button"
+                  "data-tracking-action": "delete_resource_button"
                 ) %>
               </td>
             </tr>
           <% end %>
         </table>
+
         <%= link(dgettext("espace-producteurs", "Add a resource"),
           to: resource_path(@conn, :form, @dataset.datagouv_id),
           class: "button primary",
           "data-tracking-category": "espace_producteur",
           "data-tracking-action": "add_resource_button"
         ) %>
+
+        <p class="pt-24"><%= dgettext("espace-producteurs", "full-edition-on-data-gouv-fr") %></p>
+        <%= link(dgettext("espace-producteurs", "Edit on data.gouv.fr"),
+          to: datagouv_admin_url,
+          class: "button-outline primary small",
+          target: "_blank",
+          "data-tracking-category": "espace_producteur",
+          "data-tracking-action": "edit_on_data_gouv_fr_button"
+        ) %>
       </div>
+    </div>
+
+    <div class="panel">
       <h3><%= dgettext("espace-producteurs", "Update your logo") %></h3>
       <div :if={is_nil(@dataset.custom_logo)}>
         <%= form_for @conn, espace_producteur_path(@conn, :upload_logo, @dataset.id), [as: "upload", multipart: :true, class: "no-margin"], fn f -> %>

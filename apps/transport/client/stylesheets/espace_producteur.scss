@@ -59,6 +59,10 @@
 .espace-producteur-section {
   background-color: var(--theme-background-grey);
   min-height: 80vh;
+
+  table td.align-right {
+    text-align: right;
+  }
 }
 
 .resources-update-list {
