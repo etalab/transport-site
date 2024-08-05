@@ -9,6 +9,9 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
   @producer_url espace_producteur_path(TransportWeb.Endpoint, :notifications)
   @reuser_url reuser_space_path(TransportWeb.Endpoint, :notifications)
 
+  @dataset_notifications_path ~s|form table[data-content="dataset-notifications"]|
+  @platform_wide_path ~s|div[data-content="platform-wide-notifications"] form table|
+
   setup :verify_on_exit!
 
   setup do
@@ -95,7 +98,7 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
 
     [{"input", switch_attr, []}] =
       doc
-      |> Floki.find(~s|table[data-content="dataset-notifications"] tr td .form__group fieldset .switch input|)
+      |> Floki.find("#{@dataset_notifications_path} tr td .form__group fieldset .switch input")
       |> Floki.find("[value=true]")
       |> Floki.find("[checked=checked]")
 
@@ -105,7 +108,7 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
              [switch_attr["id"], switch_attr["phx-value-dataset-id"], switch_attr["phx-value-subscription-id"]]
 
     # Platform-wide subscriptions are not displayed
-    assert [] == doc |> Floki.find(~s|div[data-content="platform-wide-notifications"]|)
+    assert [] == doc |> Floki.find(@platform_wide_path)
   end
 
   test "displays existing subscriptions for a reuser", %{conn: conn} do
@@ -164,7 +167,7 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
     [{"input", switch_attr, []}] =
       content
       |> Floki.parse_document!()
-      |> Floki.find(~s|table[data-content="dataset-notifications"] tr td .form__group fieldset .switch input|)
+      |> Floki.find("#{@dataset_notifications_path} tr td .form__group fieldset .switch input")
       |> Floki.find("[value=true]")
       |> Floki.find("[checked=checked]")
 
@@ -201,9 +204,7 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
            ] ==
              content
              |> Floki.parse_document!()
-             |> Floki.find(
-               ~s|div[data-content="platform-wide-notifications"] tr td .form__group fieldset .switch input|
-             )
+             |> Floki.find("#{@platform_wide_path} tr td .form__group fieldset .switch input")
   end
 
   test "displays an error message if we can’t retrieve user orgs (and thus datasets) through data.gouv.fr", %{
@@ -279,12 +280,18 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
 
       assert [] = DB.NotificationSubscription |> DB.Repo.all()
 
-      render_change(view, :toggle, %{
-        "dataset-id" => dataset_id,
-        "subscription-id" => "",
-        "reason" => "expiration",
-        "action" => "turn_on"
-      })
+      content =
+        render_change(view, :toggle, %{
+          "dataset-id" => dataset_id,
+          "subscription-id" => "",
+          "reason" => "expiration",
+          "action" => "turn_on"
+        })
+
+      assert [
+               %{"name" => "daily_new_comments", "phx-value-action" => "turn_on"},
+               %{"name" => "new_dataset", "phx-value-action" => "turn_on"}
+             ] == dom_platform_wide_reasons(content)
 
       assert [
                %DB.NotificationSubscription{
@@ -297,12 +304,18 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
                }
              ] = DB.NotificationSubscription |> DB.Repo.all()
 
-      render_change(view, :toggle, %{
-        "dataset-id" => dataset_id,
-        "subscription-id" => subscription_id,
-        "reason" => "expiration",
-        "action" => "turn_off"
-      })
+      content =
+        render_change(view, :toggle, %{
+          "dataset-id" => dataset_id,
+          "subscription-id" => subscription_id,
+          "reason" => "expiration",
+          "action" => "turn_off"
+        })
+
+      assert [
+               %{"name" => "daily_new_comments", "phx-value-action" => "turn_on"},
+               %{"name" => "new_dataset", "phx-value-action" => "turn_on"}
+             ] == dom_platform_wide_reasons(content)
 
       assert [] = DB.NotificationSubscription |> DB.Repo.all()
     end
@@ -315,7 +328,13 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
 
       assert [] = DB.NotificationSubscription |> DB.Repo.all()
 
-      render_change(view, :toggle, %{"reason" => "new_dataset", "action" => "turn_on"})
+      content =
+        render_change(view, :toggle, %{"reason" => "new_dataset", "action" => "turn_on"})
+
+      assert [
+               %{"name" => "daily_new_comments", "phx-value-action" => "turn_on"},
+               %{"name" => "new_dataset", "phx-value-action" => "turn_off"}
+             ] == dom_platform_wide_reasons(content)
 
       assert [
                %DB.NotificationSubscription{
@@ -327,7 +346,12 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
                }
              ] = DB.NotificationSubscription |> DB.Repo.all()
 
-      render_change(view, :toggle, %{"reason" => "new_dataset", "action" => "turn_off"})
+      content = render_change(view, :toggle, %{"reason" => "new_dataset", "action" => "turn_off"})
+
+      assert [
+               %{"name" => "daily_new_comments", "phx-value-action" => "turn_on"},
+               %{"name" => "new_dataset", "phx-value-action" => "turn_on"}
+             ] == dom_platform_wide_reasons(content)
 
       assert [] = DB.NotificationSubscription |> DB.Repo.all()
     end
@@ -510,5 +534,12 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
         }
       ]
     })
+  end
+
+  defp dom_platform_wide_reasons(content) do
+    content
+    |> Floki.parse_document!()
+    |> Floki.find(~s|#{@platform_wide_path} tr td .form__group fieldset .switch input[phx-click="toggle"]|)
+    |> Enum.map(fn {"input", attributes, []} -> attributes |> Map.new() |> Map.take(["name", "phx-value-action"]) end)
   end
 end
