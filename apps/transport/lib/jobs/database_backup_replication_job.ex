@@ -3,8 +3,14 @@ defmodule Transport.Jobs.DatabaseBackupReplicationJob do
   Job in charge of copying the latest database dump from one
   hosting provider's object storage to another one.
 
-  This job checks that the dump is recent enough, not too large
-  and that permissions are write-only for the destination.
+  This job checks that:
+  - permissions are approriate:
+    - cannot list buckets
+    - cannot list objects in destination bucket
+    - cannot delete and object in destination bucket
+  - the latest dump has an appropriate size (between 90% and 110% of the previous dump)
+  - the dump is recent enough
+  - not too large
   """
   use Oban.Worker, max_attempts: 3, tags: [Transport.Jobs.ObanLogger.email_on_failure_tag()]
 
@@ -12,10 +18,9 @@ defmodule Transport.Jobs.DatabaseBackupReplicationJob do
   def perform(%Oban.Job{}) do
     ensure_destination_permissions_are_appropriate!()
 
-    latest_dump()
-    |> check_dump_not_too_large!()
-    |> check_dump_is_recent_enough!()
-    |> upload!()
+    check_appropriate_size!()
+
+    latest_dump() |> check_dump_is_recent_enough!() |> upload!()
 
     :ok
   end
@@ -51,6 +56,14 @@ defmodule Transport.Jobs.DatabaseBackupReplicationJob do
     end
   end
 
+  def check_appropriate_size! do
+    [yesterday_size, today_size] = latest_source_dumps(2) |> Enum.map(&dump_size/1)
+
+    unless 0.9 * yesterday_size <= today_size and today_size <= 1.1 * yesterday_size do
+      raise "Latest backup size is unexpected. Yesterday: #{yesterday_size}, today: #{today_size}"
+    end
+  end
+
   def latest_dump, do: List.first(latest_source_dumps(1))
 
   def latest_source_dumps(nb_to_keep) when is_integer(nb_to_keep) and nb_to_keep > 0 do
@@ -79,14 +92,17 @@ defmodule Transport.Jobs.DatabaseBackupReplicationJob do
     gigabytes * :math.pow(1000, 3)
   end
 
-  def check_dump_not_too_large!(%{size: size_str} = dump) do
-    {size, ""} = Integer.parse(size_str)
-
-    if size > max_size_threshold() do
+  def check_dump_not_too_large!(dump) do
+    if dump_size(dump) > max_size_threshold() do
       raise "Latest database dump is larger than 10 gigabytes #{inspect(dump)}"
     end
 
     dump
+  end
+
+  def dump_size(%{size: size_str}) do
+    {size, ""} = Integer.parse(size_str)
+    size
   end
 
   def check_dump_is_recent_enough!(%{last_modified: last_modified_str} = dump) do

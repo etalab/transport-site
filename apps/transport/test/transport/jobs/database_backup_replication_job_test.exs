@@ -85,6 +85,159 @@ defmodule Transport.Test.Transport.Jobs.DatabaseBackupReplicationJobTest do
 
   test "perform" do
     latest_dump_filename = Ecto.UUID.generate() <> ".dump"
+
+    setup_mock_permissions_checks()
+
+    # List objects in source bucket
+    Transport.ExAWS.Mock
+    |> expect(:request!, 2, fn operation, config ->
+      assert %ExAws.Operation.S3{
+               body: "",
+               bucket: @source_bucket_name,
+               http_method: :get,
+               path: "/",
+               resource: "",
+               service: :s3
+             } = operation
+
+      assert config_is_source?(config)
+
+      recent_datetime = NaiveDateTime.utc_now() |> NaiveDateTime.add(-60 * 60 * 2, :second)
+      older_datetime = recent_datetime |> NaiveDateTime.add(-60 * 60 * 10, :second)
+
+      %{
+        body: %{
+          contents: [
+            %{last_modified: older_datetime |> NaiveDateTime.to_iso8601(), key: Ecto.UUID.generate(), size: "195"},
+            %{last_modified: recent_datetime |> NaiveDateTime.to_iso8601(), key: latest_dump_filename, size: "200"}
+          ]
+        }
+      }
+    end)
+
+    # Downloading the most recent dump
+    Transport.ExAWS.Mock
+    |> expect(:request!, fn operation, config ->
+      assert %ExAws.S3.Download{bucket: @source_bucket_name, path: ^latest_dump_filename, service: :s3} = operation
+
+      assert config_is_source?(config)
+    end)
+
+    # Uploading the most recent dump
+    Transport.ExAWS.Mock
+    |> expect(:request!, fn operation, config ->
+      assert %ExAws.S3.Upload{
+               bucket: @destination_bucket_name,
+               path: path,
+               service: :s3,
+               opts: [acl: :private, timeout: 90_000],
+               src: %File.Stream{}
+             } = operation
+
+      assert String.starts_with?(path, latest_dump_filename |> String.replace_trailing(".dump", ""))
+      assert String.ends_with?(path, ".dump")
+      assert config_is_destination?(config)
+    end)
+
+    assert :ok == perform_job(DatabaseBackupReplicationJob, %{})
+  end
+
+  test "raises if the latest dump is too small" do
+    setup_mock_permissions_checks()
+
+    # List objects in source bucket
+    Transport.ExAWS.Mock
+    |> expect(:request!, fn operation, config ->
+      assert %ExAws.Operation.S3{
+               body: "",
+               bucket: @source_bucket_name,
+               http_method: :get,
+               path: "/",
+               resource: "",
+               service: :s3
+             } = operation
+
+      assert config_is_source?(config)
+
+      recent_datetime = NaiveDateTime.utc_now() |> NaiveDateTime.add(-60 * 60 * 2, :second)
+      older_datetime = recent_datetime |> NaiveDateTime.add(-60 * 60 * 10, :second)
+
+      %{
+        body: %{
+          contents: [
+            %{last_modified: older_datetime |> NaiveDateTime.to_iso8601(), key: Ecto.UUID.generate(), size: "100"},
+            %{last_modified: recent_datetime |> NaiveDateTime.to_iso8601(), key: Ecto.UUID.generate(), size: "89"}
+          ]
+        }
+      }
+    end)
+
+    ExUnit.CaptureLog.capture_log(fn ->
+      assert_raise RuntimeError, "Latest backup size is unexpected. Yesterday: 89, today: 100", fn ->
+        perform_job(DatabaseBackupReplicationJob, %{})
+      end
+    end)
+  end
+
+  test "check_appropriate_size!" do
+    [
+      {100, 91, :ok},
+      {100, 109, :ok},
+      {100, 88, :raise},
+      {100, 112, :raise}
+    ]
+    |> Enum.each(fn {yesterday_size, today_size, expected} ->
+      expect(Transport.ExAWS.Mock, :request!, fn operation, config ->
+        assert %ExAws.Operation.S3{
+                 body: "",
+                 bucket: @source_bucket_name,
+                 http_method: :get,
+                 path: "/",
+                 resource: "",
+                 service: :s3
+               } = operation
+
+        assert config_is_source?(config)
+
+        recent_datetime = NaiveDateTime.utc_now() |> NaiveDateTime.add(-60 * 60 * 2, :second)
+        older_datetime = recent_datetime |> NaiveDateTime.add(-60 * 60 * 10, :second)
+
+        %{
+          body: %{
+            contents: [
+              %{
+                last_modified: older_datetime |> NaiveDateTime.to_iso8601(),
+                key: Ecto.UUID.generate(),
+                size: to_string(yesterday_size)
+              },
+              %{
+                last_modified: recent_datetime |> NaiveDateTime.to_iso8601(),
+                key: Ecto.UUID.generate(),
+                size: to_string(today_size)
+              }
+            ]
+          }
+        }
+      end)
+
+      case expected do
+        :ok ->
+          DatabaseBackupReplicationJob.check_appropriate_size!()
+
+        :raise ->
+          assert_raise RuntimeError, ~r"^Latest backup size is unexpected.", fn ->
+            DatabaseBackupReplicationJob.check_appropriate_size!()
+          end
+      end
+    end)
+  end
+
+  test "email on failure tag is set" do
+    expected_tag = Transport.Jobs.ObanLogger.email_on_failure_tag()
+    assert %Ecto.Changeset{params: %{"tags" => [^expected_tag]}} = DatabaseBackupReplicationJob.new(%{})
+  end
+
+  defp setup_mock_permissions_checks do
     # Listing buckets in destination
     Transport.ExAWS.Mock
     |> expect(:request!, fn operation, config ->
@@ -127,64 +280,6 @@ defmodule Transport.Test.Transport.Jobs.DatabaseBackupReplicationJobTest do
       assert config_is_destination?(config)
       {:error, {:http_error, 403, %{}}}
     end)
-
-    # List objects in source bucket
-    Transport.ExAWS.Mock
-    |> expect(:request!, fn operation, config ->
-      assert %ExAws.Operation.S3{
-               body: "",
-               bucket: @source_bucket_name,
-               http_method: :get,
-               path: "/",
-               resource: "",
-               service: :s3
-             } = operation
-
-      assert config_is_source?(config)
-
-      recent_datetime = NaiveDateTime.utc_now() |> NaiveDateTime.add(-60 * 60 * 2, :second)
-      older_datetime = recent_datetime |> NaiveDateTime.add(-60 * 60 * 10, :second)
-
-      %{
-        body: %{
-          contents: [
-            %{last_modified: older_datetime |> NaiveDateTime.to_iso8601(), key: Ecto.UUID.generate()},
-            %{last_modified: recent_datetime |> NaiveDateTime.to_iso8601(), key: latest_dump_filename, size: "200"}
-          ]
-        }
-      }
-    end)
-
-    # Downloading the most recent dump
-    Transport.ExAWS.Mock
-    |> expect(:request!, fn operation, config ->
-      assert %ExAws.S3.Download{bucket: @source_bucket_name, path: ^latest_dump_filename, service: :s3} = operation
-
-      assert config_is_source?(config)
-    end)
-
-    # Uploading the most recent dump
-    Transport.ExAWS.Mock
-    |> expect(:request!, fn operation, config ->
-      assert %ExAws.S3.Upload{
-               bucket: @destination_bucket_name,
-               path: path,
-               service: :s3,
-               opts: [acl: :private, timeout: 90_000],
-               src: %File.Stream{}
-             } = operation
-
-      assert String.starts_with?(path, latest_dump_filename |> String.replace_trailing(".dump", ""))
-      assert String.ends_with?(path, ".dump")
-      assert config_is_destination?(config)
-    end)
-
-    assert :ok == perform_job(DatabaseBackupReplicationJob, %{})
-  end
-
-  test "email on failure tag is set" do
-    expected_tag = Transport.Jobs.ObanLogger.email_on_failure_tag()
-    assert %Ecto.Changeset{params: %{"tags" => [^expected_tag]}} = DatabaseBackupReplicationJob.new(%{})
   end
 
   defp config_is_destination?(%{bucket_name: bucket_name}), do: bucket_name == @destination_bucket_name
