@@ -286,7 +286,7 @@ The corresponding SSL certificates are auto-generated via Let's Encrypt and Clev
 
 # Uptime monitoring (updown.io)
 
-The following URLs are currently monitored via updown.io (with email & slack alerts) at various frequencyes
+The following URLs are currently monitored via updown.io (with email & Mattermost alerts) at various frequencies
 
 * https://transport.data.gouv.fr/health-check (https://updown.io/pl8a) every minute
 * https://workers.transport.data.gouv.fr/health-check (https://updown.io/9sto) every minute
