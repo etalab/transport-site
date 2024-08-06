@@ -284,7 +284,18 @@ These names are [configured via a CNAME on CleverCloud](https://www.clever-cloud
 
 The corresponding SSL certificates are auto-generated via Let's Encrypt and CleverCloud.
 
+# Uptime monitoring (updown.io)
+
+The following URLs are currently monitored via updown.io (with email & slack alerts) at various frequencyes
+
+* https://transport.data.gouv.fr/health-check (https://updown.io/pl8a) every minute
+* https://workers.transport.data.gouv.fr/health-check (https://updown.io/9sto) every minute
+* https://validation.transport.data.gouv.fr (https://updown.io/gndz) every 5 minutes
+* https://metabase.transport.data.gouv.fr (https://updown.io/f9rd) every 5 minutes
+* https://prochainement.transport.data.gouv.fr/health-check (https://updown.io/2pvz) every 5 minutes
+
 # Blog
+
 The project [blog](https://blog.transport.data.gouv.fr/) code and articles are hosted in the [blog](https://github.com/etalab/transport-site/tree/blog/blog) folder of the blog branch. A specific blog branch has been created with less restrictive merge rules, to allow publishing articles directly from the CMS without needing a github code review.
 
 Technically, the blog is a hugo static website, enhanced with [netlifyCMS](https://www.netlifycms.org/) that is automatically deployed using Netlify. NetlifyCMS allows github users who have write access to this repo to write and edit articles, without the need to use git nor github.
