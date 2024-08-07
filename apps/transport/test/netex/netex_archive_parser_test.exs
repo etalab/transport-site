@@ -36,7 +36,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
     tmp_file = System.tmp_dir!() |> Path.join("temp-netex.zip")
     ZipCreator.create!(tmp_file, [{"arrets.xml", some_netex_content()}])
 
-    # given a zip netex archive containing 2 files, I want the output I expected
+    # given a zip netex archive containing 1 file, I want the output I expected
     [{"arrets.xml", data}] = Transport.NeTEx.read_all_stop_places(tmp_file)
 
     assert data == [
