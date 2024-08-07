@@ -20,15 +20,19 @@ defmodule Transport.NeTEx.ArchiveParserTest do
   # not fully correct XML, but close enough for what we want to test
   def some_netex_content do
     """
-      <StopPlace id="FR:HELLO:POYARTIN:001">
-      <Name>Poyartin</Name>
-      <Centroid>
-        <Location>
-          <Latitude>43.6690</Latitude>
-          <Longitude>-0.9190</Longitude>
-        </Location>
-      </Centroid>
-    </StopPlace>
+        <GeneralFrame>
+          <members>
+            <StopPlace id="FR:HELLO:POYARTIN:001">
+            <Name>Poyartin</Name>
+            <Centroid>
+              <Location>
+                <Latitude>43.6690</Latitude>
+                <Longitude>-0.9190</Longitude>
+              </Location>
+            </Centroid>
+          </StopPlace>
+        </members>
+      </GeneralFrame>
     """
   end
 
