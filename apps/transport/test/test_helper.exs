@@ -9,7 +9,7 @@ extra_exclude =
       _ -> [:documentation_links]
     end
   else
-    [:transport_tools, :documentation_links]
+    [:transport_tools, :documentation_links, :external]
   end
 
 ExUnit.configure(exclude: exclude ++ extra_exclude)
