@@ -2,10 +2,6 @@ msgid "Unable to get resources, please retry."
 msgstr "Impossible d'accéder à la resource, réessayez"
 
 #, elixir-autogen, elixir-format
-msgid "Choose the resource you want to update"
-msgstr "Choisissez la ressource à modifier"
-
-#, elixir-autogen, elixir-format
 msgid "File uploaded!"
 msgstr "Fichier mis à jour !"
 
@@ -152,10 +148,6 @@ msgstr "La clé (RequestorRef) à renseigner est <code class=\"inline\" id=\"sir
 #, elixir-autogen, elixir-format
 msgid "If you haven’t done it yet, think about <a href=\"%{link}\">validating your data</a> before publishing it."
 msgstr "Si vous ne l’avez pas encore fait, pensez à <a href=\"%{link}\">valider vos données</a> avant de les publier."
-
-#, elixir-autogen, elixir-format
-msgid "Choose the resource you want to delete"
-msgstr "Choisissez la ressource à supprimer"
 
 #, elixir-autogen, elixir-format
 msgid "Could not delete the resource"
