@@ -125,3 +125,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "SubFolder"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "NegativeStopDuration"
+msgstr ""

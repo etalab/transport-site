@@ -33,10 +33,14 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     end
 
     test "renders successfully and finds the dataset using organization IDs", %{conn: conn} do
-      %DB.Dataset{organization_id: organization_id} = dataset = insert(:dataset, custom_title: custom_title = "Foobar")
+      %DB.Dataset{organization_id: organization_id, datagouv_id: datagouv_id} =
+        dataset = insert(:dataset, custom_title: custom_title = "Foobar")
 
       Datagouvfr.Client.User.Mock
       |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
+
+      Datagouvfr.Client.Datasets.Mock
+      |> expect(:get, fn ^datagouv_id -> {:ok, generate_dataset_payload(datagouv_id)} end)
 
       content =
         conn
@@ -48,15 +52,22 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     end
 
     test "when a custom logo is set", %{conn: conn} do
-      dataset = insert(:dataset, custom_logo: "https://example.com/pic.png")
+      %DB.Dataset{
+        id: dataset_id,
+        datagouv_id: datagouv_id,
+        organization_id: organization_id
+      } = insert(:dataset, custom_logo: "https://example.com/pic.png")
 
       Datagouvfr.Client.User.Mock
-      |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => dataset.organization_id}]}} end)
+      |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
+
+      Datagouvfr.Client.Datasets.Mock
+      |> expect(:get, fn ^datagouv_id -> {:ok, generate_dataset_payload(datagouv_id)} end)
 
       content =
         conn
         |> init_test_session(current_user: %{})
-        |> get(espace_producteur_path(conn, :edit_dataset, dataset.id))
+        |> get(espace_producteur_path(conn, :edit_dataset, dataset_id))
         |> html_response(200)
 
       assert content

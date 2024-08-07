@@ -92,32 +92,6 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
     assert render(view) =~ ""
   end
 
-  test "renders even if there is no organization", %{conn: conn} do
-    dataset = insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate(), organization_id: nil)
-
-    Datagouvfr.Client.Discussions.Mock |> expect(:get, 1, fn ^datagouv_id -> discussions() end)
-
-    # No organization mock: shouldn’t be called.
-
-    {:ok, view, _html} =
-      live_isolated(conn, TransportWeb.DiscussionsLive,
-        session: %{
-          "dataset_datagouv_id" => datagouv_id,
-          "current_user" => %{"email" => "fc@tdg.fr"},
-          "dataset" => dataset,
-          "locale" => "fr",
-          "csp_nonce_value" => Ecto.UUID.generate()
-        }
-      )
-
-    parsed_content = view |> render() |> Floki.parse_document!()
-
-    discussion_title_text =
-      parsed_content |> Floki.find(".discussion-title h4") |> Floki.text()
-
-    assert discussion_title_text =~ "Le titre de la question"
-  end
-
   test "answer and answer and close buttons", %{conn: conn} do
     dataset =
       insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate(), organization_id: org_id = Ecto.UUID.generate())

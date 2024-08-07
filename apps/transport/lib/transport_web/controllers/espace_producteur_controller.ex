@@ -1,10 +1,14 @@
 defmodule TransportWeb.EspaceProducteurController do
   use TransportWeb, :controller
 
-  plug(:find_dataset_or_redirect when action in [:edit_dataset, :upload_logo, :remove_custom_logo])
+  plug(:find_dataset_and_fetch_from_api_or_redirect when action in [:edit_dataset])
+  plug(:find_dataset_or_redirect when action in [:upload_logo, :remove_custom_logo])
   plug(:find_datasets_or_redirect when action in [:proxy_statistics])
 
   def edit_dataset(%Plug.Conn{} = conn, %{"dataset_id" => _}) do
+    # Awkard page, but no real choice: some parts (logo…) are from the local database
+    # While resources list is from the API
+    # Producer wants to edit the dataset and has perhaps just done it: we need fresh info
     conn |> render("edit_dataset.html")
   end
 
@@ -85,6 +89,24 @@ defmodule TransportWeb.EspaceProducteurController do
         conn |> assign(:dataset, dataset)
 
       nil ->
+        conn
+        |> put_flash(:error, dgettext("alert", "Unable to get this dataset for the moment"))
+        |> redirect(to: page_path(conn, :espace_producteur))
+        |> halt()
+    end
+  end
+
+  defp find_dataset_and_fetch_from_api_or_redirect(
+         %Plug.Conn{path_params: %{"dataset_id" => dataset_id}} = conn,
+         _options
+       ) do
+    with %DB.Dataset{datagouv_id: datagouv_id} = dataset <- find_dataset_for_user(conn, dataset_id),
+         {:ok, datagouv_dataset} <- Datagouvfr.Client.Datasets.get(datagouv_id) do
+      conn
+      |> assign(:dataset, dataset)
+      |> assign(:datagouv_dataset, datagouv_dataset)
+    else
+      _ ->
         conn
         |> put_flash(:error, dgettext("alert", "Unable to get this dataset for the moment"))
         |> redirect(to: page_path(conn, :espace_producteur))

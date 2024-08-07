@@ -1,7 +1,3 @@
-:root {
-  --primary-color-producer: #00ac8cff;
-}
-
 .is-grey {
   color: var(--dark-grey);
 }
@@ -51,17 +47,22 @@
     flex-basis: 300px;
     flex-grow: 1;
   }
-  .checklist-header {
-    display: flex;
-    img {
-      padding-right: 12px;
-    }
+}
+
+.panel .left-flex-image {
+  display: flex;
+  img {
+    padding-right: 12px;
   }
 }
 
 .espace-producteur-section {
   background-color: var(--theme-background-grey);
   min-height: 80vh;
+
+  table td.align-right {
+    text-align: right;
+  }
 }
 
 .resources-update-list {
@@ -113,6 +114,9 @@
     .button-outline {
       margin-right: 5px;
     }
+  }
+  form.full-width {
+    max-width: 100%;
   }
 }
 

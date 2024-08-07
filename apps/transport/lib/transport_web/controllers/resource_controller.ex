@@ -177,31 +177,9 @@ defmodule TransportWeb.ResourceController do
     end
   end
 
-  @doc """
-  List resources for a dataset, prompting the user to choose a resource.
-  Used to either update OR delete a resource afterwards.
-  """
-  @spec resources_list(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def resources_list(conn, %{"dataset_id" => dataset_id}) do
-    case Datagouvfr.Client.Datasets.get(dataset_id) do
-      {:ok, dataset} ->
-        conn
-        |> assign(:dataset, dataset)
-        |> render("resources_list.html")
-
-      _ ->
-        conn
-        |> put_flash(
-          :error,
-          Gettext.dgettext(TransportWeb.Gettext, "resource", "Unable to get resources, please retry.")
-        )
-        |> put_view(ErrorView)
-        |> render("404.html")
-    end
-  end
-
   @spec form(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def form(conn, %{"dataset_id" => dataset_id} = params) do
+    # This shows a form with data coming directly from the datagouv API for fresh data
     with {:ok, dataset} <- Datagouvfr.Client.Datasets.get(dataset_id),
          # Resource and resource_id may be nil in case of a new resource
          resource <- assign_resource_from_dataset_payload(dataset, params["resource_id"]) do

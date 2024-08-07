@@ -185,6 +185,69 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
       assert content =~ "expiration"
       assert content =~ "datasets_switching_climate_resilience_bill"
     end
+
+    test "displays notifications received", %{conn: conn} do
+      %DB.Dataset{custom_title: custom_title} = dataset = insert(:dataset)
+      contact = DB.Contact.insert!(sample_contact_args())
+      other_contact = DB.Contact.insert!(sample_contact_args())
+
+      insert_notification(%{
+        contact_id: contact.id,
+        reason: :daily_new_comments,
+        role: :reuser,
+        dataset_id: nil,
+        email: contact.email,
+        inserted_at: DateTime.utc_now() |> DateTime.add(-5, :hour)
+      })
+
+      insert_notification(%{
+        contact_id: contact.id,
+        reason: :expiration,
+        role: :reuser,
+        dataset_id: dataset.id,
+        email: contact.email
+      })
+
+      # Should be ignored: very old
+      insert_notification(%{
+        contact_id: contact.id,
+        reason: :dataset_with_error,
+        role: :reuser,
+        dataset_id: dataset.id,
+        email: contact.email,
+        inserted_at: DateTime.utc_now() |> DateTime.add(-6 * 30 - 1, :day)
+      })
+
+      # Should be ignored: sent to another contact
+      insert_notification(%{
+        contact_id: other_contact.id,
+        reason: :dataset_with_error,
+        role: :reuser,
+        dataset_id: dataset.id,
+        email: other_contact.email
+      })
+
+      content =
+        conn
+        |> setup_admin_in_session()
+        |> get(backoffice_contact_path(conn, :edit, contact.id))
+        |> html_response(200)
+        |> Floki.parse_document!()
+        |> Floki.find("#notifications table tr td")
+        |> Enum.map(fn el -> el |> Floki.text() |> String.trim() end)
+
+      assert [
+               "reuser",
+               "expiration",
+               ^custom_title,
+               _,
+               # 2nd row: a platworm-wide notification
+               "reuser",
+               "daily_new_comments",
+               "-",
+               _
+             ] = content
+    end
   end
 
   test "delete", %{conn: conn} do

@@ -118,6 +118,8 @@ defmodule Transport.ImportData do
 
     http_client = Transport.Shared.Wrapper.HTTPoison.impl()
 
+    # We use a direct call with the HTTP client instead of using the datagouv API client module
+    # because of redirects.
     # We'll have to verify the behaviour of hackney/httpoison for follow_redirect: how
     # many redirects are allowed? Is an error raised after a while or not? etc.
     response = http_client.get!(url, [], hackney: [follow_redirect: true])
@@ -862,19 +864,26 @@ defmodule Transport.ImportData do
   # ODS CSV resources are identified only with their URL, as their resource datagouv id is not unique.
   # For regular resources, we can identify them by resource datagouv id or by their url.
   defp get_existing_resource(%{"is_ods_csv" => true, "url" => url}, dataset_datagouv_id) do
+    get_existing_resource_by_url(url, dataset_datagouv_id)
+  end
+
+  defp get_existing_resource(%{"url" => url, "id" => resource_datagouv_id}, dataset_datagouv_id) do
+    get_existing_resource_by_datagouv_id(resource_datagouv_id, dataset_datagouv_id) ||
+      get_existing_resource_by_url(url, dataset_datagouv_id)
+  end
+
+  defp get_existing_resource_by_url(url, dataset_datagouv_id) do
     Resource
-    |> join(:left, [r], d in Dataset, on: r.dataset_id == d.id)
-    |> where([r], r.url == ^url)
-    |> where([_r, d], d.datagouv_id == ^dataset_datagouv_id)
+    |> join(:inner, [r], d in Dataset, on: r.dataset_id == d.id)
+    |> where([r, d], r.url == ^url and d.datagouv_id == ^dataset_datagouv_id)
     |> select([r], map(r, [:id]))
     |> Repo.one()
   end
 
-  defp get_existing_resource(%{"url" => url, "id" => datagouv_id}, dataset_datagouv_id) do
+  defp get_existing_resource_by_datagouv_id(resource_datagouv_id, dataset_datagouv_id) do
     Resource
-    |> join(:left, [r], d in Dataset, on: r.dataset_id == d.id)
-    |> where([r, _d], r.datagouv_id == ^datagouv_id or r.url == ^url)
-    |> where([_r, d], d.datagouv_id == ^dataset_datagouv_id)
+    |> join(:inner, [r], d in Dataset, on: r.dataset_id == d.id)
+    |> where([r, d], r.datagouv_id == ^resource_datagouv_id and d.datagouv_id == ^dataset_datagouv_id)
     |> select([r], map(r, [:id]))
     |> Repo.one()
   end

@@ -2,10 +2,6 @@ msgid "Unable to get resources, please retry."
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Choose the resource you want to update"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "File uploaded!"
 msgstr ""
 
@@ -151,10 +147,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "If you haven’t done it yet, think about <a href=\"%{link}\">validating your data</a> before publishing it."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Choose the resource you want to delete"
 msgstr ""
 
 #, elixir-autogen, elixir-format

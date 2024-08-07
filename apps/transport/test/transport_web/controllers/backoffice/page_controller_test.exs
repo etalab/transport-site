@@ -154,6 +154,20 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
              "Ainsi que 2 abonnements de 1 réutilisateur."
   end
 
+  test "can edit a dataset, even when it's not active", %{conn: conn} do
+    dataset = insert(:dataset, is_active: false)
+
+    doc =
+      conn
+      |> setup_admin_in_session()
+      |> get(Routes.backoffice_page_path(conn, :edit, dataset.id))
+      |> html_response(200)
+      |> Floki.parse_document!()
+
+    assert doc |> Floki.find(".notification.warning") |> Floki.text() =~
+             "Ce jeu de données a été supprimé de data.gouv.fr"
+  end
+
   test "notifications_sent sort order and grouping works" do
     dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate(), slug: Ecto.UUID.generate())
 
@@ -217,11 +231,6 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
   end
 
   describe "contacts_in_org" do
-    test "org is not set" do
-      dataset = insert(:dataset, organization_id: nil)
-      assert [] == PageController.contacts_in_org(dataset |> DB.Repo.preload(organization_object: :contacts))
-    end
-
     test "dataset is nil" do
       assert [] == PageController.contacts_in_org(nil)
     end

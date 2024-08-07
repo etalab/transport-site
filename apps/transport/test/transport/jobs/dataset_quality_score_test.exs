@@ -526,6 +526,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
       assert %{
                previous_score: 0.5,
+               today_score: 1.0,
                resources: [
                  %{
                    availability: 1.0,
@@ -579,6 +580,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                  timestamp: timestamp,
                  details: %{
                    previous_score: 0.5,
+                   today_score: 1.0,
                    resources: [%{compliance: 1.0, raw_measure: %{"max_error" => "Warning"}, resource_id: ^gtfs_id}]
                  }
                }
@@ -623,6 +625,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
       assert %{
                previous_score: 0.5,
+               today_score: 1.0,
                resources: [
                  %{
                    format: "GTFS",
@@ -653,7 +656,14 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       {:ok, score} = save_dataset_score(dataset.id, :freshness)
 
       # expected score is todays's score (no existing history)
-      assert %{id: _id, topic: :freshness, score: 1.0, timestamp: timestamp} = score
+      assert %{
+               id: _id,
+               topic: :freshness,
+               score: 1.0,
+               timestamp: timestamp,
+               details: %{previous_score: nil, today_score: 1.0}
+             } = score
+
       assert DateTime.diff(timestamp, DateTime.utc_now()) < 3
 
       assert DB.DatasetScore |> DB.Repo.all() |> length() == 2
@@ -666,7 +676,14 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       {:ok, score} = save_dataset_score(dataset.id, :freshness)
 
       # expected score is nil
-      assert %{id: _id, topic: :freshness, score: nil, timestamp: timestamp} = score
+      assert %{
+               id: _id,
+               topic: :freshness,
+               score: nil,
+               timestamp: timestamp,
+               details: %{today_score: nil, previous_score: nil}
+             } = score
+
       assert DateTime.diff(timestamp, DateTime.utc_now()) < 3
 
       assert DB.DatasetScore |> DB.Repo.all() |> length() == 1
@@ -695,7 +712,14 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       {:ok, score} = save_dataset_score(dataset.id, :freshness)
 
       # score is computed with today's freshness and last non nil score.
-      assert %{id: _id, topic: :freshness, score: 0.55, timestamp: timestamp} = score
+      assert %{
+               id: _id,
+               topic: :freshness,
+               score: 0.55,
+               timestamp: timestamp,
+               details: %{today_score: 1.0, previous_score: 0.5}
+             } = score
+
       assert DateTime.diff(timestamp, DateTime.utc_now()) < 3
 
       assert DB.DatasetScore |> DB.Repo.all() |> length() == 3
@@ -716,7 +740,14 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       {:ok, score} = save_dataset_score(dataset.id, :freshness)
 
       # score is computed from scratch, previous score is not used
-      assert %{id: _id, topic: :freshness, score: 1.0, timestamp: timestamp} = score
+      assert %{
+               id: _id,
+               topic: :freshness,
+               score: 1.0,
+               timestamp: timestamp,
+               details: %{today_score: 1.0, previous_score: nil}
+             } = score
+
       assert DateTime.diff(timestamp, DateTime.utc_now()) < 3
 
       assert DB.DatasetScore |> DB.Repo.all() |> length() == 2
@@ -737,12 +768,26 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
       {:ok, score} = save_dataset_score(dataset.id, :freshness)
       # score is computed with yesterday's score
-      assert %{id: id1, topic: :freshness, score: 0.55, timestamp: _timestamp} = score
+      assert %{
+               id: id1,
+               topic: :freshness,
+               score: 0.55,
+               timestamp: _timestamp,
+               details: %{today_score: 1.0, previous_score: 0.5}
+             } = score
 
       # we force refresh the score computation
       # it should use yesterday's score again
       {:ok, score} = save_dataset_score(dataset.id, :freshness)
-      assert %{id: id2, topic: :freshness, score: 0.55, timestamp: _timestamp} = score
+
+      assert %{
+               id: id2,
+               topic: :freshness,
+               score: 0.55,
+               timestamp: _timestamp,
+               details: %{today_score: 1.0, previous_score: 0.5}
+             } = score
+
       assert id2 > id1
     end
 
@@ -755,7 +800,11 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       assert %{
                topic: :freshness,
                score: nil,
-               details: %{previous_score: nil, resources: [%{resource_id: ^resource_id, format: "csv", freshness: nil}]}
+               details: %{
+                 previous_score: nil,
+                 today_score: nil,
+                 resources: [%{resource_id: ^resource_id, format: "csv", freshness: nil}]
+               }
              } = score
     end
 
@@ -780,7 +829,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                 dataset_id: ^dataset_id,
                 score: nil,
                 topic: ^topic,
-                details: %{previous_score: 0.5, resources: []}
+                details: %{previous_score: 0.5, today_score: nil, resources: []}
               }} = save_dataset_score(dataset_id, topic)
     end
   end
@@ -813,6 +862,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                  score: 1.0,
                  details: %{
                    "previous_score" => nil,
+                   "today_score" => 1.0,
                    "resources" => [
                      %{
                        "format" => "GTFS",
@@ -829,6 +879,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                  score: 1.0,
                  details: %{
                    "previous_score" => nil,
+                   "today_score" => 1.0,
                    "resources" => [%{"availability" => 1.0, "raw_measure" => nil, "resource_id" => ^resource_id}]
                  }
                },
@@ -838,6 +889,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                  score: 1.0,
                  details: %{
                    "previous_score" => nil,
+                   "today_score" => 1.0,
                    "resources" => [
                      %{"compliance" => 1.0, "raw_measure" => %{"max_error" => nil}, "resource_id" => ^resource_id}
                    ]

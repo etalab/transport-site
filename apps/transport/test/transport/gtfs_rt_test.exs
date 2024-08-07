@@ -183,6 +183,21 @@ defmodule Transport.GTFSRTTest do
            } == feed |> GTFSRT.service_alerts_for_display() |> List.first()
   end
 
+  @tag :external
+  test ".proto file is up-to-date" do
+    normalize_whitespace = fn value ->
+      String.trim(Regex.replace(~r/\s*/u, value, ""))
+    end
+
+    remote_content =
+      HTTPoison.get!("https://raw.githubusercontent.com/google/transit/master/gtfs-realtime/proto/gtfs-realtime.proto").body
+
+    local_content = File.read!("#{__DIR__}/../../lib/transport/protobuf/gtfs-realtime.proto")
+
+    assert normalize_whitespace.(remote_content) == normalize_whitespace.(local_content),
+           "Protobuf file seems to have been updated. Consider updating it. See https://github.com/google/transit/tree/master/gtfs-realtime/proto and https://github.com/etalab/transport-site/issues/3891"
+  end
+
   def timerange(start_date, end_date) do
     %TimeRange{start: unix_seconds_delta(start_date), end: unix_seconds_delta(end_date)}
   end
