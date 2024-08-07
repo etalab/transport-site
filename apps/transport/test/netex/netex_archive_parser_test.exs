@@ -33,7 +33,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
   end
 
   test "traverse the archive and return relevant content" do
-    tmp_file = System.tmp_dir!() |> Path.join("temp-netex.zip")
+    tmp_file = System.tmp_dir!() |> Path.join("temp-netex-#{Ecto.UUID.generate()}.zip")
     ZipCreator.create!(tmp_file, [{"arrets.xml", some_netex_content()}])
 
     # given a zip netex archive containing 1 file, I want the output I expected
