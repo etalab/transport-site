@@ -5,7 +5,7 @@
       <%= if new_resource do %>
         <%= breadcrumbs([@conn, :new_resource]) %>
       <% else %>
-        <%= breadcrumbs([@conn, :update_resource, @dataset["id"]]) %>
+        <%= breadcrumbs([@conn, :update_resource]) %>
       <% end %>
     </div>
   </section>

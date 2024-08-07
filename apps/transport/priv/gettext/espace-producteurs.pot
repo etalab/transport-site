@@ -59,10 +59,6 @@ msgid "Your producer space"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Updating a dataset guidelines"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "What would you like to do?"
 msgstr ""
 
@@ -71,23 +67,7 @@ msgid "You have no resource to update for the moment"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Select a resource"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "New resource"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Our team maintains a comprehensive documentation detailing how to publish and keep up to date your data on %{link}."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "our documentation"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "If you need to replace a resource with a more up-to-date one, choose \"Update a resource\"."
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -135,18 +115,6 @@ msgid "Delete a resource"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Add"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Delete"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Update"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "1 resource"
 msgid_plural "%{count} resources"
 msgstr[0] ""
@@ -166,10 +134,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Upload"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "You can edit this dataset on <a href=\"%{datagouv_admin_url}\" target=\"_blank\">data.gouv.fr</a>."
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -230,4 +194,36 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "On"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Add a resource"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Delete resource"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Edit resource"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "If you want to publish an update to your data, please update an existing resource in the following list rather than publish a new one."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Edit on data.gouv.fr"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "full-edition-on-data-gouv-fr"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Our team maintains a comprehensive documentation"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Manage your resources"
 msgstr ""

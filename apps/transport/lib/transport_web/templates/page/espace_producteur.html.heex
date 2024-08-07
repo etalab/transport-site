@@ -10,18 +10,9 @@
       <div class="producer-actions-flex">
         <div class="panel">
           <div class="update-header pb-24">
-            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-maj.png")} alt="" />
+            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-maj.svg")} alt="" />
             <div>
               <h4 class="with-link"><%= dgettext("espace-producteurs", "Update a dataset") %></h4>
-              <p>
-                <%= dgettext(
-                  "espace-producteurs",
-                  ~s(If you need to replace a resource with a more up-to-date one, choose "Update a resource".)
-                ) %>
-              </p>
-              <a href="https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees">
-                <%= dgettext("espace-producteurs", "Updating a dataset guidelines") %>
-              </a>
             </div>
           </div>
           <div class="resource-list">
@@ -39,33 +30,13 @@
                 </h5>
                 <%= link(dgettext("espace-producteurs", "Edit"),
                   to: espace_producteur_path(@conn, :edit_dataset, dataset.id),
-                  class: "button-outline secondary small",
+                  class: "button primary",
                   "data-tracking-category": "espace_producteur",
                   "data-tracking-action": "edit_dataset"
                 ) %>
                 <hr class="mb-0 mt-24" />
                 <div class="pt-6">
                   <%= dngettext("espace-producteurs", "1 resource", "%{count} resources", nb_resources) %>
-                </div>
-                <div class="pt-12">
-                  <%= link(dgettext("espace-producteurs", "Update"),
-                    to: resource_path(@conn, :resources_list, dataset.datagouv_id),
-                    class: "button-outline primary small",
-                    "data-tracking-category": "espace_producteur",
-                    "data-tracking-action": "update_resource_button"
-                  ) %>
-                  <%= link(dgettext("espace-producteurs", "Add"),
-                    to: resource_path(@conn, :form, dataset.datagouv_id),
-                    class: "button-outline secondary small",
-                    "data-tracking-category": "espace_producteur",
-                    "data-tracking-action": "add_resource_button"
-                  ) %>
-                  <%= link(dgettext("espace-producteurs", "Delete"),
-                    to: resource_path(@conn, :resources_list, dataset.datagouv_id, %{"mode" => "delete"}),
-                    class: "button-outline warning small",
-                    "data-tracking-category": "espace_producteur",
-                    "data-tracking-action": "delete_resource_button"
-                  ) %>
                 </div>
                 <div :if={has_downloads_stats and show_downloads_stats?(dataset)}>
                   <% nb_downloads =
@@ -90,7 +61,7 @@
         </div>
         <div>
           <div class="panel espace-producer-panel">
-            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-check.png")} alt="" />
+            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-check.svg")} alt="" />
             <div>
               <div class="publish-header">
                 <h4 class="with-link"><%= dgettext("espace-producteurs", "Validate your datasets") %></h4>
@@ -109,7 +80,7 @@
             </div>
           </div>
           <div class="panel espace-producer-panel">
-            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-publier.png")} alt="" />
+            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-publier.svg")} alt="" />
             <div>
               <div class="publish-header">
                 <h4 class="with-link"><%= dgettext("espace-producteurs", "Publish a dataset") %></h4>
@@ -152,7 +123,7 @@
             </div>
           </div>
           <div :if={show_proxy_stats_block?(@datasets)} class="panel espace-producer-panel">
-            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-trend.png")} alt="" />
+            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-trend.svg")} alt="" />
             <div>
               <div class="publish-header">
                 <h4><%= dgettext("espace-producteurs", "Your proxy statistics") %></h4>
@@ -206,7 +177,7 @@
       <h2><%= dgettext("espace-producteurs", "Useful tools and content") %></h2>
       <div class="producer-tools-content">
         <div class="panel">
-          <div class="checklist-header">
+          <div class="left-flex-image">
             <img
               height="60"
               src={static_path(@conn, "/images/producteurs/streamline-icon-employee-checklist.png")}
@@ -218,14 +189,8 @@
                 <%= raw(
                   dgettext(
                     "espace-producteurs",
-                    "Our team maintains a comprehensive documentation detailing how to publish and keep up to date your data on %{link}.",
-                    link:
-                      safe_to_string(
-                        link(dgettext("espace-producteurs", "our documentation"),
-                          to: "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees",
-                          target: "_blank"
-                        )
-                      )
+                    "Our team maintains a comprehensive documentation",
+                    link: "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees"
                   )
                 ) %>
               </p>
