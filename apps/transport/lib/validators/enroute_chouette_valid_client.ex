@@ -57,7 +57,7 @@ defmodule Transport.EnRouteChouetteValidClient do
   end
 
   defp make_file_part(field_name, filepath) do
-    {field_name, filepath, {"form-data", [{:name, "file"}, {:filename, Path.basename(filepath)}]}, []}
+    {:file, filepath, {"form-data", [{:name, field_name}, {:filename, Path.basename(filepath)}]}, []}
   end
 
   defp validation_url(validation_id) do
