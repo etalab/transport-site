@@ -31,8 +31,7 @@ defmodule Transport.EnRouteChouetteValidClientTest do
 
       assert [
                {"validation[rule_set]", "french"},
-               {"validation[file]", tmp_file, {"form-data", [{:name, "file"}, {:filename, Path.basename(tmp_file)}]},
-                []}
+               {:file, tmp_file, {"form-data", [{:name, "validation[file]"}, {:filename, Path.basename(tmp_file)}]}, []}
              ] == parts
 
       %HTTPoison.Response{status_code: 201, body: response_body}
