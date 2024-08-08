@@ -232,10 +232,10 @@ defmodule TransportWeb.PageController do
 
   defmodule Tile do
     @enforce_keys [:link, :icon, :title, :count]
-    defstruct [:link, :icon, :title, :count, :type, :documentation_url]
+    defstruct [:link, :icon, :title, :count, :type, :documentation_url, :mode]
   end
 
-  defp home_tiles(conn) do
+  def home_tiles(conn) do
     counts = home_index_stats()
 
     [
@@ -247,20 +247,23 @@ defmodule TransportWeb.PageController do
         count: Keyword.fetch!(counts, :count_public_transport_has_realtime)
       },
       %Tile{
-        # 14 is the region « national » We defined coaches as buses not bound to a region or AOM
-        link: dataset_path(conn, :by_region, 14, "modes[]": "bus"),
+        # 14 is the region « National » We defined coaches as buses not bound to a region or AOM
+        mode: "bus",
+        link: dataset_path(conn, :by_region, 14, %{"modes" => ["bus"]}),
         icon: icon_type_path("long-distance-coach"),
         title: dgettext("page-index", "Long distance coach"),
         count: Keyword.fetch!(counts, :count_coach)
       },
       %Tile{
-        link: dataset_path(conn, :index, "modes[]": "rail"),
+        mode: "rail",
+        link: dataset_path(conn, :index, %{"modes" => ["rail"]}),
         icon: icon_type_path("train"),
         title: dgettext("page-index", "Rail transport"),
         count: Keyword.fetch!(counts, :count_train)
       },
       %Tile{
-        link: dataset_path(conn, :index, "modes[]": "ferry"),
+        mode: "ferry",
+        link: dataset_path(conn, :index, %{"modes" => ["ferry"]}),
         icon: icon_type_path("boat"),
         title: dgettext("page-index", "Sea and river transport"),
         count: Keyword.fetch!(counts, :count_boat)
@@ -289,6 +292,17 @@ defmodule TransportWeb.PageController do
         count: Keyword.fetch!(counts, :count_paris2024)
       }
     ]
+    |> check_mode_is_set!()
+  end
+
+  defp check_mode_is_set!(tiles) do
+    Enum.each(tiles, fn %Tile{link: link, mode: mode} = tile ->
+      if String.contains?(link, "modes") and is_nil(mode) do
+        raise "mode attribute should be filled for #{inspect(tile)}"
+      end
+    end)
+
+    tiles
   end
 
   defp climate_resilience_bill_type_tile(%Plug.Conn{} = conn, %{count: count, type: type}) do
