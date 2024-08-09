@@ -464,7 +464,7 @@ defmodule TransportWeb.DatasetController do
   end
 
   defp put_page_title(conn, %{"region" => region_id} = params) do
-    national_region = DB.Repo.get_by!(DB.Region, nom: "National")
+    national_region = DB.Region.national()
 
     # For "region = (National) + modes[]=bus", which correspond to
     # long distance coaches (Flixbus, BlaBlaBus etc.) we don't want
@@ -518,18 +518,8 @@ defmodule TransportWeb.DatasetController do
     end
   end
 
-  defp tile_matches_query?(%TransportWeb.PageController.Tile{} = tile, %MapSet{} = query_params) do
-    tile_query =
-      case tile do
-        # Modes are a bit special because they are passed as an array parameter
-        # in the URL, like `modes[]=bus` and I couldn't easily work with the
-        # URI module to parse and match appropriately.
-        %TransportWeb.PageController.Tile{mode: mode} when is_binary(mode) ->
-          %{"modes" => [mode]}
-
-        %TransportWeb.PageController.Tile{link: link} ->
-          link |> URI.new!() |> Map.fetch!(:query) |> URI.decode_query()
-      end
+  defp tile_matches_query?(%TransportWeb.PageController.Tile{link: link}, %MapSet{} = query_params) do
+    tile_query = link |> URI.new!() |> Map.fetch!(:query) |> Plug.Conn.Query.decode()
 
     MapSet.subset?(MapSet.new(tile_query), query_params)
   end

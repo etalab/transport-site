@@ -20,4 +20,6 @@ defmodule DB.Region do
     has_many(:departements, Departement, foreign_key: :region_insee, references: :insee)
     has_one(:datasets, Dataset)
   end
+
+  def national, do: DB.Repo.get_by!(DB.Region, nom: "National")
 end
