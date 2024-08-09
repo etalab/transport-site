@@ -779,6 +779,43 @@ defmodule TransportWeb.DatasetControllerTest do
     assert content =~ "Ce jeu de données est masqué"
   end
 
+  test "dataset-page-title", %{conn: conn} do
+    [
+      {%{"type" => "public-transit"}, "Transport public collectif - horaires théoriques"},
+      {%{"type" => "public-transit", "filter" => "has_realtime"}, "Transport public collectif - horaires temps réel"},
+      {%{"modes" => ["rail"]}, "Transport ferroviaire"},
+      {%{"custom_tag" => "paris2024"}, "JOP Paris 2024"}
+    ]
+    |> Enum.each(fn {params, expected_title} ->
+      title =
+        conn
+        |> get(dataset_path(conn, :index, params))
+        |> html_response(200)
+        |> dataset_page_title()
+
+      assert title == expected_title
+    end)
+  end
+
+  test "dataset page title for long distance coaches", %{conn: conn} do
+    national_region = DB.Repo.get_by!(DB.Region, nom: "National")
+
+    title =
+      conn
+      |> get(dataset_path(conn, :by_region, national_region.id, %{"modes" => ["bus"]}))
+      |> html_response(200)
+      |> dataset_page_title()
+
+    assert title == "Autocars longue distance"
+  end
+
+  defp dataset_page_title(content) do
+    content
+    |> Floki.parse_document!()
+    |> Floki.find(".dataset-page-title h1")
+    |> Floki.text()
+  end
+
   defp mock_empty_history_resources do
     Transport.History.Fetcher.Mock
     |> expect(:history_resources, fn _, options ->

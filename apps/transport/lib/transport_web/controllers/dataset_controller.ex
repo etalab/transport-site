@@ -463,13 +463,22 @@ defmodule TransportWeb.DatasetController do
     end
   end
 
-  defp put_page_title(conn, %{"region" => id}),
-    do:
+  defp put_page_title(conn, %{"region" => region_id} = params) do
+    national_region = DB.Repo.get_by!(DB.Region, nom: "National")
+
+    # For "region = (National) + modes[]=bus", which correspond to
+    # long distance coaches (Flixbus, BlaBlaBus etc.) we don't want
+    # to put the region name but instead "Long distance coaches"
+    if region_id == to_string(national_region.id) and Map.has_key?(params, "modes") do
+      put_page_title(conn, Map.delete(params, "region"))
+    else
       assign(
         conn,
         :page_title,
-        %{type: dgettext("page-shortlist", "region"), name: get_name(Region, id)}
+        %{type: dgettext("page-shortlist", "region"), name: get_name(Region, region_id)}
       )
+    end
+  end
 
   defp put_page_title(conn, %{"insee_commune" => insee}) do
     name = Repo.get_by!(Commune, insee: insee).nom
@@ -489,15 +498,41 @@ defmodule TransportWeb.DatasetController do
         %{type: "AOM", name: get_name(AOM, id)}
       )
 
-  defp put_page_title(conn, %{"type" => t} = f) when map_size(f) == 1,
-    do:
-      assign(
-        conn,
-        :page_title,
-        %{type: dgettext("page-shortlist", "category"), name: Dataset.type_to_str(t)}
-      )
+  defp put_page_title(%Plug.Conn{query_params: query_params} = conn, _) do
+    TransportWeb.PageController.home_tiles(conn)
+    # Allows to match `?type=foo&filter=has_realtime` otherwise
+    # `?type=foo` would match and we would not consider
+    # other options.
+    |> Enum.sort_by(&String.length(&1.link), :desc)
+    |> Enum.find(&tile_matches_query?(&1, MapSet.new(query_params)))
+    |> case do
+      %TransportWeb.PageController.Tile{title: title} ->
+        assign(
+          conn,
+          :page_title,
+          %{type: dgettext("page-shortlist", "category"), name: title}
+        )
 
-  defp put_page_title(conn, _), do: conn
+      _ ->
+        conn
+    end
+  end
+
+  defp tile_matches_query?(%TransportWeb.PageController.Tile{} = tile, %MapSet{} = query_params) do
+    tile_query =
+      case tile do
+        # Modes are a bit special because they are passed as an array parameter
+        # in the URL, like `modes[]=bus` and I couldn't easily work with the
+        # URI module to parse and match appropriately.
+        %TransportWeb.PageController.Tile{mode: mode} when is_binary(mode) ->
+          %{"modes" => [mode]}
+
+        %TransportWeb.PageController.Tile{link: link} ->
+          link |> URI.new!() |> Map.fetch!(:query) |> URI.decode_query()
+      end
+
+    MapSet.subset?(MapSet.new(tile_query), query_params)
+  end
 
   defp put_dataset_heart_values(%Plug.Conn{assigns: %{current_user: current_user}} = conn, datasets) do
     if is_nil(current_user) do
