@@ -235,7 +235,7 @@ defmodule TransportWeb.PageController do
     defstruct [:link, :icon, :title, :count, :type, :documentation_url]
   end
 
-  defp home_tiles(conn) do
+  def home_tiles(conn) do
     counts = home_index_stats()
 
     [
@@ -247,7 +247,7 @@ defmodule TransportWeb.PageController do
         count: Keyword.fetch!(counts, :count_public_transport_has_realtime)
       },
       %Tile{
-        # 14 is the region « national » We defined coaches as buses not bound to a region or AOM
+        # 14 is the region « National » We defined coaches as buses not bound to a region or AOM
         link: dataset_path(conn, :by_region, 14, "modes[]": "bus"),
         icon: icon_type_path("long-distance-coach"),
         title: dgettext("page-index", "Long distance coach"),
