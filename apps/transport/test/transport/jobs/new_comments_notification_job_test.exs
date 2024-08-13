@@ -198,7 +198,7 @@ defmodule Transport.Test.Transport.Jobs.NewCommentsNotificationJobTest do
       <p>Bonjour,</p>
 
       <p>
-        Des discussions ont eu lieu sur certains jeux de données que vous suivez. Vous pouvez prendre connaissance de ces échanges.
+        Des discussions ont eu lieu sur certains de vos jeux de données favoris. Vous pouvez prendre connaissance de ces échanges.
       </p>
 
       <ul>
