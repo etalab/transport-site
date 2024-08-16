@@ -50,7 +50,21 @@ defmodule Transport.AvailabilityChecker do
   end
 
   def available?(format, url, false) when is_binary(url) do
-    case http_client().head(url, [], follow_redirect: true) do
+    options = [follow_redirect: true]
+    # Hot-fix for https://github.com/etalab/transport-site/issues/4122
+    # Least intrusive fix, only pass `force_redirection` to `HTTPoison` if the param value is true, else
+    # do not specify it, to avoid side-effect.
+    # See: https://github.com/benoitc/hackney/blob/eca5fbb1ff2d84facefb2a633e00f6ca16e7ddfd/src/hackney_stream.erl#L173
+    # Google Drive content (1 instance at time of writing) returns a 303, and by default `hackney` only allows POST method
+    # for this, but here HEAD/GET are supported and required. By using `force_redirection` in `hackney` options, this
+    # indicated `hackney` that the redirect should still occur.
+    options = if URI.parse(url).host == "drive.google.com" do
+      options |> Keyword.merge(hackney: [force_redirect: true])
+    else
+      options
+    end
+
+    case http_client().head(url, [], options) do
       # See https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#successful_responses
       # Other 2xx status codes don't seem appropriate here
       {:ok, %Response{status_code: 200}} ->
