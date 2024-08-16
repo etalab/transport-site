@@ -41,6 +41,7 @@ defmodule Transport.AvailabilityChecker do
       # https://github.com/edgurgel/httpoison/issues/171#issuecomment-244029927
       # https://github.com/etalab/transport-site/issues/3463
       {:error, %HTTPoison.Error{reason: {:invalid_redirection, _}}} ->
+        # NOTE: this does not actually verifies that the target is available at the moment!
         true
 
       _ ->
