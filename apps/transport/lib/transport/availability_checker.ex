@@ -58,11 +58,12 @@ defmodule Transport.AvailabilityChecker do
     # Google Drive content (1 instance at time of writing) returns a 303, and by default `hackney` only allows
     # POST method for this, but here HEAD/GET are supported and required. By using `force_redirection` in `hackney`
     # options, this indicated `hackney` that the redirect should still occur.
-    options = if URI.parse(url).host == "drive.google.com" do
-      options |> Keyword.merge(hackney: [force_redirect: true])
-    else
-      options
-    end
+    options =
+      if URI.parse(url).host == "drive.google.com" do
+        options |> Keyword.merge(hackney: [force_redirect: true])
+      else
+        options
+      end
 
     case http_client().head(url, [], options) do
       # See https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#successful_responses
