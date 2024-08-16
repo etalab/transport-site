@@ -55,9 +55,9 @@ defmodule Transport.AvailabilityChecker do
     # Least intrusive fix, only pass `force_redirection` to `HTTPoison` if the param value is true, else
     # do not specify it, to avoid side-effect.
     # See: https://github.com/benoitc/hackney/blob/eca5fbb1ff2d84facefb2a633e00f6ca16e7ddfd/src/hackney_stream.erl#L173
-    # Google Drive content (1 instance at time of writing) returns a 303, and by default `hackney` only allows POST method
-    # for this, but here HEAD/GET are supported and required. By using `force_redirection` in `hackney` options, this
-    # indicated `hackney` that the redirect should still occur.
+    # Google Drive content (1 instance at time of writing) returns a 303, and by default `hackney` only allows
+    # POST method for this, but here HEAD/GET are supported and required. By using `force_redirection` in `hackney`
+    # options, this indicated `hackney` that the redirect should still occur.
     options = if URI.parse(url).host == "drive.google.com" do
       options |> Keyword.merge(hackney: [force_redirect: true])
     else
