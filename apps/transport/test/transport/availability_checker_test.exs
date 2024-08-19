@@ -67,6 +67,14 @@ defmodule Transport.AvailabilityCheckerTest do
     test_fallback_to_stream(403)
   end
 
+  test "redirection for Google Drive" do
+    expect(Transport.HTTPoison.Mock, :head, fn _url, [], [follow_redirect: true, hackney: [force_redirect: true]] ->
+      {:ok, %HTTPoison.Response{status_code: 200}}
+    end)
+
+    assert AvailabilityChecker.available?("GTFS", "https://drive.google.com/test_url")
+  end
+
   defp mock_head_with_status(status_code) do
     expect(Transport.HTTPoison.Mock, :head, fn _url, [], [follow_redirect: true] ->
       {:ok, %HTTPoison.Response{status_code: status_code}}
