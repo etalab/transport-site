@@ -1,12 +1,24 @@
 defmodule Transport.ZipMetaDataExtractor do
   @moduledoc """
-  A module to extract the metadata out of a zip file on disk. It relies on `unzip`
+  A module to extract the metadata out of a ZIP file on disk. It relies on `unzip`
   which is able to stream the content of each file, allowing us to easily compute a
   SHA256 for each entry.
   """
 
-  def extract!(file) do
-    zip_file = Unzip.LocalFile.open(file)
+  @doc """
+  Checks if a file stored on disk is a valid ZIP file.
+  The file should exist, otherwise an exception will be raised.
+  """
+  @spec zip?(binary()) :: boolean()
+  def zip?(filepath) do
+    case filepath |> Unzip.LocalFile.open() |> Unzip.new() do
+      {:ok, _} -> true
+      _ -> false
+    end
+  end
+
+  def extract!(filepath) do
+    zip_file = Unzip.LocalFile.open(filepath)
     {:ok, unzip} = Unzip.new(zip_file)
     # NOTE: `unzip.cd_list` contains crc + filenames & more info, if needed
     unzip

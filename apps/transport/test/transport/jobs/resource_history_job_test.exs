@@ -245,20 +245,31 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   end
 
   describe "upload_filename" do
-    test "it works" do
+    test "GTFS, ZIP file" do
       resource_id = 42
 
       assert "#{resource_id}/#{resource_id}.20211202.130534.393187.zip" ==
                ResourceHistoryJob.upload_filename(
                  %DB.Resource{id: resource_id, format: "GTFS"},
+                 @gtfs_path,
                  ~U[2021-12-02 13:05:34.393187Z]
                )
+    end
+
+    test "CSV file" do
+      resource_id = 42
+      filepath = Path.join(System.tmp_dir!(), Ecto.UUID.generate())
+
+      File.write!(filepath, "foo")
 
       assert "#{resource_id}/#{resource_id}.20211202.130534.393187.csv" ==
                ResourceHistoryJob.upload_filename(
                  %DB.Resource{id: resource_id, format: "csv"},
+                 filepath,
                  ~U[2021-12-02 13:05:34.393187Z]
                )
+
+      File.rm!(filepath)
     end
   end
 
