@@ -184,7 +184,7 @@ defmodule TransportWeb.ResourceController do
          # Resource and resource_id may be nil in case of a new resource
          resource <- assign_resource_from_dataset_payload(dataset, params["resource_id"]) do
       conn
-      |> assign(:dataset, dataset)
+      |> assign_datasets(dataset)
       |> assign(:resource, resource)
       |> render("form.html")
     else
@@ -204,7 +204,7 @@ defmodule TransportWeb.ResourceController do
          # Resource and resource_id may be nil in case of a new resource
          resource when not is_nil(resource) <- assign_resource_from_dataset_payload(dataset, resource_id) do
       conn
-      |> assign(:dataset, dataset)
+      |> assign_datasets(dataset)
       |> assign(:resource, resource)
       |> render("delete_resource_confirmation.html")
     else
@@ -337,6 +337,12 @@ defmodule TransportWeb.ResourceController do
         |> put_flash(:error, dgettext("resource", "Unable to upload file"))
         |> form(params)
     end
+  end
+
+  defp assign_datasets(%Plug.Conn{} = conn, %{"id" => dataset_id} = dataset) do
+    conn
+    |> assign(:db_dataset, DB.Repo.get_by!(DB.Dataset, datagouv_id: dataset_id))
+    |> assign(:dataset, dataset)
   end
 
   defp assign_resource_from_dataset_payload(dataset, resource_id) do

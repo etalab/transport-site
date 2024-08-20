@@ -725,7 +725,9 @@ defmodule TransportWeb.ResourceControllerTest do
   test "we can show the form of an existing resource", %{conn: conn} do
     conn = conn |> init_test_session(%{current_user: %{}})
     resource_datagouv_id = "resource_dataset_id"
-    dataset_datagouv_id = "dataset_datagouv_id"
+
+    %DB.Dataset{datagouv_id: dataset_datagouv_id} =
+      insert(:dataset, custom_title: custom_title = "Base Nationale des Lieux de Covoiturage")
 
     Datagouvfr.Client.Datasets.Mock
     |> expect(:get, 1, fn ^dataset_datagouv_id ->
@@ -733,8 +735,10 @@ defmodule TransportWeb.ResourceControllerTest do
     end)
 
     html = conn |> get(resource_path(conn, :form, dataset_datagouv_id, resource_datagouv_id)) |> html_response(200)
-    assert html =~ "Modification d’une ressource"
-    assert html =~ "Base Nationale des Lieux de Covoiturage"
+    doc = html |> Floki.parse_document!()
+    assert_breadcrumb_content(html, ["Votre espace producteur", custom_title, "Modifier une ressource"])
+    # Title
+    assert doc |> Floki.find("h2") |> Floki.text() == "Modification d’une ressource"
     assert html =~ "bnlc.csv"
     assert html =~ "csv"
     assert html =~ "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv"
@@ -742,17 +746,22 @@ defmodule TransportWeb.ResourceControllerTest do
 
   test "we can show the form for a new resource", %{conn: conn} do
     conn = conn |> init_test_session(%{current_user: %{}})
-    dataset_datagouv_id = "dataset_datagouv_id"
+
+    %DB.Dataset{datagouv_id: dataset_datagouv_id} =
+      insert(:dataset, custom_title: custom_title = "Base Nationale des Lieux de Covoiturage")
 
     Datagouvfr.Client.Datasets.Mock
     |> expect(:get, 1, fn ^dataset_datagouv_id -> dataset_datagouv_get_response(dataset_datagouv_id) end)
 
-    html = conn |> get(resource_path(conn, :form, dataset_datagouv_id)) |> html_response(200)
-    # Breadcrumb
-    assert html =~ "Nouvelle ressource"
-    assert html =~ "Base Nationale des Lieux de Covoiturage"
+    doc =
+      conn
+      |> get(resource_path(conn, :form, dataset_datagouv_id))
+      |> html_response(200)
+      |> Floki.parse_document!()
+
+    assert_breadcrumb_content(doc, ["Votre espace producteur", custom_title, "Nouvelle ressource"])
     # Title
-    assert html =~ "Ajouter une nouvelle ressource"
+    assert doc |> Floki.find("h2") |> Floki.text() == "Ajouter une nouvelle ressource"
   end
 
   test "we can add a new resource with a URL", %{conn: conn} do
@@ -799,7 +808,9 @@ defmodule TransportWeb.ResourceControllerTest do
   test "we can show the delete confirmation page", %{conn: conn} do
     conn = conn |> init_test_session(%{current_user: %{}})
     resource_datagouv_id = "resource_dataset_id"
-    dataset_datagouv_id = "dataset_datagouv_id"
+
+    %DB.Dataset{datagouv_id: dataset_datagouv_id} =
+      insert(:dataset, custom_title: custom_title = "Base Nationale des Lieux de Covoiturage")
 
     Datagouvfr.Client.Datasets.Mock
     |> expect(:get, 1, fn ^dataset_datagouv_id ->
@@ -810,6 +821,8 @@ defmodule TransportWeb.ResourceControllerTest do
       conn
       |> get(resource_path(conn, :delete_resource_confirmation, dataset_datagouv_id, resource_datagouv_id))
       |> html_response(200)
+
+    assert_breadcrumb_content(html, ["Votre espace producteur", custom_title, "Supprimer une resource"])
 
     assert html =~ "bnlc.csv"
     assert html =~ "Souhaitez-vous mettre à jour la ressource ou la supprimer définitivement ?"
@@ -885,5 +898,13 @@ defmodule TransportWeb.ResourceControllerTest do
 
     Datagouvfr.Client.CommunityResources.Mock |> expect(:get, fn _ -> {:ok, []} end)
     Mox.stub_with(Transport.AvailabilityChecker.Mock, Transport.AvailabilityChecker.Dummy)
+  end
+
+  defp assert_breadcrumb_content(html, expected) when is_binary(html) do
+    assert_breadcrumb_content(Floki.parse_document!(html), expected)
+  end
+
+  defp assert_breadcrumb_content(doc, expected) do
+    assert doc |> Floki.find(".breadcrumbs-element") |> Enum.map(&Floki.text/1) == expected
   end
 end

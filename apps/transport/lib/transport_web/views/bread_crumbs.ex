@@ -18,13 +18,6 @@ defmodule TransportWeb.BreadCrumbs do
     [{dgettext("reuser-space", "Reuser space"), reuser_space_path(conn, :espace_reutilisateur)}]
   end
 
-  def crumbs(conn, :new_resource) do
-    crumbs(conn, :espace_producteur) ++
-      [
-        {dgettext("espace-producteurs", "New resource"), nil}
-      ]
-  end
-
   def crumbs(conn, :contacts) do
     [{"Contacts", backoffice_contact_path(conn, :index)}]
   end
@@ -54,30 +47,27 @@ defmodule TransportWeb.BreadCrumbs do
       ]
   end
 
-  def crumbs(conn, :delete_resource) do
-    # Same than below, can’t really link to edit dataset page
-    crumbs(conn, :espace_producteur) ++
-      [
-        {dgettext("espace-producteurs", "Delete a resource"), nil}
-      ]
-  end
-
-  def crumbs(conn, :update_resource) do
-    # Ideally this should link to the edit_dataset crumb instead of the espace_producteur
-    # but on the update resource page, we don’t have the DB dataset, but a datagouv API dataset
-    # So can’t have reliably the same title and DB id than on the dataset edit page
-    crumbs(conn, :espace_producteur) ++
-      [
-        {dgettext("espace-producteurs", "Update a resource"), nil}
-      ]
-  end
-
   def crumbs(conn, :datasets_edit, dataset_custom_title) do
     crumbs(conn, :reuser_space) ++ [{dataset_custom_title, nil}]
   end
 
   def crumbs(conn, :edit_dataset, dataset_custom_title, id) do
     crumbs(conn, :espace_producteur) ++ [{dataset_custom_title, espace_producteur_path(conn, :edit_dataset, id)}]
+  end
+
+  def crumbs(conn, :delete_resource, dataset_custom_title, id) do
+    crumbs(conn, :edit_dataset, dataset_custom_title, id) ++
+      [{dgettext("espace-producteurs", "Delete a resource"), nil}]
+  end
+
+  def crumbs(conn, :new_resource, dataset_custom_title, id) do
+    crumbs(conn, :edit_dataset, dataset_custom_title, id) ++
+      [{dgettext("espace-producteurs", "New resource"), nil}]
+  end
+
+  def crumbs(conn, :update_resource, dataset_custom_title, id) do
+    crumbs(conn, :edit_dataset, dataset_custom_title, id) ++
+      [{dgettext("espace-producteurs", "Update a resource"), nil}]
   end
 
   def render_crumbs(crumbs_element) do
