@@ -3,15 +3,15 @@
   <section class="pt-48 pb-24">
     <div class="container">
       <%= if new_resource do %>
-        <%= breadcrumbs([@conn, :new_resource]) %>
+        <%= breadcrumbs([@conn, :new_resource, @db_dataset.custom_title, @db_dataset.id]) %>
       <% else %>
-        <%= breadcrumbs([@conn, :update_resource]) %>
+        <%= breadcrumbs([@conn, :update_resource, @db_dataset.custom_title, @db_dataset.id]) %>
       <% end %>
     </div>
   </section>
   <section class="choose-file">
     <div class="container pt-24">
-      <strong><%= @dataset["title"] %><span :if={!new_resource}> > <%= @resource["title"] %></span></strong>
+      <strong><%= @db_dataset.custom_title %><span :if={!new_resource}> > <%= @resource["title"] %></span></strong>
       <div class="pt-24">
         <h2><%= title(@conn) %></h2>
       </div>
