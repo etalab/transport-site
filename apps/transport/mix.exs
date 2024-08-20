@@ -133,7 +133,9 @@ defmodule Transport.Mixfile do
       {:luhn, "~> 0.3.0"},
       {:ex_phone_number, "~> 0.3"},
       {:appsignal, "~> 2.0"},
-      {:appsignal_phoenix, "~> 2.0"},
+      # Pinned for the moment
+      # https://github.com/etalab/transport-site/issues/4126#issuecomment-2298421444
+      {:appsignal_phoenix, "2.3.9"},
       {:vega_lite, "~> 0.1.7"},
       {:req, "~> 0.4.4"},
       {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
