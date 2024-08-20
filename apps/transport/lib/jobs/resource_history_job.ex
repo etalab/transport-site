@@ -5,7 +5,6 @@ defmodule Transport.Jobs.ResourceHistoryAndValidationDispatcherJob do
   use Oban.Worker, unique: [period: {5, :hours}], tags: ["history"], max_attempts: 5
   require Logger
   import Ecto.Query
-  alias DB.{Dataset, Repo, Resource}
 
   @impl Oban.Worker
   def perform(_job) do
@@ -36,9 +35,9 @@ defmodule Transport.Jobs.ResourceHistoryAndValidationDispatcherJob do
     query = if is_nil(resource_id), do: base_query, else: where(base_query, [resource: r], r.id == ^resource_id)
 
     query
-    |> Repo.all()
+    |> DB.Repo.all()
     |> Enum.reject(
-      &(Resource.real_time?(&1) or Resource.documentation?(&1) or Dataset.should_skip_history?(&1.dataset))
+      &(DB.Resource.real_time?(&1) or DB.Resource.documentation?(&1) or DB.Dataset.should_skip_history?(&1.dataset))
     )
   end
 end
@@ -51,7 +50,6 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   require Logger
   import Ecto.Query
   alias Transport.Shared.Schemas.Wrapper, as: Schemas
-  alias DB.{Resource, ResourceHistory}
   import Transport.Jobs.Workflow.Notifier, only: [notify_workflow: 2]
 
   @headers_to_keep [
@@ -80,7 +78,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     {:cancel, reason}
   end
 
-  defp handle_history([%Resource{} = resource], %Oban.Job{} = job) do
+  defp handle_history([%DB.Resource{} = resource], %Oban.Job{} = job) do
     path = download_path(resource)
 
     notification =
@@ -102,21 +100,21 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   @impl Oban.Worker
   def timeout(_job), do: :timer.minutes(2)
 
-  defp process_download({:error, message}, %Resource{id: resource_id}) do
+  defp process_download({:error, message}, %DB.Resource{id: resource_id}) do
     # Good opportunity to add a :telemetry event
     # Consider storing in our database that the resource
     # was not available.
     Logger.debug("Got an error while downloading resource##{resource_id}: #{message}")
   end
 
-  defp process_download({:ok, resource_path, headers}, %Resource{} = resource) do
+  defp process_download({:ok, resource_path, headers}, %DB.Resource{} = resource) do
     download_datetime = DateTime.utc_now()
 
     hash = resource_hash(resource, resource_path)
 
     case should_store_resource?(resource, hash) do
       true ->
-        filename = upload_filename(resource, download_datetime)
+        filename = upload_filename(resource, resource_path, download_datetime)
 
         base = %{
           download_datetime: download_datetime,
@@ -135,21 +133,19 @@ defmodule Transport.Jobs.ResourceHistoryJob do
         }
 
         data =
-          case zip?(resource) do
-            true ->
-              total_compressed_size = hash |> Enum.map(& &1.compressed_size) |> Enum.sum()
+          if Transport.ZipMetaDataExtractor.zip?(resource_path) do
+            total_compressed_size = hash |> Enum.map(& &1.compressed_size) |> Enum.sum()
 
-              Map.merge(base, %{
-                zip_metadata: hash,
-                filenames: hash |> Enum.map(& &1.file_name),
-                total_uncompressed_size: hash |> Enum.map(& &1.uncompressed_size) |> Enum.sum(),
-                total_compressed_size: total_compressed_size,
-                filesize: total_compressed_size
-              })
-
-            false ->
-              %{size: size} = File.stat!(resource_path)
-              Map.merge(base, %{content_hash: hash, filesize: size})
+            Map.merge(base, %{
+              zip_metadata: hash,
+              filenames: hash |> Enum.map(& &1.file_name),
+              total_uncompressed_size: hash |> Enum.map(& &1.uncompressed_size) |> Enum.sum(),
+              total_compressed_size: total_compressed_size,
+              filesize: total_compressed_size
+            })
+          else
+            %{size: size} = File.stat!(resource_path)
+            Map.merge(base, %{content_hash: hash, filesize: size})
           end
 
         Transport.S3.stream_to_s3!(:history, resource_path, filename, acl: :public_read)
@@ -179,9 +175,9 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   def should_store_resource?(_, []), do: false
   def should_store_resource?(_, nil), do: false
 
-  def should_store_resource?(%Resource{id: resource_id}, resource_hash) do
+  def should_store_resource?(%DB.Resource{id: resource_id}, resource_hash) do
     history =
-      ResourceHistory
+      DB.ResourceHistory
       |> where([r], r.resource_id == ^resource_id)
       |> order_by(desc: :inserted_at)
       |> limit(1)
@@ -199,11 +195,11 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   the latest resource_history's row in the database by comparing sha256
   hashes for all files in the ZIP.
   """
-  def same_resource?(%ResourceHistory{payload: %{"zip_metadata" => rh_zip_metadata}}, zip_metadata) do
+  def same_resource?(%DB.ResourceHistory{payload: %{"zip_metadata" => rh_zip_metadata}}, zip_metadata) do
     MapSet.equal?(set_of_sha256(rh_zip_metadata), set_of_sha256(zip_metadata))
   end
 
-  def same_resource?(%ResourceHistory{payload: %{"content_hash" => rh_content_hash}}, content_hash) do
+  def same_resource?(%DB.ResourceHistory{payload: %{"content_hash" => rh_content_hash}}, content_hash) do
     rh_content_hash == content_hash
   end
 
@@ -213,19 +209,17 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     items |> Enum.map(&{map_get(&1, :file_name), map_get(&1, :sha256)}) |> MapSet.new()
   end
 
-  defp resource_hash(%Resource{} = resource, resource_path) do
-    case zip?(resource) do
-      true ->
-        try do
-          Transport.ZipMetaDataExtractor.extract!(resource_path)
-        rescue
-          _ ->
-            Logger.debug("Cannot compute ZIP metadata for resource##{resource.id}")
-            nil
-        end
-
-      false ->
-        Hasher.get_file_hash(resource_path)
+  defp resource_hash(%DB.Resource{} = resource, resource_path) do
+    if Transport.ZipMetaDataExtractor.zip?(resource_path) do
+      try do
+        Transport.ZipMetaDataExtractor.extract!(resource_path)
+      rescue
+        _ ->
+          Logger.error("Cannot compute ZIP metadata for resource##{resource.id}")
+          nil
+      end
+    else
+      Hasher.get_file_hash(resource_path)
     end
   end
 
@@ -233,12 +227,10 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     Map.get(map, key) || Map.get(map, to_string(key))
   end
 
-  defp zip?(%Resource{format: format}), do: format in ["NeTEx", "GTFS"]
-
-  defp store_resource_history!(%Resource{datagouv_id: datagouv_id, id: resource_id}, payload) do
+  defp store_resource_history!(%DB.Resource{datagouv_id: datagouv_id, id: resource_id}, payload) do
     Logger.debug("Saving ResourceHistory for resource##{resource_id}")
 
-    %ResourceHistory{
+    %DB.ResourceHistory{
       datagouv_id: datagouv_id,
       resource_id: resource_id,
       payload: payload,
@@ -247,17 +239,17 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     |> DB.Repo.insert!()
   end
 
-  defp touch_resource_history!(%ResourceHistory{id: id, resource_id: resource_id} = history) do
+  defp touch_resource_history!(%DB.ResourceHistory{id: id, resource_id: resource_id} = history) do
     Logger.debug("Touching unchanged ResourceHistory #{id} for resource##{resource_id}")
 
     history |> Ecto.Changeset.change(%{last_up_to_date_at: DateTime.utc_now()}) |> DB.Repo.update!()
   end
 
-  defp download_path(%Resource{id: resource_id}) do
+  defp download_path(%DB.Resource{id: resource_id}) do
     System.tmp_dir!() |> Path.join("resource_#{resource_id}_download")
   end
 
-  def download_resource(:req, %Resource{id: resource_id, url: url}, file_path) do
+  def download_resource(:req, %DB.Resource{id: resource_id, url: url}, file_path) do
     file_stream = File.stream!(file_path)
     req_options = [compressed: false, decode_body: false, receive_timeout: 180_000, into: file_stream]
 
@@ -276,7 +268,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   end
 
   # NOTE: dead code, kept to allow comparison in the coming weeks if needed
-  def download_resource(:legacy, %Resource{id: resource_id, url: url}, file_path) do
+  def download_resource(:legacy, %DB.Resource{id: resource_id, url: url}, file_path) do
     case http_client().get(url, [], follow_redirect: true, recv_timeout: 180_000) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body} = r} ->
         Logger.debug("Saving resource##{resource_id} to #{file_path}")
@@ -295,34 +287,20 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
   def remove_file(path), do: File.rm(path)
 
-  def upload_filename(%Resource{id: resource_id} = resource, %DateTime{} = dt) do
+  def upload_filename(%DB.Resource{id: resource_id} = resource, resource_path, %DateTime{} = dt) do
     time = Calendar.strftime(dt, "%Y%m%d.%H%M%S.%f")
 
-    "#{resource_id}/#{resource_id}.#{time}#{file_extension(resource)}"
+    "#{resource_id}/#{resource_id}.#{time}#{file_extension(resource, resource_path)}"
   end
 
   @doc """
-  Guess an appropriate file extension according to a format
-
-    iex> file_extension(%DB.Resource{format: "GTFS"})
-    ".zip"
-
-    iex> file_extension(%DB.Resource{format: ".csv"})
-    ".csv"
-
-    iex> file_extension(%DB.Resource{format: "HTML"})
-    ".html"
-
-    iex> file_extension(%DB.Resource{format: ".csv.zip"})
-    ".csv.zip"
+  Guess an appropriate file extension according to a format.
   """
-  def file_extension(%Resource{format: format} = resource) do
-    case zip?(resource) do
-      true ->
-        ".zip"
-
-      false ->
-        "." <> (format |> String.downcase() |> String.replace_prefix(".", ""))
+  def file_extension(%DB.Resource{format: format}, resource_path) do
+    if Transport.ZipMetaDataExtractor.zip?(resource_path) do
+      ".zip"
+    else
+      "." <> (format |> String.downcase() |> String.replace_prefix(".", ""))
     end
   end
 
@@ -371,9 +349,9 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
   defp cleanup_header(_header, binary), do: binary
 
-  defp latest_schema_version_to_date(%Resource{schema_name: nil}), do: nil
+  defp latest_schema_version_to_date(%DB.Resource{schema_name: nil}), do: nil
 
-  defp latest_schema_version_to_date(%Resource{schema_name: schema_name}) do
+  defp latest_schema_version_to_date(%DB.Resource{schema_name: schema_name}) do
     Schemas.latest_version(schema_name)
   end
 

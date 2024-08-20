@@ -1,9 +1,32 @@
 defmodule Transport.ZipMetaDataExtractorTest do
   use ExUnit.Case, async: true
+  @zip_path "#{__DIR__}/../../shared/test/validation/gtfs.zip"
+
+  describe "zip?" do
+    test "file does not exist" do
+      assert_raise MatchError, fn ->
+        Transport.ZipMetaDataExtractor.zip?("/tmp/#{Ecto.UUID.generate()}")
+      end
+    end
+
+    test "ZIP file" do
+      assert Transport.ZipMetaDataExtractor.zip?(@zip_path)
+    end
+
+    test "regular file" do
+      filepath = Path.join(System.tmp_dir!(), Ecto.UUID.generate())
+
+      try do
+        File.write!(filepath, "foo")
+        refute Transport.ZipMetaDataExtractor.zip?(filepath)
+      after
+        File.rm!(filepath)
+      end
+    end
+  end
 
   test "extract! with a valid zip" do
-    path = "#{__DIR__}/../../shared/test/validation/gtfs.zip"
-    results = Transport.ZipMetaDataExtractor.extract!(path)
+    results = Transport.ZipMetaDataExtractor.extract!(@zip_path)
 
     assert 9 == Enum.count(results)
 
