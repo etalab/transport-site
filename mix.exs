@@ -29,7 +29,7 @@ defmodule Transport.MixProject do
       {:excoveralls, "~> 0.10", only: :test},
       {:saxy, "~> 1.5"},
       {:appsignal, "~> 2.0"},
-      {:appsignal_phoenix, "~> 2.0"},
+      {:appsignal_phoenix, github: "appsignal/appsignal-elixir-phoenix", branch: "endpoint-events", override: true},
       {:ecto_erd, "~> 0.5.0", only: [:dev]}
     ]
   end
