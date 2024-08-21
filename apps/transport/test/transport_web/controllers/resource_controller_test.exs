@@ -822,7 +822,7 @@ defmodule TransportWeb.ResourceControllerTest do
       |> get(resource_path(conn, :delete_resource_confirmation, dataset_datagouv_id, resource_datagouv_id))
       |> html_response(200)
 
-    assert_breadcrumb_content(html, ["Votre espace producteur", custom_title, "Supprimer une resource"])
+    assert_breadcrumb_content(html, ["Votre espace producteur", custom_title, "Supprimer une ressource"])
 
     assert html =~ "bnlc.csv"
     assert html =~ "Souhaitez-vous mettre à jour la ressource ou la supprimer définitivement ?"

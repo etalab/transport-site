@@ -113,7 +113,7 @@ msgstr "Vos statistiques proxy"
 
 #, elixir-autogen, elixir-format
 msgid "Delete a resource"
-msgstr "Supprimer une resource"
+msgstr "Supprimer une ressource"
 
 #, elixir-autogen, elixir-format
 msgid "1 resource"
@@ -199,19 +199,19 @@ msgstr "Activé"
 
 #, elixir-autogen, elixir-format
 msgid "Add a resource"
-msgstr "Ajouter une resource"
+msgstr "Ajouter une ressource"
 
 #, elixir-autogen, elixir-format
 msgid "Delete resource"
-msgstr "Supprimer la resource"
+msgstr "Supprimer la ressource"
 
 #, elixir-autogen, elixir-format
 msgid "Edit resource"
-msgstr "Modifier la resource"
+msgstr "Modifier la ressource"
 
 #, elixir-autogen, elixir-format
 msgid "If you want to publish an update to your data, please update an existing resource in the following list rather than publish a new one."
-msgstr "Si vous souhaitez mettre à jour vos données, veuillez modifier une resource existante dans la liste ci-dessous plutôt qu’en créer une nouvelle."
+msgstr "Si vous souhaitez mettre à jour vos données, veuillez modifier une ressource existante dans la liste ci-dessous plutôt qu’en créer une nouvelle."
 
 #, elixir-autogen, elixir-format
 msgid "Edit on data.gouv.fr"
