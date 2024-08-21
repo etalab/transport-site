@@ -34,18 +34,6 @@ if System.get_env("CELLAR_NAMESPACE") do
   raise "CELLAR_NAMESPACE variable is deprecated and must be removed."
 end
 
-config :gbfs,
-  generators: [context_app: false]
-
-config :gbfs, jcdecaux_apikey: System.get_env("JCDECAUX_APIKEY")
-
-# Configures the endpoint
-config :gbfs, GBFS.Endpoint,
-  render_errors: [view: GBFS.ErrorView, accepts: ~w(json)],
-  # TODO: verify if this is truly needed? unsure.
-  pubsub_server: GBFS.PubSub,
-  server: false
-
 # Configures the endpoint
 config :transport, TransportWeb.Endpoint,
   url: [host: "127.0.0.1"],
@@ -218,9 +206,6 @@ config :appsignal, :config,
     # I presume this is triggered by the way we route requests
     # https://github.com/etalab/transport-site/blob/master/apps/transport/lib/transport_web/plugs/router.ex
     "GET /*_path",
-    # Same for GBFS - although it is filtered in the plug, a request
-    # will also be double-counted at the router level for some reason
-    "GET /gbfs/*_",
     # Here this is a duplicate precaution to ensure we exclude proxy
     # traffic which generates a lot of AppSignal events
     "Unlock.Controller#fetch"

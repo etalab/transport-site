@@ -12,9 +12,6 @@ config :transport, TransportWeb.Endpoint,
   http: [port: 5100],
   server: true
 
-# Page cache would make tests brittle, so disable it by default
-config :gbfs, :disable_page_cache, true
-
 config :oauth2, adapter: Tesla.Mock
 
 config :unlock,

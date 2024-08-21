@@ -163,10 +163,6 @@ msgid "Jobs"
 msgstr "Jobs"
 
 #, elixir-autogen, elixir-format
-msgid "GBFS requests"
-msgstr "Requêtes GBFS"
-
-#, elixir-autogen, elixir-format
 msgid "With a resource under 90% availability"
 msgstr "Ayant une ressource sous les 90% de disponibilité"
 

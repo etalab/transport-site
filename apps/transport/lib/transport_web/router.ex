@@ -201,10 +201,6 @@ defmodule TransportWeb.Router do
         live("/jobs", JobsLive)
       end
 
-      live_session :gbfs, root_layout: {TransportWeb.LayoutView, :app} do
-        live("/gbfs", GBFSLive)
-      end
-
       live_session :cache, root_layout: {TransportWeb.LayoutView, :app} do
         live("/cache", CacheLive)
       end
