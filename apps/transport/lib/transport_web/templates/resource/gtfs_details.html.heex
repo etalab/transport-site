@@ -112,7 +112,7 @@ associated_netex = get_associated_netex(@related_files) %>
                 path: &resource_path/4,
                 action: :details
               ) %>
-              <%= render(template(@issues), issues: @issues || [], conn: @conn) %>
+              <%= render(gtfs_template(@issues), issues: @issues || [], conn: @conn) %>
             </div>
           <% end %>
           <p>

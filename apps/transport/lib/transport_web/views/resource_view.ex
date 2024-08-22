@@ -24,31 +24,34 @@ defmodule TransportWeb.ResourceView do
   def issue_type([]), do: nil
   def issue_type([h | _]), do: h["issue_type"]
 
-  def template(issues) do
-    Map.get(
-      %{
-        "UnloadableModel" => "_unloadable_model_issue.html",
-        "DuplicateStops" => "_duplicate_stops_issue.html",
-        "DuplicateStopSequence" => "_duplicate_stop_sequence_issue.html",
-        "ExtraFile" => "_extra_file_issue.html",
-        "MissingFile" => "_missing_file_issue.html",
-        "NullDuration" => "_speed_issue.html",
-        "ExcessiveSpeed" => "_speed_issue.html",
-        "NegativeTravelTime" => "_speed_issue.html",
-        "Slow" => "_speed_issue.html",
-        "UnusedStop" => "_unused_stop_issue.html",
-        "InvalidCoordinates" => "_coordinates_issue.html",
-        "MissingCoordinates" => "_coordinates_issue.html",
-        "UnusedShapeId" => "_unused_shape_issue.html",
-        "InvalidShapeId" => "_invalid_shape_id_issue.html",
-        "MissingId" => "_missing_id_issue.html",
-        "MissingName" => "_missing_name_issue.html",
-        "SubFolder" => "_subfolder_issue.html",
-        "NegativeStopDuration" => "_negative_stop_duration_issue.html"
-      },
-      issue_type(issues.entries),
-      "_generic_issue.html"
-    )
+  def gtfs_template(issues) do
+    template =
+      Map.get(
+        %{
+          "UnloadableModel" => "_unloadable_model_issue.html",
+          "DuplicateStops" => "_duplicate_stops_issue.html",
+          "DuplicateStopSequence" => "_duplicate_stop_sequence_issue.html",
+          "ExtraFile" => "_extra_file_issue.html",
+          "MissingFile" => "_missing_file_issue.html",
+          "NullDuration" => "_speed_issue.html",
+          "ExcessiveSpeed" => "_speed_issue.html",
+          "NegativeTravelTime" => "_speed_issue.html",
+          "Slow" => "_speed_issue.html",
+          "UnusedStop" => "_unused_stop_issue.html",
+          "InvalidCoordinates" => "_coordinates_issue.html",
+          "MissingCoordinates" => "_coordinates_issue.html",
+          "UnusedShapeId" => "_unused_shape_issue.html",
+          "InvalidShapeId" => "_invalid_shape_id_issue.html",
+          "MissingId" => "_missing_id_issue.html",
+          "MissingName" => "_missing_name_issue.html",
+          "SubFolder" => "_subfolder_issue.html",
+          "NegativeStopDuration" => "_negative_stop_duration_issue.html"
+        },
+        issue_type(issues.entries),
+        "_generic_issue.html"
+      )
+
+    "_gtfs#{template}"
   end
 
   @spec action_path(Plug.Conn.t()) :: any
