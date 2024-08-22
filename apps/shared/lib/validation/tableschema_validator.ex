@@ -36,9 +36,17 @@ defmodule Shared.Validation.TableSchemaValidator do
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <-
            http_client().get(api_url, [], recv_timeout: @timeout),
          {:ok, json} <- Jason.decode(body) do
+      Appsignal.increment_counter("validata.success", 1)
       build_report(json)
     else
-      _ -> nil
+      _ ->
+        Appsignal.increment_counter("validata.failed", 1, %{
+          schema_name: schema_name,
+          schema_version: schema_version,
+          url: url
+        })
+
+        nil
     end
   end
 
