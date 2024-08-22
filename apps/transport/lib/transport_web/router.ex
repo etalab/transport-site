@@ -155,7 +155,6 @@ defmodule TransportWeb.Router do
         pipe_through([:authenticated])
 
         scope "/datasets/:dataset_id/resources" do
-          get("/", ResourceController, :resources_list)
           post("/", ResourceController, :post_file)
           get("/_new_resource/", ResourceController, :form)
           get("/:resource_id/", ResourceController, :form)
