@@ -60,7 +60,7 @@ defmodule Transport.Validators.NeTEx do
     end)
   end
 
-  @spec with_resource_file(ResourceHistory.t(), (Path.t() -> any())) :: any()
+  @spec with_resource_file(DB.ResourceHistory.t(), (Path.t() -> any())) :: any()
   def with_resource_file(resource_history, closure) do
     %DB.ResourceHistory{payload: %{"permanent_url" => permanent_url}} = resource_history
     filepath = tmp_path(resource_history)
