@@ -231,7 +231,7 @@ defmodule TransportWeb.DatasetView do
   end
 
   def gbfs_documentation_link(version) when is_binary(version) do
-    "https://github.com/NABSA/gbfs/blob/v#{version}/gbfs.md"
+    "https://github.com/MobilityData/gbfs/blob/v#{version}/gbfs.md"
   end
 
   def gbfs_feed_source_for_ttl(types) do
