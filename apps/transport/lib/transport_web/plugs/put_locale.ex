@@ -11,9 +11,18 @@ defmodule TransportWeb.Plugs.PutLocale do
   def call(conn, _opts) do
     locale = conn.params["locale"] || get_session(conn, :locale) || preferred_accept_language(conn)
 
-    Gettext.put_locale(locale)
-    conn |> put_session(:locale, locale)
+    if locale in @supported_locales do
+      Gettext.put_locale(locale)
+      conn |> put_session(:locale, locale)
+    else
+      conn
+      |> put_resp_content_type("text/plain")
+      |> send_resp(400, "Locale is not supported.")
+      |> halt()
+    end
   end
+
+  def supported_locales, do: @supported_locales
 
   @doc """
   Determines the locale to use using the `accept-language` HTTP header.

@@ -105,6 +105,16 @@ defmodule Transport.Validators.GTFSTransport do
 
   def get_issues(_, _), do: []
 
+  @doc """
+  iex> validation_result = %{"tooClose" => [%{"severity" => "Warning"}], "funnyName" => [%{"severity" => "Information"}]}
+  iex> summary(validation_result)
+  [
+    {"Warning", [{"tooClose", %{count: 1, severity: "Warning", title: nil}}]},
+    {"Information", [{"funnyName", %{count: 1, severity: "Information", title: nil}}]}
+  ]
+  iex> summary(%{})
+  []
+  """
   @spec summary(map) :: list
   def summary(%{} = validation_result) do
     validation_result
