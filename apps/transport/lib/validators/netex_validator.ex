@@ -9,6 +9,9 @@ defmodule Transport.Validators.NeTEx do
 
   @no_error "NoError"
 
+  # 15 minutes for the validation to complete should be enough.
+  @timeout 15 * 60
+
   @behaviour Transport.Validators.Validator
 
   @impl Transport.Validators.Validator
@@ -35,6 +38,10 @@ defmodule Transport.Validators.NeTEx do
       {:error, :unexpected_validation_status} ->
         Logger.error("Invalid API call to enRoute Chouette Valid")
         {:error, "enRoute Chouette Valid: Unexpected validation status"}
+
+      {:error, :timeout} ->
+        Logger.error("Timeout while fetching result on enRoute Chouette Valid")
+        {:error, "enRoute Chouette Valid: Timeout while fetching results"}
     end
   end
 
@@ -64,6 +71,10 @@ defmodule Transport.Validators.NeTEx do
         {:error, :unexpected_validation_status} ->
           Logger.error("Invalid API call to enRoute Chouette Valid")
           {:error, "enRoute Chouette Valid: Unexpected validation status"}
+
+        {:error, :timeout} ->
+          Logger.error("Timeout while fetching result on enRoute Chouette Valid")
+          {:error, "enRoute Chouette Valid: Timeout while fetching results"}
       end
     end)
   end
@@ -189,7 +200,10 @@ defmodule Transport.Validators.NeTEx do
 
   defp fetch_validation_results(validation_id, retries, opts) do
     case client().get_a_validation(validation_id) do
-      :pending ->
+      {:pending, elapsed_seconds} when elapsed_seconds > @timeout ->
+        {:error, :timeout}
+
+      {:pending, _elapsed_seconds} ->
         if Keyword.get(opts, :graceful_retry, true) do
           retries |> poll_interval() |> :timer.sleep()
         end
@@ -204,6 +218,9 @@ defmodule Transport.Validators.NeTEx do
 
       :unexpected_validation_status ->
         {:error, :unexpected_validation_status}
+
+      :unexpected_datetime_format ->
+        {:error, :unexpected_datetime_format}
     end
   end
 
