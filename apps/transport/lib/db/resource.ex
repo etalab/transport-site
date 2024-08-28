@@ -90,9 +90,6 @@ defmodule DB.Resource do
     query |> where([resource: r], r.dataset_id == ^dataset_id)
   end
 
-  @spec endpoint() :: binary()
-  def endpoint, do: Application.fetch_env!(:transport, :gtfs_validator_url) <> "/validate"
-
   def changeset(resource, params) do
     resource
     |> cast(
