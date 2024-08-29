@@ -99,6 +99,15 @@ defmodule TransportWeb.Router do
         get("/:dataset_id/edit", EspaceProducteurController, :edit_dataset)
         post("/:dataset_id/upload_logo", EspaceProducteurController, :upload_logo)
         delete("/:dataset_id/custom_logo", EspaceProducteurController, :remove_custom_logo)
+
+        scope "/:dataset_id/resources" do
+          post("/", ResourceController, :post_file)
+          get("/_new_resource/", ResourceController, :form)
+          get("/:resource_id/", ResourceController, :form)
+          get("/:resource_id/delete", ResourceController, :delete_resource_confirmation)
+          delete("/:resource_id/delete", ResourceController, :delete)
+          post("/:resource_id/", ResourceController, :post_file)
+        end
       end
 
       live_session :espace_producteur, session: %{"role" => :producer}, root_layout: {TransportWeb.LayoutView, :app} do
@@ -149,19 +158,6 @@ defmodule TransportWeb.Router do
 
       scope "/conversions" do
         get("/:resource_id/:convert_to", ConversionController, :get)
-      end
-
-      scope "/update" do
-        pipe_through([:authenticated])
-
-        scope "/datasets/:dataset_id/resources" do
-          post("/", ResourceController, :post_file)
-          get("/_new_resource/", ResourceController, :form)
-          get("/:resource_id/", ResourceController, :form)
-          get("/:resource_id/delete", ResourceController, :delete_resource_confirmation)
-          delete("/:resource_id/delete", ResourceController, :delete)
-          post("/:resource_id/", ResourceController, :post_file)
-        end
       end
     end
 
