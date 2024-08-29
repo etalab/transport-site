@@ -105,12 +105,16 @@
 
   <table :if={Enum.count(subscriptions_without_dataset) > 0} class="table mt-48 dashboard-description">
     <tr>
+      <th><%= dgettext("backoffice", "Role") %></th>
       <th><%= dgettext("backoffice", "Notification reason") %></th>
+      <th>Source</th>
       <th>Actions</th>
     </tr>
     <%= for notification_subscription <- Enum.sort_by(subscriptions_without_dataset, & &1.reason, :asc) do %>
       <tr>
+        <td><span class={role_class(notification_subscription)}><%= notification_subscription.role %></span></td>
         <td><%= notification_subscription.reason %></td>
+        <td><%= notification_subscription.source %></td>
         <td>
           <%= form_for @conn, backoffice_notification_subscription_path(@conn, :delete, notification_subscription.id), [method: "delete"], fn f -> %>
             <%= hidden_input(f, :redirect_location, value: "contact") %>
