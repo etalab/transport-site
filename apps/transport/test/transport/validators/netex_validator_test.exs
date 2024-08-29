@@ -46,7 +46,7 @@ defmodule Transport.Validators.NeTExTest do
       multi_validation = DB.MultiValidation |> DB.Repo.get_by(resource_history_id: resource_history.id)
 
       assert multi_validation.command == "http://localhost:9999/chouette-valid/#{validation_id}"
-      assert multi_validation.validator == "enroute-chouette-validator"
+      assert multi_validation.validator == "enroute-chouette-netex-validator"
       assert multi_validation.validator_version == "saas-production"
       assert multi_validation.result == %{}
     end
@@ -64,7 +64,7 @@ defmodule Transport.Validators.NeTExTest do
       multi_validation = DB.MultiValidation |> DB.Repo.get_by(resource_history_id: resource_history.id)
 
       assert multi_validation.command == "http://localhost:9999/chouette-valid/#{validation_id}/messages"
-      assert multi_validation.validator == "enroute-chouette-validator"
+      assert multi_validation.validator == "enroute-chouette-netex-validator"
       assert multi_validation.validator_version == "saas-production"
 
       assert multi_validation.result == %{
