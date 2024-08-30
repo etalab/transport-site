@@ -8,7 +8,7 @@ resource_id = Map.fetch!(@conn.params, "resource_id") %>
 <section class="espace-producteur-section">
   <div class="container pt-24">
     <strong><%= @db_dataset.custom_title %> > <%= @resource["title"] %></strong>
-    <%= form_for @conn, resource_path(@conn, :delete, dataset_id, resource_id), [method: "delete", class: "pt-48"], fn _ -> %>
+    <%= form_for @conn, espace_producteur_path(@conn, :delete_resource, dataset_id, resource_id), [method: "delete", class: "pt-48"], fn _ -> %>
       <p class="notification warning">
         <%= dgettext("resource", "Do you want to update the resource or delete it definitely?") %>
       </p>
@@ -22,7 +22,7 @@ resource_id = Map.fetch!(@conn.params, "resource_id") %>
           <%= dgettext("resource", "Delete the resource") %>
         </button>
         <a
-          href={resource_path(@conn, :form, dataset_id, resource_id)}
+          href={espace_producteur_path(@conn, :resource_form, dataset_id, resource_id)}
           data-tracking-category="espace_producteur"
           data-tracking-action="abort_delete_update_resource"
         >

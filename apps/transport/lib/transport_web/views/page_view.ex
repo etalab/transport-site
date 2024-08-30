@@ -1,6 +1,5 @@
 defmodule TransportWeb.PageView do
   use TransportWeb, :view
-  import TransportWeb.ResourceView, only: [dataset_creation: 0]
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
   import TransportWeb.DatasetView, only: [upcoming_icon_type_path: 1]
 
@@ -42,4 +41,10 @@ defmodule TransportWeb.PageView do
   def nb_downloads_for_humans(value, locale) do
     Transport.Cldr.Number.to_string!(value, format: :short, locale: locale)
   end
+
+  def dataset_creation,
+  do:
+    :transport
+    |> Application.fetch_env!(:datagouvfr_site)
+    |> Path.join("/fr/admin/dataset/new/")
 end

@@ -101,12 +101,12 @@ defmodule TransportWeb.Router do
         delete("/:dataset_id/custom_logo", EspaceProducteurController, :remove_custom_logo)
 
         scope "/:dataset_id/resources" do
-          post("/", ResourceController, :post_file)
-          get("/_new_resource/", ResourceController, :form)
-          get("/:resource_id/", ResourceController, :form)
-          get("/:resource_id/delete", ResourceController, :delete_resource_confirmation)
-          delete("/:resource_id/delete", ResourceController, :delete)
-          post("/:resource_id/", ResourceController, :post_file)
+          post("/", EspaceProducteurController, :post_file)
+          get("/_new_resource/", EspaceProducteurController, :resource_form)
+          get("/:resource_id/", EspaceProducteurController, :resource_form)
+          get("/:resource_id/delete", EspaceProducteurController, :delete_resource_confirmation)
+          delete("/:resource_id/delete", EspaceProducteurController, :delete_resource)
+          post("/:resource_id/", EspaceProducteurController, :post_file)
         end
       end
 
