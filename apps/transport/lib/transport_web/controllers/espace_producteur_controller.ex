@@ -78,7 +78,7 @@ defmodule TransportWeb.EspaceProducteurController do
       conn
       |> assign_datasets(dataset)
       |> assign(:resource, resource)
-      |> render("form.html")
+      |> render("resource_form.html")
     else
       _ ->
         conn
