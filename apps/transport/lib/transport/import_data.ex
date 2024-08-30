@@ -440,6 +440,8 @@ defmodule Transport.ImportData do
   false
   iex> ods_resource?(%{"format" => "csv", "title" => "Export au format CSV"})
   true
+  iex> ods_resource?(%{"format" => "csv", "title" => "Export au format CSV"})
+  true
   """
   # Will soon be legacy, after DCAT migration
   # (see https://github.com/etalab/transport-site/issues/3647)
@@ -450,7 +452,7 @@ defmodule Transport.ImportData do
   def ods_resource?(%{"harvest" => %{"uri" => uri}}) do
     # Possible URL:
     # https://data.angers.fr/api/explore/v2.1/catalog/datasets/angers-loire-metropole-horaires-reseau-irigo-gtfs-rt/exports/json
-    String.match?(uri, ~r{/api/explore/v\d+\.\d+/catalog/datasets/.*/exports/\w+$}i)
+    String.match?(uri, ~r{/api/explore/v\d+\.\d+/catalog/datasets/.*/exports/\w+(\?use_labels=(true|false))?$}i)
   end
 
   def ods_resource?(_), do: false
@@ -834,11 +836,25 @@ defmodule Transport.ImportData do
   defp geojson?(%{"url" => url}, format), do: format?(format, "geojson") or String.ends_with?(url, "geojson")
   defp geojson?(_, format), do: format?(format, "geojson")
 
-  defp gbfs?(%{"url" => url}) do
-    if String.contains?(url, "gbfs") do
-      Enum.all?(["free_bike", "station"] |> Enum.map(fn w -> not String.contains?(url, w) end))
-    else
-      false
+  @doc """
+  iex> url = "https://data.strasbourg.eu/api/explore/v2.1/catalog/datasets/velhop_gbfs/exports/csv?use_labels=false"
+  iex> gbfs?(%{"url" => url , "format" => "csv", "harvest" => %{"uri" => url}})
+  false
+  iex> gbfs?(%{"url" => "https://example.com/gbfs/free_bike_status.json", "format" => "json"})
+  false
+  iex> gbfs?(%{"url" => "https://example.com/gbfs/gbfs.json", "format" => "json"})
+  true
+  """
+  def gbfs?(%{"url" => url} = params) do
+    cond do
+      ods_resource?(params) ->
+        false
+
+      String.contains?(url, "gbfs") ->
+        Enum.all?(["free_bike", "station"] |> Enum.map(fn w -> not String.contains?(url, w) end))
+
+      true ->
+        false
     end
   end
 
