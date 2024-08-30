@@ -30,7 +30,7 @@
         <div class="panel">
           <div>
             <%= if new_resource do %>
-              <h4><%= dgettext("resource", "Option 1: Directly add the resource") %></h4>
+              <h4><%= dgettext("espace-producteurs", "Option 1: Directly add the resource") %></h4>
               <p>
                 <%= raw(
                   dgettext(
@@ -41,7 +41,7 @@
                 ) %>
               </p>
             <% else %>
-              <h4><%= dgettext("resource", "Option 1: Directly update the resource") %></h4>
+              <h4><%= dgettext("espace-producteurs", "Option 1: Directly update the resource") %></h4>
               <p>
                 <%= dgettext(
                   "resource",
@@ -53,8 +53,8 @@
           <div>
             <%= form_for @conn, action_path(@conn), [multipart: true], fn f -> %>
               <%= text_input(f, :title,
-                label: dgettext("resource", "title"),
-                placeholder: dgettext("resource", "Example : Paris GTFS dataset"),
+                label: dgettext("espace-producteurs", "title"),
+                placeholder: dgettext("espace-producteurs", "Example : Paris GTFS dataset"),
                 value: @resource["title"]
               ) %>
               <%= text_input(
@@ -63,7 +63,7 @@
                 label:
                   label f, :format do
                     [
-                      dgettext("resource", "Format"),
+                      dgettext("espace-producteurs", "Format"),
                       content_tag(:a, "GTFS", class: "filler", onclick: "fill(this);"),
                       content_tag(:a, "NeTEx", class: "filler", onclick: "fill(this);"),
                       content_tag(:a, "gtfs-rt", class: "filler", onclick: "fill(this);")
@@ -76,11 +76,11 @@
                 <%= if new_resource do %>
                   <%= render("_upload_file.html", resource: @resource, f: f, conn: @conn) %>
                   <div class="choose-or">
-                    - <%= dgettext("resource", "or") %> -
+                    - <%= dgettext("espace-producteurs", "or") %> -
                   </div>
                   <%= render("_specify_url.html", resource: @resource, f: f, conn: @conn) %>
                   <div class="choose-submit pt-24">
-                    <%= submit(dgettext("resource", "Add the resource"), class: "button primary") %>
+                    <%= submit(dgettext("espace-producteurs", "Add the resource"), class: "button primary") %>
                   </div>
                 <% else %>
                   <%= if remote?(@resource) do %>
@@ -89,7 +89,7 @@
                     <%= render("_upload_file.html", resource: @resource, f: f, conn: @conn) %>
                   <% end %>
                   <div class="choose-submit pt-24">
-                    <%= submit(dgettext("resource", "Update the resource"), class: "button primary") %>
+                    <%= submit(dgettext("espace-producteurs", "Update the resource"), class: "button primary") %>
                   </div>
                 <% end %>
               </div>
@@ -101,7 +101,7 @@
         <div class="panel">
           <div>
             <%= if new_resource do %>
-              <h4><%= dgettext("resource", "Option 2: for more options, create the resource on data.gouv.fr") %></h4>
+              <h4><%= dgettext("espace-producteurs", "Option 2: for more options, create the resource on data.gouv.fr") %></h4>
               <div>
                 <a
                   class="button primary"
@@ -110,11 +110,11 @@
                   target="_blank"
                 >
                   <i class="icon icon--link" aria-hidden="true"></i>
-                  <%= dgettext("resource", "Create it directly on data.gouv.fr") %>
+                  <%= dgettext("espace-producteurs", "Create it directly on data.gouv.fr") %>
                 </a>
               </div>
             <% else %>
-              <h4><%= dgettext("resource", "Option 2: for more options, edit the resource on data.gouv.fr") %></h4>
+              <h4><%= dgettext("espace-producteurs", "Option 2: for more options, edit the resource on data.gouv.fr") %></h4>
               <div>
                 <a
                   class="button primary"
@@ -123,7 +123,7 @@
                   target="_blank"
                 >
                   <i class="icon icon--link" aria-hidden="true"></i>
-                  <%= dgettext("resource", "Edit directly on data.gouv.fr") %>
+                  <%= dgettext("espace-producteurs", "Edit directly on data.gouv.fr") %>
                 </a>
               </div>
             <% end %>
@@ -133,7 +133,7 @@
       <div class="pt-48">
         <p>
           <%= link(
-            dgettext("resource", "I'm not sure. Learn more."),
+            dgettext("espace-producteurs", "I'm not sure. Learn more."),
             to: "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees"
           ) %>
         </p>

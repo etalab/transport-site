@@ -1,8 +1,8 @@
 <div class="choose-option">
-  <%= dgettext("resource", "Upload a file") %>
+  <%= dgettext("espace-producteurs", "Upload a file") %>
   <%= unless is_nil(@resource["url"]) do %>
     <p>
-      <%= dgettext("resource", "Current file: %{current_file}", current_file: Path.basename(@resource["url"])) %>
+      <%= dgettext("espace-producteurs", "Current file: %{current_file}", current_file: Path.basename(@resource["url"])) %>
     </p>
   <% end %>
   <%= file_input(@f, :resource_file) %>
