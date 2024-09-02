@@ -56,10 +56,9 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 * Run `mix phx.routes TransportWeb.Router` locally
   * Examine the listed routes
   * Check-out `apps/transport/lib/transport_web/router.ex` where they are defined
-* Check-out `apps/transport/lib/transport_web/plugs/router.ex` (`/api`, `/gbfs` & the rest)
+* Check-out `apps/transport/lib/transport_web/plugs/router.ex` (`/api` & the rest)
   * This top-level router is referred to in `apps/transport/lib/transport_web/endpoint.ex`
 * Run `mix phx.routes TransportWeb.API.Router` (this will list all the `/api` sub-routes)
-* Run `mix phx.routes GBFS.Router` (same for `/gbfs`)
 * **In short**: the "endpoint" includes a main router, which in turn includes 3 sub-routers
 
 ### Read the logs from the production database
@@ -92,13 +91,6 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 * Make sure to link the correct app (production or staging) with `clever link $$REPLACE_BY_APP_ID$$` (as displayed in the staging/production app CC dashboards)
 * Verify the linking status with `clever applications`
 * Log with the app alias: `clever ssh --alias transport-prochainement`
-
-### Explore the GBFS conversion proxy
-
-* Check out the code under `apps/gbfs`
-* Run the app locally with `mix phx.server`
-* Discover the available converted feeds via `http://localhost:5000/gbfs`
-* Note that this does not contain all the GBFS feeds, only the ones we convert
 
 ### Learn about the GTFS and GTFS-RT specifications
 

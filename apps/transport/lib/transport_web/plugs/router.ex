@@ -13,6 +13,5 @@ defmodule TransportWeb.Plugs.Router do
   # is as a consequence not used, except for testing!
   match(_, host: "proxy.", to: Unlock.Router)
   match("/api/*_", to: TransportWeb.API.Router)
-  match("/gbfs/*_", to: GBFS.Router)
   match(_, to: TransportWeb.Router)
 end

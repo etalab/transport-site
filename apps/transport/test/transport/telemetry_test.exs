@@ -75,11 +75,8 @@ defmodule Transport.TelemetryTest do
   end
 
   test "handlers have been registered" do
-    events =
-      Transport.Telemetry.proxy_request_event_names() ++
-        Transport.Telemetry.gbfs_request_event_names() ++
-        Transport.Telemetry.conversions_get_event_names()
-
-    Enum.each(events, fn event -> refute is_nil(:telemetry.list_handlers(event)) end)
+    Transport.Telemetry.proxy_request_event_names()
+    |> Kernel.++(Transport.Telemetry.conversions_get_event_names())
+    |> Enum.each(fn event -> refute is_nil(:telemetry.list_handlers(event)) end)
   end
 end

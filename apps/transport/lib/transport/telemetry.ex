@@ -2,12 +2,8 @@ defmodule Transport.Telemetry do
   require Logger
 
   @proxy_request_types Unlock.Telemetry.proxy_request_types()
-  @gbfs_request_types Unlock.Telemetry.gbfs_request_types()
-
   defdelegate proxy_request_event_names(), to: Unlock.Telemetry
-  defdelegate gbfs_request_event_names(), to: Unlock.Telemetry
   defdelegate proxy_request_event_name(request), to: Unlock.Telemetry
-  defdelegate gbfs_request_event_name(request), to: Unlock.Telemetry
 
   def conversions_get_event_names do
     DB.DataConversion |> Ecto.Enum.values(:convert_to) |> Enum.map(&[:conversions, :get, &1])
@@ -40,21 +36,6 @@ defmodule Transport.Telemetry do
     # won't notice if a tracing of event fails
     Task.start(fn ->
       Logger.info("Telemetry event: processing #{type} proxy request for #{target}")
-      count_event(target, event)
-    end)
-  end
-
-  def handle_event(
-        [:gbfs, :request, type] = event,
-        _measurements,
-        %{target: target},
-        _config
-      )
-      when type in @gbfs_request_types do
-    # make it non-blocking, to ensure the traffic will be served quickly. this also means, though, we
-    # won't notice if a tracing of event fails
-    Task.start(fn ->
-      Logger.info("Telemetry event: processing #{type} GBFS request for #{target}")
       count_event(target, event)
     end)
   end
@@ -120,7 +101,6 @@ defmodule Transport.Telemetry do
   def setup do
     [
       {"proxy-logging-handler", proxy_request_event_names()},
-      {"gbfs-logging-handler", gbfs_request_event_names()},
       {"conversions-logging-handler", conversions_get_event_names()}
     ]
     |> Enum.each(fn {name, events} ->

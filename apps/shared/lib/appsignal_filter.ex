@@ -18,8 +18,7 @@ defmodule TransportWeb.Plugs.AppSignalFilter do
   def call(%Plug.Conn{} = conn, _opts) do
     if function_exported?(Appsignal.Tracer, :root_span, 0) do
       if must_ignore?(conn) do
-        Appsignal.Tracer.root_span()
-        |> Appsignal.Span.set_namespace("ignore")
+        Appsignal.Tracer.root_span() |> Appsignal.Span.set_namespace("ignore")
       end
     end
 
@@ -28,6 +27,6 @@ defmodule TransportWeb.Plugs.AppSignalFilter do
 
   # this method allows us to filter programmatically as needed
   defp must_ignore?(%Plug.Conn{} = conn) do
-    conn.host =~ ~r/proxy/i or conn.request_path =~ ~r/\/gbfs/i
+    conn.host =~ ~r/proxy/i
   end
 end
