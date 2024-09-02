@@ -6,7 +6,12 @@ defmodule Transport.EnRouteChouetteValidClient.Wrapper do
 
   @callback create_a_validation(Path.t()) :: binary()
   @callback get_a_validation(binary()) ::
-              :pending | {:successful, binary()} | :warning | :failed | :unexpected_validation_status
+              {:pending, integer()}
+              | {:successful, binary()}
+              | :warning
+              | :failed
+              | :unexpected_validation_status
+              | :unexpected_datetime_format
   @callback get_messages(binary()) :: {binary(), map()}
 
   def impl, do: Application.get_env(:transport, :enroute_validator_client)
