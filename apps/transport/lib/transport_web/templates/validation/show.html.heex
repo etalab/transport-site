@@ -40,7 +40,7 @@
               path: &validation_path/4,
               action: :show
             ) %>
-            <%= render(template(@issues), issues: @issues || [], conn: @conn) %>
+            <%= render(gtfs_template(@issues), issues: @issues || [], conn: @conn) %>
             <div class="pt-24">
               <%= pagination_links(@conn, @issues, [@validation_id],
                 issue_type: issue_type(@issues.entries),

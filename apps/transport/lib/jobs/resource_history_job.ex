@@ -150,17 +150,19 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
         Transport.S3.stream_to_s3!(:history, resource_path, filename, acl: :public_read)
         %{id: resource_history_id} = store_resource_history!(resource, data)
+        Appsignal.increment_counter("resource_history_job.success", 1, %{resource_id: resource.id})
 
         %{resource_history_id: resource_history_id}
 
       {false, history} ->
-        # Good opportunity to add a :telemetry event
+        Appsignal.increment_counter("resource_history_job.skipped", 1, %{resource_id: resource.id})
         Logger.debug("skipping historization for resource##{resource.id} because resource did not change")
         touch_resource_history!(history)
         %{resource_history_id: history.id}
 
       false ->
-        Logger.debug("Failed historization for resource##{resource.id}")
+        Appsignal.increment_counter("resource_history_job.failed", 1, %{resource_id: resource.id})
+        Logger.error("Failed historization for resource##{resource.id}")
         {:error, "historization failed"}
     end
   end
