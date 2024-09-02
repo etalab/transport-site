@@ -1,8 +1,8 @@
-defmodule Transport.UrlExtractorDocTest do
+defmodule Transport.UrlExtractorTest do
   use ExUnit.Case, async: true
   alias Opendatasoft.UrlExtractor
   import Mox
-  doctest UrlExtractor
+  doctest UrlExtractor, import: true
 
   setup :verify_on_exit!
 
