@@ -1,27 +1,30 @@
 defmodule Opendatasoft.UrlExtractor do
   @moduledoc """
-    Opendatasoft publishes a CSV file with an url to the GTFS.
+  OpenDataSoft publishes a CSV file with an URL to the GTFS.
 
-    The name of the actual column which contains that url varies,
-    because there is no clear specification. The module provides
-    a heuristic to extract the actual url from the CSV,
-    based on a list of potential names that have been seen in real
-    life so far.
+  The name of the actual column which contains that URL varies,
+  because there is no clear specification. The module provides
+  a heuristic to extract the actual URL from the CSV,
+  based on a list of potential names that have been seen in real
+  life so far.
+
+  If a CSV line has multiple columns matching potential column names, only
+  the first match is returned (at most 1 URL matched per CSV line).
   """
   require Logger
 
   @separators [?;, ?,]
   @csv_headers [
-    "Download",
-    "download",
-    "file",
-    "Fichier",
-    "fichier à télécharger",
-    "url",
-    "fichier",
-    "fichier a telecharger",
-    "fichier_a_telecharger"
-  ]
+                 "url",
+                 "download",
+                 "file",
+                 "fichier",
+                 "fichier à télécharger",
+                 "fichier",
+                 "fichier a telecharger",
+                 "fichier_a_telecharger"
+               ]
+               |> Enum.map(&String.downcase/1)
 
   @spec get_csv_resources([any]) :: [any]
   def get_csv_resources(resources) do
@@ -282,20 +285,27 @@ defmodule Opendatasoft.UrlExtractor do
 
   ## Examples
 
-  If a well-known column is found, the module must return the url like this:
+  If a well-known column is found, the module must return the URL like this:
 
-    iex> UrlExtractor.get_url_from_csv_line(%{"fichier_a_telecharger" => "http://the-url"})
-    "http://the-url"
+  iex> UrlExtractor.get_url_from_csv_line(%{"fichier_a_telecharger" => "http://the-url"})
+  "http://the-url"
 
   On the other hand, if the column is unknown, the module will return `nil`:
 
-    iex> UrlExtractor.get_url_from_csv_line(%{"fichié_a_download" => "http://the-url"})
-    nil
-    iex> UrlExtractor.get_url_from_csv_line(%{"fichier_a_telecharger" => ""})
-    nil
+  iex> UrlExtractor.get_url_from_csv_line(%{"fichié_a_download" => "http://the-url"})
+  nil
+  iex> UrlExtractor.get_url_from_csv_line(%{"fichier_a_telecharger" => ""})
+  nil
+
+  If multiple columns match, a single result is returned from the row according to `@csv_headers` order.
+
+  iex> UrlExtractor.get_url_from_csv_line(%{"URL" => "https://example.fr", "fichier" => "https://other.com"})
+  "https://example.fr"
   """
   @spec get_url_from_csv_line(map) :: binary
   def get_url_from_csv_line(line) do
+    line = Map.new(line, fn {k, v} -> {String.downcase(k), v} end)
+
     @csv_headers
     |> Enum.map(&Map.get(line, &1))
     |> Enum.reject(&(is_nil(&1) or String.trim(&1) == ""))
