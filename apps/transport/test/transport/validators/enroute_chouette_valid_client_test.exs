@@ -52,7 +52,7 @@ defmodule Transport.EnRouteChouetteValidClientTest do
           "user_status": "pending",
           "started_at": "2024-07-05T14:41:20.680Z",
           "created_at": "2024-07-05T14:41:19.933Z",
-          "updated_at": "2024-07-05T14:41:19.933Z"
+          "updated_at": "2024-07-05T14:45:20.933Z"
         }
         """
 
@@ -63,7 +63,7 @@ defmodule Transport.EnRouteChouetteValidClientTest do
         %HTTPoison.Response{status_code: 200, body: response_body}
       end)
 
-      assert :pending == EnRouteChouetteValidClient.get_a_validation(validation_id)
+      assert {:pending, 4 * 60 + 1} == EnRouteChouetteValidClient.get_a_validation(validation_id)
     end
 
     test "successful" do

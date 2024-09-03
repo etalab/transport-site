@@ -6,7 +6,12 @@ defmodule Transport.EnRouteChouetteValidClient.Wrapper do
 
   @callback create_a_validation(Path.t()) :: binary()
   @callback get_a_validation(binary()) ::
-              :pending | {:successful, binary()} | :warning | :failed | :unexpected_validation_status
+              {:pending, integer()}
+              | {:successful, binary()}
+              | :warning
+              | :failed
+              | :unexpected_validation_status
+              | :unexpected_datetime_format
   @callback get_messages(binary()) :: {binary(), map()}
 
   def impl, do: Application.get_env(:transport, :enroute_validator_client)
@@ -39,12 +44,29 @@ defmodule Transport.EnRouteChouetteValidClient do
 
     %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(url, auth_headers())
 
-    case body |> Jason.decode!() |> Map.fetch!("user_status") do
-      "pending" -> :pending
-      "successful" -> {:successful, url}
-      "warning" -> :warning
-      "failed" -> :failed
-      _ -> :unexpected_validation_status
+    response = body |> Jason.decode!()
+
+    case response |> Map.fetch!("user_status") do
+      "pending" ->
+        case {get_datetime(response, "created_at"), get_datetime(response, "updated_at")} do
+          {{:ok, created_at, _}, {:ok, updated_at, _}} ->
+            {:pending, DateTime.diff(updated_at, created_at)}
+
+          _ ->
+            :unexpected_datetime_format
+        end
+
+      "successful" ->
+        {:successful, url}
+
+      "warning" ->
+        :warning
+
+      "failed" ->
+        :failed
+
+      _ ->
+        :unexpected_validation_status
     end
   end
 
@@ -54,6 +76,10 @@ defmodule Transport.EnRouteChouetteValidClient do
 
     %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(url, auth_headers())
     {url, body |> Jason.decode!()}
+  end
+
+  defp get_datetime(map, key) do
+    map |> Map.fetch!(key) |> DateTime.from_iso8601()
   end
 
   defp make_file_part(field_name, filepath) do

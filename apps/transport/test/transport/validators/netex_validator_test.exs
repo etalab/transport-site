@@ -2,7 +2,7 @@ defmodule Transport.Validators.NeTExTest do
   use ExUnit.Case, async: true
   import DB.Factory
   import Mox
-  require Logger
+  import ExUnit.CaptureLog
 
   alias Transport.Validators.NeTEx
 
@@ -143,9 +143,9 @@ defmodule Transport.Validators.NeTExTest do
       resource_url = mk_raw_netex_resource()
 
       validation_id = expect_create_validation()
-      expect_pending_validation(validation_id)
-      expect_pending_validation(validation_id)
-      expect_pending_validation(validation_id)
+      expect_pending_validation(validation_id, 10)
+      expect_pending_validation(validation_id, 20)
+      expect_pending_validation(validation_id, 30)
       expect_failed_validation(validation_id)
 
       expect_get_messages(validation_id, @sample_error_message)
@@ -165,6 +165,19 @@ defmodule Transport.Validators.NeTExTest do
       assert {:ok, %{"validations" => validation_result, "metadata" => %{}}} ==
                NeTEx.validate(resource_url, graceful_retry: false)
     end
+
+    test "timeout" do
+      resource_url = mk_raw_netex_resource()
+
+      validation_id = expect_create_validation()
+      expect_pending_validation(validation_id, 10)
+      expect_pending_validation(validation_id, 4510)
+
+      {result, log} = with_log(fn -> NeTEx.validate(resource_url, graceful_retry: false) end)
+
+      assert result == {:error, "enRoute Chouette Valid: Timeout while fetching results"}
+      assert log =~ "[error] Timeout while fetching result on enRoute Chouette Valid"
+    end
   end
 
   defp expect_create_validation do
@@ -173,8 +186,8 @@ defmodule Transport.Validators.NeTExTest do
     validation_id
   end
 
-  defp expect_pending_validation(validation_id) do
-    expect(Transport.EnRouteChouetteValidClient.Mock, :get_a_validation, fn ^validation_id -> :pending end)
+  defp expect_pending_validation(validation_id, elapsed) do
+    expect(Transport.EnRouteChouetteValidClient.Mock, :get_a_validation, fn ^validation_id -> {:pending, elapsed} end)
   end
 
   defp expect_successful_validation(validation_id) do
