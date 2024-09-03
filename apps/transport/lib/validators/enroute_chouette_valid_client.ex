@@ -7,9 +7,9 @@ defmodule Transport.EnRouteChouetteValidClient.Wrapper do
   @callback create_a_validation(Path.t()) :: binary()
   @callback get_a_validation(binary()) ::
               {:pending, integer()}
-              | {:successful, binary()}
-              | :warning
-              | :failed
+              | {:successful, binary(), integer()}
+              | {:warning, integer()}
+              | {:failed, integer()}
               | :unexpected_validation_status
               | :unexpected_datetime_format
   @callback get_messages(binary()) :: {binary(), map()}
@@ -48,25 +48,32 @@ defmodule Transport.EnRouteChouetteValidClient do
 
     case response |> Map.fetch!("user_status") do
       "pending" ->
-        case {get_datetime(response, "created_at"), get_datetime(response, "updated_at")} do
-          {{:ok, created_at, _}, {:ok, updated_at, _}} ->
-            {:pending, DateTime.diff(updated_at, created_at)}
-
-          _ ->
-            :unexpected_datetime_format
+        case get_elapsed(response) do
+          nil -> :unexpected_datetime_format
+          elapsed -> {:pending, elapsed}
         end
 
       "successful" ->
-        {:successful, url}
+        {:successful, url, get_elapsed(response)}
 
       "warning" ->
-        :warning
+        {:warning, get_elapsed(response)}
 
       "failed" ->
-        :failed
+        {:failed, get_elapsed(response)}
 
       _ ->
         :unexpected_validation_status
+    end
+  end
+
+  defp get_elapsed(response) do
+    case {get_datetime(response, "created_at"), get_datetime(response, "updated_at")} do
+      {{:ok, created_at, _}, {:ok, updated_at, _}} ->
+        DateTime.diff(updated_at, created_at)
+
+      _ ->
+        nil
     end
   end
 

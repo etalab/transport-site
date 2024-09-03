@@ -78,7 +78,7 @@ defmodule Transport.EnRouteChouetteValidClientTest do
           "started_at": "2024-07-05T14:41:20.680Z",
           "ended_at": "2024-07-05T14:41:20.685Z",
           "created_at": "2024-07-05T14:41:19.933Z",
-          "updated_at": "2024-07-05T14:41:19.933Z"
+          "updated_at": "2024-07-05T14:41:24.933Z"
         }
         """
 
@@ -89,7 +89,7 @@ defmodule Transport.EnRouteChouetteValidClientTest do
         %HTTPoison.Response{status_code: 200, body: response_body}
       end)
 
-      assert {:successful, url} == EnRouteChouetteValidClient.get_a_validation(validation_id)
+      assert {:successful, url, 5} == EnRouteChouetteValidClient.get_a_validation(validation_id)
     end
 
     test "warning" do
@@ -104,7 +104,7 @@ defmodule Transport.EnRouteChouetteValidClientTest do
           "started_at": "2024-07-05T14:41:20.680Z",
           "ended_at": "2024-07-05T14:41:20.685Z",
           "created_at": "2024-07-05T14:41:19.933Z",
-          "updated_at": "2024-07-05T14:41:19.933Z"
+          "updated_at": "2024-07-05T14:41:23.933Z"
         }
         """
 
@@ -115,7 +115,7 @@ defmodule Transport.EnRouteChouetteValidClientTest do
         %HTTPoison.Response{status_code: 200, body: response_body}
       end)
 
-      assert :warning == EnRouteChouetteValidClient.get_a_validation(validation_id)
+      assert {:warning, 4} == EnRouteChouetteValidClient.get_a_validation(validation_id)
     end
 
     test "failed" do
@@ -130,7 +130,7 @@ defmodule Transport.EnRouteChouetteValidClientTest do
           "started_at": "2024-07-05T14:41:20.680Z",
           "ended_at": "2024-07-05T14:41:20.685Z",
           "created_at": "2024-07-05T14:41:19.933Z",
-          "updated_at": "2024-07-05T14:41:19.933Z"
+          "updated_at": "2024-07-05T14:41:27.933Z"
         }
         """
 
@@ -141,7 +141,7 @@ defmodule Transport.EnRouteChouetteValidClientTest do
         %HTTPoison.Response{status_code: 200, body: response_body}
       end)
 
-      assert :failed == EnRouteChouetteValidClient.get_a_validation(validation_id)
+      assert {:failed, 8} == EnRouteChouetteValidClient.get_a_validation(validation_id)
     end
   end
 

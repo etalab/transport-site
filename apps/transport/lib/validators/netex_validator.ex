@@ -27,12 +27,19 @@ defmodule Transport.Validators.NeTEx do
 
   def validate_resource_history(resource_history, filepath) do
     case validate_with_enroute(filepath) do
-      {:ok, %{url: result_url, retries: retries}} ->
-        insert_validation_results(resource_history.id, result_url, %{retries: retries})
+      {:ok, %{url: result_url, elapsed_seconds: elapsed_seconds, retries: retries}} ->
+        insert_validation_results(resource_history.id, result_url, %{elapsed_seconds: elapsed_seconds, retries: retries})
+
         :ok
 
-      {:error, %{details: {result_url, errors}, retries: retries}} ->
-        insert_validation_results(resource_history.id, result_url, %{retries: retries}, errors)
+      {:error, %{details: {result_url, errors}, elapsed_seconds: elapsed_seconds, retries: retries}} ->
+        insert_validation_results(
+          resource_history.id,
+          result_url,
+          %{elapsed_seconds: elapsed_seconds, retries: retries},
+          errors
+        )
+
         :ok
 
       {:error, :unexpected_validation_status} ->
@@ -58,15 +65,21 @@ defmodule Transport.Validators.NeTEx do
   def validate(url, opts \\ []) do
     with_url(url, fn filepath ->
       case validate_with_enroute(filepath, opts) do
-        {:ok, %{url: result_url, retries: retries}} ->
+        {:ok, %{url: result_url, elapsed_seconds: elapsed_seconds, retries: retries}} ->
           # result_url in metadata?
           Logger.info("Result URL: #{result_url}")
-          {:ok, %{"validations" => index_messages([]), "metadata" => %{retries: retries}}}
 
-        {:error, %{details: {result_url, errors}, retries: retries}} ->
+          {:ok,
+           %{"validations" => index_messages([]), "metadata" => %{elapsed_seconds: elapsed_seconds, retries: retries}}}
+
+        {:error, %{details: {result_url, errors}, elapsed_seconds: elapsed_seconds, retries: retries}} ->
           Logger.info("Result URL: #{result_url}")
           # result_url in metadata?
-          {:ok, %{"validations" => index_messages(errors), "metadata" => %{retries: retries}}}
+          {:ok,
+           %{
+             "validations" => index_messages(errors),
+             "metadata" => %{elapsed_seconds: elapsed_seconds, retries: retries}
+           }}
 
         {:error, :unexpected_validation_status} ->
           Logger.error("Invalid API call to enRoute Chouette Valid")
@@ -211,11 +224,11 @@ defmodule Transport.Validators.NeTEx do
 
         fetch_validation_results(validation_id, retries + 1, opts)
 
-      {:successful, url} ->
-        {:ok, %{url: url, retries: retries}}
+      {:successful, url, elapsed_seconds} ->
+        {:ok, %{url: url, elapsed_seconds: elapsed_seconds, retries: retries}}
 
-      value when value in [:warning, :failed] ->
-        {:error, %{details: client().get_messages(validation_id), retries: retries}}
+      {value, elapsed_seconds} when value in [:warning, :failed] ->
+        {:error, %{details: client().get_messages(validation_id), elapsed_seconds: elapsed_seconds, retries: retries}}
 
       :unexpected_validation_status ->
         {:error, :unexpected_validation_status}

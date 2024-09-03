@@ -39,7 +39,7 @@ defmodule Transport.Validators.NeTExTest do
       {resource, resource_history} = mk_netex_resource()
 
       validation_id = expect_create_validation()
-      expect_successful_validation(validation_id)
+      expect_successful_validation(validation_id, 12)
 
       assert :ok == NeTEx.validate_and_save(resource)
 
@@ -49,14 +49,14 @@ defmodule Transport.Validators.NeTExTest do
       assert multi_validation.validator == "enroute-chouette-netex-validator"
       assert multi_validation.validator_version == "saas-production"
       assert multi_validation.result == %{}
-      assert multi_validation.metadata.metadata == %{"retries" => 0}
+      assert multi_validation.metadata.metadata == %{"retries" => 0, "elapsed_seconds" => 12}
     end
 
     test "invalid NeTEx" do
       {resource, resource_history} = mk_netex_resource()
 
       validation_id = expect_create_validation()
-      expect_failed_validation(validation_id)
+      expect_failed_validation(validation_id, 31)
 
       expect_get_messages(validation_id, @sample_error_messages)
 
@@ -67,7 +67,7 @@ defmodule Transport.Validators.NeTExTest do
       assert multi_validation.command == "http://localhost:9999/chouette-valid/#{validation_id}/messages"
       assert multi_validation.validator == "enroute-chouette-netex-validator"
       assert multi_validation.validator_version == "saas-production"
-      assert multi_validation.metadata.metadata == %{"retries" => 0}
+      assert multi_validation.metadata.metadata == %{"retries" => 0, "elapsed_seconds" => 31}
 
       assert multi_validation.result == %{
                "uic-operating-period" => [
@@ -106,9 +106,9 @@ defmodule Transport.Validators.NeTExTest do
       resource_url = mk_raw_netex_resource()
 
       validation_id = expect_create_validation()
-      expect_successful_validation(validation_id)
+      expect_successful_validation(validation_id, 9)
 
-      assert {:ok, %{"validations" => %{}, "metadata" => %{retries: 0}}} ==
+      assert {:ok, %{"validations" => %{}, "metadata" => %{retries: 0, elapsed_seconds: 9}}} ==
                NeTEx.validate(resource_url)
     end
 
@@ -116,7 +116,7 @@ defmodule Transport.Validators.NeTExTest do
       resource_url = mk_raw_netex_resource()
 
       validation_id = expect_create_validation()
-      expect_failed_validation(validation_id)
+      expect_failed_validation(validation_id, 25)
 
       expect_get_messages(validation_id, @sample_error_messages)
 
@@ -144,7 +144,8 @@ defmodule Transport.Validators.NeTExTest do
         ]
       }
 
-      assert {:ok, %{"validations" => validation_result, "metadata" => %{retries: 0}}} == NeTEx.validate(resource_url)
+      assert {:ok, %{"validations" => validation_result, "metadata" => %{retries: 0, elapsed_seconds: 25}}} ==
+               NeTEx.validate(resource_url)
     end
 
     test "retries" do
@@ -154,7 +155,7 @@ defmodule Transport.Validators.NeTExTest do
       expect_pending_validation(validation_id, 10)
       expect_pending_validation(validation_id, 20)
       expect_pending_validation(validation_id, 30)
-      expect_failed_validation(validation_id)
+      expect_failed_validation(validation_id, 35)
 
       expect_get_messages(validation_id, @sample_error_message)
 
@@ -170,7 +171,7 @@ defmodule Transport.Validators.NeTExTest do
 
       # Let's disable graceful retry as we are mocking the API, otherwise the
       # test would take almost a minute.
-      assert {:ok, %{"validations" => validation_result, "metadata" => %{retries: 3}}} ==
+      assert {:ok, %{"validations" => validation_result, "metadata" => %{retries: 3, elapsed_seconds: 35}}} ==
                NeTEx.validate(resource_url, graceful_retry: false)
     end
 
@@ -198,14 +199,14 @@ defmodule Transport.Validators.NeTExTest do
     expect(Transport.EnRouteChouetteValidClient.Mock, :get_a_validation, fn ^validation_id -> {:pending, elapsed} end)
   end
 
-  defp expect_successful_validation(validation_id) do
+  defp expect_successful_validation(validation_id, elapsed) do
     expect(Transport.EnRouteChouetteValidClient.Mock, :get_a_validation, fn ^validation_id ->
-      {:successful, "http://localhost:9999/chouette-valid/#{validation_id}"}
+      {:successful, "http://localhost:9999/chouette-valid/#{validation_id}", elapsed}
     end)
   end
 
-  defp expect_failed_validation(validation_id) do
-    expect(Transport.EnRouteChouetteValidClient.Mock, :get_a_validation, fn ^validation_id -> :failed end)
+  defp expect_failed_validation(validation_id, elapsed) do
+    expect(Transport.EnRouteChouetteValidClient.Mock, :get_a_validation, fn ^validation_id -> {:failed, elapsed} end)
   end
 
   defp expect_get_messages(validation_id, result) do
