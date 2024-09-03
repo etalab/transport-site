@@ -285,14 +285,6 @@ msgid "from"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "doc-eu-formats"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "netex-siri-validator"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "%{count} times (%{percentage} % of validations)"
 msgstr ""
 
