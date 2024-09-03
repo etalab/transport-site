@@ -43,12 +43,13 @@ defmodule Transport.Validators.NeTExTest do
 
       assert :ok == NeTEx.validate_and_save(resource)
 
-      multi_validation = DB.MultiValidation |> DB.Repo.get_by(resource_history_id: resource_history.id)
+      multi_validation = load_multi_validation(resource_history.id)
 
       assert multi_validation.command == "http://localhost:9999/chouette-valid/#{validation_id}"
       assert multi_validation.validator == "enroute-chouette-netex-validator"
       assert multi_validation.validator_version == "saas-production"
       assert multi_validation.result == %{}
+      assert multi_validation.metadata.metadata == %{"retries" => 0}
     end
 
     test "invalid NeTEx" do
@@ -61,11 +62,12 @@ defmodule Transport.Validators.NeTExTest do
 
       assert :ok == NeTEx.validate_and_save(resource)
 
-      multi_validation = DB.MultiValidation |> DB.Repo.get_by(resource_history_id: resource_history.id)
+      multi_validation = load_multi_validation(resource_history.id)
 
       assert multi_validation.command == "http://localhost:9999/chouette-valid/#{validation_id}/messages"
       assert multi_validation.validator == "enroute-chouette-netex-validator"
       assert multi_validation.validator_version == "saas-production"
+      assert multi_validation.metadata.metadata == %{"retries" => 0}
 
       assert multi_validation.result == %{
                "uic-operating-period" => [
@@ -91,6 +93,12 @@ defmodule Transport.Validators.NeTExTest do
                ]
              }
     end
+
+    defp load_multi_validation(resource_history_id) do
+      DB.MultiValidation
+      |> DB.Repo.get_by(resource_history_id: resource_history_id)
+      |> DB.Repo.preload(:metadata)
+    end
   end
 
   describe "raw URL" do
@@ -100,7 +108,7 @@ defmodule Transport.Validators.NeTExTest do
       validation_id = expect_create_validation()
       expect_successful_validation(validation_id)
 
-      assert {:ok, %{"validations" => %{}, "metadata" => %{}}} ==
+      assert {:ok, %{"validations" => %{}, "metadata" => %{retries: 0}}} ==
                NeTEx.validate(resource_url)
     end
 
@@ -136,7 +144,7 @@ defmodule Transport.Validators.NeTExTest do
         ]
       }
 
-      assert {:ok, %{"validations" => validation_result, "metadata" => %{}}} == NeTEx.validate(resource_url)
+      assert {:ok, %{"validations" => validation_result, "metadata" => %{retries: 0}}} == NeTEx.validate(resource_url)
     end
 
     test "retries" do
@@ -162,7 +170,7 @@ defmodule Transport.Validators.NeTExTest do
 
       # Let's disable graceful retry as we are mocking the API, otherwise the
       # test would take almost a minute.
-      assert {:ok, %{"validations" => validation_result, "metadata" => %{}}} ==
+      assert {:ok, %{"validations" => validation_result, "metadata" => %{retries: 3}}} ==
                NeTEx.validate(resource_url, graceful_retry: false)
     end
 
@@ -175,7 +183,7 @@ defmodule Transport.Validators.NeTExTest do
 
       {result, log} = with_log(fn -> NeTEx.validate(resource_url, graceful_retry: false) end)
 
-      assert result == {:error, "enRoute Chouette Valid: Timeout while fetching results"}
+      assert result == {:error, %{message: "enRoute Chouette Valid: Timeout while fetching results", retries: 1}}
       assert log =~ "[error] Timeout while fetching result on enRoute Chouette Valid"
     end
   end
