@@ -119,7 +119,7 @@ defmodule TransportWeb.ValidationController do
 
         conn
         |> assign_base_validation_details(validator, validation, params, current_issues)
-        |> assign(:metadata, %{})
+        |> assign(:metadata, validation.metadata.metadata)
         |> assign(:modes, [])
         |> assign(:data_vis, nil)
         |> render("show_netex.html")
