@@ -1,12 +1,42 @@
-<table class="table">
+<style>
+  table.generic_issue tr.message td {
+    vertical-align: top;
+  }
+
+  table.generic_issue th:nth-child(1) {
+    width: 60%;
+  }
+
+  table.generic_issue tr.debug:hover {
+    background: revert;
+  }
+
+  table.generic_issue tr.debug td {
+    border-top: none;
+    padding-top: 0;
+  }
+
+  table.generic_issue tr.debug td summary {
+    cursor: pointer;
+  }
+
+  table.generic_issue tr.debug td pre {
+    margin-block: 0;
+  }
+
+  table.generic_issue tr.debug td code {
+    width: 100%;
+  }
+</style>
+
+<table class="table generic_issue">
   <tr>
     <th><%= dgettext("validations-explanations", "Message") %></th>
     <th><%= dgettext("validations-explanations", "Location") %></th>
-    <th><%= dgettext("validations-explanations", "Debug") %></th>
   </tr>
 
   <%= for issue <- @issues do %>
-    <tr>
+    <tr class="message">
       <td><%= issue["message"] %></td>
       <td>
         <%= if is_nil(issue["resource"]) or is_nil(issue["resource"]["filename"]) or is_nil(issue["resource"]["line"]) do %>
@@ -15,8 +45,13 @@
           <%= issue["resource"]["filename"] %>:<%= issue["resource"]["line"] %>
         <% end %>
       </td>
-      <td>
-        <code><%= to_string(Jason.encode!(issue, pretty: true)) %></code>
+    </tr>
+    <tr class="debug">
+      <td colspan="2">
+        <details>
+          <summary><%= dgettext("validations-explanations", "Debug") %></summary>
+          <pre><code><%= to_string(Jason.encode!(issue, pretty: true)) %></code></pre>
+        </details>
       </td>
     </tr>
   <% end %>
