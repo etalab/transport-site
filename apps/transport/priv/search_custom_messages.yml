@@ -325,17 +325,3 @@
         They contain traffic data for pedestrians, bicycles, and micro-mobility.
 
         The standard used is described [in this documentation](https://doc.transport.data.gouv.fr/producteurs/comptage-des-mobilites).
-
-- category: paris2024
-  search_params:
-    - key: custom_tag
-      value: paris2024
-  msg:
-    fr: |
-        Les jeux de données référencés dans cette catégorie contiennent des données publiées sur data.gouv.fr contenant des informations liées à la mobilité à l'occasion des jeux Olympiques et Paralympiques 2024.
-
-        Les données ne sont pas forcément aux standards attendus, mais nous avons fait le choix de les répertorier étant donné l'importance de l'évènement.
-    en: |
-        The datasets listed in this category contain data published on data.gouv.fr related to mobility during the 2024 Olympic and Paralympic Games.
-
-        While the datasets listed here may not fully meet all quality standards, we have chosen to include them due to their potential importance
