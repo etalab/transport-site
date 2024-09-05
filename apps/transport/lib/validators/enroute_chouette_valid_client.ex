@@ -30,6 +30,7 @@ defmodule Transport.EnRouteChouetteValidClient do
       {:multipart,
        [
          {"validation[rule_set]", "french"},
+         {"validation[include_schema]", "true"},
          make_file_part("validation[file]", filepath)
        ]}
 
