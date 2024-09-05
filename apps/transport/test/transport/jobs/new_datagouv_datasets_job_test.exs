@@ -16,35 +16,49 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
 
   test "dataset_is_relevant?" do
     base = %{"title" => "", "resources" => [], "tags" => [], "description" => ""}
-    assert NewDatagouvDatasetsJob.dataset_is_relevant?(%{base | "title" => "GTFS de Dijon"})
-    assert NewDatagouvDatasetsJob.dataset_is_relevant?(%{base | "description" => "GTFS de Dijon"})
-    assert NewDatagouvDatasetsJob.dataset_is_relevant?(%{base | "tags" => [Ecto.UUID.generate(), "gtfs"]})
 
-    assert NewDatagouvDatasetsJob.dataset_is_relevant?(%{
-             base
-             | "resources" => [%{"format" => "GBFS", "description" => ""}]
-           })
+    relevant_fn = fn dataset ->
+      NewDatagouvDatasetsJob.rules()
+      |> Enum.filter(&NewDatagouvDatasetsJob.dataset_is_relevant?(dataset, &1))
+      |> case do
+        [rule] -> rule
+        _ -> :no_match
+      end
+    end
 
-    Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{"etalab/foo" => %{}} end)
+    assert %{category: "Transport en commun"} = relevant_fn.(%{base | "title" => "GTFS de Dijon"})
+    assert %{category: "Transport en commun"} = relevant_fn.(%{base | "description" => "GTFS de Dijon"})
+    assert %{category: "Transport en commun"} = relevant_fn.(%{base | "tags" => [Ecto.UUID.generate(), "gtfs"]})
 
-    assert NewDatagouvDatasetsJob.dataset_is_relevant?(%{
-             base
-             | "resources" => [%{"format" => "csv", "schema" => %{"name" => "etalab/foo"}, "description" => ""}]
-           })
+    assert %{category: "Freefloating"} =
+             relevant_fn.(%{
+               base
+               | "resources" => [%{"format" => "GBFS", "description" => ""}]
+             })
 
-    assert NewDatagouvDatasetsJob.dataset_is_relevant?(%{
-             base
-             | "resources" => [%{"format" => "csv", "description" => "Horaires des bus"}]
-           })
+    assert %{category: "Covoiturage et ZFE"} =
+             relevant_fn.(%{
+               base
+               | "resources" => [
+                   %{"format" => "csv", "schema" => %{"name" => "etalab/schema-zfe"}, "description" => ""}
+                 ]
+             })
 
-    refute NewDatagouvDatasetsJob.dataset_is_relevant?(%{base | "title" => "Résultat des élections"})
+    assert %{category: "Transport en commun"} =
+             relevant_fn.(%{
+               base
+               | "resources" => [%{"format" => "csv", "description" => "Horaires des bus"}]
+             })
 
-    refute NewDatagouvDatasetsJob.dataset_is_relevant?(%{
-             base
-             | "resources" => [
-                 %{"format" => "csv", "schema" => %{"name" => "etalab/schema-irve-statique"}, "description" => ""}
-               ]
-           })
+    assert :no_match == relevant_fn.(%{base | "title" => "Résultat des élections"})
+
+    assert %{category: "IRVE"} =
+             relevant_fn.(%{
+               base
+               | "resources" => [
+                   %{"format" => "csv", "schema" => %{"name" => "etalab/schema-irve-statique"}, "description" => ""}
+                 ]
+             })
 
     # Uses `ignore_dataset?/1` to ignore specific datasets
     bdtopo_args =
@@ -53,11 +67,9 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
         "tags" => ["transport"]
       })
 
-    assert NewDatagouvDatasetsJob.dataset_is_relevant?(bdtopo_args)
+    assert %{category: "Transport en commun"} = relevant_fn.(bdtopo_args)
 
-    refute NewDatagouvDatasetsJob.dataset_is_relevant?(
-             Map.merge(bdtopo_args, %{"organization" => %{"id" => "5a83f81fc751df6f8573eb8a"}})
-           )
+    assert :no_match == relevant_fn.(Map.merge(bdtopo_args, %{"organization" => %{"id" => "5a83f81fc751df6f8573eb8a"}}))
   end
 
   test "filtered_datasets" do
@@ -130,16 +142,102 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
     ]
 
     assert [true, true, true, true, true, false, true, true] ==
-             Enum.map(datasets, &NewDatagouvDatasetsJob.dataset_is_relevant?/1)
+             Enum.map(datasets, &dataset_is_relevant_for_any_rule?/1)
 
-    assert [created_on_tuesday] == filtered_datasets_as_of(datasets, wednesday_night)
+    assert [created_on_tuesday] == matching_datasets_as_of(datasets, wednesday_night)
 
     assert [created_on_friday, created_on_saturday] ==
-             filtered_datasets_as_of(datasets, monday_night)
+             matching_datasets_as_of(datasets, monday_night)
   end
 
-  defp filtered_datasets_as_of(datasets, %DateTime{} = then) do
-    NewDatagouvDatasetsJob.filtered_datasets(as_of(datasets, then), then)
+  test "rule_explanation" do
+    assert "<p>Règles utilisées pour identifier ces jeux de données :</p>\n<ul>\n  <li>Formats : netex</li>\n  <li>Schémas : <vide></li>\n  <li>Mots-clés/tags : cassis, kir</li>\n</ul>\n" ==
+             NewDatagouvDatasetsJob.rule_explanation(%{
+               schemas: MapSet.new([]),
+               tags: MapSet.new(["kir", "cassis"]),
+               formats: MapSet.new(["netex"])
+             })
+  end
+
+  describe "perform" do
+    test "no datasets" do
+      setup_datagouv_api_response([])
+
+      assert :ok == perform_job(NewDatagouvDatasetsJob, %{}, inserted_at: DateTime.utc_now())
+    end
+
+    test "sends an email on Monday" do
+      monday_night = ~U[2022-10-31 03:00:00Z]
+
+      test_email_sending(
+        monday_night,
+        ~s(Les jeux de données suivants ont été ajoutés sur data.gouv.fr dans les dernières 72h)
+      )
+    end
+
+    test "sends an email on other weekday" do
+      wednesday_night = ~U[2022-11-02 03:00:00Z]
+
+      test_email_sending(
+        wednesday_night,
+        ~s(Les jeux de données suivants ont été ajoutés sur data.gouv.fr dans les dernières 24h)
+      )
+    end
+
+    test "sends multiple emails" do
+      inserted_at = DateTime.utc_now()
+
+      base = %{
+        "resources" => [],
+        "tags" => [],
+        "description" => "",
+        "internal" => %{
+          "created_at_internal" => inserted_at |> DateTime.add(-23, :hour) |> DateTime.to_iso8601()
+        },
+        "id" => Ecto.UUID.generate(),
+        "title" => nil,
+        "page" => nil
+      }
+
+      datasets = [
+        %{base | "title" => "GTFS de Dijon", "page" => "https://example.com/gtfs"},
+        %{base | "title" => "GBFS de Dijon", "page" => "https://example.com/gbfs"}
+      ]
+
+      setup_datagouv_api_response(datasets)
+
+      assert :ok == perform_job(NewDatagouvDatasetsJob, %{}, inserted_at: inserted_at)
+
+      assert_email_sent(fn %Swoosh.Email{
+                             from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                             to: [{"", "deploiement@transport.data.gouv.fr"}],
+                             subject: "Nouveaux jeux de données Freefloating à référencer - data.gouv.fr",
+                             text_body: nil,
+                             html_body: body
+                           } ->
+        assert body =~ ~s(<a href="https://example.com/gbfs">GBFS de Dijon</a>)
+      end)
+
+      assert_email_sent(fn %Swoosh.Email{
+                             from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                             to: [{"", "deploiement@transport.data.gouv.fr"}],
+                             subject: "Nouveaux jeux de données Transport en commun à référencer - data.gouv.fr",
+                             text_body: nil,
+                             html_body: body
+                           } ->
+        assert body =~ ~s(<a href="https://example.com/gtfs">GTFS de Dijon</a>)
+      end)
+    end
+  end
+
+  defp matching_datasets_as_of(datasets, %DateTime{} = then) do
+    as_of(datasets, then)
+    |> NewDatagouvDatasetsJob.filtered_datasets(then)
+    |> Enum.filter(&dataset_is_relevant_for_any_rule?/1)
+  end
+
+  defp dataset_is_relevant_for_any_rule?(dataset) do
+    Enum.any?(NewDatagouvDatasetsJob.rules(), &NewDatagouvDatasetsJob.dataset_is_relevant?(dataset, &1))
   end
 
   defp as_of(datasets, %DateTime{} = then) do
@@ -149,70 +247,43 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
     )
   end
 
-  describe "perform" do
-    test "no datasets" do
-      Transport.HTTPoison.Mock
-      |> expect(:get!, fn "https://demo.data.gouv.fr/api/1/datasets/?sort=-created&page_size=500",
-                          [],
-                          [timeout: 30_000, recv_timeout: 30_000] ->
-        %HTTPoison.Response{status_code: 200, body: ~s({"data":[]})}
-      end)
+  defp test_email_sending(%DateTime{} = inserted_at, expected_body) do
+    dataset = %{
+      "title" => "GTFS de Dijon",
+      "resources" => [],
+      "tags" => [],
+      "description" => "",
+      "internal" => %{
+        "created_at_internal" => inserted_at |> DateTime.add(-23, :hour) |> DateTime.to_iso8601()
+      },
+      "page" => "https://example.com/link",
+      "id" => Ecto.UUID.generate()
+    }
 
-      assert :ok == perform_job(NewDatagouvDatasetsJob, %{}, inserted_at: DateTime.utc_now())
-    end
+    assert dataset_is_relevant_for_any_rule?(dataset)
 
-    defp test_email_sending(%DateTime{} = inserted_at, expected_body) do
-      dataset = %{
-        "title" => "GTFS de Dijon",
-        "resources" => [],
-        "tags" => [],
-        "description" => "",
-        "internal" => %{
-          "created_at_internal" => inserted_at |> DateTime.add(-23, :hour) |> DateTime.to_iso8601()
-        },
-        "page" => "https://example.com/link",
-        "id" => Ecto.UUID.generate()
-      }
+    setup_datagouv_api_response([dataset])
 
-      assert NewDatagouvDatasetsJob.dataset_is_relevant?(dataset)
+    assert :ok == perform_job(NewDatagouvDatasetsJob, %{}, inserted_at: inserted_at)
 
-      Transport.HTTPoison.Mock
-      |> expect(:get!, fn "https://demo.data.gouv.fr/api/1/datasets/?sort=-created&page_size=500",
-                          [],
-                          [timeout: 30_000, recv_timeout: 30_000] ->
-        %HTTPoison.Response{status_code: 200, body: Jason.encode!(%{"data" => [dataset]})}
-      end)
+    assert_email_sent(fn %Swoosh.Email{
+                           from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                           to: [{"", "deploiement@transport.data.gouv.fr"}],
+                           subject: "Nouveaux jeux de données Transport en commun à référencer - data.gouv.fr",
+                           text_body: nil,
+                           html_body: body
+                         } ->
+      assert body =~ ~s(<a href="#{dataset["page"]}">#{dataset["title"]}</a>)
+      assert body =~ expected_body
+    end)
+  end
 
-      assert :ok == perform_job(NewDatagouvDatasetsJob, %{}, inserted_at: inserted_at)
-
-      assert_email_sent(fn %Swoosh.Email{
-                             from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                             to: [{"", "deploiement@transport.data.gouv.fr"}],
-                             subject: "Nouveaux jeux de données à référencer - data.gouv.fr",
-                             text_body: nil,
-                             html_body: body
-                           } ->
-        assert body =~ ~s(<a href="#{dataset["page"]}">#{dataset["title"]}</a>)
-        assert body =~ expected_body
-      end)
-    end
-
-    test "sends an email on monday" do
-      monday_night = ~U[2022-10-31 03:00:00Z]
-
-      test_email_sending(
-        monday_night,
-        ~s(Les jeux de données suivants ont été ajoutés sur data.gouv.fr dans les dernières 72h)
-      )
-    end
-
-    test "sends an email on other week day" do
-      wednesday_night = ~U[2022-11-02 03:00:00Z]
-
-      test_email_sending(
-        wednesday_night,
-        ~s(Les jeux de données suivants ont été ajoutés sur data.gouv.fr dans les dernières 24h)
-      )
-    end
+  defp setup_datagouv_api_response(data) do
+    Transport.HTTPoison.Mock
+    |> expect(:get!, fn "https://demo.data.gouv.fr/api/1/datasets/?sort=-created&page_size=500",
+                        [],
+                        [timeout: 30_000, recv_timeout: 30_000] ->
+      %HTTPoison.Response{status_code: 200, body: Jason.encode!(%{"data" => data})}
+    end)
   end
 end
