@@ -9,7 +9,7 @@ defmodule TransportWeb.ResourceView do
     only: [documentation_url: 1, errors_count: 1, warnings_count: 1, multi_validation_performed?: 1, description: 1]
 
   import DB.ResourceUnavailability, only: [floor_float: 2]
-  import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2]
+  import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2, format_duration: 2]
   import Shared.Validation.TableSchemaValidator, only: [validata_web_url: 1]
   import Transport.GBFSUtils, only: [gbfs_validation_link: 1]
   import Transport.Shared.Schemas.Wrapper, only: [schema_type: 1]

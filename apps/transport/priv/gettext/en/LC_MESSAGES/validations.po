@@ -424,3 +424,7 @@ msgstr ""
 #, elixir-autogen, elixir-format, fuzzy
 msgid "NeTEx review report"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Elapsed time: %{duration}."
+msgstr ""

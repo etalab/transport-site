@@ -424,3 +424,7 @@ msgstr "Le fichier GTFS %{gtfs_original_file_name_2} comporte les différences c
 #, elixir-autogen, elixir-format, fuzzy
 msgid "NeTEx review report"
 msgstr "Rapport de l’analyse de fichier NeTEx"
+
+#, elixir-autogen, elixir-format
+msgid "Elapsed time: %{duration}."
+msgstr "Temps passé : %{duration}."

@@ -1,5 +1,6 @@
+<% locale = get_session(@conn, :locale) %>
 <div>
-  <ul>
-    <li>Elapsed time : <%= @metadata["elapsed_seconds"] %>s</li>
-  </ul>
+  <%= dgettext("validations", "Elapsed time: %{duration}.",
+    duration: format_duration(@metadata["elapsed_seconds"], locale)
+  ) %>
 </div>
