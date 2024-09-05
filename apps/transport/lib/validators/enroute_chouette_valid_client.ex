@@ -6,12 +6,11 @@ defmodule Transport.EnRouteChouetteValidClient.Wrapper do
 
   @callback create_a_validation(Path.t()) :: binary()
   @callback get_a_validation(binary()) ::
-              {:pending, integer()}
-              | {:successful, binary()}
-              | :warning
-              | :failed
+              :pending
+              | {:successful, binary(), integer()}
+              | {:warning, integer()}
+              | {:failed, integer()}
               | :unexpected_validation_status
-              | :unexpected_datetime_format
   @callback get_messages(binary()) :: {binary(), map()}
 
   def impl, do: Application.get_env(:transport, :enroute_validator_client)
@@ -48,25 +47,37 @@ defmodule Transport.EnRouteChouetteValidClient do
 
     case response |> Map.fetch!("user_status") do
       "pending" ->
-        case {get_datetime(response, "created_at"), get_datetime(response, "updated_at")} do
-          {{:ok, created_at, _}, {:ok, updated_at, _}} ->
-            {:pending, DateTime.diff(updated_at, created_at)}
-
-          _ ->
-            :unexpected_datetime_format
-        end
+        :pending
 
       "successful" ->
-        {:successful, url}
+        {:successful, url, get_elapsed!(response)}
 
       "warning" ->
-        :warning
+        {:warning, get_elapsed!(response)}
 
       "failed" ->
-        :failed
+        {:failed, get_elapsed!(response)}
 
       _ ->
         :unexpected_validation_status
+    end
+  end
+
+  defp get_elapsed!(response) do
+    created_at = get_datetime!(response, "started_at")
+    updated_at = get_datetime!(response, "ended_at")
+    DateTime.diff(updated_at, created_at)
+  end
+
+  defp get_datetime!(map, key) do
+    raw_date = Map.fetch!(map, key)
+
+    case DateTime.from_iso8601(raw_date) do
+      {:ok, value, _offset} ->
+        value
+
+      {:error, reason} ->
+        raise ArgumentError, "cannot parse #{inspect(raw_date)} as datetime, reasaon: #{inspect(reason)}"
     end
   end
 
@@ -76,10 +87,6 @@ defmodule Transport.EnRouteChouetteValidClient do
 
     %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(url, auth_headers())
     {url, body |> Jason.decode!()}
-  end
-
-  defp get_datetime(map, key) do
-    map |> Map.fetch!(key) |> DateTime.from_iso8601()
   end
 
   defp make_file_part(field_name, filepath) do

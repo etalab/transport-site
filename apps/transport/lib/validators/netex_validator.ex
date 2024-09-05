@@ -9,8 +9,7 @@ defmodule Transport.Validators.NeTEx do
 
   @no_error "NoError"
 
-  # 15 minutes for the validation to complete should be enough.
-  @timeout 15 * 60
+  @max_retries 100
 
   @behaviour Transport.Validators.Validator
 
@@ -27,19 +26,26 @@ defmodule Transport.Validators.NeTEx do
 
   def validate_resource_history(resource_history, filepath) do
     case validate_with_enroute(filepath) do
-      {:ok, result_url} ->
-        insert_validation_results(resource_history.id, result_url)
+      {:ok, %{url: result_url, elapsed_seconds: elapsed_seconds, retries: retries}} ->
+        insert_validation_results(resource_history.id, result_url, %{elapsed_seconds: elapsed_seconds, retries: retries})
+
         :ok
 
-      {:error, {result_url, errors}} ->
-        insert_validation_results(resource_history.id, result_url, errors)
+      {:error, %{details: {result_url, errors}, elapsed_seconds: elapsed_seconds, retries: retries}} ->
+        insert_validation_results(
+          resource_history.id,
+          result_url,
+          %{elapsed_seconds: elapsed_seconds, retries: retries},
+          errors
+        )
+
         :ok
 
       {:error, :unexpected_validation_status} ->
         Logger.error("Invalid API call to enRoute Chouette Valid")
         {:error, "enRoute Chouette Valid: Unexpected validation status"}
 
-      {:error, :timeout} ->
+      {:error, %{message: :timeout, retries: _retries}} ->
         Logger.error("Timeout while fetching result on enRoute Chouette Valid")
         {:error, "enRoute Chouette Valid: Timeout while fetching results"}
     end
@@ -58,23 +64,29 @@ defmodule Transport.Validators.NeTEx do
   def validate(url, opts \\ []) do
     with_url(url, fn filepath ->
       case validate_with_enroute(filepath, opts) do
-        {:ok, result_url} ->
+        {:ok, %{url: result_url, elapsed_seconds: elapsed_seconds, retries: retries}} ->
           # result_url in metadata?
           Logger.info("Result URL: #{result_url}")
-          {:ok, %{"validations" => index_messages([]), "metadata" => %{}}}
 
-        {:error, {result_url, errors}} ->
+          {:ok,
+           %{"validations" => index_messages([]), "metadata" => %{elapsed_seconds: elapsed_seconds, retries: retries}}}
+
+        {:error, %{details: {result_url, errors}, elapsed_seconds: elapsed_seconds, retries: retries}} ->
           Logger.info("Result URL: #{result_url}")
           # result_url in metadata?
-          {:ok, %{"validations" => index_messages(errors), "metadata" => %{}}}
+          {:ok,
+           %{
+             "validations" => index_messages(errors),
+             "metadata" => %{elapsed_seconds: elapsed_seconds, retries: retries}
+           }}
 
         {:error, :unexpected_validation_status} ->
           Logger.error("Invalid API call to enRoute Chouette Valid")
-          {:error, "enRoute Chouette Valid: Unexpected validation status"}
+          {:error, %{message: "enRoute Chouette Valid: Unexpected validation status"}}
 
-        {:error, :timeout} ->
+        {:error, %{message: :timeout, retries: retries}} ->
           Logger.error("Timeout while fetching result on enRoute Chouette Valid")
-          {:error, "enRoute Chouette Valid: Timeout while fetching results"}
+          {:error, %{message: "enRoute Chouette Valid: Timeout while fetching results", retries: retries}}
       end
     end)
   end
@@ -110,7 +122,7 @@ defmodule Transport.Validators.NeTEx do
     System.tmp_dir!() |> Path.join("enroute_validation_netex_#{Ecto.UUID.generate()}")
   end
 
-  def insert_validation_results(resource_history_id, result_url, errors \\ []) do
+  def insert_validation_results(resource_history_id, result_url, metadata, errors \\ []) do
     result = index_messages(errors)
 
     %DB.MultiValidation{
@@ -120,7 +132,8 @@ defmodule Transport.Validators.NeTEx do
       resource_history_id: resource_history_id,
       validator_version: validator_version(),
       command: result_url,
-      max_error: get_max_severity_error(result)
+      max_error: get_max_severity_error(result),
+      metadata: %DB.ResourceMetadata{metadata: metadata}
     }
     |> DB.Repo.insert!()
   end
@@ -200,27 +213,24 @@ defmodule Transport.Validators.NeTEx do
 
   defp fetch_validation_results(validation_id, retries, opts) do
     case client().get_a_validation(validation_id) do
-      {:pending, elapsed_seconds} when elapsed_seconds > @timeout ->
-        {:error, :timeout}
+      :pending when retries >= @max_retries ->
+        {:error, %{message: :timeout, retries: retries}}
 
-      {:pending, _elapsed_seconds} ->
+      :pending ->
         if Keyword.get(opts, :graceful_retry, true) do
           retries |> poll_interval() |> :timer.sleep()
         end
 
         fetch_validation_results(validation_id, retries + 1, opts)
 
-      {:successful, url} ->
-        {:ok, url}
+      {:successful, url, elapsed_seconds} ->
+        {:ok, %{url: url, elapsed_seconds: elapsed_seconds, retries: retries}}
 
-      value when value in [:warning, :failed] ->
-        {:error, client().get_messages(validation_id)}
+      {value, elapsed_seconds} when value in [:warning, :failed] ->
+        {:error, %{details: client().get_messages(validation_id), elapsed_seconds: elapsed_seconds, retries: retries}}
 
       :unexpected_validation_status ->
         {:error, :unexpected_validation_status}
-
-      :unexpected_datetime_format ->
-        {:error, :unexpected_datetime_format}
     end
   end
 
