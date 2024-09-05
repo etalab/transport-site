@@ -52,7 +52,7 @@ defmodule Transport.EnRouteChouetteValidClientTest do
           "user_status": "pending",
           "started_at": "2024-07-05T14:41:20.680Z",
           "created_at": "2024-07-05T14:41:19.933Z",
-          "updated_at": "2024-07-05T14:45:20.933Z"
+          "updated_at": "2024-07-05T14:41:20.933Z"
         }
         """
 
@@ -63,7 +63,7 @@ defmodule Transport.EnRouteChouetteValidClientTest do
         %HTTPoison.Response{status_code: 200, body: response_body}
       end)
 
-      assert {:pending, 4 * 60 + 1} == EnRouteChouetteValidClient.get_a_validation(validation_id)
+      assert :pending == EnRouteChouetteValidClient.get_a_validation(validation_id)
     end
 
     test "successful" do
@@ -76,9 +76,9 @@ defmodule Transport.EnRouteChouetteValidClientTest do
           "rule_set": "french",
           "user_status": "successful",
           "started_at": "2024-07-05T14:41:20.680Z",
-          "ended_at": "2024-07-05T14:41:20.685Z",
+          "ended_at": "2024-07-05T14:41:25.685Z",
           "created_at": "2024-07-05T14:41:19.933Z",
-          "updated_at": "2024-07-05T14:41:24.933Z"
+          "updated_at": "2024-07-05T14:41:20.933Z"
         }
         """
 
@@ -102,9 +102,9 @@ defmodule Transport.EnRouteChouetteValidClientTest do
           "rule_set": "french",
           "user_status": "warning",
           "started_at": "2024-07-05T14:41:20.680Z",
-          "ended_at": "2024-07-05T14:41:20.685Z",
+          "ended_at": "2024-07-05T14:41:24.685Z",
           "created_at": "2024-07-05T14:41:19.933Z",
-          "updated_at": "2024-07-05T14:41:23.933Z"
+          "updated_at": "2024-07-05T14:41:20.933Z"
         }
         """
 
@@ -128,9 +128,9 @@ defmodule Transport.EnRouteChouetteValidClientTest do
           "rule_set": "french",
           "user_status": "failed",
           "started_at": "2024-07-05T14:41:20.680Z",
-          "ended_at": "2024-07-05T14:41:20.685Z",
+          "ended_at": "2024-07-05T14:41:28.685Z",
           "created_at": "2024-07-05T14:41:19.933Z",
-          "updated_at": "2024-07-05T14:41:27.933Z"
+          "updated_at": "2024-07-05T14:41:20.933Z"
         }
         """
 

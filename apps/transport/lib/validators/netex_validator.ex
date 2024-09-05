@@ -9,8 +9,7 @@ defmodule Transport.Validators.NeTEx do
 
   @no_error "NoError"
 
-  # 15 minutes for the validation to complete should be enough.
-  @timeout 15 * 60
+  @max_retries 100
 
   @behaviour Transport.Validators.Validator
 
@@ -214,10 +213,10 @@ defmodule Transport.Validators.NeTEx do
 
   defp fetch_validation_results(validation_id, retries, opts) do
     case client().get_a_validation(validation_id) do
-      {:pending, elapsed_seconds} when elapsed_seconds > @timeout ->
+      :pending when retries >= @max_retries ->
         {:error, %{message: :timeout, retries: retries}}
 
-      {:pending, _elapsed_seconds} ->
+      :pending ->
         if Keyword.get(opts, :graceful_retry, true) do
           retries |> poll_interval() |> :timer.sleep()
         end

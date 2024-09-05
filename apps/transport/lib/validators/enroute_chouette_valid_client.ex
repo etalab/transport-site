@@ -6,7 +6,7 @@ defmodule Transport.EnRouteChouetteValidClient.Wrapper do
 
   @callback create_a_validation(Path.t()) :: binary()
   @callback get_a_validation(binary()) ::
-              {:pending, integer()}
+              :pending
               | {:successful, binary(), integer()}
               | {:warning, integer()}
               | {:failed, integer()}
@@ -47,7 +47,7 @@ defmodule Transport.EnRouteChouetteValidClient do
 
     case response |> Map.fetch!("user_status") do
       "pending" ->
-        {:pending, get_elapsed!(response)}
+        :pending
 
       "successful" ->
         {:successful, url, get_elapsed!(response)}
@@ -64,8 +64,8 @@ defmodule Transport.EnRouteChouetteValidClient do
   end
 
   defp get_elapsed!(response) do
-    created_at = get_datetime!(response, "created_at")
-    updated_at = get_datetime!(response, "updated_at")
+    created_at = get_datetime!(response, "started_at")
+    updated_at = get_datetime!(response, "ended_at")
     DateTime.diff(updated_at, created_at)
   end
 
