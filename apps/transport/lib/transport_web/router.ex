@@ -100,11 +100,14 @@ defmodule TransportWeb.Router do
         post("/:dataset_id/upload_logo", EspaceProducteurController, :upload_logo)
         delete("/:dataset_id/custom_logo", EspaceProducteurController, :remove_custom_logo)
 
+        scope("/:dataset_id/resources") do
+          get("/:resource_datagouv_id/delete", EspaceProducteurController, :delete_resource_confirmation)
+        end
+
         scope "/:dataset_datagouv_id/resources" do
           post("/", EspaceProducteurController, :post_file)
           get("/_new_resource/", EspaceProducteurController, :resource_form)
           get("/:resource_datagouv_id/", EspaceProducteurController, :resource_form)
-          get("/:resource_datagouv_id/delete", EspaceProducteurController, :delete_resource_confirmation)
           delete("/:resource_datagouv_id/delete", EspaceProducteurController, :delete_resource)
           post("/:resource_datagouv_id/", EspaceProducteurController, :post_file)
         end

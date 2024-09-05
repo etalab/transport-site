@@ -354,8 +354,11 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       conn = conn |> init_test_session(%{current_user: %{}})
       resource_datagouv_id = "resource_dataset_id"
 
-      %DB.Dataset{datagouv_id: dataset_datagouv_id} =
+      %DB.Dataset{id: dataset_id, datagouv_id: dataset_datagouv_id, organization_id: organization_id} =
         insert(:dataset, custom_title: custom_title = "Base Nationale des Lieux de Covoiturage")
+
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
       Datagouvfr.Client.Datasets.Mock
       |> expect(:get, 1, fn ^dataset_datagouv_id ->
@@ -364,7 +367,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       html =
         conn
-        |> get(espace_producteur_path(conn, :delete_resource_confirmation, dataset_datagouv_id, resource_datagouv_id))
+        |> get(espace_producteur_path(conn, :delete_resource_confirmation, dataset_id, resource_datagouv_id))
         |> html_response(200)
 
       assert_breadcrumb_content(html, ["Votre espace producteur", custom_title, "Supprimer une ressource"])
