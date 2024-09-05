@@ -232,9 +232,6 @@ defmodule Transport.Validators.NeTEx do
 
       :unexpected_validation_status ->
         {:error, :unexpected_validation_status}
-
-      :unexpected_datetime_format ->
-        {:error, :unexpected_datetime_format}
     end
   end
 

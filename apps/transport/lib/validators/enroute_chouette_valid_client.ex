@@ -11,7 +11,6 @@ defmodule Transport.EnRouteChouetteValidClient.Wrapper do
               | {:warning, integer()}
               | {:failed, integer()}
               | :unexpected_validation_status
-              | :unexpected_datetime_format
   @callback get_messages(binary()) :: {binary(), map()}
 
   def impl, do: Application.get_env(:transport, :enroute_validator_client)
@@ -48,32 +47,37 @@ defmodule Transport.EnRouteChouetteValidClient do
 
     case response |> Map.fetch!("user_status") do
       "pending" ->
-        case get_elapsed(response) do
-          nil -> :unexpected_datetime_format
-          elapsed -> {:pending, elapsed}
-        end
+        {:pending, get_elapsed!(response)}
 
       "successful" ->
-        {:successful, url, get_elapsed(response)}
+        {:successful, url, get_elapsed!(response)}
 
       "warning" ->
-        {:warning, get_elapsed(response)}
+        {:warning, get_elapsed!(response)}
 
       "failed" ->
-        {:failed, get_elapsed(response)}
+        {:failed, get_elapsed!(response)}
 
       _ ->
         :unexpected_validation_status
     end
   end
 
-  defp get_elapsed(response) do
-    case {get_datetime(response, "created_at"), get_datetime(response, "updated_at")} do
-      {{:ok, created_at, _}, {:ok, updated_at, _}} ->
-        DateTime.diff(updated_at, created_at)
+  defp get_elapsed!(response) do
+    created_at = get_datetime!(response, "created_at")
+    updated_at = get_datetime!(response, "updated_at")
+    DateTime.diff(updated_at, created_at)
+  end
 
-      _ ->
-        nil
+  defp get_datetime!(map, key) do
+    raw_date = Map.fetch!(map, key)
+
+    case DateTime.from_iso8601(raw_date) do
+      {:ok, value, _offset} ->
+        value
+
+      {:error, reason} ->
+        raise ArgumentError, "cannot parse #{inspect(raw_date)} as datetime, reasaon: #{inspect(reason)}"
     end
   end
 
@@ -83,10 +87,6 @@ defmodule Transport.EnRouteChouetteValidClient do
 
     %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(url, auth_headers())
     {url, body |> Jason.decode!()}
-  end
-
-  defp get_datetime(map, key) do
-    map |> Map.fetch!(key) |> DateTime.from_iso8601()
   end
 
   defp make_file_part(field_name, filepath) do
