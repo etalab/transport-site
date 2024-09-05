@@ -43,8 +43,8 @@ defmodule TransportWeb.PageView do
   end
 
   def dataset_creation,
-  do:
-    :transport
-    |> Application.fetch_env!(:datagouvfr_site)
-    |> Path.join("/fr/admin/dataset/new/")
+    do:
+      :transport
+      |> Application.fetch_env!(:datagouvfr_site)
+      |> Path.join("/fr/admin/dataset/new/")
 end

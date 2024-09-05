@@ -55,7 +55,13 @@
                   "data-tracking-action": "update_resource_button"
                 ) %>
                 <%= link(dgettext("espace-producteurs", "Delete resource"),
-                  to: espace_producteur_path(@conn, :delete_resource_confirmation, @datagouv_dataset["id"], resource["id"]),
+                  to:
+                    espace_producteur_path(
+                      @conn,
+                      :delete_resource_confirmation,
+                      @datagouv_dataset["id"],
+                      resource["id"]
+                    ),
                   class: "button-outline warning small",
                   "data-tracking-category": "espace_producteur",
                   "data-tracking-action": "delete_resource_button"

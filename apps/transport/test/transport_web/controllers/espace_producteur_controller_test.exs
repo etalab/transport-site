@@ -275,7 +275,11 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         dataset_datagouv_get_response(dataset_datagouv_id, resource_datagouv_id)
       end)
 
-      html = conn |> get(espace_producteur_path(conn, :resource_form, dataset_datagouv_id, resource_datagouv_id)) |> html_response(200)
+      html =
+        conn
+        |> get(espace_producteur_path(conn, :resource_form, dataset_datagouv_id, resource_datagouv_id))
+        |> html_response(200)
+
       doc = html |> Floki.parse_document!()
       assert_breadcrumb_content(html, ["Votre espace producteur", custom_title, "Modifier une ressource"])
       # Title
@@ -366,7 +370,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       assert_breadcrumb_content(html, ["Votre espace producteur", custom_title, "Supprimer une ressource"])
 
       assert html =~ "bnlc.csv"
-      assert html =~ "Souhaitez-vous mettre à jour la ressource ou la supprimer définitivement ?"
+      assert html =~ "Souhaitez-vous mettre à jour la ressource ou la supprimer définitivement ?"
     end
 
     test "we can delete a resource", %{conn: conn} do
@@ -402,7 +406,6 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     assert redirected_to(conn, 302) == page_path(conn, :infos_producteurs)
   end
 
-
   defp dataset_datagouv_get_response(dataset_datagouv_id, resource_datagouv_id \\ "resource_id_1") do
     {:ok,
      datagouv_dataset_response(%{
@@ -430,7 +433,6 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     Datagouvfr.Client.CommunityResources.Mock |> expect(:get, fn _ -> {:ok, []} end)
     Mox.stub_with(Transport.AvailabilityChecker.Mock, Transport.AvailabilityChecker.Dummy)
   end
-
 
   defp assert_breadcrumb_content(html, expected) when is_binary(html) do
     assert_breadcrumb_content(Floki.parse_document!(html), expected)

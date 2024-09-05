@@ -4,6 +4,7 @@ defmodule TransportWeb.ResourceView do
   import TransportWeb.PaginationHelpers
   import Transport.Validators.GTFSTransport
   import Phoenix.Controller, only: [current_url: 2]
+
   import TransportWeb.DatasetView,
     only: [documentation_url: 1, errors_count: 1, warnings_count: 1, multi_validation_performed?: 1, description: 1]
 

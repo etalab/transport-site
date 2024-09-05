@@ -1,5 +1,3 @@
-<% dataset_id = Map.fetch!(@conn.params, "dataset_id")
-resource_id = Map.fetch!(@conn.params, "resource_id") %>
 <section class="pt-48 pb-24">
   <div class="container">
     <%= breadcrumbs([@conn, :delete_resource, @db_dataset.custom_title, @db_dataset.id]) %>
@@ -8,7 +6,7 @@ resource_id = Map.fetch!(@conn.params, "resource_id") %>
 <section class="espace-producteur-section">
   <div class="container pt-24">
     <strong><%= @db_dataset.custom_title %> > <%= @resource["title"] %></strong>
-    <%= form_for @conn, espace_producteur_path(@conn, :delete_resource, dataset_id, resource_id), [method: "delete", class: "pt-48"], fn _ -> %>
+    <%= form_for @conn, espace_producteur_path(@conn, :delete_resource, @dataset["id"], @resource["id"]), [method: "delete", class: "pt-48"], fn _ -> %>
       <p class="notification warning">
         <%= dgettext("espace-producteurs", "Do you want to update the resource or delete it definitely?") %>
       </p>
@@ -22,7 +20,7 @@ resource_id = Map.fetch!(@conn.params, "resource_id") %>
           <%= dgettext("espace-producteurs", "Delete the resource") %>
         </button>
         <a
-          href={espace_producteur_path(@conn, :resource_form, dataset_id, resource_id)}
+          href={espace_producteur_path(@conn, :resource_form, @dataset["id"], @resource["id"])}
           data-tracking-category="espace_producteur"
           data-tracking-action="abort_delete_update_resource"
         >
