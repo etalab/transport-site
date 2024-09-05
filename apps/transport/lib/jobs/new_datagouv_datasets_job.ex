@@ -75,6 +75,9 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
              formats: MapSet.new([])
            }
          ]
+         # Check that all rules:
+         # - have the required attributes
+         # - the specified schemas (`etalab/schema-irve-statique` for example) exist
          |> Enum.map(fn %{category: category, schemas: schemas, tags: %MapSet{}, formats: %MapSet{}} = rule ->
            if Mix.env() == :prod do
              unless Enum.all?(schemas, &(&1 in Map.keys(Schemas.transport_schemas()))) do
