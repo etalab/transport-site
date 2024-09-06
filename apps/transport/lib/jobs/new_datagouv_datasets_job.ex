@@ -199,7 +199,7 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
   def rule_explanation(%{schemas: schemas, tags: tags, formats: formats}) do
     join_or_empty = fn values ->
       if Enum.empty?(values) do
-        "<vide>"
+        "(vide)"
       else
         Enum.join(values, ", ")
       end
