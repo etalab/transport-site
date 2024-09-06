@@ -77,7 +77,7 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
   ]
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"check_rules" => _}}) do
+  def perform(%Oban.Job{args: %{"check_rules" => true}}) do
     # Check that all rules:
     # - have the required attributes
     # - the specified schemas (`etalab/schema-irve-statique` for example) exist
