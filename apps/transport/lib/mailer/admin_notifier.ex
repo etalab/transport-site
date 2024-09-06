@@ -121,7 +121,9 @@ defmodule Transport.AdminNotifier do
   defp notify_bidzev do
     new()
     |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
-    |> to(Application.fetch_env!(:transport, :bizdev_email))
+    # Uses the contact@ email address but method is kept if we need
+    # to route differently in the future.
+    |> to(Application.fetch_env!(:transport, :contact_email))
     |> reply_to(Application.fetch_env!(:transport, :contact_email))
   end
 

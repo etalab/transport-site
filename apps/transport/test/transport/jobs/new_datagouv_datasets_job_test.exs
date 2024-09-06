@@ -237,7 +237,7 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
 
       assert_email_sent(fn %Swoosh.Email{
                              from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                             to: [{"", "deploiement@transport.data.gouv.fr"}],
+                             to: [{"", "contact@transport.data.gouv.fr"}],
                              subject: "Nouveaux jeux de données Freefloating à référencer - data.gouv.fr",
                              text_body: nil,
                              html_body: body
@@ -247,7 +247,7 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
 
       assert_email_sent(fn %Swoosh.Email{
                              from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                             to: [{"", "deploiement@transport.data.gouv.fr"}],
+                             to: [{"", "contact@transport.data.gouv.fr"}],
                              subject: "Nouveaux jeux de données Transport en commun à référencer - data.gouv.fr",
                              text_body: nil,
                              html_body: body
@@ -295,7 +295,7 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
 
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"", "deploiement@transport.data.gouv.fr"}],
+                           to: [{"", "contact@transport.data.gouv.fr"}],
                            subject: "Nouveaux jeux de données Transport en commun à référencer - data.gouv.fr",
                            text_body: nil,
                            html_body: body

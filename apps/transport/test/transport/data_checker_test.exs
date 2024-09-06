@@ -27,7 +27,7 @@ defmodule Transport.DataCheckerTest do
 
       assert_email_sent(
         from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-        to: "deploiement@transport.data.gouv.fr",
+        to: "contact@transport.data.gouv.fr",
         subject: "Jeux de données supprimés ou archivés",
         text_body: nil,
         html_body: ~r/Certains jeux de données disparus sont réapparus sur data.gouv.fr/
@@ -81,7 +81,7 @@ defmodule Transport.DataCheckerTest do
 
       assert_email_sent(
         from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-        to: "deploiement@transport.data.gouv.fr",
+        to: "contact@transport.data.gouv.fr",
         subject: "Jeux de données supprimés ou archivés",
         text_body: nil,
         html_body: ~r/Certains jeux de données ont disparus de data.gouv.fr/
@@ -108,7 +108,7 @@ defmodule Transport.DataCheckerTest do
 
       assert_email_sent(
         from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-        to: "deploiement@transport.data.gouv.fr",
+        to: "contact@transport.data.gouv.fr",
         subject: "Jeux de données supprimés ou archivés",
         text_body: nil,
         html_body: ~r/Certains jeux de données sont indiqués comme archivés/
@@ -239,7 +239,7 @@ defmodule Transport.DataCheckerTest do
 
       assert_email_sent(fn %Swoosh.Email{
                              from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                             to: [{"", "deploiement@transport.data.gouv.fr"}],
+                             to: [{"", "contact@transport.data.gouv.fr"}],
                              subject: "Jeux de données arrivant à expiration",
                              text_body: nil,
                              html_body: body

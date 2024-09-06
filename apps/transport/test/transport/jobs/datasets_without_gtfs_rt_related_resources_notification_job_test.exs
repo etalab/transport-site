@@ -58,7 +58,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetsWithoutGTFSRTRelatedResourcesNot
 
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"", "deploiement@transport.data.gouv.fr"}],
+                           to: [{"", "contact@transport.data.gouv.fr"}],
                            reply_to: {"", "contact@transport.data.gouv.fr"},
                            subject: "Jeux de données GTFS-RT sans ressources liées",
                            text_body: nil,
