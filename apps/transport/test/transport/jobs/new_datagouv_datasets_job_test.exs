@@ -152,7 +152,7 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
   end
 
   test "rule_explanation" do
-    assert "<p>Règles utilisées pour identifier ces jeux de données :</p>\n<ul>\n  <li>Formats : netex</li>\n  <li>Schémas : <vide></li>\n  <li>Mots-clés/tags : cassis, kir</li>\n</ul>\n" ==
+    assert "<p>Règles utilisées pour identifier ces jeux de données :</p>\n<ul>\n  <li>Formats : netex</li>\n  <li>Schémas : (vide)</li>\n  <li>Mots-clés/tags : cassis, kir</li>\n</ul>\n" ==
              NewDatagouvDatasetsJob.rule_explanation(%{
                schemas: MapSet.new([]),
                tags: MapSet.new(["kir", "cassis"]),
