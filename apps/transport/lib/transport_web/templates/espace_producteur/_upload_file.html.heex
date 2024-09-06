@@ -1,6 +1,6 @@
 <div class="choose-option">
   <%= dgettext("espace-producteurs", "Upload a file") %>
-  <%= unless is_nil(@resource["url"]) do %>
+  <%= unless is_nil(@datagouv_resource["url"]) do %>
     <p>
       <%= dgettext("espace-producteurs", "Current file: %{current_file}", current_file: Path.basename(@resource["url"])) %>
     </p>

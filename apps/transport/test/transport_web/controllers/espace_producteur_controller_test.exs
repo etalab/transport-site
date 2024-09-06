@@ -267,8 +267,11 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       conn = conn |> init_test_session(%{current_user: %{}})
       resource_datagouv_id = "resource_dataset_id"
 
-      %DB.Dataset{datagouv_id: dataset_datagouv_id} =
+      %DB.Dataset{id: dataset_id, datagouv_id: dataset_datagouv_id, organization_id: organization_id} =
         insert(:dataset, custom_title: custom_title = "Base Nationale des Lieux de Covoiturage")
+
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
       Datagouvfr.Client.Datasets.Mock
       |> expect(:get, 1, fn ^dataset_datagouv_id ->
@@ -277,7 +280,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       html =
         conn
-        |> get(espace_producteur_path(conn, :resource_form, dataset_datagouv_id, resource_datagouv_id))
+        |> get(espace_producteur_path(conn, :edit_resource, dataset_id, resource_datagouv_id))
         |> html_response(200)
 
       doc = html |> Floki.parse_document!()
@@ -292,15 +295,18 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     test "we can show the form for a new resource", %{conn: conn} do
       conn = conn |> init_test_session(%{current_user: %{}})
 
-      %DB.Dataset{datagouv_id: dataset_datagouv_id} =
+      %DB.Dataset{id: dataset_id, datagouv_id: dataset_datagouv_id, organization_id: organization_id} =
         insert(:dataset, custom_title: custom_title = "Base Nationale des Lieux de Covoiturage")
+
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
       Datagouvfr.Client.Datasets.Mock
       |> expect(:get, 1, fn ^dataset_datagouv_id -> dataset_datagouv_get_response(dataset_datagouv_id) end)
 
       doc =
         conn
-        |> get(espace_producteur_path(conn, :resource_form, dataset_datagouv_id))
+        |> get(espace_producteur_path(conn, :new_resource, dataset_id))
         |> html_response(200)
         |> Floki.parse_document!()
 

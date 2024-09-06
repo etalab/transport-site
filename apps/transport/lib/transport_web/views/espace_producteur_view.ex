@@ -3,11 +3,11 @@ defmodule TransportWeb.EspaceProducteurView do
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
 
   @spec action_path(Plug.Conn.t()) :: any
-  def action_path(%Plug.Conn{params: %{"resource_datagouv_id" => r_id} = params} = conn),
-    do: espace_producteur_path(conn, :post_file, params["dataset_datagouv_id"], r_id)
+  def action_path(%Plug.Conn{params: %{"resource_datagouv_id" => r_id}, assigns: %{dataset: dataset}} = conn),
+    do: espace_producteur_path(conn, :post_file, dataset.datagouv_id, r_id)
 
-  def action_path(%Plug.Conn{params: params} = conn),
-    do: espace_producteur_path(conn, :post_file, params["dataset_datagouv_id"])
+  def action_path(%Plug.Conn{assigns: %{dataset: dataset}} = conn),
+    do: espace_producteur_path(conn, :post_file, dataset.datagouv_id)
 
   def title(%Plug.Conn{params: %{"resource_datagouv_id" => _}}),
     do: dgettext("resource", "Resource modification")

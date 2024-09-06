@@ -20,7 +20,7 @@
           <%= dgettext("espace-producteurs", "Delete the resource") %>
         </button>
         <a
-          href={espace_producteur_path(@conn, :resource_form, @datagouv_dataset["id"], @datagouv_resource["id"])}
+          href={espace_producteur_path(@conn, :edit_resource, @dataset.id, @datagouv_resource["id"])}
           data-tracking-category="espace_producteur"
           data-tracking-action="abort_delete_update_resource"
         >

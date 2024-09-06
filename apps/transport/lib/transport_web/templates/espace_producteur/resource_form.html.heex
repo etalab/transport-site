@@ -1,17 +1,19 @@
-<% new_resource = is_nil(@resource) %>
+<% new_resource = is_nil(@datagouv_resource) %>
 <div class="add-update-resource">
   <section class="pt-48 pb-24">
     <div class="container">
       <%= if new_resource do %>
-        <%= breadcrumbs([@conn, :new_resource, @db_dataset.custom_title, @db_dataset.id]) %>
+        <%= breadcrumbs([@conn, :new_resource, @dataset.custom_title, @dataset.id]) %>
       <% else %>
-        <%= breadcrumbs([@conn, :update_resource, @db_dataset.custom_title, @db_dataset.id]) %>
+        <%= breadcrumbs([@conn, :update_resource, @dataset.custom_title, @dataset.id]) %>
       <% end %>
     </div>
   </section>
   <section class="choose-file">
     <div class="container pt-24">
-      <strong><%= @db_dataset.custom_title %><span :if={!new_resource}> > <%= @resource["title"] %></span></strong>
+      <strong>
+        <%= @dataset.custom_title %><span :if={!new_resource}> > <%= @datagouv_resource["title"] %></span>
+      </strong>
       <div class="pt-24">
         <h2><%= title(@conn) %></h2>
       </div>
@@ -36,7 +38,7 @@
                   dgettext(
                     "resource",
                     ~s(This option allows you to add the resource on data.gouv.fr, directly from here. Do you want to publish a more up-to-date version of a resource? <a href="%{url}">Update the resource</a> instead.),
-                    url: espace_producteur_path(@conn, :edit_dataset, @db_dataset.id)
+                    url: espace_producteur_path(@conn, :edit_dataset, @dataset.id)
                   )
                 ) %>
               </p>
@@ -55,7 +57,7 @@
               <%= text_input(f, :title,
                 label: dgettext("espace-producteurs", "title"),
                 placeholder: dgettext("espace-producteurs", "Example : Paris GTFS dataset"),
-                value: @resource["title"]
+                value: @datagouv_resource["title"]
               ) %>
               <%= text_input(
                 f,
@@ -70,23 +72,23 @@
                     ]
                   end,
                 placeholder: "GTFS, NeTEx, …",
-                value: @resource["format"]
+                value: @datagouv_resource["format"]
               ) %>
               <div class="pt-48">
                 <%= if new_resource do %>
-                  <%= render("_upload_file.html", resource: @resource, f: f, conn: @conn) %>
+                  <%= render("_upload_file.html", datagouv_resource: @datagouv_resource, f: f, conn: @conn) %>
                   <div class="choose-or">
                     - <%= dgettext("espace-producteurs", "or") %> -
                   </div>
-                  <%= render("_specify_url.html", resource: @resource, f: f, conn: @conn) %>
+                  <%= render("_specify_url.html", datagouv_resource: @datagouv_resource, f: f, conn: @conn) %>
                   <div class="choose-submit pt-24">
                     <%= submit(dgettext("espace-producteurs", "Add the resource"), class: "button primary") %>
                   </div>
                 <% else %>
-                  <%= if remote?(@resource) do %>
-                    <%= render("_specify_url.html", resource: @resource, f: f, conn: @conn) %>
+                  <%= if remote?(@datagouv_resource) do %>
+                    <%= render("_specify_url.html", datagouv_resource: @datagouv_resource, f: f, conn: @conn) %>
                   <% else %>
-                    <%= render("_upload_file.html", resource: @resource, f: f, conn: @conn) %>
+                    <%= render("_upload_file.html", datagouv_resource: @datagouv_resource, f: f, conn: @conn) %>
                   <% end %>
                   <div class="choose-submit pt-24">
                     <%= submit(dgettext("espace-producteurs", "Update the resource"), class: "button primary") %>
@@ -107,7 +109,7 @@
               <div>
                 <a
                   class="button primary"
-                  href={link_to_datagouv_resource_creation(@dataset["id"])}
+                  href={link_to_datagouv_resource_creation(@datagouv_dataset["id"])}
                   role="link"
                   target="_blank"
                 >
@@ -122,7 +124,7 @@
               <div>
                 <a
                   class="button primary"
-                  href={link_to_datagouv_resource_edit(@dataset["id"], @conn.params["resource_id"])}
+                  href={link_to_datagouv_resource_edit(@datagouv_dataset["id"], @conn.params["resource_id"])}
                   role="link"
                   target="_blank"
                 >
