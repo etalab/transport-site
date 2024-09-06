@@ -9,84 +9,87 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
   alias Transport.Shared.Schemas.Wrapper, as: Schemas
 
   @rules [
-           %{
-             category: "Transport en commun",
-             schemas: MapSet.new([]),
-             tags:
-               MapSet.new([
-                 "bus",
-                 "deplacements",
-                 "déplacements",
-                 "horaires",
-                 "mobilite",
-                 "mobilité",
-                 "temps-reel",
-                 "temps-réel",
-                 "transport",
-                 "transports"
-               ]),
-             formats: MapSet.new(["gtfs", "netex", "gtfs-rt", "gtfsrt", "siri", "ssim"])
-           },
-           %{
-             category: "Freefloating",
-             schemas: MapSet.new([]),
-             tags:
-               MapSet.new([
-                 "autopartage",
-                 "freefloating",
-                 "trottinette",
-                 "vls",
-                 "scooter",
-                 "libre-service",
-                 "libre service",
-                 "scooter"
-               ]),
-             formats: MapSet.new(["gbfs"])
-           },
-           %{
-             category: "Vélo et stationnements",
-             schemas: [
-               "etalab/schema-amenagements-cyclables",
-               "etalab/schema-stationnement-cyclable",
-               "etalab/schema-stationnement",
-               "etalab/schema-comptage-mobilites"
-             ],
-             tags: MapSet.new(["cyclable", "parking", "stationnement", "velo", "vélo"]),
-             formats: MapSet.new([])
-           },
-           %{
-             category: "Covoiturage et ZFE",
-             schemas: ["etalab/schema-lieux-covoiturage", "etalab/schema-zfe"],
-             tags: MapSet.new(["covoiturage", "zfe"]),
-             formats: MapSet.new([])
-           },
-           %{
-             category: "IRVE",
-             schemas: ["etalab/schema-irve-statique", "etalab/schema-irve-dynamique"],
-             tags:
-               MapSet.new([
-                 "infrastructure de recharge",
-                 "borne de recharge",
-                 "irve",
-                 "sdirve",
-                 "électrique",
-                 "electrique"
-               ]),
-             formats: MapSet.new([])
-           }
-         ]
-         # Check that all rules:
-         # - have the required attributes
-         # - the specified schemas (`etalab/schema-irve-statique` for example) exist
-         |> Enum.map(fn %{category: category, schemas: schemas, tags: %MapSet{}, formats: %MapSet{}} = rule ->
-           if Mix.env() == :prod do
-             unless Enum.all?(schemas, &(&1 in Map.keys(Schemas.transport_schemas()))) do
-               raise "`#{category}` has invalid schemas: #{inspect(schemas)}"
-             end
-           end
+    %{
+      category: "Transport en commun",
+      schemas: MapSet.new([]),
+      tags:
+        MapSet.new([
+          "bus",
+          "deplacements",
+          "déplacements",
+          "horaires",
+          "mobilite",
+          "mobilité",
+          "temps-reel",
+          "temps-réel",
+          "transport",
+          "transports"
+        ]),
+      formats: MapSet.new(["gtfs", "netex", "gtfs-rt", "gtfsrt", "siri", "ssim"])
+    },
+    %{
+      category: "Freefloating",
+      schemas: MapSet.new([]),
+      tags:
+        MapSet.new([
+          "autopartage",
+          "freefloating",
+          "trottinette",
+          "vls",
+          "scooter",
+          "libre-service",
+          "libre service",
+          "scooter"
+        ]),
+      formats: MapSet.new(["gbfs"])
+    },
+    %{
+      category: "Vélo et stationnements",
+      schemas: [
+        "etalab/schema-amenagements-cyclables",
+        "etalab/schema-stationnement-cyclable",
+        "etalab/schema-stationnement",
+        "etalab/schema-comptage-mobilites"
+      ],
+      tags: MapSet.new(["cyclable", "parking", "stationnement", "velo", "vélo"]),
+      formats: MapSet.new([])
+    },
+    %{
+      category: "Covoiturage et ZFE",
+      schemas: ["etalab/schema-lieux-covoiturage", "etalab/schema-zfe"],
+      tags: MapSet.new(["covoiturage", "zfe"]),
+      formats: MapSet.new([])
+    },
+    %{
+      category: "IRVE",
+      schemas: ["etalab/schema-irve-statique", "etalab/schema-irve-dynamique"],
+      tags:
+        MapSet.new([
+          "infrastructure de recharge",
+          "borne de recharge",
+          "irve",
+          "sdirve",
+          "électrique",
+          "electrique"
+        ]),
+      formats: MapSet.new([])
+    }
+  ]
 
-           rule
-         end)
+  @impl Oban.Worker
+  def perform(%Oban.Job{args: %{"check_rules" => _}}) do
+    # Check that all rules:
+    # - have the required attributes
+    # - the specified schemas (`etalab/schema-irve-statique` for example) exist
+    existing_schemas = Map.keys(Schemas.transport_schemas())
+
+    Enum.each(@rules, fn %{category: category, schemas: schemas, tags: %MapSet{}, formats: %MapSet{}} ->
+      unless Enum.all?(schemas, &(&1 in existing_schemas)) do
+        message = "`#{category}` has invalid schemas: #{inspect(schemas)}"
+        Sentry.capture_message("#{inspect(__MODULE__)}: #{message}")
+      end
+    end)
+  end
 
   @impl Oban.Worker
   def perform(%Oban.Job{inserted_at: %DateTime{} = inserted_at}) do

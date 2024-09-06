@@ -130,6 +130,7 @@ oban_prod_crontab = [
   # https://github.com/etalab/transport-site/issues/3492
   # {"0 20 * * *", Transport.Jobs.ResourceHistoryValidataJSONJob},
   {"15 */3 * * *", Transport.Jobs.ResourceHistoryTableSchemaValidationJob},
+  {"0 6 * * 1-5", Transport.Jobs.NewDatagouvDatasetsJob, args: %{check_rules: true}},
   {"5 6 * * 1-5", Transport.Jobs.NewDatagouvDatasetsJob},
   {"0 6 * * *", Transport.Jobs.NewDatasetNotificationsJob},
   {"30 6 * * *", Transport.Jobs.ExpirationNotificationJob},
