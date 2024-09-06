@@ -11,6 +11,7 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
   doctest NewDatagouvDatasetsJob, import: true
 
   setup do
+    Sentry.Test.start_collecting_sentry_reports()
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
@@ -160,6 +161,32 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
   end
 
   describe "perform" do
+    test "check_rules when schemas exist" do
+      Transport.Shared.Schemas.Mock
+      |> expect(:transport_schemas, fn ->
+        NewDatagouvDatasetsJob.rules() |> Enum.flat_map(& &1.schemas) |> Map.new(fn schema -> {schema, true} end)
+      end)
+
+      assert :ok == perform_job(NewDatagouvDatasetsJob, %{"check_rules" => true})
+    end
+
+    test "check_rules when a schema does not exist" do
+      expect(Transport.Shared.Schemas.Mock, :transport_schemas, fn ->
+        %{"404" => true}
+      end)
+
+      assert :ok == perform_job(NewDatagouvDatasetsJob, %{"check_rules" => true})
+
+      sentry_events = Sentry.Test.pop_sentry_reports()
+
+      NewDatagouvDatasetsJob.rules()
+      |> Enum.reject(&Enum.empty?(&1.schemas))
+      |> Enum.zip(sentry_events)
+      |> Enum.each(fn {%{category: category}, event} ->
+        assert event.message.formatted =~ ~r|^Transport.Jobs.NewDatagouvDatasetsJob: `#{category}` has invalid schemas|
+      end)
+    end
+
     test "no datasets" do
       setup_datagouv_api_response([])
 

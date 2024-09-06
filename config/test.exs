@@ -148,3 +148,6 @@ config :transport, Transport.Mailer, adapter: Swoosh.Adapters.Test
 # avoid logging
 config :os_mon,
   start_memsup: false
+
+# See https://hexdocs.pm/sentry/Sentry.Test.html
+config :sentry, test_mode: true
