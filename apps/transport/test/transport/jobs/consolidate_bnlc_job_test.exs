@@ -864,7 +864,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
   defp assert_ok_email_sent do
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"", "deploiement@transport.data.gouv.fr"}],
+                           to: [{"", "contact@transport.data.gouv.fr"}],
                            subject: "[OK] Rapport de consolidation de la BNLC",
                            html_body: html_body
                          } ->
@@ -878,7 +878,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
   defp assert_ko_email_sent do
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"", "deploiement@transport.data.gouv.fr"}],
+                           to: [{"", "contact@transport.data.gouv.fr"}],
                            subject: "[ERREUR] Rapport de consolidation de la BNLC",
                            html_body: html_body
                          } ->
