@@ -783,8 +783,7 @@ defmodule TransportWeb.DatasetControllerTest do
     [
       {%{"type" => "public-transit"}, "Transport public collectif - horaires théoriques"},
       {%{"type" => "public-transit", "filter" => "has_realtime"}, "Transport public collectif - horaires temps réel"},
-      {%{"modes" => ["rail"]}, "Transport ferroviaire"},
-      {%{"custom_tag" => "paris2024"}, "JOP Paris 2024"}
+      {%{"modes" => ["rail"]}, "Transport ferroviaire"}
     ]
     |> Enum.each(fn {params, expected_title} ->
       title =
