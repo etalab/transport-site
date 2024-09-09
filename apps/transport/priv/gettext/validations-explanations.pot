@@ -143,5 +143,5 @@ msgid "Unknown location"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Debug"
+msgid "Details for debugging purposes"
 msgstr ""
