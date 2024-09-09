@@ -72,5 +72,5 @@ msgid "warnings"
 msgstr "avertissements"
 
 #, elixir-autogen, elixir-format
-msgid "Unspecified error"
-msgstr ""
+msgid "XSD validation"
+msgstr "Validation XSD"

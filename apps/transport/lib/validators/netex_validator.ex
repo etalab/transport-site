@@ -284,12 +284,21 @@ defmodule Transport.Validators.NeTEx do
       {code,
        %{
          count: length(errors),
-         criticity: Map.get(hd(errors), "criticity"),
-         title: Map.get(issues_short_translation(), code, code)
+         criticity: errors |> hd() |> Map.get("criticity"),
+         title: issues_short_translation_per_code(code)
        }}
     end)
     |> Enum.group_by(fn {_, details} -> details.criticity end)
     |> Enum.sort_by(fn {criticity, _} -> severity(criticity).level end)
+  end
+
+  @spec issues_short_translation_per_code(binary()) :: binary()
+  def issues_short_translation_per_code(code) do
+    if String.starts_with?(code, "xsd-") do
+      dgettext("netex-validator", "XSD validation")
+    else
+      Map.get(issues_short_translation(), code, code)
+    end
   end
 
   @spec issues_short_translation() :: %{binary() => binary()}
