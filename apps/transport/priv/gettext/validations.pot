@@ -419,3 +419,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Elapsed time: %{duration}."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "NeTEx validation is in beta."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Warnings are work in progress. Only XSD errors are considerd for now."
+msgstr ""

@@ -420,3 +420,11 @@ msgstr "Rapport de l’analyse de fichier NeTEx"
 #, elixir-autogen, elixir-format
 msgid "Elapsed time: %{duration}."
 msgstr "Temps passé : %{duration}."
+
+#, elixir-autogen, elixir-format
+msgid "NeTEx validation is in beta."
+msgstr "Validation NeTEx est en beta."
+
+#, elixir-autogen, elixir-format
+msgid "Warnings are work in progress. Only XSD errors are considerd for now."
+msgstr "Les avertissements sont temporaires. Seules les erreurs XSD sont prises en considération pour l’instant."

@@ -18,6 +18,11 @@
 
   <div class="validation-content">
     <div class="container">
+      <p class="notification warning">
+        <strong><%= dgettext("validations", "NeTEx validation is in beta.") %></strong> <br />
+        <%= dgettext("validations", "Warnings are work in progress. Only XSD errors are considerd for now.") %>
+      </p>
+
       <%= if has_errors?(@validation_summary) do %>
         <%= render("_validation_summary.html",
           validation_summary: @validation_summary,
