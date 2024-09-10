@@ -36,7 +36,7 @@ defmodule Transport.Validators.NeTEx do
           resource_history.id,
           result_url,
           %{elapsed_seconds: elapsed_seconds, retries: retries},
-          errors
+          demote_non_xsd_errors(errors)
         )
 
         :ok
@@ -76,7 +76,7 @@ defmodule Transport.Validators.NeTEx do
           # result_url in metadata?
           {:ok,
            %{
-             "validations" => index_messages(errors),
+             "validations" => errors |> demote_non_xsd_errors() |> index_messages(),
              "metadata" => %{elapsed_seconds: elapsed_seconds, retries: retries}
            }}
 
@@ -343,5 +343,21 @@ defmodule Transport.Validators.NeTEx do
 
   defp client do
     Transport.EnRouteChouetteValidClient.Wrapper.impl()
+  end
+
+  defp demote_non_xsd_errors(errors), do: Enum.map(errors, &demote_non_xsd_error(&1))
+
+  defp demote_non_xsd_error(%{"criticity" => criticity, "code" => code} = error) do
+    criticity =
+      if String.starts_with?(code, "xsd-") do
+        criticity
+      else
+        case criticity do
+          "error" -> "warning"
+          _ -> criticity
+        end
+      end
+
+    Map.update!(error, "criticity", fn _ -> criticity end)
   end
 end
