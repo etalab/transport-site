@@ -3,15 +3,15 @@ defmodule TransportWeb.EspaceProducteurController do
   require Logger
   alias Transport.ImportData
 
-  plug(:find_dataset_and_fetch_from_api_or_redirect when action in [:edit_dataset, :new_resource])
+  plug(:find_db_dataset_and_api_dataset_or_redirect when action in [:edit_dataset, :new_resource])
 
   plug(
     :find_db_dataset_and_api_dataset_and_resource_or_redirect
     when action in [:delete_resource_confirmation, :edit_resource]
   )
 
-  plug(:find_dataset_or_redirect when action in [:upload_logo, :remove_custom_logo])
-  plug(:find_datasets_or_redirect when action in [:proxy_statistics])
+  plug(:find_db_dataset_or_redirect when action in [:upload_logo, :remove_custom_logo])
+  plug(:find_db_datasets_or_redirect when action in [:proxy_statistics])
 
   def edit_dataset(%Plug.Conn{} = conn, %{"dataset_id" => _}) do
     # Awkard page, but no real choice: some parts (logo…) are from the local database
@@ -159,7 +159,7 @@ defmodule TransportWeb.EspaceProducteurController do
 
   defp proxy_requests_stats_nb_days, do: 15
 
-  defp find_datasets_or_redirect(%Plug.Conn{} = conn, _options) do
+  defp find_db_datasets_or_redirect(%Plug.Conn{} = conn, _options) do
     conn
     |> DB.Dataset.datasets_for_user()
     |> case do
@@ -174,7 +174,7 @@ defmodule TransportWeb.EspaceProducteurController do
     end
   end
 
-  defp find_dataset_or_redirect(%Plug.Conn{path_params: %{"dataset_id" => dataset_id}} = conn, _options) do
+  defp find_db_dataset_or_redirect(%Plug.Conn{path_params: %{"dataset_id" => dataset_id}} = conn, _options) do
     case find_dataset_for_user(conn, dataset_id) do
       %DB.Dataset{} = dataset ->
         conn |> assign(:dataset, dataset)
@@ -187,7 +187,7 @@ defmodule TransportWeb.EspaceProducteurController do
     end
   end
 
-  defp find_dataset_and_fetch_from_api_or_redirect(
+  defp find_db_dataset_and_api_dataset_or_redirect(
          %Plug.Conn{path_params: %{"dataset_id" => dataset_id}} = conn,
          _options
        ) do
@@ -205,7 +205,6 @@ defmodule TransportWeb.EspaceProducteurController do
     end
   end
 
-  # Ugly but we’ll pipe plugs afterward. TODO.
   defp find_db_dataset_and_api_dataset_and_resource_or_redirect(
          %Plug.Conn{path_params: %{"dataset_id" => dataset_id, "resource_datagouv_id" => resource_datagouv_id}} = conn,
          _options
