@@ -119,6 +119,13 @@ defmodule TransportWeb.EspaceProducteurController do
     end
   end
 
+  @doc """
+  The following function does a POST to the datagouv API to update or create a resource.
+  We don’t check that the user is allowed to update the dataset, as the API will do it for us.
+  We don’t check either before the POST that the dataset is imported on our side.
+  In case of error, the user is redirected to the producer space with an error message
+  instead of rendering again the form: it’s a suboptimal experience, can be improved.
+  """
   @spec post_file(Plug.Conn.t(), map) :: Plug.Conn.t()
   def post_file(conn, params) do
     success_message =
