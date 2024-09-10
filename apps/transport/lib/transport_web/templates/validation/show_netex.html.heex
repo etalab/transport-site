@@ -10,16 +10,14 @@
         <%= link(dgettext("validations", "this permanent link"), to: current_url(@conn)) %>.
       </p>
     </div>
+
+    <%= unless is_nil(@metadata) or @metadata == %{} do %>
+      <%= render("_resources_details_netex.html", metadata: @metadata, conn: @conn) %>
+    <% end %>
   </div>
 
   <div class="validation-content">
     <div class="container">
-      <%= unless is_nil(@metadata) or @metadata == %{} do %>
-        <div class="panel validation-metadata">
-          <%= render("_resources_details_netex.html", metadata: @metadata, conn: @conn) %>
-        </div>
-      <% end %>
-
       <%= if has_errors?(@validation_summary) do %>
         <%= render("_validation_summary.html",
           validation_summary: @validation_summary,
