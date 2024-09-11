@@ -164,3 +164,15 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "The resource has been deleted"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Download"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Open with explore.data.gouv.fr"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Size:"
+msgstr ""
