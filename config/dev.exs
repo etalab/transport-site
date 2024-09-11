@@ -73,9 +73,7 @@ config :transport,
     on_demand_validation: "on-demand-validation-dev",
     gtfs_diff: "gtfs-diff-dev",
     logos: "logos-dev"
-  },
-  # by default, use the production validator. This can be overriden with dev.secret.exs
-  gtfs_validator_url: "https://validation.transport.data.gouv.fr"
+  }
 
 config :oauth2, Datagouvfr.Authentication,
   site: datagouvfr_site,
