@@ -359,11 +359,11 @@ defmodule Transport.Validators.NeTEx do
     if String.starts_with?(code, "xsd-") do
       error
     else
-      Map.update!(error, "criticity", &demote/1)
+      Map.update!(error, "criticity", &demote_error/1)
     end
   end
 
-  defp demote(criticity) do
+  defp demote_error(criticity) do
     case criticity do
       "error" -> "warning"
       _ -> criticity
