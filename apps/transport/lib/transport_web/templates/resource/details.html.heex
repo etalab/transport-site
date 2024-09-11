@@ -6,14 +6,31 @@
       </h2>
       <div class="panel">
         <div>
-          <%= dgettext("validations", "File name") %><%= dgettext("helper", ":") %><a href={
-            DB.Resource.download_url(@resource)
-          }>
-            <strong><%= @resource.title %></strong>
-          </a>
+          <%= dgettext("validations", "File name") %><%= dgettext("helper", ":") %>
+          <strong><%= @resource.title %></strong>
         </div>
         <div>
           <%= dgettext("resource", "Format:") %> <span class="label"><%= @resource.format %></span>
+        </div>
+        <div :if={not is_nil(@resource_history) and Map.has_key?(@resource_history.payload, "filesize")}>
+          <%= dgettext("resource", "Size:") %> <%= Map.fetch!(@resource_history.payload, "filesize")
+          |> Sizeable.filesize() %>
+        </div>
+        <div class="form__group pt-12">
+          <a class="button-outline small secondary" href={DB.Resource.download_url(@resource)}>
+            <i class="icon icon--download" aria-hidden="true"></i><%= dgettext("resource", "Download") %>
+          </a>
+          <a
+            :if={eligible_for_explore?(@resource)}
+            class="button-outline small secondary ml-05-em"
+            href={explore_url(@resource)}
+            target="_blank"
+          >
+            <i class="icon fa fa-external-link-alt" aria-hidden="true"></i><%= dgettext(
+              "resource",
+              "Open with explore.data.gouv.fr"
+            ) %>
+          </a>
         </div>
         <div :if={should_display_description?(@resource)} class="panel mt-24" lang="fr">
           <%= description(@resource) %>
