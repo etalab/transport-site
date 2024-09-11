@@ -35,6 +35,10 @@ defmodule Transport.Validators.NeTExTest do
       "code" => "frame-arret-resources",
       "message" => "Tag frame_id doesn't match ''",
       "criticity" => "warning"
+    },
+    %{
+      "message" => "Reference MOBIITI:Quay:104325 doesn't match any existing Resource",
+      "criticity" => "error"
     }
   ]
 
@@ -104,6 +108,12 @@ defmodule Transport.Validators.NeTExTest do
                    "message" => "Tag frame_id doesn't match ''",
                    "criticity" => "warning"
                  }
+               ],
+               "unknown-code" => [
+                 %{
+                   "message" => "Reference MOBIITI:Quay:104325 doesn't match any existing Resource",
+                   "criticity" => "warning"
+                 }
                ]
              }
     end
@@ -161,6 +171,12 @@ defmodule Transport.Validators.NeTExTest do
           %{
             "code" => "frame-arret-resources",
             "message" => "Tag frame_id doesn't match ''",
+            "criticity" => "warning"
+          }
+        ],
+        "unknown-code" => [
+          %{
+            "message" => "Reference MOBIITI:Quay:104325 doesn't match any existing Resource",
             "criticity" => "warning"
           }
         ]
