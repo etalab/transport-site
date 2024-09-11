@@ -249,10 +249,15 @@ defmodule Transport.Validators.NeTEx do
 
   iex> index_messages([%{"code"=>"a", "id"=> 1}, %{"code"=>"a", "id"=> 2}, %{"code"=>"b", "id"=> 3}])
   %{"a"=>[%{"code"=>"a", "id"=> 1}, %{"code"=>"a", "id"=> 2}], "b"=>[%{"code"=>"b", "id"=> 3}]}
+
+  Sometimes the message has no code
+  iex> index_messages([%{"code"=>"a", "id"=> 1}, %{"code"=>"b", "id"=> 2}, %{"id"=> 3}])
+  %{"a"=>[%{"code"=>"a", "id"=> 1}], "b"=>[%{"code"=>"b", "id"=> 2}], "unknown-code"=>[%{"id"=> 3}]}
   """
-  def index_messages(messages) do
-    messages |> Enum.group_by(fn %{"code" => code} -> code end)
-  end
+  def index_messages(messages), do: Enum.group_by(messages, &get_code/1)
+
+  defp get_code(%{"code" => code}), do: code
+  defp get_code(%{}), do: "unknown-code"
 
   # This will change with an actual versioning of the validator
   def validator_version, do: "saas-production"
@@ -298,7 +303,8 @@ defmodule Transport.Validators.NeTEx do
       "longitude-mandatory" => dgettext("netex-validator", "Longitude mandatory"),
       "uic-operating-period" => dgettext("netex-validator", "UIC operating period"),
       "valid-day-bits" => dgettext("netex-validator", "Valid day bits"),
-      "version-any" => dgettext("netex-validator", "Version any")
+      "version-any" => dgettext("netex-validator", "Version any"),
+      "unknown-code" => dgettext("netex-validator", "Unspecified error")
     }
 
   @doc """
@@ -347,17 +353,20 @@ defmodule Transport.Validators.NeTEx do
 
   defp demote_non_xsd_errors(errors), do: Enum.map(errors, &demote_non_xsd_error(&1))
 
-  defp demote_non_xsd_error(%{"criticity" => criticity, "code" => code} = error) do
-    criticity =
-      if String.starts_with?(code, "xsd-") do
-        criticity
-      else
-        case criticity do
-          "error" -> "warning"
-          _ -> criticity
-        end
-      end
+  defp demote_non_xsd_error(error) do
+    code = Map.get(error, "code", "")
 
-    Map.update!(error, "criticity", fn _ -> criticity end)
+    if String.starts_with?(code, "xsd-") do
+      error
+    else
+      Map.update!(error, "criticity", &demote_error/1)
+    end
+  end
+
+  defp demote_error(criticity) do
+    case criticity do
+      "error" -> "warning"
+      _ -> criticity
+    end
   end
 end
