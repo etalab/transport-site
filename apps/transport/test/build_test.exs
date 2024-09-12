@@ -33,6 +33,13 @@ defmodule TransportWeb.BuildTest do
     {:ok, %{out: "hello\n"}} = Rambo.run("echo", ["hello"])
   end
 
+  test "rambo remains on hex version (not the ARM-compatible fork)" do
+    {%{rambo: rambo}, []} = File.read!("../../mix.lock") |> Code.eval_string()
+    # if this test fails, it may be because someone with a Mac M1 unintentionally committed `mix.lock` change
+    # related to a Rambo-tweak, see https://github.com/etalab/transport-site/blob/61eabf185e71b7670e5d750048714636f85c5e58/apps/transport/mix.exs#L99-L111
+    assert rambo |> elem(0) == :hex
+  end
+
   test "make sure Elixir version is same for asdf & CI" do
     assert System.version() == asdf_elixir_version()
   end
