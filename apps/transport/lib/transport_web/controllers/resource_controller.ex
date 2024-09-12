@@ -1,9 +1,7 @@
 defmodule TransportWeb.ResourceController do
   use TransportWeb, :controller
-  alias DB.{Dataset, Repo, Resource}
+  alias DB.{Repo, Resource}
   alias Transport.DataVisualization
-  alias Transport.ImportData
-  require Logger
   import Ecto.Query
 
   import TransportWeb.ResourceView, only: [issue_type: 1, latest_validations_nb_days: 0]
@@ -177,65 +175,6 @@ defmodule TransportWeb.ResourceController do
     end
   end
 
-  @spec form(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def form(conn, %{"dataset_id" => dataset_id} = params) do
-    # This shows a form with data coming directly from the datagouv API for fresh data
-    with {:ok, dataset} <- Datagouvfr.Client.Datasets.get(dataset_id),
-         # Resource and resource_id may be nil in case of a new resource
-         resource <- assign_resource_from_dataset_payload(dataset, params["resource_id"]) do
-      conn
-      |> assign_datasets(dataset)
-      |> assign(:resource, resource)
-      |> render("form.html")
-    else
-      _ ->
-        conn
-        |> put_flash(
-          :error,
-          Gettext.dgettext(TransportWeb.Gettext, "resource", "Unable to get resources, please retry.")
-        )
-        |> put_view(ErrorView)
-        |> render("404.html")
-    end
-  end
-
-  def delete_resource_confirmation(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id, "resource_id" => resource_id}) do
-    with {:ok, dataset} <- Datagouvfr.Client.Datasets.get(dataset_id),
-         # Resource and resource_id may be nil in case of a new resource
-         resource when not is_nil(resource) <- assign_resource_from_dataset_payload(dataset, resource_id) do
-      conn
-      |> assign_datasets(dataset)
-      |> assign(:resource, resource)
-      |> render("delete_resource_confirmation.html")
-    else
-      _ ->
-        conn
-        |> put_flash(
-          :error,
-          Gettext.dgettext(TransportWeb.Gettext, "resource", "Unable to get resources, please retry.")
-        )
-        |> put_view(ErrorView)
-        |> render("404.html")
-    end
-  end
-
-  def delete(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id, "resource_id" => _} = params) do
-    with {:ok, _} <- Datagouvfr.Client.Resources.delete(conn, params),
-         dataset when not is_nil(dataset) <-
-           Repo.get_by(Dataset, datagouv_id: dataset_id),
-         {:ok, _} <- ImportData.import_dataset_logged(dataset),
-         {:ok, _} <- Dataset.validate(dataset) do
-      conn
-      |> put_flash(:info, dgettext("resource", "The resource has been deleted"))
-      |> redirect(to: page_path(conn, :espace_producteur))
-    else
-      _ ->
-        conn
-        |> put_flash(:error, dgettext("resource", "Could not delete the resource"))
-        |> redirect(to: page_path(conn, :espace_producteur))
-    end
-  end
-
   @doc """
   `download` is in charge of downloading resources.
 
@@ -302,50 +241,4 @@ defmodule TransportWeb.ResourceController do
   end
 
   defp downcase_header({h, v}), do: {String.downcase(h), v}
-
-  @spec post_file(Plug.Conn.t(), map) :: Plug.Conn.t()
-  def post_file(conn, params) do
-    success_message =
-      if Map.has_key?(params, "resource_file") do
-        dgettext("resource", "File uploaded!")
-      else
-        dgettext("resource", "Resource updated with URL!")
-      end
-
-    with {:ok, _} <- Datagouvfr.Client.Resources.update(conn, params),
-         dataset when not is_nil(dataset) <-
-           Repo.get_by(Dataset, datagouv_id: params["dataset_id"]),
-         {:ok, _} <- ImportData.import_dataset_logged(dataset),
-         {:ok, _} <- Dataset.validate(dataset) do
-      conn
-      |> put_flash(:info, success_message)
-      |> redirect(to: dataset_path(conn, :details, params["dataset_id"]))
-    else
-      {:error, error} ->
-        Logger.error(
-          "Unable to update resource #{params["resource_id"]} of dataset #{params["dataset_id"]}, error: #{inspect(error)}"
-        )
-
-        conn
-        |> put_flash(:error, dgettext("resource", "Unable to upload file"))
-        |> form(params)
-
-      nil ->
-        Logger.error("Unable to get dataset with datagouv_id: #{params["dataset_id"]}")
-
-        conn
-        |> put_flash(:error, dgettext("resource", "Unable to upload file"))
-        |> form(params)
-    end
-  end
-
-  defp assign_datasets(%Plug.Conn{} = conn, %{"id" => dataset_id} = dataset) do
-    conn
-    |> assign(:db_dataset, DB.Repo.get_by!(DB.Dataset, datagouv_id: dataset_id))
-    |> assign(:dataset, dataset)
-  end
-
-  defp assign_resource_from_dataset_payload(dataset, resource_id) do
-    Enum.find(dataset["resources"], &(&1["id"] == resource_id))
-  end
 end

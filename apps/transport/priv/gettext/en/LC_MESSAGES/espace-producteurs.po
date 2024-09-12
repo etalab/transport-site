@@ -228,3 +228,75 @@ msgstr "Our team maintains <a href=\"%{link}\", target=\"_blank\">a comprehensiv
 #, elixir-autogen, elixir-format
 msgid "Manage your resources"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Add the resource"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Create it directly on data.gouv.fr"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Current file: %{current_file}"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Delete the resource"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Do you want to update the resource or delete it definitely?"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Edit directly on data.gouv.fr"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Example: Paris GTFS dataset"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Format"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Give a link for the resource"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "I'm not sure. Learn more."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Option 1: Directly add the resource"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Option 1: Directly update the resource"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Option 2: for more options, create the resource on data.gouv.fr"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Option 2: for more options, edit the resource on data.gouv.fr"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Update the resource"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Upload a file"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "or"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "title"
+msgstr ""

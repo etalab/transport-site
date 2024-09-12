@@ -102,10 +102,7 @@ defmodule TransportWeb.DatasetController do
   end
 
   def assign_scores(%Plug.Conn{} = conn, %DB.Dataset{} = dataset) do
-    data =
-      dataset
-      |> DB.DatasetScore.scores_over_last_days(30 * 3)
-      |> Enum.reject(&match?(%DB.DatasetScore{score: nil}, &1))
+    data = DB.DatasetScore.scores_over_last_days(dataset, 30 * 3)
 
     # See https://hexdocs.pm/vega_lite/
     # and https://vega.github.io/vega-lite/docs/
@@ -130,6 +127,7 @@ defmodule TransportWeb.DatasetController do
 
     latest_scores =
       data
+      |> Enum.reject(fn %DB.DatasetScore{score: score} -> is_nil(score) end)
       |> Enum.group_by(fn %DB.DatasetScore{topic: topic} -> topic end)
       |> Map.new(fn {topic, scores} -> {topic, scores |> List.last() |> DB.DatasetScore.score_for_humans()} end)
 
