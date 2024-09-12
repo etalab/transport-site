@@ -56,7 +56,7 @@
             <%= form_for @conn, action_path(@conn), [multipart: true], fn f -> %>
               <%= text_input(f, :title,
                 label: dgettext("espace-producteurs", "title"),
-                placeholder: dgettext("espace-producteurs", "Example : Paris GTFS dataset"),
+                placeholder: dgettext("espace-producteurs", "Example: Paris GTFS dataset"),
                 value: @datagouv_resource["title"]
               ) %>
               <%= text_input(
