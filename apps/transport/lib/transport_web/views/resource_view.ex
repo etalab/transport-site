@@ -3,7 +3,6 @@ defmodule TransportWeb.ResourceView do
   use Phoenix.Component
   import TransportWeb.PaginationHelpers
   import Phoenix.Controller, only: [current_url: 2]
-  import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
 
   import TransportWeb.DatasetView,
     only: [documentation_url: 1, errors_count: 1, warnings_count: 1, multi_validation_performed?: 1, description: 1]
@@ -55,39 +54,6 @@ defmodule TransportWeb.ResourceView do
     # has matured.
     "_netex_generic_issue.html"
   end
-
-  @spec action_path(Plug.Conn.t()) :: any
-  def action_path(%Plug.Conn{params: %{"resource_id" => r_id} = params} = conn),
-    do: resource_path(conn, :post_file, params["dataset_id"], r_id)
-
-  def action_path(%Plug.Conn{params: params} = conn),
-    do: resource_path(conn, :post_file, params["dataset_id"])
-
-  def title(%Plug.Conn{params: %{"resource_id" => _}}),
-    do: dgettext("resource", "Resource modification")
-
-  def title(_), do: dgettext("resource", "Add a new resource")
-
-  def remote?(%{"filetype" => "remote"}), do: true
-  def remote?(_), do: false
-
-  def link_to_datagouv_resource_edit(dataset_id, resource_id),
-    do:
-      :transport
-      |> Application.fetch_env!(:datagouvfr_site)
-      |> Path.join("/fr/admin/dataset/#{dataset_id}/resource/#{resource_id}")
-
-  def link_to_datagouv_resource_creation(dataset_id),
-    do:
-      :transport
-      |> Application.fetch_env!(:datagouvfr_site)
-      |> Path.join("/fr/admin/dataset/#{dataset_id}?new_resource=")
-
-  def dataset_creation,
-    do:
-      :transport
-      |> Application.fetch_env!(:datagouvfr_site)
-      |> Path.join("/fr/admin/dataset/new/")
 
   def has_associated_files(%{} = resources_related_files, resource_id) do
     # Don't keep records looking like `%{79088 => %{GeoJSON: nil, NeTEx: nil}}`
