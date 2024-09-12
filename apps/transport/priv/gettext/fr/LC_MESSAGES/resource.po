@@ -96,3 +96,15 @@ msgstr "Impossible de supprimer la ressource"
 #, elixir-autogen, elixir-format
 msgid "The resource has been deleted"
 msgstr "La ressource a été supprimée"
+
+#, elixir-autogen, elixir-format
+msgid "Download"
+msgstr "Télécharger"
+
+#, elixir-autogen, elixir-format
+msgid "Open with explore.data.gouv.fr"
+msgstr "Ouvrir dans explore.data.gouv.fr"
+
+#, elixir-autogen, elixir-format
+msgid "Size:"
+msgstr "Taille :"

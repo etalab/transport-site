@@ -15,7 +15,13 @@ defmodule DB.NotificationSubscription do
     # - `:user`: by the user using self-service tools
     # - `automation:<slug>`: created by the system, the slug adds more details about the source
     field(:source, Ecto.Enum,
-      values: [:admin, :user, :"automation:promote_producer_space", :"automation:migrate_from_reuser_to_producer"]
+      values: [
+        :admin,
+        :user,
+        :"automation:promote_producer_space",
+        :"automation:migrate_from_reuser_to_producer",
+        :"automation:import_contact_point"
+      ]
     )
 
     field(:role, Ecto.Enum, values: possible_roles())

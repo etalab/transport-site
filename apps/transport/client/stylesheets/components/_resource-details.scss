@@ -14,7 +14,7 @@
 
 .networks-start-end {
   display: grid;
-  grid-template-columns: minmax(0, 200px) repeat(4, max-content);
+  grid-template-columns: max-content repeat(4, max-content);
   column-gap: 10px;
   row-gap: 3px;
   .outdated {

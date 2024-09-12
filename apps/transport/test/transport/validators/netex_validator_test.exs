@@ -16,6 +16,12 @@ defmodule Transport.Validators.NeTExTest do
 
   @sample_error_messages [
     %{
+      "code" => "xsd-1871",
+      "criticity" => "error",
+      "message" =>
+        "Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef )."
+    },
+    %{
       "code" => "uic-operating-period",
       "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod",
       "criticity" => "error"
@@ -29,6 +35,10 @@ defmodule Transport.Validators.NeTExTest do
       "code" => "frame-arret-resources",
       "message" => "Tag frame_id doesn't match ''",
       "criticity" => "warning"
+    },
+    %{
+      "message" => "Reference MOBIITI:Quay:104325 doesn't match any existing Resource",
+      "criticity" => "error"
     }
   ]
 
@@ -70,24 +80,38 @@ defmodule Transport.Validators.NeTExTest do
       assert multi_validation.metadata.metadata == %{"retries" => 0, "elapsed_seconds" => 31}
 
       assert multi_validation.result == %{
+               "xsd-1871" => [
+                 %{
+                   "code" => "xsd-1871",
+                   "criticity" => "error",
+                   "message" =>
+                     "Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef )."
+                 }
+               ],
                "uic-operating-period" => [
                  %{
                    "code" => "uic-operating-period",
                    "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod",
-                   "criticity" => "error"
+                   "criticity" => "warning"
                  }
                ],
                "valid-day-bits" => [
                  %{
                    "code" => "valid-day-bits",
                    "message" => "Mandatory attribute valid_day_bits not found",
-                   "criticity" => "error"
+                   "criticity" => "warning"
                  }
                ],
                "frame-arret-resources" => [
                  %{
                    "code" => "frame-arret-resources",
                    "message" => "Tag frame_id doesn't match ''",
+                   "criticity" => "warning"
+                 }
+               ],
+               "unknown-code" => [
+                 %{
+                   "message" => "Reference MOBIITI:Quay:104325 doesn't match any existing Resource",
                    "criticity" => "warning"
                  }
                ]
@@ -121,24 +145,38 @@ defmodule Transport.Validators.NeTExTest do
       expect_get_messages(validation_id, @sample_error_messages)
 
       validation_result = %{
+        "xsd-1871" => [
+          %{
+            "code" => "xsd-1871",
+            "criticity" => "error",
+            "message" =>
+              "Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef )."
+          }
+        ],
         "uic-operating-period" => [
           %{
             "code" => "uic-operating-period",
             "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod",
-            "criticity" => "error"
+            "criticity" => "warning"
           }
         ],
         "valid-day-bits" => [
           %{
             "code" => "valid-day-bits",
             "message" => "Mandatory attribute valid_day_bits not found",
-            "criticity" => "error"
+            "criticity" => "warning"
           }
         ],
         "frame-arret-resources" => [
           %{
             "code" => "frame-arret-resources",
             "message" => "Tag frame_id doesn't match ''",
+            "criticity" => "warning"
+          }
+        ],
+        "unknown-code" => [
+          %{
+            "message" => "Reference MOBIITI:Quay:104325 doesn't match any existing Resource",
             "criticity" => "warning"
           }
         ]
@@ -160,11 +198,12 @@ defmodule Transport.Validators.NeTExTest do
       expect_get_messages(validation_id, @sample_error_message)
 
       validation_result = %{
-        "uic-operating-period" => [
+        "xsd-1871" => [
           %{
-            "code" => "uic-operating-period",
-            "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod",
-            "criticity" => "error"
+            "code" => "xsd-1871",
+            "criticity" => "error",
+            "message" =>
+              "Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef )."
           }
         ]
       }

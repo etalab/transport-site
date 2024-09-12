@@ -293,4 +293,15 @@ defmodule TransportWeb.ResourceView do
   def yes_no_icon(nil), do: ""
   def yes_no_icon(value) when value > 0, do: "✅"
   def yes_no_icon(_), do: "❌"
+
+  def eligible_for_explore?(%DB.Resource{format: format}) do
+    format in ["geojson", "csv", "ods", "xlsx", "xls"]
+  end
+
+  def explore_url(%DB.Resource{
+        datagouv_id: resource_datagouv_id,
+        dataset: %DB.Dataset{datagouv_id: dataset_datagouv_id}
+      }) do
+    "https://explore.data.gouv.fr/fr/datasets/#{dataset_datagouv_id}/#/resources/#{resource_datagouv_id}"
+  end
 end

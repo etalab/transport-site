@@ -721,6 +721,17 @@ defmodule TransportWeb.ResourceControllerTest do
     assert html_response =~ "Fichier GTFS associé"
   end
 
+  test "resource size and link to explore.data.gouv.fr are displayed", %{conn: conn} do
+    resource = insert(:resource, format: "csv", dataset: insert(:dataset, is_active: true))
+    insert(:resource_history, resource_id: resource.id, payload: %{"filesize" => "1024"})
+
+    html_response = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
+    assert html_response =~ "Taille : 1 KB"
+
+    assert TransportWeb.ResourceView.eligible_for_explore?(resource)
+    assert html_response =~ "https://explore.data.gouv.fr"
+  end
+
   defp test_remote_download_error(%Plug.Conn{} = conn, mock_status_code) do
     resource = DB.Resource |> DB.Repo.get_by(datagouv_id: "2")
     refute DB.Resource.can_direct_download?(resource)
