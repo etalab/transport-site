@@ -86,24 +86,24 @@ defmodule Transport.DataChecker do
         {:archived, datetime}
 
       {:error, %HTTPoison.Error{} = error} ->
-        Sentry.capture_message(
-          "Unable to get Dataset status from data.gouv.fr",
-          extra: %{dataset_datagouv_id: datagouv_id, error_reason: inspect(error)}
-        )
-
+        log_sentry_event(datagouv_id, error)
         :ignore
 
       {:error, reason} when reason in [:not_found, :gone] ->
         :inactive
 
       {:error, error} ->
-        Sentry.capture_message(
-          "Unable to get Dataset status from data.gouv.fr",
-          extra: %{dataset_datagouv_id: datagouv_id, error_reason: inspect(error)}
-        )
-
+        log_sentry_event(datagouv_id, error)
         :ignore
     end
+  end
+
+  defp log_sentry_event(datagouv_id, error) do
+    Sentry.capture_message(
+      "Unable to get dataset status for Dataset##{datagouv_id} from data.gouv.fr",
+      fingerprint: ["#{__MODULE__}:dataset_status:error"],
+      extra: %{dataset_datagouv_id: datagouv_id, error_reason: inspect(error)}
+    )
   end
 
   def outdated_data do
