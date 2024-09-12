@@ -2,7 +2,9 @@
   <%= dgettext("espace-producteurs", "Upload a file") %>
   <%= unless is_nil(@datagouv_resource["url"]) do %>
     <p>
-      <%= dgettext("espace-producteurs", "Current file: %{current_file}", current_file: Path.basename(@resource["url"])) %>
+      <%= dgettext("espace-producteurs", "Current file: %{current_file}",
+        current_file: Path.basename(@datagouv_resource["url"])
+      ) %>
     </p>
   <% end %>
   <%= file_input(@f, :resource_file) %>
