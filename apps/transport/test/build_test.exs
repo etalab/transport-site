@@ -38,6 +38,10 @@ defmodule TransportWeb.BuildTest do
     IO.puts("============= here is the lock file =============")
     IO.puts(lock_file)
     IO.puts("=================================================")
+    {output, _} = System.cmd("git", ["status"])
+    IO.puts(output)
+    IO.puts("=================================================")
+
     {%{rambo: rambo}, []} = lock_file |> Code.eval_string()
     # if this test fails, it may be because someone with a Mac M1 unintentionally committed `mix.lock` change
     # related to a Rambo-tweak, see https://github.com/etalab/transport-site/blob/61eabf185e71b7670e5d750048714636f85c5e58/apps/transport/mix.exs#L99-L111
