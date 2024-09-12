@@ -42,7 +42,7 @@ defmodule TransportWeb.PageView do
     Transport.Cldr.Number.to_string!(value, format: :short, locale: locale)
   end
 
-  def dataset_creation,
+  def dataset_creation_url,
     do:
       :transport
       |> Application.fetch_env!(:datagouvfr_site)

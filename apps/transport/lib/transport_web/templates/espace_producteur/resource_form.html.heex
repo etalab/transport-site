@@ -109,7 +109,7 @@
               <div>
                 <a
                   class="button primary"
-                  href={link_to_datagouv_resource_creation(@datagouv_dataset["id"])}
+                  href={datagouv_resource_creation_url(@datagouv_dataset["id"])}
                   role="link"
                   target="_blank"
                 >
@@ -124,7 +124,7 @@
               <div>
                 <a
                   class="button primary"
-                  href={link_to_datagouv_resource_edit(@datagouv_dataset["id"], @conn.params["resource_id"])}
+                  href={datagouv_resource_edit_url(@datagouv_dataset["id"], @conn.params["resource_id"])}
                   role="link"
                   target="_blank"
                 >

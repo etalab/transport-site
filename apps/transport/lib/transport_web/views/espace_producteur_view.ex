@@ -17,13 +17,13 @@ defmodule TransportWeb.EspaceProducteurView do
   def remote?(%{"filetype" => "remote"}), do: true
   def remote?(_), do: false
 
-  def link_to_datagouv_resource_edit(dataset_id, resource_id),
+  def datagouv_resource_edit_url(dataset_id, resource_id),
     do:
       :transport
       |> Application.fetch_env!(:datagouvfr_site)
       |> Path.join("/fr/admin/dataset/#{dataset_id}/resource/#{resource_id}")
 
-  def link_to_datagouv_resource_creation(dataset_id),
+  def datagouv_resource_creation_url(dataset_id),
     do:
       :transport
       |> Application.fetch_env!(:datagouvfr_site)
