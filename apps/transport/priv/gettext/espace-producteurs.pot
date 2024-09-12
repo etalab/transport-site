@@ -253,7 +253,7 @@ msgid "Edit directly on data.gouv.fr"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Example : Paris GTFS dataset"
+msgid "Example: Paris GTFS dataset"
 msgstr ""
 
 #, elixir-autogen, elixir-format
