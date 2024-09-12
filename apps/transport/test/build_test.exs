@@ -34,7 +34,11 @@ defmodule TransportWeb.BuildTest do
   end
 
   test "rambo remains on hex version (not the ARM-compatible fork)" do
-    {%{rambo: rambo}, []} = File.read!("../../mix.lock") |> Code.eval_string()
+    lock_file = File.read!("../../mix.lock")
+    IO.puts("============= here is the lock file =============")
+    IO.puts(lock_file)
+    IO.puts("=================================================")
+    {%{rambo: rambo}, []} = lock_file |> Code.eval_string()
     # if this test fails, it may be because someone with a Mac M1 unintentionally committed `mix.lock` change
     # related to a Rambo-tweak, see https://github.com/etalab/transport-site/blob/61eabf185e71b7670e5d750048714636f85c5e58/apps/transport/mix.exs#L99-L111
     assert rambo |> elem(0) == :hex
