@@ -8,7 +8,7 @@
     <%= if @current_user do %>
       <%= if @is_producer do %>
         <%= link(dgettext("default", "Producer space"),
-          to: page_path(@conn, :espace_producteur, utm_campaign: "dataset_details"),
+          to: espace_producteur_path(@conn, :edit_dataset, @dataset.id, utm_campaign: "dataset_details"),
           target: "_blank"
         ) %>
       <% else %>

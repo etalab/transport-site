@@ -246,8 +246,10 @@ defmodule TransportWeb.DatasetControllerTest do
 
       assert [
                {"a",
-                [{"href", page_path(conn, :espace_producteur, utm_campaign: "dataset_details")}, {"target", "_blank"}],
-                ["Espace producteur"]}
+                [
+                  {"href", espace_producteur_path(conn, :edit_dataset, dataset.id, utm_campaign: "dataset_details")},
+                  {"target", "_blank"}
+                ], ["Espace producteur"]}
              ] ==
                conn
                |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
@@ -303,8 +305,10 @@ defmodule TransportWeb.DatasetControllerTest do
       assert [
                {"a", [{"href", backoffice_page_path(conn, :edit, dataset.id)}], ["Backoffice"]},
                {"a",
-                [{"href", page_path(conn, :espace_producteur, utm_campaign: "dataset_details")}, {"target", "_blank"}],
-                ["Espace producteur"]}
+                [
+                  {"href", espace_producteur_path(conn, :edit_dataset, dataset.id, utm_campaign: "dataset_details")},
+                  {"target", "_blank"}
+                ], ["Espace producteur"]}
              ] ==
                conn
                |> init_test_session(%{
