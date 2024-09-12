@@ -102,7 +102,7 @@ defmodule TransportWeb.Router do
 
         scope("/:dataset_id/resources") do
           get("/:resource_datagouv_id/delete", EspaceProducteurController, :delete_resource_confirmation)
-          get("/_new_resource/", EspaceProducteurController, :new_resource)
+          get("/new_resource/", EspaceProducteurController, :new_resource)
           get("/:resource_datagouv_id/", EspaceProducteurController, :edit_resource)
         end
 
