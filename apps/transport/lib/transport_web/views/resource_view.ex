@@ -50,15 +50,10 @@ defmodule TransportWeb.ResourceView do
     "_gtfs#{template}"
   end
 
-  def netex_template(issues) do
-    template =
-      Map.get(
-        %{},
-        Transport.Validators.NeTEx.issue_type(issues.entries),
-        "_generic_issue.html"
-      )
-
-    "_netex#{template}"
+  def netex_template(_issues) do
+    # For now only 1 template has been designed. More to come when the validator
+    # has matured.
+    "_netex_generic_issue.html"
   end
 
   @spec action_path(Plug.Conn.t()) :: any
