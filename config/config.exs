@@ -183,8 +183,19 @@ config :transport,
   transport_tools_folder: Path.absname("transport-tools/")
 
 # Disable sending events to Sentry by default.
+# Sentry events are only sent when `dsn` is not nil
+# https://hexdocs.pm/sentry/upgrade-10-x.html#stop-using-included_environments
 # Events are sent in production and staging, configured in `prod.exs`
-config :sentry, dsn: nil
+config :sentry,
+  dsn: nil,
+  environment_name: "SENTRY_ENV" |> System.get_env(to_string(config_env())) |> String.to_atom(),
+  enable_source_code_context: true,
+  # https://hexdocs.pm/sentry/Sentry.html#module-configuration
+  # > a list of paths to the root of your application's source code.
+  # > For umbrella apps, you should set this to all the application paths in your umbrella
+  # Caveat: https://github.com/getsentry/sentry-elixir/issues/638
+  root_source_code_paths: [File.cwd!() |> Path.join("apps")],
+  filter: Transport.Shared.SentryExceptionFilter
 
 # For now, never send session data (containing sensitive data in our case) nor params,
 # even if this means less useful information.
