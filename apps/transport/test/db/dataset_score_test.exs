@@ -150,13 +150,22 @@ defmodule DB.DatasetScoreTest do
       topic: :freshness
     )
 
+    # a nil value
+    insert(:dataset_score,
+      dataset: dataset,
+      timestamp: DateTime.utc_now(),
+      score: nil,
+      topic: :compliance
+    )
+
     assert [
              %DB.DatasetScore{topic: :freshness, score: 0.5},
              %DB.DatasetScore{topic: :availability, score: 0.25},
              %DB.DatasetScore{topic: :freshness, score: 0.75},
              %DB.DatasetScore{topic: :availability, score: 0.5},
              %DB.DatasetScore{topic: :freshness, score: 1.0},
-             %DB.DatasetScore{topic: :availability, score: 0.75}
+             %DB.DatasetScore{topic: :availability, score: 0.75},
+             %DB.DatasetScore{topic: :compliance, score: nil}
            ] = DB.DatasetScore.scores_over_last_days(dataset, 2)
   end
 end
