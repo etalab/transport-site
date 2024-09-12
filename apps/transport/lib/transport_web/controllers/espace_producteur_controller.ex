@@ -1,9 +1,17 @@
 defmodule TransportWeb.EspaceProducteurController do
   use TransportWeb, :controller
+  require Logger
+  alias Transport.ImportData
 
-  plug(:find_dataset_and_fetch_from_api_or_redirect when action in [:edit_dataset])
-  plug(:find_dataset_or_redirect when action in [:upload_logo, :remove_custom_logo])
-  plug(:find_datasets_or_redirect when action in [:proxy_statistics])
+  plug(:find_db_dataset_and_api_dataset_or_redirect when action in [:edit_dataset, :new_resource])
+
+  plug(
+    :find_db_dataset_and_api_dataset_and_resource_or_redirect
+    when action in [:delete_resource_confirmation, :edit_resource]
+  )
+
+  plug(:find_db_dataset_or_redirect when action in [:upload_logo, :remove_custom_logo])
+  plug(:find_db_datasets_or_redirect when action in [:proxy_statistics])
 
   def edit_dataset(%Plug.Conn{} = conn, %{"dataset_id" => _}) do
     # Awkard page, but no real choice: some parts (logo…) are from the local database
@@ -66,9 +74,99 @@ defmodule TransportWeb.EspaceProducteurController do
     |> render("proxy_statistics.html")
   end
 
+  @spec new_resource(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def new_resource(conn, %{"dataset_id" => _dataset_id}) do
+    conn
+    |> assign(:datagouv_resource, nil)
+    |> render("resource_form.html")
+  end
+
+  @spec edit_resource(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def edit_resource(conn, %{"dataset_id" => _dataset_id, "resource_datagouv_id" => _resource_datagouv_id}) do
+    conn
+    |> render("resource_form.html")
+  end
+
+  def delete_resource_confirmation(%Plug.Conn{} = conn, %{
+        "dataset_id" => _dataset_datagouv_id,
+        "resource_datagouv_id" => _resource_datagouv_id
+      }) do
+    conn
+    |> render("delete_resource_confirmation.html")
+  end
+
+  def delete_resource(%Plug.Conn{} = conn, %{
+        "dataset_datagouv_id" => dataset_datagouv_id,
+        "resource_datagouv_id" => resource_datagouv_id
+      }) do
+    with {:ok, _} <-
+           Datagouvfr.Client.Resources.delete(conn, %{
+             "dataset_id" => dataset_datagouv_id,
+             "resource_id" => resource_datagouv_id
+           }),
+         dataset when not is_nil(dataset) <-
+           DB.Repo.get_by(DB.Dataset, datagouv_id: dataset_datagouv_id),
+         {:ok, _} <- ImportData.import_dataset_logged(dataset),
+         {:ok, _} <- DB.Dataset.validate(dataset) do
+      conn
+      |> put_flash(:info, dgettext("resource", "The resource has been deleted"))
+      |> redirect(to: page_path(conn, :espace_producteur))
+    else
+      _ ->
+        conn
+        |> put_flash(:error, dgettext("resource", "Could not delete the resource"))
+        |> redirect(to: page_path(conn, :espace_producteur))
+    end
+  end
+
+  @doc """
+  The following function does a POST to the datagouv API to update or create a resource.
+  We don’t check that the user is allowed to update the dataset, as the API will do it for us.
+  We don’t check either before the POST that the dataset is imported on our side.
+  In case of error, the user is redirected to the producer space with an error message
+  instead of rendering again the form: it’s a suboptimal experience, can be improved.
+  """
+  @spec post_file(Plug.Conn.t(), map) :: Plug.Conn.t()
+  def post_file(conn, params) do
+    success_message =
+      if Map.has_key?(params, "resource_file") do
+        dgettext("resource", "File uploaded!")
+      else
+        dgettext("resource", "Resource updated with URL!")
+      end
+
+    post_params = datagouv_api_update_params(params)
+
+    with {:ok, _} <- Datagouvfr.Client.Resources.update(conn, post_params),
+         dataset when not is_nil(dataset) <-
+           DB.Repo.get_by(DB.Dataset, datagouv_id: params["dataset_datagouv_id"]),
+         {:ok, _} <- ImportData.import_dataset_logged(dataset),
+         {:ok, _} <- DB.Dataset.validate(dataset) do
+      conn
+      |> put_flash(:info, success_message)
+      |> redirect(to: dataset_path(conn, :details, params["dataset_datagouv_id"]))
+    else
+      {:error, error} ->
+        Logger.error(
+          "Unable to update resource #{params["resource_datagouv_id"]} of dataset #{params["dataset_datagouv_id"]}, error: #{inspect(error)}"
+        )
+
+        conn
+        |> put_flash(:error, dgettext("resource", "Unable to upload file"))
+        |> redirect(to: page_path(conn, :espace_producteur))
+
+      nil ->
+        Logger.error("Unable to get dataset with datagouv_id: #{params["dataset_datagouv_id"]}")
+
+        conn
+        |> put_flash(:error, dgettext("resource", "Unable to upload file"))
+        |> redirect(to: page_path(conn, :espace_producteur))
+    end
+  end
+
   defp proxy_requests_stats_nb_days, do: 15
 
-  defp find_datasets_or_redirect(%Plug.Conn{} = conn, _options) do
+  defp find_db_datasets_or_redirect(%Plug.Conn{} = conn, _options) do
     conn
     |> DB.Dataset.datasets_for_user()
     |> case do
@@ -83,7 +181,7 @@ defmodule TransportWeb.EspaceProducteurController do
     end
   end
 
-  defp find_dataset_or_redirect(%Plug.Conn{path_params: %{"dataset_id" => dataset_id}} = conn, _options) do
+  defp find_db_dataset_or_redirect(%Plug.Conn{path_params: %{"dataset_id" => dataset_id}} = conn, _options) do
     case find_dataset_for_user(conn, dataset_id) do
       %DB.Dataset{} = dataset ->
         conn |> assign(:dataset, dataset)
@@ -96,7 +194,7 @@ defmodule TransportWeb.EspaceProducteurController do
     end
   end
 
-  defp find_dataset_and_fetch_from_api_or_redirect(
+  defp find_db_dataset_and_api_dataset_or_redirect(
          %Plug.Conn{path_params: %{"dataset_id" => dataset_id}} = conn,
          _options
        ) do
@@ -105,6 +203,27 @@ defmodule TransportWeb.EspaceProducteurController do
       conn
       |> assign(:dataset, dataset)
       |> assign(:datagouv_dataset, datagouv_dataset)
+    else
+      _ ->
+        conn
+        |> put_flash(:error, dgettext("alert", "Unable to get this dataset for the moment"))
+        |> redirect(to: page_path(conn, :espace_producteur))
+        |> halt()
+    end
+  end
+
+  defp find_db_dataset_and_api_dataset_and_resource_or_redirect(
+         %Plug.Conn{path_params: %{"dataset_id" => dataset_id, "resource_datagouv_id" => resource_datagouv_id}} = conn,
+         _options
+       ) do
+    with %DB.Dataset{datagouv_id: datagouv_id} = dataset <- find_dataset_for_user(conn, dataset_id),
+         {:ok, datagouv_dataset} <- Datagouvfr.Client.Datasets.get(datagouv_id),
+         datagouv_resource when not is_nil(datagouv_resource) <-
+           assign_resource_from_dataset_payload(datagouv_dataset, resource_datagouv_id) do
+      conn
+      |> assign(:dataset, dataset)
+      |> assign(:datagouv_dataset, datagouv_dataset)
+      |> assign(:datagouv_resource, datagouv_resource)
     else
       _ ->
         conn
@@ -125,5 +244,22 @@ defmodule TransportWeb.EspaceProducteurController do
       {:error, _} -> []
     end
     |> Enum.find(fn %DB.Dataset{id: id} -> id == dataset_id end)
+  end
+
+  defp assign_resource_from_dataset_payload(dataset, resource_id) do
+    Enum.find(dataset["resources"], &(&1["id"] == resource_id))
+  end
+
+  defp datagouv_api_update_params(params) do
+    post_params = Map.put(params, "dataset_id", params["dataset_datagouv_id"])
+
+    post_params =
+      if params["resource_datagouv_id"] do
+        Map.put(post_params, "resource_id", params["resource_datagouv_id"])
+      else
+        post_params
+      end
+
+    Map.take(post_params, ["title", "format", "url", "resource_file", "dataset_id", "resource_id"])
   end
 end
