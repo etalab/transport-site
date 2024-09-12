@@ -34,15 +34,13 @@ defmodule TransportWeb.BuildTest do
   end
 
   test "rambo remains on hex version (not the ARM-compatible fork)" do
-    lock_file = File.read!("../../mix.lock")
-    IO.puts("============= here is the lock file =============")
-    IO.puts(lock_file)
-    IO.puts("=================================================")
-    {output, _} = System.cmd("git", ["status"])
-    IO.puts(output)
-    IO.puts("=================================================")
-
-    {%{rambo: rambo}, []} = lock_file |> Code.eval_string()
+    # NOTE: on ARM architecture (e.g. Mac M1 etc), a local commit can alter `mix.lock`,
+    # and we want to detect cases where this happens. See:
+    # https://github.com/etalab/transport-site/issues/3820
+    # The test has to take the git-stored version of `mix.lock` and assert on its content,
+    # because the CI doesn't run ARM and `mix deps.get` will overwrite `mix.lock` at the moment
+    {output, 0} = System.cmd("git", ["show", "HEAD:../../mix.lock"])
+    {%{rambo: rambo}, []} = output |> Code.eval_string()
     # if this test fails, it may be because someone with a Mac M1 unintentionally committed `mix.lock` change
     # related to a Rambo-tweak, see https://github.com/etalab/transport-site/blob/61eabf185e71b7670e5d750048714636f85c5e58/apps/transport/mix.exs#L99-L111
     assert rambo |> elem(0) == :hex
