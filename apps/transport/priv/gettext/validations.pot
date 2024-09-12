@@ -427,3 +427,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Warnings are work in progress. Only XSD errors are considerd for now."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "less than 1 second"
+msgstr ""

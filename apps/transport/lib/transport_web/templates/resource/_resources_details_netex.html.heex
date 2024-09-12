@@ -1,6 +1,5 @@
 <% locale = get_session(@conn, :locale) %>
+<% duration = if @metadata["elapsed_seconds"] < 1 do dgettext("validations", "less than 1 second") else format_duration(@metadata["elapsed_seconds"], locale) end %>
 <div>
-  <%= dgettext("validations", "Elapsed time: %{duration}.",
-    duration: format_duration(@metadata["elapsed_seconds"], locale)
-  ) %>
+  <%= dgettext("validations", "Elapsed time: %{duration}.", duration: duration) %>
 </div>
