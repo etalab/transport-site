@@ -27,7 +27,7 @@ stats = @metadata["stats"] %>
           </div>
         </li>
       <% else %>
-        <li if={networks != []}>
+        <li :if={networks != []}>
           <div>
             <div class="networks-list">
               <%= dngettext("validations", "network", "networks", length(networks)) %> :
@@ -36,7 +36,7 @@ stats = @metadata["stats"] %>
           </div>
         </li>
       <% end %>
-      <li if={length(@modes) > 0}>
+      <li :if={length(@modes) > 0}>
         <%= dngettext("validations", "transport mode", "transport modes", length(@modes)) %> :
         <strong><%= Enum.join(@modes, ", ") %></strong>
       </li>
