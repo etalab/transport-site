@@ -134,15 +134,7 @@ msgid "Visualization up-to-date %{hours} ago."
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Check a file's quality"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Choose your file"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "File type"
 msgstr ""
 
 #, elixir-autogen, elixir-format
