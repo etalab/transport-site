@@ -425,7 +425,7 @@ msgid "NeTEx validation is in beta."
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Warnings are work in progress. Only XSD errors are considerd for now."
+msgid "Warnings are work in progress. Only XSD errors are considered for now."
 msgstr ""
 
 #, elixir-autogen, elixir-format
