@@ -109,8 +109,6 @@ defmodule Shared.DateTimeDisplay do
 
   Supported locales: "fr" and "en".
 
-  iex> format_duration(0, "en")
-  "0 second"
   iex> format_duration(1, "en")
   "1 second"
   iex> format_duration(3, "en")
@@ -118,55 +116,44 @@ defmodule Shared.DateTimeDisplay do
   iex> format_duration(60, "en")
   "1 minute"
   iex> format_duration(61, "en")
-  "1 minute 1 second"
+  "1 minute and 1 second"
   iex> format_duration(65, "en")
-  "1 minute 5 seconds"
+  "1 minute and 5 seconds"
   iex> format_duration(120, "en")
   "2 minutes"
   iex> format_duration(125, "en")
-  "2 minutes 5 seconds"
+  "2 minutes and 5 seconds"
+  iex> format_duration(3601, "en")
+  "1 hour and 1 second"
+  iex> format_duration(3661, "en")
+  "1 hour, 1 minute, and 1 second"
 
-  iex> format_duration(0, "fr")
-  "0 seconde"
   iex> format_duration(1, "fr")
-  "1 seconde"
+  "1 seconde"
   iex> format_duration(3, "fr")
-  "3 secondes"
+  "3 secondes"
   iex> format_duration(60, "fr")
   "1 minute"
   iex> format_duration(61, "fr")
-  "1 minute 1 seconde"
+  "1 minute et 1 seconde"
   iex> format_duration(65, "fr")
-  "1 minute 5 secondes"
+  "1 minute et 5 secondes"
   iex> format_duration(120, "fr")
   "2 minutes"
   iex> format_duration(125, "fr")
-  "2 minutes 5 secondes"
+  "2 minutes et 5 secondes"
+  iex> format_duration(3601, "fr")
+  "1 heure et 1 seconde"
+  iex> format_duration(3661, "fr")
+  "1 heure, 1 minute et 1 seconde"
   """
-  @spec format_duration(non_neg_integer(), binary()) :: binary()
+  @spec format_duration(pos_integer(), binary()) :: binary()
   def format_duration(duration_in_seconds, locale) do
-    minutes = div(duration_in_seconds, 60)
-    seconds = rem(duration_in_seconds, 60)
+    locale = Cldr.Locale.new!(locale, Transport.Cldr)
 
-    cond do
-      minutes > 0 and seconds > 0 -> "#{format_minutes(minutes, locale)} #{format_seconds(seconds, locale)}"
-      minutes > 0 -> format_minutes(minutes, locale)
-      true -> format_seconds(seconds, locale)
-    end
-  end
-
-  defp format_seconds(seconds, "en"), do: format_duration_unit(seconds, "second")
-  defp format_seconds(seconds, _locale), do: format_duration_unit(seconds, "seconde")
-
-  defp format_minutes(seconds, "en"), do: format_duration_unit(seconds, "minute")
-  defp format_minutes(seconds, _locale), do: format_duration_unit(seconds, "minute")
-
-  defp format_duration_unit(duration, unit) do
-    if duration > 1 do
-      "#{duration} #{unit}s"
-    else
-      "#{duration} #{unit}"
-    end
+    duration_in_seconds
+    |> Cldr.Calendar.Duration.new_from_seconds()
+    |> Cldr.Calendar.Duration.to_string!(locale: locale)
   end
 
   @spec convert_to_paris_time(DateTime.t() | NaiveDateTime.t()) :: DateTime.t()
