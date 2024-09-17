@@ -109,6 +109,10 @@ defmodule Shared.DateTimeDisplay do
 
   Supported locales: "fr" and "en".
 
+  iex> format_duration(1, :en)
+  "1 second"
+  iex> format_duration(1, Transport.Cldr.Locale.new!("en"))
+  "1 second"
   iex> format_duration(1, "en")
   "1 second"
   iex> format_duration(3, "en")
@@ -128,6 +132,10 @@ defmodule Shared.DateTimeDisplay do
   iex> format_duration(3661, "en")
   "1 hour, 1 minute, and 1 second"
 
+  iex> format_duration(1, :fr)
+  "1 seconde"
+  iex> format_duration(1, Transport.Cldr.Locale.new!("fr"))
+  "1 seconde"
   iex> format_duration(1, "fr")
   "1 seconde"
   iex> format_duration(3, "fr")
@@ -147,7 +155,7 @@ defmodule Shared.DateTimeDisplay do
   iex> format_duration(3661, "fr")
   "1 heure, 1 minute et 1 seconde"
   """
-  @spec format_duration(pos_integer(), binary()) :: binary()
+  @spec format_duration(pos_integer(), atom() | %Cldr.LanguageTag{}) :: binary()
   def format_duration(duration_in_seconds, locale) do
     locale = Cldr.Locale.new!(locale, Transport.Cldr)
 
