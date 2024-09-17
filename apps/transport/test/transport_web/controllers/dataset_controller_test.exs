@@ -812,6 +812,59 @@ defmodule TransportWeb.DatasetControllerTest do
     assert title == "Autocars longue distance"
   end
 
+  test "resources_history_csv", %{conn: conn} do
+    # Using the real implementation to test end-to-end
+    Mox.stub_with(Transport.History.Fetcher.Mock, Transport.History.Fetcher.Database)
+
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset)
+    other_resource = insert(:resource, dataset: dataset)
+
+    rh1 =
+      insert(:resource_history,
+        resource_id: resource.id,
+        payload: %{"foo" => "bar", "permanent_url" => "https://example.com/1"}
+      )
+
+    mv =
+      insert(:multi_validation,
+        resource_history_id: rh1.id,
+        validator: "validator_name",
+        result: %{"validation_details" => 42}
+      )
+
+    insert(:resource_metadata, multi_validation_id: mv.id, metadata: %{"metadata" => 1337})
+
+    # resource_id is nil, but dataset_id is filled in the payload
+    rh2 =
+      insert(:resource_history,
+        resource_id: nil,
+        payload: %{"dataset_id" => dataset.id, "bar" => "baz", "permanent_url" => "https://example.com/2"}
+      )
+
+    rh3 =
+      insert(:resource_history,
+        resource_id: other_resource.id,
+        payload: %{"dataset_id" => dataset.id, "permanent_url" => "https://example.com/3"}
+      )
+
+    response = conn |> get(dataset_path(conn, :resources_history_csv, dataset.id))
+
+    assert response(response, 200) |> String.split("\r\n") == [
+             "resource_history_id,permanent_url,payload,validation_validator,validation_result,metadata,inserted_at",
+             ~s|#{rh3.id},https://example.com/3,"{\"\"dataset_id\"\":#{dataset.id},\"\"permanent_url\"\":\"\"https://example.com/3\"\"}",,null,null,#{rh3.inserted_at}|,
+             ~s|#{rh2.id},https://example.com/2,"{\"\"bar\"\":\"\"baz\"\",\"\"dataset_id\"\":#{dataset.id},\"\"permanent_url\"\":\"\"https://example.com/2\"\"}",,null,null,#{rh2.inserted_at}|,
+             ~s|#{rh1.id},https://example.com/1,"{\"\"foo\"\":\"\"bar\"\",\"\"permanent_url\"\":\"\"https://example.com/1\"\"}",validator_name,"{\"\"validation_details\"\":42}","{\"\"metadata\"\":1337}",#{rh1.inserted_at}|,
+             ""
+           ]
+
+    assert response_content_type(response, :csv) == "text/csv; charset=utf-8"
+
+    assert Plug.Conn.get_resp_header(response, "content-disposition") == [
+             ~s(attachment; filename="historisation-dataset-#{dataset.id}-#{Date.utc_today() |> Date.to_iso8601()}.csv")
+           ]
+  end
+
   defp dataset_page_title(content) do
     content
     |> Floki.parse_document!()
