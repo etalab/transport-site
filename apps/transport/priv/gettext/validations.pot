@@ -75,7 +75,11 @@ msgid "to"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "explanations"
+msgid "explanations-gtfs"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "explanations-netex"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -277,14 +281,6 @@ msgid "from"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "doc-eu-formats"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "netex-siri-validator"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "%{count} times (%{percentage} % of validations)"
 msgstr ""
 
@@ -410,4 +406,24 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "The GTFS file %{gtfs_original_file_name_2} has differences with the GTFS file %{gtfs_original_file_name_1}, as summarized below:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "NeTEx review report"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Elapsed time: %{duration}."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "NeTEx validation is in beta."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Warnings are work in progress. Only XSD errors are considered for now."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "less than 1 second"
 msgstr ""

@@ -2,14 +2,13 @@ defmodule TransportWeb.ResourceView do
   use TransportWeb, :view
   use Phoenix.Component
   import TransportWeb.PaginationHelpers
-  import Transport.Validators.GTFSTransport
   import Phoenix.Controller, only: [current_url: 2]
 
   import TransportWeb.DatasetView,
     only: [documentation_url: 1, errors_count: 1, warnings_count: 1, multi_validation_performed?: 1, description: 1]
 
   import DB.ResourceUnavailability, only: [floor_float: 2]
-  import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2]
+  import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2, format_duration: 2]
   import Shared.Validation.TableSchemaValidator, only: [validata_web_url: 1]
   import Transport.GBFSUtils, only: [gbfs_validation_link: 1]
   import Transport.Shared.Schemas.Wrapper, only: [schema_type: 1]
@@ -19,9 +18,6 @@ defmodule TransportWeb.ResourceView do
   def format_related_objects(related_objects) do
     for %{"id" => id, "name" => name} <- related_objects, do: content_tag(:li, "#{name} (#{id})")
   end
-
-  def issue_type([]), do: nil
-  def issue_type([h | _]), do: h["issue_type"]
 
   def gtfs_template(issues) do
     template =
@@ -46,11 +42,17 @@ defmodule TransportWeb.ResourceView do
           "SubFolder" => "_subfolder_issue.html",
           "NegativeStopDuration" => "_negative_stop_duration_issue.html"
         },
-        issue_type(issues.entries),
+        Transport.Validators.GTFSTransport.issue_type(issues.entries),
         "_generic_issue.html"
       )
 
     "_gtfs#{template}"
+  end
+
+  def netex_template(_issues) do
+    # For now only 1 template has been designed. More to come when the validator
+    # has matured.
+    "_netex_generic_issue.html"
   end
 
   def has_associated_files(%{} = resources_related_files, resource_id) do
