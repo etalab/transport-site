@@ -43,7 +43,6 @@ defmodule Transport.GTFSDataTest do
     {data_import, resource, dataset}
   end
 
-  @tag :focus
   test "build_detailed for map" do
     {data_import, _resource, _dataset} = insert_gtfs_stops([{2.5, 48.5}])
 
@@ -65,7 +64,6 @@ defmodule Transport.GTFSDataTest do
            }
   end
 
-  @tag :focus
   test "build_detailed for API" do
     {data_import, resource, dataset} = insert_gtfs_stops([{2.5, 48.5}])
 
