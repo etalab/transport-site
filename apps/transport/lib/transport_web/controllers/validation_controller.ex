@@ -160,9 +160,10 @@ defmodule TransportWeb.ValidationController do
   end
 
   defp filepath(type) do
-    cond do
-      type == "tableschema" -> Ecto.UUID.generate() <> ".csv"
-      type in ["jsonschema", "gtfs", "netex"] -> Ecto.UUID.generate()
+    if type == "tableschema" do
+      Ecto.UUID.generate() <> ".csv"
+    else
+      Ecto.UUID.generate()
     end
   end
 
