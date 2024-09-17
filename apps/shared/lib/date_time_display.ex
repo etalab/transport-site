@@ -155,7 +155,7 @@ defmodule Shared.DateTimeDisplay do
   iex> format_duration(3661, "fr")
   "1 heure, 1 minute et 1 seconde"
   """
-  @spec format_duration(pos_integer(), atom() | %Cldr.LanguageTag{}) :: binary()
+  @spec format_duration(pos_integer(), atom() | Cldr.LanguageTag.t()) :: binary()
   def format_duration(duration_in_seconds, locale) do
     locale = Cldr.Locale.new!(locale, Transport.Cldr)
 
