@@ -75,7 +75,11 @@ msgid "to"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "explanations"
+msgid "explanations-gtfs"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "explanations-netex"
 msgstr ""
 
 #, elixir-autogen, elixir-format

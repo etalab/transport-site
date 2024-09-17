@@ -75,9 +75,14 @@ msgid "to"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "explanations"
-msgstr "This is the automated evaluation of the %{format} datafile. "
+msgid "explanations-gtfs"
+msgstr "This is the automated evaluation of the GTFS datafile. "
 "This validation only considers the datastructure and does not give any information about completeness nor exactitude of the timetables. "
+
+#, elixir-autogen, elixir-format
+msgid "explanations-netex"
+msgstr "This is the automated evaluation of the NeTEx datafile. "
+"This validation only considers the datastructure and does not give any information about completeness nor exactitude of the data. "
 
 #, elixir-autogen, elixir-format
 msgid "Show anyway"

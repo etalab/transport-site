@@ -75,9 +75,14 @@ msgid "to"
 msgstr "au"
 
 #, elixir-autogen, elixir-format
-msgid "explanations"
-msgstr "Voici le bilan automatisé sur la qualité du fichier %{format}. "
+msgid "explanations-gtfs"
+msgstr "Voici le bilan automatisé sur la qualité du fichier GTFS. "
 "Cette validation ne concerne que la structure des données et pas la complétude ni l’exactitude des horaires. "
+
+#, elixir-autogen, elixir-format
+msgid "explanations-netex"
+msgstr "Voici le bilan automatisé sur la qualité du fichier NeTEx. "
+"Cette validation ne concerne que la structure des données et pas la complétude ni l’exactitude des données. "
 
 #, elixir-autogen, elixir-format
 msgid "Show anyway"
