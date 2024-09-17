@@ -9,5 +9,9 @@
   {"lib/db/contact.ex", :unknown_type, 0},
   {"lib/db/user_feedback.ex", :unknown_type, 0},
   {"lib/db/notification.ex", :unknown_type, 0},
+
+  # Workaround for "Overloaded contract for Transport.Cldr.Calendar.localize/3
+  # has overlapping domains; such contracts are currently unsupported and are
+  # simply ignored."
   ~r/lib\/cldr.ex/
 ]
