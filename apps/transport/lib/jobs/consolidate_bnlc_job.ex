@@ -21,6 +21,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
   @schema_name "etalab/schema-lieux-covoiturage"
   @separator_key "csv_separator"
+  @encoding_key "encoding"
   @download_path_key "tmp_download_path"
   # You may need to change this URL if you're working locally on the code.
   # Maybe upload your own CSV to https://gist.github.com or return hardcoded
@@ -319,10 +320,14 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     # Append other valid resources to the file
     Enum.each(resources_details, fn {
                                       dataset_details,
-                                      %{@download_path_key => tmp_path, @separator_key => separator} = resource_details
+                                      %{
+                                        @download_path_key => tmp_path,
+                                        @separator_key => separator,
+                                        @encoding_key => encoding
+                                      } = resource_details
                                     } ->
       tmp_path
-      |> File.stream!([:trim_bom, encoding: :utf8])
+      |> File.stream!([:trim_bom, encoding: encoding])
       |> CSV.decode!(headers: true, field_transform: &String.trim/1, separator: separator)
       # Keep only columns that are present in the BNLC, ignore extra columns
       |> Stream.filter(&Map.take(&1, bnlc_headers))
@@ -391,6 +396,24 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     # Maximum number of columns detected is a good proxy to find the separator
     |> Enum.max_by(fn {_, v} -> v end)
     |> elem(0)
+  end
+
+  @doc """
+  Guess the file encoding for a file stored on disk
+  """
+  @spec guess_encoding(binary()) :: :utf8 | :latin1
+  def guess_encoding(path) do
+    Enum.find([:utf8, :latin1], fn encoding -> can_stream_for_encoding?(path, encoding) end)
+  end
+
+  @spec can_stream_for_encoding?(binary(), atom()) :: boolean()
+  def can_stream_for_encoding?(path, encoding) do
+    try do
+      path |> File.stream!([:trim_bom, encoding: encoding]) |> Stream.take(5) |> Stream.run()
+      true
+    rescue
+      _ -> false
+    end
   end
 
   @doc """
@@ -475,7 +498,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     |> Enum.map(fn {dataset_details, %{"url" => resource_url} = resource} ->
       case http_client().get(resource_url, [], follow_redirect: true) do
         {:ok, %HTTPoison.Response{status_code: 200} = response} ->
-          guess_separator_and_decode({dataset_details, resource}, response)
+          guess_csv_details_and_decode({dataset_details, resource}, response)
 
         _ ->
           {:errors, {:download, {dataset_details, resource}}}
@@ -487,15 +510,23 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   @doc """
   For a remote resource we successfully downloaded, we try to:
   - guess the CSV separator of the file (using the header line)
+  - guess the file encoding
   - decode the CSV file with the guessed separator
   """
-  def guess_separator_and_decode({dataset_details, %{"id" => resource_id} = resource}, %HTTPoison.Response{
+  def guess_csv_details_and_decode({dataset_details, %{"id" => resource_id} = resource}, %HTTPoison.Response{
         status_code: 200,
         body: body
       }) do
     path = System.tmp_dir!() |> Path.join("consolidate_bnlc_#{resource_id}")
     File.write!(path, body)
-    resource = Map.merge(resource, %{@download_path_key => path, @separator_key => guess_csv_separator(body)})
+
+    resource =
+      Map.merge(resource, %{
+        @download_path_key => path,
+        @separator_key => guess_csv_separator(body),
+        @encoding_key => guess_encoding(path)
+      })
+
     check_can_decode_csv(body, {dataset_details, resource})
   end
 
