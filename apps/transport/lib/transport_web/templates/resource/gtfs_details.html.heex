@@ -103,7 +103,8 @@ associated_netex = get_associated_netex(@related_files) %>
                 issues: @issues,
                 conn: @conn,
                 data_vis: @data_vis,
-                token: nil
+                token: nil,
+                validator: Transport.Validators.GTFSTransport
               ) %>
             </nav>
             <div class="main-pane">
