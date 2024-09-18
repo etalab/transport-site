@@ -2,7 +2,6 @@ defmodule TransportWeb.ValidationController do
   use TransportWeb, :controller
   alias DB.{MultiValidation, Repo}
   alias Transport.DataVisualization
-  import TransportWeb.ResourceView, only: [issue_type: 1]
   import Ecto.Query
 
   def validate(%Plug.Conn{} = conn, %{"upload" => %{"url" => url, "type" => "gbfs"} = params}) do
@@ -98,31 +97,32 @@ defmodule TransportWeb.ValidationController do
         unauthorized(conn)
 
       %MultiValidation{oban_args: %{"state" => "completed", "type" => "gtfs"}} = validation ->
-        current_issues = Transport.Validators.GTFSTransport.get_issues(validation.result, params)
+        validator = Transport.Validators.GTFSTransport
+        current_issues = validator.get_issues(validation.result, params)
 
         issue_type =
           case params["issue_type"] do
-            nil -> issue_type(current_issues)
+            nil -> validator.issue_type(current_issues)
             issue_type -> issue_type
           end
 
         conn
-        |> assign(:validation_id, params["id"])
-        |> assign(:other_resources, [])
-        |> assign(:issues, Scrivener.paginate(current_issues, make_pagination_config(params)))
-        |> assign(
-          :validation_summary,
-          Transport.Validators.GTFSTransport.summary(validation.result)
-        )
-        |> assign(
-          :severities_count,
-          Transport.Validators.GTFSTransport.count_by_severity(validation.result)
-        )
+        |> assign_base_validation_details(validator, validation, params, current_issues)
         |> assign(:metadata, validation.metadata.metadata)
         |> assign(:modes, validation.metadata.modes)
         |> assign(:data_vis, data_vis(validation, issue_type))
-        |> assign(:token, token)
-        |> render("show.html")
+        |> render("show_gtfs.html")
+
+      %MultiValidation{oban_args: %{"state" => "completed", "type" => "netex"}} = validation ->
+        validator = Transport.Validators.NeTEx
+        current_issues = validator.get_issues(validation.result, params)
+
+        conn
+        |> assign_base_validation_details(validator, validation, params, current_issues)
+        |> assign(:metadata, validation.metadata.metadata)
+        |> assign(:modes, [])
+        |> assign(:data_vis, nil)
+        |> render("show_netex.html")
 
       # Handles waiting for validation to complete, errors and
       # validation for schemas
@@ -130,10 +130,22 @@ defmodule TransportWeb.ValidationController do
         live_render(conn, TransportWeb.Live.OnDemandValidationLive,
           session: %{
             "validation_id" => params["id"],
+            "issue_type" => params["issue_type"],
             "current_url" => validation_path(conn, :show, params["id"], token: token)
           }
         )
     end
+  end
+
+  defp assign_base_validation_details(conn, validator, validation, params, current_issues) do
+    conn
+    |> assign(:validator, validator)
+    |> assign(:validation_id, params["id"])
+    |> assign(:other_resources, [])
+    |> assign(:issues, Scrivener.paginate(current_issues, make_pagination_config(params)))
+    |> assign(:validation_summary, validator.summary(validation.result))
+    |> assign(:severities_count, validator.count_by_severity(validation.result))
+    |> assign(:token, params["token"])
   end
 
   defp data_vis(%MultiValidation{} = validation, issue_type) do
@@ -148,9 +160,10 @@ defmodule TransportWeb.ValidationController do
   end
 
   defp filepath(type) do
-    cond do
-      type == "tableschema" -> Ecto.UUID.generate() <> ".csv"
-      type in ["jsonschema", "gtfs"] -> Ecto.UUID.generate()
+    if type == "tableschema" do
+      Ecto.UUID.generate() <> ".csv"
+    else
+      Ecto.UUID.generate()
     end
   end
 
@@ -215,6 +228,7 @@ defmodule TransportWeb.ValidationController do
     args =
       case type do
         "gtfs" -> %{"type" => "gtfs"}
+        "netex" -> %{"type" => "netex"}
         schema_name -> %{"schema_name" => schema_name, "type" => schema_type(schema_name)}
       end
 

@@ -104,6 +104,66 @@ defmodule Shared.DateTimeDisplay do
 
   def format_datetime_to_paris(nil, _, _), do: ""
 
+  @doc """
+  Formats a duration in seconds to display, according to a locale.
+
+  Supported locales: "fr" and "en".
+
+  iex> format_duration(1, :en)
+  "1 second"
+  iex> format_duration(1, Transport.Cldr.Locale.new!("en"))
+  "1 second"
+  iex> format_duration(1, "en")
+  "1 second"
+  iex> format_duration(3, "en")
+  "3 seconds"
+  iex> format_duration(60, "en")
+  "1 minute"
+  iex> format_duration(61, "en")
+  "1 minute and 1 second"
+  iex> format_duration(65, "en")
+  "1 minute and 5 seconds"
+  iex> format_duration(120, "en")
+  "2 minutes"
+  iex> format_duration(125, "en")
+  "2 minutes and 5 seconds"
+  iex> format_duration(3601, "en")
+  "1 hour and 1 second"
+  iex> format_duration(3661, "en")
+  "1 hour, 1 minute, and 1 second"
+
+  iex> format_duration(1, :fr)
+  "1 seconde"
+  iex> format_duration(1, Transport.Cldr.Locale.new!("fr"))
+  "1 seconde"
+  iex> format_duration(1, "fr")
+  "1 seconde"
+  iex> format_duration(3, "fr")
+  "3 secondes"
+  iex> format_duration(60, "fr")
+  "1 minute"
+  iex> format_duration(61, "fr")
+  "1 minute et 1 seconde"
+  iex> format_duration(65, "fr")
+  "1 minute et 5 secondes"
+  iex> format_duration(120, "fr")
+  "2 minutes"
+  iex> format_duration(125, "fr")
+  "2 minutes et 5 secondes"
+  iex> format_duration(3601, "fr")
+  "1 heure et 1 seconde"
+  iex> format_duration(3661, "fr")
+  "1 heure, 1 minute et 1 seconde"
+  """
+  @spec format_duration(pos_integer(), atom() | Cldr.LanguageTag.t()) :: binary()
+  def format_duration(duration_in_seconds, locale) do
+    locale = Cldr.Locale.new!(locale, Transport.Cldr)
+
+    duration_in_seconds
+    |> Cldr.Calendar.Duration.new_from_seconds()
+    |> Cldr.Calendar.Duration.to_string!(locale: locale)
+  end
+
   @spec convert_to_paris_time(DateTime.t() | NaiveDateTime.t()) :: DateTime.t()
   defp convert_to_paris_time(%DateTime{} = dt) do
     case Timex.Timezone.convert(dt, "Europe/Paris") do
