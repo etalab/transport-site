@@ -408,12 +408,10 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
   @spec can_stream_for_encoding?(binary(), atom()) :: boolean()
   def can_stream_for_encoding?(path, encoding) do
-    try do
-      path |> File.stream!([:trim_bom, encoding: encoding]) |> Stream.take(5) |> Stream.run()
-      true
-    rescue
-      _ -> false
-    end
+    path |> File.stream!([:trim_bom, encoding: encoding]) |> Stream.take(5) |> Stream.run()
+    true
+  rescue
+    _ -> false
   end
 
   @doc """
