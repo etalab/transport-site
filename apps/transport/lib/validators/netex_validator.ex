@@ -11,6 +11,8 @@ defmodule Transport.Validators.NeTEx do
 
   @max_retries 100
 
+  @unknown_code "unknown-code"
+
   @behaviour Transport.Validators.Validator
 
   @impl Transport.Validators.Validator
@@ -257,7 +259,7 @@ defmodule Transport.Validators.NeTEx do
   def index_messages(messages), do: Enum.group_by(messages, &get_code/1)
 
   defp get_code(%{"code" => code}), do: code
-  defp get_code(%{}), do: "unknown-code"
+  defp get_code(%{}), do: @unknown_code
 
   # This will change with an actual versioning of the validator
   def validator_version, do: "saas-production"
@@ -282,12 +284,21 @@ defmodule Transport.Validators.NeTEx do
       {code,
        %{
          count: length(errors),
-         criticity: Map.get(hd(errors), "criticity"),
-         title: Map.get(issues_short_translation(), code, code)
+         criticity: errors |> hd() |> Map.get("criticity"),
+         title: issues_short_translation_per_code(code)
        }}
     end)
     |> Enum.group_by(fn {_, details} -> details.criticity end)
     |> Enum.sort_by(fn {criticity, _} -> severity(criticity).level end)
+  end
+
+  @spec issues_short_translation_per_code(binary()) :: binary()
+  def issues_short_translation_per_code(code) do
+    if String.starts_with?(code, "xsd-") do
+      dgettext("netex-validator", "XSD validation")
+    else
+      Map.get(issues_short_translation(), code, code)
+    end
   end
 
   @spec issues_short_translation() :: %{binary() => binary()}
@@ -304,8 +315,12 @@ defmodule Transport.Validators.NeTEx do
       "uic-operating-period" => dgettext("netex-validator", "UIC operating period"),
       "valid-day-bits" => dgettext("netex-validator", "Valid day bits"),
       "version-any" => dgettext("netex-validator", "Version any"),
-      "unknown-code" => dgettext("netex-validator", "Unspecified error")
+      @unknown_code => dgettext("netex-validator", "Unspecified error")
     }
+
+  @spec issue_type(list()) :: nil | binary()
+  def issue_type([]), do: nil
+  def issue_type([h | _]), do: h["code"] || @unknown_code
 
   @doc """
   Get issues from validation results. For a specific issue type if specified, or the most severe.

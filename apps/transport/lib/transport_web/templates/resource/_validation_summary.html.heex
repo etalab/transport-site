@@ -3,7 +3,7 @@
     <%= for {severity, issues} <- @validation_summary do %>
       <%= if Map.get(@severities_count, severity, 0) > 0 do %>
         <div class="validation-issue">
-          <h4><%= @severities_count[severity] %> <%= severity(severity).text %></h4>
+          <h4><%= @severities_count[severity] %> <%= @validator.severity(severity).text %></h4>
           <ul>
             <%= for {key, issue} <- issues do %>
               <li>
@@ -12,7 +12,7 @@
                     "#{issue.title} (#{issue.count})",
                     to:
                       "#{current_url(@conn, %{"issue_type" => key, "token" => @token} |> Map.reject(fn {_, v} -> is_nil(v) end))}#issues",
-                    class: if(key == issue_type(@issues.entries), do: "active")
+                    class: if(key == @validator.issue_type(@issues.entries), do: "active")
                   ) %>
                 <% end %>
               </li>

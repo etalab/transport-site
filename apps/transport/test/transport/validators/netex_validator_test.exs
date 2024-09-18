@@ -3,6 +3,7 @@ defmodule Transport.Validators.NeTExTest do
   import DB.Factory
   import Mox
   import ExUnit.CaptureLog
+  import Transport.Test.EnRouteChouetteValidClientHelpers
 
   alias Transport.Validators.NeTEx
 
@@ -228,32 +229,6 @@ defmodule Transport.Validators.NeTExTest do
       assert result == {:error, %{message: "enRoute Chouette Valid: Timeout while fetching results", retries: 100}}
       assert log =~ "[error] Timeout while fetching result on enRoute Chouette Valid"
     end
-  end
-
-  defp expect_create_validation do
-    validation_id = Ecto.UUID.generate()
-    expect(Transport.EnRouteChouetteValidClient.Mock, :create_a_validation, fn _ -> validation_id end)
-    validation_id
-  end
-
-  defp expect_pending_validation(validation_id) do
-    expect(Transport.EnRouteChouetteValidClient.Mock, :get_a_validation, fn ^validation_id -> :pending end)
-  end
-
-  defp expect_successful_validation(validation_id, elapsed) do
-    expect(Transport.EnRouteChouetteValidClient.Mock, :get_a_validation, fn ^validation_id ->
-      {:successful, "http://localhost:9999/chouette-valid/#{validation_id}", elapsed}
-    end)
-  end
-
-  defp expect_failed_validation(validation_id, elapsed) do
-    expect(Transport.EnRouteChouetteValidClient.Mock, :get_a_validation, fn ^validation_id -> {:failed, elapsed} end)
-  end
-
-  defp expect_get_messages(validation_id, result) do
-    expect(Transport.EnRouteChouetteValidClient.Mock, :get_messages, fn ^validation_id ->
-      {"http://localhost:9999/chouette-valid/#{validation_id}/messages", result}
-    end)
   end
 
   defp mk_netex_resource do

@@ -15,6 +15,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   alias Transport.DataVisualization
   alias Transport.Validators.GTFSRT
   alias Transport.Validators.GTFSTransport
+  alias Transport.Validators.NeTEx
   @download_timeout_ms 10_000
 
   @impl Oban.Worker
@@ -64,6 +65,28 @@ defmodule Transport.Jobs.OnDemandValidationJob do
           command: GTFSTransport.command(url),
           validated_data_name: url,
           max_error: GTFSTransport.get_max_severity_error(validation),
+          oban_args: %{
+            "state" => "completed"
+          }
+        }
+    end
+  end
+
+  defp perform_validation(%{"type" => "netex", "permanent_url" => url}) do
+    validator = NeTEx.validator_name()
+
+    case NeTEx.validate(url, []) do
+      {:error, msg} ->
+        %{oban_args: %{"state" => "error", "error_reason" => msg}, validator: validator}
+
+      {:ok, %{"validations" => validation, "metadata" => metadata}} ->
+        %{
+          result: validation,
+          metadata: metadata,
+          data_vis: nil,
+          validator: validator,
+          validated_data_name: url,
+          max_error: NeTEx.get_max_severity_error(validation),
           oban_args: %{
             "state" => "completed"
           }
