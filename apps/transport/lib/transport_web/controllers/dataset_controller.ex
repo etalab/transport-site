@@ -312,6 +312,7 @@ defmodule TransportWeb.DatasetController do
     # We define CSV columns explicitly because ordering matters for humans
     columns = [
       "resource_history_id",
+      "resource_id",
       "permanent_url",
       "payload",
       "validation_validator",
@@ -333,12 +334,16 @@ defmodule TransportWeb.DatasetController do
     |> send_resp(200, content)
   end
 
-  defp build_history_csv_row(columns, %DB.ResourceHistory{id: rh_id, payload: payload, inserted_at: inserted_at} = rh) do
+  defp build_history_csv_row(
+         columns,
+         %DB.ResourceHistory{id: rh_id, resource_id: resource_id, payload: payload, inserted_at: inserted_at} = rh
+       ) do
     {validation, metadata} = validation_and_metadata(rh)
 
     row =
       %{
         "resource_history_id" => rh_id,
+        "resource_id" => resource_id,
         "permanent_url" => Map.fetch!(payload, "permanent_url"),
         "payload" => Jason.encode!(payload),
         "validation_validator" => Map.get(validation, :validator),

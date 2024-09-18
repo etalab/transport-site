@@ -819,6 +819,8 @@ defmodule TransportWeb.DatasetControllerTest do
     dataset = insert(:dataset)
     resource = insert(:resource, dataset: dataset)
     other_resource = insert(:resource, dataset: dataset)
+    # another resource, no history for this one
+    insert(:resource, dataset: dataset, format: "gtfs-rt")
 
     rh1 =
       insert(:resource_history,
@@ -836,12 +838,15 @@ defmodule TransportWeb.DatasetControllerTest do
     insert(:resource_metadata, multi_validation_id: mv.id, metadata: %{"metadata" => 1337})
 
     # resource_id is nil, but dataset_id is filled in the payload
+    # no resource_metadata/multi_validation associated
     rh2 =
       insert(:resource_history,
         resource_id: nil,
         payload: %{"dataset_id" => dataset.id, "bar" => "baz", "permanent_url" => "https://example.com/2"}
       )
 
+    # another resource for this dataset
+    # no resource_metadata/multi_validation associated
     rh3 =
       insert(:resource_history,
         resource_id: other_resource.id,
@@ -849,13 +854,44 @@ defmodule TransportWeb.DatasetControllerTest do
       )
 
     response = conn |> get(dataset_path(conn, :resources_history_csv, dataset.id))
+    content = response(response, 200)
 
-    assert response(response, 200) |> String.split("\r\n") == [
-             "resource_history_id,permanent_url,payload,validation_validator,validation_result,metadata,inserted_at",
-             ~s|#{rh3.id},https://example.com/3,"{\"\"dataset_id\"\":#{dataset.id},\"\"permanent_url\"\":\"\"https://example.com/3\"\"}",,null,null,#{rh3.inserted_at}|,
-             ~s|#{rh2.id},https://example.com/2,"{\"\"bar\"\":\"\"baz\"\",\"\"dataset_id\"\":#{dataset.id},\"\"permanent_url\"\":\"\"https://example.com/2\"\"}",,null,null,#{rh2.inserted_at}|,
-             ~s|#{rh1.id},https://example.com/1,"{\"\"foo\"\":\"\"bar\"\",\"\"permanent_url\"\":\"\"https://example.com/1\"\"}",validator_name,"{\"\"validation_details\"\":42}","{\"\"metadata\"\":1337}",#{rh1.inserted_at}|,
-             ""
+    # Check CSV header
+    assert content |> String.split("\r\n") |> hd() ==
+             "resource_history_id,resource_id,permanent_url,payload,validation_validator,validation_result,metadata,inserted_at"
+
+    # Check CSV content
+    assert [content] |> CSV.decode!(headers: true) |> Enum.to_list() == [
+             %{
+               "inserted_at" => to_string(rh3.inserted_at),
+               "metadata" => "null",
+               "payload" => Jason.encode!(rh3.payload),
+               "permanent_url" => "https://example.com/3",
+               "resource_history_id" => to_string(rh3.id),
+               "resource_id" => to_string(rh3.resource_id),
+               "validation_result" => "null",
+               "validation_validator" => ""
+             },
+             %{
+               "inserted_at" => to_string(rh2.inserted_at),
+               "metadata" => "null",
+               "payload" => Jason.encode!(rh2.payload),
+               "permanent_url" => "https://example.com/2",
+               "resource_history_id" => to_string(rh2.id),
+               "resource_id" => to_string(rh2.resource_id),
+               "validation_result" => "null",
+               "validation_validator" => ""
+             },
+             %{
+               "inserted_at" => to_string(rh1.inserted_at),
+               "metadata" => ~s|{"metadata":1337}|,
+               "payload" => Jason.encode!(rh1.payload),
+               "permanent_url" => "https://example.com/1",
+               "resource_history_id" => to_string(rh1.id),
+               "resource_id" => to_string(rh1.resource_id),
+               "validation_result" => ~s|{"validation_details":42}|,
+               "validation_validator" => "validator_name"
+             }
            ]
 
     assert response_content_type(response, :csv) == "text/csv; charset=utf-8"
