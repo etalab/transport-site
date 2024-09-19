@@ -353,7 +353,11 @@ defmodule TransportWeb.ResourceControllerTest do
       insert(:multi_validation, %{
         resource_history_id: resource_history_id,
         validator: Transport.Validators.GTFSTransport.validator_name(),
-        result: %{},
+        result: %{
+          "NullDuration" => [%{"severity" => "Information"}],
+          "MissingCoordinates" => [%{"severity" => "Warning"}]
+        },
+        max_error: "Warning",
         metadata: %DB.ResourceMetadata{
           metadata: %{
             "networks" => ["3CM", "RLV"],
@@ -392,8 +396,8 @@ defmodule TransportWeb.ResourceControllerTest do
     assert content =~
              ~s{Validation effectuée en utilisant <a href="#{permanent_url}">le fichier GTFS en vigueur</a> le 28/10/2022 à 16h12 Europe/Paris}
 
-    # Features are displayed in a table
     [
+      # Features are displayed in a table
       {"table", [{"class", _}],
        [
          {"thead", [],
@@ -407,6 +411,19 @@ defmodule TransportWeb.ResourceControllerTest do
              ]}
           ]},
          {"tbody", [], rows}
+       ]},
+      # Issues are listed in a paginated table
+      {"table", [{"class", "table"}],
+       [
+         {"tr", [],
+          [
+            {"th", [], ["Type d'objet"]},
+            {"th", [], ["Identifiant"]},
+            {"th", [], ["Nom de l’objet"]},
+            {"th", [], ["Identifiant associé"]},
+            {"th", [], ["Détails"]}
+          ]},
+         {"tr", [], _}
        ]}
     ] = content |> Floki.parse_document!() |> Floki.find("table")
 
