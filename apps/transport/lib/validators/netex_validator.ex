@@ -19,10 +19,9 @@ defmodule Transport.Validators.NeTEx do
   def validator_name, do: "enroute-chouette-netex-validator"
 
   @impl Transport.Validators.Validator
-  def validate_and_save(%DB.Resource{format: "NeTEx", id: resource_id}) do
-    Logger.info("Validating NeTEx #{resource_id} with enRoute Chouette Valid")
+  def validate_and_save(%DB.ResourceHistory{} = resource_history) do
+    Logger.info("Validating NeTEx #{resource_history.id} with enRoute Chouette Valid")
 
-    resource_history = DB.ResourceHistory.latest_resource_history(resource_id)
     with_resource_file(resource_history, &validate_resource_history(resource_history, &1))
   end
 

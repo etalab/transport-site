@@ -123,6 +123,7 @@ defmodule TransportWeb.ResourceView do
   def gbfs_validator_url, do: "https://github.com/MobilityData/gbfs-validator"
   def gtfs_rt_validator_url, do: "https://github.com/MobilityData/gtfs-realtime-validator"
   def gtfs_validator_url, do: "https://github.com/etalab/transport-validator"
+  def netex_validator_url, do: "https://documenter.getpostman.com/view/9950294/2sA3e2gVEE"
 
   def gtfs_rt_validator_rule_url(error_id) when is_binary(error_id) do
     gtfs_rt_validator_rule_url(%{"error_id" => error_id})
