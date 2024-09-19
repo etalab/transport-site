@@ -103,12 +103,13 @@ associated_netex = get_associated_netex(@related_files) %>
                 issues: @issues,
                 conn: @conn,
                 data_vis: @data_vis,
-                token: nil
+                token: nil,
+                validator: Transport.Validators.GTFSTransport
               ) %>
             </nav>
             <div class="main-pane">
               <%= pagination_links(@conn, @issues, [@resource.id],
-                issue_type: issue_type(@issues.entries),
+                issue_type: Transport.Validators.GTFSTransport.issue_type(@issues.entries),
                 path: &resource_path/4,
                 action: :details
               ) %>

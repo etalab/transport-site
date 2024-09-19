@@ -77,6 +77,10 @@ defmodule Transport.Validators.GTFSTransport do
   @spec severity(binary()) :: %{level: integer(), text: binary()}
   def severity(key), do: severities_map()[key]
 
+  @spec issue_type(list()) :: nil | binary()
+  def issue_type([]), do: nil
+  def issue_type([h | _]), do: h["issue_type"]
+
   @doc """
   Get issues from validation results. For a specific issue type if specified, or the most severe.
 

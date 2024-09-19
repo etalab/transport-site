@@ -57,6 +57,9 @@ defmodule Shared.MixProject do
       # be required no matter what.
       {:jason, ">= 0.0.0"},
       {:ex_cldr_numbers, "~> 2.0"},
+      {:ex_cldr_calendars, "~> 1.26"},
+      {:ex_cldr_lists, "~> 2.11"},
+      {:ex_cldr_units, "~> 3.17"},
       {:cachex, "~> 3.5"},
       {:ex_json_schema, "~> 0.10"},
       # added because of `TransportWeb.Plugs.AppSignalFilter`
