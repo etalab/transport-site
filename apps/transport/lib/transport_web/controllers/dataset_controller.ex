@@ -307,67 +307,6 @@ defmodule TransportWeb.DatasetController do
     |> Enum.reject(fn t -> is_nil(t.msg) end)
   end
 
-  def resources_history_csv(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id}) do
-    filename = "historisation-dataset-#{dataset_id}-#{Date.utc_today() |> Date.to_iso8601()}.csv"
-    # We define CSV columns explicitly because ordering matters for humans
-    columns = [
-      "resource_history_id",
-      "resource_id",
-      "permanent_url",
-      "payload",
-      "validation_validator",
-      "validation_result",
-      "metadata",
-      "inserted_at"
-    ]
-
-    content =
-      Transport.History.Fetcher.history_resources(%DB.Dataset{id: String.to_integer(dataset_id)})
-      |> Enum.map(fn row -> build_history_csv_row(columns, row) end)
-      |> CSV.encode(headers: columns)
-      |> Enum.to_list()
-      |> to_string()
-
-    conn
-    |> put_resp_content_type("text/csv")
-    |> put_resp_header("content-disposition", ~s|attachment; filename="#{filename}"|)
-    |> send_resp(200, content)
-  end
-
-  defp build_history_csv_row(
-         columns,
-         %DB.ResourceHistory{id: rh_id, resource_id: resource_id, payload: payload, inserted_at: inserted_at} = rh
-       ) do
-    {validation, metadata} = validation_and_metadata(rh)
-
-    row =
-      %{
-        "resource_history_id" => rh_id,
-        "resource_id" => resource_id,
-        "permanent_url" => Map.fetch!(payload, "permanent_url"),
-        "payload" => Jason.encode!(payload),
-        "validation_validator" => Map.get(validation, :validator),
-        "validation_result" => Map.get(validation, :result) |> Jason.encode!(),
-        "metadata" => Jason.encode!(metadata),
-        "inserted_at" => inserted_at
-      }
-
-    # Make sure CSV columns match what we're building
-    if MapSet.new(columns) == MapSet.new(Map.keys(row)) do
-      row
-    else
-      raise "Unexpected columns: #{Map.keys(row)} != #{inspect(columns)}"
-    end
-  end
-
-  defp validation_and_metadata(%DB.ResourceHistory{
-         validations: [%{metadata: %DB.ResourceMetadata{metadata: metadata}} = validation]
-       }) do
-    {validation, metadata}
-  end
-
-  defp validation_and_metadata(_), do: {%{}, nil}
-
   defp add_current_type(results, type) do
     case Enum.any?(results, &(&1.type == type)) do
       true -> results
