@@ -213,12 +213,7 @@
         </div>
       </section>
     <% end %>
-    <%= render("_dataset_resources_history.html",
-      history_resources: @history_resources,
-      locale: locale,
-      conn: @conn,
-      dataset_id: @dataset.id
-    ) %>
+    <%= render("_dataset_resources_history.html", history_resources: @history_resources, locale: locale, conn: @conn) %>
     <%= unless is_nil(@other_datasets) or @other_datasets == [] do %>
       <section class="pt-48" id="dataset-other-datasets">
         <h2><%= dgettext("page-dataset-details", "Other datasets of %{name}", name: @territory) %></h2>
