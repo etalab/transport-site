@@ -4,31 +4,29 @@ IO.inspect(file, IEx.inspect_opts())
 
 defmodule LogCategorize do
   def categorize(line) do
-    #    IO.write(line)
-
     cond do
-      line =~ ~r/path=\/gbfs/ ->
+      String.contains?(line, "path=/gbfs") ->
         "/path/gbfs"
 
-      line =~ ~r/GET \/gbfs/ ->
+      String.contains?(line, "GET /gbfs") ->
         "GET /path/gbfs"
 
-      line =~ ~r/(GET|HEAD) \/resource\// ->
+      String.contains?(line, "GET /resource/") or String.contains?(line, "HEAD /resource/") ->
         "proxy:resource:get"
 
-      line =~ ~r/Telemetry event\: processing .* proxy request/ ->
+      String.contains?(line, "Telemetry event: processing") and String.contains?(line, "proxy request") ->
         "telemetry:proxy"
 
-      line =~ ~r/Proxy response for/ ->
+      String.contains?(line, "Proxy response for") ->
         "proxy:response"
 
-      line =~ ~r/Processing proxy request for identifier/ ->
+      String.contains?(line, "Processing proxy request for identifier") ->
         "proxy:processing"
 
-      line =~ ~r/Sent 200 in/ ->
+      String.contains?(line, "Sent 200 in") ->
         "response:200"
 
-      line =~ ~r/Sent 404 in/ ->
+      String.contains?(line, "Sent 404 in") ->
         "response:404"
 
       true ->
