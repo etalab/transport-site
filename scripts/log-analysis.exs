@@ -38,7 +38,9 @@ defmodule LogCategorize do
 end
 
 File.stream!(file)
-# |> Stream.take(10)
-|> Stream.map(&LogCategorize.categorize(&1))
-|> Enum.frequencies()
-|> IO.inspect(IEx.inspect_opts())
+|> Enum.reduce(%{}, fn line, acc ->
+  category = LogCategorize.categorize(line)
+  bytes = byte_size(line)
+  Map.update(acc, category, bytes, &(&1 + bytes))
+end)
+|> IO.inspect(label: "Bytes per Category")
