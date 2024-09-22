@@ -1,0 +1,77 @@
+# Logs volume analysis
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.14.0"},
+  {:vega_lite, "~> 0.1.5"},
+  {:kino_vega_lite, "~> 0.1.13"}
+])
+```
+
+## Section
+
+```elixir
+[file] = Path.wildcard(Path.absname(__DIR__) <> "/../../logs/*.log")
+```
+
+```elixir
+defmodule LogCategorize do
+  def categorize(line) do
+    cond do
+      String.contains?(line, "GET /gbfs") or String.contains?(line, "path=/gbfs") ->
+        "/path/gbfs"
+
+      String.contains?(line, "GET /resource/") or String.contains?(line, "HEAD /resource/") ->
+        "proxy:resource:get"
+
+      String.contains?(line, "Telemetry event: processing") and
+          String.contains?(line, "proxy request") ->
+        "telemetry:proxy"
+
+      String.contains?(line, "Proxy response for") ->
+        "proxy:response"
+
+      String.contains?(line, "Processing proxy request for identifier") ->
+        "proxy:processing"
+
+      String.contains?(line, "Sent 200 in") ->
+        "response:200"
+
+      String.contains?(line, "Sent 404 in") ->
+        "response:404"
+
+      true ->
+        # IO.write(line)
+        # System.halt()
+        "undetermined"
+    end
+  end
+end
+```
+
+```elixir
+data =
+  File.stream!(file)
+  # |> Stream.take(10000)
+  |> Enum.reduce(%{}, fn line, acc ->
+    category = LogCategorize.categorize(line)
+    bytes = byte_size(line)
+    Map.update(acc, category, bytes, &(&1 + bytes))
+  end)
+  |> Enum.map(fn {category, bytes_count} ->
+    %{category: category, megabytes_count: bytes_count / (1024 * 1024)}
+  end)
+```
+
+```elixir
+VegaLite.new(width: 700, height: 300)
+|> VegaLite.data_from_values(data)
+|> VegaLite.mark(:bar)
+|> VegaLite.encode_field(
+  :x,
+  "category",
+  type: :nominal,
+  sort: [field: "megabytes_count", order: :descending]
+)
+|> VegaLite.encode_field(:y, "megabytes_count", type: :quantitative)
+```
