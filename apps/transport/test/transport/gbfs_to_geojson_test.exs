@@ -56,7 +56,8 @@ defmodule Transport.GbfsToGeojsonTest do
                        "station_status" => %{
                          "num_bikes_available" => 0,
                          "num_docks_available" => 0,
-                         "a_field" => "coucou"
+                         "a_field" => "coucou",
+                         "availability" => 0
                        }
                      },
                      "type" => "Feature"
@@ -72,7 +73,8 @@ defmodule Transport.GbfsToGeojsonTest do
                        "station_status" => %{
                          "num_bikes_available" => 3,
                          "num_docks_available" => 12,
-                         "num_vehicles_available" => 3
+                         "num_vehicles_available" => 3,
+                         "availability" => 3
                        }
                      },
                      "type" => "Feature"

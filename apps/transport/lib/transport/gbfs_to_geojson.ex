@@ -139,6 +139,7 @@ defmodule Transport.GbfsToGeojson do
           station_status
           |> Enum.find(fn s -> s["station_id"] == station_id end)
           |> Map.delete("station_id")
+          |> add_availability()
 
         put_in(s["properties"]["station_status"], status)
       end)
@@ -147,6 +148,11 @@ defmodule Transport.GbfsToGeojson do
       "type" => "FeatureCollection",
       "features" => features
     }
+  end
+
+  def add_availability(data) do
+    availability = data["num_vehicles_available"] || data["num_bikes_available"]
+    Map.put(data, "availability", availability)
   end
 
   @spec add_free_bike_status(map(), map()) :: map()
