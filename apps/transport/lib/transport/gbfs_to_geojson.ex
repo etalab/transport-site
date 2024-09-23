@@ -80,7 +80,7 @@ defmodule Transport.GbfsToGeojson do
             "coordinates" => [s["lon"], s["lat"]]
           },
           "properties" => %{
-            "name" => s["name"],
+            "name" => station_name(s),
             "station_id" => s["station_id"]
           }
         }
@@ -90,6 +90,14 @@ defmodule Transport.GbfsToGeojson do
       "type" => "FeatureCollection",
       "features" => features
     }
+  end
+
+  # From GBFS 1.1 until 2.3
+  defp station_name(%{"name" => name}) when is_binary(name), do: name
+
+  # From GBFS 3.0 onwards
+  defp station_name(%{"name" => names}) do
+    names |> hd() |> Map.get("name")
   end
 
   @spec add_station_status(map(), map()) :: map()

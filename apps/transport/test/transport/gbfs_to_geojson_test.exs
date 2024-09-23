@@ -16,6 +16,17 @@ defmodule Transport.GbfsToGeojsonTest do
       assert geojsons["stations"] == simple_station_information_geojson()
     end
 
+    test "station_information conversion for a 3.0 feed" do
+      gbfs_endpoint = "gbfs.json"
+      feeds = [%{"name" => "station_information", "url" => "station_information.json"}]
+
+      set_gbfs_entrypoint_expect(gbfs_endpoint, feeds)
+      set_station_information_30_expect()
+
+      geojsons = Transport.GbfsToGeojson.gbfs_geojsons(gbfs_endpoint, %{})
+      assert geojsons["stations"] == simple_station_information_geojson()
+    end
+
     test "station_information + station_status conversion" do
       gbfs_endpoint = "gbfs.json"
 
@@ -205,31 +216,61 @@ defmodule Transport.GbfsToGeojsonTest do
     |> Jason.encode!()
   end
 
+  defp station_information(gbfs_version) do
+    base = """
+    {
+      "data": {
+        "stations": [
+          {
+            "lat": "47.26095",
+            "lon": "-2.3353",
+            "name": "Rond-point de l'Hippodrome",
+            "station_id": "1"
+          },
+          {
+            "lat": "47.270352",
+            "lon": "-2.345135",
+            "name": "Gare de Pornichet",
+            "station_id": "2"
+          }
+        ]
+      }
+    }
+    """
+
+    case gbfs_version do
+      "3.0" ->
+        stations =
+          base
+          |> Jason.decode!()
+          |> get_in(["data", "stations"])
+          |> Enum.map(fn %{"name" => name} = payload ->
+            Map.put(payload, "name", [%{"language" => "fr", "name" => name}])
+          end)
+
+        %{"data" => %{"stations" => stations}} |> Jason.encode!()
+
+      _ ->
+        base
+    end
+  end
+
   defp set_station_information_expect do
     Transport.HTTPoison.Mock
     |> expect(:get!, fn "station_information.json" ->
       %{
         status_code: 200,
-        body: """
-        {
-          "data": {
-            "stations": [
-              {
-                "lat": "47.26095",
-                "lon": "-2.3353",
-                "name": "Rond-point de l'Hippodrome",
-                "station_id": "1"
-              },
-              {
-                "lat": "47.270352",
-                "lon": "-2.345135",
-                "name": "Gare de Pornichet",
-                "station_id": "2"
-              }
-            ]
-          }
-        }
-        """
+        body: station_information("2.3")
+      }
+    end)
+  end
+
+  defp set_station_information_30_expect do
+    Transport.HTTPoison.Mock
+    |> expect(:get!, fn "station_information.json" ->
+      %{
+        status_code: 200,
+        body: station_information("3.0")
       }
     end)
   end
