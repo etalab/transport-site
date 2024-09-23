@@ -200,7 +200,8 @@ defmodule Transport.GbfsToGeojsonTest do
         "fr" => %{
           "feeds" => feeds
         }
-      }
+      },
+      "version" => "2.3"
     }
     |> Jason.encode!()
   end
