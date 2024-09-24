@@ -49,7 +49,9 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
         "etalab/schema-amenagements-cyclables",
         "etalab/schema-stationnement-cyclable",
         "etalab/schema-stationnement",
-        "etalab/schema-comptage-mobilites"
+        "etalab/schema-comptage-mobilites-channel",
+        "etalab/schema-comptage-mobilites-measure",
+        "etalab/schema-comptage-mobilites-site"
       ],
       tags: MapSet.new(["cyclable", "parking", "stationnement", "velo", "vélo"]),
       formats: MapSet.new([])
