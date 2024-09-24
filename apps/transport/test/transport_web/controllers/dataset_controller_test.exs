@@ -37,7 +37,7 @@ defmodule TransportWeb.DatasetControllerTest do
 
     Transport.History.Fetcher.Mock
     |> expect(:history_resources, fn _, options ->
-      assert Keyword.equal?(options, preload_validations: true, max_records: 25)
+      assert Keyword.equal?(options, preload_validations: true, max_records: 25, fetch_mode: :all)
       []
     end)
 
@@ -66,7 +66,7 @@ defmodule TransportWeb.DatasetControllerTest do
 
     Transport.History.Fetcher.Mock
     |> expect(:history_resources, fn _, options ->
-      assert Keyword.equal?(options, preload_validations: true, max_records: 25)
+      assert Keyword.equal?(options, preload_validations: true, max_records: 25, fetch_mode: :all)
       []
     end)
 
@@ -853,44 +853,36 @@ defmodule TransportWeb.DatasetControllerTest do
         payload: %{"dataset_id" => dataset.id, "permanent_url" => "https://example.com/3"}
       )
 
-    response = conn |> get(dataset_path(conn, :resources_history_csv, dataset.id))
+    # Check that we sent a chunked response with the expected CSV content
+    %Plug.Conn{state: :chunked} = response = conn |> get(dataset_path(conn, :resources_history_csv, dataset.id))
     content = response(response, 200)
 
     # Check CSV header
     assert content |> String.split("\r\n") |> hd() ==
-             "resource_history_id,resource_id,permanent_url,payload,validation_validator,validation_result,metadata,inserted_at"
+             "resource_history_id,resource_id,permanent_url,payload,inserted_at"
 
     # Check CSV content
     assert [content] |> CSV.decode!(headers: true) |> Enum.to_list() == [
              %{
                "inserted_at" => to_string(rh3.inserted_at),
-               "metadata" => "null",
                "payload" => Jason.encode!(rh3.payload),
                "permanent_url" => "https://example.com/3",
                "resource_history_id" => to_string(rh3.id),
-               "resource_id" => to_string(rh3.resource_id),
-               "validation_result" => "null",
-               "validation_validator" => ""
+               "resource_id" => to_string(rh3.resource_id)
              },
              %{
                "inserted_at" => to_string(rh2.inserted_at),
-               "metadata" => "null",
                "payload" => Jason.encode!(rh2.payload),
                "permanent_url" => "https://example.com/2",
                "resource_history_id" => to_string(rh2.id),
-               "resource_id" => to_string(rh2.resource_id),
-               "validation_result" => "null",
-               "validation_validator" => ""
+               "resource_id" => to_string(rh2.resource_id)
              },
              %{
                "inserted_at" => to_string(rh1.inserted_at),
-               "metadata" => ~s|{"metadata":1337}|,
                "payload" => Jason.encode!(rh1.payload),
                "permanent_url" => "https://example.com/1",
                "resource_history_id" => to_string(rh1.id),
-               "resource_id" => to_string(rh1.resource_id),
-               "validation_result" => ~s|{"validation_details":42}|,
-               "validation_validator" => "validator_name"
+               "resource_id" => to_string(rh1.resource_id)
              }
            ]
 
@@ -911,7 +903,7 @@ defmodule TransportWeb.DatasetControllerTest do
   defp mock_empty_history_resources do
     Transport.History.Fetcher.Mock
     |> expect(:history_resources, fn _, options ->
-      assert Keyword.equal?(options, preload_validations: true, max_records: 25)
+      assert Keyword.equal?(options, preload_validations: true, max_records: 25, fetch_mode: :all)
       []
     end)
   end

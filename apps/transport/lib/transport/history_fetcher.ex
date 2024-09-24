@@ -10,7 +10,7 @@ defmodule Transport.History.Fetcher do
   def impl, do: Application.get_env(:transport, :history_impl)
 
   def history_resources(%DB.Dataset{} = dataset, options \\ []) do
-    options = Keyword.validate!(options, max_records: nil, preload_validations: true)
+    options = Keyword.validate!(options, max_records: nil, preload_validations: true, fetch_mode: :all)
     impl().history_resources(dataset, options)
   end
 end
@@ -22,13 +22,13 @@ defmodule Transport.History.Fetcher.Database do
   """
   @behaviour Transport.History.Fetcher
   import Ecto.Query
-  alias DB.{Dataset, Repo}
 
   @impl true
-  def history_resources(%Dataset{id: dataset_id}, options \\ []) do
+  def history_resources(%DB.Dataset{id: dataset_id}, options \\ []) do
     # NOTE: default values are provided by the wrapper
     preload_validations = Keyword.fetch!(options, :preload_validations)
     max_records = Keyword.fetch!(options, :max_records)
+    fetch_mode = Keyword.fetch!(options, :fetch_mode)
 
     latest_resource_history_validation =
       DB.MultiValidation
@@ -41,7 +41,7 @@ defmodule Transport.History.Fetcher.Database do
       |> where([resource_history: rh], fragment("(?->>'dataset_id')::bigint = ?", rh.payload, ^dataset_id))
       |> select([resource_history: rh], rh.id)
 
-    result =
+    query =
       DB.ResourceHistory.base_query()
       |> join(:left, [resource_history: rh], r in DB.Resource,
         on: r.id == rh.resource_id and r.dataset_id == ^dataset_id,
@@ -53,17 +53,18 @@ defmodule Transport.History.Fetcher.Database do
       )
       |> order_by([resource_history: rh], desc: rh.inserted_at)
 
-    result =
+    query =
       if preload_validations do
-        result
-        |> preload([], validations: ^latest_resource_history_validation)
+        query |> preload([], validations: ^latest_resource_history_validation)
       else
-        result
+        query
       end
+      |> maybe_limit(max_records)
 
-    result
-    |> maybe_limit(max_records)
-    |> Repo.all()
+    case fetch_mode do
+      :all -> DB.Repo.all(query)
+      :stream -> DB.Repo.stream(query)
+    end
   end
 
   defp maybe_limit(%Ecto.Query{} = query, nil), do: query

@@ -36,7 +36,11 @@ defmodule Transport.History.FetcherTest do
       insert(:resource_history, resource_id: other_resource.id, payload: %{})
 
       resources_history =
-        Transport.History.Fetcher.Database.history_resources(dataset, max_records: 25, preload_validations: true)
+        Transport.History.Fetcher.Database.history_resources(dataset,
+          max_records: 25,
+          preload_validations: true,
+          fetch_mode: :all
+        )
 
       assert length(resources_history) == 3
 
@@ -51,13 +55,15 @@ defmodule Transport.History.FetcherTest do
       assert Enum.count(
                Transport.History.Fetcher.Database.history_resources(dataset,
                  max_records: 1,
-                 preload_validations: true
+                 preload_validations: true,
+                 fetch_mode: :all
                )
              ) == 1
 
       assert Transport.History.Fetcher.Database.history_resources(insert(:dataset),
                max_records: 25,
-               preload_validations: true
+               preload_validations: true,
+               fetch_mode: :all
              ) == []
     end
   end
