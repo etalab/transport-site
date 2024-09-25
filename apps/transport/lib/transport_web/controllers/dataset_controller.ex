@@ -140,7 +140,8 @@ defmodule TransportWeb.DatasetController do
       Transport.Validators.GTFSRT,
       Transport.Validators.TableSchema,
       Transport.Validators.EXJSONSchema,
-      Transport.Validators.GBFSValidator
+      Transport.Validators.GBFSValidator,
+      Transport.Validators.NeTEx
     ]
 
   def resources_infos(dataset) do
