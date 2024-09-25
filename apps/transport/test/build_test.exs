@@ -1,5 +1,6 @@
 defmodule TransportWeb.BuildTest do
   use ExUnit.Case
+  import ExUnit.CaptureIO
 
   def tool_versions do
     File.read!("../../.tool-versions")
@@ -40,7 +41,8 @@ defmodule TransportWeb.BuildTest do
     # The test has to take the git-stored version of `mix.lock` and assert on its content,
     # because the CI doesn't run ARM and `mix deps.get` will overwrite `mix.lock` at the moment
     {output, 0} = System.cmd("git", ["show", "HEAD:../../mix.lock"])
-    {%{rambo: rambo}, []} = output |> Code.eval_string()
+    {{%{rambo: rambo}, []}, _log} = with_io(:stderr, fn -> Code.eval_string(output) end)
+
     # if this test fails, it may be because someone with a Mac M1 unintentionally committed `mix.lock` change
     # related to a Rambo-tweak, see https://github.com/etalab/transport-site/blob/61eabf185e71b7670e5d750048714636f85c5e58/apps/transport/mix.exs#L99-L111
     assert rambo |> elem(0) == :hex
