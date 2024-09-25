@@ -54,6 +54,7 @@ defmodule Transport.Validators.NeTEx do
   end
 
   @type validate_options :: [{:graceful_retry, boolean()}]
+  @type error_details :: %{:message => String.t(), optional(:retries) => integer()}
 
   @doc """
   Validate the resource from the given URL.
@@ -62,7 +63,7 @@ defmodule Transport.Validators.NeTEx do
   - graceful_retry is a flag to skip the polling interval. Useful for testing
     purposes mostly. Defaults to false.
   """
-  @spec validate(binary(), validate_options()) :: {:ok, map()} | {:error, binary()}
+  @spec validate(binary(), validate_options()) :: {:ok, map()} | {:error, error_details()}
   def validate(url, opts \\ []) do
     with_url(url, fn filepath ->
       case validate_with_enroute(filepath, opts) do
