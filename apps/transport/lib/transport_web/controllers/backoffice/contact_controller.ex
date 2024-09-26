@@ -37,7 +37,7 @@ defmodule TransportWeb.Backoffice.ContactController do
   end
 
   defp existing_contact(%{"id" => id}) when id != "", do: DB.Repo.get!(DB.Contact, String.to_integer(id))
-  defp existing_contact(%{}), do: %DB.Contact{}
+  defp existing_contact(%{}), do: %DB.Contact{creation_source: :admin}
 
   @spec edit(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def edit(%Plug.Conn{} = conn, %{"id" => contact_id} = params) do
