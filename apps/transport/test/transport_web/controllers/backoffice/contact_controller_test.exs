@@ -66,7 +66,8 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
 
       assert [
                {"li", [], ["first_name : You need to fill either first_name and last_name OR mailing_list_title"]},
-               {"li", [], ["email : can't be blank"]}
+               {"li", [], ["email : can't be blank"]},
+               {"li", [], ["creation_source : can't be blank"]}
              ] == Floki.find(doc, ".notification.error ul li")
     end
   end
@@ -87,7 +88,13 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
 
       assert redirected_to(conn, 302) == backoffice_contact_path(conn, :index)
 
-      assert %DB.Contact{first_name: "John", last_name: "Doe", email: "john@example.com", organization: "Corp Inc"} =
+      assert %DB.Contact{
+               first_name: "John",
+               last_name: "Doe",
+               email: "john@example.com",
+               organization: "Corp Inc",
+               creation_source: :admin
+             } =
                DB.Repo.one!(DB.Contact)
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Contact mis à jour"
@@ -293,7 +300,8 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
         email: "john#{Ecto.UUID.generate()}@example.fr",
         job_title: "Boss",
         organization: "Big Corp Inc",
-        phone_number: "06 82 22 88 03"
+        phone_number: "06 82 22 88 03",
+        creation_source: "admin"
       },
       args
     )

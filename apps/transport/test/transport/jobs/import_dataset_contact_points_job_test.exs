@@ -139,7 +139,8 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetContactPointsJobTest do
 
       ImportDatasetContactPointsJob.import_contact_point(datagouv_id)
 
-      %DB.Contact{first_name: "John", email: ^email} = contact = DB.Repo.get_by(DB.Contact, last_name: "DOE")
+      %DB.Contact{first_name: "John", email: ^email, creation_source: :"automation:import_contact_point"} =
+        contact = DB.Repo.get_by(DB.Contact, last_name: "DOE")
 
       assert nil == DB.Repo.reload(previous_contact_point_ns)
       assert MapSet.new(@producer_reasons) == subscribed_reasons(dataset, contact)
@@ -165,7 +166,8 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetContactPointsJobTest do
 
     assert :ok == perform_job(ImportDatasetContactPointsJob, %{})
 
-    %DB.Contact{email: ^email, first_name: "John"} = created_contact = DB.Repo.get_by(DB.Contact, last_name: "DOE")
+    %DB.Contact{email: ^email, first_name: "John", creation_source: :"automation:import_contact_point"} =
+      created_contact = DB.Repo.get_by(DB.Contact, last_name: "DOE")
 
     assert MapSet.new(@producer_reasons) == subscribed_reasons(d1, contact_point)
     assert MapSet.new([]) == subscribed_reasons(d2, contact_point)

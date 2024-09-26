@@ -17,7 +17,8 @@ defmodule DB.ContactTest do
       job_title: "Chef SIG",
       organization: "Big Corp Inc",
       phone_number: "06 82 22 88 03",
-      secondary_phone_number: "+33 1 99 00 17 45"
+      secondary_phone_number: "+33 1 99 00 17 45",
+      creation_source: "admin"
     }
     |> DB.Contact.insert!()
 
@@ -148,6 +149,17 @@ defmodule DB.ContactTest do
   test "email is lowercased" do
     assert %DB.Contact{email: "foo.bar@example.fr"} =
              DB.Contact.insert!(%{sample_contact_args() | email: "foo.BAR@example.fr"})
+  end
+
+  test "creation_source is required and is an enum" do
+    assert %Ecto.Changeset{valid?: false, errors: [creation_source: {"can't be blank", [validation: :required]}]} =
+             DB.Contact.changeset(%DB.Contact{}, %{sample_contact_args() | creation_source: nil})
+
+    assert %Ecto.Changeset{valid?: false, errors: [creation_source: {"is invalid", _}]} =
+             DB.Contact.changeset(%DB.Contact{}, %{sample_contact_args() | creation_source: "foobar"})
+
+    assert %Ecto.Changeset{valid?: true} =
+             DB.Contact.changeset(%DB.Contact{}, %{sample_contact_args() | creation_source: :admin})
   end
 
   test "search" do
@@ -301,7 +313,8 @@ defmodule DB.ContactTest do
       email: "john#{Ecto.UUID.generate()}@example.fr",
       job_title: "Boss",
       organization: "Big Corp Inc",
-      phone_number: "06 82 22 88 03"
+      phone_number: "06 82 22 88 03",
+      creation_source: "admin"
     }
   end
 end
