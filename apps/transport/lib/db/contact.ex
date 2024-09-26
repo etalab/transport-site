@@ -29,6 +29,7 @@ defmodule DB.Contact do
     field(:phone_number, DB.Encrypted.Binary)
     field(:secondary_phone_number, DB.Encrypted.Binary)
     field(:last_login_at, :utc_datetime_usec)
+    field(:creation_source, Ecto.Enum, values: [:"automation:import_contact_point", :admin, :datagouv_oauth_login])
 
     timestamps(type: :utc_datetime_usec)
 
@@ -115,11 +116,12 @@ defmodule DB.Contact do
       :phone_number,
       :secondary_phone_number,
       :datagouv_user_id,
-      :last_login_at
+      :last_login_at,
+      :creation_source
     ])
     |> trim_fields([:first_name, :last_name, :organization, :job_title])
     |> capitalize_fields([:first_name, :last_name])
-    |> validate_required([:email])
+    |> validate_required([:email, :creation_source])
     |> validate_format(:email, ~r/@/)
     |> validate_names_or_mailing_list_title()
     |> cast_phone_numbers()

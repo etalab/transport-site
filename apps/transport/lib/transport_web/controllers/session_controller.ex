@@ -126,7 +126,8 @@ defmodule TransportWeb.SessionController do
           datagouv_user_id: user_id,
           first_name: first_name,
           last_name: last_name,
-          email: email
+          email: email,
+          creation_source: :datagouv_oauth_login
         }
         |> DB.Contact.insert!()
     end
