@@ -322,14 +322,10 @@ defmodule TransportWeb.API.DatasetController do
     }
   end
 
-  defp legal_owners_aom(nil), do: []
-
   defp legal_owners_aom(aoms) do
     aoms
     |> Enum.map(fn aom -> %{"name" => aom.nom, "siren" => aom.siren} end)
   end
-
-  defp legal_owners_region(nil), do: []
 
   defp legal_owners_region(regions) do
     regions
