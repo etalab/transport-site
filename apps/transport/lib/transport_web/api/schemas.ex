@@ -302,11 +302,11 @@ defmodule TransportWeb.API.Schemas do
       description: "AOM object, as used in covered area and legal owners",
       type: :object,
       required: [:name, :siren],
-          properties: %{
-            name: %Schema{type: :string},
-            siren: %Schema{type: :string}
-          },
-          additionalProperties: false
+      properties: %{
+        name: %Schema{type: :string},
+        siren: %Schema{type: :string}
+      },
+      additionalProperties: false
     })
   end
 
@@ -319,11 +319,11 @@ defmodule TransportWeb.API.Schemas do
       description: "Region object",
       type: :object,
       required: [:name, :insee],
-          properties: %{
-            name: %Schema{type: :string},
-            insee: %Schema{type: :string}
-          },
-          additionalProperties: false
+      properties: %{
+        name: %Schema{type: :string},
+        insee: %Schema{type: :string}
+      },
+      additionalProperties: false
     })
   end
 
@@ -336,11 +336,11 @@ defmodule TransportWeb.API.Schemas do
       description: "City object",
       type: :object,
       required: [:name, :insee],
-          properties: %{
-            name: %Schema{type: :string},
-            insee: %Schema{type: :string}
-          },
-          additionalProperties: false
+      properties: %{
+        name: %Schema{type: :string},
+        insee: %Schema{type: :string}
+      },
+      additionalProperties: false
     })
   end
 
