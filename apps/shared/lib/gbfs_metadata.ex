@@ -175,8 +175,15 @@ defmodule Transport.Shared.GBFSMetadata do
     end
   end
 
-  def first_feed(%{"data" => data} = payload) do
-    (data["en"] || data["fr"] || data[payload |> languages() |> Enum.at(0)])["feeds"]
+  def first_feed(%{"data" => data, "version" => version} = payload) do
+    # From GBFS 1.1 until GBFS 2.3
+    if String.starts_with?(version, ["1.", "2."]) do
+      first_language = payload |> languages() |> Enum.at(0)
+      (data["en"] || data["fr"] || data[first_language])["feeds"]
+      # From GBFS 3.0 onwards
+    else
+      data["feeds"]
+    end
   end
 
   defp languages(%{"data" => data}) do

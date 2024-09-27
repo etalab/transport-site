@@ -495,8 +495,12 @@ msgid "The <a href=\"%{link}\" target=\"_blank\">timestamp field</a> appears to 
 msgstr "Le <a href=\"%{link}\">champ timestamp</a> contient une valeur ancienne par rapport à la date courante : l'écart est de %{seconds} secondes. Essayez de mettre à jour le flux toutes les 30 secondes au plus."
 
 #, elixir-autogen, elixir-format
-msgid "Displaying the last %{nb} backed up resources. <a href=\"#mail_form\">Contact us</a> if you want to access previous data."
-msgstr "Affiche les %{nb} dernières ressources historisées. <a href=\"#mail_form\">Contactez-nous</a> si vous souhaitez accéder aux données passées."
+msgid "Displaying the last %{nb} backed up resources."
+msgstr "Affiche les %{nb} dernières ressources historisées."
+
+#, elixir-autogen, elixir-format
+msgid "Download history details"
+msgstr "Télécharger les ressources historisées"
 
 #, elixir-autogen, elixir-format
 msgid "Data published by"

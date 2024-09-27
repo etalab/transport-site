@@ -172,7 +172,7 @@ function fillStations (stationsGeojson, bikesAvailable, docksAvailable) {
         pointToLayer: function (geoJsonPoint, latlng) {
             return L.circleMarker(latlng, { stroke: false, color: '#0066db', fillOpacity: 0.8 })
         },
-        onEachFeature: (feature, layer) => setGBFSStationStyle(feature, layer, 'num_bikes_available')
+        onEachFeature: (feature, layer) => setGBFSStationStyle(feature, layer, 'availability')
     }).addTo(bikesAvailable)
 
     L.geoJSON(stationsGeojson, {

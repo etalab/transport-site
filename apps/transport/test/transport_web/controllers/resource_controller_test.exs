@@ -4,7 +4,6 @@ defmodule TransportWeb.ResourceControllerTest do
   import Mox
   import DB.Factory
   import ExUnit.CaptureLog
-  import Plug.Test, only: [init_test_session: 2]
 
   setup :verify_on_exit!
 
@@ -354,7 +353,11 @@ defmodule TransportWeb.ResourceControllerTest do
       insert(:multi_validation, %{
         resource_history_id: resource_history_id,
         validator: Transport.Validators.GTFSTransport.validator_name(),
-        result: %{},
+        result: %{
+          "NullDuration" => [%{"severity" => "Information"}],
+          "MissingCoordinates" => [%{"severity" => "Warning"}]
+        },
+        max_error: "Warning",
         metadata: %DB.ResourceMetadata{
           metadata: %{
             "networks" => ["3CM", "RLV"],
@@ -393,8 +396,8 @@ defmodule TransportWeb.ResourceControllerTest do
     assert content =~
              ~s{Validation effectuée en utilisant <a href="#{permanent_url}">le fichier GTFS en vigueur</a> le 28/10/2022 à 16h12 Europe/Paris}
 
-    # Features are displayed in a table
     [
+      # Features are displayed in a table
       {"table", [{"class", _}],
        [
          {"thead", [],
@@ -408,6 +411,19 @@ defmodule TransportWeb.ResourceControllerTest do
              ]}
           ]},
          {"tbody", [], rows}
+       ]},
+      # Issues are listed in a paginated table
+      {"table", [{"class", "table"}],
+       [
+         {"tr", [],
+          [
+            {"th", [], ["Type d'objet"]},
+            {"th", [], ["Identifiant"]},
+            {"th", [], ["Nom de l’objet"]},
+            {"th", [], ["Identifiant associé"]},
+            {"th", [], ["Détails"]}
+          ]},
+         {"tr", [], _}
        ]}
     ] = content |> Floki.parse_document!() |> Floki.find("table")
 
@@ -722,137 +738,15 @@ defmodule TransportWeb.ResourceControllerTest do
     assert html_response =~ "Fichier GTFS associé"
   end
 
-  test "we can show the form of an existing resource", %{conn: conn} do
-    conn = conn |> init_test_session(%{current_user: %{}})
-    resource_datagouv_id = "resource_dataset_id"
+  test "resource size and link to explore.data.gouv.fr are displayed", %{conn: conn} do
+    resource = insert(:resource, format: "csv", dataset: insert(:dataset, is_active: true))
+    insert(:resource_history, resource_id: resource.id, payload: %{"filesize" => "1024"})
 
-    %DB.Dataset{datagouv_id: dataset_datagouv_id} =
-      insert(:dataset, custom_title: custom_title = "Base Nationale des Lieux de Covoiturage")
+    html_response = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
+    assert html_response =~ "Taille : 1 KB"
 
-    Datagouvfr.Client.Datasets.Mock
-    |> expect(:get, 1, fn ^dataset_datagouv_id ->
-      dataset_datagouv_get_response(dataset_datagouv_id, resource_datagouv_id)
-    end)
-
-    html = conn |> get(resource_path(conn, :form, dataset_datagouv_id, resource_datagouv_id)) |> html_response(200)
-    doc = html |> Floki.parse_document!()
-    assert_breadcrumb_content(html, ["Votre espace producteur", custom_title, "Modifier une ressource"])
-    # Title
-    assert doc |> Floki.find("h2") |> Floki.text() == "Modification d’une ressource"
-    assert html =~ "bnlc.csv"
-    assert html =~ "csv"
-    assert html =~ "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv"
-  end
-
-  test "we can show the form for a new resource", %{conn: conn} do
-    conn = conn |> init_test_session(%{current_user: %{}})
-
-    %DB.Dataset{datagouv_id: dataset_datagouv_id} =
-      insert(:dataset, custom_title: custom_title = "Base Nationale des Lieux de Covoiturage")
-
-    Datagouvfr.Client.Datasets.Mock
-    |> expect(:get, 1, fn ^dataset_datagouv_id -> dataset_datagouv_get_response(dataset_datagouv_id) end)
-
-    doc =
-      conn
-      |> get(resource_path(conn, :form, dataset_datagouv_id))
-      |> html_response(200)
-      |> Floki.parse_document!()
-
-    assert_breadcrumb_content(doc, ["Votre espace producteur", custom_title, "Nouvelle ressource"])
-    # Title
-    assert doc |> Floki.find("h2") |> Floki.text() == "Ajouter une nouvelle ressource"
-  end
-
-  test "we can add a new resource with a URL", %{conn: conn} do
-    %DB.Dataset{datagouv_id: dataset_datagouv_id} = insert(:dataset)
-    conn = conn |> init_test_session(%{current_user: %{}})
-
-    # We expect a call to the function Datagouvfr.Client.Resource.update/2, but this is indeed to create a new resource.
-    # There is a clause in the real client that does a POST call for a new resource if there is no resource_id
-    Datagouvfr.Client.Resources.Mock
-    |> expect(:update, fn _conn,
-                          %{
-                            "dataset_id" => ^dataset_datagouv_id,
-                            "format" => "csv",
-                            "title" => "Test",
-                            "url" => "https://example.com/my_csv_resource.csv"
-                          } = _params ->
-      # We don’t really care about API answer, as it is discarded and not used (see controller code)
-      {:ok, %{}}
-    end)
-
-    # We need to mock other things too:
-    # Adding a new resource triggers an ImportData, and then a validation.
-    mocks_for_import_data_etc(dataset_datagouv_id)
-
-    location =
-      conn
-      |> post(
-        resource_path(conn, :post_file, dataset_datagouv_id),
-        %{
-          "dataset_id" => dataset_datagouv_id,
-          "format" => "csv",
-          "title" => "Test",
-          "url" => "https://example.com/my_csv_resource.csv"
-        }
-      )
-      |> redirected_to
-
-    assert location == dataset_path(conn, :details, dataset_datagouv_id)
-    # No need to really check content of dataset and resources in database,
-    # because the response of Datagouv.Client.Resources.update is discarded.
-    # We would just check that import_data works correctly, while this is already tested elsewhere.
-  end
-
-  test "we can show the delete confirmation page", %{conn: conn} do
-    conn = conn |> init_test_session(%{current_user: %{}})
-    resource_datagouv_id = "resource_dataset_id"
-
-    %DB.Dataset{datagouv_id: dataset_datagouv_id} =
-      insert(:dataset, custom_title: custom_title = "Base Nationale des Lieux de Covoiturage")
-
-    Datagouvfr.Client.Datasets.Mock
-    |> expect(:get, 1, fn ^dataset_datagouv_id ->
-      dataset_datagouv_get_response(dataset_datagouv_id, resource_datagouv_id)
-    end)
-
-    html =
-      conn
-      |> get(resource_path(conn, :delete_resource_confirmation, dataset_datagouv_id, resource_datagouv_id))
-      |> html_response(200)
-
-    assert_breadcrumb_content(html, ["Votre espace producteur", custom_title, "Supprimer une ressource"])
-
-    assert html =~ "bnlc.csv"
-    assert html =~ "Souhaitez-vous mettre à jour la ressource ou la supprimer définitivement ?"
-  end
-
-  test "we can delete a resource", %{conn: conn} do
-    %DB.Dataset{datagouv_id: dataset_datagouv_id, resources: [%DB.Resource{datagouv_id: resource_datagouv_id}]} =
-      insert(:dataset, resources: [insert(:resource)])
-
-    conn = conn |> init_test_session(%{current_user: %{}})
-
-    Datagouvfr.Client.Resources.Mock
-    |> expect(:delete, fn _conn, %{"dataset_id" => ^dataset_datagouv_id, "resource_id" => ^resource_datagouv_id} ->
-      # We don’t really care about API answer, as it is discarded and not used (see controller code)
-      {:ok, %{}}
-    end)
-
-    # We need to mock other things too:
-    # Adding a new resource triggers an ImportData, and then a validation.
-    mocks_for_import_data_etc(dataset_datagouv_id)
-
-    location =
-      conn
-      |> delete(resource_path(conn, :delete, dataset_datagouv_id, resource_datagouv_id))
-      |> redirected_to
-
-    assert location == page_path(conn, :espace_producteur)
-    # No need to really check content of dataset and resources in database,
-    # because the response of Datagouv.Client.Resources.update is discarded.
-    # We would just check that import_data works correctly, while this is already tested elsewhere.
+    assert TransportWeb.ResourceView.eligible_for_explore?(resource)
+    assert html_response =~ "https://explore.data.gouv.fr"
   end
 
   defp test_remote_download_error(%Plug.Conn{} = conn, mock_status_code) do
@@ -870,41 +764,5 @@ defmodule TransportWeb.ResourceControllerTest do
     html = html_response(conn, 404)
     assert html =~ "Page non disponible"
     assert Phoenix.Flash.get(conn.assigns.flash, :error) == "La ressource n'est pas disponible sur le serveur distant"
-  end
-
-  defp dataset_datagouv_get_response(dataset_datagouv_id, resource_datagouv_id \\ "resource_id_1") do
-    {:ok,
-     datagouv_dataset_response(%{
-       "id" => dataset_datagouv_id,
-       "title" => "Base Nationale des Lieux de Covoiturage",
-       "resources" =>
-         generate_resources_payload(
-           title: "bnlc.csv",
-           url: "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv",
-           id: resource_datagouv_id,
-           format: "csv"
-         )
-     })}
-  end
-
-  defp mocks_for_import_data_etc(dataset_datagouv_id) do
-    Transport.HTTPoison.Mock
-    |> expect(
-      :get!,
-      fn _url, [], hackney: [follow_redirect: true] ->
-        %HTTPoison.Response{body: Jason.encode!(generate_dataset_payload(dataset_datagouv_id)), status_code: 200}
-      end
-    )
-
-    Datagouvfr.Client.CommunityResources.Mock |> expect(:get, fn _ -> {:ok, []} end)
-    Mox.stub_with(Transport.AvailabilityChecker.Mock, Transport.AvailabilityChecker.Dummy)
-  end
-
-  defp assert_breadcrumb_content(html, expected) when is_binary(html) do
-    assert_breadcrumb_content(Floki.parse_document!(html), expected)
-  end
-
-  defp assert_breadcrumb_content(doc, expected) do
-    assert doc |> Floki.find(".breadcrumbs-element") |> Enum.map(&Floki.text/1) == expected
   end
 end

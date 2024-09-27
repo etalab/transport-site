@@ -74,8 +74,12 @@ defmodule Transport.Validators.GTFSTransport do
       "Information" => %{level: 3, text: dgettext("gtfs-transport-validator", "Informations")}
     }
 
-  @spec severities(binary()) :: %{level: integer(), text: binary()}
-  def severities(key), do: severities_map()[key]
+  @spec severity(binary()) :: %{level: integer(), text: binary()}
+  def severity(key), do: severities_map()[key]
+
+  @spec issue_type(list()) :: nil | binary()
+  def issue_type([]), do: nil
+  def issue_type([h | _]), do: h["issue_type"]
 
   @doc """
   Get issues from validation results. For a specific issue type if specified, or the most severe.
@@ -99,7 +103,7 @@ defmodule Transport.Validators.GTFSTransport do
   def get_issues(%{} = validation_result, _) do
     validation_result
     |> Map.values()
-    |> Enum.sort_by(fn [%{"severity" => severity} | _] -> severities(severity).level end)
+    |> Enum.sort_by(fn [%{"severity" => severity} | _] -> severity(severity).level end)
     |> List.first([])
   end
 
@@ -128,7 +132,7 @@ defmodule Transport.Validators.GTFSTransport do
     end)
     |> Map.new()
     |> Enum.group_by(fn {_, issue} -> issue.severity end)
-    |> Enum.sort_by(fn {severity, _} -> severities(severity).level end)
+    |> Enum.sort_by(fn {severity, _} -> severity(severity).level end)
   end
 
   @doc """
@@ -167,7 +171,7 @@ defmodule Transport.Validators.GTFSTransport do
   def count_max_severity(%{} = validation_result) do
     validation_result
     |> count_by_severity()
-    |> Enum.min_by(fn {severity, _count} -> severity |> severities() |> Map.get(:level) end)
+    |> Enum.min_by(fn {severity, _count} -> severity |> severity() |> Map.get(:level) end)
   end
 
   @spec mine?(any) :: boolean()

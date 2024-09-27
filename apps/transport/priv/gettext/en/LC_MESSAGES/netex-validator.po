@@ -56,6 +56,10 @@ msgid "Version any"
 msgstr ""
 
 #, elixir-autogen, elixir-format
+msgid "Unspecified error"
+msgstr ""
+
+#, elixir-autogen, elixir-format
 msgid "errors"
 msgstr ""
 
@@ -65,4 +69,8 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "warnings"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "XSD validation"
 msgstr ""

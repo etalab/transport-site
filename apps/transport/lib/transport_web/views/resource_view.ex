@@ -2,15 +2,13 @@ defmodule TransportWeb.ResourceView do
   use TransportWeb, :view
   use Phoenix.Component
   import TransportWeb.PaginationHelpers
-  import Transport.Validators.GTFSTransport
   import Phoenix.Controller, only: [current_url: 2]
-  import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
 
   import TransportWeb.DatasetView,
     only: [documentation_url: 1, errors_count: 1, warnings_count: 1, multi_validation_performed?: 1, description: 1]
 
   import DB.ResourceUnavailability, only: [floor_float: 2]
-  import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2]
+  import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2, format_duration: 2]
   import Shared.Validation.TableSchemaValidator, only: [validata_web_url: 1]
   import Transport.GBFSUtils, only: [gbfs_validation_link: 1]
   import Transport.Shared.Schemas.Wrapper, only: [schema_type: 1]
@@ -20,9 +18,6 @@ defmodule TransportWeb.ResourceView do
   def format_related_objects(related_objects) do
     for %{"id" => id, "name" => name} <- related_objects, do: content_tag(:li, "#{name} (#{id})")
   end
-
-  def issue_type([]), do: nil
-  def issue_type([h | _]), do: h["issue_type"]
 
   def gtfs_template(issues) do
     template =
@@ -47,45 +42,18 @@ defmodule TransportWeb.ResourceView do
           "SubFolder" => "_subfolder_issue.html",
           "NegativeStopDuration" => "_negative_stop_duration_issue.html"
         },
-        issue_type(issues.entries),
+        Transport.Validators.GTFSTransport.issue_type(issues.entries),
         "_generic_issue.html"
       )
 
     "_gtfs#{template}"
   end
 
-  @spec action_path(Plug.Conn.t()) :: any
-  def action_path(%Plug.Conn{params: %{"resource_id" => r_id} = params} = conn),
-    do: resource_path(conn, :post_file, params["dataset_id"], r_id)
-
-  def action_path(%Plug.Conn{params: params} = conn),
-    do: resource_path(conn, :post_file, params["dataset_id"])
-
-  def title(%Plug.Conn{params: %{"resource_id" => _}}),
-    do: dgettext("resource", "Resource modification")
-
-  def title(_), do: dgettext("resource", "Add a new resource")
-
-  def remote?(%{"filetype" => "remote"}), do: true
-  def remote?(_), do: false
-
-  def link_to_datagouv_resource_edit(dataset_id, resource_id),
-    do:
-      :transport
-      |> Application.fetch_env!(:datagouvfr_site)
-      |> Path.join("/fr/admin/dataset/#{dataset_id}/resource/#{resource_id}")
-
-  def link_to_datagouv_resource_creation(dataset_id),
-    do:
-      :transport
-      |> Application.fetch_env!(:datagouvfr_site)
-      |> Path.join("/fr/admin/dataset/#{dataset_id}?new_resource=")
-
-  def dataset_creation,
-    do:
-      :transport
-      |> Application.fetch_env!(:datagouvfr_site)
-      |> Path.join("/fr/admin/dataset/new/")
+  def netex_template(_issues) do
+    # For now only 1 template has been designed. More to come when the validator
+    # has matured.
+    "_netex_generic_issue.html"
+  end
 
   def has_associated_files(%{} = resources_related_files, resource_id) do
     # Don't keep records looking like `%{79088 => %{GeoJSON: nil, NeTEx: nil}}`
@@ -327,4 +295,15 @@ defmodule TransportWeb.ResourceView do
   def yes_no_icon(nil), do: ""
   def yes_no_icon(value) when value > 0, do: "✅"
   def yes_no_icon(_), do: "❌"
+
+  def eligible_for_explore?(%DB.Resource{format: format}) do
+    format in ["geojson", "csv", "ods", "xlsx", "xls"]
+  end
+
+  def explore_url(%DB.Resource{
+        datagouv_id: resource_datagouv_id,
+        dataset: %DB.Dataset{datagouv_id: dataset_datagouv_id}
+      }) do
+    "https://explore.data.gouv.fr/fr/datasets/#{dataset_datagouv_id}/#/resources/#{resource_datagouv_id}"
+  end
 end

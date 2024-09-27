@@ -80,7 +80,7 @@ defmodule Transport.GbfsToGeojson do
             "coordinates" => [s["lon"], s["lat"]]
           },
           "properties" => %{
-            "name" => s["name"],
+            "name" => station_name(s),
             "station_id" => s["station_id"]
           }
         }
@@ -90,6 +90,14 @@ defmodule Transport.GbfsToGeojson do
       "type" => "FeatureCollection",
       "features" => features
     }
+  end
+
+  # From GBFS 1.1 until 2.3
+  defp station_name(%{"name" => name}) when is_binary(name), do: name
+
+  # From GBFS 3.0 onwards
+  defp station_name(%{"name" => names}) do
+    names |> hd() |> Map.get("name")
   end
 
   @spec add_station_status(map(), map()) :: map()
@@ -131,6 +139,7 @@ defmodule Transport.GbfsToGeojson do
           station_status
           |> Enum.find(fn s -> s["station_id"] == station_id end)
           |> Map.delete("station_id")
+          |> add_availability()
 
         put_in(s["properties"]["station_status"], status)
       end)
@@ -139,6 +148,11 @@ defmodule Transport.GbfsToGeojson do
       "type" => "FeatureCollection",
       "features" => features
     }
+  end
+
+  def add_availability(data) do
+    availability = data["num_vehicles_available"] || data["num_bikes_available"]
+    Map.put(data, "availability", availability)
   end
 
   @spec add_free_bike_status(map(), map()) :: map()

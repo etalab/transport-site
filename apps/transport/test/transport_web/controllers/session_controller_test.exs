@@ -65,7 +65,8 @@ defmodule TransportWeb.SessionControllerTest do
                email: ^email,
                organization: ^organization_name,
                datagouv_user_id: ^datagouv_user_id,
-               last_login_at: last_login_at
+               last_login_at: last_login_at,
+               creation_source: :datagouv_oauth_login
              }
            ] = DB.Repo.all(DB.Contact)
 
@@ -215,7 +216,8 @@ defmodule TransportWeb.SessionControllerTest do
                  datagouv_user_id: ^datagouv_user_id,
                  email: ^email,
                  organization: ^org_name,
-                 last_login_at: last_login_at
+                 last_login_at: last_login_at,
+                 creation_source: :datagouv_oauth_login
                }
              ] = DB.Contact |> DB.Repo.all()
 

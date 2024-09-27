@@ -37,7 +37,7 @@ defmodule TransportWeb.DatasetControllerTest do
 
     Transport.History.Fetcher.Mock
     |> expect(:history_resources, fn _, options ->
-      assert Keyword.equal?(options, preload_validations: true, max_records: 25)
+      assert Keyword.equal?(options, preload_validations: true, max_records: 25, fetch_mode: :all)
       []
     end)
 
@@ -66,7 +66,7 @@ defmodule TransportWeb.DatasetControllerTest do
 
     Transport.History.Fetcher.Mock
     |> expect(:history_resources, fn _, options ->
-      assert Keyword.equal?(options, preload_validations: true, max_records: 25)
+      assert Keyword.equal?(options, preload_validations: true, max_records: 25, fetch_mode: :all)
       []
     end)
 
@@ -246,8 +246,10 @@ defmodule TransportWeb.DatasetControllerTest do
 
       assert [
                {"a",
-                [{"href", page_path(conn, :espace_producteur, utm_campaign: "dataset_details")}, {"target", "_blank"}],
-                ["Espace producteur"]}
+                [
+                  {"href", espace_producteur_path(conn, :edit_dataset, dataset.id, utm_campaign: "dataset_details")},
+                  {"target", "_blank"}
+                ], ["Espace producteur"]}
              ] ==
                conn
                |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
@@ -303,8 +305,10 @@ defmodule TransportWeb.DatasetControllerTest do
       assert [
                {"a", [{"href", backoffice_page_path(conn, :edit, dataset.id)}], ["Backoffice"]},
                {"a",
-                [{"href", page_path(conn, :espace_producteur, utm_campaign: "dataset_details")}, {"target", "_blank"}],
-                ["Espace producteur"]}
+                [
+                  {"href", espace_producteur_path(conn, :edit_dataset, dataset.id, utm_campaign: "dataset_details")},
+                  {"target", "_blank"}
+                ], ["Espace producteur"]}
              ] ==
                conn
                |> init_test_session(%{
@@ -808,6 +812,87 @@ defmodule TransportWeb.DatasetControllerTest do
     assert title == "Autocars longue distance"
   end
 
+  test "resources_history_csv", %{conn: conn} do
+    # Using the real implementation to test end-to-end
+    Mox.stub_with(Transport.History.Fetcher.Mock, Transport.History.Fetcher.Database)
+
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset)
+    other_resource = insert(:resource, dataset: dataset)
+    # another resource, no history for this one
+    insert(:resource, dataset: dataset, format: "gtfs-rt")
+
+    rh1 =
+      insert(:resource_history,
+        resource_id: resource.id,
+        payload: %{"foo" => "bar", "permanent_url" => "https://example.com/1"}
+      )
+
+    mv =
+      insert(:multi_validation,
+        resource_history_id: rh1.id,
+        validator: "validator_name",
+        result: %{"validation_details" => 42}
+      )
+
+    insert(:resource_metadata, multi_validation_id: mv.id, metadata: %{"metadata" => 1337})
+
+    # resource_id is nil, but dataset_id is filled in the payload
+    # no resource_metadata/multi_validation associated
+    rh2 =
+      insert(:resource_history,
+        resource_id: nil,
+        payload: %{"dataset_id" => dataset.id, "bar" => "baz", "permanent_url" => "https://example.com/2"}
+      )
+
+    # another resource for this dataset
+    # no resource_metadata/multi_validation associated
+    rh3 =
+      insert(:resource_history,
+        resource_id: other_resource.id,
+        payload: %{"dataset_id" => dataset.id, "permanent_url" => "https://example.com/3"}
+      )
+
+    # Check that we sent a chunked response with the expected CSV content
+    %Plug.Conn{state: :chunked} = response = conn |> get(dataset_path(conn, :resources_history_csv, dataset.id))
+    content = response(response, 200)
+
+    # Check CSV header
+    assert content |> String.split("\r\n") |> hd() ==
+             "resource_history_id,resource_id,permanent_url,payload,inserted_at"
+
+    # Check CSV content
+    assert [content] |> CSV.decode!(headers: true) |> Enum.to_list() == [
+             %{
+               "inserted_at" => to_string(rh3.inserted_at),
+               "payload" => Jason.encode!(rh3.payload),
+               "permanent_url" => "https://example.com/3",
+               "resource_history_id" => to_string(rh3.id),
+               "resource_id" => to_string(rh3.resource_id)
+             },
+             %{
+               "inserted_at" => to_string(rh2.inserted_at),
+               "payload" => Jason.encode!(rh2.payload),
+               "permanent_url" => "https://example.com/2",
+               "resource_history_id" => to_string(rh2.id),
+               "resource_id" => to_string(rh2.resource_id)
+             },
+             %{
+               "inserted_at" => to_string(rh1.inserted_at),
+               "payload" => Jason.encode!(rh1.payload),
+               "permanent_url" => "https://example.com/1",
+               "resource_history_id" => to_string(rh1.id),
+               "resource_id" => to_string(rh1.resource_id)
+             }
+           ]
+
+    assert response_content_type(response, :csv) == "text/csv; charset=utf-8"
+
+    assert Plug.Conn.get_resp_header(response, "content-disposition") == [
+             ~s(attachment; filename="historisation-dataset-#{dataset.id}-#{Date.utc_today() |> Date.to_iso8601()}.csv")
+           ]
+  end
+
   defp dataset_page_title(content) do
     content
     |> Floki.parse_document!()
@@ -818,7 +903,7 @@ defmodule TransportWeb.DatasetControllerTest do
   defp mock_empty_history_resources do
     Transport.History.Fetcher.Mock
     |> expect(:history_resources, fn _, options ->
-      assert Keyword.equal?(options, preload_validations: true, max_records: 25)
+      assert Keyword.equal?(options, preload_validations: true, max_records: 25, fetch_mode: :all)
       []
     end)
   end

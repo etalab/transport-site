@@ -96,6 +96,33 @@ defmodule Transport.Shared.GBFSMetadataTest do
     end
   end
 
+  describe "feeds" do
+    test "3.0 feed" do
+      json =
+        Jason.decode!("""
+         {
+          "last_updated": "2023-07-17T13:34:13+02:00",
+          "ttl": 0,
+          "version": "3.0",
+          "data": {
+            "feeds": [
+              {
+                "name": "system_information",
+                "url": "https://www.example.com/gbfs/1/system_information"
+              },
+              {
+                "name": "station_information",
+                "url": "https://www.example.com/gbfs/1/station_information"
+              }
+            ]
+          }
+        }
+        """)
+
+      assert ["system_information", "station_information"] == feeds(json)
+    end
+  end
+
   defp setup_validation_result(summary \\ nil) do
     Shared.Validation.GBFSValidator.Mock
     |> expect(:validate, fn url ->
