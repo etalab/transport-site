@@ -293,6 +293,57 @@ defmodule TransportWeb.API.Schemas do
     })
   end
 
+  defmodule AOM do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "AOM",
+      description: "AOM object, as used in covered area and legal owners",
+      type: :object,
+      required: [:name, :siren],
+          properties: %{
+            name: %Schema{type: :string},
+            siren: %Schema{type: :string}
+          },
+          additionalProperties: false
+    })
+  end
+
+  defmodule Region do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "Region",
+      description: "Region object",
+      type: :object,
+      required: [:name, :insee],
+          properties: %{
+            name: %Schema{type: :string},
+            insee: %Schema{type: :string}
+          },
+          additionalProperties: false
+    })
+  end
+
+  defmodule City do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "City",
+      description: "City object",
+      type: :object,
+      required: [:name, :insee],
+          properties: %{
+            name: %Schema{type: :string},
+            insee: %Schema{type: :string}
+          },
+          additionalProperties: false
+    })
+  end
+
   defmodule CoveredArea.Country do
     @moduledoc false
     require OpenApiSpex
@@ -337,15 +388,7 @@ defmodule TransportWeb.API.Schemas do
       properties: %{
         name: %Schema{type: :string},
         type: %Schema{type: :string, enum: ["aom"], required: true},
-        aom: %Schema{
-          type: :object,
-          required: [:name, :siren],
-          properties: %{
-            name: %Schema{type: :string},
-            siren: %Schema{type: :string}
-          },
-          additionalProperties: false
-        }
+        aom: AOM.schema()
       },
       additionalProperties: false
     })
@@ -368,15 +411,7 @@ defmodule TransportWeb.API.Schemas do
         type: %Schema{type: :string, enum: ["cities"], required: true},
         cities: %Schema{
           type: :array,
-          items: %Schema{
-            type: :object,
-            required: [:name, :insee],
-            properties: %{
-              name: %Schema{type: :string},
-              insee: %Schema{type: :string}
-            },
-            additionalProperties: false
-          }
+          items: City.schema()
         }
       },
       additionalProperties: false
@@ -398,15 +433,7 @@ defmodule TransportWeb.API.Schemas do
       properties: %{
         name: %Schema{type: :string},
         type: %Schema{type: :string, enum: ["region"], required: true},
-        region: %Schema{
-          type: :object,
-          required: [:name, :insee],
-          properties: %{
-            name: %Schema{type: :string},
-            insee: %Schema{type: :string}
-          },
-          additionalProperties: false
-        }
+        region: Region.schema()
       },
       additionalProperties: false
     })
@@ -439,27 +466,11 @@ defmodule TransportWeb.API.Schemas do
       properties: %{
         aoms: %Schema{
           type: :array,
-          items: %Schema{
-            type: :object,
-            required: [:name, :siren],
-            properties: %{
-              name: %Schema{type: :string},
-              siren: %Schema{type: :string}
-            },
-            additionalProperties: false
-          }
+          items: AOM.schema()
         },
         regions: %Schema{
           type: :array,
-          items: %Schema{
-            type: :object,
-            required: [:name, :insee],
-            properties: %{
-              name: %Schema{type: :string},
-              insee: %Schema{type: :string}
-            },
-            additionalProperties: false
-          }
+          items: Region.schema()
         },
         company: %Schema{type: :string, nullable: true}
       },
