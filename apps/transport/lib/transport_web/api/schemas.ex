@@ -400,9 +400,10 @@ defmodule TransportWeb.API.Schemas do
         type: %Schema{type: :string, enum: ["region"], required: true},
         region: %Schema{
           type: :object,
-          required: [:name],
+          required: [:name, :insee],
           properties: %{
-            name: %Schema{type: :string}
+            name: %Schema{type: :string},
+            insee: %Schema{type: :string}
           },
           additionalProperties: false
         }
@@ -424,6 +425,44 @@ defmodule TransportWeb.API.Schemas do
         CoveredArea.Region.schema(),
         CoveredArea.Cities.schema()
       ],
+      additionalProperties: false
+    })
+  end
+
+  defmodule LegalOwners do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "LegalOwners",
+      type: :object,
+      properties: %{
+        aoms: %Schema{
+          type: :array,
+          items: %Schema{
+            type: :object,
+            required: [:name, :siren],
+            properties: %{
+              name: %Schema{type: :string},
+              siren: %Schema{type: :string}
+            },
+            additionalProperties: false
+          }
+        },
+        regions: %Schema{
+          type: :array,
+          items: %Schema{
+            type: :object,
+            required: [:name, :insee],
+            properties: %{
+              name: %Schema{type: :string},
+              insee: %Schema{type: :string}
+            },
+            additionalProperties: false
+          }
+        },
+        company: %Schema{type: :string, nullable: true}
+      },
       additionalProperties: false
     })
   end
@@ -749,7 +788,8 @@ defmodule TransportWeb.API.Schemas do
           description: "All the community resources (published by the community) associated with the dataset",
           items: CommunityResource
         },
-        covered_area: CoveredArea.schema()
+        covered_area: CoveredArea.schema(),
+        legal_owners: LegalOwners.schema()
       }
 
       if details do
