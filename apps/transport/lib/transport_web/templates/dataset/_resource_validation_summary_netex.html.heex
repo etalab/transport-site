@@ -1,0 +1,14 @@
+<div class="pb-24">
+  <% link = resource_path(@conn, :details, @resource.id) <> "#validation-report" %>
+  <% {severity, count} = NeTEx.count_max_severity(@validation.result) %>
+  <a href={link}>
+    <span class={summary_class(%{severity: severity, count_errors: count})}>
+      <%= if NeTEx.no_error?(severity) do %>
+        <%= dgettext("page-dataset-details", "No error detected") %>
+      <% else %>
+        <%= "#{count} #{String.downcase(NeTEx.severity(severity)[:text])}" %>
+      <% end %>
+    </span>
+  </a>
+  <span><%= dgettext("page-dataset-details", "during validation") %></span>
+</div>
