@@ -124,7 +124,6 @@ defmodule TransportWeb.DatasetView do
   end
 
   def aom_link(conn, %DB.AOM{nom: nom, id: id}) do
-    IO.puts("AOM link")
     link(nom, to: dataset_path(conn, :by_aom, id))
   end
 
