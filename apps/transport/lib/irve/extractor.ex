@@ -87,7 +87,7 @@ defmodule Transport.IRVE.Extractor do
 
   The optional callback helps updating the UI, if any.
   """
-  def download_and_parse_all(resources, progress_callback \\ nil) do
+  def download_and_parse_all(resources, progress_callback \\ nil, download_options \\ []) do
     r = resources
     count = r |> length()
 
@@ -98,7 +98,7 @@ defmodule Transport.IRVE.Extractor do
         if progress_callback, do: progress_callback.(index)
 
         log_time_taken("IRVE - processing #{index} over #{count} (#{row[:url]})", fn ->
-          download_and_parse_one(row, index)
+          download_and_parse_one(row, index, download_options)
         end)
       end,
       timeout: 100_000,
@@ -120,7 +120,8 @@ defmodule Transport.IRVE.Extractor do
         :line_count,
         :filetype,
         :last_modified,
-        :index
+        :index,
+        :raw_body
       ])
     end)
   end
@@ -128,7 +129,9 @@ defmodule Transport.IRVE.Extractor do
   @doc """
   Download a given resource, keep HTTP status around, and extract some metadata.
   """
-  def download_and_parse_one(row, index) do
+  def download_and_parse_one(row, index, options \\ []) do
+    keep_the_body_around = options[:keep_the_body_around] || false
+
     %Req.Response{status: status, body: body} =
       Transport.IRVE.Fetcher.get!(row[:url], compressed: false, decode_body: false)
 
@@ -136,6 +139,7 @@ defmodule Transport.IRVE.Extractor do
     |> Map.put(:status, status)
     |> Map.put(:index, index)
     |> then(fn x -> process_resource_body(x, body) end)
+    |> map_put_if(:raw_body, body, keep_the_body_around)
   end
 
   def map_put_if(map, _key, _value, false), do: map
