@@ -138,8 +138,8 @@ defmodule TransportWeb.ValidationControllerTest do
       conn2 = conn |> get(validation_path(conn, :show, validation_id, token: token))
       assert conn2 |> html_response(200) =~ "bus, ferry"
       assert conn2 |> html_response(200) =~ "SuperRéseau"
-      assert conn2 |> html_response(200) =~ "1 Avertissement"
-      assert conn2 |> html_response(200) =~ "1 Information"
+      assert conn2 |> html_response(200) =~ "1 avertissement"
+      assert conn2 |> html_response(200) =~ "1 information"
     end
 
     test "with a NeTEx", %{conn: conn} do
@@ -225,8 +225,8 @@ defmodule TransportWeb.ValidationControllerTest do
       |> DB.Repo.update!()
 
       conn2 = conn |> get(validation_path(conn, :show, validation_id, token: token))
-      assert conn2 |> html_response(200) =~ "3 avertissements"
-      assert conn2 |> html_response(200) =~ "1 erreurs"
+      assert conn2 |> html_response(200) =~ "3 avertissement"
+      assert conn2 |> html_response(200) =~ "1 erreur"
     end
 
     test "with a schema", %{conn: conn} do

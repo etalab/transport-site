@@ -422,7 +422,7 @@ defmodule TransportWeb.DatasetControllerTest do
     mock_empty_history_resources()
 
     conn = conn |> get(dataset_path(conn, :details, slug))
-    assert conn |> html_response(200) =~ "1 erreurs"
+    assert conn |> html_response(200) =~ "1 erreur"
   end
 
   test "don't show NeTEx number of errors if no validation", %{conn: conn} do
@@ -435,7 +435,7 @@ defmodule TransportWeb.DatasetControllerTest do
     mock_empty_history_resources()
 
     conn = conn |> get(dataset_path(conn, :details, slug))
-    refute conn |> html_response(200) =~ "1 erreurs"
+    refute conn |> html_response(200) =~ "1 erreur"
   end
 
   test "GTFS-RT without validation", %{conn: conn} do

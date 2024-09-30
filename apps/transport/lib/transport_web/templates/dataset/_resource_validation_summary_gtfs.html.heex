@@ -7,7 +7,7 @@
         <%= if GTFSTransport.no_error?(severity) do %>
           <%= dgettext("page-dataset-details", "No error detected") %>
         <% else %>
-          <%= "#{count} #{String.downcase(GTFSTransport.severity(severity)[:text])}" %>
+          <%= GTFSTransport.format_severity(severity, count) %>
         <% end %>
       </span>
     </a>
