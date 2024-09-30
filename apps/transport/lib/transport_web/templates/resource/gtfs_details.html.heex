@@ -1,6 +1,7 @@
 <% is_gtfs_flex = not is_nil(@resource_history) and DB.ResourceHistory.gtfs_flex?(@resource_history)
 associated_geojson = get_associated_geojson(@related_files)
-associated_netex = get_associated_netex(@related_files) %>
+associated_netex = get_associated_netex(@related_files)
+locale = get_session(@conn, :locale) %>
 <section>
   <div class="grey-background">
     <div class="container">
@@ -30,7 +31,7 @@ associated_netex = get_associated_netex(@related_files) %>
             ) %>
             <%= unless is_nil(associated_geojson) or is_nil(associated_geojson.resource_history_last_up_to_date_at) do %>
               <%= dgettext("validations", "This GeoJSON was up-to-date with the GTFS resource %{hours} ago.",
-                hours: hours_ago(associated_geojson.resource_history_last_up_to_date_at)
+                hours: hours_ago(associated_geojson.resource_history_last_up_to_date_at, locale)
               ) %>
             <% end %>
           </div>
@@ -69,7 +70,7 @@ associated_netex = get_associated_netex(@related_files) %>
         <%= unless is_nil(associated_geojson.resource_history_last_up_to_date_at) do %>
           <div class="is-centered no-margin">
             <%= dgettext("validations", "Visualization up-to-date %{hours} ago.",
-              hours: hours_ago(associated_geojson.resource_history_last_up_to_date_at)
+              hours: hours_ago(associated_geojson.resource_history_last_up_to_date_at, locale)
             ) %>
           </div>
         <% end %>
@@ -119,7 +120,7 @@ associated_netex = get_associated_netex(@related_files) %>
                 date:
                   DateTimeDisplay.format_datetime_to_paris(
                     @validation.validation_timestamp,
-                    get_session(@conn, :locale)
+                    locale
                   ),
                 validator_url: gtfs_validator_url(),
                 validator_name: dgettext("validations", "PAN GTFS validator")

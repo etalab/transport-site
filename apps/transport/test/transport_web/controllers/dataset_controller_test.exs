@@ -401,6 +401,30 @@ defmodule TransportWeb.DatasetControllerTest do
     assert conn |> html_response(200) =~ "1 erreur"
   end
 
+  test "show NeTEx number of errors", %{conn: conn} do
+    %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug", aom: build(:aom)})
+
+    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, format: "NeTEx", url: "url"})
+
+    %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id})
+
+    insert(:multi_validation, %{
+      resource_history_id: resource_history_id,
+      validator: Transport.Validators.NeTEx.validator_name(),
+      result: %{"xsd-1871" => [%{"criticity" => "error"}]},
+      metadata: %DB.ResourceMetadata{
+        metadata: %{"elapsed_seconds" => 42},
+        modes: [],
+        features: []
+      }
+    })
+
+    mock_empty_history_resources()
+
+    conn = conn |> get(dataset_path(conn, :details, slug))
+    assert conn |> html_response(200) =~ "1 erreurs"
+  end
+
   test "GTFS-RT without validation", %{conn: conn} do
     %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug"})
     insert(:resource, %{dataset_id: dataset_id, format: "gtfs-rt", url: "url"})

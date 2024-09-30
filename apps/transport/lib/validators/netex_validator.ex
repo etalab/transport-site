@@ -179,6 +179,8 @@ defmodule Transport.Validators.NeTEx do
     |> Enum.min_by(fn {severity, _count} -> severity |> severity() |> Map.get(:level) end)
   end
 
+  def no_error?(severity), do: @no_error == severity
+
   @spec severities_map() :: map()
   def severities_map,
     do: %{
