@@ -425,6 +425,19 @@ defmodule TransportWeb.DatasetControllerTest do
     assert conn |> html_response(200) =~ "1 erreurs"
   end
 
+  test "don't show NeTEx number of errors if no validation", %{conn: conn} do
+    %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug", aom: build(:aom)})
+
+    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, format: "NeTEx", url: "url"})
+
+    insert(:resource_history, %{resource_id: resource_id})
+
+    mock_empty_history_resources()
+
+    conn = conn |> get(dataset_path(conn, :details, slug))
+    refute conn |> html_response(200) =~ "1 erreurs"
+  end
+
   test "GTFS-RT without validation", %{conn: conn} do
     %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug"})
     insert(:resource, %{dataset_id: dataset_id, format: "gtfs-rt", url: "url"})
