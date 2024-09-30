@@ -81,32 +81,35 @@ defmodule TransportWeb.ResourceView do
 
   def max_display_errors, do: 50
 
-  def hours_ago(utcdatetime) do
-    DateTime.utc_now() |> DateTime.diff(utcdatetime) |> seconds_to_hours_minutes()
+  def hours_ago(utcdatetime, locale) do
+    DateTime.utc_now() |> DateTime.diff(utcdatetime) |> seconds_to_hours_minutes(locale)
   end
 
   @doc """
   Converts seconds to a string showing hours and minutes.
   Also work for negative input, even if not intended to use it that way.
 
-  iex> seconds_to_hours_minutes(3661)
-  "1 h 1 min"
-  iex> seconds_to_hours_minutes(60)
-  "1 min"
-  iex> seconds_to_hours_minutes(30)
-  "0 min"
-  iex> seconds_to_hours_minutes(-3661)
-  "-1 h 1 min"
+  iex> seconds_to_hours_minutes(3661, :en)
+  "1 hour and 1 minute"
+  iex> seconds_to_hours_minutes(60, :en)
+  "1 minute"
+  iex> seconds_to_hours_minutes(30, :en)
+  "0 minute"
+  iex> seconds_to_hours_minutes(-3661, :en)
+  "-1 hour and 1 minute"
   """
-  @spec seconds_to_hours_minutes(integer()) :: binary()
-  def seconds_to_hours_minutes(seconds) do
-    hours = div(seconds, 3600)
+  @spec seconds_to_hours_minutes(integer(), atom() | Cldr.LanguageTag.t()) :: binary()
+  def seconds_to_hours_minutes(seconds, locale \\ :en) do
+    duration = strip_seconds(seconds)
 
-    case hours do
-      0 -> "#{div(seconds, 60)} min"
-      hours -> "#{hours} h #{seconds |> rem(3600) |> div(60) |> abs()} min"
+    cond do
+      duration == 0 -> "0 minute"
+      duration < 0 -> "-#{Shared.DateTimeDisplay.format_duration(-duration, locale)}"
+      true -> Shared.DateTimeDisplay.format_duration(duration, locale)
     end
   end
+
+  def strip_seconds(seconds), do: div(seconds, 60) * 60
 
   def download_availability_class(ratio) when ratio >= 0 and ratio <= 100 do
     cond do
