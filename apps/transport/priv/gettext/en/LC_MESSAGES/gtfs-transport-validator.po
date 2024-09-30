@@ -174,3 +174,27 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Negative stop duration"
 msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Error"
+msgid_plural "Errors"
+msgstr[0] "%{count} error"
+msgstr[1] "%{count} errors"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Fatal failure"
+msgid_plural "Fatal failures"
+msgstr[0] "%{count} fatal failure"
+msgstr[1] "%{count} fatal failures"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Information"
+msgid_plural "Informations"
+msgstr[0] "%{count} information"
+msgstr[1] "%{count} informations"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Warning"
+msgid_plural "Warnings"
+msgstr[0] "%{count} warning"
+msgstr[1] "%{count} warnings"

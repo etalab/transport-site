@@ -7,7 +7,7 @@
         <%= if NeTEx.no_error?(severity) do %>
           <%= dgettext("page-dataset-details", "No error detected") %>
         <% else %>
-          <%= "#{count} #{String.downcase(NeTEx.severity(severity)[:text])}" %>
+          <%= NeTEx.format_severity(severity, count) %>
         <% end %>
       </span>
     </a>

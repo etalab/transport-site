@@ -74,3 +74,21 @@ msgstr "avertissements"
 #, elixir-autogen, elixir-format
 msgid "XSD validation"
 msgstr "Validation XSD"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "error"
+msgid_plural "errors"
+msgstr[0] "%{count} erreur"
+msgstr[1] "%{count} erreurs"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "information"
+msgid_plural "informations"
+msgstr[0] "%{count} information"
+msgstr[1] "%{count} informations"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "warning"
+msgid_plural "warnings"
+msgstr[0] "%{count} avertissement"
+msgstr[1] "%{count} avertissements"

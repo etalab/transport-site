@@ -4,7 +4,7 @@ defmodule Transport.Validators.NeTEx do
   (by polling the tier API) and can take quite some time upon completion.
   """
 
-  import TransportWeb.Gettext, only: [dgettext: 2]
+  import TransportWeb.Gettext, only: [dgettext: 2, dngettext: 4]
   require Logger
 
   @no_error "NoError"
@@ -176,7 +176,7 @@ defmodule Transport.Validators.NeTEx do
   def count_max_severity(%{} = validation_result) do
     validation_result
     |> count_by_severity()
-    |> Enum.min_by(fn {severity, _count} -> severity |> severity() |> Map.get(:level) end)
+    |> Enum.min_by(fn {severity, _count} -> severity |> severity_level() end)
   end
 
   def no_error?(severity), do: @no_error == severity
@@ -189,8 +189,17 @@ defmodule Transport.Validators.NeTEx do
       "information" => %{level: 3, text: dgettext("netex-validator", "informations")}
     }
 
-  @spec severity(binary()) :: %{level: integer(), text: binary()}
-  def severity(key), do: severities_map()[key]
+  @spec severity_level(binary()) :: integer()
+  def severity_level(key), do: severities_map()[key] |> Map.get(:level)
+
+  @spec format_severity(binary(), non_neg_integer()) :: binary()
+  def format_severity(key, count) do
+    case key do
+      "error" -> dngettext("netex-validator", "error", "errors", count)
+      "warning" -> dngettext("netex-validator", "warning", "warnings", count)
+      "information" -> dngettext("netex-validator", "information", "informations", count)
+    end
+  end
 
   @doc """
   Returns the number of issues by severity level
@@ -291,7 +300,7 @@ defmodule Transport.Validators.NeTEx do
        }}
     end)
     |> Enum.group_by(fn {_, details} -> details.criticity end)
-    |> Enum.sort_by(fn {criticity, _} -> severity(criticity).level end)
+    |> Enum.sort_by(fn {criticity, _} -> severity_level(criticity) end)
   end
 
   @spec issues_short_translation_per_code(binary()) :: binary()
@@ -346,7 +355,7 @@ defmodule Transport.Validators.NeTEx do
   def get_issues(%{} = validation_result, _) do
     validation_result
     |> Map.values()
-    |> Enum.sort_by(fn [%{"criticity" => severity} | _] -> severity(severity).level end)
+    |> Enum.sort_by(fn [%{"criticity" => severity} | _] -> severity_level(severity) end)
     |> List.first([])
     |> order_issues_by_location()
   end

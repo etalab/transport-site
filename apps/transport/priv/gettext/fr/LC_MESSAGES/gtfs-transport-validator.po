@@ -174,3 +174,27 @@ msgstr "Fichiers dans un sous-dossier"
 #, elixir-autogen, elixir-format
 msgid "Negative stop duration"
 msgstr "Temps d'arrêt négatif"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Error"
+msgid_plural "Errors"
+msgstr[0] "%{count} Erreurs"
+msgstr[1] "%{count} Erreurs"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Fatal failure"
+msgid_plural "Fatal failures"
+msgstr[0] "%{count} échecs irrécupérables"
+msgstr[1] "%{count} échecs irrécupérables"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Information"
+msgid_plural "Informations"
+msgstr[0] "%{count} informations"
+msgstr[1] "%{count} informations"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Warning"
+msgid_plural "Warnings"
+msgstr[0] "%{count} avertissements"
+msgstr[1] "%{count} avertissements"

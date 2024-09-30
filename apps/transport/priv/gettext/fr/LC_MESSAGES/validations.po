@@ -279,14 +279,6 @@ msgid "Validation carried out using the <a href=\"%{link}\">current %{format} fi
 msgstr "Validation effectuée en utilisant <a href=\"%{link}\">le fichier %{format} en vigueur</a> le %{date} avec <a href=\"%{validator_url}\" target=\"_blank\">%{validator_name}</a>."
 
 #, elixir-autogen, elixir-format
-msgid "PAN GTFS validator"
-msgstr "le validateur GTFS du <abbr title=\"Point d’Accès National\">PAN</abbr>"
-
-#, elixir-autogen, elixir-format
-msgid "enRoute Chouette Valid"
-msgstr "le validateur NeTEx d’enRoute"
-
-#, elixir-autogen, elixir-format
 msgid "from"
 msgstr "du"
 
@@ -437,3 +429,11 @@ msgstr "Les avertissements sont temporaires. Seules les erreurs XSD sont prises 
 #, elixir-autogen, elixir-format
 msgid "less than 1 second"
 msgstr "moins d’une seconde"
+
+#, elixir-autogen, elixir-format
+msgid "PAN GTFS validator"
+msgstr "le validateur GTFS du <abbr title=\"Point d’Accès National\">PAN</abbr>"
+
+#, elixir-autogen, elixir-format
+msgid "enRoute Chouette Valid"
+msgstr "le validateur NeTEx d’enRoute"
