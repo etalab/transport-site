@@ -138,6 +138,9 @@ defmodule Transport.IRVE.Extractor do
     |> then(fn x -> process_resource_body(x, body) end)
   end
 
+  def map_put_if(map, _key, _value, false), do: map
+  def map_put_if(map, key, value, true), do: Map.put(map, key, value)
+
   @doc """
   For a given resource and corresponding body, enrich data with
   extra stuff like estimated number of charge points.
