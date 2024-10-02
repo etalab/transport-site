@@ -191,6 +191,18 @@ defmodule Transport.Validators.NeTEx do
     end
   end
 
+  @doc """
+  iex> Gettext.put_locale("en")
+  iex> format_severity("error", 1)
+  "1 error"
+  iex> format_severity("error", 2)
+  "2 errors"
+  iex> Gettext.put_locale("fr")
+  iex> format_severity("error", 1)
+  "1 erreur"
+  iex> format_severity("error", 2)
+  "2 erreurs"
+  """
   @spec format_severity(binary(), non_neg_integer()) :: binary()
   def format_severity(key, count) do
     case key do

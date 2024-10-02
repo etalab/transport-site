@@ -76,6 +76,18 @@ defmodule Transport.Validators.GTFSTransport do
     end
   end
 
+  @doc """
+  iex> Gettext.put_locale("en")
+  iex> format_severity("Fatal", 1)
+  "1 fatal failure"
+  iex> format_severity("Fatal", 2)
+  "2 fatal failures"
+  iex> Gettext.put_locale("fr")
+  iex> format_severity("Fatal", 1)
+  "1 échec irrécupérable"
+  iex> format_severity("Fatal", 2)
+  "2 échecs irrécupérables"
+  """
   @spec format_severity(binary(), non_neg_integer()) :: binary()
   def format_severity(key, count) do
     case key do
