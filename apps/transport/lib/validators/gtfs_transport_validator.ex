@@ -98,16 +98,6 @@ defmodule Transport.Validators.GTFSTransport do
     end
   end
 
-  @spec format_severity(binary(), non_neg_integer()) :: binary()
-  def format_severity(key, count) do
-    case key do
-      "Fatal" -> dngettext("gtfs-transport-validator", "Fatal failure", "Fatal failures", count)
-      "Error" -> dngettext("gtfs-transport-validator", "Error", "Errors", count)
-      "Warning" -> dngettext("gtfs-transport-validator", "Warning", "Warnings", count)
-      "Information" -> dngettext("gtfs-transport-validator", "Information", "Informations", count)
-    end
-  end
-
   @spec issue_type(list()) :: nil | binary()
   def issue_type([]), do: nil
   def issue_type([h | _]), do: h["issue_type"]
