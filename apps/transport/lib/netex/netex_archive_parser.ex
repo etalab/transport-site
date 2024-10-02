@@ -23,10 +23,10 @@ defmodule Transport.NeTEx do
         []
 
       extension |> String.downcase() == ".zip" ->
-        raise "Insupported zip inside zip for file #{file_name}"
+        raise "Unsupported zip inside zip for file #{file_name}"
 
       extension |> String.downcase() != ".xml" ->
-        raise "Insupported file extension (#{extension}) for file #{file_name}"
+        raise "Unsupported file extension (#{extension}) for file #{file_name}"
 
       true ->
         {:ok, state} =
