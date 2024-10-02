@@ -225,7 +225,7 @@ defmodule TransportWeb.ValidationControllerTest do
       |> DB.Repo.update!()
 
       conn2 = conn |> get(validation_path(conn, :show, validation_id, token: token))
-      assert conn2 |> html_response(200) =~ "3 avertissement"
+      assert conn2 |> html_response(200) =~ "3 avertissements"
       assert conn2 |> html_response(200) =~ "1 erreur"
     end
 
