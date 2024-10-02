@@ -1,22 +1,6 @@
 defmodule Transport.NeTEx.ArchiveParserTest do
   use ExUnit.Case, async: true
 
-  defmodule ZipCreator do
-    @moduledoc """
-    A light wrapper around OTP `:zip` features. Does not support streaming here,
-    but massages the string <-> charlist differences.
-    """
-    @spec create!(String.t(), [{String.t(), binary()}]) :: no_return()
-    def create!(zip_filename, file_data) do
-      {:ok, ^zip_filename} =
-        :zip.create(
-          zip_filename,
-          file_data
-          |> Enum.map(fn {name, content} -> {name |> to_charlist(), content} end)
-        )
-    end
-  end
-
   # not fully correct XML, but close enough for what we want to test
   def some_netex_content do
     """
@@ -38,7 +22,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
 
   test "traverse the archive and return relevant content" do
     tmp_file = System.tmp_dir!() |> Path.join("temp-netex-#{Ecto.UUID.generate()}.zip")
-    ZipCreator.create!(tmp_file, [{"arrets.xml", some_netex_content()}])
+    Transport.ZipCreator.create!(tmp_file, [{"arrets.xml", some_netex_content()}])
 
     # given a zip netex archive containing 1 file, I want the output I expected
     [{"arrets.xml", data}] = Transport.NeTEx.read_all_stop_places(tmp_file)
