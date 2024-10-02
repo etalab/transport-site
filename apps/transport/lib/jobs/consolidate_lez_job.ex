@@ -45,8 +45,9 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
   }
 
   @impl Oban.Worker
-  def perform(%Oban.Job{}) do
+  def perform(%Oban.Job{id: job_id}) do
     consolidate() |> update_files()
+    Oban.Notifier.notify(Oban, :gossip, %{complete: job_id})
     :ok
   end
 

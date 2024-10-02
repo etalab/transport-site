@@ -24,24 +24,12 @@ msgid "Duplicate object id"
 msgstr "Identifiant d’objet en double"
 
 #, elixir-autogen, elixir-format
-msgid "Errors"
-msgstr "Erreurs"
-
-#, elixir-autogen, elixir-format
 msgid "Excessive speed between two stops"
 msgstr "Vitesse excessive entre deux arrêts"
 
 #, elixir-autogen, elixir-format
 msgid "Extra file"
 msgstr "Fichier superflus"
-
-#, elixir-autogen, elixir-format
-msgid "Fatal failures"
-msgstr "Échecs irrécupérables"
-
-#, elixir-autogen, elixir-format
-msgid "Informations"
-msgstr "Informations"
 
 #, elixir-autogen, elixir-format
 msgid "Invalid archive"
@@ -132,10 +120,6 @@ msgid "Unused stops"
 msgstr "Arrêt inutilisé"
 
 #, elixir-autogen, elixir-format
-msgid "Warnings"
-msgstr "Avertissements"
-
-#, elixir-autogen, elixir-format
 msgid "Not compliant with the GTFS specification"
 msgstr "Spécifications GTFS non respectées"
 
@@ -178,23 +162,23 @@ msgstr "Temps d'arrêt négatif"
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Error"
 msgid_plural "Errors"
-msgstr[0] "%{count} Erreurs"
-msgstr[1] "%{count} Erreurs"
+msgstr[0] "%{count} erreur"
+msgstr[1] "%{count} erreurs"
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Fatal failure"
 msgid_plural "Fatal failures"
-msgstr[0] "%{count} échecs irrécupérables"
+msgstr[0] "%{count} échec irrécupérable"
 msgstr[1] "%{count} échecs irrécupérables"
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Information"
 msgid_plural "Informations"
-msgstr[0] "%{count} informations"
+msgstr[0] "%{count} information"
 msgstr[1] "%{count} informations"
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Warning"
 msgid_plural "Warnings"
-msgstr[0] "%{count} avertissements"
+msgstr[0] "%{count} avertissement"
 msgstr[1] "%{count} avertissements"

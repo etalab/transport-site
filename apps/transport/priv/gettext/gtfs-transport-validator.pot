@@ -23,23 +23,11 @@ msgid "Duplicate object id"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Errors"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Excessive speed between two stops"
 msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Extra file"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Fatal failures"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Informations"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -128,10 +116,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Unused stops"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Warnings"
 msgstr ""
 
 #, elixir-autogen, elixir-format

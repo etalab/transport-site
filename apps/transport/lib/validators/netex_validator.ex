@@ -181,17 +181,28 @@ defmodule Transport.Validators.NeTEx do
 
   def no_error?(severity), do: @no_error == severity
 
-  @spec severities_map() :: map()
-  def severities_map,
-    do: %{
-      "error" => %{level: 1, text: dgettext("netex-validator", "errors")},
-      "warning" => %{level: 2, text: dgettext("netex-validator", "warnings")},
-      "information" => %{level: 3, text: dgettext("netex-validator", "informations")}
-    }
-
   @spec severity_level(binary()) :: integer()
-  def severity_level(key), do: severities_map()[key] |> Map.get(:level)
+  def severity_level(key) do
+    case key do
+      "error" -> 1
+      "warning" -> 2
+      "information" -> 3
+      _ -> 4
+    end
+  end
 
+  @doc """
+  iex> Gettext.put_locale("en")
+  iex> format_severity("error", 1)
+  "1 error"
+  iex> format_severity("error", 2)
+  "2 errors"
+  iex> Gettext.put_locale("fr")
+  iex> format_severity("error", 1)
+  "1 erreur"
+  iex> format_severity("error", 2)
+  "2 erreurs"
+  """
   @spec format_severity(binary(), non_neg_integer()) :: binary()
   def format_severity(key, count) do
     case key do

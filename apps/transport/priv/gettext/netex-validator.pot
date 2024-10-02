@@ -60,18 +60,6 @@ msgid "Unspecified error"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "errors"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "informations"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "warnings"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "XSD validation"
 msgstr ""
 
