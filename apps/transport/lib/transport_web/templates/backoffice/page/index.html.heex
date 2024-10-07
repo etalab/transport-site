@@ -91,7 +91,7 @@
 
   <h2>Consolidation BNLC</h2>
   <div>
-    <%= live_render(@conn, TransportWeb.Live.SendConsolidateBNLCView,
+    <%= live_render(@conn, TransportWeb.Live.SendConsolidateJobView,
       session: %{
         "button_texts" => %{
           sent: "Rapport disponible par e-mail",
@@ -99,12 +99,13 @@
           default: "🧪 Consolider à blanc"
         },
         "button_default_class" => "button",
+        "job_module" => Transport.Jobs.ConsolidateBNLCJob,
         "job_args" => %{}
       }
     ) %>
   </div>
   <div>
-    <%= live_render(@conn, TransportWeb.Live.SendConsolidateBNLCView,
+    <%= live_render(@conn, TransportWeb.Live.SendConsolidateJobView,
       session: %{
         "button_texts" => %{
           sent: "Fichier mis à jour et rapport envoyé",
@@ -112,7 +113,24 @@
           default: "📥 Consolider et remplacer sur data.gouv.fr"
         },
         "button_default_class" => "button warning-light",
+        "job_module" => Transport.Jobs.ConsolidateBNLCJob,
         "job_args" => %{"action" => "datagouv_update"}
+      }
+    ) %>
+  </div>
+
+  <h2>Consolidation ZFE</h2>
+  <div>
+    <%= live_render(@conn, TransportWeb.Live.SendConsolidateJobView,
+      session: %{
+        "button_texts" => %{
+          sent: "Fichiers mis à jour",
+          dispatched: "Consolidation en cours",
+          default: "📥 Consolider et remplacer sur data.gouv.fr"
+        },
+        "button_default_class" => "button warning-light",
+        "job_module" => Transport.Jobs.ConsolidateLEZsJob,
+        "job_args" => %{}
       }
     ) %>
   </div>

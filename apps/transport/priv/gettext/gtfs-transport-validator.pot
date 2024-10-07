@@ -23,23 +23,11 @@ msgid "Duplicate object id"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Errors"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Excessive speed between two stops"
 msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Extra file"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Fatal failures"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Informations"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -131,10 +119,6 @@ msgid "Unused stops"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Warnings"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Not compliant with the GTFS specification"
 msgstr ""
 
@@ -173,3 +157,27 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Negative stop duration"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Error"
+msgid_plural "Errors"
+msgstr[0] ""
+msgstr[1] ""
+
+#, elixir-autogen, elixir-format
+msgid "Fatal failure"
+msgid_plural "Fatal failures"
+msgstr[0] ""
+msgstr[1] ""
+
+#, elixir-autogen, elixir-format
+msgid "Information"
+msgid_plural "Informations"
+msgstr[0] ""
+msgstr[1] ""
+
+#, elixir-autogen, elixir-format
+msgid "Warning"
+msgid_plural "Warnings"
+msgstr[0] ""
+msgstr[1] ""
