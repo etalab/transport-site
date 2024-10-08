@@ -121,7 +121,8 @@ defmodule Transport.IRVE.Extractor do
         :filetype,
         :last_modified,
         :index,
-        :raw_body
+        :raw_body,
+        :status
       ])
     end)
   end
