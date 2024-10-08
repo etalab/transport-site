@@ -1,8 +1,35 @@
 #! /usr/bin/env mix run
 
+# Count unique ID PDC:
+#
+# cat consolidation.csv | cut -d',' -f1 | sort | uniq | grep -v "Non concerné" | grep -v "id_pdc_itinerance" | wc -l
+
 require Logger
 
 defmodule ICanHazConsolidation do
+
+  def process_resource(resource, file) do
+    try do
+      Logger.info "Processing resource_id=#{resource.resource_id}"
+      %{raw_body: body, status: status} = resource
+      [headers | rows] = NimbleCSV.RFC4180.parse_string(body, skip_headers: false)
+
+      if status != 200 do
+        raise "Whoopsy - got HTTP status #{status}, expected 200"
+      end
+
+      rows
+      |> Stream.map(fn r -> Enum.zip(headers, r) |> Map.new() end)
+      |> Stream.each(fn r ->
+        r = Map.take(r, ["id_pdc_itinerance", "coordonneesXY"])
+        IO.write(file, r["id_pdc_itinerance"] <> "," <> r["coordonneesXY"] <> "," <> resource[:resource_id] <> "\n")
+      end)
+      |> Stream.run()
+    rescue
+      error -> IO.puts "an error occurred (#{error |> inspect})"
+    end
+end
+
   def create_consolidation!() do
     File.rm("consolidation.csv")
     {:ok, file} = File.open("consolidation.csv", [:write, :exclusive, :utf8])
@@ -13,21 +40,12 @@ defmodule ICanHazConsolidation do
 
     resources = Transport.IRVE.Extractor.download_and_parse_all(resources, nil, keep_the_body_around: true)
 
-    IO.write(file, "id_pdc_itinerance,resource_id\n")
+    IO.write(file, "id_pdc_itinerance,coordonneesXY,resource_id\n")
 
     # TODO: also append to a secondary file listing the resources
     resources
     |> Enum.each(fn resource ->
-      %{raw_body: body} = resource
-      [headers | rows] = NimbleCSV.RFC4180.parse_string(body, skip_headers: false)
-
-      rows
-      |> Stream.map(fn r -> Enum.zip(headers, r) |> Map.new() end)
-      |> Stream.each(fn r ->
-        r = Map.take(r, ["id_pdc_itinerance"])
-        IO.write(file, r["id_pdc_itinerance"] <> "," <> resource[:resource_id] <> "\n")
-      end)
-      |> Stream.run()
+      process_resource(resource, file)
     end)
 
     :ok = File.close(file)
