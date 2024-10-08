@@ -893,6 +893,41 @@ defmodule TransportWeb.DatasetControllerTest do
            ]
   end
 
+  describe "Legal owner display" do
+    test "dataset#details with no legal owners", %{conn: conn} do
+      dataset = insert(:dataset, is_active: true)
+
+      mock_empty_history_resources()
+
+      doc = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200) |> Floki.parse_document!()
+      refute Floki.text(doc) =~ "Données sous la responsabilité de"
+    end
+
+    test "dataset#details with AOM legal owner", %{conn: conn} do
+      aom = insert(:aom, nom: "Angers Métropole", siren: "siren")
+      dataset = insert(:dataset, is_active: true, legal_owners_aom: [aom])
+
+      mock_empty_history_resources()
+
+      doc = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200) |> Floki.parse_document!()
+      assert Floki.text(doc) =~ "Données sous la responsabilité de"
+      assert Floki.text(doc) =~ "Angers Métropole"
+    end
+
+    test "dataset#details with both Region and AOM legal owner", %{conn: conn} do
+      region = DB.Region |> Ecto.Query.where(insee: "52") |> DB.Repo.one!()
+      aom = insert(:aom, nom: "Angers Métropole", siren: "siren")
+      dataset = insert(:dataset, is_active: true, legal_owners_aom: [aom], legal_owners_region: [region])
+
+      mock_empty_history_resources()
+
+      doc = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200) |> Floki.parse_document!()
+      assert Floki.text(doc) =~ "Données sous la responsabilité de"
+      # Region is displayed first
+      assert Floki.text(doc) =~ "Pays de la Loire, Angers Métropole"
+    end
+  end
+
   defp dataset_page_title(content) do
     content
     |> Floki.parse_document!()

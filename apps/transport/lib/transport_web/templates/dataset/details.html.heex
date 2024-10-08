@@ -257,7 +257,9 @@
       </div>
       <%= if Enum.count(@dataset.legal_owners_aom) > 0 || Enum.count(@dataset.legal_owners_region) > 0 do %>
         <div class="pt-12">
-          <span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "Data under the responsibility of") %></span>
+          <span class="dataset-metas-info-title">
+            <%= dgettext("page-dataset-details", "Data under the responsibility of") %>
+          </span>
           <div>
             <%= legal_owners_link_tags_list(@conn, @dataset.legal_owners_aom, @dataset.legal_owners_region) %>
           </div>
