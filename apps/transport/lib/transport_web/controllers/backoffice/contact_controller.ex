@@ -156,10 +156,10 @@ defmodule TransportWeb.Backoffice.ContactController do
     Enum.map(csv_header, &Map.fetch!(row, &1))
   end
 
-  defp decrypt_columns(row) do
-    Enum.reduce(["email", "phone_number"], row, fn col, row ->
-      Map.update!(row, col, &decrypt!/1)
-    end)
+  defp decrypt_columns(contact_row) do
+    contact_row
+    |> Map.update!("email", &decrypt!/1)
+    |> Map.update!("phone_number", &decrypt!/1)
   end
 
   defp decrypt!(nil), do: nil
