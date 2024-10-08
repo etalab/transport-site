@@ -71,9 +71,9 @@ defmodule TransportWeb.Backoffice.ContactController do
         c.id contact_id,
         count(d.id) > 0 is_producer,
         count(df.id) > 0 is_reuser,
-        array_agg(distinct o.name) organization_names,
-        array_agg(distinct ns_producer.reason) producer_reasons,
-        array_agg(distinct ns_reuser.reason) reuser_reasons
+        array_remove(array_agg(distinct o.name), null) organization_names,
+        array_remove(array_agg(distinct ns_producer.reason), null) producer_reasons,
+        array_remove(array_agg(distinct ns_reuser.reason), null) reuser_reasons
       from contact c
       left join contacts_organizations co on co.contact_id = c.id
       left join organization o on o.id = co.organization_id
