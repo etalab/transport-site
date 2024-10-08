@@ -309,7 +309,7 @@
       <div class="pt-12">
         <span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "Covered area") %></span>
         <div>
-          <%= Dataset.get_territory_or_nil(@dataset) %>
+          <%= DB.Dataset.get_territory_or_nil(@dataset) %>
         </div>
         <div id="dataset-covered-area-map"></div>
       </div>
