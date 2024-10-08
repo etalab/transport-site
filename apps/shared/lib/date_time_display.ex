@@ -59,6 +59,8 @@ defmodule Shared.DateTimeDisplay do
   "01/03/2022 à 16h30 Europe/Paris"
   iex> format_datetime_to_paris(~U[2022-03-01 15:30:00+00:00], "en")
   "2022-03-01 at 16:30 Europe/Paris"
+  iex> format_datetime_to_paris(~N[2022-03-01 15:30:00.0000], "en")
+  "2022-03-01 at 16:30 Europe/Paris"
   iex> format_datetime_to_paris("2022-03-01T15:30:00Z", "fr")
   "01/03/2022 à 16h30 Europe/Paris"
   iex> format_datetime_to_paris("2022-03-01T15:30:00Z", "sauce tomate")
@@ -173,10 +175,7 @@ defmodule Shared.DateTimeDisplay do
   end
 
   defp convert_to_paris_time(%NaiveDateTime{} = ndt) do
-    case Timex.Timezone.convert(ndt, "Europe/Paris") do
-      %Timex.AmbiguousDateTime{after: dt} -> dt
-      %DateTime{} = dt -> dt
-    end
+    ndt |> Timex.Timezone.convert("UTC") |> convert_to_paris_time()
   end
 
   defp get_localized_format("en", options) do

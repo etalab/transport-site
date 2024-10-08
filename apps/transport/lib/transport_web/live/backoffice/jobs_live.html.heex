@@ -14,7 +14,7 @@
   <table class="table">
     <thead>
       <tr>
-        <th>UTC hour</th>
+        <th>grouped by hour (Paris time)</th>
         <th>worker</th>
         <th>count</th>
       </tr>
@@ -24,7 +24,9 @@
         <%= for {row, index} <- Enum.with_index(rows) do %>
           <tr>
             <%= if index == 0 do %>
-              <td rowspan={Enum.count(rows)}><%= hour %></td>
+              <td rowspan={Enum.count(rows)}>
+                <%= Shared.DateTimeDisplay.format_datetime_to_paris(hour, "en", no_timezone: true) %>
+              </td>
             <% end %>
             <td><%= row.worker %></td>
             <td><%= Helpers.format_number(row.count) %></td>

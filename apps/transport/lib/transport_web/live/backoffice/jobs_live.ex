@@ -80,7 +80,7 @@ defmodule TransportWeb.Backoffice.JobsLive do
     query
     |> filter_worker(worker)
     |> oban_query()
-    |> Enum.group_by(fn d -> Calendar.strftime(d.hour, "%Y-%m-%d %Hh") end)
+    |> Enum.group_by(fn d -> d.hour end)
     |> Enum.sort(:desc)
   end
 
