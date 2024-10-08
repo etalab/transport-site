@@ -6,6 +6,11 @@
 
 require Logger
 
+# TODO: use real CSV for output
+# TODO: filter out anormaly large files (datagouv resources)
+# TODO: count bogus files and make sure we can parse them
+# TODO: do not attempt to go web for now.
+
 defmodule ICanHazConsolidation do
 
   def process_resource(resource, file, status_file) do
