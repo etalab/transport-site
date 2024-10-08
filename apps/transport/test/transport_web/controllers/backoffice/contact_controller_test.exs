@@ -302,6 +302,8 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
         organizations: [organization |> Map.from_struct()]
       })
 
+    _other_contact = insert_contact()
+
     insert(:notification_subscription,
       reason: :dataset_with_error,
       role: :producer,
@@ -331,37 +333,42 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
              "id,first_name,last_name,mailing_list_title,email,phone_number,job_title,organization,inserted_at,updated_at,datagouv_user_id,last_login_at,creation_source,organization_names,is_producer,producer_daily_new_comments,producer_dataset_with_error,producer_expiration,producer_resource_unavailable,is_reuser,reuser_daily_new_comments,reuser_dataset_with_error,reuser_datasets_switching_climate_resilience_bill,reuser_expiration,reuser_new_dataset,reuser_resource_unavailable,reuser_resources_changed"
 
     # Check CSV content
-    assert [content] |> CSV.decode!(headers: true) |> Enum.to_list() == [
-             %{
-               "id" => to_string(contact.id),
-               "first_name" => contact.first_name,
-               "last_name" => contact.last_name,
-               "mailing_list_title" => "",
-               "email" => contact.email,
-               "phone_number" => contact.phone_number,
-               "job_title" => contact.job_title,
-               "organization" => contact.organization,
-               "inserted_at" => to_string(contact.inserted_at) |> String.trim_trailing("Z"),
-               "updated_at" => to_string(contact.updated_at) |> String.trim_trailing("Z"),
-               "datagouv_user_id" => contact.datagouv_user_id,
-               "last_login_at" => "",
-               "creation_source" => to_string(contact.creation_source),
-               "organization_names" => organization.name,
-               "producer_daily_new_comments" => "false",
-               "producer_dataset_with_error" => "true",
-               "producer_expiration" => "false",
-               "producer_resource_unavailable" => "false",
-               "reuser_daily_new_comments" => "true",
-               "reuser_dataset_with_error" => "false",
-               "reuser_datasets_switching_climate_resilience_bill" => "false",
-               "reuser_expiration" => "false",
-               "reuser_new_dataset" => "false",
-               "reuser_resource_unavailable" => "false",
-               "reuser_resources_changed" => "false",
-               "is_producer" => "true",
-               "is_reuser" => "false"
-             }
-           ]
+    csv_content = [content] |> CSV.decode!(headers: true) |> Enum.to_list()
+
+    assert Enum.count(csv_content) == 2
+
+    assert %{
+             "id" => to_string(contact.id),
+             "first_name" => contact.first_name,
+             "last_name" => contact.last_name,
+             "mailing_list_title" => "",
+             "email" => contact.email,
+             "phone_number" => contact.phone_number,
+             "job_title" => contact.job_title,
+             "organization" => contact.organization,
+             "inserted_at" => to_string(contact.inserted_at) |> String.trim_trailing("Z"),
+             "updated_at" => to_string(contact.updated_at) |> String.trim_trailing("Z"),
+             "datagouv_user_id" => contact.datagouv_user_id,
+             "last_login_at" => "",
+             "creation_source" => to_string(contact.creation_source),
+             "organization_names" => organization.name,
+             "producer_daily_new_comments" => "false",
+             "producer_dataset_with_error" => "true",
+             "producer_expiration" => "false",
+             "producer_resource_unavailable" => "false",
+             "reuser_daily_new_comments" => "true",
+             "reuser_dataset_with_error" => "false",
+             "reuser_datasets_switching_climate_resilience_bill" => "false",
+             "reuser_expiration" => "false",
+             "reuser_new_dataset" => "false",
+             "reuser_resource_unavailable" => "false",
+             "reuser_resources_changed" => "false",
+             "is_producer" => "true",
+             "is_reuser" => "false"
+           } == csv_content |> hd()
+
+    # `array_agg` with only null values is properly encoded
+    assert %{"organization_names" => ""} = Enum.at(csv_content, 1)
   end
 
   defp sample_contact_args(%{} = args \\ %{}) do
