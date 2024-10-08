@@ -8,7 +8,7 @@ require Logger
 
 defmodule ICanHazConsolidation do
 
-  def process_resource(resource, file) do
+  def process_resource(resource, file, status_file) do
     try do
       Logger.info "Processing resource_id=#{resource.resource_id}"
       %{raw_body: body, status: status} = resource
@@ -21,18 +21,26 @@ defmodule ICanHazConsolidation do
       rows
       |> Stream.map(fn r -> Enum.zip(headers, r) |> Map.new() end)
       |> Stream.each(fn r ->
+        # TODO: use real CSV generator here, escaping is missing
         r = Map.take(r, ["id_pdc_itinerance", "coordonneesXY"])
         IO.write(file, r["id_pdc_itinerance"] <> "," <> r["coordonneesXY"] <> "," <> resource[:resource_id] <> "\n")
       end)
       |> Stream.run()
+
+      IO.write(status_file, "#{resource.resource_id},OK\n")
     rescue
-      error -> IO.puts "an error occurred (#{error |> inspect})"
+      error ->
+        IO.puts "an error occurred (#{error |> inspect})"
+        IO.write(status_file, "#{resource.resource_id},ERROR,#{error |> inspect |> String.split("\n") |> List.first |> String.slice(0..30)}\n")
     end
 end
 
   def create_consolidation!() do
     File.rm("consolidation.csv")
     {:ok, file} = File.open("consolidation.csv", [:write, :exclusive, :utf8])
+
+    File.rm("consolidation.status.csv")
+    {:ok, status_file} = File.open("consolidation.status.csv", [:write, :exclusive, :utf8])
 
     # NOTE: this does not scale.
     # TODO: compute total byte size in memory and decide accordingly
@@ -45,7 +53,7 @@ end
     # TODO: also append to a secondary file listing the resources
     resources
     |> Enum.each(fn resource ->
-      process_resource(resource, file)
+      process_resource(resource, file, status_file)
     end)
 
     :ok = File.close(file)
