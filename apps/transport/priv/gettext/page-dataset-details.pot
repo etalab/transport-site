@@ -715,5 +715,5 @@ msgid "The producer requires authentication to access the data. Consequently, so
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Data owned by"
+msgid "Data under the responsibility of"
 msgstr ""
