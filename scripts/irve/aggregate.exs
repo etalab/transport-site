@@ -6,11 +6,6 @@
 
 require Logger
 
-# TODO: use real CSV for output
-# TODO: filter out anormaly large files (datagouv resources)
-# TODO: count bogus files and make sure we can parse them
-# TODO: do not attempt to go web for now.
-
 defmodule ICanHazConsolidation do
 
   # return a map with
@@ -41,7 +36,7 @@ defmodule ICanHazConsolidation do
     end)
   end
 
-  def create_consolidation!() do
+  def create_consolidation! do
     # NOTE: this does not scale.
     # TODO: compute total byte size in memory and decide accordingly
     resources = Transport.IRVE.Extractor.resources()
@@ -62,8 +57,7 @@ defmodule ICanHazConsolidation do
       else
         IO.puts("dataframe:ko:#{resource.line_count}")
       end
-
-      resource.line_count
+      resource |> Map.merge(result)
     end)
   end
 end
@@ -94,7 +88,9 @@ defmodule NumberDistribution do
   end
 end
 
-NumberDistribution.analyze(ICanHazConsolidation.create_consolidation!()) |> IO.inspect(IEx.inspect_opts)
+output = ICanHazConsolidation.create_consolidation!()
+counts = output |> Enum.map(fn(x) -> x.line_count end)
+NumberDistribution.analyze(counts) |> IO.inspect(IEx.inspect_opts)
 
 # TODO: assert no duplicate first, so we can safely convert to maps!
 
