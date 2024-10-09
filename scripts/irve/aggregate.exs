@@ -92,6 +92,32 @@ output = ICanHazConsolidation.create_consolidation!()
 counts = output |> Enum.map(fn(x) -> x.line_count end)
 NumberDistribution.analyze(counts) |> IO.inspect(IEx.inspect_opts)
 
+output = output
+|> Enum.reject(fn(r) -> is_nil(r.dataframe) end)
+|> Enum.reject(fn(r) -> "nom_amenageur" not in Explorer.DataFrame.names(r.dataframe) end)
+|> Enum.reject(fn(r) -> "nom_operateur" not in Explorer.DataFrame.names(r.dataframe) end)
+|> Enum.reject(fn(r) -> "id_station_itinerance" not in Explorer.DataFrame.names(r.dataframe) end)
+|> Enum.reject(fn(r) -> "id_pdc_itinerance" not in Explorer.DataFrame.names(r.dataframe) end)
+|> Enum.reject(fn(r) -> "prise_type_combo_ccs" not in Explorer.DataFrame.names(r.dataframe) end)
+|> Enum.reject(fn(r) -> "coordonneesXY" not in Explorer.DataFrame.names(r.dataframe) end)
+#|> Enum.take(20)
+|> Enum.map(fn(r) ->
+  Explorer.DataFrame.select(
+    r.dataframe,
+    [
+#      :nom_amenageur,
+#      :nom_operateur,
+#      :id_station_itinerance,
+      :id_pdc_itinerance,
+#      :prise_type_combo_ccs,
+#      :coordonneesXY
+    ]) end)
+#|> Enum.each fn(r) -> IO.inspect(r, IEx.inspect_opts) end
+|> Explorer.DataFrame.concat_rows()
+|> IO.inspect(IEx.inspect_opts)
+
+
+Explorer.DataFrame.to_csv!(output, "output.csv")
 # TODO: assert no duplicate first, so we can safely convert to maps!
 
 # TODO: gérer les erreurs dans le flux
