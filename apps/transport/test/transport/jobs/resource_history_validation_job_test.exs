@@ -10,114 +10,121 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
-  def insert_data(validator_name) do
+  @formats ["GTFS", "NeTEx"]
+
+  def insert_data(validator_name, format) do
     rh = insert(:resource)
 
-    # bad format
-    _rh1 = insert(:resource_history, %{payload: %{"format" => "NeTEx"}})
     # already validated
-    rh2 = insert(:resource_history, %{payload: %{"format" => "GTFS"}})
-    insert(:multi_validation, %{resource_history_id: rh2.id, validator: validator_name})
-    # needs validation
-    rh3 =
-      insert(:resource_history, %{payload: %{"format" => "GTFS"}, resource_id: rh.id, inserted_at: DateTime.utc_now()})
+    already_validated = insert(:resource_history, %{payload: %{"format" => format}})
+    insert(:multi_validation, %{resource_history_id: already_validated.id, validator: validator_name})
 
-    insert(:multi_validation, %{resource_history_id: rh3.id, validator: "coucou"})
+    # pending validation
+    pending1 =
+      insert(:resource_history, %{payload: %{"format" => format}, resource_id: rh.id, inserted_at: DateTime.utc_now()})
 
-    rh4 =
+    insert(:multi_validation, %{resource_history_id: pending1.id, validator: "coucou"})
+
+    pending2 =
       insert(:resource_history, %{
-        payload: %{"format" => "GTFS"},
+        payload: %{"format" => format},
         resource_id: rh.id,
         inserted_at: DateTime.utc_now() |> DateTime.add(-600)
       })
 
-    {rh2, rh3, rh4}
+    %{already_validated: already_validated, pending: [pending1, pending2]}
   end
 
-  test "validate all resource history, fixed format and validator" do
-    validator = Transport.Validators.Dummy
-    validator_string = validator |> to_string()
-    validator_name = validator.validator_name()
+  for format <- @formats do
+    describe format do
+      @describetag format: format
 
-    {_rh2, rh3, rh4} = insert_data(validator_name)
+      test "validate all resource history, fixed format and validator", %{format: format} do
+        validator = Transport.Validators.Dummy
+        validator_string = validator |> to_string()
+        validator_name = validator.validator_name()
 
-    assert :ok =
-             Transport.Jobs.ResourceHistoryValidationJob
-             |> perform_job(%{"format" => "GTFS", "validator" => validator_string})
+        %{pending: [pending1, pending2]} = insert_data(validator_name, format)
 
-    assert_enqueued(
-      worker: Transport.Jobs.ResourceHistoryValidationJob,
-      args: %{"resource_history_id" => rh3.id, "validator" => validator, "force_validation" => false}
-    )
+        assert :ok =
+                 Transport.Jobs.ResourceHistoryValidationJob
+                 |> perform_job(%{"format" => format, "validator" => validator_string})
 
-    assert_enqueued(
-      worker: Transport.Jobs.ResourceHistoryValidationJob,
-      args: %{"resource_history_id" => rh4.id, "validator" => validator, "force_validation" => false}
-    )
+        assert_enqueued(
+          worker: Transport.Jobs.ResourceHistoryValidationJob,
+          args: %{"resource_history_id" => pending1.id, "validator" => validator, "force_validation" => false}
+        )
 
-    assert 2 == Enum.count(all_enqueued(worker: Transport.Jobs.ResourceHistoryValidationJob))
-  end
+        assert_enqueued(
+          worker: Transport.Jobs.ResourceHistoryValidationJob,
+          args: %{"resource_history_id" => pending2.id, "validator" => validator, "force_validation" => false}
+        )
 
-  test "validate all resource history, fixed format and validator - forced mode" do
-    validator = Transport.Validators.Dummy
-    validator_string = validator |> to_string()
-    validator_name = validator.validator_name()
+        assert 2 == Enum.count(all_enqueued(worker: Transport.Jobs.ResourceHistoryValidationJob))
+      end
 
-    {rh2, rh3, rh4} = insert_data(validator_name)
+      test "validate all resource history, fixed format and validator - forced mode", %{format: format} do
+        validator = Transport.Validators.Dummy
+        validator_string = validator |> to_string()
+        validator_name = validator.validator_name()
 
-    assert :ok =
-             Transport.Jobs.ResourceHistoryValidationJob
-             |> perform_job(%{"format" => "GTFS", "validator" => validator_string, "force_validation" => true})
+        %{already_validated: already_validated, pending: [pending1, pending2]} = insert_data(validator_name, format)
 
-    # rh2 is validated, because validation is forced
-    assert_enqueued(
-      worker: Transport.Jobs.ResourceHistoryValidationJob,
-      args: %{"resource_history_id" => rh2.id, "validator" => validator, "force_validation" => true}
-    )
+        assert :ok =
+                 Transport.Jobs.ResourceHistoryValidationJob
+                 |> perform_job(%{"format" => format, "validator" => validator_string, "force_validation" => true})
 
-    assert_enqueued(
-      worker: Transport.Jobs.ResourceHistoryValidationJob,
-      args: %{"resource_history_id" => rh3.id, "validator" => validator, "force_validation" => true}
-    )
+        # already_validated is validated, because validation is forced
+        assert_enqueued(
+          worker: Transport.Jobs.ResourceHistoryValidationJob,
+          args: %{"resource_history_id" => already_validated.id, "validator" => validator, "force_validation" => true}
+        )
 
-    assert_enqueued(
-      worker: Transport.Jobs.ResourceHistoryValidationJob,
-      args: %{"resource_history_id" => rh4.id, "validator" => validator, "force_validation" => true}
-    )
+        assert_enqueued(
+          worker: Transport.Jobs.ResourceHistoryValidationJob,
+          args: %{"resource_history_id" => pending1.id, "validator" => validator, "force_validation" => true}
+        )
 
-    assert 3 == Enum.count(all_enqueued(worker: Transport.Jobs.ResourceHistoryValidationJob))
-  end
+        assert_enqueued(
+          worker: Transport.Jobs.ResourceHistoryValidationJob,
+          args: %{"resource_history_id" => pending2.id, "validator" => validator, "force_validation" => true}
+        )
 
-  test "validate only latest resource history, fixed format and validator - forced mode" do
-    validator = Transport.Validators.Dummy
-    validator_string = validator |> to_string()
-    validator_name = validator.validator_name()
+        assert 3 == Enum.count(all_enqueued(worker: Transport.Jobs.ResourceHistoryValidationJob))
+      end
 
-    {rh2, rh3, _rh4} = insert_data(validator_name)
+      test "validate only latest resource history, fixed format and validator - forced mode", %{format: format} do
+        validator = Transport.Validators.Dummy
+        validator_string = validator |> to_string()
+        validator_name = validator.validator_name()
 
-    assert :ok =
-             Transport.Jobs.ResourceHistoryValidationJob
-             |> perform_job(%{
-               "format" => "GTFS",
-               "validator" => validator_string,
-               "force_validation" => true,
-               "only_latest_resource_history" => true
-             })
+        %{already_validated: already_validated, pending: [pending1, _pending2]} = insert_data(validator_name, format)
 
-    # rh2 is validated, because validation is forced
-    assert_enqueued(
-      worker: Transport.Jobs.ResourceHistoryValidationJob,
-      args: %{"resource_history_id" => rh2.id, "validator" => validator, "force_validation" => true}
-    )
+        assert :ok =
+                 Transport.Jobs.ResourceHistoryValidationJob
+                 |> perform_job(%{
+                   "format" => format,
+                   "validator" => validator_string,
+                   "force_validation" => true,
+                   "only_latest_resource_history" => true
+                 })
 
-    assert_enqueued(
-      worker: Transport.Jobs.ResourceHistoryValidationJob,
-      args: %{"resource_history_id" => rh3.id, "validator" => validator, "force_validation" => true}
-    )
+        # already_validated is validated, because validation is forced
+        assert_enqueued(
+          worker: Transport.Jobs.ResourceHistoryValidationJob,
+          args: %{"resource_history_id" => already_validated.id, "validator" => validator, "force_validation" => true}
+        )
 
-    # rh4 is not enqueued, because rh3 is the latest resource history for that resource
+        assert_enqueued(
+          worker: Transport.Jobs.ResourceHistoryValidationJob,
+          args: %{"resource_history_id" => pending1.id, "validator" => validator, "force_validation" => true}
+        )
 
-    assert 2 == Enum.count(all_enqueued(worker: Transport.Jobs.ResourceHistoryValidationJob))
+        # pending2 is not enqueued, because pending1 is the latest resource history for that resource
+
+        assert 2 == Enum.count(all_enqueued(worker: Transport.Jobs.ResourceHistoryValidationJob))
+      end
+    end
   end
 
   test "validate a resource history with one validator" do

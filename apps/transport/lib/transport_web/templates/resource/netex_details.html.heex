@@ -1,0 +1,90 @@
+<section>
+  <div class="grey-background">
+    <div class="container">
+      <h2 class="mt-48">
+        <%= dgettext("validations", "Resource details") %>
+      </h2>
+      <div class="panel">
+        <%= render("_resource_description.html", conn: @conn, resource: @resource, resource_history: @resource_history) %>
+      </div>
+
+      <%= unless Enum.empty?(@resource.resources_related) do %>
+        <%= render("_related_resources.html", resource: @resource, conn: @conn) %>
+      <% end %>
+
+      <h2 id="download-availability"><%= dgettext("page-dataset-details", "Download availability") %></h2>
+      <%= render("_download_availability.html", uptime_per_day: @uptime_per_day, conn: @conn) %>
+
+      <h2 id="validation-report" class="mt-48"><%= dgettext("validations", "Validation report") %></h2>
+      <div class="panel" id="issues">
+        <%= if is_nil(@validation_summary) do %>
+          <%= dgettext("validations", "No validation available") %>
+        <% end %>
+        <%= unless is_nil(@validation_summary) do %>
+          <p class="notification warning">
+            <strong><%= dgettext("validations", "NeTEx validation is in beta.") %></strong> <br />
+            <%= dgettext("validations", "Warnings are work in progress. Only XSD errors are considered for now.") %>
+          </p>
+          <%= unless is_nil(@metadata) or @metadata == %{} do %>
+            <%= render("_resources_details_netex.html", conn: @conn, metadata: @metadata) %>
+          <% end %>
+          <%= if @issues.total_entries == 0 do %>
+            <%= dgettext("validations", "No validation error") %>.
+          <% else %>
+            <nav class="issues-list validation" role="navigation">
+              <%= render("_validation_summary.html",
+                validation_summary: @validation_summary,
+                severities_count: @severities_count,
+                issues: @issues,
+                conn: @conn,
+                data_vis: nil,
+                token: nil,
+                validator: @validator
+              ) %>
+            </nav>
+            <div class="main-pane">
+              <%= pagination_links(@conn, @issues, [@resource.id],
+                issue_type: Transport.Validators.NeTEx.issue_type(@issues.entries),
+                path: &resource_path/4,
+                action: :details
+              ) %>
+              <%= render(netex_template(@issues), issues: @issues || [], conn: @conn) %>
+            </div>
+          <% end %>
+          <p>
+            <%= raw(
+              dgettext(
+                "validations",
+                ~s(Validation carried out using the <a href="%{link}">current %{format} file</a> the %{date} using the <a href="%{validator_url}" target="_blank">%{validator_name}</a>.),
+                link: Map.fetch!(@validation.resource_history.payload, "permanent_url"),
+                format: "NeTEx",
+                date:
+                  DateTimeDisplay.format_datetime_to_paris(
+                    @validation.validation_timestamp,
+                    get_session(@conn, :locale)
+                  ),
+                validator_url: netex_validator_url(),
+                validator_name: dgettext("validations", "enRoute Chouette Valid")
+              )
+            ) %>
+          </p>
+        <% end %>
+      </div>
+      <%= if length(@other_resources) > 0 do %>
+        <h2><%= TransportWeb.Gettext.dgettext("validations", "Other resources") %></h2>
+        <div class="panel">
+          <ul>
+            <%= for resource <- @other_resources do %>
+              <li>
+                <%= link(resource.title,
+                  to: resource_path(@conn, :details, resource.id)
+                ) %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>
+<script src={static_path(@conn, "/js/utils.js")} />

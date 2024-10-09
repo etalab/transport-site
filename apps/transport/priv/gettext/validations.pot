@@ -273,7 +273,7 @@ msgid "Upload in progress"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Validation carried out using the <a href=\"%{gtfs_link}\">current GTFS file</a> the %{date} using the <a href=\"%{validator_url}\" target=\"_blank\">PAN GTFS validator</a>."
+msgid "Validation carried out using the <a href=\"%{link}\">current %{format} file</a> the %{date} using the <a href=\"%{validator_url}\" target=\"_blank\">%{validator_name}</a>."
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -426,4 +426,12 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "less than 1 second"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "PAN GTFS validator"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "enRoute Chouette Valid"
 msgstr ""
