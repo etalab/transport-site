@@ -173,6 +173,7 @@ defmodule TransportWeb.Router do
       scope "/contacts" do
         get("/", ContactController, :index)
         get("/new", ContactController, :new)
+        get("/csv_export", ContactController, :csv_export)
         post("/create", ContactController, :create)
         get("/:id/edit", ContactController, :edit)
         post("/:id/delete", ContactController, :delete)
