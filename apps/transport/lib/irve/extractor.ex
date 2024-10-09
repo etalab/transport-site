@@ -122,6 +122,7 @@ defmodule Transport.IRVE.Extractor do
         :last_modified,
         :index,
         :raw_body,
+        :url,
         :status
       ])
     end)

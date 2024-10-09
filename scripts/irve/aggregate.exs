@@ -13,56 +13,51 @@ require Logger
 
 defmodule ICanHazConsolidation do
 
-  def process_resource(resource, file) do
-    try do
-      Logger.info "Processing resource_id=#{resource.resource_id}"
-      %{raw_body: body, status: status} = resource
-      [headers | rows] = NimbleCSV.RFC4180.parse_string(body, skip_headers: false)
+  # return a map with
+  # - `dataframe` - if loaded successfully
+  # - `dataframe_loaded` (true / false) - explicit status
+  # - `raw_body` - kept around for later analysis (especially in case of failure)
+  # - `http_status` - for reporting
+  def extract_data_from_resource(resource) do
+    Logger.info "Processing resource_id=#{resource.resource_id}"
+    %{raw_body: body, status: status} = resource
 
-      if status != 200 do
-        raise "Whoopsy - got HTTP status #{status}, expected 200"
-      end
-
-      rows
-      |> Stream.map(fn r -> Enum.zip(headers, r) |> Map.new() end)
-      |> Stream.each(fn r ->
-        # TODO: use real CSV generator here, escaping is missing
-        r = Map.take(r, ["id_pdc_itinerance", "coordonneesXY"])
-        IO.write(file, r["id_pdc_itinerance"] <> "," <> r["coordonneesXY"] <> "," <> resource[:resource_id] <> "\n")
-      end)
-      |> Stream.run()
+    %{
+      raw_body: body,
+      http_status: status
+    } |> Map.merge(try do
+      df = Explorer.DataFrame.load_csv!(body)
+      %{
+        dataframe: df,
+        dataframe_loaded: true
+      }
     rescue
       error ->
-        IO.puts "an error occurred (#{error |> inspect})"
-    end
-end
+        %{
+          dataframe: nil,
+          dataframe_loaded: false,
+          dataframe_error: error
+        }
+    end)
+  end
 
   def create_consolidation!() do
-    File.rm("consolidation.csv")
-    {:ok, file} = File.open("consolidation.csv", [:write, :exclusive, :utf8])
-
     # NOTE: this does not scale.
     # TODO: compute total byte size in memory and decide accordingly
-    resources = Transport.IRVE.Extractor.resources()
+    resources = Transport.IRVE.Extractor.resources() |> Enum.take(20)
 
     resources = Transport.IRVE.Extractor.download_and_parse_all(resources, nil, keep_the_body_around: true)
-
-    IO.write(file, "id_pdc_itinerance,coordonneesXY,resource_id\n")
 
     # TODO: also append to a secondary file listing the resources
     resources
     |> Enum.each(fn resource ->
-      process_resource(resource, file)
+      result = extract_data_from_resource(resource)
+      IO.inspect(result.dataframe[:id_pdc_itinerance], IEx.inspect_opts)
     end)
-
-    :ok = File.close(file)
   end
 end
 
 ICanHazConsolidation.create_consolidation!()
-
-IO.puts(File.read!("consolidation.csv"))
-IO.puts("done")
 
 # TODO: assert no duplicate first, so we can safely convert to maps!
 
