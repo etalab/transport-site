@@ -44,20 +44,57 @@ defmodule ICanHazConsolidation do
   def create_consolidation!() do
     # NOTE: this does not scale.
     # TODO: compute total byte size in memory and decide accordingly
-    resources = Transport.IRVE.Extractor.resources() |> Enum.take(20)
+    resources = Transport.IRVE.Extractor.resources()
 
     resources = Transport.IRVE.Extractor.download_and_parse_all(resources, nil, keep_the_body_around: true)
 
     # TODO: also append to a secondary file listing the resources
     resources
-    |> Enum.each(fn resource ->
+    |> Enum.reject(fn(r) -> r.dataset_organisation_name == "data.gouv.fr" end)
+    |> Enum.map(fn resource ->
       result = extract_data_from_resource(resource)
-      IO.inspect(result.dataframe[:id_pdc_itinerance], IEx.inspect_opts)
+      if resource.line_count > 50_000 do
+        IO.inspect(resource, IEx.inspect_opts)
+        System.halt()
+      end
+      if result.dataframe_loaded do
+        IO.puts("dataframe:ok:#{"id_pdc_itinerance" in Explorer.DataFrame.names(result.dataframe)}:#{resource.line_count}")
+      else
+        IO.puts("dataframe:ko:#{resource.line_count}")
+      end
+
+      resource.line_count
     end)
   end
 end
 
-ICanHazConsolidation.create_consolidation!()
+defmodule NumberDistribution do
+  require Explorer.DataFrame
+
+  def analyze(numbers) do
+    df = Explorer.DataFrame.new(%{
+      "number" => numbers
+    })
+
+    df
+    |> Explorer.DataFrame.mutate(
+      below_10: number < 10,
+      between_11_100: number >= 11 and number <= 100,
+      between_101_2500: number > 100 and number <= 2500,
+      above_2500: number > 2500
+    )
+    |> Explorer.DataFrame.summarise(
+      count_below_10: sum(below_10),
+      count_11_100: sum(between_11_100),
+      count_101_2500: sum(between_101_2500),
+      count_above_2500: sum(above_2500)
+    )
+    |> Explorer.DataFrame.to_rows()
+    |> hd()
+  end
+end
+
+NumberDistribution.analyze(ICanHazConsolidation.create_consolidation!()) |> IO.inspect(IEx.inspect_opts)
 
 # TODO: assert no duplicate first, so we can safely convert to maps!
 
