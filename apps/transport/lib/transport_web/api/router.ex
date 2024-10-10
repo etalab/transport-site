@@ -17,6 +17,10 @@ defmodule TransportWeb.API.Router do
     plug(TransportWeb.API.Plugs.PublicCache, max_age: 60)
   end
 
+  pipeline :auth do
+    plug(TransportWeb.API.Plugs.Auth)
+  end
+
   scope "/api/" do
     pipe_through([:accept_json, :api])
     get("/", TransportWeb.Redirect, to: "/swaggerui")
@@ -55,6 +59,11 @@ defmodule TransportWeb.API.Router do
     end
 
     get("/gtfs-stops", TransportWeb.API.GTFSStopsController, :index)
+
+    scope "/validators" do
+      pipe_through(:auth)
+      get("/gtfs-transport", TransportWeb.API.ValidatorsController, :gtfs_transport)
+    end
   end
 
   @spec swagger_info :: %{info: %{title: binary(), version: binary()}}
