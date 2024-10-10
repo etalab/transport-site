@@ -119,28 +119,22 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
-  def region_link(conn, %DB.Region{nom: nom, id: id}) do
+  def legal_owners_links(conn, %DB.Dataset{legal_owners_aom: legal_owners_aom, legal_owners_region: legal_owners_region}) do
+    legal_owners_region
+    |> Enum.sort_by(& &1.nom)
+    |> Enum.concat(legal_owners_aom |> Enum.sort_by(& &1.nom))
+    |> Enum.map_join(", ", fn owner ->
+      conn |> legal_owner_link(owner) |> safe_to_string()
+  end)
+    |> raw()
+  end
+
+  def legal_owner_link(conn, %DB.Region{nom: nom, id: id}) do
     link(nom, to: dataset_path(conn, :by_region, id))
   end
 
-  def aom_link(conn, %DB.AOM{nom: nom, id: id}) do
+  def legal_owner_link(conn, %DB.AOM{nom: nom, id: id}) do
     link(nom, to: dataset_path(conn, :by_aom, id))
-  end
-
-  def aom_or_region_link(conn, obj) do
-    case obj do
-      %DB.AOM{} -> aom_link(conn, obj)
-      %DB.Region{} -> region_link(conn, obj)
-    end
-  end
-
-  def legal_owners_link_tags_list(conn, legal_owners_region, legal_owners_aom) do
-    legal_owners_aom
-    |> Enum.sort_by(& &1.nom)
-    |> Enum.concat(legal_owners_region |> Enum.sort_by(& &1.nom))
-    |> Enum.map(&aom_or_region_link(conn, &1))
-    |> Enum.map_join(", ", &safe_to_string/1)
-    |> raw()
   end
 
   def type_link(conn, %{type: type, msg: msg, count: count}) do

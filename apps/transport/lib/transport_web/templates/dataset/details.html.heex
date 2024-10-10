@@ -261,7 +261,8 @@
             <%= dgettext("page-dataset-details", "Data under the responsibility of") %>
           </span>
           <div>
-            <%= legal_owners_link_tags_list(@conn, @dataset.legal_owners_aom, @dataset.legal_owners_region) %>
+            <%#= legal_owners_link_tags_list(@conn, @dataset.legal_owners_aom, @dataset.legal_owners_region) %>
+            <%= legal_owners_links(@conn, @dataset) %>
           </div>
         </div>
       <% end %>
