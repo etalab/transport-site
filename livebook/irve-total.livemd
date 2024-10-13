@@ -95,6 +95,7 @@ data =
     timeout: 100_000
   )
   |> Stream.map(fn {:ok, result} -> result end)
+  |> Stream.reject(fn row -> row["error"] end)
   |> Stream.map(fn x -> Map.take(x, ["inserted_at", "row_count"]) end)
   |> Enum.into([])
 ```
