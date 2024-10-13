@@ -34,7 +34,7 @@ opts = [
 result =
   Postgrex.query!(
     conn,
-    """
+    ~S"""
     select id, payload ->> 'permanent_url' as url, inserted_at 
     from resource_history rh
     where rh.resource_id = 81623
