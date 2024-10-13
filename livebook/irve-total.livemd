@@ -115,3 +115,21 @@ VegaLite.new(width: 800)
 |> VegaLite.encode_field(:y, "row_count", type: :quantitative)
 |> VegaLite.encode_field(:color, "row_count", type: :quantitative)
 ```
+
+```elixir
+month_trunc = fn(d) ->
+  Date.new!(d.year, d.month, 1)  
+end
+
+data
+|> Enum.group_by(
+  fn(x) -> x["inserted_at"] |> month_trunc.() end,
+  fn(x) -> x["row_count"] end
+)
+|> Enum.map(
+  fn({a,b}) -> 
+    %{date: a, pdc_count: (Enum.sum(b) / length(b)) |> trunc()}
+    end)
+|> Kino.DataTable.new()
+
+```
