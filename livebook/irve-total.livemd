@@ -76,9 +76,14 @@ end
 ```elixir
 task = fn row = %{"url" => url} ->
   IO.puts("getting #{url}")
+  try do
   %{status: 200, body: body} = Query.cached_get!(url)
   # NOTE: headers appear as one line at this stage
   Map.put(row, "row_count", (body |> length()) - 1)
+  rescue
+    _ -> 
+      Map.put(row, "error", true)
+  end
 end
 
 data =
