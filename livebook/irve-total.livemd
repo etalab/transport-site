@@ -14,7 +14,7 @@ Mix.install([
 
 ## Section
 
-<!-- livebook:{"attrs":{"database":"transport_repo","hostname":"localhost","password_secret":"","port":5432,"type":"postgres","use_ipv6":false,"use_ssl":false,"username":"postgres","variable":"conn"},"chunks":null,"kind":"Elixir.KinoDB.ConnectionCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJkYXRhYmFzZSI6InRyYW5zcG9ydF9yZXBvIiwiaG9zdG5hbWUiOiJsb2NhbGhvc3QiLCJwYXNzd29yZF9zZWNyZXQiOiIiLCJwb3J0Ijo1NDMyLCJ0eXBlIjoicG9zdGdyZXMiLCJ1c2VfaXB2NiI6ZmFsc2UsInVzZV9zc2wiOmZhbHNlLCJ1c2VybmFtZSI6InBvc3RncmVzIiwidmFyaWFibGUiOiJjb25uIn0","chunks":null,"kind":"Elixir.KinoDB.ConnectionCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 opts = [
@@ -28,7 +28,7 @@ opts = [
 {:ok, conn} = Kino.start_child({Postgrex, opts})
 ```
 
-<!-- livebook:{"attrs":{"cache_query":true,"connection":{"type":"postgres","variable":"conn"},"data_frame_alias":"Elixir.Explorer.DataFrame","query":"select id, payload ->> 'permanent_url' as url, inserted_at \nfrom resource_history rh\nwhere rh.resource_id = 81623\norder by inserted_at asc","result_variable":"result","timeout":null},"chunks":null,"kind":"Elixir.KinoDB.SQLCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJjYWNoZV9xdWVyeSI6dHJ1ZSwiY29ubmVjdGlvbiI6eyJ0eXBlIjoicG9zdGdyZXMiLCJ2YXJpYWJsZSI6ImNvbm4ifSwiZGF0YV9mcmFtZV9hbGlhcyI6IkVsaXhpci5FeHBsb3Jlci5EYXRhRnJhbWUiLCJxdWVyeSI6InNlbGVjdCBpZCwgcGF5bG9hZCAtPj4gJ3Blcm1hbmVudF91cmwnIGFzIHVybCwgaW5zZXJ0ZWRfYXQgXG5mcm9tIHJlc291cmNlX2hpc3RvcnkgcmhcbndoZXJlIHJoLnJlc291cmNlX2lkID0gODE2MjNcbm9yZGVyIGJ5IGluc2VydGVkX2F0IGFzYyIsInJlc3VsdF92YXJpYWJsZSI6InJlc3VsdCIsInRpbWVvdXQiOm51bGx9","chunks":null,"kind":"Elixir.KinoDB.SQLCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 result =
@@ -99,7 +99,6 @@ data
 |> Kino.DataTable.new()
 ```
 
-<!-- livebook:{"attrs":{"chart_title":null,"height":null,"layers":[{"active":true,"chart_type":"bar","color_field":"row_count","color_field_aggregate":null,"color_field_bin":null,"color_field_scale_scheme":null,"color_field_type":"quantitative","data_variable":"data","geodata_color":"blue","latitude_field":null,"longitude_field":null,"x_field":"inserted_at","x_field_aggregate":null,"x_field_bin":null,"x_field_scale_type":null,"x_field_type":"temporal","y_field":"row_count","y_field_aggregate":null,"y_field_bin":null,"y_field_scale_type":null,"y_field_type":"quantitative"}],"vl_alias":"Elixir.VegaLite","width":800},"chunks":null,"kind":"Elixir.KinoVegaLite.ChartCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 VegaLite.new(width: 800)
