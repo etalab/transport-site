@@ -2,11 +2,11 @@
 
 ```elixir
 Mix.install([
-  {:ecto_sql, "~> 3.10"},
+  {:ecto_sql, "~> 3.12"},
   {:postgrex, ">= 0.0.0"},
   {:kino_db, "~> 0.2.3"},
   {:jason, "~> 1.4"},
-  {:req, "~> 0.4.0"},
+  {:req, "~> 0.5.0"},
   {:nimble_csv, "~> 1.2"},
   {:kino_vega_lite, "~> 0.1.10"}
 ])
