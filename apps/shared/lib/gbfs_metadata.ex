@@ -177,7 +177,7 @@ defmodule Transport.Shared.GBFSMetadata do
 
   def first_feed(%{"data" => data, "version" => version} = payload) do
     # From GBFS 1.1 until GBFS 2.3
-    if String.starts_with?(version, ["1.", "2."]) do
+    if before_v3?(version) do
       first_language = payload |> languages() |> Enum.at(0)
       (data["en"] || data["fr"] || data[first_language])["feeds"]
       # From GBFS 3.0 onwards
@@ -186,8 +186,21 @@ defmodule Transport.Shared.GBFSMetadata do
     end
   end
 
-  defp languages(%{"data" => data}) do
-    Map.keys(data)
+  def languages(%{"data" => data, "version" => version} = payload) do
+    # From GBFS 1.1 until GBFS 2.3
+    if before_v3?(version) do
+      Map.keys(data)
+      # From GBFS 3.0 onwards
+    else
+      feed_url = payload |> first_feed() |> feed_url_by_name("system_information")
+
+      with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(feed_url),
+           {:ok, json} <- Jason.decode(body) do
+        get_in(json, ["data", "languages"])
+      else
+        _ -> []
+      end
+    end
   end
 
   @spec versions(map()) :: [binary()] | nil
@@ -228,6 +241,8 @@ defmodule Transport.Shared.GBFSMetadata do
     # often make this mistake
     payload |> first_feed() |> Enum.map(fn feed -> String.replace(feed["name"], ".json", "") end)
   end
+
+  defp before_v3?(version), do: String.starts_with?(version, ["1.", "2."])
 
   defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
 end
