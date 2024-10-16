@@ -36,6 +36,7 @@ defmodule Transport.Shared.GBFSMetadata do
       versions: versions(json),
       languages: languages(json),
       system_details: system_details(json),
+      vehicle_types: vehicle_types(json),
       types: types(json),
       ttl: ttl(json),
       feed_timestamp_delay: feed_timestamp_delay
@@ -183,6 +184,23 @@ defmodule Transport.Shared.GBFSMetadata do
       # From GBFS 3.0 onwards
     else
       data["feeds"]
+    end
+  end
+
+  def vehicle_types(%{"data" => _data} = payload) do
+    feed_url = payload |> first_feed() |> feed_url_by_name("vehicle_types")
+
+    if is_nil(feed_url) do
+      # https://gbfs.org/specification/reference/#vehicle_typesjson
+      # > If this file is not included, then all vehicles in the feed are assumed to be non-motorized bicycles.
+      ["bicycle"]
+    else
+      with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(feed_url),
+           {:ok, json} <- Jason.decode(body) do
+        json["data"]["vehicle_types"] |> Enum.map(& &1["form_factor"]) |> Enum.uniq()
+      else
+        _ -> nil
+      end
     end
   end
 
