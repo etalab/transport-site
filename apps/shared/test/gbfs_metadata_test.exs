@@ -32,12 +32,13 @@ defmodule Transport.Shared.GBFSMetadataTest do
                  validator: :validator_module
                },
                cors_header_value: "*",
-               feed_timestamp_delay: _
+               feed_timestamp_delay: _,
+               vehicle_types: ["bicycle"]
              } = compute_feed_metadata(@gbfs_url, "http://example.com")
     end
 
     test "for a stations + free floating feed with a multiple versions" do
-      setup_feeds([:gbfs_with_versions, :gbfs_versions, :system_information, :free_bike_status])
+      setup_feeds([:gbfs_with_versions, :gbfs_versions, :system_information, :vehicle_types, :free_bike_status])
 
       setup_validation_result(
         {:ok, summary} =
@@ -70,7 +71,8 @@ defmodule Transport.Shared.GBFSMetadataTest do
                  "gbfs_versions"
                ],
                cors_header_value: "*",
-               feed_timestamp_delay: feed_timestamp_delay
+               feed_timestamp_delay: feed_timestamp_delay,
+               vehicle_types: ["bicycle", "scooter"]
              } = compute_feed_metadata(@gbfs_url, "http://example.com")
 
       assert feed_timestamp_delay > 0
@@ -123,6 +125,71 @@ defmodule Transport.Shared.GBFSMetadataTest do
     end
   end
 
+  describe "vehicle_types" do
+    test "3.0 feed, vehicle_types feed present" do
+      vehicle_types_url = "https://example.com/gbfs/vehicle_types"
+
+      setup_response(
+        vehicle_types_url,
+        Jason.encode!(%{
+          data: %{
+            vehicle_types: [
+              %{form_factor: "bicycle"},
+              %{form_factor: "scooter_standing"},
+              %{form_factor: "bicycle"}
+            ]
+          }
+        })
+      )
+
+      json =
+        Jason.decode!("""
+         {
+          "last_updated": "2023-07-17T13:34:13+02:00",
+          "ttl": 0,
+          "version": "3.0",
+          "data": {
+            "feeds": [
+              {
+                "name": "vehicle_types",
+                "url": "#{vehicle_types_url}"
+              },
+              {
+                "name": "station_information",
+                "url": "https://example.com/gbfs/station_information"
+              }
+            ]
+          }
+        }
+        """)
+
+      assert MapSet.new(["bicycle", "scooter_standing"]) == json |> vehicle_types() |> MapSet.new()
+    end
+
+    test "2.1 feed, vehicle_types feed not present" do
+      json =
+        Jason.decode!("""
+         {
+          "last_updated": "1636116522",
+          "ttl": 0,
+          "version": "2.1",
+          "data": {
+            "fr": {
+              "feeds": [
+                {
+                  "name": "station_information",
+                  "url": "https://example.com/gbfs/station_information"
+                }
+              ]
+            }
+          }
+        }
+        """)
+
+      assert ["bicycle"] == json |> vehicle_types()
+    end
+  end
+
   defp setup_validation_result(summary \\ nil) do
     Shared.Validation.GBFSValidator.Mock
     |> expect(:validate, fn url ->
@@ -143,21 +210,17 @@ defmodule Transport.Shared.GBFSMetadataTest do
     end)
   end
 
-  defp setup_feeds(feeds) do
-    feeds
-    |> Enum.map(fn feed ->
-      case feed do
-        :gbfs -> setup_gbfs_response()
-        :gbfs_with_versions -> setup_gbfs_with_versions_response()
-        :gbfs_with_server_error -> setup_gbfs_with_server_error_response()
-        :gbfs_with_invalid_gbfs_json -> setup_invalid_gbfs_response()
-        :gbfs_versions -> setup_gbfs_versions_response()
-        :free_bike_status -> setup_free_bike_status_response()
-        :system_information -> setup_system_information_response()
-        :station_information -> setup_station_information_response()
-      end
-    end)
-  end
+  defp setup_feeds(feeds), do: Enum.map(feeds, &setup_feed(&1))
+
+  defp setup_feed(:gbfs), do: setup_gbfs_response()
+  defp setup_feed(:gbfs_with_versions), do: setup_gbfs_with_versions_response()
+  defp setup_feed(:gbfs_with_server_error), do: setup_gbfs_with_server_error_response()
+  defp setup_feed(:gbfs_with_invalid_gbfs_json), do: setup_invalid_gbfs_response()
+  defp setup_feed(:gbfs_versions), do: setup_gbfs_versions_response()
+  defp setup_feed(:free_bike_status), do: setup_free_bike_status_response()
+  defp setup_feed(:system_information), do: setup_system_information_response()
+  defp setup_feed(:station_information), do: setup_station_information_response()
+  defp setup_feed(:vehicle_types), do: setup_vehicle_types_response()
 
   defp setup_response_with_headers(expected_url, body) do
     Transport.HTTPoison.Mock
@@ -247,5 +310,13 @@ defmodule Transport.Shared.GBFSMetadataTest do
     """
 
     setup_response("https://example.com/station_information.json", body)
+  end
+
+  defp setup_vehicle_types_response do
+    body = """
+     {"data": {"vehicle_types": [{"form_factor": "bicycle","max_range_meters": 20000,"propulsion_type": "electric_assist","vehicle_type_id": "titibike"},{"form_factor": "bicycle","max_range_meters": 60000,"propulsion_type": "electric_assist","vehicle_type_id": "x2"},{"form_factor": "scooter","max_range_meters": 35000,"propulsion_type": "electric","vehicle_type_id": "knot"},{"form_factor": "scooter","max_range_meters": 60000,"propulsion_type": "electric","vehicle_type_id": "pony"}]},"last_updated": "2024-10-16T16:23:49+02:00","ttl": 300,"version": "3.0"}
+    """
+
+    setup_response("https://example.com/vehicle_types.json", body)
   end
 end
