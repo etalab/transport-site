@@ -141,7 +141,6 @@ defmodule Transport.Shared.GBFSMetadataTest do
           }
         })
       )
-
       json =
         Jason.decode!("""
          {
@@ -153,6 +152,8 @@ defmodule Transport.Shared.GBFSMetadataTest do
               {
                 "name": "vehicle_types",
                 "url": "#{vehicle_types_url}"
+                "name": "system_information",
+                "url": "#{system_information_url}"
               },
               {
                 "name": "station_information",
@@ -187,6 +188,79 @@ defmodule Transport.Shared.GBFSMetadataTest do
         """)
 
       assert ["bicycle"] == json |> vehicle_types()
+    end
+  end
+
+  describe "languages" do
+    test "3.0 feed" do
+      system_information_url = "https://example.com/gbfs/system_information"
+
+      setup_response(system_information_url, Jason.encode!(%{data: %{languages: ["en", "fr"]}}))
+
+      json =
+        Jason.decode!("""
+         {
+          "last_updated": "2023-07-17T13:34:13+02:00",
+          "ttl": 0,
+          "version": "3.0",
+          "data": {
+            "feeds": [
+              {
+                "name": "vehicle_types",
+                "url": "#{vehicle_types_url}"
+                "name": "system_information",
+                "url": "#{system_information_url}"
+              },
+              {
+                "name": "station_information",
+                "url": "https://example.com/gbfs/station_information"
+              }
+            ]
+          }
+        }
+        """)
+
+      assert MapSet.new(["en", "fr"]) == json |> languages() |> MapSet.new()
+    end
+
+    test "2.3 feed" do
+      # Example from https://github.com/MobilityData/gbfs/blob/v2.3/gbfs.md#gbfsjson
+      json =
+        Jason.decode!("""
+        {
+          "last_updated": 1640887163,
+          "ttl": 0,
+          "version": "2.3",
+          "data": {
+            "en": {
+              "feeds": [
+                {
+                  "name": "system_information",
+                  "url": "https://www.example.com/gbfs/1/en/system_information"
+                },
+                {
+                  "name": "station_information",
+                  "url": "https://www.example.com/gbfs/1/en/station_information"
+                }
+              ]
+            },
+            "fr" : {
+              "feeds": [
+                {
+                  "name": "system_information",
+                  "url": "https://www.example.com/gbfs/1/fr/system_information"
+                },
+                {
+                  "name": "station_information",
+                  "url": "https://www.example.com/gbfs/1/fr/station_information"
+                }
+              ]
+            }
+          }
+        }
+        """)
+
+      assert MapSet.new(["en", "fr"]) == json |> languages() |> MapSet.new()
     end
   end
 
