@@ -141,6 +141,7 @@ defmodule Transport.Shared.GBFSMetadataTest do
           }
         })
       )
+
       json =
         Jason.decode!("""
          {
@@ -152,8 +153,6 @@ defmodule Transport.Shared.GBFSMetadataTest do
               {
                 "name": "vehicle_types",
                 "url": "#{vehicle_types_url}"
-                "name": "system_information",
-                "url": "#{system_information_url}"
               },
               {
                 "name": "station_information",
@@ -206,8 +205,6 @@ defmodule Transport.Shared.GBFSMetadataTest do
           "data": {
             "feeds": [
               {
-                "name": "vehicle_types",
-                "url": "#{vehicle_types_url}"
                 "name": "system_information",
                 "url": "#{system_information_url}"
               },

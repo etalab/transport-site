@@ -219,6 +219,7 @@ defmodule Transport.Shared.GBFSMetadata do
         _ -> []
       end
     end
+  end
 
   @spec versions(map()) :: [binary()] | nil
   defp versions(%{"data" => _data} = payload) do
