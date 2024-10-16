@@ -46,6 +46,8 @@ download_resource = fn r ->
   |> Map.put(:local_path, file)
 end
 
+hierarchy_level = fn file -> file |> String.split("/") |> Enum.count() end
+
 dump_netex_files = fn r ->
   IO.puts("Processing file #{r.id}")
 
@@ -56,7 +58,7 @@ dump_netex_files = fn r ->
       Transport.NeTEx.read_all_stop_places(r.local_path)
       |> Enum.map(fn {file, _stops} -> file end)
       |> Enum.reject(fn file -> String.ends_with?(file, "/") end)
-      |> Enum.map(fn file -> [url, r.title, r.url, file] end)
+      |> Enum.map(fn file -> [url, r.title, r.url, file, hierarchy_level.(file)] end)
     rescue
       _ -> IO.puts("Som'thing bad happened")
            []
@@ -67,7 +69,7 @@ end
 
 output_file = "netex_layout_analysis.csv"
 
-File.write(output_file, NimbleCSV.RFC4180.dump_to_iodata([~w(resource title url file)]))
+File.write(output_file, NimbleCSV.RFC4180.dump_to_iodata([~w(resource title url file hierarchy)]))
 
 df
 |> Task.async_stream(download_resource, max_concurrency: 10, timeout: 120_000)
