@@ -31,7 +31,7 @@ defmodule TransportWeb.DatabaseCase do
           Sandbox.mode(Repo, {:shared, self()})
         end
 
-        Repo.insert(%Region{nom: "Pays de la Loire"})
+        Repo.insert(%Region{nom: "Pays de la Loire", insee: "52"})
         Repo.insert(%Region{nom: "Auvergne-Rhône-Alpes"})
         Repo.insert(%Region{nom: "Île-de-France"})
 

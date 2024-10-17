@@ -247,17 +247,24 @@
       <div class="dataset__logo">
         <%= img_tag(DB.Dataset.full_logo(@dataset), alt: @dataset.custom_title) %>
       </div>
-      <div>
-        <i class="icon fa fa-map-marker-alt" /><%= Dataset.get_territory_or_nil(@dataset) %>
-      </div>
       <div class="pt-12">
         <span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "Data published by") %></span>
-        <div class="dataset-type-info">
+        <div>
           <b>
             <%= link(@dataset.organization, to: dataset_path(@conn, :index, organization_id: @dataset.organization_id)) %>
           </b>
         </div>
       </div>
+      <%= if Enum.count(@dataset.legal_owners_aom) > 0 || Enum.count(@dataset.legal_owners_region) > 0 do %>
+        <div class="pt-12">
+          <span class="dataset-metas-info-title">
+            <%= dgettext("page-dataset-details", "Data under the responsibility of") %>
+          </span>
+          <div>
+            <%= legal_owners_links(@conn, @dataset) %>
+          </div>
+        </div>
+      <% end %>
       <div class="pt-12">
         <span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "Data type") %></span>
         <%= render("_dataset_type.html",
@@ -303,6 +310,9 @@
       </div>
       <div class="pt-12">
         <span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "Covered area") %></span>
+        <div>
+          <%= DB.Dataset.get_territory_or_nil(@dataset) %>
+        </div>
         <div id="dataset-covered-area-map"></div>
       </div>
     </div>
