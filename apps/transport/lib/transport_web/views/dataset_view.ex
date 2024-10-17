@@ -125,7 +125,7 @@ defmodule TransportWeb.DatasetView do
     |> Enum.concat(legal_owners_aom |> Enum.sort_by(& &1.nom))
     |> Enum.map_join(", ", fn owner ->
       conn |> legal_owner_link(owner) |> safe_to_string()
-  end)
+    end)
     |> raw()
   end
 
