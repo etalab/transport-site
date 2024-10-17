@@ -1,4 +1,4 @@
-defmodule TransportWeb.Live.SendConsolidateBNLCView do
+defmodule TransportWeb.Live.SendConsolidateJobView do
   # Very similar to `TransportWeb.Live.SendNowOnNAPNotificationView`
   use Phoenix.LiveView
   @button_disabled [:dispatched, :sent]
@@ -13,7 +13,12 @@ defmodule TransportWeb.Live.SendConsolidateBNLCView do
 
   def mount(
         _params,
-        %{"button_texts" => button_texts, "button_default_class" => button_default_class, "job_args" => job_args},
+        %{
+          "button_texts" => button_texts,
+          "button_default_class" => button_default_class,
+          "job_module" => job_module,
+          "job_args" => job_args
+        },
         socket
       ) do
     socket =
@@ -21,6 +26,7 @@ defmodule TransportWeb.Live.SendConsolidateBNLCView do
       |> assign(
         button_texts: button_texts,
         button_default_class: button_default_class,
+        job_module: job_module,
         job_args: job_args
       )
       |> assign_step(:first)
@@ -33,9 +39,9 @@ defmodule TransportWeb.Live.SendConsolidateBNLCView do
     {:noreply, socket}
   end
 
-  def handle_info(:dispatch, %Phoenix.LiveView.Socket{assigns: %{job_args: job_args}} = socket) do
+  def handle_info(:dispatch, %Phoenix.LiveView.Socket{assigns: %{job_args: job_args, job_module: job_module}} = socket) do
     new_socket =
-      case job_args |> Transport.Jobs.ConsolidateBNLCJob.new() |> Oban.insert() do
+      case job_args |> job_module.new() |> Oban.insert() do
         {:ok, %Oban.Job{id: job_id}} ->
           send(self(), {:wait_for_completion, job_id})
           assign_step(socket, :dispatched)

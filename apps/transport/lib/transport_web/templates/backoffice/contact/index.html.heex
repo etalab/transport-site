@@ -52,4 +52,9 @@
   <div class="pt-24">
     <%= pagination_links(@conn, @contacts) %>
   </div>
+  <div class="pt-12">
+    <a class="button-outline small secondary" href={backoffice_contact_path(@conn, :csv_export)}>
+      <i class="icon icon--download" aria-hidden="true"></i> Télécharger un export
+    </a>
+  </div>
 </section>
