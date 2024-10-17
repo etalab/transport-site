@@ -80,7 +80,7 @@ defmodule TransportWeb.Backoffice.JobsLive do
     query
     |> filter_worker(worker)
     |> oban_query()
-    |> Enum.group_by(fn d -> d.hour end)
+    |> Enum.group_by(fn d -> Shared.DateTimeDisplay.convert_to_paris_time(d.hour) end)
     |> Enum.sort(:desc)
   end
 
@@ -129,5 +129,25 @@ defmodule TransportWeb.Backoffice.JobsLive do
       |> push_patch(to: backoffice_live_path(socket, TransportWeb.Backoffice.JobsLive, worker: worker))
 
     {:noreply, socket}
+  end
+
+  def format_1_hour_range(from) do
+    to = DateTime.add(from, 1, :hour)
+
+    days_diff = from |> DateTime.to_date() |> Date.diff(Date.utc_today())
+
+    date =
+      case days_diff do
+        0 -> "Today"
+        -1 -> "Yesterday"
+        1 -> "Tomorrow"
+        _ -> Shared.DateTimeDisplay.format_date(from, "en")
+      end
+
+    "#{date} between #{format_time(from)} and #{format_time(to)}"
+  end
+
+  defp format_time(dt) do
+    Shared.DateTimeDisplay.format_time_to_paris(dt, "en", no_timezone: true)
   end
 end

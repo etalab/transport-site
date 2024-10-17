@@ -87,7 +87,7 @@ defmodule Shared.DateTimeDisplay do
   def format_datetime_to_paris(dt, locale), do: format_datetime_to_paris(dt, locale, [])
 
   def format_datetime_to_paris(%DateTime{} = dt, locale, options) do
-    format = get_localized_format(locale, options)
+    format = get_localized_datetime_format(locale, options)
     format = if Keyword.get(options, :no_timezone), do: format, else: format <> " Europe/Paris"
     dt |> convert_to_paris_time() |> Calendar.strftime(format)
   end
@@ -105,6 +105,63 @@ defmodule Shared.DateTimeDisplay do
   end
 
   def format_datetime_to_paris(nil, _, _), do: ""
+
+  @doc """
+  Formats time of a date time for display.
+  Input can be in any timezone, outputs is in Europe/Paris timezone.
+
+  iex> format_time_to_paris(~U[2022-03-01 15:30:00+00:00], "fr")
+  "16h30 Europe/Paris"
+  iex> format_time_to_paris(~U[2022-03-01 15:30:00+00:00], "en")
+  "16:30 Europe/Paris"
+  iex> format_time_to_paris(~N[2022-03-01 15:30:00.0000], "en")
+  "16:30 Europe/Paris"
+  iex> format_time_to_paris("2022-03-01T15:30:00Z", "fr")
+  "16h30 Europe/Paris"
+  iex> format_time_to_paris("2022-03-01T15:30:00Z", "sauce tomate")
+  "16h30 Europe/Paris"
+  iex> format_time_to_paris("2022-03-01T15:30:00+01:00", "fr")
+  "15h30 Europe/Paris"
+  iex> format_time_to_paris("2022-03-01T15:30:00+01:00", "fr")
+  "15h30 Europe/Paris"
+  iex> format_time_to_paris("2022-03-01T15:30:09+01:00", "fr", with_seconds: true)
+  "15:30:09 Europe/Paris"
+  iex> format_time_to_paris("2022-03-01T15:30:00+00:00", "en")
+  "16:30 Europe/Paris"
+  iex> format_time_to_paris("2022-03-01T15:30:09+00:00", "en", with_seconds: true)
+  "16:30:09 Europe/Paris"
+  # right before daylight hour change
+  iex> format_time_to_paris("2022-03-27T00:59+00:00", "fr")
+  "01h59 Europe/Paris"
+  # right after daylight hour change
+  iex> format_time_to_paris("2022-03-27T01:00:00+00:00", "fr")
+  "03h00 Europe/Paris"
+  iex> format_time_to_paris("2022-03-27T01:00:00+00:00", "fr", no_timezone: true)
+  "03h00"
+  """
+  def format_time_to_paris(dt, locale) do
+    format_time_to_paris(dt, locale, [])
+  end
+
+  def format_time_to_paris(%DateTime{} = dt, locale, options) do
+    format = get_localized_time_format(locale, options)
+    format = if Keyword.get(options, :no_timezone), do: format, else: format <> " Europe/Paris"
+    dt |> convert_to_paris_time() |> Calendar.strftime(format)
+  end
+
+  def format_time_to_paris(%NaiveDateTime{} = ndt, locale, options) do
+    ndt
+    |> convert_to_paris_time()
+    |> format_time_to_paris(locale, options)
+  end
+
+  def format_time_to_paris(datetime, locale, options) when is_binary(datetime) do
+    datetime
+    |> Timex.parse!("{ISO:Extended}")
+    |> format_time_to_paris(locale, options)
+  end
+
+  def format_time_to_paris(nil, _, _), do: ""
 
   @doc """
   Formats a duration in seconds to display, according to a locale.
@@ -167,30 +224,38 @@ defmodule Shared.DateTimeDisplay do
   end
 
   @spec convert_to_paris_time(DateTime.t() | NaiveDateTime.t()) :: DateTime.t()
-  defp convert_to_paris_time(%DateTime{} = dt) do
+  def convert_to_paris_time(%DateTime{} = dt) do
     case Timex.Timezone.convert(dt, "Europe/Paris") do
       %Timex.AmbiguousDateTime{after: dt} -> dt
       %DateTime{} = dt -> dt
     end
   end
 
-  defp convert_to_paris_time(%NaiveDateTime{} = ndt) do
+  def convert_to_paris_time(%NaiveDateTime{} = ndt) do
     ndt |> Timex.Timezone.convert("UTC") |> convert_to_paris_time()
   end
 
-  defp get_localized_format("en", options) do
+  defp get_localized_datetime_format(locale = "en", options) do
+    "%Y-%m-%d at #{get_localized_time_format(locale, options)}"
+  end
+
+  defp get_localized_datetime_format(locale, options) do
+    "%d/%m/%Y à #{get_localized_time_format(locale, options)}"
+  end
+
+  defp get_localized_time_format("en", options) do
     if Keyword.get(options, :with_seconds) do
-      "%Y-%m-%d at %H:%M:%S"
+      "%H:%M:%S"
     else
-      "%Y-%m-%d at %H:%M"
+      "%H:%M"
     end
   end
 
-  defp get_localized_format(_locale, options) do
+  defp get_localized_time_format(_locale, options) do
     if Keyword.get(options, :with_seconds) do
-      "%d/%m/%Y à %H:%M:%S"
+      "%H:%M:%S"
     else
-      "%d/%m/%Y à %Hh%M"
+      "%Hh%M"
     end
   end
 end

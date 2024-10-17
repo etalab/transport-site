@@ -10,11 +10,10 @@
   </div>
 
   <h2>Counts</h2>
-
   <table class="table">
     <thead>
       <tr>
-        <th>grouped by hour (Paris time)</th>
+        <th>time range (Paris time)</th>
         <th>worker</th>
         <th>count</th>
       </tr>
@@ -25,7 +24,7 @@
           <tr>
             <%= if index == 0 do %>
               <td rowspan={Enum.count(rows)}>
-                <%= Shared.DateTimeDisplay.format_datetime_to_paris(hour, "en", no_timezone: true) %>
+                <%= format_1_hour_range(hour) %>
               </td>
             <% end %>
             <td><%= row.worker %></td>
@@ -35,6 +34,7 @@
       <% end %>
     </tbody>
   </table>
+
   <h2>Executing jobs</h2>
   <.live_component module={JobsTableComponent} jobs={@executing_jobs} state="executing" id="executing_jobs" />
   <p class="small">Total: <%= Helpers.format_number(@count_executing_jobs, locale: "en") %></p>
