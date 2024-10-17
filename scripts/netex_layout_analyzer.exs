@@ -60,8 +60,9 @@ dump_netex_files = fn r ->
       |> Enum.reject(fn file -> String.ends_with?(file, "/") end)
       |> Enum.map(fn file -> [url, r.title, r.url, file, hierarchy_level.(file)] end)
     rescue
-      _ -> IO.puts("Som'thing bad happened")
-           []
+      _ ->
+        IO.puts("Som'thing bad happened")
+        []
     end
 
   NimbleCSV.RFC4180.dump_to_iodata(result)
