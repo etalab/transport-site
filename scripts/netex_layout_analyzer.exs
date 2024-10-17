@@ -46,27 +46,37 @@ download_resource = fn r ->
   |> Map.put(:local_path, file)
 end
 
-count_relevant_stop_places_per_resource = fn r ->
+hierarchy_level = fn file -> file |> String.split("/") |> Enum.count() end
+
+dump_netex_files = fn r ->
   IO.puts("Processing file #{r.id}")
 
-  try do
-    count =
-      Transport.NeTEx.read_all_stop_places(r.local_path)
-      |> Enum.flat_map(fn {_file, stops} -> stops end)
-      # some stop places have no latitude in NeTEx
-      |> Enum.reject(fn p -> is_nil(p[:latitude]) end)
-      |> Enum.count()
+  url = "https://transport.data.gouv.fr/resources/#{r.id}"
 
-    IO.puts("#{count} StopPlaces detected")
-  rescue
-    _ -> IO.puts("Som'thing bad happened")
-  end
+  result =
+    try do
+      Transport.NeTEx.read_all_stop_places(r.local_path)
+      |> Enum.map(fn {file, _stops} -> file end)
+      |> Enum.reject(fn file -> String.ends_with?(file, "/") end)
+      |> Enum.map(fn file -> [url, r.title, r.url, file, hierarchy_level.(file)] end)
+    rescue
+      _ ->
+        IO.puts("Som'thing bad happened")
+        []
+    end
+
+  NimbleCSV.RFC4180.dump_to_iodata(result)
 end
 
-netex =
-  df
-  |> Task.async_stream(download_resource, max_concurrency: 10, timeout: 120_000)
-  |> Stream.map(fn {:ok, result} -> result end)
-  |> Stream.reject(&is_nil(&1))
-  |> Task.async_stream(count_relevant_stop_places_per_resource, max_concurrency: 5, timeout: 60_000 * 5)
-  |> Stream.run()
+output_file = "netex_layout_analysis.csv"
+
+File.write(output_file, NimbleCSV.RFC4180.dump_to_iodata([~w(resource title url file hierarchy)]))
+
+df
+|> Task.async_stream(download_resource, max_concurrency: 10, timeout: 120_000)
+|> Stream.map(fn {:ok, result} -> result end)
+|> Stream.reject(&is_nil(&1))
+|> Task.async_stream(dump_netex_files, max_concurrency: 5, timeout: 60_000 * 5)
+|> Stream.map(fn {:ok, result} -> result end)
+|> Stream.into(File.stream!(output_file, [:append, :utf8]))
+|> Stream.run()
