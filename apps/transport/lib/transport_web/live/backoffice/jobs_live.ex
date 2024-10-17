@@ -72,7 +72,11 @@ defmodule TransportWeb.Backoffice.JobsLive do
   def jobs_count(worker) do
     query =
       from(j in "oban_jobs",
-        select: %{worker: j.worker, truncated_date_time: fragment("date_trunc('hour', ?) as truncated_date_time", j.inserted_at), count: count()},
+        select: %{
+          worker: j.worker,
+          truncated_date_time: fragment("date_trunc('hour', ?) as truncated_date_time", j.inserted_at),
+          count: count()
+        },
         group_by: [:worker, fragment("truncated_date_time")],
         order_by: [desc: fragment("truncated_date_time"), asc: :worker]
       )

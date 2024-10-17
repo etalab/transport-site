@@ -235,7 +235,7 @@ defmodule Shared.DateTimeDisplay do
     ndt |> Timex.Timezone.convert("UTC") |> convert_to_paris_time()
   end
 
-  defp get_localized_datetime_format(locale = "en", options) do
+  defp get_localized_datetime_format("en" = locale, options) do
     "%Y-%m-%d at #{get_localized_time_format(locale, options)}"
   end
 
