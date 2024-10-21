@@ -140,13 +140,11 @@ defmodule Transport.Shared.GBFSMetadata do
   @doc """
   Determines the feed to use as the ttl value of a GBFS feed.
 
-  iex> Transport.Shared.GBFSMetadata.feed_to_use_for_ttl(["free_floating", "stations"])
+  iex> feed_to_use_for_ttl(["free_floating", "stations"])
   "free_bike_status"
-
-  iex> Transport.Shared.GBFSMetadata.feed_to_use_for_ttl(["stations"])
+  iex> feed_to_use_for_ttl(["stations"])
   "station_information"
-
-  iex> Transport.Shared.GBFSMetadata.feed_to_use_for_ttl(nil)
+  iex> feed_to_use_for_ttl(nil)
   nil
   """
   def feed_to_use_for_ttl(types) do
@@ -158,16 +156,13 @@ defmodule Transport.Shared.GBFSMetadata do
     end
   end
 
-  defp system_details(%{"data" => _data} = payload) do
+  def system_details(%{"data" => _} = payload) do
     feed_url = payload |> first_feed() |> feed_url_by_name("system_information")
 
     if not is_nil(feed_url) do
-      with {:ok, %{status_code: 200, body: body}} <- http_client().get(feed_url),
+      with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(feed_url),
            {:ok, json} <- Jason.decode(body) do
-        %{
-          timezone: json["data"]["timezone"],
-          name: json["data"]["name"]
-        }
+        transform_localized_strings(json["data"])
       else
         e ->
           Logger.error("Cannot get GBFS system_information details: #{inspect(e)}")
@@ -175,6 +170,29 @@ defmodule Transport.Shared.GBFSMetadata do
       end
     end
   end
+
+  @doc """
+  iex> %{name: "velhop", timezone: "Europe/Paris"} |> transform_localized_strings()
+  %{name: "velhop", timezone: "Europe/Paris"}
+  iex> %{name: [%{"text" => "velhop", "language" => "fr"}], timezone: "Europe/Paris"} |> transform_localized_strings()
+  %{name: "velhop", timezone: "Europe/Paris"}
+  """
+  def transform_localized_strings(json) do
+    Map.new(json, fn {k, v} ->
+      if localized_string?(v) do
+        {k, v |> hd() |> Map.get("text")}
+      else
+        {k, v}
+      end
+    end)
+  end
+
+  defp localized_string?(value) when is_list(value) do
+    # See "Localized string" type on https://gbfs.org/specification/reference/#field-types
+    match?(%{"text" => _, "language" => _}, value |> hd())
+  end
+
+  defp localized_string?(_), do: false
 
   def first_feed(%{"data" => data, "version" => version} = payload) do
     # From GBFS 1.1 until GBFS 2.3
