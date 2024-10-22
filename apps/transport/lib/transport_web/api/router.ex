@@ -17,7 +17,7 @@ defmodule TransportWeb.API.Router do
     plug(TransportWeb.API.Plugs.PublicCache, max_age: 60)
   end
 
-  pipeline :auth do
+  pipeline :simple_token_auth do
     plug(TransportWeb.API.Plugs.Auth)
   end
 
@@ -61,7 +61,7 @@ defmodule TransportWeb.API.Router do
     get("/gtfs-stops", TransportWeb.API.GTFSStopsController, :index)
 
     scope "/validators" do
-      pipe_through(:auth)
+      pipe_through(:simple_token_auth)
       get("/gtfs-transport", TransportWeb.API.ValidatorsController, :gtfs_transport)
     end
   end

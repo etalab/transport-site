@@ -1,7 +1,10 @@
 defmodule TransportWeb.API.Plugs.Auth do
   @moduledoc """
-  A very simple plug handling authorization for HTTP requests.
-  It gets the list of (client, token) from an environment variable and does not check quotas.
+  A very simple plug handling authorization for HTTP requests through tokens.
+  It gets the list of (client, token) from the `API_AUTH_CLIENTS` environment variable.
+
+  If the request is authorized, the plug adds the client name to the conn assigns for further use.
+  Otherwise, a 401 response is sent.
   """
   import Plug.Conn
 
