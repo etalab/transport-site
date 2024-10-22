@@ -172,6 +172,8 @@ defmodule Transport.Shared.GBFSMetadata do
   end
 
   @doc """
+  iex> %{"name" => "velhop", "timezone" => "Europe/Paris"} |> transform_localized_strings()
+  %{"name" => "velhop", "timezone" => "Europe/Paris"}
   iex> %{name: "velhop", timezone: "Europe/Paris"} |> transform_localized_strings()
   %{name: "velhop", timezone: "Europe/Paris"}
   iex> %{name: [%{"text" => "velhop", "language" => "fr"}], timezone: "Europe/Paris"} |> transform_localized_strings()
