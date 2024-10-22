@@ -97,7 +97,7 @@ defmodule Transport.GbfsToGeojson do
 
   # From GBFS 3.0 onwards
   defp station_name(%{"name" => names}) do
-    names |> hd() |> Map.get("name")
+    names |> hd() |> Map.get("text")
   end
 
   @spec add_station_status(map(), map()) :: map()
