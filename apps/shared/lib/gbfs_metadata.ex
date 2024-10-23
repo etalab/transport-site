@@ -196,12 +196,10 @@ defmodule Transport.Shared.GBFSMetadata do
 
   defp localized_string?(_), do: false
 
-  def first_feed(%{"data" => data, "version" => version} = payload) do
-    # From GBFS 1.1 until GBFS 2.3
-    if before_v3?(version) do
+  def first_feed(%{"data" => data} = payload) do
+    if before_v3?(payload) do
       first_language = payload |> languages() |> Enum.at(0)
       (data["en"] || data["fr"] || data[first_language])["feeds"]
-      # From GBFS 3.0 onwards
     else
       data["feeds"]
     end
@@ -224,11 +222,9 @@ defmodule Transport.Shared.GBFSMetadata do
     end
   end
 
-  def languages(%{"data" => data, "version" => version} = payload) do
-    # From GBFS 1.1 until GBFS 2.3
-    if before_v3?(version) do
+  def languages(%{"data" => data} = payload) do
+    if before_v3?(payload) do
       Map.keys(data)
-      # From GBFS 3.0 onwards
     else
       feed_url = payload |> first_feed() |> feed_url_by_name("system_information")
 
@@ -242,7 +238,7 @@ defmodule Transport.Shared.GBFSMetadata do
   end
 
   @spec versions(map()) :: [binary()] | nil
-  defp versions(%{"data" => _data} = payload) do
+  def versions(%{"data" => _data} = payload) do
     versions_url = payload |> first_feed() |> feed_url_by_name("gbfs_versions")
 
     if is_nil(versions_url) do
@@ -250,7 +246,7 @@ defmodule Transport.Shared.GBFSMetadata do
     else
       with {:ok, %{status_code: 200, body: body}} <- http_client().get(versions_url),
            {:ok, json} <- Jason.decode(body) do
-        json["data"]["versions"] |> Enum.map(fn json -> json["version"] end) |> Enum.sort(:desc)
+        json["data"]["versions"] |> Enum.map(& &1["version"]) |> Enum.sort(:desc)
       else
         _ -> nil
       end
@@ -280,7 +276,10 @@ defmodule Transport.Shared.GBFSMetadata do
     payload |> first_feed() |> Enum.map(fn feed -> String.replace(feed["name"], ".json", "") end)
   end
 
-  defp before_v3?(version), do: String.starts_with?(version, ["1.", "2."])
+  defp before_v3?(%{"version" => version}), do: String.starts_with?(version, ["1.", "2."])
+  # No `version` key: GBFS 1.0
+  # https://github.com/MobilityData/gbfs/blob/v1.1/gbfs.md#output-format
+  defp before_v3?(%{}), do: true
 
   defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
 end
