@@ -98,6 +98,118 @@ defmodule Transport.Shared.GBFSMetadataTest do
     end
   end
 
+  describe "versions" do
+    test "1.0 feed" do
+      json =
+        Jason.decode!("""
+         {
+           "last_updated":1729501544,
+           "ttl":0,
+           "data":{
+              "en":{
+                 "feeds":[
+                    {
+                       "name":"system_information",
+                       "url":"https://example.com/gbfs/system_information.json"
+                    },
+                    {
+                       "name":"station_information",
+                       "url":"https://example.com/gbfs/station_information.json"
+                    },
+                    {
+                       "name":"station_status",
+                       "url":"https://example.com/gbfs/station_status.json"
+                    }
+                 ]
+              }
+           }
+        }
+        """)
+
+      assert ["1.0"] == versions(json)
+    end
+
+    test "2.3 feed, no gbfs_versions feed" do
+      json =
+        Jason.decode!("""
+         {
+           "last_updated":1729501544,
+           "ttl":0,
+           "version": "2.3",
+           "data":{
+              "en":{
+                 "feeds":[
+                    {
+                       "name":"system_information",
+                       "url":"https://example.com/gbfs/system_information.json"
+                    },
+                    {
+                       "name":"station_information",
+                       "url":"https://example.com/gbfs/station_information.json"
+                    },
+                    {
+                       "name":"station_status",
+                       "url":"https://example.com/gbfs/station_status.json"
+                    }
+                 ]
+              }
+           }
+        }
+        """)
+
+      assert ["2.3"] == versions(json)
+    end
+
+    test "2.3 feed, gbfs_versions feed" do
+      gbfs_versions_url = "https://example.com/gbfs/gbfs_versions"
+
+      setup_response(
+        gbfs_versions_url,
+        Jason.encode!(%{
+          data: %{
+            versions: [
+              %{version: "2.3"},
+              %{version: "3.0"}
+            ]
+          }
+        })
+      )
+
+      json =
+        Jason.decode!("""
+         {
+           "last_updated":1729501544,
+           "ttl":0,
+           "version": "2.3",
+           "data":{
+              "en":{
+                 "feeds":[
+                    {
+                       "name":"system_information",
+                       "url":"https://example.com/gbfs/system_information.json"
+                    },
+                    {
+                       "name":"station_information",
+                       "url":"https://example.com/gbfs/station_information.json"
+                    },
+                    {
+                       "name":"station_status",
+                       "url":"https://example.com/gbfs/station_status.json"
+                    },
+                    {
+                       "name":"gbfs_versions",
+                       "url":"#{gbfs_versions_url}"
+                    }
+                 ]
+              }
+           }
+        }
+        """)
+
+      assert ["3.0", "2.3"] == versions(json)
+    end
+  end
+
   describe "feeds" do
     test "3.0 feed" do
       json =
