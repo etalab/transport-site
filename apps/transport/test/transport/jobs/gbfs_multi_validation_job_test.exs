@@ -47,7 +47,7 @@ defmodule Transport.Test.Transport.Jobs.GBFSMultiValidationDispatcherJobTest do
     |> expect(:compute_feed_metadata, fn ^url, "https://www.example.com" ->
       %{
         languages: ["fr"],
-        system_details: %{name: "velhop", timezone: "Europe/Paris"},
+        system_details: %{"name" => "velhop", "timezone" => "Europe/Paris"},
         ttl: 3600,
         types: ["stations"],
         versions: ["1.1"],
