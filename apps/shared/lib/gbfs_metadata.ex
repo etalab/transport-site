@@ -17,6 +17,23 @@ defmodule Transport.Shared.GBFSMetadata do
   require Logger
   @behaviour Transport.Shared.GBFSMetadata.Wrapper
 
+  @type feed_name ::
+          :gbfs
+          | :manifest
+          | :gbfs_versions
+          | :system_information
+          | :vehicle_types
+          | :station_information
+          | :station_status
+          # `vehicle_status` was `free_bike_status` before v3.0
+          | :vehicle_status
+          | :system_hours
+          | :system_calendar
+          | :system_regions
+          | :system_pricing_plans
+          | :system_alerts
+          | :geofencing_zones
+
   @doc """
   This function does 2 HTTP calls on a given resource url, and returns a report
   with metadata and also validation status (using a third-party HTTP validator).
@@ -56,14 +73,14 @@ defmodule Transport.Shared.GBFSMetadata do
   end
 
   defp types(%{"data" => _data} = payload) do
-    has_bike_status = has_feed?(payload, "free_bike_status")
-    has_station_information = has_feed?(payload, "station_information")
+    has_vehicle_status = has_feed?(payload, :vehicle_status)
+    has_station_information = has_feed?(payload, :station_information)
 
     cond do
-      has_bike_status and has_station_information ->
+      has_vehicle_status and has_station_information ->
         ["free_floating", "stations"]
 
-      has_bike_status ->
+      has_vehicle_status ->
         ["free_floating"]
 
       has_station_information ->
@@ -141,25 +158,26 @@ defmodule Transport.Shared.GBFSMetadata do
   Determines the feed to use as the ttl value of a GBFS feed.
 
   iex> Transport.Shared.GBFSMetadata.feed_to_use_for_ttl(["free_floating", "stations"])
-  "free_bike_status"
+  :vehicle_status
 
   iex> Transport.Shared.GBFSMetadata.feed_to_use_for_ttl(["stations"])
-  "station_information"
+  :station_information
 
   iex> Transport.Shared.GBFSMetadata.feed_to_use_for_ttl(nil)
   nil
   """
+  @spec feed_to_use_for_ttl([binary()] | nil) :: feed_name() | nil
   def feed_to_use_for_ttl(types) do
     case types do
-      ["free_floating", "stations"] -> "free_bike_status"
-      ["free_floating"] -> "free_bike_status"
-      ["stations"] -> "station_information"
+      ["free_floating", "stations"] -> :vehicle_status
+      ["free_floating"] -> :vehicle_status
+      ["stations"] -> :station_information
       nil -> nil
     end
   end
 
   defp system_details(%{"data" => _data} = payload) do
-    feed_url = payload |> first_feed() |> feed_url_by_name("system_information")
+    feed_url = payload |> first_feed() |> feed_url_by_name(:system_information)
 
     if not is_nil(feed_url) do
       with {:ok, %{status_code: 200, body: body}} <- http_client().get(feed_url),
@@ -186,7 +204,7 @@ defmodule Transport.Shared.GBFSMetadata do
   end
 
   def vehicle_types(%{"data" => _data} = payload) do
-    feed_url = payload |> first_feed() |> feed_url_by_name("vehicle_types")
+    feed_url = payload |> first_feed() |> feed_url_by_name(:vehicle_types)
 
     if is_nil(feed_url) do
       # https://gbfs.org/specification/reference/#vehicle_typesjson
@@ -206,7 +224,7 @@ defmodule Transport.Shared.GBFSMetadata do
     if before_v3?(payload) do
       Map.keys(data)
     else
-      feed_url = payload |> first_feed() |> feed_url_by_name("system_information")
+      feed_url = payload |> first_feed() |> feed_url_by_name(:system_information)
 
       with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(feed_url),
            {:ok, json} <- Jason.decode(body) do
@@ -219,7 +237,7 @@ defmodule Transport.Shared.GBFSMetadata do
 
   @spec versions(map()) :: [binary()] | nil
   def versions(%{"data" => _data} = payload) do
-    versions_url = payload |> first_feed() |> feed_url_by_name("gbfs_versions")
+    versions_url = payload |> first_feed() |> feed_url_by_name(:gbfs_versions)
 
     if is_nil(versions_url) do
       [Map.get(payload, "version", "1.0")]
@@ -233,23 +251,35 @@ defmodule Transport.Shared.GBFSMetadata do
     end
   end
 
-  @spec feed_url_by_name(list(), binary()) :: binary() | nil
+  @spec feed_url_by_name(list(), feed_name()) :: binary() | nil
   def feed_url_by_name(feeds, name) do
     Enum.find(feeds, fn map -> feed_is_named?(map, name) end)["url"]
   end
 
-  @spec feed_is_named?(map(), binary()) :: boolean()
-  def feed_is_named?(map, name) do
+  @spec feed_is_named?(map(), feed_name()) :: boolean()
+  def feed_is_named?(%{"name" => feed_name}, name) do
     # Many people make the mistake of appending `.json` to feed names
     # so try to match this as well
-    Enum.member?([name, "#{name}.json"], map["name"])
+    searches = [to_string(name), "#{name}.json"]
+
+    if name == :vehicle_status do
+      searches ++ ["free_bike_status", "free_bike_status.json"]
+    else
+      searches
+    end
+    |> Enum.member?(feed_name)
   end
 
-  @spec has_feed?(map(), binary()) :: boolean()
+  @spec has_feed?(map(), feed_name()) :: boolean()
+  def has_feed?(%{"data" => _data} = payload, :vehicle_status) do
+    not MapSet.disjoint?(MapSet.new(feeds(payload)), MapSet.new(["vehicle_status", "free_bike_status"]))
+  end
+
   def has_feed?(%{"data" => _data} = payload, name) do
-    Enum.member?(feeds(payload), name)
+    Enum.member?(feeds(payload), to_string(name))
   end
 
+  @spec feeds(map()) :: [binary()]
   def feeds(%{"data" => _data} = payload) do
     # Remove potential ".json" at the end of feed names as people
     # often make this mistake

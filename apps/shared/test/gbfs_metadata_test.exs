@@ -373,6 +373,45 @@ defmodule Transport.Shared.GBFSMetadataTest do
     end
   end
 
+  describe "free_bike_status becomes vehicle_status" do
+    test "v2.3" do
+      assert feed_is_named?(%{"name" => "free_bike_status"}, :vehicle_status)
+      assert feed_is_named?(%{"name" => "free_bike_status.json"}, :vehicle_status)
+
+      payload = %{
+        "version" => "2.3",
+        "data" => %{
+          "en" => %{
+            "feeds" => [%{"name" => "free_bike_status", "url" => feed_url = "https://example.com/free_bike_status"}]
+          }
+        }
+      }
+
+      assert has_feed?(payload, :vehicle_status)
+
+      assert payload |> first_feed() |> feed_url_by_name(:vehicle_status) == feed_url
+
+      assert has_feed?(
+               %{"version" => "2.3", "data" => %{"en" => %{"feeds" => [%{"name" => "free_bike_status.json"}]}}},
+               :vehicle_status
+             )
+    end
+
+    test "v3.0" do
+      assert feed_is_named?(%{"name" => "vehicle_status"}, :vehicle_status)
+
+      payload = %{
+        "version" => "3.0",
+        "data" => %{
+          "feeds" => [%{"name" => "vehicle_status", "url" => feed_url = "https://example.com/free_bike_status"}]
+        }
+      }
+
+      assert has_feed?(payload, :vehicle_status)
+      assert payload |> first_feed() |> feed_url_by_name(:vehicle_status) == feed_url
+    end
+  end
+
   defp setup_validation_result(summary \\ nil) do
     Shared.Validation.GBFSValidator.Mock
     |> expect(:validate, fn url ->
