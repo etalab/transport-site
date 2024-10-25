@@ -22,6 +22,7 @@ defmodule Transport.Validators.GBFSValidatorTest do
       %{
         languages: ["fr"],
         system_details: %{"name" => "velhop", "timezone" => "Europe/Paris"},
+        vehicle_types: ["bicycle"],
         ttl: 3600,
         types: ["stations"],
         versions: ["1.1"],
@@ -49,7 +50,8 @@ defmodule Transport.Validators.GBFSValidatorTest do
                  "system_details" => %{"name" => "velhop", "timezone" => "Europe/Paris"},
                  "ttl" => 3600,
                  "types" => ["stations"],
-                 "versions" => ["1.1"]
+                 "versions" => ["1.1"],
+                 "vehicle_types" => ["bicycle"]
                },
                resource_id: ^resource_id
              },

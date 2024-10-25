@@ -10,7 +10,7 @@ end
 
 defmodule Transport.Shared.GBFSMetadata do
   @moduledoc """
-  Compute and store metadata for GBFS resources.
+  Computes and returns metadata for GBFS feeds.
   """
   alias Shared.Validation.GBFSValidator.Summary, as: GBFSValidationSummary
   alias Shared.Validation.GBFSValidator.Wrapper, as: GBFSValidator
@@ -18,8 +18,8 @@ defmodule Transport.Shared.GBFSMetadata do
   @behaviour Transport.Shared.GBFSMetadata.Wrapper
 
   @doc """
-  This function does 2 HTTP calls on a given resource url, and returns a report
-  with metadata and also validation status (using a third-party HTTP validator).
+  Compute metadata and validation status (using a third-party HTTP validator) for a GBFS feed.
+  It will do multiple HTTP requests (calling GBFS sub-feeds) to compute various statistics.
   """
   @impl Transport.Shared.GBFSMetadata.Wrapper
   def compute_feed_metadata(url, cors_base_url) do
