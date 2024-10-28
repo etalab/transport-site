@@ -14,7 +14,7 @@ defmodule JobsTableComponent do
           <th>queue</th>
           <th>worker</th>
           <th>args</th>
-          <th>inserted_at</th>
+          <th>inserted_at (Paris time)</th>
           <%= if @state == "discarded" do %>
             <th>errors</th>
           <% end %>
@@ -28,7 +28,7 @@ defmodule JobsTableComponent do
             <td><%= job.queue %></td>
             <td><%= job.worker %></td>
             <td><%= inspect(job.args) %></td>
-            <td><%= job.inserted_at %></td>
+            <td><%= format_datetime(job.inserted_at) %></td>
             <%= if @state == "discarded" do %>
               <td><%= inspect(job.errors) %></td>
             <% end %>
@@ -37,5 +37,9 @@ defmodule JobsTableComponent do
       </tbody>
     </table>
     """
+  end
+
+  defp format_datetime(dt) do
+    Shared.DateTimeDisplay.format_datetime_to_paris(dt, "en", no_timezone: true)
   end
 end
