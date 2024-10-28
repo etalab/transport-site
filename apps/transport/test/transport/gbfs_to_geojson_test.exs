@@ -248,7 +248,7 @@ defmodule Transport.GbfsToGeojsonTest do
           |> Jason.decode!()
           |> get_in(["data", "stations"])
           |> Enum.map(fn %{"name" => name} = payload ->
-            Map.put(payload, "name", [%{"language" => "fr", "name" => name}])
+            Map.put(payload, "name", [%{"language" => "fr", "text" => name}])
           end)
 
         %{"data" => %{"stations" => stations}} |> Jason.encode!()

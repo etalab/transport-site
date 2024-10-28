@@ -5,7 +5,7 @@ defmodule Transport.Shared.GBFSMetadataTest do
   alias Shared.Validation.GBFSValidator.Summary, as: GBFSValidationSummary
   import Transport.Shared.GBFSMetadata
   import ExUnit.CaptureLog
-  doctest Transport.Shared.GBFSMetadata
+  doctest Transport.Shared.GBFSMetadata, import: true
 
   @gbfs_url "https://example.com/gbfs.json"
 
@@ -18,7 +18,12 @@ defmodule Transport.Shared.GBFSMetadataTest do
 
       assert %{
                languages: ["fr"],
-               system_details: %{name: "velhop", timezone: "Europe/Paris"},
+               system_details: %{
+                 "language" => "fr",
+                 "name" => "velhop",
+                 "system_id" => "strasbourg",
+                 "timezone" => "Europe/Paris"
+               },
                ttl: 3600,
                types: ["stations"],
                versions: ["1.1"],
@@ -55,7 +60,12 @@ defmodule Transport.Shared.GBFSMetadataTest do
 
       assert %{
                languages: ["fr"],
-               system_details: %{name: "velhop", timezone: "Europe/Paris"},
+               system_details: %{
+                 "language" => "fr",
+                 "name" => "velhop",
+                 "system_id" => "strasbourg",
+                 "timezone" => "Europe/Paris"
+               },
                ttl: 60,
                types: ["free_floating", "stations"],
                validation: ^summary,
@@ -98,6 +108,118 @@ defmodule Transport.Shared.GBFSMetadataTest do
     end
   end
 
+  describe "versions" do
+    test "1.0 feed" do
+      json =
+        Jason.decode!("""
+         {
+           "last_updated":1729501544,
+           "ttl":0,
+           "data":{
+              "en":{
+                 "feeds":[
+                    {
+                       "name":"system_information",
+                       "url":"https://example.com/gbfs/system_information.json"
+                    },
+                    {
+                       "name":"station_information",
+                       "url":"https://example.com/gbfs/station_information.json"
+                    },
+                    {
+                       "name":"station_status",
+                       "url":"https://example.com/gbfs/station_status.json"
+                    }
+                 ]
+              }
+           }
+        }
+        """)
+
+      assert ["1.0"] == versions(json)
+    end
+
+    test "2.3 feed, no gbfs_versions feed" do
+      json =
+        Jason.decode!("""
+         {
+           "last_updated":1729501544,
+           "ttl":0,
+           "version": "2.3",
+           "data":{
+              "en":{
+                 "feeds":[
+                    {
+                       "name":"system_information",
+                       "url":"https://example.com/gbfs/system_information.json"
+                    },
+                    {
+                       "name":"station_information",
+                       "url":"https://example.com/gbfs/station_information.json"
+                    },
+                    {
+                       "name":"station_status",
+                       "url":"https://example.com/gbfs/station_status.json"
+                    }
+                 ]
+              }
+           }
+        }
+        """)
+
+      assert ["2.3"] == versions(json)
+    end
+
+    test "2.3 feed, gbfs_versions feed" do
+      gbfs_versions_url = "https://example.com/gbfs/gbfs_versions"
+
+      setup_response(
+        gbfs_versions_url,
+        Jason.encode!(%{
+          data: %{
+            versions: [
+              %{version: "2.3"},
+              %{version: "3.0"}
+            ]
+          }
+        })
+      )
+
+      json =
+        Jason.decode!("""
+         {
+           "last_updated":1729501544,
+           "ttl":0,
+           "version": "2.3",
+           "data":{
+              "en":{
+                 "feeds":[
+                    {
+                       "name":"system_information",
+                       "url":"https://example.com/gbfs/system_information.json"
+                    },
+                    {
+                       "name":"station_information",
+                       "url":"https://example.com/gbfs/station_information.json"
+                    },
+                    {
+                       "name":"station_status",
+                       "url":"https://example.com/gbfs/station_status.json"
+                    },
+                    {
+                       "name":"gbfs_versions",
+                       "url":"#{gbfs_versions_url}"
+                    }
+                 ]
+              }
+           }
+        }
+        """)
+
+      assert ["3.0", "2.3"] == versions(json)
+    end
+  end
+
   describe "feeds" do
     test "3.0 feed" do
       json =
@@ -122,6 +244,152 @@ defmodule Transport.Shared.GBFSMetadataTest do
         """)
 
       assert ["system_information", "station_information"] == feeds(json)
+    end
+  end
+
+  describe "system_details" do
+    test "2.3 feed" do
+      system_information_url = "https://example.com/gbfs/system_information"
+
+      setup_response(
+        system_information_url,
+        """
+        {
+          "last_updated": 1729517006,
+          "ttl": 0,
+          "version": "2.3",
+          "data": {
+            "email": "support@ecovelo.com",
+            "feed_contact_email": "gbfs@ecovelo.com",
+            "language": "fr",
+            "name": "Vélycéo",
+            "phone_number": "+33974591314",
+            "purchase_url": "https://velyceo.ecovelo.mobi/#/forfaits",
+            "start_date": "2020-08-20",
+            "system_id": "velyceo",
+            "timezone": "Europe/Paris",
+            "url": "https://velyceo.ecovelo.mobi"
+          }
+        }
+        """
+      )
+
+      json =
+        Jason.decode!("""
+         {
+          "last_updated": 1729517006,
+          "ttl": 0,
+          "version": "2.3",
+          "data": {
+            "en": {
+              "feeds": [
+                {
+                  "name": "system_information",
+                  "url": "#{system_information_url}"
+                },
+                {
+                  "name": "station_information",
+                  "url": "https://example.com/gbfs/station_information"
+                }
+              ]
+            }
+          }
+        }
+        """)
+
+      assert %{
+               "email" => "support@ecovelo.com",
+               "feed_contact_email" => "gbfs@ecovelo.com",
+               "language" => "fr",
+               "name" => "Vélycéo",
+               "phone_number" => "+33974591314",
+               "purchase_url" => "https://velyceo.ecovelo.mobi/#/forfaits",
+               "start_date" => "2020-08-20",
+               "system_id" => "velyceo",
+               "timezone" => "Europe/Paris",
+               "url" => "https://velyceo.ecovelo.mobi"
+             } == json |> system_details()
+    end
+
+    test "3.0 feed" do
+      system_information_url = "https://example.com/gbfs/system_information"
+
+      setup_response(
+        system_information_url,
+        """
+        {
+          "data": {
+            "email": "support@ecovelo.com",
+            "feed_contact_email": "gbfs@ecovelo.com",
+            "languages": [
+              "fr"
+            ],
+            "manifest_url": "https://api.gbfs.ecovelo.mobi/manifest.json",
+            "name": [
+              {
+                "language": "fr",
+                "text": "V\u00e9lYc\u00e9o"
+              }
+            ],
+            "opening_hours": "24/7",
+            "phone_number": "+33974591314",
+            "purchase_url": "https://velyceo.ecovelo.mobi/#/forfaits",
+            "start_date": "2020-08-20",
+            "system_id": "velyceo",
+            "terms_last_updated": "2022-04-01",
+            "terms_url": [
+              {
+                "language": "fr",
+                "text": "https://velyceo.ecovelo.mobi/#/cgu"
+              }
+            ],
+            "timezone": "Europe/Paris",
+            "url": "https://velyceo.ecovelo.mobi"
+          },
+          "last_updated": "2024-10-21T15:31:51+02:00",
+          "ttl": 300,
+          "version": "3.0"
+        }
+        """
+      )
+
+      json =
+        Jason.decode!("""
+         {
+          "last_updated": "2024-10-21T15:31:51+02:00",
+          "ttl": 0,
+          "version": "3.0",
+          "data": {
+            "feeds": [
+              {
+                "name": "system_information",
+                "url": "#{system_information_url}"
+              },
+              {
+                "name": "station_information",
+                "url": "https://example.com/gbfs/station_information"
+              }
+            ]
+          }
+        }
+        """)
+
+      assert %{
+               "email" => "support@ecovelo.com",
+               "feed_contact_email" => "gbfs@ecovelo.com",
+               "name" => "VélYcéo",
+               "phone_number" => "+33974591314",
+               "purchase_url" => "https://velyceo.ecovelo.mobi/#/forfaits",
+               "start_date" => "2020-08-20",
+               "system_id" => "velyceo",
+               "timezone" => "Europe/Paris",
+               "url" => "https://velyceo.ecovelo.mobi",
+               "languages" => ["fr"],
+               "manifest_url" => "https://api.gbfs.ecovelo.mobi/manifest.json",
+               "opening_hours" => "24/7",
+               "terms_last_updated" => "2022-04-01",
+               "terms_url" => "https://velyceo.ecovelo.mobi/#/cgu"
+             } == json |> system_details()
     end
   end
 

@@ -40,6 +40,8 @@ defmodule Shared.Validation.GBFSValidator do
     @moduledoc """
     An HTTP GBFS Validator calling a third party API
     """
+    @timeout 15_000
+
     @behaviour Wrapper
     require Logger
 
@@ -69,7 +71,7 @@ defmodule Shared.Validation.GBFSValidator do
       body = Jason.encode!(%{url: url})
       headers = [{"content-type", "application/json"}, {"user-agent", Application.get_env(:transport, :contact_email)}]
 
-      Transport.Shared.Wrapper.HTTPoison.impl().post(validator_url(), body, headers)
+      Transport.Shared.Wrapper.HTTPoison.impl().post(validator_url(), body, headers, recv_timeout: @timeout)
     end
   end
 end

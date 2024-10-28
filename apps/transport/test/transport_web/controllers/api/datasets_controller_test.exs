@@ -111,6 +111,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
         "name" => "Angers Métropole",
         "type" => "aom"
       },
+      "legal_owners" => %{"aoms" => [], "company" => nil, "regions" => []},
       "created_at" => "2021-12-23",
       "datagouv_id" => "datagouv",
       "id" => "datagouv",
@@ -224,6 +225,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
                  "name" => "Angers Métropole",
                  "type" => "aom"
                },
+               "legal_owners" => %{"aoms" => [], "company" => nil, "regions" => []},
                "created_at" => "2021-12-23",
                "datagouv_id" => "datagouv",
                "id" => "datagouv",
@@ -255,6 +257,9 @@ defmodule TransportWeb.API.DatasetControllerTest do
   end
 
   test "GET /api/datasets/:id *without* history, multi_validation and resource_metadata", %{conn: conn} do
+    aom = insert(:aom, nom: "Angers Métropole", siren: "siren", id: 4242)
+    region = DB.Region |> Ecto.Query.where(insee: "52") |> DB.Repo.one!()
+
     dataset =
       insert(:dataset,
         custom_title: "title",
@@ -289,7 +294,9 @@ defmodule TransportWeb.API.DatasetControllerTest do
         ],
         created_at: ~U[2021-12-23 13:30:40.000000Z],
         last_update: DateTime.utc_now(),
-        aom: %DB.AOM{id: 4242, nom: "Angers Métropole", siren: "siren"}
+        aom: aom,
+        legal_owners_aom: [aom],
+        legal_owners_region: [region]
       )
 
     setup_empty_history_resources()
@@ -305,6 +312,13 @@ defmodule TransportWeb.API.DatasetControllerTest do
                "aom" => %{"name" => "Angers Métropole", "siren" => "siren"},
                "name" => "Angers Métropole",
                "type" => "aom"
+             },
+             "legal_owners" => %{
+               "aoms" => [
+                 %{"name" => "Angers Métropole", "siren" => "siren"}
+               ],
+               "company" => nil,
+               "regions" => [%{"name" => "Pays de la Loire", "insee" => "52"}]
              },
              "created_at" => "2021-12-23",
              "datagouv_id" => "datagouv",
@@ -425,6 +439,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
                "name" => "Angers Métropole",
                "type" => "aom"
              },
+             "legal_owners" => %{"aoms" => [], "company" => nil, "regions" => []},
              "created_at" => "2021-12-23",
              "datagouv_id" => "datagouv",
              "history" => [],
