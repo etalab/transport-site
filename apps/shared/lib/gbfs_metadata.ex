@@ -158,7 +158,7 @@ defmodule Transport.Shared.GBFSMetadata do
   Determines the feed to use as the ttl value of a GBFS feed.
 
   iex> feed_to_use_for_ttl(["free_floating", "stations"])
-  :free_bike_status
+  :vehicle_status
   iex> feed_to_use_for_ttl(["stations"])
   :station_information
   iex> feed_to_use_for_ttl(nil)
