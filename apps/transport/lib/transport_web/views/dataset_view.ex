@@ -104,6 +104,7 @@ defmodule TransportWeb.DatasetView do
   def region_link(conn, %{nom: nom, count: count, id: id}) do
     url =
       case id do
+        # This is for the "All" region
         nil -> dataset_path(conn, :index)
         _ -> dataset_path(conn, :by_region, id)
       end
@@ -117,6 +118,24 @@ defmodule TransportWeb.DatasetView do
       ^url -> ~H{<span class="activefilter"><%= @nom %> (<%= @count %>)</span>}
       _ -> link("#{nom} (#{count})", to: full_url)
     end
+  end
+
+  def legal_owners_links(conn, %DB.Dataset{legal_owners_aom: legal_owners_aom, legal_owners_region: legal_owners_region}) do
+    legal_owners_region
+    |> Enum.sort_by(& &1.nom)
+    |> Enum.concat(legal_owners_aom |> Enum.sort_by(& &1.nom))
+    |> Enum.map_join(", ", fn owner ->
+      conn |> legal_owner_link(owner) |> safe_to_string()
+    end)
+    |> raw()
+  end
+
+  def legal_owner_link(conn, %DB.Region{nom: nom, id: id}) do
+    link(nom, to: dataset_path(conn, :by_region, id))
+  end
+
+  def legal_owner_link(conn, %DB.AOM{nom: nom, id: id}) do
+    link(nom, to: dataset_path(conn, :by_aom, id))
   end
 
   def type_link(conn, %{type: type, msg: msg, count: count}) do

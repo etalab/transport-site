@@ -10,7 +10,7 @@ end
 
 defmodule Transport.Shared.GBFSMetadata do
   @moduledoc """
-  Compute and store metadata for GBFS resources.
+  Computes and returns metadata for GBFS feeds.
   """
   alias Shared.Validation.GBFSValidator.Summary, as: GBFSValidationSummary
   alias Shared.Validation.GBFSValidator.Wrapper, as: GBFSValidator
@@ -35,8 +35,8 @@ defmodule Transport.Shared.GBFSMetadata do
           | :geofencing_zones
 
   @doc """
-  This function does 2 HTTP calls on a given resource url, and returns a report
-  with metadata and also validation status (using a third-party HTTP validator).
+  Compute metadata and validation status (using a third-party HTTP validator) for a GBFS feed.
+  It will do multiple HTTP requests (calling GBFS sub-feeds) to compute various statistics.
   """
   @impl Transport.Shared.GBFSMetadata.Wrapper
   def compute_feed_metadata(url, cors_base_url) do
@@ -157,13 +157,11 @@ defmodule Transport.Shared.GBFSMetadata do
   @doc """
   Determines the feed to use as the ttl value of a GBFS feed.
 
-  iex> Transport.Shared.GBFSMetadata.feed_to_use_for_ttl(["free_floating", "stations"])
-  :vehicle_status
-
-  iex> Transport.Shared.GBFSMetadata.feed_to_use_for_ttl(["stations"])
+  iex> feed_to_use_for_ttl(["free_floating", "stations"])
+  :free_bike_status
+  iex> feed_to_use_for_ttl(["stations"])
   :station_information
-
-  iex> Transport.Shared.GBFSMetadata.feed_to_use_for_ttl(nil)
+  iex> feed_to_use_for_ttl(nil)
   nil
   """
   @spec feed_to_use_for_ttl([binary()] | nil) :: feed_name() | nil
@@ -176,16 +174,13 @@ defmodule Transport.Shared.GBFSMetadata do
     end
   end
 
-  defp system_details(%{"data" => _data} = payload) do
+  def system_details(%{"data" => _data} = payload) do
     feed_url = payload |> first_feed() |> feed_url_by_name(:system_information)
 
     if not is_nil(feed_url) do
-      with {:ok, %{status_code: 200, body: body}} <- http_client().get(feed_url),
+      with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(feed_url),
            {:ok, json} <- Jason.decode(body) do
-        %{
-          timezone: json["data"]["timezone"],
-          name: json["data"]["name"]
-        }
+        transform_localized_strings(json["data"])
       else
         e ->
           Logger.error("Cannot get GBFS system_information details: #{inspect(e)}")
@@ -193,6 +188,31 @@ defmodule Transport.Shared.GBFSMetadata do
       end
     end
   end
+
+  @doc """
+  iex> %{"name" => "velhop", "timezone" => "Europe/Paris"} |> transform_localized_strings()
+  %{"name" => "velhop", "timezone" => "Europe/Paris"}
+  iex> %{name: "velhop", timezone: "Europe/Paris"} |> transform_localized_strings()
+  %{name: "velhop", timezone: "Europe/Paris"}
+  iex> %{name: [%{"text" => "velhop", "language" => "fr"}], timezone: "Europe/Paris"} |> transform_localized_strings()
+  %{name: "velhop", timezone: "Europe/Paris"}
+  """
+  def transform_localized_strings(json) do
+    Map.new(json, fn {k, v} ->
+      if localized_string?(v) do
+        {k, v |> hd() |> Map.get("text")}
+      else
+        {k, v}
+      end
+    end)
+  end
+
+  defp localized_string?(value) when is_list(value) do
+    # See "Localized string" type on https://gbfs.org/specification/reference/#field-types
+    match?(%{"text" => _, "language" => _}, value |> hd())
+  end
+
+  defp localized_string?(_), do: false
 
   def first_feed(%{"data" => data} = payload) do
     if before_v3?(payload) do
