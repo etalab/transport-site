@@ -10,7 +10,7 @@ end
 
 defmodule Transport.Shared.GBFSMetadata do
   @moduledoc """
-  Compute and store metadata for GBFS resources.
+  Computes and returns metadata for GBFS feeds.
   """
   alias Shared.Validation.GBFSValidator.Summary, as: GBFSValidationSummary
   alias Shared.Validation.GBFSValidator.Wrapper, as: GBFSValidator
@@ -18,8 +18,8 @@ defmodule Transport.Shared.GBFSMetadata do
   @behaviour Transport.Shared.GBFSMetadata.Wrapper
 
   @doc """
-  This function does 2 HTTP calls on a given resource url, and returns a report
-  with metadata and also validation status (using a third-party HTTP validator).
+  Compute metadata and validation status (using a third-party HTTP validator) for a GBFS feed.
+  It will do multiple HTTP requests (calling GBFS sub-feeds) to compute various statistics.
   """
   @impl Transport.Shared.GBFSMetadata.Wrapper
   def compute_feed_metadata(url, cors_base_url) do
@@ -36,6 +36,7 @@ defmodule Transport.Shared.GBFSMetadata do
       versions: versions(json),
       languages: languages(json),
       system_details: system_details(json),
+      vehicle_types: vehicle_types(json),
       types: types(json),
       ttl: ttl(json),
       feed_timestamp_delay: feed_timestamp_delay
@@ -139,13 +140,11 @@ defmodule Transport.Shared.GBFSMetadata do
   @doc """
   Determines the feed to use as the ttl value of a GBFS feed.
 
-  iex> Transport.Shared.GBFSMetadata.feed_to_use_for_ttl(["free_floating", "stations"])
+  iex> feed_to_use_for_ttl(["free_floating", "stations"])
   "free_bike_status"
-
-  iex> Transport.Shared.GBFSMetadata.feed_to_use_for_ttl(["stations"])
+  iex> feed_to_use_for_ttl(["stations"])
   "station_information"
-
-  iex> Transport.Shared.GBFSMetadata.feed_to_use_for_ttl(nil)
+  iex> feed_to_use_for_ttl(nil)
   nil
   """
   def feed_to_use_for_ttl(types) do
@@ -157,16 +156,13 @@ defmodule Transport.Shared.GBFSMetadata do
     end
   end
 
-  defp system_details(%{"data" => _data} = payload) do
+  def system_details(%{"data" => _} = payload) do
     feed_url = payload |> first_feed() |> feed_url_by_name("system_information")
 
     if not is_nil(feed_url) do
-      with {:ok, %{status_code: 200, body: body}} <- http_client().get(feed_url),
+      with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(feed_url),
            {:ok, json} <- Jason.decode(body) do
-        %{
-          timezone: json["data"]["timezone"],
-          name: json["data"]["name"]
-        }
+        transform_localized_strings(json["data"])
       else
         e ->
           Logger.error("Cannot get GBFS system_information details: #{inspect(e)}")
@@ -175,23 +171,74 @@ defmodule Transport.Shared.GBFSMetadata do
     end
   end
 
-  def first_feed(%{"data" => data, "version" => version} = payload) do
-    # From GBFS 1.1 until GBFS 2.3
-    if String.starts_with?(version, ["1.", "2."]) do
+  @doc """
+  iex> %{"name" => "velhop", "timezone" => "Europe/Paris"} |> transform_localized_strings()
+  %{"name" => "velhop", "timezone" => "Europe/Paris"}
+  iex> %{name: "velhop", timezone: "Europe/Paris"} |> transform_localized_strings()
+  %{name: "velhop", timezone: "Europe/Paris"}
+  iex> %{name: [%{"text" => "velhop", "language" => "fr"}], timezone: "Europe/Paris"} |> transform_localized_strings()
+  %{name: "velhop", timezone: "Europe/Paris"}
+  """
+  def transform_localized_strings(json) do
+    Map.new(json, fn {k, v} ->
+      if localized_string?(v) do
+        {k, v |> hd() |> Map.get("text")}
+      else
+        {k, v}
+      end
+    end)
+  end
+
+  defp localized_string?(value) when is_list(value) do
+    # See "Localized string" type on https://gbfs.org/specification/reference/#field-types
+    match?(%{"text" => _, "language" => _}, value |> hd())
+  end
+
+  defp localized_string?(_), do: false
+
+  def first_feed(%{"data" => data} = payload) do
+    if before_v3?(payload) do
       first_language = payload |> languages() |> Enum.at(0)
       (data["en"] || data["fr"] || data[first_language])["feeds"]
-      # From GBFS 3.0 onwards
     else
       data["feeds"]
     end
   end
 
-  defp languages(%{"data" => data}) do
-    Map.keys(data)
+  def vehicle_types(%{"data" => _data} = payload) do
+    feed_url = payload |> first_feed() |> feed_url_by_name("vehicle_types")
+
+    if is_nil(feed_url) do
+      # https://gbfs.org/specification/reference/#vehicle_typesjson
+      # > If this file is not included, then all vehicles in the feed are assumed to be non-motorized bicycles.
+      ["bicycle"]
+    else
+      with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(feed_url),
+           {:ok, json} <- Jason.decode(body) do
+        json["data"]["vehicle_types"] |> Enum.map(& &1["form_factor"]) |> Enum.uniq()
+      else
+        _ -> nil
+      end
+    end
+  end
+
+  def languages(%{"data" => data} = payload) do
+    if before_v3?(payload) do
+      Map.keys(data)
+    else
+      feed_url = payload |> first_feed() |> feed_url_by_name("system_information")
+
+      with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(feed_url),
+           {:ok, json} <- Jason.decode(body) do
+        get_in(json, ["data", "languages"])
+      else
+        _ -> []
+      end
+    end
   end
 
   @spec versions(map()) :: [binary()] | nil
-  defp versions(%{"data" => _data} = payload) do
+  def versions(%{"data" => _data} = payload) do
     versions_url = payload |> first_feed() |> feed_url_by_name("gbfs_versions")
 
     if is_nil(versions_url) do
@@ -199,7 +246,7 @@ defmodule Transport.Shared.GBFSMetadata do
     else
       with {:ok, %{status_code: 200, body: body}} <- http_client().get(versions_url),
            {:ok, json} <- Jason.decode(body) do
-        json["data"]["versions"] |> Enum.map(fn json -> json["version"] end) |> Enum.sort(:desc)
+        json["data"]["versions"] |> Enum.map(& &1["version"]) |> Enum.sort(:desc)
       else
         _ -> nil
       end
@@ -228,6 +275,11 @@ defmodule Transport.Shared.GBFSMetadata do
     # often make this mistake
     payload |> first_feed() |> Enum.map(fn feed -> String.replace(feed["name"], ".json", "") end)
   end
+
+  defp before_v3?(%{"version" => version}), do: String.starts_with?(version, ["1.", "2."])
+  # No `version` key: GBFS 1.0
+  # https://github.com/MobilityData/gbfs/blob/v1.1/gbfs.md#output-format
+  defp before_v3?(%{}), do: true
 
   defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
 end

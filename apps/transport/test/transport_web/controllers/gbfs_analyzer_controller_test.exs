@@ -18,7 +18,7 @@ defmodule TransportWeb.GbfsAnalyzerControllerTest do
         assert cors_base_url == TransportWeb.Endpoint.url()
 
         %{
-          system_details: %{name: "GBFS feed name"},
+          system_details: %{"name" => "GBFS feed name"},
           feeds: ["station_information"]
         }
       end)

@@ -5,7 +5,7 @@ defmodule Transport.Shared.GBFSMetadataTest do
   alias Shared.Validation.GBFSValidator.Summary, as: GBFSValidationSummary
   import Transport.Shared.GBFSMetadata
   import ExUnit.CaptureLog
-  doctest Transport.Shared.GBFSMetadata
+  doctest Transport.Shared.GBFSMetadata, import: true
 
   @gbfs_url "https://example.com/gbfs.json"
 
@@ -18,7 +18,12 @@ defmodule Transport.Shared.GBFSMetadataTest do
 
       assert %{
                languages: ["fr"],
-               system_details: %{name: "velhop", timezone: "Europe/Paris"},
+               system_details: %{
+                 "language" => "fr",
+                 "name" => "velhop",
+                 "system_id" => "strasbourg",
+                 "timezone" => "Europe/Paris"
+               },
                ttl: 3600,
                types: ["stations"],
                versions: ["1.1"],
@@ -32,12 +37,13 @@ defmodule Transport.Shared.GBFSMetadataTest do
                  validator: :validator_module
                },
                cors_header_value: "*",
-               feed_timestamp_delay: _
+               feed_timestamp_delay: _,
+               vehicle_types: ["bicycle"]
              } = compute_feed_metadata(@gbfs_url, "http://example.com")
     end
 
     test "for a stations + free floating feed with a multiple versions" do
-      setup_feeds([:gbfs_with_versions, :gbfs_versions, :system_information, :free_bike_status])
+      setup_feeds([:gbfs_with_versions, :gbfs_versions, :system_information, :vehicle_types, :free_bike_status])
 
       setup_validation_result(
         {:ok, summary} =
@@ -54,7 +60,12 @@ defmodule Transport.Shared.GBFSMetadataTest do
 
       assert %{
                languages: ["fr"],
-               system_details: %{name: "velhop", timezone: "Europe/Paris"},
+               system_details: %{
+                 "language" => "fr",
+                 "name" => "velhop",
+                 "system_id" => "strasbourg",
+                 "timezone" => "Europe/Paris"
+               },
                ttl: 60,
                types: ["free_floating", "stations"],
                validation: ^summary,
@@ -70,7 +81,8 @@ defmodule Transport.Shared.GBFSMetadataTest do
                  "gbfs_versions"
                ],
                cors_header_value: "*",
-               feed_timestamp_delay: feed_timestamp_delay
+               feed_timestamp_delay: feed_timestamp_delay,
+               vehicle_types: ["bicycle", "scooter"]
              } = compute_feed_metadata(@gbfs_url, "http://example.com")
 
       assert feed_timestamp_delay > 0
@@ -93,6 +105,118 @@ defmodule Transport.Shared.GBFSMetadataTest do
 
       assert %{} == res
       assert logs =~ "Could not compute GBFS feed metadata"
+    end
+  end
+
+  describe "versions" do
+    test "1.0 feed" do
+      json =
+        Jason.decode!("""
+         {
+           "last_updated":1729501544,
+           "ttl":0,
+           "data":{
+              "en":{
+                 "feeds":[
+                    {
+                       "name":"system_information",
+                       "url":"https://example.com/gbfs/system_information.json"
+                    },
+                    {
+                       "name":"station_information",
+                       "url":"https://example.com/gbfs/station_information.json"
+                    },
+                    {
+                       "name":"station_status",
+                       "url":"https://example.com/gbfs/station_status.json"
+                    }
+                 ]
+              }
+           }
+        }
+        """)
+
+      assert ["1.0"] == versions(json)
+    end
+
+    test "2.3 feed, no gbfs_versions feed" do
+      json =
+        Jason.decode!("""
+         {
+           "last_updated":1729501544,
+           "ttl":0,
+           "version": "2.3",
+           "data":{
+              "en":{
+                 "feeds":[
+                    {
+                       "name":"system_information",
+                       "url":"https://example.com/gbfs/system_information.json"
+                    },
+                    {
+                       "name":"station_information",
+                       "url":"https://example.com/gbfs/station_information.json"
+                    },
+                    {
+                       "name":"station_status",
+                       "url":"https://example.com/gbfs/station_status.json"
+                    }
+                 ]
+              }
+           }
+        }
+        """)
+
+      assert ["2.3"] == versions(json)
+    end
+
+    test "2.3 feed, gbfs_versions feed" do
+      gbfs_versions_url = "https://example.com/gbfs/gbfs_versions"
+
+      setup_response(
+        gbfs_versions_url,
+        Jason.encode!(%{
+          data: %{
+            versions: [
+              %{version: "2.3"},
+              %{version: "3.0"}
+            ]
+          }
+        })
+      )
+
+      json =
+        Jason.decode!("""
+         {
+           "last_updated":1729501544,
+           "ttl":0,
+           "version": "2.3",
+           "data":{
+              "en":{
+                 "feeds":[
+                    {
+                       "name":"system_information",
+                       "url":"https://example.com/gbfs/system_information.json"
+                    },
+                    {
+                       "name":"station_information",
+                       "url":"https://example.com/gbfs/station_information.json"
+                    },
+                    {
+                       "name":"station_status",
+                       "url":"https://example.com/gbfs/station_status.json"
+                    },
+                    {
+                       "name":"gbfs_versions",
+                       "url":"#{gbfs_versions_url}"
+                    }
+                 ]
+              }
+           }
+        }
+        """)
+
+      assert ["3.0", "2.3"] == versions(json)
     end
   end
 
@@ -123,6 +247,288 @@ defmodule Transport.Shared.GBFSMetadataTest do
     end
   end
 
+  describe "system_details" do
+    test "2.3 feed" do
+      system_information_url = "https://example.com/gbfs/system_information"
+
+      setup_response(
+        system_information_url,
+        """
+        {
+          "last_updated": 1729517006,
+          "ttl": 0,
+          "version": "2.3",
+          "data": {
+            "email": "support@ecovelo.com",
+            "feed_contact_email": "gbfs@ecovelo.com",
+            "language": "fr",
+            "name": "Vélycéo",
+            "phone_number": "+33974591314",
+            "purchase_url": "https://velyceo.ecovelo.mobi/#/forfaits",
+            "start_date": "2020-08-20",
+            "system_id": "velyceo",
+            "timezone": "Europe/Paris",
+            "url": "https://velyceo.ecovelo.mobi"
+          }
+        }
+        """
+      )
+
+      json =
+        Jason.decode!("""
+         {
+          "last_updated": 1729517006,
+          "ttl": 0,
+          "version": "2.3",
+          "data": {
+            "en": {
+              "feeds": [
+                {
+                  "name": "system_information",
+                  "url": "#{system_information_url}"
+                },
+                {
+                  "name": "station_information",
+                  "url": "https://example.com/gbfs/station_information"
+                }
+              ]
+            }
+          }
+        }
+        """)
+
+      assert %{
+               "email" => "support@ecovelo.com",
+               "feed_contact_email" => "gbfs@ecovelo.com",
+               "language" => "fr",
+               "name" => "Vélycéo",
+               "phone_number" => "+33974591314",
+               "purchase_url" => "https://velyceo.ecovelo.mobi/#/forfaits",
+               "start_date" => "2020-08-20",
+               "system_id" => "velyceo",
+               "timezone" => "Europe/Paris",
+               "url" => "https://velyceo.ecovelo.mobi"
+             } == json |> system_details()
+    end
+
+    test "3.0 feed" do
+      system_information_url = "https://example.com/gbfs/system_information"
+
+      setup_response(
+        system_information_url,
+        """
+        {
+          "data": {
+            "email": "support@ecovelo.com",
+            "feed_contact_email": "gbfs@ecovelo.com",
+            "languages": [
+              "fr"
+            ],
+            "manifest_url": "https://api.gbfs.ecovelo.mobi/manifest.json",
+            "name": [
+              {
+                "language": "fr",
+                "text": "V\u00e9lYc\u00e9o"
+              }
+            ],
+            "opening_hours": "24/7",
+            "phone_number": "+33974591314",
+            "purchase_url": "https://velyceo.ecovelo.mobi/#/forfaits",
+            "start_date": "2020-08-20",
+            "system_id": "velyceo",
+            "terms_last_updated": "2022-04-01",
+            "terms_url": [
+              {
+                "language": "fr",
+                "text": "https://velyceo.ecovelo.mobi/#/cgu"
+              }
+            ],
+            "timezone": "Europe/Paris",
+            "url": "https://velyceo.ecovelo.mobi"
+          },
+          "last_updated": "2024-10-21T15:31:51+02:00",
+          "ttl": 300,
+          "version": "3.0"
+        }
+        """
+      )
+
+      json =
+        Jason.decode!("""
+         {
+          "last_updated": "2024-10-21T15:31:51+02:00",
+          "ttl": 0,
+          "version": "3.0",
+          "data": {
+            "feeds": [
+              {
+                "name": "system_information",
+                "url": "#{system_information_url}"
+              },
+              {
+                "name": "station_information",
+                "url": "https://example.com/gbfs/station_information"
+              }
+            ]
+          }
+        }
+        """)
+
+      assert %{
+               "email" => "support@ecovelo.com",
+               "feed_contact_email" => "gbfs@ecovelo.com",
+               "name" => "VélYcéo",
+               "phone_number" => "+33974591314",
+               "purchase_url" => "https://velyceo.ecovelo.mobi/#/forfaits",
+               "start_date" => "2020-08-20",
+               "system_id" => "velyceo",
+               "timezone" => "Europe/Paris",
+               "url" => "https://velyceo.ecovelo.mobi",
+               "languages" => ["fr"],
+               "manifest_url" => "https://api.gbfs.ecovelo.mobi/manifest.json",
+               "opening_hours" => "24/7",
+               "terms_last_updated" => "2022-04-01",
+               "terms_url" => "https://velyceo.ecovelo.mobi/#/cgu"
+             } == json |> system_details()
+    end
+  end
+
+  describe "vehicle_types" do
+    test "3.0 feed, vehicle_types feed present" do
+      vehicle_types_url = "https://example.com/gbfs/vehicle_types"
+
+      setup_response(
+        vehicle_types_url,
+        Jason.encode!(%{
+          data: %{
+            vehicle_types: [
+              %{form_factor: "bicycle"},
+              %{form_factor: "scooter_standing"},
+              %{form_factor: "bicycle"}
+            ]
+          }
+        })
+      )
+
+      json =
+        Jason.decode!("""
+         {
+          "last_updated": "2023-07-17T13:34:13+02:00",
+          "ttl": 0,
+          "version": "3.0",
+          "data": {
+            "feeds": [
+              {
+                "name": "vehicle_types",
+                "url": "#{vehicle_types_url}"
+              },
+              {
+                "name": "station_information",
+                "url": "https://example.com/gbfs/station_information"
+              }
+            ]
+          }
+        }
+        """)
+
+      assert MapSet.new(["bicycle", "scooter_standing"]) == json |> vehicle_types() |> MapSet.new()
+    end
+
+    test "2.1 feed, vehicle_types feed not present" do
+      json =
+        Jason.decode!("""
+         {
+          "last_updated": "1636116522",
+          "ttl": 0,
+          "version": "2.1",
+          "data": {
+            "fr": {
+              "feeds": [
+                {
+                  "name": "station_information",
+                  "url": "https://example.com/gbfs/station_information"
+                }
+              ]
+            }
+          }
+        }
+        """)
+
+      assert ["bicycle"] == json |> vehicle_types()
+    end
+  end
+
+  describe "languages" do
+    test "3.0 feed" do
+      system_information_url = "https://example.com/gbfs/system_information"
+
+      setup_response(system_information_url, Jason.encode!(%{data: %{languages: ["en", "fr"]}}))
+
+      json =
+        Jason.decode!("""
+         {
+          "last_updated": "2023-07-17T13:34:13+02:00",
+          "ttl": 0,
+          "version": "3.0",
+          "data": {
+            "feeds": [
+              {
+                "name": "system_information",
+                "url": "#{system_information_url}"
+              },
+              {
+                "name": "station_information",
+                "url": "https://example.com/gbfs/station_information"
+              }
+            ]
+          }
+        }
+        """)
+
+      assert MapSet.new(["en", "fr"]) == json |> languages() |> MapSet.new()
+    end
+
+    test "2.3 feed" do
+      # Example from https://github.com/MobilityData/gbfs/blob/v2.3/gbfs.md#gbfsjson
+      json =
+        Jason.decode!("""
+        {
+          "last_updated": 1640887163,
+          "ttl": 0,
+          "version": "2.3",
+          "data": {
+            "en": {
+              "feeds": [
+                {
+                  "name": "system_information",
+                  "url": "https://www.example.com/gbfs/1/en/system_information"
+                },
+                {
+                  "name": "station_information",
+                  "url": "https://www.example.com/gbfs/1/en/station_information"
+                }
+              ]
+            },
+            "fr" : {
+              "feeds": [
+                {
+                  "name": "system_information",
+                  "url": "https://www.example.com/gbfs/1/fr/system_information"
+                },
+                {
+                  "name": "station_information",
+                  "url": "https://www.example.com/gbfs/1/fr/station_information"
+                }
+              ]
+            }
+          }
+        }
+        """)
+
+      assert MapSet.new(["en", "fr"]) == json |> languages() |> MapSet.new()
+    end
+  end
+
   defp setup_validation_result(summary \\ nil) do
     Shared.Validation.GBFSValidator.Mock
     |> expect(:validate, fn url ->
@@ -143,21 +549,17 @@ defmodule Transport.Shared.GBFSMetadataTest do
     end)
   end
 
-  defp setup_feeds(feeds) do
-    feeds
-    |> Enum.map(fn feed ->
-      case feed do
-        :gbfs -> setup_gbfs_response()
-        :gbfs_with_versions -> setup_gbfs_with_versions_response()
-        :gbfs_with_server_error -> setup_gbfs_with_server_error_response()
-        :gbfs_with_invalid_gbfs_json -> setup_invalid_gbfs_response()
-        :gbfs_versions -> setup_gbfs_versions_response()
-        :free_bike_status -> setup_free_bike_status_response()
-        :system_information -> setup_system_information_response()
-        :station_information -> setup_station_information_response()
-      end
-    end)
-  end
+  defp setup_feeds(feeds), do: Enum.map(feeds, &setup_feed(&1))
+
+  defp setup_feed(:gbfs), do: setup_gbfs_response()
+  defp setup_feed(:gbfs_with_versions), do: setup_gbfs_with_versions_response()
+  defp setup_feed(:gbfs_with_server_error), do: setup_gbfs_with_server_error_response()
+  defp setup_feed(:gbfs_with_invalid_gbfs_json), do: setup_invalid_gbfs_response()
+  defp setup_feed(:gbfs_versions), do: setup_gbfs_versions_response()
+  defp setup_feed(:free_bike_status), do: setup_free_bike_status_response()
+  defp setup_feed(:system_information), do: setup_system_information_response()
+  defp setup_feed(:station_information), do: setup_station_information_response()
+  defp setup_feed(:vehicle_types), do: setup_vehicle_types_response()
 
   defp setup_response_with_headers(expected_url, body) do
     Transport.HTTPoison.Mock
@@ -247,5 +649,13 @@ defmodule Transport.Shared.GBFSMetadataTest do
     """
 
     setup_response("https://example.com/station_information.json", body)
+  end
+
+  defp setup_vehicle_types_response do
+    body = """
+     {"data": {"vehicle_types": [{"form_factor": "bicycle","max_range_meters": 20000,"propulsion_type": "electric_assist","vehicle_type_id": "titibike"},{"form_factor": "bicycle","max_range_meters": 60000,"propulsion_type": "electric_assist","vehicle_type_id": "x2"},{"form_factor": "scooter","max_range_meters": 35000,"propulsion_type": "electric","vehicle_type_id": "knot"},{"form_factor": "scooter","max_range_meters": 60000,"propulsion_type": "electric","vehicle_type_id": "pony"}]},"last_updated": "2024-10-16T16:23:49+02:00","ttl": 300,"version": "3.0"}
+    """
+
+    setup_response("https://example.com/vehicle_types.json", body)
   end
 end

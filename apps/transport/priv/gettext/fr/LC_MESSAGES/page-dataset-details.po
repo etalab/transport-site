@@ -713,3 +713,7 @@ msgstr "Gérez les services liés à ce jeu de données"
 #, elixir-autogen, elixir-format
 msgid "The producer requires authentication to access the data. Consequently, some features on transport.data.gouv.fr, such as data availability, validations, and metadata, are unavailable for this dataset. Please follow the producer's instructions to gain access to the data."
 msgstr "Le producteur requiert une authentification pour accéder aux données. En conséquence, certaines fonctionnalités de transport.data.gouv.fr, comme la disponibilité des données, les rapports de validations et les métadonnées sont indisponibles pour ce jeu de données. Veuillez suivre les instructions du producteur pour obtenir l'accès aux données."
+
+#, elixir-autogen, elixir-format
+msgid "Data under the responsibility of"
+msgstr "Données sous la responsabilité de"

@@ -405,6 +405,10 @@ defmodule TransitRealtime.TripDescriptor.ModifiedTripSelector do
 
   field(:modifications_id, 1, optional: true, type: :string)
   field(:affected_trip_id, 2, optional: true, type: :string)
+  field(:start_time, 3, optional: true, type: :string)
+  field(:start_date, 4, optional: true, type: :string)
+
+  extensions([{1000, 2000}, {9000, 10000}])
 end
 
 defmodule TransitRealtime.TripDescriptor do
