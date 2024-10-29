@@ -25,6 +25,7 @@ defmodule DB.Dataset do
   @licences_ouvertes ["fr-lo", "lov2"]
   @licence_mobilités_tag "licence-mobilités"
   @hidden_dataset_custom_tag_value "masqué"
+  @experimental_tag "experimental"
 
   typed_schema "dataset" do
     field(:datagouv_id, :string)
@@ -1125,4 +1126,9 @@ defmodule DB.Dataset do
   @spec full_logo(__MODULE__.t()) :: binary()
   def full_logo(%__MODULE__{full_logo: full_logo, custom_full_logo: custom_full_logo}),
     do: custom_full_logo || full_logo
+
+  def reject_experimental_datasets(queryable) do
+    queryable
+    |> where([d], @experimental_tag not in d.tags)
+  end
 end
