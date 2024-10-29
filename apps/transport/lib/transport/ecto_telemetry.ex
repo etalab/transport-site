@@ -12,7 +12,7 @@ defmodule Transport.EctoTelemetry do
   * https://github.com/appsignal/appsignal-elixir/issues/887 (which ensures calls are fast & mostly safe)
 
   A few notes extracted from the doc (with extra comments):
-  * `:idle_time` - the time the connection spent waiting before being checked out for the query. 
+  * `:idle_time` - the time the connection spent waiting before being checked out for the query.
                  the higher the better ; if this gets low (close to 0), the pool is over-used (not good).
   * `:queue_time` - the time spent waiting to check out a database connection.
                   the lower the better. if this gets too high, the pool is over-used (not good).
