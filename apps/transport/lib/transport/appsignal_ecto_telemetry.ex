@@ -1,4 +1,4 @@
-defmodule Transport.EctoTelemetry do
+defmodule Transport.AppSignal.EctoTelemetry do
   require Logger
 
   @moduledoc """
@@ -42,7 +42,6 @@ defmodule Transport.EctoTelemetry do
     case measurements do
       %{queue_time: queue_time} ->
         Appsignal.add_distribution_value("ecto.queue_time", System.convert_time_unit(queue_time, :native, :millisecond))
-
       _ ->
         nil
     end
@@ -71,7 +70,7 @@ defmodule Transport.EctoTelemetry do
       "transport-appsignal-ecto",
       # NOTE: the first two params are I believe mapped to `DB.Repo`
       [:db, :repo, :query],
-      &Transport.EctoTelemetry.handle_event/4,
+      &Transport.AppSignal.EctoTelemetry.handle_event/4,
       nil
     )
   end
