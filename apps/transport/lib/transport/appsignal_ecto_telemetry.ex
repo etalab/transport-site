@@ -42,6 +42,7 @@ defmodule Transport.AppSignal.EctoTelemetry do
     case measurements do
       %{queue_time: queue_time} ->
         Appsignal.add_distribution_value("ecto.queue_time", System.convert_time_unit(queue_time, :native, :millisecond))
+
       _ ->
         nil
     end
