@@ -10,3 +10,9 @@
     "The producer requires authentication to access the data. Consequently, some features on transport.data.gouv.fr, such as data availability, validations, and metadata, are unavailable for this dataset. Please follow the producer's instructions to gain access to the data."
   ) %>
 </p>
+<p :if={experimental?(@dataset)} class="notification mt-0">
+  ℹ️ <%= dgettext(
+    "page-dataset-details",
+    "This unofficial dataset is provided experimentally. Do not use it for travel information purpose."
+  ) %>
+</p>

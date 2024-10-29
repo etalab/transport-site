@@ -1127,6 +1127,14 @@ defmodule DB.Dataset do
   def full_logo(%__MODULE__{full_logo: full_logo, custom_full_logo: custom_full_logo}),
     do: custom_full_logo || full_logo
 
+  @doc """
+  iex> experimental?(%DB.Dataset{custom_tags: ["experimental", "foo"]})
+  true
+  iex> experimental?(%DB.Dataset{custom_tags: ["foo"]})
+  false
+  """
+  def experimental?(%__MODULE__{} = dataset), do: has_custom_tag?(dataset, @experimental_tag)
+
   def reject_experimental_datasets(queryable) do
     queryable
     |> where([d], @experimental_tag not in d.tags)

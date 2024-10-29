@@ -72,6 +72,10 @@ defmodule TransportWeb.CustomTagsLive do
       %{
         name: "authentification_requise",
         doc: "Indique sur la page du JDD qu'il est nécessaire de s'authentifier pour accéder aux données."
+      },
+      %{
+        name: "experimental",
+        doc: "Ajoute sur la page du JDD une bannière indiquant que le jeu est expérimental"
       }
     ]
   end
