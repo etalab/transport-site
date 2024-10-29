@@ -1,4 +1,4 @@
-defmodule Transport.EctoTelemetry do
+defmodule Transport.AppSignal.EctoTelemetry do
   require Logger
 
   @moduledoc """
@@ -12,7 +12,7 @@ defmodule Transport.EctoTelemetry do
   * https://github.com/appsignal/appsignal-elixir/issues/887 (which ensures calls are fast & mostly safe)
 
   A few notes extracted from the doc (with extra comments):
-  * `:idle_time` - the time the connection spent waiting before being checked out for the query. 
+  * `:idle_time` - the time the connection spent waiting before being checked out for the query.
                  the higher the better ; if this gets low (close to 0), the pool is over-used (not good).
   * `:queue_time` - the time spent waiting to check out a database connection.
                   the lower the better. if this gets too high, the pool is over-used (not good).
@@ -65,13 +65,13 @@ defmodule Transport.EctoTelemetry do
   end
 
   def setup do
-    Logger.info("Setting up telemetry for AppSignal + Ecto")
+    Logger.info("Setting up telemetry for our custom AppSignal's Ecto integration")
 
     :telemetry.attach(
-      "transport-ecto",
+      "transport-appsignal-ecto",
       # NOTE: the first two params are I believe mapped to `DB.Repo`
       [:db, :repo, :query],
-      &Transport.EctoTelemetry.handle_event/4,
+      &Transport.AppSignal.EctoTelemetry.handle_event/4,
       nil
     )
   end
