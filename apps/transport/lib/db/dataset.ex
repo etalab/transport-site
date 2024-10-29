@@ -536,7 +536,6 @@ defmodule DB.Dataset do
     |> cast_datagouv_zone(params, territory_name)
     |> cast_nation_dataset(params)
     |> cast_assoc(:resources)
-    |> validate_required([:slug])
     |> validate_siren()
     |> validate_territory_mutual_exclusion()
     |> maybe_overwrite_licence()
@@ -544,10 +543,18 @@ defmodule DB.Dataset do
     |> set_is_hidden()
     |> validate_organization_type()
     |> add_organization(params)
-    |> validate_required([:organization_id])
     |> maybe_set_custom_logo_changed_at()
     |> put_assoc(:legal_owners_aom, legal_owners_aom)
     |> put_assoc(:legal_owners_region, legal_owners_region)
+    |> validate_required([
+      :datagouv_id,
+      :custom_title,
+      :licence,
+      :slug,
+      :datagouv_title,
+      :type,
+      :organization_id
+    ])
     |> case do
       %{valid?: false, changes: changes} = changeset when changes == %{} ->
         {:ok, %{changeset | action: :ignore}}

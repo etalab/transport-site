@@ -49,6 +49,10 @@ defmodule DB.DatasetDBTest do
       assert {:ok, _} =
                Dataset.changeset(%{
                  "datagouv_id" => "1",
+                 "custom_title" => "custom title",
+                 "datagouv_title" => "title",
+                 "type" => "public-transit",
+                 "licence" => "lov2",
                  "slug" => "ma_limace",
                  "insee" => "38185",
                  "organization_id" => Ecto.UUID.generate()
@@ -72,6 +76,10 @@ defmodule DB.DatasetDBTest do
       assert {:ok, _} =
                Dataset.changeset(%{
                  "datagouv_id" => "1",
+                 "custom_title" => "custom title",
+                 "datagouv_title" => "title",
+                 "type" => "public-transit",
+                 "licence" => "lov2",
                  "slug" => "ma_limace",
                  "zones" => ["38185"],
                  "associated_territory_name" => "paris",
@@ -83,6 +91,10 @@ defmodule DB.DatasetDBTest do
       assert {:ok, _} =
                Dataset.changeset(%{
                  "datagouv_id" => "1",
+                 "custom_title" => "custom title",
+                 "datagouv_title" => "title",
+                 "type" => "public-transit",
+                 "licence" => "lov2",
                  "slug" => "ma_limace",
                  "national_dataset" => "true",
                  "organization_id" => Ecto.UUID.generate()
@@ -109,6 +121,10 @@ defmodule DB.DatasetDBTest do
       assert {:ok, %Ecto.Changeset{changes: %{aom_id: nil, region_id: 1}}} =
                Dataset.changeset(%{
                  "datagouv_id" => datagouv_id,
+                 "custom_title" => "custom title",
+                 "datagouv_title" => "title",
+                 "type" => "public-transit",
+                 "licence" => "lov2",
                  "national_dataset" => "true",
                  "insee" => nil
                })
@@ -118,6 +134,10 @@ defmodule DB.DatasetDBTest do
       changeset =
         Dataset.changeset(%{
           "datagouv_id" => "1",
+          "custom_title" => "custom title",
+          "datagouv_title" => "title",
+          "type" => "public-transit",
+          "licence" => "lov2",
           "slug" => "ma_limace",
           "insee" => "38185",
           "resources" => [
@@ -134,6 +154,10 @@ defmodule DB.DatasetDBTest do
       changeset =
         Dataset.changeset(%{
           "datagouv_id" => "1",
+          "custom_title" => "custom title",
+          "datagouv_title" => "title",
+          "type" => "public-transit",
+          "licence" => "lov2",
           "organization_id" => Ecto.UUID.generate(),
           "slug" => "ma_limace",
           "insee" => "38185",
@@ -147,6 +171,10 @@ defmodule DB.DatasetDBTest do
       assert {:ok, %Ecto.Changeset{changes: %{is_hidden: true}}} =
                Dataset.changeset(%{
                  "datagouv_id" => "1",
+                 "custom_title" => "custom title",
+                 "datagouv_title" => "title",
+                 "type" => "public-transit",
+                 "licence" => "lov2",
                  "slug" => "ma_limace",
                  "insee" => "38185",
                  "custom_tags" => ["masqué"],
@@ -158,6 +186,10 @@ defmodule DB.DatasetDBTest do
       assert {:ok, %Ecto.Changeset{changes: %{is_hidden: false}}} =
                Dataset.changeset(%{
                  "datagouv_id" => "1",
+                 "custom_title" => "custom title",
+                 "datagouv_title" => "title",
+                 "type" => "public-transit",
+                 "licence" => "lov2",
                  "slug" => "ma_limace",
                  "insee" => "38185",
                  "custom_tags" => ["not_hidden"],
@@ -170,6 +202,8 @@ defmodule DB.DatasetDBTest do
         with_log(fn ->
           Dataset.changeset(%{
             "datagouv_id" => "1",
+            "datagouv_title" => "title",
+            "custom_title" => "custom title",
             "slug" => "slug",
             "national_dataset" => "true",
             "legal_owner_company_siren" => "123456789"
@@ -181,6 +215,10 @@ defmodule DB.DatasetDBTest do
       assert {:ok, %Ecto.Changeset{}} =
                Dataset.changeset(%{
                  "datagouv_id" => "1",
+                 "custom_title" => "custom title",
+                 "datagouv_title" => "title",
+                 "type" => "public-transit",
+                 "licence" => "lov2",
                  "slug" => "slug",
                  "national_dataset" => "true",
                  "legal_owner_company_siren" => "552049447",
@@ -192,6 +230,9 @@ defmodule DB.DatasetDBTest do
       assert {:ok, %Ecto.Changeset{changes: %{custom_title: "Foo"}}} =
                Dataset.changeset(%{
                  "datagouv_id" => "1",
+                 "datagouv_title" => "title",
+                 "type" => "public-transit",
+                 "licence" => "lov2",
                  "slug" => "slug",
                  "national_dataset" => "true",
                  "custom_title" => "  Foo ",
@@ -204,6 +245,9 @@ defmodule DB.DatasetDBTest do
         with_log(fn ->
           DB.Dataset.changeset(%{
             "datagouv_id" => "1",
+            "datagouv_title" => "title",
+            "type" => "public-transit",
+            "licence" => "lov2",
             "slug" => "slug",
             "national_dataset" => "true",
             "custom_title" => "Foo"
@@ -219,6 +263,9 @@ defmodule DB.DatasetDBTest do
       {:ok, %Ecto.Changeset{changes: changes}} =
         Dataset.changeset(%{
           "datagouv_id" => "1",
+          "datagouv_title" => "title",
+          "type" => "public-transit",
+          "licence" => "lov2",
           "slug" => "slug",
           "national_dataset" => "true",
           "custom_title" => "foo",
@@ -232,6 +279,9 @@ defmodule DB.DatasetDBTest do
       assert {:ok, %Ecto.Changeset{changes: %{custom_logo_changed_at: custom_logo_changed_at}}} =
                Dataset.changeset(%{
                  "datagouv_id" => "1",
+                 "datagouv_title" => "title",
+                 "type" => "public-transit",
+                 "licence" => "lov2",
                  "slug" => "slug",
                  "national_dataset" => "true",
                  "custom_title" => "foo",
