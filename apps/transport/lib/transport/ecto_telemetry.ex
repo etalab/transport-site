@@ -68,7 +68,7 @@ defmodule Transport.EctoTelemetry do
     Logger.info("Setting up telemetry for our custom AppSignal's Ecto integration")
 
     :telemetry.attach(
-      "transport-ecto",
+      "transport-appsignal-ecto",
       # NOTE: the first two params are I believe mapped to `DB.Repo`
       [:db, :repo, :query],
       &Transport.EctoTelemetry.handle_event/4,
