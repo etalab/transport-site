@@ -65,7 +65,7 @@ defmodule Transport.EctoTelemetry do
   end
 
   def setup do
-    Logger.info("Setting up telemetry for AppSignal + Ecto")
+    Logger.info("Setting up telemetry for our custom AppSignal's Ecto integration")
 
     :telemetry.attach(
       "transport-ecto",
