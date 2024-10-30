@@ -79,6 +79,7 @@ defmodule TransportWeb.API.DatasetController do
   def by_id(%Plug.Conn{} = conn, %{"id" => datagouv_id}) do
     dataset =
       Dataset
+      |> Dataset.reject_experimental_datasets()
       |> preload([:resources, :aom, :region, :communes, :legal_owners_aom, :legal_owners_region])
       |> Repo.get_by(datagouv_id: datagouv_id)
 
@@ -95,6 +96,7 @@ defmodule TransportWeb.API.DatasetController do
   @spec geojson_by_id(Plug.Conn.t(), map) :: Plug.Conn.t()
   def geojson_by_id(%Plug.Conn{} = conn, %{"id" => id}) do
     Dataset
+    |> Dataset.reject_experimental_datasets()
     |> Repo.get_by(datagouv_id: id)
     |> Repo.preload([:aom, :region, :communes])
     |> case do
@@ -374,6 +376,7 @@ defmodule TransportWeb.API.DatasetController do
 
     %{}
     |> Dataset.list_datasets()
+    |> Dataset.reject_experimental_datasets()
     |> preload([:resources, :aom, :region, :communes, :legal_owners_aom, :legal_owners_region])
     |> Repo.all()
     |> Enum.map(fn dataset ->
