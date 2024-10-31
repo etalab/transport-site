@@ -1,3 +1,9 @@
+<p :if={experimental?(@dataset)} class="notification warning mt-0">
+  ⚠️ <%= dgettext(
+    "page-dataset-details",
+    "This unofficial dataset is provided experimentally. Do not use it for travel information purpose."
+  ) %>
+</p>
 <p :if={seasonal_warning?(@dataset)} class="notification mt-0">
   ℹ️ <%= dgettext(
     "page-dataset-details",

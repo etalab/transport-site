@@ -25,6 +25,7 @@ defmodule DB.Dataset do
   @licences_ouvertes ["fr-lo", "lov2"]
   @licence_mobilités_tag "licence-mobilités"
   @hidden_dataset_custom_tag_value "masqué"
+  @experimental_tag "experimental"
 
   typed_schema "dataset" do
     field(:datagouv_id, :string)
@@ -536,7 +537,6 @@ defmodule DB.Dataset do
     |> cast_datagouv_zone(params, territory_name)
     |> cast_nation_dataset(params)
     |> cast_assoc(:resources)
-    |> validate_required([:slug])
     |> validate_siren()
     |> validate_territory_mutual_exclusion()
     |> maybe_overwrite_licence()
@@ -544,10 +544,18 @@ defmodule DB.Dataset do
     |> set_is_hidden()
     |> validate_organization_type()
     |> add_organization(params)
-    |> validate_required([:organization_id])
     |> maybe_set_custom_logo_changed_at()
     |> put_assoc(:legal_owners_aom, legal_owners_aom)
     |> put_assoc(:legal_owners_region, legal_owners_region)
+    |> validate_required([
+      :datagouv_id,
+      :custom_title,
+      :licence,
+      :slug,
+      :datagouv_title,
+      :type,
+      :organization_id
+    ])
     |> case do
       %{valid?: false, changes: changes} = changeset when changes == %{} ->
         {:ok, %{changeset | action: :ignore}}
@@ -677,7 +685,14 @@ defmodule DB.Dataset do
   def get_by_slug(slug) do
     preload_without_validations()
     |> where(slug: ^slug)
-    |> preload([:region, :aom, :communes, resources: [:resources_related, :dataset]])
+    |> preload([
+      :aom,
+      :communes,
+      :region,
+      :legal_owners_aom,
+      :legal_owners_region,
+      resources: [:resources_related, :dataset]
+    ])
     |> Repo.one()
     |> case do
       nil -> {:error, "Dataset with slug #{slug} not found"}
@@ -742,47 +757,6 @@ defmodule DB.Dataset do
     case get_territory(d) do
       {:ok, t} -> t
       _ -> nil
-    end
-  end
-
-  @spec get_covered_area_names(__MODULE__.t()) :: binary | [any]
-  def get_covered_area_names(%__MODULE__{aom_id: aom_id}) when not is_nil(aom_id) do
-    get_covered_area_names(
-      "select string_agg(nom, ', ' ORDER BY nom) from commune group by aom_res_id having aom_res_id = (select composition_res_id from aom where id = $1)",
-      aom_id
-    )
-  end
-
-  def get_covered_area_names(%__MODULE__{region_id: region_id}) when not is_nil(region_id) do
-    get_covered_area_names(
-      "select string_agg(distinct(departement), ', ') from aom where region_id = $1",
-      region_id
-    )
-  end
-
-  def get_covered_area_names(%__MODULE__{communes: communes}) when length(communes) != 0 do
-    communes
-    |> Enum.map(fn c -> c.nom end)
-    # credo:disable-for-next-line
-    |> Enum.join(", ")
-  end
-
-  def get_covered_area_names(_), do: "National"
-
-  @spec get_covered_area_names(binary, binary()) :: [binary()]
-  def get_covered_area_names(query, id) do
-    query
-    |> Repo.query([id])
-    |> case do
-      {:ok, %{rows: [names | _]}} ->
-        Enum.reject(names, &(&1 == nil))
-
-      {:ok, %{rows: []}} ->
-        ""
-
-      {:error, error} ->
-        Logger.error(error)
-        ""
     end
   end
 
@@ -1152,4 +1126,17 @@ defmodule DB.Dataset do
   @spec full_logo(__MODULE__.t()) :: binary()
   def full_logo(%__MODULE__{full_logo: full_logo, custom_full_logo: custom_full_logo}),
     do: custom_full_logo || full_logo
+
+  @doc """
+  iex> experimental?(%DB.Dataset{custom_tags: ["experimental", "foo"]})
+  true
+  iex> experimental?(%DB.Dataset{custom_tags: ["foo"]})
+  false
+  """
+  def experimental?(%__MODULE__{} = dataset), do: has_custom_tag?(dataset, @experimental_tag)
+
+  def reject_experimental_datasets(queryable) do
+    queryable
+    |> where([d], @experimental_tag not in d.tags)
+  end
 end

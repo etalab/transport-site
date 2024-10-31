@@ -131,7 +131,7 @@ defmodule Transport.Jobs.ImportDatasetContactPointsJob do
         contact
 
       nil ->
-        Map.merge(guess_identity(name), %{email: email})
+        Map.merge(guess_identity(name), %{email: email, creation_source: :"automation:import_contact_point"})
         |> DB.Contact.insert!()
     end
   end

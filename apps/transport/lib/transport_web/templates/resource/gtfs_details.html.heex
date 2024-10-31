@@ -1,26 +1,15 @@
 <% is_gtfs_flex = not is_nil(@resource_history) and DB.ResourceHistory.gtfs_flex?(@resource_history)
 associated_geojson = get_associated_geojson(@related_files)
-associated_netex = get_associated_netex(@related_files) %>
+associated_netex = get_associated_netex(@related_files)
+locale = get_session(@conn, :locale) %>
 <section>
   <div class="grey-background">
     <div class="container">
-      <h2 class="mt-48"><%= dgettext("validations", "Resource details") %></h2>
+      <h2 class="mt-48">
+        <%= dgettext("validations", "Resource details") %>
+      </h2>
       <div class="panel">
-        <p>
-          <%= dgettext("validations", "File name") %> :
-          <a href={DB.Resource.download_url(@resource)}>
-            <strong><%= @resource.title %></strong>
-          </a>
-        </p>
-        <div :if={should_display_description?(@resource)} class="panel mt-24" lang="fr">
-          <%= description(@resource) %>
-        </div>
-        <p>
-          <%= dgettext("validations", "This resource file is part of the dataset") %> <%= link(
-            @resource.dataset.custom_title,
-            to: dataset_path(@conn, :details, @resource.dataset.slug)
-          ) %>.
-        </p>
+        <%= render("_resource_description.html", conn: @conn, resource: @resource, resource_history: @resource_history) %>
         <%= render("_resources_details.html", conn: @conn, metadata: @metadata, modes: @modes) %>
         <%= if !is_nil(associated_geojson) or !is_nil(associated_netex) do %>
           <div id="other-formats">
@@ -42,12 +31,16 @@ associated_netex = get_associated_netex(@related_files) %>
             ) %>
             <%= unless is_nil(associated_geojson) or is_nil(associated_geojson.resource_history_last_up_to_date_at) do %>
               <%= dgettext("validations", "This GeoJSON was up-to-date with the GTFS resource %{hours} ago.",
-                hours: hours_ago(associated_geojson.resource_history_last_up_to_date_at)
+                hours: hours_ago(associated_geojson.resource_history_last_up_to_date_at, locale)
               ) %>
             <% end %>
           </div>
         <% end %>
       </div>
+
+      <%= unless Enum.empty?(@resource.resources_related) do %>
+        <%= render("_related_resources.html", resource: @resource, conn: @conn) %>
+      <% end %>
 
       <h2 id="download-availability"><%= dgettext("page-dataset-details", "Download availability") %></h2>
       <%= render("_download_availability.html", uptime_per_day: @uptime_per_day, conn: @conn) %>
@@ -59,7 +52,8 @@ associated_netex = get_associated_netex(@related_files) %>
         <div class="panel no-padding">
           <div id="resource-geojson-info" class="p-24"></div>
           <div id="resource-geojson"></div>
-          <script src={static_path(@conn, "/js/mapgeojson.js")} />
+          <script src={static_path(@conn, "/js/mapgeojson.js")}>
+          </script>
           <script>
             document.addEventListener("DOMContentLoaded", function() {
               GTFSGeojsonMap(
@@ -76,7 +70,7 @@ associated_netex = get_associated_netex(@related_files) %>
         <%= unless is_nil(associated_geojson.resource_history_last_up_to_date_at) do %>
           <div class="is-centered no-margin">
             <%= dgettext("validations", "Visualization up-to-date %{hours} ago.",
-              hours: hours_ago(associated_geojson.resource_history_last_up_to_date_at)
+              hours: hours_ago(associated_geojson.resource_history_last_up_to_date_at, locale)
             ) %>
           </div>
         <% end %>
@@ -125,7 +119,7 @@ associated_netex = get_associated_netex(@related_files) %>
                 date:
                   DateTimeDisplay.format_datetime_to_paris(
                     @validation.validation_timestamp,
-                    get_session(@conn, :locale)
+                    locale
                   ),
                 validator_url: gtfs_validator_url()
               )

@@ -1,17 +1,13 @@
 defmodule GBFSValidatorTest do
   use ExUnit.Case, async: true
-  doctest Shared.Validation.GBFSValidator
-
-  import Mox
-  import ExUnit.CaptureLog
-
   alias Shared.Validation.GBFSValidator.{HTTPValidatorClient, Summary}
+  import Mox
 
   setup :verify_on_exit!
 
   test "validate GBFS feed" do
     Transport.HTTPoison.Mock
-    |> expect(:post, fn url, body, headers ->
+    |> expect(:post, fn url, body, headers, [recv_timeout: 15_000] ->
       assert %{"url" => "https://example.com/gbfs.json"} = Jason.decode!(body)
 
       assert [
@@ -45,9 +41,10 @@ defmodule GBFSValidatorTest do
 
   test "on invalid server response" do
     Transport.HTTPoison.Mock
-    |> expect(:post, fn _url, _, _ -> {:ok, %HTTPoison.Response{status_code: 500}} end)
+    |> expect(:post, fn _url, _, _, [recv_timeout: 15_000] -> {:ok, %HTTPoison.Response{status_code: 500}} end)
 
-    {{:error, error}, logs} = with_log(fn -> HTTPValidatorClient.validate("https://example.com/gbfs.json") end)
+    {{:error, error}, logs} =
+      ExUnit.CaptureLog.with_log(fn -> HTTPValidatorClient.validate("https://example.com/gbfs.json") end)
 
     assert String.starts_with?(error, "impossible to query GBFS Validator")
     assert logs =~ "impossible to query GBFS Validator"

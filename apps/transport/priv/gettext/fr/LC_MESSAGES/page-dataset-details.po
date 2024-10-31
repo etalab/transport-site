@@ -495,8 +495,12 @@ msgid "The <a href=\"%{link}\" target=\"_blank\">timestamp field</a> appears to 
 msgstr "Le <a href=\"%{link}\">champ timestamp</a> contient une valeur ancienne par rapport à la date courante : l'écart est de %{seconds} secondes. Essayez de mettre à jour le flux toutes les 30 secondes au plus."
 
 #, elixir-autogen, elixir-format
-msgid "Displaying the last %{nb} backed up resources. <a href=\"#mail_form\">Contact us</a> if you want to access previous data."
-msgstr "Affiche les %{nb} dernières ressources historisées. <a href=\"#mail_form\">Contactez-nous</a> si vous souhaitez accéder aux données passées."
+msgid "Displaying the last %{nb} backed up resources."
+msgstr "Affiche les %{nb} dernières ressources historisées."
+
+#, elixir-autogen, elixir-format
+msgid "Download history details"
+msgstr "Télécharger les ressources historisées"
 
 #, elixir-autogen, elixir-format
 msgid "Data published by"
@@ -709,3 +713,11 @@ msgstr "Gérez les services liés à ce jeu de données"
 #, elixir-autogen, elixir-format
 msgid "The producer requires authentication to access the data. Consequently, some features on transport.data.gouv.fr, such as data availability, validations, and metadata, are unavailable for this dataset. Please follow the producer's instructions to gain access to the data."
 msgstr "Le producteur requiert une authentification pour accéder aux données. En conséquence, certaines fonctionnalités de transport.data.gouv.fr, comme la disponibilité des données, les rapports de validations et les métadonnées sont indisponibles pour ce jeu de données. Veuillez suivre les instructions du producteur pour obtenir l'accès aux données."
+
+#, elixir-autogen, elixir-format
+msgid "Data under the responsibility of"
+msgstr "Données sous la responsabilité de"
+
+#, elixir-autogen, elixir-format
+msgid "This unofficial dataset is provided experimentally. Do not use it for travel information purpose."
+msgstr "Ce jeu de données non officiel est publié à titre expérimental. Veuillez à ne pas le réutiliser à des fins d'information voyageur."

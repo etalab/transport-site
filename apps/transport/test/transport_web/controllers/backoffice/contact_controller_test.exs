@@ -66,7 +66,8 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
 
       assert [
                {"li", [], ["first_name : You need to fill either first_name and last_name OR mailing_list_title"]},
-               {"li", [], ["email : can't be blank"]}
+               {"li", [], ["email : can't be blank"]},
+               {"li", [], ["creation_source : can't be blank"]}
              ] == Floki.find(doc, ".notification.error ul li")
     end
   end
@@ -87,7 +88,13 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
 
       assert redirected_to(conn, 302) == backoffice_contact_path(conn, :index)
 
-      assert %DB.Contact{first_name: "John", last_name: "Doe", email: "john@example.com", organization: "Corp Inc"} =
+      assert %DB.Contact{
+               first_name: "John",
+               last_name: "Doe",
+               email: "john@example.com",
+               organization: "Corp Inc",
+               creation_source: :admin
+             } =
                DB.Repo.one!(DB.Contact)
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Contact mis à jour"
@@ -285,6 +292,85 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
            ] = ContactController.datasets_datalist()
   end
 
+  test "csv_export", %{conn: conn} do
+    organization = insert(:organization)
+    dataset = insert(:dataset, organization_id: organization.id)
+
+    contact =
+      insert_contact(%{
+        datagouv_user_id: Ecto.UUID.generate(),
+        organizations: [organization |> Map.from_struct()]
+      })
+
+    _other_contact = insert_contact()
+
+    insert(:notification_subscription,
+      reason: :dataset_with_error,
+      role: :producer,
+      contact_id: contact.id,
+      dataset_id: dataset.id,
+      source: :user
+    )
+
+    insert(:notification_subscription,
+      reason: :daily_new_comments,
+      role: :reuser,
+      contact_id: contact.id,
+      source: :user
+    )
+
+    # Check that we sent a chunked response with the expected CSV content
+    %Plug.Conn{state: :chunked} =
+      response =
+      conn
+      |> setup_admin_in_session()
+      |> get(backoffice_contact_path(conn, :csv_export))
+
+    content = response(response, 200)
+
+    # Check CSV header
+    assert content |> String.split("\r\n") |> hd() ==
+             "id,first_name,last_name,mailing_list_title,email,phone_number,job_title,organization,inserted_at,updated_at,datagouv_user_id,last_login_at,creation_source,organization_names,is_producer,producer_daily_new_comments,producer_dataset_with_error,producer_expiration,producer_resource_unavailable,is_reuser,reuser_daily_new_comments,reuser_dataset_with_error,reuser_datasets_switching_climate_resilience_bill,reuser_expiration,reuser_new_dataset,reuser_resource_unavailable,reuser_resources_changed"
+
+    # Check CSV content
+    csv_content = [content] |> CSV.decode!(headers: true) |> Enum.to_list()
+
+    assert Enum.count(csv_content) == 2
+
+    assert %{
+             "id" => to_string(contact.id),
+             "first_name" => contact.first_name,
+             "last_name" => contact.last_name,
+             "mailing_list_title" => "",
+             "email" => contact.email,
+             "phone_number" => contact.phone_number,
+             "job_title" => contact.job_title,
+             "organization" => contact.organization,
+             "inserted_at" => to_string(contact.inserted_at) |> String.trim_trailing("Z"),
+             "updated_at" => to_string(contact.updated_at) |> String.trim_trailing("Z"),
+             "datagouv_user_id" => contact.datagouv_user_id,
+             "last_login_at" => "",
+             "creation_source" => to_string(contact.creation_source),
+             "organization_names" => organization.name,
+             "producer_daily_new_comments" => "false",
+             "producer_dataset_with_error" => "true",
+             "producer_expiration" => "false",
+             "producer_resource_unavailable" => "false",
+             "reuser_daily_new_comments" => "true",
+             "reuser_dataset_with_error" => "false",
+             "reuser_datasets_switching_climate_resilience_bill" => "false",
+             "reuser_expiration" => "false",
+             "reuser_new_dataset" => "false",
+             "reuser_resource_unavailable" => "false",
+             "reuser_resources_changed" => "false",
+             "is_producer" => "true",
+             "is_reuser" => "false"
+           } == csv_content |> hd()
+
+    # `array_agg` with only null values is properly encoded
+    assert %{"organization_names" => ""} = Enum.at(csv_content, 1)
+  end
+
   defp sample_contact_args(%{} = args \\ %{}) do
     Map.merge(
       %{
@@ -293,7 +379,8 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
         email: "john#{Ecto.UUID.generate()}@example.fr",
         job_title: "Boss",
         organization: "Big Corp Inc",
-        phone_number: "06 82 22 88 03"
+        phone_number: "06 82 22 88 03",
+        creation_source: "admin"
       },
       args
     )

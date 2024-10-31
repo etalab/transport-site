@@ -166,7 +166,7 @@ mix cmd --app transport mix test --color
 mix cmd --app unlock mix test --color
 
 # or, for a single file, or single test
-mix cmd --app transport mix test --color test/transport_web/integrations/backoffice_test.exs 
+mix cmd --app transport mix test --color test/transport_web/integrations/backoffice_test.exs
 mix cmd --app transport mix test --color test/transport_web/integrations/backoffice_test.exs:8
 ```
 
