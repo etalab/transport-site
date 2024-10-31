@@ -64,7 +64,7 @@ defmodule GBFSValidatorTest do
     assert Jason.decode!(encoded_summary) == %{
              "errors_count" => 0,
              "has_errors" => false,
-             # NOTE: the serialized atom does not come back
+             # NOTE: the serialized atom does not come back as an atom
              "validator" => "validator_module",
              "validator_version" => "31c5325",
              "version_detected" => "1.1",
