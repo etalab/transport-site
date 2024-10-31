@@ -50,17 +50,24 @@ defmodule GBFSValidatorTest do
     assert logs =~ "impossible to query GBFS Validator"
   end
 
-  test "can encode summary" do
-    assert """
-           {"errors_count":0,"has_errors":false,"validator":"validator_module","validator_version":"31c5325","version_detected":"1.1","version_validated":"1.1"}\
-           """ ==
-             Jason.encode!(%Summary{
-               errors_count: 0,
-               has_errors: false,
-               version_detected: "1.1",
-               version_validated: "1.1",
-               validator_version: "31c5325",
-               validator: :validator_module
-             })
+  test "can encode and decode summary" do
+    encoded_summary = Jason.encode!(%Summary{
+      errors_count: 0,
+      has_errors: false,
+      version_detected: "1.1",
+      version_validated: "1.1",
+      validator_version: "31c5325",
+      validator: :validator_module
+    })
+
+    assert Jason.decode!(encoded_summary) == %{
+      "errors_count" => 0,
+      "has_errors" => false,
+      # NOTE: the serialized atom does not come back
+      "validator" => "validator_module",
+      "validator_version" => "31c5325",
+      "version_detected" => "1.1",
+      "version_validated" => "1.1"
+    }
   end
 end
