@@ -56,6 +56,15 @@ defmodule Transport.AvailabilityCheckerTest do
 
       assert AvailabilityChecker.available?("SIRI", "url303")
     end
+
+    test "500 response (but with SOAP body)" do
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn "url500soap", [], [follow_redirect: true] ->
+        {:ok, %HTTPoison.Response{status_code: 500, body: "<soap:Envelope></soap:Envelope>"}}
+      end)
+
+      assert AvailabilityChecker.available?("SIRI", "url500soap")
+    end
   end
 
   test "HEAD NOT supported, fallback on stream method" do
