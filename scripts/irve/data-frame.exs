@@ -8,4 +8,4 @@ sample_url = "https://www.data.gouv.fr/fr/datasets/r/e9bb3424-77cd-40ba-8bbd-5a1
   Transport.IRVE.Fetcher.get!(sample_url, compressed: false, decode_body: false)
 
 Transport.IRVE.DataFrame.dataframe_from_csv_body!(body)
-|> IO.inspect(IEx.inspect_opts)
+|> IO.inspect(IEx.inspect_opts())
