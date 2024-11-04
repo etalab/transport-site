@@ -1,9 +1,10 @@
 defmodule Transport.IRVE.DataFrameTest do
   use ExUnit.Case, async: true
+  doctest Transport.IRVE.DataFrame
 
   test "schema content" do
     data =
-      Transport.IRVE.DataFrame.schema_content()
+      Transport.IRVE.StaticIRVESchema.schema_content()
       |> Map.fetch!("fields")
       |> Enum.at(0)
       |> Map.take(["name", "type"])

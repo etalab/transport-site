@@ -1,32 +1,35 @@
 defmodule Transport.IRVE.DataFrame do
   @moduledoc """
-  A module providing programmatic access to the static IRVE schema,
-  as stored in the source code.
+  Tooling supporting the parsing of an IRVE static file into `Explorer.DataFrame``
   """
 
-  # TODO: move to dedicated module.
-  # TODO: consider grouping this (see unlock dynamic equivalent)
-  def schema_content do
-    __ENV__.file
-    |> Path.join("../../../../shared/meta/schema-irve-statique.json")
-    |> Path.expand()
-    |> File.read!()
-    |> Jason.decode!()
-  end
+  @doc """
+  Helper function to convert TableSchema types into DataFrame ones.
 
+  There is no attempt to make this generic at this point, it is focusing solely
+  on the static IRVE use.
+
+  iex> Transport.IRVE.DataFrame.remap_schema_type(:geopoint)
+  :string
+  iex> Transport.IRVE.DataFrame.remap_schema_type(:number)
+  {:u, 16}
+  iex> Transport.IRVE.DataFrame.remap_schema_type(:literally_anything)
+  :literally_anything
+  """
   def remap_schema_type(input_type) do
     case input_type do
-      # TODO: extract individual coordinates
       :geopoint -> :string
-      # works for this specific case
       :number -> {:u, 16}
       type -> type
     end
   end
 
-  def dataframe_from_csv_body!(body) do
+  @doc """
+  Parse an in-memory binary of CSV content into a typed `Explorer.DataFrame` for IRVE use.
+  """
+  def dataframe_from_csv_body!(body, schema \\ Transport.IRVE.StaticIRVESchema.schema_content()) do
     dtypes =
-      schema_content()
+      schema
       |> Map.fetch!("fields")
       |> Enum.map(fn %{"name" => name, "type" => type} ->
         {String.to_atom(name), String.to_atom(type) |> Transport.IRVE.DataFrame.remap_schema_type()}
