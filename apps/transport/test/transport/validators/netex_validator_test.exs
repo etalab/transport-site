@@ -47,12 +47,12 @@ defmodule Transport.Validators.NeTExTest do
 
   describe "existing resource" do
     test "valid NeTEx" do
-      {resource, resource_history} = mk_netex_resource()
+      resource_history = mk_netex_resource()
 
       validation_id = expect_create_validation()
       expect_successful_validation(validation_id, 12)
 
-      assert :ok == NeTEx.validate_and_save(resource)
+      assert :ok == NeTEx.validate_and_save(resource_history)
 
       multi_validation = load_multi_validation(resource_history.id)
 
@@ -64,14 +64,14 @@ defmodule Transport.Validators.NeTExTest do
     end
 
     test "invalid NeTEx" do
-      {resource, resource_history} = mk_netex_resource()
+      resource_history = mk_netex_resource()
 
       validation_id = expect_create_validation()
       expect_failed_validation(validation_id, 31)
 
       expect_get_messages(validation_id, @sample_error_messages)
 
-      assert :ok == NeTEx.validate_and_save(resource)
+      assert :ok == NeTEx.validate_and_save(resource_history)
 
       multi_validation = load_multi_validation(resource_history.id)
 
@@ -239,7 +239,7 @@ defmodule Transport.Validators.NeTExTest do
     resource_history =
       insert(:resource_history, resource_id: resource.id, payload: %{"permanent_url" => mk_raw_netex_resource()})
 
-    {resource, resource_history}
+    resource_history
   end
 
   defp mk_raw_netex_resource do
