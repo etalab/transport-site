@@ -679,7 +679,7 @@ defmodule TransportWeb.DatasetControllerTest do
            ] == content |> Floki.find("#quality-indicators table")
   end
 
-  describe "information banners are displayed" do
+  describe "information & warning banners are displayed" do
     test "a seasonal dataset", %{conn: conn} do
       dataset = insert(:dataset, is_active: true, custom_tags: ["saisonnier", "foo"])
       assert TransportWeb.DatasetView.seasonal_warning?(dataset)
@@ -700,6 +700,17 @@ defmodule TransportWeb.DatasetControllerTest do
         conn,
         dataset,
         "Le producteur requiert une authentification pour accéder aux données"
+      )
+    end
+
+    test "an experimental dataset", %{conn: conn} do
+      dataset = insert(:dataset, is_active: true, custom_tags: ["experimental", "foo"])
+      assert DB.Dataset.experimental?(dataset)
+
+      dataset_has_banner_with_text(
+        conn,
+        dataset,
+        "Ce jeu de données non officiel est publié à titre expérimental. Veuillez à ne pas le réutiliser à des fins d'information voyageur."
       )
     end
   end

@@ -256,6 +256,54 @@ defmodule TransportWeb.API.DatasetControllerTest do
     assert_schema(json, "DatasetsResponse", TransportWeb.API.Spec.spec())
   end
 
+  test "GET /api/datasets without the experimental tagged datasets", %{conn: conn} do
+    aom = insert(:aom, nom: "Angers Métropole", siren: "siren")
+
+    insert(:resource,
+      dataset:
+        insert(:dataset,
+          custom_title: "TC",
+          type: "public-transit",
+          licence: "lov2",
+          datagouv_id: "datagouv-1",
+          slug: "slug-1",
+          is_active: true,
+          created_at: ~U[2021-12-23 13:30:40.000000Z],
+          aom: aom,
+          tags: ["netex"]
+        ),
+      url: "https://link.to/gbfs.json",
+      datagouv_id: "1",
+      type: "main",
+      format: "gbfs"
+    )
+
+    insert(:resource,
+      dataset:
+        insert(:dataset,
+          custom_title: "Tarifs (expérimental)",
+          type: "public-transit",
+          licence: "lov2",
+          datagouv_id: "datagouv-2",
+          slug: "slug-2",
+          is_active: true,
+          created_at: ~U[2021-12-23 13:30:40.000000Z],
+          aom: aom,
+          tags: ["netex", "experimental"]
+        ),
+      url: "https://link.to/gbfs.json",
+      datagouv_id: "2",
+      type: "main",
+      format: "gbfs"
+    )
+
+    path = Helpers.dataset_path(conn, :datasets)
+
+    json = conn |> get(path) |> json_response(200)
+
+    assert [%{"title" => "TC"}] = json
+  end
+
   test "GET /api/datasets/:id *without* history, multi_validation and resource_metadata", %{conn: conn} do
     aom = insert(:aom, nom: "Angers Métropole", siren: "siren", id: 4242)
     region = DB.Region |> Ecto.Query.where(insee: "52") |> DB.Repo.one!()
@@ -504,6 +552,35 @@ defmodule TransportWeb.API.DatasetControllerTest do
              conn
              |> get(Helpers.dataset_path(conn, :by_id, datagouv_id))
              |> json_response(200)
+  end
+
+  test "GET /api/datasets/:id with a dataset tagged 'experimental'", %{conn: conn} do
+    setup_empty_history_resources()
+
+    %DB.Dataset{datagouv_id: visible_dataset_datagouv_id} =
+      insert(:dataset,
+        datagouv_id: "datagouv-1",
+        is_active: true,
+        created_at: ~U[2021-12-23 13:30:40.000000Z],
+        tags: ["netex"]
+      )
+
+    %DB.Dataset{datagouv_id: experimental_dataset_datagouv_id} =
+      insert(:dataset,
+        datagouv_id: "datagouv-2",
+        is_active: true,
+        created_at: ~U[2021-12-23 13:30:40.000000Z],
+        tags: ["netex", "experimental"]
+      )
+
+    assert %{"datagouv_id" => ^visible_dataset_datagouv_id} =
+             conn
+             |> get(Helpers.dataset_path(conn, :by_id, visible_dataset_datagouv_id))
+             |> json_response(200)
+
+    conn
+    |> get(Helpers.dataset_path(conn, :by_id, experimental_dataset_datagouv_id))
+    |> json_response(404)
   end
 
   test "gtfs-rt features are filled", %{conn: conn} do
