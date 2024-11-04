@@ -1,6 +1,6 @@
 defmodule Transport.IRVE.DataFrame do
   @moduledoc """
-  Tooling supporting the parsing of an IRVE static file into `Explorer.DataFrame``
+  Tooling supporting the parsing of an IRVE static file into `Explorer.DataFrame`
   """
 
   @doc """
