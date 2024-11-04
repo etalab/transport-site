@@ -63,7 +63,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   describe "ResourceHistoryAndValidationDispatcherJob" do
     test "resources_to_historise" do
       ids = create_resources_for_history()
-      assert 9 == count_resources()
+      assert 10 == count_resources()
 
       assert MapSet.new(ids) ==
                ResourceHistoryAndValidationDispatcherJob.resources_to_historise() |> Enum.map(& &1.id) |> MapSet.new()
@@ -77,10 +77,11 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
       assert [
                %{args: %{"first_job_args" => %{"resource_id" => first_id}}},
-               %{args: %{"first_job_args" => %{"resource_id" => second_id}}}
+               %{args: %{"first_job_args" => %{"resource_id" => second_id}}},
+               %{args: %{"first_job_args" => %{"resource_id" => third_id}}}
              ] = all_enqueued(worker: Transport.Jobs.Workflow)
 
-      assert Enum.sort([second_id, first_id]) == Enum.sort(ids)
+      assert Enum.sort([first_id, second_id, third_id]) == Enum.sort(ids)
 
       refute_enqueued(worker: ResourceHistoryAndValidationDispatcherJob)
     end
@@ -495,7 +496,17 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
         dataset_id: active_dataset_id,
         format: "GTFS",
         title: "title",
-        datagouv_id: "1",
+        datagouv_id: "1_gtfs",
+        is_community_resource: false
+      )
+
+    %{id: id_netex} =
+      insert(:resource,
+        url: "https://example.com/netex.zip",
+        dataset_id: active_dataset_id,
+        format: "NeTEx",
+        title: "title",
+        datagouv_id: "1_netex",
         is_community_resource: false
       )
 
@@ -574,7 +585,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
         is_community_resource: false
       )
 
-    [id_gtfs, id_csv]
+    [id_gtfs, id_netex, id_csv]
   end
 
   defp count_resource_history do

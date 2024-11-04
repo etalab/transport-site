@@ -76,7 +76,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
     validator = NeTEx.validator_name()
 
     case NeTEx.validate(url, []) do
-      {:error, msg} ->
+      {:error, %{message: msg}} ->
         %{oban_args: %{"state" => "error", "error_reason" => msg}, validator: validator}
 
       {:ok, %{"validations" => validation, "metadata" => metadata}} ->
