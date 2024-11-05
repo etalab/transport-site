@@ -56,6 +56,7 @@ defmodule Transport.Shared.GBFSMetadata do
       vehicle_types: vehicle_types(json),
       types: types(json),
       ttl: ttl(json),
+      stats: stats(json),
       feed_timestamp_delay: feed_timestamp_delay
     }
   rescue
@@ -173,6 +174,72 @@ defmodule Transport.Shared.GBFSMetadata do
       nil -> nil
     end
   end
+
+  def stats(%{"data" => _data} = payload) do
+    stations_statistics(payload)
+    |> Map.merge(vehicle_statistics(payload))
+    |> Map.merge(%{version: 1})
+  end
+
+  def stations_statistics(%{"data" => _data} = payload) do
+    feed_url = payload |> first_feed() |> feed_url_by_name(:station_status)
+
+    with {:feed_exists, true} <- {:feed_exists, not is_nil(feed_url)},
+         {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(feed_url),
+         {:ok, json} <- Jason.decode(body) do
+      stations = json["data"]["stations"]
+
+      %{
+        nb_stations: Enum.count(stations),
+        nb_installed_stations: Enum.count(stations, & &1["is_installed"]),
+        nb_renting_stations: Enum.count(stations, & &1["is_renting"]),
+        nb_returning_stations: Enum.count(stations, & &1["is_returning"]),
+        nb_docks_available: stations |> Enum.map(& &1["num_docks_available"]) |> non_nil_sum(),
+        nb_docks_disabled: stations |> Enum.map(& &1["num_docks_disabled"]) |> non_nil_sum(),
+        nb_vehicles_available_stations: stations |> Enum.map(&vehicles_available/1) |> non_nil_sum(),
+        nb_vehicles_disabled_stations: stations |> Enum.map(& &1["num_vehicles_disabled"]) |> non_nil_sum()
+      }
+    else
+      {:feed_exists, false} ->
+        %{}
+
+      e ->
+        Logger.error("Cannot get GBFS station_status details: #{inspect(e)}")
+        %{}
+    end
+  end
+
+  def vehicle_statistics(%{"data" => _data} = payload) do
+    feed_url = payload |> first_feed() |> feed_url_by_name(:vehicle_status)
+
+    with {:feed_exists, true} <- {:feed_exists, not is_nil(feed_url)},
+         {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(feed_url),
+         {:ok, json} <- Jason.decode(body) do
+      vehicles = json["data"]["vehicles"] || json["data"]["bikes"]
+      nb_vehicles = Enum.count(vehicles)
+      nb_docked_vehicles = Enum.count(vehicles, &Map.has_key?(&1, "station_id"))
+
+      %{
+        nb_vehicles: nb_vehicles,
+        nb_disabled_vehicles: Enum.count(vehicles, & &1["is_disabled"]),
+        nb_reserved_vehicles: Enum.count(vehicles, & &1["is_reserved"]),
+        nb_docked_vehicles: nb_docked_vehicles,
+        nb_freefloating_vehicles: nb_vehicles - nb_docked_vehicles
+      }
+    else
+      {:feed_exists, false} ->
+        %{}
+
+      e ->
+        Logger.error("Cannot get GBFS vehicle_status details: #{inspect(e)}")
+        %{}
+    end
+  end
+
+  # As of 3.0
+  defp vehicles_available(%{"num_vehicles_available" => num_vehicles_available}), do: num_vehicles_available
+  # Before 3.0
+  defp vehicles_available(%{"num_bikes_available" => num_bikes_available}), do: num_bikes_available
 
   def system_details(%{"data" => _data} = payload) do
     feed_url = payload |> first_feed() |> feed_url_by_name(:system_information)
@@ -304,6 +371,18 @@ defmodule Transport.Shared.GBFSMetadata do
     # Remove potential ".json" at the end of feed names as people
     # often make this mistake
     payload |> first_feed() |> Enum.map(fn feed -> String.replace(feed["name"], ".json", "") end)
+  end
+
+  @doc """
+  iex> non_nil_sum([1, 3])
+  4
+  iex> non_nil_sum([1, nil])
+  1
+  iex> non_nil_sum([nil])
+  0
+  """
+  def non_nil_sum(values) do
+    values |> Enum.reject(&is_nil/1) |> Enum.sum()
   end
 
   defp before_v3?(%{"version" => version}), do: String.starts_with?(version, ["1.", "2."])

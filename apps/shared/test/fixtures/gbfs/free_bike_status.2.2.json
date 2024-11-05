@@ -1,0 +1,28 @@
+{
+  "last_updated":1609866247,
+  "ttl":0,
+  "version":"2.2",
+  "data":{
+    "bikes":[
+      {
+        "bike_id":"ghi789",
+        "last_reported":1609866109,
+        "lat":12.34,
+        "lon":56.78,
+        "is_reserved":false,
+        "is_disabled":false,
+        "vehicle_type_id":"abc123"
+      },
+      {
+        "bike_id":"jkl012",
+        "last_reported":1609866204,
+        "is_reserved":false,
+        "is_disabled":false,
+        "vehicle_type_id":"def456",
+        "current_range_meters":6543,
+        "station_id":"86",
+        "pricing_plan_id":"plan3"
+      }
+    ]
+  }
+}

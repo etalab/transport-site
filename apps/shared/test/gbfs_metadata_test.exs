@@ -13,7 +13,7 @@ defmodule Transport.Shared.GBFSMetadataTest do
 
   describe "Compute GBFS metadata for a feed" do
     test "for a stations feed with a single version" do
-      setup_feeds([:gbfs, :system_information, :station_information])
+      setup_feeds([:gbfs, :system_information, :station_information, :station_status])
       setup_validation_result()
 
       assert %{
@@ -38,12 +38,31 @@ defmodule Transport.Shared.GBFSMetadataTest do
                },
                cors_header_value: "*",
                feed_timestamp_delay: _,
-               vehicle_types: ["bicycle"]
+               vehicle_types: ["bicycle"],
+               stats: %{
+                 nb_docks_available: 11,
+                 nb_docks_disabled: 2,
+                 nb_installed_stations: 2,
+                 nb_renting_stations: 2,
+                 nb_returning_stations: 2,
+                 nb_stations: 2,
+                 nb_vehicles_available_stations: 7,
+                 nb_vehicles_disabled_stations: 3,
+                 version: 1
+               }
              } = compute_feed_metadata(@gbfs_url, "http://example.com")
     end
 
-    test "for a stations + free floating feed with a multiple versions" do
-      setup_feeds([:gbfs_with_versions, :gbfs_versions, :system_information, :vehicle_types, :free_bike_status])
+    test "for a stations + free floating feed with multiple versions" do
+      setup_feeds([
+        :gbfs_with_versions,
+        :gbfs_versions,
+        :system_information,
+        :vehicle_types,
+        :free_bike_status,
+        :station_status,
+        :free_bike_status
+      ])
 
       setup_validation_result(
         {:ok, summary} =
@@ -82,7 +101,18 @@ defmodule Transport.Shared.GBFSMetadataTest do
                ],
                cors_header_value: "*",
                feed_timestamp_delay: feed_timestamp_delay,
-               vehicle_types: ["bicycle", "scooter"]
+               vehicle_types: ["bicycle", "scooter"],
+               stats: %{
+                 nb_docks_available: 11,
+                 nb_docks_disabled: 2,
+                 nb_installed_stations: 2,
+                 nb_renting_stations: 2,
+                 nb_returning_stations: 2,
+                 nb_stations: 2,
+                 nb_vehicles_available_stations: 7,
+                 nb_vehicles_disabled_stations: 3,
+                 version: 1
+               }
              } = compute_feed_metadata(@gbfs_url, "http://example.com")
 
       assert feed_timestamp_delay > 0
@@ -568,6 +598,62 @@ defmodule Transport.Shared.GBFSMetadataTest do
     end
   end
 
+  describe "stats" do
+    test "3.0 feed" do
+      setup_response("https://example.com/gbfs/station_status", fixture_content("station_status.3.0"))
+      setup_response("https://example.com/gbfs/vehicle_status", fixture_content("vehicle_status.3.0"))
+
+      # Values may not make sense: responses have been taken from the GBFS spec
+      # and edited to make sure we test various possibilities without having massive
+      # fixture files.
+      assert %{
+               nb_disabled_vehicles: 1,
+               nb_docked_vehicles: 1,
+               nb_docks_available: 11,
+               nb_docks_disabled: 2,
+               nb_freefloating_vehicles: 1,
+               nb_installed_stations: 2,
+               nb_renting_stations: 2,
+               nb_reserved_vehicles: 1,
+               nb_returning_stations: 2,
+               nb_stations: 2,
+               nb_vehicles: 2,
+               version: 1,
+               nb_vehicles_available_stations: 7,
+               nb_vehicles_disabled_stations: 3
+             } == stats(fixture_content("gbfs.3.0") |> Jason.decode!())
+    end
+
+    test "2.2 feed" do
+      setup_response("https://example.com/gbfs/station_status", fixture_content("station_status.2.2"))
+      setup_response("https://example.com/gbfs/free_bike_status", fixture_content("free_bike_status.2.2"))
+
+      # Values may not make sense: responses have been taken from the GBFS spec
+      # and edited to make sure we test various possibilities without having massive
+      # fixture files.
+      assert %{
+               nb_disabled_vehicles: 0,
+               nb_docked_vehicles: 1,
+               nb_docks_available: 11,
+               nb_docks_disabled: 1,
+               nb_freefloating_vehicles: 1,
+               nb_installed_stations: 2,
+               nb_renting_stations: 2,
+               nb_reserved_vehicles: 0,
+               nb_returning_stations: 2,
+               nb_stations: 2,
+               nb_vehicles: 2,
+               nb_vehicles_available_stations: 7,
+               nb_vehicles_disabled_stations: 0,
+               version: 1
+             } == stats(fixture_content("gbfs.2.2") |> Jason.decode!())
+    end
+  end
+
+  defp fixture_content(filename) do
+    File.read!("#{__DIR__}/fixtures/gbfs/#{filename}.json")
+  end
+
   defp setup_validation_result(summary \\ nil) do
     Shared.Validation.GBFSValidator.Mock
     |> expect(:validate, fn url ->
@@ -599,6 +685,7 @@ defmodule Transport.Shared.GBFSMetadataTest do
   defp setup_feed(:system_information), do: setup_system_information_response()
   defp setup_feed(:station_information), do: setup_station_information_response()
   defp setup_feed(:vehicle_types), do: setup_vehicle_types_response()
+  defp setup_feed(:station_status), do: setup_station_status_response()
 
   defp setup_response_with_headers(expected_url, body) do
     Transport.HTTPoison.Mock
@@ -696,5 +783,13 @@ defmodule Transport.Shared.GBFSMetadataTest do
     """
 
     setup_response("https://example.com/vehicle_types.json", body)
+  end
+
+  defp setup_station_status_response do
+    body = """
+     {"last_updated":"2023-07-17T13:34:13+02:00","ttl":0,"version":"3.0","data":{"stations":[{"station_id":"station1","is_installed":true,"is_renting":true,"is_returning":true,"last_reported":"2023-07-17T13:34:13+02:00","num_docks_available":3,"num_docks_disabled":1,"vehicle_docks_available":[{"vehicle_type_ids":["abc123","def456"],"count":2},{"vehicle_type_ids":["def456"],"count":1}],"num_vehicles_available":1,"num_vehicles_disabled":2,"vehicle_types_available":[{"vehicle_type_id":"abc123","count":1},{"vehicle_type_id":"def456","count":0}]},{"station_id":"station2","is_installed":true,"is_renting":true,"is_returning":true,"last_reported":"2023-07-17T13:34:13+02:00","num_docks_available":8,"num_docks_disabled":1,"vehicle_docks_available":[{"vehicle_type_ids":["abc123"],"count":6},{"vehicle_type_ids":["def456"],"count":2}],"num_vehicles_available":6,"num_vehicles_disabled":1,"vehicle_types_available":[{"vehicle_type_id":"abc123","count":2},{"vehicle_type_id":"def456","count":4}]}]}}
+    """
+
+    setup_response("https://example.com/station_status.json", body)
   end
 end
