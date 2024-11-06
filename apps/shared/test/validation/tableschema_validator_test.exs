@@ -46,29 +46,29 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
 
       assert %{
                "errors" => [
-                 "La colonne obligatoire `contact_operateur` est manquante.",
-                 "La colonne obligatoire `nom_enseigne` est manquante.",
-                 "La colonne obligatoire `id_station_itinerance` est manquante.",
-                 "La colonne obligatoire `nom_station` est manquante.",
-                 "La colonne obligatoire `implantation_station` est manquante.",
-                 "La colonne obligatoire `adresse_station` est manquante.",
-                 "La colonne obligatoire `coordonneesXY` est manquante.",
-                 "La colonne obligatoire `id_pdc_itinerance` est manquante.",
-                 "La colonne obligatoire `puissance_nominale` est manquante.",
-                 "La colonne obligatoire `prise_type_ef` est manquante.",
-                 "La colonne obligatoire `prise_type_2` est manquante.",
-                 "La colonne obligatoire `prise_type_combo_ccs` est manquante.",
-                 "La colonne obligatoire `prise_type_chademo` est manquante.",
-                 "La colonne obligatoire `prise_type_autre` est manquante.",
-                 "La colonne obligatoire `paiement_acte` est manquante.",
-                 "La colonne obligatoire `condition_acces` est manquante.",
-                 "La colonne obligatoire `reservation` est manquante.",
-                 "La colonne obligatoire `horaires` est manquante.",
-                 "La colonne obligatoire `accessibilite_pmr` est manquante.",
-                 "La colonne obligatoire `restriction_gabarit` est manquante.",
-                 "La colonne obligatoire `station_deux_roues` est manquante.",
-                 "Format de date incorrect : La date doit être écrite sous la forme `aaaa-mm-jj`. Colonne `date_maj`, ligne 2.",
-                 "Format de date incorrect : La date doit être écrite sous la forme `aaaa-mm-jj`. Colonne `date_maj`, ligne 3."
+                 "La colonne obligatoire `contact_operateur` est manquante",
+                 "La colonne obligatoire `nom_enseigne` est manquante",
+                 "La colonne obligatoire `id_station_itinerance` est manquante",
+                 "La colonne obligatoire `nom_station` est manquante",
+                 "La colonne obligatoire `implantation_station` est manquante",
+                 "La colonne obligatoire `adresse_station` est manquante",
+                 "La colonne obligatoire `coordonneesXY` est manquante",
+                 "La colonne obligatoire `id_pdc_itinerance` est manquante",
+                 "La colonne obligatoire `puissance_nominale` est manquante",
+                 "La colonne obligatoire `prise_type_ef` est manquante",
+                 "La colonne obligatoire `prise_type_2` est manquante",
+                 "La colonne obligatoire `prise_type_combo_ccs` est manquante",
+                 "La colonne obligatoire `prise_type_chademo` est manquante",
+                 "La colonne obligatoire `prise_type_autre` est manquante",
+                 "La colonne obligatoire `paiement_acte` est manquante",
+                 "La colonne obligatoire `condition_acces` est manquante",
+                 "La colonne obligatoire `reservation` est manquante",
+                 "La colonne obligatoire `horaires` est manquante",
+                 "La colonne obligatoire `accessibilite_pmr` est manquante",
+                 "La colonne obligatoire `restriction_gabarit` est manquante",
+                 "La colonne obligatoire `station_deux_roues` est manquante",
+                 "La date doit être écrite sous la forme `aaaa-mm-jj`. Colonne `date_maj`, ligne 2.",
+                 "La date doit être écrite sous la forme `aaaa-mm-jj`. Colonne `date_maj`, ligne 3."
                ],
                "errors_count" => 23,
                "has_errors" => true,
@@ -124,7 +124,7 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
 
       assert %{
                "errors" => [
-                 "Check is not valid: 'french_gps_coordinates': custom check inconnu."
+                 "Tentative de définir le custom check 'french_gps_coordinates', qui n'est pas connu."
                ],
                "errors_count" => 1,
                "has_errors" => true,
