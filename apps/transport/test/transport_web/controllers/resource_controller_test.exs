@@ -490,7 +490,8 @@ defmodule TransportWeb.ResourceControllerTest do
   #   assert content =~ "Rapport de validation"
   #
   #   assert content =~
-  #            ~s{Validation effectuée en utilisant <a href="#{permanent_url}">le fichier NeTEx en vigueur</a> le 28/10/2022 à 16h12 Europe/Paris}
+  #            ~s{Validation effectuée en utilisant <a href="#{permanent_url}">le
+  #            fichier NeTEx en vigueur</a> le 28/10/2022 à 16h12 Europe/Paris}
   # end
 
   test "GTFS-RT validation is shown", %{conn: conn} do
