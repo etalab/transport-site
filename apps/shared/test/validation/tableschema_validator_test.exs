@@ -67,8 +67,8 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
                  "La colonne obligatoire `accessibilite_pmr` est manquante",
                  "La colonne obligatoire `restriction_gabarit` est manquante",
                  "La colonne obligatoire `station_deux_roues` est manquante",
-                 "La date doit être écrite sous la forme `aaaa-mm-jj`. Colonne `date_maj`, ligne 2.",
-                 "La date doit être écrite sous la forme `aaaa-mm-jj`. Colonne `date_maj`, ligne 3."
+                 "La date doit être écrite sous la forme `aaaa-mm-jj` Colonne `date_maj`, ligne 2.",
+                 "La date doit être écrite sous la forme `aaaa-mm-jj` Colonne `date_maj`, ligne 3."
                ],
                "errors_count" => 23,
                "has_errors" => true,
