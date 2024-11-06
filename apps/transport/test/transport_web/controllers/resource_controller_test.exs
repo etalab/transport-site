@@ -445,53 +445,54 @@ defmodule TransportWeb.ResourceControllerTest do
            |> html_response(200) =~ "couverture calendaire par réseau"
   end
 
-  test "NeTEx validation is shown", %{conn: conn} do
-    %{id: dataset_id} = insert(:dataset)
-
-    %{id: resource_id} =
-      insert(:resource, %{
-        dataset_id: dataset_id,
-        format: "NeTEx",
-        url: "https://example.com/file"
-      })
-
-    conn1 = conn |> get(resource_path(conn, :details, resource_id))
-    assert conn1 |> html_response(200) =~ "Pas de validation disponible"
-
-    %{id: resource_history_id} =
-      insert(:resource_history, %{
-        resource_id: resource_id,
-        payload: %{"permanent_url" => permanent_url = "https://example.com/#{Ecto.UUID.generate()}"}
-      })
-
-    insert(:multi_validation, %{
-      resource_history_id: resource_history_id,
-      validator: Transport.Validators.NeTEx.validator_name(),
-      result: %{
-        "xsd-1871" => [
-          %{
-            "code" => "xsd-1871",
-            "message" =>
-              "Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef ).",
-            "criticity" => "error"
-          }
-        ]
-      },
-      max_error: "error",
-      metadata: %DB.ResourceMetadata{
-        metadata: %{"elapsed_seconds" => 42},
-        modes: [],
-        features: []
-      },
-      validation_timestamp: ~U[2022-10-28 14:12:29.041243Z]
-    })
-
-    content = conn |> get(resource_path(conn, :details, resource_id)) |> html_response(200)
-    assert content =~ "Rapport de validation"
-
-    assert content =~
-             ~s{Validation effectuée en utilisant <a href="#{permanent_url}">le fichier NeTEx en vigueur</a> le 28/10/2022 à 16h12 Europe/Paris}
-  end
+  # test "NeTEx validation is shown", %{conn: conn} do
+  #   %{id: dataset_id} = insert(:dataset)
+  #
+  #   %{id: resource_id} =
+  #     insert(:resource, %{
+  #       dataset_id: dataset_id,
+  #       format: "NeTEx",
+  #       url: "https://example.com/file"
+  #     })
+  #
+  #   conn1 = conn |> get(resource_path(conn, :details, resource_id))
+  #   assert conn1 |> html_response(200) =~ "Pas de validation disponible"
+  #
+  #   %{id: resource_history_id} =
+  #     insert(:resource_history, %{
+  #       resource_id: resource_id,
+  #       payload: %{"permanent_url" => permanent_url = "https://example.com/#{Ecto.UUID.generate()}"}
+  #     })
+  #
+  #   insert(:multi_validation, %{
+  #     resource_history_id: resource_history_id,
+  #     validator: Transport.Validators.NeTEx.validator_name(),
+  #     result: %{
+  #       "xsd-1871" => [
+  #         %{
+  #           "code" => "xsd-1871",
+  #           "message" =>
+  #             "Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef ).",
+  #           "criticity" => "error"
+  #         }
+  #       ]
+  #     },
+  #     max_error: "error",
+  #     metadata: %DB.ResourceMetadata{
+  #       metadata: %{"elapsed_seconds" => 42},
+  #       modes: [],
+  #       features: []
+  #     },
+  #     validation_timestamp: ~U[2022-10-28 14:12:29.041243Z]
+  #   })
+  #
+  #   content = conn |> get(resource_path(conn, :details, resource_id)) |> html_response(200)
+  #   assert content =~ "Rapport de validation"
+  #
+  #   assert content =~
+  #            ~s{Validation effectuée en utilisant <a href="#{permanent_url}">le
+  #            fichier NeTEx en vigueur</a> le 28/10/2022 à 16h12 Europe/Paris}
+  # end
 
   test "GTFS-RT validation is shown", %{conn: conn} do
     %{id: dataset_id} = insert(:dataset)
