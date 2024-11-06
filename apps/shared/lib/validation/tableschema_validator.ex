@@ -29,7 +29,7 @@ defmodule Shared.Validation.TableSchemaValidator do
   @validata_web_url URI.parse("https://validata.fr/table-schema")
   @validata_api_url URI.parse("https://api.validata.etalab.studio/validate")
   # https://gitlab.com/validata-table/validata-table/-/blob/main/src/validata_core/domain/helpers.py#L57
-  @structure_tags MapSet.new(["#head", "#structure", "#header"])
+  @structure_tags MapSet.new(["#structure", "#header"])
 
   @impl true
   def validate(schema_name, url, schema_version \\ "latest") when is_binary(schema_name) and is_binary(url) do
