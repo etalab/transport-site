@@ -104,6 +104,22 @@ defmodule TransportWeb.ResourceControllerTest do
     assert conn |> html_response(200) =~ "1 erreur"
   end
 
+  test "GBFS resource with nil validation sends back 200", %{conn: conn} do
+    resource = DB.Resource |> DB.Repo.get_by(datagouv_id: "3")
+    assert DB.Resource.gbfs?(resource)
+
+    insert(:multi_validation, %{
+      resource_history: insert(:resource_history, %{resource_id: resource.id}),
+      validator: Transport.Validators.GBFSValidator.validator_name(),
+      result: nil,
+      metadata: %DB.ResourceMetadata{metadata: %{}}
+    })
+
+    Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
+
+    assert conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
+  end
+
   test "resource has its description displayed", %{conn: conn} do
     resource = DB.Resource |> DB.Repo.get_by(datagouv_id: "1")
 

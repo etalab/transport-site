@@ -50,6 +50,30 @@ defmodule GBFSValidatorTest do
     assert logs =~ "impossible to query GBFS Validator"
   end
 
+  test "validators send nil validation result" do
+    Transport.HTTPoison.Mock
+    |> expect(:post, fn url, body, headers, [recv_timeout: 15_000] ->
+      assert %{"url" => "https://example.com/gbfs.json"} = Jason.decode!(body)
+
+      assert [
+               {"content-type", "application/json"},
+               {"user-agent", "contact@transport.data.gouv.fr"}
+             ] == headers
+
+      assert String.starts_with?(url, "https://gbfs-validator.netlify.app")
+
+      {:ok,
+       %HTTPoison.Response{
+         status_code: 200,
+         body: Jason.encode!(%{summary: %{errorsCount: nil}}),
+         headers: [{"Content-Type", "application/json"}]
+       }}
+    end)
+
+    assert {:error, "impossible to query GBFS Validator: {:has_errors_count, false}"} =
+             HTTPValidatorClient.validate("https://example.com/gbfs.json")
+  end
+
   test "can encode summary" do
     assert """
            {"errors_count":0,"has_errors":false,"validator":"validator_module","validator_version":"31c5325","version_detected":"1.1","version_validated":"1.1"}\
