@@ -98,24 +98,22 @@
   <% end %>
 
   <%= if Resource.gtfs?(@resource) do %>
-    <%= if GTFSTransport.mine?(validation) do %>
-      <div class="pb-24">
-        <a href={resource_path(@conn, :details, @resource.id) <> "#validation-report"}>
-          <% {severity, count} = GTFSTransport.count_max_severity(validation.result) %>
-          <span class={summary_class(%{severity: severity, count_errors: count})}>
-            <%= if severity == "NoError" do %>
-              <%= dgettext("page-dataset-details", "No error detected") %>
-            <% else %>
-              <%= "#{count} #{String.downcase(GTFSTransport.severities(severity)[:text])}" %>
-            <% end %>
-          </span>
-        </a>
-        <span><%= dgettext("page-dataset-details", "during validation") %></span>
-      </div>
-    <% end %>
+    <%= render(TransportWeb.DatasetView, "_resource_validation_summary_gtfs.html",
+      conn: @conn,
+      resource: @resource,
+      validation: validation
+    ) %>
   <% end %>
 
-  <%= unless Resource.gtfs?(@resource) do %>
+  <%= if Resource.netex?(@resource) do %>
+    <%= render(TransportWeb.DatasetView, "_resource_validation_summary_netex.html",
+      conn: @conn,
+      resource: @resource,
+      validation: validation
+    ) %>
+  <% end %>
+
+  <%= unless Resource.gtfs?(@resource) or Resource.netex?(@resource) do %>
     <%= if multi_validation_performed?(validation) do %>
       <% nb_warnings = warnings_count(validation) %>
       <% nb_errors = errors_count(validation) %>

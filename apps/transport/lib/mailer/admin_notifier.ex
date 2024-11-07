@@ -63,9 +63,9 @@ defmodule Transport.AdminNotifier do
     |> render_body("datasets_climate_resilience_bill_inappropriate_licence.html", %{datasets: datasets})
   end
 
-  def new_datagouv_datasets(datagouv_datasets, duration) do
+  def new_datagouv_datasets(category, datagouv_datasets, rule_explanation, duration) do
     notify_bidzev()
-    |> subject("Nouveaux jeux de données à référencer - data.gouv.fr")
+    |> subject("Nouveaux jeux de données #{category} à référencer - data.gouv.fr")
     |> html_body("""
     <p>Bonjour,</p>
 
@@ -76,7 +76,8 @@ defmodule Transport.AdminNotifier do
     </ul>
     <br/>
     <hr>
-    <p>Vous pouvez consulter et modifier <a href="https://github.com/etalab/transport-site/blob/master/apps/transport/lib/jobs/new_datagouv_datasets_job.ex">les règles de cette tâche</a>.</p>
+    #{rule_explanation}
+    <p>Vous pouvez modifier <a href="https://github.com/etalab/transport-site/blob/master/apps/transport/lib/jobs/new_datagouv_datasets_job.ex">les règles de cette tâche</a>.</p>
     """)
   end
 
@@ -120,7 +121,9 @@ defmodule Transport.AdminNotifier do
   defp notify_bidzev do
     new()
     |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
-    |> to(Application.fetch_env!(:transport, :bizdev_email))
+    # Uses the contact@ email address but method is kept if we need
+    # to route differently in the future.
+    |> to(Application.fetch_env!(:transport, :contact_email))
     |> reply_to(Application.fetch_env!(:transport, :contact_email))
   end
 

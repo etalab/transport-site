@@ -1,5 +1,6 @@
 defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
   use ExUnit.Case, async: true
+  use Oban.Testing, repo: DB.Repo
   import DB.Factory
   import Mox
   alias Transport.Jobs.ConsolidateLEZsJob
@@ -273,6 +274,67 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
 
     refute File.exists?(ConsolidateLEZsJob.tmp_filepath("voies.geojson"))
     refute File.exists?(ConsolidateLEZsJob.tmp_filepath("aires.geojson"))
+  end
+
+  test "perform" do
+    aom = insert(:aom, siren: "253800825")
+    dataset = insert(:dataset, type: "low-emission-zones", aom: aom)
+
+    zfe_aire =
+      insert(:resource,
+        dataset: dataset,
+        url: "https://example.com/aires.geojson",
+        schema_name: "etalab/schema-zfe"
+      )
+
+    zfe_voies =
+      insert(:resource,
+        dataset: dataset,
+        url: "https://example.com/voies.geojson",
+        schema_name: "etalab/schema-zfe"
+      )
+
+    resource_history_aire =
+      insert(:resource_history,
+        resource_id: zfe_aire.id,
+        payload: %{
+          "permanent_url" => permanent_url_aires = "https://example.com/permanent_url/aires"
+        }
+      )
+
+    resource_history_voies =
+      insert(:resource_history,
+        resource_id: zfe_voies.id,
+        payload: %{
+          "permanent_url" => permanent_url_voies = "https://example.com/permanent_url/voies"
+        }
+      )
+
+    insert(:multi_validation, resource_history_id: resource_history_aire.id, result: %{"has_errors" => false})
+    insert(:multi_validation, resource_history_id: resource_history_voies.id, result: %{"has_errors" => false})
+
+    setup_http_mocks(permanent_url_aires, permanent_url_voies)
+
+    Transport.HTTPoison.Mock
+    |> expect(:request, fn :post, _url, args, _headers, [follow_redirect: true] ->
+      {:multipart, [{:file, path, {"form-data", [name: "file", filename: "aires.geojson"]}, []}]} = args
+      assert String.ends_with?(path, "aires.geojson")
+      {:ok, %HTTPoison.Response{body: "", status_code: 200}}
+    end)
+
+    Transport.HTTPoison.Mock
+    |> expect(:request, fn :post, _url, args, _headers, [follow_redirect: true] ->
+      {:multipart, [{:file, path, {"form-data", [name: "file", filename: "voies.geojson"]}, []}]} = args
+      assert String.ends_with?(path, "voies.geojson")
+      {:ok, %HTTPoison.Response{body: "", status_code: 200}}
+    end)
+
+    assert :ok == perform_job(ConsolidateLEZsJob, %{})
+
+    # When Oban 2.19.0 will be released we should be able to make sure that
+    # a broadcast notification was sent on the `:gossip` channel.
+    # => We need to control the `job_id` when dispatching a job.
+    # https://github.com/oban-bg/oban/commit/fae376232ef44d8405940d3d287ab8fd93912d0a
   end
 
   defp setup_http_mocks(url_aires, url_voies) do

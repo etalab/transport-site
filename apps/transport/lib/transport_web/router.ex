@@ -99,6 +99,18 @@ defmodule TransportWeb.Router do
         get("/:dataset_id/edit", EspaceProducteurController, :edit_dataset)
         post("/:dataset_id/upload_logo", EspaceProducteurController, :upload_logo)
         delete("/:dataset_id/custom_logo", EspaceProducteurController, :remove_custom_logo)
+
+        scope("/:dataset_id/resources") do
+          get("/:resource_datagouv_id/delete", EspaceProducteurController, :delete_resource_confirmation)
+          get("/new_resource/", EspaceProducteurController, :new_resource)
+          get("/:resource_datagouv_id/", EspaceProducteurController, :edit_resource)
+        end
+
+        scope "/:dataset_datagouv_id/resources" do
+          post("/", EspaceProducteurController, :post_file)
+          delete("/:resource_datagouv_id/delete", EspaceProducteurController, :delete_resource)
+          post("/:resource_datagouv_id/", EspaceProducteurController, :post_file)
+        end
       end
 
       live_session :espace_producteur, session: %{"role" => :producer}, root_layout: {TransportWeb.LayoutView, :app} do
@@ -132,6 +144,7 @@ defmodule TransportWeb.Router do
     scope "/datasets" do
       get("/", DatasetController, :index)
       get("/:slug/", DatasetController, :details)
+      get("/:dataset_id/resources_history_csv", DatasetController, :resources_history_csv)
       get("/aom/:aom", DatasetController, :by_aom)
       get("/region/:region", DatasetController, :by_region)
       get("/commune/:insee_commune", DatasetController, :by_commune_insee)
@@ -150,19 +163,6 @@ defmodule TransportWeb.Router do
       scope "/conversions" do
         get("/:resource_id/:convert_to", ConversionController, :get)
       end
-
-      scope "/update" do
-        pipe_through([:authenticated])
-
-        scope "/datasets/:dataset_id/resources" do
-          post("/", ResourceController, :post_file)
-          get("/_new_resource/", ResourceController, :form)
-          get("/:resource_id/", ResourceController, :form)
-          get("/:resource_id/delete", ResourceController, :delete_resource_confirmation)
-          delete("/:resource_id/delete", ResourceController, :delete)
-          post("/:resource_id/", ResourceController, :post_file)
-        end
-      end
     end
 
     scope "/backoffice", Backoffice, as: :backoffice do
@@ -173,6 +173,7 @@ defmodule TransportWeb.Router do
       scope "/contacts" do
         get("/", ContactController, :index)
         get("/new", ContactController, :new)
+        get("/csv_export", ContactController, :csv_export)
         post("/create", ContactController, :create)
         get("/:id/edit", ContactController, :edit)
         post("/:id/delete", ContactController, :delete)
@@ -198,10 +199,6 @@ defmodule TransportWeb.Router do
 
       live_session :backoffice_jobs, root_layout: {TransportWeb.LayoutView, :app} do
         live("/jobs", JobsLive)
-      end
-
-      live_session :gbfs, root_layout: {TransportWeb.LayoutView, :app} do
-        live("/gbfs", GBFSLive)
       end
 
       live_session :cache, root_layout: {TransportWeb.LayoutView, :app} do
@@ -230,10 +227,8 @@ defmodule TransportWeb.Router do
         post("/:id/_import", DatasetController, :import_from_data_gouv_fr)
         post("/:id/_delete", DatasetController, :delete)
         post("/_all_/_import_validate", DatasetController, :import_validate_all)
-        post("/_all_/_validate", DatasetController, :validate_all)
         post("/_all_/_force_validate_gtfs_transport", DatasetController, :force_validate_gtfs_transport)
         post("/:id/_import_validate", DatasetController, :import_validate_all)
-        post("/:id/_validate", DatasetController, :validation)
       end
 
       get("/breaking_news", BreakingNewsController, :index)

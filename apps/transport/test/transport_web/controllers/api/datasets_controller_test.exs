@@ -111,6 +111,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
         "name" => "Angers Métropole",
         "type" => "aom"
       },
+      "legal_owners" => %{"aoms" => [], "company" => nil, "regions" => []},
       "created_at" => "2021-12-23",
       "datagouv_id" => "datagouv",
       "id" => "datagouv",
@@ -224,6 +225,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
                  "name" => "Angers Métropole",
                  "type" => "aom"
                },
+               "legal_owners" => %{"aoms" => [], "company" => nil, "regions" => []},
                "created_at" => "2021-12-23",
                "datagouv_id" => "datagouv",
                "id" => "datagouv",
@@ -254,7 +256,58 @@ defmodule TransportWeb.API.DatasetControllerTest do
     assert_schema(json, "DatasetsResponse", TransportWeb.API.Spec.spec())
   end
 
+  test "GET /api/datasets without the experimental tagged datasets", %{conn: conn} do
+    aom = insert(:aom, nom: "Angers Métropole", siren: "siren")
+
+    insert(:resource,
+      dataset:
+        insert(:dataset,
+          custom_title: "TC",
+          type: "public-transit",
+          licence: "lov2",
+          datagouv_id: "datagouv-1",
+          slug: "slug-1",
+          is_active: true,
+          created_at: ~U[2021-12-23 13:30:40.000000Z],
+          aom: aom,
+          tags: ["netex"]
+        ),
+      url: "https://link.to/gbfs.json",
+      datagouv_id: "1",
+      type: "main",
+      format: "gbfs"
+    )
+
+    insert(:resource,
+      dataset:
+        insert(:dataset,
+          custom_title: "Tarifs (expérimental)",
+          type: "public-transit",
+          licence: "lov2",
+          datagouv_id: "datagouv-2",
+          slug: "slug-2",
+          is_active: true,
+          created_at: ~U[2021-12-23 13:30:40.000000Z],
+          aom: aom,
+          tags: ["netex", "experimental"]
+        ),
+      url: "https://link.to/gbfs.json",
+      datagouv_id: "2",
+      type: "main",
+      format: "gbfs"
+    )
+
+    path = Helpers.dataset_path(conn, :datasets)
+
+    json = conn |> get(path) |> json_response(200)
+
+    assert [%{"title" => "TC"}] = json
+  end
+
   test "GET /api/datasets/:id *without* history, multi_validation and resource_metadata", %{conn: conn} do
+    aom = insert(:aom, nom: "Angers Métropole", siren: "siren", id: 4242)
+    region = DB.Region |> Ecto.Query.where(insee: "52") |> DB.Repo.one!()
+
     dataset =
       insert(:dataset,
         custom_title: "title",
@@ -289,7 +342,9 @@ defmodule TransportWeb.API.DatasetControllerTest do
         ],
         created_at: ~U[2021-12-23 13:30:40.000000Z],
         last_update: DateTime.utc_now(),
-        aom: %DB.AOM{id: 4242, nom: "Angers Métropole", siren: "siren"}
+        aom: aom,
+        legal_owners_aom: [aom],
+        legal_owners_region: [region]
       )
 
     setup_empty_history_resources()
@@ -305,6 +360,13 @@ defmodule TransportWeb.API.DatasetControllerTest do
                "aom" => %{"name" => "Angers Métropole", "siren" => "siren"},
                "name" => "Angers Métropole",
                "type" => "aom"
+             },
+             "legal_owners" => %{
+               "aoms" => [
+                 %{"name" => "Angers Métropole", "siren" => "siren"}
+               ],
+               "company" => nil,
+               "regions" => [%{"name" => "Pays de la Loire", "insee" => "52"}]
              },
              "created_at" => "2021-12-23",
              "datagouv_id" => "datagouv",
@@ -425,6 +487,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
                "name" => "Angers Métropole",
                "type" => "aom"
              },
+             "legal_owners" => %{"aoms" => [], "company" => nil, "regions" => []},
              "created_at" => "2021-12-23",
              "datagouv_id" => "datagouv",
              "history" => [],
@@ -491,6 +554,35 @@ defmodule TransportWeb.API.DatasetControllerTest do
              |> json_response(200)
   end
 
+  test "GET /api/datasets/:id with a dataset tagged 'experimental'", %{conn: conn} do
+    setup_empty_history_resources()
+
+    %DB.Dataset{datagouv_id: visible_dataset_datagouv_id} =
+      insert(:dataset,
+        datagouv_id: "datagouv-1",
+        is_active: true,
+        created_at: ~U[2021-12-23 13:30:40.000000Z],
+        tags: ["netex"]
+      )
+
+    %DB.Dataset{datagouv_id: experimental_dataset_datagouv_id} =
+      insert(:dataset,
+        datagouv_id: "datagouv-2",
+        is_active: true,
+        created_at: ~U[2021-12-23 13:30:40.000000Z],
+        tags: ["netex", "experimental"]
+      )
+
+    assert %{"datagouv_id" => ^visible_dataset_datagouv_id} =
+             conn
+             |> get(Helpers.dataset_path(conn, :by_id, visible_dataset_datagouv_id))
+             |> json_response(200)
+
+    conn
+    |> get(Helpers.dataset_path(conn, :by_id, experimental_dataset_datagouv_id))
+    |> json_response(404)
+  end
+
   test "gtfs-rt features are filled", %{conn: conn} do
     dataset_1 = insert(:dataset, datagouv_id: datagouv_id_1 = Ecto.UUID.generate())
     resource_1 = insert(:resource, dataset_id: dataset_1.id, format: "gtfs-rt")
@@ -538,7 +630,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
 
   defp setup_empty_history_resources do
     expect(Transport.History.Fetcher.Mock, :history_resources, fn %DB.Dataset{}, options ->
-      assert Keyword.equal?(options, preload_validations: false, max_records: 25)
+      assert Keyword.equal?(options, preload_validations: false, max_records: 25, fetch_mode: :all)
       []
     end)
   end

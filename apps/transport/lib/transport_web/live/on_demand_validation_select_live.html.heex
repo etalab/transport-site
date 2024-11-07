@@ -38,28 +38,13 @@
             type: "url"
           ) %>
         <% end %>
-        <%= unless @input_type == "file" or @type == "netex" do %>
+        <%= unless @input_type == "file" do %>
           <%= submit(dgettext("validations", "Validate"), nodiv: true) %>
         <% end %>
       </.form>
       <p :if={@trigger_submit} class="small">
         <%= TransportWeb.Gettext.dgettext("validations", "Upload in progress") %>
       </p>
-      <div :if={@type == "netex"} class="container section section-grey" id="netex-explanations">
-        <p>
-          <%= raw(
-            TransportWeb.Gettext.dgettext("validations", "netex-siri-validator", link: "https://greenlight.itxpt.eu")
-          ) %>
-        </p>
-
-        <p>
-          <%= raw(
-            TransportWeb.Gettext.dgettext("validations", "doc-eu-formats",
-              link: "https://doc.transport.data.gouv.fr/documentation/normes-europeennes"
-            )
-          ) %>
-        </p>
-      </div>
     </div>
   </div>
 </section>

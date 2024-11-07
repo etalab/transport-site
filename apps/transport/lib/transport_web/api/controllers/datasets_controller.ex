@@ -79,7 +79,8 @@ defmodule TransportWeb.API.DatasetController do
   def by_id(%Plug.Conn{} = conn, %{"id" => datagouv_id}) do
     dataset =
       Dataset
-      |> preload([:resources, :aom, :region, :communes])
+      |> Dataset.reject_experimental_datasets()
+      |> preload([:resources, :aom, :region, :communes, :legal_owners_aom, :legal_owners_region])
       |> Repo.get_by(datagouv_id: datagouv_id)
 
     if is_nil(dataset) do
@@ -95,6 +96,7 @@ defmodule TransportWeb.API.DatasetController do
   @spec geojson_by_id(Plug.Conn.t(), map) :: Plug.Conn.t()
   def geojson_by_id(%Plug.Conn{} = conn, %{"id" => id}) do
     Dataset
+    |> Dataset.reject_experimental_datasets()
     |> Repo.get_by(datagouv_id: id)
     |> Repo.preload([:aom, :region, :communes])
     |> case do
@@ -167,9 +169,10 @@ defmodule TransportWeb.API.DatasetController do
       "updated" => Helpers.last_updated(Dataset.official_resources(dataset)),
       "resources" => Enum.map(dataset.resources, &transform_resource/1),
       "community_resources" => Enum.map(Dataset.community_resources(dataset), &transform_resource/1),
-      # DEPRECATED, only there for retrocompatibility, use covered_area instead
+      # DEPRECATED, only there for retrocompatibility, use covered_area and legal owners instead
       "aom" => transform_aom(dataset.aom),
       "covered_area" => covered_area(dataset),
+      "legal_owners" => legal_owners(dataset),
       "type" => dataset.type,
       "licence" => dataset.licence,
       "publisher" => get_publisher(dataset)
@@ -298,8 +301,8 @@ defmodule TransportWeb.API.DatasetController do
   defp covered_area(%Dataset{region: %{id: 14}}),
     do: %{"type" => "country", "name" => "France", "country" => %{"name" => "France"}}
 
-  defp covered_area(%Dataset{region: %{nom: nom}}),
-    do: %{"type" => "region", "name" => nom, "region" => %{"name" => nom}}
+  defp covered_area(%Dataset{region: %{nom: nom, insee: insee}}),
+    do: %{"type" => "region", "name" => nom, "region" => %{"name" => nom, "insee" => insee}}
 
   defp covered_area(%Dataset{communes: [_ | _] = c, associated_territory_name: nom}),
     do: %{"type" => "cities", "name" => nom, "cities" => transform_cities(c)}
@@ -311,6 +314,24 @@ defmodule TransportWeb.API.DatasetController do
   defp transform_cities(cities) do
     cities
     |> Enum.map(fn c -> %{"name" => c.nom, "insee" => c.insee} end)
+  end
+
+  defp legal_owners(dataset) do
+    %{
+      "aoms" => legal_owners_aom(dataset.legal_owners_aom),
+      "regions" => legal_owners_region(dataset.legal_owners_region),
+      "company" => dataset.legal_owner_company_siren
+    }
+  end
+
+  defp legal_owners_aom(aoms) do
+    aoms
+    |> Enum.map(fn aom -> %{"name" => aom.nom, "siren" => aom.siren} end)
+  end
+
+  defp legal_owners_region(regions) do
+    regions
+    |> Enum.map(fn region -> %{"name" => region.nom, "insee" => region.insee} end)
   end
 
   defp prepare_datasets_index_data(%Plug.Conn{} = conn) do
@@ -355,7 +376,8 @@ defmodule TransportWeb.API.DatasetController do
 
     %{}
     |> Dataset.list_datasets()
-    |> preload([:resources, :aom, :region, :communes])
+    |> Dataset.reject_experimental_datasets()
+    |> preload([:resources, :aom, :region, :communes, :legal_owners_aom, :legal_owners_region])
     |> Repo.all()
     |> Enum.map(fn dataset ->
       enriched_dataset = Map.get(existing_ids, dataset.id)

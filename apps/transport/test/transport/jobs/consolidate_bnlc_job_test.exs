@@ -8,6 +8,8 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
   @target_schema "etalab/schema-lieux-covoiturage"
   @tmp_path System.tmp_dir!() |> Path.join("bnlc.csv")
+  @csv_latin1_path "#{__DIR__}/../../fixture/files/csv_latin1.csv"
+  @csv_utf8_path "#{__DIR__}/../../fixture/files/csv_utf8.csv"
 
   doctest ConsolidateBNLCJob, import: true
   setup :verify_on_exit!
@@ -252,6 +254,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                 {^dataset_decode_error_detail,
                  %{
                    "id" => ^resource_decode_error_id,
+                   "encoding" => :utf8,
                    "csv_separator" => ?,,
                    "tmp_download_path" => tmp_decode_error_download_path,
                    "url" => ^decode_error_url
@@ -259,7 +262,13 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
              ],
              ok: [
                {^dataset_detail,
-                %{"id" => ^resource_id, "url" => ^url, "csv_separator" => ?,, "tmp_download_path" => tmp_download_path}}
+                %{
+                  "id" => ^resource_id,
+                  "url" => ^url,
+                  "encoding" => :utf8,
+                  "csv_separator" => ?,,
+                  "tmp_download_path" => tmp_download_path
+                }}
              ]
            } = ConsolidateBNLCJob.download_resources(resources_details)
 
@@ -286,6 +295,11 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
              "foo";"bar"
              1;2
              """)
+  end
+
+  test "guess_encoding" do
+    assert :latin1 == ConsolidateBNLCJob.guess_encoding(@csv_latin1_path)
+    assert :utf8 == ConsolidateBNLCJob.guess_encoding(@csv_utf8_path)
   end
 
   test "bnlc_csv_headers" do
@@ -864,7 +878,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
   defp assert_ok_email_sent do
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"", "deploiement@transport.data.gouv.fr"}],
+                           to: [{"", "contact@transport.data.gouv.fr"}],
                            subject: "[OK] Rapport de consolidation de la BNLC",
                            html_body: html_body
                          } ->
@@ -878,7 +892,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
   defp assert_ko_email_sent do
     assert_email_sent(fn %Swoosh.Email{
                            from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-                           to: [{"", "deploiement@transport.data.gouv.fr"}],
+                           to: [{"", "contact@transport.data.gouv.fr"}],
                            subject: "[ERREUR] Rapport de consolidation de la BNLC",
                            html_body: html_body
                          } ->

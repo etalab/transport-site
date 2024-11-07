@@ -34,18 +34,6 @@ if System.get_env("CELLAR_NAMESPACE") do
   raise "CELLAR_NAMESPACE variable is deprecated and must be removed."
 end
 
-config :gbfs,
-  generators: [context_app: false]
-
-config :gbfs, jcdecaux_apikey: System.get_env("JCDECAUX_APIKEY")
-
-# Configures the endpoint
-config :gbfs, GBFS.Endpoint,
-  render_errors: [view: GBFS.ErrorView, accepts: ~w(json)],
-  # TODO: verify if this is truly needed? unsure.
-  pubsub_server: GBFS.PubSub,
-  server: false
-
 # Configures the endpoint
 config :transport, TransportWeb.Endpoint,
   url: [host: "127.0.0.1"],
@@ -106,7 +94,8 @@ config :transport,
   validator_selection: Transport.ValidatorsSelection.Impl,
   data_visualization: Transport.DataVisualization.Impl,
   workflow_notifier: Transport.Jobs.Workflow.ObanNotifier,
-  enroute_validator_client: Transport.EnRouteChouetteValidClient
+  enroute_validator_client: Transport.EnRouteChouetteValidClient,
+  netex_validator: Transport.Validators.NeTEx
 
 # Datagouv IDs for national databases created automatically.
 # These are IDs used in staging, demo.data.gouv.fr
@@ -183,20 +172,32 @@ config :gettext, :default_locale, "fr"
 config :transport,
   domain_name: System.get_env("DOMAIN_NAME", "transport.data.gouv.fr"),
   export_secret_key: System.get_env("EXPORT_SECRET_KEY"),
+  # Expected format: `client1:secret_token;client2:other_token`
+  api_auth_clients: System.get_env("API_AUTH_CLIENTS"),
   enroute_token: System.get_env("ENROUTE_TOKEN"),
   enroute_validation_token: System.get_env("ENROUTE_VALIDATION_TOKEN"),
   max_import_concurrent_jobs: (System.get_env("MAX_IMPORT_CONCURRENT_JOBS") || "1") |> String.to_integer(),
   nb_days_to_keep_validations: 60,
   join_our_slack_link: "https://join.slack.com/t/transportdatagouvfr/shared_invite/zt-2n1n92ye-sdGQ9SeMh5BkgseaIzV8kA",
   contact_email: "contact@transport.data.gouv.fr",
-  bizdev_email: "deploiement@transport.data.gouv.fr",
   tech_email: "tech@transport.data.gouv.fr",
   security_email: "contact@transport.data.gouv.fr",
   transport_tools_folder: Path.absname("transport-tools/")
 
 # Disable sending events to Sentry by default.
+# Sentry events are only sent when `dsn` is not nil
+# https://hexdocs.pm/sentry/upgrade-10-x.html#stop-using-included_environments
 # Events are sent in production and staging, configured in `prod.exs`
-config :sentry, dsn: nil
+config :sentry,
+  dsn: nil,
+  environment_name: "SENTRY_ENV" |> System.get_env(to_string(config_env())) |> String.to_atom(),
+  enable_source_code_context: true,
+  # https://hexdocs.pm/sentry/Sentry.html#module-configuration
+  # > a list of paths to the root of your application's source code.
+  # > For umbrella apps, you should set this to all the application paths in your umbrella
+  # Caveat: https://github.com/getsentry/sentry-elixir/issues/638
+  root_source_code_paths: [File.cwd!() |> Path.join("apps")],
+  filter: Transport.Shared.SentryExceptionFilter
 
 # For now, never send session data (containing sensitive data in our case) nor params,
 # even if this means less useful information.
@@ -218,9 +219,6 @@ config :appsignal, :config,
     # I presume this is triggered by the way we route requests
     # https://github.com/etalab/transport-site/blob/master/apps/transport/lib/transport_web/plugs/router.ex
     "GET /*_path",
-    # Same for GBFS - although it is filtered in the plug, a request
-    # will also be double-counted at the router level for some reason
-    "GET /gbfs/*_",
     # Here this is a duplicate precaution to ensure we exclude proxy
     # traffic which generates a lot of AppSignal events
     "Unlock.Controller#fetch"

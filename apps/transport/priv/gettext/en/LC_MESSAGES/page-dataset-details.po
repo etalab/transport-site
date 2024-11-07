@@ -499,6 +499,10 @@ msgid "Displaying the last %{nb} backed up resources."
 msgstr ""
 
 #, elixir-autogen, elixir-format
+msgid "Download history details"
+msgstr ""
+
+#, elixir-autogen, elixir-format
 msgid "Data published by"
 msgstr ""
 
@@ -708,4 +712,12 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "The producer requires authentication to access the data. Consequently, some features on transport.data.gouv.fr, such as data availability, validations, and metadata, are unavailable for this dataset. Please follow the producer's instructions to gain access to the data."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Data under the responsibility of"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "This unofficial dataset is provided experimentally. Do not use it for travel information purpose."
 msgstr ""

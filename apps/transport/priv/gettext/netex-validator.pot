@@ -1,0 +1,82 @@
+## This file is a PO Template file.
+##
+## "msgid"s here are often extracted from source code.
+## Add new messages manually only if they're dynamic
+## messages that can't be statically extracted.
+##
+## Run "mix gettext.extract" to bring this file up to
+## date. Leave "msgstr"s empty as changing them here has no
+## effect: edit them in PO (.po) files instead.
+#
+msgid ""
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Composite frame ligne mandatory"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Frame arret resources"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Frame calendrier resources"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Frame horaire resources"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Frame ligne resources"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Frame reseau resources"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Latitude mandatory"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Longitude mandatory"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "UIC operating period"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Valid day bits"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Version any"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Unspecified error"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "XSD validation"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "error"
+msgid_plural "errors"
+msgstr[0] ""
+msgstr[1] ""
+
+#, elixir-autogen, elixir-format
+msgid "information"
+msgid_plural "informations"
+msgstr[0] ""
+msgstr[1] ""
+
+#, elixir-autogen, elixir-format
+msgid "warning"
+msgid_plural "warnings"
+msgstr[0] ""
+msgstr[1] ""

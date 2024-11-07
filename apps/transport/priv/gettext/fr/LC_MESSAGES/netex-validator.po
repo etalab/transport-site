@@ -1,0 +1,82 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n>1);\n"
+
+#, elixir-autogen, elixir-format
+msgid "Composite frame ligne mandatory"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Frame arret resources"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Frame calendrier resources"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Frame horaire resources"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Frame ligne resources"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Frame reseau resources"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Latitude mandatory"
+msgstr "Latitude requise"
+
+#, elixir-autogen, elixir-format
+msgid "Longitude mandatory"
+msgstr "Longitude requise"
+
+#, elixir-autogen, elixir-format
+msgid "UIC operating period"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Valid day bits"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Version any"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Unspecified error"
+msgstr "Erreur inconnue"
+
+#, elixir-autogen, elixir-format
+msgid "XSD validation"
+msgstr "Validation XSD"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "error"
+msgid_plural "errors"
+msgstr[0] "%{count} erreur"
+msgstr[1] "%{count} erreurs"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "information"
+msgid_plural "informations"
+msgstr[0] "%{count} information"
+msgstr[1] "%{count} informations"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "warning"
+msgid_plural "warnings"
+msgstr[0] "%{count} avertissement"
+msgstr[1] "%{count} avertissements"

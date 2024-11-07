@@ -75,9 +75,14 @@ msgid "to"
 msgstr "au"
 
 #, elixir-autogen, elixir-format
-msgid "explanations"
+msgid "explanations-gtfs"
 msgstr "Voici le bilan automatisé sur la qualité du fichier GTFS. "
 "Cette validation ne concerne que la structure des données et pas la complétude ni l’exactitude des horaires. "
+
+#, elixir-autogen, elixir-format
+msgid "explanations-netex"
+msgstr "Voici le bilan automatisé sur la qualité du fichier NeTEx. "
+"Cette validation ne concerne que la structure des données et pas la complétude ni l’exactitude des données. "
 
 #, elixir-autogen, elixir-format
 msgid "Show anyway"
@@ -134,17 +139,9 @@ msgstr "Ce GeoJSON était bien à jour avec la ressource GTFS il y a %{hours}."
 msgid "Visualization up-to-date %{hours} ago."
 msgstr "Visualisation à jour il y a %{hours}."
 
-#, elixir-autogen, elixir-format, fuzzy
-msgid "Check a file's quality"
-msgstr "Analyser la qualité d’un fichier"
-
 #, elixir-autogen, elixir-format
 msgid "Choose your file"
 msgstr "Choisissez votre fichier"
-
-#, elixir-autogen, elixir-format
-msgid "File type"
-msgstr "Type de fichier"
 
 #, elixir-autogen, elixir-format
 msgid "Last updated at %{date}."
@@ -278,20 +275,12 @@ msgid "Upload in progress"
 msgstr "Envoi en cours"
 
 #, elixir-autogen, elixir-format
-msgid "Validation carried out using the <a href=\"%{gtfs_link}\">current GTFS file</a> the %{date} using the <a href=\"%{validator_url}\" target=\"_blank\">PAN GTFS validator</a>."
-msgstr "Validation effectuée en utilisant <a href=\"%{gtfs_link}\">le fichier GTFS en vigueur</a> le %{date} avec <a href=\"%{validator_url}\" target=\"_blank\">le validateur GTFS du <abbr title=\"Point d'Accès National\">PAN</abbr></a>."
+msgid "Validation carried out using the <a href=\"%{link}\">current %{format} file</a> the %{date} using the <a href=\"%{validator_url}\" target=\"_blank\">%{validator_name}</a>."
+msgstr "Validation effectuée en utilisant <a href=\"%{link}\">le fichier %{format} en vigueur</a> le %{date} avec <a href=\"%{validator_url}\" target=\"_blank\">%{validator_name}</a>."
 
 #, elixir-autogen, elixir-format
 msgid "from"
 msgstr "du"
-
-#, elixir-autogen, elixir-format
-msgid "doc-eu-formats"
-msgstr "Pour accéder aux ressources autour des normes européennes, vous pouvez consulter <a href=\"%{link}\" target=\"_blank\">notre documentation</a>."
-
-#, elixir-autogen, elixir-format
-msgid "netex-siri-validator"
-msgstr "Le projet européen DATA4PT assure aujourd'hui l'accompagnement au déploiement des normes européennes NeTEx et SIRI. Dans ce cadre, il est mis à disposition un outil de validation NeTEx <a href=\"%{link}\" target=\"_blank\">accessible en ligne</a>."
 
 #, elixir-autogen, elixir-format
 msgid "%{count} times (%{percentage} % of validations)"
@@ -420,3 +409,31 @@ msgstr "nombre d'arrêts :"
 #, elixir-autogen, elixir-format
 msgid "The GTFS file %{gtfs_original_file_name_2} has differences with the GTFS file %{gtfs_original_file_name_1}, as summarized below:"
 msgstr "Le fichier GTFS %{gtfs_original_file_name_2} comporte les différences ci-dessous par rapport au fichier GTFS %{gtfs_original_file_name_1} :"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "NeTEx review report"
+msgstr "Rapport de l’analyse de fichier NeTEx"
+
+#, elixir-autogen, elixir-format
+msgid "Elapsed time: %{duration}."
+msgstr "Temps passé : %{duration}."
+
+#, elixir-autogen, elixir-format
+msgid "NeTEx validation is in beta."
+msgstr "La validation NeTEx est en beta."
+
+#, elixir-autogen, elixir-format
+msgid "Warnings are work in progress. Only XSD errors are considered for now."
+msgstr "Les avertissements sont temporaires. Seules les erreurs XSD sont prises en considération pour l’instant."
+
+#, elixir-autogen, elixir-format
+msgid "less than 1 second"
+msgstr "moins d’une seconde"
+
+#, elixir-autogen, elixir-format
+msgid "PAN GTFS validator"
+msgstr "le validateur GTFS du <abbr title=\"Point d’Accès National\">PAN</abbr>"
+
+#, elixir-autogen, elixir-format
+msgid "enRoute Chouette Valid"
+msgstr "le validateur NeTEx d’enRoute"

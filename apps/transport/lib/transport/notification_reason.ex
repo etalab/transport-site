@@ -145,6 +145,14 @@ defmodule Transport.NotificationReason do
     |> Map.keys()
   end
 
+  @spec subscribable_reasons_for_role(role()) :: [reason()]
+  def subscribable_reasons_for_role(role) do
+    reasons_for_role(role)
+    |> MapSet.new()
+    |> MapSet.intersection(MapSet.new(subscribable_reasons()))
+    |> MapSet.to_list()
+  end
+
   @doc """
   iex> hidden_reasons_for_role(:reuser)
   [:datasets_switching_climate_resilience_bill]

@@ -48,7 +48,6 @@ defmodule TransportWeb.PageController do
       count_aoms_with_dataset: count_aoms_with_dataset(),
       count_regions_completed: count_regions_completed(),
       count_public_transport_has_realtime: Dataset.count_public_transport_has_realtime(),
-      count_paris2024: Dataset.count_by_custom_tag("paris2024"),
       percent_population: percent_population(),
       reusers: CSVDocuments.reusers(),
       facilitators: CSVDocuments.facilitators()
@@ -281,13 +280,7 @@ defmodule TransportWeb.PageController do
       type_tile(conn, "charging-stations"),
       type_tile(conn, "private-parking"),
       type_tile(conn, "locations"),
-      type_tile(conn, "informations"),
-      %Tile{
-        link: dataset_path(conn, :index, %{"custom_tag" => "paris2024"}),
-        icon: icon_type_path("paris2024"),
-        title: "JOP Paris 2024",
-        count: Keyword.fetch!(counts, :count_paris2024)
-      }
+      type_tile(conn, "informations")
     ]
   end
 

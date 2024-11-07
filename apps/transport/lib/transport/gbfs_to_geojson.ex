@@ -4,6 +4,8 @@ defmodule Transport.GbfsToGeojson do
   """
   alias Transport.Shared.GBFSMetadata
 
+  @type feed_name :: Transport.Shared.GBFSMetadata.feed_name()
+
   @doc """
   Main module function: returns a map of geojsons generated from the GBFS endpoint
   %{
@@ -29,7 +31,7 @@ defmodule Transport.GbfsToGeojson do
 
   def add_feeds(payload, %{"output" => "free_floating"}) do
     %{}
-    |> add_free_bike_status(payload)
+    |> add_vehicle_status(payload)
     |> Map.get("free_floating")
   end
 
@@ -43,7 +45,7 @@ defmodule Transport.GbfsToGeojson do
     %{}
     |> add_station_information(payload)
     |> add_station_status(payload)
-    |> add_free_bike_status(payload)
+    |> add_vehicle_status(payload)
     |> add_geofencing_zones(payload)
   rescue
     _e -> %{}
@@ -52,7 +54,7 @@ defmodule Transport.GbfsToGeojson do
   @spec add_station_information(map(), map()) :: map()
   defp add_station_information(resp_data, payload) do
     payload
-    |> feed_url_from_payload("station_information")
+    |> feed_url_from_payload(:station_information)
     |> case do
       nil ->
         resp_data
@@ -80,7 +82,7 @@ defmodule Transport.GbfsToGeojson do
             "coordinates" => [s["lon"], s["lat"]]
           },
           "properties" => %{
-            "name" => s["name"],
+            "name" => station_name(s),
             "station_id" => s["station_id"]
           }
         }
@@ -92,10 +94,18 @@ defmodule Transport.GbfsToGeojson do
     }
   end
 
+  # From GBFS 1.1 until 2.3
+  defp station_name(%{"name" => name}) when is_binary(name), do: name
+
+  # From GBFS 3.0 onwards
+  defp station_name(%{"name" => names}) do
+    names |> hd() |> Map.get("text")
+  end
+
   @spec add_station_status(map(), map()) :: map()
   defp add_station_status(%{"stations" => stations_geojson} = resp_data, payload) do
     payload
-    |> feed_url_from_payload("station_status")
+    |> feed_url_from_payload(:station_status)
     |> case do
       nil ->
         resp_data
@@ -131,6 +141,7 @@ defmodule Transport.GbfsToGeojson do
           station_status
           |> Enum.find(fn s -> s["station_id"] == station_id end)
           |> Map.delete("station_id")
+          |> add_availability()
 
         put_in(s["properties"]["station_status"], status)
       end)
@@ -141,24 +152,29 @@ defmodule Transport.GbfsToGeojson do
     }
   end
 
-  @spec add_free_bike_status(map(), map()) :: map()
-  defp add_free_bike_status(resp_data, payload) do
+  def add_availability(data) do
+    availability = data["num_vehicles_available"] || data["num_bikes_available"]
+    Map.put(data, "availability", availability)
+  end
+
+  @spec add_vehicle_status(map(), map()) :: map()
+  defp add_vehicle_status(resp_data, payload) do
     payload
-    |> feed_url_from_payload("free_bike_status")
+    |> feed_url_from_payload(:vehicle_status)
     |> case do
       nil ->
         resp_data
 
       url ->
-        geojson = free_bike_status_geojson!(url)
+        geojson = vehicle_status_geojson!(url)
         resp_data |> Map.put("free_floating", geojson)
     end
   rescue
     _e -> resp_data
   end
 
-  @spec free_bike_status_geojson!(binary()) :: map()
-  defp free_bike_status_geojson!(url) do
+  @spec vehicle_status_geojson!(binary()) :: map()
+  defp vehicle_status_geojson!(url) do
     json = fetch_gbfs_endpoint!(url)
 
     vehicles =
@@ -189,7 +205,7 @@ defmodule Transport.GbfsToGeojson do
   @spec add_geofencing_zones(map(), map()) :: map()
   defp add_geofencing_zones(resp_data, payload) do
     payload
-    |> feed_url_from_payload("geofencing_zones")
+    |> feed_url_from_payload(:geofencing_zones)
     |> case do
       nil ->
         resp_data
@@ -216,7 +232,7 @@ defmodule Transport.GbfsToGeojson do
     Jason.decode!(body)
   end
 
-  @spec feed_url_from_payload(map(), binary()) :: binary() | nil
+  @spec feed_url_from_payload(map(), feed_name()) :: binary() | nil
   defp feed_url_from_payload(payload, feed_name) do
     payload |> GBFSMetadata.first_feed() |> GBFSMetadata.feed_url_by_name(feed_name)
   end

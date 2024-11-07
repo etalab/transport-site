@@ -24,7 +24,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetsClimateResilienceBillNotLOLicenc
 
     assert_email_sent(
       from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-      to: "deploiement@transport.data.gouv.fr",
+      to: "contact@transport.data.gouv.fr",
       subject: "Jeux de données article 122 avec licence inappropriée",
       text_body: nil,
       html_body:

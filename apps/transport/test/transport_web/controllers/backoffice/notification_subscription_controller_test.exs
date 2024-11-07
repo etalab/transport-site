@@ -11,7 +11,7 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
   describe "create" do
     test "for reasons related to a dataset", %{conn: conn} do
       %DB.Dataset{id: dataset_id} = insert(:dataset)
-      %DB.Contact{id: contact_id} = DB.Contact.insert!(sample_contact_args())
+      %DB.Contact{id: contact_id} = insert_contact()
 
       args = %{
         "redirect_location" => "dataset",
@@ -66,7 +66,7 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
 
     test "for reasons not related to datasets", %{conn: conn} do
       %DB.Dataset{id: dataset_id} = insert(:dataset)
-      %DB.Contact{id: contact_id} = DB.Contact.insert!(sample_contact_args())
+      %DB.Contact{id: contact_id} = insert_contact()
       # An existing subscription linked to a dataset
       insert(:notification_subscription,
         dataset_id: dataset_id,
@@ -122,7 +122,7 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
 
   test "delete", %{conn: conn} do
     %DB.Dataset{id: dataset_id} = insert(:dataset)
-    %DB.Contact{id: contact_id} = DB.Contact.insert!(sample_contact_args())
+    %DB.Contact{id: contact_id} = insert_contact()
 
     %DB.NotificationSubscription{id: subscription_id} =
       insert(:notification_subscription,
@@ -148,8 +148,8 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
 
   test "delete_for_contact_and_dataset", %{conn: conn} do
     %DB.Dataset{id: dataset_id} = insert(:dataset)
-    %DB.Contact{id: contact_id} = DB.Contact.insert!(sample_contact_args())
-    %DB.Contact{id: other_contact_id} = DB.Contact.insert!(sample_contact_args())
+    %DB.Contact{id: contact_id} = insert_contact()
+    %DB.Contact{id: other_contact_id} = insert_contact()
 
     insert(:notification_subscription,
       contact_id: contact_id,
@@ -195,16 +195,5 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
                source: :admin
              }
            ] = DB.NotificationSubscription |> DB.Repo.all()
-  end
-
-  defp sample_contact_args do
-    %{
-      first_name: "John",
-      last_name: "Doe",
-      email: "john#{Ecto.UUID.generate()}@example.fr",
-      job_title: "Boss",
-      organization: "Big Corp Inc",
-      phone_number: "06 82 22 88 03"
-    }
   end
 end

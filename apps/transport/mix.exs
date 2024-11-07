@@ -80,7 +80,6 @@ defmodule Transport.Mixfile do
       {:scrivener_list, "~>2.0"},
       {:jason, "~> 1.1"},
       {:open_api_spex, "~> 3.8"},
-      {:gbfs, in_umbrella: true},
       {:datagouvfr, in_umbrella: true},
       {:shared, in_umbrella: true},
       {:unlock, in_umbrella: true},
@@ -145,7 +144,8 @@ defmodule Transport.Mixfile do
       # Highly recommended, this will makes sure we get the correct remote_ip
       {:remote_ip, "~> 1.1"},
       {:image, "~> 0.52"},
-      {:nx, "~> 0.7"}
+      {:nx, "~> 0.7"},
+      {:mock, "~> 0.3.6", only: :test}
     ]
   end
 end

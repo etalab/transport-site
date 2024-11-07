@@ -3,6 +3,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
   import Mox
+  import Transport.Test.EnRouteChouetteValidClientHelpers
   import Transport.Test.S3TestUtils
   alias Transport.Jobs.OnDemandValidationJob
   alias Transport.Validators.GTFSRT
@@ -389,19 +390,80 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
       refute File.exists?(gtfs_rt_path)
       refute File.exists?(OnDemandValidationJob.gtfs_rt_result_path(gtfs_rt_path))
     end
+
+    test "with a NeTEx" do
+      url = mk_raw_netex_resource()
+      validation = create_validation(%{"type" => "netex"}, url)
+
+      errors = [
+        %{
+          "code" => "xsd-1871",
+          "criticity" => "error",
+          "message" =>
+            "Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef )."
+        },
+        %{
+          "code" => "uic-operating-period",
+          "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod",
+          "criticity" => "error"
+        },
+        %{
+          "code" => "valid-day-bits",
+          "message" => "Mandatory attribute valid_day_bits not found",
+          "criticity" => "error"
+        },
+        %{
+          "code" => "frame-arret-resources",
+          "message" => "Tag frame_id doesn't match ''",
+          "criticity" => "warning"
+        }
+      ]
+
+      expect_netex_with_errors(errors)
+
+      s3_mocks_delete_object(Transport.S3.bucket_name(:on_demand_validation), @filename)
+
+      assert :ok == run_job(validation)
+
+      assert %{
+               validation_timestamp: date,
+               result: result,
+               max_error: "error",
+               oban_args: %{"state" => "completed", "type" => "netex"},
+               metadata: %{},
+               data_vis: nil
+             } = validation |> DB.Repo.reload() |> DB.Repo.preload(:metadata)
+
+      assert %{"xsd-1871" => a1, "uic-operating-period" => a2, "valid-day-bits" => a3, "frame-arret-resources" => a4} =
+               result
+
+      assert length(a1) == 1
+      assert length(a2) == 1
+      assert length(a3) == 1
+      assert length(a4) == 1
+
+      assert DateTime.diff(date, DateTime.utc_now()) <= 1
+    end
   end
 
-  defp create_validation(details) do
+  defp create_validation(details, url \\ @url) do
     details =
       if details["type"] == "gtfs-rt" do
         details
       else
-        Map.merge(details, %{"filename" => @filename, "permanent_url" => @url})
+        Map.merge(details, %{"filename" => @filename, "permanent_url" => url})
       end
 
     oban_args = Map.merge(%{"state" => "waiting"}, details)
 
     insert(:multi_validation, oban_args: oban_args)
+  end
+
+  def expect_netex_with_errors(messages) do
+    validation_id = expect_create_validation()
+    expect_failed_validation(validation_id, 10)
+
+    expect_get_messages(validation_id, messages)
   end
 
   defp run_job(%DB.MultiValidation{} = validation) do
@@ -410,4 +472,14 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
   end
 
   defp validator_path, do: Path.join(Application.fetch_env!(:transport, :transport_tools_folder), @validator_filename)
+
+  defp mk_raw_netex_resource do
+    resource_url = "http://localhost:9999/netex-#{Ecto.UUID.generate()}.zip"
+
+    expect(Transport.Req.Mock, :get!, 1, fn ^resource_url, [{:compressed, false}, {:into, _}] ->
+      {:ok, %Req.Response{status: 200, body: %{"data" => "some_zip_file"}}}
+    end)
+
+    resource_url
+  end
 end

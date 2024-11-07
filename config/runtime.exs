@@ -130,6 +130,7 @@ oban_prod_crontab = [
   # https://github.com/etalab/transport-site/issues/3492
   # {"0 20 * * *", Transport.Jobs.ResourceHistoryValidataJSONJob},
   {"15 */3 * * *", Transport.Jobs.ResourceHistoryTableSchemaValidationJob},
+  {"0 6 * * 1-5", Transport.Jobs.NewDatagouvDatasetsJob, args: %{check_rules: true}},
   {"5 6 * * 1-5", Transport.Jobs.NewDatagouvDatasetsJob},
   {"0 6 * * *", Transport.Jobs.NewDatasetNotificationsJob},
   {"30 6 * * *", Transport.Jobs.ExpirationNotificationJob},
@@ -151,6 +152,7 @@ oban_prod_crontab = [
   # The job will make sure that it's executed only on the first Monday of these months
   {"15 8 * 3,6,11 1", Transport.Jobs.PeriodicReminderProducersNotificationJob},
   {"15 5 * * *", Transport.Jobs.ImportDatasetFollowersJob},
+  {"20 5 * * *", Transport.Jobs.ImportDatasetContactPointsJob},
   {"30 5 * * *", Transport.Jobs.ImportDatasetMonthlyMetricsJob},
   {"45 5 * * *", Transport.Jobs.ImportResourceMonthlyMetricsJob},
   {"0 8 * * *", Transport.Jobs.WarnUserInactivityJob},

@@ -1,0 +1,154 @@
+<% new_resource = is_nil(@datagouv_resource) %>
+<div class="add-update-resource">
+  <section class="pt-48 pb-24">
+    <div class="container">
+      <%= if new_resource do %>
+        <%= breadcrumbs([@conn, :new_resource, @dataset.custom_title, @dataset.id]) %>
+      <% else %>
+        <%= breadcrumbs([@conn, :update_resource, @dataset.custom_title, @dataset.id]) %>
+      <% end %>
+    </div>
+  </section>
+  <section class="choose-file">
+    <div class="container pt-24">
+      <strong>
+        <%= @dataset.custom_title %><span :if={!new_resource}> > <%= @datagouv_resource["title"] %></span>
+      </strong>
+      <div class="pt-24">
+        <h2><%= title(@conn) %></h2>
+      </div>
+      <div class="validation-reminder">
+        <div class="panel">
+          <%= raw(
+            dgettext(
+              "resource",
+              "If you haven’t done it yet, think about <a href=\"%{link}\">validating your data</a> before publishing it.",
+              link: live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)
+            )
+          ) %>
+        </div>
+      </div>
+      <div class="option-1 mt-48">
+        <div class="panel">
+          <div>
+            <%= if new_resource do %>
+              <h4><%= dgettext("espace-producteurs", "Option 1: Directly add the resource") %></h4>
+              <p>
+                <%= raw(
+                  dgettext(
+                    "resource",
+                    ~s(This option allows you to add the resource on data.gouv.fr, directly from here. Do you want to publish a more up-to-date version of a resource? <a href="%{url}">Update the resource</a> instead.),
+                    url: espace_producteur_path(@conn, :edit_dataset, @dataset.id)
+                  )
+                ) %>
+              </p>
+            <% else %>
+              <h4><%= dgettext("espace-producteurs", "Option 1: Directly update the resource") %></h4>
+              <p>
+                <%= dgettext(
+                  "resource",
+                  "This option allows you to update the resource on data.gouv.fr, directly from here."
+                ) %>
+              </p>
+            <% end %>
+          </div>
+          <div>
+            <%= form_for @conn, action_path(@conn), [multipart: true], fn f -> %>
+              <%= text_input(f, :title,
+                label: dgettext("espace-producteurs", "title"),
+                placeholder: dgettext("espace-producteurs", "Example: Paris GTFS dataset"),
+                value: @datagouv_resource["title"]
+              ) %>
+              <%= text_input(
+                f,
+                :format,
+                label:
+                  label f, :format do
+                    [
+                      dgettext("espace-producteurs", "Format"),
+                      content_tag(:a, "GTFS", class: "filler", onclick: "fill(this);"),
+                      content_tag(:a, "NeTEx", class: "filler", onclick: "fill(this);"),
+                      content_tag(:a, "gtfs-rt", class: "filler", onclick: "fill(this);")
+                    ]
+                  end,
+                placeholder: "GTFS, NeTEx, …",
+                value: @datagouv_resource["format"]
+              ) %>
+              <div class="pt-48">
+                <%= if new_resource do %>
+                  <%= render("_upload_file.html", datagouv_resource: @datagouv_resource, f: f, conn: @conn) %>
+                  <div class="choose-or">
+                    - <%= dgettext("espace-producteurs", "or") %> -
+                  </div>
+                  <%= render("_specify_url.html", datagouv_resource: @datagouv_resource, f: f, conn: @conn) %>
+                  <div class="choose-submit pt-24">
+                    <%= submit(dgettext("espace-producteurs", "Add the resource"), class: "button primary") %>
+                  </div>
+                <% else %>
+                  <%= if remote?(@datagouv_resource) do %>
+                    <%= render("_specify_url.html", datagouv_resource: @datagouv_resource, f: f, conn: @conn) %>
+                  <% else %>
+                    <%= render("_upload_file.html", datagouv_resource: @datagouv_resource, f: f, conn: @conn) %>
+                  <% end %>
+                  <div class="choose-submit pt-24">
+                    <%= submit(dgettext("espace-producteurs", "Update the resource"), class: "button primary") %>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+      <div class="option-2 mt-48">
+        <div class="panel">
+          <div>
+            <%= if new_resource do %>
+              <h4>
+                <%= dgettext("espace-producteurs", "Option 2: for more options, create the resource on data.gouv.fr") %>
+              </h4>
+              <div>
+                <a
+                  class="button primary"
+                  href={datagouv_resource_creation_url(@datagouv_dataset["id"])}
+                  role="link"
+                  target="_blank"
+                >
+                  <i class="icon icon--link" aria-hidden="true"></i>
+                  <%= dgettext("espace-producteurs", "Create it directly on data.gouv.fr") %>
+                </a>
+              </div>
+            <% else %>
+              <h4>
+                <%= dgettext("espace-producteurs", "Option 2: for more options, edit the resource on data.gouv.fr") %>
+              </h4>
+              <div>
+                <a
+                  class="button primary"
+                  href={datagouv_resource_edit_url(@datagouv_dataset["id"], @conn.params["resource_id"])}
+                  role="link"
+                  target="_blank"
+                >
+                  <i class="icon icon--link" aria-hidden="true"></i>
+                  <%= dgettext("espace-producteurs", "Edit directly on data.gouv.fr") %>
+                </a>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+      <div class="pt-48">
+        <p>
+          <%= link(
+            dgettext("espace-producteurs", "I'm not sure. Learn more."),
+            to: "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees"
+          ) %>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<script>
+  function fill(id) {
+      id.parentNode.control.value = id.innerHTML
+  }
+</script>

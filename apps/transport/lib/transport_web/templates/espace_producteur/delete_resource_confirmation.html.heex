@@ -1,0 +1,36 @@
+<section class="pt-48 pb-24">
+  <div class="container">
+    <%= breadcrumbs([@conn, :delete_resource, @dataset.custom_title, @dataset.id]) %>
+  </div>
+</section>
+<section class="espace-producteur-section">
+  <div class="container pt-24">
+    <strong><%= @dataset.custom_title %> > <%= @datagouv_resource["title"] %></strong>
+    <%= form_for @conn, espace_producteur_path(@conn, :delete_resource, @datagouv_dataset["id"], @datagouv_resource["id"]), [method: "delete", class: "pt-48"], fn _ -> %>
+      <p class="notification warning">
+        <%= dgettext("espace-producteurs", "Do you want to update the resource or delete it definitely?") %>
+      </p>
+      <div class="form-group">
+        <button
+          class="button warning"
+          type="submit"
+          data-tracking-category="espace_producteur"
+          data-tracking-action="confirm_delete_resource"
+        >
+          <%= dgettext("espace-producteurs", "Delete the resource") %>
+        </button>
+        <a
+          href={espace_producteur_path(@conn, :edit_resource, @dataset.id, @datagouv_resource["id"])}
+          data-tracking-category="espace_producteur"
+          data-tracking-action="abort_delete_update_resource"
+        >
+          <button class="button-outline primary" type="button">
+            <%= dgettext("espace-producteurs", "Update the resource") %>
+          </button>
+        </a>
+      </div>
+    <% end %>
+  </div>
+</section>
+
+<script defer type="text/javascript" src={static_path(@conn, "/js/app.js")} />

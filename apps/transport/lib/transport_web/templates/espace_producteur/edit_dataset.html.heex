@@ -49,13 +49,19 @@
               <td><%= resource["title"] %> <span :if={format} class="label"><%= format %></span></td>
               <td class="align-right">
                 <%= link(dgettext("espace-producteurs", "Edit resource"),
-                  to: resource_path(@conn, :form, @datagouv_dataset["id"], resource["id"]),
+                  to: espace_producteur_path(@conn, :edit_resource, @dataset.id, resource["id"]),
                   class: "button-outline primary small",
                   "data-tracking-category": "espace_producteur",
                   "data-tracking-action": "update_resource_button"
                 ) %>
                 <%= link(dgettext("espace-producteurs", "Delete resource"),
-                  to: resource_path(@conn, :delete_resource_confirmation, @datagouv_dataset["id"], resource["id"]),
+                  to:
+                    espace_producteur_path(
+                      @conn,
+                      :delete_resource_confirmation,
+                      @dataset.id,
+                      resource["id"]
+                    ),
                   class: "button-outline warning small",
                   "data-tracking-category": "espace_producteur",
                   "data-tracking-action": "delete_resource_button"
@@ -66,7 +72,7 @@
         </table>
 
         <%= link(dgettext("espace-producteurs", "Add a resource"),
-          to: resource_path(@conn, :form, @dataset.datagouv_id),
+          to: espace_producteur_path(@conn, :new_resource, @dataset.id),
           class: "button primary",
           "data-tracking-category": "espace_producteur",
           "data-tracking-action": "add_resource_button"

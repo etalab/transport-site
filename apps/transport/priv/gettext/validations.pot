@@ -75,7 +75,11 @@ msgid "to"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "explanations"
+msgid "explanations-gtfs"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "explanations-netex"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -134,15 +138,7 @@ msgid "Visualization up-to-date %{hours} ago."
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Check a file's quality"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Choose your file"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "File type"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -277,19 +273,11 @@ msgid "Upload in progress"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Validation carried out using the <a href=\"%{gtfs_link}\">current GTFS file</a> the %{date} using the <a href=\"%{validator_url}\" target=\"_blank\">PAN GTFS validator</a>."
+msgid "Validation carried out using the <a href=\"%{link}\">current %{format} file</a> the %{date} using the <a href=\"%{validator_url}\" target=\"_blank\">%{validator_name}</a>."
 msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "from"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "doc-eu-formats"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "netex-siri-validator"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -418,4 +406,32 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "The GTFS file %{gtfs_original_file_name_2} has differences with the GTFS file %{gtfs_original_file_name_1}, as summarized below:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "NeTEx review report"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Elapsed time: %{duration}."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "NeTEx validation is in beta."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Warnings are work in progress. Only XSD errors are considered for now."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "less than 1 second"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "PAN GTFS validator"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "enRoute Chouette Valid"
 msgstr ""

@@ -62,6 +62,19 @@
         </p>
       <% end %>
     </div>
+    <div class="pt-12">
+      <a
+        class="button-outline small secondary"
+        href={dataset_path(@conn, :resources_history_csv, @dataset_id)}
+        data-tracking-category="dataset_details"
+        data-tracking-action="download_resources_history_csv"
+      >
+        <i class="icon icon--download" aria-hidden="true"></i><%= dgettext(
+          "page-dataset-details",
+          "Download history details"
+        ) %>
+      </a>
+    </div>
   </div>
 </section>
 

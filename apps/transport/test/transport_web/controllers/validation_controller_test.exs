@@ -10,6 +10,7 @@ defmodule TransportWeb.ValidationControllerTest do
 
   setup :verify_on_exit!
   @gtfs_path "#{__DIR__}/../../fixture/files/gtfs.zip"
+  @netex_path "#{__DIR__}/../../fixture/files/netex.zip"
   @gtfs_rt_report_path "#{__DIR__}/../../fixture/files/gtfs-rt-validator-errors.json"
   @service_alerts_file "#{__DIR__}/../../fixture/files/bibus-brest-gtfs-rt-alerts.pb"
 
@@ -39,21 +40,14 @@ defmodule TransportWeb.ValidationControllerTest do
       refute view |> has_element?("input[name='upload[url]']")
       assert view |> has_element?("input[name='upload[file]']")
 
-      render_change(view, "form_changed", %{"upload" => %{"type" => "gtfs-rt"}, "_target" => ["upload", "type"]})
-      assert view |> has_element?("input[name='upload[url]']")
-      assert view |> has_element?("input[name='upload[feed_url]']")
-    end
-
-    test "no inputs but explanations when selecting NeTEx", %{conn: conn} do
-      Transport.Shared.Schemas.Mock |> expect(:transport_schemas, 2, fn -> %{} end)
-      {:ok, view, _html} = conn |> get(live_path(conn, OnDemandValidationSelectLive)) |> live()
-
       render_change(view, "form_changed", %{"upload" => %{"type" => "netex"}, "_target" => ["upload", "type"]})
       assert_patched(view, live_path(conn, OnDemandValidationSelectLive, type: "netex"))
       refute view |> has_element?("input[name='upload[url]']")
-      refute view |> has_element?("input[name='upload[file]']")
-      refute view |> has_element?("input[type='submit']")
-      assert view |> has_element?("#netex-explanations")
+      assert view |> has_element?("input[name='upload[file]']")
+
+      render_change(view, "form_changed", %{"upload" => %{"type" => "gtfs-rt"}, "_target" => ["upload", "type"]})
+      assert view |> has_element?("input[name='upload[url]']")
+      assert view |> has_element?("input[name='upload[feed_url]']")
     end
 
     test "takes into account query params", %{conn: conn} do
@@ -144,8 +138,95 @@ defmodule TransportWeb.ValidationControllerTest do
       conn2 = conn |> get(validation_path(conn, :show, validation_id, token: token))
       assert conn2 |> html_response(200) =~ "bus, ferry"
       assert conn2 |> html_response(200) =~ "SuperRéseau"
-      assert conn2 |> html_response(200) =~ "1 Avertissement"
-      assert conn2 |> html_response(200) =~ "1 Information"
+      assert conn2 |> html_response(200) =~ "1 avertissement"
+      assert conn2 |> html_response(200) =~ "1 information"
+    end
+
+    test "with a NeTEx", %{conn: conn} do
+      Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
+      S3TestUtils.s3_mock_stream_file(start_path: "", bucket: "transport-data-gouv-fr-on-demand-validation-test")
+      assert 0 == count_validations()
+
+      conn =
+        conn
+        |> post(validation_path(conn, :validate), %{
+          "upload" => %{"file" => %Plug.Upload{path: @netex_path}, "type" => "netex"}
+        })
+
+      assert 1 == count_validations()
+
+      assert %{
+               oban_args: %{
+                 "filename" => filename,
+                 "permanent_url" => permanent_url,
+                 "state" => "waiting",
+                 "type" => "netex",
+                 "secret_url_token" => token
+               },
+               id: validation_id
+             } = multi_validation = DB.MultiValidation |> DB.Repo.one!() |> DB.Repo.preload(:metadata)
+
+      assert [
+               %Oban.Job{
+                 args: %{
+                   "id" => ^validation_id,
+                   "state" => "waiting",
+                   "filename" => ^filename,
+                   "permanent_url" => ^permanent_url,
+                   "type" => "netex"
+                 }
+               }
+             ] = all_enqueued(worker: Transport.Jobs.OnDemandValidationJob, queue: :on_demand_validation)
+
+      assert permanent_url == Transport.S3.permanent_url(:on_demand_validation, filename)
+      assert redirected_to(conn, 302) == validation_path(conn, :show, validation_id, token: token)
+
+      result = %{
+        "xsd-1871" => [
+          %{
+            "code" => "xsd-1871",
+            "criticity" => "error",
+            "message" =>
+              "Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef )."
+          }
+        ],
+        "uic-operating-period" => [
+          %{
+            "code" => "uic-operating-period",
+            "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod",
+            "criticity" => "warning"
+          }
+        ],
+        "valid-day-bits" => [
+          %{
+            "code" => "valid-day-bits",
+            "message" => "Mandatory attribute valid_day_bits not found",
+            "criticity" => "warning"
+          }
+        ],
+        "frame-arret-resources" => [
+          %{
+            "code" => "frame-arret-resources",
+            "message" => "Tag frame_id doesn't match ''",
+            "criticity" => "warning"
+          }
+        ]
+      }
+
+      # Validation is completed, ensure that the validation's result page can be displayed
+      multi_validation
+      |> Ecto.Changeset.change(%{
+        oban_args: %{multi_validation.oban_args | "state" => "completed"},
+        result: result,
+        max_error: "warning",
+        data_vis: nil,
+        metadata: %{}
+      })
+      |> DB.Repo.update!()
+
+      conn2 = conn |> get(validation_path(conn, :show, validation_id, token: token))
+      assert conn2 |> html_response(200) =~ "3 avertissements"
+      assert conn2 |> html_response(200) =~ "1 erreur"
     end
 
     test "with a schema", %{conn: conn} do

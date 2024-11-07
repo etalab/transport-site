@@ -6,7 +6,11 @@ defmodule Transport.EnRouteChouetteValidClient.Wrapper do
 
   @callback create_a_validation(Path.t()) :: binary()
   @callback get_a_validation(binary()) ::
-              :pending | {:successful, binary()} | :warning | :failed | :unexpected_validation_status
+              :pending
+              | {:successful, binary(), integer()}
+              | {:warning, integer()}
+              | {:failed, integer()}
+              | :unexpected_validation_status
   @callback get_messages(binary()) :: {binary(), map()}
 
   def impl, do: Application.get_env(:transport, :enroute_validator_client)
@@ -26,6 +30,7 @@ defmodule Transport.EnRouteChouetteValidClient do
       {:multipart,
        [
          {"validation[rule_set]", "french"},
+         {"validation[include_schema]", "true"},
          make_file_part("validation[file]", filepath)
        ]}
 
@@ -39,12 +44,41 @@ defmodule Transport.EnRouteChouetteValidClient do
 
     %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(url, auth_headers())
 
-    case body |> Jason.decode!() |> Map.fetch!("user_status") do
-      "pending" -> :pending
-      "successful" -> {:successful, url}
-      "warning" -> :warning
-      "failed" -> :failed
-      _ -> :unexpected_validation_status
+    response = body |> Jason.decode!()
+
+    case response |> Map.fetch!("user_status") do
+      "pending" ->
+        :pending
+
+      "successful" ->
+        {:successful, url, get_elapsed!(response)}
+
+      "warning" ->
+        {:warning, get_elapsed!(response)}
+
+      "failed" ->
+        {:failed, get_elapsed!(response)}
+
+      _ ->
+        :unexpected_validation_status
+    end
+  end
+
+  defp get_elapsed!(response) do
+    created_at = get_datetime!(response, "started_at")
+    updated_at = get_datetime!(response, "ended_at")
+    DateTime.diff(updated_at, created_at)
+  end
+
+  defp get_datetime!(map, key) do
+    raw_date = Map.fetch!(map, key)
+
+    case DateTime.from_iso8601(raw_date) do
+      {:ok, value, _offset} ->
+        value
+
+      {:error, reason} ->
+        raise ArgumentError, "cannot parse #{inspect(raw_date)} as datetime, reasaon: #{inspect(reason)}"
     end
   end
 

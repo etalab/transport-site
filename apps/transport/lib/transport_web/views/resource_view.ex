@@ -2,15 +2,13 @@ defmodule TransportWeb.ResourceView do
   use TransportWeb, :view
   use Phoenix.Component
   import TransportWeb.PaginationHelpers
-  import Transport.Validators.GTFSTransport
   import Phoenix.Controller, only: [current_url: 2]
-  import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
 
   import TransportWeb.DatasetView,
     only: [documentation_url: 1, errors_count: 1, warnings_count: 1, multi_validation_performed?: 1, description: 1]
 
   import DB.ResourceUnavailability, only: [floor_float: 2]
-  import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2]
+  import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2, format_duration: 2]
   import Shared.Validation.TableSchemaValidator, only: [validata_web_url: 1]
   import Transport.GBFSUtils, only: [gbfs_validation_link: 1]
   import Transport.Shared.Schemas.Wrapper, only: [schema_type: 1]
@@ -21,68 +19,41 @@ defmodule TransportWeb.ResourceView do
     for %{"id" => id, "name" => name} <- related_objects, do: content_tag(:li, "#{name} (#{id})")
   end
 
-  def issue_type([]), do: nil
-  def issue_type([h | _]), do: h["issue_type"]
+  def gtfs_template(issues) do
+    template =
+      Map.get(
+        %{
+          "UnloadableModel" => "_unloadable_model_issue.html",
+          "DuplicateStops" => "_duplicate_stops_issue.html",
+          "DuplicateStopSequence" => "_duplicate_stop_sequence_issue.html",
+          "ExtraFile" => "_extra_file_issue.html",
+          "MissingFile" => "_missing_file_issue.html",
+          "NullDuration" => "_speed_issue.html",
+          "ExcessiveSpeed" => "_speed_issue.html",
+          "NegativeTravelTime" => "_speed_issue.html",
+          "Slow" => "_speed_issue.html",
+          "UnusedStop" => "_unused_stop_issue.html",
+          "InvalidCoordinates" => "_coordinates_issue.html",
+          "MissingCoordinates" => "_coordinates_issue.html",
+          "UnusedShapeId" => "_unused_shape_issue.html",
+          "InvalidShapeId" => "_invalid_shape_id_issue.html",
+          "MissingId" => "_missing_id_issue.html",
+          "MissingName" => "_missing_name_issue.html",
+          "SubFolder" => "_subfolder_issue.html",
+          "NegativeStopDuration" => "_negative_stop_duration_issue.html"
+        },
+        Transport.Validators.GTFSTransport.issue_type(issues.entries),
+        "_generic_issue.html"
+      )
 
-  def template(issues) do
-    Map.get(
-      %{
-        "UnloadableModel" => "_unloadable_model_issue.html",
-        "DuplicateStops" => "_duplicate_stops_issue.html",
-        "DuplicateStopSequence" => "_duplicate_stop_sequence_issue.html",
-        "ExtraFile" => "_extra_file_issue.html",
-        "MissingFile" => "_missing_file_issue.html",
-        "NullDuration" => "_speed_issue.html",
-        "ExcessiveSpeed" => "_speed_issue.html",
-        "NegativeTravelTime" => "_speed_issue.html",
-        "Slow" => "_speed_issue.html",
-        "UnusedStop" => "_unused_stop_issue.html",
-        "InvalidCoordinates" => "_coordinates_issue.html",
-        "MissingCoordinates" => "_coordinates_issue.html",
-        "UnusedShapeId" => "_unused_shape_issue.html",
-        "InvalidShapeId" => "_invalid_shape_id_issue.html",
-        "MissingId" => "_missing_id_issue.html",
-        "MissingName" => "_missing_name_issue.html",
-        "SubFolder" => "_subfolder_issue.html",
-        "NegativeStopDuration" => "_negative_stop_duration_issue.html"
-      },
-      issue_type(issues.entries),
-      "_generic_issue.html"
-    )
+    "_gtfs#{template}"
   end
 
-  @spec action_path(Plug.Conn.t()) :: any
-  def action_path(%Plug.Conn{params: %{"resource_id" => r_id} = params} = conn),
-    do: resource_path(conn, :post_file, params["dataset_id"], r_id)
-
-  def action_path(%Plug.Conn{params: params} = conn),
-    do: resource_path(conn, :post_file, params["dataset_id"])
-
-  def title(%Plug.Conn{params: %{"resource_id" => _}}),
-    do: dgettext("resource", "Resource modification")
-
-  def title(_), do: dgettext("resource", "Add a new resource")
-
-  def remote?(%{"filetype" => "remote"}), do: true
-  def remote?(_), do: false
-
-  def link_to_datagouv_resource_edit(dataset_id, resource_id),
-    do:
-      :transport
-      |> Application.fetch_env!(:datagouvfr_site)
-      |> Path.join("/fr/admin/dataset/#{dataset_id}/resource/#{resource_id}")
-
-  def link_to_datagouv_resource_creation(dataset_id),
-    do:
-      :transport
-      |> Application.fetch_env!(:datagouvfr_site)
-      |> Path.join("/fr/admin/dataset/#{dataset_id}?new_resource=")
-
-  def dataset_creation,
-    do:
-      :transport
-      |> Application.fetch_env!(:datagouvfr_site)
-      |> Path.join("/fr/admin/dataset/new/")
+  def netex_template(_issues) do
+    # For now only 1 template has been designed. More to come when the validator
+    # has matured.
+    "_netex_generic_issue.html"
+  end
 
   def has_associated_files(%{} = resources_related_files, resource_id) do
     # Don't keep records looking like `%{79088 => %{GeoJSON: nil, NeTEx: nil}}`
@@ -110,32 +81,35 @@ defmodule TransportWeb.ResourceView do
 
   def max_display_errors, do: 50
 
-  def hours_ago(utcdatetime) do
-    DateTime.utc_now() |> DateTime.diff(utcdatetime) |> seconds_to_hours_minutes()
+  def hours_ago(utcdatetime, locale) do
+    DateTime.utc_now() |> DateTime.diff(utcdatetime) |> seconds_to_hours_minutes(locale)
   end
 
   @doc """
   Converts seconds to a string showing hours and minutes.
   Also work for negative input, even if not intended to use it that way.
 
-  iex> seconds_to_hours_minutes(3661)
-  "1 h 1 min"
-  iex> seconds_to_hours_minutes(60)
-  "1 min"
-  iex> seconds_to_hours_minutes(30)
-  "0 min"
-  iex> seconds_to_hours_minutes(-3661)
-  "-1 h 1 min"
+  iex> seconds_to_hours_minutes(3661, :en)
+  "1 hour and 1 minute"
+  iex> seconds_to_hours_minutes(60, :en)
+  "1 minute"
+  iex> seconds_to_hours_minutes(30, :en)
+  "0 minute"
+  iex> seconds_to_hours_minutes(-3661, :en)
+  "-1 hour and 1 minute"
   """
-  @spec seconds_to_hours_minutes(integer()) :: binary()
-  def seconds_to_hours_minutes(seconds) do
-    hours = div(seconds, 3600)
+  @spec seconds_to_hours_minutes(integer(), atom() | Cldr.LanguageTag.t()) :: binary()
+  def seconds_to_hours_minutes(seconds, locale \\ :en) do
+    duration = strip_seconds(seconds)
 
-    case hours do
-      0 -> "#{div(seconds, 60)} min"
-      hours -> "#{hours} h #{seconds |> rem(3600) |> div(60) |> abs()} min"
+    cond do
+      duration == 0 -> "0 minute"
+      duration < 0 -> "-#{Shared.DateTimeDisplay.format_duration(-duration, locale)}"
+      true -> Shared.DateTimeDisplay.format_duration(duration, locale)
     end
   end
+
+  def strip_seconds(seconds), do: div(seconds, 60) * 60
 
   def download_availability_class(ratio) when ratio >= 0 and ratio <= 100 do
     cond do
@@ -152,6 +126,7 @@ defmodule TransportWeb.ResourceView do
   def gbfs_validator_url, do: "https://github.com/MobilityData/gbfs-validator"
   def gtfs_rt_validator_url, do: "https://github.com/MobilityData/gtfs-realtime-validator"
   def gtfs_validator_url, do: "https://github.com/etalab/transport-validator"
+  def netex_validator_url, do: "https://documenter.getpostman.com/view/9950294/2sA3e2gVEE"
 
   def gtfs_rt_validator_rule_url(error_id) when is_binary(error_id) do
     gtfs_rt_validator_rule_url(%{"error_id" => error_id})
@@ -324,4 +299,15 @@ defmodule TransportWeb.ResourceView do
   def yes_no_icon(nil), do: ""
   def yes_no_icon(value) when value > 0, do: "✅"
   def yes_no_icon(_), do: "❌"
+
+  def eligible_for_explore?(%DB.Resource{format: format}) do
+    format in ["geojson", "csv", "ods", "xlsx", "xls"]
+  end
+
+  def explore_url(%DB.Resource{
+        datagouv_id: resource_datagouv_id,
+        dataset: %DB.Dataset{datagouv_id: dataset_datagouv_id}
+      }) do
+    "https://explore.data.gouv.fr/fr/datasets/#{dataset_datagouv_id}/#/resources/#{resource_datagouv_id}"
+  end
 end

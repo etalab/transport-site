@@ -12,9 +12,6 @@ config :transport, TransportWeb.Endpoint,
   http: [port: 5100],
   server: true
 
-# Page cache would make tests brittle, so disable it by default
-config :gbfs, :disable_page_cache, true
-
 config :oauth2, adapter: Tesla.Mock
 
 config :unlock,
@@ -52,9 +49,11 @@ config :transport,
   },
   workflow_notifier: Transport.Jobs.Workflow.ProcessNotifier,
   export_secret_key: "fake_export_secret_key",
+  api_auth_clients: "client1:secret_token;client2:other_token",
   enroute_token: "fake_enroute_token",
   enroute_validation_token: "fake_enroute_token",
-  enroute_validator_client: Transport.EnRouteChouetteValidClient.Mock
+  enroute_validator_client: Transport.EnRouteChouetteValidClient.Mock,
+  netex_validator: Transport.Validators.NeTEx.Mock
 
 config :ex_aws,
   cellar_organisation_id: "fake-cellar_organisation_id"
@@ -150,3 +149,6 @@ config :transport, Transport.Mailer, adapter: Swoosh.Adapters.Test
 # avoid logging
 config :os_mon,
   start_memsup: false
+
+# See https://hexdocs.pm/sentry/Sentry.Test.html
+config :sentry, test_mode: true

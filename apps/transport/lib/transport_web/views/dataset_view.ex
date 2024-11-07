@@ -8,9 +8,11 @@ defmodule TransportWeb.DatasetView do
   # ~H expects a variable named `assigns`, so wrapping the calls to `~H` inside
   # a helper function would be cleaner and more future-proof to avoid conflicts at some point.
   import Phoenix.Component, only: [sigil_H: 2, live_render: 3]
+  import DB.Dataset, only: [experimental?: 1]
   import DB.MultiValidation, only: [get_metadata_info: 2, get_metadata_info: 3]
   alias Shared.DateTimeDisplay
   alias Transport.Validators.GTFSTransport
+  alias Transport.Validators.NeTEx
 
   @gtfs_rt_validator_name Transport.Validators.GTFSRT.validator_name()
 
@@ -103,6 +105,7 @@ defmodule TransportWeb.DatasetView do
   def region_link(conn, %{nom: nom, count: count, id: id}) do
     url =
       case id do
+        # This is for the "All" region
         nil -> dataset_path(conn, :index)
         _ -> dataset_path(conn, :by_region, id)
       end
@@ -116,6 +119,24 @@ defmodule TransportWeb.DatasetView do
       ^url -> ~H{<span class="activefilter"><%= @nom %> (<%= @count %>)</span>}
       _ -> link("#{nom} (#{count})", to: full_url)
     end
+  end
+
+  def legal_owners_links(conn, %DB.Dataset{legal_owners_aom: legal_owners_aom, legal_owners_region: legal_owners_region}) do
+    legal_owners_region
+    |> Enum.sort_by(& &1.nom)
+    |> Enum.concat(legal_owners_aom |> Enum.sort_by(& &1.nom))
+    |> Enum.map_join(", ", fn owner ->
+      conn |> legal_owner_link(owner) |> safe_to_string()
+    end)
+    |> raw()
+  end
+
+  def legal_owner_link(conn, %DB.Region{nom: nom, id: id}) do
+    link(nom, to: dataset_path(conn, :by_region, id))
+  end
+
+  def legal_owner_link(conn, %DB.AOM{nom: nom, id: id}) do
+    link(nom, to: dataset_path(conn, :by_aom, id))
   end
 
   def type_link(conn, %{type: type, msg: msg, count: count}) do
@@ -209,9 +230,7 @@ defmodule TransportWeb.DatasetView do
       "real-time-public-transit" => "bus-stop.svg",
       "long-distance-coach" => "bus.svg",
       "train" => "train.svg",
-      "boat" => "boat.svg",
-      # Custom tags
-      "paris2024" => "olympics.svg"
+      "boat" => "boat.svg"
     }
 
     if Map.has_key?(icons, type), do: "/images/icons/#{Map.get(icons, type)}"

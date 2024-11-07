@@ -63,4 +63,14 @@
     color: rgb(199, 18, 18);
     filter: brightness(70%);
   }
+
+  + details {
+    > summary {
+      cursor: pointer;
+    }
+
+    > div {
+      margin-top: 5pt;
+    }
+  }
 }

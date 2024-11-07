@@ -1,12 +1,10 @@
 defmodule TransportWeb.ResourceController do
   use TransportWeb, :controller
-  alias DB.{Dataset, Repo, Resource}
+  alias DB.{Repo, Resource}
   alias Transport.DataVisualization
-  alias Transport.ImportData
-  require Logger
   import Ecto.Query
 
-  import TransportWeb.ResourceView, only: [issue_type: 1, latest_validations_nb_days: 0]
+  import TransportWeb.ResourceView, only: [latest_validations_nb_days: 0]
   import TransportWeb.DatasetView, only: [availability_number_days: 0]
 
   @enabled_validators MapSet.new([
@@ -33,10 +31,10 @@ defmodule TransportWeb.ResourceController do
       |> assign(:multi_validation, latest_validation(resource))
       |> put_resource_flash(resource.dataset.is_active)
 
-    if Resource.gtfs?(resource) do
-      render_gtfs_details(conn, params, resource)
-    else
-      conn |> assign(:resource, resource) |> render("details.html")
+    cond do
+      Resource.gtfs?(resource) -> render_gtfs_details(conn, params, resource)
+      Resource.netex?(resource) -> render_netex_details(conn, params, resource)
+      true -> render_details(conn, resource)
     end
   end
 
@@ -128,40 +126,70 @@ defmodule TransportWeb.ResourceController do
     DB.MultiValidation.resource_latest_validation(resource_id, validator)
   end
 
+  def render_details(conn, resource) do
+    conn |> assign(:resource, resource) |> render("details.html")
+  end
+
   defp render_gtfs_details(conn, params, resource) do
-    config = make_pagination_config(params)
+    validator = Transport.Validators.GTFSTransport
 
-    validation = resource |> latest_validation()
+    validation = latest_validation(resource)
 
-    {validation_summary, severities_count, metadata, modes, issues} =
-      case validation do
-        %{result: validation_result, metadata: %DB.ResourceMetadata{metadata: metadata, modes: modes}} ->
-          {Transport.Validators.GTFSTransport.summary(validation_result),
-           Transport.Validators.GTFSTransport.count_by_severity(validation_result), metadata, modes,
-           Transport.Validators.GTFSTransport.get_issues(validation_result, params)}
-
-        nil ->
-          {nil, nil, nil, [], []}
-      end
+    validation_details = {_, _, _, _, issues} = build_validation_details(params, resource, validator)
 
     issue_type =
       case params["issue_type"] do
-        nil -> issue_type(issues)
+        nil -> validator.issue_type(issues)
         issue_type -> issue_type
       end
+
+    conn
+    |> assign_base_resource_details(params, resource, validation_details, validator)
+    |> assign(:data_vis, encoded_data_vis(issue_type, validation))
+    |> render("gtfs_details.html")
+  end
+
+  defp render_netex_details(conn, params, resource) do
+    validator = Transport.Validators.NeTEx
+
+    validation_details = build_validation_details(params, resource, validator)
+
+    conn
+    |> assign_base_resource_details(params, resource, validation_details, validator)
+    |> assign(:data_vis, nil)
+    |> render("netex_details.html")
+  end
+
+  defp build_validation_details(params, resource, validator) do
+    case latest_validation(resource) do
+      %{result: validation_result, metadata: metadata = %DB.ResourceMetadata{}} ->
+        summary = validator.summary(validation_result)
+        stats = validator.count_by_severity(validation_result)
+        issues = validator.get_issues(validation_result, params)
+
+        {summary, stats, metadata.metadata, metadata.modes, issues}
+
+      nil ->
+        {nil, nil, nil, [], []}
+    end
+  end
+
+  defp assign_base_resource_details(conn, params, resource, validation_details, validator) do
+    config = make_pagination_config(params)
+
+    {validation_summary, severities_count, metadata, modes, issues} = validation_details
 
     conn
     |> assign(:related_files, Resource.get_related_files(resource))
     |> assign(:resource, resource)
     |> assign(:other_resources, Resource.other_resources(resource))
     |> assign(:issues, Scrivener.paginate(issues, config))
-    |> assign(:data_vis, encoded_data_vis(issue_type, validation))
     |> assign(:validation_summary, validation_summary)
     |> assign(:severities_count, severities_count)
-    |> assign(:validation, validation)
+    |> assign(:validation, latest_validation(resource))
     |> assign(:metadata, metadata)
     |> assign(:modes, modes)
-    |> render("gtfs_details.html")
+    |> assign(:validator, validator)
   end
 
   def encoded_data_vis(_, nil), do: nil
@@ -174,65 +202,6 @@ defmodule TransportWeb.ResourceController do
       {false, _} -> nil
       {true, {:ok, encoded_data_vis}} -> encoded_data_vis
       _ -> nil
-    end
-  end
-
-  @spec form(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def form(conn, %{"dataset_id" => dataset_id} = params) do
-    # This shows a form with data coming directly from the datagouv API for fresh data
-    with {:ok, dataset} <- Datagouvfr.Client.Datasets.get(dataset_id),
-         # Resource and resource_id may be nil in case of a new resource
-         resource <- assign_resource_from_dataset_payload(dataset, params["resource_id"]) do
-      conn
-      |> assign_datasets(dataset)
-      |> assign(:resource, resource)
-      |> render("form.html")
-    else
-      _ ->
-        conn
-        |> put_flash(
-          :error,
-          Gettext.dgettext(TransportWeb.Gettext, "resource", "Unable to get resources, please retry.")
-        )
-        |> put_view(ErrorView)
-        |> render("404.html")
-    end
-  end
-
-  def delete_resource_confirmation(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id, "resource_id" => resource_id}) do
-    with {:ok, dataset} <- Datagouvfr.Client.Datasets.get(dataset_id),
-         # Resource and resource_id may be nil in case of a new resource
-         resource when not is_nil(resource) <- assign_resource_from_dataset_payload(dataset, resource_id) do
-      conn
-      |> assign_datasets(dataset)
-      |> assign(:resource, resource)
-      |> render("delete_resource_confirmation.html")
-    else
-      _ ->
-        conn
-        |> put_flash(
-          :error,
-          Gettext.dgettext(TransportWeb.Gettext, "resource", "Unable to get resources, please retry.")
-        )
-        |> put_view(ErrorView)
-        |> render("404.html")
-    end
-  end
-
-  def delete(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id, "resource_id" => _} = params) do
-    with {:ok, _} <- Datagouvfr.Client.Resources.delete(conn, params),
-         dataset when not is_nil(dataset) <-
-           Repo.get_by(Dataset, datagouv_id: dataset_id),
-         {:ok, _} <- ImportData.import_dataset_logged(dataset),
-         {:ok, _} <- Dataset.validate(dataset) do
-      conn
-      |> put_flash(:info, dgettext("resource", "The resource has been deleted"))
-      |> redirect(to: page_path(conn, :espace_producteur))
-    else
-      _ ->
-        conn
-        |> put_flash(:error, dgettext("resource", "Could not delete the resource"))
-        |> redirect(to: page_path(conn, :espace_producteur))
     end
   end
 
@@ -302,50 +271,4 @@ defmodule TransportWeb.ResourceController do
   end
 
   defp downcase_header({h, v}), do: {String.downcase(h), v}
-
-  @spec post_file(Plug.Conn.t(), map) :: Plug.Conn.t()
-  def post_file(conn, params) do
-    success_message =
-      if Map.has_key?(params, "resource_file") do
-        dgettext("resource", "File uploaded!")
-      else
-        dgettext("resource", "Resource updated with URL!")
-      end
-
-    with {:ok, _} <- Datagouvfr.Client.Resources.update(conn, params),
-         dataset when not is_nil(dataset) <-
-           Repo.get_by(Dataset, datagouv_id: params["dataset_id"]),
-         {:ok, _} <- ImportData.import_dataset_logged(dataset),
-         {:ok, _} <- Dataset.validate(dataset) do
-      conn
-      |> put_flash(:info, success_message)
-      |> redirect(to: dataset_path(conn, :details, params["dataset_id"]))
-    else
-      {:error, error} ->
-        Logger.error(
-          "Unable to update resource #{params["resource_id"]} of dataset #{params["dataset_id"]}, error: #{inspect(error)}"
-        )
-
-        conn
-        |> put_flash(:error, dgettext("resource", "Unable to upload file"))
-        |> form(params)
-
-      nil ->
-        Logger.error("Unable to get dataset with datagouv_id: #{params["dataset_id"]}")
-
-        conn
-        |> put_flash(:error, dgettext("resource", "Unable to upload file"))
-        |> form(params)
-    end
-  end
-
-  defp assign_datasets(%Plug.Conn{} = conn, %{"id" => dataset_id} = dataset) do
-    conn
-    |> assign(:db_dataset, DB.Repo.get_by!(DB.Dataset, datagouv_id: dataset_id))
-    |> assign(:dataset, dataset)
-  end
-
-  defp assign_resource_from_dataset_payload(dataset, resource_id) do
-    Enum.find(dataset["resources"], &(&1["id"] == resource_id))
-  end
 end

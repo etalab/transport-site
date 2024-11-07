@@ -102,10 +102,7 @@ defmodule TransportWeb.DatasetController do
   end
 
   def assign_scores(%Plug.Conn{} = conn, %DB.Dataset{} = dataset) do
-    data =
-      dataset
-      |> DB.DatasetScore.scores_over_last_days(30 * 3)
-      |> Enum.reject(&match?(%DB.DatasetScore{score: nil}, &1))
+    data = DB.DatasetScore.scores_over_last_days(dataset, 30 * 3)
 
     # See https://hexdocs.pm/vega_lite/
     # and https://vega.github.io/vega-lite/docs/
@@ -130,6 +127,7 @@ defmodule TransportWeb.DatasetController do
 
     latest_scores =
       data
+      |> Enum.reject(fn %DB.DatasetScore{score: score} -> is_nil(score) end)
       |> Enum.group_by(fn %DB.DatasetScore{topic: topic} -> topic end)
       |> Map.new(fn {topic, scores} -> {topic, scores |> List.last() |> DB.DatasetScore.score_for_humans()} end)
 
@@ -142,7 +140,8 @@ defmodule TransportWeb.DatasetController do
       Transport.Validators.GTFSRT,
       Transport.Validators.TableSchema,
       Transport.Validators.EXJSONSchema,
-      Transport.Validators.GBFSValidator
+      Transport.Validators.GBFSValidator,
+      Transport.Validators.NeTEx
     ]
 
   def resources_infos(dataset) do
@@ -307,6 +306,75 @@ defmodule TransportWeb.DatasetController do
     end)
     |> add_current_type(params["type"])
     |> Enum.reject(fn t -> is_nil(t.msg) end)
+  end
+
+  def resources_history_csv(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id}) do
+    filename = "historisation-dataset-#{dataset_id}-#{Date.utc_today() |> Date.to_iso8601()}.csv"
+
+    csv_header = [
+      "resource_history_id",
+      "resource_id",
+      "permanent_url",
+      "payload",
+      "inserted_at"
+    ]
+
+    # Stream the query from the database and send 100 rows at a time
+    {:ok, conn} =
+      DB.Repo.transaction(
+        fn ->
+          Transport.History.Fetcher.history_resources(
+            %DB.Dataset{id: String.to_integer(dataset_id)},
+            preload_validations: false,
+            fetch_mode: :stream
+          )
+          |> Stream.map(&build_history_csv_row(csv_header, &1))
+          |> Stream.chunk_every(100)
+          |> send_csv_response(filename, csv_header, conn)
+        end,
+        timeout: :timer.seconds(60)
+      )
+
+    conn
+  end
+
+  defp send_csv_response(chunks, filename, csv_header, %Plug.Conn{} = conn) do
+    {:ok, conn} =
+      conn
+      |> put_resp_content_type("text/csv")
+      |> put_resp_header("content-disposition", ~s|attachment; filename="#{filename}"|)
+      |> send_chunked(:ok)
+      |> send_csv_chunk([csv_header])
+
+    Enum.reduce_while(chunks, conn, fn data, conn ->
+      case send_csv_chunk(conn, data) do
+        {:ok, conn} -> {:cont, conn}
+        {:error, :closed} -> {:halt, conn}
+      end
+    end)
+  end
+
+  defp send_csv_chunk(%Plug.Conn{} = conn, data) do
+    chunk(conn, data |> NimbleCSV.RFC4180.dump_to_iodata())
+  end
+
+  defp build_history_csv_row(csv_header, %DB.ResourceHistory{
+         id: rh_id,
+         resource_id: resource_id,
+         payload: payload,
+         inserted_at: inserted_at
+       }) do
+    row =
+      %{
+        "resource_history_id" => rh_id,
+        "resource_id" => resource_id,
+        "permanent_url" => Map.fetch!(payload, "permanent_url"),
+        "payload" => Jason.encode!(payload),
+        "inserted_at" => inserted_at
+      }
+
+    # Build a row following same order as the CSV header
+    Enum.map(csv_header, &Map.fetch!(row, &1))
   end
 
   defp add_current_type(results, type) do

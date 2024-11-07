@@ -17,6 +17,7 @@ defmodule Transport.EnRouteChouetteValidClientTest do
         "id": "d8e2b6c2-b1e5-4890-84d4-9b761a445882",
         "rule_set": "french",
         "user_status": "pending",
+        "include_schema": true,
         "created_at": "2024-07-05T14:41:19.933Z",
         "updated_at": "2024-07-05T14:41:19.933Z"
       }
@@ -31,6 +32,7 @@ defmodule Transport.EnRouteChouetteValidClientTest do
 
       assert [
                {"validation[rule_set]", "french"},
+               {"validation[include_schema]", "true"},
                {:file, tmp_file, {"form-data", [{:name, "validation[file]"}, {:filename, Path.basename(tmp_file)}]}, []}
              ] == parts
 
@@ -50,9 +52,10 @@ defmodule Transport.EnRouteChouetteValidClientTest do
           "id": "#{validation_id}",
           "rule_set": "french",
           "user_status": "pending",
+          "include_schema": true,
           "started_at": "2024-07-05T14:41:20.680Z",
           "created_at": "2024-07-05T14:41:19.933Z",
-          "updated_at": "2024-07-05T14:41:19.933Z"
+          "updated_at": "2024-07-05T14:41:20.933Z"
         }
         """
 
@@ -75,10 +78,11 @@ defmodule Transport.EnRouteChouetteValidClientTest do
           "id": "#{validation_id}",
           "rule_set": "french",
           "user_status": "successful",
+          "include_schema": true,
           "started_at": "2024-07-05T14:41:20.680Z",
-          "ended_at": "2024-07-05T14:41:20.685Z",
+          "ended_at": "2024-07-05T14:41:25.685Z",
           "created_at": "2024-07-05T14:41:19.933Z",
-          "updated_at": "2024-07-05T14:41:19.933Z"
+          "updated_at": "2024-07-05T14:41:20.933Z"
         }
         """
 
@@ -89,7 +93,7 @@ defmodule Transport.EnRouteChouetteValidClientTest do
         %HTTPoison.Response{status_code: 200, body: response_body}
       end)
 
-      assert {:successful, url} == EnRouteChouetteValidClient.get_a_validation(validation_id)
+      assert {:successful, url, 5} == EnRouteChouetteValidClient.get_a_validation(validation_id)
     end
 
     test "warning" do
@@ -101,10 +105,11 @@ defmodule Transport.EnRouteChouetteValidClientTest do
           "id": "#{validation_id}",
           "rule_set": "french",
           "user_status": "warning",
+          "include_schema": true,
           "started_at": "2024-07-05T14:41:20.680Z",
-          "ended_at": "2024-07-05T14:41:20.685Z",
+          "ended_at": "2024-07-05T14:41:24.685Z",
           "created_at": "2024-07-05T14:41:19.933Z",
-          "updated_at": "2024-07-05T14:41:19.933Z"
+          "updated_at": "2024-07-05T14:41:20.933Z"
         }
         """
 
@@ -115,7 +120,7 @@ defmodule Transport.EnRouteChouetteValidClientTest do
         %HTTPoison.Response{status_code: 200, body: response_body}
       end)
 
-      assert :warning == EnRouteChouetteValidClient.get_a_validation(validation_id)
+      assert {:warning, 4} == EnRouteChouetteValidClient.get_a_validation(validation_id)
     end
 
     test "failed" do
@@ -127,10 +132,11 @@ defmodule Transport.EnRouteChouetteValidClientTest do
           "id": "#{validation_id}",
           "rule_set": "french",
           "user_status": "failed",
+          "include_schema": true,
           "started_at": "2024-07-05T14:41:20.680Z",
-          "ended_at": "2024-07-05T14:41:20.685Z",
+          "ended_at": "2024-07-05T14:41:28.685Z",
           "created_at": "2024-07-05T14:41:19.933Z",
-          "updated_at": "2024-07-05T14:41:19.933Z"
+          "updated_at": "2024-07-05T14:41:20.933Z"
         }
         """
 
@@ -141,7 +147,7 @@ defmodule Transport.EnRouteChouetteValidClientTest do
         %HTTPoison.Response{status_code: 200, body: response_body}
       end)
 
-      assert :failed == EnRouteChouetteValidClient.get_a_validation(validation_id)
+      assert {:failed, 8} == EnRouteChouetteValidClient.get_a_validation(validation_id)
     end
   end
 

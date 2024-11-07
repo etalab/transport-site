@@ -14,80 +14,20 @@ msgid "Resource updated with URL!"
 msgstr "Ressource mise à jour avec une URL !"
 
 #, elixir-autogen, elixir-format
-msgid "Update the resource"
-msgstr "Modifier la ressource"
-
-#, elixir-autogen, elixir-format
-msgid "Add the resource"
-msgstr "Ajouter la ressource"
-
-#, elixir-autogen, elixir-format
 msgid "or"
 msgstr "ou"
-
-#, elixir-autogen, elixir-format
-msgid "I'm not sure. Learn more."
-msgstr "Je ne suis pas sûr·e. En savoir plus."
 
 #, elixir-autogen, elixir-format
 msgid "Add a new resource"
 msgstr "Ajouter une nouvelle ressource"
 
 #, elixir-autogen, elixir-format
-msgid "Current file: %{current_file}"
-msgstr "Fichier actuel : %{current_file}"
-
-#, elixir-autogen, elixir-format
-msgid "Upload a file"
-msgstr "Envoyer un fichier"
-
-#, elixir-autogen, elixir-format
-msgid "Format"
-msgstr "Format"
-
-#, elixir-autogen, elixir-format
-msgid "title"
-msgstr "Titre"
-
-#, elixir-autogen, elixir-format
-msgid "Create it directly on data.gouv.fr"
-msgstr "Créer directement la ressource sur data.gouv.fr"
-
-#, elixir-autogen, elixir-format
-msgid "Edit directly on data.gouv.fr"
-msgstr "Éditer directement la ressource sur data.gouv.fr"
-
-#, elixir-autogen, elixir-format
-msgid "Option 1: Directly update the resource"
-msgstr "Option 1 : modifier la ressource simplement"
-
-#, elixir-autogen, elixir-format
-msgid "Option 2: for more options, create the resource on data.gouv.fr"
-msgstr "Option 2 : pour plus d'options, créer la ressource sur data.gouv.fr"
-
-#, elixir-autogen, elixir-format
-msgid "Option 2: for more options, edit the resource on data.gouv.fr"
-msgstr "Option 2 : pour plus d'options, éditer la ressource sur data.gouv.fr"
-
-#, elixir-autogen, elixir-format
 msgid "Resource modification"
 msgstr "Modification d’une ressource"
 
 #, elixir-autogen, elixir-format
-msgid "Give a link for the resource"
-msgstr "Donner un lien vers la ressource"
-
-#, elixir-autogen, elixir-format
 msgid "This option allows you to update the resource on data.gouv.fr, directly from here."
 msgstr "Cette option vous permet de modifier la ressource sur data.gouv.fr depuis ici, sans avoir à vous y rendre."
-
-#, elixir-autogen, elixir-format
-msgid "Option 1: Directly add the resource"
-msgstr "Option 1 : ajouter la ressource simplement"
-
-#, elixir-autogen, elixir-format
-msgid "Example : Paris GTFS dataset"
-msgstr "exemple : Horaires au format GTFS"
 
 #, elixir-autogen, elixir-format
 msgid "Resource is not available on remote server"
@@ -154,13 +94,17 @@ msgid "Could not delete the resource"
 msgstr "Impossible de supprimer la ressource"
 
 #, elixir-autogen, elixir-format
-msgid "Delete the resource"
-msgstr "Supprimer la ressource"
-
-#, elixir-autogen, elixir-format
-msgid "Do you want to update the resource or delete it definitely?"
-msgstr "Souhaitez-vous mettre à jour la ressource ou la supprimer définitivement ?"
-
-#, elixir-autogen, elixir-format
 msgid "The resource has been deleted"
 msgstr "La ressource a été supprimée"
+
+#, elixir-autogen, elixir-format
+msgid "Download"
+msgstr "Télécharger"
+
+#, elixir-autogen, elixir-format
+msgid "Open with explore.data.gouv.fr"
+msgstr "Ouvrir dans explore.data.gouv.fr"
+
+#, elixir-autogen, elixir-format
+msgid "Size:"
+msgstr "Taille :"

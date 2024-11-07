@@ -3,7 +3,7 @@ defmodule Transport.Validators.GTFSTransport do
   Validate a GTFS with transport-validator (https://github.com/etalab/transport-validator/)
   """
   @behaviour Transport.Validators.Validator
-  import TransportWeb.Gettext, only: [dgettext: 2]
+  import TransportWeb.Gettext, only: [dgettext: 2, dngettext: 4]
 
   @no_error "NoError"
   @validator_name "GTFS transport-validator"
@@ -65,17 +65,42 @@ defmodule Transport.Validators.GTFSTransport do
 
   def command(url), do: Shared.Validation.GtfsValidator.remote_gtfs_validation_query(url)
 
-  @spec severities_map() :: map()
-  def severities_map,
-    do: %{
-      "Fatal" => %{level: 0, text: dgettext("gtfs-transport-validator", "Fatal failures")},
-      "Error" => %{level: 1, text: dgettext("gtfs-transport-validator", "Errors")},
-      "Warning" => %{level: 2, text: dgettext("gtfs-transport-validator", "Warnings")},
-      "Information" => %{level: 3, text: dgettext("gtfs-transport-validator", "Informations")}
-    }
+  @spec severity_level(binary()) :: non_neg_integer()
+  def severity_level(key) do
+    case key do
+      "Fatal" -> 0
+      "Error" -> 1
+      "Warning" -> 2
+      "Information" -> 3
+      _ -> 4
+    end
+  end
 
-  @spec severities(binary()) :: %{level: integer(), text: binary()}
-  def severities(key), do: severities_map()[key]
+  @doc """
+  iex> Gettext.put_locale("en")
+  iex> format_severity("Fatal", 1)
+  "1 fatal failure"
+  iex> format_severity("Fatal", 2)
+  "2 fatal failures"
+  iex> Gettext.put_locale("fr")
+  iex> format_severity("Fatal", 1)
+  "1 échec irrécupérable"
+  iex> format_severity("Fatal", 2)
+  "2 échecs irrécupérables"
+  """
+  @spec format_severity(binary(), non_neg_integer()) :: binary()
+  def format_severity(key, count) do
+    case key do
+      "Fatal" -> dngettext("gtfs-transport-validator", "Fatal failure", "Fatal failures", count)
+      "Error" -> dngettext("gtfs-transport-validator", "Error", "Errors", count)
+      "Warning" -> dngettext("gtfs-transport-validator", "Warning", "Warnings", count)
+      "Information" -> dngettext("gtfs-transport-validator", "Information", "Informations", count)
+    end
+  end
+
+  @spec issue_type(list()) :: nil | binary()
+  def issue_type([]), do: nil
+  def issue_type([h | _]), do: h["issue_type"]
 
   @doc """
   Get issues from validation results. For a specific issue type if specified, or the most severe.
@@ -99,12 +124,22 @@ defmodule Transport.Validators.GTFSTransport do
   def get_issues(%{} = validation_result, _) do
     validation_result
     |> Map.values()
-    |> Enum.sort_by(fn [%{"severity" => severity} | _] -> severities(severity).level end)
+    |> Enum.sort_by(fn [%{"severity" => severity} | _] -> severity_level(severity) end)
     |> List.first([])
   end
 
   def get_issues(_, _), do: []
 
+  @doc """
+  iex> validation_result = %{"tooClose" => [%{"severity" => "Warning"}], "funnyName" => [%{"severity" => "Information"}]}
+  iex> summary(validation_result)
+  [
+    {"Warning", [{"tooClose", %{count: 1, severity: "Warning", title: nil}}]},
+    {"Information", [{"funnyName", %{count: 1, severity: "Information", title: nil}}]}
+  ]
+  iex> summary(%{})
+  []
+  """
   @spec summary(map) :: list
   def summary(%{} = validation_result) do
     validation_result
@@ -118,7 +153,7 @@ defmodule Transport.Validators.GTFSTransport do
     end)
     |> Map.new()
     |> Enum.group_by(fn {_, issue} -> issue.severity end)
-    |> Enum.sort_by(fn {severity, _} -> severities(severity).level end)
+    |> Enum.sort_by(fn {severity, _} -> severity_level(severity) end)
   end
 
   @doc """
@@ -157,8 +192,10 @@ defmodule Transport.Validators.GTFSTransport do
   def count_max_severity(%{} = validation_result) do
     validation_result
     |> count_by_severity()
-    |> Enum.min_by(fn {severity, _count} -> severity |> severities() |> Map.get(:level) end)
+    |> Enum.min_by(fn {severity, _count} -> severity |> severity_level() end)
   end
+
+  def no_error?(severity), do: @no_error == severity
 
   @spec mine?(any) :: boolean()
   def mine?(%{validator: validator}), do: validator == validator_name()
