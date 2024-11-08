@@ -38,3 +38,6 @@ config :ex_aws,
     host: "127.0.0.1",
     port: 9000
   ]
+
+# Uncomment if you want to disable all logs from the database
+# config :transport, DB.Repo, log: false
