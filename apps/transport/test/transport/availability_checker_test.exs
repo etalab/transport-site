@@ -57,6 +57,15 @@ defmodule Transport.AvailabilityCheckerTest do
       assert AvailabilityChecker.available?("SIRI", "url303")
     end
 
+    test "500 response (regular)" do
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn "url500", [], [follow_redirect: true] ->
+        {:ok, %HTTPoison.Response{status_code: 500, body: "utter failure"}}
+      end)
+
+      refute AvailabilityChecker.available?("SIRI", "url500")
+    end
+
     test "500 response (but with SOAP body)" do
       Transport.HTTPoison.Mock
       |> expect(:get, fn "url500soap", [], [follow_redirect: true] ->
