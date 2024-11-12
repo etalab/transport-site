@@ -4,7 +4,7 @@ import { LeafletLayer } from 'deck.gl-leaflet'
 import { ScatterplotLayer, GeoJsonLayer } from '@deck.gl/layers'
 
 import { MapView } from '@deck.gl/core'
-import { Mapbox } from './mapbox-credentials'
+import { Mapbox } from './map-config'
 
 const socket = new Socket('/socket', { params: { token: window.userToken } })
 socket.connect()
