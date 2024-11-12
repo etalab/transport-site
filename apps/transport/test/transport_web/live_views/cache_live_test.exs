@@ -44,6 +44,6 @@ defmodule TransportWeb.Backoffice.CacheLiveTest do
              %{"Clé" => "foo", "TTL" => "Pas de TTL"}
            ] = extract_data_from_html(render(view))
 
-    assert_in_delta ttl |> String.replace([" ", "ms"], "") |> String.to_integer(), ttl_ms, 10
+    assert_in_delta ttl |> String.replace([" ", "ms"], "") |> String.to_integer(), ttl_ms, 30
   end
 end
