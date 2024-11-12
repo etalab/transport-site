@@ -36,6 +36,6 @@ defmodule Unlock.SharedTest do
     cache_put(cache_key("no_ttl"))
     cache_put("no_prefix")
 
-    assert ["resource:with_ttl", "resource:no_ttl"] == cache_keys()
+    assert ["resource:no_ttl", "resource:with_ttl"] == cache_keys() |> Enum.sort()
   end
 end
