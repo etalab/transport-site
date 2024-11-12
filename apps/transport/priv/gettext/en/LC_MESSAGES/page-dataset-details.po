@@ -340,7 +340,7 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "availability-test-explanations"
-msgstr "We test this resource download availability every hour by making an HTTP <code class=\"inline\">HEAD</code> request with a timeout of 5 seconds. If we detect a downtime, we perform subsequent tests every 10 minutes, until the resource is back online.<br><br>For SIRI and SIRI Lite feeds, we perform a <code class=\"inline\">GET</code> request: a 401 or 405 status code is considered successful."
+msgstr "We test this resource download availability every hour by making an HTTP <code class=\"inline\">HEAD</code> request with a timeout of 5 seconds. If we detect a downtime, we perform subsequent tests every 10 minutes, until the resource is back online.<br><br>For SIRI and SIRI Lite feeds, we perform a <code class=\"inline\">GET</code> request: a 401 or 405 status code is considered successful. In case of HTTP 500, the feed will be considered unavailable, unless the body appears to contain SOAP."
 
 #, elixir-autogen, elixir-format
 msgid "last content modification"
