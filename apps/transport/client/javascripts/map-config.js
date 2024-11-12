@@ -6,3 +6,14 @@ export const Mapbox = {
     tileSize: 512,
     zoomOffset: -1
 }
+
+export const IGN = {
+    url: 'https://data.geopf.fr/wmts?&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/png&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}',
+    config: {
+        minZoom: 0,
+        maxZoom: 18,
+        attribution: 'IGN-F/Géoportail',
+        tileSize: 256,
+        className: 'ign-tile'
+    }
+}

@@ -83,9 +83,6 @@ config :oauth2, Datagouvfr.Authentication,
 # Add a dev.secret.exs to use a real email provider
 config :transport, Transport.Mailer, adapter: Swoosh.Adapters.Local
 
-# Uncomment if you want to disable all logs from the database
-# config :transport, DB.Repo, log: false
-
 extra_config_file = Path.join(__DIR__, "#{config_env()}.secret.exs")
 
 if File.exists?(extra_config_file) do
