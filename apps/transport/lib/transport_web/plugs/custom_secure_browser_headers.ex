@@ -46,9 +46,9 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
           connect-src *;
           font-src *;
           frame-ancestors 'none';
-          img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://www.data.gouv.fr https://*.dmcdn.net #{logos_bucket_url};
+          img-src 'self' data: https://api.mapbox.com https://data.geopf.fr https://static.data.gouv.fr https://www.data.gouv.fr https://*.dmcdn.net #{logos_bucket_url};
           script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
-          frame-src https://www.dailymotion.com/;
+          frame-src https://*.dailymotion.com;
           style-src 'self' 'nonce-#{nonce}' #{vega_hash_values};
           report-uri #{Application.fetch_env!(:sentry, :csp_url)}
           """
@@ -60,9 +60,9 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
             connect-src *;
             font-src *;
             frame-ancestors 'none';
-            img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://demo-static.data.gouv.fr https://www.data.gouv.fr https://demo.data.gouv.fr https://*.dmcdn.net #{logos_bucket_url};
+            img-src 'self' data: https://api.mapbox.com https://data.geopf.fr https://static.data.gouv.fr https://demo-static.data.gouv.fr https://www.data.gouv.fr https://demo.data.gouv.fr https://*.dmcdn.net #{logos_bucket_url};
             script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
-            frame-src https://www.dailymotion.com/;
+            frame-src https://*.dailymotion.com;
             style-src 'self' 'nonce-#{nonce}' #{vega_hash_values};
             report-uri #{Application.fetch_env!(:sentry, :csp_url)}
           """

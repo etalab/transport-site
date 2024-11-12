@@ -31,10 +31,10 @@ defmodule TransportWeb.ResourceController do
       |> assign(:multi_validation, latest_validation(resource))
       |> put_resource_flash(resource.dataset.is_active)
 
-    if Resource.gtfs?(resource) do
-      render_gtfs_details(conn, params, resource)
-    else
-      conn |> assign(:resource, resource) |> render("details.html")
+    cond do
+      Resource.gtfs?(resource) -> render_gtfs_details(conn, params, resource)
+      Resource.netex?(resource) -> render_netex_details(conn, params, resource)
+      true -> render_details(conn, resource)
     end
   end
 
@@ -126,40 +126,70 @@ defmodule TransportWeb.ResourceController do
     DB.MultiValidation.resource_latest_validation(resource_id, validator)
   end
 
+  def render_details(conn, resource) do
+    conn |> assign(:resource, resource) |> render("details.html")
+  end
+
   defp render_gtfs_details(conn, params, resource) do
-    config = make_pagination_config(params)
+    validator = Transport.Validators.GTFSTransport
 
-    validation = resource |> latest_validation()
+    validation = latest_validation(resource)
 
-    {validation_summary, severities_count, metadata, modes, issues} =
-      case validation do
-        %{result: validation_result, metadata: %DB.ResourceMetadata{metadata: metadata, modes: modes}} ->
-          {Transport.Validators.GTFSTransport.summary(validation_result),
-           Transport.Validators.GTFSTransport.count_by_severity(validation_result), metadata, modes,
-           Transport.Validators.GTFSTransport.get_issues(validation_result, params)}
-
-        nil ->
-          {nil, nil, nil, [], []}
-      end
+    validation_details = {_, _, _, _, issues} = build_validation_details(params, resource, validator)
 
     issue_type =
       case params["issue_type"] do
-        nil -> Transport.Validators.GTFSTransport.issue_type(issues)
+        nil -> validator.issue_type(issues)
         issue_type -> issue_type
       end
+
+    conn
+    |> assign_base_resource_details(params, resource, validation_details, validator)
+    |> assign(:data_vis, encoded_data_vis(issue_type, validation))
+    |> render("gtfs_details.html")
+  end
+
+  defp render_netex_details(conn, params, resource) do
+    validator = Transport.Validators.NeTEx
+
+    validation_details = build_validation_details(params, resource, validator)
+
+    conn
+    |> assign_base_resource_details(params, resource, validation_details, validator)
+    |> assign(:data_vis, nil)
+    |> render("netex_details.html")
+  end
+
+  defp build_validation_details(params, resource, validator) do
+    case latest_validation(resource) do
+      %{result: validation_result, metadata: metadata = %DB.ResourceMetadata{}} ->
+        summary = validator.summary(validation_result)
+        stats = validator.count_by_severity(validation_result)
+        issues = validator.get_issues(validation_result, params)
+
+        {summary, stats, metadata.metadata, metadata.modes, issues}
+
+      nil ->
+        {nil, nil, nil, [], []}
+    end
+  end
+
+  defp assign_base_resource_details(conn, params, resource, validation_details, validator) do
+    config = make_pagination_config(params)
+
+    {validation_summary, severities_count, metadata, modes, issues} = validation_details
 
     conn
     |> assign(:related_files, Resource.get_related_files(resource))
     |> assign(:resource, resource)
     |> assign(:other_resources, Resource.other_resources(resource))
     |> assign(:issues, Scrivener.paginate(issues, config))
-    |> assign(:data_vis, encoded_data_vis(issue_type, validation))
     |> assign(:validation_summary, validation_summary)
     |> assign(:severities_count, severities_count)
-    |> assign(:validation, validation)
+    |> assign(:validation, latest_validation(resource))
     |> assign(:metadata, metadata)
     |> assign(:modes, modes)
-    |> render("gtfs_details.html")
+    |> assign(:validator, validator)
   end
 
   def encoded_data_vis(_, nil), do: nil
