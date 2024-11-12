@@ -3,18 +3,12 @@ import { LeafletLayer } from 'deck.gl-leaflet'
 import { ScatterplotLayer, GeoJsonLayer } from '@deck.gl/layers'
 
 import { MapView } from '@deck.gl/core'
-import { Mapbox } from './mapbox-credentials'
+import { IGN } from './map-config'
 
 const metropolitanFranceBounds = [[51.1, -4.9], [41.2, 9.8]]
 const map = Leaflet.map('map', { renderer: Leaflet.canvas() })
 
-Leaflet.tileLayer(Mapbox.url, {
-    accessToken: Mapbox.accessToken,
-    attribution: Mapbox.attribution,
-    maxZoom: Mapbox.maxZoom,
-    tileSize: Mapbox.tileSize,
-    zoomOffset: Mapbox.zoomOffset
-}).addTo(map)
+Leaflet.tileLayer(IGN.url, IGN.config).addTo(map)
 
 const deckGLLayer = new LeafletLayer({
     views: [new MapView({ repeat: true })],

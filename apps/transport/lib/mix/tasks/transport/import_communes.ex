@@ -11,10 +11,10 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
   require Logger
 
   # List of communes with their geometry, but lacking additional information
-  @communes_geojson_url "http://etalab-datasets.geo.data.gouv.fr/contours-administratifs/2023/geojson/communes-100m.geojson"
+  @communes_geojson_url "http://etalab-datasets.geo.data.gouv.fr/contours-administratifs/2024/geojson/communes-100m.geojson"
   # List of official communes with additional information (population, arrondissement, etc.)
   # See https://github.com/etalab/decoupage-administratif
-  @communes_url "https://unpkg.com/@etalab/decoupage-administratif@3.1.1/data/communes.json"
+  @communes_url "https://unpkg.com/@etalab/decoupage-administratif@4.0.0/data/communes.json"
 
   @doc "Loads regions from the database and returns a list of tuples with INSEE code and id"
   def regions_by_insee do
@@ -85,6 +85,17 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
     changeset |> Repo.insert_or_update!()
     changeset_change_keys
   end
+
+  # See https://github.com/datagouv/decoupage-administratif/issues/49 for the 3 communes below
+  # Population taken on Wikipedia, 2021
+  def insert_or_update_commune(%{"code" => "60694", "nom" => "Les Hauts-Talican"} = params, regions, geojsons),
+    do: insert_or_update_commune(params |> Map.put("population", 543), regions, geojsons)
+
+  def insert_or_update_commune(%{"code" => "85165", "nom" => "L'Oie"} = params, regions, geojsons),
+    do: insert_or_update_commune(params |> Map.put("population", 1259), regions, geojsons)
+
+  def insert_or_update_commune(%{"code" => "85212", "nom" => "Sainte-Florence"} = params, regions, geojsons),
+    do: insert_or_update_commune(params |> Map.put("population", 1333), regions, geojsons)
 
   defp get_or_create_commune(insee) do
     Commune
