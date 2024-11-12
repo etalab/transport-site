@@ -72,7 +72,10 @@ defmodule Transport.Jobs.GTFSRTMetadataJob do
   ["service_alerts", "vehicle_positions"]
   """
   def present_entities(count_entities) do
-    count_entities |> Map.filter(fn {_, v} -> v > 0 end) |> Enum.map(fn {k, _} -> Atom.to_string(k) end)
+    count_entities
+    |> Map.filter(fn {_, v} -> v > 0 end)
+    |> Enum.map(fn {k, _} -> Atom.to_string(k) end)
+    |> Enum.sort()
   end
 
   @spec process_feed({:error, any} | {:ok, TransitRealtime.FeedMessage.t()}, DB.Resource.t()) :: any
