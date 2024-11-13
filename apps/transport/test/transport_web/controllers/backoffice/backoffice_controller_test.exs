@@ -134,7 +134,8 @@ defmodule TransportWeb.BackofficeControllerTest do
               "last_modified" => DateTime.utc_now() |> DateTime.to_iso8601(),
               "url" => "url1",
               "id" => "resource_datagouv_id",
-              "format" => "siri"
+              "format" => "siri",
+              "type" => "main"
             }
           ]
         }
@@ -153,13 +154,15 @@ defmodule TransportWeb.BackofficeControllerTest do
            "url" => "url2",
            "last_modified" => DateTime.utc_now() |> DateTime.to_iso8601(),
            "format" => "json",
-           "id" => "resource_datagouv_id_2"
+           "id" => "resource_datagouv_id_2",
+           "type" => "main"
          },
          %{
            "url" => "url3",
            "last_modified" => DateTime.utc_now() |> DateTime.to_iso8601(),
            "format" => "csv",
-           "id" => "resource_datagouv_id_3"
+           "id" => "resource_datagouv_id_3",
+           "type" => "main"
          }
        ]}
     end)
@@ -189,11 +192,13 @@ defmodule TransportWeb.BackofficeControllerTest do
          %{
            "url" => "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt.json",
            "id" => "r1",
+           "type" => "main",
            "last_modified" => DateTime.utc_now() |> DateTime.to_iso8601()
          },
          %{
            "url" => "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt",
            "id" => "r2",
+           "type" => "main",
            "last_modified" => DateTime.utc_now() |> DateTime.to_iso8601()
          }
        ]}
