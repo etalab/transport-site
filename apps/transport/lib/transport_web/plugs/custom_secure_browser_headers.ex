@@ -37,7 +37,7 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
     vega_hash_values =
       "'sha256-9uoGUaZm3j6W7+Fh2wfvjI8P7zXcclRw5tVUu3qKZa0=' 'sha256-MmUum7+PiN7Rz79EUMm0OmUFWjCx6NZ97rdjoIbTnAg='"
 
-    value =
+    policy =
       %{
         "default-src" => "'none'",
         "connect-src" => "*",
@@ -57,7 +57,7 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
       |> Enum.reject(fn {_, v} -> v == "" end)
       |> Enum.map_join(";", fn {k, v} -> "#{k} #{v}" end)
 
-    %{"content-security-policy" => value}
+    %{"content-security-policy" => policy}
   end
 
   defp additional_content("img-src", :staging) do
