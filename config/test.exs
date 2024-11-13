@@ -151,4 +151,6 @@ config :os_mon,
   start_memsup: false
 
 # See https://hexdocs.pm/sentry/Sentry.Test.html
-config :sentry, test_mode: true
+config :sentry,
+  test_mode: true,
+  csp_url: ""
