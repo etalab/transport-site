@@ -92,6 +92,14 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 * Verify the linking status with `clever applications`
 * Log with the app alias: `clever ssh --alias transport-prochainement`
 
+### Learn how to upgrade the javascript assets
+
+* `cd apps/transport/client`
+* `yarn outdated` shows the outdated packages (see [here](https://github.com/etalab/transport-site/pull/4287) for a sample)
+* Use `yarn upgrade abc [def]` ([doc](https://classic.yarnpkg.com/lang/en/docs/cli/upgrade/)) to upgrade one or more packages
+* Look into [package.json](https://github.com/etalab/transport-site/blob/master/apps/transport/client/package.json) to see how to specify versions
+* Most javascript-enabled features are not tested specifically - use `prochainement` or a local rendering to verify if nothing is broken
+
 ### Learn about the GTFS and GTFS-RT specifications
 
 * @thbar bought https://gumroad.com/l/gtfsbundle (available to the team on demand)

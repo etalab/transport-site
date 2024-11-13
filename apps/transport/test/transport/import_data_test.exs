@@ -474,13 +474,13 @@ defmodule Transport.ImportDataTest do
   test "get_valid_resources for public-transit detects documentation resources" do
     resources = %{
       "resources" => [
-        %{"type" => "main", "format" => "gtfs"},
-        %{"type" => "main", "format" => "geojson"},
-        %{"type" => "main", "format" => "svg"}
+        %{"type" => "main", "title" => "Fichier", "format" => "gtfs"},
+        %{"type" => "main", "title" => "Fichier", "format" => "geojson"},
+        %{"type" => "main", "title" => "Fichier", "format" => "svg"}
       ]
     }
 
-    assert [%{"format" => "gtfs", "type" => "main"}, %{"format" => "svg", "type" => "documentation"}] ==
+    assert [%{"format" => "gtfs", "type" => "main"}, %{"format" => "svg", "type" => "documentation"}] =
              ImportData.get_valid_resources(resources, "public-transit")
   end
 
