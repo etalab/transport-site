@@ -18,7 +18,7 @@ defmodule Transport.Validators.GBFSValidatorTest do
     assert DB.Resource.gbfs?(resource)
 
     Transport.Shared.GBFSMetadata.Mock
-    |> expect(:compute_feed_metadata, fn ^url, "https://www.example.com" ->
+    |> expect(:compute_feed_metadata, fn ^url ->
       %{
         languages: ["fr"],
         system_details: %{"name" => "velhop", "timezone" => "Europe/Paris"},
@@ -34,8 +34,7 @@ defmodule Transport.Validators.GBFSValidatorTest do
           version_validated: "1.1",
           validator_version: "31c5325",
           validator: :validator_module
-        },
-        cors_header_value: "*"
+        }
       }
     end)
 
@@ -45,7 +44,6 @@ defmodule Transport.Validators.GBFSValidatorTest do
              metadata: %DB.ResourceMetadata{
                metadata: %{
                  "feeds" => ["system_information", "station_information", "station_status"],
-                 "cors_header_value" => "*",
                  "languages" => ["fr"],
                  "system_details" => %{"name" => "velhop", "timezone" => "Europe/Paris"},
                  "ttl" => 3600,
