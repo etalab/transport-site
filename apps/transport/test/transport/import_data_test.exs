@@ -3,24 +3,24 @@ defmodule Transport.ImportDataTest do
   use ExUnit.Case, async: false
   alias Transport.ImportData
   import Mock
+  import Mox
   import DB.Factory
   import ExUnit.CaptureLog
   import Ecto.Query
+
   doctest ImportData, import: true
+
+  setup :verify_on_exit!
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
 
     # The national dataset is pre-inserted in the DB via a migration
     assert DB.Region |> where([r], r.nom == "National") |> DB.Repo.aggregate(:count) == 1
-
-    :ok
-  end
-
-  setup do
     Mox.stub_with(Transport.HTTPoison.Mock, HTTPoison)
     Mox.stub_with(Transport.AvailabilityChecker.Mock, Transport.AvailabilityChecker)
     Mox.stub_with(Hasher.Mock, Hasher.Dummy)
+
     :ok
   end
 
@@ -471,17 +471,42 @@ defmodule Transport.ImportDataTest do
            }
   end
 
-  test "get_valid_resources for public-transit detects documentation resources" do
-    resources = %{
-      "resources" => [
-        %{"type" => "main", "format" => "gtfs"},
-        %{"type" => "main", "format" => "geojson"},
-        %{"type" => "main", "format" => "svg"}
-      ]
-    }
+  describe "get_resources" do
+    test "public-transit: filters resources and detects documentation" do
+      dataset = %{
+        "id" => Ecto.UUID.generate(),
+        "resources" => [
+          generate_resource_payload(id: Ecto.UUID.generate(), url: "https://example.com/gtfs", format: "gtfs"),
+          generate_resource_payload(id: Ecto.UUID.generate(), url: "https://example.com/geojson", format: "geojson"),
+          generate_resource_payload(id: Ecto.UUID.generate(), url: "https://example.com/svg", format: "svg")
+        ]
+      }
 
-    assert [%{"format" => "gtfs", "type" => "main"}, %{"format" => "svg", "type" => "documentation"}] ==
-             ImportData.get_valid_resources(resources, "public-transit")
+      Datagouvfr.Client.CommunityResources.Mock |> expect(:get, fn _ -> {:ok, []} end)
+
+      assert [%{"format" => "GTFS", "type" => "main"}, %{"format" => "svg", "type" => "documentation"}] =
+               ImportData.get_resources(dataset, "public-transit")
+    end
+
+    test "another type: detects documentation" do
+      dataset = %{
+        "id" => Ecto.UUID.generate(),
+        "resources" => [
+          generate_resource_payload(id: Ecto.UUID.generate(), url: "https://example.com/gtfs", format: "gtfs"),
+          generate_resource_payload(id: Ecto.UUID.generate(), url: "https://example.com/geojson", format: "geojson"),
+          generate_resource_payload(id: Ecto.UUID.generate(), url: "https://example.com/svg", format: "svg")
+        ]
+      }
+
+      Datagouvfr.Client.CommunityResources.Mock |> expect(:get, fn _ -> {:ok, []} end)
+
+      assert [
+               %{"format" => "GTFS", "type" => "main"},
+               %{"format" => "geojson", "type" => "main"},
+               %{"format" => "svg", "type" => "documentation"}
+             ] =
+               ImportData.get_resources(dataset, "low-emission-zones")
+    end
   end
 
   describe "read_datagouv_zone" do
