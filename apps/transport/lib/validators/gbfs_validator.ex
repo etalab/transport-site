@@ -11,7 +11,7 @@ defmodule Transport.Validators.GBFSValidator do
 
   @impl Transport.Validators.Validator
   def validate_and_save(%DB.Resource{url: url, format: "gbfs", id: resource_id}) do
-    result = GBFSMetadata.compute_feed_metadata(url, "https://#{Application.fetch_env!(:transport, :domain_name)}")
+    result = GBFSMetadata.compute_feed_metadata(url)
 
     {validator_version, validation_result} = result |> Map.fetch!(:validation) |> Map.pop!(:validator_version)
 

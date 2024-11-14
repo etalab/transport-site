@@ -36,7 +36,6 @@ defmodule Transport.Shared.GBFSMetadataTest do
                  validator_version: "31c5325",
                  validator: :validator_module
                },
-               cors_header_value: "*",
                feed_timestamp_delay: _,
                vehicle_types: ["bicycle"],
                stats: %{
@@ -50,7 +49,7 @@ defmodule Transport.Shared.GBFSMetadataTest do
                  nb_vehicles_disabled_stations: 3,
                  version: 1
                }
-             } = compute_feed_metadata(@gbfs_url, "http://example.com")
+             } = compute_feed_metadata(@gbfs_url)
     end
 
     test "for a stations + free floating feed with multiple versions" do
@@ -99,7 +98,6 @@ defmodule Transport.Shared.GBFSMetadataTest do
                  "geofencing_zones",
                  "gbfs_versions"
                ],
-               cors_header_value: "*",
                feed_timestamp_delay: feed_timestamp_delay,
                vehicle_types: ["bicycle", "scooter"],
                stats: %{
@@ -113,7 +111,7 @@ defmodule Transport.Shared.GBFSMetadataTest do
                  nb_vehicles_disabled_stations: 3,
                  version: 1
                }
-             } = compute_feed_metadata(@gbfs_url, "http://example.com")
+             } = compute_feed_metadata(@gbfs_url)
 
       assert feed_timestamp_delay > 0
     end
@@ -121,7 +119,7 @@ defmodule Transport.Shared.GBFSMetadataTest do
     test "for feed with a 500 error on the root URL" do
       setup_feeds([:gbfs_with_server_error])
 
-      {res, logs} = with_log(fn -> compute_feed_metadata(@gbfs_url, "http://example.com") end)
+      {res, logs} = with_log(fn -> compute_feed_metadata(@gbfs_url) end)
 
       assert %{} == res
       assert logs =~ "Could not compute GBFS feed metadata"
@@ -131,7 +129,7 @@ defmodule Transport.Shared.GBFSMetadataTest do
       setup_feeds([:gbfs_with_invalid_gbfs_json])
       setup_validation_result({:error, nil})
 
-      {res, logs} = with_log(fn -> compute_feed_metadata(@gbfs_url, "http://example.com") end)
+      {res, logs} = with_log(fn -> compute_feed_metadata(@gbfs_url) end)
 
       assert %{} == res
       assert logs =~ "Could not compute GBFS feed metadata"
@@ -687,38 +685,16 @@ defmodule Transport.Shared.GBFSMetadataTest do
   defp setup_feed(:vehicle_types), do: setup_vehicle_types_response()
   defp setup_feed(:station_status), do: setup_station_status_response()
 
-  defp setup_response_with_headers(expected_url, body) do
-    Transport.HTTPoison.Mock
-    |> expect(:get, fn url, headers ->
-      assert headers == [{"origin", "http://example.com"}]
-      assert url == expected_url
-
-      {:ok,
-       %HTTPoison.Response{
-         status_code: 200,
-         body: body,
-         headers: [{"Content-Type", "application/json"}, {"Access-Control-Allow-Origin", "*"}]
-       }}
-    end)
-  end
-
   defp setup_response(expected_url, body) do
     Transport.HTTPoison.Mock
-    |> expect(:get, fn url ->
-      assert url == expected_url
-
-      {:ok,
-       %HTTPoison.Response{
-         status_code: 200,
-         body: body,
-         headers: [{"Content-Type", "application/json"}]
-       }}
+    |> expect(:get, fn ^expected_url ->
+      {:ok, %HTTPoison.Response{status_code: 200, body: body, headers: [{"content-type", "application/json"}]}}
     end)
   end
 
   defp setup_gbfs_with_server_error_response do
     Transport.HTTPoison.Mock
-    |> expect(:get, fn _url, _headers -> {:ok, %HTTPoison.Response{status_code: 500}} end)
+    |> expect(:get, fn _url -> {:ok, %HTTPoison.Response{status_code: 500}} end)
   end
 
   defp setup_gbfs_response do
@@ -726,7 +702,7 @@ defmodule Transport.Shared.GBFSMetadataTest do
      {"data":{"fr":{"feeds":[{"name":"system_information","url":"https://example.com/system_information.json"},{"name":"station_information","url":"https://example.com/station_information.json"},{"name":"station_status","url":"https://example.com/station_status.json"}]}},"last_updated":1636116464,"ttl":3600,"version":"1.1"}
     """
 
-    setup_response_with_headers(@gbfs_url, body)
+    setup_response(@gbfs_url, body)
   end
 
   defp setup_invalid_gbfs_response do
@@ -734,7 +710,7 @@ defmodule Transport.Shared.GBFSMetadataTest do
     {"foo": "bar"}
     """
 
-    setup_response_with_headers(@gbfs_url, body)
+    setup_response(@gbfs_url, body)
   end
 
   defp setup_gbfs_with_versions_response do
@@ -742,7 +718,7 @@ defmodule Transport.Shared.GBFSMetadataTest do
     {"last_updated":1636365542,"ttl":60,"version":"2.2","data":{"fr":{"feeds":[{"name":"system_information.json","url":"https://example.com/system_information.json"},{"name":"free_bike_status.json","url":"https://example.com/free_bike_status.json"},{"name":"vehicle_types.json","url":"https://example.com/vehicle_types.json"},{"name":"system_pricing_plans.json","url":"https://example.com/system_pricing_plans.json"},{"name":"station_information.json","url":"https://example.com/station_information.json"},{"name":"station_status.json","url":"https://example.com/station_status.json"},{"name":"geofencing_zones.json","url":"https://example.com/geofencing_zones.json"},{"name":"gbfs_versions.json","url":"https://example.com/gbfs_versions.json"}]}}}
     """
 
-    setup_response_with_headers(@gbfs_url, body)
+    setup_response(@gbfs_url, body)
   end
 
   defp setup_gbfs_versions_response do

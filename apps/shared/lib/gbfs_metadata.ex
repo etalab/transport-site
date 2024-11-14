@@ -1,11 +1,12 @@
 defmodule Transport.Shared.GBFSMetadata.Wrapper do
   @moduledoc """
-  Defines a behavior
+  Behavior for a module in charge of computing metadata for GBFS feeds.
   """
 
-  @callback compute_feed_metadata(binary(), binary()) :: map()
+  @callback compute_feed_metadata(binary()) :: map()
+  def compute_feed_metadata(url), do: impl().compute_feed_metadata(url)
+
   def impl, do: Application.get_env(:transport, :gbfs_metadata_impl)
-  def compute_feed_metadata(url, cors_base_url), do: impl().compute_feed_metadata(url, cors_base_url)
 end
 
 defmodule Transport.Shared.GBFSMetadata do
@@ -39,8 +40,8 @@ defmodule Transport.Shared.GBFSMetadata do
   It will do multiple HTTP requests (calling GBFS sub-feeds) to compute various statistics.
   """
   @impl Transport.Shared.GBFSMetadata.Wrapper
-  def compute_feed_metadata(url, cors_base_url) do
-    {:ok, %{status_code: 200, body: body} = response} = http_client().get(url, [{"origin", cors_base_url}])
+  def compute_feed_metadata(url) do
+    {:ok, %HTTPoison.Response{status_code: 200, body: body}} = http_client().get(url)
     {:ok, json} = Jason.decode(body)
 
     # we compute the feed delay before the rest for accuracy
@@ -48,7 +49,6 @@ defmodule Transport.Shared.GBFSMetadata do
 
     %{
       validation: validation(url),
-      cors_header_value: cors_header_value(response),
       feeds: feeds(json),
       versions: versions(json),
       languages: languages(json),
@@ -91,11 +91,6 @@ defmodule Transport.Shared.GBFSMetadata do
         Logger.error("Cannot detect GBFS types for feed #{inspect(payload)}")
         nil
     end
-  end
-
-  defp cors_header_value(%HTTPoison.Response{headers: headers}) do
-    headers = headers |> Enum.into(%{}, fn {h, v} -> {String.downcase(h), v} end)
-    Map.get(headers, "access-control-allow-origin")
   end
 
   defp ttl(%{"data" => _data} = payload) do
