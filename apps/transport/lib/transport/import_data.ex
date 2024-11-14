@@ -304,7 +304,7 @@ defmodule Transport.ImportData do
          # GOTCHA: `filetype` is set to `file` for exports coming from ODS
          # https://github.com/opendatateam/udata-ods/issues/250
          "filetype" => resource["filetype"],
-         "type" => resource["type"],
+         "type" => formated_type(resource),
          "id" => existing_resource[:id],
          "datagouv_id" => resource["id"],
          "is_available" => availability_checker().available?(format, resource["url"]),
@@ -827,6 +827,21 @@ defmodule Transport.ImportData do
       type == "public-transit" and not is_documentation and not is_community_resource -> "GTFS"
       type in ["bike-scooter-sharing", "car-motorbike-sharing"] and gbfs?(resource) -> "gbfs"
       true -> format
+    end
+  end
+
+  @doc """
+  iex> formated_type(%{"type" => "main", "format" => "pdf", "title" => "Fichier"})
+  "documentation"
+  iex> formated_type(%{"type" => "main", "format" => "GTFS", "title" => "Fichier"})
+  "main"
+  """
+  @spec formated_type(map()) :: binary()
+  def formated_type(%{"type" => type} = resource) do
+    if documentation?(resource) do
+      "documentation"
+    else
+      type
     end
   end
 
