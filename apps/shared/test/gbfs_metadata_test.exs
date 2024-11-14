@@ -573,7 +573,7 @@ defmodule Transport.Shared.GBFSMetadataTest do
 
       assert has_feed?(payload, :vehicle_status)
 
-      assert payload |> first_feed() |> feed_url_by_name(:vehicle_status) == feed_url
+      assert payload |> feed_url_by_name(:vehicle_status) == feed_url
 
       assert has_feed?(
                %{"version" => "2.3", "data" => %{"en" => %{"feeds" => [%{"name" => "free_bike_status.json"}]}}},
@@ -592,7 +592,7 @@ defmodule Transport.Shared.GBFSMetadataTest do
       }
 
       assert has_feed?(payload, :vehicle_status)
-      assert payload |> first_feed() |> feed_url_by_name(:vehicle_status) == feed_url
+      assert payload |> feed_url_by_name(:vehicle_status) == feed_url
     end
   end
 

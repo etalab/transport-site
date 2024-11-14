@@ -99,7 +99,7 @@ defmodule Transport.Shared.GBFSMetadata do
     if is_nil(feed_name) do
       feed_ttl(payload["ttl"])
     else
-      payload |> first_feed() |> feed_url_by_name(feed_name) |> feed_ttl()
+      payload |> feed_url_by_name(feed_name) |> feed_ttl()
     end
   end
 
@@ -177,7 +177,7 @@ defmodule Transport.Shared.GBFSMetadata do
   end
 
   def stations_statistics(%{"data" => _data} = payload) do
-    feed_url = payload |> first_feed() |> feed_url_by_name(:station_status)
+    feed_url = feed_url_by_name(payload, :station_status)
 
     with {:feed_exists, true} <- {:feed_exists, not is_nil(feed_url)},
          {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(feed_url),
@@ -205,7 +205,7 @@ defmodule Transport.Shared.GBFSMetadata do
   end
 
   def vehicle_statistics(%{"data" => _data} = payload) do
-    feed_url = payload |> first_feed() |> feed_url_by_name(:vehicle_status)
+    feed_url = feed_url_by_name(payload, :vehicle_status)
 
     with {:feed_exists, true} <- {:feed_exists, not is_nil(feed_url)},
          {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(feed_url),
@@ -237,7 +237,7 @@ defmodule Transport.Shared.GBFSMetadata do
   defp vehicles_available(%{"num_bikes_available" => num_bikes_available}), do: num_bikes_available
 
   def system_details(%{"data" => _data} = payload) do
-    feed_url = payload |> first_feed() |> feed_url_by_name(:system_information)
+    feed_url = feed_url_by_name(payload, :system_information)
 
     if not is_nil(feed_url) do
       with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(feed_url),
@@ -276,17 +276,8 @@ defmodule Transport.Shared.GBFSMetadata do
 
   defp localized_string?(_), do: false
 
-  def first_feed(%{"data" => data} = payload) do
-    if before_v3?(payload) do
-      first_language = payload |> languages() |> Enum.at(0)
-      (data["en"] || data["fr"] || data[first_language])["feeds"]
-    else
-      data["feeds"]
-    end
-  end
-
   def vehicle_types(%{"data" => _data} = payload) do
-    feed_url = payload |> first_feed() |> feed_url_by_name(:vehicle_types)
+    feed_url = feed_url_by_name(payload, :vehicle_types)
 
     if is_nil(feed_url) do
       # https://gbfs.org/specification/reference/#vehicle_typesjson
@@ -306,7 +297,7 @@ defmodule Transport.Shared.GBFSMetadata do
     if before_v3?(payload) do
       Map.keys(data)
     else
-      feed_url = payload |> first_feed() |> feed_url_by_name(:system_information)
+      feed_url = feed_url_by_name(payload, :system_information)
 
       with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(feed_url),
            {:ok, json} <- Jason.decode(body) do
@@ -319,7 +310,7 @@ defmodule Transport.Shared.GBFSMetadata do
 
   @spec versions(map()) :: [binary()] | nil
   def versions(%{"data" => _data} = payload) do
-    versions_url = payload |> first_feed() |> feed_url_by_name(:gbfs_versions)
+    versions_url = feed_url_by_name(payload, :gbfs_versions)
 
     if is_nil(versions_url) do
       [Map.get(payload, "version", "1.0")]
@@ -333,9 +324,24 @@ defmodule Transport.Shared.GBFSMetadata do
     end
   end
 
-  @spec feed_url_by_name(list(), feed_name()) :: binary() | nil
-  def feed_url_by_name(feeds, name) do
-    Enum.find(feeds, fn map -> feed_is_named?(map, name) end)["url"]
+  @doc """
+  Finds the main list of sub-feeds from a `gbfs.json`.
+
+  Before v3 the order is: English first, then French otherwise the first language.
+  As-of v3 there is only a single list of feeds.
+  """
+  def main_feeds(%{"data" => data} = payload) do
+    if before_v3?(payload) do
+      first_language = payload |> languages() |> Enum.at(0)
+      (data["en"] || data["fr"] || data[first_language])["feeds"]
+    else
+      data["feeds"]
+    end
+  end
+
+  @spec feed_url_by_name(map(), feed_name()) :: binary() | nil
+  def feed_url_by_name(%{"data" => _} = payload, name) do
+    (payload |> main_feeds() |> Enum.find(&feed_is_named?(&1, name)))["url"]
   end
 
   @spec feed_is_named?(map(), feed_name()) :: boolean()
@@ -365,7 +371,7 @@ defmodule Transport.Shared.GBFSMetadata do
   def feeds(%{"data" => _data} = payload) do
     # Remove potential ".json" at the end of feed names as people
     # often make this mistake
-    payload |> first_feed() |> Enum.map(fn feed -> String.replace(feed["name"], ".json", "") end)
+    payload |> main_feeds() |> Enum.map(fn feed -> String.replace(feed["name"], ".json", "") end)
   end
 
   @doc """
