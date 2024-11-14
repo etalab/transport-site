@@ -69,11 +69,3 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "validation was not performed"
 msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "CORS headers"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "None"
-msgstr ""
