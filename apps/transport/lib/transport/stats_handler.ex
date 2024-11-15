@@ -141,10 +141,12 @@ defmodule Transport.StatsHandler do
   @doc """
   iex> gbfs_vehicle_types_stats([%{"vehicle_types" => ["bicycle", "scooter"]}, %{"vehicle_types" => ["bicycle"]}])
   %{gbfs_vehicle_type_bicycle_count: 2, gbfs_vehicle_type_scooter_count: 1}
+  iex> gbfs_vehicle_types_stats([%{"vehicle_types" => ["bicycle"]}, %{"vehicle_types" => nil}])
+  %{gbfs_vehicle_type_bicycle_count: 1}
   """
   def gbfs_vehicle_types_stats(rows) do
     rows
-    |> Enum.flat_map(& &1["vehicle_types"])
+    |> Enum.flat_map(&(&1["vehicle_types"] || []))
     |> Enum.frequencies()
     |> Map.new(fn {k, v} -> {String.to_atom("gbfs_vehicle_type_#{k}_count"), v} end)
   end
