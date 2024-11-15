@@ -47,7 +47,8 @@ defmodule Shared.Validation.GBFSValidator do
 
     def validate(url) do
       with {:ok, %{status_code: 200, body: response}} <- call_api(url),
-           {:ok, json} <- Jason.decode(response) do
+           {:ok, json} <- Jason.decode(response),
+           {:has_errors_count, true} <- {:has_errors_count, is_integer(json["summary"]["errorsCount"])} do
         {:ok,
          %Summary{
            has_errors: json["summary"]["hasErrors"],

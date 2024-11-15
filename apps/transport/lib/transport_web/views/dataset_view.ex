@@ -285,6 +285,8 @@ defmodule TransportWeb.DatasetView do
       when is_integer(errors_count) and errors_count >= 0,
       do: errors_count
 
+  def errors_count(%DB.MultiValidation{}), do: nil
+
   def availability_number_days, do: 30
   def max_nb_history_resources, do: 25
   def days_notifications_sent, do: 90
