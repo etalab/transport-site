@@ -57,6 +57,24 @@ defmodule Transport.AdminNotifier do
     """)
   end
 
+  def unknown_gbfs_operator_feeds(resources) do
+    notify_bidzev()
+    |> subject("Flux GBFS : opérateurs non détectés")
+    |> html_body("""
+    <p>Bonjour,</p>
+
+    <p>Il n'est pas possible de détecter automatiquement les opérateurs des flux GBFS suivants :</p>
+
+    <ul>
+    #{Enum.map(resources, fn %DB.Resource{url: url} -> ~s|<li><a href="#{url}">#{url}</a></li>| end)}
+    </ul>
+
+    <p>La configuration peut être modifiée <a href="https://github.com/etalab/transport-site/blob/master/apps/transport/priv/gbfs_operators.csv">sur GitHub</a>.</p>
+
+    <p>L’équipe transport.data.gouv.fr</p>
+    """)
+  end
+
   def datasets_climate_resilience_bill_inappropriate_licence(datasets) do
     notify_bidzev()
     |> subject("Jeux de données article 122 avec licence inappropriée")
