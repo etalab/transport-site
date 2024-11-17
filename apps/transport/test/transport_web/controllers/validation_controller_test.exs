@@ -69,7 +69,7 @@ defmodule TransportWeb.ValidationControllerTest do
 
       assert redirected_to(conn, 302) == gbfs_analyzer_path(conn, :index, url: url)
 
-      validator_name = Transport.GBFSMetadata.validator_name()
+      validator_name = Transport.Validators.GBFSValidator.validator_name()
 
       assert %{
                validator: ^validator_name,

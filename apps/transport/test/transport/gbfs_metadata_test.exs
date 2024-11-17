@@ -1,11 +1,11 @@
-defmodule Transport.Shared.GBFSMetadataTest do
+defmodule Transport.GBFSMetadataTest do
   use ExUnit.Case, async: true
-
   import Mox
-  alias Shared.Validation.GBFSValidator.Summary, as: GBFSValidationSummary
-  import Transport.Shared.GBFSMetadata
+  import Transport.GBFSMetadata
   import ExUnit.CaptureLog
-  doctest Transport.Shared.GBFSMetadata, import: true
+  alias Shared.Validation.GBFSValidator.Summary, as: GBFSValidationSummary
+
+  doctest Transport.GBFSMetadata, import: true
 
   @gbfs_url "https://example.com/gbfs.json"
 
@@ -48,7 +48,8 @@ defmodule Transport.Shared.GBFSMetadataTest do
                  nb_vehicles_available_stations: 7,
                  nb_vehicles_disabled_stations: 3,
                  version: 1
-               }
+               },
+               operator: "Example"
              } = compute_feed_metadata(@gbfs_url)
     end
 
@@ -110,7 +111,8 @@ defmodule Transport.Shared.GBFSMetadataTest do
                  nb_vehicles_available_stations: 7,
                  nb_vehicles_disabled_stations: 3,
                  version: 1
-               }
+               },
+               operator: "Example"
              } = compute_feed_metadata(@gbfs_url)
 
       assert feed_timestamp_delay > 0
@@ -649,7 +651,7 @@ defmodule Transport.Shared.GBFSMetadataTest do
   end
 
   defp fixture_content(filename) do
-    File.read!("#{__DIR__}/fixtures/gbfs/#{filename}.json")
+    File.read!("#{__DIR__}/../fixture/gbfs/#{filename}.json")
   end
 
   defp setup_validation_result(summary \\ nil) do
