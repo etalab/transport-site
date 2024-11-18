@@ -128,6 +128,11 @@ jobs:
             - elixir-<< parameters.base_image >>-<< parameters.plt_cache_key >>
 
       - run:
+          name: Run tests
+          command: |
+            mix test --warnings-as-errors
+
+      - run:
           name: Build PLT
           command: mix dialyzer --plt
           # PLT construction can stay up quite a bit without generating any output
@@ -172,11 +177,6 @@ jobs:
       - run:
           name: Run dialyzer (static analysis)
           command: mix dialyzer
-
-      - run:
-          name: Run tests
-          command: |
-            mix test --warnings-as-errors
 
 workflows:
   version: 2
