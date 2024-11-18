@@ -16,10 +16,10 @@ defaults: &defaults
       type: string
     # useful to invalidate the build cache manually by bumping the version
     build_cache_key:
-      default: build-v5
+      default: build-v4
       type: string
     plt_cache_key:
-      default: plt-v5
+      default: plt-v4
       type: string
     js_cache_key:
       default: js-v2
@@ -128,11 +128,6 @@ jobs:
             - elixir-<< parameters.base_image >>-<< parameters.plt_cache_key >>
 
       - run:
-          name: Run tests
-          command: |
-            mix test --warnings-as-errors
-
-      - run:
           name: Build PLT
           command: mix dialyzer --plt
           # PLT construction can stay up quite a bit without generating any output
@@ -177,6 +172,11 @@ jobs:
       - run:
           name: Run dialyzer (static analysis)
           command: mix dialyzer
+
+      - run:
+          name: Run tests
+          command: |
+            mix test --warnings-as-errors
 
 workflows:
   version: 2
