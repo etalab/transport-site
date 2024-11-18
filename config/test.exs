@@ -98,6 +98,7 @@ config :transport, DB.Repo,
     System.get_env("PG_URL_TEST") || System.get_env("PG_URL") ||
       "ecto://postgres:postgres@localhost/transport_test",
   pool: Ecto.Adapters.SQL.Sandbox,
+  pool_size: 15,
   # https://hexdocs.pm/db_connection/DBConnection.html#start_link/2-queue-config
   # fix for https://github.com/etalab/transport-site/issues/2539
   queue_target: 5000
