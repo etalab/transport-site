@@ -70,6 +70,15 @@
             "count":4
           }
         ]
+      },
+      {
+        "station_id":"station 3",
+        "is_installed":true,
+        "is_renting":true,
+        "is_returning":true,
+        "last_reported":1609866106,
+        "num_docks_available":999999,
+        "num_bikes_available":555555
       }
     ]
   }

@@ -198,7 +198,7 @@ defmodule Transport.GBFSMetadata do
     with {:feed_exists, true} <- {:feed_exists, not is_nil(feed_url)},
          {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(feed_url),
          {:ok, json} <- Jason.decode(body) do
-      stations = json["data"]["stations"]
+      stations = Enum.reject(json["data"]["stations"], &unrealistic_station_data?/1)
 
       %{
         nb_stations: Enum.count(stations),
@@ -245,6 +245,24 @@ defmodule Transport.GBFSMetadata do
         Logger.error("Cannot get GBFS vehicle_status details: #{inspect(e)}")
         %{}
     end
+  end
+
+  @doc """
+  Is the number of docks or vehicles unrealistic for this station? (more than 500 docks or vehicles).
+  If yes, used to ignore this station to maintain relevant statistics.
+
+  iex> unrealistic_station_data?(%{"num_vehicles_available" => 1_000})
+  true
+  iex> unrealistic_station_data?(%{"num_docks_available" => 1_000})
+  true
+  iex> unrealistic_station_data?(%{"num_docks_available" => 20, "num_vehicles_available" => 10})
+  false
+  """
+  def unrealistic_station_data?(%{} = data) do
+    data
+    |> Map.take(["num_vehicles_available", "num_bikes_available", "num_docks_available"])
+    |> Map.values()
+    |> Enum.any?(&(&1 >= 500))
   end
 
   # As of 3.0
