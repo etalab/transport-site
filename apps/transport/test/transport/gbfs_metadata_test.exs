@@ -1,5 +1,6 @@
 defmodule Transport.GBFSMetadataTest do
-  use ExUnit.Case, async: true
+  # async: false is required because we use real in-memory caching in these tests
+  use ExUnit.Case, async: false
   import Mox
   import Transport.GBFSMetadata
   import ExUnit.CaptureLog
@@ -9,7 +10,19 @@ defmodule Transport.GBFSMetadataTest do
 
   @gbfs_url "https://example.com/gbfs.json"
 
+  setup :set_mox_global
   setup :verify_on_exit!
+
+  setup do
+    # Use a real in-memory cache for these tests to test the caching mecanism
+    old_value = Application.fetch_env!(:transport, :cache_impl)
+    Application.put_env(:transport, :cache_impl, Transport.Cache.Cachex)
+
+    on_exit(fn ->
+      Application.put_env(:transport, :cache_impl, old_value)
+      Cachex.reset(Transport.Cache.Cachex.cache_name())
+    end)
+  end
 
   describe "Compute GBFS metadata for a feed" do
     test "for a stations feed with a single version" do
@@ -60,8 +73,7 @@ defmodule Transport.GBFSMetadataTest do
         :system_information,
         :vehicle_types,
         :free_bike_status,
-        :station_status,
-        :free_bike_status
+        :station_status
       ])
 
       setup_validation_result(
