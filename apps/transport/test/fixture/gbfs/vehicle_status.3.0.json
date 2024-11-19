@@ -1,25 +1,25 @@
 {
-  "last_updated": "2023-07-17T13:34:13+02:00",
+  "last_updated":"2023-07-17T13:34:13+02:00",
   "ttl":0,
   "version":"3.0",
   "data":{
     "vehicles":[
       {
         "vehicle_id":"973a5c94-c288-4a2b-afa6-de8aeb6ae2e5",
-        "last_reported": "2023-07-17T13:34:13+02:00",
+        "last_reported":"2023-07-17T13:34:13+02:00",
         "lat":12.345678,
         "lon":56.789012,
         "is_reserved":false,
         "is_disabled":true,
         "vehicle_type_id":"abc123",
-        "rental_uris": {
-          "android": "https://www.example.com/app?vehicle_id=973a5c94-c288-4a2b-afa6-de8aeb6ae2e5&platform=android&",
-          "ios": "https://www.example.com/app?vehicle_id=973a5c94-c288-4a2b-afa6-de8aeb6ae2e5&platform=ios"
+        "rental_uris":{
+          "android":"https://www.example.com/app?vehicle_id=973a5c94-c288-4a2b-afa6-de8aeb6ae2e5&platform=android&",
+          "ios":"https://www.example.com/app?vehicle_id=973a5c94-c288-4a2b-afa6-de8aeb6ae2e5&platform=ios"
         }
       },
       {
         "vehicle_id":"987fd100-b822-4347-86a4-b3eef8ca8b53",
-        "last_reported": "2023-07-17T13:34:13+02:00",
+        "last_reported":"2023-07-17T13:34:13+02:00",
         "is_reserved":true,
         "is_disabled":false,
         "vehicle_type_id":"def456",

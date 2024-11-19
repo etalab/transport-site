@@ -43,7 +43,7 @@ defmodule Transport.Test.Transport.Jobs.GBFSMultiValidationDispatcherJobTest do
 
     assert DB.Resource.gbfs?(resource)
 
-    Transport.Shared.GBFSMetadata.Mock
+    Transport.GBFSMetadata.Mock
     |> expect(:compute_feed_metadata, fn ^url ->
       %{
         languages: ["fr"],

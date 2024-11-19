@@ -23,12 +23,18 @@ defmodule Transport.CSVDocuments do
     Agent.get(__MODULE__, & &1.zfe_ids)
   end
 
+  @spec gbfs_operators :: [binary()]
+  def gbfs_operators do
+    Agent.get(__MODULE__, & &1.gbfs_operators)
+  end
+
   @spec load_documents :: map()
   defp load_documents do
     %{
       reusers: read_csv("reusers.csv"),
       facilitators: read_csv("facilitators.csv"),
-      zfe_ids: read_csv("zfe_ids.csv")
+      zfe_ids: read_csv("zfe_ids.csv"),
+      gbfs_operators: read_csv("gbfs_operators.csv")
     }
   end
 

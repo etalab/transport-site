@@ -22,4 +22,25 @@ defmodule Transport.CSVDocumentsTest do
     # No empty code
     assert zfe |> Enum.map(& &1["code"]) |> Enum.filter(&is_nil(&1)) |> Enum.empty?()
   end
+
+  test "can load CSV for GBFS operators" do
+    operators = Transport.CSVDocuments.gbfs_operators() |> Enum.map(& &1["operator"]) |> Enum.uniq()
+
+    assert "JC Decaux" in operators
+    assert "Cykleo" in operators
+
+    # Check `operator` values. Prevent typos and ensure unique values.
+    # Detect things like `Cykleo` VS `Cykléo`.
+    for x <- operators, y <- operators, x != y do
+      assert String.jaro_distance(x, y) <= 0.75, "#{x} and #{y} look too similar. Is it the same operator?"
+    end
+
+    # Check `url` values. Make sure there is at most a single match per GBFS feed.
+    # We can't have in the file `example.com` and `example.com/city` for example.
+    urls = Transport.CSVDocuments.gbfs_operators() |> Enum.map(& &1["url"])
+
+    for x <- urls, y <- urls, x != y do
+      refute String.contains?(x, y), "#{x} is contained #{y}. A GBFS feed can only match for a single URL."
+    end
+  end
 end
