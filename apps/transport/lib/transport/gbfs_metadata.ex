@@ -41,7 +41,7 @@ defmodule Transport.GBFSMetadata do
   """
   @impl Transport.GBFSMetadata.Wrapper
   def compute_feed_metadata(url) do
-    {:ok, %HTTPoison.Response{status_code: 200, body: body}} = http_client().get(url)
+    {:ok, %HTTPoison.Response{status_code: 200, body: body}} = cached_http_get(url)
     {:ok, json} = Jason.decode(body)
 
     # we compute the feed delay before the rest for accuracy
@@ -122,7 +122,7 @@ defmodule Transport.GBFSMetadata do
   defp feed_ttl(value) when is_integer(value) and value >= 0, do: value
 
   defp feed_ttl(feed_url) when is_binary(feed_url) do
-    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(feed_url),
+    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- cached_http_get(feed_url),
          {:ok, json} <- Jason.decode(body) do
       json["ttl"]
     else
@@ -196,7 +196,7 @@ defmodule Transport.GBFSMetadata do
     feed_url = feed_url_by_name(payload, :station_status)
 
     with {:feed_exists, true} <- {:feed_exists, not is_nil(feed_url)},
-         {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(feed_url),
+         {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- cached_http_get(feed_url),
          {:ok, json} <- Jason.decode(body) do
       stations = Enum.reject(json["data"]["stations"], &unrealistic_station_data?/1)
 
@@ -224,7 +224,7 @@ defmodule Transport.GBFSMetadata do
     feed_url = feed_url_by_name(payload, :vehicle_status)
 
     with {:feed_exists, true} <- {:feed_exists, not is_nil(feed_url)},
-         {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(feed_url),
+         {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- cached_http_get(feed_url),
          {:ok, json} <- Jason.decode(body) do
       vehicles = json["data"]["vehicles"] || json["data"]["bikes"]
       nb_vehicles = Enum.count(vehicles)
@@ -274,7 +274,7 @@ defmodule Transport.GBFSMetadata do
     feed_url = feed_url_by_name(payload, :system_information)
 
     with {:feed_exists, true} <- {:feed_exists, not is_nil(feed_url)},
-         {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(feed_url),
+         {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- cached_http_get(feed_url),
          {:ok, json} <- Jason.decode(body) do
       transform_localized_strings(json["data"])
     else
@@ -320,7 +320,7 @@ defmodule Transport.GBFSMetadata do
       # > If this file is not included, then all vehicles in the feed are assumed to be non-motorized bicycles.
       ["bicycle"]
     else
-      with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(feed_url),
+      with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- cached_http_get(feed_url),
            {:ok, json} <- Jason.decode(body) do
         json["data"]["vehicle_types"] |> Enum.map(& &1["form_factor"]) |> Enum.uniq()
       else
@@ -335,7 +335,7 @@ defmodule Transport.GBFSMetadata do
     else
       feed_url = feed_url_by_name(payload, :system_information)
 
-      with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(feed_url),
+      with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- cached_http_get(feed_url),
            {:ok, json} <- Jason.decode(body) do
         get_in(json, ["data", "languages"])
       else
@@ -351,7 +351,7 @@ defmodule Transport.GBFSMetadata do
     if is_nil(versions_url) do
       [Map.get(payload, "version", "1.0")]
     else
-      with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(versions_url),
+      with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- cached_http_get(versions_url),
            {:ok, json} <- Jason.decode(body) do
         json["data"]["versions"] |> Enum.map(& &1["version"]) |> Enum.sort(:desc)
       else
@@ -426,6 +426,14 @@ defmodule Transport.GBFSMetadata do
   # No `version` key: GBFS 1.0
   # https://github.com/MobilityData/gbfs/blob/v1.1/gbfs.md#output-format
   defp before_v3?(%{}), do: true
+
+  defp cached_http_get(url) do
+    Transport.Cache.fetch(
+      "#{__MODULE__}::http_get::#{url}",
+      fn -> http_client().get(url) end,
+      :timer.seconds(30)
+    )
+  end
 
   defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
 end
