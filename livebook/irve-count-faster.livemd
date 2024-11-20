@@ -1,0 +1,43 @@
+# Suivi du nombre d'IRVE (version accélérée)
+
+```elixir
+Mix.install([
+  {:req, "~> 0.5.7"},
+  {:nimble_csv, "~> 1.2"},
+  {:kino, "~> 0.14.2"},
+  {:explorer, "~> 0.10.0"}
+])
+```
+
+## Analyse
+
+Je pars de la ressource [Fichier consolidé des bornes de recharge pour véhicule électrique](https://transport.data.gouv.fr/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques).
+
+Je récupére l'identifiant du dataset (`118`) et je m'appuie sur l'url qui retourne l'historique.
+
+Reesource pour filtre:
+
+* https://transport.data.gouv.fr/resources/81623
+
+```elixir
+history_url = "https://transport.data.gouv.fr/datasets/118/resources_history_csv"
+%{status: 200, body: data} = Req.get!(history_url)
+[headers | rows] = data
+
+require Explorer.DataFrame
+
+data = rows
+|> Enum.map(fn row -> Enum.zip(headers, row) |> Map.new() end)
+|> Enum.map(fn row -> Map.update!(row, "inserted_at", fn(x) -> 
+  String.slice(x, 0..9) |> Date.from_iso8601!() 
+end) end )
+|> Enum.reject(fn(row) -> row["permanent_url"] =~ ~r/\.json$/ end)
+
+data
+|> Enum.with_index()
+|> Enum.map(fn {row, index} -> Map.put(row, "index", index) end)
+|> Explorer.DataFrame.new(dtypes: [{"inserted_at", :date}])
+#|> Explorer.DataFrame.filter(resource_id == "81623")
+|> Explorer.DataFrame.discard(["payload", "resource_history_id", "resource_id"])
+|> Kino.DataTable.new
+```
