@@ -36,6 +36,12 @@ defmodule Transport.AvailabilityChecker do
       {:ok, %Response{status_code: code}} when (code >= 200 and code < 300) or code in [401, 405] ->
         true
 
+      # At least one SIRI server returns a 500 despite being reachable and returning proper SOAP.
+      # Accept it, until we implement the better `CheckStatus` SIRI availability check.
+      # https://github.com/etalab/transport-site/issues/4283
+      {:ok, %Response{status_code: 500, body: body}} ->
+        body |> String.downcase() |> String.contains?("soap:envelope")
+
       # Bug affecting Hackney (dependency of HTTPoison)
       # 303 status codes on `GET` requests should be fine but they're returned as errors
       # https://github.com/edgurgel/httpoison/issues/171#issuecomment-244029927

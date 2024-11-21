@@ -21,7 +21,12 @@ defmodule Datagouvfr.Client.DiscussionTest do
                {"content-type", "application/json"}
              ]
 
-      assert Jason.decode!(body) == Jason.decode!(~s({"comment":"#{comment}","subject":{"class":"Dataset","id":"#{datagouv_id}"},"title":"#{title}"}))
+      assert Jason.decode!(body) == %{
+               "comment" => comment,
+               "subject" => %{"class" => "Dataset", "id" => datagouv_id},
+               "title" => title
+             }
+
       json(%{"title" => title, "discussion" => [%{"content" => comment}]}, status: 201)
     end)
 
