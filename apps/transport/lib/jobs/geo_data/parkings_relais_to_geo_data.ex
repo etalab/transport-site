@@ -6,10 +6,7 @@ defmodule Transport.Jobs.ParkingsRelaisToGeoData do
 
   @impl Oban.Worker
   def perform(%{}) do
-    Transport.ConsolidatedDataset.resource(:parkings_relais)
-    |> Transport.Jobs.BaseGeoData.import_replace_data(&prepare_data_for_insert/2)
-
-    :ok
+    Transport.Jobs.BaseGeoData.import_replace_data(:parkings_relais, &prepare_data_for_insert/2)
   end
 
   defp pr_count(""), do: 0
