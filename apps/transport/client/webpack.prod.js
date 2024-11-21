@@ -8,7 +8,7 @@ module.exports = merge(common, {
     mode: 'production',
     cache: {
         type: 'filesystem',
-        compression: 'gzip',
+        compression: 'gzip'
     },
     optimization: {
         minimizer: [
