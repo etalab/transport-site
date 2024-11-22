@@ -664,7 +664,8 @@ defmodule Transport.GBFSMetadataTest do
   end
 
   describe "types" do
-    test "vehicles and stations feeds" do
+    test "vehicles feed with no station information and stations feeds should be considered mixed type" do
+      # `station_id` is not present in the response, the bike is considered as free floating
       setup_response(
         vehicle_status_url = "https://example.com/vehicle_status",
         Jason.encode!(%{data: %{vehicles: [%{bike_id: Ecto.UUID.generate()}]}})
@@ -688,7 +689,7 @@ defmodule Transport.GBFSMetadataTest do
       assert ["free_floating", "stations"] == types(gbfs_url)
     end
 
-    test "vehicles and stations feeds, empty stations" do
+    test "vehicles and stations feeds, empty stations should be considered as free floating" do
       setup_response(
         vehicle_status_url = "https://example.com/vehicle_status",
         Jason.encode!(%{data: %{vehicles: [%{bike_id: Ecto.UUID.generate()}]}})
