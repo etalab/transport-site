@@ -335,7 +335,8 @@ defmodule Mix.Tasks.Transport.ImportAOMs do
     -- update dataset_aom_legal_owner set aom_id = (select id from aom where composition_res_id = 310) where aom_id = 449;
     --
     -- 2024
-    update dataset_aom_legal_owner set aom_id = (select id from aom where composition_res_id = 16) where aom_id IN (1283, 1285, 1288, 1292, 1294);
+    -- Migrates a dataset to Pôle Métropolitain Mobilités Le Mans – Sarthe
+    update dataset_aom_legal_owner set aom_id = (select id from aom where composition_res_id = 1293) where aom_id IN (1283, 1285, 1288, 1292, 1294);
     """
 
     queries |> String.split(";") |> Enum.each(&Repo.query!/1)
