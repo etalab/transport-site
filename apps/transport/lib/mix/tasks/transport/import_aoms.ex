@@ -29,7 +29,7 @@ defmodule Mix.Tasks.Transport.ImportAOMs do
   # export as CSV and publish as community resource
   @aom_file "https://static.data.gouv.fr/resources/liste-et-composition-des-autorites-organisatrices-de-la-mobilite-aom/20241108-105224/liste-aoms-2024.csv"
   # Same for composition of each AOM, but no need even to rename columns
-  @aom_insee_file "https://static.data.gouv.fr/resources/liste-et-composition-des-autorites-organisatrices-de-la-mobilite-aom/20241122-150150/composition-communale-aom-2024.csv"
+  @aom_insee_file "https://static.data.gouv.fr/resources/liste-et-composition-des-autorites-organisatrices-de-la-mobilite-aom/20241122-154942/composition-communale-aom-2024.csv"
 
   # We don’t add collectivité d’outremer de Saint-Martin
   @ignored_aom_ids ["312"]
