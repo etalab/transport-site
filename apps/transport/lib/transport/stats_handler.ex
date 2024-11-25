@@ -130,10 +130,12 @@ defmodule Transport.StatsHandler do
   @doc """
   iex> gbfs_versions_stats([%{"versions" => ["3.0", "2.2"]}, %{"versions" => ["3.0", "1.0"]}])
   %{"gbfs_v1.0_count": 1, "gbfs_v2.2_count": 1, "gbfs_v3.0_count": 2}
+  iex> gbfs_versions_stats([%{"versions" => nil}, %{"versions" => ["3.0", "1.0"]}])
+  %{"gbfs_v1.0_count": 1, "gbfs_v3.0_count": 1}
   """
   def gbfs_versions_stats(rows) do
     rows
-    |> Enum.flat_map(& &1["versions"])
+    |> Enum.flat_map(&(&1["versions"] || []))
     |> Enum.frequencies()
     |> Map.new(fn {k, v} -> {String.to_atom("gbfs_v#{k}_count"), v} end)
   end
@@ -152,12 +154,14 @@ defmodule Transport.StatsHandler do
   end
 
   @doc """
-  iex> gbfs_feed_types_stats([%{"types" =>["free_floating", "stations"]}, %{"types" =>["stations"]}])
+  iex> gbfs_feed_types_stats([%{"types" => ["free_floating", "stations"]}, %{"types" => ["stations"]}])
   %{gbfs_feed_type_free_floating_count: 1, gbfs_feed_type_stations_count: 2}
+  iex> gbfs_feed_types_stats([%{"types" => nil}, %{"types" => ["stations"]}])
+  %{gbfs_feed_type_stations_count: 1}
   """
   def gbfs_feed_types_stats(rows) do
     rows
-    |> Enum.flat_map(& &1["types"])
+    |> Enum.flat_map(&(&1["types"] || []))
     |> Enum.frequencies()
     |> Map.new(fn {k, v} -> {String.to_atom("gbfs_feed_type_#{k}_count"), v} end)
   end

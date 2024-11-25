@@ -89,23 +89,48 @@ defmodule Transport.GBFSMetadata do
     end)
   end
 
-  defp types(%{"data" => _data} = payload) do
-    has_vehicle_status = has_feed?(payload, :vehicle_status)
-    has_station_information = has_feed?(payload, :station_information)
+  def types(%{"data" => _data} = payload) do
+    has_free_floating_vehicles = has_free_floating_vehicles?(payload)
+    has_stations = has_stations?(payload)
 
     cond do
-      has_vehicle_status and has_station_information ->
+      has_free_floating_vehicles and has_stations ->
         ["free_floating", "stations"]
 
-      has_vehicle_status ->
+      has_free_floating_vehicles ->
         ["free_floating"]
 
-      has_station_information ->
+      has_stations ->
         ["stations"]
 
       true ->
         Logger.error("Cannot detect GBFS types for feed #{inspect(payload)}")
         nil
+    end
+  end
+
+  defp has_stations?(%{"data" => _data} = payload) do
+    feed_url = feed_url_by_name(payload, :station_information)
+
+    with {:feed_exists, true} <- {:feed_exists, not is_nil(feed_url)},
+         {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- cached_http_get(feed_url),
+         {:ok, json} <- Jason.decode(body) do
+      not Enum.empty?(json["data"]["stations"])
+    else
+      _ -> false
+    end
+  end
+
+  defp has_free_floating_vehicles?(%{"data" => _data} = payload) do
+    feed_url = feed_url_by_name(payload, :vehicle_status)
+
+    with {:feed_exists, true} <- {:feed_exists, not is_nil(feed_url)},
+         {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- cached_http_get(feed_url),
+         {:ok, json} <- Jason.decode(body) do
+      (json["data"]["vehicles"] || json["data"]["bikes"])
+      |> Enum.any?(&(not Map.has_key?(&1, "station_id")))
+    else
+      _ -> false
     end
   end
 
