@@ -34,8 +34,8 @@ D’après Cyril, il est possible d’avoir des jeux de données avec des couver
 Un dataset peut à la fois avoir des régions et des AOM comme représentants légaux :
 
 ```sql
-select dalo.dataset_id, d.custom_title, dalo.aom_id, a.nom, drlo.region_id, r.nom from dataset_aom_legal_owner dalo 
-join dataset d on dalo.dataset_id = d.id 
+select dalo.dataset_id, d.custom_title, dalo.aom_id, a.nom, drlo.region_id, r.nom from dataset_aom_legal_owner dalo
+join dataset d on dalo.dataset_id = d.id
 join dataset_region_legal_owner drlo on dalo.dataset_id = drlo.dataset_id
 join aom a on dalo.aom_id = a.id
 join region r on drlo.region_id = r.id ;
@@ -54,7 +54,7 @@ C’est une implémentation à améliorer :
 
 # Les territoires / collectivités territoriales
 
-On a ces territoires, chacun avec une table différente, qui ont une géométrie stockées sur le PAN : 
+On a ces territoires, chacun avec une table différente, qui ont une géométrie stockées sur le PAN :
 
 - Les régions
 - Les départements (qui appartiennent à une région)
@@ -129,7 +129,7 @@ Les API géographiques documentées : [https://transport.data.gouv.fr/swaggerui]
 - On peut avoir une liste du geojson de tous les AOM via `https://transport.data.gouv.fr/api/aoms/geojson`
 - On peut aussi avoir le geojson d’un dataset.
 
-I**l n’y a pas de recherche de dataset dans l’API, ni par nom, ni par localité (nom de commune, code INSEE), ni par localisation (boundbox, point, périmètre).**
+**Il n’y a pas de recherche de dataset dans l’API, ni par nom, ni par localité (nom de commune, code INSEE), ni par localisation (boundbox, point, périmètre).**
 
 **Les cartes d’exploration s’appuient sur des API non documentées :**
 
