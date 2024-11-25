@@ -125,7 +125,7 @@ defmodule Mix.Tasks.Transport.ImportAOMs do
           # we load all aoms
           import_aoms(aoms_to_add)
           # Some datasets should change AOM
-          migrate_datasets_to_new_aoms()
+          migrate_datasets_to_new_aoms(2024)
           delete_old_aoms(aoms_to_add, old_aoms)
           # we load the join on cities
           import_insee_aom()
@@ -306,10 +306,9 @@ defmodule Mix.Tasks.Transport.ImportAOMs do
     Repo.query!("REFRESH MATERIALIZED VIEW places;")
   end
 
-  defp migrate_datasets_to_new_aoms do
+  # This could be mostly automatized, you just have to look for a commune of the old AOM and see where it was migrated.
+  defp migrate_datasets_to_new_aoms(2023) do
     queries = """
-    -- This could be mostly automatized, you just have to look for a commune of the old AOM and see where it was migrated.
-    --
     -- 2023
     -- [info] Datasets still associated with deleted AOM as territory :
     -- %{230 => [[230, 275, 401]], 449 => [[449, 1509, 653]]}
@@ -322,19 +321,28 @@ defmodule Mix.Tasks.Transport.ImportAOMs do
     -- CC du Pays d'Issoudun (id : 230, res_id: 275) to Région Centre-Val de Loire (CC du Pays d'Issoudun) (res_id: 13608)
     -- Migrates this dataset as both territory and legal owner https://transport.data.gouv.fr/datasets/issoudun-offre-theorique-mobilite-reseau-urbain
     -- This one as legal owner https://transport.data.gouv.fr/datasets/arrets-itineraires-et-horaires-theoriques-des-reseaux-de-transport-des-membres-de-jvmalin
-    -- update dataset set aom_id = (select id from aom where composition_res_id = 13608) where aom_id = 230;
-    -- update dataset_aom_legal_owner set aom_id = (select id from aom where composition_res_id = 13608) where aom_id = 230;
+    update dataset set aom_id = (select id from aom where composition_res_id = 13608) where aom_id = 230;
+    update dataset_aom_legal_owner set aom_id = (select id from aom where composition_res_id = 13608) where aom_id = 230;
     -- CC Arve et Salève (id : 440, res_id: 1475) to SM4CC (res_id: 417)
     -- CC Faucigny-Glières (id: 558, res_id :1509 to SM4CC (res_id: 417)
     -- CC du Pays Rochois (id: 677, res_id: 1478 to SM4CC (res_id: 417)
     -- There is a fourth CC in SM4CC, CC des Quatre Rivières (haute savoie)
     -- Removes aggregate legal owner here https://transport.data.gouv.fr/datasets/agregat-oura but keeps SM4CC
-    -- delete from dataset_aom_legal_owner where aom_id in (440, 558, 677);
+    delete from dataset_aom_legal_owner where aom_id in (440, 558, 677);
     -- L'Île-d'Yeu (id: 449, res_id: 1509) to L’Île-d’Yeu (res_id: 310);
-    -- update dataset set aom_id = (select id from aom where composition_res_id = 310) where aom_id = 449;
-    -- update dataset_aom_legal_owner set aom_id = (select id from aom where composition_res_id = 310) where aom_id = 449;
+    update dataset set aom_id = (select id from aom where composition_res_id = 310) where aom_id = 449;
+    update dataset_aom_legal_owner set aom_id = (select id from aom where composition_res_id = 310) where aom_id = 449;
     --
     -- 2024
+    -- Migrates a dataset to Pôle Métropolitain Mobilités Le Mans – Sarthe
+    update dataset_aom_legal_owner set aom_id = (select id from aom where composition_res_id = 1293) where aom_id IN (1283, 1285, 1288, 1292, 1294);
+    """
+
+    queries |> String.split(";") |> Enum.each(&Repo.query!/1)
+  end
+
+  defp migrate_datasets_to_new_aoms(2024) do
+    queries = """
     -- Migrates a dataset to Pôle Métropolitain Mobilités Le Mans – Sarthe
     update dataset_aom_legal_owner set aom_id = (select id from aom where composition_res_id = 1293) where aom_id IN (1283, 1285, 1288, 1292, 1294);
     """
