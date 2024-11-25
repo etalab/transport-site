@@ -115,7 +115,9 @@ defmodule Transport.GBFSMetadata do
     with {:feed_exists, true} <- {:feed_exists, not is_nil(feed_url)},
          {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- cached_http_get(feed_url),
          {:ok, json} <- Jason.decode(body) do
-      not Enum.empty?(json["data"]["stations"])
+      json["data"]["stations"]
+      |> Enum.reject(& &1["is_virtual_station"])
+      |> Enum.count() > 0
     else
       _ -> false
     end
@@ -123,14 +125,31 @@ defmodule Transport.GBFSMetadata do
 
   defp has_free_floating_vehicles?(%{"data" => _data} = payload) do
     feed_url = feed_url_by_name(payload, :vehicle_status)
+    virtual_station_ids = virtual_station_ids(payload)
 
     with {:feed_exists, true} <- {:feed_exists, not is_nil(feed_url)},
          {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- cached_http_get(feed_url),
          {:ok, json} <- Jason.decode(body) do
       (json["data"]["vehicles"] || json["data"]["bikes"])
-      |> Enum.any?(&(not Map.has_key?(&1, "station_id")))
+      |> Enum.any?(fn vehicle ->
+        not Map.has_key?(vehicle, "station_id") or vehicle["station_id"] in virtual_station_ids
+      end)
     else
       _ -> false
+    end
+  end
+
+  def virtual_station_ids(%{"data" => _data} = payload) do
+    feed_url = feed_url_by_name(payload, :station_information)
+
+    with {:feed_exists, true} <- {:feed_exists, not is_nil(feed_url)},
+         {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- cached_http_get(feed_url),
+         {:ok, json} <- Jason.decode(body) do
+      json["data"]["stations"]
+      |> Enum.filter(& &1["is_virtual_station"])
+      |> Enum.map(& &1["station_id"])
+    else
+      _ -> []
     end
   end
 
@@ -230,6 +249,7 @@ defmodule Transport.GBFSMetadata do
         nb_installed_stations: Enum.count(stations, & &1["is_installed"]),
         nb_renting_stations: Enum.count(stations, & &1["is_renting"]),
         nb_returning_stations: Enum.count(stations, & &1["is_returning"]),
+        nb_virtual_stations: Enum.count(stations, & &1["is_virtual_station"]),
         nb_docks_available: stations |> Enum.map(& &1["num_docks_available"]) |> non_nil_sum(),
         nb_docks_disabled: stations |> Enum.map(& &1["num_docks_disabled"]) |> non_nil_sum(),
         nb_vehicles_available_stations: stations |> Enum.map(&vehicles_available/1) |> non_nil_sum(),
