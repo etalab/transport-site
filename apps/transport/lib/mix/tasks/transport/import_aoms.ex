@@ -2,7 +2,7 @@ defmodule Mix.Tasks.Transport.ImportAOMs do
   @moduledoc """
   Import the AOM files and updates the database.
 
-  The AOM files  come from the Cerema dataset:
+  The AOM files come from the Cerema dataset:
   https://www.data.gouv.fr/fr/datasets/liste-et-composition-des-autorites-organisatrices-de-la-mobilite-aom/
   https://www.cerema.fr/fr/actualites/liste-composition-autorites-organisatrices-mobilite-au-1er-4
 
