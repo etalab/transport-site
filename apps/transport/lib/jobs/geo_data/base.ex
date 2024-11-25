@@ -51,7 +51,7 @@ defmodule Transport.Jobs.BaseGeoData do
   # For a non-static resource: we don't rely on a `DB.ResourceHistory` associated to a static
   # resource to determine if we should replace the data, it should always be replaced.
   def import_replace_data(slug, prepare_data_for_insert_fn) when is_atom(slug) do
-    current_geo_data_import = DB.Repo.get_by(DB.GeoDataImport, slug: to_string(slug))
+    current_geo_data_import = DB.Repo.get_by(DB.GeoDataImport, slug: slug)
 
     Logger.info("geo_data for a slug is always replaced… Updating content for #{slug}")
     perform_import(current_geo_data_import, slug, prepare_data_for_insert_fn)
@@ -75,7 +75,7 @@ defmodule Transport.Jobs.BaseGeoData do
         end
 
         %{id: geo_data_import_id} =
-          %DB.GeoDataImport{resource_history_id: latest_resource_history_id, slug: to_string(slug)} |> DB.Repo.insert!()
+          %DB.GeoDataImport{resource_history_id: latest_resource_history_id, slug: slug} |> DB.Repo.insert!()
 
         http_client = Transport.Shared.Wrapper.HTTPoison.impl()
         %HTTPoison.Response{status_code: 200, body: body} = http_client.get!(permanent_url)
@@ -93,7 +93,7 @@ defmodule Transport.Jobs.BaseGeoData do
           current_geo_data_import |> DB.Repo.delete!()
         end
 
-        %DB.GeoDataImport{id: geo_data_import_id} = DB.Repo.insert!(%DB.GeoDataImport{slug: to_string(slug)})
+        %DB.GeoDataImport{id: geo_data_import_id} = DB.Repo.insert!(%DB.GeoDataImport{slug: slug})
         insert_data(geo_data_import_id, prepare_data_for_insert_fn)
       end,
       timeout: @import_timeout

@@ -148,7 +148,7 @@ defmodule Transport.Jobs.GBFSStationsToGeoDataTest do
 
       assert :ok == perform_job(GBFSStationsToGeoData, %{})
 
-      %DB.GeoDataImport{id: geo_data_import_id} = DB.Repo.get_by!(DB.GeoDataImport, slug: "gbfs_stations")
+      %DB.GeoDataImport{id: geo_data_import_id} = DB.Repo.get_by!(DB.GeoDataImport, slug: :gbfs_stations)
 
       assert [
                %DB.GeoData{
@@ -165,7 +165,7 @@ defmodule Transport.Jobs.GBFSStationsToGeoDataTest do
     end
 
     test "replaces existing data" do
-      geo_data_import = %DB.GeoDataImport{slug: "gbfs_stations"} |> DB.Repo.insert!()
+      geo_data_import = %DB.GeoDataImport{slug: :gbfs_stations} |> DB.Repo.insert!()
 
       %DB.GeoData{
         geom: %Geo.Point{coordinates: {2.6278, 45.4542}, srid: 4326},

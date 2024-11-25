@@ -96,7 +96,7 @@ defmodule Transport.Jobs.IRVEToGeoDataTest do
     assert :ok = perform_job(IRVEToGeoData, %{})
 
     # data is imported
-    [%DB.GeoDataImport{id: geo_data_import_1, resource_history_id: ^id_1, slug: "irve"}] =
+    [%DB.GeoDataImport{id: geo_data_import_1, resource_history_id: ^id_1, slug: :irve}] =
       DB.GeoDataImport |> DB.Repo.all()
 
     assert DB.GeoData |> DB.Repo.all() |> Enum.count() == 2
@@ -119,7 +119,7 @@ defmodule Transport.Jobs.IRVEToGeoDataTest do
     assert :ok = perform_job(IRVEToGeoData, %{})
 
     # geo_data and geo_data_import are updated accordingly
-    [%DB.GeoDataImport{id: geo_data_import_2, resource_history_id: ^id_2, slug: "irve"}] =
+    [%DB.GeoDataImport{id: geo_data_import_2, resource_history_id: ^id_2, slug: :irve}] =
       DB.GeoDataImport |> DB.Repo.all()
 
     assert geo_data_import_2 !== geo_data_import_1

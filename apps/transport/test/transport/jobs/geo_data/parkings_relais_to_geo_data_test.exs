@@ -66,7 +66,7 @@ defmodule Transport.Jobs.ParkingsRelaisToGeoDataTest do
     assert :ok = perform_job(ParkingsRelaisToGeoData, %{})
 
     # data is imported
-    [%DB.GeoDataImport{id: geo_data_import_1, resource_history_id: ^id_0, slug: "parkings_relais"}] =
+    [%DB.GeoDataImport{id: geo_data_import_1, resource_history_id: ^id_0, slug: :parkings_relais}] =
       DB.GeoDataImport |> DB.Repo.all()
 
     assert DB.GeoData |> DB.Repo.all() |> Enum.count() == 1
@@ -89,7 +89,7 @@ defmodule Transport.Jobs.ParkingsRelaisToGeoDataTest do
     assert :ok = perform_job(ParkingsRelaisToGeoData, %{})
 
     # geo_data and geo_data_import are updated accordingly
-    [%DB.GeoDataImport{id: geo_data_import_2, resource_history_id: ^id_1, slug: "parkings_relais"}] =
+    [%DB.GeoDataImport{id: geo_data_import_2, resource_history_id: ^id_1, slug: :parkings_relais}] =
       DB.GeoDataImport |> DB.Repo.all()
 
     assert geo_data_import_2 !== geo_data_import_1
