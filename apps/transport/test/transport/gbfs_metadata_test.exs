@@ -616,6 +616,10 @@ defmodule Transport.GBFSMetadataTest do
       setup_response("https://example.com/gbfs/station_status", fixture_content("station_status.3.0"))
       setup_response("https://example.com/gbfs/vehicle_status", fixture_content("vehicle_status.3.0"))
 
+      # `version` is bumped when keys change
+      %{version: 2} = stats = stats(fixture_content("gbfs.3.0") |> Jason.decode!())
+      assert "7f96f20d6737450db8338d4ce83ae888" == stats |> Map.keys() |> Enum.sort() |> Enum.join("|") |> md5()
+
       # Values may not make sense: responses have been taken from the GBFS spec
       # and edited to make sure we test various possibilities without having massive
       # fixture files.
@@ -635,7 +639,7 @@ defmodule Transport.GBFSMetadataTest do
                nb_vehicles_available_stations: 7,
                nb_vehicles_disabled_stations: 3,
                nb_virtual_stations: 1
-             } == stats(fixture_content("gbfs.3.0") |> Jason.decode!())
+             } == stats
     end
 
     test "2.2 feed" do
@@ -989,4 +993,6 @@ defmodule Transport.GBFSMetadataTest do
 
     setup_response("https://example.com/station_status.json", body)
   end
+
+  defp md5(value), do: :crypto.hash(:md5, value) |> Base.encode16(case: :lower)
 end
