@@ -144,6 +144,7 @@ oban_prod_crontab = [
   {"30 6 * * 1", Transport.Jobs.DatasetsSwitchingClimateResilienceBillJob},
   {"30 6 * * 1-5", Transport.Jobs.DatasetsClimateResilienceBillNotLOLicenceJob},
   {"10 6 * * 1", Transport.Jobs.DatasetsWithoutGTFSRTRelatedResourcesNotificationJob},
+  {"10 6 * * 1", Transport.Jobs.GBFSOperatorsNotificationJob},
   {"45 2 * * *", Transport.Jobs.RemoveHistoryJob, args: %{schema_name: "etalab/schema-irve-dynamique", days_limit: 7}},
   {"0 16 * * *", Transport.Jobs.DatasetQualityScoreDispatcher},
   {"40 3 * * *", Transport.Jobs.UpdateContactsJob},

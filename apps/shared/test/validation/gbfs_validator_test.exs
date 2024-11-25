@@ -70,8 +70,10 @@ defmodule GBFSValidatorTest do
        }}
     end)
 
-    assert {:error, "impossible to query GBFS Validator: {:has_errors_count, false}"} =
-             HTTPValidatorClient.validate("https://example.com/gbfs.json")
+    {{:error, "impossible to query GBFS Validator: {:has_errors_count, false}"}, logs} =
+      ExUnit.CaptureLog.with_log(fn -> HTTPValidatorClient.validate("https://example.com/gbfs.json") end)
+
+    assert logs =~ "[error] impossible to query GBFS Validator: {:has_errors_count, false}"
   end
 
   test "can encode and decode summary" do

@@ -8,7 +8,7 @@ defmodule TransportWeb.ValidationController do
     %MultiValidation{
       oban_args: build_oban_args(params),
       validation_timestamp: DateTime.utc_now(),
-      validator: Transport.GBFSMetadata.validator_name(),
+      validator: Transport.Validators.GBFSValidator.validator_name(),
       validated_data_name: url
     }
     |> Repo.insert!()

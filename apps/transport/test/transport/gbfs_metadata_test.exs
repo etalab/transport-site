@@ -1,15 +1,28 @@
-defmodule Transport.Shared.GBFSMetadataTest do
-  use ExUnit.Case, async: true
-
+defmodule Transport.GBFSMetadataTest do
+  # async: false is required because we use real in-memory caching in these tests
+  use ExUnit.Case, async: false
   import Mox
-  alias Shared.Validation.GBFSValidator.Summary, as: GBFSValidationSummary
-  import Transport.Shared.GBFSMetadata
+  import Transport.GBFSMetadata
   import ExUnit.CaptureLog
-  doctest Transport.Shared.GBFSMetadata, import: true
+  alias Shared.Validation.GBFSValidator.Summary, as: GBFSValidationSummary
+
+  doctest Transport.GBFSMetadata, import: true
 
   @gbfs_url "https://example.com/gbfs.json"
 
+  setup :set_mox_global
   setup :verify_on_exit!
+
+  setup do
+    # Use a real in-memory cache for these tests to test the caching mecanism
+    old_value = Application.fetch_env!(:transport, :cache_impl)
+    Application.put_env(:transport, :cache_impl, Transport.Cache.Cachex)
+
+    on_exit(fn ->
+      Application.put_env(:transport, :cache_impl, old_value)
+      Cachex.reset(Transport.Cache.Cachex.cache_name())
+    end)
+  end
 
   describe "Compute GBFS metadata for a feed" do
     test "for a stations feed with a single version" do
@@ -47,8 +60,9 @@ defmodule Transport.Shared.GBFSMetadataTest do
                  nb_stations: 2,
                  nb_vehicles_available_stations: 7,
                  nb_vehicles_disabled_stations: 3,
-                 version: 1
-               }
+                 version: 2
+               },
+               operator: "Example"
              } = compute_feed_metadata(@gbfs_url)
     end
 
@@ -58,9 +72,9 @@ defmodule Transport.Shared.GBFSMetadataTest do
         :gbfs_versions,
         :system_information,
         :vehicle_types,
+        :station_information,
         :free_bike_status,
-        :station_status,
-        :free_bike_status
+        :station_status
       ])
 
       setup_validation_result(
@@ -109,8 +123,9 @@ defmodule Transport.Shared.GBFSMetadataTest do
                  nb_stations: 2,
                  nb_vehicles_available_stations: 7,
                  nb_vehicles_disabled_stations: 3,
-                 version: 1
-               }
+                 version: 2
+               },
+               operator: "Example"
              } = compute_feed_metadata(@gbfs_url)
 
       assert feed_timestamp_delay > 0
@@ -601,6 +616,10 @@ defmodule Transport.Shared.GBFSMetadataTest do
       setup_response("https://example.com/gbfs/station_status", fixture_content("station_status.3.0"))
       setup_response("https://example.com/gbfs/vehicle_status", fixture_content("vehicle_status.3.0"))
 
+      # `version` is bumped when keys change
+      %{version: 2} = stats = stats(fixture_content("gbfs.3.0") |> Jason.decode!())
+      assert "7f96f20d6737450db8338d4ce83ae888" == stats |> Map.keys() |> Enum.sort() |> Enum.join("|") |> md5()
+
       # Values may not make sense: responses have been taken from the GBFS spec
       # and edited to make sure we test various possibilities without having massive
       # fixture files.
@@ -616,10 +635,11 @@ defmodule Transport.Shared.GBFSMetadataTest do
                nb_returning_stations: 2,
                nb_stations: 2,
                nb_vehicles: 2,
-               version: 1,
+               version: 2,
                nb_vehicles_available_stations: 7,
-               nb_vehicles_disabled_stations: 3
-             } == stats(fixture_content("gbfs.3.0") |> Jason.decode!())
+               nb_vehicles_disabled_stations: 3,
+               nb_virtual_stations: 1
+             } == stats
     end
 
     test "2.2 feed" do
@@ -643,13 +663,218 @@ defmodule Transport.Shared.GBFSMetadataTest do
                nb_vehicles: 2,
                nb_vehicles_available_stations: 7,
                nb_vehicles_disabled_stations: 0,
-               version: 1
+               nb_virtual_stations: 0,
+               version: 2
              } == stats(fixture_content("gbfs.2.2") |> Jason.decode!())
     end
   end
 
+  describe "types" do
+    test "vehicles feed with no station information and stations feeds should be considered mixed type" do
+      setup_response(
+        station_information_url = "https://example.com/station_information",
+        Jason.encode!(%{data: %{stations: [%{station_id: Ecto.UUID.generate()}]}})
+      )
+
+      # `station_id` is not present in the response, the bike is considered as free floating
+      setup_response(
+        vehicle_status_url = "https://example.com/vehicle_status",
+        Jason.encode!(%{data: %{vehicles: [%{bike_id: Ecto.UUID.generate()}]}})
+      )
+
+      gbfs_url = %{
+        "version" => "3.0",
+        "data" => %{
+          "feeds" => [
+            %{"name" => "vehicle_status", "url" => vehicle_status_url},
+            %{"name" => "station_information", "url" => station_information_url}
+          ]
+        }
+      }
+
+      assert ["free_floating", "stations"] == types(gbfs_url)
+    end
+
+    test "vehicles and stations feeds, empty stations should be considered as free floating" do
+      setup_response(
+        station_information_url = "https://example.com/station_information",
+        Jason.encode!(%{data: %{stations: []}})
+      )
+
+      setup_response(
+        vehicle_status_url = "https://example.com/vehicle_status",
+        Jason.encode!(%{data: %{vehicles: [%{bike_id: Ecto.UUID.generate()}]}})
+      )
+
+      gbfs_url = %{
+        "version" => "3.0",
+        "data" => %{
+          "feeds" => [
+            %{"name" => "vehicle_status", "url" => vehicle_status_url},
+            %{"name" => "station_information", "url" => station_information_url}
+          ]
+        }
+      }
+
+      assert ["free_floating"] == types(gbfs_url)
+    end
+
+    test "vehicles and stations feeds, vehicles are docked" do
+      setup_response(
+        station_information_url = "https://example.com/station_information",
+        Jason.encode!(%{data: %{stations: [%{station_id: Ecto.UUID.generate()}]}})
+      )
+
+      setup_response(
+        vehicle_status_url = "https://example.com/vehicle_status",
+        Jason.encode!(%{data: %{vehicles: [%{station_id: Ecto.UUID.generate()}]}})
+      )
+
+      gbfs_url = %{
+        "version" => "3.0",
+        "data" => %{
+          "feeds" => [
+            %{"name" => "vehicle_status", "url" => vehicle_status_url},
+            %{"name" => "station_information", "url" => station_information_url}
+          ]
+        }
+      }
+
+      assert ["stations"] == types(gbfs_url)
+    end
+
+    test "vehicles and stations feeds, no vehicles" do
+      setup_response(
+        station_information_url = "https://example.com/station_information",
+        Jason.encode!(%{data: %{stations: [%{station_id: Ecto.UUID.generate()}]}})
+      )
+
+      setup_response(
+        vehicle_status_url = "https://example.com/vehicle_status",
+        Jason.encode!(%{data: %{vehicles: []}})
+      )
+
+      gbfs_url = %{
+        "version" => "3.0",
+        "data" => %{
+          "feeds" => [
+            %{"name" => "vehicle_status", "url" => vehicle_status_url},
+            %{"name" => "station_information", "url" => station_information_url}
+          ]
+        }
+      }
+
+      assert ["stations"] == types(gbfs_url)
+    end
+
+    test "stations feed only" do
+      setup_response(
+        station_information_url = "https://example.com/station_information",
+        Jason.encode!(%{data: %{stations: [%{station_id: Ecto.UUID.generate()}]}})
+      )
+
+      gbfs_url = %{
+        "version" => "3.0",
+        "data" => %{
+          "feeds" => [
+            %{"name" => "station_information", "url" => station_information_url}
+          ]
+        }
+      }
+
+      assert ["stations"] == types(gbfs_url)
+    end
+
+    test "vehicles feed only" do
+      setup_response(
+        vehicle_status_url = "https://example.com/vehicle_status",
+        Jason.encode!(%{data: %{vehicles: [%{bike_id: Ecto.UUID.generate()}]}})
+      )
+
+      gbfs_url = %{
+        "version" => "3.0",
+        "data" => %{
+          "feeds" => [
+            %{"name" => "vehicle_status", "url" => vehicle_status_url}
+          ]
+        }
+      }
+
+      assert ["free_floating"] == types(gbfs_url)
+    end
+
+    test "stations feed with only virtual stations should be considered as free floating" do
+      station_id = Ecto.UUID.generate()
+
+      setup_response(
+        station_information_url = "https://example.com/station_information",
+        Jason.encode!(%{data: %{stations: [%{station_id: station_id, is_virtual_station: true}]}})
+      )
+
+      setup_response(
+        vehicle_status_url = "https://example.com/vehicle_status",
+        Jason.encode!(%{data: %{vehicles: [%{station_id: station_id}]}})
+      )
+
+      gbfs_url = %{
+        "version" => "3.0",
+        "data" => %{
+          "feeds" => [
+            %{"name" => "vehicle_status", "url" => vehicle_status_url},
+            %{"name" => "station_information", "url" => station_information_url}
+          ]
+        }
+      }
+
+      assert ["free_floating"] == types(gbfs_url)
+    end
+  end
+
+  describe "virtual_station_ids" do
+    test "no station_information feed" do
+      gbfs_url = %{
+        "version" => "3.0",
+        "data" => %{
+          "feeds" => [
+            %{"name" => "vehicle_status"}
+          ]
+        }
+      }
+
+      assert [] == virtual_station_ids(gbfs_url)
+    end
+
+    test "identifies IDs" do
+      virtual_station_id = Ecto.UUID.generate()
+      physical_station_id = Ecto.UUID.generate()
+
+      setup_response(
+        station_information_url = "https://example.com/station_information",
+        Jason.encode!(%{
+          data: %{
+            stations: [
+              %{station_id: virtual_station_id, is_virtual_station: true},
+              %{station_id: physical_station_id}
+            ]
+          }
+        })
+      )
+
+      gbfs_url = %{
+        "version" => "3.0",
+        "data" => %{
+          "feeds" => [
+            %{"name" => "station_information", "url" => station_information_url}
+          ]
+        }
+      }
+
+      assert [virtual_station_id] == virtual_station_ids(gbfs_url)
+    end
+  end
+
   defp fixture_content(filename) do
-    File.read!("#{__DIR__}/fixtures/gbfs/#{filename}.json")
+    File.read!("#{__DIR__}/../fixture/gbfs/#{filename}.json")
   end
 
   defp setup_validation_result(summary \\ nil) do
@@ -768,4 +993,6 @@ defmodule Transport.Shared.GBFSMetadataTest do
 
     setup_response("https://example.com/station_status.json", body)
   end
+
+  defp md5(value), do: :crypto.hash(:md5, value) |> Base.encode16(case: :lower)
 end
