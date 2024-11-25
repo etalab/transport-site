@@ -233,7 +233,7 @@ defmodule Transport.GBFSMetadata do
   def stats(%{"data" => _data} = payload) do
     stations_statistics(payload)
     |> Map.merge(vehicle_statistics(payload))
-    |> Map.merge(%{version: 1})
+    |> Map.merge(%{version: 2})
   end
 
   def stations_statistics(%{"data" => _data} = payload) do

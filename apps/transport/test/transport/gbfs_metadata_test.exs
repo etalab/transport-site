@@ -60,7 +60,7 @@ defmodule Transport.GBFSMetadataTest do
                  nb_stations: 2,
                  nb_vehicles_available_stations: 7,
                  nb_vehicles_disabled_stations: 3,
-                 version: 1
+                 version: 2
                },
                operator: "Example"
              } = compute_feed_metadata(@gbfs_url)
@@ -123,7 +123,7 @@ defmodule Transport.GBFSMetadataTest do
                  nb_stations: 2,
                  nb_vehicles_available_stations: 7,
                  nb_vehicles_disabled_stations: 3,
-                 version: 1
+                 version: 2
                },
                operator: "Example"
              } = compute_feed_metadata(@gbfs_url)
@@ -631,7 +631,7 @@ defmodule Transport.GBFSMetadataTest do
                nb_returning_stations: 2,
                nb_stations: 2,
                nb_vehicles: 2,
-               version: 1,
+               version: 2,
                nb_vehicles_available_stations: 7,
                nb_vehicles_disabled_stations: 3,
                nb_virtual_stations: 1
@@ -660,7 +660,7 @@ defmodule Transport.GBFSMetadataTest do
                nb_vehicles_available_stations: 7,
                nb_vehicles_disabled_stations: 0,
                nb_virtual_stations: 0,
-               version: 1
+               version: 2
              } == stats(fixture_content("gbfs.2.2") |> Jason.decode!())
     end
   end
