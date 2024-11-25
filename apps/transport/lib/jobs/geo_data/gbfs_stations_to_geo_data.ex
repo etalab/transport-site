@@ -1,6 +1,8 @@
 defmodule Transport.Jobs.GBFSStationsToGeoData do
   @moduledoc """
   Job in charge of importing GBFS stations data (docks for bikes usually) to the `geo_data` table.
+
+  It ignores virtual stations and stations with invalid coordinates.
   """
   use Oban.Worker, max_attempts: 3
   import Ecto.Query
@@ -33,7 +35,9 @@ defmodule Transport.Jobs.GBFSStationsToGeoData do
          {:feed_exists, true} <- {:feed_exists, not is_nil(feed_url)},
          {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(feed_url),
          {:ok, json} <- Jason.decode(body) do
-      Enum.map(json["data"]["stations"], fn station ->
+      json["data"]["stations"]
+      |> Enum.reject(&(virtual_station?(&1) or missing_coordinates?(&1)))
+      |> Enum.map(fn station ->
         %{
           geo_data_import_id: geo_data_import_id,
           geom: %Geo.Point{coordinates: {station["lon"], station["lat"]}, srid: 4326},
@@ -47,6 +51,15 @@ defmodule Transport.Jobs.GBFSStationsToGeoData do
       _ -> []
     end
   end
+
+  defp virtual_station?(%{"is_virtual_station" => true}), do: true
+  defp virtual_station?(%{}), do: false
+
+  defp missing_coordinates?(%{"lat" => lat, "lon" => lon}) do
+    is_nil(lon) or is_nil(lat)
+  end
+
+  defp missing_coordinates?(%{}), do: true
 
   # From GBFS 1.1 until 2.3
   defp station_name(%{"name" => name}) when is_binary(name), do: name

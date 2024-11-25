@@ -105,6 +105,41 @@ defmodule Transport.Jobs.GBFSStationsToGeoDataTest do
                     "text" => "Gare"
                   }
                 ]
+              },
+              # Ignored: virtual station
+              %{
+                "capacity" => 10,
+                "is_virtual_station" => true,
+                "lat" => 2,
+                "lon" => 1,
+                "name" => [
+                  %{
+                    "language" => "fr",
+                    "text" => "Bistrot"
+                  }
+                ]
+              },
+              # Ignored: latitude is nil
+              %{
+                "capacity" => 10,
+                "lat" => nil,
+                "lon" => 1,
+                "name" => [
+                  %{
+                    "language" => "fr",
+                    "text" => "Pub"
+                  }
+                ]
+              },
+              # Ignored: no coordinates
+              %{
+                "capacity" => 10,
+                "name" => [
+                  %{
+                    "language" => "fr",
+                    "text" => "Bar"
+                  }
+                ]
               }
             ]
           }
