@@ -23,10 +23,15 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
       |> Enum.filter(&NewDatagouvDatasetsJob.dataset_is_relevant?(dataset, &1))
       |> case do
         [rule] -> rule
+        [_ | _] = rules -> Enum.sort_by(rules, & &1.category)
         _ -> :no_match
       end
     end
 
+    assert [%{category: "Freefloating"}, %{category: "Vélo et stationnements"}] =
+             relevant_fn.(%{base | "title" => "Vélos en libre service"})
+
+    assert %{category: "IRVE"} = relevant_fn.(%{base | "title" => "Borne de recharge Lidl"})
     assert %{category: "Transport en commun"} = relevant_fn.(%{base | "title" => "GTFS de Dijon"})
     assert %{category: "Transport en commun"} = relevant_fn.(%{base | "description" => "GTFS de Dijon"})
     assert %{category: "Transport en commun"} = relevant_fn.(%{base | "tags" => [Ecto.UUID.generate(), "gtfs"]})
