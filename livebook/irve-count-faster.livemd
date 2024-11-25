@@ -41,10 +41,6 @@ defmodule HTTPQuery do
 end
 
 defmodule Stats do
-  def count_irve_lines(url) do
-    %{status: 200, body: data} = HTTPQuery.cached_get!(url)
-  end
-  
   def get_versions_data(headers, rows) do
     rows
     |> build_list_of_maps(headers)
