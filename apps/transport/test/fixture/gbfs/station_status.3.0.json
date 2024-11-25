@@ -48,6 +48,7 @@
         "last_reported":"2023-07-17T13:34:13+02:00",
         "num_docks_available":8,
         "num_docks_disabled":1,
+        "is_virtual_station":true,
         "vehicle_docks_available":[
           {
             "vehicle_type_ids":[
