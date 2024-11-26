@@ -413,7 +413,7 @@ defmodule DB.Dataset do
 
   @spec order_datasets(Ecto.Query.t(), map()) :: Ecto.Query.t()
   def order_datasets(datasets, %{"order_by" => "alpha"}), do: order_by(datasets, asc: :custom_title)
-  def order_datasets(datasets, %{"order_by" => "most_recent"}), do: order_by(datasets, desc: :inserted_at)
+  def order_datasets(datasets, %{"order_by" => "most_recent"}), do: order_by(datasets, desc_nulls_last: :inserted_at)
 
   def order_datasets(datasets, %{"q" => q}),
     do:
