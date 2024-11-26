@@ -36,9 +36,9 @@ defmodule Transport.Jobs.BaseGeoData do
   # For a static resource, associated to a consolidated dataset (BNLC, BNZFE, IRVE etc)
   # We rely on the relevant `DB.ResourceHistory` to determine if we should replace the data.
   def import_replace_data(slug, prepare_data_for_insert_fn) when slug in @consolidated_datasets_slugs do
-    %DB.Resource{id: resource_id, dataset_id: dataset_id} = Transport.ConsolidatedDataset.resource(slug)
+    %DB.Resource{id: resource_id} = Transport.ConsolidatedDataset.resource(slug)
     latest_resource_history = DB.ResourceHistory.latest_resource_history(resource_id)
-    current_geo_data_import = DB.GeoDataImport.dataset_latest_geo_data_import(dataset_id)
+    current_geo_data_import = DB.Repo.get_by(DB.GeoDataImport, slug: slug)
 
     if needs_import?(latest_resource_history, current_geo_data_import) do
       Logger.info("New content detected...update content")
