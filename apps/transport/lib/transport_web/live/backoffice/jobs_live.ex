@@ -47,7 +47,7 @@ defmodule TransportWeb.Backoffice.JobsLive do
 
   def last_jobs_query(state, n) do
     from(j in "oban_jobs",
-      select: map(j, [:id, :state, :queue, :worker, :args, :inserted_at, :errors]),
+      select: map(j, [:id, :state, :queue, :worker, :args, :inserted_at, :scheduled_at, :errors]),
       order_by: [desc: j.id],
       where: j.state == ^state,
       limit: ^n
@@ -103,6 +103,8 @@ defmodule TransportWeb.Backoffice.JobsLive do
       count_completed_jobs: count_jobs("completed", worker_filter),
       available_jobs: last_jobs("available", 5, worker_filter),
       count_available_jobs: count_jobs("available", worker_filter),
+      scheduled_jobs: last_jobs("scheduled", 5, worker_filter),
+      count_scheduled_jobs: count_jobs("scheduled", worker_filter),
       last_discarded_jobs: last_jobs("discarded", 5, worker_filter),
       count_discarded_jobs: count_jobs("discarded", worker_filter),
       jobs_count: jobs_count(worker_filter)

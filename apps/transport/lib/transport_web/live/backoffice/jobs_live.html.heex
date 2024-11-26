@@ -43,6 +43,10 @@
   <.live_component module={JobsTableComponent} jobs={@last_completed_jobs} state="completed" id="completed_jobs" />
   <p class="small">Total: <%= Helpers.format_number(@count_completed_jobs, locale: "en") %></p>
 
+  <h2>Scheduled jobs</h2>
+  <.live_component module={JobsTableComponent} jobs={@scheduled_jobs} state="scheduled" id="scheduled_jobs" />
+  <p class="small">Total: <%= Helpers.format_number(@count_scheduled_jobs, locale: "en") %></p>
+
   <h2>Available jobs</h2>
   <.live_component module={JobsTableComponent} jobs={@available_jobs} state="available" id="available_jobs" />
   <p class="small">Total: <%= Helpers.format_number(@count_available_jobs, locale: "en") %></p>

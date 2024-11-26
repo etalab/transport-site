@@ -18,6 +18,9 @@ defmodule JobsTableComponent do
           <%= if @state == "discarded" do %>
             <th>errors</th>
           <% end %>
+          <%= if @state == "scheduled" do %>
+            <th>scheduled_at (Paris time)</th>
+          <% end %>
         </tr>
       </thead>
       <tbody>
@@ -32,6 +35,9 @@ defmodule JobsTableComponent do
             <%= if @state == "discarded" do %>
               <td><%= inspect(job.errors) %></td>
             <% end %>
+            <%= if @state == "scheduled" do %>
+              <td><%= format_datetime(job.scheduled_at) %></td>
+            <% end %>
           </tr>
         <% end %>
       </tbody>
@@ -40,6 +46,6 @@ defmodule JobsTableComponent do
   end
 
   defp format_datetime(dt) do
-    Shared.DateTimeDisplay.format_datetime_to_paris(dt, "en", no_timezone: true)
+    Shared.DateTimeDisplay.format_datetime_to_paris(dt, "en", no_timezone: true, with_seconds: true)
   end
 end
