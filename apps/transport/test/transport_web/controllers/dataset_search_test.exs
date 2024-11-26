@@ -330,8 +330,9 @@ defmodule TransportWeb.DatasetSearchControllerTest do
 
     older_dataset = insert(:dataset, type: type, inserted_at: last_week)
     recent_dataset = insert(:dataset, type: type, inserted_at: today)
+    null_dataset = insert(:dataset, type: type) |> Ecto.Changeset.change(%{inserted_at: nil}) |> DB.Repo.update!()
 
-    assert [recent_dataset.id, older_dataset.id] ==
+    assert [recent_dataset.id, older_dataset.id, null_dataset.id] ==
              %{"type" => type, "order_by" => "most_recent"}
              |> Dataset.list_datasets()
              |> DB.Repo.all()
