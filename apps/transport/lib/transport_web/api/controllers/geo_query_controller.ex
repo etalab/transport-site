@@ -2,23 +2,17 @@ defmodule TransportWeb.API.GeoQueryController do
   use TransportWeb, :controller
   import Ecto.Query
 
-  def index(%Plug.Conn{} = conn, %{"data" => slug}) do
-    feature_atom = slug |> String.to_atom()
+  @possible_slugs Ecto.Enum.dump_values(DB.GeoDataImport, :slug)
 
-    if feature_atom in Transport.ConsolidatedDataset.geo_data_datasets() do
-      dataset = Transport.ConsolidatedDataset.dataset(feature_atom)
+  def index(%Plug.Conn{} = conn, %{"data" => slug}) when slug in @possible_slugs do
+    case DB.Repo.get_by(DB.GeoDataImport, slug: slug) do
+      nil ->
+        render_404(conn)
 
-      get_geojson = fn ->
-        dataset
-        |> Map.fetch!(:id)
-        |> DB.GeoDataImport.dataset_latest_geo_data_import()
-        |> transform_geojson(feature_atom)
-      end
-
-      geojson = Transport.Cache.fetch("#{slug}_data", get_geojson, :timer.hours(1))
-      conn |> json(geojson)
-    else
-      render_404(conn)
+      %DB.GeoDataImport{} = geo_data_import ->
+        get_geojson = fn -> transform_geojson(geo_data_import, String.to_existing_atom(slug)) end
+        geojson = Transport.Cache.fetch("#{slug}_data", get_geojson, :timer.hours(1))
+        conn |> json(geojson)
     end
   end
 
@@ -56,6 +50,16 @@ defmodule TransportWeb.API.GeoQueryController do
           nom_station: fragment("payload->>'nom_station'"),
           nbre_pdc: fragment("payload->>'nbre_pdc'")
         }
+      )
+    end
+
+    DB.GeoData.geo_data_as_geojson(geo_data_import, add_fields)
+  end
+
+  def transform_geojson(%DB.GeoDataImport{} = geo_data_import, :gbfs_stations) do
+    add_fields = fn query ->
+      from(g in query,
+        select_merge: %{capacity: fragment("payload->>'capacity'"), name: fragment("payload->>'name'")}
       )
     end
 
