@@ -107,6 +107,8 @@ defmodule TransportWeb.Backoffice.JobsLive do
       count_scheduled_jobs: count_jobs("scheduled", worker_filter),
       last_discarded_jobs: last_jobs("discarded", 5, worker_filter),
       count_discarded_jobs: count_jobs("discarded", worker_filter),
+      retryable_jobs: last_jobs("retryable", 5, worker_filter),
+      count_retryable_jobs: count_jobs("retryable", worker_filter),
       jobs_count: jobs_count(worker_filter)
     )
   end

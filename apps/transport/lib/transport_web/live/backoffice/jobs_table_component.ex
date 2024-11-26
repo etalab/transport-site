@@ -15,10 +15,10 @@ defmodule JobsTableComponent do
           <th>worker</th>
           <th>args</th>
           <th>inserted_at (Paris time)</th>
-          <%= if @state == "discarded" do %>
+          <%= if @state in ["discarded", "retryable"] do %>
             <th>errors</th>
           <% end %>
-          <%= if @state == "scheduled" do %>
+          <%= if @state in ["scheduled", "retryable"] do %>
             <th>scheduled_at (Paris time)</th>
           <% end %>
         </tr>
@@ -32,10 +32,10 @@ defmodule JobsTableComponent do
             <td><%= job.worker %></td>
             <td><%= inspect(job.args) %></td>
             <td><%= format_datetime(job.inserted_at) %></td>
-            <%= if @state == "discarded" do %>
+            <%= if @state in ["discarded", "retryable"] do %>
               <td><%= inspect(job.errors) %></td>
             <% end %>
-            <%= if @state == "scheduled" do %>
+            <%= if @state in ["scheduled", "retryable"] do %>
               <td><%= format_datetime(job.scheduled_at) %></td>
             <% end %>
           </tr>
