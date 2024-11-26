@@ -36,7 +36,8 @@ defmodule HTTPQuery do
 
   def cached_get!(url) do
     req = Req.new() |> Transport.Shared.ReqCustomCache.attach()
-    Req.get!(req, url: url, receive_timeout: 100_000, custom_cache_dir: cache_dir())
+    # avoid decoding, for much faster processing
+    Req.get!(req, url: url, receive_timeout: 100_000, custom_cache_dir: cache_dir(), decode_body: false)
   end
 end
 
@@ -73,15 +74,19 @@ data = Stats.get_versions_data(headers, rows)
 data = data
 |> Task.async_stream(fn(row) -> 
   try do
-    %{status: 200, body: [headers | rows]} = row["permanent_url"] |> HTTPQuery.cached_get!()
+    %{status: 200, body: body} = row["permanent_url"] |> HTTPQuery.cached_get!()
+    [headers | rows] = body |> String.split("\n")
+    headers = headers |> String.split(",")
     {true, pdc_count} = {"id_pdc_itinerance" in headers, rows |> length}
     row
     |> Map.put("pdc_count", pdc_count)
     |> Map.drop(["payload", "permanent_url"])
   rescue
-    _ -> nil
+    _x -> 
+#      IO.inspect _x
+      nil
   end
-end, timeout: 100_000)
+end, timeout: 100_000, max_concurrency: 10)
 |> Enum.map(fn({:ok, row}) -> row end)
 |> Enum.reject(&is_nil(&1))
 
