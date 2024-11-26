@@ -337,6 +337,8 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
 
     assert Enum.count(csv_content) == 2
 
+    assert [relevant, irrelevant] = csv_content
+
     assert %{
              "id" => to_string(contact.id),
              "first_name" => contact.first_name,
@@ -365,10 +367,10 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
              "reuser_resources_changed" => "false",
              "is_producer" => "true",
              "is_reuser" => "false"
-           } == csv_content |> hd()
+           } == relevant
 
     # `array_agg` with only null values is properly encoded
-    assert %{"organization_names" => ""} = Enum.at(csv_content, 1)
+    assert %{"organization_names" => ""} = irrelevant
   end
 
   defp sample_contact_args(%{} = args \\ %{}) do
