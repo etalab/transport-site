@@ -1,17 +1,14 @@
 defmodule Transport.Jobs.BNLCToGeoData do
   @moduledoc """
   Job in charge of taking the content of the BNLC (Base Nationale de Covoiturage) and storing it
-  in the geo_data table
+  in the `geo_data` table
   """
   use Oban.Worker, max_attempts: 3
   require Logger
 
   @impl Oban.Worker
   def perform(%{}) do
-    Transport.ConsolidatedDataset.resource(:bnlc)
-    |> Transport.Jobs.BaseGeoData.import_replace_data(&prepare_data_for_insert/2)
-
-    :ok
+    Transport.Jobs.BaseGeoData.import_replace_data(:bnlc, &prepare_data_for_insert/2)
   end
 
   def prepare_data_for_insert(body, geo_data_import_id) do
