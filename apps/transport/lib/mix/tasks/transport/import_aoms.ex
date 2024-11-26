@@ -2,7 +2,7 @@ defmodule Mix.Tasks.Transport.ImportAOMs do
   @moduledoc """
   Import the AOM files and updates the database.
 
-  The AOM files are custom made from an Excel file from the Cerema
+  The AOM files come from the Cerema dataset:
   https://www.data.gouv.fr/fr/datasets/liste-et-composition-des-autorites-organisatrices-de-la-mobilite-aom/
   https://www.cerema.fr/fr/actualites/liste-composition-autorites-organisatrices-mobilite-au-1er-4
 
@@ -22,11 +22,14 @@ defmodule Mix.Tasks.Transport.ImportAOMs do
   alias DB.{AOM, Commune, Region, Repo}
   require Logger
 
-  # The 2 community resources stable urls
-  # To create the following file: just rename columns and export as CSV, no content modification needed
-  @aom_file "https://gist.githubusercontent.com/vdegove/42d134c59b286525ff412876be3b6547/raw/d631b46c9096c148d854fbd5e9710987efb22999/base-rt-2023-diffusion-v2-aoms.csv"
-  # To create the following file: just delete useless columns and export as CSV, no content modification needed
-  @aom_insee_file "https://gist.githubusercontent.com/vdegove/42d134c59b286525ff412876be3b6547/raw/d631b46c9096c148d854fbd5e9710987efb22999/base-rt-2023-diffusion-v2-communes.csv"
+  # The resources urls
+  # To create the following file:
+  # download the Cerema file (.ods)
+  # rename columns that are on two lines
+  # export as CSV and publish as community resource
+  @aom_file "https://static.data.gouv.fr/resources/liste-et-composition-des-autorites-organisatrices-de-la-mobilite-aom/20241108-105224/liste-aoms-2024.csv"
+  # Same for composition of each AOM, but no need even to rename columns
+  @aom_insee_file "https://static.data.gouv.fr/resources/liste-et-composition-des-autorites-organisatrices-de-la-mobilite-aom/20241122-154942/composition-communale-aom-2024.csv"
 
   # We don’t add collectivité d’outremer de Saint-Martin
   @ignored_aom_ids ["312"]
@@ -319,17 +322,21 @@ defmodule Mix.Tasks.Transport.ImportAOMs do
     -- CC du Pays d'Issoudun (id : 230, res_id: 275) to Région Centre-Val de Loire (CC du Pays d'Issoudun) (res_id: 13608)
     -- Migrates this dataset as both territory and legal owner https://transport.data.gouv.fr/datasets/issoudun-offre-theorique-mobilite-reseau-urbain
     -- This one as legal owner https://transport.data.gouv.fr/datasets/arrets-itineraires-et-horaires-theoriques-des-reseaux-de-transport-des-membres-de-jvmalin
-    update dataset set aom_id = (select id from aom where composition_res_id = 13608) where aom_id = 230;
-    update dataset_aom_legal_owner set aom_id = (select id from aom where composition_res_id = 13608) where aom_id = 230;
+    -- update dataset set aom_id = (select id from aom where composition_res_id = 13608) where aom_id = 230;
+    -- update dataset_aom_legal_owner set aom_id = (select id from aom where composition_res_id = 13608) where aom_id = 230;
     -- CC Arve et Salève (id : 440, res_id: 1475) to SM4CC (res_id: 417)
     -- CC Faucigny-Glières (id: 558, res_id :1509 to SM4CC (res_id: 417)
     -- CC du Pays Rochois (id: 677, res_id: 1478 to SM4CC (res_id: 417)
     -- There is a fourth CC in SM4CC, CC des Quatre Rivières (haute savoie)
     -- Removes aggregate legal owner here https://transport.data.gouv.fr/datasets/agregat-oura but keeps SM4CC
-    delete from dataset_aom_legal_owner where aom_id in (440, 558, 677);
+    -- delete from dataset_aom_legal_owner where aom_id in (440, 558, 677);
     -- L'Île-d'Yeu (id: 449, res_id: 1509) to L’Île-d’Yeu (res_id: 310);
-    update dataset set aom_id = (select id from aom where composition_res_id = 310) where aom_id = 449;
-    update dataset_aom_legal_owner set aom_id = (select id from aom where composition_res_id = 310) where aom_id = 449;
+    -- update dataset set aom_id = (select id from aom where composition_res_id = 310) where aom_id = 449;
+    -- update dataset_aom_legal_owner set aom_id = (select id from aom where composition_res_id = 310) where aom_id = 449;
+    --
+    -- 2024
+    -- Migrates a dataset to Pôle Métropolitain Mobilités Le Mans – Sarthe
+    update dataset_aom_legal_owner set aom_id = (select id from aom where composition_res_id = 1293) where aom_id IN (1283, 1285, 1288, 1292, 1294);
     """
 
     queries |> String.split(";") |> Enum.each(&Repo.query!/1)
@@ -354,7 +361,9 @@ defmodule Mix.Tasks.Transport.ImportAOMs do
       |> DB.Repo.all()
       |> Enum.group_by(&hd(&1))
 
-    Logger.info("Datasets still associated with deleted AOM as territory : #{inspect(deleted_aom_datasets)}")
+    Logger.info(
+      "Datasets still associated with deleted AOM as territory (aom.id => [aom.id, aom.composition_res_id, dataset.id]) : #{inspect(deleted_aom_datasets)}"
+    )
 
     deleted_legal_owners_query =
       from(d in DB.Dataset,
@@ -366,6 +375,8 @@ defmodule Mix.Tasks.Transport.ImportAOMs do
 
     deleted_legal_owners = deleted_legal_owners_query |> DB.Repo.all() |> Enum.group_by(&hd(&1))
 
-    Logger.info("Datasets still associated with deleted AOM as legal owner: #{inspect(deleted_legal_owners)}")
+    Logger.info(
+      "Datasets still associated with deleted AOM as legal owner (aom.id => [aom.id, aom.composition_res_id, dataset.id]): #{inspect(deleted_legal_owners)}"
+    )
   end
 end
