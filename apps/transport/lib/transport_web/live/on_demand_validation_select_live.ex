@@ -66,7 +66,7 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
 
   defp form_fields(socket) do
     changeset = socket_value(socket, :changeset)
-    Map.merge(changeset.data(), changeset.changes())
+    Map.merge(changeset.data, changeset.changes)
   end
 
   defp socket_value(%Phoenix.LiveView.Socket{assigns: assigns}, key), do: Map.get(assigns, key)
