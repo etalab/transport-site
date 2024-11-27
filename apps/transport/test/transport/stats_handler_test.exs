@@ -4,6 +4,8 @@ defmodule Transport.StatsHandlerTest do
   import Ecto.Query
   import Transport.StatsHandler
 
+  doctest Transport.StatsHandler, import: true
+
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
     insert_bnlc_dataset()
@@ -81,11 +83,20 @@ defmodule Transport.StatsHandlerTest do
   end
 
   test "store_stats" do
-    resource = insert(:resource, format: "gtfs-rt")
-    insert(:resource_metadata, features: ["vehicle_positions"], resource_id: resource.id)
-    insert(:resource_metadata, features: ["trip_updates"], resource_id: resource.id)
-
+    gtfs_rt_resource = insert(:resource, format: "gtfs-rt")
+    insert(:resource_metadata, features: ["vehicle_positions"], resource_id: gtfs_rt_resource.id)
+    insert(:resource_metadata, features: ["trip_updates"], resource_id: gtfs_rt_resource.id)
     insert(:resource_metadata, features: ["vehicle_positions"], resource: insert(:resource, format: "gtfs-rt"))
+
+    insert(:resource_metadata,
+      metadata: %{
+        versions: ["3.0"],
+        types: ["free_floating"],
+        vehicle_types: ["scooter"],
+        stats: %{nb_vehicles: 10, version: 1}
+      },
+      resource_id: insert(:resource, format: "gbfs").id
+    )
 
     stats = compute_stats()
     store_stats()
@@ -108,6 +119,8 @@ defmodule Transport.StatsHandlerTest do
 
     expected = Decimal.new("2")
     assert %{value: ^expected} = DB.Repo.get_by!(DB.StatsHistory, metric: "gtfs_rt_types::vehicle_positions")
+    expected = Decimal.new("1")
+    assert %{value: ^expected} = DB.Repo.get_by!(DB.StatsHistory, metric: "gbfs_v3.0_count")
   end
 
   test "count dataset per format" do
@@ -176,5 +189,66 @@ defmodule Transport.StatsHandlerTest do
     assert 0 == count_geo_data_lines(:irve)
     insert_imported_irve_geo_data(Transport.ConsolidatedDataset.dataset(:irve).id)
     assert 2 == count_geo_data_lines(:irve)
+  end
+
+  describe "gbfs_stats" do
+    test "no rows for today" do
+      insert(:resource_metadata,
+        metadata: %{"stats" => 42},
+        resource_id: insert(:resource, format: "gbfs").id,
+        inserted_at: DateTime.add(DateTime.utc_now(), -1, :day)
+      )
+
+      assert %{} == gbfs_stats()
+    end
+
+    test "it works" do
+      gbfs_resource = insert(:resource, format: "gbfs")
+      other_gbfs_resource = insert(:resource, format: "gbfs")
+      gtfs_resource = insert(:resource, format: "GTFS")
+
+      now = DateTime.utc_now()
+
+      # Should be ignored: GTFS
+      insert(:resource_metadata, metadata: %{foo: 42}, resource_id: gtfs_resource.id)
+      # Should be ignored: not the most recent one for `gbfs_resource`
+      insert(:resource_metadata,
+        metadata: %{stats: %{foo: 42}},
+        resource_id: gbfs_resource.id,
+        inserted_at: DateTime.add(now, -5, :second)
+      )
+
+      # Relevant metadata
+      insert(:resource_metadata,
+        metadata: %{
+          versions: ["3.0", "2.3"],
+          types: ["stations"],
+          vehicle_types: ["bicycle", "scooter"],
+          stats: %{nb_vehicles: 20, nb_stations: 3, version: 1}
+        },
+        resource_id: gbfs_resource.id
+      )
+
+      insert(:resource_metadata,
+        metadata: %{
+          versions: ["3.0"],
+          types: ["free_floating"],
+          vehicle_types: ["scooter"],
+          stats: %{nb_vehicles: 10, version: 1}
+        },
+        resource_id: other_gbfs_resource.id
+      )
+
+      assert %{
+               gbfs_feed_type_free_floating_count: 1,
+               gbfs_feed_type_stations_count: 1,
+               gbfs_nb_stations_sum: 3,
+               gbfs_nb_vehicles_sum: 30,
+               "gbfs_v2.3_count": 1,
+               "gbfs_v3.0_count": 2,
+               gbfs_vehicle_type_bicycle_count: 1,
+               gbfs_vehicle_type_scooter_count: 2
+             } == gbfs_stats()
+    end
   end
 end

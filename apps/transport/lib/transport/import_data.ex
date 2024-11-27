@@ -304,7 +304,7 @@ defmodule Transport.ImportData do
          # GOTCHA: `filetype` is set to `file` for exports coming from ODS
          # https://github.com/opendatateam/udata-ods/issues/250
          "filetype" => resource["filetype"],
-         "type" => resource["type"],
+         "type" => formated_type(resource),
          "id" => existing_resource[:id],
          "datagouv_id" => resource["id"],
          "is_available" => availability_checker().available?(format, resource["url"]),
@@ -367,7 +367,7 @@ defmodule Transport.ImportData do
   @spec get_valid_documentation_resources([map()]) :: [map()]
   def get_valid_documentation_resources(resources) do
     resources
-    |> Enum.filter(&(documentation?(&1) or documentation_format?(&1)))
+    |> Enum.filter(&documentation?/1)
     |> Enum.map(fn resource -> %{resource | "type" => "documentation"} end)
   end
 
@@ -539,40 +539,37 @@ defmodule Transport.ImportData do
   def gtfs_rt?(_), do: false
 
   @doc """
-  iex> documentation?(%{"format" => "gtfs"})
+  iex> documentation?(%{"title" => "Fichier", "format" => "gtfs"})
   false
-  iex> documentation?(%{"format" => "csv"})
+  iex> documentation?(%{"title" => "Fichier", "format" => "csv"})
   false
-  iex> documentation?(%{"format" => "PDF"})
-  false
+  iex> documentation?(%{"title" => "Description des données", "format" => "PDF"})
+  true
   iex> documentation?(%{"type" => "documentation", "format" => "docx"})
   true
   iex> documentation?(nil)
   false
-  iex> documentation?("pdf")
-  false
-  iex> documentation?(%{"type" => "main", "title" => "Documentation SIRI"})
+  iex> documentation?(%{"type" => "main", "title" => "Documentation SIRI", "format" => "xlsx"})
   true
   """
   @spec documentation?(any()) :: boolean()
   def documentation?(%{"type" => "documentation"}), do: true
 
-  def documentation?(%{"title" => resource_title}) do
-    String.match?(resource_title, ~r/\bdocumentation\b/i)
+  def documentation?(%{"title" => resource_title, "format" => _} = args) do
+    String.match?(resource_title, ~r/\bdocumentation\b/i) or documentation_format?(args)
   end
 
   def documentation?(_), do: false
 
   @doc """
   Determines if a format is likely a documentation format.
-  Only used for the `public-transit` type, other types use
-  `documentation?/1` which is stricter.
 
   iex> documentation_format?("PDF")
   true
   iex> documentation_format?("GTFS")
   false
   """
+  @spec documentation_format?(map() | binary() | nil) :: boolean()
   def documentation_format?(%{"format" => format}), do: documentation_format?(format)
 
   def documentation_format?(format) do
@@ -830,6 +827,21 @@ defmodule Transport.ImportData do
       type == "public-transit" and not is_documentation and not is_community_resource -> "GTFS"
       type in ["bike-scooter-sharing", "car-motorbike-sharing"] and gbfs?(resource) -> "gbfs"
       true -> format
+    end
+  end
+
+  @doc """
+  iex> formated_type(%{"type" => "main", "format" => "pdf", "title" => "Fichier"})
+  "documentation"
+  iex> formated_type(%{"type" => "main", "format" => "GTFS", "title" => "Fichier"})
+  "main"
+  """
+  @spec formated_type(map()) :: binary()
+  def formated_type(%{"type" => type} = resource) do
+    if documentation?(resource) do
+      "documentation"
+    else
+      type
     end
   end
 

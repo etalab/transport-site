@@ -13,10 +13,8 @@ defmodule TransportWeb.GbfsAnalyzerControllerTest do
     test "with a GBFS to analyze", %{conn: conn} do
       gbfs_url = "/gbfs.json"
 
-      Transport.Shared.GBFSMetadata.Mock
-      |> expect(:compute_feed_metadata, fn ^gbfs_url, cors_base_url ->
-        assert cors_base_url == TransportWeb.Endpoint.url()
-
+      Transport.GBFSMetadata.Mock
+      |> expect(:compute_feed_metadata, fn ^gbfs_url ->
         %{
           system_details: %{"name" => "GBFS feed name"},
           feeds: ["station_information"]

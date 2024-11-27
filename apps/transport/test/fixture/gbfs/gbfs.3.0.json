@@ -1,0 +1,17 @@
+{
+  "last_updated": "2023-07-17T13:34:13+02:00",
+  "ttl": 0,
+  "version": "3.0",
+  "data": {
+    "feeds": [
+      {
+        "name": "station_status",
+        "url": "https://example.com/gbfs/station_status"
+      },
+      {
+        "name": "vehicle_status",
+        "url": "https://example.com/gbfs/vehicle_status"
+      }
+    ]
+  }
+}

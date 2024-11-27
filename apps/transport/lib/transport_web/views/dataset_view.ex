@@ -254,7 +254,7 @@ defmodule TransportWeb.DatasetView do
   end
 
   def gbfs_feed_source_for_ttl(types) do
-    feed_name = Transport.Shared.GBFSMetadata.feed_to_use_for_ttl(types)
+    feed_name = Transport.GBFSMetadata.feed_to_use_for_ttl(types)
     if feed_name, do: feed_name, else: "root"
   end
 
@@ -284,6 +284,8 @@ defmodule TransportWeb.DatasetView do
   def errors_count(%DB.MultiValidation{result: %{"errors_count" => errors_count}})
       when is_integer(errors_count) and errors_count >= 0,
       do: errors_count
+
+  def errors_count(%DB.MultiValidation{}), do: nil
 
   def availability_number_days, do: 30
   def max_nb_history_resources, do: 25

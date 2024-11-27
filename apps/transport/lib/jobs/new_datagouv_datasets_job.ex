@@ -223,12 +223,8 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
   defp string_matches?(nil, _rule), do: false
 
   defp string_matches?(str, %{formats: formats, tags: tags} = _rule) when is_binary(str) do
-    str
-    |> String.downcase()
-    |> String.split(" ")
-    |> MapSet.new()
-    |> MapSet.intersection(MapSet.union(formats, tags))
-    |> MapSet.size() > 0
+    searches = MapSet.union(formats, tags) |> MapSet.to_list()
+    str |> String.downcase() |> String.contains?(searches)
   end
 
   defp tags_is_relevant?(%{"tags" => tags} = _dataset, rule) do

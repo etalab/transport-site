@@ -380,7 +380,7 @@ defmodule DB.Factory do
 
   def insert_imported_irve_geo_data(dataset_id) do
     %{id: resource_history_id} = insert(:resource_history, %{payload: %{"dataset_id" => dataset_id}})
-    %{id: geo_data_import_id} = insert(:geo_data_import, %{resource_history_id: resource_history_id})
+    %{id: geo_data_import_id} = insert(:geo_data_import, %{slug: :irve, resource_history_id: resource_history_id})
 
     insert(:geo_data, %{
       geo_data_import_id: geo_data_import_id,

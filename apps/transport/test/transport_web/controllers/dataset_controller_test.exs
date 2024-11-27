@@ -401,6 +401,23 @@ defmodule TransportWeb.DatasetControllerTest do
     assert conn |> html_response(200) =~ "1 erreur"
   end
 
+  test "GBFS with a nil validation", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, %{dataset_id: dataset.id, format: "gbfs", url: "url"})
+    %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource.id})
+
+    insert(:multi_validation, %{
+      resource_history_id: resource_history_id,
+      validator: Transport.Validators.GBFSValidator.validator_name(),
+      result: nil,
+      metadata: nil
+    })
+
+    mock_empty_history_resources()
+
+    assert conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200)
+  end
+
   test "show NeTEx number of errors", %{conn: conn} do
     %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug", aom: build(:aom)})
 

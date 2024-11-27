@@ -1,4 +1,4 @@
-<p>
+<p :if={!is_nil(@nb_errors)}>
   <b>
     <%= if @nb_errors + @nb_warnings == 0 do %>
       <span class="icon--validation">✅</span><%= dgettext("validations", "No error detected") %>
