@@ -1,15 +1,9 @@
 import L from 'leaflet'
-import { Mapbox } from './mapbox-credentials'
+import { IGN } from './map-config'
 
 function initilizeMap (id) {
     const map = L.map(id, { renderer: L.canvas() }).setView([46.505, 2], 5)
-    L.tileLayer(Mapbox.url, {
-        accessToken: Mapbox.accessToken,
-        attribution: Mapbox.attribution,
-        maxZoom: Mapbox.maxZoom,
-        tileSize: Mapbox.tileSize,
-        zoomOffset: Mapbox.zoomOffset
-    }).addTo(map)
+    L.tileLayer(IGN.url, IGN.config).addTo(map)
 
     const fg = L.featureGroup().addTo(map)
     return { map, fg }

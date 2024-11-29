@@ -118,3 +118,11 @@ msgstr "Consolidated national map of charging stations static %{link}."
 #, elixir-autogen, elixir-format
 msgid "IRVE map"
 msgstr "Electric Vehicule Charging Infrastructure database"
+
+#, elixir-autogen, elixir-format
+msgid "GBFS stations"
+msgstr "Stations for shared vehicles"
+
+#, elixir-autogen, elixir-format
+msgid "gbfs-stations-explanation"
+msgstr "This map consolidates all stations for shared vehicles. It contains <a href=\"%{bike_scooter_sharing_datasets_link}\">bikes and scooters</a> and <a href=\"%{car_motorbike_sharing_datasets_link}\">cars and motorbikes</a>."

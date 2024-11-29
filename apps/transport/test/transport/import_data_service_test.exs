@@ -29,6 +29,7 @@ defmodule Transport.ImportDataServiceTest do
           "resources": [
               {
                 "filetype": "remote",
+                "type": "main",
                 "format": "gtfs",
                 "latest": "https://demo.data.gouv.fr/fr/datasets/r/9bff120f-d1ba-4753-83cb-6d598ebe2e60",
                 "url": "#{resource_url}",
@@ -61,6 +62,7 @@ defmodule Transport.ImportDataServiceTest do
           "resources": [
               {
                 "filetype": "remote",
+                "type": "main",
                 "format": "csv",
                 "mime": "text/csv",
                 "latest": "https://url-csv-file",

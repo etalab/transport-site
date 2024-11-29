@@ -50,17 +50,51 @@ defmodule GBFSValidatorTest do
     assert logs =~ "impossible to query GBFS Validator"
   end
 
-  test "can encode summary" do
-    assert """
-           {"errors_count":0,"has_errors":false,"validator":"validator_module","validator_version":"31c5325","version_detected":"1.1","version_validated":"1.1"}\
-           """ ==
-             Jason.encode!(%Summary{
-               errors_count: 0,
-               has_errors: false,
-               version_detected: "1.1",
-               version_validated: "1.1",
-               validator_version: "31c5325",
-               validator: :validator_module
-             })
+  test "validators send nil validation result" do
+    Transport.HTTPoison.Mock
+    |> expect(:post, fn url, body, headers, [recv_timeout: 15_000] ->
+      assert %{"url" => "https://example.com/gbfs.json"} = Jason.decode!(body)
+
+      assert [
+               {"content-type", "application/json"},
+               {"user-agent", "contact@transport.data.gouv.fr"}
+             ] == headers
+
+      assert String.starts_with?(url, "https://gbfs-validator.netlify.app")
+
+      {:ok,
+       %HTTPoison.Response{
+         status_code: 200,
+         body: Jason.encode!(%{summary: %{errorsCount: nil}}),
+         headers: [{"Content-Type", "application/json"}]
+       }}
+    end)
+
+    {{:error, "impossible to query GBFS Validator: {:has_errors_count, false}"}, logs} =
+      ExUnit.CaptureLog.with_log(fn -> HTTPValidatorClient.validate("https://example.com/gbfs.json") end)
+
+    assert logs =~ "[error] impossible to query GBFS Validator: {:has_errors_count, false}"
+  end
+
+  test "can encode and decode summary" do
+    encoded_summary =
+      Jason.encode!(%Summary{
+        errors_count: 0,
+        has_errors: false,
+        version_detected: "1.1",
+        version_validated: "1.1",
+        validator_version: "31c5325",
+        validator: :validator_module
+      })
+
+    assert Jason.decode!(encoded_summary) == %{
+             "errors_count" => 0,
+             "has_errors" => false,
+             # NOTE: the serialized atom does not come back as an atom
+             "validator" => "validator_module",
+             "validator_version" => "31c5325",
+             "version_detected" => "1.1",
+             "version_validated" => "1.1"
+           }
   end
 end

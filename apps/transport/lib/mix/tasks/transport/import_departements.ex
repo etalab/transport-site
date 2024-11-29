@@ -8,9 +8,9 @@ defmodule Mix.Tasks.Transport.ImportDepartements do
   alias DB.{Departement, Repo}
   require Logger
 
-  @departements_geojson_url "http://etalab-datasets.geo.data.gouv.fr/contours-administratifs/2023/geojson/departements-100m.geojson"
+  @departements_geojson_url "http://etalab-datasets.geo.data.gouv.fr/contours-administratifs/2024/geojson/departements-100m.geojson"
   # See https://github.com/etalab/decoupage-administratif
-  @departements_url "https://unpkg.com/@etalab/decoupage-administratif@3.1.1/data/departements.json"
+  @departements_url "https://unpkg.com/@etalab/decoupage-administratif@4.0.0/data/departements.json"
 
   def insert_or_update_departement(
         %{

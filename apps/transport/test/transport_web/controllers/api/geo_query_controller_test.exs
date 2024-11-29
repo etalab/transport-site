@@ -7,14 +7,10 @@ defmodule TransportWeb.API.GeoQueryControllerTest do
   end
 
   test "a BNLC geo query", %{conn: conn} do
-    insert_parcs_relais_dataset()
-    insert_zfe_dataset()
-    insert_irve_dataset()
     %{id: dataset_id} = insert_bnlc_dataset()
 
     %{id: resource_history_id} = insert(:resource_history, %{payload: %{"dataset_id" => dataset_id}})
-    %{id: geo_data_import_id} = insert(:geo_data_import, %{resource_history_id: resource_history_id})
-
+    %{id: geo_data_import_id} = insert(:geo_data_import, %{slug: :bnlc, resource_history_id: resource_history_id})
     %{id: geo_data_import_id_ko} = insert(:geo_data_import)
 
     point1 = %Geo.Point{coordinates: {1, 1}, srid: 4326}
@@ -44,13 +40,12 @@ defmodule TransportWeb.API.GeoQueryControllerTest do
   end
 
   test "a parkings relais geo query", %{conn: conn} do
-    insert_bnlc_dataset()
-    insert_zfe_dataset()
-    insert_irve_dataset()
     %{id: dataset_id} = insert_parcs_relais_dataset()
 
     %{id: resource_history_id} = insert(:resource_history, %{payload: %{"dataset_id" => dataset_id}})
-    %{id: geo_data_import_id} = insert(:geo_data_import, %{resource_history_id: resource_history_id})
+
+    %{id: geo_data_import_id} =
+      insert(:geo_data_import, %{slug: :parkings_relais, resource_history_id: resource_history_id})
 
     %{id: geo_data_import_id_ko} = insert(:geo_data_import)
 
@@ -69,6 +64,7 @@ defmodule TransportWeb.API.GeoQueryControllerTest do
       payload: %{"nom" => "Gevrey-Chambertin", "nb_pr" => 23}
     })
 
+    # Should be ignored, other `geo_data_import`
     insert(:geo_data, %{
       geo_data_import_id: geo_data_import_id_ko,
       geom: point2,
@@ -93,13 +89,10 @@ defmodule TransportWeb.API.GeoQueryControllerTest do
   end
 
   test "a ZFE geo query", %{conn: conn} do
-    insert_bnlc_dataset()
-    insert_parcs_relais_dataset()
-    insert_irve_dataset()
     %{id: dataset_id} = insert_zfe_dataset()
 
     %{id: resource_history_id} = insert(:resource_history, %{payload: %{"dataset_id" => dataset_id}})
-    %{id: geo_data_import_id} = insert(:geo_data_import, %{resource_history_id: resource_history_id})
+    %{id: geo_data_import_id} = insert(:geo_data_import, %{slug: :zfe, resource_history_id: resource_history_id})
 
     %{id: geo_data_import_id_ko} = insert(:geo_data_import)
 
@@ -118,6 +111,7 @@ defmodule TransportWeb.API.GeoQueryControllerTest do
       payload: %{}
     })
 
+    # Should be ignored, other `geo_data_import`
     insert(:geo_data, %{
       geo_data_import_id: geo_data_import_id_ko,
       geom: %Geo.Point{coordinates: {1, 1}, srid: 4326},
@@ -148,9 +142,6 @@ defmodule TransportWeb.API.GeoQueryControllerTest do
   end
 
   test "a IRVE geo query", %{conn: conn} do
-    insert_parcs_relais_dataset()
-    insert_zfe_dataset()
-    insert_bnlc_dataset()
     %{id: dataset_id} = insert_irve_dataset()
     insert_imported_irve_geo_data(dataset_id)
 
@@ -181,12 +172,47 @@ defmodule TransportWeb.API.GeoQueryControllerTest do
     )
   end
 
-  test "404 cases", %{conn: conn} do
-    insert_bnlc_dataset()
-    insert_parcs_relais_dataset()
-    insert_zfe_dataset()
-    insert_irve_dataset()
+  test "a gbfs_stations geo query", %{conn: conn} do
+    %{id: geo_data_import_id} = insert(:geo_data_import, %{slug: :gbfs_stations})
+    %{id: geo_data_import_id_ko} = insert(:geo_data_import)
 
+    insert(:geo_data, %{
+      geo_data_import_id: geo_data_import_id,
+      geom: %Geo.Point{coordinates: {1, 1}, srid: 4326},
+      payload: %{name: "Gare", capacity: 42}
+    })
+
+    insert(:geo_data, %{
+      geo_data_import_id: geo_data_import_id,
+      geom: %Geo.Point{coordinates: {2, 2}, srid: 4326},
+      payload: %{name: "Bistrot", capacity: 20}
+    })
+
+    # Should be ignored, other `geo_data_import`
+    insert(:geo_data, %{
+      geo_data_import_id: geo_data_import_id_ko,
+      geom: %Geo.Point{coordinates: {3, 4}, srid: 4326},
+      payload: %{}
+    })
+
+    assert_expected_geojson(conn,
+      data: "gbfs_stations",
+      expected_features: [
+        %{
+          "geometry" => %{"coordinates" => [1, 1], "type" => "Point"},
+          "properties" => %{"capacity" => "42", "name" => "Gare"},
+          "type" => "Feature"
+        },
+        %{
+          "geometry" => %{"coordinates" => [2, 2], "type" => "Point"},
+          "properties" => %{"capacity" => "20", "name" => "Bistrot"},
+          "type" => "Feature"
+        }
+      ]
+    )
+  end
+
+  test "404 cases", %{conn: conn} do
     conn
     |> get(TransportWeb.API.Router.Helpers.geo_query_path(conn, :index))
     |> json_response(404)

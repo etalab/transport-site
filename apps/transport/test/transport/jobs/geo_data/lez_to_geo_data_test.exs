@@ -93,7 +93,9 @@ defmodule Transport.Jobs.LowEmissionZonesToGeoDataTest do
     assert :ok = perform_job(LowEmissionZonesToGeoData, %{})
 
     # data is imported
-    [%{id: geo_data_import_1, resource_history_id: ^id_0}] = DB.GeoDataImport |> DB.Repo.all()
+    [%DB.GeoDataImport{id: geo_data_import_1, resource_history_id: ^id_0, slug: :zfe}] =
+      DB.GeoDataImport |> DB.Repo.all()
+
     assert DB.GeoData |> DB.Repo.all() |> Enum.count() == 1
 
     # relaunch job
@@ -114,7 +116,9 @@ defmodule Transport.Jobs.LowEmissionZonesToGeoDataTest do
     assert :ok = perform_job(LowEmissionZonesToGeoData, %{})
 
     # geo_data and geo_data_import are updated accordingly
-    [%{id: geo_data_import_2, resource_history_id: ^id_1}] = DB.GeoDataImport |> DB.Repo.all()
+    [%DB.GeoDataImport{id: geo_data_import_2, resource_history_id: ^id_1, slug: :zfe}] =
+      DB.GeoDataImport |> DB.Repo.all()
+
     assert geo_data_import_2 !== geo_data_import_1
 
     [%{geo_data_import_id: ^geo_data_import_2}] = DB.GeoData |> DB.Repo.all()

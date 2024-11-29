@@ -1,6 +1,6 @@
 import Leaflet from 'leaflet'
 import 'leaflet.pattern'
-import { Mapbox } from './mapbox-credentials'
+import { Mapbox } from './map-config'
 
 const regionsUrl = '/api/stats/regions'
 const aomsUrl = '/api/stats/'

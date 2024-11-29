@@ -36,13 +36,13 @@ defmodule Transport.AdminNotifier do
     🔗 <a href="#{file_url}">Fichier consolidé</a>
     """
 
-    notify_bidzev()
+    notify_bizdev()
     |> subject(subject)
     |> html_body(report_content)
   end
 
   def datasets_without_gtfs_rt_related_resources(datasets) do
-    notify_bidzev()
+    notify_bizdev()
     |> subject("Jeux de données GTFS-RT sans ressources liées")
     |> html_body("""
     <p>Bonjour,</p>
@@ -57,14 +57,32 @@ defmodule Transport.AdminNotifier do
     """)
   end
 
+  def unknown_gbfs_operator_feeds(resources) do
+    notify_bizdev()
+    |> subject("Flux GBFS : opérateurs non détectés")
+    |> html_body("""
+    <p>Bonjour,</p>
+
+    <p>Il n'est pas possible de détecter automatiquement les opérateurs des flux GBFS suivants :</p>
+
+    <ul>
+    #{Enum.map(resources, fn %DB.Resource{url: url} -> ~s|<li><a href="#{url}">#{url}</a></li>| end)}
+    </ul>
+
+    <p>La configuration peut être modifiée <a href="https://github.com/etalab/transport-site/blob/master/apps/transport/priv/gbfs_operators.csv">sur GitHub</a>.</p>
+
+    <p>L’équipe transport.data.gouv.fr</p>
+    """)
+  end
+
   def datasets_climate_resilience_bill_inappropriate_licence(datasets) do
-    notify_bidzev()
+    notify_bizdev()
     |> subject("Jeux de données article 122 avec licence inappropriée")
     |> render_body("datasets_climate_resilience_bill_inappropriate_licence.html", %{datasets: datasets})
   end
 
   def new_datagouv_datasets(category, datagouv_datasets, rule_explanation, duration) do
-    notify_bidzev()
+    notify_bizdev()
     |> subject("Nouveaux jeux de données #{category} à référencer - data.gouv.fr")
     |> html_body("""
     <p>Bonjour,</p>
@@ -82,7 +100,7 @@ defmodule Transport.AdminNotifier do
   end
 
   def expiration(records) do
-    notify_bidzev()
+    notify_bizdev()
     |> subject("Jeux de données arrivant à expiration")
     |> html_body("""
     <p>Bonjour,</p>
@@ -98,7 +116,7 @@ defmodule Transport.AdminNotifier do
     inactive_datasets_str = fmt_inactive_datasets(inactive_datasets)
     archived_datasets_str = fmt_archived_datasets(archived_datasets)
 
-    notify_bidzev()
+    notify_bizdev()
     |> subject("Jeux de données supprimés ou archivés")
     |> html_body("""
     <p>Bonjour,</p>
@@ -118,7 +136,7 @@ defmodule Transport.AdminNotifier do
 
   # Utility functions from here
 
-  defp notify_bidzev do
+  defp notify_bizdev do
     new()
     |> from({"transport.data.gouv.fr", Application.fetch_env!(:transport, :contact_email)})
     # Uses the contact@ email address but method is kept if we need
