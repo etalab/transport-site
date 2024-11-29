@@ -30,7 +30,7 @@ defmodule Transport.IRVE.DataFrame do
   Current behaviour is that the embedded static IRVE schema enforces the field type, for fields
   that are known.
 
-  For instance, a `string` field will be considered as a string:
+  For instance, a `string` field in the input schema will be considered as a `string` in the `DataFrame`:
 
   iex> Transport.IRVE.DataFrame.dataframe_from_csv_body!("id_pdc_itinerance\\nABC123")
   #Explorer.DataFrame<
@@ -38,7 +38,7 @@ defmodule Transport.IRVE.DataFrame do
     id_pdc_itinerance string ["ABC123"]
   >
 
-  Even if it contains something that would be considered a float:
+  Even if it contains something that would be considered a float (the schema type spec wins):
 
   iex> Transport.IRVE.DataFrame.dataframe_from_csv_body!("id_pdc_itinerance\\n22.0")
   #Explorer.DataFrame<
@@ -46,7 +46,7 @@ defmodule Transport.IRVE.DataFrame do
     id_pdc_itinerance string ["22.0"]
   >
 
-  An `integer` field will be mapped to a integer variant:
+  An `integer` field will be mapped to a `integer` (here, signed 64-bits):
 
   iex> Transport.IRVE.DataFrame.dataframe_from_csv_body!("nbre_pdc\\n123")
   #Explorer.DataFrame<
