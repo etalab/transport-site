@@ -70,7 +70,16 @@ defmodule Transport.IRVE.DataFrame do
     date_mise_en_service date [2024-10-02]
   >
 
-  TODO: document behaviour on extra fields.
+  Other, unknown columns, are at this point kept, and types are inferred:
+
+  iex> Transport.IRVE.DataFrame.dataframe_from_csv_body!("foo,bar\\n123,14.0")
+  #Explorer.DataFrame<
+    Polars[1 x 2]
+    foo s64 [123]
+    bar f64 [14.0]
+  >
+
+  Thank you for reading this far.
   """
   def dataframe_from_csv_body!(body, schema \\ Transport.IRVE.StaticIRVESchema.schema_content()) do
     dtypes =
