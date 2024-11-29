@@ -210,7 +210,7 @@ defmodule DB.DatasetDBTest do
           })
         end)
 
-      assert logs =~ "error while importing dataset: %{legal_owner_company_siren:"
+      assert logs =~ ~r/error while importing dataset(.*)legal_owner_company_siren/
 
       assert {:ok, %Ecto.Changeset{}} =
                Dataset.changeset(%{
