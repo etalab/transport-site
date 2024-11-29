@@ -86,7 +86,11 @@ defmodule Transport.IRVE.DataFrame do
       schema
       |> Map.fetch!("fields")
       |> Enum.map(fn %{"name" => name, "type" => type} ->
-        {String.to_atom(name), String.to_atom(type) |> Transport.IRVE.DataFrame.remap_schema_type()}
+        {
+          String.to_atom(name),
+          String.to_atom(type)
+          |> Transport.IRVE.DataFrame.remap_schema_type()
+        }
       end)
 
     Explorer.DataFrame.load_csv!(body, dtypes: dtypes)
