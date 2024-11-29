@@ -451,6 +451,10 @@ defmodule DB.Factory do
   end
 
   defmodule IRVE do
+    @moduledoc """
+    Factory part relevant to IRVE.
+    """
+
     @doc """
     Generate a row following the IRVE static schema.
 
