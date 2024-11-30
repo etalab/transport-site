@@ -71,7 +71,7 @@ defmodule Transport.IRVE.ExtractorTest do
       }
     end)
 
-    assert Transport.IRVE.Extractor.resources(page_size: 2) == [
+    assert Transport.IRVE.Extractor.datagouv_resources(page_size: 2) == [
              %{
                dataset_id: "the-dataset-id",
                dataset_title: "the-dataset-title",

@@ -16,7 +16,7 @@ defmodule Transport.IRVE.Extractor do
 
   The code fetches datasets, then unpack resources belonging to each dataset.
   """
-  def resources(pagination_options \\ []) do
+  def datagouv_resources(pagination_options \\ []) do
     @static_irve_datagouv_url
     |> Transport.IRVE.Fetcher.pages(pagination_options)
     |> Task.async_stream(&process_data_gouv_page/1, on_timeout: :kill_task, max_concurrency: 10)
