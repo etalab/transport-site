@@ -79,7 +79,7 @@ defmodule Transport.IRVE.DataFrame do
     bar f64 [14.0]
   >
 
-  Thank you for reading this far.
+  Congratulations for reading this far.
   """
   def dataframe_from_csv_body!(body, schema \\ Transport.IRVE.StaticIRVESchema.schema_content()) do
     dtypes =
