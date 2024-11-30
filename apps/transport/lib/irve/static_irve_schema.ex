@@ -10,8 +10,8 @@ defmodule Transport.IRVE.StaticIRVESchema do
   NOTE: this is not cached at the moment.
   """
   def schema_content do
-    __ENV__.file
-    |> Path.join("../../../../shared/meta/schema-irve-statique.json")
+    __DIR__
+    |> Path.join("../../../shared/meta/schema-irve-statique.json")
     |> Path.expand()
     |> File.read!()
     |> Jason.decode!()
