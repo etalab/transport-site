@@ -614,6 +614,7 @@ defmodule Transport.GBFSMetadataTest do
   describe "stats" do
     test "3.0 feed" do
       setup_response("https://example.com/gbfs/station_status", fixture_content("station_status.3.0"))
+      setup_response("https://example.com/gbfs/station_information", fixture_content("station_information.3.0"))
       setup_response("https://example.com/gbfs/vehicle_status", fixture_content("vehicle_status.3.0"))
 
       # `version` is bumped when keys change
@@ -644,6 +645,7 @@ defmodule Transport.GBFSMetadataTest do
 
     test "2.2 feed" do
       setup_response("https://example.com/gbfs/station_status", fixture_content("station_status.2.2"))
+      setup_response("https://example.com/gbfs/station_information", fixture_content("station_information.2.2"))
       setup_response("https://example.com/gbfs/free_bike_status", fixture_content("free_bike_status.2.2"))
 
       # Values may not make sense: responses have been taken from the GBFS spec

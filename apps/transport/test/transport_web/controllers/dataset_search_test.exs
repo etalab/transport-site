@@ -322,4 +322,30 @@ defmodule TransportWeb.DatasetSearchControllerTest do
 
     refute hidden_dataset.id in (%{} |> DB.Dataset.list_datasets() |> DB.Repo.all() |> Enum.map(& &1.id))
   end
+
+  test "sort by most_recent" do
+    today = DateTime.utc_now()
+    last_week = DateTime.add(today, -7, :day)
+    type = "private-parking"
+
+    older_dataset = insert(:dataset, type: type, inserted_at: last_week)
+    recent_dataset = insert(:dataset, type: type, inserted_at: today)
+    null_dataset = insert(:dataset, type: type) |> Ecto.Changeset.change(%{inserted_at: nil}) |> DB.Repo.update!()
+
+    assert [recent_dataset.id, older_dataset.id, null_dataset.id] ==
+             %{"type" => type, "order_by" => "most_recent"}
+             |> Dataset.list_datasets()
+             |> DB.Repo.all()
+             |> Enum.map(& &1.id)
+  end
+
+  test "sort by alpha" do
+    type = "private-parking"
+
+    b_dataset = insert(:dataset, type: type, custom_title: "B")
+    a_dataset = insert(:dataset, type: type, custom_title: "A")
+
+    assert [a_dataset.id, b_dataset.id] ==
+             %{"type" => type, "order_by" => "alpha"} |> Dataset.list_datasets() |> DB.Repo.all() |> Enum.map(& &1.id)
+  end
 end

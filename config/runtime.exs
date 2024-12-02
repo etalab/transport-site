@@ -121,6 +121,7 @@ oban_prod_crontab = [
   {"30 */6 * * *", Transport.Jobs.ParkingsRelaisToGeoData},
   {"30 */6 * * *", Transport.Jobs.LowEmissionZonesToGeoData},
   {"30 */6 * * *", Transport.Jobs.IRVEToGeoData},
+  {"30 6 * * *", Transport.Jobs.GBFSStationsToGeoData},
   {"15 10 * * *", Transport.Jobs.DatabaseBackupReplicationJob},
   {"0 7 * * *", Transport.Jobs.GTFSRTMultiValidationDispatcherJob},
   {"30 7 * * *", Transport.Jobs.GBFSMultiValidationDispatcherJob},
@@ -154,6 +155,8 @@ oban_prod_crontab = [
   {"15 8 * 3,6,11 1", Transport.Jobs.PeriodicReminderProducersNotificationJob},
   {"15 5 * * *", Transport.Jobs.ImportDatasetFollowersJob},
   {"20 5 * * *", Transport.Jobs.ImportDatasetContactPointsJob},
+  # Should be ideally executed after `GBFSMultiValidationDispatcherJob` to use fresh metadata
+  {"30 8 * * *", Transport.Jobs.ImportGBFSFeedContactEmailJob},
   {"30 5 * * *", Transport.Jobs.ImportDatasetMonthlyMetricsJob},
   {"45 5 * * *", Transport.Jobs.ImportResourceMonthlyMetricsJob},
   {"0 8 * * *", Transport.Jobs.WarnUserInactivityJob},

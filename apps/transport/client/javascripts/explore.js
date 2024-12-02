@@ -62,6 +62,12 @@ function getTooltip ({ object, layer }) {
             return { html: `<strong>Parking relais</strong><br>${object.properties.nom}<br>Capacité : ${object.properties.nb_pr} places` }
         } else if (layer.id === 'zfe-layer') {
             return { html: '<strong>Zone à Faible Émission</strong>' }
+        } else if (layer.id === 'gbfs_stations-layer') {
+            return {
+                html: `<strong>Station GBFS</strong><br>
+                    ${object.properties.name}<br>
+                    Capacité&nbsp;: ${object.properties.capacity}`
+            }
         } else if (layer.id === 'irve-layer') {
             return {
                 html: `<strong>Infrastructure de recharge</strong><br>
@@ -76,7 +82,7 @@ function getTooltip ({ object, layer }) {
     }
 }
 // internal dictionary were all layers are stored
-const layers = { gtfsrt: {}, bnlc: undefined, parkings_relais: undefined, zfe: undefined }
+const layers = { gtfsrt: {}, bnlc: undefined, parkings_relais: undefined, zfe: undefined, gbfs_stations: undefined }
 
 function getLayers (layers) {
     const layersArray = Object.values(layers.gtfsrt)
@@ -84,6 +90,7 @@ function getLayers (layers) {
     layersArray.push(layers.parkings_relais)
     layersArray.push(layers.zfe)
     layersArray.push(layers.irve)
+    layersArray.push(layers.gbfs_stations)
     return layersArray
 }
 
@@ -154,6 +161,17 @@ document.getElementById('irve-check').addEventListener('change', (event) => {
     }
 })
 
+// Handle GBFS stations toggle
+document.getElementById('gbfs_stations-check').addEventListener('change', (event) => {
+    if (event.currentTarget.checked) {
+        trackEvent('gbfs-stations')
+        fetch('/api/geo-query?data=gbfs_stations')
+            .then(data => updateGBFSStationsLayer(data.json()))
+    } else {
+        updateGBFSStationsLayer(null)
+    }
+})
+
 function updateBNLCLayer (geojson) {
     layers.bnlc = createPointsLayer(geojson, 'bnlc-layer')
     deckGLLayer.setProps({ layers: getLayers(layers) })
@@ -170,6 +188,10 @@ function updateIRVELayer (geojson) {
     layers.irve = createPointsLayer(geojson, 'irve-layer')
     deckGLLayer.setProps({ layers: getLayers(layers) })
 }
+function updateGBFSStationsLayer (geojson) {
+    layers.gbfs_stations = createPointsLayer(geojson, 'gbfs_stations-layer')
+    deckGLLayer.setProps({ layers: getLayers(layers) })
+}
 
 function trackEvent (layer) {
     // https://matomo.org/faq/reports/implement-event-tracking-with-matomo/#how-to-set-up-matomo-event-tracking-with-javascript
@@ -184,7 +206,8 @@ function createPointsLayer (geojson, id) {
         'bnlc-layer': [255, 174, 0, 100],
         'parkings_relais-layer': [0, 33, 70, 100],
         'zfe-layer': [52, 8, 143, 100],
-        'irve-layer': [245, 40, 145, 100]
+        'irve-layer': [245, 40, 145, 100],
+        'gbfs_stations-layer': [60, 115, 168, 100]
     }[id]
 
     return new GeoJsonLayer({

@@ -83,6 +83,7 @@ defmodule TransportWeb.Backoffice.ContactController do
       left join notification_subscription ns_reuser on ns_reuser.contact_id = c.id and ns_reuser.role = 'reuser'
       group by 1
     ) t on t.contact_id = id
+    order by id
     """
 
     csv_header =
