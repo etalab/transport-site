@@ -1,0 +1,19 @@
+{
+  "last_updated": 1609866247,
+  "ttl": 0,
+  "version": "2.2",
+  "data": {
+    "stations": [
+      {
+        "station_id": "pga",
+        "name": "Parking garage A",
+        "lat": 12.345678,
+        "lon": 45.678901,
+        "vehicle_type_capacity": {
+          "abc123": 7,
+          "def456": 9
+        }
+      }
+    ]
+  }
+}
