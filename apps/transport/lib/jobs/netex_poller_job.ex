@@ -3,11 +3,26 @@ defmodule Transport.Jobs.NeTExPollerJob do
   Companion module to the validator for NeTEx files, used to handle long
   standing validations.
   """
-  use Oban.Worker, tags: ["validation"], max_attempts: 180, queue: :resource_validation
+
+  # Max attempts doesn't really matter here as it's useful for workers failing.
+  # Here we mostly poll and excepted network errors, the worker won't fail.
+  @max_attempts 3
+
+  use Oban.Worker, tags: ["validation"], max_attempts: @max_attempts, queue: :resource_validation
 
   alias Transport.Validators.NeTEx
 
-  @impl Oban.Worker
+  # Override the backoff to play nice and avoiding falling in very slow retry
+  # after an important streak of snoozing (which increments the `attempt`
+  # counter).
+  @impl Worker
+  def backoff(%Oban.Job{} = job) do
+    corrected_attempt = @max_attempts - (job.max_attempts - job.attempt)
+
+    Worker.backoff(%{job | attempt: corrected_attempt})
+  end
+
+  @impl Worker
   def perform(%Oban.Job{
         args: %{
           "validation_id" => validation_id,
