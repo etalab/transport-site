@@ -16,6 +16,8 @@ defmodule Transport.Jobs.OnDemandNeTExPollerJob do
   # Override the backoff to play nice and avoiding falling in very slow retry
   # after an important streak of snoozing (which increments the `attempt`
   # counter).
+  #
+  # See https://hexdocs.pm/oban/Oban.Worker.html#module-snoozing-jobs.
   @impl Worker
   def backoff(%Oban.Job{} = job) do
     corrected_attempt = @max_attempts - (job.max_attempts - job.attempt)
