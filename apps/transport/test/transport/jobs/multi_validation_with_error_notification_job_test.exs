@@ -356,7 +356,7 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
       })
 
     # We already sent an error notification regarding the real time resource (GBFS) in the last 30 days
-    gbfs_sending_delay = MultiValidationWithErrorNotificationJob.sending_delay_by_validator(gbfs_validator_name)
+    {gbfs_sending_delay, :day} = MultiValidationWithErrorNotificationJob.sending_delay_by_validator(gbfs_validator_name)
 
     %DB.Notification{id: previous_notification_id} =
       %{

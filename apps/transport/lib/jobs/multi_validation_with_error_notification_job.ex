@@ -177,25 +177,25 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
 
   @doc """
   iex> sending_delay_by_validator(Transport.Validators.GBFSValidator.validator_name())
-  30
+  {30, :day}
   iex> all_validators() |> Enum.map(& &1.validator_name()) |> Enum.each(&sending_delay_by_validator/1)
   :ok
   """
-  @spec sending_delay_by_validator(binary()) :: pos_integer()
+  @spec sending_delay_by_validator(binary()) :: {pos_integer(), :day}
   def sending_delay_by_validator(validator) do
     %{
-      Transport.Validators.GTFSTransport => 7,
-      Transport.Validators.TableSchema => 7,
-      Transport.Validators.EXJSONSchema => 7,
-      Transport.Validators.GBFSValidator => 30
+      Transport.Validators.GTFSTransport => {7, :day},
+      Transport.Validators.TableSchema => {7, :day},
+      Transport.Validators.EXJSONSchema => {7, :day},
+      Transport.Validators.GBFSValidator => {30, :day}
     }
     |> Map.new(fn {validator, delay} -> {validator.validator_name(), delay} end)
     |> Map.fetch!(validator)
   end
 
   def email_addresses_already_sent(%DB.Dataset{id: dataset_id}, validator_name) do
-    delay = sending_delay_by_validator(validator_name)
-    datetime_limit = DateTime.utc_now() |> DateTime.add(-delay, :day)
+    {delay, unit} = sending_delay_by_validator(validator_name)
+    datetime_limit = DateTime.utc_now() |> DateTime.add(-delay, unit)
 
     DB.Notification.base_query()
     |> where(
