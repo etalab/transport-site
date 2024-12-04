@@ -61,6 +61,7 @@ defmodule Transport.UserNotifier do
   def multi_validation_with_error_notification(%DB.Contact{} = contact, :producer,
         dataset: dataset,
         resources: resources,
+        validator_name: _,
         job_id: _
       ) do
     contact
@@ -72,6 +73,7 @@ defmodule Transport.UserNotifier do
   def multi_validation_with_error_notification(%DB.Contact{} = contact, :reuser,
         dataset: dataset,
         producer_warned: producer_warned,
+        validator_name: _,
         job_id: _
       ) do
     contact

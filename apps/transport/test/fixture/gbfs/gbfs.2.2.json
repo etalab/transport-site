@@ -10,6 +10,10 @@
           "url": "https://example.com/gbfs/station_status"
         },
         {
+          "name": "station_information",
+          "url": "https://example.com/gbfs/station_information"
+        },
+        {
           "name": "free_bike_status",
           "url": "https://example.com/gbfs/free_bike_status"
         }

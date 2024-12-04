@@ -143,7 +143,7 @@ defmodule Transport.Test.Transport.Jobs.ImportGBFSFeedContactEmailJobTest do
         feed_contact_email: email
       })
 
-      %DB.Contact{email: ^email, creation_source: :"automation:import_gbfs_feed_contact_email"} =
+      %DB.Contact{email: ^email, creation_source: :"automation:import_gbfs_feed_contact_email", organization: "Example"} =
         contact = DB.Repo.get_by(DB.Contact, mailing_list_title: "Équipe technique GBFS Example")
 
       assert nil == DB.Repo.reload(previous_gbfs_contact_ns)
@@ -167,7 +167,7 @@ defmodule Transport.Test.Transport.Jobs.ImportGBFSFeedContactEmailJobTest do
           )
         end)
 
-      # Another producer production does not interfere
+      # Another producer's subscription does not interfere
       other_ns =
         insert(:notification_subscription,
           dataset_id: dataset.id,

@@ -1,11 +1,12 @@
 defmodule Transport.Jobs.ImportGBFSFeedContactEmailJob do
   @moduledoc """
-  Reuse `feed_contact_email` from GBFS feed.
+  Reuse `feed_contact_email` from GBFS feeds.
 
   Use these email addresses to find or create a contact and subscribe this contact
   to producer subscriptions for this dataset.
 
-  When a `feed_contact_point` was previously set and has been removed, we delete old subscriptions.
+  When a `feed_contact_point` was previously set and changed,
+  we delete old subscriptions and create new ones.
   """
   use Oban.Worker, max_attempts: 3
   import Ecto.Query
@@ -45,7 +46,12 @@ defmodule Transport.Jobs.ImportGBFSFeedContactEmailJob do
         contact
 
       nil ->
-        %{mailing_list_title: contact_title(resource_url), email: feed_contact_email, creation_source: @contact_source}
+        %{
+          mailing_list_title: contact_title(resource_url),
+          email: feed_contact_email,
+          creation_source: @contact_source,
+          organization: Transport.GBFSMetadata.operator(resource_url)
+        }
         |> DB.Contact.insert!()
     end
   end
