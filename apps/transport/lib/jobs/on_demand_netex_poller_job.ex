@@ -8,17 +8,18 @@ defmodule Transport.Jobs.OnDemandNeTExPollerJob do
   alias Transport.Jobs.OnDemandValidationHelpers, as: Helpers
   alias Transport.Validators.NeTEx
 
+  @impl Oban.Worker
+  def perform(%Oban.Job{args: %{"id" => multivalidation_id} = args, attempt: attempt}) do
+    check_result(args, attempt)
+    |> Helpers.handle_validation_result(multivalidation_id)
+  end
+
   def later(validation_id, multivalidation_id, url) do
     %{validation_id: validation_id, id: multivalidation_id, permanent_url: url}
     |> new(schedule_in: {20, :seconds})
     |> Oban.insert()
 
     Helpers.delegated_state()
-  end
-
-  def perform(%Oban.Job{args: %{"id" => multivalidation_id} = args, attempt: attempt}) do
-    check_result(args, attempt)
-    |> Helpers.handle_validation_result(multivalidation_id)
   end
 
   def check_result(%{"permanent_url" => url, "validation_id" => validation_id}, attempt) do
