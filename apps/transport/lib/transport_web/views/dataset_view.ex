@@ -72,7 +72,7 @@ defmodule TransportWeb.DatasetView do
         "most_recent" => dgettext("page-shortlist", "Most recently added")
       }[order_by]
 
-    assigns = Plug.Conn.assign(conn, :msg, msg).assigns()
+    assigns = Plug.Conn.assign(conn, :msg, msg).assigns
 
     case assigns do
       %{order_by: ^order_by} -> ~H{<span class="activefilter"><%= @msg %></span>}
@@ -81,7 +81,7 @@ defmodule TransportWeb.DatasetView do
   end
 
   def licence_link(%Plug.Conn{} = conn, %{licence: "all", count: count}) do
-    assigns = Plug.Conn.assign(conn, :count, count).assigns()
+    assigns = Plug.Conn.assign(conn, :count, count).assigns
 
     if Map.has_key?(conn.query_params, "licence") do
       link("#{dgettext("page-shortlist", "All (feminine)")} (#{count})",
@@ -93,7 +93,7 @@ defmodule TransportWeb.DatasetView do
   end
 
   def licence_link(%Plug.Conn{} = conn, %{licence: licence, count: count}) when licence not in ["fr-lo", "lov2"] do
-    assigns = Plug.Conn.merge_assigns(conn, count: count, name: name = licence(%Dataset{licence: licence})).assigns()
+    assigns = Plug.Conn.merge_assigns(conn, count: count, name: name = licence(%Dataset{licence: licence})).assigns
 
     if Map.get(conn.query_params, "licence") == licence do
       ~H{<span class="activefilter"><%= @name %> (<%= @count %>)</span>}
@@ -113,7 +113,7 @@ defmodule TransportWeb.DatasetView do
     params = conn.query_params
     full_url = "#{url}?#{Query.encode(params)}"
 
-    assigns = Plug.Conn.merge_assigns(conn, count: count, nom: nom).assigns()
+    assigns = Plug.Conn.merge_assigns(conn, count: count, nom: nom).assigns
 
     case current_path(conn, %{}) do
       ^url -> ~H{<span class="activefilter"><%= @nom %> (<%= @count %>)</span>}
@@ -147,7 +147,7 @@ defmodule TransportWeb.DatasetView do
       end
 
     link_text = "#{msg} (#{count})"
-    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns()
+    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns
     active_filter_text = ~H{<span class="activefilter"><%= @msg %> (<%= @count %>)</span>}
 
     case conn.params do
@@ -172,7 +172,7 @@ defmodule TransportWeb.DatasetView do
         true -> current_url(conn, Map.put(conn.query_params, "filter", "has_realtime"))
       end
 
-    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns()
+    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns
 
     case {only_rt, Map.get(conn.query_params, "filter")} do
       {false, "has_realtime"} -> link("#{msg} (#{count})", to: full_url)
@@ -193,7 +193,7 @@ defmodule TransportWeb.DatasetView do
         true -> current_url(conn, Map.put(conn.query_params, "loi-climat-resilience", true))
       end
 
-    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns()
+    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns
 
     case {only, Map.get(conn.query_params, "loi-climat-resilience")} do
       {false, "true"} -> link("#{msg} (#{count})", to: full_url)
