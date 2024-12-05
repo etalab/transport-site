@@ -1,8 +1,8 @@
 defmodule Transport.Validators.NeTExTest do
   use ExUnit.Case, async: true
+  use Oban.Testing, repo: DB.Repo
   import DB.Factory
   import Mox
-  import ExUnit.CaptureLog
   import Transport.Test.EnRouteChouetteValidClientHelpers
 
   alias Transport.Validators.NeTEx
@@ -43,14 +43,11 @@ defmodule Transport.Validators.NeTExTest do
     }
   ]
 
-  @sample_error_message Enum.take(@sample_error_messages, 1)
-
   describe "existing resource" do
     test "valid NeTEx" do
       resource_history = mk_netex_resource()
 
-      validation_id = expect_create_validation()
-      expect_successful_validation(validation_id, 12)
+      validation_id = expect_create_validation() |> expect_successful_validation(12)
 
       assert :ok == NeTEx.validate_and_save(resource_history)
 
@@ -63,11 +60,28 @@ defmodule Transport.Validators.NeTExTest do
       assert multi_validation.metadata.metadata == %{"retries" => 0, "elapsed_seconds" => 12}
     end
 
+    test "pending validation" do
+      resource_history = mk_netex_resource()
+
+      validation_id = expect_create_validation() |> expect_pending_validation()
+
+      assert :ok == NeTEx.validate_and_save(resource_history)
+
+      assert_enqueued(
+        worker: Transport.Jobs.NeTExPollerJob,
+        args: %{
+          "validation_id" => validation_id,
+          "resource_history_id" => resource_history.id
+        }
+      )
+
+      assert nil == load_multi_validation(resource_history.id)
+    end
+
     test "invalid NeTEx" do
       resource_history = mk_netex_resource()
 
-      validation_id = expect_create_validation()
-      expect_failed_validation(validation_id, 31)
+      validation_id = expect_create_validation() |> expect_failed_validation(31)
 
       expect_get_messages(validation_id, @sample_error_messages)
 
@@ -130,8 +144,7 @@ defmodule Transport.Validators.NeTExTest do
     test "valid NeTEx" do
       resource_url = mk_raw_netex_resource()
 
-      validation_id = expect_create_validation()
-      expect_successful_validation(validation_id, 9)
+      expect_create_validation() |> expect_successful_validation(9)
 
       assert {:ok, %{"validations" => %{}, "metadata" => %{retries: 0, elapsed_seconds: 9}}} ==
                NeTEx.validate(resource_url)
@@ -140,8 +153,7 @@ defmodule Transport.Validators.NeTExTest do
     test "invalid NeTEx" do
       resource_url = mk_raw_netex_resource()
 
-      validation_id = expect_create_validation()
-      expect_failed_validation(validation_id, 25)
+      validation_id = expect_create_validation() |> expect_failed_validation(25)
 
       expect_get_messages(validation_id, @sample_error_messages)
 
@@ -187,47 +199,12 @@ defmodule Transport.Validators.NeTExTest do
                NeTEx.validate(resource_url)
     end
 
-    test "retries" do
+    test "pending" do
       resource_url = mk_raw_netex_resource()
 
-      validation_id = expect_create_validation()
-      expect_pending_validation(validation_id)
-      expect_pending_validation(validation_id)
-      expect_pending_validation(validation_id)
-      expect_failed_validation(validation_id, 35)
+      validation_id = expect_create_validation() |> expect_pending_validation()
 
-      expect_get_messages(validation_id, @sample_error_message)
-
-      validation_result = %{
-        "xsd-1871" => [
-          %{
-            "code" => "xsd-1871",
-            "criticity" => "error",
-            "message" =>
-              "Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef )."
-          }
-        ]
-      }
-
-      # Let's disable graceful retry as we are mocking the API, otherwise the
-      # test would take almost a minute.
-      assert {:ok, %{"validations" => validation_result, "metadata" => %{retries: 3, elapsed_seconds: 35}}} ==
-               NeTEx.validate(resource_url, graceful_retry: false)
-    end
-
-    test "timeout" do
-      resource_url = mk_raw_netex_resource()
-
-      validation_id = expect_create_validation()
-
-      Enum.each(0..100, fn _i ->
-        expect_pending_validation(validation_id)
-      end)
-
-      {result, log} = with_log(fn -> NeTEx.validate(resource_url, graceful_retry: false) end)
-
-      assert result == {:error, %{message: "enRoute Chouette Valid: Timeout while fetching results", retries: 100}}
-      assert log =~ "[error] Timeout while fetching result on enRoute Chouette Valid"
+      assert {:pending, validation_id} == NeTEx.validate(resource_url)
     end
   end
 
@@ -236,19 +213,20 @@ defmodule Transport.Validators.NeTExTest do
 
     resource = insert(:resource, dataset_id: dataset.id, format: "NeTEx")
 
-    resource_history =
-      insert(:resource_history, resource_id: resource.id, payload: %{"permanent_url" => mk_raw_netex_resource()})
-
-    resource_history
+    insert(:resource_history, resource_id: resource.id, payload: %{"permanent_url" => mk_raw_netex_resource()})
   end
 
   defp mk_raw_netex_resource do
-    resource_url = "http://localhost:9999/netex-#{Ecto.UUID.generate()}.zip"
+    resource_url = generate_resource_url()
 
     expect(Transport.Req.Mock, :get!, 1, fn ^resource_url, [{:compressed, false}, {:into, _}] ->
       {:ok, %Req.Response{status: 200, body: %{"data" => "some_zip_file"}}}
     end)
 
     resource_url
+  end
+
+  defp generate_resource_url do
+    "http://localhost:9999/netex-#{Ecto.UUID.generate()}.zip"
   end
 end
