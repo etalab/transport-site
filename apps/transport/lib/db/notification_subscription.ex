@@ -20,7 +20,8 @@ defmodule DB.NotificationSubscription do
         :user,
         :"automation:promote_producer_space",
         :"automation:migrate_from_reuser_to_producer",
-        :"automation:import_contact_point"
+        :"automation:import_contact_point",
+        :"automation:gbfs_feed_contact_email"
       ]
     )
 
@@ -125,6 +126,44 @@ defmodule DB.NotificationSubscription do
     |> preload([:contact])
     |> where([notification_subscription: ns], ns.dataset_id == ^dataset_id and ns.role == ^role)
     |> DB.Repo.all()
+  end
+
+  @doc """
+  Creates producer subscriptions for a given dataset, contact and notification source for all reasons.
+  """
+  def create_producer_subscriptions(%DB.Dataset{id: dataset_id}, %DB.Contact{id: contact_id}, source) do
+    existing_reasons =
+      DB.NotificationSubscription.base_query()
+      |> where(
+        [notification_subscription: ns],
+        ns.dataset_id == ^dataset_id and ns.role == :producer and ns.contact_id == ^contact_id
+      )
+      |> select([notification_subscription: ns], ns.reason)
+      |> DB.Repo.all()
+      |> MapSet.new()
+
+    Transport.NotificationReason.subscribable_reasons_related_to_datasets(:producer)
+    |> MapSet.new()
+    |> MapSet.difference(existing_reasons)
+    |> Enum.each(fn reason ->
+      DB.NotificationSubscription.insert!(%{
+        role: :producer,
+        source: source,
+        reason: reason,
+        contact_id: contact_id,
+        dataset_id: dataset_id
+      })
+    end)
+  end
+
+  @doc """
+  Given a dataset, contact and notification source, delete other producer subscriptions for the same dataset and source.
+  """
+  def delete_other_producers_subscriptions(%DB.Dataset{id: dataset_id}, %DB.Contact{id: contact_id}, source) do
+    DB.NotificationSubscription.base_query()
+    |> where([notification_subscription: ns], ns.dataset_id == ^dataset_id and ns.contact_id != ^contact_id)
+    |> where([notification_subscription: ns], ns.role == :producer and ns.source == ^source)
+    |> DB.Repo.delete_all()
   end
 
   defp validate_reason_is_allowed_for_subscriptions(changeset) do

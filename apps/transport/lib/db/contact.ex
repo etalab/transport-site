@@ -29,7 +29,15 @@ defmodule DB.Contact do
     field(:phone_number, DB.Encrypted.Binary)
     field(:secondary_phone_number, DB.Encrypted.Binary)
     field(:last_login_at, :utc_datetime_usec)
-    field(:creation_source, Ecto.Enum, values: [:"automation:import_contact_point", :admin, :datagouv_oauth_login])
+
+    field(:creation_source, Ecto.Enum,
+      values: [
+        :"automation:import_contact_point",
+        :"automation:import_gbfs_feed_contact_email",
+        :admin,
+        :datagouv_oauth_login
+      ]
+    )
 
     timestamps(type: :utc_datetime_usec)
 

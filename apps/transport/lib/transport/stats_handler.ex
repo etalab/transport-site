@@ -319,8 +319,7 @@ defmodule Transport.StatsHandler do
   end
 
   def count_geo_data_lines(feature) do
-    Transport.ConsolidatedDataset.dataset(feature).id
-    |> DB.GeoDataImport.dataset_latest_geo_data_import()
+    DB.Repo.get_by(DB.GeoDataImport, slug: feature)
     |> DB.GeoData.count_lines_for_geo_data_import()
   end
 end

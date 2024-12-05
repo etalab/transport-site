@@ -30,6 +30,8 @@ defmodule DB.Dataset do
   typed_schema "dataset" do
     field(:datagouv_id, :string)
     field(:custom_title, :string)
+    # `created_at` comes from data.gouv.fr.
+    # To know when the dataset has been added on the NAP, use `inserted_at`
     field(:created_at, :utc_datetime_usec)
     field(:description, :string)
     field(:frequency, :string)
@@ -411,7 +413,7 @@ defmodule DB.Dataset do
 
   @spec order_datasets(Ecto.Query.t(), map()) :: Ecto.Query.t()
   def order_datasets(datasets, %{"order_by" => "alpha"}), do: order_by(datasets, asc: :custom_title)
-  def order_datasets(datasets, %{"order_by" => "most_recent"}), do: order_by(datasets, desc: :created_at)
+  def order_datasets(datasets, %{"order_by" => "most_recent"}), do: order_by(datasets, desc_nulls_last: :inserted_at)
 
   def order_datasets(datasets, %{"q" => q}),
     do:
