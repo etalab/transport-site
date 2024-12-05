@@ -9,7 +9,12 @@ defmodule Transport.Jobs.OnDemandNeTExPollerJob do
   # Here we mostly poll and excepted network errors, the worker won't fail.
   @max_attempts 3
 
-  use Oban.Worker, tags: ["validation"], max_attempts: @max_attempts, queue: :on_demand_validation
+  use Oban.Worker,
+    tags: ["validation"],
+    max_attempts: @max_attempts,
+    queue: :on_demand_validation,
+    unique: [fields: [:args, :worker]]
+
   alias Transport.Jobs.OnDemandValidationHelpers, as: Helpers
   alias Transport.Validators.NeTEx
 
