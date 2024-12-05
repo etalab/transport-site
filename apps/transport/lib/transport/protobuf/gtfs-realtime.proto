@@ -73,6 +73,11 @@ message FeedHeader {
   // January 1st 1970 00:00:00 UTC).
   optional uint64 timestamp = 3;
 
+  // String that matches the feed_info.feed_version from the GTFS feed that the real
+  // time data is based on. Consumers can use this to identify which GTFS feed is
+  // currently active or when a new one is available to download.
+  optional string feed_version = 4;
+
   // The extensions namespace allows 3rd-party developers to extend the
   // GTFS Realtime specification in order to add and evaluate new features and
   // modifications to the spec.
@@ -218,7 +223,7 @@ message TripUpdate {
     // Expected occupancy after departure from the given stop.
     // Should be provided only for future stops.
     // In order to provide departure_occupancy_status without either arrival or
-    // departure StopTimeEvents, ScheduleRelationship should be set to NO_DATA.
+    // departure StopTimeEvents, ScheduleRelationship should be set to NO_DATA. 
     optional VehiclePosition.OccupancyStatus departure_occupancy_status = 7;
 
     // The relation between the StopTimeEvents and the static schedule.
@@ -342,7 +347,7 @@ message TripUpdate {
   optional int32 delay = 5;
 
   // Defines updated properties of the trip, such as a new shape_id when there is a detour. Or defines the
-  // trip_id, start_date, and start_time of a DUPLICATED trip.
+  // trip_id, start_date, and start_time of a DUPLICATED trip. 
   // NOTE: This message is still experimental, and subject to change. It may be formally adopted in the future.
   message TripProperties {
     // Defines the identifier of a new trip that is a duplicate of an existing trip defined in (CSV) GTFS trips.txt
@@ -376,7 +381,7 @@ message TripUpdate {
     // or a Shape in the (protobuf) real-time feed. The order of stops (stop sequences) for this trip must remain the same as
     // (CSV) GTFS. Stops that are a part of the original trip but will no longer be made, such as when a detour occurs, should
     // be marked as schedule_relationship=SKIPPED.
-    // NOTE: This field is still experimental, and subject to change. It may be formally adopted in the future.
+    // NOTE: This field is still experimental, and subject to change. It may be formally adopted in the future. 
     optional string shape_id = 4;
 
     // The extensions namespace allows 3rd-party developers to extend the
@@ -452,7 +457,7 @@ message VehiclePosition {
   // The state of passenger occupancy for the vehicle or carriage.
   // Individual producers may not publish all OccupancyStatus values. Therefore, consumers
   // must not assume that the OccupancyStatus values follow a linear scale.
-  // Consumers should represent OccupancyStatus values as the state indicated
+  // Consumers should represent OccupancyStatus values as the state indicated 
   // and intended by the producer. Likewise, producers must use OccupancyStatus values that
   // correspond to actual vehicle occupancy states.
   // For describing passenger occupancy levels on a linear scale, see `occupancy_percentage`.
@@ -506,7 +511,7 @@ message VehiclePosition {
   // including both seated and standing capacity, and current operating regulations allow.
   // The value may exceed 100 if there are more passengers than the maximum designed capacity.
   // The precision of occupancy_percentage should be low enough that individual passengers cannot be tracked boarding or alighting the vehicle.
-  // If multi_carriage_status is populated with per-carriage occupancy_percentage,
+  // If multi_carriage_status is populated with per-carriage occupancy_percentage, 
   // then this field should describe the entire vehicle with all carriages accepting passengers considered.
   // This field is still experimental, and subject to change. It may be formally adopted in the future.
   optional uint32 occupancy_percentage = 10;
@@ -541,7 +546,7 @@ message VehiclePosition {
     // For example, the first carriage in the direction of travel has a value of 1.
     // If the second carriage in the direction of travel has a value of 3,
     // consumers will discard data for all carriages (i.e., the multi_carriage_details field).
-    // Carriages without data must be represented with a valid carriage_sequence number and the fields
+    // Carriages without data must be represented with a valid carriage_sequence number and the fields 
     // without data should be omitted (alternately, those fields could also be included and set to the "no data" values).
     // This message/field is still experimental, and subject to change. It may be formally adopted in the future.
     optional uint32 carriage_sequence = 5;
@@ -556,12 +561,12 @@ message VehiclePosition {
   }
 
   // Details of the multiple carriages of this given vehicle.
-  // The first occurrence represents the first carriage of the vehicle,
-  // given the current direction of travel.
-  // The number of occurrences of the multi_carriage_details
+  // The first occurrence represents the first carriage of the vehicle, 
+  // given the current direction of travel. 
+  // The number of occurrences of the multi_carriage_details 
   // field represents the number of carriages of the vehicle.
-  // It also includes non boardable carriages,
-  // like engines, maintenance carriages, etc… as they provide valuable
+  // It also includes non boardable carriages, 
+  // like engines, maintenance carriages, etc… as they provide valuable 
   // information to passengers about where to stand on a platform.
   // This message/field is still experimental, and subject to change. It may be formally adopted in the future.
   repeated CarriageDetails multi_carriage_details = 11;
@@ -650,7 +655,7 @@ message Alert {
   optional SeverityLevel severity_level = 14 [default = UNKNOWN_SEVERITY];
 
   // TranslatedImage to be displayed along the alert text. Used to explain visually the alert effect of a detour, station closure, etc. The image must enhance the understanding of the alert. Any essential information communicated within the image must also be contained in the alert text.
-  // The following types of images are discouraged : image containing mainly text, marketing or branded images that add no additional information.
+  // The following types of images are discouraged : image containing mainly text, marketing or branded images that add no additional information. 
   // NOTE: This field is still experimental, and subject to change. It may be formally adopted in the future.
   optional TranslatedImage image = 15;
 
@@ -864,8 +869,8 @@ message TripDescriptor {
     extensions 9000 to 9999;
   }
 
-  // Linkage to any modifications done to this trip (shape changes, removal or addition of stops).
-  // If this field is provided, the `trip_id`, `route_id`, `direction_id`, `start_time`, `start_date` fields of the `TripDescriptor` MUST be left empty, to avoid confusion by consumers that aren't looking for the `ModifiedTripSelector` value.
+  // Linkage to any modifications done to this trip (shape changes, removal or addition of stops). 
+  // If this field is provided, the `trip_id`, `route_id`, `direction_id`, `start_time`, `start_date` fields of the `TripDescriptor` MUST be left empty, to avoid confusion by consumers that aren't looking for the `ModifiedTripSelector` value. 
   optional ModifiedTripSelector modified_trip = 7;
 
   // The extensions namespace allows 3rd-party developers to extend the
@@ -998,12 +1003,12 @@ message TranslatedString {
 message TranslatedImage {
   message LocalizedImage {
     // String containing an URL linking to an image
-    // The image linked must be less than 2MB.
+    // The image linked must be less than 2MB. 
     // If an image changes in a significant enough way that an update is required on the consumer side, the producer must update the URL to a new one.
-    // The URL should be a fully qualified URL that includes http:// or https://, and any special characters in the URL must be correctly escaped. See the following http://www.w3.org/Addressing/URL/4_URI_Recommentations.html for a description of how to create fully qualified URL values.
+    // The URL should be a fully qualified URL that includes http:// or https://, and any special characters in the URL must be correctly escaped. See the following http://www.w3.org/Addressing/URL/4_URI_Recommentations.html for a description of how to create fully qualified URL values.
     required string url = 1;
 
-    // IANA media type as to specify the type of image to be displayed.
+    // IANA media type as to specify the type of image to be displayed. 
     // The type must start with "image/"
     required string media_type = 2;
 
@@ -1100,21 +1105,21 @@ message TripModifications {
   // A `Modification` message replaces a span of n stop times from each affected trip starting at `start_stop_selector`.
   message Modification {
     // The stop selector of the first stop_time of the original trip that is to be affected by this modification.
-    // Used in conjuction with `end_stop_selector`.
+    // Used in conjuction with `end_stop_selector`. 
     // `start_stop_selector` is required and is used to define the reference stop used with `travel_time_to_stop`.
     optional StopSelector start_stop_selector = 1;
 
-    // The stop selector of the last stop of the original trip that is to be affected by this modification.
+    // The stop selector of the last stop of the original trip that is to be affected by this modification. 
     // The selection is inclusive, so if only one stop_time is replaced by that modification, `start_stop_selector` and `end_stop_selector` must be equivalent.
     // If no stop_time is replaced, `end_stop_selector` must not be provided. It's otherwise required.
     optional StopSelector end_stop_selector = 2;
 
-    // The number of seconds of delay to add to all departure and arrival times following the end of this modification.
-    // If multiple modifications apply to the same trip, the delays accumulate as the trip advances.
+    // The number of seconds of delay to add to all departure and arrival times following the end of this modification. 
+    // If multiple modifications apply to the same trip, the delays accumulate as the trip advances. 
     optional int32 propagated_modification_delay = 3 [default = 0];
 
-    // A list of replacement stops, replacing those of the original trip.
-    // The length of the new stop times may be less, the same, or greater than the number of replaced stop times.
+    // A list of replacement stops, replacing those of the original trip. 
+    // The length of the new stop times may be less, the same, or greater than the number of replaced stop times. 
     repeated ReplacementStop replacement_stops = 4;
 
     // An `id` value from the `FeedEntity` message that contains the `Alert` describing this Modification for user-facing communication.
@@ -1152,7 +1157,7 @@ message TripModifications {
   // A list of selected trips affected by this TripModifications.
   repeated SelectedTrips selected_trips = 1;
 
-  // A list of start times in the real-time trip descriptor for the trip_id defined in trip_ids.
+  // A list of start times in the real-time trip descriptor for the trip_id defined in trip_ids. 
   // Useful to target multiple departures of a trip_id in a frequency-based trip.
   repeated string start_times = 2;
 
@@ -1160,7 +1165,7 @@ message TripModifications {
   // The dates provided should not be used as user-facing information, if a user-facing start and end date needs to be provided, they can be provided in the linked service alert with `service_alert_id`
   repeated string service_dates = 3;
 
-  // A list of modifications to apply to the affected trips.
+  // A list of modifications to apply to the affected trips. 
   repeated Modification modifications = 4;
 
   // The extensions namespace allows 3rd-party developers to extend the
