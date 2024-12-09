@@ -6,17 +6,37 @@ defmodule Transport.Validators.NeTEx do
 
   import TransportWeb.Gettext, only: [dgettext: 2, dngettext: 4]
   require Logger
-
-  @no_error "NoError"
-
-  @max_retries 100
-
-  @unknown_code "unknown-code"
+  alias Transport.Jobs.NeTExPollerJob, as: Poller
 
   @behaviour Transport.Validators.Validator
 
+  @no_error "NoError"
+
+  # 180 * 20 seconds = 1 hour
+  @max_attempts 180
+
+  @unknown_code "unknown-code"
+
+  defmacro too_many_attempts(attempt) do
+    quote do
+      unquote(attempt) > unquote(@max_attempts)
+    end
+  end
+
+  @doc """
+  Poll interval to play nice with the tier.
+
+  iex> 0..9 |> Enum.map(&poll_interval(&1))
+  [10, 10, 10, 10, 10, 10, 20, 20, 20, 20]
+  """
+  def poll_interval(nb_tries) when nb_tries < 6, do: 10
+  def poll_interval(_), do: 20
+
   @impl Transport.Validators.Validator
   def validator_name, do: "enroute-chouette-netex-validator"
+
+  # This will change with an actual versioning of the validator
+  def validator_version, do: "saas-production"
 
   @impl Transport.Validators.Validator
   def validate_and_save(%DB.ResourceHistory{} = resource_history) do
@@ -26,15 +46,32 @@ defmodule Transport.Validators.NeTEx do
   end
 
   def validate_resource_history(resource_history, filepath) do
-    case validate_with_enroute(filepath) do
+    validate_with_enroute(filepath)
+    |> handle_validation_results(resource_history.id, &enqueue_poller(resource_history.id, &1))
+  end
+
+  def enqueue_poller(resource_history_id, validation_id, attempt \\ 0) do
+    {:ok, _job} =
+      Poller.new(%{"validation_id" => validation_id, "resource_history_id" => resource_history_id})
+      |> Oban.insert(schedule_in: _seconds = poll_interval(attempt))
+
+    :ok
+  end
+
+  def handle_validation_results(validation_results, resource_history_id, on_pending) do
+    case validation_results do
       {:ok, %{url: result_url, elapsed_seconds: elapsed_seconds, retries: retries}} ->
-        insert_validation_results(resource_history.id, result_url, %{elapsed_seconds: elapsed_seconds, retries: retries})
+        insert_validation_results(
+          resource_history_id,
+          result_url,
+          %{elapsed_seconds: elapsed_seconds, retries: retries}
+        )
 
         :ok
 
       {:error, %{details: {result_url, errors}, elapsed_seconds: elapsed_seconds, retries: retries}} ->
         insert_validation_results(
-          resource_history.id,
+          resource_history_id,
           result_url,
           %{elapsed_seconds: elapsed_seconds, retries: retries},
           demote_non_xsd_errors(errors)
@@ -43,54 +80,79 @@ defmodule Transport.Validators.NeTEx do
         :ok
 
       {:error, :unexpected_validation_status} ->
-        Logger.error("Invalid API call to enRoute Chouette Valid")
-        {:error, "enRoute Chouette Valid: Unexpected validation status"}
+        Logger.error("Invalid API call to enRoute Chouette Valid (resource_history_id: #{resource_history_id})")
+
+        :ok
 
       {:error, %{message: :timeout, retries: _retries}} ->
-        Logger.error("Timeout while fetching result on enRoute Chouette Valid")
-        {:error, "enRoute Chouette Valid: Timeout while fetching results"}
+        Logger.error(
+          "Timeout while fetching results on enRoute Chouette Valid (resource_history_id: #{resource_history_id})"
+        )
+
+        :ok
+
+      {:pending, validation_id} ->
+        on_pending.(validation_id)
     end
   end
 
-  @type validate_options :: [{:graceful_retry, boolean()}]
   @type error_details :: %{:message => String.t(), optional(:retries) => integer()}
+
+  @type validation_id :: binary()
+
+  @type validation_results :: {:ok, map()} | {:error, error_details()} | {:pending, validation_id()}
 
   @doc """
   Validate the resource from the given URL.
 
-  Options can be passed to tweak the behaviour:
-  - graceful_retry is a flag to skip the polling interval. Useful for testing
-    purposes mostly. Defaults to false.
+  Used by OnDemand job.
   """
-  @spec validate(binary(), validate_options()) :: {:ok, map()} | {:error, error_details()}
-  def validate(url, opts \\ []) do
+  @spec validate(binary()) :: validation_results()
+  def validate(url) do
     with_url(url, fn filepath ->
-      case validate_with_enroute(filepath, opts) do
-        {:ok, %{url: result_url, elapsed_seconds: elapsed_seconds, retries: retries}} ->
-          # result_url in metadata?
-          Logger.info("Result URL: #{result_url}")
-
-          {:ok,
-           %{"validations" => index_messages([]), "metadata" => %{elapsed_seconds: elapsed_seconds, retries: retries}}}
-
-        {:error, %{details: {result_url, errors}, elapsed_seconds: elapsed_seconds, retries: retries}} ->
-          Logger.info("Result URL: #{result_url}")
-          # result_url in metadata?
-          {:ok,
-           %{
-             "validations" => errors |> demote_non_xsd_errors() |> index_messages(),
-             "metadata" => %{elapsed_seconds: elapsed_seconds, retries: retries}
-           }}
-
-        {:error, :unexpected_validation_status} ->
-          Logger.error("Invalid API call to enRoute Chouette Valid")
-          {:error, %{message: "enRoute Chouette Valid: Unexpected validation status"}}
-
-        {:error, %{message: :timeout, retries: retries}} ->
-          Logger.error("Timeout while fetching result on enRoute Chouette Valid")
-          {:error, %{message: "enRoute Chouette Valid: Timeout while fetching results", retries: retries}}
-      end
+      validate_with_enroute(filepath) |> handle_validation_results_on_demand()
     end)
+  end
+
+  @doc """
+  Continuation for the validate function (when result was pending).
+
+  Let the OnDemand job yield while waiting for results without having the OnDemand implementation leak here.
+  """
+  @spec poll_validation(validation_id(), non_neg_integer()) :: validation_results()
+  def poll_validation(validation_id, retries) do
+    poll_validation_results(validation_id, retries) |> handle_validation_results_on_demand()
+  end
+
+  defp handle_validation_results_on_demand(validation_results) do
+    case validation_results do
+      {:ok, %{url: result_url, elapsed_seconds: elapsed_seconds, retries: retries}} ->
+        # result_url in metadata?
+        Logger.info("Result URL: #{result_url}")
+
+        {:ok,
+         %{"validations" => index_messages([]), "metadata" => %{elapsed_seconds: elapsed_seconds, retries: retries}}}
+
+      {:error, %{details: {result_url, errors}, elapsed_seconds: elapsed_seconds, retries: retries}} ->
+        Logger.info("Result URL: #{result_url}")
+        # result_url in metadata?
+        {:ok,
+         %{
+           "validations" => errors |> demote_non_xsd_errors() |> index_messages(),
+           "metadata" => %{elapsed_seconds: elapsed_seconds, retries: retries}
+         }}
+
+      {:error, :unexpected_validation_status} ->
+        Logger.error("Invalid API call to enRoute Chouette Valid")
+        {:error, %{message: "enRoute Chouette Valid: Unexpected validation status"}}
+
+      {:error, %{message: :timeout, retries: retries}} ->
+        Logger.error("Timeout while fetching results on enRoute Chouette Valid")
+        {:error, %{message: "enRoute Chouette Valid: Timeout while fetching results", retries: retries}}
+
+      {:pending, validation_id} ->
+        {:pending, validation_id}
+    end
   end
 
   @spec with_resource_file(DB.ResourceHistory.t(), (Path.t() -> any())) :: any()
@@ -231,21 +293,19 @@ defmodule Transport.Validators.NeTEx do
 
   def count_by_severity(_), do: %{}
 
-  defp validate_with_enroute(filepath, opts \\ []) do
-    client().create_a_validation(filepath) |> fetch_validation_results(0, opts)
+  defp validate_with_enroute(filepath) do
+    setup_validation(filepath) |> poll_validation_results(0)
   end
 
-  defp fetch_validation_results(validation_id, retries, opts) do
+  defp setup_validation(filepath), do: client().create_a_validation(filepath)
+
+  def poll_validation_results(validation_id, retries) do
     case client().get_a_validation(validation_id) do
-      :pending when retries >= @max_retries ->
+      :pending when too_many_attempts(retries) ->
         {:error, %{message: :timeout, retries: retries}}
 
       :pending ->
-        if Keyword.get(opts, :graceful_retry, true) do
-          retries |> poll_interval() |> :timer.sleep()
-        end
-
-        fetch_validation_results(validation_id, retries + 1, opts)
+        {:pending, validation_id}
 
       {:successful, url, elapsed_seconds} ->
         {:ok, %{url: url, elapsed_seconds: elapsed_seconds, retries: retries}}
@@ -257,15 +317,6 @@ defmodule Transport.Validators.NeTEx do
         {:error, :unexpected_validation_status}
     end
   end
-
-  @doc """
-  Poll interval to play nice with the tier.
-
-  iex> 0..9 |> Enum.map(&poll_interval(&1))
-  [10000, 10000, 10000, 10000, 10000, 10000, 20000, 20000, 20000, 20000]
-  """
-  def poll_interval(nb_tries) when nb_tries < 6, do: 10_000
-  def poll_interval(_), do: 20_000
 
   @doc """
   iex> index_messages([])
@@ -282,9 +333,6 @@ defmodule Transport.Validators.NeTEx do
 
   defp get_code(%{"code" => code}), do: code
   defp get_code(%{}), do: @unknown_code
-
-  # This will change with an actual versioning of the validator
-  def validator_version, do: "saas-production"
 
   @doc """
   iex> validation_result = %{"uic-operating-period" => [%{"code" => "uic-operating-period", "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod", "criticity" => "error"}], "valid-day-bits" => [%{"code" => "valid-day-bits", "message" => "Mandatory attribute valid_day_bits not found", "criticity" => "error"}], "frame-arret-resources" => [%{"code" => "frame-arret-resources", "message" => "Tag frame_id doesn't match ''", "criticity" => "warning"}]}
@@ -388,7 +436,7 @@ defmodule Transport.Validators.NeTEx do
     Transport.EnRouteChouetteValidClient.Wrapper.impl()
   end
 
-  defp demote_non_xsd_errors(errors), do: Enum.map(errors, &demote_non_xsd_error(&1))
+  defp demote_non_xsd_errors(errors), do: Enum.map(errors, &demote_non_xsd_error/1)
 
   defp demote_non_xsd_error(error) do
     code = Map.get(error, "code", "")
