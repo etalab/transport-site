@@ -12,7 +12,7 @@ defmodule TransportWeb.BuildTest do
   end
 
   def asdf_erlang_version(return_full_version \\ false) do
-    [[_, full_version, major_version]] = Regex.scan(~r/erlang ((\d+)\.\d+\.\d+.\d+)/, tool_versions())
+    [[_, full_version, major_version]] = Regex.scan(~r/^erlang ((\d+)\..*$)/m, tool_versions())
 
     if return_full_version do
       full_version
