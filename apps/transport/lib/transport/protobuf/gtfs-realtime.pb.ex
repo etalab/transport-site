@@ -165,6 +165,7 @@ defmodule TransitRealtime.FeedHeader do
   )
 
   field(:timestamp, 3, optional: true, type: :uint64)
+  field(:feed_version, 4, optional: true, type: :string)
 
   extensions([{1000, 2000}, {9000, 10000}])
 end
