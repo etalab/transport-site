@@ -12,16 +12,11 @@ defmodule DB.Repo.Migrations.DataImportDelete do
   def up do
     @gtfs_tables
     |> Enum.each(fn tbl ->
-      constraint_name = "#{tbl}_data_import_id_fkey" |> String.to_atom()
-      drop(constraint(tbl, constraint_name))
-
       alter table(tbl) do
         modify(
           :data_import_id,
-          references(:data_import,
-            on_delete: :delete_all,
-            from: references(:data_import, on_delete: :nothing)
-          )
+          references(:data_import, on_delete: :delete_all),
+          from: references(:data_import, on_delete: :nothing)
         )
       end
     end)
