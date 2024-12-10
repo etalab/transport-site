@@ -117,7 +117,7 @@ defmodule Transport.Mixfile do
       # db
       {:ecto, "~> 3.12"},
       {:ecto_sql, "~> 3.12"},
-      {:postgrex, ">= 0.0.0"},
+      {:postgrex, "~> 0.19.0"},
       {:geo_postgis, "~> 3.4"},
       {:ecto_interval, "~> 0.2.5"},
       {:scrivener_ecto, "~> 2.7.0"},
