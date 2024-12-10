@@ -231,12 +231,13 @@ defmodule Transport.GBFSMetadata do
   end
 
   def stats(%{"data" => _data} = payload) do
-    stations_statistics(payload)
+    station_status_statistics(payload)
+    |> Map.merge(station_information_statistics(payload))
     |> Map.merge(vehicle_statistics(payload))
     |> Map.merge(%{version: 2})
   end
 
-  def stations_statistics(%{"data" => _data} = payload) do
+  def station_status_statistics(%{"data" => _data} = payload) do
     feed_url = feed_url_by_name(payload, :station_status)
 
     with {:feed_exists, true} <- {:feed_exists, not is_nil(feed_url)},
@@ -249,7 +250,6 @@ defmodule Transport.GBFSMetadata do
         nb_installed_stations: Enum.count(stations, & &1["is_installed"]),
         nb_renting_stations: Enum.count(stations, & &1["is_renting"]),
         nb_returning_stations: Enum.count(stations, & &1["is_returning"]),
-        nb_virtual_stations: Enum.count(stations, & &1["is_virtual_station"]),
         nb_docks_available: stations |> Enum.map(& &1["num_docks_available"]) |> non_nil_sum(),
         nb_docks_disabled: stations |> Enum.map(& &1["num_docks_disabled"]) |> non_nil_sum(),
         nb_vehicles_available_stations: stations |> Enum.map(&vehicles_available/1) |> non_nil_sum(),
@@ -261,6 +261,27 @@ defmodule Transport.GBFSMetadata do
 
       e ->
         Logger.error("Cannot get GBFS station_status details: #{inspect(e)}")
+        %{}
+    end
+  end
+
+  def station_information_statistics(%{"data" => _data} = payload) do
+    feed_url = feed_url_by_name(payload, :station_information)
+
+    with {:feed_exists, true} <- {:feed_exists, not is_nil(feed_url)},
+         {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- cached_http_get(feed_url),
+         {:ok, json} <- Jason.decode(body) do
+      stations = json["data"]["stations"]
+
+      %{
+        nb_virtual_stations: Enum.count(stations, & &1["is_virtual_station"])
+      }
+    else
+      {:feed_exists, false} ->
+        %{}
+
+      e ->
+        Logger.error("Cannot get GBFS station_information details: #{inspect(e)}")
         %{}
     end
   end

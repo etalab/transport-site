@@ -17,6 +17,8 @@ defmodule Transport.Jobs.ImportDatasetContactPointsJob do
 
   # The number of workers to run in parallel
   @task_concurrency 5
+  # The source when creating a contact
+  @contact_source :"automation:import_contact_point"
   # The notification subscription source when creating/deleting subscriptions
   @notification_subscription_source "automation:import_contact_point"
 
@@ -89,40 +91,13 @@ defmodule Transport.Jobs.ImportDatasetContactPointsJob do
 
   defp update_contact_point(%DB.Dataset{} = dataset, %{"email" => _, "name" => _} = contact_point) do
     contact = find_or_create_contact(contact_point)
-    create_contact_point_subscriptions(dataset, contact)
-    delete_other_contact_points_subscriptions(dataset, contact)
-  end
+    DB.NotificationSubscription.create_producer_subscriptions(dataset, contact, @notification_subscription_source)
 
-  defp create_contact_point_subscriptions(%DB.Dataset{id: dataset_id}, %DB.Contact{id: contact_id}) do
-    existing_reasons =
-      DB.NotificationSubscription.base_query()
-      |> where(
-        [notification_subscription: ns],
-        ns.dataset_id == ^dataset_id and ns.role == :producer and ns.contact_id == ^contact_id
-      )
-      |> select([notification_subscription: ns], ns.reason)
-      |> DB.Repo.all()
-      |> MapSet.new()
-
-    Transport.NotificationReason.subscribable_reasons_related_to_datasets(:producer)
-    |> MapSet.new()
-    |> MapSet.difference(existing_reasons)
-    |> Enum.each(fn reason ->
-      DB.NotificationSubscription.insert!(%{
-        role: :producer,
-        source: @notification_subscription_source,
-        reason: reason,
-        contact_id: contact_id,
-        dataset_id: dataset_id
-      })
-    end)
-  end
-
-  defp delete_other_contact_points_subscriptions(%DB.Dataset{id: dataset_id}, %DB.Contact{id: contact_id}) do
-    DB.NotificationSubscription.base_query()
-    |> where([notification_subscription: ns], ns.dataset_id == ^dataset_id and ns.contact_id != ^contact_id)
-    |> where([notification_subscription: ns], ns.role == :producer and ns.source == ^@notification_subscription_source)
-    |> DB.Repo.delete_all()
+    DB.NotificationSubscription.delete_other_producers_subscriptions(
+      dataset,
+      contact,
+      @notification_subscription_source
+    )
   end
 
   defp find_or_create_contact(%{"email" => email, "name" => name}) do
@@ -131,7 +106,7 @@ defmodule Transport.Jobs.ImportDatasetContactPointsJob do
         contact
 
       nil ->
-        Map.merge(guess_identity(name), %{email: email, creation_source: :"automation:import_contact_point"})
+        Map.merge(guess_identity(name), %{email: email, creation_source: @contact_source})
         |> DB.Contact.insert!()
     end
   end
