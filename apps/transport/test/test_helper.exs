@@ -3,13 +3,15 @@ exclude = [:pending]
 # https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables
 extra_exclude =
   if System.get_env("CI") == "true" do
-    # Run :documentation_links only on Mondays
+    # Run tests tagged with `:ci_only_on_mondays` only:
+    # - within the continuous integration env
+    # - on Mondays
     case Date.utc_today() |> Date.day_of_week() do
       1 -> []
-      _ -> [:documentation_links]
+      _ -> [:ci_only_on_mondays]
     end
   else
-    [:transport_tools, :documentation_links, :external]
+    [:transport_tools, :ci_only_on_mondays, :external]
   end
 
 ExUnit.configure(exclude: exclude ++ extra_exclude)

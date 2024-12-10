@@ -1,6 +1,6 @@
 defmodule Transport.DocumentationLinksTest do
   use ExUnit.Case, async: true
-  @moduletag :documentation_links
+  @moduletag :ci_only_on_mondays
   @documentation_domain "doc.transport.data.gouv.fr"
 
   test "documentation links are valid" do

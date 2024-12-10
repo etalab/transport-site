@@ -727,7 +727,7 @@ defmodule TransportWeb.DatasetControllerTest do
       dataset_has_banner_with_text(
         conn,
         dataset,
-        "Ce jeu de données non officiel est publié à titre expérimental. Veuillez à ne pas le réutiliser à des fins d'information voyageur."
+        "Ce jeu de données non officiel est publié à titre expérimental. Veuillez ne pas le réutiliser à des fins d’information voyageur."
       )
     end
   end
