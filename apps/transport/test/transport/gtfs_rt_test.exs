@@ -183,7 +183,7 @@ defmodule Transport.GTFSRTTest do
            } == feed |> GTFSRT.service_alerts_for_display() |> List.first()
   end
 
-  @tag :external
+  @tag :ci_only_on_mondays
   test ".proto file is up-to-date" do
     normalize_whitespace = fn value ->
       String.trim(Regex.replace(~r/\s*/u, value, ""))
