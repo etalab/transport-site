@@ -3,7 +3,7 @@ defmodule Mix.Tasks.Clever.Logs do
 
   @moduledoc """
   The Clever Cloud logs command currently has strong limitations, including a maximum of
-  1000 lines of logs per command invocation (https://github.com/Clever Cloud/clever-tools/issues/429)
+  1000 lines of logs per command invocation (https://github.com/CleverCloud/clever-tools/issues/429)
   and a lack of auto-pagination.
 
   This mix task provides a minimal ability to fetch logs from the platform.
