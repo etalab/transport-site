@@ -294,6 +294,11 @@ The following URLs are currently monitored via updown.io (with email & Mattermos
 * https://metabase.transport.data.gouv.fr (https://updown.io/f9rd) every 5 minutes
 * https://prochainement.transport.data.gouv.fr/health-check (https://updown.io/2pvz) every 5 minutes
 
+# Useful changelogs
+
+* https://developers.clever-cloud.com/changelog/ for CleverCloud components (e.g. Postgres)
+* [.tool-versions](.tool-versions) for Elixir & Erlang
+
 # Blog
 
 The project [blog](https://blog.transport.data.gouv.fr/) code and articles are hosted in the [blog](https://github.com/etalab/transport-site/tree/blog/blog) folder of the blog branch. A specific blog branch has been created with less restrictive merge rules, to allow publishing articles directly from the CMS without needing a github code review.
