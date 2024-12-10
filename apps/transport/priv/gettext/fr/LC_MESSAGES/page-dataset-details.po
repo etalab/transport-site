@@ -720,4 +720,4 @@ msgstr "Données sous la responsabilité de"
 
 #, elixir-autogen, elixir-format
 msgid "This unofficial dataset is provided experimentally. Do not use it for travel information purpose."
-msgstr "Ce jeu de données non officiel est publié à titre expérimental. Veuillez ne pas le réutiliser à des fins d'information voyageur."
+msgstr "Ce jeu de données non officiel est publié à titre expérimental. Veuillez ne pas le réutiliser à des fins d’information voyageur."
