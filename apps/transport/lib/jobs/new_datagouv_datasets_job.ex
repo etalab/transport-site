@@ -15,12 +15,10 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
       tags:
         MapSet.new([
           "bus",
-          "deplacements",
+          "déplacement",
           "déplacements",
           "horaires",
-          "mobilite",
           "mobilité",
-          "temps-reel",
           "temps-réel",
           "transport",
           "transports"
@@ -53,13 +51,13 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
         "etalab/schema-comptage-mobilites-measure",
         "etalab/schema-comptage-mobilites-site"
       ],
-      tags: MapSet.new(["cyclable", "parking", "stationnement", "velo", "vélo"]),
+      tags: MapSet.new(["cyclable", "parking", "stationnement", "vélo"]),
       formats: MapSet.new([])
     },
     %{
       category: "Covoiturage et ZFE",
       schemas: ["etalab/schema-lieux-covoiturage", "etalab/schema-zfe"],
-      tags: MapSet.new(["covoiturage", "zfe"]),
+      tags: MapSet.new(["covoiturage", "zfe", "zfe-m", "zone à faible émission"]),
       formats: MapSet.new([])
     },
     %{
@@ -71,8 +69,7 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
           "borne de recharge",
           "irve",
           "sdirve",
-          "électrique",
-          "electrique"
+          "électrique"
         ]),
       formats: MapSet.new([])
     }
@@ -223,12 +220,12 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
   defp string_matches?(nil, _rule), do: false
 
   defp string_matches?(str, %{formats: formats, tags: tags} = _rule) when is_binary(str) do
-    searches = MapSet.union(formats, tags) |> MapSet.to_list()
-    str |> String.downcase() |> String.contains?(searches)
+    searches = MapSet.union(formats, tags) |> MapSet.to_list() |> Enum.map(&normalize/1)
+    str |> normalize() |> String.contains?(searches)
   end
 
   defp tags_is_relevant?(%{"tags" => tags} = _dataset, rule) do
-    tags |> Enum.map(&string_matches?(String.downcase(&1), rule)) |> Enum.any?()
+    tags |> Enum.map(&string_matches?(&1, rule)) |> Enum.any?()
   end
 
   defp resource_is_relevant?(%{} = resource, rule) do
@@ -250,4 +247,18 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
   end
 
   defp resource_schema_is_relevant?(%{}, _rule), do: false
+
+  @doc """
+  Clean up a string, lowercase it and replace accented letters with ASCII letters.
+
+  iex> normalize("Paris")
+  "paris"
+  iex> normalize("vélo")
+  "velo"
+  iex> normalize("Châteauroux")
+  "chateauroux"
+  """
+  def normalize(value) do
+    value |> String.normalize(:nfd) |> String.replace(~r/[^A-z]/u, "") |> String.downcase()
+  end
 end
