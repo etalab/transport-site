@@ -36,6 +36,9 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
     assert %{category: "Transport en commun"} = relevant_fn.(%{base | "description" => "GTFS de Dijon"})
     assert %{category: "Transport en commun"} = relevant_fn.(%{base | "tags" => [Ecto.UUID.generate(), "gtfs"]})
 
+    assert %{category: "Covoiturage et ZFE"} =
+             relevant_fn.(%{base | "description" => "Périmètre de la Zone à Faible Émission (ZFE) de Dijon Métropole."})
+
     assert %{category: "Freefloating"} =
              relevant_fn.(%{
                base
