@@ -6,7 +6,7 @@ Une première image Docker est mise à disposition par le dépôt tranport-ops :
 
 L’application transport-site récupère l’image Docker de transport-ops, et y rajoute uniquement son propre code, le compile, lance le serveur, les migrations, et expose le serveur à l’extérieur.
 
-CircleCI pour les tests va donc faire ces étapes là de compilation du code Elixir, mais sans devoir reconstruire toute l’image (puisque s’appuyant sur l’image de transport-ops). Quand on pousse sur les serveurs de CleverCloud, un premier serveur va créer l’image Docker finale (mêmes étapes que sur CircleCI, donc un temps de compilation existe) puis déployer l’image résultante sur un autre serveur. Potentiellement, on pourrait réduire à l’avenir le temps de déploiement en fournissant directement l’image Docker avec l’application précompilée, et que la même image serve pour les tests et pour la production.
+CircleCI pour les tests va donc faire ces étapes là de compilation du code Elixir, mais sans devoir reconstruire toute l’image (puisque s’appuyant sur l’image de transport-ops). Quand on pousse sur les serveurs de Clever Cloud, un premier serveur va créer l’image Docker finale (mêmes étapes que sur CircleCI, donc un temps de compilation existe) puis déployer l’image résultante sur un autre serveur. Potentiellement, on pourrait réduire à l’avenir le temps de déploiement en fournissant directement l’image Docker avec l’application précompilée, et que la même image serve pour les tests et pour la production.
 
 ## Processus de mise à jour
 

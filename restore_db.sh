@@ -4,7 +4,7 @@
 
 # Usage ./restore_db.sh <db_name> <host> <user_name> <password> <absolute_path_to_backup>
 # or the ./restore_db.sh <absolute_path_to_backup> if the default options are ok for you
-# the latest production backup can be fetched on "transport-site-postgresql" in clevercloud
+# the latest production backup can be fetched on "transport-site-postgresql" in Clever Cloud
 #
 # With the flag `--skip-extensions`, you can also skip extensions restoration as those might require administrative
 # rights your pg user doesn't have. Example:
