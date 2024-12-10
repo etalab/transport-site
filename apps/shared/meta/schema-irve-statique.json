@@ -1,0 +1,495 @@
+{
+    "$schema": "https://frictionlessdata.io/schemas/table-schema.json",
+    "name": "schema-irve-statique",
+    "title": "IRVE statique",
+    "description": "Spécification du fichier d'échange relatif aux données concernant la localisation géographique et les caractéristiques techniques des stations et des points de recharge pour véhicules électriques",
+    "countryCode": "FR",
+    "homepage": "https://github.com/etalab/schema-irve",
+    "path": "https://raw.githubusercontent.com/etalab/schema-irve/v2.3.0/statique/schema-statique.json",
+    "resources": [
+        {
+            "title": "Exemple de fichier IRVE valide",
+            "path": "https://raw.githubusercontent.com/etalab/schema-irve/v2.3.0/statique/exemple-valide-statique.csv"
+        }
+    ],
+    "sources": [
+        {
+            "title": "Décret n° 2017-26 du 12 janvier 2017 relatif aux infrastructures de recharge pour véhicules électriques et portant diverses mesures de transposition de la directive 2014/94/UE du Parlement européen et du Conseil du 22 octobre 2014 sur le déploiement d’une infrastructure pour carburants alternatifs",
+            "path": "https://www.legifrance.gouv.fr/jo_pdf.do?id=JORFTEXT000033860620"
+        },
+        {
+            "title": "Arrêté du 12 janvier 2017 relatif aux données concernant la localisation géographique et les caractéristiques techniques des stations et des points de recharge pour véhicules électriques",
+            "path": "https://www.legifrance.gouv.fr/jo_pdf.do?id=JORFTEXT000033860733"
+        },
+        {
+            "title": "Arrêté du 12 janvier 2017 précisant les dispositions relatives aux identifiants des unités d’exploitation pour la recharge des véhicules électriques",
+            "path": "https://www.legifrance.gouv.fr/jo_pdf.do?id=JORFTEXT000033860743"
+        },
+        {
+            "title": "Définition et structure des identifiants attribués par l'Association Française pour l'Itinérance de la Recharge Electrique des Véhicules (AFIREV)",
+            "path": "http://www.afirev.fr/fr/informations-generales/"
+        }
+    ],
+    "created": "2018-06-29",
+    "lastModified": "2022-10-10",
+    "version": "v2.3.0",
+    "contributors": [
+        {
+            "title": "Alexandre Bulté",
+            "email": "validation@data.gouv.fr",
+            "organisation": "Etalab",
+            "role": "author"
+        },
+        {
+            "title": "Charles Nepote",
+            "email": "charles.nepote@fing.org",
+            "role": "contributor"
+        },
+        {
+            "title": "Pierre Dittgen",
+            "email": "pierre.dittgen@jailbreak.paris",
+            "organisation": "Jailbreak",
+            "role": "contributor"
+        },
+        {
+            "title": "Johan Richer",
+            "email": "johan.richer@jailbreak.paris",
+            "organisation": "Jailbreak",
+            "role": "contributor"
+        },
+        {
+            "title": "Geoffrey Aldebert",
+            "email": "geoffrey.aldebert@data.gouv.fr",
+            "organisation": "Etalab",
+            "role": "contributor"
+        },
+        {
+            "title": "Julien Barreteau",
+            "email": "julien.barreteau@developpement-durable.gouv.fr",
+            "organisation": "DGEC",
+            "role": "contributor"
+        },
+        {
+            "title": "Antoine Augusti",
+            "email": "antoine.augusti@transport.data.gouv.fr",
+            "organisation": "DINUM",
+            "role": "contributor"
+        },
+        {
+            "title": "Christina Laumond",
+            "email": "christina.laumond@transport.data.gouv.fr",
+            "organisation": "transport.data.gouv.fr",
+            "role": "contributor"
+        },
+        {
+            "title": "Thibaut Barrère",
+            "email": "thibaut.barrere@transport.data.gouv.fr",
+            "organisation": "transport.data.gouv.fr",
+            "role": "contributor"
+        },
+        {
+            "title": "Francis Chabouis",
+            "email": "francis.chabouis@beta.gouv.fr",
+            "organisation": "transport.data.gouv.fr",
+            "role": "contributor"
+        }
+    ],
+    "fields": [
+        {
+            "name": "nom_amenageur",
+            "description": "La dénomination sociale du nom de l'aménageur, c'est à dire de l'entité publique ou privée propriétaire des infrastructures. Vous pouvez accéder à cette dénomination exacte sur le site annuaire-entreprises.data.gouv.fr. Ce champs n'est pas obligatoire car il sera automatiquement renseigné lors de la constitution du fichier global de consolidation des IRVE.",
+            "example": "Société X, Entité Y",
+            "type": "string",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "siren_amenageur",
+            "description": "Le numero SIREN de l'aménageur issue de la base SIRENE des entreprises. Vous pouvez récupérer cet identifiant sur le site annuaire-entreprises.data.gouv.fr.",
+            "example": "130025265",
+            "type": "string",
+            "constraints": {
+                "required": false,
+                "pattern": "^\\d{9}$"
+            }
+        },
+        {
+            "name": "contact_amenageur",
+            "description": "Adresse courriel de l'aménageur. Favoriser les adresses génériques de contact. Cette adresse sera utilisée par les services de l'Etat en cas d'anomalie ou de besoin de mise à jour des données.",
+            "example": "contact@societe-amenageur.com",
+            "type": "string",
+            "format": "email",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "nom_operateur",
+            "description": "La dénomination sociale de l'opérateur. L'opérateur est la personne qui exploite l'infrastructure de recharger pour le compte d'un aménageur dans le cadre d'un contrat ou pour son propre compte s'il est l'aménageur. Vous pouvez accéder à cette dénomination exacte sur le site annuaire-entreprises.data.gouv.fr.",
+            "example": "Société X, Entité Y",
+            "type": "string",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "contact_operateur",
+            "description": "Adresse courriel de l'opérateur. Favoriser les adresses génériques de contact.",
+            "example": "contact@societe-operateur.com",
+            "type": "string",
+            "format": "email",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "telephone_operateur",
+            "description": "Numéro de téléphone permettant de contacter l'opérateur.",
+            "example": "0111111111",
+            "type": "string",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "nom_enseigne",
+            "description": "Le nom commercial du réseau.",
+            "example": "Réseau de recharge ABC",
+            "type": "string",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "id_station_itinerance",
+            "description": "L'identifiant de la station délivré selon les modalités définies à l'article 10 du décret n° 2017-26 du 12 janvier 2017. Cet ID débute par FR suivi de 3 caractères délivrés par l'AFIREV, suivi de \"P\" pour \"pool\" qui veut dire \"station\" en anglais (https://afirev.fr/fr/informations-generales/). Ne pas ajouter les séparateurs *. Si la station n'est pas en itinérance, merci d'indiquer \"Non concerné\".",
+            "example": "FRA68P68021001",
+            "type": "string",
+            "constraints": {
+                "required": true,
+                "pattern": "(?:(?:^|,)(^[A-Z]{2}[A-Z0-9]{4,33}$|Non concerné))+$"
+            }
+        },
+        {
+            "name": "id_station_local",
+            "description": "Identifiant de la station utilisé localement. Si vous n'avez pas d'identifiant unique et que vous souhaitez en récupérer un, vous pouvez vous rendre sur https://heidi.app.etalab.studio. En cas de station qui n'est pas ouverte à l'itinérance, cet identifiant est indispensable.",
+            "example": "01F2KMMRZVQ5FQY882PCJQAPQ0",
+            "type": "string",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "nom_station",
+            "description": "Le nom de la station.",
+            "example": "Picpus, Belleville, Villiers",
+            "type": "string",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "implantation_station",
+            "description": "Le type d'implantation de la station. \nPour une station sur voirie, sélectionner \"Voirie\". \nPour un parking public, (en ouvrage, en enclos, etc.), sélectionner \"Parking public\". Ces parkings sont généralement en gestion directe ou déléguée de la collectivité territoriale. \nPour un parking privé à usage public / parking ouvert (ex: zone commerciale), sélectionner \"Parking privé à usage public\". \nPour un parking réservé à la clientèle, aux usagers, sélectionnez \"Parking privé réservé à la clientèle\" (il s'agit d'un choix de l'aménageur public ou privé sur l'utilisation de son parking. Ex: hôtel, commerce, éventuellement certains bâtiments publics). \nPour une station dédiée à la recharge rapide dont la durée d'utilisation est généralement limitée à la recharge principalement rapide et dont la première fonction de la station est la recharge et non le stationnement, sélectionner \"Station dédiée à la recharge rapide\" (ex : aires de service sur axes routiers, stations services, etc.).",
+            "example": "Parking public",
+            "type": "string",
+            "constraints": {
+                "required": true,
+                "enum": [
+                    "Voirie",
+                    "Parking public",
+                    "Parking privé à usage public",
+                    "Parking privé réservé à la clientèle",
+                    "Station dédiée à la recharge rapide"
+                ]
+            }
+        },
+        {
+            "name": "adresse_station",
+            "description": "L'adresse complète de la station : [numéro] [rue] [code postal] [ville].",
+            "example": "1 avenue de la Paix 75001 Paris",
+            "type": "string",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "code_insee_commune",
+            "description": "Le code INSEE de la commune d'implantation.",
+            "example": "21231",
+            "type": "string",
+            "constraints": {
+                "pattern": "^([013-9]\\d|2[AB1-9])\\d{3}$",
+                "required": false
+            }
+        },
+        {
+            "name": "coordonneesXY",
+            "description": "La longitude suivie de la latitude en degrés décimaux (point comme séparateur décimal) de la localisation de la station exprimée dans le système de coordonnées WGS84 au format [lon,lat].",
+            "example": "[7.48710500,48.345345]",
+            "type": "geopoint",
+            "format": "array",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "nbre_pdc",
+            "description": "Le nombre de points de recharge sur la station.",
+            "example": "3",
+            "type": "integer",
+            "constraints": {
+                "required": true,
+                "minimum": 0
+            }
+        },
+        {
+            "name": "id_pdc_itinerance",
+            "description": "L'identifiant du point de recharge délivré selon les modalités définies à l'article 10 du décret n° 2017-26 du 12 janvier 2017. Cet ID débute par FR suivi de 3 caractères délivrés par l'AFIREV, suivi de \"E\" pour l'équivalent du point de recharge en anglais EVSE - Electric Vehicule Supply Equipment (https://afirev.fr/fr/informations-generales/). Ne pas mettre de séparateur * ou -. Si le point de recharge n'est pas en itinérance, merci d'indiquer \"Non concerné\".",
+            "example": "FRA68E680210015",
+            "type": "string",
+            "constraints": {
+                "required": true,
+                "pattern": "(?:(?:^|,)(^[A-Z]{2}[A-Z0-9]{4,33}$|Non concerné))+$"
+            }
+        },
+        {
+            "name": "id_pdc_local",
+            "description": "Identifiant du point de recharge utilisé localement. Si vous n'avez pas d'identifiant unique et que vous souhaitez en récupérer un, vous pouvez vous rendre sur https://heidi.app.etalab.studio. En cas de point de recharge qui n'est pas ouvert à l'itinérance, cet identifiant est indispensable.",
+            "example": "01F2KNFARDSJG7KEH1YHG4033M",
+            "type": "string",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "puissance_nominale",
+            "description": "Puissance maximale en kW que peut recevoir un véhicule connecté au point de recharge, déterminée en prenant en compte les capacités techniques propres du point, la puissance souscrite au réseau de distribution et les caractéristiques de l'installation comme le câblage par exemple, mais sans prendre en compte ni les limitations du connecteur ni celles du véhicule.",
+            "example": "22.00",
+            "type": "number",
+            "constraints": {
+                "required": true,
+                "minimum": 0
+            }
+        },
+        {
+            "name": "prise_type_ef",
+            "description": "Disponibilité d'une prise de type E/F sur le point de recharge. Indiquer \"true\" si vrai, \"false\" si faux.",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "prise_type_2",
+            "description": "Disponibilité d'une prise de type 2 sur le point de recharge. Indiquer \"true\" si vrai, \"false\" si faux.",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "prise_type_combo_ccs",
+            "description": "Disponibilité d'une prise de type Combo / CCS sur le point de recharge. Indiquer \"true\" si vrai, \"false\" si faux.",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "prise_type_chademo",
+            "description": "Disponibilité d'une prise de type Chademo sur le point de recharge. Indiquer \"true\" si vrai, \"false\" si faux.",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "prise_type_autre",
+            "description": "Disponibilité d'une prise d'un autre type sur le point de recharge. Indiquer \"true\" si vrai, \"false\" si faux. Le ou les types de prises sont à préciser dans le champs \"observations\".",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "gratuit",
+            "description": "Gratuité de la recharge. Indiquer \"true\" si le point de recharge est gratuit sans condition d'utilisation, \"false\" si faux.",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "paiement_acte",
+            "description": "Possibilité de paiement à l'acte (sans identification ni abonnement). Indiquer \"true\" si vrai, \"false\" si faux.",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "paiement_cb",
+            "description": "Possibilité de paiement par carte bancaire (présence d'un terminal de paiement avec une CB). Indiquer \"true\" si vrai, \"false\" si faux.",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "paiement_autre",
+            "description": "Possibilité de paiement par un autre moyen (qui peut être précisé dans le champs \"observation\". Indiquer \"true\" si vrai, \"false\" si faux.",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "tarification",
+            "description": "Toutes informations pouvant être apportées concernant les tarification(s) pratiquée(s).",
+            "example": "0,40€ / kwh pour les non abonnés.",
+            "type": "string",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "condition_acces",
+            "description": "Éventuelles conditions d’accès à la station, hors gabarit. Dans le cas d'un accès libre sans contrainte matérielle physique (ex : absence de barrière) ni restriction d'usager (ex : borne accessible pour n'importe quel type et modèle de voiture électrique), indiquer \"Accès libre\". \nDans le cas d'un accès limité / réservé qui nécessite une identification ou passage d'une barrière, indiquer \"Accès réservé\" (ce type d'accès inclut les IRVE sur le réseau autoroutier payant - passage péage).",
+            "example": "Accès libre",
+            "type": "string",
+            "constraints": {
+                "required": true,
+                "enum": [
+                    "Accès libre",
+                    "Accès réservé"
+                ]
+            }
+        },
+        {
+            "name": "reservation",
+            "description": "Possibilité de réservation à l'avance d'un point de recharge. Indiquer \"true\" si vrai, \"false\" si faux.",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "horaires",
+            "description": "Amplitude d’ouverture de la station. Si ouverte sans interruption indiquer « 24/7» sinon indiquer les horaires sous cette forme : Mo-Fr 08:00-12:00,Mo-Fr 14:00-18:00,Th 08:00-18:00.",
+            "example": "Mo-Fr 08:00-12:00,Mo-Fr 14:00-18:00,Th 08:00-18:00",
+            "type": "string",
+            "constraints": {
+                "required": true,
+                "pattern": "(.*?)((\\d{1,2}:\\d{2})-(\\d{1,2}:\\d{2})|24/7)"
+            }
+        },
+        {
+            "name": "accessibilite_pmr",
+            "description": "Accessibilité du point de recharge aux personnes à mobilité réduite. Dans le cas d'un point de recharge signalisé et réservé PMR, indiquer \"Réservé PMR\". \nDans le cas d'une point de recharge non réservé PMR mais accessible PMR, indiquer \"Accessible mais non réservé PMR\". \nDans le cas d'un point de recharge non accessible PMR, indiquer \"Non accessible\"",
+            "example": "Accessible mais non réservé PMR",
+            "type": "string",
+            "constraints": {
+                "required": true,
+                "enum": [
+                    "Réservé PMR",
+                    "Accessible mais non réservé PMR",
+                    "Non accessible",
+                    "Accessibilité inconnue"
+                ]
+            }
+        },
+        {
+            "name": "restriction_gabarit",
+            "description": "Toutes informations relatives aux restrictions d’accès liées au gabarit des véhicules.",
+            "example": "Hauteur maximale 2m",
+            "type": "string",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "station_deux_roues",
+            "description": "La station est-elle réservée aux véhicules à deux roues ? Indiquer \"true\" si vrai, \"false\" si faux.",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "raccordement",
+            "description": "Type de raccordement de la station au réseau de distribution d'électricité : direct (point de livraison exclusivement dédié à la station) ou indirect.",
+            "example": "Direct",
+            "type": "string",
+            "constraints": {
+                "required": false,
+                "enum": [
+                    "Direct",
+                    "Indirect"
+                ]
+            }
+        },
+        {
+            "name": "num_pdl",
+            "description": "Numéro du point de livraison d'électricité, y compris en cas de raccordement indirect. Dans le cas d'un territoire desservi par ENEDIS, ce numéro doit compoter 14 chiffres.",
+            "example": "12345678912345",
+            "type": "string",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "date_mise_en_service",
+            "description": "Date de mise en service de la station",
+            "example": "2021-12-30",
+            "type": "date",
+            "format": "%Y-%m-%d",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "observations",
+            "description": "Champ destiné à préciser les modalités d'accès à la recharge, l'accessibilité, le tarif, les horaires d'ouverture, ...",
+            "example": "Recharge uniquement disponible pendant les horaires d'ouverture du Centre Commercial XY",
+            "type": "string",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "date_maj",
+            "description": "Date de mise à jour des données",
+            "example": "2021-12-30",
+            "type": "date",
+            "format": "%Y-%m-%d",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "cable_t2_attache",
+            "description": "Champ destiné à préciser si un câble T2 est attaché au point de recharge ou non. Indiquer \"true\" si vrai, \"false\" si faux",
+            "example": "false",
+            "type": "boolean",
+            "constraints": {
+                "required": false
+            }
+        }
+    ],
+    "missingValues": [
+        ""
+    ]
+}
