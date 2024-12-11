@@ -12,7 +12,8 @@ defmodule TransportWeb.ResourceController do
                         Transport.Validators.GTFSRT,
                         Transport.Validators.GBFSValidator,
                         Transport.Validators.TableSchema,
-                        Transport.Validators.EXJSONSchema
+                        Transport.Validators.EXJSONSchema,
+                        Transport.Validators.NeTEx
                       ])
 
   def details(conn, %{"id" => id} = params) do
