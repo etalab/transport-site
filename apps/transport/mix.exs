@@ -113,6 +113,7 @@ defmodule Transport.Mixfile do
       {:unzip, "~> 0.8"},
       {:protobuf, "~> 0.11"},
       {:nimble_csv, "~> 1.2.0"},
+      {:explorer, "~> 0.10.0"},
       {:kino, "~> 0.6", only: :dev},
       # db
       {:ecto, "~> 3.12"},

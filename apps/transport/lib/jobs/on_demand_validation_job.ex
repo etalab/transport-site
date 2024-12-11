@@ -7,46 +7,31 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   """
   use Oban.Worker, tags: ["validation"], max_attempts: 5, queue: :on_demand_validation
   require Logger
-  import Ecto.Changeset
-  import Ecto.Query
-  alias DB.{MultiValidation, Repo}
   alias Shared.Validation.JSONSchemaValidator.Wrapper, as: JSONSchemaValidator
   alias Shared.Validation.TableSchemaValidator.Wrapper, as: TableSchemaValidator
   alias Transport.DataVisualization
+  alias Transport.Jobs.OnDemandNeTExPollerJob
+  alias Transport.Jobs.OnDemandValidationHelpers, as: Helpers
   alias Transport.Validators.GTFSRT
   alias Transport.Validators.GTFSTransport
   alias Transport.Validators.NeTEx
+
   @download_timeout_ms 10_000
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"id" => multivalidation_id, "state" => "waiting"} = payload}) do
-    changes =
+    result =
       try do
         perform_validation(payload)
       rescue
-        e -> %{oban_args: %{"state" => "error", "error_reason" => inspect(e)}}
+        e -> %{oban_args: Helpers.error(inspect(e))} |> Helpers.terminal_state()
       end
 
-    validation = %{oban_args: oban_args} = MultiValidation |> preload(:metadata) |> Repo.get!(multivalidation_id)
-
-    # update oban_args with validator output
-    oban_args = Map.merge(oban_args, changes.oban_args)
-    changes = changes |> Map.put(:oban_args, oban_args)
-
-    {metadata, changes} = Map.pop(changes, :metadata)
-
-    validation
-    |> change(changes)
-    |> put_assoc(:metadata, %{
-      metadata: metadata
-    })
-    |> Repo.update!()
-
+    Helpers.handle_validation_result(result, multivalidation_id)
+  after
     if Map.has_key?(payload, "filename") do
       Transport.S3.delete_object!(:on_demand_validation, payload["filename"])
     end
-
-    :ok
   end
 
   defp perform_validation(%{"type" => "gtfs", "permanent_url" => url}) do
@@ -54,7 +39,8 @@ defmodule Transport.Jobs.OnDemandValidationJob do
 
     case GTFSTransport.validate(url) do
       {:error, msg} ->
-        %{oban_args: %{"state" => "error", "error_reason" => msg}, validator: validator}
+        %{oban_args: Helpers.error(msg), validator: validator}
+        |> Helpers.terminal_state()
 
       {:ok, %{"validations" => validation, "metadata" => metadata}} ->
         %{
@@ -65,32 +51,22 @@ defmodule Transport.Jobs.OnDemandValidationJob do
           command: GTFSTransport.command(url),
           validated_data_name: url,
           max_error: GTFSTransport.get_max_severity_error(validation),
-          oban_args: %{
-            "state" => "completed"
-          }
+          oban_args: Helpers.completed()
         }
+        |> Helpers.terminal_state()
     end
   end
 
-  defp perform_validation(%{"type" => "netex", "permanent_url" => url}) do
-    validator = NeTEx.validator_name()
+  defp perform_validation(%{"type" => "netex", "id" => multivalidation_id, "permanent_url" => url}) do
+    case NeTEx.validate(url) do
+      {:error, error_result} ->
+        OnDemandNeTExPollerJob.handle_error(error_result)
 
-    case NeTEx.validate(url, []) do
-      {:error, %{message: msg}} ->
-        %{oban_args: %{"state" => "error", "error_reason" => msg}, validator: validator}
+      {:ok, ok_result} ->
+        OnDemandNeTExPollerJob.handle_success(ok_result, url)
 
-      {:ok, %{"validations" => validation, "metadata" => metadata}} ->
-        %{
-          result: validation,
-          metadata: metadata,
-          data_vis: nil,
-          validator: validator,
-          validated_data_name: url,
-          max_error: NeTEx.get_max_severity_error(validation),
-          oban_args: %{
-            "state" => "completed"
-          }
-        }
+      {:pending, validation_id} ->
+        OnDemandNeTExPollerJob.later(validation_id, multivalidation_id, url)
     end
   end
 
@@ -103,12 +79,14 @@ defmodule Transport.Jobs.OnDemandValidationJob do
 
     case TableSchemaValidator.validate(schema_name, url) do
       nil ->
-        %{oban_args: %{"state" => "error", "error_reason" => "could not perform validation"}, validator: validator}
+        %{oban_args: Helpers.error("could not perform validation"), validator: validator}
+        |> Helpers.terminal_state()
 
       # https://github.com/etalab/transport-site/issues/2390
       # validator name should come from validator module, when it is properly extracted
       validation ->
-        %{oban_args: %{"state" => "completed"}, result: validation, validator: validator}
+        %{oban_args: Helpers.completed(), result: validation, validator: validator}
+        |> Helpers.terminal_state()
     end
   end
 
@@ -127,15 +105,14 @@ defmodule Transport.Jobs.OnDemandValidationJob do
          ) do
       nil ->
         %{
-          oban_args: %{
-            "state" => "error",
-            "error_reason" => "could not perform validation"
-          },
+          oban_args: Helpers.error("could not perform validation"),
           validator: validator
         }
+        |> Helpers.terminal_state()
 
       validation ->
-        %{oban_args: %{"state" => "completed"}, result: validation, validator: validator}
+        %{oban_args: Helpers.completed(), result: validation, validator: validator}
+        |> Helpers.terminal_state()
     end
   end
 
@@ -155,11 +132,12 @@ defmodule Transport.Jobs.OnDemandValidationJob do
 
     result
     |> Map.merge(%{validated_data_name: gtfs_rt_url, secondary_validated_data_name: gtfs_url})
+    |> Helpers.terminal_state()
   end
 
   defp normalize_download(result) do
     case result do
-      {:error, reason} -> {:error, %{"state" => "error", "error_reason" => reason}}
+      {:error, reason} -> {:error, Helpers.error(reason)}
       {:ok, path, _} -> {:ok, path}
     end
   end
@@ -191,7 +169,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
             # https://github.com/etalab/transport-site/issues/2390
             # to do: transport-tools version when available
             %{
-              oban_args: %{"state" => "completed"},
+              oban_args: Helpers.completed(),
               result: validation,
               validator: GTFSRT.validator_name(),
               command: inspect(validator_args)
@@ -199,10 +177,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
 
           :error ->
             %{
-              oban_args: %{
-                "state" => "error",
-                "error_reason" => "Could not run validator. Please provide a GTFS and a GTFS-RT."
-              }
+              oban_args: Helpers.error("Could not run validator. Please provide a GTFS and a GTFS-RT.")
             }
         end
 
@@ -210,7 +185,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
         if not ignore_shapes and String.contains?(reason, "java.lang.OutOfMemoryError") do
           run_save_gtfs_rt_validation(gtfs_path, gtfs_rt_path, ignore_shapes: true)
         else
-          %{oban_args: %{"state" => "error", "error_reason" => inspect(reason)}}
+          %{oban_args: Helpers.error(inspect(reason))}
         end
     end
   end
