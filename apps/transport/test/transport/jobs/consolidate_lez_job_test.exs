@@ -180,6 +180,66 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
            ] == ConsolidateLEZsJob.consolidate()
   end
 
+  test "consolidate_features ignores resources without a valid resource history" do
+    aom = insert(:aom, siren: "253800825", nom: "SMM de l’Aire Grenobloise", forme_juridique: "Métropole")
+    dataset = insert(:dataset, type: "low-emission-zones", organization: "Sample", aom: aom)
+
+    zfe_aire =
+      insert(:resource,
+        dataset: dataset,
+        url: "https://example.com/aires.geojson",
+        schema_name: "etalab/schema-zfe"
+      )
+
+    zfe_voies =
+      insert(:resource,
+        dataset: dataset,
+        url: "https://example.com/voies.geojson",
+        schema_name: "etalab/schema-zfe"
+      )
+
+    resource_history_aire =
+      insert(:resource_history,
+        resource_id: zfe_aire.id,
+        payload: %{
+          "permanent_url" => permanent_url_aires = "https://example.com/permanent_url/aires"
+        }
+      )
+
+    # Should be ignored as we will create an invalid MultiValidation linked to it
+    resource_history_voies =
+      insert(:resource_history,
+        resource_id: zfe_voies.id,
+        payload: %{
+          "permanent_url" => "https://example.com/permanent_url/voies"
+        }
+      )
+
+    insert(:multi_validation, resource_history_id: resource_history_aire.id, result: %{"has_errors" => false})
+    insert(:multi_validation, resource_history_id: resource_history_voies.id, result: %{"has_errors" => true})
+
+    Transport.HTTPoison.Mock
+    |> expect(:get!, fn ^permanent_url_aires, [], follow_redirect: true ->
+      %HTTPoison.Response{status_code: 200, body: ~s({"features": [{"properties": {"foo": "bar"}}]})}
+    end)
+
+    assert %{
+             features: [
+               %{
+                 "properties" => %{"foo" => "bar"},
+                 "publisher" => %{
+                   "forme_juridique" => "Métropole",
+                   "nom" => "SMM de l’Aire Grenobloise",
+                   "siren" => "253800825",
+                   "zfe_id" => "GRENOBLE"
+                 }
+               }
+             ],
+             type: "FeatureCollection"
+           } ==
+             ConsolidateLEZsJob.consolidate_features([zfe_aire, zfe_voies])
+  end
+
   describe "publisher_details" do
     test "with an AOM" do
       aom = insert(:aom, siren: "253800825", nom: "SMM de l’Aire Grenobloise", forme_juridique: "Métropole")
