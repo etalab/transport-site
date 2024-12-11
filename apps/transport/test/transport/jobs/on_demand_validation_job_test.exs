@@ -391,7 +391,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
       refute File.exists?(OnDemandValidationJob.gtfs_rt_result_path(gtfs_rt_path))
     end
 
-    test "with a NeTEx" do
+    test "with a NeTEx with errors" do
       url = mk_raw_netex_resource()
       validation = create_validation(%{"type" => "netex"}, url)
 
@@ -444,6 +444,40 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
 
       assert DateTime.diff(date, DateTime.utc_now()) <= 1
     end
+
+    test "with a NeTEx long lasting" do
+      url = mk_raw_netex_resource()
+      validation = create_validation(%{"type" => "netex"}, url)
+
+      validation_id = expect_netex_long_lasting()
+
+      s3_mocks_delete_object(Transport.S3.bucket_name(:on_demand_validation), @filename)
+
+      assert :ok == run_job(validation)
+
+      validation = DB.Repo.reload(validation)
+      assert nil == validation.result
+      assert nil == validation.max_error
+
+      assert %{
+               "filename" => @filename,
+               "permanent_url" => url,
+               "type" => "netex",
+               "state" => "waiting"
+             } = validation.oban_args
+
+      in_20_seconds = DateTime.utc_now() |> DateTime.add(20, :second)
+
+      assert_enqueued(
+        worker: Transport.Jobs.OnDemandNeTExPollerJob,
+        args: %{
+          "id" => validation.id,
+          "permanent_url" => url,
+          "validation_id" => validation_id
+        },
+        scheduled_at: in_20_seconds
+      )
+    end
   end
 
   defp create_validation(details, url \\ @url) do
@@ -464,6 +498,10 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
     expect_failed_validation(validation_id, 10)
 
     expect_get_messages(validation_id, messages)
+  end
+
+  def expect_netex_long_lasting do
+    expect_create_validation() |> expect_pending_validation()
   end
 
   defp run_job(%DB.MultiValidation{} = validation) do

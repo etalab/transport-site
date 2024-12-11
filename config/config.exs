@@ -142,7 +142,7 @@ config :ex_aws,
   access_key_id: System.get_env("CELLAR_ACCESS_KEY_ID"),
   secret_access_key: System.get_env("CELLAR_SECRET_ACCESS_KEY"),
   # The expected S3 owner of buckets/objects.
-  # For CleverCloud and the Cellar service, it looks like `orga-$UUID`
+  # For Clever Cloud and the Cellar service, it looks like `orga-$UUID`
   cellar_organisation_id: System.get_env("CELLAR_ORGANISATION_ID"),
   # ~s is a string parameter, it will be replaced by the bucket's name
   cellar_url: "https://~s.cellar-c2.services.clever-cloud.com",
