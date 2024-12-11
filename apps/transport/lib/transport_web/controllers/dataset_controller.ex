@@ -129,8 +129,10 @@ defmodule TransportWeb.DatasetController do
       data
       |> Enum.reject(fn %DB.DatasetScore{score: score} -> is_nil(score) end)
       |> Enum.group_by(fn %DB.DatasetScore{topic: topic} -> topic end)
+      # only keep "last" score + format for humans
       |> Enum.map(fn {topic, scores} -> {topic, scores |> List.last() |> DB.DatasetScore.score_for_humans()} end)
-      |> Enum.sort_by(fn {a, _b} -> a end)
+      # make the order deterministic
+      |> Enum.sort_by(fn {topic, _score} -> topic end)
 
     merge_assigns(conn, %{scores_chart: scores_chart, latest_scores: latest_scores})
   end
