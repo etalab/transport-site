@@ -34,7 +34,7 @@ defmodule Shared.DateTimeDisplay do
   def format_date(nil, _), do: ""
 
   def format_date(date, locale, iso_extended: true) do
-    date |> Timex.parse!("{ISO:Extended}") |> format_date(locale)
+    date |> TimeWrapper.parse!("{ISO:Extended}") |> format_date(locale)
   end
 
   @doc """
@@ -100,7 +100,7 @@ defmodule Shared.DateTimeDisplay do
 
   def format_datetime_to_paris(datetime, locale, options) when is_binary(datetime) do
     datetime
-    |> Timex.parse!("{ISO:Extended}")
+    |> TimeWrapper.parse!("{ISO:Extended}")
     |> format_datetime_to_paris(locale, options)
   end
 
@@ -157,7 +157,7 @@ defmodule Shared.DateTimeDisplay do
 
   def format_time_to_paris(datetime, locale, options) when is_binary(datetime) do
     datetime
-    |> Timex.parse!("{ISO:Extended}")
+    |> TimeWrapper.parse!("{ISO:Extended}")
     |> format_time_to_paris(locale, options)
   end
 
