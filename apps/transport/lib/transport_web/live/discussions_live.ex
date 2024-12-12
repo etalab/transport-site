@@ -115,6 +115,7 @@ defmodule TransportWeb.DiscussionsLive do
       end)
       |> Enum.max(DateTime)
 
+    # TODO: extract method, add tests, migrate
     two_months_ago = DateTime.utc_now() |> Timex.shift(months: -2)
     DateTime.compare(two_months_ago, latest_comment_datetime) == :gt
   end
