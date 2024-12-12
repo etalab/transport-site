@@ -98,9 +98,13 @@ jobs:
             - ~/transport/deps
             - ~/.mix
 
+      - run:
+          name: Create checksum for JS files
+          command: cd ~/transport/apps/transport/client && shasum webpack.*.js yarn.lock > /tmp/js-checksum
+
       - restore_cache:
           keys:
-            - js-<< parameters.js_cache_key >>-{{ checksum "apps/transport/client/yarn.lock" }}
+            - js-<< parameters.js_cache_key >>-{{ checksum "/tmp/js-checksum" }}
             - js-<< parameters.js_cache_key >>
 
       - run:
@@ -113,7 +117,7 @@ jobs:
           command: cd ~/transport/apps/transport/client && npm run build
 
       - save_cache:
-          key: js-<< parameters.js_cache_key >>-{{ checksum "apps/transport/client/yarn.lock" }}
+          key: js-<< parameters.js_cache_key >>-{{ checksum "/tmp/js-checksum" }}
           paths:
             - ~/transport/apps/transport/client/node_modules
             - ~/transport/apps/transport/priv/static
