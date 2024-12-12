@@ -224,6 +224,7 @@ defmodule Shared.DateTimeDisplay do
   end
 
   @spec convert_to_paris_time(DateTime.t() | NaiveDateTime.t()) :: DateTime.t()
+  # TODO: add 2 DocTests to cover before. Then migrate to Timex-free call.
   def convert_to_paris_time(%DateTime{} = dt) do
     case Timex.Timezone.convert(dt, "Europe/Paris") do
       %Timex.AmbiguousDateTime{after: dt} -> dt
