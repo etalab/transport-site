@@ -8,7 +8,7 @@ defmodule Transport.Jobs.DatabaseBackupReplicationJob do
     - cannot list buckets
     - cannot list objects in destination bucket
     - cannot delete and object in destination bucket
-  - the latest dump has an appropriate size (between 90% and 110% of the previous dump)
+  - the latest dump has an appropriate size (between 90% and 110% compared to yesterday's dump)
   - the dump is recent enough
   - not too large
   """
@@ -57,11 +57,23 @@ defmodule Transport.Jobs.DatabaseBackupReplicationJob do
   end
 
   def check_appropriate_size! do
-    [yesterday_size, today_size] = latest_source_dumps(2) |> Enum.map(&dump_size/1)
+    today = Date.utc_today()
+    yesterday = Date.add(today, -1)
+    dumps = latest_source_dumps(20)
+    today_size = latest_dump_for_date(dumps, today) |> dump_size()
+    yesterday_size = latest_dump_for_date(dumps, yesterday) |> dump_size()
 
     unless 0.9 * yesterday_size <= today_size and today_size <= 1.1 * yesterday_size do
       raise "Latest backup size is unexpected. Yesterday: #{yesterday_size}, today: #{today_size}"
     end
+  end
+
+  def latest_dump_for_date(latest_dumps, %Date{} = date) do
+    latest_dumps
+    |> Enum.filter(fn %{last_modified: last_modified} ->
+      Date.compare(last_modified |> datetime_to_date(), date) == :eq
+    end)
+    |> List.first()
   end
 
   def latest_dump, do: List.first(latest_source_dumps(1))
@@ -139,5 +151,10 @@ defmodule Transport.Jobs.DatabaseBackupReplicationJob do
       },
       target
     )
+  end
+
+  defp datetime_to_date(dt_string) when is_binary(dt_string) do
+    {:ok, dt, 0} = "#{String.trim_trailing(dt_string, "Z")}Z" |> DateTime.from_iso8601()
+    DateTime.to_date(dt)
   end
 end

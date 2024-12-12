@@ -44,7 +44,7 @@ defmodule Transport.Test.Transport.Jobs.DatabaseBackupReplicationJobTest do
     end
   end
 
-  test "latest_dump and latest_source_dumps" do
+  test "latest_dump, latest_dump_for_date and latest_source_dumps" do
     # List objects in source bucket
     Transport.ExAWS.Mock
     |> expect(:request!, 2, fn operation, config ->
@@ -60,20 +60,26 @@ defmodule Transport.Test.Transport.Jobs.DatabaseBackupReplicationJobTest do
       assert config_is_source?(config)
 
       recent_datetime = NaiveDateTime.utc_now() |> NaiveDateTime.add(-60 * 60 * 2, :second)
-      older_datetime = recent_datetime |> NaiveDateTime.add(-60 * 60 * 10, :second)
+      yesterday_datetime = recent_datetime |> NaiveDateTime.add(-1, :day)
+      yesterday_older_datetime = yesterday_datetime |> NaiveDateTime.add(-10, :second)
 
       %{
         body: %{
           contents: [
-            %{last_modified: older_datetime |> NaiveDateTime.to_iso8601(), key: "second", size: "100"},
+            %{last_modified: yesterday_older_datetime |> NaiveDateTime.to_iso8601(), key: "third", size: "50"},
+            %{last_modified: yesterday_datetime |> NaiveDateTime.to_iso8601(), key: "second", size: "100"},
             %{last_modified: recent_datetime |> NaiveDateTime.to_iso8601(), key: "first", size: "200"}
           ]
         }
       }
     end)
 
-    assert [%{key: "first", size: "200"}, %{key: "second", size: "100"}] =
-             DatabaseBackupReplicationJob.latest_source_dumps(3)
+    dumps = DatabaseBackupReplicationJob.latest_source_dumps(3)
+
+    assert [%{key: "first", size: "200"}, %{key: "second", size: "100"}, %{key: "third", size: "50"}] = dumps
+
+    assert %{key: "second"} = DatabaseBackupReplicationJob.latest_dump_for_date(dumps, Date.utc_today() |> Date.add(-1))
+    assert %{key: "first"} = DatabaseBackupReplicationJob.latest_dump_for_date(dumps, Date.utc_today())
 
     assert %{key: "first", size: "200"} = DatabaseBackupReplicationJob.latest_dump()
   end
@@ -102,14 +108,14 @@ defmodule Transport.Test.Transport.Jobs.DatabaseBackupReplicationJobTest do
 
       assert config_is_source?(config)
 
-      recent_datetime = NaiveDateTime.utc_now() |> NaiveDateTime.add(-60 * 60 * 2, :second)
-      older_datetime = recent_datetime |> NaiveDateTime.add(-60 * 60 * 10, :second)
+      today_datetime = NaiveDateTime.utc_now() |> NaiveDateTime.add(-60 * 60 * 2, :second)
+      yesterday_datetime = today_datetime |> NaiveDateTime.add(-1, :day)
 
       %{
         body: %{
           contents: [
-            %{last_modified: older_datetime |> NaiveDateTime.to_iso8601(), key: Ecto.UUID.generate(), size: "195"},
-            %{last_modified: recent_datetime |> NaiveDateTime.to_iso8601(), key: latest_dump_filename, size: "200"}
+            %{last_modified: yesterday_datetime |> NaiveDateTime.to_iso8601(), key: Ecto.UUID.generate(), size: "195"},
+            %{last_modified: today_datetime |> NaiveDateTime.to_iso8601(), key: latest_dump_filename, size: "200"}
           ]
         }
       }
@@ -159,14 +165,20 @@ defmodule Transport.Test.Transport.Jobs.DatabaseBackupReplicationJobTest do
 
       assert config_is_source?(config)
 
-      recent_datetime = NaiveDateTime.utc_now() |> NaiveDateTime.add(-60 * 60 * 2, :second)
-      older_datetime = recent_datetime |> NaiveDateTime.add(-60 * 60 * 10, :second)
+      today_datetime = NaiveDateTime.utc_now() |> NaiveDateTime.add(-60 * 60 * 2, :second)
+      yesterday_datetime = today_datetime |> NaiveDateTime.add(-1, :day)
+      yesterday_older_datetime = yesterday_datetime |> NaiveDateTime.add(-10, :second)
 
       %{
         body: %{
           contents: [
-            %{last_modified: older_datetime |> NaiveDateTime.to_iso8601(), key: Ecto.UUID.generate(), size: "100"},
-            %{last_modified: recent_datetime |> NaiveDateTime.to_iso8601(), key: Ecto.UUID.generate(), size: "89"}
+            %{
+              last_modified: yesterday_older_datetime |> NaiveDateTime.to_iso8601(),
+              key: Ecto.UUID.generate(),
+              size: "88"
+            },
+            %{last_modified: yesterday_datetime |> NaiveDateTime.to_iso8601(), key: Ecto.UUID.generate(), size: "89"},
+            %{last_modified: today_datetime |> NaiveDateTime.to_iso8601(), key: Ecto.UUID.generate(), size: "100"}
           ]
         }
       }
@@ -199,19 +211,19 @@ defmodule Transport.Test.Transport.Jobs.DatabaseBackupReplicationJobTest do
 
         assert config_is_source?(config)
 
-        recent_datetime = NaiveDateTime.utc_now() |> NaiveDateTime.add(-60 * 60 * 2, :second)
-        older_datetime = recent_datetime |> NaiveDateTime.add(-60 * 60 * 10, :second)
+        today_datetime = NaiveDateTime.utc_now() |> NaiveDateTime.add(-60 * 60 * 2, :second)
+        yesterday_datetime = today_datetime |> NaiveDateTime.add(-1, :day)
 
         %{
           body: %{
             contents: [
               %{
-                last_modified: older_datetime |> NaiveDateTime.to_iso8601(),
+                last_modified: yesterday_datetime |> NaiveDateTime.to_iso8601(),
                 key: Ecto.UUID.generate(),
                 size: to_string(yesterday_size)
               },
               %{
-                last_modified: recent_datetime |> NaiveDateTime.to_iso8601(),
+                last_modified: today_datetime |> NaiveDateTime.to_iso8601(),
                 key: Ecto.UUID.generate(),
                 size: to_string(today_size)
               }
