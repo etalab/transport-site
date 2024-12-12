@@ -14,6 +14,10 @@ defmodule Transport.Registry.Model.StopIdentifier do
         }
 
   @type identifier_type :: :main | :private_code | :stop_code | :other
+
+  def to_field(%__MODULE__{id: id, type: type}) do
+    "#{type}:#{id}"
+  end
 end
 
 defmodule Transport.Registry.Model.Stop do
@@ -54,4 +58,36 @@ defmodule Transport.Registry.Model.Stop do
   @type stop_type :: :stop | :quay | :other
 
   @type projection :: :utm_wgs84 | :lambert93_rgf93
+
+  def csv_headers do
+    ~w(
+      main_id
+      display_name
+      data_source_id
+      data_source_format
+      parent_id
+      latitude
+      longitude
+      projection
+      stop_type
+    )
+  end
+
+  def to_csv(%__MODULE__{} = stop) do
+    [
+      StopIdentifier.to_field(stop.main_id),
+      stop.display_name,
+      stop.data_source_id,
+      stop.data_source_format,
+      maybe(stop.parent_id, &StopIdentifier.to_field/1, ""),
+      stop.latitude,
+      stop.longitude,
+      stop.projection,
+      stop.stop_type
+    ]
+  end
+
+  @spec maybe(value :: any() | nil, mapper :: (any() -> any()), defaultValue :: any()) :: any() | nil
+  def maybe(nil, _, defaultValue), do: defaultValue
+  def maybe(value, mapper, _), do: mapper.(value)
 end

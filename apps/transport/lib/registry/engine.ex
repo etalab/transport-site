@@ -1,0 +1,101 @@
+defmodule Transport.Registry.Engine do
+  @moduledoc """
+  Stream eligible resources and run extractors to produce a raw registry at the end.
+  """
+
+  alias Transport.Registry.Extractor
+  alias Transport.Registry.GTFS
+  alias Transport.Registry.Model.Stop
+
+  import Ecto.Query
+
+  require Logger
+
+  @spec execute(output_file :: Path.t(), list()) :: :ok
+  def execute(output_file, opts \\ []) do
+    limit = Keyword.get(opts, :limit, 1_000_000)
+    formats = Keyword.get(opts, :formats, ~w(GTFS NeTEx))
+
+    create_empty_csv_with_headers(output_file)
+
+    enumerate_gtfs_resources(limit, formats)
+    |> Extractor.traverse(&prepare_extractor/1)
+    |> Task.async_stream(&download/1, max_concurrency: 10, timeout: 120_000)
+    # one for Task.async_stream
+    |> Extractor.keep_results()
+    # one for download/1
+    |> Extractor.keep_results()
+    |> Extractor.traverse(&extract_from_archive/1)
+    |> dump_to_csv(output_file)
+  end
+
+  def create_empty_csv_with_headers(output_file) do
+    headers = NimbleCSV.RFC4180.dump_to_iodata([Stop.csv_headers()])
+    File.write(output_file, headers)
+  end
+
+  def enumerate_gtfs_resources(limit, formats) do
+    DB.Resource.base_query()
+    |> DB.ResourceHistory.join_resource_with_latest_resource_history()
+    |> where([resource: r], r.format in ^formats)
+    |> preload([resource_history: rh], resource_history: rh)
+    |> limit(^limit)
+    |> DB.Repo.all()
+  end
+
+  def prepare_extractor(%DB.Resource{} = resource) do
+    case resource.format do
+      "GTFS" -> {:ok, {GTFS, resource.url}}
+      _ -> {:error, "Unsupported format"}
+    end
+  end
+
+  def download({extractor, url}) do
+    Logger.debug("download #{extractor} #{url}")
+    tmp_path = System.tmp_dir!() |> Path.join("#{Ecto.UUID.generate()}.dat")
+
+    error_result = fn msg ->
+      File.rm(tmp_path)
+      {:error, msg}
+    end
+
+    http_result =
+      Transport.HTTPClient.get(url,
+        decode_body: false,
+        compressed: false,
+        into: File.stream!(tmp_path)
+      )
+
+    case http_result do
+      {:error, error} ->
+        error_result.("Unexpected error while downloading the resource from #{url}: #{Exception.message(error)}")
+
+      {:ok, %{status: status}} ->
+        cond do
+          status >= 200 && status < 300 ->
+            {:ok, {extractor, tmp_path}}
+
+          status > 400 ->
+            error_result.("Error #{status} while downloading the resource from #{url}")
+
+          true ->
+            error_result.("Unexpected HTTP error #{status} while downloading the resource from #{url}")
+        end
+    end
+  end
+
+  @spec extract_from_archive({module(), Path.t()}) :: Extractor.result([Stop.t()])
+  def extract_from_archive({extractor, file}) do
+    Logger.debug("extract_from_archive #{extractor} #{file}")
+    extractor.extract_from_archive(file)
+  end
+
+  def dump_to_csv(enumerable, output_file) do
+    enumerable
+    |> Stream.concat()
+    |> Stream.map(&Stop.to_csv/1)
+    |> NimbleCSV.RFC4180.dump_to_stream()
+    |> Stream.into(File.stream!(output_file, [:append, :utf8]))
+    |> Stream.run()
+  end
+end
