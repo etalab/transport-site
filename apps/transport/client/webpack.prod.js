@@ -17,6 +17,8 @@ const config = {
 
 // Enable caching only in the continuous integration env to speed-up builds
 if (process.env.CI === 'true') {
+    console.log('cache is enabled ♻️⚡️')
+
     config.cache = {
         type: 'filesystem',
         compression: 'gzip'
