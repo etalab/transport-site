@@ -22,7 +22,7 @@ defaults: &defaults
       default: plt-v4
       type: string
     js_cache_key:
-      default: js-v2
+      default: js-v4
       type: string
   working_directory: ~/transport
   docker:
@@ -116,6 +116,7 @@ jobs:
           key: js-<< parameters.js_cache_key >>-{{ checksum "apps/transport/client/yarn.lock" }}
           paths:
             - ~/transport/apps/transport/client/node_modules
+            - ~/transport/apps/transport/priv/static
 
       - run:
           name: Run gettext check

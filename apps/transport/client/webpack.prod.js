@@ -4,7 +4,7 @@ const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 
 console.log('webpack production configuration is used 🚀')
 
-module.exports = merge(common, {
+const config = {
     mode: 'production',
     optimization: {
         minimizer: [
@@ -13,4 +13,17 @@ module.exports = merge(common, {
             new CssMinimizerPlugin()
         ]
     }
-})
+}
+
+// Enable caching only in the continuous integration env to speed-up builds
+if (process.env.CI === 'true') {
+    console.log('cache is enabled ♻️⚡️')
+
+    config.cache = {
+        type: 'filesystem',
+        compression: 'gzip'
+    }
+    config.infrastructureLogging = { debug: true }
+}
+
+module.exports = merge(common, config)
