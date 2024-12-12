@@ -22,4 +22,15 @@ defmodule TimeWrapper do
   def shift(dt, months: months) do
     Timex.shift(dt, months: months)
   end
+
+  def convert(dt, "UTC") do
+    Timex.Timezone.convert(dt, "UTC")
+  end
+
+  def convert_to_paris_time(dt) do
+    case Timex.Timezone.convert(dt, "Europe/Paris") do
+      %Timex.AmbiguousDateTime{after: dt} -> dt
+      %DateTime{} = dt -> dt
+    end
+  end
 end

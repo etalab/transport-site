@@ -224,16 +224,12 @@ defmodule Shared.DateTimeDisplay do
   end
 
   @spec convert_to_paris_time(DateTime.t() | NaiveDateTime.t()) :: DateTime.t()
-  # TODO: add 2 DocTests to cover before. Then migrate to Timex-free call.
   def convert_to_paris_time(%DateTime{} = dt) do
-    case Timex.Timezone.convert(dt, "Europe/Paris") do
-      %Timex.AmbiguousDateTime{after: dt} -> dt
-      %DateTime{} = dt -> dt
-    end
+    TimeWrapper.convert_to_paris_time(dt)
   end
 
   def convert_to_paris_time(%NaiveDateTime{} = ndt) do
-    ndt |> Timex.Timezone.convert("UTC") |> convert_to_paris_time()
+    ndt |> TimeWrapper.convert("UTC") |> convert_to_paris_time()
   end
 
   defp get_localized_datetime_format("en" = locale, options) do
