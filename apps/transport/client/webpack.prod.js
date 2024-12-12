@@ -23,7 +23,7 @@ if (process.env.CI === 'true') {
         type: 'filesystem',
         compression: 'gzip'
     }
-    config.infrastructureLogging: { debug: true }
+    config.infrastructureLogging = { debug: true }
 }
 
 module.exports = merge(common, config)
