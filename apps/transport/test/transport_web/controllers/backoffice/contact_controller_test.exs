@@ -329,8 +329,9 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
     content = response(response, 200)
 
     # Check CSV header
-    assert content |> String.split("\r\n") |> hd() ==
+    assert content |> String.split("\r\n") |> hd() |> String.split(",") ==
              "id,first_name,last_name,mailing_list_title,email,phone_number,job_title,organization,inserted_at,updated_at,datagouv_user_id,last_login_at,creation_source,organization_names,is_producer,producer_daily_new_comments,producer_dataset_with_error,producer_expiration,producer_resource_unavailable,is_reuser,reuser_daily_new_comments,reuser_dataset_with_error,reuser_datasets_switching_climate_resilience_bill,reuser_expiration,reuser_new_dataset,reuser_resource_unavailable,reuser_resources_changed"
+             |> String.split(",")
 
     # Check CSV content
     csv_content = [content] |> CSV.decode!(headers: true) |> Enum.to_list()
