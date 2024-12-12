@@ -121,7 +121,12 @@ defmodule TransportWeb.Backoffice.ContactController do
   end
 
   defp columns_for_role(role) do
-    ["is_#{role}" | Enum.map(Transport.NotificationReason.subscribable_reasons_for_role(role), &"#{role}_#{&1}")]
+    more_columns =
+      Transport.NotificationReason.subscribable_reasons_for_role(role)
+      |> Enum.map(&"#{role}_#{&1}")
+      |> Enum.sort()
+
+    ["is_#{role}" | more_columns]
   end
 
   defp send_csv_response(chunks, filename, csv_header, %Plug.Conn{} = conn) do
