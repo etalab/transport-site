@@ -1,28 +1,34 @@
 defmodule Transport.Registry.GTFS do
-  alias Transport.Registry.Model.DataSource
+  @moduledoc """
+  Implementation of a stop extractor for GTFS resources.
+  """
+
   alias Transport.Registry.Model.Stop
   alias Transport.Registry.Model.StopIdentifier
+
+  require Logger
 
   @behaviour Transport.Registry.Extractor
   @doc """
   Extract stops from GTFS ressource.
   """
   def extract_from_archive(archive) do
-    archive
-    |> file_stream!()
-    |> to_stream_of_maps()
-    |> Stream.map(fn r ->
-      %Stop{
-        main_id: %StopIdentifier{id: Map.fetch!(r, "stop_id"), type: :main},
-        display_name: Map.fetch!(r, "stop_name"),
-        latitude: Map.fetch!(r, "stop_lat") |> convert_text_to_float(),
-        longitude: Map.fetch!(r, "stop_lon") |> convert_text_to_float(),
-        projection: :utm_wgs84,
-        stop_type: r |> csv_get_with_default!("location_type", "0", false) |> to_stop_type()
-      }
-    end)
+    case file_stream(archive) do
+      {:error, error} ->
+        Logger.error(error)
+        {:error, error}
 
-    {:ok, []}
+      {:ok, content} ->
+        Logger.debug("Valid Zip archive")
+
+        stops =
+          content
+          |> to_stream_of_maps()
+          |> Stream.flat_map(&handle_stop/1)
+          |> Enum.to_list()
+
+        {:ok, stops}
+    end
   end
 
   @doc """
@@ -46,9 +52,35 @@ defmodule Transport.Registry.GTFS do
     end)
   end
 
+  defp handle_stop(record) do
+    latitude = fetch_position(record, "stop_lat")
+    longitude = fetch_position(record, "stop_lon")
+
+    if latitude != nil && longitude != nil do
+      [
+        %Stop{
+          main_id: %StopIdentifier{id: Map.fetch!(record, "stop_id"), type: :main},
+          display_name: Map.fetch!(record, "stop_name"),
+          latitude: latitude,
+          longitude: longitude,
+          projection: :utm_wgs84,
+          stop_type: record |> csv_get_with_default!("location_type", "0") |> to_stop_type()
+        }
+      ]
+    else
+      []
+    end
+  end
+
+  defp fetch_position(record, field) do
+    Map.fetch!(record, field) |> convert_text_to_float()
+  end
+
   @doc """
    Convert textual values to float.
 
+   iex> convert_text_to_float("")
+   nil
    iex> convert_text_to_float("0")
    0.0
    iex> convert_text_to_float("0.0")
@@ -61,23 +93,44 @@ defmodule Transport.Registry.GTFS do
    -48.7
   """
   def convert_text_to_float(input) do
-    input |> String.trim() |> Decimal.new() |> Decimal.to_float()
+    if input |> String.trim() != "" do
+      input |> String.trim() |> Decimal.new() |> Decimal.to_float()
+    else
+      nil
+    end
   end
 
   defp to_stop_type("0"), do: :quay
   defp to_stop_type("1"), do: :stop
   defp to_stop_type(_), do: :other
 
-  defp file_stream!(archive) do
+  defp file_stream(archive) do
     zip_file = Unzip.LocalFile.open(archive)
 
-    {:ok, unzip} = Unzip.new(zip_file)
+    case Unzip.new(zip_file) do
+      {:ok, unzip} ->
+        if has_stops?(unzip) do
+          {:ok, Unzip.file_stream!(unzip, "stops.txt")}
+        else
+          {:error, "Missing stops.txt in #{archive}"}
+        end
 
-    Unzip.file_stream!(unzip, "stops.txt")
+      {:error, error} ->
+        {:error, "Error while unzipping archive #{archive}: #{error}"}
+    end
   end
 
-  defp csv_get_with_default!(map, field, default_value, mandatory_column \\ true) do
-    value = if mandatory_column, do: Map.fetch!(map, field), else: Map.get(map, field)
+  defp has_stops?(unzip) do
+    Unzip.list_entries(unzip)
+    |> Enum.any?(&entry_of_name?("stops.txt", &1))
+  end
+
+  defp entry_of_name?(name, %Unzip.Entry{file_name: file_name}) do
+    file_name == name
+  end
+
+  defp csv_get_with_default!(map, field, default_value) do
+    value = Map.get(map, field)
 
     case value do
       nil -> default_value
