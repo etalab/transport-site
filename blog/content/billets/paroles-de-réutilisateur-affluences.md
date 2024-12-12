@@ -6,7 +6,7 @@ tags:
 description: Affluences présente sa solution de comptage en temps réel dans les
   transports en commun
 images:
-  - /images/affluences.png
+  - /images/affluances-header.png
 ---
 **Interview avec Martin BOURREAU, Technical Product manager chez [AFFLUENCES](https://www.pro.affluences.com/)**
 
