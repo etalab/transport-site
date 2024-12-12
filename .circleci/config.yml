@@ -117,38 +117,6 @@ jobs:
           paths:
             - ~/transport/apps/transport/client/node_modules
 
-      # NOTE: I think this should be moved to the dialyzer parallel section,
-      # but then we need to think about how the persistence/caching will be
-      # handled, and think about concurrent access (?) with various jobs to the cache.
-
-      - restore_cache:
-          keys:
-            - elixir-<< parameters.base_image >>-<< parameters.plt_cache_key >>-{{ .Branch }}-{{ checksum "mix.lock" }}
-            - elixir-<< parameters.base_image >>-<< parameters.plt_cache_key >>-{{ .Branch }}
-            - elixir-<< parameters.base_image >>-<< parameters.plt_cache_key >>
-
-      - run:
-          name: Build PLT
-          command: mix dialyzer --plt
-          # PLT construction can stay up quite a bit without generating any output
-          # We add a bit of tolerance here
-          no_output_timeout: 20m
-
-      - save_cache:
-          key: elixir-<< parameters.base_image >>-<< parameters.plt_cache_key >>-{{ .Branch }}-{{ checksum "mix.lock" }}
-          paths:
-            - ~/transport/dialyzer-plt
-
-      - save_cache:
-          key: elixir-<< parameters.base_image >>-<< parameters.plt_cache_key >>-{{ .Branch }}
-          paths:
-            - ~/transport/dialyzer-plt
-
-      - save_cache:
-          key: elixir-<< parameters.base_image >>-<< parameters.plt_cache_key >>
-          paths:
-            - ~/transport/dialyzer-plt
-
       - run:
           name: Run gettext check
           command: mix gettext.extract --check-up-to-date
@@ -168,10 +136,6 @@ jobs:
       - run:
           name: Run formatter
           command: mix format --check-formatted --dry-run
-
-      - run:
-          name: Run dialyzer (static analysis)
-          command: mix dialyzer
 
       - run:
           name: Run tests

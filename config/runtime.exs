@@ -278,7 +278,7 @@ if config_env() == :prod do
   end
 end
 
-# On CleverCloud, each container gets assigned a UUID, which gets propagated to AppSignal.
+# On Clever Cloud, each container gets assigned a UUID, which gets propagated to AppSignal.
 # It is easier to assign the container a "role" so that we can more easily charts relevant metrics.
 host_role =
   []
