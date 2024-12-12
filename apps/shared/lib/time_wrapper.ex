@@ -14,4 +14,12 @@ defmodule TimeWrapper do
   def diff(first, second, param = :hours) do
     Timex.diff(first, second, param)
   end
+
+  def now() do
+    Timex.now()
+  end
+
+  def shift(dt, months: months) do
+    Timex.shift(dt, months: months)
+  end
 end
