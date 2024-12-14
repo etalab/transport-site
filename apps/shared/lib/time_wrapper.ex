@@ -6,6 +6,9 @@ defmodule TimeWrapper do
   2. to ideally gradually replace calls by built-in Elixir `DateTime` calls, since
   `Timex` filled a void in the language that has been partially filled now.
   """
+
+  # credo:disable-for-this-file Credo.Check.Warning.ForbiddenModule
+
   def parse!(date_as_string, "{ISO:Extended}" = param) do
     Timex.parse!(date_as_string, param)
   end
