@@ -1,4 +1,11 @@
 defmodule TimeWrapper do
+  @moduledoc """
+  This module concentrates all the calls to `Timex` in a single place.
+
+  The idea behind this module is 1. to reduce our dependency on `Timex`, and
+  2. to ideally gradually replace calls by built-in Elixir `DateTime` calls, since
+  `Timex` filled a void in the language that has been partially filled now.
+  """
   def parse!(date_as_string, "{ISO:Extended}" = param) do
     Timex.parse!(date_as_string, param)
   end
