@@ -14,7 +14,8 @@ defmodule TimeWrapper do
     Timex.parse!(date_as_string, param)
   end
 
-  # TODO: remove completely. This is rfc2822 ; Plug encodes it, but there is no built-in decoder.
+  # NOTE: try not to use this, we will remove it. This is rfc2822 ;
+  # Plug encodes it, but there is no built-in decoder.
   def parse!(datetime_as_string, "{WDshort}, {D} {Mshort} {YYYY} {h24}:{m}:{s} GMT" = param) do
     Timex.parse!(datetime_as_string, param)
   end
