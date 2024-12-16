@@ -233,7 +233,7 @@ defmodule Transport.DataCheckerTest do
         dataset_id: dataset.id
       })
 
-      Transport.DataChecker.outdated_data()
+      Transport.DataChecker.outdated_data(42)
 
       # a first mail to our team
 
@@ -271,7 +271,7 @@ defmodule Transport.DataCheckerTest do
     end
 
     test "outdated_data job with nothing to send should not send email" do
-      Transport.DataChecker.outdated_data()
+      Transport.DataChecker.outdated_data(42)
       assert_no_email_sent()
     end
   end

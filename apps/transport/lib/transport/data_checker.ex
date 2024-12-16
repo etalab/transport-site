@@ -106,11 +106,7 @@ defmodule Transport.DataChecker do
     )
   end
 
-  def outdated_data do
-    # Generated as an integer rather than a UUID because `payload.job_id`
-    # for other notifications are %Oban.Job.id (bigint).
-    job_id = Enum.random(1..Integer.pow(2, 63))
-
+  def outdated_data(job_id) do
     for delay <- possible_delays(),
         date = Date.add(Date.utc_today(), delay) do
       {delay, gtfs_datasets_expiring_on(date)}
