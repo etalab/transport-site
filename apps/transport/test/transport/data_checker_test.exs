@@ -290,7 +290,7 @@ defmodule Transport.DataCheckerTest do
       })
 
     job_id = 42
-    Transport.DataChecker.send_outdated_data_notifications({7, [{dataset, []}]}, job_id)
+    Transport.DataChecker.send_outdated_data_producer_notifications({7, [{dataset, []}]}, job_id)
 
     assert_email_sent(
       from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
