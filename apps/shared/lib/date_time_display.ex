@@ -34,7 +34,7 @@ defmodule Shared.DateTimeDisplay do
   def format_date(nil, _), do: ""
 
   def format_date(date, locale, iso_extended: true) do
-    date |> Timex.parse!("{ISO:Extended}") |> format_date(locale)
+    date |> TimeWrapper.parse!("{ISO:Extended}") |> format_date(locale)
   end
 
   @doc """
@@ -100,7 +100,7 @@ defmodule Shared.DateTimeDisplay do
 
   def format_datetime_to_paris(datetime, locale, options) when is_binary(datetime) do
     datetime
-    |> Timex.parse!("{ISO:Extended}")
+    |> TimeWrapper.parse!("{ISO:Extended}")
     |> format_datetime_to_paris(locale, options)
   end
 
@@ -157,7 +157,7 @@ defmodule Shared.DateTimeDisplay do
 
   def format_time_to_paris(datetime, locale, options) when is_binary(datetime) do
     datetime
-    |> Timex.parse!("{ISO:Extended}")
+    |> TimeWrapper.parse!("{ISO:Extended}")
     |> format_time_to_paris(locale, options)
   end
 
@@ -225,14 +225,11 @@ defmodule Shared.DateTimeDisplay do
 
   @spec convert_to_paris_time(DateTime.t() | NaiveDateTime.t()) :: DateTime.t()
   def convert_to_paris_time(%DateTime{} = dt) do
-    case Timex.Timezone.convert(dt, "Europe/Paris") do
-      %Timex.AmbiguousDateTime{after: dt} -> dt
-      %DateTime{} = dt -> dt
-    end
+    TimeWrapper.convert_to_paris_time(dt)
   end
 
   def convert_to_paris_time(%NaiveDateTime{} = ndt) do
-    ndt |> Timex.Timezone.convert("UTC") |> convert_to_paris_time()
+    ndt |> TimeWrapper.convert("UTC") |> convert_to_paris_time()
   end
 
   defp get_localized_datetime_format("en" = locale, options) do
