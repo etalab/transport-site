@@ -19,10 +19,6 @@ msgid "A number of administrations, companies and assocations use the French Nat
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "A place to chat, ask questions and get answers for data producers and reusers."
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Access your producer section"
 msgstr ""
 
@@ -48,10 +44,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Join the transport.data.gouv.fr community and stay informed!"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Our community"
 msgstr ""
 
 #, elixir-autogen, elixir-format
