@@ -29,7 +29,7 @@ defmodule Transport.Test.Transport.Jobs.ExpirationNotificationJobTest do
     %DB.Contact{id: c2_id} = c2 = insert_contact()
 
     # Subscriptions for `c1`: should not match because:
-    # - is a producer for a relevant expiration delay (+7)
+    # - is a producer for a relevant expiration delay (+7). Producers have a distinct job but for all producers together
     # - is a reuser but for an ignored expiration delay
     # - is a reuser for an irrelevant reason for a matching dataset
     insert(:notification_subscription,
@@ -57,6 +57,7 @@ defmodule Transport.Test.Transport.Jobs.ExpirationNotificationJobTest do
     )
 
     # Subscriptions for `c2`: matches for expiration today and for +7
+    # Does a single email
     insert(:notification_subscription,
       contact_id: c2.id,
       dataset_id: d1.id,
@@ -81,7 +82,13 @@ defmodule Transport.Test.Transport.Jobs.ExpirationNotificationJobTest do
     assert [
              %Oban.Job{
                worker: "Transport.Jobs.ExpirationNotificationJob",
-               args: %{"contact_id" => ^c2_id, "digest_date" => ^today_str},
+               args: %{"contact_id" => ^c2_id, "digest_date" => ^today_str, "role" => "reuser"},
+               conflict?: false,
+               state: "available"
+             },
+             %Oban.Job{
+               worker: "Transport.Jobs.ExpirationNotificationJob",
+               args: %{"role" => "admin_and_producer"},
                conflict?: false,
                state: "available"
              }
@@ -132,7 +139,7 @@ defmodule Transport.Test.Transport.Jobs.ExpirationNotificationJobTest do
              ExpirationNotificationJob.gtfs_expiring_on_target_dates(today)
 
     assert :ok ==
-             perform_job(ExpirationNotificationJob, %{contact_id: contact.id, digest_date: today},
+             perform_job(ExpirationNotificationJob, %{contact_id: contact.id, digest_date: today, role: "reuser"},
                inserted_at: DateTime.utc_now()
              )
 
@@ -185,5 +192,169 @@ defmodule Transport.Test.Transport.Jobs.ExpirationNotificationJobTest do
 
     assert %Oban.Job{conflict?: false, unique: %{fields: [:args, :queue, :worker], period: 72_000}} = enqueue_job.()
     assert %Oban.Job{conflict?: true, unique: nil} = enqueue_job.()
+  end
+
+  describe "admins and producer notifications" do
+    test "sends email to our team + relevant contact before expiry" do
+      %DB.Dataset{id: dataset_id} =
+        dataset =
+        insert(:dataset, is_active: true, custom_title: "Dataset custom title", custom_tags: ["loi-climat-resilience"])
+
+      assert DB.Dataset.climate_resilience_bill?(dataset)
+      # fake a resource expiring today
+      %DB.Resource{id: resource_id} =
+        resource = insert(:resource, dataset: dataset, format: "GTFS", title: resource_title = "Super GTFS")
+
+      multi_validation =
+        insert(:multi_validation,
+          validator: Transport.Validators.GTFSTransport.validator_name(),
+          resource_history: insert(:resource_history, resource: resource)
+        )
+
+      insert(:resource_metadata,
+        multi_validation_id: multi_validation.id,
+        metadata: %{"end_date" => Date.utc_today()}
+      )
+
+      assert [{%DB.Dataset{id: ^dataset_id}, [%DB.Resource{id: ^resource_id}]}] =
+               Date.utc_today() |> Transport.Jobs.ExpirationNotificationJob.gtfs_datasets_expiring_on()
+
+      %DB.Contact{id: contact_id, email: email} = contact = insert_contact()
+
+      %DB.NotificationSubscription{id: ns_id} =
+        insert(:notification_subscription, %{
+          reason: :expiration,
+          source: :admin,
+          role: :producer,
+          contact_id: contact_id,
+          dataset_id: dataset.id
+        })
+
+      # Should be ignored, this subscription is for a reuser
+      %DB.Contact{id: reuser_id} = insert_contact()
+
+      insert(:notification_subscription, %{
+        reason: :expiration,
+        source: :user,
+        role: :reuser,
+        contact_id: reuser_id,
+        dataset_id: dataset.id
+      })
+
+      assert :ok == perform_job(Transport.Jobs.ExpirationNotificationJob, %{"role" => "admin_and_producer"})
+
+      # a first mail to our team
+
+      assert_email_sent(fn %Swoosh.Email{
+                             from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                             to: [{"", "contact@transport.data.gouv.fr"}],
+                             subject: "Jeux de données arrivant à expiration",
+                             text_body: nil,
+                             html_body: body
+                           } ->
+        assert body =~ ~r/Jeux de données périmant demain :/
+
+        assert body =~
+                 ~s|<li><a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> - ✅ notification automatique ⚖️🗺️ article 122</li>|
+      end)
+
+      # a second mail to the email address in the notifications config
+      display_name = DB.Contact.display_name(contact)
+
+      assert_email_sent(fn %Swoosh.Email{
+                             from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                             to: [{^display_name, ^email}],
+                             subject: "Jeu de données arrivant à expiration",
+                             html_body: html_body
+                           } ->
+        refute html_body =~ "notification automatique"
+        refute html_body =~ "article 122"
+
+        assert html_body =~
+                 ~s(Les données GTFS #{resource_title} associées au jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> périment demain.)
+
+        assert html_body =~
+                 ~s(<a href="https://doc.transport.data.gouv.fr/administration-des-donnees/procedures-de-publication/mettre-a-jour-des-donnees#remplacer-un-jeu-de-donnees-existant-plutot-quen-creer-un-nouveau">remplaçant la ressource périmée par la nouvelle</a>)
+      end)
+
+      # Logs are there
+      assert [
+               %DB.Notification{
+                 contact_id: ^contact_id,
+                 email: ^email,
+                 reason: :expiration,
+                 dataset_id: ^dataset_id,
+                 notification_subscription_id: ^ns_id,
+                 role: :producer,
+                 payload: %{"delay" => 0, "job_id" => _job_id}
+               }
+             ] =
+               DB.Notification |> DB.Repo.all()
+    end
+
+    test "outdated_data job with nothing to send should not send email" do
+      assert :ok == perform_job(Transport.Jobs.ExpirationNotificationJob, %{"role" => "admin_and_producer"})
+      assert_no_email_sent()
+    end
+
+    test "gtfs_datasets_expiring_on" do
+      {today, tomorrow, yesterday} = {Date.utc_today(), Date.add(Date.utc_today(), 1), Date.add(Date.utc_today(), -1)}
+      assert [] == today |> Transport.Jobs.ExpirationNotificationJob.gtfs_datasets_expiring_on()
+
+      insert_fn = fn %Date{} = expiration_date, %DB.Dataset{} = dataset ->
+        multi_validation =
+          insert(:multi_validation,
+            validator: Transport.Validators.GTFSTransport.validator_name(),
+            resource_history: insert(:resource_history, resource: insert(:resource, dataset: dataset, format: "GTFS"))
+          )
+
+        insert(:resource_metadata,
+          multi_validation_id: multi_validation.id,
+          metadata: %{"end_date" => expiration_date}
+        )
+      end
+
+      # Ignores hidden or inactive datasets
+      insert_fn.(today, insert(:dataset, is_active: false))
+      insert_fn.(today, insert(:dataset, is_active: true, is_hidden: true))
+
+      assert [] == today |> Transport.Jobs.ExpirationNotificationJob.gtfs_datasets_expiring_on()
+
+      # 2 GTFS resources expiring on the same day for a dataset
+      %DB.Dataset{id: dataset_id} = dataset = insert(:dataset, is_active: true)
+      insert_fn.(today, dataset)
+      insert_fn.(today, dataset)
+
+      assert [
+               {%DB.Dataset{id: ^dataset_id},
+                [%DB.Resource{dataset_id: ^dataset_id}, %DB.Resource{dataset_id: ^dataset_id}]}
+             ] = today |> Transport.Jobs.ExpirationNotificationJob.gtfs_datasets_expiring_on()
+
+      assert [] == tomorrow |> Transport.Jobs.ExpirationNotificationJob.gtfs_datasets_expiring_on()
+      assert [] == yesterday |> Transport.Jobs.ExpirationNotificationJob.gtfs_datasets_expiring_on()
+
+      insert_fn.(tomorrow, dataset)
+
+      assert [
+               {%DB.Dataset{id: ^dataset_id},
+                [%DB.Resource{dataset_id: ^dataset_id}, %DB.Resource{dataset_id: ^dataset_id}]}
+             ] = today |> Transport.Jobs.ExpirationNotificationJob.gtfs_datasets_expiring_on()
+
+      assert [
+               {%DB.Dataset{id: ^dataset_id}, [%DB.Resource{dataset_id: ^dataset_id}]}
+             ] = tomorrow |> Transport.Jobs.ExpirationNotificationJob.gtfs_datasets_expiring_on()
+
+      assert [] == yesterday |> Transport.Jobs.ExpirationNotificationJob.gtfs_datasets_expiring_on()
+
+      # Multiple datasets
+      %DB.Dataset{id: d2_id} = d2 = insert(:dataset, is_active: true)
+      insert_fn.(today, d2)
+
+      assert [
+               {%DB.Dataset{id: ^dataset_id},
+                [%DB.Resource{dataset_id: ^dataset_id}, %DB.Resource{dataset_id: ^dataset_id}]},
+               {%DB.Dataset{id: ^d2_id}, [%DB.Resource{dataset_id: ^d2_id}]}
+             ] = today |> Transport.Jobs.ExpirationNotificationJob.gtfs_datasets_expiring_on()
+    end
   end
 end
