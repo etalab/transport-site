@@ -158,8 +158,9 @@ defmodule Transport.DataChecker do
     end)
   end
 
-  @spec send_outdated_data_producer_notifications(delay_and_records(), integer()) :: delay_and_records()
-  def send_outdated_data_producer_notifications({delay, records} = payload, job_id) do
+  # A different email is sent to producers for every delay, containing in a single email all datasets expiring on this given delay
+  @spec send_outdated_data_producer_notifications(delay_and_records(), integer()) :: :ok
+  def send_outdated_data_producer_notifications({delay, records}, job_id) do
     Enum.each(records, fn {%DB.Dataset{} = dataset, resources} ->
       @expiration_reason
       |> DB.NotificationSubscription.subscriptions_for_reason_dataset_and_role(dataset, :producer)
@@ -171,20 +172,6 @@ defmodule Transport.DataChecker do
         DB.Notification.insert!(dataset, subscription, %{delay: delay, job_id: job_id})
       end)
     end)
-
-    payload
-  end
-
-  @doc """
-  iex> resource_titles([%DB.Resource{title: "B"}])
-  "B"
-  iex> resource_titles([%DB.Resource{title: "B"}, %DB.Resource{title: "A"}])
-  "A, B"
-  """
-  def resource_titles(resources) do
-    resources
-    |> Enum.sort_by(fn %DB.Resource{title: title} -> title end)
-    |> Enum.map_join(", ", fn %DB.Resource{title: title} -> title end)
   end
 
   @spec send_outdated_data_admin_mail([delay_and_records()]) :: [delay_and_records()]
