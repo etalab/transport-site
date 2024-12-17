@@ -146,10 +146,10 @@ defmodule Transport.IRVE.ExtractorTest do
 
     # parsed resources must be enriched with line count & index, and url removed
     assert Transport.IRVE.Extractor.download_and_parse_all(resources) == [
-      orig_resource
-      |> Map.put(:index, 0)
-      |> Map.put(:http_status, 404)
-      |> Map.delete(:url)
-    ]
+             orig_resource
+             |> Map.put(:index, 0)
+             |> Map.put(:http_status, 404)
+             |> Map.delete(:url)
+           ]
   end
 end
