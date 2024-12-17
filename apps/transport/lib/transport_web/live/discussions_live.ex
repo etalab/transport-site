@@ -115,7 +115,7 @@ defmodule TransportWeb.DiscussionsLive do
       end)
       |> Enum.max(DateTime)
 
-    two_months_ago = DateTime.utc_now() |> Timex.shift(months: -2)
+    two_months_ago = DateTime.utc_now() |> TimeWrapper.shift(months: -2)
     DateTime.compare(two_months_ago, latest_comment_datetime) == :gt
   end
 

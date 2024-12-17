@@ -120,8 +120,8 @@ defmodule Transport.Jobs.GtfsToDB do
           friday: friday = r |> Map.fetch!("friday") |> String.to_integer(),
           saturday: saturday = r |> Map.fetch!("saturday") |> String.to_integer(),
           sunday: sunday = r |> Map.fetch!("sunday") |> String.to_integer(),
-          start_date: r |> Map.fetch!("start_date") |> Timex.parse!("{YYYY}{0M}{0D}") |> NaiveDateTime.to_date(),
-          end_date: r |> Map.fetch!("end_date") |> Timex.parse!("{YYYY}{0M}{0D}") |> NaiveDateTime.to_date()
+          start_date: r |> Map.fetch!("start_date") |> TimeWrapper.parse!("{YYYY}{0M}{0D}") |> NaiveDateTime.to_date(),
+          end_date: r |> Map.fetch!("end_date") |> TimeWrapper.parse!("{YYYY}{0M}{0D}") |> NaiveDateTime.to_date()
         }
 
         res
@@ -214,7 +214,7 @@ defmodule Transport.Jobs.GtfsToDB do
           %{
             data_import_id: data_import_id,
             service_id: r |> Map.fetch!("service_id"),
-            date: r |> Map.fetch!("date") |> Timex.parse!("{YYYY}{0M}{0D}") |> NaiveDateTime.to_date(),
+            date: r |> Map.fetch!("date") |> TimeWrapper.parse!("{YYYY}{0M}{0D}") |> NaiveDateTime.to_date(),
             exception_type: r |> Map.fetch!("exception_type") |> String.to_integer()
           }
         end)
