@@ -43,7 +43,7 @@
               &mdash; <%= resource["last_modified"] |> String.slice(0..15) %>
             </td>
             <td>
-              <%= format_validity(resource["valid"]) %>
+              <%= format_validity(resource["valid"], resource["http_status"]) %>
             </td>
             <td><%= format_number_maybe_nil(resource["line_count"], nil_result: "???") %></td>
           </tr>

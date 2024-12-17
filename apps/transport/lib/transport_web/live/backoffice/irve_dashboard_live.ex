@@ -25,7 +25,7 @@ defmodule TransportWeb.Backoffice.IRVEDashboardLive do
 
     filtering_expression == "" ||
       String.contains?(resource["dataset_organisation_name"] |> String.downcase(), filtering_expression) ||
-      String.contains?(format_validity(resource["valid"]) |> inspect |> String.downcase(), filtering_expression)
+      String.contains?(format_validity(resource["valid"], resource["http_status"]) |> inspect |> String.downcase(), filtering_expression)
   end
 
   def assign_data(socket) do
@@ -119,7 +119,9 @@ defmodule TransportWeb.Backoffice.IRVEDashboardLive do
     |> Enum.sort_by(fn x -> x["line_count"] end, :desc)
   end
 
-  def format_validity(false), do: {:safe, "<strong class='red'>KO</strong>"}
-  def format_validity(true), do: "OK"
-  def format_validity(nil), do: "Non testé"
+  def format_validity(false, 200), do: {:safe, "<strong class='red'>KO</strong>"}
+  def format_validity(true, 200), do: "OK"
+  def format_validity(nil, 200), do: "Non testé"
+  # mostly there to handle 404/500. Ignore validity and assume the resource is not reachable at all
+  def format_validity(_validity, http_status), do: {:safe, "<strong class='red'>KO (#{http_status})</strong>"}
 end
