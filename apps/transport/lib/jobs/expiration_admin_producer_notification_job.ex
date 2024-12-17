@@ -1,6 +1,8 @@
-defmodule Transport.Jobs.OutdatedDataNotificationJob do
+defmodule Transport.Jobs.ExpirationAdminProducerNotificationJob do
   @moduledoc """
-  This module is in charge of sending notifications to both admins and users when data is outdated.
+  This module is in charge of sending notifications to admins and producers when data is outdated.
+  It is similar to `Transport.Jobs.ExpirationNotificationJob`, dedicated to reusers.
+  Both could be merged in the future.
   """
 
   use Oban.Worker, max_attempts: 3, tags: ["notifications"]

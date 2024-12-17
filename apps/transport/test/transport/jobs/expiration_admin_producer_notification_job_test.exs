@@ -1,4 +1,4 @@
-defmodule Transport.Test.Transport.Jobs.OutdatedDataNotificationJobTest do
+defmodule Transport.Test.Transport.Jobs.ExpirationAdminProducerNotificationJobTest do
   use ExUnit.Case, async: true
   import DB.Factory
   import Swoosh.TestAssertions
@@ -30,7 +30,7 @@ defmodule Transport.Test.Transport.Jobs.OutdatedDataNotificationJobTest do
     )
 
     assert [{%DB.Dataset{id: ^dataset_id}, [%DB.Resource{id: ^resource_id}]}] =
-             Date.utc_today() |> Transport.Jobs.OutdatedDataNotificationJob.gtfs_datasets_expiring_on()
+             Date.utc_today() |> Transport.Jobs.ExpirationAdminProducerNotificationJob.gtfs_datasets_expiring_on()
 
     %DB.Contact{id: contact_id, email: email} = contact = insert_contact()
 
@@ -54,7 +54,7 @@ defmodule Transport.Test.Transport.Jobs.OutdatedDataNotificationJobTest do
       dataset_id: dataset.id
     })
 
-    assert :ok == perform_job(Transport.Jobs.OutdatedDataNotificationJob, %{})
+    assert :ok == perform_job(Transport.Jobs.ExpirationAdminProducerNotificationJob, %{})
 
     # a first mail to our team
 
@@ -106,13 +106,13 @@ defmodule Transport.Test.Transport.Jobs.OutdatedDataNotificationJobTest do
   end
 
   test "outdated_data job with nothing to send should not send email" do
-    assert :ok == perform_job(Transport.Jobs.OutdatedDataNotificationJob, %{})
+    assert :ok == perform_job(Transport.Jobs.ExpirationAdminProducerNotificationJob, %{})
     assert_no_email_sent()
   end
 
   test "gtfs_datasets_expiring_on" do
     {today, tomorrow, yesterday} = {Date.utc_today(), Date.add(Date.utc_today(), 1), Date.add(Date.utc_today(), -1)}
-    assert [] == today |> Transport.Jobs.OutdatedDataNotificationJob.gtfs_datasets_expiring_on()
+    assert [] == today |> Transport.Jobs.ExpirationAdminProducerNotificationJob.gtfs_datasets_expiring_on()
 
     insert_fn = fn %Date{} = expiration_date, %DB.Dataset{} = dataset ->
       multi_validation =
@@ -131,7 +131,7 @@ defmodule Transport.Test.Transport.Jobs.OutdatedDataNotificationJobTest do
     insert_fn.(today, insert(:dataset, is_active: false))
     insert_fn.(today, insert(:dataset, is_active: true, is_hidden: true))
 
-    assert [] == today |> Transport.Jobs.OutdatedDataNotificationJob.gtfs_datasets_expiring_on()
+    assert [] == today |> Transport.Jobs.ExpirationAdminProducerNotificationJob.gtfs_datasets_expiring_on()
 
     # 2 GTFS resources expiring on the same day for a dataset
     %DB.Dataset{id: dataset_id} = dataset = insert(:dataset, is_active: true)
@@ -141,23 +141,23 @@ defmodule Transport.Test.Transport.Jobs.OutdatedDataNotificationJobTest do
     assert [
              {%DB.Dataset{id: ^dataset_id},
               [%DB.Resource{dataset_id: ^dataset_id}, %DB.Resource{dataset_id: ^dataset_id}]}
-           ] = today |> Transport.Jobs.OutdatedDataNotificationJob.gtfs_datasets_expiring_on()
+           ] = today |> Transport.Jobs.ExpirationAdminProducerNotificationJob.gtfs_datasets_expiring_on()
 
-    assert [] == tomorrow |> Transport.Jobs.OutdatedDataNotificationJob.gtfs_datasets_expiring_on()
-    assert [] == yesterday |> Transport.Jobs.OutdatedDataNotificationJob.gtfs_datasets_expiring_on()
+    assert [] == tomorrow |> Transport.Jobs.ExpirationAdminProducerNotificationJob.gtfs_datasets_expiring_on()
+    assert [] == yesterday |> Transport.Jobs.ExpirationAdminProducerNotificationJob.gtfs_datasets_expiring_on()
 
     insert_fn.(tomorrow, dataset)
 
     assert [
              {%DB.Dataset{id: ^dataset_id},
               [%DB.Resource{dataset_id: ^dataset_id}, %DB.Resource{dataset_id: ^dataset_id}]}
-           ] = today |> Transport.Jobs.OutdatedDataNotificationJob.gtfs_datasets_expiring_on()
+           ] = today |> Transport.Jobs.ExpirationAdminProducerNotificationJob.gtfs_datasets_expiring_on()
 
     assert [
              {%DB.Dataset{id: ^dataset_id}, [%DB.Resource{dataset_id: ^dataset_id}]}
-           ] = tomorrow |> Transport.Jobs.OutdatedDataNotificationJob.gtfs_datasets_expiring_on()
+           ] = tomorrow |> Transport.Jobs.ExpirationAdminProducerNotificationJob.gtfs_datasets_expiring_on()
 
-    assert [] == yesterday |> Transport.Jobs.OutdatedDataNotificationJob.gtfs_datasets_expiring_on()
+    assert [] == yesterday |> Transport.Jobs.ExpirationAdminProducerNotificationJob.gtfs_datasets_expiring_on()
 
     # Multiple datasets
     %DB.Dataset{id: d2_id} = d2 = insert(:dataset, is_active: true)
@@ -167,6 +167,6 @@ defmodule Transport.Test.Transport.Jobs.OutdatedDataNotificationJobTest do
              {%DB.Dataset{id: ^dataset_id},
               [%DB.Resource{dataset_id: ^dataset_id}, %DB.Resource{dataset_id: ^dataset_id}]},
              {%DB.Dataset{id: ^d2_id}, [%DB.Resource{dataset_id: ^d2_id}]}
-           ] = today |> Transport.Jobs.OutdatedDataNotificationJob.gtfs_datasets_expiring_on()
+           ] = today |> Transport.Jobs.ExpirationAdminProducerNotificationJob.gtfs_datasets_expiring_on()
   end
 end
