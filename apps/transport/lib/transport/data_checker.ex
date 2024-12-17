@@ -1,6 +1,8 @@
 defmodule Transport.DataChecker do
   @moduledoc """
-  Use to check data, and act about it, like send email
+  Use to check data for two things:
+  - Toggle in and of active status of datasets depending on status on data.gouv.fr
+  - Send notifications to producers and admins when data is outdated
   """
   alias DB.{Dataset, Repo}
   import Ecto.Query

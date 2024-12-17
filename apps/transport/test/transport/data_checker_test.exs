@@ -3,6 +3,7 @@ defmodule Transport.DataCheckerTest do
   import Mox
   import DB.Factory
   import Swoosh.TestAssertions
+  use Oban.Testing, repo: DB.Repo
 
   doctest Transport.DataChecker, import: true
 
@@ -233,7 +234,7 @@ defmodule Transport.DataCheckerTest do
         dataset_id: dataset.id
       })
 
-      Transport.DataChecker.outdated_data(42)
+      assert :ok == perform_job(Transport.Jobs.OutdatedDataNotificationJob, %{})
 
       # a first mail to our team
 
@@ -271,7 +272,7 @@ defmodule Transport.DataCheckerTest do
     end
 
     test "outdated_data job with nothing to send should not send email" do
-      Transport.DataChecker.outdated_data(42)
+      assert :ok == perform_job(Transport.Jobs.OutdatedDataNotificationJob, %{})
       assert_no_email_sent()
     end
   end
