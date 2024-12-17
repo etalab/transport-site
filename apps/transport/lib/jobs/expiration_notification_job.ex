@@ -6,6 +6,8 @@ defmodule Transport.Jobs.ExpirationNotificationJob do
   It has 2 `perform/1` methods:
   - a dispatcher one in charge of identifying contacts we should get in touch with today
   - another in charge of building the daily digest for a specific contact (with only their favorited datasets)
+
+  It is similar to `Transport.Jobs.ExpirationAdminProducerNotificationJob`, dedicated to producers and admins.
   """
   use Oban.Worker,
     max_attempts: 3,
