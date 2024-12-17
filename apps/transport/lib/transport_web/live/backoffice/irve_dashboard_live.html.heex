@@ -45,7 +45,7 @@
             <td>
               <%= format_validity(resource["valid"]) %>
             </td>
-            <td><%= format_number(resource["line_count"]) %></td>
+            <td><%= format_number_maybe_nil(resource["line_count"], nil_result: "???") %></td>
           </tr>
         <% end %>
       </tbody>
