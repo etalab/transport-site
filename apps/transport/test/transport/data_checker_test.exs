@@ -315,50 +315,6 @@ defmodule Transport.DataCheckerTest do
              DB.Notification |> DB.Repo.all()
   end
 
-  describe "send_new_dataset_notifications" do
-    test "no datasets" do
-      assert Transport.DataChecker.send_new_dataset_notifications([]) == :ok
-    end
-
-    test "with datasets" do
-      %DB.Dataset{id: dataset_id} = dataset = insert(:dataset, type: "public-transit")
-
-      %DB.Contact{id: contact_id, email: email} = contact = insert_contact()
-
-      %DB.NotificationSubscription{id: ns_id} =
-        insert(:notification_subscription, %{
-          reason: :new_dataset,
-          source: :user,
-          role: :reuser,
-          contact_id: contact_id
-        })
-
-      Transport.DataChecker.send_new_dataset_notifications([dataset])
-
-      assert_email_sent(
-        from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-        to: {DB.Contact.display_name(contact), email},
-        subject: "Nouveaux jeux de données référencés",
-        text_body: nil,
-        html_body:
-          ~r|<li><a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> - \(Transport public collectif - horaires théoriques\)</li>|
-      )
-
-      assert [
-               %DB.Notification{
-                 contact_id: ^contact_id,
-                 email: ^email,
-                 reason: :new_dataset,
-                 role: :reuser,
-                 dataset_id: nil,
-                 payload: %{"dataset_ids" => [^dataset_id], "job_id" => _},
-                 notification_subscription_id: ^ns_id
-               }
-             ] =
-               DB.Notification |> DB.Repo.all()
-    end
-  end
-
   describe "dataset_status" do
     test "active" do
       dataset = %DB.Dataset{datagouv_id: Ecto.UUID.generate()}

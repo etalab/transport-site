@@ -24,11 +24,10 @@ defmodule Transport.Test.Transport.Jobs.NewDatasetNotificationsJobTest do
   end
 
   test "perform" do
-    %DB.Dataset{id: dataset_id} = insert(:dataset, inserted_at: hours_ago(23), is_active: true)
-    %DB.Contact{id: contact_id, email: email} = contact = insert_contact()
+    {contact, contact_id, email, ns_id} = insert_contact_and_notification_subscription()
 
-    %DB.NotificationSubscription{id: ns_id} =
-      insert(:notification_subscription, %{reason: :new_dataset, source: :admin, role: :reuser, contact_id: contact_id})
+    %DB.Dataset{id: dataset_id} =
+      dataset = insert(:dataset, inserted_at: hours_ago(23), is_active: true, type: "public-transit")
 
     assert :ok == perform_job(NewDatasetNotificationsJob, %{}, inserted_at: DateTime.utc_now())
 
@@ -37,7 +36,8 @@ defmodule Transport.Test.Transport.Jobs.NewDatasetNotificationsJobTest do
       to: {DB.Contact.display_name(contact), email},
       subject: "Nouveaux jeux de données référencés",
       text_body: nil,
-      html_body: ~r|<p>Bonjour,</p>|
+      html_body:
+        ~r|<li><a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> - \(Transport public collectif - horaires théoriques\)</li>|
     )
 
     # Logs have been saved
@@ -46,6 +46,7 @@ defmodule Transport.Test.Transport.Jobs.NewDatasetNotificationsJobTest do
                contact_id: ^contact_id,
                email: ^email,
                reason: :new_dataset,
+               role: :reuser,
                dataset_id: nil,
                notification_subscription_id: ^ns_id,
                payload: %{"dataset_ids" => [^dataset_id]}
@@ -54,7 +55,29 @@ defmodule Transport.Test.Transport.Jobs.NewDatasetNotificationsJobTest do
              DB.Notification |> DB.Repo.all()
   end
 
+  test "no datasets" do
+    insert_contact_and_notification_subscription()
+
+    assert :ok == perform_job(NewDatasetNotificationsJob, %{}, inserted_at: DateTime.utc_now())
+
+    assert_no_email_sent()
+  end
+
   defp hours_ago(hours) when hours > 0 do
     DateTime.utc_now() |> DateTime.add(-hours * 60 * 60, :second)
+  end
+
+  defp insert_contact_and_notification_subscription do
+    %DB.Contact{id: contact_id, email: email} = contact = insert_contact()
+
+    %DB.NotificationSubscription{id: ns_id} =
+      insert(:notification_subscription, %{
+        reason: :new_dataset,
+        source: :user,
+        role: :reuser,
+        contact_id: contact_id
+      })
+
+    {contact, contact_id, email, ns_id}
   end
 end

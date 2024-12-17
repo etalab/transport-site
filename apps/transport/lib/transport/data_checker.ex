@@ -11,7 +11,6 @@ defmodule Transport.DataChecker do
   @type delay_and_records :: {integer(), [{DB.Dataset.t(), [DB.Resource.t()]}]}
   @type dataset_status :: :active | :inactive | :ignore | :no_producer | {:archived, DateTime.t()}
   @expiration_reason Transport.NotificationReason.reason(:expiration)
-  @new_dataset_reason Transport.NotificationReason.reason(:new_dataset)
   # If delay < 0, the resource is already expired
   @default_outdated_data_delays [-90, -60, -30, -45, -15, -7, -3, 0, 7, 14]
 
@@ -137,25 +136,6 @@ defmodule Transport.DataChecker do
     @default_outdated_data_delays
     |> Enum.uniq()
     |> Enum.sort()
-  end
-
-  @spec send_new_dataset_notifications([Dataset.t()] | []) :: no_return() | :ok
-  def send_new_dataset_notifications([]), do: :ok
-
-  def send_new_dataset_notifications(datasets) do
-    # Generated as an integer rather than a UUID because `payload.job_id`
-    # for other notifications are %Oban.Job.id (bigint).
-    job_id = Enum.random(1..Integer.pow(2, 63))
-
-    @new_dataset_reason
-    |> DB.NotificationSubscription.subscriptions_for_reason_and_role(:reuser)
-    |> Enum.each(fn %DB.NotificationSubscription{contact: %DB.Contact{} = contact} = subscription ->
-      contact
-      |> Transport.UserNotifier.new_datasets(datasets)
-      |> Transport.Mailer.deliver()
-
-      DB.Notification.insert!(subscription, %{dataset_ids: Enum.map(datasets, & &1.id), job_id: job_id})
-    end)
   end
 
   # A different email is sent to producers for every delay, containing in a single email all datasets expiring on this given delay
