@@ -157,7 +157,7 @@ defmodule Transport.IRVE.Extractor do
     |> Map.put(:line_count, line_count)
   end
 
-  def process_body(row), do: row
+  def process_resource_body(row, _body), do: row
 
   @doc """
   Save the outcome in the database for reporting.
