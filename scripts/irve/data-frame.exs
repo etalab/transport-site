@@ -13,14 +13,44 @@ defmodule Demo do
       Transport.IRVE.Fetcher.get!(@sample_url, compressed: false, decode_body: false)
 
     Transport.IRVE.DataFrame.dataframe_from_csv_body!(body)
+    |> Explorer.DataFrame.select("id_pdc_itinerance")
     |> IO.inspect(IEx.inspect_opts())
   end
 
+  def process_one(row) do
+    try do
+      %{status: 200, body: body} = Transport.IRVE.Fetcher.get!(row[:url], compressed: false, decode_body: false)
+
+      df =
+        Transport.IRVE.DataFrame.dataframe_from_csv_body!(body)
+        |> Explorer.DataFrame.select("id_pdc_itinerance")
+
+      {:ok, df}
+    rescue
+      error ->
+        IO.inspect(error, IEx.inspect_opts())
+        {:error, error}
+    end
+  end
+
+  def concat_rows(nil, df), do: df
+  def concat_rows(main_df, df), do: Explorer.DataFrame.concat_rows(main_df, df)
+
   def show_more() do
     Transport.IRVE.Extractor.datagouv_resources()
-    |> Stream.take(1)
-    |> Stream.each(fn x -> IO.inspect(x, IEx.inspect_opts()) end)
-    |> Stream.run()
+    |> Enum.sort_by(fn r -> [r[:dataset_id], r[:resource_id]] end)
+    #    |> Stream.take(3)
+    |> Enum.reduce(%{df: nil, report: []}, fn row, %{df: main_df} = acc ->
+      case process_one(row) do
+        {:ok, df} ->
+          acc
+          |> Map.put(:df, concat_rows(main_df, df))
+
+        {:error, error} ->
+          acc
+      end
+    end)
+    |> IO.inspect(IEx.inspect_opts())
   end
 end
 
