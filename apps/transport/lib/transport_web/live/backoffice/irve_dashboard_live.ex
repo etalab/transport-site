@@ -25,7 +25,12 @@ defmodule TransportWeb.Backoffice.IRVEDashboardLive do
 
     filtering_expression == "" ||
       String.contains?(resource["dataset_organisation_name"] |> String.downcase(), filtering_expression) ||
-      String.contains?(format_validity(resource["valid"], resource["http_status"]) |> inspect |> String.downcase(), filtering_expression)
+      String.contains?(
+        format_validity(resource["valid"], resource["http_status"])
+        |> inspect
+        |> String.downcase(),
+        filtering_expression
+      )
   end
 
   def assign_data(socket) do
