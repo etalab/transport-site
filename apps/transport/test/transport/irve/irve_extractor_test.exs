@@ -117,6 +117,38 @@ defmodule Transport.IRVE.ExtractorTest do
              orig_resource
              |> Map.put(:index, 0)
              |> Map.put(:line_count, 3)
+             |> Map.put(:http_status, 200)
+             |> Map.delete(:url)
+           ]
+  end
+
+  test "handles non-200 response" do
+    resources = [
+      orig_resource = %{
+        url: expected_url = "https://static.data.gouv.fr/resources/something/something.csv",
+        dataset_id: "the-dataset-id",
+        dataset_title: "the-dataset-title",
+        resource_id: "the-resource-id",
+        resource_title: "the-resource-title",
+        valid: true
+      }
+    ]
+
+    Transport.Req.Mock
+    |> expect(:get!, fn _request, options ->
+      assert options[:url] == expected_url
+
+      %Req.Response{
+        status: 404,
+        body: "there is nothing here"
+      }
+    end)
+
+    # parsed resources must be enriched with line count & index, and url removed
+    assert Transport.IRVE.Extractor.download_and_parse_all(resources) == [
+             orig_resource
+             |> Map.put(:index, 0)
+             |> Map.put(:http_status, 404)
              |> Map.delete(:url)
            ]
   end
