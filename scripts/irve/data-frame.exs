@@ -27,6 +27,20 @@ defmodule Demo do
     |> String.contains?("id_pdc_itinerance")
   end
 
+  @doc """
+  Relying on a field that was in v1 of the schema, and not in v2, try to hint about old files.
+
+  See https://github.com/etalab/schema-irve/compare/v1.0.3...v2.0.0#diff-9fcde326d127f74194f70e563bdf2c118c51b719c308f015b8eb0204a9a552fbL72
+  """
+  def probably_v1_schema(body) do
+    data = body
+    |> String.split("\n", parts: 2)
+    |> hd()
+
+    # NOTE: do not use `n_amenageur`, because it will match in both v1 and v2 due to `siren_amenageur`
+    !String.contains?(data, "nom_operateur") && String.contains?(data, "n_operateur")
+  end
+
   def process_one(row) do
     try do
       %{status: 200, body: body} = Transport.IRVE.Fetcher.get!(row[:url], compressed: false, decode_body: false)
