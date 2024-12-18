@@ -53,6 +53,8 @@ defmodule Transport.IRVE.Extractor do
       x
       |> Map.put(:dataset_id, fetch_in!(dataset, ["id"]))
       |> Map.put(:dataset_title, fetch_in!(dataset, ["title"]))
+      # a dataset organisation can be nil (in which case an "owner" will be there)
+      |> Map.put(:dataset_organisation_id, get_in(dataset, ["organization", "id"]) || "???")
       |> Map.put(:dataset_organisation_name, get_in(dataset, ["organization", "name"]) || "???")
       |> Map.put(:dataset_organisation_url, get_in(dataset, ["organization", "page"]) || "???")
     end)
@@ -69,6 +71,7 @@ defmodule Transport.IRVE.Extractor do
       resource_title: fetch_in!(resource, ["title"]),
       dataset_id: fetch_in!(resource, [:dataset_id]),
       dataset_title: fetch_in!(resource, [:dataset_title]),
+      dataset_organisation_id: fetch_in!(resource, [:dataset_organisation_id]),
       dataset_organisation_name: fetch_in!(resource, [:dataset_organisation_name]),
       dataset_organisation_url: fetch_in!(resource, [:dataset_organisation_url]),
       valid: get_in(resource, ["extras", "validation-report:valid_resource"]),
