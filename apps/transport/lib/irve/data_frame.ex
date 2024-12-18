@@ -126,10 +126,19 @@ defmodule Transport.IRVE.DataFrame do
     x f64 [43.958037]
     y f64 [4.764347]
   >
+
+  But wait, there is more. Leading and trailing spaces can also occur.
+
+  iex> Explorer.DataFrame.new([%{coordonneesXY: " [6.128405 , 48.658737] "}]) |> Transport.IRVE.DataFrame.preprocess_data()
+  #Explorer.DataFrame<
+    Polars[1 x 2]
+    x f64 [6.128405]
+    y f64 [48.658737]
+  >
   """
   def preprocess_data(df) do
     df
-    |> Explorer.DataFrame.mutate(coordonneesXY: coordonneesXY |> strip("[]"))
+    |> Explorer.DataFrame.mutate(coordonneesXY: coordonneesXY |> strip("[] "))
     |> Explorer.DataFrame.mutate_with(fn df ->
       %{
         coords: Explorer.Series.split_into(df[:coordonneesXY], ",", [:x, :y])
