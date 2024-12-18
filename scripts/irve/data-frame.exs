@@ -72,6 +72,11 @@ defmodule Demo do
   def concat_rows(nil, df), do: df
   def concat_rows(main_df, df), do: Explorer.DataFrame.concat_rows(main_df, df)
 
+  defmodule ReportItem do
+    @enforce_keys [:dataset_id, :resource_id, :resource_url]
+    defstruct [:dataset_id, :resource_id, :resource_url, :error]
+  end
+
   def show_more() do
     Transport.IRVE.Extractor.datagouv_resources()
     # exclude data gouv generated consolidation
