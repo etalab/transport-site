@@ -60,7 +60,8 @@ defmodule Demo do
 
       df =
         Transport.IRVE.DataFrame.dataframe_from_csv_body!(body, Transport.IRVE.StaticIRVESchema.schema_content(), false)
-        |> Explorer.DataFrame.select("id_pdc_itinerance")
+        |> Transport.IRVE.DataFrame.preprocess_data()
+        |> Explorer.DataFrame.select(["id_pdc_itinerance", "x", "y"])
 
       {:ok, df}
     rescue
