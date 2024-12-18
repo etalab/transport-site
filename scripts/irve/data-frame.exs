@@ -50,6 +50,8 @@ defmodule Demo do
 
   def show_more() do
     Transport.IRVE.Extractor.datagouv_resources()
+    # exclude data gouv generated consolidation
+    |> Enum.reject(fn r -> r[:dataset_organisation_id] == "646b7187b50b2a93b1ae3d45" end)
     |> Enum.sort_by(fn r -> [r[:dataset_id], r[:resource_id]] end)
     #    |> Stream.take(3)
     |> Enum.reduce(%{df: nil, report: []}, fn row, %{df: main_df} = acc ->
