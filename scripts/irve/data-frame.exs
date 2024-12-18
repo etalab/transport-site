@@ -45,7 +45,18 @@ defmodule Demo do
     try do
       %{status: 200, body: body} = Transport.IRVE.Fetcher.get!(row[:url], compressed: false, decode_body: false)
 
-      if !has_id_pdc_itinerance(body), do: raise("content has no id_pdc_itinerance in first line")
+      # My assumptions on this method are being checked
+      if !String.valid?(body) do
+        raise("string is not valid (likely utf-8 instead of latin1)")
+      end
+
+      if probably_v1_schema(body) do
+        raise("looks like a v1 irve")
+      end
+
+      if !has_id_pdc_itinerance(body) do
+        raise("content has no id_pdc_itinerance in first line")
+      end
 
       df =
         Transport.IRVE.DataFrame.dataframe_from_csv_body!(body, Transport.IRVE.StaticIRVESchema.schema_content(), false)
