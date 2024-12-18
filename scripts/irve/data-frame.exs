@@ -63,6 +63,17 @@ defmodule Demo do
         |> Transport.IRVE.DataFrame.preprocess_data()
         |> Explorer.DataFrame.select(["id_pdc_itinerance", "x", "y"])
 
+      nil_counts = Explorer.DataFrame.nil_count(df)
+      nil_counts = {
+        Explorer.Series.at(nil_counts[:id_pdc_itinerance], 0),
+        Explorer.Series.at(nil_counts[:x], 0),
+        Explorer.Series.at(nil_counts[:y], 0)
+      }
+      unless nil_counts == {0, 0, 0} do
+        IO.puts row.url
+        IO.inspect(nil_counts, IEx.inspect_opts)
+      end
+
       {:ok, df}
     rescue
       error ->
