@@ -11,11 +11,13 @@ defmodule Transport.Registry.Extractor do
 
   @callback extract_from_archive(path :: Path.t()) :: result([Stop.t()])
 
+  @spec keep_results(Stream.t(result(term()))) :: Stream.t(term())
   def keep_results(enumerable), do: Stream.flat_map(enumerable, &keep_result/1)
 
   defp keep_result({:ok, result}), do: [result]
   defp keep_result(_), do: []
 
+  @spec traverse(Stream.t(term()), (term() -> result(term()))) :: Stream.t(term())
   def traverse(enumerable, mapper) do
     enumerable
     |> Stream.map(mapper)
