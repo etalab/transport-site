@@ -109,10 +109,10 @@ defmodule Demo do
   end
 end
 
-IO.puts("========== just one sample ==========")
+# IO.puts("========== just one sample ==========")
 
-Demo.show_one()
+# Demo.show_one()
 
-IO.puts("========== go further ==========")
+# IO.puts("========== go further ==========")
 
 Demo.show_more()
