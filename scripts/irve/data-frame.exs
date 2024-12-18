@@ -17,6 +17,16 @@ defmodule Demo do
     |> IO.inspect(IEx.inspect_opts())
   end
 
+  @doc """
+  A quick probe to evaluate if a content is likely to be "modern" schema-irve-statique data
+  """
+  def has_id_pdc_itinerance(body) do
+    body
+    |> String.split("\n", parts: 2)
+    |> hd()
+    |> String.contains?("id_pdc_itinerance")
+  end
+
   def process_one(row) do
     try do
       %{status: 200, body: body} = Transport.IRVE.Fetcher.get!(row[:url], compressed: false, decode_body: false)
