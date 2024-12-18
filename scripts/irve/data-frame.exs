@@ -31,6 +31,8 @@ defmodule Demo do
     try do
       %{status: 200, body: body} = Transport.IRVE.Fetcher.get!(row[:url], compressed: false, decode_body: false)
 
+      if !has_id_pdc_itinerance(body), do: raise("content has no id_pdc_itinerance in first line")
+
       df =
         Transport.IRVE.DataFrame.dataframe_from_csv_body!(body, Transport.IRVE.StaticIRVESchema.schema_content(), false)
         |> Explorer.DataFrame.select("id_pdc_itinerance")
