@@ -16,10 +16,17 @@ defmodule Transport.IRVE.DataFrame do
   iex> Transport.IRVE.DataFrame.remap_schema_type(:literally_anything)
   :literally_anything
   """
-  def remap_schema_type(input_type) do
+  def remap_schema_type(input_type, strict = true) do
     case input_type do
       :geopoint -> :string
       :number -> {:f, 32}
+      type -> type
+    end
+  end
+
+  def remap_schema_type(input_type, strict = false) do
+    case remap_schema_type(input_type, true) do
+      :boolean -> :string
       type -> type
     end
   end
@@ -81,7 +88,7 @@ defmodule Transport.IRVE.DataFrame do
 
   Congratulations for reading this far.
   """
-  def dataframe_from_csv_body!(body, schema \\ Transport.IRVE.StaticIRVESchema.schema_content()) do
+  def dataframe_from_csv_body!(body, schema \\ Transport.IRVE.StaticIRVESchema.schema_content(), strict \\ true) do
     dtypes =
       schema
       |> Map.fetch!("fields")
@@ -89,7 +96,7 @@ defmodule Transport.IRVE.DataFrame do
         {
           String.to_atom(name),
           String.to_atom(type)
-          |> Transport.IRVE.DataFrame.remap_schema_type()
+          |> Transport.IRVE.DataFrame.remap_schema_type(strict)
         }
       end)
 
