@@ -2,6 +2,7 @@ defmodule Transport.IRVE.DataFrame do
   @moduledoc """
   Tooling supporting the parsing of an IRVE static file into `Explorer.DataFrame`
   """
+  require Explorer.DataFrame
 
   @doc """
   Helper function to convert TableSchema types into DataFrame ones.
@@ -103,5 +104,31 @@ defmodule Transport.IRVE.DataFrame do
       end)
 
     Explorer.DataFrame.load_csv!(body, dtypes: dtypes)
+  end
+
+  @doc """
+  iex> Explorer.DataFrame.new([%{coordonneesXY: "[47.39,0.80]"}]) |> Transport.IRVE.DataFrame.preprocess_data()
+  #Explorer.DataFrame<
+    Polars[1 x 2]
+    x f64 [47.39]
+    y f64 [0.8]
+  >
+  """
+  def preprocess_data(df) do
+    df
+    |> Explorer.DataFrame.mutate(coordonneesXY: coordonneesXY |> strip("[]"))
+    |> Explorer.DataFrame.mutate_with(fn df ->
+      %{
+        coords: Explorer.Series.split_into(df[:coordonneesXY], ",", [:x, :y])
+      }
+    end)
+    |> Explorer.DataFrame.unnest(:coords)
+    |> Explorer.DataFrame.mutate_with(fn df ->
+      [
+        x: Explorer.Series.cast(df[:x], {:f, 64}),
+        y: Explorer.Series.cast(df[:y], {:f, 64})
+      ]
+    end)
+    |> Explorer.DataFrame.discard(:coordonneesXY)
   end
 end
