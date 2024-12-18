@@ -15,6 +15,14 @@ defmodule Transport.Registry.Model.StopIdentifier do
 
   @type identifier_type :: :main | :private_code | :stop_code | :other
 
+  @doc """
+  iex> to_field(%Transport.Registry.Model.StopIdentifier{id: "stop1", type: :main})
+  "main:stop1"
+  iex> to_field(%Transport.Registry.Model.StopIdentifier{id: "FRPLY", type: :private_code})
+  "private_code:FRPLY"
+  iex> to_field(%Transport.Registry.Model.StopIdentifier{id: "PARIS GDL", type: :other})
+  "other:PARIS GDL"
+  """
   def to_field(%__MODULE__{id: id, type: type}) do
     "#{type}:#{id}"
   end
