@@ -32,7 +32,7 @@ defmodule Demo do
       %{status: 200, body: body} = Transport.IRVE.Fetcher.get!(row[:url], compressed: false, decode_body: false)
 
       df =
-        Transport.IRVE.DataFrame.dataframe_from_csv_body!(body)
+        Transport.IRVE.DataFrame.dataframe_from_csv_body!(body, Transport.IRVE.StaticIRVESchema.schema_content(), false)
         |> Explorer.DataFrame.select("id_pdc_itinerance")
 
       {:ok, df}
