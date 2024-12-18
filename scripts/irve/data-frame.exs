@@ -65,6 +65,8 @@ defmodule Demo do
       end
     end)
     |> IO.inspect(IEx.inspect_opts())
+    |> then(fn x -> x[:df] end)
+    |> Explorer.DataFrame.to_csv!("consolidation.csv")
   end
 end
 

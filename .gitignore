@@ -55,3 +55,4 @@ livebook/cache-dir
 apps/transport/priv/repo/structure.sql
 
 pg.list
+consolidation.csv
