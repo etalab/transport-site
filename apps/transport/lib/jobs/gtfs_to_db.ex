@@ -3,33 +3,7 @@ defmodule Transport.Jobs.GtfsToDB do
   Get the content of a GTFS ResourceHistory, store it in the DB
   """
 
-  @doc """
-   Convert textual values to float.
-
-   iex> convert_text_to_float("0")
-   0.0
-   iex> convert_text_to_float("0.0")
-   0.0
-   iex> convert_text_to_float("12.7")
-   12.7
-   iex> convert_text_to_float("-12.7")
-   -12.7
-   iex> convert_text_to_float("   -48.7    ")
-   -48.7
-  """
-  def convert_text_to_float(input) do
-    input |> String.trim() |> Decimal.new() |> Decimal.to_float()
-  end
-
-  def csv_get_with_default!(map, field, default_value, mandatory_column \\ true) do
-    value = if mandatory_column, do: Map.fetch!(map, field), else: Map.get(map, field)
-
-    case value do
-      nil -> default_value
-      "" -> default_value
-      v -> v
-    end
-  end
+  alias Transport.GTFS.Utils
 
   def import_gtfs_from_resource_history(resource_history_id) do
     %{id: data_import_id} = %DB.DataImport{resource_history_id: resource_history_id} |> DB.Repo.insert!()
@@ -61,42 +35,21 @@ defmodule Transport.Jobs.GtfsToDB do
   def stops_stream_insert(file_stream, data_import_id) do
     DB.Repo.transaction(fn ->
       file_stream
-      |> to_stream_of_maps()
+      |> Utils.to_stream_of_maps()
       # the map is reshaped for Ecto's needs
       |> Stream.map(fn r ->
         %{
           data_import_id: data_import_id,
           stop_id: r |> Map.fetch!("stop_id"),
           stop_name: r |> Map.fetch!("stop_name"),
-          stop_lat: r |> Map.fetch!("stop_lat") |> convert_text_to_float(),
-          stop_lon: r |> Map.fetch!("stop_lon") |> convert_text_to_float(),
-          location_type: r |> csv_get_with_default!("location_type", "0", false) |> String.to_integer()
+          stop_lat: r |> Utils.fetch_position("stop_lat"),
+          stop_lon: r |> Utils.fetch_position("stop_lon"),
+          location_type: r |> Utils.csv_get_with_default!("location_type", "0", false) |> String.to_integer()
         }
       end)
       |> Stream.chunk_every(1000)
       |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GTFS.Stops, chunk) end)
       |> Stream.run()
-    end)
-  end
-
-  @doc """
-  Transform the stream outputed by Unzip to a stream of maps, each map
-  corresponding to a row from the CSV.
-  """
-  def to_stream_of_maps(file_stream) do
-    file_stream
-    # transform the stream to a stream of binaries
-    |> Stream.map(fn c -> IO.iodata_to_binary(c) end)
-    # stream line by line
-    |> NimbleCSV.RFC4180.to_line_stream()
-    |> NimbleCSV.RFC4180.parse_stream(skip_headers: false)
-    # transform the stream to a stream of maps %{column_name1: value1, ...}
-    |> Stream.transform([], fn r, acc ->
-      if acc == [] do
-        {%{}, r |> Enum.map(fn h -> h |> String.replace_prefix("\uFEFF", "") end)}
-      else
-        {[acc |> Enum.zip(r) |> Enum.into(%{})], acc}
-      end
     end)
   end
 
@@ -108,7 +61,7 @@ defmodule Transport.Jobs.GtfsToDB do
   def calendar_stream_insert(file_stream, data_import_id) do
     DB.Repo.transaction(fn ->
       file_stream
-      |> to_stream_of_maps()
+      |> Utils.to_stream_of_maps()
       |> Stream.map(fn r ->
         res = %{
           data_import_id: data_import_id,
@@ -155,7 +108,7 @@ defmodule Transport.Jobs.GtfsToDB do
     DB.Repo.transaction(
       fn ->
         file_stream
-        |> to_stream_of_maps()
+        |> Utils.to_stream_of_maps()
         |> Stream.map(fn r ->
           %{
             data_import_id: data_import_id,
@@ -209,7 +162,7 @@ defmodule Transport.Jobs.GtfsToDB do
     DB.Repo.transaction(
       fn ->
         file_stream
-        |> to_stream_of_maps()
+        |> Utils.to_stream_of_maps()
         |> Stream.map(fn r ->
           %{
             data_import_id: data_import_id,
@@ -235,7 +188,7 @@ defmodule Transport.Jobs.GtfsToDB do
     DB.Repo.transaction(
       fn ->
         file_stream
-        |> to_stream_of_maps()
+        |> Utils.to_stream_of_maps()
         |> Stream.map(fn r ->
           %{
             data_import_id: data_import_id,
