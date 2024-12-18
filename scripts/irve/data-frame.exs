@@ -65,7 +65,6 @@ defmodule Demo do
       {:ok, df}
     rescue
       error ->
-        IO.inspect(error, IEx.inspect_opts())
         {:error, error}
     end
   end
