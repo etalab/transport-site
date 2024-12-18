@@ -117,6 +117,15 @@ defmodule Transport.IRVE.DataFrame do
     x f64 [47.39]
     y f64 [0.8]
   >
+
+  We must also support cases where there are extra spaces.
+
+  iex> Explorer.DataFrame.new([%{coordonneesXY: "[43.958037, 4.764347]"}]) |> Transport.IRVE.DataFrame.preprocess_data()
+  #Explorer.DataFrame<
+    Polars[1 x 2]
+    x f64 [43.958037]
+    y f64 [4.764347]
+  >
   """
   def preprocess_data(df) do
     df
@@ -127,6 +136,9 @@ defmodule Transport.IRVE.DataFrame do
       }
     end)
     |> Explorer.DataFrame.unnest(:coords)
+    # required or we'll get `nil` values
+    |> Explorer.DataFrame.mutate(x: x |> strip(" "))
+    |> Explorer.DataFrame.mutate(y: y |> strip(" "))
     |> Explorer.DataFrame.mutate_with(fn df ->
       [
         x: Explorer.Series.cast(df[:x], {:f, 64}),
