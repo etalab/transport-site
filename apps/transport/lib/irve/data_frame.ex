@@ -103,7 +103,11 @@ defmodule Transport.IRVE.DataFrame do
         }
       end)
 
-    Explorer.DataFrame.load_csv!(body, dtypes: dtypes)
+    # to be tested - do not call `load_csv!` as it will `inspect` the error
+    case Explorer.DataFrame.load_csv(body, dtypes: dtypes) do
+      {:ok, df} -> df
+      {:error, error} -> raise(error)
+    end
   end
 
   @doc """
