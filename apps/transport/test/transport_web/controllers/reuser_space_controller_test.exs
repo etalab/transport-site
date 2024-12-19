@@ -28,17 +28,6 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
       # Feedback form is displayed
       refute content |> Floki.parse_document!() |> Floki.find("form.feedback-form") |> Enum.empty?()
     end
-
-    test "reuser space disabled by killswitch", %{conn: conn} do
-      old_value = Application.fetch_env!(:transport, :disable_reuser_space)
-      Application.put_env(:transport, :disable_reuser_space, true)
-      conn = Plug.Test.init_test_session(conn, %{current_user: %{}})
-      refute TransportWeb.Session.display_reuser_space?(conn)
-      conn = conn |> get(@home_url)
-      assert redirected_to(conn, 302) == "/"
-      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "La fonctionnalité n'est pas disponible pour le moment"
-      Application.put_env(:transport, :disable_reuser_space, old_value)
-    end
   end
 
   describe "datasets_edit" do

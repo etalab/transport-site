@@ -58,23 +58,6 @@ defmodule TransportWeb.Session do
     DB.Dataset.base_query() |> where([dataset: d], d.organization_id in ^org_ids) |> DB.Repo.exists?()
   end
 
-  @doc """
-  A temporary helper method to determine if we should display "reuser space features".
-  Convenient method to find various entrypoints in the codebase:
-  - links and buttons to the reuser space
-  - follow dataset hearts (search results, dataset pages)
-  - reuser space
-
-  Enable it for everybody but keep a "kill switch" to disable it quickly
-  by setting an environment variable and rebooting the app.
-
-  transport.data.gouv.fr admins get access no matter what.
-  """
-  def display_reuser_space?(%Plug.Conn{} = conn) do
-    feature_disabled = Application.fetch_env!(:transport, :disable_reuser_space)
-    admin?(conn) or not feature_disabled
-  end
-
   @spec set_session_attribute_attribute(Plug.Conn.t(), binary(), boolean()) :: Plug.Conn.t()
   defp set_session_attribute_attribute(%Plug.Conn{} = conn, key, value) do
     current_user = current_user(conn)
