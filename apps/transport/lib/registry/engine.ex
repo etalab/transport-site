@@ -3,9 +3,9 @@ defmodule Transport.Registry.Engine do
   Stream eligible resources and run extractors to produce a raw registry at the end.
   """
 
-  alias Transport.Registry.Extractor
   alias Transport.Registry.GTFS
   alias Transport.Registry.Model.Stop
+  alias Transport.Registry.Result
 
   import Ecto.Query
 
@@ -19,13 +19,13 @@ defmodule Transport.Registry.Engine do
     create_empty_csv_with_headers(output_file)
 
     enumerate_gtfs_resources(limit, formats)
-    |> Extractor.map_result(&prepare_extractor/1)
+    |> Result.map_result(&prepare_extractor/1)
     |> Task.async_stream(&download/1, max_concurrency: 10, timeout: 120_000)
     # one for Task.async_stream
-    |> Extractor.cat_results()
+    |> Result.cat_results()
     # one for download/1
-    |> Extractor.cat_results()
-    |> Extractor.map_result(&extract_from_archive/1)
+    |> Result.cat_results()
+    |> Result.map_result(&extract_from_archive/1)
     |> dump_to_csv(output_file)
   end
 
@@ -84,7 +84,7 @@ defmodule Transport.Registry.Engine do
     end
   end
 
-  @spec extract_from_archive({module(), Path.t()}) :: Extractor.result([Stop.t()])
+  @spec extract_from_archive({module(), Path.t()}) :: Result.t([Stop.t()])
   def extract_from_archive({extractor, file}) do
     Logger.debug("extract_from_archive #{extractor} #{file}")
     extractor.extract_from_archive(file)
