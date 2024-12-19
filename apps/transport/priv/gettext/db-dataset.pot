@@ -75,7 +75,7 @@ msgid "Charging & refuelling stations"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Public transit - static schedules"
+msgid "Public transit"
 msgstr ""
 
 #, elixir-autogen, elixir-format

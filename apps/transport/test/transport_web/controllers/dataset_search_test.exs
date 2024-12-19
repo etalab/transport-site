@@ -62,7 +62,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
   test "GET /datasets filter", %{conn: conn} do
     conn = conn |> get(dataset_path(conn, :index))
     # info dans les filtres à gauche des datasets
-    assert html_response(conn, 200) =~ "Transport public collectif - horaires théoriques (2)"
+    assert html_response(conn, 200) =~ "Transport public collectif (2)"
   end
 
   describe "list datasets" do
@@ -156,7 +156,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
 
   test "GET /datasets?type=public-transit&licence=odc-odbl", %{conn: conn} do
     conn = conn |> get(dataset_path(conn, :index), %{type: "public-transit", licence: "odc-odbl"})
-    assert html_response(conn, 200) =~ "Transport public collectif - horaires théoriques (1)"
+    assert html_response(conn, 200) =~ "Transport public collectif (1)"
     assert html_response(conn, 200) =~ "Horaires Angers"
     refute html_response(conn, 200) =~ "Horaires Laval"
 
