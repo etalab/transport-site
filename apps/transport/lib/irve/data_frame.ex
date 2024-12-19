@@ -156,4 +156,32 @@ defmodule Transport.IRVE.DataFrame do
     end)
     |> Explorer.DataFrame.discard(:coordonneesXY)
   end
+
+  # just what we've needed so far
+  @boolean_mappings %{
+    nil => nil,
+    "" => nil,
+    "0" => false,
+    "1" => true,
+    "TRUE" => true,
+    "FALSE" => false,
+    "false" => false,
+    "true" => true,
+    "False" => false,
+    "True" => true
+  }
+
+  # experimental, I think Explorer lacks a feature to allow this operation within Polars.
+  # For now, using `transform`, which is a costly operation comparatively
+  # https://hexdocs.pm/explorer/Explorer.DataFrame.html#transform/3
+  def preprocess_boolean(df, field_name) do
+    df
+    |> Explorer.DataFrame.transform([names: [field_name]], fn row ->
+      %{
+        (field_name <> "_remapped") => Map.fetch!(@boolean_mappings, row[field_name])
+      }
+    end)
+    |> Explorer.DataFrame.discard(field_name)
+    |> Explorer.DataFrame.rename(%{(field_name <> "_remapped") => field_name})
+  end
 end
