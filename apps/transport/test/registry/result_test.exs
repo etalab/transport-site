@@ -1,8 +1,8 @@
-defmodule Transport.Registry.ExtractorTest do
+defmodule Transport.Registry.ResultTest do
   use ExUnit.Case, async: false
 
   require Integer
-  alias Transport.Registry.Extractor
+  alias Transport.Registry.Result
 
   test "cat_results" do
     assert [] == cat_results([])
@@ -16,11 +16,11 @@ defmodule Transport.Registry.ExtractorTest do
   end
 
   defp cat_results(enumerable) do
-    enumerable |> Extractor.cat_results() |> Enum.to_list()
+    enumerable |> Result.cat_results() |> Enum.to_list()
   end
 
   defp map_result(enumerable, mapper) do
-    enumerable |> Extractor.map_result(mapper) |> Enum.to_list()
+    enumerable |> Result.map_result(mapper) |> Enum.to_list()
   end
 
   defp even_is_forbidden(i) when Integer.is_odd(i), do: {:ok, i}

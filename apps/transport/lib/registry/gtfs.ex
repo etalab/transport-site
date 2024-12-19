@@ -5,6 +5,7 @@ defmodule Transport.Registry.GTFS do
 
   alias Transport.Registry.Model.Stop
   alias Transport.Registry.Model.StopIdentifier
+  alias Transport.Registry.Result
 
   alias Transport.GTFS.Utils
 
@@ -18,18 +19,16 @@ defmodule Transport.Registry.GTFS do
     case file_stream(archive) do
       {:error, error} ->
         Logger.error(error)
-        {:error, error}
+        Result.error(error)
 
       {:ok, content} ->
         Logger.debug("Valid Zip archive")
 
-        stops =
-          content
-          |> Utils.to_stream_of_maps()
-          |> Stream.flat_map(&handle_stop/1)
-          |> Enum.to_list()
-
-        {:ok, stops}
+        content
+        |> Utils.to_stream_of_maps()
+        |> Stream.flat_map(&handle_stop/1)
+        |> Enum.to_list()
+        |> Result.ok()
     end
   end
 
@@ -63,18 +62,19 @@ defmodule Transport.Registry.GTFS do
     case Unzip.new(zip_file) do
       {:ok, unzip} ->
         if has_stops?(unzip) do
-          {:ok, Unzip.file_stream!(unzip, "stops.txt")}
+          unzip |> Unzip.file_stream!("stops.txt") |> Result.ok()
         else
-          {:error, "Missing stops.txt in #{archive}"}
+          Result.error("Missing stops.txt in #{archive}")
         end
 
       {:error, error} ->
-        {:error, "Error while unzipping archive #{archive}: #{error}"}
+        Result.error("Error while unzipping archive #{archive}: #{error}")
     end
   end
 
   defp has_stops?(unzip) do
-    Unzip.list_entries(unzip)
+    unzip
+    |> Unzip.list_entries()
     |> Enum.any?(&entry_of_name?("stops.txt", &1))
   end
 
