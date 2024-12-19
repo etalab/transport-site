@@ -1,6 +1,7 @@
 defmodule TransportWeb.Plugs.WorkerHealthcheck do
   @moduledoc """
   A plug for the worker.
+  It can be conditionally enabled by passing an `:if` condition that will be evaluated.
 
   It displays:
   - when the app was started
@@ -44,9 +45,8 @@ defmodule TransportWeb.Plugs.WorkerHealthcheck do
   end
 
   def app_started_recently? do
-    start_datetime = app_start_datetime()
     {delay, unit} = @app_start_waiting_delay
-    DateTime.before?(DateTime.utc_now(), DateTime.add(start_datetime, delay, unit))
+    DateTime.before?(DateTime.utc_now(), DateTime.add(app_start_datetime(), delay, unit))
   end
 
   def app_start_datetime do
@@ -56,9 +56,8 @@ defmodule TransportWeb.Plugs.WorkerHealthcheck do
   def app_start_datetime_cache_key_name, do: "#{__MODULE__}::app_start_datetime"
 
   def oban_attempted_jobs_recently? do
-    oban_last_attempt = oban_last_attempted_at()
     {delay, unit} = @oban_max_delay_since_last_attempt
-    DateTime.before?(oban_last_attempt, DateTime.add(oban_last_attempt, delay, unit))
+    DateTime.after?(oban_last_attempted_at(), DateTime.add(DateTime.utc_now(), -delay, unit))
   end
 
   def oban_last_attempted_at do
