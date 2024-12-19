@@ -22,6 +22,7 @@ defmodule TransportWeb.Plugs.WorkerHealthcheck do
     {mod, fun} = opts[:if]
 
     if apply(mod, fun, []) do
+      store_last_attempted_at_delay_metric()
       status_code = if healthy_state?(), do: 200, else: 503
 
       conn
@@ -38,6 +39,11 @@ defmodule TransportWeb.Plugs.WorkerHealthcheck do
     else
       conn
     end
+  end
+
+  def store_last_attempted_at_delay_metric do
+    value = DateTime.diff(oban_last_attempted_at(), DateTime.utc_now(), :second)
+    Appsignal.add_distribution_value("oban.last_attempted_at_delay", value)
   end
 
   def healthy_state? do
