@@ -92,8 +92,8 @@ defmodule Demo do
   def show_more() do
     Transport.IRVE.Extractor.datagouv_resources()
     # exclude data gouv generated consolidation
-    |> Enum.reject(fn r -> r[:dataset_organisation_id] == "646b7187b50b2a93b1ae3d45" end)
-    |> Enum.sort_by(fn r -> [r[:dataset_id], r[:resource_id]] end)
+    |> Enum.reject(fn r -> r.dataset_organisation_id == "646b7187b50b2a93b1ae3d45" end)
+    |> Enum.sort_by(fn r -> [r.dataset_id, r.resource_id] end)
     # |> Stream.drop(1001)
     # |> Stream.take(10)
     # |> Enum.filter(&(&1.resource_id == "cbd64933-26df-4ab5-b9e8-104f9af9a16c"))
