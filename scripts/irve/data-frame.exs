@@ -98,10 +98,11 @@ defmodule Demo do
     # |> Stream.take(10)
     # |> Enum.filter(&(&1.resource_id == "cbd64933-26df-4ab5-b9e8-104f9af9a16c"))
     |> Enum.reduce(%{df: nil, report: []}, fn row, %{df: main_df, report: report} ->
-      {main_df, error} = case process_one(row) do
-        {:ok, df} -> {concat_rows(main_df, df), nil}
-        {:error, error} -> {main_df, error}
-      end
+      {main_df, error} =
+        case process_one(row) do
+          {:ok, df} -> {concat_rows(main_df, df), nil}
+          {:error, error} -> {main_df, error}
+        end
 
       description = %ReportItem{
         dataset_id: row.dataset_id,
