@@ -43,7 +43,7 @@ defmodule Demo do
 
   def process_one(row) do
     try do
-      %{status: 200, body: body} = Transport.IRVE.Fetcher.get!(row[:url], compressed: false, decode_body: false)
+      %{status: 200, body: body} = Transport.IRVE.Fetcher.get!(row.url, compressed: false, decode_body: false)
 
       # My assumptions on this method are being checked
       if !String.valid?(body) do
