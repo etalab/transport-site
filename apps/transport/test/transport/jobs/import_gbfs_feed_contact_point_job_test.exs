@@ -209,7 +209,7 @@ defmodule Transport.Test.Transport.Jobs.ImportGBFSFeedContactEmailJobTest do
 
     assert :ok == perform_job(ImportGBFSFeedContactEmailJob, %{})
 
-    assert [first_contact, new_contact] = DB.Contact |> DB.Repo.all() |> Enum.sort_by(& &1.inserted_at)
+    assert [first_contact, new_contact] = DB.Contact |> DB.Repo.all() |> Enum.sort_by(& &1.id)
 
     assert %DB.Contact{id: ^existing_gbfs_contact_id, email: ^gbfs_2_email} = first_contact
     assert "Example" == Transport.GBFSMetadata.operator(gbfs_1.url)
