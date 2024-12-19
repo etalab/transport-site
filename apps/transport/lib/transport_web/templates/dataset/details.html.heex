@@ -239,11 +239,9 @@
   </div>
   <div class="dataset-metas">
     <div class="panel">
-      <%= if TransportWeb.Session.display_reuser_space?(@conn) do %>
-        <%= live_render(@conn, TransportWeb.Live.FollowDatasetLive,
-          session: %{"current_user" => @current_user, "dataset_id" => @dataset.id}
-        ) %>
-      <% end %>
+      <%= live_render(@conn, TransportWeb.Live.FollowDatasetLive,
+        session: %{"current_user" => @current_user, "dataset_id" => @dataset.id}
+      ) %>
       <div class="dataset__logo">
         <%= img_tag(DB.Dataset.full_logo(@dataset), alt: @dataset.custom_title) %>
       </div>
