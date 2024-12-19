@@ -4,23 +4,23 @@ defmodule Transport.Registry.ExtractorTest do
   require Integer
   alias Transport.Registry.Extractor
 
-  test "keep_results" do
-    assert [] == keep_results([])
-    assert [] == keep_results([{:error, "Error message"}])
-    assert [1, 3] == keep_results([{:ok, 1}, {:error, "Error message"}, {:ok, 3}])
+  test "cat_results" do
+    assert [] == cat_results([])
+    assert [] == cat_results([{:error, "Error message"}])
+    assert [1, 3] == cat_results([{:ok, 1}, {:error, "Error message"}, {:ok, 3}])
   end
 
-  test "traverse" do
-    assert [] == traverse([], &even_is_forbidden/1)
-    assert [1, 3, 5, 7, 9] == traverse(1..10, &even_is_forbidden/1)
+  test "map_result" do
+    assert [] == map_result([], &even_is_forbidden/1)
+    assert [1, 3, 5, 7, 9] == map_result(1..10, &even_is_forbidden/1)
   end
 
-  defp keep_results(enumerable) do
-    enumerable |> Extractor.keep_results() |> Enum.to_list()
+  defp cat_results(enumerable) do
+    enumerable |> Extractor.cat_results() |> Enum.to_list()
   end
 
-  defp traverse(enumerable, mapper) do
-    enumerable |> Extractor.traverse(mapper) |> Enum.to_list()
+  defp map_result(enumerable, mapper) do
+    enumerable |> Extractor.map_result(mapper) |> Enum.to_list()
   end
 
   defp even_is_forbidden(i) when Integer.is_odd(i), do: {:ok, i}
