@@ -1,5 +1,6 @@
 defmodule TransportWeb.Plugs.WorkerHealthcheckTest do
-  # async: false is required because we use real in-memory caching in these tests
+  # async: false is required because we use real in-memory caching in these tests,
+  # and we swap application config (shared state)
   use TransportWeb.ConnCase, async: false
   alias TransportWeb.Plugs.WorkerHealthcheck
 

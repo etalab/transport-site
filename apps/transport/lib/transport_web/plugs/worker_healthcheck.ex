@@ -52,7 +52,7 @@ defmodule TransportWeb.Plugs.WorkerHealthcheck do
 
   def app_started_recently? do
     {delay, unit} = @app_start_waiting_delay
-    DateTime.before?(DateTime.utc_now(), DateTime.add(app_start_datetime(), delay, unit))
+    DateTime.diff(DateTime.utc_now(), app_start_datetime(), unit) < delay
   end
 
   def app_start_datetime do
