@@ -63,7 +63,9 @@ defmodule Demo do
         # TODO: be smooth about `cable_t2_attache` - only added in v2.1.0 (https://github.com/etalab/schema-irve/releases/tag/v2.1.0)
         # and often not provided
         Transport.IRVE.DataFrame.dataframe_from_csv_body!(body, Transport.IRVE.StaticIRVESchema.schema_content(), _strict = false)
+        # TODO: rename accordingly
         |> Transport.IRVE.DataFrame.preprocess_data()
+        # TODO: loop programmatically
         |> Transport.IRVE.DataFrame.preprocess_boolean("prise_type_ef")
         |> Transport.IRVE.DataFrame.preprocess_boolean("prise_type_2")
         |> Transport.IRVE.DataFrame.preprocess_boolean("prise_type_combo_ccs")
