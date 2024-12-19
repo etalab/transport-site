@@ -70,8 +70,8 @@ defmodule Demo do
         Explorer.Series.at(nil_counts[:y], 0)
       }
       unless nil_counts == {0, 0, 0} do
-        IO.puts row.url
-        IO.inspect(nil_counts, IEx.inspect_opts)
+        IO.puts(row.url)
+        IO.inspect(nil_counts, IEx.inspect_opts())
       end
 
       {:ok, df}
