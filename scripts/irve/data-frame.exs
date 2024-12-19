@@ -14,13 +14,18 @@ defmodule Demo do
     |> IO.inspect(IEx.inspect_opts())
   end
 
+  def first_line(body) do
+    body
+    |> String.split("\n", parts: 2)
+    |> hd()
+  end
+
   @doc """
   A quick probe to evaluate if a content is likely to be "modern" schema-irve-statique data
   """
   def has_id_pdc_itinerance(body) do
     body
-    |> String.split("\n", parts: 2)
-    |> hd()
+    |> first_line()
     |> String.contains?("id_pdc_itinerance")
   end
 
@@ -30,9 +35,7 @@ defmodule Demo do
   See https://github.com/etalab/schema-irve/compare/v1.0.3...v2.0.0#diff-9fcde326d127f74194f70e563bdf2c118c51b719c308f015b8eb0204a9a552fbL72
   """
   def probably_v1_schema(body) do
-    data = body
-    |> String.split("\n", parts: 2)
-    |> hd()
+    data = body |> first_line()
 
     # NOTE: do not use `n_amenageur`, because it will match in both v1 and v2 due to `siren_amenageur`
     !String.contains?(data, "nom_operateur") && String.contains?(data, "n_operateur")
