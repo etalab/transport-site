@@ -19,13 +19,13 @@ defmodule Transport.Registry.Engine do
     create_empty_csv_with_headers(output_file)
 
     enumerate_gtfs_resources(limit, formats)
-    |> Extractor.traverse(&prepare_extractor/1)
+    |> Extractor.map_result(&prepare_extractor/1)
     |> Task.async_stream(&download/1, max_concurrency: 10, timeout: 120_000)
     # one for Task.async_stream
-    |> Extractor.keep_results()
+    |> Extractor.cat_results()
     # one for download/1
-    |> Extractor.keep_results()
-    |> Extractor.traverse(&extract_from_archive/1)
+    |> Extractor.cat_results()
+    |> Extractor.map_result(&extract_from_archive/1)
     |> dump_to_csv(output_file)
   end
 
