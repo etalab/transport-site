@@ -188,6 +188,7 @@ defmodule Demo do
     output.report
     |> Enum.reverse()
     |> Enum.map(&Map.from_struct/1)
+    |> Enum.map(fn(x) -> Map.put(x, :error, x.error |> inspect) end)
     |> Explorer.DataFrame.new()
     |> Explorer.DataFrame.to_csv!("report.csv")
   end
