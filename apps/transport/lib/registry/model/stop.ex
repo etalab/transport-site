@@ -15,6 +15,8 @@ defmodule Transport.Registry.Model.StopIdentifier do
 
   @type identifier_type :: :main | :private_code | :stop_code | :other
 
+  def main(id), do: %__MODULE__{type: :main, id: id}
+
   @doc """
   iex> to_field(%Transport.Registry.Model.StopIdentifier{id: "stop1", type: :main})
   "main:stop1"

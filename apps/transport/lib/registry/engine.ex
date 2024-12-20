@@ -4,6 +4,7 @@ defmodule Transport.Registry.Engine do
   """
 
   alias Transport.Registry.GTFS
+  alias Transport.Registry.NeTEx
   alias Transport.Registry.Model.Stop
   alias Transport.Registry.Result
 
@@ -46,6 +47,7 @@ defmodule Transport.Registry.Engine do
   def prepare_extractor(%DB.Resource{} = resource) do
     case resource.format do
       "GTFS" -> {:ok, {GTFS, resource.url}}
+      "NeTEx" -> {:ok, {NeTEx, resource.url}}
       _ -> {:error, "Unsupported format"}
     end
   end
