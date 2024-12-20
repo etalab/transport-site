@@ -420,7 +420,7 @@ defmodule TransportWeb.DatasetView do
     resources
     |> Enum.filter(fn r -> r.format == "csv" end)
     |> Enum.reject(fn r -> Resource.community_resource?(r) or Resource.documentation?(r) end)
-    |> Enum.max_by(&{&1.type, &1.last_update}, TransportWeb.DatasetView.CarpoolingSortKey, fn -> nil end)
+    |> Enum.max_by(&{&1.type, &1.last_update}, TransportWeb.DatasetView.ResourceTypeSortKey, fn -> nil end)
   end
 
   def get_resource_to_display(%Dataset{type: type, resources: resources})
@@ -580,7 +580,7 @@ defmodule TransportWeb.DatasetView do
   end
 end
 
-defmodule TransportWeb.DatasetView.CarpoolingSortKey do
+defmodule TransportWeb.DatasetView.ResourceTypeSortKey do
   def compare({left_type, left_last_update}, {right_type, right_last_update}) do
     cond do
       left_type == right_type -> DateTime.compare(left_last_update, right_last_update)
