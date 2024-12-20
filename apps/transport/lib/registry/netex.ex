@@ -13,10 +13,7 @@ defmodule Transport.Registry.NeTEx do
   @doc """
   Extract stops from a NeTEx archive.
   """
-  def extract_from_archive(archive) do
-    # FIXME: propagate some context
-    data_source_id = nil
-
+  def extract_from_archive(data_source_id, archive) do
     archive
     |> Transport.NeTEx.read_all_stop_places()
     |> Enum.flat_map(&process_stop_places(data_source_id, &1))

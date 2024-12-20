@@ -5,6 +5,7 @@ defmodule Transport.Registry.Engine do
 
   alias Transport.Registry.GTFS
   alias Transport.Registry.NeTEx
+  alias Transport.Registry.Model.DataSource
   alias Transport.Registry.Model.Stop
   alias Transport.Registry.Result
 
@@ -45,15 +46,17 @@ defmodule Transport.Registry.Engine do
   end
 
   def prepare_extractor(%DB.Resource{} = resource) do
+    data_source_id = "PAN:resource:#{resource.id}"
+
     case resource.format do
-      "GTFS" -> {:ok, {GTFS, resource.url}}
-      "NeTEx" -> {:ok, {NeTEx, resource.url}}
+      "GTFS" -> {:ok, {GTFS, data_source_id, resource.url}}
+      "NeTEx" -> {:ok, {NeTEx, data_source_id, resource.url}}
       _ -> {:error, "Unsupported format"}
     end
   end
 
-  def download({extractor, url}) do
-    Logger.debug("download #{extractor} #{url}")
+  def download({extractor, data_source_id, url}) do
+    Logger.debug("download #{extractor} #{data_source_id} #{url}")
     tmp_path = System.tmp_dir!() |> Path.join("#{Ecto.UUID.generate()}.dat")
 
     safe_error = fn msg ->
@@ -75,7 +78,7 @@ defmodule Transport.Registry.Engine do
       {:ok, %{status: status}} ->
         cond do
           status >= 200 && status < 300 ->
-            {:ok, {extractor, tmp_path}}
+            {:ok, {extractor, data_source_id, tmp_path}}
 
           status > 400 ->
             safe_error.("Error #{status} while downloading the resource from #{url}")
@@ -86,10 +89,10 @@ defmodule Transport.Registry.Engine do
     end
   end
 
-  @spec extract_from_archive({module(), Path.t()}) :: Result.t([Stop.t()])
-  def extract_from_archive({extractor, file}) do
-    Logger.debug("extract_from_archive #{extractor} #{file}")
-    extractor.extract_from_archive(file)
+  @spec extract_from_archive({module(), DataSource.data_source_id(), Path.t()}) :: Result.t([Stop.t()])
+  def extract_from_archive({extractor, data_source_id, file}) do
+    Logger.debug("extract_from_archive #{extractor} #{data_source_id} #{file}")
+    extractor.extract_from_archive(data_source_id, file)
   end
 
   def dump_to_csv(enumerable, output_file) do

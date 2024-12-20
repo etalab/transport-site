@@ -15,7 +15,7 @@ defmodule Transport.Registry.GTFS do
   @doc """
   Extract stops from GTFS ressource.
   """
-  def extract_from_archive(archive) do
+  def extract_from_archive(data_source_id, archive) do
     case file_stream(archive) do
       {:error, error} ->
         Logger.error(error)
@@ -26,13 +26,13 @@ defmodule Transport.Registry.GTFS do
 
         content
         |> Utils.to_stream_of_maps()
-        |> Stream.flat_map(&handle_stop/1)
+        |> Stream.flat_map(&handle_stop(data_source_id, &1))
         |> Enum.to_list()
         |> Result.ok()
     end
   end
 
-  defp handle_stop(record) do
+  defp handle_stop(data_source_id, record) do
     latitude = Utils.fetch_position(record, "stop_lat")
     longitude = Utils.fetch_position(record, "stop_lon")
 
@@ -44,7 +44,9 @@ defmodule Transport.Registry.GTFS do
           latitude: latitude,
           longitude: longitude,
           projection: :utm_wgs84,
-          stop_type: record |> Utils.csv_get_with_default("location_type", "0") |> to_stop_type()
+          stop_type: record |> Utils.csv_get_with_default("location_type", "0") |> to_stop_type(),
+          data_source_format: :gtfs,
+          data_source_id: data_source_id
         }
       ]
     else
