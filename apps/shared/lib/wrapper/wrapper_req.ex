@@ -35,6 +35,18 @@ defmodule Transport.HTTPClient do
   """
 
   def get!(url, options) do
+    {req, options} = setup_cache(options)
+
+    Transport.Req.impl().get!(req, options |> Keyword.merge(url: url))
+  end
+
+  def get(url, options) do
+    {req, options} = setup_cache(options)
+
+    Transport.Req.impl().get(req, options |> Keyword.merge(url: url))
+  end
+
+  defp setup_cache(options) do
     options =
       Keyword.validate!(options, [
         :custom_cache_dir,
@@ -48,13 +60,10 @@ defmodule Transport.HTTPClient do
 
     {enable_cache, options} = options |> Keyword.pop!(:enable_cache)
 
-    req =
-      if enable_cache do
-        req |> Transport.Shared.ReqCustomCache.attach()
-      else
-        req
-      end
-
-    Transport.Req.impl().get!(req, options |> Keyword.merge(url: url))
+    if enable_cache do
+      {req |> Transport.Shared.ReqCustomCache.attach(), options}
+    else
+      {req, options}
+    end
   end
 end

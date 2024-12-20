@@ -20,16 +20,16 @@ defmodule Transport.NeTEx do
       # Entry names ending with a slash `/` are directories. Skip them.
       # https://github.com/akash-akya/unzip/blob/689a1ca7a134ab2aeb79c8c4f8492d61fa3e09a0/lib/unzip.ex#L69
       String.ends_with?(file_name, "/") ->
-        []
+        {:ok, []}
 
       extension |> String.downcase() == ".zip" ->
-        raise "Insupported zip inside zip for file #{file_name}"
+        {:error, "Insupported zip inside zip for file #{file_name}"}
 
       extension |> String.downcase() != ".xml" ->
-        raise "Insupported file extension (#{extension}) for file #{file_name}"
+        {:error, "Insupported file extension (#{extension}) for file #{file_name}"}
 
       true ->
-        {:ok, state} =
+        parsing_result =
           unzip
           |> Unzip.file_stream!(file_name)
           |> Stream.map(&IO.iodata_to_binary(&1))
@@ -42,7 +42,21 @@ defmodule Transport.NeTEx do
             end
           })
 
-        state.stop_places
+        case parsing_result do
+          {:ok, state} -> {:ok, state.stop_places}
+          {:error, exception} -> {:error, Exception.message(exception)}
+          {:halt, _state, _rest} -> {:error, "SAX parsing interrupted unexpectedly."}
+        end
+    end
+  end
+
+  @doc """
+  Like read_stop_places/2 but raises on errors.
+  """
+  def read_stop_places!(%Unzip{} = unzip, file_name) do
+    case read_stop_places(unzip, file_name) do
+      {:ok, stop_places} -> stop_places
+      {:error, message} -> raise message
     end
   end
 
@@ -53,8 +67,14 @@ defmodule Transport.NeTEx do
     zip_file = Unzip.LocalFile.open(zip_file_name)
 
     try do
-      {:ok, unzip} = Unzip.new(zip_file)
-      cb.(unzip)
+      case Unzip.new(zip_file) do
+        {:ok, unzip} ->
+          cb.(unzip)
+
+        {:error, message} ->
+          Logger.error("Error while reading #{zip_file_name}: #{message}")
+          []
+      end
     after
       Unzip.LocalFile.close(zip_file)
     end
@@ -67,6 +87,17 @@ defmodule Transport.NeTEx do
   See tests for actual output. Will be refactored soonish.
   """
   def read_all_stop_places(zip_file_name) do
+    read_all(zip_file_name, &read_stop_places/2)
+  end
+
+  @doc """
+  Like read_all_stop_places/1 but raises on error.
+  """
+  def read_all_stop_places!(zip_file_name) do
+    read_all(zip_file_name, &read_stop_places!/2)
+  end
+
+  defp read_all(zip_file_name, reader) do
     with_zip_file_handle(zip_file_name, fn unzip ->
       unzip
       |> Unzip.list_entries()
@@ -75,7 +106,7 @@ defmodule Transport.NeTEx do
 
         {
           metadata.file_name,
-          read_stop_places(unzip, metadata.file_name)
+          reader.(unzip, metadata.file_name)
         }
       end)
     end)
