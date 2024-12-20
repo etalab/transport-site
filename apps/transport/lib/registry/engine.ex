@@ -20,7 +20,7 @@ defmodule Transport.Registry.Engine do
 
     enumerate_gtfs_resources(limit, formats)
     |> Result.map_result(&prepare_extractor/1)
-    |> Task.async_stream(&download/1, max_concurrency: 10, timeout: 120_000)
+    |> Task.async_stream(&download/1, max_concurrency: 12, timeout: 30 * 60_000)
     # one for Task.async_stream
     |> Result.cat_results()
     # one for download/1
