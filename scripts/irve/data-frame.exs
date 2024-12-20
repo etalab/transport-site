@@ -155,7 +155,7 @@ defmodule Demo do
   end
 
   def show_more() do
-    Transport.IRVE.Extractor.datagouv_resources()
+    output = Transport.IRVE.Extractor.datagouv_resources()
     # exclude data gouv generated consolidation
     |> Enum.reject(fn r -> r.dataset_organisation_id == "646b7187b50b2a93b1ae3d45" end)
     |> Enum.sort_by(fn r -> [r.dataset_id, r.resource_id] end)
@@ -181,9 +181,15 @@ defmodule Demo do
         report: [description | report]
       }
     end)
-    |> IO.inspect(IEx.inspect_opts())
-    |> then(fn x -> x[:df] end)
+
+    output.df
     |> Explorer.DataFrame.to_csv!("consolidation.csv")
+
+    output.report
+    |> Enum.reverse()
+    |> Enum.map(&Map.from_struct/1)
+    |> Explorer.DataFrame.new()
+    |> Explorer.DataFrame.to_csv!("report.csv")
   end
 end
 
