@@ -4,9 +4,9 @@ defmodule Transport.Registry.Engine do
   """
 
   alias Transport.Registry.GTFS
-  alias Transport.Registry.NeTEx
   alias Transport.Registry.Model.DataSource
   alias Transport.Registry.Model.Stop
+  alias Transport.Registry.NeTEx
   alias Transport.Registry.Result
 
   import Ecto.Query
