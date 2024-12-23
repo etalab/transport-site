@@ -15,7 +15,7 @@ defmodule TransportWeb.Plugs.WorkerHealthcheck do
   """
   import Plug.Conn
 
-  @app_start_waiting_delay {5, :minute}
+  @app_start_waiting_delay {20, :minute}
   @oban_max_delay_since_last_attempt {60, :minute}
 
   def init(options), do: options
@@ -69,7 +69,6 @@ defmodule TransportWeb.Plugs.WorkerHealthcheck do
   def oban_attempted_jobs_recently? do
     {delay, unit} = @oban_max_delay_since_last_attempt
     DateTime.after?(oban_last_attempted_at(), DateTime.add(DateTime.utc_now(), -delay, unit))
-    false
   end
 
   def oban_last_attempted_at do
