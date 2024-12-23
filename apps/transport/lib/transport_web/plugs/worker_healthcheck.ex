@@ -8,8 +8,10 @@ defmodule TransportWeb.Plugs.WorkerHealthcheck do
   - the last attempt for Oban jobs
   - if the system is healthy
 
-  The system is considered healthy if the app was started recently or
-  if Oban attempted jobs recently.
+  The system is considered:
+  - healthy if the app was started recently or if Oban attempted jobs recently.
+  - not healthy: we don't respond to incoming HTTP requests by halting
+  the connection and expect our hosting provider to reboot the app.
   """
   import Plug.Conn
 
@@ -23,19 +25,22 @@ defmodule TransportWeb.Plugs.WorkerHealthcheck do
 
     if apply(mod, fun, []) do
       store_last_attempted_at_delay_metric()
-      status_code = if healthy_state?(), do: 200, else: 503
 
-      conn
-      |> put_resp_content_type("text/plain")
-      |> send_resp(status_code, """
-      UP (WORKER-ONLY)
-      App start time: #{app_start_datetime()}
-      App started recently?: #{app_started_recently?()}
-      Oban last attempt: #{oban_last_attempted_at()}
-      Oban attempted jobs recently?: #{oban_attempted_jobs_recently?()}
-      Healthy state?: #{healthy_state?()}
-      """)
-      |> halt()
+      if healthy_state?() do
+        conn
+        |> put_resp_content_type("text/plain")
+        |> send_resp(200, """
+        UP (WORKER-ONLY)
+        App start time: #{app_start_datetime()}
+        App started recently?: #{app_started_recently?()}
+        Oban last attempt: #{oban_last_attempted_at()}
+        Oban attempted jobs recently?: #{oban_attempted_jobs_recently?()}
+        Healthy state?: #{healthy_state?()}
+        """)
+        |> halt()
+      else
+        conn |> halt()
+      end
     else
       conn
     end

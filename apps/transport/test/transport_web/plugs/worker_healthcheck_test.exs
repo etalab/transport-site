@@ -121,7 +121,7 @@ defmodule TransportWeb.Plugs.WorkerHealthcheckTest do
       refute WorkerHealthcheck.oban_attempted_jobs_recently?()
       refute WorkerHealthcheck.healthy_state?()
 
-      assert conn |> WorkerHealthcheck.call(if: {__MODULE__, :plug_enabled?}) |> text_response(503)
+      assert %Plug.Conn{halted: true} = conn |> WorkerHealthcheck.call(if: {__MODULE__, :plug_enabled?})
     end
   end
 
