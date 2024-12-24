@@ -26,7 +26,7 @@ defmodule TransportWeb.Plugs.WorkerHealthcheck do
       store_last_attempted_at_delay_metric()
       status_code = if healthy_state?(), do: 200, else: 503
 
-      conn
+      conn = conn
       |> put_resp_content_type("text/plain")
       |> send_resp(status_code, """
       UP (WORKER-ONLY)
@@ -45,6 +45,8 @@ defmodule TransportWeb.Plugs.WorkerHealthcheck do
         # "Asynchronously and carefully stops the Erlang runtime system."
         System.stop()
       end
+
+      conn
     else
       conn
     end
