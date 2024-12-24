@@ -26,17 +26,18 @@ defmodule TransportWeb.Plugs.WorkerHealthcheck do
       store_last_attempted_at_delay_metric()
       status_code = if healthy_state?(), do: 200, else: 503
 
-      conn = conn
-      |> put_resp_content_type("text/plain")
-      |> send_resp(status_code, """
-      UP (WORKER-ONLY)
-      App start time: #{app_start_datetime()}
-      App started recently?: #{app_started_recently?()}
-      Oban last attempt: #{oban_last_attempted_at()}
-      Oban attempted jobs recently?: #{oban_attempted_jobs_recently?()}
-      Healthy state?: #{healthy_state?()}
-      """)
-      |> halt()
+      conn =
+        conn
+        |> put_resp_content_type("text/plain")
+        |> send_resp(status_code, """
+        UP (WORKER-ONLY)
+        App start time: #{app_start_datetime()}
+        App started recently?: #{app_started_recently?()}
+        Oban last attempt: #{oban_last_attempted_at()}
+        Oban attempted jobs recently?: #{oban_attempted_jobs_recently?()}
+        Healthy state?: #{healthy_state?()}
+        """)
+        |> halt()
 
       # NOTE: Clever Cloud monitoring will better pick stuff back up
       # if the app is completely down.
