@@ -42,7 +42,7 @@ defmodule TransportWeb.Plugs.WorkerHealthcheck do
       # if the app is completely down.
       if !healthy_state?() do
         Logger.info "Hot-fix: shutting down!!!"
-        # "Carefully stops the Erlang runtime system."
+        # "Asynchronously and carefully stops the Erlang runtime system."
         System.stop()
       end
     else
