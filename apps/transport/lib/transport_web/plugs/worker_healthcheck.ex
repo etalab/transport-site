@@ -41,7 +41,7 @@ defmodule TransportWeb.Plugs.WorkerHealthcheck do
       # NOTE: Clever Cloud monitoring will better pick stuff back up
       # if the app is completely down.
       if !healthy_state?() do
-        Logger.info "Hot-fix: shutting down!!!"
+        Logger.info("Hot-fix: shutting down!!!")
         # "Asynchronously and carefully stops the Erlang runtime system."
         System.stop()
       end
