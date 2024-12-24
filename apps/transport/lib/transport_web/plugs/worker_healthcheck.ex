@@ -12,6 +12,7 @@ defmodule TransportWeb.Plugs.WorkerHealthcheck do
   if Oban attempted jobs recently.
   """
   import Plug.Conn
+  require Logger
 
   @app_start_waiting_delay {20, :minute}
   @oban_max_delay_since_last_attempt {60, :minute}
@@ -36,6 +37,14 @@ defmodule TransportWeb.Plugs.WorkerHealthcheck do
       Healthy state?: #{healthy_state?()}
       """)
       |> halt()
+
+      # NOTE: Clever Cloud monitoring will better pick stuff back up
+      # if the app is completely down.
+      if !healthy_state?() do
+        Logger.info "Hot-fix: shutting down!!!"
+        # "Carefully stops the Erlang runtime system."
+        System.stop()
+      end
     else
       conn
     end
