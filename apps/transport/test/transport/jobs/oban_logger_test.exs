@@ -46,12 +46,12 @@ defmodule Transport.Test.Transport.Jobs.ObanLoggerTest do
   end
 
   test "oban default logger is set up for important components" do
-    events = Enum.filter(:telemetry.list_handlers([]), &(&1.id == "oban-default-logger"))
+    registered_handlers = Enum.filter(:telemetry.list_handlers([]), &(&1.id == "oban-default-logger"))
 
-    assert Enum.count(events) > 0
+    assert Enum.count(registered_handlers) > 0
 
     components =
-      events
+      registered_handlers
       |> Enum.map(fn %{event_name: [:oban, component, _]} -> component end)
       |> MapSet.new()
 
