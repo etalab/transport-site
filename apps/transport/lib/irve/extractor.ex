@@ -114,6 +114,7 @@ defmodule Transport.IRVE.Extractor do
     |> Enum.map(fn x ->
       Map.take(x, [
         :dataset_id,
+        :http_status,
         :dataset_title,
         :dataset_organisation_name,
         :dataset_organisation_url,
@@ -136,7 +137,7 @@ defmodule Transport.IRVE.Extractor do
       Transport.IRVE.Fetcher.get!(row[:url], compressed: false, decode_body: false)
 
     row
-    |> Map.put(:status, status)
+    |> Map.put(:http_status, status)
     |> Map.put(:index, index)
     |> then(fn x -> process_resource_body(x, body) end)
   end
@@ -145,7 +146,7 @@ defmodule Transport.IRVE.Extractor do
   For a given resource and corresponding body, enrich data with
   extra stuff like estimated number of charge points.
   """
-  def process_resource_body(%{status: 200} = row, body) do
+  def process_resource_body(%{http_status: 200} = row, body) do
     body = body |> String.split("\n")
     first_line = body |> hd()
     line_count = (body |> length) - 1
@@ -160,7 +161,7 @@ defmodule Transport.IRVE.Extractor do
     |> Map.put(:line_count, line_count)
   end
 
-  def process_body(row), do: row
+  def process_resource_body(row, _body), do: row
 
   @doc """
   Save the outcome in the database for reporting.

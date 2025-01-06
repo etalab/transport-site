@@ -67,6 +67,68 @@ defmodule TransportWeb.DatasetViewTest do
     assert get_resource_to_display(dataset_only_roads) == nil
   end
 
+  test "resource to display for BNLC" do
+    dataset_two_bnlcs = %DB.Dataset{
+      type: "carpooling-areas",
+      resources: [
+        %DB.Resource{
+          id: 1,
+          url: "https://example.com/bnlc.csv",
+          format: "csv",
+          schema_name: "etalab/schema-lieux-covoiturage",
+          last_update: ~U[2016-05-24 13:26:08Z],
+          type: "other"
+        },
+        %DB.Resource{
+          id: 2,
+          url: "https://example.com/bnlc-consolidated.csv",
+          format: "csv",
+          schema_name: "etalab/schema-lieux-covoiturage",
+          last_update: ~U[2016-05-24 13:25:08Z],
+          type: "other"
+        }
+      ]
+    }
+
+    dataset_two_bnlcs_with_the_main = %DB.Dataset{
+      type: "carpooling-areas",
+      resources: [
+        %DB.Resource{
+          id: 1,
+          url: "https://example.com/bnlc.csv",
+          format: "csv",
+          schema_name: "etalab/schema-lieux-covoiturage",
+          last_update: ~U[2016-05-24 13:26:08Z],
+          type: "other"
+        },
+        %DB.Resource{
+          id: 2,
+          url: "https://example.com/bnlc-consolidated-1.csv",
+          format: "csv",
+          schema_name: "etalab/schema-lieux-covoiturage",
+          # not the latest, but we prefer the main one
+          last_update: ~U[2016-05-24 13:24:08Z],
+          type: "main"
+        },
+        %DB.Resource{
+          id: 3,
+          url: "https://example.com/bnlc-consolidated-2.csv",
+          format: "csv",
+          schema_name: "etalab/schema-lieux-covoiturage",
+          # not the latest, but we prefer the main one
+          last_update: ~U[2016-05-24 13:25:08Z],
+          type: "main"
+        }
+      ]
+    }
+
+    # Display the latest
+    assert get_resource_to_display(dataset_two_bnlcs).id == 1
+
+    # Display the latest main one
+    assert get_resource_to_display(dataset_two_bnlcs_with_the_main).id == 3
+  end
+
   test "test data is up to date" do
     assert "tipi.bison-fute.gouv.fr" == Application.fetch_env!(:transport, :bison_fute_host)
   end

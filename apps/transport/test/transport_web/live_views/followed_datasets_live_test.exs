@@ -27,7 +27,7 @@ defmodule TransportWeb.Live.FollowedDatasetsLiveTest do
              {"select", [{"id", "type"}, {"name", "type"}],
               [
                 {"option", [{"selected", "selected"}, {"value", ""}], ["Tout"]},
-                {"option", [{"value", "public-transit"}], ["Transport public collectif - horaires théoriques"]},
+                {"option", [{"value", "public-transit"}], ["Transport public collectif"]},
                 {"option", [{"value", "bike-scooter-sharing"}], ["Vélos et trottinettes en libre-service"]}
               ]}
            ] == view |> element("form select") |> render() |> Floki.parse_document!()
