@@ -6,13 +6,26 @@ defmodule DB.Dataset do
   There are also trigger on update on aom and region that will force an update on this model
   so the search vector is up-to-date.
   """
-  alias DB.{AOM, Commune, DatasetGeographicView, LogsImport, NotificationSubscription, Region, Repo, Resource}
+  alias DB.{
+    AOM,
+    Commune,
+    DatasetGeographicView,
+    Departement,
+    EPCI,
+    LogsImport,
+    NotificationSubscription,
+    Region,
+    Repo,
+    Resource
+  }
+
   alias Phoenix.HTML.Link
   import Ecto.{Changeset, Query}
   import TransportWeb.Gettext
   require Logger
   use Ecto.Schema
   use TypedEctoSchema
+  import DB.DatasetTerritory
 
   @type conversion_details :: %{
           url: binary(),
@@ -63,7 +76,33 @@ defmodule DB.Dataset do
     timestamps(type: :utc_datetime_usec)
 
     # When the dataset is linked to some cities
+    # Legacy field, will be removed in the future
     many_to_many(:communes, Commune, join_through: "dataset_communes", on_replace: :delete)
+
+    # New territory fields
+    many_to_many(:new_communes, Commune,
+      join_through: "dataset_new_communes",
+      join_keys: [dataset_id: :id, commune_insee: :insee],
+      on_replace: :delete
+    )
+
+    many_to_many(:epcis, EPCI,
+      join_through: "dataset_epcis",
+      join_keys: [dataset_id: :id, epci_insee: :insee],
+      on_replace: :delete
+    )
+
+    many_to_many(:departements, Departement,
+      join_through: "dataset_departements",
+      join_keys: [dataset_id: :id, departement_insee: :insee],
+      on_replace: :delete
+    )
+
+    many_to_many(:regions, Region,
+      join_through: "dataset_regions",
+      join_keys: [dataset_id: :id, region_insee: :insee],
+      on_replace: :delete
+    )
 
     many_to_many(:legal_owners_aom, AOM,
       join_through: "dataset_aom_legal_owner",
@@ -504,9 +543,24 @@ defmodule DB.Dataset do
 
     legal_owners_aom = get_legal_owners_aom(dataset, params)
     legal_owners_region = get_legal_owners_region(dataset, params)
+    # new_communes = get_legal_owners_region(dataset, params)
+    # epci = get_legal_owners_region(dataset, params)
+    # legal_owners_region = get_legal_owners_region(dataset, params)
+    # legal_owners_region = get_legal_owners_region(dataset, params)
 
     dataset
-    |> Repo.preload([:resources, :communes, :region, :legal_owners_aom, :legal_owners_region, :organization_object])
+    |> Repo.preload([
+      :resources,
+      :communes,
+      :new_communes,
+      :epcis,
+      :departements,
+      :regions,
+      :region,
+      :legal_owners_aom,
+      :legal_owners_region,
+      :organization_object
+    ])
     |> cast(params, [
       :datagouv_id,
       :custom_title,
@@ -550,6 +604,7 @@ defmodule DB.Dataset do
     |> maybe_set_custom_logo_changed_at()
     |> put_assoc(:legal_owners_aom, legal_owners_aom)
     |> put_assoc(:legal_owners_region, legal_owners_region)
+    |> put_territories(params)
     |> validate_required([
       :datagouv_id,
       :custom_title,
@@ -1033,6 +1088,23 @@ defmodule DB.Dataset do
     changeset
     |> put_assoc(:communes, communes)
   end
+
+  defp put_territories(changeset, params) do
+    put_departements(changeset, params)
+  end
+
+  defp put_departements(changeset, %{"departements" => ""}), do: changeset
+
+  defp put_departements(changeset, %{"departements" => departements}) do
+    departements =
+      Departement
+      |> where([c], c.insee in ^departements)
+      |> Repo.all()
+
+    put_assoc(changeset, :departements, departements)
+  end
+
+  defp put_departements(changeset, _), do: changeset
 
   defp maybe_overwrite_licence(%Ecto.Changeset{} = changeset) do
     custom_tags = get_field(changeset, :custom_tags) || []
