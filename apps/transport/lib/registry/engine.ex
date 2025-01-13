@@ -13,7 +13,12 @@ defmodule Transport.Registry.Engine do
 
   require Logger
 
-  @spec execute(output_file :: Path.t(), list()) :: :ok
+  @type option :: {:limit, integer()} | {:formats, [String.t()]}
+
+  @doc """
+  execute("/tmp/registre-arrets.csv", formats: ~w(GTFS NeTEx), limit: 100)
+  """
+  @spec execute(output_file :: Path.t(), opts :: [option]) :: :ok
   def execute(output_file, opts \\ []) do
     limit = Keyword.get(opts, :limit, 1_000_000)
     formats = Keyword.get(opts, :formats, ~w(GTFS NeTEx))

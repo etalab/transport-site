@@ -3,6 +3,7 @@ defmodule Transport.Registry.ResultTest do
 
   require Integer
   alias Transport.Registry.Result
+  doctest Result
 
   test "cat_results" do
     assert [] == cat_results([])
