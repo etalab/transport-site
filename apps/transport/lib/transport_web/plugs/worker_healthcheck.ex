@@ -12,6 +12,7 @@ defmodule TransportWeb.Plugs.WorkerHealthcheck do
   if Oban attempted jobs recently.
   """
   import Plug.Conn
+  require Logger
 
   @app_start_waiting_delay {20, :minute}
   @oban_max_delay_since_last_attempt {60, :minute}
@@ -25,17 +26,28 @@ defmodule TransportWeb.Plugs.WorkerHealthcheck do
       store_last_attempted_at_delay_metric()
       status_code = if healthy_state?(), do: 200, else: 503
 
+      conn =
+        conn
+        |> put_resp_content_type("text/plain")
+        |> send_resp(status_code, """
+        UP (WORKER-ONLY)
+        App start time: #{app_start_datetime()}
+        App started recently?: #{app_started_recently?()}
+        Oban last attempt: #{oban_last_attempted_at()}
+        Oban attempted jobs recently?: #{oban_attempted_jobs_recently?()}
+        Healthy state?: #{healthy_state?()}
+        """)
+        |> halt()
+
+      # NOTE: Clever Cloud monitoring will better pick stuff back up
+      # if the app is completely down.
+      if !healthy_state?() do
+        Logger.info("Hot-fix: shutting down!!!")
+        # "Asynchronously and carefully stops the Erlang runtime system."
+        System.stop()
+      end
+
       conn
-      |> put_resp_content_type("text/plain")
-      |> send_resp(status_code, """
-      UP (WORKER-ONLY)
-      App start time: #{app_start_datetime()}
-      App started recently?: #{app_started_recently?()}
-      Oban last attempt: #{oban_last_attempted_at()}
-      Oban attempted jobs recently?: #{oban_attempted_jobs_recently?()}
-      Healthy state?: #{healthy_state?()}
-      """)
-      |> halt()
     else
       conn
     end

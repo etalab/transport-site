@@ -82,7 +82,7 @@ defmodule Transport.Jobs.Workflow do
 
           {:notification, :gossip, %{"success" => false, "job_id" => ^job_id} = notif} ->
             reason = notif |> Map.get("reason", "unknown reason")
-            {:error, "Job #{job_id} has failed: #{inspect(reason)}. Workflow is stopping here"}
+            {:error, "Job #{job_id} has failed: #{reason}. Workflow is stopping here"}
         end
     end
   end
@@ -173,10 +173,17 @@ defmodule Transport.Jobs.Workflow do
         },
         nil
       ) do
+    # `error` can be an error message or an `Oban.TimeoutError` exception.
+    # ````
+    # %Oban.TimeoutError{
+    #   message: "Transport.Jobs.ResourceHistoryJob timed out after 1000ms",
+    #   reason: :timeout
+    # }
+    # ```
     Notifier.notify_workflow(%{meta: %{"workflow" => true}}, %{
       "success" => false,
       "job_id" => job_id,
-      "reason" => error
+      "reason" => inspect(error)
     })
   end
 
