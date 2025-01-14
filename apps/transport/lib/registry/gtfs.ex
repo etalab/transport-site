@@ -24,11 +24,18 @@ defmodule Transport.Registry.GTFS do
       {:ok, content} ->
         Logger.debug("Valid Zip archive")
 
-        content
-        |> Utils.to_stream_of_maps()
-        |> Stream.flat_map(&handle_stop(data_source_id, &1))
-        |> Enum.to_list()
-        |> Result.ok()
+        try do
+          content
+          |> Utils.to_stream_of_maps()
+          |> Stream.flat_map(&handle_stop(data_source_id, &1))
+          |> Enum.to_list()
+          |> Result.ok()
+        rescue
+          e in NimbleCSV.ParseError ->
+            e
+            |> Exception.message()
+            |> Result.error()
+        end
     end
   end
 
