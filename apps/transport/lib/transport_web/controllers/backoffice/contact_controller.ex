@@ -102,8 +102,8 @@ defmodule TransportWeb.Backoffice.ContactController do
         "last_login_at",
         "creation_source",
         "organization_names",
-        columns_for_role(:producer),
-        columns_for_role(:reuser)
+        columns_for_role(:producer) |> Enum.sort(),
+        columns_for_role(:reuser) |> Enum.sort()
       ]
       |> List.flatten()
 
