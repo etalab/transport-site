@@ -60,6 +60,8 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
              })
 
     assert :no_match == relevant_fn.(%{base | "title" => "Résultat des élections"})
+    # does not match on the word `velo` in the middle of the tag
+    assert :no_match == relevant_fn.(%{base | "tags" => ["developpement-du-territoire"]})
 
     assert %{category: "IRVE"} =
              relevant_fn.(%{
