@@ -51,7 +51,7 @@ defmodule Transport.Registry.Engine do
   end
 
   def prepare_extractor(%DB.Resource{} = resource) do
-    data_source_id = "PAN:resource:#{resource.id}"
+    data_source_id = "datagouv:resource:#{resource.datagouv_id}"
 
     case resource.format do
       "GTFS" -> {:ok, {GTFS, data_source_id, resource.url}}
