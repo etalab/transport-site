@@ -94,7 +94,8 @@ if app_env == :staging do
       history: "resource-history-staging",
       on_demand_validation: "on-demand-validation-staging",
       gtfs_diff: "gtfs-diff-staging",
-      logos: "logos-staging"
+      logos: "logos-staging",
+      aggregates: "aggregates-staging"
     }
 end
 
