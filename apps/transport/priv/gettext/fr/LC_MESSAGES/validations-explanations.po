@@ -149,4 +149,4 @@ msgstr "Détails à fin de débogage"
 
 #, elixir-autogen, elixir-format
 msgid "UnusableTrip"
-msgstr "Trip avec trop peu d’arrêts."
+msgstr "Un trajet doit passer par plus d’un arrêt dans stop_times.txt pour être utilisable par les voyageurs à la montée ou la descente."
