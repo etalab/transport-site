@@ -146,3 +146,7 @@ msgstr "Emplacement inconnu"
 #, elixir-autogen, elixir-format
 msgid "Details for debugging purposes"
 msgstr "Détails à fin de débogage"
+
+#, elixir-autogen, elixir-format
+msgid "UnusableTrip"
+msgstr "Trip avec trop peu d’arrêts."

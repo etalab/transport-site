@@ -146,3 +146,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Details for debugging purposes"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "UnusableTrip"
+msgstr "Trip with too many stops."
