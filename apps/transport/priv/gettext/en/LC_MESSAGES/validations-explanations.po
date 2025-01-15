@@ -149,4 +149,4 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "UnusableTrip"
-msgstr "Trip with too many stops."
+msgstr "A trip must visit more than one stop in stop_times.txt to be usable by passengers for boarding and alighting."
