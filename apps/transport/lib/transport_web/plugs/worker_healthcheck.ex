@@ -43,13 +43,37 @@ defmodule TransportWeb.Plugs.WorkerHealthcheck do
       # if the app is completely down.
       if !healthy_state?() do
         Logger.info("Hot-fix: shutting down!!!")
-        # "Asynchronously and carefully stops the Erlang runtime system."
-        System.stop()
+        stop_the_beam!()
       end
 
       conn
     else
       conn
+    end
+  end
+
+  @doc """
+  A fix for https://github.com/etalab/transport-site/issues/4377.
+
+  If the worker sees that no jobs have been attempted by Oban for some time,
+  this plug's logic stops the whole program (BEAM/VM) completely. Because the
+  Clever Cloud monitoring checks that they can open a socket to the 8080 port,
+  this makes the test fails, hence resulting in an automatic restart.
+
+  This is a cheap but so far effective way to ensure the worker gets restarted
+  when it malfunctions.
+  """
+  def stop_the_beam! do
+    # "Asynchronously and carefully stops the Erlang runtime system."
+    if Mix.env() == :test do
+      # We do not want to stop the system during tests, because it
+      # gives the impression the test suite completed successfully, but
+      # it would actually just bypass all the tests after the one running this!
+      raise "would halt the BEAM"
+    else
+      # Also make sure to return with a non-zero exit code, to more clearly
+      # indicate that this is not the normal output
+      System.stop(1)
     end
   end
 
