@@ -877,6 +877,7 @@ defmodule DB.DatasetDBTest do
   describe "territories" do
     test "departement in changeset" do
       departement = insert(:departement)
+      departement_count = DB.Departement |> DB.Repo.aggregate(:count)
 
       assert {:ok, changeset} =
                DB.Dataset.changeset(%{
@@ -902,6 +903,7 @@ defmodule DB.DatasetDBTest do
 
       [associated_departement] = dataset.departements
       assert associated_departement.id == departement.id
+      assert DB.Departement |> DB.Repo.aggregate(:count) == departement_count
     end
   end
 end

@@ -80,6 +80,7 @@ defmodule DB.Dataset do
     many_to_many(:communes, Commune, join_through: "dataset_communes", on_replace: :delete)
 
     # New territory fields
+    # Cannot be moved in another module because factories do not like it :(
     many_to_many(:new_communes, Commune,
       # Maybe using an Ecto Schema module?
       join_through: "dataset_new_communes",
@@ -1089,23 +1090,6 @@ defmodule DB.Dataset do
     changeset
     |> put_assoc(:communes, communes)
   end
-
-  defp put_territories(changeset, params) do
-    put_departements(changeset, params)
-  end
-
-  defp put_departements(changeset, %{"departements" => ""}), do: changeset
-
-  defp put_departements(changeset, %{"departements" => departements}) do
-    departements =
-      Departement
-      |> where([c], c.insee in ^departements)
-      |> Repo.all()
-
-    put_assoc(changeset, :departements, departements)
-  end
-
-  defp put_departements(changeset, _), do: changeset
 
   defp maybe_overwrite_licence(%Ecto.Changeset{} = changeset) do
     custom_tags = get_field(changeset, :custom_tags) || []
