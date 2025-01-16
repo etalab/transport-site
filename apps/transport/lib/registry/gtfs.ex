@@ -21,7 +21,7 @@ defmodule Transport.Registry.GTFS do
         Logger.error(error)
         Result.error(error)
 
-      {:ok, content} ->
+      {:ok, {content, zip_file}} ->
         Logger.debug("Valid Zip archive")
 
         try do
@@ -30,6 +30,8 @@ defmodule Transport.Registry.GTFS do
           |> Stream.flat_map(&handle_stop(data_source_id, &1))
           |> Enum.to_list()
           |> Result.ok()
+        after
+          Unzip.LocalFile.close(zip_file)
         rescue
           e in NimbleCSV.ParseError ->
             e
@@ -71,7 +73,8 @@ defmodule Transport.Registry.GTFS do
     case Unzip.new(zip_file) do
       {:ok, unzip} ->
         if has_stops?(unzip) do
-          unzip |> Unzip.file_stream!("stops.txt") |> Result.ok()
+          content = unzip |> Unzip.file_stream!("stops.txt")
+          Result.ok({content, zip_file})
         else
           Result.error("Missing stops.txt in #{archive}")
         end
