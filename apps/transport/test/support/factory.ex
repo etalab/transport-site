@@ -48,6 +48,8 @@ defmodule DB.Factory do
   end
 
   def dataset_factory do
+    departement = DB.Departement |> Ecto.Query.first() |> DB.Repo.one() || insert(:departement)
+
     %DB.Dataset{
       created_at: DateTime.utc_now(),
       last_update: DateTime.utc_now(),
@@ -67,7 +69,8 @@ defmodule DB.Factory do
       has_realtime: false,
       is_active: true,
       is_hidden: false,
-      nb_reuses: Enum.random(0..10)
+      nb_reuses: Enum.random(0..10),
+      departements: [departement]
     }
   end
 

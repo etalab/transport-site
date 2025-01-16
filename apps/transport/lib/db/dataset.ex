@@ -81,6 +81,7 @@ defmodule DB.Dataset do
 
     # New territory fields
     many_to_many(:new_communes, Commune,
+      # Maybe using an Ecto Schema module?
       join_through: "dataset_new_communes",
       join_keys: [dataset_id: :id, commune_insee: :insee],
       on_replace: :delete

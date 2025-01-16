@@ -30,21 +30,6 @@ defmodule DB.DatasetDBTest do
     Repo.delete!(dataset)
   end
 
-  test "departement associated" do
-    departement = insert(:departement)
-
-    dataset =
-      :dataset
-      |> insert()
-      |> Repo.preload(:departements)
-      |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_assoc(:departements, [departement])
-      |> Repo.update!()
-
-    [associated_departement] = dataset.departements
-    assert associated_departement.id == departement.id
-  end
-
   describe "changeset of a dataset" do
     test "empty params are rejected" do
       assert {:error, _} = Dataset.changeset(%{})
@@ -887,5 +872,36 @@ defmodule DB.DatasetDBTest do
 
     assert ids.([active_dataset, hidden_dataset, archived_dataset]) ==
              DB.Dataset.base_with_hidden_datasets() |> DB.Repo.all() |> ids.()
+  end
+
+  describe "territories" do
+    test "departement in changeset" do
+      departement = insert(:departement)
+
+      assert {:ok, changeset} =
+               DB.Dataset.changeset(%{
+                 "datagouv_id" => "12345079",
+                 "custom_title" => "Blaaah",
+                 "datagouv_title" => "title",
+                 "type" => "public-transit",
+                 "licence" => "lov2",
+                 "slug" => "ma_limace",
+                 "created_at" => DateTime.utc_now(),
+                 "last_update" => DateTime.utc_now(),
+                 "logo" => "https://example.com/pic.jpg",
+                 "full_logo" => "https://example.com/pic.jpg",
+                 "frequency" => "daily",
+                 "departements" => [departement.insee],
+                 "region_id" => 1,
+                 "organization_id" => Ecto.UUID.generate(),
+                 "tags" => [],
+                 "nb_reuses" => 0
+               })
+
+      {:ok, dataset} = changeset |> DB.Repo.insert()
+
+      [associated_departement] = dataset.departements
+      assert associated_departement.id == departement.id
+    end
   end
 end
