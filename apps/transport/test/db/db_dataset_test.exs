@@ -877,6 +877,7 @@ defmodule DB.DatasetDBTest do
   describe "territories" do
     test "departement in changeset" do
       departement = insert(:departement)
+      commune = insert(:commune, departement: departement)
       departement_count = DB.Departement |> DB.Repo.aggregate(:count)
 
       assert {:ok, changeset} =
@@ -893,6 +894,7 @@ defmodule DB.DatasetDBTest do
                  "full_logo" => "https://example.com/pic.jpg",
                  "frequency" => "daily",
                  "departements" => [departement.insee],
+                 "new_communes" => [commune.insee],
                  "region_id" => 1,
                  "organization_id" => Ecto.UUID.generate(),
                  "tags" => [],
@@ -903,6 +905,8 @@ defmodule DB.DatasetDBTest do
 
       [associated_departement] = dataset.departements
       assert associated_departement.id == departement.id
+      [associated_commune] = dataset.new_communes
+      assert associated_commune.id == commune.id
       assert DB.Departement |> DB.Repo.aggregate(:count) == departement_count
     end
   end
