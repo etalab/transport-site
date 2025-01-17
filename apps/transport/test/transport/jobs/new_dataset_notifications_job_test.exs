@@ -37,7 +37,7 @@ defmodule Transport.Test.Transport.Jobs.NewDatasetNotificationsJobTest do
       subject: "Nouveaux jeux de données référencés",
       text_body: nil,
       html_body:
-        ~r|<li><a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> - \(Transport public collectif - horaires théoriques\)</li>|
+        ~r|<li><a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> - \(Transport public collectif\)</li>|
     )
 
     # Logs have been saved

@@ -367,12 +367,6 @@ defmodule TransportWeb.DatasetView do
     |> Enum.filter(&Resource.documentation?/1)
   end
 
-  def real_time_public_transit?(%Dataset{type: "public-transit"} = dataset) do
-    not Enum.empty?(real_time_official_resources(dataset))
-  end
-
-  def real_time_public_transit?(%Dataset{}), do: false
-
   def community_resources(dataset), do: Dataset.community_resources(dataset)
 
   def licence_url(licence) when licence in ["fr-lo", "lov2"],
@@ -426,7 +420,7 @@ defmodule TransportWeb.DatasetView do
     resources
     |> Enum.filter(fn r -> r.format == "csv" end)
     |> Enum.reject(fn r -> Resource.community_resource?(r) or Resource.documentation?(r) end)
-    |> Enum.max_by(& &1.last_update, DateTime, fn -> nil end)
+    |> Enum.max_by(&{&1.type, &1.last_update}, TransportWeb.DatasetView.ResourceTypeSortKey, fn -> nil end)
   end
 
   def get_resource_to_display(%Dataset{type: type, resources: resources})
@@ -583,5 +577,15 @@ defmodule TransportWeb.DatasetView do
   def heart_class(dataset_heart_values, %DB.Dataset{id: dataset_id}) do
     value = dataset_heart_values |> Map.fetch!(dataset_id) |> to_string()
     "fa fa-heart #{value}" |> String.trim()
+  end
+end
+
+defmodule TransportWeb.DatasetView.ResourceTypeSortKey do
+  def compare({left_type, left_last_update}, {right_type, right_last_update}) do
+    cond do
+      left_type == right_type -> DateTime.compare(left_last_update, right_last_update)
+      left_type == "main" -> :gt
+      true -> :lt
+    end
   end
 end
