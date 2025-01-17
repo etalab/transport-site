@@ -48,7 +48,8 @@ defmodule DB.Factory do
   end
 
   def dataset_factory do
-    departement = DB.Departement |> Ecto.Query.first() |> DB.Repo.one() || insert(:departement)
+    # departement = DB.Departement |> Ecto.Query.first() |> DB.Repo.one() || insert(:departement)
+    # This and the build below are causing yet another deadlock
 
     %DB.Dataset{
       created_at: DateTime.utc_now(),
@@ -70,7 +71,7 @@ defmodule DB.Factory do
       is_active: true,
       is_hidden: false,
       nb_reuses: Enum.random(0..10),
-      departements: [departement]
+      # departements: [departement] # DEADLOCK
     }
   end
 
