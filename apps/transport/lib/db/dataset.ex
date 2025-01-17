@@ -25,7 +25,7 @@ defmodule DB.Dataset do
   require Logger
   use Ecto.Schema
   use TypedEctoSchema
-  import DB.DatasetTerritory
+  import DB.DatasetNewCoveredArea
 
   @type conversion_details :: %{
           url: binary(),
@@ -545,24 +545,17 @@ defmodule DB.Dataset do
 
     legal_owners_aom = get_legal_owners_aom(dataset, params)
     legal_owners_region = get_legal_owners_region(dataset, params)
-    # new_communes = get_legal_owners_region(dataset, params)
-    # epci = get_legal_owners_region(dataset, params)
-    # legal_owners_region = get_legal_owners_region(dataset, params)
-    # legal_owners_region = get_legal_owners_region(dataset, params)
 
     dataset
     |> Repo.preload([
       :resources,
       :communes,
-      :new_communes,
-      :epcis,
-      :departements,
-      :regions,
       :region,
       :legal_owners_aom,
       :legal_owners_region,
       :organization_object
     ])
+    |> preload_covered_area_objects()
     |> cast(params, [
       :datagouv_id,
       :custom_title,
@@ -606,7 +599,7 @@ defmodule DB.Dataset do
     |> maybe_set_custom_logo_changed_at()
     |> put_assoc(:legal_owners_aom, legal_owners_aom)
     |> put_assoc(:legal_owners_region, legal_owners_region)
-    |> put_territories(params)
+    |> put_new_covered_area(params)
     |> validate_required([
       :datagouv_id,
       :custom_title,

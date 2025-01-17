@@ -875,7 +875,15 @@ defmodule DB.DatasetDBTest do
   end
 
   describe "territories" do
-    test "departement in changeset" do
+    @tag :focus
+    test "read them" do
+      departement = insert(:departement)
+      commune = insert(:commune, departement: departement)
+      dataset = insert(:dataset, departements: [departement], new_communes: [commune])
+      assert dataset.departements == [departement]
+    end
+
+    test "administrative divisions in changeset" do
       departement = insert(:departement)
       commune = insert(:commune, departement: departement)
       departement_count = DB.Departement |> DB.Repo.aggregate(:count)
@@ -893,6 +901,7 @@ defmodule DB.DatasetDBTest do
                  "logo" => "https://example.com/pic.jpg",
                  "full_logo" => "https://example.com/pic.jpg",
                  "frequency" => "daily",
+                 # TODO: change it so it works through the abstraction
                  "departements" => [departement.insee],
                  "new_communes" => [commune.insee],
                  "region_id" => 1,

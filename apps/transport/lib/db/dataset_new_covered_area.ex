@@ -1,11 +1,16 @@
-defmodule DB.DatasetTerritory do
+defmodule DB.DatasetNewCoveredArea do
   @moduledoc """
-  Extension of dataset schema for code related to territories
+  Extension of dataset schema for code related to covered area
   """
   import Ecto.Changeset
   import Ecto.Query
 
-  def put_territories(changeset, params) do
+  def preload_covered_area_objects(dataset) do
+    dataset
+    |> DB.Repo.preload([:new_communes, :departements, :epcis, :regions])
+  end
+
+  def put_new_covered_area(changeset, params) do
     changeset
     |> put_administrative_division(:new_communes, params)
     |> put_administrative_division(:departements, params)
