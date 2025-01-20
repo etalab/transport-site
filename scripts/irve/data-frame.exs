@@ -55,10 +55,14 @@ defmodule Demo do
     body
   end
 
-  def process_one(row, body) do
+  def process_one(row, body, extension) do
     try do
       if likely_zip_content?(body) do
         raise("the content is likely to be a zip file, not uncompressed CSV data")
+      end
+
+      if extension not in ["", ".csv"] do
+        raise("the content is likely not a CSV file (extension is #{extension})")
       end
 
       # My assumptions on this method are being checked
@@ -170,8 +174,8 @@ defmodule Demo do
   def concat_rows(main_df, df), do: Explorer.DataFrame.concat_rows(main_df, df)
 
   defmodule ReportItem do
-    @enforce_keys [:dataset_id, :resource_id, :resource_url, :estimated_pdc_count]
-    defstruct [:dataset_id, :resource_id, :resource_url, :error, :estimated_pdc_count]
+    @enforce_keys [:dataset_id, :resource_id, :resource_url, :estimated_pdc_count, :extension]
+    defstruct [:dataset_id, :resource_id, :resource_url, :error, :estimated_pdc_count, :extension]
   end
 
   def show_more() do
@@ -190,9 +194,10 @@ defmodule Demo do
         Logger.info("Processing resource #{row.resource_id}")
 
         body = download_one!(row)
+        extension = Path.extname(row.url)
 
         {main_df, error} =
-          case process_one(row, body) do
+          case process_one(row, body, extension) do
             {:ok, df} -> {concat_rows(main_df, df), nil}
             {:error, error} -> {main_df, error}
           end
@@ -202,7 +207,8 @@ defmodule Demo do
           resource_id: row.resource_id,
           resource_url: row.url,
           error: error,
-          estimated_pdc_count: body |> String.split("\n") |> Enum.count()
+          estimated_pdc_count: body |> String.split("\n") |> Enum.count(),
+          extension: extension
         }
 
         %{
