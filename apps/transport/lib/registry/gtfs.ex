@@ -74,8 +74,10 @@ defmodule Transport.Registry.GTFS do
       {:ok, unzip} ->
         if has_stops?(unzip) do
           content = unzip |> Unzip.file_stream!("stops.txt")
+          # The zip_file is kept open for now as it's consumed later.
           Result.ok({content, zip_file})
         else
+          Unzip.LocalFile.close(zip_file)
           Result.error("Missing stops.txt in #{archive}")
         end
 
