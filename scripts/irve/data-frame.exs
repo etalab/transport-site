@@ -43,12 +43,17 @@ defmodule Demo do
 
   require Logger
 
-  def process_one(row) do
-    Logger.info("Processing resource #{row.resource_id}")
+  @doc """
+  Download content separately from processing, because we need to provide an estimate of the number of lines
+  even if the processing fails. Asserting 200 is fine here, because the target server is data gouv & quite reliable.
+  """
+  def download_one!(row) do
+    %{status: 200, body: body} = Transport.IRVE.Fetcher.get!(row.url, compressed: false, decode_body: false)
+    body
+  end
 
+  def process_one(row, body) do
     try do
-      %{status: 200, body: body} = Transport.IRVE.Fetcher.get!(row.url, compressed: false, decode_body: false)
-
       # My assumptions on this method are being checked
       if !String.valid?(body) do
         raise("string is not valid (likely utf-8 instead of latin1)")
@@ -158,8 +163,8 @@ defmodule Demo do
   def concat_rows(main_df, df), do: Explorer.DataFrame.concat_rows(main_df, df)
 
   defmodule ReportItem do
-    @enforce_keys [:dataset_id, :resource_id, :resource_url]
-    defstruct [:dataset_id, :resource_id, :resource_url, :error]
+    @enforce_keys [:dataset_id, :resource_id, :resource_url, :estimated_pdc_count]
+    defstruct [:dataset_id, :resource_id, :resource_url, :error, :estimated_pdc_count]
   end
 
   def show_more() do
@@ -175,8 +180,12 @@ defmodule Demo do
       # |> Stream.take(10)
       # |> Enum.filter(&(&1.resource_id == "cbd64933-26df-4ab5-b9e8-104f9af9a16c"))
       |> Enum.reduce(%{df: nil, report: []}, fn row, %{df: main_df, report: report} ->
+        Logger.info("Processing resource #{row.resource_id}")
+
+        body = download_one!(row)
+
         {main_df, error} =
-          case process_one(row) do
+          case process_one(row, body) do
             {:ok, df} -> {concat_rows(main_df, df), nil}
             {:error, error} -> {main_df, error}
           end
@@ -185,7 +194,8 @@ defmodule Demo do
           dataset_id: row.dataset_id,
           resource_id: row.resource_id,
           resource_url: row.url,
-          error: error
+          error: error,
+          estimated_pdc_count: body |> String.split("\n") |> Enum.count()
         }
 
         %{
