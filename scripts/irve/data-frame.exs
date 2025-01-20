@@ -44,7 +44,8 @@ defmodule Demo do
   require Logger
 
   def process_one(row) do
-    Logger.info "Processing resource #{row.resource_id}"
+    Logger.info("Processing resource #{row.resource_id}")
+
     try do
       %{status: 200, body: body} = Transport.IRVE.Fetcher.get!(row.url, compressed: false, decode_body: false)
 
@@ -139,7 +140,7 @@ defmodule Demo do
       }
 
       unless nil_counts == {0, 0, 0} do
-        Logger.warn "Resource #{row.resource_id} has nil on key data (#{nil_counts |> inspect})"
+        Logger.warning("Resource #{row.resource_id} has nil on key data (#{nil_counts |> inspect})")
       end
 
       {:ok, df}
