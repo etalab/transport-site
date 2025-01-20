@@ -41,7 +41,10 @@ defmodule Demo do
     !String.contains?(data, "nom_operateur") && String.contains?(data, "n_operateur")
   end
 
+  require Logger
+
   def process_one(row) do
+    Logger.info "Processing resource #{row.resource_id}"
     try do
       %{status: 200, body: body} = Transport.IRVE.Fetcher.get!(row.url, compressed: false, decode_body: false)
 
