@@ -194,15 +194,21 @@ defmodule Demo do
         }
       end)
 
+    consolidation_filename = "consolidation.csv"
+    Logger.info "Generating #{consolidation_filename}"
+
     output.df
-    |> Explorer.DataFrame.to_csv!("consolidation.csv")
+    |> Explorer.DataFrame.to_csv!(consolidation_filename)
+
+    report_filename = "report.csv"
+    Logger.info "Generating #{report_filename}"
 
     output.report
     |> Enum.reverse()
     |> Enum.map(&Map.from_struct/1)
     |> Enum.map(fn x -> Map.put(x, :error, x.error |> inspect) end)
     |> Explorer.DataFrame.new()
-    |> Explorer.DataFrame.to_csv!("report.csv")
+    |> Explorer.DataFrame.to_csv!(report_filename)
   end
 end
 
