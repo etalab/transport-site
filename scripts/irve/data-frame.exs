@@ -4,6 +4,9 @@ defmodule Demo do
 
   @sample_url "https://www.data.gouv.fr/fr/datasets/r/e9bb3424-77cd-40ba-8bbd-5a19362d0365"
 
+  @doc """
+  Attempt to detect zip content based on the four first bytes
+  """
   def likely_zip_content?(<<?P, ?K, a, b, _rest::binary>>) when a < 0x10 and b < 0x10, do: true
   def likely_zip_content?(_), do: false
 
