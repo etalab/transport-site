@@ -36,6 +36,14 @@ defmodule Demo do
   end
 
   @doc """
+  Attempt to detect column separator. Remove double-quotes first since they may be there too.
+  """
+  def hint_header_separator(body) do
+    [[_, separator]] = Regex.scan(~r/(.)id_pdc_itinerance/, body |> first_line() |> String.replace(~S("), ""))
+    separator
+  end
+
+  @doc """
   Relying on a field that was in v1 of the schema, and not in v2, try to hint about old files.
 
   See https://github.com/etalab/schema-irve/compare/v1.0.3...v2.0.0#diff-9fcde326d127f74194f70e563bdf2c118c51b719c308f015b8eb0204a9a552fbL72
@@ -68,17 +76,22 @@ defmodule Demo do
         raise("the content is likely not a CSV file (extension is #{extension})")
       end
 
-      # My assumptions on this method are being checked
-      if !String.valid?(body) do
-        raise("string is not valid (likely utf-8 instead of latin1)")
-      end
-
       if probably_v1_schema(body) do
         raise("looks like a v1 irve")
       end
 
       if !has_id_pdc_itinerance(body) do
         raise("content has no id_pdc_itinerance in first line")
+      end
+
+      header_separator = hint_header_separator(body)
+      # we only support comma at this point. NOTE: commas can be here too
+      if header_separator == ";" do
+        raise("unsupported column separator #{header_separator}")
+      end
+
+      if !String.valid?(body) do
+        raise("string is not valid UTF-8 (could be binary content, or latin1)")
       end
 
       # TODO: preprocess/conform booleans (`0` -> `FALSE`) so that we can use `strict = true`
