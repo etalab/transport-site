@@ -68,8 +68,7 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
           "infrastructure de recharge",
           "borne de recharge",
           "irve",
-          "sdirve",
-          "électrique"
+          "sdirve"
         ]),
       formats: MapSet.new([])
     }
