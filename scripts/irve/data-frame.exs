@@ -4,6 +4,9 @@ defmodule Demo do
 
   @sample_url "https://www.data.gouv.fr/fr/datasets/r/e9bb3424-77cd-40ba-8bbd-5a19362d0365"
 
+  def likely_zip_content?(<<?P, ?K, a, b, _rest::binary>>) when a < 0x10 and b < 0x10, do: true
+  def likely_zip_content?(_), do: false
+
   def show_one() do
     # Note: cached in development if you set `irve_consolidation_caching: true` in `dev.secret.exs`
     %Req.Response{status: 200, body: body} =
@@ -54,6 +57,10 @@ defmodule Demo do
 
   def process_one(row, body) do
     try do
+      if likely_zip_content?(body) do
+        raise("the content is likely to be a zip file, not uncompressed CSV data")
+      end
+
       # My assumptions on this method are being checked
       if !String.valid?(body) do
         raise("string is not valid (likely utf-8 instead of latin1)")
