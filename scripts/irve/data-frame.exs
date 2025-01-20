@@ -139,8 +139,7 @@ defmodule Demo do
       }
 
       unless nil_counts == {0, 0, 0} do
-        IO.puts(row.url)
-        IO.inspect(nil_counts, IEx.inspect_opts())
+        Logger.warn "Resource #{row.resource_id} has nil on key data (#{nil_counts |> inspect})"
       end
 
       {:ok, df}
