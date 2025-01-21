@@ -81,6 +81,9 @@ defmodule DB.Dataset do
 
     # New territory fields
     # Cannot be moved in another module because factories do not like it :(
+    field(:covered_area, {:array, :map}, virtual: true)
+    # TODO: try also an embedded schema instead of a virtual field?
+
     many_to_many(:new_communes, Commune,
       # Maybe using an Ecto Schema module?
       join_through: "dataset_new_communes",

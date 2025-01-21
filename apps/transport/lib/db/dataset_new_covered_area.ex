@@ -10,6 +10,30 @@ defmodule DB.DatasetNewCoveredArea do
     |> DB.Repo.preload([:new_communes, :departements, :epcis, :regions])
   end
 
+  def populate_covered_area(dataset) do
+    covered_area_value =
+    dataset
+    |> preload_covered_area_objects()
+    |> covered_area_objects_to_list()
+
+    %{dataset | covered_area: covered_area_value}
+  end
+
+  def covered_area_objects_to_list(dataset) do
+    dataset
+    |> Map.take([:new_communes, :departements, :epcis, :regions])
+    |> Map.values()
+    |> List.flatten()
+    |> Enum.map(&put_administrative_division_type/1)
+  end
+
+  defp put_administrative_division_type(division) do
+    type_name = division.__struct__ |> Module.split() |> List.last() |> String.downcase()
+    division
+    |> Map.take([:id, :insee, :nom])
+    |> Map.put(:type, type_name)
+  end
+
   def put_new_covered_area(changeset, params) do
     changeset
     |> put_administrative_division(:new_communes, params)
