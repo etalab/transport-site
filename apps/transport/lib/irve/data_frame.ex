@@ -10,11 +10,23 @@ defmodule Transport.IRVE.DataFrame do
   There is no attempt to make this generic at this point, it is focusing solely
   on the static IRVE use.
 
+  In strict mode (the default), the types are remapped as follow:
+
   iex> Transport.IRVE.DataFrame.remap_schema_type(:geopoint)
   :string
   iex> Transport.IRVE.DataFrame.remap_schema_type(:number)
   {:f, 32}
+  iex> Transport.IRVE.DataFrame.remap_schema_type(:boolean)
+  :boolean
   iex> Transport.IRVE.DataFrame.remap_schema_type(:literally_anything)
+  :literally_anything
+
+  In non-strict mode (used by the current prototype), we read some types as `:string`
+  in order to apply clean-up before casting to the actual target type manually:
+
+  iex> Transport.IRVE.DataFrame.remap_schema_type(:boolean, _strict = false)
+  :string
+  iex> Transport.IRVE.DataFrame.remap_schema_type(:literally_anything, _strict = false)
   :literally_anything
   """
   def remap_schema_type(input_type, strict \\ true)
