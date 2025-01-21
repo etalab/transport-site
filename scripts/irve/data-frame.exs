@@ -94,7 +94,6 @@ defmodule Demo do
         raise("string is not valid UTF-8 (could be binary content, or latin1)")
       end
 
-      # TODO: preprocess/conform booleans (`0` -> `FALSE`) so that we can use `strict = true`
       # TODO: be smooth about `cable_t2_attache` - only added in v2.1.0 (https://github.com/etalab/schema-irve/releases/tag/v2.1.0)
       # and often not provided
       df =
