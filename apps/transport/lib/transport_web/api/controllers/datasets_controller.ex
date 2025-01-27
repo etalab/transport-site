@@ -9,7 +9,7 @@ defmodule TransportWeb.API.DatasetController do
   # The default (one minute) felt a bit too high for someone doing scripted operations
   # (have to wait during experimentations), so I lowered it a bit. It is high enough
   # that it will still protect a lot against excessive querying.
-  @cache_ttl :timer.seconds(30)
+  @cache_ttl :timer.seconds(600)
 
   @spec open_api_operation(any) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
