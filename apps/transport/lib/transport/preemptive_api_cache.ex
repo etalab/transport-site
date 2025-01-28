@@ -7,7 +7,8 @@ defmodule Transport.PreemptiveAPICache do
   require Logger
 
   @job_delay :timer.seconds(300)
-  @cache_ttl :timer.seconds(600)
+  # slightly more than twice `@job_delay` to reduce the risk of parallel computation
+  @cache_ttl :timer.seconds(700)
 
   def cache_ttl, do: @cache_ttl
 
