@@ -9,7 +9,8 @@ defmodule TransportWeb.API.DatasetController do
   # The default (one minute) felt a bit too high for someone doing scripted operations
   # (have to wait during experimentations), so I lowered it a bit. It is high enough
   # that it will still protect a lot against excessive querying.
-  @cache_ttl :timer.seconds(30)
+  @index_cache_ttl Transport.PreemptiveAPICache.cache_ttl()
+  @by_id_cache_ttl :timer.seconds(30)
 
   @spec open_api_operation(any) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
@@ -32,8 +33,8 @@ defmodule TransportWeb.API.DatasetController do
 
   @spec datasets(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def datasets(%Plug.Conn{} = conn, _params) do
-    comp_fn = fn -> prepare_datasets_index_data(conn) end
-    data = Transport.Cache.fetch("api-datasets-index", comp_fn, @cache_ttl)
+    comp_fn = fn -> prepare_datasets_index_data() end
+    data = Transport.Cache.fetch("api-datasets-index", comp_fn, @index_cache_ttl)
 
     render(conn, %{data: data})
   end
@@ -86,8 +87,8 @@ defmodule TransportWeb.API.DatasetController do
     if is_nil(dataset) do
       conn |> put_status(404) |> render(%{errors: "dataset not found"})
     else
-      comp_fn = fn -> prepare_dataset_detail_data(conn, dataset) end
-      data = Transport.Cache.fetch("api-datasets-#{datagouv_id}", comp_fn, @cache_ttl)
+      comp_fn = fn -> prepare_dataset_detail_data(dataset) end
+      data = Transport.Cache.fetch("api-datasets-#{datagouv_id}", comp_fn, @by_id_cache_ttl)
 
       conn |> assign(:data, data) |> render()
     end
@@ -155,8 +156,8 @@ defmodule TransportWeb.API.DatasetController do
       "features" => features
     }
 
-  @spec transform_dataset(Plug.Conn.t(), Dataset.t() | map()) :: map()
-  defp transform_dataset(%Plug.Conn{} = conn, %Dataset{} = dataset),
+  @spec transform_dataset(Dataset.t() | map()) :: map()
+  defp transform_dataset(%Dataset{} = dataset),
     do: %{
       "datagouv_id" => dataset.datagouv_id,
       # to help discoverability, we explicitly add the datagouv_id as the id
@@ -164,7 +165,7 @@ defmodule TransportWeb.API.DatasetController do
       "id" => dataset.datagouv_id,
       "title" => dataset.custom_title,
       "created_at" => dataset.created_at |> DateTime.to_date() |> Date.to_string(),
-      "page_url" => TransportWeb.Router.Helpers.dataset_url(conn, :details, dataset.slug),
+      "page_url" => TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, dataset.slug),
       "slug" => dataset.slug,
       "updated" => Helpers.last_updated(Dataset.official_resources(dataset)),
       "resources" => Enum.map(dataset.resources, &transform_resource/1),
@@ -185,10 +186,10 @@ defmodule TransportWeb.API.DatasetController do
       "type" => "organization"
     }
 
-  @spec transform_dataset_with_detail(Plug.Conn.t(), Dataset.t() | map()) :: map()
-  defp transform_dataset_with_detail(%Plug.Conn{} = conn, %Dataset{} = dataset) do
-    conn
-    |> transform_dataset(dataset)
+  @spec transform_dataset_with_detail(Dataset.t() | map()) :: map()
+  defp transform_dataset_with_detail(%Dataset{} = dataset) do
+    dataset
+    |> transform_dataset()
     |> add_conversions(dataset)
     |> Map.put(
       "history",
@@ -334,7 +335,7 @@ defmodule TransportWeb.API.DatasetController do
     |> Enum.map(fn region -> %{"name" => region.nom, "insee" => region.insee} end)
   end
 
-  defp prepare_datasets_index_data(%Plug.Conn{} = conn) do
+  def prepare_datasets_index_data do
     datasets_with_gtfs_metadata =
       DB.Dataset.base_query()
       |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
@@ -383,10 +384,10 @@ defmodule TransportWeb.API.DatasetController do
       enriched_dataset = Map.get(existing_ids, dataset.id)
       add_enriched_resources_to_dataset(dataset, enriched_dataset)
     end)
-    |> Enum.map(&transform_dataset(conn, &1))
+    |> Enum.map(&transform_dataset(&1))
   end
 
-  defp prepare_dataset_detail_data(%Plug.Conn{} = conn, %DB.Dataset{} = dataset) do
+  defp prepare_dataset_detail_data(%DB.Dataset{} = dataset) do
     gtfs_resources_with_metadata =
       DB.Resource.base_query()
       |> DB.ResourceHistory.join_resource_with_latest_resource_history()
@@ -421,6 +422,6 @@ defmodule TransportWeb.API.DatasetController do
 
     dataset = dataset |> Map.put(:resources, enriched_resources)
 
-    transform_dataset_with_detail(conn, dataset)
+    transform_dataset_with_detail(dataset)
   end
 end
