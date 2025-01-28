@@ -39,6 +39,9 @@ defmodule Transport.PreemptiveAPICache do
 
     Transport.Cache.put(
       "api-datasets-index",
+      # NOTE: the structure saved in Cachex is currently an Elixir structure,
+      # not the final JSON. We may have to persist JSON directly instead to
+      # reduce memory use in the future.
       TransportWeb.API.DatasetController.prepare_datasets_index_data(),
       @cache_ttl
     )
