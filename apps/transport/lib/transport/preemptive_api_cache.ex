@@ -36,11 +36,10 @@ defmodule Transport.PreemptiveAPICache do
   def populate_cache do
     Logger.info("[preemptive-api-cache] Populating cache for /api/datasets…")
 
-    Cachex.put(
-      Transport.Application.cache_name(),
+    Transport.Cache.put(
       "api-datasets-index",
       TransportWeb.API.DatasetController.prepare_datasets_index_data(),
-      ttl: @cache_ttl
+      @cache_ttl
     )
 
     Logger.info("[preemptive-api-cache] Finished populating cache for /api/datasets.")
