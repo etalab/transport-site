@@ -44,7 +44,7 @@ defmodule Transport.Application do
       ]
       |> add_scheduler()
       |> add_if(fn -> run_web_processes end, Transport.RealtimePoller)
-      |> add_if(fn -> run_web_processes end, Transport.APICache)
+      |> add_if(fn -> run_web_processes end, Transport.PreemptiveAPICache)
       ## manually add a children supervisor that is not scheduled
       |> Kernel.++([{Task.Supervisor, name: ImportTaskSupervisor}])
 

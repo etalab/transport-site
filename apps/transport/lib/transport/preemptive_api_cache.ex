@@ -1,4 +1,4 @@
-defmodule Transport.APICache do
+defmodule Transport.PreemptiveAPICache do
   @moduledoc """
   A module that populates the Cachex cache for the /api/datasets endpoint ("api-datasets-index")
   """
@@ -34,7 +34,7 @@ defmodule Transport.APICache do
   end
 
   def populate_cache do
-    Logger.info("[api-cache-genserver] Populating cache for /api/datasets…")
+    Logger.info("[preemptive-api-cache] Populating cache for /api/datasets…")
 
     Cachex.put(
       Transport.Application.cache_name(),
@@ -43,6 +43,6 @@ defmodule Transport.APICache do
       ttl: @cache_ttl
     )
 
-    Logger.info("[api-cache-genserver] Finished populating cache for /api/datasets")
+    Logger.info("[preemptive-api-cache] Finished populating cache for /api/datasets.")
   end
 end

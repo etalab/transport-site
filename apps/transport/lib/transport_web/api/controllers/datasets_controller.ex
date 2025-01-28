@@ -9,7 +9,7 @@ defmodule TransportWeb.API.DatasetController do
   # The default (one minute) felt a bit too high for someone doing scripted operations
   # (have to wait during experimentations), so I lowered it a bit. It is high enough
   # that it will still protect a lot against excessive querying.
-  @index_cache_ttl Transport.APICache.cache_ttl()
+  @index_cache_ttl Transport.PreemptiveAPICache.cache_ttl()
   @by_id_cache_ttl :timer.seconds(30)
 
   @spec open_api_operation(any) :: Operation.t()
