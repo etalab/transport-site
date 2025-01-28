@@ -5,6 +5,8 @@ defmodule TransportWeb.API.StatsController do
   alias Geo.JSON
   alias OpenApiSpex.Operation
 
+  @ecto_timeout 25_000
+
   @spec open_api_operation(any) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
 
@@ -79,10 +81,17 @@ defmodule TransportWeb.API.StatsController do
   def new_aom_without_datasets?(%{created_after_2021: true, dataset_types: %{pt: 0}}), do: true
   def new_aom_without_datasets?(_), do: false
 
+  def query_to_serialized_geojson(query) do
+    query
+    |> features()
+    |> geojson()
+    |> Jason.encode!()
+  end
+
   @spec features(Ecto.Query.t()) :: [map()]
   def features(q) do
     q
-    |> Repo.all()
+    |> Repo.all(timeout: @ecto_timeout)
     |> Enum.reject(fn aom -> is_nil(aom.geometry) or new_aom_without_datasets?(aom) end)
     |> Enum.map(fn aom ->
       dataset_types =
@@ -251,10 +260,7 @@ defmodule TransportWeb.API.StatsController do
   @spec render_features(Plug.Conn.t(), Ecto.Query.t(), binary()) :: Plug.Conn.t()
   defp render_features(conn, query, cache_key) do
     comp_fn = fn ->
-      query
-      |> features()
-      |> geojson()
-      |> Jason.encode!()
+      query_to_serialized_geojson(query)
     end
 
     data = Transport.Cache.fetch(cache_key, comp_fn)
