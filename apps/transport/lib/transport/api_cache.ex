@@ -9,6 +9,8 @@ defmodule Transport.APICache do
   @job_delay :timer.seconds(300)
   @cache_ttl :timer.seconds(600)
 
+  def cache_ttl, do: @cache_ttl
+
   def start_link(_opts) do
     GenServer.start_link(__MODULE__, %{})
   end

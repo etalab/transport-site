@@ -9,7 +9,8 @@ defmodule TransportWeb.API.DatasetController do
   # The default (one minute) felt a bit too high for someone doing scripted operations
   # (have to wait during experimentations), so I lowered it a bit. It is high enough
   # that it will still protect a lot against excessive querying.
-  @cache_ttl :timer.seconds(600)
+  @index_cache_ttl Transport.APICache.cache_ttl()
+  @by_id_cache_ttl :timer.seconds(30)
 
   @spec open_api_operation(any) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
@@ -33,7 +34,7 @@ defmodule TransportWeb.API.DatasetController do
   @spec datasets(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def datasets(%Plug.Conn{} = conn, _params) do
     comp_fn = fn -> prepare_datasets_index_data() end
-    data = Transport.Cache.fetch("api-datasets-index", comp_fn, @cache_ttl)
+    data = Transport.Cache.fetch("api-datasets-index", comp_fn, @index_cache_ttl)
 
     render(conn, %{data: data})
   end
@@ -87,7 +88,7 @@ defmodule TransportWeb.API.DatasetController do
       conn |> put_status(404) |> render(%{errors: "dataset not found"})
     else
       comp_fn = fn -> prepare_dataset_detail_data(dataset) end
-      data = Transport.Cache.fetch("api-datasets-#{datagouv_id}", comp_fn, @cache_ttl)
+      data = Transport.Cache.fetch("api-datasets-#{datagouv_id}", comp_fn, @by_id_cache_ttl)
 
       conn |> assign(:data, data) |> render()
     end
