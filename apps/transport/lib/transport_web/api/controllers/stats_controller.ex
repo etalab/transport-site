@@ -5,6 +5,9 @@ defmodule TransportWeb.API.StatsController do
   alias Geo.JSON
   alias OpenApiSpex.Operation
 
+  @longer_ecto_timeout 60_000
+
+
   @spec open_api_operation(any) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
 
@@ -286,7 +289,7 @@ defmodule TransportWeb.API.StatsController do
       end
 
     query
-    |> Repo.all()
+    |> Repo.all(timeout: @longer_ecto_timeout)
     |> features()
     |> geojson()
     |> Jason.encode!()
@@ -294,7 +297,7 @@ defmodule TransportWeb.API.StatsController do
 
   def rendered_geojson(:bike_scooter_sharing) do
     bike_scooter_sharing_features_query()
-    |> Repo.all()
+    |> Repo.all(timeout: @longer_ecto_timeout)
     |> bike_scooter_sharing_features()
     |> geojson()
     |> Jason.encode!()
