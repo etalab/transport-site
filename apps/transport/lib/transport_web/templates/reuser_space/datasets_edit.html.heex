@@ -14,11 +14,61 @@
       <h3><%= dgettext("reuser-space", "Manage notifications") %></h3>
       <%= live_render(@conn, TransportWeb.Live.DatasetNotificationsLive, session: %{"dataset_id" => @dataset.id}) %>
     </div>
-    <div class="panel">
+    <div id="data-sharing" class="panel">
       <h3><%= dgettext("reuser-space", "Improved data sharing") %></h3>
-      <p class="notification">
-        <%= dgettext("reuser-space", "This feature is coming soon!") %>
-      </p>
+      <%= if @eligible_to_data_sharing_pilot do %>
+        <% [organization] = @eligible_organizations %>
+        <%= if is_nil(@existing_improved_data) do %>
+          <div class="align-right">
+            <img src={organization.logo_thumbnail} title={organization.name} />
+          </div>
+          <%= form_for @conn, reuser_space_path(@conn, :add_improved_data, @dataset.id), [class: "full-width"], fn f -> %>
+            <h4>
+              <%= dgettext("reuser-space", "Step 1: choose the initial resource from the producer") %>
+            </h4>
+            <div class="ressources-list">
+              <%= for resource <- @dataset.resources |> Enum.filter(&DB.Resource.gtfs?/1) do %>
+                <div class="panel resource">
+                  <h4>
+                    <%= radio_button(f, :resource_id, resource.id, id: "resource-#{resource.id}", required: true) %>
+                    <%= label f, resource.id, class: "label-inline", for: "resource-#{resource.id}" do %>
+                      <%= resource.title %>
+                    <% end %>
+                  </h4>
+
+                  <div class="resource-panel-bottom">
+                    <div class="resource-actions">
+                      <div class="resource-format" title={dgettext("page-dataset-details", "resource format")}>
+                        <span class="label"><%= resource.format %></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+            <p class="small">
+              <%= dgettext("reuser-space", "Only GTFS files are eligible for now.") %>
+            </p>
+            <div class="form__group">
+              <h4>
+                <%= dgettext("reuser-space", "Step 2: add the URL to download your improved data") %>
+              </h4>
+              <%= label(f, :download_url, dgettext("reuser-space", "Your improved data URL")) %>
+              <%= text_input(f, :download_url, type: "url", required: true) %>
+            </div>
+            <%= hidden_input(f, :organization_id, value: organization.id) %>
+            <%= submit(dgettext("reuser-space", "Share improved data"), class: "button") %>
+          <% end %>
+        <% else %>
+          <p class="notification">
+            <%= dgettext("reuser-space", "You already shared improved data for this dataset, thanks!") %>
+          </p>
+        <% end %>
+      <% else %>
+        <p class="notification">
+          <%= dgettext("reuser-space", "This feature is coming soon!") %>
+        </p>
+      <% end %>
     </div>
     <div class="panel">
       <h3><%= dgettext("reuser-space", "Discussions") %></h3>

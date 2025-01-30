@@ -138,3 +138,31 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Warning, you are going to remove \"%{dataset_title}\" from your favorites. You will lose any settings or actions you previously performed on this dataset."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Only GTFS files are eligible for now."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Share improved data"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Your improved data URL"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Step 1: choose the initial resource from the producer"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Step 2: add the URL to download your improved data"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You already shared improved data for this dataset, thanks!"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Your improved data has been saved."
+msgstr ""
