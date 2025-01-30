@@ -76,6 +76,10 @@ defmodule TransportWeb.CustomTagsLive do
       %{
         name: "experimental",
         doc: "Ajoute sur la page du JDD une bannière indiquant que le jeu est expérimental"
+      },
+      %{
+        name: Application.fetch_env!(:transport, :data_sharing_pilot_dataset_custom_tag),
+        doc: "Indique que ce jeu de données est éligible à l'expérimentation du repartage de données améliorées"
       }
     ]
   end

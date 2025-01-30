@@ -121,6 +121,7 @@ defmodule TransportWeb.Router do
       pipe_through([:reuser_space])
       get("/", ReuserSpaceController, :espace_reutilisateur)
       get("/datasets/:dataset_id", ReuserSpaceController, :datasets_edit)
+      post("/datasets/:dataset_id/add_improved_data", ReuserSpaceController, :add_improved_data)
       post("/datasets/:dataset_id/unfavorite", ReuserSpaceController, :unfavorite)
 
       live_session :reuser_space, session: %{"role" => :reuser}, root_layout: {TransportWeb.LayoutView, :app} do

@@ -136,5 +136,9 @@ msgid "This feature is coming soon!"
 msgstr ""
 
 #, elixir-autogen, elixir-format
+msgid "You will be able to share back your data soon!"
+msgstr ""
+
+#, elixir-autogen, elixir-format
 msgid "Warning, you are going to remove \"%{dataset_title}\" from your favorites. You will lose any settings or actions you previously performed on this dataset."
 msgstr ""

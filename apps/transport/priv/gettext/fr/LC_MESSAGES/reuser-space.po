@@ -136,5 +136,9 @@ msgid "This feature is coming soon!"
 msgstr "Cette fonctionnalité arrive bientôt !"
 
 #, elixir-autogen, elixir-format
+msgid "You will be able to share back your data soon!"
+msgstr "Vous pourrez repartager vos données bientôt !"
+
+#, elixir-autogen, elixir-format
 msgid "Warning, you are going to remove \"%{dataset_title}\" from your favorites. You will lose any settings or actions you previously performed on this dataset."
 msgstr "Attention, vous allez supprimer le jeu de données \"%{dataset_title}\" de vos favoris. Vous allez perdre tous les paramétrages ou actions que vous avez réalisés précédemment sur ce jeu de données."

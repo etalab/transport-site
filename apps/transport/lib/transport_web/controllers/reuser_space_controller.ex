@@ -14,7 +14,20 @@ defmodule TransportWeb.ReuserSpaceController do
     |> render("index.html")
   end
 
-  def datasets_edit(%Plug.Conn{} = conn, _), do: render(conn, "datasets_edit.html")
+  def datasets_edit(
+        %Plug.Conn{assigns: %{dataset: %DB.Dataset{} = dataset, contact: %DB.Contact{} = contact}} = conn,
+        _
+      ) do
+    conn
+    |> assign(:contact, DB.Repo.preload(contact, :organizations))
+    |> assign(:dataset, DB.Repo.preload(dataset, :resources))
+    |> render("datasets_edit.html")
+  end
+
+  def add_improved_data(%Plug.Conn{} = conn, _) do
+    IO.inspect(conn)
+    conn |> text("Ok")
+  end
 
   def unfavorite(%Plug.Conn{assigns: %{dataset: %DB.Dataset{} = dataset, contact: %DB.Contact{} = contact}} = conn, _) do
     DB.DatasetFollower.unfollow!(contact, dataset)

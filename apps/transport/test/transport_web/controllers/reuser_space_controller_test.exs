@@ -63,6 +63,29 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
              |> Floki.find(".reuser-space-section h2")
              |> Floki.text() == dataset.custom_title
     end
+
+    test "logged in, dataset is eligible for the data sharing pilot", %{conn: conn} do
+      # Google Maps org
+      organization = insert(:organization, id: "63fdfe4f4cd1c437ac478323")
+      dataset = insert(:dataset, custom_tags: ["repartage_donnees"], type: "public-transit")
+
+      contact =
+        insert_contact(%{
+          datagouv_user_id: Ecto.UUID.generate(),
+          organizations: [organization |> Map.from_struct()]
+        })
+
+      insert(:dataset_follower, contact_id: contact.id, dataset_id: dataset.id, source: :follow_button)
+
+      assert conn
+             |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+             |> get(reuser_space_path(conn, :datasets_edit, dataset.id))
+             |> html_response(200)
+             |> Floki.parse_document!()
+             |> Floki.find("#data-sharing p.notification")
+             |> Floki.text()
+             |> String.trim() == "Vous pourrez repartager vos données bientôt !"
+    end
   end
 
   describe "unfavorite" do
