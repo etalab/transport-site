@@ -265,7 +265,8 @@ defmodule TransportWeb.API.StatsController do
   #
   @spec render_features(Plug.Conn.t(), atom(), binary()) :: Plug.Conn.t()
   defp render_features(conn, item, cache_key) do
-    data = Transport.Cache.fetch(cache_key, fn -> rendered_geojson(item) end)
+    data =
+      Transport.Cache.fetch(cache_key, fn -> rendered_geojson(item) end, Transport.PreemptiveStatsCache.cache_ttl())
 
     render(conn, data: {:skip_json_encoding, data})
   end
