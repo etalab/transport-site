@@ -11,6 +11,8 @@ defmodule Transport.StatsHandler do
   import Ecto.Query
   require Logger
 
+  @longer_ecto_timeout 60_000
+
   @doc """
   Compute and store all stats as a snapshot of the database
   """
@@ -343,7 +345,7 @@ defmodule Transport.StatsHandler do
       end
 
     query
-    |> Repo.all()
+    |> Repo.all(timeout: @longer_ecto_timeout)
     |> features()
     |> geojson()
     |> Jason.encode!()
@@ -351,7 +353,7 @@ defmodule Transport.StatsHandler do
 
   def rendered_geojson(:bike_scooter_sharing) do
     bike_scooter_features_query()
-    |> Repo.all()
+    |> Repo.all(timeout: @longer_ecto_timeout)
     |> bike_scooter_sharing_features()
     |> geojson()
     |> Jason.encode!()
