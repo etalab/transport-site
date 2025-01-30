@@ -158,8 +158,7 @@ defmodule Transport.IRVE.DataFrame do
     end)
     |> Explorer.DataFrame.unnest(:coords)
     # required or we'll get `nil` values
-    |> Explorer.DataFrame.mutate(x: x |> strip(" "))
-    |> Explorer.DataFrame.mutate(y: y |> strip(" "))
+    |> Explorer.DataFrame.mutate(x: x |> strip(" "), y: y |> strip(" "))
     |> Explorer.DataFrame.mutate_with(fn df ->
       [
         x: Explorer.Series.cast(df[:x], {:f, 64}),
