@@ -283,7 +283,9 @@ defmodule Transport.StatsHandlerTest do
       }
     ]
 
-    assert Transport.StatsHandler.bike_scooter_sharing_features(Transport.StatsHandler.bike_scooter_features_query()) ==
+    assert Transport.StatsHandler.bike_scooter_features_query()
+           |> DB.Repo.all()
+           |> Transport.StatsHandler.bike_scooter_sharing_features() ==
              expected
   end
 
@@ -354,7 +356,7 @@ defmodule Transport.StatsHandlerTest do
       assert DB.AOM.created_after_2021?(aom)
 
       assert [] ==
-               Transport.StatsHandler.quality_features_query() |> Transport.StatsHandler.features()
+               Transport.StatsHandler.quality_features_query() |> DB.Repo.all() |> Transport.StatsHandler.features()
 
       # If created before 2022, it is present even without a dataset
       aom = aom |> Ecto.Changeset.change(%{composition_res_id: 500}) |> DB.Repo.update!()
@@ -362,7 +364,7 @@ defmodule Transport.StatsHandlerTest do
       refute DB.AOM.created_after_2021?(aom)
 
       assert [%{"properties" => %{"dataset_count" => 0, "nom" => ^aom_nom}}] =
-               Transport.StatsHandler.quality_features_query() |> Transport.StatsHandler.features()
+               Transport.StatsHandler.quality_features_query() |> DB.Repo.all() |> Transport.StatsHandler.features()
 
       # Created in 2022 but with a dataset
       aom = aom |> Ecto.Changeset.change(%{composition_res_id: 1_200}) |> DB.Repo.update!()
@@ -371,7 +373,7 @@ defmodule Transport.StatsHandlerTest do
       assert DB.AOM.created_after_2021?(aom)
 
       assert [%{"properties" => %{"dataset_types" => %{pt: 1}, "nom" => ^aom_nom}}] =
-               Transport.StatsHandler.quality_features_query() |> Transport.StatsHandler.features()
+               Transport.StatsHandler.quality_features_query() |> DB.Repo.all() |> Transport.StatsHandler.features()
     end
   end
 
@@ -399,6 +401,6 @@ defmodule Transport.StatsHandlerTest do
                  "quality" => %{"error_level" => "Error"}
                }
              }
-           ] = Transport.StatsHandler.quality_features_query() |> Transport.StatsHandler.features()
+           ] = Transport.StatsHandler.quality_features_query() |> DB.Repo.all() |> Transport.StatsHandler.features()
   end
 end
