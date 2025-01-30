@@ -84,7 +84,7 @@ defmodule TransportWeb.API.StatsController do
   # Because `render` does not support passing a rendered JSON (as binary) today, and to avoid
   # resorting to `send_resp` directly, we leverage `Transport.Shared.ConditionalJSONEncoder` to
   # skip JSON encoding, signaling the need to do so via a {:skip_json_encoding, data} tuple.
-  @spec render_features(Plug.Conn.t(), Ecto.Query.t(), binary()) :: Plug.Conn.t()
+  @spec render_features(Plug.Conn.t(), atom(), binary()) :: Plug.Conn.t()
   defp render_features(conn, item, cache_key) do
     comp_fn = fn ->
       Transport.StatsHandler.rendered_geojson(item)
@@ -95,6 +95,7 @@ defmodule TransportWeb.API.StatsController do
     render(conn, data: {:skip_json_encoding, rendered_geojson})
   end
 
+  @spec render_features(Plug.Conn.t(), atom()) :: Plug.Conn.t()
   defp render_features(conn, item) do
     render(conn, data: {:skip_json_encoding, Transport.StatsHandler.rendered_geojson(item)})
   end
