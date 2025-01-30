@@ -90,7 +90,7 @@ defmodule TransportWeb.API.StatsController do
       Transport.StatsHandler.rendered_geojson(item)
     end
 
-    rendered_geojson = Transport.Cache.fetch(cache_key, comp_fn)
+    rendered_geojson = Transport.Cache.fetch(cache_key, comp_fn, Transport.PreemptiveStatsCache.cache_ttl())
 
     render(conn, data: {:skip_json_encoding, rendered_geojson})
   end
