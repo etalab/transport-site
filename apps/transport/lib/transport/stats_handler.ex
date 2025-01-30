@@ -333,15 +333,23 @@ defmodule Transport.StatsHandler do
   The result of this function is cached by the controller itself, see `TransportWeb.API.StatsController.render_features/3`.
   We directly return the final JSON structure to avoid re-encoding it.
   """
-  def query_to_rendered_geojson(query) do
+
+  def rendered_geojson(item) when item in [:aom, :region, :quality] do
+    query =
+      case item do
+        :aom -> aom_features_query()
+        :region -> region_features_query()
+        :quality -> quality_features_query()
+      end
+
     query
     |> features()
     |> geojson()
     |> Jason.encode!()
   end
 
-  def bike_scooter_sharing_rendered_geojson do
-    bike_scooter_query()
+  def rendered_geojson(:bike_scooter_sharing) do
+    bike_scooter_features_query()
     |> bike_scooter_sharing_features()
     |> geojson()
     |> Jason.encode!()
@@ -648,8 +656,8 @@ defmodule Transport.StatsHandler do
     |> group_by([aom], aom.id)
   end
 
-  @spec bike_scooter_query :: Ecto.Query.t()
-  def bike_scooter_query do
+  @spec bike_scooter_features_query :: Ecto.Query.t()
+  def bike_scooter_features_query do
     DB.DatasetGeographicView
     |> join(:left, [gv], dataset in Dataset, on: dataset.id == gv.dataset_id)
     |> select([gv, dataset], %{

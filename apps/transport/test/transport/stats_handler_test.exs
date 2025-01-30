@@ -283,7 +283,8 @@ defmodule Transport.StatsHandlerTest do
       }
     ]
 
-    assert Transport.StatsHandler.bike_scooter_sharing_features(Transport.StatsHandler.bike_scooter_query()) == expected
+    assert Transport.StatsHandler.bike_scooter_sharing_features(Transport.StatsHandler.bike_scooter_features_query()) ==
+             expected
   end
 
   describe("aom quality features") do

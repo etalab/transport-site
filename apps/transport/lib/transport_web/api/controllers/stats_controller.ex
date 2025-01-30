@@ -59,19 +59,19 @@ defmodule TransportWeb.API.StatsController do
 
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(%Plug.Conn{} = conn, _params),
-    do: render_features(conn, Transport.StatsHandler.aom_features_query(), "api-stats-aoms")
+    do: render_features(conn, :aom, "api-stats-aoms")
 
   @spec regions(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def regions(%Plug.Conn{} = conn, _params),
-    do: render_features(conn, Transport.StatsHandler.region_features_query(), "api-stats-regions")
+    do: render_features(conn, :region, "api-stats-regions")
 
   @spec bike_scooter_sharing(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def bike_scooter_sharing(%Plug.Conn{} = conn, _params),
-    do: render_features(conn, Transport.StatsHandler.bike_scooter_sharing_rendered_geojson())
+    do: render_features(conn, :bike_scooter_sharing)
 
   @spec quality(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def quality(%Plug.Conn{} = conn, _params),
-    do: render_features(conn, Transport.StatsHandler.quality_features_query(), "api-stats-quality")
+    do: render_features(conn, :quality, "api-stats-quality")
 
   # Because the passed `query` can be costly to compute, this method supports optional
   # caching via `Transport.Cache` (enabled only if a `cache_key` is provided).
@@ -85,9 +85,9 @@ defmodule TransportWeb.API.StatsController do
   # resorting to `send_resp` directly, we leverage `Transport.Shared.ConditionalJSONEncoder` to
   # skip JSON encoding, signaling the need to do so via a {:skip_json_encoding, data} tuple.
   @spec render_features(Plug.Conn.t(), Ecto.Query.t(), binary()) :: Plug.Conn.t()
-  defp render_features(conn, query, cache_key) do
+  defp render_features(conn, item, cache_key) do
     comp_fn = fn ->
-      Transport.StatsHandler.query_to_rendered_geojson(query)
+      Transport.StatsHandler.rendered_geojson(item)
     end
 
     rendered_geojson = Transport.Cache.fetch(cache_key, comp_fn)
@@ -95,7 +95,7 @@ defmodule TransportWeb.API.StatsController do
     render(conn, data: {:skip_json_encoding, rendered_geojson})
   end
 
-  defp render_features(conn, rendered_geojson) do
-    render(conn, data: {:skip_json_encoding, rendered_geojson})
+  defp render_features(conn, item) do
+    render(conn, data: {:skip_json_encoding, Transport.StatsHandler.rendered_geojson(item)})
   end
 end
