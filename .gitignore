@@ -19,6 +19,7 @@ erl_crash.dump
 
 # Data munging
 cache-dir
+data-tmp
 
 # Since we are building assets from client,
 # we ignore priv/static.
@@ -55,5 +56,3 @@ livebook/cache-dir
 apps/transport/priv/repo/structure.sql
 
 pg.list
-consolidation.csv
-report.csv
