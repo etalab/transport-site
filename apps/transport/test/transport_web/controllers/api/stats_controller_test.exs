@@ -14,17 +14,17 @@ defmodule TransportWeb.API.StatsControllerTest do
   for {route, cache_key} <- @cached_features_routes do
     test "GET #{route} (invokes the cache system)", %{conn: conn} do
       # return original computed payload
-      mock = fn unquote(cache_key), x -> x.() end
+      mock = fn unquote(cache_key), x, _ -> x.() end
 
       with_mock Transport.Cache, fetch: mock do
         conn = conn |> get(unquote(route))
         %{"features" => _features} = json_response(conn, 200)
-        assert_called_exactly(Transport.Cache.fetch(:_, :_), 1)
+        assert_called_exactly(Transport.Cache.fetch(:_, :_, :_), 1)
       end
     end
 
     test "GET #{route} (returns the cached value as is)", %{conn: conn} do
-      mock = fn unquote(cache_key), _ -> %{hello: 123} |> Jason.encode!() end
+      mock = fn unquote(cache_key), _, _ -> %{hello: 123} |> Jason.encode!() end
 
       with_mock Transport.Cache, fetch: mock do
         conn = conn |> get(unquote(route))
