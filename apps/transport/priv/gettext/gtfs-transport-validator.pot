@@ -159,6 +159,10 @@ msgid "Negative stop duration"
 msgstr ""
 
 #, elixir-autogen, elixir-format
+msgid "Unusable trip"
+msgstr ""
+
+#, elixir-autogen, elixir-format
 msgid "Error"
 msgid_plural "Errors"
 msgstr[0] ""
