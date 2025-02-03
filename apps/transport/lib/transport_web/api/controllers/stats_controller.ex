@@ -79,10 +79,9 @@ defmodule TransportWeb.API.StatsController do
   def new_aom_without_datasets?(%{created_after_2021: true, dataset_types: %{pt: 0}}), do: true
   def new_aom_without_datasets?(_), do: false
 
-  @spec features(Ecto.Query.t()) :: [map()]
-  def features(q) do
-    q
-    |> Repo.all()
+  @spec features(map()) :: [map()]
+  def features(result) do
+    result
     |> Enum.reject(fn aom -> is_nil(aom.geometry) or new_aom_without_datasets?(aom) end)
     |> Enum.map(fn aom ->
       dataset_types =
@@ -136,10 +135,9 @@ defmodule TransportWeb.API.StatsController do
     |> Enum.to_list()
   end
 
-  @spec bike_scooter_sharing_features(Ecto.Query.t()) :: [map()]
-  def bike_scooter_sharing_features(query) do
-    query
-    |> DB.Repo.all()
+  @spec bike_scooter_sharing_features(map()) :: [map()]
+  def bike_scooter_sharing_features(result) do
+    result
     |> Enum.reject(fn r -> is_nil(r.geometry) end)
     |> Enum.map(fn r ->
       %{
@@ -287,6 +285,7 @@ defmodule TransportWeb.API.StatsController do
       end
 
     query
+    |> Repo.all()
     |> features()
     |> geojson()
     |> Jason.encode!()
@@ -294,6 +293,7 @@ defmodule TransportWeb.API.StatsController do
 
   def rendered_geojson(:bike_scooter_sharing) do
     bike_scooter_sharing_features_query()
+    |> Repo.all()
     |> bike_scooter_sharing_features()
     |> geojson()
     |> Jason.encode!()
