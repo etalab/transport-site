@@ -3,7 +3,7 @@ defmodule Transport.S3 do
   This module contains common code related to S3 object storage.
   """
   require Logger
-  @type bucket_feature :: :history | :on_demand_validation | :gtfs_diff | :logos
+  @type bucket_feature :: :history | :on_demand_validation | :gtfs_diff | :logos | :aggregates
 
   @spec bucket_name(bucket_feature()) :: binary()
   def bucket_name(feature) do
@@ -53,6 +53,14 @@ defmodule Transport.S3 do
     feature
     |> Transport.S3.bucket_name()
     |> ExAws.S3.download_file(remote_path, local_path)
+    |> Transport.Wrapper.ExAWS.impl().request!()
+  end
+
+  @spec remote_copy_file!(bucket_feature(), binary(), binary()) :: any()
+  def remote_copy_file!(feature, remote_path_src, remote_path_dest) do
+    bucket = Transport.S3.bucket_name(feature)
+
+    ExAws.S3.put_object_copy(bucket, remote_path_dest, bucket, remote_path_src)
     |> Transport.Wrapper.ExAWS.impl().request!()
   end
 end

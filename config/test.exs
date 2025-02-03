@@ -45,7 +45,8 @@ config :transport,
     history: "resource-history-test",
     on_demand_validation: "on-demand-validation-test",
     gtfs_diff: "gtfs-diff-test",
-    logos: "logos-test"
+    logos: "logos-test",
+    aggregates: "aggregates-test"
   },
   workflow_notifier: Transport.Jobs.Workflow.ProcessNotifier,
   export_secret_key: "fake_export_secret_key",
