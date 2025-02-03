@@ -90,33 +90,17 @@
             gtfs_original_file_name_2: @gtfs_original_file_name_2
           ) %>
           <div class="summary">
-            <div :if={@diff_summary["add"]}>
-              <ul>
-                <%= for {{file, "add", target}, n} <- @diff_summary["add"] do %>
-                  <li>
-                    <span class="green"><%= dgettext("validations", "added") %> &nbsp;</span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %>
-                  </li>
-                <% end %>
-              </ul>
-            </div>
-            <div :if={@diff_summary["delete"]}>
-              <ul>
-                <%= for {{file, "delete", target}, n} <- @diff_summary["delete"] do %>
-                  <li>
-                    <span class="red"><%= dgettext("validations", "deleted") %> &nbsp;</span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %>
-                  </li>
-                <% end %>
-              </ul>
-            </div>
-            <div :if={@diff_summary["update"]}>
-              <ul>
-                <%= for {{file, "update", target}, n} <- @diff_summary["update"] do %>
-                  <li>
-                    <span class="orange"><%= dgettext("validations", "updated") %> &nbsp;</span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %>
-                  </li>
-                <% end %>
-              </ul>
-            </div>
+            <%= for {diff_nature, translation, css_class} <- [{"add", dgettext("validations", "added"), "green"}, {"update", dgettext("validations", "updated"), "orange"}, {"delete", dgettext("validations", "deleted"), "red"}] do %>
+              <div :if={@diff_summary[diff_nature]}>
+                <ul>
+                  <%= for {{file, ^diff_nature, target}, n} <- @diff_summary[diff_nature] do %>
+                    <li>
+                      <span class={css_class}><%= translation %> &nbsp;</span><%= "#{translate_target(target, n)} - #{file}" %>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
           </div>
         </div>
       <% else %>

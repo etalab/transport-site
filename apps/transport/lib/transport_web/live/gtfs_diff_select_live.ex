@@ -161,4 +161,33 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   defp error_to_string(:too_large), do: "File is too large, must be <#{@max_file_size_mb}MB"
   defp error_to_string(:too_many_files), do: "You must select 2 files"
   defp error_to_string(:not_accepted), do: "You have selected an unacceptable file type"
+
+  @doc """
+  iex> Gettext.put_locale("en")
+  iex> translate_target("file", 1)
+  "1 file"
+  iex> translate_target("file", 3)
+  "3 files"
+  iex> translate_target("row", 1)
+  "1 row"
+  iex> translate_target("row", 3)
+  "3 rows"
+  iex> Gettext.put_locale("fr")
+  iex> translate_target("file", 1)
+  "1 fichier"
+  iex> translate_target("file", 3)
+  "3 fichiers"
+  iex> translate_target("row", 1)
+  "1 ligne"
+  iex> translate_target("row", 3)
+  "3 lignes"
+  """
+  def translate_target(target, n) do
+    case target do
+      "file" -> dngettext("validations", "%{count} file", "%{count} files", n)
+      "row" -> dngettext("validations", "%{count} row", "%{count} rows", n)
+      "column" -> dngettext("validations", "%{count} column", "%{count} columns", n)
+      _ -> "#{n} #{target}#{if n > 1, do: "s"}"
+    end
+  end
 end
