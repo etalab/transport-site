@@ -79,7 +79,7 @@ defmodule TransportWeb.API.StatsController do
   def new_aom_without_datasets?(%{created_after_2021: true, dataset_types: %{pt: 0}}), do: true
   def new_aom_without_datasets?(_), do: false
 
-  @spec features(map()) :: [map()]
+  @spec features([map()]) :: [map()]
   def features(result) do
     result
     |> Enum.reject(fn aom -> is_nil(aom.geometry) or new_aom_without_datasets?(aom) end)
@@ -135,7 +135,7 @@ defmodule TransportWeb.API.StatsController do
     |> Enum.to_list()
   end
 
-  @spec bike_scooter_sharing_features(map()) :: [map()]
+  @spec bike_scooter_sharing_features([map()]) :: [map()]
   def bike_scooter_sharing_features(result) do
     result
     |> Enum.reject(fn r -> is_nil(r.geometry) end)
