@@ -3,7 +3,12 @@ defmodule TransportWeb.StatsController do
 
   @spec index(Plug.Conn.t(), any) :: Plug.Conn.t()
   def index(conn, _params) do
-    stats = Transport.Cache.fetch("stats-page-index", fn -> Transport.StatsHandler.compute_stats() end)
+    stats =
+      Transport.Cache.fetch(
+        "stats-page-index",
+        fn -> Transport.StatsHandler.compute_stats() end,
+        Transport.PreemptiveStatsCache.cache_ttl()
+      )
 
     conn =
       stats
