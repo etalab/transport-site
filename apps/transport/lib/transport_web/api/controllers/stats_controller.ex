@@ -251,10 +251,7 @@ defmodule TransportWeb.API.StatsController do
   @spec render_features(Plug.Conn.t(), Ecto.Query.t(), binary()) :: Plug.Conn.t()
   defp render_features(conn, query, cache_key) do
     comp_fn = fn ->
-      query
-      |> features()
-      |> geojson()
-      |> Jason.encode!()
+      rendered_geojson(query)
     end
 
     data = Transport.Cache.fetch(cache_key, comp_fn)
@@ -263,7 +260,20 @@ defmodule TransportWeb.API.StatsController do
   end
 
   defp render_features(conn, data) do
-    render(conn, data: {:skip_json_encoding, data |> geojson() |> Jason.encode!()})
+    render(conn, data: {:skip_json_encoding, bike_scooter_sharing_rendered_geojson(data)})
+  end
+
+  def rendered_geojson(query) do
+    query
+    |> features()
+    |> geojson()
+    |> Jason.encode!()
+  end
+
+  def bike_scooter_sharing_rendered_geojson(data) do
+    data
+    |> geojson()
+    |> Jason.encode!()
   end
 
   @spec aom_features_query :: Ecto.Query.t()
