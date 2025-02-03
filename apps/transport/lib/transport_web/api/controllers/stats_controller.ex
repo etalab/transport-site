@@ -136,6 +136,23 @@ defmodule TransportWeb.API.StatsController do
     |> Enum.to_list()
   end
 
+  @spec bike_scooter_sharing_features(Ecto.Query.t()) :: [map()]
+  def bike_scooter_sharing_features(query) do
+    query
+    |> DB.Repo.all()
+    |> Enum.reject(fn r -> is_nil(r.geometry) end)
+    |> Enum.map(fn r ->
+      %{
+        "geometry" => r.geometry |> JSON.encode!(),
+        "type" => "Feature",
+        # NOTE: there is a bug here - the key is an atom.
+        # I won't change it now because it would mean more changes somewhere else, maybe.
+        # `Map.reject(fn({k,v}) -> k == :geometry end)` will do it.
+        "properties" => Map.take(r, Enum.filter(Map.keys(r), fn k -> k != "geometry" end))
+      }
+    end)
+  end
+
   defmacro count_aom_types(aom_id, type, include_aggregates: true) do
     quote do
       fragment(
@@ -226,7 +243,7 @@ defmodule TransportWeb.API.StatsController do
 
   @spec bike_scooter_sharing(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def bike_scooter_sharing(%Plug.Conn{} = conn, _params),
-    do: render_features(conn, bike_scooter_sharing_features())
+    do: render_features(conn, bike_scooter_sharing_features_query())
 
   @spec quality(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def quality(%Plug.Conn{} = conn, _params), do: render_features(conn, quality_features_query(), "api-stats-quality")
@@ -259,8 +276,8 @@ defmodule TransportWeb.API.StatsController do
     render(conn, data: {:skip_json_encoding, data})
   end
 
-  defp render_features(conn, data) do
-    render(conn, data: {:skip_json_encoding, bike_scooter_sharing_rendered_geojson(data)})
+  defp render_features(conn, query) do
+    render(conn, data: {:skip_json_encoding, bike_scooter_sharing_rendered_geojson(query)})
   end
 
   def rendered_geojson(query) do
@@ -270,8 +287,9 @@ defmodule TransportWeb.API.StatsController do
     |> Jason.encode!()
   end
 
-  def bike_scooter_sharing_rendered_geojson(data) do
-    data
+  def bike_scooter_sharing_rendered_geojson(query) do
+    query
+    |> bike_scooter_sharing_features()
     |> geojson()
     |> Jason.encode!()
   end
@@ -356,32 +374,17 @@ defmodule TransportWeb.API.StatsController do
     })
   end
 
-  @spec bike_scooter_sharing_features :: []
-  def bike_scooter_sharing_features do
-    query =
-      DatasetGeographicView
-      |> join(:left, [gv], dataset in Dataset, on: dataset.id == gv.dataset_id)
-      |> select([gv, dataset], %{
-        geometry: fragment("ST_Centroid(geom) as geometry"),
-        names: fragment("array_agg(? order by ? asc)", dataset.custom_title, dataset.custom_title),
-        slugs: fragment("array_agg(? order by ? asc)", dataset.slug, dataset.custom_title)
-      })
-      |> where([_gv, dataset], dataset.type == "bike-scooter-sharing" and dataset.is_active)
-      |> group_by(fragment("geometry"))
-
-    query
-    |> DB.Repo.all()
-    |> Enum.reject(fn r -> is_nil(r.geometry) end)
-    |> Enum.map(fn r ->
-      %{
-        "geometry" => r.geometry |> JSON.encode!(),
-        "type" => "Feature",
-        # NOTE: there is a bug here - the key is an atom.
-        # I won't change it now because it would mean more changes somewhere else, maybe.
-        # `Map.reject(fn({k,v}) -> k == :geometry end)` will do it.
-        "properties" => Map.take(r, Enum.filter(Map.keys(r), fn k -> k != "geometry" end))
-      }
-    end)
+  @spec bike_scooter_sharing_features_query :: Ecto.Query.t()
+  def bike_scooter_sharing_features_query do
+    DatasetGeographicView
+    |> join(:left, [gv], dataset in Dataset, on: dataset.id == gv.dataset_id)
+    |> select([gv, dataset], %{
+      geometry: fragment("ST_Centroid(geom) as geometry"),
+      names: fragment("array_agg(? order by ? asc)", dataset.custom_title, dataset.custom_title),
+      slugs: fragment("array_agg(? order by ? asc)", dataset.slug, dataset.custom_title)
+    })
+    |> where([_gv, dataset], dataset.type == "bike-scooter-sharing" and dataset.is_active)
+    |> group_by(fragment("geometry"))
   end
 
   @spec quality_features_query :: Ecto.Query.t()

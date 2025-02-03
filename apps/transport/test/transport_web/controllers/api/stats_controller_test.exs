@@ -64,7 +64,9 @@ defmodule TransportWeb.API.StatsControllerTest do
       }
     ]
 
-    assert TransportWeb.API.StatsController.bike_scooter_sharing_features() == expected
+    assert TransportWeb.API.StatsController.bike_scooter_sharing_features(
+             TransportWeb.API.StatsController.bike_scooter_sharing_features_query()
+           ) == expected
   end
 
   test "Quality of AOM data stats", %{conn: conn} do
