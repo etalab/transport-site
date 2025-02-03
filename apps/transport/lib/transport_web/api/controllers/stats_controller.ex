@@ -236,17 +236,17 @@ defmodule TransportWeb.API.StatsController do
   end
 
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def index(%Plug.Conn{} = conn, _params), do: render_features(conn, aom_features_query(), "api-stats-aoms")
+  def index(%Plug.Conn{} = conn, _params), do: render_features(conn, :aoms, "api-stats-aoms")
 
   @spec regions(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def regions(%Plug.Conn{} = conn, _params), do: render_features(conn, region_features_query(), "api-stats-regions")
+  def regions(%Plug.Conn{} = conn, _params), do: render_features(conn, :regions, "api-stats-regions")
 
   @spec bike_scooter_sharing(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def bike_scooter_sharing(%Plug.Conn{} = conn, _params),
-    do: render_features(conn, bike_scooter_sharing_features_query())
+    do: render_features(conn, :bike_scooter_sharing)
 
   @spec quality(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def quality(%Plug.Conn{} = conn, _params), do: render_features(conn, quality_features_query(), "api-stats-quality")
+  def quality(%Plug.Conn{} = conn, _params), do: render_features(conn, :quality, "api-stats-quality")
 
   #
   # (not using @doc because this is a private method and it would then generate a warning ;
@@ -265,30 +265,35 @@ defmodule TransportWeb.API.StatsController do
   # resorting to `send_resp` directly, we leverage `Transport.Shared.ConditionalJSONEncoder` to
   # skip JSON encoding, signaling the need to do so via a {:skip_json_encoding, data} tuple.
   #
-  @spec render_features(Plug.Conn.t(), Ecto.Query.t(), binary()) :: Plug.Conn.t()
-  defp render_features(conn, query, cache_key) do
-    comp_fn = fn ->
-      rendered_geojson(query)
-    end
-
-    data = Transport.Cache.fetch(cache_key, comp_fn)
+  @spec render_features(Plug.Conn.t(), atom(), binary()) :: Plug.Conn.t()
+  defp render_features(conn, item, cache_key) do
+    data = Transport.Cache.fetch(cache_key, fn -> rendered_geojson(item) end)
 
     render(conn, data: {:skip_json_encoding, data})
   end
 
-  defp render_features(conn, query) do
-    render(conn, data: {:skip_json_encoding, bike_scooter_sharing_rendered_geojson(query)})
+  @spec render_features(Plug.Conn.t(), atom()) :: Plug.Conn.t()
+  defp render_features(conn, item) do
+    data = rendered_geojson(item)
+    render(conn, data: {:skip_json_encoding, data})
   end
 
-  def rendered_geojson(query) do
+  def rendered_geojson(item) when item in [:aoms, :regions, :quality] do
+    query =
+      case item do
+        :aoms -> aom_features_query()
+        :regions -> region_features_query()
+        :quality -> quality_features_query()
+      end
+
     query
     |> features()
     |> geojson()
     |> Jason.encode!()
   end
 
-  def bike_scooter_sharing_rendered_geojson(query) do
-    query
+  def rendered_geojson(:bike_scooter_sharing) do
+    bike_scooter_sharing_features_query()
     |> bike_scooter_sharing_features()
     |> geojson()
     |> Jason.encode!()
