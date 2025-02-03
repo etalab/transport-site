@@ -7,7 +7,6 @@ defmodule TransportWeb.API.StatsController do
 
   @longer_ecto_timeout 60_000
 
-
   @spec open_api_operation(any) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
 
