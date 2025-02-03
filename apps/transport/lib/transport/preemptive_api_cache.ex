@@ -6,6 +6,7 @@ defmodule Transport.PreemptiveAPICache do
   use GenServer
   require Logger
 
+  @first_run 0
   @job_delay :timer.seconds(300)
   # slightly more than twice `@job_delay` to reduce the risk of parallel computation
   @cache_ttl :timer.seconds(700)
@@ -19,7 +20,7 @@ defmodule Transport.PreemptiveAPICache do
   def init(state) do
     # initial schedule is immediate, but via the same code path,
     # to ensure we jump on the data
-    schedule_next_occurrence(0)
+    schedule_next_occurrence(@first_run)
 
     {:ok, state}
   end
