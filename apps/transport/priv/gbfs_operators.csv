@@ -6,6 +6,7 @@ backend.citiz.fr;Citiz
 bdx.mecatran.com;Cykleo
 bird.co;Bird
 clermontferrand.publicbikesystem.net;Citybike
+data.metropolegrenoble.fr/sites/default/files/dataset/2023/08/10/75c1054c-e602-445c-9852-0fc7abddf592/velos_gbfs.json;Dott
 data.mobilites-m.fr/api/gbfs/dott_grenoble;Dott
 data.optymo.fr;SMTC 90
 donkey.bike;Donkey Republic
@@ -14,6 +15,7 @@ ecovelo.mobi;Ecovélo
 eu.ftp.opendatasoft.com/star;Cykleo
 fifteen.eu;Fifteen
 fifteen.site;Fifteen
+gbfs.api.ridedott.com;Dott
 getapony.com;Pony
 lime.bike;Lime
 media.ilevia.fr/opendata;Cykleo
