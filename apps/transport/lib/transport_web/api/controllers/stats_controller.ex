@@ -277,14 +277,12 @@ defmodule TransportWeb.API.StatsController do
   end
 
   def rendered_geojson(item) when item in [:aoms, :regions, :quality] do
-    query =
-      case item do
-        :aoms -> aom_features_query()
-        :regions -> region_features_query()
-        :quality -> quality_features_query()
-      end
-
-    query
+    case item do
+      :aoms -> aom_features_query()
+      :regions -> region_features_query()
+      :quality -> quality_features_query()
+    end
+    |>
     |> Repo.all()
     |> features()
     |> geojson()
