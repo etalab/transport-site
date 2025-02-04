@@ -72,7 +72,7 @@ defmodule TransportWeb.DatasetView do
         "most_recent" => dgettext("page-shortlist", "Most recently added")
       }[order_by]
 
-    assigns = Plug.Conn.assign(conn, :msg, msg).assigns()
+    assigns = Plug.Conn.assign(conn, :msg, msg).assigns
 
     case assigns do
       %{order_by: ^order_by} -> ~H{<span class="activefilter"><%= @msg %></span>}
@@ -81,7 +81,7 @@ defmodule TransportWeb.DatasetView do
   end
 
   def licence_link(%Plug.Conn{} = conn, %{licence: "all", count: count}) do
-    assigns = Plug.Conn.assign(conn, :count, count).assigns()
+    assigns = Plug.Conn.assign(conn, :count, count).assigns
 
     if Map.has_key?(conn.query_params, "licence") do
       link("#{dgettext("page-shortlist", "All (feminine)")} (#{count})",
@@ -93,7 +93,7 @@ defmodule TransportWeb.DatasetView do
   end
 
   def licence_link(%Plug.Conn{} = conn, %{licence: licence, count: count}) when licence not in ["fr-lo", "lov2"] do
-    assigns = Plug.Conn.merge_assigns(conn, count: count, name: name = licence(%Dataset{licence: licence})).assigns()
+    assigns = Plug.Conn.merge_assigns(conn, count: count, name: name = licence(%Dataset{licence: licence})).assigns
 
     if Map.get(conn.query_params, "licence") == licence do
       ~H{<span class="activefilter"><%= @name %> (<%= @count %>)</span>}
@@ -113,7 +113,7 @@ defmodule TransportWeb.DatasetView do
     params = conn.query_params
     full_url = "#{url}?#{Query.encode(params)}"
 
-    assigns = Plug.Conn.merge_assigns(conn, count: count, nom: nom).assigns()
+    assigns = Plug.Conn.merge_assigns(conn, count: count, nom: nom).assigns
 
     case current_path(conn, %{}) do
       ^url -> ~H{<span class="activefilter"><%= @nom %> (<%= @count %>)</span>}
@@ -147,7 +147,7 @@ defmodule TransportWeb.DatasetView do
       end
 
     link_text = "#{msg} (#{count})"
-    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns()
+    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns
     active_filter_text = ~H{<span class="activefilter"><%= @msg %> (<%= @count %>)</span>}
 
     case conn.params do
@@ -172,7 +172,7 @@ defmodule TransportWeb.DatasetView do
         true -> current_url(conn, Map.put(conn.query_params, "filter", "has_realtime"))
       end
 
-    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns()
+    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns
 
     case {only_rt, Map.get(conn.query_params, "filter")} do
       {false, "has_realtime"} -> link("#{msg} (#{count})", to: full_url)
@@ -193,7 +193,7 @@ defmodule TransportWeb.DatasetView do
         true -> current_url(conn, Map.put(conn.query_params, "loi-climat-resilience", true))
       end
 
-    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns()
+    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns
 
     case {only, Map.get(conn.query_params, "loi-climat-resilience")} do
       {false, "true"} -> link("#{msg} (#{count})", to: full_url)
@@ -254,7 +254,7 @@ defmodule TransportWeb.DatasetView do
   end
 
   def gbfs_feed_source_for_ttl(types) do
-    feed_name = Transport.Shared.GBFSMetadata.feed_to_use_for_ttl(types)
+    feed_name = Transport.GBFSMetadata.feed_to_use_for_ttl(types)
     if feed_name, do: feed_name, else: "root"
   end
 
@@ -284,6 +284,8 @@ defmodule TransportWeb.DatasetView do
   def errors_count(%DB.MultiValidation{result: %{"errors_count" => errors_count}})
       when is_integer(errors_count) and errors_count >= 0,
       do: errors_count
+
+  def errors_count(%DB.MultiValidation{}), do: nil
 
   def availability_number_days, do: 30
   def max_nb_history_resources, do: 25
@@ -365,12 +367,6 @@ defmodule TransportWeb.DatasetView do
     |> Enum.filter(&Resource.documentation?/1)
   end
 
-  def real_time_public_transit?(%Dataset{type: "public-transit"} = dataset) do
-    not Enum.empty?(real_time_official_resources(dataset))
-  end
-
-  def real_time_public_transit?(%Dataset{}), do: false
-
   def community_resources(dataset), do: Dataset.community_resources(dataset)
 
   def licence_url(licence) when licence in ["fr-lo", "lov2"],
@@ -424,7 +420,7 @@ defmodule TransportWeb.DatasetView do
     resources
     |> Enum.filter(fn r -> r.format == "csv" end)
     |> Enum.reject(fn r -> Resource.community_resource?(r) or Resource.documentation?(r) end)
-    |> Enum.max_by(& &1.last_update, DateTime, fn -> nil end)
+    |> Enum.max_by(&{&1.type, &1.last_update}, TransportWeb.DatasetView.ResourceTypeSortKey, fn -> nil end)
   end
 
   def get_resource_to_display(%Dataset{type: type, resources: resources})
@@ -581,5 +577,15 @@ defmodule TransportWeb.DatasetView do
   def heart_class(dataset_heart_values, %DB.Dataset{id: dataset_id}) do
     value = dataset_heart_values |> Map.fetch!(dataset_id) |> to_string()
     "fa fa-heart #{value}" |> String.trim()
+  end
+end
+
+defmodule TransportWeb.DatasetView.ResourceTypeSortKey do
+  def compare({left_type, left_last_update}, {right_type, right_last_update}) do
+    cond do
+      left_type == right_type -> DateTime.compare(left_last_update, right_last_update)
+      left_type == "main" -> :gt
+      true -> :lt
+    end
   end
 end

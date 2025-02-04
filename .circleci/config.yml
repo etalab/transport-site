@@ -22,7 +22,7 @@ defaults: &defaults
       default: plt-v4
       type: string
     js_cache_key:
-      default: js-v2
+      default: js-v4
       type: string
   working_directory: ~/transport
   docker:
@@ -98,9 +98,13 @@ jobs:
             - ~/transport/deps
             - ~/.mix
 
+      - run:
+          name: Create checksum for JS files
+          command: cd ~/transport/apps/transport/client && shasum webpack.*.js yarn.lock > /tmp/js-checksum
+
       - restore_cache:
           keys:
-            - js-<< parameters.js_cache_key >>-{{ checksum "apps/transport/client/yarn.lock" }}
+            - js-<< parameters.js_cache_key >>-{{ checksum "/tmp/js-checksum" }}
             - js-<< parameters.js_cache_key >>
 
       - run:
@@ -113,41 +117,10 @@ jobs:
           command: cd ~/transport/apps/transport/client && npm run build
 
       - save_cache:
-          key: js-<< parameters.js_cache_key >>-{{ checksum "apps/transport/client/yarn.lock" }}
+          key: js-<< parameters.js_cache_key >>-{{ checksum "/tmp/js-checksum" }}
           paths:
             - ~/transport/apps/transport/client/node_modules
-
-      # NOTE: I think this should be moved to the dialyzer parallel section,
-      # but then we need to think about how the persistence/caching will be
-      # handled, and think about concurrent access (?) with various jobs to the cache.
-
-      - restore_cache:
-          keys:
-            - elixir-<< parameters.base_image >>-<< parameters.plt_cache_key >>-{{ .Branch }}-{{ checksum "mix.lock" }}
-            - elixir-<< parameters.base_image >>-<< parameters.plt_cache_key >>-{{ .Branch }}
-            - elixir-<< parameters.base_image >>-<< parameters.plt_cache_key >>
-
-      - run:
-          name: Build PLT
-          command: mix dialyzer --plt
-          # PLT construction can stay up quite a bit without generating any output
-          # We add a bit of tolerance here
-          no_output_timeout: 20m
-
-      - save_cache:
-          key: elixir-<< parameters.base_image >>-<< parameters.plt_cache_key >>-{{ .Branch }}-{{ checksum "mix.lock" }}
-          paths:
-            - ~/transport/dialyzer-plt
-
-      - save_cache:
-          key: elixir-<< parameters.base_image >>-<< parameters.plt_cache_key >>-{{ .Branch }}
-          paths:
-            - ~/transport/dialyzer-plt
-
-      - save_cache:
-          key: elixir-<< parameters.base_image >>-<< parameters.plt_cache_key >>
-          paths:
-            - ~/transport/dialyzer-plt
+            - ~/transport/apps/transport/priv/static
 
       - run:
           name: Run gettext check
@@ -168,10 +141,6 @@ jobs:
       - run:
           name: Run formatter
           command: mix format --check-formatted --dry-run
-
-      - run:
-          name: Run dialyzer (static analysis)
-          command: mix dialyzer
 
       - run:
           name: Run tests

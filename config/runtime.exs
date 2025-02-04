@@ -38,8 +38,8 @@ config :transport,
   worker: worker,
   webserver: webserver,
   # kill switches: set specific variable environments to disable features
-  disable_reuser_space: System.get_env("DISABLE_REUSER_SPACE") in ["1", "true"],
-  disable_national_gtfs_map: System.get_env("DISABLE_NATIONAL_GTFS_MAP") in ["1", "true"]
+  disable_national_gtfs_map: System.get_env("DISABLE_NATIONAL_GTFS_MAP") in ["1", "true"],
+  disable_netex_validator: System.get_env("DISABLE_NETEX_VALIDATOR") in ["1", "true"]
 
 config :unlock,
   enforce_ttl: webserver
@@ -121,6 +121,7 @@ oban_prod_crontab = [
   {"30 */6 * * *", Transport.Jobs.ParkingsRelaisToGeoData},
   {"30 */6 * * *", Transport.Jobs.LowEmissionZonesToGeoData},
   {"30 */6 * * *", Transport.Jobs.IRVEToGeoData},
+  {"30 6 * * *", Transport.Jobs.GBFSStationsToGeoData},
   {"15 10 * * *", Transport.Jobs.DatabaseBackupReplicationJob},
   {"0 7 * * *", Transport.Jobs.GTFSRTMultiValidationDispatcherJob},
   {"30 7 * * *", Transport.Jobs.GBFSMultiValidationDispatcherJob},
@@ -133,7 +134,8 @@ oban_prod_crontab = [
   {"0 6 * * 1-5", Transport.Jobs.NewDatagouvDatasetsJob, args: %{check_rules: true}},
   {"5 6 * * 1-5", Transport.Jobs.NewDatagouvDatasetsJob},
   {"0 6 * * *", Transport.Jobs.NewDatasetNotificationsJob},
-  {"30 6 * * *", Transport.Jobs.ExpirationNotificationJob},
+  {"30 6 * * *", Transport.Jobs.ExpirationAdminProducerNotificationJob},
+  {"45 6 * * *", Transport.Jobs.ExpirationNotificationJob},
   {"0 8 * * 1-5", Transport.Jobs.NewCommentsNotificationJob},
   {"0 21 * * *", Transport.Jobs.DatasetHistoryDispatcherJob},
   # Should be executed after all `DatasetHistoryJob` have been executed
@@ -144,6 +146,7 @@ oban_prod_crontab = [
   {"30 6 * * 1", Transport.Jobs.DatasetsSwitchingClimateResilienceBillJob},
   {"30 6 * * 1-5", Transport.Jobs.DatasetsClimateResilienceBillNotLOLicenceJob},
   {"10 6 * * 1", Transport.Jobs.DatasetsWithoutGTFSRTRelatedResourcesNotificationJob},
+  {"10 6 * * 1", Transport.Jobs.GBFSOperatorsNotificationJob},
   {"45 2 * * *", Transport.Jobs.RemoveHistoryJob, args: %{schema_name: "etalab/schema-irve-dynamique", days_limit: 7}},
   {"0 16 * * *", Transport.Jobs.DatasetQualityScoreDispatcher},
   {"40 3 * * *", Transport.Jobs.UpdateContactsJob},
@@ -153,6 +156,8 @@ oban_prod_crontab = [
   {"15 8 * 3,6,11 1", Transport.Jobs.PeriodicReminderProducersNotificationJob},
   {"15 5 * * *", Transport.Jobs.ImportDatasetFollowersJob},
   {"20 5 * * *", Transport.Jobs.ImportDatasetContactPointsJob},
+  # Should be ideally executed after `GBFSMultiValidationDispatcherJob` to use fresh metadata
+  {"30 8 * * *", Transport.Jobs.ImportGBFSFeedContactEmailJob},
   {"30 5 * * *", Transport.Jobs.ImportDatasetMonthlyMetricsJob},
   {"45 5 * * *", Transport.Jobs.ImportResourceMonthlyMetricsJob},
   {"0 8 * * *", Transport.Jobs.WarnUserInactivityJob},
@@ -274,7 +279,7 @@ if config_env() == :prod do
   end
 end
 
-# On CleverCloud, each container gets assigned a UUID, which gets propagated to AppSignal.
+# On Clever Cloud, each container gets assigned a UUID, which gets propagated to AppSignal.
 # It is easier to assign the container a "role" so that we can more easily charts relevant metrics.
 host_role =
   []

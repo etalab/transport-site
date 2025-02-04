@@ -130,13 +130,16 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
   def consolidate_features(resources) do
     %{
       type: "FeatureCollection",
-      features: resources |> Enum.flat_map(&content_features/1)
+      features:
+        resources
+        |> Enum.map(fn %Resource{} = resource -> {resource, latest_valid_resource_history(resource)} end)
+        # Do not consolidate resources without a valid resource history
+        |> Enum.reject(fn {_, resource_history} -> is_nil(resource_history) end)
+        |> Enum.flat_map(&content_features/1)
     }
   end
 
-  defp content_features(%Resource{} = resource) do
-    %ResourceHistory{payload: %{"permanent_url" => url}} = latest_valid_resource_history(resource)
-
+  defp content_features({%Resource{} = resource, %ResourceHistory{payload: %{"permanent_url" => url}}}) do
     %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(url, [], follow_redirect: true)
 
     body

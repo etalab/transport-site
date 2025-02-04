@@ -340,7 +340,7 @@ msgstr "En savoir plus"
 
 #, elixir-autogen, elixir-format
 msgid "availability-test-explanations"
-msgstr "Nous testons la disponibilité de cette ressource au téléchargement toutes les heures, en effectuant une requête HTTP de type <code class=\"inline\">HEAD</code> dont le temps de réponse doit être inférieur à 5 secondes. Si nous détectons une indisponibilité, nous effectuons un nouveau test toutes les 10 minutes, jusqu'à ce que la ressource soit à nouveau disponible.<br><br>Pour les flux SIRI et SIRI Lite, nous effectuons une requête HTTP de type <code class=\"inline\">GET</code> : nous considérons une réponse avec un code 401 ou 405 comme étant disponible."
+msgstr "Nous testons la disponibilité de cette ressource au téléchargement toutes les heures, en effectuant une requête HTTP de type <code class=\"inline\">HEAD</code> dont le temps de réponse doit être inférieur à 5 secondes. Si nous détectons une indisponibilité, nous effectuons un nouveau test toutes les 10 minutes, jusqu'à ce que la ressource soit à nouveau disponible.<br><br>Pour les flux SIRI et SIRI Lite, nous effectuons une requête HTTP de type <code class=\"inline\">GET</code> : nous considérons une réponse avec un code 401 ou 405 comme étant disponible. En cas d'erreur 500, nous considèrerons que le flux est indisponible, sauf si il semble contenir du SOAP."
 
 #, elixir-autogen, elixir-format
 msgid "last content modification"
@@ -720,4 +720,4 @@ msgstr "Données sous la responsabilité de"
 
 #, elixir-autogen, elixir-format
 msgid "This unofficial dataset is provided experimentally. Do not use it for travel information purpose."
-msgstr "Ce jeu de données non officiel est publié à titre expérimental. Veuillez à ne pas le réutiliser à des fins d'information voyageur."
+msgstr "Ce jeu de données non officiel est publié à titre expérimental. Veuillez ne pas le réutiliser à des fins d’information voyageur."

@@ -55,24 +55,6 @@ defmodule TransportWeb.SessionTest do
     end
   end
 
-  describe "display_reuser_space?" do
-    test "killswitch can disable the reuser space" do
-      old_value = Application.fetch_env!(:transport, :disable_reuser_space)
-      Application.put_env(:transport, :disable_reuser_space, true)
-      conn = Plug.Test.init_test_session(%Plug.Conn{}, %{})
-      refute TransportWeb.Session.display_reuser_space?(conn)
-      Application.put_env(:transport, :disable_reuser_space, old_value)
-    end
-
-    test "admins get access when killswitch is enabled" do
-      old_value = Application.fetch_env!(:transport, :disable_reuser_space)
-      Application.put_env(:transport, :disable_reuser_space, true)
-      conn = Plug.Test.init_test_session(%Plug.Conn{}, %{current_user: %{"is_admin" => true}})
-      assert TransportWeb.Session.display_reuser_space?(conn)
-      Application.put_env(:transport, :disable_reuser_space, old_value)
-    end
-  end
-
   def pan_org do
     %{"slug" => "equipe-transport-data-gouv-fr", "name" => "PAN", "id" => @pan_org_id}
   end

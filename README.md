@@ -73,7 +73,7 @@ To have an up to date database schema run `mix ecto.migrate`.
 ### Restoring the production database
 
 The production database does not contains any sensitive data, you can retreive it for dev purpose.
-* You can retrieve the [latest clever-cloud backup](https://console.clever-cloud.com/organisations/orga_f33ebcbc-4403-4e4c-82f5-12305e0ecb1b/addons/addon_beebaa5e-c3a4-4c57-b124-cf9d1473450a) (you need some permissions to access it, if you don't have them, you can ask someone on the team to give you the database)
+* You can retrieve the [latest Clever Cloud backup](https://console.clever-cloud.com/organisations/orga_f33ebcbc-4403-4e4c-82f5-12305e0ecb1b/addons/addon_beebaa5e-c3a4-4c57-b124-cf9d1473450a) (you need some permissions to access it, if you don't have them, you can ask someone on the team to give you the database)
 * On the clever-cloud website, under transport-site-postgresql, there is a Backups section with download links.
 * restore the downloaded backup on you database: `./restore_db.sh <path_to_the_backup>`
 
@@ -130,7 +130,7 @@ If you need to login via `demo.data.gouv.fr`, follow these steps:
 
 ```elixir
 config :oauth2, Datagouvfr.Authentication,
-  # go to CleverCloud staging site and pick `DATAGOUVFR_CLIENT_ID`
+  # go to Clever Cloud staging site and pick `DATAGOUVFR_CLIENT_ID`
   client_id: "TODO-REPLACE",
   # same but use `DATAGOUVFR_CLIENT_SECRET`
   client_secret: "TODO-REPLACE"
@@ -280,9 +280,9 @@ The following domain names are currently in use by the deployed Elixir app:
   * jobs: https://workers.prochainement.transport.data.gouv.fr
   * proxy: https://proxy.prochainement.transport.gouv.fr
 
-These names are [configured via a CNAME on CleverCloud](https://www.clever-cloud.com/doc/administrate/domain-names/#using-personal-domain-names).
+These names are [configured via a CNAME on Clever Cloud](https://www.clever-cloud.com/doc/administrate/domain-names/#using-personal-domain-names).
 
-The corresponding SSL certificates are auto-generated via Let's Encrypt and CleverCloud.
+The corresponding SSL certificates are auto-generated via Let's Encrypt and Clever Cloud.
 
 # Uptime monitoring (updown.io)
 
@@ -293,6 +293,11 @@ The following URLs are currently monitored via updown.io (with email & Mattermos
 * https://validation.transport.data.gouv.fr (https://updown.io/gndz) every 5 minutes
 * https://metabase.transport.data.gouv.fr (https://updown.io/f9rd) every 5 minutes
 * https://prochainement.transport.data.gouv.fr/health-check (https://updown.io/2pvz) every 5 minutes
+
+# Useful changelogs
+
+* https://developers.clever-cloud.com/changelog/ for Clever Cloud components (e.g. Postgres)
+* [.tool-versions](.tool-versions) for Elixir & Erlang
 
 # Blog
 

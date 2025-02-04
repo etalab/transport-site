@@ -45,7 +45,7 @@ defmodule Unlock.EnforceTTLTest do
     cache_put("no_prefix")
 
     # initially, the list of proxy cache keys should include only 2 entries
-    assert ["resource:with_ttl", "resource:no_ttl"] == cache_keys()
+    assert ["resource:no_ttl", "resource:with_ttl"] == cache_keys() |> Enum.sort()
 
     # this is expected to remove bogus entries (the ones without a TTL),
     # which would otherwise remain "available but stale" forever

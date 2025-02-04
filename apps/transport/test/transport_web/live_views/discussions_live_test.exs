@@ -209,7 +209,7 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
   end
 
   defp iso8601_string_x_months_ago(x) do
-    DateTime.utc_now() |> Timex.shift(months: -x) |> DateTime.to_iso8601()
+    DateTime.utc_now() |> TimeWrapper.shift(months: -x) |> DateTime.to_iso8601()
   end
 
   defp discussions do

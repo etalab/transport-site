@@ -113,10 +113,11 @@ defmodule Transport.Mixfile do
       {:unzip, "~> 0.8"},
       {:protobuf, "~> 0.11"},
       {:nimble_csv, "~> 1.2.0"},
+      {:explorer, "~> 0.10.0"},
       {:kino, "~> 0.6", only: :dev},
       # db
-      {:ecto, "~> 3.7"},
-      {:ecto_sql, "~> 3.7"},
+      {:ecto, "~> 3.12"},
+      {:ecto_sql, "~> 3.12"},
       {:postgrex, ">= 0.0.0"},
       {:geo_postgis, "~> 3.4"},
       {:ecto_interval, "~> 0.2.5"},

@@ -19,6 +19,7 @@ erl_crash.dump
 
 # Data munging
 cache-dir
+data-tmp
 
 # Since we are building assets from client,
 # we ignore priv/static.

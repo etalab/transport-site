@@ -90,6 +90,80 @@ defmodule Transport.StatsHandler do
       nb_siri_lite: count_dataset_with_format("SIRI Lite"),
       count_geo_data_lines: count_geo_data_lines()
     }
+    |> Map.merge(gbfs_stats())
+  end
+
+  def gbfs_stats do
+    today = Date.utc_today()
+
+    # Latest metadata for each GBFS resource for today
+    rows =
+      DB.ResourceMetadata.base_query()
+      |> join(:inner, [metadata: m], r in DB.Resource, on: r.id == m.resource_id, as: :resource)
+      |> where([resource: r], r.format == "gbfs")
+      |> where([metadata: m], fragment("?::date", m.inserted_at) == ^today and fragment("? \\? 'stats'", m.metadata))
+      |> select([metadata: m], last_value(m.metadata) |> over(partition_by: m.resource_id, order_by: m.resource_id))
+      |> distinct(true)
+      |> DB.Repo.all()
+
+    if Enum.empty?(rows) do
+      %{}
+    else
+      [&gbfs_versions_stats/1, &gbfs_vehicle_types_stats/1, &gbfs_feed_types_stats/1, &gbfs_counters_stats/1]
+      |> Enum.reduce(%{}, fn method, acc -> Map.merge(acc, method.(rows)) end)
+    end
+  end
+
+  @doc """
+  iex> gbfs_counters_stats([%{"stats" => %{"nb_stations" => 40, "nb_vehicles" => 5, "version" => 1}}, %{"stats" => %{"nb_stations" => 2, "nb_vehicles" => 3, "version" => 1}}])
+  %{gbfs_nb_stations_sum: 42, gbfs_nb_vehicles_sum: 8}
+  """
+  def gbfs_counters_stats(rows) do
+    rows
+    # Keep only keys starting with `nb_`
+    |> Enum.map(&Map.filter(&1["stats"], fn {k, _} -> String.starts_with?(k, "nb_") end))
+    # Keep a single map, summing all values for each key
+    |> Enum.reduce(&Map.merge(&1, &2, fn _, v1, v2 -> v1 + v2 end))
+    |> Map.new(fn {k, v} -> {String.to_atom("gbfs_#{k}_sum"), v} end)
+  end
+
+  @doc """
+  iex> gbfs_versions_stats([%{"versions" => ["3.0", "2.2"]}, %{"versions" => ["3.0", "1.0"]}])
+  %{"gbfs_v1.0_count": 1, "gbfs_v2.2_count": 1, "gbfs_v3.0_count": 2}
+  iex> gbfs_versions_stats([%{"versions" => nil}, %{"versions" => ["3.0", "1.0"]}])
+  %{"gbfs_v1.0_count": 1, "gbfs_v3.0_count": 1}
+  """
+  def gbfs_versions_stats(rows) do
+    rows
+    |> Enum.flat_map(&(&1["versions"] || []))
+    |> Enum.frequencies()
+    |> Map.new(fn {k, v} -> {String.to_atom("gbfs_v#{k}_count"), v} end)
+  end
+
+  @doc """
+  iex> gbfs_vehicle_types_stats([%{"vehicle_types" => ["bicycle", "scooter"]}, %{"vehicle_types" => ["bicycle"]}])
+  %{gbfs_vehicle_type_bicycle_count: 2, gbfs_vehicle_type_scooter_count: 1}
+  iex> gbfs_vehicle_types_stats([%{"vehicle_types" => ["bicycle"]}, %{"vehicle_types" => nil}])
+  %{gbfs_vehicle_type_bicycle_count: 1}
+  """
+  def gbfs_vehicle_types_stats(rows) do
+    rows
+    |> Enum.flat_map(&(&1["vehicle_types"] || []))
+    |> Enum.frequencies()
+    |> Map.new(fn {k, v} -> {String.to_atom("gbfs_vehicle_type_#{k}_count"), v} end)
+  end
+
+  @doc """
+  iex> gbfs_feed_types_stats([%{"types" => ["free_floating", "stations"]}, %{"types" => ["stations"]}])
+  %{gbfs_feed_type_free_floating_count: 1, gbfs_feed_type_stations_count: 2}
+  iex> gbfs_feed_types_stats([%{"types" => nil}, %{"types" => ["stations"]}])
+  %{gbfs_feed_type_stations_count: 1}
+  """
+  def gbfs_feed_types_stats(rows) do
+    rows
+    |> Enum.flat_map(&(&1["types"] || []))
+    |> Enum.frequencies()
+    |> Map.new(fn {k, v} -> {String.to_atom("gbfs_feed_type_#{k}_count"), v} end)
   end
 
   @doc """
@@ -245,8 +319,7 @@ defmodule Transport.StatsHandler do
   end
 
   def count_geo_data_lines(feature) do
-    Transport.ConsolidatedDataset.dataset(feature).id
-    |> DB.GeoDataImport.dataset_latest_geo_data_import()
+    DB.Repo.get_by(DB.GeoDataImport, slug: feature)
     |> DB.GeoData.count_lines_for_geo_data_import()
   end
 end

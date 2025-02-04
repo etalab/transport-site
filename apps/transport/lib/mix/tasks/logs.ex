@@ -1,8 +1,8 @@
 defmodule Mix.Tasks.Clever.Logs do
-  @shortdoc "Fetches logs from CleverCloud"
+  @shortdoc "Fetches logs from Clever Cloud"
 
   @moduledoc """
-  The CleverCloud logs command currently has strong limitations, including a maximum of
+  The Clever Cloud logs command currently has strong limitations, including a maximum of
   1000 lines of logs per command invocation (https://github.com/CleverCloud/clever-tools/issues/429)
   and a lack of auto-pagination.
 
@@ -14,10 +14,10 @@ defmodule Mix.Tasks.Clever.Logs do
   mix clever.logs --since "2021-01-25T04:00:00Z" --before "2021-01-25T04:10:00Z" --alias "the-app"
   ```
 
-  The switches mimic the CleverCloud logs ones:
+  The switches mimic the Clever Cloud logs ones:
   * `--since`: start time (ISO8601 Z). Defaults to "24 hours ago".
   * `--before`: end time (ISO8601 Z). Defaults to "now".
-  * `--alias`: name of the CleverCloud app.
+  * `--alias`: name of the Clever Cloud app.
   """
 
   require Logger

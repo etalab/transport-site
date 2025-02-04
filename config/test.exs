@@ -31,7 +31,7 @@ config :transport,
   gtfs_validator: Shared.Validation.Validator.Mock,
   gbfs_validator_impl: Shared.Validation.GBFSValidator.Mock,
   rambo_impl: Transport.Rambo.Mock,
-  gbfs_metadata_impl: Transport.Shared.GBFSMetadata.Mock,
+  gbfs_metadata_impl: Transport.GBFSMetadata.Mock,
   availability_checker_impl: Transport.AvailabilityChecker.Mock,
   jsonschema_validator_impl: Shared.Validation.JSONSchemaValidator.Mock,
   tableschema_validator_impl: Shared.Validation.TableSchemaValidator.Mock,
@@ -151,4 +151,6 @@ config :os_mon,
   start_memsup: false
 
 # See https://hexdocs.pm/sentry/Sentry.Test.html
-config :sentry, test_mode: true
+config :sentry,
+  test_mode: true,
+  csp_url: ""

@@ -401,6 +401,23 @@ defmodule TransportWeb.DatasetControllerTest do
     assert conn |> html_response(200) =~ "1 erreur"
   end
 
+  test "GBFS with a nil validation", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, %{dataset_id: dataset.id, format: "gbfs", url: "url"})
+    %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource.id})
+
+    insert(:multi_validation, %{
+      resource_history_id: resource_history_id,
+      validator: Transport.Validators.GBFSValidator.validator_name(),
+      result: nil,
+      metadata: nil
+    })
+
+    mock_empty_history_resources()
+
+    assert conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200)
+  end
+
   test "show NeTEx number of errors", %{conn: conn} do
     %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug", aom: build(:aom)})
 
@@ -710,7 +727,7 @@ defmodule TransportWeb.DatasetControllerTest do
       dataset_has_banner_with_text(
         conn,
         dataset,
-        "Ce jeu de données non officiel est publié à titre expérimental. Veuillez à ne pas le réutiliser à des fins d'information voyageur."
+        "Ce jeu de données non officiel est publié à titre expérimental. Veuillez ne pas le réutiliser à des fins d’information voyageur."
       )
     end
   end
@@ -833,7 +850,7 @@ defmodule TransportWeb.DatasetControllerTest do
 
   test "dataset-page-title", %{conn: conn} do
     [
-      {%{"type" => "public-transit"}, "Transport public collectif - horaires théoriques"},
+      {%{"type" => "public-transit"}, "Transport public collectif"},
       {%{"type" => "public-transit", "filter" => "has_realtime"}, "Transport public collectif - horaires temps réel"},
       {%{"modes" => ["rail"]}, "Transport ferroviaire"}
     ]

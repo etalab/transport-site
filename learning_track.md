@@ -63,12 +63,12 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 
 ### Read the logs from the production database
 
-* The site is deployed on [CleverCloud](https://www.clever-cloud.com/)
+* The site is deployed on [Clever Cloud](https://www.clever-cloud.com/)
 * Install [`clever-tools`](https://github.com/CleverCloud/clever-tools)
 * `clever login`
 * `clever --help`
 * Go to your local `transport-site` git clone
-* `clever link $$REPLACE_BY_APP_ID$$` (pick `app_id` in the CleverCloud dashboard for `transport-site`)
+* `clever link $$REPLACE_BY_APP_ID$$` (pick `app_id` in the Clever Cloud dashboard for `transport-site`)
 * `clever status`
 * `clever logs --help`
 * `clever logs` to stream the current logs
@@ -77,20 +77,28 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 ### Learn how to deploy the Elixir app on staging (aka "prochainement")
 
 * Use a force push of your branch, e.g. `git push <remote> <branche>:prochainement -f` (so if your branch is `some-feature`, this will usually be: `git push origin some-feature:prochainement -f`)
-* This will trigger a redeploy. Redeploy process can be monitored from the [CleverCloud dashboard](https://www.clever-cloud.com) and takes roughly 5 to 10 minutes.
+* This will trigger a redeploy. Redeploy process can be monitored from the [Clever Cloud dashboard](https://www.clever-cloud.com) and takes roughly 5 to 10 minutes.
 * If you see errors in the CC app logs due to Ecto migrations (due to divergence of branches), you'll want to reset the staging database (see below)
 
 ### Learn how to reset the staging (aka "prochainement") database
 
-* Go to the CleverCloud dashboard for the production Postgres database and download it locally
+* Go to the Clever Cloud dashboard for the production Postgres database and download it locally
 * Read the [restore_db.sh](https://github.com/etalab/transport-site/blob/master/restore_db.sh) script
-* Go to the CleverCloud dashboard for the **staging** Postgres database, and run `restore_db.sh` with proper parameters
+* Go to the Clever Cloud dashboard for the **staging** Postgres database, and run `restore_db.sh` with proper parameters
 
 ### Learn how to connect via SSH
 
 * Make sure to link the correct app (production or staging) with `clever link $$REPLACE_BY_APP_ID$$` (as displayed in the staging/production app CC dashboards)
 * Verify the linking status with `clever applications`
 * Log with the app alias: `clever ssh --alias transport-prochainement`
+
+### Learn how to upgrade the javascript assets
+
+* `cd apps/transport/client`
+* `yarn outdated` shows the outdated packages (see [here](https://github.com/etalab/transport-site/pull/4287) for a sample)
+* Use `yarn upgrade abc [def]` ([doc](https://classic.yarnpkg.com/lang/en/docs/cli/upgrade/)) to upgrade one or more packages
+* Look into [package.json](https://github.com/etalab/transport-site/blob/master/apps/transport/client/package.json) to see how to specify versions
+* Most javascript-enabled features are not tested specifically - use `prochainement` or a local rendering to verify if nothing is broken
 
 ### Learn about the GTFS and GTFS-RT specifications
 

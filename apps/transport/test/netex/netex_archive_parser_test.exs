@@ -43,6 +43,15 @@ defmodule Transport.NeTEx.ArchiveParserTest do
     # given a zip netex archive containing 1 file, I want the output I expected
     [{"arrets.xml", data}] = Transport.NeTEx.read_all_stop_places(tmp_file)
 
+    assert data ==
+             {:ok,
+              [
+                %{id: "FR:HELLO:POYARTIN:001", latitude: 43.669, longitude: -0.919, name: "Poyartin"}
+              ]}
+
+    # given a zip netex archive containing 1 file, I want the output I expected
+    [{"arrets.xml", data}] = Transport.NeTEx.read_all_stop_places!(tmp_file)
+
     assert data == [
              %{id: "FR:HELLO:POYARTIN:001", latitude: 43.669, longitude: -0.919, name: "Poyartin"}
            ]

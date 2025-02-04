@@ -380,7 +380,7 @@ defmodule DB.Factory do
 
   def insert_imported_irve_geo_data(dataset_id) do
     %{id: resource_history_id} = insert(:resource_history, %{payload: %{"dataset_id" => dataset_id}})
-    %{id: geo_data_import_id} = insert(:geo_data_import, %{resource_history_id: resource_history_id})
+    %{id: geo_data_import_id} = insert(:geo_data_import, %{slug: :irve, resource_history_id: resource_history_id})
 
     insert(:geo_data, %{
       geo_data_import_id: geo_data_import_id,
@@ -448,5 +448,62 @@ defmodule DB.Factory do
       "last_modified" => DateTime.utc_now() |> DateTime.add(-1, :hour) |> DateTime.to_iso8601(),
       "schema" => %{"name" => Keyword.get(opts, :schema_name), "version" => Keyword.get(opts, :schema_version)}
     }
+  end
+
+  defmodule IRVE do
+    @moduledoc """
+    Factory part relevant to IRVE.
+    """
+
+    @doc """
+    Generate a row following the IRVE static schema.
+
+    See:
+    - https://schema.data.gouv.fr/etalab/schema-irve-statique/
+    """
+    def generate_row do
+      %{
+        "nom_amenageur" => "Métropole de Nulle Part",
+        "siren_amenageur" => "123456782",
+        "contact_amenageur" => "amenageur@example.com",
+        "nom_operateur" => "Opérateur de Charge",
+        "contact_operateur" => "operateur@example.com",
+        "telephone_operateur" => "0199456782",
+        "nom_enseigne" => "Réseau de recharge",
+        "id_station_itinerance" => "FRPAN99P12345678",
+        "id_station_local" => "station_001",
+        "nom_station" => "Ma Station",
+        "implantation_station" => "Lieu de ma station",
+        "adresse_station" => "26 rue des écluses, 17430 Champdolent",
+        "code_insee_commune" => "17085",
+        "coordonneesXY" => "[-0.799141,45.91914]",
+        "nbre_pdc" => 1,
+        "id_pdc_itinerance" => "FRPAN99E12345678",
+        "id_pdc_local" => "pdc_001",
+        "puissance_nominale" => 22,
+        "prise_type_ef" => false,
+        "prise_type_2" => true,
+        "prise_type_combo_ccs" => false,
+        "prise_type_chademo" => false,
+        "prise_type_autre" => false,
+        "gratuit" => false,
+        "paiement_acte" => true,
+        "paiement_cb" => true,
+        "paiement_autre" => true,
+        "tarification" => "2,50€ / 30min puis 0,025€ / minute",
+        "condition_acces" => "Accès libre",
+        "reservation" => false,
+        "horaires" => "24/7",
+        "accessibilite_pmr" => "Accessible mais non réservé PMR",
+        "restriction_gabarit" => "Hauteur maximale 2.30m",
+        "station_deux_roues" => false,
+        "raccordement" => "Direct",
+        "num_pdl" => "12345678912345",
+        "date_mise_en_service" => "2024-10-02",
+        "observations" => "Station située au niveau -1 du parking",
+        "date_maj" => "2024-10-17",
+        "cable_t2_attache" => false
+      }
+    end
   end
 end

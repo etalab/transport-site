@@ -15,12 +15,10 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
       tags:
         MapSet.new([
           "bus",
-          "deplacements",
+          "déplacement",
           "déplacements",
           "horaires",
-          "mobilite",
           "mobilité",
-          "temps-reel",
           "temps-réel",
           "transport",
           "transports"
@@ -37,9 +35,9 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
           "trottinette",
           "vls",
           "scooter",
+          "scooters",
           "libre-service",
-          "libre service",
-          "scooter"
+          "libre service"
         ]),
       formats: MapSet.new(["gbfs"])
     },
@@ -53,13 +51,13 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
         "etalab/schema-comptage-mobilites-measure",
         "etalab/schema-comptage-mobilites-site"
       ],
-      tags: MapSet.new(["cyclable", "parking", "stationnement", "velo", "vélo"]),
+      tags: MapSet.new(["cyclable", "cyclables", "parking", "parkings", "stationnement", "vélo", "vélos"]),
       formats: MapSet.new([])
     },
     %{
       category: "Covoiturage et ZFE",
       schemas: ["etalab/schema-lieux-covoiturage", "etalab/schema-zfe"],
-      tags: MapSet.new(["covoiturage", "zfe"]),
+      tags: MapSet.new(["covoiturage", "zfe", "zfe-m", "zone à faible émission"]),
       formats: MapSet.new([])
     },
     %{
@@ -70,9 +68,7 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
           "infrastructure de recharge",
           "borne de recharge",
           "irve",
-          "sdirve",
-          "électrique",
-          "electrique"
+          "sdirve"
         ]),
       formats: MapSet.new([])
     }
@@ -223,16 +219,22 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
   defp string_matches?(nil, _rule), do: false
 
   defp string_matches?(str, %{formats: formats, tags: tags} = _rule) when is_binary(str) do
-    str
-    |> String.downcase()
-    |> String.split(" ")
-    |> MapSet.new()
-    |> MapSet.intersection(MapSet.union(formats, tags))
-    |> MapSet.size() > 0
+    searches = MapSet.union(formats, tags) |> MapSet.to_list() |> Enum.map(&normalize/1)
+    {words_with_spaces, words_without_spaces} = Enum.split_with(searches, &String.contains?(&1, " "))
+
+    match_without_spaces =
+      not (str
+           |> normalize()
+           |> String.split(~r/\s+/)
+           |> MapSet.new()
+           |> MapSet.disjoint?(MapSet.new(words_without_spaces)))
+
+    match_with_spaces = str |> normalize() |> String.contains?(words_with_spaces)
+    match_without_spaces || match_with_spaces
   end
 
   defp tags_is_relevant?(%{"tags" => tags} = _dataset, rule) do
-    tags |> Enum.map(&string_matches?(String.downcase(&1), rule)) |> Enum.any?()
+    tags |> Enum.map(&string_matches?(&1, rule)) |> Enum.any?()
   end
 
   defp resource_is_relevant?(%{} = resource, rule) do
@@ -254,4 +256,36 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
   end
 
   defp resource_schema_is_relevant?(%{}, _rule), do: false
+
+  @doc """
+  Clean up a string, lowercase it and replace accented letters with ASCII letters.
+
+  iex> normalize("Paris")
+  "paris"
+  iex> normalize("vélo")
+  "velo"
+  iex> normalize("Châteauroux")
+  "chateauroux"
+  iex> normalize("J'adore manger")
+  "j'adore manger"
+  """
+  def normalize(value) do
+    value
+    |> String.downcase()
+    |> String.graphemes()
+    |> Enum.map_join("", &normalize_grapheme/1)
+  end
+
+  defp normalize_grapheme(grapheme) do
+    case String.normalize(grapheme, :nfd) do
+      <<first, rest::binary>> when is_binary(rest) ->
+        case String.valid?(<<first>>) do
+          true -> <<first>>
+          false -> ""
+        end
+
+      _ ->
+        grapheme
+    end
+  end
 end

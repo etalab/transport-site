@@ -30,6 +30,8 @@ defmodule DB.Dataset do
   typed_schema "dataset" do
     field(:datagouv_id, :string)
     field(:custom_title, :string)
+    # `created_at` comes from data.gouv.fr.
+    # To know when the dataset has been added on the NAP, use `inserted_at`
     field(:created_at, :utc_datetime_usec)
     field(:description, :string)
     field(:frequency, :string)
@@ -152,7 +154,7 @@ defmodule DB.Dataset do
   @spec type_to_str_map() :: %{binary() => binary()}
   def type_to_str_map,
     do: %{
-      "public-transit" => dgettext("db-dataset", "Public transit - static schedules"),
+      "public-transit" => dgettext("db-dataset", "Public transit"),
       "carpooling-areas" => dgettext("db-dataset", "Carpooling areas"),
       "carpooling-lines" => dgettext("db-dataset", "Carpooling lines"),
       "carpooling-offers" => dgettext("db-dataset", "Carpooling offers"),
@@ -411,7 +413,7 @@ defmodule DB.Dataset do
 
   @spec order_datasets(Ecto.Query.t(), map()) :: Ecto.Query.t()
   def order_datasets(datasets, %{"order_by" => "alpha"}), do: order_by(datasets, asc: :custom_title)
-  def order_datasets(datasets, %{"order_by" => "most_recent"}), do: order_by(datasets, desc: :created_at)
+  def order_datasets(datasets, %{"order_by" => "most_recent"}), do: order_by(datasets, desc_nulls_last: :inserted_at)
 
   def order_datasets(datasets, %{"q" => q}),
     do:
