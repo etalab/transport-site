@@ -46,6 +46,11 @@
             </div>
           </article>
         <% end %>
+        <%= if uploads_are_valid(@uploads) do %>
+          <button class="button-outline primary small" type="button" phx-click="switch-uploads">
+            <i class="fa fa-shuffle"></i>&nbsp;<%= dgettext("validations", "Switch files") %>
+          </button>
+        <% end %>
         <%= for err <- upload_errors(@uploads.gtfs) do %>
           <p class="alert alert-danger">❌ <%= error_to_string(err) %></p>
         <% end %>
