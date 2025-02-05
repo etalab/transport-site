@@ -296,7 +296,7 @@ defmodule TransportWeb.PageControllerTest do
       body = %{
         "transport" => %{
           "active_members" => ["foo"],
-          "previous_members" => ["bar"],
+          "previous_members" => ["bar", "baz"],
           "expired_members" => ["baz", "nope"]
         }
       }

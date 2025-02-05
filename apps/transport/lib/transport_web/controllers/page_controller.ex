@@ -170,6 +170,7 @@ defmodule TransportWeb.PageController do
       |> List.flatten()
       |> Enum.map(&author_fullname.(&1))
       |> Enum.sort()
+      |> Enum.dedup()
 
     ["# Membres actuels", active_members, "", "# Anciens membres", previous_members]
     |> List.flatten()
