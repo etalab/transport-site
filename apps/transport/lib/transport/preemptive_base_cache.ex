@@ -17,8 +17,6 @@ defmodule Transport.PreemptiveBaseCache do
       end
 
       def init(state) do
-        # initial schedule is immediate, but via the same code path,
-        # to ensure we jump on the data
         schedule_next_occurrence(@first_run)
 
         {:ok, state}

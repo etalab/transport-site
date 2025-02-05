@@ -1,6 +1,6 @@
 defmodule Transport.PreemptiveStatsCache do
   @moduledoc """
-  A module that populates the Cachex cache for the /api/datasets endpoint ("api-datasets-index")
+  A module that populates the Cachex cache for the /stats and /api/stats/* endpoints
   """
 
   use Transport.PreemptiveBaseCache,
