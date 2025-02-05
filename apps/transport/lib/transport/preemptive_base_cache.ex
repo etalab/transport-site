@@ -1,6 +1,20 @@
 defmodule Transport.PreemptiveBaseCache do
   @moduledoc """
-  Common code for preemptive caches
+  Common code for preemptive caches. This module is a macro that generates a GenServer,
+  which will populate a cache at regular intervals (similar to a cron job).
+
+  Usage:
+  ```
+  use Transport.PreemptiveBaseCache,
+    first_run: 0,
+    job_delay: :timer.seconds(300),
+    cache_ttl: :timer.seconds(700)
+  ```
+  The module in which it is used must implement the `populate_cache/0` function, that will be regularly called.
+
+  - First run indicates the time to wait before the first run of the job between the start of the application and the first run.
+  - Job delay indicates the time to wait between each run of the job.
+  - Cache TTL indicates the time to keep the cache alive.
   """
   defmacro __using__(opts) do
     quote do
