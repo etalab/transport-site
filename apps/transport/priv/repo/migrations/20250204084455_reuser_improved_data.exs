@@ -13,6 +13,6 @@ defmodule DB.Repo.Migrations.ReuserImprovedData do
 
     create(index(:reuser_improved_data, [:dataset_id]))
     create(index(:reuser_improved_data, [:organization_id]))
-    create(unique_index(:reuser_improved_data, [:dataset_id, :organization_id]))
+    create(unique_index(:reuser_improved_data, [:resource_id, :organization_id]))
   end
 end

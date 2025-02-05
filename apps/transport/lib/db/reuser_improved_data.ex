@@ -25,6 +25,6 @@ defmodule DB.ReuserImprovedData do
     |> assoc_constraint(:resource)
     |> assoc_constraint(:contact)
     |> assoc_constraint(:organization)
-    |> unique_constraint([:dataset_id, :organization_id])
+    |> unique_constraint([:resource_id, :organization_id])
   end
 end
