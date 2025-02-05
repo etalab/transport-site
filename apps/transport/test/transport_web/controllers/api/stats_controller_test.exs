@@ -64,7 +64,9 @@ defmodule TransportWeb.API.StatsControllerTest do
       }
     ]
 
-    assert TransportWeb.API.StatsController.bike_scooter_sharing_features() == expected
+    assert TransportWeb.API.StatsController.bike_scooter_sharing_features_query()
+           |> DB.Repo.all()
+           |> TransportWeb.API.StatsController.bike_scooter_sharing_features() == expected
   end
 
   test "Quality of AOM data stats", %{conn: conn} do
@@ -181,7 +183,9 @@ defmodule TransportWeb.API.StatsControllerTest do
       assert DB.AOM.created_after_2021?(aom)
 
       assert [] ==
-               TransportWeb.API.StatsController.quality_features_query() |> TransportWeb.API.StatsController.features()
+               TransportWeb.API.StatsController.quality_features_query()
+               |> DB.Repo.all()
+               |> TransportWeb.API.StatsController.features()
 
       # If created before 2022, it is present even without a dataset
       aom = aom |> Ecto.Changeset.change(%{composition_res_id: 500}) |> DB.Repo.update!()
@@ -189,7 +193,9 @@ defmodule TransportWeb.API.StatsControllerTest do
       refute DB.AOM.created_after_2021?(aom)
 
       assert [%{"properties" => %{"dataset_count" => 0, "nom" => ^aom_nom}}] =
-               TransportWeb.API.StatsController.quality_features_query() |> TransportWeb.API.StatsController.features()
+               TransportWeb.API.StatsController.quality_features_query()
+               |> DB.Repo.all()
+               |> TransportWeb.API.StatsController.features()
 
       # Created in 2022 but with a dataset
       aom = aom |> Ecto.Changeset.change(%{composition_res_id: 1_200}) |> DB.Repo.update!()
@@ -198,7 +204,9 @@ defmodule TransportWeb.API.StatsControllerTest do
       assert DB.AOM.created_after_2021?(aom)
 
       assert [%{"properties" => %{"dataset_types" => %{pt: 1}, "nom" => ^aom_nom}}] =
-               TransportWeb.API.StatsController.quality_features_query() |> TransportWeb.API.StatsController.features()
+               TransportWeb.API.StatsController.quality_features_query()
+               |> DB.Repo.all()
+               |> TransportWeb.API.StatsController.features()
     end
   end
 
@@ -226,7 +234,10 @@ defmodule TransportWeb.API.StatsControllerTest do
                  "quality" => %{"error_level" => "Error"}
                }
              }
-           ] = TransportWeb.API.StatsController.quality_features_query() |> TransportWeb.API.StatsController.features()
+           ] =
+             TransportWeb.API.StatsController.quality_features_query()
+             |> DB.Repo.all()
+             |> TransportWeb.API.StatsController.features()
   end
 
   test "can load the /stats page", %{conn: conn} do
