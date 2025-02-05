@@ -161,7 +161,7 @@ msgstr "Temps d'arrêt négatif"
 
 #, elixir-autogen, elixir-format
 msgid "Unusable trip"
-msgstr "Trajet trop court"
+msgstr "Trajet non utilisable"
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Error"
