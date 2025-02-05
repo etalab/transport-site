@@ -41,6 +41,10 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     {:noreply, cancel_upload(socket, :gtfs, ref)}
   end
 
+  def handle_event("switch-uploads", _, socket) do
+    {:noreply, update(socket, :uploads, &switch_uploads/1)}
+  end
+
   def handle_event("gtfs_diff", _, socket) do
     send(self(), :enqueue_job)
     {:noreply, socket |> assign(:job_running, true)}
@@ -189,5 +193,11 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
       "column" -> dngettext("validations", "%{count} column", "%{count} columns", n)
       _ -> "#{n} #{target}#{if n > 1, do: "s"}"
     end
+  end
+
+  defp switch_uploads(uploads) do
+    Map.update!(uploads, :gtfs, fn gtfs ->
+      Map.update!(gtfs, :entries, &Enum.reverse/1)
+    end)
   end
 end

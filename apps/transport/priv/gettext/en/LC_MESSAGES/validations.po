@@ -455,3 +455,7 @@ msgid "%{count} row"
 msgid_plural "%{count} rows"
 msgstr[0] ""
 msgstr[1] ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Switch files"
+msgstr ""
