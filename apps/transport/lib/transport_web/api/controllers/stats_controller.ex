@@ -282,7 +282,6 @@ defmodule TransportWeb.API.StatsController do
       :regions -> region_features_query()
       :quality -> quality_features_query()
     end
-    |>
     |> Repo.all()
     |> features()
     |> geojson()
