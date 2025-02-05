@@ -36,12 +36,12 @@ defmodule Transport.PreemptiveBaseCache do
         {:ok, state}
       end
 
-      def schedule_next_occurrence(delay \\ @job_delay) do
+      def schedule_next_occurrence(delay) do
         Process.send_after(self(), :tick, delay)
       end
 
       def handle_info(:tick, state) do
-        schedule_next_occurrence()
+        schedule_next_occurrence(@job_delay)
         populate_cache()
         {:noreply, state}
       end

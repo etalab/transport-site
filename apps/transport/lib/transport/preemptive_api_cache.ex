@@ -7,7 +7,6 @@ defmodule Transport.PreemptiveAPICache do
     first_run: 0,
     job_delay: :timer.seconds(300),
     # more than twice job_delay to reduce the risk of parallel computation
-
     cache_ttl: :timer.seconds(700)
 
   require Logger
