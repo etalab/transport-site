@@ -95,7 +95,7 @@
                 <ul>
                   <%= for {{file, ^diff_nature, target}, n} <- @diff_summary[diff_nature] do %>
                     <li>
-                      <span class={css_class}><%= translation %> &nbsp;</span><%= "#{translate_target(target, n)} - #{file}" %>
+                      <span class={css_class}><%= translation %> &nbsp;</span><%= "#{translate_target(target, n)} - <code>#{file}</code>" %>
                     </li>
                   <% end %>
                 </ul>
