@@ -17,6 +17,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
      socket
      |> assign(:uploaded_files, [])
      |> assign(:diff_logs, [])
+     |> assign(:current_step, "preparation")
      |> allow_upload(:gtfs,
        accept: ~w(.zip),
        max_entries: 2,
@@ -45,9 +46,24 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     {:noreply, update(socket, :uploads, &switch_uploads/1)}
   end
 
+  def handle_event("start-over", _, socket) do
+    {:noreply, clean_slate(socket)}
+  end
+
+  def handle_event("select-file", %{"file" => file}, socket) do
+    {:noreply, assign(socket, :selected_file, file)}
+  end
+
   def handle_event("gtfs_diff", _, socket) do
     send(self(), :enqueue_job)
-    {:noreply, socket |> assign(:job_running, true)}
+
+    socket =
+      socket
+      |> assign(:job_running, true)
+      |> assign(:current_step, "analyse")
+      |> push_event("gtfs-diff-focus-steps", %{})
+
+    {:noreply, socket}
   end
 
   def handle_info(:enqueue_job, socket) do
@@ -79,13 +95,38 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   def handle_info({:generate_diff_summary, diff_file_url}, socket) do
     http_client = Transport.Shared.Wrapper.HTTPoison.impl()
 
-    %{status_code: 200, body: body} = http_client.get!(diff_file_url)
-    diff = Transport.GTFSDiff.parse_diff_output(body)
-
     socket =
-      socket
-      |> assign(:diff_summary, diff |> GTFSDiffExplain.diff_summary())
-      |> assign(:diff_explanations, diff |> GTFSDiffExplain.diff_explanations())
+      case http_client.get(diff_file_url) do
+        {:error, error} ->
+          socket
+          |> assign(:error_msg, HTTPoison.Error.message(error))
+
+        {:ok, %{status_code: 200, body: body}} ->
+          diff = Transport.GTFSDiff.parse_diff_output(body)
+
+          diff_summary = diff |> GTFSDiffExplain.diff_summary()
+          diff_explanations = diff |> GTFSDiffExplain.diff_explanations()
+
+          files_with_changes =
+            diff_summary
+            |> Map.values()
+            |> Enum.concat()
+            |> Enum.map(fn {{file, _, _}, _} -> file end)
+            |> Enum.sort()
+            |> Enum.dedup()
+
+          selected_file =
+            case files_with_changes do
+              [] -> nil
+              _ -> Kernel.hd(files_with_changes)
+            end
+
+          socket
+          |> assign(:diff_summary, diff_summary)
+          |> assign(:diff_explanations, diff_explanations |> drop_empty())
+          |> assign(:files_with_changes, files_with_changes)
+          |> assign(:selected_file, selected_file)
+      end
 
     {:noreply, socket}
   end
@@ -127,7 +168,9 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
      |> assign(:gtfs_original_file_name_1, gtfs_original_file_name_1)
      |> assign(:gtfs_original_file_name_2, gtfs_original_file_name_2)
      |> assign(:diff_logs, [])
-     |> assign(:job_running, false)}
+     |> assign(:job_running, false)
+     |> assign(:current_step, "results")
+     |> push_event("gtfs-diff-focus-steps", %{})}
   end
 
   # job took too long
@@ -199,5 +242,37 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     Map.update!(uploads, :gtfs, fn gtfs ->
       Map.update!(gtfs, :entries, &Enum.reverse/1)
     end)
+  end
+
+  def step_completion(current_step, expected_step) do
+    cond do
+      step_progression(current_step) > step_progression(expected_step) -> "done"
+      step_progression(current_step) == step_progression(expected_step) -> "active"
+      true -> ""
+    end
+  end
+
+  defp step_progression(step) do
+    case step do
+      "preparation" -> 1
+      "analyse" -> 2
+      "results" -> 3
+    end
+  end
+
+  defp drop_empty([]), do: nil
+  defp drop_empty(otherwise), do: otherwise
+
+  defp clean_slate(socket) do
+    socket
+    |> assign(:current_step, "preparation")
+    |> assign(:diff_explanations, nil)
+    |> assign(:diff_file_url, nil)
+    |> assign(:diff_logs, [])
+    |> assign(:diff_summary, nil)
+    |> assign(:error_msg, nil)
+    |> assign(:job_running, false)
+    |> assign(:selected_file, nil)
+    |> assign(:uploaded_files, [])
   end
 end
