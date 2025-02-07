@@ -102,6 +102,15 @@ defmodule Transport.IRVE.DataFrame do
   >
 
   Congratulations for reading this far.
+
+  Let's continue with alternate columns separators.
+
+  iex> Transport.IRVE.DataFrame.dataframe_from_csv_body!("foo;bar\\n123;14.0")
+  #Explorer.DataFrame<
+    Polars[1 x 2]
+    foo s64 [123]
+    bar f64 [14.0]
+  >
   """
   def dataframe_from_csv_body!(body, schema \\ Transport.IRVE.StaticIRVESchema.schema_content(), strict \\ true) do
     dtypes =
@@ -114,6 +123,14 @@ defmodule Transport.IRVE.DataFrame do
           |> Transport.IRVE.DataFrame.remap_schema_type(strict)
         }
       end)
+
+    body
+    |> String.split("\n", parts: 2)
+    |> Enum.at(0)
+    |> String.replace(~r/\w/, "")
+    |> String.graphemes()
+    |> Enum.frequencies()
+    |> IO.inspect(IEx.inspect_opts)
 
     # to be tested - do not call `load_csv!` as it will `inspect` the error
     case Explorer.DataFrame.load_csv(body, dtypes: dtypes) do
