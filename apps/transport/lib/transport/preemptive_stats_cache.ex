@@ -15,9 +15,25 @@ defmodule Transport.PreemptiveStatsCache do
   def populate_cache do
     Logger.info("[preemptive-stats-cache] Populating cache for stats…")
     Transport.Cache.put("stats-page-index", Transport.StatsHandler.compute_stats(), @cache_ttl)
-    Transport.Cache.put("api-stats-aoms", TransportWeb.API.StatsController.rendered_geojson(:aoms), @cache_ttl)
-    Transport.Cache.put("api-stats-regions", TransportWeb.API.StatsController.rendered_geojson(:regions), @cache_ttl)
-    Transport.Cache.put("api-stats-quality", TransportWeb.API.StatsController.rendered_geojson(:quality), @cache_ttl)
+
+    Transport.Cache.put(
+      "api-stats-aoms",
+      TransportWeb.API.StatsController.rendered_geojson(:aoms, timeout: :timer.seconds(60)),
+      @cache_ttl
+    )
+
+    Transport.Cache.put(
+      "api-stats-regions",
+      TransportWeb.API.StatsController.rendered_geojson(:regions, timeout: :timer.seconds(60)),
+      @cache_ttl
+    )
+
+    Transport.Cache.put(
+      "api-stats-quality",
+      TransportWeb.API.StatsController.rendered_geojson(:quality, timeout: :timer.seconds(60)),
+      @cache_ttl
+    )
+
     Logger.info("[preemptive-stats-cache] Finished populating cache for stats.")
   end
 end
