@@ -265,7 +265,8 @@ defmodule TransportWeb.API.StatsController do
   #
   @spec render_features(Plug.Conn.t(), atom(), binary()) :: Plug.Conn.t()
   defp render_features(conn, item, cache_key) do
-    data = Transport.Cache.fetch(cache_key, fn -> rendered_geojson(item) end)
+    data =
+      Transport.Cache.fetch(cache_key, fn -> rendered_geojson(item) end, Transport.PreemptiveStatsCache.cache_ttl())
 
     render(conn, data: {:skip_json_encoding, data})
   end
@@ -276,21 +277,23 @@ defmodule TransportWeb.API.StatsController do
     render(conn, data: {:skip_json_encoding, data})
   end
 
-  def rendered_geojson(item) when item in [:aoms, :regions, :quality] do
+  def rendered_geojson(item, ecto_opts \\ [])
+
+  def rendered_geojson(item, ecto_opts) when item in [:aoms, :regions, :quality] do
     case item do
       :aoms -> aom_features_query()
       :regions -> region_features_query()
       :quality -> quality_features_query()
     end
-    |> Repo.all()
+    |> Repo.all(ecto_opts)
     |> features()
     |> geojson()
     |> Jason.encode!()
   end
 
-  def rendered_geojson(:bike_scooter_sharing) do
+  def rendered_geojson(:bike_scooter_sharing, ecto_opts) do
     bike_scooter_sharing_features_query()
-    |> Repo.all()
+    |> Repo.all(ecto_opts)
     |> bike_scooter_sharing_features()
     |> geojson()
     |> Jason.encode!()
