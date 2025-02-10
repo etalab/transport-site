@@ -3,7 +3,8 @@ defmodule Transport.S3.AggregatesUploaderTest do
 
   alias Transport.S3.AggregatesUploader
   alias Transport.Test.S3TestUtils
-
+  import Mox
+  setup :verify_on_exit!
   test "export to S3" do
     aggregate = "aggregate-20250127193035.csv"
     latest_aggregate = "aggregate-latest.csv"

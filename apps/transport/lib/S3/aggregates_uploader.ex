@@ -5,6 +5,10 @@ defmodule Transport.S3.AggregatesUploader do
 
   @spec upload_aggregate!(Path.t(), String.t(), String.t()) :: :ok
   @doc """
+  This method takes a local `file` and upload 4 different files to our S3 `aggregates` bucket (the bucket is expected to exist):
+  - the `remote_path` and `remote_latest_path` containing the data from `file`
+  - two companions files with `.sha256sum` extension appended (SHA256 sum is computed on the fly)
+  
   Example
 
     with_tmp_file(fn file ->
@@ -52,7 +56,7 @@ defmodule Transport.S3.AggregatesUploader do
       |> Base.encode16()
       |> String.downcase()
 
-    File.write(checksum_file, hash)
+    File.write!(checksum_file, hash)
   end
 
   defp upload_files!(file, checksum_file, remote_path) do
