@@ -72,7 +72,8 @@ config :transport,
     history: "resource-history-dev",
     on_demand_validation: "on-demand-validation-dev",
     gtfs_diff: "gtfs-diff-dev",
-    logos: "logos-dev"
+    logos: "logos-dev",
+    aggregates: "aggregates-dev"
   }
 
 config :oauth2, Datagouvfr.Authentication,

@@ -94,7 +94,8 @@ if app_env == :staging do
       history: "resource-history-staging",
       on_demand_validation: "on-demand-validation-staging",
       gtfs_diff: "gtfs-diff-staging",
-      logos: "logos-staging"
+      logos: "logos-staging",
+      aggregates: "aggregates-staging"
     }
 end
 
@@ -162,7 +163,8 @@ oban_prod_crontab = [
   {"30 5 * * *", Transport.Jobs.ImportDatasetMonthlyMetricsJob},
   {"45 5 * * *", Transport.Jobs.ImportResourceMonthlyMetricsJob},
   {"0 8 * * *", Transport.Jobs.WarnUserInactivityJob},
-  {"*/5 * * * *", Transport.Jobs.UpdateCounterCacheJob}
+  {"*/5 * * * *", Transport.Jobs.UpdateCounterCacheJob},
+  {"0 4 * * *", Transport.Jobs.StopsRegistrySnapshotJob}
 ]
 
 # Make sure that all modules exist
