@@ -5,7 +5,7 @@ defmodule TransportWeb.API.StatsController do
   alias Geo.JSON
   alias OpenApiSpex.Operation
 
-  @longer_ecto_timeout 60_000
+  @longer_ecto_timeout :timer.seconds(60)
 
   @spec open_api_operation(any) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
