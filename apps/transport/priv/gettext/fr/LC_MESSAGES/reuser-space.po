@@ -138,3 +138,31 @@ msgstr "Cette fonctionnalité arrive bientôt !"
 #, elixir-autogen, elixir-format
 msgid "Warning, you are going to remove \"%{dataset_title}\" from your favorites. You will lose any settings or actions you previously performed on this dataset."
 msgstr "Attention, vous allez supprimer le jeu de données \"%{dataset_title}\" de vos favoris. Vous allez perdre tous les paramétrages ou actions que vous avez réalisés précédemment sur ce jeu de données."
+
+#, elixir-autogen, elixir-format
+msgid "Only GTFS files are eligible for now."
+msgstr "Seuls les fichiers GTFS sont éligibles pour le moment."
+
+#, elixir-autogen, elixir-format
+msgid "Share improved data"
+msgstr "Repartager vos données améliorées"
+
+#, elixir-autogen, elixir-format
+msgid "Your improved data URL"
+msgstr "Lien vers vos données améliorées"
+
+#, elixir-autogen, elixir-format
+msgid "Step 1: choose the initial resource from the producer"
+msgstr "Étape 1 : sélectionnez la ressource initiale du producteur"
+
+#, elixir-autogen, elixir-format
+msgid "Step 2: add the URL to download your improved data"
+msgstr "Étape 2 : renseignez l'URL de téléchargement de votre fichier amélioré"
+
+#, elixir-autogen, elixir-format
+msgid "You already shared improved data for this dataset, thanks!"
+msgstr "Vous avez déjà partagé des données améliorées pour ce jeu de données, merci !"
+
+#, elixir-autogen, elixir-format
+msgid "Your improved data has been saved."
+msgstr "Vos données améliorées ont bien été sauvegardées."

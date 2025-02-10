@@ -159,6 +159,10 @@ msgstr "Fichiers dans un sous-dossier"
 msgid "Negative stop duration"
 msgstr "Temps d'arrêt négatif"
 
+#, elixir-autogen, elixir-format
+msgid "Unusable trip"
+msgstr "Trajet non utilisable"
+
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Error"
 msgid_plural "Errors"
