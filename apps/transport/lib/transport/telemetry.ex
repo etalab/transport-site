@@ -35,7 +35,7 @@ defmodule Transport.Telemetry do
     # make it non-blocking, to ensure the traffic will be served quickly. this also means, though, we
     # won't notice if a tracing of event fails
     Task.start(fn ->
-      Logger.info("Telemetry event: processing #{type} proxy request for #{target}")
+      Logger.debug("Telemetry event: processing #{type} proxy request for #{target}")
       count_event(target, event)
     end)
   end
@@ -49,7 +49,7 @@ defmodule Transport.Telemetry do
     # make it non-blocking, to ensure the traffic will be served quickly. this also means, though, we
     # won't notice if a tracing of event fails
     Task.start(fn ->
-      Logger.info("Telemetry event: processing #{convert_to} conversions request for #{target}")
+      Logger.debug("Telemetry event: processing #{convert_to} conversions request for #{target}")
       count_event(target, event, DateTime.utc_now(), :day)
     end)
   end
