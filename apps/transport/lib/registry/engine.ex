@@ -25,7 +25,7 @@ defmodule Transport.Registry.Engine do
 
     create_empty_csv_with_headers(output_file)
 
-    enumerate_gtfs_resources(limit, formats)
+    enumerate_resources(limit, formats)
     |> Result.map_result(&prepare_extractor/1)
     |> Task.async_stream(&download/1, max_concurrency: 12, timeout: 30 * 60_000)
     # one for Task.async_stream
@@ -41,7 +41,7 @@ defmodule Transport.Registry.Engine do
     File.write(output_file, headers)
   end
 
-  def enumerate_gtfs_resources(limit, formats) do
+  def enumerate_resources(limit, formats) do
     DB.Resource.base_query()
     |> DB.ResourceHistory.join_resource_with_latest_resource_history()
     |> where([resource: r], r.format in ^formats)
