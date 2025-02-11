@@ -94,7 +94,8 @@ if app_env == :staging do
       history: "resource-history-staging",
       on_demand_validation: "on-demand-validation-staging",
       gtfs_diff: "gtfs-diff-staging",
-      logos: "logos-staging"
+      logos: "logos-staging",
+      aggregates: "aggregates-staging"
     }
 end
 
@@ -155,13 +156,15 @@ oban_prod_crontab = [
   # The job will make sure that it's executed only on the first Monday of these months
   {"15 8 * 3,6,11 1", Transport.Jobs.PeriodicReminderProducersNotificationJob},
   {"15 5 * * *", Transport.Jobs.ImportDatasetFollowersJob},
+  {"5 5 * * *", Transport.Jobs.ImportDatasetFollowerReuserImprovedDataJob},
   {"20 5 * * *", Transport.Jobs.ImportDatasetContactPointsJob},
   # Should be ideally executed after `GBFSMultiValidationDispatcherJob` to use fresh metadata
   {"30 8 * * *", Transport.Jobs.ImportGBFSFeedContactEmailJob},
   {"30 5 * * *", Transport.Jobs.ImportDatasetMonthlyMetricsJob},
   {"45 5 * * *", Transport.Jobs.ImportResourceMonthlyMetricsJob},
   {"0 8 * * *", Transport.Jobs.WarnUserInactivityJob},
-  {"*/5 * * * *", Transport.Jobs.UpdateCounterCacheJob}
+  {"*/5 * * * *", Transport.Jobs.UpdateCounterCacheJob},
+  {"0 4 * * *", Transport.Jobs.StopsRegistrySnapshotJob}
 ]
 
 # Make sure that all modules exist

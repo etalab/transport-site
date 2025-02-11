@@ -11,7 +11,7 @@ defmodule DB.DatasetFollower do
   typed_schema "dataset_followers" do
     belongs_to(:dataset, DB.Dataset)
     belongs_to(:contact, DB.Contact)
-    field(:source, Ecto.Enum, values: [:datagouv, :follow_button])
+    field(:source, Ecto.Enum, values: [:datagouv, :follow_button, :improved_data_pilot])
     timestamps(type: :utc_datetime_usec)
   end
 

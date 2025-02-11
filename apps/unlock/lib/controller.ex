@@ -150,7 +150,7 @@ defmodule Unlock.Controller do
 
   defp fetch_remote(%Unlock.Config.Item.Generic.HTTP{} = item) do
     comp_fn = fn _key ->
-      Logger.info("Processing proxy request for identifier #{item.identifier}")
+      Logger.debug("Processing proxy request for identifier #{item.identifier}")
 
       try do
         Unlock.Telemetry.trace_request(item.identifier, :internal)
@@ -172,14 +172,14 @@ defmodule Unlock.Controller do
 
     case outcome do
       {:ok, result} ->
-        Logger.info("Proxy response for #{item.identifier} served from cache")
+        Logger.debug("Proxy response for #{item.identifier} served from cache")
         result
 
       {:commit, result, _options} ->
         result
 
       {:ignore, result} ->
-        Logger.info("Cache has been skipped for proxy response")
+        Logger.debug("Cache has been skipped for proxy response")
         result
 
       {:error, _error} ->
