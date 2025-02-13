@@ -511,3 +511,7 @@ msgstr "Préparation"
 #, elixir-autogen, elixir-format
 msgid "Results"
 msgstr "Résultats"
+
+#, elixir-autogen, elixir-format
+msgid "Processing"
+msgstr "Traitement"
