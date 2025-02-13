@@ -509,3 +509,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Results"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Processing"
+msgstr ""

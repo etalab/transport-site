@@ -129,10 +129,11 @@
   </div>
 
   <div :if={@current_step == "analyse"} class="container">
-    <div class="pt-24">
+    <div class="panel">
+      <h4><%= dgettext("validations", "Processing") %></h4>
       <%= for log <- Enum.reverse(@diff_logs) do %>
         <div>
-          <%= log %>...
+          <%= raw(log) %>...
         </div>
       <% end %>
     </div>

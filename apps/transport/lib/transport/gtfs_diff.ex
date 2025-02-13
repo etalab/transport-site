@@ -4,6 +4,7 @@ defmodule Transport.GTFSDiff do
   """
   alias NimbleCSV.RFC4180, as: CSV
   require Logger
+  import TransportWeb.Gettext
 
   def unzip(file_path) do
     zip_file = Unzip.LocalFile.open(file_path)
@@ -281,14 +282,16 @@ defmodule Transport.GTFSDiff do
     |> Enum.reject(&(&1 == []))
   end
 
-  def row_diff(unzip_1, unzip_2, notify_func) do
+  def row_diff(unzip_1, unzip_2, notify_func, locale) do
     file_names_2 = unzip_2 |> Unzip.list_entries() |> Enum.map(&Map.get(&1, :file_name))
 
     file_names_2
     |> Enum.flat_map(fn file_name ->
-      log_msg = "computing diff for #{file_name}"
-      Logger.info(log_msg)
-      unless is_nil(notify_func), do: notify_func.(log_msg)
+      Logger.info("Computing diff for #{file_name}")
+
+      unless is_nil(notify_func) do
+        file_name |> computing_diff_log_message(locale) |> notify_func.()
+      end
 
       file_1 = parse_from_unzip(unzip_1, file_name)
       file_2 = parse_from_unzip(unzip_2, file_name)
@@ -296,10 +299,16 @@ defmodule Transport.GTFSDiff do
     end)
   end
 
-  def diff(unzip_1, unzip_2, notify_func \\ nil) do
+  defp computing_diff_log_message(file_name, locale) do
+    Gettext.with_locale(locale, fn ->
+      dgettext("gtfs-diff", "Computing diff for <code>%{file_name}</code>", file_name: file_name)
+    end)
+  end
+
+  def diff(unzip_1, unzip_2, notify_func \\ nil, locale \\ "fr") do
     file_diff = file_diff(unzip_1, unzip_2)
     column_diff = column_diff(unzip_1, unzip_2)
-    row_diff = row_diff(unzip_1, unzip_2, notify_func)
+    row_diff = row_diff(unzip_1, unzip_2, notify_func, locale)
 
     diff = file_diff ++ column_diff ++ row_diff
     id_range = 0..(Enum.count(diff) - 1)

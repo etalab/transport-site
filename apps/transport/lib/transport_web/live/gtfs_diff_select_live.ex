@@ -83,12 +83,17 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
         gtfs_file_name_2: gtfs_file_name_2.uploaded_file_name,
         gtfs_original_file_name_1: gtfs_file_name_1.original_file_name,
         gtfs_original_file_name_2: gtfs_file_name_2.original_file_name,
-        bucket: Transport.S3.bucket_name(:gtfs_diff)
+        bucket: Transport.S3.bucket_name(:gtfs_diff),
+        locale: Gettext.get_locale()
       }
       |> Transport.Jobs.GTFSDiff.new()
       |> Oban.insert!()
 
-    socket = socket |> assign(:job_id, job_id) |> assign(:diff_logs, ["job started"])
+    socket =
+      socket
+      |> assign(:job_id, job_id)
+      |> assign(:diff_logs, [dgettext("gtfs-diff", "Job started")])
+
     {:noreply, socket}
   end
 
