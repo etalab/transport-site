@@ -4,8 +4,8 @@ defmodule Shared.Validation.TableSchemaValidator.Wrapper do
   """
   defp impl, do: Application.get_env(:transport, :tableschema_validator_impl)
 
-  @callback validate(binary(), binary()) :: map() | nil
-  @callback validate(binary(), binary(), binary()) :: map() | nil
+  @callback validate(binary(), binary()) :: map() | :source_error | nil
+  @callback validate(binary(), binary(), binary()) :: map() | :source_error | nil
   def validate(schema_name, url), do: impl().validate(schema_name, url)
   def validate(schema_name, url, schema_version), do: impl().validate(schema_name, url, schema_version)
 
@@ -95,6 +95,9 @@ defmodule Shared.Validation.TableSchemaValidator do
       "validata_api_version" => validata_version
     }
   end
+
+  # When the remote file cannot be loaded/is a 404
+  defp build_report(%{"error" => %{"type" => "source-error"}}), do: :source_error
 
   defp build_report(_), do: nil
 

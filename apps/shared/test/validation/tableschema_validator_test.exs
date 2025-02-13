@@ -132,6 +132,12 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
                "validata_api_version" => "0.12.0"
              } == validate(@schema_name, @url)
     end
+
+    test "when the remote file does not exist" do
+      setup_schemas_response()
+      "validata_source_error.json" |> setup_validata_response()
+      assert :source_error == validate(@schema_name, @url)
+    end
   end
 
   describe "validata_web_url" do
