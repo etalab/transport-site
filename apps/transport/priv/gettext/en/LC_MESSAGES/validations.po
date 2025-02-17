@@ -505,7 +505,7 @@ msgid "Analyse"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Preparation"
+msgid "Setup"
 msgstr ""
 
 #, elixir-autogen, elixir-format

@@ -501,11 +501,11 @@ msgid "Please upload some file above"
 msgstr "Veuillez téléverser un fichier ci-dessus"
 
 #, elixir-autogen, elixir-format
-msgid "Analyse"
+msgid "Analysis"
 msgstr "Analyse"
 
 #, elixir-autogen, elixir-format
-msgid "Preparation"
+msgid "Setup"
 msgstr "Préparation"
 
 #, elixir-autogen, elixir-format
