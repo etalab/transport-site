@@ -17,7 +17,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
      socket
      |> assign(:uploaded_files, [])
      |> assign(:diff_logs, [])
-     |> assign(:current_step, "preparation")
+     |> assign(:current_step, :setup)
      |> allow_upload(:gtfs,
        accept: ~w(.zip),
        max_entries: 2,
@@ -60,7 +60,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     socket =
       socket
       |> assign(:job_running, true)
-      |> assign(:current_step, "analyse")
+      |> assign(:current_step, :analysis)
       |> push_event("gtfs-diff-focus-steps", %{})
 
     {:noreply, socket}
@@ -174,7 +174,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
      |> assign(:gtfs_original_file_name_2, gtfs_original_file_name_2)
      |> assign(:diff_logs, [])
      |> assign(:job_running, false)
-     |> assign(:current_step, "results")
+     |> assign(:current_step, :results)
      |> push_event("gtfs-diff-focus-steps", %{})}
   end
 
@@ -259,9 +259,9 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
 
   defp step_progression(step) do
     case step do
-      "preparation" -> 1
-      "analyse" -> 2
-      "results" -> 3
+      :setup -> 1
+      :analysis -> 2
+      :results -> 3
     end
   end
 
@@ -270,7 +270,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
 
   defp clean_slate(socket) do
     socket
-    |> assign(:current_step, "preparation")
+    |> assign(:current_step, :setup)
     |> assign(:diff_explanations, nil)
     |> assign(:diff_file_url, nil)
     |> assign(:diff_logs, [])
@@ -279,6 +279,39 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     |> assign(:job_running, false)
     |> assign(:selected_file, nil)
     |> assign(:uploaded_files, [])
+  end
+
+  def steps(%{current_step: _} = assigns) do
+    ~H"""
+    <div id="gtfs-diff-steps" class="container">
+      <ul class="steps-form">
+        <li class={step_completion(@current_step, :setup)}>
+          <div><%= dgettext("validations", "Setup") %></div>
+        </li>
+        <li class={step_completion(@current_step, :analysis)}>
+          <div><%= dgettext("validations", "Analysis") %></div>
+        </li>
+        <li class={step_completion(@current_step, :results)}>
+          <div><%= dgettext("validations", "Results") %></div>
+        </li>
+      </ul>
+    </div>
+    """
+  end
+
+  def preparation_step(%{uploads: _} = assigns) do
+    ~H"""
+    <div id="gtfs-diff-input" class="container" phx-drop-target={@uploads.ref}>
+      <form id="upload-form" phx-submit="gtfs_diff" phx-change="validate">
+        <.upload_drop_zone uploads={@uploads} />
+        <.uploaded_files uploads={@uploads} />
+
+        <button class="button" disabled={not uploads_are_valid(@uploads)} type="submit">
+          <%= dgettext("validations", "Compare") %>
+        </button>
+      </form>
+    </div>
+    """
   end
 
   def upload_drop_zone(%{uploads: _} = assigns) do
@@ -508,96 +541,6 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     """
   end
 
-  def similar_files(file1, file2) do
-    dgettext(
-      "validations",
-      "The GTFS files <code>%{gtfs_original_file_name_2}</code> and <code>%{gtfs_original_file_name_1}</code> are similar.",
-      gtfs_original_file_name_1: file1,
-      gtfs_original_file_name_2: file2
-    )
-    |> raw()
-  end
-
-  def different_files(file1, file2) do
-    dgettext(
-      "validations",
-      "The GTFS file <code>%{gtfs_original_file_name_2}</code> has differences with the GTFS file <code>%{gtfs_original_file_name_1}</code>, as summarized below:",
-      gtfs_original_file_name_1: file1,
-      gtfs_original_file_name_2: file2
-    )
-    |> raw()
-  end
-
-  def validation_error(%{error_msg: _} = assigns) do
-    ~H"""
-    <div class="pt-24">
-      <%= dgettext(
-        "validations",
-        "An error occurred while interpreting the results. Note that the report is still available as download. Error:"
-      ) %>
-      <.error_message error_msg={@error_msg} />
-    </div>
-    """
-  end
-
-  def error_message(%{error_msg: _} = assigns) do
-    ~H"""
-    <span class="red"><%= @error_msg %></span>
-    """
-  end
-
-  def steps(%{current_step: _} = assigns) do
-    ~H"""
-    <div id="gtfs-diff-steps" class="container">
-      <ul class="steps-form">
-        <li class={step_completion(@current_step, "preparation")}>
-          <div><%= dgettext("validations", "Preparation") %></div>
-        </li>
-        <li class={step_completion(@current_step, "analyse")}>
-          <div><%= dgettext("validations", "Analyse") %></div>
-        </li>
-        <li class={step_completion(@current_step, "results")}>
-          <div><%= dgettext("validations", "Results") %></div>
-        </li>
-      </ul>
-    </div>
-    """
-  end
-
-  def preparation_step(%{uploads: _} = assigns) do
-    ~H"""
-    <div id="gtfs-diff-input" class="container" phx-drop-target={@uploads.ref}>
-      <form id="upload-form" phx-submit="gtfs_diff" phx-change="validate">
-        <.upload_drop_zone uploads={@uploads} />
-        <.uploaded_files uploads={@uploads} />
-
-        <button class="button" disabled={not uploads_are_valid(@uploads)} type="submit">
-          <%= dgettext("validations", "Compare") %>
-        </button>
-      </form>
-    </div>
-    """
-  end
-
-  def analysis_step(%{diff_logs: _, error_msg: _} = assigns) do
-    ~H"""
-    <div class="container">
-      <div class="panel">
-        <h4><%= dgettext("validations", "Processing") %></h4>
-        <%= for log <- Enum.reverse(@diff_logs) do %>
-          <div>
-            <%= raw(log) %>...
-          </div>
-        <% end %>
-      </div>
-
-      <div :if={@error_msg}>
-        <.error_message error_msg={@error_msg} />
-      </div>
-    </div>
-    """
-  end
-
   def results_step(
         %{
           diff_explanations: _,
@@ -655,6 +598,63 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
       <button class="button primary" type="button" phx-click="start-over">
         <i class="fa fa-rotate-left"></i>&nbsp;<%= dgettext("validations", "Start over") %>
       </button>
+    </div>
+    """
+  end
+
+  def similar_files(file1, file2) do
+    dgettext(
+      "validations",
+      "The GTFS files <code>%{gtfs_original_file_name_2}</code> and <code>%{gtfs_original_file_name_1}</code> are similar.",
+      gtfs_original_file_name_1: file1,
+      gtfs_original_file_name_2: file2
+    )
+    |> raw()
+  end
+
+  def different_files(file1, file2) do
+    dgettext(
+      "validations",
+      "The GTFS file <code>%{gtfs_original_file_name_2}</code> has differences with the GTFS file <code>%{gtfs_original_file_name_1}</code>, as summarized below:",
+      gtfs_original_file_name_1: file1,
+      gtfs_original_file_name_2: file2
+    )
+    |> raw()
+  end
+
+  def validation_error(%{error_msg: _} = assigns) do
+    ~H"""
+    <div class="pt-24">
+      <%= dgettext(
+        "validations",
+        "An error occurred while interpreting the results. Note that the report is still available as download. Error:"
+      ) %>
+      <.error_message error_msg={@error_msg} />
+    </div>
+    """
+  end
+
+  def error_message(%{error_msg: _} = assigns) do
+    ~H"""
+    <span class="red"><%= @error_msg %></span>
+    """
+  end
+
+  def analysis_step(%{diff_logs: _, error_msg: _} = assigns) do
+    ~H"""
+    <div class="container">
+      <div class="panel">
+        <h4><%= dgettext("validations", "Processing") %></h4>
+        <%= for log <- Enum.reverse(@diff_logs) do %>
+          <div>
+            <%= raw(log) %>...
+          </div>
+        <% end %>
+      </div>
+
+      <div :if={@error_msg}>
+        <.error_message error_msg={@error_msg} />
+      </div>
     </div>
     """
   end

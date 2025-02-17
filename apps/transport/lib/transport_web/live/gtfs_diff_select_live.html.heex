@@ -17,12 +17,12 @@
 <section class="section section-grey">
   <.steps current_step={@current_step} />
 
-  <.preparation_step :if={@current_step == "preparation"} uploads={@uploads.gtfs} />
+  <.preparation_step :if={@current_step == :setup} uploads={@uploads.gtfs} />
 
-  <.analysis_step :if={@current_step == "analyse"} diff_logs={assigns[:diff_logs]} error_msg={assigns[:error_msg]} />
+  <.analysis_step :if={@current_step == :analysis} diff_logs={assigns[:diff_logs]} error_msg={assigns[:error_msg]} />
 
   <.results_step
-    :if={@current_step == "results"}
+    :if={@current_step == :results}
     diff_explanations={assigns[:diff_explanations]}
     diff_file_url={assigns[:diff_file_url]}
     diff_summary={assigns[:diff_summary]}

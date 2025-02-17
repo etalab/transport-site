@@ -499,11 +499,11 @@ msgid "Please upload some file above"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Analyse"
+msgid "Analysis"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Preparation"
+msgid "Setup"
 msgstr ""
 
 #, elixir-autogen, elixir-format
