@@ -13,246 +13,26 @@
     </p>
   </div>
 </section>
+
 <section class="section section-grey">
-  <div id="gtfs-diff-steps" class="container">
-    <ul class="steps-form">
-      <li class={step_completion(@current_step, "preparation")}>
-        <div><%= dgettext("validations", "Preparation") %></div>
-      </li>
-      <li class={step_completion(@current_step, "analyse")}>
-        <div><%= dgettext("validations", "Analyse") %></div>
-      </li>
-      <li class={step_completion(@current_step, "results")}>
-        <div><%= dgettext("validations", "Results") %></div>
-      </li>
-    </ul>
-  </div>
+  <.steps current_step={@current_step} />
 
-  <div :if={@current_step == "preparation"} id="gtfs-diff-input" class="container" phx-drop-target={@uploads.gtfs.ref}>
-    <form id="upload-form" phx-submit="gtfs_diff" phx-change="validate">
-      <div class="drop-zone panel">
-        <label for={@uploads.gtfs.ref}>
-          <i class="fa fa-upload"></i>
-          <span>
-            <%= dgettext("validations", "Drop your GTFS files here or click to browse your local drive") %>
-          </span>
-        </label>
-        <.live_file_input upload={@uploads.gtfs} />
-      </div>
+  <.preparation_step :if={@current_step == "preparation"} uploads={@uploads.gtfs} />
 
-      <div id="uploaded-files">
-        <%= for {entry, index} <- @uploads.gtfs.entries |> Enum.concat([nil, nil]) |> Enum.take(2) |> Enum.with_index() do %>
-          <% title =
-            if index == 0 do
-              dgettext("validations", "Reference GTFS")
-            else
-              dgettext("validations", "Modified GTFS")
-            end %>
-          <%= if entry == nil do %>
-            <article class="upload-entry upload-entry-inactive panel">
-              <h4><%= title %></h4>
-              <label class="placeholder" for={@uploads.gtfs.ref}>
-                <%= dgettext("validations", "Please upload some file above") %>
-              </label>
-            </article>
-          <% else %>
-            <% has_errors = length(upload_errors(@uploads.gtfs, entry)) > 0 %>
-            <% classname =
-              if has_errors do
-                "upload-entry upload-entry-errors panel"
-              else
-                "upload-entry panel"
-              end %>
-            <article class={classname}>
-              <h4><%= title %></h4>
-              <div class="entry-name">
-                <%= if entry.valid? do %>
-                  <i
-                    class="fa fa-square-check"
-                    title={dgettext("validations", "Valid file")}
-                    aria-label={dgettext("validations", "Valid file")}
-                  >
-                  </i>
-                <% else %>
-                  <i
-                    class="fa fa-square-xmark"
-                    title={dgettext("validations", "Invalid file")}
-                    aria-label={dgettext("validations", "Invalid file")}
-                  >
-                  </i>
-                <% end %>
-                <%= entry.client_name %>
-              </div>
-              <div class="progress-bar">
-                <progress value={entry.progress} max="100"><%= entry.progress %>%</progress>
-                <button
-                  type="button"
-                  phx-click="cancel-upload"
-                  phx-value-ref={entry.ref}
-                  title={dgettext("validations", "Cancel upload or remove file")}
-                  aria-label={dgettext("validations", "Cancel upload or remove file")}
-                >
-                  <i class="fa fa-xmark"></i>
-                </button>
-              </div>
-              <div :if={has_errors} class="upload-errors">
-                <%= for err <- upload_errors(@uploads.gtfs, entry) do %>
-                  <%= error_to_string(err) %>
-                <% end %>
-              </div>
-            </article>
-          <% end %>
-          <%= if index == 0 do %>
-            <div>
-              <button
-                disabled={length(@uploads.gtfs.entries) != 2}
-                class="button-outline primary small"
-                type="button"
-                title={dgettext("validations", "Switch files")}
-                aria-label={dgettext("validations", "Switch files")}
-                phx-click="switch-uploads"
-              >
-                <i class="fa fa-arrow-right-arrow-left"></i>
-              </button>
-            </div>
-          <% end %>
-        <% end %>
-        <%= for err <- upload_errors(@uploads.gtfs) do %>
-          <p class="alert alert-danger"><i class="fa fa-square-xmark"></i> <%= error_to_string(err) %></p>
-        <% end %>
-      </div>
+  <.analysis_step :if={@current_step == "analyse"} diff_logs={assigns[:diff_logs]} error_msg={assigns[:error_msg]} />
 
-      <button class="button" disabled={not uploads_are_valid(@uploads)} type="submit">
-        <%= dgettext("validations", "Compare") %>
-      </button>
-    </form>
-  </div>
-
-  <div :if={@current_step == "analyse"} class="container">
-    <div class="panel">
-      <h4><%= dgettext("validations", "Processing") %></h4>
-      <%= for log <- Enum.reverse(@diff_logs) do %>
-        <div>
-          <%= raw(log) %>...
-        </div>
-      <% end %>
-    </div>
-
-    <div :if={assigns[:error_msg]}>
-      <span class="red"><%= @error_msg %></span>
-    </div>
-  </div>
-
-  <div :if={@current_step == "results"} class="container gtfs-diff-results">
-    <div :if={assigns[:diff_file_url]} class="panel">
-      <h4>
-        <%= dgettext("validations", "GTFS Diff is available for") %>
-        <%= link(dgettext("validations", "download"),
-          to: @diff_file_url,
-          target: "_blank"
-        ) %>
-      </h4>
-      <%= raw(
-        dgettext(
-          "validations",
-          "<a href=\"%{spec}\">Read</a> the GTFS Diff specification to understand how differences between GTFS are expressed",
-          spec: "https://github.com/etalab/gtfs_diff/blob/main/specification.md"
-        )
-      ) %>.
-      <%= if assigns[:diff_summary] do %>
-        <div class="pt-24">
-          <%= if assigns[:diff_summary] == %{} do %>
-            <%= raw(
-              dgettext(
-                "validations",
-                "The GTFS files <code>%{gtfs_original_file_name_2}</code> and <code>%{gtfs_original_file_name_1}</code> are similar.",
-                gtfs_original_file_name_1: @gtfs_original_file_name_1,
-                gtfs_original_file_name_2: @gtfs_original_file_name_2
-              )
-            ) %>
-          <% else %>
-            <%= raw(
-              dgettext(
-                "validations",
-                "The GTFS file <code>%{gtfs_original_file_name_2}</code> has differences with the GTFS file <code>%{gtfs_original_file_name_1}</code>, as summarized below:",
-                gtfs_original_file_name_1: @gtfs_original_file_name_1,
-                gtfs_original_file_name_2: @gtfs_original_file_name_2
-              )
-            ) %>
-          <% end %>
-        </div>
-      <% else %>
-        <%= if assigns[:error_msg] do %>
-          <div class="pt-24">
-            <%= dgettext(
-              "validations",
-              "An error occurred while interpreting the results. Note that the report is still available as download. Error:"
-            ) %>
-            <span class="red"><%= @error_msg %></span>
-          </div>
-        <% else %>
-          <div class="pt-24">
-            <%= dgettext("validations", "analyzing found differences...") %>
-          </div>
-        <% end %>
-      <% end %>
-      <div :if={assigns[:diff_summary] && assigns[:diff_summary] != %{}} class="pt-24">
-        <div class="dashboard">
-          <aside class="side-menu" role="navigation">
-            <ul>
-              <%= for file <- @files_with_changes do %>
-                <li>
-                  <a
-                    class={
-                      if file == @selected_file do
-                        "active"
-                      end
-                    }
-                    phx-click="select-file"
-                    phx-value-file={file}
-                  >
-                    <code><%= file %></code>
-                  </a>
-                </li>
-              <% end %>
-            </ul>
-          </aside>
-          <div class="main">
-            <p><%= dgettext("validations", "Differences Overview") %></p>
-            <ul>
-              <%= for {diff_nature, translation, css_class} <- [{"add", dgettext("validations", "added"), "green"}, {"update", dgettext("validations", "updated"), "orange"}, {"delete", dgettext("validations", "deleted"), "red"}] do %>
-                <div :if={@diff_summary[diff_nature]}>
-                  <%= for {{file, ^diff_nature, target}, n} <- @diff_summary[diff_nature] do %>
-                    <li :if={file == @selected_file}>
-                      <span class={css_class}><%= translation %> &nbsp;</span><%= translate_target(target, n) %>
-                    </li>
-                  <% end %>
-                </div>
-              <% end %>
-            </ul>
-            <%= if assigns[:diff_explanations] do %>
-              <% active_explanations =
-                @diff_explanations
-                |> Enum.filter(fn {file, _} -> file == @selected_file end)
-                |> Enum.map(fn {_, explanation} -> explanation end) %>
-              <p :if={not Enum.empty?(active_explanations)}><%= dgettext("validations", "Detail") %></p>
-              <ul>
-                <%= for explanation <- active_explanations do %>
-                  <li>
-                    <%= explanation %>
-                  </li>
-                <% end %>
-              </ul>
-            <% end %>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <button class="button primary" type="button" phx-click="start-over">
-      <i class="fa fa-rotate-left"></i>&nbsp;<%= dgettext("validations", "Start over") %>
-    </button>
-  </div>
+  <.results_step
+    :if={@current_step == "results"}
+    diff_explanations={assigns[:diff_explanations]}
+    diff_file_url={assigns[:diff_file_url]}
+    diff_summary={assigns[:diff_summary]}
+    error_msg={assigns[:error_msg]}
+    files_with_changes={assigns[:files_with_changes]}
+    gtfs_original_file_name_1={assigns[:gtfs_original_file_name_1]}
+    gtfs_original_file_name_2={assigns[:gtfs_original_file_name_2]}
+    selected_file={assigns[:selected_file]}
+  />
 </section>
+
 <script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>
 </script>
