@@ -1,5 +1,5 @@
 defmodule TransportWeb.CustomTagsLive do
-  use Phoenix.LiveView
+  use Phoenix.LiveComponent
   alias TransportWeb.InputHelpers
   import Ecto.Query
 
@@ -18,7 +18,8 @@ defmodule TransportWeb.CustomTagsLive do
         placeholder: "Ajouter un tag",
         list: "suggestions",
         phx_keydown: "add_tag",
-        id: "custom_tag"
+        id: "custom_tag",
+        phx_target: @myself
       ) %>
       <datalist id="suggestions" phx-keydown="add_tag">
         <%= for suggestion <- @tag_suggestions do %>
@@ -84,27 +85,35 @@ defmodule TransportWeb.CustomTagsLive do
     ]
   end
 
-  def mount(
-        _params,
-        %{"dataset" => %{custom_tags: custom_tags}, "form" => f},
-        socket
-      )
-      when is_list(custom_tags) do
-    {:ok, mount_assigns(socket, custom_tags, f)}
+  def mount(socket) do
+    {:ok,
+     socket
+     |> assign(
+       tags_documentation: tags_documentation(),
+       tag_suggestions: tags_suggestions()
+     )}
   end
 
-  def mount(_params, %{"form" => f}, socket) do
-    {:ok, mount_assigns(socket, [], f)}
-  end
+  # def update(
+  #       %{dataset: %{custom_tags: custom_tags}, form: f},
+  #       socket
+  #     )
+  #     when is_list(custom_tags) do
+  #   {:ok, mount_assigns(socket, custom_tags, f)}
+  # end
 
-  def mount_assigns(%Phoenix.LiveView.Socket{} = socket, custom_tags, form) do
-    assign(socket,
-      custom_tags: custom_tags,
-      tags_documentation: tags_documentation(),
-      form: form,
-      tag_suggestions: tags_suggestions()
-    )
-  end
+  # def update(%{form: f}, socket) do
+  #   {:ok, mount_assigns(socket, [], f)}
+  # end
+
+  # def mount_assigns(%Phoenix.LiveView.Socket{} = socket, custom_tags, form) do
+  #   assign(socket,
+  #     custom_tags: custom_tags,
+  #     tags_documentation: tags_documentation(),
+  #     form: form,
+  #     tag_suggestions: tags_suggestions()
+  #   )
+  # end
 
   def handle_event("add_tag", %{"key" => "Enter", "value" => tag}, socket) do
     # Do not lowercase a tag for a SIRI requestor_ref
