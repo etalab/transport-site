@@ -71,10 +71,13 @@
         ) %>
       </div>
 
-      <%= live_render(@socket, TransportWeb.CustomTagsLive,
+      <%#= live_render(@socket, TransportWeb.CustomTagsLive,
         id: "custom_tags",
         session: %{"dataset" => @dataset, "form" => f}
       ) %>
+
+      <.live_component module={TransportWeb.CustomTagsLive} id="custom_tags" form={f} custom_tags={@dataset && @dataset.custom_tags || []} />
+
 
       <p :if={not is_nil(@dataset) and @dataset.is_hidden} class="notification">
         Ce jeu de données est masqué
