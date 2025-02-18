@@ -224,6 +224,9 @@ defmodule DB.Resource do
 
   def get_related_conversion_info(resource_id, format) do
     converter = DB.DataConversion.converter_to_use(format)
+    # Only value supported for now but needed to make the query fast
+    # https://github.com/etalab/transport-site/issues/4448
+    convert_from = :GTFS
 
     DB.ResourceHistory
     |> join(:inner, [rh], dc in DB.DataConversion,
@@ -237,8 +240,9 @@ defmodule DB.Resource do
     })
     |> where(
       [rh, dc],
-      rh.resource_id == ^resource_id and dc.convert_to == ^format and dc.status == :success and
-        dc.converter == ^converter
+      rh.resource_id == ^resource_id and
+        dc.convert_from == ^convert_from and dc.convert_to == ^format and
+        dc.status == :success and dc.converter == ^converter
     )
     |> order_by([rh, _], desc: rh.inserted_at)
     |> limit(1)
