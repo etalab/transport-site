@@ -9,6 +9,18 @@
   margin: 24px 0 12px;
 }
 
+.actions {
+  margin-top: 30px;
+  display: flex;
+  gap: 30px;
+  justify-content: end;
+  flex-direction: row;
+
+  button.button {
+    margin: 0;
+  }
+}
+
 #gtfs-diff-input {
   justify-content: left;
   align-items: stretch;

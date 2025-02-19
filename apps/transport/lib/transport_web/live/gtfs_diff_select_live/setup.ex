@@ -13,10 +13,19 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
         <.upload_drop_zone uploads={@uploads} />
         <.uploaded_files uploads={@uploads} />
 
-        <button class="button" disabled={not uploads_are_valid(@uploads)} type="submit">
-          <%= dgettext("validations", "Compare") %>
-        </button>
+        <.action_bar uploads={@uploads} />
       </form>
+    </div>
+    """
+  end
+
+  def action_bar(%{uploads: _} = assigns) do
+    ~H"""
+    <div class="actions">
+      <button class="button" disabled={not uploads_are_valid(@uploads)} type="submit">
+        <i class="fa fa-check"></i>
+        <%= dgettext("validations", "Compare") %>
+      </button>
     </div>
     """
   end
