@@ -59,8 +59,6 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
 
     socket =
       socket
-      # FIXME remove unused assign (replaced by explicit state machine)
-      |> assign(:job_running, true)
       |> assign(:current_step, :analysis)
       |> push_event("gtfs-diff-focus-steps", %{})
 
@@ -179,7 +177,6 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
      socket
      |> update_many(:results, updates)
      |> assign(:diff_logs, [])
-     |> assign(:job_running, false)
      |> assign(:current_step, :results)
      |> push_event("gtfs-diff-focus-steps", %{})}
   end
@@ -268,7 +265,6 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     |> assign(:current_step, :setup)
     |> assign(:diff_logs, [])
     |> assign(:error_msg, nil)
-    |> assign(:job_running, false)
     |> assign(:results, %{})
   end
 end
