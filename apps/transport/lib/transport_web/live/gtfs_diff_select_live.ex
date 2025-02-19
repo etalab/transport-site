@@ -187,12 +187,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
         # no diff_file_url: job has not finished
         Oban.Notifier.unlisten([:gossip])
 
-        # FIXME i18n this
-        socket
-        |> assign(
-          :error_msg,
-          "Job aborted, the diff is taking too long (> #{Transport.Jobs.GTFSDiff.job_timeout_sec() / 60} min)."
-        )
+        assign(socket, :error_msg, timeout_msg())
       else
         socket
       end
@@ -203,6 +198,20 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   # catch-all
   def handle_info(_, socket) do
     {:noreply, socket}
+  end
+
+  @doc """
+  iex> Gettext.put_locale("en")
+  iex> timeout_msg()
+  "Job aborted, the diff is taking too long (> 30 min)."
+  iex> Gettext.put_locale("fr")
+  iex> timeout_msg()
+  "Traitement annulé, cela prend trop de temps (plus de 30 minutes)."
+  """
+  def timeout_msg do
+    minutes = round(Transport.Jobs.GTFSDiff.job_timeout_sec() / 60)
+
+    dgettext("validations", "Job aborted, the diff is taking too long (> %{minutes} min).", minutes: minutes)
   end
 
   defp scroll_to_steps(socket) do
@@ -223,35 +232,6 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
 
   defp stream_to_s3(file_path, path) do
     Transport.S3.stream_to_s3!(:gtfs_diff, file_path, path, acl: :public_read)
-  end
-
-  @doc """
-  iex> Gettext.put_locale("en")
-  iex> translate_target("file", 1)
-  "1 file"
-  iex> translate_target("file", 3)
-  "3 files"
-  iex> translate_target("row", 1)
-  "1 row"
-  iex> translate_target("row", 3)
-  "3 rows"
-  iex> Gettext.put_locale("fr")
-  iex> translate_target("file", 1)
-  "1 fichier"
-  iex> translate_target("file", 3)
-  "3 fichiers"
-  iex> translate_target("row", 1)
-  "1 ligne"
-  iex> translate_target("row", 3)
-  "3 lignes"
-  """
-  def translate_target(target, n) do
-    case target do
-      "file" -> dngettext("validations", "%{count} file", "%{count} files", n)
-      "row" -> dngettext("validations", "%{count} row", "%{count} rows", n)
-      "column" -> dngettext("validations", "%{count} column", "%{count} columns", n)
-      _ -> "#{n} #{target}#{if n > 1, do: "s"}"
-    end
   end
 
   defp switch_uploads(uploads) do

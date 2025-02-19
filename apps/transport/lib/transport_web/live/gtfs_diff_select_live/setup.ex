@@ -117,10 +117,28 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
     """
   end
 
-  # FIXME i18n this
-  defp error_to_string(:too_large), do: "File is too large, must be <#{max_file_size_mb()}MB"
-  defp error_to_string(:too_many_files), do: "You must select 2 files"
-  defp error_to_string(:not_accepted), do: "You have selected an unacceptable file type"
+  @doc """
+  iex> Gettext.put_locale("en")
+  iex> error_to_string(:too_large)
+  "File is too large, must be <20MB"
+  iex> error_to_string(:too_many_files)
+  "You must select 2 files"
+  iex> error_to_string(:not_accepted)
+  "You have selected an unacceptable file type"
+  iex> Gettext.put_locale("fr")
+  iex> error_to_string(:too_large)
+  "Fichier trop gros, doit peser moins de 20 Mo"
+  iex> error_to_string(:too_many_files)
+  "Vous devez sélectionner 2 fichiers"
+  iex> error_to_string(:not_accepted)
+  "Le type de fichier sélectionné n’est pas utilisable"
+  """
+  def error_to_string(:too_many_files), do: dgettext("validations", "You must select 2 files")
+  def error_to_string(:not_accepted), do: dgettext("validations", "You have selected an unacceptable file type")
+
+  def error_to_string(:too_large),
+    do:
+      dgettext("validations", "File is too large, must be <%{max_file_size_mb}MB", max_file_size_mb: max_file_size_mb())
 
   defp upload_title(index) do
     if index == 0 do

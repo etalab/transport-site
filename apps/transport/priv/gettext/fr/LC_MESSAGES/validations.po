@@ -515,3 +515,19 @@ msgstr "Résultats"
 #, elixir-autogen, elixir-format
 msgid "Processing"
 msgstr "Traitement"
+
+#, elixir-autogen, elixir-format
+msgid "File is too large, must be <%{max_file_size_mb}MB"
+msgstr "Fichier trop gros, doit peser moins de %{max_file_size_mb} Mo"
+
+#, elixir-autogen, elixir-format
+msgid "You have selected an unacceptable file type"
+msgstr "Le type de fichier sélectionné n’est pas utilisable"
+
+#, elixir-autogen, elixir-format
+msgid "You must select 2 files"
+msgstr "Vous devez sélectionner 2 fichiers"
+
+#, elixir-autogen, elixir-format
+msgid "Job aborted, the diff is taking too long (> %{minutes} min)."
+msgstr "Traitement annulé, cela prend trop de temps (plus de %{minutes} minutes)."
