@@ -17,7 +17,7 @@
 <section class="section section-grey">
   <.steps current_step={@current_step} />
 
-  <.preparation_step :if={@current_step == :setup} uploads={@uploads.gtfs} />
+  <.setup_step :if={@current_step == :setup} uploads={@uploads.gtfs} />
 
   <.analysis_step :if={@current_step == :analysis} diff_logs={assigns[:diff_logs]} error_msg={assigns[:error_msg]} />
 
