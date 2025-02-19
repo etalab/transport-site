@@ -46,6 +46,15 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     {:noreply, update(socket, :uploads, &switch_uploads/1)}
   end
 
+  def handle_event("clear-uploads", _, socket) do
+    socket =
+      Enum.reduce(socket.assigns[:uploads].gtfs.entries, socket, fn entry, socket ->
+        cancel_upload(socket, :gtfs, entry.ref)
+      end)
+
+    {:noreply, socket}
+  end
+
   def handle_event("start-over", _, socket) do
     {:noreply, clean_slate(socket)}
   end
