@@ -8,24 +8,22 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   import TransportWeb.Gettext
   alias TransportWeb.GTFSDiffExplain
 
-  import TransportWeb.Live.GTFSDiffSelectLive.Steps
   import TransportWeb.Live.GTFSDiffSelectLive.Analysis
   import TransportWeb.Live.GTFSDiffSelectLive.Results
   import TransportWeb.Live.GTFSDiffSelectLive.Setup
-
-  @max_file_size_mb 20
+  import TransportWeb.Live.GTFSDiffSelectLive.Shared
+  import TransportWeb.Live.GTFSDiffSelectLive.Steps
 
   def mount(_params, %{"locale" => locale} = _session, socket) do
     Gettext.put_locale(locale)
 
     {:ok,
      socket
-     |> assign(:diff_logs, [])
-     |> assign(:current_step, :setup)
+     |> clean_slate()
      |> allow_upload(:gtfs,
        accept: ~w(.zip),
        max_entries: 2,
-       max_file_size: @max_file_size_mb * 1_000_000,
+       max_file_size: max_file_size_mb() * 1_000_000,
        auto_upload: true
      )}
   end
@@ -33,11 +31,9 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   def handle_event("validate", _params, socket) do
     socket =
       socket
-      |> assign(:diff_file_url, nil)
       |> assign(:error_msg, nil)
-      |> assign(:diff_summary, nil)
-      |> assign(:diff_explanations, nil)
       |> assign(:diff_logs, [])
+      |> assign(:results, %{})
 
     {:noreply, socket}
   end
@@ -55,7 +51,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   end
 
   def handle_event("select-file", %{"file" => file}, socket) do
-    {:noreply, assign(socket, :selected_file, file)}
+    {:noreply, update(socket, :results, set(:selected_file, file))}
   end
 
   def handle_event("gtfs_diff", _, socket) do
@@ -63,6 +59,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
 
     socket =
       socket
+      # FIXME remove unused assign (replaced by explicit state machine)
       |> assign(:job_running, true)
       |> assign(:current_step, :analysis)
       |> push_event("gtfs-diff-focus-steps", %{})
@@ -130,11 +127,12 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
               _ -> Kernel.hd(files_with_changes)
             end
 
-          socket
-          |> assign(:diff_summary, diff_summary)
-          |> assign(:diff_explanations, diff_explanations |> drop_empty())
-          |> assign(:files_with_changes, files_with_changes)
-          |> assign(:selected_file, selected_file)
+          update_many(socket, :results, [
+            set(:diff_summary, diff_summary),
+            set(:diff_explanations, diff_explanations |> drop_empty()),
+            set(:files_with_changes, files_with_changes),
+            set(:selected_file, selected_file)
+          ])
       end
 
     {:noreply, socket}
@@ -171,11 +169,15 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     send(self(), {:generate_diff_summary, diff_file_url})
     Oban.Notifier.unlisten([:gossip])
 
+    updates = [
+      set(:diff_file_url, diff_file_url),
+      set(:gtfs_original_file_name_1, gtfs_original_file_name_1),
+      set(:gtfs_original_file_name_2, gtfs_original_file_name_2)
+    ]
+
     {:noreply,
      socket
-     |> assign(:diff_file_url, diff_file_url)
-     |> assign(:gtfs_original_file_name_1, gtfs_original_file_name_1)
-     |> assign(:gtfs_original_file_name_2, gtfs_original_file_name_2)
+     |> update_many(:results, updates)
      |> assign(:diff_logs, [])
      |> assign(:job_running, false)
      |> assign(:current_step, :results)
@@ -189,6 +191,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
         # no diff_file_url: job has not finished
         Oban.Notifier.unlisten([:gossip])
 
+        # FIXME i18n this
         socket
         |> assign(
           :error_msg,
@@ -204,6 +207,18 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   # catch-all
   def handle_info(_, socket) do
     {:noreply, socket}
+  end
+
+  def update_many(socket, key, fns) do
+    update(socket, key, sequence(fns))
+  end
+
+  defp sequence(fns) do
+    fn hash0 -> Enum.reduce(fns, hash0, fn f, hash -> f.(hash) end) end
+  end
+
+  defp set(key, value) do
+    fn hash -> Map.put(hash, key, value) end
   end
 
   defp stream_to_s3(file_path, path) do
@@ -251,12 +266,9 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   defp clean_slate(socket) do
     socket
     |> assign(:current_step, :setup)
-    |> assign(:diff_explanations, nil)
-    |> assign(:diff_file_url, nil)
     |> assign(:diff_logs, [])
-    |> assign(:diff_summary, nil)
     |> assign(:error_msg, nil)
     |> assign(:job_running, false)
-    |> assign(:selected_file, nil)
+    |> assign(:results, %{})
   end
 end
