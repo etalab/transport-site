@@ -11,11 +11,9 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Analysis do
     <div class="container">
       <div class="panel">
         <h4><%= dgettext("validations", "Processing") %></h4>
-        <%= for log <- Enum.reverse(@diff_logs) do %>
-          <div>
-            <%= raw(log) %>...
-          </div>
-        <% end %>
+        <div :for={log <- @diff_logs}>
+          <%= raw(log) %>...
+        </div>
       </div>
 
       <div :if={@error_msg}>
