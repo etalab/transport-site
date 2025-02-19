@@ -500,8 +500,8 @@ msgstr ""
 msgid "Please upload some file above"
 msgstr ""
 
-#, elixir-autogen, elixir-format
-msgid "Analyse"
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Analysis"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -514,4 +514,20 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Processing"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "File is too large, must be <%{max_file_size_mb}MB"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You have selected an unacceptable file type"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You must select 2 files"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Job aborted, the diff is taking too long (> %{minutes} min)."
 msgstr ""
