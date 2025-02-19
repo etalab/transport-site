@@ -150,7 +150,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
         {:notification, :gossip, %{"running" => job_id, "log" => log}},
         %{assigns: %{job_id: job_id}} = socket
       ) do
-    {:noreply, socket |> assign(:diff_logs, [log | socket.assigns[:diff_logs]])}
+    {:noreply, socket |> update(:diff_logs, fn logs -> Enum.concat(logs, [log]) end)}
   end
 
   # job is complete
