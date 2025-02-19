@@ -15,7 +15,6 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
 
     {:ok,
      socket
-     |> assign(:uploaded_files, [])
      |> assign(:diff_logs, [])
      |> assign(:current_step, :setup)
      |> allow_upload(:gtfs,
@@ -278,7 +277,6 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     |> assign(:error_msg, nil)
     |> assign(:job_running, false)
     |> assign(:selected_file, nil)
-    |> assign(:uploaded_files, [])
   end
 
   def steps(%{current_step: _} = assigns) do
