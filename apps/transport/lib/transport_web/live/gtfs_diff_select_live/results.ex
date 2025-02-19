@@ -75,9 +75,11 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
         <% end %>
       </div>
 
-      <button class="button primary" type="button" phx-click="start-over">
-        <i class="fa fa-rotate-left"></i>&nbsp;<%= dgettext("validations", "Start over") %>
-      </button>
+      <div class="actions">
+        <button class="button-outline primary" type="button" phx-click="start-over">
+          <i class="fa fa-rotate-left"></i>&nbsp;<%= dgettext("validations", "Start over") %>
+        </button>
+      </div>
     </div>
     """
   end
