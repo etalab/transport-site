@@ -109,7 +109,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
           diff = Transport.GTFSDiff.parse_diff_output(body)
 
           diff_summary = diff |> GTFSDiffExplain.diff_summary()
-          diff_explanations = diff |> GTFSDiffExplain.diff_explanations()
+          diff_explanations = diff |> GTFSDiffExplain.diff_explanations() |> drop_empty()
 
           files_with_changes =
             diff_summary
@@ -127,7 +127,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
 
           update_many(socket, :results, [
             set(:diff_summary, diff_summary),
-            set(:diff_explanations, diff_explanations |> drop_empty()),
+            set(:diff_explanations, diff_explanations),
             set(:files_with_changes, files_with_changes),
             set(:selected_file, selected_file)
           ])
@@ -175,9 +175,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
 
     {:noreply,
      socket
-     |> update_many(:results, updates)
-     |> assign(:diff_logs, [])
      |> assign(:current_step, :results)
+     |> update_many(:results, updates)
      |> scroll_to_steps()}
   end
 
