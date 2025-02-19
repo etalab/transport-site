@@ -515,17 +515,25 @@ msgid "Processing"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "File is too large, must be <%{max_file_size_mb}MB"
+msgid "File is too large, must be <%{max_file_size_mb}MB."
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "You have selected an unacceptable file type"
+msgid "You have selected an unacceptable file type."
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "You must select 2 files"
+msgid "You must select 2 files."
 msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Job aborted, the diff is taking too long (> %{minutes} min)."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Clear uploaded files"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Discarded files:"
 msgstr ""

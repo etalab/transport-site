@@ -12,6 +12,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
       <form id="upload-form" phx-submit="gtfs_diff" phx-change="validate">
         <.upload_drop_zone uploads={@uploads} />
         <.uploaded_files uploads={@uploads} />
+        <.upload_global_error :for={err <- upload_errors(@uploads)} error={err} uploads={@uploads} />
 
         <.action_bar uploads={@uploads} />
       </form>
@@ -25,6 +26,15 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
       <button class="button" disabled={not uploads_are_valid(@uploads)} type="submit">
         <i class="fa fa-check"></i>
         <%= dgettext("validations", "Compare") %>
+      </button>
+      <button
+        type="button"
+        class="button-outline primary"
+        disabled={Enum.empty?(@uploads.entries)}
+        phx-click="clear-uploads"
+      >
+        <i class="fa fa-trash"></i>
+        <%= dgettext("validations", "Clear uploaded files") %>
       </button>
     </div>
     """
@@ -57,7 +67,6 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
           <.upload_switch uploads={@uploads} />
         <% end %>
       <% end %>
-      <.upload_error :for={err <- upload_errors(@uploads)} error={err} />
     </div>
     """
   end
@@ -120,34 +129,60 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
     """
   end
 
-  defp upload_error(%{error: _} = assigns) do
+  defp upload_global_error(%{error: _, uploads: _} = assigns) do
     ~H"""
-    <p class="alert alert-danger"><i class="fa fa-square-xmark"></i> <%= error_to_string(@error) %></p>
+    <p class="alert alert-danger">
+      <i class="fa fa-square-xmark red"></i>
+      <%= error_to_string(@error) %>
+      <.discarded_files :if={@error == :too_many_files} uploads={@uploads} />
+    </p>
+    """
+  end
+
+  defp discarded_files(%{uploads: uploads} = assigns) do
+    assigns = assign(assigns, :entries, Enum.drop(uploads.entries, 2))
+
+    ~H"""
+    <span id="discarded-files">
+      <%= dgettext("validations", "Discarded files:") %>
+      <.discarded_file :for={{entry, index} <- Enum.with_index(@entries)} entry={entry} index={index} />.
+    </span>
+    """
+  end
+
+  defp discarded_file(%{entry: _, index: _} = assigns) do
+    ~H"""
+    <%= if @index > 0 do %>
+      ,
+    <% end %>
+    <code class="discarded-file"><%= @entry.client_name %></code>
     """
   end
 
   @doc """
   iex> Gettext.put_locale("en")
   iex> error_to_string(:too_large)
-  "File is too large, must be <20MB"
+  "File is too large, must be <20MB."
   iex> error_to_string(:too_many_files)
-  "You must select 2 files"
+  "You must select 2 files."
   iex> error_to_string(:not_accepted)
-  "You have selected an unacceptable file type"
+  "You have selected an unacceptable file type."
   iex> Gettext.put_locale("fr")
   iex> error_to_string(:too_large)
-  "Fichier trop gros, doit peser moins de 20 Mo"
+  "Fichier trop gros, doit peser moins de 20 Mo."
   iex> error_to_string(:too_many_files)
-  "Vous devez sélectionner 2 fichiers"
+  "Vous devez sélectionner 2 fichiers."
   iex> error_to_string(:not_accepted)
-  "Le type de fichier sélectionné n’est pas utilisable"
+  "Le type de fichier sélectionné n’est pas utilisable."
   """
-  def error_to_string(:too_many_files), do: dgettext("validations", "You must select 2 files")
-  def error_to_string(:not_accepted), do: dgettext("validations", "You have selected an unacceptable file type")
+  def error_to_string(:too_many_files), do: dgettext("validations", "You must select 2 files.")
+  def error_to_string(:not_accepted), do: dgettext("validations", "You have selected an unacceptable file type.")
 
   def error_to_string(:too_large),
     do:
-      dgettext("validations", "File is too large, must be <%{max_file_size_mb}MB", max_file_size_mb: max_file_size_mb())
+      dgettext("validations", "File is too large, must be <%{max_file_size_mb}MB.",
+        max_file_size_mb: max_file_size_mb()
+      )
 
   defp upload_title(index) do
     if index == 0 do
