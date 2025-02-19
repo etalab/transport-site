@@ -6,18 +6,33 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
   use TransportWeb.InputHelpers
   import TransportWeb.Gettext
 
-  def results_step(
-        %{
-          diff_explanations: _,
-          diff_file_url: _,
-          diff_summary: _,
-          error_msg: _,
-          files_with_changes: _,
-          gtfs_original_file_name_1: _,
-          gtfs_original_file_name_2: _,
-          selected_file: _
-        } = assigns
-      ) do
+  def results_step(%{error_msg: _, results: _} = assigns) do
+    ~H"""
+    <.inner
+      diff_explanations={@results[:diff_explanations]}
+      diff_file_url={@results[:diff_file_url]}
+      diff_summary={@results[:diff_summary]}
+      files_with_changes={@results[:files_with_changes]}
+      gtfs_original_file_name_1={@results[:gtfs_original_file_name_1]}
+      gtfs_original_file_name_2={@results[:gtfs_original_file_name_2]}
+      selected_file={@results[:selected_file]}
+      error_msg={@error_msg}
+    />
+    """
+  end
+
+  defp inner(
+         %{
+           diff_explanations: _,
+           diff_file_url: _,
+           diff_summary: _,
+           error_msg: _,
+           files_with_changes: _,
+           gtfs_original_file_name_1: _,
+           gtfs_original_file_name_2: _,
+           selected_file: _
+         } = assigns
+       ) do
     ~H"""
     <div class="container gtfs-diff-results">
       <div :if={@diff_file_url} class="panel">

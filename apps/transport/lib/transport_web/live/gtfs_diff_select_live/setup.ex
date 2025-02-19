@@ -4,8 +4,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
   """
   use Phoenix.LiveView
   import TransportWeb.Gettext
-
-  @max_file_size_mb 20
+  import TransportWeb.Live.GTFSDiffSelectLive.Shared
 
   def setup_step(%{uploads: _} = assigns) do
     ~H"""
@@ -118,7 +117,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
     """
   end
 
-  defp error_to_string(:too_large), do: "File is too large, must be <#{@max_file_size_mb}MB"
+  # FIXME i18n this
+  defp error_to_string(:too_large), do: "File is too large, must be <#{max_file_size_mb()}MB"
   defp error_to_string(:too_many_files), do: "You must select 2 files"
   defp error_to_string(:not_accepted), do: "You have selected an unacceptable file type"
 

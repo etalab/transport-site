@@ -21,17 +21,7 @@
 
   <.analysis_step :if={@current_step == :analysis} diff_logs={assigns[:diff_logs]} error_msg={assigns[:error_msg]} />
 
-  <.results_step
-    :if={@current_step == :results}
-    diff_explanations={assigns[:diff_explanations]}
-    diff_file_url={assigns[:diff_file_url]}
-    diff_summary={assigns[:diff_summary]}
-    error_msg={assigns[:error_msg]}
-    files_with_changes={assigns[:files_with_changes]}
-    gtfs_original_file_name_1={assigns[:gtfs_original_file_name_1]}
-    gtfs_original_file_name_2={assigns[:gtfs_original_file_name_2]}
-    selected_file={assigns[:selected_file]}
-  />
+  <.results_step :if={@current_step == :results} results={assigns[:results]} error_msg={assigns[:error_msg]} />
 </section>
 
 <script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>
