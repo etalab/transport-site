@@ -61,7 +61,7 @@ defmodule TransportWeb.DatasetControllerTest do
       convert_from: "GTFS",
       convert_to: "NeTEx",
       converter: DB.DataConversion.converter_to_use("NeTEx"),
-      payload: %{"permanent_url" => conversion_url = "https://super-cellar-url.com/netex"}
+      payload: %{"permanent_url" => other_conversion_url = "https://super-cellar-url.com/netex"}
     )
 
     Transport.History.Fetcher.Mock
@@ -77,8 +77,23 @@ defmodule TransportWeb.DatasetControllerTest do
       html_response = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200)
       assert html_response =~ "Conversions automatiques"
       assert html_response =~ "NeTEx"
-      assert html_response =~ conversion_path(conn, :get, resource.id, :NeTEx)
-      refute html_response =~ conversion_url
+
+      # NeTEx conversion's URL is displayed in a modal with 2 buttons
+      netex_url = conversion_url(TransportWeb.Endpoint, :get, resource.id, :NeTEx)
+
+      assert [
+               {"a", [{"class", "button"}, {"rel", "nofollow"}, {"href", ^netex_url}],
+                [
+                  {"i", _, []},
+                  "Télécharger la conversion automatique NeTEx\n      "
+                ]},
+               {"a", [{"href", "#"}, {"class", "button secondary"}], ["\nAnnuler\n      "]}
+             ] =
+               html_response
+               |> Floki.parse_document!()
+               |> Floki.find(".modal .button__group .button")
+
+      refute html_response =~ other_conversion_url
       refute html_response =~ "GeoJSON"
     end
   end

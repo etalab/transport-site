@@ -1,0 +1,29 @@
+<div class="modal__backdrop" id={@modal_id}>
+  <div class="modal">
+    <p>
+      <%= dgettext(
+        "page-dataset-details",
+        "Automatic NeTEx conversion are created from the associated GTFS file and don't contain additional information which can be described in NeTEx."
+      ) %>
+    </p>
+    <p class="notification warning">
+      <%= raw(
+        dgettext(
+          "page-dataset-details",
+          "Automatic NeTEx conversions will not be available <b>after 2025-06-01</b>."
+        )
+      ) %>
+    </p>
+    <div class="form__group button__group">
+      <a class="button" rel="nofollow" href={@stable_url}>
+        <i class="icon icon--download" aria-hidden="true"></i><%= dgettext(
+          "page-dataset-details",
+          "Download the automatic NeTEx conversion"
+        ) %>
+      </a>
+      <a href="#" class="button secondary">
+        <%= dgettext("page-dataset-details", "Cancel") %>
+      </a>
+    </div>
+  </div>
+</div>

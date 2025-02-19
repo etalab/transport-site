@@ -635,3 +635,12 @@ hr {
     }
   }
 }
+
+.modal .button__group {
+  a.button:hover {
+    background-color: var(--theme-secondary-darken) !important;
+  }
+  a.button.secondary:hover {
+    background-color: var(--darkest-grey) !important;
+  }
+}
