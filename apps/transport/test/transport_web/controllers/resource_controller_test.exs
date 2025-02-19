@@ -83,7 +83,21 @@ defmodule TransportWeb.ResourceControllerTest do
 
     html_response = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
     assert html_response =~ "NeTEx"
-    assert html_response =~ conversion_path(conn, :get, resource.id, :NeTEx)
+    # NeTEx conversion's URL is displayed in a modal with 2 buttons
+    netex_url = conversion_url(TransportWeb.Endpoint, :get, resource.id, :NeTEx)
+
+    assert [
+             {"a", [{"class", "button"}, {"rel", "nofollow"}, {"href", ^netex_url}],
+              [
+                {"i", _, []},
+                "Télécharger la conversion automatique NeTEx\n      "
+              ]},
+             {"a", [{"href", "#"}, {"class", "button secondary"}], ["\nAnnuler\n      "]}
+           ] =
+             html_response
+             |> Floki.parse_document!()
+             |> Floki.find(".modal .button__group .button")
+
     refute html_response =~ permanent_url
   end
 
