@@ -43,7 +43,7 @@ window.addEventListener('phx:backoffice-form-owner-reset', () => {
     document.getElementById('js-owner-input').value = ''
 })
 
-window.addEventListener('phx:gtfs-diff-focus-steps', () => {
+window.addEventListener('phx:gtfs-diff:scroll-to-steps', () => {
     document.getElementById('gtfs-diff-steps').parentElement.scrollIntoView({ behavior: 'smooth' })
 })
 
