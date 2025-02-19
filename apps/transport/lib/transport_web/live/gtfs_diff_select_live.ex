@@ -60,7 +60,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     socket =
       socket
       |> assign(:current_step, :analysis)
-      |> push_event("gtfs-diff-focus-steps", %{})
+      |> scroll_to_steps()
 
     {:noreply, socket}
   end
@@ -178,7 +178,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
      |> update_many(:results, updates)
      |> assign(:diff_logs, [])
      |> assign(:current_step, :results)
-     |> push_event("gtfs-diff-focus-steps", %{})}
+     |> scroll_to_steps()}
   end
 
   # job took too long
@@ -206,7 +206,11 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     {:noreply, socket}
   end
 
-  def update_many(socket, key, fns) do
+  defp scroll_to_steps(socket) do
+    push_event(socket, "gtfs-diff:scroll-to-steps", %{})
+  end
+
+  defp update_many(socket, key, fns) do
     update(socket, key, sequence(fns))
   end
 
