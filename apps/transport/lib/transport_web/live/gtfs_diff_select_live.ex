@@ -282,9 +282,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   end
 
   defp clear_uploads(socket) do
-    Enum.reduce(socket.assigns[:uploads].gtfs.entries, socket, fn entry, socket ->
-      cancel_upload(socket, :gtfs, entry.ref)
-    end)
+    {socket, _} = Phoenix.LiveView.Upload.maybe_cancel_uploads(socket)
+    socket
   end
 
   defp drop_empty([]), do: nil

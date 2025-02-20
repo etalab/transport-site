@@ -23,7 +23,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
   def action_bar(%{uploads: _} = assigns) do
     ~H"""
     <div class="actions">
-      <button class="button" disabled={not uploads_are_valid(@uploads)} type="submit">
+      <button class="button" disabled={invalid_uploads?(@uploads)} type="submit">
         <i class="fa fa-check"></i>
         <%= dgettext("validations", "Compare") %>
       </button>
@@ -40,8 +40,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
     """
   end
 
-  def uploads_are_valid(%{entries: gtfs}) do
-    gtfs |> Enum.count() == 2 and gtfs |> Enum.all?(&(&1.valid? && &1.done?))
+  def invalid_uploads?(%{entries: gtfs}) do
+    not (Enum.count(gtfs) == 2 and Enum.all?(gtfs, &(&1.valid? && &1.done?)))
   end
 
   defp upload_drop_zone(%{uploads: _} = assigns) do
@@ -139,13 +139,11 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
     """
   end
 
-  defp discarded_files(%{uploads: uploads} = assigns) do
-    assigns = assign(assigns, :entries, Enum.drop(uploads.entries, 2))
-
+  defp discarded_files(%{uploads: _} = assigns) do
     ~H"""
     <span id="discarded-files">
       <%= dgettext("validations", "Discarded files:") %>
-      <.discarded_file :for={{entry, index} <- Enum.with_index(@entries)} entry={entry} index={index} />.
+      <.discarded_file :for={{entry, index} <- Enum.with_index(@uploads.entries)} entry={entry} index={index} />.
     </span>
     """
   end
@@ -216,9 +214,15 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
   end
 
   defp upload_entries(uploads) do
-    uploads.entries
-    |> Enum.concat([nil, nil])
-    |> Enum.take(2)
-    |> Enum.with_index()
+    entries =
+      if length(uploads.entries) > 2 do
+        [nil, nil]
+      else
+        uploads.entries
+        |> Enum.concat([nil, nil])
+        |> Enum.take(2)
+      end
+
+    Enum.with_index(entries)
   end
 end
