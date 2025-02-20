@@ -20,22 +20,11 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     {:ok,
      socket
      |> clean_slate()
-     |> allow_upload(:gtfs,
-       accept: ~w(.zip),
-       max_entries: 2,
-       max_file_size: max_file_size_mb() * 1_000_000,
-       auto_upload: true
-     )}
+     |> setup_uploads()}
   end
 
   def handle_event("validate", _params, socket) do
-    socket =
-      socket
-      |> assign(:error_msg, nil)
-      |> assign(:diff_logs, [])
-      |> assign(:results, %{})
-
-    {:noreply, socket}
+    {:noreply, assign(socket, error_msg: nil)}
   end
 
   def handle_event("cancel-upload", %{"ref" => ref}, socket) do
@@ -43,16 +32,11 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   end
 
   def handle_event("switch-uploads", _, socket) do
-    {:noreply, update(socket, :uploads, &switch_uploads/1)}
+    {:noreply, switch_uploads(socket)}
   end
 
   def handle_event("clear-uploads", _, socket) do
-    socket =
-      Enum.reduce(socket.assigns[:uploads].gtfs.entries, socket, fn entry, socket ->
-        cancel_upload(socket, :gtfs, entry.ref)
-      end)
-
-    {:noreply, socket}
+    {:noreply, clear_uploads(socket)}
   end
 
   def handle_event("start-over", _, socket) do
@@ -60,7 +44,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   end
 
   def handle_event("select-file", %{"file" => file}, socket) do
-    {:noreply, update(socket, :results, set(:selected_file, file))}
+    {:noreply, set_selected_file(socket, file)}
   end
 
   def handle_event("gtfs_diff", _, socket) do
@@ -68,7 +52,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
 
     socket =
       socket
-      |> assign(:current_step, :analysis)
+      |> assign(current_step: :analysis)
       |> scroll_to_steps()
 
     {:noreply, socket}
@@ -99,50 +83,14 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
 
     socket =
       socket
-      |> assign(:job_id, job_id)
-      |> assign(:diff_logs, [dgettext("gtfs-diff", "Job started")])
+      |> assign(job_id: job_id)
+      |> assign(diff_logs: [dgettext("gtfs-diff", "Job started")])
 
     {:noreply, socket}
   end
 
   def handle_info({:generate_diff_summary, diff_file_url}, socket) do
-    http_client = Transport.Shared.Wrapper.HTTPoison.impl()
-
-    socket =
-      case http_client.get(diff_file_url) do
-        {:error, error} ->
-          socket
-          |> assign(:error_msg, HTTPoison.Error.message(error))
-
-        {:ok, %{status_code: 200, body: body}} ->
-          diff = Transport.GTFSDiff.parse_diff_output(body)
-
-          diff_summary = diff |> GTFSDiffExplain.diff_summary()
-          diff_explanations = diff |> GTFSDiffExplain.diff_explanations() |> drop_empty()
-
-          files_with_changes =
-            diff_summary
-            |> Map.values()
-            |> Enum.concat()
-            |> Enum.map(fn {{file, _, _}, _} -> file end)
-            |> Enum.sort()
-            |> Enum.dedup()
-
-          selected_file =
-            case files_with_changes do
-              [] -> nil
-              _ -> Kernel.hd(files_with_changes)
-            end
-
-          update_many(socket, :results, [
-            set(:diff_summary, diff_summary),
-            set(:diff_explanations, diff_explanations),
-            set(:files_with_changes, files_with_changes),
-            set(:selected_file, selected_file)
-          ])
-      end
-
-    {:noreply, socket}
+    {:noreply, socket |> handle_diff_summary(diff_file_url)}
   end
 
   # job has started
@@ -150,7 +98,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
         {:notification, :gossip, %{"started" => job_id}},
         %{assigns: %{job_id: job_id}} = socket
       ) do
-    Process.send_after(self(), :timeout, Transport.Jobs.GTFSDiff.job_timeout_sec() * 1_000)
+    schedule_timeout()
     {:noreply, socket}
   end
 
@@ -159,7 +107,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
         {:notification, :gossip, %{"running" => job_id, "log" => log}},
         %{assigns: %{job_id: job_id}} = socket
       ) do
-    {:noreply, socket |> update(:diff_logs, fn logs -> Enum.concat(logs, [log]) end)}
+    {:noreply, socket |> append_log(log)}
   end
 
   # job is complete
@@ -173,19 +121,12 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
          }},
         %{assigns: %{job_id: job_id}} = socket
       ) do
-    send(self(), {:generate_diff_summary, diff_file_url})
+    generate_diff_summary(diff_file_url)
     Oban.Notifier.unlisten([:gossip])
-
-    updates = [
-      set(:diff_file_url, diff_file_url),
-      set(:gtfs_original_file_name_1, gtfs_original_file_name_1),
-      set(:gtfs_original_file_name_2, gtfs_original_file_name_2)
-    ]
 
     {:noreply,
      socket
-     |> assign(:current_step, :results)
-     |> update_many(:results, updates)
+     |> present_results(diff_file_url, gtfs_original_file_name_1, gtfs_original_file_name_2)
      |> scroll_to_steps()}
   end
 
@@ -193,10 +134,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   def handle_info(:timeout, socket) do
     socket =
       if is_nil(socket.assigns[:diff_file_url]) do
-        # no diff_file_url: job has not finished
-        Oban.Notifier.unlisten([:gossip])
-
-        assign(socket, :error_msg, timeout_msg())
+        on_timeout(socket)
       else
         socket
       end
@@ -207,6 +145,94 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   # catch-all
   def handle_info(_, socket) do
     {:noreply, socket}
+  end
+
+  defp clean_slate(socket) do
+    socket
+    |> assign(current_step: :setup)
+    |> assign(diff_logs: [])
+    |> assign(error_msg: nil)
+    |> assign(results: %{})
+  end
+
+  defp setup_uploads(socket) do
+    allow_upload(socket, :gtfs,
+      accept: ~w(.zip),
+      max_entries: 2,
+      max_file_size: max_file_size_mb() * 1_000_000,
+      auto_upload: true
+    )
+  end
+
+  defp append_log(socket, log) do
+    update(socket, :diff_logs, fn logs -> Enum.concat(logs, [log]) end)
+  end
+
+  defp generate_diff_summary(diff_file_url) do
+    send(self(), {:generate_diff_summary, diff_file_url})
+  end
+
+  defp handle_diff_summary(socket, diff_file_url) do
+    http_client = Transport.Shared.Wrapper.HTTPoison.impl()
+
+    case http_client.get(diff_file_url) do
+      {:error, error} ->
+        assign(socket, error_msg: HTTPoison.Error.message(error))
+
+      {:ok, %{status_code: 200, body: body}} ->
+        diff = Transport.GTFSDiff.parse_diff_output(body)
+
+        update_results_with_diff(socket, diff)
+    end
+  end
+
+  defp present_results(socket, diff_file_url, gtfs_original_file_name_1, gtfs_original_file_name_2) do
+    updates = [
+      set(:diff_file_url, diff_file_url),
+      set(:gtfs_original_file_name_1, gtfs_original_file_name_1),
+      set(:gtfs_original_file_name_2, gtfs_original_file_name_2)
+    ]
+
+    socket
+    |> assign(current_step: :results)
+    |> update_many(:results, updates)
+  end
+
+  defp update_results_with_diff(socket, diff) do
+    diff_summary = diff |> GTFSDiffExplain.diff_summary()
+    diff_explanations = diff |> GTFSDiffExplain.diff_explanations() |> drop_empty()
+
+    files_with_changes =
+      diff_summary
+      |> Map.values()
+      |> Enum.concat()
+      |> Enum.map(fn {{file, _, _}, _} -> file end)
+      |> Enum.sort()
+      |> Enum.dedup()
+
+    selected_file =
+      case files_with_changes do
+        [] -> nil
+        _ -> Kernel.hd(files_with_changes)
+      end
+
+    update_many(socket, :results, [
+      set(:diff_summary, diff_summary),
+      set(:diff_explanations, diff_explanations),
+      set(:files_with_changes, files_with_changes),
+      set(:selected_file, selected_file)
+    ])
+  end
+
+  defp schedule_timeout do
+    Process.send_after(self(), :timeout, Transport.Jobs.GTFSDiff.job_timeout_sec() * 1_000)
+  end
+
+  defp on_timeout(socket) do
+    # no diff_file_url: job has not finished
+    Oban.Notifier.unlisten([:gossip])
+
+    assign(socket, error_msg: timeout_msg())
   end
 
   @doc """
@@ -243,20 +269,24 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     Transport.S3.stream_to_s3!(:gtfs_diff, file_path, path, acl: :public_read)
   end
 
-  defp switch_uploads(uploads) do
-    Map.update!(uploads, :gtfs, fn gtfs ->
-      Map.update!(gtfs, :entries, &Enum.reverse/1)
+  defp set_selected_file(socket, file) do
+    update(socket, :results, set(:selected_file, file))
+  end
+
+  defp switch_uploads(socket) do
+    update(socket, :uploads, fn uploads ->
+      Map.update!(uploads, :gtfs, fn gtfs ->
+        Map.update!(gtfs, :entries, &Enum.reverse/1)
+      end)
+    end)
+  end
+
+  defp clear_uploads(socket) do
+    Enum.reduce(socket.assigns[:uploads].gtfs.entries, socket, fn entry, socket ->
+      cancel_upload(socket, :gtfs, entry.ref)
     end)
   end
 
   defp drop_empty([]), do: nil
   defp drop_empty(otherwise), do: otherwise
-
-  defp clean_slate(socket) do
-    socket
-    |> assign(:current_step, :setup)
-    |> assign(:diff_logs, [])
-    |> assign(:error_msg, nil)
-    |> assign(:results, %{})
-  end
 end
