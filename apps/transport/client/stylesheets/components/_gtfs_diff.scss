@@ -10,11 +10,11 @@
 }
 
 .actions {
-  margin-top: 30px;
+  margin-top: var(--space-m);
   display: flex;
-  gap: 30px;
+  gap: var(--space-s);
   justify-content: end;
-  flex-direction: row;
+  flex-direction: row-reverse;
 
   button.button {
     margin: 0;
