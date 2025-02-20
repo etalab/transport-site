@@ -19,6 +19,18 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Analysis do
       <div :if={@error_msg}>
         <span class="red"><%= @error_msg %></span>
       </div>
+
+      <.action_bar :if={@error_msg} />
+    </div>
+    """
+  end
+
+  defp action_bar(%{} = assigns) do
+    ~H"""
+    <div class="actions">
+      <button class="button-outline primary" type="button" phx-click="start-over">
+        <i class="fa fa-rotate-left"></i>&nbsp;<%= dgettext("validations", "Start over") %>
+      </button>
     </div>
     """
   end
