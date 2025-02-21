@@ -76,7 +76,7 @@
         session: %{"dataset" => @dataset, "form" => f}
       ) %>
 
-      <.live_component module={TransportWeb.CustomTagsLive} id="custom_tags" form={f} custom_tags={@dataset && @dataset.custom_tags || []} />
+      <.live_component module={TransportWeb.CustomTagsLive} id="custom_tags" form={f} custom_tags={@custom_tags} />
 
 
       <p :if={not is_nil(@dataset) and @dataset.is_hidden} class="notification">

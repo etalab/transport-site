@@ -14,7 +14,7 @@ defmodule TransportWeb.Live.CommuneField do
       value: @insee,
       phx_keyup: "suggest",
       list: "matches",
-      autocomplete: "off",
+      autoComplete: "off",
       id: "communes_q",
       phx_target: @myself
     ) %>
