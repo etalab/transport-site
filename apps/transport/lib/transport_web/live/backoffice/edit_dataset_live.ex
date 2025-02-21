@@ -38,6 +38,7 @@ defmodule TransportWeb.EditDatasetLive do
       |> assign(:legal_owners, get_legal_owners(dataset))
       |> assign(:trigger_submit, false)
       |> assign(:form_params, form_params(dataset))
+      |> assign(:custom_tags, get_custom_tags(dataset))
 
     {:ok, socket}
   end
@@ -77,6 +78,12 @@ defmodule TransportWeb.EditDatasetLive do
   end
 
   def get_legal_owners(_), do: []
+
+  def get_custom_tags(%Dataset{} = dataset) do
+    dataset.custom_tags
+  end
+
+  def get_custom_tags(_), do: []
 
   def organization_types,
     do: [
@@ -126,6 +133,10 @@ defmodule TransportWeb.EditDatasetLive do
   # handle info sent from the child live component to update the list of legal owners
   def handle_info({:updated_legal_owner, legal_owners}, socket) do
     {:noreply, socket |> assign(:legal_owners, legal_owners)}
+  end
+
+  def handle_info({:updated_custom_tags, custom_tags}, socket) do
+    {:noreply, socket |> assign(:custom_tags, custom_tags)}
   end
 
   # get the result from the async Task triggered by "change_dataset"
