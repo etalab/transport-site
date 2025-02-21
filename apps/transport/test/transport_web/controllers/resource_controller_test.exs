@@ -96,7 +96,7 @@ defmodule TransportWeb.ResourceControllerTest do
            ] =
              html_response
              |> Floki.parse_document!()
-             |> Floki.find(".modal .button__group .button")
+             |> Floki.find(".netex-conversion-modal .button__group .button")
 
     refute html_response =~ permanent_url
   end

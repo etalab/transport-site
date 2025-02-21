@@ -724,7 +724,7 @@ msgstr "Ce jeu de données non officiel est publié à titre expérimental. Veui
 
 #, elixir-autogen, elixir-format
 msgid "Automatic NeTEx conversion are created from the associated GTFS file and don't contain additional information which can be described in NeTEx."
-msgstr "Les conversions automatiques NeTEx sont générées à partir du fichier GTFS associé et ne contiennent pas d'informations supplémentaires qui peuvent être décrites en NeTEx."
+msgstr "Les conversions automatiques NeTEx sont générées à partir du fichier GTFS associé et ne contiennent pas d’informations supplémentaires pouvant être décrites en NeTEx."
 
 #, elixir-autogen, elixir-format
 msgid "Automatic NeTEx conversions will not be available <b>after 2025-06-01</b>."
