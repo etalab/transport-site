@@ -291,7 +291,8 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
       assert [
                %{"name" => "daily_new_comments", "phx-value-action" => "turn_on"},
                %{"name" => "new_dataset", "phx-value-action" => "turn_on"}
-             ] |> MapSet.new() == dom_platform_wide_reasons(content)
+             ]
+             |> MapSet.new() == dom_platform_wide_reasons(content)
 
       assert [
                %DB.NotificationSubscription{
@@ -315,7 +316,8 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
       assert [
                %{"name" => "daily_new_comments", "phx-value-action" => "turn_on"},
                %{"name" => "new_dataset", "phx-value-action" => "turn_on"}
-             ] |> MapSet.new() == dom_platform_wide_reasons(content)
+             ]
+             |> MapSet.new() == dom_platform_wide_reasons(content)
 
       assert [] = DB.NotificationSubscription |> DB.Repo.all()
     end
@@ -334,7 +336,8 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
       assert [
                %{"name" => "daily_new_comments", "phx-value-action" => "turn_on"},
                %{"name" => "new_dataset", "phx-value-action" => "turn_off"}
-             ] |> MapSet.new() == dom_platform_wide_reasons(content)
+             ]
+             |> MapSet.new() == dom_platform_wide_reasons(content)
 
       assert [
                %DB.NotificationSubscription{
@@ -351,7 +354,8 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
       assert [
                %{"name" => "daily_new_comments", "phx-value-action" => "turn_on"},
                %{"name" => "new_dataset", "phx-value-action" => "turn_on"}
-             ] |> MapSet.new() == dom_platform_wide_reasons(content)
+             ]
+             |> MapSet.new() == dom_platform_wide_reasons(content)
 
       assert [] = DB.NotificationSubscription |> DB.Repo.all()
     end
