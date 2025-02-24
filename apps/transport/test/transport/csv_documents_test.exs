@@ -32,7 +32,8 @@ defmodule Transport.CSVDocumentsTest do
     # Check `operator` values. Prevent typos and ensure unique values.
     # Detect things like `Cykleo` VS `Cykléo`.
     for x <- operators, y <- operators, x != y do
-      assert String.jaro_distance(x, y) <= 0.75, "#{x} and #{y} look too similar. Is it the same operator?"
+      error_message = "#{x} and #{y} look too similar. Is it the same operator?"
+      assert String.jaro_distance(x, y) <= 0.75 || distinct_operators?(x, y), error_message
     end
 
     # Check `url` values. Make sure there is at most a single match per GBFS feed.
@@ -42,5 +43,12 @@ defmodule Transport.CSVDocumentsTest do
     for x <- urls, y <- urls, x != y do
       refute String.contains?(x, y), "#{x} is contained #{y}. A GBFS feed can only match for a single URL."
     end
+  end
+
+  def distinct_operators?(x, y) do
+    [
+      ["Citiz", "Citybike"]
+    ]
+    |> Enum.member?(Enum.sort([x, y]))
   end
 end

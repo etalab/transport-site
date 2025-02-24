@@ -4,8 +4,8 @@ defmodule Shared.Validation.TableSchemaValidator.Wrapper do
   """
   defp impl, do: Application.get_env(:transport, :tableschema_validator_impl)
 
-  @callback validate(binary(), binary()) :: map() | nil
-  @callback validate(binary(), binary(), binary()) :: map() | nil
+  @callback validate(binary(), binary()) :: map() | :source_error | nil
+  @callback validate(binary(), binary(), binary()) :: map() | :source_error | nil
   def validate(schema_name, url), do: impl().validate(schema_name, url)
   def validate(schema_name, url, schema_version), do: impl().validate(schema_name, url, schema_version)
 
@@ -23,11 +23,13 @@ defmodule Shared.Validation.TableSchemaValidator do
   """
   import Transport.Shared.Schemas
   @behaviour Shared.Validation.TableSchemaValidator.Wrapper
+
   @timeout 180_000
+  @max_nb_errors 100
   @validata_web_url URI.parse("https://validata.fr/table-schema")
   @validata_api_url URI.parse("https://api.validata.etalab.studio/validate")
-  # https://git.opendatafrance.net/validata/validata-core/-/blob/75ee5258010fc43b6a164122eff2579c2adc01a7/validata_core/helpers.py#L152
-  @structure_tags ["#head", "#structure"]
+  # https://gitlab.com/validata-table/validata-table/-/blob/main/src/validata_core/domain/helpers.py#L57
+  @structure_tags MapSet.new(["#structure", "#header"])
 
   @impl true
   def validate(schema_name, url, schema_version \\ "latest") when is_binary(schema_name) and is_binary(url) do
@@ -70,33 +72,23 @@ defmodule Shared.Validation.TableSchemaValidator do
     |> URI.to_string()
   end
 
-  defp build_report(
-         %{"report" => %{"tasks" => tasks}, "_meta" => %{"validata-table-version" => validata_version}} = payload
-       ) do
-    if Enum.count(tasks) != 1 do
-      raise "tasks should have a length of 1 for response #{payload}"
-    end
+  defp build_report(%{
+         "report" => %{"valid" => valid, "stats" => %{"errors" => nb_errors}, "errors" => errors},
+         "version" => validata_version
+       }) do
+    {structure_errors, row_errors} = Enum.split_with(errors, &structure_error?/1)
 
-    raw_errors = hd(tasks)["errors"]
-    # We count the errors on our side, because the error count given by the report can be wrong
-    # see https://git.opendatafrance.net/validata/validata-core/-/issues/37
-    nb_errors = Enum.count(raw_errors)
-
-    {row_errors, structure_errors} =
-      raw_errors |> Enum.split_with(&MapSet.disjoint?(MapSet.new(&1["tags"]), MapSet.new(@structure_tags)))
-
-    structure_errors = structure_errors |> Enum.map(&~s(#{&1["name"]} : #{&1["message"]}))
+    structure_errors = Enum.map(structure_errors, & &1["message"])
 
     row_errors =
-      row_errors
-      |> Enum.map(fn row ->
-        ~s(#{row["name"]} : colonne #{row["fieldName"]}, ligne #{row["rowPosition"]}. #{row["message"]})
+      Enum.map(row_errors, fn row ->
+        ~s(#{row["message"]} Colonne `#{row["fieldName"]}`, ligne #{row["rowNumber"]}.)
       end)
 
-    errors = (structure_errors ++ row_errors) |> Enum.take(100)
+    errors = (structure_errors ++ row_errors) |> Enum.take(@max_nb_errors)
 
     %{
-      "has_errors" => nb_errors > 0,
+      "has_errors" => not valid,
       "errors_count" => nb_errors,
       "errors" => errors,
       "validator" => __MODULE__,
@@ -104,7 +96,18 @@ defmodule Shared.Validation.TableSchemaValidator do
     }
   end
 
+  # When the remote file cannot be loaded/is a 404
+  defp build_report(%{"error" => %{"type" => "source-error"}}), do: :source_error
+
   defp build_report(_), do: nil
+
+  defp structure_error?(%{"tags" => tags, "type" => type} = _row) do
+    has_structure_tags = not MapSet.disjoint?(MapSet.new(tags), @structure_tags)
+    # May not need to rely on error type in the future.
+    # https://gitlab.com/validata-table/validata-table/-/issues/154
+    eligible_error_type = type in ["check-error"]
+    has_structure_tags or eligible_error_type
+  end
 
   defp ensure_schema_is_tableschema!(schema_name) do
     unless Enum.member?(tableschema_names(), schema_name) do

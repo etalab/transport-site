@@ -56,7 +56,6 @@ defmodule TransportWeb.Router do
   pipeline :reuser_space do
     plug(:browser)
     plug(:authentication_required, destination_path: "/infos_reutilisateurs")
-    plug(:check_reuser_space_enabled)
   end
 
   scope "/", OpenApiSpex.Plug do
@@ -122,6 +121,7 @@ defmodule TransportWeb.Router do
       pipe_through([:reuser_space])
       get("/", ReuserSpaceController, :espace_reutilisateur)
       get("/datasets/:dataset_id", ReuserSpaceController, :datasets_edit)
+      post("/datasets/:dataset_id/add_improved_data", ReuserSpaceController, :add_improved_data)
       post("/datasets/:dataset_id/unfavorite", ReuserSpaceController, :unfavorite)
 
       live_session :reuser_space, session: %{"role" => :reuser}, root_layout: {TransportWeb.LayoutView, :app} do
@@ -384,17 +384,6 @@ defmodule TransportWeb.Router do
 
       _ ->
         conn
-    end
-  end
-
-  def check_reuser_space_enabled(%Plug.Conn{} = conn, _) do
-    if TransportWeb.Session.display_reuser_space?(conn) do
-      conn
-    else
-      conn
-      |> put_flash(:info, dgettext("alert", "This feature is currently not available."))
-      |> redirect(to: "/")
-      |> halt()
     end
   end
 

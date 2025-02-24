@@ -38,8 +38,8 @@ config :transport,
   worker: worker,
   webserver: webserver,
   # kill switches: set specific variable environments to disable features
-  disable_reuser_space: System.get_env("DISABLE_REUSER_SPACE") in ["1", "true"],
-  disable_national_gtfs_map: System.get_env("DISABLE_NATIONAL_GTFS_MAP") in ["1", "true"]
+  disable_national_gtfs_map: System.get_env("DISABLE_NATIONAL_GTFS_MAP") in ["1", "true"],
+  disable_netex_validator: System.get_env("DISABLE_NETEX_VALIDATOR") in ["1", "true"]
 
 config :unlock,
   enforce_ttl: webserver
@@ -94,7 +94,8 @@ if app_env == :staging do
       history: "resource-history-staging",
       on_demand_validation: "on-demand-validation-staging",
       gtfs_diff: "gtfs-diff-staging",
-      logos: "logos-staging"
+      logos: "logos-staging",
+      aggregates: "aggregates-staging"
     }
 end
 
@@ -134,7 +135,8 @@ oban_prod_crontab = [
   {"0 6 * * 1-5", Transport.Jobs.NewDatagouvDatasetsJob, args: %{check_rules: true}},
   {"5 6 * * 1-5", Transport.Jobs.NewDatagouvDatasetsJob},
   {"0 6 * * *", Transport.Jobs.NewDatasetNotificationsJob},
-  {"30 6 * * *", Transport.Jobs.ExpirationNotificationJob},
+  {"30 6 * * *", Transport.Jobs.ExpirationAdminProducerNotificationJob},
+  {"45 6 * * *", Transport.Jobs.ExpirationNotificationJob},
   {"0 8 * * 1-5", Transport.Jobs.NewCommentsNotificationJob},
   {"0 21 * * *", Transport.Jobs.DatasetHistoryDispatcherJob},
   # Should be executed after all `DatasetHistoryJob` have been executed
@@ -154,13 +156,15 @@ oban_prod_crontab = [
   # The job will make sure that it's executed only on the first Monday of these months
   {"15 8 * 3,6,11 1", Transport.Jobs.PeriodicReminderProducersNotificationJob},
   {"15 5 * * *", Transport.Jobs.ImportDatasetFollowersJob},
+  {"5 5 * * *", Transport.Jobs.ImportDatasetFollowerReuserImprovedDataJob},
   {"20 5 * * *", Transport.Jobs.ImportDatasetContactPointsJob},
   # Should be ideally executed after `GBFSMultiValidationDispatcherJob` to use fresh metadata
   {"30 8 * * *", Transport.Jobs.ImportGBFSFeedContactEmailJob},
   {"30 5 * * *", Transport.Jobs.ImportDatasetMonthlyMetricsJob},
   {"45 5 * * *", Transport.Jobs.ImportResourceMonthlyMetricsJob},
   {"0 8 * * *", Transport.Jobs.WarnUserInactivityJob},
-  {"*/5 * * * *", Transport.Jobs.UpdateCounterCacheJob}
+  {"*/5 * * * *", Transport.Jobs.UpdateCounterCacheJob},
+  {"0 4 * * *", Transport.Jobs.StopsRegistrySnapshotJob}
 ]
 
 # Make sure that all modules exist

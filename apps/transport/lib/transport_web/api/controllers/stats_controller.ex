@@ -79,10 +79,9 @@ defmodule TransportWeb.API.StatsController do
   def new_aom_without_datasets?(%{created_after_2021: true, dataset_types: %{pt: 0}}), do: true
   def new_aom_without_datasets?(_), do: false
 
-  @spec features(Ecto.Query.t()) :: [map()]
-  def features(q) do
-    q
-    |> Repo.all()
+  @spec features([map()]) :: [map()]
+  def features(result) do
+    result
     |> Enum.reject(fn aom -> is_nil(aom.geometry) or new_aom_without_datasets?(aom) end)
     |> Enum.map(fn aom ->
       dataset_types =
@@ -134,6 +133,22 @@ defmodule TransportWeb.API.StatsController do
       }
     end)
     |> Enum.to_list()
+  end
+
+  @spec bike_scooter_sharing_features([map()]) :: [map()]
+  def bike_scooter_sharing_features(result) do
+    result
+    |> Enum.reject(fn r -> is_nil(r.geometry) end)
+    |> Enum.map(fn r ->
+      %{
+        "geometry" => r.geometry |> JSON.encode!(),
+        "type" => "Feature",
+        # NOTE: there is a bug here - the key is an atom.
+        # I won't change it now because it would mean more changes somewhere else, maybe.
+        # `Map.reject(fn({k,v}) -> k == :geometry end)` will do it.
+        "properties" => Map.take(r, Enum.filter(Map.keys(r), fn k -> k != "geometry" end))
+      }
+    end)
   end
 
   defmacro count_aom_types(aom_id, type, include_aggregates: true) do
@@ -219,17 +234,17 @@ defmodule TransportWeb.API.StatsController do
   end
 
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def index(%Plug.Conn{} = conn, _params), do: render_features(conn, aom_features_query(), "api-stats-aoms")
+  def index(%Plug.Conn{} = conn, _params), do: render_features(conn, :aoms, "api-stats-aoms")
 
   @spec regions(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def regions(%Plug.Conn{} = conn, _params), do: render_features(conn, region_features_query(), "api-stats-regions")
+  def regions(%Plug.Conn{} = conn, _params), do: render_features(conn, :regions, "api-stats-regions")
 
   @spec bike_scooter_sharing(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def bike_scooter_sharing(%Plug.Conn{} = conn, _params),
-    do: render_features(conn, bike_scooter_sharing_features())
+    do: render_features(conn, :bike_scooter_sharing)
 
   @spec quality(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def quality(%Plug.Conn{} = conn, _params), do: render_features(conn, quality_features_query(), "api-stats-quality")
+  def quality(%Plug.Conn{} = conn, _params), do: render_features(conn, :quality, "api-stats-quality")
 
   #
   # (not using @doc because this is a private method and it would then generate a warning ;
@@ -248,22 +263,40 @@ defmodule TransportWeb.API.StatsController do
   # resorting to `send_resp` directly, we leverage `Transport.Shared.ConditionalJSONEncoder` to
   # skip JSON encoding, signaling the need to do so via a {:skip_json_encoding, data} tuple.
   #
-  @spec render_features(Plug.Conn.t(), Ecto.Query.t(), binary()) :: Plug.Conn.t()
-  defp render_features(conn, query, cache_key) do
-    comp_fn = fn ->
-      query
-      |> features()
-      |> geojson()
-      |> Jason.encode!()
-    end
-
-    data = Transport.Cache.fetch(cache_key, comp_fn)
+  @spec render_features(Plug.Conn.t(), atom(), binary()) :: Plug.Conn.t()
+  defp render_features(conn, item, cache_key) do
+    data =
+      Transport.Cache.fetch(cache_key, fn -> rendered_geojson(item) end, Transport.PreemptiveStatsCache.cache_ttl())
 
     render(conn, data: {:skip_json_encoding, data})
   end
 
-  defp render_features(conn, data) do
-    render(conn, data: {:skip_json_encoding, data |> geojson() |> Jason.encode!()})
+  @spec render_features(Plug.Conn.t(), atom()) :: Plug.Conn.t()
+  defp render_features(conn, item) do
+    data = rendered_geojson(item)
+    render(conn, data: {:skip_json_encoding, data})
+  end
+
+  def rendered_geojson(item, ecto_opts \\ [])
+
+  def rendered_geojson(item, ecto_opts) when item in [:aoms, :regions, :quality] do
+    case item do
+      :aoms -> aom_features_query()
+      :regions -> region_features_query()
+      :quality -> quality_features_query()
+    end
+    |> Repo.all(ecto_opts)
+    |> features()
+    |> geojson()
+    |> Jason.encode!()
+  end
+
+  def rendered_geojson(:bike_scooter_sharing, ecto_opts) do
+    bike_scooter_sharing_features_query()
+    |> Repo.all(ecto_opts)
+    |> bike_scooter_sharing_features()
+    |> geojson()
+    |> Jason.encode!()
   end
 
   @spec aom_features_query :: Ecto.Query.t()
@@ -346,32 +379,17 @@ defmodule TransportWeb.API.StatsController do
     })
   end
 
-  @spec bike_scooter_sharing_features :: []
-  def bike_scooter_sharing_features do
-    query =
-      DatasetGeographicView
-      |> join(:left, [gv], dataset in Dataset, on: dataset.id == gv.dataset_id)
-      |> select([gv, dataset], %{
-        geometry: fragment("ST_Centroid(geom) as geometry"),
-        names: fragment("array_agg(? order by ? asc)", dataset.custom_title, dataset.custom_title),
-        slugs: fragment("array_agg(? order by ? asc)", dataset.slug, dataset.custom_title)
-      })
-      |> where([_gv, dataset], dataset.type == "bike-scooter-sharing" and dataset.is_active)
-      |> group_by(fragment("geometry"))
-
-    query
-    |> DB.Repo.all()
-    |> Enum.reject(fn r -> is_nil(r.geometry) end)
-    |> Enum.map(fn r ->
-      %{
-        "geometry" => r.geometry |> JSON.encode!(),
-        "type" => "Feature",
-        # NOTE: there is a bug here - the key is an atom.
-        # I won't change it now because it would mean more changes somewhere else, maybe.
-        # `Map.reject(fn({k,v}) -> k == :geometry end)` will do it.
-        "properties" => Map.take(r, Enum.filter(Map.keys(r), fn k -> k != "geometry" end))
-      }
-    end)
+  @spec bike_scooter_sharing_features_query :: Ecto.Query.t()
+  def bike_scooter_sharing_features_query do
+    DatasetGeographicView
+    |> join(:left, [gv], dataset in Dataset, on: dataset.id == gv.dataset_id)
+    |> select([gv, dataset], %{
+      geometry: fragment("ST_Centroid(geom) as geometry"),
+      names: fragment("array_agg(? order by ? asc)", dataset.custom_title, dataset.custom_title),
+      slugs: fragment("array_agg(? order by ? asc)", dataset.slug, dataset.custom_title)
+    })
+    |> where([_gv, dataset], dataset.type == "bike-scooter-sharing" and dataset.is_active)
+    |> group_by(fragment("geometry"))
   end
 
   @spec quality_features_query :: Ecto.Query.t()

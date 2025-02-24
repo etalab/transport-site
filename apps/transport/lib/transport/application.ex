@@ -24,7 +24,7 @@ defmodule Transport.Application do
       end
     end
 
-    run_realtime_poller = webserver_enabled?() && Mix.env() != :test
+    run_web_processes = webserver_enabled?() && Mix.env() != :test
 
     children =
       [
@@ -43,7 +43,9 @@ defmodule Transport.Application do
         Transport.Vault
       ]
       |> add_scheduler()
-      |> add_if(fn -> run_realtime_poller end, Transport.RealtimePoller)
+      |> add_if(fn -> run_web_processes end, Transport.RealtimePoller)
+      |> add_if(fn -> run_web_processes end, Transport.PreemptiveAPICache)
+      |> add_if(fn -> run_web_processes end, Transport.PreemptiveStatsCache)
       ## manually add a children supervisor that is not scheduled
       |> Kernel.++([{Task.Supervisor, name: ImportTaskSupervisor}])
 

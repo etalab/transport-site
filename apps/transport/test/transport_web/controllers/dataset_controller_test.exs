@@ -850,7 +850,7 @@ defmodule TransportWeb.DatasetControllerTest do
 
   test "dataset-page-title", %{conn: conn} do
     [
-      {%{"type" => "public-transit"}, "Transport public collectif - horaires théoriques"},
+      {%{"type" => "public-transit"}, "Transport public collectif"},
       {%{"type" => "public-transit", "filter" => "has_realtime"}, "Transport public collectif - horaires temps réel"},
       {%{"modes" => ["rail"]}, "Transport ferroviaire"}
     ]

@@ -31,7 +31,7 @@ defmodule Transport.Jobs.AnalyzeIRVEJob do
       try do
         Logger.info("IRVE: starting global analyse...")
         send(job_pid, {:progress, 0})
-        resources = Transport.IRVE.Extractor.resources() |> Enum.into([])
+        resources = Transport.IRVE.Extractor.datagouv_resources() |> Enum.into([])
 
         count = resources |> length()
         Logger.info("IRVE: processing #{count} resources...")
