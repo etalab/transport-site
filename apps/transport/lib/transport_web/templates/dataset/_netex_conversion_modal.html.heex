@@ -15,13 +15,24 @@
       ) %>
     </p>
     <div class="form__group button__group">
-      <a class="button" rel="nofollow" href={@stable_url}>
+      <a
+        class="button"
+        data-tracking-category="netex_conversion_modal"
+        data-tracking-action="confirm_download"
+        rel="nofollow"
+        href={@stable_url}
+      >
         <i class="icon icon--download" aria-hidden="true"></i><%= dgettext(
           "page-dataset-details",
           "Download the automatic NeTEx conversion"
         ) %>
       </a>
-      <a href="#" class="button secondary">
+      <a
+        href="#"
+        data-tracking-category="netex_conversion_modal"
+        data-tracking-action="cancel_download"
+        class="button secondary"
+      >
         <%= dgettext("page-dataset-details", "Cancel") %>
       </a>
     </div>

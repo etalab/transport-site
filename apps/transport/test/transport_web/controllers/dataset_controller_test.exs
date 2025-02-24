@@ -82,12 +82,31 @@ defmodule TransportWeb.DatasetControllerTest do
       netex_url = conversion_url(TransportWeb.Endpoint, :get, resource.id, :NeTEx)
 
       assert [
-               {"a", [{"class", "button"}, {"rel", "nofollow"}, {"href", ^netex_url}],
+               {"a",
+                [
+                  {"class", "button"},
+                  {
+                    "data-tracking-category",
+                    "netex_conversion_modal"
+                  },
+                  {"data-tracking-action", "confirm_download"},
+                  {"rel", "nofollow"},
+                  {"href", ^netex_url}
+                ],
                 [
                   {"i", _, []},
                   "Télécharger la conversion automatique NeTEx\n      "
                 ]},
-               {"a", [{"href", "#"}, {"class", "button secondary"}], ["\nAnnuler\n      "]}
+               {"a",
+                [
+                  {"href", "#"},
+                  {
+                    "data-tracking-category",
+                    "netex_conversion_modal"
+                  },
+                  {"data-tracking-action", "cancel_download"},
+                  {"class", "button secondary"}
+                ], ["\nAnnuler\n      "]}
              ] =
                html_response
                |> Floki.parse_document!()
