@@ -208,7 +208,7 @@ defmodule Transport.NotificationReason do
   """
   @spec shown_subscribable_platform_wide_reasons(role()) :: [reason()]
   def shown_subscribable_platform_wide_reasons(role) do
-    subscribable_platform_wide_reasons(role) -- hidden_reasons_for_role(role)
+    (subscribable_platform_wide_reasons(role) -- hidden_reasons_for_role(role)) |> Enum.sort()
   end
 
   @doc """
