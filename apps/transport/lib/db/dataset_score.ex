@@ -6,7 +6,7 @@ defmodule DB.DatasetScore do
   use TypedEctoSchema
   import Ecto.Query
   import Ecto.Changeset
-  import TransportWeb.Gettext, only: [dgettext: 2]
+  use Gettext, backend: TransportWeb.Gettext
 
   typed_schema "dataset_score" do
     belongs_to(:dataset, DB.Dataset)

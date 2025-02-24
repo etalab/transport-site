@@ -1,7 +1,7 @@
 defmodule TransportWeb.Live.DatasetNotificationsLive do
   use Phoenix.LiveView
   use TransportWeb.InputHelpers
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
   alias TransportWeb.Live.NotificationsLive
 
   @role :reuser

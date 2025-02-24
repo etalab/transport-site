@@ -3,7 +3,7 @@ defmodule TransportWeb.SeoMetadata do
   Module to set a title and a description for each pages.
   The default title/description are defined in app.html.eex
   """
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
 
   @spec metadata(any(), any()) :: %{optional(:title) => binary(), optional(:description) => binary()}
   def metadata(TransportWeb.DatasetView, %{q: q}) when not is_nil(q),

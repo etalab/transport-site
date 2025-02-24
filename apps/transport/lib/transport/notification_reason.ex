@@ -12,7 +12,7 @@ defmodule Transport.NotificationReason do
   # (In this case, it’s the platform that decides when to send them, without the user subscribing to them.)
   # 4. hide_from_user: some reasons are hidden from the user interface, but can be subscribed in CLI or backoffice.
 
-  import TransportWeb.Gettext, only: [dgettext: 2]
+  use Gettext, backend: TransportWeb.Gettext
 
   @possible_roles [:producer, :reuser]
 
