@@ -291,7 +291,7 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
       assert [
                %{"name" => "daily_new_comments", "phx-value-action" => "turn_on"},
                %{"name" => "new_dataset", "phx-value-action" => "turn_on"}
-             ] == dom_platform_wide_reasons(content)
+             ] |> MapSet.new() == dom_platform_wide_reasons(content)
 
       assert [
                %DB.NotificationSubscription{
@@ -315,7 +315,7 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
       assert [
                %{"name" => "daily_new_comments", "phx-value-action" => "turn_on"},
                %{"name" => "new_dataset", "phx-value-action" => "turn_on"}
-             ] == dom_platform_wide_reasons(content)
+             ] |> MapSet.new() == dom_platform_wide_reasons(content)
 
       assert [] = DB.NotificationSubscription |> DB.Repo.all()
     end
@@ -334,7 +334,7 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
       assert [
                %{"name" => "daily_new_comments", "phx-value-action" => "turn_on"},
                %{"name" => "new_dataset", "phx-value-action" => "turn_off"}
-             ] == dom_platform_wide_reasons(content)
+             ] |> MapSet.new() == dom_platform_wide_reasons(content)
 
       assert [
                %DB.NotificationSubscription{
@@ -351,7 +351,7 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
       assert [
                %{"name" => "daily_new_comments", "phx-value-action" => "turn_on"},
                %{"name" => "new_dataset", "phx-value-action" => "turn_on"}
-             ] == dom_platform_wide_reasons(content)
+             ] |> MapSet.new() == dom_platform_wide_reasons(content)
 
       assert [] = DB.NotificationSubscription |> DB.Repo.all()
     end
@@ -541,5 +541,6 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
     |> Floki.parse_document!()
     |> Floki.find(~s|#{@platform_wide_path} tr td .form__group fieldset .switch input[phx-click="toggle"]|)
     |> Enum.map(fn {"input", attributes, []} -> attributes |> Map.new() |> Map.take(["name", "phx-value-action"]) end)
+    |> MapSet.new()
   end
 end
