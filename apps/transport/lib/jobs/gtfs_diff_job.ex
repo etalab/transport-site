@@ -13,7 +13,8 @@ defmodule Transport.Jobs.GTFSDiff do
             "gtfs_original_file_name_1" => gtfs_original_file_name_1,
             "gtfs_original_file_name_2" => gtfs_original_file_name_2,
             "bucket" => bucket,
-            "locale" => locale
+            "locale" => locale,
+            "profile" => profile
           }
         } = job
       ) do
@@ -29,7 +30,7 @@ defmodule Transport.Jobs.GTFSDiff do
       })
     end
 
-    diff = Transport.GTFSDiff.diff(unzip_1, unzip_2, notify, locale)
+    diff = Transport.GTFSDiff.diff(unzip_1, unzip_2, profile, notify, locale)
 
     diff_file_name = "gtfs-diff-#{DateTime.utc_now() |> DateTime.to_unix()}.csv"
     filepath = System.tmp_dir!() |> Path.join(diff_file_name)

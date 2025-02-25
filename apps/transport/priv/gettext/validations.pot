@@ -541,3 +541,15 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "not enough memory"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Only a subset of the GTFS specification is currently supported for differences analysis. Supported files:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Other files…"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Looking for other files?"
+msgstr ""
