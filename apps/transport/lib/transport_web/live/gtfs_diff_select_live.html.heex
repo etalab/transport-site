@@ -21,7 +21,12 @@
 
   <.analysis_step :if={@current_step == :analysis} diff_logs={assigns[:diff_logs]} error_msg={assigns[:error_msg]} />
 
-  <.results_step :if={@current_step == :results} results={assigns[:results]} error_msg={assigns[:error_msg]} profile={@profile} />
+  <.results_step
+    :if={@current_step == :results}
+    results={assigns[:results]}
+    error_msg={assigns[:error_msg]}
+    profile={@profile}
+  />
 </section>
 
 <script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>

@@ -32,7 +32,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
            gtfs_original_file_name_1: _,
            gtfs_original_file_name_2: _,
            profile: _,
-           selected_file: _,
+           selected_file: _
          } = assigns
        ) do
     ~H"""
@@ -150,7 +150,9 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
     """
   end
 
-  defp diff_summaries(%{files_with_changes: _, selected_file: _, diff_summary: _, diff_explanations: _, profile: _} = assigns) do
+  defp diff_summaries(
+         %{files_with_changes: _, selected_file: _, diff_summary: _, diff_explanations: _, profile: _} = assigns
+       ) do
     ~H"""
     <div class="pt-24">
       <div class="dashboard">
@@ -221,7 +223,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
         ) %>
       </p>
       <ul>
-        <li :for={filename <- Transport.GTFSDiff.files_to_analyze("core")} filename={filename}>
+        <li :for={filename <- Transport.GTFSDiff.files_to_analyze("core")}>
           <code><%= filename %></code>
         </li>
       </ul>
@@ -232,23 +234,25 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
   defp differencies(%{diff_summary: _, selected_file: _, diff_explanations: _} = assigns) do
     ~H"""
     <div class="main">
-      <p><%= dgettext("validations", "Differences Overview") %></p>
+      <h4><%= dgettext("validations", "Summary") %></h4>
       <.diff_summaries_for_file diff_summary={@diff_summary} selected_file={@selected_file} />
       <%= if assigns[:diff_explanations] do %>
         <% active_explanations =
           @diff_explanations
           |> Enum.filter(fn {file, _} -> file == @selected_file end)
           |> Enum.map(fn {_, explanation} -> explanation end) %>
-        <p :if={not Enum.empty?(active_explanations)}><%= dgettext("validations", "Detail") %></p>
-        <ul>
-          <%= for explanation <- active_explanations do %>
-            <li>
-              <%= explanation %>
-            </li>
-          <% end %>
-        </ul>
+        <.detailed_explanations :if={not Enum.empty?(active_explanations)} active_explanations={active_explanations} />
       <% end %>
     </div>
+    """
+  end
+
+  defp detailed_explanations(%{active_explanations: _} = assigns) do
+    ~H"""
+    <h4><%= dgettext("validations", "Detail") %></h4>
+    <ul>
+      <li :for={explanation <- @active_explanations}><%= explanation %></li>
+    </ul>
     """
   end
 
