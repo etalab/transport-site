@@ -7,14 +7,12 @@
         <a href={page_path(@conn, :espace_producteur, utm_campaign: "home_button")} class="button">
           <%= dgettext("page-index", "Producer space") %>
         </a>
-        <%= if TransportWeb.Session.display_reuser_space?(@conn) do %>
-          <a
-            href={reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "home_button")}
-            class="button reuser-space"
-          >
-            <%= dgettext("page-index", "Reuser space") %>
-          </a>
-        <% end %>
+        <a
+          href={reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "home_button")}
+          class="button reuser-space"
+        >
+          <%= dgettext("page-index", "Reuser space") %>
+        </a>
       </div>
       <div class="home-search">
         <div class="searchBar">

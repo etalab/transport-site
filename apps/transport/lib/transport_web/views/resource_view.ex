@@ -40,7 +40,8 @@ defmodule TransportWeb.ResourceView do
           "MissingId" => "_missing_id_issue.html",
           "MissingName" => "_missing_name_issue.html",
           "SubFolder" => "_subfolder_issue.html",
-          "NegativeStopDuration" => "_negative_stop_duration_issue.html"
+          "NegativeStopDuration" => "_negative_stop_duration_issue.html",
+          "UnusableTrip" => "_unusable_trip.html"
         },
         Transport.Validators.GTFSTransport.issue_type(issues.entries),
         "_generic_issue.html"

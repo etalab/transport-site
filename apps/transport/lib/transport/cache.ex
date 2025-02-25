@@ -2,12 +2,15 @@ defmodule Transport.Cache do
   @moduledoc """
   This behaviour defines the API for caching, with alternative implementations.
   """
-
   @callback fetch(cache_key :: binary(), fun(), integer()) :: any
 
-  defp impl, do: Application.get_env(:transport, :cache_impl)
-
   def fetch(cache_key, comp_fn, expire_value \\ :timer.seconds(60)), do: impl().fetch(cache_key, comp_fn, expire_value)
+
+  @callback put(cache_key :: binary(), any(), integer()) :: {:ok | :error, boolean()}
+
+  def put(cache_key, value, expire_value \\ :timer.seconds(60)), do: impl().put(cache_key, value, expire_value)
+
+  defp impl, do: Application.get_env(:transport, :cache_impl)
 end
 
 defmodule Transport.Cache.Cachex do
@@ -82,6 +85,15 @@ defmodule Transport.Cache.Cachex do
     end
   end
 
+  def put(cache_key, value, expire_value \\ :timer.seconds(60)) do
+    Cachex.put(
+      cache_name(),
+      cache_key,
+      value,
+      ttl: expire_value
+    )
+  end
+
   def cache_name, do: Transport.Application.cache_name()
 end
 
@@ -92,4 +104,6 @@ defmodule Transport.Cache.Null do
   @behaviour Transport.Cache
 
   def fetch(_cache_key, value_fn, _expire_value), do: value_fn.()
+
+  def put(_cache_key, _value, _expire_value), do: {:ok, true}
 end

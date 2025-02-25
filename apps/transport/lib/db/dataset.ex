@@ -154,7 +154,7 @@ defmodule DB.Dataset do
   @spec type_to_str_map() :: %{binary() => binary()}
   def type_to_str_map,
     do: %{
-      "public-transit" => dgettext("db-dataset", "Public transit - static schedules"),
+      "public-transit" => dgettext("db-dataset", "Public transit"),
       "carpooling-areas" => dgettext("db-dataset", "Carpooling areas"),
       "carpooling-lines" => dgettext("db-dataset", "Carpooling lines"),
       "carpooling-offers" => dgettext("db-dataset", "Carpooling offers"),

@@ -19,7 +19,7 @@ siren;code;epci_principal;autres_siren
 247200132;LE MANS;Le Mans Métropole;
 200093201;LILLE;Métropole Européenne de Lille;
 248719312;LIMOGES;Limoges Métropole;
-200046977;LYON;Métropole de Lyon;
+200046977;LYON;Métropole de Lyon;256900994
 200054807;MARSEILLE-AIX EN PROVENCE;Métropole Aix-Marseille-Provence;
 200039865;METZ;Metz Métropole;
 243400017;MONTPELLIER;Montpellier Méditerranée Métropole;
@@ -40,5 +40,5 @@ siren;code;epci_principal;autres_siren
 246700488;STRASBOURG;Eurométropole de Strasbourg;
 248300543;TOULON;Métropole Toulon Provence Méditerranée;
 253100986;TOULOUSE;Toulouse métropole;243100518
-243700754;TOURS;Tours Métropole Val de Loire;
+243700754;TOURS;Tours Métropole Val de Loire;200085108
 245901160;VALENCIENNES;Valenciennes métropole;

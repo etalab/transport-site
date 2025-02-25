@@ -17,6 +17,13 @@ defmodule Transport.IRVE.ExtractorTest do
     }
   end
 
+  @doc """
+  Build a typical data gouv API (list datasets) response.
+
+  If you need to verify or modify the payload, see examples at:
+  - https://www.data.gouv.fr/api/1/datasets/?page=1&page_size=20&schema=etalab%2Fschema-irve-statique
+  - https://doc.data.gouv.fr/api/reference/#/datasets/list_datasets
+  """
   def build_page_payload do
     %{
       "data" => [
@@ -24,6 +31,7 @@ defmodule Transport.IRVE.ExtractorTest do
           "id" => "the-dataset-id",
           "title" => "the-dataset-title",
           "organization" => %{
+            "id" => "the-org-id",
             "name" => "the-org",
             "page" => "http://the-org"
           },
@@ -71,10 +79,11 @@ defmodule Transport.IRVE.ExtractorTest do
       }
     end)
 
-    assert Transport.IRVE.Extractor.resources(page_size: 2) == [
+    assert Transport.IRVE.Extractor.datagouv_resources(page_size: 2) == [
              %{
                dataset_id: "the-dataset-id",
                dataset_title: "the-dataset-title",
+               dataset_organisation_id: "the-org-id",
                dataset_organisation_name: "the-org",
                dataset_organisation_url: "http://the-org",
                resource_id: "the-resource-id",

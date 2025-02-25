@@ -13,8 +13,6 @@ defmodule Transport.Scheduler do
     [
       # Every day at 4am UTC
       {"0 4 * * *", {Transport.ImportData, :import_validate_all, []}},
-      # Send email for outdated data
-      {"@daily", {Transport.DataChecker, :outdated_data, []}},
       # Set inactive data
       {"@daily", {Transport.DataChecker, :inactive_data, []}},
       # Watch for new comments on datasets

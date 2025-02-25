@@ -1,9 +1,11 @@
 defmodule TransportWeb.ReuserSpaceControllerTest do
   # `async: false` because we change the app config in a test
   use TransportWeb.ConnCase, async: false
+  import TransportWeb.ReuserSpaceController
   import DB.Factory
 
   @home_url reuser_space_path(TransportWeb.Endpoint, :espace_reutilisateur)
+  @google_maps_org_id "63fdfe4f4cd1c437ac478323"
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -27,17 +29,6 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
 
       # Feedback form is displayed
       refute content |> Floki.parse_document!() |> Floki.find("form.feedback-form") |> Enum.empty?()
-    end
-
-    test "reuser space disabled by killswitch", %{conn: conn} do
-      old_value = Application.fetch_env!(:transport, :disable_reuser_space)
-      Application.put_env(:transport, :disable_reuser_space, true)
-      conn = Plug.Test.init_test_session(conn, %{current_user: %{}})
-      refute TransportWeb.Session.display_reuser_space?(conn)
-      conn = conn |> get(@home_url)
-      assert redirected_to(conn, 302) == "/"
-      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "La fonctionnalité n'est pas disponible pour le moment"
-      Application.put_env(:transport, :disable_reuser_space, old_value)
     end
   end
 
@@ -73,6 +64,28 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
              |> Floki.parse_document!()
              |> Floki.find(".reuser-space-section h2")
              |> Floki.text() == dataset.custom_title
+    end
+
+    test "logged in, dataset is eligible for the data sharing pilot", %{conn: conn} do
+      organization = insert(:organization, id: @google_maps_org_id)
+      dataset = insert(:dataset, custom_tags: ["repartage_donnees"], type: "public-transit")
+
+      contact =
+        insert_contact(%{
+          datagouv_user_id: Ecto.UUID.generate(),
+          organizations: [organization |> Map.from_struct()]
+        })
+
+      insert(:dataset_follower, contact_id: contact.id, dataset_id: dataset.id, source: :follow_button)
+
+      assert conn
+             |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+             |> get(reuser_space_path(conn, :datasets_edit, dataset.id))
+             |> html_response(200)
+             |> Floki.parse_document!()
+             |> Floki.find("#data-sharing")
+             |> Floki.text()
+             |> String.trim() =~ "Étape 1 : sélectionnez la ressource initiale du producteur"
     end
   end
 
@@ -113,6 +126,75 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
 
       assert %DB.Contact{notification_subscriptions: [], followed_datasets: []} =
                DB.Repo.preload(contact, [:followed_datasets, :notification_subscriptions])
+    end
+  end
+
+  test "add_improved_data", %{conn: conn} do
+    %DB.Organization{id: organization_id} = organization = insert(:organization, id: @google_maps_org_id)
+    %DB.Dataset{id: dataset_id} = insert(:dataset, custom_tags: ["repartage_donnees"], type: "public-transit")
+    %DB.Resource{id: gtfs_id} = insert(:resource, dataset_id: dataset_id, format: "GTFS")
+
+    %DB.Contact{id: contact_id} =
+      contact =
+      insert_contact(%{
+        datagouv_user_id: Ecto.UUID.generate(),
+        organizations: [organization |> Map.from_struct()]
+      })
+
+    download_url = "https://example.com/#{Ecto.UUID.generate()}"
+
+    insert(:dataset_follower, contact_id: contact_id, dataset_id: dataset_id, source: :follow_button)
+
+    conn =
+      conn
+      |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+      |> post(
+        reuser_space_path(conn, :add_improved_data, dataset_id, %{
+          "resource_id" => gtfs_id,
+          "organization_id" => @google_maps_org_id,
+          "download_url" => download_url
+        })
+      )
+
+    redirection_path = redirected_to(conn, 302)
+    assert reuser_space_path(conn, :datasets_edit, dataset_id) == redirection_path
+    assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Vos données améliorées ont bien été sauvegardées."
+
+    assert [
+             %DB.ReuserImprovedData{
+               dataset_id: ^dataset_id,
+               resource_id: ^gtfs_id,
+               contact_id: ^contact_id,
+               organization_id: ^organization_id,
+               download_url: ^download_url
+             }
+           ] = DB.ReuserImprovedData |> DB.Repo.all()
+
+    assert get(recycle(conn), redirection_path)
+           |> html_response(200)
+           |> Floki.parse_document!()
+           |> Floki.find("#data-sharing p.notification")
+           |> Floki.text()
+           |> String.trim() == "Vous avez déjà partagé des données améliorées pour ce jeu de données, merci !"
+  end
+
+  describe "data_sharing_pilot?" do
+    test "contact is not a member of an eligible organization" do
+      dataset = %DB.Dataset{type: "public-transit", custom_tags: ["repartage_donnees"]}
+      contact = %DB.Contact{organizations: []}
+      refute data_sharing_pilot?(dataset, contact)
+    end
+
+    test "dataset does not have the required tag" do
+      dataset = %DB.Dataset{type: "public-transit", custom_tags: []}
+      contact = %DB.Contact{organizations: [%DB.Organization{id: @google_maps_org_id}]}
+      refute data_sharing_pilot?(dataset, contact)
+    end
+
+    test "dataset is eligible for contact" do
+      dataset = %DB.Dataset{type: "public-transit", custom_tags: ["repartage_donnees"]}
+      contact = %DB.Contact{organizations: [%DB.Organization{id: @google_maps_org_id}]}
+      assert data_sharing_pilot?(dataset, contact)
     end
   end
 end
