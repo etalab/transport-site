@@ -237,8 +237,11 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
         "validations",
         "An error occurred while interpreting the results. Note that the report is still available as download. Error:"
       ) %>
-      <span class="red"><%= @error_msg %></span>
+      <span class="red"><%= translate_error(@error_msg) %></span>.
     </div>
     """
   end
+
+  defp translate_error(":enomem"), do: dgettext("validations", "not enough memory")
+  defp translate_error(e), do: "#{e}"
 end
