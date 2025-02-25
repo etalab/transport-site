@@ -310,10 +310,6 @@ msgstr ""
 msgid "Previous validations"
 msgstr ""
 
-#, elixir-autogen, elixir-format
-msgid "Differences Overview"
-msgstr ""
-
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Drop your GTFS files here or click to browse your local drive"
 msgstr ""
@@ -554,4 +550,8 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Looking for other files?"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Summary"
 msgstr ""
