@@ -442,7 +442,7 @@ msgstr "Échanger les fichiers"
 
 #, elixir-autogen, elixir-format
 msgid "An error occurred while interpreting the results. Note that the report is still available as download. Error:"
-msgstr ""
+msgstr "Une erreur est survenue en interprétant les résultats. Notez que le rapport est toujours disponible au téléchargement. Erreur :"
 
 #, elixir-autogen, elixir-format
 msgid "Detail"
@@ -539,3 +539,7 @@ msgstr "Effacer les fichiers téléchargés"
 #, elixir-autogen, elixir-format
 msgid "Discarded files:"
 msgstr "Fichiers ignorés :"
+
+#, elixir-autogen, elixir-format
+msgid "not enough memory"
+msgstr "mémoire insuffisante"

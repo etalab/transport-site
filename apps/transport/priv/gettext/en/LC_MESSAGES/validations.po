@@ -539,3 +539,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Discarded files:"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "not enough memory"
+msgstr ""
