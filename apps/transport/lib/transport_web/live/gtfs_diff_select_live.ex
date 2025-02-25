@@ -76,7 +76,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
         gtfs_original_file_name_1: gtfs_file_name_1.original_file_name,
         gtfs_original_file_name_2: gtfs_file_name_2.original_file_name,
         bucket: Transport.S3.bucket_name(:gtfs_diff),
-        locale: Gettext.get_locale()
+        locale: Gettext.get_locale(),
+        profile: "core"
       }
       |> Transport.Jobs.GTFSDiff.new()
       |> Oban.insert!()
@@ -153,6 +154,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     |> assign(diff_logs: [])
     |> assign(error_msg: nil)
     |> assign(results: %{})
+    |> assign(profile: "core")
   end
 
   defp setup_uploads(socket) do

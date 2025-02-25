@@ -6,7 +6,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
   use TransportWeb.InputHelpers
   import TransportWeb.Gettext
 
-  def results_step(%{error_msg: _, results: _} = assigns) do
+  def results_step(%{error_msg: _, profile: _, results: _} = assigns) do
     ~H"""
     <.inner
       diff_explanations={@results[:diff_explanations]}
@@ -17,6 +17,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
       gtfs_original_file_name_2={@results[:gtfs_original_file_name_2]}
       selected_file={@results[:selected_file]}
       error_msg={@error_msg}
+      profile={@profile}
     />
     """
   end
@@ -30,7 +31,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
            files_with_changes: _,
            gtfs_original_file_name_1: _,
            gtfs_original_file_name_2: _,
-           selected_file: _
+           profile: _,
+           selected_file: _,
          } = assigns
        ) do
     ~H"""
@@ -61,6 +63,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
                 diff_summary={@diff_summary}
                 files_with_changes={@files_with_changes}
                 selected_file={@selected_file}
+                profile={@profile}
               />
             <% end %>
           </div>
@@ -147,22 +150,23 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
     """
   end
 
-  defp diff_summaries(%{files_with_changes: _, selected_file: _, diff_summary: _, diff_explanations: _} = assigns) do
+  defp diff_summaries(%{files_with_changes: _, selected_file: _, diff_summary: _, diff_explanations: _, profile: _} = assigns) do
     ~H"""
     <div class="pt-24">
       <div class="dashboard">
-        <.navigation files_with_changes={@files_with_changes} selected_file={@selected_file} />
+        <.navigation files_with_changes={@files_with_changes} profile={@profile} selected_file={@selected_file} />
         <.differencies diff_summary={@diff_summary} selected_file={@selected_file} diff_explanations={@diff_explanations} />
       </div>
     </div>
     """
   end
 
-  defp navigation(%{files_with_changes: _, selected_file: _} = assigns) do
+  defp navigation(%{files_with_changes: _, profile: _, selected_file: _} = assigns) do
     ~H"""
     <aside class="side-menu" role="navigation">
       <ul>
         <.select_file_navigation_link :for={file <- @files_with_changes} file={file} selected_file={@selected_file} />
+        <.other_files_navigation_link :if={@profile == "core"} selected_file={@selected_file} />
       </ul>
     </aside>
     """
@@ -184,6 +188,44 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
         <code><%= @file %></code>
       </a>
     </li>
+    """
+  end
+
+  defp other_files_navigation_link(%{selected_file: _} = assigns) do
+    assigns =
+      assigns
+      |> assign(
+        :class,
+        if assigns[:selected_file] == "other-files" do
+          "active"
+        end
+      )
+
+    ~H"""
+    <li>
+      <a class={@class} phx-click="select-file" phx-value-file="other-files">
+        <%= dgettext("validations", "Other files…") %>
+      </a>
+    </li>
+    """
+  end
+
+  defp differencies(%{selected_file: "other-files"} = assigns) do
+    ~H"""
+    <div class="main">
+      <h4><%= dgettext("validations", "Looking for other files?") %></h4>
+      <p>
+        <%= dgettext(
+          "validations",
+          "Only a subset of the GTFS specification is currently supported for differences analysis. Supported files:"
+        ) %>
+      </p>
+      <ul>
+        <li :for={filename <- Transport.GTFSDiff.files_to_analyze("core")} filename={filename}>
+          <code><%= filename %></code>
+        </li>
+      </ul>
+    </div>
     """
   end
 

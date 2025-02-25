@@ -6,7 +6,7 @@ defmodule Transport.GTFSDiffTest do
       unzip_1 = unzip("test/fixture/files/gtfs_diff/gtfs.zip")
       unzip_2 = unzip("test/fixture/files/gtfs_diff/gtfs.zip")
 
-      diff = Transport.GTFSDiff.diff(unzip_1, unzip_2)
+      diff = Transport.GTFSDiff.diff(unzip_1, unzip_2, "full")
 
       assert diff == []
     end
@@ -15,7 +15,7 @@ defmodule Transport.GTFSDiffTest do
       unzip_1 = unzip("test/fixture/files/gtfs_diff/gtfs.zip")
       unzip_2 = unzip("test/fixture/files/gtfs_diff/gtfs_change_order.zip")
 
-      diff = Transport.GTFSDiff.diff(unzip_1, unzip_2)
+      diff = Transport.GTFSDiff.diff(unzip_1, unzip_2, "full")
 
       assert diff == []
     end
@@ -24,7 +24,7 @@ defmodule Transport.GTFSDiffTest do
       unzip_1 = unzip("test/fixture/files/gtfs_diff/gtfs.zip")
       unzip_2 = unzip("test/fixture/files/gtfs_diff/gtfs_modified_files.zip")
 
-      diff = Transport.GTFSDiff.diff(unzip_1, unzip_2)
+      diff = Transport.GTFSDiff.diff(unzip_1, unzip_2, "full")
 
       # calendar.txt is deleted
       # calendar_dates.txt is created with its content (one line)
@@ -65,7 +65,7 @@ defmodule Transport.GTFSDiffTest do
       unzip_1 = unzip("test/fixture/files/gtfs_diff/gtfs.zip")
       unzip_2 = unzip("test/fixture/files/gtfs_diff/gtfs_modified_columns.zip")
 
-      diff = Transport.GTFSDiff.diff(unzip_1, unzip_2)
+      diff = Transport.GTFSDiff.diff(unzip_1, unzip_2, "full")
 
       # a column in calendar.txt is deleted
       # a column in agency.txt is added and 1 row has a value for the new column
@@ -88,7 +88,7 @@ defmodule Transport.GTFSDiffTest do
       unzip_1 = unzip("test/fixture/files/gtfs_diff/gtfs.zip")
       unzip_2 = unzip("test/fixture/files/gtfs_diff/gtfs_modified_rows.zip")
 
-      diff = Transport.GTFSDiff.diff(unzip_1, unzip_2)
+      diff = Transport.GTFSDiff.diff(unzip_1, unzip_2, "full")
 
       assert diff == [
                %{
