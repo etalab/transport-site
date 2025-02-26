@@ -94,41 +94,11 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     {:noreply, socket |> handle_diff_summary(diff_file_url)}
   end
 
-  # job has started
   def handle_info(
-        {:notification, :gossip, %{"started" => job_id}},
+        {:notification, :gossip, notification},
         %{assigns: %{job_id: job_id}} = socket
       ) do
-    schedule_timeout()
-    {:noreply, socket}
-  end
-
-  # notifications about the ongoing job
-  def handle_info(
-        {:notification, :gossip, %{"running" => job_id, "log" => log}},
-        %{assigns: %{job_id: job_id}} = socket
-      ) do
-    {:noreply, socket |> append_log(log)}
-  end
-
-  # job is complete
-  def handle_info(
-        {:notification, :gossip,
-         %{
-           "complete" => job_id,
-           "diff_file_url" => diff_file_url,
-           "gtfs_original_file_name_1" => gtfs_original_file_name_1,
-           "gtfs_original_file_name_2" => gtfs_original_file_name_2
-         }},
-        %{assigns: %{job_id: job_id}} = socket
-      ) do
-    generate_diff_summary(diff_file_url)
-    Oban.Notifier.unlisten([:gossip])
-
-    {:noreply,
-     socket
-     |> present_results(diff_file_url, gtfs_original_file_name_1, gtfs_original_file_name_2)
-     |> scroll_to_steps()}
+    {:noreply, handle_job_notification(notification, job_id, socket)}
   end
 
   # job took too long
@@ -146,6 +116,36 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   # catch-all
   def handle_info(_, socket) do
     {:noreply, socket}
+  end
+
+  # job has started
+  def handle_job_notification(%{"started" => job_id}, job_id, socket) do
+    schedule_timeout()
+    socket
+  end
+
+  # notifications about the ongoing job
+  def handle_job_notification(%{"running" => job_id, "log" => log}, job_id, socket) do
+    socket |> append_log(log)
+  end
+
+  # job is complete
+  def handle_job_notification(
+        %{
+          "complete" => job_id,
+          "diff_file_url" => diff_file_url,
+          "gtfs_original_file_name_1" => gtfs_original_file_name_1,
+          "gtfs_original_file_name_2" => gtfs_original_file_name_2
+        },
+        job_id,
+        socket
+      ) do
+    generate_diff_summary(diff_file_url)
+    Oban.Notifier.unlisten([:gossip])
+
+    socket
+    |> present_results(diff_file_url, gtfs_original_file_name_1, gtfs_original_file_name_2)
+    |> scroll_to_steps()
   end
 
   defp clean_slate(socket) do
