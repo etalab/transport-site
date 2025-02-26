@@ -36,7 +36,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
          } = assigns
        ) do
     ~H"""
-    <div class="container gtfs-diff-results">
+    <div id="gtfs-diff-results" class="container">
       <div :if={@diff_file_url} class="panel">
         <h4>
           <%= dgettext("validations", "GTFS Diff is available for") %>
