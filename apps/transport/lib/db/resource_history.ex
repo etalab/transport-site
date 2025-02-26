@@ -15,6 +15,7 @@ defmodule DB.ResourceHistory do
 
     timestamps(type: :utc_datetime_usec)
     belongs_to(:resource, DB.Resource)
+    belongs_to(:reuser_improved_data, DB.ReuserImprovedData)
     has_many(:geo_data_import, DB.GeoDataImport)
     has_many(:validations, DB.MultiValidation)
     has_many(:metadata, DB.ResourceMetadata)
