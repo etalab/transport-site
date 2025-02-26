@@ -359,8 +359,8 @@ msgid "Shapes present in the GTFS have been ignored, some rules are not enforced
 msgstr "Les shapes présentes dans le GTFS ont été ignorées, certaines règles de validation n'ont pas été vérifiées."
 
 #, elixir-autogen, elixir-format
-msgid "analyzing found differences..."
-msgstr "analyse des différences trouvées..."
+msgid "Analyzing found differences…"
+msgstr "Analyse des différences trouvées…"
 
 #, elixir-autogen, elixir-format
 msgid "Please note that our GTFS validator does not validate the Flex and Fares v2 extensions."

@@ -72,7 +72,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
             <.validation_error error_msg={@error_msg} />
           <% else %>
             <div class="pt-24">
-              <%= dgettext("validations", "analyzing found differences...") %>
+              <%= dgettext("validations", "Analyzing found differences…") %>
             </div>
           <% end %>
         <% end %>
