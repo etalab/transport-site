@@ -109,7 +109,7 @@ defmodule Transport.GTFSDiff do
 
   def primary_key(file_name) do
     keys = %{
-      "agency.txt" => ["agency_id", "agency_name"],
+      "agency.txt" => ["agency_id"],
       "stops.txt" => ["stop_id"],
       "routes.txt" => ["route_id"],
       "trips.txt" => ["trip_id"],
