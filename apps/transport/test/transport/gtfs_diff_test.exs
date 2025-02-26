@@ -76,7 +76,7 @@ defmodule Transport.GTFSDiffTest do
                  action: "update",
                  file: "agency.txt",
                  id: 2,
-                 identifier: %{"agency_id" => "agency", "agency_name" => "BIBUS"},
+                 identifier: %{"agency_id" => "agency"},
                  initial_value: %{"agency_nickname" => ""},
                  new_value: %{"agency_nickname" => "little_agency"},
                  target: "row"
