@@ -59,28 +59,11 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   end
 
   def handle_info(:enqueue_job, socket) do
-    [gtfs_file_name_2, gtfs_file_name_1] =
-      consume_uploaded_entries(socket, :gtfs, fn %{path: path},
-                                                 %Phoenix.LiveView.UploadEntry{client_name: original_file_name} ->
-        file_name = Path.basename(path)
-        stream_to_s3(path, file_name)
-        {:ok, %{uploaded_file_name: file_name, original_file_name: original_file_name}}
-      end)
+    [gtfs_file_name_2, gtfs_file_name_1] = read_uploaded_files(socket)
 
-    :ok = Oban.Notifier.listen([:gossip])
+    :ok = listen_job_notifications()
 
-    %{id: job_id} =
-      %{
-        gtfs_file_name_1: gtfs_file_name_1.uploaded_file_name,
-        gtfs_file_name_2: gtfs_file_name_2.uploaded_file_name,
-        gtfs_original_file_name_1: gtfs_file_name_1.original_file_name,
-        gtfs_original_file_name_2: gtfs_file_name_2.original_file_name,
-        bucket: Transport.S3.bucket_name(:gtfs_diff),
-        locale: Gettext.get_locale(),
-        profile: "core"
-      }
-      |> Transport.Jobs.GTFSDiff.new()
-      |> Oban.insert!()
+    job_id = schedule_job(gtfs_file_name_1, gtfs_file_name_2)
 
     socket =
       socket
@@ -126,7 +109,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
 
   # notifications about the ongoing job
   def handle_job_notification(%{"running" => job_id, "log" => log}, job_id, socket) do
-    socket |> append_log(log)
+    append_log(socket, log)
   end
 
   # job is complete
@@ -141,12 +124,43 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
         socket
       ) do
     generate_diff_summary(diff_file_url)
-    Oban.Notifier.unlisten([:gossip])
+    unlisten_job_notifications()
 
     socket
     |> present_results(diff_file_url, gtfs_original_file_name_1, gtfs_original_file_name_2)
     |> scroll_to_steps()
   end
+
+  defp read_uploaded_files(socket) do
+    consume_uploaded_entries(socket, :gtfs, &consume_uploaded_entry/2)
+  end
+
+  defp consume_uploaded_entry(%{path: path}, %Phoenix.LiveView.UploadEntry{client_name: original_file_name}) do
+    file_name = Path.basename(path)
+    stream_to_s3(path, file_name)
+    {:ok, %{uploaded_file_name: file_name, original_file_name: original_file_name}}
+  end
+
+  defp schedule_job(gtfs_file_name_1, gtfs_file_name_2) do
+    %{id: job_id} =
+      %{
+        gtfs_file_name_1: gtfs_file_name_1.uploaded_file_name,
+        gtfs_file_name_2: gtfs_file_name_2.uploaded_file_name,
+        gtfs_original_file_name_1: gtfs_file_name_1.original_file_name,
+        gtfs_original_file_name_2: gtfs_file_name_2.original_file_name,
+        bucket: Transport.S3.bucket_name(:gtfs_diff),
+        locale: Gettext.get_locale(),
+        profile: "core"
+      }
+      |> Transport.Jobs.GTFSDiff.new()
+      |> Oban.insert!()
+
+    job_id
+  end
+
+  defp listen_job_notifications, do: Oban.Notifier.listen([:gossip])
+
+  defp unlisten_job_notifications, do: Oban.Notifier.unlisten([:gossip])
 
   defp clean_slate(socket) do
     socket
@@ -232,7 +246,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
 
   defp on_timeout(socket) do
     # no diff_file_url: job has not finished
-    Oban.Notifier.unlisten([:gossip])
+    unlisten_job_notifications()
 
     assign(socket, error_msg: timeout_msg())
   end
