@@ -11,124 +11,23 @@
         )
       ) %>.
     </p>
+  </div>
+</section>
 
-    <div id="gtfs-diff-input" phx-drop-target={@uploads.gtfs.ref}>
-      <form id="upload-form" phx-submit="gtfs_diff" phx-change="validate">
-        <div class="drop-zone panel">
-          <%= dgettext("validations", "Drop your GTFS files here or browse your local drive") %>
-          <.live_file_input upload={@uploads.gtfs} />
-        </div>
-        <%= if assigns[:job_running] do %>
-          <button class="button" disabled><%= dgettext("validations", "Compare") %></button>
-        <% else %>
-          <%= if uploads_are_valid(@uploads) do %>
-            <button class="button" type="submit"><%= dgettext("validations", "Compare") %></button>
-          <% end %>
-        <% end %>
-      </form>
-      <div id="uploaded-files">
-        <%= for entry <- @uploads.gtfs.entries do %>
-          <article class="upload-entry">
-            <span class="entry-name">
-              <%= if entry.valid? do %>
-                ✅
-              <% else %>
-                ❌
-              <% end %>
-              <%= entry.client_name %>
-            </span>
-            <progress value={entry.progress} max="100"><%= entry.progress %>%</progress>
-            <button phx-click="cancel-upload" phx-value-ref={entry.ref} aria-label="cancel">&times;</button>
-            <div>
-              <%= for err <- upload_errors(@uploads.gtfs, entry) do %>
-                <%= error_to_string(err) %>
-              <% end %>
-            </div>
-          </article>
-        <% end %>
-        <%= if uploads_are_valid(@uploads) do %>
-          <button class="button-outline primary small" type="button" phx-click="switch-uploads">
-            <i class="fa fa-shuffle"></i>&nbsp;<%= dgettext("validations", "Switch files") %>
-          </button>
-        <% end %>
-        <%= for err <- upload_errors(@uploads.gtfs) do %>
-          <p class="alert alert-danger">❌ <%= error_to_string(err) %></p>
-        <% end %>
-      </div>
-    </div>
-    <div class="pt-24">
-      <%= for log <- Enum.reverse(@diff_logs) do %>
-        <div>
-          <%= log %>...
-        </div>
-      <% end %>
-    </div>
-  </div>
-</section>
 <section class="section section-grey">
-  <div class="container gtfs-diff-results">
-    <div :if={assigns[:error_msg]}>
-      <span class="red"><%= @error_msg %></span>
-    </div>
-    <div :if={assigns[:diff_file_url]} class="panel">
-      <h4>
-        <%= dgettext("validations", "GTFS Diff is available for") %>
-        <%= link(dgettext("validations", "download"),
-          to: @diff_file_url,
-          target: "_blank"
-        ) %>
-      </h4>
-      <%= raw(
-        dgettext(
-          "validations",
-          "<a href=\"%{spec}\">Read</a> the GTFS Diff specification to understand how differences between GTFS are expressed",
-          spec: "https://github.com/etalab/gtfs_diff/blob/main/specification.md"
-        )
-      ) %>.
-      <%= if assigns[:diff_summary] do %>
-        <div class="pt-24">
-          <h4><%= dgettext("validations", "Differences Overview") %></h4>
-          <%= dgettext(
-            "validations",
-            "The GTFS file %{gtfs_original_file_name_2} has differences with the GTFS file %{gtfs_original_file_name_1}, as summarized below:",
-            gtfs_original_file_name_1: @gtfs_original_file_name_1,
-            gtfs_original_file_name_2: @gtfs_original_file_name_2
-          ) %>
-          <div class="summary">
-            <%= for {diff_nature, translation, css_class} <- [{"add", dgettext("validations", "added"), "green"}, {"update", dgettext("validations", "updated"), "orange"}, {"delete", dgettext("validations", "deleted"), "red"}] do %>
-              <div :if={@diff_summary[diff_nature]}>
-                <ul>
-                  <%= for {{file, ^diff_nature, target}, n} <- @diff_summary[diff_nature] do %>
-                    <li>
-                      <span class={css_class}><%= translation %> &nbsp;</span><%= translate_target(target, n) %><code><%= file %></code>
-                    </li>
-                  <% end %>
-                </ul>
-              </div>
-            <% end %>
-          </div>
-        </div>
-      <% else %>
-        <div class="pt-24">
-          <%= dgettext("validations", "analyzing found differences...") %>
-        </div>
-      <% end %>
-      <div :if={assigns[:diff_explanations]} class="pt-24">
-        <h4><%= dgettext("validations", "Human friendly explanations") %></h4>
-        <%= dgettext(
-          "validations",
-          "(Work in progress). We also try to express some of the differences found in a human friendly way."
-        ) %>
-        <ul>
-          <%= for explanation <- @diff_explanations do %>
-            <li>
-              <%= explanation %>
-            </li>
-          <% end %>
-        </ul>
-      </div>
-    </div>
-  </div>
+  <.steps current_step={@current_step} />
+
+  <.setup_step :if={@current_step == :setup} uploads={@uploads.gtfs} />
+
+  <.analysis_step :if={@current_step == :analysis} diff_logs={assigns[:diff_logs]} error_msg={assigns[:error_msg]} />
+
+  <.results_step
+    :if={@current_step == :results}
+    results={assigns[:results]}
+    error_msg={assigns[:error_msg]}
+    profile={@profile}
+  />
 </section>
+
 <script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>
 </script>
