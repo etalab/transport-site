@@ -34,10 +34,12 @@ defmodule TransportWeb.GtfsDiffExplainTest do
     ]
 
     assert [
-             "Un fichier \"agency.txt\" a été ajouté",
-             "Le fichier \"fares.txt\" a été supprimé",
-             "[stops.txt] Le nom du stop_id 3000055 a été modifié. Nom initial : \"Hôpital\", Nouveau nom : \"Hôpital Arnauzand\"",
-             "[stops.txt] Une information d'accessibilité wheelchair_boarding a été ajouté pour le stop_id 100, valeur initiale : \"0\", nouvelle valeur : \"1\""
+             {"agency.txt", "Un fichier \"agency.txt\" a été ajouté"},
+             {"fares.txt", "Le fichier \"fares.txt\" a été supprimé"},
+             {"stops.txt",
+              "Le nom du stop_id 3000055 a été modifié. Nom initial : \"Hôpital\", Nouveau nom : \"Hôpital Arnauzand\""},
+             {"stops.txt",
+              "Une information d'accessibilité wheelchair_boarding a été ajouté pour le stop_id 100, valeur initiale : \"0\", nouvelle valeur : \"1\""}
            ] == GTFSDiffExplain.diff_explanations(diff)
   end
 end

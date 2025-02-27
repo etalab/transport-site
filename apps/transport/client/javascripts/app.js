@@ -43,6 +43,10 @@ window.addEventListener('phx:backoffice-form-owner-reset', () => {
     document.getElementById('js-owner-input').value = ''
 })
 
+window.addEventListener('phx:gtfs-diff:scroll-to-steps', () => {
+    document.getElementById('gtfs-diff-steps').parentElement.scrollIntoView({ behavior: 'smooth' })
+})
+
 const csrfToken = document.querySelector('meta[name=\'csrf\']').getAttribute('content')
 const liveSocket = new LiveSocket('/live', Socket, { hooks: Hooks, params: { _csrf_token: csrfToken } })
 liveSocket.connect()
