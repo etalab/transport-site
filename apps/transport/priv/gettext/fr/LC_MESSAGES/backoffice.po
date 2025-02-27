@@ -253,10 +253,6 @@ msgid "Resource historization"
 msgstr "Historisation des ressources"
 
 #, elixir-autogen, elixir-format
-msgid "National GTFS stops map"
-msgstr "Carte nationale des arrêts GTFS"
-
-#, elixir-autogen, elixir-format
 msgid "Legal owners"
 msgstr "Représentants légaux"
 
