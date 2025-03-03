@@ -86,9 +86,12 @@ defmodule TransportWeb.CustomTagsLive do
   end
 
   def mount(socket) do
-    {:ok, socket |> assign(
-    tags_documentation: tags_documentation(),
-    tag_suggestions: tags_suggestions())}
+    {:ok,
+     socket
+     |> assign(
+       tags_documentation: tags_documentation(),
+       tag_suggestions: tags_suggestions()
+     )}
   end
 
   def handle_event("add_tag", %{"key" => "Enter", "value" => tag}, socket) do
@@ -97,7 +100,6 @@ defmodule TransportWeb.CustomTagsLive do
       if String.starts_with?(tag, "requestor_ref:") do
         tag |> String.trim()
       else
-
         tag |> String.downcase() |> String.trim()
       end
 
@@ -108,7 +110,7 @@ defmodule TransportWeb.CustomTagsLive do
 
   def handle_event("add_tag", _, socket) do
     {:noreply, socket}
-   end
+  end
 
   def handle_event("remove_tag", %{"tag" => tag}, socket) do
     custom_tags = socket.assigns.custom_tags -- [tag]

@@ -9,20 +9,20 @@ defmodule TransportWeb.Live.CommuneField do
   def render(assigns) do
     ~H"""
     <div>
-    <%= InputHelpers.text_input(@form, :insee,
-      placeholder: "Commune faisant partie de l'AOM (code INSEE ou nom)",
-      value: @insee,
-      phx_keyup: "suggest",
-      list: "matches",
-      autoComplete: "off",
-      id: "communes_q",
-      phx_target: @myself
-    ) %>
-    <datalist id="matches">
-      <%= for match <- @matches do %>
-        <option value={match.insee}><%= "#{match.nom} #{match.insee}" %></option>
-      <% end %>
-    </datalist>
+      <%= InputHelpers.text_input(@form, :insee,
+        placeholder: "Commune faisant partie de l'AOM (code INSEE ou nom)",
+        value: @insee,
+        phx_keyup: "suggest",
+        list: "matches",
+        autoComplete: "off",
+        id: "communes_q",
+        phx_target: @myself
+      ) %>
+      <datalist id="matches">
+        <%= for match <- @matches do %>
+          <option value={match.insee}><%= "#{match.nom} #{match.insee}" %></option>
+        <% end %>
+      </datalist>
     </div>
     """
   end

@@ -1,188 +1,188 @@
 <.form
-      :let={f}
-      for={@form_params}
-      as={:form}
-      action={@form_url}
-      phx-change="change_dataset"
-      phx-submit="save"
-      phx-trigger-action={@trigger_submit}
-      onkeydown="return event.key != 'Enter';"
-    >
-      <h1>
-        <%= if is_nil(@dataset) do %>
-          <%= dgettext("backoffice", "Add a dataset") %>
+  :let={f}
+  for={@form_params}
+  as={:form}
+  action={@form_url}
+  phx-change="change_dataset"
+  phx-submit="save"
+  phx-trigger-action={@trigger_submit}
+  onkeydown="return event.key != 'Enter';"
+>
+  <h1>
+    <%= if is_nil(@dataset) do %>
+      <%= dgettext("backoffice", "Add a dataset") %>
+    <% else %>
+      <%= dgettext("backoffice", "Edit a dataset") %>
+    <% end %>
+  </h1>
+  <%= unless is_nil(assigns[:dataset]) do %>
+    <div class="pb-24">
+      <i class="fa fa-external-link-alt"></i>
+      <%= link(dgettext("backoffice", "See dataset on website"), to: dataset_path(@socket, :details, @dataset.id)) %>
+    </div>
+  <% end %>
+
+  <p :if={not is_nil(@dataset) and not @dataset.is_active} class="notification warning">
+    Ce jeu de données a été supprimé de data.gouv.fr. Il faudrait probablement remplacer son URL source ou le déréférencer.
+  </p>
+
+  <div class="pt-24">
+    <%= InputHelpers.text_input(f, :url,
+      placeholder: dgettext("backoffice", "Dataset's url"),
+      value: @form_params["url"].value
+    ) %>
+
+    <%= if assigns[:datagouv_infos] do %>
+      <% dataset_datagouv_id = @datagouv_infos[:dataset_datagouv_id] %>
+
+      <div class="pt-12 pb-12">
+        <%= if is_nil(dataset_datagouv_id) do %>
+          Impossible de trouver ce jeu de données sur data.gouv
         <% else %>
-          <%= dgettext("backoffice", "Edit a dataset") %>
-        <% end %>
-      </h1>
-      <%= unless is_nil(assigns[:dataset]) do %>
-        <div class="pb-24">
-          <i class="fa fa-external-link-alt"></i>
-          <%= link(dgettext("backoffice", "See dataset on website"), to: dataset_path(@socket, :details, @dataset.id)) %>
-        </div>
-      <% end %>
-
-      <p :if={not is_nil(@dataset) and not @dataset.is_active} class="notification warning">
-        Ce jeu de données a été supprimé de data.gouv.fr. Il faudrait probablement remplacer son URL source ou le déréférencer.
-      </p>
-
-      <div class="pt-24">
-        <%= InputHelpers.text_input(f, :url,
-          placeholder: dgettext("backoffice", "Dataset's url"),
-          value: @form_params["url"].value
-        ) %>
-
-        <%= if assigns[:datagouv_infos] do %>
-          <% dataset_datagouv_id = @datagouv_infos[:dataset_datagouv_id] %>
-
-          <div class="pt-12 pb-12">
-            <%= if is_nil(dataset_datagouv_id) do %>
-              Impossible de trouver ce jeu de données sur data.gouv
+          <div>Jeu de données <strong>"<%= @datagouv_infos[:datagouv_title] %>"</strong></div>
+          <div class="pt-12">
+            Son identifiant data.gouv est <code><%= @datagouv_infos[:dataset_datagouv_id] %></code>
+          </div>
+          <div class="pt-12">
+            <%= if @datagouv_infos[:dataset_id] do %>
+              ⚠️ Ce jeu de données est déjà référencé <%= link("sur le PAN",
+                to: backoffice_page_path(@socket, :edit, @datagouv_infos[:dataset_id]),
+                target: "_blank"
+              ) %>, il n'est pas possible de le référencer une seconde fois.
             <% else %>
-              <div>Jeu de données <strong>"<%= @datagouv_infos[:datagouv_title] %>"</strong></div>
-              <div class="pt-12">
-                Son identifiant data.gouv est <code><%= @datagouv_infos[:dataset_datagouv_id] %></code>
-              </div>
-              <div class="pt-12">
-                <%= if @datagouv_infos[:dataset_id] do %>
-                  ⚠️ Ce jeu de données est déjà référencé <%= link("sur le PAN",
-                    to: backoffice_page_path(@socket, :edit, @datagouv_infos[:dataset_id]),
-                    target: "_blank"
-                  ) %>, il n'est pas possible de le référencer une seconde fois.
-                <% else %>
-                  Ce jeu n'est pas encore référencé chez nous ✅
-                <% end %>
-              </div>
+              Ce jeu n'est pas encore référencé chez nous ✅
             <% end %>
           </div>
         <% end %>
-
-        <%= InputHelpers.text_input(f, :custom_title,
-          placeholder: dgettext("backoffice", "name"),
-          value: @form_params["custom_title"].value
-        ) %>
-        <%= InputHelpers.select(f, :type, @dataset_types,
-          selected:
-            if not is_nil(@dataset) do
-              @dataset.type
-            else
-              "public-transit"
-            end
-        ) %>
       </div>
+    <% end %>
 
-      <%#= live_render(@socket, TransportWeb.CustomTagsLive,
-        id: "custom_tags",
-        session: %{"dataset" => @dataset, "form" => f}
+    <%= InputHelpers.text_input(f, :custom_title,
+      placeholder: dgettext("backoffice", "name"),
+      value: @form_params["custom_title"].value
+    ) %>
+    <%= InputHelpers.select(f, :type, @dataset_types,
+      selected:
+        if not is_nil(@dataset) do
+          @dataset.type
+        else
+          "public-transit"
+        end
+    ) %>
+  </div>
+
+
+  <.live_component module={TransportWeb.CustomTagsLive} id="custom_tags" form={f} custom_tags={@custom_tags} />
+
+  <p :if={not is_nil(@dataset) and @dataset.is_hidden} class="notification">
+    Ce jeu de données est masqué
+  </p>
+
+  <div :if={@dataset_organization} class="panel mt-48">
+    <div class="panel-explanation">
+      <%= dgettext("backoffice", "published by") %>
+    </div>
+    <h4><%= @dataset_organization %></h4>
+    <%= select(f, :organization_type, @organization_types,
+      selected:
+        if not is_nil(@dataset) do
+          @dataset.organization_type
+        else
+          ""
+        end,
+      prompt: dgettext("backoffice", "Publisher type")
+    ) %>
+  </div>
+
+  <div class="panel mt-48">
+    <div class="panel-explanation">
+      <%= dgettext("backoffice", "Legal owners") %>
+    </div>
+    <.live_component module={TransportWeb.LegalOwnerSelectLive} id="owners_selection" form={f} owners={@legal_owners} />
+    <div class="pt-12"><%= dgettext("backoffice", "or") %></div>
+    <div class="pt-12">
+      <label>
+        <%= dgettext("backoffice", "Company SIREN code") %>
+        <%= InputHelpers.text_input(f, :legal_owner_company_siren,
+          placeholder: "821611431",
+          pattern: "\\d{9,9}",
+          value: @form_params["legal_owner_company_siren"].value
+        ) %>
+      </label>
+    </div>
+  </div>
+
+  <div class="panel mt-48">
+    <div class="panel__header">
+      <h4>
+        <%= dgettext("backoffice", "Associated territory") %>
+      </h4>
+      <%= dgettext("backoffice", "Choose one") %>
+    </div>
+    <div class="panel__content">
+      <%= checkbox(f, :national_dataset, value: @form_params["national_dataset"].value) %><%= dgettext(
+        "backoffice",
+        "National dataset"
       ) %>
-
-      <.live_component module={TransportWeb.CustomTagsLive} id="custom_tags" form={f} custom_tags={@custom_tags} />
-
-
-      <p :if={not is_nil(@dataset) and @dataset.is_hidden} class="notification">
-        Ce jeu de données est masqué
-      </p>
-
-      <div :if={@dataset_organization} class="panel mt-48">
-        <div class="panel-explanation">
-          <%= dgettext("backoffice", "published by") %>
-        </div>
-        <h4><%= @dataset_organization %></h4>
-        <%= select(f, :organization_type, @organization_types,
-          selected:
-            if not is_nil(@dataset) do
-              @dataset.organization_type
-            else
-              ""
-            end,
-          prompt: dgettext("backoffice", "Publisher type")
-        ) %>
-      </div>
-
-      <div class="panel mt-48">
-        <div class="panel-explanation">
-          <%= dgettext("backoffice", "Legal owners") %>
-        </div>
-        <.live_component module={TransportWeb.LegalOwnerSelectLive} id="owners_selection" form={f} owners={@legal_owners} />
-        <div class="pt-12"><%= dgettext("backoffice", "or") %></div>
+    </div>
+    <p class="separator">
+      - <%= dgettext("resource", "or") %> -
+    </p>
+    <div class="panel__content">
+      <%= dgettext("backoffice", "Dataset linked to a region") %>
+      <%= select(f, :region_id, @regions,
+        selected:
+          if not is_nil(@dataset) do
+            @dataset.region_id
+          else
+            ""
+          end,
+        prompt: "Pas un jeu de données régional"
+      ) %>
+    </div>
+    <p class="separator">
+      - <%= dgettext("resource", "or") %> -
+    </p>
+    <%= dgettext("backoffice", "Dataset linked to an AOM") %>
+    <div class="panel__content">
+      <%= if is_nil(@dataset) || is_nil(@dataset.aom) || is_nil(@dataset.aom.insee_commune_principale) do %>
+        <.live_component module={TransportWeb.Live.CommuneField} id="commune_field" form={f} insee="" />
+      <% else %>
+        <.live_component
+          module={TransportWeb.Live.CommuneField}
+          id="commune_field"
+          form={f}
+          insee={@dataset.aom.insee_commune_principale}
+        />
+      <% end %>
+    </div>
+    <p class="separator">
+      - <%= dgettext("resource", "or") %> -
+    </p>
+    <div class="panel__content">
+      <%= dgettext("backoffice", "Dataset linked to a list of cities in data.gouv.fr") %>
+      <div>
         <div class="pt-12">
-          <label>
-            <%= dgettext("backoffice", "Company SIREN code") %>
-            <%= InputHelpers.text_input(f, :legal_owner_company_siren,
-              placeholder: "821611431",
-              pattern: "\\d{9,9}",
-              value: @form_params["legal_owner_company_siren"].value
-            ) %>
-          </label>
-        </div>
-      </div>
-
-      <div class="panel mt-48">
-        <div class="panel__header">
-          <h4>
-            <%= dgettext("backoffice", "Associated territory") %>
-          </h4>
-          <%= dgettext("backoffice", "Choose one") %>
-        </div>
-        <div class="panel__content">
-          <%= checkbox(f, :national_dataset, value: @form_params["national_dataset"].value) %><%= dgettext(
-            "backoffice",
-            "National dataset"
+          <%= InputHelpers.text_input(f, :associated_territory_name,
+            placeholder: dgettext("backoffice", "Name of the associtated territory (used in the title of the dataset)"),
+            value: @form_params["associated_territory_name"].value
           ) %>
         </div>
-        <p class="separator">
-          - <%= dgettext("resource", "or") %> -
-        </p>
-        <div class="panel__content">
-          <%= dgettext("backoffice", "Dataset linked to a region") %>
-          <%= select(f, :region_id, @regions,
-            selected:
-              if not is_nil(@dataset) do
-                @dataset.region_id
-              else
-                ""
-              end,
-            prompt: "Pas un jeu de données régional"
-          ) %>
-        </div>
-        <p class="separator">
-          - <%= dgettext("resource", "or") %> -
-        </p>
-        <%= dgettext("backoffice", "Dataset linked to an AOM") %>
-        <div class="panel__content">
-          <%= if is_nil(@dataset) || is_nil(@dataset.aom) || is_nil(@dataset.aom.insee_commune_principale) do %>
-            <.live_component module={TransportWeb.Live.CommuneField} id="commune_field" form={f} insee="" />
-          <% else %>
-            <.live_component module={TransportWeb.Live.CommuneField} id="commune_field" form={f} insee={@dataset.aom.insee_commune_principale} />
-          <% end %>
-        </div>
-        <p class="separator">
-          - <%= dgettext("resource", "or") %> -
-        </p>
-        <div class="panel__content">
-          <%= dgettext("backoffice", "Dataset linked to a list of cities in data.gouv.fr") %>
-          <div>
-            <div class="pt-12">
-              <%= InputHelpers.text_input(f, :associated_territory_name,
-                placeholder: dgettext("backoffice", "Name of the associtated territory (used in the title of the dataset)"),
-                value: @form_params["associated_territory_name"].value
-              ) %>
-            </div>
-          </div>
-        </div>
       </div>
-      <div id="backoffice_dataset_submit_buttons" class={if is_nil(@dataset), do: "pb-48"}>
-        <div>
-          <%= if is_nil(@dataset) do %>
-            <%= hidden_input(f, :action, value: "new") %>
-            <%= InputHelpers.submit(dgettext("backoffice", "Add")) %>
-          <% else %>
-            <%= hidden_input(f, :action, value: "edit") %>
-            <%= InputHelpers.submit(dgettext("backoffice", "Save")) %>
-          <% end %>
-        </div>
-        <div>
-          <%= link(dgettext("backoffice", "Cancel"), to: backoffice_page_path(@socket, :index)) %>
-        </div>
-      </div>
-    </.form>
+    </div>
+  </div>
+  <div id="backoffice_dataset_submit_buttons" class={if is_nil(@dataset), do: "pb-48"}>
+    <div>
+      <%= if is_nil(@dataset) do %>
+        <%= hidden_input(f, :action, value: "new") %>
+        <%= InputHelpers.submit(dgettext("backoffice", "Add")) %>
+      <% else %>
+        <%= hidden_input(f, :action, value: "edit") %>
+        <%= InputHelpers.submit(dgettext("backoffice", "Save")) %>
+      <% end %>
+    </div>
+    <div>
+      <%= link(dgettext("backoffice", "Cancel"), to: backoffice_page_path(@socket, :index)) %>
+    </div>
+  </div>
+</.form>
