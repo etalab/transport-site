@@ -2,7 +2,7 @@ defmodule TransportWeb.GTFSDiffExplain do
   @moduledoc """
   Functions to explain and interpret GTFS Diff files
   """
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
 
   def diff_explanations(diffs) do
     diffs

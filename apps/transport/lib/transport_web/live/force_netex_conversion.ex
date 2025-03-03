@@ -3,7 +3,7 @@ defmodule TransportWeb.Live.ForceNeTExConversion do
   A button to launch NeTEx conversions from backoffice
   """
   use Phoenix.LiveView
-  import TransportWeb.Gettext, only: [dgettext: 2]
+  use Gettext, backend: TransportWeb.Gettext
 
   def render(assigns) do
     ~H"""
