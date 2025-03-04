@@ -5,6 +5,7 @@ defmodule DB.ReuserImprovedData do
   use Ecto.Schema
   use TypedEctoSchema
   import Ecto.Changeset
+  import Ecto.Query
 
   typed_schema "reuser_improved_data" do
     belongs_to(:dataset, DB.Dataset)
@@ -14,6 +15,8 @@ defmodule DB.ReuserImprovedData do
     field(:download_url, :string)
     timestamps(type: :utc_datetime_usec)
   end
+
+  def base_query, do: from(rm in __MODULE__, as: :reuser_improved_data)
 
   def changeset(%__MODULE__{} = struct, attrs \\ %{}) do
     fields = [:dataset_id, :resource_id, :contact_id, :organization_id, :download_url]

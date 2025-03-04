@@ -110,6 +110,7 @@ base_oban_conf = [repo: DB.Repo, insert_trigger: false]
 # See https://hexdocs.pm/oban/Oban.html#module-cron-expressions
 oban_prod_crontab = [
   {"0 */6 * * *", Transport.Jobs.ResourceHistoryAndValidationDispatcherJob},
+  {"0 4,16 * * *", Transport.Jobs.ResourceHistoryAndValidationDispatcherJob, args: %{mode: :reuser_improved_data}},
   {"30 */6 * * *", Transport.Jobs.GTFSToGeoJSONConverterJob},
   {"0 4 * * *", Transport.Jobs.GTFSImportStopsJob},
   # every 6 hours but not at the same time as other jobs
