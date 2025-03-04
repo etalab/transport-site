@@ -10,13 +10,22 @@ defmodule TransportWeb.CustomTagsLiveTest do
   test "render and add tags", %{conn: conn} do
     conn = conn |> setup_admin_in_session()
 
-    dataset = insert(:dataset, custom_tags: ["super", "top"])
+    dataset =
+      insert(:dataset,
+        custom_tags: ["super", "top"],
+        # needs to be preloaded
+        legal_owners_aom: [],
+        # same
+        legal_owners_region: []
+      )
 
     {:ok, view, _html} =
-      live_isolated(conn, TransportWeb.CustomTagsLive,
+      live_isolated(conn, TransportWeb.EditDatasetLive,
         session: %{
           "dataset" => dataset,
-          "form" => :form
+          "dataset_types" => [],
+          "regions" => [],
+          "form_url" => "url_used_to_post_result"
         }
       )
 
@@ -26,21 +35,21 @@ defmodule TransportWeb.CustomTagsLiveTest do
     assert render(view) =~ "top"
 
     # add a new tag
-    rendered_view =
-      view
-      |> element("#custom_tag")
-      |> render_keydown(%{"key" => "Enter", "value" => " ExCeLlEnT   "})
+    view
+    |> element("#custom_tag")
+    |> render_keydown(%{"key" => "Enter", "value" => " ExCeLlEnT   "})
+    |> dbg()
 
-    assert rendered_view =~ "excellent"
-    refute rendered_view =~ "excellent   "
+    # We need to rerender the view to see the tag
+    assert render(view) =~ "excellent"
+    refute render(view) =~ "excellent   "
 
     # Does not lowercase tags for SIRI requestor refs
-    rendered_view =
-      view
-      |> element("#custom_tag")
-      |> render_keydown(%{"key" => "Enter", "value" => "requestor_ref:OPENDATA"})
+    view
+    |> element("#custom_tag")
+    |> render_keydown(%{"key" => "Enter", "value" => "requestor_ref:OPENDATA"})
 
-    assert rendered_view =~ "requestor_ref:OPENDATA"
+    assert render(view) =~ "requestor_ref:OPENDATA"
   end
 
   test "tags_suggestions includes unique tags in the DB + documented tags" do
