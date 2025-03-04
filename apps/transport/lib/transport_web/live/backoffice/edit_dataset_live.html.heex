@@ -27,10 +27,7 @@
   </p>
 
   <div class="pt-24">
-    <%= InputHelpers.text_input(f, :url,
-      placeholder: dgettext("backoffice", "Dataset's url"),
-      value: @form_params["url"].value
-    ) %>
+    <%= InputHelpers.text_input(f, :url, placeholder: dgettext("backoffice", "Dataset's url")) %>
 
     <%= if assigns[:datagouv_infos] do %>
       <% dataset_datagouv_id = @datagouv_infos[:dataset_datagouv_id] %>
@@ -57,10 +54,7 @@
       </div>
     <% end %>
 
-    <%= InputHelpers.text_input(f, :custom_title,
-      placeholder: dgettext("backoffice", "name"),
-      value: @form_params["custom_title"].value
-    ) %>
+    <%= InputHelpers.text_input(f, :custom_title, placeholder: dgettext("backoffice", "name")) %>
     <%= InputHelpers.select(f, :type, @dataset_types,
       selected:
         if not is_nil(@dataset) do
@@ -70,7 +64,6 @@
         end
     ) %>
   </div>
-
 
   <.live_component module={TransportWeb.CustomTagsLive} id="custom_tags" form={f} custom_tags={@custom_tags} />
 
@@ -105,8 +98,7 @@
         <%= dgettext("backoffice", "Company SIREN code") %>
         <%= InputHelpers.text_input(f, :legal_owner_company_siren,
           placeholder: "821611431",
-          pattern: "\\d{9,9}",
-          value: @form_params["legal_owner_company_siren"].value
+          pattern: "\\d{9,9}"
         ) %>
       </label>
     </div>
@@ -145,16 +137,20 @@
     </p>
     <%= dgettext("backoffice", "Dataset linked to an AOM") %>
     <div class="panel__content">
-      <%= if is_nil(@dataset) || is_nil(@dataset.aom) || is_nil(@dataset.aom.insee_commune_principale) do %>
-        <.live_component module={TransportWeb.Live.CommuneField} id="commune_field" form={f} insee="" />
-      <% else %>
-        <.live_component
-          module={TransportWeb.Live.CommuneField}
-          id="commune_field"
-          form={f}
-          insee={@dataset.aom.insee_commune_principale}
-        />
-      <% end %>
+      <div>
+        <%= InputHelpers.text_input(f, :insee,
+          placeholder: "Commune faisant partie de l'AOM (code INSEE ou nom)",
+          phx_keyup: "suggest",
+          list: "matches",
+          autoComplete: "off",
+          id: "communes_q"
+        ) %>
+        <datalist id="matches">
+          <%= for match <- @matches do %>
+            <option value={match.insee}><%= "#{match.nom} #{match.insee}" %></option>
+          <% end %>
+        </datalist>
+      </div>
     </div>
     <p class="separator">
       - <%= dgettext("resource", "or") %> -
