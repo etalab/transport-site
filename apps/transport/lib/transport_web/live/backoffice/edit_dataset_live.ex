@@ -39,16 +39,20 @@ defmodule TransportWeb.EditDatasetLive do
       |> assign(:trigger_submit, false)
       |> assign(:form_params, form_params(dataset))
       |> assign(:custom_tags, get_custom_tags(dataset))
+      |> assign(:matches, [])
 
     {:ok, socket}
   end
 
   def form_params(%DB.Dataset{} = dataset) do
+    insee = if is_nil(dataset.aom), do: "", else: dataset.aom.insee_commune_principale
+
     %{
       "url" => Dataset.datagouv_url(dataset),
       "custom_title" => dataset.custom_title,
       "legal_owner_company_siren" => dataset.legal_owner_company_siren,
       "national_dataset" => dataset.region_id == 14,
+      "insee" => insee,
       "associated_territory_name" => dataset.associated_territory_name
     }
     |> to_form()
@@ -60,6 +64,7 @@ defmodule TransportWeb.EditDatasetLive do
       "custom_title" => "",
       "legal_owner_company_siren" => "",
       "national_dataset" => "",
+      "insee" => "",
       "associated_territory_name" => ""
     }
     |> to_form()
@@ -80,7 +85,7 @@ defmodule TransportWeb.EditDatasetLive do
   def get_legal_owners(_), do: []
 
   def get_custom_tags(%Dataset{} = dataset) do
-    dataset.custom_tags
+    dataset.custom_tags || []
   end
 
   def get_custom_tags(_), do: []
@@ -124,6 +129,15 @@ defmodule TransportWeb.EditDatasetLive do
   # allow a classic http form submit when the form is submitted by user
   def handle_event("save", _, socket) do
     {:noreply, assign(socket, trigger_submit: true)}
+  end
+
+  def handle_event("suggest", %{"value" => query}, socket) when byte_size(query) <= 100 do
+    matches =
+      query
+      |> Transport.SearchCommunes.search()
+      |> Enum.take(5)
+
+    {:noreply, assign(socket, matches: matches)}
   end
 
   def handle_event(_, _, socket) do
