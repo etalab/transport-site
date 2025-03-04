@@ -180,6 +180,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
       false ->
         Appsignal.increment_counter("resource_history_job.failed", 1)
+        Logger.error("Historization failed for #{inspect(resource_or_improved_data)}")
         {:error, "historization failed"}
     end
   end
