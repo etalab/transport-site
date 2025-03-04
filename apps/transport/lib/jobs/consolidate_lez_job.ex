@@ -16,33 +16,6 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
 
   @schema_name "etalab/schema-zfe"
   @lez_dataset_type "low-emission-zones"
-  @dataset_org_to_publisher %{
-    "Ville de Paris" => %{
-      "nom" => "Ville de Paris",
-      "siren" => "217500016",
-      "forme_juridique" => "Autre collectivité territoriale"
-    },
-    "Métropole de Lyon" => %{
-      "nom" => "Métropole de Lyon",
-      "siren" => "200046977",
-      "forme_juridique" => "Métropole"
-    },
-    "Saint-Etienne Métropole" => %{
-      "nom" => "Saint-Etienne Métropole",
-      "siren" => "244200770",
-      "forme_juridique" => "Métropole"
-    },
-    "Toulouse Métropole" => %{
-      "nom" => "Toulouse Métropole",
-      "siren" => "243100518",
-      "forme_juridique" => "Métropole"
-    },
-    "Clermont Auvergne Métropole" => %{
-      "nom" => "Clermont Auvergne Métropole",
-      "siren" => "246300701",
-      "forme_juridique" => "Métropole"
-    }
-  }
 
   @impl Oban.Worker
   def perform(%Oban.Job{id: job_id}) do
@@ -173,13 +146,21 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
     }
   end
 
+  @doc """
+  iex> publisher_details(%DB.Resource{dataset: %DB.Dataset{organization: "Dijon metropole"}})
+  %{"forme_juridique" => "Métropole", "nom" => "Dijon Métropole", "siren" => "242100410", "zfe_id" => "DIJON"}
+  """
   def publisher_details(%Resource{dataset: %Dataset{organization: organization}}) do
-    publisher =
-      @dataset_org_to_publisher
-      |> Enum.into(%{}, fn {k, v} -> {String.downcase(k), v} end)
-      |> Map.fetch!(String.downcase(organization))
-
-    publisher |> Map.put("zfe_id", zfe_id(Map.fetch!(publisher, "siren")))
+    CSVDocuments.zfe_ids()
+    |> Enum.find_value(
+      &if lower_unaccent(organization) == lower_unaccent(&1["epci_principal"]),
+        do: %{
+          "nom" => &1["epci_principal"],
+          "siren" => &1["siren"],
+          "forme_juridique" => &1["forme_juridique"],
+          "zfe_id" => zfe_id(&1["siren"])
+        }
+    )
   end
 
   def zfe_id(siren) do
@@ -204,6 +185,30 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
 
   def consolidation_configuration do
     Map.fetch!(Application.fetch_env!(:transport, :consolidation), :zfe)
+  end
+
+  @doc """
+  Replaces accented letters by their regular versions and lowercase.
+
+  iex> lower_unaccent("Et Ça sera sa moitié.")
+  "et ca sera sa moitie."
+  """
+  def lower_unaccent(value) when is_binary(value) do
+    value |> String.downcase() |> unaccent()
+  end
+
+  @doc """
+  Replaces accented letters by their regular versions.
+  Taken from https://stackoverflow.com/a/68724296
+
+  iex> unaccent("Et Ça sera sa moitié.")
+  "Et Ca sera sa moitie."
+  """
+  @spec unaccent(binary()) :: binary()
+  def unaccent(value) when is_binary(value) do
+    ~r/\p{Mn}/u
+    |> Regex.replace(value |> :unicode.characters_to_nfd_binary(), "")
+    |> :unicode.characters_to_nfc_binary()
   end
 
   defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
