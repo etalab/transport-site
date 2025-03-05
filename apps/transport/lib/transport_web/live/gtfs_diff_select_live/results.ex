@@ -49,7 +49,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
           dgettext(
             "validations",
             "<a href=\"%{spec}\">Read</a> the GTFS Diff specification to understand how differences between GTFS are expressed",
-            spec: "https://github.com/etalab/gtfs_diff/blob/main/specification.md"
+            spec: "https://github.com/MobilityData/gtfs_diff/blob/main/specification.md"
           )
         ) %>.
         <%= if @diff_summary do %>
