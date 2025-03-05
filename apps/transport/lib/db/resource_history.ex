@@ -8,6 +8,7 @@ defmodule DB.ResourceHistory do
 
   @derive {Jason.Encoder, only: [:resource_id, :payload, :last_up_to_date_at, :inserted_at, :updated_at]}
   typed_schema "resource_history" do
+    # `datagouv_id` is `null` for reuser improved data and filled for resources
     field(:datagouv_id, :string)
     field(:payload, :map)
     # the last moment we checked and the resource history was corresponding to the real online resource

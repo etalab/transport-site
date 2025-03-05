@@ -287,7 +287,6 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
   defp store_resource_history!(%DB.ReuserImprovedData{id: reuser_improved_data_id}, payload) do
     %DB.ResourceHistory{
-      datagouv_id: "reuser_improved_data::#{reuser_improved_data_id}",
       reuser_improved_data_id: reuser_improved_data_id,
       payload: Map.merge(payload, %{format: "GTFS"}),
       last_up_to_date_at: DateTime.utc_now()

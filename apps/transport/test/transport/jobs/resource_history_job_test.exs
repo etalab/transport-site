@@ -500,11 +500,10 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       ensure_no_tmp_files!("reuser_improved_data_")
 
       expected_zip_metadata = zip_metadata()
-      datagouv_id = "reuser_improved_data::#{reuser_improved_data_id}"
 
       assert %DB.ResourceHistory{
                resource_id: nil,
-               datagouv_id: ^datagouv_id,
+               datagouv_id: nil,
                payload: %{
                  "filenames" => [
                    "ExportService.checksum.md5",
