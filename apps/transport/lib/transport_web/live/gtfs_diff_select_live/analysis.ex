@@ -12,7 +12,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Analysis do
       <div class="panel">
         <h4><%= dgettext("validations", "Processing") %></h4>
         <div :for={log <- @diff_logs}>
-          <%= raw(log) %>...
+          <%= raw(log) %>…
         </div>
       </div>
 
