@@ -157,7 +157,12 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
     <div class="pt-24">
       <div class="dashboard">
         <.navigation files_with_changes={@files_with_changes} profile={@profile} selected_file={@selected_file} />
-        <.differences diff_summary={@diff_summary} selected_file={@selected_file} diff_explanations={@diff_explanations} />
+        <.differences
+          diff_summary={@diff_summary}
+          selected_file={@selected_file}
+          diff_explanations={@diff_explanations}
+          profile={@profile}
+        />
       </div>
     </div>
     """
@@ -212,7 +217,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
     """
   end
 
-  defp differences(%{selected_file: "other-files"} = assigns) do
+  defp differences(%{selected_file: "other-files", profile: _} = assigns) do
     ~H"""
     <div class="main">
       <h4><%= dgettext("validations", "Looking for other files?") %></h4>
@@ -223,7 +228,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
         ) %>
       </p>
       <ul>
-        <li :for={filename <- Transport.GTFSDiff.files_to_analyze("core")}>
+        <li :for={filename <- Transport.GTFSDiff.files_to_analyze(@profile)}>
           <code><%= filename %></code>
         </li>
       </ul>

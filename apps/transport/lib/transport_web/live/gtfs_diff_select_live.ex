@@ -23,6 +23,18 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
      |> setup_uploads()}
   end
 
+  def handle_params(params, _uri, socket) do
+    {:noreply, set_profile(socket, params)}
+  end
+
+  def set_profile(socket, %{"profile" => profile}) do
+    assign(socket, profile: profile)
+  end
+
+  def set_profile(socket, _) do
+    assign(socket, profile: "core")
+  end
+
   def handle_event("validate", _params, socket) do
     {:noreply, assign(socket, error_msg: nil)}
   end
@@ -63,7 +75,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
 
     :ok = listen_job_notifications()
 
-    job_id = schedule_job(gtfs_file_name_1, gtfs_file_name_2)
+    job_id = schedule_job(gtfs_file_name_1, gtfs_file_name_2, socket.assigns[:profile])
 
     socket =
       socket
@@ -141,7 +153,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     {:ok, %{uploaded_file_name: file_name, original_file_name: original_file_name}}
   end
 
-  defp schedule_job(gtfs_file_name_1, gtfs_file_name_2) do
+  defp schedule_job(gtfs_file_name_1, gtfs_file_name_2, profile) do
     %{id: job_id} =
       %{
         gtfs_file_name_1: gtfs_file_name_1.uploaded_file_name,
@@ -150,7 +162,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
         gtfs_original_file_name_2: gtfs_file_name_2.original_file_name,
         bucket: Transport.S3.bucket_name(:gtfs_diff),
         locale: Gettext.get_locale(),
-        profile: "core"
+        profile: profile
       }
       |> Transport.Jobs.GTFSDiff.new()
       |> Oban.insert!()
