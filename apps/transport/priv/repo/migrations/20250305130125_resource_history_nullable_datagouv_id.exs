@@ -3,7 +3,7 @@ defmodule DB.Repo.Migrations.ResourceHistoryNullableDatagouvId do
 
   def change do
     alter table(:resource_history) do
-      modify :datagouv_id, :string, null: true, from: :string
+      modify(:datagouv_id, :string, null: true, from: :string)
     end
   end
 end
