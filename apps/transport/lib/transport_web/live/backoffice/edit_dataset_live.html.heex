@@ -53,10 +53,7 @@
         <% end %>
       </div>
     <% end %>
-    <%= InputHelpers.text_input(f, :custom_title,
-      placeholder: dgettext("backoffice", "name"),
-      value: @form_params["custom_title"].value
-    ) %>
+    <%= InputHelpers.text_input(f, :custom_title, placeholder: dgettext("backoffice", "name")) %>
     <%= InputHelpers.select(f, :type, @dataset_types,
       selected:
         if not is_nil(@dataset) do
@@ -114,7 +111,7 @@
       <%= dgettext("backoffice", "Choose one") %>
     </div>
     <div class="panel__content">
-      <%= checkbox(f, :national_dataset, value: @form_params["national_dataset"].value) %><%= dgettext(
+      <%= checkbox(f, :national_dataset) %><%= dgettext(
         "backoffice",
         "National dataset"
       ) %>
@@ -162,8 +159,7 @@
       <div>
         <div class="pt-12">
           <%= InputHelpers.text_input(f, :associated_territory_name,
-            placeholder: dgettext("backoffice", "Name of the associtated territory (used in the title of the dataset)"),
-            value: @form_params["associated_territory_name"].value
+            placeholder: dgettext("backoffice", "Name of the associtated territory (used in the title of the dataset)")
           ) %>
         </div>
       </div>
