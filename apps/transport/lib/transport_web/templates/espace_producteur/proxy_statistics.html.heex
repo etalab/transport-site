@@ -1,9 +1,7 @@
-<div class="pt-48">
-  <div class="container pb-24">
-    <%= breadcrumbs([@conn, :proxy_statistics]) %>
-  </div>
-</div>
-<section class="section producer-actions">
+<section class="container pt-48 pb-24">
+  <%= breadcrumbs([@conn, :proxy_statistics]) %>
+</section>
+<section class="producer-actions">
   <div class="container">
     <h2><%= dgettext("espace-producteurs", "Transport proxy statistics") %></h2>
     <div class="panel">

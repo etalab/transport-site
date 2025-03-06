@@ -70,6 +70,11 @@ defmodule TransportWeb.BreadCrumbs do
       [{dgettext("espace-producteurs", "Update a resource"), nil}]
   end
 
+  def crumbs(conn, :reuser_improved_data, dataset_custom_title, id, resource_title) do
+    crumbs(conn, :edit_dataset, dataset_custom_title, id) ++
+      [{resource_title, nil}]
+  end
+
   def render_crumbs(crumbs_element) do
     content_tag :div, class: "breadcrumbs" do
       render_crumbs_elements(crumbs_element)

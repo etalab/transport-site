@@ -1,10 +1,8 @@
-<section class="pt-48 pb-24">
-  <div class="container">
-    <%= breadcrumbs([@conn, :delete_resource, @dataset.custom_title, @dataset.id]) %>
-  </div>
+<section class="container pt-48 pb-24">
+  <%= breadcrumbs([@conn, :delete_resource, @dataset.custom_title, @dataset.id]) %>
 </section>
-<section class="espace-producteur-section">
-  <div class="container pt-24">
+<section class="producer-space producer-actions">
+  <div class="container">
     <strong><%= @dataset.custom_title %> > <%= @datagouv_resource["title"] %></strong>
     <%= form_for @conn, espace_producteur_path(@conn, :delete_resource, @datagouv_dataset["id"], @datagouv_resource["id"]), [method: "delete", class: "pt-48"], fn _ -> %>
       <p class="notification warning">

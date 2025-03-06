@@ -96,6 +96,7 @@ defmodule TransportWeb.Router do
 
       scope "/datasets" do
         get("/:dataset_id/edit", EspaceProducteurController, :edit_dataset)
+        get("/:dataset_id/reuser_improved_data/:resource_id", EspaceProducteurController, :reuser_improved_data)
         post("/:dataset_id/upload_logo", EspaceProducteurController, :upload_logo)
         delete("/:dataset_id/custom_logo", EspaceProducteurController, :remove_custom_logo)
 

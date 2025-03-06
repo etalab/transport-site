@@ -2,8 +2,8 @@
 <section class="container pt-48 pb-24">
   <%= breadcrumbs([@conn, :edit_dataset, @dataset.custom_title, @dataset.id]) %>
 </section>
-<section class="espace-producteur-section pb-48">
-  <div class="container pt-24">
+<section class="producer-space producer-actions">
+  <div class="container">
     <h2><%= @dataset.custom_title %></h2>
 
     <div class="panel">
@@ -38,15 +38,17 @@
       <div>
         <table class="table mt-24">
           <%= for resource <- @datagouv_dataset["resources"] do %>
-            <% format =
+            <% db_resource =
               Enum.find_value(
                 @dataset.resources,
-                fn %DB.Resource{datagouv_id: resource_datagouv_id, format: format} ->
-                  if resource["id"] == resource_datagouv_id, do: format
+                fn %DB.Resource{datagouv_id: resource_datagouv_id} = db_resource ->
+                  if resource["id"] == resource_datagouv_id, do: db_resource
                 end
               ) %>
             <tr>
-              <td><%= resource["title"] %> <span :if={format} class="label"><%= format %></span></td>
+              <td>
+                <%= resource["title"] %> <span :if={db_resource} class="label"><%= db_resource.format %></span>
+              </td>
               <td class="align-right">
                 <%= link(dgettext("espace-producteurs", "Edit resource"),
                   to: espace_producteur_path(@conn, :edit_resource, @dataset.id, resource["id"]),
@@ -54,6 +56,14 @@
                   "data-tracking-category": "espace_producteur",
                   "data-tracking-action": "update_resource_button"
                 ) %>
+                <%= if Enum.any?(@dataset.reuser_improved_data, & &1.resource.id == db_resource.id) do %>
+                  <%= link(dgettext("espace-producteurs", "Reuser GTFS"),
+                    to: espace_producteur_path(@conn, :reuser_improved_data, @dataset.id, db_resource.id),
+                    class: "button-outline reuser small",
+                    "data-tracking-category": "espace_producteur",
+                    "data-tracking-action": "see_reuser_improved_data"
+                  ) %>
+                <% end %>
                 <%= link(dgettext("espace-producteurs", "Delete resource"),
                   to:
                     espace_producteur_path(

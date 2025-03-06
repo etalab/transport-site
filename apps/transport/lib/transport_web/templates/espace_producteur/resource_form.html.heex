@@ -1,16 +1,14 @@
 <% new_resource = is_nil(@datagouv_resource) %>
 <div class="add-update-resource">
-  <section class="pt-48 pb-24">
-    <div class="container">
-      <%= if new_resource do %>
-        <%= breadcrumbs([@conn, :new_resource, @dataset.custom_title, @dataset.id]) %>
-      <% else %>
-        <%= breadcrumbs([@conn, :update_resource, @dataset.custom_title, @dataset.id]) %>
-      <% end %>
-    </div>
+  <section class="container pt-48 pb-24">
+    <%= if new_resource do %>
+      <%= breadcrumbs([@conn, :new_resource, @dataset.custom_title, @dataset.id]) %>
+    <% else %>
+      <%= breadcrumbs([@conn, :update_resource, @dataset.custom_title, @dataset.id]) %>
+    <% end %>
   </section>
-  <section class="choose-file">
-    <div class="container pt-24">
+  <section class="producer-actions choose-file">
+    <div class="container">
       <strong>
         <%= @dataset.custom_title %><span :if={!new_resource}> > <%= @datagouv_resource["title"] %></span>
       </strong>
