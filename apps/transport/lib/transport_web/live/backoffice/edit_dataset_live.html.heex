@@ -139,12 +139,12 @@
       <div>
         <%= InputHelpers.text_input(f, :insee,
           placeholder: "Commune faisant partie de l'AOM (code INSEE ou nom)",
-          phx_keyup: "suggest",
-          list: "matches",
+          phx_keyup: "suggest_communes",
+          list: "communes-matches",
           autoComplete: "off",
           id: "communes_q"
         ) %>
-        <datalist id="matches">
+        <datalist id="communes-matches">
           <%= for match <- @matches do %>
             <option value={match.insee}><%= "#{match.nom} #{match.insee}" %></option>
           <% end %>

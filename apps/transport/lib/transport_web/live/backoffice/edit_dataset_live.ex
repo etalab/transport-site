@@ -131,7 +131,7 @@ defmodule TransportWeb.EditDatasetLive do
     {:noreply, assign(socket, trigger_submit: true)}
   end
 
-  def handle_event("suggest", %{"value" => query}, socket) when byte_size(query) <= 100 do
+  def handle_event("suggest_communes", %{"value" => query}, socket) when byte_size(query) <= 100 do
     matches =
       query
       |> Transport.SearchCommunes.search()
