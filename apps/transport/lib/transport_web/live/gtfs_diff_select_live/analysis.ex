@@ -8,7 +8,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Analysis do
 
   def analysis_step(%{diff_logs: _, error_msg: _} = assigns) do
     ~H"""
-    <div class="container">
+    <div id="gtfs-diff-analysis" class="container">
       <div class="panel">
         <h4><%= dgettext("validations", "Processing") %></h4>
         <div :for={log <- @diff_logs}>
