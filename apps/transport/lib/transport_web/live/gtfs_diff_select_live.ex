@@ -5,7 +5,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   use Phoenix.LiveView
   use TransportWeb.InputHelpers
   import TransportWeb.Router.Helpers
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
   alias TransportWeb.GTFSDiffExplain
 
   import TransportWeb.Live.GTFSDiffSelectLive.Analysis

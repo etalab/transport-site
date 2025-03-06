@@ -3,7 +3,7 @@ defmodule DB.ResourceRelated do
   A module to deal with `DB.Resource` related to other `DB.Resource`
   """
   use TypedEctoSchema
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
 
   @primary_key false
   typed_schema "resource_related" do
