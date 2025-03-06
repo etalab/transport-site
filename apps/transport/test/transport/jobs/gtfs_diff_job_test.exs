@@ -50,7 +50,7 @@ defmodule Transport.Jobs.GTFSDiffTest do
 
         enqueue_job(%{"gtfs_url_1" => base_gtfs_url, "gtfs_url_2" => modified_gtfs_url})
 
-        expect_various_notifications()
+        expect_various_notifications(base_gtfs_url, modified_gtfs_url)
       end)
     end
   end
@@ -93,13 +93,24 @@ defmodule Transport.Jobs.GTFSDiffTest do
   end
 
   defp expect_various_notifications do
-    job_id = expect_start_notification()
+    expect_start_notification()
+    |> expect_running_notifications()
+    |> expect_completion_notification_for_files()
+  end
+
+  defp expect_various_notifications(base_url, modified_url) do
+    expect_start_notification()
+    |> expect_running_notifications()
+    |> expect_completion_notification_for_urls(base_url, modified_url)
+  end
+
+  defp expect_running_notifications(job_id) do
     expect_running_notification(job_id, "Calcul des différences pour <code>agency.txt</code>")
     expect_running_notification(job_id, "Calcul des différences pour <code>calendar.txt</code>")
     expect_running_notification(job_id, "Calcul des différences pour <code>routes.txt</code>")
     expect_running_notification(job_id, "Calcul des différences pour <code>stops.txt</code>")
     expect_running_notification(job_id, "Calcul des différences pour <code>trips.txt</code>")
-    expect_completion_notification(job_id)
+    job_id
   end
 
   defp expect_start_notification do
@@ -112,13 +123,27 @@ defmodule Transport.Jobs.GTFSDiffTest do
     assert_receive {:notification, :gossip, %{"running" => ^job_id, "log" => ^msg}}
   end
 
-  defp expect_completion_notification(job_id) do
+  defp expect_completion_notification_for_files(job_id) do
     assert_receive {:notification, :gossip,
                     %{
                       "complete" => ^job_id,
                       "diff_file_url" => _,
-                      "gtfs_original_file_name_1" => "base.zip",
-                      "gtfs_original_file_name_2" => "modified.zip"
+                      "context" => %{
+                        "gtfs_original_file_name_1" => "base.zip",
+                        "gtfs_original_file_name_2" => "modified.zip"
+                      }
+                    }}
+  end
+
+  defp expect_completion_notification_for_urls(job_id, base_url, modified_url) do
+    assert_receive {:notification, :gossip,
+                    %{
+                      "complete" => ^job_id,
+                      "diff_file_url" => _,
+                      "context" => %{
+                        "gtfs_url_1" => ^base_url,
+                        "gtfs_url_2" => ^modified_url
+                      }
                     }}
   end
 
