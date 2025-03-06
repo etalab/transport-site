@@ -38,7 +38,6 @@ defmodule TransportWeb.CustomTagsLiveTest do
     view
     |> element("#custom_tag")
     |> render_keydown(%{"key" => "Enter", "value" => " ExCeLlEnT   "})
-    |> dbg()
 
     # We need to rerender the view to see the tag
     assert render(view) =~ "excellent"
