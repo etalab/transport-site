@@ -4,6 +4,7 @@ defmodule Transport.Unzip.S3.Behaviour do
   """
 
   @callback get_file_stream(binary(), binary(), binary()) :: Enumerable.t()
+  @callback get_unzip(binary(), binary()) :: {:ok, Unzip.t()}
 end
 
 defmodule Transport.Unzip.S3 do
