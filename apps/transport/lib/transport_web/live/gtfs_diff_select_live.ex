@@ -152,8 +152,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
         %{
           "complete" => job_id,
           "diff_file_url" => diff_file_url,
-          "gtfs_original_file_name_1" => gtfs_original_file_name_1,
-          "gtfs_original_file_name_2" => gtfs_original_file_name_2
+          "context" => context
         },
         job_id,
         socket
@@ -162,7 +161,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     unlisten_job_notifications()
 
     socket
-    |> present_results(diff_file_url, gtfs_original_file_name_1, gtfs_original_file_name_2)
+    |> present_results(diff_file_url, context)
     |> scroll_to_steps()
   end
 
@@ -266,11 +265,10 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     end
   end
 
-  defp present_results(socket, diff_file_url, gtfs_original_file_name_1, gtfs_original_file_name_2) do
+  defp present_results(socket, diff_file_url, context) do
     updates = [
       set(:diff_file_url, diff_file_url),
-      set(:gtfs_original_file_name_1, gtfs_original_file_name_1),
-      set(:gtfs_original_file_name_2, gtfs_original_file_name_2)
+      set(:context, context)
     ]
 
     socket

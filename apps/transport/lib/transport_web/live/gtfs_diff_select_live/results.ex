@@ -13,8 +13,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
       diff_file_url={@results[:diff_file_url]}
       diff_summary={@results[:diff_summary]}
       files_with_changes={@results[:files_with_changes]}
-      gtfs_original_file_name_1={@results[:gtfs_original_file_name_1]}
-      gtfs_original_file_name_2={@results[:gtfs_original_file_name_2]}
+      context={@results[:context]}
       selected_file={@results[:selected_file]}
       error_msg={@error_msg}
       profile={@profile}
@@ -29,8 +28,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
            diff_summary: _,
            error_msg: _,
            files_with_changes: _,
-           gtfs_original_file_name_1: _,
-           gtfs_original_file_name_2: _,
+           context: _,
            profile: _,
            selected_file: _
          } = assigns
@@ -54,18 +52,15 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
         ) %>.
         <%= if @diff_summary do %>
           <div class="pt-24">
-            <%= if @diff_summary == %{} do %>
-              <%= similar_files(@gtfs_original_file_name_1, @gtfs_original_file_name_2) %>
-            <% else %>
-              <%= different_files(@gtfs_original_file_name_1, @gtfs_original_file_name_2) %>
-              <.diff_summaries
-                diff_explanations={@diff_explanations}
-                diff_summary={@diff_summary}
-                files_with_changes={@files_with_changes}
-                selected_file={@selected_file}
-                profile={@profile}
-              />
-            <% end %>
+            <%= display_context(@diff_summary, @context) |> raw() %>
+            <.diff_summaries
+              :if={@diff_summary != %{}}
+              diff_explanations={@diff_explanations}
+              diff_summary={@diff_summary}
+              files_with_changes={@files_with_changes}
+              selected_file={@selected_file}
+              profile={@profile}
+            />
           </div>
         <% else %>
           <%= if @error_msg do %>
@@ -261,24 +256,59 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
     """
   end
 
-  defp similar_files(file1, file2) do
+  defp display_context(diff_summary, %{
+         "gtfs_original_file_name_1" => file_name_1,
+         "gtfs_original_file_name_2" => file_name_2
+       }) do
+    if diff_summary == %{} do
+      similar_files(file_name_1, file_name_2)
+    else
+      different_files(file_name_1, file_name_2)
+    end
+  end
+
+  defp display_context(diff_summary, %{"gtfs_url_1" => url_1, "gtfs_url_2" => url_2}) do
+    if diff_summary == %{} do
+      similar_urls(url_1, url_2)
+    else
+      different_urls(url_1, url_2)
+    end
+  end
+
+  defp similar_files(file_1, file_2) do
     dgettext(
       "validations",
       "The GTFS files <code>%{gtfs_original_file_name_2}</code> and <code>%{gtfs_original_file_name_1}</code> are similar.",
-      gtfs_original_file_name_1: file1,
-      gtfs_original_file_name_2: file2
+      gtfs_original_file_name_1: file_1,
+      gtfs_original_file_name_2: file_2
     )
-    |> raw()
   end
 
-  defp different_files(file1, file2) do
+  defp different_files(file_1, file_2) do
     dgettext(
       "validations",
       "The GTFS file <code>%{gtfs_original_file_name_2}</code> has differences with the GTFS file <code>%{gtfs_original_file_name_1}</code>, as summarized below:",
-      gtfs_original_file_name_1: file1,
-      gtfs_original_file_name_2: file2
+      gtfs_original_file_name_1: file_1,
+      gtfs_original_file_name_2: file_2
     )
-    |> raw()
+  end
+
+  defp similar_urls(url_1, url_2) do
+    dgettext(
+      "validations",
+      "The modified GTFS file (<a href=\"%{gtfs_url_2}\">source</a>) and the reference GTFS file (<a href=\"%{gtfs_url_1}\">source</a>) are similar.",
+      gtfs_url_1: url_1,
+      gtfs_url_2: url_2
+    )
+  end
+
+  defp different_urls(url_1, url_2) do
+    dgettext(
+      "validations",
+      "The modified GTFS file (<a href=\"%{gtfs_url_2}\">source</a>) has differences with the reference GTFS file (<a href=\"%{gtfs_url_1}\">source</a>), as summarized below:",
+      gtfs_url_1: url_1,
+      gtfs_url_2: url_2
+    )
   end
 
   defp validation_error(%{error_msg: _} = assigns) do

@@ -9,11 +9,26 @@ defmodule Transport.Jobs.GTFSDiff do
     Oban.Notifier.notify(Oban, :gossip, %{started: job.id})
 
     case args do
-      %{"gtfs_object_1" => gtfs_object_1, "gtfs_object_2" => gtfs_object_2} ->
-        process_s3_objects(job.id, gtfs_object_1, gtfs_object_2, args)
+      %{
+        "gtfs_object_1" => gtfs_object_1,
+        "gtfs_object_2" => gtfs_object_2,
+        "gtfs_original_file_name_1" => gtfs_original_file_name_1,
+        "gtfs_original_file_name_2" => gtfs_original_file_name_2
+      } ->
+        context = %{
+          "gtfs_original_file_name_1" => gtfs_original_file_name_1,
+          "gtfs_original_file_name_2" => gtfs_original_file_name_2
+        }
+
+        process_s3_objects(job.id, gtfs_object_1, gtfs_object_2, Map.merge(args, %{"context" => context}))
 
       %{"gtfs_url_1" => gtfs_url_1, "gtfs_url_2" => gtfs_url_2} ->
-        process_urls(job.id, gtfs_url_1, gtfs_url_2, args)
+        context = %{
+          "gtfs_url_1" => gtfs_url_1,
+          "gtfs_url_2" => gtfs_url_2
+        }
+
+        process_urls(job.id, gtfs_url_1, gtfs_url_2, Map.merge(args, %{"context" => context}))
     end
 
     :ok
@@ -80,8 +95,7 @@ defmodule Transport.Jobs.GTFSDiff do
   end
 
   defp process_diff(job_id, unzip_1, unzip_2, %{
-         "gtfs_original_file_name_1" => gtfs_original_file_name_1,
-         "gtfs_original_file_name_2" => gtfs_original_file_name_2,
+         "context" => context,
          "profile" => profile,
          "locale" => locale
        }) do
@@ -104,8 +118,7 @@ defmodule Transport.Jobs.GTFSDiff do
       Oban.Notifier.notify(Oban, :gossip, %{
         complete: job_id,
         diff_file_url: Transport.S3.permanent_url(:gtfs_diff, diff_file_name),
-        gtfs_original_file_name_1: gtfs_original_file_name_1,
-        gtfs_original_file_name_2: gtfs_original_file_name_2
+        context: context
       })
     after
       File.rm(filepath)
