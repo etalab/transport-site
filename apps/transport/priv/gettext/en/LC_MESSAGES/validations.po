@@ -310,12 +310,8 @@ msgstr ""
 msgid "Previous validations"
 msgstr ""
 
-#, elixir-autogen, elixir-format
-msgid "Differences Overview"
-msgstr ""
-
 #, elixir-autogen, elixir-format, fuzzy
-msgid "Drop your GTFS files here or browse your local drive"
+msgid "Drop your GTFS files here or click to browse your local drive"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -331,19 +327,11 @@ msgid "GTFS comparison with GTFS Diff"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Human friendly explanations"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "<a href=\"%{spec}\">Read</a> the GTFS Diff specification to understand how differences between GTFS are expressed"
 msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "The file \"%{file}\" has been deleted"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "(Work in progress). We also try to express some of the differences found in a human friendly way."
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -367,19 +355,11 @@ msgid "A file named \"%{file}\" has been added"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "[stops.txt] The name of the stop_id %{stop_id} has been modified. Initial name: \"%{initial_stop_name}\", New name: \"%{new_stop_name}\""
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "[stops.txt] Wheelchair_boarding information added for stop_id %{stop_id}, previously: \"%{initial_wheelchair_boarding}\", now: \"%{new_wheelchair_boarding}\""
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Shapes present in the GTFS have been ignored, some rules are not enforced."
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "analyzing found differences..."
+msgid "Analyzing found differences…"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -404,10 +384,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "number of stop points:"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "The GTFS file %{gtfs_original_file_name_2} has differences with the GTFS file %{gtfs_original_file_name_1}, as summarized below:"
 msgstr ""
 
 #, elixir-autogen, elixir-format, fuzzy
@@ -458,4 +434,132 @@ msgstr[1] ""
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Switch files"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "An error occurred while interpreting the results. Note that the report is still available as download. Error:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Detail"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The latitude of the stop_id %{stop_id} has been modified. \"%{initial_stop_lat}\" -> \"%{new_stop_lat}\""
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The longitude of the stop_id %{stop_id} has been modified. \"%{initial_stop_lon}\" -> \"%{new_stop_lon}\""
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "The name of the stop_id %{stop_id} has been modified. Initial name: \"%{initial_stop_name}\", New name: \"%{new_stop_name}\""
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Wheelchair_boarding information added for stop_id %{stop_id}, previously: \"%{initial_wheelchair_boarding}\", now: \"%{new_wheelchair_boarding}\""
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Start over"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "The GTFS file <code>%{gtfs_original_file_name_2}</code> has differences with the GTFS file <code>%{gtfs_original_file_name_1}</code>, as summarized below:"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "The GTFS files <code>%{gtfs_original_file_name_2}</code> and <code>%{gtfs_original_file_name_1}</code> are similar."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The modified GTFS file (<a href=\"%{gtfs_url_2}\">source</a>) has differences with the reference GTFS file (<a href=\"%{gtfs_url_1}\">source</a>), as summarized below:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The modified GTFS file (<a href=\"%{gtfs_url_2}\">source</a>) and the reference GTFS file (<a href=\"%{gtfs_url_1}\">source</a>) are similar."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Modified GTFS"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Reference GTFS"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Cancel upload or remove file"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Invalid file"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Valid file"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Please upload some file above"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Analysis"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Setup"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Results"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Processing"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "File is too large, must be <%{max_file_size_mb}MB."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You have selected an unacceptable file type."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You must select 2 files."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Job aborted, the diff is taking too long (> %{minutes} min)."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Clear uploaded files"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Discarded files:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "not enough memory"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Only a subset of the GTFS specification is currently supported for differences analysis. Supported files:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Other files…"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Looking for other files?"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Summary"
 msgstr ""

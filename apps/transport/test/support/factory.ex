@@ -314,6 +314,18 @@ defmodule DB.Factory do
     %DB.ResourceRelated{}
   end
 
+  def reuser_improved_data_factory do
+    dataset = build(:dataset)
+
+    %DB.ReuserImprovedData{
+      dataset: dataset,
+      resource: build(:resource, dataset_id: dataset.id),
+      contact: insert_contact(),
+      organization: build(:organization),
+      download_url: sequence(:download_url, fn i -> "https://example.com/file_#{i}" end)
+    }
+  end
+
   def organization_factory do
     %DB.Organization{
       id: Ecto.UUID.generate(),

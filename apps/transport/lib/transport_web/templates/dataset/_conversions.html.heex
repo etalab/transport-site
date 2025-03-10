@@ -4,11 +4,20 @@
 <div class="resource-actions">
   <div>
     <%= for {_, %{format: human_format, stable_url: stable_url}} <- Enum.sort_by(conversions, fn {_, %{format: format}} -> format end, :asc) do %>
-      <a class="download-button" rel="nofollow" href={stable_url}>
+      <% modal_id = "modal-netex-conversion-#{:erlang.phash2(stable_url)}"
+      href = if human_format == "NeTEx", do: "#" <> modal_id, else: stable_url %>
+
+      <a class="download-button" rel="nofollow" href={href}>
         <button class="button-outline secondary no-border small">
           <i class="icon icon--download" aria-hidden="true"></i><%= dgettext("page-dataset-details", "Download") %> <%= human_format %>
         </button>
       </a>
+      <%= if human_format == "NeTEx" do
+        render(TransportWeb.DatasetView, "_netex_conversion_modal.html",
+          stable_url: stable_url,
+          modal_id: modal_id
+        )
+      end %>
     <% end %>
   </div>
 </div>

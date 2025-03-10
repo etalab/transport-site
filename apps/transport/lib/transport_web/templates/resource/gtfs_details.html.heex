@@ -21,7 +21,12 @@ locale = get_session(@conn, :locale) %>
                 </li>
               <% end %>
               <%= unless is_nil(associated_netex) do %>
-                <li><a rel="nofollow" href={associated_netex.stable_url}>NeTEx</a></li>
+                <% modal_id = "netex-conversion-modal" %>
+                <li><a href={"##{modal_id}"}>NeTEx</a></li>
+                <%= render(TransportWeb.DatasetView, "_netex_conversion_modal.html",
+                  stable_url: associated_netex.stable_url,
+                  modal_id: modal_id
+                ) %>
               <% end %>
             </ul>
             * <%= dgettext(

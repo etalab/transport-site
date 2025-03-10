@@ -18,6 +18,8 @@ defmodule TransportWeb.GTFSDiffExplain do
       |> explanation_delete_file(diff)
       |> explanation_update_stop_name(diff)
       |> explanation_stop_wheelchair_access(diff)
+      |> explanation_update_stop_longitude(diff)
+      |> explanation_update_stop_latitude(diff)
     end)
   end
 
@@ -61,7 +63,7 @@ defmodule TransportWeb.GTFSDiffExplain do
 
   def explanation_add_file(explanations, %{"action" => "add", "file" => file, "target" => "file"}) do
     [
-      dgettext("validations", ~s(A file named "%{file}" has been added), file: file)
+      {file, dgettext("validations", ~s(A file named "%{file}" has been added), file: file)}
       | explanations
     ]
   end
@@ -73,7 +75,7 @@ defmodule TransportWeb.GTFSDiffExplain do
         "file" => file,
         "target" => "file"
       }) do
-    [dgettext("validations", ~s(The file "%{file}" has been deleted), file: file) | explanations]
+    [{file, dgettext("validations", ~s(The file "%{file}" has been deleted), file: file)} | explanations]
   end
 
   def explanation_delete_file(explanations, _), do: explanations
@@ -90,13 +92,14 @@ defmodule TransportWeb.GTFSDiffExplain do
         }
       ) do
     [
-      dgettext(
-        "validations",
-        ~s([stops.txt] The name of the stop_id %{stop_id} has been modified. Initial name: "%{initial_stop_name}", New name: "%{new_stop_name}"),
-        stop_id: stop_id,
-        initial_stop_name: initial_stop_name,
-        new_stop_name: new_stop_name
-      )
+      {"stops.txt",
+       dgettext(
+         "validations",
+         ~s(The name of the stop_id %{stop_id} has been modified. Initial name: "%{initial_stop_name}", New name: "%{new_stop_name}"),
+         stop_id: stop_id,
+         initial_stop_name: initial_stop_name,
+         new_stop_name: new_stop_name
+       )}
       | explanations
     ]
   end
@@ -118,18 +121,75 @@ defmodule TransportWeb.GTFSDiffExplain do
       )
       when new_wheelchair_boarding in ["1", "2"] do
     [
-      dgettext(
-        "validations",
-        ~s([stops.txt] Wheelchair_boarding information added for stop_id %{stop_id}, previously: "%{initial_wheelchair_boarding}", now: "%{new_wheelchair_boarding}"),
-        stop_id: stop_id,
-        initial_wheelchair_boarding: initial_wheelchair_boarding,
-        new_wheelchair_boarding: new_wheelchair_boarding
-      )
+      {"stops.txt",
+       dgettext(
+         "validations",
+         ~s(Wheelchair_boarding information added for stop_id %{stop_id}, previously: "%{initial_wheelchair_boarding}", now: "%{new_wheelchair_boarding}"),
+         stop_id: stop_id,
+         initial_wheelchair_boarding: initial_wheelchair_boarding,
+         new_wheelchair_boarding: new_wheelchair_boarding
+       )}
       | explanations
     ]
   end
 
   def explanation_stop_wheelchair_access(explanations, _), do: explanations
+
+  def explanation_update_stop_longitude(
+        explanations,
+        %{
+          "action" => "update",
+          "file" => "stops.txt",
+          "target" => "row",
+          "identifier" => %{"stop_id" => stop_id},
+          "new_value" => %{"stop_lon" => new_stop_lon},
+          "initial_value" => %{"stop_lon" => initial_stop_lon}
+        }
+      ) do
+    [
+      {"stops.txt",
+       dgettext(
+         "validations",
+         ~s(The longitude of the stop_id %{stop_id} has been modified. "%{initial_stop_lon}" -> "%{new_stop_lon}"),
+         stop_id: stop_id,
+         initial_stop_lon: initial_stop_lon,
+         new_stop_lon: new_stop_lon
+       )}
+      | explanations
+    ]
+  end
+
+  def explanation_update_stop_longitude(explanations, _) do
+    explanations
+  end
+
+  def explanation_update_stop_latitude(
+        explanations,
+        %{
+          "action" => "update",
+          "file" => "stops.txt",
+          "target" => "row",
+          "identifier" => %{"stop_id" => stop_id},
+          "new_value" => %{"stop_lat" => new_stop_lat},
+          "initial_value" => %{"stop_lat" => initial_stop_lat}
+        }
+      ) do
+    [
+      {"stops.txt",
+       dgettext(
+         "validations",
+         ~s(The latitude of the stop_id %{stop_id} has been modified. "%{initial_stop_lat}" -> "%{new_stop_lat}"),
+         stop_id: stop_id,
+         initial_stop_lat: initial_stop_lat,
+         new_stop_lat: new_stop_lat
+       )}
+      | explanations
+    ]
+  end
+
+  def explanation_update_stop_latitude(explanations, _) do
+    explanations
+  end
 
   def try_jason_decode(""), do: nil
   def try_jason_decode(input), do: Jason.decode!(input)
