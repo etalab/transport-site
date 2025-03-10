@@ -4,7 +4,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
   """
   use Phoenix.LiveView
   use TransportWeb.InputHelpers
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
 
   def results_step(%{error_msg: _, profile: _, results: _} = assigns) do
     ~H"""
