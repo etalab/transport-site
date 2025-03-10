@@ -226,7 +226,7 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
                ~s(vous êtes inscrit à des notifications pour le jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a>)
 
       assert html =~
-               "impliquées dans la production de vos données (qu’ils soient exploitants, intervenants techniques ou responsables légaux) et inscrites à ces notifications sont : Marina Loiseau."
+               "Les autres personnes impliquées dans la production ou publication de vos données (qu’ils soient exploitants, intervenants techniques ou responsables légaux) et inscrites à ces notifications sont : Marina Loiseau."
     end)
 
     assert [

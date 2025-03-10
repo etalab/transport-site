@@ -14,7 +14,7 @@ En tant que producteur de données de transport, vous êtes inscrit à des notif
 Les notifications vous permettent d’être alerté en cas d’expiration, d’indisponibilité et d’erreurs de vos données. Si vous souhaitez gérer vos notifications, rendez-vous sur votre <%= link_for_espace_producteur(:periodic_reminder_producer_with_subscriptions) %>.
 
 <%= if @has_other_producers_subscribers do %>
-Les autres personnes impliquées dans la production de vos données (qu’ils soient exploitants, intervenants techniques ou responsables légaux) et inscrites à ces notifications sont : <%= @other_producers_subscribers %>.
+Les autres personnes impliquées dans la production ou publication de vos données (qu’ils soient exploitants, intervenants techniques ou responsables légaux) et inscrites à ces notifications sont : <%= @other_producers_subscribers %>.
 <% end %>
 
 Nous restons disponibles pour vous accompagner si besoin.
