@@ -153,9 +153,24 @@ defmodule DB.Resource do
   def community_resource?(%__MODULE__{is_community_resource: true}), do: true
   def community_resource?(_), do: false
 
+  @doc """
+  iex> real_time?(%DB.Resource{format: "gbfs"})
+  true
+  iex> real_time?(%DB.Resource{format: "GTFS"})
+  false
+  iex> real_time?(%DB.Resource{format: "csv", description: "Données mises à jour en temps réel"})
+  true
+  """
   @spec real_time?(__MODULE__.t()) :: boolean
   def real_time?(%__MODULE__{} = resource) do
-    gtfs_rt?(resource) or gbfs?(resource) or siri_lite?(resource) or siri?(resource)
+    [
+      &gtfs_rt?/1,
+      &gbfs?/1,
+      &siri_lite?/1,
+      &siri?/1,
+      &String.contains?(&1.description || "", ["mis à jour en temps réel", "mises à jour en temps réel"])
+    ]
+    |> Enum.any?(fn function -> function.(resource) end)
   end
 
   @doc """
