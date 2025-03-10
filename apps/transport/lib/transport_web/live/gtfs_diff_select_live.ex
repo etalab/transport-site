@@ -14,17 +14,39 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   import TransportWeb.Live.GTFSDiffSelectLive.Shared
   import TransportWeb.Live.GTFSDiffSelectLive.Steps
 
-  def mount(_params, %{"locale" => locale} = _session, socket) do
+  def mount(params, %{"locale" => locale} = _session, socket) do
     Gettext.put_locale(locale)
 
-    {:ok,
-     socket
-     |> clean_slate()
-     |> setup_uploads()}
+    socket = clean_slate(socket)
+
+    case params do
+      :not_mounted_at_router -> {:ok, setup_uploads(socket)}
+      %{} -> {:ok, setup_uploads(socket)}
+      _ -> {:ok, do_handle_params(socket, params)}
+    end
   end
 
   def handle_params(params, _uri, socket) do
-    {:noreply, set_profile(socket, params)}
+    {:noreply, do_handle_params(socket, params)}
+  end
+
+  defp do_handle_params(socket, params) do
+    socket |> set_profile(params) |> handle_urls(params)
+  end
+
+  defp handle_urls(socket, %{"reference_url" => reference_url, "modified_url" => modified_url}) do
+    skip_uploads_and_diff_urls(socket, reference_url, modified_url)
+  end
+
+  defp handle_urls(socket, _) do
+    setup_uploads(socket)
+  end
+
+  defp skip_uploads_and_diff_urls(socket, reference_url, modified_url) do
+    socket
+    |> assign(current_step: :analysis)
+    |> trigger_job(reference_url, modified_url, socket.assigns[:profile])
+    |> scroll_to_steps()
   end
 
   def set_profile(socket, %{"profile" => profile}) do
@@ -71,18 +93,9 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   end
 
   def handle_info(:enqueue_job, socket) do
-    [gtfs_file_name_2, gtfs_file_name_1] = read_uploaded_files(socket)
+    [gtfs_file_2, gtfs_file_1] = read_uploaded_files(socket)
 
-    :ok = listen_job_notifications()
-
-    job_id = schedule_job(gtfs_file_name_1, gtfs_file_name_2, socket.assigns[:profile])
-
-    socket =
-      socket
-      |> assign(job_id: job_id)
-      |> assign(diff_logs: [dgettext("gtfs-diff", "Job started")])
-
-    {:noreply, socket}
+    {:noreply, socket |> trigger_job(gtfs_file_1, gtfs_file_2, socket.assigns[:profile])}
   end
 
   def handle_info({:generate_diff_summary, diff_file_url}, socket) do
@@ -113,6 +126,16 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     {:noreply, socket}
   end
 
+  defp trigger_job(socket, gtfs_file_1, gtfs_file_2, profile) do
+    :ok = listen_job_notifications()
+
+    job_id = schedule_job(gtfs_file_1, gtfs_file_2, profile)
+
+    socket
+    |> assign(job_id: job_id)
+    |> assign(diff_logs: [dgettext("gtfs-diff", "Job started")])
+  end
+
   # job has started
   def handle_job_notification(%{"started" => job_id}, job_id, socket) do
     schedule_timeout()
@@ -129,8 +152,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
         %{
           "complete" => job_id,
           "diff_file_url" => diff_file_url,
-          "gtfs_original_file_name_1" => gtfs_original_file_name_1,
-          "gtfs_original_file_name_2" => gtfs_original_file_name_2
+          "context" => context
         },
         job_id,
         socket
@@ -139,9 +161,11 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     unlisten_job_notifications()
 
     socket
-    |> present_results(diff_file_url, gtfs_original_file_name_1, gtfs_original_file_name_2)
+    |> present_results(diff_file_url, context)
     |> scroll_to_steps()
   end
+
+  def handle_job_notification(_, _, socket), do: socket
 
   defp read_uploaded_files(socket) do
     consume_uploaded_entries(socket, :gtfs, &consume_uploaded_entry/2)
@@ -153,17 +177,44 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     {:ok, %{uploaded_file_name: file_name, original_file_name: original_file_name}}
   end
 
-  defp schedule_job(gtfs_file_name_1, gtfs_file_name_2, profile) do
-    %{id: job_id} =
+  defp schedule_job(gtfs_url_1, gtfs_url_2, profile) when is_binary(gtfs_url_1) do
+    schedule_job(
       %{
-        gtfs_file_name_1: gtfs_file_name_1.uploaded_file_name,
-        gtfs_file_name_2: gtfs_file_name_2.uploaded_file_name,
-        gtfs_original_file_name_1: gtfs_file_name_1.original_file_name,
-        gtfs_original_file_name_2: gtfs_file_name_2.original_file_name,
-        bucket: Transport.S3.bucket_name(:gtfs_diff),
+        gtfs_url_1: gtfs_url_1,
+        gtfs_url_2: gtfs_url_2,
+        gtfs_original_file_name_1: "reference.zip",
+        gtfs_original_file_name_2: "modified.zip"
+      },
+      profile
+    )
+  end
+
+  defp schedule_job(
+         %{uploaded_file_name: gtfs_object_1, original_file_name: gtfs_original_file_name_1},
+         %{
+           uploaded_file_name: gtfs_object_2,
+           original_file_name: gtfs_original_file_name_2
+         },
+         profile
+       ) do
+    schedule_job(
+      %{
+        gtfs_object_1: gtfs_object_1,
+        gtfs_object_2: gtfs_object_2,
+        gtfs_original_file_name_1: gtfs_original_file_name_1,
+        gtfs_original_file_name_2: gtfs_original_file_name_2
+      },
+      profile
+    )
+  end
+
+  defp schedule_job(args, profile) do
+    %{id: job_id} =
+      args
+      |> Map.merge(%{
         locale: Gettext.get_locale(),
         profile: profile
-      }
+      })
       |> Transport.Jobs.GTFSDiff.new()
       |> Oban.insert!()
 
@@ -214,11 +265,10 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     end
   end
 
-  defp present_results(socket, diff_file_url, gtfs_original_file_name_1, gtfs_original_file_name_2) do
+  defp present_results(socket, diff_file_url, context) do
     updates = [
       set(:diff_file_url, diff_file_url),
-      set(:gtfs_original_file_name_1, gtfs_original_file_name_1),
-      set(:gtfs_original_file_name_2, gtfs_original_file_name_2)
+      set(:context, context)
     ]
 
     socket

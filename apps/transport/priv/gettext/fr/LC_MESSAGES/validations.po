@@ -473,6 +473,14 @@ msgid "The GTFS files <code>%{gtfs_original_file_name_2}</code> and <code>%{gtfs
 msgstr "Les fichier GTFS <code>%{gtfs_original_file_name_2}</code> et <code>%{gtfs_original_file_name_1}</code> sont similaires."
 
 #, elixir-autogen, elixir-format
+msgid "The modified GTFS file (<a href=\"%{gtfs_url_2}\">source</a>) has differences with the reference GTFS file (<a href=\"%{gtfs_url_1}\">source</a>), as summarized below:"
+msgstr "Le fichier GTFS modifié (<a href=\"%{gtfs_url_2}\">source</a>) comporte les différences ci-dessous par rapport au fichier GTFS de référence (<a href=\"%{gtfs_url_2}\">source</a>) :"
+
+#, elixir-autogen, elixir-format
+msgid "The modified GTFS file (<a href=\"%{gtfs_url_2}\">source</a>) and the reference GTFS file (<a href=\"%{gtfs_url_1}\">source</a>) are similar."
+msgstr "Le fichier GTFS modifié (<a href=\"%{gtfs_url_2}\">source</a>) et le fichier GTFS de référence (<a href=\"%{gtfs_url_1}\">source</a>) sont similaires."
+
+#, elixir-autogen, elixir-format
 msgid "Modified GTFS"
 msgstr "GTFS modifié"
 
