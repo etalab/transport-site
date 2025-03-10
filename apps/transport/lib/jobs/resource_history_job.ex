@@ -7,6 +7,20 @@ defmodule Transport.Jobs.ResourceHistoryAndValidationDispatcherJob do
   import Ecto.Query
 
   @impl Oban.Worker
+  def perform(%Oban.Job{args: %{"mode" => "reuser_improved_data"}}) do
+    DB.ReuserImprovedData.base_query()
+    |> select([reuser_improved_data: rid], rid.id)
+    |> DB.Repo.all()
+    |> Enum.map(fn reuser_improved_data_id ->
+      %{reuser_improved_data_id: reuser_improved_data_id}
+      |> Transport.Jobs.ResourceHistoryJob.historize_and_validate_job()
+    end)
+    |> Oban.insert_all()
+
+    :ok
+  end
+
+  @impl Oban.Worker
   def perform(_job) do
     resource_ids = Enum.map(resources_to_historise(), & &1.id)
 
@@ -44,7 +58,7 @@ end
 
 defmodule Transport.Jobs.ResourceHistoryJob do
   @moduledoc """
-  Job historicising a single resource
+  Job historicising a single `DB.Resource` or a `DB.ReuserImprovedData`.
   """
   use Oban.Worker, unique: [period: {5, :hours}, fields: [:args, :queue, :worker]], tags: ["history"], max_attempts: 5
   require Logger
@@ -72,6 +86,11 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     |> handle_history(job)
   end
 
+  def perform(%Oban.Job{args: %{"reuser_improved_data_id" => reuser_improved_data_id}} = job) do
+    DB.Repo.get!(DB.ReuserImprovedData, reuser_improved_data_id)
+    |> handle_history(job)
+  end
+
   defp handle_history([], %Oban.Job{} = job) do
     reason = "Resource should not be historicised"
     notify_workflow(job, %{"success" => false, "job_id" => job.id, "reason" => reason})
@@ -79,16 +98,25 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   end
 
   defp handle_history([%DB.Resource{} = resource], %Oban.Job{} = job) do
-    path = download_path(resource)
+    do_handle_history(resource, job)
+  end
+
+  defp handle_history(%DB.ReuserImprovedData{} = reuser_improved_data, %Oban.Job{} = job) do
+    do_handle_history(reuser_improved_data, job)
+  end
+
+  defp do_handle_history(data, %Oban.Job{} = job) do
+    path = download_path(data)
 
     notification =
       try do
         %{resource_history_id: resource_history_id} =
-          :req |> download_resource(resource, path) |> process_download(resource)
+          download_resource(data, path) |> process_download(data)
 
         %{"success" => true, "job_id" => job.id, "output" => %{resource_history_id: resource_history_id}}
       rescue
-        e -> %{"success" => false, "job_id" => job.id, "reason" => inspect(e)}
+        e ->
+          %{"success" => false, "job_id" => job.id, "reason" => inspect(e)}
       after
         remove_file(path)
       end
@@ -107,29 +135,21 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     Logger.debug("Got an error while downloading resource##{resource_id}: #{message}")
   end
 
-  defp process_download({:ok, resource_path, headers}, %DB.Resource{} = resource) do
+  defp process_download({:ok, resource_path, headers}, resource_or_improved_data) do
     download_datetime = DateTime.utc_now()
 
-    hash = resource_hash(resource, resource_path)
+    hash = resource_hash(resource_or_improved_data, resource_path)
 
-    case should_store_resource?(resource, hash) do
+    case should_store_resource?(resource_or_improved_data, hash) do
       true ->
-        filename = upload_filename(resource, resource_path, download_datetime)
+        filename = upload_filename(resource_or_improved_data, resource_path, download_datetime)
 
         base = %{
           download_datetime: download_datetime,
           uuid: Ecto.UUID.generate(),
           http_headers: headers,
           filename: filename,
-          permanent_url: Transport.S3.permanent_url(:history, filename),
-          resource_url: resource.url,
-          resource_latest_url: resource.latest_url,
-          title: resource.title,
-          format: resource.format,
-          dataset_id: resource.dataset_id,
-          schema_name: resource.schema_name,
-          schema_version: resource.schema_version,
-          latest_schema_version_to_date: latest_schema_version_to_date(resource)
+          permanent_url: Transport.S3.permanent_url(:history, filename)
         }
 
         data =
@@ -149,20 +169,18 @@ defmodule Transport.Jobs.ResourceHistoryJob do
           end
 
         Transport.S3.stream_to_s3!(:history, resource_path, filename, acl: :public_read)
-        %{id: resource_history_id} = store_resource_history!(resource, data)
-        Appsignal.increment_counter("resource_history_job.success", 1, %{resource_id: resource.id})
-
+        %{id: resource_history_id} = store_resource_history!(resource_or_improved_data, data)
+        Appsignal.increment_counter("resource_history_job.success", 1)
         %{resource_history_id: resource_history_id}
 
       {false, history} ->
-        Appsignal.increment_counter("resource_history_job.skipped", 1, %{resource_id: resource.id})
-        Logger.debug("skipping historization for resource##{resource.id} because resource did not change")
+        Appsignal.increment_counter("resource_history_job.skipped", 1)
         touch_resource_history!(history)
         %{resource_history_id: history.id}
 
       false ->
-        Appsignal.increment_counter("resource_history_job.failed", 1, %{resource_id: resource.id})
-        Logger.error("Failed historization for resource##{resource.id}")
+        Appsignal.increment_counter("resource_history_job.failed", 1)
+        Logger.error("Historization failed for #{inspect(resource_or_improved_data)}")
         {:error, "historization failed"}
     end
   end
@@ -178,13 +196,24 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   def should_store_resource?(_, nil), do: false
 
   def should_store_resource?(%DB.Resource{id: resource_id}, resource_hash) do
-    history =
-      DB.ResourceHistory
-      |> where([r], r.resource_id == ^resource_id)
-      |> order_by(desc: :inserted_at)
-      |> limit(1)
-      |> DB.Repo.one()
+    DB.ResourceHistory
+    |> where([r], r.resource_id == ^resource_id)
+    |> order_by(desc: :inserted_at)
+    |> limit(1)
+    |> DB.Repo.one()
+    |> compare_history(resource_hash)
+  end
 
+  def should_store_resource?(%DB.ReuserImprovedData{id: reuser_improved_data_id}, resource_hash) do
+    DB.ResourceHistory
+    |> where([r], r.reuser_improved_data_id == ^reuser_improved_data_id)
+    |> order_by(desc: :inserted_at)
+    |> limit(1)
+    |> DB.Repo.one()
+    |> compare_history(resource_hash)
+  end
+
+  defp compare_history(history, resource_hash) do
     case {history, same_resource?(history, resource_hash)} do
       {nil, _} -> true
       {_history, false} -> true
@@ -211,13 +240,20 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     items |> Enum.map(&{map_get(&1, :file_name), map_get(&1, :sha256)}) |> MapSet.new()
   end
 
-  defp resource_hash(%DB.Resource{} = resource, resource_path) do
+  defp resource_hash(data, resource_path) do
     if Transport.ZipMetaDataExtractor.zip?(resource_path) do
       try do
         Transport.ZipMetaDataExtractor.extract!(resource_path)
       rescue
         _ ->
-          Logger.error("Cannot compute ZIP metadata for resource##{resource.id}")
+          case data do
+            %DB.Resource{} = resource ->
+              Logger.error("Cannot compute ZIP metadata for resource##{resource.id}")
+
+            _ ->
+              :ok
+          end
+
           nil
       end
     else
@@ -229,13 +265,30 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     Map.get(map, key) || Map.get(map, to_string(key))
   end
 
-  defp store_resource_history!(%DB.Resource{datagouv_id: datagouv_id, id: resource_id}, payload) do
-    Logger.debug("Saving ResourceHistory for resource##{resource_id}")
-
+  defp store_resource_history!(%DB.Resource{} = resource, payload) do
     %DB.ResourceHistory{
-      datagouv_id: datagouv_id,
-      resource_id: resource_id,
-      payload: payload,
+      datagouv_id: resource.datagouv_id,
+      resource_id: resource.id,
+      payload:
+        Map.merge(payload, %{
+          resource_url: resource.url,
+          resource_latest_url: resource.latest_url,
+          title: resource.title,
+          format: resource.format,
+          dataset_id: resource.dataset_id,
+          schema_name: resource.schema_name,
+          schema_version: resource.schema_version,
+          latest_schema_version_to_date: latest_schema_version_to_date(resource)
+        }),
+      last_up_to_date_at: DateTime.utc_now()
+    }
+    |> DB.Repo.insert!()
+  end
+
+  defp store_resource_history!(%DB.ReuserImprovedData{id: reuser_improved_data_id}, payload) do
+    %DB.ResourceHistory{
+      reuser_improved_data_id: reuser_improved_data_id,
+      payload: Map.merge(payload, %{format: "GTFS"}),
       last_up_to_date_at: DateTime.utc_now()
     }
     |> DB.Repo.insert!()
@@ -251,13 +304,24 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     System.tmp_dir!() |> Path.join("resource_#{resource_id}_download")
   end
 
-  def download_resource(:req, %DB.Resource{id: resource_id, url: url}, file_path) do
+  defp download_path(%DB.ReuserImprovedData{id: reuser_improved_data_id}) do
+    System.tmp_dir!() |> Path.join("reuser_improved_data_#{reuser_improved_data_id}_download")
+  end
+
+  def download_resource(%DB.Resource{url: url}, file_path) do
+    download_resource(url, file_path)
+  end
+
+  def download_resource(%DB.ReuserImprovedData{download_url: download_url}, file_path) do
+    download_resource(download_url, file_path)
+  end
+
+  def download_resource(url, file_path) when is_binary(url) do
     file_stream = File.stream!(file_path)
     req_options = [compressed: false, decode_body: false, receive_timeout: 180_000, into: file_stream]
 
     case Transport.Req.impl().get(url, req_options) do
       {:ok, %{status: 200} = r} ->
-        Logger.debug("Saved resource##{resource_id} to #{file_path}")
         {:ok, file_path, relevant_http_headers(r)}
 
       {:ok, %{status: status_code}} ->
@@ -266,22 +330,6 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
       {:error, error} ->
         {:error, "Got an error: #{error |> inspect}"}
-    end
-  end
-
-  # NOTE: dead code, kept to allow comparison in the coming weeks if needed
-  def download_resource(:legacy, %DB.Resource{id: resource_id, url: url}, file_path) do
-    case http_client().get(url, [], follow_redirect: true, recv_timeout: 180_000) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body} = r} ->
-        Logger.debug("Saving resource##{resource_id} to #{file_path}")
-        File.write!(file_path, body)
-        {:ok, file_path, relevant_http_headers(r)}
-
-      {:ok, %HTTPoison.Response{status_code: status}} ->
-        {:error, "Got a non 200 status: #{status}"}
-
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        {:error, "Got an error: #{inspect(reason)}"}
     end
   end
 
@@ -295,6 +343,16 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     "#{resource_id}/#{resource_id}.#{time}#{file_extension(resource, resource_path)}"
   end
 
+  def upload_filename(
+        %DB.ReuserImprovedData{id: reuser_improved_data_id} = reuser_improved_data,
+        resource_path,
+        %DateTime{} = dt
+      ) do
+    time = Calendar.strftime(dt, "%Y%m%d.%H%M%S.%f")
+
+    "reuser_improved_data_#{reuser_improved_data_id}/#{reuser_improved_data_id}.#{time}#{file_extension(reuser_improved_data, resource_path)}"
+  end
+
   @doc """
   Guess an appropriate file extension according to a format.
   """
@@ -303,6 +361,14 @@ defmodule Transport.Jobs.ResourceHistoryJob do
       ".zip"
     else
       "." <> (format |> String.downcase() |> String.replace_prefix(".", ""))
+    end
+  end
+
+  def file_extension(%DB.ReuserImprovedData{}, resource_path) do
+    if Transport.ZipMetaDataExtractor.zip?(resource_path) do
+      ".zip"
+    else
+      raise "not implemented"
     end
   end
 
@@ -357,7 +423,9 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     Schemas.latest_version(schema_name)
   end
 
-  def historize_and_validate_job(%{resource_id: resource_id}, options \\ []) do
+  @spec historize_and_validate_job(%{resource_id: integer()} | %{reuser_improved_data_id: integer()}, keyword()) ::
+          Transport.Jobs.Workflow.t()
+  def historize_and_validate_job(first_jobs_args, options \\ []) do
     history_options = options |> Keyword.get(:history_options, []) |> Transport.Jobs.Workflow.kw_to_map()
     validation_custom_args = options |> Keyword.get(:validation_custom_args, %{})
 
@@ -368,6 +436,6 @@ defmodule Transport.Jobs.ResourceHistoryJob do
       [Transport.Jobs.ResourceHistoryValidationJob, validation_custom_args, %{}]
     ]
 
-    Transport.Jobs.Workflow.new(%{jobs: jobs, first_job_args: %{resource_id: resource_id}})
+    Transport.Jobs.Workflow.new(%{jobs: jobs, first_job_args: first_jobs_args})
   end
 end
