@@ -48,7 +48,6 @@ defmodule DB.Reuse do
       :owner,
       :owner_id,
       :image,
-      :featured,
       :topic,
       :created_at,
       :last_modified
@@ -56,6 +55,7 @@ defmodule DB.Reuse do
     |> transform_datagouv_id(attrs)
     |> transform_metric_keys(attrs)
     |> transform_archived(attrs)
+    |> transform_featured(attrs)
     |> transform_tags(attrs)
     |> validate_required([
       :datagouv_id,
@@ -91,8 +91,19 @@ defmodule DB.Reuse do
     changeset |> put_assoc(:datasets, datasets)
   end
 
-  defp transform_archived(%Ecto.Changeset{} = changeset, %{"archived" => archived}) do
-    put_change(changeset, :archived, String.downcase(archived) == "true")
+  defp transform_archived(%Ecto.Changeset{} = changeset, params) do
+    transform_bool(changeset, :archived, params)
+  end
+
+  defp transform_featured(%Ecto.Changeset{} = changeset, params) do
+    transform_bool(changeset, :featured, params)
+  end
+
+  def transform_bool(%Ecto.Changeset{} = changeset, key, params) do
+    case Map.get(params, to_string(key)) do
+      value when is_binary(value) -> put_change(changeset, key, String.downcase(value) == "true")
+      value -> put_change(changeset, key, value)
+    end
   end
 
   defp transform_tags(%Ecto.Changeset{} = changeset, %{"tags" => tags}) do
@@ -106,7 +117,9 @@ defmodule DB.Reuse do
   defp transform_metric_keys(%Ecto.Changeset{} = changeset, attributes) do
     attributes
     |> Enum.filter(fn {k, _v} -> String.starts_with?(k, "metric.") end)
-    |> Enum.map(fn {k, v} -> {k |> String.replace(".", "_") |> String.to_existing_atom(), v} end)
+    |> Enum.map(fn {k, v} ->
+      {k |> String.replace(".", "_") |> String.to_existing_atom(), String.to_integer(v)}
+    end)
     |> Enum.reduce(changeset, fn {k, v}, changeset -> put_change(changeset, k, v) end)
   end
 end

@@ -1,40 +1,58 @@
 defmodule Transport.Jobs.ImportReusesJob do
   @moduledoc """
-  Import all `transport_and_mobility` reuses from data.gouv.fr.
-  See:
-  - https://www.data.gouv.fr/fr/datasets/catalogue-des-donnees-de-data-gouv-fr/
-  - https://tabular-api.data.gouv.fr/api/resources/970aafa0-3778-4d8b-b9d1-de937525e379/data/?page=1&page_size=50&topic__exact=transport_and_mobility
+  Import reuses from data.gouv.fr when it uses at least a dataset referenced
+  on our platform.
+
+  See https://www.data.gouv.fr/fr/datasets/catalogue-des-donnees-de-data-gouv-fr/
   """
   use Oban.Worker, max_attempts: 3
+  import Ecto.Query
 
-  @start_url "https://tabular-api.data.gouv.fr/api/resources/970aafa0-3778-4d8b-b9d1-de937525e379/data/?page=1&page_size=50&topic__exact=transport_and_mobility"
+  # reuses.csv export
+  @csv_url "https://www.data.gouv.fr/fr/datasets/r/970aafa0-3778-4d8b-b9d1-de937525e379"
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
     DB.Repo.transaction(fn ->
-      DB.Repo.delete_all(DB.Reuse)
-      import_page_of_reuses(@start_url)
+      truncate_reuses()
+      import_all_reuses()
     end)
 
     :ok
   end
 
-  def import_page_of_reuses(nil), do: :ok
+  defp truncate_reuses, do: DB.Repo.delete_all(DB.Reuse)
 
-  def import_page_of_reuses(url) do
-    case http_client().get(url, []) do
-      {:ok, %Req.Response{status: 200, body: body}} ->
-        body
-        |> Map.fetch!("data")
-        |> Enum.each(fn record ->
-          %DB.Reuse{} |> DB.Reuse.changeset(record) |> DB.Repo.insert!()
-        end)
+  defp import_all_reuses do
+    datagouv_ids = dataset_datagouv_ids()
+    %{status: 200, body: body} = http_client().get!(@csv_url, decode_body: false)
 
-        import_page_of_reuses(body["links"]["next"])
+    [body]
+    |> CSV.decode!(headers: true, separator: ?;, escape_max_lines: 1_000)
+    |> Stream.reject(fn %{"datasets" => datasets} = attributes ->
+      empty_optional_fields?(attributes) or orphan_reuse?(datasets, datagouv_ids)
+    end)
+    |> Enum.each(fn record ->
+      %DB.Reuse{} |> DB.Reuse.changeset(record) |> DB.Repo.insert!()
+    end)
+  end
 
-      _ ->
-        :error
-    end
+  defp orphan_reuse?(datasets, datagouv_ids) do
+    datasets |> String.split(",") |> MapSet.new() |> MapSet.disjoint?(datagouv_ids)
+  end
+
+  defp dataset_datagouv_ids do
+    DB.Dataset.base_query()
+    |> select([dataset: d], d.datagouv_id)
+    |> DB.Repo.all()
+    |> MapSet.new()
+  end
+
+  defp empty_optional_fields?(attributes) do
+    attributes
+    |> Map.take(["remote_url", "description", "datasets"])
+    |> Map.values()
+    |> Enum.all?(&(&1 == ""))
   end
 
   defp http_client, do: Transport.Req.impl()
