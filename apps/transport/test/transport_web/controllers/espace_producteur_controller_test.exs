@@ -473,7 +473,12 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       assert html |> Floki.find("h2") |> Floki.text() =~ "Repartage des données améliorées"
       assert html |> Floki.find("table") |> Floki.text() =~ reuser_improved_data.organization.name
 
-      assert html |> Floki.find("a.button-outline.reuser") == [
+      gtfs_diff_url =
+        "/tools/gtfs_diff?" <>
+          URI.encode_query(%{reference_url: resource.url, modified_url: reuser_improved_data.download_url})
+
+      # Actions buttons
+      assert html |> Floki.find("a.button-outline") == [
                {"a",
                 [
                   {"class", "button-outline reuser small"},
@@ -481,7 +486,15 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                   {"data-tracking-category", "espace_producteur"},
                   {"href", reuser_improved_data.download_url},
                   {"target", "_blank"}
-                ], ["Télécharger le GTFS réutilisateur"]}
+                ], ["Télécharger le GTFS réutilisateur"]},
+               {"a",
+                [
+                  {"class", "button-outline primary small"},
+                  {"data-tracking-action", "see_gtfs_diff_report"},
+                  {"data-tracking-category", "espace_producteur"},
+                  {"href", gtfs_diff_url},
+                  {"target", "_blank"}
+                ], ["Lancer le rapport de différences"]}
              ]
     end
   end

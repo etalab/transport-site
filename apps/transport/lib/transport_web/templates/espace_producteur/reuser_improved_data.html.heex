@@ -34,6 +34,17 @@
                 "data-tracking-category": "espace_producteur",
                 "data-tracking-action": "download_reuser_gtfs"
               ) %>
+              <%= link(dgettext("espace-producteurs", "Launch the differences report"),
+                to:
+                  live_path(@conn, TransportWeb.Live.GTFSDiffSelectLive,
+                    modified_url: reuser.download_url,
+                    reference_url: @resource.url
+                  ),
+                class: "button-outline primary small",
+                target: "_blank",
+                "data-tracking-category": "espace_producteur",
+                "data-tracking-action": "see_gtfs_diff_report"
+              ) %>
             </td>
           </tr>
         <% end %>

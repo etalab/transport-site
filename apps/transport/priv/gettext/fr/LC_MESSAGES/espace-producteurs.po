@@ -328,3 +328,7 @@ msgstr "GTFS réutilisateur"
 #, elixir-autogen, elixir-format
 msgid "Reuser improved data"
 msgstr "Repartage des données améliorées"
+
+#, elixir-autogen, elixir-format
+msgid "Launch the differences report"
+msgstr "Lancer le rapport de différences"

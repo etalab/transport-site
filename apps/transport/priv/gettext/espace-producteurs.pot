@@ -327,3 +327,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Reuser improved data"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Launch the differences report"
+msgstr ""
