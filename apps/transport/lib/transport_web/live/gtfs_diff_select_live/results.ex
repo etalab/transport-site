@@ -6,19 +6,40 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
   use TransportWeb.InputHelpers
   import TransportWeb.Gettext
 
-  def results_step(%{error_msg: _, profile: _, results: _} = assigns) do
+  def results_step(%{error_msg: _, profile: _, results: results} = assigns) do
+    files_with_changes = files_with_changes(results[:diff_summary])
+
+    assigns =
+      assigns
+      |> assign(files_with_changes: files_with_changes)
+      |> assign(selected_file: results[:selected_file] || pick_selected_file(files_with_changes))
+
     ~H"""
     <.inner
       diff_explanations={@results[:diff_explanations]}
       diff_file_url={@results[:diff_file_url]}
       diff_summary={@results[:diff_summary]}
-      files_with_changes={@results[:files_with_changes]}
+      files_with_changes={@files_with_changes}
       context={@results[:context]}
-      selected_file={@results[:selected_file]}
+      selected_file={@selected_file}
       error_msg={@error_msg}
       profile={@profile}
     />
     """
+  end
+
+  defp pick_selected_file([]), do: nil
+  defp pick_selected_file(files_with_changes), do: Kernel.hd(files_with_changes)
+
+  defp files_with_changes(nil), do: []
+
+  defp files_with_changes(diff_summary) do
+    diff_summary
+    |> Map.values()
+    |> Enum.concat()
+    |> Enum.map(fn {{file, _, _}, _} -> file end)
+    |> Enum.sort()
+    |> Enum.dedup()
   end
 
   defp inner(
@@ -34,7 +55,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
          } = assigns
        ) do
     ~H"""
-    <div class="container gtfs-diff-results">
+    <div id="gtfs-diff-results" class="container">
       <div :if={@diff_file_url} class="panel">
         <h4>
           <%= dgettext("validations", "GTFS Diff is available for") %>
