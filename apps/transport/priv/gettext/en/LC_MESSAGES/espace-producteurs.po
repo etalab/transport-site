@@ -330,5 +330,5 @@ msgid "Reuser improved data"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Launch the differences report"
+msgid "Compare with my GTFS"
 msgstr ""

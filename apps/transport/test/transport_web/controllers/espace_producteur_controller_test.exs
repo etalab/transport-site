@@ -494,7 +494,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                   {"data-tracking-category", "espace_producteur"},
                   {"href", gtfs_diff_url},
                   {"target", "_blank"}
-                ], ["Lancer le rapport de différences"]}
+                ], ["Comparer avec mon GTFS"]}
              ]
     end
   end
