@@ -64,7 +64,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLiveTest do
       assert navigation |> Floki.find("a.active") |> Floki.text() == "agency.txt"
 
       selected_file_details = html |> Floki.find("div.dashboard div.main")
-      assert selected_file_details |> Floki.find("h4") |> texts == ["Résumé"]
+      assert selected_file_details |> Floki.find("h4") |> texts == ["agency.txt", "Résumé"]
       assert selected_file_details |> Floki.find("ul li") |> texts == ["supprimé 1 fichier"]
     end
   end

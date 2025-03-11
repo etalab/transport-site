@@ -149,6 +149,50 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
     """
   end
 
+  defp file_description(%{selected_file: _} = assigns) do
+    ~H"""
+    <h4><%= @selected_file %></h4>
+    <p><%= file_description(@selected_file) %></p>
+    """
+  end
+
+  defp file_description(selected_file) do
+    case selected_file do
+      "agency.txt" -> dgettext("gtfs-file-descriptions", "agency.txt")
+      "areas.txt" -> dgettext("gtfs-file-descriptions", "areas.txt")
+      "attributions.txt" -> dgettext("gtfs-file-descriptions", "attributions.txt")
+      "booking_rules.txt" -> dgettext("gtfs-file-descriptions", "booking_rules.txt")
+      "calendar.txt" -> dgettext("gtfs-file-descriptions", "calendar.txt")
+      "calendar_dates.txt" -> dgettext("gtfs-file-descriptions", "calendar_dates.txt")
+      "fare_attributes.txt" -> dgettext("gtfs-file-descriptions", "fare_attributes.txt")
+      "fare_leg_join_rules.txt" -> dgettext("gtfs-file-descriptions", "fare_leg_join_rules.txt")
+      "fare_leg_rules.txt" -> dgettext("gtfs-file-descriptions", "fare_leg_rules.txt")
+      "fare_media.txt" -> dgettext("gtfs-file-descriptions", "fare_media.txt")
+      "fare_products.txt" -> dgettext("gtfs-file-descriptions", "fare_products.txt")
+      "fare_rules.txt" -> dgettext("gtfs-file-descriptions", "fare_rules.txt")
+      "fare_transfer_rules.txt" -> dgettext("gtfs-file-descriptions", "fare_transfer_rules.txt")
+      "feed_info.txt" -> dgettext("gtfs-file-descriptions", "feed_info.txt")
+      "frequencies.txt" -> dgettext("gtfs-file-descriptions", "frequencies.txt")
+      "levels.txt" -> dgettext("gtfs-file-descriptions", "levels.txt")
+      "location_group_stops.txt" -> dgettext("gtfs-file-descriptions", "location_group_stops.txt")
+      "location_groups.txt" -> dgettext("gtfs-file-descriptions", "location_groups.txt")
+      "networks.txt" -> dgettext("gtfs-file-descriptions", "networks.txt")
+      "pathways.txt" -> dgettext("gtfs-file-descriptions", "pathways.txt")
+      "rider_categories.txt" -> dgettext("gtfs-file-descriptions", "rider_categories.txt")
+      "route_networks.txt" -> dgettext("gtfs-file-descriptions", "route_networks.txt")
+      "routes.txt" -> dgettext("gtfs-file-descriptions", "routes.txt")
+      "shapes.txt" -> dgettext("gtfs-file-descriptions", "shapes.txt")
+      "stop_areas.txt" -> dgettext("gtfs-file-descriptions", "stop_areas.txt")
+      "stop_times.txt" -> dgettext("gtfs-file-descriptions", "stop_times.txt")
+      "stops.txt" -> dgettext("gtfs-file-descriptions", "stops.txt")
+      "timeframes.txt" -> dgettext("gtfs-file-descriptions", "timeframes.txt")
+      "transfers.txt" -> dgettext("gtfs-file-descriptions", "transfers.txt")
+      "translations.txt" -> dgettext("gtfs-file-descriptions", "translations.txt")
+      "trips.txt" -> dgettext("gtfs-file-descriptions", "trips.txt")
+      _ -> dgettext("gtfs-file-descriptions", "unknown-file", unknown_file: selected_file)
+    end
+  end
+
   defp diff_summaries_for_file(%{selected_file: _, diff_summary: _} = assigns) do
     ~H"""
     <h4><%= dgettext("validations", "Summary") %></h4>
@@ -222,8 +266,9 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
   defp differences(%{diff_summary: _, selected_file: _, diff_explanations: _, profile: _} = assigns) do
     ~H"""
     <div class="main">
-      <.partial_difference_warning :if={@selected_file not in Transport.GTFSDiff.files_to_analyze(@profile)} />
+      <.file_description selected_file={@selected_file} />
       <.diff_summaries_for_file diff_summary={@diff_summary} selected_file={@selected_file} />
+      <.partial_difference_warning :if={@selected_file not in Transport.GTFSDiff.files_to_analyze(@profile)} />
       <%= if assigns[:diff_explanations] do %>
         <% active_explanations =
           @diff_explanations
