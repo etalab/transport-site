@@ -33,22 +33,41 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     end
 
     test "renders successfully and finds the dataset using organization IDs", %{conn: conn} do
-      %DB.Dataset{organization_id: organization_id, datagouv_id: datagouv_id} =
+      %DB.Dataset{organization_id: organization_id, datagouv_id: dataset_datagouv_id} =
         dataset = insert(:dataset, custom_title: custom_title = "Foobar")
 
+      %DB.Resource{datagouv_id: resource_datagouv_id} = resource = insert(:resource, dataset: dataset)
+
       Datagouvfr.Client.User.Mock
-      |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
+      |> expect(:me, 2, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
       Datagouvfr.Client.Datasets.Mock
-      |> expect(:get, fn ^datagouv_id -> {:ok, generate_dataset_payload(datagouv_id)} end)
+      |> expect(:get, 2, fn ^dataset_datagouv_id ->
+        dataset_datagouv_get_response(dataset_datagouv_id, resource_datagouv_id)
+      end)
 
-      content =
+      doc =
         conn
         |> init_test_session(current_user: %{})
         |> get(espace_producteur_path(conn, :edit_dataset, dataset.id))
         |> html_response(200)
+        |> Floki.parse_document!()
 
-      assert custom_title == content |> Floki.parse_document!() |> Floki.find("h2") |> Floki.text()
+      assert doc |> Floki.find("h2") |> Floki.text() == custom_title
+      assert doc |> Floki.find("td.align-right") |> Floki.text() == "Modifier la ressourceSupprimer la ressource"
+
+      # With a reuser improved data
+      insert(:reuser_improved_data, dataset: dataset, resource: resource)
+
+      doc =
+        conn
+        |> init_test_session(current_user: %{})
+        |> get(espace_producteur_path(conn, :edit_dataset, dataset.id))
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      assert doc |> Floki.find("td.align-right") |> Floki.text() ==
+               "Modifier la ressourceGTFS réutilisateurSupprimer la ressource"
     end
 
     test "when a custom logo is set", %{conn: conn} do
@@ -72,7 +91,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       assert content
              |> Floki.parse_document!()
-             |> Floki.find(~s{.espace-producteur-section button[type="submit"]})
+             |> Floki.find(~s{.producer-actions button[type="submit"]})
              |> Floki.text() =~ "Supprimer le logo personnalisé"
     end
   end
@@ -407,6 +426,76 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       # No need to really check content of dataset and resources in database,
       # because the response of Datagouv.Client.Resources.update is discarded.
       # We would just check that import_data works correctly, while this is already tested elsewhere.
+    end
+  end
+
+  describe "reuser_improved_data" do
+    test "requires authentication", %{conn: conn} do
+      conn |> get(espace_producteur_path(conn, :reuser_improved_data, 42, 1337)) |> assert_redirects_to_info_page()
+    end
+
+    test "redirects if you're not a member of the dataset organization", %{conn: conn} do
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => []}} end)
+
+      conn =
+        conn
+        |> init_test_session(current_user: %{})
+        |> get(espace_producteur_path(conn, :reuser_improved_data, 42, 1337))
+
+      assert redirected_to(conn, 302) == page_path(conn, :espace_producteur)
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Impossible de récupérer ce jeu de données pour le moment"
+    end
+
+    test "we can see reuser improved data", %{conn: conn} do
+      %DB.Dataset{organization_id: organization_id, datagouv_id: datagouv_id} = dataset = insert(:dataset)
+      resource = insert(:resource, dataset: dataset)
+
+      reuser_improved_data =
+        insert(:reuser_improved_data, dataset: dataset, resource: resource) |> DB.Repo.preload([:organization])
+
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
+
+      Datagouvfr.Client.Datasets.Mock
+      |> expect(:get, fn ^datagouv_id -> {:ok, generate_dataset_payload(datagouv_id)} end)
+
+      html =
+        conn
+        |> init_test_session(current_user: %{})
+        |> get(espace_producteur_path(conn, :reuser_improved_data, dataset.id, resource.id))
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      assert_breadcrumb_content(html, ["Votre espace producteur", dataset.custom_title, resource.title])
+
+      assert html |> Floki.find("h2") |> Floki.text() =~ "Repartage des données améliorées"
+      assert html |> Floki.find("table") |> Floki.text() =~ reuser_improved_data.organization.name
+
+      gtfs_diff_url =
+        "/tools/gtfs_diff?" <>
+          URI.encode_query(%{reference_url: resource.url, modified_url: reuser_improved_data.download_url})
+
+      # Actions buttons
+      assert html |> Floki.find("a.button-outline") == [
+               {"a",
+                [
+                  {"class", "button-outline reuser small"},
+                  {"data-tracking-action", "download_reuser_gtfs"},
+                  {"data-tracking-category", "espace_producteur"},
+                  {"href", reuser_improved_data.download_url},
+                  {"target", "_blank"}
+                ], ["Télécharger le GTFS réutilisateur"]},
+               {"a",
+                [
+                  {"class", "button-outline primary small"},
+                  {"data-tracking-action", "see_gtfs_diff_report"},
+                  {"data-tracking-category", "espace_producteur"},
+                  {"href", gtfs_diff_url},
+                  {"target", "_blank"}
+                ], ["Comparer avec mon GTFS"]}
+             ]
     end
   end
 
