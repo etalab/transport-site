@@ -119,8 +119,20 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
     ]
   end
 
+  defp partial_difference_warning(%{} = assigns) do
+    ~H"""
+    <div class="notification warning">
+      <%= dgettext(
+        "validations",
+        "Row changes have not been analyzed for this file. We suggest you dive into both GTFS files for more details."
+      ) %>
+    </div>
+    """
+  end
+
   defp diff_summaries_for_file(%{selected_file: _, diff_summary: _} = assigns) do
     ~H"""
+    <h4><%= dgettext("validations", "Summary") %></h4>
     <ul>
       <.diff_summary_for_file
         :for={{nature, translation, css_class} <- diff_natures()}
@@ -151,7 +163,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
     ~H"""
     <div class="pt-24">
       <div class="dashboard">
-        <.navigation files_with_changes={@files_with_changes} profile={@profile} selected_file={@selected_file} />
+        <.navigation files_with_changes={@files_with_changes} selected_file={@selected_file} />
         <.differences
           diff_summary={@diff_summary}
           selected_file={@selected_file}
@@ -163,12 +175,11 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
     """
   end
 
-  defp navigation(%{files_with_changes: _, profile: _, selected_file: _} = assigns) do
+  defp navigation(%{files_with_changes: _, selected_file: _} = assigns) do
     ~H"""
     <aside class="side-menu" role="navigation">
       <ul>
         <.select_file_navigation_link :for={file <- @files_with_changes} file={file} selected_file={@selected_file} />
-        <.other_files_navigation_link :if={@profile == "core"} selected_file={@selected_file} />
       </ul>
     </aside>
     """
@@ -193,48 +204,10 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
     """
   end
 
-  defp other_files_navigation_link(%{selected_file: _} = assigns) do
-    assigns =
-      assigns
-      |> assign(
-        :class,
-        if assigns[:selected_file] == "other-files" do
-          "active"
-        end
-      )
-
-    ~H"""
-    <li>
-      <a class={@class} phx-click="select-file" phx-value-file="other-files">
-        <%= dgettext("validations", "Other files…") %>
-      </a>
-    </li>
-    """
-  end
-
-  defp differences(%{selected_file: "other-files", profile: _} = assigns) do
+  defp differences(%{diff_summary: _, selected_file: _, diff_explanations: _, profile: _} = assigns) do
     ~H"""
     <div class="main">
-      <h4><%= dgettext("validations", "Looking for other files?") %></h4>
-      <p>
-        <%= dgettext(
-          "validations",
-          "Only a subset of the GTFS specification is currently supported for differences analysis. Supported files:"
-        ) %>
-      </p>
-      <ul>
-        <li :for={filename <- Transport.GTFSDiff.files_to_analyze(@profile)}>
-          <code><%= filename %></code>
-        </li>
-      </ul>
-    </div>
-    """
-  end
-
-  defp differences(%{diff_summary: _, selected_file: _, diff_explanations: _} = assigns) do
-    ~H"""
-    <div class="main">
-      <h4><%= dgettext("validations", "Summary") %></h4>
+      <.partial_difference_warning :if={@selected_file not in Transport.GTFSDiff.files_to_analyze(@profile)} />
       <.diff_summaries_for_file diff_summary={@diff_summary} selected_file={@selected_file} />
       <%= if assigns[:diff_explanations] do %>
         <% active_explanations =
