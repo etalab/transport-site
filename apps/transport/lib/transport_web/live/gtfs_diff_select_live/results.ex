@@ -6,19 +6,40 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
   use TransportWeb.InputHelpers
   import TransportWeb.Gettext
 
-  def results_step(%{error_msg: _, profile: _, results: _} = assigns) do
+  def results_step(%{error_msg: _, profile: _, results: results} = assigns) do
+    files_with_changes = files_with_changes(results[:diff_summary])
+
+    assigns =
+      assigns
+      |> assign(files_with_changes: files_with_changes)
+      |> assign(selected_file: results[:selected_file] || pick_selected_file(files_with_changes))
+
     ~H"""
     <.inner
       diff_explanations={@results[:diff_explanations]}
       diff_file_url={@results[:diff_file_url]}
       diff_summary={@results[:diff_summary]}
-      files_with_changes={@results[:files_with_changes]}
+      files_with_changes={@files_with_changes}
       context={@results[:context]}
-      selected_file={@results[:selected_file]}
+      selected_file={@selected_file}
       error_msg={@error_msg}
       profile={@profile}
     />
     """
+  end
+
+  defp pick_selected_file([]), do: nil
+  defp pick_selected_file(files_with_changes), do: Kernel.hd(files_with_changes)
+
+  defp files_with_changes(nil), do: []
+
+  defp files_with_changes(diff_summary) do
+    diff_summary
+    |> Map.values()
+    |> Enum.concat()
+    |> Enum.map(fn {{file, _, _}, _} -> file end)
+    |> Enum.sort()
+    |> Enum.dedup()
   end
 
   defp inner(
@@ -34,7 +55,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
          } = assigns
        ) do
     ~H"""
-    <div class="container gtfs-diff-results">
+    <div id="gtfs-diff-results" class="container">
       <div :if={@diff_file_url} class="panel">
         <h4>
           <%= dgettext("validations", "GTFS Diff is available for") %>
@@ -43,32 +64,30 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
             target: "_blank"
           ) %>
         </h4>
-        <%= raw(
-          dgettext(
-            "validations",
-            "<a href=\"%{spec}\">Read</a> the GTFS Diff specification to understand how differences between GTFS are expressed",
-            spec: "https://github.com/MobilityData/gtfs_diff/blob/main/specification.md"
-          )
-        ) %>.
+        <p>
+          <%= raw(
+            dgettext(
+              "validations",
+              "<a href=\"%{spec}\">Read</a> the GTFS Diff specification to understand how differences between GTFS are expressed",
+              spec: "https://github.com/MobilityData/gtfs_diff/blob/main/specification.md"
+            )
+          ) %>.
+        </p>
         <%= if @diff_summary do %>
-          <div class="pt-24">
-            <%= display_context(@diff_summary, @context) |> raw() %>
-            <.diff_summaries
-              :if={@diff_summary != %{}}
-              diff_explanations={@diff_explanations}
-              diff_summary={@diff_summary}
-              files_with_changes={@files_with_changes}
-              selected_file={@selected_file}
-              profile={@profile}
-            />
-          </div>
+          <p><%= display_context(@diff_summary, @context) |> raw() %></p>
+          <.diff_summaries
+            :if={@diff_summary != %{}}
+            diff_explanations={@diff_explanations}
+            diff_summary={@diff_summary}
+            files_with_changes={@files_with_changes}
+            selected_file={@selected_file}
+            profile={@profile}
+          />
         <% else %>
           <%= if @error_msg do %>
             <.validation_error error_msg={@error_msg} />
           <% else %>
-            <div class="pt-24">
-              <%= dgettext("validations", "Analyzing found differences…") %>
-            </div>
+            <p><%= dgettext("validations", "Analyzing found differences…") %></p>
           <% end %>
         <% end %>
       </div>
@@ -147,13 +166,11 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
 
   defp diff_summary_for_file(%{summary: _, selected_file: _, translation: _, class: _} = assigns) do
     ~H"""
-    <div :if={@summary}>
-      <%= for {{file, _nature, target}, n} <- @summary do %>
-        <li :if={file == @selected_file}>
-          <span class={@class}><%= @translation %> &nbsp;</span><%= translate_target(target, n) %>
-        </li>
-      <% end %>
-    </div>
+    <%= for {{file, _nature, target}, n} <- @summary || [] do %>
+      <li :if={file == @selected_file}>
+        <span class={@class}><%= @translation %></span>&nbsp;<%= translate_target(target, n) %>
+      </li>
+    <% end %>
     """
   end
 
@@ -161,16 +178,14 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
          %{files_with_changes: _, selected_file: _, diff_summary: _, diff_explanations: _, profile: _} = assigns
        ) do
     ~H"""
-    <div class="pt-24">
-      <div class="dashboard">
-        <.navigation files_with_changes={@files_with_changes} selected_file={@selected_file} />
-        <.differences
-          diff_summary={@diff_summary}
-          selected_file={@selected_file}
-          diff_explanations={@diff_explanations}
-          profile={@profile}
-        />
-      </div>
+    <div class="dashboard">
+      <.navigation files_with_changes={@files_with_changes} selected_file={@selected_file} />
+      <.differences
+        diff_summary={@diff_summary}
+        selected_file={@selected_file}
+        diff_explanations={@diff_explanations}
+        profile={@profile}
+      />
     </div>
     """
   end
@@ -286,13 +301,13 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
 
   defp validation_error(%{error_msg: _} = assigns) do
     ~H"""
-    <div class="pt-24">
+    <p>
       <%= dgettext(
         "validations",
         "An error occurred while interpreting the results. Note that the report is still available as download. Error:"
       ) %>
       <span class="red"><%= translate_error(@error_msg) %></span>.
-    </div>
+    </p>
     """
   end
 

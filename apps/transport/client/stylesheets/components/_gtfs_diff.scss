@@ -5,10 +5,6 @@
   }
 }
 
-.gtfs-diff-results h4 {
-  margin: 24px 0 12px;
-}
-
 .actions {
   margin-top: var(--space-m);
   display: flex;
@@ -142,7 +138,7 @@
   }
 }
 
-.gtfs-diff-results {
+#gtfs-diff-results {
   min-height: 90vh;
   .green {
     color: green;
