@@ -34,6 +34,8 @@ defmodule DB.Reuse do
     many_to_many(:datasets, DB.Dataset, join_through: "reuse_dataset", on_replace: :delete)
   end
 
+  def base_query, do: from(r in __MODULE__, as: :reuse)
+
   def changeset(model, attrs) do
     model
     |> cast(attrs, [
