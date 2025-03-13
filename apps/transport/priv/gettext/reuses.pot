@@ -52,3 +52,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "idea"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "index-intro"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Publish a reuse"
+msgstr ""

@@ -52,3 +52,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "idea"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "index-intro"
+msgstr "Below is the list of reusers who have declared reusing a dataset referenced on transport.data.gouv.fr.<br/><br/>Not on the list? Showcase your reuses from your data.gouv.fr account administration and your work will automatically appear on this page!<br/><br/>More information in our online documentation:"
+
+#, elixir-autogen, elixir-format
+msgid "Publish a reuse"
+msgstr ""
