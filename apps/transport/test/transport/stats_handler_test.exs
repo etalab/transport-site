@@ -47,17 +47,10 @@ defmodule Transport.StatsHandlerTest do
   end
 
   test "climate_resilience_bill_count" do
-    aom = insert(:aom, population: 1_000)
-    insert(:dataset, aom: aom, is_active: false, custom_tags: ["loi-climat-resilience"], type: "public-transit")
-    insert(:dataset, aom: aom, is_active: true, custom_tags: ["loi-climat-resilience"], type: "public-transit")
-    insert(:dataset, aom: aom, is_active: true, custom_tags: ["loi-climat-resilience"], type: "public-transit")
-
-    insert(:dataset,
-      aom: aom,
-      is_active: true,
-      custom_tags: ["loi-climat-resilience", "foo"],
-      type: "low-emission-zones"
-    )
+    insert(:dataset, is_active: false, custom_tags: ["loi-climat-resilience"], type: "public-transit")
+    insert(:dataset, is_active: true, custom_tags: ["loi-climat-resilience"], type: "public-transit")
+    insert(:dataset, is_active: true, custom_tags: ["loi-climat-resilience"], type: "public-transit")
+    insert(:dataset, is_active: true, custom_tags: ["loi-climat-resilience", "foo"], type: "low-emission-zones")
 
     assert %{
              climate_resilience_bill_count: %{
@@ -65,21 +58,6 @@ defmodule Transport.StatsHandlerTest do
                "public-transit" => 2
              }
            } = compute_stats()
-
-    # Stored as expected in the database
-    store_stats()
-
-    decimal_1 = Decimal.new(1)
-    decimal_2 = Decimal.new(2)
-
-    assert [
-             %DB.StatsHistory{metric: "climate_resilience_bill_count::low-emission-zones", value: ^decimal_1},
-             %DB.StatsHistory{metric: "climate_resilience_bill_count::public-transit", value: ^decimal_2}
-           ] =
-             DB.StatsHistory
-             |> where([s], like(s.metric, "climate_resilience_bill_count%"))
-             |> order_by([s], s.metric)
-             |> DB.Repo.all()
   end
 
   test "store_stats" do
@@ -98,6 +76,16 @@ defmodule Transport.StatsHandlerTest do
       resource_id: insert(:resource, format: "gbfs").id
     )
 
+    # climate_resilience_bill data
+    insert(:dataset, is_active: false, custom_tags: ["loi-climat-resilience"], type: "public-transit")
+    insert(:dataset, is_active: true, custom_tags: ["loi-climat-resilience"], type: "public-transit")
+    insert(:dataset, is_active: true, custom_tags: ["loi-climat-resilience"], type: "public-transit")
+    insert(:dataset, is_active: true, custom_tags: ["loi-climat-resilience", "foo"], type: "low-emission-zones")
+
+    # reuses stats
+    insert(:reuse, type: "api", metric_discussions: 0, metric_followers: 2, metric_views: 5)
+    insert(:reuse, type: "visualization", metric_discussions: 1, metric_followers: 1, metric_views: 10)
+
     stats = compute_stats()
     store_stats()
     assert DB.Repo.aggregate(DB.StatsHistory, :count, :id) >= Enum.count(stats)
@@ -109,18 +97,33 @@ defmodule Transport.StatsHandlerTest do
       |> Map.keys()
       |> Enum.map(&to_string/1)
       |> Enum.reject(
-        &String.starts_with?(&1, ["gtfs_rt_types", "climate_resilience_bill_count", "count_geo_data_lines"])
+        &String.starts_with?(&1, ["gtfs_rt_types", "climate_resilience_bill_count", "count_geo_data_lines", "reuses"])
       )
 
     assert MapSet.subset?(MapSet.new(stats_metrics), MapSet.new(all_metrics))
     assert Enum.member?(all_metrics, "gtfs_rt_types::vehicle_positions")
     assert Enum.member?(all_metrics, "gtfs_rt_types::trip_updates")
     assert Enum.member?(all_metrics, "count_geo_data_lines::irve")
+    assert Enum.member?(all_metrics, "reuses::nb_reuses")
 
-    expected = Decimal.new("2")
+    expected = Decimal.new(2)
     assert %{value: ^expected} = DB.Repo.get_by!(DB.StatsHistory, metric: "gtfs_rt_types::vehicle_positions")
-    expected = Decimal.new("1")
+    expected = Decimal.new(1)
     assert %{value: ^expected} = DB.Repo.get_by!(DB.StatsHistory, metric: "gbfs_v3.0_count")
+    expected = Decimal.new(15)
+    assert %{value: ^expected} = DB.Repo.get_by!(DB.StatsHistory, metric: "reuses::sum_metric_views")
+
+    decimal_1 = Decimal.new(1)
+    decimal_2 = Decimal.new(2)
+
+    assert [
+             %DB.StatsHistory{metric: "climate_resilience_bill_count::low-emission-zones", value: ^decimal_1},
+             %DB.StatsHistory{metric: "climate_resilience_bill_count::public-transit", value: ^decimal_2}
+           ] =
+             DB.StatsHistory
+             |> where([s], like(s.metric, "climate_resilience_bill_count%"))
+             |> order_by([s], s.metric)
+             |> DB.Repo.all()
   end
 
   test "count dataset per format" do
@@ -250,5 +253,21 @@ defmodule Transport.StatsHandlerTest do
                gbfs_vehicle_type_scooter_count: 2
              } == gbfs_stats()
     end
+  end
+
+  test "reuses_stats" do
+    insert(:reuse, type: "api", metric_discussions: 0, metric_followers: 2, metric_views: 5)
+    insert(:reuse, type: "visualization", metric_discussions: 1, metric_followers: 1, metric_views: 10)
+
+    assert %{
+             :nb_reuses => 2,
+             :sum_metric_discussions => 1,
+             :sum_metric_followers => 3,
+             :sum_metric_views => 15,
+             "api" => 1,
+             "visualization" => 1
+           } = reuses_stats = reuses_stats()
+
+    assert %{reuses: ^reuses_stats} = compute_stats()
   end
 end
