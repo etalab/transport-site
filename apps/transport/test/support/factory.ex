@@ -41,6 +41,7 @@ defmodule DB.Factory do
       nom: "Grenoble",
       siren: "253800825",
       region: build(:region),
+      population: 1_000,
       # The value must be unique, ExFactory helps us with a named sequence
       composition_res_id: 1000 + sequence("composition_res_id", & &1)
     }
