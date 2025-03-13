@@ -337,6 +337,33 @@ defmodule DB.Factory do
     }
   end
 
+  def reuse_factory do
+    %DB.Reuse{
+      datagouv_id: sequence(:datagouv_id, &"datagouv_id-#{&1}"),
+      title: sequence(:title, &"Reuse Title #{&1}"),
+      slug: sequence(:slug, &"reuse-slug-#{&1}"),
+      url: sequence(:url, &"http://example.com/reuse/#{&1}"),
+      type: "api",
+      description: "A description of the reuse.",
+      remote_url: sequence(:remote_url, &"http://remote.example.com/reuse/#{&1}"),
+      organization: "Example Organization",
+      organization_id: sequence(:organization_id, &"org-#{&1}"),
+      owner: "Example Owner",
+      owner_id: sequence(:owner_id, &"owner-#{&1}"),
+      image: sequence(:image, &"http://example.com/image/#{&1}.jpg"),
+      featured: false,
+      archived: false,
+      topic: "transport_and_mobility",
+      tags: ["tag1", "tag2"],
+      metric_discussions: 0,
+      metric_datasets: 0,
+      metric_followers: 0,
+      metric_views: 0,
+      created_at: DateTime.utc_now(),
+      last_modified: DateTime.utc_now()
+    }
+  end
+
   def insert_contact(%{} = args \\ %{}) do
     %{
       first_name: "John",

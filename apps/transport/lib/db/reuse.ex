@@ -6,6 +6,7 @@ defmodule DB.Reuse do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
+  import TransportWeb.Gettext
 
   typed_schema "reuse" do
     field(:datagouv_id, :string)
@@ -33,6 +34,8 @@ defmodule DB.Reuse do
 
     many_to_many(:datasets, DB.Dataset, join_through: "reuse_dataset", on_replace: :delete)
   end
+
+  def base_query, do: from(r in __MODULE__, as: :reuse)
 
   def changeset(model, attrs) do
     model
@@ -79,6 +82,20 @@ defmodule DB.Reuse do
     |> cast_datasets(attrs)
   end
 
+  def type_to_str(type) do
+    %{
+      "api" => dgettext("reuses", "api"),
+      "application" => dgettext("reuses", "application"),
+      "hardware" => dgettext("reuses", "hardware"),
+      "idea" => dgettext("reuses", "idea"),
+      "news_article" => dgettext("reuses", "news_article"),
+      "paper" => dgettext("reuses", "paper"),
+      "post" => dgettext("reuses", "post"),
+      "visualization" => dgettext("reuses", "visualization")
+    }
+    |> Map.fetch!(type)
+  end
+
   defp cast_datasets(%Ecto.Changeset{} = changeset, %{"datasets" => datasets}) do
     datagouv_ids = (datasets || "") |> String.split(",")
 
@@ -107,7 +124,7 @@ defmodule DB.Reuse do
   end
 
   defp transform_tags(%Ecto.Changeset{} = changeset, %{"tags" => tags}) do
-    put_change(changeset, :tags, String.split(tags || "", ","))
+    put_change(changeset, :tags, String.split(tags || "", ",") |> Enum.reject(&(&1 == "")))
   end
 
   defp transform_datagouv_id(%Ecto.Changeset{} = changeset, %{"id" => id}) do
