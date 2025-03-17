@@ -107,7 +107,11 @@ defmodule Transport.SearchCommunes do
 
   @spec load_communes :: [Commune.t()]
   defp load_communes do
-    Commune
+    load(Commune)
+  end
+
+  def load(model) do
+    model
     |> select([:nom, :insee])
     |> Repo.all()
     |> Enum.map(&make_search_struct/1)

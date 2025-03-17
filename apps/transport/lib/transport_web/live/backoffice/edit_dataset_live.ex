@@ -134,6 +134,7 @@ defmodule TransportWeb.EditDatasetLive do
   def handle_event("suggest_communes", %{"value" => query}, socket) when byte_size(query) <= 100 do
     matches =
       query
+      # When taking out this legacy field, don’t forget to delete parts of this module
       |> Transport.SearchCommunes.search()
       |> Enum.take(5)
 
