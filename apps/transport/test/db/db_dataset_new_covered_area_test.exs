@@ -14,9 +14,11 @@ defmodule DB.DatasetNewCoveredAreaTest do
       commune = insert(:commune, departement: departement)
       dataset = insert(:dataset, departements: [departement], new_communes: [commune])
       dataset = dataset |> DB.DatasetNewCoveredArea.populate_covered_area()
+
       assert dataset.covered_area == [
-        %{id: departement.id, insee: departement.insee, nom: departement.nom, type: "departement"},
-        %{id: commune.id, insee: commune.insee, nom: commune.nom, type: "commune"}]
+               %{id: departement.id, insee: departement.insee, nom: departement.nom, type: "departement"},
+               %{id: commune.id, insee: commune.insee, nom: commune.nom, type: "commune"}
+             ]
     end
 
     test "create new dataset with covered area" do

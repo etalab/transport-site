@@ -70,7 +70,7 @@ defmodule DB.Factory do
       has_realtime: false,
       is_active: true,
       is_hidden: false,
-      nb_reuses: Enum.random(0..10),
+      nb_reuses: Enum.random(0..10)
       # departements: [departement] # DEADLOCK
     }
   end
