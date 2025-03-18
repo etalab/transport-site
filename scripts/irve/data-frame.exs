@@ -68,7 +68,7 @@ defmodule Demo do
 
   def process_one(row, body, extension) do
     try do
-      if likely_zip_content?(body) do
+      if Transport.ZipProbe.likely_zip_content?(body) do
         raise("the content is likely to be a zip file, not uncompressed CSV data")
       end
 
