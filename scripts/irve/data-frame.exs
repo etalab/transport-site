@@ -1,40 +1,6 @@
-defmodule Demo do
-  def first_line(body) do
-    body
-    |> String.split("\n", parts: 2)
-    |> hd()
-  end
-
-  @doc """
-  A quick probe to evaluate if a content is likely to be "modern" schema-irve-statique data
-  """
-  def has_id_pdc_itinerance(body) do
-    body
-    |> first_line()
-    |> String.contains?("id_pdc_itinerance")
-  end
-
-  @doc """
-  Attempt to detect column separator. Remove double-quotes first since they may be there too.
-  """
-  def hint_header_separator(body) do
-    [[_, separator]] = Regex.scan(~r/(.)id_pdc_itinerance/, body |> first_line() |> String.replace(~S("), ""))
-    separator
-  end
-
-  @doc """
-  Relying on a field that was in v1 of the schema, and not in v2, try to hint about old files.
-
-  See https://github.com/etalab/schema-irve/compare/v1.0.3...v2.0.0#diff-9fcde326d127f74194f70e563bdf2c118c51b719c308f015b8eb0204a9a552fbL72
-  """
-  def probably_v1_schema(body) do
-    data = body |> first_line()
-
-    # NOTE: do not use `n_amenageur`, because it will match in both v1 and v2 due to `siren_amenageur`
-    !String.contains?(data, "nom_operateur") && String.contains?(data, "n_operateur")
-  end
-
+defmodule Transport.IRVE.Consolidation do
   require Logger
+  import Transport.IRVE.Static.Probes
 
   @doc """
   Download content separately from processing, because we need to provide an estimate of the number of lines
@@ -234,4 +200,4 @@ end
 
 # IO.puts("========== go further ==========")
 
-Demo.show_more()
+Transport.IRVE.Consolidation.show_more()
