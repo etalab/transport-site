@@ -10,13 +10,13 @@ defmodule Transport.ZipProbe do
 
   ## Examples
 
-      iex> Transport.ZipProbe.likely_zip_content?("PK\x03\x04" <> "some content")
+      iex> likely_zip_content?("PK\x03\x04" <> "some content")
       true
 
-      iex> Transport.ZipProbe.likely_zip_content?("PK\x05\x06" <> "foobar")
+      iex> likely_zip_content?("PK\x05\x06" <> "foobar")
       true
 
-      iex> Transport.ZipProbe.likely_zip_content?("some content")
+      iex> likely_zip_content?("some content")
       false
   """
   def likely_zip_content?(<<?P, ?K, a, b, _rest::binary>>) when a < 0x10 and b < 0x10, do: true

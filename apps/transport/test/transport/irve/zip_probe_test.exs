@@ -1,4 +1,4 @@
 defmodule Transport.ZipProbeTest do
   use ExUnit.Case, async: true
-  doctest Transport.ZipProbe
+  doctest Transport.ZipProbe, import: true
 end
