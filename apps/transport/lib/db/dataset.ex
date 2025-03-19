@@ -80,6 +80,7 @@ defmodule DB.Dataset do
     has_many(:resources, Resource, on_replace: :delete, on_delete: :delete_all)
     has_many(:logs_import, LogsImport, on_replace: :delete, on_delete: :delete_all)
     has_many(:notification_subscriptions, NotificationSubscription, on_delete: :delete_all)
+    has_many(:reuser_improved_data, DB.ReuserImprovedData, on_delete: :delete_all)
 
     # Deprecation notice: datasets won't be linked to region and aom like that in the future
     # ⬇️⬇️⬇️

@@ -38,16 +38,21 @@ defmodule TransportWeb.EditDatasetLive do
       |> assign(:legal_owners, get_legal_owners(dataset))
       |> assign(:trigger_submit, false)
       |> assign(:form_params, form_params(dataset))
+      |> assign(:custom_tags, get_custom_tags(dataset))
+      |> assign(:matches, [])
 
     {:ok, socket}
   end
 
   def form_params(%DB.Dataset{} = dataset) do
+    insee = if is_nil(dataset.aom), do: "", else: dataset.aom.insee_commune_principale
+
     %{
       "url" => Dataset.datagouv_url(dataset),
       "custom_title" => dataset.custom_title,
       "legal_owner_company_siren" => dataset.legal_owner_company_siren,
       "national_dataset" => dataset.region_id == 14,
+      "insee" => insee,
       "associated_territory_name" => dataset.associated_territory_name
     }
     |> to_form()
@@ -59,6 +64,7 @@ defmodule TransportWeb.EditDatasetLive do
       "custom_title" => "",
       "legal_owner_company_siren" => "",
       "national_dataset" => "",
+      "insee" => "",
       "associated_territory_name" => ""
     }
     |> to_form()
@@ -77,6 +83,12 @@ defmodule TransportWeb.EditDatasetLive do
   end
 
   def get_legal_owners(_), do: []
+
+  def get_custom_tags(%Dataset{} = dataset) do
+    dataset.custom_tags || []
+  end
+
+  def get_custom_tags(_), do: []
 
   def organization_types,
     do: [
@@ -119,6 +131,15 @@ defmodule TransportWeb.EditDatasetLive do
     {:noreply, assign(socket, trigger_submit: true)}
   end
 
+  def handle_event("suggest_communes", %{"value" => query}, socket) when byte_size(query) <= 100 do
+    matches =
+      query
+      |> Transport.SearchCommunes.search()
+      |> Enum.take(5)
+
+    {:noreply, assign(socket, matches: matches)}
+  end
+
   def handle_event(_, _, socket) do
     {:noreply, socket}
   end
@@ -126,6 +147,10 @@ defmodule TransportWeb.EditDatasetLive do
   # handle info sent from the child live component to update the list of legal owners
   def handle_info({:updated_legal_owner, legal_owners}, socket) do
     {:noreply, socket |> assign(:legal_owners, legal_owners)}
+  end
+
+  def handle_info({:updated_custom_tags, custom_tags}, socket) do
+    {:noreply, socket |> assign(:custom_tags, custom_tags)}
   end
 
   # get the result from the async Task triggered by "change_dataset"

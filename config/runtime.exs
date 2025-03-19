@@ -161,6 +161,7 @@ oban_prod_crontab = [
   {"20 5 * * *", Transport.Jobs.ImportDatasetContactPointsJob},
   # Should be ideally executed after `GBFSMultiValidationDispatcherJob` to use fresh metadata
   {"30 8 * * *", Transport.Jobs.ImportGBFSFeedContactEmailJob},
+  {"20 5 * * *", Transport.Jobs.ImportReusesJob},
   {"30 5 * * *", Transport.Jobs.ImportDatasetMonthlyMetricsJob},
   {"45 5 * * *", Transport.Jobs.ImportResourceMonthlyMetricsJob},
   {"0 8 * * *", Transport.Jobs.WarnUserInactivityJob},

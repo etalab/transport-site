@@ -214,7 +214,7 @@ defmodule Transport.GTFSDiff do
     delete_messages ++ add_messages ++ update_messages
   end
 
-  def compare_files(unzip_1, unzip_2, profile) do
+  def compare_files(unzip_1, unzip_2, profile \\ "full") do
     file_names_1 = unzip_1 |> list_entries(profile)
     file_names_2 = unzip_2 |> list_entries(profile)
     added_files = file_names_2 -- file_names_1
@@ -227,8 +227,8 @@ defmodule Transport.GTFSDiff do
     }
   end
 
-  def file_diff(unzip_1, unzip_2, profile) do
-    %{added_files: added_files, deleted_files: deleted_files} = compare_files(unzip_1, unzip_2, profile)
+  def file_diff(unzip_1, unzip_2) do
+    %{added_files: added_files, deleted_files: deleted_files} = compare_files(unzip_1, unzip_2)
 
     added_files_diff =
       added_files
@@ -245,8 +245,8 @@ defmodule Transport.GTFSDiff do
     added_files_diff ++ deleted_files_diff
   end
 
-  def column_diff(unzip_1, unzip_2, profile) do
-    %{same_files: same_files, added_files: added_files} = compare_files(unzip_1, unzip_2, profile)
+  def column_diff(unzip_1, unzip_2) do
+    %{same_files: same_files, added_files: added_files} = compare_files(unzip_1, unzip_2)
 
     (same_files ++ added_files)
     |> Enum.flat_map(fn file_name ->
@@ -306,8 +306,8 @@ defmodule Transport.GTFSDiff do
   end
 
   def diff(unzip_1, unzip_2, profile, notify_func \\ nil, locale \\ "fr") do
-    file_diff = file_diff(unzip_1, unzip_2, profile)
-    column_diff = column_diff(unzip_1, unzip_2, profile)
+    file_diff = file_diff(unzip_1, unzip_2)
+    column_diff = column_diff(unzip_1, unzip_2)
     row_diff = row_diff(unzip_1, unzip_2, notify_func, locale, profile)
 
     diff = file_diff ++ column_diff ++ row_diff

@@ -280,25 +280,9 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     diff_summary = diff |> GTFSDiffExplain.diff_summary()
     diff_explanations = diff |> GTFSDiffExplain.diff_explanations() |> drop_empty()
 
-    files_with_changes =
-      diff_summary
-      |> Map.values()
-      |> Enum.concat()
-      |> Enum.map(fn {{file, _, _}, _} -> file end)
-      |> Enum.sort()
-      |> Enum.dedup()
-
-    selected_file =
-      case files_with_changes do
-        [] -> nil
-        _ -> Kernel.hd(files_with_changes)
-      end
-
     update_many(socket, :results, [
       set(:diff_summary, diff_summary),
-      set(:diff_explanations, diff_explanations),
-      set(:files_with_changes, files_with_changes),
-      set(:selected_file, selected_file)
+      set(:diff_explanations, diff_explanations)
     ])
   end
 
