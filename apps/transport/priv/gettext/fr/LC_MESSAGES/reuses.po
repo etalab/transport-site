@@ -1,0 +1,62 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n>1);\n"
+
+#, elixir-autogen, elixir-format
+msgid "Reuses"
+msgstr "Réutilisations"
+
+#, elixir-autogen, elixir-format
+msgid "dataset"
+msgid_plural "datasets"
+msgstr[0] "jeu de données"
+msgstr[1] "jeux de données"
+
+#, elixir-autogen, elixir-format
+msgid "api"
+msgstr "API"
+
+#, elixir-autogen, elixir-format
+msgid "application"
+msgstr "application"
+
+#, elixir-autogen, elixir-format
+msgid "hardware"
+msgstr "objet connecté"
+
+#, elixir-autogen, elixir-format
+msgid "news_article"
+msgstr "article de presse"
+
+#, elixir-autogen, elixir-format
+msgid "paper"
+msgstr "papier"
+
+#, elixir-autogen, elixir-format
+msgid "post"
+msgstr "article de blog"
+
+#, elixir-autogen, elixir-format
+msgid "visualization"
+msgstr "visualisation"
+
+#, elixir-autogen, elixir-format
+msgid "idea"
+msgstr "idée"
+
+#, elixir-autogen, elixir-format
+msgid "index-intro"
+msgstr "Vous trouverez ci-dessous la liste des réutilisateurs qui ont déclaré réutiliser un jeu de données référencé sur transport.data.gouv.fr.<br/><br/>Vous n’y êtes pas ? Mettez en avant vos réutilisations depuis l’administration de votre compte data.gouv.fr et vos réalisations apparaitront automatiquement sur cette page !<br/><br/>Plus d’informations sur notre documentation en ligne :"
+
+#, elixir-autogen, elixir-format
+msgid "Publish a reuse"
+msgstr "Publier une réutilisation"

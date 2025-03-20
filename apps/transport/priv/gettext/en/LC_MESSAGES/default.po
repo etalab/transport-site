@@ -166,3 +166,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Statistics"
 msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Reuses"
+msgstr ""
