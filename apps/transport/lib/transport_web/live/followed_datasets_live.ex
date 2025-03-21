@@ -6,7 +6,7 @@ defmodule TransportWeb.Live.FollowedDatasetsLive do
   use TransportWeb.InputHelpers
   import Ecto.Query
   import TransportWeb.DatasetView, only: [icon_type_path: 1]
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
   import TransportWeb.InputHelpers
   import TransportWeb.Router.Helpers
 

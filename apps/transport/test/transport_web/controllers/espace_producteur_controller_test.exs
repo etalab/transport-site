@@ -473,18 +473,16 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       assert html |> Floki.find("h2") |> Floki.text() =~ "Repartage des données améliorées"
       assert html |> Floki.find("table") |> Floki.text() =~ reuser_improved_data.organization.name
 
-      gtfs_diff_url =
-        "/tools/gtfs_diff?" <>
-          URI.encode_query(%{reference_url: resource.url, modified_url: reuser_improved_data.download_url})
-
       # Actions buttons
-      assert html |> Floki.find("a.button-outline") == [
+      download_url = reuser_improved_data.download_url
+
+      assert [
                {"a",
                 [
                   {"class", "button-outline reuser small"},
                   {"data-tracking-action", "download_reuser_gtfs"},
                   {"data-tracking-category", "espace_producteur"},
-                  {"href", reuser_improved_data.download_url},
+                  {"href", ^download_url},
                   {"target", "_blank"}
                 ], ["Télécharger le GTFS réutilisateur"]},
                {"a",
@@ -495,7 +493,12 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                   {"href", gtfs_diff_url},
                   {"target", "_blank"}
                 ], ["Comparer avec mon GTFS"]}
-             ]
+             ] = html |> Floki.find("a.button-outline")
+
+      %URI{path: "/tools/gtfs_diff", query: query} = URI.new!(gtfs_diff_url)
+
+      assert %{"modified_url" => reuser_improved_data.download_url, "reference_url" => resource.url} ==
+               URI.decode_query(query)
     end
   end
 

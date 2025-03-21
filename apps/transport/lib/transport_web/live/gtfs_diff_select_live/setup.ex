@@ -3,7 +3,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
   Setup step of the GTFS diff tool.
   """
   use Phoenix.LiveView
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
   import TransportWeb.Live.GTFSDiffSelectLive.Shared
 
   def setup_step(%{uploads: _} = assigns) do

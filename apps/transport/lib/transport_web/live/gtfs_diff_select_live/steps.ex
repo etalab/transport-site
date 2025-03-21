@@ -3,7 +3,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Steps do
   Results step of the GTFS diff tool.
   """
   use Phoenix.LiveView
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
 
   def steps(%{current_step: _} = assigns) do
     ~H"""
