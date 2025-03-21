@@ -18,11 +18,20 @@ defmodule TransportWeb.NewCoveredAreaSelectLive do
           id: "new_covered_area_input"
         ) %>
       </label>
-      <datalist id="covered_area_suggestions">
-        <%= for match <- @matches do %>
-          <option value="thing"><%= division_display_name(match) %></option>
-        <% end %>
-      </datalist>
+      <div class="autoCompleteResultsField" id="covered_area_suggestions" :if={@matches != []}>
+        <div id="autoCompleteResults">
+          <ul id="autoComplete_list">
+          <li class="autoComplete_result"></li>
+          <li class="autoComplete_result"></li>
+            <%= for match <- @matches do %>
+              <li class="autoComplete_result"><div>
+              <span class="autocomplete_name"><%= match.nom %></span>
+              <span class="autocomplete_type"><%= division_name(match) %></span>
+              </div></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
       <div class="pt-6"></div>
     </div>
     """
@@ -36,6 +45,15 @@ defmodule TransportWeb.NewCoveredAreaSelectLive do
     administrative_divisions = DB.DatasetNewCoveredArea.load_searchable_administrative_divisions()
 
     {:ok, socket |> assign(assigns) |> assign(:administrative_divisions, administrative_divisions)}
+  end
+
+  def handle_event("add_or_suggest_division", %{"key" => "Escape"}, socket) do
+    {:noreply, assign(socket, matches: [])}
+  end
+
+
+  def handle_event("add_or_suggest_division", %{"value" => ""}, socket) do
+    {:noreply, assign(socket, matches: [])}
   end
 
   def handle_event("add_or_suggest_division", %{"value" => query}, socket) when byte_size(query) <= 100 do
@@ -78,6 +96,11 @@ defmodule TransportWeb.NewCoveredAreaSelectLive do
 
     "#{types_display[type]} : #{nom}"
   end
+
+  def division_name(%{__struct__: DB.Commune}), do: "Commune"
+  def division_name(%{__struct__: DB.EPCI}), do: "EPCI"
+  def division_name(%{__struct__: DB.Departement}), do: "Département"
+  def division_name(%{__struct__: DB.Region}), do: "Région"
 
   def color_class(%{type: "aom"}), do: "green"
   def color_class(%{type: "region"}), do: "blue"
