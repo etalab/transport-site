@@ -34,12 +34,67 @@ defmodule TransportWeb.GtfsDiffExplainTest do
     ]
 
     assert [
-             {"agency.txt", "Un fichier \"agency.txt\" a été ajouté"},
-             {"fares.txt", "Le fichier \"fares.txt\" a été supprimé"},
              {"stops.txt",
               "Le nom du stop_id 3000055 a été modifié. Nom initial : \"Hôpital\", Nouveau nom : \"Hôpital Arnauzand\""},
              {"stops.txt",
               "Une information d'accessibilité wheelchair_boarding a été ajouté pour le stop_id 100, valeur initiale : \"0\", nouvelle valeur : \"1\""}
            ] == GTFSDiffExplain.diff_explanations(diff)
+  end
+
+  test "structural changes" do
+    diff =
+      [
+        %{
+          "action" => "delete",
+          "file" => "agency.txt",
+          "target" => "file"
+        },
+        %{
+          "action" => "delete",
+          "file" => "agency.txt",
+          "target" => "column",
+          "identifier" => "{\"column\": \"agency_id\"}"
+        },
+        %{
+          "action" => "delete",
+          "file" => "agency.txt",
+          "target" => "column",
+          "identifier" => "{\"column\": \"agency_name\"}"
+        },
+        %{
+          "action" => "delete",
+          "file" => "calendar.txt",
+          "target" => "column",
+          "identifier" => "{\"column\": \"start_date\"}"
+        },
+        %{
+          "action" => "delete",
+          "file" => "calendar.txt",
+          "target" => "column",
+          "identifier" => "{\"column\": \"end_date\"}"
+        },
+        %{
+          "action" => "add",
+          "file" => "calendar.txt",
+          "target" => "column",
+          "identifier" => "{\"column\": \"monday\"}"
+        },
+        %{
+          "action" => "add",
+          "file" => "stop_times.txt",
+          "target" => "row"
+        }
+      ]
+
+    assert %{
+             "agency.txt" => [
+               {:deleted_columns, ["agency_id", "agency_name"]},
+               :deleted_file
+             ],
+             "calendar.txt" => [
+               {:added_columns, ["monday"]},
+               {:deleted_columns, ["end_date", "start_date"]}
+             ]
+           } == GTFSDiffExplain.structural_changes(diff)
   end
 end

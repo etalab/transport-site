@@ -441,10 +441,6 @@ msgid "An error occurred while interpreting the results. Note that the report is
 msgstr "Une erreur est survenue en interprétant les résultats. Notez que le rapport est toujours disponible au téléchargement. Erreur :"
 
 #, elixir-autogen, elixir-format
-msgid "Detail"
-msgstr "Détails"
-
-#, elixir-autogen, elixir-format
 msgid "The latitude of the stop_id %{stop_id} has been modified. \"%{initial_stop_lat}\" -> \"%{new_stop_lat}\""
 msgstr "La latitude du stop_id %{stop_id} a été modifiée : \"%{initial_stop_lat}\" -> \"%{new_stop_lat}\""
 
@@ -549,9 +545,45 @@ msgid "not enough memory"
 msgstr "mémoire insuffisante"
 
 #, elixir-autogen, elixir-format
-msgid "Summary"
-msgstr "Résumé"
-
-#, elixir-autogen, elixir-format
 msgid "Row changes have not been analyzed for this file. We suggest you dive into both GTFS files for more details."
 msgstr "Les différences de lignes n’ont pas été analysées pour ce fichier. Nous vous invitons à explorer directement dans les 2 GTFS si vous souhaitez plus de précisions."
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Added %{count} column:"
+msgid_plural "Added %{count} columns:"
+msgstr[0] "%{count} colonne ajoutée :"
+msgstr[1] "%{count} colonnes ajoutées :"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Deleted %{count} column:"
+msgid_plural "Deleted %{count} columns:"
+msgstr[0] "%{count} colonne supprimée :"
+msgstr[1] "%{count} colonnes supprimées :"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Know more about this file."
+msgstr "En savoir plus sur ce fichier."
+
+#, elixir-autogen, elixir-format
+msgid "Notable changes:"
+msgstr "Changements notables :"
+
+#, elixir-autogen, elixir-format
+msgid "Row changes:"
+msgstr "Changements de lignes :"
+
+#, elixir-autogen, elixir-format
+msgid "file added with %{count} new column:"
+msgid_plural "file added with %{count} new columns:"
+msgstr[0] "fichier ajouté avec %{count} nouvelle colonne :"
+msgstr[1] "fichier ajouté avec %{count} nouvelles colonnes :"
+
+#, elixir-autogen, elixir-format
+msgid "file deleted along with %{count} column:"
+msgid_plural "file deleted along with %{count} columns:"
+msgstr[0] "fichier supprimé avec %{count} colonne :"
+msgstr[1] "fichier supprimé avec %{count} colonnes :"
+
+#, elixir-autogen, elixir-format
+msgid "non standard column"
+msgstr "colonne non standard"

@@ -163,6 +163,10 @@
       overflow: scroll;
     }
   }
+
+  .symbol {
+    margin-inline: 6px;
+  }
 }
 
 @media (max-width: 749px) {
