@@ -424,6 +424,26 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
              } == current_dataset_compliance(dataset.id)
     end
 
+    test "with a single NeTEx resource with an error" do
+      dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true)
+
+      insert(:multi_validation, %{
+        resource_history:
+          insert(:resource_history, resource: netex = insert(:resource, dataset: dataset, format: "NeTEx")),
+        validator: Transport.Validators.NeTEx.validator_name(),
+        max_error: "error"
+      })
+
+      assert %{
+               score: 0,
+               details: %{
+                 resources: [
+                   %{compliance: +0.0, raw_measure: %{"max_error" => "error"}, resource_id: netex.id}
+                 ]
+               }
+             } == current_dataset_compliance(dataset.id)
+    end
+
     test "handles validation_performed = false with 2 resources" do
       dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true)
       schema_name = "etalab/#{Ecto.UUID.generate()}"
