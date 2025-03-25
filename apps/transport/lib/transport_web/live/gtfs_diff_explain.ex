@@ -150,7 +150,7 @@ defmodule TransportWeb.GTFSDiffExplain do
         }
       ) do
     [
-      {"stops.txt",
+      {"stops.txt", "stop_name",
        dgettext(
          "validations",
          ~s(The name of the stop_id %{stop_id} has been modified. Initial name: "%{initial_stop_name}", New name: "%{new_stop_name}"),
@@ -179,7 +179,7 @@ defmodule TransportWeb.GTFSDiffExplain do
       )
       when new_wheelchair_boarding in ["1", "2"] do
     [
-      {"stops.txt",
+      {"stops.txt", "wheelchair_boarding",
        dgettext(
          "validations",
          ~s(Wheelchair_boarding information added for stop_id %{stop_id}, previously: "%{initial_wheelchair_boarding}", now: "%{new_wheelchair_boarding}"),
@@ -205,7 +205,7 @@ defmodule TransportWeb.GTFSDiffExplain do
         }
       ) do
     [
-      {"stops.txt",
+      {"stops.txt", "stop_lon",
        dgettext(
          "validations",
          ~s(The longitude of the stop_id %{stop_id} has been modified. "%{initial_stop_lon}" -> "%{new_stop_lon}"),
@@ -233,7 +233,7 @@ defmodule TransportWeb.GTFSDiffExplain do
         }
       ) do
     [
-      {"stops.txt",
+      {"stops.txt", "stop_lat",
        dgettext(
          "validations",
          ~s(The latitude of the stop_id %{stop_id} has been modified. "%{initial_stop_lat}" -> "%{new_stop_lat}"),

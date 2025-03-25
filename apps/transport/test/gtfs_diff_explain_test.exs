@@ -34,9 +34,9 @@ defmodule TransportWeb.GtfsDiffExplainTest do
     ]
 
     assert [
-             {"stops.txt",
+             {"stops.txt", "stop_name",
               "Le nom du stop_id 3000055 a été modifié. Nom initial : \"Hôpital\", Nouveau nom : \"Hôpital Arnauzand\""},
-             {"stops.txt",
+             {"stops.txt", "wheelchair_boarding",
               "Une information d'accessibilité wheelchair_boarding a été ajouté pour le stop_id 100, valeur initiale : \"0\", nouvelle valeur : \"1\""}
            ] == GTFSDiffExplain.diff_explanations(diff)
   end
