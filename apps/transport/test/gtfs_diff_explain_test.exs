@@ -37,18 +37,10 @@ defmodule TransportWeb.GtfsDiffExplainTest do
              %{
                file: "stops.txt",
                type: "stop_position",
-               message: "La latitude de l’arrêt 3000055 a été modifiée",
-               before: "46.605513",
-               after: "46.605348",
-               sort_key: "3000055-lat"
-             },
-             %{
-               file: "stops.txt",
-               type: "stop_position",
-               message: "La longitude de l’arrêt 3000055 a été modifiée",
-               before: "0.275126",
-               after: "0.275881",
-               sort_key: "3000055-lon"
+               message: "L’arrêt 3000055 a été déplacé de 61m",
+               before: "(46.605513, 0.275126)",
+               after: "(46.605348, 0.275881)",
+               sort_key: -61
              },
              %{
                file: "stops.txt",

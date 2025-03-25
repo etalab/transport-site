@@ -587,11 +587,7 @@ msgid "Stops' positions"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "The latitude of the stop_id %{stop_id} has been modified"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "The longitude of the stop_id %{stop_id} has been modified"
+msgid "Stop %{stop_id} has been moved by %{distance}m"
 msgstr ""
 
 #, elixir-autogen, elixir-format

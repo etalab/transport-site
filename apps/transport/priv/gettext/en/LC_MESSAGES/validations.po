@@ -589,6 +589,10 @@ msgid "Stops' positions"
 msgstr ""
 
 #, elixir-autogen, elixir-format
+msgid "Stop %{stop_id} has been moved by %{distance}m"
+msgstr ""
+
+#, elixir-autogen, elixir-format
 msgid "Wheelchair_boarding updated for stop %{stop_id}"
 msgstr ""
 
@@ -606,12 +610,4 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Original"
-msgstr ""
-
-#, elixir-autogen, elixir-format, fuzzy
-msgid "The latitude of the stop_id %{stop_id} has been modified"
-msgstr ""
-
-#, elixir-autogen, elixir-format, fuzzy
-msgid "The longitude of the stop_id %{stop_id} has been modified"
 msgstr ""
