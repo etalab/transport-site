@@ -89,7 +89,7 @@ msgstr "Regroupement des itinéraires sur le réseau."
 
 #, elixir-autogen, elixir-format
 msgid "pathways.txt"
-msgstr "Sentiers reliant les emplacements au sein des stations."
+msgstr "Cheminements piétons reliant les emplacements au sein des stations."
 
 #, elixir-autogen, elixir-format
 msgid "rider_categories.txt"

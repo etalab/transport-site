@@ -2,7 +2,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
   @moduledoc """
   Results step of the GTFS diff tool.
   """
-  use Phoenix.LiveView
+  use Phoenix.Component
   use TransportWeb.InputHelpers
   import TransportWeb.Gettext
   import TransportWeb.Live.GTFSDiffSelectLive.GTFSSpecification
