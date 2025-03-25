@@ -100,7 +100,7 @@ defmodule TransportWeb.GtfsDiffExplainTest do
           "file" => "trips.txt",
           "target" => "column",
           "identifier" => "{\"column\": \"service_id\"}"
-        },
+        }
       ]
 
     assert %{
