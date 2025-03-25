@@ -30,7 +30,7 @@ defmodule Transport.MixProject do
       {:saxy, "~> 1.5"},
       {:appsignal, "~> 2.0"},
       {:appsignal_phoenix, "~> 2.0"},
-      {:ecto_erd, "~> 0.5.0", only: [:dev]}
+      {:ecto_erd, "~> 0.6.0", only: [:dev]}
     ]
   end
 

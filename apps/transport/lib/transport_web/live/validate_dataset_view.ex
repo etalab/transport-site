@@ -1,7 +1,7 @@
 defmodule TransportWeb.Live.ValidateDatasetView do
   use Phoenix.LiveView
   alias DB.Dataset
-  import TransportWeb.Gettext, only: [dgettext: 2]
+  use Gettext, backend: TransportWeb.Gettext
   require Logger
 
   @button_disabled [:validated, :validating]

@@ -4,7 +4,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Analysis do
   """
   use Phoenix.LiveView
   use TransportWeb.InputHelpers
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
 
   def analysis_step(%{diff_logs: _, error_msg: _} = assigns) do
     ~H"""

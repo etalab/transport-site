@@ -9,7 +9,7 @@ defmodule DB.Dataset do
   alias DB.{AOM, Commune, DatasetGeographicView, LogsImport, NotificationSubscription, Region, Repo, Resource}
   alias Phoenix.HTML.Link
   import Ecto.{Changeset, Query}
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
   require Logger
   use Ecto.Schema
   use TypedEctoSchema

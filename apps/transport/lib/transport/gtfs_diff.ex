@@ -4,7 +4,7 @@ defmodule Transport.GTFSDiff do
   """
   alias NimbleCSV.RFC4180, as: CSV
   require Logger
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
 
   @primary_keys %{
     "agency.txt" => ["agency_id"],

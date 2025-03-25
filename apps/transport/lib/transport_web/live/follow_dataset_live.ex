@@ -11,7 +11,7 @@ defmodule TransportWeb.Live.FollowDatasetLive do
   """
   use Phoenix.LiveView
   import Ecto.Query
-  import TransportWeb.Gettext, only: [dgettext: 2, dgettext: 3]
+  use Gettext, backend: TransportWeb.Gettext
   import TransportWeb.Router.Helpers
 
   @impl true
