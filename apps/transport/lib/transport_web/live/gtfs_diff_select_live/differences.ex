@@ -21,8 +21,9 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
       <%= if assigns[:diff_explanations] do %>
         <% active_explanations =
           @diff_explanations
-          |> Enum.filter(fn {file, _} -> file == @selected_file end)
-          |> Enum.map(fn {_, explanation} -> explanation end) %>
+          |> Enum.filter(fn {file, _, _} -> file == @selected_file end)
+          |> Enum.sort_by(fn {_, nature, _} -> nature end)
+          |> Enum.map(fn {_, _, explanation} -> explanation end) %>
         <.detailed_explanations :if={not Enum.empty?(active_explanations)} active_explanations={active_explanations} />
       <% end %>
     </div>
