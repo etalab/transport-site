@@ -19,8 +19,8 @@ defmodule TransportWeb.GtfsDiffExplainTest do
         "action" => "update",
         "file" => "stops.txt",
         "identifier" => "{\"stop_id\":\"3000055\"}",
-        "initial_value" => "{\"stop_name\":\"Hôpital\"}",
-        "new_value" => "{\"stop_name\":\"Hôpital Arnauzand\"}",
+        "initial_value" => "{\"stop_name\":\"Hôpital\", \"stop_lat\":\"46.605513\", \"stop_lon\":\"0.275126\"}",
+        "new_value" => "{\"stop_name\":\"Hôpital Arnauzand\", \"stop_lat\":\"46.605348\", \"stop_lon\":\"0.275881\"}",
         "target" => "row"
       },
       %{
@@ -34,6 +34,8 @@ defmodule TransportWeb.GtfsDiffExplainTest do
     ]
 
     assert [
+             {"stops.txt", "stop_position",
+              "L’arrêt 3000055 a été déplacé de 61m : (46.605513, 0.275126) -> (46.605348, 0.275881)."},
              {"stops.txt", "stop_name",
               "Le nom du stop_id 3000055 a été modifié. Nom initial : \"Hôpital\", Nouveau nom : \"Hôpital Arnauzand\""},
              {"stops.txt", "wheelchair_boarding",

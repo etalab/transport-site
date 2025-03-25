@@ -440,14 +440,6 @@ msgstr ""
 msgid "An error occurred while interpreting the results. Note that the report is still available as download. Error:"
 msgstr ""
 
-#, elixir-autogen, elixir-format
-msgid "The latitude of the stop_id %{stop_id} has been modified. \"%{initial_stop_lat}\" -> \"%{new_stop_lat}\""
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "The longitude of the stop_id %{stop_id} has been modified. \"%{initial_stop_lon}\" -> \"%{new_stop_lon}\""
-msgstr ""
-
 #, elixir-autogen, elixir-format, fuzzy
 msgid "The name of the stop_id %{stop_id} has been modified. Initial name: \"%{initial_stop_name}\", New name: \"%{new_stop_name}\""
 msgstr ""
@@ -586,4 +578,8 @@ msgstr[1] ""
 
 #, elixir-autogen, elixir-format
 msgid "non standard column"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Stop %{stop_id} has been moved by %{distance}m: (%{initial_stop_lat}, %{initial_stop_lon}) -> (%{new_stop_lat}, %{new_stop_lon})."
 msgstr ""

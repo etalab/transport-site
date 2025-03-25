@@ -9,15 +9,14 @@ defmodule TransportWeb.GTFSDiffExplain do
     |> Enum.flat_map(fn diff ->
       diff =
         diff
-        |> Map.update("initial_value", %{}, &try_jason_decode(&1))
-        |> Map.update("new_value", %{}, &try_jason_decode(&1))
-        |> Map.update("identifier", %{}, &try_jason_decode(&1))
+        |> Map.update("initial_value", %{}, &try_jason_decode/1)
+        |> Map.update("new_value", %{}, &try_jason_decode/1)
+        |> Map.update("identifier", %{}, &try_jason_decode/1)
 
       []
       |> explanation_update_stop_name(diff)
       |> explanation_stop_wheelchair_access(diff)
-      |> explanation_update_stop_longitude(diff)
-      |> explanation_update_stop_latitude(diff)
+      |> explanation_update_stop_position(diff)
     end)
   end
 
@@ -193,61 +192,80 @@ defmodule TransportWeb.GTFSDiffExplain do
 
   def explanation_stop_wheelchair_access(explanations, _), do: explanations
 
-  def explanation_update_stop_longitude(
+  def explanation_update_stop_position(
         explanations,
         %{
           "action" => "update",
           "file" => "stops.txt",
           "target" => "row",
           "identifier" => %{"stop_id" => stop_id},
-          "new_value" => %{"stop_lon" => new_stop_lon},
-          "initial_value" => %{"stop_lon" => initial_stop_lon}
+          "new_value" => %{"stop_lat" => lat2, "stop_lon" => lon2},
+          "initial_value" => %{"stop_lat" => lat1, "stop_lon" => lon1}
         }
       ) do
-    [
-      {"stops.txt", "stop_lon",
-       dgettext(
-         "validations",
-         ~s(The longitude of the stop_id %{stop_id} has been modified. "%{initial_stop_lon}" -> "%{new_stop_lon}"),
-         stop_id: stop_id,
-         initial_stop_lon: initial_stop_lon,
-         new_stop_lon: new_stop_lon
-       )}
-      | explanations
-    ]
+    {lat1, _} = Float.parse(lat1)
+    {lon1, _} = Float.parse(lon1)
+    {lat2, _} = Float.parse(lat2)
+    {lon2, _} = Float.parse(lon2)
+
+    distance = round(curvilinear_abscissa({lat1, lon1}, {lat2, lon2}))
+
+    if distance > 0 do
+      [
+        {"stops.txt", "stop_position",
+         dgettext(
+           "validations",
+           "Stop %{stop_id} has been moved by %{distance}m: (%{initial_stop_lat}, %{initial_stop_lon}) -> (%{new_stop_lat}, %{new_stop_lon}).",
+           stop_id: stop_id,
+           initial_stop_lat: lat1,
+           new_stop_lat: lat2,
+           initial_stop_lon: lon1,
+           new_stop_lon: lon2,
+           distance: distance
+         )}
+        | explanations
+      ]
+    else
+      explanations
+    end
   end
 
-  def explanation_update_stop_longitude(explanations, _) do
+  def explanation_update_stop_position(explanations, _) do
     explanations
   end
 
-  def explanation_update_stop_latitude(
-        explanations,
-        %{
-          "action" => "update",
-          "file" => "stops.txt",
-          "target" => "row",
-          "identifier" => %{"stop_id" => stop_id},
-          "new_value" => %{"stop_lat" => new_stop_lat},
-          "initial_value" => %{"stop_lat" => initial_stop_lat}
-        }
-      ) do
-    [
-      {"stops.txt", "stop_lat",
-       dgettext(
-         "validations",
-         ~s(The latitude of the stop_id %{stop_id} has been modified. "%{initial_stop_lat}" -> "%{new_stop_lat}"),
-         stop_id: stop_id,
-         initial_stop_lat: initial_stop_lat,
-         new_stop_lat: new_stop_lat
-       )}
-      | explanations
-    ]
+  @doc """
+    From https://geodesie.ign.fr/contenu/fichiers/Distance_longitude_latitude.pdf:
+
+    Si l’on considère deux points A et B sur la sphère, de
+    latitudes ϕA et ϕB et de longitudes λA et λB , alors la
+    distance angulaire en radians S A-B entre A et B est
+    donnée par la relation fondamentale de trigonométrie
+    sphérique, utilisant dλ = λB – λA :
+
+    S A-B = arccos (sin ϕA sin ϕB + cos ϕA cos ϕB cos dλ)
+
+    La distance S en mètres, s’obtient en multipliant S A-B
+    par un rayon de la Terre conventionnel (6 378 137 mètres par exemple).
+
+    iex> curvilinear_abscissa({46.605513, 0.275126}, {46.605348, 0.275881}) |> round()
+    61
+  """
+  def curvilinear_abscissa({lat1, lon1}, {lat2, lon2}) do
+    # Semi-major axis of WGS 84
+    r = 6_378_137
+
+    lat1r = deg2rad(lat1)
+    lon1r = deg2rad(lon1)
+    lat2r = deg2rad(lat2)
+    lon2r = deg2rad(lon2)
+
+    dlon = lon2r - lon1r
+
+    r * :math.acos(:math.sin(lat1r) * :math.sin(lat2r) + :math.cos(lat1r) * :math.cos(lat2r) * :math.cos(dlon))
   end
 
-  def explanation_update_stop_latitude(explanations, _) do
-    explanations
-  end
+  defp deg2rad(deg), do: deg * :math.pi() / 180.0
 
   def try_jason_decode(""), do: nil
   def try_jason_decode(input), do: Jason.decode!(input)
