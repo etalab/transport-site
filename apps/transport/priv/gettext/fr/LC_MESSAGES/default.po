@@ -166,3 +166,7 @@ msgstr "Toutes les données"
 #, elixir-autogen, elixir-format
 msgid "Statistics"
 msgstr "Statistiques"
+
+#, elixir-autogen, elixir-format
+msgid "Reuses"
+msgstr "Réutilisations"
