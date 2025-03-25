@@ -204,10 +204,12 @@ defmodule Transport.Jobs.DatasetComplianceScore do
     Transport.Validators.GBFSValidator
   ]
   @gtfs_validator Transport.Validators.GTFSTransport
-  @validators [@gtfs_validator | @validators_with_has_errors]
+  @netex_validator Transport.Validators.NeTEx
+  @validators [@gtfs_validator, @netex_validator] ++ @validators_with_has_errors
   @validator_names Enum.map(@validators, & &1.validator_name())
   @validators_with_has_errors_names Enum.map(@validators_with_has_errors, & &1.validator_name())
   @gtfs_validator_name @gtfs_validator.validator_name()
+  @netex_validator_name @netex_validator.validator_name()
 
   @spec current_dataset_compliance(integer()) :: %{score: float | nil, details: map()}
   def current_dataset_compliance(dataset_id) do
@@ -244,6 +246,12 @@ defmodule Transport.Jobs.DatasetComplianceScore do
   # For GTFS resources
   def resource_compliance({resource_id, [%DB.MultiValidation{validator: @gtfs_validator_name, max_error: max_error}]}) do
     compliance = if max_error in ["Fatal", "Error"], do: 0.0, else: 1.0
+    %{compliance: compliance, resource_id: resource_id, raw_measure: %{"max_error" => max_error}}
+  end
+
+  # For NeTEx resources
+  def resource_compliance({resource_id, [%DB.MultiValidation{validator: @netex_validator_name, max_error: max_error}]}) do
+    compliance = if max_error == "error", do: 0.0, else: 1.0
     %{compliance: compliance, resource_id: resource_id, raw_measure: %{"max_error" => max_error}}
   end
 
