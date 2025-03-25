@@ -164,6 +164,10 @@ defmodule TransportWeb.EditDatasetLive do
     {:noreply, socket |> assign(:custom_tags, custom_tags)}
   end
 
+  def handle_info({:updated_new_covered_area, new_covered_area}, socket) do
+    {:noreply, socket |> assign(:new_covered_area, new_covered_area)}
+  end
+
   # get the result from the async Task triggered by "change_dataset"
   def handle_info({ref, datagouv_infos}, socket) do
     # we stop monitoring the process after receiving the result

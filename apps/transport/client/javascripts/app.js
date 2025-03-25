@@ -43,6 +43,10 @@ window.addEventListener('phx:backoffice-form-owner-reset', () => {
     document.getElementById('js-owner-input').value = ''
 })
 
+window.addEventListener('phx:backoffice-form-covered-area-reset', () => {
+    document.getElementById('new_covered_area_input').value = ''
+})
+
 window.addEventListener('phx:gtfs-diff:scroll-to-steps', () => {
     document.getElementById('gtfs-diff-steps').parentElement.scrollIntoView({ behavior: 'smooth' })
 })

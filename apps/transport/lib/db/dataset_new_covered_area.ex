@@ -11,6 +11,7 @@ defmodule DB.DatasetNewCoveredArea do
   end
 
   def populate_covered_area(dataset) do
+    # TODO put this in a function
     covered_area_value =
       dataset
       |> preload_covered_area_objects()
@@ -31,7 +32,7 @@ defmodule DB.DatasetNewCoveredArea do
     type_name = division.__struct__ |> Module.split() |> List.last() |> String.downcase()
 
     division
-    |> Map.take([:id, :insee, :nom])
+    |> Map.take([:id, :insee, :nom, :normalized_nom])
     |> Map.put(:type, type_name)
   end
 
@@ -85,9 +86,23 @@ defmodule DB.DatasetNewCoveredArea do
     # Take out the national region as it doesn’t have an insee code and search fails
     #  Fix this in the future
     |> Enum.reject(&(&1.nom == "National"))
+    |> Enum.map(&put_administrative_division_type/1)
   end
 
   def search(territoires, term) do
     Transport.SearchCommunes.filter(territoires, term)
+  end
+
+  def get_administrative_division(insee, type) do
+    division =
+      case type do
+        "commune" -> DB.Commune
+        "epci" -> DB.EPCI
+        "departement" -> DB.Departement
+        "region" -> DB.Region
+      end
+      |> DB.Repo.get_by(insee: insee)
+
+    division |> put_administrative_division_type()
   end
 end
