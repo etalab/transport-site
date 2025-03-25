@@ -810,8 +810,15 @@ defmodule Transport.ImportData do
 
       iex> formated_format(%{"format" => "netex", "title" => "Export au format CSV"}, "public-transit", false)
       "NeTEx"
+
+      iex> formated_format(%{"format" => "json", "url" => "https://bdx.mecatran.com/utw/ws/siri/2.0/bordeaux/stop-monitoring.json"}, "public-transit", false)
+      "SIRI Lite"
   """
   @spec formated_format(map(), binary(), bool()) :: binary()
+  def formated_format(%{"url" => "https://bdx.mecatran.com/utw/ws/siri/2.0/" <> _}, _, _) do
+    "SIRI Lite"
+  end
+
   # credo:disable-for-next-line
   def formated_format(resource, type, is_community_resource) do
     format = Map.get(resource, "format", "")
