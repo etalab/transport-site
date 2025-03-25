@@ -83,7 +83,24 @@ defmodule TransportWeb.GtfsDiffExplainTest do
           "action" => "add",
           "file" => "stop_times.txt",
           "target" => "row"
-        }
+        },
+        %{
+          "action" => "add",
+          "file" => "trips.txt",
+          "target" => "file"
+        },
+        %{
+          "action" => "add",
+          "file" => "trips.txt",
+          "target" => "column",
+          "identifier" => "{\"column\": \"route_id\"}"
+        },
+        %{
+          "action" => "add",
+          "file" => "trips.txt",
+          "target" => "column",
+          "identifier" => "{\"column\": \"service_id\"}"
+        },
       ]
 
     assert %{
@@ -94,6 +111,10 @@ defmodule TransportWeb.GtfsDiffExplainTest do
              "calendar.txt" => [
                {:added_columns, ["monday"]},
                {:deleted_columns, ["end_date", "start_date"]}
+             ],
+             "trips.txt" => [
+               {:added_columns, ["route_id", "service_id"]},
+               :added_file
              ]
            } == GTFSDiffExplain.structural_changes(diff)
   end
