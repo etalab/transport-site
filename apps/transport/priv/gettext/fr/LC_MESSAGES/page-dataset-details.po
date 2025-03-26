@@ -721,3 +721,19 @@ msgstr "Données sous la responsabilité de"
 #, elixir-autogen, elixir-format
 msgid "This unofficial dataset is provided experimentally. Do not use it for travel information purpose."
 msgstr "Ce jeu de données non officiel est publié à titre expérimental. Veuillez ne pas le réutiliser à des fins d’information voyageur."
+
+#, elixir-autogen, elixir-format
+msgid "Automatic NeTEx conversion are created from the associated GTFS file and don't contain additional information which can be described in NeTEx."
+msgstr "Les conversions automatiques NeTEx sont générées à partir du fichier GTFS associé et ne contiennent pas d’informations supplémentaires pouvant être décrites en NeTEx."
+
+#, elixir-autogen, elixir-format
+msgid "Automatic NeTEx conversions will not be available <b>after 2025-06-01</b>."
+msgstr "Les conversions automatiques NeTEx ne seront plus disponibles <b>après le 01/06/2025</b>."
+
+#, elixir-autogen, elixir-format
+msgid "Cancel"
+msgstr "Annuler"
+
+#, elixir-autogen, elixir-format
+msgid "Download the automatic NeTEx conversion"
+msgstr "Télécharger la conversion automatique NeTEx"

@@ -5,6 +5,8 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
   import Mox
   alias Transport.Jobs.ConsolidateLEZsJob
 
+  doctest Transport.Jobs.ConsolidateLEZsJob, import: true
+
   setup :verify_on_exit!
 
   setup do

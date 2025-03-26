@@ -212,4 +212,4 @@ msgstr "Espace réutilisateur"
 
 #, elixir-autogen, elixir-format
 msgid "Validate your data"
-msgstr "Valider ses données"
+msgstr "Valider vos données"

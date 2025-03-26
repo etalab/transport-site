@@ -153,9 +153,24 @@ defmodule DB.Resource do
   def community_resource?(%__MODULE__{is_community_resource: true}), do: true
   def community_resource?(_), do: false
 
+  @doc """
+  iex> real_time?(%DB.Resource{format: "gbfs"})
+  true
+  iex> real_time?(%DB.Resource{format: "GTFS"})
+  false
+  iex> real_time?(%DB.Resource{format: "csv", description: "Données mises à jour en temps réel"})
+  true
+  """
   @spec real_time?(__MODULE__.t()) :: boolean
   def real_time?(%__MODULE__{} = resource) do
-    gtfs_rt?(resource) or gbfs?(resource) or siri_lite?(resource) or siri?(resource)
+    [
+      &gtfs_rt?/1,
+      &gbfs?/1,
+      &siri_lite?/1,
+      &siri?/1,
+      &String.contains?(&1.description || "", ["mis à jour en temps réel", "mises à jour en temps réel"])
+    ]
+    |> Enum.any?(fn function -> function.(resource) end)
   end
 
   @doc """
@@ -224,6 +239,9 @@ defmodule DB.Resource do
 
   def get_related_conversion_info(resource_id, format) do
     converter = DB.DataConversion.converter_to_use(format)
+    # Only value supported for now but needed to make the query fast
+    # https://github.com/etalab/transport-site/issues/4448
+    convert_from = :GTFS
 
     DB.ResourceHistory
     |> join(:inner, [rh], dc in DB.DataConversion,
@@ -237,8 +255,9 @@ defmodule DB.Resource do
     })
     |> where(
       [rh, dc],
-      rh.resource_id == ^resource_id and dc.convert_to == ^format and dc.status == :success and
-        dc.converter == ^converter
+      rh.resource_id == ^resource_id and
+        dc.convert_from == ^convert_from and dc.convert_to == ^format and
+        dc.status == :success and dc.converter == ^converter
     )
     |> order_by([rh, _], desc: rh.inserted_at)
     |> limit(1)

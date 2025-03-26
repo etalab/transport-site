@@ -88,6 +88,7 @@ defmodule TransportWeb.Router do
     get("/robots.txt", PageController, :robots_txt)
     get("/.well-known/security.txt", PageController, :security_txt)
     get("/humans.txt", PageController, :humans_txt)
+    get("/reuses", ReuseController, :index)
 
     scope "/espace_producteur" do
       pipe_through([:producer_space])
@@ -96,6 +97,7 @@ defmodule TransportWeb.Router do
 
       scope "/datasets" do
         get("/:dataset_id/edit", EspaceProducteurController, :edit_dataset)
+        get("/:dataset_id/reuser_improved_data/:resource_id", EspaceProducteurController, :reuser_improved_data)
         post("/:dataset_id/upload_logo", EspaceProducteurController, :upload_logo)
         delete("/:dataset_id/custom_logo", EspaceProducteurController, :remove_custom_logo)
 

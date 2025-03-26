@@ -1,42 +1,145 @@
-#gtfs-diff-input {
+#gtfs-diff-steps {
+  margin: -3em auto 2em;
+  li.active {
+    font-weight: bold;
+  }
+}
+
+.actions {
+  margin-top: var(--space-m);
   display: flex;
+  gap: var(--space-s);
+  justify-content: end;
+  flex-direction: row-reverse;
+
+  button.button {
+    margin: 0;
+  }
+}
+
+#gtfs-diff-input {
   justify-content: left;
   align-items: stretch;
   #upload-form {
-    max-width: 300px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     margin: 0 60px 0 0;
+    max-width: unset;
+    width: 100%;
     .drop-zone {
-      padding: 10px;
-      min-height: 100px;
-      background-color: white;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      opacity: 0.7;
+      &:hover {
+        opacity: unset;
+      }
+      label {
+        display: flex;
+        align-content: center;
+        justify-content: center;
+        padding-block: 75px;
+        font-size: 20px;
+        gap: 30px;
+
+        &:hover {
+          cursor: pointer;
+        }
+        i.fa-upload {
+          align-self: center;
+          font-size: 30px;
+        }
+        span {
+          max-width: 400px;
+
+        }
+      }
+      input[type="file"] {
+        display: none;
+      }
     }
     button {
-      margin-top: 50px;
+      max-width: 300px;
+    }
+    #uploaded-files {
+      margin-top: 30px;
+      display: grid;
+      grid-template-columns: 1fr max-content 1fr;
+      gap: 20px;
+      align-items: center;
+
+      article.upload-entry.panel + * {
+        margin-top: 0;
+      }
+      article.upload-entry {
+        display: grid;
+        height: 100%;
+        min-height: 150px;
+        grid-template-columns: 1fr max-content;
+        grid-template-rows: repeat(3, max-content);
+        grid-template-areas:
+          "title title"
+          "entry progress";
+        row-gap: 10px;
+
+        h4 {
+          grid-area: title;
+          margin-bottom: 0;
+        }
+
+        .entry-name {
+          grid-area: entry;
+          text-wrap: nowrap;
+          display: inline-block;
+          overflow: hidden;
+          text-overflow: ellipsis;
+
+          i.fa {
+            margin-right: 0.5em;
+          }
+          .fa-square-check {
+            color: var(--green);
+          }
+          .fa-square-xmark {
+            color: var(--red);
+          }
+        }
+        .progress-bar {
+          grid-area: progress;
+          progress {
+            width: 100px;
+            margin-inline: 0.5em;
+            accent-color: var(--blue);
+          }
+        }
+        .upload-errors {
+          grid-area: errors;
+        }
+      }
+      article.upload-entry.upload-entry-errors {
+        grid-template-areas:
+          "title title"
+          "entry progress"
+          "errors errors";
+        border-color: var(--red);
+      }
+      article.upload-entry.upload-entry-inactive {
+        opacity: 0.5;
+        grid-template-areas:
+          "title title"
+          "placeholder placeholder";
+        .placeholder {
+          grid-area: placeholder;
+        }
+      }
     }
   }
-  .entry-name {
-    padding-bottom: 10px;
-    display: inline-block;
-    width: 250px;
-  }
-  input {
-    border: none;
-    padding: 12px 0 6px;
-  }
 }
 
-progress {
-  accent-color: var(--blue);
-}
-
-.gtfs-diff-results {
+#gtfs-diff-results {
   min-height: 90vh;
-  h4 {
-    margin: 24px 0 12px;
-  }
   .green {
     color: green;
   }
@@ -51,6 +154,26 @@ progress {
     justify-content: space-around;
     ul {
       padding-left: 12px;
+    }
+  }
+  .dashboard {
+    min-height: 50vh;
+    max-height: 75vh;
+    .main {
+      overflow: scroll;
+    }
+  }
+}
+
+@media (max-width: 749px) {
+  #gtfs-diff-input #upload-form #uploaded-files {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    article.upload-entry {
+      width: 100%;
+    }
+    i.fa-arrow-right-arrow-left {
+      transform: rotate(90deg);
     }
   }
 }

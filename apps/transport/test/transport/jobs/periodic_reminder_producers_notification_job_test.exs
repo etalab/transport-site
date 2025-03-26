@@ -223,9 +223,10 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
       assert subject == "Rappel : vos notifications pour vos données sur transport.data.gouv.fr"
 
       assert html =~
-               ~s(Vous êtes inscrit à des notifications pour le jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a>)
+               ~s(vous êtes inscrit à des notifications pour le jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a>)
 
-      assert html =~ "Les autres personnes inscrites à ces notifications sont : Marina Loiseau."
+      assert html =~
+               "Les autres personnes impliquées dans la production ou publication de vos données (qu’ils soient exploitants, intervenants techniques ou responsables légaux) et inscrites à ces notifications sont : Marina Loiseau."
     end)
 
     assert [
@@ -271,7 +272,7 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
       assert subject == "Notifications pour vos données sur transport.data.gouv.fr"
 
       assert html =~
-               ~s(Il est possible de vous inscrire à des notifications concernant le jeu de données que vous gérez sur transport.data.gouv.fr, <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a>)
+               ~s(il est possible de vous inscrire à des notifications concernant le jeu de données que vous gérez sur transport.data.gouv.fr, <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a>)
 
       assert html =~
                ~s(Pour vous inscrire, rien de plus simple : rendez-vous sur votre <a href="http://127.0.0.1:5100/espace_producteur?utm_source=transactional_email&amp;utm_medium=email&amp;utm_campaign=periodic_reminder_producer_without_subscriptions">Espace Producteur</a>)
