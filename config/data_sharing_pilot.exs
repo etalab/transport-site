@@ -10,5 +10,7 @@ config :transport,
     # Transit
     "5c9a6477634f4133c7a5fc01",
     # Citymapper / Via
-    "5f7cade93fb405c7d8f6d554"
+    "5f7cade93fb405c7d8f6d554",
+    # Apple Inc.
+    "67b7aef304c5820ea7068341"
   ]

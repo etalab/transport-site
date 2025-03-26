@@ -2,8 +2,12 @@ defmodule TransportWeb.EspaceProducteurController do
   use TransportWeb, :controller
   require Logger
   alias Transport.ImportData
+  import Ecto.Query
 
-  plug(:find_db_dataset_and_api_dataset_or_redirect when action in [:edit_dataset, :new_resource])
+  plug(
+    :find_db_dataset_and_api_dataset_or_redirect
+    when action in [:edit_dataset, :new_resource, :reuser_improved_data]
+  )
 
   plug(
     :find_db_dataset_and_api_dataset_and_resource_or_redirect
@@ -13,11 +17,28 @@ defmodule TransportWeb.EspaceProducteurController do
   plug(:find_db_dataset_or_redirect when action in [:upload_logo, :remove_custom_logo])
   plug(:find_db_datasets_or_redirect when action in [:proxy_statistics])
 
-  def edit_dataset(%Plug.Conn{} = conn, %{"dataset_id" => _}) do
+  def edit_dataset(%Plug.Conn{assigns: %{dataset: %DB.Dataset{} = dataset}} = conn, %{"dataset_id" => _}) do
     # Awkard page, but no real choice: some parts (logo…) are from the local database
     # While resources list is from the API
     # Producer wants to edit the dataset and has perhaps just done it: we need fresh info
-    conn |> render("edit_dataset.html")
+    conn
+    |> assign(:dataset, dataset |> DB.Repo.preload(reuser_improved_data: [:resource]))
+    |> render("edit_dataset.html")
+  end
+
+  def reuser_improved_data(%Plug.Conn{assigns: %{dataset: %DB.Dataset{id: dataset_id}}} = conn, %{
+        "resource_id" => resource_id
+      }) do
+    reuser_improved_data =
+      DB.ReuserImprovedData
+      |> where([rid], rid.dataset_id == ^dataset_id and rid.resource_id == ^resource_id)
+      |> preload(:organization)
+      |> DB.Repo.all()
+
+    conn
+    |> assign(:resource, DB.Repo.get!(DB.Resource, resource_id))
+    |> assign(:reuser_improved_data, reuser_improved_data)
+    |> render("reuser_improved_data.html")
   end
 
   def upload_logo(

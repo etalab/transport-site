@@ -4,6 +4,25 @@ defmodule Transport.GTFSDiff do
   """
   alias NimbleCSV.RFC4180, as: CSV
   require Logger
+  import TransportWeb.Gettext
+
+  @primary_keys %{
+    "agency.txt" => ["agency_id"],
+    "stops.txt" => ["stop_id"],
+    "routes.txt" => ["route_id"],
+    "trips.txt" => ["trip_id"],
+    "stop_times.txt" => ["trip_id", "stop_id", "stop_sequence"],
+    "calendar.txt" => ["service_id"],
+    "calendar_dates.txt" => ["service_id", "date"],
+    "shapes.txt" => ["shape_id", "shape_pt_sequence"],
+    "frequencies.txt" => ["trip_id", "start_time", "end_time"],
+    "transfers.txt" => ["from_stop_id", "to_stop_id"],
+    "pathways.txt" => ["pathway_id"],
+    "levels.txt" => ["level_id"],
+    "feed_info.txt" => ["feed_publisher_name"],
+    "translations.txt" => ["table_name", "field_name", "language", "record_id", "record_sub_id", "field_value"],
+    "attributions.txt" => ["organization_name"]
+  }
 
   def unzip(file_path) do
     zip_file = Unzip.LocalFile.open(file_path)
@@ -108,25 +127,7 @@ defmodule Transport.GTFSDiff do
   def file_is_handled?(file_name), do: not (file_name |> primary_key() |> is_nil())
 
   def primary_key(file_name) do
-    keys = %{
-      "agency.txt" => ["agency_id", "agency_name"],
-      "stops.txt" => ["stop_id"],
-      "routes.txt" => ["route_id"],
-      "trips.txt" => ["trip_id"],
-      "stop_times.txt" => ["trip_id", "stop_id", "stop_sequence"],
-      "calendar.txt" => ["service_id"],
-      "calendar_dates.txt" => ["service_id", "date"],
-      "shapes.txt" => ["shape_id", "shape_pt_sequence"],
-      "frequencies.txt" => ["trip_id", "start_time", "end_time"],
-      "transfers.txt" => ["from_stop_id", "to_stop_id"],
-      "pathways.txt" => ["pathway_id"],
-      "levels.txt" => ["level_id"],
-      "feed_info.txt" => ["feed_publisher_name"],
-      "translations.txt" => ["table_name", "field_name", "language", "record_id", "record_sub_id", "field_value"],
-      "attributions.txt" => ["organization_name"]
-    }
-
-    Map.get(keys, file_name)
+    Map.get(@primary_keys, file_name)
   end
 
   def row_key(row, nil) do
@@ -213,9 +214,9 @@ defmodule Transport.GTFSDiff do
     delete_messages ++ add_messages ++ update_messages
   end
 
-  def compare_files(unzip_1, unzip_2) do
-    file_names_1 = unzip_1 |> Unzip.list_entries() |> Enum.map(&Map.get(&1, :file_name))
-    file_names_2 = unzip_2 |> Unzip.list_entries() |> Enum.map(&Map.get(&1, :file_name))
+  def compare_files(unzip_1, unzip_2, profile \\ "full") do
+    file_names_1 = unzip_1 |> list_entries(profile)
+    file_names_2 = unzip_2 |> list_entries(profile)
     added_files = file_names_2 -- file_names_1
     deleted_files = file_names_1 -- file_names_2
 
@@ -281,14 +282,16 @@ defmodule Transport.GTFSDiff do
     |> Enum.reject(&(&1 == []))
   end
 
-  def row_diff(unzip_1, unzip_2, notify_func) do
-    file_names_2 = unzip_2 |> Unzip.list_entries() |> Enum.map(&Map.get(&1, :file_name))
+  def row_diff(unzip_1, unzip_2, notify_func, locale, profile) do
+    file_names_2 = unzip_2 |> list_entries(profile)
 
     file_names_2
     |> Enum.flat_map(fn file_name ->
-      log_msg = "computing diff for #{file_name}"
-      Logger.info(log_msg)
-      unless is_nil(notify_func), do: notify_func.(log_msg)
+      Logger.info("Computing diff for #{file_name}")
+
+      unless is_nil(notify_func) do
+        file_name |> computing_diff_log_message(locale) |> notify_func.()
+      end
 
       file_1 = parse_from_unzip(unzip_1, file_name)
       file_2 = parse_from_unzip(unzip_2, file_name)
@@ -296,10 +299,16 @@ defmodule Transport.GTFSDiff do
     end)
   end
 
-  def diff(unzip_1, unzip_2, notify_func \\ nil) do
+  defp computing_diff_log_message(file_name, locale) do
+    Gettext.with_locale(locale, fn ->
+      dgettext("gtfs-diff", "Computing diff for <code>%{file_name}</code>", file_name: file_name)
+    end)
+  end
+
+  def diff(unzip_1, unzip_2, profile, notify_func \\ nil, locale \\ "fr") do
     file_diff = file_diff(unzip_1, unzip_2)
     column_diff = column_diff(unzip_1, unzip_2)
-    row_diff = row_diff(unzip_1, unzip_2, notify_func)
+    row_diff = row_diff(unzip_1, unzip_2, notify_func, locale, profile)
 
     diff = file_diff ++ column_diff ++ row_diff
     id_range = 0..(Enum.count(diff) - 1)
@@ -409,5 +418,23 @@ defmodule Transport.GTFSDiff do
     ([output_headers] ++ body)
     |> CSV.dump_to_iodata()
     |> IO.iodata_to_binary()
+  end
+
+  defp list_entries(unzip, profile) do
+    files = files_to_analyze(profile)
+    unzip |> Unzip.list_entries() |> Enum.map(&Map.get(&1, :file_name)) |> Enum.filter(fn elm -> elm in files end)
+  end
+
+  def files_to_analyze(profile) do
+    case profile do
+      "core" ->
+        ["agency.txt", "calendar.txt", "calendar_dates.txt", "feed_info.txt", "routes.txt", "stops.txt", "trips.txt"]
+
+      "full" ->
+        Map.keys(@primary_keys)
+
+      _ ->
+        []
+    end
   end
 end
