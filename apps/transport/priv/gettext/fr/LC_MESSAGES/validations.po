@@ -663,3 +663,11 @@ msgstr "Le type de la route %{route_id} a été modifié"
 #, elixir-autogen, elixir-format
 msgid "Route type"
 msgstr "Type de route"
+
+#, elixir-autogen, elixir-format
+msgid "Location type for stop %{stop_id} has been changed"
+msgstr "Le type de lieu pour l’arrêt %{stop_id} a été modifié"
+
+#, elixir-autogen, elixir-format
+msgid "Location type"
+msgstr "Type de lieu"

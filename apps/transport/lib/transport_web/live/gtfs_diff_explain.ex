@@ -22,6 +22,7 @@ defmodule TransportWeb.GTFSDiffExplain do
       |> explanation_route_short_name(diff)
       |> explanation_route_long_name(diff)
       |> explanation_route_type(diff)
+      |> explanation_stop_location_type(diff)
     end)
   end
 
@@ -377,6 +378,34 @@ defmodule TransportWeb.GTFSDiffExplain do
   end
 
   def explanation_route_type(explanations, _), do: explanations
+
+  def explanation_stop_location_type(
+        explanations,
+        %{
+          "action" => "update",
+          "file" => "stops.txt",
+          "target" => "row",
+          "identifier" => %{"stop_id" => stop_id},
+          "new_value" => %{"location_type" => new_location_type},
+          "initial_value" => %{"location_type" => initial_location_type}
+        }
+      ) do
+    [
+      %{
+        file: "stops.txt",
+        type: "location_type",
+        message: dgettext("validations", "Location type for stop %{stop_id} has been changed", stop_id: stop_id),
+        before: initial_location_type,
+        after: new_location_type,
+        sort_key: stop_id
+      }
+      | explanations
+    ]
+  end
+
+  def explanation_stop_location_type(explanations, _) do
+    explanations
+  end
 
   @doc """
     From https://geodesie.ign.fr/contenu/fichiers/Distance_longitude_latitude.pdf:

@@ -27,8 +27,8 @@ defmodule TransportWeb.GtfsDiffExplainTest do
         "action" => "update",
         "file" => "stops.txt",
         "identifier" => "{\"stop_id\":\"100\"}",
-        "initial_value" => "{\"wheelchair_boarding\":\"0\"}",
-        "new_value" => "{\"wheelchair_boarding\":\"1\"}",
+        "initial_value" => "{\"wheelchair_boarding\":\"0\", \"location_type\": \"0\"}",
+        "new_value" => "{\"wheelchair_boarding\":\"1\", \"location_type\": \"1\"}",
         "target" => "row"
       },
       %{
@@ -115,6 +115,14 @@ defmodule TransportWeb.GtfsDiffExplainTest do
                before: "0",
                after: "1",
                sort_key: "146"
+             },
+             %{
+               file: "stops.txt",
+               type: "location_type",
+               message: "Le type de lieu pour l’arrêt 100 a été modifié",
+               before: "0",
+               after: "1",
+               sort_key: "100"
              }
            ]) == GTFSDiffExplain.diff_explanations(diff) |> MapSet.new()
   end

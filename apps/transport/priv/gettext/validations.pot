@@ -661,3 +661,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Route type"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Location type for stop %{stop_id} has been changed"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Location type"
+msgstr ""

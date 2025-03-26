@@ -267,6 +267,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
   defp attribute_type("routes.txt", "route_color"), do: :color
   defp attribute_type("routes.txt", "route_text_color"), do: :color
   defp attribute_type("routes.txt", "route_type"), do: :route_type
+  defp attribute_type("stops.txt", "location_type"), do: :stop_location_type
   defp attribute_type(_, _), do: :text
 
   defp attribute_value(%{type: :color, value: _} = assigns) do
@@ -286,6 +287,12 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
     """
   end
 
+  defp attribute_value(%{type: :stop_location_type, value: _} = assigns) do
+    ~H"""
+    <%= @value %> (<%= stop_location_type_short_description(@value) %>)
+    """
+  end
+
   defp attribute_value(%{type: _, value: _} = assigns) do
     ~H"""
     <%= @value %>
@@ -295,6 +302,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
   defp translate_explanation_type("stops.txt", "stop_name"), do: dgettext("validations", "Stops' names")
   defp translate_explanation_type("stops.txt", "stop_position"), do: dgettext("validations", "Stops' positions")
   defp translate_explanation_type("stops.txt", "wheelchair_boarding"), do: dgettext("validations", "Weelchair boarding")
+  defp translate_explanation_type("stops.txt", "location_type"), do: dgettext("validations", "Location type")
   defp translate_explanation_type("routes.txt", "route_color"), do: dgettext("validations", "Route color")
   defp translate_explanation_type("routes.txt", "route_text_color"), do: dgettext("validations", "Route text color")
   defp translate_explanation_type("routes.txt", "route_short_name"), do: dgettext("validations", "Route short name")
