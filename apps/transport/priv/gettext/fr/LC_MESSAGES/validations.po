@@ -679,3 +679,11 @@ msgstr "L’URL de l’exploitant %{agency_id} a été modifiée"
 #, elixir-autogen, elixir-format
 msgid "Agency URL"
 msgstr "URL de l’exploitant"
+
+#, elixir-autogen, elixir-format
+msgid "Headsign for trip %{trip_id} has been changed"
+msgstr "Le panneau de destination du trajet %{trip_id} a été modifié"
+
+#, elixir-autogen, elixir-format
+msgid "Trip headsign"
+msgstr "Panneau de destination d’un trajet"

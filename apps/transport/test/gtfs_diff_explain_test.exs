@@ -56,6 +56,14 @@ defmodule TransportWeb.GtfsDiffExplainTest do
         "initial_value" => "{\"agency_url\":\"http://localhost/foo\"}",
         "new_value" => "{\"agency_url\":\"http://localhost/bar\"}",
         "target" => "row"
+      },
+      %{
+        "action" => "update",
+        "file" => "trips.txt",
+        "identifier" => "{\"trip_id\":\"1\"}",
+        "initial_value" => "{\"trip_headsign\":\"Foo\"}",
+        "new_value" => "{\"trip_headsign\":\"Bar\"}",
+        "target" => "row"
       }
     ]
 
@@ -138,6 +146,14 @@ defmodule TransportWeb.GtfsDiffExplainTest do
                message: "L’URL de l’exploitant 1 a été modifiée",
                before: "http://localhost/foo",
                after: "http://localhost/bar",
+               sort_key: "1"
+             },
+             %{
+               file: "trips.txt",
+               type: "trip_headsign",
+               message: "Le panneau de destination du trajet 1 a été modifié",
+               before: "Foo",
+               after: "Bar",
                sort_key: "1"
              }
            ]) == GTFSDiffExplain.diff_explanations(diff) |> MapSet.new()

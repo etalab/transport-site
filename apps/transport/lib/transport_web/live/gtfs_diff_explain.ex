@@ -24,6 +24,7 @@ defmodule TransportWeb.GTFSDiffExplain do
       |> explanation_route_type(diff)
       |> explanation_stop_location_type(diff)
       |> explanation_agency_url(diff)
+      |> explanation_trip_headsign(diff)
     end)
   end
 
@@ -431,6 +432,32 @@ defmodule TransportWeb.GTFSDiffExplain do
   end
 
   def explanation_agency_url(explanations, _), do: explanations
+
+  def explanation_trip_headsign(
+        explanations,
+        %{
+          "action" => "update",
+          "file" => "trips.txt",
+          "target" => "row",
+          "identifier" => %{"trip_id" => trip_id},
+          "new_value" => %{"trip_headsign" => new_trip_headsign},
+          "initial_value" => %{"trip_headsign" => initial_trip_headsign}
+        }
+      ) do
+    [
+      %{
+        file: "trips.txt",
+        type: "trip_headsign",
+        message: dgettext("validations", "Headsign for trip %{trip_id} has been changed", trip_id: trip_id),
+        before: initial_trip_headsign,
+        after: new_trip_headsign,
+        sort_key: trip_id
+      }
+      | explanations
+    ]
+  end
+
+  def explanation_trip_headsign(explanations, _), do: explanations
 
   @doc """
     From https://geodesie.ign.fr/contenu/fichiers/Distance_longitude_latitude.pdf:

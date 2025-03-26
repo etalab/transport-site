@@ -677,3 +677,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Agency URL"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Headsign for trip %{trip_id} has been changed"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Trip headsign"
+msgstr ""
