@@ -21,6 +21,7 @@ defmodule TransportWeb.GTFSDiffExplain do
       |> explanation_route_text_color(diff)
       |> explanation_route_short_name(diff)
       |> explanation_route_long_name(diff)
+      |> explanation_route_type(diff)
     end)
   end
 
@@ -350,6 +351,32 @@ defmodule TransportWeb.GTFSDiffExplain do
   end
 
   def explanation_route_long_name(explanations, _), do: explanations
+
+  def explanation_route_type(
+        explanations,
+        %{
+          "action" => "update",
+          "file" => "routes.txt",
+          "target" => "row",
+          "identifier" => %{"route_id" => route_id},
+          "new_value" => %{"route_type" => new_route_type},
+          "initial_value" => %{"route_type" => initial_route_type}
+        }
+      ) do
+    [
+      %{
+        file: "routes.txt",
+        type: "route_type",
+        message: dgettext("validations", "Route type has been updated for route %{route_id}", route_id: route_id),
+        before: initial_route_type,
+        after: new_route_type,
+        sort_key: route_id
+      }
+      | explanations
+    ]
+  end
+
+  def explanation_route_type(explanations, _), do: explanations
 
   @doc """
     From https://geodesie.ign.fr/contenu/fichiers/Distance_longitude_latitude.pdf:

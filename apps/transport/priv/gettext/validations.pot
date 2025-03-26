@@ -653,3 +653,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Route short name"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Route type has been updated for route %{route_id}"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Route type"
+msgstr ""

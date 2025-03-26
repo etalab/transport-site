@@ -277,4 +277,16 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.GTFSSpecification do
   defp specification_url(file) do
     "https://gtfs.org/documentation/schedule/reference/##{String.replace(file, ".", "")}"
   end
+
+  def route_type_short_description("0"), do: dgettext("gtfs-file-descriptions", "tram, streetcar, light rail")
+  def route_type_short_description("1"), do: dgettext("gtfs-file-descriptions", "subway, metro")
+  def route_type_short_description("2"), do: dgettext("gtfs-file-descriptions", "rail")
+  def route_type_short_description("3"), do: dgettext("gtfs-file-descriptions", "bus")
+  def route_type_short_description("4"), do: dgettext("gtfs-file-descriptions", "ferry")
+  def route_type_short_description("5"), do: dgettext("gtfs-file-descriptions", "cable tram")
+  def route_type_short_description("6"), do: dgettext("gtfs-file-descriptions", "aerial lift, suspended cable car")
+  def route_type_short_description("7"), do: dgettext("gtfs-file-descriptions", "funicular")
+  def route_type_short_description("11"), do: dgettext("gtfs-file-descriptions", "trolleybus")
+  def route_type_short_description("12"), do: dgettext("gtfs-file-descriptions", "monorail")
+  def route_type_short_description(_unexpected), do: dgettext("gtfs-file-descriptions", "unknown")
 end

@@ -138,3 +138,47 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "unknown-file"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "unknown"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "aerial lift, suspended cable car"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "bus"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "cable tram"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "ferry"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "funicular"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "monorail"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "rail"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "subway, metro"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "tram, streetcar, light rail"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "trolleybus"
+msgstr ""

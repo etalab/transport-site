@@ -266,23 +266,30 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
 
   defp attribute_type("routes.txt", "route_color"), do: :color
   defp attribute_type("routes.txt", "route_text_color"), do: :color
+  defp attribute_type("routes.txt", "route_type"), do: :route_type
   defp attribute_type(_, _), do: :text
 
-  defp attribute_value(%{type: _, value: _} = assigns) do
-    if assigns[:type] == :color do
-      ~H"""
-      <div class="color-picker">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-          <rect x="0" y="0" width="16" height="16" stroke="black" stroke-width="2" fill={@value} />
-        </svg>
-        <%= @value %>
-      </div>
-      """
-    else
-      ~H"""
+  defp attribute_value(%{type: :color, value: _} = assigns) do
+    ~H"""
+    <div class="color-picker">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+        <rect x="0" y="0" width="16" height="16" stroke="black" stroke-width="2" fill={@value} />
+      </svg>
       <%= @value %>
-      """
-    end
+    </div>
+    """
+  end
+
+  defp attribute_value(%{type: :route_type, value: _} = assigns) do
+    ~H"""
+    <%= @value %> (<%= route_type_short_description(@value) %>)
+    """
+  end
+
+  defp attribute_value(%{type: _, value: _} = assigns) do
+    ~H"""
+    <%= @value %>
+    """
   end
 
   defp translate_explanation_type("stops.txt", "stop_name"), do: dgettext("validations", "Stops' names")
@@ -292,6 +299,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
   defp translate_explanation_type("routes.txt", "route_text_color"), do: dgettext("validations", "Route text color")
   defp translate_explanation_type("routes.txt", "route_short_name"), do: dgettext("validations", "Route short name")
   defp translate_explanation_type("routes.txt", "route_long_name"), do: dgettext("validations", "Route long name")
+  defp translate_explanation_type("routes.txt", "route_type"), do: dgettext("validations", "Route type")
   defp translate_explanation_type(_, unknown), do: dgettext("validations", "Other change: %{unknown}", unknown: unknown)
 
   @doc """
