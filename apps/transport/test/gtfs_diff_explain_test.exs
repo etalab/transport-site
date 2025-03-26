@@ -35,8 +35,8 @@ defmodule TransportWeb.GtfsDiffExplainTest do
         "action" => "update",
         "file" => "routes.txt",
         "identifier" => "{\"route_id\":\"146\"}",
-        "initial_value" => "{\"route_color\":\"5C2483\", \"route_text_color\":\"FFFFFF\"}",
-        "new_value" => "{\"route_color\":\"0000B0\", \"route_text_color\":\"000000\"}",
+        "initial_value" => "{\"route_color\":\"5C2483\", \"route_text_color\":\"FFFFFF\", \"route_short_name\":\"30\", \"route_long_name\":\"Migné Rochereaux-Laborit/Mignaloux\"}",
+        "new_value" => "{\"route_color\":\"0000B0\", \"route_text_color\":\"000000\", \"route_short_name\":\"TER\", \"route_long_name\":\"Migné Rochereaux-Laborit / Mignaloux\"}",
         "target" => "row"
       },
       %{
@@ -49,7 +49,7 @@ defmodule TransportWeb.GtfsDiffExplainTest do
       }
     ]
 
-    assert [
+    assert MapSet.new([
              %{
                file: "stops.txt",
                type: "stop_position",
@@ -89,8 +89,24 @@ defmodule TransportWeb.GtfsDiffExplainTest do
                before: "#5C2483",
                after: "#0000B0",
                sort_key: "146"
-             }
-           ] == GTFSDiffExplain.diff_explanations(diff)
+             },
+             %{
+                file: "routes.txt",
+                type: "route_long_name",
+                message: "Le nom long de la route 146 a été modifié",
+                before: "Migné Rochereaux-Laborit/Mignaloux",
+                after: "Migné Rochereaux-Laborit / Mignaloux",
+                sort_key: "146"
+              },
+              %{
+                file: "routes.txt",
+                type: "route_short_name",
+                message: "Le nom court de la route 146 a été modifié",
+                before: "30",
+                after: "TER",
+                sort_key: "146"
+              },
+            ]) == GTFSDiffExplain.diff_explanations(diff) |> MapSet.new()
   end
 
   test "structural changes" do

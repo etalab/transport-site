@@ -637,3 +637,19 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Route text color"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Route long name has been updated for route %{route_id}"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Route short name has been updated for route %{route_id}"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Route long name"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Route short name"
+msgstr ""

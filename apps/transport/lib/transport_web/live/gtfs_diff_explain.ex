@@ -19,6 +19,8 @@ defmodule TransportWeb.GTFSDiffExplain do
       |> explanation_update_stop_position(diff)
       |> explanation_route_color(diff)
       |> explanation_route_text_color(diff)
+      |> explanation_route_short_name(diff)
+      |> explanation_route_long_name(diff)
     end)
   end
 
@@ -296,6 +298,58 @@ defmodule TransportWeb.GTFSDiffExplain do
   def explanation_route_text_color(explanations, _), do: explanations
 
   defp different_colors?(initial_color, new_color), do: String.downcase(initial_color) != String.downcase(new_color)
+
+  def explanation_route_short_name(
+        explanations,
+        %{
+          "action" => "update",
+          "file" => "routes.txt",
+          "target" => "row",
+          "identifier" => %{"route_id" => route_id},
+          "new_value" => %{"route_short_name" => new_route_short_name},
+          "initial_value" => %{"route_short_name" => initial_route_short_name}
+        }
+      ) do
+    [
+      %{
+        file: "routes.txt",
+        type: "route_short_name",
+        message: dgettext("validations", "Route short name has been updated for route %{route_id}", route_id: route_id),
+        before: initial_route_short_name,
+        after: new_route_short_name,
+        sort_key: route_id
+      }
+      | explanations
+    ]
+  end
+
+  def explanation_route_short_name(explanations, _), do: explanations
+
+  def explanation_route_long_name(
+        explanations,
+        %{
+          "action" => "update",
+          "file" => "routes.txt",
+          "target" => "row",
+          "identifier" => %{"route_id" => route_id},
+          "new_value" => %{"route_long_name" => new_route_long_name},
+          "initial_value" => %{"route_long_name" => initial_route_long_name}
+        }
+      ) do
+    [
+      %{
+        file: "routes.txt",
+        type: "route_long_name",
+        message: dgettext("validations", "Route long name has been updated for route %{route_id}", route_id: route_id),
+        before: initial_route_long_name,
+        after: new_route_long_name,
+        sort_key: route_id
+      }
+      | explanations
+    ]
+  end
+
+  def explanation_route_long_name(explanations, _), do: explanations
 
   @doc """
     From https://geodesie.ign.fr/contenu/fichiers/Distance_longitude_latitude.pdf:
