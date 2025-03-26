@@ -440,14 +440,6 @@ msgstr "Échanger les fichiers"
 msgid "An error occurred while interpreting the results. Note that the report is still available as download. Error:"
 msgstr "Une erreur est survenue en interprétant les résultats. Notez que le rapport est toujours disponible au téléchargement. Erreur :"
 
-#, elixir-autogen, elixir-format, fuzzy
-msgid "The name of the stop_id %{stop_id} has been modified. Initial name: \"%{initial_stop_name}\", New name: \"%{new_stop_name}\""
-msgstr "Le nom du stop_id %{stop_id} a été modifié. Nom initial : \"%{initial_stop_name}\", Nouveau nom : \"%{new_stop_name}\""
-
-#, elixir-autogen, elixir-format, fuzzy
-msgid "Wheelchair_boarding information added for stop_id %{stop_id}, previously: \"%{initial_wheelchair_boarding}\", now: \"%{new_wheelchair_boarding}\""
-msgstr "Une information d'accessibilité wheelchair_boarding a été ajouté pour le stop_id %{stop_id}, valeur initiale : \"%{initial_wheelchair_boarding}\", nouvelle valeur : \"%{new_wheelchair_boarding}\""
-
 #, elixir-autogen, elixir-format
 msgid "Start over"
 msgstr "Recommencer"
@@ -581,5 +573,41 @@ msgid "non standard column"
 msgstr "colonne non standard"
 
 #, elixir-autogen, elixir-format
-msgid "Stop %{stop_id} has been moved by %{distance}m: (%{initial_stop_lat}, %{initial_stop_lon}) -> (%{new_stop_lat}, %{new_stop_lon})."
-msgstr "L’arrêt %{stop_id} a été déplacé de %{distance}m : (%{initial_stop_lat}, %{initial_stop_lon}) -> (%{new_stop_lat}, %{new_stop_lon})."
+msgid "Other change: %{unknown}"
+msgstr "Autre changement : %{unknown}"
+
+#, elixir-autogen, elixir-format
+msgid "Weelchair boarding"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Stops' names"
+msgstr "Noms des arrêts"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Stops' positions"
+msgstr "Positions des arrêts"
+
+#, elixir-autogen, elixir-format
+msgid "Stop %{stop_id} has been moved by %{distance}m"
+msgstr "L’arrêt %{stop_id} a été déplacé de %{distance}m"
+
+#, elixir-autogen, elixir-format
+msgid "Wheelchair_boarding updated for stop %{stop_id}"
+msgstr "L’information d’accessibilité wheelchair_boarding a été modifiée pour l’arrêt %{stop_id}"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Stop %{stop_id} has been renamed"
+msgstr "L’arrêt %{stop_id} a été renommé"
+
+#, elixir-autogen, elixir-format
+msgid "Comment"
+msgstr "Commentaire"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Modified"
+msgstr "Modifié"
+
+#, elixir-autogen, elixir-format
+msgid "Original"
+msgstr "Original"

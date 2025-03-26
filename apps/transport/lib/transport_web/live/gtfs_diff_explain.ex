@@ -149,14 +149,14 @@ defmodule TransportWeb.GTFSDiffExplain do
         }
       ) do
     [
-      {"stops.txt", "stop_name",
-       dgettext(
-         "validations",
-         ~s(The name of the stop_id %{stop_id} has been modified. Initial name: "%{initial_stop_name}", New name: "%{new_stop_name}"),
-         stop_id: stop_id,
-         initial_stop_name: initial_stop_name,
-         new_stop_name: new_stop_name
-       )}
+      %{
+        file: "stops.txt",
+        type: "stop_name",
+        message: dgettext("validations", "Stop %{stop_id} has been renamed", stop_id: stop_id),
+        before: initial_stop_name,
+        after: new_stop_name,
+        sort_key: initial_stop_name
+      }
       | explanations
     ]
   end
@@ -178,14 +178,14 @@ defmodule TransportWeb.GTFSDiffExplain do
       )
       when new_wheelchair_boarding in ["1", "2"] do
     [
-      {"stops.txt", "wheelchair_boarding",
-       dgettext(
-         "validations",
-         ~s(Wheelchair_boarding information added for stop_id %{stop_id}, previously: "%{initial_wheelchair_boarding}", now: "%{new_wheelchair_boarding}"),
-         stop_id: stop_id,
-         initial_wheelchair_boarding: initial_wheelchair_boarding,
-         new_wheelchair_boarding: new_wheelchair_boarding
-       )}
+      %{
+        file: "stops.txt",
+        type: "wheelchair_boarding",
+        message: dgettext("validations", "Wheelchair_boarding updated for stop %{stop_id}", stop_id: stop_id),
+        before: initial_wheelchair_boarding,
+        after: new_wheelchair_boarding,
+        sort_key: stop_id
+      }
       | explanations
     ]
   end
@@ -212,17 +212,18 @@ defmodule TransportWeb.GTFSDiffExplain do
 
     if distance > 0 do
       [
-        {"stops.txt", "stop_position",
-         dgettext(
-           "validations",
-           "Stop %{stop_id} has been moved by %{distance}m: (%{initial_stop_lat}, %{initial_stop_lon}) -> (%{new_stop_lat}, %{new_stop_lon}).",
-           stop_id: stop_id,
-           initial_stop_lat: lat1,
-           new_stop_lat: lat2,
-           initial_stop_lon: lon1,
-           new_stop_lon: lon2,
-           distance: distance
-         )}
+        %{
+          file: "stops.txt",
+          type: "stop_position",
+          message:
+            dgettext("validations", "Stop %{stop_id} has been moved by %{distance}m",
+              stop_id: stop_id,
+              distance: distance
+            ),
+          before: "(#{lat1}, #{lon1})",
+          after: "(#{lat2}, #{lon2})",
+          sort_key: -distance
+        }
         | explanations
       ]
     else

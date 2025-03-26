@@ -21,10 +21,19 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
       <%= if assigns[:diff_explanations] do %>
         <% active_explanations =
           @diff_explanations
-          |> Enum.filter(fn {file, _, _} -> file == @selected_file end)
-          |> Enum.sort_by(fn {_, nature, _} -> nature end)
-          |> Enum.map(fn {_, _, explanation} -> explanation end) %>
-        <.detailed_explanations :if={not Enum.empty?(active_explanations)} active_explanations={active_explanations} />
+          |> Enum.filter(fn %{file: file} -> file == @selected_file end)
+          |> Enum.group_by(fn %{type: type} -> type end)
+          |> Map.to_list()
+          |> Enum.filter(fn {_, explanations} -> not Enum.empty?(explanations) > 0 end) %>
+        <%= if not Enum.empty?(active_explanations) do %>
+          <h5><%= dgettext("validations", "Notable changes:") %></h5>
+          <.detailed_explanations
+            :for={{explanation_type, explanations} <- active_explanations}
+            file={@selected_file}
+            explanations={explanations}
+            explanation_type={explanation_type}
+          />
+        <% end %>
       <% end %>
     </div>
     """
@@ -197,16 +206,35 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
     ]
   end
 
-  defp detailed_explanations(%{active_explanations: _} = assigns) do
+  defp detailed_explanations(%{file: _, explanations: _, explanation_type: _} = assigns) do
     ~H"""
-    <p>
-      <%= dgettext("validations", "Notable changes:") %>
-      <ul>
-        <li :for={explanation <- @active_explanations}><%= explanation %></li>
-      </ul>
-    </p>
+    <h6><%= translate_explanation_type(@file, @explanation_type) %> (<%= length(@explanations) %>)</h6>
+    <table class="table">
+      <thead>
+        <tr>
+          <th><%= dgettext("validations", "Comment") %></th>
+          <th><%= dgettext("validations", "Original") %></th>
+          <th><%= dgettext("validations", "Modified") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr :for={
+          %{message: message, before: before, after: after_} <-
+            Enum.sort_by(@explanations, fn %{sort_key: sort_key} -> sort_key end)
+        }>
+          <td><%= message %></td>
+          <td><%= before %></td>
+          <td><%= after_ %></td>
+        </tr>
+      </tbody>
+    </table>
     """
   end
+
+  defp translate_explanation_type("stops.txt", "stop_name"), do: dgettext("validations", "Stops' names")
+  defp translate_explanation_type("stops.txt", "stop_position"), do: dgettext("validations", "Stops' positions")
+  defp translate_explanation_type("stops.txt", "wheelchair_boarding"), do: dgettext("validations", "Weelchair boarding")
+  defp translate_explanation_type(_, unknown), do: dgettext("validations", "Other change: %{unknown}", unknown: unknown)
 
   @doc """
   iex> Gettext.put_locale("en")
