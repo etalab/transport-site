@@ -30,6 +30,22 @@ defmodule TransportWeb.GtfsDiffExplainTest do
         "initial_value" => "{\"wheelchair_boarding\":\"0\"}",
         "new_value" => "{\"wheelchair_boarding\":\"1\"}",
         "target" => "row"
+      },
+      %{
+        "action" => "update",
+        "file" => "routes.txt",
+        "identifier" => "{\"route_id\":\"146\"}",
+        "initial_value" => "{\"route_color\":\"5C2483\", \"route_text_color\":\"FFFFFF\"}",
+        "new_value" => "{\"route_color\":\"0000B0\", \"route_text_color\":\"000000\"}",
+        "target" => "row"
+      },
+      %{
+        "action" => "update",
+        "file" => "routes.txt",
+        "identifier" => "{\"route_id\":\"147\"}",
+        "initial_value" => "{\"route_color\":\"5c2483\", \"route_text_color\":\"ffffff\"}",
+        "new_value" => "{\"route_color\":\"5C2483\", \"route_text_color\":\"FFFFFF\"}",
+        "target" => "row"
       }
     ]
 
@@ -57,6 +73,22 @@ defmodule TransportWeb.GtfsDiffExplainTest do
                before: "0",
                after: "1",
                sort_key: "100"
+             },
+             %{
+               file: "routes.txt",
+               type: "route_text_color",
+               message: "La couleur de texte de la route 146 a été modifiée",
+               before: "#FFFFFF",
+               after: "#000000",
+               sort_key: "146"
+             },
+             %{
+               file: "routes.txt",
+               type: "route_color",
+               message: "La couleur de la route 146 a été modifiée",
+               before: "#5C2483",
+               after: "#0000B0",
+               sort_key: "146"
              }
            ] == GTFSDiffExplain.diff_explanations(diff)
   end

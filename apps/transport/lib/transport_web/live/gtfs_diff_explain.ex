@@ -17,6 +17,8 @@ defmodule TransportWeb.GTFSDiffExplain do
       |> explanation_update_stop_name(diff)
       |> explanation_stop_wheelchair_access(diff)
       |> explanation_update_stop_position(diff)
+      |> explanation_route_color(diff)
+      |> explanation_route_text_color(diff)
     end)
   end
 
@@ -232,6 +234,68 @@ defmodule TransportWeb.GTFSDiffExplain do
   end
 
   def explanation_update_stop_position(explanations, _), do: explanations
+
+  def explanation_route_color(
+        explanations,
+        %{
+          "action" => "update",
+          "file" => "routes.txt",
+          "target" => "row",
+          "identifier" => %{"route_id" => route_id},
+          "new_value" => %{"route_color" => new_route_color},
+          "initial_value" => %{"route_color" => initial_route_color}
+        }
+      ) do
+    if different_colors?(initial_route_color, new_route_color) do
+      [
+        %{
+          file: "routes.txt",
+          type: "route_color",
+          message: dgettext("validations", "Color has been updated for route %{route_id}", route_id: route_id),
+          before: "##{initial_route_color}",
+          after: "##{new_route_color}",
+          sort_key: route_id
+        }
+        | explanations
+      ]
+    else
+      explanations
+    end
+  end
+
+  def explanation_route_color(explanations, _), do: explanations
+
+  def explanation_route_text_color(
+        explanations,
+        %{
+          "action" => "update",
+          "file" => "routes.txt",
+          "target" => "row",
+          "identifier" => %{"route_id" => route_id},
+          "new_value" => %{"route_text_color" => new_route_text_color},
+          "initial_value" => %{"route_text_color" => initial_route_text_color}
+        }
+      ) do
+    if different_colors?(initial_route_text_color, new_route_text_color) do
+      [
+        %{
+          file: "routes.txt",
+          type: "route_text_color",
+          message: dgettext("validations", "Text color has been updated for route %{route_id}", route_id: route_id),
+          before: "##{initial_route_text_color}",
+          after: "##{new_route_text_color}",
+          sort_key: route_id
+        }
+        | explanations
+      ]
+    else
+      explanations
+    end
+  end
+
+  def explanation_route_text_color(explanations, _), do: explanations
+
+  defp different_colors?(initial_color, new_color), do: String.downcase(initial_color) != String.downcase(new_color)
 
   @doc """
     From https://geodesie.ign.fr/contenu/fichiers/Distance_longitude_latitude.pdf:

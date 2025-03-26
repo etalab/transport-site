@@ -251,12 +251,12 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
         </thead>
         <tbody>
           <tr :for={
-            %{message: message, before: before, after: after_} <-
+            %{message: message, type: type_, before: before, after: after_} <-
               Enum.sort_by(@explanations, fn %{sort_key: sort_key} -> sort_key end)
           }>
             <td><%= message %></td>
-            <td><%= before %></td>
-            <td><%= after_ %></td>
+            <td><.attribute_value type={attribute_type(@file, type_)} value={before} /></td>
+            <td><.attribute_value type={attribute_type(@file, type_)} value={after_} /></td>
           </tr>
         </tbody>
       </table>
@@ -264,9 +264,32 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
     """
   end
 
+  defp attribute_type("routes.txt", "route_color"), do: :color
+  defp attribute_type("routes.txt", "route_text_color"), do: :color
+  defp attribute_type(_, _), do: :text
+
+  defp attribute_value(%{type: _, value: _} = assigns) do
+    if assigns[:type] == :color do
+      ~H"""
+      <div class="color-picker">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+          <rect x="0" y="0" width="16" height="16" stroke="black" stroke-width="2" fill={@value} />
+        </svg>
+        <%= @value %>
+      </div>
+      """
+    else
+      ~H"""
+      <%= @value %>
+      """
+    end
+  end
+
   defp translate_explanation_type("stops.txt", "stop_name"), do: dgettext("validations", "Stops' names")
   defp translate_explanation_type("stops.txt", "stop_position"), do: dgettext("validations", "Stops' positions")
   defp translate_explanation_type("stops.txt", "wheelchair_boarding"), do: dgettext("validations", "Weelchair boarding")
+  defp translate_explanation_type("routes.txt", "route_color"), do: dgettext("validations", "Route color")
+  defp translate_explanation_type("routes.txt", "route_text_color"), do: dgettext("validations", "Route text color")
   defp translate_explanation_type(_, unknown), do: dgettext("validations", "Other change: %{unknown}", unknown: unknown)
 
   @doc """

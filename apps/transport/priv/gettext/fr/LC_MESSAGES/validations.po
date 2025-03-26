@@ -623,3 +623,19 @@ msgstr "fichier ajouté"
 #, elixir-autogen, elixir-format
 msgid "file deleted"
 msgstr "fichier supprimé"
+
+#, elixir-autogen, elixir-format
+msgid "Color has been updated for route %{route_id}"
+msgstr "La couleur de la route %{route_id} a été modifiée"
+
+#, elixir-autogen, elixir-format
+msgid "Route color"
+msgstr "Couleur des routes"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Text color has been updated for route %{route_id}"
+msgstr "La couleur de texte de la route %{route_id} a été modifiée"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Route text color"
+msgstr "Couleur de texte des routes"
