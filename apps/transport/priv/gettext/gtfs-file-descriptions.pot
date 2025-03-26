@@ -182,3 +182,23 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "trolleybus"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "boarding area"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "entrance/exit"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "generic node"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "station"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "stop or platform"
+msgstr ""
