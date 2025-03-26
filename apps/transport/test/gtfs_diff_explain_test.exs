@@ -48,6 +48,14 @@ defmodule TransportWeb.GtfsDiffExplainTest do
         "initial_value" => "{\"route_color\":\"5c2483\", \"route_text_color\":\"ffffff\"}",
         "new_value" => "{\"route_color\":\"5C2483\", \"route_text_color\":\"FFFFFF\"}",
         "target" => "row"
+      },
+      %{
+        "action" => "update",
+        "file" => "agency.txt",
+        "identifier" => "{\"agency_id\":\"1\"}",
+        "initial_value" => "{\"agency_url\":\"http://localhost/foo\"}",
+        "new_value" => "{\"agency_url\":\"http://localhost/bar\"}",
+        "target" => "row"
       }
     ]
 
@@ -123,6 +131,14 @@ defmodule TransportWeb.GtfsDiffExplainTest do
                before: "0",
                after: "1",
                sort_key: "100"
+             },
+             %{
+               file: "agency.txt",
+               type: "agency_url",
+               message: "L’URL de l’exploitant 1 a été modifiée",
+               before: "http://localhost/foo",
+               after: "http://localhost/bar",
+               sort_key: "1"
              }
            ]) == GTFSDiffExplain.diff_explanations(diff) |> MapSet.new()
   end

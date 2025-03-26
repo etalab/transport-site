@@ -669,3 +669,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Location type"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Agency URL for agency %{agency_id} has been changed"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Agency URL"
+msgstr ""

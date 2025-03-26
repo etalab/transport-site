@@ -671,3 +671,11 @@ msgstr "Le type de lieu pour l’arrêt %{stop_id} a été modifié"
 #, elixir-autogen, elixir-format
 msgid "Location type"
 msgstr "Type de lieu"
+
+#, elixir-autogen, elixir-format
+msgid "Agency URL for agency %{agency_id} has been changed"
+msgstr "L’URL de l’exploitant %{agency_id} a été modifiée"
+
+#, elixir-autogen, elixir-format
+msgid "Agency URL"
+msgstr "URL de l’exploitant"

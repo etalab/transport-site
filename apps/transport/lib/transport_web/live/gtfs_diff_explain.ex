@@ -23,6 +23,7 @@ defmodule TransportWeb.GTFSDiffExplain do
       |> explanation_route_long_name(diff)
       |> explanation_route_type(diff)
       |> explanation_stop_location_type(diff)
+      |> explanation_agency_url(diff)
     end)
   end
 
@@ -403,9 +404,33 @@ defmodule TransportWeb.GTFSDiffExplain do
     ]
   end
 
-  def explanation_stop_location_type(explanations, _) do
-    explanations
+  def explanation_stop_location_type(explanations, _), do: explanations
+
+  def explanation_agency_url(
+        explanations,
+        %{
+          "action" => "update",
+          "file" => "agency.txt",
+          "target" => "row",
+          "identifier" => %{"agency_id" => agency_id},
+          "new_value" => %{"agency_url" => new_agency_url},
+          "initial_value" => %{"agency_url" => initial_agency_url}
+        }
+      ) do
+    [
+      %{
+        file: "agency.txt",
+        type: "agency_url",
+        message: dgettext("validations", "Agency URL for agency %{agency_id} has been changed", agency_id: agency_id),
+        before: initial_agency_url,
+        after: new_agency_url,
+        sort_key: agency_id
+      }
+      | explanations
+    ]
   end
+
+  def explanation_agency_url(explanations, _), do: explanations
 
   @doc """
     From https://geodesie.ign.fr/contenu/fichiers/Distance_longitude_latitude.pdf:

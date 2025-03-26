@@ -308,6 +308,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
   defp translate_explanation_type("routes.txt", "route_short_name"), do: dgettext("validations", "Route short name")
   defp translate_explanation_type("routes.txt", "route_long_name"), do: dgettext("validations", "Route long name")
   defp translate_explanation_type("routes.txt", "route_type"), do: dgettext("validations", "Route type")
+  defp translate_explanation_type("agency.txt", "agency_url"), do: dgettext("validations", "Agency URL")
   defp translate_explanation_type(_, unknown), do: dgettext("validations", "Other change: %{unknown}", unknown: unknown)
 
   @doc """
