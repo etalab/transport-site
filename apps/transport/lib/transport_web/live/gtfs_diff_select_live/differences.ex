@@ -21,9 +21,19 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
       <%= if assigns[:diff_explanations] do %>
         <% active_explanations =
           @diff_explanations
-          |> Enum.filter(fn {file, _} -> file == @selected_file end)
-          |> Enum.map(fn {_, explanation} -> explanation end) %>
-        <.detailed_explanations :if={not Enum.empty?(active_explanations)} active_explanations={active_explanations} />
+          |> Enum.filter(fn %{file: file} -> file == @selected_file end)
+          |> Enum.group_by(fn %{type: type} -> type end)
+          |> Map.to_list()
+          |> Enum.filter(fn {_, explanations} -> not Enum.empty?(explanations) > 0 end) %>
+        <%= if not Enum.empty?(active_explanations) do %>
+          <h5><%= dgettext("validations", "Notable changes:") %></h5>
+          <.detailed_explanations
+            :for={{explanation_type, explanations} <- active_explanations}
+            file={@selected_file}
+            explanations={explanations}
+            explanation_type={explanation_type}
+          />
+        <% end %>
       <% end %>
     </div>
     """
@@ -196,16 +206,80 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
     ]
   end
 
-  defp detailed_explanations(%{active_explanations: _} = assigns) do
+  defp detailed_explanations(%{file: _, explanations: _, explanation_type: _} = assigns) do
     ~H"""
-    <p>
-      <%= dgettext("validations", "Notable changes:") %>
-      <ul>
-        <li :for={explanation <- @active_explanations}><%= explanation %></li>
-      </ul>
-    </p>
+    <h6><%= translate_explanation_type(@file, @explanation_type) %> (<%= length(@explanations) %>)</h6>
+    <div class="scrollable-table">
+      <table class="table">
+        <thead>
+          <tr>
+            <th><%= dgettext("validations", "Comment") %></th>
+            <th><%= dgettext("validations", "Original") %></th>
+            <th><%= dgettext("validations", "Modified") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr :for={
+            %{message: message, type: type_, before: before, after: after_} <-
+              Enum.sort_by(@explanations, fn %{sort_key: sort_key} -> sort_key end)
+          }>
+            <td><%= message %></td>
+            <td><.attribute_value type={attribute_type(@file, type_)} value={before} /></td>
+            <td><.attribute_value type={attribute_type(@file, type_)} value={after_} /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     """
   end
+
+  defp attribute_type("routes.txt", "route_color"), do: :color
+  defp attribute_type("routes.txt", "route_text_color"), do: :color
+  defp attribute_type("routes.txt", "route_type"), do: :route_type
+  defp attribute_type("stops.txt", "location_type"), do: :stop_location_type
+  defp attribute_type(_, _), do: :text
+
+  defp attribute_value(%{type: :color, value: _} = assigns) do
+    ~H"""
+    <div class="color-picker">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+        <rect x="0" y="0" width="16" height="16" stroke="black" stroke-width="2" fill={@value} />
+      </svg>
+      <%= @value %>
+    </div>
+    """
+  end
+
+  defp attribute_value(%{type: :route_type, value: _} = assigns) do
+    ~H"""
+    <%= @value %> (<%= route_type_short_description(@value) %>)
+    """
+  end
+
+  defp attribute_value(%{type: :stop_location_type, value: _} = assigns) do
+    ~H"""
+    <%= @value %> (<%= stop_location_type_short_description(@value) %>)
+    """
+  end
+
+  defp attribute_value(%{type: _, value: _} = assigns) do
+    ~H"""
+    <%= @value %>
+    """
+  end
+
+  defp translate_explanation_type("stops.txt", "stop_name"), do: dgettext("validations", "Stops' names")
+  defp translate_explanation_type("stops.txt", "stop_position"), do: dgettext("validations", "Stops' positions")
+  defp translate_explanation_type("stops.txt", "wheelchair_boarding"), do: dgettext("validations", "Weelchair boarding")
+  defp translate_explanation_type("stops.txt", "location_type"), do: dgettext("validations", "Location type")
+  defp translate_explanation_type("routes.txt", "route_color"), do: dgettext("validations", "Route color")
+  defp translate_explanation_type("routes.txt", "route_text_color"), do: dgettext("validations", "Route text color")
+  defp translate_explanation_type("routes.txt", "route_short_name"), do: dgettext("validations", "Route short name")
+  defp translate_explanation_type("routes.txt", "route_long_name"), do: dgettext("validations", "Route long name")
+  defp translate_explanation_type("routes.txt", "route_type"), do: dgettext("validations", "Route type")
+  defp translate_explanation_type("agency.txt", "agency_url"), do: dgettext("validations", "Agency URL")
+  defp translate_explanation_type("trips.txt", "trip_headsign"), do: dgettext("validations", "Trip headsign")
+  defp translate_explanation_type(_, unknown), do: dgettext("validations", "Other change: %{unknown}", unknown: unknown)
 
   @doc """
   iex> Gettext.put_locale("en")

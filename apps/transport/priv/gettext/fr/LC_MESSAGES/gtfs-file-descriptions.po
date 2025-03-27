@@ -138,3 +138,67 @@ msgstr "Courses pour chaque ligne. Une course est une séquence de deux arrêts 
 #, elixir-autogen, elixir-format
 msgid "unknown-file"
 msgstr "Fichier inconnu %{unknonw_file}."
+
+#, elixir-autogen, elixir-format
+msgid "unknown"
+msgstr "inconnu"
+
+#, elixir-autogen, elixir-format
+msgid "aerial lift, suspended cable car"
+msgstr "téléphérique, télécabine"
+
+#, elixir-autogen, elixir-format
+msgid "bus"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "cable tram"
+msgstr "tramway à traction par câble"
+
+#, elixir-autogen, elixir-format
+msgid "ferry"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "funicular"
+msgstr "funiculaire"
+
+#, elixir-autogen, elixir-format
+msgid "monorail"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "rail"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "subway, metro"
+msgstr "métro"
+
+#, elixir-autogen, elixir-format
+msgid "tram, streetcar, light rail"
+msgstr "tramway"
+
+#, elixir-autogen, elixir-format
+msgid "trolleybus"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "boarding area"
+msgstr "zone d’embarquement"
+
+#, elixir-autogen, elixir-format
+msgid "entrance/exit"
+msgstr "entrée / sortie"
+
+#, elixir-autogen, elixir-format
+msgid "generic node"
+msgstr "noeud générique"
+
+#, elixir-autogen, elixir-format
+msgid "station"
+msgstr "gare"
+
+#, elixir-autogen, elixir-format
+msgid "stop or platform"
+msgstr "arrêt ou quai"

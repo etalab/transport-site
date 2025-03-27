@@ -9,15 +9,22 @@ defmodule TransportWeb.GTFSDiffExplain do
     |> Enum.flat_map(fn diff ->
       diff =
         diff
-        |> Map.update("initial_value", %{}, &try_jason_decode(&1))
-        |> Map.update("new_value", %{}, &try_jason_decode(&1))
-        |> Map.update("identifier", %{}, &try_jason_decode(&1))
+        |> Map.update("initial_value", %{}, &try_jason_decode/1)
+        |> Map.update("new_value", %{}, &try_jason_decode/1)
+        |> Map.update("identifier", %{}, &try_jason_decode/1)
 
       []
       |> explanation_update_stop_name(diff)
       |> explanation_stop_wheelchair_access(diff)
-      |> explanation_update_stop_longitude(diff)
-      |> explanation_update_stop_latitude(diff)
+      |> explanation_update_stop_position(diff)
+      |> explanation_route_color(diff)
+      |> explanation_route_text_color(diff)
+      |> explanation_route_short_name(diff)
+      |> explanation_route_long_name(diff)
+      |> explanation_route_type(diff)
+      |> explanation_stop_location_type(diff)
+      |> explanation_agency_url(diff)
+      |> explanation_trip_headsign(diff)
     end)
   end
 
@@ -150,14 +157,14 @@ defmodule TransportWeb.GTFSDiffExplain do
         }
       ) do
     [
-      {"stops.txt",
-       dgettext(
-         "validations",
-         ~s(The name of the stop_id %{stop_id} has been modified. Initial name: "%{initial_stop_name}", New name: "%{new_stop_name}"),
-         stop_id: stop_id,
-         initial_stop_name: initial_stop_name,
-         new_stop_name: new_stop_name
-       )}
+      %{
+        file: "stops.txt",
+        type: "stop_name",
+        message: dgettext("validations", "Stop %{stop_id} has been renamed", stop_id: stop_id),
+        before: initial_stop_name,
+        after: new_stop_name,
+        sort_key: initial_stop_name
+      }
       | explanations
     ]
   end
@@ -179,75 +186,301 @@ defmodule TransportWeb.GTFSDiffExplain do
       )
       when new_wheelchair_boarding in ["1", "2"] do
     [
-      {"stops.txt",
-       dgettext(
-         "validations",
-         ~s(Wheelchair_boarding information added for stop_id %{stop_id}, previously: "%{initial_wheelchair_boarding}", now: "%{new_wheelchair_boarding}"),
-         stop_id: stop_id,
-         initial_wheelchair_boarding: initial_wheelchair_boarding,
-         new_wheelchair_boarding: new_wheelchair_boarding
-       )}
+      %{
+        file: "stops.txt",
+        type: "wheelchair_boarding",
+        message: dgettext("validations", "Wheelchair_boarding updated for stop %{stop_id}", stop_id: stop_id),
+        before: initial_wheelchair_boarding,
+        after: new_wheelchair_boarding,
+        sort_key: stop_id
+      }
       | explanations
     ]
   end
 
   def explanation_stop_wheelchair_access(explanations, _), do: explanations
 
-  def explanation_update_stop_longitude(
+  def explanation_update_stop_position(
         explanations,
         %{
           "action" => "update",
           "file" => "stops.txt",
           "target" => "row",
           "identifier" => %{"stop_id" => stop_id},
-          "new_value" => %{"stop_lon" => new_stop_lon},
-          "initial_value" => %{"stop_lon" => initial_stop_lon}
+          "new_value" => %{"stop_lat" => lat2, "stop_lon" => lon2},
+          "initial_value" => %{"stop_lat" => lat1, "stop_lon" => lon1}
+        }
+      ) do
+    {lat1, _} = Float.parse(lat1)
+    {lon1, _} = Float.parse(lon1)
+    {lat2, _} = Float.parse(lat2)
+    {lon2, _} = Float.parse(lon2)
+
+    distance = round(curvilinear_abscissa({lat1, lon1}, {lat2, lon2}))
+
+    if distance > 0 do
+      [
+        %{
+          file: "stops.txt",
+          type: "stop_position",
+          message:
+            dgettext("validations", "Stop %{stop_id} has been moved by %{distance}m",
+              stop_id: stop_id,
+              distance: distance
+            ),
+          before: "(#{lat1}, #{lon1})",
+          after: "(#{lat2}, #{lon2})",
+          sort_key: -distance
+        }
+        | explanations
+      ]
+    else
+      explanations
+    end
+  end
+
+  def explanation_update_stop_position(explanations, _), do: explanations
+
+  def explanation_route_color(
+        explanations,
+        %{
+          "action" => "update",
+          "file" => "routes.txt",
+          "target" => "row",
+          "identifier" => %{"route_id" => route_id},
+          "new_value" => %{"route_color" => new_route_color},
+          "initial_value" => %{"route_color" => initial_route_color}
         }
       ) do
     [
-      {"stops.txt",
-       dgettext(
-         "validations",
-         ~s(The longitude of the stop_id %{stop_id} has been modified. "%{initial_stop_lon}" -> "%{new_stop_lon}"),
-         stop_id: stop_id,
-         initial_stop_lon: initial_stop_lon,
-         new_stop_lon: new_stop_lon
-       )}
+      %{
+        file: "routes.txt",
+        type: "route_color",
+        message: dgettext("validations", "Color has been updated for route %{route_id}", route_id: route_id),
+        before: "##{initial_route_color}",
+        after: "##{new_route_color}",
+        sort_key: route_id
+      }
       | explanations
     ]
   end
 
-  def explanation_update_stop_longitude(explanations, _) do
-    explanations
+  def explanation_route_color(explanations, _), do: explanations
+
+  def explanation_route_text_color(
+        explanations,
+        %{
+          "action" => "update",
+          "file" => "routes.txt",
+          "target" => "row",
+          "identifier" => %{"route_id" => route_id},
+          "new_value" => %{"route_text_color" => new_route_text_color},
+          "initial_value" => %{"route_text_color" => initial_route_text_color}
+        }
+      ) do
+    [
+      %{
+        file: "routes.txt",
+        type: "route_text_color",
+        message: dgettext("validations", "Text color has been updated for route %{route_id}", route_id: route_id),
+        before: "##{initial_route_text_color}",
+        after: "##{new_route_text_color}",
+        sort_key: route_id
+      }
+      | explanations
+    ]
   end
 
-  def explanation_update_stop_latitude(
+  def explanation_route_text_color(explanations, _), do: explanations
+
+  def explanation_route_short_name(
+        explanations,
+        %{
+          "action" => "update",
+          "file" => "routes.txt",
+          "target" => "row",
+          "identifier" => %{"route_id" => route_id},
+          "new_value" => %{"route_short_name" => new_route_short_name},
+          "initial_value" => %{"route_short_name" => initial_route_short_name}
+        }
+      ) do
+    [
+      %{
+        file: "routes.txt",
+        type: "route_short_name",
+        message: dgettext("validations", "Route short name has been updated for route %{route_id}", route_id: route_id),
+        before: initial_route_short_name,
+        after: new_route_short_name,
+        sort_key: route_id
+      }
+      | explanations
+    ]
+  end
+
+  def explanation_route_short_name(explanations, _), do: explanations
+
+  def explanation_route_long_name(
+        explanations,
+        %{
+          "action" => "update",
+          "file" => "routes.txt",
+          "target" => "row",
+          "identifier" => %{"route_id" => route_id},
+          "new_value" => %{"route_long_name" => new_route_long_name},
+          "initial_value" => %{"route_long_name" => initial_route_long_name}
+        }
+      ) do
+    [
+      %{
+        file: "routes.txt",
+        type: "route_long_name",
+        message: dgettext("validations", "Route long name has been updated for route %{route_id}", route_id: route_id),
+        before: initial_route_long_name,
+        after: new_route_long_name,
+        sort_key: route_id
+      }
+      | explanations
+    ]
+  end
+
+  def explanation_route_long_name(explanations, _), do: explanations
+
+  def explanation_route_type(
+        explanations,
+        %{
+          "action" => "update",
+          "file" => "routes.txt",
+          "target" => "row",
+          "identifier" => %{"route_id" => route_id},
+          "new_value" => %{"route_type" => new_route_type},
+          "initial_value" => %{"route_type" => initial_route_type}
+        }
+      ) do
+    [
+      %{
+        file: "routes.txt",
+        type: "route_type",
+        message: dgettext("validations", "Route type has been updated for route %{route_id}", route_id: route_id),
+        before: initial_route_type,
+        after: new_route_type,
+        sort_key: route_id
+      }
+      | explanations
+    ]
+  end
+
+  def explanation_route_type(explanations, _), do: explanations
+
+  def explanation_stop_location_type(
         explanations,
         %{
           "action" => "update",
           "file" => "stops.txt",
           "target" => "row",
           "identifier" => %{"stop_id" => stop_id},
-          "new_value" => %{"stop_lat" => new_stop_lat},
-          "initial_value" => %{"stop_lat" => initial_stop_lat}
+          "new_value" => %{"location_type" => new_location_type},
+          "initial_value" => %{"location_type" => initial_location_type}
         }
       ) do
     [
-      {"stops.txt",
-       dgettext(
-         "validations",
-         ~s(The latitude of the stop_id %{stop_id} has been modified. "%{initial_stop_lat}" -> "%{new_stop_lat}"),
-         stop_id: stop_id,
-         initial_stop_lat: initial_stop_lat,
-         new_stop_lat: new_stop_lat
-       )}
+      %{
+        file: "stops.txt",
+        type: "location_type",
+        message: dgettext("validations", "Location type for stop %{stop_id} has been changed", stop_id: stop_id),
+        before: initial_location_type,
+        after: new_location_type,
+        sort_key: stop_id
+      }
       | explanations
     ]
   end
 
-  def explanation_update_stop_latitude(explanations, _) do
-    explanations
+  def explanation_stop_location_type(explanations, _), do: explanations
+
+  def explanation_agency_url(
+        explanations,
+        %{
+          "action" => "update",
+          "file" => "agency.txt",
+          "target" => "row",
+          "identifier" => %{"agency_id" => agency_id},
+          "new_value" => %{"agency_url" => new_agency_url},
+          "initial_value" => %{"agency_url" => initial_agency_url}
+        }
+      ) do
+    [
+      %{
+        file: "agency.txt",
+        type: "agency_url",
+        message: dgettext("validations", "Agency URL for agency %{agency_id} has been changed", agency_id: agency_id),
+        before: initial_agency_url,
+        after: new_agency_url,
+        sort_key: agency_id
+      }
+      | explanations
+    ]
   end
+
+  def explanation_agency_url(explanations, _), do: explanations
+
+  def explanation_trip_headsign(
+        explanations,
+        %{
+          "action" => "update",
+          "file" => "trips.txt",
+          "target" => "row",
+          "identifier" => %{"trip_id" => trip_id},
+          "new_value" => %{"trip_headsign" => new_trip_headsign},
+          "initial_value" => %{"trip_headsign" => initial_trip_headsign}
+        }
+      ) do
+    [
+      %{
+        file: "trips.txt",
+        type: "trip_headsign",
+        message: dgettext("validations", "Headsign for trip %{trip_id} has been changed", trip_id: trip_id),
+        before: initial_trip_headsign,
+        after: new_trip_headsign,
+        sort_key: trip_id
+      }
+      | explanations
+    ]
+  end
+
+  def explanation_trip_headsign(explanations, _), do: explanations
+
+  @doc """
+    From https://geodesie.ign.fr/contenu/fichiers/Distance_longitude_latitude.pdf:
+
+    Si l’on considère deux points A et B sur la sphère, de
+    latitudes ϕA et ϕB et de longitudes λA et λB , alors la
+    distance angulaire en radians S A-B entre A et B est
+    donnée par la relation fondamentale de trigonométrie
+    sphérique, utilisant dλ = λB – λA :
+
+    S A-B = arccos (sin ϕA sin ϕB + cos ϕA cos ϕB cos dλ)
+
+    La distance S en mètres, s’obtient en multipliant S A-B
+    par un rayon de la Terre conventionnel (6 378 137 mètres par exemple).
+
+    iex> curvilinear_abscissa({46.605513, 0.275126}, {46.605348, 0.275881}) |> round()
+    61
+  """
+  def curvilinear_abscissa({lat1, lon1}, {lat2, lon2}) do
+    # Semi-major axis of WGS 84
+    r = 6_378_137
+
+    lat1r = deg2rad(lat1)
+    lon1r = deg2rad(lon1)
+    lat2r = deg2rad(lat2)
+    lon2r = deg2rad(lon2)
+
+    dlon = lon2r - lon1r
+
+    r * :math.acos(:math.sin(lat1r) * :math.sin(lat2r) + :math.cos(lat1r) * :math.cos(lat2r) * :math.cos(dlon))
+  end
+
+  defp deg2rad(deg), do: deg * :math.pi() / 180.0
 
   def try_jason_decode(""), do: nil
   def try_jason_decode(input), do: Jason.decode!(input)
