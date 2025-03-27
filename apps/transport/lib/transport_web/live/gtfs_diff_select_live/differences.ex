@@ -209,25 +209,27 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
   defp detailed_explanations(%{file: _, explanations: _, explanation_type: _} = assigns) do
     ~H"""
     <h6><%= translate_explanation_type(@file, @explanation_type) %> (<%= length(@explanations) %>)</h6>
-    <table class="table">
-      <thead>
-        <tr>
-          <th><%= dgettext("validations", "Comment") %></th>
-          <th><%= dgettext("validations", "Original") %></th>
-          <th><%= dgettext("validations", "Modified") %></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr :for={
-          %{message: message, before: before, after: after_} <-
-            Enum.sort_by(@explanations, fn %{sort_key: sort_key} -> sort_key end)
-        }>
-          <td><%= message %></td>
-          <td><%= before %></td>
-          <td><%= after_ %></td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="scrollable-table">
+      <table class="table">
+        <thead>
+          <tr>
+            <th><%= dgettext("validations", "Comment") %></th>
+            <th><%= dgettext("validations", "Original") %></th>
+            <th><%= dgettext("validations", "Modified") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr :for={
+            %{message: message, before: before, after: after_} <-
+              Enum.sort_by(@explanations, fn %{sort_key: sort_key} -> sort_key end)
+          }>
+            <td><%= message %></td>
+            <td><%= before %></td>
+            <td><%= after_ %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     """
   end
 
