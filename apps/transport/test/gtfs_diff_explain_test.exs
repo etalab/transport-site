@@ -1,6 +1,7 @@
 defmodule TransportWeb.GtfsDiffExplainTest do
   use ExUnit.Case, async: true
-  doctest TransportWeb.GTFSDiffExplain, import: true
+  doctest TransportWeb.GTFSDiffExplain.Explanations, import: true
+  doctest TransportWeb.GTFSDiffExplain.Summary, import: true
   alias TransportWeb.GTFSDiffExplain
 
   test "gtfs diff explanations" do
