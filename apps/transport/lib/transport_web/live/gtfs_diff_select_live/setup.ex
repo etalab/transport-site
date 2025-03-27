@@ -2,7 +2,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
   @moduledoc """
   Setup step of the GTFS diff tool.
   """
-  use Phoenix.LiveView
+  use Phoenix.Component
   import TransportWeb.Gettext
   import TransportWeb.Live.GTFSDiffSelectLive.Shared
 

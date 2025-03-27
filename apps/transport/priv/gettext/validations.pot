@@ -439,10 +439,6 @@ msgid "An error occurred while interpreting the results. Note that the report is
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Detail"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "The latitude of the stop_id %{stop_id} has been modified. \"%{initial_stop_lat}\" -> \"%{new_stop_lat}\""
 msgstr ""
 
@@ -547,9 +543,45 @@ msgid "not enough memory"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Summary"
+msgid "Row changes have not been analyzed for this file. We suggest you dive into both GTFS files for more details."
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Row changes have not been analyzed for this file. We suggest you dive into both GTFS files for more details."
+msgid "Added %{count} column:"
+msgid_plural "Added %{count} columns:"
+msgstr[0] ""
+msgstr[1] ""
+
+#, elixir-autogen, elixir-format
+msgid "Deleted %{count} column:"
+msgid_plural "Deleted %{count} columns:"
+msgstr[0] ""
+msgstr[1] ""
+
+#, elixir-autogen, elixir-format
+msgid "Know more about this file."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Notable changes:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Row changes:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "file added with %{count} new column:"
+msgid_plural "file added with %{count} new columns:"
+msgstr[0] ""
+msgstr[1] ""
+
+#, elixir-autogen, elixir-format
+msgid "file deleted along with %{count} column:"
+msgid_plural "file deleted along with %{count} columns:"
+msgstr[0] ""
+msgstr[1] ""
+
+#, elixir-autogen, elixir-format
+msgid "non standard column"
 msgstr ""
