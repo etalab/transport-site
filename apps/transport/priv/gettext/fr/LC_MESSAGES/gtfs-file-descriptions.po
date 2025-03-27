@@ -13,7 +13,7 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "agency.txt"
-msgstr "Organismes de transport dont le service est représenté dans ce jeu de données."
+msgstr "Entités dont le service est représenté dans ce jeu de données."
 
 #, elixir-autogen, elixir-format
 msgid "areas.txt"
@@ -25,11 +25,11 @@ msgstr "Attributions des jeux de données."
 
 #, elixir-autogen, elixir-format
 msgid "booking_rules.txt"
-msgstr "Informations de réservation pour les services demandés par les usagers."
+msgstr "Informations de réservation pour les services à la demande."
 
 #, elixir-autogen, elixir-format
 msgid "calendar.txt"
-msgstr "Dates de service spécifiées à l’aide d’un planning hebdomadaire avec dates de début et de fin."
+msgstr "Calendriers et jours de fonctionnement du service."
 
 #, elixir-autogen, elixir-format
 msgid "calendar_dates.txt"
@@ -37,15 +37,15 @@ msgstr "Exceptions pour les services définis dans le fichier calendar.txt."
 
 #, elixir-autogen, elixir-format
 msgid "fare_attributes.txt"
-msgstr "Informations tarifaires pour les itinéraires d’un organisme de transport."
+msgstr "Informations tarifaires pour les itinéraires par entité de transport."
 
 #, elixir-autogen, elixir-format
 msgid "fare_leg_join_rules.txt"
-msgstr "Les règles de définition de deux ou plusieurs tronçons doivent être considérées comme un seul tronçon tarifaire effectif afin de les comparer aux règles du fichier fare_leg_rules.txt."
+msgstr "Les règles de définition de deux ou plusieurs segments doivent être considérées comme un seul segment tarifaire effectif afin de correspondre aux règles du fichier fare_leg_rules.txt."
 
 #, elixir-autogen, elixir-format
 msgid "fare_leg_rules.txt"
-msgstr "Règles tarifaires pour chaque tronçon de voyage."
+msgstr "Règles tarifaires pour chaque segment du voyage."
 
 #, elixir-autogen, elixir-format
 msgid "fare_media.txt"
@@ -61,7 +61,7 @@ msgstr "Règles d’application des tarifs aux itinéraires."
 
 #, elixir-autogen, elixir-format
 msgid "fare_transfer_rules.txt"
-msgstr "Règles tarifaires pour les correspondances entre tronçons de voyage."
+msgstr "Règles tarifaires pour les correspondances entre segments de voyage."
 
 #, elixir-autogen, elixir-format
 msgid "feed_info.txt"
@@ -85,7 +85,7 @@ msgstr "Un groupe d’arrêts qui, ensemble, indiquent les endroits où un usage
 
 #, elixir-autogen, elixir-format
 msgid "networks.txt"
-msgstr "Regroupement des itinéraires sur le réseau."
+msgstr "Définit les identifiants de réseau qui s’appliquent aux règles tarifaires."
 
 #, elixir-autogen, elixir-format
 msgid "pathways.txt"
@@ -97,11 +97,11 @@ msgstr "Définit les catégories d’usagers (par exemple, personnes âgées, é
 
 #, elixir-autogen, elixir-format
 msgid "route_networks.txt"
-msgstr "Règles d’attribution des itinéraires aux réseaux."
+msgstr "Règles pour attribuer des lignes aux réseaux."
 
 #, elixir-autogen, elixir-format
 msgid "routes.txt"
-msgstr "Itinéraires de transport en commun. Un itinéraire est un groupe de trajets présentés aux usagers comme un service unique."
+msgstr "Lignes de transport en commun. C’est un groupe de trajets présentés aux passagers comme un service unique."
 
 #, elixir-autogen, elixir-format
 msgid "shapes.txt"
@@ -125,7 +125,7 @@ msgstr "Périodes de date et d’heure à utiliser dans les règles tarifaires p
 
 #, elixir-autogen, elixir-format
 msgid "transfers.txt"
-msgstr "Règles d’établissement de correspondances aux points de correspondance entre les itinéraires."
+msgstr "Règles d’établissement des correspondances aux points de correspondance entre les itinéraires."
 
 #, elixir-autogen, elixir-format
 msgid "translations.txt"
@@ -133,7 +133,7 @@ msgstr "Conversions des valeurs des données clients."
 
 #, elixir-autogen, elixir-format
 msgid "trips.txt"
-msgstr "Trajets pour chaque itinéraire. Un trajet est une séquence de deux arrêts ou plus survenant pendant une période donnée."
+msgstr "Courses pour chaque ligne. Une course est une séquence de deux arrêts ou plus survenant pendant une période donnée."
 
 #, elixir-autogen, elixir-format
 msgid "unknown-file"
