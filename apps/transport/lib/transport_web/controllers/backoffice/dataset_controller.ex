@@ -34,6 +34,10 @@ defmodule TransportWeb.Backoffice.DatasetController do
       |> transform_custom_tags_to_list()
       |> transform_legal_owners_aom_to_list()
       |> transform_legal_owners_region_to_list()
+      |> transform_new_covered_area_commune_to_list()
+      |> transform_new_covered_area_epci_to_list()
+      |> transform_new_covered_area_departement_to_list()
+      |> transform_new_covered_area_region_to_list()
 
     with datagouv_id when not is_nil(datagouv_id) <- dataset_datagouv_id,
          {:ok, dg_dataset} <- ImportData.import_from_data_gouv(datagouv_id, form_params["type"]),
@@ -83,6 +87,26 @@ defmodule TransportWeb.Backoffice.DatasetController do
   defp transform_legal_owners_aom_to_list(form_params) do
     aoms = for {"legal_owners_aom" <> _, aom_id} <- form_params, do: aom_id |> String.to_integer()
     Map.put(form_params, "legal_owners_aom", aoms)
+  end
+
+  defp transform_new_covered_area_commune_to_list(form_params) do
+    new_communes = for {"new_covered_area_commune" <> _, insee} <- form_params, do: insee
+    Map.put(form_params, "new_communes", new_communes)
+  end
+
+  defp transform_new_covered_area_epci_to_list(form_params) do
+    epcis = for {"new_covered_area_epci" <> _, insee} <- form_params, do: insee
+    Map.put(form_params, "epcis", epcis)
+  end
+
+  defp transform_new_covered_area_departement_to_list(form_params) do
+    departements = for {"new_covered_area_departement" <> _, insee} <- form_params, do: insee
+    Map.put(form_params, "departements", departements)
+  end
+
+  defp transform_new_covered_area_region_to_list(form_params) do
+    regions = for {"new_covered_area_region" <> _, insee} <- form_params, do: insee
+    Map.put(form_params, "regions", regions)
   end
 
   @spec insert_dataset(Ecto.Changeset.t()) :: {:ok, Dataset.t()} | {:error, binary}

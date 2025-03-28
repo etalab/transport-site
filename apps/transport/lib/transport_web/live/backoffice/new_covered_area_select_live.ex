@@ -50,6 +50,7 @@ defmodule TransportWeb.NewCoveredAreaSelectLive do
           >
           </span>
         </span>
+        <%= Phoenix.HTML.Form.hidden_input(@form, "new_covered_area_#{division.type}_#{index}", value: division.insee) %>
       </div>
     </div>
     """
