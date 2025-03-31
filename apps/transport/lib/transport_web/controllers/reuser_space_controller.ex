@@ -2,16 +2,31 @@ defmodule TransportWeb.ReuserSpaceController do
   use TransportWeb, :controller
   import Ecto.Query
 
+  plug(:find_contact when action in [:espace_reutilisateur, :settings])
   plug(:find_dataset_or_redirect when action in [:datasets_edit, :unfavorite, :add_improved_data])
 
-  def espace_reutilisateur(%Plug.Conn{assigns: %{current_user: %{"id" => datagouv_user_id}}} = conn, _) do
-    contact = DB.Repo.get_by!(DB.Contact, datagouv_user_id: datagouv_user_id)
+  def espace_reutilisateur(%Plug.Conn{assigns: %{contact: %DB.Contact{} = contact}} = conn, _) do
     followed_datasets_ids = contact |> Ecto.assoc(:followed_datasets) |> select([d], d.id) |> DB.Repo.all()
 
     conn
     |> assign(:contact, contact)
     |> assign(:followed_datasets_ids, followed_datasets_ids)
     |> render("index.html")
+  end
+
+  def settings(%Plug.Conn{assigns: %{contact: %DB.Contact{} = contact}} = conn, _) do
+    contact = DB.Repo.preload(contact, :organizations)
+    organization_ids = Enum.map(contact.organizations, & &1.id)
+
+    tokens =
+      DB.Token.base_query()
+      |> where([token: t], t.organization_id in ^organization_ids)
+      |> preload(:organization)
+      |> DB.Repo.all()
+
+    conn
+    |> assign(:tokens, tokens)
+    |> render("settings.html")
   end
 
   def datasets_edit(
@@ -105,6 +120,10 @@ defmodule TransportWeb.ReuserSpaceController do
         |> redirect(to: reuser_space_path(conn, :espace_reutilisateur))
         |> halt()
     end
+  end
+
+  defp find_contact(%Plug.Conn{assigns: %{current_user: %{"id" => datagouv_user_id}}} = conn, _options) do
+    conn |> assign(:contact, DB.Repo.get_by!(DB.Contact, datagouv_user_id: datagouv_user_id))
   end
 
   @doc """

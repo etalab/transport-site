@@ -338,6 +338,16 @@ defmodule DB.Factory do
     }
   end
 
+  def token_factory do
+    %DB.Token{
+      name: sequence(:name, &"datagouv_id-#{&1}"),
+      secret: "secret",
+      secret_hash: "secret_hash",
+      organization: build(:organization),
+      contact: insert_contact()
+    }
+  end
+
   def reuse_factory do
     %DB.Reuse{
       datagouv_id: sequence(:datagouv_id, &"datagouv_id-#{&1}"),
