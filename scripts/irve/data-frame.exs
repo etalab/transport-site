@@ -1,3 +1,8 @@
+defmodule Transport.IRVE.ReportItem do
+  @enforce_keys [:dataset_id, :resource_id, :resource_url, :estimated_pdc_count, :extension]
+  defstruct [:dataset_id, :resource_id, :resource_url, :error, :estimated_pdc_count, :extension]
+end
+
 defmodule Transport.IRVE.Processing do
   def read_as_data_frame(body) do
     # TODO: be smooth about `cable_t2_attache` - only added in v2.1.0 (https://github.com/etalab/schema-irve/releases/tag/v2.1.0)
@@ -139,11 +144,6 @@ defmodule Transport.IRVE.Consolidation do
   def concat_rows(nil, df), do: df
   def concat_rows(main_df, df), do: Explorer.DataFrame.concat_rows(main_df, df)
 
-  defmodule ReportItem do
-    @enforce_keys [:dataset_id, :resource_id, :resource_url, :estimated_pdc_count, :extension]
-    defstruct [:dataset_id, :resource_id, :resource_url, :error, :estimated_pdc_count, :extension]
-  end
-
   def show_more() do
     output =
       Transport.IRVE.Extractor.datagouv_resources()
@@ -169,7 +169,7 @@ defmodule Transport.IRVE.Consolidation do
             {:error, error} -> {main_df, error}
           end
 
-        description = %ReportItem{
+        description = %Transport.IRVE.ReportItem{
           dataset_id: row.dataset_id,
           resource_id: row.resource_id,
           resource_url: row.url,
