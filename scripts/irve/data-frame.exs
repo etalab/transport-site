@@ -1,3 +1,73 @@
+defmodule Transport.IRVE.Processing do
+  def read_as_data_frame(body) do
+    # TODO: be smooth about `cable_t2_attache` - only added in v2.1.0 (https://github.com/etalab/schema-irve/releases/tag/v2.1.0)
+    # and often not provided
+    Transport.IRVE.DataFrame.dataframe_from_csv_body!(
+      body,
+      Transport.IRVE.StaticIRVESchema.schema_content(),
+      _strict = false
+    )
+    # TODO: rename method
+    |> Transport.IRVE.DataFrame.preprocess_data()
+    |> Transport.IRVE.DataFrame.preprocess_boolean("prise_type_ef")
+    |> Transport.IRVE.DataFrame.preprocess_boolean("prise_type_2")
+    |> Transport.IRVE.DataFrame.preprocess_boolean("prise_type_combo_ccs")
+    |> Transport.IRVE.DataFrame.preprocess_boolean("prise_type_chademo")
+    |> Transport.IRVE.DataFrame.preprocess_boolean("prise_type_autre")
+    |> Transport.IRVE.DataFrame.preprocess_boolean("gratuit")
+    |> Transport.IRVE.DataFrame.preprocess_boolean("paiement_acte")
+    |> Transport.IRVE.DataFrame.preprocess_boolean("paiement_cb")
+    |> Transport.IRVE.DataFrame.preprocess_boolean("paiement_autre")
+    |> Transport.IRVE.DataFrame.preprocess_boolean("reservation")
+    |> Transport.IRVE.DataFrame.preprocess_boolean("station_deux_roues")
+    |> Explorer.DataFrame.select([
+      "nom_amenageur",
+      "siren_amenageur",
+      "contact_amenageur",
+      "nom_operateur",
+      "contact_operateur",
+      "telephone_operateur",
+      "nom_enseigne",
+      "id_station_itinerance",
+      "id_station_local",
+      "nom_station",
+      "implantation_station",
+      "adresse_station",
+      "code_insee_commune",
+      # "coordonneesXY",
+      "nbre_pdc",
+      "id_pdc_itinerance",
+      "id_pdc_local",
+      "puissance_nominale",
+      "prise_type_ef",
+      "prise_type_2",
+      "prise_type_combo_ccs",
+      "prise_type_chademo",
+      "prise_type_autre",
+      "gratuit",
+      "paiement_acte",
+      "paiement_cb",
+      "paiement_autre",
+      "tarification",
+      "condition_acces",
+      "reservation",
+      "horaires",
+      "accessibilite_pmr",
+      "restriction_gabarit",
+      "station_deux_roues",
+      "raccordement",
+      "num_pdl",
+      "date_mise_en_service",
+      "observations",
+      "date_maj",
+      # "cable_t2_attache",
+      # extracted
+      "x",
+      "y"
+    ])
+  end
+end
+
 defmodule Transport.IRVE.Consolidation do
   require Logger
   import Transport.IRVE.Static.Probes
@@ -39,73 +109,7 @@ defmodule Transport.IRVE.Consolidation do
         raise("string is not valid UTF-8 (could be binary content, or latin1)")
       end
 
-      # TODO: be smooth about `cable_t2_attache` - only added in v2.1.0 (https://github.com/etalab/schema-irve/releases/tag/v2.1.0)
-      # and often not provided
-      df =
-        Transport.IRVE.DataFrame.dataframe_from_csv_body!(
-          body,
-          Transport.IRVE.StaticIRVESchema.schema_content(),
-          _strict = false
-        )
-        # TODO: rename accordingly
-        |> Transport.IRVE.DataFrame.preprocess_data()
-        # TODO: loop programmatically
-        |> Transport.IRVE.DataFrame.preprocess_boolean("prise_type_ef")
-        |> Transport.IRVE.DataFrame.preprocess_boolean("prise_type_2")
-        |> Transport.IRVE.DataFrame.preprocess_boolean("prise_type_combo_ccs")
-        |> Transport.IRVE.DataFrame.preprocess_boolean("prise_type_chademo")
-        |> Transport.IRVE.DataFrame.preprocess_boolean("prise_type_autre")
-        |> Transport.IRVE.DataFrame.preprocess_boolean("gratuit")
-        |> Transport.IRVE.DataFrame.preprocess_boolean("paiement_acte")
-        |> Transport.IRVE.DataFrame.preprocess_boolean("paiement_cb")
-        |> Transport.IRVE.DataFrame.preprocess_boolean("paiement_autre")
-        |> Transport.IRVE.DataFrame.preprocess_boolean("reservation")
-        |> Transport.IRVE.DataFrame.preprocess_boolean("station_deux_roues")
-        |> Explorer.DataFrame.select([
-          "nom_amenageur",
-          "siren_amenageur",
-          "contact_amenageur",
-          "nom_operateur",
-          "contact_operateur",
-          "telephone_operateur",
-          "nom_enseigne",
-          "id_station_itinerance",
-          "id_station_local",
-          "nom_station",
-          "implantation_station",
-          "adresse_station",
-          "code_insee_commune",
-          # "coordonneesXY",
-          "nbre_pdc",
-          "id_pdc_itinerance",
-          "id_pdc_local",
-          "puissance_nominale",
-          "prise_type_ef",
-          "prise_type_2",
-          "prise_type_combo_ccs",
-          "prise_type_chademo",
-          "prise_type_autre",
-          "gratuit",
-          "paiement_acte",
-          "paiement_cb",
-          "paiement_autre",
-          "tarification",
-          "condition_acces",
-          "reservation",
-          "horaires",
-          "accessibilite_pmr",
-          "restriction_gabarit",
-          "station_deux_roues",
-          "raccordement",
-          "num_pdl",
-          "date_mise_en_service",
-          "observations",
-          "date_maj",
-          # "cable_t2_attache",
-          # extracted
-          "x",
-          "y"
-        ])
+      df = Transport.IRVE.Processing.read_as_data_frame(body)
 
       nil_counts = Explorer.DataFrame.nil_count(df)
 
@@ -122,6 +126,8 @@ defmodule Transport.IRVE.Consolidation do
       {:ok, df}
     rescue
       error ->
+        IO.inspect(error)
+
         if String.contains?(error |> inspect, "KeyError") do
           IO.inspect(%{error: error, row: row}, IEx.inspect_opts())
         end
@@ -146,9 +152,10 @@ defmodule Transport.IRVE.Consolidation do
       # and "test dataset" https://www.data.gouv.fr/en/datasets/test-data-set
       # which is a large file marked as IRVE
       |> Enum.reject(fn r -> r.dataset_id == "67811b8e8934d388950bca3f" end)
+      # |> Enum.filter(fn r -> r.resource_id != "7f50c3d3-2692-48d3-ace9-64600ec6fc4b" end)
       |> Enum.sort_by(fn r -> [r.dataset_id, r.resource_id] end)
-      # |> Stream.drop(1001)
-      # |> Stream.take(10)
+      |> Stream.drop(1001)
+      |> Stream.take(10)
       # |> Enum.filter(&(&1.resource_id == "cbd64933-26df-4ab5-b9e8-104f9af9a16c"))
       |> Enum.reduce(%{df: nil, report: []}, fn row, %{df: main_df, report: report} ->
         Logger.info("Processing resource #{row.resource_id}")
