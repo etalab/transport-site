@@ -279,10 +279,12 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   defp update_results_with_diff(socket, diff) do
     diff_summary = diff |> GTFSDiffExplain.diff_summary()
     diff_explanations = diff |> GTFSDiffExplain.diff_explanations() |> drop_empty()
+    structural_changes = diff |> GTFSDiffExplain.structural_changes()
 
     update_many(socket, :results, [
       set(:diff_summary, diff_summary),
-      set(:diff_explanations, diff_explanations)
+      set(:diff_explanations, diff_explanations),
+      set(:structural_changes, structural_changes)
     ])
   end
 
