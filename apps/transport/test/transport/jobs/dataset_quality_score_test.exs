@@ -286,25 +286,23 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
         metadata: %{"feed_timestamp_delay" => 1000}
       )
 
-      assert %{
-               score: 0.5,
-               details: %{
-                 resources: [
-                   %{
-                     format: "GTFS",
-                     freshness: 1.0,
-                     raw_measure: %{end_date: end_date, start_date: start_date},
-                     resource_id: ^resource_id
-                   },
-                   %{
-                     format: "gtfs-rt",
-                     freshness: +0.0,
-                     raw_measure: 1000,
-                     resource_id: ^resource_id_2
-                   }
-                 ]
+      assert %{score: 0.5, details: %{resources: resources}} = current_dataset_freshness(dataset.id)
+
+      assert [
+               %{
+                 format: "GTFS",
+                 freshness: 1.0,
+                 raw_measure: %{end_date: end_date, start_date: start_date},
+                 resource_id: ^resource_id
+               },
+               %{
+                 format: "gtfs-rt",
+                 freshness: +0.0,
+                 raw_measure: 1000,
+                 resource_id: ^resource_id_2
                }
-             } = current_dataset_freshness(dataset.id)
+             ] =
+               resources |> Enum.sort_by(fn %{format: format} -> format end)
 
       today = Date.utc_today()
       assert Date.diff(today, start_date) > 0 and Date.diff(end_date, today) > 0

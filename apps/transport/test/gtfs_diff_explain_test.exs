@@ -19,8 +19,8 @@ defmodule TransportWeb.GtfsDiffExplainTest do
         "action" => "update",
         "file" => "stops.txt",
         "identifier" => "{\"stop_id\":\"3000055\"}",
-        "initial_value" => "{\"stop_name\":\"Hôpital\"}",
-        "new_value" => "{\"stop_name\":\"Hôpital Arnauzand\"}",
+        "initial_value" => "{\"stop_name\":\"Hôpital\", \"stop_lat\":\"46.605513\", \"stop_lon\":\"0.275126\"}",
+        "new_value" => "{\"stop_name\":\"Hôpital Arnauzand\", \"stop_lat\":\"46.605348\", \"stop_lon\":\"0.275881\"}",
         "target" => "row"
       },
       %{
@@ -34,10 +34,38 @@ defmodule TransportWeb.GtfsDiffExplainTest do
     ]
 
     assert [
-             {"stops.txt",
-              "Le nom du stop_id 3000055 a été modifié. Nom initial : \"Hôpital\", Nouveau nom : \"Hôpital Arnauzand\""},
-             {"stops.txt",
-              "Une information d'accessibilité wheelchair_boarding a été ajouté pour le stop_id 100, valeur initiale : \"0\", nouvelle valeur : \"1\""}
+             %{
+               file: "stops.txt",
+               type: "stop_position",
+               message: "La latitude de l’arrêt 3000055 a été modifiée",
+               before: "46.605513",
+               after: "46.605348",
+               sort_key: "3000055-lat"
+             },
+             %{
+               file: "stops.txt",
+               type: "stop_position",
+               message: "La longitude de l’arrêt 3000055 a été modifiée",
+               before: "0.275126",
+               after: "0.275881",
+               sort_key: "3000055-lon"
+             },
+             %{
+               file: "stops.txt",
+               type: "stop_name",
+               message: "L’arrêt 3000055 a été renommé",
+               before: "Hôpital",
+               after: "Hôpital Arnauzand",
+               sort_key: "Hôpital"
+             },
+             %{
+               file: "stops.txt",
+               type: "wheelchair_boarding",
+               message: "L’information d’accessibilité wheelchair_boarding a été modifiée pour l’arrêt 100",
+               before: "0",
+               after: "1",
+               sort_key: "100"
+             }
            ] == GTFSDiffExplain.diff_explanations(diff)
   end
 

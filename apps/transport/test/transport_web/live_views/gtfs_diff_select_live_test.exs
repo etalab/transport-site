@@ -81,6 +81,22 @@ defmodule TransportWeb.Live.GTFSDiffSelectLiveTest do
           "action" => "add",
           "file" => "stop_times.txt",
           "target" => "row"
+        },
+        %{
+          "action" => "update",
+          "file" => "stops.txt",
+          "identifier" => "{\"stop_id\":\"3000055\"}",
+          "initial_value" => "{\"stop_name\":\"Hôpital\"}",
+          "new_value" => "{\"stop_name\":\"Hôpital Arnauzand\"}",
+          "target" => "row"
+        },
+        %{
+          "action" => "update",
+          "file" => "stops.txt",
+          "identifier" => "{\"stop_id\":\"100\"}",
+          "initial_value" => "{\"wheelchair_boarding\":\"0\"}",
+          "new_value" => "{\"wheelchair_boarding\":\"1\"}",
+          "target" => "row"
         }
       ]
 
@@ -109,7 +125,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLiveTest do
       assert navigation |> Floki.find("a") |> texts == [
                "agency.txt",
                "calendar.txt",
-               "stop_times.txt"
+               "stop_times.txt",
+               "stops.txt"
              ]
 
       assert navigation |> Floki.find("a.active") |> Floki.text() == "agency.txt"
