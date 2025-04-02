@@ -275,7 +275,7 @@ defmodule TransportWeb.Router do
       end
     end
 
-    scope "/gtfs-geojson-conversion-#{System.get_env("TRANSPORT_TOOLS_SECRET_TOKEN")}" do
+    scope "/gtfs-geojson-conversion-#{System.fetch_env!("TRANSPORT_TOOLS_SECRET_TOKEN")}" do
       get("/", GeojsonConversionController, :index)
       post("/", GeojsonConversionController, :convert)
     end
