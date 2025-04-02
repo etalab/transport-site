@@ -615,3 +615,15 @@ msgstr "Modifié"
 #, elixir-autogen, elixir-format
 msgid "Original"
 msgstr "Original"
+
+#, elixir-autogen, elixir-format
+msgid "No row changes."
+msgstr "Aucun changement de ligne."
+
+#, elixir-autogen, elixir-format
+msgid "file added"
+msgstr "fichier ajouté"
+
+#, elixir-autogen, elixir-format
+msgid "file deleted"
+msgstr "fichier supprimé"

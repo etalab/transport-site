@@ -588,6 +588,14 @@ msgstr ""
 msgid "Stops' positions"
 msgstr ""
 
+#, elixir-autogen, elixir-format, fuzzy
+msgid "The latitude of the stop_id %{stop_id} has been modified"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "The longitude of the stop_id %{stop_id} has been modified"
+msgstr ""
+
 #, elixir-autogen, elixir-format
 msgid "Wheelchair_boarding updated for stop %{stop_id}"
 msgstr ""
@@ -608,10 +616,14 @@ msgstr ""
 msgid "Original"
 msgstr ""
 
-#, elixir-autogen, elixir-format, fuzzy
-msgid "The latitude of the stop_id %{stop_id} has been modified"
+#, elixir-autogen, elixir-format
+msgid "No row changes."
 msgstr ""
 
-#, elixir-autogen, elixir-format, fuzzy
-msgid "The longitude of the stop_id %{stop_id} has been modified"
+#, elixir-autogen, elixir-format
+msgid "file added"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "file deleted"
 msgstr ""
