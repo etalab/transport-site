@@ -3,7 +3,7 @@ defmodule TransportWeb.DiscussionsLive do
   Display data.gouv discussions on the dataset page
   """
   use Phoenix.LiveView
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
 
   def render(assigns) do
     ~H"""

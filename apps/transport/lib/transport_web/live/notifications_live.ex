@@ -3,7 +3,7 @@ defmodule TransportWeb.Live.NotificationsLive do
   import Ecto.Query
   use TransportWeb.InputHelpers
   import TransportWeb.Router.Helpers
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
 
   @impl true

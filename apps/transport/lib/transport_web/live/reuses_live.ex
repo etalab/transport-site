@@ -3,7 +3,7 @@ defmodule TransportWeb.ReusesLive do
   Display data.gouv reuses on the dataset page
   """
   use Phoenix.LiveView
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
   alias TransportWeb.MarkdownHandler
 
   def render(assigns) do
@@ -91,7 +91,7 @@ end
 
 defmodule TransportWeb.CountReusesLive do
   use Phoenix.LiveView
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
 
   def render(assigns) do
     ~H"""

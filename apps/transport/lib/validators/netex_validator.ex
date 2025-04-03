@@ -4,7 +4,7 @@ defmodule Transport.Validators.NeTEx do
   (by polling the tier API) and can take quite some time upon completion.
   """
 
-  import TransportWeb.Gettext, only: [dgettext: 2, dngettext: 4]
+  use Gettext, backend: TransportWeb.Gettext
   require Logger
   alias Transport.Jobs.NeTExPollerJob, as: Poller
 
