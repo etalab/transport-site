@@ -90,11 +90,12 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
     <.columns_list
       :if={@file_differences == [@file_criteria]}
       selected_file={@selected_file}
-      column_differences={@column_differences}
-      criteria={@column_criteria}
+      column_differences={Keyword.get(@column_differences, @column_criteria, [])}
     />
     """
   end
+
+  defp pick_file_message(:added_file, 0), do: dgettext("validations", "file added")
 
   defp pick_file_message(:added_file, count),
     do:
@@ -104,6 +105,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
         "file added with %{count} new columns:",
         count
       )
+
+  defp pick_file_message(:deleted_file, 0), do: dgettext("validations", "file deleted")
 
   defp pick_file_message(:deleted_file, count),
     do:
@@ -119,24 +122,27 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
   defp column_difference?(_), do: false
 
   defp columns_differences(%{file_differences: _, column_differences: _, criteria: _, selected_file: _} = assigns) do
+    assigns =
+      assigns
+      |> assign(relevant_column_differences: Keyword.get(assigns[:column_differences], assigns[:criteria], []))
+
     ~H"""
-    <p :if={@file_differences == [] && Keyword.get(@column_differences, @criteria)}>
+    <p :if={@file_differences == [] && @relevant_column_differences != []}>
       <i class={pick_symbol(@criteria)}></i>
-      <%= pick_column_message(@criteria, count_column_differences(@column_differences, @criteria)) %>
+      <%= pick_column_message(@criteria, Enum.count(@relevant_column_differences)) %>
     </p>
     <.columns_list
-      :if={@file_differences == [] && Keyword.get(@column_differences, @criteria)}
+      :if={@file_differences == [] && @relevant_column_differences != []}
       selected_file={@selected_file}
-      column_differences={@column_differences}
-      criteria={@criteria}
+      column_differences={@relevant_column_differences}
     />
     """
   end
 
-  defp columns_list(%{column_differences: _, criteria: _, selected_file: _} = assigns) do
+  defp columns_list(%{column_differences: _, selected_file: _} = assigns) do
     ~H"""
     <ul>
-      <li :for={column <- Keyword.get(@column_differences, @criteria)}>
+      <li :for={column <- @column_differences}>
         <code><%= column %></code>
         <span :if={not standard_column?(@selected_file, column)}>
           <i class="symbol fa fa-warning orange"></i> <%= dgettext("validations", "non standard column") %>
@@ -147,7 +153,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
   end
 
   defp count_column_differences(column_differences, criteria) do
-    column_differences |> Keyword.get(criteria) |> Enum.count()
+    column_differences |> Keyword.get(criteria, []) |> Enum.count()
   end
 
   defp pick_column_message(:added_columns, count),
@@ -162,19 +168,44 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
   defp pick_symbol(:deleted_file), do: "symbol fa fa-square-minus red"
 
   defp diff_summaries_for_file(%{selected_file: _, diff_summary: _, profile: _} = assigns) do
-    ~H"""
-    <p><%= dgettext("validations", "Row changes:") %></p>
-    <ul>
-      <.diff_summary_for_file
-        :for={{nature, translation, css_class} <- diff_natures()}
-        summary={@diff_summary[nature]}
-        translation={translation}
-        selected_file={@selected_file}
-        class={css_class}
-      />
-    </ul>
-    <.partial_difference_warning :if={@selected_file not in Transport.GTFSDiff.files_to_analyze(@profile)} />
-    """
+    cond do
+      assigns[:selected_file] not in Transport.GTFSDiff.files_to_analyze(assigns[:profile]) ->
+        ~H"""
+        <p><%= dgettext("validations", "Row changes:") %></p>
+        <.partial_difference_warning />
+        """
+
+      row_changes?(assigns[:diff_summary], assigns[:selected_file]) ->
+        ~H"""
+        <p><%= dgettext("validations", "Row changes:") %></p>
+        <ul>
+          <.diff_summary_for_file
+            :for={{nature, translation, css_class} <- diff_natures()}
+            summary={@diff_summary[nature]}
+            translation={translation}
+            selected_file={@selected_file}
+            class={css_class}
+          />
+        </ul>
+        """
+
+      true ->
+        ~H"""
+        <p><%= dgettext("validations", "No row changes.") %></p>
+        """
+    end
+  end
+
+  defp row_changes?(diff_summary, selected_file) do
+    total_changes =
+      diff_summary
+      |> Map.values()
+      |> Enum.concat()
+      |> Enum.filter(fn {{file, _, target}, _} -> file == selected_file && target == "row" end)
+      |> Enum.map(fn {_, c} -> c end)
+      |> Enum.sum()
+
+    total_changes > 0
   end
 
   defp diff_summary_for_file(%{summary: _, selected_file: _, translation: _, class: _} = assigns) do
