@@ -4,7 +4,7 @@ defmodule Datagouvfr.Client.Datasets do
   See https://doc.data.gouv.fr/api/reference/#/datasets
   """
 
-  import Datagouvfr.Gettext
+  use Gettext, backend: Datagouvfr.Gettext
   use Vex.Struct
 
   defstruct description: nil,

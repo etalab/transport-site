@@ -2,7 +2,7 @@ defmodule TransportWeb.Live.FeedbackLive do
   use Phoenix.LiveView
   use TransportWeb.InputHelpers
   import TransportWeb.InputHelpers
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
   require Logger
 
   @moduledoc """

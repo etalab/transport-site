@@ -4,9 +4,9 @@ defmodule DB.Reuse do
   """
   use TypedEctoSchema
   use Ecto.Schema
+  use Gettext, backend: TransportWeb.Gettext
   import Ecto.Changeset
   import Ecto.Query
-  import TransportWeb.Gettext
 
   typed_schema "reuse" do
     field(:datagouv_id, :string)

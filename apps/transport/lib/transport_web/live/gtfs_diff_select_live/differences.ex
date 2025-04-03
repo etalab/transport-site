@@ -3,7 +3,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
   Differences of the selected file.
   """
   use Phoenix.Component
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
   import TransportWeb.Live.GTFSDiffSelectLive.GTFSSpecification
 
   def differences(
