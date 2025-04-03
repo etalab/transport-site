@@ -439,22 +439,6 @@ msgid "An error occurred while interpreting the results. Note that the report is
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "The latitude of the stop_id %{stop_id} has been modified. \"%{initial_stop_lat}\" -> \"%{new_stop_lat}\""
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "The longitude of the stop_id %{stop_id} has been modified. \"%{initial_stop_lon}\" -> \"%{new_stop_lon}\""
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "The name of the stop_id %{stop_id} has been modified. Initial name: \"%{initial_stop_name}\", New name: \"%{new_stop_name}\""
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Wheelchair_boarding information added for stop_id %{stop_id}, previously: \"%{initial_wheelchair_boarding}\", now: \"%{new_wheelchair_boarding}\""
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Start over"
 msgstr ""
 
@@ -584,4 +568,48 @@ msgstr[1] ""
 
 #, elixir-autogen, elixir-format
 msgid "non standard column"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Other change: %{unknown}"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Weelchair boarding"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Stops' names"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Stops' positions"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The latitude of the stop_id %{stop_id} has been modified"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The longitude of the stop_id %{stop_id} has been modified"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Wheelchair_boarding updated for stop %{stop_id}"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Stop %{stop_id} has been renamed"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Comment"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Modified"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Original"
 msgstr ""

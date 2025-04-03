@@ -4,7 +4,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
   """
   use Phoenix.Component
   use TransportWeb.InputHelpers
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
   import TransportWeb.Live.GTFSDiffSelectLive.Differences
 
   def results_step(%{error_msg: _, profile: _, results: results} = assigns) do

@@ -2,7 +2,7 @@ defmodule TransportWeb.GTFSDiffExplain do
   @moduledoc """
   Functions to explain and interpret GTFS Diff files
   """
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
 
   def diff_explanations(diffs) do
     diffs
@@ -150,14 +150,14 @@ defmodule TransportWeb.GTFSDiffExplain do
         }
       ) do
     [
-      {"stops.txt",
-       dgettext(
-         "validations",
-         ~s(The name of the stop_id %{stop_id} has been modified. Initial name: "%{initial_stop_name}", New name: "%{new_stop_name}"),
-         stop_id: stop_id,
-         initial_stop_name: initial_stop_name,
-         new_stop_name: new_stop_name
-       )}
+      %{
+        file: "stops.txt",
+        type: "stop_name",
+        message: dgettext("validations", "Stop %{stop_id} has been renamed", stop_id: stop_id),
+        before: initial_stop_name,
+        after: new_stop_name,
+        sort_key: initial_stop_name
+      }
       | explanations
     ]
   end
@@ -179,14 +179,14 @@ defmodule TransportWeb.GTFSDiffExplain do
       )
       when new_wheelchair_boarding in ["1", "2"] do
     [
-      {"stops.txt",
-       dgettext(
-         "validations",
-         ~s(Wheelchair_boarding information added for stop_id %{stop_id}, previously: "%{initial_wheelchair_boarding}", now: "%{new_wheelchair_boarding}"),
-         stop_id: stop_id,
-         initial_wheelchair_boarding: initial_wheelchair_boarding,
-         new_wheelchair_boarding: new_wheelchair_boarding
-       )}
+      %{
+        file: "stops.txt",
+        type: "wheelchair_boarding",
+        message: dgettext("validations", "Wheelchair_boarding updated for stop %{stop_id}", stop_id: stop_id),
+        before: initial_wheelchair_boarding,
+        after: new_wheelchair_boarding,
+        sort_key: stop_id
+      }
       | explanations
     ]
   end
@@ -205,14 +205,21 @@ defmodule TransportWeb.GTFSDiffExplain do
         }
       ) do
     [
-      {"stops.txt",
-       dgettext(
-         "validations",
-         ~s(The longitude of the stop_id %{stop_id} has been modified. "%{initial_stop_lon}" -> "%{new_stop_lon}"),
-         stop_id: stop_id,
-         initial_stop_lon: initial_stop_lon,
-         new_stop_lon: new_stop_lon
-       )}
+      %{
+        file: "stops.txt",
+        type: "stop_position",
+        message:
+          dgettext(
+            "validations",
+            "The longitude of the stop_id %{stop_id} has been modified",
+            stop_id: stop_id,
+            initial_stop_lon: initial_stop_lon,
+            new_stop_lon: new_stop_lon
+          ),
+        before: initial_stop_lon,
+        after: new_stop_lon,
+        sort_key: "#{stop_id}-lon"
+      }
       | explanations
     ]
   end
@@ -233,14 +240,21 @@ defmodule TransportWeb.GTFSDiffExplain do
         }
       ) do
     [
-      {"stops.txt",
-       dgettext(
-         "validations",
-         ~s(The latitude of the stop_id %{stop_id} has been modified. "%{initial_stop_lat}" -> "%{new_stop_lat}"),
-         stop_id: stop_id,
-         initial_stop_lat: initial_stop_lat,
-         new_stop_lat: new_stop_lat
-       )}
+      %{
+        file: "stops.txt",
+        type: "stop_position",
+        message:
+          dgettext(
+            "validations",
+            "The latitude of the stop_id %{stop_id} has been modified",
+            stop_id: stop_id,
+            initial_stop_lat: initial_stop_lat,
+            new_stop_lat: new_stop_lat
+          ),
+        before: initial_stop_lat,
+        after: new_stop_lat,
+        sort_key: "#{stop_id}-lat"
+      }
       | explanations
     ]
   end

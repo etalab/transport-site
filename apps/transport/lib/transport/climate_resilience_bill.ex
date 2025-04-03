@@ -3,7 +3,7 @@ defmodule Transport.ClimateResilienceBill do
   A module dedicated to handle features related to the article 122
   of the Climate and Resilience bill.
   """
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
   @relevant_dataset_types ["public-transit", "bike-scooter-sharing", "low-emission-zones"]
 
   @doc """
