@@ -135,7 +135,7 @@ locale = get_session(@conn, :locale) %>
         <% end %>
       </div>
       <%= if length(@other_resources) > 0 do %>
-        <h2><%= TransportWeb.Gettext.dgettext("validations", "Other resources") %></h2>
+        <h2><%= dgettext("validations", "Other resources") %></h2>
         <div class="panel">
           <ul>
             <%= for resource <- @other_resources do %>
