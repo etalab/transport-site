@@ -2,9 +2,10 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
   @moduledoc """
   Results step of the GTFS diff tool.
   """
-  use Phoenix.LiveView
+  use Phoenix.Component
   use TransportWeb.InputHelpers
   use Gettext, backend: TransportWeb.Gettext
+  import TransportWeb.Live.GTFSDiffSelectLive.Differences
 
   def results_step(%{error_msg: _, profile: _, results: results} = assigns) do
     files_with_changes = files_with_changes(results[:diff_summary])
@@ -19,6 +20,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
       diff_explanations={@results[:diff_explanations]}
       diff_file_url={@results[:diff_file_url]}
       diff_summary={@results[:diff_summary]}
+      structural_changes={@results[:structural_changes]}
       files_with_changes={@files_with_changes}
       context={@results[:context]}
       selected_file={@selected_file}
@@ -51,7 +53,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
            files_with_changes: _,
            context: _,
            profile: _,
-           selected_file: _
+           selected_file: _,
+           structural_changes: _
          } = assigns
        ) do
     ~H"""
@@ -81,6 +84,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
             diff_summary={@diff_summary}
             files_with_changes={@files_with_changes}
             selected_file={@selected_file}
+            structural_changes={@structural_changes}
             profile={@profile}
           />
         <% else %>
@@ -101,81 +105,15 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
     """
   end
 
-  @doc """
-  iex> Gettext.put_locale("en")
-  iex> translate_target("file", 1)
-  "1 file"
-  iex> translate_target("file", 3)
-  "3 files"
-  iex> translate_target("row", 1)
-  "1 row"
-  iex> translate_target("row", 3)
-  "3 rows"
-  iex> Gettext.put_locale("fr")
-  iex> translate_target("file", 1)
-  "1 fichier"
-  iex> translate_target("file", 3)
-  "3 fichiers"
-  iex> translate_target("row", 1)
-  "1 ligne"
-  iex> translate_target("row", 3)
-  "3 lignes"
-  """
-  def translate_target(target, n) do
-    case target do
-      "file" -> dngettext("validations", "%{count} file", "%{count} files", n)
-      "row" -> dngettext("validations", "%{count} row", "%{count} rows", n)
-      "column" -> dngettext("validations", "%{count} column", "%{count} columns", n)
-      _ -> "#{n} #{target}#{if n > 1, do: "s"}"
-    end
-  end
-
-  defp diff_natures do
-    [
-      {"add", dgettext("validations", "added"), "green"},
-      {"update", dgettext("validations", "updated"), "orange"},
-      {"delete", dgettext("validations", "deleted"), "red"}
-    ]
-  end
-
-  defp partial_difference_warning(%{} = assigns) do
-    ~H"""
-    <div class="notification warning">
-      <%= dgettext(
-        "validations",
-        "Row changes have not been analyzed for this file. We suggest you dive into both GTFS files for more details."
-      ) %>
-    </div>
-    """
-  end
-
-  defp diff_summaries_for_file(%{selected_file: _, diff_summary: _} = assigns) do
-    ~H"""
-    <h4><%= dgettext("validations", "Summary") %></h4>
-    <ul>
-      <.diff_summary_for_file
-        :for={{nature, translation, css_class} <- diff_natures()}
-        summary={@diff_summary[nature]}
-        translation={translation}
-        selected_file={@selected_file}
-        class={css_class}
-      />
-    </ul>
-    """
-  end
-
-  defp diff_summary_for_file(%{summary: _, selected_file: _, translation: _, class: _} = assigns) do
-    ~H"""
-    <%= for {{file, _nature, target}, n} <- @summary || [] do %>
-      <li :if={file == @selected_file}>
-        <span class={@class}><%= @translation %></span>&nbsp;<%= translate_target(target, n) %>
-      </li>
-    <% end %>
-    """
-  end
-
   defp diff_summaries(
-         %{files_with_changes: _, selected_file: _, diff_summary: _, diff_explanations: _, profile: _} = assigns
+         %{
+           files_with_changes: _,
+           selected_file: _,
+           diff_summary: _,
+           diff_explanations: _,
+           profile: _,
+           structural_changes: _
+         } = assigns
        ) do
     ~H"""
     <div class="dashboard">
@@ -184,6 +122,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
         diff_summary={@diff_summary}
         selected_file={@selected_file}
         diff_explanations={@diff_explanations}
+        structural_changes={@structural_changes}
         profile={@profile}
       />
     </div>
@@ -216,31 +155,6 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
         <code><%= @file %></code>
       </a>
     </li>
-    """
-  end
-
-  defp differences(%{diff_summary: _, selected_file: _, diff_explanations: _, profile: _} = assigns) do
-    ~H"""
-    <div class="main">
-      <.partial_difference_warning :if={@selected_file not in Transport.GTFSDiff.files_to_analyze(@profile)} />
-      <.diff_summaries_for_file diff_summary={@diff_summary} selected_file={@selected_file} />
-      <%= if assigns[:diff_explanations] do %>
-        <% active_explanations =
-          @diff_explanations
-          |> Enum.filter(fn {file, _} -> file == @selected_file end)
-          |> Enum.map(fn {_, explanation} -> explanation end) %>
-        <.detailed_explanations :if={not Enum.empty?(active_explanations)} active_explanations={active_explanations} />
-      <% end %>
-    </div>
-    """
-  end
-
-  defp detailed_explanations(%{active_explanations: _} = assigns) do
-    ~H"""
-    <h4><%= dgettext("validations", "Detail") %></h4>
-    <ul>
-      <li :for={explanation <- @active_explanations}><%= explanation %></li>
-    </ul>
     """
   end
 

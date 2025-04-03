@@ -1,0 +1,140 @@
+## This file is a PO Template file.
+##
+## "msgid"s here are often extracted from source code.
+## Add new messages manually only if they're dynamic
+## messages that can't be statically extracted.
+##
+## Run "mix gettext.extract" to bring this file up to
+## date. Leave "msgstr"s empty as changing them here has no
+## effect: edit them in PO (.po) files instead.
+#
+msgid ""
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "agency.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "areas.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "attributions.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "booking_rules.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "calendar.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "calendar_dates.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "fare_attributes.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "fare_leg_join_rules.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "fare_leg_rules.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "fare_media.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "fare_products.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "fare_rules.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "fare_transfer_rules.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "feed_info.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "frequencies.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "levels.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "location_group_stops.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "location_groups.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "networks.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "pathways.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "rider_categories.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "route_networks.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "routes.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "shapes.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "stop_areas.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "stop_times.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "stops.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "timeframes.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "transfers.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "translations.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "trips.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "unknown-file"
+msgstr ""

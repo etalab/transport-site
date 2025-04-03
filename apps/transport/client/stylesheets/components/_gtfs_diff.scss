@@ -163,6 +163,26 @@
       overflow: scroll;
     }
   }
+
+  .symbol {
+    margin-inline: 6px;
+  }
+
+  div.scrollable-table {
+    display: inline-block;
+    max-height: 20em;
+    overflow-y: auto;
+    width: 100%;
+
+    thead th {
+      position: sticky;
+      top: -1px;
+    }
+    tfoot td {
+      position: sticky;
+      bottom: -1px;
+    }
+  }
 }
 
 @media (max-width: 749px) {

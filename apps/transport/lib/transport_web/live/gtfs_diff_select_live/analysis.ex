@@ -2,7 +2,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Analysis do
   @moduledoc """
   Analysis step of the GTFS diff tool.
   """
-  use Phoenix.LiveView
+  use Phoenix.Component
   use TransportWeb.InputHelpers
   use Gettext, backend: TransportWeb.Gettext
 

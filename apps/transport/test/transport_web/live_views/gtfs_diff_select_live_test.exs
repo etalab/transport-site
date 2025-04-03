@@ -2,9 +2,10 @@ defmodule TransportWeb.Live.GTFSDiffSelectLiveTest do
   use ExUnit.Case, async: true
   import Phoenix.LiveViewTest
   doctest TransportWeb.Live.GTFSDiffSelectLive, import: true
-  doctest TransportWeb.Live.GTFSDiffSelectLive.Results, import: true
+  doctest TransportWeb.Live.GTFSDiffSelectLive.Differences, import: true
   doctest TransportWeb.Live.GTFSDiffSelectLive.Setup, import: true
 
+  alias TransportWeb.GTFSDiffExplain
   alias TransportWeb.Live.GTFSDiffSelectLive.Results
 
   describe "results" do
@@ -18,7 +19,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLiveTest do
           "gtfs_original_file_name_2" => gtfs_original_file_name_2
         },
         diff_file_url: "http://localhost:5000/gtfs-diff.csv",
-        diff_summary: %{}
+        diff_summary: %{},
+        structural_changes: []
       }
 
       html = render_results(error_msg: nil, profile: "core", results: results)
@@ -33,24 +35,89 @@ defmodule TransportWeb.Live.GTFSDiffSelectLiveTest do
       gtfs_original_file_name_1 = "base.zip"
       gtfs_original_file_name_2 = "modified.zip"
 
+      diff = [
+        %{
+          "action" => "delete",
+          "file" => "agency.txt",
+          "target" => "file"
+        },
+        %{
+          "action" => "delete",
+          "file" => "agency.txt",
+          "target" => "column",
+          "identifier" => "{\"column\": \"agency_id\"}"
+        },
+        %{
+          "action" => "delete",
+          "file" => "agency.txt",
+          "target" => "column",
+          "identifier" => "{\"column\": \"agency_name\"}"
+        },
+        %{
+          "action" => "delete",
+          "file" => "agency.txt",
+          "target" => "column",
+          "identifier" => "{\"column\": \"extra_column\"}"
+        },
+        %{
+          "action" => "delete",
+          "file" => "calendar.txt",
+          "target" => "column",
+          "identifier" => "{\"column\": \"start_date\"}"
+        },
+        %{
+          "action" => "delete",
+          "file" => "calendar.txt",
+          "target" => "column",
+          "identifier" => "{\"column\": \"end_date\"}"
+        },
+        %{
+          "action" => "add",
+          "file" => "calendar.txt",
+          "target" => "column",
+          "identifier" => "{\"column\": \"monday\"}"
+        },
+        %{
+          "action" => "add",
+          "file" => "stop_times.txt",
+          "target" => "row"
+        },
+        %{
+          "action" => "update",
+          "file" => "stops.txt",
+          "identifier" => "{\"stop_id\":\"3000055\"}",
+          "initial_value" => "{\"stop_name\":\"Hôpital\"}",
+          "new_value" => "{\"stop_name\":\"Hôpital Arnauzand\"}",
+          "target" => "row"
+        },
+        %{
+          "action" => "update",
+          "file" => "stops.txt",
+          "identifier" => "{\"stop_id\":\"100\"}",
+          "initial_value" => "{\"wheelchair_boarding\":\"0\"}",
+          "new_value" => "{\"wheelchair_boarding\":\"1\"}",
+          "target" => "row"
+        }
+      ]
+
+      diff_summary = diff |> GTFSDiffExplain.diff_summary()
+      diff_explanations = diff |> GTFSDiffExplain.diff_explanations() |> drop_empty()
+      structural_changes = diff |> GTFSDiffExplain.structural_changes()
+
       results = %{
         context: %{
           "gtfs_original_file_name_1" => gtfs_original_file_name_1,
           "gtfs_original_file_name_2" => gtfs_original_file_name_2
         },
         diff_file_url: "http://localhost:5000/gtfs-diff.csv",
-        diff_summary: %{
-          "add" => [{{"stop_times.txt", "add", "row"}, 1}],
-          "delete" => [
-            {{"agency.txt", "delete", "file"}, 1},
-            {{"calendar.txt", "delete", "column"}, 1}
-          ]
-        }
+        diff_summary: diff_summary,
+        diff_explanations: diff_explanations,
+        structural_changes: structural_changes
       }
 
       html = render_results(error_msg: nil, profile: "core", results: results)
 
-      assert html |> Floki.find("p:nth-child(3)") |> Floki.text() ==
+      assert html |> Floki.find("div.panel > p:nth-child(3)") |> Floki.text() ==
                "Le fichier GTFS #{gtfs_original_file_name_2} comporte les différences ci-dessous par rapport au fichier GTFS #{gtfs_original_file_name_1} :"
 
       navigation = html |> Floki.find("div.dashboard aside")
@@ -58,14 +125,20 @@ defmodule TransportWeb.Live.GTFSDiffSelectLiveTest do
       assert navigation |> Floki.find("a") |> texts == [
                "agency.txt",
                "calendar.txt",
-               "stop_times.txt"
+               "stop_times.txt",
+               "stops.txt"
              ]
 
       assert navigation |> Floki.find("a.active") |> Floki.text() == "agency.txt"
 
       selected_file_details = html |> Floki.find("div.dashboard div.main")
-      assert selected_file_details |> Floki.find("h4") |> texts == ["Résumé"]
-      assert selected_file_details |> Floki.find("ul li") |> texts == ["supprimé 1 fichier"]
+      assert selected_file_details |> Floki.find("h4") |> texts == ["agency.txt"]
+
+      assert selected_file_details |> Floki.find("ul li") |> texts == [
+               "agency_id",
+               "agency_name",
+               "extra_column colonne non standard"
+             ]
     end
   end
 
@@ -86,4 +159,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLiveTest do
     |> Floki.parse_document!()
     |> Floki.find("div#gtfs-diff-results")
   end
+
+  defp drop_empty([]), do: nil
+  defp drop_empty(otherwise), do: otherwise
 end

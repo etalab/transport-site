@@ -4,6 +4,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
   """
   use Phoenix.LiveView
   use Gettext, backend: TransportWeb.Gettext
+  use Phoenix.Component
   import TransportWeb.Live.GTFSDiffSelectLive.Shared
 
   def setup_step(%{uploads: _} = assigns) do

@@ -14,13 +14,71 @@ defmodule TransportWeb.GTFSDiffExplain do
         |> Map.update("identifier", %{}, &try_jason_decode(&1))
 
       []
-      |> explanation_add_file(diff)
-      |> explanation_delete_file(diff)
       |> explanation_update_stop_name(diff)
       |> explanation_stop_wheelchair_access(diff)
       |> explanation_update_stop_longitude(diff)
       |> explanation_update_stop_latitude(diff)
     end)
+  end
+
+  @doc """
+  Analyses structural changes of diff, focusing on column changes and if the file has been created or deleted.
+
+  It ignores the row changes.
+  """
+  def structural_changes(diffs) do
+    Enum.reduce(diffs, %{}, fn action, acc ->
+      if Map.get(action, "target") == "row" do
+        acc
+      else
+        new_diff = structural_change(action)
+
+        Map.update(acc, Map.get(action, "file"), [new_diff], &merge_diffs(new_diff, &1))
+      end
+    end)
+  end
+
+  defp structural_change(%{"target" => "file", "action" => action}) do
+    case action do
+      "add" -> :added_file
+      "delete" -> :deleted_file
+    end
+  end
+
+  defp structural_change(%{"target" => "column", "action" => action, "identifier" => identifier}) do
+    %{"column" => column} = Jason.decode!(identifier)
+
+    case action do
+      "add" -> {:added_columns, [column]}
+      "delete" -> {:deleted_columns, [column]}
+    end
+  end
+
+  defp merge_diffs({column_action, _} = new_diff, diffs) do
+    existing_action =
+      Enum.find(diffs, fn elem ->
+        case elem do
+          {^column_action, _} -> true
+          _ -> false
+        end
+      end)
+
+    if existing_action do
+      Enum.map(diffs, &merge_existing_actions(new_diff, &1))
+    else
+      [new_diff | diffs]
+    end
+  end
+
+  defp merge_diffs(new_diff, diffs) do
+    [new_diff | diffs]
+  end
+
+  defp merge_existing_actions({column_action, columns1}, elem) do
+    case elem do
+      {^column_action, columns2} -> {column_action, Enum.sort(columns1 ++ columns2)}
+      _ -> elem
+    end
   end
 
   @doc """
@@ -92,14 +150,14 @@ defmodule TransportWeb.GTFSDiffExplain do
         }
       ) do
     [
-      {"stops.txt",
-       dgettext(
-         "validations",
-         ~s(The name of the stop_id %{stop_id} has been modified. Initial name: "%{initial_stop_name}", New name: "%{new_stop_name}"),
-         stop_id: stop_id,
-         initial_stop_name: initial_stop_name,
-         new_stop_name: new_stop_name
-       )}
+      %{
+        file: "stops.txt",
+        type: "stop_name",
+        message: dgettext("validations", "Stop %{stop_id} has been renamed", stop_id: stop_id),
+        before: initial_stop_name,
+        after: new_stop_name,
+        sort_key: initial_stop_name
+      }
       | explanations
     ]
   end
@@ -121,14 +179,14 @@ defmodule TransportWeb.GTFSDiffExplain do
       )
       when new_wheelchair_boarding in ["1", "2"] do
     [
-      {"stops.txt",
-       dgettext(
-         "validations",
-         ~s(Wheelchair_boarding information added for stop_id %{stop_id}, previously: "%{initial_wheelchair_boarding}", now: "%{new_wheelchair_boarding}"),
-         stop_id: stop_id,
-         initial_wheelchair_boarding: initial_wheelchair_boarding,
-         new_wheelchair_boarding: new_wheelchair_boarding
-       )}
+      %{
+        file: "stops.txt",
+        type: "wheelchair_boarding",
+        message: dgettext("validations", "Wheelchair_boarding updated for stop %{stop_id}", stop_id: stop_id),
+        before: initial_wheelchair_boarding,
+        after: new_wheelchair_boarding,
+        sort_key: stop_id
+      }
       | explanations
     ]
   end
@@ -147,14 +205,21 @@ defmodule TransportWeb.GTFSDiffExplain do
         }
       ) do
     [
-      {"stops.txt",
-       dgettext(
-         "validations",
-         ~s(The longitude of the stop_id %{stop_id} has been modified. "%{initial_stop_lon}" -> "%{new_stop_lon}"),
-         stop_id: stop_id,
-         initial_stop_lon: initial_stop_lon,
-         new_stop_lon: new_stop_lon
-       )}
+      %{
+        file: "stops.txt",
+        type: "stop_position",
+        message:
+          dgettext(
+            "validations",
+            "The longitude of the stop_id %{stop_id} has been modified",
+            stop_id: stop_id,
+            initial_stop_lon: initial_stop_lon,
+            new_stop_lon: new_stop_lon
+          ),
+        before: initial_stop_lon,
+        after: new_stop_lon,
+        sort_key: "#{stop_id}-lon"
+      }
       | explanations
     ]
   end
@@ -175,14 +240,21 @@ defmodule TransportWeb.GTFSDiffExplain do
         }
       ) do
     [
-      {"stops.txt",
-       dgettext(
-         "validations",
-         ~s(The latitude of the stop_id %{stop_id} has been modified. "%{initial_stop_lat}" -> "%{new_stop_lat}"),
-         stop_id: stop_id,
-         initial_stop_lat: initial_stop_lat,
-         new_stop_lat: new_stop_lat
-       )}
+      %{
+        file: "stops.txt",
+        type: "stop_position",
+        message:
+          dgettext(
+            "validations",
+            "The latitude of the stop_id %{stop_id} has been modified",
+            stop_id: stop_id,
+            initial_stop_lat: initial_stop_lat,
+            new_stop_lat: new_stop_lat
+          ),
+        before: initial_stop_lat,
+        after: new_stop_lat,
+        sort_key: "#{stop_id}-lat"
+      }
       | explanations
     ]
   end

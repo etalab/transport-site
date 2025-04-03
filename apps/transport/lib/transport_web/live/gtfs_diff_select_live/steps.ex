@@ -4,6 +4,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Steps do
   """
   use Phoenix.LiveView
   use Gettext, backend: TransportWeb.Gettext
+  use Phoenix.Component
 
   def steps(%{current_step: _} = assigns) do
     ~H"""
