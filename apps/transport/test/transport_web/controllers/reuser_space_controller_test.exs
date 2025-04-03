@@ -197,4 +197,65 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
       assert data_sharing_pilot?(dataset, contact)
     end
   end
+
+  describe "settings" do
+    test "link to settings is only visible by admins", %{conn: conn} do
+      contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+
+      href_attributes = fn %Plug.Conn{} = conn ->
+        conn
+        |> get(reuser_space_path(conn, :espace_reutilisateur))
+        |> html_response(200)
+        |> Floki.parse_document!()
+        |> Floki.find(".action-panel a")
+        |> Floki.attribute("a", "href")
+      end
+
+      # When contact is NOT an admin
+      assert conn
+             |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+             |> href_attributes.() == [reuser_space_path(conn, :notifications)]
+
+      # When contact is an admin
+      assert conn
+             |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id, "is_admin" => true}})
+             |> href_attributes.() == [reuser_space_path(conn, :notifications), reuser_space_path(conn, :settings)]
+    end
+
+    test "no tokens", %{conn: conn} do
+      contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+
+      assert conn
+             |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+             |> get(reuser_space_path(conn, :settings))
+             |> html_response(200)
+             |> Floki.parse_document!()
+             |> Floki.find("p.notification")
+             |> Floki.text()
+             |> String.trim() == "Il n'y a pas de tokens pour le moment."
+    end
+
+    test "an existing token is displayed", %{conn: conn} do
+      organization = insert(:organization)
+
+      contact =
+        insert_contact(%{
+          datagouv_user_id: Ecto.UUID.generate(),
+          organizations: [organization |> Map.from_struct()]
+        })
+
+      token = insert(:token, organization: organization, contact: contact, name: "Default")
+
+      assert conn
+             |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+             |> get(reuser_space_path(conn, :settings))
+             |> html_response(200)
+             |> Floki.parse_document!()
+             |> Floki.find("table tr td") == [
+               {"td", [], [organization.name]},
+               {"td", [], [token.name]},
+               {"td", [], [{"code", [], [token.secret]}]}
+             ]
+    end
+  end
 end

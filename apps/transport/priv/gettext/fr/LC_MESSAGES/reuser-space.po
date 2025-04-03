@@ -166,3 +166,35 @@ msgstr "Vous avez déjà partagé des données améliorées pour ce jeu de donn�
 #, elixir-autogen, elixir-format
 msgid "Your improved data has been saved."
 msgstr "Vos données améliorées ont bien été sauvegardées."
+
+#, elixir-autogen, elixir-format
+msgid "Manage settings"
+msgstr "Gérer les paramètres"
+
+#, elixir-autogen, elixir-format
+msgid "Name"
+msgstr "Nom"
+
+#, elixir-autogen, elixir-format
+msgid "Organisation"
+msgstr "Organisation"
+
+#, elixir-autogen, elixir-format
+msgid "Secret"
+msgstr "Secret"
+
+#, elixir-autogen, elixir-format
+msgid "Settings"
+msgstr "Paramètres"
+
+#, elixir-autogen, elixir-format
+msgid "There are no tokens yet."
+msgstr "Il n'y a pas de tokens pour le moment."
+
+#, elixir-autogen, elixir-format
+msgid "Tokens"
+msgstr "Tokens"
+
+#, elixir-autogen, elixir-format
+msgid "Update your preferences, manage tokens to access data."
+msgstr "Gérer vos préférences, gérer vos tokens pour accéder aux données."

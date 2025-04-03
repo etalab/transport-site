@@ -1,0 +1,32 @@
+<section class="container pt-48 pb-24">
+  <%= breadcrumbs([@conn, :settings]) %>
+</section>
+<section class="reuser-space-section pb-48">
+  <div class="container pt-24">
+    <h1><%= dgettext("reuser-space", "Settings") %></h1>
+    <div class="panel">
+      <h2><%= dgettext("reuser-space", "Tokens") %></h2>
+      <p :if={Enum.empty?(@tokens)} class="notification">
+        <%= dgettext("reuser-space", "There are no tokens yet.") %>
+      </p>
+      <table :if={Enum.count(@tokens) > 0} class="table small-padding">
+        <thead>
+          <tr>
+            <th><%= dgettext("reuser-space", "Organisation") %></th>
+            <th><%= dgettext("reuser-space", "Name") %></th>
+            <th><%= dgettext("reuser-space", "Secret") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <%= for token <- Enum.sort_by(@tokens, & &1.organization.name) do %>
+            <tr>
+              <td><%= token.organization.name %></td>
+              <td><%= token.name %></td>
+              <td><code><%= token.secret %></code></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
