@@ -623,3 +623,67 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "file deleted"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Color has been updated for route %{route_id}"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Route color"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Text color has been updated for route %{route_id}"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Route text color"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Route long name has been updated for route %{route_id}"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Route short name has been updated for route %{route_id}"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Route long name"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Route short name"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Route type has been updated for route %{route_id}"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Route type"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Location type for stop %{stop_id} has been changed"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Location type"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Agency URL for agency %{agency_id} has been changed"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Agency URL"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Headsign for trip %{trip_id} has been changed"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Trip headsign"
+msgstr ""

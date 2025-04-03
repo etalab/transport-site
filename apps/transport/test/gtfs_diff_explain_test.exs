@@ -27,13 +27,47 @@ defmodule TransportWeb.GtfsDiffExplainTest do
         "action" => "update",
         "file" => "stops.txt",
         "identifier" => "{\"stop_id\":\"100\"}",
-        "initial_value" => "{\"wheelchair_boarding\":\"0\"}",
-        "new_value" => "{\"wheelchair_boarding\":\"1\"}",
+        "initial_value" => "{\"wheelchair_boarding\":\"0\", \"location_type\": \"0\"}",
+        "new_value" => "{\"wheelchair_boarding\":\"1\", \"location_type\": \"1\"}",
+        "target" => "row"
+      },
+      %{
+        "action" => "update",
+        "file" => "routes.txt",
+        "identifier" => "{\"route_id\":\"146\"}",
+        "initial_value" =>
+          "{\"route_color\":\"5C2483\", \"route_text_color\":\"FFFFFF\", \"route_short_name\":\"30\", \"route_long_name\":\"Migné Rochereaux-Laborit/Mignaloux\", \"route_type\":\"0\"}",
+        "new_value" =>
+          "{\"route_color\":\"0000B0\", \"route_text_color\":\"000000\", \"route_short_name\":\"TER\", \"route_long_name\":\"Migné Rochereaux-Laborit / Mignaloux\", \"route_type\":\"1\"}",
+        "target" => "row"
+      },
+      %{
+        "action" => "update",
+        "file" => "routes.txt",
+        "identifier" => "{\"route_id\":\"147\"}",
+        "initial_value" => "{\"route_color\":\"5c2483\", \"route_text_color\":\"ffffff\"}",
+        "new_value" => "{\"route_color\":\"5C2483\", \"route_text_color\":\"FFFFFF\"}",
+        "target" => "row"
+      },
+      %{
+        "action" => "update",
+        "file" => "agency.txt",
+        "identifier" => "{\"agency_id\":\"1\"}",
+        "initial_value" => "{\"agency_url\":\"http://localhost/foo\"}",
+        "new_value" => "{\"agency_url\":\"http://localhost/bar\"}",
+        "target" => "row"
+      },
+      %{
+        "action" => "update",
+        "file" => "trips.txt",
+        "identifier" => "{\"trip_id\":\"1\"}",
+        "initial_value" => "{\"trip_headsign\":\"Foo\"}",
+        "new_value" => "{\"trip_headsign\":\"Bar\"}",
         "target" => "row"
       }
     ]
 
-    assert [
+    assert MapSet.new([
              %{
                file: "stops.txt",
                type: "stop_position",
@@ -57,8 +91,72 @@ defmodule TransportWeb.GtfsDiffExplainTest do
                before: "0",
                after: "1",
                sort_key: "100"
+             },
+             %{
+               file: "routes.txt",
+               type: "route_text_color",
+               message: "La couleur de texte de la route 146 a été modifiée",
+               before: "#FFFFFF",
+               after: "#000000",
+               sort_key: "146"
+             },
+             %{
+               file: "routes.txt",
+               type: "route_color",
+               message: "La couleur de la route 146 a été modifiée",
+               before: "#5C2483",
+               after: "#0000B0",
+               sort_key: "146"
+             },
+             %{
+               file: "routes.txt",
+               type: "route_long_name",
+               message: "Le nom long de la route 146 a été modifié",
+               before: "Migné Rochereaux-Laborit/Mignaloux",
+               after: "Migné Rochereaux-Laborit / Mignaloux",
+               sort_key: "146"
+             },
+             %{
+               file: "routes.txt",
+               type: "route_short_name",
+               message: "Le nom court de la route 146 a été modifié",
+               before: "30",
+               after: "TER",
+               sort_key: "146"
+             },
+             %{
+               file: "routes.txt",
+               type: "route_type",
+               message: "Le type de la route 146 a été modifié",
+               before: "0",
+               after: "1",
+               sort_key: "146"
+             },
+             %{
+               file: "stops.txt",
+               type: "location_type",
+               message: "Le type de lieu pour l’arrêt 100 a été modifié",
+               before: "0",
+               after: "1",
+               sort_key: "100"
+             },
+             %{
+               file: "agency.txt",
+               type: "agency_url",
+               message: "L’URL de l’exploitant 1 a été modifiée",
+               before: "http://localhost/foo",
+               after: "http://localhost/bar",
+               sort_key: "1"
+             },
+             %{
+               file: "trips.txt",
+               type: "trip_headsign",
+               message: "Le panneau de destination du trajet 1 a été modifié",
+               before: "Foo",
+               after: "Bar",
+               sort_key: "1"
              }
-           ] == GTFSDiffExplain.diff_explanations(diff)
+           ]) == GTFSDiffExplain.diff_explanations(diff) |> MapSet.new()
   end
 
   test "structural changes" do

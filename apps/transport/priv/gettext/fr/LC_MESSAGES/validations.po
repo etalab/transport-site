@@ -623,3 +623,67 @@ msgstr "fichier ajouté"
 #, elixir-autogen, elixir-format
 msgid "file deleted"
 msgstr "fichier supprimé"
+
+#, elixir-autogen, elixir-format
+msgid "Color has been updated for route %{route_id}"
+msgstr "La couleur de la route %{route_id} a été modifiée"
+
+#, elixir-autogen, elixir-format
+msgid "Route color"
+msgstr "Couleur des routes"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Text color has been updated for route %{route_id}"
+msgstr "La couleur de texte de la route %{route_id} a été modifiée"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Route text color"
+msgstr "Couleur de texte des routes"
+
+#, elixir-autogen, elixir-format
+msgid "Route long name has been updated for route %{route_id}"
+msgstr "Le nom long de la route %{route_id} a été modifié"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Route short name has been updated for route %{route_id}"
+msgstr "Le nom court de la route %{route_id} a été modifié"
+
+#, elixir-autogen, elixir-format
+msgid "Route long name"
+msgstr "Nom de route long"
+
+#, elixir-autogen, elixir-format
+msgid "Route short name"
+msgstr "Nom de route court"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Route type has been updated for route %{route_id}"
+msgstr "Le type de la route %{route_id} a été modifié"
+
+#, elixir-autogen, elixir-format
+msgid "Route type"
+msgstr "Type de route"
+
+#, elixir-autogen, elixir-format
+msgid "Location type for stop %{stop_id} has been changed"
+msgstr "Le type de lieu pour l’arrêt %{stop_id} a été modifié"
+
+#, elixir-autogen, elixir-format
+msgid "Location type"
+msgstr "Type de lieu"
+
+#, elixir-autogen, elixir-format
+msgid "Agency URL for agency %{agency_id} has been changed"
+msgstr "L’URL de l’exploitant %{agency_id} a été modifiée"
+
+#, elixir-autogen, elixir-format
+msgid "Agency URL"
+msgstr "URL de l’exploitant"
+
+#, elixir-autogen, elixir-format
+msgid "Headsign for trip %{trip_id} has been changed"
+msgstr "Le panneau de destination du trajet %{trip_id} a été modifié"
+
+#, elixir-autogen, elixir-format
+msgid "Trip headsign"
+msgstr "Panneau de destination d’un trajet"
