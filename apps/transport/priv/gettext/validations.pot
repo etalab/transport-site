@@ -443,11 +443,11 @@ msgid "The GTFS files <code>%{gtfs_original_file_name_2}</code> and <code>%{gtfs
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "The modified GTFS file (<a href=\"%{gtfs_url_2}\">source</a>) has differences with the reference GTFS file (<a href=\"%{gtfs_url_1}\">source</a>), as summarized below:"
+msgid "The <a href=\"%{gtfs_url_2}\">modified GTFS file</a> has differences with the <a href=\"%{gtfs_url_1}\">reference GTFS file</a>, as summarized below:"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "The modified GTFS file (<a href=\"%{gtfs_url_2}\">source</a>) and the reference GTFS file (<a href=\"%{gtfs_url_1}\">source</a>) are similar."
+msgid "The <a href=\"%{gtfs_url_2}\">modified GTFS file</a> and the <a href=\"%{gtfs_url_1}\">reference GTFS file</a> are similar."
 msgstr ""
 
 #, elixir-autogen, elixir-format
