@@ -60,3 +60,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Publish a reuse"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Find reuses"
+msgstr ""
