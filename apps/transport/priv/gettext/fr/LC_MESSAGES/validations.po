@@ -331,10 +331,6 @@ msgid "<a href=\"%{spec}\">Read</a> the GTFS Diff specification to understand ho
 msgstr "Vous pouvez <a href=\"%{spec}\">lire la specification</a> GTFS Diff pour comprendre comment les différences entre les GTFS sont exprimées"
 
 #, elixir-autogen, elixir-format
-msgid "The file \"%{file}\" has been deleted"
-msgstr "Le fichier \"%{file}\" a été supprimé"
-
-#, elixir-autogen, elixir-format
 msgid "added"
 msgstr "ajouté"
 
@@ -349,10 +345,6 @@ msgstr "au téléchargement"
 #, elixir-autogen, elixir-format
 msgid "updated"
 msgstr "modifié"
-
-#, elixir-autogen, elixir-format
-msgid "A file named \"%{file}\" has been added"
-msgstr "Un fichier \"%{file}\" a été ajouté"
 
 #, elixir-autogen, elixir-format
 msgid "Shapes present in the GTFS have been ignored, some rules are not enforced."

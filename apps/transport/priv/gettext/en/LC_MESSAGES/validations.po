@@ -331,10 +331,6 @@ msgid "<a href=\"%{spec}\">Read</a> the GTFS Diff specification to understand ho
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "The file \"%{file}\" has been deleted"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "added"
 msgstr ""
 
@@ -348,10 +344,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "updated"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "A file named \"%{file}\" has been added"
 msgstr ""
 
 #, elixir-autogen, elixir-format
