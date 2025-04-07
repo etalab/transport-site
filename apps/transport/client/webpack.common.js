@@ -20,7 +20,9 @@ module.exports = {
         validationmap: './javascripts/validation-map.js',
         utils: './javascripts/utils.js',
         autocomplete: './javascripts/autocomplete.js',
-        scss: './stylesheets/app.scss'
+        scss: './stylesheets/app.scss',
+        dsfr_module_min: './node_modules/@gouvfr/dsfr/dist/dsfr.module.min.js',
+        dsfr_nomodule_min: './node_modules/@gouvfr/dsfr/dist/dsfr.nomodule.min.js'
     },
     output: {
         path: resolve('../priv/static/js'),
@@ -43,7 +45,11 @@ module.exports = {
         promisePolyfill
     ],
     module: {
-        rules: [{ test: /\.css$/, use: ['style-loader', 'css-loader'] },
+        rules: [
+            {
+                test: /\.css$/,
+                use: ['style-loader', 'css-loader']
+            },
             {
                 test: /\.js$/,
                 exclude: [/node_modules/],
@@ -83,6 +89,7 @@ module.exports = {
                 generator: {
                     filename: '[name][ext]'
                 }
-            }]
+            }
+        ]
     }
 }
