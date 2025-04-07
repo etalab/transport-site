@@ -679,3 +679,11 @@ msgstr "Le panneau de destination du trajet %{trip_id} a été modifié"
 #, elixir-autogen, elixir-format
 msgid "Trip headsign"
 msgstr "Panneau de destination d’un trajet"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "no color"
+msgstr "pas de couleur"
+
+#, elixir-autogen, elixir-format
+msgid "no value"
+msgstr "valeur manquante"

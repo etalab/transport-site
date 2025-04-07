@@ -255,8 +255,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
               Enum.sort_by(@explanations, fn %{sort_key: sort_key} -> sort_key end)
           }>
             <td><%= message %></td>
-            <td><.attribute_value type={attribute_type(@file, type_)} value={before} /></td>
-            <td><.attribute_value type={attribute_type(@file, type_)} value={after_} /></td>
+            <td><.attribute_value type={attribute_type(@file, type_)} value={String.trim(before)} /></td>
+            <td><.attribute_value type={attribute_type(@file, type_)} value={String.trim(after_)} /></td>
           </tr>
         </tbody>
       </table>
@@ -269,6 +269,12 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
   defp attribute_type("routes.txt", "route_type"), do: :route_type
   defp attribute_type("stops.txt", "location_type"), do: :stop_location_type
   defp attribute_type(_, _), do: :text
+
+  defp attribute_value(%{type: :color, value: "#"} = assigns) do
+    ~H"""
+    <em><%= dgettext("validations", "no color") %></em>
+    """
+  end
 
   defp attribute_value(%{type: :color, value: _} = assigns) do
     ~H"""
@@ -290,6 +296,12 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
   defp attribute_value(%{type: :stop_location_type, value: _} = assigns) do
     ~H"""
     <%= @value %> (<%= stop_location_type_short_description(@value) %>)
+    """
+  end
+
+  defp attribute_value(%{type: _, value: ""} = assigns) do
+    ~H"""
+    <em><%= dgettext("validations", "no value") %></em>
     """
   end
 

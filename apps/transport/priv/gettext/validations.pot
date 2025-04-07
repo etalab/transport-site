@@ -677,3 +677,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Trip headsign"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "no color"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "no value"
+msgstr ""
