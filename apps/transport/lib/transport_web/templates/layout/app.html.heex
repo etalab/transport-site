@@ -81,6 +81,10 @@
     </main>
 
     <%= render(LayoutView, "_footer.html", assigns) %>
+    <script type="module" src={static_path(@conn, "/js/dsfr_module_min.js")}>
+    </script>
+    <script type="text/javascript" nomodule src={static_path(@conn, "/js/dsfr_nomodule_min.js")}>
+    </script>
   </body>
   <%= if assigns[:extra_bottom_script_tags] do %>
     <%= apply(&render/2, assigns[:extra_bottom_script_tags]) %>
