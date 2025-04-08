@@ -2,7 +2,7 @@ defmodule Unlock.ControllerTest do
   # async false until we stub Cachex calls or use per-test cache name
   # and also due to our current global mox use, and capture_log
   use ExUnit.Case, async: false
-  use Plug.Test
+  import Plug.Conn
   import Phoenix.ConnTest
   @endpoint Unlock.Endpoint
 

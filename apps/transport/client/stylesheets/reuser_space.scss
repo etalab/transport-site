@@ -4,6 +4,7 @@
   .row {
     justify-content: flex-start;
     flex-wrap: wrap;
+    align-items: baseline;
 
     &> * {
       max-width: 25em;
@@ -24,7 +25,6 @@
 
 .action-panel {
   display: flex;
-  flex-grow: 1;
 
   img.picto {
     height: 40px;

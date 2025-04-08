@@ -4,7 +4,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
   """
   use Phoenix.Component
   use TransportWeb.InputHelpers
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
   import TransportWeb.Live.GTFSDiffSelectLive.Differences
 
   def results_step(%{error_msg: _, profile: _, results: results} = assigns) do
@@ -198,7 +198,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
   defp similar_urls(url_1, url_2) do
     dgettext(
       "validations",
-      "The modified GTFS file (<a href=\"%{gtfs_url_2}\">source</a>) and the reference GTFS file (<a href=\"%{gtfs_url_1}\">source</a>) are similar.",
+      "The <a href=\"%{gtfs_url_2}\">modified GTFS file</a> and the <a href=\"%{gtfs_url_1}\">reference GTFS file</a> are similar.",
       gtfs_url_1: url_1,
       gtfs_url_2: url_2
     )
@@ -207,7 +207,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
   defp different_urls(url_1, url_2) do
     dgettext(
       "validations",
-      "The modified GTFS file (<a href=\"%{gtfs_url_2}\">source</a>) has differences with the reference GTFS file (<a href=\"%{gtfs_url_1}\">source</a>), as summarized below:",
+      "The <a href=\"%{gtfs_url_2}\">modified GTFS file</a> has differences with the <a href=\"%{gtfs_url_1}\">reference GTFS file</a>, as summarized below:",
       gtfs_url_1: url_1,
       gtfs_url_2: url_2
     )

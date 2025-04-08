@@ -18,6 +18,10 @@ defmodule TransportWeb.BreadCrumbs do
     [{dgettext("reuser-space", "Reuser space"), reuser_space_path(conn, :espace_reutilisateur)}]
   end
 
+  def crumbs(conn, :settings) do
+    crumbs(conn, :reuser_space) ++ [{dgettext("reuser-space", "Settings"), nil}]
+  end
+
   def crumbs(conn, :contacts) do
     [{"Contacts", backoffice_contact_path(conn, :index)}]
   end

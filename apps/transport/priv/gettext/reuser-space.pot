@@ -166,3 +166,35 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Your improved data has been saved."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Manage settings"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Name"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Organisation"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Secret"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Settings"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "There are no tokens yet."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Tokens"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Update your preferences, manage tokens to access data."
+msgstr ""

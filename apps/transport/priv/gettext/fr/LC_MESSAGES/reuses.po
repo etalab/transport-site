@@ -60,3 +60,7 @@ msgstr "Vous trouverez ci-dessous la liste des réutilisateurs qui ont déclaré
 #, elixir-autogen, elixir-format
 msgid "Publish a reuse"
 msgstr "Publier une réutilisation"
+
+#, elixir-autogen, elixir-format
+msgid "Find reuses"
+msgstr "Rechercher des réutilisations"

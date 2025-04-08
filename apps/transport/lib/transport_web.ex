@@ -23,7 +23,7 @@ defmodule TransportWeb do
       use Phoenix.Controller, namespace: TransportWeb
       import Plug.Conn
       import TransportWeb.Router.Helpers
-      import TransportWeb.Gettext
+      use Gettext, backend: TransportWeb.Gettext
       import TransportWeb.PaginationHelpers
       alias TransportWeb.ErrorView
       import Phoenix.LiveView.Controller
@@ -47,7 +47,7 @@ defmodule TransportWeb do
       import TransportWeb.Router.Helpers
       import TransportWeb.ErrorHelpers
       import TransportWeb.InputHelpers
-      import TransportWeb.Gettext
+      use Gettext, backend: TransportWeb.Gettext
       import TransportWeb.SeoMetadata
       import Helpers
 
@@ -68,7 +68,7 @@ defmodule TransportWeb do
       use Phoenix.Router
       import Plug.Conn
       import Phoenix.Controller
-      import TransportWeb.Gettext, only: [dgettext: 2, dngettext: 4]
+      use Gettext, backend: TransportWeb.Gettext
       alias TransportWeb.Router.Helpers
       import Phoenix.LiveView.Router
     end
@@ -77,7 +77,7 @@ defmodule TransportWeb do
   def channel do
     quote do
       use Phoenix.Channel
-      import TransportWeb.Gettext
+      use Gettext, backend: TransportWeb.Gettext
     end
   end
 

@@ -1,6 +1,6 @@
 <section class="single-page section section-grey">
   <div class="container container_min_height">
-    <h1><%= TransportWeb.Gettext.dgettext("validations", "Check the quality of a file or a feed") %></h1>
+    <h1><%= dgettext("validations", "Check the quality of a file or a feed") %></h1>
     <div class="pb-48">
       <.form
         :let={f}
@@ -43,7 +43,7 @@
         <% end %>
       </.form>
       <p :if={@trigger_submit} class="small">
-        <%= TransportWeb.Gettext.dgettext("validations", "Upload in progress") %>
+        <%= dgettext("validations", "Upload in progress") %>
       </p>
     </div>
   </div>

@@ -81,6 +81,27 @@ defmodule TransportWeb.Live.GTFSDiffSelectLiveTest do
           "action" => "add",
           "file" => "stop_times.txt",
           "target" => "row"
+        },
+        %{
+          "action" => "update",
+          "file" => "stops.txt",
+          "identifier" => "{\"stop_id\":\"3000055\"}",
+          "initial_value" => "{\"stop_name\":\"Hôpital\"}",
+          "new_value" => "{\"stop_name\":\"Hôpital Arnauzand\"}",
+          "target" => "row"
+        },
+        %{
+          "action" => "update",
+          "file" => "stops.txt",
+          "identifier" => "{\"stop_id\":\"100\"}",
+          "initial_value" => "{\"wheelchair_boarding\":\"0\"}",
+          "new_value" => "{\"wheelchair_boarding\":\"1\"}",
+          "target" => "row"
+        },
+        %{
+          "action" => "delete",
+          "file" => "feed_info.txt",
+          "target" => "file"
         }
       ]
 
@@ -106,11 +127,15 @@ defmodule TransportWeb.Live.GTFSDiffSelectLiveTest do
 
       navigation = html |> Floki.find("div.dashboard aside")
 
-      assert navigation |> Floki.find("a") |> texts == [
-               "agency.txt",
-               "calendar.txt",
-               "stop_times.txt"
-             ]
+      files = [
+        "agency.txt",
+        "calendar.txt",
+        "feed_info.txt",
+        "stop_times.txt",
+        "stops.txt"
+      ]
+
+      assert navigation |> Floki.find("a") |> texts == files
 
       assert navigation |> Floki.find("a.active") |> Floki.text() == "agency.txt"
 
@@ -122,6 +147,13 @@ defmodule TransportWeb.Live.GTFSDiffSelectLiveTest do
                "agency_name",
                "extra_column colonne non standard"
              ]
+
+      files
+      |> Enum.each(fn selected_file ->
+        results = Map.put(results, :selected_file, selected_file)
+
+        render_results(error_msg: nil, profile: "core", results: results)
+      end)
     end
   end
 

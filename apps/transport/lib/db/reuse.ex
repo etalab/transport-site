@@ -4,9 +4,9 @@ defmodule DB.Reuse do
   """
   use TypedEctoSchema
   use Ecto.Schema
+  use Gettext, backend: TransportWeb.Gettext
   import Ecto.Changeset
   import Ecto.Query
-  import TransportWeb.Gettext
 
   typed_schema "reuse" do
     field(:datagouv_id, :string)
@@ -36,6 +36,28 @@ defmodule DB.Reuse do
   end
 
   def base_query, do: from(r in __MODULE__, as: :reuse)
+
+  def search(%{"q" => q}) do
+    ilike_search = "%#{safe_like_pattern(q)}%"
+
+    base_query()
+    |> where([reuse: r], fragment("unaccent(?) ilike unaccent(?)", r.title, ^ilike_search))
+    |> or_where([reuse: r], fragment("unaccent(?) ilike unaccent(?)", r.organization, ^ilike_search))
+    |> or_where([reuse: r], fragment("unaccent(?) ilike unaccent(?)", r.owner, ^ilike_search))
+  end
+
+  def search(%{}), do: base_query()
+
+  @doc """
+  Make sure a string that will be passed to `like` or `ilike` is safe.
+
+  See https://elixirforum.com/t/secure-ecto-like-queries/31265
+  iex> safe_like_pattern("I love %like_injections%\\!")
+  "I love likeinjections!"
+  """
+  def safe_like_pattern(value) do
+    String.replace(value, ["\\", "%", "_"], "")
+  end
 
   def changeset(model, attrs) do
     model

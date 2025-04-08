@@ -331,10 +331,6 @@ msgid "<a href=\"%{spec}\">Read</a> the GTFS Diff specification to understand ho
 msgstr "Vous pouvez <a href=\"%{spec}\">lire la specification</a> GTFS Diff pour comprendre comment les différences entre les GTFS sont exprimées"
 
 #, elixir-autogen, elixir-format
-msgid "The file \"%{file}\" has been deleted"
-msgstr "Le fichier \"%{file}\" a été supprimé"
-
-#, elixir-autogen, elixir-format
 msgid "added"
 msgstr "ajouté"
 
@@ -349,10 +345,6 @@ msgstr "au téléchargement"
 #, elixir-autogen, elixir-format
 msgid "updated"
 msgstr "modifié"
-
-#, elixir-autogen, elixir-format
-msgid "A file named \"%{file}\" has been added"
-msgstr "Un fichier \"%{file}\" a été ajouté"
 
 #, elixir-autogen, elixir-format
 msgid "Shapes present in the GTFS have been ignored, some rules are not enforced."
@@ -441,22 +433,6 @@ msgid "An error occurred while interpreting the results. Note that the report is
 msgstr "Une erreur est survenue en interprétant les résultats. Notez que le rapport est toujours disponible au téléchargement. Erreur :"
 
 #, elixir-autogen, elixir-format
-msgid "The latitude of the stop_id %{stop_id} has been modified. \"%{initial_stop_lat}\" -> \"%{new_stop_lat}\""
-msgstr "La latitude du stop_id %{stop_id} a été modifiée : \"%{initial_stop_lat}\" -> \"%{new_stop_lat}\""
-
-#, elixir-autogen, elixir-format
-msgid "The longitude of the stop_id %{stop_id} has been modified. \"%{initial_stop_lon}\" -> \"%{new_stop_lon}\""
-msgstr "La longitude du stop_id %{stop_id} a été modifiée : \"%{initial_stop_lon}\" -> \"%{new_stop_lon}\""
-
-#, elixir-autogen, elixir-format, fuzzy
-msgid "The name of the stop_id %{stop_id} has been modified. Initial name: \"%{initial_stop_name}\", New name: \"%{new_stop_name}\""
-msgstr "Le nom du stop_id %{stop_id} a été modifié. Nom initial : \"%{initial_stop_name}\", Nouveau nom : \"%{new_stop_name}\""
-
-#, elixir-autogen, elixir-format, fuzzy
-msgid "Wheelchair_boarding information added for stop_id %{stop_id}, previously: \"%{initial_wheelchair_boarding}\", now: \"%{new_wheelchair_boarding}\""
-msgstr "Une information d'accessibilité wheelchair_boarding a été ajouté pour le stop_id %{stop_id}, valeur initiale : \"%{initial_wheelchair_boarding}\", nouvelle valeur : \"%{new_wheelchair_boarding}\""
-
-#, elixir-autogen, elixir-format
 msgid "Start over"
 msgstr "Recommencer"
 
@@ -469,12 +445,12 @@ msgid "The GTFS files <code>%{gtfs_original_file_name_2}</code> and <code>%{gtfs
 msgstr "Les fichier GTFS <code>%{gtfs_original_file_name_2}</code> et <code>%{gtfs_original_file_name_1}</code> sont similaires."
 
 #, elixir-autogen, elixir-format
-msgid "The modified GTFS file (<a href=\"%{gtfs_url_2}\">source</a>) has differences with the reference GTFS file (<a href=\"%{gtfs_url_1}\">source</a>), as summarized below:"
-msgstr "Le fichier GTFS modifié (<a href=\"%{gtfs_url_2}\">source</a>) comporte les différences ci-dessous par rapport au fichier GTFS de référence (<a href=\"%{gtfs_url_2}\">source</a>) :"
+msgid "The <a href=\"%{gtfs_url_2}\">modified GTFS file</a> has differences with the <a href=\"%{gtfs_url_1}\">reference GTFS file</a>, as summarized below:"
+msgstr "Le <a href=\"%{gtfs_url_2}\">fichier GTFS modifié</a> comporte les différences ci-dessous par rapport au <a href=\"%{gtfs_url_1}\">fichier GTFS de référence</a> :"
 
 #, elixir-autogen, elixir-format
-msgid "The modified GTFS file (<a href=\"%{gtfs_url_2}\">source</a>) and the reference GTFS file (<a href=\"%{gtfs_url_1}\">source</a>) are similar."
-msgstr "Le fichier GTFS modifié (<a href=\"%{gtfs_url_2}\">source</a>) et le fichier GTFS de référence (<a href=\"%{gtfs_url_1}\">source</a>) sont similaires."
+msgid "The <a href=\"%{gtfs_url_2}\">modified GTFS file</a> and the <a href=\"%{gtfs_url_1}\">reference GTFS file</a> are similar."
+msgstr "Le <a href=\"%{gtfs_url_2}\">fichier GTFS modifié</a> et le <a href=\"%{gtfs_url_1}\">fichier GTFS de référence</a> sont similaires."
 
 #, elixir-autogen, elixir-format
 msgid "Modified GTFS"
@@ -587,3 +563,127 @@ msgstr[1] "fichier supprimé avec %{count} colonnes :"
 #, elixir-autogen, elixir-format
 msgid "non standard column"
 msgstr "colonne non standard"
+
+#, elixir-autogen, elixir-format
+msgid "Other change: %{unknown}"
+msgstr "Autre changement : %{unknown}"
+
+#, elixir-autogen, elixir-format
+msgid "Weelchair boarding"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Stops' names"
+msgstr "Noms des arrêts"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Stops' positions"
+msgstr "Positions des arrêts"
+
+#, elixir-autogen, elixir-format
+msgid "Stop %{stop_id} has been moved by %{distance}m"
+msgstr "L’arrêt %{stop_id} a été déplacé de %{distance}m"
+
+#, elixir-autogen, elixir-format
+msgid "Wheelchair_boarding updated for stop %{stop_id}"
+msgstr "L’information d’accessibilité wheelchair_boarding a été modifiée pour l’arrêt %{stop_id}"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Stop %{stop_id} has been renamed"
+msgstr "L’arrêt %{stop_id} a été renommé"
+
+#, elixir-autogen, elixir-format
+msgid "Comment"
+msgstr "Commentaire"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Modified"
+msgstr "Modifié"
+
+#, elixir-autogen, elixir-format
+msgid "Original"
+msgstr "Original"
+
+#, elixir-autogen, elixir-format
+msgid "No row changes."
+msgstr "Aucun changement de ligne."
+
+#, elixir-autogen, elixir-format
+msgid "file added"
+msgstr "fichier ajouté"
+
+#, elixir-autogen, elixir-format
+msgid "file deleted"
+msgstr "fichier supprimé"
+
+#, elixir-autogen, elixir-format
+msgid "Color has been updated for route %{route_id}"
+msgstr "La couleur de la route %{route_id} a été modifiée"
+
+#, elixir-autogen, elixir-format
+msgid "Route color"
+msgstr "Couleur des routes"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Text color has been updated for route %{route_id}"
+msgstr "La couleur de texte de la route %{route_id} a été modifiée"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Route text color"
+msgstr "Couleur de texte des routes"
+
+#, elixir-autogen, elixir-format
+msgid "Route long name has been updated for route %{route_id}"
+msgstr "Le nom long de la route %{route_id} a été modifié"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Route short name has been updated for route %{route_id}"
+msgstr "Le nom court de la route %{route_id} a été modifié"
+
+#, elixir-autogen, elixir-format
+msgid "Route long name"
+msgstr "Nom de route long"
+
+#, elixir-autogen, elixir-format
+msgid "Route short name"
+msgstr "Nom de route court"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Route type has been updated for route %{route_id}"
+msgstr "Le type de la route %{route_id} a été modifié"
+
+#, elixir-autogen, elixir-format
+msgid "Route type"
+msgstr "Type de route"
+
+#, elixir-autogen, elixir-format
+msgid "Location type for stop %{stop_id} has been changed"
+msgstr "Le type de lieu pour l’arrêt %{stop_id} a été modifié"
+
+#, elixir-autogen, elixir-format
+msgid "Location type"
+msgstr "Type de lieu"
+
+#, elixir-autogen, elixir-format
+msgid "Agency URL for agency %{agency_id} has been changed"
+msgstr "L’URL de l’exploitant %{agency_id} a été modifiée"
+
+#, elixir-autogen, elixir-format
+msgid "Agency URL"
+msgstr "URL de l’exploitant"
+
+#, elixir-autogen, elixir-format
+msgid "Headsign for trip %{trip_id} has been changed"
+msgstr "Le panneau de destination du trajet %{trip_id} a été modifié"
+
+#, elixir-autogen, elixir-format
+msgid "Trip headsign"
+msgstr "Panneau de destination d’un trajet"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "no color"
+msgstr "pas de couleur"
+
+#, elixir-autogen, elixir-format
+msgid "no value"
+msgstr "valeur manquante"

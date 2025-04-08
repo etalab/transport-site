@@ -138,3 +138,67 @@ msgstr "Trips for each route. A trip is a sequence of two or more stops that occ
 #, elixir-autogen, elixir-format
 msgid "unknown-file"
 msgstr "Unknown file %{unknonw_file}."
+
+#, elixir-autogen, elixir-format
+msgid "unknown"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "aerial lift, suspended cable car"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "bus"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "cable tram"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "ferry"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "funicular"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "monorail"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "rail"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "subway, metro"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "tram, streetcar, light rail"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "trolleybus"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "boarding area"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "entrance/exit"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "generic node"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "station"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "stop or platform"
+msgstr ""

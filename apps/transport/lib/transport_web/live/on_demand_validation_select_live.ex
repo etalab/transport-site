@@ -7,7 +7,7 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
   """
   use Phoenix.LiveView
   use TransportWeb.InputHelpers
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
   import TransportWeb.InputHelpers
   import TransportWeb.Router.Helpers
   import TransportWeb.ValidationController, only: [select_options: 0]
