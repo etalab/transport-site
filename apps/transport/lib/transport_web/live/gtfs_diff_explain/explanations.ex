@@ -356,6 +356,18 @@ defmodule TransportWeb.GTFSDiffExplain.Explanations do
 
     iex> curvilinear_abscissa({46.605513, 0.275126}, {46.605348, 0.275881}) |> round()
     61
+    iex> curvilinear_abscissa({47.6355, 6.1649}, {47.6355, 6.1649})
+    0.0
+    iex> curvilinear_abscissa({47.6355, 6.1687}, {47.6355, 6.1687})
+    0.0
+    iex> curvilinear_abscissa({47.6355, 6.143}, {47.6355, 6.143})
+    0.0
+    iex> curvilinear_abscissa({47.6333, 6.1015}, {47.6333, 6.1015})
+    0.0
+    iex> curvilinear_abscissa({47.6547, 6.1255}, {47.6547, 6.1255})
+    0.0
+    iex> curvilinear_abscissa({47.632, 6.1142}, {47.632, 6.1142})
+    0.0
   """
   def curvilinear_abscissa({lat1, lon1}, {lat2, lon2}) do
     # Semi-major axis of WGS 84
