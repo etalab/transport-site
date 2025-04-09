@@ -368,7 +368,17 @@ defmodule TransportWeb.GTFSDiffExplain.Explanations do
 
     dlon = lon2r - lon1r
 
-    r * :math.acos(:math.sin(lat1r) * :math.sin(lat2r) + :math.cos(lat1r) * :math.cos(lat2r) * :math.cos(dlon))
+    # clamping is necessary unfortunately as they can be rounding errors
+    r *
+      :math.acos(
+        clamp(:math.sin(lat1r) * :math.sin(lat2r) + :math.cos(lat1r) * :math.cos(lat2r) * :math.cos(dlon), -1, 1)
+      )
+  end
+
+  defp clamp(number, minimum, maximum) do
+    number
+    |> max(minimum)
+    |> min(maximum)
   end
 
   defp deg2rad(deg), do: deg * :math.pi() / 180.0
