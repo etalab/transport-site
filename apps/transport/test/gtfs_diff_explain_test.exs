@@ -144,7 +144,7 @@ defmodule TransportWeb.GtfsDiffExplainTest do
              %{
                file: "agency.txt",
                type: "agency_url",
-               message: "L’URL de l’exploitant 1 a été modifiée",
+               message: "L’URL de l’entité 1 a été modifiée",
                before: "http://localhost/foo",
                after: "http://localhost/bar",
                sort_key: "1"
