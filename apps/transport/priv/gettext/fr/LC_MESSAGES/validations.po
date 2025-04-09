@@ -666,11 +666,11 @@ msgstr "Type de lieu"
 
 #, elixir-autogen, elixir-format
 msgid "Agency URL for agency %{agency_id} has been changed"
-msgstr "L’URL de l’exploitant %{agency_id} a été modifiée"
+msgstr "L’URL de l’entité %{agency_id} a été modifiée"
 
 #, elixir-autogen, elixir-format
 msgid "Agency URL"
-msgstr "URL de l’exploitant"
+msgstr "URL de l’entité"
 
 #, elixir-autogen, elixir-format
 msgid "Headsign for trip %{trip_id} has been changed"
