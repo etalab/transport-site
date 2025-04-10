@@ -202,3 +202,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "stop or platform"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Know more about this file."
+msgstr ""

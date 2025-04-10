@@ -202,3 +202,7 @@ msgstr "gare"
 #, elixir-autogen, elixir-format
 msgid "stop or platform"
 msgstr "arrêt ou quai"
+
+#, elixir-autogen, elixir-format
+msgid "Know more about this file."
+msgstr "En savoir plus sur ce fichier."

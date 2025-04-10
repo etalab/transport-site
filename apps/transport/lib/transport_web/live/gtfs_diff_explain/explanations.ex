@@ -43,7 +43,7 @@ defmodule TransportWeb.GTFSDiffExplain.Explanations do
       %{
         file: "stops.txt",
         type: "stop_name",
-        message: dgettext("validations", "Stop %{stop_id} has been renamed", stop_id: stop_id),
+        message: dgettext("gtfs-diff", "Stop %{stop_id} has been renamed", stop_id: stop_id),
         before: initial_stop_name,
         after: new_stop_name,
         sort_key: initial_stop_name
@@ -70,7 +70,7 @@ defmodule TransportWeb.GTFSDiffExplain.Explanations do
       %{
         file: "stops.txt",
         type: "wheelchair_boarding",
-        message: dgettext("validations", "Wheelchair_boarding updated for stop %{stop_id}", stop_id: stop_id),
+        message: dgettext("gtfs-diff", "Wheelchair_boarding updated for stop %{stop_id}", stop_id: stop_id),
         before: initial_wheelchair_boarding,
         after: new_wheelchair_boarding,
         sort_key: stop_id
@@ -105,7 +105,7 @@ defmodule TransportWeb.GTFSDiffExplain.Explanations do
           file: "stops.txt",
           type: "stop_position",
           message:
-            dgettext("validations", "Stop %{stop_id} has been moved by %{distance}m",
+            dgettext("gtfs-diff", "Stop %{stop_id} has been moved by %{distance}m",
               stop_id: stop_id,
               distance: distance
             ),
@@ -138,7 +138,7 @@ defmodule TransportWeb.GTFSDiffExplain.Explanations do
         %{
           file: "routes.txt",
           type: "route_color",
-          message: dgettext("validations", "Color has been updated for route %{route_id}", route_id: route_id),
+          message: dgettext("gtfs-diff", "Color has been updated for route %{route_id}", route_id: route_id),
           before: "##{initial_route_color}",
           after: "##{new_route_color}",
           sort_key: route_id
@@ -168,7 +168,7 @@ defmodule TransportWeb.GTFSDiffExplain.Explanations do
         %{
           file: "routes.txt",
           type: "route_text_color",
-          message: dgettext("validations", "Text color has been updated for route %{route_id}", route_id: route_id),
+          message: dgettext("gtfs-diff", "Text color has been updated for route %{route_id}", route_id: route_id),
           before: "##{initial_route_text_color}",
           after: "##{new_route_text_color}",
           sort_key: route_id
@@ -199,7 +199,7 @@ defmodule TransportWeb.GTFSDiffExplain.Explanations do
       %{
         file: "routes.txt",
         type: "route_short_name",
-        message: dgettext("validations", "Route short name has been updated for route %{route_id}", route_id: route_id),
+        message: dgettext("gtfs-diff", "Route short name has been updated for route %{route_id}", route_id: route_id),
         before: initial_route_short_name,
         after: new_route_short_name,
         sort_key: route_id
@@ -225,7 +225,7 @@ defmodule TransportWeb.GTFSDiffExplain.Explanations do
       %{
         file: "routes.txt",
         type: "route_long_name",
-        message: dgettext("validations", "Route long name has been updated for route %{route_id}", route_id: route_id),
+        message: dgettext("gtfs-diff", "Route long name has been updated for route %{route_id}", route_id: route_id),
         before: initial_route_long_name,
         after: new_route_long_name,
         sort_key: route_id
@@ -251,7 +251,7 @@ defmodule TransportWeb.GTFSDiffExplain.Explanations do
       %{
         file: "routes.txt",
         type: "route_type",
-        message: dgettext("validations", "Route type has been updated for route %{route_id}", route_id: route_id),
+        message: dgettext("gtfs-diff", "Route type has been updated for route %{route_id}", route_id: route_id),
         before: initial_route_type,
         after: new_route_type,
         sort_key: route_id
@@ -277,7 +277,7 @@ defmodule TransportWeb.GTFSDiffExplain.Explanations do
       %{
         file: "stops.txt",
         type: "location_type",
-        message: dgettext("validations", "Location type for stop %{stop_id} has been changed", stop_id: stop_id),
+        message: dgettext("gtfs-diff", "Location type for stop %{stop_id} has been changed", stop_id: stop_id),
         before: initial_location_type,
         after: new_location_type,
         sort_key: stop_id
@@ -303,7 +303,7 @@ defmodule TransportWeb.GTFSDiffExplain.Explanations do
       %{
         file: "agency.txt",
         type: "agency_url",
-        message: dgettext("validations", "Agency URL for agency %{agency_id} has been changed", agency_id: agency_id),
+        message: dgettext("gtfs-diff", "Agency URL for agency %{agency_id} has been changed", agency_id: agency_id),
         before: initial_agency_url,
         after: new_agency_url,
         sort_key: agency_id
@@ -329,7 +329,7 @@ defmodule TransportWeb.GTFSDiffExplain.Explanations do
       %{
         file: "trips.txt",
         type: "trip_headsign",
-        message: dgettext("validations", "Headsign for trip %{trip_id} has been changed", trip_id: trip_id),
+        message: dgettext("gtfs-diff", "Headsign for trip %{trip_id} has been changed", trip_id: trip_id),
         before: initial_trip_headsign,
         after: new_trip_headsign,
         sort_key: trip_id

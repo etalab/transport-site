@@ -310,7 +310,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   def timeout_msg do
     minutes = round(Transport.Jobs.GTFSDiff.job_timeout_sec() / 60)
 
-    dgettext("validations", "Job aborted, the diff is taking too long (> %{minutes} min).", minutes: minutes)
+    dgettext("gtfs-diff", "Job aborted, the diff is taking too long (> %{minutes} min).", minutes: minutes)
   end
 
   defp scroll_to_steps(socket) do
