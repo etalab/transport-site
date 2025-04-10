@@ -126,6 +126,8 @@ defmodule TransportWeb.Router do
       post("/datasets/:dataset_id/add_improved_data", ReuserSpaceController, :add_improved_data)
       post("/datasets/:dataset_id/unfavorite", ReuserSpaceController, :unfavorite)
       get("/settings", ReuserSpaceController, :settings)
+      get("/settings/new_token", ReuserSpaceController, :new_token)
+      post("/settings/new_token", ReuserSpaceController, :create_new_token)
 
       live_session :reuser_space, session: %{"role" => :reuser}, root_layout: {TransportWeb.LayoutView, :app} do
         live("/notifications", Live.NotificationsLive, :notifications, as: :reuser_space)

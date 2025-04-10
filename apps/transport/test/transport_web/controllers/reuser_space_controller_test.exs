@@ -258,4 +258,68 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
              ]
     end
   end
+
+  describe "new_token" do
+    test "no organizations", %{conn: conn} do
+      contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+
+      doc =
+        conn
+        |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+        |> get(reuser_space_path(conn, :new_token))
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      assert doc |> Floki.find(".panel form") |> Enum.empty?()
+
+      assert doc
+             |> Floki.find("p.notification.error")
+             |> Floki.text()
+             |> String.trim() == "Vous devez être membre d'une organisation pour créer un nouveau token."
+    end
+
+    test "member of an organization", %{conn: conn} do
+      organization = insert(:organization)
+
+      contact =
+        insert_contact(%{
+          datagouv_user_id: Ecto.UUID.generate(),
+          organizations: [organization |> Map.from_struct()]
+        })
+
+      doc =
+        conn
+        |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+        |> get(reuser_space_path(conn, :new_token))
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      refute doc |> Floki.find(".panel form") |> Enum.empty?()
+
+      assert doc |> Floki.find("option") == [{"option", [{"value", organization.id}], [organization.name]}]
+    end
+  end
+
+  test "create_new_token", %{conn: conn} do
+    %DB.Organization{id: organization_id} = organization = insert(:organization)
+
+    %DB.Contact{id: contact_id} =
+      contact =
+      insert_contact(%{
+        datagouv_user_id: Ecto.UUID.generate(),
+        organizations: [organization |> Map.from_struct()]
+      })
+
+    assert DB.Token |> DB.Repo.all() |> Enum.empty?()
+
+    conn =
+      conn
+      |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+      |> post(reuser_space_path(conn, :create_new_token), %{organization_id: organization.id, name: name = "Name"})
+
+    assert redirected_to(conn, 302) == reuser_space_path(conn, :settings)
+    assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Votre token a bien été créé"
+
+    assert [%DB.Token{contact_id: ^contact_id, organization_id: ^organization_id, name: ^name}] = DB.Repo.all(DB.Token)
+  end
 end
