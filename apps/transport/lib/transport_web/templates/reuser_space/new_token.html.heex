@@ -1,0 +1,32 @@
+<section class="container pt-48 pb-24">
+  <%= breadcrumbs([@conn, :new_token]) %>
+</section>
+<section class="reuser-space-section pb-48">
+  <div class="container pt-24">
+    <div class="panel">
+      <h2><%= dgettext("reuser-space", "Create a new token") %></h2>
+
+      <p :if={Enum.empty?(@organizations)} class="notification error">
+        <%= dgettext("reuser-space", "You need to be a member of an organisation to create new tokens.") %>
+      </p>
+
+      <%= if Enum.count(@organizations) > 0 do %>
+        <%= form_for @conn, reuser_space_path(@conn, :new_token), [class: "no-margin"], fn f -> %>
+          <%= label do %>
+            <%= dgettext("reuser-space", "Token name") %> <%= text_input(f, :name, required: true) %>
+            <p class="small"><%= dgettext("reuser-space", "A name identifying the application using this token.") %></p>
+          <% end %>
+
+          <%= label class: "pt-12 pb-12" do %>
+            <%= dgettext("reuser-space", "Organisation") %> <%= select(
+              f,
+              :organization_id,
+              Enum.map(@organizations, &{&1.name, &1.id})
+            ) %>
+          <% end %>
+          <%= submit(dgettext("reuser-space", "Create")) %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</section>

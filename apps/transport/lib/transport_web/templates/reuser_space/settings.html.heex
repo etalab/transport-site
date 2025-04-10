@@ -27,6 +27,10 @@
           <% end %>
         </tbody>
       </table>
+      <a href={reuser_space_path(@conn, :new_token)} class="button">
+        <i class="fa fa-plus icon"></i>
+        <%= dgettext("reuser-space", "Create a new token") %>
+      </a>
     </div>
   </div>
 </section>
