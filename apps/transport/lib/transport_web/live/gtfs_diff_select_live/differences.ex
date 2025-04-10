@@ -5,6 +5,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
   use Phoenix.Component
   use Gettext, backend: TransportWeb.Gettext
   import TransportWeb.Live.GTFSDiffSelectLive.GTFSSpecification
+  import TransportWeb.MarkdownHandler, only: [markdown_to_safe_html!: 1]
 
   def differences(
         %{diff_summary: _, selected_file: _, diff_explanations: _, profile: _, structural_changes: _} = assigns
@@ -240,6 +241,9 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
   defp detailed_explanations(%{file: _, explanations: _, explanation_type: _} = assigns) do
     ~H"""
     <h6><%= translate_explanation_type(@file, @explanation_type) %> (<%= length(@explanations) %>)</h6>
+    <p :if={translate_explanation_details(@file, @explanation_type)}>
+      <%= translate_explanation_details(@file, @explanation_type) |> Enum.intersperse("\n\n") |> markdown_to_safe_html!() %>
+    </p>
     <div class="scrollable-table">
       <table class="table">
         <thead>
@@ -323,6 +327,100 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
   defp translate_explanation_type("agency.txt", "agency_url"), do: dgettext("gtfs-diff", "Agency URL")
   defp translate_explanation_type("trips.txt", "trip_headsign"), do: dgettext("gtfs-diff", "Trip headsign")
   defp translate_explanation_type(_, unknown), do: dgettext("gtfs-diff", "Other change: %{unknown}", unknown: unknown)
+
+  defp translate_explanation_details("stops.txt", "stop_name"),
+    do: [
+      compared_attributes(["stop_name"]),
+      dgettext(
+        "gtfs-diff",
+        "Name of the location. The `stop_name` should match the agency's rider-facing name for the location as printed on a timetable, published online, or represented on signage. For translations into other languages, use `translations.txt`."
+      )
+    ]
+
+  defp translate_explanation_details("stops.txt", "stop_position"),
+    do: [
+      compared_attributes(["stop_lat", "stop_lon"]),
+      dgettext(
+        "gtfs-diff",
+        "Computes the distance between locations. Results are sorted by distance. Moves shorter than 1 m are filtered out."
+      )
+    ]
+
+  defp translate_explanation_details("stops.txt", "wheelchair_boarding"),
+    do: [
+      compared_attributes(["wheelchair_boarding"]),
+      dgettext("gtfs-diff", "Indicates whether wheelchair boardings are possible from the location.")
+    ]
+
+  defp translate_explanation_details("stops.txt", "location_type"),
+    do: [
+      compared_attributes(["location_type"])
+    ]
+
+  defp translate_explanation_details("routes.txt", "route_color"),
+    do: [
+      compared_attributes(["route_color"]),
+      dgettext(
+        "gtfs-diff",
+        "Route color designation that matches public facing material. Defaults to white (FFFFFF) when omitted or left empty. The color difference between `route_color` and `route_text_color` should provide sufficient contrast when viewed on a black and white screen."
+      )
+    ]
+
+  defp translate_explanation_details("routes.txt", "route_text_color"),
+    do: [
+      compared_attributes(["route_text_color"]),
+      dgettext(
+        "gtfs-diff",
+        "Legible color to use for text drawn against a background of `route_color`. Defaults to black (000000) when omitted or left empty."
+      )
+    ]
+
+  defp translate_explanation_details("routes.txt", "route_short_name"),
+    do: [
+      compared_attributes(["route_short_name"]),
+      dgettext(
+        "gtfs-diff",
+        "Short name of a route. Often a short, abstract identifier (e.g., \"32\", \"100X\", \"Green\") that riders use to identify a route."
+      )
+    ]
+
+  defp translate_explanation_details("routes.txt", "route_long_name"),
+    do: [
+      compared_attributes(["route_long_name"]),
+      dgettext(
+        "gtfs-diff",
+        "Full name of a route. This name is generally more descriptive than the `route_short_name` and often includes the route's destination or stop."
+      )
+    ]
+
+  defp translate_explanation_details("routes.txt", "route_type"),
+    do: [
+      compared_attributes(["route_type"]),
+      dgettext("gtfs-diff", "Indicates the type of transportation used on a route.")
+    ]
+
+  defp translate_explanation_details("agency.txt", "agency_url"),
+    do: [
+      compared_attributes(["agency_url"]),
+      dgettext("gtfs-diff", "URL of the transit agency.")
+    ]
+
+  defp translate_explanation_details("trips.txt", "trip_headsign"),
+    do: [
+      compared_attributes(["trip_headsign"]),
+      dgettext(
+        "gtfs-diff",
+        "Text that appears on signage identifying the trip's destination to riders. This field is recommended for all services with headsign text displayed on the vehicle which may be used to distinguish amongst trips in a route."
+      )
+    ]
+
+  defp translate_explanation_details(_, _), do: nil
+
+  defp compared_attributes(attributes) do
+    introduction = dngettext("gtfs-diff", "Compare the value of ", "Compare the values of ", length(attributes))
+    attributes = attributes |> Enum.map_intersperse(", ", fn attribute -> "`#{attribute}`" end)
+    "#{introduction} #{attributes}."
+  end
 
   @doc """
   iex> Gettext.put_locale("en")
