@@ -14,7 +14,7 @@ defmodule Transport.Registry.Result do
   iex> [{:ok, "valid"}, {:error, "invalid"}, {:ok, "relevant"}] |> cat_results()
   ["valid", "relevant"]
   """
-  @spec cat_results(Stream.t(t(term()))) :: Stream.t(term())
+  @spec cat_results(Enumerable.t(t(term()))) :: Enumerable.t(term())
   def cat_results(enumerable), do: Stream.flat_map(enumerable, &keep_ok/1)
 
   defp keep_ok({:ok, result}), do: [result]
@@ -24,7 +24,7 @@ defmodule Transport.Registry.Result do
   iex> 1..10 |> map_result(fn v -> if Integer.is_odd(v) do {:ok, v} else {:error, "Even Steven"} end end)
   [1, 3, 5, 7, 9]
   """
-  @spec map_result(Stream.t(term()), (term() -> t(term()))) :: Stream.t(term())
+  @spec map_result(Enumerable.t(term()), (term() -> t(term()))) :: Enumerable.t(term())
   def map_result(enumerable, mapper) do
     enumerable
     |> Stream.map(mapper)

@@ -22,7 +22,6 @@ defmodule Transport.NeTEx.StopPlacesStreamingParser do
   """
 
   @behaviour Saxy.Handler
-  import ExUnit.Assertions
 
   def get_attribute!(attributes, attr_name) do
     [value] = for {attr, value} <- attributes, attr == attr_name, do: value
@@ -38,8 +37,9 @@ defmodule Transport.NeTEx.StopPlacesStreamingParser do
 
   # A `StopPlace` is declared, we will start capturing subsequent events
   def handle_event(:start_element, {"StopPlace" = element, attributes}, state) do
-    assert state[:current_stop_place] == nil
-    assert state[:capture] != true
+    if state[:capture] || not is_nil(state[:current_stop_place]) do
+      raise "Invalid state"
+    end
 
     {:ok,
      state
