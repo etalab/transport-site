@@ -11,13 +11,13 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Steps do
     <div id="gtfs-diff-steps" class="container">
       <ul class="steps-form">
         <li class={step_completion(@current_step, :setup)}>
-          <div><%= dgettext("validations", "Setup") %></div>
+          <div><%= dgettext("gtfs-diff", "Setup") %></div>
         </li>
         <li class={step_completion(@current_step, :analysis)}>
-          <div><%= dgettext("validations", "Analysis") %></div>
+          <div><%= dgettext("gtfs-diff", "Analysis") %></div>
         </li>
         <li class={step_completion(@current_step, :results)}>
-          <div><%= dgettext("validations", "Results") %></div>
+          <div><%= dgettext("gtfs-diff", "Results") %></div>
         </li>
       </ul>
     </div>

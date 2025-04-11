@@ -19,7 +19,11 @@ defmodule TransportWeb.BreadCrumbs do
   end
 
   def crumbs(conn, :settings) do
-    crumbs(conn, :reuser_space) ++ [{dgettext("reuser-space", "Settings"), nil}]
+    crumbs(conn, :reuser_space) ++ [{dgettext("reuser-space", "Settings"), reuser_space_path(conn, :settings)}]
+  end
+
+  def crumbs(conn, :new_token) do
+    crumbs(conn, :settings) ++ [{dgettext("reuser-space", "Create a new token"), nil}]
   end
 
   def crumbs(conn, :contacts) do

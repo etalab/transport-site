@@ -233,7 +233,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.GTFSSpecification do
       « <em><%= description_text(@selected_file) %></em>
       »
       <a target="_blank" href={specification_url(@selected_file)}>
-        <%= dgettext("validations", "Know more about this file.") %>
+        <%= dgettext("gtfs-file-descriptions", "Know more about this file.") %>
       </a>
     </p>
     """
