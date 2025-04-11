@@ -300,26 +300,71 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
     end
   end
 
-  test "create_new_token", %{conn: conn} do
-    %DB.Organization{id: organization_id} = organization = insert(:organization)
+  describe "create_new_token" do
+    test "create a new token", %{conn: conn} do
+      %DB.Organization{id: organization_id} = organization = insert(:organization)
 
-    %DB.Contact{id: contact_id} =
+      %DB.Contact{id: contact_id} =
+        contact =
+        insert_contact(%{
+          datagouv_user_id: Ecto.UUID.generate(),
+          organizations: [organization |> Map.from_struct()]
+        })
+
+      assert DB.Token |> DB.Repo.all() |> Enum.empty?()
+
+      conn =
+        conn
+        |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+        |> post(reuser_space_path(conn, :create_new_token), %{organization_id: organization.id, name: name = "Name"})
+
+      assert redirected_to(conn, 302) == reuser_space_path(conn, :settings)
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Votre token a bien été créé"
+
+      assert [%DB.Token{contact_id: ^contact_id, organization_id: ^organization_id, name: ^name}] =
+               DB.Repo.all(DB.Token)
+    end
+
+    test "creating a new token, with an error", %{conn: conn} do
+      organization = insert(:organization)
+
       contact =
-      insert_contact(%{
-        datagouv_user_id: Ecto.UUID.generate(),
-        organizations: [organization |> Map.from_struct()]
-      })
+        insert_contact(%{
+          datagouv_user_id: Ecto.UUID.generate(),
+          organizations: [organization |> Map.from_struct()]
+        })
 
-    assert DB.Token |> DB.Repo.all() |> Enum.empty?()
+      assert DB.Token |> DB.Repo.all() |> Enum.empty?()
 
-    conn =
-      conn
-      |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
-      |> post(reuser_space_path(conn, :create_new_token), %{organization_id: organization.id, name: name = "Name"})
+      assert conn
+             |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+             |> post(reuser_space_path(conn, :create_new_token), %{organization_id: organization.id})
+             |> html_response(200)
+             |> Floki.parse_document!()
+             |> Floki.find(".notification.error")
+             |> Floki.text() == "name: can't be blank"
 
-    assert redirected_to(conn, 302) == reuser_space_path(conn, :settings)
-    assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Votre token a bien été créé"
+      assert [] = DB.Repo.all(DB.Token)
+    end
 
-    assert [%DB.Token{contact_id: ^contact_id, organization_id: ^organization_id, name: ^name}] = DB.Repo.all(DB.Token)
+    @tag :capture_log
+    test "cannot pass a random organization_id", %{conn: conn} do
+      organization = insert(:organization)
+
+      contact =
+        insert_contact(%{
+          datagouv_user_id: Ecto.UUID.generate(),
+          organizations: [organization |> Map.from_struct()]
+        })
+
+      assert DB.Token |> DB.Repo.all() |> Enum.empty?()
+
+      assert_raise MatchError, fn ->
+        conn
+        |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+        |> post(reuser_space_path(conn, :create_new_token), %{organization_id: Ecto.UUID.generate(), name: "Default"})
+        |> html_response(200)
+      end
+    end
   end
 end
