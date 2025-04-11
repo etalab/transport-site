@@ -347,7 +347,7 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
       assert [] = DB.Repo.all(DB.Token)
     end
 
-    @moduletag :capture_log
+    @tag :capture_log
     test "cannot pass a random organization_id", %{conn: conn} do
       organization = insert(:organization)
 
