@@ -733,6 +733,7 @@ defmodule DB.Dataset do
   def get_other_dataset(_), do: []
 
   @spec get_territory(__MODULE__.t()) :: {:ok, binary()} | {:error, binary()}
+  # TODO: fix this later
   def get_territory(%__MODULE__{aom: %{nom: nom}}), do: {:ok, nom}
 
   def get_territory(%__MODULE__{aom_id: aom_id}) when not is_nil(aom_id) do
