@@ -338,16 +338,6 @@ defmodule DB.Factory do
     }
   end
 
-  def token_factory do
-    %DB.Token{
-      name: sequence(:name, &"datagouv_id-#{&1}"),
-      secret: "secret",
-      secret_hash: "secret_hash",
-      organization: build(:organization),
-      contact: insert_contact()
-    }
-  end
-
   def reuse_factory do
     %DB.Reuse{
       datagouv_id: sequence(:datagouv_id, &"datagouv_id-#{&1}"),
@@ -373,6 +363,20 @@ defmodule DB.Factory do
       created_at: DateTime.utc_now(),
       last_modified: DateTime.utc_now()
     }
+  end
+
+  def insert_token(%{} = args \\ %{}) do
+    args =
+      %{
+        secret: "secret",
+        name: "name",
+        contact_id: insert_contact().id,
+        organization_id: insert(:organization).id
+      }
+      |> Map.merge(args)
+
+    DB.Token.changeset(%DB.Token{}, args)
+    |> DB.Repo.insert!()
   end
 
   def insert_contact(%{} = args \\ %{}) do

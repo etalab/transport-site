@@ -24,6 +24,36 @@ defmodule TransportWeb.API.DatasetControllerTest do
     assert_schema(json, "DatasetsResponse", api_spec)
   end
 
+  describe "token_auth" do
+    test "GET /api/datasets with an invalid token", %{conn: conn} do
+      assert conn
+             |> put_req_header("authorization", "invalid")
+             |> get(Helpers.dataset_path(conn, :datasets))
+             |> json_response(401) == %{"error" => "You must set a valid Authorization header"}
+    end
+
+    test "GET /api/datasets with a valid token", %{conn: conn} do
+      token = insert_token()
+
+      assert conn
+             |> put_req_header("authorization", token.secret)
+             |> get(Helpers.dataset_path(conn, :datasets))
+             |> json_response(200)
+    end
+
+    test "GET /api/datasets/:id with a valid token", %{conn: conn} do
+      token = insert_token()
+      dataset = insert(:dataset)
+
+      setup_empty_history_resources()
+
+      assert conn
+             |> put_req_header("authorization", token.secret)
+             |> get(Helpers.dataset_path(conn, :by_id, dataset.datagouv_id))
+             |> json_response(200)
+    end
+  end
+
   test "GET /api/datasets does not include inactive or hidden datasets", %{conn: conn} do
     insert(:dataset, is_active: false)
     insert(:dataset, is_active: true, is_hidden: true)

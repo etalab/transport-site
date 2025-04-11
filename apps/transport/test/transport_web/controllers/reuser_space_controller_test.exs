@@ -244,7 +244,7 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
           organizations: [organization |> Map.from_struct()]
         })
 
-      token = insert(:token, organization: organization, contact: contact, name: "Default")
+      token = insert_token(%{organization_id: organization.id, contact_id: contact.id, name: "Default"})
 
       assert conn
              |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
