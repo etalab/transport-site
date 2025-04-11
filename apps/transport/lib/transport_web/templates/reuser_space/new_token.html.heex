@@ -10,6 +10,14 @@
         <%= dgettext("reuser-space", "You need to be a member of an organisation to create new tokens.") %>
       </p>
 
+      <div :if={Enum.count(@errors) > 0} class="notification error">
+        <ul>
+          <%= for {key, {message, _}} <- @errors do %>
+            <li><%= to_string(key) <> ": " <> message %></li>
+          <% end %>
+        </ul>
+      </div>
+
       <%= if Enum.count(@organizations) > 0 do %>
         <%= form_for @conn, reuser_space_path(@conn, :new_token), [class: "no-margin"], fn f -> %>
           <%= label do %>
