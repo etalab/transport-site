@@ -1,5 +1,5 @@
 <div class="container">
-  <div class="cards">
+  <div class="cards reuses">
     <h1><%= dgettext("reuses", "Reuses") %></h1>
     <%= form_for @conn, reuse_path(@conn, :index), [id: "reuses_search_container", method: "get"], fn f -> %>
       <%= search_input(f, :q,
