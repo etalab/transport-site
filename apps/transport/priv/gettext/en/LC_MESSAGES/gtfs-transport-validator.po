@@ -186,3 +186,7 @@ msgid "Warning"
 msgid_plural "Warnings"
 msgstr[0] "%{count} warning"
 msgstr[1] "%{count} warnings"
+
+#, elixir-autogen, elixir-format
+msgid "Calendar files are empty. The service is never running."
+msgstr ""
