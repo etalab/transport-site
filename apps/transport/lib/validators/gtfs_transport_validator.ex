@@ -263,7 +263,8 @@ defmodule Transport.Validators.GTFSTransport do
       "UnusedShapeId" => dgettext("gtfs-transport-validator", "Unused shape ID"),
       "SubFolder" => dgettext("gtfs-transport-validator", "Files in a subfolder"),
       "NegativeStopDuration" => dgettext("gtfs-transport-validator", "Negative stop duration"),
-      "UnusableTrip" => dgettext("gtfs-transport-validator", "Unusable trip")
+      "UnusableTrip" => dgettext("gtfs-transport-validator", "Unusable trip"),
+      "NoCalendar" => dgettext("gtfs-transport-validator", "Calendar files are empty. The service is never running.")
     }
 
   @spec gtfs_outdated?(any()) :: boolean | nil
