@@ -97,6 +97,13 @@ defmodule DB.Dataset do
     # (used in the long title of a dataset and to find the associated datasets)
     field(:associated_territory_name, :string)
 
+    has_many(:new_covered_areas, DB.DatasetNewCoveredArea, on_delete: :delete_all)
+    # TODO: Probably not needed:
+    # has_many(:new_communes, through: [:dataset_new_covered_areas, :commune])
+    # has_many(:epcis, through: [:dataset_new_covered_areas, :epci])
+    # has_many(:departements, through: [:dataset_new_covered_areas, :departement])
+    # has_many(:regions, through: [:dataset_new_covered_areas, :region])
+
     field(:search_payload, :map)
     many_to_many(:followers, DB.Contact, join_through: "dataset_followers", on_replace: :delete)
   end

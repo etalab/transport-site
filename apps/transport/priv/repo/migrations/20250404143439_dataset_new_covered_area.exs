@@ -2,7 +2,8 @@ defmodule Elixir.DB.Repo.Migrations.DatasetNewCoveredArea do
   use Ecto.Migration
 
   def change do
-    create table("dataset_new_covered_area", primary_key: false) do
+    # TODO question: this creates an ID, is it really needed or?
+    create table("dataset_new_covered_area") do
       add(:dataset_id, references(:dataset), on_delete: :delete_all, null: false)
       # This cannot be null
       add(:administrative_division_type, :string, null: false)
@@ -12,8 +13,6 @@ defmodule Elixir.DB.Repo.Migrations.DatasetNewCoveredArea do
       add(:departement_id, references(:departement), on_delete: :delete_all)
       add(:epci_id, references(:epci), on_delete: :delete_all)
       add(:region_id, references(:region), on_delete: :delete_all)
-
-      timestamps()
     end
 
     execute(
