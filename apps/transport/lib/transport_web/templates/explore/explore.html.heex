@@ -11,7 +11,7 @@
   <div class="row">
     <div>
       <div class="checkbox-explore pb-24">
-        <input id="gtfs-rt-check" name="gtfs-rt" type="checkbox" value="true" checked />
+        <input id="gtfs-rt-check" name="gtfs-rt" type="checkbox" value="true" checked={@gtfs_rt} />
         <details>
           <summary>
             <%= dgettext("explore", "Real time vehicle positions (GTFS-RT)") %>
@@ -27,7 +27,7 @@
         </details>
       </div>
       <div class="checkbox-explore pb-24">
-        <input id="bnlc-check" name="bnlc" type="checkbox" value="true" />
+        <input id="bnlc-check" name="bnlc" type="checkbox" value="true" checked={@bnlc} />
         <details>
           <summary>
             <%= dgettext("explore", "Carpooling areas national database") %>
@@ -40,7 +40,13 @@
         </details>
       </div>
       <div class="checkbox-explore pb-24">
-        <input id="parkings_relais-check" name="parkings_relais" type="checkbox" value="true" />
+        <input
+          id="parkings_relais-check"
+          name="parkings_relais"
+          type="checkbox"
+          value="true"
+          checked={@parkings_relais}
+        />
         <details>
           <summary>
             <%= dgettext("explore", "Park and ride database") %>
@@ -55,7 +61,7 @@
     </div>
     <div>
       <div class="checkbox-explore pb-24">
-        <input id="zfe-check" name="zfe" type="checkbox" value="true" />
+        <input id="zfe-check" name="zfe" type="checkbox" value="true" checked={@zfe} />
         <details>
           <summary>
             <%= dgettext("explore", "Low emission zones database") %>
@@ -68,7 +74,7 @@
         </details>
       </div>
       <div class="checkbox-explore pb-24">
-        <input id="irve-check" name="irve" type="checkbox" value="true" />
+        <input id="irve-check" name="irve" type="checkbox" value="true" checked={@irve} />
         <details>
           <summary>
             <%= dgettext("explore", "IRVE map") %>
@@ -81,7 +87,7 @@
         </details>
       </div>
       <div class="checkbox-explore pb-24">
-        <input id="gbfs_stations-check" name="gbfs_stations" type="checkbox" value="true" />
+        <input id="gbfs_stations-check" name="gbfs_stations" type="checkbox" value="true" checked={@gbfs_stations} />
         <details>
           <summary>
             <%= dgettext("explore", "GBFS stations") %>

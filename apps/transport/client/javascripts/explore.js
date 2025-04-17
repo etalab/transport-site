@@ -24,7 +24,7 @@ Leaflet.tileLayer(Mapbox.url, {
     zoomOffset: Mapbox.zoomOffset
 }).addTo(map)
 
-const visibility = { gtfsrt: true }
+const visibility = { gtfsrt: document.getElementById('gtfs-rt-check').checked }
 
 function prepareLayer (layerId, layerData) {
     return new ScatterplotLayer({
@@ -103,12 +103,29 @@ channel.on('vehicle-positions', payload => {
     }
 })
 
+function withQueryParams (alter) {
+    const params = new URLSearchParams(window.location.search)
+    alter(params)
+    const newurl = window.location.protocol + '//' + window.location.host + window.location.pathname + '?' + params.toString()
+    window.history.pushState({ path: newurl }, '', newurl)
+}
+
+function setQueryFlag (key) {
+    withQueryParams(params => params.set(key, 'yes'))
+}
+
+function unsetQueryFlag (key) {
+    withQueryParams(params => params.delete(key))
+}
+
 // handle GTFS-RT toggle
 const gtfsrtCheckbox = document.getElementById('gtfs-rt-check')
 gtfsrtCheckbox.addEventListener('change', (event) => {
     if (event.currentTarget.checked) {
+        setQueryFlag('gtfs-rt')
         visibility.gtfsrt = true
     } else {
+        unsetQueryFlag('gtfs-rt')
         visibility.gtfsrt = false
         for (const key in layers.gtfsrt) {
             layers.gtfsrt[key] = prepareLayer(key, [])
@@ -120,10 +137,12 @@ gtfsrtCheckbox.addEventListener('change', (event) => {
 // Handle BNLC toggle
 document.getElementById('bnlc-check').addEventListener('change', (event) => {
     if (event.currentTarget.checked) {
+        setQueryFlag('bnlc')
         trackEvent('bnlc')
         fetch('/api/geo-query?data=bnlc')
             .then(data => updateBNLCLayer(data.json()))
     } else {
+        unsetQueryFlag('bnlc')
         updateBNLCLayer(null)
     }
 })
@@ -131,10 +150,12 @@ document.getElementById('bnlc-check').addEventListener('change', (event) => {
 // Handle Parkings Relais toggle
 document.getElementById('parkings_relais-check').addEventListener('change', (event) => {
     if (event.currentTarget.checked) {
+        setQueryFlag('parkings-relais')
         trackEvent('parkings-relais')
         fetch('/api/geo-query?data=parkings_relais')
             .then(data => updateParkingsRelaisLayer(data.json()))
     } else {
+        unsetQueryFlag('parkings-relais')
         updateParkingsRelaisLayer(null)
     }
 })
@@ -142,10 +163,12 @@ document.getElementById('parkings_relais-check').addEventListener('change', (eve
 // Handle ZFE toggle
 document.getElementById('zfe-check').addEventListener('change', (event) => {
     if (event.currentTarget.checked) {
+        setQueryFlag('zfe')
         trackEvent('zfe')
         fetch('/api/geo-query?data=zfe')
             .then(data => updateZFELayer(data.json()))
     } else {
+        unsetQueryFlag('zfe')
         updateZFELayer(null)
     }
 })
@@ -153,10 +176,12 @@ document.getElementById('zfe-check').addEventListener('change', (event) => {
 // Handle IRVE toggle
 document.getElementById('irve-check').addEventListener('change', (event) => {
     if (event.currentTarget.checked) {
+        setQueryFlag('irve')
         trackEvent('irve')
         fetch('/api/geo-query?data=irve')
             .then(data => updateIRVELayer(data.json()))
     } else {
+        unsetQueryFlag('irve')
         updateIRVELayer(null)
     }
 })
@@ -164,10 +189,12 @@ document.getElementById('irve-check').addEventListener('change', (event) => {
 // Handle GBFS stations toggle
 document.getElementById('gbfs_stations-check').addEventListener('change', (event) => {
     if (event.currentTarget.checked) {
+        setQueryFlag('gbfs-stations')
         trackEvent('gbfs-stations')
         fetch('/api/geo-query?data=gbfs_stations')
             .then(data => updateGBFSStationsLayer(data.json()))
     } else {
+        unsetQueryFlag('gbfs-stations')
         updateGBFSStationsLayer(null)
     }
 })
