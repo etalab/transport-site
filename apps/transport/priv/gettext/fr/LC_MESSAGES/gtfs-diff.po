@@ -340,3 +340,49 @@ msgstr "L’URL de l’entité %{agency_id} a été modifiée"
 #, elixir-autogen, elixir-format
 msgid "Headsign for trip %{trip_id} has been changed"
 msgstr "Le panneau de destination du trajet %{trip_id} a été modifié"
+
+#, elixir-autogen, elixir-format
+msgid "Compare the value of "
+msgid_plural "Compare the values of "
+msgstr[0] "Compare la valeur de "
+msgstr[1] "Compare les valeurs de "
+
+#, elixir-autogen, elixir-format
+msgid "Computes the distance between locations. Results are sorted by distance. Moves shorter than 1 m are filtered out."
+msgstr "Calcule la distance entre les positions. Les résultats sont triés par distance. Les ajustements de moins d’1 m sont masqués."
+
+#, elixir-autogen, elixir-format
+msgid "Full name of a route. This name is generally more descriptive than the `route_short_name` and often includes the route's destination or stop."
+msgstr "Nom complet de la route. Ce nom est usuellement plus descriptif que `route_short_name` et souvent inclue la destination de la route."
+
+#, elixir-autogen, elixir-format
+msgid "Indicates the type of transportation used on a route."
+msgstr "Indique le type de moyen de transport opéré sur une route."
+
+#, elixir-autogen, elixir-format
+msgid "Indicates whether wheelchair boardings are possible from the location."
+msgstr "Indique si l’embarquement des fauteuils roulants est possible depuis l’emplacement."
+
+#, elixir-autogen, elixir-format
+msgid "Legible color to use for text drawn against a background of `route_color`. Defaults to black (000000) when omitted or left empty."
+msgstr "Couleur lisible à utiliser pour le texte dessiné sur un fond de `route_color`. La valeur par défaut est noire (000000) lorsqu’elle est omise ou laissée vide."
+
+#, elixir-autogen, elixir-format
+msgid "Name of the location. The `stop_name` should match the agency's rider-facing name for the location as printed on a timetable, published online, or represented on signage. For translations into other languages, use `translations.txt`."
+msgstr "Nom de l’emplacement. Le `stop_name` doit correspondre au nom de l’entité destiné aux usagers de l’emplacement, tel qu’imprimé sur un horaire, publié en ligne ou représenté sur la signalisation. Pour les traductions dans d’autres langues, utilisez `translations.txt`."
+
+#, elixir-autogen, elixir-format
+msgid "Route color designation that matches public facing material. Defaults to white (FFFFFF) when omitted or left empty. The color difference between `route_color` and `route_text_color` should provide sufficient contrast when viewed on a black and white screen."
+msgstr "Couleur de l’itinéraire utilisée sur les supports présentés au public. La valeur par défaut est blanc (000000) lorsqu’elle est omise ou laissée vide. La différence de couleur entre `route_color` et `route_text_color` devrait fournir un contraste suffisant lorsqu’elle est visualisée sur un écran noir et blanc."
+
+#, elixir-autogen, elixir-format
+msgid "Short name of a route. Often a short, abstract identifier (e.g., \"32\", \"100X\", \"Green\") that riders use to identify a route."
+msgstr "Nom court d’un itinéraire. Il s’agit souvent d’un identifiant court et abstrait (par exemple, « 32 », « 100X », « Vert ») que les usagers utilisent pour identifier un itinéraire."
+
+#, elixir-autogen, elixir-format
+msgid "Text that appears on signage identifying the trip's destination to riders. This field is recommended for all services with headsign text displayed on the vehicle which may be used to distinguish amongst trips in a route."
+msgstr "Texte qui apparaît sur la signalisation identifiant la destination du voyage aux passagers. Ce champ est recommandé pour tous les services avec une girouette affichée sur le véhicule qui peut être utilisé pour distinguer les trajets d'un itinéraire."
+
+#, elixir-autogen, elixir-format
+msgid "URL of the transit agency."
+msgstr "URL de l’entité."

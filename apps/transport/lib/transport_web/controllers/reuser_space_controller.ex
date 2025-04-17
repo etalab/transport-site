@@ -34,6 +34,7 @@ defmodule TransportWeb.ReuserSpaceController do
 
     conn
     |> assign(:organizations, contact.organizations)
+    |> assign(:errors, [])
     |> render("new_token.html")
   end
 
@@ -41,16 +42,25 @@ defmodule TransportWeb.ReuserSpaceController do
     contact = DB.Repo.preload(contact, :organizations)
     [organization] = Enum.filter(contact.organizations, &(&1.id == params["organization_id"]))
 
-    DB.Token.changeset(%DB.Token{}, %{
-      "contact_id" => contact.id,
-      "organization_id" => organization.id,
-      "name" => params["name"]
-    })
-    |> DB.Repo.insert!()
+    changeset =
+      DB.Token.changeset(%DB.Token{}, %{
+        "contact_id" => contact.id,
+        "organization_id" => organization.id,
+        "name" => params["name"]
+      })
 
-    conn
-    |> put_flash(:info, dgettext("reuser-space", "Your token has been created"))
-    |> redirect(to: reuser_space_path(conn, :settings))
+    if changeset.valid? do
+      changeset |> DB.Repo.insert!()
+
+      conn
+      |> put_flash(:info, dgettext("reuser-space", "Your token has been created"))
+      |> redirect(to: reuser_space_path(conn, :settings))
+    else
+      conn
+      |> assign(:organizations, contact.organizations)
+      |> assign(:errors, changeset.errors)
+      |> render("new_token.html")
+    end
   end
 
   def datasets_edit(

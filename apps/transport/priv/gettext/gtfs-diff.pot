@@ -340,3 +340,49 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Headsign for trip %{trip_id} has been changed"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Compare the value of "
+msgid_plural "Compare the values of "
+msgstr[0] ""
+msgstr[1] ""
+
+#, elixir-autogen, elixir-format
+msgid "Computes the distance between locations. Results are sorted by distance. Moves shorter than 1 m are filtered out."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Full name of a route. This name is generally more descriptive than the `route_short_name` and often includes the route's destination or stop."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Indicates the type of transportation used on a route."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Indicates whether wheelchair boardings are possible from the location."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Legible color to use for text drawn against a background of `route_color`. Defaults to black (000000) when omitted or left empty."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Name of the location. The `stop_name` should match the agency's rider-facing name for the location as printed on a timetable, published online, or represented on signage. For translations into other languages, use `translations.txt`."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Route color designation that matches public facing material. Defaults to white (FFFFFF) when omitted or left empty. The color difference between `route_color` and `route_text_color` should provide sufficient contrast when viewed on a black and white screen."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Short name of a route. Often a short, abstract identifier (e.g., \"32\", \"100X\", \"Green\") that riders use to identify a route."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Text that appears on signage identifying the trip's destination to riders. This field is recommended for all services with headsign text displayed on the vehicle which may be used to distinguish amongst trips in a route."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "URL of the transit agency."
+msgstr ""

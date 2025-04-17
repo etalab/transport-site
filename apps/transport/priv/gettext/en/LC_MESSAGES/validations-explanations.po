@@ -150,3 +150,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "UnusableTrip"
 msgstr "A trip must visit more than one stop in stop_times.txt to be usable by passengers for boarding and alighting."
+
+#, elixir-autogen, elixir-format
+msgid "NoCalendar"
+msgstr "<code>calendar.txt</code> and <code>calendar_dates.txt</code> are empty. The service is never running."
