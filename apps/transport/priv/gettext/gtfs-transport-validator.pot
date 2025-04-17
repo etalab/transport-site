@@ -189,3 +189,7 @@ msgstr[1] ""
 #, elixir-autogen, elixir-format
 msgid "Calendar files are empty. The service is never running."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Field agency_id should not be empty."
+msgstr ""
