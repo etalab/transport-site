@@ -557,6 +557,8 @@ defmodule DB.Dataset do
     |> maybe_set_custom_logo_changed_at()
     |> put_assoc(:legal_owners_aom, legal_owners_aom)
     |> put_assoc(:legal_owners_region, legal_owners_region)
+    # Calls automatically changeset on the new_covered_areas
+    |> cast_assoc(:new_covered_areas)
     |> validate_required([
       :datagouv_id,
       :custom_title,
@@ -702,6 +704,7 @@ defmodule DB.Dataset do
       :region,
       :legal_owners_aom,
       :legal_owners_region,
+      :new_covered_areas,
       resources: [:resources_related, :dataset]
     ])
     |> Repo.one()

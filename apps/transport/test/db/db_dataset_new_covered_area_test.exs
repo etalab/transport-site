@@ -30,4 +30,43 @@ defmodule DB.DatasetNewCoveredAreaTest do
 
     assert covered_area.nom == departement.nom
   end
+
+  test "changeset" do
+    departement = insert(:departement)
+    commune = insert(:commune, departement: departement)
+
+    assert {:ok, changeset} =
+             DB.Dataset.changeset(%{
+               "datagouv_id" => "12345079",
+               "custom_title" => "Blaaah",
+               "datagouv_title" => "title",
+               "type" => "public-transit",
+               "licence" => "lov2",
+               "slug" => "ma_limace",
+               "created_at" => DateTime.utc_now(),
+               "last_update" => DateTime.utc_now(),
+               "logo" => "https://example.com/pic.jpg",
+               "full_logo" => "https://example.com/pic.jpg",
+               "frequency" => "daily",
+               "new_covered_areas" => [
+                 %{
+                   "administrative_division_type" => "commune",
+                   "commune_id" => commune.id
+                 }
+               ],
+               "region_id" => 1,
+               "organization_id" => Ecto.UUID.generate(),
+               "tags" => [],
+               "nb_reuses" => 0
+             })
+
+    {:ok, dataset} = changeset |> DB.Repo.insert()
+
+    dataset = dataset |> DB.DatasetNewCoveredArea.preload_covered_area_objects()
+
+    [area] = dataset.new_covered_areas
+
+    assert area.commune_id == commune.id
+    assert area.nom == commune.nom
+  end
 end

@@ -6,6 +6,7 @@ defmodule DB.DatasetNewCoveredArea do
 
   use Ecto.Schema
   use TypedEctoSchema
+  import Ecto.Changeset
 
   typed_schema "dataset_new_covered_area" do
     belongs_to(:dataset, DB.Dataset)
@@ -34,6 +35,26 @@ defmodule DB.DatasetNewCoveredArea do
       |> load_virtual_fields()
     end
 
+    def changeset(dataset_new_covered_area, attrs) do
+      dataset_new_covered_area
+      |> cast(attrs, [
+        :dataset_id,
+        :administrative_division_type,
+        :commune_id,
+        :departement_id,
+        :epci_id,
+        :region_id
+      ])
+      |> validate_required([
+        :administrative_division_type
+      ])
+      |> validate_inclusion(
+        :administrative_division_type,
+        ~w(commune departement epci region)a
+      )
+      |> validate_one_administrative_division()
+    end
+
     defp load_virtual_fields(%DB.Dataset{new_covered_areas: new_covered_areas} = dataset) do
       # Load virtual fields (nom, insee, geom) from embedded associations for an easier access
       newcovered_areas =
@@ -48,6 +69,29 @@ defmodule DB.DatasetNewCoveredArea do
         end)
 
       %{dataset | new_covered_areas: newcovered_areas}
+    end
+  end
+
+  defp validate_one_administrative_division(changeset) do
+    # TODO: Check that only one of the administrative division fields is set
+    # and it matches administrative_division_type
+    possible_divisions = [:commune, :departement, :epci, :region]
+    administrative_division_type = get_field(changeset, :administrative_division_type)
+    should_be_empty = possible_divisions -- [administrative_division_type]
+
+    changeset =
+      Enum.reduce(should_be_empty, changeset, fn division, changeset ->
+        if get_field(changeset, String.to_atom("#{division}_id")) do
+          add_error(changeset, "#{division}_id", "must be empty")
+        else
+          changeset
+        end
+      end)
+
+    if get_field(changeset, String.to_atom("#{administrative_division_type}_id")) do
+      changeset
+    else
+      add_error(changeset, "#{administrative_division_type}_id", "must be set")
     end
   end
 end
