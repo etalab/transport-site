@@ -424,7 +424,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   end
 
   @spec historize_and_validate_job(%{resource_id: integer()} | %{reuser_improved_data_id: integer()}, keyword()) ::
-          Transport.Jobs.Workflow.t()
+          Oban.Job.changeset()
   def historize_and_validate_job(first_jobs_args, options \\ []) do
     history_options = options |> Keyword.get(:history_options, []) |> Transport.Jobs.Workflow.kw_to_map()
     validation_custom_args = options |> Keyword.get(:validation_custom_args, %{})
