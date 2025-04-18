@@ -69,7 +69,7 @@ defmodule TransportWeb.API.Router do
   end
 
   scope "/api" do
-    pipe_through(:simple_token_auth)
+    pipe_through([:accept_json, :api, :simple_token_auth])
 
     scope "/validators" do
       get("/gtfs-transport", TransportWeb.API.ValidatorsController, :gtfs_transport)
