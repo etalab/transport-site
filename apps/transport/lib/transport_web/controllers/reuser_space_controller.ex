@@ -2,7 +2,7 @@ defmodule TransportWeb.ReuserSpaceController do
   use TransportWeb, :controller
   import Ecto.Query
 
-  plug(:find_contact when action in [:espace_reutilisateur, :settings])
+  plug(:find_contact when action in [:espace_reutilisateur, :settings, :new_token, :create_new_token])
   plug(:find_dataset_or_redirect when action in [:datasets_edit, :unfavorite, :add_improved_data])
 
   def espace_reutilisateur(%Plug.Conn{assigns: %{contact: %DB.Contact{} = contact}} = conn, _) do
@@ -27,6 +27,40 @@ defmodule TransportWeb.ReuserSpaceController do
     conn
     |> assign(:tokens, tokens)
     |> render("settings.html")
+  end
+
+  def new_token(%Plug.Conn{assigns: %{contact: %DB.Contact{} = contact}} = conn, _) do
+    contact = DB.Repo.preload(contact, :organizations)
+
+    conn
+    |> assign(:organizations, contact.organizations)
+    |> assign(:errors, [])
+    |> render("new_token.html")
+  end
+
+  def create_new_token(%Plug.Conn{assigns: %{contact: %DB.Contact{} = contact}} = conn, params) do
+    contact = DB.Repo.preload(contact, :organizations)
+    [organization] = Enum.filter(contact.organizations, &(&1.id == params["organization_id"]))
+
+    changeset =
+      DB.Token.changeset(%DB.Token{}, %{
+        "contact_id" => contact.id,
+        "organization_id" => organization.id,
+        "name" => params["name"]
+      })
+
+    if changeset.valid? do
+      changeset |> DB.Repo.insert!()
+
+      conn
+      |> put_flash(:info, dgettext("reuser-space", "Your token has been created"))
+      |> redirect(to: reuser_space_path(conn, :settings))
+    else
+      conn
+      |> assign(:organizations, contact.organizations)
+      |> assign(:errors, changeset.errors)
+      |> render("new_token.html")
+    end
   end
 
   def datasets_edit(

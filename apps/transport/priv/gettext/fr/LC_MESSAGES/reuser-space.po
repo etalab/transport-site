@@ -198,3 +198,27 @@ msgstr "Tokens"
 #, elixir-autogen, elixir-format
 msgid "Update your preferences, manage tokens to access data."
 msgstr "Gérer vos préférences, gérer vos tokens pour accéder aux données."
+
+#, elixir-autogen, elixir-format
+msgid "A name identifying the application using this token."
+msgstr "Un nom identifiant l'application utilisant ce token."
+
+#, elixir-autogen, elixir-format
+msgid "Create"
+msgstr "Créer"
+
+#, elixir-autogen, elixir-format
+msgid "Create a new token"
+msgstr "Créer un nouveau token"
+
+#, elixir-autogen, elixir-format
+msgid "Token name"
+msgstr "Nom du token"
+
+#, elixir-autogen, elixir-format
+msgid "You need to be a member of an organisation to create new tokens."
+msgstr "Vous devez être membre d'une organisation pour créer un nouveau token."
+
+#, elixir-autogen, elixir-format
+msgid "Your token has been created"
+msgstr "Votre token a bien été créé"

@@ -17,12 +17,19 @@ defmodule TransportWeb.API.Router do
     plug(TransportWeb.API.Plugs.PublicCache, max_age: 60)
   end
 
+  # Authorization for the GTFS validator.
+  # The list of `(user, secret)` is set manually through the app config.
   pipeline :simple_token_auth do
     plug(TransportWeb.API.Plugs.Auth)
   end
 
+  # Authenticate users using the `token` table.
+  pipeline :token_auth do
+    plug(TransportWeb.API.Plugs.TokenAuth)
+  end
+
   scope "/api/" do
-    pipe_through([:accept_json, :api])
+    pipe_through([:accept_json, :api, :token_auth])
     get("/", TransportWeb.Redirect, to: "/swaggerui")
 
     scope "/aoms" do
@@ -59,9 +66,12 @@ defmodule TransportWeb.API.Router do
     end
 
     get("/gtfs-stops", TransportWeb.API.GTFSStopsController, :index)
+  end
+
+  scope "/api" do
+    pipe_through([:accept_json, :api, :simple_token_auth])
 
     scope "/validators" do
-      pipe_through(:simple_token_auth)
       get("/gtfs-transport", TransportWeb.API.ValidatorsController, :gtfs_transport)
     end
   end

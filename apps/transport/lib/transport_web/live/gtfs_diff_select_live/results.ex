@@ -61,8 +61,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
     <div id="gtfs-diff-results" class="container">
       <div :if={@diff_file_url} class="panel">
         <h4>
-          <%= dgettext("validations", "GTFS Diff is available for") %>
-          <%= link(dgettext("validations", "download"),
+          <%= dgettext("gtfs-diff", "GTFS Diff is available for") %>
+          <%= link(dgettext("gtfs-diff", "download"),
             to: @diff_file_url,
             target: "_blank"
           ) %>
@@ -70,7 +70,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
         <p>
           <%= raw(
             dgettext(
-              "validations",
+              "gtfs-diff",
               "<a href=\"%{spec}\">Read</a> the GTFS Diff specification to understand how differences between GTFS are expressed",
               spec: "https://github.com/MobilityData/gtfs_diff/blob/main/specification.md"
             )
@@ -91,14 +91,14 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
           <%= if @error_msg do %>
             <.validation_error error_msg={@error_msg} />
           <% else %>
-            <p><%= dgettext("validations", "Analyzing found differences…") %></p>
+            <p><%= dgettext("gtfs-diff", "Analyzing found differences…") %></p>
           <% end %>
         <% end %>
       </div>
 
       <div class="actions">
         <button class="button-outline primary" type="button" phx-click="start-over">
-          <i class="fa fa-rotate-left"></i>&nbsp;<%= dgettext("validations", "Start over") %>
+          <i class="fa fa-rotate-left"></i>&nbsp;<%= dgettext("gtfs-diff", "Start over") %>
         </button>
       </div>
     </div>
@@ -179,7 +179,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
 
   defp similar_files(file_1, file_2) do
     dgettext(
-      "validations",
+      "gtfs-diff",
       "The GTFS files <code>%{gtfs_original_file_name_2}</code> and <code>%{gtfs_original_file_name_1}</code> are similar.",
       gtfs_original_file_name_1: file_1,
       gtfs_original_file_name_2: file_2
@@ -188,7 +188,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
 
   defp different_files(file_1, file_2) do
     dgettext(
-      "validations",
+      "gtfs-diff",
       "The GTFS file <code>%{gtfs_original_file_name_2}</code> has differences with the GTFS file <code>%{gtfs_original_file_name_1}</code>, as summarized below:",
       gtfs_original_file_name_1: file_1,
       gtfs_original_file_name_2: file_2
@@ -197,7 +197,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
 
   defp similar_urls(url_1, url_2) do
     dgettext(
-      "validations",
+      "gtfs-diff",
       "The <a href=\"%{gtfs_url_2}\">modified GTFS file</a> and the <a href=\"%{gtfs_url_1}\">reference GTFS file</a> are similar.",
       gtfs_url_1: url_1,
       gtfs_url_2: url_2
@@ -206,7 +206,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
 
   defp different_urls(url_1, url_2) do
     dgettext(
-      "validations",
+      "gtfs-diff",
       "The <a href=\"%{gtfs_url_2}\">modified GTFS file</a> has differences with the <a href=\"%{gtfs_url_1}\">reference GTFS file</a>, as summarized below:",
       gtfs_url_1: url_1,
       gtfs_url_2: url_2
@@ -217,7 +217,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
     ~H"""
     <p>
       <%= dgettext(
-        "validations",
+        "gtfs-diff",
         "An error occurred while interpreting the results. Note that the report is still available as download. Error:"
       ) %>
       <span class="red"><%= translate_error(@error_msg) %></span>.
@@ -225,6 +225,6 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
     """
   end
 
-  defp translate_error(":enomem"), do: dgettext("validations", "not enough memory")
+  defp translate_error(":enomem"), do: dgettext("gtfs-diff", "not enough memory")
   defp translate_error(e), do: "#{e}"
 end
