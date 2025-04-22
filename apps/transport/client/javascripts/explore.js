@@ -13,6 +13,8 @@ channel.join()
     .receive('ok', resp => { console.log('Joined successfully', resp) })
     .receive('error', resp => { console.log('Unable to join', resp) })
 
+let gtfsChannelRef
+
 const metropolitanFranceBounds = [[51.1, -4.9], [41.2, 9.8]]
 const map = Leaflet.map('map', { renderer: Leaflet.canvas() }).fitBounds(metropolitanFranceBounds)
 
@@ -94,15 +96,6 @@ function getLayers (layers) {
     return layersArray
 }
 
-channel.on('vehicle-positions', payload => {
-    if (payload.error) {
-        console.log(`Resource ${payload.resource_id} failed to load`)
-    } else {
-        layers.gtfsrt[payload.resource_id] = prepareLayer(payload.resource_id, payload.vehicle_positions)
-        deckGLLayer.setProps({ layers: getLayers(layers) })
-    }
-})
-
 function withQueryParams (alter) {
     const params = new URLSearchParams(window.location.search)
     alter(params)
@@ -132,10 +125,20 @@ gtfsrtCheckbox.addEventListener('change', (event) => {
 
 function startGTFSRT () {
     visibility.gtfsrt = true
+
+    gtfsChannelRef = channel.on('vehicle-positions', payload => {
+        if (payload.error) {
+            console.log(`Resource ${payload.resource_id} failed to load`)
+        } else {
+            layers.gtfsrt[payload.resource_id] = prepareLayer(payload.resource_id, payload.vehicle_positions)
+            deckGLLayer.setProps({ layers: getLayers(layers) })
+        }
+    })
 }
 
 function stopGTFSRT () {
     visibility.gtfsrt = false
+    channel.off('vehicle-positions', gtfsChannelRef)
     for (const key in layers.gtfsrt) {
         layers.gtfsrt[key] = prepareLayer(key, [])
     }
