@@ -123,79 +123,125 @@ const gtfsrtCheckbox = document.getElementById('gtfs-rt-check')
 gtfsrtCheckbox.addEventListener('change', (event) => {
     if (event.currentTarget.checked) {
         setQueryFlag('gtfs-rt')
-        visibility.gtfsrt = true
+        startGTFSRT()
     } else {
         unsetQueryFlag('gtfs-rt')
-        visibility.gtfsrt = false
-        for (const key in layers.gtfsrt) {
-            layers.gtfsrt[key] = prepareLayer(key, [])
-        }
-        deckGLLayer.setProps({ layers: getLayers(layers) })
+        stopGTFSRT()
     }
 })
+
+function startGTFSRT () {
+    visibility.gtfsrt = true
+}
+
+function stopGTFSRT () {
+    visibility.gtfsrt = false
+    for (const key in layers.gtfsrt) {
+        layers.gtfsrt[key] = prepareLayer(key, [])
+    }
+    deckGLLayer.setProps({ layers: getLayers(layers) })
+}
 
 // Handle BNLC toggle
 document.getElementById('bnlc-check').addEventListener('change', (event) => {
     if (event.currentTarget.checked) {
         setQueryFlag('bnlc')
-        trackEvent('bnlc')
-        fetch('/api/geo-query?data=bnlc')
-            .then(data => updateBNLCLayer(data.json()))
+        startBNLC()
     } else {
         unsetQueryFlag('bnlc')
         updateBNLCLayer(null)
     }
 })
 
+function startBNLC () {
+    trackEvent('bnlc')
+    fetch('/api/geo-query?data=bnlc')
+        .then(data => updateBNLCLayer(data.json()))
+}
+
 // Handle Parkings Relais toggle
 document.getElementById('parkings_relais-check').addEventListener('change', (event) => {
     if (event.currentTarget.checked) {
         setQueryFlag('parkings-relais')
-        trackEvent('parkings-relais')
-        fetch('/api/geo-query?data=parkings_relais')
-            .then(data => updateParkingsRelaisLayer(data.json()))
+        startParkingsRelais()
     } else {
         unsetQueryFlag('parkings-relais')
         updateParkingsRelaisLayer(null)
     }
 })
 
+function startParkingsRelais () {
+    trackEvent('parkings-relais')
+    fetch('/api/geo-query?data=parkings_relais')
+        .then(data => updateParkingsRelaisLayer(data.json()))
+}
+
 // Handle ZFE toggle
 document.getElementById('zfe-check').addEventListener('change', (event) => {
     if (event.currentTarget.checked) {
         setQueryFlag('zfe')
-        trackEvent('zfe')
-        fetch('/api/geo-query?data=zfe')
-            .then(data => updateZFELayer(data.json()))
+        startZFE()
     } else {
         unsetQueryFlag('zfe')
         updateZFELayer(null)
     }
 })
 
+function startZFE () {
+    trackEvent('zfe')
+    fetch('/api/geo-query?data=zfe')
+        .then(data => updateZFELayer(data.json()))
+}
+
 // Handle IRVE toggle
 document.getElementById('irve-check').addEventListener('change', (event) => {
     if (event.currentTarget.checked) {
         setQueryFlag('irve')
-        trackEvent('irve')
-        fetch('/api/geo-query?data=irve')
-            .then(data => updateIRVELayer(data.json()))
+        startIRVE()
     } else {
         unsetQueryFlag('irve')
         updateIRVELayer(null)
     }
 })
 
+function startIRVE () {
+    trackEvent('irve')
+    fetch('/api/geo-query?data=irve')
+        .then(data => updateIRVELayer(data.json()))
+}
+
 // Handle GBFS stations toggle
 document.getElementById('gbfs_stations-check').addEventListener('change', (event) => {
     if (event.currentTarget.checked) {
         setQueryFlag('gbfs-stations')
-        trackEvent('gbfs-stations')
-        fetch('/api/geo-query?data=gbfs_stations')
-            .then(data => updateGBFSStationsLayer(data.json()))
+        startGBFS()
     } else {
         unsetQueryFlag('gbfs-stations')
         updateGBFSStationsLayer(null)
+    }
+})
+
+function startGBFS () {
+    trackEvent('gbfs-stations')
+    fetch('/api/geo-query?data=gbfs_stations')
+        .then(data => updateGBFSStationsLayer(data.json()))
+}
+
+const bootSequence = {
+    'gtfs-rt-check': startGTFSRT,
+    'bnlc-check': startBNLC,
+    'parkings_relais-check': startParkingsRelais,
+    'zfe-check': startZFE,
+    'irve-check': startIRVE,
+    'gbfs_stations-check': startGBFS
+}
+
+// make sure the checkboxes status is in sync when loading from query params
+document.addEventListener('DOMContentLoaded', () => {
+    for (const checkId in bootSequence) {
+        if (document.getElementById(checkId).checked) {
+            bootSequence[checkId]()
+        }
     }
 })
 
