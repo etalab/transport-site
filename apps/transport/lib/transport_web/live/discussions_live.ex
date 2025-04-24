@@ -32,6 +32,7 @@ defmodule TransportWeb.DiscussionsLive do
             socket: @socket,
             dataset: @dataset,
             admin_member_ids: @admin_member_ids,
+            regulator_member_ids: @regulator_member_ids,
             org_member_ids: @org_member_ids,
             org_logo_thumbnail: @org_logo_thumbnail,
             locale: @locale
@@ -88,7 +89,8 @@ defmodule TransportWeb.DiscussionsLive do
         discussions: discussions,
         org_member_ids: org_member_ids,
         org_logo_thumbnail: org_logo_thumbnail,
-        admin_member_ids: DB.Contact.admin_datagouv_ids()
+        admin_member_ids: DB.Contact.admin_datagouv_ids(),
+        regulator_member_ids: DB.Contact.regulator_datagouv_ids()
       )
       |> push_event("discussions-loaded", %{
         ids: discussions |> Enum.filter(&discussion_should_be_closed?/1) |> Enum.map(& &1["id"])
