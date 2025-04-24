@@ -323,6 +323,20 @@ defmodule DB.Contact do
   end
 
   @doc """
+  A list of datagouv user IDs for contacts who are members of the regulator's organization.
+
+  This list is cached because it is very stable over time.
+  """
+  @spec regulator_datagouv_ids() :: [binary()]
+  def regulator_datagouv_ids do
+    Transport.Cache.fetch(
+      to_string(__MODULE__) <> ":regulator_datagouv_ids",
+      fn -> Enum.map(regulator_contacts(), & &1.datagouv_user_id) end,
+      :timer.minutes(60)
+    )
+  end
+
+  @doc """
   Fetches `DB.Contact` who are members of the transport.data.gouv.fr's organization.
   """
   @spec admin_contacts() :: [DB.Contact.t()]
@@ -332,6 +346,20 @@ defmodule DB.Contact do
     DB.Organization.base_query()
     |> preload(:contacts)
     |> where([organization: o], o.name == ^pan_org_name)
+    |> DB.Repo.one!()
+    |> Map.fetch!(:contacts)
+  end
+
+  @doc """
+  Fetches `DB.Contact` who are members of the regulator's organization.
+  """
+  @spec regulator_contacts() :: [DB.Contact.t()]
+  def regulator_contacts do
+    art_organization_id = Application.fetch_env!(:transport, :datagouvfr_art_organization_id)
+
+    DB.Organization.base_query()
+    |> preload(:contacts)
+    |> where([organization: o], o.id == ^art_organization_id)
     |> DB.Repo.one!()
     |> Map.fetch!(:contacts)
   end

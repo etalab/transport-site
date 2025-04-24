@@ -5,12 +5,17 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
   import Mox
 
   @admin_datagouv_id "5e60d6668b4c410c429b8a4a"
+  @art_organization_id "5a65deb788ee38279c49d926"
 
   setup :verify_on_exit!
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-    %{admin_org: insert(:organization, name: "Point d'Accès National transport.data.gouv.fr")}
+
+    %{
+      admin_org: insert(:organization, name: "Point d'Accès National transport.data.gouv.fr"),
+      art_org: insert(:organization, id: @art_organization_id)
+    }
   end
 
   test "render some discussions", %{conn: conn, admin_org: admin_org} do
@@ -67,6 +72,40 @@ defmodule Transport.TransportWeb.DiscussionsLiveTest do
     assert answer_comment |> Floki.find("img") |> Floki.attribute("src") == [
              "https://demo-static.data.gouv.fr/avatars/85/53e0a3845e43eb87fb905032aaa389-100.png"
            ]
+  end
+
+  test "regulator's badge", %{conn: conn, art_org: art_org} do
+    %{"id" => user_id} = discussions() |> hd() |> Map.fetch!("discussion") |> hd() |> Map.fetch!("posted_by")
+    insert_contact(%{datagouv_user_id: user_id, organizations: [Map.from_struct(art_org)]})
+
+    dataset =
+      insert(:dataset,
+        datagouv_id: datagouv_id = Ecto.UUID.generate(),
+        organization_id: organization_id = Ecto.UUID.generate()
+      )
+
+    Datagouvfr.Client.Discussions.Mock |> expect(:get, 1, fn ^datagouv_id -> discussions() end)
+
+    Datagouvfr.Client.Organization.Mock
+    |> expect(:get, 1, fn ^organization_id, [restrict_fields: true] -> organization() end)
+
+    {:ok, view, _html} =
+      live_isolated(conn, TransportWeb.DiscussionsLive,
+        session: %{
+          "dataset_datagouv_id" => datagouv_id,
+          "current_user" => %{"email" => "fc@tdg.fr"},
+          "dataset" => dataset,
+          "locale" => "fr",
+          "csp_nonce_value" => Ecto.UUID.generate()
+        }
+      )
+
+    [question_comment, _] = view |> render() |> Floki.parse_document!() |> Floki.find(".discussion-comment")
+
+    # This user is a member of the regulator's organization
+    assert [user_id] == DB.Contact.regulator_datagouv_ids()
+
+    assert question_comment |> Floki.find(".label.label--role") |> Floki.text() |> String.trim() == "Régulateur"
   end
 
   test "renders even if data.gouv is down", %{conn: conn} do
