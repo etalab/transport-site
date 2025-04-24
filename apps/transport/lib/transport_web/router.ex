@@ -284,6 +284,8 @@ defmodule TransportWeb.Router do
       post("/", GeojsonConversionController, :convert)
     end
 
+    get("/landing-vls", LandingPagesController, :vls)
+
     # old static pages that have been moved to doc.transport
     get("/faq", Redirect,
       external: "https://doc.transport.data.gouv.fr/le-point-d-acces-national/generalites/le-point-dacces-national"
