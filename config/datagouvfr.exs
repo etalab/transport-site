@@ -9,7 +9,9 @@ config :transport, datagouvfr_apikey: System.get_env("DATAGOUVFR_API_KEY")
 config :transport,
   datagouvfr_transport_publisher_label: "Point d'Accès National transport.data.gouv.fr",
   datagouvfr_transport_publisher_id: "5abca8d588ee386ee6ece479",
-  datagouvfr_publisher_id: "646b7187b50b2a93b1ae3d45"
+  datagouvfr_publisher_id: "646b7187b50b2a93b1ae3d45",
+  # https://www.data.gouv.fr/fr/organizations/autorite-de-regulation-des-transports-anciennement-arafer/
+  datagouvfr_art_organization_id: "5a65deb788ee38279c49d926"
 
 # Configure data.gouv.fr authentication
 

@@ -71,9 +71,6 @@ defmodule TransportWeb.DatasetController do
       {:error, msg} ->
         Logger.error("Could not fetch dataset details: #{msg}")
         redirect_to_slug_or_404(conn, slug_or_id)
-
-      nil ->
-        redirect_to_slug_or_404(conn, slug_or_id)
     end
   end
 

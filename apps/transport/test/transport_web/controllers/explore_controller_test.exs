@@ -16,6 +16,12 @@ defmodule TransportWeb.ExploreControllerTest do
     conn = conn |> get(~p"/explore")
     html = html_response(conn, 200)
     assert html =~ "Exploration"
+    refute html =~ "checked"
+
+    conn = conn |> get(~p"/explore?zfe=yes")
+    html = html_response(conn, 200)
+    assert html =~ "Exploration"
+    assert html =~ "checked"
   end
 
   test "GET /explore/vehicle-positions", %{conn: conn} do

@@ -11,6 +11,7 @@
     <%= for comment <- @discussion["discussion"] do %>
       <% is_producer = comment["posted_by"]["id"] in @org_member_ids %>
       <% is_admin = comment["posted_by"]["id"] in @admin_member_ids %>
+      <% is_regulator = comment["posted_by"]["id"] in @regulator_member_ids %>
       <% avatar_src =
         cond do
           user_avatar = comment["posted_by"]["avatar_thumbnail"] -> user_avatar
@@ -30,6 +31,9 @@
             </span>
             <span :if={is_admin} class="label label--role">
               transport.data.gouv.fr
+            </span>
+            <span :if={is_regulator} class="label label--role">
+              <%= dgettext("page-dataset-details", "Regulator") %>
             </span>
             <span class="discussion-date">
               <%= dgettext("page-dataset-details", "Posted on %{datetime}",
