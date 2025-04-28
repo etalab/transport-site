@@ -112,7 +112,7 @@ msgid "Declaration of conformity"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Exploration map"
+msgid "Data exploration map"
 msgstr ""
 
 #, elixir-autogen, elixir-format
