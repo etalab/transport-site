@@ -2,6 +2,8 @@ defmodule DB.ReuseTest do
   use ExUnit.Case, async: true
   import DB.Factory
 
+  doctest DB.Reuse, import: true
+
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
@@ -29,5 +31,17 @@ defmodule DB.ReuseTest do
 
     [reuse] = DB.Repo.all(DB.Reuse)
     assert [%DB.Dataset{id: ^dataset_id}] = reuse |> DB.Repo.preload(:datasets) |> Map.fetch!(:datasets)
+  end
+
+  test "search" do
+    foo = insert(:reuse, title: "Foo")
+    bar = insert(:reuse, owner: "Bar")
+    hello = insert(:reuse, organization: "hello")
+
+    search = fn value -> DB.Reuse.search(%{"q" => value}) |> DB.Repo.all() end
+
+    assert [foo] == search.("foo")
+    assert [bar] == search.("bar")
+    assert [hello] == search.("héllo")
   end
 end

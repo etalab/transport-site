@@ -26,7 +26,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
     <div class="actions">
       <button class="button" disabled={invalid_uploads?(@uploads)} type="submit">
         <i class="fa fa-check"></i>
-        <%= dgettext("validations", "Compare") %>
+        <%= dgettext("gtfs-diff", "Compare") %>
       </button>
       <button
         type="button"
@@ -35,7 +35,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
         phx-click="clear-uploads"
       >
         <i class="fa fa-trash"></i>
-        <%= dgettext("validations", "Clear uploaded files") %>
+        <%= dgettext("gtfs-diff", "Clear uploaded files") %>
       </button>
     </div>
     """
@@ -51,7 +51,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
       <label for={@uploads.ref}>
         <i class="fa fa-upload" aria-hidden="true"></i>
         <span>
-          <%= dgettext("validations", "Drop your GTFS files here or click to browse your local drive") %>
+          <%= dgettext("gtfs-diff", "Drop your GTFS files here or click to browse your local drive") %>
         </span>
       </label>
       <.live_file_input upload={@uploads} />
@@ -77,7 +77,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
     <article class="upload-entry upload-entry-inactive panel">
       <h4><%= upload_title(@index) %></h4>
       <label class="placeholder" for={@uploads.ref}>
-        <%= dgettext("validations", "Please upload some file above") %>
+        <%= dgettext("gtfs-diff", "Please upload some file above") %>
       </label>
     </article>
     """
@@ -103,9 +103,9 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
       <h4><%= upload_title(@index) %></h4>
       <div class="entry-name">
         <%= if @entry.valid? do %>
-          <.icon class="fa fa-square-check" title={dgettext("validations", "Valid file")} />
+          <.icon class="fa fa-square-check" title={dgettext("gtfs-diff", "Valid file")} />
         <% else %>
-          <.icon class="fa fa-square-xmark" title={dgettext("validations", "Invalid file")} />
+          <.icon class="fa fa-square-xmark" title={dgettext("gtfs-diff", "Invalid file")} />
         <% end %>
         <%= @entry.client_name %>
       </div>
@@ -115,8 +115,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
           type="button"
           phx-click="cancel-upload"
           phx-value-ref={@entry.ref}
-          title={dgettext("validations", "Cancel upload or remove file")}
-          aria-label={dgettext("validations", "Cancel upload or remove file")}
+          title={dgettext("gtfs-diff", "Cancel upload or remove file")}
+          aria-label={dgettext("gtfs-diff", "Cancel upload or remove file")}
         >
           <i class="fa fa-xmark"></i>
         </button>
@@ -143,7 +143,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
   defp discarded_files(%{uploads: _} = assigns) do
     ~H"""
     <span id="discarded-files">
-      <%= dgettext("validations", "Discarded files:") %>
+      <%= dgettext("gtfs-diff", "Discarded files:") %>
       <.discarded_file :for={{entry, index} <- Enum.with_index(@uploads.entries)} entry={entry} index={index} />.
     </span>
     """
@@ -174,20 +174,18 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
   iex> error_to_string(:not_accepted)
   "Le type de fichier sélectionné n’est pas utilisable."
   """
-  def error_to_string(:too_many_files), do: dgettext("validations", "You must select 2 files.")
-  def error_to_string(:not_accepted), do: dgettext("validations", "You have selected an unacceptable file type.")
+  def error_to_string(:too_many_files), do: dgettext("gtfs-diff", "You must select 2 files.")
+  def error_to_string(:not_accepted), do: dgettext("gtfs-diff", "You have selected an unacceptable file type.")
 
   def error_to_string(:too_large),
     do:
-      dgettext("validations", "File is too large, must be <%{max_file_size_mb}MB.",
-        max_file_size_mb: max_file_size_mb()
-      )
+      dgettext("gtfs-diff", "File is too large, must be <%{max_file_size_mb}MB.", max_file_size_mb: max_file_size_mb())
 
   defp upload_title(index) do
     if index == 0 do
-      dgettext("validations", "Reference GTFS")
+      dgettext("gtfs-diff", "Reference GTFS")
     else
-      dgettext("validations", "Modified GTFS")
+      dgettext("gtfs-diff", "Modified GTFS")
     end
   end
 
@@ -198,8 +196,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
         disabled={length(@uploads.entries) != 2}
         class="button-outline primary small"
         type="button"
-        title={dgettext("validations", "Switch files")}
-        aria-label={dgettext("validations", "Switch files")}
+        title={dgettext("gtfs-diff", "Switch files")}
+        aria-label={dgettext("gtfs-diff", "Switch files")}
         phx-click="switch-uploads"
       >
         <i class="fa fa-arrow-right-arrow-left"></i>

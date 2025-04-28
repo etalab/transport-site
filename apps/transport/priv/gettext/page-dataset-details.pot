@@ -737,3 +737,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Download the automatic NeTEx conversion"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Regulator"
+msgstr ""

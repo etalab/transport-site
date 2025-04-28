@@ -6,8 +6,11 @@ defmodule TransportWeb.ReuseController do
 
   def index(%Plug.Conn{} = conn, params) do
     config = make_pagination_config(params)
-    reuses = DB.Reuse.base_query() |> DB.Repo.paginate(page: config.page_number)
+    reuses = DB.Reuse.search(params) |> DB.Repo.paginate(page: config.page_number)
 
-    render(conn, "index.html", reuses: reuses)
+    conn
+    |> assign(:q, params["q"])
+    |> assign(:reuses, reuses)
+    |> render("index.html")
   end
 end

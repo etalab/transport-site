@@ -186,3 +186,11 @@ msgid "Warning"
 msgid_plural "Warnings"
 msgstr[0] "%{count} avertissement"
 msgstr[1] "%{count} avertissements"
+
+#, elixir-autogen, elixir-format
+msgid "Calendar files are empty. The service is never running."
+msgstr "Les fichiers de calendrier sont vides. Le service n'est jamais en exploitation."
+
+#, elixir-autogen, elixir-format
+msgid "Field agency_id should not be empty."
+msgstr "Le champ agency_id ne doit pas être vide."

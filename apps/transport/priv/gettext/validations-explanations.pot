@@ -149,3 +149,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "UnusableTrip"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "NoCalendar"
+msgstr ""

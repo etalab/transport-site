@@ -5,6 +5,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
   use Phoenix.Component
   use Gettext, backend: TransportWeb.Gettext
   import TransportWeb.Live.GTFSDiffSelectLive.GTFSSpecification
+  import TransportWeb.MarkdownHandler, only: [markdown_to_safe_html!: 1]
 
   def differences(
         %{diff_summary: _, selected_file: _, diff_explanations: _, profile: _, structural_changes: _} = assigns
@@ -26,7 +27,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
           |> Map.to_list()
           |> Enum.filter(fn {_, explanations} -> not Enum.empty?(explanations) > 0 end) %>
         <%= if not Enum.empty?(active_explanations) do %>
-          <h5><%= dgettext("validations", "Notable changes:") %></h5>
+          <h5><%= dgettext("gtfs-diff", "Notable changes:") %></h5>
           <.detailed_explanations
             :for={{explanation_type, explanations} <- active_explanations}
             file={@selected_file}
@@ -95,23 +96,23 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
     """
   end
 
-  defp pick_file_message(:added_file, 0), do: dgettext("validations", "file added")
+  defp pick_file_message(:added_file, 0), do: dgettext("gtfs-diff", "file added")
 
   defp pick_file_message(:added_file, count),
     do:
       dngettext(
-        "validations",
+        "gtfs-diff",
         "file added with %{count} new column:",
         "file added with %{count} new columns:",
         count
       )
 
-  defp pick_file_message(:deleted_file, 0), do: dgettext("validations", "file deleted")
+  defp pick_file_message(:deleted_file, 0), do: dgettext("gtfs-diff", "file deleted")
 
   defp pick_file_message(:deleted_file, count),
     do:
       dngettext(
-        "validations",
+        "gtfs-diff",
         "file deleted along with %{count} column:",
         "file deleted along with %{count} columns:",
         count
@@ -145,7 +146,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
       <li :for={column <- @column_differences}>
         <code><%= column %></code>
         <span :if={not standard_column?(@selected_file, column)}>
-          <i class="symbol fa fa-warning orange"></i> <%= dgettext("validations", "non standard column") %>
+          <i class="symbol fa fa-warning orange"></i> <%= dgettext("gtfs-diff", "non standard column") %>
         </span>
       </li>
     </ul>
@@ -157,10 +158,10 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
   end
 
   defp pick_column_message(:added_columns, count),
-    do: dngettext("validations", "Added %{count} column:", "Added %{count} columns:", count)
+    do: dngettext("gtfs-diff", "Added %{count} column:", "Added %{count} columns:", count)
 
   defp pick_column_message(:deleted_columns, count),
-    do: dngettext("validations", "Deleted %{count} column:", "Deleted %{count} columns:", count)
+    do: dngettext("gtfs-diff", "Deleted %{count} column:", "Deleted %{count} columns:", count)
 
   defp pick_symbol(:added_columns), do: "symbol fa fa-square-plus green"
   defp pick_symbol(:added_file), do: "symbol fa fa-square-plus green"
@@ -171,13 +172,13 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
     cond do
       assigns[:selected_file] not in Transport.GTFSDiff.files_to_analyze(assigns[:profile]) ->
         ~H"""
-        <p><%= dgettext("validations", "Row changes:") %></p>
+        <p><%= dgettext("gtfs-diff", "Row changes:") %></p>
         <.partial_difference_warning />
         """
 
       row_changes?(assigns[:diff_summary], assigns[:selected_file]) ->
         ~H"""
-        <p><%= dgettext("validations", "Row changes:") %></p>
+        <p><%= dgettext("gtfs-diff", "Row changes:") %></p>
         <ul>
           <.diff_summary_for_file
             :for={{nature, translation, css_class} <- diff_natures()}
@@ -191,7 +192,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
 
       true ->
         ~H"""
-        <p><%= dgettext("validations", "No row changes.") %></p>
+        <p><%= dgettext("gtfs-diff", "No row changes.") %></p>
         """
     end
   end
@@ -222,7 +223,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
     ~H"""
     <div class="notification warning">
       <%= dgettext(
-        "validations",
+        "gtfs-diff",
         "Row changes have not been analyzed for this file. We suggest you dive into both GTFS files for more details."
       ) %>
     </div>
@@ -231,22 +232,25 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
 
   defp diff_natures do
     [
-      {"add", dgettext("validations", "added"), "green"},
-      {"update", dgettext("validations", "updated"), "orange"},
-      {"delete", dgettext("validations", "deleted"), "red"}
+      {"add", dgettext("gtfs-diff", "added"), "green"},
+      {"update", dgettext("gtfs-diff", "updated"), "orange"},
+      {"delete", dgettext("gtfs-diff", "deleted"), "red"}
     ]
   end
 
   defp detailed_explanations(%{file: _, explanations: _, explanation_type: _} = assigns) do
     ~H"""
     <h6><%= translate_explanation_type(@file, @explanation_type) %> (<%= length(@explanations) %>)</h6>
+    <p :if={translate_explanation_details(@file, @explanation_type)}>
+      <%= translate_explanation_details(@file, @explanation_type) |> Enum.intersperse("\n\n") |> markdown_to_safe_html!() %>
+    </p>
     <div class="scrollable-table">
       <table class="table">
         <thead>
           <tr>
-            <th><%= dgettext("validations", "Comment") %></th>
-            <th><%= dgettext("validations", "Original") %></th>
-            <th><%= dgettext("validations", "Modified") %></th>
+            <th><%= dgettext("gtfs-diff", "Comment") %></th>
+            <th><%= dgettext("gtfs-diff", "Original") %></th>
+            <th><%= dgettext("gtfs-diff", "Modified") %></th>
           </tr>
         </thead>
         <tbody>
@@ -255,8 +259,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
               Enum.sort_by(@explanations, fn %{sort_key: sort_key} -> sort_key end)
           }>
             <td><%= message %></td>
-            <td><.attribute_value type={attribute_type(@file, type_)} value={before} /></td>
-            <td><.attribute_value type={attribute_type(@file, type_)} value={after_} /></td>
+            <td><.attribute_value type={attribute_type(@file, type_)} value={String.trim(before)} /></td>
+            <td><.attribute_value type={attribute_type(@file, type_)} value={String.trim(after_)} /></td>
           </tr>
         </tbody>
       </table>
@@ -269,6 +273,12 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
   defp attribute_type("routes.txt", "route_type"), do: :route_type
   defp attribute_type("stops.txt", "location_type"), do: :stop_location_type
   defp attribute_type(_, _), do: :text
+
+  defp attribute_value(%{type: :color, value: "#"} = assigns) do
+    ~H"""
+    <em><%= dgettext("gtfs-diff", "no color") %></em>
+    """
+  end
 
   defp attribute_value(%{type: :color, value: _} = assigns) do
     ~H"""
@@ -293,24 +303,124 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
     """
   end
 
+  defp attribute_value(%{type: _, value: ""} = assigns) do
+    ~H"""
+    <em><%= dgettext("gtfs-diff", "no value") %></em>
+    """
+  end
+
   defp attribute_value(%{type: _, value: _} = assigns) do
     ~H"""
     <%= @value %>
     """
   end
 
-  defp translate_explanation_type("stops.txt", "stop_name"), do: dgettext("validations", "Stops' names")
-  defp translate_explanation_type("stops.txt", "stop_position"), do: dgettext("validations", "Stops' positions")
-  defp translate_explanation_type("stops.txt", "wheelchair_boarding"), do: dgettext("validations", "Weelchair boarding")
-  defp translate_explanation_type("stops.txt", "location_type"), do: dgettext("validations", "Location type")
-  defp translate_explanation_type("routes.txt", "route_color"), do: dgettext("validations", "Route color")
-  defp translate_explanation_type("routes.txt", "route_text_color"), do: dgettext("validations", "Route text color")
-  defp translate_explanation_type("routes.txt", "route_short_name"), do: dgettext("validations", "Route short name")
-  defp translate_explanation_type("routes.txt", "route_long_name"), do: dgettext("validations", "Route long name")
-  defp translate_explanation_type("routes.txt", "route_type"), do: dgettext("validations", "Route type")
-  defp translate_explanation_type("agency.txt", "agency_url"), do: dgettext("validations", "Agency URL")
-  defp translate_explanation_type("trips.txt", "trip_headsign"), do: dgettext("validations", "Trip headsign")
-  defp translate_explanation_type(_, unknown), do: dgettext("validations", "Other change: %{unknown}", unknown: unknown)
+  defp translate_explanation_type("stops.txt", "stop_name"), do: dgettext("gtfs-diff", "Stops' names")
+  defp translate_explanation_type("stops.txt", "stop_position"), do: dgettext("gtfs-diff", "Stops' positions")
+  defp translate_explanation_type("stops.txt", "wheelchair_boarding"), do: dgettext("gtfs-diff", "Weelchair boarding")
+  defp translate_explanation_type("stops.txt", "location_type"), do: dgettext("gtfs-diff", "Location type")
+  defp translate_explanation_type("routes.txt", "route_color"), do: dgettext("gtfs-diff", "Route color")
+  defp translate_explanation_type("routes.txt", "route_text_color"), do: dgettext("gtfs-diff", "Route text color")
+  defp translate_explanation_type("routes.txt", "route_short_name"), do: dgettext("gtfs-diff", "Route short name")
+  defp translate_explanation_type("routes.txt", "route_long_name"), do: dgettext("gtfs-diff", "Route long name")
+  defp translate_explanation_type("routes.txt", "route_type"), do: dgettext("gtfs-diff", "Route type")
+  defp translate_explanation_type("agency.txt", "agency_url"), do: dgettext("gtfs-diff", "Agency URL")
+  defp translate_explanation_type("trips.txt", "trip_headsign"), do: dgettext("gtfs-diff", "Trip headsign")
+  defp translate_explanation_type(_, unknown), do: dgettext("gtfs-diff", "Other change: %{unknown}", unknown: unknown)
+
+  defp translate_explanation_details("stops.txt", "stop_name"),
+    do: [
+      compared_attributes(["stop_name"]),
+      dgettext(
+        "gtfs-diff",
+        "Name of the location. The `stop_name` should match the agency's rider-facing name for the location as printed on a timetable, published online, or represented on signage. For translations into other languages, use `translations.txt`."
+      )
+    ]
+
+  defp translate_explanation_details("stops.txt", "stop_position"),
+    do: [
+      compared_attributes(["stop_lat", "stop_lon"]),
+      dgettext(
+        "gtfs-diff",
+        "Computes the distance between locations. Results are sorted by distance. Moves shorter than 1 m are filtered out."
+      )
+    ]
+
+  defp translate_explanation_details("stops.txt", "wheelchair_boarding"),
+    do: [
+      compared_attributes(["wheelchair_boarding"]),
+      dgettext("gtfs-diff", "Indicates whether wheelchair boardings are possible from the location.")
+    ]
+
+  defp translate_explanation_details("stops.txt", "location_type"),
+    do: [
+      compared_attributes(["location_type"])
+    ]
+
+  defp translate_explanation_details("routes.txt", "route_color"),
+    do: [
+      compared_attributes(["route_color"]),
+      dgettext(
+        "gtfs-diff",
+        "Route color designation that matches public facing material. Defaults to white (FFFFFF) when omitted or left empty. The color difference between `route_color` and `route_text_color` should provide sufficient contrast when viewed on a black and white screen."
+      )
+    ]
+
+  defp translate_explanation_details("routes.txt", "route_text_color"),
+    do: [
+      compared_attributes(["route_text_color"]),
+      dgettext(
+        "gtfs-diff",
+        "Legible color to use for text drawn against a background of `route_color`. Defaults to black (000000) when omitted or left empty."
+      )
+    ]
+
+  defp translate_explanation_details("routes.txt", "route_short_name"),
+    do: [
+      compared_attributes(["route_short_name"]),
+      dgettext(
+        "gtfs-diff",
+        "Short name of a route. Often a short, abstract identifier (e.g., \"32\", \"100X\", \"Green\") that riders use to identify a route."
+      )
+    ]
+
+  defp translate_explanation_details("routes.txt", "route_long_name"),
+    do: [
+      compared_attributes(["route_long_name"]),
+      dgettext(
+        "gtfs-diff",
+        "Full name of a route. This name is generally more descriptive than the `route_short_name` and often includes the route's destination or stop."
+      )
+    ]
+
+  defp translate_explanation_details("routes.txt", "route_type"),
+    do: [
+      compared_attributes(["route_type"]),
+      dgettext("gtfs-diff", "Indicates the type of transportation used on a route.")
+    ]
+
+  defp translate_explanation_details("agency.txt", "agency_url"),
+    do: [
+      compared_attributes(["agency_url"]),
+      dgettext("gtfs-diff", "URL of the transit agency.")
+    ]
+
+  defp translate_explanation_details("trips.txt", "trip_headsign"),
+    do: [
+      compared_attributes(["trip_headsign"]),
+      dgettext(
+        "gtfs-diff",
+        "Text that appears on signage identifying the trip's destination to riders. This field is recommended for all services with headsign text displayed on the vehicle which may be used to distinguish amongst trips in a route."
+      )
+    ]
+
+  defp translate_explanation_details(_, _), do: nil
+
+  defp compared_attributes(attributes) do
+    introduction = dngettext("gtfs-diff", "Compare the value of ", "Compare the values of ", length(attributes))
+    attributes = attributes |> Enum.map_intersperse(", ", fn attribute -> "`#{attribute}`" end)
+    "#{introduction} #{attributes}."
+  end
 
   @doc """
   iex> Gettext.put_locale("en")
@@ -334,9 +444,9 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
   """
   def translate_target(target, n) do
     case target do
-      "file" -> dngettext("validations", "%{count} file", "%{count} files", n)
-      "row" -> dngettext("validations", "%{count} row", "%{count} rows", n)
-      "column" -> dngettext("validations", "%{count} column", "%{count} columns", n)
+      "file" -> dngettext("gtfs-diff", "%{count} file", "%{count} files", n)
+      "row" -> dngettext("gtfs-diff", "%{count} row", "%{count} rows", n)
+      "column" -> dngettext("gtfs-diff", "%{count} column", "%{count} columns", n)
       _ -> "#{n} #{target}#{if n > 1, do: "s"}"
     end
   end
