@@ -94,4 +94,32 @@ defmodule DB.DatasetNewCoveredArea do
       add_error(changeset, "#{administrative_division_type}_id", "must be set")
     end
   end
+
+  @doc """
+  Used for search, usage:
+  territoires = DB.DatasetNewCoveredArea.load_searchable_administrative_divisions
+  DB.DatasetNewCoveredArea.search(territoires, "75")
+  """
+  def load_searchable_administrative_divisions do
+    [DB.Commune, DB.EPCI, DB.Departement, DB.Region]
+    |> Enum.map(&Transport.SearchCommunes.load/1)
+    |> List.flatten()
+    # Take out the national region as it doesn’t have an insee code and search fails
+    #  Fix this in the future
+    |> Enum.reject(&(&1.nom == "National"))
+    |> Enum.map(&put_administrative_division_type/1)
+  end
+
+  def search(territoires, term) do
+    Transport.SearchCommunes.filter(territoires, term)
+  end
+
+  defp put_administrative_division_type(division) do
+    type_name = division.__struct__ |> Module.split() |> List.last() |> String.downcase()
+
+    division
+    |> Map.take([:id, :insee, :nom, :normalized_nom])
+    # Todo: change that to match the struct with administrative_division_type?
+    |> Map.put(:type, type_name)
+  end
 end

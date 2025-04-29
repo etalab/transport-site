@@ -69,4 +69,25 @@ defmodule DB.DatasetNewCoveredAreaTest do
     assert area.commune_id == commune.id
     assert area.nom == commune.nom
   end
+
+  test "search" do
+    insert(:commune, insee: "12345", nom: "Test Commune")
+    insert(:departement, insee: "123", nom: "Test Departement")
+    territoires = DB.DatasetNewCoveredArea.load_searchable_administrative_divisions()
+
+    assert [
+             %{
+               type: "commune",
+               nom: "Test Commune",
+               insee: "12345",
+               normalized_nom: "testcommune"
+             },
+             %{
+               type: "departement",
+               nom: "Test Departement",
+               insee: "123",
+               normalized_nom: "testdepartement"
+             }
+           ] = DB.DatasetNewCoveredArea.search(territoires, "Test")
+  end
 end
