@@ -83,9 +83,6 @@ defmodule Transport.IRVE.Consolidation do
       |> Enum.reject(fn r -> r.dataset_id == "67811b8e8934d388950bca3f" end)
       # |> Enum.filter(fn r -> r.resource_id != "7f50c3d3-2692-48d3-ace9-64600ec6fc4b" end)
       |> Enum.sort_by(fn r -> [r.dataset_id, r.resource_id] end)
-      |> Stream.drop(1001)
-      |> Stream.take(10)
-      # |> Enum.filter(&(&1.resource_id == "cbd64933-26df-4ab5-b9e8-104f9af9a16c"))
       |> Enum.reduce(%{df: nil, report: []}, fn row, %{df: main_df, report: report} ->
         Logger.info("Processing resource #{row.resource_id}")
 
