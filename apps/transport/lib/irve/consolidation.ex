@@ -74,6 +74,17 @@ defmodule Transport.IRVE.Consolidation do
   def concat_rows(main_df, df), do: Explorer.DataFrame.concat_rows(main_df, df)
 
   def show_more() do
+  def build_report_item(row, body, extension, optional_error) do
+    %Transport.IRVE.ReportItem{
+      dataset_id: row.dataset_id,
+      resource_id: row.resource_id,
+      resource_url: row.url,
+      error: optional_error,
+      estimated_pdc_count: body |> String.split("\n") |> Enum.count(),
+      extension: extension
+    }
+end
+
     output =
       Transport.IRVE.Extractor.datagouv_resources()
       # exclude data gouv generated consolidation
@@ -95,18 +106,11 @@ defmodule Transport.IRVE.Consolidation do
             {:error, error} -> {main_df, error}
           end
 
-        description = %Transport.IRVE.ReportItem{
-          dataset_id: row.dataset_id,
-          resource_id: row.resource_id,
-          resource_url: row.url,
-          error: error,
-          estimated_pdc_count: body |> String.split("\n") |> Enum.count(),
-          extension: extension
-        }
+        report_item = build_report_item(row, body, extension, optional_error)
 
         %{
           df: main_df,
-          report: [description | report]
+          report: [report_item | report]
         }
       end)
 
