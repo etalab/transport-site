@@ -8,6 +8,6 @@ defmodule Transport.Jobs.IRVEConsolidationJob do
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
-    IO.puts("My life is chugging along nicely.")
+    Transport.IRVE.Consolidation.build_aggregate_and_report!()
   end
 end
