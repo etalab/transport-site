@@ -103,7 +103,7 @@ end
         body = download_resource_content!(row.url)
         extension = Path.extname(row.url)
 
-        {main_df, error} =
+        {main_df, optional_error} =
           case process_resource(row, body, extension) do
             {:ok, df} -> {concat_rows(main_df, df), nil}
             {:error, error} -> {main_df, error}
