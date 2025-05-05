@@ -4,7 +4,6 @@ defmodule Transport.Jobs.IRVEConsolidationJob do
   """
   use Oban.Worker, unique: [period: {1, :days}], tags: ["irve"], max_attempts: 3
   require Logger
-  import Transport.S3.AggregatesUploader
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
