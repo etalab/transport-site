@@ -1,3 +1,7 @@
-# IO.puts("========== go further ==========")
+Transport.Jobs.IRVEConsolidationJob.perform(%Oban.Job{})
 
-Transport.IRVE.Consolidation.show_more()
+IO.puts """
+ ╔═════════════════════════╗
+ ║     Done ! Oh Yeah.     ║
+ ╚═════════════════════════╝
+"""
