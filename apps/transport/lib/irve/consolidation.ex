@@ -15,7 +15,10 @@ defmodule Transport.IRVE.Consolidation do
     body
   end
 
-  def process_one(row, body, extension) do
+  @doc """
+  Process a row (resource). The full content (body) is expected together with the original file extension.
+  """
+  def process_resource(row, body, extension) do
     try do
       if Transport.ZipProbe.likely_zip_content?(body) do
         raise("the content is likely to be a zip file, not uncompressed CSV data")
@@ -101,7 +104,7 @@ end
         extension = Path.extname(row.url)
 
         {main_df, error} =
-          case process_one(row, body, extension) do
+          case process_resource(row, body, extension) do
             {:ok, df} -> {concat_rows(main_df, df), nil}
             {:error, error} -> {main_df, error}
           end
