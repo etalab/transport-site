@@ -10,8 +10,8 @@ defmodule Transport.IRVE.Consolidation do
   Download content separately from processing, because we need to provide an estimate of the number of lines
   even if the processing fails. Asserting 200 is fine here, because the target server is data gouv & quite reliable.
   """
-  def download_one!(row) do
-    %{status: 200, body: body} = Transport.IRVE.Fetcher.get!(row.url, compressed: false, decode_body: false)
+  def download_resource_content!(url) do
+    %{status: 200, body: body} = Transport.IRVE.Fetcher.get!(url, compressed: false, decode_body: false)
     body
   end
 
@@ -97,7 +97,7 @@ end
       |> Enum.reduce(%{df: nil, report: []}, fn row, %{df: main_df, report: report} ->
         Logger.info("Processing resource #{row.resource_id}")
 
-        body = download_one!(row)
+        body = download_resource_content!(row.url)
         extension = Path.extname(row.url)
 
         {main_df, error} =
