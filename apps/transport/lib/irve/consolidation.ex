@@ -76,7 +76,18 @@ defmodule Transport.IRVE.Consolidation do
   def concat_rows(nil, df), do: df
   def concat_rows(main_df, df), do: Explorer.DataFrame.concat_rows(main_df, df)
 
-  def show_more() do
+  @datagouv_organization_id "646b7187b50b2a93b1ae3d45"
+  @test_dataset_id "67811b8e8934d388950bca3f"
+
+  def exclude_irrelevant_resources(stream) do
+    stream
+    # exclude data gouv generated consolidation
+    |> Enum.reject(fn r -> r.dataset_organisation_id == @datagouv_organization_id end)
+    # also exclude "test dataset" https://www.data.gouv.fr/en/datasets/test-data-set
+    # which is a large file marked as IRVE
+    |> Enum.reject(fn r -> r.dataset_id == @test_dataset_id end)
+  end
+
   def build_report_item(row, body, extension, optional_error) do
     %Transport.IRVE.ReportItem{
       dataset_id: row.dataset_id,
@@ -88,14 +99,10 @@ defmodule Transport.IRVE.Consolidation do
     }
 end
 
+  def build_aggregate_and_report!() do
     output =
       Transport.IRVE.Extractor.datagouv_resources()
-      # exclude data gouv generated consolidation
-      |> Enum.reject(fn r -> r.dataset_organisation_id == "646b7187b50b2a93b1ae3d45" end)
-      # and "test dataset" https://www.data.gouv.fr/en/datasets/test-data-set
-      # which is a large file marked as IRVE
-      |> Enum.reject(fn r -> r.dataset_id == "67811b8e8934d388950bca3f" end)
-      # |> Enum.filter(fn r -> r.resource_id != "7f50c3d3-2692-48d3-ace9-64600ec6fc4b" end)
+      |> exclude_irrelevant_resources()
       |> Enum.sort_by(fn r -> [r.dataset_id, r.resource_id] end)
       |> Enum.reduce(%{df: nil, report: []}, fn row, %{df: main_df, report: report} ->
         Logger.info("Processing resource #{row.resource_id}")
