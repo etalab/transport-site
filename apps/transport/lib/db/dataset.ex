@@ -644,22 +644,23 @@ defmodule DB.Dataset do
   end
 
   @spec count_by_mode(binary()) :: number()
-  def count_by_mode(tag) do
-    base_query()
-    |> join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
-    |> where([metadata: m], ^tag in m.modes)
-    |> distinct([dataset: d], d.id)
-    |> Repo.aggregate(:count, :id)
+  def count_by_mode(mode) do
+    count_by_mode_query(mode)
+    |> DB.Repo.aggregate(:count, :id)
   end
 
   @spec count_coach() :: number()
   def count_coach do
-    base_query()
-    |> join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+    count_by_mode_query("bus")
     # 14 is the national "region". It means that it is not bound to a region or local territory
-    |> where([metadata: m, dataset: d], d.region_id == 14 and "bus" in m.modes)
-    |> distinct([dataset: d], d.id)
-    |> Repo.aggregate(:count, :id)
+    |> where([dataset: d], d.region_id == 14)
+    |> DB.Repo.aggregate(:count, :id)
+  end
+
+  defp count_by_mode_query(mode) do
+    base_query()
+    |> join(:inner, [dataset: d], r in assoc(d, :resources), as: :resource)
+    |> where([resource: r], fragment("?->'gtfs_modes' @> ?", r.counter_cache, ^mode))
   end
 
   @spec count_by_type(binary()) :: any()
