@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Transport Explore"
+msgid "Data exploration map"
 msgstr ""
 
 #, elixir-autogen, elixir-format
