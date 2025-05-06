@@ -98,6 +98,8 @@
         {Credo.Check.Refactor.NegatedConditionsWithElse},
         {Credo.Check.Refactor.Nesting},
         {Credo.Check.Refactor.PipeChainStart, false},
+        # Too unpractical ; we want to keep pipes of separate rejects
+        {Credo.Check.Refactor.RejectReject, false},
         {Credo.Check.Refactor.UnlessWithElse},
         {Credo.Check.Warning.BoolOperationOnSameValues},
         {Credo.Check.Warning.ExpensiveEmptyEnumCheck},
