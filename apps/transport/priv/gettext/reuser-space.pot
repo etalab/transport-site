@@ -128,7 +128,7 @@ msgid "Improved data sharing"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Manage"
+msgid "Preferences"
 msgstr ""
 
 #, elixir-autogen, elixir-format
