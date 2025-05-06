@@ -14,7 +14,9 @@ defmodule TransportWeb.ExploreControllerTest do
 
   test "GET /explore", %{conn: conn} do
     conn = conn |> get(~p"/explore")
-    html = html_response(conn, 200)
+    redirect_path = conn |> redirected_to(302)
+    assert redirect_path =~ ~r"^/explore\?"
+    html = conn |> get(redirect_path) |> html_response(200)
     assert html =~ "Carte d&#39;exploration des données"
     assert 6 == (html |> String.split("checked") |> Enum.count()) - 1
 
