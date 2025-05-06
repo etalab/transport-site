@@ -2,7 +2,7 @@ import Config
 
 config :transport, DB.Repo,
   url: System.get_env("PG_URL") || "ecto://postgres:postgres@localhost/transport_repo",
-  # NOTE: this default pool_size is overriden by "prod.exs" !
+  # NOTE: this default pool_size is overriden by "runtime.exs" !
   pool_size: (System.get_env("PG_POOL_SIZE") || "10") |> String.to_integer(),
   types: DB.PostgrexTypes
 
