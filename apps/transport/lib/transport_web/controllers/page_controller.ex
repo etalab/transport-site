@@ -19,8 +19,11 @@ defmodule TransportWeb.PageController do
     # with HOTFIX for https://github.com/etalab/transport-site/issues/3609
     # combined with the fact our HTTP monitor checks the url every minute, should
     # allow regular traffic for most users
-    temporary_ttl = :timer.minutes(15)
-    Transport.Cache.fetch("home-index-stats", fn -> compute_home_index_stats() end, temporary_ttl)
+    Transport.Cache.fetch(
+      "home-index-stats",
+      fn -> compute_home_index_stats() end,
+      Transport.PreemptiveHomeStatsCache.cache_ttl()
+    )
   end
 
   defp put_breaking_news(conn, %{level: level, msg: msg}) do
@@ -37,7 +40,7 @@ defmodule TransportWeb.PageController do
     |> render("404.html")
   end
 
-  defp compute_home_index_stats do
+  def compute_home_index_stats do
     [
       count_by_type: Dataset.count_by_type(),
       count_train: Dataset.count_by_mode("rail"),
