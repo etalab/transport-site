@@ -669,15 +669,15 @@ defmodule DB.DatasetDBTest do
 
   test "count dataset by mode" do
     insert(:region, id: 14, nom: "France")
-    region = insert(:region)
+    dataset = insert(:dataset)
+    dataset_2 = insert(:dataset, region_id: 14)
 
-    %{dataset: dataset} = insert_resource_and_friends(Date.utc_today(), region_id: region.id, modes: ["bus"])
-    insert_resource_and_friends(Date.utc_today(), dataset: dataset, modes: ["ski"])
+    # As filled by `Transport.CounterCache`
+    insert(:resource, counter_cache: %{gtfs_modes: ["bus"]}, dataset: dataset)
+    insert(:resource, counter_cache: %{gtfs_modes: ["ski"]}, dataset: dataset)
 
-    %{dataset: dataset_2} = insert_resource_and_friends(Date.utc_today(), region_id: 14, modes: ["bus"])
-    insert_resource_and_friends(Date.utc_today(), dataset: dataset_2, modes: ["ski"])
-
-    insert_resource_and_friends(Date.utc_today(), region_id: 14)
+    insert(:resource, counter_cache: %{gtfs_modes: ["bus"]}, dataset: dataset_2)
+    insert(:resource, counter_cache: %{gtfs_modes: ["ski"]}, dataset: dataset_2)
 
     assert DB.Dataset.count_by_mode("bus") == 2
     assert DB.Dataset.count_by_mode("ski") == 2
