@@ -224,8 +224,8 @@ end
 if config_env() == :prod do
   pool_size =
     case app_env do
-      :production -> 15
-      :staging -> 6
+      :production -> (System.get_env("PG_POOL_SIZE") || "15") |> String.to_integer()
+      :staging -> (System.get_env("PG_POOL_SIZE") || "6") |> String.to_integer()
     end
 
   config :transport, DB.Repo,
