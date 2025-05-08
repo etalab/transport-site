@@ -2,6 +2,13 @@ defmodule Transport.IRVE.Consolidation do
   require Logger
   import Transport.IRVE.Static.Probes
 
+  @moduledoc """
+  Static IRVE consolidation code.
+
+  The code goes through the resources marked with format `etalab/schema-irve-statique`
+  on data gouv, and attempts to create a consolidated output with the same format.
+  """
+
   # FIXME: "continue but report" when meeting unexpected (e.g. HTTP) error
   # FIXME: clean-up code
   # FIXME: move hardcoding filtering (very useful for sampling etc) into caller code
