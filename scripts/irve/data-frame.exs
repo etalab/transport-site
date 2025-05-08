@@ -1,7 +1,7 @@
 Transport.Jobs.IRVEConsolidationJob.perform(%Oban.Job{})
 
-IO.puts """
+IO.puts("""
  ╔═════════════════════════╗
  ║     Done ! Oh Yeah.     ║
  ╚═════════════════════════╝
-"""
+""")
