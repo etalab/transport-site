@@ -63,12 +63,6 @@ defmodule Transport.IRVE.Consolidation do
       {:ok, df}
     rescue
       error ->
-        IO.inspect(error)
-
-        if String.contains?(error |> inspect, "KeyError") do
-          IO.inspect(%{error: error, row: row}, IEx.inspect_opts())
-        end
-
         {:error, error}
     end
   end
