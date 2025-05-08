@@ -10,8 +10,6 @@ defmodule Transport.IRVE.Consolidation do
   """
 
   # FIXME: "continue but report" when meeting unexpected (e.g. HTTP) error
-  # FIXME: clean-up code
-  # FIXME: move hardcoding filtering (very useful for sampling etc) into caller code
 
   @doc """
   Download content separately from processing, because we need to provide an estimate of the number of lines
