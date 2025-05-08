@@ -96,10 +96,14 @@ defmodule Transport.IRVE.Consolidation do
     }
   end
 
-  def build_aggregate_and_report! do
+  def maybe_filter(stream, nil), do: stream
+  def maybe_filter(stream, function) when is_function(function), do: stream |> function.()
+
+  def build_aggregate_and_report!(options \\ []) do
     output =
       Transport.IRVE.Extractor.datagouv_resources()
       |> exclude_irrelevant_resources()
+      |> maybe_filter(options[:filter])
       |> Enum.sort_by(fn r -> [r.dataset_id, r.resource_id] end)
       |> Enum.reduce(%{df: nil, report: []}, fn row, %{df: main_df, report: report} ->
         Logger.info("Processing resource #{row.resource_id}")
