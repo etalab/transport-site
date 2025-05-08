@@ -123,7 +123,7 @@ defmodule Transport.IRVE.DataFrame do
   end
 
   @doc """
-  iex> Explorer.DataFrame.new([%{coordonneesXY: "[47.39,0.80]"}]) |> Transport.IRVE.DataFrame.preprocess_data()
+  iex> Explorer.DataFrame.new([%{coordonneesXY: "[47.39,0.80]"}]) |> Transport.IRVE.DataFrame.preprocess_xy_coordinates()
   #Explorer.DataFrame<
     Polars[1 x 2]
     x f64 [47.39]
@@ -132,7 +132,7 @@ defmodule Transport.IRVE.DataFrame do
 
   We must also support cases where there are extra spaces.
 
-  iex> Explorer.DataFrame.new([%{coordonneesXY: "[43.958037, 4.764347]"}]) |> Transport.IRVE.DataFrame.preprocess_data()
+  iex> Explorer.DataFrame.new([%{coordonneesXY: "[43.958037, 4.764347]"}]) |> Transport.IRVE.DataFrame.preprocess_xy_coordinates()
   #Explorer.DataFrame<
     Polars[1 x 2]
     x f64 [43.958037]
@@ -141,14 +141,14 @@ defmodule Transport.IRVE.DataFrame do
 
   But wait, there is more. Leading and trailing spaces can also occur.
 
-  iex> Explorer.DataFrame.new([%{coordonneesXY: " [6.128405 , 48.658737] "}]) |> Transport.IRVE.DataFrame.preprocess_data()
+  iex> Explorer.DataFrame.new([%{coordonneesXY: " [6.128405 , 48.658737] "}]) |> Transport.IRVE.DataFrame.preprocess_xy_coordinates()
   #Explorer.DataFrame<
     Polars[1 x 2]
     x f64 [6.128405]
     y f64 [48.658737]
   >
   """
-  def preprocess_data(df) do
+  def preprocess_xy_coordinates(df) do
     df
     |> Explorer.DataFrame.mutate(coordonneesXY: coordonneesXY |> strip("[] "))
     |> Explorer.DataFrame.mutate_with(fn df ->
