@@ -1,5 +1,8 @@
 defmodule Transport.IRVE.Processing do
-  # FIXME: clarify scope of this module, and relationship to the `DataFrame` one
+  @moduledoc """
+  A module able to take raw binary (CSV body), remap it as a `DataFrame`,
+  and most importantly preprocess a couple of data.
+  """
 
   @doc """
   Takes a CSV body, read it as `DataFrame`, then preprocess all the required fields
