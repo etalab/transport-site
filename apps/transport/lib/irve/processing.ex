@@ -15,8 +15,7 @@ defmodule Transport.IRVE.Processing do
       Transport.IRVE.StaticIRVESchema.schema_content(),
       _strict = false
     )
-    # TODO: rename method
-    |> Transport.IRVE.DataFrame.preprocess_data()
+    |> Transport.IRVE.DataFrame.preprocess_xy_coordinates()
     |> Transport.IRVE.DataFrame.preprocess_boolean("prise_type_ef")
     |> Transport.IRVE.DataFrame.preprocess_boolean("prise_type_2")
     |> Transport.IRVE.DataFrame.preprocess_boolean("prise_type_combo_ccs")
