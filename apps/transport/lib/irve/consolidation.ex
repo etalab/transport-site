@@ -26,52 +26,50 @@ defmodule Transport.IRVE.Consolidation do
   Process a row (resource). The full content (body) is expected together with the original file extension.
   """
   def process_resource(row, body, extension) do
-    try do
-      if Transport.ZipProbe.likely_zip_content?(body) do
-        raise("the content is likely to be a zip file, not uncompressed CSV data")
-      end
-
-      if (extension |> String.downcase()) not in ["", ".csv"] do
-        raise("the content is likely not a CSV file (extension is #{extension})")
-      end
-
-      if probably_v1_schema(body) do
-        raise("looks like a v1 irve")
-      end
-
-      if !has_id_pdc_itinerance(body) do
-        raise("content has no id_pdc_itinerance in first line")
-      end
-
-      header_separator = hint_header_separator(body)
-      # we only support comma at this point. NOTE: commas can be here too
-      if header_separator == ";" do
-        raise("unsupported column separator #{header_separator}")
-      end
-
-      if !String.valid?(body) do
-        raise("string is not valid UTF-8 (could be binary content, or latin1)")
-      end
-
-      df = Transport.IRVE.Processing.read_as_data_frame(body)
-
-      nil_counts = Explorer.DataFrame.nil_count(df)
-
-      nil_counts = {
-        Explorer.Series.at(nil_counts[:id_pdc_itinerance], 0),
-        Explorer.Series.at(nil_counts[:x], 0),
-        Explorer.Series.at(nil_counts[:y], 0)
-      }
-
-      unless nil_counts == {0, 0, 0} do
-        Logger.warning("Resource #{row.resource_id} has nil on key data (#{nil_counts |> inspect})")
-      end
-
-      {:ok, df}
-    rescue
-      error ->
-        {:error, error}
+    if Transport.ZipProbe.likely_zip_content?(body) do
+      raise("the content is likely to be a zip file, not uncompressed CSV data")
     end
+
+    if (extension |> String.downcase()) not in ["", ".csv"] do
+      raise("the content is likely not a CSV file (extension is #{extension})")
+    end
+
+    if probably_v1_schema(body) do
+      raise("looks like a v1 irve")
+    end
+
+    if !has_id_pdc_itinerance(body) do
+      raise("content has no id_pdc_itinerance in first line")
+    end
+
+    header_separator = hint_header_separator(body)
+    # we only support comma at this point. NOTE: commas can be here too
+    if header_separator == ";" do
+      raise("unsupported column separator #{header_separator}")
+    end
+
+    if !String.valid?(body) do
+      raise("string is not valid UTF-8 (could be binary content, or latin1)")
+    end
+
+    df = Transport.IRVE.Processing.read_as_data_frame(body)
+
+    nil_counts = Explorer.DataFrame.nil_count(df)
+
+    nil_counts = {
+      Explorer.Series.at(nil_counts[:id_pdc_itinerance], 0),
+      Explorer.Series.at(nil_counts[:x], 0),
+      Explorer.Series.at(nil_counts[:y], 0)
+    }
+
+    unless nil_counts == {0, 0, 0} do
+      Logger.warning("Resource #{row.resource_id} has nil on key data (#{nil_counts |> inspect})")
+    end
+
+    {:ok, df}
+  rescue
+    error ->
+      {:error, error}
   end
 
   def concat_rows(nil, df), do: df
@@ -98,7 +96,7 @@ defmodule Transport.IRVE.Consolidation do
       estimated_pdc_count: body |> String.split("\n") |> Enum.count(),
       extension: extension
     }
-end
+  end
 
   def build_aggregate_and_report!() do
     output =
