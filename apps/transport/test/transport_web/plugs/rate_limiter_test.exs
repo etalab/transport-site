@@ -27,7 +27,11 @@ defmodule TransportWeb.Plugs.RateLimiterTest do
                  allow_user_agents: ""
                )
 
-      assert [allow_user_agents: ["bar", "baz"], block_user_agent_keywords: ["foo", "bar"], log_user_agent: false] =
+      assert [
+               allow_user_agents: ["bar", "baz"],
+               block_user_agent_keywords: ["foo", "bar"],
+               log_user_agent: false
+             ] =
                RateLimiter.init(
                  log_user_agent: "",
                  block_user_agent_keywords: "foo|bar",
@@ -36,7 +40,11 @@ defmodule TransportWeb.Plugs.RateLimiterTest do
     end
 
     test "with keywords" do
-      assert [allow_user_agents: [], log_user_agent: false, block_user_agent_keywords: ["foo", "bar"]] ==
+      assert [
+               allow_user_agents: [],
+               log_user_agent: false,
+               block_user_agent_keywords: ["foo", "bar"]
+             ] ==
                RateLimiter.init(
                  block_user_agent_keywords: ["foo", "bar"],
                  log_user_agent: false,
