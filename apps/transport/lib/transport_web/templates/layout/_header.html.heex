@@ -22,7 +22,7 @@
               <%= gettext("Data") %>
               <div class="dropdown-content">
                 <%= link(gettext("Datasets"), to: dataset_path(@conn, :index)) %>
-                <%= link(gettext("Exploration map"), to: explore_path(@conn, :index)) %>
+                <%= link(gettext("Data exploration map"), to: explore_path(@conn, :index)) %>
                 <%= link(gettext("National GTFS stops map"), to: explore_path(@conn, :gtfs_stops)) %>
                 <%= link(gettext("Reuses"), to: reuse_path(@conn, :index)) %>
               </div>

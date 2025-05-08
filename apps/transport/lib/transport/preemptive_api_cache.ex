@@ -4,7 +4,7 @@ defmodule Transport.PreemptiveAPICache do
   """
 
   use Transport.PreemptiveBaseCache,
-    first_run: 0,
+    first_run: :timer.seconds(30),
     job_delay: :timer.seconds(300),
     # more than twice job_delay to reduce the risk of parallel computation
     cache_ttl: :timer.seconds(700)

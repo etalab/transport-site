@@ -24,8 +24,6 @@ defmodule Transport.Application do
       end
     end
 
-    run_web_processes = webserver_enabled?() && Mix.env() != :test
-
     children =
       [
         DB.Repo,
@@ -43,9 +41,10 @@ defmodule Transport.Application do
         Transport.Vault
       ]
       |> add_scheduler()
-      |> add_if(fn -> run_web_processes end, Transport.RealtimePoller)
-      |> add_if(fn -> run_web_processes end, Transport.PreemptiveAPICache)
-      |> add_if(fn -> run_web_processes end, Transport.PreemptiveStatsCache)
+      |> add_if(fn -> run_realtime_poller?() end, Transport.RealtimePoller)
+      |> add_if(fn -> preemptive_caching?() end, Transport.PreemptiveHomeStatsCache)
+      |> add_if(fn -> preemptive_caching?() end, Transport.PreemptiveAPICache)
+      |> add_if(fn -> preemptive_caching?() end, Transport.PreemptiveStatsCache)
       ## manually add a children supervisor that is not scheduled
       |> Kernel.++([{Task.Supervisor, name: ImportTaskSupervisor}])
 
@@ -63,6 +62,11 @@ defmodule Transport.Application do
   def worker_only?, do: worker_enabled?() && !webserver_enabled?()
   def webserver_only?, do: webserver_enabled?() && !worker_enabled?()
   def dual_mode?, do: worker_enabled?() && webserver_enabled?()
+
+  def run_realtime_poller?, do: webserver_enabled?() && Mix.env() != :test
+
+  def preemptive_caching?,
+    do: webserver_enabled?() && Application.fetch_env!(:transport, :app_env) in [:production, :staging]
 
   defp add_if(children, condition, child) do
     if condition.() do

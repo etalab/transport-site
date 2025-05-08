@@ -112,8 +112,8 @@ msgid "Declaration of conformity"
 msgstr "Déclaration de conformité"
 
 #, elixir-autogen, elixir-format
-msgid "Exploration map"
-msgstr "Carte d'exploration"
+msgid "Data exploration map"
+msgstr "Carte d'exploration des données"
 
 #, elixir-autogen, elixir-format
 msgid "SIRI query generator"
