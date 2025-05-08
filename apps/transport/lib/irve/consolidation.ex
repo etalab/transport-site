@@ -98,7 +98,7 @@ defmodule Transport.IRVE.Consolidation do
     }
   end
 
-  def build_aggregate_and_report!() do
+  def build_aggregate_and_report! do
     output =
       Transport.IRVE.Extractor.datagouv_resources()
       |> exclude_irrelevant_resources()
