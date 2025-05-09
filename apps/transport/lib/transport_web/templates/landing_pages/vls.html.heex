@@ -1,0 +1,142 @@
+<article class="landing_page_vls">
+  <header>
+    <div class="center">
+      <h1>Obtenez facilement les données des vélos et trottinettes en libre service
+        en France</h1>
+      <p>Grâce au Point d'Accès National, vous accédez gratuitement à une base de
+        données construite avec les AOM et leurs différents prestataires afin de
+        profiter de données qualitatives sur les vélos et trottinettes en libre
+        service</p>
+    </div>
+  </header>
+
+  <section class="ecosystem">
+    <div class="center">
+      <h2>Un écosystème complexe</h2>
+      <ul class="vignettes">
+        <li>
+          <img src={static_path(@conn, "/images/landing_pages/vls/photo-mob-01.png")} loading="lazy" />
+          <span>Une multiplicité d'acteurs en France</span>
+        </li>
+        <li>
+          <img src={static_path(@conn, "/images/landing_pages/vls/photo-mob-02.png")} loading="lazy" />
+          <span>De nombreux types de services</span>
+        </li>
+        <li>
+          <img src={static_path(@conn, "/images/landing_pages/vls/photo-mob-04.png")} loading="lazy" />
+          <span>Différents formats d'échanges de données</span>
+        </li>
+        <li>
+          <img src={static_path(@conn, "/images/landing_pages/vls/photo-mob-03.png")} loading="lazy" />
+          <span>Où trouver une liste à jour de tous les services</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="arguments">
+    <div class="center">
+      <h2>Bénéficier rapidement de données de qualité standardisées</h2>
+
+      <div class="argument left">
+        <div class="comment">
+          <h3>Visualiser en un clic l’ensemble des flux disponibles</h3>
+          <p>
+            Notre carte interactive permet d’accéder directement aux services VLS disponibles sur le Point d’Accès National. Retrouvez les stations, vélos, trottinettes et vélos en free floating.
+          </p>
+        </div>
+
+        <picture>
+          <a
+            aria-label="Visualiser en un clic l’ensemble des flux disponibles"
+            href="https://transport.data.gouv.fr/explore?gbfs-stations=yes"
+          >
+            <img src={static_path(@conn, "/images/landing_pages/vls/explore_map.png")} loading="lazy" />
+          </a>
+        </picture>
+      </div>
+
+      <div class="argument right">
+        <div class="comment">
+          <h3>Accéder à votre espace réutilisateurs</h3>
+          <p>
+            Vous pouvez facilement et automatiquement récupérer les données en ajoutant en favori les jeux de données qui vous intéressent.
+          </p>
+          <p>
+            Grâce aux notifications, soyez les 1ers informés sur la disponibilité et les améliorations qualité.
+          </p>
+        </div>
+
+        <picture>
+          <a
+            aria-label="Accéder à votre espace réutilisateur"
+            href="https://transport.data.gouv.fr/espace_reutilisateur?utm_campaign=menu_dropdown"
+          >
+            <img src={static_path(@conn, "/images/landing_pages/vls/reutilisateurs.png")} loading="lazy" />
+          </a>
+        </picture>
+      </div>
+
+      <div class="argument left">
+        <div class="comment">
+          <h3>Être en lien avec les producteurs de données</h3>
+          <p>
+            Des données en anomalies, indisponibles ou devant être mises à jour ? Vous pouvez directement le signaler aux bons contacts chez producteurs de données. Rien de plus facile, il vous suffit d'ouvrir une discussion publique
+          </p>
+        </div>
+
+        <picture>
+          <img src={static_path(@conn, "/images/landing_pages/vls/reutilisations.png")} loading="lazy" />
+        </picture>
+      </div>
+
+      <div class="argument right">
+        <div class="comment">
+          <h3>Bénéficier à tout moment d'une expertise</h3>
+          <p>
+            Vous avez la possibilité à tout moment d'être accompagné par un expert. Toute l'équipe du PAN a
+            à coeur de répondre à vos questions techniques et à vous accompagner à publier vos données dans
+            le schéma standard GBFS, conformément à la règlementation en vigueur.
+          </p>
+        </div>
+
+        <picture>
+          <img src={static_path(@conn, "/images/landing_pages/vls/experts.png")} loading="lazy" />
+        </picture>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="center">
+      <div class="stats">
+        <div class="stat">
+          <span class="figure">70%</span>
+          <span class="description">
+            Couverture nationale
+          </span>
+        </div>
+        <div class="stat">
+          <span class="figure">82+</span>
+          <span class="description">
+            Jeux de données disponibles
+          </span>
+        </div>
+        <div class="stat">
+          <span class="figure">59 345+</span>
+          <span class="description">
+            Flux de données
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>
+      Pour toute question, l’équipe de <a href="https://transport.data.gouv.fr">transport.data.gouv.fr</a> est
+      disponible pour vous accompagner à réutiliser gratuitement ces données.
+    </p>
+    <button class="cta" href="#">Prendre un rendez-vous</button>
+  </footer>
+</article>
