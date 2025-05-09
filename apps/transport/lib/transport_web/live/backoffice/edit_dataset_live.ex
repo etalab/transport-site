@@ -36,6 +36,8 @@ defmodule TransportWeb.EditDatasetLive do
       |> assign(:dataset_organization, dataset_organization)
       |> assign(:organization_types, organization_types())
       |> assign(:legal_owners, get_legal_owners(dataset))
+      # TODO: see if we can avoid this
+      |> assign(:new_covered_area, get_new_covered_area(dataset))
       |> assign(:trigger_submit, false)
       |> assign(:form_params, form_params(dataset))
       |> assign(:custom_tags, get_custom_tags(dataset))
@@ -83,6 +85,15 @@ defmodule TransportWeb.EditDatasetLive do
   end
 
   def get_legal_owners(_), do: []
+
+  def get_new_covered_area(%Dataset{} = dataset) do
+    # current covered area, to initiate the state of the new_covered_area_select_live component
+    dataset
+    |> DB.DatasetNewCoveredArea.preload_covered_area_objects()
+    |> Map.get(:new_covered_areas)
+  end
+
+  def get_new_covered_area(_), do: []
 
   def get_custom_tags(%Dataset{} = dataset) do
     dataset.custom_tags || []
@@ -132,6 +143,7 @@ defmodule TransportWeb.EditDatasetLive do
   end
 
   def handle_event("suggest_communes", %{"value" => query}, socket) when byte_size(query) <= 100 do
+    # When taking out this legacy field, don’t forget to delete parts of the SearchCommunes module
     matches =
       query
       |> Transport.SearchCommunes.search()
@@ -151,6 +163,10 @@ defmodule TransportWeb.EditDatasetLive do
 
   def handle_info({:updated_custom_tags, custom_tags}, socket) do
     {:noreply, socket |> assign(:custom_tags, custom_tags)}
+  end
+
+  def handle_info({:updated_new_covered_area, new_covered_area}, socket) do
+    {:noreply, socket |> assign(:new_covered_area, new_covered_area)}
   end
 
   # get the result from the async Task triggered by "change_dataset"
