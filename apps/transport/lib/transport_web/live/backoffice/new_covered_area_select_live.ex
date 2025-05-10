@@ -26,7 +26,7 @@ defmodule TransportWeb.NewCoveredAreaSelectLive do
                 phx-target={@myself}
                 phx-click="select_division"
                 phx-value-insee={match.insee}
-                phx-value-type={match.type}
+                phx-value-type={match.administrative_division_type}
                 }
               >
                 <div>
@@ -40,17 +40,19 @@ defmodule TransportWeb.NewCoveredAreaSelectLive do
       </div>
       <div :for={{division, index} <- Enum.with_index(@new_covered_area)} class="pt-6">
         <span class={["label", "custom-tag"]}>
-          <%= division.nom %> (<%= division.type %>)
+          <%= division.nom %> (<%= division.administrative_division_type %>)
           <span
             class="delete-tag"
             phx-click="remove_tag"
             phx-value-insee={division.insee}
-            phx-value-type={division.type}
+            phx-value-type={division.administrative_division_type}
             phx-target={@myself}
           >
           </span>
         </span>
-        <%= Phoenix.HTML.Form.hidden_input(@form, "new_covered_area_#{division.type}_#{index}", value: division.insee) %>
+        <%= Phoenix.HTML.Form.hidden_input(@form, "new_covered_area_#{division.administrative_division_type}_#{index}",
+          value: division.insee
+        ) %>
       </div>
     </div>
     """
@@ -88,6 +90,7 @@ defmodule TransportWeb.NewCoveredAreaSelectLive do
   end
 
   def handle_event("select_division", %{"insee" => insee, "type" => type}, socket) do
+    # TODO: eventually switch rather to ID
     division = DB.DatasetNewCoveredArea.get_administrative_division(insee, type)
 
     new_covered_area = socket.assigns.new_covered_area ++ [division]
@@ -101,7 +104,7 @@ defmodule TransportWeb.NewCoveredAreaSelectLive do
   def handle_event("remove_tag", %{"insee" => insee, "type" => type}, socket) do
     new_covered_area =
       socket.assigns.new_covered_area
-      |> Enum.reject(fn division -> division.insee == insee and division.type == type end)
+      |> Enum.reject(fn division -> division.insee == insee and division.administrative_division_type == type end)
 
     send(self(), {:updated_new_covered_area, new_covered_area})
 
@@ -109,29 +112,16 @@ defmodule TransportWeb.NewCoveredAreaSelectLive do
   end
 
   # clear the input using a js hook
-  # TODO: change that
   @spec clear_input(Phoenix.LiveView.Socket.t()) :: map()
   def clear_input(socket) do
     # TODO: this doesn’t work as the "change_dataset" event is sent right after and contains the old value
     push_event(socket, "backoffice-form-covered-area-reset", %{})
   end
 
-  # TODO: probably not needed
-  def division_display_name(%{nom: nom, type: type}) do
-    types_display = %{
-      "commune" => "Commune",
-      "epci" => "EPCI",
-      "departement" => "Département",
-      "region" => "Région"
-    }
-
-    "#{types_display[type]} : #{nom}"
-  end
-
-  def type_display(%{type: "commune"}), do: "Commune"
-  def type_display(%{type: "epci"}), do: "EPCI"
-  def type_display(%{type: "departement"}), do: "Département"
-  def type_display(%{type: "region"}), do: "Région"
+  def type_display(%{administrative_division_type: "commune"}), do: "Commune"
+  def type_display(%{administrative_division_type: "epci"}), do: "EPCI"
+  def type_display(%{administrative_division_type: "departement"}), do: "Département"
+  def type_display(%{administrative_division_type: "region"}), do: "Région"
 
   #  TODO: put colored tags
   def color_class(%{type: "aom"}), do: "green"
