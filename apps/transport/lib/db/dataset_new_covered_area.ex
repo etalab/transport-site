@@ -88,7 +88,7 @@ defmodule DB.DatasetNewCoveredArea do
     end
 
     defp put_administrative_division_type(division) do
-      type_name = division.__struct__ |> Module.split() |> List.last() |> String.downcase()
+      type_name = division.__struct__ |> Module.split() |> List.last() |> String.downcase() |> String.to_atom()
 
       division
       |> Map.take([:id, :insee, :nom, :normalized_nom])
@@ -113,8 +113,6 @@ defmodule DB.DatasetNewCoveredArea do
   end
 
   defp validate_one_administrative_division(changeset) do
-    # TODO: Check that only one of the administrative division fields is set
-    # and it matches administrative_division_type
     possible_divisions = [:commune, :departement, :epci, :region]
     administrative_division_type = get_field(changeset, :administrative_division_type)
     should_be_empty = possible_divisions -- [administrative_division_type]

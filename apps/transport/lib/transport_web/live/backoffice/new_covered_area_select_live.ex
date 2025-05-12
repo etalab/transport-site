@@ -39,7 +39,7 @@ defmodule TransportWeb.NewCoveredAreaSelectLive do
         </div>
       </div>
       <div :for={{division, index} <- Enum.with_index(@new_covered_area)} class="pt-6">
-        <span class={["label", "custom-tag"]}>
+        <span class={["label", "custom-tag"] ++ [color_class(division)]}>
           <%= division.nom %> (<%= division.administrative_division_type %>)
           <span
             class="delete-tag"
@@ -104,7 +104,9 @@ defmodule TransportWeb.NewCoveredAreaSelectLive do
   def handle_event("remove_tag", %{"insee" => insee, "type" => type}, socket) do
     new_covered_area =
       socket.assigns.new_covered_area
-      |> Enum.reject(fn division -> division.insee == insee and division.administrative_division_type == type end)
+      |> Enum.reject(fn division ->
+        division.insee == insee and division.administrative_division_type == String.to_atom(type)
+      end)
 
     send(self(), {:updated_new_covered_area, new_covered_area})
 
@@ -118,12 +120,14 @@ defmodule TransportWeb.NewCoveredAreaSelectLive do
     push_event(socket, "backoffice-form-covered-area-reset", %{})
   end
 
-  def type_display(%{administrative_division_type: "commune"}), do: "Commune"
-  def type_display(%{administrative_division_type: "epci"}), do: "EPCI"
-  def type_display(%{administrative_division_type: "departement"}), do: "Département"
-  def type_display(%{administrative_division_type: "region"}), do: "Région"
+  def type_display(%{administrative_division_type: :commune}), do: "Commune"
+  def type_display(%{administrative_division_type: :epci}), do: "EPCI"
+  def type_display(%{administrative_division_type: :departement}), do: "Département"
+  def type_display(%{administrative_division_type: :region}), do: "Région"
 
   #  TODO: put colored tags
-  def color_class(%{type: "aom"}), do: "green"
-  def color_class(%{type: "region"}), do: "blue"
+  def color_class(%{administrative_division_type: :commune}), do: "green"
+  def color_class(%{administrative_division_type: :epci}), do: "blue"
+  def color_class(%{administrative_division_type: :departement}), do: "red"
+  def color_class(%{administrative_division_type: :region}), do: "black"
 end
