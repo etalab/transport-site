@@ -97,7 +97,7 @@ defmodule DB.Dataset do
     # (used in the long title of a dataset and to find the associated datasets)
     field(:associated_territory_name, :string)
 
-    has_many(:new_covered_areas, DB.DatasetNewCoveredArea, on_delete: :delete_all)
+    has_many(:new_covered_areas, DB.DatasetNewCoveredArea, on_delete: :delete_all, on_replace: :delete)
     # TODO: Probably not needed:
     # has_many(:new_communes, through: [:dataset_new_covered_areas, :commune])
     # has_many(:epcis, through: [:dataset_new_covered_areas, :epci])
@@ -513,7 +513,15 @@ defmodule DB.Dataset do
     legal_owners_region = get_legal_owners_region(dataset, params)
 
     dataset
-    |> Repo.preload([:resources, :communes, :region, :legal_owners_aom, :legal_owners_region, :organization_object])
+    |> Repo.preload([
+      :resources,
+      :communes,
+      :region,
+      :legal_owners_aom,
+      :legal_owners_region,
+      :organization_object,
+      :new_covered_areas
+    ])
     |> cast(params, [
       :datagouv_id,
       :custom_title,

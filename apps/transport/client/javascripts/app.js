@@ -44,7 +44,7 @@ window.addEventListener('phx:backoffice-form-owner-reset', () => {
 })
 
 window.addEventListener('phx:backoffice-form-covered-area-reset', () => {
-    document.getElementById('new_covered_area_input').value = ''
+    document.getElementById('new_covered_areas_input').value = ''
 })
 
 window.addEventListener('phx:gtfs-diff:scroll-to-steps', () => {

@@ -7,12 +7,12 @@ defmodule TransportWeb.NewCoveredAreaSelectLive do
     ~H"""
     <div class="pt-24">
       <label>
-        Une ou plusieurs communes, EPCI, département, région <%= InputHelpers.text_input(@form, :new_covered_area_input,
+        Une ou plusieurs communes, EPCI, département, région <%= InputHelpers.text_input(@form, :new_covered_areas_input,
           placeholder: "Paris",
           list: "covered_area_suggestions",
           phx_keydown: "search_division",
           phx_target: @myself,
-          id: "new_covered_area_input"
+          id: "new_covered_areas_input"
         ) %>
       </label>
       <div :if={@matches != []} class="autoCompleteResultsField" id="covered_area_suggestions">
