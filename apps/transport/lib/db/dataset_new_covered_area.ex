@@ -121,7 +121,7 @@ defmodule DB.DatasetNewCoveredArea do
       Enum.reduce(should_be_empty, changeset, fn division, changeset ->
         if get_field(changeset, String.to_atom("#{division}_id")) do
           # TODO: doesn’t work by dialyzer
-          add_error(changeset, "#{division}_id", "must be empty")
+          add_error(changeset, String.to_atom("#{division}_id"), "must be empty")
         else
           changeset
         end
@@ -131,7 +131,7 @@ defmodule DB.DatasetNewCoveredArea do
       changeset
     else
       # TODO: doesn’t work by dialyzer
-      add_error(changeset, "#{administrative_division_type}_id", "must be set")
+      add_error(changeset, String.to_atom("#{administrative_division_type}_id"), "must be set")
     end
   end
 end

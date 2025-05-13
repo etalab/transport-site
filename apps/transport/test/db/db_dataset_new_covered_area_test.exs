@@ -31,7 +31,7 @@ defmodule DB.DatasetNewCoveredAreaTest do
     assert covered_area.nom == departement.nom
   end
 
-  test "changeset" do
+  test "successfull dataset changeset" do
     departement = insert(:departement)
     commune = insert(:commune, departement: departement)
 
@@ -68,6 +68,23 @@ defmodule DB.DatasetNewCoveredAreaTest do
 
     assert area.commune_id == commune.id
     assert area.nom == commune.nom
+  end
+
+  test "non valid changeset" do
+    departement = insert(:departement)
+
+    changeset =
+      DB.DatasetNewCoveredArea.changeset(
+        %DB.DatasetNewCoveredArea{},
+        %{
+          "administrative_division_type" => "commune",
+          "departement_id" => departement.id
+        }
+      )
+
+    assert changeset.valid? == false
+
+    assert changeset.errors == [{:commune_id, {"must be set", []}}, {:departement_id, {"must be empty", []}}]
   end
 
   test "search" do
