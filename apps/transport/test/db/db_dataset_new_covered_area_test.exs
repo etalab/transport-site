@@ -77,13 +77,13 @@ defmodule DB.DatasetNewCoveredAreaTest do
 
     assert [
              %{
-               type: "commune",
+               administrative_division_type: :commune,
                nom: "Test Commune",
                insee: "12345",
                normalized_nom: "testcommune"
              },
              %{
-               type: "departement",
+               administrative_division_type: :departement,
                nom: "Test Departement",
                insee: "123",
                normalized_nom: "testdepartement"
