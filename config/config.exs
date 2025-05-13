@@ -209,8 +209,9 @@ config :appsignal, :config,
   # we use a plug which sets the namespace as ignore programmatically
   # and here declare that the corresponding requests should be ignored
   ignore_namespaces: ["ignore"],
+  # See https://docs.appsignal.com/elixir/integrations/oban.html
+  instrument_oban: true,
   # would generate too much noise for now, shutting it down
-  instrument_oban: false,
   report_oban_errors: false,
   # but this is not always enough:
   ignore_actions: [
