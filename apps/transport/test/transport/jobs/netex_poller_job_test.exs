@@ -93,14 +93,14 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
                %{
                  "code" => "uic-operating-period",
                  "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod",
-                 "criticity" => "warning"
+                 "criticity" => "error"
                }
              ],
              "valid-day-bits" => [
                %{
                  "code" => "valid-day-bits",
                  "message" => "Mandatory attribute valid_day_bits not found",
-                 "criticity" => "warning"
+                 "criticity" => "error"
                }
              ],
              "frame-arret-resources" => [
@@ -113,7 +113,7 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
              "unknown-code" => [
                %{
                  "message" => "Reference MOBIITI:Quay:104325 doesn't match any existing Resource",
-                 "criticity" => "warning"
+                 "criticity" => "error"
                }
              ]
            }

@@ -15,9 +15,9 @@ defmodule Transport.EnRouteChouetteValidClientTest do
       """
       {
         "id": "d8e2b6c2-b1e5-4890-84d4-9b761a445882",
-        "rule_set": "french",
+        "rule_set": "enroute:starter-kit",
         "user_status": "pending",
-        "include_schema": true,
+        "include_schema": false,
         "created_at": "2024-07-05T14:41:19.933Z",
         "updated_at": "2024-07-05T14:41:19.933Z"
       }
@@ -31,8 +31,8 @@ defmodule Transport.EnRouteChouetteValidClientTest do
       assert @expected_headers == headers
 
       assert [
-               {"validation[rule_set]", "french"},
-               {"validation[include_schema]", "true"},
+               {"validation[rule_set]", "enroute:starter-kit"},
+               {"validation[include_schema]", "false"},
                {:file, tmp_file, {"form-data", [{:name, "validation[file]"}, {:filename, Path.basename(tmp_file)}]}, []}
              ] == parts
 
@@ -50,9 +50,9 @@ defmodule Transport.EnRouteChouetteValidClientTest do
         """
         {
           "id": "#{validation_id}",
-          "rule_set": "french",
+          "rule_set": "enroute:starter-kit",
           "user_status": "pending",
-          "include_schema": true,
+          "include_schema": false,
           "started_at": "2024-07-05T14:41:20.680Z",
           "created_at": "2024-07-05T14:41:19.933Z",
           "updated_at": "2024-07-05T14:41:20.933Z"
@@ -76,9 +76,9 @@ defmodule Transport.EnRouteChouetteValidClientTest do
         """
         {
           "id": "#{validation_id}",
-          "rule_set": "french",
+          "rule_set": "enroute:starter-kit",
           "user_status": "successful",
-          "include_schema": true,
+          "include_schema": false,
           "started_at": "2024-07-05T14:41:20.680Z",
           "ended_at": "2024-07-05T14:41:25.685Z",
           "created_at": "2024-07-05T14:41:19.933Z",
@@ -103,9 +103,9 @@ defmodule Transport.EnRouteChouetteValidClientTest do
         """
         {
           "id": "#{validation_id}",
-          "rule_set": "french",
+          "rule_set": "enroute:starter-kit",
           "user_status": "warning",
-          "include_schema": true,
+          "include_schema": false,
           "started_at": "2024-07-05T14:41:20.680Z",
           "ended_at": "2024-07-05T14:41:24.685Z",
           "created_at": "2024-07-05T14:41:19.933Z",
@@ -130,9 +130,9 @@ defmodule Transport.EnRouteChouetteValidClientTest do
         """
         {
           "id": "#{validation_id}",
-          "rule_set": "french",
+          "rule_set": "enroute:starter-kit",
           "user_status": "failed",
-          "include_schema": true,
+          "include_schema": false,
           "started_at": "2024-07-05T14:41:20.680Z",
           "ended_at": "2024-07-05T14:41:28.685Z",
           "created_at": "2024-07-05T14:41:19.933Z",
