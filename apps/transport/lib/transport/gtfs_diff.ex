@@ -21,7 +21,8 @@ defmodule Transport.GTFSDiff do
     "levels.txt" => ["level_id"],
     "feed_info.txt" => ["feed_publisher_name"],
     "translations.txt" => ["table_name", "field_name", "language", "record_id", "record_sub_id", "field_value"],
-    "attributions.txt" => ["organization_name"]
+    "attributions.txt" => ["organization_name"],
+    "fare_attributes.txt" => ["fare_id"]
   }
 
   def unzip(file_path) do
