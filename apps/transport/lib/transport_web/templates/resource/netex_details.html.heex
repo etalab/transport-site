@@ -23,7 +23,6 @@
         <%= unless is_nil(@validation_summary) do %>
           <p class="notification warning">
             <strong><%= dgettext("validations", "NeTEx validation is in beta.") %></strong> <br />
-            <%= dgettext("validations", "Warnings are work in progress. Only XSD errors are considered for now.") %>
           </p>
           <%= unless is_nil(@metadata) or @metadata == %{} do %>
             <%= render("_resources_details_netex.html", conn: @conn, metadata: @metadata) %>
