@@ -14,7 +14,8 @@ defmodule Transport.Test.Transport.Jobs.ObanLoggerTest do
   import Swoosh.TestAssertions
 
   test "sends an email on failure if the appropriate tag is set" do
-    assert {:error, "failed"} == perform_job(Transport.Test.Transport.Jobs.ObanLoggerJobTag, %{}, tags: [])
+    assert {:error, "failed"} ==
+             perform_job(Transport.Test.Transport.Jobs.ObanLoggerJobTag, %{}, tags: [])
 
     # When the specific tag is set, an email should be sent
 
@@ -46,15 +47,16 @@ defmodule Transport.Test.Transport.Jobs.ObanLoggerTest do
   end
 
   test "oban default logger is set up for important components" do
-    registered_handlers = Enum.filter(:telemetry.list_handlers([]), &(&1.id == "oban-default-logger"))
+    registered_handlers =
+      Enum.filter(:telemetry.list_handlers([]), &(&1.id == Oban.Telemetry.default_handler_id()))
 
     assert Enum.count(registered_handlers) > 0
 
     components =
       registered_handlers
-      |> Enum.map(fn %{event_name: [:oban, component, _]} -> component end)
+      |> Enum.map(fn %{event_name: event_name} -> Enum.at(event_name, 1) end)
       |> MapSet.new()
 
-    assert MapSet.new([:notifier, :queue, :stager]) == MapSet.new(components)
+    assert MapSet.new(~w(notifier plugin peer queue stager)a) == MapSet.new(components)
   end
 end
