@@ -1,11 +1,13 @@
-# Transport.Jobs.IRVEConsolidationJob.perform(%Oban.Job{})
+if true do
+  Transport.Jobs.IRVEConsolidationJob.perform(%Oban.Job{args: %{limit: 1}})
+else
+  filter = fn stream ->
+    stream
+    |> Enum.take(1)
+  end
 
-filter = fn(stream) -> 
-  stream
-  |> Enum.take(1)
+  Transport.IRVE.Consolidation.build_aggregate_and_report!(filter: filter)
 end
-
-Transport.IRVE.Consolidation.build_aggregate_and_report!(filter: filter)
 
 IO.puts("""
  ╔═════════════════════════╗
