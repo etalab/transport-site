@@ -45,6 +45,7 @@ defmodule TransportWeb.DatasetController do
   @spec details(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do
     with {:ok, dataset} <- Dataset.get_by_slug(slug_or_id),
+         # Todo: fix this
          {:ok, territory} <- Dataset.get_territory(dataset) do
       conn
       |> assign(:dataset, dataset)

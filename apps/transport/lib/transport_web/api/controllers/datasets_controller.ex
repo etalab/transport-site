@@ -296,6 +296,7 @@ defmodule TransportWeb.API.DatasetController do
   defp transform_aom(aom), do: %{"name" => aom.nom, "siren" => aom.siren}
 
   @spec covered_area(Dataset.t()) :: map()
+  # Todo: fix this
   defp covered_area(%Dataset{aom: aom}) when not is_nil(aom),
     do: %{"type" => "aom", "name" => aom.nom, "aom" => %{"name" => aom.nom, "siren" => aom.siren}}
 

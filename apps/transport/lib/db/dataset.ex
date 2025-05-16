@@ -97,6 +97,13 @@ defmodule DB.Dataset do
     # (used in the long title of a dataset and to find the associated datasets)
     field(:associated_territory_name, :string)
 
+    has_many(:new_covered_areas, DB.DatasetNewCoveredArea, on_delete: :delete_all, on_replace: :delete)
+    # TODO: Probably not needed:
+    # has_many(:new_communes, through: [:dataset_new_covered_areas, :commune])
+    # has_many(:epcis, through: [:dataset_new_covered_areas, :epci])
+    # has_many(:departements, through: [:dataset_new_covered_areas, :departement])
+    # has_many(:regions, through: [:dataset_new_covered_areas, :region])
+
     field(:search_payload, :map)
     many_to_many(:followers, DB.Contact, join_through: "dataset_followers", on_replace: :delete)
   end
@@ -506,7 +513,15 @@ defmodule DB.Dataset do
     legal_owners_region = get_legal_owners_region(dataset, params)
 
     dataset
-    |> Repo.preload([:resources, :communes, :region, :legal_owners_aom, :legal_owners_region, :organization_object])
+    |> Repo.preload([
+      :resources,
+      :communes,
+      :region,
+      :legal_owners_aom,
+      :legal_owners_region,
+      :organization_object,
+      :new_covered_areas
+    ])
     |> cast(params, [
       :datagouv_id,
       :custom_title,
@@ -550,6 +565,8 @@ defmodule DB.Dataset do
     |> maybe_set_custom_logo_changed_at()
     |> put_assoc(:legal_owners_aom, legal_owners_aom)
     |> put_assoc(:legal_owners_region, legal_owners_region)
+    # Calls automatically changeset on the new_covered_areas
+    |> cast_assoc(:new_covered_areas)
     |> validate_required([
       :datagouv_id,
       :custom_title,
@@ -695,6 +712,7 @@ defmodule DB.Dataset do
       :region,
       :legal_owners_aom,
       :legal_owners_region,
+      :new_covered_areas,
       resources: [:resources_related, :dataset]
     ])
     |> Repo.one()
@@ -733,6 +751,7 @@ defmodule DB.Dataset do
   def get_other_dataset(_), do: []
 
   @spec get_territory(__MODULE__.t()) :: {:ok, binary()} | {:error, binary()}
+  # TODO: fix this later
   def get_territory(%__MODULE__{aom: %{nom: nom}}), do: {:ok, nom}
 
   def get_territory(%__MODULE__{aom_id: aom_id}) when not is_nil(aom_id) do
