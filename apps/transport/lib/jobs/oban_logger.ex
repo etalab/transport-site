@@ -48,15 +48,10 @@ defmodule Transport.Jobs.ObanLogger do
     # We leave out `job` events because job start/end can be quite noisy.
     # https://hexdocs.pm/oban/preparing_for_production.html#logging
     # https://hexdocs.pm/oban/Oban.Telemetry.html
-    # We may simplify this when
-    # https://github.com/oban-bg/oban/commit/13eabe3f8019e350ef979369a26f186bdf7be63e
-    # will be released.
-    events = [
-      [:oban, :notifier, :switch],
-      [:oban, :queue, :shutdown],
-      [:oban, :stager, :switch]
-    ]
-
-    :telemetry.attach_many("oban-default-logger", events, &Oban.Telemetry.handle_event/4, encode: true, level: :info)
+    Oban.Telemetry.attach_default_logger(
+      events: ~w(notifier plugin peer queue stager)a,
+      encode: true,
+      level: :info
+    )
   end
 end
