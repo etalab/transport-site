@@ -90,26 +90,20 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     end
 
     test "with features" do
-      %{dataset: dataset_1} = insert_resource_and_friends(Date.utc_today(), features: ["repose pieds en velour"])
+      %DB.Resource{dataset_id: dataset_1_id} =
+        insert(:resource, counter_cache: %{gtfs_features: ["repose pieds en velour"]}, dataset: insert(:dataset))
 
-      # we insert a dataset + resource + resource_history, and "features" contains "repose pieds en velour"
-      %{dataset: dataset_2, resource: resource} =
-        insert_resource_and_friends(Date.utc_today(), features: ["repose pieds en velour"])
-
-      # we insert a more recent resource_history for the same resource, but features is now empty.
-      # This dataset should appear in the results!
-      insert_resource_and_friends(Date.utc_today(), features: nil, dataset: dataset_2, resource: resource)
-
-      %{dataset: _dataset_2} = insert_resource_and_friends(Date.utc_today(), features: nil)
-
-      %{dataset: dataset_3} =
-        insert_resource_and_friends(Date.utc_today(), features: ["repose pieds en velour", "DJ à bord"])
+      %DB.Resource{dataset_id: dataset_2_id} =
+        insert(:resource,
+          counter_cache: %{gtfs_features: ["repose pieds en velour", "DJ à bord"]},
+          dataset: insert(:dataset)
+        )
 
       datasets = %{"features" => ["repose pieds en velour"]} |> DB.Dataset.list_datasets() |> DB.Repo.all()
-      assert datasets |> Enum.map(& &1.id) |> Enum.sort() == [dataset_1.id, dataset_3.id]
+      assert datasets |> Enum.map(& &1.id) |> Enum.sort() == [dataset_1_id, dataset_2_id]
 
       [dataset] = %{"features" => ["DJ à bord"]} |> DB.Dataset.list_datasets() |> DB.Repo.all()
-      assert dataset.id == dataset_3.id
+      assert dataset.id == dataset_2_id
     end
 
     test "with gtfs-rt features" do
