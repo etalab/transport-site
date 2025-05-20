@@ -34,7 +34,7 @@ defmodule Unlock.AggregateProcessor do
       ])
 
     headers = @schema_fields
-    headers = if options[:include_origin], do: headers ++ ["origin"], else: headers
+    headers = if options[:include_origin], do: headers ++ ["origin", "slug"], else: headers
 
     rows_stream =
       item.feeds
@@ -119,7 +119,7 @@ defmodule Unlock.AggregateProcessor do
   """
   def process_sub_item(
         %Unlock.Config.Item.Aggregate{} = item,
-        %Unlock.Config.Item.Generic.HTTP{identifier: origin} = sub_item,
+        %Unlock.Config.Item.Generic.HTTP{identifier: origin, slug: slug} = sub_item,
         options
       ) do
     Logger.debug("Fetching aggregated sub-item #{origin} at #{sub_item.target_url}")
@@ -133,7 +133,7 @@ defmodule Unlock.AggregateProcessor do
       # NOTE: at this point of deployment, having a log in case of error will be good enough.
       # We can later expose to the public with an alternate sub-url for observability.
       try do
-        process_csv_payload(body, origin, options)
+        process_csv_payload(body, origin, slug, options)
       catch
         {:non_matching_headers, headers} ->
           Logger.info("Broken stream for origin #{origin} (headers are #{headers |> inspect})")
@@ -154,7 +154,7 @@ defmodule Unlock.AggregateProcessor do
   # NOTE: we could avoid "decoding" the payload, but doing so will allow us
   # to integrate live validation (e.g. of id_pdc_itinerance against static database)
   # more easily, with less refactoring.
-  def process_csv_payload(body, origin, options \\ []) do
+  def process_csv_payload(body, origin, slug, options \\ []) do
     # NOTE: currently fully in RAM - an improvement point for later
     [headers | rows] = NimbleCSV.RFC4180.parse_string(body, skip_headers: false)
 
@@ -172,7 +172,7 @@ defmodule Unlock.AggregateProcessor do
 
     mapper =
       if options[:include_origin] do
-        fn columns -> columns ++ [origin] end
+        fn columns -> columns ++ [origin, slug] end
       else
         fn columns -> columns end
       end

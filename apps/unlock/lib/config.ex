@@ -14,7 +14,15 @@ defmodule Unlock.Config do
     Default subtype is "gtfs-rt" for historical reasons, see `convert_yaml_item_to_struct` in the code.
     """
     @enforce_keys [:identifier, :target_url, :ttl]
-    defstruct [:identifier, :target_url, :ttl, subtype: "gtfs-rt", request_headers: [], response_headers: []]
+    defstruct [
+      :identifier,
+      :slug,
+      :target_url,
+      :ttl,
+      subtype: "gtfs-rt",
+      request_headers: [],
+      response_headers: []
+    ]
   end
 
   defmodule Item.SIRI do
@@ -80,6 +88,7 @@ defmodule Unlock.Config do
     def convert_yaml_item_to_struct(%{"type" => subtype} = item) when subtype in ["generic-http", "gtfs-rt"] do
       %Item.Generic.HTTP{
         identifier: Map.fetch!(item, "identifier"),
+        slug: Map.get(item, "slug"),
         target_url: Map.fetch!(item, "target_url"),
         # By default, no TTL
         ttl: Map.get(item, "ttl", 0),

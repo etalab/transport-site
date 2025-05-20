@@ -517,11 +517,13 @@ defmodule Unlock.ControllerTest do
           feeds: [
             %Unlock.Config.Item.Generic.HTTP{
               identifier: "first-remote",
+              slug: "foo",
               target_url: url = "http://localhost:1234",
               ttl: 10
             },
             %Unlock.Config.Item.Generic.HTTP{
               identifier: "second-remote",
+              slug: "bar",
               target_url: second_url = "http://localhost:5678",
               ttl: 10
             }
@@ -811,10 +813,9 @@ defmodule Unlock.ControllerTest do
         |> get("/resource/an-existing-aggregate-identifier", include_origin: 1)
 
       assert resp.status == 200
-
-      expected_headers = @expected_headers ++ ["origin"]
-      first_output_row = first_data_row |> Map.put("origin", "first-remote")
-      second_output_row = second_data_row |> Map.put("origin", "second-remote")
+      expected_headers = @expected_headers ++ ["origin", "slug"]
+      first_output_row = first_data_row |> Map.put("origin", "first-remote") |> Map.put("slug", "foo")
+      second_output_row = second_data_row |> Map.put("origin", "second-remote") |> Map.put("slug", "bar")
 
       assert resp.resp_body ==
                Helper.data_as_csv(expected_headers, [first_output_row, second_output_row], "\r\n")
