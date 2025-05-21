@@ -380,6 +380,10 @@ defmodule Transport.Jobs.DatasetFreshnessScore do
   import Ecto.Query
   import Transport.Jobs.DatasetQualityScore
 
+  # For these resource IDs the freshness score will be 1.
+  # https://github.com/etalab/transport-site/issues/4544
+  @override_freshness_resource_ids [80_921]
+
   @spec current_dataset_freshness(integer()) :: %{score: float | nil, details: map()}
   def current_dataset_freshness(dataset_id) do
     resources = dataset_resources(dataset_id)
@@ -403,6 +407,15 @@ defmodule Transport.Jobs.DatasetFreshnessScore do
             :metadata_id => integer | nil,
             :metadata_inserted_at => binary | nil
           }
+  def resource_freshness(%DB.Resource{id: resource_id}) when resource_id in @override_freshness_resource_ids do
+    %{
+      freshness: 1.0,
+      raw_measure: %{source: "override_freshness_score"},
+      metadata_id: nil,
+      metadata_inserted_at: nil
+    }
+  end
+
   def resource_freshness(%DB.Resource{format: "GTFS" = format, id: resource_id}) do
     resource_id
     |> DB.MultiValidation.resource_latest_validation(Transport.Validators.GTFSTransport)

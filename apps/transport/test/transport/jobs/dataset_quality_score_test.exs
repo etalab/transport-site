@@ -142,7 +142,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       assert %{format: "gbfs", freshness: nil, raw_measure: nil, resource_id: _} = resource_freshness(resource)
     end
 
-    test "up to date gtfs-register_test() resource" do
+    test "up to date GTFS-RT resource" do
       resource = %{id: resource_id} = insert(:resource, format: "gtfs-rt")
 
       %{id: metadata_id, inserted_at: inserted_at} =
@@ -159,6 +159,13 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                metadata_id: ^metadata_id,
                metadata_inserted_at: ^inserted_at
              } = resource_freshness(resource)
+    end
+
+    test "override for a specific resource" do
+      assert %{
+               freshness: 1.0,
+               raw_measure: %{source: "override_freshness_score"}
+             } = resource_freshness(%DB.Resource{id: 80_921})
     end
   end
 
