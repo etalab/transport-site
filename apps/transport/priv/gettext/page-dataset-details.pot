@@ -723,21 +723,5 @@ msgid "This unofficial dataset is provided experimentally. Do not use it for tra
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Automatic NeTEx conversion are created from the associated GTFS file and don't contain additional information which can be described in NeTEx."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Automatic NeTEx conversions will not be available <b>after 2025-06-01</b>."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Cancel"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Download the automatic NeTEx conversion"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Regulator"
 msgstr ""

@@ -113,8 +113,6 @@ oban_prod_crontab = [
   {"0 4,16 * * *", Transport.Jobs.ResourceHistoryAndValidationDispatcherJob, args: %{mode: :reuser_improved_data}},
   {"30 */6 * * *", Transport.Jobs.GTFSToGeoJSONConverterJob},
   {"0 4 * * *", Transport.Jobs.GTFSImportStopsJob},
-  # every 6 hours but not at the same time as other jobs
-  {"0 3,9,15,21 * * *", Transport.Jobs.GTFSToNeTExConverterJob},
   {"20 8 * * *", Transport.Jobs.CleanOrphanConversionsJob},
   {"0 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob},
   {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}},

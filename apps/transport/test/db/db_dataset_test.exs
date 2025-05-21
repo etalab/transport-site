@@ -527,20 +527,18 @@ defmodule DB.DatasetDBTest do
         last_up_to_date_at: dt2 = DateTime.utc_now()
       )
 
+      insert(:resource_history,
+        resource_id: r3.id,
+        payload: %{"uuid" => uuid3 = Ecto.UUID.generate()},
+        last_up_to_date_at: DateTime.utc_now()
+      )
+
       insert(:data_conversion,
         resource_history_uuid: uuid1,
         convert_from: "GTFS",
         convert_to: "GeoJSON",
         converter: DB.DataConversion.converter_to_use("GeoJSON"),
         payload: %{"permanent_url" => "url1", "filesize" => 21}
-      )
-
-      insert(:data_conversion,
-        resource_history_uuid: uuid1,
-        convert_from: "GTFS",
-        convert_to: "NeTEx",
-        converter: DB.DataConversion.converter_to_use("NeTEx"),
-        payload: %{"permanent_url" => "url11", "filesize" => 42}
       )
 
       insert(:data_conversion,
@@ -553,12 +551,12 @@ defmodule DB.DatasetDBTest do
 
       # Should be ignored, status is `pending`
       insert(:data_conversion,
-        resource_history_uuid: uuid2,
+        resource_history_uuid: uuid3,
         convert_from: "GTFS",
-        convert_to: "NeTEx",
-        converter: DB.DataConversion.converter_to_use("NeTEx"),
+        convert_to: "GeoJSON",
+        converter: DB.DataConversion.converter_to_use("GeoJSON"),
         status: :pending,
-        payload: %{"permanent_url" => "url21", "filesize" => 43}
+        payload: %{"permanent_url" => "url3", "filesize" => 43}
       )
 
       dataset = DB.Dataset |> preload(:resources) |> DB.Repo.get(dataset_id)
@@ -573,13 +571,6 @@ defmodule DB.DatasetDBTest do
                    resource_history_last_up_to_date_at: dt1,
                    format: "GeoJSON",
                    stable_url: "http://127.0.0.1:5100/resources/conversions/#{r1.id}/GeoJSON"
-                 },
-                 NeTEx: %{
-                   url: "url11",
-                   filesize: 42,
-                   resource_history_last_up_to_date_at: dt1,
-                   format: "NeTEx",
-                   stable_url: "http://127.0.0.1:5100/resources/conversions/#{r1.id}/NeTEx"
                  }
                },
                r2.id => %{
@@ -589,10 +580,9 @@ defmodule DB.DatasetDBTest do
                    resource_history_last_up_to_date_at: dt2,
                    format: "GeoJSON",
                    stable_url: "http://127.0.0.1:5100/resources/conversions/#{r2.id}/GeoJSON"
-                 },
-                 NeTEx: nil
+                 }
                },
-               r3.id => %{GeoJSON: nil, NeTEx: nil}
+               r3.id => %{GeoJSON: nil}
              } == related_resources
     end
 
@@ -616,18 +606,8 @@ defmodule DB.DatasetDBTest do
         payload: %{"permanent_url" => "url1", "filesize" => 21}
       )
 
-      insert(:data_conversion,
-        resource_history_uuid: uuid1,
-        convert_from: "GTFS",
-        convert_to: "NeTEx",
-        converter: DB.DataConversion.converter_to_use("NeTEx"),
-        payload: %{"permanent_url" => "url11", "filesize" => 42}
-      )
-
       dataset = dataset |> DB.Repo.preload(:resources)
 
-      # Should not offer a NeTEx conversion for the GTFS file:
-      # we have a NeTEx resource
       assert %{
                gtfs.id => %{
                  GeoJSON: %{
@@ -636,34 +616,23 @@ defmodule DB.DatasetDBTest do
                    resource_history_last_up_to_date_at: dt1,
                    format: "GeoJSON",
                    stable_url: "http://127.0.0.1:5100/resources/conversions/#{gtfs.id}/GeoJSON"
-                 },
-                 NeTEx: nil
-               },
-               netex.id => %{GeoJSON: nil, NeTEx: nil}
-             } == DB.Dataset.get_resources_related_files(dataset)
-
-      # Should offer a NeTEx conversion for the GTFS even if we
-      # have a NeTEx resource because the dataset has the appropriate
-      # custom tag.
-      assert %{
-               gtfs.id => %{
-                 GeoJSON: %{
-                   url: "url1",
-                   filesize: 21,
-                   resource_history_last_up_to_date_at: dt1,
-                   format: "GeoJSON",
-                   stable_url: "http://127.0.0.1:5100/resources/conversions/#{gtfs.id}/GeoJSON"
-                 },
-                 NeTEx: %{
-                   url: "url11",
-                   filesize: 42,
-                   resource_history_last_up_to_date_at: dt1,
-                   format: "NeTEx",
-                   stable_url: "http://127.0.0.1:5100/resources/conversions/#{gtfs.id}/NeTEx"
                  }
                },
-               netex.id => %{GeoJSON: nil, NeTEx: nil}
-             } == DB.Dataset.get_resources_related_files(%{dataset | custom_tags: ["keep_netex_conversions"]})
+               netex.id => %{GeoJSON: nil}
+             } == DB.Dataset.get_resources_related_files(dataset)
+
+      assert %{
+               gtfs.id => %{
+                 GeoJSON: %{
+                   url: "url1",
+                   filesize: 21,
+                   resource_history_last_up_to_date_at: dt1,
+                   format: "GeoJSON",
+                   stable_url: "http://127.0.0.1:5100/resources/conversions/#{gtfs.id}/GeoJSON"
+                 }
+               },
+               netex.id => %{GeoJSON: nil}
+             } == DB.Dataset.get_resources_related_files(dataset)
     end
   end
 
@@ -835,7 +804,7 @@ defmodule DB.DatasetDBTest do
   end
 
   test "target_conversion_formats" do
-    assert [:GeoJSON, :NeTEx] ==
+    assert [:GeoJSON] ==
              DB.Dataset.target_conversion_formats(%DB.Dataset{resources: [%DB.Resource{format: "gtfs"}]})
 
     assert [:GeoJSON] ==
@@ -846,12 +815,6 @@ defmodule DB.DatasetDBTest do
     assert [:GeoJSON] ==
              DB.Dataset.target_conversion_formats(%DB.Dataset{
                resources: [%DB.Resource{format: "gtfs"}, %DB.Resource{format: "NeTEx"}]
-             })
-
-    assert [:GeoJSON, :NeTEx] ==
-             DB.Dataset.target_conversion_formats(%DB.Dataset{
-               resources: [%DB.Resource{format: "gtfs"}, %DB.Resource{format: "NeTEx"}],
-               custom_tags: ["keep_netex_conversions", "foo"]
              })
   end
 

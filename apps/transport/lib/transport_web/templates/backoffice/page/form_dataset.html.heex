@@ -23,10 +23,6 @@
           <%= submit("Déréférencer", class: "button", nodiv: true) %>
         <% end %>
       </div>
-
-      <div :if={@dataset.type == "public-transit"}>
-        <%= live_render(@conn, TransportWeb.Live.ForceNeTExConversion, session: %{"dataset_id" => @dataset.id}) %>
-      </div>
     </div>
 
     <div id="resource_historization" class="dashboard-description mt-48">

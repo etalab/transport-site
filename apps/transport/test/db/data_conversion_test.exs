@@ -72,8 +72,8 @@ defmodule DB.DataConversionTest do
 
     insert(:data_conversion,
       convert_from: "GTFS",
-      convert_to: "NeTEx",
-      converter: DB.DataConversion.converter_to_use("NeTEx"),
+      convert_to: "GeoJSON",
+      converter: DB.DataConversion.converter_to_use("GeoJSON"),
       resource_history_uuid: uuid_old,
       payload: %{filename: "filename_old"}
     )
@@ -85,20 +85,11 @@ defmodule DB.DataConversionTest do
     data_conversion =
       insert(:data_conversion,
         convert_from: "GTFS",
-        convert_to: "NeTEx",
-        converter: DB.DataConversion.converter_to_use("NeTEx"),
+        convert_to: "GeoJSON",
+        converter: DB.DataConversion.converter_to_use("GeoJSON"),
         resource_history_uuid: uuid,
         payload: %{filename: "filename"}
       )
-
-    # not listed bad format
-    insert(:data_conversion,
-      convert_from: "GTFS",
-      convert_to: "GeoJSON",
-      converter: DB.DataConversion.converter_to_use("GeoJSON"),
-      resource_history_uuid: uuid,
-      payload: %{filename: "filename_bad_format"}
-    )
 
     # listed (other resource same dataset)
     resource_2 = insert(:resource, dataset_id: dataset.id, format: "GTFS")
@@ -109,8 +100,8 @@ defmodule DB.DataConversionTest do
     data_conversion_2 =
       insert(:data_conversion,
         convert_from: "GTFS",
-        convert_to: "NeTEx",
-        converter: DB.DataConversion.converter_to_use("NeTEx"),
+        convert_to: "GeoJSON",
+        converter: DB.DataConversion.converter_to_use("GeoJSON"),
         resource_history_uuid: uuid_2,
         payload: %{filename: "filename_2"}
       )
@@ -125,8 +116,8 @@ defmodule DB.DataConversionTest do
     _data_conversion_other =
       insert(:data_conversion,
         convert_from: "GTFS",
-        convert_to: "NeTEx",
-        converter: DB.DataConversion.converter_to_use("NeTEx"),
+        convert_to: "GeoJSON",
+        converter: DB.DataConversion.converter_to_use("GeoJSON"),
         resource_history_uuid: uuid_other,
         payload: %{filename: "filename"}
       )
@@ -134,15 +125,15 @@ defmodule DB.DataConversionTest do
     _ignored_non_default_converter =
       insert(:data_conversion,
         convert_from: "GTFS",
-        convert_to: "NeTEx",
-        converter: "non-default-netex-converter",
+        convert_to: "GeoJSON",
+        converter: "non-default-geojson-converter",
         resource_history_uuid: uuid_other,
         payload: %{filename: "filename"}
       )
 
     conversions =
       dataset.id
-      |> DB.DataConversion.latest_data_conversions("NeTEx")
+      |> DB.DataConversion.latest_data_conversions("GeoJSON")
       |> Enum.sort_by(fn %{data_conversion_id: dc_id} -> dc_id end, :asc)
 
     assert [
@@ -157,40 +148,5 @@ defmodule DB.DataConversionTest do
                s3_path: "filename_2"
              }
            ] == conversions
-
-    # list candidate resource history for future conversions
-    resource_history_ids =
-      dataset.id |> Transport.Jobs.DatasetGTFSToNeTExConverterJob.list_gtfs_last_resource_history() |> Enum.sort()
-
-    assert [resource_history_1.id, resource_history_2.id] == resource_history_ids
-  end
-
-  test "force refresh a NeTEx conversion" do
-    dataset = insert(:dataset)
-    resource = insert(:resource, dataset_id: dataset.id)
-
-    insert(:resource_history, resource_id: resource.id, payload: %{uuid: uuid = Ecto.UUID.generate()})
-
-    data_conversion =
-      insert(:data_conversion,
-        convert_from: "GTFS",
-        convert_to: "NeTEx",
-        converter: DB.DataConversion.converter_to_use("NeTEx"),
-        resource_history_uuid: uuid,
-        payload: %{filename: filename = "filepath/filename"}
-      )
-
-    Transport.Test.S3TestUtils.s3_mocks_delete_object(Transport.S3.bucket_name(:history), filename)
-
-    DB.DataConversion.force_refresh_netex_conversions(dataset.id)
-
-    # data conversion has been deleted
-    assert_raise Ecto.NoResultsError, fn -> DB.DataConversion |> DB.Repo.get!(data_conversion.id) end
-
-    # new conversion is enqueued
-    assert_enqueued(
-      worker: Transport.Jobs.DatasetGTFSToNeTExConverterJob,
-      args: %{"dataset_id" => dataset.id}
-    )
   end
 end

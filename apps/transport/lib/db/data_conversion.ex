@@ -11,7 +11,7 @@ defmodule DB.DataConversion do
     field(:converter, :string)
     field(:converter_version, :string)
     field(:convert_from, Ecto.Enum, values: [:GTFS])
-    field(:convert_to, Ecto.Enum, values: [:GeoJSON, :NeTEx])
+    field(:convert_to, Ecto.Enum, values: [:GeoJSON])
     field(:resource_history_uuid, Ecto.UUID)
     field(:payload, :map)
 
@@ -23,8 +23,8 @@ defmodule DB.DataConversion do
   @doc """
   Finds the default converter to use for a target format.
 
-  iex> converter_to_use(:NeTEx)
-  "enroute/gtfs-to-netex"
+  iex> converter_to_use(:GeoJSON)
+  "rust-transit/gtfs-to-geojson"
   iex> Enum.each(Ecto.Enum.values(DB.DataConversion, :convert_to), & converter_to_use/1)
   :ok
   """
@@ -32,8 +32,7 @@ defmodule DB.DataConversion do
   def converter_to_use(convert_to) do
     Map.fetch!(
       %{
-        "GeoJSON" => Transport.GTFSToGeoJSONConverter.converter(),
-        "NeTEx" => Transport.Converters.GTFSToNeTExEnRoute.converter()
+        "GeoJSON" => Transport.GTFSToGeoJSONConverter.converter()
       },
       to_string(convert_to)
     )
@@ -65,15 +64,6 @@ defmodule DB.DataConversion do
       s3_path: fragment("?->>'filename'", dc.payload)
     })
     |> DB.Repo.all()
-  end
-
-  def force_refresh_netex_conversions(dataset_id) do
-    conversions = latest_data_conversions(dataset_id, "NeTEx")
-    delete_data_conversions(conversions)
-
-    %{"dataset_id" => dataset_id}
-    |> Transport.Jobs.DatasetGTFSToNeTExConverterJob.new()
-    |> Oban.insert()
   end
 
   @spec delete_data_conversions([map()]) :: :ok
