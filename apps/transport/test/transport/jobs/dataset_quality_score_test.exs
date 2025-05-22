@@ -142,7 +142,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       assert %{format: "gbfs", freshness: nil, raw_measure: nil, resource_id: _} = resource_freshness(resource)
     end
 
-    test "up to date gtfs-register_test() resource" do
+    test "up to date GTFS-RT resource" do
       resource = %{id: resource_id} = insert(:resource, format: "gtfs-rt")
 
       %{id: metadata_id, inserted_at: inserted_at} =
@@ -158,6 +158,23 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                resource_id: ^resource_id,
                metadata_id: ^metadata_id,
                metadata_inserted_at: ^inserted_at
+             } = resource_freshness(resource)
+    end
+
+    test "for a GTFS-Flex" do
+      resource = insert(:resource, format: "GTFS")
+
+      resource_history =
+        insert(:resource_history,
+          resource_id: resource.id,
+          payload: %{"format" => "GTFS", "filenames" => ["stops.txt", "locations.geojson"]}
+        )
+
+      assert DB.ResourceHistory.gtfs_flex?(resource_history)
+
+      assert %{
+               freshness: 1.0,
+               raw_measure: %{source: "gtfs_flex"}
              } = resource_freshness(resource)
     end
   end
