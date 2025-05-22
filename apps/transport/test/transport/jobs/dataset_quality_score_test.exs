@@ -161,11 +161,21 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
              } = resource_freshness(resource)
     end
 
-    test "override for a specific resource" do
+    test "for a GTFS-Flex" do
+      resource = insert(:resource, format: "GTFS")
+
+      resource_history =
+        insert(:resource_history,
+          resource_id: resource.id,
+          payload: %{"format" => "GTFS", "filenames" => ["stops.txt", "locations.geojson"]}
+        )
+
+      assert DB.ResourceHistory.gtfs_flex?(resource_history)
+
       assert %{
                freshness: 1.0,
-               raw_measure: %{source: "override_freshness_score"}
-             } = resource_freshness(%DB.Resource{id: 80_921})
+               raw_measure: %{source: "gtfs_flex"}
+             } = resource_freshness(resource)
     end
   end
 
