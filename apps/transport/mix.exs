@@ -63,9 +63,7 @@ defmodule Transport.Mixfile do
       {:phoenix, "~> 1.7.0"},
       {:phoenix_html, "~> 3.1"},
       # Compilation issue for this dependency, see https://github.com/etalab/transport-site/issues/3499
-      {:phoenix_markdown,
-       git: "https://github.com/pzingg/phoenix_markdown.git",
-       ref: "b2e5ff67c9ce9160d7ef1f66d0c859dfa6284a53"},
+      {:phoenix_markdown, git: "https://github.com/pzingg/phoenix_markdown.git", ref: "b2e5ff67c9ce9160d7ef1f66d0c859dfa6284a53"},
       {:phoenix_live_view, "~> 0.20.14"},
       {:html_sanitize_ex, "~> 1.4"},
       {:floki, ">= 0.0.0", only: :test},
@@ -78,9 +76,7 @@ defmodule Transport.Mixfile do
       # `scrivener_html` seems to be unmaintained!
       # - Compilation issue for this dependency, see https://github.com/etalab/transport-site/issues/3499
       # - was not updated to support Phoenix 1.7
-      {:scrivener_html,
-       git: "https://github.com/transportdatagouvfr/scrivener_html.git",
-       ref: "d6ac5ac4c0c94fc871a42817817b6d5c7b5d6b0c"},
+      {:scrivener_html, git: "https://github.com/transportdatagouvfr/scrivener_html.git", ref: "d6ac5ac4c0c94fc871a42817817b6d5c7b5d6b0c"},
       {:scrivener_list, "~>2.0"},
       {:jason, "~> 1.1"},
       {:open_api_spex, "~> 3.8"},
@@ -122,9 +118,9 @@ defmodule Transport.Mixfile do
       # db
       {:ecto, "~> 3.12"},
       {:ecto_sql, "~> 3.12"},
-      {:postgrex, "~> 0.20.0"},
+      {:postgrex, "~> 0.19.0"},
       {:geo_postgis, "~> 3.4"},
-      {:ecto_interval, github: "AntoineAugusti/ecto_interval", branch: "patch-1"},
+      {:ecto_interval, "~> 0.2.5"},
       {:scrivener_ecto, "~> 2.7.0"},
       {:typed_ecto_schema, ">= 0.1.1"},
       {:ymlr, "~> 5.0"},
