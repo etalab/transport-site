@@ -154,6 +154,25 @@
                   </li>
                 </li>
               <% end %>
+
+              <li class="side-pane__title">
+                <h3><%= dgettext("page-shortlist", "Resource format") %></h3>
+                <li class="side-pane__dropdown unfolded">
+                  <ul class="side-pane__submenu">
+                    <li>
+                      <%= format_link(@conn, %{
+                        msg: dgettext("page-shortlist", "All"),
+                        format: nil,
+                        count:
+                          Enum.find_value(@number_resource_format_datasets, fn {k, count} -> if k == :all, do: count end)
+                      }) %>
+                    </li>
+                    <%= for {format, count} <- Enum.reject(@number_resource_format_datasets, fn {k, _} -> k == :all end) do %>
+                      <li><%= format_link(@conn, %{format: format, msg: format, count: count}) %></li>
+                    <% end %>
+                  </ul>
+                </li>
+              </li>
             </ul>
           </div>
         </nav>
