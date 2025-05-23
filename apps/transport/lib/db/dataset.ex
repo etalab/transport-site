@@ -305,6 +305,15 @@ defmodule DB.Dataset do
 
   defp filter_by_mode(query, _), do: query
 
+  @spec filter_by_resource_format(Ecto.Query.t(), map()) :: Ecto.Query.t()
+  defp filter_by_resource_format(query, %{"format" => format}) do
+    query
+    |> join(:inner, [dataset: d], r in assoc(d, :resources), as: :resources)
+    |> where([resources: r], r.format == ^format)
+  end
+
+  defp filter_by_resource_format(query, _), do: query
+
   @spec filter_by_type(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_type(query, %{"type" => type}), do: where(query, [d], d.type == ^type)
   defp filter_by_type(query, _), do: query
@@ -398,6 +407,7 @@ defmodule DB.Dataset do
       |> filter_by_climate_resilience_bill(params)
       |> filter_by_custom_tag(params)
       |> filter_by_organization(params)
+      |> filter_by_resource_format(params)
       |> filter_by_fulltext(params)
       |> select([dataset: d], d.id)
 

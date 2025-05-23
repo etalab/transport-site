@@ -194,6 +194,24 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     assert 1 == DB.Dataset.count_by_custom_tag("foo")
   end
 
+  test "searching by resource format" do
+    %DB.Dataset{id: d1_id} = insert(:dataset)
+    insert(:resource, dataset_id: d1_id, format: "GTFS")
+    insert(:resource, dataset_id: d1_id, format: "gtfs-rt")
+
+    %DB.Dataset{id: d2_id} = insert(:dataset)
+    insert(:resource, dataset_id: d2_id, format: "gbfs")
+
+    %DB.Dataset{id: d3_id} = insert(:dataset)
+    insert(:resource, dataset_id: d3_id, format: "csv")
+    insert(:resource, dataset_id: d3_id, format: "csv")
+
+    assert [%DB.Dataset{id: ^d1_id}] = %{"format" => "GTFS"} |> DB.Dataset.list_datasets() |> DB.Repo.all()
+    assert [%DB.Dataset{id: ^d2_id}] = %{"format" => "gbfs"} |> DB.Dataset.list_datasets() |> DB.Repo.all()
+    assert [%DB.Dataset{id: ^d3_id}] = %{"format" => "csv"} |> DB.Dataset.list_datasets() |> DB.Repo.all()
+    assert [] = %{"format" => "NeTEx"} |> DB.Dataset.list_datasets() |> DB.Repo.all()
+  end
+
   test "searching for datasets in an AOM" do
     aom = insert(:aom)
     aom2 = insert(:aom)

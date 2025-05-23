@@ -165,6 +165,32 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
+  def format_link(conn, %{format: format, msg: msg, count: count}) do
+    full_url =
+      case format do
+        nil -> current_url(conn, Map.delete(conn.query_params, "format"))
+        format -> current_url(conn, Map.put(conn.query_params, "format", format))
+      end
+
+    link_text = "#{msg} (#{count})"
+    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns
+    active_filter_text = ~H{<span class="activefilter"><%= @msg %> (<%= @count %>)</span>}
+
+    case conn.params do
+      %{"format" => ^format} ->
+        active_filter_text
+
+      %{"format" => _} ->
+        link(link_text, to: full_url)
+
+      _ ->
+        case format do
+          nil -> active_filter_text
+          _ -> link(link_text, to: full_url)
+        end
+    end
+  end
+
   def real_time_link(conn, %{only_realtime: only_rt, msg: msg, count: count}) do
     full_url =
       case only_rt do
