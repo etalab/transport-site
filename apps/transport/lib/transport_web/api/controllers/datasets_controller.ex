@@ -336,7 +336,7 @@ defmodule TransportWeb.API.DatasetController do
   end
 
   def prepare_datasets_index_data do
-    # NOTE: week-end patch ; putting a heavy timeout to temporarily 
+    # NOTE: week-end patch ; putting a heavy timeout to temporarily
     # work-around https://github.com/etalab/transport-site/issues/4598
     # which causes the whole API & backoffice to crash for hours.
     # On the next weekday, this query must be optimized :-)
