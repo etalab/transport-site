@@ -8,7 +8,9 @@ defmodule Transport.Test.Transport.CounterCacheTest do
 
   test "write cache" do
     # First resource with everything good
-    %{resource: %{id: resource_id} = resource} = insert_up_to_date_resource_and_friends(modes: ["rollerblades", "bus"])
+    %{resource: %{id: resource_id} = resource} =
+      insert_up_to_date_resource_and_friends(modes: ["rollerblades", "bus"], features: ["tarifs"])
+
     # Second resource with empty modes
     %{resource: %{id: resource_empty_metadata_id} = resource_empty_metadata} = insert_up_to_date_resource_and_friends()
     # Third resource has no validation
@@ -20,9 +22,9 @@ defmodule Transport.Test.Transport.CounterCacheTest do
     assert resource_empty_metadata.counter_cache == %{}
     assert resource_no_validation.counter_cache == %{}
 
-    Transport.CounterCache.cache_modes_on_resources()
+    Transport.CounterCache.cache_modes_features_on_resources()
 
-    assert %DB.Resource{counter_cache: %{"gtfs_modes" => ["rollerblades", "bus"]}} =
+    assert %DB.Resource{counter_cache: %{"gtfs_modes" => ["rollerblades", "bus"], "gtfs_features" => ["tarifs"]}} =
              DB.Repo.get!(DB.Resource, resource_id)
 
     assert %DB.Resource{counter_cache: %{"gtfs_modes" => []}} = DB.Repo.get!(DB.Resource, resource_empty_metadata_id)
