@@ -8,7 +8,7 @@ defmodule Transport.Jobs.DatabaseVacuumJob do
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
-    Ecto.Adapters.SQL.query!(DB.Repo, "VACUUM FULL")
+    Ecto.Adapters.SQL.query!(DB.Repo, "VACUUM FULL", [], timeout: :timer.minutes(5))
     :ok
   end
 end
