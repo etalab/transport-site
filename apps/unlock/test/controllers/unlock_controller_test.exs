@@ -516,12 +516,14 @@ defmodule Unlock.ControllerTest do
           identifier: slug,
           feeds: [
             %Unlock.Config.Item.Generic.HTTP{
-              identifier: "first-remote",
+              identifier: "first-uuid",
+              slug: "first-slug",
               target_url: url = "http://localhost:1234",
               ttl: 10
             },
             %Unlock.Config.Item.Generic.HTTP{
-              identifier: "second-remote",
+              identifier: "second-uuid",
+              slug: "second-slug",
               target_url: second_url = "http://localhost:5678",
               ttl: 10
             }
@@ -573,15 +575,15 @@ defmodule Unlock.ControllerTest do
                        %{target: "proxy:an-existing-aggregate-identifier"}}
 
       assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
-                       %{target: "proxy:an-existing-aggregate-identifier:first-remote"}}
+                       %{target: "proxy:an-existing-aggregate-identifier:first-uuid"}}
 
       assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
-                       %{target: "proxy:an-existing-aggregate-identifier:second-remote"}}
+                       %{target: "proxy:an-existing-aggregate-identifier:second-uuid"}}
 
       refute_received {:telemetry_event, _, _, _}
 
-      assert logs =~ ~r|first-remote responded with HTTP code 200|
-      assert logs =~ ~r|second-remote responded with HTTP code 200|
+      assert logs =~ ~r|first-uuid responded with HTTP code 200|
+      assert logs =~ ~r|second-uuid responded with HTTP code 200|
 
       verify!(Unlock.HTTP.Client.Mock)
 
@@ -595,8 +597,8 @@ defmodule Unlock.ControllerTest do
       assert resp.status == 200
       assert resp.resp_body == Helper.data_as_csv(@expected_headers, [first_data_row, second_data_row], "\r\n")
 
-      assert logs =~ ~r|Proxy response for an-existing-aggregate-identifier:first-remote served from cache|
-      assert logs =~ ~r|Proxy response for an-existing-aggregate-identifier:second-remote served from cache|
+      assert logs =~ ~r|Proxy response for an-existing-aggregate-identifier:first-uuid served from cache|
+      assert logs =~ ~r|Proxy response for an-existing-aggregate-identifier:second-uuid served from cache|
 
       assert_received {:telemetry_event, [:proxy, :request, :external], %{},
                        %{target: "proxy:an-existing-aggregate-identifier"}}
@@ -624,7 +626,7 @@ defmodule Unlock.ControllerTest do
       assert resp.resp_body == Helper.data_as_csv(@expected_headers, [first_data_row], "\r\n")
       refute String.contains?(resp.resp_body, "foo")
 
-      assert logs =~ ~r|Broken stream for origin second-remote \(headers are \["foo"\]\)|
+      assert logs =~ ~r|Broken stream for origin second-slug/second-uuid \(headers are \["foo"\]\)|
 
       verify!(Unlock.HTTP.Client.Mock)
     end
@@ -647,7 +649,7 @@ defmodule Unlock.ControllerTest do
       assert resp.status == 200
       assert resp.resp_body == Helper.data_as_csv(@expected_headers, [first_data_row], "\r\n")
 
-      assert logs =~ ~r|Non-200 response for origin second-remote \(status=502\), response has been dropped|
+      assert logs =~ ~r|Non-200 response for origin second-slug/second-uuid \(status=502\), response has been dropped|
 
       verify!(Unlock.HTTP.Client.Mock)
     end
@@ -675,9 +677,9 @@ defmodule Unlock.ControllerTest do
 
       # we still want the event on the bogus remote
       assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
-                       %{target: "proxy:an-existing-aggregate-identifier:second-remote"}}
+                       %{target: "proxy:an-existing-aggregate-identifier:second-uuid"}}
 
-      assert logs =~ ~r|Non-200 response for origin second-remote \(status=500\), response has been dropped|
+      assert logs =~ ~r|Non-200 response for origin second-slug/second-uuid \(status=500\), response has been dropped|
 
       verify!(Unlock.HTTP.Client.Mock)
     end
@@ -753,8 +755,8 @@ defmodule Unlock.ControllerTest do
       assert resp.status == 200
 
       # make sure timout is not too aggressive for the 200 feed
-      assert logs =~ ~r|first-remote responded with HTTP code 200|
-      assert logs =~ ~r|Timeout for origin second-remote, response has been dropped|
+      assert logs =~ ~r|first-uuid responded with HTTP code 200|
+      assert logs =~ ~r|Timeout for origin second-uuid, response has been dropped|
 
       # first part must still be there despite the second part timeout
       assert resp.resp_body == Helper.data_as_csv(@expected_headers, [first_data_row], "\r\n")
@@ -811,13 +813,12 @@ defmodule Unlock.ControllerTest do
         |> get("/resource/an-existing-aggregate-identifier", include_origin: 1)
 
       assert resp.status == 200
-
-      expected_headers = @expected_headers ++ ["origin"]
-      first_output_row = first_data_row |> Map.put("origin", "first-remote")
-      second_output_row = second_data_row |> Map.put("origin", "second-remote")
+      expected_headers = @expected_headers ++ ["origin", "slug"]
+      first_expected_output_row = first_data_row |> Map.put("origin", "first-uuid") |> Map.put("slug", "first-slug")
+      second_expected_output_row = second_data_row |> Map.put("origin", "second-uuid") |> Map.put("slug", "second-slug")
 
       assert resp.resp_body ==
-               Helper.data_as_csv(expected_headers, [first_output_row, second_output_row], "\r\n")
+               Helper.data_as_csv(expected_headers, [first_expected_output_row, second_expected_output_row], "\r\n")
 
       verify!(Unlock.HTTP.Client.Mock)
     end
