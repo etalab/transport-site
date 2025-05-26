@@ -400,13 +400,8 @@ defmodule TransportWeb.DatasetController do
       |> DB.Repo.all()
 
     %{all: result |> Enum.uniq_by(& &1.dataset_id) |> Enum.count()}
-    |> Map.merge(
-      result
-      |> Enum.map(& &1.format)
-      |> Enum.frequencies()
-      |> Enum.sort_by(fn {_, count} -> count end, :desc)
-      |> Map.new()
-    )
+    |> Map.merge(result |> Enum.map(& &1.format) |> Enum.frequencies() |> Map.new())
+    |> Enum.sort_by(fn {_, count} -> count end, :desc)
   end
 
   @spec climate_resilience_bill_count(map()) :: %{all: non_neg_integer(), true: non_neg_integer()}
