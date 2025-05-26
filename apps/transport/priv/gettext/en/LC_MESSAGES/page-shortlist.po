@@ -239,3 +239,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Data reuse obligation"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Resource format"
+msgstr ""
