@@ -32,6 +32,7 @@ defmodule TransportWeb.DatasetController do
     |> assign(:licences, get_licences(params))
     |> assign(:number_realtime_datasets, get_realtime_count(params))
     |> assign(:number_climate_resilience_bill_datasets, climate_resilience_bill_count(params))
+    |> assign(:number_resource_format_datasets, resource_format_count(params))
     |> assign(:order_by, params["order_by"])
     |> assign(:q, Map.get(params, "q"))
     |> put_dataset_heart_values(datasets)
@@ -382,6 +383,25 @@ defmodule TransportWeb.DatasetController do
       true -> results
       false -> results ++ [%{type: type, count: 0, msg: Dataset.type_to_str(type)}]
     end
+  end
+
+  @spec resource_format_count(map()) :: %{binary() => non_neg_integer()}
+  defp resource_format_count(params) do
+    result =
+      params
+      |> clean_datasets_query("format")
+      |> exclude(:order_by)
+      |> DB.Resource.join_dataset_with_resource()
+      |> select([resource: r], %{
+        dataset_id: r.dataset_id,
+        format: r.format
+      })
+      |> distinct(true)
+      |> DB.Repo.all()
+
+    %{all: result |> Enum.uniq_by(& &1.dataset_id) |> Enum.count()}
+    |> Map.merge(result |> Enum.map(& &1.format) |> Enum.frequencies() |> Map.new())
+    |> Enum.sort_by(fn {_, count} -> count end, :desc)
   end
 
   @spec climate_resilience_bill_count(map()) :: %{all: non_neg_integer(), true: non_neg_integer()}
