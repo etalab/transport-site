@@ -129,7 +129,6 @@ defmodule Unlock.AggregateProcessor do
 
     Logger.debug("#{slug}/#{origin} responded with HTTP code #{status} (#{body |> byte_size} bytes)")
 
-    raise "foo"
     if status == 200 do
       # NOTE: at this point of deployment, having a log in case of error will be good enough.
       # We can later expose to the public with an alternate sub-url for observability.
