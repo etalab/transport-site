@@ -289,14 +289,9 @@ defmodule DB.Dataset do
   end
 
   defp filter_by_feature(query, %{"features" => feature}) do
-    # Note: @> is the 'contains' operator
     query
-    |> DB.ResourceHistory.join_dataset_with_latest_resource_history()
-    |> DB.MultiValidation.join_resource_history_with_latest_validation(
-      Transport.Validators.GTFSTransport.validator_name()
-    )
-    |> DB.ResourceMetadata.join_validation_with_metadata()
-    |> where([metadata: rm], fragment("? @> ?::varchar[]", rm.features, ^feature))
+    |> join(:inner, [dataset: d], r in assoc(d, :resources), as: :resource_for_features)
+    |> where([resource_for_features: r], fragment("?->'gtfs_features' @> ?", r.counter_cache, ^feature))
   end
 
   defp filter_by_feature(query, _), do: query
@@ -304,7 +299,6 @@ defmodule DB.Dataset do
   @spec filter_by_mode(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_mode(query, %{"modes" => modes}) when is_list(modes) do
     query
-    # Using specific jointure name: if piping with filter_by_feature it will not conflict
     |> join(:inner, [dataset: d], r in assoc(d, :resources), as: :resource_for_mode)
     |> where([resource_for_mode: r], fragment("?->'gtfs_modes' @> ?", r.counter_cache, ^modes))
   end
