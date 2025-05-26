@@ -140,36 +140,18 @@ defmodule TransportWeb.DatasetView do
   end
 
   def type_link(conn, %{type: type, msg: msg, count: count}) do
-    full_url =
-      case type do
-        nil -> current_url(conn, Map.delete(conn.query_params, "type"))
-        type -> current_url(conn, Map.put(conn.query_params, "type", type))
-      end
-
-    link_text = "#{msg} (#{count})"
-    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns
-    active_filter_text = ~H{<span class="activefilter"><%= @msg %> (<%= @count %>)</span>}
-
-    case conn.params do
-      %{"type" => ^type} ->
-        active_filter_text
-
-      %{"type" => _} ->
-        link(link_text, to: full_url)
-
-      _ ->
-        case type do
-          nil -> active_filter_text
-          _ -> link(link_text, to: full_url)
-        end
-    end
+    link_by_key(conn, "type", %{key: type, msg: msg, count: count})
   end
 
   def format_link(conn, %{format: format, msg: msg, count: count}) do
+    link_by_key(conn, "format", %{key: format, msg: msg, count: count})
+  end
+
+  defp link_by_key(conn, key_name, %{key: key, msg: msg, count: count}) do
     full_url =
-      case format do
-        nil -> current_url(conn, Map.delete(conn.query_params, "format"))
-        format -> current_url(conn, Map.put(conn.query_params, "format", format))
+      case key do
+        nil -> current_url(conn, Map.delete(conn.query_params, key_name))
+        key -> current_url(conn, Map.put(conn.query_params, key_name, key))
       end
 
     link_text = "#{msg} (#{count})"
@@ -177,16 +159,17 @@ defmodule TransportWeb.DatasetView do
     active_filter_text = ~H{<span class="activefilter"><%= @msg %> (<%= @count %>)</span>}
 
     case conn.params do
-      %{"format" => ^format} ->
+      %{^key_name => ^key} ->
         active_filter_text
 
-      %{"format" => _} ->
+      %{^key_name => _} ->
         link(link_text, to: full_url)
 
       _ ->
-        case format do
-          nil -> active_filter_text
-          _ -> link(link_text, to: full_url)
+        if is_nil(key) do
+          active_filter_text
+        else
+          link(link_text, to: full_url)
         end
     end
   end
