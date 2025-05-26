@@ -147,7 +147,10 @@ defmodule Unlock.AggregateProcessor do
     # Since the code is ran via `Task.async_stream`, we wrap it with a rescue block, otherwise
     # the whole consolidated response will stop and a 500 will be generated
     e ->
-      Logger.warning("Error occurred during processing origin #{slug}/#{origin} (#{e |> inspect}), response has been dropped")
+      Logger.warning(
+        "Error occurred during processing origin #{slug}/#{origin} (#{e |> inspect}), response has been dropped"
+      )
+
       []
   end
 
