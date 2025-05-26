@@ -122,13 +122,14 @@ defmodule Unlock.AggregateProcessor do
         %Unlock.Config.Item.Generic.HTTP{identifier: origin, slug: slug} = sub_item,
         options
       ) do
-    Logger.debug("Fetching aggregated sub-item #{origin} at #{sub_item.target_url}")
+    Logger.debug("Fetching aggregated sub-item #{slug}/#{origin} at #{sub_item.target_url}")
 
     %{status: status, body: body} =
       cached_fetch(item, %Unlock.Config.Item.Generic.HTTP{identifier: origin} = sub_item)
 
-    Logger.debug("#{origin} responded with HTTP code #{status} (#{body |> byte_size} bytes)")
+    Logger.debug("#{slug}/#{origin} responded with HTTP code #{status} (#{body |> byte_size} bytes)")
 
+    raise "foo"
     if status == 200 do
       # NOTE: at this point of deployment, having a log in case of error will be good enough.
       # We can later expose to the public with an alternate sub-url for observability.
@@ -136,18 +137,18 @@ defmodule Unlock.AggregateProcessor do
         process_csv_payload(body, origin, slug, options)
       catch
         {:non_matching_headers, headers} ->
-          Logger.info("Broken stream for origin #{origin} (headers are #{headers |> inspect})")
+          Logger.info("Broken stream for origin #{slug}/#{origin} (headers are #{headers |> inspect})")
           []
       end
     else
-      Logger.info("Non-200 response for origin #{origin} (status=#{status}), response has been dropped")
+      Logger.info("Non-200 response for origin #{slug}/#{origin} (status=#{status}), response has been dropped")
       []
     end
   rescue
     # Since the code is ran via `Task.async_stream`, we wrap it with a rescue block, otherwise
     # the whole consolidated response will stop and a 500 will be generated
     e ->
-      Logger.warning("Error occurred during processing origin #{origin} (#{e |> inspect}), response has been dropped")
+      Logger.warning("Error occurred during processing origin #{slug}/#{origin} (#{e |> inspect}), response has been dropped")
       []
   end
 
