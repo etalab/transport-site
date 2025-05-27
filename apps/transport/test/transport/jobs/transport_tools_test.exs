@@ -26,14 +26,6 @@ defmodule TransportWeb.TransportToolsTest do
       assert geojson_file |> File.read!() |> String.contains?("FeatureCollection")
       File.rm!(geojson_file)
     end
-
-    @tag :transport_tools
-    test "we can convert a gtfs to NeTEx" do
-      netex_dir = "test_netex"
-      :ok = Transport.GTFSToNeTExHoveConverter.convert("#{__DIR__}/../../fixture/files/gtfs.zip", netex_dir)
-      assert File.dir?(netex_dir)
-      File.rm_rf!(netex_dir)
-    end
   end
 
   describe "Necessary command lines tools are installed on the machine" do

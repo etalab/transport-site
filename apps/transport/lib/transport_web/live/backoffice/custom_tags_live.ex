@@ -61,11 +61,6 @@ defmodule TransportWeb.CustomTagsLive do
       %{name: "saisonnier", doc: "Indique sur la page du JDD que ce jeu de données n'opère qu'une partie de l'année"},
       %{name: "skip_history", doc: "Désactive l'historisation des ressources pour ce jeu de données"},
       %{
-        name: "keep_netex_conversions",
-        doc:
-          "Conserve les conversions NeTEx automatiques pour ce jeu de données, même s'il contient des ressources NeTEx"
-      },
-      %{
         name: "masqué",
         doc:
           "Masque ce jeu de données des statistiques, de la recherche et de l'API. Le jeu reste accessible via son URL directe (web et API)."

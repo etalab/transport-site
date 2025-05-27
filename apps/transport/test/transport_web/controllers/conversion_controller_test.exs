@@ -14,7 +14,7 @@ defmodule TransportWeb.ConversionControllerTest do
 
   describe "get" do
     test "when the resource does not exist", %{conn: conn} do
-      assert conn |> get(conversion_path(conn, :get, 42, "NeTEx")) |> text_response(404) == "Conversion not found."
+      assert conn |> get(conversion_path(conn, :get, 42, "GeoJSON")) |> text_response(404) == "Conversion not found."
     end
 
     test "when the conversion format does not exist", %{conn: conn} do
@@ -25,7 +25,7 @@ defmodule TransportWeb.ConversionControllerTest do
     test "when the resource exists but there are no conversions", %{conn: conn} do
       resource = insert(:resource)
 
-      assert conn |> get(conversion_path(conn, :get, resource.id, "NeTEx")) |> text_response(404) ==
+      assert conn |> get(conversion_path(conn, :get, resource.id, "GeoJSON")) |> text_response(404) ==
                "Conversion not found."
     end
 
