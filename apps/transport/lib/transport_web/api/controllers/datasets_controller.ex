@@ -336,6 +336,10 @@ defmodule TransportWeb.API.DatasetController do
   end
 
   def prepare_datasets_index_data do
+    # NOTE: week-end patch ; putting a heavy timeout to temporarily
+    # work-around https://github.com/etalab/transport-site/issues/4598
+    # which causes the whole API & backoffice to crash for hours.
+    # On the next weekday, this query must be optimized :-)
     datasets_with_gtfs_metadata =
       DB.Dataset.base_query()
       |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
@@ -345,7 +349,7 @@ defmodule TransportWeb.API.DatasetController do
         :communes,
         resources: {r, resource_history: {rh, validations: {mv, metadata: m}}}
       ])
-      |> Repo.all()
+      |> Repo.all(timeout: 40_000)
 
     recent_limit = Transport.Jobs.GTFSRTMetadataJob.datetime_limit()
 
