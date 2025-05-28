@@ -6,6 +6,8 @@ defmodule TransportWeb.API.DatasetController do
   alias DB.{AOM, Dataset, Repo, Resource}
   alias Geo.{JSON, MultiPolygon}
 
+  plug(:log_request when action in [:datasets, :by_id])
+
   # The default (one minute) felt a bit too high for someone doing scripted operations
   # (have to wait during experimentations), so I lowered it a bit. It is high enough
   # that it will still protect a lot against excessive querying.
@@ -427,5 +429,25 @@ defmodule TransportWeb.API.DatasetController do
     dataset = dataset |> Map.put(:resources, enriched_resources)
 
     transform_dataset_with_detail(dataset)
+  end
+
+  defp log_request(%Plug.Conn{} = conn, _options) do
+    controller = conn |> Phoenix.Controller.controller_module() |> to_string() |> String.trim_leading("Elixir.")
+
+    token_id =
+      case conn.assigns[:token] do
+        %DB.Token{} = token -> token.id
+        nil -> nil
+      end
+
+    Ecto.Changeset.change(%DB.APIRequest{}, %{
+      time: DateTime.utc_now(),
+      token_id: token_id,
+      method: "#{controller}##{Phoenix.Controller.action_name(conn)}",
+      path: conn.request_path
+    })
+    |> DB.Repo.insert!()
+
+    conn
   end
 end

@@ -150,6 +150,7 @@ defmodule Transport.Mixfile do
       {:remote_ip, "~> 1.1"},
       {:image, "~> 0.52"},
       {:nx, "~> 0.7"},
+      {:timescale, "~> 0.1.0"},
       {:mock, "~> 0.3.6", only: :test}
     ]
   end

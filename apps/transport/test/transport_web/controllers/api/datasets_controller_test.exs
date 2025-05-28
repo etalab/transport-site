@@ -30,19 +30,52 @@ defmodule TransportWeb.API.DatasetControllerTest do
              |> put_req_header("authorization", "invalid")
              |> get(Helpers.dataset_path(conn, :datasets))
              |> json_response(401) == %{"error" => "You must set a valid Authorization header"}
+
+      assert [] == DB.APIRequest |> DB.Repo.all()
     end
 
     test "GET /api/datasets with a valid token", %{conn: conn} do
-      token = insert_token()
+      %DB.Token{id: token_id} = token = insert_token()
 
       assert conn
              |> put_req_header("authorization", token.secret)
              |> get(Helpers.dataset_path(conn, :datasets))
              |> json_response(200)
+
+      assert [
+               %DB.APIRequest{
+                 method: "TransportWeb.API.DatasetController#datasets",
+                 path: "/api/datasets",
+                 token_id: ^token_id
+               }
+             ] = DB.APIRequest |> DB.Repo.all()
+    end
+
+    test "GET /api/datasets without a token", %{conn: conn} do
+      assert conn
+             |> get(Helpers.dataset_path(conn, :datasets))
+             |> json_response(200)
+
+      assert [
+               %DB.APIRequest{
+                 method: "TransportWeb.API.DatasetController#datasets",
+                 path: "/api/datasets",
+                 token_id: nil
+               }
+             ] = DB.APIRequest |> DB.Repo.all()
+    end
+
+    test "GET /api/datasets/:id with an invalid token", %{conn: conn} do
+      assert conn
+             |> put_req_header("authorization", "invalid")
+             |> get(Helpers.dataset_path(conn, :by_id, Ecto.UUID.generate()))
+             |> json_response(401) == %{"error" => "You must set a valid Authorization header"}
+
+      assert [] == DB.APIRequest |> DB.Repo.all()
     end
 
     test "GET /api/datasets/:id with a valid token", %{conn: conn} do
-      token = insert_token()
+      %DB.Token{id: token_id} = token = insert_token()
       dataset = insert(:dataset)
 
       setup_empty_history_resources()
@@ -51,6 +84,32 @@ defmodule TransportWeb.API.DatasetControllerTest do
              |> put_req_header("authorization", token.secret)
              |> get(Helpers.dataset_path(conn, :by_id, dataset.datagouv_id))
              |> json_response(200)
+
+      path = "/api/datasets/#{dataset.datagouv_id}"
+
+      assert [
+               %DB.APIRequest{method: "TransportWeb.API.DatasetController#by_id", path: ^path, token_id: ^token_id}
+             ] = DB.APIRequest |> DB.Repo.all()
+    end
+
+    test "GET /api/datasets/:id without a token", %{conn: conn} do
+      dataset = insert(:dataset)
+
+      setup_empty_history_resources()
+
+      assert conn
+             |> get(Helpers.dataset_path(conn, :by_id, dataset.datagouv_id))
+             |> json_response(200)
+
+      path = "/api/datasets/#{dataset.datagouv_id}"
+
+      assert [
+               %DB.APIRequest{
+                 method: "TransportWeb.API.DatasetController#by_id",
+                 path: ^path,
+                 token_id: nil
+               }
+             ] = DB.APIRequest |> DB.Repo.all()
     end
   end
 
