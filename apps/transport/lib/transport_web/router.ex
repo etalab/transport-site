@@ -128,6 +128,7 @@ defmodule TransportWeb.Router do
       get("/settings", ReuserSpaceController, :settings)
       get("/settings/new_token", ReuserSpaceController, :new_token)
       post("/settings/new_token", ReuserSpaceController, :create_new_token)
+      delete("/settings/tokens/:id", ReuserSpaceController, :delete_token)
 
       live_session :reuser_space, session: %{"role" => :reuser}, root_layout: {TransportWeb.LayoutView, :app} do
         live("/notifications", Live.NotificationsLive, :notifications, as: :reuser_space)

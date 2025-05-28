@@ -222,3 +222,7 @@ msgstr "Vous devez être membre d'une organisation pour créer un nouveau token.
 #, elixir-autogen, elixir-format
 msgid "Your token has been created"
 msgstr "Votre token a bien été créé"
+
+#, elixir-autogen, elixir-format
+msgid "Your token has been deleted"
+msgstr "Votre token a bien été supprimé"

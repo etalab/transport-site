@@ -246,16 +246,22 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
 
       token = insert_token(%{organization_id: organization.id, contact_id: contact.id, name: "Default"})
 
-      assert conn
-             |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
-             |> get(reuser_space_path(conn, :settings))
-             |> html_response(200)
-             |> Floki.parse_document!()
-             |> Floki.find("table tr td") == [
-               {"td", [], [organization.name]},
-               {"td", [], [token.name]},
-               {"td", [], [{"code", [], [token.secret]}]}
-             ]
+      organization_name = organization.name
+      token_name = token.name
+      token_secret = token.secret
+
+      assert [
+               {"td", [], [^organization_name]},
+               {"td", [], [^token_name]},
+               {"td", [], [{"code", [], [^token_secret]}]},
+               {"td", [], [_]}
+             ] =
+               conn
+               |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+               |> get(reuser_space_path(conn, :settings))
+               |> html_response(200)
+               |> Floki.parse_document!()
+               |> Floki.find("table tr td")
     end
   end
 
@@ -366,5 +372,27 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
         |> html_response(200)
       end
     end
+  end
+
+  test "delete_token", %{conn: conn} do
+    organization = insert(:organization)
+
+    contact =
+      insert_contact(%{
+        datagouv_user_id: Ecto.UUID.generate(),
+        organizations: [organization |> Map.from_struct()]
+      })
+
+    token = insert_token(%{contact_id: contact.id, organization_id: organization.id})
+
+    conn =
+      conn
+      |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+      |> delete(reuser_space_path(conn, :delete_token, token.id))
+
+    assert redirected_to(conn, 302) == reuser_space_path(conn, :settings)
+    assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Votre token a bien été supprimé"
+
+    assert token |> DB.Repo.reload() |> is_nil()
   end
 end
