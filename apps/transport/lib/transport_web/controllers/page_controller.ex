@@ -10,7 +10,7 @@ defmodule TransportWeb.PageController do
     conn
     |> assign(:mailchimp_newsletter_url, Application.get_env(:transport, :mailchimp_newsletter_url))
     |> merge_assigns(home_index_stats())
-    |> assign(:tiles, home_tiles(conn))
+    |> assign(:tiles, home_tiles(conn) |> Enum.map(&patch_vls_tiles/1))
     |> put_breaking_news(DB.BreakingNews.get_breaking_news())
     |> render("index.html")
   end
@@ -269,8 +269,8 @@ defmodule TransportWeb.PageController do
         count: Keyword.fetch!(counts, :count_boat)
       },
       type_tile(conn, "air-transport"),
-      type_tile(conn, "bike-scooter-sharing", link: "/landing-vls"),
-      type_tile(conn, "car-motorbike-sharing", link: "/landing-vls"),
+      type_tile(conn, "bike-scooter-sharing"),
+      type_tile(conn, "car-motorbike-sharing"),
       type_tile(conn, "bike-way"),
       type_tile(conn, "bike-parking"),
       type_tile(conn, "transport-traffic",
@@ -288,6 +288,16 @@ defmodule TransportWeb.PageController do
     ]
   end
 
+  defp patch_vls_tiles(%Tile{type: "bike-scooter-sharing"} = tile) do
+    %{tile | link: "/landing-vls"}
+  end
+
+  defp patch_vls_tiles(%Tile{type: "car-motorbike-sharing"} = tile) do
+    %{tile | link: "/landing-vls"}
+  end
+
+  defp patch_vls_tiles(tile), do: tile
+
   defp climate_resilience_bill_type_tile(%Plug.Conn{} = conn, %{count: count, type: type}) do
     %Tile{
       type: type,
@@ -301,7 +311,7 @@ defmodule TransportWeb.PageController do
   defp type_tile(conn, type, options \\ []) do
     %Tile{
       type: type,
-      link: Keyword.get(options, :link, dataset_path(conn, :index, type: type)),
+      link: dataset_path(conn, :index, type: type),
       icon: icon_type_path(type),
       title: DB.Dataset.type_to_str(type),
       count: Keyword.fetch!(home_index_stats(), :count_by_type)[type],
