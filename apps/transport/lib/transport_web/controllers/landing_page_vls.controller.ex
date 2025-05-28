@@ -3,6 +3,7 @@ defmodule TransportWeb.LandingPagesController do
 
   def vls(conn, _params) do
     conn
+    |> assign(:seo_page, "vls")
     |> render("vls.html")
   end
 end
