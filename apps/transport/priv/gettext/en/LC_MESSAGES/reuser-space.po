@@ -222,3 +222,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Your token has been created"
 msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Your token has been deleted"
+msgstr ""
