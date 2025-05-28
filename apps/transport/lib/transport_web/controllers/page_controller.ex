@@ -251,7 +251,7 @@ defmodule TransportWeb.PageController do
       },
       %Tile{
         # 14 is the region « National » We defined coaches as buses not bound to a region or AOM
-        link: dataset_path(conn, :by_region, 14, "modes[]": "bus"),
+        link: dataset_path(conn, :by_region, DB.Region.national().id, "modes[]": "bus"),
         icon: icon_type_path("long-distance-coach"),
         title: dgettext("page-index", "Long distance coach"),
         count: Keyword.fetch!(counts, :count_coach)
