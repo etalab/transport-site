@@ -86,5 +86,10 @@ defmodule TransportWeb.SeoMetadata do
     %{title: page_title}
   end
 
+  def metadata(TransportWeb.LandingPagesView, %{seo_page: "vls"}),
+    do: %{
+      title: "Jeux de données ouverts de la catégorie Vélos et trottinettes en libre-service"
+    }
+
   def metadata(_view, _assigns), do: %{}
 end

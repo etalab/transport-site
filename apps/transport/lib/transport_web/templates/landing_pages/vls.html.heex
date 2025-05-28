@@ -1,0 +1,132 @@
+<article class="landing_page_vls">
+  <div class="wrapper">
+    <header class="center">
+      <h1>
+        Accédez gratuitement aux données des véhicules en libre-service en France (VLS)
+      </h1>
+      <p>
+        La mobilité partagée favorise une mobilité durable, économique et intermodale. En complément de l’offre de transports collectifs, retrouvez les données des vélos, trottinettes, scooters et voitures en libre-service.
+      </p>
+    </header>
+
+    <section class="banner">
+      <h2>Un écosystème complexe</h2>
+    </section>
+
+    <section class="ecosystem">
+      <ul>
+        <li>
+          <img src={static_path(@conn, "/images/landing_pages/vls/multiple-actors.jpg")} loading="lazy" />
+          <span>Une multiplicité d’acteurs en France</span>
+        </li>
+        <li>
+          <img src={static_path(@conn, "/images/landing_pages/vls/services-types.jpg")} loading="lazy" />
+          <span>De nombreux types de services</span>
+        </li>
+        <li>
+          <img src={static_path(@conn, "/images/landing_pages/vls/multiple-formats.jpg")} loading="lazy" />
+          <span>Différents formats d’échanges de données</span>
+        </li>
+      </ul>
+    </section>
+
+    <section class="banner blue">
+      <h2>
+        Explorez et réutilisez facilement les données des
+        <abbr class="inline-help" title="Autorités Organisatrices de la Mobilité">AOM</abbr>
+        et de leurs prestataires
+      </h2>
+    </section>
+
+    <section class="statistics">
+      <ul>
+        <li>
+          <span class="figure">70%</span>
+          <span class="description">
+            Couverture nationale
+          </span>
+        </li>
+        <li>
+          <span class="figure">82+</span>
+          <span class="description">
+            Jeux de données disponibles
+          </span>
+        </li>
+        <li>
+          <span class="figure">59 345+</span>
+          <span class="description">
+            Flux de données
+          </span>
+        </li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="arguments">
+    <div class="center">
+      <div class="argument left">
+        <p class="comment">
+          <a href="https://transport.data.gouv.fr/explore?gbfs-stations=yes">
+            Couverture des services disponibles par territoire
+          </a>
+        </p>
+
+        <picture>
+          <a
+            aria-label="Couverture des services disponibles par territoire"
+            href="https://transport.data.gouv.fr/explore?gbfs-stations=yes"
+          >
+            <img src={static_path(@conn, "/images/landing_pages/vls/explore_map.png")} loading="lazy" />
+          </a>
+        </picture>
+      </div>
+
+      <div class="argument right">
+        <p class="comment">
+          <a href="https://gbfs.org/fr/documentation/" target="_blank">
+            Données en temps réel au format
+            <abbr class="inline-help" title="Standard General Bikeshare Feed Specification">GBFS</abbr>
+          </a>
+        </p>
+
+        <picture>
+          <a
+            href="https://gbfs.org/fr/documentation/"
+            target="_blank"
+            aria-label="Données en temps réel au format GBFS"
+          >
+            <img src={static_path(@conn, "/images/landing_pages/vls/realtime.png")} loading="lazy" />
+          </a>
+        </picture>
+      </div>
+
+      <div class="argument left">
+        <p class="comment">
+          <a href="https://transport.data.gouv.fr/espace_reutilisateur?utm_campaign=menu_dropdown">
+            Un espace personnalisé pour rester informé ❤️
+          </a>
+        </p>
+
+        <picture>
+          <a
+            aria-label="Accédez à votre espace réutilisateur"
+            href="https://transport.data.gouv.fr/espace_reutilisateur?utm_campaign=menu_dropdown"
+          >
+            <img src={static_path(@conn, "/images/landing_pages/vls/espace-reutilisateur.png")} loading="lazy" />
+          </a>
+        </picture>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <a class="cta" href="https://transport.data.gouv.fr/datasets?type=bike-scooter-sharing">
+      Accédez aux données
+    </a>
+    <p>
+      Pour toute question, l’équipe de <a href="https://transport.data.gouv.fr">transport.data.gouv.fr</a>
+      est disponible pour vous accompagner à réutiliser ces données
+      <a href="mailto:contact@transport.data.gouv.fr">contact@transport.data.gouv.fr</a>
+    </p>
+  </footer>
+</article>

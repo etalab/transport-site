@@ -251,7 +251,7 @@ defmodule TransportWeb.PageController do
       },
       %Tile{
         # 14 is the region « National » We defined coaches as buses not bound to a region or AOM
-        link: dataset_path(conn, :by_region, 14, "modes[]": "bus"),
+        link: dataset_path(conn, :by_region, DB.Region.national().id, "modes[]": "bus"),
         icon: icon_type_path("long-distance-coach"),
         title: dgettext("page-index", "Long distance coach"),
         count: Keyword.fetch!(counts, :count_coach)
@@ -269,8 +269,8 @@ defmodule TransportWeb.PageController do
         count: Keyword.fetch!(counts, :count_boat)
       },
       type_tile(conn, "air-transport"),
-      type_tile(conn, "bike-scooter-sharing"),
-      type_tile(conn, "car-motorbike-sharing"),
+      type_tile(conn, "bike-scooter-sharing", link: "/landing-vls"),
+      type_tile(conn, "car-motorbike-sharing", link: "/landing-vls"),
       type_tile(conn, "bike-way"),
       type_tile(conn, "bike-parking"),
       type_tile(conn, "transport-traffic",
@@ -301,7 +301,7 @@ defmodule TransportWeb.PageController do
   defp type_tile(conn, type, options \\ []) do
     %Tile{
       type: type,
-      link: dataset_path(conn, :index, type: type),
+      link: Keyword.get(options, :link, dataset_path(conn, :index, type: type)),
       icon: icon_type_path(type),
       title: DB.Dataset.type_to_str(type),
       count: Keyword.fetch!(home_index_stats(), :count_by_type)[type],
