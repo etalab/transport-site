@@ -1,13 +1,6 @@
-if true do
-  Transport.Jobs.IRVEConsolidationJob.perform(%Oban.Job{args: %{limit: 1}})
-else
-  filter = fn stream ->
-    stream
-    |> Enum.take(1)
-  end
+limit = System.get_env("LIMIT") |> then(&if &1, do: String.to_integer(&1))
 
-  Transport.IRVE.Consolidation.build_aggregate_and_report!(filter: filter)
-end
+Transport.Jobs.IRVEConsolidationJob.perform(%Oban.Job{args: %{limit: limit}})
 
 IO.puts("""
  ╔═════════════════════════╗
