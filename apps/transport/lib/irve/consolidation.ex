@@ -125,17 +125,14 @@ defmodule Transport.IRVE.Consolidation do
         }
       end)
 
-    output_folder = Path.join(__DIR__, "../../data-tmp")
-    if !File.exists?(output_folder), do: File.mkdir(output_folder)
-
-    consolidation_filename = output_folder |> Path.join("irve-consolidation.csv") |> Path.expand()
-    Logger.info("Generating #{consolidation_filename}")
+    consolidation_filename = Keyword.fetch!(options, :data_file)
+    Logger.info("Generating IRVE consolidation data file at #{consolidation_filename}")
 
     output.df
     |> Explorer.DataFrame.to_csv!(consolidation_filename)
 
-    report_filename = output_folder |> Path.join("irve-report.csv") |> Path.expand()
-    Logger.info("Generating #{report_filename}")
+    report_filename = Keyword.fetch!(options, :report_file)
+    Logger.info("Generating IRVE consolidation report file at #{report_filename}")
 
     output.report
     |> Enum.reverse()
