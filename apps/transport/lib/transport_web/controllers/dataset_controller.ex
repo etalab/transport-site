@@ -607,7 +607,7 @@ defmodule TransportWeb.DatasetController do
   end
 
   defp tile_matches_query?(%TransportWeb.PageController.Tile{link: link}, %MapSet{} = query_params) do
-    tile_query = link |> URI.new!() |> Map.fetch!(:query) |> Plug.Conn.Query.decode()
+    tile_query = (link |> URI.new!() |> Map.fetch!(:query) || "") |> Plug.Conn.Query.decode()
 
     MapSet.subset?(MapSet.new(tile_query), query_params)
   end
