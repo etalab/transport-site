@@ -117,9 +117,11 @@ defmodule Unlock.ConfigFetcherTest do
           type: "aggregate"
           feeds:
             - identifier: abdcd
+              slug: foo
               target_url: http://localhost:1234
               ttl: 100
             - identifier: efghi
+              slug: bar
               target_url: https://localhost:1235
       """
 
@@ -130,12 +132,14 @@ defmodule Unlock.ConfigFetcherTest do
                  feeds: [
                    %Unlock.Config.Item.Generic.HTTP{
                      identifier: "abdcd",
+                     slug: "foo",
                      target_url: "http://localhost:1234",
                      ttl: 100,
                      subtype: "generic-http"
                    },
                    %Unlock.Config.Item.Generic.HTTP{
                      identifier: "efghi",
+                     slug: "bar",
                      target_url: "https://localhost:1235",
                      ttl: 10,
                      subtype: "generic-http"

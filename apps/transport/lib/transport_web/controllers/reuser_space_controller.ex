@@ -2,7 +2,7 @@ defmodule TransportWeb.ReuserSpaceController do
   use TransportWeb, :controller
   import Ecto.Query
 
-  plug(:find_contact when action in [:espace_reutilisateur, :settings, :new_token, :create_new_token])
+  plug(:find_contact when action in [:espace_reutilisateur, :settings, :new_token, :create_new_token, :delete_token])
   plug(:find_dataset_or_redirect when action in [:datasets_edit, :unfavorite, :add_improved_data])
 
   def espace_reutilisateur(%Plug.Conn{assigns: %{contact: %DB.Contact{} = contact}} = conn, _) do
@@ -16,17 +16,21 @@ defmodule TransportWeb.ReuserSpaceController do
 
   def settings(%Plug.Conn{assigns: %{contact: %DB.Contact{} = contact}} = conn, _) do
     contact = DB.Repo.preload(contact, :organizations)
-    organization_ids = Enum.map(contact.organizations, & &1.id)
-
-    tokens =
-      DB.Token.base_query()
-      |> where([token: t], t.organization_id in ^organization_ids)
-      |> preload(:organization)
-      |> DB.Repo.all()
 
     conn
-    |> assign(:tokens, tokens)
+    |> assign(:tokens, tokens(contact))
     |> render("settings.html")
+  end
+
+  def delete_token(%Plug.Conn{assigns: %{contact: %DB.Contact{} = contact}} = conn, %{"id" => token_id}) do
+    DB.Repo.preload(contact, :organizations)
+    |> tokens()
+    |> Enum.find(&(to_string(&1.id) == token_id))
+    |> DB.Repo.delete!()
+
+    conn
+    |> put_flash(:info, dgettext("reuser-space", "Your token has been deleted"))
+    |> redirect(to: reuser_space_path(conn, :settings))
   end
 
   def new_token(%Plug.Conn{assigns: %{contact: %DB.Contact{} = contact}} = conn, _) do
@@ -183,5 +187,14 @@ defmodule TransportWeb.ReuserSpaceController do
 
   defp config_value(key) do
     Application.fetch_env!(:transport, :"data_sharing_pilot_#{key}")
+  end
+
+  defp tokens(%DB.Contact{} = contact) do
+    organization_ids = Enum.map(contact.organizations, & &1.id)
+
+    DB.Token.base_query()
+    |> where([token: t], t.organization_id in ^organization_ids)
+    |> preload(:organization)
+    |> DB.Repo.all()
   end
 end

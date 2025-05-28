@@ -56,7 +56,7 @@
                   "data-tracking-category": "espace_producteur",
                   "data-tracking-action": "update_resource_button"
                 ) %>
-                <%= if Enum.any?(@dataset.reuser_improved_data, & &1.resource.id == db_resource.id) do %>
+                <%= if not is_nil(db_resource) and Enum.any?(@dataset.reuser_improved_data, & &1.resource.id == db_resource.id) do %>
                   <%= link(dgettext("espace-producteurs", "Reuser GTFS"),
                     to: espace_producteur_path(@conn, :reuser_improved_data, @dataset.id, db_resource.id),
                     class: "button-outline reuser small",

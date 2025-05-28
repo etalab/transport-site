@@ -239,3 +239,7 @@ msgstr "Loi climat et résilience"
 #, elixir-autogen, elixir-format
 msgid "Data reuse obligation"
 msgstr "Données à intégration obligatoire"
+
+#, elixir-autogen, elixir-format
+msgid "Resource format"
+msgstr "Format de ressource"

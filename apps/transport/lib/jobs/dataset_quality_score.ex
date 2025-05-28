@@ -404,38 +404,49 @@ defmodule Transport.Jobs.DatasetFreshnessScore do
             :metadata_inserted_at => binary | nil
           }
   def resource_freshness(%DB.Resource{format: "GTFS" = format, id: resource_id}) do
-    resource_id
-    |> DB.MultiValidation.resource_latest_validation(Transport.Validators.GTFSTransport)
-    |> case do
+    resource_history = resource_id |> DB.ResourceHistory.latest_resource_history()
+
+    if !is_nil(resource_history) and DB.ResourceHistory.gtfs_flex?(resource_history) do
       %{
-        metadata: %{
-          metadata: %{"start_date" => start_date, "end_date" => end_date},
-          id: metadata_id,
-          inserted_at: inserted_at
-        }
+        freshness: 1.0,
+        raw_measure: %{source: "gtfs_flex"},
+        metadata_id: nil,
+        metadata_inserted_at: nil
       }
-      when not is_nil(start_date) and not is_nil(end_date) ->
-        start_date = Date.from_iso8601!(start_date)
-        end_date = Date.from_iso8601!(end_date)
-
-        freshness = gtfs_freshness(start_date, end_date)
-
+    else
+      resource_id
+      |> DB.MultiValidation.resource_latest_validation(Transport.Validators.GTFSTransport)
+      |> case do
         %{
-          freshness: freshness,
-          raw_measure: %{start_date: start_date, end_date: end_date},
-          metadata_id: metadata_id,
-          metadata_inserted_at: inserted_at
+          metadata: %{
+            metadata: %{"start_date" => start_date, "end_date" => end_date},
+            id: metadata_id,
+            inserted_at: inserted_at
+          }
         }
+        when not is_nil(start_date) and not is_nil(end_date) ->
+          start_date = Date.from_iso8601!(start_date)
+          end_date = Date.from_iso8601!(end_date)
 
-      _ ->
-        %{
-          freshness: nil,
-          raw_measure: nil,
-          metadata_id: nil,
-          metadata_inserted_at: nil
-        }
+          freshness = gtfs_freshness(start_date, end_date)
+
+          %{
+            freshness: freshness,
+            raw_measure: %{start_date: start_date, end_date: end_date},
+            metadata_id: metadata_id,
+            metadata_inserted_at: inserted_at
+          }
+
+        _ ->
+          %{
+            freshness: nil,
+            raw_measure: nil,
+            metadata_id: nil,
+            metadata_inserted_at: nil
+          }
+      end
+      |> Map.merge(%{resource_id: resource_id, format: format})
     end
-    |> Map.merge(%{resource_id: resource_id, format: format})
   end
 
   def resource_freshness(%DB.Resource{format: "gbfs" = format, id: resource_id}) do
