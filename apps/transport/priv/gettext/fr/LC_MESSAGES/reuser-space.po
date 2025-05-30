@@ -226,3 +226,19 @@ msgstr "Votre token a bien été créé"
 #, elixir-autogen, elixir-format
 msgid "Your token has been deleted"
 msgstr "Votre token a bien été supprimé"
+
+#, elixir-autogen, elixir-format
+msgid "Default"
+msgstr "Défaut"
+
+#, elixir-autogen, elixir-format
+msgid "The token %{name} is now the default token"
+msgstr "Le token %{name} est maintenant le token par défaut"
+
+#, elixir-autogen, elixir-format
+msgid "Default token"
+msgstr "Token par défaut"
+
+#, elixir-autogen, elixir-format
+msgid "Delete"
+msgstr "Supprimer"

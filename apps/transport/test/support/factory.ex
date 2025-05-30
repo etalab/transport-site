@@ -376,6 +376,7 @@ defmodule DB.Factory do
       |> Map.merge(args)
 
     DB.Token.changeset(%DB.Token{}, args)
+    |> Ecto.Changeset.change(Map.take(args, [:default_for_contact_id]))
     |> DB.Repo.insert!()
   end
 

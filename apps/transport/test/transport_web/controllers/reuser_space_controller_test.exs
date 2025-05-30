@@ -244,7 +244,13 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
           organizations: [organization |> Map.from_struct()]
         })
 
-      token = insert_token(%{organization_id: organization.id, contact_id: contact.id, name: "Default"})
+      token =
+        insert_token(%{
+          organization_id: organization.id,
+          contact_id: contact.id,
+          name: "Default",
+          default_for_contact_id: contact.id
+        })
 
       organization_name = organization.name
       token_name = token.name
@@ -254,6 +260,7 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
                {"td", [], [^organization_name]},
                {"td", [], [^token_name]},
                {"td", [], [{"code", [], [^token_secret]}]},
+               {"td", [], ["\n\n                  ✅\n\n              "]},
                {"td", [], [_]}
              ] =
                conn
@@ -327,7 +334,14 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
       assert redirected_to(conn, 302) == reuser_space_path(conn, :settings)
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Votre token a bien été créé"
 
-      assert [%DB.Token{contact_id: ^contact_id, organization_id: ^organization_id, name: ^name}] =
+      assert [
+               %DB.Token{
+                 contact_id: ^contact_id,
+                 organization_id: ^organization_id,
+                 name: ^name,
+                 default_for_contact_id: ^contact_id
+               }
+             ] =
                DB.Repo.all(DB.Token)
     end
 
@@ -372,6 +386,38 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
         |> html_response(200)
       end
     end
+
+    test "creates a new token with an existing token", %{conn: conn} do
+      %DB.Organization{id: organization_id} = organization = insert(:organization)
+
+      %DB.Contact{id: contact_id} =
+        contact =
+        insert_contact(%{
+          datagouv_user_id: Ecto.UUID.generate(),
+          organizations: [organization |> Map.from_struct()]
+        })
+
+      insert_token(%{contact_id: contact_id, organization_id: organization_id, default_for_contact_id: contact_id})
+
+      conn =
+        conn
+        |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+        |> post(reuser_space_path(conn, :create_new_token), %{organization_id: organization.id, name: name = "Name"})
+
+      assert redirected_to(conn, 302) == reuser_space_path(conn, :settings)
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Votre token a bien été créé"
+
+      assert [
+               %DB.Token{default_for_contact_id: ^contact_id},
+               %DB.Token{
+                 contact_id: ^contact_id,
+                 organization_id: ^organization_id,
+                 name: ^name,
+                 default_for_contact_id: nil
+               }
+             ] =
+               DB.Token |> DB.Repo.all() |> Enum.sort_by(& &1.inserted_at)
+    end
   end
 
   test "delete_token", %{conn: conn} do
@@ -394,5 +440,37 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
     assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Votre token a bien été supprimé"
 
     assert token |> DB.Repo.reload() |> is_nil()
+  end
+
+  test "default_token", %{conn: conn} do
+    organization = insert(:organization)
+
+    %DB.Contact{id: contact_id} =
+      contact =
+      insert_contact(%{
+        datagouv_user_id: Ecto.UUID.generate(),
+        organizations: [organization |> Map.from_struct()]
+      })
+
+    t1 =
+      insert_token(%{
+        contact_id: contact.id,
+        organization_id: organization.id,
+        name: "t1",
+        default_for_contact_id: contact.id
+      })
+
+    t2 = insert_token(%{contact_id: contact.id, organization_id: organization.id, name: "t2"})
+
+    conn =
+      conn
+      |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+      |> post(reuser_space_path(conn, :default_token, t2.id))
+
+    assert redirected_to(conn, 302) == reuser_space_path(conn, :settings)
+    assert Phoenix.Flash.get(conn.assigns.flash, :info) == "Le token t2 est maintenant le token par défaut"
+
+    assert %DB.Token{default_for_contact_id: nil} = t1 |> DB.Repo.reload!()
+    assert %DB.Token{default_for_contact_id: ^contact_id} = t2 |> DB.Repo.reload!()
   end
 end

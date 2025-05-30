@@ -15,6 +15,7 @@
             <th><%= dgettext("reuser-space", "Organisation") %></th>
             <th><%= dgettext("reuser-space", "Name") %></th>
             <th><%= dgettext("reuser-space", "Secret") %></th>
+            <th><%= dgettext("reuser-space", "Default") %></th>
             <th><%= dgettext("reuser-space", "Actions") %></th>
           </tr>
         </thead>
@@ -25,9 +26,21 @@
               <td><%= token.name %></td>
               <td><code><%= token.secret %></code></td>
               <td>
-                <%= form_for @conn, reuser_space_path(@conn, :delete_token, token.id), [method: "delete"], fn _ -> %>
-                  <button class="small button-outline no-border warning">
-                    <i class="fas fa-trash"></i>
+                <%= if token.default_for_contact_id == @contact.id do %>
+                  ✅
+                <% end %>
+              </td>
+              <td>
+                <%= if token.default_for_contact_id != @contact.id do %>
+                  <%= form_for @conn, reuser_space_path(@conn, :default_token, token.id), [class: "inline"], fn _ -> %>
+                    <button class="small button-outline primary">
+                      <%= dgettext("reuser-space", "Default token") %>
+                    </button>
+                  <% end %>
+                <% end %>
+                <%= form_for @conn, reuser_space_path(@conn, :delete_token, token.id), [class: "inline", method: "delete"], fn _ -> %>
+                  <button class="small button-outline warning">
+                    <i class="fas fa-trash"></i> <%= dgettext("reuser-space", "Delete") %>
                   </button>
                 <% end %>
               </td>
