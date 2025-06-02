@@ -9,8 +9,6 @@ defmodule Transport.IRVE.Consolidation do
   on data gouv, and attempts to create a consolidated output with the same format.
   """
 
-  # FIXME: "continue but report" when meeting unexpected (e.g. HTTP) error
-
   @doc """
   Download content separately from processing, because we need to provide an estimate of the number of lines
   even if the processing fails. Asserting 200 is fine here, because the target server is data gouv & quite reliable.
