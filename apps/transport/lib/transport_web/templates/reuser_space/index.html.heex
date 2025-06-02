@@ -32,7 +32,7 @@
           </div>
         </div>
       </div>
-      <div :if={TransportWeb.Session.admin?(@conn)} class="panel action-panel">
+      <div :if={eligible_for_tokens?(@conn)} class="panel action-panel">
         <img
           class="picto"
           src={static_path(@conn, "/images/reutilisateurs/gear.svg")}
