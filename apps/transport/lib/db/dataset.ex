@@ -893,28 +893,12 @@ defmodule DB.Dataset do
 
   @doc """
   The list of conversion formats we are interested in for a dataset.
-
-  Possible formats are handled by `DB.DataConversion`.
-  If the dataset contains at least a NeTEx resource, we are not interested in NeTEx conversions
-  UNLESS the dataset has a custom tag `keep_netex_conversions` we added ourselves.
-
-  iex> target_conversion_formats(%DB.Dataset{resources: [%DB.Resource{format: "gtfs"}]})
-  [:GeoJSON, :NeTEx]
-  iex> target_conversion_formats(%DB.Dataset{resources: [%DB.Resource{format: "gtfs"}, %DB.Resource{format: "NeTEx"}]})
-  [:GeoJSON]
   iex> target_conversion_formats(%DB.Dataset{resources: [%DB.Resource{format: "gtfs"}, %DB.Resource{format: "NeTEx"}]})
   [:GeoJSON]
   """
   @spec target_conversion_formats(DB.Dataset.t()) :: [atom()]
-  def target_conversion_formats(%__MODULE__{resources: resources} = dataset) when is_list(resources) do
-    keep_netex_conversions = has_custom_tag?(dataset, "keep_netex_conversions")
-    has_netex = Enum.any?(resources, &DB.Resource.netex?/1)
-
-    if has_netex and not keep_netex_conversions do
-      Enum.reject(available_conversion_formats(), &(&1 == :NeTEx))
-    else
-      available_conversion_formats()
-    end
+  def target_conversion_formats(%__MODULE__{}) do
+    available_conversion_formats()
   end
 
   defp available_conversion_formats, do: Ecto.Enum.values(DB.DataConversion, :convert_to)

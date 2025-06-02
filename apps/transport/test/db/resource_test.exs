@@ -53,10 +53,10 @@ defmodule DB.ResourceTest do
              Resource.get_related_files(%Resource{id: resource_id_1})
 
     # Make sure that the conversion is found only when `status=success`
-    assert %{GeoJSON: nil, NeTEx: nil} == Resource.get_related_files(%Resource{id: resource_id_2})
+    assert %{GeoJSON: nil} == Resource.get_related_files(%Resource{id: resource_id_2})
     data_conversion_pending |> Ecto.Changeset.change(%{status: :success}) |> DB.Repo.update!()
 
-    assert %{GeoJSON: %{url: "url4", filesize: 10, resource_history_last_up_to_date_at: _}, NeTEx: nil} =
+    assert %{GeoJSON: %{url: "url4", filesize: 10, resource_history_last_up_to_date_at: _}} =
              Resource.get_related_files(%Resource{id: resource_id_2})
   end
 
