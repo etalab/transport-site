@@ -9,12 +9,13 @@ defmodule Transport.Jobs.IRVEConsolidationJob do
   @impl Oban.Worker
   def perform(%Oban.Job{args: args}) do
     with_tmp_file(fn data_file ->
-      with_tmp_file(fn report_file -> 
+      with_tmp_file(fn report_file ->
         config = [
           filter: build_filter(args[:limit]),
           data_file: data_file,
           report_file: report_file
         ]
+
         Transport.IRVE.Consolidation.build_aggregate_and_report!(config)
 
         upload_aggregate!(
@@ -27,6 +28,6 @@ defmodule Transport.Jobs.IRVEConsolidationJob do
   end
 
   def build_filter(_limit = nil), do: nil
-  def build_filter(limit) when is_integer(limit), do: fn(stream) -> stream |> Enum.take(limit) end
+  def build_filter(limit) when is_integer(limit), do: fn stream -> stream |> Enum.take(limit) end
   def timestamp, do: DateTime.utc_now() |> Calendar.strftime("%Y%m%d.%H%M%S.%f")
 end
