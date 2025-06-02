@@ -66,7 +66,7 @@
     <div class="center">
       <div class="argument left">
         <p class="comment">
-          <a href="https://transport.data.gouv.fr/explore?gbfs-stations=yes">
+          <a href="/explore?gbfs-stations=yes">
             <%= dgettext("landing-vls", "Coverage of services available by territory") %>
           </a>
         </p>
@@ -74,7 +74,7 @@
         <picture>
           <a
             aria-label={dgettext("landing-vls", "Coverage of services available by territory")}
-            href="https://transport.data.gouv.fr/explore?gbfs-stations=yes"
+            href="/explore?gbfs-stations=yes"
           >
             <img src={static_path(@conn, "/images/landing_pages/vls/explore_map.png")} loading="lazy" />
           </a>
@@ -101,7 +101,7 @@
 
       <div class="argument left">
         <p class="comment">
-          <a href="https://transport.data.gouv.fr/espace_reutilisateur?utm_campaign=menu_dropdown">
+          <a href="/espace_reutilisateur?utm_campaign=menu_dropdown">
             <%= dgettext("landing-vls", "A personalized space to stay informed") %> ❤️
           </a>
         </p>
@@ -109,7 +109,7 @@
         <picture>
           <a
             aria-label={dgettext("landing-vls", "Access your reuser space")}
-            href="https://transport.data.gouv.fr/espace_reutilisateur?utm_campaign=menu_dropdown"
+            href="/espace_reutilisateur?utm_campaign=menu_dropdown"
           >
             <img src={static_path(@conn, "/images/landing_pages/vls/espace-reutilisateur.png")} loading="lazy" />
           </a>
@@ -119,7 +119,7 @@
   </section>
 
   <footer>
-    <a class="cta" href="https://transport.data.gouv.fr/datasets?type=bike-scooter-sharing">
+    <a class="cta" href="/datasets?type=bike-scooter-sharing">
       <%= dgettext("landing-vls", "Access the data") %>
     </a>
     <p>
