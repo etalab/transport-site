@@ -27,7 +27,7 @@ defmodule Transport.Jobs.IRVEConsolidationJob do
     end)
   end
 
-  def build_filter(_limit = nil), do: nil
+  def build_filter(nil = _limit), do: nil
   def build_filter(limit) when is_integer(limit), do: fn stream -> stream |> Enum.take(limit) end
   def timestamp, do: DateTime.utc_now() |> Calendar.strftime("%Y%m%d.%H%M%S.%f")
 end
