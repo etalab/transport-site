@@ -253,14 +253,13 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
         })
 
       organization_name = organization.name
-      token_name = token.name
+      token_name = "#{token.name} (par défaut)"
       token_secret = token.secret
 
       assert [
                {"td", [], [^organization_name]},
-               {"td", [], [^token_name]},
+               {"td", [], [{"b", [], [^token_name]}]},
                {"td", [], [{"code", [], [^token_secret]}]},
-               {"td", [], ["\n\n                  ✅\n\n              "]},
                {"td", [], [_]}
              ] =
                conn

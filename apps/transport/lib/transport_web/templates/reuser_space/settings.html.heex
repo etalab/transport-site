@@ -15,23 +15,20 @@
             <th><%= dgettext("reuser-space", "Organisation") %></th>
             <th><%= dgettext("reuser-space", "Name") %></th>
             <th><%= dgettext("reuser-space", "Secret") %></th>
-            <th><%= dgettext("reuser-space", "Default") %></th>
             <th><%= dgettext("reuser-space", "Actions") %></th>
           </tr>
         </thead>
         <tbody>
-          <%= for token <- Enum.sort_by(@tokens, & &1.organization.name) do %>
+          <%= for token <- @tokens |> Enum.sort_by(& {&1.organization.name, &1.name}) |> Enum.sort_by(& &1.default_for_contact_id != @contact.id) do %>
             <tr>
               <td><%= token.organization.name %></td>
-              <td><%= token.name %></td>
+              <td :if={default_for_contact?(token, @contact)}>
+                <b><%= token.name %> <%= dgettext("reuser-space", "(by default)") %></b>
+              </td>
+              <td :if={!default_for_contact?(token, @contact)}><%= token.name %></td>
               <td><code><%= token.secret %></code></td>
               <td>
-                <%= if token.default_for_contact_id == @contact.id do %>
-                  ✅
-                <% end %>
-              </td>
-              <td>
-                <%= if token.default_for_contact_id != @contact.id do %>
+                <%= if !default_for_contact?(token, @contact) do %>
                   <%= form_for @conn, reuser_space_path(@conn, :default_token, token.id), [class: "inline"], fn _ -> %>
                     <button class="small button-outline primary">
                       <%= dgettext("reuser-space", "Default token") %>

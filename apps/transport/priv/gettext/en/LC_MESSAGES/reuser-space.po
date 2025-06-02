@@ -228,10 +228,6 @@ msgid "Your token has been deleted"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Default"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "The token %{name} is now the default token"
 msgstr ""
 
@@ -241,4 +237,8 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Delete"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "(by default)"
 msgstr ""
