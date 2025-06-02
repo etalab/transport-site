@@ -129,7 +129,7 @@
       )
       |> homepage_link()
       |> raw() %> <br />
-      <a href="mailto:contact@transport.data.gouv.fr">contact@transport.data.gouv.fr</a>
+      <a href={"mailto:#{@contact_email}"}><%= @contact_email %></a>
     </p>
   </footer>
 </article>
