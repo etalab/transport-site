@@ -199,27 +199,32 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
   end
 
   describe "settings" do
-    test "link to settings is only visible by admins", %{conn: conn} do
+    test "link to settings is visible by admins", %{conn: conn} do
       contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
-
-      href_attributes = fn %Plug.Conn{} = conn ->
-        conn
-        |> get(reuser_space_path(conn, :espace_reutilisateur))
-        |> html_response(200)
-        |> Floki.parse_document!()
-        |> Floki.find(".action-panel a")
-        |> Floki.attribute("a", "href")
-      end
 
       # When contact is NOT an admin
       assert conn
              |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
-             |> href_attributes.() == [reuser_space_path(conn, :notifications)]
+             |> index_href_attributes() == [reuser_space_path(conn, :notifications)]
 
       # When contact is an admin
       assert conn
              |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id, "is_admin" => true}})
-             |> href_attributes.() == [reuser_space_path(conn, :notifications), reuser_space_path(conn, :settings)]
+             |> index_href_attributes() == [reuser_space_path(conn, :notifications), reuser_space_path(conn, :settings)]
+    end
+
+    test "link to settings when member of an eligible org", %{conn: conn} do
+      organization = insert(:organization, id: "5b9f70f18b4c4101942a27ff", name: "BlaBlaCar")
+
+      contact =
+        insert_contact(%{
+          datagouv_user_id: Ecto.UUID.generate(),
+          organizations: [organization |> Map.from_struct()]
+        })
+
+      assert conn
+             |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+             |> index_href_attributes() == [reuser_space_path(conn, :notifications), reuser_space_path(conn, :settings)]
     end
 
     test "no tokens", %{conn: conn} do
@@ -394,5 +399,14 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
     assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Votre token a bien été supprimé"
 
     assert token |> DB.Repo.reload() |> is_nil()
+  end
+
+  def index_href_attributes(%Plug.Conn{} = conn) do
+    conn
+    |> get(reuser_space_path(conn, :espace_reutilisateur))
+    |> html_response(200)
+    |> Floki.parse_document!()
+    |> Floki.find(".action-panel a")
+    |> Floki.attribute("a", "href")
   end
 end
