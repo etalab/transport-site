@@ -1,0 +1,80 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#, elixir-autogen, elixir-format
+msgid "Access free self-service vehicle data in France"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "A complex ecosystem"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "description"
+msgstr "Shared mobility promotes sustainable, economical and intermodal mobility. In addition to the public transport offering, find data on self-service bicycles, e-scooters, motor scooters, and cars."
+
+#, elixir-autogen, elixir-format
+msgid "A multiplicity of actors in France"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Different data exchange formats"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Many types of services"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Easily explore and reuse data from AOMs and their service providers"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "A personalized space to stay informed"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Access the data"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Access your reuser space"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Available datasets"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Coverage of services available by territory"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "National coverage"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Real-time data in GBFS format"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "If you have any questions, the transport.data.gouv.fr team is available to help you reuse this data:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Autorités Organisatrices de la Mobilité: Mobility Organizing Authorities"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Data streams"
+msgstr ""

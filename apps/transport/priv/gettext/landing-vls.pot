@@ -1,0 +1,80 @@
+## This file is a PO Template file.
+##
+## "msgid"s here are often extracted from source code.
+## Add new messages manually only if they're dynamic
+## messages that can't be statically extracted.
+##
+## Run "mix gettext.extract" to bring this file up to
+## date. Leave "msgstr"s empty as changing them here has no
+## effect: edit them in PO (.po) files instead.
+#
+msgid ""
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Access free self-service vehicle data in France"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "A complex ecosystem"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "description"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "A multiplicity of actors in France"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Different data exchange formats"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Many types of services"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Easily explore and reuse data from AOMs and their service providers"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "A personalized space to stay informed"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Access the data"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Access your reuser space"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Available datasets"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Coverage of services available by territory"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "National coverage"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Real-time data in GBFS format"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "If you have any questions, the transport.data.gouv.fr team is available to help you reuse this data:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Autorités Organisatrices de la Mobilité: Mobility Organizing Authorities"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Data streams"
+msgstr ""
