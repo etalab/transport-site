@@ -8,7 +8,7 @@ defmodule TransportWeb.ReuserSpaceView do
       "5b9f70f18b4c4101942a27ff"
     ]
 
-    member_of_eligible_orgs = Enum.filter(contact.organizations, &(&1.id in eligible_org_ids)) |> Enum.count() > 0
+    member_of_eligible_orgs = Enum.count(contact.organizations, &(&1.id in eligible_org_ids)) > 0
     TransportWeb.Session.admin?(conn) or member_of_eligible_orgs
   end
 end
