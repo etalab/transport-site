@@ -69,57 +69,6 @@ defmodule TransportWeb.ResourceControllerTest do
     end
   end
 
-  test "GTFS resource with associated NeTEx", %{conn: conn} do
-    resource = DB.Resource |> DB.Repo.get_by(datagouv_id: "2")
-    insert(:resource_history, resource_id: resource.id, payload: %{"uuid" => uuid = Ecto.UUID.generate()})
-
-    insert(:data_conversion,
-      resource_history_uuid: uuid,
-      convert_from: "GTFS",
-      convert_to: "NeTEx",
-      converter: DB.DataConversion.converter_to_use("NeTEx"),
-      payload: %{"permanent_url" => permanent_url = "https://super-cellar-url.com/netex"}
-    )
-
-    html_response = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
-    assert html_response =~ "NeTEx"
-    # NeTEx conversion's URL is displayed in a modal with 2 buttons
-    netex_url = conversion_url(TransportWeb.Endpoint, :get, resource.id, :NeTEx)
-
-    assert [
-             {"a",
-              [
-                {"class", "button"},
-                {
-                  "data-tracking-category",
-                  "netex_conversion_modal"
-                },
-                {"data-tracking-action", "confirm_download"},
-                {"rel", "nofollow"},
-                {"href", ^netex_url}
-              ],
-              [
-                {"i", _, []},
-                "Télécharger la conversion automatique NeTEx\n      "
-              ]},
-             {"a",
-              [
-                {"href", "#"},
-                {
-                  "data-tracking-category",
-                  "netex_conversion_modal"
-                },
-                {"data-tracking-action", "cancel_download"},
-                {"class", "button secondary"}
-              ], ["\nAnnuler\n      "]}
-           ] =
-             html_response
-             |> Floki.parse_document!()
-             |> Floki.find(".netex-conversion-modal .button__group .button")
-
-    refute html_response =~ permanent_url
-  end
-
   test "GBFS resource with multi-validation sends back 200", %{conn: conn} do
     resource = DB.Resource |> DB.Repo.get_by(datagouv_id: "3")
     assert DB.Resource.gbfs?(resource)

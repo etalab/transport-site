@@ -9,7 +9,7 @@ defmodule Transport.Jobs.GTFSGenericConverter do
   import Ecto.Query
   require Logger
 
-  @allowed_formats ["GeoJSON", "NeTEx"]
+  @allowed_formats ["GeoJSON"]
 
   @doc """
   Enqueues conversion jobs for all resource history that need one.
@@ -82,7 +82,6 @@ defmodule Transport.Jobs.GTFSGenericConverter do
   def conversion_exists?(nil, _), do: false
 
   def converter_for_format("GeoJSON"), do: Transport.GTFSToGeoJSONConverter.converter()
-  def converter_for_format("NeTEx"), do: Transport.GTFSToNeTExHoveConverter.converter()
 
   @doc """
   Converts a resource_history to the targeted format, using a converter module
