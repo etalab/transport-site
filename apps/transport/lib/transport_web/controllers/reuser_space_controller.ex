@@ -15,15 +15,13 @@ defmodule TransportWeb.ReuserSpaceController do
   end
 
   def settings(%Plug.Conn{assigns: %{contact: %DB.Contact{} = contact}} = conn, _) do
-    contact = DB.Repo.preload(contact, :organizations)
-
     conn
     |> assign(:tokens, tokens(contact))
     |> render("settings.html")
   end
 
   def delete_token(%Plug.Conn{assigns: %{contact: %DB.Contact{} = contact}} = conn, %{"id" => token_id}) do
-    DB.Repo.preload(contact, :organizations)
+    contact
     |> tokens()
     |> Enum.find(&(to_string(&1.id) == token_id))
     |> DB.Repo.delete!()
@@ -34,8 +32,6 @@ defmodule TransportWeb.ReuserSpaceController do
   end
 
   def new_token(%Plug.Conn{assigns: %{contact: %DB.Contact{} = contact}} = conn, _) do
-    contact = DB.Repo.preload(contact, :organizations)
-
     conn
     |> assign(:organizations, contact.organizations)
     |> assign(:errors, [])
@@ -43,7 +39,6 @@ defmodule TransportWeb.ReuserSpaceController do
   end
 
   def create_new_token(%Plug.Conn{assigns: %{contact: %DB.Contact{} = contact}} = conn, params) do
-    contact = DB.Repo.preload(contact, :organizations)
     [organization] = Enum.filter(contact.organizations, &(&1.id == params["organization_id"]))
 
     changeset =
@@ -71,7 +66,6 @@ defmodule TransportWeb.ReuserSpaceController do
         %Plug.Conn{assigns: %{dataset: %DB.Dataset{} = dataset, contact: %DB.Contact{} = contact}} = conn,
         _
       ) do
-    contact = DB.Repo.preload(contact, :organizations)
     eligible_organizations = data_sharing_eligible_orgs(contact)
 
     conn
@@ -149,8 +143,12 @@ defmodule TransportWeb.ReuserSpaceController do
     |> select([contact: c, dataset: d], %{contact: c, dataset: d})
     |> DB.Repo.all()
     |> case do
-      [%{contact: %DB.Contact{}, dataset: %DB.Dataset{}} = results] ->
-        conn |> merge_assigns(results)
+      [%{contact: %DB.Contact{} = contact, dataset: %DB.Dataset{} = dataset}] ->
+        conn
+        |> merge_assigns(%{
+          contact: DB.Repo.preload(contact, :organizations),
+          dataset: dataset
+        })
 
       _ ->
         conn
@@ -161,7 +159,12 @@ defmodule TransportWeb.ReuserSpaceController do
   end
 
   defp find_contact(%Plug.Conn{assigns: %{current_user: %{"id" => datagouv_user_id}}} = conn, _options) do
-    conn |> assign(:contact, DB.Repo.get_by!(DB.Contact, datagouv_user_id: datagouv_user_id))
+    contact =
+      DB.Contact
+      |> DB.Repo.get_by!(datagouv_user_id: datagouv_user_id)
+      |> DB.Repo.preload(:organizations)
+
+    conn |> assign(:contact, contact)
   end
 
   @doc """
