@@ -101,7 +101,7 @@
 
       <div class="argument left">
         <p class="comment">
-          <a href="/espace_reutilisateur?utm_campaign=menu_dropdown">
+          <a href={reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "landing_vls")}>
             <%= dgettext("landing-vls", "A personalized space to stay informed") %> ❤️
           </a>
         </p>
@@ -109,7 +109,7 @@
         <picture>
           <a
             aria-label={dgettext("landing-vls", "Access your reuser space")}
-            href="/espace_reutilisateur?utm_campaign=menu_dropdown"
+            href={reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "landing_vls")}
           >
             <img src={static_path(@conn, "/images/landing_pages/vls/espace-reutilisateur.png")} loading="lazy" />
           </a>
