@@ -315,6 +315,10 @@ defmodule DB.Factory do
     %DB.ResourceRelated{}
   end
 
+  def default_token_factory do
+    %DB.DefaultToken{}
+  end
+
   def reuser_improved_data_factory do
     dataset = build(:dataset)
 
@@ -376,6 +380,7 @@ defmodule DB.Factory do
       |> Map.merge(args)
 
     DB.Token.changeset(%DB.Token{}, args)
+    |> Ecto.Changeset.change(Map.take(args, [:default_for_contact_id]))
     |> DB.Repo.insert!()
   end
 
