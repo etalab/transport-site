@@ -3,10 +3,34 @@ defmodule Transport.IRVE.Consolidation do
   import Transport.IRVE.Static.Probes
 
   @moduledoc """
-  Static IRVE consolidation code.
+  Consolidates IRVE (Electric Vehicle Charging Infrastructure) data from multiple data gouv resources.
 
-  The code goes through the resources marked with format `etalab/schema-irve-statique`
-  on data gouv, and attempts to create a consolidated output with the same format.
+  This module processes resources marked with the [`etalab/schema-irve-statique`](https://schema.data.gouv.fr/etalab/schema-irve-statique/) format
+  on data.gouv.fr and creates a unified, consolidated dataset following the same schema.
+
+  It is named "raw" because:
+  - This consolidation makes no attempt to dedupe charging points (if the same `id_pdc_itinerance`
+    is twice or more in the resources, it will appear that number of times in the consolidation output)
+  - It does not keep state between runs (e.g. no memory of previously seen files)
+
+  ## Process Overview
+
+  1. **Resources Discovery**: List IRVE resources via the data.gouv.fr API
+  2. **Content Download**: Download each resource
+  3. **Data Processing**: Attempt to parse CSV files, ensure basic typing compliance
+  4. **Consolidation**: Combine all valid datasets into a single DataFrame
+  5. **Report Generation**: Create detailed processing reports for monitoring
+
+  ## Error Handling
+
+  The module implements graceful error handling where individual resource failures
+  don't stop the entire consolidation process. Errors are logged and included
+  in the final report for debugging purposes.
+
+  ## Output Files
+
+  - A consolidated CSV resource agregating all the files that could be processed
+  - A report CSV file listing all considered resources, with the outcome & error message
   """
 
   # needed to filter out the existing, data-gouv provided consolidation
