@@ -19,10 +19,10 @@ defmodule TransportWeb.LandingPagesController do
   defp compute_statistics do
     # For now it's computed by hand
     national_coverage = 70
+    vehicles = 57_000
 
-    datasets = DB.Dataset.count_by_type("bike-scooter-sharing") + DB.Dataset.count_by_type("car-motorbike-sharing")
     resources = DB.Resource.count_by_format("gbfs")
 
-    %{datasets: datasets, resources: resources, national_coverage: national_coverage}
+    %{national_coverage: national_coverage, resources: resources, vehicles: vehicles}
   end
 end

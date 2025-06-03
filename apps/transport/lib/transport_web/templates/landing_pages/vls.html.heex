@@ -47,15 +47,15 @@
           </span>
         </li>
         <li>
-          <span class="figure"><%= @datasets %></span>
-          <span class="description">
-            <%= dgettext("landing-vls", "Available datasets") %>
-          </span>
-        </li>
-        <li>
           <span class="figure"><%= @resources %></span>
           <span class="description">
             <%= dgettext("landing-vls", "GBFS resources") |> gbfs_abbreviation() |> raw() %>
+          </span>
+        </li>
+        <li>
+          <span class="figure"><%= @vehicles |> format_integer() %>+</span>
+          <span class="description">
+            <%= dgettext("landing-vls", "Self-service vehicles") %>
           </span>
         </li>
       </ul>

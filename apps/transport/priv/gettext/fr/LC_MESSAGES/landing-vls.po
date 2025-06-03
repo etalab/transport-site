@@ -52,10 +52,6 @@ msgid "Access your reuser space"
 msgstr "Accédez à votre espace réutilisateur"
 
 #, elixir-autogen, elixir-format
-msgid "Available datasets"
-msgstr "Jeux de données disponibles"
-
-#, elixir-autogen, elixir-format
 msgid "Coverage of services available by territory"
 msgstr "Couverture des services disponibles par territoire"
 
@@ -77,4 +73,8 @@ msgstr "Autorités Organisatrices de la Mobilité"
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "GBFS resources"
-msgstr "Ressources GBFS"
+msgstr "Flux GBFS"
+
+#, elixir-autogen, elixir-format
+msgid "Self-service vehicles"
+msgstr "Véhicules en libre-service"

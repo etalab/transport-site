@@ -21,4 +21,8 @@ defmodule TransportWeb.LandingPagesView do
       "<a href=\"https://transport.data.gouv.fr\">transport.data.gouv.fr</a>"
     )
   end
+
+  def format_integer(number) do
+    Helpers.format_number(number)
+  end
 end
