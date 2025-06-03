@@ -41,21 +41,21 @@
     <section class="statistics">
       <ul>
         <li>
-          <span class="figure">70%</span>
+          <span class="figure"><%= @national_coverage %>%</span>
           <span class="description">
             <%= dgettext("landing-vls", "National coverage") %>
           </span>
         </li>
         <li>
-          <span class="figure">82+</span>
+          <span class="figure"><%= @datasets %></span>
           <span class="description">
             <%= dgettext("landing-vls", "Available datasets") %>
           </span>
         </li>
         <li>
-          <span class="figure">59 345+</span>
+          <span class="figure"><%= @resources %></span>
           <span class="description">
-            <%= dgettext("landing-vls", "Data streams") %>
+            <%= dgettext("landing-vls", "GBFS resources") |> gbfs_abbreviation() |> raw() %>
           </span>
         </li>
       </ul>

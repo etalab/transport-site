@@ -76,5 +76,5 @@ msgid "Autorités Organisatrices de la Mobilité: Mobility Organizing Authoritie
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Data streams"
+msgid "GBFS resources"
 msgstr ""
