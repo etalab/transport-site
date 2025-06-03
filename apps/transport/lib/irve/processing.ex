@@ -5,7 +5,7 @@ defmodule Transport.IRVE.Processing do
   """
 
   @doc """
-  Takes a CSV body, read it as `DataFrame`, then preprocess all the required fields
+  Takes a CSV body, read it as `DataFrame`, then preprocess all the required fields.
   """
   def read_as_data_frame(body) do
     # TODO: be smooth about `cable_t2_attache` - only added in v2.1.0 (https://github.com/etalab/schema-irve/releases/tag/v2.1.0)
@@ -13,6 +13,8 @@ defmodule Transport.IRVE.Processing do
     Transport.IRVE.DataFrame.dataframe_from_csv_body!(
       body,
       Transport.IRVE.StaticIRVESchema.schema_content(),
+      # NOTE: we read as non-string (impacts booleans at time of writing)
+      # because we manually reprocess them right here after.
       _strict = false
     )
     |> Transport.IRVE.DataFrame.preprocess_xy_coordinates()
@@ -41,6 +43,7 @@ defmodule Transport.IRVE.Processing do
       "implantation_station",
       "adresse_station",
       "code_insee_commune",
+      # NOTE: replaced & split into `x` and `y` down there instead
       # "coordonneesXY",
       "nbre_pdc",
       "id_pdc_itinerance",
