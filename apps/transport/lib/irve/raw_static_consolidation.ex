@@ -9,7 +9,7 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   on data.gouv.fr and creates a unified, consolidated dataset following the same schema.
 
   It is named "raw" because:
-  - This consolidation makes no attempt to dedupe charging points (if the same `id_pdc_itinerance`
+  - It makes no attempt to dedupe charging points (if the same `id_pdc_itinerance`
     is twice or more in the resources, it will appear that number of times in the consolidation output)
   - It does not keep state between runs (e.g. no memory of previously seen files)
 
@@ -19,17 +19,18 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   2. **Content Download**: Download each resource
   3. **Data Processing**: Attempt to parse CSV files, ensure basic typing compliance
   4. **Consolidation**: Combine all valid datasets into a single DataFrame
-  5. **Report Generation**: Create detailed processing reports for monitoring
+  5. **Report Generation**: Create detailed processing report for iterating on quality
+
+  No attempt is made to parallelize processing at the moment.
 
   ## Error Handling
 
-  The module implements graceful error handling where individual resource failures
-  don't stop the entire consolidation process. Errors are logged and included
-  in the final report for debugging purposes.
+  Limitation: one HTTP error (non-200) will fail everything for now (this will be improved in the non-raw version).
+  Other processing errors will be handled gracefully.
 
   ## Output Files
 
-  - A consolidated CSV resource agregating all the files that could be processed
+  - A consolidated CSV resource aggregating all the files that could be processed
   - A report CSV file listing all considered resources, with the outcome & error message
   """
 
@@ -42,6 +43,7 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   Download content separately from processing, because we need to provide an estimate of the number of lines
   even if the processing fails. Asserting 200 is fine here, because the target server is data gouv & quite reliable.
   """
+  @spec download_resource_content!(String.t()) :: binary()
   def download_resource_content!(url) do
     %{status: 200, body: body} = Transport.IRVE.Fetcher.get!(url, compressed: false, decode_body: false)
     body
@@ -50,6 +52,7 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   @doc """
   Process a row (resource). The full content (body) is expected together with the original file extension.
   """
+  @spec process_resource(map(), binary(), String.t()) :: {:ok, Explorer.DataFrame.t()} | {:error, any()}
   def process_resource(row, body, extension) do
     if Transport.ZipProbe.likely_zip_content?(body) do
       raise("the content is likely to be a zip file, not uncompressed CSV data")
@@ -123,6 +126,18 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   def maybe_filter(stream, nil), do: stream
   def maybe_filter(stream, function) when is_function(function), do: stream |> function.()
 
+  @doc """
+  Core method. Builds a consolidated IRVE dataset and generates a processing report.
+  Fetches IRVE resources from data.gouv.fr, processes each resource, and
+  consolidates the data into a single CSV file. Also generates a detailed
+  report of the processing results.
+
+  ### Options
+
+  - `:data_file` (required) - Path where to generate the consolidated CSV containing all successfully processed IRVE data
+  - `:report_file` (required) - Path where the consolidation report (CSV) will be generated, containing metadata and errors for each processed resource
+  - `:filter` (optional) - Filter to apply to resources before processing (useful for e.g. sampling)
+  """
   def build_aggregate_and_report!(options \\ []) do
     output =
       Transport.IRVE.Extractor.datagouv_resources()
