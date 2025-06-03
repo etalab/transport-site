@@ -5,7 +5,8 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   @moduledoc """
   Consolidates IRVE (Electric Vehicle Charging Infrastructure) data from multiple data gouv resources.
 
-  This module processes resources marked with the [`etalab/schema-irve-statique`](https://schema.data.gouv.fr/etalab/schema-irve-statique/) format
+  This module processes resources marked with the
+  [`etalab/schema-irve-statique`](https://schema.data.gouv.fr/etalab/schema-irve-statique/) format
   on data.gouv.fr and creates a unified, consolidated dataset following the same schema.
 
   It is named "raw" because:
