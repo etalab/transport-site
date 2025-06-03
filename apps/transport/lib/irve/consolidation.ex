@@ -9,6 +9,11 @@ defmodule Transport.IRVE.Consolidation do
   on data gouv, and attempts to create a consolidated output with the same format.
   """
 
+  # needed to filter out the existing, data-gouv provided consolidation
+  @datagouv_organization_id "646b7187b50b2a93b1ae3d45"
+  # similarly, required to eliminate a test file
+  @test_dataset_id "67811b8e8934d388950bca3f"
+
   @doc """
   Download content separately from processing, because we need to provide an estimate of the number of lines
   even if the processing fails. Asserting 200 is fine here, because the target server is data gouv & quite reliable.
@@ -70,9 +75,6 @@ defmodule Transport.IRVE.Consolidation do
 
   def concat_rows(nil, df), do: df
   def concat_rows(main_df, df), do: Explorer.DataFrame.concat_rows(main_df, df)
-
-  @datagouv_organization_id "646b7187b50b2a93b1ae3d45"
-  @test_dataset_id "67811b8e8934d388950bca3f"
 
   def exclude_irrelevant_resources(stream) do
     stream
