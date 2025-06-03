@@ -253,9 +253,10 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
         insert_token(%{
           organization_id: organization.id,
           contact_id: contact.id,
-          name: "Default",
-          default_for_contact_id: contact.id
+          name: "Default"
         })
+
+      insert(:default_token, token: token, contact: contact)
 
       organization_name = organization.name
       token_name = "#{token.name} (par défaut)"
@@ -340,13 +341,15 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
 
       assert [
                %DB.Token{
+                 id: token_id,
                  contact_id: ^contact_id,
                  organization_id: ^organization_id,
-                 name: ^name,
-                 default_for_contact_id: ^contact_id
+                 name: ^name
                }
              ] =
                DB.Repo.all(DB.Token)
+
+      assert [%DB.Token{id: ^token_id}] = DB.Repo.preload(contact, :default_tokens) |> Map.fetch!(:default_tokens)
     end
 
     test "creating a new token, with an error", %{conn: conn} do
@@ -401,7 +404,8 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
           organizations: [organization |> Map.from_struct()]
         })
 
-      insert_token(%{contact_id: contact_id, organization_id: organization_id, default_for_contact_id: contact_id})
+      token = insert_token(%{contact_id: contact_id, organization_id: organization_id})
+      insert(:default_token, token: token, contact: contact)
 
       conn =
         conn
@@ -412,15 +416,16 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Votre token a bien été créé"
 
       assert [
-               %DB.Token{default_for_contact_id: ^contact_id},
+               %DB.Token{id: t1_id},
                %DB.Token{
                  contact_id: ^contact_id,
                  organization_id: ^organization_id,
-                 name: ^name,
-                 default_for_contact_id: nil
+                 name: ^name
                }
              ] =
-               DB.Token |> DB.Repo.all() |> Enum.sort_by(& &1.inserted_at)
+               DB.Token |> DB.Repo.all() |> Enum.sort_by(& &1.inserted_at, DateTime)
+
+      assert [%DB.Token{id: ^t1_id}] = DB.Repo.preload(contact, :default_tokens) |> Map.fetch!(:default_tokens)
     end
   end
 
@@ -456,15 +461,19 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
         organizations: [organization |> Map.from_struct()]
       })
 
+    %DB.Contact{id: c2_id} = c2 = insert_contact()
+
     t1 =
       insert_token(%{
         contact_id: contact.id,
         organization_id: organization.id,
-        name: "t1",
-        default_for_contact_id: contact.id
+        name: "t1"
       })
 
-    t2 = insert_token(%{contact_id: contact.id, organization_id: organization.id, name: "t2"})
+    insert(:default_token, token: t1, contact: contact)
+
+    %DB.Token{id: t2_id} = t2 = insert_token(%{contact_id: contact.id, organization_id: organization.id, name: "t2"})
+    insert(:default_token, token: t2, contact: c2)
 
     conn =
       conn
@@ -474,8 +483,26 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
     assert redirected_to(conn, 302) == reuser_space_path(conn, :settings)
     assert Phoenix.Flash.get(conn.assigns.flash, :info) == "Le token t2 est maintenant le token par défaut"
 
-    assert %DB.Token{default_for_contact_id: nil} = t1 |> DB.Repo.reload!()
-    assert %DB.Token{default_for_contact_id: ^contact_id} = t2 |> DB.Repo.reload!()
+    assert [] = DB.Repo.preload(t1, :default_for_contacts) |> Map.fetch!(:default_for_contacts)
+
+    assert [%DB.Contact{id: ^contact_id}, %DB.Contact{id: ^c2_id}] =
+             DB.Repo.preload(t2, :default_for_contacts)
+             |> Map.fetch!(:default_for_contacts)
+             |> Enum.sort_by(& &1.inserted_at, DateTime)
+
+    assert [%DB.Token{id: ^t2_id}] = DB.Repo.preload(contact, :default_tokens) |> Map.fetch!(:default_tokens)
+  end
+
+  test "contact can only have 1 default_token" do
+    contact = insert_contact()
+    t1 = insert_token()
+    t2 = insert_token()
+
+    insert(:default_token, contact: contact, token: t1)
+
+    assert_raise Ecto.ConstraintError, ~r/default_token_contact_id_index/, fn ->
+      insert(:default_token, contact: contact, token: t2)
+    end
   end
 
   def index_href_attributes(%Plug.Conn{} = conn) do

@@ -45,6 +45,8 @@ defmodule DB.Contact do
     many_to_many(:organizations, DB.Organization, join_through: "contacts_organizations", on_replace: :delete)
     many_to_many(:followed_datasets, DB.Dataset, join_through: "dataset_followers", on_replace: :delete)
     has_many(:user_feedbacks, DB.UserFeedback, on_delete: :nilify_all)
+    # Defined as a `many_to_many` in the database but a contact can only have **1** default token
+    many_to_many(:default_tokens, DB.Token, join_through: "default_token")
   end
 
   def base_query, do: from(c in __MODULE__, as: :contact)
