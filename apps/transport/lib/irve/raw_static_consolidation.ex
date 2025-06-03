@@ -1,4 +1,4 @@
-defmodule Transport.IRVE.Consolidation do
+defmodule Transport.IRVE.RawStaticConsolidation do
   require Logger
   import Transport.IRVE.Static.Probes
 

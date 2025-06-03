@@ -16,7 +16,7 @@ defmodule Transport.Jobs.IRVEConsolidationJob do
           report_file: report_file
         ]
 
-        Transport.IRVE.Consolidation.build_aggregate_and_report!(config)
+        Transport.IRVE.RawStaticConsolidation.build_aggregate_and_report!(config)
 
         upload_aggregate!(
           data_file,
