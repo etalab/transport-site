@@ -226,3 +226,15 @@ msgstr "Votre token a bien été créé"
 #, elixir-autogen, elixir-format
 msgid "Your token has been deleted"
 msgstr "Votre token a bien été supprimé"
+
+#, elixir-autogen, elixir-format
+msgid "Tokens can be used when using <a href=\"%{swagger_url}\" target=\"_blank\">the API</a>. The token should be included in the <code>Authorization</code> HTTP header. If your token is <code>foo</code>, you should send HTTP requests with the header <code>Authorization: foo</code>."
+msgstr "Les tokens peuvent être utilisés lors d'appels à <a href=\"%{swagger_url}\" target=\"_blank\">l'API</a>. Le token doit être inclus dans l'en-tête HTTP <code>Authorization</code>. Si votre token est <code>foo</code>, vous devez envoyer des requêtes HTTP avec l'en-tête <code>Authorization: foo</code>."
+
+#, elixir-autogen, elixir-format
+msgid "Using tokens"
+msgstr "Utiliser les tokens"
+
+#, elixir-autogen, elixir-format
+msgid "You can create or join an organisation on data.gouv.fr. <a href=\"%{doc_url}\" target=\"_blank\">See the documentation</a>."
+msgstr "Vous pouvez créer ou rejoindre une organisation sur data.gouv.fr. <a href=\"%{doc_url}\" target=\"_blank\">Voir la documentation</a>."
