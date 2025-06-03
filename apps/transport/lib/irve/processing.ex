@@ -13,7 +13,7 @@ defmodule Transport.IRVE.Processing do
     Transport.IRVE.DataFrame.dataframe_from_csv_body!(
       body,
       Transport.IRVE.StaticIRVESchema.schema_content(),
-      # NOTE: we read as non-string (impacts booleans at time of writing)
+      # NOTE: we read as non-strict (impacts booleans at time of writing)
       # because we manually reprocess them right here after.
       _strict = false
     )
