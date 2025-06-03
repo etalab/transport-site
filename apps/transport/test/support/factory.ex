@@ -315,6 +315,10 @@ defmodule DB.Factory do
     %DB.ResourceRelated{}
   end
 
+  def default_token_factory do
+    %DB.DefaultToken{}
+  end
+
   def reuser_improved_data_factory do
     dataset = build(:dataset)
 

@@ -17,7 +17,7 @@ defmodule DB.Token do
     field(:secret_hash, Cloak.Ecto.SHA256)
     belongs_to(:contact, DB.Contact)
     belongs_to(:organization, DB.Organization, type: :string)
-    belongs_to(:default_for_contact, DB.Contact)
+    many_to_many(:default_for_contacts, DB.Contact, join_through: "default_token")
     timestamps(type: :utc_datetime_usec)
   end
 
