@@ -20,7 +20,6 @@ article.landing_page_vls {
 
   h1 {
     font-size: 24px;
-    max-width: 80%;
   }
 
   h2 {
@@ -38,7 +37,7 @@ article.landing_page_vls {
 
   header, footer {
     margin: 0;
-    padding: 4rem;
+    padding: 2rem;
 
     p {
       text-align: center;
@@ -209,6 +208,14 @@ article.landing_page_vls {
   }
 
   @media (min-width: 870px) {
+    h1 {
+      max-width: 80%;
+    }
+
+    header, footer {
+      padding: 4rem;
+    }
+
     .argument.argument {
       display: grid;
       width: unset;
