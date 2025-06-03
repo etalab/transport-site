@@ -1,7 +1,7 @@
 defmodule Transport.IRVE.Processing do
   @moduledoc """
-  A module able to take raw binary (CSV body), remap it as a `DataFrame`,
-  and most importantly preprocess a couple of data.
+  Leverages `Transport.IRVE.DataFrame` (see more doc there) and `Explorer.DataFrame` to read
+  and preprocess (to some extent) a raw CSV binary body.
   """
 
   @doc """

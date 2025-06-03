@@ -1,6 +1,15 @@
 defmodule Transport.IRVE.DataFrame do
   @moduledoc """
-  Tooling supporting the parsing of an IRVE static file into `Explorer.DataFrame`
+  Tooling supporting the parsing of an IRVE static file into
+  an [Explorer `DataFrame`](https://hexdocs.pm/explorer/Explorer.DataFrame.html).
+
+  This brings a number of benefits:
+  - built-in data munging/preprocessing on a per-column basis
+  - more efficient storage (RAM wise)
+  - column typing
+
+  See [Ten Minutes to Explorer (Livebook)](https://github.com/elixir-explorer/explorer/blob/main/notebooks/exploring_explorer.livemd)
+  for a gentle introduction.
   """
   require Explorer.DataFrame
 
