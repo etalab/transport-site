@@ -18,10 +18,18 @@ defmodule Transport.Jobs.IRVEConsolidationJob do
 
         Transport.IRVE.RawStaticConsolidation.build_aggregate_and_report!(config)
 
+        now = timestamp()
+
         upload_aggregate!(
           data_file,
-          "irve_static_consolidation_#{timestamp()}.csv",
-          "irve_static_consolidation_.csv"
+          "irve_static_consolidation_#{now}.csv",
+          "irve_static_consolidation.csv"
+        )
+
+        upload_aggregate!(
+          report_file,
+          "irve_static_consolidation_report_#{now}.csv",
+          "irve_static_consolidation_report.csv"
         )
       end)
     end)
