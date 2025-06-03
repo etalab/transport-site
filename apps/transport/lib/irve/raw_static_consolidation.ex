@@ -54,6 +54,18 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   """
   @spec process_resource(map(), binary(), String.t()) :: {:ok, Explorer.DataFrame.t()} | {:error, any()}
   def process_resource(row, body, extension) do
+    # A number of checks are carried out before attempting to parse the data, using a couple of heuristics,
+    # in order to get meaningful error messages in the report.
+    run_cheap_blocking_checks(body, extension)
+    df = Transport.IRVE.Processing.read_as_data_frame(body)
+    log_debugging_stuff(row, df)
+    {:ok, df}
+  rescue
+    error ->
+      {:error, error}
+  end
+
+  def run_cheap_blocking_checks(body, extension) do
     if Transport.ZipProbe.likely_zip_content?(body) do
       raise("the content is likely to be a zip file, not uncompressed CSV data")
     end
@@ -79,9 +91,13 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     if !String.valid?(body) do
       raise("string is not valid UTF-8 (could be binary content, or latin1)")
     end
+  end
 
-    df = Transport.IRVE.Processing.read_as_data_frame(body)
-
+  @doc """
+  Not much used anymore, but has helped tremendously to debug x/y parsing issues,
+  and I'm keeping the code here because I expect it to be useful again in the future.
+  """
+  def log_debugging_stuff(resource_id, df) do
     nil_counts = Explorer.DataFrame.nil_count(df)
 
     nil_counts = {
@@ -91,13 +107,8 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     }
 
     unless nil_counts == {0, 0, 0} do
-      Logger.warning("Resource #{row.resource_id} has nil on key data (#{nil_counts |> inspect})")
+      Logger.warning("Resource #{resource_id} has nil on key data (#{nil_counts |> inspect})")
     end
-
-    {:ok, df}
-  rescue
-    error ->
-      {:error, error}
   end
 
   def concat_rows(nil, df), do: df
