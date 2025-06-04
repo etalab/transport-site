@@ -201,6 +201,23 @@ defmodule DB.Resource do
     uri.scheme == "https" and uri.host != "raw.githubusercontent.com"
   end
 
+  @doc """
+  Is the resource published by the National Access Point?
+
+  iex> pan_resource?(%DB.Resource{dataset: %DB.Dataset{organization_id: "5abca8d588ee386ee6ece479"}})
+  true
+  iex> pan_resource?(%DB.Resource{dataset: %DB.Dataset{organization_id: "other"}})
+  false
+  iex> pan_resource?(%DB.Resource{format: "gbfs"})
+  false
+  """
+  @spec pan_resource?(__MODULE__.t()) :: boolean()
+  def pan_resource?(%__MODULE__{dataset: %DB.Dataset{organization_id: organization_id}}) do
+    organization_id == Application.fetch_env!(:transport, :datagouvfr_transport_publisher_id)
+  end
+
+  def pan_resource?(%__MODULE__{}), do: false
+
   @spec other_resources_query(__MODULE__.t()) :: Ecto.Query.t()
   def other_resources_query(%__MODULE__{} = resource),
     do:
