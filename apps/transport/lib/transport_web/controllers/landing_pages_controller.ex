@@ -9,11 +9,7 @@ defmodule TransportWeb.LandingPagesController do
   end
 
   defp statistics do
-    Transport.Cache.fetch(
-      "landing-vls-stats",
-      fn -> compute_statistics() end,
-      :timer.hours(12)
-    )
+    Transport.Cache.fetch("landing-vls-stats", &compute_statistics/0, :timer.hours(12))
   end
 
   defp compute_statistics do
