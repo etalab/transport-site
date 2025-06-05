@@ -271,7 +271,7 @@ defmodule TransportWeb.ResourceController do
   end
 
   defp download_pan_resource(%Plug.Conn{} = conn, %DB.Resource{} = resource) do
-    case find_client(Map.get(conn.query_params, "token")) do
+    case find_token(Map.get(conn.query_params, "token")) do
       {:ok, token} ->
         log_download_request(resource, token)
         redirect(conn, external: resource.latest_url)
@@ -297,9 +297,9 @@ defmodule TransportWeb.ResourceController do
     |> DB.Repo.insert!()
   end
 
-  defp find_client(nil), do: {:ok, nil}
+  defp find_token(nil), do: {:ok, nil}
 
-  defp find_client(secret_hash) do
+  defp find_token(secret_hash) do
     case DB.Repo.get_by(DB.Token, secret_hash: secret_hash) do
       %DB.Token{} = token -> {:ok, token}
       nil -> :error
