@@ -438,17 +438,20 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
         organizations: [organization |> Map.from_struct()]
       })
 
-    token = insert_token(%{contact_id: contact.id, organization_id: organization.id})
+    t1 = insert_token(%{contact_id: contact.id, organization_id: organization.id, name: "t1"})
+    insert(:default_token, token: t1, contact: contact)
+
+    t2 = insert_token(%{contact_id: contact.id, organization_id: organization.id, name: "t2"})
 
     conn =
       conn
       |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
-      |> delete(reuser_space_path(conn, :delete_token, token.id))
+      |> delete(reuser_space_path(conn, :delete_token, t2.id))
 
     assert redirected_to(conn, 302) == reuser_space_path(conn, :settings)
     assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Votre token a bien été supprimé"
 
-    assert token |> DB.Repo.reload() |> is_nil()
+    assert t2 |> DB.Repo.reload() |> is_nil()
   end
 
   test "default_token", %{conn: conn} do
