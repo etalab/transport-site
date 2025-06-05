@@ -221,11 +221,11 @@ defmodule TransportWeb.ResourceController do
     resource = DB.Resource |> DB.Repo.get!(id) |> DB.Repo.preload(:dataset)
 
     cond do
-      DB.Resource.can_direct_download?(resource) ->
-        conn |> Plug.Conn.send_resp(:not_found, "")
-
       DB.Resource.pan_resource?(resource) ->
         conn |> Plug.Conn.send_resp(:ok, "")
+
+      DB.Resource.can_direct_download?(resource) ->
+        conn |> Plug.Conn.send_resp(:not_found, "")
 
       true ->
         case Transport.Shared.Wrapper.HTTPoison.impl().head(resource.url, []) do
@@ -242,11 +242,11 @@ defmodule TransportWeb.ResourceController do
     resource = DB.Resource |> DB.Repo.get!(id) |> DB.Repo.preload(:dataset)
 
     cond do
-      DB.Resource.can_direct_download?(resource) ->
-        redirect(conn, external: resource.url)
-
       DB.Resource.pan_resource?(resource) ->
         download_pan_resource(conn, resource)
+
+      DB.Resource.can_direct_download?(resource) ->
+        redirect(conn, external: resource.url)
 
       true ->
         case Transport.Shared.Wrapper.HTTPoison.impl().get(resource.url, [], hackney: [follow_redirect: true]) do
