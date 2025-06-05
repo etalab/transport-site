@@ -6,7 +6,7 @@ defmodule DB.Resource do
   use TypedEctoSchema
   alias DB.{Dataset, Repo, ResourceUnavailability}
   import Ecto.{Changeset, Query}
-  import TransportWeb.Router.Helpers, only: [conversion_url: 4, resource_url: 3]
+  import TransportWeb.Router.Helpers, only: [conversion_url: 4, resource_url: 3, resource_url: 4]
   require Logger
 
   typed_schema "resource" do
@@ -309,8 +309,27 @@ defmodule DB.Resource do
     end
   end
 
-  def download_url(%__MODULE__{} = resource, conn_or_endpoint \\ TransportWeb.Endpoint) do
+  def download_url(%__MODULE__{} = resource) do
+    download_url(resource, TransportWeb.Endpoint)
+  end
+
+  # When the contact is logged in and has a default token
+  def download_url(
+        %__MODULE__{} = resource,
+        %Plug.Conn{
+          assigns: %{current_contact: %DB.Contact{default_tokens: [%DB.Token{} = token]}}
+        } = conn
+      ) do
+    if pan_resource?(resource) do
+      resource_url(conn, :download, resource.id, token: token.secret)
+    else
+      download_url(resource, TransportWeb.Endpoint)
+    end
+  end
+
+  def download_url(%__MODULE__{} = resource, conn_or_endpoint) do
     cond do
+      pan_resource?(resource) -> resource_url(conn_or_endpoint, :download, resource.id)
       needs_stable_url?(resource) -> resource.latest_url
       can_direct_download?(resource) -> resource.url
       true -> resource_url(conn_or_endpoint, :download, resource.id)

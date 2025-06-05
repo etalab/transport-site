@@ -15,6 +15,7 @@ defmodule TransportWeb.ResourceController do
                         Transport.Validators.EXJSONSchema,
                         Transport.Validators.NeTEx
                       ])
+  plug(:assign_current_contact when action in [:details])
 
   def details(conn, %{"id" => id} = params) do
     resource = Resource |> preload([:resources_related, dataset: [:resources]]) |> Repo.get!(id)
@@ -316,4 +317,17 @@ defmodule TransportWeb.ResourceController do
   end
 
   defp downcase_header({h, v}), do: {String.downcase(h), v}
+
+  defp assign_current_contact(%Plug.Conn{assigns: %{current_user: current_user}} = conn, _options) do
+    current_contact =
+      if is_nil(current_user) do
+        nil
+      else
+        DB.Contact
+        |> DB.Repo.get_by!(datagouv_user_id: Map.fetch!(current_user, "id"))
+        |> DB.Repo.preload(:default_tokens)
+      end
+
+    assign(conn, :current_contact, current_contact)
+  end
 end
