@@ -348,6 +348,66 @@ defmodule TransportWeb.ResourceControllerTest do
     assert [%DB.ResourceDownload{token_id: ^token_id, resource_id: ^resource_id}] = DB.ResourceDownload |> DB.Repo.all()
   end
 
+  test "resource#details, PAN resource, logged-in user with a default token", %{conn: conn} do
+    dataset = insert(:dataset, organization_id: @pan_org_id)
+    resource = insert(:resource, dataset: dataset)
+    assert resource |> DB.Repo.preload(:dataset) |> DB.Resource.pan_resource?()
+
+    contact = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+    token = insert_token()
+    insert(:default_token, contact: contact, token: token)
+
+    assert [resource_url(TransportWeb.Endpoint, :download, resource.id, token: token.secret)] ==
+             conn
+             |> Phoenix.ConnTest.init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+             |> get(resource_path(conn, :details, resource.id))
+             |> html_response(200)
+             |> Floki.parse_document!()
+             |> Floki.find(".button-outline.small.secondary")
+             |> hd()
+             |> Floki.attribute("href")
+  end
+
+  test "resource#details, PAN resource, logged-in user without a default token", %{conn: conn} do
+    dataset = insert(:dataset, organization_id: @pan_org_id)
+    resource = insert(:resource, dataset: dataset)
+    assert resource |> DB.Repo.preload(:dataset) |> DB.Resource.pan_resource?()
+
+    organization = insert(:organization)
+
+    insert_contact(%{
+      datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
+      organizations: [organization |> Map.from_struct()]
+    })
+
+    insert_token(%{organization_id: organization.id})
+
+    assert [resource_url(TransportWeb.Endpoint, :download, resource.id)] ==
+             conn
+             |> Phoenix.ConnTest.init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+             |> get(resource_path(conn, :details, resource.id))
+             |> html_response(200)
+             |> Floki.parse_document!()
+             |> Floki.find(".button-outline.small.secondary")
+             |> hd()
+             |> Floki.attribute("href")
+  end
+
+  test "resource#details, PAN resource, logged-out user", %{conn: conn} do
+    dataset = insert(:dataset, organization_id: @pan_org_id)
+    resource = insert(:resource, dataset: dataset)
+    assert resource |> DB.Repo.preload(:dataset) |> DB.Resource.pan_resource?()
+
+    assert [resource_url(TransportWeb.Endpoint, :download, resource.id)] ==
+             conn
+             |> get(resource_path(conn, :details, resource.id))
+             |> html_response(200)
+             |> Floki.parse_document!()
+             |> Floki.find(".button-outline.small.secondary")
+             |> hd()
+             |> Floki.attribute("href")
+  end
+
   test "flash message when parent dataset is inactive", %{conn: conn} do
     %{id: dataset_id} = insert(:dataset, %{is_active: false})
     %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, url: "https://example.com/file"})
