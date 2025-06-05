@@ -8,6 +8,7 @@ defmodule TransportWeb.ResourceControllerTest do
   setup :verify_on_exit!
 
   @service_alerts_file "#{__DIR__}/../../fixture/files/bibus-brest-gtfs-rt-alerts.pb"
+  @pan_org_id "5abca8d588ee386ee6ece479"
 
   setup do
     Mox.stub_with(Transport.DataVisualization.Mock, Transport.DataVisualization.Impl)
@@ -296,6 +297,55 @@ defmodule TransportWeb.ResourceControllerTest do
     for status_code <- [500, 502] do
       test_remote_download_error(conn, status_code)
     end
+  end
+
+  test "HEAD request for a PAN resource", %{conn: conn} do
+    dataset = insert(:dataset, organization_id: @pan_org_id)
+    resource = insert(:resource, dataset: dataset)
+
+    assert conn |> head(resource_path(conn, :download, resource.id)) |> response(200)
+  end
+
+  test "download a PAN resource, invalid token", %{conn: conn} do
+    dataset = insert(:dataset, organization_id: @pan_org_id)
+    resource = insert(:resource, dataset: dataset)
+
+    assert "You must set a valid Authorization header" ==
+             conn
+             |> get(resource_path(conn, :download, resource.id, token: "invalid"))
+             |> response(401)
+
+    assert [] = DB.ResourceDownload |> DB.Repo.all()
+  end
+
+  test "download a PAN resource, no token", %{conn: conn} do
+    dataset = insert(:dataset, organization_id: @pan_org_id)
+
+    %DB.Resource{id: resource_id} =
+      resource = insert(:resource, dataset: dataset, latest_url: latest_url = "https://example.com/latest_url")
+
+    assert latest_url ==
+             conn
+             |> get(resource_path(conn, :download, resource.id))
+             |> redirected_to(302)
+
+    assert [%DB.ResourceDownload{token_id: nil, resource_id: ^resource_id}] = DB.ResourceDownload |> DB.Repo.all()
+  end
+
+  test "download a PAN resource, valid token", %{conn: conn} do
+    dataset = insert(:dataset, organization_id: @pan_org_id)
+
+    %DB.Resource{id: resource_id} =
+      resource = insert(:resource, dataset: dataset, latest_url: latest_url = "https://example.com/latest_url")
+
+    %DB.Token{id: token_id} = token = insert_token()
+
+    assert latest_url ==
+             conn
+             |> get(resource_path(conn, :download, resource.id, token: token.secret))
+             |> redirected_to(302)
+
+    assert [%DB.ResourceDownload{token_id: ^token_id, resource_id: ^resource_id}] = DB.ResourceDownload |> DB.Repo.all()
   end
 
   test "flash message when parent dataset is inactive", %{conn: conn} do

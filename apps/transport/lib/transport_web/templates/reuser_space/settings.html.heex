@@ -49,6 +49,16 @@
         <i class="fa fa-plus icon"></i>
         <%= dgettext("reuser-space", "Create a new token") %>
       </a>
+      <h3><%= dgettext("reuser-space", "Using tokens") %></h3>
+      <p>
+        <%= raw(
+          dgettext(
+            "reuser-space",
+            ~s|Tokens can be used when using <a href="%{swagger_url}" target="_blank">the API</a>. The token should be included in the <code>Authorization</code> HTTP header. If your token is <code>foo</code>, you should send HTTP requests with the header <code>Authorization: foo</code>.|,
+            swagger_url: "/swaggerui"
+          )
+        ) %>
+      </p>
     </div>
   </div>
 </section>
