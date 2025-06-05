@@ -6,8 +6,8 @@ defmodule Transport.Jobs.DefaultTokensJob do
   if the organization has a single token and the contact
   doesn't have a default token already.
   """
-
   use Oban.Worker, max_attempts: 3
+  import Ecto.Query
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"contact_id" => contact_id, "organization_id" => organization_id}}) do
@@ -28,29 +28,26 @@ defmodule Transport.Jobs.DefaultTokensJob do
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
-    query = """
-    select
-      c.id contact_id,
-      co.organization_id
-    from contact c
-    join contacts_organizations co on co.contact_id = c.id
-    where
-      co.organization_id in (
-        select t.organization_id
-        from token t
-        group by 1
-        having count(1) = 1
-      )
-     and c.id not in (select contact_id from default_token)
-    """
+    orgs_with_single_token =
+      DB.Token.base_query()
+      |> select([token: t], t.organization_id)
+      |> group_by([token: t], t.organization_id)
+      |> having([token: t], count(t.name) == 1)
 
-    %Postgrex.Result{columns: columns, rows: rows} = Ecto.Adapters.SQL.query!(DB.Repo, query)
+    contacts_default_token =
+      DB.DefaultToken.base_query()
+      |> select([default_token: dt], dt.contact_id)
 
-    rows
-    |> Enum.map(fn row ->
-      args = columns |> Enum.zip(row) |> Map.new()
-      __MODULE__.new(args)
-    end)
+    DB.Contact.base_query()
+    |> join(:inner, [contact: c], o in assoc(c, :organizations), as: :organizations)
+    |> where([organizations: o], o.id in subquery(orgs_with_single_token))
+    |> where([contact: c], c.id not in subquery(contacts_default_token))
+    |> select([contact: c, organizations: o], %{
+      contact_id: c.id,
+      organization_id: o.id
+    })
+    |> DB.Repo.all()
+    |> Enum.map(&__MODULE__.new/1)
     |> Oban.insert_all()
 
     :ok
