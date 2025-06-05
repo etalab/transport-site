@@ -238,3 +238,19 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "You can create or join an organisation on data.gouv.fr. <a href=\"%{doc_url}\" target=\"_blank\">See the documentation</a>."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The token %{name} is now the default token"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Default token"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Delete"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "(by default)"
+msgstr ""

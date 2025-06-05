@@ -2,7 +2,11 @@ defmodule TransportWeb.ReuserSpaceController do
   use TransportWeb, :controller
   import Ecto.Query
 
-  plug(:find_contact when action in [:espace_reutilisateur, :settings, :new_token, :create_new_token, :delete_token])
+  plug(
+    :find_contact
+    when action in [:espace_reutilisateur, :settings, :new_token, :create_new_token, :delete_token, :default_token]
+  )
+
   plug(:find_dataset_or_redirect when action in [:datasets_edit, :unfavorite, :add_improved_data])
 
   def espace_reutilisateur(%Plug.Conn{assigns: %{contact: %DB.Contact{} = contact}} = conn, _) do
@@ -26,8 +30,26 @@ defmodule TransportWeb.ReuserSpaceController do
     |> Enum.find(&(to_string(&1.id) == token_id))
     |> DB.Repo.delete!()
 
+    maybe_default_token(contact)
+
     conn
     |> put_flash(:info, dgettext("reuser-space", "Your token has been deleted"))
+    |> redirect(to: reuser_space_path(conn, :settings))
+  end
+
+  def default_token(%Plug.Conn{assigns: %{contact: %DB.Contact{id: contact_id} = contact}} = conn, %{"id" => token_id}) do
+    DB.DefaultToken.base_query()
+    |> where([default_token: df], df.contact_id == ^contact_id)
+    |> DB.Repo.delete_all()
+
+    token = contact |> tokens() |> Enum.find(&(to_string(&1.id) == token_id))
+
+    %DB.DefaultToken{}
+    |> DB.DefaultToken.changeset(%{token_id: token.id, contact_id: contact_id})
+    |> DB.Repo.insert!()
+
+    conn
+    |> put_flash(:info, dgettext("reuser-space", "The token %{name} is now the default token", name: token.name))
     |> redirect(to: reuser_space_path(conn, :settings))
   end
 
@@ -50,6 +72,7 @@ defmodule TransportWeb.ReuserSpaceController do
 
     if changeset.valid? do
       changeset |> DB.Repo.insert!()
+      maybe_default_token(contact)
 
       conn
       |> put_flash(:info, dgettext("reuser-space", "Your token has been created"))
@@ -59,6 +82,18 @@ defmodule TransportWeb.ReuserSpaceController do
       |> assign(:organizations, contact.organizations)
       |> assign(:errors, changeset.errors)
       |> render("new_token.html")
+    end
+  end
+
+  defp maybe_default_token(%DB.Contact{} = contact) do
+    case tokens(contact) do
+      [t1] ->
+        %DB.DefaultToken{}
+        |> DB.DefaultToken.changeset(%{token_id: t1.id, contact_id: contact.id})
+        |> DB.Repo.insert!()
+
+      _ ->
+        :ok
     end
   end
 
@@ -162,7 +197,7 @@ defmodule TransportWeb.ReuserSpaceController do
     contact =
       DB.Contact
       |> DB.Repo.get_by!(datagouv_user_id: datagouv_user_id)
-      |> DB.Repo.preload(:organizations)
+      |> DB.Repo.preload([:organizations, :default_tokens])
 
     conn |> assign(:contact, contact)
   end
@@ -197,6 +232,7 @@ defmodule TransportWeb.ReuserSpaceController do
 
     DB.Token.base_query()
     |> where([token: t], t.organization_id in ^organization_ids)
+    |> order_by([token: t], t.inserted_at)
     |> preload(:organization)
     |> DB.Repo.all()
   end
