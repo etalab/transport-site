@@ -86,10 +86,16 @@ defmodule TransportWeb.ReuserSpaceController do
   end
 
   defp maybe_default_token(%DB.Contact{} = contact) do
-    case tokens(contact) do
-      [t1] ->
+    default_token_id =
+      case contact.default_tokens do
+        [%DB.Token{id: t_id}] -> t_id
+        _ -> nil
+      end
+
+    case contact |> tokens() do
+      [%DB.Token{id: token_id}] when token_id != default_token_id and is_nil(default_token_id) ->
         %DB.DefaultToken{}
-        |> DB.DefaultToken.changeset(%{token_id: t1.id, contact_id: contact.id})
+        |> DB.DefaultToken.changeset(%{token_id: token_id, contact_id: contact.id})
         |> DB.Repo.insert!()
 
       _ ->
