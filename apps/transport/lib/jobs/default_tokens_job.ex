@@ -6,7 +6,7 @@ defmodule Transport.Jobs.DefaultTokensJob do
   if the organization has a single token and the contact
   doesn't have a default token already.
   """
-  use Oban.Worker, max_attempts: 3
+  use Oban.Worker, max_attempts: 3, tags: ["tokens"]
   import Ecto.Query
 
   @impl Oban.Worker
