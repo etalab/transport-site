@@ -21,6 +21,7 @@ defmodule DB.Organization do
 
     many_to_many(:contacts, DB.Contact, join_through: "contacts_organizations", on_replace: :delete)
     has_many(:datasets, DB.Dataset)
+    has_many(:tokens, DB.Token)
   end
 
   def base_query, do: from(o in __MODULE__, as: :organization)

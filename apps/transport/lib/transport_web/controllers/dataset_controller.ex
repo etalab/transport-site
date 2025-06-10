@@ -392,6 +392,7 @@ defmodule TransportWeb.DatasetController do
       |> clean_datasets_query("format")
       |> exclude(:order_by)
       |> DB.Resource.join_dataset_with_resource()
+      |> where([resource: r], not is_nil(r.format))
       |> select([resource: r], %{
         dataset_id: r.dataset_id,
         format: r.format
