@@ -15,6 +15,7 @@ defmodule TransportWeb.ResourceController do
                         Transport.Validators.EXJSONSchema,
                         Transport.Validators.NeTEx
                       ])
+  plug(:assign_current_contact when action in [:details])
 
   def details(conn, %{"id" => id} = params) do
     resource = Resource |> preload([:resources_related, dataset: [:resources]]) |> Repo.get!(id)
@@ -218,47 +219,91 @@ defmodule TransportWeb.ResourceController do
   they are referenced on an HTTPS page.
   """
   def download(%Plug.Conn{assigns: %{original_method: "HEAD"}} = conn, %{"id" => id}) do
-    resource = Resource |> Repo.get!(id)
+    resource = DB.Resource |> DB.Repo.get!(id) |> DB.Repo.preload(:dataset)
 
-    if Resource.can_direct_download?(resource) do
-      # should not happen
-      # if direct download is possible, we don't expect the function `download` to be called
-      conn |> Plug.Conn.send_resp(:not_found, "")
-    else
-      case Transport.Shared.Wrapper.HTTPoison.impl().head(resource.url, []) do
-        {:ok, %HTTPoison.Response{status_code: status_code, headers: headers}} ->
-          send_head_response(conn, status_code, headers)
+    cond do
+      DB.Resource.pan_resource?(resource) ->
+        conn |> Plug.Conn.send_resp(:ok, "")
 
-        _ ->
-          conn |> Plug.Conn.send_resp(:bad_gateway, "")
-      end
+      DB.Resource.can_direct_download?(resource) ->
+        conn |> Plug.Conn.send_resp(:not_found, "")
+
+      true ->
+        case Transport.Shared.Wrapper.HTTPoison.impl().head(resource.url, []) do
+          {:ok, %HTTPoison.Response{status_code: status_code, headers: headers}} ->
+            send_head_response(conn, status_code, headers)
+
+          _ ->
+            conn |> Plug.Conn.send_resp(:bad_gateway, "")
+        end
     end
   end
 
-  def download(conn, %{"id" => id}) do
-    resource = Resource |> Repo.get!(id)
+  def download(%Plug.Conn{method: "GET"} = conn, %{"id" => id}) do
+    resource = DB.Resource |> DB.Repo.get!(id) |> DB.Repo.preload(:dataset)
 
-    if Resource.can_direct_download?(resource) do
-      redirect(conn, external: resource.url)
-    else
-      case Transport.Shared.Wrapper.HTTPoison.impl().get(resource.url, [], hackney: [follow_redirect: true]) do
-        {:ok, %HTTPoison.Response{status_code: 200} = response} ->
-          headers = Enum.into(response.headers, %{}, &downcase_header(&1))
-          %{"content-type" => content_type} = headers
+    cond do
+      DB.Resource.pan_resource?(resource) ->
+        download_pan_resource(conn, resource)
 
-          send_download(conn, {:binary, response.body},
-            content_type: content_type,
-            disposition: :attachment,
-            filename: Transport.FileDownloads.guess_filename(headers, resource.url)
-          )
+      DB.Resource.can_direct_download?(resource) ->
+        redirect(conn, external: resource.url)
 
-        _ ->
-          conn
-          |> put_flash(:error, dgettext("resource", "Resource is not available on remote server"))
-          |> put_status(:not_found)
-          |> put_view(ErrorView)
-          |> render("404.html")
+      true ->
+        case Transport.Shared.Wrapper.HTTPoison.impl().get(resource.url, [], hackney: [follow_redirect: true]) do
+          {:ok, %HTTPoison.Response{status_code: 200} = response} ->
+            headers = Enum.into(response.headers, %{}, &downcase_header(&1))
+            %{"content-type" => content_type} = headers
+
+            send_download(conn, {:binary, response.body},
+              content_type: content_type,
+              disposition: :attachment,
+              filename: Transport.FileDownloads.guess_filename(headers, resource.url)
+            )
+
+          _ ->
+            conn
+            |> put_flash(:error, dgettext("resource", "Resource is not available on remote server"))
+            |> put_status(:not_found)
+            |> put_view(ErrorView)
+            |> render("404.html")
+        end
+    end
+  end
+
+  defp download_pan_resource(%Plug.Conn{} = conn, %DB.Resource{} = resource) do
+    case find_token(Map.get(conn.query_params, "token")) do
+      {:ok, token} ->
+        log_download_request(resource, token)
+        redirect(conn, external: resource.latest_url)
+
+      :error ->
+        conn |> Plug.Conn.send_resp(:unauthorized, "You must set a valid Authorization header")
+    end
+  end
+
+  defp log_download_request(%DB.Resource{id: resource_id}, token) do
+    token_id =
+      case token do
+        %DB.Token{id: token_id} -> token_id
+        nil -> nil
       end
+
+    %DB.ResourceDownload{}
+    |> Ecto.Changeset.change(%{
+      time: DateTime.utc_now(),
+      resource_id: resource_id,
+      token_id: token_id
+    })
+    |> DB.Repo.insert!()
+  end
+
+  defp find_token(nil), do: {:ok, nil}
+
+  defp find_token(secret_hash) do
+    case DB.Repo.get_by(DB.Token, secret_hash: secret_hash) do
+      %DB.Token{} = token -> {:ok, token}
+      nil -> :error
     end
   end
 
@@ -272,4 +317,17 @@ defmodule TransportWeb.ResourceController do
   end
 
   defp downcase_header({h, v}), do: {String.downcase(h), v}
+
+  defp assign_current_contact(%Plug.Conn{assigns: %{current_user: current_user}} = conn, _options) do
+    current_contact =
+      if is_nil(current_user) do
+        nil
+      else
+        DB.Contact
+        |> DB.Repo.get_by!(datagouv_user_id: Map.fetch!(current_user, "id"))
+        |> DB.Repo.preload(:default_tokens)
+      end
+
+    assign(conn, :current_contact, current_contact)
+  end
 end

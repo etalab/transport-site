@@ -6,9 +6,21 @@
     <div class="panel">
       <h2><%= dgettext("reuser-space", "Create a new token") %></h2>
 
-      <p :if={Enum.empty?(@organizations)} class="notification error">
-        <%= dgettext("reuser-space", "You need to be a member of an organisation to create new tokens.") %>
-      </p>
+      <%= if Enum.empty?(@organizations) do %>
+        <p class="notification error">
+          <%= dgettext("reuser-space", "You need to be a member of an organisation to create new tokens.") %>
+        </p>
+
+        <p>
+          <%= raw(
+            dgettext(
+              "reuser-space",
+              ~s|You can create or join an organisation on data.gouv.fr. <a href="%{doc_url}" target="_blank">See the documentation</a>.|,
+              doc_url: "https://guides.data.gouv.fr/guide-data.gouv.fr/organisation"
+            )
+          ) %>
+        </p>
+      <% end %>
 
       <div :if={Enum.count(@errors) > 0} class="notification error">
         <ul>
@@ -31,6 +43,15 @@
               :organization_id,
               Enum.map(@organizations, &{&1.name, &1.id})
             ) %>
+            <p class="small">
+              <%= raw(
+                dgettext(
+                  "reuser-space",
+                  ~s|You can create or join an organisation on data.gouv.fr. <a href="%{doc_url}" target="_blank">See the documentation</a>.|,
+                  doc_url: "https://guides.data.gouv.fr/guide-data.gouv.fr/organisation"
+                )
+              ) %>
+            </p>
           <% end %>
           <%= submit(dgettext("reuser-space", "Create")) %>
         <% end %>
