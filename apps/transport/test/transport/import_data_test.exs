@@ -505,7 +505,7 @@ defmodule Transport.ImportDataTest do
                %{"format" => "geojson", "type" => "main"},
                %{"format" => "svg", "type" => "documentation"}
              ] =
-               ImportData.get_resources(dataset, "low-emission-zones")
+               ImportData.get_resources(dataset, "road-data")
     end
   end
 

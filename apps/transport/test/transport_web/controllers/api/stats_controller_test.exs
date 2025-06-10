@@ -223,7 +223,7 @@ defmodule TransportWeb.API.StatsControllerTest do
     insert_resource_and_friends(Date.utc_today() |> Date.add(10),
       aom: aom,
       max_error: "Error",
-      type: "low-emission-zones"
+      type: "road-data"
     )
 
     assert [

@@ -28,10 +28,6 @@ msgid "See on data.gouv.fr"
 msgstr "Voir sur data.gouv.fr"
 
 #, elixir-autogen, elixir-format
-msgid "Mobility locations"
-msgstr "Lieux de mobilité"
-
-#, elixir-autogen, elixir-format
 msgid "A dataset cannot be national and regional"
 msgstr "Un jeu de données ne peut pas être à la fois régional et national"
 
@@ -48,32 +44,12 @@ msgid "Other informations"
 msgstr "Autres informations"
 
 #, elixir-autogen, elixir-format
-msgid "Private parking"
-msgstr "Stationnement hors voirie"
-
-#, elixir-autogen, elixir-format
 msgid "Car and motorbike sharing"
 msgstr "Voitures et scooters en libre-service"
 
-#, elixir-autogen, elixir-format
-msgid "Bike parking"
-msgstr "Stationnement vélo"
-
-#, elixir-autogen, elixir-format
-msgid "Low emission zones"
-msgstr "Zones à faibles émissions"
-
-#, elixir-autogen, elixir-format
-msgid "Air transport"
-msgstr "Transport aérien"
-
-#, elixir-autogen, elixir-format
-msgid "Bike networks"
-msgstr "Réseaux cyclables"
-
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Charging & refuelling stations"
-msgstr "Stations de réapprovisionnement de véhicules"
+msgstr "IRVE et autres stations de réapprovisionnement"
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Public transit"
@@ -82,10 +58,6 @@ msgstr "Transport public collectif"
 #, elixir-autogen, elixir-format
 msgid "Road data"
 msgstr "Données routières"
-
-#, elixir-autogen, elixir-format
-msgid "Transport traffic"
-msgstr "Comptage des mobilités"
 
 #, elixir-autogen, elixir-format
 msgid "Organization type is invalid"
@@ -98,3 +70,11 @@ msgstr "Lignes de covoiturage"
 #, elixir-autogen, elixir-format
 msgid "Carpooling offers"
 msgstr "Offres de covoiturage"
+
+#, elixir-autogen, elixir-format
+msgid "Bike data"
+msgstr "Stationnements et aménagements cyclables"
+
+#, elixir-autogen, elixir-format
+msgid "Pedestrian path"
+msgstr "Cheminement piéton"

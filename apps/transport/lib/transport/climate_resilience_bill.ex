@@ -4,7 +4,7 @@ defmodule Transport.ClimateResilienceBill do
   of the Climate and Resilience bill.
   """
   use Gettext, backend: TransportWeb.Gettext
-  @relevant_dataset_types ["public-transit", "bike-scooter-sharing", "low-emission-zones"]
+  @relevant_dataset_types ["public-transit", "bike-scooter-sharing", "road-data"]
 
   @doc """
   Should we display the data reuse panel when listing/searching datasets.
@@ -88,7 +88,7 @@ defmodule Transport.ClimateResilienceBill do
     # Article D1115-18 and Article D1115-19
     Map.fetch!(
       %{
-        "low-emission-zones" => ~D[2022-08-03],
+        "road-data" => ~D[2022-08-03],
         "public-transit" => ~D[2022-12-01],
         "bike-scooter-sharing" => ~D[2023-12-01]
       },

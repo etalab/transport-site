@@ -48,14 +48,6 @@ msgstr "French national access point to transport data"
 msgid "subtitle"
 msgstr "Gather all french mobility data"
 
-#, elixir-autogen, elixir-format
-msgid "Long distance coach"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Public transport - realtime traffic"
-msgstr ""
-
 #, elixir-format, elixir-autogen
 msgid "dataset"
 msgid_plural "datasets"
@@ -68,14 +60,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Coming soon"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Rail transport"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Sea and river transport"
 msgstr ""
 
 #, elixir-autogen, elixir-format

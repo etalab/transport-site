@@ -424,7 +424,7 @@ defmodule DB.Factory do
 
   def insert_parcs_relais_dataset do
     insert(:dataset, %{
-      type: "private-parking",
+      type: "road-data",
       custom_title: "Base nationale des parcs relais",
       organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
       organization_id: "5abca8d588ee386ee6ece479",
@@ -434,10 +434,11 @@ defmodule DB.Factory do
 
   def insert_zfe_dataset do
     insert(:dataset, %{
-      type: "low-emission-zones",
+      type: "road-data",
       custom_title: "Base Nationale des Zones à Faibles Émissions (BNZFE)",
       organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
       organization_id: "5abca8d588ee386ee6ece479",
+      datagouv_id: "zfe_fake_dataset_id",
       aom: build(:aom, population: 1_000_000)
     })
   end

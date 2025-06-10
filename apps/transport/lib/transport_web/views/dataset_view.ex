@@ -221,25 +221,15 @@ defmodule TransportWeb.DatasetView do
     icons = %{
       "public-transit" => "bus.svg",
       "bike-scooter-sharing" => "bicycle-scooter.svg",
-      "bike-way" => "bike-way.svg",
+      "bike-data" => "bike-data.svg",
       "carpooling-areas" => "carpooling-areas.svg",
       "carpooling-lines" => "carpooling-lines.svg",
       "carpooling-offers" => "carpooling-offers.svg",
       "charging-stations" => "charge-station.svg",
-      "air-transport" => "plane.svg",
       "road-data" => "roads.svg",
-      "locations" => "locations.svg",
-      "private-parking" => "parking.svg",
       "informations" => "infos.svg",
       "car-motorbike-sharing" => "car-motorbike-sharing.svg",
-      "low-emission-zones" => "low-emission-zones.svg",
-      "bike-parking" => "bike-parking.svg",
-      "transport-traffic" => "transport-traffic.svg",
-      # Not proper types, but modes/filters
-      "real-time-public-transit" => "bus-stop.svg",
-      "long-distance-coach" => "bus.svg",
-      "train" => "train.svg",
-      "boat" => "boat.svg"
+      "pedestrian-path" => "walk.svg"
     }
 
     if Map.has_key?(icons, type), do: "/images/icons/#{Map.get(icons, type)}"
@@ -443,7 +433,7 @@ defmodule TransportWeb.DatasetView do
     |> Enum.max_by(& &1.last_update, DateTime, fn -> nil end)
   end
 
-  def get_resource_to_display(%Dataset{type: "low-emission-zones", resources: resources}) do
+  def get_resource_to_display(%Dataset{type: "road-data", resources: resources}) do
     resources
     |> Enum.filter(fn r ->
       r.schema_name == "etalab/schema-zfe" or r.format == "geojson" or

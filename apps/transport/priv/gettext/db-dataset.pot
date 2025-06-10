@@ -27,10 +27,6 @@ msgid "See on data.gouv.fr"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Mobility locations"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "A dataset cannot be national and regional"
 msgstr ""
 
@@ -47,27 +43,7 @@ msgid "Other informations"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Private parking"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Car and motorbike sharing"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Bike parking"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Low emission zones"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Air transport"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Bike networks"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -83,10 +59,6 @@ msgid "Road data"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Transport traffic"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Organization type is invalid"
 msgstr ""
 
@@ -96,4 +68,12 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Carpooling offers"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Bike data"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Pedestrian path"
 msgstr ""
