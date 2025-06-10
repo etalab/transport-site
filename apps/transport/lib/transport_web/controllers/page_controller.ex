@@ -10,7 +10,7 @@ defmodule TransportWeb.PageController do
     conn
     |> assign(:mailchimp_newsletter_url, Application.get_env(:transport, :mailchimp_newsletter_url))
     |> merge_assigns(home_index_stats())
-    |> assign(:tiles, home_tiles(conn))
+    |> assign(:tiles, home_tiles(conn) |> Enum.map(&patch_vls_tiles/1))
     |> put_breaking_news(DB.BreakingNews.get_breaking_news())
     |> render("index.html")
   end
@@ -251,7 +251,7 @@ defmodule TransportWeb.PageController do
       },
       %Tile{
         # 14 is the region « National » We defined coaches as buses not bound to a region or AOM
-        link: dataset_path(conn, :by_region, 14, "modes[]": "bus"),
+        link: dataset_path(conn, :by_region, DB.Region.national().id, "modes[]": "bus"),
         icon: icon_type_path("long-distance-coach"),
         title: dgettext("page-index", "Long distance coach"),
         count: Keyword.fetch!(counts, :count_coach)
@@ -287,6 +287,16 @@ defmodule TransportWeb.PageController do
       type_tile(conn, "informations")
     ]
   end
+
+  defp patch_vls_tiles(%Tile{type: "bike-scooter-sharing"} = tile) do
+    %{tile | link: "/landing-vls"}
+  end
+
+  defp patch_vls_tiles(%Tile{type: "car-motorbike-sharing"} = tile) do
+    %{tile | link: "/landing-vls"}
+  end
+
+  defp patch_vls_tiles(tile), do: tile
 
   defp climate_resilience_bill_type_tile(%Plug.Conn{} = conn, %{count: count, type: type}) do
     %Tile{

@@ -587,13 +587,13 @@ defmodule TransportWeb.DatasetController do
         %{type: "AOM", name: get_name(AOM, id)}
       )
 
-  defp put_page_title(%Plug.Conn{query_params: query_params} = conn, _) do
+  defp put_page_title(%Plug.Conn{request_path: request_path, query_params: query_params} = conn, _) do
     TransportWeb.PageController.home_tiles(conn)
     # Allows to match `?type=foo&filter=has_realtime` otherwise
     # `?type=foo` would match and we would not consider
     # other options.
     |> Enum.sort_by(&String.length(&1.link), :desc)
-    |> Enum.find(&tile_matches_query?(&1, MapSet.new(query_params)))
+    |> Enum.find(&tile_matches_query?(&1, MapSet.new(Map.merge(%{"path" => request_path}, query_params))))
     |> case do
       %TransportWeb.PageController.Tile{title: title} ->
         assign(
@@ -607,10 +607,12 @@ defmodule TransportWeb.DatasetController do
     end
   end
 
-  defp tile_matches_query?(%TransportWeb.PageController.Tile{link: link}, %MapSet{} = query_params) do
-    tile_query = link |> URI.new!() |> Map.fetch!(:query) |> Plug.Conn.Query.decode()
+  defp tile_matches_query?(%TransportWeb.PageController.Tile{link: link}, %MapSet{} = request) do
+    uri = link |> URI.new!()
+    tile_query = (uri |> Map.fetch!(:query) || "") |> Plug.Conn.Query.decode()
+    tile_params = Map.merge(%{"path" => uri.path}, tile_query) |> MapSet.new()
 
-    MapSet.subset?(MapSet.new(tile_query), query_params)
+    MapSet.subset?(tile_params, request)
   end
 
   defp put_dataset_heart_values(%Plug.Conn{assigns: %{current_user: current_user}} = conn, datasets) do

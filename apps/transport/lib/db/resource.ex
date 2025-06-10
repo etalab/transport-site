@@ -442,4 +442,10 @@ defmodule DB.Resource do
       changeset
     end
   end
+
+  def count_by_format(format) do
+    base_query()
+    |> where([d], d.format == ^format)
+    |> Repo.aggregate(:count, :id)
+  end
 end

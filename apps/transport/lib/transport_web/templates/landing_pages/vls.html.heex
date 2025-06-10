@@ -1,0 +1,135 @@
+<article class="landing_page_vls">
+  <div class="wrapper">
+    <header class="center">
+      <h1>
+        <%= dgettext("landing-vls", "Access free self-service vehicle data in France") %>
+      </h1>
+      <p>
+        <%= dgettext("landing-vls", "description") %>
+      </p>
+    </header>
+
+    <section class="banner">
+      <h2><%= dgettext("landing-vls", "A complex ecosystem") %></h2>
+    </section>
+
+    <section class="ecosystem">
+      <ul>
+        <li>
+          <img src={static_path(@conn, "/images/landing_pages/vls/multiple-actors.png")} loading="lazy" />
+          <span><%= dgettext("landing-vls", "A multiplicity of actors in France") %></span>
+        </li>
+        <li>
+          <img src={static_path(@conn, "/images/landing_pages/vls/services-types.png")} loading="lazy" />
+          <span><%= dgettext("landing-vls", "Many types of services") %></span>
+        </li>
+        <li>
+          <img src={static_path(@conn, "/images/landing_pages/vls/multiple-formats.png")} loading="lazy" />
+          <span><%= dgettext("landing-vls", "Different data exchange formats") %></span>
+        </li>
+      </ul>
+    </section>
+
+    <section class="banner blue">
+      <h2>
+        <%= dgettext("landing-vls", "Easily explore and reuse data from AOMs and their service providers")
+        |> aoms_abbreviation()
+        |> raw() %>
+      </h2>
+    </section>
+
+    <section class="statistics">
+      <ul>
+        <li>
+          <span class="figure"><%= @national_coverage %>%</span>
+          <span class="description">
+            <%= dgettext("landing-vls", "National coverage") %>
+          </span>
+        </li>
+        <li>
+          <span class="figure"><%= @resources %></span>
+          <span class="description">
+            <%= dgettext("landing-vls", "GBFS resources") |> gbfs_abbreviation() |> raw() %>
+          </span>
+        </li>
+        <li>
+          <span class="figure"><%= @vehicles |> format_integer() %>+</span>
+          <span class="description">
+            <%= dgettext("landing-vls", "Self-service vehicles") %>
+          </span>
+        </li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="arguments">
+    <div class="center">
+      <div class="argument left">
+        <p class="comment">
+          <a href="/explore?gbfs-stations=yes">
+            <%= dgettext("landing-vls", "Coverage of services available by territory") %>
+          </a>
+        </p>
+
+        <picture>
+          <a
+            aria-label={dgettext("landing-vls", "Coverage of services available by territory")}
+            href="/explore?gbfs-stations=yes"
+          >
+            <img src={static_path(@conn, "/images/landing_pages/vls/explore_map.png")} loading="lazy" />
+          </a>
+        </picture>
+      </div>
+
+      <div class="argument right">
+        <p class="comment">
+          <a href="https://gbfs.org/fr/documentation/" target="_blank">
+            <%= dgettext("landing-vls", "Real-time data in GBFS format") |> gbfs_abbreviation() |> raw() %>
+          </a>
+        </p>
+
+        <picture>
+          <a
+            href="https://gbfs.org/fr/documentation/"
+            target="_blank"
+            aria-label={dgettext("landing-vls", "Real-time data in GBFS format")}
+          >
+            <img src={static_path(@conn, "/images/landing_pages/vls/realtime.png")} loading="lazy" />
+          </a>
+        </picture>
+      </div>
+
+      <div class="argument left">
+        <p class="comment">
+          <a href={reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "landing_vls")}>
+            <%= dgettext("landing-vls", "A personalized space to stay informed") %> ❤️
+          </a>
+        </p>
+
+        <picture>
+          <a
+            aria-label={dgettext("landing-vls", "Access your reuser space")}
+            href={reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "landing_vls")}
+          >
+            <img src={static_path(@conn, "/images/landing_pages/vls/espace-reutilisateur.png")} loading="lazy" />
+          </a>
+        </picture>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <a class="cta" href="/datasets?type=bike-scooter-sharing">
+      <%= dgettext("landing-vls", "Access the data") %>
+    </a>
+    <p>
+      <%= dgettext(
+        "landing-vls",
+        "If you have any questions, the transport.data.gouv.fr team is available to help you reuse this data:"
+      )
+      |> homepage_link()
+      |> raw() %> <br />
+      <a href={"mailto:#{@contact_email}"}><%= @contact_email %></a>
+    </p>
+  </footer>
+</article>
