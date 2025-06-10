@@ -1,6 +1,6 @@
-# mix run scripts/irve/data-frame.exs
+# mix run scripts/irve/process-raw-static-consolidation.exs
 #
-# LIMIT=5 mix run scripts/irve/data-frame.exs
+# LIMIT=5 mix run scripts/irve/process-raw-static-consolidation.exs
 
 limit = System.get_env("LIMIT") |> then(&if &1, do: String.to_integer(&1))
 

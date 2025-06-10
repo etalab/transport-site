@@ -1,21 +1,28 @@
-# steps to run minio locally as a S3 container for development:
+# Steps to run minio locally as a S3 container for development:
 # 1. cp .miniorc.template .miniorc
-# 2. modify the password
+# 2. Install MinIO locally. Two options:
+#   2.1. It is preferable to use a simple binary, non-Docker version when available
+#    Mac https://min.io/docs/minio/macos/index.html 
+#    Linux https://github.com/minio/minio?tab=readme-ov-file#gnulinux
+#    in which case you can do:
+#    mkdir /minio/data (or wherever you want)
+#    minio server --console-address :9090 ~/data
+#   2.2. For Docker support (a bit more involved), follow instructions at
+#     https://docs.min.io/minio/baremetal/quickstart/container.html#quickstart-container
+#     which means at time of writing:
+#     NOTE: -name removed for simplicity, and "quayio" removed since the container appeared outdated
+#     docker run -p 9000:9000 -p 9090:9090 -v ~/minio/data:/data -e "MINIO_ROOT_USER=$MINIO_ROOT_USER" -e "MINIO_ROOT_PASSWORD=$MINIO_ROOT_PASSWORD" minio/minio server /data --console-address ":9090"
+# 3. modify the password and source it:
+# `source .miniorc`
+
+
 export MINIO_ROOT_USER=test-local
 export MINIO_ROOT_PASSWORD=apoi8761876bbazeriouy
 
-# 3. It is preferable to use a non-Docker version when available,
-#    such as https://min.io/docs/minio/macos/index.html, in which case you can do:
-# minio server --console-address :9090 ~/data
 
-# 4. For Docker support (a bit more involved), follow instructions at
-# https://docs.min.io/minio/baremetal/quickstart/container.html#quickstart-container
-# which means at time of writing:
-# mkdir -p ~/minio/data
-# NOTE: -name removed for simplicity, and "quayio" removed since the container appeared outdated
-# docker run -p 9000:9000 -p 9090:9090 -v ~/minio/data:/data -e "MINIO_ROOT_USER=$MINIO_ROOT_USER" -e "MINIO_ROOT_PASSWORD=$MINIO_ROOT_PASSWORD" minio/minio server /data --console-address ":9090"
-
-# 5. setup `dev.secret.exs` from `dev.secret.template.exs`
-# 6. source `.miniorc`
-# 7. go to console at http://127.0.0.1:9090 and create bucket `transport-data-gouv-fr-resource-history-dev`
-# 8. start `mix phx.server`
+# 4. Run minIO (Example: `./minio server --console-address :9090 ./miniodata` with a binary Linux executable)
+# 5. go to console at http://127.0.0.1:9090 and create needed buckets:
+#   `transport-data-gouv-fr-resource-history-dev` for resource history
+#   `transport-data-gouv-fr-aggregates-dev` for aggregated IRVE and so on
+# 6. setup `dev.secret.exs` from `dev.secret.template.exs`
+# 8. start `mix phx.server` or run a script such as `mix run scripts/irve/process-raw-static-consolidation.exs`
