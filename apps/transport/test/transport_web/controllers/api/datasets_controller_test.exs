@@ -6,6 +6,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
   import Mox
   import OpenApiSpex.TestAssertions
 
+  @pan_org_id "5abca8d588ee386ee6ece479"
+
   setup :verify_on_exit!
 
   test "GET /api/datasets has HTTP cache headers set", %{conn: conn} do
@@ -715,6 +717,17 @@ defmodule TransportWeb.API.DatasetControllerTest do
              |> Enum.at(0)
              |> Map.get("features")
              |> Enum.sort()
+  end
+
+  test "GET /api/datasets/:id with a PAN resource", %{conn: conn} do
+    dataset = insert(:dataset, organization_id: @pan_org_id)
+    resource = insert(:resource, dataset: dataset)
+    setup_empty_history_resources()
+
+    json = conn |> get(Helpers.dataset_path(conn, :by_id, dataset.datagouv_id)) |> json_response(200)
+
+    download_url = TransportWeb.Router.Helpers.resource_url(TransportWeb.Endpoint, :download, resource.id)
+    assert [%{"url" => ^download_url}] = json["resources"]
   end
 
   defp setup_empty_history_resources do

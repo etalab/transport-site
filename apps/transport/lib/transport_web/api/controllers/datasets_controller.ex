@@ -13,6 +13,15 @@ defmodule TransportWeb.API.DatasetController do
   # that it will still protect a lot against excessive querying.
   @index_cache_ttl Transport.PreemptiveAPICache.cache_ttl()
   @by_id_cache_ttl :timer.seconds(30)
+  @dataset_preload [
+    :resources,
+    :aom,
+    :region,
+    :communes,
+    :legal_owners_aom,
+    :legal_owners_region,
+    resources: [:dataset]
+  ]
 
   @spec open_api_operation(any) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
@@ -83,7 +92,7 @@ defmodule TransportWeb.API.DatasetController do
     dataset =
       Dataset
       |> Dataset.reject_experimental_datasets()
-      |> preload([:resources, :aom, :region, :communes, :legal_owners_aom, :legal_owners_region])
+      |> preload(^@dataset_preload)
       |> Repo.get_by(datagouv_id: datagouv_id)
 
     if is_nil(dataset) do
@@ -267,6 +276,13 @@ defmodule TransportWeb.API.DatasetController do
         _ -> nil
       end
 
+    latest_url =
+      if DB.Resource.pan_resource?(resource) do
+        DB.Resource.download_url(resource)
+      else
+        resource.latest_url
+      end
+
     %{
       "page_url" => TransportWeb.Router.Helpers.resource_url(TransportWeb.Endpoint, :details, resource.id),
       "id" => resource.id,
@@ -274,7 +290,7 @@ defmodule TransportWeb.API.DatasetController do
       "title" => resource.title,
       "updated" => resource.last_update |> DateTime.to_iso8601(),
       "is_available" => resource.is_available,
-      "url" => resource.latest_url,
+      "url" => latest_url,
       "original_url" => resource.url,
       "end_calendar_validity" => metadata_content && Map.get(metadata, "end_date"),
       "start_calendar_validity" => metadata_content && Map.get(metadata, "start_date"),
@@ -384,7 +400,7 @@ defmodule TransportWeb.API.DatasetController do
     %{}
     |> Dataset.list_datasets()
     |> Dataset.reject_experimental_datasets()
-    |> preload([:resources, :aom, :region, :communes, :legal_owners_aom, :legal_owners_region])
+    |> preload(^@dataset_preload)
     |> Repo.all()
     |> Enum.map(fn dataset ->
       enriched_dataset = Map.get(existing_ids, dataset.id)
