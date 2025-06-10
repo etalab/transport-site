@@ -180,9 +180,11 @@ article.landing_page_vls {
 
     picture {
       grid-area: picture;
+      justify-self: center;
 
       img {
-        width: 20rem;
+        max-width: 20rem;
+        max-height: 20rem;
         border-radius: 0.5rem;
       }
     }
