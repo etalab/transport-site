@@ -374,14 +374,19 @@ defmodule DB.Factory do
       %{
         secret: "secret",
         name: "name",
-        contact_id: insert_contact().id,
-        organization_id: insert(:organization).id
+        contact_id: insert_contact().id
       }
       |> Map.merge(args)
 
-    DB.Token.changeset(%DB.Token{}, args)
-    |> Ecto.Changeset.change(Map.take(args, [:default_for_contact_id]))
-    |> DB.Repo.insert!()
+    # Insert an organization only if `organization_id` was not passed
+    args =
+      if Map.has_key?(args, :organization_id) do
+        args
+      else
+        Map.merge(args, %{organization_id: insert(:organization).id})
+      end
+
+    DB.Token.changeset(%DB.Token{}, args) |> DB.Repo.insert!()
   end
 
   def insert_contact(%{} = args \\ %{}) do
