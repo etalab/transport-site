@@ -783,6 +783,52 @@ defmodule TransportWeb.API.DatasetControllerTest do
     assert [%{"url" => ^auth_url}] = json |> hd() |> Map.get("resources")
   end
 
+  test "GET /api/datasets/:id with a proxy resource", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, url: "https://proxy.transport.data.gouv.fr/#{Ecto.UUID.generate()}")
+    assert resource |> DB.Resource.served_by_proxy?()
+    setup_empty_history_resources()
+
+    json = conn |> get(Helpers.dataset_path(conn, :by_id, dataset.datagouv_id)) |> json_response(200)
+
+    download_url = resource.url
+    assert [%{"url" => ^download_url}] = json["resources"]
+  end
+
+  test "GET /api/datasets/:id with a proxy resource and a token", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, url: "https://proxy.transport.data.gouv.fr/#{Ecto.UUID.generate()}")
+    assert resource |> DB.Resource.served_by_proxy?()
+    %DB.Token{secret: secret} = insert_token()
+
+    setup_empty_history_resources()
+
+    json =
+      conn
+      |> put_req_header("authorization", secret)
+      |> get(Helpers.dataset_path(conn, :by_id, dataset.datagouv_id))
+      |> json_response(200)
+
+    auth_url = resource.url <> "?token=#{secret}"
+    assert [%{"url" => ^auth_url}] = json["resources"]
+  end
+
+  test "GET /api/datasets with a proxy resource and a token", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, url: "https://proxy.transport.data.gouv.fr/#{Ecto.UUID.generate()}")
+    assert resource |> DB.Resource.served_by_proxy?()
+    %DB.Token{secret: secret} = insert_token()
+
+    json =
+      conn
+      |> put_req_header("authorization", secret)
+      |> get(Helpers.dataset_path(conn, :datasets))
+      |> json_response(200)
+
+    auth_url = resource.url <> "?token=#{secret}"
+    assert [%{"url" => ^auth_url}] = json |> hd() |> Map.get("resources")
+  end
+
   defp setup_empty_history_resources do
     expect(Transport.History.Fetcher.Mock, :history_resources, fn %DB.Dataset{}, options ->
       assert Keyword.equal?(options, preload_validations: false, max_records: 25, fetch_mode: :all)

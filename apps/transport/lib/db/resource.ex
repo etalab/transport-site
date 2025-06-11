@@ -320,10 +320,15 @@ defmodule DB.Resource do
           assigns: %{current_contact: %DB.Contact{default_tokens: [%DB.Token{} = token]}}
         } = conn
       ) do
-    if pan_resource?(resource) do
-      resource_url(conn, :download, resource.id, token: token.secret)
-    else
-      download_url(resource, TransportWeb.Endpoint)
+    cond do
+      pan_resource?(resource) ->
+        resource_url(conn, :download, resource.id, token: token.secret)
+
+      served_by_proxy?(resource) ->
+        resource.url <> "?token=#{token.secret}"
+
+      true ->
+        download_url(resource, TransportWeb.Endpoint)
     end
   end
 
@@ -383,7 +388,14 @@ defmodule DB.Resource do
   false
   iex> served_by_proxy?(%DB.Resource{url: "https://proxy.transport.data.gouv.fr/resource/sncf-siri-lite-situation-exchange", format: "SIRI Lite"})
   true
+  iex> served_by_proxy?("https://proxy.transport.data.gouv.fr/foo")
+  true
+  iex> served_by_proxy?(%{"url" => "https://proxy.transport.data.gouv.fr/foo"})
+  true
   """
+  def served_by_proxy?(url) when is_binary(url), do: served_by_proxy?(%__MODULE__{url: url})
+  def served_by_proxy?(%{"url" => url}) when is_binary(url), do: served_by_proxy?(%__MODULE__{url: url})
+
   def served_by_proxy?(%__MODULE__{url: url}) do
     Enum.any?(
       ["https://transport.data.gouv.fr/gbfs/", "https://proxy.transport.data.gouv.fr"],
