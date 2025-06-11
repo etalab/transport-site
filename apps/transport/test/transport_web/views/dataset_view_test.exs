@@ -296,6 +296,17 @@ defmodule TransportWeb.DatasetViewTest do
     assert resources == order_resources_by_format(resources)
   end
 
+  test "icons exist" do
+    Enum.each(DB.Dataset.types(), fn type ->
+      path =
+        __DIR__
+        |> Path.join("../../../client/")
+        |> Path.join(icon_type_path(type))
+
+      assert File.exists?(path)
+    end)
+  end
+
   defp to_html(%Phoenix.LiveView.Rendered{} = rendered) do
     rendered |> Phoenix.HTML.Safe.to_iodata() |> IO.iodata_to_binary()
   end
