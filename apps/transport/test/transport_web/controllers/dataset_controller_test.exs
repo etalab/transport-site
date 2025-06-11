@@ -963,12 +963,7 @@ defmodule TransportWeb.DatasetControllerTest do
     assert [resource_url(TransportWeb.Endpoint, :download, resource.id, token: token.secret)] ==
              conn
              |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
-             |> get(dataset_path(conn, :details, dataset.slug))
-             |> html_response(200)
-             |> Floki.parse_document!()
-             |> Floki.find("a.download-button")
-             |> hd()
-             |> Floki.attribute("href")
+             |> dataset_href_download_button(dataset)
   end
 
   test "dataset#details, PAN resource, logged-in user without a default token", %{conn: conn} do
@@ -990,12 +985,7 @@ defmodule TransportWeb.DatasetControllerTest do
     assert [resource_url(TransportWeb.Endpoint, :download, resource.id)] ==
              conn
              |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
-             |> get(dataset_path(conn, :details, dataset.slug))
-             |> html_response(200)
-             |> Floki.parse_document!()
-             |> Floki.find("a.download-button")
-             |> hd()
-             |> Floki.attribute("href")
+             |> dataset_href_download_button(dataset)
   end
 
   test "dataset#details, PAN resource, logged-out user", %{conn: conn} do
@@ -1006,13 +996,67 @@ defmodule TransportWeb.DatasetControllerTest do
     mock_empty_history_resources()
 
     assert [resource_url(TransportWeb.Endpoint, :download, resource.id)] ==
+             conn |> dataset_href_download_button(dataset)
+  end
+
+  test "dataset#details, proxy resource, logged-in user with a default token", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, url: "https://proxy.transport.data.gouv.fr/#{Ecto.UUID.generate()}")
+    assert resource |> DB.Resource.served_by_proxy?()
+
+    contact = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+    token = insert_token()
+    insert(:default_token, contact: contact, token: token)
+
+    mock_empty_history_resources()
+
+    assert [resource.url <> "?token=#{token.secret}"] ==
              conn
-             |> get(dataset_path(conn, :details, dataset.slug))
-             |> html_response(200)
-             |> Floki.parse_document!()
-             |> Floki.find("a.download-button")
-             |> hd()
-             |> Floki.attribute("href")
+             |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+             |> dataset_href_download_button(dataset)
+  end
+
+  test "dataset#details, proxy resource, logged-in user without a default token", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, url: "https://proxy.transport.data.gouv.fr/#{Ecto.UUID.generate()}")
+    assert resource |> DB.Resource.served_by_proxy?()
+
+    organization = insert(:organization)
+
+    insert_contact(%{
+      datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
+      organizations: [organization |> Map.from_struct()]
+    })
+
+    insert_token(%{organization_id: organization.id})
+
+    mock_empty_history_resources()
+
+    assert [resource.url] ==
+             conn
+             |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+             |> dataset_href_download_button(dataset)
+  end
+
+  test "dataset#details, proxy resource, logged-out user", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, url: "https://proxy.transport.data.gouv.fr/#{Ecto.UUID.generate()}")
+    assert resource |> DB.Resource.served_by_proxy?()
+
+    mock_empty_history_resources()
+
+    assert [resource.url] ==
+             conn |> dataset_href_download_button(dataset)
+  end
+
+  def dataset_href_download_button(%Plug.Conn{} = conn, %DB.Dataset{} = dataset) do
+    conn
+    |> get(dataset_path(conn, :details, dataset.slug))
+    |> html_response(200)
+    |> Floki.parse_document!()
+    |> Floki.find("a.download-button")
+    |> hd()
+    |> Floki.attribute("href")
   end
 
   defp dataset_page_title(content) do
