@@ -139,14 +139,14 @@
             <div>
               <%= dgettext("page-index", "Territories covered") |> raw() %>
               <br />
-              <%= dgettext("page-index", "on") %> <%= format_number(@count_aoms) %>
+              <%= dgettext("page-index", "out of") %> <%= format_number(@count_aoms) %>
             </div>
           </div>
           <div class="key-number__item">
             <strong><%= @count_regions_completed %></strong>
             <div>
               <%= dgettext("page-index", "Regions covered") %><br />
-              <%= dgettext("page-index", "on") %> <%= @count_regions %>
+              <%= dgettext("page-index", "out of") %> <%= @count_regions %>
             </div>
           </div>
           <div class="key-number__item">

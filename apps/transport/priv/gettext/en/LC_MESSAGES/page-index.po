@@ -91,7 +91,7 @@ msgid "covered"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "on"
+msgid "out of"
 msgstr ""
 
 #, elixir-autogen, elixir-format
