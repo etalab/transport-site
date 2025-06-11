@@ -133,6 +133,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
         slug: "slug-1",
         is_active: true,
         created_at: ~U[2021-12-23 13:30:40.000000Z],
+        organization: "org",
+        organization_id: "org_id",
         aom: insert(:aom, nom: "Angers Métropole", siren: "siren")
       )
 
@@ -208,7 +210,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
       "id" => "datagouv",
       "licence" => "lov2",
       "page_url" => "http://127.0.0.1:5100/datasets/slug-1",
-      "publisher" => %{"name" => nil, "type" => "organization"},
+      "publisher" => %{"name" => "org", "type" => "organization", "id" => "org_id"},
       "resources" => [
         %{
           "updated" => resource_1.last_update |> DateTime.to_iso8601(),
@@ -295,6 +297,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
             slug: "slug-1",
             is_active: true,
             created_at: ~U[2021-12-23 13:30:40.000000Z],
+            organization: "org",
+            organization_id: "org_id",
             aom: insert(:aom, nom: "Angers Métropole", siren: "siren")
           ),
         url: "https://link.to/gbfs.json",
@@ -322,7 +326,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
                "id" => "datagouv",
                "licence" => "lov2",
                "page_url" => "http://127.0.0.1:5100/datasets/slug-1",
-               "publisher" => %{"name" => nil, "type" => "organization"},
+               "publisher" => %{"name" => "org", "id" => "org_id", "type" => "organization"},
                "resources" => [
                  %{
                    "page_url" => resource_page_url(resource),
@@ -407,6 +411,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
         licence: "lov2",
         datagouv_id: "datagouv",
         slug: "slug-1",
+        organization: "org",
         resources: [
           %DB.Resource{
             last_import: DateTime.utc_now(),
@@ -464,7 +469,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
              "history" => [],
              "id" => "datagouv",
              "page_url" => "http://127.0.0.1:5100/datasets/slug-1",
-             "publisher" => %{"name" => nil, "type" => "organization"},
+             "publisher" => %{"name" => "org", "id" => dataset.organization_id, "type" => "organization"},
              "resources" => [
                %{
                  "is_available" => true,
@@ -515,6 +520,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
         slug: "slug-1",
         is_active: true,
         created_at: ~U[2021-12-23 13:30:40.000000Z],
+        organization: "org",
+        organization_id: "org_id",
         aom: insert(:aom, nom: "Angers Métropole", siren: "siren")
       )
 
@@ -585,7 +592,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
              "id" => "datagouv",
              "licence" => "lov2",
              "page_url" => "http://127.0.0.1:5100/datasets/slug-1",
-             "publisher" => %{"name" => nil, "type" => "organization"},
+             "publisher" => %{"name" => "org", "id" => "org_id", "type" => "organization"},
              "resources" => [
                %{
                  "updated" => resource.last_update |> DateTime.to_iso8601(),
@@ -675,7 +682,13 @@ defmodule TransportWeb.API.DatasetControllerTest do
   end
 
   test "gtfs-rt features are filled", %{conn: conn} do
-    dataset_1 = insert(:dataset, datagouv_id: datagouv_id_1 = Ecto.UUID.generate())
+    dataset_1 =
+      insert(:dataset,
+        datagouv_id: datagouv_id_1 = Ecto.UUID.generate(),
+        organization: "org",
+        organization_id: "org_id"
+      )
+
     resource_1 = insert(:resource, dataset_id: dataset_1.id, format: "gtfs-rt")
     insert(:resource_metadata, resource_id: resource_1.id, features: ["a"])
     insert(:resource_metadata, resource_id: resource_1.id, features: ["a", "b"])
@@ -693,7 +706,13 @@ defmodule TransportWeb.API.DatasetControllerTest do
     assert features |> Enum.sort() == ["a", "b", "c"]
 
     # add another dataset
-    dataset_2 = insert(:dataset, datagouv_id: datagouv_id_2 = Ecto.UUID.generate())
+    dataset_2 =
+      insert(:dataset,
+        datagouv_id: datagouv_id_2 = Ecto.UUID.generate(),
+        organization: "org2",
+        organization_id: "org2_id"
+      )
+
     resource_2 = insert(:resource, dataset_id: dataset_2.id, format: "gtfs-rt")
     insert(:resource_metadata, resource_id: resource_2.id, features: ["x"])
 
@@ -728,6 +747,40 @@ defmodule TransportWeb.API.DatasetControllerTest do
 
     download_url = TransportWeb.Router.Helpers.resource_url(TransportWeb.Endpoint, :download, resource.id)
     assert [%{"url" => ^download_url}] = json["resources"]
+  end
+
+  test "GET /api/datasets/:id with a PAN resource and a token", %{conn: conn} do
+    dataset = insert(:dataset, organization_id: @pan_org_id)
+    resource = insert(:resource, dataset: dataset)
+    %DB.Token{secret: secret} = insert_token()
+
+    setup_empty_history_resources()
+
+    json =
+      conn
+      |> put_req_header("authorization", secret)
+      |> get(Helpers.dataset_path(conn, :by_id, dataset.datagouv_id))
+      |> json_response(200)
+
+    download_url = TransportWeb.Router.Helpers.resource_url(TransportWeb.Endpoint, :download, resource.id)
+    auth_url = download_url <> "?token=#{secret}"
+    assert [%{"url" => ^auth_url}] = json["resources"]
+  end
+
+  test "GET /api/datasets with a PAN dataset and a token", %{conn: conn} do
+    dataset = insert(:dataset, organization_id: @pan_org_id)
+    resource = insert(:resource, dataset: dataset)
+    %DB.Token{secret: secret} = insert_token()
+
+    json =
+      conn
+      |> put_req_header("authorization", secret)
+      |> get(Helpers.dataset_path(conn, :datasets))
+      |> json_response(200)
+
+    download_url = TransportWeb.Router.Helpers.resource_url(TransportWeb.Endpoint, :download, resource.id)
+    auth_url = download_url <> "?token=#{secret}"
+    assert [%{"url" => ^auth_url}] = json |> hd() |> Map.get("resources")
   end
 
   defp setup_empty_history_resources do
