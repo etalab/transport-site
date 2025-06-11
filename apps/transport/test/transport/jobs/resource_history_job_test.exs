@@ -754,9 +754,9 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
     insert(:resource,
       url: "https://example.com/file",
-      dataset: insert(:dataset, is_active: true, type: "bike-scooter-sharing"),
+      dataset: insert(:dataset, is_active: true, type: "vehicles-sharing"),
       format: "GTFS",
-      title: "Ignored because the dataset type is bike-scooter-sharing",
+      title: "Ignored because the dataset type is vehicles-sharing",
       datagouv_id: "8",
       is_community_resource: false
     )

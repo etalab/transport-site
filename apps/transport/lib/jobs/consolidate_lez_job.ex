@@ -15,7 +15,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
   alias Transport.CSVDocuments
 
   @schema_name "etalab/schema-zfe"
-  @lez_dataset_type "low-emission-zones"
+  @lez_dataset_type "road-data"
 
   @impl Oban.Worker
   def perform(%Oban.Job{id: job_id}) do

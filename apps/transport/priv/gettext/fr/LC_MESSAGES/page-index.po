@@ -48,14 +48,6 @@ msgstr "Le Point d’Accès National aux données de transport"
 msgid "subtitle"
 msgstr "Rassembler les données de toute l’offre de mobilité à travers la France"
 
-#, elixir-autogen, elixir-format
-msgid "Long distance coach"
-msgstr "Autocars longue distance"
-
-#, elixir-autogen, elixir-format
-msgid "Public transport - realtime traffic"
-msgstr "Transport public collectif - horaires temps réel"
-
 #, elixir-format, elixir-autogen
 msgid "dataset"
 msgid_plural "datasets"
@@ -69,14 +61,6 @@ msgstr "Voir les jeux de données récents"
 #, elixir-autogen, elixir-format
 msgid "Coming soon"
 msgstr "À venir dans les prochains mois"
-
-#, elixir-autogen, elixir-format
-msgid "Rail transport"
-msgstr "Transport ferroviaire"
-
-#, elixir-autogen, elixir-format
-msgid "Sea and river transport"
-msgstr "Transport maritime et fluvial"
 
 #, elixir-autogen, elixir-format
 msgid "Learn more"

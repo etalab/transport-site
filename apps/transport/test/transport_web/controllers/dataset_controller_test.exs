@@ -785,16 +785,16 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   test "get_licences" do
-    insert(:dataset, licence: "lov2", type: "low-emission-zones")
-    insert(:dataset, licence: "fr-lo", type: "low-emission-zones")
-    insert(:dataset, licence: "odc-odbl", type: "low-emission-zones")
+    insert(:dataset, licence: "lov2", type: "road-data")
+    insert(:dataset, licence: "fr-lo", type: "road-data")
+    insert(:dataset, licence: "odc-odbl", type: "road-data")
     insert(:dataset, licence: "odc-odbl", type: "public-transit")
 
     assert [%{count: 1, licence: "odc-odbl"}] ==
              TransportWeb.DatasetController.get_licences(%{"type" => "public-transit"})
 
     assert [%{count: 2, licence: "licence-ouverte"}, %{count: 1, licence: "odc-odbl"}] ==
-             TransportWeb.DatasetController.get_licences(%{"type" => "low-emission-zones"})
+             TransportWeb.DatasetController.get_licences(%{"type" => "road-data"})
   end
 
   test "hidden datasets", %{conn: conn} do
@@ -820,9 +820,7 @@ defmodule TransportWeb.DatasetControllerTest do
 
   test "dataset-page-title", %{conn: conn} do
     [
-      {%{"type" => "public-transit"}, "Transport public collectif"},
-      {%{"type" => "public-transit", "filter" => "has_realtime"}, "Transport public collectif - horaires temps réel"},
-      {%{"modes" => ["rail"]}, "Transport ferroviaire"}
+      {%{"type" => "public-transit"}, "Transport public collectif"}
     ]
     |> Enum.each(fn {params, expected_title} ->
       title =
@@ -833,18 +831,6 @@ defmodule TransportWeb.DatasetControllerTest do
 
       assert title == expected_title
     end)
-  end
-
-  test "dataset page title for long distance coaches", %{conn: conn} do
-    national_region = DB.Repo.get_by!(DB.Region, nom: "National")
-
-    title =
-      conn
-      |> get(dataset_path(conn, :by_region, national_region.id, %{"modes" => ["bus"]}))
-      |> html_response(200)
-      |> dataset_page_title()
-
-    assert title == "Autocars longue distance"
   end
 
   test "resources_history_csv", %{conn: conn} do
