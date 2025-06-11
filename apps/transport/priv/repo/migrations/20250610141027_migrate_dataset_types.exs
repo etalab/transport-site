@@ -7,7 +7,10 @@ defmodule DB.Repo.Migrations.MigrateDatasetTypes do
     execute("UPDATE dataset SET type = 'road-data' WHERE type IN ('private-parking', 'low-emission-zones')")
     execute("UPDATE dataset SET type = 'informations' WHERE type IN ('locations', 'transport-traffic')")
     execute("UPDATE dataset SET type = 'pedestrian-path' WHERE custom_title ILIKE '%cheminements piétons%'")
-    execute("UPDATE dataset SET type = 'vehicles-sharing' WHERE type IN ('bike-scooter-sharing', 'car-motorbike-sharing')")
+
+    execute(
+      "UPDATE dataset SET type = 'vehicles-sharing' WHERE type IN ('bike-scooter-sharing', 'car-motorbike-sharing')"
+    )
   end
 
   def down, do: IO.puts("No going back")
