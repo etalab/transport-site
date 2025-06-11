@@ -30,7 +30,7 @@ defmodule Transport.EnRouteChouetteValidClient do
       {:multipart,
        [
          {"validation[rule_set]", "enroute:starter-kit"},
-         {"validation[include_schema]", "false"},
+         {"validation[include_schema]", "true"},
          make_file_part("validation[file]", filepath)
        ]}
 
