@@ -33,7 +33,7 @@ defmodule TransportWeb.API.StatsControllerTest do
     end
   end
 
-  test "Get the bike and scooter stats", %{conn: _conn} do
+  test "Get the vehicles sharing stats", %{conn: _conn} do
     aom =
       insert(:aom,
         geom:
@@ -43,10 +43,10 @@ defmodule TransportWeb.API.StatsControllerTest do
 
     dataset1 =
       :dataset
-      |> insert(%{type: "bike-scooter-sharing", is_active: true, aom: aom, custom_title: "other name", slug: "a"})
+      |> insert(%{type: "vehicles-sharing", is_active: true, aom: aom, custom_title: "other name", slug: "a"})
 
     dataset2 =
-      :dataset |> insert(%{type: "bike-scooter-sharing", is_active: true, aom: aom, custom_title: "name", slug: "z"})
+      :dataset |> insert(%{type: "vehicles-sharing", is_active: true, aom: aom, custom_title: "name", slug: "z"})
 
     expected = [
       %{
@@ -64,9 +64,9 @@ defmodule TransportWeb.API.StatsControllerTest do
       }
     ]
 
-    assert TransportWeb.API.StatsController.bike_scooter_sharing_features_query()
+    assert TransportWeb.API.StatsController.vehicles_sharing_features_query()
            |> DB.Repo.all()
-           |> TransportWeb.API.StatsController.bike_scooter_sharing_features() == expected
+           |> TransportWeb.API.StatsController.vehicles_sharing_features() == expected
   end
 
   test "Quality of AOM data stats", %{conn: conn} do
@@ -117,12 +117,12 @@ defmodule TransportWeb.API.StatsControllerTest do
   end
 
   describe("aom quality features") do
-    test "count scooter and bikes" do
+    test "count vehicles sharing" do
       aom1 = insert(:aom, nom: "aom")
-      insert(:dataset, is_active: true, type: "bike-scooter-sharing", aom: aom1)
-      insert(:dataset, is_active: false, type: "bike-scooter-sharing", aom: aom1)
+      insert(:dataset, is_active: true, type: "vehicles-sharing", aom: aom1)
+      insert(:dataset, is_active: false, type: "vehicles-sharing", aom: aom1)
 
-      assert %{dataset_types: %{bike_scooter_sharing: 1, pt: 0}} =
+      assert %{dataset_types: %{vehicles_sharing: 1, pt: 0}} =
                TransportWeb.API.StatsController.quality_features_query() |> DB.Repo.get(aom1.id)
     end
 

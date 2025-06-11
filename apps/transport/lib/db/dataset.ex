@@ -160,8 +160,7 @@ defmodule DB.Dataset do
       "carpooling-lines" => dgettext("db-dataset", "Carpooling lines"),
       "carpooling-offers" => dgettext("db-dataset", "Carpooling offers"),
       "charging-stations" => dgettext("db-dataset", "Charging & refuelling stations"),
-      "bike-scooter-sharing" => dgettext("db-dataset", "Bike and scooter sharing"),
-      "car-motorbike-sharing" => dgettext("db-dataset", "Car and motorbike sharing"),
+      "vehicles-sharing" => dgettext("db-dataset", "Vehicles sharing"),
       "road-data" => dgettext("db-dataset", "Road data"),
       "informations" => dgettext("db-dataset", "Other informations"),
       "bike-data" => dgettext("db-dataset", "Bike data"),
@@ -1072,7 +1071,7 @@ defmodule DB.Dataset do
   true
   """
   def should_skip_history?(%__MODULE__{type: type} = dataset) do
-    type in ["bike-scooter-sharing", "car-motorbike-sharing", "road-data"] or has_custom_tag?(dataset, "skip_history")
+    type in ["vehicles-sharing", "road-data"] or has_custom_tag?(dataset, "skip_history")
   end
 
   def has_licence_ouverte?(%__MODULE__{licence: licence}), do: licence in @licences_ouvertes

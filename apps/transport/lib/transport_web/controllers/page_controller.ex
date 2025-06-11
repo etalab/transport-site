@@ -237,8 +237,7 @@ defmodule TransportWeb.PageController do
   def home_tiles(conn) do
     [
       type_tile(conn, "public-transit"),
-      type_tile(conn, "bike-scooter-sharing"),
-      type_tile(conn, "car-motorbike-sharing"),
+      type_tile(conn, "vehicles-sharing"),
       type_tile(conn, "bike-data"),
       type_tile(conn, "road-data"),
       type_tile(conn, "carpooling-areas"),
@@ -250,11 +249,7 @@ defmodule TransportWeb.PageController do
     ]
   end
 
-  defp patch_vls_tiles(%Tile{type: "bike-scooter-sharing"} = tile) do
-    %{tile | link: "/landing-vls"}
-  end
-
-  defp patch_vls_tiles(%Tile{type: "car-motorbike-sharing"} = tile) do
+  defp patch_vls_tiles(%Tile{type: "vehicles-sharing"} = tile) do
     %{tile | link: "/landing-vls"}
   end
 

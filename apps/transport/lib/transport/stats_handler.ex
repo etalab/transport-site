@@ -82,7 +82,7 @@ defmodule Transport.StatsHandler do
       nb_gtfs: count_dataset_with_format("GTFS"),
       nb_netex: count_dataset_with_format("NeTEx"),
       nb_bss_datasets: count_dataset_with_format("gbfs"),
-      nb_bikes_scooter_datasets: DB.Dataset.count_by_type("bike-scooter-sharing"),
+      nb_vehicles_sharing_datasets: DB.Dataset.count_by_type("vehicles-sharing"),
       nb_gtfs_rt: count_dataset_with_format("gtfs-rt"),
       gtfs_rt_types: count_feed_types_gtfs_rt(),
       climate_resilience_bill_count: count_datasets_climate_resilience_bill(),

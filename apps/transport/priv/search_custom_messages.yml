@@ -146,24 +146,24 @@
 
         These data comply with the [standard-covoiturage](https://github.com/fabmob/standard-covoiturage/).
 
-- category: bike-scooter-sharing
+- category: vehicles-sharing
   search_params:
     - key: type
-      value: bike-scooter-sharing
+      value: vehicles-sharing
   msg:
     fr: |
-        Les jeux de données référencés dans cette catégorie contiennent des flux d’information décrivant des flottes de vélos ou de trottinettes en libre service en station ou en freefloating.
+        Les jeux de données référencés dans cette catégorie contiennent des flux d’information décrivant des flottes de vélos, de trottinettes, de deux-roues motorisés ou de voitures en libre service, en station ou en freefloating.
 
         Ces données sont disponibles en temps réel pour connaître la position des véhicules ou le taux de remplissage des stations.
 
-        Le standard utilisé est le [GBFS](https://gbfs.mobilitydata.org).
+        Le standard utilisé est le [GBFS](https://gbfs.org/fr/documentation/).
 
     en: |
-        The datasets referenced in this category contain information flows describing fleets of self-service bicycles or scooters in stations or in freefloating.
+        The datasets referenced in this category contain information flows describing fleets of bicycles, scooters, motorized two-wheelers or self-service cars, in stations or free-floating.
 
         These data are available in real time to know the position of vehicles or the filling rate of stations.
 
-        The standard used is [GBFS](https://gbfs.mobilitydata.org).
+        The standard used is [GBFS](https://gbfs.org/documentation/).
 
 - category: car-motorbike-sharing
   search_params:

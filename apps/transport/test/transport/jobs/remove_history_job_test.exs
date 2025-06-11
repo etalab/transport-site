@@ -13,11 +13,11 @@ defmodule Transport.Test.Transport.Jobs.RemoveHistoryJobTest do
   end
 
   test "enqueues jobs when deleting by dataset type" do
-    %DB.Dataset{id: d1_id} = insert(:dataset, type: "bike-scooter-sharing")
-    %DB.Dataset{id: d2_id} = insert(:dataset, type: "bike-scooter-sharing")
+    %DB.Dataset{id: d1_id} = insert(:dataset, type: "vehicles-sharing")
+    %DB.Dataset{id: d2_id} = insert(:dataset, type: "vehicles-sharing")
     dataset_3 = insert(:dataset, type: "public-transit")
 
-    assert :ok == perform_job(RemoveHistoryJob, %{"dataset_type" => "bike-scooter-sharing"})
+    assert :ok == perform_job(RemoveHistoryJob, %{"dataset_type" => "vehicles-sharing"})
 
     assert MapSet.new([d1_id, d2_id]) ==
              [worker: RemoveHistoryJob]
@@ -39,7 +39,7 @@ defmodule Transport.Test.Transport.Jobs.RemoveHistoryJobTest do
   end
 
   test "marks for deletion relevant rows when deleting by dataset_id" do
-    %{id: dataset_id} = dataset = insert(:dataset, type: "bike-scooter-sharing")
+    %{id: dataset_id} = dataset = insert(:dataset, type: "vehicles-sharing")
     resource = insert(:resource, dataset_id: dataset.id)
 
     rh1 = insert(:resource_history, resource_id: resource.id, payload: %{"dataset_id" => dataset.id})
@@ -111,7 +111,7 @@ defmodule Transport.Test.Transport.Jobs.RemoveHistoryJobTest do
         payload: %{"filename" => Ecto.UUID.generate(), "dataset_id" => public_transit_dataset.id}
       )
 
-    %{id: dataset_id} = dataset = insert(:dataset, type: "bike-scooter-sharing")
+    %{id: dataset_id} = dataset = insert(:dataset, type: "vehicles-sharing")
     resource = insert(:resource, dataset_id: dataset.id)
 
     rh1 =

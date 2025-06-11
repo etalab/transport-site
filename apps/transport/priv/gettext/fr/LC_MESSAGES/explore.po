@@ -125,4 +125,4 @@ msgstr "Stations pour véhicules en libre-service (VLS)"
 
 #, elixir-autogen, elixir-format
 msgid "gbfs-stations-explanation"
-msgstr "Cette carte rassemble toutes les stations pour les véhicules partagés. Elle contient les données des <a href=\"%{bike_scooter_sharing_datasets_link}\">vélos et trotinettes</a> et <a href=\"%{car_motorbike_sharing_datasets_link}\">voitures et scooters</a> en libre-service."
+msgstr "Cette carte rassemble toutes les stations pour <a href=\"%{vehicles_sharing_datasets_link}\">les véhicules partagés</a>."

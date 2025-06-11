@@ -220,7 +220,7 @@ defmodule TransportWeb.DatasetView do
     # The upcoming ("grey") version should be named `<filename>-grey.svg`
     icons = %{
       "public-transit" => "bus.svg",
-      "bike-scooter-sharing" => "bicycle-scooter.svg",
+      "vehicles-sharing" => "vehicles-sharing.svg",
       "bike-data" => "bike-data.svg",
       "carpooling-areas" => "carpooling-areas.svg",
       "carpooling-lines" => "carpooling-lines.svg",
@@ -228,7 +228,6 @@ defmodule TransportWeb.DatasetView do
       "charging-stations" => "charge-station.svg",
       "road-data" => "roads.svg",
       "informations" => "infos.svg",
-      "car-motorbike-sharing" => "car-motorbike-sharing.svg",
       "pedestrian-path" => "walk.svg"
     }
 
@@ -422,8 +421,7 @@ defmodule TransportWeb.DatasetView do
     |> Enum.max_by(&{&1.type, &1.last_update}, TransportWeb.DatasetView.ResourceTypeSortKey, fn -> nil end)
   end
 
-  def get_resource_to_display(%Dataset{type: type, resources: resources})
-      when type in ["bike-scooter-sharing", "car-motorbike-sharing"] do
+  def get_resource_to_display(%Dataset{type: "vehicles-sharing", resources: resources}) do
     resources
     |> Enum.filter(fn r -> r.format == "gbfs" or String.ends_with?(r.url, "gbfs.json") end)
     |> Enum.reject(fn r ->
