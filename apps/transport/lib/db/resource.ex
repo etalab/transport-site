@@ -380,8 +380,6 @@ defmodule DB.Resource do
   end
 
   @doc """
-  iex> served_by_proxy?(%DB.Resource{url: "https://transport.data.gouv.fr/gbfs/marseille/gbfs.json", format: "gbfs"})
-  true
   iex> served_by_proxy?(%DB.Resource{url: "https://proxy.transport.data.gouv.fr/resource/axeo-guingamp-gtfs-rt-vehicle-position", format: "gtfs-rt"})
   true
   iex> served_by_proxy?(%DB.Resource{url: "https://example.com", format: "GTFS"})
@@ -397,15 +395,10 @@ defmodule DB.Resource do
   def served_by_proxy?(%{"url" => url}) when is_binary(url), do: served_by_proxy?(%__MODULE__{url: url})
 
   def served_by_proxy?(%__MODULE__{url: url}) do
-    Enum.any?(
-      ["https://transport.data.gouv.fr/gbfs/", "https://proxy.transport.data.gouv.fr"],
-      &String.starts_with?(url, &1)
-    )
+    String.starts_with?(url, "https://proxy.transport.data.gouv.fr")
   end
 
   @doc """
-  iex> proxy_slug(%DB.Resource{url: "https://transport.data.gouv.fr/gbfs/cergy-pontoise/gbfs.json", format: "gbfs"})
-  "cergy-pontoise"
   iex> proxy_slug(%DB.Resource{url: "https://proxy.transport.data.gouv.fr/resource/axeo-guingamp-gtfs-rt-vehicle-position", format: "gtfs-rt"})
   "axeo-guingamp-gtfs-rt-vehicle-position"
   iex> proxy_slug(%DB.Resource{url: "https://proxy.transport.data.gouv.fr/resource/sncf-siri-lite-situation-exchange", format: "SIRI Lite"})
@@ -415,28 +408,19 @@ defmodule DB.Resource do
   """
   def proxy_slug(%__MODULE__{url: url} = resource) do
     if served_by_proxy?(resource) do
-      cond do
-        String.starts_with?(url, "https://proxy.transport.data.gouv.fr") ->
-          url |> URI.parse() |> Map.fetch!(:path) |> String.replace("/resource/", "")
-
-        String.starts_with?(url, "https://transport.data.gouv.fr/gbfs/") ->
-          ~r{^https://transport\.data\.gouv\.fr/gbfs/([a-zA-Z0-9_-]+)/} |> Regex.run(url) |> List.last()
-      end
+      url |> URI.parse() |> Map.fetch!(:path) |> String.replace("/resource/", "")
     else
       nil
     end
   end
 
   @doc """
-  The proxy namespace for a resource. Defined in other Umbrella apps (`gbfs` and `unlock`).
+  The proxy namespace for a resource. Defined in other Umbrella apps (`unlock`).
   Used in `metrics.target` and `metrics.event`.
 
-  iex> proxy_namespace(%DB.Resource{url: "https://transport.data.gouv.fr/gbfs/cergy-pontoise/gbfs.json", format: "gbfs"})
-  "gbfs"
   iex> proxy_namespace(%DB.Resource{url: "https://proxy.transport.data.gouv.fr/resource/axeo-guingamp-gtfs-rt-vehicle-position", format: "gtfs-rt"})
   "proxy"
   """
-  def proxy_namespace(%__MODULE__{format: "gbfs"}), do: "gbfs"
   def proxy_namespace(%__MODULE__{}), do: "proxy"
 
   def no_schema_name_for_public_transport(%Ecto.Changeset{} = changeset) do
