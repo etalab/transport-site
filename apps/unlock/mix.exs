@@ -43,6 +43,8 @@ defmodule Unlock.MixProject do
       {:jason, "~> 1.1"},
       {:nimble_csv, "~> 1.1"},
       {:finch, "~> 0.8"},
+      {:ex_aws, "~> 2.1"},
+      {:ex_aws_s3, "~> 2.0"},
       {:yaml_elixir, "~> 2.7"},
       {:cachex, "~> 3.5"},
       {:cors_plug, "~> 3.0"},
