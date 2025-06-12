@@ -21,7 +21,7 @@ defmodule TransportWeb.DatasetViewTest do
 
   test "resource to display for a low emission zone dataset" do
     dataset_two_geojson = %DB.Dataset{
-      type: "low-emission-zones",
+      type: "road-data",
       resources: [
         %DB.Resource{
           id: 1,
@@ -39,7 +39,7 @@ defmodule TransportWeb.DatasetViewTest do
     }
 
     dataset_title_geojson = %DB.Dataset{
-      type: "low-emission-zones",
+      type: "road-data",
       resources: [
         %DB.Resource{
           id: 1,
@@ -51,7 +51,7 @@ defmodule TransportWeb.DatasetViewTest do
     }
 
     dataset_only_roads = %DB.Dataset{
-      type: "low-emission-zones",
+      type: "road-data",
       resources: [
         %DB.Resource{
           id: 1,
@@ -157,7 +157,7 @@ defmodule TransportWeb.DatasetViewTest do
 
   test "schemas_resources is sorted by display position" do
     dataset = %DB.Dataset{
-      type: "low-emission-zones",
+      type: "road-data",
       resources: [
         %DB.Resource{
           id: 1,
@@ -294,6 +294,17 @@ defmodule TransportWeb.DatasetViewTest do
     resources = [gtfs, netex]
 
     assert resources == order_resources_by_format(resources)
+  end
+
+  test "icons exist" do
+    Enum.each(DB.Dataset.types(), fn type ->
+      path =
+        __DIR__
+        |> Path.join("../../../client/")
+        |> Path.join(icon_type_path(type))
+
+      assert File.exists?(path)
+    end)
   end
 
   defp to_html(%Phoenix.LiveView.Rendered{} = rendered) do

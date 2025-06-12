@@ -4,7 +4,7 @@ import { Mapbox } from './map-config'
 
 const regionsUrl = '/api/stats/regions'
 const aomsUrl = '/api/stats/'
-const bikeScooterUrl = '/api/stats/bike-scooter-sharing'
+const vehiclesSharingUrl = '/api/stats/vehicles-sharing'
 const qualityUrl = '/api/stats/quality'
 
 const lightGreen = '#BCE954'
@@ -48,7 +48,7 @@ const getLegend = (title, colorClasses, labels) => {
 // simple cache on stats
 let aomStats = null
 let regionStats = null
-let bikeScooterStats = null
+let vehiclesSharingStats = null
 let qualityStats = null
 
 function getAomsFG (featureFunction, style, filter = null) {
@@ -89,13 +89,13 @@ function getRegionsFG (featureFunction, style) {
     return regionsFeatureGroup
 }
 
-function displayBikeScooter (map, featureFunction) {
-    if (bikeScooterStats == null) {
-        bikeScooterStats = fetch(bikeScooterUrl).then(response => {
+function displayVehiclesSharing (map, featureFunction) {
+    if (vehiclesSharingStats == null) {
+        vehiclesSharingStats = fetch(vehiclesSharingUrl).then(response => {
             return response.json()
         })
     }
-    bikeScooterStats.then(response => {
+    vehiclesSharingStats.then(response => {
         const options = {
             fillColor: '#0066db',
             radius: 5,
@@ -696,10 +696,10 @@ function addPtFormatMap (id, view) {
     }
 }
 
-function addBikeScooterMap (id, view) {
+function addVehiclesSharingMap (id, view) {
     const map = makeMapOnView(id, view)
 
-    displayBikeScooter(map, (feature, layer) => {
+    displayVehiclesSharing(map, (feature, layer) => {
         const names = feature.properties.names
         const slugs = feature.properties.slugs
         const bind = names.map((name, i) => `<a href="/datasets/${slugs[i]}" target="_blank">${name}<br/></a>`).join('')
@@ -739,5 +739,5 @@ for (const [drom, view] of Object.entries(droms)) {
     addPtFormatMap(`pt_format_map_${drom}`, view)
     addRealTimePTMap(`rt_map_${drom}`, view)
     addRealTimePtFormatMap(`rt_pt_format_map_${drom}`, view)
-    addBikeScooterMap(`vehicles_map_${drom}`, view)
+    addVehiclesSharingMap(`vehicles_map_${drom}`, view)
 }

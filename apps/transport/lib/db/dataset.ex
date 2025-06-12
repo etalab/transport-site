@@ -160,17 +160,11 @@ defmodule DB.Dataset do
       "carpooling-lines" => dgettext("db-dataset", "Carpooling lines"),
       "carpooling-offers" => dgettext("db-dataset", "Carpooling offers"),
       "charging-stations" => dgettext("db-dataset", "Charging & refuelling stations"),
-      "air-transport" => dgettext("db-dataset", "Air transport"),
-      "bike-scooter-sharing" => dgettext("db-dataset", "Bike and scooter sharing"),
-      "car-motorbike-sharing" => dgettext("db-dataset", "Car and motorbike sharing"),
+      "vehicles-sharing" => dgettext("db-dataset", "Vehicles sharing"),
       "road-data" => dgettext("db-dataset", "Road data"),
-      "locations" => dgettext("db-dataset", "Mobility locations"),
       "informations" => dgettext("db-dataset", "Other informations"),
-      "private-parking" => dgettext("db-dataset", "Private parking"),
-      "bike-way" => dgettext("db-dataset", "Bike networks"),
-      "bike-parking" => dgettext("db-dataset", "Bike parking"),
-      "low-emission-zones" => dgettext("db-dataset", "Low emission zones"),
-      "transport-traffic" => dgettext("db-dataset", "Transport traffic")
+      "bike-data" => dgettext("db-dataset", "Bike data"),
+      "pedestrian-path" => dgettext("db-dataset", "Pedestrian path")
     }
 
   @spec type_to_str(binary()) :: binary()
@@ -1077,7 +1071,7 @@ defmodule DB.Dataset do
   true
   """
   def should_skip_history?(%__MODULE__{type: type} = dataset) do
-    type in ["bike-scooter-sharing", "car-motorbike-sharing", "road-data"] or has_custom_tag?(dataset, "skip_history")
+    type in ["vehicles-sharing", "road-data"] or has_custom_tag?(dataset, "skip_history")
   end
 
   def has_licence_ouverte?(%__MODULE__{licence: licence}), do: licence in @licences_ouvertes

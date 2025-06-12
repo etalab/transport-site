@@ -17,7 +17,7 @@
       <div class="home-search">
         <div class="searchBar">
           <%= form_for @conn, dataset_path(@conn, :index), [method: "get"], fn f -> %>
-            <h4><%= dgettext("page-index", "Search data for a region, a city, a network…") %></h4>
+            <h4><%= dgettext("page-index", "Search for data for a region, a city, a network…") %></h4>
             <div class="pt-12">
               <%= search_input(f, :q,
                 id: "autoComplete",
@@ -139,14 +139,14 @@
             <div>
               <%= dgettext("page-index", "Territories covered") |> raw() %>
               <br />
-              <%= dgettext("page-index", "on") %> <%= format_number(@count_aoms) %>
+              <%= dgettext("page-index", "out of") %> <%= format_number(@count_aoms) %>
             </div>
           </div>
           <div class="key-number__item">
             <strong><%= @count_regions_completed %></strong>
             <div>
               <%= dgettext("page-index", "Regions covered") %><br />
-              <%= dgettext("page-index", "on") %> <%= @count_regions %>
+              <%= dgettext("page-index", "out of") %> <%= @count_regions %>
             </div>
           </div>
           <div class="key-number__item">

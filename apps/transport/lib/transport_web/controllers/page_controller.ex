@@ -10,7 +10,7 @@ defmodule TransportWeb.PageController do
     conn
     |> assign(:mailchimp_newsletter_url, Application.get_env(:transport, :mailchimp_newsletter_url))
     |> merge_assigns(home_index_stats())
-    |> assign(:tiles, home_tiles(conn))
+    |> assign(:tiles, home_tiles(conn) |> Enum.map(&patch_vls_tiles/1))
     |> put_breaking_news(DB.BreakingNews.get_breaking_news())
     |> render("index.html")
   end
@@ -43,14 +43,10 @@ defmodule TransportWeb.PageController do
   def compute_home_index_stats do
     [
       count_by_type: Dataset.count_by_type(),
-      count_train: Dataset.count_by_mode("rail"),
-      count_boat: Dataset.count_by_mode("ferry"),
-      count_coach: Dataset.count_coach(),
       count_regions: count_regions(),
       count_aoms: Repo.aggregate(AOM, :count, :id),
       count_aoms_with_dataset: count_aoms_with_dataset(),
       count_regions_completed: count_regions_completed(),
-      count_public_transport_has_realtime: Dataset.count_public_transport_has_realtime(),
       percent_population: percent_population(),
       reusers: CSVDocuments.reusers(),
       facilitators: CSVDocuments.facilitators()
@@ -239,54 +235,25 @@ defmodule TransportWeb.PageController do
   end
 
   def home_tiles(conn) do
-    counts = home_index_stats()
-
     [
       type_tile(conn, "public-transit"),
-      %Tile{
-        link: dataset_path(conn, :index, type: "public-transit", filter: "has_realtime"),
-        icon: icon_type_path("real-time-public-transit"),
-        title: dgettext("page-index", "Public transport - realtime traffic"),
-        count: Keyword.fetch!(counts, :count_public_transport_has_realtime)
-      },
-      %Tile{
-        # 14 is the region « National » We defined coaches as buses not bound to a region or AOM
-        link: dataset_path(conn, :by_region, 14, "modes[]": "bus"),
-        icon: icon_type_path("long-distance-coach"),
-        title: dgettext("page-index", "Long distance coach"),
-        count: Keyword.fetch!(counts, :count_coach)
-      },
-      %Tile{
-        link: dataset_path(conn, :index, "modes[]": "rail"),
-        icon: icon_type_path("train"),
-        title: dgettext("page-index", "Rail transport"),
-        count: Keyword.fetch!(counts, :count_train)
-      },
-      %Tile{
-        link: dataset_path(conn, :index, "modes[]": "ferry"),
-        icon: icon_type_path("boat"),
-        title: dgettext("page-index", "Sea and river transport"),
-        count: Keyword.fetch!(counts, :count_boat)
-      },
-      type_tile(conn, "air-transport"),
-      type_tile(conn, "bike-scooter-sharing"),
-      type_tile(conn, "car-motorbike-sharing"),
-      type_tile(conn, "bike-way"),
-      type_tile(conn, "bike-parking"),
-      type_tile(conn, "transport-traffic",
-        documentation_url: "https://doc.transport.data.gouv.fr/producteurs/comptage-des-mobilites"
-      ),
+      type_tile(conn, "vehicles-sharing"),
+      type_tile(conn, "bike-data"),
       type_tile(conn, "road-data"),
-      type_tile(conn, "low-emission-zones"),
       type_tile(conn, "carpooling-areas"),
       type_tile(conn, "carpooling-lines"),
       type_tile(conn, "carpooling-offers"),
       type_tile(conn, "charging-stations"),
-      type_tile(conn, "private-parking"),
-      type_tile(conn, "locations"),
-      type_tile(conn, "informations")
+      type_tile(conn, "informations"),
+      type_tile(conn, "pedestrian-path")
     ]
   end
+
+  defp patch_vls_tiles(%Tile{type: "vehicles-sharing"} = tile) do
+    %{tile | link: "/landing-vls"}
+  end
+
+  defp patch_vls_tiles(tile), do: tile
 
   defp climate_resilience_bill_type_tile(%Plug.Conn{} = conn, %{count: count, type: type}) do
     %Tile{

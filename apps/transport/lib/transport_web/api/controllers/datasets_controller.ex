@@ -22,6 +22,7 @@ defmodule TransportWeb.API.DatasetController do
     :legal_owners_region,
     resources: [:dataset]
   ]
+  @pan_org_id Application.compile_env!(:transport, :datagouvfr_transport_publisher_id)
 
   @spec open_api_operation(any) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
@@ -45,7 +46,10 @@ defmodule TransportWeb.API.DatasetController do
   @spec datasets(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def datasets(%Plug.Conn{} = conn, _params) do
     comp_fn = fn -> prepare_datasets_index_data() end
-    data = Transport.Cache.fetch("api-datasets-index", comp_fn, @index_cache_ttl)
+
+    data =
+      Transport.Cache.fetch("api-datasets-index", comp_fn, @index_cache_ttl)
+      |> Enum.map(&maybe_add_token_urls(&1, conn))
 
     render(conn, %{data: data})
   end
@@ -99,7 +103,10 @@ defmodule TransportWeb.API.DatasetController do
       conn |> put_status(404) |> render(%{errors: "dataset not found"})
     else
       comp_fn = fn -> prepare_dataset_detail_data(dataset) end
-      data = Transport.Cache.fetch("api-datasets-#{datagouv_id}", comp_fn, @by_id_cache_ttl)
+
+      data =
+        Transport.Cache.fetch("api-datasets-#{datagouv_id}", comp_fn, @by_id_cache_ttl)
+        |> maybe_add_token_urls(conn)
 
       conn |> assign(:data, data) |> render()
     end
@@ -194,6 +201,7 @@ defmodule TransportWeb.API.DatasetController do
   defp get_publisher(dataset),
     do: %{
       "name" => dataset.organization,
+      "id" => dataset.organization_id,
       "type" => "organization"
     }
 
@@ -277,7 +285,7 @@ defmodule TransportWeb.API.DatasetController do
       end
 
     latest_url =
-      if DB.Resource.pan_resource?(resource) do
+      if DB.Resource.pan_resource?(resource) or DB.Resource.served_by_proxy?(resource) do
         DB.Resource.download_url(resource)
       else
         resource.latest_url
@@ -466,4 +474,32 @@ defmodule TransportWeb.API.DatasetController do
 
     conn
   end
+
+  # Add a token to the `latest_url` for resources:
+  # - published by the NAP organization.
+  # - served by the NAP proxy.
+  #
+  # This is done at this stage to still be able to cache responses:
+  # - an anonymous HTTP request will be served the cache
+  # - an authenticated HTTP request with a token will get download URLs
+  #   with the passed token
+  defp maybe_add_token_urls(
+         %{"resources" => resources} = dataset,
+         %Plug.Conn{assigns: %{token: %DB.Token{secret: secret}}}
+       ) do
+    resources =
+      Enum.map(resources, fn %{"url" => url} = resource ->
+        if pan_publisher?(dataset) or DB.Resource.served_by_proxy?(resource) do
+          Map.put(resource, "url", url <> "?token=#{secret}")
+        else
+          resource
+        end
+      end)
+
+    Map.put(dataset, "resources", resources)
+  end
+
+  defp maybe_add_token_urls(dataset, _conn), do: dataset
+
+  defp pan_publisher?(%{"publisher" => %{"id" => organization_id}}), do: organization_id == @pan_org_id
 end

@@ -3,8 +3,7 @@
 <% parcs_relais_link = dataset_path(@conn, :details, @parkings_relais_dataset.slug) %>
 <% zfe_link = dataset_path(@conn, :details, @zfe_dataset.slug) %>
 <% irve_link = dataset_path(@conn, :details, @irve_dataset.slug) %>
-<% bike_scooter_sharing_datasets_link = dataset_path(@conn, :index, type: "bike-scooter-sharing") %>
-<% car_motorbike_sharing_datasets_link = dataset_path(@conn, :index, type: "car-motorbike-sharing") %>
+<% vehicles_sharing_datasets_link = dataset_path(@conn, :index, type: "vehicles-sharing") %>
 <div class="container dataset-page-top explore">
   <h2><%= dgettext("explore", "Data exploration map") %></h2>
 
@@ -83,8 +82,7 @@
         </summary>
         <%= raw(
           dgettext("explore", "gbfs-stations-explanation",
-            bike_scooter_sharing_datasets_link: bike_scooter_sharing_datasets_link,
-            car_motorbike_sharing_datasets_link: car_motorbike_sharing_datasets_link
+            vehicles_sharing_datasets_link: vehicles_sharing_datasets_link
           )
         ) %>
       </details>

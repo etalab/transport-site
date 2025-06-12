@@ -34,13 +34,13 @@ defmodule TransportWeb.API.StatsController do
       }
     }
 
-  @spec bike_scooter_sharing_operation() :: Operation.t()
-  def bike_scooter_sharing_operation,
+  @spec vehicles_sharing_operation() :: Operation.t()
+  def vehicles_sharing_operation,
     do: %Operation{
       tags: ["stats"],
-      summary: "Show bike and scooter sharing stats",
-      description: "Show bike and scooter sharing stats",
-      operationId: "API.StatsController.bike_scooter_sharing",
+      summary: "Show vehicles sharing stats",
+      description: "Show vehicles sharing stats",
+      operationId: "API.StatsController.vehicles_sharing",
       parameters: [],
       responses: %{
         200 => Operation.response("GeoJSON", "application/json", TransportWeb.API.Schemas.GeoJSONResponse)
@@ -135,8 +135,8 @@ defmodule TransportWeb.API.StatsController do
     |> Enum.to_list()
   end
 
-  @spec bike_scooter_sharing_features([map()]) :: [map()]
-  def bike_scooter_sharing_features(result) do
+  @spec vehicles_sharing_features([map()]) :: [map()]
+  def vehicles_sharing_features(result) do
     result
     |> Enum.reject(fn r -> is_nil(r.geometry) end)
     |> Enum.map(fn r ->
@@ -239,9 +239,9 @@ defmodule TransportWeb.API.StatsController do
   @spec regions(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def regions(%Plug.Conn{} = conn, _params), do: render_features(conn, :regions, "api-stats-regions")
 
-  @spec bike_scooter_sharing(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def bike_scooter_sharing(%Plug.Conn{} = conn, _params),
-    do: render_features(conn, :bike_scooter_sharing)
+  @spec vehicles_sharing(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def vehicles_sharing(%Plug.Conn{} = conn, _params),
+    do: render_features(conn, :vehicles_sharing)
 
   @spec quality(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def quality(%Plug.Conn{} = conn, _params), do: render_features(conn, :quality, "api-stats-quality")
@@ -291,10 +291,10 @@ defmodule TransportWeb.API.StatsController do
     |> Jason.encode!()
   end
 
-  def rendered_geojson(:bike_scooter_sharing, ecto_opts) do
-    bike_scooter_sharing_features_query()
+  def rendered_geojson(:vehicles_sharing, ecto_opts) do
+    vehicles_sharing_features_query()
     |> Repo.all(ecto_opts)
-    |> bike_scooter_sharing_features()
+    |> vehicles_sharing_features()
     |> geojson()
     |> Jason.encode!()
   end
@@ -340,7 +340,7 @@ defmodule TransportWeb.API.StatsController do
       forme_juridique: aom.forme_juridique,
       dataset_types: %{
         pt: count_aom_types(aom.id, "public-transit"),
-        bike_scooter_sharing: count_aom_types(aom.id, "bike-scooter-sharing")
+        vehicles_sharing: count_aom_types(aom.id, "vehicles-sharing")
       },
       nb_other_datasets: coalesce(d.count, 0)
     })
@@ -374,13 +374,13 @@ defmodule TransportWeb.API.StatsController do
       },
       dataset_types: %{
         pt: count_type_by_region(r.id, "public-transit"),
-        bike_scooter_sharing: count_type_by_region(r.id, "bike-scooter-sharing")
+        vehicles_sharing: count_type_by_region(r.id, "vehicles-sharing")
       }
     })
   end
 
-  @spec bike_scooter_sharing_features_query :: Ecto.Query.t()
-  def bike_scooter_sharing_features_query do
+  @spec vehicles_sharing_features_query :: Ecto.Query.t()
+  def vehicles_sharing_features_query do
     DatasetGeographicView
     |> join(:left, [gv], dataset in Dataset, on: dataset.id == gv.dataset_id)
     |> select([gv, dataset], %{
@@ -388,7 +388,7 @@ defmodule TransportWeb.API.StatsController do
       names: fragment("array_agg(? order by ? asc)", dataset.custom_title, dataset.custom_title),
       slugs: fragment("array_agg(? order by ? asc)", dataset.slug, dataset.custom_title)
     })
-    |> where([_gv, dataset], dataset.type == "bike-scooter-sharing" and dataset.is_active)
+    |> where([_gv, dataset], dataset.type == "vehicles-sharing" and dataset.is_active)
     |> group_by(fragment("geometry"))
   end
 
@@ -424,7 +424,7 @@ defmodule TransportWeb.API.StatsController do
         forme_juridique: aom.forme_juridique,
         dataset_types: %{
           pt: count_aom_types(aom.id, "public-transit", include_aggregates: true),
-          bike_scooter_sharing: count_aom_types(aom.id, "bike-scooter-sharing", include_aggregates: true)
+          vehicles_sharing: count_aom_types(aom.id, "vehicles-sharing", include_aggregates: true)
         },
         quality: %{
           expired_from: fragment("TO_DATE(?, 'YYYY-MM-DD') - max(?)", ^dt, expired_info.end_date),

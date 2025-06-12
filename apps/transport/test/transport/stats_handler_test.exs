@@ -50,11 +50,11 @@ defmodule Transport.StatsHandlerTest do
     insert(:dataset, is_active: false, custom_tags: ["loi-climat-resilience"], type: "public-transit")
     insert(:dataset, is_active: true, custom_tags: ["loi-climat-resilience"], type: "public-transit")
     insert(:dataset, is_active: true, custom_tags: ["loi-climat-resilience"], type: "public-transit")
-    insert(:dataset, is_active: true, custom_tags: ["loi-climat-resilience", "foo"], type: "low-emission-zones")
+    insert(:dataset, is_active: true, custom_tags: ["loi-climat-resilience", "foo"], type: "road-data")
 
     assert %{
              climate_resilience_bill_count: %{
-               "low-emission-zones" => 1,
+               "road-data" => 1,
                "public-transit" => 2
              }
            } = compute_stats()
@@ -80,7 +80,7 @@ defmodule Transport.StatsHandlerTest do
     insert(:dataset, is_active: false, custom_tags: ["loi-climat-resilience"], type: "public-transit")
     insert(:dataset, is_active: true, custom_tags: ["loi-climat-resilience"], type: "public-transit")
     insert(:dataset, is_active: true, custom_tags: ["loi-climat-resilience"], type: "public-transit")
-    insert(:dataset, is_active: true, custom_tags: ["loi-climat-resilience", "foo"], type: "low-emission-zones")
+    insert(:dataset, is_active: true, custom_tags: ["loi-climat-resilience", "foo"], type: "road-data")
 
     # reuses stats
     insert(:reuse, type: "api", metric_discussions: 0, metric_followers: 2, metric_views: 5)
@@ -117,8 +117,8 @@ defmodule Transport.StatsHandlerTest do
     decimal_2 = Decimal.new(2)
 
     assert [
-             %DB.StatsHistory{metric: "climate_resilience_bill_count::low-emission-zones", value: ^decimal_1},
-             %DB.StatsHistory{metric: "climate_resilience_bill_count::public-transit", value: ^decimal_2}
+             %DB.StatsHistory{metric: "climate_resilience_bill_count::public-transit", value: ^decimal_2},
+             %DB.StatsHistory{metric: "climate_resilience_bill_count::road-data", value: ^decimal_1}
            ] =
              DB.StatsHistory
              |> where([s], like(s.metric, "climate_resilience_bill_count%"))

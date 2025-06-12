@@ -519,8 +519,8 @@ defmodule TransportWeb.API.Schemas do
       description: "Publisher",
       type: :object,
       properties: %{
-        # as seen in production data
-        name: %Schema{type: :string, nullable: true},
+        name: %Schema{type: :string},
+        id: %Schema{type: :string},
         type: %Schema{type: :string}
       },
       additionalProperties: false

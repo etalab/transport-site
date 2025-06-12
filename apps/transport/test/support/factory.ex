@@ -374,14 +374,19 @@ defmodule DB.Factory do
       %{
         secret: "secret",
         name: "name",
-        contact_id: insert_contact().id,
-        organization_id: insert(:organization).id
+        contact_id: insert_contact().id
       }
       |> Map.merge(args)
 
-    DB.Token.changeset(%DB.Token{}, args)
-    |> Ecto.Changeset.change(Map.take(args, [:default_for_contact_id]))
-    |> DB.Repo.insert!()
+    # Insert an organization only if `organization_id` was not passed
+    args =
+      if Map.has_key?(args, :organization_id) do
+        args
+      else
+        Map.merge(args, %{organization_id: insert(:organization).id})
+      end
+
+    DB.Token.changeset(%DB.Token{}, args) |> DB.Repo.insert!()
   end
 
   def insert_contact(%{} = args \\ %{}) do
@@ -419,7 +424,7 @@ defmodule DB.Factory do
 
   def insert_parcs_relais_dataset do
     insert(:dataset, %{
-      type: "private-parking",
+      type: "road-data",
       custom_title: "Base nationale des parcs relais",
       organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
       organization_id: "5abca8d588ee386ee6ece479",
@@ -429,10 +434,11 @@ defmodule DB.Factory do
 
   def insert_zfe_dataset do
     insert(:dataset, %{
-      type: "low-emission-zones",
+      type: "road-data",
       custom_title: "Base Nationale des Zones à Faibles Émissions (BNZFE)",
       organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
       organization_id: "5abca8d588ee386ee6ece479",
+      datagouv_id: "zfe_fake_dataset_id",
       aom: build(:aom, population: 1_000_000)
     })
   end

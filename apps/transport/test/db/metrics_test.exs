@@ -22,18 +22,11 @@ defmodule DB.MetricsTest do
     today = truncate_datetime_to_hour(DateTime.utc_now())
     yesterday = truncate_datetime_to_hour(DateTime.add(DateTime.utc_now(), -1, :day))
 
-    gbfs_resource = insert(:resource, format: "gbfs", url: "https://transport.data.gouv.fr/gbfs/marseille/gbfs.json")
-
     gtfs_rt_resource =
       insert(:resource,
         format: "gtfs-rt",
         url: "https://proxy.transport.data.gouv.fr/resource/divia-dijon-gtfs-rt-trip-update"
       )
-
-    insert(:metrics, target: "gbfs:marseille", event: "gbfs:request:external", count: 5, period: yesterday)
-    insert(:metrics, target: "gbfs:marseille", event: "gbfs:request:internal", count: 4, period: yesterday)
-    insert(:metrics, target: "gbfs:marseille", event: "gbfs:request:external", count: 3, period: today)
-    insert(:metrics, target: "gbfs:marseille", event: "gbfs:request:internal", count: 3, period: today)
 
     insert(:metrics,
       target: "proxy:divia-dijon-gtfs-rt-trip-update",
@@ -49,12 +42,24 @@ defmodule DB.MetricsTest do
       period: today
     )
 
-    assert [
-             %{date: Date.utc_today() |> Date.add(-1), requests_external: 5, requests_internal: 4},
-             %{date: Date.utc_today(), requests_external: 3, requests_internal: 3}
-           ] == DB.Metrics.requests_over_last_days(gbfs_resource, 2)
+    insert(:metrics,
+      target: "proxy:divia-dijon-gtfs-rt-trip-update",
+      event: "proxy:request:external",
+      count: 3,
+      period: yesterday
+    )
 
-    assert [%{date: Date.utc_today(), requests_external: 2, requests_internal: 1}] ==
+    insert(:metrics,
+      target: "proxy:divia-dijon-gtfs-rt-trip-update",
+      event: "proxy:request:internal",
+      count: 1,
+      period: yesterday
+    )
+
+    assert [
+             %{date: Date.utc_today() |> Date.add(-1), requests_external: 3, requests_internal: 1},
+             %{date: Date.utc_today(), requests_external: 2, requests_internal: 1}
+           ] ==
              DB.Metrics.requests_over_last_days(gtfs_rt_resource, 2)
   end
 
