@@ -37,11 +37,22 @@ defmodule TransportWeb.API.DatasetController do
                       and resources are here provided in summarized form (without history & conversions).
                       You can call `/api/datasets/:id` for each dataset to get extra data (history & conversions)",
       operationId: "API.DatasetController.datasets",
-      parameters: [],
+      parameters: authorization_header(),
       responses: %{
         200 => Operation.response("DatasetsResponse", "application/json", TransportWeb.API.Schemas.DatasetsResponse)
       }
     }
+
+  defp authorization_header do
+    [
+      Operation.parameter(
+        :authorization,
+        :header,
+        :string,
+        "Your token secret from your [reuser space](https://transport.data.gouv.fr/espace_reutilisateur)."
+      )
+    ]
+  end
 
   @spec datasets(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def datasets(%Plug.Conn{} = conn, _params) do
@@ -72,7 +83,9 @@ defmodule TransportWeb.API.DatasetController do
       description:
         ~s"Returns the detailed version of a dataset, showing its resources, the resources history & conversions.",
       operationId: "API.DatasetController.datasets_by_id",
-      parameters: [Operation.parameter(:id, :path, :string, "datagouv id of the dataset you want to retrieve")],
+      parameters:
+        [Operation.parameter(:id, :path, :string, "datagouv id of the dataset you want to retrieve")] ++
+          authorization_header(),
       responses: %{
         200 => Operation.response("DatasetDetails", "application/json", TransportWeb.API.Schemas.DatasetDetails)
       }
