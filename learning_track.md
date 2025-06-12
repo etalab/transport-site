@@ -144,6 +144,10 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 * Compile it and launch the tests
 * Download one GTFS and convert it locally
 
+### Run MinIO for a local S3 bucket
+
+Copy the miniorc template: `cp .miniorc.template .miniorc` and follow steps in this file.
+
 ### IDEAS for the next steps
 
 * Understanding the code behind https://github.com/etalab/transport-site/pull/1373
