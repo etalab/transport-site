@@ -83,6 +83,15 @@ defmodule Unlock.Controller do
     send_resp(conn, 200, body_response)
   end
 
+  defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.S3{} = item) do
+    Unlock.Telemetry.trace_request(item.identifier, :external)
+    response = fetch_remote(item)
+
+    conn
+    |> put_resp_header("content-disposition", "attachment")
+    |> send_resp(response.status_code, response.body)
+  end
+
   defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.Generic.HTTP{} = item) do
     Unlock.Telemetry.trace_request(item.identifier, :external)
     response = fetch_remote(item)
@@ -148,7 +157,7 @@ defmodule Unlock.Controller do
     |> send_resp(response.status, body)
   end
 
-  defp fetch_remote(%Unlock.Config.Item.Generic.HTTP{} = item) do
+  defp fetch_remote(%module{} = item) when module in [Unlock.Config.Item.Generic.HTTP, Unlock.Config.Item.S3] do
     comp_fn = fn _key ->
       Logger.debug("Processing proxy request for identifier #{item.identifier}")
 
