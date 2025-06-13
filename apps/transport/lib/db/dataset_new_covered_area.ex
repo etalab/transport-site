@@ -1,0 +1,108 @@
+defmodule DB.DatasetNewCoveredArea do
+  @moduledoc """
+  Extension of dataset schema for code related to covered area
+  """
+  import Ecto.Changeset
+  import Ecto.Query
+
+  def preload_covered_area_objects(dataset) do
+    dataset
+    |> DB.Repo.preload([:new_communes, :departements, :epcis, :regions])
+  end
+
+  def populate_covered_area(dataset) do
+    # TODO put this in a function
+    covered_area_value =
+      dataset
+      |> preload_covered_area_objects()
+      |> covered_area_objects_to_list()
+
+    %{dataset | covered_area: covered_area_value}
+  end
+
+  def covered_area_objects_to_list(dataset) do
+    dataset
+    |> Map.take([:new_communes, :departements, :epcis, :regions])
+    |> Map.values()
+    |> List.flatten()
+    |> Enum.map(&put_administrative_division_type/1)
+  end
+
+  defp put_administrative_division_type(division) do
+    type_name = division.__struct__ |> Module.split() |> List.last() |> String.downcase()
+
+    division
+    |> Map.take([:id, :insee, :nom, :normalized_nom])
+    |> Map.put(:type, type_name)
+  end
+
+  def put_new_covered_area(changeset, params) do
+    changeset
+    |> put_administrative_division(:new_communes, params)
+    |> put_administrative_division(:departements, params)
+    |> put_administrative_division(:epcis, params)
+    |> put_administrative_division(:regions, params)
+  end
+
+  defp put_administrative_division(changeset, level, params) do
+    level_str = Atom.to_string(level)
+
+    case params do
+      %{^level_str => ""} ->
+        changeset
+
+      %{^level_str => insee_list} ->
+        # This is not ideal, but at least it ensures that we don’t use a division that doesn’t exist
+        # I’m not sure if it’s possible to do this in a better way
+        # Either only write the relationship table
+        # Or pass a list of maps, but then we need the id of the departement, which means it wasn’t such a good idea
+        # to rely on insee for the relationship
+        administrative_divisions_in_db =
+          case level do
+            :new_communes -> DB.Commune
+            :departements -> DB.Departement
+            :epcis -> DB.EPCI
+            :regions -> DB.Region
+          end
+          |> where([a], a.insee in ^insee_list)
+          |> DB.Repo.all()
+
+        put_assoc(changeset, level, administrative_divisions_in_db)
+
+      _ ->
+        changeset
+    end
+  end
+
+  @doc """
+  Used for search, usage:
+  territoires = DB.DatasetNewCoveredArea.load_searchable_administrative_divisions
+  DB.DatasetNewCoveredArea.search(territoires, "75") |> Enum.filter(&(&1.__struct__ == DB.Region))
+  """
+  def load_searchable_administrative_divisions do
+    [DB.Commune, DB.EPCI, DB.Departement, DB.Region]
+    |> Enum.map(&Transport.SearchCommunes.load/1)
+    |> List.flatten()
+    # Take out the national region as it doesn’t have an insee code and search fails
+    #  Fix this in the future
+    |> Enum.reject(&(&1.nom == "National"))
+    |> Enum.map(&put_administrative_division_type/1)
+  end
+
+  def search(territoires, term) do
+    Transport.SearchCommunes.filter(territoires, term)
+  end
+
+  def get_administrative_division(insee, type) do
+    division =
+      case type do
+        "commune" -> DB.Commune
+        "epci" -> DB.EPCI
+        "departement" -> DB.Departement
+        "region" -> DB.Region
+      end
+      |> DB.Repo.get_by(insee: insee)
+
+    division |> put_administrative_division_type()
+  end
+end
