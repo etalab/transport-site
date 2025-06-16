@@ -254,3 +254,19 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "(by default)"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Declare a reuse"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Declare your reuses"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Highlight your reuses and make yourself known."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Reuses"
+msgstr ""
