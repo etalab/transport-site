@@ -582,22 +582,6 @@
   margin-top: 0;
 }
 
-.climate-resilience-bill-bg {
-  background: url('/images/bg_loi_climat_resilience.jpg');
-  padding: 1em 0;
-}
-
-.climate-resilience-bill {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  .bill {
-    color: $climate-resilience-bill-color;
-    font-weight: bold;
-  }
-}
-
 hr {
   border-bottom: 1px solid var(--theme-border-lighter);
 }

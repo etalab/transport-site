@@ -91,31 +91,6 @@ defmodule TransportWeb.DatasetControllerTest do
              |> Floki.find(".dataset__image")
   end
 
-  describe "climate and resilience bill" do
-    test "displayed for public-transit", %{conn: conn} do
-      conn = conn |> get(dataset_path(conn, :index, type: "public-transit"))
-      doc = conn |> html_response(200) |> Floki.parse_document!()
-      [msg] = Floki.find(doc, "#climate-resilience-bill-panel")
-
-      assert Floki.text(msg) =~
-               "Certaines données de cette catégorie feront l'objet d'une intégration obligatoire."
-    end
-
-    test "displayed when filtering for climate resilience bill datasets", %{conn: conn} do
-      conn = conn |> get(dataset_path(conn, :index, "loi-climat-resilience": true))
-      doc = conn |> html_response(200) |> Floki.parse_document!()
-      [msg] = Floki.find(doc, "#climate-resilience-bill-panel")
-
-      assert Floki.text(msg) =~ "Ces jeux de données feront l'objet d'une intégration obligatoire."
-    end
-
-    test "not displayed for locations", %{conn: conn} do
-      conn = conn |> get(dataset_path(conn, :index, type: "locations"))
-      doc = conn |> html_response(200) |> Floki.parse_document!()
-      assert [] == Floki.find(doc, "#climate-resilience-bill-panel")
-    end
-  end
-
   describe "heart icons" do
     test "not displayed when logged out", %{conn: conn} do
       insert(:dataset, type: "public-transit", is_active: true)

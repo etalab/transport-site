@@ -551,14 +551,6 @@ msgid "OSM community guidelines"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Climate and Resilience bill"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "compulsory data reuse"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Date"
 msgstr ""
 

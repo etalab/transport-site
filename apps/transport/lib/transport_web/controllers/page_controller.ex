@@ -73,21 +73,6 @@ defmodule TransportWeb.PageController do
     single_page(conn, %{"page" => "missions"})
   end
 
-  def loi_climat_resilience(conn, _params) do
-    datasets_counts =
-      DB.Dataset.base_query()
-      |> DB.Dataset.filter_by_custom_tag("loi-climat-resilience")
-      |> group_by([dataset: d], d.type)
-      |> select([dataset: d], %{type: d.type, count: count(d.id)})
-      |> order_by([dataset: d], desc: count(d.id))
-      |> DB.Repo.all()
-
-    conn
-    |> assign(:tiles, Enum.map(datasets_counts, &climate_resilience_bill_type_tile(conn, &1)))
-    |> assign(:page, "loi_climat_resilience.html")
-    |> render("loi_climat_resilience.html")
-  end
-
   def infos_producteurs(conn, _params) do
     conn
     |> assign(:mailchimp_newsletter_url, Application.get_env(:transport, :mailchimp_newsletter_url))
@@ -254,16 +239,6 @@ defmodule TransportWeb.PageController do
   end
 
   defp patch_vls_tiles(tile), do: tile
-
-  defp climate_resilience_bill_type_tile(%Plug.Conn{} = conn, %{count: count, type: type}) do
-    %Tile{
-      type: type,
-      link: dataset_path(conn, :index, type: type, "loi-climat-resilience": true),
-      icon: icon_type_path(type),
-      title: DB.Dataset.type_to_str(type),
-      count: count
-    }
-  end
 
   defp type_tile(conn, type, options \\ []) do
     %Tile{

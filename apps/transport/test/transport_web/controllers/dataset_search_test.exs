@@ -171,17 +171,6 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     assert html_response(conn, 404)
   end
 
-  test "searching with the climate and resilience bill filter" do
-    %DB.Dataset{id: dataset_id} =
-      insert(:dataset, type: "public-transit", is_active: true, custom_tags: ["loi-climat-resilience", "foo"])
-
-    results = %{"type" => "public-transit"} |> Dataset.list_datasets() |> Repo.all()
-    assert Enum.count(results) == 3
-
-    assert [%DB.Dataset{id: ^dataset_id}] =
-             %{"type" => "public-transit", "loi-climat-resilience" => "true"} |> Dataset.list_datasets() |> Repo.all()
-  end
-
   test "searching with a custom tag" do
     %DB.Dataset{id: dataset_id} =
       insert(:dataset, type: "public-transit", is_active: true, custom_tags: ["bar", "foo"])

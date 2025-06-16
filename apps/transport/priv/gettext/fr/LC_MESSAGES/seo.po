@@ -56,9 +56,5 @@ msgid "State of transport open data in France"
 msgstr "État de l’ouverture des données de transport en France"
 
 #, elixir-autogen, elixir-format
-msgid "Climate and Resilience bill: compulsory data reuse"
-msgstr "Loi climat et résilience : obligation d'intégration de données"
-
-#, elixir-autogen, elixir-format
 msgid "Reuser space"
 msgstr "Espace réutilisateur"
