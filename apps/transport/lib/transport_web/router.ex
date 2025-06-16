@@ -81,7 +81,6 @@ defmodule TransportWeb.Router do
     pipe_through(:browser)
     get("/", PageController, :index)
     get("/missions", PageController, :missions)
-    get("/loi-climat-resilience", PageController, :loi_climat_resilience)
     get("/accessibilite", PageController, :accessibility)
     get("/infos_producteurs", PageController, :infos_producteurs)
     get("/infos_reutilisateurs", PageController, :infos_reutilisateurs)
