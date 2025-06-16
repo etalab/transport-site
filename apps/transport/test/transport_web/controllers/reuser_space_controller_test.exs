@@ -199,12 +199,16 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
   end
 
   describe "settings" do
-    test "link to notifications and settings", %{conn: conn} do
+    test "panel links", %{conn: conn} do
       contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
 
       assert conn
              |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
-             |> index_href_attributes() == [reuser_space_path(conn, :notifications), reuser_space_path(conn, :settings)]
+             |> index_href_attributes() == [
+               reuser_space_path(conn, :notifications),
+               "https://www.data.gouv.fr/admin/reuses/new/",
+               reuser_space_path(conn, :settings)
+             ]
     end
 
     test "no tokens", %{conn: conn} do
