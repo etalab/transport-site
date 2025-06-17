@@ -1055,15 +1055,13 @@ defmodule DB.Dataset do
   @doc """
   Should this dataset not be historicized?
 
-  iex> should_skip_history?(%DB.Dataset{type: "road-data"})
-  true
   iex> should_skip_history?(%DB.Dataset{type: "public-transit"})
   false
   iex> should_skip_history?(%DB.Dataset{type: "public-transit", custom_tags: ["skip_history", "foo"]})
   true
   """
   def should_skip_history?(%__MODULE__{type: type} = dataset) do
-    type in ["vehicles-sharing", "road-data"] or has_custom_tag?(dataset, "skip_history")
+    type in ["vehicles-sharing"] or has_custom_tag?(dataset, "skip_history")
   end
 
   def has_licence_ouverte?(%__MODULE__{licence: licence}), do: licence in @licences_ouvertes
