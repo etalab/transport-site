@@ -160,8 +160,6 @@ defmodule DB.Resource do
   false
   iex> real_time?(%DB.Resource{format: "csv", description: "Données mises à jour en temps réel"})
   true
-  iex> real_time?(%DB.Resource{format: "xml", title: "API DiaLog"})
-  true
   """
   @spec real_time?(__MODULE__.t()) :: boolean
   def real_time?(%__MODULE__{} = resource) do
@@ -170,7 +168,6 @@ defmodule DB.Resource do
       &gbfs?/1,
       &siri_lite?/1,
       &siri?/1,
-      &String.contains?(String.downcase(&1.title || ""), "api"),
       &String.contains?(&1.description || "", ["mis à jour en temps réel", "mises à jour en temps réel"])
     ]
     |> Enum.any?(fn function -> function.(resource) end)
