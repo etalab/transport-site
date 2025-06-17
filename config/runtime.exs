@@ -151,6 +151,7 @@ oban_prod_crontab = [
   {"45 2 * * *", Transport.Jobs.RemoveHistoryJob, args: %{schema_name: "etalab/schema-irve-dynamique", days_limit: 7}},
   {"0 16 * * *", Transport.Jobs.DatasetQualityScoreDispatcher},
   {"40 3 * * *", Transport.Jobs.UpdateContactsJob},
+  {"50 3 * * *", Transport.Jobs.CreateTokensJob},
   {"10 5 * * *", Transport.Jobs.NotificationSubscriptionProducerJob},
   # "At 08:15 on Monday in March, June, and November.""
   # The job will make sure that it's executed only on the first Monday of these months

@@ -2,7 +2,6 @@ defmodule TransportWeb.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Authentication
   alias DB.{AOM, Commune, Dataset, DatasetGeographicView, Region, Repo}
-  alias Transport.ClimateResilienceBill
   import Ecto.Query
 
   import TransportWeb.DatasetView,
@@ -31,14 +30,12 @@ defmodule TransportWeb.DatasetController do
     |> assign(:types, get_types(params))
     |> assign(:licences, get_licences(params))
     |> assign(:number_realtime_datasets, get_realtime_count(params))
-    |> assign(:number_climate_resilience_bill_datasets, climate_resilience_bill_count(params))
     |> assign(:number_resource_format_datasets, resource_format_count(params))
     |> assign(:order_by, params["order_by"])
     |> assign(:q, Map.get(params, "q"))
     |> put_dataset_heart_values(datasets)
     |> put_empty_message(params)
     |> put_category_custom_message(params)
-    |> put_climate_resilience_bill_message(params)
     |> put_page_title(params)
     |> render("index.html")
   end
@@ -392,6 +389,7 @@ defmodule TransportWeb.DatasetController do
       |> clean_datasets_query("format")
       |> exclude(:order_by)
       |> DB.Resource.join_dataset_with_resource()
+      |> where([resource: r], not is_nil(r.format))
       |> select([resource: r], %{
         dataset_id: r.dataset_id,
         format: r.format
@@ -402,25 +400,6 @@ defmodule TransportWeb.DatasetController do
     %{all: result |> Enum.uniq_by(& &1.dataset_id) |> Enum.count()}
     |> Map.merge(result |> Enum.map(& &1.format) |> Enum.frequencies() |> Map.new())
     |> Enum.sort_by(fn {_, count} -> count end, :desc)
-  end
-
-  @spec climate_resilience_bill_count(map()) :: %{all: non_neg_integer(), true: non_neg_integer()}
-  defp climate_resilience_bill_count(params) do
-    result =
-      params
-      |> clean_datasets_query("loi-climat-resilience")
-      |> exclude(:order_by)
-      |> group_by([d], fragment("'loi-climat-resilience' = any(coalesce(?, '{}'))", d.custom_tags))
-      |> select([d], %{
-        has_climat_resilience_bill_tag: fragment("'loi-climat-resilience' = any(coalesce(?, '{}'))", d.custom_tags),
-        count: count(d.id, :distinct)
-      })
-      |> Repo.all()
-
-    %{
-      all: Enum.reduce(result, 0, fn x, acc -> x.count + acc end),
-      true: Enum.find_value(result, 0, fn r -> if r.has_climat_resilience_bill_tag, do: r.count end)
-    }
   end
 
   @spec get_realtime_count(map()) :: %{all: non_neg_integer(), true: non_neg_integer()}
@@ -541,16 +520,6 @@ defmodule TransportWeb.DatasetController do
     end
   end
 
-  defp put_climate_resilience_bill_message(%Plug.Conn{} = conn, %{} = params) do
-    if ClimateResilienceBill.display_data_reuse_panel?(params) do
-      # Article 122 loi climat et résilience, will be back
-      # https://github.com/etalab/transport-site/issues/3149
-      assign(conn, :climate_resilience_bill_message, ClimateResilienceBill.temporary_data_reuse_message(params))
-    else
-      conn
-    end
-  end
-
   defp put_page_title(conn, %{"region" => region_id} = params) do
     national_region = DB.Region.national()
 
@@ -586,13 +555,13 @@ defmodule TransportWeb.DatasetController do
         %{type: "AOM", name: get_name(AOM, id)}
       )
 
-  defp put_page_title(%Plug.Conn{query_params: query_params} = conn, _) do
+  defp put_page_title(%Plug.Conn{request_path: request_path, query_params: query_params} = conn, _) do
     TransportWeb.PageController.home_tiles(conn)
     # Allows to match `?type=foo&filter=has_realtime` otherwise
     # `?type=foo` would match and we would not consider
     # other options.
     |> Enum.sort_by(&String.length(&1.link), :desc)
-    |> Enum.find(&tile_matches_query?(&1, MapSet.new(query_params)))
+    |> Enum.find(&tile_matches_query?(&1, MapSet.new(Map.merge(%{"path" => request_path}, query_params))))
     |> case do
       %TransportWeb.PageController.Tile{title: title} ->
         assign(
@@ -606,10 +575,12 @@ defmodule TransportWeb.DatasetController do
     end
   end
 
-  defp tile_matches_query?(%TransportWeb.PageController.Tile{link: link}, %MapSet{} = query_params) do
-    tile_query = link |> URI.new!() |> Map.fetch!(:query) |> Plug.Conn.Query.decode()
+  defp tile_matches_query?(%TransportWeb.PageController.Tile{link: link}, %MapSet{} = request) do
+    uri = link |> URI.new!()
+    tile_query = (uri |> Map.fetch!(:query) || "") |> Plug.Conn.Query.decode()
+    tile_params = Map.merge(%{"path" => uri.path}, tile_query) |> MapSet.new()
 
-    MapSet.subset?(MapSet.new(tile_query), query_params)
+    MapSet.subset?(tile_params, request)
   end
 
   defp put_dataset_heart_values(%Plug.Conn{assigns: %{current_user: current_user}} = conn, datasets) do

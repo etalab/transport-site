@@ -136,10 +136,6 @@ msgid "National GTFS stops map"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Climate and Resilience bill"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Compare two GTFS files"
 msgstr ""
 

@@ -287,11 +287,11 @@
           </div>
           <div class="tile-numbers">
             <div class="tile">
-              <h3><%= @nb_bikes_scooter_datasets %></h3>
-              <div><a href="/datasets?type=bike-scooter-sharing">Jeux de données disponibles</a></div>
+              <h3><%= @nb_vehicles_sharing_datasets %></h3>
+              <div><a href="/datasets?type=vehicles-sharing">Jeux de données disponibles</a></div>
             </div>
             <div class="rt-viz">
-              <%= for _i <- 1..@nb_bikes_scooter_datasets do %>
+              <%= for _i <- 1..@nb_vehicles_sharing_datasets do %>
                 <div class="item standard"></div>
               <% end %>
             </div>

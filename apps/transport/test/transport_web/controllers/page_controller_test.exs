@@ -270,11 +270,6 @@ defmodule TransportWeb.PageControllerTest do
     conn |> get(page_path(conn, :missions)) |> html_response(200)
   end
 
-  test "climate and resilience bill page", %{conn: conn} do
-    conn = conn |> get(page_path(conn, :loi_climat_resilience)) |> html_response(200)
-    assert conn |> Floki.parse_document!() |> Floki.find("title") |> Floki.text() =~ ~r"^Loi climat et résilience"
-  end
-
   test "budget page", %{conn: conn} do
     conn |> get(~p"/budget") |> redirected_to(302) =~ "https://doc.transport.data.gouv.fr"
   end

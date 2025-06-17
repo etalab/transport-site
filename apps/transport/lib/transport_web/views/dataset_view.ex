@@ -190,27 +190,6 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
-  @spec climate_resilience_bill_link(Plug.Conn.t(), %{
-          only_climate_climate_resilience_bill: boolean(),
-          msg: binary(),
-          count: non_neg_integer()
-        }) :: any()
-  def climate_resilience_bill_link(conn, %{only_climate_climate_resilience_bill: only, msg: msg, count: count}) do
-    full_url =
-      case only do
-        false -> current_url(conn, Map.delete(conn.query_params, "loi-climat-resilience"))
-        true -> current_url(conn, Map.put(conn.query_params, "loi-climat-resilience", true))
-      end
-
-    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns
-
-    case {only, Map.get(conn.query_params, "loi-climat-resilience")} do
-      {false, "true"} -> link("#{msg} (#{count})", to: full_url)
-      {true, nil} -> link("#{msg} (#{count})", to: full_url)
-      _ -> ~H{<span class="activefilter"><%= @msg %> (<%= @count %>)</span>}
-    end
-  end
-
   @doc """
   iex> DB.Dataset.types() |> Enum.map(&icon_type_path/1) |> Enum.filter(&is_nil/1)
   []
@@ -220,26 +199,15 @@ defmodule TransportWeb.DatasetView do
     # The upcoming ("grey") version should be named `<filename>-grey.svg`
     icons = %{
       "public-transit" => "bus.svg",
-      "bike-scooter-sharing" => "bicycle-scooter.svg",
-      "bike-way" => "bike-way.svg",
+      "vehicles-sharing" => "vehicles-sharing.svg",
+      "bike-data" => "bike-data.svg",
       "carpooling-areas" => "carpooling-areas.svg",
       "carpooling-lines" => "carpooling-lines.svg",
       "carpooling-offers" => "carpooling-offers.svg",
       "charging-stations" => "charge-station.svg",
-      "air-transport" => "plane.svg",
       "road-data" => "roads.svg",
-      "locations" => "locations.svg",
-      "private-parking" => "parking.svg",
       "informations" => "infos.svg",
-      "car-motorbike-sharing" => "car-motorbike-sharing.svg",
-      "low-emission-zones" => "low-emission-zones.svg",
-      "bike-parking" => "bike-parking.svg",
-      "transport-traffic" => "transport-traffic.svg",
-      # Not proper types, but modes/filters
-      "real-time-public-transit" => "bus-stop.svg",
-      "long-distance-coach" => "bus.svg",
-      "train" => "train.svg",
-      "boat" => "boat.svg"
+      "pedestrian-path" => "walk.svg"
     }
 
     if Map.has_key?(icons, type), do: "/images/icons/#{Map.get(icons, type)}"
@@ -432,8 +400,7 @@ defmodule TransportWeb.DatasetView do
     |> Enum.max_by(&{&1.type, &1.last_update}, TransportWeb.DatasetView.ResourceTypeSortKey, fn -> nil end)
   end
 
-  def get_resource_to_display(%Dataset{type: type, resources: resources})
-      when type in ["bike-scooter-sharing", "car-motorbike-sharing"] do
+  def get_resource_to_display(%Dataset{type: "vehicles-sharing", resources: resources}) do
     resources
     |> Enum.filter(fn r -> r.format == "gbfs" or String.ends_with?(r.url, "gbfs.json") end)
     |> Enum.reject(fn r ->
@@ -443,7 +410,7 @@ defmodule TransportWeb.DatasetView do
     |> Enum.max_by(& &1.last_update, DateTime, fn -> nil end)
   end
 
-  def get_resource_to_display(%Dataset{type: "low-emission-zones", resources: resources}) do
+  def get_resource_to_display(%Dataset{type: "road-data", resources: resources}) do
     resources
     |> Enum.filter(fn r ->
       r.schema_name == "etalab/schema-zfe" or r.format == "geojson" or

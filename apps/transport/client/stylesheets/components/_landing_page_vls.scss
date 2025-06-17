@@ -1,0 +1,272 @@
+article.landing_page_vls {
+  $vls-blue: #4a90e2 !default;
+
+  .wrapper {
+    display: grid;
+    grid-template-columns:
+      1fr
+      min(100ch, 100%)
+      1fr;
+
+    &> * {
+      grid-column: 2;
+    }
+  }
+
+  h1, h2 {
+    text-align: center;
+    margin-block: 1.5rem;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  h2 {
+    font-size: 22px;
+  }
+
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+
+  li {
+    margin-bottom: 10px;
+  }
+
+  header, footer {
+    margin: 0;
+    padding: 2rem;
+
+    p {
+      text-align: center;
+    }
+  }
+
+  footer {
+    grid-column: 1 / -1;
+    color: white;
+    background-color: rgb(0, 83, 179);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    a {
+      color: white;
+      &:hover {
+        background-color: unset;
+      }
+    }
+
+    p {
+      max-width: 40rem;
+      font-size: 18px;
+      line-height: 1.8rem;
+    }
+  }
+
+  abbr.inline-help {
+    cursor: help;
+    text-decoration: underline dotted;
+  }
+
+  a.cta {
+    color: #0a6bff;
+    background-color: white;
+    border-radius: 8px;
+    border: 0;
+    cursor: pointer;
+    display: inherit;
+    font-size: 18px;
+    line-height: 24px;
+    margin: 0;
+    min-height: 56px;
+    min-width: 120px;
+    padding: 20px 32px;
+    position: relative;
+    text-align: center;
+    user-select: none;
+    touch-action: manipulation;
+    vertical-align: baseline;
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      background-color: white;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .cta {
+      padding: 16px 44px;
+      min-width: 150px;
+    }
+  }
+
+  footer .cta {
+    margin-block: 1rem;
+  }
+
+  .banner {
+    grid-column: 1 / -1;
+    background-color: #eff5f3;
+    border: 1px solid #dee6f0;
+    padding: 1rem;
+
+    & > * {
+     text-align: center;
+    }
+
+    &.blue {
+      background-color: $vls-blue;
+      border-color: $vls-blue;
+      color: white;
+    }
+  }
+
+  .ecosystem, .statistics {
+    background-color: white;
+    margin-block: 2rem;
+
+    ul {
+      padding-block: 1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 3rem;
+
+      li {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: min-content;
+        gap: 1rem;
+
+        img {
+          display: block;
+          width: 140px;
+          object-fit: contain;
+        }
+        span {
+          font-weight: 600;
+          width: 11rem;
+          line-height: 1.5rem;
+          text-align: center;
+        }
+      }
+    }
+  }
+
+  .arguments {
+    background-color: #edeeee;
+
+    & > div {
+      padding: 4rem 2rem;
+    }
+  }
+
+  .argument.argument {
+    gap: 2rem 4rem;
+    grid-template-columns: 20rem 20rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: min-content;
+    margin-block: 2rem;
+
+    picture {
+      grid-area: picture;
+      justify-self: center;
+
+      img {
+        max-width: 20rem;
+        max-height: 20rem;
+        border-radius: 0.5rem;
+      }
+    }
+
+    p.comment {
+      grid-area: comment;
+      color: #726f6f;
+      background-color: white;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: rgba(0, 0, 0, 0.4) 0 0 25px, rgba(255, 255, 255, 0.2) 0 0 15px, rgba(255, 255, 255, 0.4) 0 0 3px;
+    }
+
+    a {
+      text-decoration: none;
+      font-weight: 600;
+      color: #726f6f;
+      font-size: 18px;
+      &:hover {
+        background-color: unset;
+      }
+    }
+  }
+
+  @media (min-width: 870px) {
+    h1 {
+      max-width: 80%;
+    }
+
+    header, footer {
+      padding: 4rem;
+    }
+
+    .argument.argument {
+      display: grid;
+      width: unset;
+      margin-block: 0.5rem;
+
+      &.left {
+        grid-template-areas: "picture comment";
+
+        .comment {
+          padding-left: 2rem;
+        }
+      }
+
+      &.right {
+        grid-template-areas: "comment picture";
+
+        .comment {
+          padding-right: 2rem;
+        }
+      }
+    }
+
+    .ecosystem, .statistics {
+      ul {
+        gap: 4rem;
+        align-items: baseline;
+        flex-direction: row;
+      }
+    }
+  }
+
+  .center {
+    max-width: max-content;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .statistics {
+    .figure {
+      text-wrap: nowrap;
+      font-size: 32px;
+      color: $vls-blue;
+    }
+    .description {
+      display: block;
+      color: #9b9b9b;
+      font-size: 22px;
+    }
+  }
+}

@@ -8,8 +8,8 @@ defmodule Transport.ConsolidatedDataset do
   @config %{
     irve: %{dataset_type: "charging-stations", publisher: :datagouvfr},
     bnlc: %{dataset_type: "carpooling-areas", publisher: :transport},
-    parkings_relais: %{dataset_type: "private-parking", publisher: :transport},
-    zfe: %{dataset_type: "low-emission-zones", publisher: :transport}
+    parkings_relais: %{dataset_type: "road-data", publisher: :transport},
+    zfe: %{dataset_type: "road-data", publisher: :transport}
   }
 
   @available_datasets @config |> Map.keys()
@@ -42,6 +42,11 @@ defmodule Transport.ConsolidatedDataset do
   # This filter has been moved from previous code but is fragile
   defp additional_ecto_query(query, :parkings_relais) do
     query |> where([d], d.custom_title == "Base nationale des parcs relais")
+  end
+
+  defp additional_ecto_query(query, :zfe) do
+    %{dataset_id: datagouv_id} = Map.fetch!(Application.fetch_env!(:transport, :consolidation), :zfe)
+    query |> where([d], d.datagouv_id == ^datagouv_id)
   end
 
   defp additional_ecto_query(q, _), do: q

@@ -360,12 +360,7 @@ defmodule TransportWeb.ResourceControllerTest do
     assert [resource_url(TransportWeb.Endpoint, :download, resource.id, token: token.secret)] ==
              conn
              |> Phoenix.ConnTest.init_test_session(%{current_user: %{"id" => datagouv_user_id}})
-             |> get(resource_path(conn, :details, resource.id))
-             |> html_response(200)
-             |> Floki.parse_document!()
-             |> Floki.find(".button-outline.small.secondary")
-             |> hd()
-             |> Floki.attribute("href")
+             |> resource_href_download_button(resource)
   end
 
   test "resource#details, PAN resource, logged-in user without a default token", %{conn: conn} do
@@ -385,12 +380,7 @@ defmodule TransportWeb.ResourceControllerTest do
     assert [resource_url(TransportWeb.Endpoint, :download, resource.id)] ==
              conn
              |> Phoenix.ConnTest.init_test_session(%{current_user: %{"id" => datagouv_user_id}})
-             |> get(resource_path(conn, :details, resource.id))
-             |> html_response(200)
-             |> Floki.parse_document!()
-             |> Floki.find(".button-outline.small.secondary")
-             |> hd()
-             |> Floki.attribute("href")
+             |> resource_href_download_button(resource)
   end
 
   test "resource#details, PAN resource, logged-out user", %{conn: conn} do
@@ -399,13 +389,50 @@ defmodule TransportWeb.ResourceControllerTest do
     assert resource |> DB.Repo.preload(:dataset) |> DB.Resource.pan_resource?()
 
     assert [resource_url(TransportWeb.Endpoint, :download, resource.id)] ==
+             conn |> resource_href_download_button(resource)
+  end
+
+  test "resource#details, proxy resource, logged-in user with a default token", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, url: "https://proxy.transport.data.gouv.fr/#{Ecto.UUID.generate()}")
+    assert resource |> DB.Resource.served_by_proxy?()
+
+    contact = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+    token = insert_token()
+    insert(:default_token, contact: contact, token: token)
+
+    assert [resource.url <> "?token=#{token.secret}"] ==
              conn
-             |> get(resource_path(conn, :details, resource.id))
-             |> html_response(200)
-             |> Floki.parse_document!()
-             |> Floki.find(".button-outline.small.secondary")
-             |> hd()
-             |> Floki.attribute("href")
+             |> Phoenix.ConnTest.init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+             |> resource_href_download_button(resource)
+  end
+
+  test "resource#details, proxy resource, logged-in user without a default token", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, url: "https://proxy.transport.data.gouv.fr/#{Ecto.UUID.generate()}")
+    assert resource |> DB.Resource.served_by_proxy?()
+
+    organization = insert(:organization)
+
+    insert_contact(%{
+      datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
+      organizations: [organization |> Map.from_struct()]
+    })
+
+    insert_token(%{organization_id: organization.id})
+
+    assert [resource.url] ==
+             conn
+             |> Phoenix.ConnTest.init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+             |> resource_href_download_button(resource)
+  end
+
+  test "resource#details, proxy resource, logged-out user", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, url: "https://proxy.transport.data.gouv.fr/#{Ecto.UUID.generate()}")
+    assert resource |> DB.Resource.served_by_proxy?()
+
+    assert [resource.url] == conn |> resource_href_download_button(resource)
   end
 
   test "flash message when parent dataset is inactive", %{conn: conn} do
@@ -920,5 +947,15 @@ defmodule TransportWeb.ResourceControllerTest do
     html = html_response(conn, 404)
     assert html =~ "Page non disponible"
     assert Phoenix.Flash.get(conn.assigns.flash, :error) == "La ressource n'est pas disponible sur le serveur distant"
+  end
+
+  def resource_href_download_button(%Plug.Conn{} = conn, %DB.Resource{} = resource) do
+    conn
+    |> get(resource_path(conn, :details, resource.id))
+    |> html_response(200)
+    |> Floki.parse_document!()
+    |> Floki.find(".button-outline.small.secondary")
+    |> hd()
+    |> Floki.attribute("href")
   end
 end

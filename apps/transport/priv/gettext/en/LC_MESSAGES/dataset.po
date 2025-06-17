@@ -83,39 +83,3 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "licence-ouverte"
 msgstr "Licence Ouverte"
-
-#, elixir-autogen, elixir-format
-msgid "August 2022"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "December 2022"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "December 2023"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Some datasets in this category are subject to a data reuse obligation %{before_after} %{month}."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "since"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "starting from"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "These datasets are subject to a data reuse obligation."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Some datasets in this category will be subject to a data reuse obligation."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "These datasets will be subject to a data reuse obligation."
-msgstr ""
