@@ -132,6 +132,12 @@ defmodule Transport.IRVE.DataFrame do
   end
 
   @doc """
+  The `coordonneesXY` CSV field is provided as a JSON array (e.g. `"[47.39,0.80]"`) in the input format.
+
+  https://schema.data.gouv.fr/etalab/schema-irve-statique/2.3.1/documentation.html#propriete-coordonneesxy
+
+  The `preprocess_xy_coordinates` method attempts to remap that to 2 separate `x`, `y` fields, properly parsed.
+
   iex> Explorer.DataFrame.new([%{coordonneesXY: "[47.39,0.80]"}]) |> Transport.IRVE.DataFrame.preprocess_xy_coordinates()
   #Explorer.DataFrame<
     Polars[1 x 2]
