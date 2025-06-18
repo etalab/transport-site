@@ -12,7 +12,8 @@ defmodule TransportWeb.DiscussionControllerTest do
 
   describe "post_discussion" do
     test "success case", %{conn: conn} do
-      %DB.Dataset{datagouv_id: datagouv_id} = dataset = insert(:dataset)
+      %DB.Contact{id: contact_id} = contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+      %DB.Dataset{id: dataset_id, datagouv_id: datagouv_id} = dataset = insert(:dataset)
       title = "J'ai une question"
       comment = "Coucou"
 
@@ -23,7 +24,7 @@ defmodule TransportWeb.DiscussionControllerTest do
 
       conn =
         conn
-        |> Phoenix.ConnTest.init_test_session(%{current_user: %{"is_admin" => false}})
+        |> Phoenix.ConnTest.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
         |> post(
           discussion_path(conn, :post_discussion, datagouv_id, %{
             "comment" => comment,
@@ -34,12 +35,21 @@ defmodule TransportWeb.DiscussionControllerTest do
 
       assert redirected_to(conn, 302) == dataset_path(conn, :details, dataset.slug)
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Nouvelle discussion commencée"
+
+      assert [
+               %DB.FeatureUsage{
+                 feature: :post_discussion,
+                 contact_id: ^contact_id,
+                 metadata: %{"dataset_id" => ^dataset_id}
+               }
+             ] = DB.FeatureUsage |> DB.Repo.all()
     end
   end
 
   describe "post_answer" do
     test "success case", %{conn: conn} do
-      dataset = insert(:dataset)
+      %DB.Contact{id: contact_id} = contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+      %DB.Dataset{id: dataset_id} = dataset = insert(:dataset)
       discussion_id = Ecto.UUID.generate()
       comment = "Coucou"
 
@@ -50,7 +60,7 @@ defmodule TransportWeb.DiscussionControllerTest do
 
       conn =
         conn
-        |> Phoenix.ConnTest.init_test_session(%{current_user: %{"is_admin" => false}})
+        |> Phoenix.ConnTest.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
         |> post(
           discussion_path(conn, :post_answer, dataset.datagouv_id, discussion_id, %{
             "comment" => comment,
@@ -61,10 +71,19 @@ defmodule TransportWeb.DiscussionControllerTest do
 
       assert redirected_to(conn, 302) == dataset_path(conn, :details, dataset.slug)
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Réponse publiée"
+
+      assert [
+               %DB.FeatureUsage{
+                 feature: :post_comment,
+                 contact_id: ^contact_id,
+                 metadata: %{"dataset_id" => ^dataset_id}
+               }
+             ] = DB.FeatureUsage |> DB.Repo.all()
     end
 
     test "error from the API", %{conn: conn} do
-      dataset = insert(:dataset)
+      %DB.Contact{id: contact_id} = contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+      %DB.Dataset{id: dataset_id} = dataset = insert(:dataset)
       discussion_id = Ecto.UUID.generate()
       comment = "Coucou"
 
@@ -75,7 +94,7 @@ defmodule TransportWeb.DiscussionControllerTest do
 
       conn =
         conn
-        |> Phoenix.ConnTest.init_test_session(%{current_user: %{"is_admin" => false}})
+        |> Phoenix.ConnTest.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
         |> post(
           discussion_path(conn, :post_answer, dataset.datagouv_id, discussion_id, %{
             "comment" => comment,
@@ -85,6 +104,14 @@ defmodule TransportWeb.DiscussionControllerTest do
 
       assert redirected_to(conn, 302) == dataset_path(conn, :details, dataset.slug)
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Impossible de publier la réponse"
+
+      assert [
+               %DB.FeatureUsage{
+                 feature: :post_comment,
+                 contact_id: ^contact_id,
+                 metadata: %{"dataset_id" => ^dataset_id}
+               }
+             ] = DB.FeatureUsage |> DB.Repo.all()
     end
   end
 end
