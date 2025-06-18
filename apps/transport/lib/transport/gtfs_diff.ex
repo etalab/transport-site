@@ -22,7 +22,9 @@ defmodule Transport.GTFSDiff do
     "feed_info.txt" => ["feed_publisher_name"],
     "translations.txt" => ["table_name", "field_name", "language", "record_id", "record_sub_id", "field_value"],
     "attributions.txt" => ["organization_name"],
-    "fare_attributes.txt" => ["fare_id"]
+    "fare_attributes.txt" => ["fare_id"],
+    "fare_products.txt" => ["fare_product_id"],
+    "booking_rules.txt" => ["booking_rule_id"]
   }
 
   def unzip(file_path) do
