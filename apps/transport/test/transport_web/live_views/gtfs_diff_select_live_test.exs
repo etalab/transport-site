@@ -129,10 +129,10 @@ defmodule TransportWeb.Live.GTFSDiffSelectLiveTest do
 
       files = [
         "agency.txt",
-        "calendar.txt",
-        "feed_info.txt",
+        "stops.txt",
         "stop_times.txt",
-        "stops.txt"
+        "calendar.txt",
+        "feed_info.txt"
       ]
 
       assert navigation |> Floki.find("a") |> texts == files
