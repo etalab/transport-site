@@ -291,7 +291,6 @@ defmodule TransportWeb.ValidationController do
       else
         DB.Contact
         |> DB.Repo.get_by!(datagouv_user_id: Map.fetch!(current_user, "id"))
-        |> DB.Repo.preload(:default_tokens)
       end
 
     assign(conn, :current_contact, current_contact)

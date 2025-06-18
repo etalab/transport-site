@@ -15,7 +15,8 @@ defmodule DB.FeatureUsage do
         :on_demand_validation,
         :download_resource_history,
         :post_discussion,
-        :post_comment
+        :post_comment,
+        :gtfs_diff
       ]
     )
 
