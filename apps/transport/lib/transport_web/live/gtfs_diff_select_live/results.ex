@@ -7,6 +7,27 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
   use Gettext, backend: TransportWeb.Gettext
   import TransportWeb.Live.GTFSDiffSelectLive.Differences
 
+  @preferred_files_order [
+    "agency.txt",
+    "stops.txt",
+    "routes.txt",
+    "trips.txt",
+    "stop_times.txt",
+    "calendar.txt",
+    "calendar_dates.txt",
+    "fare_attributes.txt",
+    "fare_products.txt",
+    "shapes.txt",
+    "frequencies.txt",
+    "transfers.txt",
+    "pathways.txt",
+    "levels.txt",
+    "booking_rules.txt",
+    "translations.txt",
+    "feed_info.txt",
+    "attributions.txt"
+  ]
+
   def results_step(%{error_msg: _, profile: _, results: results} = assigns) do
     files_with_changes = files_with_changes(results[:diff_summary])
 
@@ -40,8 +61,12 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
     |> Map.values()
     |> Enum.concat()
     |> Enum.map(fn {{file, _, _}, _} -> file end)
-    |> Enum.sort()
+    |> Enum.sort_by(&preferred_files_order/1)
     |> Enum.dedup()
+  end
+
+  defp preferred_files_order(filename) do
+    Enum.find_index(@preferred_files_order, &(&1 == filename)) || length(@preferred_files_order)
   end
 
   defp inner(
