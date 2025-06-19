@@ -14,10 +14,10 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   import TransportWeb.Live.GTFSDiffSelectLive.Shared
   import TransportWeb.Live.GTFSDiffSelectLive.Steps
 
-  def mount(params, %{"locale" => locale} = _session, socket) do
+  def mount(params, %{"locale" => locale} = session, socket) do
     Gettext.put_locale(locale)
 
-    socket = clean_slate(socket)
+    socket = clean_slate(socket) |> set_current_contact(session["current_user"])
 
     case params do
       :not_mounted_at_router -> {:ok, setup_uploads(socket)}
@@ -83,6 +83,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
 
   def handle_event("gtfs_diff", _, socket) do
     send(self(), :enqueue_job)
+
+    DB.FeatureUsage.insert!(:gtfs_diff, get_in(socket.assigns.current_contact.id), %{})
 
     socket =
       socket
@@ -232,6 +234,18 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
     |> assign(error_msg: nil)
     |> assign(results: %{})
     |> assign(profile: "core")
+  end
+
+  defp set_current_contact(socket, current_user) do
+    current_contact =
+      if is_nil(current_user) do
+        nil
+      else
+        DB.Contact
+        |> DB.Repo.get_by!(datagouv_user_id: Map.fetch!(current_user, "id"))
+      end
+
+    assign(socket, :current_contact, current_contact)
   end
 
   defp setup_uploads(socket) do

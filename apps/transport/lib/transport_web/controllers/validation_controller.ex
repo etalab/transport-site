@@ -4,6 +4,9 @@ defmodule TransportWeb.ValidationController do
   alias Transport.DataVisualization
   import Ecto.Query
 
+  plug(:assign_current_contact when action in [:validate])
+  plug(:log_usage when action in [:validate])
+
   def validate(%Plug.Conn{} = conn, %{"upload" => %{"url" => url, "type" => "gbfs"} = params}) do
     %MultiValidation{
       oban_args: build_oban_args(params),
@@ -224,6 +227,8 @@ defmodule TransportWeb.ValidationController do
     %{"type" => "gbfs", "state" => "submitted", "feed_url" => url}
   end
 
+  defp build_oban_args(%{"type" => type}), do: build_oban_args(type)
+
   defp build_oban_args(type) do
     args =
       case type do
@@ -278,4 +283,27 @@ defmodule TransportWeb.ValidationController do
   end
 
   def temporary_on_demand_validator_name, do: "on demand validation requested"
+
+  defp assign_current_contact(%Plug.Conn{assigns: %{current_user: current_user}} = conn, _options) do
+    current_contact =
+      if is_nil(current_user) do
+        nil
+      else
+        DB.Contact
+        |> DB.Repo.get_by!(datagouv_user_id: Map.fetch!(current_user, "id"))
+      end
+
+    assign(conn, :current_contact, current_contact)
+  end
+
+  defp log_usage(%Plug.Conn{} = conn, _options) do
+    DB.FeatureUsage.insert!(
+      :on_demand_validation,
+      get_in(conn.assigns.current_contact.id),
+      build_oban_args(conn.params["upload"])
+      |> Map.take(["type", "schema_name"])
+    )
+
+    conn
+  end
 end

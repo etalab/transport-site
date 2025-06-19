@@ -10,7 +10,7 @@ defmodule TransportWeb.DatasetController do
   import Phoenix.HTML
   require Logger
 
-  plug(:assign_current_contact when action in [:details])
+  plug(:assign_current_contact when action in [:details, :resources_history_csv])
 
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(%Plug.Conn{} = conn, params), do: list_datasets(conn, params, true)
@@ -307,6 +307,14 @@ defmodule TransportWeb.DatasetController do
   end
 
   def resources_history_csv(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id}) do
+    dataset_id = String.to_integer(dataset_id)
+
+    DB.FeatureUsage.insert!(
+      :download_resource_history,
+      get_in(conn.assigns.current_contact.id),
+      %{dataset_id: dataset_id}
+    )
+
     filename = "historisation-dataset-#{dataset_id}-#{Date.utc_today() |> Date.to_iso8601()}.csv"
 
     csv_header = [
@@ -322,7 +330,7 @@ defmodule TransportWeb.DatasetController do
       DB.Repo.transaction(
         fn ->
           Transport.History.Fetcher.history_resources(
-            %DB.Dataset{id: String.to_integer(dataset_id)},
+            %DB.Dataset{id: dataset_id},
             preload_validations: false,
             fetch_mode: :stream
           )

@@ -78,6 +78,14 @@ defmodule TransportWeb.ValidationControllerTest do
              } = DB.Repo.one!(DB.MultiValidation)
 
       refute is_nil(validation_timestamp)
+
+      assert [
+               %DB.FeatureUsage{
+                 feature: :on_demand_validation,
+                 contact_id: nil,
+                 metadata: %{"type" => "gbfs"}
+               }
+             ] = DB.FeatureUsage |> DB.Repo.all()
     end
 
     test "with a GTFS", %{conn: conn} do
@@ -140,6 +148,14 @@ defmodule TransportWeb.ValidationControllerTest do
       assert conn2 |> html_response(200) =~ "SuperRéseau"
       assert conn2 |> html_response(200) =~ "1 avertissement"
       assert conn2 |> html_response(200) =~ "1 information"
+
+      assert [
+               %DB.FeatureUsage{
+                 feature: :on_demand_validation,
+                 contact_id: nil,
+                 metadata: %{"type" => "gtfs"}
+               }
+             ] = DB.FeatureUsage |> DB.Repo.all()
     end
 
     test "with a NeTEx", %{conn: conn} do
@@ -227,13 +243,21 @@ defmodule TransportWeb.ValidationControllerTest do
       conn2 = conn |> get(validation_path(conn, :show, validation_id, token: token))
       assert conn2 |> html_response(200) =~ "3 avertissements"
       assert conn2 |> html_response(200) =~ "1 erreur"
+
+      assert [
+               %DB.FeatureUsage{
+                 feature: :on_demand_validation,
+                 contact_id: nil,
+                 metadata: %{"type" => "netex"}
+               }
+             ] = DB.FeatureUsage |> DB.Repo.all()
     end
 
     test "with a schema", %{conn: conn} do
       schema_name = "etalab/foo"
 
       Transport.Shared.Schemas.Mock
-      |> expect(:transport_schemas, 2, fn -> %{schema_name => %{"schema_type" => "tableschema", "title" => "foo"}} end)
+      |> expect(:transport_schemas, 3, fn -> %{schema_name => %{"schema_type" => "tableschema", "title" => "foo"}} end)
 
       S3TestUtils.s3_mock_stream_file(start_path: "", bucket: "transport-data-gouv-fr-on-demand-validation-test")
       assert 0 == count_validations()
@@ -275,14 +299,26 @@ defmodule TransportWeb.ValidationControllerTest do
              ] = all_enqueued(worker: Transport.Jobs.OnDemandValidationJob, queue: :on_demand_validation)
 
       assert redirected_to(conn, 302) == validation_path(conn, :show, validation_id, token: token)
+
+      assert [
+               %DB.FeatureUsage{
+                 feature: :on_demand_validation,
+                 contact_id: nil,
+                 metadata: %{"type" => "tableschema", "schema_name" => ^schema_name}
+               }
+             ] = DB.FeatureUsage |> DB.Repo.all()
     end
 
     test "with a GTFS-RT", %{conn: conn} do
+      %DB.Contact{id: contact_id} = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
       gtfs_url = "https://example.com/gtfs.zip"
       gtfs_rt_url = "https://example.com/gtfs-rt"
       upload_params = %{"type" => "gtfs-rt", "url" => gtfs_url, "feed_url" => gtfs_rt_url}
 
-      conn = conn |> post(validation_path(conn, :validate), %{"upload" => upload_params})
+      conn =
+        conn
+        |> Plug.Test.init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+        |> post(validation_path(conn, :validate), %{"upload" => upload_params})
 
       assert 1 == count_validations()
 
@@ -330,10 +366,23 @@ defmodule TransportWeb.ValidationControllerTest do
                  "type" => "gtfs-rt"
                }
              } = DB.MultiValidation |> last() |> DB.Repo.one!()
+
+      assert [
+               %DB.FeatureUsage{
+                 feature: :on_demand_validation,
+                 contact_id: ^contact_id,
+                 metadata: %{"type" => "gtfs-rt"}
+               },
+               %DB.FeatureUsage{
+                 feature: :on_demand_validation,
+                 contact_id: ^contact_id,
+                 metadata: %{"type" => "gtfs-rt"}
+               }
+             ] = DB.FeatureUsage |> DB.Repo.all() |> Enum.sort_by(& &1.time, DateTime)
     end
 
     test "with an invalid type", %{conn: conn} do
-      Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
+      Transport.Shared.Schemas.Mock |> expect(:transport_schemas, 2, fn -> %{} end)
 
       conn
       |> post(validation_path(conn, :validate), %{
@@ -342,6 +391,14 @@ defmodule TransportWeb.ValidationControllerTest do
       |> html_response(400)
 
       assert 0 == count_validations()
+
+      assert [
+               %DB.FeatureUsage{
+                 feature: :on_demand_validation,
+                 contact_id: nil,
+                 metadata: %{"type" => nil, "schema_name" => "foo"}
+               }
+             ] = DB.FeatureUsage |> DB.Repo.all()
     end
   end
 
