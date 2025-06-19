@@ -1,6 +1,15 @@
 defmodule Transport.IRVE.DataFrame do
   @moduledoc """
-  Tooling supporting the parsing of an IRVE static file into `Explorer.DataFrame`
+  Tooling supporting the parsing of an IRVE static file into
+  an [Explorer `DataFrame`](https://hexdocs.pm/explorer/Explorer.DataFrame.html).
+
+  This brings a number of benefits:
+  - built-in data munging/preprocessing on a per-column basis
+  - more efficient storage (RAM wise)
+  - column typing
+
+  See [Ten Minutes to Explorer (Livebook)](https://github.com/elixir-explorer/explorer/blob/main/notebooks/exploring_explorer.livemd)
+  for a gentle introduction.
   """
   require Explorer.DataFrame
 
@@ -31,7 +40,7 @@ defmodule Transport.IRVE.DataFrame do
   """
   def remap_schema_type(input_type, strict \\ true)
 
-  def remap_schema_type(input_type, true) do
+  def remap_schema_type(input_type, true = _strict) do
     case input_type do
       :geopoint -> :string
       :number -> {:f, 32}
@@ -39,7 +48,7 @@ defmodule Transport.IRVE.DataFrame do
     end
   end
 
-  def remap_schema_type(input_type, false) do
+  def remap_schema_type(input_type, false = _strict) do
     case remap_schema_type(input_type, true) do
       :boolean -> :string
       type -> type
@@ -123,7 +132,13 @@ defmodule Transport.IRVE.DataFrame do
   end
 
   @doc """
-  iex> Explorer.DataFrame.new([%{coordonneesXY: "[47.39,0.80]"}]) |> Transport.IRVE.DataFrame.preprocess_data()
+  The `coordonneesXY` CSV field is provided as a JSON array (e.g. `"[47.39,0.80]"`) in the input format.
+
+  https://schema.data.gouv.fr/etalab/schema-irve-statique/2.3.1/documentation.html#propriete-coordonneesxy
+
+  The `preprocess_xy_coordinates` method attempts to remap that to 2 separate `x`, `y` fields, properly parsed.
+
+  iex> Explorer.DataFrame.new([%{coordonneesXY: "[47.39,0.80]"}]) |> Transport.IRVE.DataFrame.preprocess_xy_coordinates()
   #Explorer.DataFrame<
     Polars[1 x 2]
     x f64 [47.39]
@@ -132,7 +147,7 @@ defmodule Transport.IRVE.DataFrame do
 
   We must also support cases where there are extra spaces.
 
-  iex> Explorer.DataFrame.new([%{coordonneesXY: "[43.958037, 4.764347]"}]) |> Transport.IRVE.DataFrame.preprocess_data()
+  iex> Explorer.DataFrame.new([%{coordonneesXY: "[43.958037, 4.764347]"}]) |> Transport.IRVE.DataFrame.preprocess_xy_coordinates()
   #Explorer.DataFrame<
     Polars[1 x 2]
     x f64 [43.958037]
@@ -141,14 +156,14 @@ defmodule Transport.IRVE.DataFrame do
 
   But wait, there is more. Leading and trailing spaces can also occur.
 
-  iex> Explorer.DataFrame.new([%{coordonneesXY: " [6.128405 , 48.658737] "}]) |> Transport.IRVE.DataFrame.preprocess_data()
+  iex> Explorer.DataFrame.new([%{coordonneesXY: " [6.128405 , 48.658737] "}]) |> Transport.IRVE.DataFrame.preprocess_xy_coordinates()
   #Explorer.DataFrame<
     Polars[1 x 2]
     x f64 [6.128405]
     y f64 [48.658737]
   >
   """
-  def preprocess_data(df) do
+  def preprocess_xy_coordinates(df) do
     df
     |> Explorer.DataFrame.mutate(coordonneesXY: coordonneesXY |> strip("[] "))
     |> Explorer.DataFrame.mutate_with(fn df ->
