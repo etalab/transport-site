@@ -161,7 +161,7 @@ defmodule Transport.IRVE.RawStaticConsolidation do
       |> maybe_filter(options[:filter])
       |> Enum.sort_by(fn r -> [r.dataset_id, r.resource_id] end)
       |> Enum.reduce(%{df: nil, report: []}, fn row, %{df: main_df, report: report} ->
-        Logger.info("Processing resource #{row.resource_id}")
+        Logger.info("Processing resource #{row.resource_id} (url=#{row.url})")
 
         body = download_resource_content!(row.url)
         extension = Path.extname(row.url)
