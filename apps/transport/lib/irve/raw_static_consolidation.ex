@@ -34,6 +34,7 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   - A consolidated CSV resource aggregating all the files that could be processed
   - A report CSV file listing all considered resources, with the outcome & error message
   """
+  require Explorer.DataFrame
 
   # needed to filter out the existing, data-gouv provided consolidation
   @datagouv_organization_id "646b7187b50b2a93b1ae3d45"
@@ -46,21 +47,32 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   Download content separately from processing, because we need to provide an estimate of the number of lines
   even if the processing fails. Asserting 200 is fine here, because the target server is data gouv & quite reliable.
   """
-  @spec download_resource_content!(String.t()) :: binary()
+  @spec download_resource_content!(String.t()) :: map()
   def download_resource_content!(url) do
-    %{status: 200, body: body} = Transport.IRVE.Fetcher.get!(url, compressed: false, decode_body: false)
-    body
+    %{status: status, body: body} = Transport.IRVE.Fetcher.get!(url, compressed: false, decode_body: false)
+    %{status: status, body: body}
   end
 
   @doc """
   Process a row (resource). The full content (body) is expected together with the original file extension.
   """
-  @spec process_resource(map(), binary(), String.t()) :: {:ok, Explorer.DataFrame.t()} | {:error, any()}
-  def process_resource(row, body, extension) do
+  @spec process_resource(map(), binary(), integer(), String.t()) :: {:ok, Explorer.DataFrame.t()} | {:error, any()}
+  def process_resource(row, body, status, extension) do
+    if status != 200 do
+      raise "HTTP status is not 200 (#{status})"
+    end
+
     # A number of checks are carried out before attempting to parse the data, using a couple of heuristics,
     # in order to get meaningful error messages in the report.
     run_cheap_blocking_checks(body, extension)
     df = Transport.IRVE.Processing.read_as_data_frame(body)
+
+    # add traceability information
+    df =
+      df
+      |> Explorer.DataFrame.mutate(original_dataset_id: ^row.dataset_id)
+      |> Explorer.DataFrame.mutate(original_resource_id: ^row.resource_id)
+
     log_debugging_stuff(row, df)
     {:ok, df}
   rescue
@@ -163,11 +175,11 @@ defmodule Transport.IRVE.RawStaticConsolidation do
       |> Enum.reduce(%{df: nil, report: []}, fn row, %{df: main_df, report: report} ->
         Logger.info("Processing resource #{row.resource_id} (url=#{row.url})")
 
-        body = download_resource_content!(row.url)
+        %{body: body, status: status} = download_resource_content!(row.url)
         extension = Path.extname(row.url)
 
         {main_df, optional_error} =
-          case process_resource(row, body, extension) do
+          case process_resource(row, body, status, extension) do
             {:ok, df} -> {concat_rows(main_df, df), nil}
             {:error, error} -> {main_df, error}
           end
