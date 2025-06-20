@@ -32,7 +32,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
         identifier: aggregate_slug,
         feeds: []
       },
-      aggregate_slug => %Unlock.Config.Item.S3{
+      s3_slug => %Unlock.Config.Item.S3{
         identifier: s3_slug,
         bucket: "bucket",
         path: "path",
