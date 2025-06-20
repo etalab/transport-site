@@ -5,7 +5,7 @@ defmodule Unlock.Controller do
   This currently implements an in-RAM (Cachex) loading of the resource, with a reduced
   set of headers that we will improve over time.
 
-  Future evolutions will very likely support FTP proxying, disk caching, custom headers.
+  Future evolutions will very likely support disk caching, compression etc.
 
   Useful resources for later maintenance:
   - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
@@ -16,10 +16,40 @@ defmodule Unlock.Controller do
   require Logger
   import Unlock.GunzipTools
 
+  @doc """
+  A simple index "page", useful to verify that the proxy is up, since it is served
+  on a subdomain (`https://proxy.transport.data.gouv.fr`).
+  """
   def index(conn, _params) do
     text(conn, "Unlock Proxy")
   end
 
+  @doc """
+  The central controller action responsible for serving a given resource.
+
+  Based on the provided slug/id, a look-up is done on the configuration.
+
+  For production environments, the configuration is GitHub-based
+  (https://github.com/etalab/transport-proxy-config/blob/master/proxy-config.yml).
+
+  When working locally, the config is loaded from disk (`config/proxy-config.yml`)
+  at each request, so that one can tweak it easily when iterating locally.
+
+  Configuration items are strongly typed, such as:
+  - `%Unlock.Config.Item.Generic.HTTP{}` for HTTP-provided single GTFS-RT & CSV feeds
+  - `%Unlock.Config.Item.Aggregate{}` for multi-HTTP-sources aggregate (dynamic IRVE feed only)
+  - `%Unlock.Config.Item.S3{}` for internal-S3-backed single file feeds (CSV or anything really)
+  - `%Unlock.Config.Item.SIRI{}` for SIRI proxying (experimental)
+
+  Once the item is found in configuration, different `process_resource` pattern-matching variants
+  are doing specific processing, depending on the item type.
+
+  If the corresponding item is not found in the configuration, a standard `404`
+  is returned.
+
+  There is a catch-all doing only logging and returning a blank `500` with
+  default message, when an unhandled exception is caught.
+  """
   def fetch(conn, %{"id" => id}) do
     config = Application.fetch_env!(:unlock, :config_fetcher).fetch_config!()
 
@@ -34,17 +64,16 @@ defmodule Unlock.Controller do
     end
   rescue
     exception ->
-      # NOTE: handling this here for now because the main endpoint
-      # will otherwise send a full HTML error page. We will have to
-      # hook an unlock-specific handling for this instead.
+      # NOTE: we catch the exception to return a controlled/blank answer in production.
       Logger.error("An exception occurred (#{exception |> inspect}")
 
       cond do
-        # give a bit more context
+        # give a bit more context when wroking in development
         Mix.env() == :dev ->
           Logger.error(Exception.format_stacktrace())
 
-        # avoid swallowed Mox expectations & ExUnit assertions
+        # in test, it is inconvenient to receive a 500, instead we
+        # re-raise to make it easier to do ExUnit assertions & avoid swallowed Mox expectations
         Mix.env() == :test ->
           reraise exception, __STACKTRACE__
       end
