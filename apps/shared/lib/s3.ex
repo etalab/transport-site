@@ -56,6 +56,14 @@ defmodule Transport.S3 do
     |> Transport.Wrapper.ExAWS.impl().request!()
   end
 
+  @doc """
+  Based on the provided `bucket_feature` (see typespec at top), compute
+  the actual bucket name, and issues a fail-fast get_object response.
+
+  Based on `ExAWS.request!`, so "will either return the successful response from AWS or raise an exception"
+
+  See: https://hexdocs.pm/ex_aws/ExAws.html#request!/2
+  """
   @spec get_object!(bucket_feature(), binary()) :: binary()
   def get_object!(feature, remote_path) do
     Logger.debug("Getting object from #{remote_path} into RAM")
