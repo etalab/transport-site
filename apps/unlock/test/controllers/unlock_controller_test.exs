@@ -824,6 +824,55 @@ defmodule Unlock.ControllerTest do
     end
   end
 
+  describe "S3 item support" do
+    test "handles GET /resource/:slug" do
+      slug = "an-existing-s3-identifier"
+      ttl_in_seconds = 30
+      bucket_key = "aggregates"
+      path = "irve_static_consolidation.csv"
+      # automatically built by the app based on `bucket_key`
+      expected_bucket = "transport-data-gouv-fr-aggregates-test"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.S3{
+          identifier: slug,
+          bucket: bucket_key,
+          path: path,
+          ttl: ttl_in_seconds
+        }
+      })
+
+      content = "CONTENT"
+
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.Operation.S3{} = operation ->
+        assert %ExAws.Operation.S3{
+                 bucket: ^expected_bucket,
+                 path: ^path,
+                 http_method: :get,
+                 service: :s3
+               } = operation
+
+        %{body: content, status_code: 200}
+      end)
+
+      resp =
+        build_conn()
+        |> get("/resource/an-existing-s3-identifier")
+
+      assert resp.resp_body == content
+      assert resp.status == 200
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      verify!(Transport.ExAWS.Mock)
+    end
+  end
+
   defp setup_telemetry_handler do
     events = Unlock.Telemetry.proxy_request_event_names()
 
