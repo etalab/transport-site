@@ -89,7 +89,7 @@ defmodule Unlock.Controller do
 
     conn
     |> put_resp_header("content-disposition", "attachment")
-    |> send_resp(response.status_code, response.body)
+    |> send_resp(response.status, response.body)
   end
 
   defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.Generic.HTTP{} = item) do
