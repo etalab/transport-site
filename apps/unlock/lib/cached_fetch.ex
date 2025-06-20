@@ -1,6 +1,16 @@
 defmodule Unlock.CachedFetch do
   @moduledoc """
-  A place centralizing Cachex-compatible HTTP calls.
+  `Cachex` is used for caching. It expects caching callbacks to
+  return tuples such as `{:ignore, resp}`, `{:commit, resp, ttl: xyz}` etc
+  to understand what we want it to do for us.
+
+  This module `CachedFetch` groups the fetching logic for two types of items where
+  it makes sense:
+  - `%Unlock.Config.Item.Generic.HTTP{}`
+  - `%Unlock.Config.Item.S3{}`
+
+  The response part of the tuple is standardized by us to `%Unlock.HTTP.Response{}` structures,
+  which are then serialized into RAM by `Cachex`.
   """
 
   require Logger
