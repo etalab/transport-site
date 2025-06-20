@@ -34,6 +34,7 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   - A consolidated CSV resource aggregating all the files that could be processed
   - A report CSV file listing all considered resources, with the outcome & error message
   """
+  require Explorer.DataFrame
 
   # needed to filter out the existing, data-gouv provided consolidation
   @datagouv_organization_id "646b7187b50b2a93b1ae3d45"
@@ -61,6 +62,13 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     # in order to get meaningful error messages in the report.
     run_cheap_blocking_checks(body, extension)
     df = Transport.IRVE.Processing.read_as_data_frame(body)
+
+    # add traceability information
+    df =
+      df
+      |> Explorer.DataFrame.mutate(original_dataset_id: ^row.dataset_id)
+      |> Explorer.DataFrame.mutate(original_resource_id: ^row.resource_id)
+
     log_debugging_stuff(row, df)
     {:ok, df}
   rescue
