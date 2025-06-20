@@ -34,7 +34,7 @@ defmodule Unlock.CachedFetch do
     path = item.path
 
     response = Transport.S3.get_object!(bucket, path)
-  
+
     # create the same type of structure as `fetch_data(%Generic.HTTP{})` calls. See `http_client.ex`.
     response = %Unlock.HTTP.Response{body: response.body, status: response.status_code, headers: []}
     size = byte_size(response.body)
