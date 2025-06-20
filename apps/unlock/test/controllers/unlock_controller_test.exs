@@ -872,7 +872,6 @@ defmodule Unlock.ControllerTest do
       verify!(Transport.ExAWS.Mock)
     end
 
-    @tag :focus
     test "handles GET /resource/:slug (ExAWS failure case)" do
       slug = "an-existing-s3-identifier"
       ttl_in_seconds = 30
@@ -894,11 +893,13 @@ defmodule Unlock.ControllerTest do
         raise ExAws.Error, "something bad happened! maybe SENSITIVE INFO MAY BE HERE"
       end)
 
-      # TODO: fix, this is currently raising an exception (which would give HTTP 500)
-      # instead of a 502, which is a properly managed error reporting for that case.
-      resp =
-        build_conn()
-        |> get("/resource/an-existing-s3-identifier")
+      {resp, logs} =
+        with_log(fn ->
+          build_conn()
+          |> get("/resource/an-existing-s3-identifier")
+        end)
+
+      assert logs =~ ~r/something bad happened! maybe SENSITIVE INFO MAY BE HERE/
 
       # content of error should not be forwarded, instead we want a sanitized message
       assert resp.resp_body == "Bad Gateway"
