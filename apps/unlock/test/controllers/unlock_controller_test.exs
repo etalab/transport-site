@@ -513,6 +513,7 @@ defmodule Unlock.ControllerTest do
     def setup_aggregate_proxy_config(slug) do
       setup_proxy_config(%{
         slug => %Unlock.Config.Item.Aggregate{
+          ttl: 30,
           identifier: slug,
           feeds: [
             %Unlock.Config.Item.Generic.HTTP{
@@ -587,7 +588,7 @@ defmodule Unlock.ControllerTest do
 
       verify!(Unlock.HTTP.Client.Mock)
 
-      # more calls should not result in any real query
+      # more calls should not result in any HTTP calls to sub-feeds
       {resp, logs} =
         with_log(fn ->
           build_conn()
@@ -597,8 +598,7 @@ defmodule Unlock.ControllerTest do
       assert resp.status == 200
       assert resp.resp_body == Helper.data_as_csv(@expected_headers, [first_data_row, second_data_row], "\r\n")
 
-      assert logs =~ ~r|Proxy response for an-existing-aggregate-identifier:first-uuid served from cache|
-      assert logs =~ ~r|Proxy response for an-existing-aggregate-identifier:second-uuid served from cache|
+      assert logs =~ ~r|Proxy response for an-existing-aggregate-identifier served from cache|
 
       assert_received {:telemetry_event, [:proxy, :request, :external], %{},
                        %{target: "proxy:an-existing-aggregate-identifier"}}
