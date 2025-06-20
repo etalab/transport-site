@@ -49,6 +49,45 @@ defmodule Unlock.Controller do
 
   There is a catch-all doing only logging and returning a blank `500` with
   default message, when an unhandled exception is caught.
+
+  ### Metrics handling
+
+  #### "External" queries
+
+  An "external query" is counted when the proxy receives a HTTP query from the outside world
+  (hence the name "external"). When it happens, each relevant piece of code here emits an
+  `:external` metric telemetry event:
+
+  ```elixir
+  Unlock.Telemetry.trace_request(item.identifier, :external)
+  ```
+
+  This allows us to count, and report on, the total traffic we are handling, for each proxy item.
+
+  #### "Internal" queries
+
+  When an "external query" occurs, there are two scenarios:
+  - the content is not yet, or not anymore, in the cache for the corresponding item:
+    in this case, the processing occurs, and we cound an `:internal` query on the same
+    identifier, to track down the fact that we are actually querying the server we are
+    protecting
+  - or the content is already in cache and not expired, in which case we _do not_ emit
+    an `:internal` metric event.
+
+  ```elixir
+  Unlock.Telemetry.trace_request(item.identifier, :internal)
+  ```
+
+  #### Usefulness of the metrics
+
+  Because of this system & the split between `:external` and `:internal`, we are able to
+  give insights on how much trafic we are handling in the name of third-parties, and also
+  what is the ratio between `:external` and `:internal` queries.
+
+  #### For extra reading on how metrics are stored & managed
+
+  - See `Unlock.Telemetry`
+  - And `Transport.Telemetry`
   """
   def fetch(conn, %{"id" => id}) do
     config = Application.fetch_env!(:unlock, :config_fetcher).fetch_config!()
@@ -109,12 +148,14 @@ defmodule Unlock.Controller do
     end)
   end
 
+  # this is for HTTP parameters handling
   defp to_nil_or_integer(nil), do: nil
   defp to_nil_or_integer(data), do: String.to_integer(data)
   defp to_boolean(nil), do: false
   defp to_boolean("0"), do: false
   defp to_boolean("1"), do: true
 
+  # `process_resource` variant for aggregated CSV item (dynamic IRVE consolidation).
   defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.Aggregate{} = item) do
     Unlock.Telemetry.trace_request(item.identifier, :external)
     # NOTE: required for tests to work, and doesn't hurt in production (idempotent afaik)
@@ -129,6 +170,8 @@ defmodule Unlock.Controller do
     send_resp(conn, 200, body_response)
   end
 
+  # `process_resource` variant for `Item.S3` items.
+  # leverages `fetch_remote` with pattern matching as well.
   defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.S3{} = item) do
     Unlock.Telemetry.trace_request(item.identifier, :external)
     response = fetch_remote(item)
@@ -138,6 +181,8 @@ defmodule Unlock.Controller do
     |> send_resp(response.status, response.body)
   end
 
+  # `process_resource` variant for generic HTTP (GTFS-RT, single-file CSV) items
+  # leverages `fetch_remote` with pattern matching as well.
   defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.Generic.HTTP{} = item) do
     Unlock.Telemetry.trace_request(item.identifier, :external)
     response = fetch_remote(item)
@@ -157,6 +202,16 @@ defmodule Unlock.Controller do
   # NOTE: this code is designed for private use for now. I have tracked
   # what is required or useful for public opening later here:
   # https://github.com/etalab/transport-site/issues/2476
+  #
+  # SIRI support is experimental. For now we are encouraging instead SIRI provider to
+  # get their game up and improve their ops & software, so that they can directly handle
+  # SIRI loads without the proxy.
+  #
+  # For SIRI, only `POST` is allowed since this is the protocol.
+  #
+  # The code analyses the incoming XML payload, & replace the `requestor_ref` (used sometimes
+  # as an API key) transparently with the one we have configured.
+  #
   defp process_resource(%{method: "POST"} = conn, %Unlock.Config.Item.SIRI{} = item) do
     {:ok, body, conn} = Plug.Conn.read_body(conn, length: 1_000_000)
 
@@ -175,6 +230,7 @@ defmodule Unlock.Controller do
     end
   end
 
+  # Forbid `GET` calls for SIRI, explicitely, since this is not the way to issue a SIRI call.
   defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.SIRI{}),
     do: send_not_allowed(conn)
 
@@ -184,6 +240,10 @@ defmodule Unlock.Controller do
   end
 
   @spec handle_authorized_siri_call(Plug.Conn.t(), Unlock.Config.Item.SIRI.t(), Saxy.XML.element()) :: Plug.Conn.t()
+  # The SIRI query is serialized into iodata, then a `POST` query is issued.
+  #
+  # On completion, we unzip if needed to smooth out implementations, filter response headers,
+  # and send back the answer to the client.
   defp handle_authorized_siri_call(conn, %Unlock.Config.Item.SIRI{} = item, xml) do
     body = Saxy.encode_to_iodata!(xml, version: "1.0")
 
@@ -203,6 +263,17 @@ defmodule Unlock.Controller do
     |> send_resp(response.status, body)
   end
 
+  # A wrapper grouping reused logic for two cases:
+  # - `%Unlock.Config.Item.Generic.HTTP{}` (GTFS-RT, external CSV etc)
+  # - `%Unlock.Config.Item.S3{}` (internal S3 backend)
+  #
+  # The `Cachex` logic is mutualized between those two cases.
+  #
+  # Before querying the remote source, the `internal` query event is emitted
+  # to ensure the app takes the "real remote query" into account in the metrics.
+  #
+  # Processing varies between the two item types, thanks to pattern-matching
+  # in `Unlock.CachedFetch`.
   defp fetch_remote(%module{} = item) when module in [Unlock.Config.Item.Generic.HTTP, Unlock.Config.Item.S3] do
     comp_fn = fn _key ->
       Logger.debug("Processing proxy request for identifier #{item.identifier}")
@@ -254,6 +325,9 @@ defmodule Unlock.Controller do
     Enum.filter(headers, fn {h, _v} -> Enum.member?(Shared.Proxy.forwarded_headers_allowlist(), h) end)
   end
 
+  # This prepare response headers : we do not forward all response headers
+  # from the remote, only an allowed list of them, to avoid leaking sensitive data
+  # unknowingly.
   defp prepare_response_headers(headers) do
     headers
     |> lowercase_headers()
