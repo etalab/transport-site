@@ -107,7 +107,7 @@ defmodule Unlock.Controller do
       Logger.error("An exception occurred (#{exception |> inspect}")
 
       cond do
-        # give a bit more context when wroking in development
+        # give a bit more context when working in development
         Mix.env() == :dev ->
           Logger.error(Exception.format_stacktrace())
 
