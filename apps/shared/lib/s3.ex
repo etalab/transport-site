@@ -56,8 +56,8 @@ defmodule Transport.S3 do
     |> Transport.Wrapper.ExAWS.impl().request!()
   end
 
-  @spec get_object(bucket_feature(), binary()) :: binary()
-  def get_object(feature, remote_path) do
+  @spec get_object!(bucket_feature(), binary()) :: binary()
+  def get_object!(feature, remote_path) do
     Logger.debug("Getting object from #{remote_path} into RAM")
 
     feature

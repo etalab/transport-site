@@ -33,7 +33,7 @@ defmodule Unlock.CachedFetch do
     bucket = item.bucket |> String.to_existing_atom()
     path = item.path
 
-    response = Transport.S3.get_object(bucket, path)
+    response = Transport.S3.get_object!(bucket, path)
     size = byte_size(response.body)
 
     if size > @max_allowed_s3_cached_byte_size do
