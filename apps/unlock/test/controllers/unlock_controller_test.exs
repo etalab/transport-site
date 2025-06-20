@@ -871,6 +871,47 @@ defmodule Unlock.ControllerTest do
 
       verify!(Transport.ExAWS.Mock)
     end
+
+    @tag :focus
+    test "handles GET /resource/:slug (ExAWS failure case)" do
+      slug = "an-existing-s3-identifier"
+      ttl_in_seconds = 30
+      bucket_key = "aggregates"
+      path = "irve_static_consolidation.csv"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.S3{
+          identifier: slug,
+          bucket: bucket_key,
+          path: path,
+          ttl: ttl_in_seconds
+        }
+      })
+
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.Operation.S3{} = _operation ->
+        # simulate what is raised by `request!` in case of failed `get_object`
+        raise ExAws.Error, "something bad happened! maybe SENSITIVE INFO MAY BE HERE"
+      end)
+
+      # TODO: fix, this is currently raising an exception (which would give HTTP 500)
+      # instead of a 502, which is a properly managed error reporting for that case.
+      resp =
+        build_conn()
+        |> get("/resource/an-existing-s3-identifier")
+
+      # content of error should not be forwarded, instead we want a sanitized message
+      assert resp.resp_body == "Bad Gateway"
+      assert resp.status == 502
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      verify!(Transport.ExAWS.Mock)
+    end
   end
 
   defp setup_telemetry_handler do
