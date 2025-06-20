@@ -88,6 +88,11 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
                "Req int 7j" => "1"
              },
              %{
+               "Identifiant" => "s3-slug",
+               "Req ext 7j" => "0",
+               "Req int 7j" => "0"
+             },
+             %{
                "Identifiant" => "siri-slug",
                "Req ext 7j" => "0",
                "Req int 7j" => "0"
@@ -107,7 +112,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
                "Req ext 7j" => "4",
                "Req int 7j" => "2"
              },
-             _siri_item
+             _siri_item,
+             _s3_item
            ] = extract_data_from_html(render(view))
   end
 end
