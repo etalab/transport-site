@@ -82,10 +82,27 @@ defmodule Unlock.Controller do
       |> send_resp(500, "Internal Error")
   end
 
-  # In particular, it can be desirable to let the config override "content-disposition"
-  # to specify a filename (in the case of IRVE data for instance, which is CSV and most
-  # users expect it to download as a file, contrary to other formats)
-  defp override_resp_headers_if_configured(conn, %Unlock.Config.Item.Generic.HTTP{} = item) do
+  @doc """
+  For `Generic.HTTP` items, hardcoded response headers can be
+  provided in the YAML configuration.
+
+  This is especially useful to hardcode the filename as we want,
+  and ensure HTTP clients will get the CSV extension, which is
+  not in the proxy url.
+
+  ### Example
+
+  ```yml
+  - identifier: provider-dynamic-irve
+    target_url: XYZ
+    type: generic-http
+    ttl: 10
+    response_headers:
+      - ["content-disposition", "attachment; filename=provider-dynamic-irve.csv"]
+      - ["content-type", "text/csv"]
+  ```
+  """
+  def override_resp_headers_if_configured(conn, %Unlock.Config.Item.Generic.HTTP{} = item) do
     Enum.reduce(item.response_headers, conn, fn {header, value}, conn ->
       conn
       |> put_resp_header(header |> String.downcase(), value)
