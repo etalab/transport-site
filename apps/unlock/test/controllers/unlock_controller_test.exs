@@ -862,6 +862,8 @@ defmodule Unlock.ControllerTest do
 
       assert resp.resp_body == content
       assert resp.status == 200
+      # enforce the filename provided via the config (especially to get its extension passed to clients)
+      assert Plug.Conn.get_resp_header(resp, "content-disposition") == ["attachment; filename=#{path}"]
 
       assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
                        %{target: "proxy:an-existing-s3-identifier"}}

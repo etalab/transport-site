@@ -176,8 +176,10 @@ defmodule Unlock.Controller do
     Unlock.Telemetry.trace_request(item.identifier, :external)
     response = fetch_remote(item)
 
+    displayed_filename = Path.basename(item.path)
+
     conn
-    |> put_resp_header("content-disposition", "attachment")
+    |> put_resp_header("content-disposition", "attachment; filename=#{displayed_filename}")
     |> send_resp(response.status, response.body)
   end
 
