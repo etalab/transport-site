@@ -6,13 +6,26 @@ defmodule DB.Dataset do
   There are also trigger on update on aom and region that will force an update on this model
   so the search vector is up-to-date.
   """
-  alias DB.{AOM, Commune, DatasetGeographicView, LogsImport, NotificationSubscription, Region, Repo, Resource}
+  alias DB.{
+    AOM,
+    Commune,
+    DatasetGeographicView,
+    Departement,
+    EPCI,
+    LogsImport,
+    NotificationSubscription,
+    Region,
+    Repo,
+    Resource
+  }
+
   alias Phoenix.HTML.Link
   import Ecto.{Changeset, Query}
   use Gettext, backend: TransportWeb.Gettext
   require Logger
   use Ecto.Schema
   use TypedEctoSchema
+  import DB.DatasetNewCoveredArea
 
   @type conversion_details :: %{
           url: binary(),
@@ -63,7 +76,38 @@ defmodule DB.Dataset do
     timestamps(type: :utc_datetime_usec)
 
     # When the dataset is linked to some cities
+    # Legacy field, will be removed in the future
     many_to_many(:communes, Commune, join_through: "dataset_communes", on_replace: :delete)
+
+    # New territory fields
+    # Cannot be moved in another module because factories do not like it :(
+    field(:covered_area, {:array, :map}, virtual: true)
+    # TODO: try also an embedded schema instead of a virtual field?
+
+    many_to_many(:new_communes, Commune,
+      # Maybe using an Ecto Schema module?
+      join_through: "dataset_new_communes",
+      join_keys: [dataset_id: :id, commune_insee: :insee],
+      on_replace: :delete
+    )
+
+    many_to_many(:epcis, EPCI,
+      join_through: "dataset_epcis",
+      join_keys: [dataset_id: :id, epci_insee: :insee],
+      on_replace: :delete
+    )
+
+    many_to_many(:departements, Departement,
+      join_through: "dataset_departements",
+      join_keys: [dataset_id: :id, departement_insee: :insee],
+      on_replace: :delete
+    )
+
+    many_to_many(:regions, Region,
+      join_through: "dataset_regions",
+      join_keys: [dataset_id: :id, region_insee: :insee],
+      on_replace: :delete
+    )
 
     many_to_many(:legal_owners_aom, AOM,
       join_through: "dataset_aom_legal_owner",
@@ -496,7 +540,15 @@ defmodule DB.Dataset do
     legal_owners_region = get_legal_owners_region(dataset, params)
 
     dataset
-    |> Repo.preload([:resources, :communes, :region, :legal_owners_aom, :legal_owners_region, :organization_object])
+    |> Repo.preload([
+      :resources,
+      :communes,
+      :region,
+      :legal_owners_aom,
+      :legal_owners_region,
+      :organization_object
+    ])
+    |> preload_covered_area_objects()
     |> cast(params, [
       :datagouv_id,
       :custom_title,
@@ -540,6 +592,7 @@ defmodule DB.Dataset do
     |> maybe_set_custom_logo_changed_at()
     |> put_assoc(:legal_owners_aom, legal_owners_aom)
     |> put_assoc(:legal_owners_region, legal_owners_region)
+    |> put_new_covered_area(params)
     |> validate_required([
       :datagouv_id,
       :custom_title,
