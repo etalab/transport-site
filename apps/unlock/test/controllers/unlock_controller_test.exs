@@ -825,7 +825,7 @@ defmodule Unlock.ControllerTest do
   end
 
   describe "S3 item support" do
-    test "handles GET /resource/:slug" do
+    test "handles GET /resource/:slug (success case)" do
       slug = "an-existing-s3-identifier"
       ttl_in_seconds = 30
       bucket_key = "aggregates"
