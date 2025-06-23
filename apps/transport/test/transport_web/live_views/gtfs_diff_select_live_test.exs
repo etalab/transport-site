@@ -8,10 +8,6 @@ defmodule TransportWeb.Live.GTFSDiffSelectLiveTest do
   alias TransportWeb.GTFSDiffExplain
   alias TransportWeb.Live.GTFSDiffSelectLive.Results
 
-  setup do
-    Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-  end
-
   describe "results" do
     test "display results for similar GTFS files" do
       gtfs_original_file_name_1 = "base.zip"
