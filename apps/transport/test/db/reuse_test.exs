@@ -34,14 +34,16 @@ defmodule DB.ReuseTest do
   end
 
   test "search" do
-    foo = insert(:reuse, title: "Foo")
-    bar = insert(:reuse, owner: "Bar")
-    hello = insert(:reuse, organization: "hello")
+    foo = insert(:reuse, title: "Foo", created_at: DateTime.utc_now())
+    bar = insert(:reuse, owner: "Bar", created_at: DateTime.utc_now())
+    hello = insert(:reuse, organization: "hello", created_at: DateTime.utc_now())
 
     search = fn value -> DB.Reuse.search(%{"q" => value}) |> DB.Repo.all() end
 
     assert [foo] == search.("foo")
     assert [bar] == search.("bar")
     assert [hello] == search.("héllo")
+    # order by `created_at` desc
+    assert [hello, bar, foo] == search.("")
   end
 end
