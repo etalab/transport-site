@@ -17,7 +17,7 @@ config :transport, TransportWeb.Endpoint,
   # NOTE: this is required to ensure code reloading will work.
   # A page reload is required to trigger this. More apps could
   # be added when needed here, we just added what we needed.
-  reloadable_apps: [:shared, :transport, :unlock]
+  reloadable_apps: [:shared, :transport, :unlock, :datagouvfr]
 
 # Uncomment this to avoid having to restart the app for each change in description
 # See https://github.com/open-api-spex/open_api_spex#serve-the-spec
