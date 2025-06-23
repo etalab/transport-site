@@ -336,22 +336,24 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       assert %{
                score: +0.0,
                details: %{
-                 resources: [
-                   %{
-                     format: "GTFS",
-                     freshness: +0.0,
-                     raw_measure: %{end_date: _, start_date: _},
-                     resource_id: ^resource_id
-                   },
-                   %{
-                     format: "gtfs-rt",
-                     freshness: nil,
-                     raw_measure: nil,
-                     resource_id: _
-                   }
-                 ]
+                 resources: resources
                }
              } = current_dataset_freshness(dataset.id)
+
+      assert [
+               %{
+                 format: "GTFS",
+                 freshness: +0.0,
+                 raw_measure: %{end_date: _, start_date: _},
+                 resource_id: ^resource_id
+               },
+               %{
+                 format: "gtfs-rt",
+                 freshness: nil,
+                 raw_measure: nil,
+                 resource_id: _
+               }
+             ] = resources |> Enum.sort_by(fn %{format: format} -> format end)
     end
   end
 
