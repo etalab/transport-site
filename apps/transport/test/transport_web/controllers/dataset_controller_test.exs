@@ -812,7 +812,9 @@ defmodule TransportWeb.DatasetControllerTest do
     # Using the real implementation to test end-to-end
     Mox.stub_with(Transport.History.Fetcher.Mock, Transport.History.Fetcher.Database)
 
-    dataset = insert(:dataset)
+    %DB.Contact{id: contact_id} = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+
+    %DB.Dataset{id: dataset_id} = dataset = insert(:dataset)
     resource = insert(:resource, dataset: dataset)
     other_resource = insert(:resource, dataset: dataset)
     # another resource, no history for this one
@@ -850,7 +852,12 @@ defmodule TransportWeb.DatasetControllerTest do
       )
 
     # Check that we sent a chunked response with the expected CSV content
-    %Plug.Conn{state: :chunked} = response = conn |> get(dataset_path(conn, :resources_history_csv, dataset.id))
+    %Plug.Conn{state: :chunked} =
+      response =
+      conn
+      |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+      |> get(dataset_path(conn, :resources_history_csv, dataset.id))
+
     content = response(response, 200)
 
     # Check CSV header
@@ -887,6 +894,14 @@ defmodule TransportWeb.DatasetControllerTest do
     assert Plug.Conn.get_resp_header(response, "content-disposition") == [
              ~s(attachment; filename="historisation-dataset-#{dataset.id}-#{Date.utc_today() |> Date.to_iso8601()}.csv")
            ]
+
+    assert [
+             %DB.FeatureUsage{
+               feature: :download_resource_history,
+               contact_id: ^contact_id,
+               metadata: %{"dataset_id" => ^dataset_id}
+             }
+           ] = DB.FeatureUsage |> DB.Repo.all()
   end
 
   describe "Legal owner display" do
