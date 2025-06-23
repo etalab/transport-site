@@ -570,6 +570,8 @@ defmodule Unlock.ControllerTest do
       assert resp.status == 200
       # Note: TIL: NimbleCSV.RFC4180.dump_to_iodata generates "\r\n" (apparently)
       assert resp.resp_body == Helper.data_as_csv(@expected_headers, [first_data_row, second_data_row], "\r\n")
+      headers = resp.resp_headers |> Enum.into(%{})
+      assert headers["content-disposition"] =~ ~r/^attachment; filename=an-existing-aggregate-identifier-.*\.csv$/
 
       assert_received {:telemetry_event, [:proxy, :request, :external], %{},
                        %{target: "proxy:an-existing-aggregate-identifier"}}
