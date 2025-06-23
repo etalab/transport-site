@@ -13,7 +13,7 @@ defmodule TransportWeb.ReuseControllerTest do
     end
 
     test "searching reuses", %{conn: conn} do
-      insert(:reuse, title: "Foo")
+      foo = insert(:reuse, title: "Foo")
       bar = insert(:reuse, owner: "Bar")
 
       reuse_titles = fn search ->
@@ -25,8 +25,8 @@ defmodule TransportWeb.ReuseControllerTest do
         |> Enum.map(&Floki.text/1)
       end
 
-      assert ["Foo", bar.title] == reuse_titles.("")
-      assert ["Foo"] == reuse_titles.("foo")
+      assert [bar.title, foo.title] == reuse_titles.("")
+      assert [foo.title] == reuse_titles.("foo")
       assert [bar.title] == reuse_titles.("ba")
     end
   end
