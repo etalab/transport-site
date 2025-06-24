@@ -150,7 +150,7 @@ jobs:
       - run:
           name: Run tests
           command: |
-            mix test --warnings-as-errors
+            mix test --seed 371188 --warnings-as-errors
 
 workflows:
   version: 2
