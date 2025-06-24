@@ -46,6 +46,15 @@ defmodule Unlock.Config do
     defstruct [:identifier, :feeds, :ttl]
   end
 
+  defmodule Item.S3 do
+    @moduledoc """
+    Intermediate structure for S3-based configured items.
+    """
+
+    @enforce_keys [:identifier, :bucket, :path, :ttl]
+    defstruct [:identifier, :bucket, :path, :ttl]
+  end
+
   defmodule Fetcher do
     @moduledoc """
     A behaviour + shared methods for config fetching.
@@ -96,6 +105,15 @@ defmodule Unlock.Config do
         subtype: subtype,
         request_headers: parse_config_http_headers(Map.get(item, "request_headers", [])),
         response_headers: parse_config_http_headers(Map.get(item, "response_headers", []))
+      }
+    end
+
+    def convert_yaml_item_to_struct(%{"type" => "s3"} = item) do
+      %Item.S3{
+        identifier: Map.fetch!(item, "identifier"),
+        bucket: Map.fetch!(item, "bucket"),
+        path: Map.fetch!(item, "path"),
+        ttl: Map.get(item, "ttl", 10)
       }
     end
 

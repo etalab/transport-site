@@ -32,7 +32,30 @@
           </div>
         </div>
       </div>
-      <div :if={eligible_for_tokens?(@conn)} class="panel action-panel">
+      <div class="panel action-panel">
+        <img
+          class="picto"
+          src={static_path(@conn, "/images/reutilisateurs/reuses.svg")}
+          alt={dgettext("reuser-space", "Reuses")}
+        />
+        <div>
+          <div class="publish-header">
+            <h4><%= dgettext("reuser-space", "Declare your reuses") %></h4>
+          </div>
+          <div class="pt-12">
+            <%= dgettext(
+              "reuser-space",
+              "Highlight your reuses and make yourself known."
+            ) %>
+          </div>
+          <div class="pt-12">
+            <a href="https://www.data.gouv.fr/admin/reuses/new/" target="_blank" class="button">
+              <%= dgettext("reuser-space", "Declare a reuse") %>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="panel action-panel">
         <img
           class="picto"
           src={static_path(@conn, "/images/reutilisateurs/gear.svg")}

@@ -190,27 +190,6 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
-  @spec climate_resilience_bill_link(Plug.Conn.t(), %{
-          only_climate_climate_resilience_bill: boolean(),
-          msg: binary(),
-          count: non_neg_integer()
-        }) :: any()
-  def climate_resilience_bill_link(conn, %{only_climate_climate_resilience_bill: only, msg: msg, count: count}) do
-    full_url =
-      case only do
-        false -> current_url(conn, Map.delete(conn.query_params, "loi-climat-resilience"))
-        true -> current_url(conn, Map.put(conn.query_params, "loi-climat-resilience", true))
-      end
-
-    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns
-
-    case {only, Map.get(conn.query_params, "loi-climat-resilience")} do
-      {false, "true"} -> link("#{msg} (#{count})", to: full_url)
-      {true, nil} -> link("#{msg} (#{count})", to: full_url)
-      _ -> ~H{<span class="activefilter"><%= @msg %> (<%= @count %>)</span>}
-    end
-  end
-
   @doc """
   iex> DB.Dataset.types() |> Enum.map(&icon_type_path/1) |> Enum.filter(&is_nil/1)
   []

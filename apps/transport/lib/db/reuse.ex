@@ -41,12 +41,13 @@ defmodule DB.Reuse do
     ilike_search = "%#{safe_like_pattern(q)}%"
 
     base_query()
+    |> order_by([reuse: r], desc: r.created_at)
     |> where([reuse: r], fragment("unaccent(?) ilike unaccent(?)", r.title, ^ilike_search))
     |> or_where([reuse: r], fragment("unaccent(?) ilike unaccent(?)", r.organization, ^ilike_search))
     |> or_where([reuse: r], fragment("unaccent(?) ilike unaccent(?)", r.owner, ^ilike_search))
   end
 
-  def search(%{}), do: base_query()
+  def search(%{}), do: base_query() |> order_by([reuse: r], desc: r.created_at)
 
   @doc """
   Make sure a string that will be passed to `like` or `ilike` is safe.

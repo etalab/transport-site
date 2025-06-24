@@ -243,13 +243,6 @@ defmodule DB.Dataset do
 
   defp filter_by_category(query, _), do: query
 
-  @spec filter_by_climate_resilience_bill(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_climate_resilience_bill(%Ecto.Query{} = query, %{"loi-climat-resilience" => "true"}) do
-    filter_by_custom_tag(query, %{"custom_tag" => "loi-climat-resilience"})
-  end
-
-  defp filter_by_climate_resilience_bill(%Ecto.Query{} = query, _), do: query
-
   @spec filter_by_custom_tag(Ecto.Query.t(), binary() | map()) :: Ecto.Query.t()
   def filter_by_custom_tag(%Ecto.Query{} = query, custom_tag) when is_binary(custom_tag) do
     where(query, [dataset: d], ^custom_tag in d.custom_tags)
@@ -398,7 +391,6 @@ defmodule DB.Dataset do
       |> filter_by_aom(params)
       |> filter_by_commune(params)
       |> filter_by_licence(params)
-      |> filter_by_climate_resilience_bill(params)
       |> filter_by_custom_tag(params)
       |> filter_by_organization(params)
       |> filter_by_resource_format(params)
@@ -1063,15 +1055,13 @@ defmodule DB.Dataset do
   @doc """
   Should this dataset not be historicized?
 
-  iex> should_skip_history?(%DB.Dataset{type: "road-data"})
-  true
   iex> should_skip_history?(%DB.Dataset{type: "public-transit"})
   false
   iex> should_skip_history?(%DB.Dataset{type: "public-transit", custom_tags: ["skip_history", "foo"]})
   true
   """
   def should_skip_history?(%__MODULE__{type: type} = dataset) do
-    type in ["vehicles-sharing", "road-data"] or has_custom_tag?(dataset, "skip_history")
+    type in ["vehicles-sharing"] or has_custom_tag?(dataset, "skip_history")
   end
 
   def has_licence_ouverte?(%__MODULE__{licence: licence}), do: licence in @licences_ouvertes

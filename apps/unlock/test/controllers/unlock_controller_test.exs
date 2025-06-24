@@ -571,6 +571,8 @@ defmodule Unlock.ControllerTest do
       assert resp.status == 200
       # Note: TIL: NimbleCSV.RFC4180.dump_to_iodata generates "\r\n" (apparently)
       assert resp.resp_body == Helper.data_as_csv(@expected_headers, [first_data_row, second_data_row], "\r\n")
+      headers = resp.resp_headers |> Enum.into(%{})
+      assert headers["content-disposition"] =~ ~r/^attachment; filename=an-existing-aggregate-identifier-.*\.csv$/
 
       assert_received {:telemetry_event, [:proxy, :request, :external], %{},
                        %{target: "proxy:an-existing-aggregate-identifier"}}
@@ -821,6 +823,99 @@ defmodule Unlock.ControllerTest do
                Helper.data_as_csv(expected_headers, [first_expected_output_row, second_expected_output_row], "\r\n")
 
       verify!(Unlock.HTTP.Client.Mock)
+    end
+  end
+
+  describe "S3 item support" do
+    test "handles GET /resource/:slug (success case)" do
+      slug = "an-existing-s3-identifier"
+      ttl_in_seconds = 30
+      bucket_key = "aggregates"
+      path = "irve_static_consolidation.csv"
+      # automatically built by the app based on `bucket_key`
+      expected_bucket = "transport-data-gouv-fr-aggregates-test"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.S3{
+          identifier: slug,
+          bucket: bucket_key,
+          path: path,
+          ttl: ttl_in_seconds
+        }
+      })
+
+      content = "CONTENT"
+
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.Operation.S3{} = operation ->
+        assert %ExAws.Operation.S3{
+                 bucket: ^expected_bucket,
+                 path: ^path,
+                 http_method: :get,
+                 service: :s3
+               } = operation
+
+        %{body: content, status_code: 200}
+      end)
+
+      resp =
+        build_conn()
+        |> get("/resource/an-existing-s3-identifier")
+
+      assert resp.resp_body == content
+      assert resp.status == 200
+      # enforce the filename provided via the config (especially to get its extension passed to clients)
+      assert Plug.Conn.get_resp_header(resp, "content-disposition") == ["attachment; filename=#{path}"]
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      verify!(Transport.ExAWS.Mock)
+    end
+
+    test "handles GET /resource/:slug (ExAWS failure case)" do
+      slug = "an-existing-s3-identifier"
+      ttl_in_seconds = 30
+      bucket_key = "aggregates"
+      path = "irve_static_consolidation.csv"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.S3{
+          identifier: slug,
+          bucket: bucket_key,
+          path: path,
+          ttl: ttl_in_seconds
+        }
+      })
+
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.Operation.S3{} = _operation ->
+        # simulate what is raised by `request!` in case of failed `get_object`
+        raise ExAws.Error, "something bad happened! maybe SENSITIVE INFO MAY BE HERE"
+      end)
+
+      {resp, logs} =
+        with_log(fn ->
+          build_conn()
+          |> get("/resource/an-existing-s3-identifier")
+        end)
+
+      assert logs =~ ~r/something bad happened! maybe SENSITIVE INFO MAY BE HERE/
+
+      # content of error should not be forwarded, instead we want a sanitized message
+      assert resp.resp_body == "Bad Gateway"
+      assert resp.status == 502
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      verify!(Transport.ExAWS.Mock)
     end
   end
 

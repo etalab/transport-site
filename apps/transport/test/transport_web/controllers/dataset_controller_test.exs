@@ -91,31 +91,6 @@ defmodule TransportWeb.DatasetControllerTest do
              |> Floki.find(".dataset__image")
   end
 
-  describe "climate and resilience bill" do
-    test "displayed for public-transit", %{conn: conn} do
-      conn = conn |> get(dataset_path(conn, :index, type: "public-transit"))
-      doc = conn |> html_response(200) |> Floki.parse_document!()
-      [msg] = Floki.find(doc, "#climate-resilience-bill-panel")
-
-      assert Floki.text(msg) =~
-               "Certaines données de cette catégorie feront l'objet d'une intégration obligatoire."
-    end
-
-    test "displayed when filtering for climate resilience bill datasets", %{conn: conn} do
-      conn = conn |> get(dataset_path(conn, :index, "loi-climat-resilience": true))
-      doc = conn |> html_response(200) |> Floki.parse_document!()
-      [msg] = Floki.find(doc, "#climate-resilience-bill-panel")
-
-      assert Floki.text(msg) =~ "Ces jeux de données feront l'objet d'une intégration obligatoire."
-    end
-
-    test "not displayed for locations", %{conn: conn} do
-      conn = conn |> get(dataset_path(conn, :index, type: "locations"))
-      doc = conn |> html_response(200) |> Floki.parse_document!()
-      assert [] == Floki.find(doc, "#climate-resilience-bill-panel")
-    end
-  end
-
   describe "heart icons" do
     test "not displayed when logged out", %{conn: conn} do
       insert(:dataset, type: "public-transit", is_active: true)
@@ -837,7 +812,9 @@ defmodule TransportWeb.DatasetControllerTest do
     # Using the real implementation to test end-to-end
     Mox.stub_with(Transport.History.Fetcher.Mock, Transport.History.Fetcher.Database)
 
-    dataset = insert(:dataset)
+    %DB.Contact{id: contact_id} = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+
+    %DB.Dataset{id: dataset_id} = dataset = insert(:dataset)
     resource = insert(:resource, dataset: dataset)
     other_resource = insert(:resource, dataset: dataset)
     # another resource, no history for this one
@@ -875,7 +852,12 @@ defmodule TransportWeb.DatasetControllerTest do
       )
 
     # Check that we sent a chunked response with the expected CSV content
-    %Plug.Conn{state: :chunked} = response = conn |> get(dataset_path(conn, :resources_history_csv, dataset.id))
+    %Plug.Conn{state: :chunked} =
+      response =
+      conn
+      |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+      |> get(dataset_path(conn, :resources_history_csv, dataset.id))
+
     content = response(response, 200)
 
     # Check CSV header
@@ -912,6 +894,14 @@ defmodule TransportWeb.DatasetControllerTest do
     assert Plug.Conn.get_resp_header(response, "content-disposition") == [
              ~s(attachment; filename="historisation-dataset-#{dataset.id}-#{Date.utc_today() |> Date.to_iso8601()}.csv")
            ]
+
+    assert [
+             %DB.FeatureUsage{
+               feature: :download_resource_history,
+               contact_id: ^contact_id,
+               metadata: %{"dataset_id" => ^dataset_id}
+             }
+           ] = DB.FeatureUsage |> DB.Repo.all()
   end
 
   describe "Legal owner display" do

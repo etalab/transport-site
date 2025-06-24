@@ -67,11 +67,6 @@ defmodule TransportWeb.SeoMetadata do
       title: dgettext("seo", "State of transport open data for french AOMs")
     }
 
-  def metadata(TransportWeb.PageView, %{page: "loi_climat_resilience.html"}),
-    do: %{
-      title: dgettext("seo", "Climate and Resilience bill: compulsory data reuse")
-    }
-
   def metadata(TransportWeb.ReuserSpaceView, _),
     do: %{
       title: dgettext("seo", "Reuser space")

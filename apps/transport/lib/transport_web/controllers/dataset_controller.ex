@@ -2,7 +2,6 @@ defmodule TransportWeb.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Authentication
   alias DB.{AOM, Commune, Dataset, DatasetGeographicView, Region, Repo}
-  alias Transport.ClimateResilienceBill
   import Ecto.Query
 
   import TransportWeb.DatasetView,
@@ -11,7 +10,7 @@ defmodule TransportWeb.DatasetController do
   import Phoenix.HTML
   require Logger
 
-  plug(:assign_current_contact when action in [:details])
+  plug(:assign_current_contact when action in [:details, :resources_history_csv])
 
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(%Plug.Conn{} = conn, params), do: list_datasets(conn, params, true)
@@ -31,14 +30,12 @@ defmodule TransportWeb.DatasetController do
     |> assign(:types, get_types(params))
     |> assign(:licences, get_licences(params))
     |> assign(:number_realtime_datasets, get_realtime_count(params))
-    |> assign(:number_climate_resilience_bill_datasets, climate_resilience_bill_count(params))
     |> assign(:number_resource_format_datasets, resource_format_count(params))
     |> assign(:order_by, params["order_by"])
     |> assign(:q, Map.get(params, "q"))
     |> put_dataset_heart_values(datasets)
     |> put_empty_message(params)
     |> put_category_custom_message(params)
-    |> put_climate_resilience_bill_message(params)
     |> put_page_title(params)
     |> render("index.html")
   end
@@ -310,6 +307,14 @@ defmodule TransportWeb.DatasetController do
   end
 
   def resources_history_csv(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id}) do
+    dataset_id = String.to_integer(dataset_id)
+
+    DB.FeatureUsage.insert!(
+      :download_resource_history,
+      get_in(conn.assigns.current_contact.id),
+      %{dataset_id: dataset_id}
+    )
+
     filename = "historisation-dataset-#{dataset_id}-#{Date.utc_today() |> Date.to_iso8601()}.csv"
 
     csv_header = [
@@ -325,7 +330,7 @@ defmodule TransportWeb.DatasetController do
       DB.Repo.transaction(
         fn ->
           Transport.History.Fetcher.history_resources(
-            %DB.Dataset{id: String.to_integer(dataset_id)},
+            %DB.Dataset{id: dataset_id},
             preload_validations: false,
             fetch_mode: :stream
           )
@@ -403,25 +408,6 @@ defmodule TransportWeb.DatasetController do
     %{all: result |> Enum.uniq_by(& &1.dataset_id) |> Enum.count()}
     |> Map.merge(result |> Enum.map(& &1.format) |> Enum.frequencies() |> Map.new())
     |> Enum.sort_by(fn {_, count} -> count end, :desc)
-  end
-
-  @spec climate_resilience_bill_count(map()) :: %{all: non_neg_integer(), true: non_neg_integer()}
-  defp climate_resilience_bill_count(params) do
-    result =
-      params
-      |> clean_datasets_query("loi-climat-resilience")
-      |> exclude(:order_by)
-      |> group_by([d], fragment("'loi-climat-resilience' = any(coalesce(?, '{}'))", d.custom_tags))
-      |> select([d], %{
-        has_climat_resilience_bill_tag: fragment("'loi-climat-resilience' = any(coalesce(?, '{}'))", d.custom_tags),
-        count: count(d.id, :distinct)
-      })
-      |> Repo.all()
-
-    %{
-      all: Enum.reduce(result, 0, fn x, acc -> x.count + acc end),
-      true: Enum.find_value(result, 0, fn r -> if r.has_climat_resilience_bill_tag, do: r.count end)
-    }
   end
 
   @spec get_realtime_count(map()) :: %{all: non_neg_integer(), true: non_neg_integer()}
@@ -539,16 +525,6 @@ defmodule TransportWeb.DatasetController do
     case Transport.CustomSearchMessage.get_message(params, locale) do
       nil -> conn
       msg -> assign(conn, :category_custom_message, msg)
-    end
-  end
-
-  defp put_climate_resilience_bill_message(%Plug.Conn{} = conn, %{} = params) do
-    if ClimateResilienceBill.display_data_reuse_panel?(params) do
-      # Article 122 loi climat et résilience, will be back
-      # https://github.com/etalab/transport-site/issues/3149
-      assign(conn, :climate_resilience_bill_message, ClimateResilienceBill.temporary_data_reuse_message(params))
-    else
-      conn
     end
   end
 

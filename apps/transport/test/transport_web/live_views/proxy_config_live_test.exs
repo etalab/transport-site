@@ -16,7 +16,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
 
   setup :verify_on_exit!
 
-  def setup_proxy_config(slug, siri_slug, aggregate_slug) do
+  def setup_proxy_config(slug, siri_slug, aggregate_slug, s3_slug) do
     config = %{
       slug => %Unlock.Config.Item.Generic.HTTP{
         identifier: slug,
@@ -31,6 +31,12 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
       aggregate_slug => %Unlock.Config.Item.Aggregate{
         identifier: aggregate_slug,
         feeds: []
+      },
+      s3_slug => %Unlock.Config.Item.S3{
+        identifier: s3_slug,
+        bucket: "bucket",
+        path: "path",
+        ttl: 500
       }
     }
 
@@ -58,7 +64,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
     item_id = "gtfs-rt-slug"
     siri_item_id = "siri-slug"
     aggregate_item_id = "aggregate-slug"
-    setup_proxy_config(item_id, siri_item_id, aggregate_item_id)
+    s3_item_id = "s3-slug"
+    setup_proxy_config(item_id, siri_item_id, aggregate_item_id, s3_item_id)
 
     add_events(item_id)
 
@@ -81,6 +88,11 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
                "Req int 7j" => "1"
              },
              %{
+               "Identifiant" => "s3-slug",
+               "Req ext 7j" => "0",
+               "Req int 7j" => "0"
+             },
+             %{
                "Identifiant" => "siri-slug",
                "Req ext 7j" => "0",
                "Req int 7j" => "0"
@@ -100,7 +112,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
                "Req ext 7j" => "4",
                "Req int 7j" => "2"
              },
-             _siri_item
+             _siri_item,
+             _s3_item
            ] = extract_data_from_html(render(view))
   end
 end

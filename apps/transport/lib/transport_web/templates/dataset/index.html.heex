@@ -31,15 +31,7 @@
   </div>
 </div>
 
-<%= if @conn.assigns[:climate_resilience_bill_message] do %>
-  <%= render(TransportWeb.DatasetView, "_climate_resilience_bill_panel.html",
-    conn: @conn,
-    climate_resilience_msg: @climate_resilience_bill_message,
-    category_custom_message: @conn.assigns[:category_custom_message]
-  ) %>
-<% end %>
-
-<%= if not is_nil(@conn.assigns[:category_custom_message]) and is_nil(@conn.assigns[:climate_resilience_bill_message]) do %>
+<%= if not is_nil(@conn.assigns[:category_custom_message]) do %>
   <%= render(TransportWeb.DatasetView, "_custom_message.html", conn: @conn, msg: @category_custom_message) %>
 <% end %>
 
@@ -111,28 +103,6 @@
                   </li>
                 </li>
               <% end %>
-
-              <li class="side-pane__title">
-                <h3><%= dgettext("page-shortlist", "Climate and Resilience bill") %></h3>
-                <li class="side-pane__dropdown unfolded">
-                  <ul class="side-pane__submenu">
-                    <li>
-                      <%= climate_resilience_bill_link(@conn, %{
-                        only_climate_climate_resilience_bill: false,
-                        msg: dgettext("page-shortlist", "Any"),
-                        count: @number_climate_resilience_bill_datasets.all
-                      }) %>
-                    </li>
-                    <li>
-                      <%= climate_resilience_bill_link(@conn, %{
-                        only_climate_climate_resilience_bill: true,
-                        msg: dgettext("page-shortlist", "Data reuse obligation"),
-                        count: @number_climate_resilience_bill_datasets.true
-                      }) %>
-                    </li>
-                  </ul>
-                </li>
-              </li>
 
               <%= unless Enum.empty?(@licences) do %>
                 <li class="side-pane__title">

@@ -74,7 +74,6 @@ defmodule Transport.OpsTests do
 
       # Satellite websites
       assert {:ok, [~c"transport-blog.netlify.app"]} == DNS.resolve("blog.#{@domain_name}", :cname)
-      assert {:ok, [~c"transport-contribuer.netlify.app"]} == DNS.resolve("contribuer.#{@domain_name}", :cname)
       assert {:ok, [~c"hosting.gitbook.com"]} == DNS.resolve("doc.#{@domain_name}", :cname)
       assert {:ok, [~c"stats.uptimerobot.com"]} == DNS.resolve("status.#{@domain_name}", :cname)
     end

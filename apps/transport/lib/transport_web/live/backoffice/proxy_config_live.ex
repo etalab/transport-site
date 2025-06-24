@@ -96,6 +96,16 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     }
   end
 
+  defp extract_config(proxy_base_url, %Unlock.Config.Item.S3{} = resource) do
+    %{
+      unique_slug: resource.identifier,
+      proxy_url: Transport.Proxy.resource_url(proxy_base_url, resource.identifier),
+      # TODO: display original bucket & path name
+      original_url: nil,
+      ttl: resource.ttl
+    }
+  end
+
   defp event_names do
     Telemetry.proxy_request_event_names() |> Enum.map(&Telemetry.database_event_name/1)
   end
