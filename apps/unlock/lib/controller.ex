@@ -167,7 +167,11 @@ defmodule Unlock.Controller do
     ]
 
     body_response = Unlock.AggregateProcessor.process_resource(item, options)
-    send_resp(conn, 200, body_response)
+    filename = "#{item.identifier}-#{DateTime.utc_now() |> DateTime.to_iso8601()}.csv"
+
+    conn
+    |> put_resp_header("content-disposition", "attachment; filename=#{filename}")
+    |> send_resp(200, body_response)
   end
 
   # `process_resource` variant for `Item.S3` items.
