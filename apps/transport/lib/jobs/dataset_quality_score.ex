@@ -115,6 +115,7 @@ defmodule Transport.Jobs.DatasetQualityScore do
     |> DB.Repo.get!(dataset_id)
     |> DB.Repo.preload(:resources)
     |> DB.Dataset.official_resources()
+    |> Enum.sort_by(& &1.id)
   end
 
   @spec save_dataset_score(integer(), atom()) :: DB.DatasetScore.t() | nil
