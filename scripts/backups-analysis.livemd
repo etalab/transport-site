@@ -1,0 +1,94 @@
+# Analyse des backups Postgres de production
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.16.0"},
+  {:kino_vega_lite, "~> 0.1.11"}
+])
+```
+
+## Pré-requis : installation du client S3 MinIO (mc)
+
+Ce livebook s'appuie sur [MinIO Client (mc)](https://github.com/minio/mc).
+
+Sur Mac, l'installation se fait avec `brew install minio/stable/mc` (pour les autres plateformes voir le [README](https://github.com/minio/mc)).
+
+Sous `~/.mc/config.json`, intégrer la configuration suivante (et la modifier avec les credentials de l'addon `Backups` sur Clever Cloud) :
+
+```json
+{
+	"version": "10",
+	"aliases": {
+		"transport-backups": {
+			"url": "https://cellar-c2.services.clever-cloud.com",
+			"accessKey": "REDACTED",
+			"secretKey": "REDACTED",
+			"api": "S3v4",
+			"path": "dns"
+		}
+	}
+}
+```
+
+Puis faire le test suivant: `mc ls transport-backups` pour vérifier la connectivité.
+
+Lister les backups de production avec la commande suivante:
+
+```shell
+❯ mc ls transport-backups/ccbackups-postgresql-4a305f24-8a31-4815-b2bb-23f4711303ee
+[2024-12-21 02:40:53 CET] 2.0GiB STANDARD postgresql_4a305f24-8a31-4815-b2bb-23f4711303ee-20241221013239.dump
+[2024-12-22 03:20:02 CET] 2.0GiB STANDARD postgresql_4a305f24-8a31-4815-b2bb-23f4711303ee-20241222021306.dump
+# SNIP
+```
+
+## Analyse des backups de production
+
+Pour une analyse automatisée, on peut passer le flag `--json` à `mc`, qui retourne alors un output structuré.
+
+```elixir
+minio_config = "transport-backups"
+bucket = "ccbackups-postgresql-4a305f24-8a31-4815-b2bb-23f4711303ee"
+
+{output, 0} = System.cmd("mc", ["ls","--json","#{minio_config}/#{bucket}"])
+
+entries = output
+  |> String.trim()
+  |> String.split("\n") 
+  |> Enum.map(&JSON.decode!/1)
+
+:ok
+```
+
+Pour illustrer le problème des backups qui échouent, je compte le nombre de backups par jour.
+
+Je soustrais 1 pour calculer un "estimatif" du nombre d'incidents de backups par jour:
+
+```elixir
+estimated_backup_incidents = entries
+  |> Enum.map(fn(x) -> x["lastModified"] |> String.slice(0..9) end)
+  |> Enum.frequencies()
+  |> Enum.sort(:desc)
+  |> Enum.map(fn({date, count}) -> %{date: date, count: count - 1} end)
+
+:ok
+```
+
+Puis je fais un rendu graphique :
+
+<!-- livebook:{"attrs":"eyJjaGFydF90aXRsZSI6IkluY2lkZW50cyAoZXN0aW1hdGlmcykgYXUgbW9tZW50IGR1IGJhY2t1cCIsImhlaWdodCI6NDAwLCJsYXllcnMiOlt7ImFjdGl2ZSI6dHJ1ZSwiY2hhcnRfdHlwZSI6ImJhciIsImNvbG9yX2ZpZWxkIjpudWxsLCJjb2xvcl9maWVsZF9hZ2dyZWdhdGUiOm51bGwsImNvbG9yX2ZpZWxkX2JpbiI6bnVsbCwiY29sb3JfZmllbGRfc2NhbGVfc2NoZW1lIjpudWxsLCJjb2xvcl9maWVsZF90eXBlIjpudWxsLCJkYXRhX3ZhcmlhYmxlIjoiZXN0aW1hdGVkX2JhY2t1cF9pbmNpZGVudHMiLCJnZW9kYXRhX2NvbG9yIjoiYmx1ZSIsImxhdGl0dWRlX2ZpZWxkIjpudWxsLCJsb25naXR1ZGVfZmllbGQiOm51bGwsInhfZmllbGQiOiJkYXRlIiwieF9maWVsZF9hZ2dyZWdhdGUiOm51bGwsInhfZmllbGRfYmluIjpudWxsLCJ4X2ZpZWxkX3NjYWxlX3R5cGUiOm51bGwsInhfZmllbGRfdHlwZSI6InRlbXBvcmFsIiwieV9maWVsZCI6ImNvdW50IiwieV9maWVsZF9hZ2dyZWdhdGUiOm51bGwsInlfZmllbGRfYmluIjpudWxsLCJ5X2ZpZWxkX3NjYWxlX3R5cGUiOm51bGwsInlfZmllbGRfdHlwZSI6InF1YW50aXRhdGl2ZSJ9XSwidmxfYWxpYXMiOiJFbGl4aXIuVmVnYUxpdGUiLCJ3aWR0aCI6ODAwfQ","chunks":null,"kind":"Elixir.KinoVegaLite.ChartCell","livebook_object":"smart_cell"} -->
+
+```elixir
+VegaLite.new(width: 800, height: 400, title: "Incidents (estimatifs) au moment du backup")
+|> VegaLite.data_from_values(estimated_backup_incidents, only: ["date", "count"])
+|> VegaLite.mark(:bar)
+|> VegaLite.encode_field(:x, "date", type: :temporal)
+|> VegaLite.encode_field(:y, "count", type: :quantitative)
+```
+
+## Conclusion
+
+Le nombre d'incidents de backups est important et croissant depuis mai.
+
+Il va falloir demander à notre hébergeur ce qui se passe et voir comment traiter ça.
+
+Travailler sur la taille de la base de données serait aussi une bonne idée.
