@@ -1,5 +1,5 @@
 defmodule Transport.ImportDataServiceTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
   use TransportWeb.ExternalCase
   alias Transport.ImportData

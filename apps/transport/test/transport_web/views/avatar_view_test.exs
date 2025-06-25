@@ -1,5 +1,5 @@
 defmodule TransportWeb.LayoutViewTest do
-  use TransportWeb.ConnCase, async: true
+  use TransportWeb.ConnCase, async: false
   use TransportWeb.DatabaseCase, cleanup: []
   import Plug.Test
 

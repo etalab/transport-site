@@ -1,5 +1,5 @@
 defmodule TransportWeb.DatasetSearchControllerTest do
-  use TransportWeb.ConnCase, async: true
+  use TransportWeb.ConnCase, async: false
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
   import DB.Factory
 

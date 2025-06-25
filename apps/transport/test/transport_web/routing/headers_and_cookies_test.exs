@@ -1,5 +1,5 @@
 defmodule TransportWeb.HeadersAndCookiesTest do
-  use TransportWeb.ConnCase, async: true
+  use TransportWeb.ConnCase, async: false
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
 
   test "sets expected headers", %{conn: conn} do
