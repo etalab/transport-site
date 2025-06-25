@@ -1,6 +1,6 @@
 defmodule TransportWeb.API.StatsControllerTest do
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
-  use TransportWeb.ConnCase, async: false
+  use TransportWeb.ConnCase
   import Mock
   import DB.Factory
   import OpenApiSpex.TestAssertions

@@ -1,5 +1,5 @@
 defmodule TransportWeb.API.DatasetControllerTest do
-  use TransportWeb.ConnCase, async: false
+  use TransportWeb.ConnCase, async: true
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
   alias TransportWeb.API.Router.Helpers
   import DB.Factory

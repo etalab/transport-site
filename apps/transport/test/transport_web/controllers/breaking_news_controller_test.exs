@@ -1,5 +1,5 @@
 defmodule TransportWeb.BreakingNewsControllerTest do
-  use TransportWeb.ConnCase, async: false
+  use TransportWeb.ConnCase, async: true
   use TransportWeb.DatabaseCase, cleanup: []
 
   describe "breaking news home message" do

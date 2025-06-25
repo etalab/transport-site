@@ -1,5 +1,5 @@
 defmodule TransportWeb.PageControllerTest do
-  use TransportWeb.ConnCase, async: false
+  use TransportWeb.ConnCase, async: true
   use TransportWeb.DatabaseCase, cleanup: []
   import DB.Factory
   import Plug.Test, only: [init_test_session: 2]
