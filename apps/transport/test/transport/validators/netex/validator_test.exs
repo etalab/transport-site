@@ -1,13 +1,13 @@
-defmodule Transport.Validators.NeTExTest do
+defmodule Transport.Validators.NeTEx.ValidatorTest do
   use ExUnit.Case, async: true
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
   import Mox
   import Transport.Test.EnRouteChouetteValidClientHelpers
 
-  alias Transport.Validators.NeTEx
+  alias Transport.Validators.NeTEx.Validator
 
-  doctest Transport.Validators.NeTEx, import: true
+  doctest Transport.Validators.NeTEx.Validator, import: true
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -49,7 +49,7 @@ defmodule Transport.Validators.NeTExTest do
 
       validation_id = expect_create_validation() |> expect_successful_validation(12)
 
-      assert :ok == NeTEx.validate_and_save(resource_history)
+      assert :ok == Validator.validate_and_save(resource_history)
 
       multi_validation = load_multi_validation(resource_history.id)
 
@@ -65,7 +65,7 @@ defmodule Transport.Validators.NeTExTest do
 
       validation_id = expect_create_validation() |> expect_pending_validation()
 
-      assert :ok == NeTEx.validate_and_save(resource_history)
+      assert :ok == Validator.validate_and_save(resource_history)
 
       assert_enqueued(
         worker: Transport.Jobs.NeTExPollerJob,
@@ -85,7 +85,7 @@ defmodule Transport.Validators.NeTExTest do
 
       expect_get_messages(validation_id, @sample_error_messages)
 
-      assert :ok == NeTEx.validate_and_save(resource_history)
+      assert :ok == Validator.validate_and_save(resource_history)
 
       multi_validation = load_multi_validation(resource_history.id)
 
@@ -147,7 +147,7 @@ defmodule Transport.Validators.NeTExTest do
       expect_create_validation() |> expect_successful_validation(9)
 
       assert {:ok, %{"validations" => %{}, "metadata" => %{retries: 0, elapsed_seconds: 9}}} ==
-               NeTEx.validate(resource_url)
+               Validator.validate(resource_url)
     end
 
     test "invalid NeTEx" do
@@ -196,7 +196,7 @@ defmodule Transport.Validators.NeTExTest do
       }
 
       assert {:ok, %{"validations" => validation_result, "metadata" => %{retries: 0, elapsed_seconds: 25}}} ==
-               NeTEx.validate(resource_url)
+               Validator.validate(resource_url)
     end
 
     test "pending" do
@@ -204,7 +204,7 @@ defmodule Transport.Validators.NeTExTest do
 
       validation_id = expect_create_validation() |> expect_pending_validation()
 
-      assert {:pending, validation_id} == NeTEx.validate(resource_url)
+      assert {:pending, validation_id} == Validator.validate(resource_url)
     end
   end
 

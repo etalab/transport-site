@@ -14,7 +14,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   alias Transport.Jobs.OnDemandValidationHelpers, as: Helpers
   alias Transport.Validators.GTFSRT
   alias Transport.Validators.GTFSTransport
-  alias Transport.Validators.NeTEx
+  alias Transport.Validators.NeTEx.Validator
 
   @download_timeout_ms 10_000
 
@@ -58,7 +58,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   end
 
   defp perform_validation(%{"type" => "netex", "id" => multivalidation_id, "permanent_url" => url}) do
-    case NeTEx.validate(url) do
+    case Validator.validate(url) do
       {:error, error_result} ->
         OnDemandNeTExPollerJob.handle_error(error_result)
 

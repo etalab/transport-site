@@ -36,7 +36,7 @@ defmodule Transport.ValidatorsSelection.Impl do
 
   def validators(%{format: "NeTEx"}) do
     if netex_validator_enabled?() do
-      [Validators.NeTEx]
+      [Validators.NeTEx.Validator]
     else
       []
     end

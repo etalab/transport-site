@@ -445,7 +445,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       insert(:multi_validation, %{
         resource_history:
           insert(:resource_history, resource: netex = insert(:resource, dataset: dataset, format: "NeTEx")),
-        validator: Transport.Validators.NeTEx.validator_name(),
+        validator: Transport.Validators.NeTEx.Validator.validator_name(),
         max_error: "error"
       })
 

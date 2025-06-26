@@ -117,7 +117,7 @@ defmodule TransportWeb.ValidationController do
         |> render("show_gtfs.html")
 
       %MultiValidation{oban_args: %{"state" => "completed", "type" => "netex"}} = validation ->
-        validator = Transport.Validators.NeTEx
+        validator = Transport.Validators.NeTEx.Validator
         current_issues = validator.get_issues(validation.result, params)
 
         conn

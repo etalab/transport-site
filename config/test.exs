@@ -54,7 +54,7 @@ config :transport,
   enroute_token: "fake_enroute_token",
   enroute_validation_token: "fake_enroute_token",
   enroute_validator_client: Transport.EnRouteChouetteValidClient.Mock,
-  netex_validator: Transport.Validators.NeTEx.Mock
+  netex_validator: Transport.Validators.NeTEx.Validator.Mock
 
 config :ex_aws,
   cellar_organisation_id: "fake-cellar_organisation_id"
