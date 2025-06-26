@@ -357,3 +357,19 @@ msgstr "le validateur GTFS du <abbr title=\"Point d’Accès National\">PAN</abb
 #, elixir-autogen, elixir-format
 msgid "enRoute Chouette Valid"
 msgstr "le validateur NeTEx d’enRoute"
+
+#, elixir-autogen, elixir-format
+msgid "XSD NeTEx"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Other errors"
+msgstr "Autres erreurs"
+
+#, elixir-autogen, elixir-format
+msgid "xsd-schema-description"
+msgstr "Une ressource NeTEx doit avant tout respecter la XSD NeTEx. <a href=\"https://normes.transport.data.gouv.fr/\" target=\"_blank\">En savoir plus</a>."
+
+#, elixir-autogen, elixir-format
+msgid "netex-validations-layers"
+msgstr "La validation des archives NeTEx en est encore qu’à ses débuts. Actuellement nous ne validons que la conformité à la XSD. Nous ne supportons pas encore les exceptions françaises."

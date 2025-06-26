@@ -1,4 +1,4 @@
-<section>
+<section class="netex">
   <div class="container">
     <div class="validation-title">
       <h2><%= dgettext("validations", "NeTEx review report") %></h2>
@@ -17,40 +17,44 @@
   </div>
 
   <div class="validation-content">
-    <div class="container">
+    <div id="issues" class="container">
       <p class="notification warning">
         <strong><%= dgettext("validations", "NeTEx validation is in beta.") %></strong> <br />
       </p>
 
-      <%= if has_errors?(@validation_summary) do %>
-        <%= render("_validation_summary.html",
-          validation_summary: @validation_summary,
-          severities_count: @severities_count,
-          conn: @conn,
-          issues: @issues,
-          token: @token,
-          results_adapter: @results_adapter,
-          data_vis: nil
-        ) %>
-      <% end %>
+      <% {_, worst_occurrences} = @max_severity %>
+      <% current_category = @conn.params["issues_category"] || "" %>
+      <div id="issues" class="validation-navigation">
+        <p><%= dgettext("validations", "netex-validations-layers") %></p>
+        <nav class="issues-list validation" role="navigation">
+          <ul class="summary">
+            <%= for {category, stats} <- @validation_summary do %>
+              <.netex_compatibility
+                conn={@conn}
+                results_adapter={@results_adapter}
+                stats={stats}
+                category={category}
+                token={@token}
+              />
+            <% end %>
+          </ul>
+        </nav>
+      </div>
 
       <div class="validation-content-details">
         <div class="panel">
-          <%= if has_errors?(@validation_summary) do %>
-            <%= pagination_links(@conn, @issues, [@validation_id],
-              issue_type: @results_adapter.issue_type(@issues.entries),
-              token: @token,
-              path: &validation_path/4,
-              action: :show
-            ) %>
-            <%= render(netex_template(), issues: @issues || [], conn: @conn) %>
-            <div class="pt-24">
-              <%= pagination_links(@conn, @issues, [@validation_id],
-                issue_type: @results_adapter.issue_type(@issues.entries),
+          <%= if worst_occurrences > 0 do %>
+            <% pagination =
+              pagination_links(@conn, @issues, [@validation_id],
+                issues_category: current_category,
                 token: @token,
                 path: &validation_path/4,
                 action: :show
               ) %>
+            <%= pagination %>
+            <%= render(netex_template(current_category), issues: @issues || [], conn: @conn) %>
+            <div class="pt-24">
+              <%= pagination %>
             </div>
           <% else %>
             <h2><%= dgettext("validations", "Nice work, there are no issues!") %></h2>

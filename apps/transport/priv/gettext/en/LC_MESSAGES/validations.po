@@ -357,3 +357,19 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "enRoute Chouette Valid"
 msgstr "enRoute Chouette Valid validator"
+
+#, elixir-autogen, elixir-format
+msgid "XSD NeTEx"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Other errors"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "xsd-schema-description"
+msgstr "A NeTEx resource must respect the NeTEx XSD. <a href=\"https://normes.transport.data.gouv.fr/\" target=\"_blank\">Learn more</a>."
+
+#, elixir-autogen, elixir-format
+msgid "netex-validations-layers"
+msgstr "NeTEx validation is still in its infancy. Currently we only check that a given NeTEx archive respects the XSD schema. It doesn't support exceptions made to that XSD in France yet."
