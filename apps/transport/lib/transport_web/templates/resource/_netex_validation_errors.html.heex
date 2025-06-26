@@ -6,12 +6,12 @@
     severities_count: @severities_count,
     token: nil,
     validation_summary: @validation_summary,
-    validator: @validator
+    results_adapter: @results_adapter
   ) %>
 </nav>
 <div class="main-pane">
   <%= pagination_links(@conn, @issues, [@resource.id],
-    issue_type: Transport.Validators.NeTEx.Validator.issue_type(@issues.entries),
+    issue_type: @results_adapter.issue_type(@issues.entries),
     path: &resource_path/4,
     action: :details
   ) %>

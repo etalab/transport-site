@@ -16,6 +16,7 @@ defmodule Transport.Jobs.OnDemandNeTExPollerJob do
     unique: [fields: [:args, :worker]]
 
   alias Transport.Jobs.OnDemandValidationHelpers, as: Helpers
+  alias Transport.Validators.NeTEx.ResultsAdapters.V0_1_0, as: ResultsAdapter
   alias Transport.Validators.NeTEx.Validator
 
   # Override the backoff to play nice and avoiding falling in very slow retry
@@ -77,7 +78,7 @@ defmodule Transport.Jobs.OnDemandNeTExPollerJob do
       data_vis: nil,
       validator: Validator.validator_name(),
       validated_data_name: url,
-      max_error: Validator.get_max_severity_error(validation),
+      max_error: ResultsAdapter.get_max_severity_error(validation),
       oban_args: Helpers.completed()
     }
   end
