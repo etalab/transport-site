@@ -1,10 +1,10 @@
-defmodule DB.TerritorialDivision do
+defmodule DB.AdministrativeDivision do
   @moduledoc """
-  TerritorialDivision schema, in French "Collectivité Territoriale".
+  AdministrativeDivision schema, in French "Collectivité Territoriale".
   This schema is used to represent the territorial divisions in France: communes, EPCI, departments and regions.
   The schema for now doesn’t show relationships between territorial divisions, such as the relationship between a commune and its EPCI or department.
   (But this relationship is available in the Commune schema, for example.)
-  It relies on a single table in the database, territorial_division.
+  It relies on a single table in the database, administrative_division.
   The data is replicated (denormalized) from the dedicated commune, epci, departement and region tables.
   This is done to simplify the queries and the data model for some use cases: search, link to dataset, etc.
   Other approaches were considered, such as using a materialized view, the existing separate tables,
@@ -14,7 +14,7 @@ defmodule DB.TerritorialDivision do
   use TypedEctoSchema
   import Ecto.Changeset
 
-  typed_schema "territorial_division" do
+  typed_schema "administrative_division" do
     field(:type_insee, :string)
     field(:insee, :string)
 
@@ -32,8 +32,8 @@ defmodule DB.TerritorialDivision do
     field(:geom, Geo.PostGIS.Geometry) :: Geo.MultiPolygon.t()
   end
 
-  def changeset(territorial_division, attrs) do
-    territorial_division
+  def changeset(administrative_division, attrs) do
+    administrative_division
     |> cast(attrs, [
       :insee,
       :type,
