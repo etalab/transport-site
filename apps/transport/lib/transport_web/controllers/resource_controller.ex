@@ -165,10 +165,11 @@ defmodule TransportWeb.ResourceController do
   end
 
   defp render_netex_details(conn, params, resource) do
-    {results_adapter, validation_details} = build_netex_validation_details(params, resource)
+    {results_adapter, validation_details, errors_template} = build_netex_validation_details(params, resource)
 
     conn
     |> assign_base_resource_details(params, resource, validation_details)
+    |> assign(:errors_template, errors_template)
     |> assign(:results_adapter, results_adapter)
     |> assign(:data_vis, nil)
     |> render("netex_details.html")
@@ -181,13 +182,17 @@ defmodule TransportWeb.ResourceController do
         summary = results_adapter.summary(validation_result)
         stats = results_adapter.count_by_severity(validation_result)
         issues = results_adapter.get_issues(validation_result, params)
+        errors_template = pick_netex_errors_template(version)
 
-        {results_adapter, {summary, stats, metadata.metadata, metadata.modes, issues}}
+        {results_adapter, {summary, stats, metadata.metadata, metadata.modes, issues}, errors_template}
 
       nil ->
-        {nil, {nil, nil, nil, [], []}}
+        {nil, {nil, nil, nil, [], []}, nil}
     end
   end
+
+  defp pick_netex_errors_template("0.2.0"), do: "_netex_validation_errors_v0_2_0.html"
+  defp pick_netex_errors_template(_), do: "_netex_validation_errors_v0_1_0.html"
 
   defp assign_base_resource_details(conn, params, resource, validation_details) do
     config = make_pagination_config(params)

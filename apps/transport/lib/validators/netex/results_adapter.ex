@@ -11,5 +11,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapter do
   @callback count_max_severity(map()) :: {binary(), integer()}
   @callback no_error?(binary()) :: boolean()
 
+  def resolve("0.2.0"), do: Transport.Validators.NeTEx.ResultsAdapters.V0_2_0
   def resolve(_), do: Transport.Validators.NeTEx.ResultsAdapters.V0_1_0
 end
