@@ -1,0 +1,26 @@
+<% summary = @validation_summary |> Map.new() %>
+<% count_errors = fn category -> summary |> Map.get(category, %{count: 0}) |> Map.get(:count) end %>
+<% total_errors = count_errors.("xsd-schema") %>
+<% current_category = @conn.params["issues_category"] || "" %>
+
+<h4><%= @results_adapter.format_severity("error", total_errors) %></h4>
+<ul>
+  <li>
+    <.netex_compatibility
+      errors={count_errors.("xsd-schema")}
+      category="xsd-schema"
+      label={dgettext("validations", "XSD NeTEx")}
+    />
+  </li>
+</ul>
+
+<%= if total_errors > 0 do %>
+  <div class="main-pane">
+    <%= pagination_links(@conn, @issues, [@resource.id],
+      issues_category: current_category,
+      path: &resource_path/4,
+      action: :details
+    ) %>
+    <%= render(netex_template(current_category), issues: @issues || [], conn: @conn) %>
+  </div>
+<% end %>

@@ -22,31 +22,34 @@
         <strong><%= dgettext("validations", "NeTEx validation is in beta.") %></strong> <br />
       </p>
 
-      <%= if has_errors?(@validation_summary) do %>
-        <%= render("_validation_summary.html",
-          validation_summary: @validation_summary,
-          severities_count: @severities_count,
-          conn: @conn,
-          issues: @issues,
-          token: @token,
-          results_adapter: @results_adapter,
-          data_vis: nil
-        ) %>
-      <% end %>
+      <% summary = @validation_summary |> Map.new() %>
+      <% count_errors = fn category -> summary |> Map.get(category, %{count: 0}) |> Map.get(:count) end %>
+      <% total_errors = count_errors.("xsd-schema") %>
+      <% current_category = @conn.params["issues_category"] || "" %>
+
+      <ul>
+        <li>
+          <.netex_compatibility
+            errors={count_errors.("xsd-schema")}
+            category="xsd-schema"
+            label={dgettext("validations", "XSD NeTEx")}
+          />
+        </li>
+      </ul>
 
       <div class="validation-content-details">
         <div class="panel">
-          <%= if has_errors?(@validation_summary) do %>
+          <%= if total_errors > 0 do %>
             <%= pagination_links(@conn, @issues, [@validation_id],
-              issue_type: @results_adapter.issue_type(@issues.entries),
+              issues_category: current_category,
               token: @token,
               path: &validation_path/4,
               action: :show
             ) %>
-            <%= render(netex_template(), issues: @issues || [], conn: @conn) %>
+            <%= render(netex_template(current_category), issues: @issues || [], conn: @conn) %>
             <div class="pt-24">
               <%= pagination_links(@conn, @issues, [@validation_id],
-                issue_type: @results_adapter.issue_type(@issues.entries),
+                issues_category: current_category,
                 token: @token,
                 path: &validation_path/4,
                 action: :show

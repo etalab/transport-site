@@ -124,11 +124,13 @@ details > code {
   }
 }
 
-table.netex_generic_issue tr.message td {
-  vertical-align: top;
+table.netex_generic_issue, table.netex_xsd_schema {
+  tr.message td {
+    vertical-align: top;
+  }
 }
 
-table.netex_generic_issue th:nth-child(1) {
+table.netex_generic_issue th:nth-child(1), table.netex_xsd_schema th:nth-child(2) {
   width: 60%;
 }
 
