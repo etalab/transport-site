@@ -40,7 +40,9 @@ defmodule TransportWeb.ResourceView do
           "MissingId" => "_missing_id_issue.html",
           "MissingName" => "_missing_name_issue.html",
           "SubFolder" => "_subfolder_issue.html",
-          "NegativeStopDuration" => "_negative_stop_duration_issue.html"
+          "NegativeStopDuration" => "_negative_stop_duration_issue.html",
+          "UnusableTrip" => "_unusable_trip.html",
+          "NoCalendar" => "_no_calendar.html"
         },
         Transport.Validators.GTFSTransport.issue_type(issues.entries),
         "_generic_issue.html"
@@ -71,9 +73,6 @@ defmodule TransportWeb.ResourceView do
 
   def get_associated_geojson(%{GeoJSON: geojson_details}), do: geojson_details
   def get_associated_geojson(_), do: nil
-
-  def get_associated_netex(%{NeTEx: netex_details}), do: netex_details
-  def get_associated_netex(_), do: nil
 
   def errors_sample(%DB.MultiValidation{result: %{"errors" => errors}}) do
     Enum.take(errors, max_display_errors())

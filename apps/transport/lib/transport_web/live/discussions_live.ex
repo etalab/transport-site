@@ -3,7 +3,7 @@ defmodule TransportWeb.DiscussionsLive do
   Display data.gouv discussions on the dataset page
   """
   use Phoenix.LiveView
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
 
   def render(assigns) do
     ~H"""
@@ -32,6 +32,7 @@ defmodule TransportWeb.DiscussionsLive do
             socket: @socket,
             dataset: @dataset,
             admin_member_ids: @admin_member_ids,
+            regulator_member_ids: @regulator_member_ids,
             org_member_ids: @org_member_ids,
             org_logo_thumbnail: @org_logo_thumbnail,
             locale: @locale
@@ -88,7 +89,8 @@ defmodule TransportWeb.DiscussionsLive do
         discussions: discussions,
         org_member_ids: org_member_ids,
         org_logo_thumbnail: org_logo_thumbnail,
-        admin_member_ids: DB.Contact.admin_datagouv_ids()
+        admin_member_ids: DB.Contact.admin_datagouv_ids(),
+        regulator_member_ids: DB.Contact.regulator_datagouv_ids()
       )
       |> push_event("discussions-loaded", %{
         ids: discussions |> Enum.filter(&discussion_should_be_closed?/1) |> Enum.map(& &1["id"])
@@ -115,7 +117,7 @@ defmodule TransportWeb.DiscussionsLive do
       end)
       |> Enum.max(DateTime)
 
-    two_months_ago = DateTime.utc_now() |> Timex.shift(months: -2)
+    two_months_ago = DateTime.utc_now() |> TimeWrapper.shift(months: -2)
     DateTime.compare(two_months_ago, latest_comment_datetime) == :gt
   end
 

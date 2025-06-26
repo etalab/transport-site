@@ -13,30 +13,6 @@
 #     value:
 #       - ferry
 
-- category: real-time
-  search_params:
-    - key: type
-      value: public-transit
-    - key: filter
-      value: has_realtime
-  msg:
-    fr: |
-        Les jeux de données référencés dans cette catégorie contiennent des flux d’information décrivant en **temps réel** l’état des réseaux de transports en commun.
-
-        Ils peuvent  nous renseigner sur l’état du trafic, l’horaire de passage réel d’un véhicule ou même de sa position en temps-réel (une [carte temps réel](/explore/vehicle-positions) affiche cette information).
-
-        Deux standards de données peuvent être utilisés : le format [GTFS-RT](https://developers.google.com/transit/gtfs-realtime?hl=fr) ou le format [SIRI](https://www.siri-cen.eu/).
-
-        Les flux non standardisés sont référencés sur [cette page](/real_time).
-    en: |
-        The datasets referenced in this category contain information flows describing in real-time the state of public transport networks.
-
-        They can tell us about traffic conditions, a vehicle's actual passage time or even its position in real-time (a [real-time map](/explore/vehicle-positions) displays these vehicles).
-
-        Two data standards can be used: the [GTFS-RT format](https://developers.google.com/transit/gtfs-realtime) or the [SIRI format](https://www.siri-cen.eu/).
-
-        Non-standardized feeds are referenced on [this page](/real_time).
-
 - category: public-transit
   search_params:
     - key: type
@@ -47,13 +23,17 @@
 
         Ils nous renseignent notamment sur la position des arrêts, les parcours, les horaires de passage des véhicules.
 
-        Deux standards de données peuvent être utilisés : le format [GTFS](https://developers.google.com/transit/gtfs?hl=fr) ou le format [NeTEx](http://netex-cen.eu/).
+        Voici ci-dessous les standards et normes référencés :
+        - [GTFS](https://gtfs.org/fr/documentation/overview/)/[GTFS-RT](https://gtfs.org/fr/documentation/realtime/reference/) et [NeTEx](https://normes.transport.data.gouv.fr/)/[SIRI](https://normes.transport.data.gouv.fr/normes/siri/profil-france/) pour les données routières, ferroviaires, maritimes et fluviaux.
+        - [SSIM de IATA](https://www.iata.org/en/publications/manuals/standard-schedules-information/) pour le transport aérien et les plans de vols.
     en: |
         The datasets referenced in this category contain information for describing public transport networks.
 
         They inform us in particular about the position of the stops, the routes, the times of passage of the vehicles.
 
-        Two data standards can be used: the [GTFS format](https://developers.google.com/transit/gtfs) or the [NeTEx format](http://netex-cen.eu/).
+        The following standards can be used:
+        - [GTFS](https://gtfs.org/fr/documentation/overview/)/[GTFS-RT](https://gtfs.org/fr/documentation/realtime/reference/) and [NeTEx](https://normes.transport.data.gouv.fr/)/[SIRI](https://normes.transport.data.gouv.fr/normes/siri/profil-france/) for road, rail, maritime, and river data.
+        - [SSIM de IATA](https://www.iata.org/en/publications/manuals/standard-schedules-information/) for air transport and flight plans.
 
 - category: road-data
   search_params:
@@ -61,17 +41,29 @@
       value: road-data
   msg:
     fr: |
+        Les jeux de données de cette catégories décrivent les stationnement hors voirie et le réseau routier.
+
+        **Stationnement hors voirie :**
+        Les données concernant le stationnement hors voirie en France sont produites par différentes collectivités et gestionnaires de parking.
+
+        Ces données, lorsqu’elles sont normalisées, sont assemblées et consolidées dans un jeu de données national : [la Base Nationale des Lieux de Stationnement (BNLS)](https://transport.data.gouv.fr/datasets/base-nationale-des-lieux-de-stationnement/).
+
+        **Réseau routier :**
         Les jeux de données de cette catégorie décrivent le réseau routier et son état en temps réel (trafic, travaux, événements…).
 
         À ce jour, les seules informations disponibles de manière ouverte portent sur le réseau routier principal (autoroutes et routes nationales).
-
-        L’équipe de transport.data.gouv.fr travaille au référencement de nouveaux jeux de données permettant de cartographier le réseau routier secondaire comme la [BD Topo de l’IGN](https://geoservices.ign.fr/documentation/donnees/vecteur/bdtopo) ou de connaître [des informations en temps réel](https://www.bison-fute.gouv.fr/donnees-sur-le-rrn.html).
     en: |
-        Datasets in this category describe the road network and its state in real time (traffic, works, events, etc.).
+        The datasets in this category describe off-street parking and the road network.
+
+        **Off-street Parking:**
+        Data concerning off-street parking in France is produced by various local authorities and parking managers.
+
+        This data, when standardized, is assembled and consolidated into a national dataset: [the National Parking Location Database (BNLS)](https://transport.data.gouv.fr/datasets/base-nationale-des-lieux-de-stationnement/).
+
+        **Road Network:**
+        The datasets in this category describe the road network and its real-time status (traffic, roadworks, events, etc.).
 
         To date, the only openly available information concerns the main road network (motorways and national roads).
-
-        The transport.data.gouv.fr team is working on referencing new datasets to map the secondary road network, such as the [IGN’s BD Topo](https://geoservices.ign.fr/documentation/donnees/vecteur/bdtopo) or to obtain [real-time information](https://www.bison-fute.gouv.fr/donnees-sur-le-rrn.html).
 
 - category: locations
   search_params:
@@ -154,24 +146,24 @@
 
         These data comply with the [standard-covoiturage](https://github.com/fabmob/standard-covoiturage/).
 
-- category: bike-scooter-sharing
+- category: vehicles-sharing
   search_params:
     - key: type
-      value: bike-scooter-sharing
+      value: vehicles-sharing
   msg:
     fr: |
-        Les jeux de données référencés dans cette catégorie contiennent des flux d’information décrivant des flottes de vélos ou de trottinettes en libre service en station ou en freefloating.
+        Les jeux de données référencés dans cette catégorie contiennent des flux d’information décrivant des flottes de vélos, de trottinettes, de deux-roues motorisés ou de voitures en libre service, en station ou en freefloating.
 
         Ces données sont disponibles en temps réel pour connaître la position des véhicules ou le taux de remplissage des stations.
 
-        Le standard utilisé est le [GBFS](https://gbfs.mobilitydata.org).
+        Le standard utilisé est le [GBFS](https://gbfs.org/fr/documentation/).
 
     en: |
-        The datasets referenced in this category contain information flows describing fleets of self-service bicycles or scooters in stations or in freefloating.
+        The datasets referenced in this category contain information flows describing fleets of bicycles, scooters, motorized two-wheelers or self-service cars, in stations or free-floating.
 
         These data are available in real time to know the position of vehicles or the filling rate of stations.
 
-        The standard used is [GBFS](https://gbfs.mobilitydata.org).
+        The standard used is [GBFS](https://gbfs.org/documentation/).
 
 - category: car-motorbike-sharing
   search_params:
@@ -245,83 +237,33 @@
 
         Two data standards can be used: the [GTFS format](https://developers.google.com/transit/gtfs) or the [NeTEx format](http://netex-cen.eu/).
 
-- category: bike-way
+- category: bike-data
   search_params:
     - key: type
-      value: bike-way
+      value: bike-data
   msg:
     fr: |
-        Les jeux de données de cette catégorie décrivent les réseaux cyclables en France. Tous les aménagements (pistes, bandes, voies vertes, vélo rue...) destinés à être empuntés par des vélos peuvent être représentés selon le [schéma national](https://schema.data.gouv.fr/etalab/schema-amenagements-cyclables/latest.html).
+        Les jeux de données de cette catégorie décrivent les stationnements et réseaux cyclables en France.
 
-        Une base nationale extraite d'[OpenStreetMap](https://www.openstreetmap.org/) par [Géovélo](https://geovelo.app/fr/) respectant le schéma national [est disponible](https://transport.data.gouv.fr/datasets/amenagements-cyclables-france-metropolitaine/).
+        **Stationnement cyclable :**
+        Tous les équipements (arceaux, racks, box…) destinés à être utilisés pour stationner des vélos peuvent être représentés selon le [Schéma national pour le stationnement cyclable](https://schema.data.gouv.fr/etalab/schema-stationnement-cyclable/).
 
-    en: |
-        The datasets in this category describe the cycle networks in France. All facilities (tracks, lanes, greenways, cycle streets…) intended to be used by bicycles can be represented according to the [national schema](https://schema.data.gouv.fr/etalab/schema-amenagements-cyclables/latest.html).
+        Une base nationale extraite d’[OpenStreetMap](https://www.openstreetmap.org/) par [GéoDataMine](https://geodatamine.fr/) respectant le schéma national [est disponible](https://transport.data.gouv.fr/datasets/stationnements-cyclables-issus-dopenstreetmap/).
 
-        A national database extracted from [OpenStreetMap](https://www.openstreetmap.org/) by [Géovélo](https://geovelo.app/fr/) respecting the national schema [is available](https://transport.data.gouv.fr/datasets/amenagements-cyclables-france-metropolitaine/).
+        **Réseau cyclable :**
+        Tous les aménagements (pistes, bandes, voies vertes, vélo rue…) destinés à être empruntés par des vélos peuvent être représentés selon le [Schéma national d'aménagements cyclables](https://schema.data.gouv.fr/etalab/schema-amenagements-cyclables/latest.html).
 
-- category: bike-parking
-  search_params:
-    - key: type
-      value: bike-parking
-  msg:
-    fr: |
-        Les jeux de données de cette catégorie décrivent les équipements de stationnement cyclable en France. Tous les équipements (arceaux, racks, box…) destinés à être utilisés pour stationner des vélos peuvent être représentés selon le [schéma national](https://schema.data.gouv.fr/etalab/schema-stationnement-cyclable/).
-
-        Une base nationale extraite d'[OpenStreetMap](https://www.openstreetmap.org/) par [GéoDataMine](https://geodatamine.fr/) respectant le schéma national [est disponible](https://transport.data.gouv.fr/datasets/stationnements-cyclables-issus-dopenstreetmap/).
+        Une base nationale extraite d’[OpenStreetMap](https://www.openstreetmap.org/) par [Géovélo](https://geovelo.app/fr/) respectant le schéma national [est disponible](https://transport.data.gouv.fr/datasets/amenagements-cyclables-france-metropolitaine/).
 
     en: |
-        The datasets in this category describe the bicycle parking facilities in France. All facilities (hoops, racks, boxes…) intended to be used for bicycle parking can be represented according to the [national schema](https://schema.data.gouv.fr/etalab/schema-stationnement-cyclable/).
+        The datasets in this category describe bicycle parking and networks in France.
 
-        A national database extracted from [OpenStreetMap](https://www.openstreetmap.org/) by [GéoDataMine](https://geodatamine.fr/) respecting the national schema [is available](https://transport.data.gouv.fr/datasets/stationnements-cyclables-issus-dopenstreetmap/).
+        **Bicycle Parking:**
+        All equipment (racks, poles, boxes, etc.) intended for bicycle parking can be represented according to the [National Scheme for Bicycle Parking](https://schema.data.gouv.fr/etalab/schema-stationnement-cyclable/).
 
-- category: low-emission-zones
-  search_params:
-    - key: type
-      value: low-emission-zones
-  msg:
-    fr: |
-        Les jeux de données de cette catégorie décrivent les [zones à faibles émissions](https://www.gouvernement.fr/les-actions-du-gouvernement/transition-ecologique/zones-a-faibles-emissions-pour-mieux-respirer-en) applicables en France. Ces zones sont représentées selon le [schéma national](https://schema.data.gouv.fr/etalab/schema-zfe/).
+        A national database extracted from [OpenStreetMap](https://www.openstreetmap.org/) by [GéoDataMine](https://geodatamine.fr/) adhering to the national scheme [is available](https://transport.data.gouv.fr/datasets/stationnements-cyclables-issus-dopenstreetmap/).
 
-        Une [base nationale des ZFE (BNZFE)](https://transport.data.gouv.fr/datasets/base-nationale-consolidee-des-zones-a-faibles-emissions/) est disponible. Elle respecte le schéma et est mise à jour par l'équipe du point national dès qu'une nouvelle ressource conforme est disponible.
+        **Cycle Network:**
+        All facilities (tracks, lanes, greenways, cycleways, etc.) intended for use by bicycles can be represented according to the [National Cycle Development Plan](https://schema.data.gouv.fr/etalab/schema-amenagements-cyclables/latest.html).
 
-    en: |
-        The datasets referenced in this category contain Low Emission Zones enforced in France. These zones are represented according to the [national schema](https://schema.data.gouv.fr/etalab/schema-zfe/).
-
-        A [national database](https://transport.data.gouv.fr/datasets/base-nationale-consolidee-des-zones-a-faibles-emissions/) is available. As soon as a new compliant dataset is available, the NAP team is in charge of updating the national database.
-
-- category: air-transport
-  search_params:
-    - key: type
-      value: air-transport
-  msg:
-    fr: |
-        Les jeux de données référencés dans cette catégorie contiennent des informations permettant de décrire les horaires et plans de vols des compagnies aériennes.
-
-        Ils nous renseignent notamment sur la localisation des aéroports, les parcours, les horaires de passage des véhicules.
-
-        Le standard de publication attendu est [SSIM de IATA](https://www.iata.org/en/publications/store/standard-schedules-information/).
-    en: |
-        The datasets referenced in this category contain information for describing schedules and flight plans of airlines.
-
-        They inform us in particular about the position of airports, the routes, the times of passage of the airplanes.
-
-        The expected data standard is [SSIM from IATA](https://www.iata.org/en/publications/store/standard-schedules-information/).
-
-- category: transport-traffic
-  search_params:
-    - key: type
-      value: transport-traffic
-  msg:
-    fr: |
-        Les jeux de données référencés dans cette catégorie contiennent des informations permettant de décrire la fréquentation des infrastructures de transport.
-
-        Ils nous renseignent notamment sur les flux des mobilités douces et des micro mobilités.
-
-        Le standard utilisé est décrit dans [cette documentation](https://doc.transport.data.gouv.fr/producteurs/comptage-des-mobilites).
-    en: |
-        The datasets referenced in this category contain information to describe transport infrastructures use.
-
-        They contain traffic data for pedestrians, bicycles, and micro-mobility.
-
-        The standard used is described [in this documentation](https://doc.transport.data.gouv.fr/producteurs/comptage-des-mobilites).
+        A national database extracted from [OpenStreetMap](https://www.openstreetmap.org/) by [Géovélo](https://geovelo.app/fr/) adhering to the national plan [is available](https://transport.data.gouv.fr/datasets/amenagements-cyclables-france-metropolitaine/).

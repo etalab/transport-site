@@ -146,3 +146,11 @@ msgstr "Emplacement inconnu"
 #, elixir-autogen, elixir-format
 msgid "Details for debugging purposes"
 msgstr "Détails à fin de débogage"
+
+#, elixir-autogen, elixir-format
+msgid "UnusableTrip"
+msgstr "Un trajet doit passer par plus d’un arrêt dans stop_times.txt pour être utilisable par les voyageurs à la montée ou la descente."
+
+#, elixir-autogen, elixir-format
+msgid "NoCalendar"
+msgstr "<code>calendar.txt</code> et <code>calendar_dates.txt</code> sont vides. Le service n'est jamais en exploitation."

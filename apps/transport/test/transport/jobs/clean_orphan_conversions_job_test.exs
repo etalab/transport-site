@@ -23,7 +23,7 @@ defmodule Transport.Test.Transport.Jobs.CleanOrphanConversionsJobTest do
           resource_history_uuid: uuid,
           payload: %{"filename" => filename},
           convert_from: "GTFS",
-          convert_to: "NeTEx"
+          convert_to: "GeoJSON"
         )
 
       S3TestUtils.s3_mocks_delete_object(Transport.S3.bucket_name(:history), filename)
@@ -43,7 +43,7 @@ defmodule Transport.Test.Transport.Jobs.CleanOrphanConversionsJobTest do
           resource_history_uuid: uuid,
           payload: %{},
           convert_from: "GTFS",
-          convert_to: "NeTEx"
+          convert_to: "GeoJSON"
         )
 
       assert :ok == perform_job(CleanOrphanConversionsJob, %{})

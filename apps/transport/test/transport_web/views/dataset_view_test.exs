@@ -21,7 +21,7 @@ defmodule TransportWeb.DatasetViewTest do
 
   test "resource to display for a low emission zone dataset" do
     dataset_two_geojson = %DB.Dataset{
-      type: "low-emission-zones",
+      type: "road-data",
       resources: [
         %DB.Resource{
           id: 1,
@@ -39,7 +39,7 @@ defmodule TransportWeb.DatasetViewTest do
     }
 
     dataset_title_geojson = %DB.Dataset{
-      type: "low-emission-zones",
+      type: "road-data",
       resources: [
         %DB.Resource{
           id: 1,
@@ -51,7 +51,7 @@ defmodule TransportWeb.DatasetViewTest do
     }
 
     dataset_only_roads = %DB.Dataset{
-      type: "low-emission-zones",
+      type: "road-data",
       resources: [
         %DB.Resource{
           id: 1,
@@ -65,6 +65,68 @@ defmodule TransportWeb.DatasetViewTest do
     assert get_resource_to_display(dataset_two_geojson).id == 1
     assert get_resource_to_display(dataset_title_geojson).id == 1
     assert get_resource_to_display(dataset_only_roads) == nil
+  end
+
+  test "resource to display for BNLC" do
+    dataset_two_bnlcs = %DB.Dataset{
+      type: "carpooling-areas",
+      resources: [
+        %DB.Resource{
+          id: 1,
+          url: "https://example.com/bnlc.csv",
+          format: "csv",
+          schema_name: "etalab/schema-lieux-covoiturage",
+          last_update: ~U[2016-05-24 13:26:08Z],
+          type: "other"
+        },
+        %DB.Resource{
+          id: 2,
+          url: "https://example.com/bnlc-consolidated.csv",
+          format: "csv",
+          schema_name: "etalab/schema-lieux-covoiturage",
+          last_update: ~U[2016-05-24 13:25:08Z],
+          type: "other"
+        }
+      ]
+    }
+
+    dataset_two_bnlcs_with_the_main = %DB.Dataset{
+      type: "carpooling-areas",
+      resources: [
+        %DB.Resource{
+          id: 1,
+          url: "https://example.com/bnlc.csv",
+          format: "csv",
+          schema_name: "etalab/schema-lieux-covoiturage",
+          last_update: ~U[2016-05-24 13:26:08Z],
+          type: "other"
+        },
+        %DB.Resource{
+          id: 2,
+          url: "https://example.com/bnlc-consolidated-1.csv",
+          format: "csv",
+          schema_name: "etalab/schema-lieux-covoiturage",
+          # not the latest, but we prefer the main one
+          last_update: ~U[2016-05-24 13:24:08Z],
+          type: "main"
+        },
+        %DB.Resource{
+          id: 3,
+          url: "https://example.com/bnlc-consolidated-2.csv",
+          format: "csv",
+          schema_name: "etalab/schema-lieux-covoiturage",
+          # not the latest, but we prefer the main one
+          last_update: ~U[2016-05-24 13:25:08Z],
+          type: "main"
+        }
+      ]
+    }
+
+    # Display the latest
+    assert get_resource_to_display(dataset_two_bnlcs).id == 1
+
+    # Display the latest main one
+    assert get_resource_to_display(dataset_two_bnlcs_with_the_main).id == 3
   end
 
   test "test data is up to date" do
@@ -95,7 +157,7 @@ defmodule TransportWeb.DatasetViewTest do
 
   test "schemas_resources is sorted by display position" do
     dataset = %DB.Dataset{
-      type: "low-emission-zones",
+      type: "road-data",
       resources: [
         %DB.Resource{
           id: 1,
@@ -172,66 +234,23 @@ defmodule TransportWeb.DatasetViewTest do
     end
   end
 
-  describe "climate_resilience_bill_link" do
-    test "inactive filter", %{conn: conn} do
-      conn = conn |> get(dataset_path(conn, :index))
-
-      assert ~s{<a href="http://127.0.0.1:5100/datasets?loi-climat-resilience=true">Données à intégration obligatoire (3)</a>} ==
-               conn
-               |> climate_resilience_bill_link(%{
-                 only_climate_climate_resilience_bill: true,
-                 msg: "Données à intégration obligatoire",
-                 count: 3
-               })
-               |> to_html()
-    end
-
-    test "active filter", %{conn: conn} do
-      conn = conn |> get(dataset_path(conn, :index, "loi-climat-resilience": "true"))
-
-      assert ~s{<span class="activefilter">Données à intégration obligatoire (3)</span>} ==
-               conn
-               |> climate_resilience_bill_link(%{
-                 only_climate_climate_resilience_bill: true,
-                 msg: "Données à intégration obligatoire",
-                 count: 3
-               })
-               |> to_html()
-    end
-
-    test "all unselected", %{conn: conn} do
-      conn = conn |> get(dataset_path(conn, :index))
-
-      assert ~s{<span class="activefilter">Peu importe (3)</span>} ==
-               conn
-               |> climate_resilience_bill_link(%{
-                 only_climate_climate_resilience_bill: false,
-                 msg: "Peu importe",
-                 count: 3
-               })
-               |> to_html()
-    end
-
-    test "all resets filter", %{conn: conn} do
-      conn = conn |> get(dataset_path(conn, :index, "loi-climat-resilience": "true", type: "public-transit"))
-
-      assert ~s{<a href="http://127.0.0.1:5100/datasets?type=public-transit">Peu importe (3)</a>} ==
-               conn
-               |> climate_resilience_bill_link(%{
-                 only_climate_climate_resilience_bill: false,
-                 msg: "Peu importe",
-                 count: 3
-               })
-               |> to_html()
-    end
-  end
-
   test "order_resources_by_format does not reorder GTFS and NeTEx" do
     gtfs = insert(:resource, format: "GTFS")
     netex = insert(:resource, format: "NeTEx")
     resources = [gtfs, netex]
 
     assert resources == order_resources_by_format(resources)
+  end
+
+  test "icons exist" do
+    Enum.each(DB.Dataset.types(), fn type ->
+      path =
+        __DIR__
+        |> Path.join("../../../client/")
+        |> Path.join(icon_type_path(type))
+
+      assert File.exists?(path)
+    end)
   end
 
   defp to_html(%Phoenix.LiveView.Rendered{} = rendered) do

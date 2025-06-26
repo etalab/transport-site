@@ -6,7 +6,7 @@ defmodule TransportWeb.Live.FollowedDatasetsLive do
   use TransportWeb.InputHelpers
   import Ecto.Query
   import TransportWeb.DatasetView, only: [icon_type_path: 1]
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
   import TransportWeb.InputHelpers
   import TransportWeb.Router.Helpers
 
@@ -67,7 +67,7 @@ defmodule TransportWeb.Live.FollowedDatasetsLive do
           </div>
           <div class="panel__extra">
             <a href={reuser_space_path(@socket, :datasets_edit, dataset.id)} class="no-bg">
-              <button class="button-outline primary small"><%= dgettext("reuser-space", "Manage") %></button>
+              <button class="button primary small"><%= dgettext("reuser-space", "Preferences") %></button>
             </a>
           </div>
         </div>

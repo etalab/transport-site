@@ -9,7 +9,7 @@ defmodule DB.Dataset do
   alias DB.{AOM, Commune, DatasetGeographicView, LogsImport, NotificationSubscription, Region, Repo, Resource}
   alias Phoenix.HTML.Link
   import Ecto.{Changeset, Query}
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
   require Logger
   use Ecto.Schema
   use TypedEctoSchema
@@ -80,6 +80,7 @@ defmodule DB.Dataset do
     has_many(:resources, Resource, on_replace: :delete, on_delete: :delete_all)
     has_many(:logs_import, LogsImport, on_replace: :delete, on_delete: :delete_all)
     has_many(:notification_subscriptions, NotificationSubscription, on_delete: :delete_all)
+    has_many(:reuser_improved_data, DB.ReuserImprovedData, on_delete: :delete_all)
 
     # Deprecation notice: datasets won't be linked to region and aom like that in the future
     # ⬇️⬇️⬇️
@@ -154,22 +155,16 @@ defmodule DB.Dataset do
   @spec type_to_str_map() :: %{binary() => binary()}
   def type_to_str_map,
     do: %{
-      "public-transit" => dgettext("db-dataset", "Public transit - static schedules"),
+      "public-transit" => dgettext("db-dataset", "Public transit"),
       "carpooling-areas" => dgettext("db-dataset", "Carpooling areas"),
       "carpooling-lines" => dgettext("db-dataset", "Carpooling lines"),
       "carpooling-offers" => dgettext("db-dataset", "Carpooling offers"),
       "charging-stations" => dgettext("db-dataset", "Charging & refuelling stations"),
-      "air-transport" => dgettext("db-dataset", "Air transport"),
-      "bike-scooter-sharing" => dgettext("db-dataset", "Bike and scooter sharing"),
-      "car-motorbike-sharing" => dgettext("db-dataset", "Car and motorbike sharing"),
+      "vehicles-sharing" => dgettext("db-dataset", "Vehicles sharing"),
       "road-data" => dgettext("db-dataset", "Road data"),
-      "locations" => dgettext("db-dataset", "Mobility locations"),
       "informations" => dgettext("db-dataset", "Other informations"),
-      "private-parking" => dgettext("db-dataset", "Private parking"),
-      "bike-way" => dgettext("db-dataset", "Bike networks"),
-      "bike-parking" => dgettext("db-dataset", "Bike parking"),
-      "low-emission-zones" => dgettext("db-dataset", "Low emission zones"),
-      "transport-traffic" => dgettext("db-dataset", "Transport traffic")
+      "bike-data" => dgettext("db-dataset", "Bike data"),
+      "pedestrian-path" => dgettext("db-dataset", "Pedestrian path")
     }
 
   @spec type_to_str(binary()) :: binary()
@@ -248,13 +243,6 @@ defmodule DB.Dataset do
 
   defp filter_by_category(query, _), do: query
 
-  @spec filter_by_climate_resilience_bill(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_climate_resilience_bill(%Ecto.Query{} = query, %{"loi-climat-resilience" => "true"}) do
-    filter_by_custom_tag(query, %{"custom_tag" => "loi-climat-resilience"})
-  end
-
-  defp filter_by_climate_resilience_bill(%Ecto.Query{} = query, _), do: query
-
   @spec filter_by_custom_tag(Ecto.Query.t(), binary() | map()) :: Ecto.Query.t()
   def filter_by_custom_tag(%Ecto.Query{} = query, custom_tag) when is_binary(custom_tag) do
     where(query, [dataset: d], ^custom_tag in d.custom_tags)
@@ -288,14 +276,9 @@ defmodule DB.Dataset do
   end
 
   defp filter_by_feature(query, %{"features" => feature}) do
-    # Note: @> is the 'contains' operator
     query
-    |> DB.ResourceHistory.join_dataset_with_latest_resource_history()
-    |> DB.MultiValidation.join_resource_history_with_latest_validation(
-      Transport.Validators.GTFSTransport.validator_name()
-    )
-    |> DB.ResourceMetadata.join_validation_with_metadata()
-    |> where([metadata: rm], fragment("? @> ?::varchar[]", rm.features, ^feature))
+    |> join(:inner, [dataset: d], r in assoc(d, :resources), as: :resource_for_features)
+    |> where([resource_for_features: r], fragment("?->'gtfs_features' @> ?", r.counter_cache, ^feature))
   end
 
   defp filter_by_feature(query, _), do: query
@@ -303,12 +286,20 @@ defmodule DB.Dataset do
   @spec filter_by_mode(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_mode(query, %{"modes" => modes}) when is_list(modes) do
     query
-    # Using specific jointure name: if piping with filter_by_feature it will not conflict
     |> join(:inner, [dataset: d], r in assoc(d, :resources), as: :resource_for_mode)
     |> where([resource_for_mode: r], fragment("?->'gtfs_modes' @> ?", r.counter_cache, ^modes))
   end
 
   defp filter_by_mode(query, _), do: query
+
+  @spec filter_by_resource_format(Ecto.Query.t(), map()) :: Ecto.Query.t()
+  defp filter_by_resource_format(query, %{"format" => format}) do
+    query
+    |> join(:inner, [dataset: d], r in assoc(d, :resources), as: :resources)
+    |> where([resources: r], r.format == ^format)
+  end
+
+  defp filter_by_resource_format(query, _), do: query
 
   @spec filter_by_type(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_type(query, %{"type" => type}), do: where(query, [d], d.type == ^type)
@@ -400,9 +391,9 @@ defmodule DB.Dataset do
       |> filter_by_aom(params)
       |> filter_by_commune(params)
       |> filter_by_licence(params)
-      |> filter_by_climate_resilience_bill(params)
       |> filter_by_custom_tag(params)
       |> filter_by_organization(params)
+      |> filter_by_resource_format(params)
       |> filter_by_fulltext(params)
       |> select([dataset: d], d.id)
 
@@ -643,22 +634,23 @@ defmodule DB.Dataset do
   end
 
   @spec count_by_mode(binary()) :: number()
-  def count_by_mode(tag) do
-    base_query()
-    |> join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
-    |> where([metadata: m], ^tag in m.modes)
-    |> distinct([dataset: d], d.id)
-    |> Repo.aggregate(:count, :id)
+  def count_by_mode(mode) do
+    count_by_mode_query(mode)
+    |> DB.Repo.aggregate(:count, :id)
   end
 
   @spec count_coach() :: number()
   def count_coach do
-    base_query()
-    |> join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+    count_by_mode_query("bus")
     # 14 is the national "region". It means that it is not bound to a region or local territory
-    |> where([metadata: m, dataset: d], d.region_id == 14 and "bus" in m.modes)
-    |> distinct([dataset: d], d.id)
-    |> Repo.aggregate(:count, :id)
+    |> where([dataset: d], d.region_id == 14)
+    |> DB.Repo.aggregate(:count, :id)
+  end
+
+  defp count_by_mode_query(mode) do
+    base_query()
+    |> join(:inner, [dataset: d], r in assoc(d, :resources), as: :resource)
+    |> where([resource: r], fragment("?->'gtfs_modes' @> ?", r.counter_cache, ^mode))
   end
 
   @spec count_by_type(binary()) :: any()
@@ -887,28 +879,12 @@ defmodule DB.Dataset do
 
   @doc """
   The list of conversion formats we are interested in for a dataset.
-
-  Possible formats are handled by `DB.DataConversion`.
-  If the dataset contains at least a NeTEx resource, we are not interested in NeTEx conversions
-  UNLESS the dataset has a custom tag `keep_netex_conversions` we added ourselves.
-
-  iex> target_conversion_formats(%DB.Dataset{resources: [%DB.Resource{format: "gtfs"}]})
-  [:GeoJSON, :NeTEx]
-  iex> target_conversion_formats(%DB.Dataset{resources: [%DB.Resource{format: "gtfs"}, %DB.Resource{format: "NeTEx"}]})
-  [:GeoJSON]
   iex> target_conversion_formats(%DB.Dataset{resources: [%DB.Resource{format: "gtfs"}, %DB.Resource{format: "NeTEx"}]})
   [:GeoJSON]
   """
   @spec target_conversion_formats(DB.Dataset.t()) :: [atom()]
-  def target_conversion_formats(%__MODULE__{resources: resources} = dataset) when is_list(resources) do
-    keep_netex_conversions = has_custom_tag?(dataset, "keep_netex_conversions")
-    has_netex = Enum.any?(resources, &DB.Resource.netex?/1)
-
-    if has_netex and not keep_netex_conversions do
-      Enum.reject(available_conversion_formats(), &(&1 == :NeTEx))
-    else
-      available_conversion_formats()
-    end
+  def target_conversion_formats(%__MODULE__{}) do
+    available_conversion_formats()
   end
 
   defp available_conversion_formats, do: Ecto.Enum.values(DB.DataConversion, :convert_to)
@@ -1079,15 +1055,13 @@ defmodule DB.Dataset do
   @doc """
   Should this dataset not be historicized?
 
-  iex> should_skip_history?(%DB.Dataset{type: "road-data"})
-  true
   iex> should_skip_history?(%DB.Dataset{type: "public-transit"})
   false
   iex> should_skip_history?(%DB.Dataset{type: "public-transit", custom_tags: ["skip_history", "foo"]})
   true
   """
   def should_skip_history?(%__MODULE__{type: type} = dataset) do
-    type in ["bike-scooter-sharing", "car-motorbike-sharing", "road-data"] or has_custom_tag?(dataset, "skip_history")
+    type in ["vehicles-sharing"] or has_custom_tag?(dataset, "skip_history")
   end
 
   def has_licence_ouverte?(%__MODULE__{licence: licence}), do: licence in @licences_ouvertes

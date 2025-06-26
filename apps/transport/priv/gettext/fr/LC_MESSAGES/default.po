@@ -112,8 +112,8 @@ msgid "Declaration of conformity"
 msgstr "Déclaration de conformité"
 
 #, elixir-autogen, elixir-format
-msgid "Exploration map"
-msgstr "Carte d'exploration"
+msgid "Data exploration map"
+msgstr "Carte d'exploration des données"
 
 #, elixir-autogen, elixir-format
 msgid "SIRI query generator"
@@ -134,10 +134,6 @@ msgstr "Nos missions"
 #, elixir-autogen, elixir-format
 msgid "National GTFS stops map"
 msgstr "Carte nationale des arrêts GTFS"
-
-#, elixir-autogen, elixir-format
-msgid "Climate and Resilience bill"
-msgstr "Loi climat et résilience"
 
 #, elixir-autogen, elixir-format
 msgid "Compare two GTFS files"
@@ -166,3 +162,7 @@ msgstr "Toutes les données"
 #, elixir-autogen, elixir-format
 msgid "Statistics"
 msgstr "Statistiques"
+
+#, elixir-autogen, elixir-format
+msgid "Reuses"
+msgstr "Réutilisations"

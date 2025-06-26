@@ -12,7 +12,7 @@ defmodule TransportWeb.Live.FollowedDatasetsLiveTest do
 
   test "can filter datasets", %{conn: conn} do
     dijon_pt = insert(:dataset, type: "public-transit", custom_title: "Divia")
-    dijon_vls = insert(:dataset, type: "bike-scooter-sharing", custom_title: "DiviaVélo")
+    dijon_vls = insert(:dataset, type: "vehicles-sharing", custom_title: "DiviaVélo")
 
     {:ok, view, _html} =
       live_isolated(conn, TransportWeb.Live.FollowedDatasetsLive,
@@ -27,8 +27,8 @@ defmodule TransportWeb.Live.FollowedDatasetsLiveTest do
              {"select", [{"id", "type"}, {"name", "type"}],
               [
                 {"option", [{"selected", "selected"}, {"value", ""}], ["Tout"]},
-                {"option", [{"value", "public-transit"}], ["Transport public collectif - horaires théoriques"]},
-                {"option", [{"value", "bike-scooter-sharing"}], ["Vélos et trottinettes en libre-service"]}
+                {"option", [{"value", "public-transit"}], ["Transport public collectif"]},
+                {"option", [{"value", "vehicles-sharing"}], ["Véhicules en libre-service"]}
               ]}
            ] == view |> element("form select") |> render() |> Floki.parse_document!()
 
@@ -39,7 +39,7 @@ defmodule TransportWeb.Live.FollowedDatasetsLiveTest do
     form = view |> element("form")
 
     assert ["DiviaVélo"] == form |> search_by_value("velo") |> dataset_titles()
-    assert ["DiviaVélo"] == form |> search_by_type("bike-scooter-sharing") |> dataset_titles()
+    assert ["DiviaVélo"] == form |> search_by_type("vehicles-sharing") |> dataset_titles()
     # Search "velo" + "public-transit" = no results
     assert [] == form |> search_by_type("public-transit") |> dataset_titles()
     assert has_element?(view, ".notification", "Pas de résultats")

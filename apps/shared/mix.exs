@@ -37,7 +37,7 @@ defmodule Shared.MixProject do
     [
       {:timex, ">= 0.0.0"},
       {:httpoison, ">= 0.0.0"},
-      {:req, "~> 0.4.0"},
+      {:req, "~> 0.5"},
       {:bypass, "~> 2.1", only: :test},
       {:mox, "~> 1.1", only: :test},
       # Mint is used by our HttpStream shared component, so we add an explicity dependency
@@ -60,6 +60,8 @@ defmodule Shared.MixProject do
       {:ex_cldr_calendars, "~> 1.26"},
       {:ex_cldr_lists, "~> 2.11"},
       {:ex_cldr_units, "~> 3.17"},
+      {:ex_aws, "~> 2.1"},
+      {:ex_aws_s3, "~> 2.0"},
       {:cachex, "~> 3.5"},
       {:ex_json_schema, "~> 0.10"},
       # added because of `TransportWeb.Plugs.AppSignalFilter`

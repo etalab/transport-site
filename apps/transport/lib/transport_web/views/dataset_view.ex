@@ -72,7 +72,7 @@ defmodule TransportWeb.DatasetView do
         "most_recent" => dgettext("page-shortlist", "Most recently added")
       }[order_by]
 
-    assigns = Plug.Conn.assign(conn, :msg, msg).assigns()
+    assigns = Plug.Conn.assign(conn, :msg, msg).assigns
 
     case assigns do
       %{order_by: ^order_by} -> ~H{<span class="activefilter"><%= @msg %></span>}
@@ -81,7 +81,7 @@ defmodule TransportWeb.DatasetView do
   end
 
   def licence_link(%Plug.Conn{} = conn, %{licence: "all", count: count}) do
-    assigns = Plug.Conn.assign(conn, :count, count).assigns()
+    assigns = Plug.Conn.assign(conn, :count, count).assigns
 
     if Map.has_key?(conn.query_params, "licence") do
       link("#{dgettext("page-shortlist", "All (feminine)")} (#{count})",
@@ -93,7 +93,7 @@ defmodule TransportWeb.DatasetView do
   end
 
   def licence_link(%Plug.Conn{} = conn, %{licence: licence, count: count}) when licence not in ["fr-lo", "lov2"] do
-    assigns = Plug.Conn.merge_assigns(conn, count: count, name: name = licence(%Dataset{licence: licence})).assigns()
+    assigns = Plug.Conn.merge_assigns(conn, count: count, name: name = licence(%Dataset{licence: licence})).assigns
 
     if Map.get(conn.query_params, "licence") == licence do
       ~H{<span class="activefilter"><%= @name %> (<%= @count %>)</span>}
@@ -113,7 +113,7 @@ defmodule TransportWeb.DatasetView do
     params = conn.query_params
     full_url = "#{url}?#{Query.encode(params)}"
 
-    assigns = Plug.Conn.merge_assigns(conn, count: count, nom: nom).assigns()
+    assigns = Plug.Conn.merge_assigns(conn, count: count, nom: nom).assigns
 
     case current_path(conn, %{}) do
       ^url -> ~H{<span class="activefilter"><%= @nom %> (<%= @count %>)</span>}
@@ -140,27 +140,36 @@ defmodule TransportWeb.DatasetView do
   end
 
   def type_link(conn, %{type: type, msg: msg, count: count}) do
+    link_by_key(conn, "type", %{key: type, msg: msg, count: count})
+  end
+
+  def format_link(conn, %{format: format, msg: msg, count: count}) do
+    link_by_key(conn, "format", %{key: format, msg: msg, count: count})
+  end
+
+  defp link_by_key(conn, key_name, %{key: key, msg: msg, count: count}) do
     full_url =
-      case type do
-        nil -> current_url(conn, Map.delete(conn.query_params, "type"))
-        type -> current_url(conn, Map.put(conn.query_params, "type", type))
+      case key do
+        nil -> current_url(conn, Map.delete(conn.query_params, key_name))
+        key -> current_url(conn, Map.put(conn.query_params, key_name, key))
       end
 
     link_text = "#{msg} (#{count})"
-    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns()
+    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns
     active_filter_text = ~H{<span class="activefilter"><%= @msg %> (<%= @count %>)</span>}
 
     case conn.params do
-      %{"type" => ^type} ->
+      %{^key_name => ^key} ->
         active_filter_text
 
-      %{"type" => _} ->
+      %{^key_name => _} ->
         link(link_text, to: full_url)
 
       _ ->
-        case type do
-          nil -> active_filter_text
-          _ -> link(link_text, to: full_url)
+        if is_nil(key) do
+          active_filter_text
+        else
+          link(link_text, to: full_url)
         end
     end
   end
@@ -172,31 +181,10 @@ defmodule TransportWeb.DatasetView do
         true -> current_url(conn, Map.put(conn.query_params, "filter", "has_realtime"))
       end
 
-    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns()
+    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns
 
     case {only_rt, Map.get(conn.query_params, "filter")} do
       {false, "has_realtime"} -> link("#{msg} (#{count})", to: full_url)
-      {true, nil} -> link("#{msg} (#{count})", to: full_url)
-      _ -> ~H{<span class="activefilter"><%= @msg %> (<%= @count %>)</span>}
-    end
-  end
-
-  @spec climate_resilience_bill_link(Plug.Conn.t(), %{
-          only_climate_climate_resilience_bill: boolean(),
-          msg: binary(),
-          count: non_neg_integer()
-        }) :: any()
-  def climate_resilience_bill_link(conn, %{only_climate_climate_resilience_bill: only, msg: msg, count: count}) do
-    full_url =
-      case only do
-        false -> current_url(conn, Map.delete(conn.query_params, "loi-climat-resilience"))
-        true -> current_url(conn, Map.put(conn.query_params, "loi-climat-resilience", true))
-      end
-
-    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns()
-
-    case {only, Map.get(conn.query_params, "loi-climat-resilience")} do
-      {false, "true"} -> link("#{msg} (#{count})", to: full_url)
       {true, nil} -> link("#{msg} (#{count})", to: full_url)
       _ -> ~H{<span class="activefilter"><%= @msg %> (<%= @count %>)</span>}
     end
@@ -211,26 +199,15 @@ defmodule TransportWeb.DatasetView do
     # The upcoming ("grey") version should be named `<filename>-grey.svg`
     icons = %{
       "public-transit" => "bus.svg",
-      "bike-scooter-sharing" => "bicycle-scooter.svg",
-      "bike-way" => "bike-way.svg",
+      "vehicles-sharing" => "vehicles-sharing.svg",
+      "bike-data" => "bike-data.svg",
       "carpooling-areas" => "carpooling-areas.svg",
       "carpooling-lines" => "carpooling-lines.svg",
       "carpooling-offers" => "carpooling-offers.svg",
       "charging-stations" => "charge-station.svg",
-      "air-transport" => "plane.svg",
       "road-data" => "roads.svg",
-      "locations" => "locations.svg",
-      "private-parking" => "parking.svg",
       "informations" => "infos.svg",
-      "car-motorbike-sharing" => "car-motorbike-sharing.svg",
-      "low-emission-zones" => "low-emission-zones.svg",
-      "bike-parking" => "bike-parking.svg",
-      "transport-traffic" => "transport-traffic.svg",
-      # Not proper types, but modes/filters
-      "real-time-public-transit" => "bus-stop.svg",
-      "long-distance-coach" => "bus.svg",
-      "train" => "train.svg",
-      "boat" => "boat.svg"
+      "pedestrian-path" => "walk.svg"
     }
 
     if Map.has_key?(icons, type), do: "/images/icons/#{Map.get(icons, type)}"
@@ -367,12 +344,6 @@ defmodule TransportWeb.DatasetView do
     |> Enum.filter(&Resource.documentation?/1)
   end
 
-  def real_time_public_transit?(%Dataset{type: "public-transit"} = dataset) do
-    not Enum.empty?(real_time_official_resources(dataset))
-  end
-
-  def real_time_public_transit?(%Dataset{}), do: false
-
   def community_resources(dataset), do: Dataset.community_resources(dataset)
 
   def licence_url(licence) when licence in ["fr-lo", "lov2"],
@@ -426,11 +397,10 @@ defmodule TransportWeb.DatasetView do
     resources
     |> Enum.filter(fn r -> r.format == "csv" end)
     |> Enum.reject(fn r -> Resource.community_resource?(r) or Resource.documentation?(r) end)
-    |> Enum.max_by(& &1.last_update, DateTime, fn -> nil end)
+    |> Enum.max_by(&{&1.type, &1.last_update}, TransportWeb.DatasetView.ResourceTypeSortKey, fn -> nil end)
   end
 
-  def get_resource_to_display(%Dataset{type: type, resources: resources})
-      when type in ["bike-scooter-sharing", "car-motorbike-sharing"] do
+  def get_resource_to_display(%Dataset{type: "vehicles-sharing", resources: resources}) do
     resources
     |> Enum.filter(fn r -> r.format == "gbfs" or String.ends_with?(r.url, "gbfs.json") end)
     |> Enum.reject(fn r ->
@@ -440,7 +410,7 @@ defmodule TransportWeb.DatasetView do
     |> Enum.max_by(& &1.last_update, DateTime, fn -> nil end)
   end
 
-  def get_resource_to_display(%Dataset{type: "low-emission-zones", resources: resources}) do
+  def get_resource_to_display(%Dataset{type: "road-data", resources: resources}) do
     resources
     |> Enum.filter(fn r ->
       r.schema_name == "etalab/schema-zfe" or r.format == "geojson" or
@@ -583,5 +553,15 @@ defmodule TransportWeb.DatasetView do
   def heart_class(dataset_heart_values, %DB.Dataset{id: dataset_id}) do
     value = dataset_heart_values |> Map.fetch!(dataset_id) |> to_string()
     "fa fa-heart #{value}" |> String.trim()
+  end
+end
+
+defmodule TransportWeb.DatasetView.ResourceTypeSortKey do
+  def compare({left_type, left_last_update}, {right_type, right_last_update}) do
+    cond do
+      left_type == right_type -> DateTime.compare(left_last_update, right_last_update)
+      left_type == "main" -> :gt
+      true -> :lt
+    end
   end
 end

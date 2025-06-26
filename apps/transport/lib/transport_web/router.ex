@@ -56,7 +56,6 @@ defmodule TransportWeb.Router do
   pipeline :reuser_space do
     plug(:browser)
     plug(:authentication_required, destination_path: "/infos_reutilisateurs")
-    plug(:check_reuser_space_enabled)
   end
 
   scope "/", OpenApiSpex.Plug do
@@ -82,13 +81,13 @@ defmodule TransportWeb.Router do
     pipe_through(:browser)
     get("/", PageController, :index)
     get("/missions", PageController, :missions)
-    get("/loi-climat-resilience", PageController, :loi_climat_resilience)
     get("/accessibilite", PageController, :accessibility)
     get("/infos_producteurs", PageController, :infos_producteurs)
     get("/infos_reutilisateurs", PageController, :infos_reutilisateurs)
     get("/robots.txt", PageController, :robots_txt)
     get("/.well-known/security.txt", PageController, :security_txt)
     get("/humans.txt", PageController, :humans_txt)
+    get("/reuses", ReuseController, :index)
 
     scope "/espace_producteur" do
       pipe_through([:producer_space])
@@ -97,6 +96,7 @@ defmodule TransportWeb.Router do
 
       scope "/datasets" do
         get("/:dataset_id/edit", EspaceProducteurController, :edit_dataset)
+        get("/:dataset_id/reuser_improved_data/:resource_id", EspaceProducteurController, :reuser_improved_data)
         post("/:dataset_id/upload_logo", EspaceProducteurController, :upload_logo)
         delete("/:dataset_id/custom_logo", EspaceProducteurController, :remove_custom_logo)
 
@@ -122,7 +122,13 @@ defmodule TransportWeb.Router do
       pipe_through([:reuser_space])
       get("/", ReuserSpaceController, :espace_reutilisateur)
       get("/datasets/:dataset_id", ReuserSpaceController, :datasets_edit)
+      post("/datasets/:dataset_id/add_improved_data", ReuserSpaceController, :add_improved_data)
       post("/datasets/:dataset_id/unfavorite", ReuserSpaceController, :unfavorite)
+      get("/settings", ReuserSpaceController, :settings)
+      get("/settings/new_token", ReuserSpaceController, :new_token)
+      post("/settings/new_token", ReuserSpaceController, :create_new_token)
+      delete("/settings/tokens/:id", ReuserSpaceController, :delete_token)
+      post("/settings/tokens/:id/default_token", ReuserSpaceController, :default_token)
 
       live_session :reuser_space, session: %{"role" => :reuser}, root_layout: {TransportWeb.LayoutView, :app} do
         live("/notifications", Live.NotificationsLive, :notifications, as: :reuser_space)
@@ -273,10 +279,13 @@ defmodule TransportWeb.Router do
       end
     end
 
-    scope "/gtfs-geojson-conversion-#{System.get_env("TRANSPORT_TOOLS_SECRET_TOKEN")}" do
+    scope "/gtfs-geojson-conversion" do
+      pipe_through([:admin_rights])
       get("/", GeojsonConversionController, :index)
       post("/", GeojsonConversionController, :convert)
     end
+
+    get("/landing-vls", LandingPagesController, :vls)
 
     # old static pages that have been moved to doc.transport
     get("/faq", Redirect,
@@ -384,17 +393,6 @@ defmodule TransportWeb.Router do
 
       _ ->
         conn
-    end
-  end
-
-  def check_reuser_space_enabled(%Plug.Conn{} = conn, _) do
-    if TransportWeb.Session.display_reuser_space?(conn) do
-      conn
-    else
-      conn
-      |> put_flash(:info, dgettext("alert", "This feature is currently not available."))
-      |> redirect(to: "/")
-      |> halt()
     end
   end
 

@@ -128,7 +128,7 @@ msgid "Improved data sharing"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Manage"
+msgid "Preferences"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -137,4 +137,136 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Warning, you are going to remove \"%{dataset_title}\" from your favorites. You will lose any settings or actions you previously performed on this dataset."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Only GTFS files are eligible for now."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Share improved data"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Your improved data URL"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Step 1: choose the initial resource from the producer"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Step 2: add the URL to download your improved data"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You already shared improved data for this dataset, thanks!"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Your improved data has been saved."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Manage settings"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Name"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Organisation"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Secret"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Settings"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "There are no tokens yet."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Tokens"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Update your preferences, manage tokens to access data."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "A name identifying the application using this token."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Create"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Create a new token"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Token name"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You need to be a member of an organisation to create new tokens."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Your token has been created"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Your token has been deleted"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Tokens can be used when using <a href=\"%{swagger_url}\" target=\"_blank\">the API</a>. The token should be included in the <code>Authorization</code> HTTP header. If your token is <code>foo</code>, you should send HTTP requests with the header <code>Authorization: foo</code>."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Using tokens"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You can create or join an organisation on data.gouv.fr. <a href=\"%{doc_url}\" target=\"_blank\">See the documentation</a>."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The token %{name} is now the default token"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Default token"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Delete"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "(by default)"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Declare a reuse"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Declare your reuses"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Highlight your reuses and make yourself known."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Reuses"
 msgstr ""

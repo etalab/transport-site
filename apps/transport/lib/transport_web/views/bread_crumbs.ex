@@ -18,6 +18,14 @@ defmodule TransportWeb.BreadCrumbs do
     [{dgettext("reuser-space", "Reuser space"), reuser_space_path(conn, :espace_reutilisateur)}]
   end
 
+  def crumbs(conn, :settings) do
+    crumbs(conn, :reuser_space) ++ [{dgettext("reuser-space", "Settings"), reuser_space_path(conn, :settings)}]
+  end
+
+  def crumbs(conn, :new_token) do
+    crumbs(conn, :settings) ++ [{dgettext("reuser-space", "Create a new token"), nil}]
+  end
+
   def crumbs(conn, :contacts) do
     [{"Contacts", backoffice_contact_path(conn, :index)}]
   end
@@ -68,6 +76,11 @@ defmodule TransportWeb.BreadCrumbs do
   def crumbs(conn, :update_resource, dataset_custom_title, id) do
     crumbs(conn, :edit_dataset, dataset_custom_title, id) ++
       [{dgettext("espace-producteurs", "Update a resource"), nil}]
+  end
+
+  def crumbs(conn, :reuser_improved_data, dataset_custom_title, id, resource_title) do
+    crumbs(conn, :edit_dataset, dataset_custom_title, id) ++
+      [{resource_title, nil}]
   end
 
   def render_crumbs(crumbs_element) do

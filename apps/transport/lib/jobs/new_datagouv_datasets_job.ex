@@ -35,9 +35,9 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
           "trottinette",
           "vls",
           "scooter",
+          "scooters",
           "libre-service",
-          "libre service",
-          "scooter"
+          "libre service"
         ]),
       formats: MapSet.new(["gbfs"])
     },
@@ -51,7 +51,7 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
         "etalab/schema-comptage-mobilites-measure",
         "etalab/schema-comptage-mobilites-site"
       ],
-      tags: MapSet.new(["cyclable", "parking", "stationnement", "vélo"]),
+      tags: MapSet.new(["cyclable", "cyclables", "parking", "parkings", "stationnement", "vélo", "vélos"]),
       formats: MapSet.new([])
     },
     %{
@@ -68,8 +68,7 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
           "infrastructure de recharge",
           "borne de recharge",
           "irve",
-          "sdirve",
-          "électrique"
+          "sdirve"
         ]),
       formats: MapSet.new([])
     }
@@ -221,7 +220,17 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
 
   defp string_matches?(str, %{formats: formats, tags: tags} = _rule) when is_binary(str) do
     searches = MapSet.union(formats, tags) |> MapSet.to_list() |> Enum.map(&normalize/1)
-    str |> normalize() |> String.contains?(searches)
+    {words_with_spaces, words_without_spaces} = Enum.split_with(searches, &String.contains?(&1, " "))
+
+    match_without_spaces =
+      not (str
+           |> normalize()
+           |> String.split(~r/\s+/)
+           |> MapSet.new()
+           |> MapSet.disjoint?(MapSet.new(words_without_spaces)))
+
+    match_with_spaces = str |> normalize() |> String.contains?(words_with_spaces)
+    match_without_spaces || match_with_spaces
   end
 
   defp tags_is_relevant?(%{"tags" => tags} = _dataset, rule) do
@@ -257,8 +266,26 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
   "velo"
   iex> normalize("Châteauroux")
   "chateauroux"
+  iex> normalize("J'adore manger")
+  "j'adore manger"
   """
   def normalize(value) do
-    value |> String.normalize(:nfd) |> String.replace(~r/[^A-z]/u, "") |> String.downcase()
+    value
+    |> String.downcase()
+    |> String.graphemes()
+    |> Enum.map_join("", &normalize_grapheme/1)
+  end
+
+  defp normalize_grapheme(grapheme) do
+    case String.normalize(grapheme, :nfd) do
+      <<first, rest::binary>> when is_binary(rest) ->
+        case String.valid?(<<first>>) do
+          true -> <<first>>
+          false -> ""
+        end
+
+      _ ->
+        grapheme
+    end
   end
 end

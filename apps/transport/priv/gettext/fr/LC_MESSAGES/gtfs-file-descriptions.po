@@ -1,0 +1,208 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#, elixir-autogen, elixir-format
+msgid "agency.txt"
+msgstr "Entités dont le service est représenté dans ce jeu de données."
+
+#, elixir-autogen, elixir-format
+msgid "areas.txt"
+msgstr "Regroupement des zones géographiques."
+
+#, elixir-autogen, elixir-format
+msgid "attributions.txt"
+msgstr "Attributions des jeux de données."
+
+#, elixir-autogen, elixir-format
+msgid "booking_rules.txt"
+msgstr "Informations de réservation pour les services à la demande."
+
+#, elixir-autogen, elixir-format
+msgid "calendar.txt"
+msgstr "Calendriers et jours de fonctionnement du service."
+
+#, elixir-autogen, elixir-format
+msgid "calendar_dates.txt"
+msgstr "Exceptions pour les services définis dans le fichier calendar.txt."
+
+#, elixir-autogen, elixir-format
+msgid "fare_attributes.txt"
+msgstr "Informations tarifaires pour les itinéraires par entité de transport."
+
+#, elixir-autogen, elixir-format
+msgid "fare_leg_join_rules.txt"
+msgstr "Les règles de définition de deux ou plusieurs segments doivent être considérées comme un seul segment tarifaire effectif afin de correspondre aux règles du fichier fare_leg_rules.txt."
+
+#, elixir-autogen, elixir-format
+msgid "fare_leg_rules.txt"
+msgstr "Règles tarifaires pour chaque segment du voyage."
+
+#, elixir-autogen, elixir-format
+msgid "fare_media.txt"
+msgstr "Décrire les supports tarifaires utilisables pour l’utilisation des produits tarifaires."
+
+#, elixir-autogen, elixir-format
+msgid "fare_products.txt"
+msgstr "Décrire les différents types de billets ou de tarifs pouvant être achetés par les usagers."
+
+#, elixir-autogen, elixir-format
+msgid "fare_rules.txt"
+msgstr "Règles d’application des tarifs aux itinéraires."
+
+#, elixir-autogen, elixir-format
+msgid "fare_transfer_rules.txt"
+msgstr "Règles tarifaires pour les correspondances entre segments de voyage."
+
+#, elixir-autogen, elixir-format
+msgid "feed_info.txt"
+msgstr "Métadonnées de l’ensemble de données, notamment l’éditeur, la version et les informations d’expiration."
+
+#, elixir-autogen, elixir-format
+msgid "frequencies.txt"
+msgstr "Intervalle (temps entre les trajets) pour un service basé sur l’intervalle ou une représentation condensée d’un service à horaire fixe."
+
+#, elixir-autogen, elixir-format
+msgid "levels.txt"
+msgstr "Niveaux au sein des stations."
+
+#, elixir-autogen, elixir-format
+msgid "location_group_stops.txt"
+msgstr "Règles d’attribution des arrêts à des groupes de lieux."
+
+#, elixir-autogen, elixir-format
+msgid "location_groups.txt"
+msgstr "Un groupe d’arrêts qui, ensemble, indiquent les endroits où un usager peut demander à être pris en charge ou déposé."
+
+#, elixir-autogen, elixir-format
+msgid "networks.txt"
+msgstr "Définit les identifiants de réseau qui s’appliquent aux règles tarifaires."
+
+#, elixir-autogen, elixir-format
+msgid "pathways.txt"
+msgstr "Cheminements piétons reliant les emplacements au sein des stations."
+
+#, elixir-autogen, elixir-format
+msgid "rider_categories.txt"
+msgstr "Définit les catégories d’usagers (par exemple, personnes âgées, étudiants)."
+
+#, elixir-autogen, elixir-format
+msgid "route_networks.txt"
+msgstr "Règles pour attribuer des lignes aux réseaux."
+
+#, elixir-autogen, elixir-format
+msgid "routes.txt"
+msgstr "Lignes de transport en commun. C’est un groupe de trajets présentés aux passagers comme un service unique."
+
+#, elixir-autogen, elixir-format
+msgid "shapes.txt"
+msgstr "Règles de cartographie des trajets des véhicules, parfois appelées tracés d’itinéraires."
+
+#, elixir-autogen, elixir-format
+msgid "stop_areas.txt"
+msgstr "Règles d’attribution des arrêts aux zones."
+
+#, elixir-autogen, elixir-format
+msgid "stop_times.txt"
+msgstr "Heures d’arrivée et de départ d’un véhicule pour chaque trajet."
+
+#, elixir-autogen, elixir-format
+msgid "stops.txt"
+msgstr "Arrêts où les véhicules prennent en charge ou déposent des usagers. Définit également les stations et les entrées des stations."
+
+#, elixir-autogen, elixir-format
+msgid "timeframes.txt"
+msgstr "Périodes de date et d’heure à utiliser dans les règles tarifaires pour les tarifs dépendant de facteurs de date et d’heure."
+
+#, elixir-autogen, elixir-format
+msgid "transfers.txt"
+msgstr "Règles d’établissement des correspondances aux points de correspondance entre les itinéraires."
+
+#, elixir-autogen, elixir-format
+msgid "translations.txt"
+msgstr "Conversions des valeurs des données clients."
+
+#, elixir-autogen, elixir-format
+msgid "trips.txt"
+msgstr "Courses pour chaque ligne. Une course est une séquence de deux arrêts ou plus survenant pendant une période donnée."
+
+#, elixir-autogen, elixir-format
+msgid "unknown-file"
+msgstr "Fichier inconnu %{unknonw_file}."
+
+#, elixir-autogen, elixir-format
+msgid "unknown"
+msgstr "inconnu"
+
+#, elixir-autogen, elixir-format
+msgid "aerial lift, suspended cable car"
+msgstr "téléphérique, télécabine"
+
+#, elixir-autogen, elixir-format
+msgid "bus"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "cable tram"
+msgstr "tramway à traction par câble"
+
+#, elixir-autogen, elixir-format
+msgid "ferry"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "funicular"
+msgstr "funiculaire"
+
+#, elixir-autogen, elixir-format
+msgid "monorail"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "rail"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "subway, metro"
+msgstr "métro"
+
+#, elixir-autogen, elixir-format
+msgid "tram, streetcar, light rail"
+msgstr "tramway"
+
+#, elixir-autogen, elixir-format
+msgid "trolleybus"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "boarding area"
+msgstr "zone d’embarquement"
+
+#, elixir-autogen, elixir-format
+msgid "entrance/exit"
+msgstr "entrée / sortie"
+
+#, elixir-autogen, elixir-format
+msgid "generic node"
+msgstr "noeud générique"
+
+#, elixir-autogen, elixir-format
+msgid "station"
+msgstr "gare"
+
+#, elixir-autogen, elixir-format
+msgid "stop or platform"
+msgstr "arrêt ou quai"
+
+#, elixir-autogen, elixir-format
+msgid "Know more about this file."
+msgstr "En savoir plus sur ce fichier."

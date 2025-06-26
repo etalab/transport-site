@@ -1,0 +1,21 @@
+#reuses_search {
+  padding-left: 30px;
+  width: 400px;
+  display: inline-block;
+}
+
+#reuses_search_container {
+  margin: 0;
+  .form__group {
+    display: inline-block;
+  }
+}
+
+.reuses_search_button {
+  display: inline-block;
+  margin-left: 16px !important;
+}
+
+.reuses .card__cover {
+  background: transparent;
+}

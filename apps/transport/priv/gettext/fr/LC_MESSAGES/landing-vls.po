@@ -1,0 +1,80 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n>1);\n"
+
+#, elixir-autogen, elixir-format
+msgid "Access free self-service vehicle data in France"
+msgstr "Accédez gratuitement aux données des véhicules en libre-service en France (VLS)"
+
+#, elixir-autogen, elixir-format
+msgid "A complex ecosystem"
+msgstr "Un écosystème complexe"
+
+#, elixir-autogen, elixir-format
+msgid "description"
+msgstr "La mobilité partagée favorise une mobilité durable, économique et intermodale. En complément de l’offre de transports collectifs, retrouvez les données des vélos, trottinettes, scooters et voitures en libre-service."
+
+#, elixir-autogen, elixir-format
+msgid "A multiplicity of actors in France"
+msgstr "Une multiplicité d’acteurs en France"
+
+#, elixir-autogen, elixir-format
+msgid "Different data exchange formats"
+msgstr "Différents formats d’échanges de données"
+
+#, elixir-autogen, elixir-format
+msgid "Many types of services"
+msgstr "De nombreux types de services"
+
+#, elixir-autogen, elixir-format
+msgid "Easily explore and reuse data from AOMs and their service providers"
+msgstr "Explorez et réutilisez facilement les données des AOMs et de leurs prestataires"
+
+#, elixir-autogen, elixir-format
+msgid "A personalized space to stay informed"
+msgstr "Un espace personnalisé pour rester informé"
+
+#, elixir-autogen, elixir-format
+msgid "Access the data"
+msgstr "Accédez aux données"
+
+#, elixir-autogen, elixir-format
+msgid "Access your reuser space"
+msgstr "Accédez à votre espace réutilisateur"
+
+#, elixir-autogen, elixir-format
+msgid "Coverage of services available by territory"
+msgstr "Couverture des services disponibles par territoire"
+
+#, elixir-autogen, elixir-format
+msgid "National coverage"
+msgstr "Couverture nationale"
+
+#, elixir-autogen, elixir-format
+msgid "Real-time data in GBFS format"
+msgstr "Données en temps réel au format GBFS"
+
+#, elixir-autogen, elixir-format
+msgid "If you have any questions, the transport.data.gouv.fr team is available to help you reuse this data:"
+msgstr "Pour toute question, l’équipe de transport.data.gouv.fr est disponible pour vous accompagner à réutiliser ces données :"
+
+#, elixir-autogen, elixir-format
+msgid "Autorités Organisatrices de la Mobilité: Mobility Organizing Authorities"
+msgstr "Autorités Organisatrices de la Mobilité"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "GBFS resources"
+msgstr "Flux GBFS"
+
+#, elixir-autogen, elixir-format
+msgid "Self-service vehicles"
+msgstr "Véhicules en libre-service"

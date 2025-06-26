@@ -2,13 +2,13 @@
   padding-top: 24px;
 
   .row {
-    justify-content: flex-start;
+    justify-content: stretch;
     flex-wrap: wrap;
+    align-items: stretch;
 
     &> * {
-      max-width: 25em;
-      margin-right: var(--space-m);
-      margin-left: 0;
+      max-width: 22em;
+      margin: 0 var(--space-m) 0 0;
     }
 
     .dataset__panel {
@@ -24,7 +24,6 @@
 
 .action-panel {
   display: flex;
-  flex-grow: 1;
 
   img.picto {
     height: 40px;
@@ -53,4 +52,11 @@ form.search-followed-datasets {
 
 .align-right {
   text-align: right;
+}
+
+form.full-width {
+  max-width: 100%;
+}
+form.inline {
+  display: inline;
 }

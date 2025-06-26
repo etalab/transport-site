@@ -1,6 +1,5 @@
 <% is_gtfs_flex = not is_nil(@resource_history) and DB.ResourceHistory.gtfs_flex?(@resource_history)
 associated_geojson = get_associated_geojson(@related_files)
-associated_netex = get_associated_netex(@related_files)
 locale = get_session(@conn, :locale) %>
 <section>
   <div class="grey-background">
@@ -11,7 +10,7 @@ locale = get_session(@conn, :locale) %>
       <div class="panel">
         <%= render("_resource_description.html", conn: @conn, resource: @resource, resource_history: @resource_history) %>
         <%= render("_resources_details_gtfs.html", conn: @conn, metadata: @metadata, modes: @modes) %>
-        <%= if !is_nil(associated_geojson) or !is_nil(associated_netex) do %>
+        <%= if !is_nil(associated_geojson) do %>
           <div id="other-formats">
             <%= dgettext("validations", "This resource is also available in the following formats:") %>
             <ul>
@@ -19,9 +18,6 @@ locale = get_session(@conn, :locale) %>
                 <li>
                   <a rel="nofollow" href={associated_geojson.stable_url}>GeoJSON</a>*
                 </li>
-              <% end %>
-              <%= unless is_nil(associated_netex) do %>
-                <li><a rel="nofollow" href={associated_netex.stable_url}>NeTEx</a></li>
               <% end %>
             </ul>
             * <%= dgettext(
@@ -130,7 +126,7 @@ locale = get_session(@conn, :locale) %>
         <% end %>
       </div>
       <%= if length(@other_resources) > 0 do %>
-        <h2><%= TransportWeb.Gettext.dgettext("validations", "Other resources") %></h2>
+        <h2><%= dgettext("validations", "Other resources") %></h2>
         <div class="panel">
           <ul>
             <%= for resource <- @other_resources do %>

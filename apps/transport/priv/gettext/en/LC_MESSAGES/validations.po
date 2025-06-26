@@ -267,10 +267,6 @@ msgid "Validate this GBFS now"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Compare"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Upload in progress"
 msgstr ""
 
@@ -311,75 +307,7 @@ msgid "Previous validations"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Differences Overview"
-msgstr ""
-
-#, elixir-autogen, elixir-format, fuzzy
-msgid "Drop your GTFS files here or browse your local drive"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "GTFS Diff is a <a href=\"%{link}\">specification</a>\n      created by transport.data.gouv.fr and aims at providing a simple and unified way to express differences between GTFS files"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "GTFS Diff is available for"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "GTFS comparison with GTFS Diff"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Human friendly explanations"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "<a href=\"%{spec}\">Read</a> the GTFS Diff specification to understand how differences between GTFS are expressed"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "The file \"%{file}\" has been deleted"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "(Work in progress). We also try to express some of the differences found in a human friendly way."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "added"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "deleted"
-msgstr ""
-
-#, elixir-autogen, elixir-format, fuzzy
-msgid "download"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "updated"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "A file named \"%{file}\" has been added"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "[stops.txt] The name of the stop_id %{stop_id} has been modified. Initial name: \"%{initial_stop_name}\", New name: \"%{new_stop_name}\""
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "[stops.txt] Wheelchair_boarding information added for stop_id %{stop_id}, previously: \"%{initial_wheelchair_boarding}\", now: \"%{new_wheelchair_boarding}\""
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Shapes present in the GTFS have been ignored, some rules are not enforced."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "analyzing found differences..."
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -406,10 +334,6 @@ msgstr ""
 msgid "number of stop points:"
 msgstr ""
 
-#, elixir-autogen, elixir-format
-msgid "The GTFS file %{gtfs_original_file_name_2} has differences with the GTFS file %{gtfs_original_file_name_1}, as summarized below:"
-msgstr ""
-
 #, elixir-autogen, elixir-format, fuzzy
 msgid "NeTEx review report"
 msgstr ""
@@ -420,10 +344,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "NeTEx validation is in beta."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Warnings are work in progress. Only XSD errors are considered for now."
 msgstr ""
 
 #, elixir-autogen, elixir-format

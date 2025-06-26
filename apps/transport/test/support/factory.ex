@@ -41,6 +41,7 @@ defmodule DB.Factory do
       nom: "Grenoble",
       siren: "253800825",
       region: build(:region),
+      population: 1_000,
       # The value must be unique, ExFactory helps us with a named sequence
       composition_res_id: 1000 + sequence("composition_res_id", & &1)
     }
@@ -314,6 +315,22 @@ defmodule DB.Factory do
     %DB.ResourceRelated{}
   end
 
+  def default_token_factory do
+    %DB.DefaultToken{}
+  end
+
+  def reuser_improved_data_factory do
+    dataset = build(:dataset)
+
+    %DB.ReuserImprovedData{
+      dataset: dataset,
+      resource: build(:resource, dataset_id: dataset.id),
+      contact: insert_contact(),
+      organization: build(:organization),
+      download_url: sequence(:download_url, fn i -> "https://example.com/file_#{i}" end)
+    }
+  end
+
   def organization_factory do
     %DB.Organization{
       id: Ecto.UUID.generate(),
@@ -323,6 +340,53 @@ defmodule DB.Factory do
       name: sequence(:name, fn i -> "organization_name_#{i}" end),
       slug: sequence(:slug, fn i -> "organization_slug_#{i}" end)
     }
+  end
+
+  def reuse_factory do
+    %DB.Reuse{
+      datagouv_id: sequence(:datagouv_id, &"datagouv_id-#{&1}"),
+      title: sequence(:title, &"Reuse Title #{&1}"),
+      slug: sequence(:slug, &"reuse-slug-#{&1}"),
+      url: sequence(:url, &"http://example.com/reuse/#{&1}"),
+      type: "api",
+      description: "A description of the reuse.",
+      remote_url: sequence(:remote_url, &"http://remote.example.com/reuse/#{&1}"),
+      organization: "Example Organization",
+      organization_id: sequence(:organization_id, &"org-#{&1}"),
+      owner: "Example Owner",
+      owner_id: sequence(:owner_id, &"owner-#{&1}"),
+      image: sequence(:image, &"http://example.com/image/#{&1}.jpg"),
+      featured: false,
+      archived: false,
+      topic: "transport_and_mobility",
+      tags: ["tag1", "tag2"],
+      metric_discussions: 0,
+      metric_datasets: 0,
+      metric_followers: 0,
+      metric_views: 0,
+      created_at: DateTime.utc_now(),
+      last_modified: DateTime.utc_now()
+    }
+  end
+
+  def insert_token(%{} = args \\ %{}) do
+    args =
+      %{
+        secret: "secret",
+        name: "name",
+        contact_id: insert_contact().id
+      }
+      |> Map.merge(args)
+
+    # Insert an organization only if `organization_id` was not passed
+    args =
+      if Map.has_key?(args, :organization_id) do
+        args
+      else
+        Map.merge(args, %{organization_id: insert(:organization).id})
+      end
+
+    DB.Token.changeset(%DB.Token{}, args) |> DB.Repo.insert!()
   end
 
   def insert_contact(%{} = args \\ %{}) do
@@ -360,7 +424,7 @@ defmodule DB.Factory do
 
   def insert_parcs_relais_dataset do
     insert(:dataset, %{
-      type: "private-parking",
+      type: "road-data",
       custom_title: "Base nationale des parcs relais",
       organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
       organization_id: "5abca8d588ee386ee6ece479",
@@ -370,10 +434,11 @@ defmodule DB.Factory do
 
   def insert_zfe_dataset do
     insert(:dataset, %{
-      type: "low-emission-zones",
+      type: "road-data",
       custom_title: "Base Nationale des Zones à Faibles Émissions (BNZFE)",
       organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
       organization_id: "5abca8d588ee386ee6ece479",
+      datagouv_id: "zfe_fake_dataset_id",
       aom: build(:aom, population: 1_000_000)
     })
   end

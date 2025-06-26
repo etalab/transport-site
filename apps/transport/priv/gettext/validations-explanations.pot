@@ -145,3 +145,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Details for debugging purposes"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "UnusableTrip"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "NoCalendar"
+msgstr ""

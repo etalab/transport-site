@@ -14,8 +14,15 @@ defmodule TransportWeb.ExploreControllerTest do
 
   test "GET /explore", %{conn: conn} do
     conn = conn |> get(~p"/explore")
+    redirect_path = conn |> redirected_to(302)
+    assert redirect_path =~ ~r"^/explore\?"
+    html = conn |> get(redirect_path) |> html_response(200)
+    assert html =~ "Carte d&#39;exploration des données"
+    assert 6 == (html |> String.split("checked") |> Enum.count()) - 1
+
+    conn = conn |> get(~p"/explore?zfe=yes")
     html = html_response(conn, 200)
-    assert html =~ "Exploration"
+    assert 1 == (html |> String.split("checked") |> Enum.count()) - 1
   end
 
   test "GET /explore/vehicle-positions", %{conn: conn} do

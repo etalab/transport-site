@@ -30,7 +30,7 @@ defmodule Transport.MixProject do
       {:saxy, "~> 1.5"},
       {:appsignal, "~> 2.0"},
       {:appsignal_phoenix, "~> 2.0"},
-      {:ecto_erd, "~> 0.5.0", only: [:dev]}
+      {:ecto_erd, "~> 0.6.0", only: [:dev]}
     ]
   end
 
@@ -55,10 +55,20 @@ defmodule Transport.MixProject do
   end
 
   defp aliases(:dev) do
-    aliases() ++ ["ecto.migrate": ["ecto.migrate", "ecto.dump"]]
+    aliases() ++
+      [
+        "ecto.migrate": ["ecto.migrate", "ecto.dump"],
+        run: [&set_worker_env/1, "run"]
+      ]
   end
 
   defp aliases(_env) do
     aliases()
+  end
+
+  defp set_worker_env(_) do
+    # Boot only in webserver mode when running `mix run`
+    # See `config/runtime.exs`
+    System.put_env("WORKER", "0")
   end
 end

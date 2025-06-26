@@ -12,25 +12,6 @@
   padding: 0;
 }
 
-.shortlist.climate-resilience-bill {
-  .side-pane {
-    background: url('/images/bg_loi_climat_resilience.jpg');
-    padding: 1em 1.25em;
-    margin-right: 0;
-    flex: 0 0 17em;
-    .panel {
-      font-size: 15px;
-      padding: var(--space-s);
-    }
-  }
-  .main-pane {
-    .panel {
-      max-width: 700px;
-      margin: 0 auto;
-    }
-  }
-}
-
 .order-by {
   padding-bottom: 24px;
   display: flex;

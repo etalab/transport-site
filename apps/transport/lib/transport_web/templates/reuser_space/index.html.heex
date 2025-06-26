@@ -32,6 +32,52 @@
           </div>
         </div>
       </div>
+      <div class="panel action-panel">
+        <img
+          class="picto"
+          src={static_path(@conn, "/images/reutilisateurs/reuses.svg")}
+          alt={dgettext("reuser-space", "Reuses")}
+        />
+        <div>
+          <div class="publish-header">
+            <h4><%= dgettext("reuser-space", "Declare your reuses") %></h4>
+          </div>
+          <div class="pt-12">
+            <%= dgettext(
+              "reuser-space",
+              "Highlight your reuses and make yourself known."
+            ) %>
+          </div>
+          <div class="pt-12">
+            <a href="https://www.data.gouv.fr/admin/reuses/new/" target="_blank" class="button">
+              <%= dgettext("reuser-space", "Declare a reuse") %>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="panel action-panel">
+        <img
+          class="picto"
+          src={static_path(@conn, "/images/reutilisateurs/gear.svg")}
+          alt={dgettext("reuser-space", "Settings")}
+        />
+        <div>
+          <div class="publish-header">
+            <h4><%= dgettext("reuser-space", "Manage settings") %></h4>
+          </div>
+          <div class="pt-12">
+            <%= dgettext(
+              "reuser-space",
+              "Update your preferences, manage tokens to access data."
+            ) %>
+          </div>
+          <div class="pt-12">
+            <a href={reuser_space_path(@conn, :settings)} class="button">
+              <%= dgettext("reuser-space", "Manage settings") %>
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
     <h2 class="pt-48"><%= dgettext("reuser-space", "Favorite datasets") %></h2>
     <%= live_render(@conn, TransportWeb.Live.FollowedDatasetsLive, session: %{"dataset_ids" => @followed_datasets_ids}) %>

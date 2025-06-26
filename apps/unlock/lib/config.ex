@@ -14,7 +14,15 @@ defmodule Unlock.Config do
     Default subtype is "gtfs-rt" for historical reasons, see `convert_yaml_item_to_struct` in the code.
     """
     @enforce_keys [:identifier, :target_url, :ttl]
-    defstruct [:identifier, :target_url, :ttl, subtype: "gtfs-rt", request_headers: [], response_headers: []]
+    defstruct [
+      :identifier,
+      :slug,
+      :target_url,
+      :ttl,
+      subtype: "gtfs-rt",
+      request_headers: [],
+      response_headers: []
+    ]
   end
 
   defmodule Item.SIRI do
@@ -36,6 +44,15 @@ defmodule Unlock.Config do
     @enforce_keys [:identifier, :feeds]
 
     defstruct [:identifier, :feeds, :ttl]
+  end
+
+  defmodule Item.S3 do
+    @moduledoc """
+    Intermediate structure for S3-based configured items.
+    """
+
+    @enforce_keys [:identifier, :bucket, :path, :ttl]
+    defstruct [:identifier, :bucket, :path, :ttl]
   end
 
   defmodule Fetcher do
@@ -80,6 +97,7 @@ defmodule Unlock.Config do
     def convert_yaml_item_to_struct(%{"type" => subtype} = item) when subtype in ["generic-http", "gtfs-rt"] do
       %Item.Generic.HTTP{
         identifier: Map.fetch!(item, "identifier"),
+        slug: Map.get(item, "slug"),
         target_url: Map.fetch!(item, "target_url"),
         # By default, no TTL
         ttl: Map.get(item, "ttl", 0),
@@ -87,6 +105,15 @@ defmodule Unlock.Config do
         subtype: subtype,
         request_headers: parse_config_http_headers(Map.get(item, "request_headers", [])),
         response_headers: parse_config_http_headers(Map.get(item, "response_headers", []))
+      }
+    end
+
+    def convert_yaml_item_to_struct(%{"type" => "s3"} = item) do
+      %Item.S3{
+        identifier: Map.fetch!(item, "identifier"),
+        bucket: Map.fetch!(item, "bucket"),
+        path: Map.fetch!(item, "path"),
+        ttl: Map.get(item, "ttl", 10)
       }
     end
 

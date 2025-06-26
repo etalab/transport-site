@@ -1,0 +1,66 @@
+## This file is a PO Template file.
+##
+## "msgid"s here are often extracted from source code.
+## Add new messages manually only if they're dynamic
+## messages that can't be statically extracted.
+##
+## Run "mix gettext.extract" to bring this file up to
+## date. Leave "msgstr"s empty as changing them here has no
+## effect: edit them in PO (.po) files instead.
+#
+msgid ""
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Reuses"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "dataset"
+msgid_plural "datasets"
+msgstr[0] ""
+msgstr[1] ""
+
+#, elixir-autogen, elixir-format
+msgid "api"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "application"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "hardware"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "news_article"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "paper"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "post"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "visualization"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "idea"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "index-intro"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Publish a reuse"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Find reuses"
+msgstr ""

@@ -10,7 +10,7 @@
   |> Sizeable.filesize() %>
 </div>
 <div class="form__group pt-12">
-  <a class="button-outline small secondary" href={DB.Resource.download_url(@resource)}>
+  <a class="button-outline small secondary" href={DB.Resource.download_url(@resource, @conn)}>
     <i class="icon icon--download" aria-hidden="true"></i><%= dgettext("resource", "Download") %>
   </a>
   <a

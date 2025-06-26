@@ -8,6 +8,8 @@ defmodule TransportWeb.DatasetControllerTest do
   import Mock
   import Mox
 
+  @pan_org_id "5abca8d588ee386ee6ece479"
+
   setup :verify_on_exit!
 
   setup do
@@ -51,38 +53,6 @@ defmodule TransportWeb.DatasetControllerTest do
     end
   end
 
-  test "dataset details with a NeTEx conversion", %{conn: conn} do
-    dataset = insert(:dataset, type: "public-transit", is_active: true)
-    resource = insert(:resource, format: "GTFS", url: "https://example.com", dataset: dataset)
-    insert(:resource_history, resource_id: resource.id, payload: %{"uuid" => uuid = Ecto.UUID.generate()})
-
-    insert(:data_conversion,
-      resource_history_uuid: uuid,
-      convert_from: "GTFS",
-      convert_to: "NeTEx",
-      converter: DB.DataConversion.converter_to_use("NeTEx"),
-      payload: %{"permanent_url" => conversion_url = "https://super-cellar-url.com/netex"}
-    )
-
-    Transport.History.Fetcher.Mock
-    |> expect(:history_resources, fn _, options ->
-      assert Keyword.equal?(options, preload_validations: true, max_records: 25, fetch_mode: :all)
-      []
-    end)
-
-    with_mocks [
-      {Datagouvfr.Client.Reuses, [], [get: fn _dataset -> {:ok, []} end]},
-      {Datagouvfr.Client.Discussions, [], [get: fn _id -> nil end]}
-    ] do
-      html_response = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200)
-      assert html_response =~ "Conversions automatiques"
-      assert html_response =~ "NeTEx"
-      assert html_response =~ conversion_path(conn, :get, resource.id, :NeTEx)
-      refute html_response =~ conversion_url
-      refute html_response =~ "GeoJSON"
-    end
-  end
-
   test "the search custom message gets displayed", %{conn: conn} do
     conn = conn |> get(dataset_path(conn, :index, type: "public-transit"))
     html = html_response(conn, 200)
@@ -119,31 +89,6 @@ defmodule TransportWeb.DatasetControllerTest do
              |> html_response(200)
              |> Floki.parse_document!()
              |> Floki.find(".dataset__image")
-  end
-
-  describe "climate and resilience bill" do
-    test "displayed for public-transit", %{conn: conn} do
-      conn = conn |> get(dataset_path(conn, :index, type: "public-transit"))
-      doc = conn |> html_response(200) |> Floki.parse_document!()
-      [msg] = Floki.find(doc, "#climate-resilience-bill-panel")
-
-      assert Floki.text(msg) =~
-               "Certaines données de cette catégorie feront l'objet d'une intégration obligatoire."
-    end
-
-    test "displayed when filtering for climate resilience bill datasets", %{conn: conn} do
-      conn = conn |> get(dataset_path(conn, :index, "loi-climat-resilience": true))
-      doc = conn |> html_response(200) |> Floki.parse_document!()
-      [msg] = Floki.find(doc, "#climate-resilience-bill-panel")
-
-      assert Floki.text(msg) =~ "Ces jeux de données feront l'objet d'une intégration obligatoire."
-    end
-
-    test "not displayed for locations", %{conn: conn} do
-      conn = conn |> get(dataset_path(conn, :index, type: "locations"))
-      doc = conn |> html_response(200) |> Floki.parse_document!()
-      assert [] == Floki.find(doc, "#climate-resilience-bill-panel")
-    end
   end
 
   describe "heart icons" do
@@ -815,16 +760,16 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   test "get_licences" do
-    insert(:dataset, licence: "lov2", type: "low-emission-zones")
-    insert(:dataset, licence: "fr-lo", type: "low-emission-zones")
-    insert(:dataset, licence: "odc-odbl", type: "low-emission-zones")
+    insert(:dataset, licence: "lov2", type: "road-data")
+    insert(:dataset, licence: "fr-lo", type: "road-data")
+    insert(:dataset, licence: "odc-odbl", type: "road-data")
     insert(:dataset, licence: "odc-odbl", type: "public-transit")
 
     assert [%{count: 1, licence: "odc-odbl"}] ==
              TransportWeb.DatasetController.get_licences(%{"type" => "public-transit"})
 
     assert [%{count: 2, licence: "licence-ouverte"}, %{count: 1, licence: "odc-odbl"}] ==
-             TransportWeb.DatasetController.get_licences(%{"type" => "low-emission-zones"})
+             TransportWeb.DatasetController.get_licences(%{"type" => "road-data"})
   end
 
   test "hidden datasets", %{conn: conn} do
@@ -850,9 +795,7 @@ defmodule TransportWeb.DatasetControllerTest do
 
   test "dataset-page-title", %{conn: conn} do
     [
-      {%{"type" => "public-transit"}, "Transport public collectif - horaires théoriques"},
-      {%{"type" => "public-transit", "filter" => "has_realtime"}, "Transport public collectif - horaires temps réel"},
-      {%{"modes" => ["rail"]}, "Transport ferroviaire"}
+      {%{"type" => "public-transit"}, "Transport public collectif"}
     ]
     |> Enum.each(fn {params, expected_title} ->
       title =
@@ -865,23 +808,13 @@ defmodule TransportWeb.DatasetControllerTest do
     end)
   end
 
-  test "dataset page title for long distance coaches", %{conn: conn} do
-    national_region = DB.Repo.get_by!(DB.Region, nom: "National")
-
-    title =
-      conn
-      |> get(dataset_path(conn, :by_region, national_region.id, %{"modes" => ["bus"]}))
-      |> html_response(200)
-      |> dataset_page_title()
-
-    assert title == "Autocars longue distance"
-  end
-
   test "resources_history_csv", %{conn: conn} do
     # Using the real implementation to test end-to-end
     Mox.stub_with(Transport.History.Fetcher.Mock, Transport.History.Fetcher.Database)
 
-    dataset = insert(:dataset)
+    %DB.Contact{id: contact_id} = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+
+    %DB.Dataset{id: dataset_id} = dataset = insert(:dataset)
     resource = insert(:resource, dataset: dataset)
     other_resource = insert(:resource, dataset: dataset)
     # another resource, no history for this one
@@ -919,7 +852,12 @@ defmodule TransportWeb.DatasetControllerTest do
       )
 
     # Check that we sent a chunked response with the expected CSV content
-    %Plug.Conn{state: :chunked} = response = conn |> get(dataset_path(conn, :resources_history_csv, dataset.id))
+    %Plug.Conn{state: :chunked} =
+      response =
+      conn
+      |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+      |> get(dataset_path(conn, :resources_history_csv, dataset.id))
+
     content = response(response, 200)
 
     # Check CSV header
@@ -956,6 +894,14 @@ defmodule TransportWeb.DatasetControllerTest do
     assert Plug.Conn.get_resp_header(response, "content-disposition") == [
              ~s(attachment; filename="historisation-dataset-#{dataset.id}-#{Date.utc_today() |> Date.to_iso8601()}.csv")
            ]
+
+    assert [
+             %DB.FeatureUsage{
+               feature: :download_resource_history,
+               contact_id: ^contact_id,
+               metadata: %{"dataset_id" => ^dataset_id}
+             }
+           ] = DB.FeatureUsage |> DB.Repo.all()
   end
 
   describe "Legal owner display" do
@@ -991,6 +937,116 @@ defmodule TransportWeb.DatasetControllerTest do
       # Region is displayed first
       assert Floki.text(doc) =~ "Pays de la Loire, Angers Métropole"
     end
+  end
+
+  test "dataset#details, PAN resource, logged-in user with a default token", %{conn: conn} do
+    dataset = insert(:dataset, organization_id: @pan_org_id)
+    resource = insert(:resource, dataset: dataset)
+    assert resource |> DB.Repo.preload(:dataset) |> DB.Resource.pan_resource?()
+
+    contact = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+    token = insert_token()
+    insert(:default_token, contact: contact, token: token)
+
+    mock_empty_history_resources()
+
+    assert [resource_url(TransportWeb.Endpoint, :download, resource.id, token: token.secret)] ==
+             conn
+             |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+             |> dataset_href_download_button(dataset)
+  end
+
+  test "dataset#details, PAN resource, logged-in user without a default token", %{conn: conn} do
+    dataset = insert(:dataset, organization_id: @pan_org_id)
+    resource = insert(:resource, dataset: dataset)
+    assert resource |> DB.Repo.preload(:dataset) |> DB.Resource.pan_resource?()
+
+    organization = insert(:organization)
+
+    insert_contact(%{
+      datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
+      organizations: [organization |> Map.from_struct()]
+    })
+
+    insert_token(%{organization_id: organization.id})
+
+    mock_empty_history_resources()
+
+    assert [resource_url(TransportWeb.Endpoint, :download, resource.id)] ==
+             conn
+             |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+             |> dataset_href_download_button(dataset)
+  end
+
+  test "dataset#details, PAN resource, logged-out user", %{conn: conn} do
+    dataset = insert(:dataset, organization_id: @pan_org_id)
+    resource = insert(:resource, dataset: dataset)
+    assert resource |> DB.Repo.preload(:dataset) |> DB.Resource.pan_resource?()
+
+    mock_empty_history_resources()
+
+    assert [resource_url(TransportWeb.Endpoint, :download, resource.id)] ==
+             conn |> dataset_href_download_button(dataset)
+  end
+
+  test "dataset#details, proxy resource, logged-in user with a default token", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, url: "https://proxy.transport.data.gouv.fr/#{Ecto.UUID.generate()}")
+    assert resource |> DB.Resource.served_by_proxy?()
+
+    contact = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+    token = insert_token()
+    insert(:default_token, contact: contact, token: token)
+
+    mock_empty_history_resources()
+
+    assert [resource.url <> "?token=#{token.secret}"] ==
+             conn
+             |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+             |> dataset_href_download_button(dataset)
+  end
+
+  test "dataset#details, proxy resource, logged-in user without a default token", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, url: "https://proxy.transport.data.gouv.fr/#{Ecto.UUID.generate()}")
+    assert resource |> DB.Resource.served_by_proxy?()
+
+    organization = insert(:organization)
+
+    insert_contact(%{
+      datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
+      organizations: [organization |> Map.from_struct()]
+    })
+
+    insert_token(%{organization_id: organization.id})
+
+    mock_empty_history_resources()
+
+    assert [resource.url] ==
+             conn
+             |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+             |> dataset_href_download_button(dataset)
+  end
+
+  test "dataset#details, proxy resource, logged-out user", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, url: "https://proxy.transport.data.gouv.fr/#{Ecto.UUID.generate()}")
+    assert resource |> DB.Resource.served_by_proxy?()
+
+    mock_empty_history_resources()
+
+    assert [resource.url] ==
+             conn |> dataset_href_download_button(dataset)
+  end
+
+  def dataset_href_download_button(%Plug.Conn{} = conn, %DB.Dataset{} = dataset) do
+    conn
+    |> get(dataset_path(conn, :details, dataset.slug))
+    |> html_response(200)
+    |> Floki.parse_document!()
+    |> Floki.find("a.download-button")
+    |> hd()
+    |> Floki.attribute("href")
   end
 
   defp dataset_page_title(content) do

@@ -6,7 +6,7 @@ defmodule DB.Resource do
   use TypedEctoSchema
   alias DB.{Dataset, Repo, ResourceUnavailability}
   import Ecto.{Changeset, Query}
-  import TransportWeb.Router.Helpers, only: [conversion_url: 4, resource_url: 3]
+  import TransportWeb.Router.Helpers, only: [conversion_url: 4, resource_url: 3, resource_url: 4]
   require Logger
 
   typed_schema "resource" do
@@ -153,9 +153,24 @@ defmodule DB.Resource do
   def community_resource?(%__MODULE__{is_community_resource: true}), do: true
   def community_resource?(_), do: false
 
+  @doc """
+  iex> real_time?(%DB.Resource{format: "gbfs"})
+  true
+  iex> real_time?(%DB.Resource{format: "GTFS"})
+  false
+  iex> real_time?(%DB.Resource{format: "csv", description: "Données mises à jour en temps réel"})
+  true
+  """
   @spec real_time?(__MODULE__.t()) :: boolean
   def real_time?(%__MODULE__{} = resource) do
-    gtfs_rt?(resource) or gbfs?(resource) or siri_lite?(resource) or siri?(resource)
+    [
+      &gtfs_rt?/1,
+      &gbfs?/1,
+      &siri_lite?/1,
+      &siri?/1,
+      &String.contains?(&1.description || "", ["mis à jour en temps réel", "mises à jour en temps réel"])
+    ]
+    |> Enum.any?(fn function -> function.(resource) end)
   end
 
   @doc """
@@ -186,6 +201,23 @@ defmodule DB.Resource do
     uri.scheme == "https" and uri.host != "raw.githubusercontent.com"
   end
 
+  @doc """
+  Is the resource published by the National Access Point?
+
+  iex> pan_resource?(%DB.Resource{dataset: %DB.Dataset{organization_id: "5abca8d588ee386ee6ece479"}})
+  true
+  iex> pan_resource?(%DB.Resource{dataset: %DB.Dataset{organization_id: "other"}})
+  false
+  iex> pan_resource?(%DB.Resource{format: "gbfs"})
+  false
+  """
+  @spec pan_resource?(__MODULE__.t()) :: boolean()
+  def pan_resource?(%__MODULE__{dataset: %DB.Dataset{organization_id: organization_id}}) do
+    organization_id == Application.fetch_env!(:transport, :datagouvfr_transport_publisher_id)
+  end
+
+  def pan_resource?(%__MODULE__{}), do: false
+
   @spec other_resources_query(__MODULE__.t()) :: Ecto.Query.t()
   def other_resources_query(%__MODULE__{} = resource),
     do:
@@ -211,19 +243,20 @@ defmodule DB.Resource do
   def get_related_files(%__MODULE__{id: resource_id}) do
     %{}
     |> Map.put(:GeoJSON, get_related_geojson_info(resource_id))
-    |> Map.put(:NeTEx, get_related_netex_info(resource_id))
   end
 
   def get_related_geojson_info(resource_id), do: get_related_conversion_info(resource_id, :GeoJSON)
-  def get_related_netex_info(resource_id), do: get_related_conversion_info(resource_id, :NeTEx)
 
-  @spec get_related_conversion_info(integer() | nil, :NeTEx | :GeoJSON) ::
+  @spec get_related_conversion_info(integer() | nil, :GeoJSON) ::
           %{url: binary(), stable_url: binary(), filesize: binary(), resource_history_last_up_to_date_at: DateTime.t()}
           | nil
   def get_related_conversion_info(nil, _), do: nil
 
   def get_related_conversion_info(resource_id, format) do
     converter = DB.DataConversion.converter_to_use(format)
+    # Only value supported for now but needed to make the query fast
+    # https://github.com/etalab/transport-site/issues/4448
+    convert_from = :GTFS
 
     DB.ResourceHistory
     |> join(:inner, [rh], dc in DB.DataConversion,
@@ -237,8 +270,9 @@ defmodule DB.Resource do
     })
     |> where(
       [rh, dc],
-      rh.resource_id == ^resource_id and dc.convert_to == ^format and dc.status == :success and
-        dc.converter == ^converter
+      rh.resource_id == ^resource_id and
+        dc.convert_from == ^convert_from and dc.convert_to == ^format and
+        dc.status == :success and dc.converter == ^converter
     )
     |> order_by([rh, _], desc: rh.inserted_at)
     |> limit(1)
@@ -275,8 +309,32 @@ defmodule DB.Resource do
     end
   end
 
-  def download_url(%__MODULE__{} = resource, conn_or_endpoint \\ TransportWeb.Endpoint) do
+  def download_url(%__MODULE__{} = resource) do
+    download_url(resource, TransportWeb.Endpoint)
+  end
+
+  # When the contact is logged in and has a default token
+  def download_url(
+        %__MODULE__{} = resource,
+        %Plug.Conn{
+          assigns: %{current_contact: %DB.Contact{default_tokens: [%DB.Token{} = token]}}
+        } = conn
+      ) do
     cond do
+      pan_resource?(resource) ->
+        resource_url(conn, :download, resource.id, token: token.secret)
+
+      served_by_proxy?(resource) ->
+        resource.url <> "?token=#{token.secret}"
+
+      true ->
+        download_url(resource, TransportWeb.Endpoint)
+    end
+  end
+
+  def download_url(%__MODULE__{} = resource, conn_or_endpoint) do
+    cond do
+      pan_resource?(resource) -> resource_url(conn_or_endpoint, :download, resource.id)
       needs_stable_url?(resource) -> resource.latest_url
       can_direct_download?(resource) -> resource.url
       true -> resource_url(conn_or_endpoint, :download, resource.id)
@@ -322,25 +380,25 @@ defmodule DB.Resource do
   end
 
   @doc """
-  iex> served_by_proxy?(%DB.Resource{url: "https://transport.data.gouv.fr/gbfs/marseille/gbfs.json", format: "gbfs"})
-  true
   iex> served_by_proxy?(%DB.Resource{url: "https://proxy.transport.data.gouv.fr/resource/axeo-guingamp-gtfs-rt-vehicle-position", format: "gtfs-rt"})
   true
   iex> served_by_proxy?(%DB.Resource{url: "https://example.com", format: "GTFS"})
   false
   iex> served_by_proxy?(%DB.Resource{url: "https://proxy.transport.data.gouv.fr/resource/sncf-siri-lite-situation-exchange", format: "SIRI Lite"})
   true
+  iex> served_by_proxy?("https://proxy.transport.data.gouv.fr/foo")
+  true
+  iex> served_by_proxy?(%{"url" => "https://proxy.transport.data.gouv.fr/foo"})
+  true
   """
+  def served_by_proxy?(url) when is_binary(url), do: served_by_proxy?(%__MODULE__{url: url})
+  def served_by_proxy?(%{"url" => url}) when is_binary(url), do: served_by_proxy?(%__MODULE__{url: url})
+
   def served_by_proxy?(%__MODULE__{url: url}) do
-    Enum.any?(
-      ["https://transport.data.gouv.fr/gbfs/", "https://proxy.transport.data.gouv.fr"],
-      &String.starts_with?(url, &1)
-    )
+    String.starts_with?(url, "https://proxy.transport.data.gouv.fr")
   end
 
   @doc """
-  iex> proxy_slug(%DB.Resource{url: "https://transport.data.gouv.fr/gbfs/cergy-pontoise/gbfs.json", format: "gbfs"})
-  "cergy-pontoise"
   iex> proxy_slug(%DB.Resource{url: "https://proxy.transport.data.gouv.fr/resource/axeo-guingamp-gtfs-rt-vehicle-position", format: "gtfs-rt"})
   "axeo-guingamp-gtfs-rt-vehicle-position"
   iex> proxy_slug(%DB.Resource{url: "https://proxy.transport.data.gouv.fr/resource/sncf-siri-lite-situation-exchange", format: "SIRI Lite"})
@@ -350,28 +408,19 @@ defmodule DB.Resource do
   """
   def proxy_slug(%__MODULE__{url: url} = resource) do
     if served_by_proxy?(resource) do
-      cond do
-        String.starts_with?(url, "https://proxy.transport.data.gouv.fr") ->
-          url |> URI.parse() |> Map.fetch!(:path) |> String.replace("/resource/", "")
-
-        String.starts_with?(url, "https://transport.data.gouv.fr/gbfs/") ->
-          ~r{^https://transport\.data\.gouv\.fr/gbfs/([a-zA-Z0-9_-]+)/} |> Regex.run(url) |> List.last()
-      end
+      url |> URI.parse() |> Map.fetch!(:path) |> String.replace("/resource/", "")
     else
       nil
     end
   end
 
   @doc """
-  The proxy namespace for a resource. Defined in other Umbrella apps (`gbfs` and `unlock`).
+  The proxy namespace for a resource. Defined in other Umbrella apps (`unlock`).
   Used in `metrics.target` and `metrics.event`.
 
-  iex> proxy_namespace(%DB.Resource{url: "https://transport.data.gouv.fr/gbfs/cergy-pontoise/gbfs.json", format: "gbfs"})
-  "gbfs"
   iex> proxy_namespace(%DB.Resource{url: "https://proxy.transport.data.gouv.fr/resource/axeo-guingamp-gtfs-rt-vehicle-position", format: "gtfs-rt"})
   "proxy"
   """
-  def proxy_namespace(%__MODULE__{format: "gbfs"}), do: "gbfs"
   def proxy_namespace(%__MODULE__{}), do: "proxy"
 
   def no_schema_name_for_public_transport(%Ecto.Changeset{} = changeset) do
@@ -388,5 +437,11 @@ defmodule DB.Resource do
     else
       changeset
     end
+  end
+
+  def count_by_format(format) do
+    base_query()
+    |> where([d], d.format == ^format)
+    |> Repo.aggregate(:count, :id)
   end
 end

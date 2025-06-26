@@ -12,8 +12,8 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n>1);"
 
 #, elixir-autogen, elixir-format
-msgid "Transport Explore"
-msgstr "Exploration transport - beta"
+msgid "Data exploration map"
+msgstr "Carte d'exploration des données"
 
 #, elixir-autogen, elixir-format
 msgid "gtfs-rt-explanation"
@@ -97,7 +97,7 @@ msgstr "Référence d'Arrêt (un seul)"
 
 #, elixir-autogen, elixir-format
 msgid "Low emission zones database"
-msgstr "Base nationale des Zones à Faibles Émissions"
+msgstr "Base nationale des Zones à Faibles Émissions (ZFE)"
 
 #, elixir-autogen, elixir-format
 msgid "lez-explanation"
@@ -121,8 +121,8 @@ msgstr "Infrastructures de Recharge des Véhicules Électriques (IRVE)"
 
 #, elixir-autogen, elixir-format
 msgid "GBFS stations"
-msgstr "Stations pour véhicules partagés"
+msgstr "Stations pour véhicules en libre-service (VLS)"
 
 #, elixir-autogen, elixir-format
 msgid "gbfs-stations-explanation"
-msgstr "Cette carte rassemble toutes les stations pour les véhicules partagés. Elle contient les données des <a href=\"%{bike_scooter_sharing_datasets_link}\">vélos et trotinettes</a> et <a href=\"%{car_motorbike_sharing_datasets_link}\">voitures et scooters</a> en libre-service."
+msgstr "Cette carte rassemble toutes les stations pour <a href=\"%{vehicles_sharing_datasets_link}\">les véhicules partagés</a>."

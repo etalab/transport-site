@@ -3,7 +3,7 @@ defmodule Transport.Validators.GTFSTransport do
   Validate a GTFS with transport-validator (https://github.com/etalab/transport-validator/)
   """
   @behaviour Transport.Validators.Validator
-  import TransportWeb.Gettext, only: [dgettext: 2, dngettext: 4]
+  use Gettext, backend: TransportWeb.Gettext
 
   @no_error "NoError"
   @validator_name "GTFS transport-validator"
@@ -262,7 +262,10 @@ defmodule Transport.Validators.GTFSTransport do
       "InvalidShapeId" => dgettext("gtfs-transport-validator", "Invalid shape ID"),
       "UnusedShapeId" => dgettext("gtfs-transport-validator", "Unused shape ID"),
       "SubFolder" => dgettext("gtfs-transport-validator", "Files in a subfolder"),
-      "NegativeStopDuration" => dgettext("gtfs-transport-validator", "Negative stop duration")
+      "NegativeStopDuration" => dgettext("gtfs-transport-validator", "Negative stop duration"),
+      "UnusableTrip" => dgettext("gtfs-transport-validator", "Unusable trip"),
+      "NoCalendar" => dgettext("gtfs-transport-validator", "Calendar files are empty. The service is never running."),
+      "MissingAgencyId" => dgettext("gtfs-transport-validator", "Field agency_id should not be empty.")
     }
 
   @spec gtfs_outdated?(any()) :: boolean | nil

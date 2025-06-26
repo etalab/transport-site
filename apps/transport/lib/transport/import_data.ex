@@ -776,15 +776,15 @@ defmodule Transport.ImportData do
       "GTFS"
 
       iex> %{"url" => "https://example.com/gbfs.json"}
-      ...> |> ImportData.formated_format("bike-scooter-sharing", false)
+      ...> |> ImportData.formated_format("vehicles-sharing", false)
       "gbfs"
 
       iex> %{"url" => "https://example.com/gbfs/v2"}
-      ...> |> ImportData.formated_format("car-motorbike-sharing", false)
+      ...> |> ImportData.formated_format("vehicles-sharing", false)
       "gbfs"
 
       iex> %{"url" => "https://example.com/gbfs/free_bike_status.json", "format" => "json"}
-      ...> |> ImportData.formated_format("bike-scooter-sharing", false)
+      ...> |> ImportData.formated_format("vehicles-sharing", false)
       "json"
 
       iex> formated_format(%{"url" => "https://data.strasbourg.eu/api/datasets/1.0/zfe_voie_exception/alternative_exports/zfe_voie_speciale_eurometropole_strasbourg_geojson", "format" => "a"}, "low-emission-zones", false)
@@ -810,8 +810,15 @@ defmodule Transport.ImportData do
 
       iex> formated_format(%{"format" => "netex", "title" => "Export au format CSV"}, "public-transit", false)
       "NeTEx"
+
+      iex> formated_format(%{"format" => "json", "url" => "https://bdx.mecatran.com/utw/ws/siri/2.0/bordeaux/stop-monitoring.json"}, "public-transit", false)
+      "SIRI Lite"
   """
   @spec formated_format(map(), binary(), bool()) :: binary()
+  def formated_format(%{"url" => "https://bdx.mecatran.com/utw/ws/siri/2.0/" <> _}, _, _) do
+    "SIRI Lite"
+  end
+
   # credo:disable-for-next-line
   def formated_format(resource, type, is_community_resource) do
     format = Map.get(resource, "format", "")
@@ -825,7 +832,7 @@ defmodule Transport.ImportData do
       siri?(format) -> "SIRI"
       geojson?(resource, format) -> "geojson"
       type == "public-transit" and not is_documentation and not is_community_resource -> "GTFS"
-      type in ["bike-scooter-sharing", "car-motorbike-sharing"] and gbfs?(resource) -> "gbfs"
+      type == "vehicles-sharing" and gbfs?(resource) -> "gbfs"
       true -> format
     end
   end

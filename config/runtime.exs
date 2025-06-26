@@ -38,8 +38,8 @@ config :transport,
   worker: worker,
   webserver: webserver,
   # kill switches: set specific variable environments to disable features
-  disable_reuser_space: System.get_env("DISABLE_REUSER_SPACE") in ["1", "true"],
-  disable_national_gtfs_map: System.get_env("DISABLE_NATIONAL_GTFS_MAP") in ["1", "true"]
+  disable_national_gtfs_map: System.get_env("DISABLE_NATIONAL_GTFS_MAP") in ["1", "true"],
+  disable_netex_validator: System.get_env("DISABLE_NETEX_VALIDATOR") in ["1", "true"]
 
 config :unlock,
   enforce_ttl: webserver
@@ -94,7 +94,8 @@ if app_env == :staging do
       history: "resource-history-staging",
       on_demand_validation: "on-demand-validation-staging",
       gtfs_diff: "gtfs-diff-staging",
-      logos: "logos-staging"
+      logos: "logos-staging",
+      aggregates: "aggregates-staging"
     }
 end
 
@@ -109,10 +110,9 @@ base_oban_conf = [repo: DB.Repo, insert_trigger: false]
 # See https://hexdocs.pm/oban/Oban.html#module-cron-expressions
 oban_prod_crontab = [
   {"0 */6 * * *", Transport.Jobs.ResourceHistoryAndValidationDispatcherJob},
+  {"0 4,16 * * *", Transport.Jobs.ResourceHistoryAndValidationDispatcherJob, args: %{mode: :reuser_improved_data}},
   {"30 */6 * * *", Transport.Jobs.GTFSToGeoJSONConverterJob},
   {"0 4 * * *", Transport.Jobs.GTFSImportStopsJob},
-  # every 6 hours but not at the same time as other jobs
-  {"0 3,9,15,21 * * *", Transport.Jobs.GTFSToNeTExConverterJob},
   {"20 8 * * *", Transport.Jobs.CleanOrphanConversionsJob},
   {"0 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob},
   {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}},
@@ -122,6 +122,7 @@ oban_prod_crontab = [
   {"30 */6 * * *", Transport.Jobs.LowEmissionZonesToGeoData},
   {"30 */6 * * *", Transport.Jobs.IRVEToGeoData},
   {"30 6 * * *", Transport.Jobs.GBFSStationsToGeoData},
+  {"15 1 * * 0", Transport.Jobs.DatabaseVacuumJob},
   {"15 10 * * *", Transport.Jobs.DatabaseBackupReplicationJob},
   {"0 7 * * *", Transport.Jobs.GTFSRTMultiValidationDispatcherJob},
   {"30 7 * * *", Transport.Jobs.GBFSMultiValidationDispatcherJob},
@@ -134,7 +135,8 @@ oban_prod_crontab = [
   {"0 6 * * 1-5", Transport.Jobs.NewDatagouvDatasetsJob, args: %{check_rules: true}},
   {"5 6 * * 1-5", Transport.Jobs.NewDatagouvDatasetsJob},
   {"0 6 * * *", Transport.Jobs.NewDatasetNotificationsJob},
-  {"30 6 * * *", Transport.Jobs.ExpirationNotificationJob},
+  {"30 6 * * *", Transport.Jobs.ExpirationAdminProducerNotificationJob},
+  {"45 6 * * *", Transport.Jobs.ExpirationNotificationJob},
   {"0 8 * * 1-5", Transport.Jobs.NewCommentsNotificationJob},
   {"0 21 * * *", Transport.Jobs.DatasetHistoryDispatcherJob},
   # Should be executed after all `DatasetHistoryJob` have been executed
@@ -149,18 +151,24 @@ oban_prod_crontab = [
   {"45 2 * * *", Transport.Jobs.RemoveHistoryJob, args: %{schema_name: "etalab/schema-irve-dynamique", days_limit: 7}},
   {"0 16 * * *", Transport.Jobs.DatasetQualityScoreDispatcher},
   {"40 3 * * *", Transport.Jobs.UpdateContactsJob},
+  {"50 3 * * *", Transport.Jobs.CreateTokensJob},
   {"10 5 * * *", Transport.Jobs.NotificationSubscriptionProducerJob},
   # "At 08:15 on Monday in March, June, and November.""
   # The job will make sure that it's executed only on the first Monday of these months
   {"15 8 * 3,6,11 1", Transport.Jobs.PeriodicReminderProducersNotificationJob},
   {"15 5 * * *", Transport.Jobs.ImportDatasetFollowersJob},
+  {"5 5 * * *", Transport.Jobs.ImportDatasetFollowerReuserImprovedDataJob},
   {"20 5 * * *", Transport.Jobs.ImportDatasetContactPointsJob},
   # Should be ideally executed after `GBFSMultiValidationDispatcherJob` to use fresh metadata
   {"30 8 * * *", Transport.Jobs.ImportGBFSFeedContactEmailJob},
+  {"20 5 * * *", Transport.Jobs.ImportReusesJob},
   {"30 5 * * *", Transport.Jobs.ImportDatasetMonthlyMetricsJob},
   {"45 5 * * *", Transport.Jobs.ImportResourceMonthlyMetricsJob},
   {"0 8 * * *", Transport.Jobs.WarnUserInactivityJob},
-  {"*/5 * * * *", Transport.Jobs.UpdateCounterCacheJob}
+  {"*/5 * * * *", Transport.Jobs.UpdateCounterCacheJob},
+  {"0 4 * * *", Transport.Jobs.StopsRegistrySnapshotJob},
+  {"30 2 * * *", Transport.Jobs.IRVEConsolidationJob},
+  {"10 * * * *", Transport.Jobs.DefaultTokensJob}
 ]
 
 # Make sure that all modules exist
@@ -218,8 +226,8 @@ end
 if config_env() == :prod do
   pool_size =
     case app_env do
-      :production -> 15
-      :staging -> 6
+      :production -> (System.get_env("PG_POOL_SIZE") || "15") |> String.to_integer()
+      :staging -> (System.get_env("PG_POOL_SIZE") || "6") |> String.to_integer()
     end
 
   config :transport, DB.Repo,

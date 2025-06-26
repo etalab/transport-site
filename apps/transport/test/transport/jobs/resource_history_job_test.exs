@@ -56,7 +56,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                opts: [acl: :public_read]
              } = request
 
-      assert String.starts_with?(path, "#{resource_id}/#{resource_id}.")
+      assert String.starts_with?(path, to_string(resource_id))
     end)
   end
 
@@ -69,7 +69,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                ResourceHistoryAndValidationDispatcherJob.resources_to_historise() |> Enum.map(& &1.id) |> MapSet.new()
     end
 
-    test "a simple successful case" do
+    test "a successful case for resources" do
       ids = create_resources_for_history()
 
       assert count_resources() > 1
@@ -85,17 +85,44 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
       refute_enqueued(worker: ResourceHistoryAndValidationDispatcherJob)
     end
+
+    test "a successful case for reuser improved data jobs" do
+      insert(:reuser_improved_data)
+      insert(:reuser_improved_data)
+      insert(:reuser_improved_data)
+
+      ids =
+        DB.ReuserImprovedData.base_query()
+        |> select([reuser_improved_data: rid], rid.id)
+        |> DB.Repo.all()
+
+      assert :ok == perform_job(ResourceHistoryAndValidationDispatcherJob, %{mode: "reuser_improved_data"})
+
+      assert [
+               %{args: %{"first_job_args" => %{"reuser_improved_data_id" => first_id}}},
+               %{args: %{"first_job_args" => %{"reuser_improved_data_id" => second_id}}},
+               %{args: %{"first_job_args" => %{"reuser_improved_data_id" => third_id}}}
+             ] = all_enqueued(worker: Transport.Jobs.Workflow)
+
+      assert Enum.sort([first_id, second_id, third_id]) == Enum.sort(ids)
+
+      refute_enqueued(worker: ResourceHistoryAndValidationDispatcherJob)
+    end
   end
 
   describe "should_store_resource?" do
     test "with an empty or a nil ZIP metadata" do
       refute ResourceHistoryJob.should_store_resource?(%DB.Resource{}, nil)
+      refute ResourceHistoryJob.should_store_resource?(%DB.ReuserImprovedData{}, nil)
+
       refute ResourceHistoryJob.should_store_resource?(%DB.Resource{}, [])
+      refute ResourceHistoryJob.should_store_resource?(%DB.ReuserImprovedData{}, [])
     end
 
     test "with no ResourceHistory records" do
       assert 0 == count_resource_history()
       assert ResourceHistoryJob.should_store_resource?(%DB.Resource{id: 1}, zip_metadata())
+      assert ResourceHistoryJob.should_store_resource?(%DB.ReuserImprovedData{id: 1}, zip_metadata())
     end
 
     test "with the latest ResourceHistory matching for a ZIP" do
@@ -111,6 +138,26 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
       assert {false, %{id: ^resource_history_id}} =
                ResourceHistoryJob.should_store_resource?(%DB.Resource{id: resource_id}, zip_metadata())
+    end
+
+    test "with the latest ResourceHistory matching for a ZIP, reuser improved data" do
+      reuser_improved_data = insert(:reuser_improved_data)
+
+      %{id: resource_history_id} =
+        resource_history =
+        insert(:resource_history,
+          payload: %{"zip_metadata" => zip_metadata()},
+          reuser_improved_data_id: reuser_improved_data.id
+        )
+
+      assert 1 == count_resource_history()
+      assert ResourceHistoryJob.same_resource?(resource_history, zip_metadata())
+
+      assert {false, %{id: ^resource_history_id}} =
+               ResourceHistoryJob.should_store_resource?(
+                 %DB.ReuserImprovedData{id: reuser_improved_data.id},
+                 zip_metadata()
+               )
     end
 
     test "with the latest ResourceHistory matching for a content hash" do
@@ -130,6 +177,27 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                ResourceHistoryJob.should_store_resource?(%DB.Resource{id: resource_id}, content_hash)
     end
 
+    test "with the latest ResourceHistory matching for a content hash, reuser improved data" do
+      content_hash = "hash"
+      reuser_improved_data = insert(:reuser_improved_data)
+
+      %{id: resource_history_id} =
+        resource_history =
+        insert(:resource_history,
+          payload: %{"content_hash" => content_hash},
+          reuser_improved_data_id: reuser_improved_data.id
+        )
+
+      assert 1 == count_resource_history()
+      assert ResourceHistoryJob.same_resource?(resource_history, content_hash)
+
+      assert {false, %{id: ^resource_history_id}} =
+               ResourceHistoryJob.should_store_resource?(
+                 %DB.ReuserImprovedData{id: reuser_improved_data.id},
+                 content_hash
+               )
+    end
+
     test "with the latest ResourceHistory matching but for a different resource ID" do
       %{resource_id: resource_id} =
         insert(:resource_history,
@@ -139,6 +207,22 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
       assert 1 == count_resource_history()
       assert ResourceHistoryJob.should_store_resource?(%DB.Resource{id: resource_id + 1}, zip_metadata())
+    end
+
+    test "with the latest ResourceHistory matching but for a different reuser improved data ID" do
+      %{id: reuser_improved_data_id} = insert(:reuser_improved_data)
+
+      insert(:resource_history,
+        reuser_improved_data_id: reuser_improved_data_id,
+        payload: %{"zip_metadata" => zip_metadata()}
+      )
+
+      assert 1 == count_resource_history()
+
+      assert ResourceHistoryJob.should_store_resource?(
+               %DB.ReuserImprovedData{id: reuser_improved_data_id + 1},
+               zip_metadata()
+             )
     end
 
     test "with the second to last ResourceHistory matching" do
@@ -162,6 +246,37 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       assert {false, _} = ResourceHistoryJob.should_store_resource?(%DB.Resource{id: resource_id}, zip_metadata())
     end
 
+    test "with the second to last ResourceHistory matching, reuser improved data" do
+      %{id: reuser_improved_data_id} = insert(:reuser_improved_data)
+
+      %{payload: %{"zip_metadata" => zip_metadata}} =
+        insert(:resource_history,
+          reuser_improved_data_id: reuser_improved_data_id,
+          payload: %{"zip_metadata" => zip_metadata()}
+        )
+
+      %{id: latest_rh_id} =
+        insert(:resource_history,
+          reuser_improved_data_id: reuser_improved_data_id,
+          payload: %{"zip_metadata" => zip_metadata |> Enum.take(2)}
+        )
+
+      assert 2 == count_resource_history()
+
+      assert ResourceHistoryJob.should_store_resource?(
+               %DB.ReuserImprovedData{id: reuser_improved_data_id},
+               zip_metadata()
+             )
+
+      %DB.ResourceHistory{id: latest_rh_id} |> DB.Repo.delete()
+
+      assert {false, _} =
+               ResourceHistoryJob.should_store_resource?(
+                 %DB.ReuserImprovedData{id: reuser_improved_data_id},
+                 zip_metadata()
+               )
+    end
+
     test "with the latest ResourceHistory not matching for a ZIP" do
       %{resource_id: resource_id} =
         insert(:resource_history,
@@ -174,6 +289,22 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       assert ResourceHistoryJob.should_store_resource?(%DB.Resource{id: resource_id}, zip_metadata())
     end
 
+    test "with the latest ResourceHistory not matching for a ZIP, reuser improved data" do
+      %{id: reuser_improved_data_id} = insert(:reuser_improved_data)
+
+      insert(:resource_history,
+        reuser_improved_data_id: reuser_improved_data_id,
+        payload: %{"zip_metadata" => zip_metadata() |> Enum.take(2)}
+      )
+
+      assert 1 == count_resource_history()
+
+      assert ResourceHistoryJob.should_store_resource?(
+               %DB.ReuserImprovedData{id: reuser_improved_data_id},
+               zip_metadata()
+             )
+    end
+
     test "with the latest ResourceHistory not matching" do
       %{resource_id: resource_id} =
         insert(:resource_history, resource: insert(:resource), payload: %{"content_hash" => "foo"})
@@ -181,6 +312,22 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       assert 1 == count_resource_history()
 
       assert ResourceHistoryJob.should_store_resource?(%DB.Resource{id: resource_id}, "bar")
+    end
+
+    test "with the latest ResourceHistory not matching, reuser improved data" do
+      %{id: reuser_improved_data_id} = insert(:reuser_improved_data)
+
+      insert(:resource_history,
+        resource: insert(:resource),
+        reuser_improved_data_id: reuser_improved_data_id,
+        payload: %{
+          "content_hash" => "foo"
+        }
+      )
+
+      assert 1 == count_resource_history()
+
+      assert ResourceHistoryJob.should_store_resource?(%DB.ReuserImprovedData{id: reuser_improved_data_id}, "bar")
     end
   end
 
@@ -325,6 +472,54 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                  "total_compressed_size" => 2_370,
                  "total_uncompressed_size" => 10_685,
                  "title" => ^title,
+                 "filename" => filename,
+                 "permanent_url" => permanent_url,
+                 "zip_metadata" => ^expected_zip_metadata,
+                 "uuid" => _uuid,
+                 "download_datetime" => _download_datetime
+               },
+               last_up_to_date_at: last_up_to_date_at
+             } = DB.ResourceHistory |> DB.Repo.one!()
+
+      assert permanent_url == Transport.S3.permanent_url(:history, filename)
+      refute is_nil(last_up_to_date_at)
+    end
+
+    test "a simple successful case for a reuser improved GTFS" do
+      download_url = "https://example.com/gtfs.zip"
+
+      %DB.ReuserImprovedData{id: reuser_improved_data_id} = insert(:reuser_improved_data, download_url: download_url)
+
+      setup_req_mock(download_url, @gtfs_content)
+      setup_aws_mock("reuser_improved_data_#{reuser_improved_data_id}")
+
+      assert 0 == count_resource_history()
+      assert :ok == perform_job(ResourceHistoryJob, %{reuser_improved_data_id: reuser_improved_data_id})
+      assert 1 == count_resource_history()
+
+      ensure_no_tmp_files!("reuser_improved_data_")
+
+      expected_zip_metadata = zip_metadata()
+
+      assert %DB.ResourceHistory{
+               resource_id: nil,
+               datagouv_id: nil,
+               payload: %{
+                 "filenames" => [
+                   "ExportService.checksum.md5",
+                   "agency.txt",
+                   "calendar.txt",
+                   "calendar_dates.txt",
+                   "routes.txt",
+                   "stop_times.txt",
+                   "stops.txt",
+                   "transfers.txt",
+                   "trips.txt"
+                 ],
+                 "format" => "GTFS",
+                 "http_headers" => %{"content-type" => "application/octet-stream"},
+                 "total_compressed_size" => 2_370,
+                 "total_uncompressed_size" => 10_685,
                  "filename" => filename,
                  "permanent_url" => permanent_url,
                  "zip_metadata" => ^expected_zip_metadata,
@@ -559,9 +754,9 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
     insert(:resource,
       url: "https://example.com/file",
-      dataset: insert(:dataset, is_active: true, type: "bike-scooter-sharing"),
+      dataset: insert(:dataset, is_active: true, type: "vehicles-sharing"),
       format: "GTFS",
-      title: "Ignored because the dataset type is bike-scooter-sharing",
+      title: "Ignored because the dataset type is vehicles-sharing",
       datagouv_id: "8",
       is_community_resource: false
     )

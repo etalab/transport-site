@@ -1,0 +1,208 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#, elixir-autogen, elixir-format
+msgid "agency.txt"
+msgstr "Transit agencies with service represented in this dataset."
+
+#, elixir-autogen, elixir-format
+msgid "areas.txt"
+msgstr "Area grouping of locations."
+
+#, elixir-autogen, elixir-format
+msgid "attributions.txt"
+msgstr "Dataset attributions."
+
+#, elixir-autogen, elixir-format
+msgid "booking_rules.txt"
+msgstr "Booking information for rider-requested services."
+
+#, elixir-autogen, elixir-format
+msgid "calendar.txt"
+msgstr "Service dates specified using a weekly schedule with start and end dates."
+
+#, elixir-autogen, elixir-format
+msgid "calendar_dates.txt"
+msgstr "Exceptions for the services defined in the calendar.txt."
+
+#, elixir-autogen, elixir-format
+msgid "fare_attributes.txt"
+msgstr "Fare information for a transit agency's routes."
+
+#, elixir-autogen, elixir-format
+msgid "fare_leg_join_rules.txt"
+msgstr "Rules for defining two or more legs should be considered as a single effective fare leg for the purposes of matching against rules in fare_leg_rules.txt"
+
+#, elixir-autogen, elixir-format
+msgid "fare_leg_rules.txt"
+msgstr "Fare rules for individual legs of travel."
+
+#, elixir-autogen, elixir-format
+msgid "fare_media.txt"
+msgstr "To describe the fare media that can be employed to use fare products."
+
+#, elixir-autogen, elixir-format
+msgid "fare_products.txt"
+msgstr "To describe the different types of tickets or fares that can be purchased by riders."
+
+#, elixir-autogen, elixir-format
+msgid "fare_rules.txt"
+msgstr "Rules to apply fares for itineraries."
+
+#, elixir-autogen, elixir-format
+msgid "fare_transfer_rules.txt"
+msgstr "Fare rules for transfers between legs of travel."
+
+#, elixir-autogen, elixir-format
+msgid "feed_info.txt"
+msgstr "Dataset metadata, including publisher, version, and expiration information."
+
+#, elixir-autogen, elixir-format
+msgid "frequencies.txt"
+msgstr "Headway (time between trips) for headway-based service or a compressed representation of fixed-schedule service."
+
+#, elixir-autogen, elixir-format
+msgid "levels.txt"
+msgstr "Levels within stations."
+
+#, elixir-autogen, elixir-format
+msgid "location_group_stops.txt"
+msgstr "Rules to assign stops to location groups."
+
+#, elixir-autogen, elixir-format
+msgid "location_groups.txt"
+msgstr "A group of stops that together indicate locations where a rider may request pickup or drop off."
+
+#, elixir-autogen, elixir-format
+msgid "networks.txt"
+msgstr "Network grouping of routes."
+
+#, elixir-autogen, elixir-format
+msgid "pathways.txt"
+msgstr "Pathways linking together locations within stations."
+
+#, elixir-autogen, elixir-format
+msgid "rider_categories.txt"
+msgstr "Defines categories of riders (e.g. elderly, student)."
+
+#, elixir-autogen, elixir-format
+msgid "route_networks.txt"
+msgstr "Rules to assign routes to networks."
+
+#, elixir-autogen, elixir-format
+msgid "routes.txt"
+msgstr "Transit routes. A route is a group of trips that are displayed to riders as a single service."
+
+#, elixir-autogen, elixir-format
+msgid "shapes.txt"
+msgstr "Rules for mapping vehicle travel paths, sometimes referred to as route alignments."
+
+#, elixir-autogen, elixir-format
+msgid "stop_areas.txt"
+msgstr "Rules to assign stops to areas."
+
+#, elixir-autogen, elixir-format
+msgid "stop_times.txt"
+msgstr "Times that a vehicle arrives at and departs from stops for each trip."
+
+#, elixir-autogen, elixir-format
+msgid "stops.txt"
+msgstr "Stops where vehicles pick up or drop off riders. Also defines stations and station entrances."
+
+#, elixir-autogen, elixir-format
+msgid "timeframes.txt"
+msgstr "Date and time periods to use in fare rules for fares that depend on date and time factors."
+
+#, elixir-autogen, elixir-format
+msgid "transfers.txt"
+msgstr "Rules for making connections at transfer points between routes."
+
+#, elixir-autogen, elixir-format
+msgid "translations.txt"
+msgstr "Translations of customer-facing dataset values."
+
+#, elixir-autogen, elixir-format
+msgid "trips.txt"
+msgstr "Trips for each route. A trip is a sequence of two or more stops that occur during a specific time period."
+
+#, elixir-autogen, elixir-format
+msgid "unknown-file"
+msgstr "Unknown file %{unknonw_file}."
+
+#, elixir-autogen, elixir-format
+msgid "unknown"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "aerial lift, suspended cable car"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "bus"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "cable tram"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "ferry"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "funicular"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "monorail"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "rail"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "subway, metro"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "tram, streetcar, light rail"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "trolleybus"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "boarding area"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "entrance/exit"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "generic node"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "station"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "stop or platform"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Know more about this file."
+msgstr ""

@@ -5,7 +5,7 @@ defmodule Unlock.Controller do
   This currently implements an in-RAM (Cachex) loading of the resource, with a reduced
   set of headers that we will improve over time.
 
-  Future evolutions will very likely support FTP proxying, disk caching, custom headers.
+  Future evolutions will very likely support disk caching, compression etc.
 
   Useful resources for later maintenance:
   - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
@@ -16,10 +16,79 @@ defmodule Unlock.Controller do
   require Logger
   import Unlock.GunzipTools
 
+  @doc """
+  A simple index "page", useful to verify that the proxy is up, since it is served
+  on a subdomain (`https://proxy.transport.data.gouv.fr`).
+  """
   def index(conn, _params) do
     text(conn, "Unlock Proxy")
   end
 
+  @doc """
+  The central controller action responsible for serving a given resource.
+
+  Based on the provided slug/id, a look-up is done on the configuration.
+
+  For production environments, the configuration is GitHub-based
+  (https://github.com/etalab/transport-proxy-config/blob/master/proxy-config.yml).
+
+  When working locally, the config is loaded from disk (`config/proxy-config.yml`)
+  at each request, so that one can tweak it easily when iterating locally.
+
+  Configuration items are strongly typed, such as:
+  - `%Unlock.Config.Item.Generic.HTTP{}` for HTTP-provided single GTFS-RT & CSV feeds
+  - `%Unlock.Config.Item.Aggregate{}` for multi-HTTP-sources aggregate (dynamic IRVE feed only)
+  - `%Unlock.Config.Item.S3{}` for internal-S3-backed single file feeds (CSV or anything really)
+  - `%Unlock.Config.Item.SIRI{}` for SIRI proxying (experimental)
+
+  Once the item is found in configuration, different `process_resource` pattern-matching variants
+  are doing specific processing, depending on the item type.
+
+  If the corresponding item is not found in the configuration, a standard `404`
+  is returned.
+
+  There is a catch-all doing only logging and returning a blank `500` with
+  default message, when an unhandled exception is caught.
+
+  ### Metrics handling
+
+  #### "External" queries
+
+  An "external query" is counted when the proxy receives a HTTP query from the outside world
+  (hence the name "external"). When it happens, each relevant piece of code here emits an
+  `:external` metric telemetry event:
+
+  ```elixir
+  Unlock.Telemetry.trace_request(item.identifier, :external)
+  ```
+
+  This allows us to count, and report on, the total traffic we are handling, for each proxy item.
+
+  #### "Internal" queries
+
+  When an "external query" occurs, there are two scenarios:
+  - the content is not yet, or not anymore, in the cache for the corresponding item:
+    in this case, the processing occurs, and we cound an `:internal` query on the same
+    identifier, to track down the fact that we are actually querying the server we are
+    protecting
+  - or the content is already in cache and not expired, in which case we _do not_ emit
+    an `:internal` metric event.
+
+  ```elixir
+  Unlock.Telemetry.trace_request(item.identifier, :internal)
+  ```
+
+  #### Usefulness of the metrics
+
+  Because of this system & the split between `:external` and `:internal`, we are able to
+  give insights on how much trafic we are handling in the name of third-parties, and also
+  what is the ratio between `:external` and `:internal` queries.
+
+  #### For extra reading on how metrics are stored & managed
+
+  - See `Unlock.Telemetry`
+  - And `Transport.Telemetry`
+  """
   def fetch(conn, %{"id" => id}) do
     config = Application.fetch_env!(:unlock, :config_fetcher).fetch_config!()
 
@@ -34,17 +103,16 @@ defmodule Unlock.Controller do
     end
   rescue
     exception ->
-      # NOTE: handling this here for now because the main endpoint
-      # will otherwise send a full HTML error page. We will have to
-      # hook an unlock-specific handling for this instead.
+      # NOTE: we catch the exception to return a controlled/blank answer in production.
       Logger.error("An exception occurred (#{exception |> inspect}")
 
       cond do
-        # give a bit more context
+        # give a bit more context when working in development
         Mix.env() == :dev ->
           Logger.error(Exception.format_stacktrace())
 
-        # avoid swallowed Mox expectations & ExUnit assertions
+        # in test, it is inconvenient to receive a 500, instead we
+        # re-raise to make it easier to do ExUnit assertions & avoid swallowed Mox expectations
         Mix.env() == :test ->
           reraise exception, __STACKTRACE__
       end
@@ -53,22 +121,41 @@ defmodule Unlock.Controller do
       |> send_resp(500, "Internal Error")
   end
 
-  # In particular, it can be desirable to let the config override "content-disposition"
-  # to specify a filename (in the case of IRVE data for instance, which is CSV and most
-  # users expect it to download as a file, contrary to other formats)
-  defp override_resp_headers_if_configured(conn, %Unlock.Config.Item.Generic.HTTP{} = item) do
+  @doc """
+  For `Generic.HTTP` items, hardcoded response headers can be
+  provided in the YAML configuration.
+
+  This is especially useful to hardcode the filename as we want,
+  and ensure HTTP clients will get the CSV extension, which is
+  not in the proxy url.
+
+  ### Example
+
+  ```yml
+  - identifier: provider-dynamic-irve
+    target_url: XYZ
+    type: generic-http
+    ttl: 10
+    response_headers:
+      - ["content-disposition", "attachment; filename=provider-dynamic-irve.csv"]
+      - ["content-type", "text/csv"]
+  ```
+  """
+  def override_resp_headers_if_configured(conn, %Unlock.Config.Item.Generic.HTTP{} = item) do
     Enum.reduce(item.response_headers, conn, fn {header, value}, conn ->
       conn
       |> put_resp_header(header |> String.downcase(), value)
     end)
   end
 
+  # this is for HTTP parameters handling
   defp to_nil_or_integer(nil), do: nil
   defp to_nil_or_integer(data), do: String.to_integer(data)
   defp to_boolean(nil), do: false
   defp to_boolean("0"), do: false
   defp to_boolean("1"), do: true
 
+  # `process_resource` variant for aggregated CSV item (dynamic IRVE consolidation).
   defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.Aggregate{} = item) do
     Unlock.Telemetry.trace_request(item.identifier, :external)
     # NOTE: required for tests to work, and doesn't hurt in production (idempotent afaik)
@@ -80,9 +167,28 @@ defmodule Unlock.Controller do
     ]
 
     body_response = Unlock.AggregateProcessor.process_resource(item, options)
-    send_resp(conn, 200, body_response)
+    filename = "#{item.identifier}-#{DateTime.utc_now() |> DateTime.to_iso8601()}.csv"
+
+    conn
+    |> put_resp_header("content-disposition", "attachment; filename=#{filename}")
+    |> send_resp(200, body_response)
   end
 
+  # `process_resource` variant for `Item.S3` items.
+  # leverages `fetch_remote` with pattern matching as well.
+  defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.S3{} = item) do
+    Unlock.Telemetry.trace_request(item.identifier, :external)
+    response = fetch_remote(item)
+
+    displayed_filename = Path.basename(item.path)
+
+    conn
+    |> put_resp_header("content-disposition", "attachment; filename=#{displayed_filename}")
+    |> send_resp(response.status, response.body)
+  end
+
+  # `process_resource` variant for generic HTTP (GTFS-RT, single-file CSV) items
+  # leverages `fetch_remote` with pattern matching as well.
   defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.Generic.HTTP{} = item) do
     Unlock.Telemetry.trace_request(item.identifier, :external)
     response = fetch_remote(item)
@@ -102,6 +208,16 @@ defmodule Unlock.Controller do
   # NOTE: this code is designed for private use for now. I have tracked
   # what is required or useful for public opening later here:
   # https://github.com/etalab/transport-site/issues/2476
+  #
+  # SIRI support is experimental. For now we are encouraging instead SIRI provider to
+  # get their game up and improve their ops & software, so that they can directly handle
+  # SIRI loads without the proxy.
+  #
+  # For SIRI, only `POST` is allowed since this is the protocol.
+  #
+  # The code analyses the incoming XML payload, & replace the `requestor_ref` (used sometimes
+  # as an API key) transparently with the one we have configured.
+  #
   defp process_resource(%{method: "POST"} = conn, %Unlock.Config.Item.SIRI{} = item) do
     {:ok, body, conn} = Plug.Conn.read_body(conn, length: 1_000_000)
 
@@ -120,6 +236,7 @@ defmodule Unlock.Controller do
     end
   end
 
+  # Forbid `GET` calls for SIRI, explicitely, since this is not the way to issue a SIRI call.
   defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.SIRI{}),
     do: send_not_allowed(conn)
 
@@ -129,6 +246,10 @@ defmodule Unlock.Controller do
   end
 
   @spec handle_authorized_siri_call(Plug.Conn.t(), Unlock.Config.Item.SIRI.t(), Saxy.XML.element()) :: Plug.Conn.t()
+  # The SIRI query is serialized into iodata, then a `POST` query is issued.
+  #
+  # On completion, we unzip if needed to smooth out implementations, filter response headers,
+  # and send back the answer to the client.
   defp handle_authorized_siri_call(conn, %Unlock.Config.Item.SIRI{} = item, xml) do
     body = Saxy.encode_to_iodata!(xml, version: "1.0")
 
@@ -148,9 +269,20 @@ defmodule Unlock.Controller do
     |> send_resp(response.status, body)
   end
 
-  defp fetch_remote(%Unlock.Config.Item.Generic.HTTP{} = item) do
+  # A wrapper grouping reused logic for two cases:
+  # - `%Unlock.Config.Item.Generic.HTTP{}` (GTFS-RT, external CSV etc)
+  # - `%Unlock.Config.Item.S3{}` (internal S3 backend)
+  #
+  # The `Cachex` logic is mutualized between those two cases.
+  #
+  # Before querying the remote source, the `internal` query event is emitted
+  # to ensure the app takes the "real remote query" into account in the metrics.
+  #
+  # Processing varies between the two item types, thanks to pattern-matching
+  # in `Unlock.CachedFetch`.
+  defp fetch_remote(%module{} = item) when module in [Unlock.Config.Item.Generic.HTTP, Unlock.Config.Item.S3] do
     comp_fn = fn _key ->
-      Logger.info("Processing proxy request for identifier #{item.identifier}")
+      Logger.debug("Processing proxy request for identifier #{item.identifier}")
 
       try do
         Unlock.Telemetry.trace_request(item.identifier, :internal)
@@ -172,14 +304,14 @@ defmodule Unlock.Controller do
 
     case outcome do
       {:ok, result} ->
-        Logger.info("Proxy response for #{item.identifier} served from cache")
+        Logger.debug("Proxy response for #{item.identifier} served from cache")
         result
 
       {:commit, result, _options} ->
         result
 
       {:ignore, result} ->
-        Logger.info("Cache has been skipped for proxy response")
+        Logger.debug("Cache has been skipped for proxy response")
         result
 
       {:error, _error} ->
@@ -199,6 +331,9 @@ defmodule Unlock.Controller do
     Enum.filter(headers, fn {h, _v} -> Enum.member?(Shared.Proxy.forwarded_headers_allowlist(), h) end)
   end
 
+  # This prepare response headers : we do not forward all response headers
+  # from the remote, only an allowed list of them, to avoid leaking sensitive data
+  # unknowingly.
   defp prepare_response_headers(headers) do
     headers
     |> lowercase_headers()

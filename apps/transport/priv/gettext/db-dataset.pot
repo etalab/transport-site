@@ -11,10 +11,6 @@ msgid ""
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Bike and scooter sharing"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Carpooling areas"
 msgstr ""
 
@@ -24,10 +20,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "See on data.gouv.fr"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Mobility locations"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -47,43 +39,15 @@ msgid "Other informations"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Private parking"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Car and motorbike sharing"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Bike parking"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Low emission zones"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Air transport"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Bike networks"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Charging & refuelling stations"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Public transit - static schedules"
+msgid "Public transit"
 msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Road data"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Transport traffic"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -96,4 +60,16 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Carpooling offers"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Bike data"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Pedestrian path"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Vehicles sharing"
 msgstr ""

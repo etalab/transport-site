@@ -83,39 +83,3 @@ msgstr "Licence mobilités"
 #, elixir-autogen, elixir-format
 msgid "licence-ouverte"
 msgstr "Licence Ouverte"
-
-#, elixir-autogen, elixir-format
-msgid "August 2022"
-msgstr "août 2022"
-
-#, elixir-autogen, elixir-format
-msgid "December 2022"
-msgstr "décembre 2022"
-
-#, elixir-autogen, elixir-format
-msgid "December 2023"
-msgstr "décembre 2023"
-
-#, elixir-autogen, elixir-format
-msgid "Some datasets in this category are subject to a data reuse obligation %{before_after} %{month}."
-msgstr "Certaines données de cette catégorie font l'objet d'une intégration obligatoire %{before_after} %{month}."
-
-#, elixir-autogen, elixir-format
-msgid "since"
-msgstr "depuis"
-
-#, elixir-autogen, elixir-format
-msgid "starting from"
-msgstr "à partir de"
-
-#, elixir-autogen, elixir-format
-msgid "These datasets are subject to a data reuse obligation."
-msgstr "Ces jeux de données font l'objet d'une intégration obligatoire."
-
-#, elixir-autogen, elixir-format
-msgid "Some datasets in this category will be subject to a data reuse obligation."
-msgstr "Certaines données de cette catégorie feront l'objet d'une intégration obligatoire."
-
-#, elixir-autogen, elixir-format
-msgid "These datasets will be subject to a data reuse obligation."
-msgstr "Ces jeux de données feront l'objet d'une intégration obligatoire."

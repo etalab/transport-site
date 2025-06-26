@@ -16,13 +16,13 @@ defmodule Transport.Shared.ResourceSchema do
     iex> guess_name(%{"format" => "json"}, "public-transit")
     nil
 
-    iex> guess_name(%{"format" => "JSON", "url" => "https://example.com/zfe_zone_nom.json"}, "low-emission-zones")
+    iex> guess_name(%{"format" => "JSON", "url" => "https://example.com/zfe_zone_nom.json"}, "road-data")
     "etalab/schema-zfe"
 
-    iex> guess_name(%{"format" => "json", "url" => "https://example.com/nope.zip"}, "low-emission-zones")
+    iex> guess_name(%{"format" => "json", "url" => "https://example.com/nope.zip"}, "road-data")
     nil
 
-    iex> guess_name(%{"schema" => %{"name" => "etalab/schema-zfe"}}, "low-emission-zones")
+    iex> guess_name(%{"schema" => %{"name" => "etalab/schema-zfe"}}, "road-data")
     "etalab/schema-zfe"
   """
 
@@ -30,7 +30,7 @@ defmodule Transport.Shared.ResourceSchema do
     schema
   end
 
-  def guess_name(%{"url" => url, "format" => format}, "low-emission-zones") do
+  def guess_name(%{"url" => url, "format" => format}, "road-data") do
     appropriate_format = Enum.member?(["json", "geojson"], String.downcase(format))
     appropriate_filename = url |> filename_from_url() |> String.starts_with?("zfe")
     if appropriate_format and appropriate_filename, do: "etalab/schema-zfe"

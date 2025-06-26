@@ -22,8 +22,9 @@
               <%= gettext("Data") %>
               <div class="dropdown-content">
                 <%= link(gettext("Datasets"), to: dataset_path(@conn, :index)) %>
-                <%= link(gettext("Exploration map"), to: explore_path(@conn, :index)) %>
+                <%= link(gettext("Data exploration map"), to: explore_path(@conn, :index)) %>
                 <%= link(gettext("National GTFS stops map"), to: explore_path(@conn, :gtfs_stops)) %>
+                <%= link(gettext("Reuses"), to: reuse_path(@conn, :index)) %>
               </div>
             </div>
           </li>
@@ -55,7 +56,6 @@
               <%= gettext("Regulation") %>
               <div class="dropdown-content">
                 <%= link(gettext("Standards"), to: "https://normes.transport.data.gouv.fr", target: "_blank") %>
-                <%= link(gettext("Climate and Resilience bill"), to: page_path(@conn, :loi_climat_resilience)) %>
                 <%= link(gettext("Declaration of conformity"),
                   to:
                     "https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/declaration-de-conformite",
@@ -97,11 +97,9 @@
                       to: page_path(@conn, :espace_producteur, utm_campaign: "menu_dropdown")
                     ) %>
                   <% end %>
-                  <%= if TransportWeb.Session.display_reuser_space?(@conn) do %>
-                    <%= link(gettext("Reuser space"),
-                      to: reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "menu_dropdown")
-                    ) %>
-                  <% end %>
+                  <%= link(gettext("Reuser space"),
+                    to: reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "menu_dropdown")
+                  ) %>
                   <a
                     class="navigation__link nagivation__link--logout"
                     href={session_path(@conn, :delete, redirect_path: current_path(@conn))}

@@ -142,7 +142,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
       assert %{format: "gbfs", freshness: nil, raw_measure: nil, resource_id: _} = resource_freshness(resource)
     end
 
-    test "up to date gtfs-register_test() resource" do
+    test "up to date GTFS-RT resource" do
       resource = %{id: resource_id} = insert(:resource, format: "gtfs-rt")
 
       %{id: metadata_id, inserted_at: inserted_at} =
@@ -158,6 +158,23 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                resource_id: ^resource_id,
                metadata_id: ^metadata_id,
                metadata_inserted_at: ^inserted_at
+             } = resource_freshness(resource)
+    end
+
+    test "for a GTFS-Flex" do
+      resource = insert(:resource, format: "GTFS")
+
+      resource_history =
+        insert(:resource_history,
+          resource_id: resource.id,
+          payload: %{"format" => "GTFS", "filenames" => ["stops.txt", "locations.geojson"]}
+        )
+
+      assert DB.ResourceHistory.gtfs_flex?(resource_history)
+
+      assert %{
+               freshness: 1.0,
+               raw_measure: %{source: "gtfs_flex"}
              } = resource_freshness(resource)
     end
   end
@@ -286,25 +303,23 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
         metadata: %{"feed_timestamp_delay" => 1000}
       )
 
-      assert %{
-               score: 0.5,
-               details: %{
-                 resources: [
-                   %{
-                     format: "GTFS",
-                     freshness: 1.0,
-                     raw_measure: %{end_date: end_date, start_date: start_date},
-                     resource_id: ^resource_id
-                   },
-                   %{
-                     format: "gtfs-rt",
-                     freshness: +0.0,
-                     raw_measure: 1000,
-                     resource_id: ^resource_id_2
-                   }
-                 ]
+      assert %{score: 0.5, details: %{resources: resources}} = current_dataset_freshness(dataset.id)
+
+      assert [
+               %{
+                 format: "GTFS",
+                 freshness: 1.0,
+                 raw_measure: %{end_date: end_date, start_date: start_date},
+                 resource_id: ^resource_id
+               },
+               %{
+                 format: "gtfs-rt",
+                 freshness: +0.0,
+                 raw_measure: 1000,
+                 resource_id: ^resource_id_2
                }
-             } = current_dataset_freshness(dataset.id)
+             ] =
+               resources |> Enum.sort_by(fn %{format: format} -> format end)
 
       today = Date.utc_today()
       assert Date.diff(today, start_date) > 0 and Date.diff(end_date, today) > 0
@@ -419,6 +434,26 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                details: %{
                  resources: [
                    %{compliance: 1.0, raw_measure: %{"max_error" => "Warning"}, resource_id: gtfs.id}
+                 ]
+               }
+             } == current_dataset_compliance(dataset.id)
+    end
+
+    test "with a single NeTEx resource with an error" do
+      dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true)
+
+      insert(:multi_validation, %{
+        resource_history:
+          insert(:resource_history, resource: netex = insert(:resource, dataset: dataset, format: "NeTEx")),
+        validator: Transport.Validators.NeTEx.validator_name(),
+        max_error: "error"
+      })
+
+      assert %{
+               score: 0,
+               details: %{
+                 resources: [
+                   %{compliance: +0.0, raw_measure: %{"max_error" => "error"}, resource_id: netex.id}
                  ]
                }
              } == current_dataset_compliance(dataset.id)

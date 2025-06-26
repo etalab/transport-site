@@ -6,10 +6,23 @@ defmodule TransportWeb.API.DatasetController do
   alias DB.{AOM, Dataset, Repo, Resource}
   alias Geo.{JSON, MultiPolygon}
 
+  plug(:log_request when action in [:datasets, :by_id])
+
   # The default (one minute) felt a bit too high for someone doing scripted operations
   # (have to wait during experimentations), so I lowered it a bit. It is high enough
   # that it will still protect a lot against excessive querying.
-  @cache_ttl :timer.seconds(30)
+  @index_cache_ttl Transport.PreemptiveAPICache.cache_ttl()
+  @by_id_cache_ttl :timer.seconds(30)
+  @dataset_preload [
+    :resources,
+    :aom,
+    :region,
+    :communes,
+    :legal_owners_aom,
+    :legal_owners_region,
+    resources: [:dataset]
+  ]
+  @pan_org_id Application.compile_env!(:transport, :datagouvfr_transport_publisher_id)
 
   @spec open_api_operation(any) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
@@ -24,16 +37,30 @@ defmodule TransportWeb.API.DatasetController do
                       and resources are here provided in summarized form (without history & conversions).
                       You can call `/api/datasets/:id` for each dataset to get extra data (history & conversions)",
       operationId: "API.DatasetController.datasets",
-      parameters: [],
+      parameters: authorization_header(),
       responses: %{
         200 => Operation.response("DatasetsResponse", "application/json", TransportWeb.API.Schemas.DatasetsResponse)
       }
     }
 
+  defp authorization_header do
+    [
+      Operation.parameter(
+        :authorization,
+        :header,
+        :string,
+        "Your token secret from your [reuser space](https://transport.data.gouv.fr/espace_reutilisateur)."
+      )
+    ]
+  end
+
   @spec datasets(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def datasets(%Plug.Conn{} = conn, _params) do
-    comp_fn = fn -> prepare_datasets_index_data(conn) end
-    data = Transport.Cache.fetch("api-datasets-index", comp_fn, @cache_ttl)
+    comp_fn = fn -> prepare_datasets_index_data() end
+
+    data =
+      Transport.Cache.fetch("api-datasets-index", comp_fn, @index_cache_ttl)
+      |> Enum.map(&maybe_add_token_urls(&1, conn))
 
     render(conn, %{data: data})
   end
@@ -56,7 +83,9 @@ defmodule TransportWeb.API.DatasetController do
       description:
         ~s"Returns the detailed version of a dataset, showing its resources, the resources history & conversions.",
       operationId: "API.DatasetController.datasets_by_id",
-      parameters: [Operation.parameter(:id, :path, :string, "datagouv id of the dataset you want to retrieve")],
+      parameters:
+        [Operation.parameter(:id, :path, :string, "datagouv id of the dataset you want to retrieve")] ++
+          authorization_header(),
       responses: %{
         200 => Operation.response("DatasetDetails", "application/json", TransportWeb.API.Schemas.DatasetDetails)
       }
@@ -80,14 +109,17 @@ defmodule TransportWeb.API.DatasetController do
     dataset =
       Dataset
       |> Dataset.reject_experimental_datasets()
-      |> preload([:resources, :aom, :region, :communes, :legal_owners_aom, :legal_owners_region])
+      |> preload(^@dataset_preload)
       |> Repo.get_by(datagouv_id: datagouv_id)
 
     if is_nil(dataset) do
       conn |> put_status(404) |> render(%{errors: "dataset not found"})
     else
-      comp_fn = fn -> prepare_dataset_detail_data(conn, dataset) end
-      data = Transport.Cache.fetch("api-datasets-#{datagouv_id}", comp_fn, @cache_ttl)
+      comp_fn = fn -> prepare_dataset_detail_data(dataset) end
+
+      data =
+        Transport.Cache.fetch("api-datasets-#{datagouv_id}", comp_fn, @by_id_cache_ttl)
+        |> maybe_add_token_urls(conn)
 
       conn |> assign(:data, data) |> render()
     end
@@ -155,8 +187,8 @@ defmodule TransportWeb.API.DatasetController do
       "features" => features
     }
 
-  @spec transform_dataset(Plug.Conn.t(), Dataset.t() | map()) :: map()
-  defp transform_dataset(%Plug.Conn{} = conn, %Dataset{} = dataset),
+  @spec transform_dataset(Dataset.t() | map()) :: map()
+  defp transform_dataset(%Dataset{} = dataset),
     do: %{
       "datagouv_id" => dataset.datagouv_id,
       # to help discoverability, we explicitly add the datagouv_id as the id
@@ -164,7 +196,7 @@ defmodule TransportWeb.API.DatasetController do
       "id" => dataset.datagouv_id,
       "title" => dataset.custom_title,
       "created_at" => dataset.created_at |> DateTime.to_date() |> Date.to_string(),
-      "page_url" => TransportWeb.Router.Helpers.dataset_url(conn, :details, dataset.slug),
+      "page_url" => TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, dataset.slug),
       "slug" => dataset.slug,
       "updated" => Helpers.last_updated(Dataset.official_resources(dataset)),
       "resources" => Enum.map(dataset.resources, &transform_resource/1),
@@ -182,13 +214,14 @@ defmodule TransportWeb.API.DatasetController do
   defp get_publisher(dataset),
     do: %{
       "name" => dataset.organization,
+      "id" => dataset.organization_id,
       "type" => "organization"
     }
 
-  @spec transform_dataset_with_detail(Plug.Conn.t(), Dataset.t() | map()) :: map()
-  defp transform_dataset_with_detail(%Plug.Conn{} = conn, %Dataset{} = dataset) do
-    conn
-    |> transform_dataset(dataset)
+  @spec transform_dataset_with_detail(Dataset.t() | map()) :: map()
+  defp transform_dataset_with_detail(%Dataset{} = dataset) do
+    dataset
+    |> transform_dataset()
     |> add_conversions(dataset)
     |> Map.put(
       "history",
@@ -264,6 +297,13 @@ defmodule TransportWeb.API.DatasetController do
         _ -> nil
       end
 
+    latest_url =
+      if DB.Resource.pan_resource?(resource) or DB.Resource.served_by_proxy?(resource) do
+        DB.Resource.download_url(resource)
+      else
+        resource.latest_url
+      end
+
     %{
       "page_url" => TransportWeb.Router.Helpers.resource_url(TransportWeb.Endpoint, :details, resource.id),
       "id" => resource.id,
@@ -271,7 +311,7 @@ defmodule TransportWeb.API.DatasetController do
       "title" => resource.title,
       "updated" => resource.last_update |> DateTime.to_iso8601(),
       "is_available" => resource.is_available,
-      "url" => resource.latest_url,
+      "url" => latest_url,
       "original_url" => resource.url,
       "end_calendar_validity" => metadata_content && Map.get(metadata, "end_date"),
       "start_calendar_validity" => metadata_content && Map.get(metadata, "start_date"),
@@ -334,7 +374,11 @@ defmodule TransportWeb.API.DatasetController do
     |> Enum.map(fn region -> %{"name" => region.nom, "insee" => region.insee} end)
   end
 
-  defp prepare_datasets_index_data(%Plug.Conn{} = conn) do
+  def prepare_datasets_index_data do
+    # NOTE: week-end patch ; putting a heavy timeout to temporarily
+    # work-around https://github.com/etalab/transport-site/issues/4598
+    # which causes the whole API & backoffice to crash for hours.
+    # On the next weekday, this query must be optimized :-)
     datasets_with_gtfs_metadata =
       DB.Dataset.base_query()
       |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
@@ -344,7 +388,7 @@ defmodule TransportWeb.API.DatasetController do
         :communes,
         resources: {r, resource_history: {rh, validations: {mv, metadata: m}}}
       ])
-      |> Repo.all()
+      |> Repo.all(timeout: 40_000)
 
     recent_limit = Transport.Jobs.GTFSRTMetadataJob.datetime_limit()
 
@@ -377,16 +421,16 @@ defmodule TransportWeb.API.DatasetController do
     %{}
     |> Dataset.list_datasets()
     |> Dataset.reject_experimental_datasets()
-    |> preload([:resources, :aom, :region, :communes, :legal_owners_aom, :legal_owners_region])
+    |> preload(^@dataset_preload)
     |> Repo.all()
     |> Enum.map(fn dataset ->
       enriched_dataset = Map.get(existing_ids, dataset.id)
       add_enriched_resources_to_dataset(dataset, enriched_dataset)
     end)
-    |> Enum.map(&transform_dataset(conn, &1))
+    |> Enum.map(&transform_dataset(&1))
   end
 
-  defp prepare_dataset_detail_data(%Plug.Conn{} = conn, %DB.Dataset{} = dataset) do
+  defp prepare_dataset_detail_data(%DB.Dataset{} = dataset) do
     gtfs_resources_with_metadata =
       DB.Resource.base_query()
       |> DB.ResourceHistory.join_resource_with_latest_resource_history()
@@ -421,6 +465,54 @@ defmodule TransportWeb.API.DatasetController do
 
     dataset = dataset |> Map.put(:resources, enriched_resources)
 
-    transform_dataset_with_detail(conn, dataset)
+    transform_dataset_with_detail(dataset)
   end
+
+  defp log_request(%Plug.Conn{} = conn, _options) do
+    controller = conn |> Phoenix.Controller.controller_module() |> to_string() |> String.trim_leading("Elixir.")
+
+    token_id =
+      case conn.assigns[:token] do
+        %DB.Token{} = token -> token.id
+        nil -> nil
+      end
+
+    Ecto.Changeset.change(%DB.APIRequest{}, %{
+      time: DateTime.utc_now(),
+      token_id: token_id,
+      method: "#{controller}##{Phoenix.Controller.action_name(conn)}",
+      path: conn.request_path
+    })
+    |> DB.Repo.insert!()
+
+    conn
+  end
+
+  # Add a token to the `latest_url` for resources:
+  # - published by the NAP organization.
+  # - served by the NAP proxy.
+  #
+  # This is done at this stage to still be able to cache responses:
+  # - an anonymous HTTP request will be served the cache
+  # - an authenticated HTTP request with a token will get download URLs
+  #   with the passed token
+  defp maybe_add_token_urls(
+         %{"resources" => resources} = dataset,
+         %Plug.Conn{assigns: %{token: %DB.Token{secret: secret}}}
+       ) do
+    resources =
+      Enum.map(resources, fn %{"url" => url} = resource ->
+        if pan_publisher?(dataset) or DB.Resource.served_by_proxy?(resource) do
+          Map.put(resource, "url", url <> "?token=#{secret}")
+        else
+          resource
+        end
+      end)
+
+    Map.put(dataset, "resources", resources)
+  end
+
+  defp maybe_add_token_urls(dataset, _conn), do: dataset
+
+  defp pan_publisher?(%{"publisher" => %{"id" => organization_id}}), do: organization_id == @pan_org_id
 end

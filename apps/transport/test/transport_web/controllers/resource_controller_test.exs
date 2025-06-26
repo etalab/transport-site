@@ -8,6 +8,7 @@ defmodule TransportWeb.ResourceControllerTest do
   setup :verify_on_exit!
 
   @service_alerts_file "#{__DIR__}/../../fixture/files/bibus-brest-gtfs-rt-alerts.pb"
+  @pan_org_id "5abca8d588ee386ee6ece479"
 
   setup do
     Mox.stub_with(Transport.DataVisualization.Mock, Transport.DataVisualization.Impl)
@@ -67,24 +68,6 @@ defmodule TransportWeb.ResourceControllerTest do
     assert_raise Ecto.NoResultsError, fn ->
       conn |> get(resource_path(conn, :details, 0))
     end
-  end
-
-  test "GTFS resource with associated NeTEx", %{conn: conn} do
-    resource = DB.Resource |> DB.Repo.get_by(datagouv_id: "2")
-    insert(:resource_history, resource_id: resource.id, payload: %{"uuid" => uuid = Ecto.UUID.generate()})
-
-    insert(:data_conversion,
-      resource_history_uuid: uuid,
-      convert_from: "GTFS",
-      convert_to: "NeTEx",
-      converter: DB.DataConversion.converter_to_use("NeTEx"),
-      payload: %{"permanent_url" => permanent_url = "https://super-cellar-url.com/netex"}
-    )
-
-    html_response = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
-    assert html_response =~ "NeTEx"
-    assert html_response =~ conversion_path(conn, :get, resource.id, :NeTEx)
-    refute html_response =~ permanent_url
   end
 
   test "GBFS resource with multi-validation sends back 200", %{conn: conn} do
@@ -314,6 +297,142 @@ defmodule TransportWeb.ResourceControllerTest do
     for status_code <- [500, 502] do
       test_remote_download_error(conn, status_code)
     end
+  end
+
+  test "HEAD request for a PAN resource", %{conn: conn} do
+    dataset = insert(:dataset, organization_id: @pan_org_id)
+    resource = insert(:resource, dataset: dataset)
+
+    assert conn |> head(resource_path(conn, :download, resource.id)) |> response(200)
+  end
+
+  test "download a PAN resource, invalid token", %{conn: conn} do
+    dataset = insert(:dataset, organization_id: @pan_org_id)
+    resource = insert(:resource, dataset: dataset)
+
+    assert "You must set a valid Authorization header" ==
+             conn
+             |> get(resource_path(conn, :download, resource.id, token: "invalid"))
+             |> response(401)
+
+    assert [] = DB.ResourceDownload |> DB.Repo.all()
+  end
+
+  test "download a PAN resource, no token", %{conn: conn} do
+    dataset = insert(:dataset, organization_id: @pan_org_id)
+
+    %DB.Resource{id: resource_id} =
+      resource = insert(:resource, dataset: dataset, latest_url: latest_url = "https://example.com/latest_url")
+
+    assert latest_url ==
+             conn
+             |> get(resource_path(conn, :download, resource.id))
+             |> redirected_to(302)
+
+    assert [%DB.ResourceDownload{token_id: nil, resource_id: ^resource_id}] = DB.ResourceDownload |> DB.Repo.all()
+  end
+
+  test "download a PAN resource, valid token", %{conn: conn} do
+    dataset = insert(:dataset, organization_id: @pan_org_id)
+
+    %DB.Resource{id: resource_id} =
+      resource = insert(:resource, dataset: dataset, latest_url: latest_url = "https://example.com/latest_url")
+
+    %DB.Token{id: token_id} = token = insert_token()
+
+    assert latest_url ==
+             conn
+             |> get(resource_path(conn, :download, resource.id, token: token.secret))
+             |> redirected_to(302)
+
+    assert [%DB.ResourceDownload{token_id: ^token_id, resource_id: ^resource_id}] = DB.ResourceDownload |> DB.Repo.all()
+  end
+
+  test "resource#details, PAN resource, logged-in user with a default token", %{conn: conn} do
+    dataset = insert(:dataset, organization_id: @pan_org_id)
+    resource = insert(:resource, dataset: dataset)
+    assert resource |> DB.Repo.preload(:dataset) |> DB.Resource.pan_resource?()
+
+    contact = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+    token = insert_token()
+    insert(:default_token, contact: contact, token: token)
+
+    assert [resource_url(TransportWeb.Endpoint, :download, resource.id, token: token.secret)] ==
+             conn
+             |> Phoenix.ConnTest.init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+             |> resource_href_download_button(resource)
+  end
+
+  test "resource#details, PAN resource, logged-in user without a default token", %{conn: conn} do
+    dataset = insert(:dataset, organization_id: @pan_org_id)
+    resource = insert(:resource, dataset: dataset)
+    assert resource |> DB.Repo.preload(:dataset) |> DB.Resource.pan_resource?()
+
+    organization = insert(:organization)
+
+    insert_contact(%{
+      datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
+      organizations: [organization |> Map.from_struct()]
+    })
+
+    insert_token(%{organization_id: organization.id})
+
+    assert [resource_url(TransportWeb.Endpoint, :download, resource.id)] ==
+             conn
+             |> Phoenix.ConnTest.init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+             |> resource_href_download_button(resource)
+  end
+
+  test "resource#details, PAN resource, logged-out user", %{conn: conn} do
+    dataset = insert(:dataset, organization_id: @pan_org_id)
+    resource = insert(:resource, dataset: dataset)
+    assert resource |> DB.Repo.preload(:dataset) |> DB.Resource.pan_resource?()
+
+    assert [resource_url(TransportWeb.Endpoint, :download, resource.id)] ==
+             conn |> resource_href_download_button(resource)
+  end
+
+  test "resource#details, proxy resource, logged-in user with a default token", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, url: "https://proxy.transport.data.gouv.fr/#{Ecto.UUID.generate()}")
+    assert resource |> DB.Resource.served_by_proxy?()
+
+    contact = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+    token = insert_token()
+    insert(:default_token, contact: contact, token: token)
+
+    assert [resource.url <> "?token=#{token.secret}"] ==
+             conn
+             |> Phoenix.ConnTest.init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+             |> resource_href_download_button(resource)
+  end
+
+  test "resource#details, proxy resource, logged-in user without a default token", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, url: "https://proxy.transport.data.gouv.fr/#{Ecto.UUID.generate()}")
+    assert resource |> DB.Resource.served_by_proxy?()
+
+    organization = insert(:organization)
+
+    insert_contact(%{
+      datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
+      organizations: [organization |> Map.from_struct()]
+    })
+
+    insert_token(%{organization_id: organization.id})
+
+    assert [resource.url] ==
+             conn
+             |> Phoenix.ConnTest.init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+             |> resource_href_download_button(resource)
+  end
+
+  test "resource#details, proxy resource, logged-out user", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, url: "https://proxy.transport.data.gouv.fr/#{Ecto.UUID.generate()}")
+    assert resource |> DB.Resource.served_by_proxy?()
+
+    assert [resource.url] == conn |> resource_href_download_button(resource)
   end
 
   test "flash message when parent dataset is inactive", %{conn: conn} do
@@ -828,5 +947,15 @@ defmodule TransportWeb.ResourceControllerTest do
     html = html_response(conn, 404)
     assert html =~ "Page non disponible"
     assert Phoenix.Flash.get(conn.assigns.flash, :error) == "La ressource n'est pas disponible sur le serveur distant"
+  end
+
+  def resource_href_download_button(%Plug.Conn{} = conn, %DB.Resource{} = resource) do
+    conn
+    |> get(resource_path(conn, :details, resource.id))
+    |> html_response(200)
+    |> Floki.parse_document!()
+    |> Floki.find(".button-outline.small.secondary")
+    |> hd()
+    |> Floki.attribute("href")
   end
 end

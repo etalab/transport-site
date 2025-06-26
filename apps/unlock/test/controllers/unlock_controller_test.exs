@@ -2,7 +2,7 @@ defmodule Unlock.ControllerTest do
   # async false until we stub Cachex calls or use per-test cache name
   # and also due to our current global mox use, and capture_log
   use ExUnit.Case, async: false
-  use Plug.Test
+  import Plug.Conn
   import Phoenix.ConnTest
   @endpoint Unlock.Endpoint
 
@@ -516,12 +516,14 @@ defmodule Unlock.ControllerTest do
           identifier: slug,
           feeds: [
             %Unlock.Config.Item.Generic.HTTP{
-              identifier: "first-remote",
+              identifier: "first-uuid",
+              slug: "first-slug",
               target_url: url = "http://localhost:1234",
               ttl: 10
             },
             %Unlock.Config.Item.Generic.HTTP{
-              identifier: "second-remote",
+              identifier: "second-uuid",
+              slug: "second-slug",
               target_url: second_url = "http://localhost:5678",
               ttl: 10
             }
@@ -568,20 +570,22 @@ defmodule Unlock.ControllerTest do
       assert resp.status == 200
       # Note: TIL: NimbleCSV.RFC4180.dump_to_iodata generates "\r\n" (apparently)
       assert resp.resp_body == Helper.data_as_csv(@expected_headers, [first_data_row, second_data_row], "\r\n")
+      headers = resp.resp_headers |> Enum.into(%{})
+      assert headers["content-disposition"] =~ ~r/^attachment; filename=an-existing-aggregate-identifier-.*\.csv$/
 
       assert_received {:telemetry_event, [:proxy, :request, :external], %{},
                        %{target: "proxy:an-existing-aggregate-identifier"}}
 
       assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
-                       %{target: "proxy:an-existing-aggregate-identifier:first-remote"}}
+                       %{target: "proxy:an-existing-aggregate-identifier:first-uuid"}}
 
       assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
-                       %{target: "proxy:an-existing-aggregate-identifier:second-remote"}}
+                       %{target: "proxy:an-existing-aggregate-identifier:second-uuid"}}
 
       refute_received {:telemetry_event, _, _, _}
 
-      assert logs =~ ~r|first-remote responded with HTTP code 200|
-      assert logs =~ ~r|second-remote responded with HTTP code 200|
+      assert logs =~ ~r|first-uuid responded with HTTP code 200|
+      assert logs =~ ~r|second-uuid responded with HTTP code 200|
 
       verify!(Unlock.HTTP.Client.Mock)
 
@@ -595,8 +599,8 @@ defmodule Unlock.ControllerTest do
       assert resp.status == 200
       assert resp.resp_body == Helper.data_as_csv(@expected_headers, [first_data_row, second_data_row], "\r\n")
 
-      assert logs =~ ~r|Proxy response for an-existing-aggregate-identifier:first-remote served from cache|
-      assert logs =~ ~r|Proxy response for an-existing-aggregate-identifier:second-remote served from cache|
+      assert logs =~ ~r|Proxy response for an-existing-aggregate-identifier:first-uuid served from cache|
+      assert logs =~ ~r|Proxy response for an-existing-aggregate-identifier:second-uuid served from cache|
 
       assert_received {:telemetry_event, [:proxy, :request, :external], %{},
                        %{target: "proxy:an-existing-aggregate-identifier"}}
@@ -624,7 +628,7 @@ defmodule Unlock.ControllerTest do
       assert resp.resp_body == Helper.data_as_csv(@expected_headers, [first_data_row], "\r\n")
       refute String.contains?(resp.resp_body, "foo")
 
-      assert logs =~ ~r|Broken stream for origin second-remote \(headers are \["foo"\]\)|
+      assert logs =~ ~r|Broken stream for origin second-slug/second-uuid \(headers are \["foo"\]\)|
 
       verify!(Unlock.HTTP.Client.Mock)
     end
@@ -647,7 +651,7 @@ defmodule Unlock.ControllerTest do
       assert resp.status == 200
       assert resp.resp_body == Helper.data_as_csv(@expected_headers, [first_data_row], "\r\n")
 
-      assert logs =~ ~r|Non-200 response for origin second-remote \(status=502\), response has been dropped|
+      assert logs =~ ~r|Non-200 response for origin second-slug/second-uuid \(status=502\), response has been dropped|
 
       verify!(Unlock.HTTP.Client.Mock)
     end
@@ -675,9 +679,9 @@ defmodule Unlock.ControllerTest do
 
       # we still want the event on the bogus remote
       assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
-                       %{target: "proxy:an-existing-aggregate-identifier:second-remote"}}
+                       %{target: "proxy:an-existing-aggregate-identifier:second-uuid"}}
 
-      assert logs =~ ~r|Non-200 response for origin second-remote \(status=500\), response has been dropped|
+      assert logs =~ ~r|Non-200 response for origin second-slug/second-uuid \(status=500\), response has been dropped|
 
       verify!(Unlock.HTTP.Client.Mock)
     end
@@ -753,8 +757,8 @@ defmodule Unlock.ControllerTest do
       assert resp.status == 200
 
       # make sure timout is not too aggressive for the 200 feed
-      assert logs =~ ~r|first-remote responded with HTTP code 200|
-      assert logs =~ ~r|Timeout for origin second-remote, response has been dropped|
+      assert logs =~ ~r|first-uuid responded with HTTP code 200|
+      assert logs =~ ~r|Timeout for origin second-uuid, response has been dropped|
 
       # first part must still be there despite the second part timeout
       assert resp.resp_body == Helper.data_as_csv(@expected_headers, [first_data_row], "\r\n")
@@ -811,15 +815,107 @@ defmodule Unlock.ControllerTest do
         |> get("/resource/an-existing-aggregate-identifier", include_origin: 1)
 
       assert resp.status == 200
-
-      expected_headers = @expected_headers ++ ["origin"]
-      first_output_row = first_data_row |> Map.put("origin", "first-remote")
-      second_output_row = second_data_row |> Map.put("origin", "second-remote")
+      expected_headers = @expected_headers ++ ["origin", "slug"]
+      first_expected_output_row = first_data_row |> Map.put("origin", "first-uuid") |> Map.put("slug", "first-slug")
+      second_expected_output_row = second_data_row |> Map.put("origin", "second-uuid") |> Map.put("slug", "second-slug")
 
       assert resp.resp_body ==
-               Helper.data_as_csv(expected_headers, [first_output_row, second_output_row], "\r\n")
+               Helper.data_as_csv(expected_headers, [first_expected_output_row, second_expected_output_row], "\r\n")
 
       verify!(Unlock.HTTP.Client.Mock)
+    end
+  end
+
+  describe "S3 item support" do
+    test "handles GET /resource/:slug (success case)" do
+      slug = "an-existing-s3-identifier"
+      ttl_in_seconds = 30
+      bucket_key = "aggregates"
+      path = "irve_static_consolidation.csv"
+      # automatically built by the app based on `bucket_key`
+      expected_bucket = "transport-data-gouv-fr-aggregates-test"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.S3{
+          identifier: slug,
+          bucket: bucket_key,
+          path: path,
+          ttl: ttl_in_seconds
+        }
+      })
+
+      content = "CONTENT"
+
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.Operation.S3{} = operation ->
+        assert %ExAws.Operation.S3{
+                 bucket: ^expected_bucket,
+                 path: ^path,
+                 http_method: :get,
+                 service: :s3
+               } = operation
+
+        %{body: content, status_code: 200}
+      end)
+
+      resp =
+        build_conn()
+        |> get("/resource/an-existing-s3-identifier")
+
+      assert resp.resp_body == content
+      assert resp.status == 200
+      # enforce the filename provided via the config (especially to get its extension passed to clients)
+      assert Plug.Conn.get_resp_header(resp, "content-disposition") == ["attachment; filename=#{path}"]
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      verify!(Transport.ExAWS.Mock)
+    end
+
+    test "handles GET /resource/:slug (ExAWS failure case)" do
+      slug = "an-existing-s3-identifier"
+      ttl_in_seconds = 30
+      bucket_key = "aggregates"
+      path = "irve_static_consolidation.csv"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.S3{
+          identifier: slug,
+          bucket: bucket_key,
+          path: path,
+          ttl: ttl_in_seconds
+        }
+      })
+
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.Operation.S3{} = _operation ->
+        # simulate what is raised by `request!` in case of failed `get_object`
+        raise ExAws.Error, "something bad happened! maybe SENSITIVE INFO MAY BE HERE"
+      end)
+
+      {resp, logs} =
+        with_log(fn ->
+          build_conn()
+          |> get("/resource/an-existing-s3-identifier")
+        end)
+
+      assert logs =~ ~r/something bad happened! maybe SENSITIVE INFO MAY BE HERE/
+
+      # content of error should not be forwarded, instead we want a sanitized message
+      assert resp.resp_body == "Bad Gateway"
+      assert resp.status == 502
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      verify!(Transport.ExAWS.Mock)
     end
   end
 

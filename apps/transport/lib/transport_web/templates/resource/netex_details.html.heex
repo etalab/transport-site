@@ -23,7 +23,6 @@
         <%= unless is_nil(@validation_summary) do %>
           <p class="notification warning">
             <strong><%= dgettext("validations", "NeTEx validation is in beta.") %></strong> <br />
-            <%= dgettext("validations", "Warnings are work in progress. Only XSD errors are considered for now.") %>
           </p>
           <%= unless is_nil(@metadata) or @metadata == %{} do %>
             <%= render("_resources_details_netex.html", conn: @conn, metadata: @metadata) %>
@@ -71,7 +70,7 @@
         <% end %>
       </div>
       <%= if length(@other_resources) > 0 do %>
-        <h2><%= TransportWeb.Gettext.dgettext("validations", "Other resources") %></h2>
+        <h2><%= dgettext("validations", "Other resources") %></h2>
         <div class="panel">
           <ul>
             <%= for resource <- @other_resources do %>

@@ -5,6 +5,8 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
   import Mox
   alias Transport.Jobs.ConsolidateLEZsJob
 
+  doctest Transport.Jobs.ConsolidateLEZsJob, import: true
+
   setup :verify_on_exit!
 
   setup do
@@ -14,7 +16,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
   end
 
   test "resource type" do
-    dataset = insert(:dataset, type: "low-emission-zones")
+    dataset = insert(:dataset, type: "road-data")
     zfe_aire = insert(:resource, dataset: dataset, url: "https://example.com/aires.geojson")
 
     zfe_voies =
@@ -31,11 +33,11 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
   end
 
   test "relevant_resources" do
-    dataset = insert(:dataset, type: "low-emission-zones", organization: "Sample")
+    dataset = insert(:dataset, type: "road-data", organization: "Sample")
 
     pan_dataset =
       insert(:dataset,
-        type: "low-emission-zones",
+        type: "road-data",
         organization: "Point d'Accès National transport.data.gouv.fr",
         organization_id: "5abca8d588ee386ee6ece479"
       )
@@ -58,7 +60,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
 
   test "consolidate_features and consolidate" do
     aom = insert(:aom, siren: "253800825", nom: "SMM de l’Aire Grenobloise", forme_juridique: "Métropole")
-    dataset = insert(:dataset, type: "low-emission-zones", organization: "Sample", aom: aom)
+    dataset = insert(:dataset, type: "road-data", organization: "Sample", aom: aom)
 
     zfe_aire =
       insert(:resource,
@@ -182,7 +184,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
 
   test "consolidate_features ignores resources without a valid resource history" do
     aom = insert(:aom, siren: "253800825", nom: "SMM de l’Aire Grenobloise", forme_juridique: "Métropole")
-    dataset = insert(:dataset, type: "low-emission-zones", organization: "Sample", aom: aom)
+    dataset = insert(:dataset, type: "road-data", organization: "Sample", aom: aom)
 
     zfe_aire =
       insert(:resource,
@@ -243,7 +245,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
   describe "publisher_details" do
     test "with an AOM" do
       aom = insert(:aom, siren: "253800825", nom: "SMM de l’Aire Grenobloise", forme_juridique: "Métropole")
-      dataset = insert(:dataset, type: "low-emission-zones", organization: "Sample", aom: aom)
+      dataset = insert(:dataset, type: "road-data", organization: "Sample", aom: aom)
 
       zfe_aire =
         insert(:resource,
@@ -262,7 +264,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
     end
 
     test "without an AOM" do
-      dataset = insert(:dataset, type: "low-emission-zones", organization: "Ville de Paris", aom: nil)
+      dataset = insert(:dataset, type: "road-data", organization: "Ville de Paris", aom: nil)
 
       zfe_aire =
         insert(:resource,
@@ -281,7 +283,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
     end
 
     test "using autres_siren" do
-      dataset = insert(:dataset, type: "low-emission-zones", organization: "Toulouse métropole", aom: nil)
+      dataset = insert(:dataset, type: "road-data", organization: "Toulouse métropole", aom: nil)
 
       zfe_aire =
         insert(:resource,
@@ -338,7 +340,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
 
   test "perform" do
     aom = insert(:aom, siren: "253800825")
-    dataset = insert(:dataset, type: "low-emission-zones", aom: aom)
+    dataset = insert(:dataset, type: "road-data", aom: aom)
 
     zfe_aire =
       insert(:resource,

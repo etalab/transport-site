@@ -1,9 +1,9 @@
 Bonjour,
 
 <%= if Enum.count(@datasets) == 1 do %>
-Le saviez-vous ? Il est possible de vous inscrire à des notifications concernant le jeu de données que vous gérez sur transport.data.gouv.fr, <%= @datasets |> hd() |> link_for_dataset() %>.
+Le saviez-vous ? En tant que producteur de données de transport, il est possible de vous inscrire à des notifications concernant le jeu de données que vous gérez sur transport.data.gouv.fr, <%= @datasets |> hd() |> link_for_dataset() %>.
 <% else %>
-Le saviez-vous ? Il est possible de vous inscrire à des notifications concernant les jeux de données que vous gérez sur transport.data.gouv.fr :
+Le saviez-vous ? En tant que producteur de données de transport, il est possible de vous inscrire à des notifications concernant les jeux de données que vous gérez sur transport.data.gouv.fr :
 <ul>
   <%= for dataset <- @datasets do %>
   <li><%= link_for_dataset(dataset) %></li>

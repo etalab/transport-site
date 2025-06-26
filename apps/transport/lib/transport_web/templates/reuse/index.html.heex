@@ -1,0 +1,63 @@
+<div class="container">
+  <div class="cards reuses">
+    <h1><%= dgettext("reuses", "Reuses") %></h1>
+    <%= form_for @conn, reuse_path(@conn, :index), [id: "reuses_search_container", method: "get"], fn f -> %>
+      <%= search_input(f, :q,
+        id: "reuses_search",
+        value: @q,
+        placeholder: dgettext("reuses", "Find reuses")
+      ) %>
+      <button type="submit" class="button reuses_search_button"><i class="fa fa-search"></i></button>
+    <% end %>
+
+    <p>
+      <%= raw(dgettext("reuses", "index-intro")) %>
+      <%= link(dgettext("reuses", "Publish a reuse"),
+        to: "https://guides.data.gouv.fr/guide-data.gouv.fr/reutilisations/publier-une-reutilisation",
+        target: "_blank"
+      ) %>
+    </p>
+
+    <%= for reuses <- Enum.chunk_every(@reuses, 4) do %>
+      <div class="row pt-24">
+        <%= for reuse <- reuses do %>
+          <div class="card">
+            <div class="card__cover">
+              <img src={reuse.image} alt="{reuse.title}" />
+            </div>
+            <div class="card__content">
+              <h3><%= link(reuse.title, to: reuse.url, target: "_blank") %></h3>
+              <div class="card__meta">
+                <time><%= Shared.DateTimeDisplay.format_date(reuse.created_at, get_session(@conn, :locale)) %></time>
+                <span :if={reuse.organization != nil}>
+                  <%= link(reuse.organization,
+                    to: "https://www.data.gouv.fr/organizations/#{reuse.organization_id}",
+                    target: "_blank"
+                  ) %>
+                </span>
+                <span :if={reuse.owner != nil}><%= reuse.owner %></span>
+              </div>
+              <p>
+                <%= DB.Reuse.type_to_str(reuse.type) %> &middot; <%= reuse.metric_datasets %> <%= dngettext(
+                  "reuses",
+                  "dataset",
+                  "datasets",
+                  reuse.metric_datasets
+                ) %>
+              </p>
+            </div>
+            <div :if={Enum.count(reuse.tags) > 0} class="card__extra">
+              <%= for tag <- Enum.take(reuse.tags, 5) do %>
+                <span class="label"><%= tag %></span>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="pt-24">
+    <%= pagination_links(@conn, @reuses) %>
+  </div>
+</div>

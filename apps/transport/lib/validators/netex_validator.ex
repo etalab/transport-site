@@ -4,7 +4,7 @@ defmodule Transport.Validators.NeTEx do
   (by polling the tier API) and can take quite some time upon completion.
   """
 
-  import TransportWeb.Gettext, only: [dgettext: 2, dngettext: 4]
+  use Gettext, backend: TransportWeb.Gettext
   require Logger
   alias Transport.Jobs.NeTExPollerJob, as: Poller
 
@@ -74,7 +74,7 @@ defmodule Transport.Validators.NeTEx do
           resource_history_id,
           result_url,
           %{elapsed_seconds: elapsed_seconds, retries: retries},
-          demote_non_xsd_errors(errors)
+          errors
         )
 
         :ok
@@ -138,7 +138,7 @@ defmodule Transport.Validators.NeTEx do
         # result_url in metadata?
         {:ok,
          %{
-           "validations" => errors |> demote_non_xsd_errors() |> index_messages(),
+           "validations" => errors |> index_messages(),
            "metadata" => %{elapsed_seconds: elapsed_seconds, retries: retries}
          }}
 
@@ -434,24 +434,5 @@ defmodule Transport.Validators.NeTEx do
 
   defp client do
     Transport.EnRouteChouetteValidClient.Wrapper.impl()
-  end
-
-  defp demote_non_xsd_errors(errors), do: Enum.map(errors, &demote_non_xsd_error/1)
-
-  defp demote_non_xsd_error(error) do
-    code = Map.get(error, "code", "")
-
-    if String.starts_with?(code, "xsd-") do
-      error
-    else
-      Map.update!(error, "criticity", &demote_error/1)
-    end
-  end
-
-  defp demote_error(criticity) do
-    case criticity do
-      "error" -> "warning"
-      _ -> criticity
-    end
   end
 end

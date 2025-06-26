@@ -102,6 +102,18 @@
   font-size: .8em;
 }
 
+.icon---animated-heart {
+  cursor: pointer;
+  transition: color 500ms linear;
+  &.active {
+    color: red;
+  }
+}
+
+.fa-heart.producer {
+  color: var(--blue);
+}
+
 .icon---climate-resilience-bill {
   width: 2.5em;
   height: 2.5em;
@@ -117,16 +129,4 @@
     height: 1.5em;
     margin-right: .5em;
   }
-}
-
-.icon---animated-heart {
-  cursor: pointer;
-  transition: color 500ms linear;
-  &.active {
-    color: red;
-  }
-}
-
-.fa-heart.producer {
-  color: var(--blue);
 }

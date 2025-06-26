@@ -2,7 +2,6 @@ defmodule TransportWeb.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Authentication
   alias DB.{AOM, Commune, Dataset, DatasetGeographicView, Region, Repo}
-  alias Transport.ClimateResilienceBill
   import Ecto.Query
 
   import TransportWeb.DatasetView,
@@ -11,7 +10,7 @@ defmodule TransportWeb.DatasetController do
   import Phoenix.HTML
   require Logger
 
-  plug(:assign_current_contact when action in [:details])
+  plug(:assign_current_contact when action in [:details, :resources_history_csv])
 
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(%Plug.Conn{} = conn, params), do: list_datasets(conn, params, true)
@@ -31,13 +30,12 @@ defmodule TransportWeb.DatasetController do
     |> assign(:types, get_types(params))
     |> assign(:licences, get_licences(params))
     |> assign(:number_realtime_datasets, get_realtime_count(params))
-    |> assign(:number_climate_resilience_bill_datasets, climate_resilience_bill_count(params))
+    |> assign(:number_resource_format_datasets, resource_format_count(params))
     |> assign(:order_by, params["order_by"])
     |> assign(:q, Map.get(params, "q"))
     |> put_dataset_heart_values(datasets)
     |> put_empty_message(params)
     |> put_category_custom_message(params)
-    |> put_climate_resilience_bill_message(params)
     |> put_page_title(params)
     |> render("index.html")
   end
@@ -70,9 +68,6 @@ defmodule TransportWeb.DatasetController do
     else
       {:error, msg} ->
         Logger.error("Could not fetch dataset details: #{msg}")
-        redirect_to_slug_or_404(conn, slug_or_id)
-
-      nil ->
         redirect_to_slug_or_404(conn, slug_or_id)
     end
   end
@@ -129,7 +124,10 @@ defmodule TransportWeb.DatasetController do
       data
       |> Enum.reject(fn %DB.DatasetScore{score: score} -> is_nil(score) end)
       |> Enum.group_by(fn %DB.DatasetScore{topic: topic} -> topic end)
-      |> Map.new(fn {topic, scores} -> {topic, scores |> List.last() |> DB.DatasetScore.score_for_humans()} end)
+      # only keep "last" score + format for humans
+      |> Enum.map(fn {topic, scores} -> {topic, scores |> List.last() |> DB.DatasetScore.score_for_humans()} end)
+      # make the order deterministic
+      |> Enum.sort_by(fn {topic, _score} -> topic end)
 
     merge_assigns(conn, %{scores_chart: scores_chart, latest_scores: latest_scores})
   end
@@ -309,6 +307,14 @@ defmodule TransportWeb.DatasetController do
   end
 
   def resources_history_csv(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id}) do
+    dataset_id = String.to_integer(dataset_id)
+
+    DB.FeatureUsage.insert!(
+      :download_resource_history,
+      get_in(conn.assigns.current_contact.id),
+      %{dataset_id: dataset_id}
+    )
+
     filename = "historisation-dataset-#{dataset_id}-#{Date.utc_today() |> Date.to_iso8601()}.csv"
 
     csv_header = [
@@ -324,7 +330,7 @@ defmodule TransportWeb.DatasetController do
       DB.Repo.transaction(
         fn ->
           Transport.History.Fetcher.history_resources(
-            %DB.Dataset{id: String.to_integer(dataset_id)},
+            %DB.Dataset{id: dataset_id},
             preload_validations: false,
             fetch_mode: :stream
           )
@@ -384,23 +390,24 @@ defmodule TransportWeb.DatasetController do
     end
   end
 
-  @spec climate_resilience_bill_count(map()) :: %{all: non_neg_integer(), true: non_neg_integer()}
-  defp climate_resilience_bill_count(params) do
+  @spec resource_format_count(map()) :: %{binary() => non_neg_integer()}
+  defp resource_format_count(params) do
     result =
       params
-      |> clean_datasets_query("loi-climat-resilience")
+      |> clean_datasets_query("format")
       |> exclude(:order_by)
-      |> group_by([d], fragment("'loi-climat-resilience' = any(coalesce(?, '{}'))", d.custom_tags))
-      |> select([d], %{
-        has_climat_resilience_bill_tag: fragment("'loi-climat-resilience' = any(coalesce(?, '{}'))", d.custom_tags),
-        count: count(d.id, :distinct)
+      |> DB.Resource.join_dataset_with_resource()
+      |> where([resource: r], not is_nil(r.format))
+      |> select([resource: r], %{
+        dataset_id: r.dataset_id,
+        format: r.format
       })
-      |> Repo.all()
+      |> distinct(true)
+      |> DB.Repo.all()
 
-    %{
-      all: Enum.reduce(result, 0, fn x, acc -> x.count + acc end),
-      true: Enum.find_value(result, 0, fn r -> if r.has_climat_resilience_bill_tag, do: r.count end)
-    }
+    %{all: result |> Enum.uniq_by(& &1.dataset_id) |> Enum.count()}
+    |> Map.merge(result |> Enum.map(& &1.format) |> Enum.frequencies() |> Map.new())
+    |> Enum.sort_by(fn {_, count} -> count end, :desc)
   end
 
   @spec get_realtime_count(map()) :: %{all: non_neg_integer(), true: non_neg_integer()}
@@ -521,16 +528,6 @@ defmodule TransportWeb.DatasetController do
     end
   end
 
-  defp put_climate_resilience_bill_message(%Plug.Conn{} = conn, %{} = params) do
-    if ClimateResilienceBill.display_data_reuse_panel?(params) do
-      # Article 122 loi climat et résilience, will be back
-      # https://github.com/etalab/transport-site/issues/3149
-      assign(conn, :climate_resilience_bill_message, ClimateResilienceBill.temporary_data_reuse_message(params))
-    else
-      conn
-    end
-  end
-
   defp put_page_title(conn, %{"region" => region_id} = params) do
     national_region = DB.Region.national()
 
@@ -566,13 +563,13 @@ defmodule TransportWeb.DatasetController do
         %{type: "AOM", name: get_name(AOM, id)}
       )
 
-  defp put_page_title(%Plug.Conn{query_params: query_params} = conn, _) do
+  defp put_page_title(%Plug.Conn{request_path: request_path, query_params: query_params} = conn, _) do
     TransportWeb.PageController.home_tiles(conn)
     # Allows to match `?type=foo&filter=has_realtime` otherwise
     # `?type=foo` would match and we would not consider
     # other options.
     |> Enum.sort_by(&String.length(&1.link), :desc)
-    |> Enum.find(&tile_matches_query?(&1, MapSet.new(query_params)))
+    |> Enum.find(&tile_matches_query?(&1, MapSet.new(Map.merge(%{"path" => request_path}, query_params))))
     |> case do
       %TransportWeb.PageController.Tile{title: title} ->
         assign(
@@ -586,10 +583,12 @@ defmodule TransportWeb.DatasetController do
     end
   end
 
-  defp tile_matches_query?(%TransportWeb.PageController.Tile{link: link}, %MapSet{} = query_params) do
-    tile_query = link |> URI.new!() |> Map.fetch!(:query) |> Plug.Conn.Query.decode()
+  defp tile_matches_query?(%TransportWeb.PageController.Tile{link: link}, %MapSet{} = request) do
+    uri = link |> URI.new!()
+    tile_query = (uri |> Map.fetch!(:query) || "") |> Plug.Conn.Query.decode()
+    tile_params = Map.merge(%{"path" => uri.path}, tile_query) |> MapSet.new()
 
-    MapSet.subset?(MapSet.new(tile_query), query_params)
+    MapSet.subset?(tile_params, request)
   end
 
   defp put_dataset_heart_values(%Plug.Conn{assigns: %{current_user: current_user}} = conn, datasets) do
@@ -640,7 +639,9 @@ defmodule TransportWeb.DatasetController do
       if is_nil(current_user) do
         nil
       else
-        DB.Repo.get_by!(DB.Contact, datagouv_user_id: Map.fetch!(current_user, "id"))
+        DB.Contact
+        |> DB.Repo.get_by!(datagouv_user_id: Map.fetch!(current_user, "id"))
+        |> DB.Repo.preload(:default_tokens)
       end
 
     assign(conn, :current_contact, current_contact)

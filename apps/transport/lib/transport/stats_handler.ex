@@ -19,7 +19,7 @@ defmodule Transport.StatsHandler do
   end
 
   defp store_stat_history(key, values, %DateTime{} = timestamp)
-       when key in [:gtfs_rt_types, :climate_resilience_bill_count, :count_geo_data_lines] do
+       when key in [:gtfs_rt_types, :climate_resilience_bill_count, :count_geo_data_lines, :reuses] do
     Enum.map(values, fn {type, count} ->
       store_stat_history("#{key}::#{type}", count, timestamp)
     end)
@@ -82,13 +82,14 @@ defmodule Transport.StatsHandler do
       nb_gtfs: count_dataset_with_format("GTFS"),
       nb_netex: count_dataset_with_format("NeTEx"),
       nb_bss_datasets: count_dataset_with_format("gbfs"),
-      nb_bikes_scooter_datasets: DB.Dataset.count_by_type("bike-scooter-sharing"),
+      nb_vehicles_sharing_datasets: DB.Dataset.count_by_type("vehicles-sharing"),
       nb_gtfs_rt: count_dataset_with_format("gtfs-rt"),
       gtfs_rt_types: count_feed_types_gtfs_rt(),
       climate_resilience_bill_count: count_datasets_climate_resilience_bill(),
       nb_siri: count_dataset_with_format("SIRI"),
       nb_siri_lite: count_dataset_with_format("SIRI Lite"),
-      count_geo_data_lines: count_geo_data_lines()
+      count_geo_data_lines: count_geo_data_lines(),
+      reuses: reuses_stats()
     }
     |> Map.merge(gbfs_stats())
   end
@@ -189,6 +190,30 @@ defmodule Transport.StatsHandler do
     |> select([f], {f.feature, count(f.feature)})
     |> DB.Repo.all()
     |> Enum.into(%{})
+  end
+
+  def reuses_stats do
+    reuses_by_type =
+      DB.Reuse.base_query()
+      |> group_by([reuse: r], r.type)
+      |> select([reuse: r], {r.type, count(r.id)})
+      |> DB.Repo.all()
+      |> Enum.into(%{})
+
+    reuses_metrics_sum =
+      DB.Reuse.base_query()
+      |> select([reuse: r], %{
+        sum_metric_discussions: sum(r.metric_discussions),
+        sum_metric_followers: sum(r.metric_followers),
+        sum_metric_views: sum(r.metric_views)
+      })
+      |> DB.Repo.one()
+
+    %{
+      nb_reuses: DB.Repo.aggregate(DB.Reuse.base_query(), :count, :id)
+    }
+    |> Map.merge(reuses_by_type)
+    |> Map.merge(reuses_metrics_sum)
   end
 
   defp count_datasets_climate_resilience_bill do

@@ -112,7 +112,7 @@ msgid "Declaration of conformity"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Exploration map"
+msgid "Data exploration map"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -133,10 +133,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "National GTFS stops map"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Climate and Resilience bill"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -165,4 +161,8 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Statistics"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Reuses"
 msgstr ""

@@ -12,7 +12,7 @@ default_docker: &default_docker
 defaults: &defaults
   parameters:
     base_image:
-      default: ghcr.io/etalab/transport-ops:elixir-1.16.2-erlang-25.3.2.10-ubuntu-focal-20240216-transport-tools-1.0.7
+      default: ghcr.io/etalab/transport-ops:elixir-1.17.3-erlang-27.1-ubuntu-focal-20240530-transport-tools-1.0.7
       type: string
     # useful to invalidate the build cache manually by bumping the version
     build_cache_key:
@@ -22,7 +22,7 @@ defaults: &defaults
       default: plt-v4
       type: string
     js_cache_key:
-      default: js-v2
+      default: js-v4
       type: string
   working_directory: ~/transport
   docker:
@@ -32,9 +32,8 @@ defaults_with_postgres: &defaults_with_postgres
   <<: *defaults
   docker:
     - *default_docker
-    # https://hub.docker.com/r/postgis/postgis
-    # See https://github.com/etalab/transport_deploy/issues/50
-    - image: postgis/postgis:14-3.1-alpine
+    # See https://hub.docker.com/r/timescale/timescaledb-ha/tags?name=pg14.3
+    - image: timescale/timescaledb-ha:pg14.3-ts2.7.0-latest
       environment:
         POSTGRES_USER: root
         POSTGRES_DB: transport_test
@@ -45,6 +44,12 @@ jobs:
 
     steps:
       - checkout
+
+      - run:
+          name: Check TimescaleDB version
+          command: |
+            apt-get update && apt-get install -y postgresql-client
+            PGPASSWORD=$POSTGRES_PASSWORD psql --pset pager=off -U root -h 127.0.0.1 transport_test -c "SELECT extname,extversion,version() FROM pg_extension WHERE extname='timescaledb';"
 
       - run:
           name: Move transport-tools folder
@@ -98,9 +103,13 @@ jobs:
             - ~/transport/deps
             - ~/.mix
 
+      - run:
+          name: Create checksum for JS files
+          command: cd ~/transport/apps/transport/client && shasum webpack.*.js yarn.lock > /tmp/js-checksum
+
       - restore_cache:
           keys:
-            - js-<< parameters.js_cache_key >>-{{ checksum "apps/transport/client/yarn.lock" }}
+            - js-<< parameters.js_cache_key >>-{{ checksum "/tmp/js-checksum" }}
             - js-<< parameters.js_cache_key >>
 
       - run:
@@ -113,9 +122,10 @@ jobs:
           command: cd ~/transport/apps/transport/client && npm run build
 
       - save_cache:
-          key: js-<< parameters.js_cache_key >>-{{ checksum "apps/transport/client/yarn.lock" }}
+          key: js-<< parameters.js_cache_key >>-{{ checksum "/tmp/js-checksum" }}
           paths:
             - ~/transport/apps/transport/client/node_modules
+            - ~/transport/apps/transport/priv/static
 
       - run:
           name: Run gettext check

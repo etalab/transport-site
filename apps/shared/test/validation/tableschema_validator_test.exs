@@ -46,43 +46,34 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
 
       assert %{
                "errors" => [
-                 "Colonne obligatoire manquante : La colonne obligatoire `siren_amenageur` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `contact_amenageur` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `contact_operateur` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `nom_enseigne` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `id_station_itinerance` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `nom_station` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `implantation_station` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `adresse_station` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `code_insee_commune` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `coordonneesXY` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `id_pdc_itinerance` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `puissance_nominale` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `prise_type_ef` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `prise_type_2` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `prise_type_combo_ccs` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `prise_type_chademo` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `prise_type_autre` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `gratuit` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `paiement_acte` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `paiement_cb` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `paiement_autre` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `condition_acces` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `reservation` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `horaires` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `accessibilite_pmr` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `restriction_gabarit` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `station_deux_roues` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `raccordement` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `num_pdl` est manquante.",
-                 "Colonne obligatoire manquante : La colonne obligatoire `date_mise_en_service` est manquante.",
-                 "Format de date incorrect : colonne date_maj, ligne 2. La date doit être écrite sous la forme `aaaa-mm-jj`.",
-                 "Format de date incorrect : colonne date_maj, ligne 3. La date doit être écrite sous la forme `aaaa-mm-jj`."
+                 "La colonne obligatoire `contact_operateur` est manquante",
+                 "La colonne obligatoire `nom_enseigne` est manquante",
+                 "La colonne obligatoire `id_station_itinerance` est manquante",
+                 "La colonne obligatoire `nom_station` est manquante",
+                 "La colonne obligatoire `implantation_station` est manquante",
+                 "La colonne obligatoire `adresse_station` est manquante",
+                 "La colonne obligatoire `coordonneesXY` est manquante",
+                 "La colonne obligatoire `id_pdc_itinerance` est manquante",
+                 "La colonne obligatoire `puissance_nominale` est manquante",
+                 "La colonne obligatoire `prise_type_ef` est manquante",
+                 "La colonne obligatoire `prise_type_2` est manquante",
+                 "La colonne obligatoire `prise_type_combo_ccs` est manquante",
+                 "La colonne obligatoire `prise_type_chademo` est manquante",
+                 "La colonne obligatoire `prise_type_autre` est manquante",
+                 "La colonne obligatoire `paiement_acte` est manquante",
+                 "La colonne obligatoire `condition_acces` est manquante",
+                 "La colonne obligatoire `reservation` est manquante",
+                 "La colonne obligatoire `horaires` est manquante",
+                 "La colonne obligatoire `accessibilite_pmr` est manquante",
+                 "La colonne obligatoire `restriction_gabarit` est manquante",
+                 "La colonne obligatoire `station_deux_roues` est manquante",
+                 "La date doit être écrite sous la forme `aaaa-mm-jj` Colonne `date_maj`, ligne 2.",
+                 "La date doit être écrite sous la forme `aaaa-mm-jj` Colonne `date_maj`, ligne 3."
                ],
-               "errors_count" => 32,
+               "errors_count" => 23,
                "has_errors" => true,
-               "validator" => Shared.Validation.TableSchemaValidator,
-               "validata_api_version" => "0.6.1"
+               "validata_api_version" => "0.12.0",
+               "validator" => Shared.Validation.TableSchemaValidator
              } == validate(@schema_name, @url)
     end
 
@@ -95,7 +86,7 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
                "errors_count" => 0,
                "has_errors" => false,
                "validator" => Shared.Validation.TableSchemaValidator,
-               "validata_api_version" => "0.6.1"
+               "validata_api_version" => "0.12.0"
              } == validate(@schema_name, @url)
     end
 
@@ -118,12 +109,12 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
 
       assert %{
                "errors" => [
-                 "Horaires d'ouverture incorrects : colonne horaires, ligne 2. La valeur 'lundi à dimanche' n'est pas une définition d'horaire d'ouverture correcte.\n\n Celle-ci doit respecter la spécification [OpenStreetMap](https://wiki.openstreetmap.org/wiki/Key:opening_hours) de description d'horaires d'ouverture."
+                 "La valeur 'lundi à dimanche' n'est pas une définition d'horaire d'ouverture correcte.\n\n Celle-ci doit respecter la spécification [OpenStreetMap](https://wiki.openstreetmap.org/wiki/Key:opening_hours) de description d'horaires d'ouverture. Colonne `horaires`, ligne 2."
                ],
                "errors_count" => 1,
                "has_errors" => true,
                "validator" => Shared.Validation.TableSchemaValidator,
-               "validata_api_version" => "0.6.1"
+               "validata_api_version" => "0.12.0"
              } == validate(@schema_name, @url)
     end
 
@@ -133,13 +124,19 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
 
       assert %{
                "errors" => [
-                 "Check Error : colonne , ligne . Check is not valid: 'french_gps_coordinates': custom check inconnu."
+                 "Tentative de définir le custom check 'french_gps_coordinates', qui n'est pas connu."
                ],
                "errors_count" => 1,
                "has_errors" => true,
                "validator" => Shared.Validation.TableSchemaValidator,
-               "validata_api_version" => "0.6.1"
+               "validata_api_version" => "0.12.0"
              } == validate(@schema_name, @url)
+    end
+
+    test "when the remote file does not exist" do
+      setup_schemas_response()
+      "validata_source_error.json" |> setup_validata_response()
+      assert :source_error == validate(@schema_name, @url)
     end
   end
 

@@ -14,17 +14,17 @@ defmodule TransportWeb.API.StatsControllerTest do
   for {route, cache_key} <- @cached_features_routes do
     test "GET #{route} (invokes the cache system)", %{conn: conn} do
       # return original computed payload
-      mock = fn unquote(cache_key), x -> x.() end
+      mock = fn unquote(cache_key), x, _ -> x.() end
 
       with_mock Transport.Cache, fetch: mock do
         conn = conn |> get(unquote(route))
         %{"features" => _features} = json_response(conn, 200)
-        assert_called_exactly(Transport.Cache.fetch(:_, :_), 1)
+        assert_called_exactly(Transport.Cache.fetch(:_, :_, :_), 1)
       end
     end
 
     test "GET #{route} (returns the cached value as is)", %{conn: conn} do
-      mock = fn unquote(cache_key), _ -> %{hello: 123} |> Jason.encode!() end
+      mock = fn unquote(cache_key), _, _ -> %{hello: 123} |> Jason.encode!() end
 
       with_mock Transport.Cache, fetch: mock do
         conn = conn |> get(unquote(route))
@@ -33,7 +33,7 @@ defmodule TransportWeb.API.StatsControllerTest do
     end
   end
 
-  test "Get the bike and scooter stats", %{conn: _conn} do
+  test "Get the vehicles sharing stats", %{conn: _conn} do
     aom =
       insert(:aom,
         geom:
@@ -43,10 +43,10 @@ defmodule TransportWeb.API.StatsControllerTest do
 
     dataset1 =
       :dataset
-      |> insert(%{type: "bike-scooter-sharing", is_active: true, aom: aom, custom_title: "other name", slug: "a"})
+      |> insert(%{type: "vehicles-sharing", is_active: true, aom: aom, custom_title: "other name", slug: "a"})
 
     dataset2 =
-      :dataset |> insert(%{type: "bike-scooter-sharing", is_active: true, aom: aom, custom_title: "name", slug: "z"})
+      :dataset |> insert(%{type: "vehicles-sharing", is_active: true, aom: aom, custom_title: "name", slug: "z"})
 
     expected = [
       %{
@@ -64,7 +64,9 @@ defmodule TransportWeb.API.StatsControllerTest do
       }
     ]
 
-    assert TransportWeb.API.StatsController.bike_scooter_sharing_features() == expected
+    assert TransportWeb.API.StatsController.vehicles_sharing_features_query()
+           |> DB.Repo.all()
+           |> TransportWeb.API.StatsController.vehicles_sharing_features() == expected
   end
 
   test "Quality of AOM data stats", %{conn: conn} do
@@ -115,12 +117,12 @@ defmodule TransportWeb.API.StatsControllerTest do
   end
 
   describe("aom quality features") do
-    test "count scooter and bikes" do
+    test "count vehicles sharing" do
       aom1 = insert(:aom, nom: "aom")
-      insert(:dataset, is_active: true, type: "bike-scooter-sharing", aom: aom1)
-      insert(:dataset, is_active: false, type: "bike-scooter-sharing", aom: aom1)
+      insert(:dataset, is_active: true, type: "vehicles-sharing", aom: aom1)
+      insert(:dataset, is_active: false, type: "vehicles-sharing", aom: aom1)
 
-      assert %{dataset_types: %{bike_scooter_sharing: 1, pt: 0}} =
+      assert %{dataset_types: %{vehicles_sharing: 1, pt: 0}} =
                TransportWeb.API.StatsController.quality_features_query() |> DB.Repo.get(aom1.id)
     end
 
@@ -181,7 +183,9 @@ defmodule TransportWeb.API.StatsControllerTest do
       assert DB.AOM.created_after_2021?(aom)
 
       assert [] ==
-               TransportWeb.API.StatsController.quality_features_query() |> TransportWeb.API.StatsController.features()
+               TransportWeb.API.StatsController.quality_features_query()
+               |> DB.Repo.all()
+               |> TransportWeb.API.StatsController.features()
 
       # If created before 2022, it is present even without a dataset
       aom = aom |> Ecto.Changeset.change(%{composition_res_id: 500}) |> DB.Repo.update!()
@@ -189,7 +193,9 @@ defmodule TransportWeb.API.StatsControllerTest do
       refute DB.AOM.created_after_2021?(aom)
 
       assert [%{"properties" => %{"dataset_count" => 0, "nom" => ^aom_nom}}] =
-               TransportWeb.API.StatsController.quality_features_query() |> TransportWeb.API.StatsController.features()
+               TransportWeb.API.StatsController.quality_features_query()
+               |> DB.Repo.all()
+               |> TransportWeb.API.StatsController.features()
 
       # Created in 2022 but with a dataset
       aom = aom |> Ecto.Changeset.change(%{composition_res_id: 1_200}) |> DB.Repo.update!()
@@ -198,7 +204,9 @@ defmodule TransportWeb.API.StatsControllerTest do
       assert DB.AOM.created_after_2021?(aom)
 
       assert [%{"properties" => %{"dataset_types" => %{pt: 1}, "nom" => ^aom_nom}}] =
-               TransportWeb.API.StatsController.quality_features_query() |> TransportWeb.API.StatsController.features()
+               TransportWeb.API.StatsController.quality_features_query()
+               |> DB.Repo.all()
+               |> TransportWeb.API.StatsController.features()
     end
   end
 
@@ -215,7 +223,7 @@ defmodule TransportWeb.API.StatsControllerTest do
     insert_resource_and_friends(Date.utc_today() |> Date.add(10),
       aom: aom,
       max_error: "Error",
-      type: "low-emission-zones"
+      type: "road-data"
     )
 
     assert [
@@ -226,7 +234,10 @@ defmodule TransportWeb.API.StatsControllerTest do
                  "quality" => %{"error_level" => "Error"}
                }
              }
-           ] = TransportWeb.API.StatsController.quality_features_query() |> TransportWeb.API.StatsController.features()
+           ] =
+             TransportWeb.API.StatsController.quality_features_query()
+             |> DB.Repo.all()
+             |> TransportWeb.API.StatsController.features()
   end
 
   test "can load the /stats page", %{conn: conn} do

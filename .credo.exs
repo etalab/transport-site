@@ -69,11 +69,7 @@
         #
         # {Credo.Check.Design.DuplicatedCode, excluded_macros: []},
 
-        # You can also customize the exit_status of each check.
-        # If you don't want TODO comments to cause `mix credo` to fail, just
-        # set this value to 0 (zero).
-        #
-        {Credo.Check.Design.TagTODO, exit_status: 2},
+        {Credo.Check.Design.TagTODO, false},
         {Credo.Check.Design.TagFIXME},
         {Credo.Check.Readability.FunctionNames},
         {Credo.Check.Readability.LargeNumbers},
@@ -102,6 +98,8 @@
         {Credo.Check.Refactor.NegatedConditionsWithElse},
         {Credo.Check.Refactor.Nesting},
         {Credo.Check.Refactor.PipeChainStart, false},
+        # Too unpractical ; we want to keep pipes of separate rejects
+        {Credo.Check.Refactor.RejectReject, false},
         {Credo.Check.Refactor.UnlessWithElse},
         {Credo.Check.Warning.BoolOperationOnSameValues},
         {Credo.Check.Warning.ExpensiveEmptyEnumCheck},
@@ -129,10 +127,15 @@
 
         # Deprecated checks (these will be deleted after a grace period)
         #
-        {Credo.Check.Readability.Specs, false}
+        {Credo.Check.Readability.Specs, false},
 
         # Custom checks can be created using `mix credo.gen.check`.
         #
+
+        {Credo.Check.Warning.ForbiddenModule,
+         [
+           modules: [Timex]
+         ]}
       ]
     }
   ]

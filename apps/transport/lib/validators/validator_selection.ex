@@ -33,7 +33,14 @@ defmodule Transport.ValidatorsSelection.Impl do
   def validators(%{format: "GTFS"}), do: [Validators.GTFSTransport]
   def validators(%{format: "gtfs-rt"}), do: [Validators.GTFSRT]
   def validators(%{format: "gbfs"}), do: [Validators.GBFSValidator]
-  def validators(%{format: "NeTEx"}), do: [Validators.NeTEx]
+
+  def validators(%{format: "NeTEx"}) do
+    if netex_validator_enabled?() do
+      [Validators.NeTEx]
+    else
+      []
+    end
+  end
 
   def validators(%{schema_name: schema_name}) when not is_nil(schema_name) do
     cond do
@@ -49,4 +56,6 @@ defmodule Transport.ValidatorsSelection.Impl do
   end
 
   def validators(_), do: []
+
+  defp netex_validator_enabled?, do: !Application.fetch_env!(:transport, :disable_netex_validator)
 end

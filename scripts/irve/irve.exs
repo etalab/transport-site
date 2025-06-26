@@ -7,7 +7,7 @@ require Logger
 
 Logger.info("Retrieving each relevant datagouv page & listing resources")
 
-resources = Transport.IRVE.Extractor.resources()
+resources = Transport.IRVE.Extractor.datagouv_resources()
 
 Logger.info("Sharing a few stats...")
 

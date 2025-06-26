@@ -253,10 +253,6 @@ msgid "Resource historization"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "National GTFS stops map"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Legal owners"
 msgstr ""
 
@@ -266,14 +262,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Company SIREN code"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Refresh NeTEx conversions"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Conversions launched"
 msgstr ""
 
 #, elixir-autogen, elixir-format

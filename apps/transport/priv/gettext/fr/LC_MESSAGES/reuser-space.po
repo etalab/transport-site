@@ -128,8 +128,8 @@ msgid "Improved data sharing"
 msgstr "Repartage des données améliorées"
 
 #, elixir-autogen, elixir-format
-msgid "Manage"
-msgstr "Gérer"
+msgid "Preferences"
+msgstr "Préférences"
 
 #, elixir-autogen, elixir-format
 msgid "This feature is coming soon!"
@@ -138,3 +138,135 @@ msgstr "Cette fonctionnalité arrive bientôt !"
 #, elixir-autogen, elixir-format
 msgid "Warning, you are going to remove \"%{dataset_title}\" from your favorites. You will lose any settings or actions you previously performed on this dataset."
 msgstr "Attention, vous allez supprimer le jeu de données \"%{dataset_title}\" de vos favoris. Vous allez perdre tous les paramétrages ou actions que vous avez réalisés précédemment sur ce jeu de données."
+
+#, elixir-autogen, elixir-format
+msgid "Only GTFS files are eligible for now."
+msgstr "Seuls les fichiers GTFS sont éligibles pour le moment."
+
+#, elixir-autogen, elixir-format
+msgid "Share improved data"
+msgstr "Repartager vos données améliorées"
+
+#, elixir-autogen, elixir-format
+msgid "Your improved data URL"
+msgstr "Lien vers vos données améliorées"
+
+#, elixir-autogen, elixir-format
+msgid "Step 1: choose the initial resource from the producer"
+msgstr "Étape 1 : sélectionnez la ressource initiale du producteur"
+
+#, elixir-autogen, elixir-format
+msgid "Step 2: add the URL to download your improved data"
+msgstr "Étape 2 : renseignez l'URL de téléchargement de votre fichier amélioré"
+
+#, elixir-autogen, elixir-format
+msgid "You already shared improved data for this dataset, thanks!"
+msgstr "Vous avez déjà partagé des données améliorées pour ce jeu de données, merci !"
+
+#, elixir-autogen, elixir-format
+msgid "Your improved data has been saved."
+msgstr "Vos données améliorées ont bien été sauvegardées."
+
+#, elixir-autogen, elixir-format
+msgid "Manage settings"
+msgstr "Gérer les paramètres"
+
+#, elixir-autogen, elixir-format
+msgid "Name"
+msgstr "Nom"
+
+#, elixir-autogen, elixir-format
+msgid "Organisation"
+msgstr "Organisation"
+
+#, elixir-autogen, elixir-format
+msgid "Secret"
+msgstr "Secret"
+
+#, elixir-autogen, elixir-format
+msgid "Settings"
+msgstr "Paramètres"
+
+#, elixir-autogen, elixir-format
+msgid "There are no tokens yet."
+msgstr "Il n'y a pas de tokens pour le moment."
+
+#, elixir-autogen, elixir-format
+msgid "Tokens"
+msgstr "Tokens"
+
+#, elixir-autogen, elixir-format
+msgid "Update your preferences, manage tokens to access data."
+msgstr "Gérer vos préférences, gérer vos tokens pour accéder aux données."
+
+#, elixir-autogen, elixir-format
+msgid "A name identifying the application using this token."
+msgstr "Un nom identifiant l'application utilisant ce token."
+
+#, elixir-autogen, elixir-format
+msgid "Create"
+msgstr "Créer"
+
+#, elixir-autogen, elixir-format
+msgid "Create a new token"
+msgstr "Créer un nouveau token"
+
+#, elixir-autogen, elixir-format
+msgid "Token name"
+msgstr "Nom du token"
+
+#, elixir-autogen, elixir-format
+msgid "You need to be a member of an organisation to create new tokens."
+msgstr "Vous devez être membre d'une organisation pour créer un nouveau token."
+
+#, elixir-autogen, elixir-format
+msgid "Your token has been created"
+msgstr "Votre token a bien été créé"
+
+#, elixir-autogen, elixir-format
+msgid "Your token has been deleted"
+msgstr "Votre token a bien été supprimé"
+
+#, elixir-autogen, elixir-format
+msgid "Tokens can be used when using <a href=\"%{swagger_url}\" target=\"_blank\">the API</a>. The token should be included in the <code>Authorization</code> HTTP header. If your token is <code>foo</code>, you should send HTTP requests with the header <code>Authorization: foo</code>."
+msgstr "Les tokens peuvent être utilisés lors d'appels à <a href=\"%{swagger_url}\" target=\"_blank\">l'API</a>. Le token doit être inclus dans l'en-tête HTTP <code>Authorization</code>. Si votre token est <code>foo</code>, vous devez envoyer des requêtes HTTP avec l'en-tête <code>Authorization: foo</code>."
+
+#, elixir-autogen, elixir-format
+msgid "Using tokens"
+msgstr "Utiliser les tokens"
+
+#, elixir-autogen, elixir-format
+msgid "You can create or join an organisation on data.gouv.fr. <a href=\"%{doc_url}\" target=\"_blank\">See the documentation</a>."
+msgstr "Vous pouvez créer ou rejoindre une organisation sur data.gouv.fr. <a href=\"%{doc_url}\" target=\"_blank\">Voir la documentation</a>."
+
+#, elixir-autogen, elixir-format
+msgid "The token %{name} is now the default token"
+msgstr "Le token %{name} est maintenant le token par défaut"
+
+#, elixir-autogen, elixir-format
+msgid "Default token"
+msgstr "Token par défaut"
+
+#, elixir-autogen, elixir-format
+msgid "Delete"
+msgstr "Supprimer"
+
+#, elixir-autogen, elixir-format
+msgid "(by default)"
+msgstr "(par défaut)"
+
+#, elixir-autogen, elixir-format
+msgid "Declare a reuse"
+msgstr "Déclarer une réutilisation"
+
+#, elixir-autogen, elixir-format
+msgid "Declare your reuses"
+msgstr "Déclarer ses réutilisations"
+
+#, elixir-autogen, elixir-format
+msgid "Highlight your reuses and make yourself known."
+msgstr "Mettez en avant vos réutilisations et faites-vous connaitre."
+
+#, elixir-autogen, elixir-format
+msgid "Reuses"
+msgstr "Réutilisations"

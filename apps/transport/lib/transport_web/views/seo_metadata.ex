@@ -3,7 +3,7 @@ defmodule TransportWeb.SeoMetadata do
   Module to set a title and a description for each pages.
   The default title/description are defined in app.html.eex
   """
-  import TransportWeb.Gettext
+  use Gettext, backend: TransportWeb.Gettext
 
   @spec metadata(any(), any()) :: %{optional(:title) => binary(), optional(:description) => binary()}
   def metadata(TransportWeb.DatasetView, %{q: q}) when not is_nil(q),
@@ -67,11 +67,6 @@ defmodule TransportWeb.SeoMetadata do
       title: dgettext("seo", "State of transport open data for french AOMs")
     }
 
-  def metadata(TransportWeb.PageView, %{page: "loi_climat_resilience.html"}),
-    do: %{
-      title: dgettext("seo", "Climate and Resilience bill: compulsory data reuse")
-    }
-
   def metadata(TransportWeb.ReuserSpaceView, _),
     do: %{
       title: dgettext("seo", "Reuser space")
@@ -85,6 +80,11 @@ defmodule TransportWeb.SeoMetadata do
   def metadata(TransportWeb.ExploreView, %{page_title: page_title}) do
     %{title: page_title}
   end
+
+  def metadata(TransportWeb.LandingPagesView, %{seo_page: "vls"}),
+    do: %{
+      title: "Jeux de données ouverts de la catégorie Vélos et trottinettes en libre-service"
+    }
 
   def metadata(_view, _assigns), do: %{}
 end
