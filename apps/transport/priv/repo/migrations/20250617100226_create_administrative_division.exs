@@ -1,8 +1,8 @@
-defmodule DB.Repo.Migrations.CreateTerritorialDivision do
+defmodule DB.Repo.Migrations.CreateAdministrativeDivision do
   use Ecto.Migration
 
   def change do
-    create table(:territorial_division) do
+    create table(:administrative_division) do
       add(:type_insee, :string, null: false)
       add(:type, :string, null: false)
       add(:insee, :string, null: false)
@@ -13,12 +13,12 @@ defmodule DB.Repo.Migrations.CreateTerritorialDivision do
       # such as communes belonging to an EPCI and a departement, etc.
     end
 
-    create(unique_index(:territorial_division, [:type_insee]))
-    create(index(:territorial_division, [:nom]))
+    create(unique_index(:administrative_division, [:type_insee]))
+    create(index(:administrative_division, [:nom]))
 
     execute(
       """
-        INSERT INTO territorial_division (type_insee, insee, type, nom, geom)
+        INSERT INTO administrative_division (type_insee, insee, type, nom, geom)
         SELECT
         CONCAT('commune_', insee) AS type_insee,
         insee,
