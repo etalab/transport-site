@@ -357,3 +357,21 @@ msgstr "le validateur GTFS du <abbr title=\"Point d’Accès National\">PAN</abb
 #, elixir-autogen, elixir-format
 msgid "enRoute Chouette Valid"
 msgstr "le validateur NeTEx d’enRoute"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "1 error"
+msgid_plural "%{count} errors"
+msgstr[0] "erreur"
+msgstr[1] "erreurs"
+
+#, elixir-autogen, elixir-format
+msgid "Learn more"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "XSD NeTEx"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "irrelevant here"
+msgstr ""
