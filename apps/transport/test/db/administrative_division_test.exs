@@ -1,4 +1,4 @@
-defmodule DB.TerritorialDivisionTest do
+defmodule DB.AdministrativeDivisionTest do
   use ExUnit.Case, async: true
 
   setup do
@@ -6,8 +6,8 @@ defmodule DB.TerritorialDivisionTest do
   end
 
   test "can save and get a territorial division" do
-    %DB.TerritorialDivision{}
-    |> DB.TerritorialDivision.changeset(%{
+    %DB.AdministrativeDivision{}
+    |> DB.AdministrativeDivision.changeset(%{
       insee: "13111",
       type_insee: "commune_13111",
       type: :commune,
@@ -28,7 +28,7 @@ defmodule DB.TerritorialDivisionTest do
     })
     |> DB.Repo.insert()
 
-    assert %DB.TerritorialDivision{type_insee: "commune_13111"} =
-             DB.TerritorialDivision |> Ecto.Query.last() |> DB.Repo.one!()
+    assert %DB.AdministrativeDivision{type_insee: "commune_13111"} =
+             DB.AdministrativeDivision |> Ecto.Query.last() |> DB.Repo.one!()
   end
 end
