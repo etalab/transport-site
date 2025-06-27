@@ -58,7 +58,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   end
 
   defp perform_validation(%{"type" => "netex", "id" => multivalidation_id, "permanent_url" => url}) do
-    case Validator.validate(url) do
+    case NeTEx.validate(url) do
       {:error, error_result} ->
         OnDemandNeTExPollerJob.handle_error(error_result)
 
