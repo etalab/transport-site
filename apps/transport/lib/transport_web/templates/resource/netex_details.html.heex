@@ -30,25 +30,15 @@
           <%= if @issues.total_entries == 0 do %>
             <%= dgettext("validations", "No validation error") %>.
           <% else %>
-            <nav class="issues-list validation" role="navigation">
-              <%= render("_validation_summary.html",
-                validation_summary: @validation_summary,
-                severities_count: @severities_count,
-                issues: @issues,
-                conn: @conn,
-                data_vis: nil,
-                token: nil,
-                validator: @validator
-              ) %>
-            </nav>
-            <div class="main-pane">
-              <%= pagination_links(@conn, @issues, [@resource.id],
-                issue_type: Transport.Validators.NeTEx.issue_type(@issues.entries),
-                path: &resource_path/4,
-                action: :details
-              ) %>
-              <%= render(netex_template(@issues), issues: @issues || [], conn: @conn) %>
-            </div>
+            <%= render("_netex_validation_errors.html",
+              conn: @conn,
+              issues: @issues,
+              metadata: @metadata,
+              resource: @resource,
+              severities_count: @severities_count,
+              validation_summary: @validation_summary,
+              validator: @validator
+            ) %>
           <% end %>
           <p>
             <%= raw(
