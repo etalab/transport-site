@@ -6,6 +6,9 @@ defmodule DB.AdministrativeDivisionTest do
   end
 
   test "can save and get a territorial division" do
+    # Don’t know in reality if it’s needed to have a changeset function
+    # We’ll never write new administrative divisions
+    # But it has proven useful to test the model behaved correctly
     %DB.AdministrativeDivision{}
     |> DB.AdministrativeDivision.changeset(%{
       insee: "13111",
