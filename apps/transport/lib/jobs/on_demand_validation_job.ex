@@ -14,7 +14,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   alias Transport.Jobs.OnDemandValidationHelpers, as: Helpers
   alias Transport.Validators.GTFSRT
   alias Transport.Validators.GTFSTransport
-  alias Transport.Validators.NeTEx.Validator
+  alias Transport.Validators.NeTEx.Validator, as: NeTEx
 
   @download_timeout_ms 10_000
 
