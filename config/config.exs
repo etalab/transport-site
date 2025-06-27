@@ -95,7 +95,7 @@ config :transport,
   data_visualization: Transport.DataVisualization.Impl,
   workflow_notifier: Transport.Jobs.Workflow.ObanNotifier,
   enroute_validator_client: Transport.EnRouteChouetteValidClient,
-  netex_validator: Transport.Validators.NeTEx
+  netex_validator: Transport.Validators.NeTEx.Validator
 
 # Datagouv IDs for national databases created automatically.
 # These are IDs used in staging, demo.data.gouv.fr

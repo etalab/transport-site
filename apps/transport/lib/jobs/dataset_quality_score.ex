@@ -205,7 +205,7 @@ defmodule Transport.Jobs.DatasetComplianceScore do
     Transport.Validators.GBFSValidator
   ]
   @gtfs_validator Transport.Validators.GTFSTransport
-  @netex_validator Transport.Validators.NeTEx
+  @netex_validator Transport.Validators.NeTEx.Validator
   @validators [@gtfs_validator, @netex_validator] ++ @validators_with_has_errors
   @validator_names Enum.map(@validators, & &1.validator_name())
   @validators_with_has_errors_names Enum.map(@validators_with_has_errors, & &1.validator_name())
