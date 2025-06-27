@@ -1,0 +1,19 @@
+<nav class="issues-list validation" role="navigation">
+  <%= render("_validation_summary.html",
+    conn: @conn,
+    data_vis: nil,
+    issues: @issues,
+    severities_count: @severities_count,
+    token: nil,
+    validation_summary: @validation_summary,
+    validator: @validator
+  ) %>
+</nav>
+<div class="main-pane">
+  <%= pagination_links(@conn, @issues, [@resource.id],
+    issue_type: Transport.Validators.NeTEx.issue_type(@issues.entries),
+    path: &resource_path/4,
+    action: :details
+  ) %>
+  <%= render(netex_template(@issues), issues: @issues || [], conn: @conn) %>
+</div>
