@@ -1,5 +1,5 @@
 defmodule TransportWeb.ValidationControllerTest do
-  use TransportWeb.ConnCase, async: true
+  use TransportWeb.ConnCase, async: false
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
   import Ecto.Query
