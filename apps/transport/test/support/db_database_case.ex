@@ -4,7 +4,7 @@ defmodule DB.DatabaseCase do
   tests interacting with database.
   """
 
-  use ExUnit.CaseTemplate
+  use ExUnit.CaseTemplate, async: false
 
   using(options) do
     quote do
