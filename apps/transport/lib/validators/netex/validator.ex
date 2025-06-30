@@ -1,4 +1,4 @@
-defmodule Transport.Validators.NeTEx do
+defmodule Transport.Validators.NeTEx.Validator do
   @moduledoc """
   Validator for NeTEx files calling enRoute Chouette Valid API. This is blocking
   (by polling the tier API) and can take quite some time upon completion.
