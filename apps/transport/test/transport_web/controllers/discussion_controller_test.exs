@@ -1,5 +1,5 @@
 defmodule TransportWeb.DiscussionControllerTest do
-  use TransportWeb.ConnCase, async: true
+  use TransportWeb.ConnCase, async: false
   @moduletag :capture_log
   import DB.Factory
   import Mox
