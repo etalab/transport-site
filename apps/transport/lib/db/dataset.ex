@@ -75,6 +75,11 @@ defmodule DB.Dataset do
       on_replace: :delete
     )
 
+    many_to_many(:new_covered_areas, DB.AdministrativeDivision,
+      join_through: "dataset_new_covered_area",
+      on_replace: :delete
+    )
+
     field(:legal_owner_company_siren, :string)
 
     has_many(:resources, Resource, on_replace: :delete, on_delete: :delete_all)
@@ -496,7 +501,15 @@ defmodule DB.Dataset do
     legal_owners_region = get_legal_owners_region(dataset, params)
 
     dataset
-    |> Repo.preload([:resources, :communes, :region, :legal_owners_aom, :legal_owners_region, :organization_object])
+    |> Repo.preload([
+      :resources,
+      :communes,
+      :region,
+      :legal_owners_aom,
+      :legal_owners_region,
+      :organization_object,
+      :new_covered_areas
+    ])
     |> cast(params, [
       :datagouv_id,
       :custom_title,
@@ -540,6 +553,7 @@ defmodule DB.Dataset do
     |> maybe_set_custom_logo_changed_at()
     |> put_assoc(:legal_owners_aom, legal_owners_aom)
     |> put_assoc(:legal_owners_region, legal_owners_region)
+    |> put_assoc(:new_covered_areas, get_administrative_divisions(params))
     |> validate_required([
       :datagouv_id,
       :custom_title,
@@ -614,6 +628,12 @@ defmodule DB.Dataset do
         Repo.all(from(region in Region, where: region.id in ^legal_owners_region_id))
     end
   end
+
+  defp get_administrative_divisions(%{"new_covered_areas" => ids}) do
+    Repo.all(from(ad in DB.AdministrativeDivision, where: ad.id in ^ids))
+  end
+
+  defp get_administrative_divisions(_), do: []
 
   @spec format_error(any()) :: binary()
   defp format_error(changeset), do: "#{inspect(Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end))}"
