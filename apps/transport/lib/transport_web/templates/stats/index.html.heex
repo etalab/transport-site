@@ -122,10 +122,10 @@
               <div>jeux de données en NeTEx</div>
             </div>
             <div class="format-viz">
-              <%= for _i <- 1..@nb_gtfs do %>
+              <%= for _i <- 1..@nb_gtfs//1 do %>
                 <div class="item gtfs"></div>
               <% end %>
-              <%= for _i <- 1..@nb_netex do %>
+              <%= for _i <- 1..@nb_netex//1 do %>
                 <div class="item netex"></div>
               <% end %>
             </div>
@@ -291,7 +291,7 @@
               <div><a href="/datasets?type=vehicles-sharing">Jeux de données disponibles</a></div>
             </div>
             <div class="rt-viz">
-              <%= for _i <- 1..@nb_vehicles_sharing_datasets do %>
+              <%= for _i <- 1..@nb_vehicles_sharing_datasets//1 do %>
                 <div class="item standard"></div>
               <% end %>
             </div>

@@ -25,7 +25,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
           |> Enum.filter(fn %{file: file} -> file == @selected_file end)
           |> Enum.group_by(fn %{type: type} -> type end)
           |> Map.to_list()
-          |> Enum.filter(fn {_, explanations} -> not Enum.empty?(explanations) > 0 end) %>
+          |> Enum.filter(fn {_, explanations} -> not Enum.empty?(explanations) end) %>
         <%= if not Enum.empty?(active_explanations) do %>
           <h5><%= dgettext("gtfs-diff", "Notable changes:") %></h5>
           <.detailed_explanations

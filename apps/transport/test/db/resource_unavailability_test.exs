@@ -45,7 +45,7 @@ defmodule DB.ResourceUnavailabilityTest do
     test "with no unavailabilities" do
       resource = insert(:resource)
 
-      assert %{hours: 0, nb_periods: 0, resource_id: resource.id} ==
+      assert %{hours: 0.0, nb_periods: 0, resource_id: resource.id} ==
                ResourceUnavailability.unavailabilities_over_last_days(resource, 1)
 
       assert 100 == ResourceUnavailability.availability_over_last_days(resource, 1)
@@ -55,7 +55,7 @@ defmodule DB.ResourceUnavailabilityTest do
       resource = insert(:resource)
       insert(:resource_unavailability, resource: resource, start: hours_ago(25))
 
-      assert %{hours: 24, resource_id: resource.id, nb_periods: 1} ==
+      assert %{hours: 24.0, resource_id: resource.id, nb_periods: 1} ==
                ResourceUnavailability.unavailabilities_over_last_days(resource, 1)
 
       assert 0 == ResourceUnavailability.availability_over_last_days(resource, 1)
@@ -102,7 +102,7 @@ defmodule DB.ResourceUnavailabilityTest do
       resource = insert(:resource)
       insert(:resource_unavailability, resource: resource, start: hours_ago(72), end: hours_ago(25))
 
-      assert %{hours: 0, resource_id: resource.id, nb_periods: 0} ==
+      assert %{hours: 0.0, resource_id: resource.id, nb_periods: 0} ==
                ResourceUnavailability.unavailabilities_over_last_days(resource, 1)
 
       assert ResourceUnavailability.availability_over_last_days(resource, 1) <= 100
