@@ -11,7 +11,7 @@
 </nav>
 <div class="main-pane">
   <%= pagination_links(@conn, @issues, [@resource.id],
-    issue_type: Transport.Validators.NeTEx.issue_type(@issues.entries),
+    issue_type: Transport.Validators.NeTEx.Validator.issue_type(@issues.entries),
     path: &resource_path/4,
     action: :details
   ) %>

@@ -5,7 +5,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
   import ExUnit.CaptureLog
   import Mox
   import Transport.Test.EnRouteChouetteValidClientHelpers
-  alias Transport.Validators.NeTEx
+  alias Transport.Validators.NeTEx.Validator
 
   setup :verify_on_exit!
 
@@ -21,7 +21,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
 
     validation_id = with_running_validation() |> expect_pending_validation()
 
-    snooze_duration = NeTEx.poll_interval(attempt)
+    snooze_duration = Validator.poll_interval(attempt)
 
     assert {:snooze, ^snooze_duration} = run_polling_job(validation, validation_id, attempt)
 

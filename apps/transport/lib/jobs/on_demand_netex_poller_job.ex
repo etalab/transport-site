@@ -16,7 +16,7 @@ defmodule Transport.Jobs.OnDemandNeTExPollerJob do
     unique: [fields: [:args, :worker]]
 
   alias Transport.Jobs.OnDemandValidationHelpers, as: Helpers
-  alias Transport.Validators.NeTEx
+  alias Transport.Validators.NeTEx.Validator
 
   # Override the backoff to play nice and avoiding falling in very slow retry
   # after an important streak of snoozing (which increments the `attempt`
@@ -45,7 +45,7 @@ defmodule Transport.Jobs.OnDemandNeTExPollerJob do
   end
 
   def check_result(%{"permanent_url" => url, "validation_id" => validation_id}, attempt) do
-    case NeTEx.poll_validation(validation_id, attempt) do
+    case Validator.poll_validation(validation_id, attempt) do
       {:error, error_result} -> handle_error(error_result)
       {:ok, ok_result} -> handle_success(ok_result, url)
       {:pending, _validation_id} -> handle_pending(attempt)
@@ -66,7 +66,7 @@ defmodule Transport.Jobs.OnDemandNeTExPollerJob do
 
   def handle_pending(attempt) do
     attempt
-    |> NeTEx.poll_interval()
+    |> Validator.poll_interval()
     |> Helpers.snoozed_state()
   end
 
@@ -75,9 +75,9 @@ defmodule Transport.Jobs.OnDemandNeTExPollerJob do
       result: validation,
       metadata: metadata,
       data_vis: nil,
-      validator: NeTEx.validator_name(),
+      validator: Validator.validator_name(),
       validated_data_name: url,
-      max_error: NeTEx.get_max_severity_error(validation),
+      max_error: Validator.get_max_severity_error(validation),
       oban_args: Helpers.completed()
     }
   end
@@ -85,7 +85,7 @@ defmodule Transport.Jobs.OnDemandNeTExPollerJob do
   defp build_error_validation_result(%{message: msg}) do
     %{
       oban_args: Helpers.error(msg),
-      validator: NeTEx.validator_name()
+      validator: Validator.validator_name()
     }
   end
 end

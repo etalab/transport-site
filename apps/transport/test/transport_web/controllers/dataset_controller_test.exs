@@ -372,7 +372,7 @@ defmodule TransportWeb.DatasetControllerTest do
 
     insert(:multi_validation, %{
       resource_history_id: resource_history_id,
-      validator: Transport.Validators.NeTEx.validator_name(),
+      validator: Transport.Validators.NeTEx.Validator.validator_name(),
       result: %{"xsd-1871" => [%{"criticity" => "error"}]},
       metadata: %DB.ResourceMetadata{
         metadata: %{"elapsed_seconds" => 42},

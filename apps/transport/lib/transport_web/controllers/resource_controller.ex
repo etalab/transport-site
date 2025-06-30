@@ -13,7 +13,7 @@ defmodule TransportWeb.ResourceController do
                         Transport.Validators.GBFSValidator,
                         Transport.Validators.TableSchema,
                         Transport.Validators.EXJSONSchema,
-                        Transport.Validators.NeTEx
+                        Transport.Validators.NeTEx.Validator
                       ])
   plug(:assign_current_contact when action in [:details])
 
@@ -152,7 +152,7 @@ defmodule TransportWeb.ResourceController do
   end
 
   defp render_netex_details(conn, params, resource) do
-    validator = Transport.Validators.NeTEx
+    validator = Transport.Validators.NeTEx.Validator
 
     validation_details = build_validation_details(params, resource, validator)
 
