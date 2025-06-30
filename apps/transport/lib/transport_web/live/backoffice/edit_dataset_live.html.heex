@@ -106,7 +106,7 @@
   <div class="panel mt-48">
     <div class="panel__header">
       <h4>
-        <%= dgettext("backoffice", "Associated territory") %>
+        <%= dgettext("backoffice", "Associated territory (legacy)") %>
       </h4>
       <%= dgettext("backoffice", "Choose one") %>
     </div>
@@ -164,6 +164,20 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <div class="panel mt-48">
+    <div class="panel__header">
+      <h4>
+        <%= dgettext("backoffice", "Associated territory (new)") %>
+      </h4>
+    </div>
+    <.live_component
+      module={TransportWeb.NewCoveredAreaSelectLive}
+      id="new_covered_area"
+      form={f}
+      new_covered_area={@new_covered_area}
+    />
   </div>
   <div id="backoffice_dataset_submit_buttons" class={if is_nil(@dataset), do: "pb-48"}>
     <div>
