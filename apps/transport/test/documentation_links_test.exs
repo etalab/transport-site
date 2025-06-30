@@ -12,7 +12,7 @@ defmodule Transport.DocumentationLinksTest do
       urls
       |> Enum.map(fn url ->
         case HTTPoison.head(url) do
-          {:ok, %HTTPoison.Response{status_code: status_code}} when status_code in [200, 302] -> :success
+          {:ok, %HTTPoison.Response{status_code: status_code}} when status_code in [200, 302, 307] -> :success
           response -> {:error, url, response}
         end
       end)
@@ -20,7 +20,7 @@ defmodule Transport.DocumentationLinksTest do
 
     message = """
     Unexpected HTTP responses for:
-    #{failures |> Enum.map_join("\n - ", fn {:error, url, _response} -> url end)}
+    - #{failures |> Enum.map_join("\n - ", fn {:error, url, _response} -> url end)}
 
     Debug:
     #{inspect(failures)}
