@@ -106,7 +106,12 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
     # Should be ignored because this is for another reason
     insert_notification(%{dataset: dataset, role: :producer, reason: :expiration, email: "foo@example.com"})
     # Should be ignored because it's for another dataset
-    insert_notification(%{dataset: gtfs_dataset, role: :producer, reason: :dataset_with_error, email: "foo@example.com"})
+    insert_notification(%{
+      dataset: gtfs_dataset,
+      role: :producer,
+      reason: :dataset_with_error,
+      email: "foo@example.com"
+    })
 
     # Should be ignored because it's too old
     %{dataset: dataset, role: :producer, reason: :dataset_with_error, email: "foo@example.com"}

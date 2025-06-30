@@ -544,7 +544,7 @@ defmodule Unlock.ControllerTest do
         # allow function to define data
         data = if is_function(data), do: data.(), else: data
         # append optional response headers
-        {status, body, headers} = if match?({_a, _b}, data), do: Tuple.append(data, []), else: data
+        {status, body, headers} = if match?({_a, _b}, data), do: :erlang.append_element(data, []), else: data
         %Unlock.HTTP.Response{body: body, status: status, headers: headers}
       end
 

@@ -9,14 +9,14 @@
 # - https://hexdocs.pm/elixir/compatibility-and-deprecations.html
 # - https://github.com/elixir-lang/elixir/releases
 # - `asdf list all elixir`
-elixir 1.17.3-otp-27
+elixir 1.18.4-otp-27
 
 # See:
 # - https://github.com/erlang/otp/releases
 # - Blog, e.g. https://www.erlang.org/blog/my-otp-25-highlights/
 # - https://github.com/erlang/otp/blob/master/otp_versions.table
 # - `asdf list all erlang`
-erlang 27.1
+erlang 27.3.4.1
 
 # Take an LTS version on https://nodejs.org/
-nodejs 20.17.0
+nodejs 22.16.0
