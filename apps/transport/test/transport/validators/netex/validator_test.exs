@@ -7,8 +7,6 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
   alias Transport.Validators.NeTEx.Validator
 
-  doctest Transport.Validators.NeTEx.Validator, import: true
-
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end

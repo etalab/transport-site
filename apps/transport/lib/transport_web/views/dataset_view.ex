@@ -12,7 +12,6 @@ defmodule TransportWeb.DatasetView do
   import DB.MultiValidation, only: [get_metadata_info: 2, get_metadata_info: 3]
   alias Shared.DateTimeDisplay
   alias Transport.Validators.GTFSTransport
-  alias Transport.Validators.NeTEx.Validator, as: NeTEx
 
   @gtfs_rt_validator_name Transport.Validators.GTFSRT.validator_name()
 
