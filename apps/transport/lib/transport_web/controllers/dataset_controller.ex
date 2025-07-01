@@ -51,13 +51,7 @@ defmodule TransportWeb.DatasetController do
       |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
       |> assign(:other_datasets, Dataset.get_other_datasets(dataset))
       |> assign(:resources_infos, resources_infos(dataset))
-      |> assign(
-        :history_resources,
-        Transport.History.Fetcher.history_resources(dataset,
-          max_records: max_nb_history_resources(),
-          preload_validations: true
-        )
-      )
+      |> assign(:history_resources, history_resources(dataset))
       |> assign(:latest_resources_history_infos, DB.ResourceHistory.latest_dataset_resources_history_infos(dataset))
       |> assign(:notifications_sent, DB.Notification.recent_reasons_binned(dataset, days_notifications_sent()))
       |> assign_scores(dataset)
@@ -216,6 +210,23 @@ defmodule TransportWeb.DatasetController do
          )}
       end)
     end)
+  end
+
+  def history_resources_cache_key(%DB.Dataset{id: id}) do
+    "history_resources_dataset_#{id}"
+  end
+
+  defp history_resources(%DB.Dataset{} = dataset) do
+    Transport.Cache.fetch(
+      history_resources_cache_key(dataset),
+      fn ->
+        Transport.History.Fetcher.history_resources(dataset,
+          max_records: max_nb_history_resources(),
+          preload_validations: true
+        )
+      end,
+      :timer.hours(6)
+    )
   end
 
   defp by_territory(conn, territory, params, error_msg, count_by_region \\ false) do
