@@ -836,4 +836,59 @@ defmodule DB.DatasetDBTest do
     assert ids.([active_dataset, hidden_dataset, archived_dataset]) ==
              DB.Dataset.base_with_hidden_datasets() |> DB.Repo.all() |> ids.()
   end
+
+  test "new covered area in a dataset, create and edit" do
+    departement = insert(:administrative_division)
+
+    assert {:ok, changeset} =
+             DB.Dataset.changeset(%{
+               "datagouv_id" => "12345079",
+               "custom_title" => "Blaaah",
+               "datagouv_title" => "title",
+               "type" => "public-transit",
+               "licence" => "lov2",
+               "slug" => "ma_limace",
+               "created_at" => DateTime.utc_now(),
+               "last_update" => DateTime.utc_now(),
+               "logo" => "https://example.com/pic.jpg",
+               "full_logo" => "https://example.com/pic.jpg",
+               "frequency" => "daily",
+               "new_covered_areas" => [departement.id],
+               "region_id" => 1,
+               "organization_id" => Ecto.UUID.generate(),
+               "tags" => [],
+               "nb_reuses" => 0
+             })
+
+    {:ok, dataset} = changeset |> DB.Repo.insert_or_update()
+
+    dataset = dataset |> DB.Repo.preload(:new_covered_areas)
+
+    [linked_departement] = dataset.new_covered_areas
+
+    assert linked_departement.id == departement.id
+    assert linked_departement.nom == "Isère"
+
+    # We’ll see if edit works too
+
+    commune =
+      insert(:administrative_division, %{type: "commune", nom: "Grenoble", insee: "38185", type_insee: "commune_38185"})
+
+    assert {:ok, changeset} =
+             DB.Dataset.changeset(%{
+               "datagouv_id" => dataset.datagouv_id,
+               "new_covered_areas" => [commune.id, departement.id]
+             })
+
+    {:ok, changed_dataset} = changeset |> DB.Repo.insert_or_update()
+
+    changed_dataset = changed_dataset |> DB.Repo.preload(:new_covered_areas)
+
+    # Should still be the same dataset
+    assert changed_dataset.id == dataset.id
+
+    [updated_area_1, updated_area_2] = changed_dataset.new_covered_areas
+    assert updated_area_1.id == departement.id
+    assert updated_area_2.id == commune.id
+  end
 end
