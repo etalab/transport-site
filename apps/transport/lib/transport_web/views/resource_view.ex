@@ -309,4 +309,68 @@ defmodule TransportWeb.ResourceView do
       }) do
     "https://explore.data.gouv.fr/fr/datasets/#{dataset_datagouv_id}/#/resources/#{resource_datagouv_id}"
   end
+
+  def netex_compatibility(%{irrelevant: true, label: _} = assigns) do
+    ~H"""
+    <.irrelevant_icon /> <.compatibility_filter label={@label} irrelevant={@irrelevant} />
+    (<%= dgettext("validations", "irrelevant here") %>)
+    """
+  end
+
+  def netex_compatibility(%{errors: _, category: _, label: _, learn_more_url: _} = assigns) do
+    ~H"""
+    <.netex_compatibility errors={@errors} category={@category} label={@label} /> -
+    <a href={@learn_more_url} target="_blank"><%= dgettext("validations", "Learn more") %></a>
+    """
+  end
+
+  def netex_compatibility(%{errors: errors, category: _, label: _} = assigns) when errors > 0 do
+    ~H"""
+    <.validity_icon errors={@errors} />
+    <.compatibility_filter href={"?issues_category=#{@category}#issues"} label={@label} />
+    (<%= dngettext("validations", "1 error", "%{count} errors", @errors) %>)
+    """
+  end
+
+  def netex_compatibility(%{errors: _, label: _} = assigns) do
+    ~H"""
+    <.validity_icon errors={@errors} /> <.compatibility_filter label={@label} />
+    """
+  end
+
+  def compatibility_filter(%{irrelevant: true, label: _} = assigns) do
+    ~H"""
+    <span class="compatibility_filter irrelevant"><%= @label %></span>
+    """
+  end
+
+  def compatibility_filter(%{href: _, label: _} = assigns) do
+    ~H"""
+    <a class="compatibility_filter" href={@href}><%= @label %></a>
+    """
+  end
+
+  def compatibility_filter(%{label: _} = assigns) do
+    ~H"""
+    <span class="compatibility_filter"><%= @label %></span>
+    """
+  end
+
+  def validity_icon(%{errors: errors} = assigns) when errors > 0 do
+    ~H"""
+    <i class="fa fa-xmark"></i>
+    """
+  end
+
+  def validity_icon(assigns) do
+    ~H"""
+    <i class="fa fa-check"></i>
+    """
+  end
+
+  def irrelevant_icon(assigns) do
+    ~H"""
+    <i class="fa fa-minus"></i>
+    """
+  end
 end

@@ -1,13 +1,14 @@
 <%= unless is_nil(@validation) do %>
   <div class="pb-24">
     <% link = resource_path(@conn, :details, @resource.id) <> "#validation-report" %>
-    <% {severity, count} = NeTEx.count_max_severity(@validation.result) %>
+    <% results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(@validation.validator_version) %>
+    <% {severity, count} = results_adapter.count_max_severity(@validation.result) %>
     <a href={link}>
       <span class={summary_class(%{severity: String.capitalize(severity), count_errors: count})}>
-        <%= if NeTEx.no_error?(severity) do %>
+        <%= if results_adapter.no_error?(severity) do %>
           <%= dgettext("page-dataset-details", "No error detected") %>
         <% else %>
-          <%= NeTEx.format_severity(severity, count) %>
+          <%= results_adapter.format_severity(severity, count) %>
         <% end %>
       </span>
     </a>

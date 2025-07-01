@@ -28,9 +28,9 @@
           severities_count: @severities_count,
           conn: @conn,
           issues: @issues,
-          data_vis: @data_vis,
           token: @token,
-          validator: @validator
+          results_adapter: @results_adapter,
+          data_vis: nil
         ) %>
       <% end %>
 
@@ -38,7 +38,7 @@
         <div class="panel">
           <%= if has_errors?(@validation_summary) do %>
             <%= pagination_links(@conn, @issues, [@validation_id],
-              issue_type: @validator.issue_type(@issues.entries),
+              issue_type: @results_adapter.issue_type(@issues.entries),
               token: @token,
               path: &validation_path/4,
               action: :show
@@ -46,7 +46,7 @@
             <%= render(netex_template(@issues), issues: @issues || [], conn: @conn) %>
             <div class="pt-24">
               <%= pagination_links(@conn, @issues, [@validation_id],
-                issue_type: @validator.issue_type(@issues.entries),
+                issue_type: @results_adapter.issue_type(@issues.entries),
                 token: @token,
                 path: &validation_path/4,
                 action: :show
