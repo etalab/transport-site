@@ -171,7 +171,6 @@ defmodule Transport.Jobs.ResourceHistoryJob do
         Transport.S3.stream_to_s3!(:history, resource_path, filename, acl: :public_read)
         %{id: resource_history_id} = store_resource_history!(resource_or_improved_data, data)
         Appsignal.increment_counter("resource_history_job.success", 1)
-        delete_cache(resource_or_improved_data)
         %{resource_history_id: resource_history_id}
 
       {false, history} ->
@@ -185,13 +184,6 @@ defmodule Transport.Jobs.ResourceHistoryJob do
         {:error, "historization failed"}
     end
   end
-
-  defp delete_cache(%DB.Resource{dataset_id: dataset_id}) do
-    cache_key = TransportWeb.DatasetController.history_resources_cache_key(%DB.Dataset{id: dataset_id})
-    Transport.Cache.del(cache_key)
-  end
-
-  defp delete_cache(_), do: :ok
 
   @doc """
   Determine if we would historicise a payload now.

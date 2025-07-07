@@ -10,9 +10,6 @@ defmodule Transport.Cache do
 
   def put(cache_key, value, expire_value \\ :timer.seconds(60)), do: impl().put(cache_key, value, expire_value)
 
-  @callback del(cache_key :: binary()) :: {:ok | :error, boolean()}
-  def del(cache_key), do: impl().del(cache_key)
-
   defp impl, do: Application.get_env(:transport, :cache_impl)
 end
 
@@ -97,10 +94,6 @@ defmodule Transport.Cache.Cachex do
     )
   end
 
-  def del(cache_key) do
-    Cachex.del(cache_name(), cache_key)
-  end
-
   def cache_name, do: Transport.Application.cache_name()
 end
 
@@ -113,6 +106,4 @@ defmodule Transport.Cache.Null do
   def fetch(_cache_key, value_fn, _expire_value), do: value_fn.()
 
   def put(_cache_key, _value, _expire_value), do: {:ok, true}
-
-  def del(_cache_key), do: {:ok, true}
 end
