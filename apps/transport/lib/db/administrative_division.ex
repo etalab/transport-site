@@ -23,7 +23,8 @@ defmodule DB.AdministrativeDivision do
         :commune,
         :departement,
         :epci,
-        :region
+        :region,
+        :national
       ],
       null: false
     )
