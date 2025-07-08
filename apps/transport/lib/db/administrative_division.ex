@@ -61,4 +61,17 @@ defmodule DB.AdministrativeDivision do
   # def validate_type_insee_is_consistent(changeset) do
   # changeset
   # end
+
+  @doc """
+  Used for search, usage:
+  territoires = DB.AdministrativeDivisions.load_searchable_administrative_divisions
+  DB.AdministrativeDivisions.search(territoires, "75")
+  """
+  def load_searchable_administrative_divisions do
+    Transport.SearchCommunes.load_administrative_divisions()
+  end
+
+  def search(territoires, term) do
+    Transport.SearchCommunes.filter(territoires, term)
+  end
 end
