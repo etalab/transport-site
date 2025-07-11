@@ -341,6 +341,7 @@ defmodule TransportWeb.Backoffice.PageController do
       coalesce(legal_owners.noms, d.legal_owner_company_siren::varchar) representants_legaux,
       case when d.is_active and d.archived_at is null then 'actif' when not d.is_active then 'supprimé' when d.archived_at is not null then 'archivé' end statut_datagouv,
       r.title titre_ressource,
+      r.url url_ressource,
       r.type type_ressource,
       r.is_community_resource est_ressource_communautaire,
       r.format format_ressource,
