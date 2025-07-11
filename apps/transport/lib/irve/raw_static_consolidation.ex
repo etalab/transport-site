@@ -97,11 +97,11 @@ defmodule Transport.IRVE.RawStaticConsolidation do
       raise("content has no id_pdc_itinerance in first line")
     end
 
-    header_separator = hint_header_separator(body)
-    # we only support comma at this point. NOTE: commas can be here too
-    if header_separator == ";" do
-      raise("unsupported column separator #{header_separator}")
-    end
+    # header_separator = hint_header_separator(body)
+    # # we only support comma at this point. NOTE: commas can be here too
+    # if header_separator == ";" do
+    #   raise("unsupported column separator #{header_separator}")
+    # end
 
     if !String.valid?(body) do
       raise("string is not valid UTF-8 (could be binary content, or latin1)")
