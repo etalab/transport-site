@@ -25,7 +25,7 @@
 # The flags must be the first args.
 
 should_skip_extensions=false
-should_preserve_contacts=false
+should_preserve_contacts=true
 should_preserve_user_feedback=false
 should_preserve_oban_jobs=false
 
