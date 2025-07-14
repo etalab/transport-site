@@ -155,3 +155,12 @@ config :os_mon,
 config :sentry,
   test_mode: true,
   csp_url: ""
+
+extra_config_file = Path.join(__DIR__, "#{config_env()}.secret.exs")
+
+require Logger
+
+if File.exists?(extra_config_file) do
+  Logger.info "Loading extra test setup overrides at #{extra_config_file}"
+  import_config extra_config_file
+end
