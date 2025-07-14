@@ -94,7 +94,7 @@ else
 fi
 
 function sql() {
-  psql -h "$HOST" -U "$USER_NAME" -d "$DB_NAME" -c "$1"
+  psql -h "$HOST" -p "$PORT" -U "$USER_NAME" -d "$DB_NAME" -c "$1"
 }
 
 if [ "$should_skip_extensions" = true ]
