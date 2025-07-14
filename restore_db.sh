@@ -101,7 +101,7 @@ then
   pg_restore -l "$BACKUP_PATH" -f ./pg.list
   pg_restore -h "$HOST" -U "$USER_NAME" -d "$DB_NAME" --format=c --no-owner --clean --use-list ./pg.list --no-acl "$BACKUP_PATH"
 else
-  pg_restore --exit-on-error --verbose -h "$HOST" -p "$PORT" -U "$USER_NAME" -d "$DB_NAME" --format=c --no-owner --clean --no-acl "$BACKUP_PATH"
+  pg_restore --exit-on-error --verbose -h "$HOST" -p "$PORT" -U "$USER_NAME" -d "$DB_NAME" --format=c --no-owner --clean --if-exists --no-acl "$BACKUP_PATH"
 fi
 
 if [ "$should_preserve_contacts" = false ]
