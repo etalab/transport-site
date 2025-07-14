@@ -124,7 +124,7 @@ then
 fi
 
 # Don't let database files hang around
-rm "$BACKUP_PATH"
+# rm "$BACKUP_PATH"
 
 if [ "$should_skip_extensions" = true ]
 then
