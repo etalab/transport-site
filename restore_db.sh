@@ -78,10 +78,11 @@ done
 
 if test "$#" -eq 1; then
   DB_NAME="transport_repo"
-  USER_NAME="postgres"
+  USER_NAME="transport_docker"
   BACKUP_PATH=$1
   HOST="localhost"
-  export PGPASSWORD="postgres"
+  PORT="6432"
+  export PGPASSWORD="coucou"
 elif test "$#" -eq 5; then
   DB_NAME=$1
   HOST=$2
@@ -101,7 +102,7 @@ then
   pg_restore -l "$BACKUP_PATH" -f ./pg.list
   pg_restore -h "$HOST" -U "$USER_NAME" -d "$DB_NAME" --format=c --no-owner --clean --use-list ./pg.list --no-acl "$BACKUP_PATH"
 else
-  pg_restore -h "$HOST" -U "$USER_NAME" -d "$DB_NAME" --format=c --no-owner --clean --no-acl "$BACKUP_PATH"
+  pg_restore -h "$HOST" -p "$PORT" -U "$USER_NAME" -d "$DB_NAME" --format=c --no-owner --clean --no-acl "$BACKUP_PATH"
 fi
 
 if [ "$should_preserve_contacts" = false ]
