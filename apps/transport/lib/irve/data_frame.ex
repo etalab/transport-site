@@ -19,6 +19,9 @@ defmodule Transport.IRVE.DataFrame do
   There is no attempt to make this generic at this point, it is focusing solely
   on the static IRVE use.
 
+  Only comma `,` and semicolon `;` are supported. An exception will be raised
+  if other separators are met.
+
   In strict mode (the default), the types are remapped as follow:
 
   iex> Transport.IRVE.DataFrame.remap_schema_type(:geopoint)
@@ -124,11 +127,61 @@ defmodule Transport.IRVE.DataFrame do
         }
       end)
 
+    delimiter = guess_delimiter!(body)
+
     # to be tested - do not call `load_csv!` as it will `inspect` the error
-    case Explorer.DataFrame.load_csv(body, dtypes: dtypes, delimiter: ";") do
+    case Explorer.DataFrame.load_csv(body, dtypes: dtypes, delimiter: delimiter) do
       {:ok, df} -> df
       {:error, error} -> raise(error)
     end
+  end
+
+  @doc """
+  Attempts to guess the column delimiter based on the provided body.
+
+  Only `;` and `,` are allowed at this point ; an exception will be thrown otherwise.
+
+  iex>
+  """
+  def guess_delimiter!(body) do
+    col_seps_frequencies = body |> first_line |> remove_bom() |> separators_frequencies()
+    separators = Map.keys(col_seps_frequencies)
+
+    # pattern match individually, so we can raise a proper error message if we cannot with certainty determine the separator
+    case separators do
+      [";"] -> ";"
+      [","] -> ","
+      [] -> "," # for single column testing files, at this point
+      _ -> raise "Could not guess column delimiter (frequencies: #{col_seps_frequencies |> inspect})"
+    end
+  end
+
+  def first_line(body) do
+    body
+    |> String.split("\n", parts: 2)
+    |> hd()
+  end
+
+  def remove_bom(string) do
+    string
+    |> String.replace("\uFEFF", "")
+  end
+
+  @doc """
+  Remove quotes, word characters & whitespaces, then attempts to identify columns separators
+  and their frequencies of appearance.
+
+  iex> Transport.IRVE.DataFrame.separators_frequencies("hello;world;nice")
+  %{";" => 2}
+
+  iex> Transport.IRVE.DataFrame.separators_frequencies("hello,\\"world\\";nice, extra \r")
+  %{";" => 1, "," => 2}
+  """
+  def separators_frequencies(string) do
+    ~r/"|\w|\s/
+    |> Regex.replace(string, "")
+    |> String.graphemes()
+    |> Enum.frequencies()
   end
 
   @doc """
