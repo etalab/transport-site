@@ -33,6 +33,28 @@ defmodule Unlock.AggregateProcessor do
         :include_origin
       ])
 
+    comp_fn = fn _key ->
+      {:commit, fetch_feeds(item, options), ttl: :timer.seconds(item.ttl)}
+    end
+
+    cache_name = Unlock.Shared.cache_name()
+    cache_key = item.identifier <> ":#{:erlang.phash2(options)}"
+
+    case Cachex.fetch(cache_name, cache_key, comp_fn) do
+      {:ok, result} ->
+        Logger.info("Proxy response for #{item.identifier} served from cache")
+        result
+
+      {:commit, result, _options} ->
+        result
+
+      {:error, _error} ->
+        Logger.error("Error while fetching key #{cache_key}")
+        %Unlock.HTTP.Response{status: 502, body: "", headers: []}
+    end
+  end
+
+  def fetch_feeds(%Unlock.Config.Item.Aggregate{} = item, options) do
     headers = @schema_fields
     headers = if options[:include_origin], do: headers ++ ["origin", "slug"], else: headers
 
