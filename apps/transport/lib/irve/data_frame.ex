@@ -147,7 +147,8 @@ defmodule Transport.IRVE.DataFrame do
     col_seps_frequencies = body |> first_line |> remove_bom() |> separators_frequencies()
     separators = Map.keys(col_seps_frequencies)
 
-    # pattern match individually, so we can raise a proper error message if we cannot with certainty determine the separator
+    # pattern match individually, so we can raise a proper error message
+    # if we cannot determine the column separator with good certainty
     case separators do
       [";"] -> ";"
       [","] -> ","
