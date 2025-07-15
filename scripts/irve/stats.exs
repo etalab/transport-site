@@ -34,15 +34,17 @@ defmodule Stats do
   end
 
   def inspect(result, label) do
-    options = IEx.inspect_opts()
-    |> Keyword.put(:label, label)
-    |> Keyword.put(:width, 0)
+    options =
+      IEx.inspect_opts()
+      |> Keyword.put(:label, label)
+      |> Keyword.put(:width, 0)
+
     IO.inspect(result, options)
   end
 end
 
 sources
-|> Enum.each(fn({url, local_filename}) ->
+|> Enum.each(fn {url, local_filename} ->
   file = Path.join(__DIR__, "../../cache-dir/#{local_filename}")
   Stats.cached_download!(url, file)
   Stats.inspect(Stats.compute(file), file |> Path.basename())

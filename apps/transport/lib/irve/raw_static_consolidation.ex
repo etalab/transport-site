@@ -98,6 +98,7 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     end
 
     header_separator = hint_header_separator(body)
+
     unless header_separator in [";", ","] do
       raise("unsupported column separator #{header_separator}")
     end

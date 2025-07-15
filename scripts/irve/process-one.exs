@@ -6,4 +6,4 @@ Transport.IRVE.RawStaticConsolidation.run_cheap_blocking_checks(body, ".csv")
 
 output = Transport.IRVE.Processing.read_as_data_frame(body)
 
-IO.inspect(output, IEx.inspect_opts)
+IO.inspect(output, IEx.inspect_opts())

@@ -151,7 +151,8 @@ defmodule Transport.IRVE.DataFrame do
     case separators do
       [";"] -> ";"
       [","] -> ","
-      [] -> "," # for single column testing files, at this point
+      # for single column testing files, at this point
+      [] -> ","
       _ -> raise "Could not guess column delimiter (frequencies: #{col_seps_frequencies |> inspect})"
     end
   end
