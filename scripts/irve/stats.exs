@@ -25,4 +25,4 @@ defmodule Stats do
   end
 end
 
-IO.inspect(Stats.compute(file), IEx.inspect_opts)
+IO.inspect(Stats.compute(file), IEx.inspect_opts())
