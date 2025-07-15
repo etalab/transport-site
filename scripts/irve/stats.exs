@@ -4,7 +4,7 @@ Mix.install([
 ])
 
 url = "https://proxy.transport.data.gouv.fr/resource/consolidation-nationale-irve-statique"
-file = Path.join(__DIR__, "data/consolidation-nationale-irve-statique.csv")
+file = Path.join(__DIR__, "../../cache-dir/consolidation-nationale-irve-statique.csv")
 
 # File.rm!(file)
 
