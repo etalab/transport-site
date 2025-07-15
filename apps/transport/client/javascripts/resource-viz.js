@@ -134,9 +134,9 @@ function setGBFSFreeFloatingStyle (feature, layer) {
     layer.bindPopup(`<pre>${popupContent}</pre>`)
 }
 
-function setGBFSGeofencingStyle (feature, layer) {
+function setGBFSGeofencingStyle (feature, layer, global_rules) {
     const rules = feature.properties.rules
-    const rule = rules.length > 0 ? rules[0] : undefined
+    const rule = (rules && rules.length > 0) ? rules[0] : global_rules
     let color, opacity, popupContent
 
     if (rule) {
@@ -201,7 +201,7 @@ function fillGeofencingZones (geojson, geoFencingZones) {
     geojson.features = geojson.features.reverse()
 
     L.geoJSON(geojson, {
-        onEachFeature: (feature, layer) => setGBFSGeofencingStyle(feature, layer)
+        onEachFeature: (feature, layer) => setGBFSGeofencingStyle(feature, layer, geojson.global_rules)
     }).addTo(geoFencingZones)
 }
 

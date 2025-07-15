@@ -211,8 +211,11 @@ defmodule Transport.GbfsToGeojson do
         resp_data
 
       url ->
-        geojson = geofencing_zones_geojson!(url)
-        resp_data |> Map.put("geofencing_zones", geojson)
+        data = geofencing_zones_geojson!(url)
+        geofencing_zones = data["geofencing_zones"] |> Map.put("global_rules", data["global_rules"])
+
+        resp_data
+        |> Map.put("geofencing_zones", geofencing_zones)
     end
   rescue
     _e -> resp_data
@@ -223,7 +226,6 @@ defmodule Transport.GbfsToGeojson do
     url
     |> fetch_gbfs_endpoint!()
     |> Map.fetch!("data")
-    |> Map.fetch!("geofencing_zones")
   end
 
   @spec fetch_gbfs_endpoint!(binary()) :: map()
