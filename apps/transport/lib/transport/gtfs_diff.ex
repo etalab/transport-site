@@ -314,7 +314,7 @@ defmodule Transport.GTFSDiff do
     row_diff = row_diff(unzip_1, unzip_2, notify_func, locale, profile)
 
     diff = file_diff ++ column_diff ++ row_diff
-    id_range = 0..(Enum.count(diff) - 1)
+    id_range = 0..(Enum.count(diff) - 1)//1
 
     diff |> Enum.zip_with(id_range, &Map.merge(&1, %{id: &2}))
   end

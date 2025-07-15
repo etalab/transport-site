@@ -6,7 +6,7 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
   import Mox
   import Transport.Test.EnRouteChouetteValidClientHelpers
 
-  alias Transport.Validators.NeTEx
+  alias Transport.Validators.NeTEx.Validator
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -126,7 +126,7 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
 
     validation_id = with_running_validation() |> expect_pending_validation()
 
-    assert {:snooze, NeTEx.poll_interval(attempt)} == run_polling_job(resource_history, validation_id, attempt)
+    assert {:snooze, Validator.poll_interval(attempt)} == run_polling_job(resource_history, validation_id, attempt)
 
     assert nil == load_multi_validation(resource_history.id)
   end

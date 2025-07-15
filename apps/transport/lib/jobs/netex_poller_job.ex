@@ -14,7 +14,7 @@ defmodule Transport.Jobs.NeTExPollerJob do
     queue: :resource_validation,
     unique: [fields: [:args, :worker]]
 
-  alias Transport.Validators.NeTEx
+  alias Transport.Validators.NeTEx.Validator
 
   # Override the backoff to play nice and avoiding falling in very slow retry
   # after an important streak of snoozing (which increments the `attempt`
@@ -36,11 +36,11 @@ defmodule Transport.Jobs.NeTExPollerJob do
         },
         attempt: attempt
       }) do
-    NeTEx.poll_validation_results(validation_id, attempt)
-    |> NeTEx.handle_validation_results(resource_history_id, fn ^validation_id -> snooze_poller(attempt) end)
+    Validator.poll_validation_results(validation_id, attempt)
+    |> Validator.handle_validation_results(resource_history_id, fn ^validation_id -> snooze_poller(attempt) end)
   end
 
   def snooze_poller(attempt) do
-    {:snooze, NeTEx.poll_interval(attempt)}
+    {:snooze, Validator.poll_interval(attempt)}
   end
 end

@@ -111,21 +111,22 @@ defmodule TransportWeb.ValidationController do
 
         conn
         |> assign_base_validation_details(validator, validation, params, current_issues)
+        |> assign(:validator, validator)
         |> assign(:metadata, validation.metadata.metadata)
         |> assign(:modes, validation.metadata.modes)
         |> assign(:data_vis, data_vis(validation, issue_type))
         |> render("show_gtfs.html")
 
       %MultiValidation{oban_args: %{"state" => "completed", "type" => "netex"}} = validation ->
-        validator = Transport.Validators.NeTEx
-        current_issues = validator.get_issues(validation.result, params)
+        results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(validation.validator_version)
+
+        current_issues = results_adapter.get_issues(validation.result, params)
 
         conn
-        |> assign_base_validation_details(validator, validation, params, current_issues)
+        |> assign_base_validation_details(results_adapter, validation, params, current_issues)
+        |> assign(:results_adapter, results_adapter)
         |> assign(:metadata, validation.metadata.metadata)
-        |> assign(:modes, [])
-        |> assign(:data_vis, nil)
-        |> render("show_netex.html")
+        |> render("show_netex_v0_1_0.html")
 
       # Handles waiting for validation to complete, errors and
       # validation for schemas
@@ -140,14 +141,13 @@ defmodule TransportWeb.ValidationController do
     end
   end
 
-  defp assign_base_validation_details(conn, validator, validation, params, current_issues) do
+  defp assign_base_validation_details(conn, results_adapter, validation, params, current_issues) do
     conn
-    |> assign(:validator, validator)
     |> assign(:validation_id, params["id"])
     |> assign(:other_resources, [])
     |> assign(:issues, Scrivener.paginate(current_issues, make_pagination_config(params)))
-    |> assign(:validation_summary, validator.summary(validation.result))
-    |> assign(:severities_count, validator.count_by_severity(validation.result))
+    |> assign(:validation_summary, results_adapter.summary(validation.result))
+    |> assign(:severities_count, results_adapter.count_by_severity(validation.result))
     |> assign(:token, params["token"])
   end
 

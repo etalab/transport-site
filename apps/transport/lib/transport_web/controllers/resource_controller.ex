@@ -13,7 +13,7 @@ defmodule TransportWeb.ResourceController do
                         Transport.Validators.GBFSValidator,
                         Transport.Validators.TableSchema,
                         Transport.Validators.EXJSONSchema,
-                        Transport.Validators.NeTEx
+                        Transport.Validators.NeTEx.Validator
                       ])
   plug(:assign_current_contact when action in [:details])
 
@@ -133,41 +133,29 @@ defmodule TransportWeb.ResourceController do
   end
 
   defp render_gtfs_details(conn, params, resource) do
-    validator = Transport.Validators.GTFSTransport
-
     validation = latest_validation(resource)
 
-    validation_details = {_, _, _, _, issues} = build_validation_details(params, resource, validator)
+    validation_details = {_, _, _, _, issues} = build_gtfs_validation_details(params, resource)
 
     issue_type =
       case params["issue_type"] do
-        nil -> validator.issue_type(issues)
+        nil -> Transport.Validators.GTFSTransport.issue_type(issues)
         issue_type -> issue_type
       end
 
     conn
-    |> assign_base_resource_details(params, resource, validation_details, validator)
+    |> assign_base_resource_details(params, resource, validation_details)
+    |> assign(:validator, Transport.Validators.GTFSTransport)
     |> assign(:data_vis, encoded_data_vis(issue_type, validation))
     |> render("gtfs_details.html")
   end
 
-  defp render_netex_details(conn, params, resource) do
-    validator = Transport.Validators.NeTEx
-
-    validation_details = build_validation_details(params, resource, validator)
-
-    conn
-    |> assign_base_resource_details(params, resource, validation_details, validator)
-    |> assign(:data_vis, nil)
-    |> render("netex_details.html")
-  end
-
-  defp build_validation_details(params, resource, validator) do
+  defp build_gtfs_validation_details(params, resource) do
     case latest_validation(resource) do
       %{result: validation_result, metadata: metadata = %DB.ResourceMetadata{}} ->
-        summary = validator.summary(validation_result)
-        stats = validator.count_by_severity(validation_result)
-        issues = validator.get_issues(validation_result, params)
+        summary = Transport.Validators.GTFSTransport.summary(validation_result)
+        stats = Transport.Validators.GTFSTransport.count_by_severity(validation_result)
+        issues = Transport.Validators.GTFSTransport.get_issues(validation_result, params)
 
         {summary, stats, metadata.metadata, metadata.modes, issues}
 
@@ -176,7 +164,32 @@ defmodule TransportWeb.ResourceController do
     end
   end
 
-  defp assign_base_resource_details(conn, params, resource, validation_details, validator) do
+  defp render_netex_details(conn, params, resource) do
+    {results_adapter, validation_details} = build_netex_validation_details(params, resource)
+
+    conn
+    |> assign_base_resource_details(params, resource, validation_details)
+    |> assign(:results_adapter, results_adapter)
+    |> assign(:data_vis, nil)
+    |> render("netex_details.html")
+  end
+
+  defp build_netex_validation_details(params, resource) do
+    case latest_validation(resource) do
+      %{validator_version: version, result: validation_result, metadata: metadata = %DB.ResourceMetadata{}} ->
+        results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
+        summary = results_adapter.summary(validation_result)
+        stats = results_adapter.count_by_severity(validation_result)
+        issues = results_adapter.get_issues(validation_result, params)
+
+        {results_adapter, {summary, stats, metadata.metadata, metadata.modes, issues}}
+
+      nil ->
+        {nil, {nil, nil, nil, [], []}}
+    end
+  end
+
+  defp assign_base_resource_details(conn, params, resource, validation_details) do
     config = make_pagination_config(params)
 
     {validation_summary, severities_count, metadata, modes, issues} = validation_details
@@ -191,7 +204,6 @@ defmodule TransportWeb.ResourceController do
     |> assign(:validation, latest_validation(resource))
     |> assign(:metadata, metadata)
     |> assign(:modes, modes)
-    |> assign(:validator, validator)
   end
 
   def encoded_data_vis(_, nil), do: nil

@@ -23,7 +23,7 @@ defmodule Transport.ValidatorsSelectionTest do
       resource_history = insert(:resource_history, payload: %{"format" => "NeTEx"})
 
       assert ValidatorsSelection.validators(resource_history) == [
-               Transport.Validators.NeTEx
+               Transport.Validators.NeTEx.Validator
              ]
     end
 
