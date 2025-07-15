@@ -134,9 +134,9 @@ function setGBFSFreeFloatingStyle (feature, layer) {
     layer.bindPopup(`<pre>${popupContent}</pre>`)
 }
 
-function setGBFSGeofencingStyle (feature, layer, global_rules) {
+function setGBFSGeofencingStyle (feature, layer, globalRules) {
     const rules = feature.properties.rules
-    const rule = (rules && rules.length > 0) ? rules[0] : global_rules
+    const rule = (rules && rules.length > 0) ? rules[0] : globalRules
     let color, opacity, popupContent
 
     if (rule) {
