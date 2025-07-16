@@ -138,7 +138,7 @@ defmodule Transport.IRVE.DataFrame do
   end
 
   @doc """
-  Attempts to guess the column delimiter based on the provided body.
+  Attempt to guess the column delimiter based on the provided body.
 
   Only `;` and `,` are allowed at this point; an exception will be thrown otherwise.
 
@@ -196,7 +196,7 @@ defmodule Transport.IRVE.DataFrame do
   end
 
   @doc """
-  Remove quotes, word characters & whitespaces, then attempts to identify columns separators
+  Remove quotes, word characters & whitespaces, then attempt to identify columns separators
   and their frequencies of appearance.
 
   iex> Transport.IRVE.DataFrame.separators_frequencies("hello;world;nice")
