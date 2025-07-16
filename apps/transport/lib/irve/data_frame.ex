@@ -139,7 +139,7 @@ defmodule Transport.IRVE.DataFrame do
   @doc """
   Attempts to guess the column delimiter based on the provided body.
 
-  Only `;` and `,` are allowed at this point ; an exception will be thrown otherwise.
+  Only `;` and `,` are allowed at this point; an exception will be thrown otherwise.
 
   ### Classic cases
 
