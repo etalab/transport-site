@@ -456,7 +456,8 @@ defmodule Transport.ImportDataTest do
         %{"format" => "gtfs-rt"},
         %{"format" => "siri"},
         %{"format" => "siri lite"},
-        %{"format" => "csv"}
+        %{"format" => "csv"},
+        %{"format" => "ssim"}
       ]
     }
 
@@ -467,7 +468,8 @@ defmodule Transport.ImportDataTest do
              "gtfs-rt" => 1,
              "NeTEx" => 1,
              "SIRI" => 1,
-             "SIRI Lite" => 1
+             "SIRI Lite" => 1,
+             "SSIM" => 1
            }
   end
 
