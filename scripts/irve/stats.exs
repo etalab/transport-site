@@ -49,3 +49,19 @@ sources
   Stats.cached_download!(url, file)
   Stats.inspect(Stats.compute(file), file |> Path.basename())
 end)
+
+# Variation useful when comparing files locally:
+#
+# files = [
+#   {:prod, "~/git/transport/backups/irve/consolidation-nationale-irve-statique.csv"},
+#   {:dev_master, "~/git/transport/backups/irve/master.csv"},
+#   {:dev_separator, "~/git/transport/backups/irve/upgrade.csv"},
+# ]
+
+# IO.puts "====================="
+
+# files
+# |> Enum.each(fn({name, file}) ->
+#   file = Path.expand(file)
+#   Stats.inspect(Stats.compute(file), name)
+# end)
