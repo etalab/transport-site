@@ -1,6 +1,6 @@
 defmodule Transport.IRVE.DataFrameTest do
   use ExUnit.Case, async: true
-  doctest Transport.IRVE.DataFrame
+  doctest Transport.IRVE.DataFrame, import: true
 
   test "schema content" do
     data =
