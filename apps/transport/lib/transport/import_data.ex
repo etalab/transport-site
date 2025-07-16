@@ -357,6 +357,7 @@ defmodule Transport.ImportData do
     |> Enum.concat(get_valid_gtfs_rt_resources(resources))
     |> Enum.concat(get_valid_siri_resources(resources))
     |> Enum.concat(get_valid_siri_lite_resources(resources))
+    |> Enum.concat(get_valid_ssim_resources(resources))
     |> Enum.concat(get_valid_documentation_resources(resources))
   end
 
@@ -417,6 +418,11 @@ defmodule Transport.ImportData do
   @spec get_valid_siri_lite_resources([map()]) :: [map()]
   def get_valid_siri_lite_resources(resources) do
     resources |> Enum.filter(&siri_lite?/1) |> Enum.map(fn r -> %{r | "format" => "SIRI Lite"} end)
+  end
+
+  @spec get_valid_ssim_resources([map()]) :: [map()]
+  def get_valid_ssim_resources(resources) do
+    resources |> Enum.filter(&ssim?/1) |> Enum.map(fn r -> %{r | "format" => "SSIM"} end)
   end
 
   @spec get_community_resources(map()) :: [map()]
@@ -634,6 +640,19 @@ defmodule Transport.ImportData do
   end
 
   def siri_lite?(format), do: format?(format, "SIRI Lite")
+
+  @doc """
+  iex> ssim?("ssim")
+  true
+  iex> ssim?("SSIM")
+  true
+  iex> ssim?(%{"format" => "ssim"})
+  true
+  iex> ssim?("gtfs")
+  false
+  """
+  @spec ssim?(binary() | map() | nil) :: boolean()
+  def ssim?(format), do: format?(format, "SSIM")
 
   @doc """
   Does a format matches another format/list of candidate formats?
