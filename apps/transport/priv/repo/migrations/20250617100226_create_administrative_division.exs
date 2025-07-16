@@ -53,9 +53,9 @@ defmodule DB.Repo.Migrations.CreateAdministrativeDivision do
         WHERE NOT nom = 'National'
         UNION
         SELECT
-          'national_0' AS type_insee,
+          'pays_0' AS type_insee,
           '0' AS insee,
-          'national' AS type,
+          'pays' AS type,
           'France' AS nom,
           ST_Union(geom) AS geom
         FROM region

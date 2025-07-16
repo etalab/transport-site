@@ -1,7 +1,7 @@
 defmodule DB.AdministrativeDivision do
   @moduledoc """
   AdministrativeDivision schema.
-  
+
   This concept is used to represent various levels of divisions of the French territory:
   - Communes
   - Departments
@@ -9,30 +9,27 @@ defmodule DB.AdministrativeDivision do
   - [EPCIs](https://fr.wikipedia.org/wiki/Établissement_public_de_coopération_intercommunale)
   - The whole country itself
   - (more could actually be added here)
-  
+
   Unlike pre-existing concepts (`DB.Commune`/`DB.Region`/`DB.EPCI`), `DB.AdministrativeDivision` does not currently include relationships between the various entities.
 
-  At the moment, data is replicated & denormalised from the `commune`, `epci`, `departement` and `region` tables. 
+  At the moment, data is replicated & denormalised from the `commune`, `epci`, `departement` and `region` tables.
   This is done to simplify the queries and the data model for some use cases: search, link to dataset, etc.
 
-    Other approaches were considered (such as using a materialized view, leveraging the existing separate tables). For example, a materialized view would not allow us to use foreign keys, which is important for data integrity.
+    Other approaches were considered (such as using a materialized view, leveraging the existing separate tables).
+    For example, a materialized view would not allow us to use foreign keys, which is important for data integrity.
   """
   use Ecto.Schema
   use TypedEctoSchema
   import Ecto.Changeset
+
+  @types ~w(commune departement epci region pays)a
 
   typed_schema "administrative_division" do
     field(:type_insee, :string)
     field(:insee, :string)
 
     field(:type, Ecto.Enum,
-      values: [
-        :commune,
-        :departement,
-        :epci,
-        :region,
-        :national
-      ],
+      values: @types,
       null: false
     )
 
@@ -57,10 +54,7 @@ defmodule DB.AdministrativeDivision do
       :nom,
       :geom
     ])
-    |> validate_inclusion(
-      :type,
-      ~w(commune departement epci region)a
-    )
+    |> validate_inclusion(:type, @types)
 
     # |> validate_type_insee_is_consistent()
   end
