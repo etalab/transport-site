@@ -25,7 +25,9 @@ defmodule DB.AdministrativeDivision do
   @types ~w(commune departement epci region pays)a
 
   typed_schema "administrative_division" do
+    # type_insee is a unique meaningful identifier, e.g. "commune_75056" for Paris
     field(:type_insee, :string)
+
     field(:insee, :string)
 
     field(:type, Ecto.Enum,
@@ -55,13 +57,20 @@ defmodule DB.AdministrativeDivision do
       :geom
     ])
     |> validate_inclusion(:type, @types)
-
-    # |> validate_type_insee_is_consistent()
+    |> validate_type_insee_is_consistent()
   end
 
-  # def validate_type_insee_is_consistent(changeset) do
-  # changeset
-  # end
+  def validate_type_insee_is_consistent(changeset) do
+    type_insee = get_field(changeset, :type_insee)
+    type = get_field(changeset, :type)
+    insee = get_field(changeset, :insee)
+
+    if type_insee && type && insee && "#{type}_#{insee}" == type_insee do
+      changeset
+    else
+      add_error(changeset, :type_insee, "is not consistent with type and insee")
+    end
+  end
 
   @doc """
   Used for search, usage:

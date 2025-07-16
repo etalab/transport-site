@@ -36,6 +36,26 @@ defmodule DB.AdministrativeDivisionTest do
              DB.AdministrativeDivision |> Ecto.Query.last() |> DB.Repo.one!()
   end
 
+  test "validate_type_insee_is_consistent" do
+    changeset =
+      DB.AdministrativeDivision.changeset(%DB.AdministrativeDivision{}, %{
+        insee: "13111",
+        type_insee: "commune_13111",
+        type: :commune
+      })
+
+    refute Enum.any?(changeset.errors, fn {key, _} -> key == :type_insee end)
+
+    changeset =
+      DB.AdministrativeDivision.changeset(%DB.AdministrativeDivision{}, %{
+        # Wrong type_insee
+        type_insee: "departement_13111",
+        type: :commune
+      })
+
+    assert type_insee: {"is not consistent with type and insee", []} in changeset.errors
+  end
+
   test "search" do
     insert(:administrative_division, type: :commune, type_insee: "commune_12345", insee: "12345", nom: "Test Commune")
 
