@@ -75,8 +75,14 @@ defmodule DB.Dataset do
       on_replace: :delete
     )
 
-    many_to_many(:new_covered_areas, DB.AdministrativeDivision,
-      join_through: "dataset_new_covered_area",
+    # This links the dataset to one or more `DB.AdministrativeDivision`. The x/y data
+    # contained within the dataset's resources should more or less be consistent with
+    # the polygons defining the territories of associated administrative divisions.
+    #
+    # Not to be confused with the "legal owners" (or even with the "publishers")
+    # of the data.
+    many_to_many(:declarative_spatial_areas, DB.AdministrativeDivision,
+      join_through: "dataset_declarative_spatial_area",
       on_replace: :delete
     )
 
@@ -508,7 +514,7 @@ defmodule DB.Dataset do
       :legal_owners_aom,
       :legal_owners_region,
       :organization_object,
-      :new_covered_areas
+      :declarative_spatial_areas
     ])
     |> cast(params, [
       :datagouv_id,
@@ -553,7 +559,7 @@ defmodule DB.Dataset do
     |> maybe_set_custom_logo_changed_at()
     |> put_assoc(:legal_owners_aom, legal_owners_aom)
     |> put_assoc(:legal_owners_region, legal_owners_region)
-    |> put_assoc(:new_covered_areas, get_administrative_divisions(params))
+    |> put_assoc(:declarative_spatial_areas, get_administrative_divisions(params))
     |> validate_required([
       :datagouv_id,
       :custom_title,
@@ -629,7 +635,7 @@ defmodule DB.Dataset do
     end
   end
 
-  defp get_administrative_divisions(%{"new_covered_areas" => ids}) do
+  defp get_administrative_divisions(%{"declarative_spatial_areas" => ids}) do
     Repo.all(from(ad in DB.AdministrativeDivision, where: ad.id in ^ids))
   end
 
