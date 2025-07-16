@@ -158,7 +158,8 @@ defmodule Transport.IRVE.DataFrame do
   iex> guess_delimiter!("hello;world,again")
   ** (RuntimeError) Could not guess column delimiter (frequencies: %{"," => 1, ";" => 1})
 
-  Not seen in production, but for testing cases, a lack of separator is allowed and "," is then assumed:
+  During unit tests, bodies with a single column (hence not column separator) are allowed.
+  In that case "," is assumed:
 
   iex> guess_delimiter!("a_single_column")
   ","
