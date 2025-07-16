@@ -16,52 +16,6 @@ defmodule DB.Repo.Migrations.CreateAdministrativeDivision do
     create(unique_index(:administrative_division, [:type_insee]))
     create(index(:administrative_division, [:nom]))
 
-    execute(
-      """
-        INSERT INTO administrative_division (type_insee, insee, type, nom, geom)
-        SELECT
-        CONCAT('commune_', insee) AS type_insee,
-        insee,
-        'commune' AS type,
-        nom,
-        geom
-        FROM commune
-        UNION
-        SELECT
-        CONCAT('epci_', insee) AS type_insee,
-        insee,
-        'epci' AS type,
-        nom,
-        geom
-        FROM epci
-        UNION
-        SELECT
-        CONCAT('departement_', insee) AS type_insee,
-        insee,
-        'departement' AS type,
-        nom,
-        geom
-        FROM departement
-        UNION
-        SELECT
-        CONCAT('region_', insee) AS type_insee,
-        insee,
-        'region' AS type,
-        nom,
-        geom
-        FROM region
-        WHERE NOT nom = 'National'
-        UNION
-        SELECT
-          'pays_0' AS type_insee,
-          '0' AS insee,
-          'pays' AS type,
-          'France' AS nom,
-          ST_Union(geom) AS geom
-        FROM region
-        ;
-      """,
-      ""
-    )
+    # NOTE: To populate this table, run: mix Transport.PopulateAdministrativeDivisions
   end
 end
