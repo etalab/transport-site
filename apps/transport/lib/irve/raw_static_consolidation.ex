@@ -98,8 +98,8 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     end
 
     header_separator = hint_header_separator(body)
-    # we only support comma at this point. NOTE: commas can be here too
-    if header_separator == ";" do
+
+    unless header_separator in [";", ","] do
       raise("unsupported column separator #{header_separator}")
     end
 

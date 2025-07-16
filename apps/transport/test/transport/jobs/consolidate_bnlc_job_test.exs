@@ -138,6 +138,11 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
           },
           # Ignored, not the expected schema
           %{"format" => "GTFS"},
+          # Ignored: XLSX
+          %{
+            "schema" => %{"name" => @target_schema},
+            "format" => "xlsx"
+          },
           other_resource = %{
             "schema" => %{"name" => @target_schema},
             "url" => other_url = "https://example.com/other_file.csv"

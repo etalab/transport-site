@@ -19,6 +19,10 @@ defmodule Transport.IRVE.DataFrame do
   There is no attempt to make this generic at this point, it is focusing solely
   on the static IRVE use.
 
+  Only comma `,` and semicolon `;` column separators are supported. The column separator
+  is inferred from the first line of the file. An exception will be raised
+  if an unsupported separator is encountered.
+
   In strict mode (the default), the types are remapped as follow:
 
   iex> Transport.IRVE.DataFrame.remap_schema_type(:geopoint)
@@ -124,11 +128,88 @@ defmodule Transport.IRVE.DataFrame do
         }
       end)
 
+    delimiter = guess_delimiter!(body)
+
     # to be tested - do not call `load_csv!` as it will `inspect` the error
-    case Explorer.DataFrame.load_csv(body, dtypes: dtypes) do
+    case Explorer.DataFrame.load_csv(body, dtypes: dtypes, delimiter: delimiter) do
       {:ok, df} -> df
       {:error, error} -> raise(error)
     end
+  end
+
+  @doc """
+  Attempt to guess the column delimiter based on the provided body.
+
+  Only `;` and `,` are allowed at this point; an exception will be thrown otherwise.
+
+  Once the data is stripped, if only commas are remaining, this is what gets picked:
+
+  iex> guess_delimiter!("hello,world")
+  ","
+
+  Same for semi-colons:
+
+  iex> guess_delimiter!("hello;world;again")
+  ";"
+
+  In cases where we have mixed separators, an error is raised:
+
+  iex> guess_delimiter!("hello;world,again")
+  ** (RuntimeError) Could not guess column delimiter (frequencies: %{"," => 1, ";" => 1})
+
+  During unit tests, bodies with a single column (hence not column separator) are allowed.
+  In that case "," is assumed:
+
+  iex> guess_delimiter!("a_single_column")
+  ","
+
+  An attempt to remove quotes, whitespaces, and UTF-8 BOM is done:
+
+  iex> guess_delimiter!("\\uFEFF\\"hello_foobar  \\",  world, again\r")
+  ","
+
+  """
+  def guess_delimiter!(body) do
+    col_seps_frequencies = body |> first_line |> remove_bom() |> separators_frequencies()
+    separators = Map.keys(col_seps_frequencies)
+
+    # pattern match individually, so we can raise a proper error message
+    # if we cannot determine the column separator with good certainty
+    case separators do
+      [";"] -> ";"
+      [","] -> ","
+      # for single column testing files, at this point
+      [] -> ","
+      _ -> raise "Could not guess column delimiter (frequencies: #{col_seps_frequencies |> inspect})"
+    end
+  end
+
+  def first_line(body) do
+    body
+    |> String.split("\n", parts: 2)
+    |> hd()
+  end
+
+  def remove_bom(string) do
+    string
+    |> String.replace("\uFEFF", "")
+  end
+
+  @doc """
+  Remove quotes, word characters & whitespaces, then attempt to identify columns separators
+  and their frequencies of appearance.
+
+  iex> Transport.IRVE.DataFrame.separators_frequencies("hello;world;nice")
+  %{";" => 2}
+
+  iex> Transport.IRVE.DataFrame.separators_frequencies("hello,\\"world\\";nice, extra \r")
+  %{";" => 1, "," => 2}
+  """
+  def separators_frequencies(string) do
+    ~r/"|\w|\s/
+    |> Regex.replace(string, "")
+    |> String.graphemes()
+    |> Enum.frequencies()
   end
 
   @doc """

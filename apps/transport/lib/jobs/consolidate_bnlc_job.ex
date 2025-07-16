@@ -474,6 +474,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     analyze_dataset = fn %{"resources" => resources} = dataset_details ->
       resources
       |> Enum.filter(&with_appropriate_schema?/1)
+      |> Enum.reject(&xlsx?/1)
       |> Enum.map(fn %{"url" => _} = resource -> analyze_resource.(dataset_details, resource) end)
     end
 
@@ -573,6 +574,19 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   @spec with_appropriate_schema?(map()) :: boolean()
   def with_appropriate_schema?(%{"schema" => %{"name" => name}}) when name == @schema_name, do: true
   def with_appropriate_schema?(%{}), do: false
+
+  @doc """
+  iex> xlsx?(%{"format" => "csv"})
+  false
+  iex> xlsx?(%{"format" => "xlsx"})
+  true
+  iex> xlsx?(%{"title" => "hello.xlsx"})
+  true
+  """
+  @spec xlsx?(map()) :: boolean()
+  def xlsx?(%{"format" => "xlsx"}), do: true
+  def xlsx?(%{"title" => title}), do: String.contains?(title |> String.downcase(), "xlsx")
+  def xlsx?(_), do: false
 
   @doc """
   iex> dataset_slug_to_url("foo")
