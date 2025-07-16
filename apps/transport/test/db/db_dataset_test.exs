@@ -853,7 +853,7 @@ defmodule DB.DatasetDBTest do
                "logo" => "https://example.com/pic.jpg",
                "full_logo" => "https://example.com/pic.jpg",
                "frequency" => "daily",
-               "new_covered_areas" => [departement.id],
+               "declarative_spatial_areas" => [departement.id],
                "region_id" => 1,
                "organization_id" => Ecto.UUID.generate(),
                "tags" => [],
@@ -862,9 +862,9 @@ defmodule DB.DatasetDBTest do
 
     {:ok, dataset} = changeset |> DB.Repo.insert_or_update()
 
-    dataset = dataset |> DB.Repo.preload(:new_covered_areas)
+    dataset = dataset |> DB.Repo.preload(:declarative_spatial_areas)
 
-    [linked_departement] = dataset.new_covered_areas
+    [linked_departement] = dataset.declarative_spatial_areas
 
     assert linked_departement.id == departement.id
     assert linked_departement.nom == "Isère"
@@ -877,17 +877,17 @@ defmodule DB.DatasetDBTest do
     assert {:ok, changeset} =
              DB.Dataset.changeset(%{
                "datagouv_id" => dataset.datagouv_id,
-               "new_covered_areas" => [commune.id, departement.id]
+               "declarative_spatial_areas" => [commune.id, departement.id]
              })
 
     {:ok, changed_dataset} = changeset |> DB.Repo.insert_or_update()
 
-    changed_dataset = changed_dataset |> DB.Repo.preload(:new_covered_areas)
+    changed_dataset = changed_dataset |> DB.Repo.preload(:declarative_spatial_areas)
 
     # Should still be the same dataset
     assert changed_dataset.id == dataset.id
 
-    [updated_area_1, updated_area_2] = changed_dataset.new_covered_areas
+    [updated_area_1, updated_area_2] = changed_dataset.declarative_spatial_areas
     assert updated_area_1.id == departement.id
     assert updated_area_2.id == commune.id
   end

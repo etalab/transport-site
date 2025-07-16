@@ -1,4 +1,4 @@
-defmodule DB.Repo.Migrations.CreateDatasetNewCoveredArea do
+defmodule DB.Repo.Migrations.CreateDatasetDeclarativeSpatialArea do
   use Ecto.Migration
 
   def change do
