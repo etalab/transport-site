@@ -19,8 +19,9 @@ defmodule Transport.IRVE.DataFrame do
   There is no attempt to make this generic at this point, it is focusing solely
   on the static IRVE use.
 
-  Only comma `,` and semicolon `;` are supported. An exception will be raised
-  if other separators are met.
+  Only comma `,` and semicolon `;` column separators are supported. The column separator
+  is inferred from the first line of the file. An exception will be raised
+  if an unsupported separator is encountered.
 
   In strict mode (the default), the types are remapped as follow:
 
