@@ -141,7 +141,33 @@ defmodule Transport.IRVE.DataFrame do
 
   Only `;` and `,` are allowed at this point ; an exception will be thrown otherwise.
 
-  iex>
+  ### Classic cases
+
+  Once the data is stripped, if only commas are remaining, this is what gets picked:
+
+  iex> guess_delimiter!("hello,world")
+  ","
+
+  Same for semi-colons:
+
+  iex> guess_delimiter!("hello;world;again")
+  ";"
+
+  In cases where we have mixed separators, an error is raised:
+
+  iex> guess_delimiter!("hello;world,again")
+  ** (RuntimeError) Could not guess column delimiter (frequencies: %{"," => 1, ";" => 1})
+
+  Not seen in production, but for testing cases, a lack of separator is allowed and "," is then assumed:
+
+  iex> guess_delimiter!("a_single_column")
+  ","
+
+  An attempt to remove quotes, whitespaces, and UTF-8 BOM is done:
+
+  iex> guess_delimiter!("\\uFEFF\\"hello_foobar  \\",  world, again\r")
+  ","
+
   """
   def guess_delimiter!(body) do
     col_seps_frequencies = body |> first_line |> remove_bom() |> separators_frequencies()
