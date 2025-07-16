@@ -142,8 +142,6 @@ defmodule Transport.IRVE.DataFrame do
 
   Only `;` and `,` are allowed at this point; an exception will be thrown otherwise.
 
-  ### Classic cases
-
   Once the data is stripped, if only commas are remaining, this is what gets picked:
 
   iex> guess_delimiter!("hello,world")
