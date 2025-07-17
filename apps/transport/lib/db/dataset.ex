@@ -639,6 +639,9 @@ defmodule DB.Dataset do
     Repo.all(from(ad in DB.AdministrativeDivision, where: ad.id in ^ids))
   end
 
+  # NOTE: potentially problematic in case the previous match fails for incorrect reasons.
+  # A stricter fail-fast pattern could protect us a bit better, but has not been implemented
+  # due to time constraints at the moment.
   defp get_administrative_divisions(_), do: []
 
   @spec format_error(any()) :: binary()
