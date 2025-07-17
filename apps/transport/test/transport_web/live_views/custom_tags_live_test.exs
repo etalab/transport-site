@@ -16,7 +16,9 @@ defmodule TransportWeb.CustomTagsLiveTest do
         # needs to be preloaded
         legal_owners_aom: [],
         # same
-        legal_owners_region: []
+        legal_owners_region: [],
+        # again
+        declarative_spatial_areas: []
       )
 
     {:ok, view, _html} =

@@ -128,7 +128,9 @@ defmodule TransportWeb.EditDatasetLiveTest do
       insert(:dataset,
         datagouv_id: "1234",
         legal_owners_aom: [insert(:aom, nom: aom_name = "Bordeaux Métropole")],
-        legal_owners_region: [insert(:region, nom: region_name = "jolie région")]
+        legal_owners_region: [insert(:region, nom: region_name = "jolie région")],
+        # needs to be preloaded
+        declarative_spatial_areas: []
       )
 
     {:ok, view, _html} =
@@ -154,7 +156,9 @@ defmodule TransportWeb.EditDatasetLiveTest do
         datagouv_id: "1234",
         legal_owner_company_siren: siren = "552049447",
         legal_owners_aom: [],
-        legal_owners_region: []
+        legal_owners_region: [],
+        # needs to be preloaded
+        declarative_spatial_areas: []
       )
 
     {:ok, view, _html} =
