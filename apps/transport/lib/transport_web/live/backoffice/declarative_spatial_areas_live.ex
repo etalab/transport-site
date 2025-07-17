@@ -40,7 +40,7 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
       <div :for={{division, index} <- Enum.with_index(@declarative_spatial_areas)} class="pt-6">
         <span class={["label", "custom-tag"] ++ [color_class(division)]}>
           <%= division.nom %> (<%= division.type %>)
-          <span class="delete-tag" phx-click="remove_tag" phx-value-id={division.id} phx-target={@myself}></span>
+          <span class="delete-tag" phx-click="remove_division" phx-value-id={division.id} phx-target={@myself}></span>
         </span>
         <%= Phoenix.HTML.Form.hidden_input(@form, "declarative_spatial_area_#{index}", value: division.id) %>
       </div>
@@ -94,6 +94,18 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
     send(self(), {:updated_spatial_areas, declarative_spatial_areas})
 
     {:noreply, socket |> assign(administrative_division_search_matches: [])}
+  end
+
+  def handle_event("remove_division", %{"id" => id}, socket) do
+    declarative_spatial_areas =
+      socket.assigns.declarative_spatial_areas
+      |> Enum.reject(fn division ->
+        division.id == String.to_integer(id)
+      end)
+
+    send(self(), {:updated_spatial_areas, declarative_spatial_areas})
+
+    {:noreply, socket}
   end
 
   def clear_input(socket) do
