@@ -1,0 +1,18 @@
+<% xsd_errors = length([]) %>
+
+<ul>
+  <li>
+    <.netex_compatibility errors={xsd_errors} category="xsd-schema" label={dgettext("validations", "XSD NeTEx")} />
+  </li>
+</ul>
+
+<%= if @issues.total_entries > 0 do %>
+  <div class="main-pane">
+    <%= pagination_links(@conn, @issues, [@resource.id],
+      issue_type: @results_adapter.issue_type(@issues.entries),
+      path: &resource_path/4,
+      action: :details
+    ) %>
+    <%= render(netex_template(@issues), issues: @issues || [], conn: @conn) %>
+  </div>
+<% end %>
