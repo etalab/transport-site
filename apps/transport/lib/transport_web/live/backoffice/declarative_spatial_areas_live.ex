@@ -5,6 +5,38 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
   def render(assigns) do
     ~H"""
     <div class="pt-24">
+      <label>
+        Une ou plusieurs communes, EPCI, département, région
+      </label>
+      <%= InputHelpers.text_input(
+        @form,
+        :declarative_spatial_areas_input,
+        placeholder: "Paris",
+        phx_keydown: "search_division",
+        phx_target: @myself,
+        id: "declarative_spatial_areas_input"
+      ) %>
+      <div
+        :if={@administrative_division_search_matches != []}
+        class="autoCompleteResultsField"
+        id="administrative_divisions_suggestions"
+      >
+        <div id="autoCompleteResults">
+          <ul id="autoComplete_list">
+            <li class="autoComplete_result"></li>
+            <li class="autoComplete_result"></li>
+            <%= for match <- @administrative_division_search_matches do %>
+              <li class="autoComplete_result" phx-target={@myself} phx-click="select_division" phx-value-id={match.id} }>
+                <div>
+                  <span class="autocomplete_name"><%= match.nom %></span>
+                  <span class="autocomplete_type"><%= match.type %></span>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+
       <div :for={{division, index} <- Enum.with_index(@declarative_spatial_areas)} class="pt-6">
         <span class={["label", "custom-tag"] ++ [color_class(division)]}>
           <%= division.nom %> (<%= division.type %>)
@@ -12,8 +44,46 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
         </span>
         <%= Phoenix.HTML.Form.hidden_input(@form, "declarative_spatial_area_#{index}", value: division.id) %>
       </div>
+      # TODO : make search names and tag names pretty (with accents etc)
+      # TODO : localize the label
+      # TODO : I’ve removed         list: "administrative_divisions_suggestions" to the text input, I don’t think it was needed
     </div>
     """
+  end
+
+  def mount(socket) do
+    searchable_administrative_divisions = DB.AdministrativeDivision.load_searchable_administrative_divisions()
+
+    socket =
+      socket
+      |> assign(
+        :searchable_administrative_divisions,
+        searchable_administrative_divisions
+      )
+      |> assign(:administrative_division_search_matches, [])
+
+    {:ok, socket}
+  end
+
+  def handle_event("search_division", %{"key" => "Escape"}, socket) do
+    {:noreply, assign(socket, administrative_division_search_matches: [])}
+  end
+
+  def handle_event("search_division", %{"value" => ""}, socket) do
+    {:noreply, assign(socket, matches: [])}
+  end
+
+  def handle_event("search_division", %{"value" => query}, socket) when byte_size(query) <= 100 do
+    matches =
+      socket.assigns.searchable_administrative_divisions
+      |> DB.AdministrativeDivision.search(query)
+      |> Enum.take(5)
+
+    {:noreply, assign(socket, administrative_division_search_matches: matches)}
+  end
+
+  def handle_event("search_division", _, socket) do
+    {:noreply, socket}
   end
 
   def color_class(division) do
