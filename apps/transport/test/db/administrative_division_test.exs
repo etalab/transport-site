@@ -1,6 +1,7 @@
 defmodule DB.AdministrativeDivisionTest do
   use ExUnit.Case, async: true
   import DB.Factory
+  doctest DB.AdministrativeDivision, import: true
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)

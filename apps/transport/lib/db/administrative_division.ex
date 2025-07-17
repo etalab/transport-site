@@ -70,9 +70,11 @@ defmodule DB.AdministrativeDivision do
   end
 
   @doc """
-  Used for search, usage:
-  territoires = DB.AdministrativeDivisions.load_searchable_administrative_divisions
-  DB.AdministrativeDivisions.search(territoires, "75")
+  Used for search, quick example use:
+
+  iex> insert(:administrative_division, nom: "FouDouFaFa")
+  iex> (search(load_searchable_administrative_divisions(), "fou") |> hd()).nom
+  "FouDouFaFa"
   """
   def load_searchable_administrative_divisions do
     Transport.SearchCommunes.load_administrative_divisions()
