@@ -140,6 +140,9 @@ defmodule Transport.GbfsToGeojsonTest do
       geojsons = Transport.GbfsToGeojson.gbfs_geojsons(gbfs_endpoint, %{})
 
       assert geojsons["geofencing_zones"] == %{
+               "global_rules" => [
+                 %{"ride_end_allowed" => true, "ride_start_allowed" => true, "ride_through_allowed" => true}
+               ],
                "type" => "FeatureCollection",
                "features" => [
                  %{
@@ -363,7 +366,12 @@ defmodule Transport.GbfsToGeojsonTest do
                             }
                         }
                     ]
-                }
+                },
+                "global_rules": [{
+                  "ride_start_allowed": true,
+                  "ride_end_allowed": true,
+                  "ride_through_allowed": true
+                }]
             }
         }
         """
