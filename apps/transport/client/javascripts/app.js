@@ -44,7 +44,7 @@ window.addEventListener('phx:backoffice-form-owner-reset', () => {
 })
 
 window.addEventListener('phx:backoffice-form-spatial-areas-reset', () => {
-    document.getElementById('declarative_spatial_areas_input').value = ''
+    document.getElementById('spatial_areas_search_input').value = ''
 })
 
 window.addEventListener('phx:gtfs-diff:scroll-to-steps', () => {

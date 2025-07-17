@@ -10,11 +10,11 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
       </label>
       <%= InputHelpers.text_input(
         @form,
-        :declarative_spatial_areas_input,
+        :spatial_areas_search_input,
         placeholder: "Paris",
         phx_keydown: "search_division",
         phx_target: @myself,
-        id: "declarative_spatial_areas_input"
+        id: "spatial_areas_search_input"
       ) %>
       <div
         :if={@administrative_division_search_matches != []}
