@@ -40,23 +40,19 @@ defmodule DB.AdministrativeDivision do
     field(:geom, Geo.PostGIS.Geometry) :: Geo.MultiPolygon.t()
   end
 
+  # NOTE: we could infer the type_insee from other fields if needed?
+  @cast_attributes [
+      :insee,
+      :type,
+      :type_insee,
+      :nom,
+      :geom
+    ]
+
   def changeset(administrative_division, attrs) do
     administrative_division
-    |> cast(attrs, [
-      :insee,
-      :type,
-      :type_insee,
-      :nom,
-      :geom
-    ])
-    # |> We could infer the type_insee from other fields if needed?
-    |> validate_required([
-      :insee,
-      :type,
-      :type_insee,
-      :nom,
-      :geom
-    ])
+    |> cast(attrs, @cast_attributes)
+    |> validate_required(@cast_attributes)
     |> validate_inclusion(:type, @types)
     |> validate_type_insee_is_consistent()
   end
