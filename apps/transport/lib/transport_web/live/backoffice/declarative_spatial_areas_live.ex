@@ -89,12 +89,11 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
   def handle_event("select_division", %{"id" => id}, socket) do
     division = DB.AdministrativeDivision |> DB.Repo.get!(id)
 
-
     declarative_spatial_areas = socket.assigns.declarative_spatial_areas ++ [division]
 
     send(self(), {:updated_spatial_areas, declarative_spatial_areas})
 
-    {:noreply, socket |> assign(administrative_division_search_matches: []) |> clear_input()}
+    {:noreply, socket |> assign(administrative_division_search_matches: [])}
   end
 
   def clear_input(socket) do
@@ -105,8 +104,4 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
   defp color_class(division) do
     "red"
   end
-
-
-
-
 end

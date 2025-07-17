@@ -161,7 +161,12 @@ defmodule TransportWeb.EditDatasetLive do
   end
 
   def handle_info({:updated_spatial_areas, updated_spatial_areas}, socket) do
-    {:noreply, socket |> assign(:declarative_spatial_areas, updated_spatial_areas)}
+    {
+      :noreply,
+      socket
+      |> assign(:declarative_spatial_areas, updated_spatial_areas)
+      |> TransportWeb.DeclarativeSpatialAreasLive.clear_input()
+    }
   end
 
   # get the result from the async Task triggered by "change_dataset"
