@@ -1,12 +1,13 @@
 defmodule TransportWeb.DeclarativeSpatialAreasLive do
   use Phoenix.LiveComponent
   alias TransportWeb.InputHelpers
+  use Gettext, backend: TransportWeb.Gettext
 
   def render(assigns) do
     ~H"""
     <div class="pt-24">
       <label>
-        Une ou plusieurs communes, EPCI, département, région
+        <%= dgettext("backoffice", "spatial areas label") %>
       </label>
       <%= InputHelpers.text_input(
         @form,
@@ -44,9 +45,6 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
         </span>
         <%= Phoenix.HTML.Form.hidden_input(@form, "declarative_spatial_area_#{index}", value: division.id) %>
       </div>
-      # TODO : make search names and tag names pretty (with accents etc)
-      # TODO : localize the label
-      # TODO : avoid duplicates
     </div>
     """
   end
