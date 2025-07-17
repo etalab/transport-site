@@ -113,7 +113,9 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
     push_event(socket, "backoffice-form-spatial-areas-reset", %{})
   end
 
-  defp color_class(division) do
-    "red"
-  end
+  defp color_class(%DB.AdministrativeDivision{type: :commune}), do: "green"
+  defp color_class(%DB.AdministrativeDivision{type: :epci}), do: "blue"
+  defp color_class(%DB.AdministrativeDivision{type: :departement}), do: "orange"
+  defp color_class(%DB.AdministrativeDivision{type: :region}), do: "grey"
+  defp color_class(%DB.AdministrativeDivision{type: :pays}), do: "red"
 end

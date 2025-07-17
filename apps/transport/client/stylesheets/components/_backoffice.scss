@@ -188,6 +188,15 @@
   &.blue {
     background-color: var(--lighter-blue);
   }
+  &.orange {
+    background-color: var(--light-orange);
+  }
+  &.grey {
+    background-color: var(--lighter-grey);
+  }
+  &.red {
+    background-color: var(--light-red);
+  }
   .delete-tag {
     cursor: pointer;
     display: inline-block;
