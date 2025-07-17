@@ -10,13 +10,14 @@ defmodule DB.AdministrativeDivision do
   - The whole country itself
   - (more could actually be added here)
 
-  Unlike pre-existing concepts (`DB.Commune`/`DB.Region`/`DB.EPCI`), `DB.AdministrativeDivision` does not currently include relationships between the various entities.
+  Unlike pre-existing concepts (`DB.Commune`/`DB.Region`/`DB.EPCI`), `DB.AdministrativeDivision` does not currently
+  include relationships between the various entities.
 
   At the moment, data is replicated & denormalised from the `commune`, `epci`, `departement` and `region` tables.
   This is done to simplify the queries and the data model for some use cases: search, link to dataset, etc.
 
-    Other approaches were considered (such as using a materialized view, leveraging the existing separate tables).
-    For example, a materialized view would not allow us to use foreign keys, which is important for data integrity.
+  Other approaches were considered (such as using a materialized view, leveraging the existing separate tables).
+  For example, a materialized view would not allow us to use foreign keys, which is important for data integrity.
   """
   use Ecto.Schema
   use TypedEctoSchema
