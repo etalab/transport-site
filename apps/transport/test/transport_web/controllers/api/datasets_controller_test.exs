@@ -831,7 +831,13 @@ defmodule TransportWeb.API.DatasetControllerTest do
 
   defp setup_empty_history_resources do
     expect(Transport.History.Fetcher.Mock, :history_resources, fn %DB.Dataset{}, options ->
-      assert Keyword.equal?(options, preload_validations: false, max_records: 25, fetch_mode: :all)
+      assert Keyword.equal?(options,
+               preload_validations: false,
+               max_records: 25,
+               fetch_mode: :all,
+               only_metadata: false
+             )
+
       []
     end)
   end

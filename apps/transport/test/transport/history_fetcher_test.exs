@@ -39,6 +39,7 @@ defmodule Transport.History.FetcherTest do
         Transport.History.Fetcher.Database.history_resources(dataset,
           max_records: 25,
           preload_validations: true,
+          only_metadata: false,
           fetch_mode: :all
         )
 
@@ -56,6 +57,7 @@ defmodule Transport.History.FetcherTest do
                Transport.History.Fetcher.Database.history_resources(dataset,
                  max_records: 1,
                  preload_validations: true,
+                 only_metadata: false,
                  fetch_mode: :all
                )
              ) == 1
@@ -63,8 +65,24 @@ defmodule Transport.History.FetcherTest do
       assert Transport.History.Fetcher.Database.history_resources(insert(:dataset),
                max_records: 25,
                preload_validations: true,
+               only_metadata: false,
                fetch_mode: :all
              ) == []
+
+      # multi_validation details are not fetched when `only_metadata == true`
+      Enum.each([true, false], fn only_metadata ->
+        resources_history =
+          Transport.History.Fetcher.Database.history_resources(dataset,
+            max_records: 25,
+            preload_validations: true,
+            only_metadata: only_metadata,
+            fetch_mode: :all
+          )
+
+        rh_with_metadata = resources_history |> Enum.find(&(&1.id == resource_history.id))
+        [validation] = rh_with_metadata.validations
+        assert Map.has_key?(validation, :inserted_at) == not only_metadata
+      end)
     end
   end
 end
