@@ -86,7 +86,27 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
     {:noreply, socket}
   end
 
-  def color_class(division) do
+  def handle_event("select_division", %{"id" => id}, socket) do
+    division = DB.AdministrativeDivision |> DB.Repo.get!(id)
+
+
+    declarative_spatial_areas = socket.assigns.declarative_spatial_areas ++ [division]
+
+    send(self(), {:updated_spatial_areas, declarative_spatial_areas})
+
+    {:noreply, socket |> assign(administrative_division_search_matches: []) |> clear_input()}
+  end
+
+  def clear_input(socket) do
+    # TODO: this doesn’t work, the input is not cleared
+    push_event(socket, "backoffice-form-spatial-areas-reset", %{})
+  end
+
+  defp color_class(division) do
     "red"
   end
+
+
+
+
 end
