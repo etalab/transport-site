@@ -22,6 +22,7 @@ defmodule DB.AdministrativeDivision do
   use Ecto.Schema
   use TypedEctoSchema
   import Ecto.Changeset
+  use Gettext, backend: TransportWeb.Gettext
 
   @types ~w(commune departement epci region pays)a
 
@@ -83,4 +84,13 @@ defmodule DB.AdministrativeDivision do
   def search(territoires, term) do
     Transport.SearchCommunes.filter(territoires, term)
   end
+
+  def display_type(%DB.AdministrativeDivision{type: :commune}), do: dgettext("administrative_division", "municipality")
+
+  def display_type(%DB.AdministrativeDivision{type: :departement}),
+    do: dgettext("administrative_division", "department")
+
+  def display_type(%DB.AdministrativeDivision{type: :epci}), do: dgettext("administrative_division", "EPCI")
+  def display_type(%DB.AdministrativeDivision{type: :region}), do: dgettext("administrative_division", "region")
+  def display_type(%DB.AdministrativeDivision{type: :pays}), do: dgettext("administrative_division", "country")
 end
