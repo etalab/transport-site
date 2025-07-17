@@ -55,7 +55,8 @@ defmodule TransportWeb.DatasetController do
         :history_resources,
         Transport.History.Fetcher.history_resources(dataset,
           max_records: max_nb_history_resources(),
-          preload_validations: true
+          preload_validations: true,
+          only_metadata: true
         )
       )
       |> assign(:latest_resources_history_infos, DB.ResourceHistory.latest_dataset_resources_history_infos(dataset))

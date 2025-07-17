@@ -10,7 +10,14 @@ defmodule Transport.History.Fetcher do
   def impl, do: Application.get_env(:transport, :history_impl)
 
   def history_resources(%DB.Dataset{} = dataset, options \\ []) do
-    options = Keyword.validate!(options, max_records: nil, preload_validations: true, fetch_mode: :all)
+    options =
+      Keyword.validate!(options,
+        max_records: nil,
+        preload_validations: true,
+        fetch_mode: :all,
+        only_metadata: false
+      )
+
     impl().history_resources(dataset, options)
   end
 end
@@ -27,15 +34,23 @@ defmodule Transport.History.Fetcher.Database do
   def history_resources(%DB.Dataset{id: dataset_id}, options \\ []) do
     # NOTE: default values are provided by the wrapper
     preload_validations = Keyword.fetch!(options, :preload_validations)
+    only_metadata = Keyword.fetch!(options, :only_metadata)
     max_records = Keyword.fetch!(options, :max_records)
     fetch_mode = Keyword.fetch!(options, :fetch_mode)
 
-    latest_resource_history_validation =
+    query =
       DB.MultiValidation.base_query()
       |> distinct([mv], mv.resource_history_id)
       |> order_by([mv], asc: mv.resource_history_id, desc: mv.inserted_at)
-      |> DB.ResourceMetadata.join_validation_with_metadata()
-      |> select([metadata: m], %{metadata: m})
+
+    latest_resource_history_validation =
+      if only_metadata do
+        query
+        |> DB.ResourceMetadata.join_validation_with_metadata()
+        |> select([metadata: m], %{metadata: m})
+      else
+        query |> preload(:metadata)
+      end
 
     dataset_id_sub =
       DB.ResourceHistory.base_query()
