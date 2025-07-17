@@ -31,10 +31,11 @@ defmodule Transport.History.Fetcher.Database do
     fetch_mode = Keyword.fetch!(options, :fetch_mode)
 
     latest_resource_history_validation =
-      DB.MultiValidation
+      DB.MultiValidation.base_query()
       |> distinct([mv], mv.resource_history_id)
       |> order_by([mv], asc: mv.resource_history_id, desc: mv.inserted_at)
-      |> preload(:metadata)
+      |> DB.ResourceMetadata.join_validation_with_metadata()
+      |> select([metadata: m], %{metadata: m})
 
     dataset_id_sub =
       DB.ResourceHistory.base_query()
