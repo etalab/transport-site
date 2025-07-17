@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.Transport.PopulateAdministrativeDivisions do
   @moduledoc """
   Populates the administrative_division table with data from existing tables (commune, epci, departement, region).
-  Run with `mix Transport.PopulateAdministrativeDivisions`.
+  Run with `WORKER=0 mix Transport.PopulateAdministrativeDivisions`.
   """
 
   use Mix.Task
