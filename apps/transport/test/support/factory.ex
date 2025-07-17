@@ -195,6 +195,28 @@ defmodule DB.Factory do
     }
   end
 
+  def administrative_division_factory do
+    %DB.AdministrativeDivision{
+      insee: "38",
+      type_insee: "departement_38",
+      type: :departement,
+      nom: "Isère",
+      geom: %Geo.Polygon{
+        coordinates: [
+          [
+            {55.0, 3.0},
+            {60.0, 3.0},
+            {60.0, 5.0},
+            {55.0, 5.0},
+            {55.0, 3.0}
+          ]
+        ],
+        srid: 4326,
+        properties: %{}
+      }
+    }
+  end
+
   @doc """
   Useful function to insert in one call everything needed for resource related tests.
   A dataset, a resource, a resource history, a multi_validation, some metadata
