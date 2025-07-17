@@ -92,7 +92,7 @@ defmodule TransportWeb.EditDatasetLive do
   def get_custom_tags(_), do: []
 
   def get_declarative_spatial_areas(%Dataset{} = dataset) do
-    dataset.declaravive_spatial_areas || []
+    dataset.declarative_spatial_areas || []
   end
 
   def get_declarative_spatial_areas(_), do: []
