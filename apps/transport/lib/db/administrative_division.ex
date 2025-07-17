@@ -42,12 +42,12 @@ defmodule DB.AdministrativeDivision do
 
   # NOTE: we could infer the type_insee from other fields if needed?
   @cast_attributes [
-      :insee,
-      :type,
-      :type_insee,
-      :nom,
-      :geom
-    ]
+    :insee,
+    :type,
+    :type_insee,
+    :nom,
+    :geom
+  ]
 
   def changeset(administrative_division, attrs) do
     administrative_division
