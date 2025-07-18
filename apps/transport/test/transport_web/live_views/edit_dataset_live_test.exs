@@ -121,7 +121,7 @@ defmodule TransportWeb.EditDatasetLiveTest do
     assert render(view) =~ "Ce jeu de données est déjà référencé"
   end
 
-  test "dataset form, show legal AOM owners saved in database", %{conn: conn} do
+  test "dataset form, show legal AOM owners and spatial areas saved in database", %{conn: conn} do
     conn = conn |> setup_admin_in_session()
 
     dataset =
@@ -130,7 +130,14 @@ defmodule TransportWeb.EditDatasetLiveTest do
         legal_owners_aom: [insert(:aom, nom: aom_name = "Bordeaux Métropole")],
         legal_owners_region: [insert(:region, nom: region_name = "jolie région")],
         # needs to be preloaded
-        declarative_spatial_areas: []
+        declarative_spatial_areas: [
+          insert(:administrative_division,
+            type: :epci,
+            insee: "123456789",
+            type_insee: "epci_123456789",
+            nom: "Mon EPCI"
+          )
+        ]
       )
 
     {:ok, view, _html} =
@@ -146,6 +153,7 @@ defmodule TransportWeb.EditDatasetLiveTest do
     assert render(view) =~ "Représentants légaux"
     assert render(view) =~ aom_name
     assert render(view) =~ region_name
+    assert render(view) =~ "Mon EPCI (123456789 – EPCI)"
   end
 
   test "dataset form, show legal company owner saved in database", %{conn: conn} do
