@@ -34,6 +34,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
       |> transform_custom_tags_to_list()
       |> transform_legal_owners_aom_to_list()
       |> transform_legal_owners_region_to_list()
+      |> transform_declarative_spatial_areas_to_list()
 
     with datagouv_id when not is_nil(datagouv_id) <- dataset_datagouv_id,
          {:ok, dg_dataset} <- ImportData.import_from_data_gouv(datagouv_id, form_params["type"]),
@@ -83,6 +84,13 @@ defmodule TransportWeb.Backoffice.DatasetController do
   defp transform_legal_owners_aom_to_list(form_params) do
     aoms = for {"legal_owners_aom" <> _, aom_id} <- form_params, do: aom_id |> String.to_integer()
     Map.put(form_params, "legal_owners_aom", aoms)
+  end
+
+  defp transform_declarative_spatial_areas_to_list(form_params) do
+    declarative_spatial_areas =
+      for {"declarative_spatial_area" <> _, division_id} <- form_params, do: division_id |> String.to_integer()
+
+    Map.put(form_params, "declarative_spatial_areas", declarative_spatial_areas)
   end
 
   @spec insert_dataset(Ecto.Changeset.t()) :: {:ok, Dataset.t()} | {:error, binary}

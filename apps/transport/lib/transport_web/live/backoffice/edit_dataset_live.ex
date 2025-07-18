@@ -39,6 +39,7 @@ defmodule TransportWeb.EditDatasetLive do
       |> assign(:trigger_submit, false)
       |> assign(:form_params, form_params(dataset))
       |> assign(:custom_tags, get_custom_tags(dataset))
+      |> assign(:declarative_spatial_areas, get_declarative_spatial_areas(dataset))
       |> assign(:matches, [])
 
     {:ok, socket}
@@ -89,6 +90,12 @@ defmodule TransportWeb.EditDatasetLive do
   end
 
   def get_custom_tags(_), do: []
+
+  def get_declarative_spatial_areas(%Dataset{} = dataset) do
+    dataset.declarative_spatial_areas || []
+  end
+
+  def get_declarative_spatial_areas(_), do: []
 
   def organization_types,
     do: [
@@ -151,6 +158,15 @@ defmodule TransportWeb.EditDatasetLive do
 
   def handle_info({:updated_custom_tags, custom_tags}, socket) do
     {:noreply, socket |> assign(:custom_tags, custom_tags)}
+  end
+
+  def handle_info({:updated_spatial_areas, updated_spatial_areas}, socket) do
+    {
+      :noreply,
+      socket
+      |> assign(:declarative_spatial_areas, updated_spatial_areas)
+      |> TransportWeb.DeclarativeSpatialAreasLive.clear_input()
+    }
   end
 
   # get the result from the async Task triggered by "change_dataset"

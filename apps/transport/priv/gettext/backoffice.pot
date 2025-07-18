@@ -79,10 +79,6 @@ msgid "Edit a dataset"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Associated territory"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Choose one"
 msgstr ""
 
@@ -311,3 +307,15 @@ msgid "reuser-count"
 msgid_plural "reusers-count"
 msgstr[0] ""
 msgstr[1] ""
+
+#, elixir-autogen, elixir-format
+msgid "Spatial area (legacy)"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Spatial area (new)"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "spatial areas label"
+msgstr ""

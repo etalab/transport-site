@@ -79,12 +79,8 @@ msgid "Edit a dataset"
 msgstr "Édition d'un jeu de données"
 
 #, elixir-autogen, elixir-format
-msgid "Associated territory"
-msgstr "Territoire associé"
-
-#, elixir-autogen, elixir-format
 msgid "Choose one"
-msgstr "Choisissez l'une des options"
+msgstr "Choisissez l'une des options. Ce territoire est celui actuellement affiché publiquement."
 
 #, elixir-autogen, elixir-format
 msgid "Dataset linked to a list of cities in data.gouv.fr"
@@ -311,3 +307,15 @@ msgid "reuser-count"
 msgid_plural "reusers-count"
 msgstr[0] "%{reusers_count} réutilisateur."
 msgstr[1] "%{reusers_count} réutilisateurs."
+
+#, elixir-autogen, elixir-format
+msgid "Spatial area (legacy)"
+msgstr "Territoire couvert déclaré (ancienne version)"
+
+#, elixir-autogen, elixir-format
+msgid "Spatial area (new)"
+msgstr "Territoire couvert déclaré (nouvelle version)"
+
+#, elixir-autogen, elixir-format
+msgid "spatial areas label"
+msgstr "Choisissez un ou plusieurs communes, EPCI, départements, régions ou pays. Ceci n’est pas affiché publiquement (site, API) pour l’instant."
