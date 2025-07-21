@@ -503,18 +503,24 @@ defmodule DB.Dataset do
   defp apply_changeset(%__MODULE__{} = dataset, params) do
     territory_name = Map.get(params, "associated_territory_name") || dataset.associated_territory_name
 
+    dataset =
+      dataset
+      |> Repo.preload([
+        :legal_owners_aom,
+        :legal_owners_region,
+        :declarative_spatial_areas
+      ])
+
     legal_owners_aom = get_legal_owners_aom(dataset, params)
     legal_owners_region = get_legal_owners_region(dataset, params)
+    declarative_spatial_areas = get_administrative_divisions(dataset, params)
 
     dataset
     |> Repo.preload([
       :resources,
       :communes,
       :region,
-      :legal_owners_aom,
-      :legal_owners_region,
-      :organization_object,
-      :declarative_spatial_areas
+      :organization_object
     ])
     |> cast(params, [
       :datagouv_id,
@@ -559,7 +565,7 @@ defmodule DB.Dataset do
     |> maybe_set_custom_logo_changed_at()
     |> put_assoc(:legal_owners_aom, legal_owners_aom)
     |> put_assoc(:legal_owners_region, legal_owners_region)
-    |> put_assoc(:declarative_spatial_areas, get_administrative_divisions(params))
+    |> put_assoc(:declarative_spatial_areas, declarative_spatial_areas)
     |> validate_required([
       :datagouv_id,
       :custom_title,
@@ -635,14 +641,19 @@ defmodule DB.Dataset do
     end
   end
 
-  defp get_administrative_divisions(%{"declarative_spatial_areas" => ids}) do
-    Repo.all(from(ad in DB.AdministrativeDivision, where: ad.id in ^ids))
-  end
+  defp get_administrative_divisions(dataset, params) do
+    case params["declarative_spatial_areas"] do
+      nil ->
+        if Ecto.assoc_loaded?(dataset.declarative_spatial_areas) do
+          dataset.declarative_spatial_areas
+        else
+          []
+        end
 
-  # NOTE: potentially problematic in case the previous match fails for incorrect reasons.
-  # A stricter fail-fast pattern could protect us a bit better, but has not been implemented
-  # due to time constraints at the moment.
-  defp get_administrative_divisions(_), do: []
+      ids ->
+        Repo.all(from(ad in DB.AdministrativeDivision, where: ad.id in ^ids))
+    end
+  end
 
   @spec format_error(any()) :: binary()
   defp format_error(changeset), do: "#{inspect(Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end))}"

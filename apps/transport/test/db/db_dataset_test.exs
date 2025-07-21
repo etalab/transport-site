@@ -890,5 +890,22 @@ defmodule DB.DatasetDBTest do
     [updated_area_1, updated_area_2] = changed_dataset.declarative_spatial_areas
     assert updated_area_1.id == departement.id
     assert updated_area_2.id == commune.id
+
+    # Make sure we don't erase existing covered areas
+    assert {:ok, changeset} =
+             DB.Dataset.changeset(%{
+               "datagouv_id" => dataset.datagouv_id
+             })
+
+    {:ok, changed_dataset} = changeset |> DB.Repo.update()
+
+    changed_dataset = changed_dataset |> DB.Repo.preload(:declarative_spatial_areas)
+
+    # Should still be the same dataset
+    assert changed_dataset.id == dataset.id
+
+    [updated_area_1, updated_area_2] = changed_dataset.declarative_spatial_areas
+    assert updated_area_1.id == departement.id
+    assert updated_area_2.id == commune.id
   end
 end
