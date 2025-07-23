@@ -33,6 +33,10 @@ defmodule Transport.SearchCommunes do
   [
     %{insee: "75116", nom: "Paris", normalized_nom: "paris"},
   ]
+  iex> Transport.SearchCommunes.filter(l, "hôpital")
+  [
+    %{insee: "71343", nom: "Paris-l'Hôpital", normalized_nom: "parislhopital"}
+  ]
   """
   @spec filter([map()], binary()) :: [map()]
   def filter(communes, term) do
@@ -40,7 +44,7 @@ defmodule Transport.SearchCommunes do
     num_term = get_num(term)
 
     communes
-    |> Stream.filter(fn c -> String.starts_with?(c.normalized_nom, alpha_term) end)
+    |> Stream.filter(fn c -> String.contains?(c.normalized_nom, alpha_term) end)
     |> Stream.filter(fn c -> search_insee(c, num_term) end)
     |> Enum.to_list()
   end
