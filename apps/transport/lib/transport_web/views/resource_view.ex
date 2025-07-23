@@ -51,10 +51,17 @@ defmodule TransportWeb.ResourceView do
     "_gtfs#{template}"
   end
 
-  def netex_template(_issues) do
-    # For now only 1 template has been designed. More to come when the validator
-    # has matured.
-    "_netex_generic_issue.html"
+  def netex_template(category \\ "") do
+    template =
+      Map.get(
+        %{
+          "xsd-schema" => "_xsd_schema.html"
+        },
+        category,
+        "_generic_issue.html"
+      )
+
+    "_netex#{template}"
   end
 
   def has_associated_files(%{} = resources_related_files, resource_id) do
@@ -308,5 +315,69 @@ defmodule TransportWeb.ResourceView do
         dataset: %DB.Dataset{datagouv_id: dataset_datagouv_id}
       }) do
     "https://explore.data.gouv.fr/fr/datasets/#{dataset_datagouv_id}/#/resources/#{resource_datagouv_id}"
+  end
+
+  def netex_compatibility(%{irrelevant: true, label: _} = assigns) do
+    ~H"""
+    <.irrelevant_icon /> <.compatibility_filter label={@label} irrelevant={@irrelevant} />
+    (<%= dgettext("validations", "irrelevant here") %>)
+    """
+  end
+
+  def netex_compatibility(%{errors: _, category: _, label: _, learn_more_url: _} = assigns) do
+    ~H"""
+    <.netex_compatibility errors={@errors} category={@category} label={@label} /> -
+    <a href={@learn_more_url} target="_blank"><%= dgettext("validations", "Learn more") %></a>
+    """
+  end
+
+  def netex_compatibility(%{errors: errors, category: _, label: _} = assigns) when errors > 0 do
+    ~H"""
+    <.validity_icon errors={@errors} />
+    <.compatibility_filter href={"?issues_category=#{@category}#issues"} label={@label} />
+    (<%= dngettext("validations", "1 error", "%{count} errors", @errors) %>)
+    """
+  end
+
+  def netex_compatibility(%{errors: _, label: _} = assigns) do
+    ~H"""
+    <.validity_icon errors={@errors} /> <.compatibility_filter label={@label} />
+    """
+  end
+
+  def compatibility_filter(%{irrelevant: true, label: _} = assigns) do
+    ~H"""
+    <span class="compatibility_filter irrelevant"><%= @label %></span>
+    """
+  end
+
+  def compatibility_filter(%{href: _, label: _} = assigns) do
+    ~H"""
+    <a class="compatibility_filter" href={@href}><%= @label %></a>
+    """
+  end
+
+  def compatibility_filter(%{label: _} = assigns) do
+    ~H"""
+    <span class="compatibility_filter"><%= @label %></span>
+    """
+  end
+
+  def validity_icon(%{errors: errors} = assigns) when errors > 0 do
+    ~H"""
+    <i class="fa fa-xmark"></i>
+    """
+  end
+
+  def validity_icon(assigns) do
+    ~H"""
+    <i class="fa fa-check"></i>
+    """
+  end
+
+  def irrelevant_icon(assigns) do
+    ~H"""
+    <i class="fa fa-minus"></i>
+    """
   end
 end
