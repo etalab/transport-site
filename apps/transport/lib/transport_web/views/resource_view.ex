@@ -331,6 +331,14 @@ defmodule TransportWeb.ResourceView do
     """
   end
 
+  def netex_compatibility(%{errors: errors, category: _, label: _, token: _} = assigns) when errors > 0 do
+    ~H"""
+    <.validity_icon errors={@errors} />
+    <.compatibility_filter href={"?token=#{@token}&issues_category=#{@category}#issues"} label={@label} />
+    (<%= dngettext("validations", "1 error", "%{count} errors", @errors) %>)
+    """
+  end
+
   def netex_compatibility(%{errors: errors, category: _, label: _} = assigns) when errors > 0 do
     ~H"""
     <.validity_icon errors={@errors} />

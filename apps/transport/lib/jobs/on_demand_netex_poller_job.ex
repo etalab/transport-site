@@ -77,6 +77,7 @@ defmodule Transport.Jobs.OnDemandNeTExPollerJob do
       metadata: metadata,
       data_vis: nil,
       validator: Validator.validator_name(),
+      validator_version: Validator.validator_version(),
       validated_data_name: url,
       max_error: ResultsAdapter.get_max_severity_error(validation),
       oban_args: Helpers.completed()
@@ -86,7 +87,8 @@ defmodule Transport.Jobs.OnDemandNeTExPollerJob do
   defp build_error_validation_result(%{message: msg}) do
     %{
       oban_args: Helpers.error(msg),
-      validator: Validator.validator_name()
+      validator: Validator.validator_name(),
+      validator_version: Validator.validator_version()
     }
   end
 end
