@@ -339,7 +339,7 @@ defmodule TransportWeb.Backoffice.PageController do
       case when d.custom_tags is null or cardinality(d.custom_tags) = 0 then null else d.custom_tags end dataset_custom_tags,
       d.organization_type type_publicateur,
       coalesce(a.nom, re.nom) nom_territoire,
-      administrative_division.nom nom_territoire_new,
+      administrative_division.noms nom_territoire_new,
       coalesce(legal_owners.noms, d.legal_owner_company_siren::varchar) representants_legaux,
       case when d.is_active and d.archived_at is null then 'actif' when not d.is_active then 'supprimé' when d.archived_at is not null then 'archivé' end statut_datagouv,
       r.title titre_ressource,
