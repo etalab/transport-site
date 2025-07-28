@@ -8,7 +8,8 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
     <div class="pt-24">
       <label>
         <%= dgettext("backoffice", "spatial areas label") %>
-      </label><br>
+      </label>
+      <br />
       <%= InputHelpers.text_input(
         @form,
         :spatial_areas_search_input,
@@ -75,10 +76,11 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
 
   def handle_event("search_division", %{"value" => query}, socket) when byte_size(query) <= 100 do
     existing_ids = Enum.map(socket.assigns.declarative_spatial_areas, & &1.id)
+
     matches =
       socket.assigns.searchable_administrative_divisions
       |> DB.AdministrativeDivision.search(query)
-      |> Enum.reject(& &1.id in existing_ids)
+      |> Enum.reject(&(&1.id in existing_ids))
       |> Enum.take(5)
 
     {:noreply, assign(socket, administrative_division_search_matches: matches)}
