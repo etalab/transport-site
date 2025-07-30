@@ -194,8 +194,9 @@
   &.grey {
     background-color: var(--lighter-grey);
   }
-  &.red {
-    background-color: var(--light-red);
+  &.dark-blue {
+    background-color: var(--dark-blue);
+    color: white;
   }
   .delete-tag {
     cursor: pointer;

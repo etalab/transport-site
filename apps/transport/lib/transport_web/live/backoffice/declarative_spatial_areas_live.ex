@@ -9,10 +9,11 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
       <label>
         <%= dgettext("backoffice", "spatial areas label") %>
       </label>
+      <br />
       <%= InputHelpers.text_input(
         @form,
         :spatial_areas_search_input,
-        placeholder: "Paris",
+        placeholder: "Recherchez votre territoire…",
         phx_keydown: "search_division",
         phx_target: @myself,
         id: "spatial_areas_search_input"
@@ -74,9 +75,12 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
   end
 
   def handle_event("search_division", %{"value" => query}, socket) when byte_size(query) <= 100 do
+    existing_ids = Enum.map(socket.assigns.declarative_spatial_areas, & &1.id)
+
     matches =
       socket.assigns.searchable_administrative_divisions
       |> DB.AdministrativeDivision.search(query)
+      |> Enum.reject(&(&1.id in existing_ids))
       |> Enum.take(5)
 
     {:noreply, assign(socket, administrative_division_search_matches: matches)}
@@ -117,5 +121,5 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
   defp color_class(%DB.AdministrativeDivision{type: :epci}), do: "blue"
   defp color_class(%DB.AdministrativeDivision{type: :departement}), do: "orange"
   defp color_class(%DB.AdministrativeDivision{type: :region}), do: "grey"
-  defp color_class(%DB.AdministrativeDivision{type: :pays}), do: "red"
+  defp color_class(%DB.AdministrativeDivision{type: :pays}), do: "dark-blue"
 end
