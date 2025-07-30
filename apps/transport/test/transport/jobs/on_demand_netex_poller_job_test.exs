@@ -51,7 +51,9 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
                         "error_reason" => "enRoute Chouette Valid: Timeout while fetching results"
                       },
                       result: nil,
-                      validation_timestamp: date
+                      validation_timestamp: date,
+                      validator: "enroute-chouette-netex-validator",
+                      validator_version: "saas-production"
                     } = validation |> DB.Repo.reload() |> DB.Repo.preload(:metadata)
 
              assert DateTime.diff(date, DateTime.utc_now()) <= 1
@@ -71,7 +73,9 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
              metadata: %{},
              oban_args: %{"state" => "completed", "type" => "netex"},
              result: %{},
-             validation_timestamp: date
+             validation_timestamp: date,
+             validator: "enroute-chouette-netex-validator",
+             validator_version: "saas-production"
            } = validation |> DB.Repo.reload() |> DB.Repo.preload(:metadata)
 
     assert DateTime.diff(date, DateTime.utc_now()) <= 1

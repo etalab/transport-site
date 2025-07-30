@@ -339,6 +339,7 @@ defmodule TransportWeb.Backoffice.PageController do
       case when d.custom_tags is null or cardinality(d.custom_tags) = 0 then null else d.custom_tags end dataset_custom_tags,
       d.organization_type type_publicateur,
       coalesce(a.nom, re.nom) nom_territoire,
+      administrative_division.noms nom_territoire_new,
       coalesce(legal_owners.noms, d.legal_owner_company_siren::varchar) representants_legaux,
       case when d.is_active and d.archived_at is null then 'actif' when not d.is_active then 'supprimé' when d.archived_at is not null then 'archivé' end statut_datagouv,
       r.title titre_ressource,
@@ -384,6 +385,14 @@ defmodule TransportWeb.Backoffice.PageController do
       ) t
       group by dataset_id
     ) legal_owners on legal_owners.dataset_id = d.id
+    left join (
+       select
+        ddsa.dataset_id,
+        string_agg(ad.nom, ',' order by ad.nom) noms
+      from dataset_declarative_spatial_area ddsa
+      join administrative_division ad on ad.id = ddsa.administrative_division_id
+      group by ddsa.dataset_id
+    ) administrative_division on administrative_division.dataset_id = d.id
     left join multi_validation mv on mv.resource_history_id = rh.id
     left join resource_metadata rm on rm.multi_validation_id = mv.id
     -- FIXME: we should be able to do a single query for `dataset_score`

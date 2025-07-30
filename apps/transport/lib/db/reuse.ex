@@ -156,7 +156,12 @@ defmodule DB.Reuse do
 
   defp transform_metric_keys(%Ecto.Changeset{} = changeset, attributes) do
     attributes
-    |> Enum.filter(fn {k, _v} -> String.starts_with?(k, "metric.") end)
+    |> Map.take([
+      "metric.datasets",
+      "metric.discussions",
+      "metric.followers",
+      "metric.views"
+    ])
     |> Enum.map(fn {k, v} ->
       {k |> String.replace(".", "_") |> String.to_existing_atom(), String.to_integer(v)}
     end)
