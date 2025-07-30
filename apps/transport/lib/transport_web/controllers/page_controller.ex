@@ -8,7 +8,6 @@ defmodule TransportWeb.PageController do
 
   def index(conn, _params) do
     conn
-    |> assign(:mailchimp_newsletter_url, Application.get_env(:transport, :mailchimp_newsletter_url))
     |> merge_assigns(home_index_stats())
     |> assign(:tiles, home_tiles(conn) |> Enum.map(&patch_vls_tiles/1))
     |> put_breaking_news(DB.BreakingNews.get_breaking_news())
@@ -74,9 +73,7 @@ defmodule TransportWeb.PageController do
   end
 
   def infos_producteurs(conn, _params) do
-    conn
-    |> assign(:mailchimp_newsletter_url, Application.get_env(:transport, :mailchimp_newsletter_url))
-    |> render("infos_producteurs.html")
+    conn |> render("infos_producteurs.html")
   end
 
   def infos_reutilisateurs(%Plug.Conn{} = conn, _params), do: render(conn, "infos_reutilisateurs.html")

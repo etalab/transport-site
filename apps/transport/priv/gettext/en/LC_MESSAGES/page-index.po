@@ -16,10 +16,6 @@ msgstr ""
 msgid "Reuse data"
 msgstr ""
 
-#, elixir-autogen
-msgid "Email address"
-msgstr ""
-
 msgid "Subscribe to our email newsletter to receive update"
 msgstr ""
 
