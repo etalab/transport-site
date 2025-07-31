@@ -76,6 +76,10 @@ defmodule TransportWeb.CustomTagsLive do
       %{
         name: Application.fetch_env!(:transport, :data_sharing_pilot_dataset_custom_tag),
         doc: "Indique que ce jeu de données est éligible à l'expérimentation du repartage de données améliorées"
+      },
+      %{
+        name: "authentification_experimentation",
+        doc: "Indique que pour ce jeu de données on utilisera des URLs en transport.data.gouv.fr"
       }
     ]
   end

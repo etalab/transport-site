@@ -22,7 +22,6 @@ defmodule TransportWeb.API.DatasetController do
     :legal_owners_region,
     resources: [:dataset]
   ]
-  @pan_org_id Application.compile_env!(:transport, :datagouvfr_transport_publisher_id)
 
   @spec open_api_operation(any) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
@@ -298,7 +297,8 @@ defmodule TransportWeb.API.DatasetController do
       end
 
     latest_url =
-      if DB.Resource.pan_resource?(resource) or DB.Resource.served_by_proxy?(resource) do
+      if DB.Resource.pan_resource?(resource) or DB.Resource.served_by_proxy?(resource) or
+           DB.Dataset.has_custom_tag?(resource.dataset, "authentification_experimentation") do
         DB.Resource.download_url(resource)
       else
         resource.latest_url
@@ -382,11 +382,11 @@ defmodule TransportWeb.API.DatasetController do
     datasets_with_gtfs_metadata =
       DB.Dataset.base_query()
       |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
-      |> preload([resource: r, resource_history: rh, multi_validation: mv, metadata: m], [
+      |> preload([resource: r, resource_history: rh, multi_validation: mv, metadata: m, dataset: d], [
         :aom,
         :region,
         :communes,
-        resources: {r, resource_history: {rh, validations: {mv, metadata: m}}}
+        resources: {r, dataset: d, resource_history: {rh, validations: {mv, metadata: m}}}
       ])
       |> Repo.all(timeout: 40_000)
 
@@ -398,7 +398,7 @@ defmodule TransportWeb.API.DatasetController do
       |> DB.ResourceMetadata.join_resource_with_metadata()
       |> where([resource: r], r.format == "gtfs-rt")
       |> where([metadata: rm], rm.inserted_at > ^recent_limit)
-      |> preload([resource: r, metadata: m], resources: {r, resource_metadata: m})
+      |> preload([resource: r, metadata: m, dataset: d], resources: {r, dataset: d, resource_metadata: m})
       |> DB.Repo.all()
 
     datasets_with_metadata =
@@ -441,6 +441,7 @@ defmodule TransportWeb.API.DatasetController do
       |> preload([resource_history: rh, multi_validation: mv, metadata: m],
         resource_history: {rh, validations: {mv, metadata: m}}
       )
+      |> preload(:dataset)
       |> where([resource: r], r.dataset_id == ^dataset.id)
       |> select([resource: r], {r.id, r})
       |> DB.Repo.all()
@@ -453,6 +454,7 @@ defmodule TransportWeb.API.DatasetController do
       |> where([metadata: rm], rm.inserted_at > ^recent_limit)
       |> where([resource: r], r.dataset_id == ^dataset.id)
       |> preload([metadata: m], resource_metadata: m)
+      |> preload(:dataset)
       |> select([resource: r], {r.id, r})
       |> DB.Repo.all()
 
@@ -491,6 +493,7 @@ defmodule TransportWeb.API.DatasetController do
   # Add a token to the `latest_url` for resources:
   # - published by the NAP organization.
   # - served by the NAP proxy.
+  # - when the dataset has an experimentation tag.
   #
   # This is done at this stage to still be able to cache responses:
   # - an anonymous HTTP request will be served the cache
@@ -502,7 +505,10 @@ defmodule TransportWeb.API.DatasetController do
        ) do
     resources =
       Enum.map(resources, fn %{"url" => url} = resource ->
-        if pan_publisher?(dataset) or DB.Resource.served_by_proxy?(resource) do
+        is_download_url =
+          url == TransportWeb.Router.Helpers.resource_url(TransportWeb.Endpoint, :download, resource["id"])
+
+        if is_download_url or DB.Resource.served_by_proxy?(resource) do
           Map.put(resource, "url", url <> "?token=#{secret}")
         else
           resource
@@ -513,6 +519,4 @@ defmodule TransportWeb.API.DatasetController do
   end
 
   defp maybe_add_token_urls(dataset, _conn), do: dataset
-
-  defp pan_publisher?(%{"publisher" => %{"id" => organization_id}}), do: organization_id == @pan_org_id
 end

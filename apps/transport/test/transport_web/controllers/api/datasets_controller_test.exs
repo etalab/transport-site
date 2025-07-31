@@ -767,8 +767,53 @@ defmodule TransportWeb.API.DatasetControllerTest do
     assert [%{"url" => ^auth_url}] = json["resources"]
   end
 
+  test "GET /api/datasets/:id with a dataset with experimentation tag", %{conn: conn} do
+    dataset = insert(:dataset, custom_tags: ["authentification_experimentation"])
+    resource = insert(:resource, dataset: dataset)
+    setup_empty_history_resources()
+
+    json = conn |> get(Helpers.dataset_path(conn, :by_id, dataset.datagouv_id)) |> json_response(200)
+
+    download_url = TransportWeb.Router.Helpers.resource_url(TransportWeb.Endpoint, :download, resource.id)
+    assert [%{"url" => ^download_url}] = json["resources"]
+  end
+
+  test "GET /api/datasets/:id with a dataset with experimentation tag and a token", %{conn: conn} do
+    dataset = insert(:dataset, custom_tags: ["authentification_experimentation"])
+    resource = insert(:resource, dataset: dataset)
+    %DB.Token{secret: secret} = insert_token()
+
+    setup_empty_history_resources()
+
+    json =
+      conn
+      |> put_req_header("authorization", secret)
+      |> get(Helpers.dataset_path(conn, :by_id, dataset.datagouv_id))
+      |> json_response(200)
+
+    download_url = TransportWeb.Router.Helpers.resource_url(TransportWeb.Endpoint, :download, resource.id)
+    auth_url = download_url <> "?token=#{secret}"
+    assert [%{"url" => ^auth_url}] = json["resources"]
+  end
+
   test "GET /api/datasets with a PAN dataset and a token", %{conn: conn} do
     dataset = insert(:dataset, organization_id: @pan_org_id)
+    resource = insert(:resource, dataset: dataset)
+    %DB.Token{secret: secret} = insert_token()
+
+    json =
+      conn
+      |> put_req_header("authorization", secret)
+      |> get(Helpers.dataset_path(conn, :datasets))
+      |> json_response(200)
+
+    download_url = TransportWeb.Router.Helpers.resource_url(TransportWeb.Endpoint, :download, resource.id)
+    auth_url = download_url <> "?token=#{secret}"
+    assert [%{"url" => ^auth_url}] = json |> hd() |> Map.get("resources")
+  end
+
+  test "GET /api/datasets with a dataset with experimentation tag and a token", %{conn: conn} do
+    dataset = insert(:dataset, custom_tags: ["authentification_experimentation"])
     resource = insert(:resource, dataset: dataset)
     %DB.Token{secret: secret} = insert_token()
 
