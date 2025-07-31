@@ -234,6 +234,9 @@ defmodule TransportWeb.ResourceController do
     resource = DB.Resource |> DB.Repo.get!(id) |> DB.Repo.preload(:dataset)
 
     cond do
+      DB.Dataset.has_custom_tag?(resource.dataset, "authentification_experimentation") ->
+        conn |> Plug.Conn.send_resp(:ok, "")
+
       DB.Resource.pan_resource?(resource) ->
         conn |> Plug.Conn.send_resp(:ok, "")
 
@@ -255,8 +258,11 @@ defmodule TransportWeb.ResourceController do
     resource = DB.Resource |> DB.Repo.get!(id) |> DB.Repo.preload(:dataset)
 
     cond do
+      DB.Dataset.has_custom_tag?(resource.dataset, "authentification_experimentation") ->
+        log_and_redirect(conn, resource)
+
       DB.Resource.pan_resource?(resource) ->
-        download_pan_resource(conn, resource)
+        log_and_redirect(conn, resource)
 
       DB.Resource.can_direct_download?(resource) ->
         redirect(conn, external: resource.url)
@@ -283,7 +289,7 @@ defmodule TransportWeb.ResourceController do
     end
   end
 
-  defp download_pan_resource(%Plug.Conn{} = conn, %DB.Resource{} = resource) do
+  defp log_and_redirect(%Plug.Conn{} = conn, %DB.Resource{} = resource) do
     case find_token(Map.get(conn.query_params, "token")) do
       {:ok, token} ->
         log_download_request(resource, token)
