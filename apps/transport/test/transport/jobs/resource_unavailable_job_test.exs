@@ -131,7 +131,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
           url: "https://static.data.gouv.fr/gtfs.zip",
           latest_url: latest_url = "https://static.data.gouv.fr/latest_url",
           is_available: true,
-          datagouv_id: "foo"
+          datagouv_id: "foo",
+          dataset: insert(:dataset)
         )
 
       Transport.AvailabilityChecker.Mock |> expect(:available?, fn _format, ^latest_url -> true end)
@@ -236,7 +237,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
           latest_url: latest_url = "https://www.data.gouv.fr/latest_url",
           is_available: true,
           datagouv_id: "foo",
-          filetype: "file"
+          filetype: "file",
+          dataset: insert(:dataset)
         )
 
       expect(Transport.HTTPoison.Mock, :get, fn ^latest_url ->
@@ -259,7 +261,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
           latest_url: "https://static.data.gouv.fr/latest_url",
           is_available: true,
           format: "SIRI",
-          datagouv_id: "foo"
+          datagouv_id: "foo",
+          dataset: insert(:dataset)
         )
 
       Transport.AvailabilityChecker.Mock
@@ -276,7 +279,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
   defp available_resource, do: new_resource(true)
 
   defp new_resource(is_available) do
-    insert(:resource, url: @resource_url, is_available: is_available, datagouv_id: "foo")
+    insert(:resource, url: @resource_url, is_available: is_available, dataset: insert(:dataset))
   end
 
   defp setup_mock_unavailable do
