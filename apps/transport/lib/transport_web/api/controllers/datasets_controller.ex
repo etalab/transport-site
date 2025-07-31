@@ -297,8 +297,7 @@ defmodule TransportWeb.API.DatasetController do
       end
 
     latest_url =
-      if DB.Resource.pan_resource?(resource) or DB.Resource.served_by_proxy?(resource) or
-           DB.Dataset.has_custom_tag?(resource.dataset, "authentification_experimentation") do
+      if use_download_url?(resource) do
         DB.Resource.download_url(resource)
       else
         resource.latest_url
@@ -328,6 +327,11 @@ defmodule TransportWeb.API.DatasetController do
     }
     |> Enum.filter(fn {_, v} -> !is_nil(v) end)
     |> Enum.into(%{})
+  end
+
+  defp use_download_url?(%DB.Resource{} = resource) do
+    DB.Resource.pan_resource?(resource) or DB.Resource.served_by_proxy?(resource) or
+      DB.Dataset.has_custom_tag?(resource.dataset, "authentification_experimentation")
   end
 
   @spec transform_aom(AOM.t() | nil) :: map()
