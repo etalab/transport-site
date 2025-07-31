@@ -392,6 +392,47 @@ defmodule TransportWeb.ResourceControllerTest do
              conn |> resource_href_download_button(resource)
   end
 
+  test "resource#details, dataset with experimentation tag, logged-in user with a default token", %{conn: conn} do
+    dataset = insert(:dataset, custom_tags: ["authentification_experimentation"])
+    resource = insert(:resource, dataset: dataset)
+
+    contact = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+    token = insert_token()
+    insert(:default_token, contact: contact, token: token)
+
+    assert [resource_url(TransportWeb.Endpoint, :download, resource.id, token: token.secret)] ==
+             conn
+             |> Phoenix.ConnTest.init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+             |> resource_href_download_button(resource)
+  end
+
+  test "resource#details, dataset with experimentation tag, logged-in user without a default token", %{conn: conn} do
+    dataset = insert(:dataset, custom_tags: ["authentification_experimentation"])
+    resource = insert(:resource, dataset: dataset)
+
+    organization = insert(:organization)
+
+    insert_contact(%{
+      datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
+      organizations: [organization |> Map.from_struct()]
+    })
+
+    insert_token(%{organization_id: organization.id})
+
+    assert [resource_url(TransportWeb.Endpoint, :download, resource.id)] ==
+             conn
+             |> Phoenix.ConnTest.init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+             |> resource_href_download_button(resource)
+  end
+
+  test "resource#details, dataset with experimentation tag, logged-out user", %{conn: conn} do
+    dataset = insert(:dataset, custom_tags: ["authentification_experimentation"])
+    resource = insert(:resource, dataset: dataset)
+
+    assert [resource_url(TransportWeb.Endpoint, :download, resource.id)] ==
+             conn |> resource_href_download_button(resource)
+  end
+
   test "resource#details, proxy resource, logged-in user with a default token", %{conn: conn} do
     dataset = insert(:dataset)
     resource = insert(:resource, dataset: dataset, url: "https://proxy.transport.data.gouv.fr/#{Ecto.UUID.generate()}")
