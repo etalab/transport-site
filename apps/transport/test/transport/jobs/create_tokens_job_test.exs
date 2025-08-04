@@ -58,4 +58,26 @@ defmodule Transport.Test.Transport.Jobs.CreateTokensJobTest do
     assert [%DB.Token{id: ^token_id}] = DB.Repo.preload(c1, :default_tokens).default_tokens
     assert [%DB.Token{id: ^token_id}] = DB.Repo.preload(c2, :default_tokens).default_tokens
   end
+
+  test "set default token for contacts" do
+    %DB.Organization{id: organization_id} = organization = insert(:organization)
+    c1 = insert_contact(%{organizations: [organization |> Map.from_struct()]})
+
+    # `c2` already has a default token, we should not try to create
+    # a new one.
+    c2 = insert_contact(%{organizations: [organization |> Map.from_struct()]})
+    token = insert_token(%{organization_id: organization.id, contact_id: c2.id})
+    insert(:default_token, %{token: token, contact: c2})
+
+    # c3 is a contact without an organization and should not interfere
+    _c3 = insert_contact()
+
+    assert :ok == perform_job(CreateTokensJob, %{action: "set_default_token_for_contacts"})
+
+    assert [%DB.Token{id: token_id, organization_id: ^organization_id}] =
+             DB.Repo.preload(organization, :tokens).tokens
+
+    assert [%DB.Token{id: ^token_id}] = DB.Repo.preload(c1, :default_tokens).default_tokens
+    assert [%DB.Token{id: ^token_id}] = DB.Repo.preload(c2, :default_tokens).default_tokens
+  end
 end
