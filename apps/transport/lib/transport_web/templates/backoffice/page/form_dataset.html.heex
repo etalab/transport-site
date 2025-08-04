@@ -1,6 +1,11 @@
 <div class="pt-48">
   <%= live_render(@conn, TransportWeb.EditDatasetLive,
-    session: %{"dataset" => @dataset, "dataset_types" => @dataset_types, "regions" => @regions}
+    session: %{
+      "dataset" => @dataset,
+      "dataset_types" => @dataset_types,
+      "regions" => @regions,
+      "csp_nonce_value" => Plug.Conn.get_session(@conn, :nonce)
+    }
   ) %>
 
   <%= unless is_nil(@dataset) do %>
