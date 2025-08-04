@@ -21,7 +21,8 @@ defmodule TransportWeb.EditDatasetLiveTest do
           "dataset" => nil,
           "dataset_types" => [],
           "regions" => [],
-          "form_url" => "url_used_to_post_result"
+          "form_url" => "url_used_to_post_result",
+          "csp_nonce_value" => Ecto.UUID.generate()
         }
       )
 
@@ -54,7 +55,8 @@ defmodule TransportWeb.EditDatasetLiveTest do
           "dataset" => nil,
           "dataset_types" => [],
           "regions" => [],
-          "form_url" => "url_used_to_post_result"
+          "form_url" => "url_used_to_post_result",
+          "csp_nonce_value" => Ecto.UUID.generate()
         }
       )
 
@@ -94,7 +96,8 @@ defmodule TransportWeb.EditDatasetLiveTest do
           "dataset" => nil,
           "dataset_types" => [],
           "regions" => [],
-          "form_url" => "url_used_to_post_result"
+          "form_url" => "url_used_to_post_result",
+          "csp_nonce_value" => Ecto.UUID.generate()
         }
       )
 
@@ -146,7 +149,8 @@ defmodule TransportWeb.EditDatasetLiveTest do
           "dataset" => dataset,
           "dataset_types" => [],
           "regions" => [],
-          "form_url" => "url_used_to_post_result"
+          "form_url" => "url_used_to_post_result",
+          "csp_nonce_value" => Ecto.UUID.generate()
         }
       )
 
@@ -175,7 +179,8 @@ defmodule TransportWeb.EditDatasetLiveTest do
           "dataset" => dataset,
           "dataset_types" => [],
           "regions" => [],
-          "form_url" => "url_used_to_post_result"
+          "form_url" => "url_used_to_post_result",
+          "csp_nonce_value" => Ecto.UUID.generate()
         }
       )
 
@@ -193,7 +198,8 @@ defmodule TransportWeb.EditDatasetLiveTest do
           "dataset" => nil,
           "dataset_types" => [],
           "regions" => [],
-          "form_url" => "url_used_to_post_result"
+          "form_url" => "url_used_to_post_result",
+          "csp_nonce_value" => Ecto.UUID.generate()
         }
       )
 

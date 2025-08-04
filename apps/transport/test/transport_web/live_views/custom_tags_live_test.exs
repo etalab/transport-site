@@ -27,7 +27,8 @@ defmodule TransportWeb.CustomTagsLiveTest do
           "dataset" => dataset,
           "dataset_types" => [],
           "regions" => [],
-          "form_url" => "url_used_to_post_result"
+          "form_url" => "url_used_to_post_result",
+          "csp_nonce_value" => Ecto.UUID.generate()
         }
       )
 
