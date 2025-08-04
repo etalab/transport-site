@@ -11,7 +11,8 @@ defmodule TransportWeb.EditDatasetLive do
         %{
           "dataset" => dataset,
           "dataset_types" => dataset_types,
-          "regions" => regions
+          "regions" => regions,
+          "csp_nonce_value" => nonce
         },
         socket
       ) do
@@ -31,6 +32,7 @@ defmodule TransportWeb.EditDatasetLive do
       socket
       |> assign(:dataset, dataset)
       |> assign(:dataset_types, dataset_types)
+      |> assign(:nonce, nonce)
       |> assign(:regions, regions)
       |> assign(:form_url, form_url)
       |> assign(:dataset_organization, dataset_organization)
