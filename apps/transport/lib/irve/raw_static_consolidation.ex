@@ -210,6 +210,39 @@ defmodule Transport.IRVE.RawStaticConsolidation do
       Transport.IRVE.Extractor.datagouv_resources()
       |> exclude_irrelevant_resources()
       |> maybe_filter(options[:filter])
+      # TODO: generate filter automatically out of the report ("last N erroneous files, sorted by PDC desc - exclude the ones skipped voluntarily")
+      # NOTE: this will require a change in the error raised (e.g. create a `Skipped` generic error to indicate that the skip is on purpose)
+      # TODO: automatically generate a list of dataset gouvs with schema set to `etalab/irve-statique` in incorrect fashion
+      |> Enum.filter(fn(x) -> x.dataset_id in [
+        # %ArgumentError{message: "could not find column name \"id_pdc_local\". The available columns are: [\"nom_amenageur\", \"siren_amenageur\", \"contact_amenageur\", \"nom_operateur\", \"contact_operateur\", \"telephone_operateur\", \"nom_enseigne\", \"id_station_itinerance\", \"id_station_local\", \"nom_station\", \"implantation_station\", \"adresse_station\", \"code_insee_commune\", \"nbre_pdc\", \"id_pdc_itinerance\", \"puissance_nominale\", \"condition_acces\", \"horaires\", \"accessibilite_pmr\", \"restriction_gabarit\", \"raccordement\", \"num_pdl\", \"date_mise_en_service\", \"observations\", \"date_maj\", \"x\", \"y\", \"prise_type_ef\", \"prise_type_2\", \"prise_type_combo_ccs\", \"prise_type_chademo\", \"prise_type_autre\", \"gratuit\", \"paiement_acte\", \"paiement_cb\", \"paiement_autre\", \"reservation\", \"station_deux_roues\"].\nIf you are attempting to interpolate a value, use ^id_pdc_local."}
+        "62ea8cd6af9f2e745fa84023",
+        # %MatchError{term: []}
+        "623ca46c13130c3228abd018",
+        # %ArgumentError{message: "could not find column name \"paiement_cb\". Did you mean:\n\n      * \"paiement_acte\"\n\nIf you are attempting to interpolate a value, use ^paiement_cb."}
+        "650866fc526f1050c8e4e252",
+        # %Protocol.UndefinedError{protocol: String.Chars, value: %{valid: true, last_modified: "2025-06-25T14:46:13.639000+00:00", url: "https://static.data.gouv.fr/resources/irve-statique-organisation-mobilize-power-solutions-1/20250625-144612/data.csv", dataset_id: "6580349e3a7c9c194d2ac080", resource_id: "4eb7fa34-36e7-42ed-8bea-e690ae461fdd", schema_name: "etalab/schema-irve-statique", schema_version: "2.3.1", filetype: "file", dataset_title: "IRVE statique (organisation Mobilize Power Solutions)", dataset_organisation_id: "658033b2a2c177f07e6e815e", dataset_organisation_name: "Mobilize Power Solutions", dataset_organisation_url: "https://www.data.gouv.fr/organizations/mobilize-power-solutions/", resource_title: "Datagouv-mobilize-power-solutions-160625.csv", validation_date: "2025-06-27T04:31:27.540432+02:00"}, description: ""}
+        "6580349e3a7c9c194d2ac080",
+        # %ArgumentError{message: "could not find column name \"paiement_cb\". Did you mean:\n\n      * \"paiement_acte\"\n\nIf you are attempting to interpolate a value, use ^paiement_cb."}
+        "650866fc526f1050c8e4e252",
+        # %ArgumentError{message: "could not find column name \"id_station_local\". Did you mean:\n\n      * \"id_station_itinerance\"\n\nIf you are attempting to interpolate a value, use ^id_station_local."}
+        "61606900558502c87d0c9522",
+        # %ArgumentError{message: "could not find column name \"paiement_autre\". Did you mean:\n\n      * \"paiement_acte\"\n      * \"paiement_cb\"\n      * \"prise_type_autre\"\n\nIf you are attempting to interpolate a value, use ^paiement_autre."}
+        "661e3f4f8ee5dff6c8286fd2",
+        # %Protocol.UndefinedError{protocol: String.Chars, value: %{valid: false, last_modified: "2025-04-03T17:02:33.310000+00:00", url: "https://static.data.gouv.fr/resources/bornes-irve-frsev-sevdec/20250403-170232/datagouv-frsev-feuille-1.csv", dataset_id: "6217d74f63d969a8a59ff393", resource_id: "4e4a7027-fb87-4b28-bf74-0714bbb7063e", schema_name: "etalab/schema-irve-statique", schema_version: nil, filetype: "file", dataset_title: "Bornes IRVE FRSEV SEVDEC", dataset_organisation_id: "620fe6f1ca87bfa9e4e8f2fb", dataset_organisation_name: "SEVDEC", dataset_organisation_url: "https://www.data.gouv.fr/organizations/sevdec/", resource_title: "Référentiel IRVE SEVDEC", validation_date: "2025-04-04T04:27:23.354650+02:00"}, description: ""}
+        "6217d74f63d969a8a59ff393",
+        # %RuntimeError{message: "Could not guess column delimiter (frequencies: %{\",\" => 38, \"-\" => 1})"}
+        "6853b993bb3e53379f17007c",
+        # %RuntimeError{message: "Could not guess column delimiter (frequencies: %{\"-\" => 1, \";\" => 38})"}
+        "65f1c621e07085a369aacc22",
+        # %ArgumentError{message: "could not find column name \"prise_type_ef\". The available columns are: [\"nom_amenageur\", \"siren_amenageur\", \"contact_amenageur\", \"nom_operateur\", \"contact_operateur\", \"telephone_operateur\", \"nom_enseigne\", \"id_pdc_itinerance\", \"etat_pdc\", \"occupation_pdc\", \"horodatage\", \"etat_prise_type_2\", \"adresse_station\", \"code_insee_commune\", \"city\", \"x\", \"y\"].\nIf you are attempting to interpolate a value, use ^prise_type_ef."}
+        "68528db69920c964684f1619",
+        # %MatchError{term: []}
+        "648758b06b99426888c95ccd",
+        # %RuntimeError{message: "Polars Error: found more fields than defined in 'Schema'\n\nConsider setting 'truncate_ragged_lines=true'."}
+        "648758ebd41d68c851fa15c4",
+        # %ArgumentError{message: "could not find column name \"paiement_autre\". Did you mean:\n\n      * \"paiement_acte\"\n      * \"paiement_cb\"\n      * \"prise_type_autre\"\n\nIf you are attempting to interpolate a value, use ^paiement_autre."}
+        "639b3dc995f2a01e710db166"
+      ] end)
       |> Enum.sort_by(fn r -> [r.dataset_id, r.resource_id] end)
       |> Enum.reduce(%{df: nil, report: []}, fn row, %{df: main_df, report: report} ->
         Logger.info("Processing resource #{row.resource_id} (url=#{row.url})")
