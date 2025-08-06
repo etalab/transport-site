@@ -26,16 +26,30 @@ defmodule Transport.IRVE.Static.Probes do
   end
 
   @doc """
-  Attempt to detect column separator on a v2+ file, by looking at what is in front of `id_pdc_itinerance`.
+  Attempt to detect column separator on a v2+ file, by looking at what is around `id_pdc_itinerance`.
 
   Remove double-quotes, in case they are here.
 
-  TODO: be more defensive, only allow supported cases.
+  Works whether `id_pdc_itinerance` is the first column or not.
+
+  ## Examples
+
+  iex> Transport.IRVE.Static.Probes.hint_header_separator("nom_amenageur;id_pdc_itinerance;nom_station")
+  ";"
+
+  iex> Transport.IRVE.Static.Probes.hint_header_separator("id_pdc_itinerance,nom_station,adresse")
+  ","
+
   """
   def hint_header_separator(body) do
     trimmed_first_line = body |> first_line() |> String.replace(~S("), "")
-    [[_, separator]] = Regex.scan(~r/(.)id_pdc_itinerance/, trimmed_first_line)
-    separator
+    case Regex.scan(~r/(.)id_pdc_itinerance|id_pdc_itinerance(.)/, trimmed_first_line) do
+      # regular case where the separator is before the field name
+      [[_, separator, ""]] -> separator  # separator before id_pdc_itinerance
+      # rare edge case where `id_pdc_itinerance` is the first column of the file
+      # separator is after `id_pdc_itinerance` in that case
+      [[_, "", separator]] -> separator
+    end
   end
 
   @doc """
