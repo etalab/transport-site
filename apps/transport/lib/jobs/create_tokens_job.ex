@@ -44,7 +44,7 @@ defmodule Transport.Jobs.CreateTokensJob do
     contact_ids_with_a_default_token =
       DB.DefaultToken.base_query()
       |> select([default_token: dt], dt.contact_id)
-      
+
     contact_ids_in_org =
       DB.Contact.base_query()
       |> join(:inner, [contact: c], o in assoc(c, :organizations), as: :organizations)
@@ -95,6 +95,10 @@ defmodule Transport.Jobs.CreateTokensJob do
         })
         |> DB.Repo.insert!()
 
+      %DB.DefaultToken{}
+      |> DB.DefaultToken.changeset(%{token_id: token.id, contact_id: contact_id})
+      |> DB.Repo.insert!()
+    end)
   end
 
   # - Finds organizations without a token
