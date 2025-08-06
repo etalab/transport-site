@@ -1,6 +1,6 @@
 defmodule DB.DefaultToken do
   @moduledoc """
-  Represents a default token for a contact.
+  Join each `DB.Contact` to one `DB.Token` - their unique "default" token. 
   """
   use Ecto.Schema
   use TypedEctoSchema
