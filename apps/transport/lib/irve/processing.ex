@@ -69,6 +69,10 @@ defmodule Transport.IRVE.Processing do
     |> Transport.IRVE.DataFrame.add_empty_column_if_missing("observations")
     # dataset 650866fc526f1050c8e4e252
     |> Transport.IRVE.DataFrame.add_empty_column_if_missing("date_mise_en_service")
+    # 623ca46c13130c3228abd018
+    |> Transport.IRVE.DataFrame.add_empty_column_if_missing("telephone_operateur")
+    # 623ca46c13130c3228abd018
+    |> Transport.IRVE.DataFrame.add_empty_column_if_missing("code_insee_commune")
   end
 
   def select_fields(dataframe) do
