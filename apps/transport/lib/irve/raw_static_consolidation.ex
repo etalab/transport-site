@@ -65,6 +65,10 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     # A number of checks are carried out before attempting to parse the data, using a couple of heuristics,
     # in order to get meaningful error messages in the report.
     run_cheap_blocking_checks(body, extension)
+
+    # We convert the rare latin-1 files into UTF-8
+    body = ensure_utf8(body)
+
     df = Transport.IRVE.Processing.read_as_data_frame(body)
 
     # add traceability information
@@ -78,6 +82,45 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   rescue
     error ->
       {:error, error}
+  end
+
+  @doc """
+  Ensure that binary content is valid UTF-8. If not, attempt conversion from
+  Latin-1 to UTF-8, assuming the original encoding is Latin-1.
+
+  NOTE: This is not foolproof. The function does not verify that the input is
+  actually Latin-1. Any byte sequence is technically valid Latin-1. However,
+  based on our typical data sources (primarily French), this assumption allows
+  us to recover and correctly convert over 100 additional resources.
+
+  Example: already valid UTF-8 is returned unchanged.
+
+      iex> Transport.IRVE.RawStaticConsolidation.ensure_utf8("valid utf8")
+      "valid utf8"
+
+  The byte `0xE9` represents "é" in Latin-1. The function converts it accordingly:
+
+      iex> Transport.IRVE.RawStaticConsolidation.ensure_utf8(<<0xE9>>)
+      "é"
+
+  This function does not raise errors for any binary input. Only non-binary input
+  (e.g., integers, maps) will raise an exception.
+  """
+  def ensure_utf8(body) do
+    if String.valid?(body) do
+      body
+    else
+      case :unicode.characters_to_binary(body, :latin1, :utf8) do
+        converted when is_binary(converted) ->
+          converted
+
+        {:error, _, _} ->
+          raise("error during latin 1 -> UTF-8 transcoding (should not happen)")
+
+        {:incomplete, _, _} ->
+          raise("string contains incomplete latin1 sequences")
+      end
+    end
   end
 
   def run_cheap_blocking_checks(body, extension) do
@@ -101,10 +144,6 @@ defmodule Transport.IRVE.RawStaticConsolidation do
 
     unless header_separator in [";", ","] do
       raise("unsupported column separator #{header_separator}")
-    end
-
-    if !String.valid?(body) do
-      raise("string is not valid UTF-8 (could be binary content, or latin1)")
     end
   end
 
