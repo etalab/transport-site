@@ -16,7 +16,7 @@ defmodule Transport.Test.Transport.Jobs.CreateTokensJobTest do
     refute DB.Repo.preload(o1, :tokens).tokens |> Enum.empty?()
     assert DB.Repo.preload(o2, :tokens).tokens |> Enum.empty?()
 
-    assert :ok == perform_job(CreateTokensJob, %{})
+    assert :ok == perform_job(CreateTokensJob, %{action: "create_tokens_for_organizations"})
 
     assert [
              %Oban.Job{
@@ -57,5 +57,26 @@ defmodule Transport.Test.Transport.Jobs.CreateTokensJobTest do
 
     assert [%DB.Token{id: ^token_id}] = DB.Repo.preload(c1, :default_tokens).default_tokens
     assert [%DB.Token{id: ^token_id}] = DB.Repo.preload(c2, :default_tokens).default_tokens
+  end
+
+  test "creates a token for contacts without an organization" do
+    c1 = insert_contact(%{organizations: []})
+
+    # c2 is a member of an organization, we should not create a token
+    %DB.Organization{} = organization = insert(:organization)
+    _c2 = insert_contact(%{organizations: [organization |> Map.from_struct()]})
+
+    # c3 already has a default token, we should not try to create a new one.
+    c3 = insert_contact(%{organizations: []})
+    token = insert_token(%{organization_id: nil, contact_id: c3.id})
+    insert(:default_token, %{token: token, contact: c3})
+
+    assert :ok == perform_job(CreateTokensJob, %{action: "create_tokens_for_contacts_without_org"})
+
+    assert [%DB.Token{id: token_id}] = DB.Repo.preload(c1, :tokens).tokens
+    assert [%DB.Token{id: ^token_id}] = DB.Repo.preload(c1, :default_tokens).default_tokens
+
+    # Executing the job again runs without errors
+    assert :ok == perform_job(CreateTokensJob, %{action: "create_tokens_for_contacts_without_org"})
   end
 end
