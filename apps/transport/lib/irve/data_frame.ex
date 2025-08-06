@@ -291,4 +291,14 @@ defmodule Transport.IRVE.DataFrame do
     |> Explorer.DataFrame.discard(field_name)
     |> Explorer.DataFrame.rename(%{(field_name <> "_remapped") => field_name})
   end
+
+  # TODO: add doctests here (easy)
+  def add_empty_column_if_missing(dataframe, field_name) do
+    if field_name not in Explorer.DataFrame.names(dataframe) do
+      dataframe
+      |> Explorer.DataFrame.mutate(%{^field_name => nil})
+    else
+      dataframe
+    end
+  end
 end

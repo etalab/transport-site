@@ -10,6 +10,7 @@ defmodule Transport.IRVE.Processing do
   def read_as_data_frame(body) do
     body
     |> convert_to_dataframe!()
+    |> add_missing_optional_columns()
     |> preprocess_fields()
     |> select_fields()
   end
@@ -40,6 +41,34 @@ defmodule Transport.IRVE.Processing do
     |> Transport.IRVE.DataFrame.preprocess_boolean("paiement_autre")
     |> Transport.IRVE.DataFrame.preprocess_boolean("reservation")
     |> Transport.IRVE.DataFrame.preprocess_boolean("station_deux_roues")
+  end
+
+  @doc """
+  Manually picked cases for which an optional column can sometime be missing.
+  Could be generalized to every schema field where `required:` is set to `false`,
+  but for now I prefer to only activate this override for well-known cases that
+  have been seen on actual data.
+  """
+  def add_missing_optional_columns(dataframe) do
+    dataframe
+    # as seen in dataset 62ea8cd6af9f2e745fa84023
+    |> Transport.IRVE.DataFrame.add_empty_column_if_missing("id_pdc_local")
+    # as seen in dataset 62ea8cd6af9f2e745fa84023
+    |> Transport.IRVE.DataFrame.add_empty_column_if_missing("tarification")
+    # dataset 650866fc526f1050c8e4e252
+    |> Transport.IRVE.DataFrame.add_empty_column_if_missing("paiement_cb")
+    # dataset 61606900558502c87d0c9522
+    |> Transport.IRVE.DataFrame.add_empty_column_if_missing("id_station_local")
+    # dataset 661e3f4f8ee5dff6c8286fd2, 648758ebd41d68c851fa15c4
+    |> Transport.IRVE.DataFrame.add_empty_column_if_missing("paiement_autre")
+    # dataset 661e3f4f8ee5dff6c8286fd2
+    |> Transport.IRVE.DataFrame.add_empty_column_if_missing("raccordement")
+    # dataset 661e3f4f8ee5dff6c8286fd2
+    |> Transport.IRVE.DataFrame.add_empty_column_if_missing("num_pdl")
+    # dataset 661e3f4f8ee5dff6c8286fd2
+    |> Transport.IRVE.DataFrame.add_empty_column_if_missing("observations")
+    # dataset 650866fc526f1050c8e4e252
+    |> Transport.IRVE.DataFrame.add_empty_column_if_missing("date_mise_en_service")
   end
 
   def select_fields(dataframe) do
