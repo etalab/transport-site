@@ -233,11 +233,11 @@ defmodule TransportWeb.ReuserSpaceController do
     Application.fetch_env!(:transport, :"data_sharing_pilot_#{key}")
   end
 
-  defp tokens(%DB.Contact{} = contact) do
+  defp tokens(%DB.Contact{id: contact_id} = contact) do
     organization_ids = Enum.map(contact.organizations, & &1.id)
 
     DB.Token.base_query()
-    |> where([token: t], t.organization_id in ^organization_ids)
+    |> where([token: t], t.organization_id in ^organization_ids or t.contact_id == ^contact_id)
     |> order_by([token: t], t.inserted_at)
     |> preload(:organization)
     |> DB.Repo.all()
