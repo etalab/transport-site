@@ -42,7 +42,7 @@ defmodule Transport.Jobs.CreateTokensJob do
   # - Set this token as the default token
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"action" => "create_tokens_for_contacts_without_org"}}) do
-    contact_ids_default_token =
+    contact_ids_with_a_default_token =
       DB.DefaultToken.base_query()
       |> select([default_token: dt], dt.contact_id)
 
@@ -53,7 +53,7 @@ defmodule Transport.Jobs.CreateTokensJob do
       |> distinct(true)
 
     DB.Contact.base_query()
-    |> where([contact: c], c.id not in subquery(contact_ids_default_token))
+    |> where([contact: c], c.id not in subquery(contact_ids_with_a_default_token))
     |> where([contact: c], c.id not in subquery(contact_ids_in_org))
     |> select([contact: c], %{contact_id: c.id})
     |> DB.Repo.all()

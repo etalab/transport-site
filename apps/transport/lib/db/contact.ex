@@ -45,6 +45,9 @@ defmodule DB.Contact do
     many_to_many(:organizations, DB.Organization, join_through: "contacts_organizations", on_replace: :delete)
     many_to_many(:followed_datasets, DB.Dataset, join_through: "dataset_followers", on_replace: :delete)
     has_many(:user_feedbacks, DB.UserFeedback, on_delete: :nilify_all)
+    # This fetches both purely personal tokens (the ones with a `contact_id` matching the parent
+    # but without an `organization_id`) and tokens linked to an organization, but associated to the
+    # current contact as "admin".
     has_many(:tokens, DB.Token, on_delete: :nilify_all)
     # Defined as a `many_to_many` in the database but a contact can only have **1** default token
     many_to_many(:default_tokens, DB.Token, join_through: "default_token")
