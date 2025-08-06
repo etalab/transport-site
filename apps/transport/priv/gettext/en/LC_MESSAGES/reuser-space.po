@@ -270,3 +270,7 @@ msgstr ""
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Reuses"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Personal token"
+msgstr ""
