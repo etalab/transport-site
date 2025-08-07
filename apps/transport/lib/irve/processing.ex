@@ -44,10 +44,12 @@ defmodule Transport.IRVE.Processing do
   end
 
   @doc """
-  Manually picked cases for which an optional column can sometime be missing.
-  Could be generalized to every schema field where `required:` is set to `false`,
-  but for now I prefer to only activate this override for well-known cases that
-  have been seen on actual data.
+  Add empty columns for optional schema fields that are sometimes missing in CSV files.
+
+  Manually cherry-picked fields which are all "non-required" in the schema at time of writing.
+
+  A later version will likely automatically use all fields, but manual exceptions are likely
+  to still be useful.
   """
   def add_missing_optional_columns(dataframe) do
     dataframe
