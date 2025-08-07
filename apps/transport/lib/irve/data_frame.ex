@@ -308,11 +308,11 @@ defmodule Transport.IRVE.DataFrame do
   %{id_pdc_itinerance: ["value"]}
   """
   def add_empty_column_if_missing(dataframe, field_name) do
-    if field_name not in Explorer.DataFrame.names(dataframe) do
+    if field_name in Explorer.DataFrame.names(dataframe) do
       dataframe
-      |> Explorer.DataFrame.mutate(%{^field_name => nil})
     else
       dataframe
+      |> Explorer.DataFrame.mutate(%{^field_name => nil})
     end
   end
 end
