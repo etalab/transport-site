@@ -292,7 +292,21 @@ defmodule Transport.IRVE.DataFrame do
     |> Explorer.DataFrame.rename(%{(field_name <> "_remapped") => field_name})
   end
 
-  # TODO: add doctests here (easy)
+  @doc """
+  Add an empty column if it doesn't exist in the dataframe.
+
+  iex> df = Explorer.DataFrame.new(%{"id_pdc_itinerance" => ["value"]})
+  iex> result = add_empty_column_if_missing(df, "tarification")
+  iex> Explorer.DataFrame.to_columns(result, atom_keys: true)
+  %{id_pdc_itinerance: ["value"], tarification: [nil]}
+
+  If the column exist, don't change anything:
+
+  iex> df = Explorer.DataFrame.new(%{"id_pdc_itinerance" => ["value"]})
+  iex> result = add_empty_column_if_missing(df, "id_pdc_itinerance")
+  iex> Explorer.DataFrame.to_columns(result, atom_keys: true)
+  %{id_pdc_itinerance: ["value"]}
+  """
   def add_empty_column_if_missing(dataframe, field_name) do
     if field_name not in Explorer.DataFrame.names(dataframe) do
       dataframe
