@@ -151,6 +151,7 @@ oban_prod_crontab = [
   {"45 2 * * *", Transport.Jobs.RemoveHistoryJob, args: %{schema_name: "etalab/schema-irve-dynamique", days_limit: 7}},
   {"0 16 * * *", Transport.Jobs.DatasetQualityScoreDispatcher},
   {"40 3 * * *", Transport.Jobs.UpdateContactsJob},
+  {"40 4 * * *", Transport.Jobs.CreateTokensJob, args: %{action: "set_default_token_for_contacts"}},
   {"50 3 * * *", Transport.Jobs.CreateTokensJob, args: %{action: "create_tokens_for_organizations"}},
   {"30 4 * * *", Transport.Jobs.CreateTokensJob, args: %{action: "create_tokens_for_contacts_without_org"}},
   {"10 5 * * *", Transport.Jobs.NotificationSubscriptionProducerJob},
