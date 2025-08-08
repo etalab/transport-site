@@ -293,7 +293,11 @@ defmodule Transport.IRVE.DataFrame do
   end
 
   @doc """
-  Add an empty column if it doesn't exist in the dataframe.
+  If a given column doesn't exist in the dataframe, add it & populate it
+  with nil values.
+
+  This is useful to smooth out the rare cases where optional columns are missing
+  from data files.
 
   iex> df = Explorer.DataFrame.new(%{"id_pdc_itinerance" => ["value"]})
   iex> result = add_empty_column_if_missing(df, "tarification")
