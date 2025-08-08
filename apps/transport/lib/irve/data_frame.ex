@@ -304,7 +304,7 @@ defmodule Transport.IRVE.DataFrame do
   iex> Explorer.DataFrame.to_columns(result, atom_keys: true)
   %{id_pdc_itinerance: ["value"], tarification: [nil]}
 
-  If the column exist, don't change anything:
+  If the column exists, don't change anything:
 
   iex> df = Explorer.DataFrame.new(%{"id_pdc_itinerance" => ["value"]})
   iex> result = add_empty_column_if_missing(df, "id_pdc_itinerance")
