@@ -10,6 +10,18 @@ defmodule Transport.Jobs.CreateTokensJob do
   use Oban.Worker, max_attempts: 3, tags: ["tokens"]
   import Ecto.Query
 
+  def get_all_contact_ids_having_a_default_token() do
+    DB.DefaultToken.base_query()
+    |> select([default_token: dt], dt.contact_id)
+  end
+
+  def get_all_contact_ids_in_org() do
+    DB.Contact.base_query()
+    |> join(:inner, [contact: c], o in assoc(c, :organizations), as: :organizations)
+    |> select([contact: c], c.id)
+    |> distinct(true)
+  end
+
   # - Create a default token for an organization
   # - Set this token as the default token for each member of the organization
   @impl Oban.Worker
@@ -36,18 +48,6 @@ defmodule Transport.Jobs.CreateTokensJob do
       |> DB.DefaultToken.changeset(%{token_id: token.id, contact_id: contact.id})
       |> DB.Repo.insert!()
     end)
-  end
-
-  def get_all_contact_ids_having_a_default_token() do
-    DB.DefaultToken.base_query()
-    |> select([default_token: dt], dt.contact_id)
-  end
-
-  def get_all_contact_ids_in_org() do
-    DB.Contact.base_query()
-      |> join(:inner, [contact: c], o in assoc(c, :organizations), as: :organizations)
-      |> select([contact: c], c.id)
-      |> distinct(true)
   end
 
   # Sets a default token for members of an organization without a default token.
