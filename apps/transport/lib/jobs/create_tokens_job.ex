@@ -10,12 +10,12 @@ defmodule Transport.Jobs.CreateTokensJob do
   use Oban.Worker, max_attempts: 3, tags: ["tokens"]
   import Ecto.Query
 
-  def get_all_contact_ids_having_a_default_token() do
+  def get_all_contact_ids_having_a_default_token do
     DB.DefaultToken.base_query()
     |> select([default_token: dt], dt.contact_id)
   end
 
-  def get_all_contact_ids_in_org() do
+  def get_all_contact_ids_in_org do
     DB.Contact.base_query()
     |> join(:inner, [contact: c], o in assoc(c, :organizations), as: :organizations)
     |> select([contact: c], c.id)
