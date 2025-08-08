@@ -270,3 +270,7 @@ msgstr "Mettez en avant vos réutilisations et faites-vous connaitre."
 #, elixir-autogen, elixir-format
 msgid "Reuses"
 msgstr "Réutilisations"
+
+#, elixir-autogen, elixir-format
+msgid "Personal token"
+msgstr "Token personnel"

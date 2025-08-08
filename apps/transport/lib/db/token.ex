@@ -23,6 +23,9 @@ defmodule DB.Token do
 
   def base_query, do: from(t in __MODULE__, as: :token)
 
+  def personal_token?(%__MODULE__{organization_id: nil}), do: true
+  def personal_token?(%__MODULE__{}), do: false
+
   def changeset(%__MODULE__{} = struct, attrs \\ %{}) do
     struct
     |> cast(attrs, [:name, :contact_id, :organization_id])

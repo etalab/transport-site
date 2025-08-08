@@ -19,9 +19,10 @@
           </tr>
         </thead>
         <tbody>
-          <%= for token <- @tokens |> Enum.sort_by(& {&1.organization.name, &1.name}) |> Enum.sort_by(& default_for_contact?(&1, @contact), :desc) do %>
+          <%= for token <- @tokens |> Enum.sort_by(& {get_in(&1.organization.name), &1.name}) |> Enum.sort_by(& default_for_contact?(&1, @contact), :desc) do %>
             <tr>
-              <td><%= token.organization.name %></td>
+              <td :if={not DB.Token.personal_token?(token)}><%= token.organization.name %></td>
+              <td :if={DB.Token.personal_token?(token)}><%= dgettext("reuser-space", "Personal token") %></td>
               <td :if={default_for_contact?(token, @contact)}>
                 <b><%= token.name %> <%= dgettext("reuser-space", "(by default)") %></b>
               </td>
