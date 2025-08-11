@@ -56,7 +56,8 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   @doc """
   Process a row (resource). The full content (body) is expected together with the original file extension.
   """
-  @spec process_resource(map(), binary(), integer(), String.t()) :: {:ok, Explorer.DataFrame.t()} | {:error, any()}
+  @spec process_resource(map(), binary(), integer(), String.t()) ::
+          {:ok, Explorer.DataFrame.t()} | {:error, Exception.t(), Exception.stacktrace()}
   def process_resource(row, body, status, extension) do
     if status != 200 do
       raise "HTTP status is not 200 (#{status})"
@@ -81,7 +82,7 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     {:ok, df}
   rescue
     error ->
-      {:error, error}
+      {:error, error, __STACKTRACE__}
   end
 
   @doc """
@@ -179,12 +180,13 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     |> Enum.reject(fn r -> r.dataset_id == @air_france_klm_dataset_id end)
   end
 
-  def build_report_item(row, body, extension, optional_error) do
+  def build_report_item(row, body, extension, optional_error, optional_stacktrace) do
     %Transport.IRVE.ReportItem{
       dataset_id: row.dataset_id,
       resource_id: row.resource_id,
       resource_url: row.url,
       error: optional_error,
+      stacktrace: optional_stacktrace,
       estimated_pdc_count: body |> String.split("\n") |> Enum.count(),
       extension: extension
     }
@@ -217,13 +219,13 @@ defmodule Transport.IRVE.RawStaticConsolidation do
         %{body: body, status: status} = download_resource_content!(row.url)
         extension = Path.extname(row.url)
 
-        {main_df, optional_error} =
+        {main_df, {optional_error, optional_stacktrace}} =
           case process_resource(row, body, status, extension) do
-            {:ok, df} -> {concat_rows(main_df, df), nil}
-            {:error, error} -> {main_df, error}
+            {:ok, df} -> {concat_rows(main_df, df), {nil, nil}}
+            {:error, error, stack_trace} -> {main_df, {error, stack_trace}}
           end
 
-        report_item = build_report_item(row, body, extension, optional_error)
+        report_item = build_report_item(row, body, extension, optional_error, optional_stacktrace)
 
         %{
           df: main_df,
@@ -244,6 +246,7 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     |> Enum.reverse()
     |> Enum.map(&Map.from_struct/1)
     |> Enum.map(fn x -> Map.put(x, :error, x.error |> inspect) end)
+    |> Enum.map(fn x -> Map.delete(x, :stacktrace) end)
     |> Explorer.DataFrame.new()
     |> Explorer.DataFrame.to_csv!(report_filename)
   end
