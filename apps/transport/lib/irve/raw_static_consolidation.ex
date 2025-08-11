@@ -242,12 +242,32 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     report_filename = Keyword.fetch!(options, :report_file)
     Logger.info("Generating IRVE consolidation report file at #{report_filename}")
 
-    output.report
-    |> Enum.reverse()
-    |> Enum.map(&Map.from_struct/1)
-    |> Enum.map(fn x -> Map.put(x, :error, x.error |> inspect) end)
+    report =
+      output.report
+      |> Enum.reverse()
+      |> Enum.map(&Map.from_struct/1)
+
+    report
     |> Enum.map(fn x -> Map.delete(x, :stacktrace) end)
+    |> Enum.map(fn x -> Map.put(x, :error, x.error |> inspect) end)
     |> Explorer.DataFrame.new()
     |> Explorer.DataFrame.to_csv!(report_filename)
+
+    show_top_10_errors(report)
+  end
+
+  # for developer iteration, build the top 10 list
+  def show_top_10_errors(report) do
+    report
+    |> Enum.reject(&(&1.error == nil))
+    |> Enum.reject(&(&1.error |> inspect =~ ~r/likely|v1 irve/))
+    |> Enum.sort_by(& &1.estimated_pdc_count, :desc)
+    |> Enum.take(10)
+    |> Enum.each(fn %{error: error, stacktrace: stacktrace, dataset_id: dataset_id, estimated_pdc_count: count} ->
+      IO.puts("\n======== dataset_id=#{dataset_id}, estimated_pdc_count=#{count} ========\n")
+      error = if Map.has_key?(error, :message), do: error.message, else: (error |> inspect)
+      IO.puts("error=#{error}\n")
+      Exception.format_stacktrace(stacktrace) |> IO.puts()
+    end)
   end
 end
