@@ -78,7 +78,7 @@ defmodule Transport.IRVE.RawStaticConsolidation do
       |> Explorer.DataFrame.mutate(original_dataset_id: ^row.dataset_id)
       |> Explorer.DataFrame.mutate(original_resource_id: ^row.resource_id)
 
-    log_debugging_stuff(row, df)
+    log_debugging_stuff(row.resource_id, df)
     {:ok, df}
   rescue
     error ->
