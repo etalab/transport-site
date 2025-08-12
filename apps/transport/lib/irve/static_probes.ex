@@ -5,6 +5,9 @@ defmodule Transport.IRVE.Static.Probes do
 
   @doc """
   A quick way to grab the first line of a CSV (in order to analyze headers without going through a proper parser)
+
+  iex> first_line("first,line\\nsome,data")
+  "first,line"
   """
   def first_line(body) do
     body
