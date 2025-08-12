@@ -95,7 +95,8 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   "id_pdc_itinerance,num_pdl\\n123,456"
   """
 
-  def maybe_rename_bogus_num_pdl(dataset_id, body) when dataset_id in ["65f1c621e07085a369aacc22", "6853b993bb3e53379f17007c"] do
+  def maybe_rename_bogus_num_pdl(dataset_id, body)
+      when dataset_id in ["65f1c621e07085a369aacc22", "6853b993bb3e53379f17007c"] do
     [headers, body] = String.split(body, "\n", parts: 2)
     headers = headers |> String.replace("num-pdl", "num_pdl")
     [headers, body] |> Enum.join("\n")
