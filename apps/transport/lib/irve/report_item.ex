@@ -5,5 +5,5 @@ defmodule Transport.IRVE.ReportItem do
   why, along with some useful stats.
   """
   @enforce_keys [:dataset_id, :resource_id, :resource_url, :estimated_pdc_count, :extension]
-  defstruct [:dataset_id, :resource_id, :resource_url, :error, :stacktrace, :estimated_pdc_count, :extension]
+  defstruct [:dataset_id, :resource_id, :resource_url, :error, :estimated_pdc_count, :extension]
 end
