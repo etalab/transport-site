@@ -88,7 +88,7 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   end
 
   @doc """
-  Fix bogus column before loading the data, until this gets fixed.
+  Some data files have `num-pdl` instead of `num_pdl`. This is a quick-fix until it gets fixed.
 
   iex> maybe_rename_bogus_num_pdl("6853b993bb3e53379f17007c", "id_pdc_itinerance,num-pdl\\n123,456")
   "id_pdc_itinerance,num_pdl\\n123,456"
