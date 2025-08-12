@@ -51,13 +51,17 @@ sources
 end)
 
 # Variation useful when comparing files locally:
+#
+# files = [
+#   {:prod, "~/git/transport/backups/irve/consolidation-nationale-irve-statique.csv"},
+#   {:dev_master, "~/git/transport/backups/irve/master.csv"},
+#   {:dev_separator, "~/git/transport/backups/irve/upgrade.csv"},
+# ]
 
-files = [
-  {:dev, "cache-dir/irve/irve_static_consolidation.csv"},
-]
+# IO.puts "====================="
 
-files
-|> Enum.each(fn({name, file}) ->
-  file = Path.expand(file)
-  Stats.inspect(Stats.compute(file), name)
-end)
+# files
+# |> Enum.each(fn({name, file}) ->
+#   file = Path.expand(file)
+#   Stats.inspect(Stats.compute(file), name)
+# end)
