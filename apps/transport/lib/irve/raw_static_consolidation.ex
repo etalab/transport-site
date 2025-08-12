@@ -70,6 +70,9 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     # We convert the rare latin-1 files into UTF-8
     body = ensure_utf8(body)
 
+    # Convert a bogus column for specific cases, until it is fixed in the source
+    body = maybe_rename_bogus_num_pdl(row.dataset_id, body)
+
     df = Transport.IRVE.Processing.read_as_data_frame(body)
 
     # add traceability information
@@ -84,6 +87,21 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     error ->
       {:error, error, __STACKTRACE__}
   end
+
+  @doc """
+  Fix bogus column before loading the data, until this gets fixed.
+
+  iex> maybe_rename_bogus_num_pdl("6853b993bb3e53379f17007c", "id_pdc_itinerance,num-pdl\\n123,456")
+  "id_pdc_itinerance,num_pdl\\n123,456"
+  """
+
+  def maybe_rename_bogus_num_pdl("6853b993bb3e53379f17007c", body) do
+    [headers, body] = String.split(body, "\n", parts: 2)
+    headers = headers |> String.replace("num-pdl", "num_pdl")
+    [headers, body] |> Enum.join("\n")
+  end
+
+  def maybe_rename_bogus_num_pdl(_, body), do: body
 
   @doc """
   Ensure that binary content is valid UTF-8. If not, attempt conversion from
