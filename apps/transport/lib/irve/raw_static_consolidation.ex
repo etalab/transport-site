@@ -265,7 +265,7 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     |> Enum.take(10)
     |> Enum.each(fn %{error: error, stacktrace: stacktrace, dataset_id: dataset_id, estimated_pdc_count: count} ->
       IO.puts("\n======== dataset_id=#{dataset_id}, estimated_pdc_count=#{count} ========\n")
-      error = if Map.has_key?(error, :message), do: error.message, else: (error |> inspect)
+      error = if Map.has_key?(error, :message), do: error.message, else: error |> inspect
       IO.puts("error=#{error}\n")
       Exception.format_stacktrace(stacktrace) |> IO.puts()
     end)
