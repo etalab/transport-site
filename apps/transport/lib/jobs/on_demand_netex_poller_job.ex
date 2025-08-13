@@ -16,7 +16,7 @@ defmodule Transport.Jobs.OnDemandNeTExPollerJob do
     unique: [fields: [:args, :worker]]
 
   alias Transport.Jobs.OnDemandValidationHelpers, as: Helpers
-  alias Transport.Validators.NeTEx.ResultsAdapters.V0_1_0, as: ResultsAdapter
+  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_0, as: ResultsAdapter
   alias Transport.Validators.NeTEx.Validator
 
   # Override the backoff to play nice and avoiding falling in very slow retry

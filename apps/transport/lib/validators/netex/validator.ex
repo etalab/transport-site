@@ -6,7 +6,7 @@ defmodule Transport.Validators.NeTEx.Validator do
 
   require Logger
   alias Transport.Jobs.NeTExPollerJob, as: Poller
-  alias Transport.Validators.NeTEx.ResultsAdapters.V0_1_0, as: ResultsAdapter
+  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_0, as: ResultsAdapter
 
   @behaviour Transport.Validators.Validator
 
@@ -32,7 +32,7 @@ defmodule Transport.Validators.NeTEx.Validator do
   def validator_name, do: "enroute-chouette-netex-validator"
 
   # This will change with an actual versioning of the validator
-  def validator_version, do: "saas-production"
+  def validator_version, do: "0.2.0"
 
   @impl Transport.Validators.Validator
   def validate_and_save(%DB.ResourceHistory{} = resource_history) do
