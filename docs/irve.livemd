@@ -1,0 +1,59 @@
+# Documentation livrables IRVE PAN
+
+## Section
+
+
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Construction de la consolidation "brute statique IRVE"
+
+* Nous parcourons l'API data gouv pour lister les jeux de données contenant une ressource au format etalab/schema-irve-statique
+* Nous téléchargeons la totalité des ressources associées (1700 ressources au moment où on rédige ce document)
+* Nous tentons de lire chacun des fichiers, en appliquant des corrections simples lorsque le schéma n'est pas totalement respecté:
+  * Détection des fichiers non IRVE v2 (élimination des v1, des fichiers d'autres types comme jpg/pdf, CSV mais pas bon format etc)
+  * Lissage de certains types booléens
+  * Ajout de colonnes optionnelles, lorsqu'elles manquent
+  * Conversion de latin1 à UTF-8, lorsqu'on détecte que c'est pertinent
+  * Renommage minimal de certaines colonnes
+  * Tentative de lecture (non bloquante à ce state) des coordonnées lat/lon
+* Nous fabriquons à partir de ces ressources, 2 fichiers, de façon quotidienne (la nuit):
+  * Un fichier dit "consolidation brute" qui liste la totalité des points de charge présents dans tous les fichiers qu'on a à peu près réussi à lire, sans tenter de dédoublonner, ni de valider fortement, les données (autre que le type de base de la donnée sur les colonnes booléennes et quelques autres types). Avec l'identifiant de la ressource d'origine pour pouvoir tracer et débugger la provenance
+  * Un fichier dit "rapport" qui comprendre 1 ligne par fichier d'origine, qu'on ait réussi à le lire ou pas, des informations de provenance, une estimation statistique du nombre de points de charge dans le fichier, et l'erreur qui s'est produite le cas cas échéant
+* Ces deux fichiers sont "exposés" (pour l'instant en privé, bientôt en public) via notre "proxy", de façon à permettre que tout le monde dans l'équipe puisse les récupérer quotidiennement)
+
+Ce dispositif et les outils rapides mis en place (consolidation / téléchargement / profiling de la donnée) nous ont permis d'itérer jusqu'à graduellement intégrer la totalité des points de charge présents dans la consolidation existante "data gouv".
+
+**Livrables prévus dans le futur**
+
+Prévu : valider
+Prévu : historiser la source et garder "le dernier valide" et intégrer ça
+Prévu : dédoublonner de façon stable
+Prévu : démarche qualité, carte terrain, formulaire contact
+Prévu : scaler le dispositif pour la diffusion grand public (compression, cache)
+
+### Construction de la consolidation "brute dynamique IRVE"
+
+Challenges un peu différent car le temps réel met davantage de pression sur les systèmes, et que seuls quelques producteurs proposent la donnée à ce stade.
+
+* Nous avons des outils pour identifier les ressources dynamiques présentes dans data gouv par API
+* Nous les ajoutons manuellement dans un fichier de configuration reviewé à la main
+* Nous avons conçu un outil appelé le "concentrateur IRVE" capable de récupérer en temps réel ces données pré-sélectionnées, et de les agréger
+* À ce stade aucun effort n'est fait pour dédoublonner, toutefois le taux de doublon sera moindre
+
+Prévu : scaler le dispositif pour la diffusion grand public (compression, cache)
+Prévu : identification récurrent de nouvelles sources, et intégration
+Prévu : démarche qualité
+Prévu : intégration à carte terrain
+
+<!-- livebook:{"break_markdown":true} -->
+
+<!-- Learn more at https://mermaid-js.github.io/mermaid -->
+
+```mermaid
+graph TD;
+  A-->B;
+  A-->C;
+  B-->D;
+  C-->D;
+```
