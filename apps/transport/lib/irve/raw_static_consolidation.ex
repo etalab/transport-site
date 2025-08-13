@@ -69,6 +69,9 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     # We convert the rare latin-1 files into UTF-8
     body = ensure_utf8(body)
 
+    # Convert a bogus column for specific cases, until it is fixed in the source
+    body = maybe_rename_bogus_num_pdl(row.dataset_id, body)
+
     df = Transport.IRVE.Processing.read_as_data_frame(body)
 
     # add traceability information
@@ -77,12 +80,28 @@ defmodule Transport.IRVE.RawStaticConsolidation do
       |> Explorer.DataFrame.mutate(original_dataset_id: ^row.dataset_id)
       |> Explorer.DataFrame.mutate(original_resource_id: ^row.resource_id)
 
-    log_debugging_stuff(row, df)
+    log_debugging_stuff(row.resource_id, df)
     {:ok, df}
   rescue
     error ->
       {:error, error}
   end
+
+  @doc """
+  Some data files have `num-pdl` instead of `num_pdl`. This is a quick-fix until it gets fixed.
+
+  iex> maybe_rename_bogus_num_pdl("6853b993bb3e53379f17007c", "id_pdc_itinerance,num-pdl\\n123,456")
+  "id_pdc_itinerance,num_pdl\\n123,456"
+  """
+
+  def maybe_rename_bogus_num_pdl(dataset_id, body)
+      when dataset_id in ["65f1c621e07085a369aacc22", "6853b993bb3e53379f17007c"] do
+    [headers, body] = String.split(body, "\n", parts: 2)
+    headers = headers |> String.replace("num-pdl", "num_pdl")
+    [headers, body] |> Enum.join("\n")
+  end
+
+  def maybe_rename_bogus_num_pdl(_, body), do: body
 
   @doc """
   Ensure that binary content is valid UTF-8. If not, attempt conversion from
