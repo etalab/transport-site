@@ -50,18 +50,23 @@ sources
   Stats.inspect(Stats.compute(file), file |> Path.basename())
 end)
 
-# Variation useful when comparing files locally:
+# typically useful when iterating on an improvement branch
 #
-# files = [
-#   {:prod, "~/git/transport/backups/irve/consolidation-nationale-irve-statique.csv"},
-#   {:dev_master, "~/git/transport/backups/irve/master.csv"},
-#   {:dev_separator, "~/git/transport/backups/irve/upgrade.csv"},
-# ]
+# ```
+# mix run scripts/irve/process-raw-static-consolidation.exs
+#
+# mkdir cache-dir/irve
+# mc get local/transport-data-gouv-fr-aggregates-dev/irve_static_consolidation.csv cache-dir/irve
+# ```
 
-# IO.puts "====================="
+files = [
+  {:dev_separator, "cache-dir/irve/irve_static_consolidation.csv"}
+]
 
-# files
-# |> Enum.each(fn({name, file}) ->
-#   file = Path.expand(file)
-#   Stats.inspect(Stats.compute(file), name)
-# end)
+IO.puts("=====================")
+
+files
+|> Enum.each(fn {name, file} ->
+  file = Path.expand(file)
+  Stats.inspect(Stats.compute(file), name)
+end)
