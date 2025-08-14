@@ -154,7 +154,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
   iex> summary(%{})
   [
     {"xsd-schema", %{count: 0, criticity: "NoError"}},
-    {"no-category", %{count: 0, criticity: "NoError"}}
   ]
   """
   @impl Transport.Validators.NeTEx.ResultsAdapter
@@ -171,6 +170,9 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
       stats = %{count: length(errors), criticity: worst_criticity}
 
       {category, stats}
+    end)
+    |> Enum.reject(fn {category, %{count: count}} ->
+      category == @catch_all_category && count == 0
     end)
   end
 
