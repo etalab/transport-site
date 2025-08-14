@@ -275,7 +275,9 @@ defmodule Transport.IRVE.DataFrame do
     "false" => false,
     "true" => true,
     "False" => false,
-    "True" => true
+    "True" => true,
+    "VRAI" => true,
+    "FAUX" => false
   }
 
   # experimental, I think Explorer lacks a feature to allow this operation within Polars.
