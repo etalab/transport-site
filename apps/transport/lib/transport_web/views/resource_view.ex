@@ -328,7 +328,19 @@ defmodule TransportWeb.ResourceView do
         stats={stats}
         token={@token}
       />
+      <.netex_validations_layers />
     </ul>
+    """
+  end
+
+  defp netex_validations_layers(%{} = assigns) do
+    ~H"""
+    <li class="comment">
+      <i class="fa fa-circle-exclamation"></i>
+      <div>
+        <%= dgettext("validations", "netex-validations-layers") %>
+      </div>
+    </li>
     """
   end
 

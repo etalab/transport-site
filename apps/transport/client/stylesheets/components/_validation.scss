@@ -158,13 +158,13 @@ table.netex_generic_issue tr.debug td code {
 .netex {
   ul.summary {
     list-style: none;
-    padding-left: 1.25rem;
-    margin-bottom: 0;
+    padding-left: var(--space-xs);
+    margin-bottom: var(--space-l);
 
     li {
       display: grid;
       gap: var(--space-xs);
-      grid-template-columns: min-content 1fr;
+      grid-template-columns: 1.5rem 1fr;
       grid-template-areas:
         "icon selector"
         ".    explanation";
@@ -172,6 +172,7 @@ table.netex_generic_issue tr.debug td code {
 
       i.fa {
         align-self: center;
+        justify-self: center;
         grid-area: icon;
       }
       div.selector {
@@ -180,6 +181,21 @@ table.netex_generic_issue tr.debug td code {
       p {
         margin: 0;
         grid-area: explanation;
+      }
+    }
+
+    li.comment {
+      grid-template-columns: 1.5rem 40rem;
+      grid-template-areas:
+        "icon comment";
+      padding-bottom: unset;
+
+      i.fa {
+        align-self: center;
+        color: var(--dark-blue);
+      }
+      div.comment {
+        grid-area: comment;
       }
     }
   }

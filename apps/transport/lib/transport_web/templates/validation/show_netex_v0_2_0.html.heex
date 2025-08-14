@@ -18,14 +18,9 @@
 
   <div class="validation-content">
     <div id="issues" class="container">
-      <p class="notification warning">
-        <strong><%= dgettext("validations", "NeTEx validation is in beta.") %></strong> <br />
-      </p>
-
       <% {_, worst_occurrences} = @max_severity %>
       <% current_category = @conn.params["issues_category"] || "" %>
       <div id="issues" class="validation-navigation">
-        <p><%= dgettext("validations", "netex-validations-layers") %></p>
         <nav class="issues-list validation" role="navigation">
           <.netex_validation_summary
             conn={@conn}

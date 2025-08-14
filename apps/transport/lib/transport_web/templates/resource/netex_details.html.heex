@@ -21,12 +21,6 @@
           <%= dgettext("validations", "No validation available") %>
         <% end %>
         <%= unless is_nil(@validation_summary) do %>
-          <p class="notification warning">
-            <strong><%= dgettext("validations", "NeTEx validation is in beta.") %></strong> <br />
-          </p>
-          <%= unless is_nil(@metadata) or @metadata == %{} do %>
-            <%= render("_resources_details_netex.html", conn: @conn, metadata: @metadata) %>
-          <% end %>
           <%= render(@errors_template,
             conn: @conn,
             issues: @issues,
@@ -37,6 +31,9 @@
             results_adapter: @results_adapter,
             max_severity: @max_severity
           ) %>
+          <%= unless is_nil(@metadata) or @metadata == %{} do %>
+            <%= render("_resources_details_netex.html", conn: @conn, metadata: @metadata) %>
+          <% end %>
           <p>
             <%= raw(
               dgettext(
