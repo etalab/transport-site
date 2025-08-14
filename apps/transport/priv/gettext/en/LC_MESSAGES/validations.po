@@ -368,7 +368,7 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "xsd-schema-description"
-msgstr "A NeTEx resource must respect the NeTEx XSD. <a href=\"https://normes.transport.data.gouv.fr/\" target=\"_blank\">Learn more</a>."
+msgstr "A NeTEx resource must respect the NeTEx XSD. <a href=\"https://github.com/NeTEx-CEN/NeTEx\" target=\"_blank\">Learn more</a>.<br/>This doesn't cover the extensions of the <a href=\"https://normes.transport.data.gouv.fr/\">French profile</a>."
 
 #, elixir-autogen, elixir-format
 msgid "netex-validations-layers"
