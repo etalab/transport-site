@@ -3,7 +3,7 @@ defmodule TransportWeb.ValidationView do
   import Phoenix.Controller, only: [current_url: 1]
 
   import TransportWeb.ResourceView,
-    only: [gtfs_template: 1, netex_template: 0, netex_template: 1, netex_compatibility: 1]
+    only: [gtfs_template: 1, netex_template: 0, netex_template: 1, netex_validation_summary: 1]
 
   import TransportWeb.PaginationHelpers
 

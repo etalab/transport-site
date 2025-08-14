@@ -317,7 +317,23 @@ defmodule TransportWeb.ResourceView do
     "https://explore.data.gouv.fr/fr/datasets/#{dataset_datagouv_id}/#/resources/#{resource_datagouv_id}"
   end
 
-  def netex_compatibility(%{conn: _, stats: _, category: _, token: _, results_adapter: _} = assigns) do
+  def netex_validation_summary(%{conn: _, results_adapter: _, validation_summary: _, token: _} = assigns) do
+    ~H"""
+    <ul class="summary">
+      <%= for {category, stats} <- @validation_summary do %>
+        <.netex_errors_category
+          conn={@conn}
+          results_adapter={@results_adapter}
+          category={category}
+          stats={stats}
+          token={@token}
+        />
+      <% end %>
+    </ul>
+    """
+  end
+
+  defp netex_errors_category(%{conn: _, category: _, stats: _, token: _, results_adapter: _} = assigns) do
     ~H"""
     <li>
       <.validity_icon errors={@stats[:count]} />
@@ -335,17 +351,16 @@ defmodule TransportWeb.ResourceView do
     """
   end
 
-  def netex_compatibility(%{conn: _, stats: _, category: _, results_adapter: _} = assigns) do
-    ~H"""
-    <.netex_compatibility conn={@conn} stats={@stats} category={@category} results_adapter={@results_adapter} token={nil} />
-    """
-  end
-
   defp compatibility_filter(conn, category, token) do
-    link(netex_category_label(category),
-      class: "compatibility_filter",
-      to: "#{current_url(conn, %{"token" => token, "issues_category" => category} |> drop_empty_query_params())}#issues"
-    )
+    query_params =
+      %{"token" => token, "issues_category" => category}
+      |> drop_empty_query_params()
+
+    url = current_url(conn, query_params)
+
+    category
+    |> netex_category_label()
+    |> link(class: "compatibility_filter", to: "#{url}#issues")
   end
 
   def validity_icon(%{errors: errors} = assigns) when errors > 0 do

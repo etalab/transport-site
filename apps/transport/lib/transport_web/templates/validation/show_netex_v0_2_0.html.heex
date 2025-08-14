@@ -27,17 +27,12 @@
       <div id="issues" class="validation-navigation">
         <p><%= dgettext("validations", "netex-validations-layers") %></p>
         <nav class="issues-list validation" role="navigation">
-          <ul class="summary">
-            <%= for {category, stats} <- @validation_summary do %>
-              <.netex_compatibility
-                conn={@conn}
-                results_adapter={@results_adapter}
-                stats={stats}
-                category={category}
-                token={@token}
-              />
-            <% end %>
-          </ul>
+          <.netex_validation_summary
+            conn={@conn}
+            token={@token}
+            results_adapter={@results_adapter}
+            validation_summary={@validation_summary}
+          />
         </nav>
       </div>
 

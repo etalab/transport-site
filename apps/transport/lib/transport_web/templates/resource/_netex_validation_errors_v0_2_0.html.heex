@@ -2,11 +2,12 @@
 <% current_category = @conn.params["issues_category"] || "" %>
 
 <h4><%= @results_adapter.format_severity(max_level, worst_occurrences) |> String.capitalize() %></h4>
-<ul class="summary">
-  <%= for {category, stats} <- @validation_summary do %>
-    <.netex_compatibility conn={@conn} stats={stats} results_adapter={@results_adapter} category={category} />
-  <% end %>
-</ul>
+<.netex_validation_summary
+  conn={@conn}
+  token={nil}
+  results_adapter={@results_adapter}
+  validation_summary={@validation_summary}
+/>
 
 <%= if worst_occurrences > 0 do %>
   <div class="main-pane">
