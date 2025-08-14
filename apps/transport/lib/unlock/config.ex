@@ -193,8 +193,8 @@ defmodule Unlock.Config do
 
     defp fetch_config_from_github! do
       Logger.info("Fetching proxy config from GitHub")
-      config_url = Application.fetch_env!(:unlock, :github_config_url)
-      github_token = Application.fetch_env!(:unlock, :github_auth_token)
+      config_url = Application.fetch_env!(:transport, :unlock_github_config_url)
+      github_token = Application.fetch_env!(:transport, :unlock_github_auth_token)
 
       %{status: 200, body: body} =
         Unlock.HTTP.Client.impl().get!(config_url, [{"Authorization", "token #{github_token}"}], [])
@@ -212,7 +212,7 @@ defmodule Unlock.Config do
     """
     @impl Fetcher
     def fetch_config! do
-      config_file = Application.fetch_env!(:unlock, :disk_config_file)
+      config_file = Application.fetch_env!(:transport, :unlock_disk_config_file)
 
       config_file
       |> File.read!()

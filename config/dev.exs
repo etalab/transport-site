@@ -1,9 +1,9 @@
 import Config
 
 # For local work, it is usually more convenient to copy-paste
-config :unlock,
-  config_fetcher: Unlock.Config.Disk,
-  disk_config_file: Path.join(__DIR__, "proxy-config.yml")
+config :transport,
+  unlock_config_fetcher: Unlock.Config.Disk,
+  unlock_disk_config_file: Path.join(__DIR__, "proxy-config.yml")
 
 config :transport, TransportWeb.Endpoint,
   # http: is configured via config/runtime.exs (PORT)
@@ -17,7 +17,7 @@ config :transport, TransportWeb.Endpoint,
   # NOTE: this is required to ensure code reloading will work.
   # A page reload is required to trigger this. More apps could
   # be added when needed here, we just added what we needed.
-  reloadable_apps: [:shared, :transport, :unlock, :datagouvfr]
+  reloadable_apps: [:shared, :transport, :datagouvfr]
 
 # Uncomment this to avoid having to restart the app for each change in description
 # See https://github.com/open-api-spex/open_api_spex#serve-the-spec

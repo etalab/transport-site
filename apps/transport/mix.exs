@@ -75,6 +75,10 @@ defmodule Transport.Mixfile do
       {:timex, "~> 3.7"},
       {:sentry, "~> 10.1"},
       {:scrivener, "~> 2.5"},
+      {:finch, "~> 0.8"},
+      {:yaml_elixir, "~> 2.7"},
+      {:cachex, "~> 3.5"},
+      {:saxy, "~> 1.5"},
       # `scrivener_html` seems to be unmaintained!
       # - Compilation issue for this dependency, see https://github.com/etalab/transport-site/issues/3499
       # - was not updated to support Phoenix 1.7
@@ -86,7 +90,6 @@ defmodule Transport.Mixfile do
       {:open_api_spex, "~> 3.8"},
       {:datagouvfr, in_umbrella: true},
       {:shared, in_umbrella: true},
-      {:unlock, in_umbrella: true},
       {:castore, "~> 1.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:cors_plug, "~> 3.0"},
@@ -99,6 +102,7 @@ defmodule Transport.Mixfile do
       {:sizeable, "~> 1.0"},
       {:plug_canonical_host, "~> 2.0"},
       {:mox, "~> 1.1", only: :test},
+      {:bypass, "~> 2.1", only: :test},
       # temporary fix until https://github.com/jayjun/rambo/pull/13 is merged
       # see https://github.com/etalab/transport-site/issues/2520.
       # Not perfect since this will impact `mix.lock`

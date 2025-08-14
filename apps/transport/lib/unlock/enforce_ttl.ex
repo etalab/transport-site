@@ -49,7 +49,7 @@ defmodule Unlock.EnforceTTL do
 
   # Figure out which proxy config item corresponds to a given cache key
   defp proxy_config(cache_key) do
-    config = Application.fetch_env!(:unlock, :config_fetcher).fetch_config!()
+    config = Application.fetch_env!(:transport, :unlock_config_fetcher).fetch_config!()
 
     parts =
       cache_key

@@ -16,17 +16,14 @@ config :os_mon,
   start_disksup: false,
   start_memsup: true
 
-config :unlock,
-  config_fetcher: Unlock.Config.GitHub,
-  http_client: Unlock.HTTP.FinchImpl,
-  github_config_url: "https://raw.githubusercontent.com/etalab/transport-proxy-config/master/proxy-config.yml",
-  github_auth_token: System.get_env("TRANSPORT_PROXY_CONFIG_GITHUB_TOKEN"),
-  siri_public_requestor_ref: "transport-data-gouv-fr"
+config :transport,
+  unlock_config_fetcher: Unlock.Config.GitHub,
+  unlock_http_client: Unlock.HTTP.FinchImpl,
+  unlock_github_config_url: "https://raw.githubusercontent.com/etalab/transport-proxy-config/master/proxy-config.yml",
+  unlock_github_auth_token: System.get_env("TRANSPORT_PROXY_CONFIG_GITHUB_TOKEN"),
+  unlock_siri_public_requestor_ref: "transport-data-gouv-fr"
 
-# NOTE: the config is unused by the app (because the endpoint is not used, the
-# unlock router is directly wired into the main transport endpoint). The config key
-# is nonetheless present to avoid a warning at runtime / test time.
-config :unlock, Unlock.Endpoint, []
+config :transport, Unlock.Endpoint, []
 
 if System.get_env("CELLAR_NAMESPACE") do
   # We believe CELLAR_NAMESPACE was a previous attempt at siloting S3 envs.

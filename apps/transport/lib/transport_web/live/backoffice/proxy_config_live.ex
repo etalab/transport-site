@@ -43,7 +43,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     {:noreply, socket}
   end
 
-  defp config_module, do: Application.fetch_env!(:unlock, :config_fetcher)
+  defp config_module, do: Application.fetch_env!(:transport, :unlock_config_fetcher)
 
   @doc """
   Builds a list of maps containing what we need on display on screen, based on configuration
