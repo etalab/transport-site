@@ -1,0 +1,19 @@
+<table class="table netex_xsd_schema">
+  <tr>
+    <th><%= dgettext("validations-explanations", "Location") %></th>
+    <th><%= dgettext("validations-explanations", "Message") %></th>
+  </tr>
+
+  <%= for issue <- @issues do %>
+    <tr class="message">
+      <td>
+        <%= if is_nil(issue["resource"]) or is_nil(issue["resource"]["filename"]) or is_nil(issue["resource"]["line"]) do %>
+          <%= dgettext("validations-explanations", "Unknown location") %>
+        <% else %>
+          <%= issue["resource"]["filename"] %>:<%= issue["resource"]["line"] %>
+        <% end %>
+      </td>
+      <td><%= issue["message"] %></td>
+    </tr>
+  <% end %>
+</table>

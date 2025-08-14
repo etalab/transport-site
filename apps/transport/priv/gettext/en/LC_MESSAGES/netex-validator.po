@@ -80,3 +80,7 @@ msgid "warning"
 msgid_plural "warnings"
 msgstr[0] "%{count} warning"
 msgstr[1] "%{count} warnings"
+
+#, elixir-autogen, elixir-format
+msgid "no error"
+msgstr ""
