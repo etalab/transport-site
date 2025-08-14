@@ -87,15 +87,15 @@ defmodule Transport.EnRouteChouetteValidClient do
     url = Path.join([validation_url(validation_id), "messages"])
 
     %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(url, auth_headers())
-    {url, body |> Jason.decode!() |> ignore_some_errors()}
+    {url, body |> Jason.decode!() |> filter_out_default_profile_messages()}
   end
 
-  defp ignore_some_errors(messages) do
-    messages |> Enum.reject(&public_code_length?/1)
+  # This is required for now as we are required to pick a profile and to our
+  # knowledge there's no "empty profile" available.
+  defp filter_out_default_profile_messages(messages) do
+    messages
+    |> Enum.filter(fn %{"code" => code} -> String.starts_with?(code, "xsd-") end)
   end
-
-  defp public_code_length?(%{"code" => code}), do: code == "public-code-length"
-  defp public_code_length?(_), do: false
 
   defp make_file_part(field_name, filepath) do
     {:file, filepath, {"form-data", [{:name, field_name}, {:filename, Path.basename(filepath)}]}, []}
