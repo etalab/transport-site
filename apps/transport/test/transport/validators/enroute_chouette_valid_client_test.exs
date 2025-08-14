@@ -156,7 +156,7 @@ defmodule Transport.EnRouteChouetteValidClientTest do
       """
       [
         {
-          "code": "uic-operating-period",
+          "code": "xsd-123",
           "message": "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod",
           "resource": {
             "id": "23504000009",
@@ -202,6 +202,6 @@ defmodule Transport.EnRouteChouetteValidClientTest do
     end)
 
     {^url, messages} = EnRouteChouetteValidClient.get_messages(validation_id)
-    assert length(messages) == 3
+    assert length(messages) == 1
   end
 end
