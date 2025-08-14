@@ -156,7 +156,7 @@ defmodule Transport.EnRouteChouetteValidClientTest do
       """
       [
         {
-          "code": "uic-operating-period",
+          "code": "xsd-123",
           "message": "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod",
           "resource": {
             "id": "23504000009",
