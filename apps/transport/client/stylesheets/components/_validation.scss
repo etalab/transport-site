@@ -159,7 +159,29 @@ table.netex_generic_issue tr.debug td code {
   ul.summary {
     list-style: none;
     padding-left: 1.25rem;
-    padding-bottom: 0.75rem;
+    margin-bottom: 0;
+
+    li {
+      display: grid;
+      gap: var(--space-xs);
+      grid-template-columns: min-content 1fr;
+      grid-template-areas:
+        "icon selector"
+        ".    explanation";
+      padding-bottom: var(--space-m);
+
+      i.fa {
+        align-self: center;
+        grid-area: icon;
+      }
+      div.selector {
+        grid-area: selector;
+      }
+      p {
+        margin: 0;
+        grid-area: explanation;
+      }
+    }
   }
 
   .fa {

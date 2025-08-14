@@ -320,15 +320,14 @@ defmodule TransportWeb.ResourceView do
   def netex_validation_summary(%{conn: _, results_adapter: _, validation_summary: _, token: _} = assigns) do
     ~H"""
     <ul class="summary">
-      <%= for {category, stats} <- @validation_summary do %>
-        <.netex_errors_category
-          conn={@conn}
-          results_adapter={@results_adapter}
-          category={category}
-          stats={stats}
-          token={@token}
-        />
-      <% end %>
+      <.netex_errors_category
+        :for={{category, stats} <- @validation_summary}
+        conn={@conn}
+        results_adapter={@results_adapter}
+        category={category}
+        stats={stats}
+        token={@token}
+      />
     </ul>
     """
   end
@@ -337,17 +336,19 @@ defmodule TransportWeb.ResourceView do
     ~H"""
     <li>
       <.validity_icon errors={@stats[:count]} />
-      <%= compatibility_filter(@conn, @category, @token) %>
-      <%= if @stats[:count] > 0 do %>
-        (<%= @results_adapter.format_severity(
-          @stats[:criticity],
-          @stats[:count]
-        ) %>)
-      <% end %>
+      <div class="selector">
+        <%= compatibility_filter(@conn, @category, @token) %>
+        <%= if @stats[:count] > 0 do %>
+          (<%= @results_adapter.format_severity(
+            @stats[:criticity],
+            @stats[:count]
+          ) %>)
+        <% end %>
+      </div>
+      <p :if={netex_category_description(@category) && @stats[:count] > 0}>
+        <%= netex_category_description(@category) %>
+      </p>
     </li>
-    <p :if={netex_category_description(@category) && @stats[:count] > 0}>
-      <%= netex_category_description(@category) %>
-    </p>
     """
   end
 
