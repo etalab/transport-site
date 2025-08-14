@@ -120,13 +120,16 @@ defmodule TransportWeb.ValidationController do
       %MultiValidation{oban_args: %{"state" => "completed", "type" => "netex"}} = validation ->
         results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(validation.validator_version)
 
+        template = pick_netex_template(validation.validator_version)
+
         current_issues = results_adapter.get_issues(validation.result, params)
 
         conn
         |> assign_base_validation_details(results_adapter, validation, params, current_issues)
         |> assign(:results_adapter, results_adapter)
         |> assign(:metadata, validation.metadata.metadata)
-        |> render("show_netex_v0_1_0.html")
+        |> assign(:max_severity, results_adapter.count_max_severity(validation.result))
+        |> render(template)
 
       # Handles waiting for validation to complete, errors and
       # validation for schemas
@@ -140,6 +143,9 @@ defmodule TransportWeb.ValidationController do
         )
     end
   end
+
+  defp pick_netex_template("0.2.0"), do: "show_netex_v0_2_0.html"
+  defp pick_netex_template(_), do: "show_netex_v0_1_0.html"
 
   defp assign_base_validation_details(conn, results_adapter, validation, params, current_issues) do
     conn
