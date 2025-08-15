@@ -180,6 +180,11 @@ defmodule TransportWeb.SessionControllerTest do
 
       assert [
                %Oban.Job{
+                 worker: "Transport.Jobs.CreateTokensJob",
+                 args: %{"contact_id" => ^contact_id, "action" => "create_token_for_contact"},
+                 state: "scheduled"
+               },
+               %Oban.Job{
                  worker: "Transport.Jobs.PromoteProducerSpaceJob",
                  args: %{"contact_id" => ^contact_id},
                  state: "scheduled"
@@ -228,6 +233,11 @@ defmodule TransportWeb.SessionControllerTest do
       assert_in_delta last_login_at |> DateTime.to_unix(), DateTime.utc_now() |> DateTime.to_unix(), 1
 
       assert [
+               %Oban.Job{
+                 worker: "Transport.Jobs.CreateTokensJob",
+                 args: %{"contact_id" => ^contact_id, "action" => "create_token_for_contact"},
+                 state: "scheduled"
+               },
                %Oban.Job{
                  worker: "Transport.Jobs.PromoteProducerSpaceJob",
                  args: %{"contact_id" => ^contact_id},

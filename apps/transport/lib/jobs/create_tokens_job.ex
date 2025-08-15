@@ -6,6 +6,7 @@ defmodule Transport.Jobs.CreateTokensJob do
     members of this organization.
   - creating a default token for each contact without an organization.
     The created token is then set as the default.
+  - creating a token for a contact.
   """
   use Oban.Worker, max_attempts: 3, tags: ["tokens"]
   import Ecto.Query
@@ -20,6 +21,26 @@ defmodule Transport.Jobs.CreateTokensJob do
     |> join(:inner, [contact: c], o in assoc(c, :organizations), as: :organizations)
     |> select([contact: c], c.id)
     |> distinct(true)
+  end
+
+  # Create a token for a contact.
+  # - If the contact is not a member of an organization, a personal token
+  # - Otherwise set the default token using the first organization
+  @impl Oban.Worker
+  def perform(%Oban.Job{args: %{"action" => "create_token_for_contact", "contact_id" => contact_id}}) do
+    contact = DB.Repo.get!(DB.Contact, contact_id) |> DB.Repo.preload([:default_tokens, organizations: [:tokens]])
+
+    if not Enum.empty?(contact.default_tokens) do
+      {:cancel, "already has a default token"}
+    else
+      if contact.organizations |> Enum.empty?() do
+        create_default_token_for_contact(contact)
+      else
+        set_default_token_for_contact(contact)
+      end
+
+      :ok
+    end
   end
 
   # - Create a default token for an organization
@@ -62,13 +83,7 @@ defmodule Transport.Jobs.CreateTokensJob do
     |> where([contact: c], c.id in subquery(contact_ids_in_org))
     |> select([contact: c], [:id])
     |> DB.Repo.all()
-    |> Enum.each(fn %DB.Contact{id: contact_id, organizations: organizations} ->
-      token = organizations |> hd() |> Map.fetch!(:tokens) |> hd()
-
-      %DB.DefaultToken{}
-      |> DB.DefaultToken.changeset(%{token_id: token.id, contact_id: contact_id})
-      |> DB.Repo.insert!()
-    end)
+    |> Enum.each(&set_default_token_for_contact/1)
   end
 
   # - Create tokens for contacts without an organization
@@ -81,22 +96,9 @@ defmodule Transport.Jobs.CreateTokensJob do
     DB.Contact.base_query()
     |> where([contact: c], c.id not in subquery(contact_ids_with_a_default_token))
     |> where([contact: c], c.id not in subquery(contact_ids_in_org))
-    |> select([contact: c], %{contact_id: c.id})
+    |> select([contact: c], [:id])
     |> DB.Repo.all()
-    |> Enum.each(fn %{contact_id: contact_id} ->
-      token =
-        %DB.Token{}
-        |> DB.Token.changeset(%{
-          contact_id: contact_id,
-          organization_id: nil,
-          name: "Défaut"
-        })
-        |> DB.Repo.insert!()
-
-      %DB.DefaultToken{}
-      |> DB.DefaultToken.changeset(%{token_id: token.id, contact_id: contact_id})
-      |> DB.Repo.insert!()
-    end)
+    |> Enum.each(&create_default_token_for_contact/1)
   end
 
   # - Finds organizations without a token
@@ -116,5 +118,28 @@ defmodule Transport.Jobs.CreateTokensJob do
     |> Oban.insert_all()
 
     :ok
+  end
+
+  defp create_default_token_for_contact(%DB.Contact{id: contact_id}) do
+    token =
+      %DB.Token{}
+      |> DB.Token.changeset(%{
+        contact_id: contact_id,
+        organization_id: nil,
+        name: "Défaut"
+      })
+      |> DB.Repo.insert!()
+
+    %DB.DefaultToken{}
+    |> DB.DefaultToken.changeset(%{token_id: token.id, contact_id: contact_id})
+    |> DB.Repo.insert!()
+  end
+
+  defp set_default_token_for_contact(%DB.Contact{id: contact_id, organizations: organizations}) do
+    token = organizations |> hd() |> Map.fetch!(:tokens) |> hd()
+
+    %DB.DefaultToken{}
+    |> DB.DefaultToken.changeset(%{token_id: token.id, contact_id: contact_id})
+    |> DB.Repo.insert!()
   end
 end
