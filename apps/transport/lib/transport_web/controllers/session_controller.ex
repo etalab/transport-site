@@ -86,10 +86,17 @@ defmodule TransportWeb.SessionController do
       nil ->
         contact = find_contact_by_email_or_create(user_params)
         maybe_promote_producer_space(contact)
+        create_token_for_contact(contact)
         contact
     end
     |> DB.Contact.changeset(%{last_login_at: DateTime.utc_now(), organizations: organizations})
     |> DB.Repo.update!()
+  end
+
+  defp create_token_for_contact(%DB.Contact{id: contact_id}) do
+    %{contact_id: contact_id, action: "create_token_for_contact"}
+    |> Transport.Jobs.CreateTokensJob.new(schedule_in: 5)
+    |> Oban.insert!()
   end
 
   defp maybe_promote_producer_space(%DB.Contact{id: contact_id}) do
