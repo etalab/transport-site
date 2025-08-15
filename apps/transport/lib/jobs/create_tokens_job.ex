@@ -30,9 +30,7 @@ defmodule Transport.Jobs.CreateTokensJob do
   def perform(%Oban.Job{args: %{"action" => "create_token_for_contact", "contact_id" => contact_id}}) do
     contact = DB.Repo.get!(DB.Contact, contact_id) |> DB.Repo.preload([:default_tokens, organizations: [:tokens]])
 
-    if not Enum.empty?(contact.default_tokens) do
-      {:cancel, "already has a default token"}
-    else
+    if Enum.empty?(contact.default_tokens) do
       if contact.organizations |> Enum.empty?() do
         create_default_token_for_contact(contact)
       else
@@ -40,6 +38,8 @@ defmodule Transport.Jobs.CreateTokensJob do
       end
 
       :ok
+    else
+      {:cancel, "already has a default token"}
     end
   end
 
