@@ -6,7 +6,7 @@ defmodule Datagouvfr.Client.DiscussionTest do
   @token_secret Ecto.UUID.generate()
 
   setup do
-    {:ok, conn: build_conn() |> assign(:token, OAuth2.AccessToken.new(@token_secret))}
+    {:ok, conn: build_conn() |> assign(:datagouv_token, OAuth2.AccessToken.new(@token_secret))}
   end
 
   test "start a new discussion", %{conn: conn} do

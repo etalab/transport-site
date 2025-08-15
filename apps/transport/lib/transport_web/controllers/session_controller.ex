@@ -17,8 +17,8 @@ defmodule TransportWeb.SessionController do
     with %{token: token} <- authentication_module.get_token!(code: code),
          conn <-
            conn
-           |> put_session(:token, token)
-           |> assign(:token, token),
+           |> put_session(:datagouv_token, token)
+           |> assign(:datagouv_token, token),
          {:ok, user} <- user_module.me(conn) do
       user_params = user_params(user)
       find_or_create_contact(user_params)
