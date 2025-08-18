@@ -5,6 +5,8 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
 
   use Gettext, backend: TransportWeb.Gettext
 
+  alias Transport.Validators.NeTEx.ResultsAdapters.V0_1_0
+
   @behaviour Transport.Validators.NeTEx.ResultsAdapter
 
   @no_error "NoError"
@@ -49,29 +51,13 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
   {"NoError", 0}
   """
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  def count_max_severity(validation_result) when validation_result == %{} do
-    {@no_error, 0}
-  end
+  defdelegate count_max_severity(validation_result), to: V0_1_0
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  def count_max_severity(%{} = validation_result) do
-    validation_result
-    |> count_by_severity()
-    |> Enum.min_by(fn {severity, _count} -> severity |> severity_level() end)
-  end
-
-  @impl Transport.Validators.NeTEx.ResultsAdapter
-  def no_error?(severity), do: @no_error == severity
+  defdelegate no_error?(severity), to: V0_1_0
 
   @spec severity_level(binary()) :: integer()
-  defp severity_level(key) do
-    case key do
-      "error" -> 1
-      "warning" -> 2
-      "information" -> 3
-      _ -> 4
-    end
-  end
+  defdelegate severity_level(key), to: V0_1_0
 
   @doc """
   iex> Gettext.put_locale("en")
@@ -92,10 +78,8 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def format_severity(key, count) do
     case key do
-      "error" -> dngettext("netex-validator", "error", "errors", count)
-      "warning" -> dngettext("netex-validator", "warning", "warnings", count)
-      "information" -> dngettext("netex-validator", "information", "informations", count)
       @no_error -> dgettext("netex-validator", "no error")
+      _ -> V0_1_0.format_severity(key, count)
     end
   end
 
@@ -110,13 +94,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
   %{}
   """
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  def count_by_severity(%{} = validation_result) do
-    validation_result
-    |> Enum.flat_map(fn {_, v} -> v end)
-    |> Enum.reduce(%{}, fn v, acc -> Map.update(acc, v["criticity"], 1, &(&1 + 1)) end)
-  end
-
-  def count_by_severity(_), do: %{}
+  defdelegate count_by_severity(validation_result), to: V0_1_0
 
   @doc """
   iex> index_messages([])
@@ -177,8 +155,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
   end
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  def issue_type([]), do: nil
-  def issue_type([h | _]), do: h["code"] || @unknown_code
+  defdelegate issue_type(list), to: V0_1_0
 
   @doc """
   Get issues from validation results. For a specific issue type if specified, or the most severe.
@@ -219,14 +196,5 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
     |> Map.get(category || @catch_all_category, [])
   end
 
-  defp order_issues_by_location(issues) do
-    issues
-    |> Enum.sort_by(fn issue ->
-      message = Map.get(issue, "message", "")
-      resource = Map.get(issue, "resource", %{})
-      filename = Map.get(resource, "filename", "")
-      line = Map.get(resource, "line", "")
-      {filename, line, message}
-    end)
-  end
+  defdelegate order_issues_by_location(issues), to: V0_1_0
 end

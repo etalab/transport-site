@@ -55,7 +55,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
   def no_error?(severity), do: @no_error == severity
 
   @spec severity_level(binary()) :: integer()
-  defp severity_level(key) do
+  def severity_level(key) do
     case key do
       "error" -> 1
       "warning" -> 2
@@ -195,7 +195,9 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
   """
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def get_issues(%{} = validation_result, %{"issue_type" => issue_type}) do
-    Map.get(validation_result, issue_type, []) |> order_issues_by_location()
+    validation_result
+    |> Map.get(issue_type, [])
+    |> order_issues_by_location()
   end
 
   def get_issues(%{} = validation_result, _) do
@@ -208,7 +210,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
 
   def get_issues(_, _), do: []
 
-  defp order_issues_by_location(issues) do
+  def order_issues_by_location(issues) do
     issues
     |> Enum.sort_by(fn issue ->
       message = Map.get(issue, "message", "")
