@@ -671,8 +671,7 @@ defmodule TransportWeb.ResourceControllerTest do
   end
 
   test "NeTEx validation is shown", %{conn: conn} do
-    ["0.1.0", "0.2.0"]
-    |> Enum.each(fn version ->
+    for version <- ["0.1.0", "0.2.0"] do
       %{id: dataset_id} = insert(:dataset)
 
       %{id: resource_id} =
@@ -719,7 +718,7 @@ defmodule TransportWeb.ResourceControllerTest do
 
       assert content =~
                ~s{Validation effectuée en utilisant <a href="#{permanent_url}">le fichier NeTEx en vigueur</a> le 28/10/2022 à 16h12 Europe/Paris}
-    end)
+    end
   end
 
   test "GTFS-RT validation is shown", %{conn: conn} do
