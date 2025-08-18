@@ -64,11 +64,7 @@ defmodule Transport.Jobs.CreateTokensJob do
 
     organization.contacts
     |> Enum.filter(fn %DB.Contact{default_tokens: default_tokens} -> default_tokens == [] end)
-    |> Enum.each(fn %DB.Contact{} = contact ->
-      %DB.DefaultToken{}
-      |> DB.DefaultToken.changeset(%{token_id: token.id, contact_id: contact.id})
-      |> DB.Repo.insert!()
-    end)
+    |> Enum.each(fn %DB.Contact{} = contact -> set_default_token_for_contact(token, contact) end)
   end
 
   # Sets a default token for members of an organization without a default token.
@@ -120,7 +116,7 @@ defmodule Transport.Jobs.CreateTokensJob do
     :ok
   end
 
-  defp create_default_token_for_contact(%DB.Contact{id: contact_id}) do
+  defp create_default_token_for_contact(%DB.Contact{id: contact_id} = contact) do
     token =
       %DB.Token{}
       |> DB.Token.changeset(%{
@@ -130,16 +126,18 @@ defmodule Transport.Jobs.CreateTokensJob do
       })
       |> DB.Repo.insert!()
 
-    %DB.DefaultToken{}
-    |> DB.DefaultToken.changeset(%{token_id: token.id, contact_id: contact_id})
-    |> DB.Repo.insert!()
+    set_default_token_for_contact(token, contact)
   end
 
-  defp set_default_token_for_contact(%DB.Contact{id: contact_id, organizations: organizations}) do
+  defp set_default_token_for_contact(%DB.Contact{organizations: organizations} = contact) do
     token = organizations |> hd() |> Map.fetch!(:tokens) |> hd()
 
+    set_default_token_for_contact(token, contact)
+  end
+
+  defp set_default_token_for_contact(%DB.Token{id: token_id}, %DB.Contact{id: contact_id}) do
     %DB.DefaultToken{}
-    |> DB.DefaultToken.changeset(%{token_id: token.id, contact_id: contact_id})
+    |> DB.DefaultToken.changeset(%{token_id: token_id, contact_id: contact_id})
     |> DB.Repo.insert!()
   end
 end
