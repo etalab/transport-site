@@ -66,7 +66,7 @@ defmodule Datagouvfr.Client.OAuth do
   @spec get_client(Plug.Conn.t()) :: OAuth2.Client.t()
   def get_client(%Plug.Conn{} = conn) do
     conn.assigns
-    |> Map.get(:token, nil)
+    |> Map.get(:datagouv_token, nil)
     |> Authentication.client()
   end
 
