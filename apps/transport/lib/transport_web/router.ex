@@ -87,6 +87,7 @@ defmodule TransportWeb.Router do
     get("/robots.txt", PageController, :robots_txt)
     get("/.well-known/security.txt", PageController, :security_txt)
     get("/humans.txt", PageController, :humans_txt)
+    get("/sitemap.txt", PageController, :sitemap_txt)
     get("/reuses", ReuseController, :index)
 
     scope "/espace_producteur" do
