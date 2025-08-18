@@ -117,40 +117,46 @@ defmodule TransportWeb.PageController do
   end
 
   def sitemap_txt(%Plug.Conn{} = conn, _params) do
-    dataset_types = DB.Dataset.types()
-    dataset_slugs = DB.Dataset.base_query() |> select([dataset: d], d.slug) |> DB.Repo.all()
-    region_ids = DB.Region |> select([r], r.id) |> DB.Repo.all()
-    aom_ids = DB.AOM |> select([a], a.id) |> DB.Repo.all()
-    insee_communes = DB.Commune |> select([c], c.insee) |> DB.Repo.all()
-
     urls =
-      [
-        page_url(conn, :index),
-        page_url(conn, :missions),
-        page_url(conn, :accessibility),
-        page_url(conn, :infos_producteurs),
-        page_url(conn, :infos_reutilisateurs),
-        page_url(conn, :robots_txt),
-        page_url(conn, :security_txt),
-        page_url(conn, :humans_txt),
-        page_url(conn, :espace_producteur),
-        reuser_space_url(conn, :espace_reutilisateur),
-        reuse_url(conn, :index),
-        stats_url(conn, :index),
-        explore_url(conn, :vehicle_positions),
-        explore_url(conn, :gtfs_stops),
-        session_url(conn, :new),
-        landing_pages_url(conn, :vls),
-        live_url(conn, TransportWeb.Live.OnDemandValidationSelectLive),
-        live_url(conn, TransportWeb.Live.GTFSDiffSelectLive),
-        live_url(conn, TransportWeb.Live.SIRIQuerierLive),
-        dataset_url(conn, :index)
-      ] ++
-        Enum.map(dataset_types, &dataset_url(conn, :index, type: &1)) ++
-        Enum.map(dataset_slugs, &dataset_url(conn, :details, &1)) ++
-        Enum.map(region_ids, &dataset_url(conn, :by_region, &1)) ++
-        Enum.map(aom_ids, &dataset_url(conn, :by_aom, &1)) ++
-        Enum.map(insee_communes, &dataset_url(conn, :by_commune_insee, &1))
+      Transport.Cache.fetch(
+        "sitemap_txt_urls",
+        fn ->
+          dataset_types = DB.Dataset.types()
+          dataset_slugs = DB.Dataset.base_query() |> select([dataset: d], d.slug) |> DB.Repo.all()
+          region_ids = DB.Region |> select([r], r.id) |> DB.Repo.all()
+          aom_ids = DB.AOM |> select([a], a.id) |> DB.Repo.all()
+          insee_communes = DB.Commune |> select([c], c.insee) |> DB.Repo.all()
+
+          [
+            page_url(conn, :index),
+            page_url(conn, :missions),
+            page_url(conn, :accessibility),
+            page_url(conn, :infos_producteurs),
+            page_url(conn, :infos_reutilisateurs),
+            page_url(conn, :robots_txt),
+            page_url(conn, :security_txt),
+            page_url(conn, :humans_txt),
+            page_url(conn, :espace_producteur),
+            reuser_space_url(conn, :espace_reutilisateur),
+            reuse_url(conn, :index),
+            stats_url(conn, :index),
+            explore_url(conn, :vehicle_positions),
+            explore_url(conn, :gtfs_stops),
+            session_url(conn, :new),
+            landing_pages_url(conn, :vls),
+            live_url(conn, TransportWeb.Live.OnDemandValidationSelectLive),
+            live_url(conn, TransportWeb.Live.GTFSDiffSelectLive),
+            live_url(conn, TransportWeb.Live.SIRIQuerierLive),
+            dataset_url(conn, :index)
+          ] ++
+            Enum.map(dataset_types, &dataset_url(conn, :index, type: &1)) ++
+            Enum.map(dataset_slugs, &dataset_url(conn, :details, &1)) ++
+            Enum.map(region_ids, &dataset_url(conn, :by_region, &1)) ++
+            Enum.map(aom_ids, &dataset_url(conn, :by_aom, &1)) ++
+            Enum.map(insee_communes, &dataset_url(conn, :by_commune_insee, &1))
+        end,
+        :timer.hours(1)
+      )
 
     conn |> text(Enum.join(urls, "\n"))
   end
