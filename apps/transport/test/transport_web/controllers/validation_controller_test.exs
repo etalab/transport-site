@@ -158,44 +158,8 @@ defmodule TransportWeb.ValidationControllerTest do
              ] = DB.FeatureUsage |> DB.Repo.all()
     end
 
-    test "with a NeTEx", %{conn: conn} do
-      Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
-      S3TestUtils.s3_mock_stream_file(start_path: "", bucket: "transport-data-gouv-fr-on-demand-validation-test")
-      assert 0 == count_validations()
-
-      conn =
-        conn
-        |> post(validation_path(conn, :validate), %{
-          "upload" => %{"file" => %Plug.Upload{path: @netex_path}, "type" => "netex"}
-        })
-
-      assert 1 == count_validations()
-
-      assert %{
-               oban_args: %{
-                 "filename" => filename,
-                 "permanent_url" => permanent_url,
-                 "state" => "waiting",
-                 "type" => "netex",
-                 "secret_url_token" => token
-               },
-               id: validation_id
-             } = multi_validation = DB.MultiValidation |> DB.Repo.one!() |> DB.Repo.preload(:metadata)
-
-      assert [
-               %Oban.Job{
-                 args: %{
-                   "id" => ^validation_id,
-                   "state" => "waiting",
-                   "filename" => ^filename,
-                   "permanent_url" => ^permanent_url,
-                   "type" => "netex"
-                 }
-               }
-             ] = all_enqueued(worker: Transport.Jobs.OnDemandValidationJob, queue: :on_demand_validation)
-
-      assert permanent_url == Transport.S3.permanent_url(:on_demand_validation, filename)
-      assert redirected_to(conn, 302) == validation_path(conn, :show, validation_id, token: token)
+    test "with a NeTEx - 0.1.0", %{conn: conn} do
+      {conn, multi_validation, token} = setup_netex_validation(conn)
 
       result = %{
         "xsd-1871" => [
@@ -229,28 +193,46 @@ defmodule TransportWeb.ValidationControllerTest do
         ]
       }
 
-      # Validation is completed, ensure that the validation's result page can be displayed
-      multi_validation
-      |> Ecto.Changeset.change(%{
-        oban_args: %{multi_validation.oban_args | "state" => "completed"},
-        result: result,
-        max_error: "warning",
-        data_vis: nil,
-        metadata: %{}
-      })
-      |> DB.Repo.update!()
+      mark_netex_validation_completed(
+        multi_validation,
+        %{
+          validator_version: "0.1.0",
+          result: result,
+          max_error: "warning"
+        }
+      )
 
-      conn2 = conn |> get(validation_path(conn, :show, validation_id, token: token))
+      conn2 = conn |> get(validation_path(conn, :show, multi_validation.id, token: token))
       assert conn2 |> html_response(200) =~ "3 avertissements"
       assert conn2 |> html_response(200) =~ "1 erreur"
+    end
 
-      assert [
-               %DB.FeatureUsage{
-                 feature: :on_demand_validation,
-                 contact_id: nil,
-                 metadata: %{"type" => "netex"}
-               }
-             ] = DB.FeatureUsage |> DB.Repo.all()
+    test "with a NeTEx - 0.2.0", %{conn: conn} do
+      {conn, multi_validation, token} = setup_netex_validation(conn)
+
+      result = %{
+        "xsd-schema" => [
+          %{
+            "code" => "xsd-1871",
+            "criticity" => "error",
+            "message" =>
+              "Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef )."
+          }
+        ]
+      }
+
+      mark_netex_validation_completed(
+        multi_validation,
+        %{
+          validator_version: "0.2.0",
+          result: result,
+          max_error: "error"
+        }
+      )
+
+      conn = conn |> get(validation_path(conn, :show, multi_validation.id, token: token))
+      body = conn |> html_response(200) |> Floki.text()
+      assert body =~ ~r{XSD NeTEx\s+\(1 erreur\)}
     end
 
     test "with a schema", %{conn: conn} do
@@ -579,5 +561,67 @@ defmodule TransportWeb.ValidationControllerTest do
 
   defp count_validations do
     DB.Repo.one!(from(v in DB.MultiValidation, select: count()))
+  end
+
+  defp setup_netex_validation(conn) do
+    Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
+    S3TestUtils.s3_mock_stream_file(start_path: "", bucket: "transport-data-gouv-fr-on-demand-validation-test")
+    assert 0 == count_validations()
+
+    conn =
+      conn
+      |> post(validation_path(conn, :validate), %{
+        "upload" => %{"file" => %Plug.Upload{path: @netex_path}, "type" => "netex"}
+      })
+
+    assert 1 == count_validations()
+
+    assert %{
+             oban_args: %{
+               "filename" => filename,
+               "permanent_url" => permanent_url,
+               "state" => "waiting",
+               "type" => "netex",
+               "secret_url_token" => token
+             },
+             id: validation_id
+           } = multi_validation = DB.MultiValidation |> DB.Repo.one!() |> DB.Repo.preload(:metadata)
+
+    assert [
+             %Oban.Job{
+               args: %{
+                 "id" => ^validation_id,
+                 "state" => "waiting",
+                 "filename" => ^filename,
+                 "permanent_url" => ^permanent_url,
+                 "type" => "netex"
+               }
+             }
+           ] = all_enqueued(worker: Transport.Jobs.OnDemandValidationJob, queue: :on_demand_validation)
+
+    assert permanent_url == Transport.S3.permanent_url(:on_demand_validation, filename)
+    assert redirected_to(conn, 302) == validation_path(conn, :show, validation_id, token: token)
+
+    {conn, multi_validation, token}
+  end
+
+  defp mark_netex_validation_completed(multi_validation, arguments) do
+    multi_validation
+    |> Ecto.Changeset.change(
+      Map.merge(arguments, %{
+        oban_args: %{multi_validation.oban_args | "state" => "completed"},
+        data_vis: nil,
+        metadata: %{}
+      })
+    )
+    |> DB.Repo.update!()
+
+    assert [
+             %DB.FeatureUsage{
+               feature: :on_demand_validation,
+               contact_id: nil,
+               metadata: %{"type" => "netex"}
+             }
+           ] = DB.FeatureUsage |> DB.Repo.all()
   end
 end
