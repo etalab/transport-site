@@ -44,6 +44,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
     {@no_error, 0}
   end
 
+  @impl Transport.Validators.NeTEx.ResultsAdapter
   def count_max_severity(%{} = validation_result) do
     validation_result
     |> count_by_severity()
