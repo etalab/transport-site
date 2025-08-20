@@ -252,8 +252,10 @@ defmodule TransportWeb.PageControllerTest do
   end
 
   describe "robots.txt" do
-    test "200 response, doesn't disallow indexing everything", %{conn: conn} do
-      refute conn |> get(~p"/robots.txt") |> text_response(200) =~ ~r(Disallow: \/$)
+    test "200 response, doesn't disallow indexing everything and includes sitemap", %{conn: conn} do
+      content = conn |> get(~p"/robots.txt") |> text_response(200)
+      refute content =~ ~r(Disallow: \/\n)
+      assert content =~ "Sitemap: http://127.0.0.1:5100/sitemap.txt"
     end
 
     test "disallow indexing everything in staging" do
@@ -268,6 +270,10 @@ defmodule TransportWeb.PageControllerTest do
 
   test "missions page", %{conn: conn} do
     conn |> get(page_path(conn, :missions)) |> html_response(200)
+  end
+
+  test "sitemap page", %{conn: conn} do
+    conn |> get(page_path(conn, :sitemap_txt)) |> text_response(200)
   end
 
   test "budget page", %{conn: conn} do
