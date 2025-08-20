@@ -14,12 +14,12 @@ config :transport, TransportWeb.Endpoint,
 
 config :oauth2, adapter: Tesla.Mock
 
-config :unlock,
-  config_fetcher: Unlock.Config.Fetcher.Mock,
-  http_client: Unlock.HTTP.Client.Mock,
+config :transport,
+  unlock_config_fetcher: Unlock.Config.Fetcher.Mock,
+  unlock_http_client: Unlock.HTTP.Client.Mock,
   # Used for config testing
-  github_config_url: "https://localhost/some-github-url",
-  github_auth_token: "some-test-github-auth-token"
+  unlock_github_config_url: "https://localhost/some-github-url",
+  unlock_github_auth_token: "some-test-github-auth-token"
 
 # Use stubbing to enjoy disconnected tests & allow setting mocks expectations
 config :transport,

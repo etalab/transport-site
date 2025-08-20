@@ -41,8 +41,8 @@ config :transport,
   disable_national_gtfs_map: System.get_env("DISABLE_NATIONAL_GTFS_MAP") in ["1", "true"],
   disable_netex_validator: System.get_env("DISABLE_NETEX_VALIDATOR") in ["1", "true"]
 
-config :unlock,
-  enforce_ttl: webserver
+config :transport,
+  unlock_enforce_ttl: webserver
 
 # Inside IEx, we do not want jobs to start processing, nor plugins working.
 # The jobs can be heavy and for instance in production, one person could
@@ -71,7 +71,7 @@ end
 # on staging, allow override of configuration so that we can target other branches
 if app_env == :staging do
   if url = System.get_env("TRANSPORT_PROXY_CONFIG_GITHUB_URL") do
-    config :unlock, github_config_url: url
+    config :transport, unlock_github_config_url: url
   end
 end
 

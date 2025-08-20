@@ -31,7 +31,7 @@ defmodule Unlock.HTTP do
     @callback get!(url :: binary, headers :: headers(), options :: keyword()) :: any()
     @callback post!(url :: binary, headers :: headers(), body :: binary) :: any()
 
-    def impl, do: Application.fetch_env!(:unlock, :http_client)
+    def impl, do: Application.fetch_env!(:transport, :unlock_http_client)
   end
 
   defmodule FinchImpl do
