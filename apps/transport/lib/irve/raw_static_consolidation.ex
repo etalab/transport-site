@@ -128,7 +128,7 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     end
   end
 
-  def maybe_convert_utf_16(_, body), do: nil
+  def maybe_convert_utf_16(_, body), do: body
 
   @doc """
   Ensure that binary content is valid UTF-8. If not, attempt conversion from
