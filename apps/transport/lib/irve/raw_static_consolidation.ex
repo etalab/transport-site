@@ -64,6 +64,10 @@ defmodule Transport.IRVE.RawStaticConsolidation do
       raise "HTTP status is not 200 (#{status})"
     end
 
+    # Rare case where we have UTF-16, needs to be done before the "cheap checks" or they will fail,
+    # in particular because UTF-16 is on 2 bytes, so column identification fails.
+    body = maybe_convert_utf_16(row.dataset_id, body)
+
     # A number of checks are carried out before attempting to parse the data, using a couple of heuristics,
     # in order to get meaningful error messages in the report.
     run_cheap_blocking_checks(body, extension)
@@ -104,6 +108,27 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   end
 
   def maybe_rename_bogus_num_pdl(_, body), do: body
+
+  @doc """
+  See https://github.com/etalab/transport-site/issues/4771.
+
+  This is a temporary quick-fix for an UTF-16 resource, until this
+  gets fixed in the source.
+  """
+  def maybe_convert_utf_16("689c957abf34e799e1bf365a", body) do
+    case body do
+      <<0xFF, 0xFE, rest::binary>> ->
+        case :unicode.characters_to_binary(body, {:utf16, :little}, :utf8) do
+          # will raise a pattern error if the conversion fails
+          utf8_binary when is_binary(utf8_binary) -> utf8_binary
+        end
+
+      _ ->
+        body
+    end
+  end
+
+  def maybe_convert_utf_16(_, body), do: nil
 
   @doc """
   Ensure that binary content is valid UTF-8. If not, attempt conversion from
