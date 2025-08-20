@@ -42,6 +42,8 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   @test_dataset_id "67811b8e8934d388950bca3f"
   # and another one (we'll create a more structured filter later)
   @air_france_klm_dataset_id "642167910d33a1a75ebfa1d2"
+  # bogus GBFS which causes a timeout, hard to differenciate, so hard-filtering it out for now
+  @bogus_gbfs "678e6c068a2785ad5b2099f8"
 
   @doc """
   Download content separately from processing, because we need to provide an estimate of the number of lines
@@ -196,6 +198,8 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     |> Enum.reject(fn r -> r.dataset_id == @test_dataset_id end)
     # and similarly: https://github.com/etalab/transport-site/issues/4660) 166MB file
     |> Enum.reject(fn r -> r.dataset_id == @air_france_klm_dataset_id end)
+    # a GBFS timing out the whole process
+    |> Enum.reject(fn r -> r.dataset_id == @bogus_gbfs end)
   end
 
   def build_report_item(row, body, extension, optional_error) do
