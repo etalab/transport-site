@@ -57,6 +57,9 @@ defmodule TransportWeb.SessionControllerTest do
 
     assert redirected_to(conn, 302) == "/"
 
+    # Token has been saved to `datagouv_token` key.
+    assert conn.assigns[:datagouv_token] == Datagouvfr.Authentication.Dummy.get_token!(%{}) |> Map.fetch!(:token)
+
     # A `DB.Contact` has been created for this user
     assert [
              %DB.Contact{
@@ -180,6 +183,11 @@ defmodule TransportWeb.SessionControllerTest do
 
       assert [
                %Oban.Job{
+                 worker: "Transport.Jobs.CreateTokensJob",
+                 args: %{"contact_id" => ^contact_id, "action" => "create_token_for_contact"},
+                 state: "scheduled"
+               },
+               %Oban.Job{
                  worker: "Transport.Jobs.PromoteProducerSpaceJob",
                  args: %{"contact_id" => ^contact_id},
                  state: "scheduled"
@@ -228,6 +236,11 @@ defmodule TransportWeb.SessionControllerTest do
       assert_in_delta last_login_at |> DateTime.to_unix(), DateTime.utc_now() |> DateTime.to_unix(), 1
 
       assert [
+               %Oban.Job{
+                 worker: "Transport.Jobs.CreateTokensJob",
+                 args: %{"contact_id" => ^contact_id, "action" => "create_token_for_contact"},
+                 state: "scheduled"
+               },
                %Oban.Job{
                  worker: "Transport.Jobs.PromoteProducerSpaceJob",
                  args: %{"contact_id" => ^contact_id},
