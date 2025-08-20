@@ -11,3 +11,6 @@ Mox.defmock(Transport.ValidatorsSelection.Mock, for: Transport.ValidatorsSelecti
 Mox.defmock(Transport.SIRIQueryGenerator.Mock, for: Transport.SIRIQueryGenerator.Behaviour)
 Mox.defmock(Transport.Unzip.S3.Mock, for: Transport.Unzip.S3.Behaviour)
 Mox.defmock(Transport.EnRouteChouetteValidClient.Mock, for: Transport.EnRouteChouetteValidClient.Wrapper)
+
+Mox.defmock(Unlock.Config.Fetcher.Mock, for: Unlock.Config.Fetcher)
+Mox.defmock(Unlock.HTTP.Client.Mock, for: Unlock.HTTP.Client)

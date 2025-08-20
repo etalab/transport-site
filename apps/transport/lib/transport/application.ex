@@ -8,6 +8,7 @@ defmodule Transport.Application do
 
   use Application
   use Task
+  import Cachex.Spec
   alias Transport.{CSVDocuments, ImportDataWorker, SearchCommunes}
   alias TransportWeb.Endpoint
 
@@ -38,13 +39,22 @@ defmodule Transport.Application do
         # tests, IEx usage, front-end only mode etc.
         {Oban, Application.fetch_env!(:transport, Oban)},
         Transport.PhoenixDashboardTelemetry,
-        Transport.Vault
+        Transport.Vault,
+        Unlock.Endpoint,
+        {Finch, name: Unlock.Finch},
+        Supervisor.child_spec(
+          {Cachex,
+           name: Unlock.Cachex,
+           expiration: expiration(default: :timer.seconds(Unlock.Shared.default_cache_expiration_seconds()))},
+          id: :unlock_cachex
+        )
       ]
       |> add_scheduler()
       |> add_if(fn -> run_realtime_poller?() end, Transport.RealtimePoller)
       |> add_if(fn -> preemptive_caching?() end, Transport.PreemptiveHomeStatsCache)
       |> add_if(fn -> preemptive_caching?() end, Transport.PreemptiveAPICache)
       |> add_if(fn -> preemptive_caching?() end, Transport.PreemptiveStatsCache)
+      |> add_if(fn -> enforce_ttl?() end, Unlock.EnforceTTL)
       ## manually add a children supervisor that is not scheduled
       |> Kernel.++([{Task.Supervisor, name: ImportTaskSupervisor}])
 
@@ -83,6 +93,8 @@ defmodule Transport.Application do
       children
     end
   end
+
+  defp enforce_ttl?, do: Application.fetch_env!(:transport, :unlock_enforce_ttl)
 
   def config_change(changed, _new, removed) do
     Endpoint.config_change(changed, removed)
