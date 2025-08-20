@@ -71,7 +71,9 @@ end)
 files = [
   {:dev_separator, "cache-dir/irve/irve_static_consolidation.csv"}
 ]
+
 IO.puts("=====================")
+
 files
 |> Enum.each(fn {name, file} ->
   file = Path.expand(file)
