@@ -1,3 +1,11 @@
+#
+# This script downloads both data gouv aggregates, and our own,
+# and computes the unique count of `id_pdc_itinerance` in both,
+# so that we can monitor our progression in aggregation quality.
+#
+# elixir scripts/irve/stats.exs
+#
+
 Mix.install([
   {:req, "~> 0.5.15"},
   {:explorer, "~> 0.11.0"}
