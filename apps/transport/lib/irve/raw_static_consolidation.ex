@@ -117,7 +117,7 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   """
   def maybe_convert_utf_16("689c957abf34e799e1bf365a", body) do
     case body do
-      <<0xFF, 0xFE, rest::binary>> ->
+      <<0xFF, 0xFE, _rest::binary>> ->
         case :unicode.characters_to_binary(body, {:utf16, :little}, :utf8) do
           # will raise a pattern error if the conversion fails
           utf8_binary when is_binary(utf8_binary) -> utf8_binary
