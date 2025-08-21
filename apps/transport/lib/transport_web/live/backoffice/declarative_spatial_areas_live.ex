@@ -9,10 +9,11 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
       <label>
         <%= dgettext("backoffice", "spatial areas label") %>
       </label>
+      <br />
       <%= InputHelpers.text_input(
         @form,
         :spatial_areas_search_input,
-        placeholder: "Paris",
+        placeholder: "Recherchez votre territoire…",
         phx_keydown: "search_division",
         phx_target: @myself,
         id: "spatial_areas_search_input"
@@ -47,6 +48,53 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
         </span>
         <%= Phoenix.HTML.Form.hidden_input(@form, "declarative_spatial_area_#{index}", value: division.id) %>
       </div>
+
+      <script nonce={@nonce}>
+        // Handle arrow up/down to select autocomplete items
+        const searchInput = document.getElementById('spatial_areas_search_input');
+        let currentSelectedIndex = -1;
+
+        function updateSelection() {
+          const searchResults = document.getElementById('autoCompleteResults');
+          const results = Array.from(searchResults.querySelectorAll('.autoComplete_result[phx-click]'));
+
+          results.forEach((item, index) => {
+            item.classList.remove("autoComplete_selected")
+            if (index === currentSelectedIndex) {
+              item.classList.add("autoComplete_selected");
+            }
+          });
+        }
+
+        searchInput.addEventListener('keydown', (event) => {
+          const searchResults = document.getElementById('autoCompleteResults');
+          const results = Array.from(searchResults.querySelectorAll('.autoComplete_result[phx-click]'));
+          if (results.length === 0) {
+            return;
+          }
+
+          switch (event.key) {
+            case 'ArrowDown':
+              event.preventDefault(); // Prevent cursor from moving in input
+              currentSelectedIndex = (currentSelectedIndex + 1) % results.length;
+              updateSelection();
+              break;
+            case 'ArrowUp':
+              event.preventDefault(); // Prevent cursor from moving in input
+              currentSelectedIndex = (currentSelectedIndex - 1 + results.length) % results.length;
+              updateSelection();
+              break;
+            case 'Enter':
+              if (currentSelectedIndex > -1 && currentSelectedIndex < results.length) {
+                event.preventDefault();
+                const selectedItem = results[currentSelectedIndex];
+                selectedItem.click();
+                currentSelectedIndex = -1; // Reset selection
+              }
+              break;
+          }
+        });
+      </script>
     </div>
     """
   end
@@ -74,9 +122,12 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
   end
 
   def handle_event("search_division", %{"value" => query}, socket) when byte_size(query) <= 100 do
+    existing_ids = Enum.map(socket.assigns.declarative_spatial_areas, & &1.id)
+
     matches =
       socket.assigns.searchable_administrative_divisions
       |> DB.AdministrativeDivision.search(query)
+      |> Enum.reject(&(&1.id in existing_ids))
       |> Enum.take(5)
 
     {:noreply, assign(socket, administrative_division_search_matches: matches)}
@@ -117,5 +168,5 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
   defp color_class(%DB.AdministrativeDivision{type: :epci}), do: "blue"
   defp color_class(%DB.AdministrativeDivision{type: :departement}), do: "orange"
   defp color_class(%DB.AdministrativeDivision{type: :region}), do: "grey"
-  defp color_class(%DB.AdministrativeDivision{type: :pays}), do: "red"
+  defp color_class(%DB.AdministrativeDivision{type: :pays}), do: "dark-blue"
 end

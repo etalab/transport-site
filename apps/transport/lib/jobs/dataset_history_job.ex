@@ -107,10 +107,13 @@ defmodule Transport.Jobs.DatasetHistoryJob do
       asc: r.id,
       desc: rh.inserted_at
     )
-    |> preload([resource: r, resource_history: rh],
+    |> preload([resource: r, resource_history: rh, dataset: d],
       resources:
         {r,
-         resource_history: rh, resource_metadata: ^latest_resource_metadata, validations: ^latest_resource_validation}
+         dataset: d,
+         resource_history: rh,
+         resource_metadata: ^latest_resource_metadata,
+         validations: ^latest_resource_validation}
     )
     |> DB.Repo.one!()
   end

@@ -90,7 +90,7 @@ defmodule Unlock.Controller do
   - And `Transport.Telemetry`
   """
   def fetch(conn, %{"id" => id}) do
-    config = Application.fetch_env!(:unlock, :config_fetcher).fetch_config!()
+    config = Application.fetch_env!(:transport, :unlock_config_fetcher).fetch_config!()
 
     resource = Map.get(config, id)
 
@@ -229,7 +229,7 @@ defmodule Unlock.Controller do
     # NOTE: here we assert both that the requestor ref is what is expected, but also that it
     # is met once only. I am not deduping them at the moment on purpose, maybe we'll do that
     # later based on experience.
-    if external_requestor_refs == [Application.fetch_env!(:unlock, :siri_public_requestor_ref)] do
+    if external_requestor_refs == [Application.fetch_env!(:transport, :unlock_siri_public_requestor_ref)] do
       handle_authorized_siri_call(conn, item, modified_xml)
     else
       send_resp(conn, 403, "Forbidden")

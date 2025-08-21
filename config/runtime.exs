@@ -41,8 +41,8 @@ config :transport,
   disable_national_gtfs_map: System.get_env("DISABLE_NATIONAL_GTFS_MAP") in ["1", "true"],
   disable_netex_validator: System.get_env("DISABLE_NETEX_VALIDATOR") in ["1", "true"]
 
-config :unlock,
-  enforce_ttl: webserver
+config :transport,
+  unlock_enforce_ttl: webserver
 
 # Inside IEx, we do not want jobs to start processing, nor plugins working.
 # The jobs can be heavy and for instance in production, one person could
@@ -71,7 +71,7 @@ end
 # on staging, allow override of configuration so that we can target other branches
 if app_env == :staging do
   if url = System.get_env("TRANSPORT_PROXY_CONFIG_GITHUB_URL") do
-    config :unlock, github_config_url: url
+    config :transport, unlock_github_config_url: url
   end
 end
 
@@ -151,7 +151,9 @@ oban_prod_crontab = [
   {"45 2 * * *", Transport.Jobs.RemoveHistoryJob, args: %{schema_name: "etalab/schema-irve-dynamique", days_limit: 7}},
   {"0 16 * * *", Transport.Jobs.DatasetQualityScoreDispatcher},
   {"40 3 * * *", Transport.Jobs.UpdateContactsJob},
-  {"50 3 * * *", Transport.Jobs.CreateTokensJob},
+  {"40 4 * * *", Transport.Jobs.CreateTokensJob, args: %{action: "set_default_token_for_contacts"}},
+  {"50 3 * * *", Transport.Jobs.CreateTokensJob, args: %{action: "create_tokens_for_organizations"}},
+  {"30 4 * * *", Transport.Jobs.CreateTokensJob, args: %{action: "create_tokens_for_contacts_without_org"}},
   {"10 5 * * *", Transport.Jobs.NotificationSubscriptionProducerJob},
   # "At 08:15 on Monday in March, June, and November.""
   # The job will make sure that it's executed only on the first Monday of these months

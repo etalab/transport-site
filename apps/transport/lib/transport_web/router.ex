@@ -19,7 +19,7 @@ defmodule TransportWeb.Router do
     plug(TransportWeb.Plugs.PutLocale)
     plug(:assign_current_user)
     plug(:assign_contact_email)
-    plug(:assign_token)
+    plug(:assign_datagouv_token)
     plug(:maybe_login_again)
     plug(:assign_mix_env)
     plug(Sentry.PlugContext)
@@ -87,6 +87,7 @@ defmodule TransportWeb.Router do
     get("/robots.txt", PageController, :robots_txt)
     get("/.well-known/security.txt", PageController, :security_txt)
     get("/humans.txt", PageController, :humans_txt)
+    get("/sitemap.txt", PageController, :sitemap_txt)
     get("/reuses", ReuseController, :index)
 
     scope "/espace_producteur" do
@@ -350,12 +351,13 @@ defmodule TransportWeb.Router do
     assign(conn, :contact_email, Application.get_env(:transport, :contact_email))
   end
 
-  defp assign_token(conn, _) do
-    assign(conn, :token, get_session(conn, :token))
+  defp assign_datagouv_token(conn, _) do
+    legacy_key = get_session(conn, :token)
+    assign(conn, :datagouv_token, get_session(conn, :datagouv_token) || legacy_key)
   end
 
   defp maybe_login_again(conn, _) do
-    case conn.assigns[:token] do
+    case conn.assigns[:datagouv_token] do
       %OAuth2.AccessToken{expires_at: expires_at} ->
         if DateTime.compare(DateTime.from_unix!(expires_at), DateTime.utc_now()) == :lt do
           conn |> configure_session(drop: true) |> assign(:current_user, nil) |> authentication_required(nil)

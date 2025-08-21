@@ -93,8 +93,8 @@ defmodule Mix.Tasks.Transport.PopulateAdministrativeDivisions do
     DB.Repo.query!("""
       INSERT INTO administrative_division (type_insee, insee, type, nom, geom)
       SELECT
-        'pays_0' AS type_insee,
-        '0' AS insee,
+        'pays_FR' AS type_insee,
+        'FR' AS insee,
         'pays' AS type,
         'France' AS nom,
         ST_Union(geom) AS geom

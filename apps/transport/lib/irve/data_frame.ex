@@ -275,7 +275,9 @@ defmodule Transport.IRVE.DataFrame do
     "false" => false,
     "true" => true,
     "False" => false,
-    "True" => true
+    "True" => true,
+    "VRAI" => true,
+    "FAUX" => false
   }
 
   # experimental, I think Explorer lacks a feature to allow this operation within Polars.
@@ -290,5 +292,33 @@ defmodule Transport.IRVE.DataFrame do
     end)
     |> Explorer.DataFrame.discard(field_name)
     |> Explorer.DataFrame.rename(%{(field_name <> "_remapped") => field_name})
+  end
+
+  @doc """
+  If a given column doesn't exist in the dataframe, add it & populate it
+  with nil values.
+
+  This is useful to smooth out the rare cases where optional columns are missing
+  from data files.
+
+  iex> df = Explorer.DataFrame.new(%{"id_pdc_itinerance" => ["value"]})
+  iex> result = add_empty_column_if_missing(df, "tarification")
+  iex> Explorer.DataFrame.to_columns(result, atom_keys: true)
+  %{id_pdc_itinerance: ["value"], tarification: [nil]}
+
+  If the column exists, don't change anything:
+
+  iex> df = Explorer.DataFrame.new(%{"id_pdc_itinerance" => ["value"]})
+  iex> result = add_empty_column_if_missing(df, "id_pdc_itinerance")
+  iex> Explorer.DataFrame.to_columns(result, atom_keys: true)
+  %{id_pdc_itinerance: ["value"]}
+  """
+  def add_empty_column_if_missing(dataframe, field_name) do
+    if field_name in Explorer.DataFrame.names(dataframe) do
+      dataframe
+    else
+      dataframe
+      |> Explorer.DataFrame.mutate(%{^field_name => nil})
+    end
   end
 end

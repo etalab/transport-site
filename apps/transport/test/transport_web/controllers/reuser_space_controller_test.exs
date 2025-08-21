@@ -259,6 +259,36 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
                |> Floki.parse_document!()
                |> Floki.find("table tr td")
     end
+
+    test "personal token is displayed", %{conn: conn} do
+      contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+
+      token =
+        insert_token(%{
+          organization_id: nil,
+          contact_id: contact.id,
+          name: "Default"
+        })
+
+      insert(:default_token, token: token, contact: contact)
+
+      organization_name = "Token personnel"
+      token_name = "#{token.name} (par défaut)"
+      token_secret = token.secret
+
+      assert [
+               {"td", [], [^organization_name]},
+               {"td", [], [{"b", [], [^token_name]}]},
+               {"td", [], [{"code", [], [^token_secret]}]},
+               {"td", [], [_]}
+             ] =
+               conn
+               |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+               |> get(reuser_space_path(conn, :settings))
+               |> html_response(200)
+               |> Floki.parse_document!()
+               |> Floki.find("table tr td")
+    end
   end
 
   describe "new_token" do

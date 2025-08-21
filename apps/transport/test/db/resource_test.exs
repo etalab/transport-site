@@ -135,12 +135,14 @@ defmodule DB.ResourceTest do
   test "download url" do
     # Files hosted on data.gouv.fr
     assert Resource.download_url(%Resource{
+             dataset: %DB.Dataset{},
              filetype: "file",
              url: "https://demo-static.data.gouv.fr/resources/base-nationale-zfe/20220412-121638/voies.geojson",
              latest_url: latest_url = "https://demo.data.gouv.fr/fake_stable_url"
            }) == latest_url
 
     assert Resource.download_url(%Resource{
+             dataset: %DB.Dataset{},
              filetype: "file",
              url: "https://static.data.gouv.fr/resources/base-nationale-zfe/20220412-121638/voies.geojson",
              latest_url: latest_url = "https://data.gouv.fr/fake_stable_url"
@@ -148,6 +150,7 @@ defmodule DB.ResourceTest do
 
     # Bison Futé folder
     assert Resource.download_url(%Resource{
+             dataset: %DB.Dataset{},
              filetype: "remote",
              url: "http://tipi.bison-fute.gouv.fr/bison-fute-ouvert/publicationsDIR/QTV-DIR/",
              latest_url: latest_url = "https://data.gouv.fr/fake_stable_url"
@@ -163,6 +166,7 @@ defmodule DB.ResourceTest do
     ]
     |> Enum.each(fn url ->
       assert Resource.download_url(%Resource{
+               dataset: %DB.Dataset{},
                filetype: "remote",
                url: url,
                latest_url: latest_url = "https://data.gouv.fr/#{Ecto.UUID.generate()}"
@@ -171,6 +175,7 @@ defmodule DB.ResourceTest do
 
     # Bison Futé files
     assert Resource.download_url(%Resource{
+             dataset: %DB.Dataset{},
              filetype: "remote",
              id: id = 1,
              url: "http://tipi.bison-fute.gouv.fr/bison-fute-ouvert/publicationsDIR/QTV-DIR/refDir.csv",
@@ -178,18 +183,33 @@ defmodule DB.ResourceTest do
            }) == resource_url(TransportWeb.Endpoint, :download, id)
 
     # File not hosted on data.gouv.fr
-    assert Resource.download_url(%Resource{filetype: "file", url: url = "https://data.example.com/voies.geojson"}) ==
+    assert Resource.download_url(%Resource{
+             dataset: %DB.Dataset{},
+             filetype: "file",
+             url: url = "https://data.example.com/voies.geojson"
+           }) ==
              url
 
     # Remote filetype / can direct download
-    assert Resource.download_url(%Resource{filetype: "remote", url: url = "https://data.example.com/data"}) == url
+    assert Resource.download_url(%Resource{
+             dataset: %DB.Dataset{},
+             filetype: "remote",
+             url: url = "https://data.example.com/data"
+           }) == url
+
     # http URL
-    assert Resource.download_url(%Resource{id: id = 1, filetype: "remote", url: "http://data.example.com/data"}) ==
+    assert Resource.download_url(%Resource{
+             id: id = 1,
+             dataset: %DB.Dataset{},
+             filetype: "remote",
+             url: "http://data.example.com/data"
+           }) ==
              resource_url(TransportWeb.Endpoint, :download, id)
 
     # file hosted on GitHub
     assert Resource.download_url(%Resource{
              id: id = 1,
+             dataset: %DB.Dataset{},
              filetype: "remote",
              url:
                "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/898dc67fb19fae2464c24a85a0557e8ccce18791/bnlc-.csv"

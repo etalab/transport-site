@@ -348,6 +348,55 @@ defmodule TransportWeb.ResourceControllerTest do
     assert [%DB.ResourceDownload{token_id: ^token_id, resource_id: ^resource_id}] = DB.ResourceDownload |> DB.Repo.all()
   end
 
+  test "HEAD request for a dataset with the experimental tag", %{conn: conn} do
+    dataset = insert(:dataset, custom_tags: ["authentification_experimentation"])
+    resource = insert(:resource, dataset: dataset)
+
+    assert conn |> head(resource_path(conn, :download, resource.id)) |> response(200)
+  end
+
+  test "download a dataset with the experimental tag, invalid token", %{conn: conn} do
+    dataset = insert(:dataset, custom_tags: ["authentification_experimentation"])
+    resource = insert(:resource, dataset: dataset)
+
+    assert "You must set a valid Authorization header" ==
+             conn
+             |> get(resource_path(conn, :download, resource.id, token: "invalid"))
+             |> response(401)
+
+    assert [] = DB.ResourceDownload |> DB.Repo.all()
+  end
+
+  test "download a dataset with the experimental tag, no token", %{conn: conn} do
+    dataset = insert(:dataset, custom_tags: ["authentification_experimentation"])
+
+    %DB.Resource{id: resource_id} =
+      resource = insert(:resource, dataset: dataset, latest_url: latest_url = "https://example.com/latest_url")
+
+    assert latest_url ==
+             conn
+             |> get(resource_path(conn, :download, resource.id))
+             |> redirected_to(302)
+
+    assert [%DB.ResourceDownload{token_id: nil, resource_id: ^resource_id}] = DB.ResourceDownload |> DB.Repo.all()
+  end
+
+  test "download a dataset with the experimental tag, valid token", %{conn: conn} do
+    dataset = insert(:dataset, custom_tags: ["authentification_experimentation"])
+
+    %DB.Resource{id: resource_id} =
+      resource = insert(:resource, dataset: dataset, latest_url: latest_url = "https://example.com/latest_url")
+
+    %DB.Token{id: token_id} = token = insert_token()
+
+    assert latest_url ==
+             conn
+             |> get(resource_path(conn, :download, resource.id, token: token.secret))
+             |> redirected_to(302)
+
+    assert [%DB.ResourceDownload{token_id: ^token_id, resource_id: ^resource_id}] = DB.ResourceDownload |> DB.Repo.all()
+  end
+
   test "resource#details, PAN resource, logged-in user with a default token", %{conn: conn} do
     dataset = insert(:dataset, organization_id: @pan_org_id)
     resource = insert(:resource, dataset: dataset)
@@ -387,6 +436,47 @@ defmodule TransportWeb.ResourceControllerTest do
     dataset = insert(:dataset, organization_id: @pan_org_id)
     resource = insert(:resource, dataset: dataset)
     assert resource |> DB.Repo.preload(:dataset) |> DB.Resource.pan_resource?()
+
+    assert [resource_url(TransportWeb.Endpoint, :download, resource.id)] ==
+             conn |> resource_href_download_button(resource)
+  end
+
+  test "resource#details, dataset with experimentation tag, logged-in user with a default token", %{conn: conn} do
+    dataset = insert(:dataset, custom_tags: ["authentification_experimentation"])
+    resource = insert(:resource, dataset: dataset)
+
+    contact = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+    token = insert_token()
+    insert(:default_token, contact: contact, token: token)
+
+    assert [resource_url(TransportWeb.Endpoint, :download, resource.id, token: token.secret)] ==
+             conn
+             |> Phoenix.ConnTest.init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+             |> resource_href_download_button(resource)
+  end
+
+  test "resource#details, dataset with experimentation tag, logged-in user without a default token", %{conn: conn} do
+    dataset = insert(:dataset, custom_tags: ["authentification_experimentation"])
+    resource = insert(:resource, dataset: dataset)
+
+    organization = insert(:organization)
+
+    insert_contact(%{
+      datagouv_user_id: datagouv_user_id = Ecto.UUID.generate(),
+      organizations: [organization |> Map.from_struct()]
+    })
+
+    insert_token(%{organization_id: organization.id})
+
+    assert [resource_url(TransportWeb.Endpoint, :download, resource.id)] ==
+             conn
+             |> Phoenix.ConnTest.init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+             |> resource_href_download_button(resource)
+  end
+
+  test "resource#details, dataset with experimentation tag, logged-out user", %{conn: conn} do
+    dataset = insert(:dataset, custom_tags: ["authentification_experimentation"])
+    resource = insert(:resource, dataset: dataset)
 
     assert [resource_url(TransportWeb.Endpoint, :download, resource.id)] ==
              conn |> resource_href_download_button(resource)

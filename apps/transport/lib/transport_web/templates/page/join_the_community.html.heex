@@ -32,37 +32,13 @@
           ) %>
         </div>
         <div class="pt-12">
-          <form
-            action={@mailchimp_newsletter_url}
-            method="post"
-            id="mc-embedded-subscribe-form"
-            name="mc-embedded-subscribe-form"
-            class="validate"
+          <a
+            href="https://17d46732.sibforms.com/serve/MUIFAMz3wF4mbcLgx4IAT946-xxZTK9eMPnASSQe2u4GU2gp7xBRDfw-eDolZEidAN6wiK62EPz5W2pm0ACn3V_YFekYhuxtgK5lfLK3BMUXazrd1qUcukGZXtbI8oFt_z6y3zPYjN7yjDzWuveGU-f1p6AfuhgaqhwAFDnlOFLZqwHnQL-Fcuwdr-9wYZpxpzraAHUuunSwe7VC"
+            class="button primary"
             target="_blank"
-            novalidate
           >
-            <div id="mc_embed_signup_scroll">
-              <div class="input__group">
-                <input
-                  type="email"
-                  value=""
-                  name="EMAIL"
-                  id="mce-EMAIL"
-                  placeholder={dgettext("page-index", "Email address")}
-                />
-                <div id="mce-responses" class="clear">
-                  <div class="response" id="mce-error-response"></div>
-                  <div class="response" id="mce-success-response"></div>
-                </div>
-                <div>
-                  <input type="hidden" name="b_5ee8bfe0f1b073b49de06a063_13db2e9a94" tabindex="-1" value="" />
-                </div>
-                <button class="button" type="submit" name="subscribe" id="mc-embedded-subscribe">
-                  <%= dgettext("page-index", "Subscribe") %>
-                </button>
-              </div>
-            </div>
-          </form>
+            <%= dgettext("page-index", "Subscribe") %>
+          </a>
         </div>
       </div>
     </div>

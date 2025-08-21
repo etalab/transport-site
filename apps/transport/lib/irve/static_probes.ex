@@ -5,6 +5,9 @@ defmodule Transport.IRVE.Static.Probes do
 
   @doc """
   A quick way to grab the first line of a CSV (in order to analyze headers without going through a proper parser)
+
+  iex> first_line("first,line\\nsome,data")
+  "first,line"
   """
   def first_line(body) do
     body
@@ -28,14 +31,41 @@ defmodule Transport.IRVE.Static.Probes do
   @doc """
   Attempt to detect column separator on a v2+ file, by looking at what is in front of `id_pdc_itinerance`.
 
+  This is a early-stage version, which will be ultimately replaced by the approach taken in
+  `Transport.IRVE.DataFrame.separators_frequencies`, but I don't want to do it right now since I
+  want to ensure the whole data processing does not regress in the process.
+
+  ### Examples
+
   Remove double-quotes, in case they are here.
 
-  TODO: be more defensive, only allow supported cases.
+  iex> hint_header_separator("nom_amenageur,id_pdc_itinerance,id_pdc_local")
+  ","
+
+  Must also work as the very first column (edge case seen on one file):
+
+  iex> hint_header_separator("id_pdc_itinerance,id_pdc_local")
+  ","
+
+  If nothing works, should raise:
+
+  iex> hint_header_separator("foobar")
+  ** (RuntimeError) could not hint header separator from line (foobar)
   """
   def hint_header_separator(body) do
     trimmed_first_line = body |> first_line() |> String.replace(~S("), "")
-    [[_, separator]] = Regex.scan(~r/(.)id_pdc_itinerance/, trimmed_first_line)
-    separator
+
+    # usual case, then bogus case for 623ca46c13130c3228abd018, then error
+    maybe_find_header_separator(~r/(.)id_pdc_itinerance/, trimmed_first_line) ||
+      maybe_find_header_separator(~r/\Aid_pdc_itinerance(.)/, trimmed_first_line) ||
+      raise "could not hint header separator from line (#{trimmed_first_line})"
+  end
+
+  def maybe_find_header_separator(regex, first_line) do
+    case Regex.scan(regex, first_line) do
+      [[_, sep]] -> sep
+      [] -> nil
+    end
   end
 
   @doc """

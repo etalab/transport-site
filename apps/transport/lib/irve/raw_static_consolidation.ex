@@ -65,6 +65,13 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     # A number of checks are carried out before attempting to parse the data, using a couple of heuristics,
     # in order to get meaningful error messages in the report.
     run_cheap_blocking_checks(body, extension)
+
+    # We convert the rare latin-1 files into UTF-8
+    body = ensure_utf8(body)
+
+    # Convert a bogus column for specific cases, until it is fixed in the source
+    body = maybe_rename_bogus_num_pdl(row.dataset_id, body)
+
     df = Transport.IRVE.Processing.read_as_data_frame(body)
 
     # add traceability information
@@ -73,11 +80,66 @@ defmodule Transport.IRVE.RawStaticConsolidation do
       |> Explorer.DataFrame.mutate(original_dataset_id: ^row.dataset_id)
       |> Explorer.DataFrame.mutate(original_resource_id: ^row.resource_id)
 
-    log_debugging_stuff(row, df)
+    log_debugging_stuff(row.resource_id, df)
     {:ok, df}
   rescue
     error ->
       {:error, error}
+  end
+
+  @doc """
+  Some data files have `num-pdl` instead of `num_pdl`. This is a quick-fix until it gets fixed.
+
+  iex> maybe_rename_bogus_num_pdl("6853b993bb3e53379f17007c", "id_pdc_itinerance,num-pdl\\n123,456")
+  "id_pdc_itinerance,num_pdl\\n123,456"
+  """
+
+  def maybe_rename_bogus_num_pdl(dataset_id, body)
+      when dataset_id in ["65f1c621e07085a369aacc22", "6853b993bb3e53379f17007c"] do
+    [headers, body] = String.split(body, "\n", parts: 2)
+    headers = headers |> String.replace("num-pdl", "num_pdl")
+    [headers, body] |> Enum.join("\n")
+  end
+
+  def maybe_rename_bogus_num_pdl(_, body), do: body
+
+  @doc """
+  Ensure that binary content is valid UTF-8. If not, attempt conversion from
+  Latin-1 to UTF-8, assuming the original encoding is Latin-1.
+
+  NOTE: This is not foolproof. The function does not verify that the input is
+  actually Latin-1. Any byte sequence is technically valid Latin-1. However,
+  based on our typical data sources (primarily French), this assumption allows
+  us to recover and correctly convert over 100 additional resources.
+
+  Example: already valid UTF-8 is returned unchanged.
+
+      iex> Transport.IRVE.RawStaticConsolidation.ensure_utf8("valid utf8")
+      "valid utf8"
+
+  The byte `0xE9` represents "é" in Latin-1. The function converts it accordingly:
+
+      iex> Transport.IRVE.RawStaticConsolidation.ensure_utf8(<<0xE9>>)
+      "é"
+
+  This function does not raise errors for any binary input. Only non-binary input
+  (e.g., integers, maps) will raise an exception.
+  """
+  def ensure_utf8(body) do
+    if String.valid?(body) do
+      body
+    else
+      case :unicode.characters_to_binary(body, :latin1, :utf8) do
+        converted when is_binary(converted) ->
+          converted
+
+        {:error, _, _} ->
+          raise("error during latin 1 -> UTF-8 transcoding (should not happen)")
+
+        {:incomplete, _, _} ->
+          raise("string contains incomplete latin1 sequences")
+      end
+    end
   end
 
   def run_cheap_blocking_checks(body, extension) do
@@ -101,10 +163,6 @@ defmodule Transport.IRVE.RawStaticConsolidation do
 
     unless header_separator in [";", ","] do
       raise("unsupported column separator #{header_separator}")
-    end
-
-    if !String.valid?(body) do
-      raise("string is not valid UTF-8 (could be binary content, or latin1)")
     end
   end
 
@@ -173,7 +231,7 @@ defmodule Transport.IRVE.RawStaticConsolidation do
       |> maybe_filter(options[:filter])
       |> Enum.sort_by(fn r -> [r.dataset_id, r.resource_id] end)
       |> Enum.reduce(%{df: nil, report: []}, fn row, %{df: main_df, report: report} ->
-        Logger.info("Processing resource #{row.resource_id} (url=#{row.url})")
+        Logger.info("Processing resource #{row.resource_id} (url=#{row.url}, dataset_id=#{row.dataset_id})")
 
         %{body: body, status: status} = download_resource_content!(row.url)
         extension = Path.extname(row.url)

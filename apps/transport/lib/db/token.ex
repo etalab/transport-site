@@ -23,15 +23,29 @@ defmodule DB.Token do
 
   def base_query, do: from(t in __MODULE__, as: :token)
 
+  def personal_token?(%__MODULE__{organization_id: nil}), do: true
+  def personal_token?(%__MODULE__{}), do: false
+
   def changeset(%__MODULE__{} = struct, attrs \\ %{}) do
     struct
     |> cast(attrs, [:name, :contact_id, :organization_id])
-    |> validate_required([:name, :contact_id, :organization_id])
+    |> validate_required([:name, :contact_id])
     |> assoc_constraint(:contact)
-    |> assoc_constraint(:organization)
-    |> unique_constraint([:organization_id, :name])
+    |> organization_id()
     |> generate_secret()
     |> put_hashed_fields()
+  end
+
+  def organization_id(%Ecto.Changeset{} = changeset) do
+    case get_field(changeset, :organization_id) do
+      nil ->
+        changeset
+
+      _ ->
+        changeset
+        |> assoc_constraint(:organization)
+        |> unique_constraint([:organization_id, :name])
+    end
   end
 
   defp generate_secret(%Ecto.Changeset{} = changeset) do

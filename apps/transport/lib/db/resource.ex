@@ -315,12 +315,15 @@ defmodule DB.Resource do
 
   # When the contact is logged in and has a default token
   def download_url(
-        %__MODULE__{} = resource,
+        %__MODULE__{dataset: %DB.Dataset{} = dataset} = resource,
         %Plug.Conn{
           assigns: %{current_contact: %DB.Contact{default_tokens: [%DB.Token{} = token]}}
         } = conn
       ) do
     cond do
+      DB.Dataset.has_custom_tag?(dataset, "authentification_experimentation") ->
+        resource_url(conn, :download, resource.id, token: token.secret)
+
       pan_resource?(resource) ->
         resource_url(conn, :download, resource.id, token: token.secret)
 
@@ -332,12 +335,22 @@ defmodule DB.Resource do
     end
   end
 
-  def download_url(%__MODULE__{} = resource, conn_or_endpoint) do
+  def download_url(%__MODULE__{dataset: %DB.Dataset{} = dataset} = resource, conn_or_endpoint) do
     cond do
-      pan_resource?(resource) -> resource_url(conn_or_endpoint, :download, resource.id)
-      needs_stable_url?(resource) -> resource.latest_url
-      can_direct_download?(resource) -> resource.url
-      true -> resource_url(conn_or_endpoint, :download, resource.id)
+      DB.Dataset.has_custom_tag?(dataset, "authentification_experimentation") ->
+        resource_url(conn_or_endpoint, :download, resource.id)
+
+      pan_resource?(resource) ->
+        resource_url(conn_or_endpoint, :download, resource.id)
+
+      needs_stable_url?(resource) ->
+        resource.latest_url
+
+      can_direct_download?(resource) ->
+        resource.url
+
+      true ->
+        resource_url(conn_or_endpoint, :download, resource.id)
     end
   end
 

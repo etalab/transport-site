@@ -55,6 +55,7 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
 
     Resource
     |> Repo.get!(resource_id)
+    |> DB.Repo.preload(:dataset)
     |> maybe_update_url()
     |> historize_resource()
     |> check_availability()
