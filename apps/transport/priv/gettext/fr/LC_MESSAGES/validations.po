@@ -373,3 +373,11 @@ msgstr "Une ressource NeTEx doit avant tout respecter la XSD NeTEx. <a href=\"ht
 #, elixir-autogen, elixir-format
 msgid "netex-validations-layers"
 msgstr "La validation des archives NeTEx en est encore qu’à ses débuts. Actuellement nous ne validons que la conformité à la XSD. Nous ne supportons pas encore les exceptions françaises."
+
+#, elixir-autogen, elixir-format
+msgid "Good practicies"
+msgstr "Bonnes pratiques"
+
+#, elixir-autogen, elixir-format
+msgid "good-practicies-description"
+msgstr "Ces règles sont présentées <a href=\"https://enroute.atlassian.net/wiki/spaces/PUBLICFR/pages/2987556904/Les+r+gles+par+enRoute\">sur le wiki enRoute</a>."
