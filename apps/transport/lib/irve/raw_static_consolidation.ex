@@ -42,6 +42,8 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   @test_dataset_id "67811b8e8934d388950bca3f"
   # and another one (we'll create a more structured filter later)
   @air_france_klm_dataset_id "642167910d33a1a75ebfa1d2"
+  # bogus GBFS which causes a timeout, hard to differenciate, so hard-filtering it out for now
+  @bogus_gbfs "678e6c068a2785ad5b2099f8"
 
   @doc """
   Download content separately from processing, because we need to provide an estimate of the number of lines
@@ -61,6 +63,10 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     if status != 200 do
       raise "HTTP status is not 200 (#{status})"
     end
+
+    # Rare case where we have UTF-16, needs to be done before the "cheap checks" or they will fail,
+    # in particular because UTF-16 is on 2 bytes, so column identification fails.
+    body = maybe_convert_utf_16(row.dataset_id, body)
 
     # A number of checks are carried out before attempting to parse the data, using a couple of heuristics,
     # in order to get meaningful error messages in the report.
@@ -102,6 +108,27 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   end
 
   def maybe_rename_bogus_num_pdl(_, body), do: body
+
+  @doc """
+  See https://github.com/etalab/transport-site/issues/4771.
+
+  This is a temporary quick-fix for an UTF-16 resource, until this
+  gets fixed in the source.
+  """
+  def maybe_convert_utf_16("689c957abf34e799e1bf365a", body) do
+    case body do
+      <<0xFF, 0xFE, _rest::binary>> ->
+        case :unicode.characters_to_binary(body, {:utf16, :little}, :utf8) do
+          # will raise a pattern error if the conversion fails
+          utf8_binary when is_binary(utf8_binary) -> utf8_binary
+        end
+
+      _ ->
+        body
+    end
+  end
+
+  def maybe_convert_utf_16(_, body), do: body
 
   @doc """
   Ensure that binary content is valid UTF-8. If not, attempt conversion from
@@ -196,6 +223,8 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     |> Enum.reject(fn r -> r.dataset_id == @test_dataset_id end)
     # and similarly: https://github.com/etalab/transport-site/issues/4660) 166MB file
     |> Enum.reject(fn r -> r.dataset_id == @air_france_klm_dataset_id end)
+    # a GBFS timing out the whole process
+    |> Enum.reject(fn r -> r.dataset_id == @bogus_gbfs end)
   end
 
   def build_report_item(row, body, extension, optional_error) do
