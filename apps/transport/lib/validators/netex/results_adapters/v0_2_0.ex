@@ -13,13 +13,13 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
 
   @unknown_code "unknown-code"
 
-  @xsd_category "xsd-schema"
+  @xsd_schema_category "xsd-schema"
 
-  @catch_all_category "no-category"
+  @good_practicies_category "good-practicies"
 
   @categories_preferred_order [
-    @xsd_category,
-    @catch_all_category
+    @xsd_schema_category,
+    @good_practicies_category
   ]
 
   @doc """
@@ -101,11 +101,11 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
   %{}
 
   iex> index_messages([%{"code"=>"xsd-123", "id"=> 1}, %{"code"=>"xsd-456", "id"=> 2}, %{"code"=>"b", "id"=> 3}])
-  %{"xsd-schema"=>[%{"code"=>"xsd-123", "id"=> 1}, %{"code"=>"xsd-456", "id"=> 2}], "no-category"=>[%{"code"=>"b", "id"=> 3}]}
+  %{"xsd-schema"=>[%{"code"=>"xsd-123", "id"=> 1}, %{"code"=>"xsd-456", "id"=> 2}], "good-practicies"=>[%{"code"=>"b", "id"=> 3}]}
 
   Sometimes the message has no code
   iex> index_messages([%{"code"=>"xsd-123", "id"=> 1}, %{"code"=>"xsd-456", "id"=> 2}, %{"id"=> 3}])
-  %{"xsd-schema"=>[%{"code"=>"xsd-123", "id"=> 1}, %{"code"=>"xsd-456", "id"=> 2}], "no-category"=>[%{"id"=> 3}]}
+  %{"xsd-schema"=>[%{"code"=>"xsd-123", "id"=> 1}, %{"code"=>"xsd-456", "id"=> 2}], "good-practicies"=>[%{"id"=> 3}]}
   """
   def index_messages(messages), do: Enum.group_by(messages, &index_message/1)
 
@@ -113,9 +113,9 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
 
   defp categorize(code) do
     if String.starts_with?(code, "xsd-") do
-      @xsd_category
+      @xsd_schema_category
     else
-      @catch_all_category
+      @good_practicies_category
     end
   end
 
@@ -123,15 +123,16 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
   defp get_code(%{}), do: @unknown_code
 
   @doc """
-  iex> validation_result = %{"xsd-schema" => [%{"code" => "xsd-123", "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod", "criticity" => "error"}], "no-category" => [%{"code" => "valid-day-bits", "message" => "Mandatory attribute valid_day_bits not found", "criticity" => "error"}]}
+  iex> validation_result = %{"xsd-schema" => [%{"code" => "xsd-123", "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod", "criticity" => "error"}], "good-practicies" => [%{"code" => "valid-day-bits", "message" => "Mandatory attribute valid_day_bits not found", "criticity" => "error"}]}
   iex> summary(validation_result)
   [
     {"xsd-schema", %{count: 1, criticity: "error"}},
-    {"no-category", %{count: 1, criticity: "error"}}
+    {"good-practicies", %{count: 1, criticity: "error"}}
   ]
   iex> summary(%{})
   [
     {"xsd-schema", %{count: 0, criticity: "NoError"}},
+    {"good-practicies", %{count: 0, criticity: "NoError"}}
   ]
   """
   @impl Transport.Validators.NeTEx.ResultsAdapter
@@ -149,9 +150,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
 
       {category, stats}
     end)
-    |> Enum.reject(fn {category, %{count: count}} ->
-      category == @catch_all_category && count == 0
-    end)
   end
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
@@ -160,7 +158,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
   @doc """
   Get issues from validation results. For a specific issue type if specified, or the most severe.
 
-  iex> validation_result = %{"xsd-schema" => [%{"code" => "xsd-123", "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod", "criticity" => "error"}], "no-category" => [%{"code" => "valid-day-bits", "message" => "Mandatory attribute valid_day_bits not found", "criticity" => "error"}]}
+  iex> validation_result = %{"xsd-schema" => [%{"code" => "xsd-123", "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod", "criticity" => "error"}], "good-practicies" => [%{"code" => "valid-day-bits", "message" => "Mandatory attribute valid_day_bits not found", "criticity" => "error"}]}
   iex> get_issues(validation_result, %{"issues_category" => "xsd-schema"})
   [%{"code" => "xsd-123", "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod", "criticity" => "error"}]
   iex> get_issues(validation_result, %{"issues_category" => "broken-file"})
@@ -193,7 +191,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
       |> Enum.find(fn category -> not is_nil(validation_result[category]) end)
 
     validation_result
-    |> Map.get(category || @catch_all_category, [])
+    |> Map.get(category || @xsd_schema_category, [])
   end
 
   defdelegate order_issues_by_location(issues), to: V0_1_0

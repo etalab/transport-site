@@ -371,3 +371,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "netex-validations-layers"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Good practicies"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "good-practicies-description"
+msgstr ""

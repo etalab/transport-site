@@ -389,9 +389,11 @@ defmodule TransportWeb.ResourceView do
   end
 
   def netex_category_label("xsd-schema"), do: dgettext("validations", "XSD NeTEx")
+  def netex_category_label("good-practicies"), do: dgettext("validations", "Good practicies")
   def netex_category_label(_), do: dgettext("validations", "Other errors")
 
   def netex_category_description("xsd-schema"), do: dgettext("validations", "xsd-schema-description") |> raw()
+  def netex_category_description("good-practicies"), do: dgettext("validations", "good-practicies-description") |> raw()
   def netex_category_description(_), do: nil
 
   defp drop_empty_query_params(query_params) do
