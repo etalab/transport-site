@@ -4,6 +4,7 @@ defmodule Unlock.Router do
   pipeline :api do
     plug(CORSPlug, origin: "*", expose: ["*"], credentials: false)
     plug(TransportWeb.Plugs.AppSignalFilter)
+    plug(Unlock.Plugs.TokenAuth)
   end
 
   scope "/" do
