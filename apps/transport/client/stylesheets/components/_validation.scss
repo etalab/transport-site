@@ -124,11 +124,13 @@ details > code {
   }
 }
 
-table.netex_generic_issue tr.message td {
-  vertical-align: top;
+table.netex_generic_issue, table.netex_xsd_schema {
+  tr.message td {
+    vertical-align: top;
+  }
 }
 
-table.netex_generic_issue th:nth-child(1) {
+table.netex_generic_issue th:nth-child(1), table.netex_xsd_schema th:nth-child(2) {
   width: 60%;
 }
 
@@ -151,4 +153,70 @@ table.netex_generic_issue tr.debug td pre {
 
 table.netex_generic_issue tr.debug td code {
   width: 100%;
+}
+
+.netex {
+  ul.summary {
+    list-style: none;
+    padding-left: var(--space-xs);
+    margin-bottom: var(--space-l);
+
+    li {
+      display: grid;
+      gap: var(--space-xs);
+      grid-template-columns: 1.5rem 1fr;
+      grid-template-areas:
+        "icon selector"
+        ".    explanation";
+      padding-bottom: var(--space-m);
+
+      i.fa {
+        align-self: center;
+        justify-self: center;
+        grid-area: icon;
+      }
+      div.selector {
+        grid-area: selector;
+      }
+      p {
+        margin: 0;
+        grid-area: explanation;
+      }
+    }
+
+    li.comment {
+      grid-template-columns: 1.5rem 40rem;
+      grid-template-areas:
+        "icon comment";
+      padding-bottom: unset;
+
+      i.fa {
+        align-self: center;
+        color: var(--dark-blue);
+      }
+      div.comment {
+        grid-area: comment;
+      }
+    }
+  }
+
+  .fa {
+    margin-right: 0.25rem;
+  }
+
+  .fa-check {
+    color: var(--green);
+  }
+
+  .fa-xmark {
+    color: var(--red);
+  }
+
+  .fa-minus {
+    color: var(--light-grey);
+  }
+
+  .compatibility_filter {
+    font-weight: 600;
+  }
 }
