@@ -51,10 +51,17 @@ defmodule TransportWeb.ResourceView do
     "_gtfs#{template}"
   end
 
-  def netex_template(_issues) do
-    # For now only 1 template has been designed. More to come when the validator
-    # has matured.
-    "_netex_generic_issue.html"
+  def netex_template(category \\ "") do
+    template =
+      Map.get(
+        %{
+          "xsd-schema" => "_xsd_schema.html"
+        },
+        category,
+        "_generic_issue.html"
+      )
+
+    "_netex#{template}"
   end
 
   def has_associated_files(%{} = resources_related_files, resource_id) do
@@ -308,5 +315,86 @@ defmodule TransportWeb.ResourceView do
         dataset: %DB.Dataset{datagouv_id: dataset_datagouv_id}
       }) do
     "https://explore.data.gouv.fr/fr/datasets/#{dataset_datagouv_id}/#/resources/#{resource_datagouv_id}"
+  end
+
+  def netex_validation_summary(%{conn: _, results_adapter: _, validation_summary: _, token: _} = assigns) do
+    ~H"""
+    <ul class="summary">
+      <.netex_errors_category
+        :for={{category, stats} <- @validation_summary}
+        conn={@conn}
+        results_adapter={@results_adapter}
+        category={category}
+        stats={stats}
+        token={@token}
+      />
+      <.netex_validations_layers />
+    </ul>
+    """
+  end
+
+  defp netex_validations_layers(%{} = assigns) do
+    ~H"""
+    <li class="comment">
+      <i class="fa fa-circle-exclamation"></i>
+      <div>
+        <%= dgettext("validations", "netex-validations-layers") %>
+      </div>
+    </li>
+    """
+  end
+
+  defp netex_errors_category(%{conn: _, category: _, stats: _, token: _, results_adapter: _} = assigns) do
+    ~H"""
+    <li>
+      <.validity_icon errors={@stats[:count]} />
+      <div class="selector">
+        <%= compatibility_filter(@conn, @category, @token) %>
+        <%= if @stats[:count] > 0 do %>
+          (<%= @results_adapter.format_severity(
+            @stats[:criticity],
+            @stats[:count]
+          ) %>)
+        <% end %>
+      </div>
+      <p :if={netex_category_description(@category) && @stats[:count] > 0}>
+        <%= netex_category_description(@category) %>
+      </p>
+    </li>
+    """
+  end
+
+  defp compatibility_filter(conn, category, token) do
+    query_params =
+      %{"token" => token, "issues_category" => category}
+      |> drop_empty_query_params()
+
+    url = current_url(conn, query_params)
+
+    category
+    |> netex_category_label()
+    |> link(class: "compatibility_filter", to: "#{url}#issues")
+  end
+
+  def validity_icon(%{errors: errors} = assigns) when errors > 0 do
+    ~H"""
+    <i class="fa fa-xmark"></i>
+    """
+  end
+
+  def validity_icon(assigns) do
+    ~H"""
+    <i class="fa fa-check"></i>
+    """
+  end
+
+  def netex_category_label("xsd-schema"), do: dgettext("validations", "XSD NeTEx")
+  def netex_category_label(_), do: dgettext("validations", "Other errors")
+
+  def netex_category_description("xsd-schema"), do: dgettext("validations", "xsd-schema-description") |> raw()
+  def netex_category_description(_), do: nil
+
+  defp drop_empty_query_params(query_params) do
+    Map.reject(query_params, fn {_, v} -> is_nil(v) end)
   end
 end

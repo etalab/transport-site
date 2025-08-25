@@ -1,0 +1,21 @@
+<% {max_level, worst_occurrences} = @max_severity %>
+<% current_category = @conn.params["issues_category"] || "" %>
+
+<h4><%= @results_adapter.format_severity(max_level, worst_occurrences) |> String.capitalize() %></h4>
+<.netex_validation_summary
+  conn={@conn}
+  token={nil}
+  results_adapter={@results_adapter}
+  validation_summary={@validation_summary}
+/>
+
+<%= if worst_occurrences > 0 do %>
+  <div class="main-pane">
+    <%= pagination_links(@conn, @issues, [@resource.id],
+      issues_category: current_category,
+      path: &resource_path/4,
+      action: :details
+    ) %>
+    <%= render(netex_template(current_category), issues: @issues || [], conn: @conn) %>
+  </div>
+<% end %>
