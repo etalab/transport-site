@@ -336,7 +336,7 @@ defmodule TransportWeb.ResourceView do
   defp netex_validations_layers(%{} = assigns) do
     ~H"""
     <li class="comment">
-      <i class="fa fa-circle-exclamation"></i>
+      <.info_icon />
       <div>
         <%= dgettext("validations", "netex-validations-layers") |> raw() %>
       </div>
@@ -355,7 +355,15 @@ defmodule TransportWeb.ResourceView do
       <p :if={netex_category_description(@category)}>
         <%= netex_category_description(@category) %>
       </p>
+      <.category_hints :if={netex_category_hints(@category) && @stats[:count] > 0} category={@category} />
     </li>
+    """
+  end
+
+  defp category_hints(%{category: _} = assigns) do
+    ~H"""
+    <.info_icon />
+    <p><%= netex_category_hints(@category) %></p>
     """
   end
 
@@ -397,6 +405,12 @@ defmodule TransportWeb.ResourceView do
     """
   end
 
+  def info_icon(assigns) do
+    ~H"""
+    <i class="fa fa-circle-info"></i>
+    """
+  end
+
   def netex_category_label("xsd-schema"), do: dgettext("validations", "XSD NeTEx")
   def netex_category_label("base-rules"), do: dgettext("validations", "Base rules")
   def netex_category_label(_), do: dgettext("validations", "Other errors")
@@ -404,6 +418,9 @@ defmodule TransportWeb.ResourceView do
   def netex_category_description("xsd-schema"), do: dgettext("validations", "xsd-schema-description") |> raw()
   def netex_category_description("base-rules"), do: dgettext("validations", "base-rules-description") |> raw()
   def netex_category_description(_), do: nil
+
+  def netex_category_hints("xsd-schema"), do: dgettext("validations", "xsd-schema-hints") |> raw()
+  def netex_category_hints(_), do: nil
 
   defp drop_empty_query_params(query_params) do
     Map.reject(query_params, fn {_, v} -> is_nil(v) end)

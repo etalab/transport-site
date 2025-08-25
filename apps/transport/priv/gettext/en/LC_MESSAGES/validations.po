@@ -364,7 +364,11 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "xsd-schema-description"
-msgstr "Every NeTEx resource must comply with the <a href=\"https://github.com/NeTEx-CEN/NeTEx\" target=\"_blank\">NeTEX XSD</a>, regardless of its profile. The XSD validation does not cover choices made by <a href=\"https://normes.transport.data.gouv.fr/\">the French profile</a>.<br/>Amongst most frequent errors, check that ids are unique, that elements are in the expected order, and that no mandatory attribute is missing."
+msgstr "Every NeTEx resource must comply with the <a href=\"https://github.com/NeTEx-CEN/NeTEx\" target=\"_blank\">NeTEX XSD</a>, regardless of its profile. The XSD validation does not cover choices made by <a href=\"https://normes.transport.data.gouv.fr/\">the French profile</a>."
+
+#, elixir-autogen, elixir-format
+msgid "xsd-schema-hints"
+msgstr "Amongst most frequent errors, check that ids are unique, that elements are in the expected order, and that no mandatory attribute is missing."
 
 #, elixir-autogen, elixir-format
 msgid "Base rules"
