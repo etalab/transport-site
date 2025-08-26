@@ -28,17 +28,17 @@ Make sure you have **Elixir**, **Node.js** and **Yarn** installed and up-to-date
 
 If you wish to use `asdf` (recommended), make sure to install the correct plugins:
 
-* `asdf plugin-add erlang` (https://github.com/asdf-vm/asdf-erlang)
-* `asdf plugin-add elixir` (https://github.com/asdf-vm/asdf-elixir)
-* `asdf plugin-add nodejs` (https://github.com/asdf-vm/asdf-nodejs)
+* `asdf plugin add erlang` (https://github.com/asdf-vm/asdf-erlang)
+* `asdf plugin add elixir` (https://github.com/asdf-vm/asdf-elixir)
+* `asdf plugin add nodejs` (https://github.com/asdf-vm/asdf-nodejs)
 
 Installation for Erlang, Elixir and Node.js can then be done with:
 * `asdf install`
 
 For Yarn, bring your version or also use asdf:
-* `asdf plugin-add yarn` (https://github.com/twuni/asdf-yarn)
-* `asdf install yarn 1.22.19` (or any other version)
-* `asdf global yarn 1.22.19`
+* `asdf plugin add yarn` (https://github.com/twuni/asdf-yarn)
+* `asdf install yarn latest` (or any other version)
+* `asdf set -u yarn latest`
 
 ### 2. Install PostgreSQL
 
