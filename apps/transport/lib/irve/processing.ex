@@ -63,6 +63,8 @@ defmodule Transport.IRVE.Processing do
     )
   end
 
+  # NOTE: these could be inferred from `required:` in the schema,
+  # but keeping it manual for now.
   defp optional_columns do
     [
       # as seen in dataset 62ea8cd6af9f2e745fa84023
