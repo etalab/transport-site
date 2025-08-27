@@ -18,7 +18,8 @@ defmodule Transport.IRVE.StaticIRVESchema do
   end
 
   @doc """
-  Field names list from the json schema
+  Field names list from the JSON schema, in the exact same order.
+
   iex> field_names_list()
   ["nom_amenageur", "siren_amenageur", "contact_amenageur", "nom_operateur",
   "contact_operateur", "telephone_operateur", "nom_enseigne",
@@ -39,7 +40,8 @@ defmodule Transport.IRVE.StaticIRVESchema do
   end
 
   @doc """
-  Useful for reprocessing boolean fields
+  Useful for reprocessing boolean fields.
+
   iex> boolean_columns()
   [
               "prise_type_ef",
