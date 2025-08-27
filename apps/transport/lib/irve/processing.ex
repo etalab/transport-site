@@ -79,51 +79,10 @@ defmodule Transport.IRVE.Processing do
 
   def select_fields(dataframe) do
     dataframe
-    |> Explorer.DataFrame.select([
-      "nom_amenageur",
-      "siren_amenageur",
-      "contact_amenageur",
-      "nom_operateur",
-      "contact_operateur",
-      "telephone_operateur",
-      "nom_enseigne",
-      "id_station_itinerance",
-      "id_station_local",
-      "nom_station",
-      "implantation_station",
-      "adresse_station",
-      "code_insee_commune",
-      # NOTE: replaced & split into `x` and `y` down there instead
-      # "coordonneesXY",
-      "nbre_pdc",
-      "id_pdc_itinerance",
-      "id_pdc_local",
-      "puissance_nominale",
-      "prise_type_ef",
-      "prise_type_2",
-      "prise_type_combo_ccs",
-      "prise_type_chademo",
-      "prise_type_autre",
-      "gratuit",
-      "paiement_acte",
-      "paiement_cb",
-      "paiement_autre",
-      "tarification",
-      "condition_acces",
-      "reservation",
-      "horaires",
-      "accessibilite_pmr",
-      "restriction_gabarit",
-      "station_deux_roues",
-      "raccordement",
-      "num_pdl",
-      "date_mise_en_service",
-      "observations",
-      "date_maj",
-      # "cable_t2_attache",
-      # extracted
-      "x",
-      "y"
-    ])
+    |> Explorer.DataFrame.select(
+      (Transport.IRVE.StaticIRVESchema.field_names_list() --
+         ["coordonneesXY", "cable_t2_attache"]) ++
+        ["x", "y"]
+    )
   end
 end
