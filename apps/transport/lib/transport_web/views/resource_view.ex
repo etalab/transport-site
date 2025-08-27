@@ -349,22 +349,23 @@ defmodule TransportWeb.ResourceView do
     <li>
       <.validity_icon errors={@stats[:count]} />
       <div class="selector">
-        <%= compatibility_filter(@conn, @category, @token) %>
-        <%= if @stats[:count] > 0 do %>
-          (<%= @results_adapter.format_severity(
-            @stats[:criticity],
-            @stats[:count]
-          ) %>)
-        <% end %>
+        <%= compatibility_filter(@conn, @category, @token, @stats[:count]) %>
+        <.stats :if={@stats[:count] > 0} stats={@stats} results_adapter={@results_adapter} />
       </div>
-      <p :if={netex_category_description(@category) && @stats[:count] > 0}>
+      <p :if={netex_category_description(@category)}>
         <%= netex_category_description(@category) %>
       </p>
     </li>
     """
   end
 
-  defp compatibility_filter(conn, category, token) do
+  defp stats(%{stats: _, results_adapter: _} = assigns) do
+    ~H"""
+    (<%= @results_adapter.format_severity(@stats[:criticity], @stats[:count]) %>)
+    """
+  end
+
+  defp compatibility_filter(conn, category, token, count) when count > 0 do
     query_params =
       %{"token" => token, "issues_category" => category}
       |> drop_empty_query_params()
@@ -375,6 +376,14 @@ defmodule TransportWeb.ResourceView do
     |> netex_category_label()
     |> link(class: "compatibility_filter", to: "#{url}#issues")
   end
+
+  defp compatibility_filter(_conn, category, _token, _count) do
+    category
+    |> netex_category_label()
+    |> strong()
+  end
+
+  defp strong(text), do: raw("<strong>#{text}</strong>")
 
   def validity_icon(%{errors: errors} = assigns) when errors > 0 do
     ~H"""
