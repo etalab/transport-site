@@ -78,3 +78,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Self-service vehicles"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Directly access the data"
+msgstr ""
