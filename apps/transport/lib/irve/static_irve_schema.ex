@@ -37,4 +37,30 @@ defmodule Transport.IRVE.StaticIRVESchema do
     |> Map.fetch!("fields")
     |> Enum.map(&Map.fetch!(&1, "name"))
   end
+
+  @doc """
+  Useful for reprocessing boolean fields
+  iex> boolean_columns()
+  [
+              "prise_type_ef",
+              "prise_type_2",
+              "prise_type_combo_ccs",
+              "prise_type_chademo",
+              "prise_type_autre",
+              "gratuit",
+              "paiement_acte",
+              "paiement_cb",
+              "paiement_autre",
+              "reservation",
+              "station_deux_roues",
+              "cable_t2_attache"
+            ]
+  """
+
+  def boolean_columns do
+    schema_content()
+    |> Map.fetch!("fields")
+    |> Enum.filter(&(&1["type"] == "boolean"))
+    |> Enum.map(&Map.fetch!(&1, "name"))
+  end
 end
