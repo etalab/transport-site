@@ -6,11 +6,9 @@ defmodule Transport.IRVE.ProcessingTest do
     row =
       DB.Factory.IRVE.generate_row(%{
         "prise_type_ef" => "FAUX",
-        "prise_type_2" => 1,
-        "champ_tout_pourri" => "à exclure"
+        "prise_type_2" => 1
       })
-
-    # |> Map.delete("tarification")
+      |> Map.delete("tarification")
 
     body = [row] |> CSV.encode(headers: true) |> Enum.join()
     df = Transport.IRVE.Processing.read_as_data_frame(body)
@@ -46,7 +44,8 @@ defmodule Transport.IRVE.ProcessingTest do
                "paiement_acte" => true,
                "paiement_cb" => true,
                "paiement_autre" => true,
-               "tarification" => "2,50€ / 30min puis 0,025€ / minute",
+               # This was added
+               "tarification" => nil,
                "condition_acces" => "Accès libre",
                "reservation" => false,
                "horaires" => "24/7",
