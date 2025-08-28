@@ -78,3 +78,7 @@ msgstr "Flux GBFS"
 #, elixir-autogen, elixir-format
 msgid "Self-service vehicles"
 msgstr "Véhicules en libre-service"
+
+#, elixir-autogen, elixir-format
+msgid "Directly access the data"
+msgstr "Accédez directement aux données"
