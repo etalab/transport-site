@@ -372,7 +372,7 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "base-rules-description"
-msgstr "Those rules are common business practices. They are shared by all NeTEx profiles. They're documented in French on <a href=\"https://enroute.atlassian.net/wiki/spaces/PUBLICFR/pages/2987556904/Les+r+gles+par+enRoute\">enRoute's Wiki</a>."
+msgstr "These rules are common best practices. They are shared by all NeTEx profiles. Their documentation can be found on <a href=\"https://enroute.atlassian.net/wiki/spaces/PUBLICFR/pages/2987556904/Les+r+gles+par+enRoute\">enRoute's Wiki</a>."
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Other errors"
