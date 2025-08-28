@@ -30,7 +30,7 @@ defmodule Transport.EnRouteChouetteValidClient do
       {:multipart,
        [
          {"validation[rule_set]", "enroute:starter-kit"},
-         {"validation[include_schema]", "false"},
+         {"validation[include_schema]", "true"},
          make_file_part("validation[file]", filepath)
        ]}
 
@@ -87,15 +87,8 @@ defmodule Transport.EnRouteChouetteValidClient do
     url = Path.join([validation_url(validation_id), "messages"])
 
     %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(url, auth_headers())
-    {url, body |> Jason.decode!() |> ignore_some_errors()}
+    {url, body |> Jason.decode!()}
   end
-
-  defp ignore_some_errors(messages) do
-    messages |> Enum.reject(&public_code_length?/1)
-  end
-
-  defp public_code_length?(%{"code" => code}), do: code == "public-code-length"
-  defp public_code_length?(_), do: false
 
   defp make_file_part(field_name, filepath) do
     {:file, filepath, {"form-data", [{:name, field_name}, {:filename, Path.basename(filepath)}]}, []}

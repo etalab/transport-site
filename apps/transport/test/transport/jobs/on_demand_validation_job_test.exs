@@ -434,13 +434,11 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
                data_vis: nil
              } = validation |> DB.Repo.reload() |> DB.Repo.preload(:metadata)
 
-      assert %{"xsd-1871" => a1, "uic-operating-period" => a2, "valid-day-bits" => a3, "frame-arret-resources" => a4} =
+      assert %{"xsd-schema" => a1, "base-rules" => a2} =
                result
 
       assert length(a1) == 1
-      assert length(a2) == 1
-      assert length(a3) == 1
-      assert length(a4) == 1
+      assert length(a2) == 3
 
       assert DateTime.diff(date, DateTime.utc_now()) <= 1
     end

@@ -56,7 +56,7 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
 
     assert multi_validation.command == "http://localhost:9999/chouette-valid/#{validation_id}"
     assert multi_validation.validator == "enroute-chouette-netex-validator"
-    assert multi_validation.validator_version == "saas-production"
+    assert multi_validation.validator_version == "0.2.0"
     assert multi_validation.result == %{}
     assert multi_validation.metadata.metadata == %{"retries" => attempts, "elapsed_seconds" => duration}
   end
@@ -77,11 +77,11 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
 
     assert multi_validation.command == "http://localhost:9999/chouette-valid/#{validation_id}/messages"
     assert multi_validation.validator == "enroute-chouette-netex-validator"
-    assert multi_validation.validator_version == "saas-production"
+    assert multi_validation.validator_version == "0.2.0"
     assert multi_validation.metadata.metadata == %{"retries" => attempts, "elapsed_seconds" => duration}
 
     assert multi_validation.result == %{
-             "xsd-1871" => [
+             "xsd-schema" => [
                %{
                  "code" => "xsd-1871",
                  "criticity" => "error",
@@ -89,28 +89,22 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
                    "Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef )."
                }
              ],
-             "uic-operating-period" => [
+             "base-rules" => [
                %{
                  "code" => "uic-operating-period",
                  "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod",
                  "criticity" => "error"
-               }
-             ],
-             "valid-day-bits" => [
+               },
                %{
                  "code" => "valid-day-bits",
                  "message" => "Mandatory attribute valid_day_bits not found",
                  "criticity" => "error"
-               }
-             ],
-             "frame-arret-resources" => [
+               },
                %{
                  "code" => "frame-arret-resources",
                  "message" => "Tag frame_id doesn't match ''",
                  "criticity" => "warning"
-               }
-             ],
-             "unknown-code" => [
+               },
                %{
                  "message" => "Reference MOBIITI:Quay:104325 doesn't match any existing Resource",
                  "criticity" => "error"
