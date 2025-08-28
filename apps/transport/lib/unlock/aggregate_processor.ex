@@ -8,7 +8,7 @@ defmodule Unlock.AggregateProcessor do
 
   # We actually look into the schema to build this. This is preliminary work
   # to add live validation later here.
-  @schema_fields Unlock.DynamicIRVESchema.build_schema_fields_list()
+  def schema_fields, do: Unlock.DynamicIRVESchema.build_schema_fields_list()
 
   @doc """
   Given an aggregate item, achieve concurrent querying of all sub-items and consolidate the outputs.
@@ -33,7 +33,7 @@ defmodule Unlock.AggregateProcessor do
         :include_origin
       ])
 
-    headers = @schema_fields
+    headers = schema_fields()
     headers = if options[:include_origin], do: headers ++ ["origin", "slug"], else: headers
 
     rows_stream =
@@ -166,7 +166,7 @@ defmodule Unlock.AggregateProcessor do
     # The number of elements in fields array SHOULD be the same as the number of fields in the CSV file.
 
     # once we assert that, the rest of the processing is easy
-    unless headers == @schema_fields do
+    unless headers == schema_fields() do
       throw({:non_matching_headers, headers})
     end
 

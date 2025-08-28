@@ -36,6 +36,10 @@ defmodule Transport.CachedFiles do
     Agent.get(__MODULE__, & &1.static_irve_schema)
   end
 
+  def dynamic_irve_schema do
+    Agent.get(__MODULE__, & &1.dynamic_irve_schema)
+  end
+
   @spec load_documents :: map()
   defp load_documents do
     %{
@@ -43,7 +47,8 @@ defmodule Transport.CachedFiles do
       facilitators: read_csv("facilitators.csv"),
       zfe_ids: read_csv("zfe_ids.csv"),
       gbfs_operators: read_csv("gbfs_operators.csv"),
-      static_irve_schema: read_json("schema-irve-statique.json")
+      static_irve_schema: read_json("schema-irve-statique.json"),
+      dynamic_irve_schema: read_json("schema-irve-dynamique.json")
     }
   end
 
