@@ -548,7 +548,7 @@ defmodule DB.Factory do
     See:
     - https://schema.data.gouv.fr/etalab/schema-irve-statique/
     """
-    def generate_row do
+    def generate_row(overrides \\ %{}) do
       %{
         "nom_amenageur" => "Métropole de Nulle Part",
         "siren_amenageur" => "123456782",
@@ -591,6 +591,7 @@ defmodule DB.Factory do
         "date_maj" => "2024-10-17",
         "cable_t2_attache" => false
       }
+      |> Map.merge(overrides)
     end
   end
 end
