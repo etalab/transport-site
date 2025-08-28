@@ -51,4 +51,9 @@ defmodule Transport.CachedFilesTest do
     ]
     |> Enum.member?(Enum.sort([x, y]))
   end
+
+  test "can load static IRVE schema" do
+    irve_schema = Transport.CachedFiles.static_irve_schema()
+    assert irve_schema["name"] == "schema-irve-statique"
+  end
 end

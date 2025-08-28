@@ -32,13 +32,18 @@ defmodule Transport.CachedFiles do
     Agent.get(__MODULE__, & &1.gbfs_operators)
   end
 
+  def static_irve_schema do
+    Agent.get(__MODULE__, & &1.static_irve_schema)
+  end
+
   @spec load_documents :: map()
   defp load_documents do
     %{
       reusers: read_csv("reusers.csv"),
       facilitators: read_csv("facilitators.csv"),
       zfe_ids: read_csv("zfe_ids.csv"),
-      gbfs_operators: read_csv("gbfs_operators.csv")
+      gbfs_operators: read_csv("gbfs_operators.csv"),
+      static_irve_schema: read_json("schema-irve-statique.json")
     }
   end
 
@@ -52,5 +57,14 @@ defmodule Transport.CachedFiles do
       _ -> false
     end)
     |> Enum.map(fn {_, array} -> array end)
+  end
+
+  @spec read_json(binary()) :: map()
+  def read_json(filename) do
+    __DIR__
+    |> Path.join("../../../shared/meta/" <> filename)
+    |> Path.expand()
+    |> File.read!()
+    |> Jason.decode!()
   end
 end
