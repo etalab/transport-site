@@ -361,11 +361,19 @@ msgid "XSD NeTEx"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Other errors"
+msgid "xsd-schema-description"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "xsd-schema-description"
+msgid "Base rules"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "base-rules-description"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Other errors"
 msgstr ""
 
 #, elixir-autogen, elixir-format
