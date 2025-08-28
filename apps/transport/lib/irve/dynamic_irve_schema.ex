@@ -1,4 +1,4 @@
-defmodule Unlock.DynamicIRVESchema do
+defmodule Transport.IRVE.DynamicIRVESchema do
   @moduledoc """
   A module providing programmatic access to the dynamic IRVE schema,
   as stored in the source code.

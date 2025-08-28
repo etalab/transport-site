@@ -8,7 +8,7 @@ defmodule Unlock.AggregateProcessor do
 
   # We actually look into the schema to build this. This is preliminary work
   # to add live validation later here.
-  def schema_fields, do: Unlock.DynamicIRVESchema.build_schema_fields_list()
+  def schema_fields, do: Transport.IRVE.DynamicIRVESchema.build_schema_fields_list()
 
   @doc """
   Given an aggregate item, achieve concurrent querying of all sub-items and consolidate the outputs.
