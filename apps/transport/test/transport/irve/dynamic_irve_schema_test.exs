@@ -1,8 +1,8 @@
-defmodule Unlock.DynamicIRVESchemaTest do
+defmodule Transport.IRVE.DynamicIRVESchemaTest do
   use ExUnit.Case, async: false
 
   test "enumerates current fields" do
-    assert Unlock.DynamicIRVESchema.build_schema_fields_list() == [
+    assert Transport.IRVE.DynamicIRVESchema.build_schema_fields_list() == [
              "id_pdc_itinerance",
              "etat_pdc",
              "occupation_pdc",

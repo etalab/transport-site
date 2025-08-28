@@ -1,7 +1,7 @@
 defmodule TransportWeb.PageController do
   use TransportWeb, :controller
   alias DB.{AOM, Dataset, Region, Repo}
-  alias Transport.CSVDocuments
+  alias Transport.CachedFiles
   import Ecto.Query
   import TransportWeb.DatasetView, only: [icon_type_path: 1]
   import TransportWeb.Router.Helpers
@@ -47,8 +47,8 @@ defmodule TransportWeb.PageController do
       count_aoms_with_dataset: count_aoms_with_dataset(),
       count_regions_completed: count_regions_completed(),
       percent_population: percent_population(),
-      reusers: CSVDocuments.reusers(),
-      facilitators: CSVDocuments.facilitators()
+      reusers: CachedFiles.reusers(),
+      facilitators: CachedFiles.facilitators()
     ]
   end
 

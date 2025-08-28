@@ -9,7 +9,7 @@ defmodule Transport.Application do
   use Application
   use Task
   import Cachex.Spec
-  alias Transport.{CSVDocuments, ImportDataWorker, SearchCommunes}
+  alias Transport.{CachedFiles, ImportDataWorker, SearchCommunes}
   alias TransportWeb.Endpoint
 
   @cache_name :transport
@@ -31,7 +31,7 @@ defmodule Transport.Application do
         {Cachex, name: @cache_name},
         TransportWeb.Endpoint,
         ImportDataWorker,
-        CSVDocuments,
+        CachedFiles,
         SearchCommunes,
         {Phoenix.PubSub, [name: TransportWeb.PubSub, adapter: Phoenix.PubSub.PG2]},
         TransportWeb.Presence,

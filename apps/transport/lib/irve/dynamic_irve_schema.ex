@@ -1,15 +1,11 @@
-defmodule Unlock.DynamicIRVESchema do
+defmodule Transport.IRVE.DynamicIRVESchema do
   @moduledoc """
   A module providing programmatic access to the dynamic IRVE schema,
   as stored in the source code.
   """
 
   def schema_content do
-    __ENV__.file
-    |> Path.join("../meta/schema-irve-dynamique.json")
-    |> Path.expand()
-    |> File.read!()
-    |> Jason.decode!()
+    Transport.CachedFiles.dynamic_irve_schema()
   end
 
   # builds the field list based on the actual schema

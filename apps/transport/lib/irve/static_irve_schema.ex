@@ -5,16 +5,11 @@ defmodule Transport.IRVE.StaticIRVESchema do
   """
 
   @doc """
-  Read & decode the content of the IRVE static schema.
-
-  NOTE: this is not cached at the moment.
+  Read & decode the content of the IRVE static schema,
+  from a static file that is cached (by Transport.CachedFiles) at app startup.
   """
   def schema_content do
-    __DIR__
-    |> Path.join("../../../shared/meta/schema-irve-statique.json")
-    |> Path.expand()
-    |> File.read!()
-    |> Jason.decode!()
+    Transport.CachedFiles.static_irve_schema()
   end
 
   @doc """

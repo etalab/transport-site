@@ -1,8 +1,8 @@
-defmodule Transport.CSVDocumentsTest do
+defmodule Transport.CachedFilesTest do
   use ExUnit.Case
 
   test "ensures that all referenced logos do exist" do
-    Transport.CSVDocuments.reusers()
+    Transport.CachedFiles.reusers()
     |> Enum.each(fn %{"image" => image} ->
       path =
         __DIR__
@@ -14,7 +14,7 @@ defmodule Transport.CSVDocumentsTest do
   end
 
   test "CSV for ZFE looks okay" do
-    zfe = Transport.CSVDocuments.zfe_ids()
+    zfe = Transport.CachedFiles.zfe_ids()
 
     # No duplicates
     assert zfe |> Enum.map(& &1["code"]) |> Enum.uniq() |> Enum.count() == Enum.count(zfe)
@@ -24,7 +24,7 @@ defmodule Transport.CSVDocumentsTest do
   end
 
   test "can load CSV for GBFS operators" do
-    operators = Transport.CSVDocuments.gbfs_operators() |> Enum.map(& &1["operator"]) |> Enum.uniq()
+    operators = Transport.CachedFiles.gbfs_operators() |> Enum.map(& &1["operator"]) |> Enum.uniq()
 
     assert "JC Decaux" in operators
     assert "Cykleo" in operators
@@ -38,7 +38,7 @@ defmodule Transport.CSVDocumentsTest do
 
     # Check `url` values. Make sure there is at most a single match per GBFS feed.
     # We can't have in the file `example.com` and `example.com/city` for example.
-    urls = Transport.CSVDocuments.gbfs_operators() |> Enum.map(& &1["url"])
+    urls = Transport.CachedFiles.gbfs_operators() |> Enum.map(& &1["url"])
 
     for x <- urls, y <- urls, x != y do
       refute String.contains?(x, y), "#{x} is contained #{y}. A GBFS feed can only match for a single URL."
@@ -50,5 +50,10 @@ defmodule Transport.CSVDocumentsTest do
       ["Citiz", "Citybike"]
     ]
     |> Enum.member?(Enum.sort([x, y]))
+  end
+
+  test "can load static IRVE schema" do
+    irve_schema = Transport.CachedFiles.static_irve_schema()
+    assert irve_schema["name"] == "schema-irve-statique"
   end
 end

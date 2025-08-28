@@ -12,7 +12,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
   require Logger
   import Ecto.Query
   alias DB.{AOM, Dataset, MultiValidation, Repo, Resource, ResourceHistory}
-  alias Transport.CSVDocuments
+  alias Transport.CachedFiles
 
   @schema_name "etalab/schema-zfe"
   @lez_dataset_type "road-data"
@@ -151,7 +151,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
   %{"forme_juridique" => "Métropole", "nom" => "Dijon Métropole", "siren" => "242100410", "zfe_id" => "DIJON"}
   """
   def publisher_details(%Resource{dataset: %Dataset{organization: organization}}) do
-    CSVDocuments.zfe_ids()
+    CachedFiles.zfe_ids()
     |> Enum.find_value(
       &if lower_unaccent(organization) == lower_unaccent(&1["epci_principal"]),
         do: %{
@@ -165,7 +165,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
 
   def zfe_id(siren) do
     zfe_id =
-      CSVDocuments.zfe_ids()
+      CachedFiles.zfe_ids()
       |> Enum.find_value(&if siren == &1["siren"] or String.contains?(&1["autres_siren"], siren), do: &1["code"])
 
     if is_nil(zfe_id) do
