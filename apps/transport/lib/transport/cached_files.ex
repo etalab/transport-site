@@ -1,6 +1,10 @@
-defmodule Transport.CSVDocuments do
+defmodule Transport.CachedFiles do
   @moduledoc """
-  Reads various CSV files and caches them.
+  Reads various CSV and JSON files and caches them in memory.
+
+  This module provides a centralized cache for static file contents that are
+  frequently accessed throughout the application. Files are loaded once at
+  startup and kept in memory for fast access.
   """
   use Agent
 
