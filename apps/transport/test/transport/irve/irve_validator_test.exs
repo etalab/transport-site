@@ -4,6 +4,11 @@ defmodule Transport.IRVE.ValidationTests do
 
   import Explorer.Series
   import Explorer.DataFrame
+
+  def test_df do
+    Explorer.DataFrame.new(id_pdc_itinerance: ["FR55CE062704364129771300611", "FR55CE063804387840874482971", "POK"])
+  end
+
   test "works" do
     # let's train on one of the largest files available, from the start.
     file = Path.expand("~/Downloads/irve_static_consolidation.csv")
