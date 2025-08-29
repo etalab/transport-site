@@ -26,8 +26,11 @@ defmodule Transport.IRVE.ValidationTests do
     |> Enum.find(& &1["name"] == "id_pdc_itinerance")
     |> get_in(["constraints", "pattern"])
 
+    geopoint_array_pattern = ~S'^\[\-?\d+(\.\d+)?,\s?\-?\d+(\.\d+)?\]$'
+
     df
     |> Explorer.DataFrame.mutate(check_pattern_id_pdc_itinerance: id_pdc_itinerance |> re_contains(^pattern))
+    |> Explorer.DataFrame.mutate(check_format_coordonneesXY: coordonneesXY |> re_contains(^geopoint_array_pattern))
     |> IO.inspect(IEx.inspect_opts)
   end
 end
