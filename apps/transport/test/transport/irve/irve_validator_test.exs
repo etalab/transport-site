@@ -22,6 +22,9 @@ defmodule Transport.IRVE.ValidationTests do
     df = Explorer.DataFrame.from_csv!(file, dtypes: dtypes)
     |> Explorer.DataFrame.select([:id_pdc_itinerance, :coordonneesXY])
 
+    pattern = schema["fields"]
+    |> Enum.find(& &1["name"] == "id_pdc_itinerance")
+    |> get_in(["constraints", "pattern"])
 
   end
 end
