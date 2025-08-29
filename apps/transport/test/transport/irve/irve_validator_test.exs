@@ -19,7 +19,8 @@ defmodule Transport.IRVE.ValidationTests do
     dtypes = schema["fields"]
     |> Enum.map(& {&1["name"], :string})
 
-    df = Explorer.DataFrame.from_csv(file, dtypes: dtypes, lazy: true)
+    df = Explorer.DataFrame.from_csv!(file, dtypes: dtypes)
+    |> Explorer.DataFrame.select([:id_pdc_itinerance, :coordonneesXY])
 
     df |> Explorer.DataFrame.estimated_size()
     |> IO.inspect(IEx.inspect_opts)
