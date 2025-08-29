@@ -26,5 +26,8 @@ defmodule Transport.IRVE.ValidationTests do
     |> Enum.find(& &1["name"] == "id_pdc_itinerance")
     |> get_in(["constraints", "pattern"])
 
+    df
+    |> Explorer.DataFrame.mutate(check_pattern_id_pdc_itinerance: id_pdc_itinerance |> re_contains(^pattern))
+    |> IO.inspect(IEx.inspect_opts)
   end
 end
