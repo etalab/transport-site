@@ -11,7 +11,7 @@ defmodule Transport.IRVE.ValidationTests do
 
   test "works" do
     # let's train on one of the largest files available, from the start.
-    file = Path.expand("~/Downloads/irve_static_consolidation.csv")
+    file = Path.expand("~/Downloads/qualicharge-irve-statique.csv")
     # load it, assuming only strings, so we can leverage DataFrame conveniences.
     schema = Transport.IRVE.StaticIRVESchema.schema_content()
     # use the list of fields, but load everything as string, to keep the original
