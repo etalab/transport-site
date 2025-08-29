@@ -22,8 +22,6 @@ defmodule Transport.IRVE.ValidationTests do
     df = Explorer.DataFrame.from_csv!(file, dtypes: dtypes)
     |> Explorer.DataFrame.select([:id_pdc_itinerance, :coordonneesXY])
 
-    df |> Explorer.DataFrame.estimated_size()
-    |> IO.inspect(IEx.inspect_opts)
 
   end
 end
