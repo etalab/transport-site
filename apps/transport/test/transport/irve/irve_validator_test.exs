@@ -2,6 +2,8 @@ defmodule Transport.IRVE.ValidationTests do
   use ExUnit.Case, async: true
   doctest Transport.IRVE.Validator, import: true
 
+  import Explorer.Series
+  import Explorer.DataFrame
   test "works" do
     # let's train on one of the largest files available, from the start.
     file = Path.expand("~/Downloads/irve_static_consolidation.csv")
