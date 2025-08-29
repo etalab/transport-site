@@ -362,13 +362,21 @@ msgstr "le validateur NeTEx d’enRoute"
 msgid "XSD NeTEx"
 msgstr ""
 
-#, elixir-autogen, elixir-format, fuzzy
-msgid "Other errors"
-msgstr "Autres erreurs"
-
 #, elixir-autogen, elixir-format
 msgid "xsd-schema-description"
 msgstr "Une ressource NeTEx doit avant tout respecter la XSD NeTEx. <a href=\"https://github.com/NeTEx-CEN/NeTEx\" target=\"_blank\">En savoir plus</a>.<br/>Ceci ne tient pas compte des particularismes du <a href=\"https://normes.transport.data.gouv.fr/\">profil France</a>."
+
+#, elixir-autogen, elixir-format
+msgid "Base rules"
+msgstr "Règles de base"
+
+#, elixir-autogen, elixir-format
+msgid "base-rules-description"
+msgstr "Ces règles sont issues des pratiques métiers les plus courantes. Elles forment les règles de base partagées par l'ensemble des profils de NeTEx. Elles sont présentées sur <a href=\"https://enroute.atlassian.net/wiki/spaces/PUBLICFR/pages/2987556904/Les+r+gles+par+enRoute\">le Wiki d'enRoute</a>."
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Other errors"
+msgstr "Autres erreurs"
 
 #, elixir-autogen, elixir-format
 msgid "netex-validations-layers"
