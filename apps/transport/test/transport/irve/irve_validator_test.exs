@@ -80,9 +80,17 @@ defmodule Transport.IRVE.ValidationTests do
     # hardcoded & home-baked, consequence of geopoint format
     geopoint_array_pattern = ~S'^\[\-?\d+(\.\d+)?,\s?\-?\d+(\.\d+)?\]$'
 
-    df
-    |> Explorer.DataFrame.mutate(check_pattern_id_pdc_itinerance: id_pdc_itinerance |> re_contains(^id_pdc_itinerance_pattern))
-    |> Explorer.DataFrame.mutate(check_format_coordonneesXY: coordonneesXY |> re_contains(^geopoint_array_pattern))
-    |> IO.inspect(IEx.inspect_opts)
+    enum_values =
+      get_field_by_name(schema, "implantation_station")
+      |> get_in(["constraints", "enum"])
+      |> Explorer.Series.from_list()
+
+    # https://specs.frictionlessdata.io/table-schema/#types-and-formats
+
+    df =
+      df
+      |> Explorer.DataFrame.mutate(check_pattern_id_pdc_itinerance: id_pdc_itinerance |> re_contains(^id_pdc_itinerance_pattern))
+      |> Explorer.DataFrame.mutate(check_format_coordonneesXY: coordonneesXY |> re_contains(^geopoint_array_pattern))
+      |> Explorer.DataFrame.mutate(check_enum_implantation_station: Explorer.Series.in(implantation_station, ^enum_values))
   end
 end
