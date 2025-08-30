@@ -72,8 +72,9 @@ defmodule Transport.IRVE.ValidationTests do
     # data mostly unchanged & leave us the opportunity to run verifications on it.
     dtypes = schema["fields"] |> Enum.map(&{&1["name"], :string})
 
-    df = Explorer.DataFrame.from_csv!(file, dtypes: dtypes)
-    |> Explorer.DataFrame.select([:id_pdc_itinerance, :coordonneesXY])
+    df =
+      Explorer.DataFrame.from_csv!(file, dtypes: dtypes)
+      |> Explorer.DataFrame.select([:id_pdc_itinerance, :coordonneesXY, :implantation_station])
 
     id_pdc_itinerance_pattern = get_field_by_name(schema, "id_pdc_itinerance") |> get_in(["constraints", "pattern"])
     # hardcoded & home-baked, consequence of geopoint format
