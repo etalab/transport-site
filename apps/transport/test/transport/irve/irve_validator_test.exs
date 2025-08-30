@@ -19,6 +19,7 @@ defmodule Transport.IRVE.ValidationTests do
     file = Path.expand("~/Downloads/qualicharge-irve-statique.csv")
     # load it, assuming only strings, so we can leverage DataFrame conveniences.
     schema = Transport.IRVE.StaticIRVESchema.schema_content()
+
     # use the list of fields, but load everything as string, to keep the original
     # data mostly unchanged & leave us the opportunity to run verifications on it.
     dtypes = schema["fields"]
