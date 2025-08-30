@@ -10,7 +10,7 @@ defmodule Transport.IRVE.ValidationTests do
   end
 
   def get_field_by_name(schema, field_name) do
-    [field] = schema["fields"] |> Enum.filter(fn(x) -> x["name"] == field_name end)
+    [field] = schema["fields"] |> Enum.filter(fn x -> x["name"] == field_name end)
     field
   end
 
