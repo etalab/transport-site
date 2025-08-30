@@ -92,5 +92,15 @@ defmodule Transport.IRVE.ValidationTests do
       |> Explorer.DataFrame.mutate(check_pattern_id_pdc_itinerance: id_pdc_itinerance |> re_contains(^id_pdc_itinerance_pattern))
       |> Explorer.DataFrame.mutate(check_format_coordonneesXY: coordonneesXY |> re_contains(^geopoint_array_pattern))
       |> Explorer.DataFrame.mutate(check_enum_implantation_station: Explorer.Series.in(implantation_station, ^enum_values))
+
+    check_fields = df |> Explorer.DataFrame.names() |> Enum.filter(&String.starts_with?(&1, "check_"))
+
+    df =
+      df
+      |> Explorer.DataFrame.mutate(
+        # TODO: leverage `check_fields` for a cumulative, automatic check
+        row_valid: check_pattern_id_pdc_itinerance and check_format_coordonneesXY and check_enum_implantation_station
+      )
+      |> IO.inspect(IEx.inspect_opts())
   end
 end
