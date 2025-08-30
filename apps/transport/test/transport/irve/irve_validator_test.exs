@@ -9,6 +9,11 @@ defmodule Transport.IRVE.ValidationTests do
     Explorer.DataFrame.new(id_pdc_itinerance: ["FR55CE062704364129771300611", "FR55CE063804387840874482971", "POK"])
   end
 
+  def get_field_by_name(schema, field_name) do
+    [field] = schema["fields"] |> Enum.filter(fn(x) -> x["name"] == field_name end)
+    field
+  end
+
   test "works" do
     # let's train on one of the largest files available, from the start.
     file = Path.expand("~/Downloads/qualicharge-irve-statique.csv")
