@@ -28,6 +28,7 @@ defmodule Transport.IRVE.ValidationTests do
     |> Explorer.DataFrame.select([:id_pdc_itinerance, :coordonneesXY])
 
     id_pdc_itinerance_pattern = get_field_by_name(schema, "id_pdc_itinerance") |> get_in(["constraints", "pattern"])
+    # hardcoded & home-baked, consequence of geopoint format
     geopoint_array_pattern = ~S'^\[\-?\d+(\.\d+)?,\s?\-?\d+(\.\d+)?\]$'
 
     df
