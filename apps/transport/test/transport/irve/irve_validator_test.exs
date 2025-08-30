@@ -22,8 +22,7 @@ defmodule Transport.IRVE.ValidationTests do
 
     # use the list of fields, but load everything as string, to keep the original
     # data mostly unchanged & leave us the opportunity to run verifications on it.
-    dtypes = schema["fields"]
-    |> Enum.map(& {&1["name"], :string})
+    dtypes = schema["fields"] |> Enum.map(& {&1["name"], :string})
 
     df = Explorer.DataFrame.from_csv!(file, dtypes: dtypes)
     |> Explorer.DataFrame.select([:id_pdc_itinerance, :coordonneesXY])
