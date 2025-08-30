@@ -14,6 +14,54 @@ defmodule Transport.IRVE.ValidationTests do
     field
   end
 
+  # just a todo list, extracted from actual schema, for my implementation
+  @cases_to_be_covered %{
+    # Basic types
+    type: "string",
+    format: "email",
+    type: "geopoint",
+    format: "array",
+    type: "integer",
+    type: "number",
+    type: "boolean",
+    type: "date",
+    format: "%Y-%m-%d",
+    # Dynamic schema only
+    type: "datetime",
+    # End dynamic schema only
+
+    constraints: %{
+      required: false,
+      required: true,
+      pattern: "^\\d{9}$",
+      pattern: "(?:(?:^|,)(^[A-Z]{2}[A-Z0-9]{4,33}$|Non concerné))+$",
+      pattern: "^([013-9]\\d|2[AB1-9])\\d{3}$",
+      pattern: "(.*?)((\\d{1,2}:\\d{2})-(\\d{1,2}:\\d{2})|24/7)",
+      enum: [
+        "Voirie",
+        "Parking public",
+        "Parking privé à usage public",
+        "Parking privé réservé à la clientèle",
+        "Station dédiée à la recharge rapide"
+      ],
+      enum: [
+        "Accès libre",
+        "Accès réservé"
+      ],
+      enum: [
+        "Réservé PMR",
+        "Accessible mais non réservé PMR",
+        "Non accessible",
+        "Accessibilité inconnue"
+      ],
+      enum: [
+        "Direct",
+        "Indirect"
+      ],
+      minimum: 0
+    }
+  }
+
   test "works" do
     # let's train on one of the largest files available, from the start.
     file = Path.expand("~/Downloads/qualicharge-irve-statique.csv")
