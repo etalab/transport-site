@@ -328,7 +328,7 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
 
       refute doc |> Floki.find(".panel form") |> Enum.empty?()
 
-      assert doc |> Floki.find("option") == [{"option", [{"value", organization.id}], [organization.name]}]
+      assert doc |> Floki.find(".panel form option") == [{"option", [{"value", organization.id}], [organization.name]}]
     end
   end
 

@@ -13,11 +13,26 @@ defmodule TransportWeb.ContactController do
     |> redirect(to: params["redirect_path"] || page_path(conn, :index))
   end
 
-  def send_mail(conn, %{"email" => email, "topic" => subject, "question" => question} = params) do
-    %{email: email, subject: subject, question: question} =
-      sanitize_inputs(%{email: email, subject: subject, question: question})
+  def send_mail(
+        conn,
+        %{
+          "email" => email,
+          "user_type" => user_type,
+          "question_type" => question_type,
+          "subject" => subject,
+          "question" => question
+        } = params
+      ) do
+    %{email: email, user_type: user_type, question_type: question_type, subject: subject, question: question} =
+      sanitize_inputs(%{
+        email: email,
+        user_type: user_type,
+        question_type: question_type,
+        subject: subject,
+        question: question
+      })
 
-    contact_email = Transport.AdminNotifier.contact(email, subject, question)
+    contact_email = Transport.AdminNotifier.contact(email, user_type, question_type, subject, question)
 
     case Transport.Mailer.deliver(contact_email) do
       {:ok, _} ->

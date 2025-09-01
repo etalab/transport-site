@@ -4,10 +4,15 @@ defmodule Transport.AdminNotifier do
   """
   use Phoenix.Swoosh, view: TransportWeb.EmailView
 
-  def contact(email, subject, question) do
+  def contact(email, user_type, question_type, subject, question) do
     notify_contact("PAN, Formulaire Contact", email)
     |> subject(subject)
-    |> text_body(question)
+    |> text_body("""
+    User type: #{user_type}
+    Question type: #{question_type}
+
+    Question: #{question}
+    """)
   end
 
   def feedback(rating, explanation, email, feature) do
