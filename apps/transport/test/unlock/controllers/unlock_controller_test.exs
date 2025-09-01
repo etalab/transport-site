@@ -1,10 +1,8 @@
 defmodule Unlock.ControllerTest do
   # async false until we stub Cachex calls or use per-test cache name
   # and also due to our current global mox use, and capture_log
-  use ExUnit.Case, async: false
+  use TransportWeb.ConnCase, async: false
   import Plug.Conn
-  import Phoenix.ConnTest
-  @endpoint Unlock.Endpoint
 
   import ExUnit.CaptureLog
 
@@ -23,7 +21,7 @@ defmodule Unlock.ControllerTest do
 
   test "GET /" do
     output =
-      build_conn()
+      proxy_conn()
       |> get("/")
       |> text_response(200)
 
@@ -49,7 +47,7 @@ defmodule Unlock.ControllerTest do
       })
 
       resp =
-        build_conn()
+        proxy_conn()
         # NOTE: required due to plug testing, not by the actual server
         |> put_req_header("content-type", "application/soap+xml")
         |> get("/resource/#{slug}", "Test")
@@ -131,7 +129,7 @@ defmodule Unlock.ControllerTest do
       end)
 
       resp =
-        build_conn()
+        proxy_conn()
         # NOTE: required due to plug testing, not by the actual server
         |> put_req_header("content-type", "application/soap+xml")
         |> post("/resource/an-existing-identifier", incoming_query)
@@ -182,7 +180,7 @@ defmodule Unlock.ControllerTest do
         )
 
       resp =
-        build_conn()
+        proxy_conn()
         # NOTE: required due to plug testing, not by the actual server
         |> put_req_header("content-type", "application/soap+xml")
         |> post("/resource/an-existing-identifier", query)
@@ -207,7 +205,7 @@ defmodule Unlock.ControllerTest do
       })
 
       resp =
-        build_conn()
+        proxy_conn()
         |> post("/resource/#{slug}")
 
       assert resp.status == 405
@@ -250,7 +248,7 @@ defmodule Unlock.ControllerTest do
       end)
 
       resp =
-        build_conn()
+        proxy_conn()
         |> get("/resource/an-existing-identifier")
 
       assert resp.resp_body == "somebody-to-love"
@@ -296,7 +294,7 @@ defmodule Unlock.ControllerTest do
       assert_in_delta ttl / 1000.0, ttl_in_seconds, 1
 
       resp =
-        build_conn()
+        proxy_conn()
         |> get("/resource/an-existing-identifier")
 
       assert resp.resp_body == "somebody-to-love"
@@ -339,7 +337,7 @@ defmodule Unlock.ControllerTest do
       end)
 
       resp =
-        build_conn()
+        proxy_conn()
         |> head("/resource/an-existing-identifier")
 
       # head = empty body
@@ -352,7 +350,7 @@ defmodule Unlock.ControllerTest do
       setup_proxy_config(%{})
 
       resp =
-        build_conn()
+        proxy_conn()
         |> get("/resource/unknown")
 
       assert resp.resp_body == "Not Found"
@@ -381,7 +379,7 @@ defmodule Unlock.ControllerTest do
       end)
 
       resp =
-        build_conn()
+        proxy_conn()
         |> get("/resource/some-identifier")
 
       assert resp.resp_body == ~s([{"SomeHeader", "SomeValue"}])
@@ -413,7 +411,7 @@ defmodule Unlock.ControllerTest do
       end)
 
       resp =
-        build_conn()
+        proxy_conn()
         |> get("/resource/some-identifier")
 
       assert resp.resp_headers |> Enum.filter(fn {k, _v} -> k == "content-disposition" end) ==
@@ -443,7 +441,7 @@ defmodule Unlock.ControllerTest do
 
       logs =
         capture_log(fn ->
-          resp = build_conn() |> get("/resource/#{identifier}")
+          resp = proxy_conn() |> get("/resource/#{identifier}")
 
           # Got an exception, nothing is stored in cache
           assert {:ok, []} == Cachex.keys(Unlock.Cachex)
@@ -563,7 +561,7 @@ defmodule Unlock.ControllerTest do
 
       {resp, logs} =
         with_log(fn ->
-          build_conn()
+          proxy_conn()
           |> get("/resource/an-existing-aggregate-identifier")
         end)
 
@@ -592,7 +590,7 @@ defmodule Unlock.ControllerTest do
       # more calls should not result in any real query
       {resp, logs} =
         with_log(fn ->
-          build_conn()
+          proxy_conn()
           |> get("/resource/an-existing-aggregate-identifier")
         end)
 
@@ -618,7 +616,7 @@ defmodule Unlock.ControllerTest do
 
       {resp, logs} =
         with_log(fn ->
-          build_conn()
+          proxy_conn()
           |> get("/resource/an-existing-aggregate-identifier")
         end)
 
@@ -644,7 +642,7 @@ defmodule Unlock.ControllerTest do
 
       {resp, logs} =
         with_log(fn ->
-          build_conn()
+          proxy_conn()
           |> get("/resource/an-existing-aggregate-identifier")
         end)
 
@@ -668,7 +666,7 @@ defmodule Unlock.ControllerTest do
 
       {resp, logs} =
         with_log(fn ->
-          build_conn()
+          proxy_conn()
           |> get("/resource/an-existing-aggregate-identifier")
         end)
 
@@ -703,7 +701,7 @@ defmodule Unlock.ControllerTest do
         %Unlock.HTTP.Response{body: body, headers: [], status: 200}
       end)
 
-      build_conn()
+      proxy_conn()
       |> get("/resource/an-existing-aggregate-identifier")
 
       # assert that the expected max_redirects count has been passed
@@ -750,7 +748,7 @@ defmodule Unlock.ControllerTest do
 
       {resp, logs} =
         with_log(fn ->
-          build_conn()
+          proxy_conn()
           |> get("/resource/an-existing-aggregate-identifier")
         end)
 
@@ -794,7 +792,7 @@ defmodule Unlock.ControllerTest do
       })
 
       resp =
-        build_conn()
+        proxy_conn()
         |> get("/resource/an-existing-aggregate-identifier", limit_per_source: 1)
 
       assert resp.status == 200
@@ -811,7 +809,7 @@ defmodule Unlock.ControllerTest do
       })
 
       resp =
-        build_conn()
+        proxy_conn()
         |> get("/resource/an-existing-aggregate-identifier", include_origin: 1)
 
       assert resp.status == 200
@@ -859,7 +857,7 @@ defmodule Unlock.ControllerTest do
       end)
 
       resp =
-        build_conn()
+        proxy_conn()
         |> get("/resource/an-existing-s3-identifier")
 
       assert resp.resp_body == content
@@ -899,7 +897,7 @@ defmodule Unlock.ControllerTest do
 
       {resp, logs} =
         with_log(fn ->
-          build_conn()
+          proxy_conn()
           |> get("/resource/an-existing-s3-identifier")
         end)
 

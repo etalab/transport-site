@@ -1,8 +1,6 @@
 defmodule Unlock.Plugs.TokenAuthTest do
-  use ExUnit.Case, async: false
+  use TransportWeb.ConnCase, async: false
   import DB.Factory
-  import Phoenix.ConnTest
-  @endpoint Unlock.Endpoint
   import Mox
 
   setup :verify_on_exit!
@@ -31,7 +29,7 @@ defmodule Unlock.Plugs.TokenAuthTest do
       %Unlock.HTTP.Response{body: "somebody-to-love", status: 200, headers: []}
     end)
 
-    resp = build_conn() |> get("/resource/#{slug}?token=#{token.secret}")
+    resp = proxy_conn() |> get("/resource/#{slug}?token=#{token.secret}")
 
     assert resp.resp_body == "somebody-to-love"
     assert %DB.Token{id: ^token_id} = resp.assigns[:token]
@@ -58,7 +56,7 @@ defmodule Unlock.Plugs.TokenAuthTest do
       %Unlock.HTTP.Response{body: "somebody-to-love", status: 200, headers: []}
     end)
 
-    resp = build_conn() |> get("/resource/#{slug}")
+    resp = proxy_conn() |> get("/resource/#{slug}")
 
     assert resp.resp_body == "somebody-to-love"
     assert is_nil(resp.assigns[:token])
@@ -67,7 +65,7 @@ defmodule Unlock.Plugs.TokenAuthTest do
   end
 
   test "invalid token passed" do
-    resp = build_conn() |> get("/resource/slug?token=invalid")
+    resp = proxy_conn() |> get("/resource/slug?token=invalid")
 
     assert resp.status == 401
     assert resp.resp_body == ~s|{"error":"You must set a valid token in the query parameters"}|
