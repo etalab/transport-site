@@ -83,7 +83,7 @@ defmodule Transport.GBFSMetadata do
   nil
   """
   def operator(url) do
-    Transport.CSVDocuments.gbfs_operators()
+    Transport.CachedFiles.gbfs_operators()
     |> Enum.find_value(fn %{"url" => operator_url, "operator" => operator} ->
       if String.contains?(url, operator_url), do: operator
     end)

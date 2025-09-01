@@ -12,7 +12,7 @@ defmodule Transport.Proxy do
   def resource_url(base_url, slug) do
     Path.join(
       base_url,
-      Unlock.Router.Helpers.resource_path(Unlock.Endpoint, :fetch, slug)
+      Unlock.Router.Helpers.resource_path(TransportWeb.Endpoint, :fetch, slug)
     )
   end
 end
