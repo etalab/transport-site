@@ -364,7 +364,7 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "xsd-schema-description"
-msgstr "A NeTEx resource must respect the NeTEx XSD. <a href=\"https://github.com/NeTEx-CEN/NeTEx\" target=\"_blank\">Learn more</a>.<br/>This doesn't cover the extensions of the <a href=\"https://normes.transport.data.gouv.fr/\">French profile</a>."
+msgstr "Every NeTEx resource must comply with the <a href=\"https://github.com/NeTEx-CEN/NeTEx\" target=\"_blank\">NeTEX XSD</a>, regardless of its profile. The XSD validation does not cover choices made by <a href=\"https://normes.transport.data.gouv.fr/\">the French profile</a>.<br/>Amongst most frequent errors, check that ids are unique, that elements are in the expected order, and that no mandatory attribute is missing."
 
 #, elixir-autogen, elixir-format
 msgid "Base rules"
@@ -380,4 +380,4 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "netex-validations-layers"
-msgstr "NeTEx validation is still in its infancy. Currently we only check that a given NeTEx archive respects the XSD schema. It doesn't support exceptions made to that XSD in France yet."
+msgstr "Validation of NeTEx resources is still a work in progress. Currently, we only check that any resource in NeTEx respects the XSD schema and follows some best practices. We do not yet check the compliance with the <a href=\"https://normes.transport.data.gouv.fr/\">French profile</a> (nor the dataset structure nor mandatory attributes)."

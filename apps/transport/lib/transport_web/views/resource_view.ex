@@ -338,7 +338,7 @@ defmodule TransportWeb.ResourceView do
     <li class="comment">
       <i class="fa fa-circle-exclamation"></i>
       <div>
-        <%= dgettext("validations", "netex-validations-layers") %>
+        <%= dgettext("validations", "netex-validations-layers") |> raw() %>
       </div>
     </li>
     """

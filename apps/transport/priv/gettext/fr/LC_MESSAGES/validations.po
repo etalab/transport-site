@@ -364,7 +364,7 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "xsd-schema-description"
-msgstr "Une ressource NeTEx doit avant tout respecter la XSD NeTEx. <a href=\"https://github.com/NeTEx-CEN/NeTEx\" target=\"_blank\">En savoir plus</a>.<br/>Ceci ne tient pas compte des particularismes du <a href=\"https://normes.transport.data.gouv.fr/\">profil France</a>."
+msgstr "Toute ressource NeTEx doit être conforme à la <a href=\"https://github.com/NeTEx-CEN/NeTEx\" target=\"_blank\">XSD de NeTEx</a>, quel que soit le profil utilisé. La validation de la XSD ne tient pas compte des choix faits dans <a href=\"https://normes.transport.data.gouv.fr/\">le profil France</a>.<br/>Parmi les erreurs les plus fréquentes, pensez à vérifier que vos identifiants sont uniques, que l'ordre des balises est bien respecté et/ou qu'il ne vous manque aucun attribut obligatoire."
 
 #, elixir-autogen, elixir-format
 msgid "Base rules"
@@ -380,4 +380,4 @@ msgstr "Autres erreurs"
 
 #, elixir-autogen, elixir-format
 msgid "netex-validations-layers"
-msgstr "La validation des archives NeTEx en est encore qu’à ses débuts. Actuellement nous ne validons que la conformité à la XSD. Nous ne supportons pas encore les exceptions françaises."
+msgstr "La validation des ressources NeTEx est encore à ses débuts. Pour le moment, nous vérifions la conformité à la XSD et certaines bonnes pratiques. Nous ne vérifions pas encore la conformité à la structure et aux spécificités du <a href=\"https://normes.transport.data.gouv.fr/\">profil France</a>."
