@@ -7,7 +7,6 @@ defmodule Transport.IRVE.RawStaticConsolidationTest do
   setup :verify_on_exit!
 
   describe "build_aggregate_and_report!/1" do
-    @tag :focus
     test "successfully processes valid IRVE resources and generates files" do
       with_tmp_file(fn data_file ->
         with_tmp_file(fn report_file ->
@@ -27,11 +26,56 @@ defmodule Transport.IRVE.RawStaticConsolidationTest do
 
           # Verify data file was created and contains expected content
           assert File.exists?(data_file)
-          data_content = File.read!(data_file)
-          assert String.contains?(data_content, "id_pdc_itinerance")
-          assert String.contains?(data_content, "original_dataset_id")
-          assert String.contains?(data_content, "Métropole de Nulle Part")
-          # TODO: check it’s a csv, etc.
+          [headers, pdc_line] = data_file |> File.stream!() |> CSV.decode!() |> Enum.into([])
+
+          assert headers ==
+                   (Transport.IRVE.StaticIRVESchema.field_names_list() -- ["coordonneesXY", "cable_t2_attache"]) ++
+                     ["x", "y", "original_dataset_id", "original_resource_id"]
+
+          assert pdc_line == [
+                   "Métropole de Nulle Part",
+                   "123456782",
+                   "amenageur@example.com",
+                   "Opérateur de Charge",
+                   "operateur@example.com",
+                   "0199456782",
+                   "Réseau de recharge",
+                   "FRPAN99P12345678",
+                   "station_001",
+                   "Ma Station",
+                   "Lieu de ma station",
+                   "26 rue des écluses, 17430 Champdolent",
+                   "17085",
+                   "1",
+                   "FRPAN99E12345678",
+                   "pdc_001",
+                   "22.0",
+                   "false",
+                   "true",
+                   "false",
+                   "false",
+                   "false",
+                   "false",
+                   "true",
+                   "true",
+                   "true",
+                   "2,50€ / 30min puis 0,025€ / minute",
+                   "Accès libre",
+                   "false",
+                   "24/7",
+                   "Accessible mais non réservé PMR",
+                   "Hauteur maximale 2.30m",
+                   "false",
+                   "Direct",
+                   "12345678912345",
+                   "2024-10-02",
+                   "Station située au niveau -1 du parking",
+                   "2024-10-17",
+                   "-0.799141",
+                   "45.91914",
+                   "the-dataset-id",
+                   "the-resource-id"
+                 ]
 
           # Verify report file was created and contains expected content
           assert File.exists?(report_file)
@@ -42,8 +86,6 @@ defmodule Transport.IRVE.RawStaticConsolidationTest do
       end)
     end
   end
-
-  # Helper functions for mocking
 
   defp mock_datagouv_resources do
     # TODO: Mock Transport.IRVE.Extractor.datagouv_resources/0
