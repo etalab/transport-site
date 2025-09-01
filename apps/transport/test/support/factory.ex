@@ -594,6 +594,8 @@ defmodule DB.Factory do
       |> Map.merge(overrides)
     end
 
+    def to_csv_body(items), do: items |> CSV.encode(headers: true) |> Enum.join()
+
     def build_datagouv_initial_pagination_payload(page_size: page_size) do
       %{
         "data" => [],

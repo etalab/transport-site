@@ -13,7 +13,7 @@ defmodule Transport.IRVE.DataFrameTest do
   end
 
   test "dataframe roundtrip (encode + decode)" do
-    body = [DB.Factory.IRVE.generate_row()] |> CSV.encode(headers: true) |> Enum.join()
+    body = [DB.Factory.IRVE.generate_row()] |> DB.Factory.IRVE.to_csv_body()
     df = Transport.IRVE.DataFrame.dataframe_from_csv_body!(body)
     maps = Explorer.DataFrame.to_rows(df)
 

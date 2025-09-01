@@ -77,7 +77,7 @@ defmodule Transport.IRVE.RawStaticConsolidationTest do
     |> expect(:get!, fn _url, _options ->
       %Req.Response{
         status: 200,
-        body: [DB.Factory.IRVE.generate_row()] |> CSV.encode(headers: true) |> Enum.join()
+        body: [DB.Factory.IRVE.generate_row()] |> DB.Factory.IRVE.to_csv_body()
       }
     end)
   end
