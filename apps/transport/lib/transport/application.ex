@@ -40,7 +40,6 @@ defmodule Transport.Application do
         {Oban, Application.fetch_env!(:transport, Oban)},
         Transport.PhoenixDashboardTelemetry,
         Transport.Vault,
-        Unlock.Endpoint,
         {Finch, name: Unlock.Finch},
         Supervisor.child_spec(
           {Cachex,

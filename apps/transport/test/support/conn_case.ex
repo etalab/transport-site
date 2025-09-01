@@ -43,4 +43,12 @@ defmodule TransportWeb.ConnCase do
   def setup_admin_in_session(%Plug.Conn{} = conn) do
     init_test_session(conn, %{current_user: %{"is_admin" => true}})
   end
+
+  @doc """
+  For Unlock tests.
+  Override host to route to the proxy router.
+  """
+  def proxy_conn do
+    %{Phoenix.ConnTest.build_conn() | host: "proxy.example.com"}
+  end
 end
