@@ -7,56 +7,6 @@ defmodule Transport.IRVE.ExtractorTest do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
-  def build_initial_pagination_payload(page_size: page_size) do
-    %{
-      "data" => [],
-      "next_page" => nil,
-      "page" => 1,
-      "total" => 1,
-      "page_size" => page_size
-    }
-  end
-
-  @doc """
-  Build a typical data gouv API (list datasets) response.
-
-  If you need to verify or modify the payload, see examples at:
-  - https://www.data.gouv.fr/api/1/datasets/?page=1&page_size=20&schema=etalab%2Fschema-irve-statique
-  - https://doc.data.gouv.fr/api/reference/#/datasets/list_datasets
-  """
-  def build_page_payload do
-    %{
-      "data" => [
-        %{
-          "id" => "the-dataset-id",
-          "title" => "the-dataset-title",
-          "organization" => %{
-            "id" => "the-org-id",
-            "name" => "the-org",
-            "page" => "http://the-org"
-          },
-          "resources" => [
-            %{
-              "schema" => %{
-                "name" => "etalab/schema-irve-statique",
-                "version" => "2.3.0"
-              },
-              "id" => "the-resource-id",
-              "title" => "the-resource-title",
-              "extras" => %{
-                "validation-report:valid_resource" => true,
-                "validation-report:validation_date" => "2024-02-24"
-              },
-              "filetype" => "file",
-              "last_modified" => "2024-02-29T07:43:59.660000+00:00",
-              "url" => "https://static.data.gouv.fr/resources/some-irve-url-2024/data.csv"
-            }
-          ]
-        }
-      ]
-    }
-  end
-
   test "paginates data gouv to retrieve all relevant resources metadata via #resources call" do
     # NOTE: pagination is not really tested at the moment, but that's good enough for the current scope of use
 
@@ -64,7 +14,7 @@ defmodule Transport.IRVE.ExtractorTest do
     Transport.Req.Mock
     |> expect(:get!, fn _request, options ->
       assert options[:url] == "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve-statique&page_size=2"
-      %Req.Response{status: 200, body: build_initial_pagination_payload(page_size: 2)}
+      %Req.Response{status: 200, body: DB.Factory.IRVE.build_datagouv_initial_pagination_payload(page_size: 2)}
     end)
 
     # next requests are same queries but paginated and helping
@@ -75,7 +25,7 @@ defmodule Transport.IRVE.ExtractorTest do
 
       %Req.Response{
         status: 200,
-        body: build_page_payload()
+        body: DB.Factory.IRVE.build_datagouv_page_payload()
       }
     end)
 
