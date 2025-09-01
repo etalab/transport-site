@@ -88,9 +88,6 @@ defmodule Transport.IRVE.RawStaticConsolidationTest do
   end
 
   defp mock_datagouv_resources do
-    # TODO: Mock Transport.IRVE.Extractor.datagouv_resources/0
-    # You might need to use a different approach since this calls an external module
-    # Consider using Application.put_env or a test-specific configuration
     Transport.Req.Mock
     |> expect(:get!, fn _request, options ->
       assert options[:url] ==
@@ -113,8 +110,6 @@ defmodule Transport.IRVE.RawStaticConsolidationTest do
   end
 
   defp mock_resource_downloads do
-    # Mock the HTTP requests for downloading resource content
-    # TODO change this
     Transport.Req.Mock
     |> expect(:get!, fn _url, _options ->
       %Req.Response{
