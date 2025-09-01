@@ -365,6 +365,10 @@ msgid "xsd-schema-description"
 msgstr ""
 
 #, elixir-autogen, elixir-format
+msgid "xsd-schema-hints"
+msgstr ""
+
+#, elixir-autogen, elixir-format
 msgid "Base rules"
 msgstr ""
 
