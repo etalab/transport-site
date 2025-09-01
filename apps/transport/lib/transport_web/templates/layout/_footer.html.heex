@@ -10,7 +10,7 @@
       </a>
       <%= form_for @conn, contact_path(@conn, :send_mail), fn f -> %>
         <h3>Contact</h3>
-        <p class="notification">
+        <p>
           <%= raw(
             gettext(
               ~s|Did you read our <a href="%{url}" target="_blank">online documentation</a>? Your answer is likely there.|,
