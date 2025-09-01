@@ -91,10 +91,15 @@ article.landing_page_vls {
     vertical-align: baseline;
     font-weight: 600;
     text-decoration: none;
+  }
 
-    &:hover {
-      background-color: white;
-    }
+  header a.cta {
+    margin-top: 1rem;
+    border: 2px solid #0a6bff;
+  }
+
+  a.cta:hover {
+    background-color: white;
   }
 
   @media (min-width: 768px) {
