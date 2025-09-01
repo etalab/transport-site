@@ -380,4 +380,4 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "netex-validations-layers"
-msgstr "Validation of NeTEx resources is still a work in progress. Currently, we only check that any resource in NeTEx respects the XSD schema and follows some best practices. We do not yet check the conformity to the <a href=\"https://normes.transport.data.gouv.fr/\">French profile</a> (nor the dataset structure nor mandatory attributes)."
+msgstr "Validation of NeTEx resources is still a work in progress. Currently, we only check that any resource in NeTEx respects the XSD schema and follows some best practices. We do not yet check the compliance with the <a href=\"https://normes.transport.data.gouv.fr/\">French profile</a> (nor the dataset structure nor mandatory attributes)."
