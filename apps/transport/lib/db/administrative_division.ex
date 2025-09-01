@@ -85,6 +85,47 @@ defmodule DB.AdministrativeDivision do
     Transport.SearchCommunes.filter(territoires, term)
   end
 
+  @doc """
+  iex> departement = %DB.AdministrativeDivision{type: :departement, nom: "B"}
+  iex> commune = %DB.AdministrativeDivision{type: :commune, nom: "A"}
+  iex> names([commune, departement])
+  "B, A"
+  """
+  @spec names([__MODULE__.t()]) :: binary()
+  def names(territories) do
+    territories |> sorted() |> Enum.map_join(", ", & &1.nom)
+  end
+
+  @doc """
+  iex> departement = %DB.AdministrativeDivision{type: :departement, nom: "B"}
+  iex> departement_a = %DB.AdministrativeDivision{type: :departement, nom: "A"}
+  iex> commune = %DB.AdministrativeDivision{type: :commune, nom: "A"}
+  iex> sorted([commune, departement])
+  [departement, commune]
+  iex> sorted([departement, departement_a])
+  [departement_a, departement]
+  """
+  @spec sorted([__MODULE__.t()]) :: [__MODULE__.t()]
+  def sorted(territories) do
+    mapper = fn %DB.AdministrativeDivision{type: type, nom: nom} ->
+      type =
+        Map.fetch!(
+          %{
+            commune: 5,
+            departement: 3,
+            epci: 4,
+            pays: 1,
+            region: 2
+          },
+          type
+        )
+
+      "#{type}-#{nom}"
+    end
+
+    Enum.sort_by(territories, mapper, :asc)
+  end
+
   def display_type(%DB.AdministrativeDivision{type: :commune}), do: dgettext("administrative_division", "municipality")
 
   def display_type(%DB.AdministrativeDivision{type: :departement}),

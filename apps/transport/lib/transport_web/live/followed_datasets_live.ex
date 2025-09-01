@@ -93,7 +93,7 @@ defmodule TransportWeb.Live.FollowedDatasetsLive do
 
     datasets =
       DB.Dataset.base_query()
-      |> preload([:region, :aom, :communes, :resources])
+      |> preload([:declarative_spatial_areas, :resources])
       |> where([dataset: d], d.id in ^dataset_ids)
       |> DB.Repo.all()
 
