@@ -15,6 +15,7 @@ defmodule Transport.IRVE.ValidationTests do
   end
 
 
+  @tag :skip
   test "works" do
     # let's train on one of the largest files available, from the start.
     file = Path.expand("~/Downloads/qualicharge-irve-statique.csv")
