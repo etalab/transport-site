@@ -74,7 +74,12 @@ defmodule Transport.IRVE.ValidationTests do
 
     df =
       Explorer.DataFrame.from_csv!(file, dtypes: dtypes)
-      |> Explorer.DataFrame.select([:id_pdc_itinerance, :coordonneesXY, :implantation_station])
+      |> Explorer.DataFrame.select([
+        :id_pdc_itinerance,
+        :contact_amenageur,
+        :coordonneesXY,
+        :implantation_station]
+      )
 
     id_pdc_itinerance_pattern = get_field_by_name(schema, "id_pdc_itinerance") |> get_in(["constraints", "pattern"])
     # hardcoded & home-baked, consequence of geopoint format
