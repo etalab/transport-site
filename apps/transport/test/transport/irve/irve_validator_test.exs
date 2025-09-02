@@ -102,14 +102,19 @@ defmodule Transport.IRVE.ValidationTests do
       # TODO: replace by proper email regexp, this is quick boilerplate for now
       |> Explorer.DataFrame.mutate(check_email_contact_amenageur: contact_amenageur |> re_contains(~S/\A.*@.*\z/))
 
-    check_fields = df |> Explorer.DataFrame.names() |> Enum.filter(&String.starts_with?(&1, "check_"))
-
+    # compute overall validity of the row, taking all the checks into account
     df =
       df
-      |> Explorer.DataFrame.mutate(
-        # TODO: leverage `check_fields` for a cumulative, automatic check
-        row_valid: check_pattern_id_pdc_itinerance and check_format_coordonneesXY and check_enum_implantation_station
-      )
+      |> Explorer.DataFrame.mutate_with(fn(df) ->
+        # grab all the `check_` fields, and build a `and` operation between all of them
+        row_valid = df
+        |> Explorer.DataFrame.names()
+        |> Enum.filter(&String.starts_with?(&1, "check_"))
+        |> Enum.map(&df[&1])
+        |> Enum.reduce(&Explorer.Series.and/2)
+
+        [row_valid: row_valid]
+      end)
       |> IO.inspect(IEx.inspect_opts())
   end
 end
