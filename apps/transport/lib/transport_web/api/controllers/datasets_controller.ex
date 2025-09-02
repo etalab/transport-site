@@ -20,6 +20,7 @@ defmodule TransportWeb.API.DatasetController do
     :communes,
     :legal_owners_aom,
     :legal_owners_region,
+    :declarative_spatial_areas,
     resources: [:dataset]
   ]
 
@@ -338,26 +339,11 @@ defmodule TransportWeb.API.DatasetController do
   defp transform_aom(nil), do: %{"name" => nil}
   defp transform_aom(aom), do: %{"name" => aom.nom, "siren" => aom.siren}
 
-  @spec covered_area(Dataset.t()) :: map()
-  defp covered_area(%Dataset{aom: aom}) when not is_nil(aom),
-    do: %{"type" => "aom", "name" => aom.nom, "aom" => %{"name" => aom.nom, "siren" => aom.siren}}
-
-  defp covered_area(%Dataset{region: %{id: 14}}),
-    do: %{"type" => "country", "name" => "France", "country" => %{"name" => "France"}}
-
-  defp covered_area(%Dataset{region: %{nom: nom, insee: insee}}),
-    do: %{"type" => "region", "name" => nom, "region" => %{"name" => nom, "insee" => insee}}
-
-  defp covered_area(%Dataset{communes: [_ | _] = c, associated_territory_name: nom}),
-    do: %{"type" => "cities", "name" => nom, "cities" => transform_cities(c)}
-
-  defp covered_area(_) do
-    %{}
-  end
-
-  defp transform_cities(cities) do
-    cities
-    |> Enum.map(fn c -> %{"name" => c.nom, "insee" => c.insee} end)
+  @spec covered_area(DB.Dataset.t()) :: [map()]
+  def covered_area(%DB.Dataset{declarative_spatial_areas: declarative_spatial_areas}) do
+    declarative_spatial_areas
+    |> DB.AdministrativeDivision.sorted()
+    |> Enum.map(&Map.take(&1, [:type, :insee, :nom]))
   end
 
   defp legal_owners(dataset) do
