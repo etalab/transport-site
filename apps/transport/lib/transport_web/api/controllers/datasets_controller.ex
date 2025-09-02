@@ -130,23 +130,10 @@ defmodule TransportWeb.API.DatasetController do
     Dataset
     |> Dataset.reject_experimental_datasets()
     |> Repo.get_by(datagouv_id: id)
-    |> Repo.preload([:aom, :region, :communes])
+    |> Repo.preload([:declarative_spatial_areas])
     |> case do
       %Dataset{} = dataset ->
-        data =
-          case {dataset.aom, dataset.region, dataset.communes} do
-            {aom, _, _} when not is_nil(aom) ->
-              [to_feature(aom.geom, aom.nom)] |> keep_valid_features()
-
-            {_, region, _} when not is_nil(region) ->
-              [to_feature(region.geom, region.nom)] |> keep_valid_features()
-
-            {_, _, communes} when not is_nil(communes) ->
-              communes |> Enum.map(fn c -> to_feature(c.geom, c.nom) end) |> keep_valid_features()
-
-            _ ->
-              []
-          end
+        data = Enum.map(dataset.declarative_spatial_areas, &to_feature(&1.geom, &1.nom)) |> keep_valid_features()
 
         conn
         |> assign(:data, to_geojson(dataset, data))

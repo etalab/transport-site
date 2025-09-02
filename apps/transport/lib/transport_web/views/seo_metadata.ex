@@ -22,7 +22,7 @@ defmodule TransportWeb.SeoMetadata do
       title:
         dgettext("seo", "%{custom_title} - Open %{formats} datasets - %{territory}",
           custom_title: dataset.custom_title,
-          territory: DB.Dataset.get_territory_or_nil(dataset),
+          territory: DB.Dataset.get_covered_area_or_nil(dataset),
           formats: formats
         )
     }
@@ -51,7 +51,7 @@ defmodule TransportWeb.SeoMetadata do
       title:
         dgettext("seo", "%{format} Transport open dataset - %{title} for %{custom_title} - %{territory}",
           custom_title: dataset.custom_title,
-          territory: DB.Dataset.get_territory_or_nil(dataset),
+          territory: DB.Dataset.get_covered_area_or_nil(dataset),
           format: format,
           title: title
         )

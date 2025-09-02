@@ -1082,6 +1082,32 @@ defmodule TransportWeb.DatasetControllerTest do
              conn |> dataset_href_download_button(dataset)
   end
 
+  test "dataset#details, territories", %{conn: conn} do
+    commune =
+      insert(:administrative_division,
+        type: :commune,
+        type_insee: "commune_12345",
+        insee: "12345",
+        nom: "Test Commune"
+      )
+
+    departement =
+      insert(:administrative_division,
+        type: :departement,
+        type_insee: "departement_123",
+        insee: "123",
+        nom: "Test Département"
+      )
+
+    dataset = insert(:dataset, declarative_spatial_areas: [departement, commune])
+
+    mock_empty_history_resources()
+
+    conn
+    |> get(dataset_path(conn, :details, dataset.slug))
+    |> html_response(200) =~ "Test Département, Test Commune"
+  end
+
   def dataset_href_download_button(%Plug.Conn{} = conn, %DB.Dataset{} = dataset) do
     conn
     |> get(dataset_path(conn, :details, dataset.slug))

@@ -221,7 +221,7 @@
     ) %>
     <%= unless is_nil(@other_datasets) or @other_datasets == [] do %>
       <section class="pt-48" id="dataset-other-datasets">
-        <h2><%= dgettext("page-dataset-details", "Other datasets of %{name}", name: @territory) %></h2>
+        <h2><%= dgettext("page-dataset-details", "Other datasets of %{name}", name: @covered_area) %></h2>
         <div class="panel">
           <ul>
             <%= for dataset <- @other_datasets do %>
@@ -301,7 +301,7 @@
       <div class="pt-12">
         <span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "Covered area") %></span>
         <div>
-          <%= DB.Dataset.get_territory_or_nil(@dataset) %>
+          <%= DB.Dataset.get_covered_area_or_nil(@dataset) %>
         </div>
         <div id="dataset-covered-area-map"></div>
       </div>

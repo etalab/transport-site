@@ -18,7 +18,8 @@ defmodule TransportWeb.ResourceController do
   plug(:assign_current_contact when action in [:details])
 
   def details(conn, %{"id" => id} = params) do
-    resource = Resource |> preload([:resources_related, dataset: [:resources]]) |> Repo.get!(id)
+    resource =
+      Resource |> preload([:resources_related, dataset: [:resources, :declarative_spatial_areas]]) |> Repo.get!(id)
 
     conn =
       conn

@@ -870,6 +870,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
     assert [%{"url" => ^auth_url}] = json |> hd() |> Map.get("resources")
   end
 
+
   test "covered_area" do
     dataset =
       insert(:dataset,
@@ -884,6 +885,81 @@ defmodule TransportWeb.API.DatasetControllerTest do
              %{type: :region, nom: "B", insee: "456"},
              %{type: :epci, nom: "A", insee: "123"}
            ]
+  end
+
+  describe "geojson_by_id" do
+    test "it works", %{conn: conn} do
+      commune =
+        insert(:administrative_division,
+          type: :commune,
+          type_insee: "commune_12345",
+          insee: "12345",
+          nom: "Test Commune",
+          geom: %Geo.Point{coordinates: {1, 1}, srid: 4326}
+        )
+
+      departement =
+        insert(:administrative_division,
+          type: :departement,
+          type_insee: "departement_123",
+          insee: "123",
+          nom: "Test Département",
+          geom: %Geo.Polygon{
+            coordinates: [
+              [
+                {55.0, 3.0},
+                {60.0, 3.0},
+                {60.0, 5.0},
+                {55.0, 5.0},
+                {55.0, 3.0}
+              ]
+            ],
+            srid: 4326,
+            properties: %{}
+          }
+        )
+
+      dataset = insert(:dataset, declarative_spatial_areas: [departement, commune])
+
+      json =
+        conn
+        |> get(Helpers.dataset_path(conn, :geojson_by_id, dataset.datagouv_id))
+        |> json_response(200)
+
+      assert json == %{
+               "features" => [
+                 %{
+                   "geometry" => %{
+                     "coordinates" => [[[55.0, 3.0], [60.0, 3.0], [60.0, 5.0], [55.0, 5.0], [55.0, 3.0]]],
+                     "crs" => %{"properties" => %{"name" => "EPSG:4326"}, "type" => "name"},
+                     "type" => "Polygon"
+                   },
+                   "properties" => %{"name" => "Test Département"},
+                   "type" => "Feature"
+                 },
+                 %{
+                   "geometry" => %{
+                     "coordinates" => [1.0, 1.0],
+                     "crs" => %{"properties" => %{"name" => "EPSG:4326"}, "type" => "name"},
+                     "type" => "Point"
+                   },
+                   "properties" => %{"name" => "Test Commune"},
+                   "type" => "Feature"
+                 }
+               ],
+               "name" => "Dataset #{dataset.slug}",
+               "type" => "FeatureCollection"
+             }
+    end
+
+    test "404", %{conn: conn} do
+      json =
+        conn
+        |> get(Helpers.dataset_path(conn, :geojson_by_id, "notfound"))
+        |> json_response(404)
+
+      assert json == "dataset not found"
+    end
   end
 
   defp setup_empty_history_resources do
