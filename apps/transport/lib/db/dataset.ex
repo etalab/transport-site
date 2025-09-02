@@ -725,6 +725,7 @@ defmodule DB.Dataset do
       :region,
       :legal_owners_aom,
       :legal_owners_region,
+      :declarative_spatial_areas,
       resources: [:resources_related, :dataset]
     ])
     |> Repo.one()
@@ -762,33 +763,14 @@ defmodule DB.Dataset do
 
   def get_other_dataset(_), do: []
 
-  @spec get_territory(__MODULE__.t()) :: {:ok, binary()} | {:error, binary()}
-  def get_territory(%__MODULE__{aom: %{nom: nom}}), do: {:ok, nom}
-
-  def get_territory(%__MODULE__{aom_id: aom_id}) when not is_nil(aom_id) do
-    case Repo.get(AOM, aom_id) do
-      nil -> {:error, "Could not find territory of AOM with id #{aom_id}"}
-      aom -> {:ok, aom.nom}
-    end
+  @spec get_covered_area(__MODULE__.t()) :: {:ok, binary()} | {:error, binary()}
+  def get_covered_area(%__MODULE__{declarative_spatial_areas: declarative_spatial_areas}) do
+    {:ok, declarative_spatial_areas |> DB.AdministrativeDivision.names()}
   end
 
-  def get_territory(%__MODULE__{region: %{nom: nom}}), do: {:ok, nom}
-
-  def get_territory(%__MODULE__{region_id: region_id}) when not is_nil(region_id) do
-    case Repo.get(Region, region_id) do
-      nil -> {:error, "Could not find territory of Region with id #{region_id}"}
-      region -> {:ok, region.nom}
-    end
-  end
-
-  def get_territory(%__MODULE__{associated_territory_name: associated_territory_name}),
-    do: {:ok, associated_territory_name}
-
-  def get_territory(_), do: {:error, "Trying to find the territory of an unkown entity"}
-
-  @spec get_territory_or_nil(__MODULE__.t()) :: binary() | nil
-  def get_territory_or_nil(%__MODULE__{} = d) do
-    case get_territory(d) do
+  @spec get_covered_area_or_nil(__MODULE__.t()) :: binary() | nil
+  def get_covered_area_or_nil(%__MODULE__{} = d) do
+    case get_covered_area(d) do
       {:ok, t} -> t
       _ -> nil
     end

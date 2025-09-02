@@ -43,11 +43,11 @@ defmodule TransportWeb.DatasetController do
   @spec details(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do
     with {:ok, dataset} <- Dataset.get_by_slug(slug_or_id),
-         {:ok, territory} <- Dataset.get_territory(dataset) do
+         {:ok, covered_area} <- Dataset.get_covered_area(dataset) do
       conn
       |> assign(:dataset, dataset)
       |> assign(:resources_related_files, DB.Dataset.get_resources_related_files(dataset))
-      |> assign(:territory, territory)
+      |> assign(:covered_area, covered_area)
       |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
       |> assign(:other_datasets, Dataset.get_other_datasets(dataset))
       |> assign(:resources_infos, resources_infos(dataset))
@@ -250,7 +250,7 @@ defmodule TransportWeb.DatasetController do
 
     params
     |> Dataset.list_datasets()
-    |> preload([:aom, :region])
+    |> preload([:aom, :region, :declarative_spatial_areas])
     |> Repo.paginate(page: config.page_number)
   end
 
