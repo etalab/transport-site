@@ -99,6 +99,8 @@ defmodule Transport.IRVE.ValidationTests do
       |> Explorer.DataFrame.mutate(check_pattern_id_pdc_itinerance: id_pdc_itinerance |> re_contains(^id_pdc_itinerance_pattern))
       |> Explorer.DataFrame.mutate(check_format_coordonneesXY: coordonneesXY |> re_contains(^geopoint_array_pattern))
       |> Explorer.DataFrame.mutate(check_enum_implantation_station: Explorer.Series.in(implantation_station, ^enum_values))
+      # TODO: replace by proper email regexp, this is quick boilerplate for now
+      |> Explorer.DataFrame.mutate(check_email_contact_amenageur: contact_amenageur |> re_contains(~S/\A.*@.*\z/))
 
     check_fields = df |> Explorer.DataFrame.names() |> Enum.filter(&String.starts_with?(&1, "check_"))
 
