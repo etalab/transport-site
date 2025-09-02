@@ -32,8 +32,8 @@ defmodule Transport.IRVE.ValidationTests do
         :id_pdc_itinerance,
         :contact_amenageur,
         :coordonneesXY,
-        :implantation_station]
-      )
+        :implantation_station
+      ])
 
     id_pdc_itinerance_pattern = get_field_by_name(schema, "id_pdc_itinerance") |> get_in(["constraints", "pattern"])
     # hardcoded & home-baked, consequence of geopoint format
@@ -50,22 +50,27 @@ defmodule Transport.IRVE.ValidationTests do
     # gradually adding more families of checks (one concrete case per type of check).
     df =
       df
-      |> Explorer.DataFrame.mutate(check_pattern_id_pdc_itinerance: id_pdc_itinerance |> re_contains(^id_pdc_itinerance_pattern))
+      |> Explorer.DataFrame.mutate(
+        check_pattern_id_pdc_itinerance: id_pdc_itinerance |> re_contains(^id_pdc_itinerance_pattern)
+      )
       |> Explorer.DataFrame.mutate(check_format_coordonneesXY: coordonneesXY |> re_contains(^geopoint_array_pattern))
-      |> Explorer.DataFrame.mutate(check_enum_implantation_station: Explorer.Series.in(implantation_station, ^enum_values))
+      |> Explorer.DataFrame.mutate(
+        check_enum_implantation_station: Explorer.Series.in(implantation_station, ^enum_values)
+      )
       # TODO: replace by proper email regexp, this is quick boilerplate for now
       |> Explorer.DataFrame.mutate(check_email_contact_amenageur: contact_amenageur |> re_contains(~S/\A.*@.*\z/))
 
     # compute overall validity of the row, taking all the checks into account
     df =
       df
-      |> Explorer.DataFrame.mutate_with(fn(df) ->
+      |> Explorer.DataFrame.mutate_with(fn df ->
         # grab all the `check_` fields, and build a `and` operation between all of them
-        row_valid = df
-        |> Explorer.DataFrame.names()
-        |> Enum.filter(&String.starts_with?(&1, "check_"))
-        |> Enum.map(&df[&1])
-        |> Enum.reduce(&Explorer.Series.and/2)
+        row_valid =
+          df
+          |> Explorer.DataFrame.names()
+          |> Enum.filter(&String.starts_with?(&1, "check_"))
+          |> Enum.map(&df[&1])
+          |> Enum.reduce(&Explorer.Series.and/2)
 
         [row_valid: row_valid]
       end)
