@@ -43,7 +43,7 @@ defmodule TransportWeb.Live.FollowedDatasetsLive do
                   </a>
                 </h3>
                 <div class="dataset-localization">
-                  <i class="icon fa fa-map-marker-alt" /><%= DB.Dataset.get_territory_or_nil(dataset) %>
+                  <i class="icon fa fa-map-marker-alt" /><%= DB.Dataset.get_covered_area_or_nil(dataset) %>
                 </div>
               </div>
             </div>

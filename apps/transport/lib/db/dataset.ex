@@ -763,14 +763,14 @@ defmodule DB.Dataset do
 
   def get_other_dataset(_), do: []
 
-  @spec get_territory(__MODULE__.t()) :: {:ok, binary()} | {:error, binary()}
-  def get_territory(%__MODULE__{declarative_spatial_areas: declarative_spatial_areas}) do
+  @spec get_covered_area(__MODULE__.t()) :: {:ok, binary()} | {:error, binary()}
+  def get_covered_area(%__MODULE__{declarative_spatial_areas: declarative_spatial_areas}) do
     {:ok, declarative_spatial_areas |> DB.AdministrativeDivision.names()}
   end
 
-  @spec get_territory_or_nil(__MODULE__.t()) :: binary() | nil
-  def get_territory_or_nil(%__MODULE__{} = d) do
-    case get_territory(d) do
+  @spec get_covered_area_or_nil(__MODULE__.t()) :: binary() | nil
+  def get_covered_area_or_nil(%__MODULE__{} = d) do
+    case get_covered_area(d) do
       {:ok, t} -> t
       _ -> nil
     end
