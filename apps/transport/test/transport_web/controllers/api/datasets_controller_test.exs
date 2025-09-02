@@ -870,7 +870,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
     assert [%{"url" => ^auth_url}] = json |> hd() |> Map.get("resources")
   end
 
-
   test "covered_area" do
     dataset =
       insert(:dataset,
