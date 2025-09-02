@@ -92,6 +92,8 @@ defmodule Transport.IRVE.ValidationTests do
 
     # https://specs.frictionlessdata.io/table-schema/#types-and-formats
 
+    # Current status: profiling the static schema (see @cases_to_be_covered),
+    # gradually adding more families of checks (one concrete case per type of check).
     df =
       df
       |> Explorer.DataFrame.mutate(check_pattern_id_pdc_itinerance: id_pdc_itinerance |> re_contains(^id_pdc_itinerance_pattern))
