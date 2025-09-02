@@ -1,3 +1,41 @@
+defmodule Transport.DataFrame.TableSchemaValidator do
+  @moduledoc """
+  A specialized/narrow implementation of [TableSchema](https://specs.frictionlessdata.io/table-schema/)
+  validator. Leverages `Explorer.DataFrame` columnar engine to achieve fast validation.
+  """
+
+  @doc """
+  Define new temporary columns that will store the results of checks.
+
+  Currently does not support missing columns (since Explorer will raise
+  an error when we compute something that derives from them).
+  """
+  def compute_validation_fields(%Explorer.DataFrame{} = df, schema) do
+    fields = Map.fetch!(schema, "fields")
+    fields = fields |> Enum.take(2)
+
+    Enum.reduce(fields, df, fn field, acc ->
+      configure_field(field, df)
+    end)
+  end
+
+  def configure_field(field, df) do
+    field = field |> Map.delete("description") |> Map.delete("example")
+    {name, field} = Map.pop!(field, "name")
+    type = Map.fetch!(field, "type")
+    constraints = Map.fetch!(field, "constraints")
+
+    cond do
+      constraints == %{"required" => false} && type == "string" ->
+        # do nothing, easy
+        df
+
+      true ->
+        raise "Field definition uses unsupported scenarios (#{name})\n#{field |> inspect(pretty: true, width: 0)}"
+    end
+  end
+end
+
 defmodule Transport.IRVE.ValidationTests do
   use ExUnit.Case, async: true
   doctest Transport.IRVE.Validator, import: true
@@ -14,6 +52,16 @@ defmodule Transport.IRVE.ValidationTests do
     field
   end
 
+  test "validator" do
+    # let's train on one of the largest files available, from the start.
+    file = Path.expand("~/Downloads/qualicharge-irve-statique.csv")
+    schema = Transport.IRVE.StaticIRVESchema.schema_content()
+    # TODO: allow missing fields, but with a proper warning
+    dtypes = schema["fields"] |> Enum.map(&{&1["name"], :string})
+    df = Explorer.DataFrame.from_csv!(file, dtypes: dtypes)
+
+    Transport.DataFrame.TableSchemaValidator.compute_validation_fields(df, schema)
+  end
 
   @tag :skip
   test "works" do
