@@ -49,7 +49,7 @@ defmodule TransportWeb.DatasetController do
       |> assign(:resources_related_files, DB.Dataset.get_resources_related_files(dataset))
       |> assign(:covered_area, covered_area)
       |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
-      |> assign(:other_datasets, Dataset.get_other_datasets(dataset))
+      |> assign(:other_datasets, DB.Dataset.get_other_datasets(dataset))
       |> assign(:resources_infos, resources_infos(dataset))
       |> assign(
         :history_resources,

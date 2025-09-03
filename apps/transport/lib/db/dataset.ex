@@ -736,32 +736,17 @@ defmodule DB.Dataset do
   end
 
   @spec get_other_datasets(__MODULE__.t()) :: [__MODULE__.t()]
-  def get_other_datasets(%__MODULE__{id: id, aom_id: aom_id}) when not is_nil(aom_id) do
-    __MODULE__.base_query()
-    |> where([d], d.id != ^id)
-    |> where([d], d.aom_id == ^aom_id)
-    |> Repo.all()
-  end
+  def get_other_datasets(%__MODULE__{declarative_spatial_areas: []}), do: []
 
-  def get_other_datasets(%__MODULE__{id: id, region_id: region_id}) when not is_nil(region_id) do
-    __MODULE__.base_query()
-    |> where([d], d.id != ^id)
-    |> where([d], d.region_id == ^region_id)
-    |> Repo.all()
-  end
+  def get_other_datasets(%__MODULE__{id: id, declarative_spatial_areas: declarative_spatial_areas}) do
+    %DB.AdministrativeDivision{id: target_id} = declarative_spatial_areas |> DB.AdministrativeDivision.sorted() |> hd()
 
-  # for the datasets linked to multiple cities we use the
-  # backoffice filled field 'associated_territory_name'
-  # to get the other_datasets
-  # This way we can control which datasets to link to
-  def get_other_datasets(%__MODULE__{id: id, associated_territory_name: associated_territory_name}) do
     __MODULE__.base_query()
-    |> where([d], d.id != ^id)
-    |> where([d], d.associated_territory_name == ^associated_territory_name)
-    |> Repo.all()
+    |> join(:inner, [dataset: d], r in assoc(d, :declarative_spatial_areas), as: :administrative_divison)
+    |> where([dataset: d], d.id != ^id)
+    |> where([administrative_divison: ad], ad.id == ^target_id)
+    |> DB.Repo.all()
   end
-
-  def get_other_dataset(_), do: []
 
   @spec get_covered_area(__MODULE__.t()) :: {:ok, binary()} | {:error, binary()}
   def get_covered_area(%__MODULE__{declarative_spatial_areas: declarative_spatial_areas}) do
