@@ -115,3 +115,8 @@ defmodule Transport.EnRoute.ChouetteValidRulesetsClientTest do
     assert :ok == ChouetteValidRulesetsClient.delete_ruleset(ruleset_id)
   end
 end
+
+defmodule Transport.EnRoute.ChouetteValidRulesetsClient.SlugsTest do
+  use ExUnit.Case, async: true
+  doctest Transport.EnRoute.ChouetteValidRulesetsClient.Slugs, import: true
+end
