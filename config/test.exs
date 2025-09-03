@@ -53,7 +53,9 @@ config :transport,
   api_auth_clients: "client1:secret_token;client2:other_token",
   enroute_token: "fake_enroute_token",
   enroute_validation_token: "fake_enroute_token",
+  enroute_rulesets_token: "fake_enroute_token",
   enroute_validator_client: Transport.EnRouteChouetteValidClient.Mock,
+  enroute_rulesets_client: Transport.EnRoute.ChouetteValidRulesetsClient.Mock,
   netex_validator: Transport.Validators.NeTEx.Validator.Mock
 
 config :ex_aws,
