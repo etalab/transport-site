@@ -344,96 +344,26 @@ defmodule TransportWeb.API.Schemas do
     })
   end
 
-  defmodule CoveredArea.Country do
+  defmodule AdministrativeDivision do
     @moduledoc false
     require OpenApiSpex
 
     OpenApiSpex.schema(%{
-      title: "CoveredArea.Country",
+      title: "AdministrativeDivision",
       type: :object,
       required: [
-        :country,
-        :name,
-        :type
+        :type,
+        :insee,
+        :nom
       ],
       properties: %{
-        name: %Schema{type: :string},
-        type: %Schema{type: :string, enum: ["country"], required: true},
-        country: %Schema{
-          type: :object,
-          required: [:name],
-          properties: %{
-            name: %Schema{type: :string}
-          },
-          additionalProperties: false
-        }
-      },
-      additionalProperties: false
-    })
-  end
-
-  # Very similar to `AOMShortRef` but ultimately only CoveredAreas should be kept (?)
-  defmodule CoveredArea.AOM do
-    @moduledoc false
-    require OpenApiSpex
-
-    OpenApiSpex.schema(%{
-      title: "CoveredArea.AOM",
-      type: :object,
-      required: [
-        :aom,
-        :name,
-        :type
-      ],
-      properties: %{
-        name: %Schema{type: :string},
-        type: %Schema{type: :string, enum: ["aom"], required: true},
-        aom: AOM.schema()
-      },
-      additionalProperties: false
-    })
-  end
-
-  defmodule CoveredArea.Cities do
-    @moduledoc false
-    require OpenApiSpex
-
-    OpenApiSpex.schema(%{
-      title: "CoveredArea.Cities",
-      type: :object,
-      required: [
-        :cities,
-        :name,
-        :type
-      ],
-      properties: %{
-        name: %Schema{type: :string},
-        type: %Schema{type: :string, enum: ["cities"], required: true},
-        cities: %Schema{
-          type: :array,
-          items: City.schema()
-        }
-      },
-      additionalProperties: false
-    })
-  end
-
-  defmodule CoveredArea.Region do
-    @moduledoc false
-    require OpenApiSpex
-
-    OpenApiSpex.schema(%{
-      title: "CoveredArea.Region",
-      type: :object,
-      required: [
-        :region,
-        :name,
-        :type
-      ],
-      properties: %{
-        name: %Schema{type: :string},
-        type: %Schema{type: :string, enum: ["region"], required: true},
-        region: Region.schema()
+        type: %Schema{
+          type: :string,
+          enum: Ecto.Enum.dump_values(DB.AdministrativeDivision, :type),
+          required: true
+        },
+        insee: %Schema{type: :string, required: true},
+        nom: %Schema{type: :string, required: true}
       },
       additionalProperties: false
     })
@@ -445,13 +375,8 @@ defmodule TransportWeb.API.Schemas do
 
     OpenApiSpex.schema(%{
       title: "CoveredArea",
-      type: :object,
-      oneOf: [
-        CoveredArea.Country.schema(),
-        CoveredArea.AOM.schema(),
-        CoveredArea.Region.schema(),
-        CoveredArea.Cities.schema()
-      ],
+      type: :array,
+      items: AdministrativeDivision.schema(),
       additionalProperties: false
     })
   end
