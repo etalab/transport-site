@@ -12,22 +12,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
   @unknown_code "unknown-code"
 
   @doc """
-  Returns the maximum issue severity found
-
-  iex> validation_result = %{"uic-operating-period" => [%{"criticity" => "error"}], "valid-day-bits" => [%{"criticity" => "error"}], "frame-arret-resources" => [%{"criticity" => "error"}]}
-  iex> get_max_severity_error(validation_result)
-  "error"
-
-  iex> get_max_severity_error(%{})
-  "NoError"
-  """
-  @spec get_max_severity_error(map()) :: binary() | nil
-  def get_max_severity_error(validation_result) do
-    {severity, _} = validation_result |> count_max_severity()
-    severity
-  end
-
-  @doc """
   Returns the maximum severity, with the issues count
 
   iex> validation_result = %{"uic-operating-period" => [%{"criticity" => "error"}], "valid-day-bits" => [%{"criticity" => "error"}], "frame-arret-resources" => [%{"criticity" => "warning"}]}
@@ -103,22 +87,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
   end
 
   def count_by_severity(_), do: %{}
-
-  @doc """
-  iex> index_messages([])
-  %{}
-
-  iex> index_messages([%{"code"=>"a", "id"=> 1}, %{"code"=>"a", "id"=> 2}, %{"code"=>"b", "id"=> 3}])
-  %{"a"=>[%{"code"=>"a", "id"=> 1}, %{"code"=>"a", "id"=> 2}], "b"=>[%{"code"=>"b", "id"=> 3}]}
-
-  Sometimes the message has no code
-  iex> index_messages([%{"code"=>"a", "id"=> 1}, %{"code"=>"b", "id"=> 2}, %{"id"=> 3}])
-  %{"a"=>[%{"code"=>"a", "id"=> 1}], "b"=>[%{"code"=>"b", "id"=> 2}], "unknown-code"=>[%{"id"=> 3}]}
-  """
-  def index_messages(messages), do: Enum.group_by(messages, &get_code/1)
-
-  defp get_code(%{"code" => code}), do: code
-  defp get_code(%{}), do: @unknown_code
 
   @doc """
   iex> validation_result = %{"uic-operating-period" => [%{"code" => "uic-operating-period", "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod", "criticity" => "error"}], "valid-day-bits" => [%{"code" => "valid-day-bits", "message" => "Mandatory attribute valid_day_bits not found", "criticity" => "error"}], "frame-arret-resources" => [%{"code" => "frame-arret-resources", "message" => "Tag frame_id doesn't match ''", "criticity" => "warning"}]}
