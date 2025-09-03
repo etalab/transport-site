@@ -416,18 +416,22 @@ defmodule DB.DatasetDBTest do
   end
 
   test "get_other_datasets" do
-    aom = insert(:aom)
-    dataset = insert(:dataset, aom: aom, is_active: true)
+    departement_1 = insert(:administrative_division, type: :departement, type_insee: "departement_123", insee: "123")
+    departement_2 = insert(:administrative_division, type: :departement, type_insee: "departement_456", insee: "456")
+    epci = insert(:administrative_division, type: :epci, type_insee: "epci_789", insee: "789")
 
-    assert Dataset.get_other_datasets(dataset) == []
+    %DB.Dataset{id: d1_id} =
+      d1 =
+      insert(:dataset, declarative_spatial_areas: [departement_1, epci]) |> DB.Repo.preload(:declarative_spatial_areas)
 
-    _inactive_dataset = insert(:dataset, aom: aom, is_active: false)
+    d2 = insert(:dataset, declarative_spatial_areas: [departement_2]) |> DB.Repo.preload(:declarative_spatial_areas)
 
-    assert Dataset.get_other_datasets(dataset) == []
+    %DB.Dataset{id: d3_id} =
+      d3 = insert(:dataset, declarative_spatial_areas: [departement_1]) |> DB.Repo.preload(:declarative_spatial_areas)
 
-    other_dataset = insert(:dataset, aom: aom, is_active: true)
-
-    assert dataset |> Dataset.get_other_datasets() |> Enum.map(& &1.id) == [other_dataset.id]
+    assert [%DB.Dataset{id: ^d3_id}] = Dataset.get_other_datasets(d1)
+    assert [] = Dataset.get_other_datasets(d2)
+    assert [%DB.Dataset{id: ^d1_id}] = Dataset.get_other_datasets(d3)
   end
 
   test "formats" do
