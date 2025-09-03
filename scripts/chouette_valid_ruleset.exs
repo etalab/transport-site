@@ -6,23 +6,36 @@ defmodule Script do
 
   import Transport.NeTEx.FrenchProfile
 
-  def go do
+  def document_rulesets do
     with_file("chouette_ruleset.json", &ruleset/1)
     with_file("chouette_ruleset.md", &markdown/1)
   end
 
-  defp with_file(file, proc) do
+  def publish_rulesets do
+    result =
+      with_string(&ruleset/1)
+      |> client().post_ruleset("French profile", "pan:french_profile:1")
+
+    case result do
+      :ok -> IO.puts("Rulesets properly pushed")
+      {:error, msg} -> IO.puts("Error pushing the rulesets: #{msg}")
+    end
+  end
+
+  defp client do
+    Transport.EnRouteChouetteValidRulesetsClient.Wrapper.impl()
+  end
+
+  defp with_file(file, proc), do: File.write(file, with_string(proc))
+
+  defp with_string(proc) do
     {:ok, device} = StringIO.open("")
 
     proc.(device)
 
-    _ = File.rm(file)
-    File.touch!(file)
-
-    content = StringIO.flush(device)
-
-    File.write(file, content)
+    StringIO.flush(device)
   end
 end
 
-Script.go()
+Script.document_rulesets()
+Script.publish_rulesets()
