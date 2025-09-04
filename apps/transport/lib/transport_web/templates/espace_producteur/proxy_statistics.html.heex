@@ -1,21 +1,21 @@
 <section class="container pt-48 pb-24">
-  <%= breadcrumbs([@conn, :proxy_statistics]) %>
+  {breadcrumbs([@conn, :proxy_statistics])}
 </section>
 <section class="producer-actions">
   <div class="container">
-    <h2><%= dgettext("espace-producteurs", "Transport proxy statistics") %></h2>
+    <h2>{dgettext("espace-producteurs", "Transport proxy statistics")}</h2>
     <div class="panel">
       <%= for dataset <- Enum.sort_by(@datasets, & &1.custom_title) do %>
         <% resources_served_by_proxy = Enum.filter(dataset.resources, &DB.Resource.served_by_proxy?/1) %>
         <%= unless Enum.empty?(resources_served_by_proxy) do %>
-          <h3><%= link(dataset.custom_title, to: dataset_path(@conn, :details, dataset.slug)) %></h3>
+          <h3>{link(dataset.custom_title, to: dataset_path(@conn, :details, dataset.slug))}</h3>
           <%= for resource <- resources_served_by_proxy do %>
-            <%= render("_proxy_requests_stats.html",
+            {render("_proxy_requests_stats.html",
               conn: @conn,
               resource: resource,
               stats_per_day: Map.fetch!(@proxy_stats, resource.id),
               nb_days: @proxy_requests_stats_nb_days
-            ) %>
+            )}
           <% end %>
         <% end %>
       <% end %>

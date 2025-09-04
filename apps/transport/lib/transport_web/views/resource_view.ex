@@ -266,12 +266,12 @@ defmodule TransportWeb.ResourceView do
     ~H"""
     <div class="networks-start-end">
       <%= for {network, %{"start_date" => start_date, "end_date" => end_date, "end_date_class" => class}} <- @network_data do %>
-        <span><strong><%= network %></strong></span>
-        <span><%= dgettext("validations", "from") %></span>
-        <span><%= Shared.DateTimeDisplay.format_date(start_date, @locale) %></span>
-        <span><%= dgettext("validations", "to") %></span>
+        <span><strong>{network}</strong></span>
+        <span>{dgettext("validations", "from")}</span>
+        <span>{Shared.DateTimeDisplay.format_date(start_date, @locale)}</span>
+        <span>{dgettext("validations", "to")}</span>
         <span class={class}>
-          <%= Shared.DateTimeDisplay.format_date(end_date, @locale) %>
+          {Shared.DateTimeDisplay.format_date(end_date, @locale)}
         </span>
       <% end %>
     </div>
@@ -338,7 +338,7 @@ defmodule TransportWeb.ResourceView do
     <li class="comment">
       <.info_icon />
       <div>
-        <%= dgettext("validations", "netex-validations-layers") |> raw() %>
+        {dgettext("validations", "netex-validations-layers") |> raw()}
       </div>
     </li>
     """
@@ -349,11 +349,11 @@ defmodule TransportWeb.ResourceView do
     <li>
       <.validity_icon errors={@stats[:count]} />
       <div class="selector">
-        <%= compatibility_filter(@conn, @category, @token, @stats[:count]) %>
+        {compatibility_filter(@conn, @category, @token, @stats[:count])}
         <.stats :if={@stats[:count] > 0} stats={@stats} results_adapter={@results_adapter} />
       </div>
       <p :if={netex_category_description(@category)}>
-        <%= netex_category_description(@category) %>
+        {netex_category_description(@category)}
       </p>
       <.category_hints :if={netex_category_hints(@category) && @stats[:count] > 0} category={@category} />
     </li>
@@ -363,13 +363,13 @@ defmodule TransportWeb.ResourceView do
   defp category_hints(%{category: _} = assigns) do
     ~H"""
     <.info_icon />
-    <p><%= netex_category_hints(@category) %></p>
+    <p>{netex_category_hints(@category)}</p>
     """
   end
 
   defp stats(%{stats: _, results_adapter: _} = assigns) do
     ~H"""
-    (<%= @results_adapter.format_severity(@stats[:criticity], @stats[:count]) %>)
+    ({@results_adapter.format_severity(@stats[:criticity], @stats[:count])})
     """
   end
 

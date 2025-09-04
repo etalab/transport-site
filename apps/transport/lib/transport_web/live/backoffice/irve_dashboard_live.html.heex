@@ -1,18 +1,18 @@
 <section class="container pt-48 pb-48">
   <button class="button" phx-click="analyze" disabled={@running}>Lancer l'analyse consolidée</button>
   <%= if assigns[:completion_message] do %>
-    <%= @completion_message %>
+    {@completion_message}
   <% end %>
 
   <%= if @latest_report do %>
     <h1>Rapport IRVE</h1>
-    <p>Généré à <%= @latest_report.inserted_at %> (<%= @latest_report.resources |> length %> ressources analysées)</p>
+    <p>Généré à {@latest_report.inserted_at} ({@latest_report.resources |> length} ressources analysées)</p>
 
     <.form :let={f} id="filtering_expression" for={%{}} as={:config} phx-change="change_form" phx-submit="ignore">
-      <%= text_input(f, :filtering_expression,
+      {text_input(f, :filtering_expression,
         value: @filtering_expression,
         placeholder: "Filtre (org / validité uniquement)"
-      ) %>
+      )}
     </.form>
     <table class="table mt-48">
       <thead>
@@ -29,23 +29,23 @@
           <tr :if={must_list_resource?(resource, @filtering_expression)}>
             <td>
               <.link target="_blank" href={"https://www.data.gouv.fr/fr/datasets/" <> resource["dataset_id"]}>
-                <%= resource["dataset_title"] %>
+                {resource["dataset_title"]}
               </.link>
             </td>
             <td>
               <.link target="_blank" href={resource["dataset_organisation_url"]}>
-                <%= resource["dataset_organisation_name"] %>
+                {resource["dataset_organisation_name"]}
               </.link>
             </td>
             <td>
-              <%= resource["resource_title"] %>
-              <br /> <span class="label"><%= resource["filetype"] %></span>
-              &mdash; <%= resource["last_modified"] |> String.slice(0..15) %>
+              {resource["resource_title"]}
+              <br /> <span class="label">{resource["filetype"]}</span>
+              &mdash; {resource["last_modified"] |> String.slice(0..15)}
             </td>
             <td>
-              <%= format_validity(resource["valid"], resource["http_status"]) %>
+              {format_validity(resource["valid"], resource["http_status"])}
             </td>
-            <td><%= format_number_maybe_nil(resource["line_count"], nil_result: "???") %></td>
+            <td>{format_number_maybe_nil(resource["line_count"], nil_result: "???")}</td>
           </tr>
         <% end %>
       </tbody>

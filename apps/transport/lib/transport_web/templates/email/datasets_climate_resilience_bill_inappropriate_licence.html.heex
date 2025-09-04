@@ -6,7 +6,7 @@
 
 <ul>
   <%= for dataset <- @datasets do %>
-    <li><%= raw(link_for_dataset(dataset)) %></li>
+    <li>{raw(link_for_dataset(dataset))}</li>
   <% end %>
 </ul>
 

@@ -1,51 +1,51 @@
 <section class="pb-48">
   <div class="container">
-    <h2><%= dgettext("explore", "SIRI query generator") %></h2>
+    <h2>{dgettext("explore", "SIRI query generator")}</h2>
     <.form :let={f} id="siri_querier" for={%{}} as={:config} phx-change="change_form" phx-submit="ignore">
       <div>
-        <%= text_input(f, :endpoint_url,
+        {text_input(f, :endpoint_url,
           value: @endpoint_url,
           placeholder: dgettext("explore", "Endpoint URL"),
           type: "url",
           required: true
-        ) %>
-        <%= text_input(f, :requestor_ref,
+        )}
+        {text_input(f, :requestor_ref,
           value: @requestor_ref,
           placeholder: dgettext("explore", "Requestor ref"),
           autocomplete: "off",
           spellcheck: "false",
           required: true
-        ) %>
-        <%= select(f, :query_template, @query_template_choices, selected: @query_template) %>
+        )}
+        {select(f, :query_template, @query_template_choices, selected: @query_template)}
         <%= if @query_template == "GetEstimatedTimetable" do %>
-          <%= text_input(f, :line_refs,
+          {text_input(f, :line_refs,
             value: @line_refs,
             placeholder: dgettext("explore", "Line References (comma separated list)"),
             spellcheck: false,
             required: true
-          ) %>
+          )}
         <% end %>
         <%= if @query_template == "GetStopMonitoring" do %>
-          <%= text_input(f, :stop_ref,
+          {text_input(f, :stop_ref,
             value: @stop_ref,
             placeholder: dgettext("explore", "Stop Reference (only one)"),
             spellcheck: false,
             required: true
-          ) %>
+          )}
         <% end %>
       </div>
-      <button class="button" phx-click="generate_query"><%= dgettext("explore", "Generate") %></button>
+      <button class="button" phx-click="generate_query">{dgettext("explore", "Generate")}</button>
       <button
         :if={[@siri_query, @endpoint_url, @requestor_ref] |> Enum.filter(&(&1 in ["", nil])) |> Enum.empty?()}
         class="button"
         phx-click="execute_query"
       >
-        <%= dgettext("explore", "Execute") %>
+        {dgettext("explore", "Execute")}
       </button>
     </.form>
     <div :if={@siri_query} class="siri_xml">
-      <h4><%= dgettext("explore", "SIRI query") %></h4>
-      <h5><%= dgettext("explore", "HTTP headers") %></h5>
+      <h4>{dgettext("explore", "SIRI query")}</h4>
+      <h5>{dgettext("explore", "HTTP headers")}</h5>
       <pre>
         <%= for {header, value} <- @siri_request_headers |> Enum.sort_by(fn {k, _} -> k end) do %>
           <%= header %>: <%= value %><br>
@@ -59,16 +59,16 @@
         phx-hook="SyntaxColoring"
       />
       <div id="query_code_wrapper" phx-update="ignore">
-        <h5><%= dgettext("explore", "HTTP request body") %></h5>
+        <h5>{dgettext("explore", "HTTP request body")}</h5>
         <pre><code class="language-xml" id="query_code_id"></code></pre>
       </div>
       <button class="button" data-clipboard-target="#query_code_wrapper">
         <i class="fa fa-copy"></i>
-        <%= dgettext("page-dataset-details", "Copy to clipboard") %>
+        {dgettext("page-dataset-details", "Copy to clipboard")}
       </button>
     </div>
     <div :if={@siri_response_status_code} class="mt-48 siri_xml">
-      <h4><%= dgettext("explore", "SIRI response") %> (HTTP status <%= @siri_response_status_code %>)</h4>
+      <h4>{dgettext("explore", "SIRI response")} (HTTP status {@siri_response_status_code})</h4>
       <input
         type="hidden"
         value={@siri_response_body}
@@ -77,7 +77,7 @@
         phx-hook="SyntaxColoring"
       />
       <div :if={@siri_response_headers}>
-        <h5><%= dgettext("explore", "HTTP headers") %></h5>
+        <h5>{dgettext("explore", "HTTP headers")}</h5>
         <pre>
         <%= for {header, value} <- @siri_response_headers |> Enum.sort_by(fn {k, _} -> k end) do %>
           <%= header %>: <%= value %><br>
@@ -85,16 +85,16 @@
         </pre>
       </div>
       <div id="response_code_wrapper" phx-update="ignore">
-        <h5><%= dgettext("explore", "HTTP response body") %></h5>
+        <h5>{dgettext("explore", "HTTP response body")}</h5>
         <pre><code class="language-xml" id="response_code_id"></code></pre>
       </div>
       <button class="button" data-clipboard-target="#response_code_wrapper">
         <i class="fa fa-copy"></i>
-        <%= dgettext("page-dataset-details", "Copy to clipboard") %>
+        {dgettext("page-dataset-details", "Copy to clipboard")}
       </button>
     </div>
     <div :if={@siri_response_error} id="siri_response_error" class="notification error full-width mt-48">
-      <p lang="en"><%= @siri_response_error %></p>
+      <p lang="en">{@siri_response_error}</p>
     </div>
   </div>
 </section>

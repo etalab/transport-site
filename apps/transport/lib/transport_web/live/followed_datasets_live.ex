@@ -15,17 +15,17 @@ defmodule TransportWeb.Live.FollowedDatasetsLive do
     ~H"""
     <div class="pb-24">
       <.form :let={f} for={%{}} phx-change="change" class="search-followed-datasets">
-        <%= search_input(f, :search, value: @search) %>
+        {search_input(f, :search, value: @search)}
         <%= if Enum.count(@select_options) > 1 do %>
-          <%= select(f, :type, [{dgettext("reuser-space", "All"), ""}] ++ @select_options,
+          {select(f, :type, [{dgettext("reuser-space", "All"), ""}] ++ @select_options,
             selected: @type,
             label: dgettext("reuser-space", "Data type")
-          ) %>
+          )}
         <% end %>
       </.form>
     </div>
     <div :if={Enum.empty?(@filtered_datasets)} class="notification">
-      <%= dgettext("reuser-space", "No results") %>
+      {dgettext("reuser-space", "No results")}
     </div>
     <div :if={not Enum.empty?(@filtered_datasets)} class="row">
       <%= for dataset <- Enum.sort_by(@filtered_datasets, & &1.custom_title) do %>
@@ -33,22 +33,22 @@ defmodule TransportWeb.Live.FollowedDatasetsLive do
           <div class="panel__content">
             <div class="dataset__description">
               <div class="dataset__image">
-                <%= img_tag(DB.Dataset.logo(dataset), alt: dataset.custom_title) %>
+                {img_tag(DB.Dataset.logo(dataset), alt: dataset.custom_title)}
               </div>
               <div class="dataset__infos">
                 <h3 class="dataset__title">
                   <a href={dataset_path(@socket, :details, dataset.slug)} target="_blank">
                     <i class="fa fa-external-link-alt" aria-hidden="true"></i>
-                    <%= dataset.custom_title %>
+                    {dataset.custom_title}
                   </a>
                 </h3>
                 <div class="dataset-localization">
-                  <i class="icon fa fa-map-marker-alt" /><%= DB.Dataset.get_covered_area_or_nil(dataset) %>
+                  <i class="icon fa fa-map-marker-alt" />{DB.Dataset.get_covered_area_or_nil(dataset)}
                 </div>
               </div>
             </div>
             <div :if={not is_nil(icon_type_path(dataset))} class="dataset__type">
-              <%= img_tag(icon_type_path(dataset), alt: dataset.type) %>
+              {img_tag(icon_type_path(dataset), alt: dataset.type)}
             </div>
           </div>
           <div class="panel__extra">
@@ -56,9 +56,9 @@ defmodule TransportWeb.Live.FollowedDatasetsLive do
               <div class="shortlist__notices">
                 <dl class="dataset-format shortlist__notice">
                   <%= unless dataset |> DB.Dataset.formats() |> Enum.empty?() do %>
-                    <dt class="shortlist__label"><%= dgettext("page-shortlist", "Format") %></dt>
+                    <dt class="shortlist__label">{dgettext("page-shortlist", "Format")}</dt>
                     <%= for format <- DB.Dataset.formats(dataset) do %>
-                      <dd class="label"><%= format %></dd>
+                      <dd class="label">{format}</dd>
                     <% end %>
                   <% end %>
                 </dl>
@@ -67,7 +67,7 @@ defmodule TransportWeb.Live.FollowedDatasetsLive do
           </div>
           <div class="panel__extra">
             <a href={reuser_space_path(@socket, :datasets_edit, dataset.id)} class="no-bg">
-              <button class="button primary small"><%= dgettext("reuser-space", "Preferences") %></button>
+              <button class="button primary small">{dgettext("reuser-space", "Preferences")}</button>
             </a>
           </div>
         </div>

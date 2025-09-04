@@ -2,14 +2,14 @@
   <h2>Rapport du dernier batch import GTFS</h2>
   <div class="pb-24">
     <%= if @last_updated_at do %>
-      <p>Mis à jour à <%= @last_updated_at %></p>
+      <p>Mis à jour à {@last_updated_at}</p>
     <% end %>
     <button class="button" phx-click="refresh" disabled={@job_running}>
-      <%= if @job_running, do: "En cours…", else: "Rafraîchir" %>
+      {if @job_running, do: "En cours…", else: "Rafraîchir"}
     </button>
     <a target="_blank" href="/backoffice/gtfs-export"><button class="button">Export</button></a>
     <%= if @stats do %>
-      <p>Résumé : <%= @stats %></p>
+      <p>Résumé : {@stats}</p>
     <% end %>
   </div>
   <table class="table">
@@ -24,11 +24,11 @@
     </thead>
     <%= for item <- @result do %>
       <tr>
-        <td><a href={resource_path(@socket, :details, item["resource_id"])}><%= item["resource_id"] %></a></td>
-        <td><%= item["resource_history_id"] %></td>
-        <td><%= item["status"] %></td>
-        <td><%= item["error_struct"] %></td>
-        <td><%= item["error_message"] || item["error"] %></td>
+        <td><a href={resource_path(@socket, :details, item["resource_id"])}>{item["resource_id"]}</a></td>
+        <td>{item["resource_history_id"]}</td>
+        <td>{item["status"]}</td>
+        <td>{item["error_struct"]}</td>
+        <td>{item["error_message"] || item["error"]}</td>
       </tr>
     <% end %>
   </table>

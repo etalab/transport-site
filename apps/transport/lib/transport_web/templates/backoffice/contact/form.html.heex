@@ -2,7 +2,7 @@
 <% creating_contact = is_nil(contact_id) %>
 <div class="container pb-24">
   <div class="pb-24">
-    <%= breadcrumbs([@conn, :contacts_edit]) %>
+    {breadcrumbs([@conn, :contacts_edit])}
   </div>
   <div class="panel">
     <h2 :if={creating_contact}>Créer un contact</h2>
@@ -12,41 +12,41 @@
       <div class="notification error">
         <ul>
           <%= for {field, {msg, _}} <- @contact.errors do %>
-            <li><%= "#{field} : #{msg}" %></li>
+            <li>{"#{field} : #{msg}"}</li>
           <% end %>
         </ul>
       </div>
     <% end %>
     <div :if={@contact.data.datagouv_user_id != nil} class="pb-24">
-      Identifiant de l'utilisateur sur data.gouv.fr <span class="label"><%= @contact.data.datagouv_user_id %></span>
+      Identifiant de l'utilisateur sur data.gouv.fr <span class="label">{@contact.data.datagouv_user_id}</span>
       <br />
-      Dernière date de connexion : <%= format_datetime_to_paris(
+      Dernière date de connexion : {format_datetime_to_paris(
         @contact.data.last_login_at,
         get_session(@conn, :locale)
-      ) %>
+      )}
     </div>
     <%= form_for @contact, backoffice_contact_path(@conn, :create), [class: "no-margin", method: "post"], fn f -> %>
-      <%= hidden_input(f, :id, value: contact_id) %>
+      {hidden_input(f, :id, value: contact_id)}
       <div class="panel">
         <%= label f, :first_name do %>
-          Prénom <%= text_input(f, :first_name, []) %>
+          Prénom {text_input(f, :first_name, [])}
         <% end %>
         <%= label f, :last_name, class: "pt-12" do %>
-          Nom <%= text_input(f, :last_name, []) %>
+          Nom {text_input(f, :last_name, [])}
         <% end %>
         <p class="separator pt-6 pb-6">
-          - <%= dgettext("backoffice", "or") %> -
+          - {dgettext("backoffice", "or")} -
         </p>
         <%= label f, :mailing_list_title do %>
-          Titre <%= text_input(f, :mailing_list_title, []) %>
+          Titre {text_input(f, :mailing_list_title, [])}
           <div class="small">À utiliser quand un contact n'est pas une personne</div>
         <% end %>
       </div>
       <%= label f, :job_title, class: "pt-12" do %>
-        Fonction <%= text_input(f, :job_title,
+        Fonction {text_input(f, :job_title,
           placeholder: "Responsable numérique",
           list: "existing_job_titles"
-        ) %>
+        )}
         <div class="small">Optionnel</div>
       <% end %>
       <datalist id="existing_job_titles">
@@ -55,11 +55,11 @@
         <% end %>
       </datalist>
       <%= label f, :organization, class: "pt-12" do %>
-        Organisation <%= text_input(f, :organization,
+        Organisation {text_input(f, :organization,
           required: true,
           placeholder: "SNCF",
           list: "existing_organizations"
-        ) %>
+        )}
       <% end %>
       <datalist id="existing_organizations">
         <%= for org <- @existing_organizations do %>
@@ -67,38 +67,38 @@
         <% end %>
       </datalist>
       <%= label f, :email, class: "pt-12" do %>
-        E-mail <%= text_input(f, :email, required: true, type: "email") %>
+        E-mail {text_input(f, :email, required: true, type: "email")}
       <% end %>
       <%= label f, :phone_number, class: "pt-12" do %>
-        Numéro de téléphone principal <%= text_input(f, :phone_number, type: "tel") %>
+        Numéro de téléphone principal {text_input(f, :phone_number, type: "tel")}
         <div class="small">Optionnel</div>
       <% end %>
       <%= label f, :secondary_phone_number, class: "pt-12" do %>
-        Numéro de téléphone secondaire <%= text_input(f, :secondary_phone_number, type: "tel") %>
+        Numéro de téléphone secondaire {text_input(f, :secondary_phone_number, type: "tel")}
         <div class="small">Optionnel</div>
       <% end %>
-      <%= submit("Envoyer") %>
+      {submit("Envoyer")}
     <% end %>
   </div>
 
   <div :if={!creating_contact} class="panel">
     <h2>Actions</h2>
     <%= form_for @contact, backoffice_contact_path(@conn, :delete, contact_id), [class: "no-margin", method: "post"], fn _ -> %>
-      <%= submit("Supprimer", class: "button warning") %>
+      {submit("Supprimer", class: "button warning")}
     <% end %>
   </div>
 
-  <%= render("_notification_subscriptions.html",
+  {render("_notification_subscriptions.html",
     creating_contact: creating_contact,
     contact_id: contact_id,
     datasets_datalist: @datasets_datalist,
     notification_subscriptions: @notification_subscriptions,
     conn: @conn
-  ) %>
-  <%= render("_notifications.html",
+  )}
+  {render("_notifications.html",
     creating_contact: creating_contact,
     notifications: @notifications,
     notifications_months_limit: @notifications_months_limit,
     conn: @conn
-  ) %>
+  )}
 </div>

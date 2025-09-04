@@ -3,18 +3,18 @@
   <%= for {_, datagouv_id, title, comments} <- @comments_with_context do %>
     <%= for comment <- comments do %>
       <div style="padding-top: 24px;">
-        <h4><%= title %></h4>
+        <h4>{title}</h4>
         <span style="color: grey;">
-          Commentaire de <%= comment["posted_by"]["first_name"] %> <%= comment["posted_by"]["last_name"] %>
+          Commentaire de {comment["posted_by"]["first_name"]} {comment["posted_by"]["last_name"]}
         </span>
       </div>
       <div class="panel">
-        "<%= comment["content"] %>" <br />
-        <%= link("voir la discussion",
+        "{comment["content"]}" <br />
+        {link("voir la discussion",
           to:
             dataset_url(TransportWeb.Endpoint, :details, datagouv_id) <>
               "#comments-discussion-" <> comment["discussion_id"]
-        ) %>
+        )}
       </div>
     <% end %>
   <% end %>

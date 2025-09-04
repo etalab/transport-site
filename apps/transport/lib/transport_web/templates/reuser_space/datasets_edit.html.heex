@@ -1,21 +1,21 @@
 <section class="container pt-48 pb-24">
-  <%= breadcrumbs([@conn, :datasets_edit, @dataset.custom_title]) %>
+  {breadcrumbs([@conn, :datasets_edit, @dataset.custom_title])}
 </section>
 <section class="reuser-space-section pb-48">
   <div class="container pt-24">
-    <h2 class="mb-0"><%= @dataset.custom_title %></h2>
+    <h2 class="mb-0">{@dataset.custom_title}</h2>
     <div class="align-right pb-24">
       <a href="#modal" class="button warning">
         <i class="icon fas fa-trash"></i>
-        <%= dgettext("reuser-space", "Remove from favorites") %>
+        {dgettext("reuser-space", "Remove from favorites")}
       </a>
     </div>
     <div class="panel">
-      <h3><%= dgettext("reuser-space", "Manage notifications") %></h3>
-      <%= live_render(@conn, TransportWeb.Live.DatasetNotificationsLive, session: %{"dataset_id" => @dataset.id}) %>
+      <h3>{dgettext("reuser-space", "Manage notifications")}</h3>
+      {live_render(@conn, TransportWeb.Live.DatasetNotificationsLive, session: %{"dataset_id" => @dataset.id})}
     </div>
     <div id="data-sharing" class="panel">
-      <h3><%= dgettext("reuser-space", "Improved data sharing") %></h3>
+      <h3>{dgettext("reuser-space", "Improved data sharing")}</h3>
       <%= if @eligible_to_data_sharing_pilot do %>
         <% [organization] = @eligible_organizations %>
         <%= if is_nil(@existing_improved_data) do %>
@@ -24,22 +24,22 @@
           </div>
           <%= form_for @conn, reuser_space_path(@conn, :add_improved_data, @dataset.id), [class: "full-width"], fn f -> %>
             <h4>
-              <%= dgettext("reuser-space", "Step 1: choose the initial resource from the producer") %>
+              {dgettext("reuser-space", "Step 1: choose the initial resource from the producer")}
             </h4>
             <div class="ressources-list">
               <%= for resource <- @dataset.resources |> Enum.filter(&DB.Resource.gtfs?/1) do %>
                 <div class="panel resource">
                   <h4>
-                    <%= radio_button(f, :resource_id, resource.id, id: "resource-#{resource.id}", required: true) %>
+                    {radio_button(f, :resource_id, resource.id, id: "resource-#{resource.id}", required: true)}
                     <%= label f, resource.id, class: "label-inline", for: "resource-#{resource.id}" do %>
-                      <%= resource.title %>
+                      {resource.title}
                     <% end %>
                   </h4>
 
                   <div class="resource-panel-bottom">
                     <div class="resource-actions">
                       <div class="resource-format" title={dgettext("page-dataset-details", "resource format")}>
-                        <span class="label"><%= resource.format %></span>
+                        <span class="label">{resource.format}</span>
                       </div>
                     </div>
                   </div>
@@ -47,43 +47,43 @@
               <% end %>
             </div>
             <p class="small">
-              <%= dgettext("reuser-space", "Only GTFS files are eligible for now.") %>
+              {dgettext("reuser-space", "Only GTFS files are eligible for now.")}
             </p>
             <div class="form__group">
               <h4>
-                <%= dgettext("reuser-space", "Step 2: add the URL to download your improved data") %>
+                {dgettext("reuser-space", "Step 2: add the URL to download your improved data")}
               </h4>
-              <%= label(f, :download_url, dgettext("reuser-space", "Your improved data URL")) %>
-              <%= text_input(f, :download_url, type: "url", required: true) %>
+              {label(f, :download_url, dgettext("reuser-space", "Your improved data URL"))}
+              {text_input(f, :download_url, type: "url", required: true)}
             </div>
-            <%= hidden_input(f, :organization_id, value: organization.id) %>
-            <%= submit(dgettext("reuser-space", "Share improved data"), class: "button") %>
+            {hidden_input(f, :organization_id, value: organization.id)}
+            {submit(dgettext("reuser-space", "Share improved data"), class: "button")}
           <% end %>
         <% else %>
           <p class="notification">
-            <%= dgettext("reuser-space", "You already shared improved data for this dataset, thanks!") %>
+            {dgettext("reuser-space", "You already shared improved data for this dataset, thanks!")}
           </p>
         <% end %>
       <% else %>
         <p class="notification">
-          <%= dgettext("reuser-space", "This feature is coming soon!") %>
+          {dgettext("reuser-space", "This feature is coming soon!")}
         </p>
       <% end %>
     </div>
     <div class="panel">
-      <h3><%= dgettext("reuser-space", "Discussions") %></h3>
+      <h3>{dgettext("reuser-space", "Discussions")}</h3>
       <p class="notification">
-        <%= dgettext("reuser-space", "This feature is coming soon!") %>
+        {dgettext("reuser-space", "This feature is coming soon!")}
       </p>
     </div>
     <div class="modal__backdrop" id="modal">
       <div class="modal">
         <p>
-          <%= dgettext(
+          {dgettext(
             "reuser-space",
             ~s|Warning, you are going to remove "%{dataset_title}" from your favorites. You will lose any settings or actions you previously performed on this dataset.|,
             dataset_title: @dataset.custom_title
-          ) %>
+          )}
         </p>
         <%= form_for %{}, reuser_space_path(@conn, :unfavorite, @dataset.id), [class: "no-margin", method: "post"], fn _ -> %>
           <div class="form__group button__group">
@@ -94,7 +94,7 @@
               data-tracking-action="confirm_unfavorite_dataset"
             >
               <i class="icon fas fa-trash"></i>
-              <%= dgettext("reuser-space", "Remove from favorites") %>
+              {dgettext("reuser-space", "Remove from favorites")}
             </button>
             <a
               href="#"
@@ -102,7 +102,7 @@
               data-tracking-category="reuser_space"
               data-tracking-action="abort_unfavorite_dataset"
             >
-              <%= dgettext("reuser-space", "Cancel") %>
+              {dgettext("reuser-space", "Cancel")}
             </a>
           </div>
         <% end %>
@@ -111,9 +111,9 @@
   </div>
 </section>
 <section class="section section-white">
-  <%= live_render(@conn, TransportWeb.Live.FeedbackLive,
+  {live_render(@conn, TransportWeb.Live.FeedbackLive,
     id: "feedback-form",
     session: %{"feature" => "reuser_space"}
-  ) %>
+  )}
 </section>
 <script defer type="text/javascript" src={static_path(@conn, "/js/app.js")} />

@@ -1,9 +1,9 @@
 <div class="discussion" id={"discussion-#{@discussion["id"]}"}>
   <div class="discussion-title">
-    <h4><i class="icon fas fa-comments"></i><%= @discussion["title"] %></h4>
+    <h4><i class="icon fas fa-comments"></i>{@discussion["title"]}</h4>
 
     <span class="discussion-date">
-      <%= DateTimeDisplay.format_date(@discussion["created"], @locale, iso_extended: true) %>
+      {DateTimeDisplay.format_date(@discussion["created"], @locale, iso_extended: true)}
     </span>
   </div>
 
@@ -25,24 +25,24 @@
         </div>
         <div>
           <div class="discussion-comment__header">
-            <a href={comment["posted_by"]["page"]}><%= commenter_full_name %></a>
+            <a href={comment["posted_by"]["page"]}>{commenter_full_name}</a>
             <span :if={is_producer} class="label label--role">
-              <%= dgettext("page-dataset-details", "data producer") %>
+              {dgettext("page-dataset-details", "data producer")}
             </span>
             <span :if={is_admin} class="label label--role">
               transport.data.gouv.fr
             </span>
             <span :if={is_regulator} class="label label--role">
-              <%= dgettext("page-dataset-details", "Regulator") %>
+              {dgettext("page-dataset-details", "Regulator")}
             </span>
             <span class="discussion-date">
-              <%= dgettext("page-dataset-details", "Posted on %{datetime}",
+              {dgettext("page-dataset-details", "Posted on %{datetime}",
                 datetime: DateTimeDisplay.format_datetime_to_paris(comment["posted_on"], @locale, no_timezone: true)
-              ) %>
+              )}
             </span>
           </div>
           <div class="discussion-comment__content">
-            <%= MarkdownHandler.markdown_to_safe_html!(comment["content"]) %>
+            {MarkdownHandler.markdown_to_safe_html!(comment["content"])}
           </div>
         </div>
       </div>
@@ -51,18 +51,18 @@
     <div :if={not is_nil(@current_user) and is_nil(@discussion["closed"])} class="discussion-form">
       <% current_user_in_org = @current_user["id"] in @org_member_ids %>
       <a href={"#reply-#{@discussion["id"]}"}>
-        <%= dgettext("page-dataset-details", "Respond") %>
+        {dgettext("page-dataset-details", "Respond")}
       </a>
       <div id={"reply-#{@discussion["id"]}"} class="discussion-modal">
         <%= form_for %{}, discussion_path(@socket, :post_answer, @dataset.datagouv_id, @discussion["id"]), fn f -> %>
-          <%= textarea_autoexpand(f, :comment) %>
-          <%= hidden_input(f, :dataset_slug, value: @dataset.slug) %>
+          {textarea_autoexpand(f, :comment)}
+          {hidden_input(f, :dataset_slug, value: @dataset.slug)}
           <div class="form__group">
             <button class="button" name="anwser" type="submit">
-              <%= dgettext("page-dataset-details", "Respond") %>
+              {dgettext("page-dataset-details", "Respond")}
             </button>
             <button :if={current_user_in_org} class="button secondary" name="answer_and_close" type="submit">
-              <%= dgettext("page-dataset-details", "Respond and close") %>
+              {dgettext("page-dataset-details", "Respond and close")}
             </button>
           </div>
         <% end %>

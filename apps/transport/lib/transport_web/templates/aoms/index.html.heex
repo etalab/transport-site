@@ -19,16 +19,16 @@
   </tr>
   <%= for aom <- @aoms do %>
     <tr>
-      <td><%= aom.nom %></td>
-      <td><%= aom.departement %></td>
-      <td><%= aom.region %></td>
-      <td><%= format_bool(aom.published) %></td>
-      <td><%= format_bool(aom.in_aggregate) %></td>
-      <td><%= format_bool(aom.up_to_date) %></td>
-      <td><%= format_bool(aom.has_realtime) %></td>
-      <td><%= aom.population %></td>
-      <td><%= aom.nom_commune %> (<%= aom.insee_commune_principale %>)</td>
-      <td><%= aom.nombre_communes %></td>
+      <td>{aom.nom}</td>
+      <td>{aom.departement}</td>
+      <td>{aom.region}</td>
+      <td>{format_bool(aom.published)}</td>
+      <td>{format_bool(aom.in_aggregate)}</td>
+      <td>{format_bool(aom.up_to_date)}</td>
+      <td>{format_bool(aom.has_realtime)}</td>
+      <td>{aom.population}</td>
+      <td>{aom.nom_commune} ({aom.insee_commune_principale})</td>
+      <td>{aom.nombre_communes}</td>
     </tr>
   <% end %>
 </table>
