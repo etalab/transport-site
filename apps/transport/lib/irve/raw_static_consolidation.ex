@@ -62,6 +62,11 @@ defmodule Transport.IRVE.RawStaticConsolidation do
       raise "HTTP status is not 200 (#{status})"
     end
 
+    # Producers can only be orgs, not individuals.
+    # We perform the check here because we want an error to be reported and an estimation of number of pdc.
+    # That needs the body to be downloaded even if the body isn’t used for the check.
+    ensure_producer_is_org!(row)
+
     # A number of checks are carried out before attempting to parse the data, using a couple of heuristics,
     # in order to get meaningful error messages in the report.
     run_cheap_blocking_checks(body, extension)
@@ -165,6 +170,10 @@ defmodule Transport.IRVE.RawStaticConsolidation do
       raise("unsupported column separator #{header_separator}")
     end
   end
+
+  def ensure_producer_is_org!(%{dataset_organisation_id: "???"}), do: raise("producer is not an organization")
+
+  def ensure_producer_is_org!(_row), do: :ok
 
   @doc """
   Not much used anymore, but has helped tremendously to debug x/y parsing issues,
