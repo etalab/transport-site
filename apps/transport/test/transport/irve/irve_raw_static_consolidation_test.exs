@@ -82,6 +82,7 @@ defmodule Transport.IRVE.RawStaticConsolidationTest do
           report_content = File.read!(report_file)
           assert String.contains?(report_content, "dataset_id")
           assert String.contains?(report_content, "resource_id")
+          assert String.contains?(report_content, "%RuntimeError{message: \"\"producer is not an organization\"\"}")
         end)
       end)
     end
@@ -111,7 +112,7 @@ defmodule Transport.IRVE.RawStaticConsolidationTest do
 
   defp mock_resource_downloads do
     Transport.Req.Mock
-    |> expect(:get!, fn _url, _options ->
+    |> expect(:get!, 2, fn _url, _options ->
       %Req.Response{
         status: 200,
         body: [DB.Factory.IRVE.generate_row()] |> DB.Factory.IRVE.to_csv_body()

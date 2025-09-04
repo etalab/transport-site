@@ -641,6 +641,29 @@ defmodule DB.Factory do
                 "url" => "https://static.data.gouv.fr/resources/some-irve-url-2024/data.csv"
               }
             ]
+          },
+          %{
+            "id" => "another-dataset-id",
+            "title" => "another-dataset-title",
+            "organization" => nil,
+            "owner" => "Guy who loves IRVE",
+            "resources" => [
+              %{
+                "schema" => %{
+                  "name" => "etalab/schema-irve-statique",
+                  "version" => "2.3.0"
+                },
+                "id" => "another-resource-id",
+                "title" => "another-resource-title",
+                "extras" => %{
+                  "validation-report:valid_resource" => true,
+                  "validation-report:validation_date" => "2024-02-24"
+                },
+                "filetype" => "file",
+                "last_modified" => "2024-02-29T07:43:59.660000+00:00",
+                "url" => "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv"
+              }
+            ]
           }
         ]
       }

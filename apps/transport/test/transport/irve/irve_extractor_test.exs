@@ -45,6 +45,22 @@ defmodule Transport.IRVE.ExtractorTest do
                valid: true,
                validation_date: "2024-02-24",
                last_modified: "2024-02-29T07:43:59.660000+00:00"
+             },
+             %{
+               valid: true,
+               last_modified: "2024-02-29T07:43:59.660000+00:00",
+               url: "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv",
+               dataset_id: "another-dataset-id",
+               resource_id: "another-resource-id",
+               dataset_title: "another-dataset-title",
+               schema_version: "2.3.0",
+               schema_name: "etalab/schema-irve-statique",
+               resource_title: "another-resource-title",
+               filetype: "file",
+               dataset_organisation_id: "???",
+               dataset_organisation_name: "???",
+               dataset_organisation_url: "???",
+               validation_date: "2024-02-24"
              }
            ]
   end
