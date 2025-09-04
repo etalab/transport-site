@@ -40,8 +40,6 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   @datagouv_organization_id "646b7187b50b2a93b1ae3d45"
   # similarly, required to eliminate a test file
   @test_dataset_id "67811b8e8934d388950bca3f"
-  # and another one (we'll create a more structured filter later)
-  @air_france_klm_dataset_id "642167910d33a1a75ebfa1d2"
 
   @doc """
   Download content separately from processing, because we need to provide an estimate of the number of lines
@@ -204,8 +202,6 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     # also exclude "test dataset" https://www.data.gouv.fr/en/datasets/test-data-set
     # which is a large file marked as IRVE
     |> Enum.reject(fn r -> r.dataset_id == @test_dataset_id end)
-    # and similarly: https://github.com/etalab/transport-site/issues/4660) 166MB file
-    |> Enum.reject(fn r -> r.dataset_id == @air_france_klm_dataset_id end)
   end
 
   def build_report_item(row, body, extension, optional_error) do
