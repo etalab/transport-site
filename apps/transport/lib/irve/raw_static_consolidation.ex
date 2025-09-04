@@ -184,8 +184,9 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     end
   end
 
-  def concat_rows(nil, df), do: df
-  def concat_rows(main_df, df), do: Explorer.DataFrame.concat_rows(main_df, df)
+  def maybe_concat_rows({:error, error}, main_df), do: {main_df, error}
+  def maybe_concat_rows({:ok, df}, nil), do: {df, nil}
+  def maybe_concat_rows({:ok, df}, main_df), do: {Explorer.DataFrame.concat_rows(main_df, df), nil}
 
   def exclude_irrelevant_resources(stream) do
     stream
@@ -231,23 +232,7 @@ defmodule Transport.IRVE.RawStaticConsolidation do
       |> maybe_filter(options[:filter])
       |> Enum.sort_by(fn r -> [r.dataset_id, r.resource_id] end)
       |> Enum.reduce(%{df: nil, report: []}, fn row, %{df: main_df, report: report} ->
-        Logger.info("Processing resource #{row.resource_id} (url=#{row.url}, dataset_id=#{row.dataset_id})")
-
-        %{body: body, status: status} = download_resource_content!(row.url)
-        extension = Path.extname(row.url)
-
-        {main_df, optional_error} =
-          case process_resource(row, body, status, extension) do
-            {:ok, df} -> {concat_rows(main_df, df), nil}
-            {:error, error} -> {main_df, error}
-          end
-
-        report_item = build_report_item(row, body, extension, optional_error)
-
-        %{
-          df: main_df,
-          report: [report_item | report]
-        }
+        process_individual_resource_and_report(row, main_df, report)
       end)
 
     consolidation_filename = Keyword.fetch!(options, :data_file)
@@ -265,5 +250,20 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     |> Enum.map(fn x -> Map.put(x, :error, x.error |> inspect) end)
     |> Explorer.DataFrame.new()
     |> Explorer.DataFrame.to_csv!(report_filename)
+  end
+
+  def process_individual_resource_and_report(row, main_df, report) do
+    Logger.info("Processing resource #{row.resource_id} (url=#{row.url}, dataset_id=#{row.dataset_id})")
+    %{body: body, status: status} = download_resource_content!(row.url)
+    extension = Path.extname(row.url)
+
+    {main_df, optional_error} = process_resource(row, body, status, extension) |> maybe_concat_rows(main_df)
+
+    report_item = build_report_item(row, body, extension, optional_error)
+
+    %{
+      df: main_df,
+      report: [report_item | report]
+    }
   end
 end
