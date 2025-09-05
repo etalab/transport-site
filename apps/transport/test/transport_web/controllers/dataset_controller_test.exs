@@ -1082,6 +1082,54 @@ defmodule TransportWeb.DatasetControllerTest do
              conn |> dataset_href_download_button(dataset)
   end
 
+  test "dataset#details, territories", %{conn: conn} do
+    commune =
+      insert(:administrative_division,
+        type: :commune,
+        type_insee: "commune_12345",
+        insee: "12345",
+        nom: "Test Commune"
+      )
+
+    departement =
+      insert(:administrative_division,
+        type: :departement,
+        type_insee: "departement_123",
+        insee: "123",
+        nom: "Test Département"
+      )
+
+    dataset = insert(:dataset, declarative_spatial_areas: [departement, commune])
+
+    mock_empty_history_resources()
+
+    conn
+    |> get(dataset_path(conn, :details, dataset.slug))
+    |> html_response(200) =~ "Test Département, Test Commune"
+  end
+
+  test "dataset#details, other datasets", %{conn: conn} do
+    departement =
+      insert(:administrative_division,
+        type: :departement,
+        type_insee: "departement_76",
+        insee: "76",
+        nom: "Seine-Maritime"
+      )
+
+    dataset = insert(:dataset, declarative_spatial_areas: [departement]) |> DB.Repo.preload(:declarative_spatial_areas)
+    other_dataset = insert(:dataset, custom_title: "Foo", declarative_spatial_areas: [departement])
+
+    mock_empty_history_resources()
+
+    assert conn
+           |> get(dataset_path(conn, :details, dataset.slug))
+           |> html_response(200)
+           |> Floki.parse_document!()
+           |> Floki.find("#dataset-other-datasets")
+           |> Floki.text() == "Autres jeux de données de #{departement.nom}#{other_dataset.custom_title}"
+  end
+
   def dataset_href_download_button(%Plug.Conn{} = conn, %DB.Dataset{} = dataset) do
     conn
     |> get(dataset_path(conn, :details, dataset.slug))

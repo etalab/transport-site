@@ -49,16 +49,8 @@ msgid "transport.data.gouv.fr"
 msgstr ""
 
 #, elixir-autogen
-msgid "Ask for help"
-msgstr "Demander de l'aide"
-
-#, elixir-autogen
 msgid "Legal Information"
 msgstr "Mentions légales"
-
-#, elixir-autogen, elixir-format
-msgid "Question about transport.data.gouv.fr"
-msgstr "Question au sujet de transport.data.gouv.fr"
 
 msgid "Publish a dataset"
 msgstr "Publier ou mettre à jour des données"
@@ -166,3 +158,51 @@ msgstr "Statistiques"
 #, elixir-autogen, elixir-format
 msgid "Reuses"
 msgstr "Réutilisations"
+
+#, elixir-autogen, elixir-format
+msgid "Data I can't find"
+msgstr "Des données que je ne trouve pas"
+
+#, elixir-autogen, elixir-format
+msgid "Data producer"
+msgstr "Producteur de données"
+
+#, elixir-autogen, elixir-format
+msgid "Data reuser"
+msgstr "Réutilisateur de données"
+
+#, elixir-autogen, elixir-format
+msgid "Did you read our <a href=\"%{url}\" target=\"_blank\">online documentation</a>? Your answer is likely there."
+msgstr "Avez-vous lu notre <a href=\"%{url}\" target=\"_blank\">documentation en ligne</a> ? Votre réponse est probablement présente."
+
+#, elixir-autogen, elixir-format
+msgid "I am"
+msgstr "Je suis"
+
+#, elixir-autogen, elixir-format
+msgid "Legal requirements"
+msgstr "Des informations réglementaires"
+
+#, elixir-autogen, elixir-format
+msgid "My question is about"
+msgstr "Ma question est à propos"
+
+#, elixir-autogen, elixir-format
+msgid "Other"
+msgstr "Autre"
+
+#, elixir-autogen, elixir-format
+msgid "Question"
+msgstr "Question"
+
+#, elixir-autogen, elixir-format
+msgid "Subject"
+msgstr "Sujet"
+
+#, elixir-autogen, elixir-format
+msgid "Technical support"
+msgstr "Un besoin de support technique"
+
+#, elixir-autogen, elixir-format
+msgid "The website transport.data.gouv.fr"
+msgstr "Le site web transport.data.gouv.fr"

@@ -158,44 +158,40 @@ table.netex_generic_issue tr.debug td code {
 .netex {
   ul.summary {
     list-style: none;
-    padding-left: var(--space-xs);
-    margin-bottom: var(--space-l);
+    padding-inline: var(--space-xs);
 
     li {
       display: grid;
-      gap: var(--space-xs);
-      grid-template-columns: 1.5rem 1fr;
-      grid-template-areas:
-        "icon selector"
-        ".    explanation";
+      gap: var(--space-s) var(--space-m);
+      grid-template-columns: [icon-start] 1.5rem [icon-end content-start] 50rem [content-end];
       padding-bottom: var(--space-m);
+      padding-left: var(--space-s);
+      margin-bottom: var(--space-m);
+      border-bottom: 1px solid var(--light-grey);
 
       i.fa {
         align-self: center;
         justify-self: center;
-        grid-area: icon;
+        grid-column: icon;
       }
-      div.selector {
-        grid-area: selector;
+      > * {
+        grid-column: content;
       }
       p {
         margin: 0;
-        grid-area: explanation;
+
+        a {
+          text-decoration: underline;
+        }
       }
     }
 
     li.comment {
-      grid-template-columns: 1.5rem 40rem;
-      grid-template-areas:
-        "icon comment";
       padding-bottom: unset;
+      border-bottom: unset;
 
-      i.fa {
-        align-self: center;
-        color: var(--dark-blue);
-      }
-      div.comment {
-        grid-area: comment;
+      div a {
+        text-decoration: underline;
       }
     }
   }
@@ -214,6 +210,10 @@ table.netex_generic_issue tr.debug td code {
 
   .fa-minus {
     color: var(--light-grey);
+  }
+
+  .fa-circle-info {
+    color: var(--dark-blue);
   }
 
   .compatibility_filter {

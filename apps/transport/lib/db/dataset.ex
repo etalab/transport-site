@@ -725,6 +725,7 @@ defmodule DB.Dataset do
       :region,
       :legal_owners_aom,
       :legal_owners_region,
+      :declarative_spatial_areas,
       resources: [:resources_related, :dataset]
     ])
     |> Repo.one()
@@ -735,60 +736,26 @@ defmodule DB.Dataset do
   end
 
   @spec get_other_datasets(__MODULE__.t()) :: [__MODULE__.t()]
-  def get_other_datasets(%__MODULE__{id: id, aom_id: aom_id}) when not is_nil(aom_id) do
+  def get_other_datasets(%__MODULE__{declarative_spatial_areas: []}), do: []
+
+  def get_other_datasets(%__MODULE__{id: id, declarative_spatial_areas: declarative_spatial_areas}) do
+    %DB.AdministrativeDivision{id: target_id} = declarative_spatial_areas |> DB.AdministrativeDivision.sorted() |> hd()
+
     __MODULE__.base_query()
-    |> where([d], d.id != ^id)
-    |> where([d], d.aom_id == ^aom_id)
-    |> Repo.all()
+    |> join(:inner, [dataset: d], r in assoc(d, :declarative_spatial_areas), as: :administrative_divison)
+    |> where([dataset: d], d.id != ^id)
+    |> where([administrative_divison: ad], ad.id == ^target_id)
+    |> DB.Repo.all()
   end
 
-  def get_other_datasets(%__MODULE__{id: id, region_id: region_id}) when not is_nil(region_id) do
-    __MODULE__.base_query()
-    |> where([d], d.id != ^id)
-    |> where([d], d.region_id == ^region_id)
-    |> Repo.all()
+  @spec get_covered_area(__MODULE__.t()) :: {:ok, binary()} | {:error, binary()}
+  def get_covered_area(%__MODULE__{declarative_spatial_areas: declarative_spatial_areas}) do
+    {:ok, declarative_spatial_areas |> DB.AdministrativeDivision.names()}
   end
 
-  # for the datasets linked to multiple cities we use the
-  # backoffice filled field 'associated_territory_name'
-  # to get the other_datasets
-  # This way we can control which datasets to link to
-  def get_other_datasets(%__MODULE__{id: id, associated_territory_name: associated_territory_name}) do
-    __MODULE__.base_query()
-    |> where([d], d.id != ^id)
-    |> where([d], d.associated_territory_name == ^associated_territory_name)
-    |> Repo.all()
-  end
-
-  def get_other_dataset(_), do: []
-
-  @spec get_territory(__MODULE__.t()) :: {:ok, binary()} | {:error, binary()}
-  def get_territory(%__MODULE__{aom: %{nom: nom}}), do: {:ok, nom}
-
-  def get_territory(%__MODULE__{aom_id: aom_id}) when not is_nil(aom_id) do
-    case Repo.get(AOM, aom_id) do
-      nil -> {:error, "Could not find territory of AOM with id #{aom_id}"}
-      aom -> {:ok, aom.nom}
-    end
-  end
-
-  def get_territory(%__MODULE__{region: %{nom: nom}}), do: {:ok, nom}
-
-  def get_territory(%__MODULE__{region_id: region_id}) when not is_nil(region_id) do
-    case Repo.get(Region, region_id) do
-      nil -> {:error, "Could not find territory of Region with id #{region_id}"}
-      region -> {:ok, region.nom}
-    end
-  end
-
-  def get_territory(%__MODULE__{associated_territory_name: associated_territory_name}),
-    do: {:ok, associated_territory_name}
-
-  def get_territory(_), do: {:error, "Trying to find the territory of an unkown entity"}
-
-  @spec get_territory_or_nil(__MODULE__.t()) :: binary() | nil
-  def get_territory_or_nil(%__MODULE__{} = d) do
-    case get_territory(d) do
+  @spec get_covered_area_or_nil(__MODULE__.t()) :: binary() | nil
+  def get_covered_area_or_nil(%__MODULE__{} = d) do
+    case get_covered_area(d) do
       {:ok, t} -> t
       _ -> nil
     end

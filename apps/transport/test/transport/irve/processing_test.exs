@@ -10,7 +10,7 @@ defmodule Transport.IRVE.ProcessingTest do
       })
       |> Map.delete("tarification")
 
-    body = [row] |> CSV.encode(headers: true) |> Enum.join()
+    body = [row] |> DB.Factory.IRVE.to_csv_body()
     df = Transport.IRVE.Processing.read_as_data_frame(body)
     maps = Explorer.DataFrame.to_rows(df)
 

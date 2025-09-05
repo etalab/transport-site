@@ -38,7 +38,6 @@ a.mail__button:hover {
 }
 
 .footer__contact {
-  color: $blue;
   background-color: $background-grey;
   border: 1px solid $border-active;
   bottom: 1em;
@@ -46,6 +45,14 @@ a.mail__button:hover {
   position: fixed;
   right: 1em;
   z-index: 10000;
+
+  h3 {
+    color: $blue;
+  }
+
+  p {
+    color: $dark-text;
+  }
 
   textarea {
     height: 20em;

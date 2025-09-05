@@ -135,7 +135,10 @@ defmodule TransportWeb.API.DatasetControllerTest do
         created_at: ~U[2021-12-23 13:30:40.000000Z],
         organization: "org",
         organization_id: "org_id",
-        aom: insert(:aom, nom: "Angers Métropole", siren: "siren")
+        aom: insert(:aom, nom: "Angers Métropole", siren: "siren"),
+        declarative_spatial_areas: [
+          build(:administrative_division, nom: "Angers Métropole", insee: "123456", type: :epci)
+        ]
       )
 
     resource_1 =
@@ -199,11 +202,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
     dataset_res = %{
       "aom" => %{"name" => "Angers Métropole", "siren" => "siren"},
       "community_resources" => [],
-      "covered_area" => %{
-        "aom" => %{"name" => "Angers Métropole", "siren" => "siren"},
-        "name" => "Angers Métropole",
-        "type" => "aom"
-      },
+      "covered_area" => [%{"insee" => "123456", "nom" => "Angers Métropole", "type" => "epci"}],
       "legal_owners" => %{"aoms" => [], "company" => nil, "regions" => []},
       "created_at" => "2021-12-23",
       "datagouv_id" => "datagouv",
@@ -299,7 +298,10 @@ defmodule TransportWeb.API.DatasetControllerTest do
             created_at: ~U[2021-12-23 13:30:40.000000Z],
             organization: "org",
             organization_id: "org_id",
-            aom: insert(:aom, nom: "Angers Métropole", siren: "siren")
+            aom: insert(:aom, nom: "Angers Métropole", siren: "siren"),
+            declarative_spatial_areas: [
+              build(:administrative_division, nom: "Angers Métropole", insee: "123456", type: :epci)
+            ]
           ),
         url: "https://link.to/gbfs.json",
         datagouv_id: "2",
@@ -315,11 +317,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
              %{
                "aom" => %{"name" => "Angers Métropole", "siren" => "siren"},
                "community_resources" => [],
-               "covered_area" => %{
-                 "aom" => %{"name" => "Angers Métropole", "siren" => "siren"},
-                 "name" => "Angers Métropole",
-                 "type" => "aom"
-               },
+               "covered_area" => [%{"insee" => "123456", "nom" => "Angers Métropole", "type" => "epci"}],
                "legal_owners" => %{"aoms" => [], "company" => nil, "regions" => []},
                "created_at" => "2021-12-23",
                "datagouv_id" => "datagouv",
@@ -440,7 +438,10 @@ defmodule TransportWeb.API.DatasetControllerTest do
         last_update: DateTime.utc_now(),
         aom: aom,
         legal_owners_aom: [aom],
-        legal_owners_region: [region]
+        legal_owners_region: [region],
+        declarative_spatial_areas: [
+          build(:administrative_division, nom: "Angers Métropole", insee: "123456", type: :epci)
+        ]
       )
 
     setup_empty_history_resources()
@@ -452,11 +453,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
     assert %{
              "aom" => %{"name" => "Angers Métropole", "siren" => "siren"},
              "community_resources" => [],
-             "covered_area" => %{
-               "aom" => %{"name" => "Angers Métropole", "siren" => "siren"},
-               "name" => "Angers Métropole",
-               "type" => "aom"
-             },
+             "covered_area" => [%{"insee" => "123456", "nom" => "Angers Métropole", "type" => "epci"}],
              "legal_owners" => %{
                "aoms" => [
                  %{"name" => "Angers Métropole", "siren" => "siren"}
@@ -522,7 +519,10 @@ defmodule TransportWeb.API.DatasetControllerTest do
         created_at: ~U[2021-12-23 13:30:40.000000Z],
         organization: "org",
         organization_id: "org_id",
-        aom: insert(:aom, nom: "Angers Métropole", siren: "siren")
+        aom: insert(:aom, nom: "Angers Métropole", siren: "siren"),
+        declarative_spatial_areas: [
+          build(:administrative_division, nom: "Angers Métropole", insee: "123456", type: :epci)
+        ]
       )
 
     resource =
@@ -580,11 +580,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
     assert %{
              "aom" => %{"name" => "Angers Métropole", "siren" => "siren"},
              "community_resources" => [],
-             "covered_area" => %{
-               "aom" => %{"name" => "Angers Métropole", "siren" => "siren"},
-               "name" => "Angers Métropole",
-               "type" => "aom"
-             },
+             "covered_area" => [%{"insee" => "123456", "nom" => "Angers Métropole", "type" => "epci"}],
              "legal_owners" => %{"aoms" => [], "company" => nil, "regions" => []},
              "created_at" => "2021-12-23",
              "datagouv_id" => "datagouv",
@@ -872,6 +868,97 @@ defmodule TransportWeb.API.DatasetControllerTest do
 
     auth_url = resource.url <> "?token=#{secret}"
     assert [%{"url" => ^auth_url}] = json |> hd() |> Map.get("resources")
+  end
+
+  test "covered_area" do
+    dataset =
+      insert(:dataset,
+        declarative_spatial_areas: [
+          build(:administrative_division, nom: "A", insee: "123", type_insee: "epci_123", type: :epci),
+          build(:administrative_division, nom: "B", insee: "456", type_insee: "region_456", type: :region)
+        ]
+      )
+      |> DB.Repo.preload(:declarative_spatial_areas)
+
+    assert TransportWeb.API.DatasetController.covered_area(dataset) == [
+             %{type: :region, nom: "B", insee: "456"},
+             %{type: :epci, nom: "A", insee: "123"}
+           ]
+  end
+
+  describe "geojson_by_id" do
+    test "it works", %{conn: conn} do
+      commune =
+        insert(:administrative_division,
+          type: :commune,
+          type_insee: "commune_12345",
+          insee: "12345",
+          nom: "Test Commune",
+          geom: %Geo.Point{coordinates: {1, 1}, srid: 4326}
+        )
+
+      departement =
+        insert(:administrative_division,
+          type: :departement,
+          type_insee: "departement_123",
+          insee: "123",
+          nom: "Test Département",
+          geom: %Geo.Polygon{
+            coordinates: [
+              [
+                {55.0, 3.0},
+                {60.0, 3.0},
+                {60.0, 5.0},
+                {55.0, 5.0},
+                {55.0, 3.0}
+              ]
+            ],
+            srid: 4326,
+            properties: %{}
+          }
+        )
+
+      dataset = insert(:dataset, declarative_spatial_areas: [departement, commune])
+
+      json =
+        conn
+        |> get(Helpers.dataset_path(conn, :geojson_by_id, dataset.datagouv_id))
+        |> json_response(200)
+
+      assert json == %{
+               "features" => [
+                 %{
+                   "geometry" => %{
+                     "coordinates" => [[[55.0, 3.0], [60.0, 3.0], [60.0, 5.0], [55.0, 5.0], [55.0, 3.0]]],
+                     "crs" => %{"properties" => %{"name" => "EPSG:4326"}, "type" => "name"},
+                     "type" => "Polygon"
+                   },
+                   "properties" => %{"name" => "Test Département"},
+                   "type" => "Feature"
+                 },
+                 %{
+                   "geometry" => %{
+                     "coordinates" => [1.0, 1.0],
+                     "crs" => %{"properties" => %{"name" => "EPSG:4326"}, "type" => "name"},
+                     "type" => "Point"
+                   },
+                   "properties" => %{"name" => "Test Commune"},
+                   "type" => "Feature"
+                 }
+               ],
+               "name" => "Dataset #{dataset.slug}",
+               "type" => "FeatureCollection"
+             }
+    end
+
+    test "404", %{conn: conn} do
+      json =
+        conn
+        |> get(Helpers.dataset_path(conn, :geojson_by_id, "notfound"))
+        |> json_response(404)
+
+      assert json == "dataset not found"
+    end
   end
 
   defp setup_empty_history_resources do

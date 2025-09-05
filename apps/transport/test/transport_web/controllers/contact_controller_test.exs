@@ -14,7 +14,13 @@ defmodule TransportWeb.ContactControllerTest do
     conn =
       conn
       |> post(
-        contact_path(conn, :send_mail, %{email: "human@user.fr", topic: "dataset", question: "where is my dataset?"})
+        contact_path(conn, :send_mail, %{
+          email: "human@user.fr",
+          user_type: "data-reuser",
+          question_type: "other",
+          subject: "dataset",
+          question: "where is my dataset?"
+        })
       )
 
     refute Phoenix.Flash.get(conn.assigns.flash, :info) =~ "🦊"
@@ -23,7 +29,7 @@ defmodule TransportWeb.ContactControllerTest do
       from: {"PAN, Formulaire Contact", "contact@transport.data.gouv.fr"},
       to: "contact@transport.data.gouv.fr",
       subject: "dataset",
-      text_body: "where is my dataset?",
+      text_body: "User type: data-reuser\nQuestion type: other\n\nQuestion: where is my dataset?\n",
       html_body: nil,
       reply_to: "human@user.fr"
     )

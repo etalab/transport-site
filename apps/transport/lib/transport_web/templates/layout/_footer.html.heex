@@ -10,20 +10,62 @@
       </a>
       <%= form_for @conn, contact_path(@conn, :send_mail), fn f -> %>
         <h3>Contact</h3>
-        <%= email_input(f, :email,
-          placeholder: gettext("Email address"),
-          value: Map.get(@current_user || %{}, "email"),
-          type: "email",
-          required: true
-        ) %>
+        <p>
+          <%= raw(
+            gettext(
+              ~s|Did you read our <a href="%{url}" target="_blank">online documentation</a>? Your answer is likely there.|,
+              url: "https://doc.transport.data.gouv.fr"
+            )
+          ) %>
+        </p>
+        <%= label f, :email do %>
+          <%= gettext("Email address") %><%= email_input(f, :email,
+            value: Map.get(@current_user || %{}, "email"),
+            type: "email",
+            required: true
+          ) %>
+        <% end %>
+
+        <%= label f, :user_type, class: "pt-12" do %>
+          <%= gettext("I am") %> <%= select(
+            f,
+            :user_type,
+            [
+              {gettext("Data producer"), "data-producer"},
+              {gettext("Data reuser"), "data-reuser"},
+              {gettext("Other"), "other"}
+            ],
+            required: true
+          ) %>
+        <% end %>
+
+        <%= label f, :question_type, class: "pt-12" do %>
+          <%= gettext("My question is about") %> <%= select(
+            f,
+            :question_type,
+            [
+              {gettext("The website transport.data.gouv.fr"), "website"},
+              {gettext("Data I can't find"), "data-not-found"},
+              {gettext("Technical support"), "technical-support"},
+              {gettext("Legal requirements"), "legal-requirements"},
+              {gettext("Other"), "other"}
+            ],
+            required: true
+          ) %>
+        <% end %>
+
         <%= text_input(f, :name,
           placeholder: "your name",
           class: "form-special-field",
           tabindex: "-1",
           autocomplete: "off"
         ) %>
-        <%= text_input(f, :topic, value: gettext("Question about transport.data.gouv.fr"), required: true) %>
-        <%= textarea(f, :question, placeholder: gettext("Ask for help"), required: true) %>
+        <%= label f, :subject, class: "pt-12" do %>
+          <%= gettext("Subject") %><%= text_input(f, :subject, required: true) %>
+        <% end %>
+        <%= label f, :question, class: "pt-12" do %>
+          <%= gettext("Question") %><%= textarea(f, :question, required: true) %>
+        <% end %>
         <%= submit(gettext("Send email")) %>
       <% end %>
     </div>

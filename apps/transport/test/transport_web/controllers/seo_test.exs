@@ -33,7 +33,16 @@ defmodule TransportWeb.SeoMetadataTest do
           id: 1234
         }
       ],
-      aom: %DB.AOM{id: 4242, nom: "Angers Métropôle"}
+      declarative_spatial_areas: [
+        %DB.AdministrativeDivision{
+          type: :epci,
+          type_insee: "epci",
+          insee: "123456",
+          geom: %Geo.Point{coordinates: {1, 1}, srid: 4326},
+          nom: "Angers Métropôle"
+        }
+      ],
+      aom: %DB.AOM{id: 4242, nom: "Angers Métropôle AOM"}
     )
 
     Mox.stub_with(Transport.HTTPoison.Mock, HTTPoison)
@@ -53,7 +62,7 @@ defmodule TransportWeb.SeoMetadataTest do
 
   test "GET /datasets/aom/4242 ", %{conn: conn} do
     title = conn |> get(~p"/datasets/aom/4242") |> html_response(200) |> title
-    assert title =~ "AOM Angers Métropôle : Jeux de données ouverts"
+    assert title =~ "AOM Angers Métropôle AOM : Jeux de données ouverts"
   end
 
   test "GET /datasets/region/12 ", %{conn: conn} do
