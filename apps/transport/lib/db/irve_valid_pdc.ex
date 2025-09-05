@@ -23,7 +23,6 @@ defmodule DB.IRVEValidPDC do
     field(:implantation_station, :string)
     field(:adresse_station, :string)
     field(:code_insee_commune, :string)
-    field(:coordonneesxy, :string)
     field(:nbre_pdc, :integer)
     field(:id_pdc_itinerance, :string)
     field(:id_pdc_local, :string)
@@ -50,6 +49,8 @@ defmodule DB.IRVEValidPDC do
     field(:observations, :string)
     field(:date_maj, :date)
     field(:cable_t2_attache, :boolean)
+    field(:longitude, :float)
+    field(:latitude, :float)
 
     timestamps(type: :utc_datetime_usec)
   end
@@ -58,13 +59,31 @@ defmodule DB.IRVEValidPDC do
     raw_data
     |> Enum.map(fn {k, v} -> {String.to_atom(k), v} end)
     |> Map.new()
-    # Fix field name mismatch
-    |> Map.put(:coordonneesxy, raw_data["coordonneesXY"])
-    # Remove old key
-    |> Map.delete(:coordonneesXY)
+    |> split_coordinates()
     # Convert date strings to Date structs
     |> Map.update(:date_mise_en_service, nil, &parse_date/1)
     |> Map.update(:date_maj, nil, &parse_date/1)
+  end
+
+  defp split_coordinates(%{coordonneesXY: coords} = map) do
+    [longitude, latitude] = process_coordinates(coords)
+
+    map
+    |> Map.delete(:coordonneesXY)
+    |> Map.put(:longitude, longitude)
+    |> Map.put(:latitude, latitude)
+  end
+
+  @doc """
+  iex> process_coordinates("[7.48710500,48.345345]")
+  [7.48710500, 48.345345]
+  """
+  def process_coordinates(coords) do
+    coords
+    |> String.trim_leading("[")
+    |> String.trim_trailing("]")
+    |> String.split(",")
+    |> Enum.map(&String.to_float/1)
   end
 
   defp parse_date(date_string) when is_binary(date_string) do
