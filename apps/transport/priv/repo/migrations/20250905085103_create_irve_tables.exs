@@ -26,7 +26,6 @@ defmodule DB.Repo.Migrations.CreateIrveTables do
       add(:implantation_station, :string, null: false)
       add(:adresse_station, :string, null: false)
       add(:code_insee_commune, :string)
-      add(:coordonneesxy, :string, null: false)
       add(:nbre_pdc, :integer, null: false)
       add(:id_pdc_itinerance, :string, null: false)
       add(:id_pdc_local, :string)
@@ -53,6 +52,8 @@ defmodule DB.Repo.Migrations.CreateIrveTables do
       add(:observations, :text)
       add(:date_maj, :date, null: false)
       add(:cable_t2_attache, :boolean)
+      add(:longitude, :float, null: false)
+      add(:latitude, :float, null: false)
 
       timestamps(type: :utc_datetime_usec)
     end
