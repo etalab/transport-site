@@ -243,6 +243,15 @@ defmodule DB.Dataset do
 
   defp filter_by_region(query, _), do: query
 
+  @spec filter_by_departement(Ecto.Query.t(), map()) :: Ecto.Query.t()
+  defp filter_by_departement(query, %{"insee_departement" => insee_departement}) do
+    query
+    |> join(:inner, [dataset: d], r in assoc(d, :declarative_spatial_areas), as: :administrative_divison)
+    |> where([administrative_divison: ad], ad.type == :departement and ad.insee == ^insee_departement)
+  end
+
+  defp filter_by_departement(query, _), do: query
+
   @spec filter_by_category(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_category(query, %{"filter" => filter_key}) do
     case filter_key do
@@ -395,6 +404,7 @@ defmodule DB.Dataset do
       base_query()
       |> distinct([dataset: d], d.id)
       |> filter_by_region(params)
+      |> filter_by_departement(params)
       |> filter_by_feature(params)
       |> filter_by_mode(params)
       |> filter_by_category(params)

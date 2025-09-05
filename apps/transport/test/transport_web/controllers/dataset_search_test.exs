@@ -349,4 +349,14 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     assert [a_dataset.id, b_dataset.id] ==
              %{"type" => type, "order_by" => "alpha"} |> Dataset.list_datasets() |> DB.Repo.all() |> Enum.map(& &1.id)
   end
+
+  test "search by department" do
+    departement = insert(:administrative_division, type: :departement)
+
+    d1 = insert(:dataset, declarative_spatial_areas: [departement])
+    insert(:dataset)
+
+    assert [d1.id] ==
+             %{"insee_departement" => departement.insee} |> DB.Dataset.list_datasets() |> DB.Repo.all() |> Enum.map(& &1.id)
+  end
 end

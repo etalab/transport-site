@@ -154,6 +154,7 @@ defmodule TransportWeb.Router do
       get("/:dataset_id/resources_history_csv", DatasetController, :resources_history_csv)
       get("/aom/:aom", DatasetController, :by_aom)
       get("/region/:region", DatasetController, :by_region)
+      get("/departement/:insee_departement", DatasetController, :by_departement_insee)
       get("/commune/:insee_commune", DatasetController, :by_commune_insee)
 
       scope "/:dataset_datagouv_id" do
