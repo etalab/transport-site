@@ -49,3 +49,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "503: Service Unavailable"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Department %{insee} does not exist"
+msgstr ""

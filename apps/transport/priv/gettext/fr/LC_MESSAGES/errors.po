@@ -49,3 +49,7 @@ msgstr "Fonctionnalité temporairement désactivée"
 #, elixir-autogen, elixir-format
 msgid "503: Service Unavailable"
 msgstr "503 : Service non disponible"
+
+#, elixir-autogen, elixir-format
+msgid "Department %{insee} does not exist"
+msgstr "Le département %{insee} n'existe pas"

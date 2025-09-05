@@ -235,3 +235,7 @@ msgstr "Licences"
 #, elixir-autogen, elixir-format
 msgid "Resource format"
 msgstr "Format de ressource"
+
+#, elixir-autogen, elixir-format
+msgid "department"
+msgstr "département"

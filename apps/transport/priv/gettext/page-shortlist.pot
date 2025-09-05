@@ -235,3 +235,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Resource format"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "department"
+msgstr ""

@@ -10,6 +10,10 @@ defmodule TransportWeb.API.PlacesController do
 
   @spec get_result_url(Plug.Conn.t(), Place.t()) :: binary()
   defp get_result_url(conn, %Place{:place_id => id, :type => "commune"}), do: dataset_path(conn, :by_commune_insee, id)
+
+  defp get_result_url(conn, %Place{:place_id => id, :type => "departement"}),
+    do: dataset_path(conn, :by_departement_insee, id)
+
   defp get_result_url(conn, %Place{:place_id => id, :type => "region"}), do: dataset_path(conn, :by_region, id)
   defp get_result_url(conn, %Place{:place_id => id, :type => "aom"}), do: dataset_path(conn, :by_aom, id)
 
@@ -46,8 +50,9 @@ defmodule TransportWeb.API.PlacesController do
           when 'feature' then 1
           when 'mode' then 2
           when 'region' then 3
-          when 'aom' then 4
-          else 4 END"))
+          when 'departement' then 4
+          when 'aom' then 5
+          else 6 END"))
       |> order_by(desc: fragment("similarity(indexed_name, unaccent(?))", ^query))
       |> limit(10)
       |> Repo.all()

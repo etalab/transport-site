@@ -5,6 +5,7 @@ const AutoComplete = require('@tarekraafat/autocomplete.js/dist/js/autoComplete'
 
 const labels = {
     region: 'région',
+    departement: 'département',
     aom: 'AOM',
     commune: 'commune',
     feature: 'données contenant…',
