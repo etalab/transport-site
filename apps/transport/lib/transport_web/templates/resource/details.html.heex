@@ -2,34 +2,34 @@
   <div class="grey-background">
     <div class="container">
       <h2 class="mt-48">
-        <%= dgettext("validations", "Resource details") %>
+        {dgettext("validations", "Resource details")}
       </h2>
       <div class="panel">
-        <%= render("_resource_description.html", conn: @conn, resource: @resource, resource_history: @resource_history) %>
+        {render("_resource_description.html", conn: @conn, resource: @resource, resource_history: @resource_history)}
       </div>
 
       <%= unless Enum.empty?(@resource.resources_related) do %>
-        <%= render("_related_resources.html", resource: @resource, conn: @conn) %>
+        {render("_related_resources.html", resource: @resource, conn: @conn)}
       <% end %>
 
-      <h2 id="download-availability"><%= dgettext("page-dataset-details", "Download availability") %></h2>
-      <%= render("_download_availability.html", uptime_per_day: @uptime_per_day, conn: @conn) %>
+      <h2 id="download-availability">{dgettext("page-dataset-details", "Download availability")}</h2>
+      {render("_download_availability.html", uptime_per_day: @uptime_per_day, conn: @conn)}
 
       <%= unless is_nil(DB.Resource.requestor_ref(@resource)) do %>
-        <%= render("_requestor_ref.html", resource: @resource, conn: @conn) %>
+        {render("_requestor_ref.html", resource: @resource, conn: @conn)}
       <% end %>
 
       <%= unless DB.Resource.documentation?(@resource) do %>
-        <%= render("_validation_report.html",
+        {render("_validation_report.html",
           resource: @resource,
           multi_validation: @multi_validation,
           latest_validations_details: @latest_validations_details,
           conn: @conn
-        ) %>
+        )}
       <% end %>
 
       <%= if geojson_with_viz?(@resource, @resource_history) do %>
-        <h2 class="mt-48" id="visualization"><%= dgettext("validations", "Visualization") %></h2>
+        <h2 class="mt-48" id="visualization">{dgettext("validations", "Visualization")}</h2>
         <div class="panel no-padding">
           <div id="resource-geojson-info" class="p-24"></div>
           <div id="resource-geojson"></div>
@@ -51,12 +51,12 @@
       <% end %>
 
       <%= if DB.Resource.gtfs_rt?(@resource) do %>
-        <%= render("_gtfs_rt.html",
+        {render("_gtfs_rt.html",
           gtfs_rt_feed: @gtfs_rt_feed,
           conn: @conn,
           locale: get_session(@conn, :locale),
           entities_seen_recently: @gtfs_rt_entities
-        ) %>
+        )}
       <% end %>
     </div>
   </div>

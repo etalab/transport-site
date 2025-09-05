@@ -1,23 +1,23 @@
-<span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "Licence") %></span>
+<span class="dataset-metas-info-title">{dgettext("page-dataset-details", "Licence")}</span>
 <br />
 <b>
   <%= if licence_url(@dataset.licence) do %>
-    <%= link(licence(@dataset), to: licence_url(@dataset.licence)) %>
+    {link(licence(@dataset), to: licence_url(@dataset.licence))}
   <% else %>
-    <%= licence(@dataset) %>
+    {licence(@dataset)}
   <% end %>
   <%= if @dataset.licence == "odc-odbl" do %>
     <%= if display_odbl_osm_conditions?(@dataset) do %>
-      &#32 <%= dgettext("page-dataset-details", "and ") %>
-      <%= link(dgettext("page-dataset-details", "OSM community guidelines"),
+      &#32 {dgettext("page-dataset-details", "and ")}
+      {link(dgettext("page-dataset-details", "OSM community guidelines"),
         to: "https://wiki.osmfoundation.org/wiki/Licence/Community_Guidelines"
-      ) %>
+      )}
     <% else %>
-      &#32 <%= dgettext("page-dataset-details", "and ") %>
-      <%= link(dgettext("page-dataset-details", "Specific usage conditions"),
+      &#32 {dgettext("page-dataset-details", "and ")}
+      {link(dgettext("page-dataset-details", "Specific usage conditions"),
         to:
           "https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/conditions-dutilisation-des-donnees/licence-odbl"
-      ) %>
+      )}
     <% end %>
   <% end %>
 </b>

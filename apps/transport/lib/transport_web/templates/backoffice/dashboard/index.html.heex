@@ -1,5 +1,5 @@
 <h2 class="is-centered">
-  Rapport de complétude des imports (<%= @import_count_by_dataset_and_by_day |> length %> datasets).
+  Rapport de complétude des imports ({@import_count_by_dataset_and_by_day |> length} datasets).
 </h2>
 
 <div class="container pt-24">
@@ -28,7 +28,7 @@
       <tr class="dataset">
         <th class="heatmap-header">
           <%= link to: "#{backoffice_page_path(@conn, :edit, dataset_id)}#imports_history" ,target: "_blank" do %>
-            <%= dataset_id %>
+            {dataset_id}
           <% end %>
         </th>
         <%= for {date, import_count, success_count} <- counts do %>

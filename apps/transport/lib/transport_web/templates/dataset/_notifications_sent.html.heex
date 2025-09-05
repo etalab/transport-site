@@ -1,40 +1,40 @@
 <section class="white pt-48" id="notifications-sent">
-  <h2><%= dgettext("page-dataset-details", "Notifications sent") %></h2>
+  <h2>{dgettext("page-dataset-details", "Notifications sent")}</h2>
   <div class="panel">
     <p>
-      <%= dgettext(
+      {dgettext(
         "page-dataset-details",
         ~s(transport.data.gouv.fr automatically sends notifications to data producers in order to improve the quality of data. The following notifications have been sent in the last %{nb} days.),
         nb: days_notifications_sent()
-      ) %>
+      )}
     </p>
     <div id="notifications-sent-content">
       <table class="table">
         <thead>
           <tr>
-            <th><%= dgettext("page-dataset-details", "Notification reason") %></th>
-            <th><%= dgettext("page-dataset-details", "Date") %></th>
+            <th>{dgettext("page-dataset-details", "Notification reason")}</th>
+            <th>{dgettext("page-dataset-details", "Date")}</th>
           </tr>
         </thead>
         <tbody>
           <%= for notification_sent <- @notifications_sent do %>
             <tr>
-              <td><%= Transport.NotificationReason.reason_to_str(notification_sent.reason) %></td>
-              <td><%= DateTimeDisplay.format_datetime_to_paris(notification_sent.timestamp, @locale) %></td>
+              <td>{Transport.NotificationReason.reason_to_str(notification_sent.reason)}</td>
+              <td>{DateTimeDisplay.format_datetime_to_paris(notification_sent.timestamp, @locale)}</td>
             </tr>
           <% end %>
         </tbody>
       </table>
     </div>
     <p>
-      ℹ️ <%= raw(
+      ℹ️ {raw(
         dgettext(
           "page-dataset-details",
           ~s(If you are a data producer, you can <a href="%{url}" target="_blank">manage how you receive these notifications</a> from your Producer section.),
           url:
             "https://doc.transport.data.gouv.fr/administration-des-donnees/procedures-de-publication/gerer-la-qualite-des-donnees#sinscrire-aux-notifications"
         )
-      ) %>
+      )}
     </p>
   </div>
 </section>

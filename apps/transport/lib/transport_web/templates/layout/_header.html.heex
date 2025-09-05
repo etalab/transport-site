@@ -1,8 +1,8 @@
 <header class="navbar">
   <div class="navbar__container">
     <a href="/" class="navbar__home">
-      <%= img_tag("/images/logo-header.svg", alt: gettext("transport.data.gouv.fr"), class: "navbar__logo-mariane") %>
-      <%= img_tag("/images/logo-black.svg", alt: gettext("transport.data.gouv.fr"), class: "navbar__logo-black") %>
+      {img_tag("/images/logo-header.svg", alt: gettext("transport.data.gouv.fr"), class: "navbar__logo-mariane")}
+      {img_tag("/images/logo-black.svg", alt: gettext("transport.data.gouv.fr"), class: "navbar__logo-black")}
     </a>
     <nav>
       <a href="#menu">
@@ -19,61 +19,61 @@
         <ul class="nav__links top-nav-links">
           <li class="nav__item">
             <div class="dropdown">
-              <%= gettext("Data") %>
+              {gettext("Data")}
               <div class="dropdown-content">
-                <%= link(gettext("Datasets"), to: dataset_path(@conn, :index)) %>
-                <%= link(gettext("Data exploration map"), to: explore_path(@conn, :index)) %>
-                <%= link(gettext("National GTFS stops map"), to: explore_path(@conn, :gtfs_stops)) %>
-                <%= link(gettext("Reuses"), to: reuse_path(@conn, :index)) %>
+                {link(gettext("Datasets"), to: dataset_path(@conn, :index))}
+                {link(gettext("Data exploration map"), to: explore_path(@conn, :index))}
+                {link(gettext("National GTFS stops map"), to: explore_path(@conn, :gtfs_stops))}
+                {link(gettext("Reuses"), to: reuse_path(@conn, :index))}
               </div>
             </div>
           </li>
           <li class="nav__item">
-            <%= link(gettext("Documentation"), to: "https://doc.transport.data.gouv.fr") %>
+            {link(gettext("Documentation"), to: "https://doc.transport.data.gouv.fr")}
           </li>
           <li class="nav__item">
             <div class="dropdown">
-              <%= gettext("Tools") %>
+              {gettext("Tools")}
               <div class="dropdown-content">
-                <%= link(gettext("Check the quality of a file or a feed"),
+                {link(gettext("Check the quality of a file or a feed"),
                   to: live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)
-                ) %>
-                <%= link(gettext("Compare two GTFS files"),
+                )}
+                {link(gettext("Compare two GTFS files"),
                   to: live_path(@conn, TransportWeb.Live.GTFSDiffSelectLive)
-                ) %>
-                <%= link(gettext("SIRI query generator"), to: live_path(@conn, TransportWeb.Live.SIRIQuerierLive)) %>
+                )}
+                {link(gettext("SIRI query generator"), to: live_path(@conn, TransportWeb.Live.SIRIQuerierLive))}
 
-                <%= link(gettext("Accèslibre Mobilités"), to: "https://mtes-mct.github.io/alm-docs/", target: "_blank") %>
-                <%= link(gettext("Service status"), to: "https://stats.uptimerobot.com/q7nqyiO9yQ", target: "_blank") %>
+                {link(gettext("Accèslibre Mobilités"), to: "https://mtes-mct.github.io/alm-docs/", target: "_blank")}
+                {link(gettext("Service status"), to: "https://stats.uptimerobot.com/q7nqyiO9yQ", target: "_blank")}
               </div>
             </div>
           </li>
           <li class="nav__item">
-            <%= link(gettext("Statistics"), to: stats_path(@conn, :index)) %>
+            {link(gettext("Statistics"), to: stats_path(@conn, :index))}
           </li>
           <li class="nav__item">
             <div class="dropdown">
-              <%= gettext("Regulation") %>
+              {gettext("Regulation")}
               <div class="dropdown-content">
-                <%= link(gettext("Standards"), to: "https://normes.transport.data.gouv.fr", target: "_blank") %>
-                <%= link(gettext("Declaration of conformity"),
+                {link(gettext("Standards"), to: "https://normes.transport.data.gouv.fr", target: "_blank")}
+                {link(gettext("Declaration of conformity"),
                   to:
                     "https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/declaration-de-conformite",
                   target: "_blank"
-                ) %>
+                )}
               </div>
             </div>
           </li>
           <li class="nav__item">
             <div class="dropdown">
-              <%= gettext("About") %>
+              {gettext("About")}
               <div class="dropdown-content">
-                <%= link(gettext("Our missions"), to: page_path(@conn, :missions)) %>
+                {link(gettext("Our missions"), to: page_path(@conn, :missions))}
               </div>
             </div>
           </li>
           <li class="nav__item">
-            <%= link(gettext("Blog"), to: "https://blog.transport.data.gouv.fr") %>
+            {link(gettext("Blog"), to: "https://blog.transport.data.gouv.fr")}
           </li>
           <%= if assigns[:current_user] do %>
             <li class="nav__item">
@@ -82,30 +82,30 @@
                   <img :if={avatar_url(@conn)} src={avatar_url(@conn)} alt="Avatar" class="nav__avatar" />
                   <span class="nav__username">
                     <%= if assigns[:current_user]["first_name"] && assigns[:current_user]["last_name"] do %>
-                      <%= assigns[:current_user]["first_name"] %> <%= assigns[:current_user]["last_name"] %>
+                      {assigns[:current_user]["first_name"]} {assigns[:current_user]["last_name"]}
                     <% else %>
-                      <%= gettext("My account") %>
+                      {gettext("My account")}
                     <% end %>
                   </span>
                 </div>
                 <div class="dropdown-content">
                   <%= if TransportWeb.Session.admin?(@conn) do %>
-                    <%= link("Administration", to: "/backoffice") %>
+                    {link("Administration", to: "/backoffice")}
                   <% end %>
                   <%= if TransportWeb.Session.producer?(@conn) do %>
-                    <%= link(gettext("Producer space"),
+                    {link(gettext("Producer space"),
                       to: page_path(@conn, :espace_producteur, utm_campaign: "menu_dropdown")
-                    ) %>
+                    )}
                   <% end %>
-                  <%= link(gettext("Reuser space"),
+                  {link(gettext("Reuser space"),
                     to: reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "menu_dropdown")
-                  ) %>
+                  )}
                   <a
                     class="navigation__link nagivation__link--logout"
                     href={session_path(@conn, :delete, redirect_path: current_path(@conn))}
                   >
                     <i class="icon icon--logout" aria-hidden="true"></i>
-                    <span><%= gettext("Sign Out") %></span>
+                    <span>{gettext("Sign Out")}</span>
                   </a>
                 </div>
               </div>
@@ -117,7 +117,7 @@
                 href={page_path(@conn, :login, redirect_path: current_path(@conn))}
               >
                 <i class="icon icon--login" aria-hidden="true"></i>
-                <span><%= gettext("Sign In") %></span>
+                <span>{gettext("Sign In")}</span>
               </a>
             </li>
           <% end %>

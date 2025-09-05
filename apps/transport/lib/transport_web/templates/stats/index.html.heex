@@ -18,15 +18,15 @@
       </p>
       <div class="domain-stats general">
         <div class="tile">
-          <h3><%= @nb_datasets %></h3>
+          <h3>{@nb_datasets}</h3>
           <div>Jeux de données ouverts</div>
         </div>
         <div class="tile">
-          <h3><%= @nb_reusers %></h3>
+          <h3>{@nb_reusers}</h3>
           <div>Réutilisateurs déclarés</div>
         </div>
         <div class="tile">
-          <h3><%= @nb_reuses %></h3>
+          <h3>{@nb_reuses}</h3>
           <div>Réutilisations déclarées</div>
         </div>
       </div>
@@ -37,7 +37,7 @@
     <div class="domain theorical">
       <h2>Transports en commun - horaires théoriques</h2>
       <div class="domain-stats staticPTdata">
-        <%= render("_maps.html", droms: @droms, prefix: "map_regions") %>
+        {render("_maps.html", droms: @droms, prefix: "map_regions")}
         <div class="panel">
           <div class="description" id="public-transport-by-region">
             <h3>Par région</h3>
@@ -48,19 +48,19 @@
             <p>L'offre de transport en commun urbain et interurbain, regroupée par région.</p>
           </div>
           <div class="tile">
-            <h3><%= @nb_pt_datasets %></h3>
+            <h3>{@nb_pt_datasets}</h3>
             <div>jeux de données ouverts</div>
           </div>
           <div class="tile">
-            <h3><%= @nb_regions_completed %></h3>
-            <div>régions couvertes (sur <%= @nb_regions %>)</div>
+            <h3>{@nb_regions_completed}</h3>
+            <div>régions couvertes (sur {@nb_regions})</div>
           </div>
         </div>
       </div>
     </div>
     <div class="domain theorical">
       <div class="domain-stats staticPTdata">
-        <%= render("_maps.html", droms: @droms, prefix: "map_aoms") %>
+        {render("_maps.html", droms: @droms, prefix: "map_aoms")}
         <div class="panel">
           <div class="description" id="public-transport-by-aom">
             <h3>Par <acronym title="autorité organisatrice de mobilité">AOM</acronym></h3>
@@ -85,21 +85,21 @@
             </p>
           </div>
           <div class="tile">
-            <h3><%= @nb_aoms_with_data %></h3>
-            <div>autorités organisatrices de la mobilité couvertes (sur <%= @nb_aoms %>)</div>
+            <h3>{@nb_aoms_with_data}</h3>
+            <div>autorités organisatrices de la mobilité couvertes (sur {@nb_aoms})</div>
           </div>
           <div class="tile">
-            <h3><%= @population_couverte %></h3>
+            <h3>{@population_couverte}</h3>
             millions
             <div>de personnes peuvent en bénéficier
-              sur les <%= @population_totale %> millions de Français·e·s vivant dans une AOM</div>
+              sur les {@population_totale} millions de Français·e·s vivant dans une AOM</div>
           </div>
         </div>
       </div>
     </div>
     <div class="domain">
       <div class="domain-stats">
-        <%= render("_maps.html", droms: @droms, prefix: "pt_format_map") %>
+        {render("_maps.html", droms: @droms, prefix: "pt_format_map")}
         <div class="panel">
           <div class="description">
             <h3>Zoom sur les formats de données</h3>
@@ -114,11 +114,11 @@
           </div>
           <div class="tile-numbers">
             <div class="tile">
-              <h3><%= @nb_gtfs %></h3>
+              <h3>{@nb_gtfs}</h3>
               <div>jeux de données en GTFS</div>
             </div>
             <div class="tile">
-              <h3><%= @nb_netex %></h3>
+              <h3>{@nb_netex}</h3>
               <div>jeux de données en NeTEx</div>
             </div>
             <div class="format-viz">
@@ -135,7 +135,7 @@
     </div>
     <div class="domain">
       <div class="domain-stats">
-        <%= render("_maps.html", droms: @droms, prefix: "pt_up_to_date") %>
+        {render("_maps.html", droms: @droms, prefix: "pt_up_to_date")}
         <div class="panel">
           <div class="description" id="public-transport-freshness">
             <h3>Zoom sur la fraicheur des données</h3>
@@ -156,7 +156,7 @@
     </div>
     <div class="domain quality">
       <div class="domain-stats">
-        <%= render("_maps.html", droms: @droms, prefix: "pt_quality") %>
+        {render("_maps.html", droms: @droms, prefix: "pt_quality")}
         <div class="panel">
           <div class="description" id="public-transport-quality">
             <h3>Zoom sur la qualité des données</h3>
@@ -174,14 +174,14 @@
             </p>
           </div>
           <div class="tile">
-            <h3><%= round(@ratio_aom_with_at_most_warnings * 100) %>%</h3>
+            <h3>{round(@ratio_aom_with_at_most_warnings * 100)}%</h3>
             <div>
               <acronym title="autorité organisatrice de mobilité">AOM</acronym> avec des jeux de données de
               qualité satisfaisante (sans aucune erreur)
             </div>
           </div>
           <div class="tile">
-            <h3><%= round(@ratio_aom_good_quality * 100) %>%</h3>
+            <h3>{round(@ratio_aom_good_quality * 100)}%</h3>
             <div>
               <acronym title="autorité organisatrice de mobilité">AOM</acronym>
               avec des jeux de données de bonne qualité
@@ -189,13 +189,13 @@
             </div>
           </div>
           <div class="tile">
-            <h3><%= @aom_with_errors %></h3>
+            <h3>{@aom_with_errors}</h3>
             <div>
               <acronym title="autorité organisatrice de mobilité">AOM</acronym> avec des jeux de données en erreur
             </div>
           </div>
           <div class="tile">
-            <h3><%= @aom_with_fatal %></h3>
+            <h3>{@aom_with_fatal}</h3>
             <div>
               <acronym title="autorité organisatrice de mobilité">AOM</acronym>
               avec des jeux de données ne respectant pas les spécifications GTFS
@@ -209,7 +209,7 @@
 
       <div class="domain quality">
         <div class="domain-stats">
-          <%= render("_maps.html", droms: @droms, prefix: "rt_map") %>
+          {render("_maps.html", droms: @droms, prefix: "rt_map")}
           <div class="panel">
             <div class="description">
               <span class="stat-link">
@@ -226,7 +226,7 @@
             </div>
             <div class="tile-numbers">
               <div class="tile">
-                <h3><%= @nb_official_public_transit_realtime %></h3>
+                <h3>{@nb_official_public_transit_realtime}</h3>
                 <div>
                   <a href="/datasets?filter=has_realtime">Jeux de données standardisés et librement accessibles</a>
                 </div>
@@ -238,27 +238,27 @@
     </div>
     <div class="domain quality">
       <div class="domain-stats">
-        <%= render("_maps.html", droms: @droms, prefix: "rt_pt_format_map") %>
+        {render("_maps.html", droms: @droms, prefix: "rt_pt_format_map")}
         <div class="panel">
           <div class="tile">
-            <h3><%= @nb_gtfs_rt %></h3>
+            <h3>{@nb_gtfs_rt}</h3>
             <div>jeux de données<br />en <strong>GTFS-RT</strong></div>
             <div>
               <ul class="small">
                 <%= for {type, count} <- @gtfs_rt_types do %>
                   <li>
-                    <span title={type}><%= friendly_gtfs_type(type) %></span> : <%= format_number(count) %>
+                    <span title={type}>{friendly_gtfs_type(type)}</span> : {format_number(count)}
                   </li>
                 <% end %>
               </ul>
             </div>
           </div>
           <div class="tile">
-            <h3><%= @nb_siri %></h3>
+            <h3>{@nb_siri}</h3>
             <div>jeux de données<br />en <strong>SIRI</strong></div>
           </div>
           <div class="tile">
-            <h3><%= @nb_siri_lite %></h3>
+            <h3>{@nb_siri_lite}</h3>
             <div>jeux de données<br />en <strong>SIRI Lite</strong></div>
           </div>
         </div>
@@ -267,7 +267,7 @@
     <div class="domain vehicles" id="real-time-vehicles">
       <h2>Véhicules libre service</h2>
       <div class="domain-stats">
-        <%= render("_maps.html", droms: @droms, prefix: "vehicles_map") %>
+        {render("_maps.html", droms: @droms, prefix: "vehicles_map")}
         <div class="panel">
           <div class="description">
             <span class="stat-link">
@@ -287,7 +287,7 @@
           </div>
           <div class="tile-numbers">
             <div class="tile">
-              <h3><%= @nb_vehicles_sharing_datasets %></h3>
+              <h3>{@nb_vehicles_sharing_datasets}</h3>
               <div><a href="/datasets?type=vehicles-sharing">Jeux de données disponibles</a></div>
             </div>
             <div class="rt-viz">
@@ -299,7 +299,7 @@
         </div>
       </div>
     </div>
-    <%= live_render(@conn, TransportWeb.ProxyRequestsCountLive) %>
+    {live_render(@conn, TransportWeb.ProxyRequestsCountLive)}
     <div class="domain carpooling">
       <h2>Lieux de covoiturage</h2>
       <p>

@@ -1,14 +1,14 @@
 <p>
-  <%= dgettext("validations-explanations", "MissingId") %>
+  {dgettext("validations-explanations", "MissingId")}
 </p>
 <table class="table">
   <tr>
-    <th><%= dgettext("validations-explanations", "Object type") %></th>
+    <th>{dgettext("validations-explanations", "Object type")}</th>
   </tr>
 
   <%= for issue <- @issues do %>
     <tr>
-      <td><%= issue["object_type"] %></td>
+      <td>{issue["object_type"]}</td>
     </tr>
   <% end %>
 </table>

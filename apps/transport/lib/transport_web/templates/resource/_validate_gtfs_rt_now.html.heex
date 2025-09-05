@@ -2,10 +2,10 @@
 <%= if is_nil(associated_gtfs) do %>
   <div class="notification error full-width">
     <p>
-      <%= dgettext(
+      {dgettext(
         "page-dataset-details",
         "Cannot determine the relevant GTFS file to use to perform a GTFS-RT validation."
-      ) %>
+      )}
     </p>
   </div>
 <% else %>
@@ -17,6 +17,6 @@
     ) %>
   <a class="button" href={validation_path} target="_blank" role="link">
     <i class="icon fa-check" aria-hidden="true"></i>
-    <%= dgettext("validations", "Validate this GTFS-RT now") %>
+    {dgettext("validations", "Validate this GTFS-RT now")}
   </a>
 <% end %>

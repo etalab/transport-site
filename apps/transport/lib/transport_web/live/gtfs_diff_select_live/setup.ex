@@ -26,7 +26,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
     <div class="actions">
       <button class="button" disabled={invalid_uploads?(@uploads)} type="submit">
         <i class="fa fa-check"></i>
-        <%= dgettext("gtfs-diff", "Compare") %>
+        {dgettext("gtfs-diff", "Compare")}
       </button>
       <button
         type="button"
@@ -35,7 +35,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
         phx-click="clear-uploads"
       >
         <i class="fa fa-trash"></i>
-        <%= dgettext("gtfs-diff", "Clear uploaded files") %>
+        {dgettext("gtfs-diff", "Clear uploaded files")}
       </button>
     </div>
     """
@@ -51,7 +51,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
       <label for={@uploads.ref}>
         <i class="fa fa-upload" aria-hidden="true"></i>
         <span>
-          <%= dgettext("gtfs-diff", "Drop your GTFS files here or click to browse your local drive") %>
+          {dgettext("gtfs-diff", "Drop your GTFS files here or click to browse your local drive")}
         </span>
       </label>
       <.live_file_input upload={@uploads} />
@@ -75,9 +75,9 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
   defp upload(%{entry: nil, index: _, uploads: _} = assigns) do
     ~H"""
     <article class="upload-entry upload-entry-inactive panel">
-      <h4><%= upload_title(@index) %></h4>
+      <h4>{upload_title(@index)}</h4>
       <label class="placeholder" for={@uploads.ref}>
-        <%= dgettext("gtfs-diff", "Please upload some file above") %>
+        {dgettext("gtfs-diff", "Please upload some file above")}
       </label>
     </article>
     """
@@ -100,17 +100,17 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
 
     ~H"""
     <article class={@classname}>
-      <h4><%= upload_title(@index) %></h4>
+      <h4>{upload_title(@index)}</h4>
       <div class="entry-name">
         <%= if @entry.valid? do %>
           <.icon class="fa fa-square-check" title={dgettext("gtfs-diff", "Valid file")} />
         <% else %>
           <.icon class="fa fa-square-xmark" title={dgettext("gtfs-diff", "Invalid file")} />
         <% end %>
-        <%= @entry.client_name %>
+        {@entry.client_name}
       </div>
       <div class="progress-bar">
-        <progress value={@entry.progress} max="100"><%= @entry.progress %>%</progress>
+        <progress value={@entry.progress} max="100">{@entry.progress}%</progress>
         <button
           type="button"
           phx-click="cancel-upload"
@@ -123,7 +123,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
       </div>
       <div :if={@has_errors} class="upload-errors">
         <%= for err <- upload_errors(@uploads, @entry) do %>
-          <%= error_to_string(err) %>
+          {error_to_string(err)}
         <% end %>
       </div>
     </article>
@@ -134,7 +134,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
     ~H"""
     <p class="alert alert-danger">
       <i class="fa fa-square-xmark red"></i>
-      <%= error_to_string(@error) %>
+      {error_to_string(@error)}
       <.discarded_files :if={@error == :too_many_files} uploads={@uploads} />
     </p>
     """
@@ -143,7 +143,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
   defp discarded_files(%{uploads: _} = assigns) do
     ~H"""
     <span id="discarded-files">
-      <%= dgettext("gtfs-diff", "Discarded files:") %>
+      {dgettext("gtfs-diff", "Discarded files:")}
       <.discarded_file :for={{entry, index} <- Enum.with_index(@uploads.entries)} entry={entry} index={index} />.
     </span>
     """
@@ -154,7 +154,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
     <%= if @index > 0 do %>
       ,
     <% end %>
-    <code class="discarded-file"><%= @entry.client_name %></code>
+    <code class="discarded-file">{@entry.client_name}</code>
     """
   end
 

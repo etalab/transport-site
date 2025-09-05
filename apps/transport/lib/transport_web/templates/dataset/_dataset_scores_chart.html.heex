@@ -1,28 +1,28 @@
 <section id="quality-indicators">
-  <h2><%= dgettext("page-dataset-details", "Quality indicators") %></h2>
+  <h2>{dgettext("page-dataset-details", "Quality indicators")}</h2>
   <div class="panel">
     <div id="vega-vis"></div>
-    <h5><%= dgettext("page-dataset-details", "Latest quality indicators") %></h5>
+    <h5>{dgettext("page-dataset-details", "Latest quality indicators")}</h5>
     <table class="table">
       <tr>
         <%= for {topic, _} <- @latest_scores do %>
-          <th><%= topic |> DB.DatasetScore.topic_for_humans() |> String.capitalize() %></th>
+          <th>{topic |> DB.DatasetScore.topic_for_humans() |> String.capitalize()}</th>
         <% end %>
       </tr>
       <tr>
         <%= for {_, score} <- @latest_scores do %>
-          <td><%= score %>%</td>
+          <td>{score}%</td>
         <% end %>
       </tr>
     </table>
     <p>
-      <%= raw(
+      {raw(
         dgettext(
           "page-dataset-details",
           ~s[transport.data.gouv.fr computes quality indicators daily to assess the quality of the published data. <i class="fa fa-external-link-alt"></i> <a href="%{doc_url}" target="_blank">Learn more</a>.],
           doc_url: "https://doc.transport.data.gouv.fr/outils/outils-disponibles-sur-le-pan/indicateurs-de-qualite"
         )
-      ) %>
+      )}
     </p>
   </div>
 </section>

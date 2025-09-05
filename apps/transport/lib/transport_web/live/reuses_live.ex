@@ -11,10 +11,10 @@ defmodule TransportWeb.ReusesLive do
     <%= unless @loading do %>
       <%= unless @reuses == [] and !@fetch_reuses_error do %>
         <section class="white pt-48" id="dataset-reuses">
-          <h2><%= dgettext("page-dataset-details", "Reuses") %></h2>
+          <h2>{dgettext("page-dataset-details", "Reuses")}</h2>
           <%= if @fetch_reuses_error do %>
             <div class="panel reuses_not_available">
-              🔌 <%= dgettext("page-dataset-details", "Reuses are temporarily unavailable") %>
+              🔌 {dgettext("page-dataset-details", "Reuses are temporarily unavailable")}
             </div>
           <% end %>
           <div class="reuses">
@@ -22,15 +22,15 @@ defmodule TransportWeb.ReusesLive do
               <div class="panel reuse">
                 <img src={reuse["image"]} alt={reuse["title"]} />
                 <div class="reuse__links">
-                  <.link href={reuse["url"]}><%= dgettext("page-dataset-details", "Website") %></.link>
+                  <.link href={reuse["url"]}>{dgettext("page-dataset-details", "Website")}</.link>
                   <.link href={reuse["page"]} target="_blank">
-                    <%= dgettext("page-dataset-details", "See on data.gouv.fr") %>
+                    {dgettext("page-dataset-details", "See on data.gouv.fr")}
                   </.link>
                 </div>
                 <div class="reuse__details">
                   <div>
-                    <h3><%= reuse["title"] %></h3>
-                    <p><%= MarkdownHandler.markdown_to_safe_html!(reuse["description"]) %></p>
+                    <h3>{reuse["title"]}</h3>
+                    <p>{MarkdownHandler.markdown_to_safe_html!(reuse["description"])}</p>
                   </div>
                 </div>
               </div>
@@ -96,7 +96,7 @@ defmodule TransportWeb.CountReusesLive do
   def render(assigns) do
     ~H"""
     <%= if assigns[:count] && @count > 0 do %>
-      <div class="menu-item"><a href="#dataset-reuses"><%= dgettext("page-dataset-details", "Reuses") %></a></div>
+      <div class="menu-item"><a href="#dataset-reuses">{dgettext("page-dataset-details", "Reuses")}</a></div>
     <% end %>
     """
   end

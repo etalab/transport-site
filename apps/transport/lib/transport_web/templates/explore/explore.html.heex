@@ -5,86 +5,86 @@
 <% irve_link = dataset_path(@conn, :details, @irve_dataset.slug) %>
 <% vehicles_sharing_datasets_link = dataset_path(@conn, :index, type: "vehicles-sharing") %>
 <div class="container dataset-page-top explore">
-  <h2><%= dgettext("explore", "Data exploration map") %></h2>
+  <h2>{dgettext("explore", "Data exploration map")}</h2>
 
   <div class="grid">
     <div class="checkbox-explore gtfs-rt">
       <input id="gtfs-rt-check" name="gtfs-rt" type="checkbox" value="true" checked={@gtfs_rt} />
       <details>
         <summary>
-          <%= dgettext("explore", "Real time vehicle positions (GTFS-RT)") %>
+          {dgettext("explore", "Real time vehicle positions (GTFS-RT)")}
         </summary>
-        <%= raw(
+        {raw(
           dgettext("explore", "gtfs-rt-explanation",
             link:
               safe_to_string(link(dgettext("explore", "GTFS-RT feeds referenced on this site"), to: real_time_datasets))
           )
-        ) %>
+        )}
       </details>
     </div>
     <div class="checkbox-explore bnlc">
       <input id="bnlc-check" name="bnlc" type="checkbox" value="true" checked={@bnlc} />
       <details>
         <summary>
-          <%= dgettext("explore", "Carpooling areas national database") %>
+          {dgettext("explore", "Carpooling areas national database")}
         </summary>
-        <%= raw(
+        {raw(
           dgettext("explore", "bnlc-explanation",
             link: safe_to_string(link(dgettext("explore", "dataset"), to: bnlc_link))
           )
-        ) %>
+        )}
       </details>
     </div>
     <div class="checkbox-explore parkings_relais">
       <input id="parkings_relais-check" name="parkings_relais" type="checkbox" value="true" checked={@parkings_relais} />
       <details>
         <summary>
-          <%= dgettext("explore", "Park and ride database") %>
+          {dgettext("explore", "Park and ride database")}
         </summary>
-        <%= raw(
+        {raw(
           dgettext("explore", "park-and-ride-explanation",
             link: safe_to_string(link(dgettext("explore", "dataset"), to: parcs_relais_link))
           )
-        ) %>
+        )}
       </details>
     </div>
     <div class="checkbox-explore zfe">
       <input id="zfe-check" name="zfe" type="checkbox" value="true" checked={@zfe} />
       <details>
         <summary>
-          <%= dgettext("explore", "Low emission zones database") %>
+          {dgettext("explore", "Low emission zones database")}
         </summary>
-        <%= raw(
+        {raw(
           dgettext("explore", "lez-explanation",
             link: safe_to_string(link(dgettext("explore", "dataset"), to: zfe_link))
           )
-        ) %>
+        )}
       </details>
     </div>
     <div class="checkbox-explore irve">
       <input id="irve-check" name="irve" type="checkbox" value="true" checked={@irve} />
       <details>
         <summary>
-          <%= dgettext("explore", "IRVE map") %>
+          {dgettext("explore", "IRVE map")}
         </summary>
-        <%= raw(
+        {raw(
           dgettext("explore", "irve-explanation",
             link: safe_to_string(link(dgettext("explore", "dataset"), to: irve_link))
           )
-        ) %>
+        )}
       </details>
     </div>
     <div class="checkbox-explore gbfs_stations">
       <input id="gbfs_stations-check" name="gbfs_stations" type="checkbox" value="true" checked={@gbfs_stations} />
       <details>
         <summary>
-          <%= dgettext("explore", "GBFS stations") %>
+          {dgettext("explore", "GBFS stations")}
         </summary>
-        <%= raw(
+        {raw(
           dgettext("explore", "gbfs-stations-explanation",
             vehicles_sharing_datasets_link: vehicles_sharing_datasets_link
           )
-        ) %>
+        )}
       </details>
     </div>
   </div>

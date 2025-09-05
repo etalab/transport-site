@@ -14,58 +14,58 @@
   <h4>Lié à un jeu de données</h4>
 
   <%= form_for @conn, backoffice_notification_subscription_path(@conn, :create), [], fn f -> %>
-    <%= hidden_input(f, :redirect_location, value: "contact") %>
-    <%= hidden_input(f, :contact_id, value: @contact_id) %>
+    {hidden_input(f, :redirect_location, value: "contact")}
+    {hidden_input(f, :contact_id, value: @contact_id)}
     <%= label f, :dataset_id do %>
-      Jeu de données <%= text_input(f, :dataset_id, required: true, list: "datasets_datalist", pattern: "[0-9]+") %>
+      Jeu de données {text_input(f, :dataset_id, required: true, list: "datasets_datalist", pattern: "[0-9]+")}
     <% end %>
     <datalist id="datasets_datalist">
       <%= for dataset <- @datasets_datalist do %>
-        <option value={dataset.id}><%= dataset_title(dataset) %></option>
+        <option value={dataset.id}>{dataset_title(dataset)}</option>
       <% end %>
     </datalist>
     <%= label f, :reasons, class: "pt-12" do %>
-      <%= dgettext("backoffice", "Notification reason") %>
+      {dgettext("backoffice", "Notification reason")}
       <%= for reason <- Transport.NotificationReason.subscribable_reasons_related_to_datasets(:producer) do %>
         <%= label f, reason do %>
-          <%= checkbox(f, reason, hidden_input: false, value: true) %>
-          <%= reason %>
+          {checkbox(f, reason, hidden_input: false, value: true)}
+          {reason}
         <% end %>
       <% end %>
     <% end %>
 
-    <%= submit("Créer un abonnement") %>
+    {submit("Créer un abonnement")}
   <% end %>
 
   <h4>Autres motifs</h4>
 
   <%= form_for @conn, backoffice_notification_subscription_path(@conn, :create), [], fn f -> %>
-    <%= hidden_input(f, :redirect_location, value: "contact") %>
-    <%= hidden_input(f, :contact_id, value: @contact_id) %>
+    {hidden_input(f, :redirect_location, value: "contact")}
+    {hidden_input(f, :contact_id, value: @contact_id)}
     <%= label f, :reasons, class: "pt-12" do %>
-      <%= dgettext("backoffice", "Notification reason") %>
+      {dgettext("backoffice", "Notification reason")}
       <%= for reason <- Transport.NotificationReason.subscribable_platform_wide_reasons(:producer) do %>
         <%= label f, reason do %>
-          <%= checkbox(f, reason, hidden_input: false, value: reason in reasons_subscribed_without_dataset) %>
-          <%= reason %>
+          {checkbox(f, reason, hidden_input: false, value: reason in reasons_subscribed_without_dataset)}
+          {reason}
         <% end %>
       <% end %>
     <% end %>
 
-    <%= submit("Mettre à jour les abonnements") %>
+    {submit("Mettre à jour les abonnements")}
   <% end %>
 
-  <h3><%= dgettext("backoffice", "Existing subscriptions") %></h3>
+  <h3>{dgettext("backoffice", "Existing subscriptions")}</h3>
 
   <p :if={Enum.empty?(@notification_subscriptions)} class="notification">
-    <%= dgettext("backoffice", "There are no notification subscriptions for this contact.") %>
+    {dgettext("backoffice", "There are no notification subscriptions for this contact.")}
   </p>
 
   <table :if={Enum.count(subscriptions_with_dataset) > 0} class="table mt-48 dashboard-description">
     <tr>
-      <th><%= dgettext("backoffice", "Dataset") %></th>
-      <th><%= dgettext("backoffice", "Role") %></th>
-      <th><%= dgettext("backoffice", "Notification reason") %></th>
+      <th>{dgettext("backoffice", "Dataset")}</th>
+      <th>{dgettext("backoffice", "Role")}</th>
+      <th>{dgettext("backoffice", "Notification reason")}</th>
       <th>Source</th>
       <th>Actions</th>
     </tr>
@@ -74,25 +74,25 @@
         <tr>
           <td :if={index == 0} rowspan={Enum.count(notification_subscriptions)}>
             <a href={backoffice_page_path(@conn, :edit, dataset.id)}>
-              <%= dataset.custom_title %>
+              {dataset.custom_title}
             </a>
 
             <div class="inline-block">
               <%= form_for @conn, backoffice_notification_subscription_path(@conn, :delete_for_contact_and_dataset, @contact_id, dataset.id), [method: "delete"], fn f -> %>
-                <%= hidden_input(f, :redirect_location, value: "contact") %>
+                {hidden_input(f, :redirect_location, value: "contact")}
                 <button class="small button-outline no-border warning" title="désabonner entièrement">
                   <i class="fa-solid fa-xmark"></i>
                 </button>
               <% end %>
             </div>
-            <div class="small"><%= dataset.type %></div>
+            <div class="small">{dataset.type}</div>
           </td>
-          <td><span class={role_class(notification_subscription)}><%= notification_subscription.role %></span></td>
-          <td><%= notification_subscription.reason %></td>
-          <td><%= notification_subscription.source %></td>
+          <td><span class={role_class(notification_subscription)}>{notification_subscription.role}</span></td>
+          <td>{notification_subscription.reason}</td>
+          <td>{notification_subscription.source}</td>
           <td>
             <%= form_for @conn, backoffice_notification_subscription_path(@conn, :delete, notification_subscription.id), [method: "delete"], fn f -> %>
-              <%= hidden_input(f, :redirect_location, value: "contact") %>
+              {hidden_input(f, :redirect_location, value: "contact")}
               <button class="small button-outline no-border warning">
                 <i class="fas fa-trash"></i>
               </button>
@@ -105,19 +105,19 @@
 
   <table :if={Enum.count(subscriptions_without_dataset) > 0} class="table mt-48 dashboard-description">
     <tr>
-      <th><%= dgettext("backoffice", "Role") %></th>
-      <th><%= dgettext("backoffice", "Notification reason") %></th>
+      <th>{dgettext("backoffice", "Role")}</th>
+      <th>{dgettext("backoffice", "Notification reason")}</th>
       <th>Source</th>
       <th>Actions</th>
     </tr>
     <%= for notification_subscription <- Enum.sort_by(subscriptions_without_dataset, & &1.reason, :asc) do %>
       <tr>
-        <td><span class={role_class(notification_subscription)}><%= notification_subscription.role %></span></td>
-        <td><%= notification_subscription.reason %></td>
-        <td><%= notification_subscription.source %></td>
+        <td><span class={role_class(notification_subscription)}>{notification_subscription.role}</span></td>
+        <td>{notification_subscription.reason}</td>
+        <td>{notification_subscription.source}</td>
         <td>
           <%= form_for @conn, backoffice_notification_subscription_path(@conn, :delete, notification_subscription.id), [method: "delete"], fn f -> %>
-            <%= hidden_input(f, :redirect_location, value: "contact") %>
+            {hidden_input(f, :redirect_location, value: "contact")}
             <button class="small button-outline warning">
               <i class="fas fa-trash"></i> Supprimer
             </button>

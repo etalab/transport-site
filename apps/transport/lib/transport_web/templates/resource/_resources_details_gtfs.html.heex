@@ -4,11 +4,11 @@ stats = @metadata["stats"] %>
   <div>
     <%= if @metadata["start_date"] != nil and @metadata["end_date"] != nil do %>
       <p>
-        <%= dgettext("validations", "It is valid from") %>
-        <strong><%= DateTimeDisplay.format_date(@metadata["start_date"], locale) %></strong> <%= dgettext(
+        {dgettext("validations", "It is valid from")}
+        <strong>{DateTimeDisplay.format_date(@metadata["start_date"], locale)}</strong> {dgettext(
           "validations",
           "to"
-        ) %> <strong><%= DateTimeDisplay.format_date(@metadata["end_date"], locale) %></strong>.
+        )} <strong><%= DateTimeDisplay.format_date(@metadata["end_date"], locale) %></strong>.
       </p>
     <% end %>
     <ul>
@@ -18,7 +18,7 @@ stats = @metadata["stats"] %>
         <li>
           <div>
             <div class="networks-list">
-              <%= dgettext("validations", "calendar span by network:") %>
+              {dgettext("validations", "calendar span by network:")}
               <.networks_start_end_dates
                 networks_start_end_dates={networks_start_end_dates}
                 locale={get_session(@conn, :locale)}
@@ -30,111 +30,111 @@ stats = @metadata["stats"] %>
         <li :if={networks != []}>
           <div>
             <div class="networks-list">
-              <%= dngettext("validations", "network", "networks", length(networks)) %> :
-              <strong><%= Enum.join(networks, ", ") %></strong>
+              {dngettext("validations", "network", "networks", length(networks))} :
+              <strong>{Enum.join(networks, ", ")}</strong>
             </div>
           </div>
         </li>
       <% end %>
       <li :if={length(@modes) > 0}>
-        <%= dngettext("validations", "transport mode", "transport modes", length(@modes)) %> :
-        <strong><%= Enum.join(@modes, ", ") %></strong>
+        {dngettext("validations", "transport mode", "transport modes", length(@modes))} :
+        <strong>{Enum.join(@modes, ", ")}</strong>
       </li>
       <li :if={stats["routes_count"] != nil}>
-        <%= dgettext("validations", "number of routes:") %>
-        <strong><%= format_nil_or_number(stats["routes_count"], locale) %></strong>
+        {dgettext("validations", "number of routes:")}
+        <strong>{format_nil_or_number(stats["routes_count"], locale)}</strong>
       </li>
       <li :if={stats["stop_points_count"] != nil}>
-        <%= dgettext("validations", "number of stop points:") %>
-        <strong><%= format_nil_or_number(stats["stop_points_count"], locale) %></strong>
+        {dgettext("validations", "number of stop points:")}
+        <strong>{format_nil_or_number(stats["stop_points_count"], locale)}</strong>
       </li>
       <li :if={stats["stop_areas_count"] != nil}>
-        <%= dgettext("validations", "number of stop areas:") %>
-        <strong><%= format_nil_or_number(stats["stop_areas_count"], locale) %></strong>
+        {dgettext("validations", "number of stop areas:")}
+        <strong>{format_nil_or_number(stats["stop_areas_count"], locale)}</strong>
       </li>
     </ul>
   </div>
   <p>
-    <%= dgettext("page-dataset-details", "The following table displays if the file/field is present in the GTFS.") %>
+    {dgettext("page-dataset-details", "The following table displays if the file/field is present in the GTFS.")}
   </p>
   <table class="table small-padding mb-24">
     <thead>
       <tr>
-        <th><%= dgettext("page-dataset-details", "Description") %></th>
-        <th><%= dgettext("page-dataset-details", "File or field") %></th>
-        <th><%= dgettext("page-dataset-details", "Status") %></th>
-        <th><%= dgettext("page-dataset-details", "Quantity") %></th>
+        <th>{dgettext("page-dataset-details", "Description")}</th>
+        <th>{dgettext("page-dataset-details", "File or field")}</th>
+        <th>{dgettext("page-dataset-details", "Status")}</th>
+        <th>{dgettext("page-dataset-details", "Quantity")}</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><%= dgettext("page-dataset-details", "Stop accessibility") %></td>
+        <td>{dgettext("page-dataset-details", "Stop accessibility")}</td>
         <td lang="en"><code>stops.txt</code> — <code>wheelchair_boarding</code></td>
-        <td><%= yes_no_icon(stats["stops_with_wheelchair_info_count"]) %></td>
-        <td><%= format_nil_or_number(stats["stops_with_wheelchair_info_count"], locale) %></td>
+        <td>{yes_no_icon(stats["stops_with_wheelchair_info_count"])}</td>
+        <td>{format_nil_or_number(stats["stops_with_wheelchair_info_count"], locale)}</td>
       </tr>
       <tr>
-        <td><%= dgettext("page-dataset-details", "Trip accessibility") %></td>
+        <td>{dgettext("page-dataset-details", "Trip accessibility")}</td>
         <td lang="en"><code>trips.txt</code> — <code>wheelchair_accessible</code></td>
-        <td><%= yes_no_icon(stats["trips_with_wheelchair_info_count"]) %></td>
-        <td><%= format_nil_or_number(stats["trips_with_wheelchair_info_count"], locale) %></td>
+        <td>{yes_no_icon(stats["trips_with_wheelchair_info_count"])}</td>
+        <td>{format_nil_or_number(stats["trips_with_wheelchair_info_count"], locale)}</td>
       </tr>
       <tr>
-        <td><%= dgettext("page-dataset-details", "Line short name or line number") %></td>
+        <td>{dgettext("page-dataset-details", "Line short name or line number")}</td>
         <td lang="en"><code>routes.txt</code> — <code>route_short_name</code></td>
-        <td><%= yes_no_icon(stats["routes_with_short_name_count"]) %></td>
-        <td><%= format_nil_or_number(stats["routes_with_short_name_count"], locale) %></td>
+        <td>{yes_no_icon(stats["routes_with_short_name_count"])}</td>
+        <td>{format_nil_or_number(stats["routes_with_short_name_count"], locale)}</td>
       </tr>
       <tr>
-        <td><%= dgettext("page-dataset-details", "Line long name") %></td>
+        <td>{dgettext("page-dataset-details", "Line long name")}</td>
         <td lang="en"><code>routes.txt</code> — <code>route_long_name</code></td>
-        <td><%= yes_no_icon(stats["routes_with_long_name_count"]) %></td>
-        <td><%= format_nil_or_number(stats["routes_with_long_name_count"], locale) %></td>
+        <td>{yes_no_icon(stats["routes_with_long_name_count"])}</td>
+        <td>{format_nil_or_number(stats["routes_with_long_name_count"], locale)}</td>
       </tr>
       <tr>
-        <td><%= dgettext("page-dataset-details", "Line color") %></td>
+        <td>{dgettext("page-dataset-details", "Line color")}</td>
         <td lang="en"><code>routes.txt</code> — <code>route_color</code></td>
-        <td><%= yes_no_icon(stats["routes_with_custom_color_count"]) %></td>
-        <td><%= format_nil_or_number(stats["routes_with_custom_color_count"], locale) %></td>
+        <td>{yes_no_icon(stats["routes_with_custom_color_count"])}</td>
+        <td>{format_nil_or_number(stats["routes_with_custom_color_count"], locale)}</td>
       </tr>
       <tr>
-        <td><%= dgettext("page-dataset-details", "Trip headsign") %></td>
+        <td>{dgettext("page-dataset-details", "Trip headsign")}</td>
         <td lang="en"><code>trips.txt</code> — <code>trip_headsign</code></td>
-        <td><%= yes_no_icon(stats["trips_with_trip_headsign_count"]) %></td>
-        <td><%= format_nil_or_number(stats["trips_with_trip_headsign_count"], locale) %></td>
+        <td>{yes_no_icon(stats["trips_with_trip_headsign_count"])}</td>
+        <td>{format_nil_or_number(stats["trips_with_trip_headsign_count"], locale)}</td>
       </tr>
       <tr>
-        <td><%= dgettext("page-dataset-details", "The possibility of carrying a bicycle in the vehicle") %></td>
+        <td>{dgettext("page-dataset-details", "The possibility of carrying a bicycle in the vehicle")}</td>
         <td lang="en"><code>trips.txt</code> — <code>bikes_allowed</code></td>
-        <td><%= yes_no_icon(stats["trips_with_bike_info_count"]) %></td>
-        <td><%= format_nil_or_number(stats["trips_with_bike_info_count"], locale) %></td>
+        <td>{yes_no_icon(stats["trips_with_bike_info_count"])}</td>
+        <td>{format_nil_or_number(stats["trips_with_bike_info_count"], locale)}</td>
       </tr>
       <tr>
-        <td><%= dgettext("page-dataset-details", "Trip shapes") %></td>
+        <td>{dgettext("page-dataset-details", "Trip shapes")}</td>
         <td lang="en"><code>shapes.txt</code></td>
-        <td><%= yes_no_icon(stats["trips_with_shape_count"]) %></td>
-        <td><%= format_nil_or_number(stats["trips_with_shape_count"], locale) %></td>
+        <td>{yes_no_icon(stats["trips_with_shape_count"])}</td>
+        <td>{format_nil_or_number(stats["trips_with_shape_count"], locale)}</td>
       </tr>
       <tr>
-        <td><%= dgettext("page-dataset-details", "Fare attributes") %></td>
+        <td>{dgettext("page-dataset-details", "Fare attributes")}</td>
         <td lang="en"><code>fare_attributes.txt</code></td>
-        <td><%= yes_no_icon(stats["fares_attribute_count"]) %></td>
-        <td><%= format_nil_or_number(stats["fares_attribute_count"], locale) %></td>
+        <td>{yes_no_icon(stats["fares_attribute_count"])}</td>
+        <td>{format_nil_or_number(stats["fares_attribute_count"], locale)}</td>
       </tr>
       <tr>
-        <td><%= dgettext("page-dataset-details", "Fare rules") %></td>
+        <td>{dgettext("page-dataset-details", "Fare rules")}</td>
         <td lang="en"><code>fare_rules.txt</code></td>
-        <td><%= yes_no_icon(stats["fares_rules_count"]) %></td>
-        <td><%= format_nil_or_number(stats["fares_rules_count"], locale) %></td>
+        <td>{yes_no_icon(stats["fares_rules_count"])}</td>
+        <td>{format_nil_or_number(stats["fares_rules_count"], locale)}</td>
       </tr>
       <tr>
-        <td><%= dgettext("page-dataset-details", "Transfers") %></td>
+        <td>{dgettext("page-dataset-details", "Transfers")}</td>
         <td lang="en"><code>transfers.txt</code></td>
-        <td><%= yes_no_icon(stats["transfers_count"]) %></td>
-        <td><%= format_nil_or_number(stats["transfers_count"], locale) %></td>
+        <td>{yes_no_icon(stats["transfers_count"])}</td>
+        <td>{format_nil_or_number(stats["transfers_count"], locale)}</td>
       </tr>
       <tr>
-        <td><%= dgettext("page-dataset-details", "On-demand transport") %></td>
+        <td>{dgettext("page-dataset-details", "On-demand transport")}</td>
         <td lang="en"><code>stop_times.txt</code> — <code>pickup_type</code>, <code>drop_off_type</code></td>
         <td>
           <%= if Transport.Validators.GTFSTransport.has_odt_tag?(@metadata) do %>

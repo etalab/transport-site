@@ -6,12 +6,12 @@
       src={static_path(@conn, "/images/loi-climat-resilience.png")}
     />
     <strong>
-      <%= @dataset.custom_title %>
+      {@dataset.custom_title}
     </strong>
-    <span :if={@dataset.is_hidden} class="label"><%= dgettext("backoffice", "Hidden") %></span>
+    <span :if={@dataset.is_hidden} class="label">{dgettext("backoffice", "Hidden")}</span>
   </td>
   <td>
-    <%= @dataset.organization %>
+    {@dataset.organization}
   </td>
   <td class="is-centered">
     <a href={dataset_path(@conn, :details, @dataset.slug)} target="_blank">
@@ -24,38 +24,38 @@
     </a>
   </td>
   <td>
-    <%= if @dataset.region do
+    {if @dataset.region do
       @dataset.region.nom
     else
       ""
-    end %>
+    end}
   </td>
   <td>
-    <%= if @dataset.aom do
+    {if @dataset.aom do
       @dataset.aom.insee_commune_principale
     else
       ""
-    end %>
+    end}
   </td>
   <td>
-    <%= @end_date %>
+    {@end_date}
   </td>
   <td class="bo_action_button">
     <%= form_for @conn, backoffice_dataset_path(@conn, :import_from_data_gouv_fr, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
-      <%= submit("Importer", class: "button", nodiv: true) %>
+      {submit("Importer", class: "button", nodiv: true)}
     <% end %>
   </td>
   <td class="bo_action_button">
-    <%= live_render(@conn, TransportWeb.Live.ValidateDatasetView, session: %{"dataset_id" => @dataset.id}) %>
+    {live_render(@conn, TransportWeb.Live.ValidateDatasetView, session: %{"dataset_id" => @dataset.id})}
   </td>
   <td class="bo_action_button">
     <%= form_for @conn, backoffice_page_path(@conn, :edit, @dataset.id), [nodiv: true, method: "get"], fn _ -> %>
-      <%= submit("Éditer", class: "button", nodiv: true) %>
+      {submit("Éditer", class: "button", nodiv: true)}
     <% end %>
   </td>
   <td class="bo_action_button">
     <%= form_for @conn, backoffice_dataset_path(@conn, :delete, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
-      <%= submit("Déréférencer", class: "button", nodiv: true) %>
+      {submit("Déréférencer", class: "button", nodiv: true)}
     <% end %>
   </td>
 </tr>

@@ -1,13 +1,13 @@
 <div class="container pt-48 pb-24">
-  <%= breadcrumbs([@conn, :reuser_space]) %>
+  {breadcrumbs([@conn, :reuser_space])}
 </div>
 <section class="section section-grey reuser-space">
   <div class="container">
-    <h1><%= dgettext("reuser-space", "Reuser space") %></h1>
+    <h1>{dgettext("reuser-space", "Reuser space")}</h1>
     <p>
-      <%= dgettext("reuser-space", "reuser-space-intro") %>
+      {dgettext("reuser-space", "reuser-space-intro")}
     </p>
-    <h2><%= dgettext("reuser-space", "Actions") %></h2>
+    <h2>{dgettext("reuser-space", "Actions")}</h2>
     <div class="row">
       <div class="panel action-panel">
         <img
@@ -17,17 +17,17 @@
         />
         <div>
           <div class="publish-header">
-            <h4><%= dgettext("reuser-space", "Receive notifications") %></h4>
+            <h4>{dgettext("reuser-space", "Receive notifications")}</h4>
           </div>
           <div class="pt-12">
-            <%= dgettext(
+            {dgettext(
               "reuser-space",
               "Receive helpful notifications about your favorite datasets."
-            ) %>
+            )}
           </div>
           <div class="pt-12">
             <a href={reuser_space_path(@conn, :notifications)} class="button">
-              <%= dgettext("reuser-space", "Manage notifications") %>
+              {dgettext("reuser-space", "Manage notifications")}
             </a>
           </div>
         </div>
@@ -40,17 +40,17 @@
         />
         <div>
           <div class="publish-header">
-            <h4><%= dgettext("reuser-space", "Declare your reuses") %></h4>
+            <h4>{dgettext("reuser-space", "Declare your reuses")}</h4>
           </div>
           <div class="pt-12">
-            <%= dgettext(
+            {dgettext(
               "reuser-space",
               "Highlight your reuses and make yourself known."
-            ) %>
+            )}
           </div>
           <div class="pt-12">
             <a href="https://www.data.gouv.fr/admin/reuses/new/" target="_blank" class="button">
-              <%= dgettext("reuser-space", "Declare a reuse") %>
+              {dgettext("reuser-space", "Declare a reuse")}
             </a>
           </div>
         </div>
@@ -63,32 +63,32 @@
         />
         <div>
           <div class="publish-header">
-            <h4><%= dgettext("reuser-space", "Manage settings") %></h4>
+            <h4>{dgettext("reuser-space", "Manage settings")}</h4>
           </div>
           <div class="pt-12">
-            <%= dgettext(
+            {dgettext(
               "reuser-space",
               "Update your preferences, manage tokens to access data."
-            ) %>
+            )}
           </div>
           <div class="pt-12">
             <a href={reuser_space_path(@conn, :settings)} class="button">
-              <%= dgettext("reuser-space", "Manage settings") %>
+              {dgettext("reuser-space", "Manage settings")}
             </a>
           </div>
         </div>
       </div>
     </div>
-    <h2 class="pt-48"><%= dgettext("reuser-space", "Favorite datasets") %></h2>
-    <%= live_render(@conn, TransportWeb.Live.FollowedDatasetsLive, session: %{"dataset_ids" => @followed_datasets_ids}) %>
+    <h2 class="pt-48">{dgettext("reuser-space", "Favorite datasets")}</h2>
+    {live_render(@conn, TransportWeb.Live.FollowedDatasetsLive, session: %{"dataset_ids" => @followed_datasets_ids})}
   </div>
 </section>
 <div class="tramway">
   <img src={static_path(@conn, "/images/producteurs/tramway.svg")} alt="" />
 </div>
 <section class="section section-white">
-  <%= live_render(@conn, TransportWeb.Live.FeedbackLive,
+  {live_render(@conn, TransportWeb.Live.FeedbackLive,
     id: "feedback-form",
     session: %{"feature" => "reuser_space"}
-  ) %>
+  )}
 </section>

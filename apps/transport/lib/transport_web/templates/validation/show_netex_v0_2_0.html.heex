@@ -1,18 +1,18 @@
 <section class="netex">
   <div class="container">
     <div class="validation-title">
-      <h2><%= dgettext("validations", "NeTEx review report") %></h2>
+      <h2>{dgettext("validations", "NeTEx review report")}</h2>
       <p>
-        <%= dgettext("validations", "explanations-netex") %>
+        {dgettext("validations", "explanations-netex")}
       </p>
       <p>
-        <%= dgettext("validations", "This report can be shared with") %>
-        <%= link(dgettext("validations", "this permanent link"), to: current_url(@conn)) %>.
+        {dgettext("validations", "This report can be shared with")}
+        {link(dgettext("validations", "this permanent link"), to: current_url(@conn))}.
       </p>
     </div>
 
     <%= unless is_nil(@metadata) or @metadata == %{} do %>
-      <%= render("_resources_details_netex.html", metadata: @metadata, conn: @conn) %>
+      {render("_resources_details_netex.html", metadata: @metadata, conn: @conn)}
     <% end %>
   </div>
 
@@ -41,13 +41,13 @@
                 path: &validation_path/4,
                 action: :show
               ) %>
-            <%= pagination %>
-            <%= render(netex_template(current_category), issues: @issues || [], conn: @conn) %>
+            {pagination}
+            {render(netex_template(current_category), issues: @issues || [], conn: @conn)}
             <div class="pt-24">
-              <%= pagination %>
+              {pagination}
             </div>
           <% else %>
-            <h2><%= dgettext("validations", "Nice work, there are no issues!") %></h2>
+            <h2>{dgettext("validations", "Nice work, there are no issues!")}</h2>
           <% end %>
         </div>
       </div>
@@ -56,7 +56,7 @@
 </section>
 
 <section class="section section-white">
-  <%= live_render(@conn, TransportWeb.Live.FeedbackLive, session: %{"feature" => "on_demand_validation"}) %>
+  {live_render(@conn, TransportWeb.Live.FeedbackLive, session: %{"feature" => "on_demand_validation"})}
 </section>
 
 <script defer type="text/javascript" src={static_path(@conn, "/js/app.js")}>

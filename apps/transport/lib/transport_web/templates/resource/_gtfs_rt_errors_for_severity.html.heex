@@ -3,26 +3,26 @@
   <div class="panel">
     <p class="mt-0 mb-0">
       <b lang="en">
-        <%= Map.fetch!(error, "title") %>
+        {Map.fetch!(error, "title")}
         <span class="small">
-          <a href={gtfs_rt_validator_rule_url(error)} target="_blank"><%= Map.fetch!(error, "error_id") %></a>
+          <a href={gtfs_rt_validator_rule_url(error)} target="_blank">{Map.fetch!(error, "error_id")}</a>
         </span>
       </b>
 
       <span class="label">
-        <%= "#{format_number(nb_errors)} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
+        {"#{format_number(nb_errors)} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}"}
       </span>
     </p>
 
     <p lang="en" class="my-.5">
-      <%= Map.fetch!(error, "description") %>
+      {Map.fetch!(error, "description")}
     </p>
 
     <details>
-      <summary><%= dgettext("validations", "Sample errors") %></summary>
+      <summary>{dgettext("validations", "Sample errors")}</summary>
       <ul lang="en">
         <%= for error_detail <- Map.fetch!(error, "errors") do %>
-          <li><%= error_detail %></li>
+          <li>{error_detail}</li>
         <% end %>
       </ul>
     </details>

@@ -1,24 +1,24 @@
 <% requestor_ref = DB.Resource.requestor_ref(@resource)
 siri_querier_params = [endpoint_url: @resource.url, requestor_ref: requestor_ref, query_template: "LinesDiscovery"] %>
-<h2 id="siri-authentication"><%= dgettext("resource", "SIRI authentication") %></h2>
+<h2 id="siri-authentication">{dgettext("resource", "SIRI authentication")}</h2>
 
 <div class="panel">
   <p>
-    <%= dgettext("resource", "An authentication is required to access this SIRI feed.") %>
-    <%= raw(
+    {dgettext("resource", "An authentication is required to access this SIRI feed.")}
+    {raw(
       dgettext(
         "resource",
         ~s|The key (RequestorRef) to provide is <code class="inline" id="siri_requestor_ref">%{requestor_ref}</code>.|,
         requestor_ref: requestor_ref
       )
-    ) %>
+    )}
   </p>
   <button class="button" data-clipboard-target="#siri_requestor_ref">
     <i class="fa fa-copy"></i>
-    <%= dgettext("page-dataset-details", "Copy to clipboard") %>
+    {dgettext("page-dataset-details", "Copy to clipboard")}
   </button>
   <a href={live_path(@conn, TransportWeb.Live.SIRIQuerierLive, siri_querier_params)}>
-    <button class="button-outline primary"><%= dgettext("page-dataset-details", "Try me!") %></button>
+    <button class="button-outline primary">{dgettext("page-dataset-details", "Try me!")}</button>
   </a>
 </div>
 

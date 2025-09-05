@@ -7,23 +7,23 @@ defmodule TransportWeb.LegalOwnerSelectLive do
     ~H"""
     <div class="pt-24">
       <label>
-        Une/des AOM locale(s) ou régionale(s) <%= InputHelpers.text_input(@form, :legal_owner_input,
+        Une/des AOM locale(s) ou régionale(s) {InputHelpers.text_input(@form, :legal_owner_input,
           placeholder: "CC du Val de Morteau",
           list: "owner_suggestions",
           phx_keydown: "add_tag",
           phx_target: @myself,
           id: "js-owner-input"
-        ) %>
+        )}
       </label>
       <datalist id="owner_suggestions" phx-keydown="add_tag">
         <%= for owner_suggestion <- @owners_list do %>
-          <option value={owner_label(owner_suggestion)}><%= owner_label(owner_suggestion) %></option>
+          <option value={owner_label(owner_suggestion)}>{owner_label(owner_suggestion)}</option>
         <% end %>
       </datalist>
       <div class="pt-6">
         <%= for {owner, index} <- Enum.with_index(@owners) do %>
           <span class={["label", "custom-tag"] ++ [color_class(owner)]}>
-            <%= owner_label(owner, @owners_list) %>
+            {owner_label(owner, @owners_list)}
             <span
               class="delete-tag"
               phx-click="remove_tag"
@@ -34,7 +34,7 @@ defmodule TransportWeb.LegalOwnerSelectLive do
             </span>
           </span>
           <% {field_name, field_value} = field_info(owner, index) %>
-          <%= Phoenix.HTML.Form.hidden_input(@form, field_name, value: field_value) %>
+          {Phoenix.HTML.Form.hidden_input(@form, field_name, value: field_value)}
         <% end %>
       </div>
     </div>

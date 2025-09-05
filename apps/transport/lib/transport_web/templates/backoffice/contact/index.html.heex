@@ -2,17 +2,17 @@
   <h1>Contacts</h1>
 
   <%= form_for @conn, backoffice_contact_path(@conn, :index), [id: "backoffice_search_container", method: "get"], fn f -> %>
-    <%= search_input(f, :q,
+    {search_input(f, :q,
       id: "backoffice_search",
       value: assigns[:q] || "",
       list: "search_datalist",
       placeholder: dgettext("contact", "Find contacts")
-    ) %>
+    )}
     <datalist id="search_datalist">
       <%= for value <- @search_datalist do %>
         <% unaccent_value = unaccent(value) %>
         <option value={value} />
-        <option :if={value != unaccent_value} value={value}><%= unaccent_value %></option>
+        <option :if={value != unaccent_value} value={value}>{unaccent_value}</option>
       <% end %>
     </datalist>
     <button type="submit" class="button backoffice_search_button"><i class="fa fa-search"></i></button>
@@ -24,7 +24,7 @@
   </a>
 
   <div class="pt-24">
-    <%= pagination_links(@conn, @contacts) %>
+    {pagination_links(@conn, @contacts)}
   </div>
 
   <table class="backoffice-results">
@@ -37,20 +37,20 @@
     </tr>
     <%= for contact <- @contacts do %>
       <tr>
-        <td><%= DB.Contact.display_name(contact) %></td>
-        <td><%= contact.email %></td>
-        <td><%= contact.organization %></td>
-        <td><%= contact.job_title %></td>
+        <td>{DB.Contact.display_name(contact)}</td>
+        <td>{contact.email}</td>
+        <td>{contact.organization}</td>
+        <td>{contact.job_title}</td>
         <td class="bo_action_button">
           <%= form_for @conn, backoffice_contact_path(@conn, :edit, contact.id), [nodiv: true, method: "get"], fn _ -> %>
-            <%= submit("Éditer", class: "button", nodiv: true) %>
+            {submit("Éditer", class: "button", nodiv: true)}
           <% end %>
         </td>
       </tr>
     <% end %>
   </table>
   <div class="pt-24">
-    <%= pagination_links(@conn, @contacts) %>
+    {pagination_links(@conn, @contacts)}
   </div>
   <div class="pt-12">
     <a class="button-outline small secondary" href={backoffice_contact_path(@conn, :csv_export)}>

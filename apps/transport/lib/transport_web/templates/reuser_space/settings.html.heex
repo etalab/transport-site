@@ -1,44 +1,44 @@
 <section class="container pt-48 pb-24">
-  <%= breadcrumbs([@conn, :settings]) %>
+  {breadcrumbs([@conn, :settings])}
 </section>
 <section class="reuser-space-section pb-48">
   <div class="container pt-24">
-    <h1><%= dgettext("reuser-space", "Settings") %></h1>
+    <h1>{dgettext("reuser-space", "Settings")}</h1>
     <div class="panel">
-      <h2><%= dgettext("reuser-space", "Tokens") %></h2>
+      <h2>{dgettext("reuser-space", "Tokens")}</h2>
       <p :if={Enum.empty?(@tokens)} class="notification">
-        <%= dgettext("reuser-space", "There are no tokens yet.") %>
+        {dgettext("reuser-space", "There are no tokens yet.")}
       </p>
       <table :if={Enum.count(@tokens) > 0} class="table small-padding">
         <thead>
           <tr>
-            <th><%= dgettext("reuser-space", "Organisation") %></th>
-            <th><%= dgettext("reuser-space", "Name") %></th>
-            <th><%= dgettext("reuser-space", "Secret") %></th>
-            <th><%= dgettext("reuser-space", "Actions") %></th>
+            <th>{dgettext("reuser-space", "Organisation")}</th>
+            <th>{dgettext("reuser-space", "Name")}</th>
+            <th>{dgettext("reuser-space", "Secret")}</th>
+            <th>{dgettext("reuser-space", "Actions")}</th>
           </tr>
         </thead>
         <tbody>
           <%= for token <- @tokens |> Enum.sort_by(& {get_in(&1.organization.name), &1.name}) |> Enum.sort_by(& default_for_contact?(&1, @contact), :desc) do %>
             <tr>
-              <td :if={not DB.Token.personal_token?(token)}><%= token.organization.name %></td>
-              <td :if={DB.Token.personal_token?(token)}><%= dgettext("reuser-space", "Personal token") %></td>
+              <td :if={not DB.Token.personal_token?(token)}>{token.organization.name}</td>
+              <td :if={DB.Token.personal_token?(token)}>{dgettext("reuser-space", "Personal token")}</td>
               <td :if={default_for_contact?(token, @contact)}>
-                <b><%= token.name %> <%= dgettext("reuser-space", "(by default)") %></b>
+                <b>{token.name} {dgettext("reuser-space", "(by default)")}</b>
               </td>
-              <td :if={!default_for_contact?(token, @contact)}><%= token.name %></td>
-              <td><code><%= token.secret %></code></td>
+              <td :if={!default_for_contact?(token, @contact)}>{token.name}</td>
+              <td><code>{token.secret}</code></td>
               <td>
                 <%= if !default_for_contact?(token, @contact) do %>
                   <%= form_for @conn, reuser_space_path(@conn, :default_token, token.id), [class: "inline"], fn _ -> %>
                     <button class="small button-outline primary">
-                      <%= dgettext("reuser-space", "Default token") %>
+                      {dgettext("reuser-space", "Default token")}
                     </button>
                   <% end %>
                 <% end %>
                 <%= form_for @conn, reuser_space_path(@conn, :delete_token, token.id), [class: "inline", method: "delete"], fn _ -> %>
                   <button class="small button-outline warning">
-                    <i class="fas fa-trash"></i> <%= dgettext("reuser-space", "Delete") %>
+                    <i class="fas fa-trash"></i> {dgettext("reuser-space", "Delete")}
                   </button>
                 <% end %>
               </td>
@@ -48,17 +48,17 @@
       </table>
       <a href={reuser_space_path(@conn, :new_token)} class="button">
         <i class="fa fa-plus icon"></i>
-        <%= dgettext("reuser-space", "Create a new token") %>
+        {dgettext("reuser-space", "Create a new token")}
       </a>
-      <h3><%= dgettext("reuser-space", "Using tokens") %></h3>
+      <h3>{dgettext("reuser-space", "Using tokens")}</h3>
       <p>
-        <%= raw(
+        {raw(
           dgettext(
             "reuser-space",
             ~s|Tokens can be used when using <a href="%{swagger_url}" target="_blank">the API</a>. The token should be included in the <code>Authorization</code> HTTP header. If your token is <code>foo</code>, you should send HTTP requests with the header <code>Authorization: foo</code>.|,
             swagger_url: "/swaggerui"
           )
-        ) %>
+        )}
       </p>
     </div>
   </div>

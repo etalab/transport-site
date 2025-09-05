@@ -5,12 +5,12 @@
     <a href={link}>
       <span class={summary_class(%{severity: severity, count_errors: count})}>
         <%= if GTFSTransport.no_error?(severity) do %>
-          <%= dgettext("page-dataset-details", "No error detected") %>
+          {dgettext("page-dataset-details", "No error detected")}
         <% else %>
-          <%= GTFSTransport.format_severity(severity, count) %>
+          {GTFSTransport.format_severity(severity, count)}
         <% end %>
       </span>
     </a>
-    <span><%= dgettext("page-dataset-details", "during validation") %></span>
+    <span>{dgettext("page-dataset-details", "during validation")}</span>
   </div>
 <% end %>

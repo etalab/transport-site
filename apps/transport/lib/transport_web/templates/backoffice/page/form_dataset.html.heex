@@ -1,66 +1,66 @@
 <div class="pt-48">
-  <%= live_render(@conn, TransportWeb.EditDatasetLive,
+  {live_render(@conn, TransportWeb.EditDatasetLive,
     session: %{
       "dataset" => @dataset,
       "dataset_types" => @dataset_types,
       "regions" => @regions,
       "csp_nonce_value" => Plug.Conn.get_session(@conn, :nonce)
     }
-  ) %>
+  )}
 
   <%= unless is_nil(@dataset) do %>
     <div class="is-centered mt-48">
-      <%= dgettext("backoffice", "Other actions on the dataset") %>
+      {dgettext("backoffice", "Other actions on the dataset")}
     </div>
     <div class="backoffice_dataset_actions_buttons">
       <div>
         <%= form_for @conn, backoffice_dataset_path(@conn, :import_from_data_gouv_fr, @dataset.id, Map.put(@conn.params, "stay_on_page", true)), [nodiv: true], fn _ -> %>
-          <%= submit("Importer", class: "button", nodiv: true) %>
+          {submit("Importer", class: "button", nodiv: true)}
         <% end %>
       </div>
 
       <div>
-        <%= live_render(@conn, TransportWeb.Live.ValidateDatasetView, session: %{"dataset_id" => @dataset.id}) %>
+        {live_render(@conn, TransportWeb.Live.ValidateDatasetView, session: %{"dataset_id" => @dataset.id})}
       </div>
 
       <div>
         <%= form_for @conn, backoffice_dataset_path(@conn, :delete, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
-          <%= submit("Déréférencer", class: "button", nodiv: true) %>
+          {submit("Déréférencer", class: "button", nodiv: true)}
         <% end %>
       </div>
     </div>
 
     <div id="resource_historization" class="dashboard-description mt-48">
-      <h3><%= dgettext("backoffice", "Resource historization") %></h3>
+      <h3>{dgettext("backoffice", "Resource historization")}</h3>
 
       <%= if Dataset.should_skip_history?(@dataset) do %>
         <p class="notification">
-          <%= dgettext("backoffice", "This dataset is not historicized on purpose.") %>
+          {dgettext("backoffice", "This dataset is not historicized on purpose.")}
         </p>
       <% else %>
         <% nb_resources = length(@resources_with_history) %>
-        <%= dngettext(
+        {dngettext(
           "backoffice",
           "There is %{n} resource in this dataset",
           "There are %{n} resources in this dataset",
           nb_resources,
           n: nb_resources
-        ) %>
+        )}
 
         <%= if nb_resources > 0 do %>
           <table class="table">
             <tr>
-              <th><%= dgettext("backoffice", "Resource") %></th>
-              <th><%= dgettext("backoffice", "Last historization") %></th>
+              <th>{dgettext("backoffice", "Resource")}</th>
+              <th>{dgettext("backoffice", "Last historization")}</th>
             </tr>
             <%= for r <- @resources_with_history do %>
               <tr>
-                <td><%= link(r.title, to: resource_path(@conn, :details, r.id)) %></td>
+                <td>{link(r.title, to: resource_path(@conn, :details, r.id))}</td>
                 <td>
                   <%= if r.resource_history == [] do %>
                     🚫
                   <% else %>
-                    <%= r.resource_history |> Enum.at(0) |> Map.get(:inserted_at) %>
+                    {r.resource_history |> Enum.at(0) |> Map.get(:inserted_at)}
                   <% end %>
                 </td>
               </tr>
@@ -75,10 +75,10 @@
 
       <h4>Créer un abonnement</h4>
       <%= form_for @conn, backoffice_notification_subscription_path(@conn, :create), [], fn f -> %>
-        <%= hidden_input(f, :redirect_location, value: "dataset") %>
-        <%= hidden_input(f, :dataset_id, value: @dataset.id) %>
+        {hidden_input(f, :redirect_location, value: "dataset")}
+        {hidden_input(f, :dataset_id, value: @dataset.id)}
         <%= label f, :contact_id do %>
-          Contact <%= text_input(f, :contact_id, required: true, list: "contacts_datalist", pattern: "[0-9]+") %>
+          Contact {text_input(f, :contact_id, required: true, list: "contacts_datalist", pattern: "[0-9]+")}
           <div class="small">
             <a href={backoffice_contact_path(@conn, :new)} target="_blank">
               <i class="fas fa-external-link"></i> Créer un contact
@@ -93,9 +93,9 @@
                 <% onclick_fn = ~s{getElementById("contact_id").value =} <> to_string(contact.id) %>
                 <li class="pb-6">
                   <a href={backoffice_contact_path(@conn, :edit, contact.id)} target="_blank">
-                    <i class="fas fa-external-link"></i> <%= DB.Contact.display_name(contact) %>
+                    <i class="fas fa-external-link"></i> {DB.Contact.display_name(contact)}
                   </a>
-                  <span class="small"><%= "(##{contact.id})" %></span>
+                  <span class="small">{"(##{contact.id})"}</span>
                   <button type="button" class="button-outline small primary" onclick={onclick_fn}>Sélectionner</button>
                 </li>
               <% end %>
@@ -106,29 +106,29 @@
           <%= for contact <- @contacts_datalist do %>
             <% display_name = DB.Contact.display_name(contact) %>
             <% unaccent_display_name = unaccent(display_name) %>
-            <option value={contact.id}><%= display_name %> (<%= contact.organization %>)</option>
+            <option value={contact.id}>{display_name} ({contact.organization})</option>
             <option :if={display_name != unaccent_display_name} value={contact.id}>
-              <%= unaccent_display_name %> (<%= contact.organization %>)
+              {unaccent_display_name} ({contact.organization})
             </option>
           <% end %>
         </datalist>
         <%= label f, :reasons, class: "pt-12" do %>
-          <%= dgettext("backoffice", "Notification reason") %>
+          {dgettext("backoffice", "Notification reason")}
           <%= for reason <- Transport.NotificationReason.subscribable_reasons_related_to_datasets(:producer) do %>
             <%= label f, reason do %>
-              <%= checkbox(f, reason, hidden_input: false, value: true) %>
-              <%= reason %>
+              {checkbox(f, reason, hidden_input: false, value: true)}
+              {reason}
             <% end %>
           <% end %>
         <% end %>
 
-        <%= submit("Créer un abonnement") %>
+        {submit("Créer un abonnement")}
       <% end %>
-      <h4 id="existing_subscriptions"><%= dgettext("backoffice", "Existing subscriptions") %></h4>
+      <h4 id="existing_subscriptions">{dgettext("backoffice", "Existing subscriptions")}</h4>
       <table :if={Enum.count(@dataset.notification_subscriptions) > 0} id="existing_subscriptions_table" class="table">
         <tr>
           <th>Contact</th>
-          <th><%= dgettext("backoffice", "Notification reason") %></th>
+          <th>{dgettext("backoffice", "Notification reason")}</th>
           <th>Source</th>
           <th>Actions</th>
         </tr>
@@ -137,23 +137,23 @@
             <tr>
               <td :if={index == 0} rowspan={Enum.count(notification_subscriptions)}>
                 <a href={backoffice_contact_path(@conn, :edit, contact.id)}>
-                  <%= notification_subscription_contact(notification_subscription) %>
+                  {notification_subscription_contact(notification_subscription)}
                 </a>
 
                 <div class="inline-block">
                   <%= form_for @conn, backoffice_notification_subscription_path(@conn, :delete_for_contact_and_dataset, contact.id, @dataset.id), [method: "delete"], fn f -> %>
-                    <%= hidden_input(f, :redirect_location, value: "dataset") %>
+                    {hidden_input(f, :redirect_location, value: "dataset")}
                     <button class="small button-outline no-border warning" title="désabonner entièrement">
                       <i class="fa-solid fa-xmark"></i>
                     </button>
                   <% end %>
                 </div>
               </td>
-              <td><%= notification_subscription.reason %></td>
-              <td><%= notification_subscription.source %></td>
+              <td>{notification_subscription.reason}</td>
+              <td>{notification_subscription.source}</td>
               <td>
                 <%= form_for @conn, backoffice_notification_subscription_path(@conn, :delete, notification_subscription.id), [method: "delete"], fn f -> %>
-                  <%= hidden_input(f, :redirect_location, value: "dataset") %>
+                  {hidden_input(f, :redirect_location, value: "dataset")}
                   <button class="small button-outline no-border warning">
                     <i class="fas fa-trash"></i>
                   </button>
@@ -167,70 +167,68 @@
         Cette liste ne concerne que les producteurs.
       </p>
       <p :if={@reusers_count > 0} id="reuser_subscriptions">
-        <%= dngettext(
+        {dngettext(
           "backoffice",
           "reuser-subscription-count",
           "reuser-subscriptions-count",
           @reuser_subscriptions_count,
           reuser_subscriptions_count: @reuser_subscriptions_count
-        ) %>
-        <%= dngettext(
+        )}
+        {dngettext(
           "backoffice",
           "reuser-count",
           "reusers-count",
           @reusers_count,
           reusers_count: @reusers_count
-        ) %>
+        )}
       </p>
       <p :if={Enum.empty?(@dataset.notification_subscriptions)} class="mt-48 notification">
-        <%= dgettext("backoffice", "There are no notification subscriptions for this contact.") %>
+        {dgettext("backoffice", "There are no notification subscriptions for this contact.")}
       </p>
       <div :if={Enum.count(@dataset.notification_subscriptions) > 0}>
-        <%= live_render(@conn, TransportWeb.Live.SendNowOnNAPNotificationView,
+        {live_render(@conn, TransportWeb.Live.SendNowOnNAPNotificationView,
           session: %{
             "dataset_id" => @dataset.id,
             "sent_reasons" =>
               @notifications_sent |> Enum.map(fn {{reason, _datetime}, _emails} -> reason end) |> Enum.uniq()
           }
-        ) %>
+        )}
       </div>
     </div>
     <div :if={Enum.count(@notifications_sent) > 0} id="notifications_sent" class="dashboard-description mt-48">
-      <h3><%= dgettext("backoffice", "Notifications sent") %></h3>
+      <h3>{dgettext("backoffice", "Notifications sent")}</h3>
 
       <p>
-        <%= dgettext("backoffice", "Notifications sent in the last %{nb_days} days.",
-          nb_days: @notifications_last_nb_days
-        ) %>
+        {dgettext("backoffice", "Notifications sent in the last %{nb_days} days.", nb_days: @notifications_last_nb_days)}
       </p>
       <table class="table">
         <tr>
-          <th><%= dgettext("backoffice", "Notification reason") %></th>
-          <th><%= dgettext("backoffice", "Datetime") %></th>
-          <th><%= dgettext("backoffice", "Emails") %></th>
+          <th>{dgettext("backoffice", "Notification reason")}</th>
+          <th>{dgettext("backoffice", "Datetime")}</th>
+          <th>{dgettext("backoffice", "Emails")}</th>
         </tr>
         <%= for {{reason, datetime}, emails} <- @notifications_sent do %>
           <tr>
-            <td lang="en"><%= reason %></td>
-            <td><%= Shared.DateTimeDisplay.format_datetime_to_paris(datetime, "fr") %></td>
-            <td><%= emails |> Enum.sort() |> Enum.join(", ") %></td>
+            <td lang="en">{reason}</td>
+            <td>{Shared.DateTimeDisplay.format_datetime_to_paris(datetime, "fr")}</td>
+            <td>{emails |> Enum.sort() |> Enum.join(", ")}</td>
           </tr>
         <% end %>
       </table>
     </div>
     <div class="dataset_import_validations_logs" id="imports_history">
-      <h3><%= dgettext("backoffice", "Imports history") %></h3>
+      <h3>{dgettext("backoffice", "Imports history")}</h3>
       <table>
         <tr>
-          <th><%= dgettext("backoffice", "date / time") %></th>
-          <th><%= dgettext("backoffice", "success") %></th>
-          <th><%= dgettext("backoffice", "error message") %></th>
+          <th>{dgettext("backoffice", "date / time")}</th>
+          <th>{dgettext("backoffice", "success")}</th>
+          <th>{dgettext("backoffice", "error message")}</th>
         </tr>
         <%= for row <- @import_logs do %>
           <tr>
-            <td><%= row.timestamp %></td>
-            <td><%= if row.is_success, do: "✔", else: "" %></td>
-            <td><%= row.error_msg %></td>
+            <td>{row.timestamp}</td>
+            <td>{if row.is_success, do: "✔", else: ""}</td>
+            <td>{row.error_msg}</td>
           </tr>
         <% end %>
       </table>

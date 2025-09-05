@@ -5,14 +5,14 @@ locale = get_session(@conn, :locale) %>
   <div class="grey-background">
     <div class="container">
       <h2 class="mt-48">
-        <%= dgettext("validations", "Resource details") %>
+        {dgettext("validations", "Resource details")}
       </h2>
       <div class="panel">
-        <%= render("_resource_description.html", conn: @conn, resource: @resource, resource_history: @resource_history) %>
-        <%= render("_resources_details_gtfs.html", conn: @conn, metadata: @metadata, modes: @modes) %>
+        {render("_resource_description.html", conn: @conn, resource: @resource, resource_history: @resource_history)}
+        {render("_resources_details_gtfs.html", conn: @conn, metadata: @metadata, modes: @modes)}
         <%= if !is_nil(associated_geojson) do %>
           <div id="other-formats">
-            <%= dgettext("validations", "This resource is also available in the following formats:") %>
+            {dgettext("validations", "This resource is also available in the following formats:")}
             <ul>
               <%= unless is_nil(associated_geojson) do %>
                 <li>
@@ -20,30 +20,30 @@ locale = get_session(@conn, :locale) %>
                 </li>
               <% end %>
             </ul>
-            * <%= dgettext(
+            * {dgettext(
               "validations",
               "GeoJSON format contains only the spatial information of the resource (stops coordinates, eventually lines shapes)
               It corresponds to the data you can see on the map below."
-            ) %>
+            )}
             <%= unless is_nil(associated_geojson) or is_nil(associated_geojson.resource_history_last_up_to_date_at) do %>
-              <%= dgettext("validations", "This GeoJSON was up-to-date with the GTFS resource %{hours} ago.",
+              {dgettext("validations", "This GeoJSON was up-to-date with the GTFS resource %{hours} ago.",
                 hours: hours_ago(associated_geojson.resource_history_last_up_to_date_at, locale)
-              ) %>
+              )}
             <% end %>
           </div>
         <% end %>
       </div>
 
       <%= unless Enum.empty?(@resource.resources_related) do %>
-        <%= render("_related_resources.html", resource: @resource, conn: @conn) %>
+        {render("_related_resources.html", resource: @resource, conn: @conn)}
       <% end %>
 
-      <h2 id="download-availability"><%= dgettext("page-dataset-details", "Download availability") %></h2>
-      <%= render("_download_availability.html", uptime_per_day: @uptime_per_day, conn: @conn) %>
+      <h2 id="download-availability">{dgettext("page-dataset-details", "Download availability")}</h2>
+      {render("_download_availability.html", uptime_per_day: @uptime_per_day, conn: @conn)}
 
       <%= unless is_nil(associated_geojson) do %>
         <h2 class="mt-48" id="visualization">
-          <%= dgettext("validations", "Stops and routes visualization of the GTFS file") %>
+          {dgettext("validations", "Stops and routes visualization of the GTFS file")}
         </h2>
         <div class="panel no-padding">
           <div id="resource-geojson-info" class="p-24"></div>
@@ -65,29 +65,29 @@ locale = get_session(@conn, :locale) %>
         </div>
         <%= unless is_nil(associated_geojson.resource_history_last_up_to_date_at) do %>
           <div class="is-centered no-margin">
-            <%= dgettext("validations", "Visualization up-to-date %{hours} ago.",
+            {dgettext("validations", "Visualization up-to-date %{hours} ago.",
               hours: hours_ago(associated_geojson.resource_history_last_up_to_date_at, locale)
-            ) %>
+            )}
           </div>
         <% end %>
       <% end %>
-      <h2 id="validation-report" class="mt-48"><%= dgettext("validations", "Validation report") %></h2>
+      <h2 id="validation-report" class="mt-48">{dgettext("validations", "Validation report")}</h2>
       <div class="panel" id="issues">
         <p :if={is_gtfs_flex} class="notification">
-          <%= dgettext(
+          {dgettext(
             "validations",
             "This file contains the GTFS-Flex extension. We are not able to validate it for now."
-          ) %>
+          )}
         </p>
         <%= if not is_gtfs_flex and is_nil(@validation_summary) do %>
-          <%= dgettext("validations", "No validation available") %>
+          {dgettext("validations", "No validation available")}
         <% end %>
         <%= unless is_nil(@validation_summary) do %>
           <%= if @issues.total_entries == 0 do %>
-            <%= dgettext("validations", "No validation error") %>.
+            {dgettext("validations", "No validation error")}.
           <% else %>
             <nav class="issues-list validation" role="navigation">
-              <%= render("_validation_summary.html",
+              {render("_validation_summary.html",
                 validation_summary: @validation_summary,
                 severities_count: @severities_count,
                 issues: @issues,
@@ -95,19 +95,19 @@ locale = get_session(@conn, :locale) %>
                 data_vis: @data_vis,
                 token: nil,
                 results_adapter: @validator
-              ) %>
+              )}
             </nav>
             <div class="main-pane">
-              <%= pagination_links(@conn, @issues, [@resource.id],
+              {pagination_links(@conn, @issues, [@resource.id],
                 issue_type: Transport.Validators.GTFSTransport.issue_type(@issues.entries),
                 path: &resource_path/4,
                 action: :details
-              ) %>
-              <%= render(gtfs_template(@issues), issues: @issues || [], conn: @conn) %>
+              )}
+              {render(gtfs_template(@issues), issues: @issues || [], conn: @conn)}
             </div>
           <% end %>
           <p>
-            <%= raw(
+            {raw(
               dgettext(
                 "validations",
                 ~s(Validation carried out using the <a href="%{link}">current %{format} file</a> the %{date} using the <a href="%{validator_url}" target="_blank">%{validator_name}</a>.),
@@ -121,19 +121,19 @@ locale = get_session(@conn, :locale) %>
                 validator_url: gtfs_validator_url(),
                 validator_name: dgettext("validations", "PAN GTFS validator")
               )
-            ) %>
+            )}
           </p>
         <% end %>
       </div>
       <%= if length(@other_resources) > 0 do %>
-        <h2><%= dgettext("validations", "Other resources") %></h2>
+        <h2>{dgettext("validations", "Other resources")}</h2>
         <div class="panel">
           <ul>
             <%= for resource <- @other_resources do %>
               <li>
-                <%= link(resource.title,
+                {link(resource.title,
                   to: resource_path(@conn, :details, resource.id)
-                ) %>
+                )}
               </li>
             <% end %>
           </ul>

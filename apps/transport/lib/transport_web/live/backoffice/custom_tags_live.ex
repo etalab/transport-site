@@ -9,28 +9,28 @@ defmodule TransportWeb.CustomTagsLive do
       <div class="pb-6">
         <%= for {tag, index} <- Enum.with_index(@custom_tags) do %>
           <span class="label custom-tag">
-            <%= tag %> <span class="delete-tag" phx-click="remove_tag" phx-value-tag={tag} phx-target={@myself}></span>
+            {tag} <span class="delete-tag" phx-click="remove_tag" phx-value-tag={tag} phx-target={@myself}></span>
           </span>
-          <%= Phoenix.HTML.Form.hidden_input(@form, "custom_tags[#{index}]", value: tag) %>
+          {Phoenix.HTML.Form.hidden_input(@form, "custom_tags[#{index}]", value: tag)}
         <% end %>
       </div>
-      <%= InputHelpers.text_input(@form, :tag_input,
+      {InputHelpers.text_input(@form, :tag_input,
         placeholder: "Ajouter un tag",
         list: "suggestions",
         phx_keydown: "add_tag",
         id: "custom_tag",
         phx_target: @myself
-      ) %>
+      )}
       <datalist id="suggestions" phx-keydown="add_tag">
         <%= for suggestion <- @tag_suggestions do %>
-          <option value={suggestion}><%= suggestion %></option>
+          <option value={suggestion}>{suggestion}</option>
         <% end %>
       </datalist>
       <details class="pt-12">
         <summary>Tags liés à des fonctionnalités</summary>
         <ul>
           <%= for tag_doc <- Enum.sort_by(@tags_documentation, & &1.name) do %>
-            <li><span class="label"><%= tag_doc.name %></span><%= tag_doc.doc %></li>
+            <li><span class="label">{tag_doc.name}</span>{tag_doc.doc}</li>
           <% end %>
         </ul>
       </details>

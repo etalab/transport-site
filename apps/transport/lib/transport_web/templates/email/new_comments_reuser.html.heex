@@ -6,7 +6,7 @@
 
 <ul>
   <%= for dataset <- @datasets do %>
-    <li><%= link_for_dataset_section(dataset, :discussion) %></li>
+    <li>{link_for_dataset_section(dataset, :discussion)}</li>
   <% end %>
 </ul>
 

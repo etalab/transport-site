@@ -1,6 +1,6 @@
 <section class="single-page section section-grey">
   <div class="container container_min_height">
-    <h1><%= dgettext("validations", "Check the quality of a file or a feed") %></h1>
+    <h1>{dgettext("validations", "Check the quality of a file or a feed")}</h1>
     <div class="pb-48">
       <.form
         :let={f}
@@ -12,48 +12,48 @@
         phx-change="form_changed"
         phx-trigger-action={@trigger_submit}
       >
-        <%= select(f, :type, @select_options, label: dgettext("validations", "Data type"), required: true) %>
+        {select(f, :type, @select_options, label: dgettext("validations", "Data type"), required: true)}
         <%= if @input_type == "file" do %>
-          <%= file_input(f, :file, label: dgettext("validations", "Choose your file"), required: true) %>
+          {file_input(f, :file, label: dgettext("validations", "Choose your file"), required: true)}
         <% end %>
         <%= if @input_type == "link" do %>
-          <%= text_input(f, :url,
+          {text_input(f, :url,
             label: dgettext("validations", "Your URL"),
             placeholder: "https://.../gbfs.json",
             required: true,
             type: "url"
-          ) %>
+          )}
         <% end %>
         <%= if @input_type == "gtfs-rt" do %>
-          <%= text_input(f, :url,
+          {text_input(f, :url,
             label: dgettext("validations", "Your GTFS' URL"),
             placeholder: "https://example.com/gtfs.zip",
             required: true,
             type: "url"
-          ) %>
-          <%= text_input(f, :feed_url,
+          )}
+          {text_input(f, :feed_url,
             label: dgettext("validations", "Your GTFS realtime's URL"),
             placeholder: "https://example.com/gtfs-rt.bin",
             required: true,
             type: "url"
-          ) %>
+          )}
         <% end %>
         <%= unless @input_type == "file" do %>
-          <%= submit(dgettext("validations", "Validate"), nodiv: true) %>
+          {submit(dgettext("validations", "Validate"), nodiv: true)}
         <% end %>
       </.form>
       <p :if={@trigger_submit} class="small">
-        <%= dgettext("validations", "Upload in progress") %>
+        {dgettext("validations", "Upload in progress")}
       </p>
     </div>
   </div>
 </section>
 
 <section class="section section-white">
-  <%= live_render(@socket, TransportWeb.Live.FeedbackLive,
+  {live_render(@socket, TransportWeb.Live.FeedbackLive,
     id: "feedback-form",
     session: %{"feature" => "on_demand_validation"}
-  ) %>
+  )}
 </section>
 
 <script defer type="text/javascript" src={static_path(@socket, "/js/app.js")} />
