@@ -40,8 +40,6 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   @datagouv_organization_id "646b7187b50b2a93b1ae3d45"
   # similarly, required to eliminate a test file
   @test_dataset_id "67811b8e8934d388950bca3f"
-  # and another one (we'll create a more structured filter later)
-  @air_france_klm_dataset_id "642167910d33a1a75ebfa1d2"
 
   @doc """
   Download content separately from processing, because we need to provide an estimate of the number of lines
@@ -61,6 +59,11 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     if status != 200 do
       raise "HTTP status is not 200 (#{status})"
     end
+
+    # Producers can only be orgs, not individuals.
+    # We perform the check here because we want an error to be reported and an estimation of number of pdc.
+    # That needs the body to be downloaded even if the body isn’t used for the check.
+    ensure_producer_is_org!(row)
 
     # A number of checks are carried out before attempting to parse the data, using a couple of heuristics,
     # in order to get meaningful error messages in the report.
@@ -166,6 +169,10 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     end
   end
 
+  def ensure_producer_is_org!(%{dataset_organisation_id: "???"}), do: raise("producer is not an organization")
+
+  def ensure_producer_is_org!(_row), do: :ok
+
   @doc """
   Not much used anymore, but has helped tremendously to debug x/y parsing issues,
   and I'm keeping the code here because I expect it to be useful again in the future.
@@ -184,8 +191,9 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     end
   end
 
-  def concat_rows(nil, df), do: df
-  def concat_rows(main_df, df), do: Explorer.DataFrame.concat_rows(main_df, df)
+  def maybe_concat_rows({:error, error}, main_df), do: {main_df, error}
+  def maybe_concat_rows({:ok, df}, nil), do: {df, nil}
+  def maybe_concat_rows({:ok, df}, main_df), do: {Explorer.DataFrame.concat_rows(main_df, df), nil}
 
   def exclude_irrelevant_resources(stream) do
     stream
@@ -194,8 +202,6 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     # also exclude "test dataset" https://www.data.gouv.fr/en/datasets/test-data-set
     # which is a large file marked as IRVE
     |> Enum.reject(fn r -> r.dataset_id == @test_dataset_id end)
-    # and similarly: https://github.com/etalab/transport-site/issues/4660) 166MB file
-    |> Enum.reject(fn r -> r.dataset_id == @air_france_klm_dataset_id end)
   end
 
   def build_report_item(row, body, extension, optional_error) do
@@ -231,23 +237,7 @@ defmodule Transport.IRVE.RawStaticConsolidation do
       |> maybe_filter(options[:filter])
       |> Enum.sort_by(fn r -> [r.dataset_id, r.resource_id] end)
       |> Enum.reduce(%{df: nil, report: []}, fn row, %{df: main_df, report: report} ->
-        Logger.info("Processing resource #{row.resource_id} (url=#{row.url}, dataset_id=#{row.dataset_id})")
-
-        %{body: body, status: status} = download_resource_content!(row.url)
-        extension = Path.extname(row.url)
-
-        {main_df, optional_error} =
-          case process_resource(row, body, status, extension) do
-            {:ok, df} -> {concat_rows(main_df, df), nil}
-            {:error, error} -> {main_df, error}
-          end
-
-        report_item = build_report_item(row, body, extension, optional_error)
-
-        %{
-          df: main_df,
-          report: [report_item | report]
-        }
+        process_individual_resource_and_report(row, main_df, report)
       end)
 
     consolidation_filename = Keyword.fetch!(options, :data_file)
@@ -265,5 +255,20 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     |> Enum.map(fn x -> Map.put(x, :error, x.error |> inspect) end)
     |> Explorer.DataFrame.new()
     |> Explorer.DataFrame.to_csv!(report_filename)
+  end
+
+  def process_individual_resource_and_report(row, main_df, report) do
+    Logger.info("Processing resource #{row.resource_id} (url=#{row.url}, dataset_id=#{row.dataset_id})")
+    %{body: body, status: status} = download_resource_content!(row.url)
+    extension = Path.extname(row.url)
+
+    {main_df, optional_error} = process_resource(row, body, status, extension) |> maybe_concat_rows(main_df)
+
+    report_item = build_report_item(row, body, extension, optional_error)
+
+    %{
+      df: main_df,
+      report: [report_item | report]
+    }
   end
 end
