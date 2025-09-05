@@ -1,4 +1,4 @@
-defmodule DB.IrveValidPdc do
+defmodule DB.IRVEValidPDC do
   @moduledoc """
   IRVE Point de Charge (PDC) record from a validated IRVE file.
   This schema reflects the IRVE static schema, plus a reference to the IRVE valid file it belongs to.
@@ -7,7 +7,7 @@ defmodule DB.IrveValidPdc do
   use TypedEctoSchema
 
   typed_schema "irve_valid_pdc" do
-    belongs_to(:irve_valid_file, DB.IrveValidFile)
+    belongs_to(:irve_valid_file, DB.IRVEValidFile)
 
     # IRVE Schema fields
     field(:nom_amenageur, :string)
@@ -53,4 +53,23 @@ defmodule DB.IrveValidPdc do
 
     timestamps(type: :utc_datetime_usec)
   end
+
+  def raw_data_to_schema(raw_data) do
+    raw_data
+    |> Enum.map(fn {k, v} -> {String.to_atom(k), v} end)
+    |> Map.new()
+    # Fix field name mismatch
+    |> Map.put(:coordonneesxy, raw_data["coordonneesXY"])
+    # Remove old key
+    |> Map.delete(:coordonneesXY)
+    # Convert date strings to Date structs
+    |> Map.update(:date_mise_en_service, nil, &parse_date/1)
+    |> Map.update(:date_maj, nil, &parse_date/1)
+  end
+
+  defp parse_date(date_string) when is_binary(date_string) do
+    Date.from_iso8601!(date_string)
+  end
+
+  defp parse_date(date), do: date
 end
