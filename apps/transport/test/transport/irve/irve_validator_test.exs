@@ -62,7 +62,10 @@ defmodule Transport.IRVE.ValidationTests do
     dtypes = schema["fields"] |> Enum.map(&{&1["name"], :string})
     df = Explorer.DataFrame.from_csv!(file, dtypes: dtypes)
 
-    Transport.DataFrame.TableSchemaValidator.compute_validation_fields(df, schema)
+    df = Transport.DataFrame.TableSchemaValidator.compute_validation_fields(df, schema)
+    df
+    |> Explorer.DataFrame.select(~r/\Acheck_/)
+    |> IO.inspect(IEx.inspect_opts())
   end
 
   @tag :skip
