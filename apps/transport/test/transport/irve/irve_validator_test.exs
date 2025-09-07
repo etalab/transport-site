@@ -14,7 +14,7 @@ defmodule Transport.DataFrame.TableSchemaValidator do
   """
   def compute_validation_fields(%Explorer.DataFrame{} = df, schema) do
     fields = Map.fetch!(schema, "fields")
-    fields = fields |> Enum.take(2)
+    fields = fields |> Enum.take(14)
 
     Enum.reduce(fields, df, fn field, df ->
       configure_field(field, df)
@@ -22,19 +22,67 @@ defmodule Transport.DataFrame.TableSchemaValidator do
   end
 
   def configure_field(field, df) do
-    field = field |> Map.delete("description") |> Map.delete("example")
+    field =
+      field
+      |> Map.delete("description")
+      |> Map.delete("example")
+
     {name, field} = Map.pop!(field, "name")
-    type = Map.fetch!(field, "type")
-    constraints = Map.fetch!(field, "constraints")
+    {type, field} = Map.pop!(field, "type")
+    {optional_format, field} = Map.pop(field, "format")
+    IO.inspect("Configuring field #{name}:#{type}")
+    {constraints, rest_of_field} = Map.pop!(field, "constraints")
+    # ensure that there is nothing left that we do not support yet
+    if rest_of_field != %{},
+      do: raise("Field def contains extra stuff ; please review\n#{rest_of_field |> inspect(pretty: true)}")
 
-    cond do
-      constraints == %{"required" => false} && type == "string" ->
-        # do nothing, easy
-        df
+    # configure all constraints
+    df =
+      Enum.reduce(constraints, df, fn constraint, df ->
+        configure_field_constraint(df, name, type, constraint)
+      end)
 
-      true ->
-        raise "Field definition uses unsupported scenarios (#{name})\n#{field |> inspect(pretty: true, width: 0)}"
-    end
+    # configure the optional format
+    if optional_format, do: configure_field_constraint(df, name, type, {"format", optional_format}), else: df
+  end
+
+  def configure_field_constraint(df, name, type, {"required", false} = constraint) do
+    df
+  end
+
+  # TODO: add unit tests for "", "   " etc
+  # NOTE: current Polars configuration already mutates "" to nil, before that step
+  def configure_field_constraint(df, name, "string", {"required", true} = constraint) do
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      %{"check_required_#{name}" => Explorer.Series.is_not_nil(df[name])}
+    end)
+  end
+
+  def configure_field_constraint(df, name, "string", {"pattern", pattern}) do
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      %{"check_pattern_#{name}" => Explorer.Series.re_contains(df[name], pattern)}
+    end)
+  end
+
+  # A very simple, yet likely to create false negatives, regexp to validate email addresses
+  # to be improved if we see false negatives ; no need to bring in the full regex monster there
+  # given the panel of addresses that we are likely to validate.
+  # See https://docs.rs/regex/latest/regex/ for modifiers & precise syntax
+  #
+  # NOTE: this is _not_ an Elixir regex, but a string containing a pattern compiled
+  # to a regex by Explorer/the Polars crate
+  @simple_email_pattern ~S/(?i)\A^[\w+\.\-]+@[\w+\.\-]+\z/
+
+  def configure_field_constraint(df, name, "string", {"format", "email"}) do
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      %{"check_format_#{name}" => Explorer.Series.re_contains(df[name], @simple_email_pattern)}
+    end)
+  end
+
+  def configure_field_constraint(df, name, "string", {"enum", enum_values}) do
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      %{"check_enum_#{name}" => Explorer.Series.in(df[name], enum_values)}
+    end)
   end
 end
 
@@ -63,6 +111,7 @@ defmodule Transport.IRVE.ValidationTests do
     df = Explorer.DataFrame.from_csv!(file, dtypes: dtypes)
 
     df = Transport.DataFrame.TableSchemaValidator.compute_validation_fields(df, schema)
+
     df
     |> Explorer.DataFrame.select(~r/\Acheck_/)
     |> IO.inspect(IEx.inspect_opts())
