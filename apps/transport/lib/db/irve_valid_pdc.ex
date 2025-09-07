@@ -65,6 +65,8 @@ defmodule DB.IRVEValidPDC do
     |> Map.update(:date_maj, nil, &parse_date/1)
   end
 
+  defp split_coordinates(%{longitude: _longitude, latitude: _latitude} = map), do: map
+
   defp split_coordinates(%{coordonneesXY: coords} = map) do
     [longitude, latitude] = process_coordinates(coords)
 
