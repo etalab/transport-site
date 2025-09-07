@@ -16,7 +16,7 @@ defmodule Transport.DataFrame.TableSchemaValidator do
     fields = Map.fetch!(schema, "fields")
     fields = fields |> Enum.take(2)
 
-    Enum.reduce(fields, df, fn field, acc ->
+    Enum.reduce(fields, df, fn field, df ->
       configure_field(field, df)
     end)
   end
