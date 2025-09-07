@@ -2,6 +2,8 @@ defmodule Transport.DataFrame.TableSchemaValidator do
   @moduledoc """
   A specialized/narrow implementation of [TableSchema](https://specs.frictionlessdata.io/table-schema/)
   validator. Leverages `Explorer.DataFrame` columnar engine to achieve fast validation.
+
+  Constraints: see https://specs.frictionlessdata.io/table-schema/#constraints
   """
 
   @doc """
