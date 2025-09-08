@@ -60,7 +60,6 @@ defmodule DB.IRVEValidPDC do
     |> Enum.map(fn {k, v} -> {String.to_atom(k), v} end)
     |> Map.new()
     |> split_coordinates()
-    # Convert date strings to Date structs
     |> Map.update(:date_mise_en_service, nil, &parse_date/1)
     |> Map.update(:date_maj, nil, &parse_date/1)
   end
