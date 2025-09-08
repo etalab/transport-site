@@ -12,8 +12,6 @@ defmodule Transport.IRVE.DatabaseImporter do
     rows =
       content |> Transport.IRVE.Processing.read_as_data_frame() |> Explorer.DataFrame.to_rows()
 
-    #  Note for review: may chose another way to get a checksum
-    # See Transport.S3.AggregatesUploader sha256! private function
     checksum = :crypto.hash(:sha256, content) |> Base.encode16(case: :lower)
 
     previous_version = get_previous_file(dataset_datagouv_id, resource_datagouv_id)
@@ -34,8 +32,6 @@ defmodule Transport.IRVE.DatabaseImporter do
       %DB.IRVEValidFile{} ->
         DB.Repo.transaction(fn ->
           {:ok, %DB.IRVEValidFile{id: file_id}} = update_file(previous_version, checksum)
-          # Note for review: we have to delete previous PDCS before as there is no version identifier
-          # Should we rather keep a hash column in case things go wrong?
           delete_previous_pdcs(file_id)
           write_pdcs(rows, file_id)
         end)
