@@ -10,7 +10,7 @@ defmodule DB.IRVEValidFilePDCTest do
   end
 
   test "can bulk insert and retrieve charging point records using factory data" do
-    now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+    now = DateTime.utc_now()
 
     file_data = %DB.IRVEValidFile{
       dataset_datagouv_id: "5448d3e0-2bbb-4c97-8687-0c97ace26719",
@@ -32,7 +32,7 @@ defmodule DB.IRVEValidFilePDCTest do
     pdc_data =
       factory_data
       |> DB.IRVEValidPDC.raw_data_to_schema()
-      |> insert_timestamps()
+      |> DB.IRVEValidPDC.insert_timestamps()
       |> Map.put(:irve_valid_file_id, file_id)
 
     # Insert directly using DB.Repo.insert_all
@@ -61,18 +61,10 @@ defmodule DB.IRVEValidFilePDCTest do
              ecto_schema_fields --
                ["id", "irve_valid_file_id", "inserted_at", "updated_at", "longitude", "latitude"]
 
-    #  Note: this test doesn’t test if the optionality of fields is correct
+    # This test doesn’t test if the optionality of fields is correct
     # as nullable/not nullable is a PostgreSQL constraint added with the migration.
     # It doesn’t check if types are correct neither.
     # That said, in the future, if you’ve updated the schema and found this test failing,
-    # feel free to pay me a beer.
-  end
-
-  defp insert_timestamps(data) do
-    now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
-
-    data
-    |> Map.put(:inserted_at, now)
-    |> Map.put(:updated_at, now)
+    # feel free to buy me a drink.
   end
 end

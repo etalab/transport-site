@@ -74,20 +74,12 @@ defmodule Transport.IRVE.DatabaseImporter do
     rows
     |> Enum.map(&DB.IRVEValidPDC.raw_data_to_schema/1)
     |> Enum.map(&Map.put(&1, :irve_valid_file_id, file_id))
-    |> Enum.map(&insert_timestamps/1)
+    |> Enum.map(&DB.IRVEValidPDC.insert_timestamps/1)
     |> Stream.chunk_every(1000)
     |> Stream.each(fn chunk ->
       DB.Repo.insert_all(DB.IRVEValidPDC, chunk)
     end)
     |> Stream.run()
-  end
-
-  defp insert_timestamps(map) do
-    now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
-
-    map
-    |> Map.put(:inserted_at, now)
-    |> Map.put(:updated_at, now)
   end
 
   defp delete_previous_pdcs(file_id) do

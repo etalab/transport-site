@@ -65,6 +65,14 @@ defmodule DB.IRVEValidPDC do
     |> Map.update(:date_maj, nil, &parse_date/1)
   end
 
+  def insert_timestamps(data) do
+    now = DateTime.utc_now()
+
+    data
+    |> Map.put(:inserted_at, now)
+    |> Map.put(:updated_at, now)
+  end
+
   defp split_coordinates(%{longitude: _longitude, latitude: _latitude} = map), do: map
 
   defp split_coordinates(%{coordonneesXY: coords} = map) do
