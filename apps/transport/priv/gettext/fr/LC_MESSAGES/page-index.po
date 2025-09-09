@@ -55,10 +55,6 @@ msgid "See newly added datasets"
 msgstr "Voir les jeux de données récents"
 
 #, elixir-autogen, elixir-format
-msgid "Coming soon"
-msgstr "À venir dans les prochains mois"
-
-#, elixir-autogen, elixir-format
 msgid "Learn more"
 msgstr "En savoir plus"
 
@@ -117,10 +113,6 @@ msgstr "Demander de l’aide"
 #, elixir-autogen, elixir-format
 msgid "Close the form"
 msgstr "Fermer le formulaire"
-
-#, elixir-autogen, elixir-format
-msgid "I'd like to be informed"
-msgstr "Je souhaite être tenu·e au courant"
 
 #, elixir-autogen, elixir-format
 msgid "Close the menu"
