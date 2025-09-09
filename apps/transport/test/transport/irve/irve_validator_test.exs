@@ -14,7 +14,7 @@ defmodule Transport.DataFrame.TableSchemaValidator do
   """
   def compute_validation_fields(%Explorer.DataFrame{} = df, schema) do
     fields = Map.fetch!(schema, "fields")
-    fields = fields |> Enum.take(14)
+    fields = fields |> Enum.take(15)
 
     Enum.reduce(fields, df, fn field, df ->
       configure_field(field, df)
@@ -82,6 +82,21 @@ defmodule Transport.DataFrame.TableSchemaValidator do
   def configure_field_constraint(df, name, "string", {"enum", enum_values}) do
     Explorer.DataFrame.mutate_with(df, fn df ->
       %{"check_enum_#{name}" => Explorer.Series.in(df[name], enum_values)}
+    end)
+  end
+
+  # hardcoded & home-baked, consequence of geopoint format
+  @geopoint_array_pattern ~S'\A\[\-?\d+(\.\d+)?,\s?\-?\d+(\.\d+)?\]\z'
+
+  def configure_field_constraint(df, name, "geopoint", {"required", true}) do
+  # NOTE: the requirement aspect is indirectly already covered by the geopoint format array check below
+    df
+  end
+
+  # `array` is the only supported `geopoint` format in this implementation.
+  def configure_field_constraint(df, name, "geopoint", {"format", "array"}) do
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      %{"check_geopoint_#{name}" => df[name] |> Explorer.Series.re_contains(@geopoint_array_pattern)}
     end)
   end
 end
