@@ -14,7 +14,7 @@ defmodule Transport.DataFrame.TableSchemaValidator do
   """
   def compute_validation_fields(%Explorer.DataFrame{} = df, schema) do
     fields = Map.fetch!(schema, "fields")
-    fields = fields |> Enum.take(15)
+    fields = fields |> Enum.take(18)
 
     Enum.reduce(fields, df, fn field, df ->
       configure_field(field, df)
