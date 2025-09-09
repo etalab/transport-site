@@ -99,6 +99,15 @@ defmodule Transport.DataFrame.TableSchemaValidator do
       %{"check_geopoint_#{name}" => df[name] |> Explorer.Series.re_contains(@geopoint_array_pattern)}
     end)
   end
+
+  # a hardcoded version which will work for both `required: true` and `minimum: 0` integer cases
+  @positive_integer_pattern ~S'\A\d+\z'
+
+  def configure_field_constraint(df, name, "integer", constraint) when constraint in [{"minimum", 0}, {"required", true}] do
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      %{"check_integer_minimum_#{name}" => df[name] |> Explorer.Series.re_contains(@positive_integer_pattern)}
+    end)
+  end
 end
 
 defmodule Transport.IRVE.ValidationTests do
