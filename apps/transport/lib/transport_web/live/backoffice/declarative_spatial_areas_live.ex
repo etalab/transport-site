@@ -127,6 +127,7 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
     matches =
       socket.assigns.searchable_administrative_divisions
       |> DB.AdministrativeDivision.search(query)
+      |> DB.AdministrativeDivision.sorted()
       |> Enum.reject(&(&1.id in existing_ids))
       |> Enum.take(5)
 
