@@ -105,26 +105,6 @@
         <% end %>
       </div>
     </div>
-
-    <div :if={@tiles |> upcoming_tiles() |> length() > 0} class="upcoming">
-      <h2><%= dgettext("page-index", "Coming soon") %></h2>
-      <div class="grid">
-        <%= for tile <- upcoming_tiles(@tiles) do %>
-          <%= if is_nil(tile.documentation_url) do %>
-            <div class="tile">
-              <%= img_tag(upcoming_icon_type_path(tile.type), class: "tile__icon", alt: "") %>
-              <h3 class="text-center"><%= tile.title %></h3>
-            </div>
-          <% else %>
-            <a class="tile" href={tile.documentation_url} target="_blank">
-              <%= img_tag(upcoming_icon_type_path(tile.type), class: "tile__icon", alt: "") %>
-              <h3 class="text-center"><%= tile.title %></h3>
-            </a>
-          <% end %>
-        <% end %>
-      </div>
-      <a class="mailing-list" href="#mailing-list"><%= dgettext("page-index", "I'd like to be informed") %></a>
-    </div>
   </div>
 </section>
 <section class="section section" id="territory">
