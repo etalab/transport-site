@@ -246,8 +246,55 @@ defmodule DB.Dataset do
   @spec filter_by_departement(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_departement(query, %{"insee_departement" => insee_departement}) do
     query
-    |> join(:inner, [dataset: d], r in assoc(d, :declarative_spatial_areas), as: :administrative_divison)
-    |> where([administrative_divison: ad], ad.type == :departement and ad.insee == ^insee_departement)
+    |> where(
+      [d],
+      fragment(
+        """
+        (
+          ? IN (
+              select dataset_id
+              from (
+                -- departement
+                select distinct d.id dataset_id, 1 as filter
+                from dataset d
+                join administrative_division ad on ad.type = 'departement' and ad.insee = ?
+                join dataset_declarative_spatial_area ddsa on ddsa.administrative_division_id = ad.id and d.id = ddsa.dataset_id
+                union
+                -- commune
+                select distinct d.id dataset_id, 2 as filter
+                from dataset d
+                join departement de on de.insee = ?
+                join commune c on c.departement_insee = de.insee
+                join administrative_division ad on ad.type = 'commune' and c.insee = ad.insee
+                join dataset_declarative_spatial_area ddsa on ddsa.administrative_division_id = ad.id and d.id = ddsa.dataset_id
+                union
+                -- epci
+                select distinct d.id dataset_id, 3 as filter
+                from dataset d
+                join departement de on de.insee = ?
+                join commune c on c.departement_insee = de.insee
+                join administrative_division ad on ad.type = 'epci' and c.epci_insee = ad.insee
+                join dataset_declarative_spatial_area ddsa on ddsa.administrative_division_id = ad.id and d.id = ddsa.dataset_id
+                union
+                -- region
+                select distinct d.id dataset_id, 4 as filter
+                from dataset d
+                join departement de on de.insee = ?
+                join commune c on c.departement_insee = de.insee
+                join region r on r.id = c.region_id
+                join administrative_division ad on ad.type = 'region' and r.insee = ad.insee
+                join dataset_declarative_spatial_area ddsa on ddsa.administrative_division_id = ad.id and d.id = ddsa.dataset_id
+              ) t
+              order by filter
+        ))
+        """,
+        d.id,
+        ^insee_departement,
+        ^insee_departement,
+        ^insee_departement,
+        ^insee_departement
+      )
+    )
   end
 
   defp filter_by_departement(query, _), do: query
