@@ -92,10 +92,10 @@ defmodule TransportWeb.GTFSDiffExplain.Explanations do
            "initial_value" => %{"stop_lat" => lat1, "stop_lon" => lon1}
          }
        ) do
-    {lat1, _} = Float.parse(lat1)
-    {lon1, _} = Float.parse(lon1)
-    {lat2, _} = Float.parse(lat2)
-    {lon2, _} = Float.parse(lon2)
+    {lat1, _} = parse_latitude_longitude(lat1)
+    {lon1, _} = parse_latitude_longitude(lon1)
+    {lat2, _} = parse_latitude_longitude(lat2)
+    {lon2, _} = parse_latitude_longitude(lon2)
 
     distance = round(curvilinear_abscissa({lat1, lon1}, {lat2, lon2}))
 
@@ -397,4 +397,18 @@ defmodule TransportWeb.GTFSDiffExplain.Explanations do
 
   def try_jason_decode(""), do: nil
   def try_jason_decode(input), do: Jason.decode!(input)
+
+  @doc """
+  iex> parse_latitude_longitude("47.6355")
+  {47.6355, ""}
+  iex> parse_latitude_longitude("   47.6355")
+  {47.6355, ""}
+  iex> parse_latitude_longitude("47.6355   ")
+  {47.6355, ""}
+  """
+  def parse_latitude_longitude(value) do
+    value
+    |> String.trim()
+    |> Float.parse()
+  end
 end

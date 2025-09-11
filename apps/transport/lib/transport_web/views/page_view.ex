@@ -1,7 +1,6 @@
 defmodule TransportWeb.PageView do
   use TransportWeb, :view
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
-  import TransportWeb.DatasetView, only: [upcoming_icon_type_path: 1]
 
   def current_tiles(tiles), do: Enum.filter(tiles, &(&1.count > 0))
 

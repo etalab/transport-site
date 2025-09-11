@@ -45,17 +45,28 @@ defmodule TransportWeb.Session do
     Map.get(current_user, @is_admin_key_name, false)
   end
 
+  # This clause is called from any session with current_user set
   def producer?(%Plug.Conn{} = conn) do
     conn |> current_user() |> Map.get(@is_producer_key_name, false)
   end
 
-  def producer?(%DB.Contact{organizations: organizations}) do
-    producer?(%{"organizations" => organizations})
+  # This clause is called rather from jobs that need to know if a contact is a producer
+  # Data comes from the database (hence the struct with atom keys)
+  def producer?(%DB.Contact{} = contact) do
+    %DB.Contact{organizations: organizations} = DB.Repo.preload(contact, :organizations)
+    organizations_ids = organizations |> Enum.map(& &1.id)
+    any_organization_id_is_any_dataset_organization?(organizations_ids)
   end
 
+  # This clause is called when setting the session.
+  # Data comes from datagouv API (hence the map with string keys)
   def producer?(%{"organizations" => orgs}) do
     org_ids = Enum.map(orgs, & &1["id"])
-    DB.Dataset.base_query() |> where([dataset: d], d.organization_id in ^org_ids) |> DB.Repo.exists?()
+    any_organization_id_is_any_dataset_organization?(org_ids)
+  end
+
+  def any_organization_id_is_any_dataset_organization?(organization_ids) when is_list(organization_ids) do
+    DB.Dataset.base_query() |> where([dataset: d], d.organization_id in ^organization_ids) |> DB.Repo.exists?()
   end
 
   @spec set_session_attribute_attribute(Plug.Conn.t(), binary(), boolean()) :: Plug.Conn.t()
