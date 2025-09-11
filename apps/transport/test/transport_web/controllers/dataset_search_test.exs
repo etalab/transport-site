@@ -358,10 +358,20 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     region = insert(:region, insee: "4")
     insert(:commune, insee: "3", departement_insee: departement.insee, region_insee: region.insee)
 
-    departement_ad = insert(:administrative_division, type: :departement, type_insee: "departement_#{departement.insee}", insee: departement.insee)
-    commune_ad = insert(:administrative_division, type: :commune, type_insee: "commune_#{commune.insee}", insee: commune.insee)
+    departement_ad =
+      insert(:administrative_division,
+        type: :departement,
+        type_insee: "departement_#{departement.insee}",
+        insee: departement.insee
+      )
+
+    commune_ad =
+      insert(:administrative_division, type: :commune, type_insee: "commune_#{commune.insee}", insee: commune.insee)
+
     epci_ad = insert(:administrative_division, type: :epci, type_insee: "epci_#{epci.insee}", insee: epci.insee)
-    region_ad = insert(:administrative_division, type: :region, type_insee: "region_#{region.insee}", insee: region.insee)
+
+    region_ad =
+      insert(:administrative_division, type: :region, type_insee: "region_#{region.insee}", insee: region.insee)
 
     d1 = insert(:dataset, declarative_spatial_areas: [departement_ad])
     d2 = insert(:dataset, declarative_spatial_areas: [commune_ad])
