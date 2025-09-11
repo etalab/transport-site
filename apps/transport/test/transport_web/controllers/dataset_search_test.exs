@@ -356,7 +356,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     epci = insert(:epci, insee: "2")
     insert(:commune, insee: "3", departement_insee: departement.insee, epci_insee: epci.insee)
     region = insert(:region, insee: "4")
-    insert(:commune, insee: "3", departement_insee: departement.insee, region_insee: region.insee)
+    insert(:commune, insee: "5", departement_insee: departement.insee, region_id: region.id)
 
     departement_ad =
       insert(:administrative_division,
