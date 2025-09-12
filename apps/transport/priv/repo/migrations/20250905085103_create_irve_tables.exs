@@ -58,11 +58,8 @@ defmodule DB.Repo.Migrations.CreateIrveTables do
       timestamps(type: :utc_datetime_usec)
     end
 
-    create(index(:irve_valid_file, [:dataset_datagouv_id]))
-    create(index(:irve_valid_file, [:resource_datagouv_id]))
-    create(index(:irve_valid_file, [:checksum]))
+    create(unique_index(:irve_valid_file, [:resource_datagouv_id, :checksum]))
 
     create(index(:irve_valid_pdc, [:irve_valid_file_id]))
-    create(index(:irve_valid_pdc, [:id_pdc_itinerance]))
   end
 end
