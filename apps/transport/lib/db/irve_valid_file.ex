@@ -7,9 +7,9 @@ defmodule DB.IRVEValidFile do
   use TypedEctoSchema
 
   typed_schema "irve_valid_file" do
-    field(:dataset_datagouv_id, :string)
-    field(:resource_datagouv_id, :string)
-    field(:checksum, :string)
+    field(:dataset_datagouv_id, :string, null: false)
+    field(:resource_datagouv_id, :string, null: false)
+    field(:checksum, :string, null: false)
     has_many(:irve_valid_pdcs, DB.IRVEValidPDC, foreign_key: :irve_valid_file_id)
     timestamps(type: :utc_datetime_usec)
   end
