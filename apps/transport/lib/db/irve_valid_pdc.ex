@@ -57,8 +57,8 @@ defmodule DB.IRVEValidPDC do
 
   def raw_data_to_schema(raw_data) do
     raw_data
-    |> Enum.map(fn {k, v} -> {String.to_atom(k), v} end)
-    |> Map.new()
+    |> Enum.filter(fn {k, _v} -> k in valid_fields() end)
+    |> Enum.into(%{}, fn {k, v} -> {String.to_existing_atom(k), v} end)
     |> split_coordinates()
     |> Map.update(:date_mise_en_service, nil, &parse_date/1)
     |> Map.update(:date_maj, nil, &parse_date/1)
@@ -100,4 +100,7 @@ defmodule DB.IRVEValidPDC do
   end
 
   defp parse_date(date), do: date
+
+  defp valid_fields,
+    do: Transport.IRVE.StaticIRVESchema.field_names_list() ++ ["id", "irve_valid_file_id", "longitude", "latitude"]
 end
