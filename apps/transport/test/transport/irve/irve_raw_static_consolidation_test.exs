@@ -30,7 +30,7 @@ defmodule Transport.IRVE.RawStaticConsolidationTest do
 
           assert headers ==
                    (Transport.IRVE.StaticIRVESchema.field_names_list() -- ["coordonneesXY", "cable_t2_attache"]) ++
-                     ["x", "y", "original_dataset_id", "original_resource_id"]
+                     ["longitude", "latitude", "original_dataset_id", "original_resource_id"]
 
           assert pdc_line == [
                    "Métropole de Nulle Part",
