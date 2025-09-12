@@ -99,7 +99,7 @@ defmodule DB.IRVEValidPDC do
     Date.from_iso8601!(date_string)
   end
 
-  defp parse_date(date), do: date
+  defp parse_date(%Date{} = date), do: date
 
   defp valid_fields,
     do: Transport.IRVE.StaticIRVESchema.field_names_list() ++ ["id", "irve_valid_file_id", "longitude", "latitude"]
