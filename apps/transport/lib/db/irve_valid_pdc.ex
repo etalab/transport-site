@@ -49,8 +49,8 @@ defmodule DB.IRVEValidPDC do
     field(:observations, :string)
     field(:date_maj, :date, null: false)
     field(:cable_t2_attache, :boolean)
-    field(:longitude, :float, null: false)
-    field(:latitude, :float, null: false)
+    field(:longitude, :decimal, null: false)
+    field(:latitude, :decimal, null: false)
 
     timestamps(type: :utc_datetime_usec)
   end

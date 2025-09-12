@@ -52,8 +52,8 @@ defmodule DB.Repo.Migrations.CreateIrveTables do
       add(:observations, :text)
       add(:date_maj, :date, null: false)
       add(:cable_t2_attache, :boolean)
-      add(:longitude, :float, null: false)
-      add(:latitude, :float, null: false)
+      add(:longitude, :decimal, null: false)
+      add(:latitude, :decimal, null: false)
 
       timestamps(type: :utc_datetime_usec)
     end
