@@ -32,7 +32,7 @@ msgstr "L'AOM %{id} n'existe pas"
 
 #, elixir-autogen, elixir-format
 msgid "Region %{insee} does not exist"
-msgstr "La région %{id} n'existe pas"
+msgstr "La région %{insee} n'existe pas"
 
 #, elixir-autogen, elixir-format
 msgid "400: Bad Request"

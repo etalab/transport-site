@@ -535,19 +535,19 @@ defmodule TransportWeb.DatasetController do
     end
   end
 
-  defp put_page_title(conn, %{"region" => region_id} = params) do
-    national_region = DB.Region.national()
+  defp put_page_title(conn, %{"region" => region_insee} = params) do
+    name = Repo.get_by!(Region, insee: region_insee).nom
 
     # For "region = (National) + modes[]=bus", which correspond to
     # long distance coaches (Flixbus, BlaBlaBus etc.) we don't want
     # to put the region name but instead "Long distance coaches"
-    if region_id == to_string(national_region.id) and Map.has_key?(params, "modes") do
+    if region_insee == DB.Region.national().insee and Map.has_key?(params, "modes") do
       put_page_title(conn, Map.delete(params, "region"))
     else
       assign(
         conn,
         :page_title,
-        %{type: dgettext("page-shortlist", "region"), name: get_name(Region, region_id)}
+        %{type: dgettext("page-shortlist", "region"), name: name}
       )
     end
   end

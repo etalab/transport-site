@@ -65,9 +65,9 @@ defmodule TransportWeb.SeoMetadataTest do
     assert title =~ "AOM Angers Métropôle AOM : Jeux de données ouverts"
   end
 
-  test "GET /datasets/region/12 ", %{conn: conn} do
+  test "GET /datasets/region/52 ", %{conn: conn} do
     region = Repo.get_by(Region, nom: "Pays de la Loire")
-    title = conn |> get(~p"/datasets/region/#{region.id}") |> html_response(200) |> title
+    title = conn |> get(~p"/datasets/region/#{region.insee}") |> html_response(200) |> title
     assert title =~ "Jeux de données ouverts de la région Pays de la Loire"
   end
 
