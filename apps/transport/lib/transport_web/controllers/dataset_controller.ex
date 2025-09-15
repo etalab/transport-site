@@ -188,15 +188,15 @@ defmodule TransportWeb.DatasetController do
   end
 
   @spec by_region(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def by_region(%Plug.Conn{} = conn, %{"region" => id} = params) do
-    error_msg = dgettext("errors", "Region %{id} does not exist", id: id)
+  def by_region(%Plug.Conn{} = conn, %{"region" => insee} = params) do
+    error_msg = dgettext("errors", "Region %{insee} does not exist", insee: insee)
 
     if System.get_env("DISABLE_DATASET_BY_REGION") == "true" do
       conn
       |> put_status(503)
       |> text("Fonctionnalité désactivée pour le moment.")
     else
-      by_territory(conn, Region |> where([r], r.id == ^id), params, error_msg, true)
+      by_territory(conn, Region |> where([r], r.insee == ^insee), params, error_msg, true)
     end
   end
 

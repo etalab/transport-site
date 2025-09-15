@@ -365,7 +365,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     insert(:dataset)
 
     assert [d1.id, d2.id, d3.id, d4.id] ==
-             %{"region" => region.id |> to_string()}
+             %{"region" => region.insee}
              |> DB.Dataset.list_datasets()
              |> DB.Repo.all()
              |> Enum.map(& &1.id)

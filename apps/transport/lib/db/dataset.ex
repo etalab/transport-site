@@ -235,9 +235,7 @@ defmodule DB.Dataset do
   defp filter_by_fulltext(query, _), do: query
 
   @spec filter_by_region(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_region(query, %{"region" => region_id}) do
-    region_id = String.to_integer(region_id)
-
+  defp filter_by_region(query, %{"region" => region_insee}) do
     query
     |> where(
       [d],
@@ -250,14 +248,14 @@ defmodule DB.Dataset do
                 -- region
                 select distinct d.id dataset_id, 1 as filter
                 from dataset d
-                join region r on r.id = ?
+                join region r on r.insee = ?
                 join administrative_division ad on ad.type = 'region' and r.insee = ad.insee
                 join dataset_declarative_spatial_area ddsa on ddsa.administrative_division_id = ad.id and d.id = ddsa.dataset_id
                 union
                 -- departement
                 select distinct d.id dataset_id, 2 as filter
                 from dataset d
-                join region r on r.id = ?
+                join region r on r.insee = ?
                 join departement de on de.region_insee = r.insee
                 join administrative_division ad on ad.type = 'departement' and de.insee = ad.insee
                 join dataset_declarative_spatial_area ddsa on ddsa.administrative_division_id = ad.id and d.id = ddsa.dataset_id
@@ -265,7 +263,7 @@ defmodule DB.Dataset do
                 -- epci
                 select distinct d.id dataset_id, 3 as filter
                 from dataset d
-                join region r on r.id = ?
+                join region r on r.insee = ?
                 join commune c on c.region_id = r.id
                 join administrative_division ad on ad.type = 'epci' and c.epci_insee = ad.insee
                 join dataset_declarative_spatial_area ddsa on ddsa.administrative_division_id = ad.id and d.id = ddsa.dataset_id
@@ -273,7 +271,7 @@ defmodule DB.Dataset do
                 -- commune
                 select distinct d.id dataset_id, 4 as filter
                 from dataset d
-                join region r on r.id = ?
+                join region r on r.insee = ?
                 join commune c on c.region_id = r.id
                 join administrative_division ad on ad.type = 'commune' and c.insee = ad.insee
                 join dataset_declarative_spatial_area ddsa on ddsa.administrative_division_id = ad.id and d.id = ddsa.dataset_id
@@ -282,10 +280,10 @@ defmodule DB.Dataset do
         ))
         """,
         d.id,
-        ^region_id,
-        ^region_id,
-        ^region_id,
-        ^region_id
+        ^region_insee,
+        ^region_insee,
+        ^region_insee,
+        ^region_insee
       )
     )
   end
