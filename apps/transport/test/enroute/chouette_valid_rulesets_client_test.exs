@@ -23,8 +23,7 @@ defmodule Transport.EnRoute.ChouetteValidRulesetsClientTest do
 
     Transport.Req.Mock
     |> expect(:get!, fn request ->
-      assert @fake_auth == request.options.auth
-      assert @base_url == request.options.base_url
+      expect_commons(request)
 
       assert URI.parse("") == request.url
 
@@ -51,8 +50,7 @@ defmodule Transport.EnRoute.ChouetteValidRulesetsClientTest do
 
     Transport.Req.Mock
     |> expect(:get, fn request, [url: url] ->
-      assert @fake_auth == request.options.auth
-      assert @base_url == request.options.base_url
+      expect_commons(request)
 
       assert "/#{slug}" == url
 
@@ -79,8 +77,7 @@ defmodule Transport.EnRoute.ChouetteValidRulesetsClientTest do
 
     Transport.Req.Mock
     |> expect(:request, fn request, [method: :post, url: "", json: json] ->
-      assert @fake_auth == request.options.auth
-      assert @base_url == request.options.base_url
+      expect_commons(request)
 
       assert name == json.ruleset.name
       assert slug == json.ruleset.slug
@@ -111,8 +108,7 @@ defmodule Transport.EnRoute.ChouetteValidRulesetsClientTest do
 
     Transport.Req.Mock
     |> expect(:request, fn request, [method: :put, url: url, json: json] ->
-      assert @fake_auth == request.options.auth
-      assert @base_url == request.options.base_url
+      expect_commons(request)
 
       assert "/#{slug}" == url
 
@@ -132,8 +128,7 @@ defmodule Transport.EnRoute.ChouetteValidRulesetsClientTest do
 
     Transport.Req.Mock
     |> expect(:delete, fn request, [url: url] ->
-      assert @fake_auth == request.options.auth
-      assert @base_url == request.options.base_url
+      expect_commons(request)
 
       assert "/#{ruleset_id}.json" == url
 
@@ -141,5 +136,10 @@ defmodule Transport.EnRoute.ChouetteValidRulesetsClientTest do
     end)
 
     assert :ok == ChouetteValidRulesetsClient.delete_ruleset(ruleset_id)
+  end
+
+  defp expect_commons(request) do
+    assert @fake_auth == request.options.auth
+    assert @base_url == request.options.base_url
   end
 end
