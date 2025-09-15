@@ -335,14 +335,13 @@ defmodule TransportWeb.DatasetSearchControllerTest do
              |> Enum.map(& &1.id)
   end
 
-
   test "search by region" do
     region = insert(:region, insee: "1")
     departement = insert(:departement, region_insee: region.insee)
     commune = insert(:commune, insee: "2", region_id: region.id)
     epci = insert(:epci, insee: "3")
-    insert(:commune, insee: "4", region_id: region.id, epci_insee: epci.insee
-    
+    insert(:commune, insee: "4", region_id: region.id, epci_insee: epci.insee)
+
     departement_ad =
       insert(:administrative_division,
         type: :departement,
@@ -366,7 +365,6 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     insert(:dataset)
 
     assert [d1.id, d2.id, d3.id, d4.id] ==
-
              %{"region" => region.id |> to_string()}
              |> DB.Dataset.list_datasets()
              |> DB.Repo.all()
