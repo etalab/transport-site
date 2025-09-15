@@ -34,6 +34,34 @@ defmodule Transport.EnRoute.ChouetteValidRulesetsClientTest do
     assert response_body == ChouetteValidRulesetsClient.list_rulesets()
   end
 
+  test "get ruleset by slug" do
+    name = "PAN - French Profile"
+    slug = "pan:french_profile:1"
+    definition = "[]"
+
+    response_body =
+      %{
+        "id" => "2d9ffada-d923-40ee-8c76-02f262b1d8d5",
+        "name" => name,
+        "slug" => slug,
+        "definition" => definition,
+        "created_at" => "2024-07-05T14:41:19.933Z",
+        "updated_at" => "2024-07-05T14:41:20.933Z"
+      }
+
+    Transport.Req.Mock
+    |> expect(:get, fn request, [url: url] ->
+      assert @fake_auth == request.options.auth
+      assert @base_url == request.options.base_url
+
+      assert "/#{slug}" == url
+
+      {:ok, %Req.Response{status: 200, body: response_body}}
+    end)
+
+    assert {:ok, response_body} == ChouetteValidRulesetsClient.get_ruleset(slug)
+  end
+
   test "create ruleset" do
     name = "PAN - French Profile"
     slug = "pan:french_profile:1"
@@ -82,11 +110,11 @@ defmodule Transport.EnRoute.ChouetteValidRulesetsClientTest do
       }
 
     Transport.Req.Mock
-    |> expect(:request, fn request, [method: :patch, url: url, json: json] ->
+    |> expect(:request, fn request, [method: :put, url: url, json: json] ->
       assert @fake_auth == request.options.auth
       assert @base_url == request.options.base_url
 
-      assert "/#{ruleset_id}.json" == url
+      assert "/#{slug}" == url
 
       assert name == json.ruleset.name
       assert slug == json.ruleset.slug
@@ -96,7 +124,7 @@ defmodule Transport.EnRoute.ChouetteValidRulesetsClientTest do
     end)
 
     assert {:ok, "2d9ffada-d923-40ee-8c76-02f262b1d8d5"} ==
-             ChouetteValidRulesetsClient.update_ruleset(ruleset_id, definition, name, slug)
+             ChouetteValidRulesetsClient.update_ruleset(definition, name, slug)
   end
 
   test "delete ruleset" do

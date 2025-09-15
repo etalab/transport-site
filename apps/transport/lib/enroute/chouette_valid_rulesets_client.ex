@@ -8,11 +8,13 @@ defmodule Transport.EnRoute.ChouetteValidRulesetsClient.Wrapper do
 
   @callback list_rulesets() :: list()
 
+  @callback get_ruleset(slug :: slug()) :: {:ok, map()} | {:error, binary()}
+
   @callback create_ruleset(definition :: binary(), name :: binary(), slug :: slug()) ::
               {:ok, ruleset_id()}
               | {:error, binary()}
 
-  @callback update_ruleset(ruleset_id :: ruleset_id(), definition :: binary(), name :: binary(), slug :: slug()) ::
+  @callback update_ruleset(definition :: binary(), name :: binary(), slug :: slug()) ::
               {:ok, ruleset_id()}
               | {:error, binary()}
 
@@ -35,13 +37,22 @@ defmodule Transport.EnRoute.ChouetteValidRulesetsClient do
   end
 
   @impl Transport.EnRoute.ChouetteValidRulesetsClient.Wrapper
+  def get_ruleset(slug) do
+    case http_client().get(base_request(), url: "/#{slug}") do
+      {:ok, resp} when resp.status in 200..299 -> {:ok, resp.body}
+      {:ok, resp} -> {:error, "Bad API response: Status code: #{resp.status}"}
+      {:error, e} -> {:error, Exception.message(e)}
+    end
+  end
+
+  @impl Transport.EnRoute.ChouetteValidRulesetsClient.Wrapper
   def create_ruleset(definition, name, slug) do
     upsert_ruleset(:post, "", definition, name, slug)
   end
 
   @impl Transport.EnRoute.ChouetteValidRulesetsClient.Wrapper
-  def update_ruleset(ruleset_id, definition, name, slug) do
-    upsert_ruleset(:patch, "/#{ruleset_id}.json", definition, name, slug)
+  def update_ruleset(definition, name, slug) do
+    upsert_ruleset(:put, "/#{slug}", definition, name, slug)
   end
 
   @impl Transport.EnRoute.ChouetteValidRulesetsClient.Wrapper
