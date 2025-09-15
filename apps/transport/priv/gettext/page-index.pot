@@ -55,10 +55,6 @@ msgid "See newly added datasets"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Coming soon"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Learn more"
 msgstr ""
 
@@ -116,10 +112,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Close the form"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "I'd like to be informed"
 msgstr ""
 
 #, elixir-autogen, elixir-format

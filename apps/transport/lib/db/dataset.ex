@@ -6,7 +6,7 @@ defmodule DB.Dataset do
   There are also trigger on update on aom and region that will force an update on this model
   so the search vector is up-to-date.
   """
-  alias DB.{AOM, Commune, DatasetGeographicView, LogsImport, NotificationSubscription, Region, Repo, Resource}
+  alias DB.{AOM, Commune, LogsImport, NotificationSubscription, Region, Repo, Resource}
   alias Phoenix.HTML.Link
   import Ecto.{Changeset, Query}
   use Gettext, backend: TransportWeb.Gettext
@@ -236,12 +236,117 @@ defmodule DB.Dataset do
 
   @spec filter_by_region(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_region(query, %{"region" => region_id}) do
+    region_id = String.to_integer(region_id)
+
     query
-    |> join(:right, [d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id)
-    |> where([d, d_geo], d_geo.region_id == ^region_id)
+    |> where(
+      [d],
+      fragment(
+        """
+        (
+          ? IN (
+              select dataset_id
+              from (
+                -- region
+                select distinct d.id dataset_id, 1 as filter
+                from dataset d
+                join region r on r.id = ?
+                join administrative_division ad on ad.type = 'region' and r.insee = ad.insee
+                join dataset_declarative_spatial_area ddsa on ddsa.administrative_division_id = ad.id and d.id = ddsa.dataset_id
+                union
+                -- departement
+                select distinct d.id dataset_id, 2 as filter
+                from dataset d
+                join region r on r.id = ?
+                join departement de on de.region_insee = r.insee
+                join administrative_division ad on ad.type = 'departement' and de.insee = ad.insee
+                join dataset_declarative_spatial_area ddsa on ddsa.administrative_division_id = ad.id and d.id = ddsa.dataset_id
+                union
+                -- epci
+                select distinct d.id dataset_id, 3 as filter
+                from dataset d
+                join region r on r.id = ?
+                join commune c on c.region_id = r.id
+                join administrative_division ad on ad.type = 'epci' and c.epci_insee = ad.insee
+                join dataset_declarative_spatial_area ddsa on ddsa.administrative_division_id = ad.id and d.id = ddsa.dataset_id
+                union
+                -- commune
+                select distinct d.id dataset_id, 4 as filter
+                from dataset d
+                join region r on r.id = ?
+                join commune c on c.region_id = r.id
+                join administrative_division ad on ad.type = 'commune' and c.insee = ad.insee
+                join dataset_declarative_spatial_area ddsa on ddsa.administrative_division_id = ad.id and d.id = ddsa.dataset_id
+              ) t
+              order by filter
+        ))
+        """,
+        d.id,
+        ^region_id,
+        ^region_id,
+        ^region_id,
+        ^region_id
+      )
+    )
   end
 
   defp filter_by_region(query, _), do: query
+
+  @spec filter_by_departement(Ecto.Query.t(), map()) :: Ecto.Query.t()
+  defp filter_by_departement(query, %{"insee_departement" => insee_departement}) do
+    query
+    |> where(
+      [d],
+      fragment(
+        """
+        (
+          ? IN (
+              select dataset_id
+              from (
+                -- departement
+                select distinct d.id dataset_id, 1 as filter
+                from dataset d
+                join administrative_division ad on ad.type = 'departement' and ad.insee = ?
+                join dataset_declarative_spatial_area ddsa on ddsa.administrative_division_id = ad.id and d.id = ddsa.dataset_id
+                union
+                -- commune
+                select distinct d.id dataset_id, 2 as filter
+                from dataset d
+                join departement de on de.insee = ?
+                join commune c on c.departement_insee = de.insee
+                join administrative_division ad on ad.type = 'commune' and c.insee = ad.insee
+                join dataset_declarative_spatial_area ddsa on ddsa.administrative_division_id = ad.id and d.id = ddsa.dataset_id
+                union
+                -- epci
+                select distinct d.id dataset_id, 3 as filter
+                from dataset d
+                join departement de on de.insee = ?
+                join commune c on c.departement_insee = de.insee
+                join administrative_division ad on ad.type = 'epci' and c.epci_insee = ad.insee
+                join dataset_declarative_spatial_area ddsa on ddsa.administrative_division_id = ad.id and d.id = ddsa.dataset_id
+                union
+                -- region
+                select distinct d.id dataset_id, 4 as filter
+                from dataset d
+                join departement de on de.insee = ?
+                join commune c on c.departement_insee = de.insee
+                join region r on r.id = c.region_id
+                join administrative_division ad on ad.type = 'region' and r.insee = ad.insee
+                join dataset_declarative_spatial_area ddsa on ddsa.administrative_division_id = ad.id and d.id = ddsa.dataset_id
+              ) t
+              order by filter
+        ))
+        """,
+        d.id,
+        ^insee_departement,
+        ^insee_departement,
+        ^insee_departement,
+        ^insee_departement
+      )
+    )
+  end
+
+  defp filter_by_departement(query, _), do: query
 
   @spec filter_by_category(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_category(query, %{"filter" => filter_key}) do
@@ -327,8 +432,6 @@ defmodule DB.Dataset do
 
   @spec filter_by_commune(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_commune(query, %{"insee_commune" => commune_insee}) do
-    # return the datasets available for a city.
-    # This dataset can either be linked to a city or to an AOM/region covering this city
     query
     |> where(
       [d],
@@ -336,29 +439,43 @@ defmodule DB.Dataset do
         """
         (
           ? IN (
-              (
-                SELECT DISTINCT dc.dataset_id FROM dataset_communes AS dc
-                JOIN commune ON commune.id = dc.commune_id
-                WHERE commune.insee = ?
-              )
-              UNION
-              (
-                SELECT dataset.id FROM dataset
-                JOIN aom ON aom.id = dataset.aom_id
-                JOIN commune ON commune.aom_res_id = aom.composition_res_id
-                WHERE commune.insee = ?
-              )
-              UNION
-              (
-                SELECT dataset.id FROM dataset
-                JOIN region ON region.id = dataset.region_id
-                JOIN commune ON commune.region_id = region.id
-                WHERE commune.insee = ?
-              )
+              select dataset_id
+              from (
+                -- region
+                select distinct d.id dataset_id, 1 as filter
+                from dataset d
+                join commune c on c.insee = ?
+                join region r on r.id = c.region_id
+                join administrative_division ad on ad.type = 'region' and r.insee = ad.insee
+                join dataset_declarative_spatial_area ddsa on ddsa.administrative_division_id = ad.id and d.id = ddsa.dataset_id
+                union
+                -- departement
+                select distinct d.id dataset_id, 2 as filter
+                from dataset d
+                join commune c on c.insee = ?
+                join administrative_division ad on ad.type = 'departement' and c.departement_insee = ad.insee
+                join dataset_declarative_spatial_area ddsa on ddsa.administrative_division_id = ad.id and d.id = ddsa.dataset_id
+                union
+                -- epci
+                select distinct d.id dataset_id, 3 as filter
+                from dataset d
+                join commune c on c.insee = ?
+                join administrative_division ad on ad.type = 'epci' and c.epci_insee = ad.insee
+                join dataset_declarative_spatial_area ddsa on ddsa.administrative_division_id = ad.id and d.id = ddsa.dataset_id
+                union
+                -- commune
+                select distinct d.id dataset_id, 4 as filter
+                from dataset d
+                join commune c on c.insee = ?
+                join administrative_division ad on ad.type = 'commune' and c.insee = ad.insee
+                join dataset_declarative_spatial_area ddsa on ddsa.administrative_division_id = ad.id and d.id = ddsa.dataset_id
+              ) t
+              order by filter
             )
         )
         """,
         d.id,
+        ^commune_insee,
         ^commune_insee,
         ^commune_insee,
         ^commune_insee
@@ -395,6 +512,7 @@ defmodule DB.Dataset do
       base_query()
       |> distinct([dataset: d], d.id)
       |> filter_by_region(params)
+      |> filter_by_departement(params)
       |> filter_by_feature(params)
       |> filter_by_mode(params)
       |> filter_by_category(params)
@@ -423,20 +541,6 @@ defmodule DB.Dataset do
         desc: fragment("ts_rank_cd(search_vector, plainto_tsquery('custom_french', ?), 32) DESC, population", ^q),
         asc: :custom_title
       )
-
-  def order_datasets(datasets, %{"region" => region_id}) do
-    case Integer.parse(region_id) do
-      {region_id, ""} ->
-        order_by(datasets,
-          desc: fragment("case when region_id = ? then 1 else 0 end", ^region_id),
-          desc: fragment("coalesce(population, 0)"),
-          asc: :custom_title
-        )
-
-      :error ->
-        datasets
-    end
-  end
 
   def order_datasets(datasets, %{"aom" => aom_id}) do
     aom_id = String.to_integer(aom_id)

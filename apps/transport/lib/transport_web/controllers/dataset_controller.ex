@@ -181,6 +181,12 @@ defmodule TransportWeb.DatasetController do
     by_territory(conn, AOM |> where([a], a.id == ^id), params, error_msg)
   end
 
+  @spec by_departement_insee(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def by_departement_insee(%Plug.Conn{} = conn, %{"insee_departement" => insee} = params) do
+    error_msg = dgettext("errors", "Department %{insee} does not exist", insee: insee)
+    by_territory(conn, DB.Departement |> where([d], d.insee == ^insee), params, error_msg)
+  end
+
   @spec by_region(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def by_region(%Plug.Conn{} = conn, %{"region" => id} = params) do
     error_msg = dgettext("errors", "Region %{id} does not exist", id: id)
@@ -553,6 +559,16 @@ defmodule TransportWeb.DatasetController do
       conn,
       :page_title,
       %{type: dgettext("page-shortlist", "city"), name: name}
+    )
+  end
+
+  defp put_page_title(conn, %{"insee_departement" => insee}) do
+    name = Repo.get_by!(DB.Departement, insee: insee).nom
+
+    assign(
+      conn,
+      :page_title,
+      %{type: dgettext("page-shortlist", "department"), name: name}
     )
   end
 

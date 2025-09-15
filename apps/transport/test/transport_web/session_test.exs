@@ -37,6 +37,29 @@ defmodule TransportWeb.SessionTest do
     end
   end
 
+  describe "with contact from database" do
+    test "producer?" do
+      contact = insert_contact()
+      # This contact has no orgs => not a producer
+      refute producer?(contact)
+
+      org = insert(:organization)
+
+      contact =
+        contact
+        |> Ecto.Changeset.change()
+        |> Ecto.Changeset.put_assoc(:organizations, [org])
+        |> DB.Repo.update!()
+
+      # Still not a producer as there is no dataset published by this org
+      refute producer?(DB.Repo.get(DB.Contact, contact.id))
+
+      insert(:dataset, organization_id: org.id)
+      # Now the contact is a producer
+      assert producer?(contact)
+    end
+  end
+
   describe "set_is_producer" do
     test "no datasets" do
       assert %{"is_producer" => false} ==
