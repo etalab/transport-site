@@ -250,42 +250,6 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     assert first_dataset_id != base_nationale_dataset_id
   end
 
-  test "datasets associated to a region are displayed first when searching for a region" do
-    aom_dataset = insert(:dataset, is_active: true)
-    refute is_nil(aom_dataset.aom_id)
-    aom = DB.Repo.get!(DB.AOM, aom_dataset.aom_id)
-    region_dataset = insert(:dataset, region_id: aom.region_id, is_active: true)
-
-    list_datasets = fn %{} = args ->
-      args |> Dataset.list_datasets() |> Repo.all() |> Enum.map(& &1.id)
-    end
-
-    assert [region_dataset.id, aom_dataset.id] == list_datasets.(%{"region" => aom.region_id |> to_string()})
-    assert list_datasets.(%{}) != list_datasets.(%{"region" => aom.region_id |> to_string()})
-  end
-
-  test "when searching for a region, use the population to sort" do
-    small_aom = insert(:aom, region: region = insert(:region), population: 100)
-    big_aom = insert(:aom, region: region, population: 200)
-
-    # regional dataset: first result expected
-    region_dataset = insert(:dataset, region_id: region.id, is_active: true, population: 0)
-    # small population: last result expected
-    aom_dataset_0 = insert(:dataset, is_active: true, aom: small_aom, custom_title: "AAA Plomberie")
-    # equal population, alphabetical order expected
-    aom_dataset_1 = insert(:dataset, is_active: true, aom: big_aom, custom_title: "ABC Plomberie")
-    aom_dataset_2 = insert(:dataset, is_active: true, aom: big_aom, custom_title: "BBB Plomberie")
-
-    list_datasets = fn %{} = args ->
-      args |> Dataset.list_datasets() |> Repo.all() |> Enum.map(& &1.id)
-    end
-
-    assert [region_dataset.id, aom_dataset_1.id, aom_dataset_2.id, aom_dataset_0.id] ==
-             list_datasets.(%{"region" => region.id |> to_string()})
-
-    assert list_datasets.(%{}) != list_datasets.(%{"region" => region.id |> to_string()})
-  end
-
   test "uses population and custom_title to sort by default" do
     small_aom = insert(:aom, population: 100)
     big_aom = insert(:aom, population: 200)
@@ -366,6 +330,42 @@ defmodule TransportWeb.DatasetSearchControllerTest do
 
     assert [d1.id, d2.id, d3.id, d4.id] ==
              %{"insee_departement" => departement.insee}
+             |> DB.Dataset.list_datasets()
+             |> DB.Repo.all()
+             |> Enum.map(& &1.id)
+  end
+
+  test "search by region" do
+    region = insert(:region, insee: "1")
+    departement = insert(:departement, region_insee: region.insee)
+    commune = insert(:commune, insee: "2", region_id: region.id)
+    epci = insert(:epci, insee: "3")
+    insert(:commune, insee: "4", region_id: region.id, epci_insee: epci.insee)
+
+    departement_ad =
+      insert(:administrative_division,
+        type: :departement,
+        type_insee: "departement_#{departement.insee}",
+        insee: departement.insee
+      )
+
+    commune_ad =
+      insert(:administrative_division, type: :commune, type_insee: "commune_#{commune.insee}", insee: commune.insee)
+
+    epci_ad = insert(:administrative_division, type: :epci, type_insee: "epci_#{epci.insee}", insee: epci.insee)
+
+    region_ad =
+      insert(:administrative_division, type: :region, type_insee: "region_#{region.insee}", insee: region.insee)
+
+    d1 = insert(:dataset, population: 4, declarative_spatial_areas: [region_ad])
+    d2 = insert(:dataset, population: 3, declarative_spatial_areas: [departement_ad])
+    d3 = insert(:dataset, population: 2, declarative_spatial_areas: [epci_ad])
+    d4 = insert(:dataset, population: 1, declarative_spatial_areas: [commune_ad])
+    # Other dataset is not included
+    insert(:dataset)
+
+    assert [d1.id, d2.id, d3.id, d4.id] ==
+             %{"region" => region.id |> to_string()}
              |> DB.Dataset.list_datasets()
              |> DB.Repo.all()
              |> Enum.map(& &1.id)
