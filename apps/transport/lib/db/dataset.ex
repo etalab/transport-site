@@ -589,24 +589,6 @@ defmodule DB.Dataset do
         asc: :custom_title
       )
 
-  def order_datasets(datasets, %{"aom" => aom_id}) do
-    aom_id = String.to_integer(aom_id)
-
-    order_by(datasets,
-      desc: fragment("case when aom_id = ? then 1 else 0 end", ^aom_id),
-      desc: fragment("coalesce(population, 0)"),
-      asc: :custom_title
-    )
-  end
-
-  def order_datasets(datasets, %{"insee_commune" => _insee_commune}) do
-    order_by(datasets,
-      # priority to non regional datasets when we search for a commune
-      desc: fragment("case when region_id is null then 1 else 0 end"),
-      asc: :custom_title
-    )
-  end
-
   def order_datasets(datasets, _params) do
     pan_publisher = Application.fetch_env!(:transport, :datagouvfr_transport_publisher_id)
 
