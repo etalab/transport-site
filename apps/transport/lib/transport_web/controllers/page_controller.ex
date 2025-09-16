@@ -123,7 +123,7 @@ defmodule TransportWeb.PageController do
         fn ->
           dataset_types = DB.Dataset.types()
           dataset_slugs = DB.Dataset.base_query() |> select([dataset: d], d.slug) |> DB.Repo.all()
-          region_insees = DB.Region |> select([r], r.insee) |> DB.Repo.all()
+          region_insees = DB.Region |> select([r], r.insee) |> where([r], not is_nil(r.insee)) |> DB.Repo.all()
           departement_insees = DB.Departement |> select([r], r.insee) |> DB.Repo.all()
           epci_insees = DB.EPCI |> select([a], a.insee) |> DB.Repo.all()
           commune_insees = DB.Commune |> select([c], c.insee) |> DB.Repo.all()

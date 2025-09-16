@@ -1,9 +1,18 @@
 defmodule TransportWeb.API.PlacesControllerTest do
-  use TransportWeb.DatabaseCase, cleanup: [:datasets]
-  use TransportWeb.ConnCase, async: false
+  use TransportWeb.ConnCase, async: true
   alias TransportWeb.API.Router.Helpers
-  alias DB.{AOM, Commune, Dataset, Region, Repo}
   import OpenApiSpex.TestAssertions
+  import DB.Factory
+
+  setup do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    insert(:administrative_division, nom: "Châteauroux", insee: "36044", type: :commune, type_insee: "commune_36044")
+    insert(:administrative_division, nom: "Châteauroux", insee: "1", type: :epci, type_insee: "epci_1")
+    insert(:administrative_division, nom: "Île-de-France", insee: "2", type: :region, type_insee: "region_2")
+    insert(:administrative_division, nom: "Île-de-France Mobilités", insee: "3", type: :epci, type_insee: "epci_3")
+    insert(:administrative_division, nom: "Chas", insee: "63096", type: :commune, type_insee: "commune_63096")
+    :ok
+  end
 
   defp cleanup(value) do
     # we cannot compare the urls as they can contain internal unstable db id
@@ -11,31 +20,27 @@ defmodule TransportWeb.API.PlacesControllerTest do
     Regex.replace(~r/([[:alnum:]]+$)/, value, ":id")
   end
 
-  # to be able to compare the result in a stable way, we sort and clean them
-  defp sort_and_clean(res),
-    do:
-      res
-      |> Enum.sort()
-      |> Enum.map(&Map.update!(&1, "url", fn v -> cleanup(v) end))
+  defp clean_urls(res),
+    do: Enum.map(res, &Map.update!(&1, "url", fn v -> cleanup(v) end))
 
   test "Search a place", %{conn: conn} do
     path = Helpers.places_path(conn, :autocomplete, q: "chat")
     conn = conn |> get(path)
     r = conn |> json_response(200)
 
-    assert sort_and_clean(r) ==
-             Enum.sort([
+    assert clean_urls(r) ==
+             [
+               %{
+                 "name" => "Châteauroux",
+                 "type" => "epci",
+                 "url" => "/datasets/epci/:id"
+               },
                %{
                  "name" => "Châteauroux (36044)",
                  "type" => "commune",
                  "url" => "/datasets/commune/:id"
-               },
-               %{
-                 "name" => "Châteauroux",
-                 "type" => "aom",
-                 "url" => "/datasets/aom/:id"
                }
-             ])
+             ]
 
     [etag] = conn |> get_resp_header("etag")
     json = json_response(conn, 200)
@@ -54,58 +59,58 @@ defmodule TransportWeb.API.PlacesControllerTest do
       |> get(Helpers.places_path(conn, :autocomplete, q: "cha"))
       |> json_response(200)
 
-    assert sort_and_clean(json) ==
-             Enum.sort([
-               %{
-                 "name" => "Châteauroux (36044)",
-                 "type" => "commune",
-                 "url" => "/datasets/commune/:id"
-               },
+    assert clean_urls(json) ==
+             [
                %{
                  "name" => "Châteauroux",
-                 "type" => "aom",
-                 "url" => "/datasets/aom/:id"
+                 "type" => "epci",
+                 "url" => "/datasets/epci/:id"
                },
                %{
                  "name" => "Chas (63096)",
                  "type" => "commune",
                  "url" => "/datasets/commune/:id"
+               },
+               %{
+                 "name" => "Châteauroux (36044)",
+                 "type" => "commune",
+                 "url" => "/datasets/commune/:id"
                }
-             ])
+             ]
 
     assert_response_schema(json, "AutocompleteResponse", TransportWeb.API.Spec.spec())
   end
 
-  test "Search a place with multiple word", %{conn: conn} do
+  test "Search a place with multiple words", %{conn: conn} do
     json =
       conn
       |> get(Helpers.places_path(conn, :autocomplete, q: "ile de fr"))
       |> json_response(200)
 
-    assert sort_and_clean(json) ==
-             Enum.sort([
-               %{
-                 "name" => "Île-de-France Mobilités",
-                 "type" => "aom",
-                 "url" => "/datasets/aom/:id"
-               },
+    assert clean_urls(json) ==
+             [
                %{
                  "name" => "Île-de-France",
                  "type" => "region",
                  "url" => "/datasets/region/:id"
+               },
+               %{
+                 "name" => "Île-de-France Mobilités",
+                 "type" => "epci",
+                 "url" => "/datasets/epci/:id"
                }
-             ])
+             ]
 
     assert_response_schema(json, "AutocompleteResponse", TransportWeb.API.Spec.spec())
   end
 
-  test "Search a unknown place", %{conn: conn} do
+  test "Search an unknown place", %{conn: conn} do
     json =
       conn
       |> get(Helpers.places_path(conn, :autocomplete, q: "pouet"))
       |> json_response(200)
 
-    assert sort_and_clean(json) == []
+    assert clean_urls(json) == []
 
     assert_response_schema(json, "AutocompleteResponse", TransportWeb.API.Spec.spec())
   end
