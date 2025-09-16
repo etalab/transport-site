@@ -14,7 +14,6 @@ defmodule Transport.DataFrame.TableSchemaValidator do
   """
   def compute_validation_fields(%Explorer.DataFrame{} = df, schema) do
     fields = Map.fetch!(schema, "fields")
-    fields = fields |> Enum.take(18)
 
     Enum.reduce(fields, df, fn field, df ->
       configure_field(field, df)
@@ -47,6 +46,7 @@ defmodule Transport.DataFrame.TableSchemaValidator do
   end
 
   def configure_field_constraint(df, name, type, {"required", false} = constraint) do
+    # TODO: rework type check - an optional field must still be type-verified. 
     df
   end
 
@@ -85,6 +85,12 @@ defmodule Transport.DataFrame.TableSchemaValidator do
     end)
   end
 
+  def configure_field_constraint(df, name, "boolean", {"required", true}) do
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      %{"check_enum_#{name}" => Explorer.Series.in(df[name], ["true", "false"])}
+    end)
+  end
+
   # hardcoded & home-baked, consequence of geopoint format
   @geopoint_array_pattern ~S'\A\[\-?\d+(\.\d+)?,\s?\-?\d+(\.\d+)?\]\z'
 
@@ -100,10 +106,30 @@ defmodule Transport.DataFrame.TableSchemaValidator do
     end)
   end
 
+  @iso_date_pattern ~S'\A\d{4}\-\d{2}\-\d{2}\z'
+
+  # double def - TODO: change
+  def configure_field_constraint(df, name, "date", constraint) when constraint in [{"format", "%Y-%m-%d"}, {"required", true}] do
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      %{"check_date_#{name}" => df[name] |> Explorer.Series.re_contains(@iso_date_pattern)}
+    end)
+  end
+
   # a hardcoded version which will work for both `required: true` and `minimum: 0` integer cases
   @positive_integer_pattern ~S'\A\d+\z'
 
+  # TODO: raise if check column already present (because the one below should raise, we double process)
+  # TODO: investigate if I can safely (and so far my experience hasn't been good) leverage Polars type casting
+  # for both number and integer, to simplify the checks & avoid regular expressions
   def configure_field_constraint(df, name, "integer", constraint) when constraint in [{"minimum", 0}, {"required", true}] do
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      %{"check_integer_minimum_#{name}" => df[name] |> Explorer.Series.re_contains(@positive_integer_pattern)}
+    end)
+  end
+
+  @positive_number_pattern ~S'\A\d+(\.\d+)?\z'
+
+  def configure_field_constraint(df, name, "number", constraint) when constraint in [{"minimum", 0}, {"required", true}] do
     Explorer.DataFrame.mutate_with(df, fn df ->
       %{"check_integer_minimum_#{name}" => df[name] |> Explorer.Series.re_contains(@positive_integer_pattern)}
     end)
@@ -128,7 +154,7 @@ defmodule Transport.IRVE.ValidationTests do
 
   test "validator" do
     # let's train on one of the largest files available, from the start.
-    file = Path.expand("~/Downloads/qualicharge-irve-statique.csv")
+    file = Path.expand("../../qualicharge-irve-statique.csv")
     schema = Transport.IRVE.StaticIRVESchema.schema_content()
     # TODO: allow missing fields, but with a proper warning
     dtypes = schema["fields"] |> Enum.map(&{&1["name"], :string})
