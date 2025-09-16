@@ -60,15 +60,22 @@ defmodule TransportWeb.SeoMetadataTest do
     assert title =~ "Le Point d’Accès National aux données ouvertes de transport"
   end
 
-  test "GET /datasets/aom/4242 ", %{conn: conn} do
-    title = conn |> get(~p"/datasets/aom/4242") |> html_response(200) |> title
-    assert title =~ "AOM Angers Métropôle AOM : Jeux de données ouverts"
-  end
-
   test "GET /datasets/region/52 ", %{conn: conn} do
     region = Repo.get_by(Region, nom: "Pays de la Loire")
     title = conn |> get(~p"/datasets/region/#{region.insee}") |> html_response(200) |> title
     assert title =~ "Jeux de données ouverts de la région Pays de la Loire"
+  end
+
+  test "GET /datasets/departement/76 ", %{conn: conn} do
+    insert(:departement, insee: "76", nom: "Seine Maritime")
+    title = conn |> get(~p"/datasets/departement/76") |> html_response(200) |> title
+    assert title =~ "Département Seine Maritime : Jeux de données ouverts"
+  end
+
+  test "GET /datasets/epci/4242 ", %{conn: conn} do
+    insert(:epci, insee: "4242", nom: "Angers Métropôle")
+    title = conn |> get(~p"/datasets/epci/4242") |> html_response(200) |> title
+    assert title =~ "EPCI Angers Métropôle : Jeux de données ouverts"
   end
 
   test "GET /datasets/commune/36044 ", %{conn: conn} do

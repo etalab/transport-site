@@ -28,14 +28,22 @@ defmodule TransportWeb.SeoMetadata do
     }
   end
 
-  def metadata(TransportWeb.DatasetView, %{page_title: %{type: "AOM", name: name}}),
+  def metadata(TransportWeb.DatasetView, %{
+        page_title: %{name: name},
+        conn: %{params: %{"departement" => _}}
+      }),
+      do: %{
+        title: dgettext("seo", "%{name} department: Transport open datasets", name: name)
+      }
+
+  def metadata(TransportWeb.DatasetView, %{page_title: %{type: "EPCI", name: name}}),
     do: %{
-      title: dgettext("seo", "%{name} AOM: Transport open datasets ", name: name)
+      title: dgettext("seo", "%{name} EPCI: Transport open datasets", name: name)
     }
 
   def metadata(TransportWeb.DatasetView, %{
         page_title: %{name: name},
-        conn: %{params: %{"insee_commune" => _}}
+        conn: %{params: %{"commune" => _}}
       }),
       do: %{
         title: dgettext("seo", "Transport open datasets for city %{name}", name: name)

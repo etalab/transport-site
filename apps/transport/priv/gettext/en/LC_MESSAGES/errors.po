@@ -27,10 +27,6 @@ msgid "Impossible to find a city with the insee code %{insee}"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "AOM %{id} does not exist"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Region %{insee} does not exist"
 msgstr ""
 
@@ -52,4 +48,8 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Department %{insee} does not exist"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "EPCI %{insee} does not exist"
 msgstr ""

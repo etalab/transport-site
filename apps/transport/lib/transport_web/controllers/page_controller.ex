@@ -123,9 +123,10 @@ defmodule TransportWeb.PageController do
         fn ->
           dataset_types = DB.Dataset.types()
           dataset_slugs = DB.Dataset.base_query() |> select([dataset: d], d.slug) |> DB.Repo.all()
-          region_ids = DB.Region |> select([r], r.id) |> DB.Repo.all()
-          aom_ids = DB.AOM |> select([a], a.id) |> DB.Repo.all()
-          insee_communes = DB.Commune |> select([c], c.insee) |> DB.Repo.all()
+          region_insees = DB.Region |> select([r], r.insee) |> DB.Repo.all()
+          departement_insees = DB.Departement |> select([r], r.insee) |> DB.Repo.all()
+          epci_insees = DB.EPCI |> select([a], a.insee) |> DB.Repo.all()
+          commune_insees = DB.Commune |> select([c], c.insee) |> DB.Repo.all()
 
           [
             page_url(conn, :index),
@@ -151,9 +152,10 @@ defmodule TransportWeb.PageController do
           ] ++
             Enum.map(dataset_types, &dataset_url(conn, :index, type: &1)) ++
             Enum.map(dataset_slugs, &dataset_url(conn, :details, &1)) ++
-            Enum.map(region_ids, &dataset_url(conn, :by_region, &1)) ++
-            Enum.map(aom_ids, &dataset_url(conn, :by_aom, &1)) ++
-            Enum.map(insee_communes, &dataset_url(conn, :by_commune_insee, &1))
+            Enum.map(region_insees, &dataset_url(conn, :by_region, &1)) ++
+            Enum.map(departement_insees, &dataset_url(conn, :by_departement_insee, &1)) ++
+            Enum.map(epci_insees, &dataset_url(conn, :by_epci, &1)) ++
+            Enum.map(commune_insees, &dataset_url(conn, :by_commune_insee, &1))
         end,
         :timer.hours(1)
       )

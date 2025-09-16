@@ -235,10 +235,10 @@ defmodule DB.Dataset do
   defp filter_by_fulltext(query, _), do: query
 
   @spec filter_by_region(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_region(query, %{"region" => region_insee}) do
+  defp filter_by_region(query, %{"region" => region}) do
     query
     |> where(
-      [d],
+      [dataset: d],
       fragment(
         """
         (
@@ -280,10 +280,10 @@ defmodule DB.Dataset do
         ))
         """,
         d.id,
-        ^region_insee,
-        ^region_insee,
-        ^region_insee,
-        ^region_insee
+        ^region,
+        ^region,
+        ^region,
+        ^region
       )
     )
   end
@@ -291,10 +291,10 @@ defmodule DB.Dataset do
   defp filter_by_region(query, _), do: query
 
   @spec filter_by_departement(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_departement(query, %{"insee_departement" => insee_departement}) do
+  defp filter_by_departement(query, %{"departement" => insee}) do
     query
     |> where(
-      [d],
+      [dataset: d],
       fragment(
         """
         (
@@ -336,10 +336,10 @@ defmodule DB.Dataset do
         ))
         """,
         d.id,
-        ^insee_departement,
-        ^insee_departement,
-        ^insee_departement,
-        ^insee_departement
+        ^insee,
+        ^insee,
+        ^insee,
+        ^insee
       )
     )
   end
@@ -419,20 +419,69 @@ defmodule DB.Dataset do
   defp filter_by_type(query, %{"type" => type}), do: where(query, [d], d.type == ^type)
   defp filter_by_type(query, _), do: query
 
-  @spec filter_by_aom(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_aom(query, %{"aom" => aom_id}) do
-    query
-    |> join(:left, [dataset: d], aom in assoc(d, :legal_owners_aom), on: aom.id == ^aom_id, as: :aom)
-    |> where([dataset: d, aom: aom], d.aom_id == ^aom_id or aom.id == ^aom_id)
-  end
-
-  defp filter_by_aom(query, _), do: query
-
-  @spec filter_by_commune(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_commune(query, %{"insee_commune" => commune_insee}) do
+  @spec filter_by_epci(Ecto.Query.t(), map()) :: Ecto.Query.t()
+  defp filter_by_epci(query, %{"epci" => epci}) do
     query
     |> where(
-      [d],
+      [dataset: d],
+      fragment(
+        """
+        (
+          ? IN (
+              select dataset_id
+              from (
+                -- region
+                select distinct d.id dataset_id, 1 as filter
+                from dataset d
+                join epci e on e.insee = ?
+                join commune c on c.epci_insee = e.insee
+                join region r on r.id = c.region_id
+                join administrative_division ad on ad.type = 'region' and r.insee = ad.insee
+                join dataset_declarative_spatial_area ddsa on ddsa.administrative_division_id = ad.id and d.id = ddsa.dataset_id
+                union
+                -- departement
+                select distinct d.id dataset_id, 2 as filter
+                from dataset d
+                join epci e on e.insee = ?
+                join commune c on c.epci_insee = e.insee
+                join administrative_division ad on ad.type = 'departement' and c.departement_insee = ad.insee
+                join dataset_declarative_spatial_area ddsa on ddsa.administrative_division_id = ad.id and d.id = ddsa.dataset_id
+                union
+                -- epci
+                select distinct d.id dataset_id, 3 as filter
+                from dataset d
+                join epci e on e.insee = ?
+                join administrative_division ad on ad.type = 'epci' and e.insee = ad.insee
+                join dataset_declarative_spatial_area ddsa on ddsa.administrative_division_id = ad.id and d.id = ddsa.dataset_id
+                union
+                -- commune
+                select distinct d.id dataset_id, 4 as filter
+                from dataset d
+                join epci e on e.insee = ?
+                join commune c on c.epci_insee = e.insee
+                join administrative_division ad on ad.type = 'commune' and c.insee = ad.insee
+                join dataset_declarative_spatial_area ddsa on ddsa.administrative_division_id = ad.id and d.id = ddsa.dataset_id
+              ) t
+              order by filter
+            )
+        )
+        """,
+        d.id,
+        ^epci,
+        ^epci,
+        ^epci,
+        ^epci
+      )
+    )
+  end
+
+  defp filter_by_epci(query, _), do: query
+
+  @spec filter_by_commune(Ecto.Query.t(), map()) :: Ecto.Query.t()
+  defp filter_by_commune(query, %{"commune" => commune}) do
+    query
+    |> where(
+      [dataset: d],
       fragment(
         """
         (
@@ -473,10 +522,10 @@ defmodule DB.Dataset do
         )
         """,
         d.id,
-        ^commune_insee,
-        ^commune_insee,
-        ^commune_insee,
-        ^commune_insee
+        ^commune,
+        ^commune,
+        ^commune,
+        ^commune
       )
     )
   end
@@ -511,12 +560,12 @@ defmodule DB.Dataset do
       |> distinct([dataset: d], d.id)
       |> filter_by_region(params)
       |> filter_by_departement(params)
+      |> filter_by_epci(params)
+      |> filter_by_commune(params)
       |> filter_by_feature(params)
       |> filter_by_mode(params)
       |> filter_by_category(params)
       |> filter_by_type(params)
-      |> filter_by_aom(params)
-      |> filter_by_commune(params)
       |> filter_by_licence(params)
       |> filter_by_custom_tag(params)
       |> filter_by_organization(params)

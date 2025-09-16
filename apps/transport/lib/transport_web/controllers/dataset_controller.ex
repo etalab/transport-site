@@ -1,7 +1,7 @@
 defmodule TransportWeb.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Authentication
-  alias DB.{AOM, Commune, Dataset, DatasetGeographicView, Region, Repo}
+  alias DB.{Dataset, DatasetGeographicView, Region, Repo}
   import Ecto.Query
 
   import TransportWeb.DatasetView,
@@ -175,18 +175,6 @@ defmodule TransportWeb.DatasetController do
 
   def gtfs_rt_entities(%Dataset{}), do: %{}
 
-  @spec by_aom(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def by_aom(%Plug.Conn{} = conn, %{"aom" => id} = params) do
-    error_msg = dgettext("errors", "AOM %{id} does not exist", id: id)
-    by_territory(conn, AOM |> where([a], a.id == ^id), params, error_msg)
-  end
-
-  @spec by_departement_insee(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def by_departement_insee(%Plug.Conn{} = conn, %{"insee_departement" => insee} = params) do
-    error_msg = dgettext("errors", "Department %{insee} does not exist", insee: insee)
-    by_territory(conn, DB.Departement |> where([d], d.insee == ^insee), params, error_msg)
-  end
-
   @spec by_region(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def by_region(%Plug.Conn{} = conn, %{"region" => insee} = params) do
     error_msg = dgettext("errors", "Region %{insee} does not exist", insee: insee)
@@ -196,12 +184,24 @@ defmodule TransportWeb.DatasetController do
       |> put_status(503)
       |> text("Fonctionnalité désactivée pour le moment.")
     else
-      by_territory(conn, Region |> where([r], r.insee == ^insee), params, error_msg, true)
+      by_territory(conn, DB.Region |> where([r], r.insee == ^insee), params, error_msg, true)
     end
   end
 
+  @spec by_departement_insee(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def by_departement_insee(%Plug.Conn{} = conn, %{"departement" => insee} = params) do
+    error_msg = dgettext("errors", "Department %{insee} does not exist", insee: insee)
+    by_territory(conn, DB.Departement |> where([d], d.insee == ^insee), params, error_msg)
+  end
+
+  @spec by_epci(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def by_epci(%Plug.Conn{} = conn, %{"epci" => insee} = params) do
+    error_msg = dgettext("errors", "EPCI %{insee} does not exist", insee: insee)
+    by_territory(conn, DB.EPCI |> where([a], a.insee == ^insee), params, error_msg)
+  end
+
   @spec by_commune_insee(Plug.Conn.t(), map) :: Plug.Conn.t()
-  def by_commune_insee(%Plug.Conn{} = conn, %{"insee_commune" => insee} = params) do
+  def by_commune_insee(%Plug.Conn{} = conn, %{"commune" => insee} = params) do
     error_msg =
       dgettext(
         "errors",
@@ -209,7 +209,7 @@ defmodule TransportWeb.DatasetController do
         insee: insee
       )
 
-    by_territory(conn, Commune |> where([c], c.insee == ^insee), params, error_msg)
+    by_territory(conn, DB.Commune |> where([c], c.insee == ^insee), params, error_msg)
   end
 
   defp unavailabilities(%Dataset{id: id, resources: resources}) do
@@ -481,32 +481,26 @@ defmodule TransportWeb.DatasetController do
   end
 
   @spec get_name(Ecto.Queryable.t(), binary()) :: binary()
-  defp get_name(territory, id) do
+  defp get_name(territory, insee) do
     territory
-    |> Repo.get(id)
+    |> Repo.get_by(insee: insee)
     |> case do
-      nil -> id
+      nil -> insee
       t -> t.nom
     end
   end
 
   @spec empty_message_by_territory(map()) :: binary()
-  defp empty_message_by_territory(%{"aom" => id}) do
-    dgettext("page-shortlist", "AOM %{name} has not yet published any datasets", name: get_name(AOM, id))
+  defp empty_message_by_territory(%{"epci" => insee}) do
+    dgettext("page-shortlist", "EPCI %{name} has not yet published any datasets", name: get_name(DB.EPCI, insee))
   end
 
-  defp empty_message_by_territory(%{"region" => id}) do
-    dgettext("page-shortlist", "There is no data for region %{name}", name: get_name(Region, id))
+  defp empty_message_by_territory(%{"region" => insee}) do
+    dgettext("page-shortlist", "There is no data for region %{name}", name: get_name(DB.Region, insee))
   end
 
-  defp empty_message_by_territory(%{"insee_commune" => insee}) do
-    name =
-      case Repo.get_by(Commune, insee: insee) do
-        nil -> insee
-        a -> a.nom
-      end
-
-    dgettext("page-shortlist", "There is no data for city %{name}", name: name)
+  defp empty_message_by_territory(%{"commune" => insee}) do
+    dgettext("page-shortlist", "There is no data for city %{name}", name: get_name(DB.Region, insee))
   end
 
   defp empty_message_by_territory(_params), do: dgettext("page-shortlist", "No dataset found")
@@ -535,49 +529,43 @@ defmodule TransportWeb.DatasetController do
     end
   end
 
-  defp put_page_title(conn, %{"region" => region_insee} = params) do
-    name = Repo.get_by!(Region, insee: region_insee).nom
-
+  defp put_page_title(conn, %{"region" => insee} = params) do
     # For "region = (National) + modes[]=bus", which correspond to
     # long distance coaches (Flixbus, BlaBlaBus etc.) we don't want
     # to put the region name but instead "Long distance coaches"
-    if region_insee == DB.Region.national().insee and Map.has_key?(params, "modes") do
+    if insee == DB.Region.national().insee and Map.has_key?(params, "modes") do
       put_page_title(conn, Map.delete(params, "region"))
     else
       assign(
         conn,
         :page_title,
-        %{type: dgettext("page-shortlist", "region"), name: name}
+        %{type: dgettext("page-shortlist", "region"), name: get_name(DB.Region, insee)}
       )
     end
   end
 
-  defp put_page_title(conn, %{"insee_commune" => insee}) do
-    name = Repo.get_by!(Commune, insee: insee).nom
-
+  defp put_page_title(conn, %{"commune" => insee}) do
     assign(
       conn,
       :page_title,
-      %{type: dgettext("page-shortlist", "city"), name: name}
+      %{type: dgettext("page-shortlist", "city"), name: get_name(DB.Commune, insee)}
     )
   end
 
-  defp put_page_title(conn, %{"insee_departement" => insee}) do
-    name = Repo.get_by!(DB.Departement, insee: insee).nom
-
+  defp put_page_title(conn, %{"departement" => insee}) do
     assign(
       conn,
       :page_title,
-      %{type: dgettext("page-shortlist", "department"), name: name}
+      %{type: dgettext("page-shortlist", "department"), name: get_name(DB.Departement, insee)}
     )
   end
 
-  defp put_page_title(conn, %{"aom" => id}),
+  defp put_page_title(conn, %{"epci" => insee}),
     do:
       assign(
         conn,
         :page_title,
-        %{type: "AOM", name: get_name(AOM, id)}
+        %{type: "EPCI", name: get_name(DB.EPCI, insee)}
       )
 
   defp put_page_title(%Plug.Conn{request_path: request_path, query_params: query_params} = conn, _) do

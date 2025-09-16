@@ -49,13 +49,13 @@ defmodule TransportWeb.DatasetView do
     )
   end
 
-  def pagination_links(%{path_info: ["datasets", "aom", aom]} = conn, datasets) do
-    kwargs = [path: &Helpers.dataset_path/4, action: :by_aom] |> add_query_params(conn.query_params)
+  def pagination_links(%{path_info: ["datasets", "epci", epci]} = conn, datasets) do
+    kwargs = [path: &Helpers.dataset_path/4, action: :by_epci] |> add_query_params(conn.query_params)
 
     PaginationHelpers.pagination_links(
       conn,
       datasets,
-      [aom],
+      [epci],
       kwargs
     )
   end
@@ -134,8 +134,8 @@ defmodule TransportWeb.DatasetView do
     link(nom, to: dataset_path(conn, :by_region, id))
   end
 
-  def legal_owner_link(conn, %DB.AOM{nom: nom, id: id}) do
-    link(nom, to: dataset_path(conn, :by_aom, id))
+  def legal_owner_link(conn, %DB.AOM{nom: nom, siren: siren}) do
+    link(nom, to: dataset_path(conn, :by_epci, siren))
   end
 
   def type_link(conn, %{type: type, msg: msg, count: count}) do
