@@ -27,6 +27,14 @@ defmodule TransportWeb.GtfsDiffExplainTest do
       %{
         "action" => "update",
         "file" => "stops.txt",
+        "identifier" => "{\"stop_id\":\"4000055\"}",
+        "initial_value" => "{\"stop_lat\":\"47.632\", \"stop_lon\":\"6.114208\"}",
+        "new_value" => "{\"stop_lat\":\"47.632\", \"stop_lon\":\"6.1142\"}",
+        "target" => "row"
+      },
+      %{
+        "action" => "update",
+        "file" => "stops.txt",
         "identifier" => "{\"stop_id\":\"100\"}",
         "initial_value" => "{\"wheelchair_boarding\":\"0\", \"location_type\": \"0\"}",
         "new_value" => "{\"wheelchair_boarding\":\"1\", \"location_type\": \"1\"}",
