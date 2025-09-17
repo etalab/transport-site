@@ -34,19 +34,34 @@ defmodule TransportWeb.API.StatsControllerTest do
   end
 
   test "Get the vehicles sharing stats", %{conn: _conn} do
-    aom =
-      insert(:aom,
+    ad =
+      insert(:administrative_division,
+        type: :epci,
+        insee: "01",
         geom:
           "SRID=4326;POLYGON((55.5832 -21.3723,55.5510 -21.3743,55.5359 -21.3631,55.5832 -21.3723))"
           |> Geo.WKT.decode!()
       )
 
     dataset1 =
-      :dataset
-      |> insert(%{type: "vehicles-sharing", is_active: true, aom: aom, custom_title: "other name", slug: "a"})
+      insert(:dataset, %{
+        type: "vehicles-sharing",
+        is_active: true,
+        declarative_spatial_areas: [ad],
+        custom_title: "other name",
+        slug: "a"
+      })
 
     dataset2 =
-      :dataset |> insert(%{type: "vehicles-sharing", is_active: true, aom: aom, custom_title: "name", slug: "z"})
+      insert(:dataset, %{
+        type: "vehicles-sharing",
+        is_active: true,
+        declarative_spatial_areas: [ad],
+        custom_title: "name",
+        slug: "z"
+      })
+
+    insert(:dataset)
 
     expected = [
       %{
