@@ -13,8 +13,8 @@ defmodule Transport.IRVE.DatabaseImporter do
   def write_to_db(file_path, dataset_datagouv_id, resource_datagouv_id) do
     content = File.read!(file_path)
 
-    rows =
-      content |> Transport.IRVE.Processing.read_as_data_frame() |> Explorer.DataFrame.to_rows()
+    rows_stream =
+      content |> Transport.IRVE.Processing.read_as_data_frame() |> Explorer.DataFrame.to_rows_stream()
 
     checksum = :crypto.hash(:sha256, content) |> Base.encode16(case: :lower)
 
@@ -22,7 +22,7 @@ defmodule Transport.IRVE.DatabaseImporter do
       # This may raise an error if we try to insert a duplicate (same resource_datagouv_id and checksum)
       # which is fine, the caller should handle it.
       {:ok, %DB.IRVEValidFile{id: file_id}} = write_new_file(dataset_datagouv_id, resource_datagouv_id, checksum)
-      write_pdcs(rows, file_id)
+      write_pdcs(rows_stream, file_id)
       # Eventually try to erase previous file, which cascades on delete on PDCs.
       delete_previous_file_and_pdcs(dataset_datagouv_id, resource_datagouv_id, checksum)
     end)
@@ -42,11 +42,11 @@ defmodule Transport.IRVE.DatabaseImporter do
     DB.Repo.insert(file_data, returning: [:id])
   end
 
-  defp write_pdcs(rows, file_id) do
-    rows
-    |> Enum.map(&DB.IRVEValidPDC.raw_data_to_schema/1)
-    |> Enum.map(&Map.put(&1, :irve_valid_file_id, file_id))
-    |> Enum.map(&DB.IRVEValidPDC.insert_timestamps/1)
+  defp write_pdcs(rows_stream, file_id) do
+    rows_stream
+    |> Stream.map(&DB.IRVEValidPDC.raw_data_to_schema/1)
+    |> Stream.map(&Map.put(&1, :irve_valid_file_id, file_id))
+    |> Stream.map(&DB.IRVEValidPDC.insert_timestamps/1)
     |> Stream.chunk_every(1000)
     |> Stream.each(fn chunk ->
       DB.Repo.insert_all(DB.IRVEValidPDC, chunk)
