@@ -99,7 +99,7 @@ defmodule TransportWeb.GTFSDiffExplain.Explanations do
 
     distance = round(curvilinear_abscissa({lat1, lon1}, {lat2, lon2}))
 
-    if distance > 0 do
+    if distance >= 2 do
       [
         %{
           file: "stops.txt",
