@@ -21,14 +21,14 @@ defmodule Transport.IRVE.DatabaseImporter do
     DB.Repo.transaction(fn ->
       # This may raise an error if we try to insert a duplicate (same resource_datagouv_id and checksum)
       # which is fine, the caller should handle it.
-      {:ok, %DB.IRVEValidFile{id: file_id}} = write_new_file(dataset_datagouv_id, resource_datagouv_id, checksum)
+      %DB.IRVEValidFile{id: file_id} = write_new_file!(dataset_datagouv_id, resource_datagouv_id, checksum)
       write_pdcs(rows_stream, file_id)
       # Eventually try to erase previous file, which cascades on delete on PDCs.
       delete_previous_file_and_pdcs(dataset_datagouv_id, resource_datagouv_id, checksum)
     end)
   end
 
-  defp write_new_file(dataset_datagouv_id, resource_datagouv_id, checksum) do
+  defp write_new_file!(dataset_datagouv_id, resource_datagouv_id, checksum) do
     now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
 
     file_data = %DB.IRVEValidFile{
@@ -39,7 +39,7 @@ defmodule Transport.IRVE.DatabaseImporter do
       updated_at: now
     }
 
-    DB.Repo.insert(file_data, returning: [:id])
+    DB.Repo.insert!(file_data, returning: [:id])
   end
 
   defp write_pdcs(rows_stream, file_id) do
