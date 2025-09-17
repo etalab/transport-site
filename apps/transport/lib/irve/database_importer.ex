@@ -1,41 +1,31 @@
 defmodule Transport.IRVE.DatabaseImporter do
   @moduledoc """
-  A module to import IRVE data files and their PDC into the database.
-  It assumes you have a path to a valid IRVE data file.
+  A module to import IRVE data files and their PDC into the database, through it’s main function `write_to_db/3`.
+  This function assumes you have a path to a valid IRVE data file stored on the disk (e.g. temp folder).
+  It also assumes that you have checked that you haven’t imported yet this exact version of the file before.
+  If you try to import the same version again (same resource_id and checksum), it will raise an error.
+  When you import a new version of an existing file (same resource_id but different checksum), inside the same transaction,
+  it will insert a new file (different record ID) and it’s PDCs, then delete the previous file and its PDCs.
   """
 
   import Ecto.Query
 
   def write_to_db(file_path, dataset_datagouv_id, resource_datagouv_id) do
-    {:ok, content} = File.read(file_path)
+    content = File.read!(file_path)
 
     rows =
       content |> Transport.IRVE.Processing.read_as_data_frame() |> Explorer.DataFrame.to_rows()
 
     checksum = :crypto.hash(:sha256, content) |> Base.encode16(case: :lower)
 
-    previous_version = get_previous_file(dataset_datagouv_id, resource_datagouv_id)
-
-    case previous_version do
-      #  If previous version exists and checksum is the same, do nothing.
-      %DB.IRVEValidFile{checksum: ^checksum} ->
-        :no_change
-
-      # If there is no previous version, insert one. Then insert all PDCs.
-      nil ->
-        DB.Repo.transaction(fn ->
-          {:ok, %DB.IRVEValidFile{id: file_id}} = write_new_file(dataset_datagouv_id, resource_datagouv_id, checksum)
-          write_pdcs(rows, file_id)
-        end)
-
-      # If previous version exists but checksum is different, update it, then delete all PDCs and reinsert them.
-      %DB.IRVEValidFile{} ->
-        DB.Repo.transaction(fn ->
-          {:ok, %DB.IRVEValidFile{id: file_id}} = update_file(previous_version, checksum)
-          delete_previous_pdcs(file_id)
-          write_pdcs(rows, file_id)
-        end)
-    end
+    DB.Repo.transaction(fn ->
+      # This may raise an error if we try to insert a duplicate (same resource_datagouv_id and checksum)
+      # which is fine, the caller should handle it.
+      {:ok, %DB.IRVEValidFile{id: file_id}} = write_new_file(dataset_datagouv_id, resource_datagouv_id, checksum)
+      write_pdcs(rows, file_id)
+      # Eventually try to erase previous file, which cascades on delete on PDCs.
+      delete_previous_file_and_pdcs(dataset_datagouv_id, resource_datagouv_id, checksum)
+    end)
   end
 
   defp write_new_file(dataset_datagouv_id, resource_datagouv_id, checksum) do
@@ -52,24 +42,6 @@ defmodule Transport.IRVE.DatabaseImporter do
     DB.Repo.insert(file_data, returning: [:id])
   end
 
-  defp get_previous_file(dataset_datagouv_id, resource_datagouv_id) do
-    DB.IRVEValidFile
-    |> where([f], f.dataset_datagouv_id == ^dataset_datagouv_id and f.resource_datagouv_id == ^resource_datagouv_id)
-    |> DB.Repo.one()
-  end
-
-  defp update_file(%DB.IRVEValidFile{} = previous_file, checksum) do
-    now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
-
-    changeset =
-      Ecto.Changeset.change(previous_file,
-        checksum: checksum,
-        updated_at: now
-      )
-
-    DB.Repo.update(changeset, returning: [:id])
-  end
-
   defp write_pdcs(rows, file_id) do
     rows
     |> Enum.map(&DB.IRVEValidPDC.raw_data_to_schema/1)
@@ -82,8 +54,13 @@ defmodule Transport.IRVE.DatabaseImporter do
     |> Stream.run()
   end
 
-  defp delete_previous_pdcs(file_id) do
-    from(p in DB.IRVEValidPDC, where: p.irve_valid_file_id == ^file_id)
+  defp delete_previous_file_and_pdcs(dataset_datagouv_id, resource_datagouv_id, checksum) do
+    from(f in DB.IRVEValidFile,
+      where:
+        f.dataset_datagouv_id == ^dataset_datagouv_id and f.resource_datagouv_id == ^resource_datagouv_id and
+          f.checksum != ^checksum
+    )
+    # The PDCs are deleted by the foreign key constraint with on_delete: :delete_all
     |> DB.Repo.delete_all()
   end
 end

@@ -16,7 +16,8 @@ defmodule Transport.IRVE.DatabaseImporterTest do
     dataset_id = "dataset_datagouv_id"
     resource_id = "resource_datagouv_id"
 
-    # First import: there is no previous version, so a new first_import_file and its PDCs are inserted
+    # First import: there is no previous version, so a new first_import_file and its PDCs are inserted.
+    # Let’s make sure we start from a clean state.
     assert DB.Repo.aggregate(DB.IRVEValidFile, :count, :id) == 0
     assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 0
 
@@ -34,12 +35,10 @@ defmodule Transport.IRVE.DatabaseImporterTest do
     assert first_import_pdc.id_pdc_itinerance == "FRPAN99E87654321"
     refute first_import_pdc.gratuit
 
-    # Second import with same first_import_file should return :no_change
-    result = Transport.IRVE.DatabaseImporter.write_to_db(temp_path, dataset_id, resource_id)
-    assert result == :no_change
-    assert DB.Repo.aggregate(DB.IRVEValidFile, :count, :id) == 1
-    assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 1
-    assert DB.Repo.one!(DB.IRVEValidPDC).id == first_import_pdc.id
+    # Second import with same file should raise a constraint error
+    assert_raise Ecto.ConstraintError, ~r/irve_valid_file_resource_datagouv_id_checksum_index/, fn ->
+      Transport.IRVE.DatabaseImporter.write_to_db(temp_path, dataset_id, resource_id)
+    end
 
     # Third import with a change
     updated_csv_content =
@@ -55,14 +54,14 @@ defmodule Transport.IRVE.DatabaseImporterTest do
 
     {:ok, _transaction_result} = Transport.IRVE.DatabaseImporter.write_to_db(temp_path, dataset_id, resource_id)
 
+    # It’s just a new file and its pdcs, the old one has been deleted. The one! would raise if there were more than one.
     second_import_file = DB.Repo.one!(DB.IRVEValidFile)
-    assert first_import_file.id == second_import_file.id
+    refute first_import_file.id == second_import_file.id
     refute first_import_file.checksum == second_import_file.checksum
 
-    [%DB.IRVEValidPDC{} = second_import_pdc] =
-      DB.IRVEValidPDC
-      |> where([p], p.irve_valid_file_id == ^first_import_file.id)
-      |> DB.Repo.all()
+    # Same, this wouldn’t match if there was more than a single PDC.
+
+    %DB.IRVEValidPDC{} = second_import_pdc = DB.Repo.one!(DB.IRVEValidPDC)
 
     refute first_import_pdc.id == second_import_pdc.id
     assert second_import_pdc.id_pdc_itinerance == "FRPAN99E87654321"
