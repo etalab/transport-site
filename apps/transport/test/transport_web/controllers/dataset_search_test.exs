@@ -161,18 +161,6 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     refute html_response(conn, 200) =~ "Horaires Angers"
   end
 
-  test "GET /datasets/aom/4242", %{conn: conn} do
-    conn = conn |> get(dataset_path(conn, :by_aom, 4242))
-    assert html_response(conn, 200) =~ "AOM"
-    assert html_response(conn, 200) =~ "Angers Métropôle"
-  end
-
-  test "GET /datasets/aom/999999", %{conn: conn} do
-    # searching for an unknown AOM should lead to a 404
-    conn = conn |> get(dataset_path(conn, :by_aom, 999_999))
-    assert html_response(conn, 404)
-  end
-
   test "searching with a custom tag" do
     %DB.Dataset{id: dataset_id} =
       insert(:dataset, type: "public-transit", is_active: true, custom_tags: ["bar", "foo"])
@@ -201,26 +189,6 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     assert [%DB.Dataset{id: ^d2_id}] = %{"format" => "gbfs"} |> DB.Dataset.list_datasets() |> DB.Repo.all()
     assert [%DB.Dataset{id: ^d3_id}] = %{"format" => "csv"} |> DB.Dataset.list_datasets() |> DB.Repo.all()
     assert [] = %{"format" => "NeTEx"} |> DB.Dataset.list_datasets() |> DB.Repo.all()
-  end
-
-  test "searching for datasets in an AOM" do
-    aom = insert(:aom)
-    aom2 = insert(:aom)
-    %Dataset{id: dataset_id, aom_id: aom_id} = insert(:dataset, legal_owners_aom: [aom, aom2], is_active: true)
-
-    aom_ids = [aom.id, aom2.id, aom_id]
-    assert aom_ids |> MapSet.new() |> Enum.count() == Enum.count(aom_ids)
-
-    aom_ids
-    |> Enum.each(fn aom_id ->
-      assert [%Dataset{id: ^dataset_id}] = %{"aom" => to_string(aom_id)} |> Dataset.list_datasets() |> Repo.all()
-    end)
-
-    # Search order: datasets associated to an AOM are displayed first
-    %Dataset{id: dataset2_id} = insert(:dataset, aom: aom2)
-
-    assert [%Dataset{id: ^dataset2_id}, %Dataset{id: ^dataset_id}] =
-             %{"aom" => to_string(aom2.id)} |> Dataset.list_datasets() |> Repo.all()
   end
 
   test "search for datasets published by an organization" do
@@ -331,7 +299,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     insert(:dataset)
 
     assert [d1.id, d2.id, d3.id, d4.id] ==
-             %{"insee_departement" => departement.insee}
+             %{"departement" => departement.insee}
              |> DB.Dataset.list_datasets()
              |> DB.Repo.all()
              |> Enum.map(& &1.id)
@@ -367,7 +335,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     insert(:dataset)
 
     assert [d1.id, d2.id, d3.id, d4.id] ==
-             %{"region" => region.id |> to_string()}
+             %{"region" => region.insee}
              |> DB.Dataset.list_datasets()
              |> DB.Repo.all()
              |> Enum.map(& &1.id)
@@ -404,7 +372,44 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     insert(:dataset)
 
     assert [d1.id, d2.id, d3.id, d4.id] ==
-             %{"insee_commune" => commune.insee}
+             %{"commune" => commune.insee}
+             |> DB.Dataset.list_datasets()
+             |> DB.Repo.all()
+             |> Enum.map(& &1.id)
+  end
+
+  test "search by EPCI" do
+    epci = insert(:epci, insee: "1")
+    departement = insert(:departement)
+    region = insert(:region, insee: "2")
+
+    commune =
+      insert(:commune, insee: "3", departement_insee: departement.insee, region_id: region.id, epci_insee: epci.insee)
+
+    departement_ad =
+      insert(:administrative_division,
+        type: :departement,
+        type_insee: "departement_#{departement.insee}",
+        insee: departement.insee
+      )
+
+    commune_ad =
+      insert(:administrative_division, type: :commune, type_insee: "commune_#{commune.insee}", insee: commune.insee)
+
+    epci_ad = insert(:administrative_division, type: :epci, type_insee: "epci_#{epci.insee}", insee: epci.insee)
+
+    region_ad =
+      insert(:administrative_division, type: :region, type_insee: "region_#{region.insee}", insee: region.insee)
+
+    d1 = insert(:dataset, population: 4, declarative_spatial_areas: [region_ad])
+    d2 = insert(:dataset, population: 3, declarative_spatial_areas: [departement_ad])
+    d3 = insert(:dataset, population: 2, declarative_spatial_areas: [epci_ad])
+    d4 = insert(:dataset, population: 1, declarative_spatial_areas: [commune_ad])
+    # Other dataset is not included
+    insert(:dataset)
+
+    assert [d1.id, d2.id, d3.id, d4.id] ==
+             %{"epci" => epci.insee}
              |> DB.Dataset.list_datasets()
              |> DB.Repo.all()
              |> Enum.map(& &1.id)

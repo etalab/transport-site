@@ -9,13 +9,13 @@ defmodule TransportWeb.API.PlacesController do
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
 
   @spec get_result_url(Plug.Conn.t(), Place.t()) :: binary()
-  defp get_result_url(conn, %Place{:place_id => id, :type => "commune"}), do: dataset_path(conn, :by_commune_insee, id)
+  defp get_result_url(conn, %Place{:place_id => id, :type => "region"}), do: dataset_path(conn, :by_region, id)
 
   defp get_result_url(conn, %Place{:place_id => id, :type => "departement"}),
     do: dataset_path(conn, :by_departement_insee, id)
 
-  defp get_result_url(conn, %Place{:place_id => id, :type => "region"}), do: dataset_path(conn, :by_region, id)
-  defp get_result_url(conn, %Place{:place_id => id, :type => "aom"}), do: dataset_path(conn, :by_aom, id)
+  defp get_result_url(conn, %Place{:place_id => id, :type => "epci"}), do: dataset_path(conn, :by_epci, id)
+  defp get_result_url(conn, %Place{:place_id => id, :type => "commune"}), do: dataset_path(conn, :by_commune_insee, id)
 
   defp get_result_url(conn, %Place{:place_id => id, :type => "feature"}),
     do: dataset_path(conn, :index, "features[]": id)
@@ -51,7 +51,7 @@ defmodule TransportWeb.API.PlacesController do
           when 'mode' then 2
           when 'region' then 3
           when 'departement' then 4
-          when 'aom' then 5
+          when 'epci' then 5
           else 6 END"))
       |> order_by(desc: fragment("similarity(indexed_name, unaccent(?))", ^query))
       |> limit(10)

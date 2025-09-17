@@ -167,10 +167,6 @@ msgid "Get dataset list via an API"
 msgstr "Récupérer la liste des jeux de données via l'API"
 
 #, elixir-autogen, elixir-format
-msgid "AOM %{name} has not yet published any datasets"
-msgstr "L'AOM %{name} n'a pas encore publié de données"
-
-#, elixir-autogen, elixir-format
 msgid "There is no data for city %{name}"
 msgstr "Il n'y a pas de données disponibles pour la ville %{name}"
 
@@ -239,3 +235,7 @@ msgstr "Format de ressource"
 #, elixir-autogen, elixir-format
 msgid "department"
 msgstr "département"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "EPCI %{name} has not yet published any datasets"
+msgstr "L'EPCI %{name} n'a pas encore publié de données"

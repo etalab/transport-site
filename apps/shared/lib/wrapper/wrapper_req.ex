@@ -11,8 +11,21 @@ defmodule Transport.Req.Behaviour do
   # Ref: https://github.com/wojtekmach/req/blob/b40de7b7a0e7cc97a2c398ffcc42aa14962f3963/lib/req.ex#L545
   @type url() :: URI.t() | String.t()
   # Simplified version for our needs
+  @callback get(url()) :: {:ok, Req.Response.t()} | {:error, Exception.t()}
   @callback get(url(), options :: keyword()) :: {:ok, Req.Response.t()} | {:error, Exception.t()}
+
+  @callback get!(url() | keyword() | Req.Request.t()) :: Req.Response.t()
   @callback get!(url() | keyword() | Req.Request.t(), options :: keyword()) :: Req.Response.t()
+
+  @callback request(request :: Req.Request.t() | keyword()) ::
+              {:ok, Req.Response.t()} | {:error, Exception.t()}
+  @callback request(request :: Req.Request.t() | keyword(), options :: keyword()) ::
+              {:ok, Req.Response.t()} | {:error, Exception.t()}
+
+  @callback delete(url() | keyword() | Req.Request.t()) ::
+              {:ok, Req.Response.t()} | {:error, Exception.t()}
+  @callback delete(url() | keyword() | Req.Request.t(), options :: keyword()) ::
+              {:ok, Req.Response.t()} | {:error, Exception.t()}
 end
 
 defmodule Transport.Req do
@@ -24,8 +37,10 @@ defmodule Transport.Req do
   def impl, do: Application.get_env(:transport, :req_impl, __MODULE__)
 
   @behaviour Transport.Req.Behaviour
-  defdelegate get(url, options), to: Req
-  defdelegate get!(url, options), to: Req
+  defdelegate get(url, options \\ []), to: Req
+  defdelegate get!(url, options \\ []), to: Req
+  defdelegate request(request, options \\ []), to: Req
+  defdelegate delete(request, options \\ []), to: Req
 end
 
 defmodule Transport.HTTPClient do

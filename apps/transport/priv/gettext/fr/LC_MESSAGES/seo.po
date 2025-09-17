@@ -24,8 +24,8 @@ msgid "Transport open datasets for %{type} %{name}"
 msgstr "Jeux de données ouverts de la %{type} %{name}"
 
 #, elixir-autogen, elixir-format
-msgid "%{name} AOM: Transport open datasets "
-msgstr "AOM %{name} : Jeux de données ouverts"
+msgid "%{name} EPCI: Transport open datasets"
+msgstr "EPCI %{name} : Jeux de données ouverts"
 
 #, elixir-autogen, elixir-format
 msgid "%{q}: Available transport open datasets"
@@ -58,3 +58,7 @@ msgstr "État de l’ouverture des données de transport en France"
 #, elixir-autogen, elixir-format
 msgid "Reuser space"
 msgstr "Espace réutilisateur"
+
+#, elixir-autogen, elixir-format
+msgid "%{name} department: Transport open datasets"
+msgstr "Département %{name} : Jeux de données ouverts"
