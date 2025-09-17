@@ -1,6 +1,5 @@
 defmodule TransportWeb.PageControllerTest do
   use TransportWeb.ConnCase, async: true
-  use TransportWeb.DatabaseCase, cleanup: []
   import DB.Factory
   import Plug.Test, only: [init_test_session: 2]
   import Mox
@@ -8,6 +7,10 @@ defmodule TransportWeb.PageControllerTest do
   setup :verify_on_exit!
 
   doctest TransportWeb.PageController
+
+  setup do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+  end
 
   test "GET /", %{conn: conn} do
     conn = conn |> get(page_path(conn, :index))

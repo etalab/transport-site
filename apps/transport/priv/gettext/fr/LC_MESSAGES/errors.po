@@ -27,12 +27,8 @@ msgid "Impossible to find a city with the insee code %{insee}"
 msgstr "Impossible de trouver la commune avec le code insee %{insee}"
 
 #, elixir-autogen, elixir-format
-msgid "AOM %{id} does not exist"
-msgstr "L'AOM %{id} n'existe pas"
-
-#, elixir-autogen, elixir-format
-msgid "Region %{id} does not exist"
-msgstr "La région %{id} n'existe pas"
+msgid "Region %{insee} does not exist"
+msgstr "La région %{insee} n'existe pas"
 
 #, elixir-autogen, elixir-format
 msgid "400: Bad Request"
@@ -53,3 +49,7 @@ msgstr "503 : Service non disponible"
 #, elixir-autogen, elixir-format
 msgid "Department %{insee} does not exist"
 msgstr "Le département %{insee} n'existe pas"
+
+#, elixir-autogen, elixir-format
+msgid "EPCI %{insee} does not exist"
+msgstr "L'EPCI %{insee} n'existe pas"
