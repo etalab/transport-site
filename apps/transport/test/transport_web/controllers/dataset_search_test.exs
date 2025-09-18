@@ -107,7 +107,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     end
 
     test "with gtfs-rt features" do
-      %DB.Region{id: region_id, insee: region_insee} = region = insert(:region, insee: "01")
+      %DB.Region{insee: region_insee} = region = insert(:region, insee: "01")
       ad = insert(:administrative_division, type: :region, insee: region.insee)
 
       %{id: dataset_id} = insert(:dataset, type: "public-transit", declarative_spatial_areas: [ad])
