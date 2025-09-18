@@ -98,6 +98,7 @@ defmodule TransportWeb.API.StatsController do
           "completed" => Map.get(aom, :is_completed, false),
           "nom" => Map.get(aom, :nom, ""),
           "id" => aom.id,
+          "siren" => Map.get(aom, :siren) || Map.get(aom, :insee),
           "forme_juridique" => Map.get(aom, :forme_juridique, ""),
           "nb_other_datasets" => Map.get(aom, :nb_other_datasets, 0),
           "quality" => %{
@@ -325,6 +326,7 @@ defmodule TransportWeb.API.StatsController do
     |> select([aom, aggregates_by_aom: d], %{
       geometry: aom.geom,
       id: aom.id,
+      siren: aom.siren,
       created_after_2021: aom.composition_res_id >= 1_000,
       insee_commune_principale: aom.insee_commune_principale,
       nb_datasets: fragment("select count(id) from dataset where aom_id = ? and is_active", aom.id),
@@ -352,6 +354,7 @@ defmodule TransportWeb.API.StatsController do
     |> select([r], %{
       geometry: r.geom,
       id: r.id,
+      insee: r.insee,
       nom: r.nom,
       is_completed: r.is_completed,
       nb_datasets:
@@ -418,6 +421,7 @@ defmodule TransportWeb.API.StatsController do
       %{
         geometry: aom.geom,
         id: aom.id,
+        siren: aom.siren,
         created_after_2021: aom.composition_res_id >= 1_000,
         insee_commune_principale: aom.insee_commune_principale,
         nom: aom.nom,

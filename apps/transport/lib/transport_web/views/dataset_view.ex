@@ -101,12 +101,12 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
-  def region_link(conn, %{nom: nom, count: count, id: id}) do
+  def region_link(conn, %{nom: nom, count: count, insee: insee}) do
     url =
-      case id do
+      case insee do
         # This is for the "All" region
         nil -> dataset_path(conn, :index)
-        _ -> dataset_path(conn, :by_region, id)
+        _ -> dataset_path(conn, :by_region, insee)
       end
 
     params = conn.query_params
@@ -130,8 +130,8 @@ defmodule TransportWeb.DatasetView do
     |> raw()
   end
 
-  def legal_owner_link(conn, %DB.Region{nom: nom, id: id}) do
-    link(nom, to: dataset_path(conn, :by_region, id))
+  def legal_owner_link(conn, %DB.Region{nom: nom, insee: insee}) do
+    link(nom, to: dataset_path(conn, :by_region, insee))
   end
 
   def legal_owner_link(conn, %DB.AOM{nom: nom, siren: siren}) do

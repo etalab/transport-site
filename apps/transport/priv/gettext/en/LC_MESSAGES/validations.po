@@ -314,10 +314,6 @@ msgstr ""
 msgid "Please note that our GTFS validator does not validate the Flex and Fares v2 extensions."
 msgstr ""
 
-#, elixir-autogen, elixir-format
-msgid "This file contains the GTFS-Flex extension. We are not able to validate it for now."
-msgstr ""
-
 #, elixir-autogen, elixir-format, fuzzy
 msgid "calendar span by network:"
 msgstr ""
@@ -385,3 +381,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "netex-validations-layers"
 msgstr "Validation of NeTEx resources is still a work in progress. Currently, we only check that any resource in NeTEx respects the XSD schema and follows some best practices. We do not yet check the compliance with the <a href=\"https://normes.transport.data.gouv.fr/\">French profile</a> (nor the dataset structure nor mandatory attributes)."
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "This file contains the GTFS-Flex extension. We are not able to validate it for now. You can validate it using the <a href=\"%{url}\">Canonical GTFS Schedule Validator from MobilityData</a>."
+msgstr ""
