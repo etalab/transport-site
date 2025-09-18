@@ -1,4 +1,4 @@
-<% datagouv_admin_url = "https://www.data.gouv.fr/admin/dataset/#{@dataset.datagouv_id}/" %>
+<% datagouv_admin_url = "https://www.data.gouv.fr/admin/datasets/#{@dataset.datagouv_id}/files" %>
 <section class="container pt-48 pb-24">
   <%= breadcrumbs([@conn, :edit_dataset, @dataset.custom_title, @dataset.id]) %>
 </section>
