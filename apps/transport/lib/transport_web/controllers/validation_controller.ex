@@ -144,7 +144,8 @@ defmodule TransportWeb.ValidationController do
     end
   end
 
-  defp pick_netex_template("0.2.0"), do: "show_netex_v0_2_0.html"
+  defp pick_netex_template("0.2.1"), do: "show_netex_v0_2_x.html"
+  defp pick_netex_template("0.2.0"), do: "show_netex_v0_2_x.html"
   defp pick_netex_template(_), do: "show_netex_v0_1_0.html"
 
   defp assign_base_validation_details(conn, results_adapter, validation, params, current_issues) do
