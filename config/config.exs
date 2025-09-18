@@ -179,7 +179,7 @@ config :transport,
   nb_days_to_keep_validations: 60,
   contact_email: "contact@transport.data.gouv.fr",
   tech_email: "tech@transport.data.gouv.fr",
-  security_email: "contact@transport.data.gouv.fr",
+  security_email: "securite@transport.data.gouv.fr",
   transport_tools_folder: Path.absname("transport-tools/")
 
 # Disable sending events to Sentry by default.
