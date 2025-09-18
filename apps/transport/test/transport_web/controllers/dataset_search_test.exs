@@ -107,8 +107,10 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     end
 
     test "with gtfs-rt features" do
-      %{id: region_id, insee: region_insee} = insert(:region, insee: "01")
-      %{id: dataset_id} = insert(:dataset, type: "public-transit", region_id: region_id)
+      %DB.Region{insee: region_insee} = region = insert(:region, insee: "01")
+      ad = insert(:administrative_division, type: :region, insee: region.insee)
+
+      %{id: dataset_id} = insert(:dataset, type: "public-transit", declarative_spatial_areas: [ad])
       %{id: resource_id} = insert(:resource, dataset_id: dataset_id)
       insert(:resource_metadata, resource_id: resource_id, features: ["vehicle_positions"])
 
@@ -116,7 +118,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
       %{id: resource_id_again} = insert(:resource, dataset_id: dataset_id)
       insert(:resource_metadata, resource_id: resource_id_again, features: ["vehicle_positions"])
 
-      %{id: dataset_id_2} = insert(:dataset, type: "public-transit", region_id: region_id)
+      %{id: dataset_id_2} = insert(:dataset, type: "public-transit", declarative_spatial_areas: [ad])
       %{id: resource_id_2} = insert(:resource, dataset_id: dataset_id_2)
 
       # feature has been seen, but too long ago
@@ -126,7 +128,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
         inserted_at: ~U[2020-01-01 00:00:00Z]
       )
 
-      %{id: dataset_id_3} = insert(:dataset, type: "public-transit", region_id: region_id)
+      %{id: dataset_id_3} = insert(:dataset, type: "public-transit", declarative_spatial_areas: [ad])
       %{id: resource_id_3} = insert(:resource, dataset_id: dataset_id_3)
       insert(:resource_metadata, resource_id: resource_id_3, features: ["repose pieds en velour"])
 
