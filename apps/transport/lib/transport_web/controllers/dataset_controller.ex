@@ -275,8 +275,8 @@ defmodule TransportWeb.DatasetController do
 
     Region
     |> join(:left, [r], d in subquery(sub), on: d.region_id == r.id)
-    |> group_by([r], [r.id, r.nom])
-    |> select([r, d], %{nom: r.nom, id: r.id, count: count(d.id, :distinct)})
+    |> group_by([r], [r.insee, r.nom])
+    |> select([r, d], %{nom: r.nom, insee: r.insee, count: count(d.id, :distinct)})
     |> order_by([r], r.nom)
     |> Repo.all()
   end
