@@ -56,7 +56,7 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
 
     assert multi_validation.command == "http://localhost:9999/chouette-valid/#{validation_id}"
     assert multi_validation.validator == "enroute-chouette-netex-validator"
-    assert multi_validation.validator_version == "0.2.0"
+    assert multi_validation.validator_version == "0.2.1"
     assert multi_validation.result == %{}
     assert multi_validation.metadata.metadata == %{"retries" => attempts, "elapsed_seconds" => duration}
   end
@@ -77,7 +77,7 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
 
     assert multi_validation.command == "http://localhost:9999/chouette-valid/#{validation_id}/messages"
     assert multi_validation.validator == "enroute-chouette-netex-validator"
-    assert multi_validation.validator_version == "0.2.0"
+    assert multi_validation.validator_version == "0.2.1"
     assert multi_validation.metadata.metadata == %{"retries" => attempts, "elapsed_seconds" => duration}
 
     assert multi_validation.result == %{
