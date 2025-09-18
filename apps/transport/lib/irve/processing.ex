@@ -59,7 +59,7 @@ defmodule Transport.IRVE.Processing do
     |> Explorer.DataFrame.select(
       (Transport.IRVE.StaticIRVESchema.field_names_list() --
          ["coordonneesXY", "cable_t2_attache"]) ++
-        ["x", "y"]
+        ["longitude", "latitude"]
     )
   end
 
