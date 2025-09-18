@@ -195,7 +195,8 @@ defmodule TransportWeb.ResourceController do
     end
   end
 
-  defp pick_netex_errors_template("0.2.0"), do: "_netex_validation_errors_v0_2_0.html"
+  defp pick_netex_errors_template("0.2.1"), do: "_netex_validation_errors_v0_2_x.html"
+  defp pick_netex_errors_template("0.2.0"), do: "_netex_validation_errors_v0_2_x.html"
   defp pick_netex_errors_template(_), do: "_netex_validation_errors_v0_1_0.html"
 
   defp assign_base_resource_details(conn, params, resource, validation_details) do

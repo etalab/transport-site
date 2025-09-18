@@ -671,7 +671,7 @@ defmodule TransportWeb.ResourceControllerTest do
   end
 
   test "NeTEx validation is shown", %{conn: conn} do
-    for version <- ["0.1.0", "0.2.0"] do
+    for version <- ["0.1.0", "0.2.0", "0.2.1"] do
       %{id: dataset_id} = insert(:dataset)
 
       %{id: resource_id} =
