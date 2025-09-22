@@ -648,6 +648,7 @@ defmodule DB.Dataset do
     |> maybe_overwrite_licence()
     |> has_real_time()
     |> set_is_hidden()
+    |> set_population(declarative_spatial_areas)
     |> validate_organization_type()
     |> add_organization(params)
     |> maybe_set_custom_logo_changed_at()
@@ -1124,6 +1125,12 @@ defmodule DB.Dataset do
       has_custom_tag?(%__MODULE__{custom_tags: get_field(changeset, :custom_tags)}, @hidden_dataset_custom_tag_value)
 
     change(changeset, is_hidden: is_hidden)
+  end
+
+  @spec set_population(Ecto.Changeset.t(), [DB.AdministrativeDivision.t()]) :: Ecto.Changeset.t()
+  defp set_population(%Ecto.Changeset{} = changeset, administrative_divisions) do
+    population = Enum.map(administrative_divisions, & &1.population) |> Enum.sum()
+    change(changeset, population: population)
   end
 
   @spec resources_content_updated_at(__MODULE__.t()) :: map()

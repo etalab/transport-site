@@ -912,4 +912,21 @@ defmodule DB.DatasetDBTest do
     assert updated_area_1.id == departement.id
     assert updated_area_2.id == commune.id
   end
+
+  test "sets population from declarative_spatial_areas" do
+    departement =
+      insert(:administrative_division, type: :departement, insee: "01", type_insee: "departement_01", population: 10)
+
+    commune = insert(:administrative_division, type: :commune, insee: "02", type_insee: "commune_02", population: 1)
+    dataset = insert(:dataset, population: 0)
+
+    assert {:ok, changeset} =
+             DB.Dataset.changeset(%{
+               "datagouv_id" => dataset.datagouv_id,
+               "declarative_spatial_areas" => [commune.id, departement.id]
+             })
+
+    expected = commune.population + departement.population
+    {:ok, %DB.Dataset{population: ^expected}} = changeset |> DB.Repo.insert_or_update()
+  end
 end
