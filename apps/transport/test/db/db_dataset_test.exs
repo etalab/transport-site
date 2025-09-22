@@ -297,7 +297,7 @@ defmodule DB.DatasetDBTest do
         insert(:dataset, custom_logo: "https://example.com/pic.jpg", custom_logo_changed_at: DateTime.utc_now())
 
       {:ok, %Ecto.Changeset{changes: changes}} = Dataset.changeset(%{"datagouv_id" => dataset.datagouv_id})
-      assert changes == %{}
+      assert changes == %{population: 0}
     end
   end
 

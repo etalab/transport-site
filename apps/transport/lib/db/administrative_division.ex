@@ -48,7 +48,8 @@ defmodule DB.AdministrativeDivision do
     :type,
     :type_insee,
     :nom,
-    :geom
+    :geom,
+    :population
   ]
 
   def changeset(administrative_division, attrs) do
