@@ -34,16 +34,21 @@ defmodule DB.ReuseTest do
   end
 
   test "search" do
-    foo = insert(:reuse, title: "Foo", created_at: DateTime.utc_now())
-    bar = insert(:reuse, owner: "Bar", created_at: DateTime.utc_now())
-    hello = insert(:reuse, organization: "hello", created_at: DateTime.utc_now())
+    d1 = insert(:dataset, type: "public-transit")
+    d2 = insert(:dataset, type: "private-parking")
+    foo = insert(:reuse, title: "Foo", datasets: [d1], created_at: DateTime.utc_now())
+    bar = insert(:reuse, owner: "Bar", datasets: [d1], created_at: DateTime.utc_now())
+    hello = insert(:reuse, organization: "hello", datasets: [d2], created_at: DateTime.utc_now())
 
-    search = fn value -> DB.Reuse.search(%{"q" => value}) |> DB.Repo.all() end
+    assert [foo.id] == DB.Reuse.search(%{"q" => "foo"}) |> DB.Repo.all() |> Enum.map(& &1.id)
+    assert [bar.id] == DB.Reuse.search(%{"q" => "bar"}) |> DB.Repo.all() |> Enum.map(& &1.id)
+    assert [hello.id] == DB.Reuse.search(%{"q" => "héllo"}) |> DB.Repo.all() |> Enum.map(& &1.id)
 
-    assert [foo] == search.("foo")
-    assert [bar] == search.("bar")
-    assert [hello] == search.("héllo")
     # order by `created_at` desc
-    assert [hello, bar, foo] == search.("")
+    assert [hello.id, bar.id, foo.id] == DB.Reuse.search(%{}) |> DB.Repo.all() |> Enum.map(& &1.id)
+
+    # filter by type
+    assert [bar.id, foo.id] ==
+             DB.Reuse.search(%{"type" => "public-transit"}) |> DB.Repo.all() |> Enum.map(& &1.id)
   end
 end
