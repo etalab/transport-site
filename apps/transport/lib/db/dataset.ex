@@ -1129,7 +1129,7 @@ defmodule DB.Dataset do
 
   @spec set_population(Ecto.Changeset.t(), [DB.AdministrativeDivision.t()]) :: Ecto.Changeset.t()
   defp set_population(%Ecto.Changeset{} = changeset, administrative_divisions) do
-    population = Enum.map(administrative_divisions, & &1.population) |> Enum.sum()
+    population = Enum.sum_by(administrative_divisions, & &1.population)
     change(changeset, population: population)
   end
 
