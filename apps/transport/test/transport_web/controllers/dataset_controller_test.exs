@@ -1032,6 +1032,16 @@ defmodule TransportWeb.DatasetControllerTest do
              conn |> dataset_href_download_button(dataset)
   end
 
+  test "dataset#details, dataset with experimentation tag, real-time resource", %{conn: conn} do
+    dataset = insert(:dataset, custom_tags: ["authentification_experimentation"])
+    resource = insert(:resource, url: "https://example.com/gbfs", format: "gbfs", dataset: dataset)
+
+    assert DB.Resource.real_time?(resource)
+    mock_empty_history_resources()
+
+    assert [resource.url] == conn |> dataset_href_download_button(dataset)
+  end
+
   test "dataset#details, proxy resource, logged-in user with a default token", %{conn: conn} do
     dataset = insert(:dataset)
     resource = insert(:resource, dataset: dataset, url: "https://proxy.transport.data.gouv.fr/#{Ecto.UUID.generate()}")

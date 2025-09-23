@@ -824,6 +824,21 @@ defmodule TransportWeb.API.DatasetControllerTest do
     assert [%{"url" => ^auth_url}] = json |> hd() |> Map.get("resources")
   end
 
+  test "GET /api/datasets with a dataset with experimentation tag and a real-time resource", %{conn: conn} do
+    dataset = insert(:dataset, custom_tags: ["authentification_experimentation"])
+    resource = insert(:resource, latest_url: "https://example.com/gbfs", format: "gbfs", dataset: dataset)
+
+    assert DB.Resource.real_time?(resource)
+
+    json =
+      conn
+      |> get(Helpers.dataset_path(conn, :datasets))
+      |> json_response(200)
+
+    download_url = resource.latest_url
+    assert [%{"url" => ^download_url}] = json |> hd() |> Map.get("resources")
+  end
+
   test "GET /api/datasets/:id with a proxy resource", %{conn: conn} do
     dataset = insert(:dataset)
     resource = insert(:resource, dataset: dataset, url: "https://proxy.transport.data.gouv.fr/#{Ecto.UUID.generate()}")
