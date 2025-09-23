@@ -17,6 +17,7 @@ defmodule DB.AdministrativeDivisionTest do
       type_insee: "commune_13111",
       type: :commune,
       nom: "Vauvenargues",
+      population: 10,
       geom: %Geo.Polygon{
         coordinates: [
           [

@@ -221,17 +221,15 @@ defmodule TransportWeb.DatasetSearchControllerTest do
   end
 
   test "uses population and custom_title to sort by default" do
-    small_aom = insert(:aom, population: 100)
-    big_aom = insert(:aom, population: 200)
     type = "private-parking"
 
     # small population: last result expected
-    small_dataset = insert(:dataset, is_active: true, type: type, aom: small_aom, custom_title: "AAA")
+    small_dataset = insert(:dataset, is_active: true, type: type, custom_title: "AAA", population: 10)
     # equal population, alphabetical order expected
-    big_dataset_1 = insert(:dataset, is_active: true, type: type, aom: big_aom, custom_title: "ABC")
-    big_dataset_2 = insert(:dataset, is_active: true, type: type, aom: big_aom, custom_title: "BBB")
+    big_dataset_1 = insert(:dataset, is_active: true, type: type, custom_title: "ABC", population: 20)
+    big_dataset_2 = insert(:dataset, is_active: true, type: type, custom_title: "BBB", population: 20)
     # national dataset, population is null
-    national_dataset = insert(:dataset, is_active: true, type: type, population: nil)
+    national_dataset = insert(:dataset, is_active: true, type: type, population: 30)
 
     assert [national_dataset.id, big_dataset_1.id, big_dataset_2.id, small_dataset.id] ==
              %{"type" => type} |> Dataset.list_datasets() |> DB.Repo.all() |> Enum.map(& &1.id)

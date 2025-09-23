@@ -39,7 +39,8 @@ defmodule TransportWeb.SeoMetadataTest do
           type_insee: "epci",
           insee: "123456",
           geom: %Geo.Point{coordinates: {1, 1}, srid: 4326},
-          nom: "Angers Métropôle"
+          nom: "Angers Métropôle",
+          population: 10
         }
       ],
       aom: %DB.AOM{id: 4242, nom: "Angers Métropôle AOM"}
