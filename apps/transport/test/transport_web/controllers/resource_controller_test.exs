@@ -64,10 +64,10 @@ defmodule TransportWeb.ResourceControllerTest do
     :ok
   end
 
-  test "Non existing resource raises a Ecto.NoResultsError (interpreted as a 404 thanks to phoenix_ecto)", %{conn: conn} do
-    assert_raise Ecto.NoResultsError, fn ->
-      conn |> get(resource_path(conn, :details, 0))
-    end
+  test "Non existing resource returns a 404", %{conn: conn} do
+    conn = conn |> get(resource_path(conn, :details, 0))
+
+    assert conn |> html_response(404) =~ "Page non disponible"
   end
 
   test "GBFS resource with multi-validation sends back 200", %{conn: conn} do
