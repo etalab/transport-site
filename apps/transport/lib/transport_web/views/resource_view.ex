@@ -339,6 +339,7 @@ defmodule TransportWeb.ResourceView do
       <.info_icon />
       <div>
         <%= dgettext("validations", "netex-validations-layers") |> raw() %>
+        <%= dgettext("validations", "netex-french-profile-no-compliance") |> raw() %>
       </div>
     </li>
     """
@@ -412,10 +413,12 @@ defmodule TransportWeb.ResourceView do
   end
 
   def netex_category_label("xsd-schema"), do: dgettext("validations", "XSD NeTEx")
+  def netex_category_label("french-profile"), do: dgettext("validations", "French profile")
   def netex_category_label("base-rules"), do: dgettext("validations", "Base rules")
   def netex_category_label(_), do: dgettext("validations", "Other errors")
 
   def netex_category_description("xsd-schema"), do: dgettext("validations", "xsd-schema-description") |> raw()
+  def netex_category_description("french-profile"), do: dgettext("validations", "french-profile-description") |> raw()
   def netex_category_description("base-rules"), do: dgettext("validations", "base-rules-description") |> raw()
   def netex_category_description(_), do: nil
 
