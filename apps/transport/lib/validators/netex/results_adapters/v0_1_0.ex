@@ -188,4 +188,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
       {filename, line, message}
     end)
   end
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  def french_profile_compliance_check, do: :none
 end
