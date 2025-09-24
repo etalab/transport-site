@@ -144,4 +144,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
   end
 
   defdelegate order_issues_by_location(issues), to: V0_2_0
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  def french_profile_compliance_check, do: :partial
 end

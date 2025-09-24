@@ -10,6 +10,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapter do
   @callback format_severity(binary(), non_neg_integer()) :: binary()
   @callback count_max_severity(map()) :: {binary(), integer()}
   @callback no_error?(binary()) :: boolean()
+  @callback french_profile_compliance_check() :: :none | :partial | :good_enough
 
   def resolve("0.2.1"), do: Transport.Validators.NeTEx.ResultsAdapters.V0_2_1
   def resolve("0.2.0"), do: Transport.Validators.NeTEx.ResultsAdapters.V0_2_0
