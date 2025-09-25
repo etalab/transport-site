@@ -182,8 +182,8 @@ defmodule Transport.IRVE.RawStaticConsolidation do
 
     nil_counts = {
       Explorer.Series.at(nil_counts[:id_pdc_itinerance], 0),
-      Explorer.Series.at(nil_counts[:x], 0),
-      Explorer.Series.at(nil_counts[:y], 0)
+      Explorer.Series.at(nil_counts[:longitude], 0),
+      Explorer.Series.at(nil_counts[:latitude], 0)
     }
 
     unless nil_counts == {0, 0, 0} do

@@ -222,8 +222,8 @@ defmodule Transport.IRVE.DataFrame do
   iex> Explorer.DataFrame.new([%{coordonneesXY: "[47.39,0.80]"}]) |> Transport.IRVE.DataFrame.preprocess_xy_coordinates()
   #Explorer.DataFrame<
     Polars[1 x 2]
-    x f64 [47.39]
-    y f64 [0.8]
+    longitude f64 [47.39]
+    latitude f64 [0.8]
   >
 
   We must also support cases where there are extra spaces.
@@ -231,8 +231,8 @@ defmodule Transport.IRVE.DataFrame do
   iex> Explorer.DataFrame.new([%{coordonneesXY: "[43.958037, 4.764347]"}]) |> Transport.IRVE.DataFrame.preprocess_xy_coordinates()
   #Explorer.DataFrame<
     Polars[1 x 2]
-    x f64 [43.958037]
-    y f64 [4.764347]
+    longitude f64 [43.958037]
+    latitude f64 [4.764347]
   >
 
   But wait, there is more. Leading and trailing spaces can also occur.
@@ -240,8 +240,8 @@ defmodule Transport.IRVE.DataFrame do
   iex> Explorer.DataFrame.new([%{coordonneesXY: " [6.128405 , 48.658737] "}]) |> Transport.IRVE.DataFrame.preprocess_xy_coordinates()
   #Explorer.DataFrame<
     Polars[1 x 2]
-    x f64 [6.128405]
-    y f64 [48.658737]
+    longitude f64 [6.128405]
+    latitude f64 [48.658737]
   >
   """
   def preprocess_xy_coordinates(df) do
@@ -249,16 +249,16 @@ defmodule Transport.IRVE.DataFrame do
     |> Explorer.DataFrame.mutate(coordonneesXY: coordonneesXY |> strip("[] "))
     |> Explorer.DataFrame.mutate_with(fn df ->
       %{
-        coords: Explorer.Series.split_into(df[:coordonneesXY], ",", [:x, :y])
+        coords: Explorer.Series.split_into(df[:coordonneesXY], ",", [:longitude, :latitude])
       }
     end)
     |> Explorer.DataFrame.unnest(:coords)
     # required or we'll get `nil` values
-    |> Explorer.DataFrame.mutate(x: x |> strip(" "), y: y |> strip(" "))
+    |> Explorer.DataFrame.mutate(longitude: longitude |> strip(" "), latitude: latitude |> strip(" "))
     |> Explorer.DataFrame.mutate_with(fn df ->
       [
-        x: Explorer.Series.cast(df[:x], {:f, 64}),
-        y: Explorer.Series.cast(df[:y], {:f, 64})
+        longitude: Explorer.Series.cast(df[:longitude], {:f, 64}),
+        latitude: Explorer.Series.cast(df[:latitude], {:f, 64})
       ]
     end)
     |> Explorer.DataFrame.discard(:coordonneesXY)
