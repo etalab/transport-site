@@ -55,7 +55,7 @@ defmodule DB.ResourceHistory do
 
   def latest_resource_history(resource_id) do
     resource_id
-    |> latest_resource_history_query
+    |> latest_resource_history_query()
     |> DB.Repo.one()
   end
 
