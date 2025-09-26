@@ -343,10 +343,6 @@ msgid "availability-test-explanations"
 msgstr "Nous testons la disponibilité de cette ressource au téléchargement toutes les heures, en effectuant une requête HTTP de type <code class=\"inline\">HEAD</code> dont le temps de réponse doit être inférieur à 5 secondes. Si nous détectons une indisponibilité, nous effectuons un nouveau test toutes les 10 minutes, jusqu'à ce que la ressource soit à nouveau disponible.<br><br>Pour les flux SIRI et SIRI Lite, nous effectuons une requête HTTP de type <code class=\"inline\">GET</code> : nous considérons une réponse avec un code 401 ou 405 comme étant disponible. En cas d'erreur 500, nous considèrerons que le flux est indisponible, sauf si il semble contenir du SOAP."
 
 #, elixir-autogen, elixir-format
-msgid "last content modification"
-msgstr "date de dernière modification du contenu"
-
-#, elixir-autogen, elixir-format
 msgid "unknown"
 msgstr "inconnue"
 
@@ -671,8 +667,8 @@ msgid "Availability rate"
 msgstr "Taux de disponibilité"
 
 #, elixir-autogen, elixir-format
-msgid "Latest modification"
-msgstr "Dernière modification"
+msgid "latest-content-modification-label"
+msgstr "Dernière modification du contenu"
 
 #, elixir-autogen, elixir-format
 msgid "This dataset is hidden"
@@ -717,3 +713,7 @@ msgstr "Ce jeu de données non officiel est publié à titre expérimental. Veui
 #, elixir-autogen, elixir-format
 msgid "Regulator"
 msgstr "Régulateur"
+
+#, elixir-autogen, elixir-format
+msgid "latest-content-modification-popover"
+msgstr "Nous vérifions quotidiennement à la source si le contenu a changé. Cette date peut différer de celle indiquée sur data.gouv.fr car les vérifications de transport.data.gouv.fr portent sur le contenu lui-même."

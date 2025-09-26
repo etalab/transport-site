@@ -7,7 +7,7 @@ defmodule TransportWeb.DatasetView do
   # NOTE: ~H is defined in LiveView, but can actually be used from anywhere.
   # ~H expects a variable named `assigns`, so wrapping the calls to `~H` inside
   # a helper function would be cleaner and more future-proof to avoid conflicts at some point.
-  import Phoenix.Component, only: [sigil_H: 2, live_render: 3]
+  import Phoenix.Component, only: [sigil_H: 2, live_render: 3, assign: 3]
   import DB.Dataset, only: [experimental?: 1]
   import DB.MultiValidation, only: [get_metadata_info: 2, get_metadata_info: 3]
   alias Shared.DateTimeDisplay
@@ -482,16 +482,32 @@ defmodule TransportWeb.DatasetView do
 
   def validity_period(_), do: %{}
 
-  def show_resource_last_update(resources_updated_at, %DB.Resource{id: id} = resource, locale) do
-    if Resource.real_time?(resource) do
-      dgettext("page-dataset-details", "real-time")
-    else
-      resources_updated_at
-      |> Map.get(id)
-      |> case do
-        nil -> dgettext("page-dataset-details", "unknown")
-        dt -> dt |> DateTimeDisplay.format_datetime_to_date(locale)
-      end
+  def resource_last_update_span(assigns) do
+    assigns = assign(assigns, :real_time, Resource.real_time?(assigns.resource))
+
+    ~H"""
+    <span title={if @real_time, do: "", else: dgettext("page-dataset-details", "latest-content-modification-popover")}>
+      <i class="icon icon--sync-alt" aria-hidden="true"></i>
+      <%= resource_last_update_date_or_string(@resources_updated_at, @resource, @locale, real_time: @real_time) %>
+      <span :if={!@real_time} class="small">
+        <%= dgettext("page-dataset-details", "latest-content-modification-label") %>
+      </span>
+    </span>
+    """
+  end
+
+  def resource_last_update_date_or_string(_resources_updated_at, _resource, _locale, real_time: true) do
+    dgettext("page-dataset-details", "real-time")
+  end
+
+  def resource_last_update_date_or_string(resources_updated_at, %DB.Resource{id: id} = _resource, locale,
+        real_time: false
+      ) do
+    resources_updated_at
+    |> Map.get(id)
+    |> case do
+      nil -> dgettext("page-dataset-details", "unknown")
+      dt -> dt |> DateTimeDisplay.format_datetime_to_date(locale)
     end
   end
 
