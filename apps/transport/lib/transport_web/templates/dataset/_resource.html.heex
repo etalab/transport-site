@@ -1,7 +1,6 @@
 <% locale = get_session(@conn, :locale) %>
 <% has_conversions = ResourceView.has_associated_files(@resources_related_files, @resource.id) %>
 <% unavailabilities = @resources_infos.unavailabilities %>
-<% resources_updated_at = @resources_infos.resources_updated_at %>
 <% [validation] = @resources_infos.validations |> Map.get(@resource.id) %>
 <% gtfs_outdated? = Transport.Validators.GTFSTransport.gtfs_outdated?(validation) %>
 <% related_gtfs_resource = related_gtfs_resource(@resource) %>
@@ -33,11 +32,11 @@
   <% end %>
 
   <div class="pb-24 light-gry">
-    <span title={dgettext("page-dataset-details", "latest-content-modification-popover")}>
-      <i class="icon icon--sync-alt" aria-hidden="true"></i>
-      <%= show_resource_last_update(resources_updated_at, @resource, locale) %>
-      <span class="small"><%= dgettext("page-dataset-details", "latest-content-modification-label") %></span>
-    </span>
+    <.resource_last_update_span
+      resource={@resource}
+      resources_updated_at={@resources_infos.resources_updated_at}
+      locale={locale}
+    />
 
     <% resource_ttl = validation |> get_metadata_info("ttl") %>
     <%= unless is_nil(resource_ttl) do %>
