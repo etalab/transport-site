@@ -33,11 +33,11 @@
   <% end %>
 
   <div class="pb-24 light-gry">
-    <span title={dgettext("page-dataset-details", "last content modification")}>
+    <span title={dgettext("page-dataset-details", "latest-content-modification-popover")}>
       <i class="icon icon--sync-alt" aria-hidden="true"></i>
       <%= show_resource_last_update(resources_updated_at, @resource, locale) %>
+      <span class="small"><%= dgettext("page-dataset-details", "latest-content-modification-label") %></span>
     </span>
-    <span class="small"><%= dgettext("page-dataset-details", "Latest modification") %></span>
 
     <% resource_ttl = validation |> get_metadata_info("ttl") %>
     <%= unless is_nil(resource_ttl) do %>

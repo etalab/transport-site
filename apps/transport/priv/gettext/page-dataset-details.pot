@@ -343,10 +343,6 @@ msgid "availability-test-explanations"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "last content modification"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "unknown"
 msgstr ""
 
@@ -671,7 +667,7 @@ msgid "Availability rate"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Latest modification"
+msgid "latest-content-modification-label"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -716,4 +712,8 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Regulator"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "latest-content-modification-popover"
 msgstr ""
