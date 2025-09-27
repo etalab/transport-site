@@ -45,14 +45,14 @@ defmodule Transport.DataFrame.TableSchemaValidator do
     if optional_format, do: configure_field_constraint(df, name, type, {"format", optional_format}), else: df
   end
 
-  def configure_field_constraint(df, name, type, {"required", false} = constraint) do
+  def configure_field_constraint(df, _name, _type, {"required", false} = _constraint) do
     # TODO: rework type check - an optional field must still be type-verified. 
     df
   end
 
   # TODO: add unit tests for "", "   " etc
   # NOTE: current Polars configuration already mutates "" to nil, before that step
-  def configure_field_constraint(df, name, "string", {"required", true} = constraint) do
+  def configure_field_constraint(df, name, "string", {"required", true} = _constraint) do
     Explorer.DataFrame.mutate_with(df, fn df ->
       %{"check_required_#{name}" => Explorer.Series.is_not_nil(df[name])}
     end)
@@ -94,7 +94,7 @@ defmodule Transport.DataFrame.TableSchemaValidator do
   # hardcoded & home-baked, consequence of geopoint format
   @geopoint_array_pattern ~S'\A\[\-?\d+(\.\d+)?,\s?\-?\d+(\.\d+)?\]\z'
 
-  def configure_field_constraint(df, name, "geopoint", {"required", true}) do
+  def configure_field_constraint(df, _name, "geopoint", {"required", true}) do
   # NOTE: the requirement aspect is indirectly already covered by the geopoint format array check below
     df
   end
