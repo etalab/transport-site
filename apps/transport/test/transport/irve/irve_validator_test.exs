@@ -131,7 +131,7 @@ defmodule Transport.DataFrame.TableSchemaValidator do
 
   def configure_field_constraint(df, name, "number", constraint) when constraint in [{"minimum", 0}, {"required", true}] do
     Explorer.DataFrame.mutate_with(df, fn df ->
-      %{"check_integer_minimum_#{name}" => df[name] |> Explorer.Series.re_contains(@positive_integer_pattern)}
+      %{"check_integer_minimum_#{name}" => df[name] |> Explorer.Series.re_contains(@positive_number_pattern)}
     end)
   end
 end
