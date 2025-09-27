@@ -109,7 +109,8 @@ defmodule Transport.DataFrame.TableSchemaValidator do
   @iso_date_pattern ~S'\A\d{4}\-\d{2}\-\d{2}\z'
 
   # double def - TODO: change
-  def configure_field_constraint(df, name, "date", constraint) when constraint in [{"format", "%Y-%m-%d"}, {"required", true}] do
+  def configure_field_constraint(df, name, "date", constraint)
+      when constraint in [{"format", "%Y-%m-%d"}, {"required", true}] do
     Explorer.DataFrame.mutate_with(df, fn df ->
       %{"check_date_#{name}" => df[name] |> Explorer.Series.re_contains(@iso_date_pattern)}
     end)
@@ -121,7 +122,8 @@ defmodule Transport.DataFrame.TableSchemaValidator do
   # TODO: raise if check column already present (because the one below should raise, we double process)
   # TODO: investigate if I can safely (and so far my experience hasn't been good) leverage Polars type casting
   # for both number and integer, to simplify the checks & avoid regular expressions
-  def configure_field_constraint(df, name, "integer", constraint) when constraint in [{"minimum", 0}, {"required", true}] do
+  def configure_field_constraint(df, name, "integer", constraint)
+      when constraint in [{"minimum", 0}, {"required", true}] do
     Explorer.DataFrame.mutate_with(df, fn df ->
       %{"check_integer_minimum_#{name}" => df[name] |> Explorer.Series.re_contains(@positive_integer_pattern)}
     end)
@@ -129,7 +131,8 @@ defmodule Transport.DataFrame.TableSchemaValidator do
 
   @positive_number_pattern ~S'\A\d+(\.\d+)?\z'
 
-  def configure_field_constraint(df, name, "number", constraint) when constraint in [{"minimum", 0}, {"required", true}] do
+  def configure_field_constraint(df, name, "number", constraint)
+      when constraint in [{"minimum", 0}, {"required", true}] do
     Explorer.DataFrame.mutate_with(df, fn df ->
       %{"check_integer_minimum_#{name}" => df[name] |> Explorer.Series.re_contains(@positive_number_pattern)}
     end)
