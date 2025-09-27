@@ -49,13 +49,13 @@ defmodule TransportWeb.DatasetView do
     )
   end
 
-  def pagination_links(%{path_info: ["datasets", "aom", aom]} = conn, datasets) do
-    kwargs = [path: &Helpers.dataset_path/4, action: :by_aom] |> add_query_params(conn.query_params)
+  def pagination_links(%{path_info: ["datasets", "epci", epci]} = conn, datasets) do
+    kwargs = [path: &Helpers.dataset_path/4, action: :by_epci] |> add_query_params(conn.query_params)
 
     PaginationHelpers.pagination_links(
       conn,
       datasets,
-      [aom],
+      [epci],
       kwargs
     )
   end
@@ -101,12 +101,12 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
-  def region_link(conn, %{nom: nom, count: count, id: id}) do
+  def region_link(conn, %{nom: nom, count: count, insee: insee}) do
     url =
-      case id do
+      case insee do
         # This is for the "All" region
         nil -> dataset_path(conn, :index)
-        _ -> dataset_path(conn, :by_region, id)
+        _ -> dataset_path(conn, :by_region, insee)
       end
 
     params = conn.query_params
@@ -130,12 +130,12 @@ defmodule TransportWeb.DatasetView do
     |> raw()
   end
 
-  def legal_owner_link(conn, %DB.Region{nom: nom, id: id}) do
-    link(nom, to: dataset_path(conn, :by_region, id))
+  def legal_owner_link(conn, %DB.Region{nom: nom, insee: insee}) do
+    link(nom, to: dataset_path(conn, :by_region, insee))
   end
 
-  def legal_owner_link(conn, %DB.AOM{nom: nom, id: id}) do
-    link(nom, to: dataset_path(conn, :by_aom, id))
+  def legal_owner_link(conn, %DB.AOM{nom: nom, siren: siren}) do
+    link(nom, to: dataset_path(conn, :by_epci, siren))
   end
 
   def type_link(conn, %{type: type, msg: msg, count: count}) do

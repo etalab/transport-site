@@ -39,6 +39,7 @@ defmodule DB.AdministrativeDivision do
 
     field(:nom, :string)
     field(:geom, Geo.PostGIS.Geometry) :: Geo.MultiPolygon.t()
+    field(:population, :integer)
   end
 
   # NOTE: we could infer the type_insee from other fields if needed?
@@ -47,7 +48,8 @@ defmodule DB.AdministrativeDivision do
     :type,
     :type_insee,
     :nom,
-    :geom
+    :geom,
+    :population
   ]
 
   def changeset(administrative_division, attrs) do

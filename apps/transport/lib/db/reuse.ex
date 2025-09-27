@@ -37,17 +37,32 @@ defmodule DB.Reuse do
 
   def base_query, do: from(r in __MODULE__, as: :reuse)
 
-  def search(%{"q" => q}) do
-    ilike_search = "%#{safe_like_pattern(q)}%"
-
+  def search(%{} = args) do
     base_query()
     |> order_by([reuse: r], desc: r.created_at)
+    |> search_by_query(args)
+    |> search_by_dataset_type(args)
+  end
+
+  def search_by_query(query, %{"q" => q}) do
+    ilike_search = "%#{safe_like_pattern(q)}%"
+
+    query
     |> where([reuse: r], fragment("unaccent(?) ilike unaccent(?)", r.title, ^ilike_search))
     |> or_where([reuse: r], fragment("unaccent(?) ilike unaccent(?)", r.organization, ^ilike_search))
     |> or_where([reuse: r], fragment("unaccent(?) ilike unaccent(?)", r.owner, ^ilike_search))
   end
 
-  def search(%{}), do: base_query() |> order_by([reuse: r], desc: r.created_at)
+  def search_by_query(query, _), do: query
+
+  def search_by_dataset_type(query, %{"type" => type}) when type != "" do
+    query
+    |> join(:inner, [reuse: r], d in assoc(r, :datasets), as: :dataset)
+    |> where([dataset: d], d.type == ^type)
+    |> distinct(true)
+  end
+
+  def search_by_dataset_type(query, _), do: query
 
   @doc """
   Make sure a string that will be passed to `like` or `ilike` is safe.

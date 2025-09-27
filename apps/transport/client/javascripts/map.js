@@ -140,14 +140,14 @@ function addStaticPTMapRegions (id, view) {
 
     function onEachRegionFeature (feature, layer) {
         const name = feature.properties.nom
-        const id = feature.properties.id
+        const siren = feature.properties.siren
         const count = nbBaseSchedule(feature)
         const text = count === 0
             ? 'Aucun jeu de données'
             : count === 1
                 ? 'Un jeu de données'
                 : `${count} jeux de données`
-        const popupContent = `<strong>${name}</strong><br/><a href="/datasets/region/${id}?type=public-transit#datasets-results">${text}</a>`
+        const popupContent = `<strong>${name}</strong><br/><a href="/datasets/region/${siren}?type=public-transit#datasets-results">${text}</a>`
         layer.bindPopup(popupContent)
     }
 
@@ -207,8 +207,8 @@ function addStaticPTMapAOMS (id, view) {
         const extra = feature.properties.nb_other_datasets > 0
             ? '<br>Des données sont disponibles au sein d\'un jeu agrégé. '
             : ''
-        const aomId = feature.properties.id
-        layer.bindPopup(`<strong>${name}</strong><br>(${type})<br/>${text} propre à l'AOM. ${extra}<br><a href="/datasets/aom/${aomId}">Voir les jeux de données</a>`)
+        const aomSIREN = feature.properties.siren
+        layer.bindPopup(`<strong>${name}</strong><br>(${type})<br/>${text} propre à l'AOM. ${extra}<br><a href="/datasets/epci/${aomSIREN}">Voir les jeux de données</a>`)
     }
 
     const smallStripes = new Leaflet.StripePattern({ angle: -45, color: 'green', spaceColor: lightGreen, spaceOpacity: 1, weight: 1, spaceWeight: 1, height: 2 })
@@ -297,8 +297,8 @@ function addStaticPTUpToDate (id, view) {
                 up_to_date: 'Les données sont à jour'
             }[expiredFrom.status]
         }
-        const id = feature.properties.id
-        layer.bindPopup(`<a href="/datasets/aom/${id}">${name}</a><br>(${type})<br/>${text}`)
+        const siren = feature.properties.siren
+        layer.bindPopup(`<a href="/datasets/epci/${siren}">${name}</a><br>(${type})<br/>${text}`)
     }
 
     const styles = {
@@ -359,8 +359,8 @@ function addStaticPTQuality (id, view) {
         } else {
             text = 'Pas de données valides disponible.'
         }
-        const id = feature.properties.id
-        layer.bindPopup(`<a href="/datasets/aom/${id}">${name}</a><br>(${type})<br/>${text}`)
+        const siren = feature.properties.siren
+        layer.bindPopup(`<a href="/datasets/epci/${siren}">${name}</a><br>(${type})<br/>${text}`)
     }
     const styles = {
         fatal: {
@@ -440,8 +440,8 @@ function addRealTimePTMap (id, view) {
         let bind = `<strong>${name}</strong><br/>${type}`
         if (countRealTime) {
             const text = countRealTime === 1 ? 'Un jeu de données' : `${countRealTime} jeux de données`
-            const aomId = feature.properties.id
-            bind += `<br/><a href="/datasets/aom/${aomId}">${text}</a>`
+            const aomSIREN = feature.properties.siren
+            bind += `<br/><a href="/datasets/epci/${aomSIREN}">${text}</a>`
         }
         layer.bindPopup(bind)
     }
@@ -506,8 +506,8 @@ function addRealTimePtFormatMap (id, view) {
         let bind = `<div class="pb-6"><strong>${name}</strong><br/>${type}</div>`
         if (countRealTime) {
             const text = countRealTime === 1 ? 'Une ressource' : `${countRealTime} ressources`
-            const commune = feature.properties.id
-            bind += `<div class="pb-6"><a href="/datasets/aom/${commune}">${text}</a>`
+            const siren = feature.properties.siren
+            bind += `<div class="pb-6"><a href="/datasets/epci/${siren}">${text}</a>`
             bind += '<br/>formats :'
             const formats = []
             if (gtfsRT) {
@@ -676,9 +676,9 @@ function addPtFormatMap (id, view) {
     const aomsFG = getAomsFG(
         (feature, layer) => {
             const name = feature.properties.nom
-            const commune = feature.properties.id
+            const siren = feature.properties.siren
 
-            const bind = `<a href="/datasets/aom/${commune}">${name}<br/></a>`
+            const bind = `<a href="/datasets/epci/${siren}">${name}<br/></a>`
             layer.bindPopup(bind)
         },
         style,

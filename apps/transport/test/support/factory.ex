@@ -201,6 +201,7 @@ defmodule DB.Factory do
       type_insee: "departement_38",
       type: :departement,
       nom: "Isère",
+      population: 0,
       geom: %Geo.Polygon{
         coordinates: [
           [

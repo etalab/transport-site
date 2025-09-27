@@ -32,8 +32,8 @@ defmodule TransportWeb.DatabaseCase do
         end
 
         Repo.insert(%Region{nom: "Pays de la Loire", insee: "52"})
-        Repo.insert(%Region{nom: "Auvergne-Rhône-Alpes"})
-        Repo.insert(%Region{nom: "Île-de-France"})
+        Repo.insert(%Region{nom: "Auvergne-Rhône-Alpes", insee: "84"})
+        Repo.insert(%Region{nom: "Île-de-France", insee: "11"})
 
         Repo.insert(%AOM{
           insee_commune_principale: "53130",

@@ -319,7 +319,8 @@ defmodule TransportWeb.API.DatasetController do
 
   defp use_download_url?(%DB.Resource{} = resource) do
     DB.Resource.pan_resource?(resource) or DB.Resource.served_by_proxy?(resource) or
-      DB.Dataset.has_custom_tag?(resource.dataset, "authentification_experimentation")
+      (DB.Dataset.has_custom_tag?(resource.dataset, "authentification_experimentation") and
+         not DB.Resource.real_time?(resource))
   end
 
   @spec transform_aom(AOM.t() | nil) :: map()

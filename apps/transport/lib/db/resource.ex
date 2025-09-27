@@ -321,7 +321,7 @@ defmodule DB.Resource do
         } = conn
       ) do
     cond do
-      DB.Dataset.has_custom_tag?(dataset, "authentification_experimentation") ->
+      DB.Dataset.has_custom_tag?(dataset, "authentification_experimentation") and not real_time?(resource) ->
         resource_url(conn, :download, resource.id, token: token.secret)
 
       pan_resource?(resource) ->
@@ -337,7 +337,7 @@ defmodule DB.Resource do
 
   def download_url(%__MODULE__{dataset: %DB.Dataset{} = dataset} = resource, conn_or_endpoint) do
     cond do
-      DB.Dataset.has_custom_tag?(dataset, "authentification_experimentation") ->
+      DB.Dataset.has_custom_tag?(dataset, "authentification_experimentation") and not real_time?(resource) ->
         resource_url(conn_or_endpoint, :download, resource.id)
 
       pan_resource?(resource) ->

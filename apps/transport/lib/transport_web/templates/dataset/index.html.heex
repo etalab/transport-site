@@ -91,7 +91,7 @@
                         <%= region_link(@conn, %{
                           nom: dgettext("page-shortlist", "All"),
                           count: @regions |> Enum.map(& &1.count) |> Enum.sum(),
-                          id: nil
+                          insee: nil
                         }) %>
                       </li>
                       <%= for region <- @regions do %>

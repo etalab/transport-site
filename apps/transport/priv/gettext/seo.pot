@@ -23,7 +23,7 @@ msgid "Transport open datasets for %{type} %{name}"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "%{name} AOM: Transport open datasets "
+msgid "%{name} EPCI: Transport open datasets"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -56,4 +56,8 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Reuser space"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "%{name} department: Transport open datasets"
 msgstr ""
