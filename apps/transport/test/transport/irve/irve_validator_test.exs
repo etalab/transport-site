@@ -231,4 +231,57 @@ defmodule Transport.IRVE.ValidationTests do
       end)
       |> IO.inspect(IEx.inspect_opts())
   end
+
+  test "compose field validator" do
+    regex = ~S/^\d{9}$/
+    df = Explorer.DataFrame.load_csv!("siren_amenageur\n\n   \n123456789\n  123456789 \nsomething-else")
+
+    assert df["siren_amenageur"] |> Explorer.Series.to_list() ==
+             [
+               # fully empty value only is converted to nil
+               nil,
+               "   ",
+               "123456789",
+               "  123456789 ",
+               "something-else"
+             ]
+
+    df =
+      df
+      |> Explorer.DataFrame.mutate_with(fn df ->
+        # normalize nil & space-filled empty strings into just `""`
+        normalized_siren_amenageur =
+          df["siren_amenageur"]
+          |> Explorer.Series.strip()
+          |> Explorer.Series.fill_missing("")
+
+        %{
+          # require: false implies "or" with allowed missing values
+          # NOTE: subchecks must be stored to be able to display the root
+          # cause of the failure to the user, and the overall check must be computed
+          # via a constructed expression.
+          "check_siren_amenageur_missing_or_respecting_pattern" =>
+            Explorer.Series.or(
+              Explorer.Series.equal(normalized_siren_amenageur, ""),
+              Explorer.Series.re_contains(normalized_siren_amenageur, regex)
+            )
+        }
+      end)
+
+    df
+    |> IO.inspect(IEx.inspect_opts() |> Keyword.put(:width, 132))
+  end
+
+  @tag :focus
+  test "casting integers" do
+    df =
+      Explorer.DataFrame.load_csv!("nbre_pdc\n\n   \n -1.5678\n -12345\n  9999999999999 \n1.45789\n   -15678")
+      |> Explorer.DataFrame.mutate_with(fn df ->
+        %{
+          temp_cast: Explorer.Series.cast(df["nbre_pdc"] |> Explorer.Series.strip(), :integer),
+          valid_nbre_pdc: Explorer.Series.greater_equal(Explorer.Series.cast(df["nbre_pdc"], :integer), 0)
+        }
+      end)
+      |> IO.inspect(IEx.inspect_opts() |> Keyword.put(:width, 132))
+  end
 end
