@@ -18,27 +18,43 @@ defmodule TransportWeb.ResourceController do
   plug(:assign_current_contact when action in [:details])
 
   def details(conn, %{"id" => id} = params) do
-    resource =
-      Resource |> preload([:resources_related, dataset: [:resources, :declarative_spatial_areas]]) |> Repo.get!(id)
+    case load_resource(id) do
+      nil ->
+        not_found(conn)
 
-    conn =
-      conn
-      |> assign(
-        :uptime_per_day,
-        DB.ResourceUnavailability.uptime_per_day(resource, availability_number_days())
-      )
-      |> assign(:resource_history, DB.ResourceHistory.latest_resource_history(id))
-      |> assign(:gtfs_rt_feed, gtfs_rt_feed(conn, resource))
-      |> assign(:gtfs_rt_entities, gtfs_rt_entities(resource))
-      |> assign(:latest_validations_details, latest_validations_details(resource))
-      |> assign(:multi_validation, latest_validation(resource))
-      |> put_resource_flash(resource.dataset.is_active)
+      resource ->
+        conn =
+          conn
+          |> assign(
+            :uptime_per_day,
+            DB.ResourceUnavailability.uptime_per_day(resource, availability_number_days())
+          )
+          |> assign(:resource_history, DB.ResourceHistory.latest_resource_history(id))
+          |> assign(:gtfs_rt_feed, gtfs_rt_feed(conn, resource))
+          |> assign(:gtfs_rt_entities, gtfs_rt_entities(resource))
+          |> assign(:latest_validations_details, latest_validations_details(resource))
+          |> assign(:multi_validation, latest_validation(resource))
+          |> put_resource_flash(resource.dataset.is_active)
 
-    cond do
-      Resource.gtfs?(resource) -> render_gtfs_details(conn, params, resource)
-      Resource.netex?(resource) -> render_netex_details(conn, params, resource)
-      true -> render_details(conn, resource)
+        cond do
+          Resource.gtfs?(resource) -> render_gtfs_details(conn, params, resource)
+          Resource.netex?(resource) -> render_netex_details(conn, params, resource)
+          true -> render_details(conn, resource)
+        end
     end
+  end
+
+  defp not_found(conn) do
+    conn
+    |> put_status(:not_found)
+    |> put_view(ErrorView)
+    |> render("404.html")
+  end
+
+  defp load_resource(id) do
+    Resource
+    |> preload([:resources_related, dataset: [:resources, :declarative_spatial_areas]])
+    |> Repo.get(id)
   end
 
   def gtfs_rt_entities(%Resource{format: "gtfs-rt", id: id}) do
@@ -195,7 +211,8 @@ defmodule TransportWeb.ResourceController do
     end
   end
 
-  defp pick_netex_errors_template("0.2.0"), do: "_netex_validation_errors_v0_2_0.html"
+  defp pick_netex_errors_template("0.2.1"), do: "_netex_validation_errors_v0_2_x.html"
+  defp pick_netex_errors_template("0.2.0"), do: "_netex_validation_errors_v0_2_x.html"
   defp pick_netex_errors_template(_), do: "_netex_validation_errors_v0_1_0.html"
 
   defp assign_base_resource_details(conn, params, resource, validation_details) do

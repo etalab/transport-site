@@ -167,10 +167,6 @@ msgid "Get dataset list via an API"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "AOM %{name} has not yet published any datasets"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "There is no data for city %{name}"
 msgstr ""
 
@@ -238,4 +234,8 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "department"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "EPCI %{name} has not yet published any datasets"
 msgstr ""

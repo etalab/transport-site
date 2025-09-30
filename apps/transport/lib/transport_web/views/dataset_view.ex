@@ -7,7 +7,7 @@ defmodule TransportWeb.DatasetView do
   # NOTE: ~H is defined in LiveView, but can actually be used from anywhere.
   # ~H expects a variable named `assigns`, so wrapping the calls to `~H` inside
   # a helper function would be cleaner and more future-proof to avoid conflicts at some point.
-  import Phoenix.Component, only: [sigil_H: 2, live_render: 3]
+  import Phoenix.Component, only: [sigil_H: 2, live_render: 3, assign: 3]
   import DB.Dataset, only: [experimental?: 1]
   import DB.MultiValidation, only: [get_metadata_info: 2, get_metadata_info: 3]
   alias Shared.DateTimeDisplay
@@ -49,13 +49,13 @@ defmodule TransportWeb.DatasetView do
     )
   end
 
-  def pagination_links(%{path_info: ["datasets", "aom", aom]} = conn, datasets) do
-    kwargs = [path: &Helpers.dataset_path/4, action: :by_aom] |> add_query_params(conn.query_params)
+  def pagination_links(%{path_info: ["datasets", "epci", epci]} = conn, datasets) do
+    kwargs = [path: &Helpers.dataset_path/4, action: :by_epci] |> add_query_params(conn.query_params)
 
     PaginationHelpers.pagination_links(
       conn,
       datasets,
-      [aom],
+      [epci],
       kwargs
     )
   end
@@ -101,12 +101,12 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
-  def region_link(conn, %{nom: nom, count: count, id: id}) do
+  def region_link(conn, %{nom: nom, count: count, insee: insee}) do
     url =
-      case id do
+      case insee do
         # This is for the "All" region
         nil -> dataset_path(conn, :index)
-        _ -> dataset_path(conn, :by_region, id)
+        _ -> dataset_path(conn, :by_region, insee)
       end
 
     params = conn.query_params
@@ -130,12 +130,12 @@ defmodule TransportWeb.DatasetView do
     |> raw()
   end
 
-  def legal_owner_link(conn, %DB.Region{nom: nom, id: id}) do
-    link(nom, to: dataset_path(conn, :by_region, id))
+  def legal_owner_link(conn, %DB.Region{nom: nom, insee: insee}) do
+    link(nom, to: dataset_path(conn, :by_region, insee))
   end
 
-  def legal_owner_link(conn, %DB.AOM{nom: nom, id: id}) do
-    link(nom, to: dataset_path(conn, :by_aom, id))
+  def legal_owner_link(conn, %DB.AOM{nom: nom, siren: siren}) do
+    link(nom, to: dataset_path(conn, :by_epci, siren))
   end
 
   def type_link(conn, %{type: type, msg: msg, count: count}) do
@@ -482,16 +482,32 @@ defmodule TransportWeb.DatasetView do
 
   def validity_period(_), do: %{}
 
-  def show_resource_last_update(resources_updated_at, %DB.Resource{id: id} = resource, locale) do
-    if Resource.real_time?(resource) do
-      dgettext("page-dataset-details", "real-time")
-    else
-      resources_updated_at
-      |> Map.get(id)
-      |> case do
-        nil -> dgettext("page-dataset-details", "unknown")
-        dt -> dt |> DateTimeDisplay.format_datetime_to_date(locale)
-      end
+  def resource_last_update_span(assigns) do
+    assigns = assign(assigns, :real_time, Resource.real_time?(assigns.resource))
+
+    ~H"""
+    <span title={if @real_time, do: "", else: dgettext("page-dataset-details", "latest-content-modification-popover")}>
+      <i class="icon icon--sync-alt" aria-hidden="true"></i>
+      <%= resource_last_update_date_or_string(@resources_updated_at, @resource, @locale, real_time: @real_time) %>
+      <span :if={!@real_time} class="small">
+        <%= dgettext("page-dataset-details", "latest-content-modification-label") %>
+      </span>
+    </span>
+    """
+  end
+
+  def resource_last_update_date_or_string(_resources_updated_at, _resource, _locale, real_time: true) do
+    dgettext("page-dataset-details", "real-time")
+  end
+
+  def resource_last_update_date_or_string(resources_updated_at, %DB.Resource{id: id} = _resource, locale,
+        real_time: false
+      ) do
+    resources_updated_at
+    |> Map.get(id)
+    |> case do
+      nil -> dgettext("page-dataset-details", "unknown")
+      dt -> dt |> DateTimeDisplay.format_datetime_to_date(locale)
     end
   end
 

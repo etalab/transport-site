@@ -315,10 +315,6 @@ msgid "Please note that our GTFS validator does not validate the Flex and Fares 
 msgstr "Veuillez noter que notre validateur GTFS n'est pas en mesure de valider les extensions Flex et Fares v2 pour le moment."
 
 #, elixir-autogen, elixir-format
-msgid "This file contains the GTFS-Flex extension. We are not able to validate it for now."
-msgstr "Ce fichier contient l'extension GTFS-Flex. Nous ne sommes pas en mesure de le valider pour le moment."
-
-#, elixir-autogen, elixir-format
 msgid "calendar span by network:"
 msgstr "couverture calendaire par réseau :"
 
@@ -384,4 +380,24 @@ msgstr "Autres erreurs"
 
 #, elixir-autogen, elixir-format
 msgid "netex-validations-layers"
-msgstr "La validation des ressources NeTEx est encore à ses débuts. Pour le moment, nous vérifions la conformité à la XSD et certaines bonnes pratiques. Nous ne vérifions pas encore la conformité à la structure et aux spécificités du <a href=\"https://normes.transport.data.gouv.fr/\">profil France</a>."
+msgstr "La validation des ressources NeTEx est encore à ses débuts. Pour le moment, nous vérifions la conformité à la XSD et certaines bonnes pratiques."
+
+#, elixir-autogen, elixir-format
+msgid "netex-french-profile-no-compliance"
+msgstr "Nous ne vérifions pas encore la conformité à la structure et aux spécificités du <a href=\"https://normes.transport.data.gouv.fr/\">profil France</a>."
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "netex-french-profile-partial-compliance"
+msgstr "Nous ne vérifions que partiellement la conformité à la structure et aux spécificités du <a href=\"https://normes.transport.data.gouv.fr/\">profil France</a>."
+
+#, elixir-autogen, elixir-format
+msgid "This file contains the GTFS-Flex extension. We are not able to validate it for now. You can validate it using the <a href=\"%{url}\">Canonical GTFS Schedule Validator from MobilityData</a>."
+msgstr "Ce fichier contient l'extension GTFS-Flex. Nous ne sommes pas en mesure de le valider pour le moment. Vous pouvez le valider avec le <a href=\"%{url}\">validateur GTFS canonique de MobilityData</a>."
+
+#, elixir-autogen, elixir-format
+msgid "French profile"
+msgstr "Profil France"
+
+#, elixir-autogen, elixir-format
+msgid "french-profile-description"
+msgstr "Ensemble de règles spécifiques au <a href=\"https://normes.transport.data.gouv.fr\" target=\"_blank\">profil France</a>."

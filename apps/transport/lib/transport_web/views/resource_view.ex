@@ -328,21 +328,31 @@ defmodule TransportWeb.ResourceView do
         stats={stats}
         token={@token}
       />
-      <.netex_validations_layers />
+      <.netex_validations_layers compliance_check={@results_adapter.french_profile_compliance_check()} />
     </ul>
     """
   end
 
-  defp netex_validations_layers(%{} = assigns) do
+  defp netex_validations_layers(%{compliance_check: :good_enough} = assigns) do
+    ~H"""
+    """
+  end
+
+  defp netex_validations_layers(%{compliance_check: _} = assigns) do
     ~H"""
     <li class="comment">
       <.info_icon />
       <div>
         <%= dgettext("validations", "netex-validations-layers") |> raw() %>
+        <%= french_profile_comment(@compliance_check) %>
       </div>
     </li>
     """
   end
+
+  defp french_profile_comment(:none), do: dgettext("validations", "netex-french-profile-no-compliance") |> raw()
+  defp french_profile_comment(:partial), do: dgettext("validations", "netex-french-profile-partial-compliance") |> raw()
+  defp french_profile_comment(:good_enough), do: ""
 
   defp netex_errors_category(%{conn: _, category: _, stats: _, token: _, results_adapter: _} = assigns) do
     ~H"""
@@ -412,10 +422,12 @@ defmodule TransportWeb.ResourceView do
   end
 
   def netex_category_label("xsd-schema"), do: dgettext("validations", "XSD NeTEx")
+  def netex_category_label("french-profile"), do: dgettext("validations", "French profile")
   def netex_category_label("base-rules"), do: dgettext("validations", "Base rules")
   def netex_category_label(_), do: dgettext("validations", "Other errors")
 
   def netex_category_description("xsd-schema"), do: dgettext("validations", "xsd-schema-description") |> raw()
+  def netex_category_description("french-profile"), do: dgettext("validations", "french-profile-description") |> raw()
   def netex_category_description("base-rules"), do: dgettext("validations", "base-rules-description") |> raw()
   def netex_category_description(_), do: nil
 
