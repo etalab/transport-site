@@ -167,18 +167,14 @@ defmodule TransportWeb.ResourceController do
     |> render("gtfs_details.html")
   end
 
-  defp build_gtfs_validation_details(validation, params) do
-    case validation do
-      %{result: validation_result, metadata: metadata = %DB.ResourceMetadata{}} ->
-        summary = Transport.Validators.GTFSTransport.summary(validation_result)
-        stats = Transport.Validators.GTFSTransport.count_by_severity(validation_result)
-        issues = Transport.Validators.GTFSTransport.get_issues(validation_result, params)
+  defp build_gtfs_validation_details(nil, _params), do: {nil, nil, nil, [], []}
 
-        {summary, stats, metadata.metadata, metadata.modes, issues}
+  defp build_gtfs_validation_details(%{result: validation_result, metadata: metadata = %DB.ResourceMetadata{}}, params) do
+    summary = Transport.Validators.GTFSTransport.summary(validation_result)
+    stats = Transport.Validators.GTFSTransport.count_by_severity(validation_result)
+    issues = Transport.Validators.GTFSTransport.get_issues(validation_result, params)
 
-      nil ->
-        {nil, nil, nil, [], []}
-    end
+    {summary, stats, metadata.metadata, metadata.modes, issues}
   end
 
   defp render_netex_details(conn, params, resource, validation) do
@@ -194,21 +190,20 @@ defmodule TransportWeb.ResourceController do
     |> render("netex_details.html")
   end
 
-  defp build_netex_validation_details(validation, params) do
-    case validation do
-      %{validator_version: version, result: validation_result, metadata: metadata = %DB.ResourceMetadata{}} ->
-        results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
-        summary = results_adapter.summary(validation_result)
-        stats = results_adapter.count_by_severity(validation_result)
-        issues = results_adapter.get_issues(validation_result, params)
-        errors_template = pick_netex_errors_template(version)
-        max_severity = results_adapter.count_max_severity(validation_result)
+  defp build_netex_validation_details(nil, _params), do: {nil, {nil, nil, nil, [], []}, nil, nil}
 
-        {results_adapter, {summary, stats, metadata.metadata, metadata.modes, issues}, errors_template, max_severity}
+  defp build_netex_validation_details(
+         %{validator_version: version, result: validation_result, metadata: metadata = %DB.ResourceMetadata{}},
+         params
+       ) do
+    results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
+    summary = results_adapter.summary(validation_result)
+    stats = results_adapter.count_by_severity(validation_result)
+    issues = results_adapter.get_issues(validation_result, params)
+    errors_template = pick_netex_errors_template(version)
+    max_severity = results_adapter.count_max_severity(validation_result)
 
-      nil ->
-        {nil, {nil, nil, nil, [], []}, nil, nil}
-    end
+    {results_adapter, {summary, stats, metadata.metadata, metadata.modes, issues}, errors_template, max_severity}
   end
 
   defp pick_netex_errors_template("0.2.1"), do: "_netex_validation_errors_v0_2_x.html"
