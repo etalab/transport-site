@@ -128,6 +128,18 @@ stats = @metadata["stats"] %>
         <td><%= format_nil_or_number(stats["fares_rules_count"], locale) %></td>
       </tr>
       <tr>
+        <td><%= dgettext("page-dataset-details", "Fare products") %></td>
+        <td lang="en"><code>fare_products.txt</code></td>
+        <td><%= yes_no_icon(stats["fares_products_count"]) %></td>
+        <td><%= format_nil_or_number(stats["fares_products_count"], locale) %></td>
+      </tr>
+      <tr>
+        <td><%= dgettext("page-dataset-details", "Fare media") %></td>
+        <td lang="en"><code>fare_media.txt</code></td>
+        <td><%= yes_no_icon(stats["fares_media_count"]) %></td>
+        <td><%= format_nil_or_number(stats["fares_media_count"], locale) %></td>
+      </tr>
+      <tr>
         <td><%= dgettext("page-dataset-details", "Transfers") %></td>
         <td lang="en"><code>transfers.txt</code></td>
         <td><%= yes_no_icon(stats["transfers_count"]) %></td>

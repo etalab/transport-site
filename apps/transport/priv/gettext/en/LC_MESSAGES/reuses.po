@@ -12,10 +12,6 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #, elixir-autogen, elixir-format
-msgid "Reuses"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "dataset"
 msgid_plural "datasets"
 msgstr[0] ""
@@ -67,4 +63,8 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "-- All --"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Declared reuses"
 msgstr ""
