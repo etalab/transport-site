@@ -1,24 +1,24 @@
-<% show_schema_validation = not is_nil(@resource.schema_name) and multi_validation_performed?(@multi_validation) %>
-<% show_gtfs_rt_validation = DB.Resource.gtfs_rt?(@resource) and multi_validation_performed?(@multi_validation) %>
-<% show_gbfs_validation = DB.Resource.gbfs?(@resource) and multi_validation_performed?(@multi_validation) %>
+<% show_schema_validation = not is_nil(@resource.schema_name) and multi_validation_performed?(@validation) %>
+<% show_gtfs_rt_validation = DB.Resource.gtfs_rt?(@resource) and multi_validation_performed?(@validation) %>
+<% show_gbfs_validation = DB.Resource.gbfs?(@resource) and multi_validation_performed?(@validation) %>
 
 <h2 id="validation-report"><%= dgettext("validations", "Validation details") %></h2>
 
 <%= if show_schema_validation do %>
-  <%= render("_validation_report_schema.html", resource: @resource, conn: @conn, multi_validation: @multi_validation) %>
+  <%= render("_validation_report_schema.html", resource: @resource, conn: @conn, validation: @validation) %>
 <% end %>
 
 <%= if show_gtfs_rt_validation do %>
   <%= render("_validation_report_gtfs_rt.html",
     resource: @resource,
     conn: @conn,
-    multi_validation: @multi_validation,
+    validation: @validation,
     latest_validations_details: @latest_validations_details
   ) %>
 <% end %>
 
 <%= if show_gbfs_validation do %>
-  <%= render("_validation_report_gbfs.html", resource: @resource, conn: @conn, multi_validation: @multi_validation) %>
+  <%= render("_validation_report_gbfs.html", resource: @resource, conn: @conn, validation: @validation) %>
 <% end %>
 
 <%= if not Enum.any?([show_schema_validation, show_gtfs_rt_validation, show_gbfs_validation]) do %>
@@ -27,7 +27,7 @@
       <%= dgettext("validations", "No validation available") %>
     </div>
     <%= if DB.Resource.gtfs_rt?(@resource) do %>
-      <%= render("_validate_gtfs_rt_now.html", conn: @conn, resource: @resource, multi_validation: @multi_validation) %>
+      <%= render("_validate_gtfs_rt_now.html", conn: @conn, resource: @resource, validation: @validation) %>
     <% end %>
     <%= if DB.Resource.gbfs?(@resource) do %>
       <%= render("_validate_gbfs_now.html", conn: @conn, resource: @resource) %>
