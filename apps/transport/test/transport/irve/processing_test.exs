@@ -58,9 +58,9 @@ defmodule Transport.IRVE.ProcessingTest do
                "observations" => "Station située au niveau -1 du parking",
                "date_maj" => ~D[2024-10-17],
                # This was added and coordonneesXY removed
-               "x" => -0.799141,
+               "longitude" => -0.799141,
                # Same
-               "y" => 45.91914
+               "latitude" => 45.91914
              }
            ]
   end
