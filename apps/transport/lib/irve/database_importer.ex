@@ -10,6 +10,11 @@ defmodule Transport.IRVE.DatabaseImporter do
 
   import Ecto.Query
 
+  # the default timeout on `insert_all` is not enough when importing large files (e.g. Qualicharge)
+  # with this module, so we override it. It is important, as a consequence, to avoid calling this
+  # too many times in parallel, since it would exhaust the Ecto connection pool.
+  @import_timeout 60_000
+
   def write_to_db(file_path, dataset_datagouv_id, resource_datagouv_id) do
     content = File.read!(file_path)
 
@@ -18,14 +23,17 @@ defmodule Transport.IRVE.DatabaseImporter do
 
     checksum = :crypto.hash(:sha256, content) |> Base.encode16(case: :lower)
 
-    DB.Repo.transaction(fn ->
-      # This may raise an error if we try to insert a duplicate (same resource_datagouv_id and checksum)
-      # which is fine, the caller should handle it.
-      %DB.IRVEValidFile{id: file_id} = write_new_file!(dataset_datagouv_id, resource_datagouv_id, checksum)
-      write_pdcs(rows_stream, file_id)
-      # Eventually try to erase previous file, which cascades on delete on PDCs.
-      delete_previous_file_and_pdcs(dataset_datagouv_id, resource_datagouv_id, checksum)
-    end)
+    DB.Repo.transaction(
+      fn ->
+        # This may raise an error if we try to insert a duplicate (same resource_datagouv_id and checksum)
+        # which is fine, the caller should handle it.
+        %DB.IRVEValidFile{id: file_id} = write_new_file!(dataset_datagouv_id, resource_datagouv_id, checksum)
+        write_pdcs(rows_stream, file_id)
+        # Eventually try to erase previous file, which cascades on delete on PDCs.
+        delete_previous_file_and_pdcs(dataset_datagouv_id, resource_datagouv_id, checksum)
+      end,
+      timeout: @import_timeout
+    )
   end
 
   defp write_new_file!(dataset_datagouv_id, resource_datagouv_id, checksum) do
