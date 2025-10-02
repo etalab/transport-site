@@ -717,3 +717,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "latest-content-modification-popover"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Fare media"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Fare products"
+msgstr ""

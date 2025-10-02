@@ -717,3 +717,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "latest-content-modification-popover"
 msgstr "We check daily at the source server if the content has changed. This date may be different from the one displayed on data.gouv.fr as transport.data.gouv.fr tracks changes on downloaded content."
+
+#, elixir-autogen, elixir-format
+msgid "Fare media"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Fare products"
+msgstr ""

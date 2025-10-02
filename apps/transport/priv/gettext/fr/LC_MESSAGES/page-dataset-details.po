@@ -717,3 +717,11 @@ msgstr "Régulateur"
 #, elixir-autogen, elixir-format
 msgid "latest-content-modification-popover"
 msgstr "Nous vérifions quotidiennement à la source si le contenu a changé. Cette date peut différer de celle indiquée sur data.gouv.fr car les vérifications de transport.data.gouv.fr portent sur le contenu lui-même."
+
+#, elixir-autogen, elixir-format
+msgid "Fare media"
+msgstr "Supports tarifaires"
+
+#, elixir-autogen, elixir-format
+msgid "Fare products"
+msgstr "Produits tarifaires"
