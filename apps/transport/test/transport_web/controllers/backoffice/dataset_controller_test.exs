@@ -161,4 +161,31 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
     Datagouvfr.Client.CommunityResources.Mock
     |> expect(:get, fn _ -> {:ok, []} end)
   end
+
+  test "delete a dataset", %{conn: conn} do
+    dataset = insert(:dataset, slug: "slug")
+
+    resource = insert(:resource, dataset: dataset)
+
+    organization = insert(:organization)
+
+    insert_contact(%{
+      datagouv_user_id: Ecto.UUID.generate(),
+      organizations: [organization |> Map.from_struct()]
+    })
+
+    token = insert_token(%{organization_id: organization.id})
+
+    %DB.ResourceDownload{}
+    |> Ecto.Changeset.change(%{
+      time: DateTime.utc_now(),
+      resource_id: resource.id,
+      token_id: token.id
+    })
+    |> DB.Repo.insert!()
+
+    conn
+    |> setup_admin_in_session()
+    |> post(Routes.backoffice_dataset_path(conn, :delete, dataset.id), %{})
+  end
 end

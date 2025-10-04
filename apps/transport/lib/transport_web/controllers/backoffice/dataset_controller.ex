@@ -2,9 +2,10 @@ defmodule TransportWeb.Backoffice.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Client.Datasets
 
-  alias DB.{Dataset, ImportDataWorker, Repo}
+  alias DB.{Dataset, ImportDataWorker, Repo, ResourceDownload}
   alias Transport.{ImportData, ImportDataWorker}
   require Logger
+  import Ecto.Query, only: [preload: 2]
 
   @spec post(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def post(%Plug.Conn{} = conn, %{"form" => form_params} = params) do
@@ -125,8 +126,14 @@ defmodule TransportWeb.Backoffice.DatasetController do
 
   @spec delete(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def delete(%Plug.Conn{} = conn, %{"id" => id}) do
-    Dataset
-    |> Repo.get(id)
+    dataset =
+      Dataset
+      |> preload([:resources])
+      |> Repo.get(id)
+
+    dataset.resources |> Enum.each(&ResourceDownload.delete_all_for_resource/1)
+
+    dataset
     |> Repo.delete()
     |> flash(
       conn,
