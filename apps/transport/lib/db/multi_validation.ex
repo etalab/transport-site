@@ -85,13 +85,29 @@ defmodule DB.MultiValidation do
   def resource_latest_validation(resource_id, validator) when is_atom(validator) do
     validator_name = validator.validator_name()
 
+    case resource_latest_validation_via_resource_history(resource_id, validator_name) do
+      nil -> resource_latest_validation_via_resource(resource_id, validator_name)
+      result -> result
+    end
+  end
+
+  defp resource_latest_validation_via_resource_history(resource_id, validator_name) do
     DB.MultiValidation
-    |> join(:left, [mv], rh in DB.ResourceHistory,
+    |> join(:inner, [mv], rh in DB.ResourceHistory,
       on: rh.id == mv.resource_history_id and rh.resource_id == ^resource_id
     )
-    |> join(:left, [mv, rh], r in DB.Resource, on: r.id == mv.resource_id and r.id == ^resource_id)
-    |> where([mv, rh, r], mv.validator == ^validator_name and (not is_nil(rh.id) or not is_nil(r.id)))
-    |> order_by([mv, rh, r], desc: rh.inserted_at, desc: r.id, desc: mv.validation_timestamp)
+    |> where([mv], mv.validator == ^validator_name)
+    |> order_by([mv, rh], desc: rh.inserted_at, desc: mv.validation_timestamp)
+    |> preload([:metadata, :resource_history])
+    |> limit(1)
+    |> DB.Repo.one()
+  end
+
+  defp resource_latest_validation_via_resource(resource_id, validator_name) do
+    DB.MultiValidation
+    |> join(:inner, [mv], r in DB.Resource, on: r.id == mv.resource_id and r.id == ^resource_id)
+    |> where([mv, r], mv.validator == ^validator_name)
+    |> order_by([mv, r], desc: r.id, desc: mv.validation_timestamp)
     |> preload([:metadata, :resource_history])
     |> limit(1)
     |> DB.Repo.one()
