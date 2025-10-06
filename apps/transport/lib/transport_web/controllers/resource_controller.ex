@@ -241,14 +241,14 @@ defmodule TransportWeb.ResourceController do
   end
 
   @doc """
-  `download` is in charge of downloading resources.
+  `download` is in charge of downloading resources OR forwarding and logging requests.
 
-  - If the resource can be "directly downloaded" over HTTPS,
-  this method redirects.
-  - Otherwise, we proxy the response of the resource's url
+  - If the resource uses a PAN download-link, it logs the request (with a token if specified)
+    and redirects to the resource's URL afterward.
+  - If the resource can be "directly downloaded" over HTTPS, this method redirects.
+  - Otherwise, we proxy the response of the resource's url.
 
-  We introduced this method because some browsers
-  block downloads of external HTTP resources when
+  We introduced this method because some browsers block downloads of external HTTP resources when
   they are referenced on an HTTPS page.
   """
   def download(%Plug.Conn{assigns: %{original_method: "HEAD"}} = conn, %{"id" => id}) do
@@ -256,7 +256,7 @@ defmodule TransportWeb.ResourceController do
 
     cond do
       DB.Dataset.has_custom_tag?(resource.dataset, "authentification_experimentation") ->
-        conn |> Plug.Conn.send_resp(:ok, "")
+        forward_head_response(conn, resource)
 
       DB.Resource.pan_resource?(resource) ->
         conn |> Plug.Conn.send_resp(:ok, "")
@@ -265,13 +265,7 @@ defmodule TransportWeb.ResourceController do
         conn |> Plug.Conn.send_resp(:not_found, "")
 
       true ->
-        case Transport.Shared.Wrapper.HTTPoison.impl().head(resource.url, []) do
-          {:ok, %HTTPoison.Response{status_code: status_code, headers: headers}} ->
-            send_head_response(conn, status_code, headers)
-
-          _ ->
-            conn |> Plug.Conn.send_resp(:bad_gateway, "")
-        end
+        forward_head_response(conn, resource)
     end
   end
 
@@ -307,6 +301,16 @@ defmodule TransportWeb.ResourceController do
             |> put_view(ErrorView)
             |> render("404.html")
         end
+    end
+  end
+
+  defp forward_head_response(%Plug.Conn{} = conn, %DB.Resource{} = resource) do
+    case Transport.Shared.Wrapper.HTTPoison.impl().head(resource.url, []) do
+      {:ok, %HTTPoison.Response{status_code: status_code, headers: headers}} ->
+        send_head_response(conn, status_code, headers)
+
+      _ ->
+        conn |> Plug.Conn.send_resp(:bad_gateway, "")
     end
   end
 

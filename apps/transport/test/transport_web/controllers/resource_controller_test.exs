@@ -350,7 +350,12 @@ defmodule TransportWeb.ResourceControllerTest do
 
   test "HEAD request for a dataset with the experimental tag", %{conn: conn} do
     dataset = insert(:dataset, custom_tags: ["authentification_experimentation"])
-    resource = insert(:resource, dataset: dataset)
+    resource = insert(:resource, url: url = "https://example.com/head", dataset: dataset)
+
+    Transport.HTTPoison.Mock
+    |> expect(:head, fn ^url, [] ->
+      {:ok, %HTTPoison.Response{status_code: 200}}
+    end)
 
     assert conn |> head(resource_path(conn, :download, resource.id)) |> response(200)
   end
