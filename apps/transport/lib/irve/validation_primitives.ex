@@ -15,18 +15,18 @@ defmodule Transport.IRVE.Validation.Primitives do
   If `required: true` is passed, the value must be provided (not nil, nor an empty string). 
   For each row, the column will equate `true` if the criteria is matched, otherwise `false`. 
 
-  iex> compute_check(build_df("field", [nil, "   ", " something "]), "field", :required, true) |> df_values(:check_field_required_true)
+  iex> compute_required_check(build_df("field", [nil, "   ", " something "]), "field", true) |> df_values(:check_field_required)
   [false, false, true]
 
   If `required: false` is passed, the colum will equate `nil`, to advertise that the check
   has not been actually evaluated.
 
-  iex> compute_check(build_df("field", [nil, "   ", " something "]), "field", :required, false) |> df_values(:check_field_required_false)
+  iex> compute_required_check(build_df("field", [nil, "   ", " something "]), "field", false) |> df_values(:check_field_required)
   [nil, nil, nil]
   """
-  def compute_check(%Explorer.DataFrame{} = df, field, :required, is_required?) when is_boolean(is_required?) do
+  def compute_required_check(%Explorer.DataFrame{} = df, field, is_required?) when is_boolean(is_required?) do
     Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = "check_#{field}_required_#{is_required?}"
+      check_name = "check_#{field}_required"
 
       outcome =
         case is_required? do
@@ -39,6 +39,28 @@ defmodule Transport.IRVE.Validation.Primitives do
           false ->
             nil
         end
+
+      %{
+        check_name => outcome
+      }
+    end)
+  end
+
+  @doc """
+  Given a `pattern: xyz` constraint, computes a column asserting that the regexp is respected.
+
+  Only one pattern per field is allowed. No stripping is achieved.
+
+  iex> compute_pattern_constraint_check(build_df("field", [nil, "   ", " something ", "123456789"]), "field", ~S/^\\d{9}$/) |> df_values(:check_field_constraint_pattern)
+  [nil, false, false, true]
+  """
+  def compute_pattern_constraint_check(%Explorer.DataFrame{} = df, field, pattern) when is_binary(pattern) do
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      check_name = "check_#{field}_constraint_pattern"
+
+      outcome =
+        df[field]
+        |> Explorer.Series.re_contains(pattern)
 
       %{
         check_name => outcome
