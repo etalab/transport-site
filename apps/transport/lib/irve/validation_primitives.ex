@@ -67,4 +67,33 @@ defmodule Transport.IRVE.Validation.Primitives do
       }
     end)
   end
+
+  # NOTE: this is _not_ an Elixir regex, but a string containing a pattern compiled
+  # to a regex by Explorer/the Polars crate.
+  # NOTE: a fully compliant email regexp is a beast, not found in the Elixir stdlib, so
+  # going with something simple for now.
+  @simple_email_pattern ~S/(?i)\A^[\w+\.\-]+@[\w+\.\-]+\z/
+
+  @doc """
+  Given a `format: "email"` field specifier, compute a column asserting that the format is fulfilled.
+
+  NOTE: may rename the method to allow passing the format (e.g. "email") as a parameter instead later,
+  depending on cases I'm facing.
+
+  iex> compute_format_email_check(build_df("field", [nil, "   ", "hello@example.com"]), "field") |> df_values(:check_field_email_format)
+  [nil, false, true]
+  """
+  def compute_format_email_check(%Explorer.DataFrame{} = df, field) do
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      check_name = "check_#{field}_email_format"
+
+      outcome =
+        df[field]
+        |> Explorer.Series.re_contains(@simple_email_pattern)
+
+      %{
+        check_name => outcome
+      }
+    end)
+  end
 end
