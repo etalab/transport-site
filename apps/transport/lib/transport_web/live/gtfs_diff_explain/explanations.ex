@@ -331,7 +331,8 @@ defmodule TransportWeb.GTFSDiffExplain.Explanations do
       %{
         file: "agency.txt",
         type: "agency_fare_url",
-        message: dgettext("gtfs-diff", "Agency fare URL for agency %{agency_id} has been changed", agency_id: agency_id),
+        message:
+          dgettext("gtfs-diff", "Agency fare URL for agency %{agency_id} has been changed", agency_id: agency_id),
         before: initial_agency_fare_url,
         after: new_agency_fare_url,
         sort_key: agency_id
