@@ -1,8 +1,8 @@
 <div class="container">
-  <div class="cards reuses">
+  <div class="cards">
     <h1><%= dgettext("reuses", "Declared reuses") %></h1>
     <p>
-      <%= raw(dgettext("reuses", "index-intro")) %>
+      <%= raw(dgettext("reuses", "index-intro", url: reuser_space_path(@conn, :espace_reutilisateur))) %>
       <%= link(dgettext("reuses", "Publish a reuse"),
         to: "https://guides.data.gouv.fr/guide-data.gouv.fr/reutilisations/publier-une-reutilisation",
         target: "_blank"
