@@ -3,6 +3,10 @@ defmodule Transport.IRVE.Validation.Primitives do
   Extracted from real-life use, a set of primitives allowing us
   to implement a full Explorer-backed validator for the IRVE static schema
   (or other schemas if needed).
+
+  TODOs:
+  - Decouple mutation computation, from its injection via `mutate_with` & target field name computation.
+  - Add a safe-guard to automatically raise at the same time, to protect us from involuntarily check overwrites.
   """
 
   @doc """
