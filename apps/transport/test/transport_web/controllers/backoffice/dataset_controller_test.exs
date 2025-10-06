@@ -187,5 +187,7 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
     conn
     |> setup_admin_in_session()
     |> post(Routes.backoffice_dataset_path(conn, :delete, dataset.id), %{})
+    
+    assert DB.Repo.reload(dataset) |> is_nil()
   end
 end
