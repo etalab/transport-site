@@ -68,6 +68,14 @@ defmodule TransportWeb.GtfsDiffExplainTest do
       },
       %{
         "action" => "update",
+        "file" => "agency.txt",
+        "identifier" => "{\"agency_id\":\"1\"}",
+        "initial_value" => ~s|{"agency_fare_url":"","agency_phone":""}|,
+        "new_value" => ~s|{"agency_fare_url":"https://example.com/tarifs","agency_phone":"0123456"}|,
+        "target" => "row"
+      },
+      %{
+        "action" => "update",
         "file" => "trips.txt",
         "identifier" => "{\"trip_id\":\"1\"}",
         "initial_value" => "{\"trip_headsign\":\"Foo\"}",
@@ -155,6 +163,22 @@ defmodule TransportWeb.GtfsDiffExplainTest do
                message: "L’URL de l’entité 1 a été modifiée",
                before: "http://localhost/foo",
                after: "http://localhost/bar",
+               sort_key: "1"
+             },
+             %{
+               file: "agency.txt",
+               type: "agency_phone",
+               message: "Le téléphone de l’entité 1 a été modifié",
+               before: "",
+               after: "0123456",
+               sort_key: "1"
+             },
+             %{
+               file: "agency.txt",
+               type: "agency_fare_url",
+               message: "L’URL des tarifs de l’entité 1 a été modifiée",
+               before: "",
+               after: "https://example.com/tarifs",
                sort_key: "1"
              },
              %{

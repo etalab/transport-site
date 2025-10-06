@@ -386,3 +386,11 @@ msgstr "Texte qui apparaît sur la signalisation identifiant la destination du v
 #, elixir-autogen, elixir-format
 msgid "URL of the transit agency."
 msgstr "URL de l’entité."
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Agency fare URL for agency %{agency_id} has been changed"
+msgstr "L’URL des tarifs de l’entité %{agency_id} a été modifiée"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Agency phone for agency %{agency_id} has been changed"
+msgstr "Le téléphone de l’entité %{agency_id} a été modifié"
