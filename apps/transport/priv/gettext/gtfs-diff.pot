@@ -386,3 +386,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "URL of the transit agency."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Agency fare URL for agency %{agency_id} has been changed"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Agency phone for agency %{agency_id} has been changed"
+msgstr ""
