@@ -51,6 +51,9 @@ defmodule Transport.IRVE.Validation.Primitives do
 
   Only one pattern per field is allowed. No stripping is achieved.
 
+  TODO: verify compliance on `id_station_itinerance` pattern, directly from the doctests.
+  TODO: same for "horaires" pattern
+
   iex> compute_pattern_constraint_check(build_df("field", [nil, "   ", " something ", "123456789"]), "field", ~S/^\\d{9}$/) |> df_values(:check_field_constraint_pattern)
   [nil, false, false, true]
   """
@@ -96,4 +99,12 @@ defmodule Transport.IRVE.Validation.Primitives do
       }
     end)
   end
+
+  # TODO: enum (make sure required: false/true work)
+  # TODO: type geopoint / format array only (raise on other cases)
+  # TODO: integer check (leverage casting if reliable, otherwise regexp test)
+  # TODO: minimum check (in a way that do not blow up with nil values)
+  # TODO: number check (leverage casting if reliable, otherwise regexp test first)
+  # TODO: type boolean check (how much tolerance do we want for exotic values here? none initially presumably)
+  # TODO: type date, format %Y-%m-%d, returning nil when the data is missing, true when valid but provided, false when invalid but provided
 end
