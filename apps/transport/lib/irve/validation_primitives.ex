@@ -7,6 +7,10 @@ defmodule Transport.IRVE.Validation.Primitives do
   TODOs:
   - Decouple mutation computation, from its injection via `mutate_with` & target field name computation.
   - Add a safe-guard to automatically raise at the same time, to protect us from involuntarily check overwrites.
+  - Make a clear-cut choice weither we should strip values from leading/trailing spaces during validation, or
+    via pre-processing, or even not at all (strict mode), like I understand the current `TableSchema` IRVE setup.
+  - Standardize the way we handle computations for nil / missing values
+  - Compare things a bit with validata (in terms of computations)
   """
 
   @doc """
