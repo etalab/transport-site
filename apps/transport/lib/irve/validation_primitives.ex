@@ -174,8 +174,6 @@ defmodule Transport.IRVE.Validation.Primitives do
     end)
   end
 
-    # TODO: minimum check (in a way that do not blow up with nil values)
-
   # TODO: type geopoint / format array only (raise on other cases)
   # TODO: number check (leverage casting if reliable, otherwise regexp test first)
   # TODO: type boolean check (how much tolerance do we want for exotic values here? none initially presumably)
