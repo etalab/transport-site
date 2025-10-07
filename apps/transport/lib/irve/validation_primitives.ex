@@ -12,7 +12,7 @@ defmodule Transport.IRVE.Validation.Primitives do
   to state if the check has passed or not. In some cases, the outcome can be `nil` as well (not evaluated or not relevant).
 
   Known limitations & things to fix/improve later:
-  - Outcome of check (`true`/`false`/`nil`) it not completely consistent between checks at this point.
+  - Outcome of check (`true`/`false`/`nil`) is not completely consistent between checks at this point.
   - Stripping / empty strings / nil values is not completely consistent between the various checks at the moment (that will change).
   - Some checks use different strategies (e.g. casting by Polars for floats, versus regex for geopoint) for practical reasons.
   - Overflow management is not completely consistent between `number` and `required` checks.
