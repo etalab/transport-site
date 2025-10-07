@@ -126,6 +126,29 @@ defmodule Transport.IRVE.Validation.Primitives do
     end)
   end
 
+  @supported_boolean_values ["true", "false"]
+
+  @doc """
+  Given a `type:  "boolean"` type specifier, compute a column asserting that the type is met.
+
+  iex> input_values = [nil, "", "   ", "  true ", "true", "false","VRAI","FAUX", "1", "0"]
+  iex> compute_type_boolean_check(build_df("field", input_values), "field") |> df_values(:check_field_boolean_type)
+  [nil, false, false, false, true, true, false, false, false, false]
+  """
+  def compute_type_boolean_check(%Explorer.DataFrame{} = df, field) do
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      check_name = "check_#{field}_boolean_type"
+
+      outcome =
+        df[field]
+        |> Explorer.Series.in(@supported_boolean_values)
+
+      %{
+        check_name => outcome
+      }
+    end)
+  end
+
   @doc """
   Given a `type:  "integer"` type specifier, compute a column asserting that the type is met.
 
@@ -235,5 +258,4 @@ defmodule Transport.IRVE.Validation.Primitives do
   end
 
   # TODO: type geopoint / format array only (raise on other cases)
-  # TODO: type boolean check (how much tolerance do we want for exotic values here? none initially presumably)
 end
