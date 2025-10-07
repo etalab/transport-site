@@ -257,5 +257,38 @@ defmodule Transport.IRVE.Validation.Primitives do
     end)
   end
 
-  # TODO: type geopoint / format array only (raise on other cases)
+  # for now, use a regexp trying to catch proper lat/lon arrays
+  @geopoint_array_pattern ~S'\A\[\-?\d+(\.\d+)?,\s?\-?\d+(\.\d+)?\]\z'
+
+  @doc """
+  Ensure a geopoint column is of type array, and contains 2 valid floats.
+
+  Reference:
+  - https://specs.frictionlessdata.io/table-schema/#geopoint
+
+  Valid cases:
+
+  iex> input_values = ["[1,2]", "[-3,4.5]", "[0.0, -0.99]", "[-123.456,789]", "[42, 0]"]
+  iex> compute_type_geopoint_check(build_df("field", input_values), "field", "array") |> df_values(:check_field_format_geopoint)
+  [true, true, true, true, true]
+
+  Invalid cases:
+
+  iex> input_values = ["1,2", "[1,2,3]", "[1;2]", "[1. ,2]", " [1,2]", "[a, b]", "[,]"]
+  iex> compute_type_geopoint_check(build_df("field", input_values), "field", "array") |> df_values(:check_field_format_geopoint)
+  [false, false, false, false, false, false, false]
+  """
+  def compute_type_geopoint_check(%Explorer.DataFrame{} = df, field, "array" = _format) do
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      check_name = "check_#{field}_format_geopoint"
+
+      outcome =
+        df[field]
+        |> Explorer.Series.re_contains(@geopoint_array_pattern)
+
+      %{
+        check_name => outcome
+      }
+    end)
+  end
 end
