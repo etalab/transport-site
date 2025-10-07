@@ -230,14 +230,14 @@ defmodule Transport.IRVE.Validation.Primitives do
     Explorer.DataFrame.mutate_with(df, fn df ->
       check_name = "check_#{field}_type_number"
 
-      field =
+      casted_field =
         df[field]
         |> Explorer.Series.cast({:f, 64})
 
       outcome =
         Explorer.Series.and(
-          Explorer.Series.is_not_nil(field),
-          Explorer.Series.is_finite(field)
+          Explorer.Series.is_not_nil(casted_field),
+          Explorer.Series.is_finite(casted_field)
         )
 
       %{
