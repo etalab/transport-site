@@ -1,12 +1,12 @@
 defmodule Transport.IRVE.Validation.Primitives do
   @moduledoc """
   Extracted from real-life use, this module provides a set of primitives allowing us
-  to implement a full Explorer-backed validator for the IRVE static schema
-  (or other schemas if needed).
+  to implement an Explorer-backed validator for the IRVE static schema
+  (or other TableSchema schemas if needed).
 
   It supports all the formats/constraints/checks defined in `schema-irve-statique.json`.
 
-  Known limitations & things to fix later:
+  Known limitations & things to fix/improve later:
   - Stripping / empty strings / nil values is not completely consistent between the various checks at the moment (that will change).
   - Some checks use different strategies (e.g. casting by Polars for floats, versus regex for geopoint) for practical reasons.
   - Overflow management is not completely consistent between `number` and `required` checks.
@@ -20,10 +20,9 @@ defmodule Transport.IRVE.Validation.Primitives do
   defp build_check_column_name(field, {:type, name}), do: "check_#{field}_type_#{name}"
 
   @doc """
-  Given a `required: xyz` field, computes a column asserting that the check passes.
+  Given a field with `required: true` constraint, compute a column asserting that the check passes.
 
-  If `required: true` is passed, the value must be provided (not nil, nor an empty string).
-  For each row, the column will equate `true` if the criteria is matched, otherwise `false`.
+  The `required: false` is not implemented here, as we'll just skip the calculation in that case.
 
   Valid cases:
 
