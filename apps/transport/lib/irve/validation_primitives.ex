@@ -126,8 +126,29 @@ defmodule Transport.IRVE.Validation.Primitives do
     end)
   end
 
+  @doc """
+  Given a `type:  "integer"` type specifier, compute a column asserting that the type is met.
+
+  iex> input_values = [nil, "", "   ", "  8 ", "8", "-4","05","9999999999999999999999"]
+  iex> compute_type_integer_check(build_df("field", input_values), "field") |> df_values(:check_field_integer_type)
+  [false, false, false, false, true, true, true, false]
+  """
+  def compute_type_integer_check(%Explorer.DataFrame{} = df, field) do
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      check_name = "check_#{field}_integer_type"
+
+      outcome =
+        df[field]
+        |> Explorer.Series.cast(:integer)
+        |> Explorer.Series.is_not_nil()
+
+      %{
+        check_name => outcome
+      }
+    end)
+  end
+
   # TODO: type geopoint / format array only (raise on other cases)
-  # TODO: integer check (leverage casting if reliable, otherwise regexp test)
   # TODO: minimum check (in a way that do not blow up with nil values)
   # TODO: number check (leverage casting if reliable, otherwise regexp test first)
   # TODO: type boolean check (how much tolerance do we want for exotic values here? none initially presumably)
