@@ -129,9 +129,9 @@ defmodule Transport.IRVE.Validation.Primitives do
   @doc """
   Given a `type:  "integer"` type specifier, compute a column asserting that the type is met.
 
-  iex> input_values = [nil, "", "   ", "  8 ", "8", "-4","05","9999999999999999999999"]
+  iex> input_values = [nil, "", "   ", "  8 ", "8", "-4","05","9999999999999999999999", "INF", "NaN"]
   iex> compute_type_integer_check(build_df("field", input_values), "field") |> df_values(:check_field_integer_type)
-  [false, false, false, false, true, true, true, false]
+  [false, false, false, false, true, true, true, false, false, false]
   """
   def compute_type_integer_check(%Explorer.DataFrame{} = df, field) do
     Explorer.DataFrame.mutate_with(df, fn df ->
