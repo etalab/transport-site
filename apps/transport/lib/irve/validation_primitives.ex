@@ -13,6 +13,13 @@ defmodule Transport.IRVE.Validation.Primitives do
   - Compare things a bit with validata (in terms of computations)
   """
 
+  # Single source of truth for naming convention: generate check column names following
+  # the pattern check_{field}_{category}_{name}
+  defp build_check_column_name(field, :required), do: "check_#{field}_required"
+  defp build_check_column_name(field, {:constraint, name}), do: "check_#{field}_constraint_#{name}"
+  defp build_check_column_name(field, {:format, name}), do: "check_#{field}_format_#{name}"
+  defp build_check_column_name(field, {:type, name}), do: "check_#{field}_type_#{name}"
+
   @doc """
   Given a `required: xyz` field, computes a column asserting that the check passes.
 
@@ -37,7 +44,7 @@ defmodule Transport.IRVE.Validation.Primitives do
   """
   def compute_required_check(%Explorer.DataFrame{} = df, field, is_required?) when is_boolean(is_required?) do
     Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = "check_#{field}_required"
+      check_name = build_check_column_name(field, :required)
 
       outcome =
         case is_required? do
@@ -74,7 +81,7 @@ defmodule Transport.IRVE.Validation.Primitives do
   """
   def compute_constraint_pattern_check(%Explorer.DataFrame{} = df, field, pattern) when is_binary(pattern) do
     Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = "check_#{field}_constraint_pattern"
+      check_name = build_check_column_name(field, {:constraint, :pattern})
 
       outcome =
         df[field]
@@ -110,7 +117,7 @@ defmodule Transport.IRVE.Validation.Primitives do
   """
   def compute_format_email_check(%Explorer.DataFrame{} = df, field) do
     Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = "check_#{field}_format_email"
+      check_name = build_check_column_name(field, {:format, :email})
 
       outcome =
         df[field]
@@ -139,7 +146,7 @@ defmodule Transport.IRVE.Validation.Primitives do
   """
   def compute_constraint_enum_check(%Explorer.DataFrame{} = df, field, enum_values) do
     Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = "check_#{field}_constraint_enum"
+      check_name = build_check_column_name(field, {:constraint, :enum})
 
       outcome =
         df[field]
@@ -168,7 +175,7 @@ defmodule Transport.IRVE.Validation.Primitives do
   """
   def compute_type_boolean_check(%Explorer.DataFrame{} = df, field) do
     Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = "check_#{field}_type_boolean"
+      check_name = build_check_column_name(field, {:type, :boolean})
 
       outcome =
         df[field]
@@ -195,7 +202,7 @@ defmodule Transport.IRVE.Validation.Primitives do
   """
   def compute_type_integer_check(%Explorer.DataFrame{} = df, field) do
     Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = "check_#{field}_type_integer"
+      check_name = build_check_column_name(field, {:type, :integer})
 
       outcome =
         df[field]
@@ -228,7 +235,7 @@ defmodule Transport.IRVE.Validation.Primitives do
   """
   def compute_type_number_check(%Explorer.DataFrame{} = df, field) do
     Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = "check_#{field}_type_number"
+      check_name = build_check_column_name(field, {:type, :number})
 
       casted_field =
         df[field]
@@ -263,7 +270,7 @@ defmodule Transport.IRVE.Validation.Primitives do
   """
   def compute_constraint_minimum_check(%Explorer.DataFrame{} = df, field, minimum) do
     Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = "check_#{field}_constraint_minimum"
+      check_name = build_check_column_name(field, {:constraint, :minimum})
 
       outcome =
         df[field]
@@ -299,7 +306,7 @@ defmodule Transport.IRVE.Validation.Primitives do
   """
   def compute_format_date_check(%Explorer.DataFrame{} = df, field, "%Y-%m-%d" = _format) do
     Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = "check_#{field}_format_date"
+      check_name = build_check_column_name(field, {:format, :date})
 
       outcome =
         df[field]
@@ -334,7 +341,7 @@ defmodule Transport.IRVE.Validation.Primitives do
   """
   def compute_type_geopoint_check(%Explorer.DataFrame{} = df, field, "array" = _format) do
     Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = "check_#{field}_type_geopoint"
+      check_name = build_check_column_name(field, {:type, :geopoint})
 
       outcome =
         df[field]
