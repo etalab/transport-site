@@ -104,7 +104,28 @@ defmodule Transport.IRVE.Validation.Primitives do
     end)
   end
 
-  # TODO: enum (make sure required: false/true work)
+  @doc """
+  Given a `enum: [a,b,c]` constraint specifier, compute a column asserting that the constraint is fulfilled.
+
+  iex> input_values = [nil, "", "   ", "  Voirie. ", "Voirie"]
+  iex> allowed_enum_values = ["Voirie", "Parking privé réservé à la clientèle"]
+  iex> compute_constraint_enum_check(build_df("field", input_values), "field", allowed_enum_values) |> df_values(:check_field_enum_constraint)
+  [nil, false, false, false, true]
+  """
+  def compute_constraint_enum_check(%Explorer.DataFrame{} = df, field, enum_values) do
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      check_name = "check_#{field}_enum_constraint"
+
+      outcome =
+        df[field]
+        |> Explorer.Series.in(enum_values)
+
+      %{
+        check_name => outcome
+      }
+    end)
+  end
+
   # TODO: type geopoint / format array only (raise on other cases)
   # TODO: integer check (leverage casting if reliable, otherwise regexp test)
   # TODO: minimum check (in a way that do not blow up with nil values)
