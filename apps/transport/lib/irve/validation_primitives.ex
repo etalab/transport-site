@@ -206,20 +206,19 @@ defmodule Transport.IRVE.Validation.Primitives do
   @doc """
   Given a numerical value (`integer` or `number` only) for type specifier, ensure that the value is greater than some minimum value.
 
-  TODO: require "type" from the caller, to pattern match on supported cases
   NOTE: overflow is not consistent with `integer` check here
 
   iex> input_values = [nil, "", "   ", "  8 ", "8", "-4","0", "05", "5.1", "-5.2", "0.0", "9999999999999999999999"]
-  iex> compute_constraint_minimum_check(build_df("field", input_values), "field", 0) |> df_values(:check_field_integer_type)
+  iex> compute_constraint_minimum_check(build_df("field", input_values), "field", 0) |> df_values(:check_field_constraint_minimum)
   [nil, nil, nil, nil, true, false, true, true, true, false, true, true]
   """
   def compute_constraint_minimum_check(%Explorer.DataFrame{} = df, field, minimum) do
     Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = "check_#{field}_integer_type"
+      check_name = "check_#{field}_constraint_minimum"
 
       outcome =
         df[field]
-        # TODO: figure out if a generic number/integer version is good enough, or not.
+        # NOTE: we use float check for both `integer` and `number`, for simplicity for now.
         |> Explorer.Series.cast({:f, 64})
         |> Explorer.Series.greater_equal(minimum)
 
