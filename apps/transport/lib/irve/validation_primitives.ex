@@ -16,13 +16,20 @@ defmodule Transport.IRVE.Validation.Primitives do
   @doc """
   Given a `required: xyz` field, computes a column asserting that the check passes.
 
-  If `required: true` is passed, the value must be provided (not nil, nor an empty string). 
-  For each row, the column will equate `true` if the criteria is matched, otherwise `false`. 
+  If `required: true` is passed, the value must be provided (not nil, nor an empty string).
+  For each row, the column will equate `true` if the criteria is matched, otherwise `false`.
 
-  iex> compute_required_check(build_df("field", [nil, "   ", " something "]), "field", true) |> df_values(:check_field_required)
-  [false, false, true]
+  Valid cases:
 
-  If `required: false` is passed, the colum will equate `nil`, to advertise that the check
+  iex> compute_required_check(build_df("field", [" something "]), "field", true) |> df_values(:check_field_required)
+  [true]
+
+  Invalid cases:
+
+  iex> compute_required_check(build_df("field", [nil, "   "]), "field", true) |> df_values(:check_field_required)
+  [false, false]
+
+  If `required: false` is passed, the column will equate `nil`, to advertise that the check
   has not been actually evaluated.
 
   iex> compute_required_check(build_df("field", [nil, "   ", " something "]), "field", false) |> df_values(:check_field_required)
