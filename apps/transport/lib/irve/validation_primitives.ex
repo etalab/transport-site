@@ -287,9 +287,15 @@ defmodule Transport.IRVE.Validation.Primitives do
   - https://specs.frictionlessdata.io/table-schema/#types-and-formats
   - https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior
 
-  iex> input_values = [nil, "", "   ", " 2024-10-07 ", "2024-10-07", "2024/10/07", "2024", "2024-10"]
-  iex> compute_format_date_check(build_df("field", input_values), "field", "%Y-%m-%d") |> df_values(:check_field_format_date)
-  [nil, false, false, false, true, false, false, false]
+  Valid cases:
+
+  iex> compute_format_date_check(build_df("field", ["2024-10-07"]), "field", "%Y-%m-%d") |> df_values(:check_field_format_date)
+  [true]
+
+  Invalid cases:
+
+  iex> compute_format_date_check(build_df("field", [nil, "", "   ", " 2024-10-07 ", "2024/10/07", "2024", "2024-10", "foobar"]), "field", "%Y-%m-%d") |> df_values(:check_field_format_date)
+  [nil, false, false, false, false, false, false, false]
   """
   def compute_format_date_check(%Explorer.DataFrame{} = df, field, "%Y-%m-%d" = _format) do
     Explorer.DataFrame.mutate_with(df, fn df ->
