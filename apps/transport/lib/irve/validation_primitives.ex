@@ -1,16 +1,15 @@
 defmodule Transport.IRVE.Validation.Primitives do
   @moduledoc """
-  Extracted from real-life use, a set of primitives allowing us
+  Extracted from real-life use, this module provides a set of primitives allowing us
   to implement a full Explorer-backed validator for the IRVE static schema
   (or other schemas if needed).
 
-  TODOs:
-  - Decouple mutation computation, from its injection via `mutate_with` & target field name computation.
-  - Add a safe-guard to automatically raise at the same time, to protect us from involuntarily check overwrites.
-  - Make a clear-cut choice weither we should strip values from leading/trailing spaces during validation, or
-    via pre-processing, or even not at all (strict mode), like I understand the current `TableSchema` IRVE setup.
-  - Standardize the way we handle computations for nil / missing values
-  - Compare things a bit with validata (in terms of computations)
+  It supports all the formats/constraints/checks defined in `schema-irve-statique.json`.
+
+  Known limitations & things to fix later:
+  - Stripping / empty strings / nil values is not completely consistent between the various checks at the moment (that will change).
+  - Some checks use different strategies (e.g. casting by Polars for floats, versus regex for geopoint) for practical reasons.
+  - Overflow management is not completely consistent between `number` and `required` checks.
   """
 
   # Single source of truth for naming convention: generate check column names following
