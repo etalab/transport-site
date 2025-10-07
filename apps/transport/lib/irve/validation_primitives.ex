@@ -174,8 +174,35 @@ defmodule Transport.IRVE.Validation.Primitives do
     end)
   end
 
+  @iso_date_pattern ~S/\A\d{4}\-\d{2}\-\d{2}\z/
+
+  @doc """
+  Ensure a date field matches the expected format. Allowed format is hardcoded to
+  `%Y-%m-%d` since this is the only case we need.
+
+  Ref comes from:
+  - https://specs.frictionlessdata.io/table-schema/#types-and-formats
+  - https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior
+
+  iex> input_values = [nil, "", "   ", " 2024-10-07 ", "2024-10-07", "2024/10/07", "2024", "2024-10"]
+  iex> compute_format_date_check(build_df("field", input_values), "field", "%Y-%m-%d") |> df_values(:check_field_format_date)
+  [nil, false, false, false, true, false, false, false]
+  """
+  def compute_format_date_check(%Explorer.DataFrame{} = df, field, "%Y-%m-%d" = _format) do
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      check_name = "check_#{field}_format_date"
+
+      outcome =
+        df[field]
+        |> Explorer.Series.re_contains(@iso_date_pattern)
+
+      %{
+        check_name => outcome
+      }
+    end)
+  end
+
   # TODO: type geopoint / format array only (raise on other cases)
   # TODO: number check (leverage casting if reliable, otherwise regexp test first)
   # TODO: type boolean check (how much tolerance do we want for exotic values here? none initially presumably)
-  # TODO: type date, format %Y-%m-%d, returning nil when the data is missing, true when valid but provided, false when invalid but provided
 end
