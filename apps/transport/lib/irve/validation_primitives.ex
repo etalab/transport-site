@@ -43,9 +43,9 @@ defmodule Transport.IRVE.Validation.Primitives do
   [nil, nil, nil]
   """
   def compute_required_check(%Explorer.DataFrame{} = df, field, is_required?) when is_boolean(is_required?) do
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = build_check_column_name(field, :required)
+    column_check_name = build_check_column_name(field, :required)
 
+    Explorer.DataFrame.mutate_with(df, fn df ->
       outcome =
         case is_required? do
           true ->
@@ -58,9 +58,7 @@ defmodule Transport.IRVE.Validation.Primitives do
             nil
         end
 
-      %{
-        check_name => outcome
-      }
+      %{column_check_name => outcome}
     end)
   end
 
@@ -80,16 +78,11 @@ defmodule Transport.IRVE.Validation.Primitives do
   [nil, false, false, false]
   """
   def compute_constraint_pattern_check(%Explorer.DataFrame{} = df, field, pattern) when is_binary(pattern) do
+    column_check_name = build_check_column_name(field, {:constraint, :pattern})
+
     Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = build_check_column_name(field, {:constraint, :pattern})
-
-      outcome =
-        df[field]
-        |> Explorer.Series.re_contains(pattern)
-
-      %{
-        check_name => outcome
-      }
+      outcome = df[field] |> Explorer.Series.re_contains(pattern)
+      %{column_check_name => outcome}
     end)
   end
 
@@ -116,16 +109,11 @@ defmodule Transport.IRVE.Validation.Primitives do
   [nil, false, false]
   """
   def compute_format_email_check(%Explorer.DataFrame{} = df, field) do
+    column_check_name = build_check_column_name(field, {:format, :email})
+
     Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = build_check_column_name(field, {:format, :email})
-
-      outcome =
-        df[field]
-        |> Explorer.Series.re_contains(@simple_email_pattern)
-
-      %{
-        check_name => outcome
-      }
+      outcome = df[field] |> Explorer.Series.re_contains(@simple_email_pattern)
+      %{column_check_name => outcome}
     end)
   end
 
@@ -145,16 +133,11 @@ defmodule Transport.IRVE.Validation.Primitives do
   [nil, false, false, false]
   """
   def compute_constraint_enum_check(%Explorer.DataFrame{} = df, field, enum_values) do
+    column_check_name = build_check_column_name(field, {:constraint, :enum})
+
     Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = build_check_column_name(field, {:constraint, :enum})
-
-      outcome =
-        df[field]
-        |> Explorer.Series.in(enum_values)
-
-      %{
-        check_name => outcome
-      }
+      outcome = df[field] |> Explorer.Series.in(enum_values)
+      %{column_check_name => outcome}
     end)
   end
 
@@ -174,16 +157,11 @@ defmodule Transport.IRVE.Validation.Primitives do
   [nil, false, false, false, false, false, false, false]
   """
   def compute_type_boolean_check(%Explorer.DataFrame{} = df, field) do
+    column_check_name = build_check_column_name(field, {:type, :boolean})
+
     Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = build_check_column_name(field, {:type, :boolean})
-
-      outcome =
-        df[field]
-        |> Explorer.Series.in(@supported_boolean_values)
-
-      %{
-        check_name => outcome
-      }
+      outcome = df[field] |> Explorer.Series.in(@supported_boolean_values)
+      %{column_check_name => outcome}
     end)
   end
 
@@ -201,17 +179,15 @@ defmodule Transport.IRVE.Validation.Primitives do
   [false, false, false, false, false, false, false]
   """
   def compute_type_integer_check(%Explorer.DataFrame{} = df, field) do
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = build_check_column_name(field, {:type, :integer})
+    column_check_name = build_check_column_name(field, {:type, :integer})
 
+    Explorer.DataFrame.mutate_with(df, fn df ->
       outcome =
         df[field]
         |> Explorer.Series.cast(:integer)
         |> Explorer.Series.is_not_nil()
 
-      %{
-        check_name => outcome
-      }
+      %{column_check_name => outcome}
     end)
   end
 
@@ -234,9 +210,9 @@ defmodule Transport.IRVE.Validation.Primitives do
   [false, false, false, false, false, false, false, false]
   """
   def compute_type_number_check(%Explorer.DataFrame{} = df, field) do
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = build_check_column_name(field, {:type, :number})
+    column_check_name = build_check_column_name(field, {:type, :number})
 
+    Explorer.DataFrame.mutate_with(df, fn df ->
       casted_field =
         df[field]
         |> Explorer.Series.cast({:f, 64})
@@ -247,9 +223,7 @@ defmodule Transport.IRVE.Validation.Primitives do
           Explorer.Series.is_finite(casted_field)
         )
 
-      %{
-        check_name => outcome
-      }
+      %{column_check_name => outcome}
     end)
   end
 
@@ -269,18 +243,16 @@ defmodule Transport.IRVE.Validation.Primitives do
   [nil, nil, nil, nil, false, false]
   """
   def compute_constraint_minimum_check(%Explorer.DataFrame{} = df, field, minimum) do
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = build_check_column_name(field, {:constraint, :minimum})
+    column_check_name = build_check_column_name(field, {:constraint, :minimum})
 
+    Explorer.DataFrame.mutate_with(df, fn df ->
       outcome =
         df[field]
         # NOTE: we use float check for both `integer` and `number`, for simplicity for now.
         |> Explorer.Series.cast({:f, 64})
         |> Explorer.Series.greater_equal(minimum)
 
-      %{
-        check_name => outcome
-      }
+      %{column_check_name => outcome}
     end)
   end
 
@@ -305,16 +277,11 @@ defmodule Transport.IRVE.Validation.Primitives do
   [nil, false, false, false, false, false, false, false]
   """
   def compute_format_date_check(%Explorer.DataFrame{} = df, field, "%Y-%m-%d" = _format) do
+    column_check_name = build_check_column_name(field, {:format, :date})
+
     Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = build_check_column_name(field, {:format, :date})
-
-      outcome =
-        df[field]
-        |> Explorer.Series.re_contains(@iso_date_pattern)
-
-      %{
-        check_name => outcome
-      }
+      outcome = df[field] |> Explorer.Series.re_contains(@iso_date_pattern)
+      %{column_check_name => outcome}
     end)
   end
 
@@ -340,16 +307,11 @@ defmodule Transport.IRVE.Validation.Primitives do
   [false, false, false, false, false, false, false]
   """
   def compute_type_geopoint_check(%Explorer.DataFrame{} = df, field, "array" = _format) do
+    column_check_name = build_check_column_name(field, {:type, :geopoint})
+
     Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = build_check_column_name(field, {:type, :geopoint})
-
-      outcome =
-        df[field]
-        |> Explorer.Series.re_contains(@geopoint_array_pattern)
-
-      %{
-        check_name => outcome
-      }
+      outcome = df[field] |> Explorer.Series.re_contains(@geopoint_array_pattern)
+      %{column_check_name => outcome}
     end)
   end
 end
