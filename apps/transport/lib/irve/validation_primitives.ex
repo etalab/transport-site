@@ -156,9 +156,15 @@ defmodule Transport.IRVE.Validation.Primitives do
   @doc """
   Given a `type:  "boolean"` type specifier, compute a column asserting that the type is met.
 
-  iex> input_values = [nil, "", "   ", "  true ", "true", "false","VRAI","FAUX", "1", "0"]
-  iex> compute_type_boolean_check(build_df("field", input_values), "field") |> df_values(:check_field_type_boolean)
-  [nil, false, false, false, true, true, false, false, false, false]
+  Valid cases:
+
+  iex> compute_type_boolean_check(build_df("field", ["true", "false"]), "field") |> df_values(:check_field_type_boolean)
+  [true, true]
+
+  Invalid cases:
+
+  iex> compute_type_boolean_check(build_df("field", [nil, "", "   ", "  true ", "VRAI", "FAUX", "1", "0"]), "field") |> df_values(:check_field_type_boolean)
+  [nil, false, false, false, false, false, false, false]
   """
   def compute_type_boolean_check(%Explorer.DataFrame{} = df, field) do
     Explorer.DataFrame.mutate_with(df, fn df ->
