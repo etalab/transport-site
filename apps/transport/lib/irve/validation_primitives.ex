@@ -125,10 +125,17 @@ defmodule Transport.IRVE.Validation.Primitives do
   @doc """
   Given a `enum: [a,b,c]` constraint specifier, compute a column asserting that the constraint is fulfilled.
 
-  iex> input_values = [nil, "", "   ", "  Voirie. ", "Voirie"]
+  Valid cases:
+
   iex> allowed_enum_values = ["Voirie", "Parking privé réservé à la clientèle"]
-  iex> compute_constraint_enum_check(build_df("field", input_values), "field", allowed_enum_values) |> df_values(:check_field_constraint_enum)
-  [nil, false, false, false, true]
+  iex> compute_constraint_enum_check(build_df("field", ["Voirie"]), "field", allowed_enum_values) |> df_values(:check_field_constraint_enum)
+  [true]
+
+  Invalid cases:
+
+  iex> allowed_enum_values = ["Voirie", "Parking privé réservé à la clientèle"]
+  iex> compute_constraint_enum_check(build_df("field", [nil, "", "   ", "  Voirie. "]), "field", allowed_enum_values) |> df_values(:check_field_constraint_enum)
+  [nil, false, false, false]
   """
   def compute_constraint_enum_check(%Explorer.DataFrame{} = df, field, enum_values) do
     Explorer.DataFrame.mutate_with(df, fn df ->
