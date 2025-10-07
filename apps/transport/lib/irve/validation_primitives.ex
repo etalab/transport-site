@@ -148,8 +148,35 @@ defmodule Transport.IRVE.Validation.Primitives do
     end)
   end
 
+  @doc """
+  Given a numerical value (`integer` or `number` only) for type specifier, ensure that the value is greater than some minimum value.
+
+  TODO: require "type" from the caller, to pattern match on supported cases
+  NOTE: overflow is not consistent with `integer` check here
+
+  iex> input_values = [nil, "", "   ", "  8 ", "8", "-4","0", "05", "5.1", "-5.2", "0.0", "9999999999999999999999"]
+  iex> compute_constraint_minimum_check(build_df("field", input_values), "field", 0) |> df_values(:check_field_integer_type)
+  [nil, nil, nil, nil, true, false, true, true, true, false, true, true]
+  """
+  def compute_constraint_minimum_check(%Explorer.DataFrame{} = df, field, minimum) do
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      check_name = "check_#{field}_integer_type"
+
+      outcome =
+        df[field]
+        # TODO: figure out if a generic number/integer version is good enough, or not.
+        |> Explorer.Series.cast({:f, 64})
+        |> Explorer.Series.greater_equal(minimum)
+
+      %{
+        check_name => outcome
+      }
+    end)
+  end
+
+    # TODO: minimum check (in a way that do not blow up with nil values)
+
   # TODO: type geopoint / format array only (raise on other cases)
-  # TODO: minimum check (in a way that do not blow up with nil values)
   # TODO: number check (leverage casting if reliable, otherwise regexp test first)
   # TODO: type boolean check (how much tolerance do we want for exotic values here? none initially presumably)
   # TODO: type date, format %Y-%m-%d, returning nil when the data is missing, true when valid but provided, false when invalid but provided
