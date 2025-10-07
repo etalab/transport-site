@@ -24,6 +24,8 @@ defmodule TransportWeb.GTFSDiffExplain.Explanations do
       |> explanation_route_type(diff)
       |> explanation_stop_location_type(diff)
       |> explanation_agency_url(diff)
+      |> explanation_agency_fare_url(diff)
+      |> explanation_agency_phone(diff)
       |> explanation_trip_headsign(diff)
     end)
   end
@@ -313,6 +315,59 @@ defmodule TransportWeb.GTFSDiffExplain.Explanations do
   end
 
   defp explanation_agency_url(explanations, _), do: explanations
+
+  defp explanation_agency_fare_url(
+         explanations,
+         %{
+           "action" => "update",
+           "file" => "agency.txt",
+           "target" => "row",
+           "identifier" => %{"agency_id" => agency_id},
+           "new_value" => %{"agency_fare_url" => new_agency_fare_url},
+           "initial_value" => %{"agency_fare_url" => initial_agency_fare_url}
+         }
+       ) do
+    [
+      %{
+        file: "agency.txt",
+        type: "agency_fare_url",
+        message:
+          dgettext("gtfs-diff", "Agency fare URL for agency %{agency_id} has been changed", agency_id: agency_id),
+        before: initial_agency_fare_url,
+        after: new_agency_fare_url,
+        sort_key: agency_id
+      }
+      | explanations
+    ]
+  end
+
+  defp explanation_agency_fare_url(explanations, _), do: explanations
+
+  defp explanation_agency_phone(
+         explanations,
+         %{
+           "action" => "update",
+           "file" => "agency.txt",
+           "target" => "row",
+           "identifier" => %{"agency_id" => agency_id},
+           "new_value" => %{"agency_phone" => new_agency_phone},
+           "initial_value" => %{"agency_phone" => initial_agency_phone}
+         }
+       ) do
+    [
+      %{
+        file: "agency.txt",
+        type: "agency_phone",
+        message: dgettext("gtfs-diff", "Agency phone for agency %{agency_id} has been changed", agency_id: agency_id),
+        before: initial_agency_phone,
+        after: new_agency_phone,
+        sort_key: agency_id
+      }
+      | explanations
+    ]
+  end
+
+  defp explanation_agency_phone(explanations, _), do: explanations
 
   defp explanation_trip_headsign(
          explanations,
