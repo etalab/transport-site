@@ -251,9 +251,15 @@ defmodule Transport.IRVE.Validation.Primitives do
 
   NOTE: overflow is not consistent with `integer` check here
 
-  iex> input_values = [nil, "", "   ", "  8 ", "8", "-4","0", "05", "5.1", "-5.2", "0.0", "9999999999999999999999"]
-  iex> compute_constraint_minimum_check(build_df("field", input_values), "field", 0) |> df_values(:check_field_constraint_minimum)
-  [nil, nil, nil, nil, true, false, true, true, true, false, true, true]
+  Valid cases:
+
+  iex> compute_constraint_minimum_check(build_df("field", ["8", "0", "05", "5.1", "0.0", "9999999999999999999999"]), "field", 0) |> df_values(:check_field_constraint_minimum)
+  [true, true, true, true, true, true]
+
+  Invalid cases:
+
+  iex> compute_constraint_minimum_check(build_df("field", [nil, "", "   ", "  8 ", "-4", "-5.2"]), "field", 0) |> df_values(:check_field_constraint_minimum)
+  [nil, nil, nil, nil, false, false]
   """
   def compute_constraint_minimum_check(%Explorer.DataFrame{} = df, field, minimum) do
     Explorer.DataFrame.mutate_with(df, fn df ->
