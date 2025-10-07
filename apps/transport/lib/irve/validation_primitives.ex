@@ -87,12 +87,12 @@ defmodule Transport.IRVE.Validation.Primitives do
   NOTE: may rename the method to allow passing the format (e.g. "email") as a parameter instead later,
   depending on cases I'm facing.
 
-  iex> compute_format_email_check(build_df("field", [nil, "   ", "hello@example.com"]), "field") |> df_values(:check_field_email_format)
+  iex> compute_format_email_check(build_df("field", [nil, "   ", "hello@example.com"]), "field") |> df_values(:check_field_format_email)
   [nil, false, true]
   """
   def compute_format_email_check(%Explorer.DataFrame{} = df, field) do
     Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = "check_#{field}_email_format"
+      check_name = "check_#{field}_format_email"
 
       outcome =
         df[field]
@@ -109,12 +109,12 @@ defmodule Transport.IRVE.Validation.Primitives do
 
   iex> input_values = [nil, "", "   ", "  Voirie. ", "Voirie"]
   iex> allowed_enum_values = ["Voirie", "Parking privé réservé à la clientèle"]
-  iex> compute_constraint_enum_check(build_df("field", input_values), "field", allowed_enum_values) |> df_values(:check_field_enum_constraint)
+  iex> compute_constraint_enum_check(build_df("field", input_values), "field", allowed_enum_values) |> df_values(:check_field_constraint_enum)
   [nil, false, false, false, true]
   """
   def compute_constraint_enum_check(%Explorer.DataFrame{} = df, field, enum_values) do
     Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = "check_#{field}_enum_constraint"
+      check_name = "check_#{field}_constraint_enum"
 
       outcome =
         df[field]
@@ -132,12 +132,12 @@ defmodule Transport.IRVE.Validation.Primitives do
   Given a `type:  "boolean"` type specifier, compute a column asserting that the type is met.
 
   iex> input_values = [nil, "", "   ", "  true ", "true", "false","VRAI","FAUX", "1", "0"]
-  iex> compute_type_boolean_check(build_df("field", input_values), "field") |> df_values(:check_field_boolean_type)
+  iex> compute_type_boolean_check(build_df("field", input_values), "field") |> df_values(:check_field_type_boolean)
   [nil, false, false, false, true, true, false, false, false, false]
   """
   def compute_type_boolean_check(%Explorer.DataFrame{} = df, field) do
     Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = "check_#{field}_boolean_type"
+      check_name = "check_#{field}_type_boolean"
 
       outcome =
         df[field]
@@ -153,12 +153,12 @@ defmodule Transport.IRVE.Validation.Primitives do
   Given a `type:  "integer"` type specifier, compute a column asserting that the type is met.
 
   iex> input_values = [nil, "", "   ", "  8 ", "8", "-4","05","9999999999999999999999", "INF", "NaN"]
-  iex> compute_type_integer_check(build_df("field", input_values), "field") |> df_values(:check_field_integer_type)
+  iex> compute_type_integer_check(build_df("field", input_values), "field") |> df_values(:check_field_type_integer)
   [false, false, false, false, true, true, true, false, false, false]
   """
   def compute_type_integer_check(%Explorer.DataFrame{} = df, field) do
     Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = "check_#{field}_integer_type"
+      check_name = "check_#{field}_type_integer"
 
       outcome =
         df[field]
@@ -180,12 +180,12 @@ defmodule Transport.IRVE.Validation.Primitives do
   We do not consider infinite / NaN values valid.
 
   iex> input_values = [nil, "", "   ", "  8 ", "8", "-4","05","+5.47","-9.789", "INF", "-INF", "NaN", "9999999999999999999999", "foobar"]
-  iex> compute_type_number_check(build_df("field", input_values), "field") |> df_values(:check_field_number_type)
+  iex> compute_type_number_check(build_df("field", input_values), "field") |> df_values(:check_field_type_number)
   [false, false, false, false, true, true, true, true, true, false, false, false, true,false]
   """
   def compute_type_number_check(%Explorer.DataFrame{} = df, field) do
     Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = "check_#{field}_number_type"
+      check_name = "check_#{field}_type_number"
 
       field =
         df[field]
@@ -268,18 +268,18 @@ defmodule Transport.IRVE.Validation.Primitives do
   Valid cases:
 
   iex> input_values = ["[1,2]", "[-3,4.5]", "[0.0, -0.99]", "[-123.456,789]", "[42, 0]"]
-  iex> compute_type_geopoint_check(build_df("field", input_values), "field", "array") |> df_values(:check_field_format_geopoint)
+  iex> compute_type_geopoint_check(build_df("field", input_values), "field", "array") |> df_values(:check_field_type_geopoint)
   [true, true, true, true, true]
 
   Invalid cases:
 
   iex> input_values = ["1,2", "[1,2,3]", "[1;2]", "[1. ,2]", " [1,2]", "[a, b]", "[,]"]
-  iex> compute_type_geopoint_check(build_df("field", input_values), "field", "array") |> df_values(:check_field_format_geopoint)
+  iex> compute_type_geopoint_check(build_df("field", input_values), "field", "array") |> df_values(:check_field_type_geopoint)
   [false, false, false, false, false, false, false]
   """
   def compute_type_geopoint_check(%Explorer.DataFrame{} = df, field, "array" = _format) do
     Explorer.DataFrame.mutate_with(df, fn df ->
-      check_name = "check_#{field}_format_geopoint"
+      check_name = "check_#{field}_type_geopoint"
 
       outcome =
         df[field]
