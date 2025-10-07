@@ -51,7 +51,7 @@ msgstr "idée"
 
 #, elixir-autogen, elixir-format
 msgid "index-intro"
-msgstr "Vous trouverez ci-dessous la liste des réutilisations déclarées qui utilisent un jeu de données référencé sur transport.data.gouv.fr.<br/><br/>Vous n’y êtes pas ? Mettez en avant vos réutilisations depuis l’administration de votre compte data.gouv.fr et vos réalisations apparaitront automatiquement sur cette page !<br/><br/>Plus d’informations sur notre documentation en ligne :"
+msgstr "Vous trouverez ci-dessous la liste des réutilisations déclarées qui utilisent un jeu de données référencé sur transport.data.gouv.fr.<br/><br/>Vous n’y êtes pas ? Mettez en avant vos réutilisations depuis <a href=\"%{url}\">votre espace réutilisateur</a> et vos réalisations apparaitront automatiquement sur cette page !<br/><br/>Plus d’informations sur notre documentation en ligne :"
 
 #, elixir-autogen, elixir-format
 msgid "Publish a reuse"
