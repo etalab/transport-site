@@ -62,11 +62,15 @@ defmodule Transport.IRVE.Validation.Primitives do
 
   Only one pattern per field is allowed. No stripping is achieved.
 
-  TODO: verify compliance on `id_station_itinerance` pattern, directly from the doctests.
-  TODO: same for "horaires" pattern
+  Valid cases:
 
-  iex> compute_constraint_pattern_check(build_df("field", [nil, "   ", " something ", "123456789"]), "field", ~S/^\\d{9}$/) |> df_values(:check_field_constraint_pattern)
-  [nil, false, false, true]
+  iex> compute_constraint_pattern_check(build_df("field", ["123456789"]), "field", ~S/^\\d{9}$/) |> df_values(:check_field_constraint_pattern)
+  [true]
+
+  Invalid cases:
+
+  iex> compute_constraint_pattern_check(build_df("field", [nil, "   ", " something ", "12345678"]), "field", ~S/^\\d{9}$/) |> df_values(:check_field_constraint_pattern)
+  [nil, false, false, false]
   """
   def compute_constraint_pattern_check(%Explorer.DataFrame{} = df, field, pattern) when is_binary(pattern) do
     Explorer.DataFrame.mutate_with(df, fn df ->
