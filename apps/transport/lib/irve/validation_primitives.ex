@@ -35,28 +35,16 @@ defmodule Transport.IRVE.Validation.Primitives do
 
   iex> compute_required_check(build_df("field", [nil, "   "]), "field", true) |> df_values(:check_field_required)
   [false, false]
-
-  If `required: false` is passed, the column will equate `nil`, to advertise that the check
-  has not been actually evaluated.
-
-  iex> compute_required_check(build_df("field", [nil, "   ", " something "]), "field", false) |> df_values(:check_field_required)
-  [nil, nil, nil]
   """
-  def compute_required_check(%Explorer.DataFrame{} = df, field, is_required?) when is_boolean(is_required?) do
+  def compute_required_check(%Explorer.DataFrame{} = df, field, true = _is_required?) do
     column_check_name = build_check_column_name(field, :required)
 
     Explorer.DataFrame.mutate_with(df, fn df ->
       outcome =
-        case is_required? do
-          true ->
-            df[field]
-            |> Explorer.Series.strip()
-            |> Explorer.Series.fill_missing("")
-            |> Explorer.Series.not_equal("")
-
-          false ->
-            nil
-        end
+        df[field]
+        |> Explorer.Series.strip()
+        |> Explorer.Series.fill_missing("")
+        |> Explorer.Series.not_equal("")
 
       %{column_check_name => outcome}
     end)
