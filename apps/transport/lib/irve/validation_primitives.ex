@@ -216,9 +216,15 @@ defmodule Transport.IRVE.Validation.Primitives do
 
   We do not consider infinite / NaN values valid.
 
-  iex> input_values = [nil, "", "   ", "  8 ", "8", "-4","05","+5.47","-9.789", "INF", "-INF", "NaN", "9999999999999999999999", "foobar"]
-  iex> compute_type_number_check(build_df("field", input_values), "field") |> df_values(:check_field_type_number)
-  [false, false, false, false, true, true, true, true, true, false, false, false, true,false]
+  Valid cases:
+
+  iex> compute_type_number_check(build_df("field", ["8", "-4", "05", "+5.47", "-9.789", "9999999999999999999999"]), "field") |> df_values(:check_field_type_number)
+  [true, true, true, true, true, true]
+
+  Invalid cases:
+
+  iex> compute_type_number_check(build_df("field", [nil, "", "   ", "  8 ", "INF", "-INF", "NaN", "foobar"]), "field") |> df_values(:check_field_type_number)
+  [false, false, false, false, false, false, false, false]
   """
   def compute_type_number_check(%Explorer.DataFrame{} = df, field) do
     Explorer.DataFrame.mutate_with(df, fn df ->
