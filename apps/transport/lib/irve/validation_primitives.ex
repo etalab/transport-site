@@ -247,7 +247,7 @@ defmodule Transport.IRVE.Validation.Primitives do
   end
 
   @doc """
-  Given a numerical value (`integer` or `number` only) for type specifier, ensure that the value is greater than some minimum value.
+  Given a numerical value (`integer` or `number` only) for type specifier, ensure that the value is greater than or equal to some minimum value.
 
   NOTE: overflow is not consistent with `integer` check here
 
