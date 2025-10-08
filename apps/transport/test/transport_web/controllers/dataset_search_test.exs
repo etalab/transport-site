@@ -308,6 +308,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
              |> DB.Dataset.list_datasets()
              |> DB.Repo.all()
              |> Enum.map(& &1.id)
+             |> Enum.sort()
   end
 
   test "search by region" do

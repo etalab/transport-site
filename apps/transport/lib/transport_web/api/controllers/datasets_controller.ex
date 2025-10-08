@@ -133,7 +133,11 @@ defmodule TransportWeb.API.DatasetController do
     |> Repo.preload([:declarative_spatial_areas])
     |> case do
       %Dataset{} = dataset ->
-        data = Enum.map(dataset.declarative_spatial_areas, &to_feature(&1.geom, &1.nom)) |> keep_valid_features()
+        data =
+          dataset.declarative_spatial_areas
+          |> DB.AdministrativeDivision.sorted()
+          |> Enum.map(&to_feature(&1.geom, &1.nom))
+          |> keep_valid_features()
 
         conn
         |> assign(:data, to_geojson(dataset, data))
