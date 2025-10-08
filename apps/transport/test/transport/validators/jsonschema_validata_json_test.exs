@@ -56,7 +56,7 @@ defmodule Transport.Validators.ValidataJsonTest do
       )
 
     assert :ok = Transport.Validators.ValidataJson.validate_and_save(rh)
-    mv = DB.MultiValidation |> DB.Repo.get_by!(resource_history_id: rh.id)
+    mv = DB.MultiValidation.with_result() |> DB.Repo.get_by!(resource_history_id: rh.id)
 
     assert mv.validator == Transport.Validators.ValidataJson.validator_name()
     assert mv.result == %{"validated" => true}

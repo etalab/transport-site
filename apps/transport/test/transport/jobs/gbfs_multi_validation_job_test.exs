@@ -91,6 +91,6 @@ defmodule Transport.Test.Transport.Jobs.GBFSMultiValidationDispatcherJobTest do
              command: "https://gbfs-validator.netlify.app/.netlify/functions/validator",
              validator: "MobilityData/gbfs-validator",
              validator_version: "31c5325"
-           } = DB.MultiValidation |> DB.Repo.one!() |> DB.Repo.preload(:metadata)
+           } = DB.MultiValidation.with_result() |> DB.Repo.one!() |> DB.Repo.preload(:metadata)
   end
 end

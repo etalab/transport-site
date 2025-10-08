@@ -76,7 +76,8 @@ defmodule TransportWeb.ResourceController do
       DB.MultiValidation.resource_latest_validations(
         id,
         Transport.Validators.GTFSRT,
-        DateTime.utc_now() |> DateTime.add(-latest_validations_nb_days(), :day)
+        DateTime.utc_now() |> DateTime.add(-latest_validations_nb_days(), :day),
+        include_result: true
       )
 
     nb_validations = Enum.count(validations)
@@ -144,7 +145,7 @@ defmodule TransportWeb.ResourceController do
         Enum.empty?(validators) -> nil
       end
 
-    DB.MultiValidation.resource_latest_validation(resource_id, validator)
+    DB.MultiValidation.resource_latest_validation(resource_id, validator, include_result: true)
   end
 
   def render_details(conn, resource) do

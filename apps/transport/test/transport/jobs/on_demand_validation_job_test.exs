@@ -50,7 +50,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
                oban_args: %{"state" => "completed", "type" => "gtfs"},
                metadata: %{metadata: %{"modes" => ["bus"]}},
                data_vis: %{}
-             } = validation |> DB.Repo.reload() |> DB.Repo.preload(:metadata)
+             } = validation |> reload() |> DB.Repo.preload(:metadata)
 
       assert DateTime.diff(date, DateTime.utc_now()) <= 1
     end
@@ -76,7 +76,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
                  "type" => "gtfs"
                },
                data_vis: nil
-             } = DB.Repo.reload(validation)
+             } = reload(validation)
     end
 
     test "with a tableschema" do
@@ -103,7 +103,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
                  "schema_name" => ^schema_name
                },
                data_vis: nil
-             } = DB.Repo.reload(validation)
+             } = reload(validation)
     end
 
     test "with a jsonschema" do
@@ -138,7 +138,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
                  "schema_name" => ^schema_name
                },
                data_vis: nil
-             } = DB.Repo.reload(validation)
+             } = reload(validation)
     end
 
     test "jsonschema with an exception raised" do
@@ -163,7 +163,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
                  "schema_name" => ^schema_name
                },
                data_vis: nil
-             } = DB.Repo.reload(validation)
+             } = reload(validation)
     end
 
     test "with a gtfs-rt" do
@@ -216,7 +216,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
                  "gtfs_rt_url" => ^gtfs_rt_url
                },
                data_vis: nil
-             } = DB.Repo.reload(validation)
+             } = reload(validation)
 
       refute File.exists?(gtfs_path)
       refute File.exists?(gtfs_rt_path)
@@ -252,7 +252,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
                  "gtfs_rt_url" => ^gtfs_rt_url
                },
                data_vis: nil
-             } = DB.Repo.reload(validation)
+             } = reload(validation)
 
       gtfs_path = OnDemandValidationJob.filename(validation.id, "gtfs")
       gtfs_rt_path = OnDemandValidationJob.filename(validation.id, "gtfs-rt")
@@ -308,7 +308,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
                  "gtfs_rt_url" => ^gtfs_rt_url
                },
                data_vis: nil
-             } = DB.Repo.reload(validation)
+             } = reload(validation)
 
       refute File.exists?(gtfs_path)
       refute File.exists?(gtfs_rt_path)
@@ -384,7 +384,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
                  "gtfs_rt_url" => ^gtfs_rt_url
                },
                data_vis: nil
-             } = DB.Repo.reload(validation)
+             } = reload(validation)
 
       refute File.exists?(gtfs_path)
       refute File.exists?(gtfs_rt_path)
@@ -432,7 +432,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
                oban_args: %{"state" => "completed", "type" => "netex"},
                metadata: %{},
                data_vis: nil
-             } = validation |> DB.Repo.reload() |> DB.Repo.preload(:metadata)
+             } = validation |> reload() |> DB.Repo.preload(:metadata)
 
       assert %{"xsd-schema" => a1, "base-rules" => a2} =
                result
@@ -453,7 +453,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
 
       assert :ok == run_job(validation)
 
-      validation = DB.Repo.reload(validation)
+      validation = reload(validation)
       assert nil == validation.result
       assert nil == validation.max_error
 
@@ -517,5 +517,10 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
     end)
 
     resource_url
+  end
+
+  defp reload(validation) do
+    DB.MultiValidation.with_result()
+    |> DB.Repo.get(validation.id)
   end
 end

@@ -68,7 +68,9 @@ defmodule Transport.Validators.GtfsTransportValidatorTest do
              resource_history_id: ^resource_history_id,
              validator_version: ^validator_version,
              max_error: "Warning"
-           } = DB.MultiValidation |> DB.Repo.get_by!(resource_history_id: resource_history_id)
+           } =
+             DB.MultiValidation.with_result()
+             |> DB.Repo.get_by!(resource_history_id: resource_history_id)
 
     assert %{metadata: ^metadata_content, resource_history_id: ^resource_history_id} =
              DB.ResourceMetadata |> DB.Repo.get_by!(multi_validation_id: validation_id)
