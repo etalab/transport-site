@@ -277,7 +277,7 @@ defmodule Transport.IRVE.Validation.Primitives do
   # for now, use a regexp trying to catch proper lat/lon arrays,
   # because it's easier than splitting/verifying each sub-part using
   # Explorer primitives
-  @geopoint_array_pattern ~S"\A\[\-?\d+(\.\d+)?,\s?\-?\d+(\.\d+)?\]\z"
+  @geopoint_array_pattern ~S/\A\[\-?\d+(\.\d+)?,\s?\-?\d+(\.\d+)?\]\z/
 
   @doc """
   Ensure a geopoint column is of type array, and contains 2 valid floats.
