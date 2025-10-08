@@ -66,8 +66,14 @@ defmodule Transport.Validators.GBFSValidatorTest do
              command: "https://gbfs-validator.netlify.app/.netlify/functions/validator",
              validator: "MobilityData/gbfs-validator",
              validator_version: "31c5325"
-           } = DB.MultiValidation |> DB.Repo.one!() |> DB.Repo.preload(:metadata)
+           } = load_validation()
 
     refute Map.has_key?(validation_result, "validator_version")
+  end
+
+  defp load_validation do
+    DB.MultiValidation.with_result()
+    |> DB.Repo.one!()
+    |> DB.Repo.preload(:metadata)
   end
 end
