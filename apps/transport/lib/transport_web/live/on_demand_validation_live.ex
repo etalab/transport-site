@@ -22,7 +22,10 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
   end
 
   defp update_data(socket) do
-    validation = DB.MultiValidation |> preload(:metadata) |> DB.Repo.get!(socket_value(socket, :validation_id))
+    validation =
+      DB.MultiValidation.with_result()
+      |> preload(:metadata)
+      |> DB.Repo.get!(socket_value(socket, :validation_id))
 
     socket =
       assign(socket,

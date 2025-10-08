@@ -89,7 +89,7 @@ defmodule TransportWeb.ValidationController do
 
   def show(%Plug.Conn{} = conn, %{} = params) do
     token = params["token"]
-    validation = MultiValidation |> preload(:metadata) |> Repo.get(params["id"])
+    validation = MultiValidation.with_result() |> preload(:metadata) |> Repo.get(params["id"])
 
     case validation do
       nil ->
