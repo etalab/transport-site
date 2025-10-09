@@ -192,6 +192,7 @@ defmodule Transport.Validators.NeTEx.Validator do
       validation_timestamp: DateTime.utc_now(),
       validator: validator_name(),
       result: result,
+      digest: ResultsAdapter.digest(result),
       resource_history_id: resource_history_id,
       validator_version: validator_version(),
       command: result_url,

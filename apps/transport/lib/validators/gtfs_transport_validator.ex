@@ -30,10 +30,13 @@ defmodule Transport.Validators.GTFSTransport do
         features: find_tags(metadata)
       }
 
+      result = validation_result(validations)
+
       %DB.MultiValidation{
         validation_timestamp: timestamp,
         validator: validator_name(),
-        result: validation_result(validations),
+        result: result,
+        digest: digest(result),
         data_vis: data_vis,
         command: command(url),
         resource_history_id: resource_history_id,
@@ -134,8 +137,8 @@ defmodule Transport.Validators.GTFSTransport do
   iex> validation_result = %{"tooClose" => [%{"severity" => "Warning"}], "funnyName" => [%{"severity" => "Information"}]}
   iex> summary(validation_result)
   [
-    {"Warning", [{"tooClose", %{count: 1, severity: "Warning", title: nil}}]},
-    {"Information", [{"funnyName", %{count: 1, severity: "Information", title: nil}}]}
+    %{"severity" => "Warning", "issues" => [%{"key" => "tooClose", "issue" => %{"count" => 1, "severity" => "Warning", "title" => nil}}]},
+    %{"severity" => "Information", "issues" => [%{"key" => "funnyName", "issue" => %{"count" => 1, "severity" => "Information", "title" => nil}}]}
   ]
   iex> summary(%{})
   []
@@ -146,14 +149,31 @@ defmodule Transport.Validators.GTFSTransport do
     |> Enum.map(fn {key, issues} ->
       {key,
        %{
-         count: Enum.count(issues),
-         title: issues_short_translation()[key],
-         severity: issues |> List.first() |> Map.fetch!("severity")
+         "count" => Enum.count(issues),
+         "title" => issues_short_translation()[key],
+         "severity" => issues |> List.first() |> Map.fetch!("severity")
        }}
     end)
-    |> Map.new()
-    |> Enum.group_by(fn {_, issue} -> issue.severity end)
+    |> Enum.group_by(fn {_, issue} -> issue["severity"] end)
     |> Enum.sort_by(fn {severity, _} -> severity_level(severity) end)
+    |> Enum.map(fn {severity, issues} ->
+      %{
+        "severity" => severity,
+        "issues" => issues |> Enum.map(fn {key, issue} -> %{"key" => key, "issue" => issue} end)
+      }
+    end)
+  end
+
+  @spec digest(map) :: map
+  def digest(%{} = validation_result) do
+    summary = Transport.Validators.GTFSTransport.summary(validation_result)
+    stats = Transport.Validators.GTFSTransport.count_by_severity(validation_result)
+
+    %Scrivener.Config{page_size: page_size} = TransportWeb.PaginationHelpers.make_pagination_config(%{})
+    # Limit to the first page to limit payload size
+    issues = Transport.Validators.GTFSTransport.get_issues(validation_result, %{}) |> Enum.take(page_size)
+
+    %{"summary" => summary, "stats" => stats, "issues" => issues}
   end
 
   @doc """
