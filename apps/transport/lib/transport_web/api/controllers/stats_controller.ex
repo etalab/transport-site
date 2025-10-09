@@ -8,19 +8,6 @@ defmodule TransportWeb.API.StatsController do
   @spec open_api_operation(any) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
 
-  @spec regions_operation() :: Operation.t()
-  def regions_operation,
-    do: %Operation{
-      tags: ["stats"],
-      summary: "Show regions",
-      description: "Show covered french administrative regions",
-      operationId: "API.StatsController.regions",
-      parameters: [],
-      responses: %{
-        200 => Operation.response("GeoJSON", "application/json", TransportWeb.API.Schemas.GeoJSONResponse)
-      }
-    }
-
   @spec index_operation() :: Operation.t()
   def index_operation,
     do: %Operation{
@@ -204,41 +191,8 @@ defmodule TransportWeb.API.StatsController do
     end
   end
 
-  defmacro count_region_format(region, format) do
-    quote do
-      fragment(
-        """
-        SELECT COUNT(format) FROM resource
-        JOIN dataset_geographic_view d_geo ON d_geo.dataset_id = resource.dataset_id
-        WHERE d_geo.region_id = ?
-        AND format = ? GROUP BY format
-        """,
-        unquote(region),
-        unquote(format)
-      )
-    end
-  end
-
-  defmacro count_type_by_region(region_id, type) do
-    quote do
-      fragment(
-        """
-        SELECT COUNT(*) FROM dataset
-        JOIN dataset_geographic_view d_geo ON d_geo.dataset_id = dataset.id
-        WHERE d_geo.region_id = ? and is_active = TRUE
-        AND type = ?
-        """,
-        unquote(region_id),
-        unquote(type)
-      )
-    end
-  end
-
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(%Plug.Conn{} = conn, _params), do: render_features(conn, :aoms, "api-stats-aoms")
-
-  @spec regions(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def regions(%Plug.Conn{} = conn, _params), do: render_features(conn, :regions, "api-stats-regions")
 
   @spec vehicles_sharing(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def vehicles_sharing(%Plug.Conn{} = conn, _params),
@@ -280,10 +234,9 @@ defmodule TransportWeb.API.StatsController do
 
   def rendered_geojson(item, ecto_opts \\ [])
 
-  def rendered_geojson(item, ecto_opts) when item in [:aoms, :regions, :quality] do
+  def rendered_geojson(item, ecto_opts) when item in [:aoms, :quality] do
     case item do
       :aoms -> aom_features_query()
-      :regions -> region_features_query()
       :quality -> quality_features_query()
     end
     |> Repo.all(ecto_opts)
@@ -345,40 +298,6 @@ defmodule TransportWeb.API.StatsController do
         vehicles_sharing: count_aom_types(aom.id, "vehicles-sharing")
       },
       nb_other_datasets: coalesce(d.count, 0)
-    })
-  end
-
-  @spec region_features_query :: Ecto.Query.t()
-  defp region_features_query do
-    Region
-    |> select([r], %{
-      geometry: r.geom,
-      id: r.id,
-      insee: r.insee,
-      nom: r.nom,
-      is_completed: r.is_completed,
-      nb_datasets:
-        fragment(
-          """
-          SELECT COUNT(*) FROM dataset
-          JOIN dataset_geographic_view d_geo ON d_geo.dataset_id = dataset.id
-          WHERE d_geo.region_id = ?
-          AND is_active=TRUE
-          """,
-          r.id
-        ),
-      dataset_formats: %{
-        gtfs: count_region_format(r.id, "GTFS"),
-        netex: count_region_format(r.id, "NeTEx"),
-        gtfs_rt: count_region_format(r.id, "gtfs-rt"),
-        gbfs: count_region_format(r.id, "gbfs"),
-        siri: count_region_format(r.id, "SIRI"),
-        siri_lite: count_region_format(r.id, "SIRI Lite")
-      },
-      dataset_types: %{
-        pt: count_type_by_region(r.id, "public-transit"),
-        vehicles_sharing: count_type_by_region(r.id, "vehicles-sharing")
-      }
     })
   end
 

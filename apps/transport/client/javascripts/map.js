@@ -2,7 +2,6 @@ import Leaflet from 'leaflet'
 import 'leaflet.pattern'
 import { Mapbox } from './map-config'
 
-const regionsUrl = '/api/stats/regions'
 const aomsUrl = '/api/stats/'
 const vehiclesSharingUrl = '/api/stats/vehicles-sharing'
 const qualityUrl = '/api/stats/quality'
@@ -47,7 +46,6 @@ const getLegend = (title, colorClasses, labels) => {
 
 // simple cache on stats
 let aomStats = null
-let regionStats = null
 let vehiclesSharingStats = null
 let qualityStats = null
 
@@ -69,24 +67,6 @@ function getAomsFG (featureFunction, style, filter = null) {
             aomsFeatureGroup.addLayer(geoJSON)
         })
     return aomsFeatureGroup
-}
-
-function getRegionsFG (featureFunction, style) {
-    const regionsFeatureGroup = Leaflet.featureGroup()
-    if (regionStats == null) {
-        regionStats = fetch(regionsUrl)
-            .then(response => { return response.json() })
-    }
-    regionStats
-        .then(response => {
-            const geoJSON = Leaflet.geoJSON(response, {
-                onEachFeature: featureFunction,
-                style,
-                pointToLayer: (_point, _) => null
-            })
-            regionsFeatureGroup.addLayer(geoJSON)
-        })
-    return regionsFeatureGroup
 }
 
 function displayVehiclesSharing (map, featureFunction) {
@@ -126,68 +106,6 @@ function displayQuality (featureFunction, style) {
             qualityFeatureGroup.addLayer(geoJSON)
         })
     return qualityFeatureGroup
-}
-
-/**
- * Initialises a map.
- * @param  {String} id Dom element id, where the map is to be bound.
- * @param  {String} aomsUrl Url exposing a {FeatureCollection}.
- */
-function addStaticPTMapRegions (id, view) {
-    const map = makeMapOnView(id, view)
-
-    const nbBaseSchedule = (feature) => feature.properties.dataset_types.pt
-
-    function onEachRegionFeature (feature, layer) {
-        const name = feature.properties.nom
-        const siren = feature.properties.siren
-        const count = nbBaseSchedule(feature)
-        const text = count === 0
-            ? 'Aucun jeu de données'
-            : count === 1
-                ? 'Un jeu de données'
-                : `${count} jeux de données`
-        const popupContent = `<strong>${name}</strong><br/><a href="/datasets/region/${siren}?type=public-transit#datasets-results">${text}</a>`
-        layer.bindPopup(popupContent)
-    }
-
-    const regionStyles = {
-        completed: {
-            weight: 2,
-            color: 'green'
-        },
-        partial: {
-            weight: 1,
-            color: lightGreen
-        },
-        unavailable: {
-            weight: 2,
-            color: 'grey'
-        }
-    }
-
-    const styleRegion = feature => {
-        if (feature.properties.completed) {
-            return regionStyles.completed
-        }
-        const count = nbBaseSchedule(feature)
-        if (count === 0) {
-            return regionStyles.unavailable
-        } else {
-            return regionStyles.partial
-        }
-    }
-
-    const regionsFG = getRegionsFG(onEachRegionFeature, styleRegion)
-    regionsFG.addTo(map)
-
-    if (view.display_legend) {
-        getLegend(
-            '<h4>Disponibilité des horaires théoriques</h4>',
-            ['green', 'light-green', 'grey'],
-            ['Données publiées et région partenaire', 'Données publiées', 'Aucune donnée publiée']
-        ).addTo(map)
-    }
 }
 
 function addStaticPTMapAOMS (id, view) {
@@ -732,7 +650,6 @@ const droms = {
 }
 
 for (const [drom, view] of Object.entries(droms)) {
-    addStaticPTMapRegions(`map_regions_${drom}`, view)
     addStaticPTUpToDate(`pt_up_to_date_${drom}`, view)
     addStaticPTMapAOMS(`map_aoms_${drom}`, view)
     addStaticPTQuality(`pt_quality_${drom}`, view)

@@ -35,30 +35,7 @@
       </p>
     </div>
     <div class="domain theorical">
-      <h2>Transports en commun - horaires théoriques</h2>
-      <div class="domain-stats staticPTdata">
-        <%= render("_maps.html", droms: @droms, prefix: "map_regions") %>
-        <div class="panel">
-          <div class="description" id="public-transport-by-region">
-            <h3>Par région</h3>
-            <span class="stat-link">
-              <a href="#public-transport-by-region"><i class="fa fa-link fa-small"></i></a>
-            </span>
-
-            <p>L'offre de transport en commun urbain et interurbain, regroupée par région.</p>
-          </div>
-          <div class="tile">
-            <h3><%= @nb_pt_datasets %></h3>
-            <div>jeux de données ouverts</div>
-          </div>
-          <div class="tile">
-            <h3><%= @nb_regions_completed %></h3>
-            <div>régions couvertes (sur <%= @nb_regions %>)</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="domain theorical">
+      <h2>Transports en commun</h2>
       <div class="domain-stats staticPTdata">
         <%= render("_maps.html", droms: @droms, prefix: "map_aoms") %>
         <div class="panel">
@@ -205,8 +182,6 @@
       </div>
     </div>
     <div class="domain rt" id="public-transport-real-time">
-      <h2>Transports en commun - temps réel</h2>
-
       <div class="domain quality">
         <div class="domain-stats">
           <%= render("_maps.html", droms: @droms, prefix: "rt_map") %>
