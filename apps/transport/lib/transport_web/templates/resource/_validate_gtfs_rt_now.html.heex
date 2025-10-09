@@ -1,4 +1,4 @@
-<% associated_gtfs = gtfs_for_gtfs_rt(@resource, @multi_validation) %>
+<% associated_gtfs = gtfs_for_gtfs_rt(@resource, @validation) %>
 <%= if is_nil(associated_gtfs) do %>
   <div class="notification error full-width">
     <p>
