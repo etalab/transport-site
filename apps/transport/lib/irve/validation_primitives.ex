@@ -19,8 +19,8 @@ defmodule Transport.IRVE.Validation.Primitives do
 
   Each primitive processes a single column across all rows. This column-oriented approach is how
   Explorer (and Polars underneath) works, enabling vectorized operations (SIMD, Single Instruction, Multiple Data)
-  that are orders of magnitude faster than row-by-row processing. 
-  
+  that are orders of magnitude faster than row-by-row processing.
+
   See:
   - https://hexdocs.pm/explorer/Explorer.DataFrame.html
   - https://github.com/pola-rs/polars/blob/main/README.md#polars-extremely-fast-query-engine-for-dataframes-written-in-rust
