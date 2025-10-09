@@ -22,7 +22,7 @@
       <%= unless DB.Resource.documentation?(@resource) do %>
         <%= render("_validation_report.html",
           resource: @resource,
-          multi_validation: @multi_validation,
+          validation: @validation,
           latest_validations_details: @latest_validations_details,
           conn: @conn
         ) %>

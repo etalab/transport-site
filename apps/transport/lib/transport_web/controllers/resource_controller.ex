@@ -35,7 +35,7 @@ defmodule TransportWeb.ResourceController do
           |> assign(:gtfs_rt_feed, gtfs_rt_feed(conn, resource))
           |> assign(:gtfs_rt_entities, gtfs_rt_entities(resource))
           |> assign(:latest_validations_details, latest_validations_details(resource))
-          |> assign(:multi_validation, validation)
+          |> assign(:validation, validation)
           |> put_resource_flash(resource.dataset.is_active)
 
         cond do
@@ -161,7 +161,7 @@ defmodule TransportWeb.ResourceController do
       end
 
     conn
-    |> assign_base_resource_details(params, resource, validation, validation_details)
+    |> assign_base_resource_details(params, resource, validation_details)
     |> assign(:validator, Transport.Validators.GTFSTransport)
     |> assign(:data_vis, encoded_data_vis(issue_type, validation))
     |> render("gtfs_details.html")
@@ -182,7 +182,7 @@ defmodule TransportWeb.ResourceController do
       build_netex_validation_details(validation, params)
 
     conn
-    |> assign_base_resource_details(params, resource, validation, validation_details)
+    |> assign_base_resource_details(params, resource, validation_details)
     |> assign(:errors_template, errors_template)
     |> assign(:results_adapter, results_adapter)
     |> assign(:max_severity, max_severity)
@@ -210,7 +210,7 @@ defmodule TransportWeb.ResourceController do
   defp pick_netex_errors_template("0.2.0"), do: "_netex_validation_errors_v0_2_x.html"
   defp pick_netex_errors_template(_), do: "_netex_validation_errors_v0_1_0.html"
 
-  defp assign_base_resource_details(conn, params, resource, validation, validation_details) do
+  defp assign_base_resource_details(conn, params, resource, validation_details) do
     config = make_pagination_config(params)
 
     {validation_summary, severities_count, metadata, modes, issues} = validation_details
@@ -222,7 +222,6 @@ defmodule TransportWeb.ResourceController do
     |> assign(:issues, Scrivener.paginate(issues, config))
     |> assign(:validation_summary, validation_summary)
     |> assign(:severities_count, severities_count)
-    |> assign(:validation, validation)
     |> assign(:metadata, metadata)
     |> assign(:modes, modes)
   end

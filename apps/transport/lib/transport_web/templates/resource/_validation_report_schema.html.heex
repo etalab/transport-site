@@ -6,16 +6,16 @@
       )
     ) %>
   </p>
-  <%= unless is_nil(@multi_validation) do %>
-    <% nb_errors = errors_count(@multi_validation) %>
+  <%= unless is_nil(@validation) do %>
+    <% nb_errors = errors_count(@validation) %>
     <%= render("_errors_warnings_count.html", nb_errors: nb_errors, nb_warnings: 0) %>
     <%= if nb_errors > 0 do %>
       <%= render("_on_demand_validation_hint.html", conn: @conn, resource: @resource) %>
       <p><%= dgettext("validations", "Errors:") %></p>
-      <% validation_schema_name = @multi_validation.resource_history.payload["schema_name"] %>
+      <% validation_schema_name = @validation.resource_history.payload["schema_name"] %>
       <% schema_type = schema_type(validation_schema_name) %>
       <ul lang={if schema_type == "jsonschema", do: "en"}>
-        <%= for error <- errors_sample(@multi_validation) do %>
+        <%= for error <- errors_sample(@validation) do %>
           <li><%= error %></li>
         <% end %>
       </ul>
