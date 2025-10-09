@@ -220,8 +220,8 @@ defmodule TransportWeb.API.StatsController do
   #
   @spec render_features(Plug.Conn.t(), atom(), binary()) :: Plug.Conn.t()
   defp render_features(conn, item, cache_key) do
-    data =
-      Transport.Cache.fetch(cache_key, fn -> rendered_geojson(item) end, Transport.PreemptiveStatsCache.cache_ttl())
+    data = rendered_geojson(item)
+      # Transport.Cache.fetch(cache_key, fn -> rendered_geojson(item) end, Transport.PreemptiveStatsCache.cache_ttl())
 
     render(conn, data: {:skip_json_encoding, data})
   end
@@ -234,13 +234,18 @@ defmodule TransportWeb.API.StatsController do
 
   def rendered_geojson(item, ecto_opts \\ [])
 
-  def rendered_geojson(item, ecto_opts) when item in [:aoms, :quality] do
-    case item do
-      :aoms -> aom_features_query()
-      :quality -> quality_features_query()
-    end
+  def rendered_geojson(:quality, ecto_opts) do
+    quality_features_query()
     |> Repo.all(ecto_opts)
     |> features()
+    |> geojson()
+    |> Jason.encode!()
+  end
+
+  def rendered_geojson(:aoms, ecto_opts) do
+    aom_features_query()
+    |> Repo.all(ecto_opts)
+    |> vehicles_sharing_features()
     |> geojson()
     |> Jason.encode!()
   end
@@ -255,50 +260,25 @@ defmodule TransportWeb.API.StatsController do
 
   @spec aom_features_query :: Ecto.Query.t()
   defp aom_features_query do
-    nb_aggregates_dataset_by_aom =
-      AOM
-      |> join(:inner, [aom], d in assoc(aom, :legal_owners_dataset), as: :legal_owners_dataset)
-      |> where(
-        [legal_owners_dataset: d],
-        d.id in subquery(
-          Dataset.base_query()
-          |> join(:inner, [dataset: d], aom in assoc(d, :legal_owners_aom), as: :aom)
-          |> group_by([dataset: d], d.id)
-          |> having([aom: a], count(a.id) >= 2)
-          |> select([dataset: d], d.id)
-        )
-      )
-      |> group_by([aom], aom.id)
-      |> select([aom, legal_owners_dataset: d], %{aom_id: aom.id, count: count(d.id)})
+    datasets_large_coverage =
+      DB.Dataset.base_query()
+      |> join(:inner, [dataset: d], a in assoc(d, :declarative_spatial_areas), as: :administrative_division)
+      |> where([administrative_division: ad], ad.type in [:epci])
+      |> distinct(true)
+      |> select([dataset: d], d.id)
+      
 
-    AOM
-    |> join(:left, [aom], d in subquery(nb_aggregates_dataset_by_aom),
-      on: aom.id == d.aom_id,
-      as: :aggregates_by_aom
-    )
-    |> select([aom, aggregates_by_aom: d], %{
-      geometry: aom.geom,
-      id: aom.id,
-      siren: aom.siren,
-      created_after_2021: aom.composition_res_id >= 1_000,
-      insee_commune_principale: aom.insee_commune_principale,
-      nb_datasets: fragment("select count(id) from dataset where aom_id = ? and is_active", aom.id),
-      dataset_formats: %{
-        gtfs: count_aom_format(aom.id, "GTFS"),
-        netex: count_aom_format(aom.id, "NeTEx"),
-        gtfs_rt: count_aom_format(aom.id, "gtfs-rt"),
-        gbfs: count_aom_format(aom.id, "gbfs"),
-        siri: count_aom_format(aom.id, "SIRI"),
-        siri_lite: count_aom_format(aom.id, "SIRI Lite")
-      },
-      nom: aom.nom,
-      forme_juridique: aom.forme_juridique,
-      dataset_types: %{
-        pt: count_aom_types(aom.id, "public-transit"),
-        vehicles_sharing: count_aom_types(aom.id, "vehicles-sharing")
-      },
-      nb_other_datasets: coalesce(d.count, 0)
+    DatasetGeographicView
+    |> join(:inner, [gv], dataset in DB.Dataset, on: dataset.id == gv.dataset_id, as: :dataset)
+    |> join(:inner, [dataset: d], a in assoc(d, :declarative_spatial_areas), as: :administrative_division)
+    |> select([gv, dataset, administrative_division: ad], %{
+      geometry: gv.geom,
+      nb: count(gv.dataset_id, :distinct),
+      nom: fragment("string_agg(?, ', ')", ad.nom),
+      insee: min(ad.insee),
     })
+    |> where([_gv, dataset], dataset.type == "public-transit" and dataset.is_active and dataset.id in subquery(datasets_large_coverage))
+    |> group_by([gv], gv.geom)
   end
 
   @spec vehicles_sharing_features_query :: Ecto.Query.t()
