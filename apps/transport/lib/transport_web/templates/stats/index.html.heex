@@ -106,6 +106,34 @@
         </div>
       </div>
     </div>
+    <div class="domain quality">
+      <div class="domain-stats">
+        <%= render("_maps.html", droms: @droms, prefix: "rt_pt_format_map") %>
+        <div class="panel">
+          <div class="tile">
+            <h3><%= @nb_gtfs_rt %></h3>
+            <div>jeux de données<br />en <strong>GTFS-RT</strong></div>
+            <div>
+              <ul class="small">
+                <%= for {type, count} <- @gtfs_rt_types do %>
+                  <li>
+                    <span title={type}><%= friendly_gtfs_type(type) %></span> : <%= format_number(count) %>
+                  </li>
+                <% end %>
+              </ul>
+            </div>
+          </div>
+          <div class="tile">
+            <h3><%= @nb_siri %></h3>
+            <div>jeux de données<br />en <strong>SIRI</strong></div>
+          </div>
+          <div class="tile">
+            <h3><%= @nb_siri_lite %></h3>
+            <div>jeux de données<br />en <strong>SIRI Lite</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="domain">
       <div class="domain-stats">
         <%= render("_maps.html", droms: @droms, prefix: "pt_up_to_date") %>
@@ -173,64 +201,6 @@
               <acronym title="autorité organisatrice de mobilité">AOM</acronym>
               avec des jeux de données ne respectant pas les spécifications GTFS
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="domain rt" id="public-transport-real-time">
-      <div class="domain quality">
-        <div class="domain-stats">
-          <%= render("_maps.html", droms: @droms, prefix: "rt_map") %>
-          <div class="panel">
-            <div class="description">
-              <span class="stat-link">
-                <a href="#public-transport-real-time"><i class="fa fa-link fa-small"></i></a>
-              </span>
-              <p>
-                Le site recense des données temps réel pour les transports en commun.<br />
-                Pour être référencée sur le PAN, les données doivent être accessibles sans authentification
-                et dans le format GTFS-RT, SIRI ou SIRI Lite.<br />
-                <a href={explore_path(@conn, :index)}>Une carte temps réel</a>
-                présentant la position des véhicules contenus dans les flux GTFS-RT est disponible.<br /><br />
-                Retrouvez plus d’informations concernant le temps réel <a href="https://doc.transport.data.gouv.fr/producteurs/operateurs-de-transport-regulier-de-personnes/temps-reel-des-transports-en-commun">dans la documentation</a>.
-              </p>
-            </div>
-            <div class="tile-numbers">
-              <div class="tile">
-                <h3><%= @nb_official_public_transit_realtime %></h3>
-                <div>
-                  <a href="/datasets?filter=has_realtime">Jeux de données standardisés et librement accessibles</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="domain quality">
-      <div class="domain-stats">
-        <%= render("_maps.html", droms: @droms, prefix: "rt_pt_format_map") %>
-        <div class="panel">
-          <div class="tile">
-            <h3><%= @nb_gtfs_rt %></h3>
-            <div>jeux de données<br />en <strong>GTFS-RT</strong></div>
-            <div>
-              <ul class="small">
-                <%= for {type, count} <- @gtfs_rt_types do %>
-                  <li>
-                    <span title={type}><%= friendly_gtfs_type(type) %></span> : <%= format_number(count) %>
-                  </li>
-                <% end %>
-              </ul>
-            </div>
-          </div>
-          <div class="tile">
-            <h3><%= @nb_siri %></h3>
-            <div>jeux de données<br />en <strong>SIRI</strong></div>
-          </div>
-          <div class="tile">
-            <h3><%= @nb_siri_lite %></h3>
-            <div>jeux de données<br />en <strong>SIRI Lite</strong></div>
           </div>
         </div>
       </div>

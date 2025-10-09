@@ -221,7 +221,7 @@ defmodule TransportWeb.API.StatsController do
   @spec render_features(Plug.Conn.t(), atom(), binary()) :: Plug.Conn.t()
   defp render_features(conn, item, cache_key) do
     data = rendered_geojson(item)
-      # Transport.Cache.fetch(cache_key, fn -> rendered_geojson(item) end, Transport.PreemptiveStatsCache.cache_ttl())
+    # Transport.Cache.fetch(cache_key, fn -> rendered_geojson(item) end, Transport.PreemptiveStatsCache.cache_ttl())
 
     render(conn, data: {:skip_json_encoding, data})
   end
@@ -260,37 +260,55 @@ defmodule TransportWeb.API.StatsController do
 
   @spec aom_features_query :: Ecto.Query.t()
   defp aom_features_query do
-    datasets_large_coverage =
+    small_coverage_datasets =
       DB.Dataset.base_query()
       |> join(:inner, [dataset: d], a in assoc(d, :declarative_spatial_areas), as: :administrative_division)
-      |> where([administrative_division: ad], ad.type in [:epci])
+      |> where([administrative_division: ad], ad.type in [:commune, :epci])
       |> distinct(true)
       |> select([dataset: d], d.id)
-      
 
     DatasetGeographicView
     |> join(:inner, [gv], dataset in DB.Dataset, on: dataset.id == gv.dataset_id, as: :dataset)
     |> join(:inner, [dataset: d], a in assoc(d, :declarative_spatial_areas), as: :administrative_division)
-    |> select([gv, dataset, administrative_division: ad], %{
+    |> join(:inner, [dataset: d], r in assoc(d, :resources), as: :resource)
+    |> select([gv, dataset, administrative_division: ad, resource: r], %{
       geometry: gv.geom,
       nb: count(gv.dataset_id, :distinct),
-      nom: fragment("string_agg(?, ', ')", ad.nom),
+      nom: fragment("string_agg(distinct ?, ', ')", ad.nom),
       insee: min(ad.insee),
+      gtfs: fragment("sum(case when ? = 'GTFS' then 1 else 0 end)", r.format),
+      netex: fragment("sum(case when ? = 'NeTEx' then 1 else 0 end)", r.format),
+      gtfs_rt: fragment("sum(case when ? = 'gtfs-rt' then 1 else 0 end)", r.format),
+      siri: fragment("sum(case when ? = 'SIRI' then 1 else 0 end)", r.format),
+      siri_lite: fragment("sum(case when ? = 'SIRI Lite' then 1 else 0 end)", r.format)
     })
-    |> where([_gv, dataset], dataset.type == "public-transit" and dataset.is_active and dataset.id in subquery(datasets_large_coverage))
+    |> where(
+      [_gv, dataset],
+      dataset.type == "public-transit" and dataset.is_active and dataset.id in subquery(small_coverage_datasets)
+    )
     |> group_by([gv], gv.geom)
   end
 
   @spec vehicles_sharing_features_query :: Ecto.Query.t()
   def vehicles_sharing_features_query do
+    small_coverage_datasets =
+      DB.Dataset.base_query()
+      |> join(:inner, [dataset: d], a in assoc(d, :declarative_spatial_areas), as: :administrative_division)
+      |> where([administrative_division: ad], ad.type in [:commune, :epci])
+      |> distinct(true)
+      |> select([dataset: d], d.id)
+
     DatasetGeographicView
     |> join(:left, [gv], dataset in Dataset, on: dataset.id == gv.dataset_id)
     |> select([gv, dataset], %{
-      geometry: fragment("ST_Centroid(geom) as geometry"),
+      geometry: fragment("geom as geometry"),
       names: fragment("array_agg(? order by ? asc)", dataset.custom_title, dataset.custom_title),
       slugs: fragment("array_agg(? order by ? asc)", dataset.slug, dataset.custom_title)
     })
-    |> where([_gv, dataset], dataset.type == "vehicles-sharing" and dataset.is_active)
+    |> where(
+      [_gv, dataset],
+      dataset.type == "vehicles-sharing" and dataset.is_active and dataset.id in subquery(small_coverage_datasets)
+    )
     |> group_by(fragment("geometry"))
   end
 

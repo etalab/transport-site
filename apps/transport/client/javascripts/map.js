@@ -110,7 +110,7 @@ function displayQuality (featureFunction, style) {
 
 function addStaticPTMapAOMS (id, view) {
     const map = makeMapOnView(id, view)
-    
+
     function onEachAomFeature (feature, layer) {
         const name = feature.properties.nom
         const count = feature.properties.nb
@@ -162,7 +162,6 @@ function addStaticPTUpToDate (id, view) {
 
     function onEachAomFeature (feature, layer) {
         const name = feature.properties.nom
-        const type = feature.properties.forme_juridique
         const expiredFrom = feature.properties.quality.expired_from
         let text = ''
         if (expiredFrom.status === 'outdated') {
@@ -178,7 +177,7 @@ function addStaticPTUpToDate (id, view) {
             }[expiredFrom.status]
         }
         const siren = feature.properties.siren
-        layer.bindPopup(`<a href="/datasets/epci/${siren}">${name}</a><br>(${type})<br/>${text}`)
+        layer.bindPopup(`<a href="/datasets/epci/${siren}?type=public-transit">${name}</a><br><br/>${text}`)
     }
 
     const styles = {
@@ -240,7 +239,7 @@ function addStaticPTQuality (id, view) {
             text = 'Pas de données valides disponible.'
         }
         const siren = feature.properties.siren
-        layer.bindPopup(`<a href="/datasets/epci/${siren}">${name}</a><br>(${type})<br/>${text}`)
+        layer.bindPopup(`<a href="/datasets/epci/${siren}?type=public-transit">${name}</a><br>(${type})<br/>${text}`)
     }
     const styles = {
         fatal: {
@@ -298,72 +297,6 @@ function addStaticPTQuality (id, view) {
 }
 
 /**
- * Initialises a map with the realtime coverage.
- * @param  {String} id Dom element id, where the map is to be bound.
- * @param  {String} aomsUrl Url exposing a {FeatureCollection}.
- */
-function addRealTimePTMap (id, view) {
-    const map = makeMapOnView(id, view)
-    function onEachAomFeature (feature, layer) {
-        const name = feature.properties.nom
-        const type = feature.properties.forme_juridique
-        const format = feature.properties.dataset_formats
-        const gtfsRT = (format.gtfs_rt !== undefined ? format.gtfs_rt : 0)
-        const siri = (format.siri !== undefined ? format.siri : 0)
-        const siriLite = (format.siri_lite !== undefined ? format.siri_lite : 0)
-        const countRealTime = gtfsRT + siri + siriLite
-
-        if (countRealTime === undefined) {
-            return null
-        }
-
-        let bind = `<strong>${name}</strong><br/>${type}`
-        if (countRealTime) {
-            const text = countRealTime === 1 ? 'Un jeu de données' : `${countRealTime} jeux de données`
-            const aomSIREN = feature.properties.siren
-            bind += `<br/><a href="/datasets/epci/${aomSIREN}">${text}</a>`
-        }
-        layer.bindPopup(bind)
-    }
-
-    const style = feature => {
-        const format = feature.properties.dataset_formats
-        const hasRealTime = format.gtfs_rt !== undefined ||
-            format.siri !== undefined ||
-            format.siri_lite !== undefined
-
-        if (hasRealTime) {
-            return {
-                weight: 1,
-                color: 'green',
-                fillOpacity: 0.5
-            }
-        }
-
-        return {
-            weight: 1,
-            fillOpacity: 0.6,
-            color: 'grey'
-        }
-    }
-
-    const aomsFG = getAomsFG(onEachAomFeature, style)
-    aomsFG.addTo(map)
-
-    if (view.display_legend) {
-        const legend = getLegend(
-            '<h4>Disponibilité des horaires temps réel</h4>',
-            ['green', 'grey'],
-            [
-                'Données disponibles sur transport.data.gouv.fr',
-                'Pas de données / Données non standardisées'
-            ]
-        )
-        legend.addTo(map)
-    }
-}
-
-/**
  * Initialises a map with the realtime format.
  * @param  {String} id Dom element id, where the map is to be bound.
  * @param  {String} aomsUrl Url exposing a {FeatureCollection}.
@@ -372,8 +305,7 @@ function addRealTimePtFormatMap (id, view) {
     const map = makeMapOnView(id, view)
     function onEachAomFeature (feature, layer) {
         const name = feature.properties.nom
-        const type = feature.properties.forme_juridique
-        const format = feature.properties.dataset_formats
+        const format = feature.properties
         const gtfsRT = format.gtfs_rt ?? 0
         const siri = format.siri ?? 0
         const siriLite = format.siri_lite ?? 0
@@ -383,11 +315,11 @@ function addRealTimePtFormatMap (id, view) {
             return null
         }
 
-        let bind = `<div class="pb-6"><strong>${name}</strong><br/>${type}</div>`
+        let bind = `<div class="pb-6"><strong>${name}</strong></div>`
         if (countRealTime) {
             const text = countRealTime === 1 ? 'Une ressource' : `${countRealTime} ressources`
-            const siren = feature.properties.siren
-            bind += `<div class="pb-6"><a href="/datasets/epci/${siren}">${text}</a>`
+            const siren = feature.properties.insee
+            bind += `<div class="pb-6"><a href="/datasets/epci/${siren}?type=public-transit">${text}</a>`
             bind += '<br/>formats :'
             const formats = []
             if (gtfsRT) {
@@ -458,7 +390,7 @@ function addRealTimePtFormatMap (id, view) {
         }
     }
     const style = zoom => feature => {
-        const format = feature.properties.dataset_formats
+        const format = feature.properties
         const hasGtfsRt = format.gtfs_rt > 0
         const hasSiri = format.siri > 0
         const hasSiriLite = format.siri_lite > 0
@@ -481,10 +413,10 @@ function addRealTimePtFormatMap (id, view) {
     }
 
     const filter = feature => {
-        const formats = feature.properties.dataset_formats
-        return formats.gtfs_rt !== undefined ||
-            formats.siri !== undefined ||
-            formats.siri_lite !== undefined
+        const formats = feature.properties
+        return formats.gtfs_rt > 0 ||
+            formats.siri > 0 ||
+            formats.siri_lite > 0
     }
     const aomsFG = getAomsFG(onEachAomFeature, style(map.getZoom()), filter)
     map.on('zoomend', () => aomsFG.setStyle(style(map.getZoom())))
@@ -532,10 +464,10 @@ function addPtFormatMap (id, view) {
     }
 
     const style = feature => {
-        const gtfs = feature.properties.dataset_formats.gtfs
-        const hasGTFS = gtfs !== undefined
-        const netex = feature.properties.dataset_formats.netex
-        const hasNeTEx = netex !== undefined
+        const gtfs = feature.properties.gtfs
+        const hasGTFS = gtfs > 0
+        const netex = feature.properties.netex
+        const hasNeTEx = netex > 0
 
         if (hasGTFS && hasNeTEx) {
             return styles.both
@@ -549,8 +481,7 @@ function addPtFormatMap (id, view) {
     }
 
     const filter = feature => {
-        const formats = feature.properties.dataset_formats
-        return formats.gtfs !== undefined || formats.netex !== undefined
+        return feature.properties.gtfs > 0 || feature.properties.netex > 0
     }
 
     const aomsFG = getAomsFG(
@@ -558,7 +489,7 @@ function addPtFormatMap (id, view) {
             const name = feature.properties.nom
             const siren = feature.properties.siren
 
-            const bind = `<a href="/datasets/epci/${siren}">${name}<br/></a>`
+            const bind = `<a href="/datasets/epci/${siren}?type=public-transit">${name}<br/></a>`
             layer.bindPopup(bind)
         },
         style,
@@ -616,7 +547,6 @@ for (const [drom, view] of Object.entries(droms)) {
     addStaticPTMapAOMS(`map_aoms_${drom}`, view)
     addStaticPTQuality(`pt_quality_${drom}`, view)
     addPtFormatMap(`pt_format_map_${drom}`, view)
-    addRealTimePTMap(`rt_map_${drom}`, view)
     addRealTimePtFormatMap(`rt_pt_format_map_${drom}`, view)
     addVehiclesSharingMap(`vehicles_map_${drom}`, view)
 }
