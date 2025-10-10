@@ -1,17 +1,32 @@
 defmodule Transport.IRVE.Validation.Primitives do
   @moduledoc """
   Extracted from real-life use, this module provides a set of primitives allowing us
-  to implement an Explorer-backed validator for the IRVE static schema
+  to implement an [Explorer](https://hexdocs.pm/explorer/Explorer.html)-backed validator for the IRVE static schema
   (or other TableSchema schemas if needed).
 
   This implements a subset of what is described here https://specs.frictionlessdata.io/table-schema/.
 
   Implementation supports all the formats/constraints/checks defined in `schema-irve-statique.json`.
 
+  ### Processing approach
+
   How it works: each computation adds a new column, with a well-defined name, containing a boolean
   to state if the check has passed or not. In some cases, the outcome can be `nil` as well (not evaluated or not relevant).
 
-  Known limitations & things to fix/improve later:
+  Input columns are handled as raw (CSV-input) strings, with type casting
+  applied within each primitive as needed, so that we're able to ultimately report on the input
+  data correctly.
+
+  Each primitive processes a single column across all rows. This column-oriented approach is how
+  Explorer (and Polars underneath) works, enabling vectorized operations (SIMD, Single Instruction, Multiple Data)
+  that are orders of magnitude faster than row-by-row processing.
+
+  See:
+  - https://hexdocs.pm/explorer/Explorer.DataFrame.html
+  - https://github.com/pola-rs/polars/blob/main/README.md#polars-extremely-fast-query-engine-for-dataframes-written-in-rust
+
+  ### Known limitations & things to fix/improve later:
+
   - Outcome of check (`true`/`false`/`nil`) is not completely consistent between checks at this point.
   - Stripping / empty strings / nil values is not completely consistent between the various checks at the moment (that will change).
   - Some checks use different strategies (e.g. casting by Polars for floats, versus regex for geopoint) for practical reasons.
@@ -277,7 +292,7 @@ defmodule Transport.IRVE.Validation.Primitives do
   # for now, use a regexp trying to catch proper lat/lon arrays,
   # because it's easier than splitting/verifying each sub-part using
   # Explorer primitives
-  @geopoint_array_pattern ~S'\A\[\-?\d+(\.\d+)?,\s?\-?\d+(\.\d+)?\]\z'
+  @geopoint_array_pattern ~S/\A\[\-?\d+(\.\d+)?,\s?\-?\d+(\.\d+)?\]\z/
 
   @doc """
   Ensure a geopoint column is of type array, and contains 2 valid floats.
