@@ -809,9 +809,6 @@ defmodule DB.Dataset do
     preload_without_validations()
     |> where(slug: ^slug)
     |> preload([
-      :aom,
-      :communes,
-      :region,
       :legal_owners_aom,
       :legal_owners_region,
       :declarative_spatial_areas,
