@@ -145,27 +145,25 @@ defmodule TransportWeb.API.StatsController do
     render(conn, data: {:skip_json_encoding, data})
   end
 
-  def rendered_geojson(item, ecto_opts \\ [])
-
-  def rendered_geojson(:quality, ecto_opts) do
+  def rendered_geojson(:quality) do
     quality_features_query()
-    |> DB.Repo.all(ecto_opts)
+    |> DB.Repo.all()
     |> features()
     |> geojson()
     |> Jason.encode!()
   end
 
-  def rendered_geojson(:aoms, ecto_opts) do
+  def rendered_geojson(:aoms) do
     aom_features_query()
-    |> DB.Repo.all(ecto_opts)
+    |> DB.Repo.all()
     |> vehicles_sharing_features()
     |> geojson()
     |> Jason.encode!()
   end
 
-  def rendered_geojson(:vehicles_sharing, ecto_opts) do
+  def rendered_geojson(:vehicles_sharing) do
     vehicles_sharing_features_query()
-    |> DB.Repo.all(ecto_opts)
+    |> DB.Repo.all()
     |> vehicles_sharing_features()
     |> geojson()
     |> Jason.encode!()
