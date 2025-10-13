@@ -18,15 +18,15 @@
       </p>
       <div class="domain-stats general">
         <div class="tile">
-          <h3><%= @nb_datasets %></h3>
+          <h3><%= format_number(@nb_datasets) %></h3>
           <div>Jeux de données ouverts</div>
         </div>
         <div class="tile">
-          <h3><%= @nb_reusers %></h3>
+          <h3><%= format_number(@nb_reusers) %></h3>
           <div>Réutilisateurs déclarés</div>
         </div>
         <div class="tile">
-          <h3><%= @nb_reuses %></h3>
+          <h3><%= format_number(@nb_reuses) %></h3>
           <div>Réutilisations déclarées</div>
         </div>
       </div>
@@ -81,26 +81,22 @@
             </span>
             <p>
               Les données de transport en commun sont disponibles sur le site dans 2 formats,
-              <a href="https://gtfs.org/">GTFS</a>
-              et <a href="http://netex-cen.eu/">NeTEx</a>.
+              <a href="/datasets?format=GTFS&type=public-transit">GTFS</a>
+              et <a href="/datasets?format=NeTEx&type=public-transit">NeTEx</a>.
             </p>
           </div>
           <div class="tile-numbers">
             <div class="tile">
               <h3><%= @nb_gtfs %></h3>
-              <div>jeux de données en GTFS</div>
+              <div>
+                <a href="/datasets?format=GTFS&type=public-transit">jeux de données en <strong>GTFS</strong></a>
+              </div>
             </div>
             <div class="tile">
               <h3><%= @nb_netex %></h3>
-              <div>jeux de données en NeTEx</div>
-            </div>
-            <div class="format-viz">
-              <%= for _i <- 1..@nb_gtfs//1 do %>
-                <div class="item gtfs"></div>
-              <% end %>
-              <%= for _i <- 1..@nb_netex//1 do %>
-                <div class="item netex"></div>
-              <% end %>
+              <div>
+                <a href="/datasets?format=NeTEx&type=public-transit">jeux de données en <strong>NeTEx</strong></a>
+              </div>
             </div>
           </div>
         </div>
@@ -111,25 +107,38 @@
         <%= render("_maps.html", droms: @droms, prefix: "rt_pt_format_map") %>
         <div class="panel">
           <div class="tile">
-            <h3><%= @nb_gtfs_rt %></h3>
-            <div>jeux de données<br />en <strong>GTFS-RT</strong></div>
+            <h3><%= format_number(@nb_gtfs_rt) %></h3>
+            <div>
+              <a href="/datasets?format=gtfs-rt&type=public-transit">
+                jeux de données<br />en <strong>GTFS-RT</strong>
+              </a>
+            </div>
             <div>
               <ul class="small">
                 <%= for {type, count} <- @gtfs_rt_types do %>
                   <li>
-                    <span title={type}><%= friendly_gtfs_type(type) %></span> : <%= format_number(count) %>
+                    <span title={type}>
+                      <a href={"/datasets?features%5B%5D=" <> type}><%= friendly_gtfs_type(type) %></a>
+                    </span>
+                    : <%= format_number(count) %>
                   </li>
                 <% end %>
               </ul>
             </div>
           </div>
           <div class="tile">
-            <h3><%= @nb_siri %></h3>
-            <div>jeux de données<br />en <strong>SIRI</strong></div>
+            <h3><%= format_number(@nb_siri) %></h3>
+            <div>
+              <a href="/datasets?format=SIRI&type=public-transit">jeux de données<br />en <strong>SIRI</strong></a>
+            </div>
           </div>
           <div class="tile">
-            <h3><%= @nb_siri_lite %></h3>
-            <div>jeux de données<br />en <strong>SIRI Lite</strong></div>
+            <h3><%= format_number(@nb_siri_lite) %></h3>
+            <div>
+              <a href="/datasets?format=SIRI+Lite&type=public-transit">
+                jeux de données<br />en <strong>SIRI Lite</strong>
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -241,30 +250,6 @@
       </div>
     </div>
     <%= live_render(@conn, TransportWeb.ProxyRequestsCountLive) %>
-    <div class="domain carpooling">
-      <h2>Lieux de covoiturage</h2>
-      <p>
-        <a href="/datasets/base-nationale-des-lieux-de-covoiturage/">La base nationale des lieux de covoiturage</a>
-        est consolidée par l'équipe du Point d’Accès National.
-      </p>
-    </div>
-    <div class="domain irve">
-      <h2>Infrastructures de recharge pour véhicules électriques (IRVE)</h2>
-      <p>
-        La
-        <a href="/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques/">
-          base nationale des bornes de Recharge pour véhicules électriques
-        </a>
-        est consolidée de manière automatique par Etalab.
-      </p>
-    </div>
-    <div class="domain parking">
-      <h2>Lieux de stationnement</h2>
-      <p>
-        <a href="datasets/base-nationale-des-lieux-de-stationnement/">La base nationale des lieux de stationnement</a>
-        est consolidée par l'équipe du Point d’Accès National.
-      </p>
-    </div>
   </div>
 </section>
 <script src={static_path(@conn, "/js/map.js")} />

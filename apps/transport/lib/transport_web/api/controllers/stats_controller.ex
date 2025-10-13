@@ -1,6 +1,5 @@
 defmodule TransportWeb.API.StatsController do
   use TransportWeb, :controller
-  alias DB.{AOM, Dataset, DatasetGeographicView, Region, Repo}
   import Ecto.Query
   alias Geo.JSON
   alias OpenApiSpex.Operation
@@ -58,36 +57,19 @@ defmodule TransportWeb.API.StatsController do
 
   @spec filter_neg(nil | integer()) :: nil | non_neg_integer()
   defp filter_neg(nil), do: nil
-
   defp filter_neg(val) when val < 0, do: nil
   defp filter_neg(val) when val >= 0, do: val
-
-  def new_aom_without_datasets?(%{created_after_2021: true, nb_datasets: 0}), do: true
-  def new_aom_without_datasets?(%{created_after_2021: true, dataset_types: %{pt: 0}}), do: true
-  def new_aom_without_datasets?(_), do: false
 
   @spec features([map()]) :: [map()]
   def features(result) do
     result
-    |> Enum.reject(fn aom -> is_nil(aom.geometry) or new_aom_without_datasets?(aom) end)
     |> Enum.map(fn aom ->
-      dataset_types =
-        aom
-        |> Map.get(:dataset_types, [])
-        |> Enum.filter(fn {_, v} -> !is_nil(v) end)
-        |> Enum.into(%{})
-
       %{
         "geometry" => aom.geometry |> JSON.encode!(),
         "type" => "Feature",
         "properties" => %{
-          "dataset_count" => Map.get(aom, :nb_datasets, 0),
-          "completed" => Map.get(aom, :is_completed, false),
           "nom" => Map.get(aom, :nom, ""),
-          "id" => aom.id,
-          "siren" => Map.get(aom, :siren) || Map.get(aom, :insee),
-          "forme_juridique" => Map.get(aom, :forme_juridique, ""),
-          "nb_other_datasets" => Map.get(aom, :nb_other_datasets, 0),
+          "siren" => Map.get(aom, :insee),
           "quality" => %{
             "expired_from" => %{
               # negative values are up to date datasets, we filter them
@@ -96,27 +78,13 @@ defmodule TransportWeb.API.StatsController do
                 case aom |> Map.get(:quality, %{}) |> Map.get(:expired_from) do
                   # if no validity period has been found, it's either that there was no data
                   # or that we were not able to read them
-                  nil ->
-                    case dataset_types[:pt] do
-                      0 -> "no_data"
-                      _ -> "unreadable"
-                    end
-
-                  i when i > 0 ->
-                    "outdated"
-
-                  _ ->
-                    "up_to_date"
+                  nil -> "no_data"
+                  i when i > 0 -> "outdated"
+                  _ -> "up_to_date"
                 end
             },
             "error_level" => aom |> Map.get(:quality, %{}) |> Map.get(:error_level)
-          },
-          "dataset_formats" =>
-            aom
-            |> Map.get(:dataset_formats, [])
-            |> Enum.filter(fn {_, v} -> v != nil end)
-            |> Enum.into(%{}),
-          "dataset_types" => dataset_types
+          }
         }
       }
     end)
@@ -131,64 +99,9 @@ defmodule TransportWeb.API.StatsController do
       %{
         "geometry" => r.geometry |> JSON.encode!(),
         "type" => "Feature",
-        # NOTE: there is a bug here - the key is an atom.
-        # I won't change it now because it would mean more changes somewhere else, maybe.
-        # `Map.reject(fn({k,v}) -> k == :geometry end)` will do it.
         "properties" => Map.take(r, Enum.filter(Map.keys(r), fn k -> k != "geometry" end))
       }
     end)
-  end
-
-  defmacro count_aom_types(aom_id, type, include_aggregates: true) do
-    quote do
-      fragment(
-        """
-        select count(d.id)
-        from dataset d
-        left join dataset_aom_legal_owner a on a.dataset_id = d.id and a.aom_id = ?
-        where (d.aom_id = ? or a.dataset_id is not null) and d.is_active and d.type = ?
-        """,
-        unquote(aom_id),
-        unquote(aom_id),
-        unquote(type)
-      )
-    end
-  end
-
-  defmacro count_aom_types(aom_id, type) do
-    quote do
-      fragment(
-        """
-        select count(d.id)
-        from dataset d
-        where d.aom_id = ? and d.is_active and d.type = ?
-        """,
-        unquote(aom_id),
-        unquote(type)
-      )
-    end
-  end
-
-  defmacro count_aom_format(aom_id, format) do
-    quote do
-      fragment(
-        """
-        SELECT COUNT(format)
-        FROM resource
-        WHERE format = ?
-        AND dataset_id in (
-          select d.id
-          from dataset d
-          left join dataset_aom_legal_owner a on a.dataset_id = d.id and a.aom_id = ?
-          where (d.aom_id = ? or a.dataset_id is not null) and d.is_active
-        )
-        group by format
-        """,
-        unquote(format),
-        unquote(aom_id),
-        unquote(aom_id)
-      )
-    end
   end
 
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
@@ -220,8 +133,8 @@ defmodule TransportWeb.API.StatsController do
   #
   @spec render_features(Plug.Conn.t(), atom(), binary()) :: Plug.Conn.t()
   defp render_features(conn, item, cache_key) do
-    data = rendered_geojson(item)
-    # Transport.Cache.fetch(cache_key, fn -> rendered_geojson(item) end, Transport.PreemptiveStatsCache.cache_ttl())
+    data =
+      Transport.Cache.fetch(cache_key, fn -> rendered_geojson(item) end, Transport.PreemptiveStatsCache.cache_ttl())
 
     render(conn, data: {:skip_json_encoding, data})
   end
@@ -236,7 +149,7 @@ defmodule TransportWeb.API.StatsController do
 
   def rendered_geojson(:quality, ecto_opts) do
     quality_features_query()
-    |> Repo.all(ecto_opts)
+    |> DB.Repo.all(ecto_opts)
     |> features()
     |> geojson()
     |> Jason.encode!()
@@ -244,7 +157,7 @@ defmodule TransportWeb.API.StatsController do
 
   def rendered_geojson(:aoms, ecto_opts) do
     aom_features_query()
-    |> Repo.all(ecto_opts)
+    |> DB.Repo.all(ecto_opts)
     |> vehicles_sharing_features()
     |> geojson()
     |> Jason.encode!()
@@ -252,7 +165,7 @@ defmodule TransportWeb.API.StatsController do
 
   def rendered_geojson(:vehicles_sharing, ecto_opts) do
     vehicles_sharing_features_query()
-    |> Repo.all(ecto_opts)
+    |> DB.Repo.all(ecto_opts)
     |> vehicles_sharing_features()
     |> geojson()
     |> Jason.encode!()
@@ -267,7 +180,7 @@ defmodule TransportWeb.API.StatsController do
       |> distinct(true)
       |> select([dataset: d], d.id)
 
-    DatasetGeographicView
+    DB.DatasetGeographicView
     |> join(:inner, [gv], dataset in DB.Dataset, on: dataset.id == gv.dataset_id, as: :dataset)
     |> join(:inner, [dataset: d], a in assoc(d, :declarative_spatial_areas), as: :administrative_division)
     |> join(:inner, [dataset: d], r in assoc(d, :resources), as: :resource)
@@ -298,8 +211,8 @@ defmodule TransportWeb.API.StatsController do
       |> distinct(true)
       |> select([dataset: d], d.id)
 
-    DatasetGeographicView
-    |> join(:left, [gv], dataset in Dataset, on: dataset.id == gv.dataset_id)
+    DB.DatasetGeographicView
+    |> join(:left, [gv], dataset in DB.Dataset, on: dataset.id == gv.dataset_id)
     |> select([gv, dataset], %{
       geometry: fragment("geom as geometry"),
       names: fragment("array_agg(? order by ? asc)", dataset.custom_title, dataset.custom_title),
@@ -319,12 +232,16 @@ defmodule TransportWeb.API.StatsController do
     error_info_sub = dataset_error_levels()
     expired_info_sub = dataset_expiration_dates()
 
-    AOM
-    |> join(:left, [a], d in assoc(a, :legal_owners_dataset), as: :legal_owners_dataset)
-    |> join(:left, [a, legal_owners_dataset: legal_owners_dataset], d in Dataset,
-      on: (d.id == legal_owners_dataset.id or d.aom_id == a.id) and d.is_active,
-      as: :dataset
-    )
+    small_coverage_datasets =
+      DB.Dataset.base_query()
+      |> join(:inner, [dataset: d], a in assoc(d, :declarative_spatial_areas), as: :administrative_division)
+      |> where([administrative_division: ad], ad.type in [:commune, :epci])
+      |> distinct(true)
+      |> select([dataset: d], d.id)
+
+    DB.DatasetGeographicView
+    |> join(:inner, [gv], dataset in DB.Dataset, on: dataset.id == gv.dataset_id, as: :dataset)
+    |> join(:inner, [dataset: d], a in assoc(d, :declarative_spatial_areas), as: :administrative_division)
     |> join(:left, [dataset: d], error_info in subquery(error_info_sub),
       on: error_info.dataset_id == d.id,
       as: :error_info
@@ -333,20 +250,16 @@ defmodule TransportWeb.API.StatsController do
       on: expired_info.dataset_id == d.id,
       as: :expired_info
     )
+    |> where(
+      [dataset: d],
+      d.type == "public-transit" and d.is_active and d.id in subquery(small_coverage_datasets)
+    )
     |> select(
-      [aom, error_info: error_info, expired_info: expired_info],
+      [gv, administrative_division: ad, error_info: error_info, expired_info: expired_info],
       %{
-        geometry: aom.geom,
-        id: aom.id,
-        siren: aom.siren,
-        created_after_2021: aom.composition_res_id >= 1_000,
-        insee_commune_principale: aom.insee_commune_principale,
-        nom: aom.nom,
-        forme_juridique: aom.forme_juridique,
-        dataset_types: %{
-          pt: count_aom_types(aom.id, "public-transit", include_aggregates: true),
-          vehicles_sharing: count_aom_types(aom.id, "vehicles-sharing", include_aggregates: true)
-        },
+        geometry: gv.geom,
+        insee: min(ad.insee),
+        nom: fragment("string_agg(distinct ?, ', ')", ad.nom),
         quality: %{
           expired_from: fragment("TO_DATE(?, 'YYYY-MM-DD') - max(?)", ^dt, expired_info.end_date),
           error_level: fragment("case max(CASE max_error::text
@@ -366,7 +279,7 @@ defmodule TransportWeb.API.StatsController do
         }
       }
     )
-    |> group_by([aom], aom.id)
+    |> group_by([gv], gv.geom)
   end
 
   def dataset_expiration_dates do

@@ -177,7 +177,7 @@ function addStaticPTUpToDate (id, view) {
             }[expiredFrom.status]
         }
         const siren = feature.properties.siren
-        layer.bindPopup(`<a href="/datasets/epci/${siren}?type=public-transit">${name}</a><br><br/>${text}`)
+        layer.bindPopup(`<a href="/datasets/epci/${siren}?type=public-transit">${name}</a><br>${text}`)
     }
 
     const styles = {
@@ -224,7 +224,6 @@ function addStaticPTQuality (id, view) {
 
     function onEachAomFeature (feature, layer) {
         const name = feature.properties.nom
-        const type = feature.properties.forme_juridique
         const errorLevel = feature.properties.quality.error_level
         let text = ''
         if (errorLevel === 'Error') {
@@ -239,7 +238,7 @@ function addStaticPTQuality (id, view) {
             text = 'Pas de données valides disponible.'
         }
         const siren = feature.properties.siren
-        layer.bindPopup(`<a href="/datasets/epci/${siren}?type=public-transit">${name}</a><br>(${type})<br/>${text}`)
+        layer.bindPopup(`<a href="/datasets/epci/${siren}?type=public-transit">${name}</a><br/>${text}`)
     }
     const styles = {
         fatal: {
