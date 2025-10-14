@@ -7,6 +7,6 @@ defmodule Transport.IRVE.Validator do
   - and for only the static IRVE schema at this point
   """
 
-  def validate(file_path) do
+  def validate(_file_path) do
   end
 end
