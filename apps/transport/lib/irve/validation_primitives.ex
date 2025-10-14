@@ -59,9 +59,9 @@ defmodule Transport.IRVE.Validation.Primitives do
     column_check_name = build_check_column_name(field, :required)
 
     Explorer.DataFrame.mutate_with(df, fn df ->
+      # TODO: decide what to do here - keep the stripping here, or as
+      # a pre-processing, independent step instead
       outcome =
-        # TODO: decide what to do here - keep the stripping here, or as
-        # a pre-processing, independent step instead
         df[field]
         |> Explorer.Series.strip()
         |> Explorer.Series.fill_missing("")
