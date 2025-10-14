@@ -137,6 +137,21 @@ defmodule Transport.IRVE.DataFrame do
     end
   end
 
+  defmodule ColumnDelimiterGuessError do
+    @moduledoc """
+    Raised when the code could not determine the proper delimiter.
+
+    Forwards the data that was used to make the guess, so that the caller
+    can provide more insight.
+    """
+    defexception col_seps_frequencies: %{}
+
+    @impl true
+    def message(%{col_seps_frequencies: frequencies}) do
+      "Could not guess column delimiter (frequencies: #{inspect(frequencies)})"
+    end
+  end
+
   @doc """
   Attempt to guess the column delimiter based on the provided body.
 
@@ -180,7 +195,8 @@ defmodule Transport.IRVE.DataFrame do
       [","] -> ","
       # for single column testing files, at this point
       [] -> ","
-      _ -> raise "Could not guess column delimiter (frequencies: #{col_seps_frequencies |> inspect})"
+      # otherwise raise, but provide data for reporting
+      _ -> raise ColumnDelimiterGuessError, col_seps_frequencies: col_seps_frequencies
     end
   end
 
