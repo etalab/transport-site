@@ -244,6 +244,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
   test "archived datasets are not included" do
     archived_dataset = insert(:dataset, is_active: true, archived_at: DateTime.utc_now())
 
+    assert DB.Dataset.archived?(archived_dataset)
     refute archived_dataset.id in (%{} |> DB.Dataset.list_datasets() |> DB.Repo.all() |> Enum.map(& &1.id))
   end
 
