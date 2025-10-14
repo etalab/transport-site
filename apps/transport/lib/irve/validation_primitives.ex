@@ -60,6 +60,8 @@ defmodule Transport.IRVE.Validation.Primitives do
 
     Explorer.DataFrame.mutate_with(df, fn df ->
       outcome =
+        # TODO: decide what to do here - keep the stripping here, or as
+        # a pre-processing, independent step instead
         df[field]
         |> Explorer.Series.strip()
         |> Explorer.Series.fill_missing("")
