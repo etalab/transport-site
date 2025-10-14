@@ -55,6 +55,58 @@ defmodule Transport.IRVE.ValidatorTest do
       validation_callback.({:info, :columns_are_valid_yay})
       validation_callback.({:info, :file_is_valid_at_this_point})
     end
+
+    # start building validation columns
+    validation_callback.({:info, :starting_validation})
+
+    compute_validation_fields(df, Transport.IRVE.StaticIRVESchema.schema_content(), validation_callback)
+  end
+
+  def compute_validation_fields(%Explorer.DataFrame{} = df, %{} = schema, validation_callback) do
+    fields =
+      Map.fetch!(schema, "fields")
+      |> Enum.take(1)
+
+    Enum.reduce(fields, df, fn field, df ->
+      handle_one_schema_field(df, field, validation_callback)
+    end)
+  end
+
+  def handle_one_schema_field(%Explorer.DataFrame{} = df, %{} = field, validation_callback) do
+    field =
+      field
+      |> Map.delete("description")
+      |> Map.delete("example")
+
+    # unpack the field def completely, raising on whatever remains (to protect from unhandled cases)
+    {name, field} = Map.pop!(field, "name")
+    {type, field} = Map.pop!(field, "type")
+    {optional_format, field} = Map.pop(field, "format")
+    {constraints, rest_of_field} = Map.pop!(field, "constraints")
+
+    if rest_of_field != %{} do
+      raise("Field def contains extra stuff ; please review\n#{rest_of_field |> inspect(pretty: true)}")
+    end
+
+    # at this point, the whole field definition is exploded, in full, toward specific variables, so
+    # we can now work efficiently at computing validation columns for each field in the input schema
+    configure_computations_for_one_schema_field(df, name, type, optional_format, constraints, validation_callback)
+  end
+
+  def configure_computations_for_one_schema_field(
+        %Explorer.DataFrame{} = df,
+        "nom_amenageur" = name,
+        "string" = type,
+        nil = _format,
+        constraints,
+        validation_callback
+      ) do
+    IO.puts("Configuring field checks: #{name}")
+
+    # nothing to do
+    assert constraints == %{"required" => false}
+
+    df
   end
 
   @test_resources [
