@@ -241,6 +241,13 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     refute hidden_dataset.id in (%{} |> DB.Dataset.list_datasets() |> DB.Repo.all() |> Enum.map(& &1.id))
   end
 
+  test "archived datasets are not included" do
+    archived_dataset = insert(:dataset, is_active: true, archived_at: DateTime.utc_now())
+
+    assert DB.Dataset.archived?(archived_dataset)
+    refute archived_dataset.id in (%{} |> DB.Dataset.list_datasets() |> DB.Repo.all() |> Enum.map(& &1.id))
+  end
+
   test "sort by most_recent" do
     today = DateTime.utc_now()
     last_week = DateTime.add(today, -7, :day)
