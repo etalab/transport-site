@@ -536,6 +536,7 @@ defmodule DB.Dataset do
       |> filter_by_resource_format(params)
       |> filter_by_fulltext(params)
       |> select([dataset: d], d.id)
+      |> where([dataset: d], is_nil(d.archived_at))
 
     base_query()
     |> where([dataset: d], d.id in subquery(q))
