@@ -18,7 +18,6 @@ defmodule TransportWeb.Router do
     plug(:protect_from_forgery)
     plug(TransportWeb.Plugs.PutLocale)
     plug(:assign_current_user)
-    plug(:assign_contact_email)
     plug(:assign_datagouv_token)
     plug(:maybe_login_again)
     plug(:assign_mix_env)
@@ -346,10 +345,6 @@ defmodule TransportWeb.Router do
   defp assign_current_user(conn, _) do
     # `current_user` is set by TransportWeb.SessionController.user_params_for_session/1
     assign(conn, :current_user, get_session(conn, :current_user))
-  end
-
-  defp assign_contact_email(conn, _) do
-    assign(conn, :contact_email, Application.get_env(:transport, :contact_email))
   end
 
   defp assign_datagouv_token(conn, _) do

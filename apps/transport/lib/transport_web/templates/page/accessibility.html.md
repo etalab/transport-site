@@ -20,8 +20,6 @@ Cette déclaration a été établie le 02/03/2022.
 ## Retour d'information et contact
 Si vous n’arrivez pas à accéder à un contenu ou à un service, vous pouvez contacter la personne responsable du site pour être orienté vers une alternative accessible ou obtenir le contenu sous une autre forme.
 
-Veuillez envoyer un courriel à [<%= @contact_email %>](mailto:<%= @contact_email %>).
-
 ## Voies de recours
 Si vous constatez un défaut d’accessibilité vous empêchant d’accéder à un contenu ou une fonctionnalité du site, que vous nous le signalez et que vous ne parvenez pas à obtenir une réponse de notre part, vous êtes en droit de faire parvenir vos doléances ou une demande de saisine au Défenseur des droits.
 
