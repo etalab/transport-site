@@ -173,13 +173,6 @@ defmodule TransportWeb.API.StatsController do
 
   @spec aom_features_query :: Ecto.Query.t()
   defp aom_features_query do
-    small_coverage_datasets =
-      DB.Dataset.base_query()
-      |> join(:inner, [dataset: d], a in assoc(d, :declarative_spatial_areas), as: :administrative_division)
-      |> where([administrative_division: ad], ad.type in [:commune, :epci])
-      |> distinct(true)
-      |> select([dataset: d], d.id)
-
     DB.DatasetGeographicView
     |> join(:inner, [gv], dataset in DB.Dataset, on: dataset.id == gv.dataset_id, as: :dataset)
     |> join(:inner, [dataset: d], a in assoc(d, :declarative_spatial_areas), as: :administrative_division)
@@ -197,20 +190,13 @@ defmodule TransportWeb.API.StatsController do
     })
     |> where(
       [_gv, dataset],
-      dataset.type == "public-transit" and dataset.is_active and dataset.id in subquery(small_coverage_datasets)
+      dataset.type == "public-transit" and dataset.is_active and dataset.id in subquery(relevant_coverage_datasets())
     )
     |> group_by([gv], gv.geom)
   end
 
   @spec vehicles_sharing_features_query :: Ecto.Query.t()
   def vehicles_sharing_features_query do
-    small_coverage_datasets =
-      DB.Dataset.base_query()
-      |> join(:inner, [dataset: d], a in assoc(d, :declarative_spatial_areas), as: :administrative_division)
-      |> where([administrative_division: ad], ad.type in [:commune, :epci])
-      |> distinct(true)
-      |> select([dataset: d], d.id)
-
     DB.DatasetGeographicView
     |> join(:left, [gv], dataset in DB.Dataset, on: dataset.id == gv.dataset_id)
     |> select([gv, dataset], %{
@@ -220,7 +206,7 @@ defmodule TransportWeb.API.StatsController do
     })
     |> where(
       [_gv, dataset],
-      dataset.type == "vehicles-sharing" and dataset.is_active and dataset.id in subquery(small_coverage_datasets)
+      dataset.type == "vehicles-sharing" and dataset.is_active and dataset.id in subquery(relevant_coverage_datasets())
     )
     |> group_by(fragment("geometry"))
   end
@@ -231,13 +217,6 @@ defmodule TransportWeb.API.StatsController do
 
     error_info_sub = dataset_error_levels()
     expired_info_sub = dataset_expiration_dates()
-
-    small_coverage_datasets =
-      DB.Dataset.base_query()
-      |> join(:inner, [dataset: d], a in assoc(d, :declarative_spatial_areas), as: :administrative_division)
-      |> where([administrative_division: ad], ad.type in [:commune, :epci])
-      |> distinct(true)
-      |> select([dataset: d], d.id)
 
     DB.DatasetGeographicView
     |> join(:inner, [gv], dataset in DB.Dataset, on: dataset.id == gv.dataset_id, as: :dataset)
@@ -252,7 +231,7 @@ defmodule TransportWeb.API.StatsController do
     )
     |> where(
       [dataset: d],
-      d.type == "public-transit" and d.is_active and d.id in subquery(small_coverage_datasets)
+      d.type == "public-transit" and d.is_active and d.id in subquery(relevant_coverage_datasets())
     )
     |> select(
       [gv, administrative_division: ad, error_info: error_info, expired_info: expired_info],
@@ -298,5 +277,14 @@ defmodule TransportWeb.API.StatsController do
     |> DB.ResourceMetadata.where_gtfs_up_to_date()
     |> where([resource: r], r.is_available == true)
     |> select([dataset: d, multi_validation: mv], %{dataset_id: d.id, max_error: mv.max_error})
+  end
+
+  def relevant_coverage_datasets do
+    DB.Dataset.base_query()
+    |> join(:inner, [dataset: d], a in assoc(d, :declarative_spatial_areas), as: :administrative_division)
+    # Covering a commune, EPCI OR the Ile-de-France region
+    |> where([administrative_division: ad], ad.type in [:commune, :epci] or (ad.type == :region and ad.insee == "11"))
+    |> distinct(true)
+    |> select([dataset: d], d.id)
   end
 end

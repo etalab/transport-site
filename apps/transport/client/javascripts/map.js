@@ -108,6 +108,13 @@ function displayQuality (featureFunction, style) {
     return qualityFeatureGroup
 }
 
+function searchURL(insee) {
+    if (insee == "11") {
+        return `/datasets/region/${insee}?type=public-transit`
+    }
+    return `/datasets/epci/${insee}?type=public-transit`
+}
+
 function addStaticPTMapAOMS (id, view) {
     const map = makeMapOnView(id, view)
 
@@ -120,7 +127,7 @@ function addStaticPTMapAOMS (id, view) {
                 ? 'Un jeu de données'
                 : `${count} jeux de données`
         const aomSIREN = feature.properties.insee
-        layer.bindPopup(`<strong>${name}</strong><br>${text} propre à l'AOM.<br><a href="/datasets/epci/${aomSIREN}">Voir les jeux de données</a>`)
+        layer.bindPopup(`<strong>${name}</strong><br>${text} propre à l'AOM.<br><a href="${searchURL(aomSIREN)}">Voir les jeux de données</a>`)
     }
 
     const styles = {
@@ -177,7 +184,7 @@ function addStaticPTUpToDate (id, view) {
             }[expiredFrom.status]
         }
         const siren = feature.properties.siren
-        layer.bindPopup(`<a href="/datasets/epci/${siren}?type=public-transit">${name}</a><br>${text}`)
+        layer.bindPopup(`<a href="${searchURL(siren)}">${name}</a><br>${text}`)
     }
 
     const styles = {
@@ -238,7 +245,7 @@ function addStaticPTQuality (id, view) {
             text = 'Pas de données valides disponible.'
         }
         const siren = feature.properties.siren
-        layer.bindPopup(`<a href="/datasets/epci/${siren}?type=public-transit">${name}</a><br/>${text}`)
+        layer.bindPopup(`<a href="${searchURL(siren)}">${name}</a><br/>${text}`)
     }
     const styles = {
         fatal: {
@@ -318,7 +325,7 @@ function addRealTimePtFormatMap (id, view) {
         if (countRealTime) {
             const text = countRealTime === 1 ? 'Une ressource' : `${countRealTime} ressources`
             const siren = feature.properties.insee
-            bind += `<div class="pb-6"><a href="/datasets/epci/${siren}?type=public-transit">${text}</a>`
+            bind += `<div class="pb-6"><a href="${searchURL(siren)}">${text}</a>`
             bind += '<br/>formats :'
             const formats = []
             if (gtfsRT) {
@@ -487,8 +494,7 @@ function addPtFormatMap (id, view) {
         (feature, layer) => {
             const name = feature.properties.nom
             const siren = feature.properties.siren
-
-            const bind = `<a href="/datasets/epci/${siren}?type=public-transit">${name}<br/></a>`
+            const bind = `<a href="${searchURL(siren)}">${name}<br/></a>`
             layer.bindPopup(bind)
         },
         style,
