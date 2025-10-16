@@ -8,23 +8,24 @@ defmodule Transport.GTFSDiff do
 
   @primary_keys %{
     "agency.txt" => ["agency_id"],
+    "attributions.txt" => ["organization_name"],
     "stops.txt" => ["stop_id"],
     "routes.txt" => ["route_id"],
     "trips.txt" => ["trip_id"],
     "stop_times.txt" => ["trip_id", "stop_id", "stop_sequence"],
-    "calendar.txt" => ["service_id"],
-    "calendar_dates.txt" => ["service_id", "date"],
-    "shapes.txt" => ["shape_id", "shape_pt_sequence"],
     "frequencies.txt" => ["trip_id", "start_time", "end_time"],
     "transfers.txt" => ["from_stop_id", "to_stop_id"],
-    "pathways.txt" => ["pathway_id"],
-    "levels.txt" => ["level_id"],
-    "feed_info.txt" => ["feed_publisher_name"],
-    "translations.txt" => ["table_name", "field_name", "language", "record_id", "record_sub_id", "field_value"],
-    "attributions.txt" => ["organization_name"],
     "fare_attributes.txt" => ["fare_id"],
+    "fare_rules.txt" => ["fare_id"],
     "fare_products.txt" => ["fare_product_id"],
-    "booking_rules.txt" => ["booking_rule_id"]
+    "booking_rules.txt" => ["booking_rule_id"],
+    "shapes.txt" => ["shape_id", "shape_pt_sequence"],
+    "levels.txt" => ["level_id"],
+    "pathways.txt" => ["pathway_id"],
+    "calendar.txt" => ["service_id"],
+    "calendar_dates.txt" => ["service_id", "date"],
+    "feed_info.txt" => ["feed_publisher_name"],
+    "translations.txt" => ["table_name", "field_name", "language", "record_id", "record_sub_id", "field_value"]
   }
 
   def unzip(file_path) do
