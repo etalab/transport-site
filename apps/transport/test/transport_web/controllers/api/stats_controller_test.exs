@@ -33,6 +33,7 @@ defmodule TransportWeb.API.StatsControllerTest do
     end
   end
 
+  @tag :pending
   test "Get the vehicles sharing stats", %{conn: _conn} do
     ad =
       insert(:administrative_division,

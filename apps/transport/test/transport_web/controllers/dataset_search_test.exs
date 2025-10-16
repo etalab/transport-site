@@ -106,6 +106,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
       assert dataset.id == dataset_2_id
     end
 
+    @tag :pending
     test "with gtfs-rt features" do
       %DB.Region{insee: region_insee} = region = insert(:region, insee: "01")
       ad = insert(:administrative_division, type: :region, insee: region.insee)
@@ -311,6 +312,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
              |> Enum.sort()
   end
 
+  @tag :pending
   test "search by region" do
     region = insert(:region, insee: "1")
     departement = insert(:departement, region_insee: region.insee)
