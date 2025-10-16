@@ -561,128 +561,15 @@ defmodule TransportWeb.ResourceControllerTest do
   end
 
   test "GTFS Transport validation is shown", %{conn: conn} do
-    %{id: dataset_id} = insert(:dataset)
+    items = page_size() * 2 + 1
 
-    %{id: resource_id} =
-      insert(:resource, %{
-        dataset_id: dataset_id,
-        format: "GTFS",
-        url: "https://example.com/file"
-      })
-
-    conn1 = conn |> get(resource_path(conn, :details, resource_id))
-    assert conn1 |> html_response(200) =~ "Pas de validation disponible"
-
-    %{id: resource_history_id} =
-      insert(:resource_history, %{
-        resource_id: resource_id,
-        payload: %{"permanent_url" => permanent_url = "https://example.com/#{Ecto.UUID.generate()}"}
-      })
-
-    %{metadata: metadata} =
-      insert(:multi_validation, %{
-        resource_history_id: resource_history_id,
-        validator: Transport.Validators.GTFSTransport.validator_name(),
-        result: %{
-          "NullDuration" => [%{"severity" => "Information"}],
-          "MissingCoordinates" => [%{"severity" => "Warning"}]
-        },
-        max_error: "Warning",
-        metadata: %DB.ResourceMetadata{
-          metadata: %{
-            "networks" => ["3CM", "RLV"],
-            "networks_start_end_dates" => %{
-              "3CM" => %{
-                "end_date" => "2022-09-30",
-                "start_date" => "2021-03-05"
-              },
-              "RLV" => %{
-                end_date: "2022-11-20",
-                start_date: "2022-08-29"
-              }
-            },
-            "stats" => %{
-              "stop_points_count" => 1_322,
-              "stop_areas_count" => 30,
-              "routes_count" => 123,
-              "routes_with_short_name_count" => 5
-            }
-          },
-          modes: ["ferry"]
-        },
-        validation_timestamp: ~U[2022-10-28 14:12:29.041243Z]
-      })
-
-    content = conn |> get(resource_path(conn, :details, resource_id)) |> html_response(200)
-    assert content =~ "Rapport de validation"
-    assert content =~ "ferry"
-    assert content =~ ~r"nombre de lignes :(\s*)<strong>123</strong>"
-    assert content =~ ~r"nombre d&#39;arrêts :(\s*)<strong>1 322</strong>"
-    assert content =~ ~r"nombre de zones d&#39;arrêts :(\s*)<strong>30</strong>"
-    assert content =~ "couverture calendaire par réseau"
-    assert content =~ "3CM"
-    assert content =~ "30/09/2022"
-
-    assert content =~
-             ~s{Validation effectuée en utilisant <a href="#{permanent_url}">le fichier GTFS en vigueur</a> le 28/10/2022 à 16h12 Europe/Paris}
-
-    [
-      # Features are displayed in a table
-      {"table", [{"class", _}],
-       [
-         {"thead", [],
-          [
-            {"tr", [],
-             [
-               {"th", [], ["Description"]},
-               {"th", [], ["Fichier ou champ"]},
-               {"th", [], ["Statut"]},
-               {"th", [], ["Quantité"]}
-             ]}
-          ]},
-         {"tbody", [], rows}
-       ]},
-      # Issues are listed in a paginated table
-      {"table", [{"class", "table"}],
-       [
-         {"tr", [],
-          [
-            {"th", [], ["Type d'objet"]},
-            {"th", [], ["Identifiant"]},
-            {"th", [], ["Nom de l’objet"]},
-            {"th", [], ["Identifiant associé"]},
-            {"th", [], ["Détails"]}
-          ]},
-         {"tr", [], _}
-       ]}
-    ] = content |> Floki.parse_document!() |> Floki.find("table")
-
-    assert {"tr", [],
-            [
-              {"td", [], ["Nom court ou n° de la ligne"]},
-              {"td", [{"lang", "en"}], [{"code", [], ["routes.txt"]}, " — ", {"code", [], ["route_short_name"]}]},
-              {"td", [], ["✅"]},
-              {"td", [], ["5"]}
-            ]} in rows
-
-    # we remove "networks_start_end_dates" content
-    DB.Repo.update!(
-      Ecto.Changeset.change(metadata, %{metadata: %{"networks_start_end_dates" => nil, "networks" => ["foo", "bar"]}})
-    )
-
-    refute conn
-           |> get(resource_path(conn, :details, resource_id))
-           |> html_response(200) =~ "couverture calendaire par réseau"
-  end
-
-  test "NeTEx validation is shown", %{conn: conn} do
-    for version <- ["0.1.0", "0.2.0", "0.2.1"] do
+    for params <- gtfs_params("MissingCoordinates") do
       %{id: dataset_id} = insert(:dataset)
 
       %{id: resource_id} =
         insert(:resource, %{
           dataset_id: dataset_id,
-          format: "NeTEx",
+          format: "GTFS",
           url: "https://example.com/file"
         })
 
@@ -695,20 +582,153 @@ defmodule TransportWeb.ResourceControllerTest do
           payload: %{"permanent_url" => permanent_url = "https://example.com/#{Ecto.UUID.generate()}"}
         })
 
+      result = %{
+        "NullDuration" => [%{"severity" => "Information"}] |> repeated(items),
+        "MissingCoordinates" => [%{"severity" => "Warning"}] |> repeated(items)
+      }
+
+      %{metadata: metadata} =
+        insert(:multi_validation, %{
+          resource_history_id: resource_history_id,
+          validator: Transport.Validators.GTFSTransport.validator_name(),
+          result: result,
+          max_error: "Warning",
+          metadata: %DB.ResourceMetadata{
+            metadata: %{
+              "networks" => ["3CM", "RLV"],
+              "networks_start_end_dates" => %{
+                "3CM" => %{
+                  "end_date" => "2022-09-30",
+                  "start_date" => "2021-03-05"
+                },
+                "RLV" => %{
+                  end_date: "2022-11-20",
+                  start_date: "2022-08-29"
+                }
+              },
+              "stats" => %{
+                "stop_points_count" => 1_322,
+                "stop_areas_count" => 30,
+                "routes_count" => 123,
+                "routes_with_short_name_count" => 5
+              }
+            },
+            modes: ["ferry"]
+          },
+          validation_timestamp: ~U[2022-10-28 14:12:29.041243Z]
+        })
+
+      content = conn |> get(resource_path(conn, :details, resource_id, params)) |> html_response(200)
+      assert content =~ "Rapport de validation"
+      assert content =~ "ferry"
+      assert content =~ ~r"nombre de lignes :(\s*)<strong>123</strong>"
+      assert content =~ ~r"nombre d&#39;arrêts :(\s*)<strong>1 322</strong>"
+      assert content =~ ~r"nombre de zones d&#39;arrêts :(\s*)<strong>30</strong>"
+      assert content =~ "couverture calendaire par réseau"
+      assert content =~ "3CM"
+      assert content =~ "30/09/2022"
+
+      assert content =~
+               ~s{Validation effectuée en utilisant <a href="#{permanent_url}">le fichier GTFS en vigueur</a> le 28/10/2022 à 16h12 Europe/Paris}
+
+      [
+        # Features are displayed in a table
+        {"table", [{"class", _}],
+         [
+           {"thead", [],
+            [
+              {"tr", [],
+               [
+                 {"th", [], ["Description"]},
+                 {"th", [], ["Fichier ou champ"]},
+                 {"th", [], ["Statut"]},
+                 {"th", [], ["Quantité"]}
+               ]}
+            ]},
+           {"tbody", [], rows}
+         ]},
+        # Issues are listed in a paginated table
+        {"table", [{"class", "table"}],
+         [
+           {"tr", [],
+            [
+              {"th", [], ["Type d'objet"]},
+              {"th", [], ["Identifiant"]},
+              {"th", [], ["Nom de l’objet"]},
+              {"th", [], ["Identifiant associé"]},
+              {"th", [], ["Détails"]}
+            ]}
+           | list
+         ]}
+      ] = content |> Floki.parse_document!() |> Floki.find("table")
+
+      assert page_size() == Enum.count(list)
+
+      assert {"tr", [],
+              [
+                {"td", [], ["Nom court ou n° de la ligne"]},
+                {"td", [{"lang", "en"}], [{"code", [], ["routes.txt"]}, " — ", {"code", [], ["route_short_name"]}]},
+                {"td", [], ["✅"]},
+                {"td", [], ["5"]}
+              ]} in rows
+
+      # we remove "networks_start_end_dates" content
+      DB.Repo.update!(
+        Ecto.Changeset.change(metadata, %{metadata: %{"networks_start_end_dates" => nil, "networks" => ["foo", "bar"]}})
+      )
+
+      refute conn
+             |> get(resource_path(conn, :details, resource_id, params))
+             |> html_response(200) =~ "couverture calendaire par réseau"
+    end
+  end
+
+  test "NeTEx validation is shown", %{conn: conn} do
+    items = page_size() * 2 + 1
+
+    issues =
+      [
+        %{
+          "code" => "xsd-1871",
+          "message" =>
+            "Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef ).",
+          "criticity" => "error"
+        }
+      ]
+      |> repeated(items)
+
+    for version <- ["0.1.0", "0.2.0", "0.2.1"],
+        params <- netex_params_for(version) do
+      %{id: dataset_id} = insert(:dataset)
+
+      %{id: resource_id} =
+        insert(:resource, %{
+          dataset_id: dataset_id,
+          format: "NeTEx",
+          url: "https://example.com/file"
+        })
+
+      url = resource_path(conn, :details, resource_id)
+      conn1 = conn |> get(url, params)
+      assert conn1 |> html_response(200) =~ "Pas de validation disponible"
+
+      %{id: resource_history_id} =
+        insert(:resource_history, %{
+          resource_id: resource_id,
+          payload: %{"permanent_url" => permanent_url = "https://example.com/#{Ecto.UUID.generate()}"}
+        })
+
+      result =
+        case version do
+          "0.1.0" -> %{"xsd-1871" => issues}
+          _ -> %{"xsd-schema" => issues}
+        end
+
       insert(:multi_validation, %{
         resource_history_id: resource_history_id,
         validator: Transport.Validators.NeTEx.Validator.validator_name(),
         validator_version: version,
-        result: %{
-          "xsd-1871" => [
-            %{
-              "code" => "xsd-1871",
-              "message" =>
-                "Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef ).",
-              "criticity" => "error"
-            }
-          ]
-        },
+        result: result,
         max_error: "error",
         metadata: %DB.ResourceMetadata{
           metadata: %{"elapsed_seconds" => 42},
@@ -718,11 +738,16 @@ defmodule TransportWeb.ResourceControllerTest do
         validation_timestamp: ~U[2022-10-28 14:12:29.041243Z]
       })
 
-      content = conn |> get(resource_path(conn, :details, resource_id)) |> html_response(200)
+      url = resource_path(conn, :details, resource_id)
+      content = conn |> get(url, params) |> html_response(200)
       assert content =~ "Rapport de validation"
 
       assert content =~
                ~s{Validation effectuée en utilisant <a href="#{permanent_url}">le fichier NeTEx en vigueur</a> le 28/10/2022 à 16h12 Europe/Paris}
+
+      rows = content |> Floki.parse_document!() |> Floki.find("table tr.message")
+
+      assert page_size() == Enum.count(rows)
     end
   end
 
@@ -1055,5 +1080,40 @@ defmodule TransportWeb.ResourceControllerTest do
     |> Floki.find(".button-outline.small.secondary")
     |> hd()
     |> Floki.attribute("href")
+  end
+
+  defp gtfs_params(issue_type) do
+    expand_paginated_params([%{}, %{"issue_type" => issue_type}])
+  end
+
+  defp netex_params_for(version) do
+    filtered_params =
+      case version do
+        "0.1.0" -> %{"issue_type" => "xsd-1871"}
+        _ -> %{"issues_category" => "xsd-schema"}
+      end
+
+    expand_paginated_params([%{}, filtered_params])
+  end
+
+  defp expand_paginated_params(all_params) do
+    for params <- all_params,
+        page <- [nil, 1, 2] do
+      if is_nil(page) do
+        params
+      else
+        Map.merge(%{"page" => page}, params)
+      end
+    end
+  end
+
+  defp repeated(enumerable, times) do
+    enumerable
+    |> Stream.cycle()
+    |> Enum.take(times)
+  end
+
+  defp page_size do
+    TransportWeb.PaginationHelpers.make_pagination_config(%{}).page_size
   end
 end
