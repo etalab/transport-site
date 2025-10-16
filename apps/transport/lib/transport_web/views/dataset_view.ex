@@ -238,6 +238,16 @@ defmodule TransportWeb.DatasetView do
   def summary_class(%{count_errors: 0}), do: "resource__summary--Success"
   def summary_class(%{severity: severity}), do: "resource__summary--#{severity}"
 
+  def summary_class(%DB.MultiValidation{digest: %{"errors_count" => errors_count}})
+      when is_integer(errors_count) and errors_count > 0 do
+    "resource__summary--Error"
+  end
+
+  def summary_class(%DB.MultiValidation{digest: %{"warnings_count" => warnings_count}})
+      when is_integer(warnings_count) and warnings_count > 0 do
+    "resource__summary--Warning"
+  end
+
   def summary_class(%DB.MultiValidation{result: %{"errors_count" => errors_count}})
       when is_integer(errors_count) and errors_count > 0 do
     "resource__summary--Error"
@@ -250,12 +260,20 @@ defmodule TransportWeb.DatasetView do
 
   def summary_class(%DB.MultiValidation{}), do: "resource__summary--Success"
 
+  def warnings_count(%DB.MultiValidation{digest: %{"warnings_count" => warnings_count}})
+      when is_integer(warnings_count) and warnings_count >= 0,
+      do: warnings_count
+
   def warnings_count(%DB.MultiValidation{result: %{"warnings_count" => warnings_count}})
       when is_integer(warnings_count) and warnings_count >= 0,
       do: warnings_count
 
   def warnings_count(%DB.MultiValidation{validator: @gtfs_rt_validator_name}), do: 0
   def warnings_count(%DB.MultiValidation{}), do: nil
+
+  def errors_count(%DB.MultiValidation{digest: %{"errors_count" => errors_count}})
+      when is_integer(errors_count) and errors_count >= 0,
+      do: errors_count
 
   def errors_count(%DB.MultiValidation{result: %{"errors_count" => errors_count}})
       when is_integer(errors_count) and errors_count >= 0,

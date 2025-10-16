@@ -34,7 +34,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
   """
   @spec get_max_severity_error(map()) :: binary()
   def get_max_severity_error(validation_result) do
-    {severity, _} = validation_result |> count_max_severity()
+    %{"max_level" => severity} = validation_result |> count_max_severity()
     severity
   end
 
@@ -43,12 +43,12 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
 
   iex> validation_result = %{"xsd-schema" => [%{"criticity" => "error"}], "french-profile" => [%{"criticity" => "error"}], "frame-arret-resources" => [%{"criticity" => "warning"}]}
   iex> count_max_severity(validation_result)
-  {"error", 2}
+  %{"max_level" => "error", "worst_occurrences" => 2}
   iex> validation_result = %{"french-profile" => [%{"criticity" => "warning"}]}
   iex> count_max_severity(validation_result)
-  {"warning", 1}
+  %{"max_level" => "warning", "worst_occurrences" => 1}
   iex> count_max_severity(%{})
-  {"NoError", 0}
+  %{"max_level" => "NoError", "worst_occurrences" => 0}
   """
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate count_max_severity(validation_result), to: V0_1_0
@@ -126,13 +126,13 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
   iex> validation_result = %{"xsd-schema" => [%{"code" => "xsd-123", "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod", "criticity" => "error"}], "base-rules" => [%{"code" => "valid-day-bits", "message" => "Mandatory attribute valid_day_bits not found", "criticity" => "error"}]}
   iex> summary(validation_result)
   [
-    {"xsd-schema", %{count: 1, criticity: "error"}},
-    {"base-rules", %{count: 1, criticity: "error"}}
+    %{"category" => "xsd-schema", "stats" => %{"count" => 1, "criticity" => "error"}},
+    %{"category" => "base-rules", "stats" => %{"count" => 1, "criticity" => "error"}}
   ]
   iex> summary(%{})
   [
-    {"xsd-schema", %{count: 0, criticity: "NoError"}},
-    {"base-rules", %{count: 0, criticity: "NoError"}}
+    %{"category" => "xsd-schema", "stats" => %{"count" => 0, "criticity" => "NoError"}},
+    %{"category" => "base-rules", "stats" => %{"count" => 0, "criticity" => "NoError"}}
   ]
   """
   @impl Transport.Validators.NeTEx.ResultsAdapter
@@ -146,9 +146,9 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
         |> Enum.map(fn error -> Map.get(error, "criticity", @no_error) end)
         |> Enum.min_by(&severity_level/1, fn -> @no_error end)
 
-      stats = %{count: length(errors), criticity: worst_criticity}
+      stats = %{"count" => length(errors), "criticity" => worst_criticity}
 
-      {category, stats}
+      %{"category" => category, "stats" => stats}
     end)
   end
 
@@ -198,4 +198,18 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate french_profile_compliance_check(), to: V0_1_0
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  def digest(validation_result) do
+    summary = summary(validation_result)
+    stats = count_by_severity(validation_result)
+
+    %Scrivener.Config{page_size: page_size} = TransportWeb.PaginationHelpers.make_pagination_config(%{})
+    # Limit to the first page to limit payload size
+    issues = validation_result |> get_issues(%{}) |> Enum.take(page_size)
+
+    max_severity = count_max_severity(validation_result)
+
+    %{"summary" => summary, "stats" => stats, "issues" => issues, "max_severity" => max_severity}
+  end
 end

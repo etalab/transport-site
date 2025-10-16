@@ -563,7 +563,8 @@ defmodule TransportWeb.ResourceControllerTest do
   test "GTFS Transport validation is shown", %{conn: conn} do
     items = page_size() * 2 + 1
 
-    for params <- gtfs_params("MissingCoordinates") do
+    for with_digest <- [true, false],
+        params <- gtfs_params("MissingCoordinates") do
       %{id: dataset_id} = insert(:dataset)
 
       %{id: resource_id} =
@@ -587,11 +588,17 @@ defmodule TransportWeb.ResourceControllerTest do
         "MissingCoordinates" => [%{"severity" => "Warning"}] |> repeated(items)
       }
 
+      digest =
+        if with_digest do
+          Transport.Validators.GTFSTransport.digest(result)
+        end
+
       %{metadata: metadata} =
         insert(:multi_validation, %{
           resource_history_id: resource_history_id,
           validator: Transport.Validators.GTFSTransport.validator_name(),
           result: result,
+          digest: digest,
           max_error: "Warning",
           metadata: %DB.ResourceMetadata{
             metadata: %{
@@ -698,6 +705,7 @@ defmodule TransportWeb.ResourceControllerTest do
       |> repeated(items)
 
     for version <- ["0.1.0", "0.2.0", "0.2.1"],
+        with_digest <- [true, false],
         params <- netex_params_for(version) do
       %{id: dataset_id} = insert(:dataset)
 
@@ -724,11 +732,17 @@ defmodule TransportWeb.ResourceControllerTest do
           _ -> %{"xsd-schema" => issues}
         end
 
+      digest =
+        if with_digest do
+          Transport.Validators.NeTEx.ResultsAdapter.resolve(version).digest(result)
+        end
+
       insert(:multi_validation, %{
         resource_history_id: resource_history_id,
         validator: Transport.Validators.NeTEx.Validator.validator_name(),
         validator_version: version,
         result: result,
+        digest: digest,
         max_error: "error",
         metadata: %DB.ResourceMetadata{
           metadata: %{"elapsed_seconds" => 42},
