@@ -360,27 +360,38 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   test "show NeTEx number of errors", %{conn: conn} do
-    %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug", aom: build(:aom)})
+    issues = [%{"criticity" => "error"}]
 
-    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, format: "NeTEx", url: "url"})
+    for version <- ["0.1.0", "0.2.0", "0.2.1"] do
+      dataset = insert(:dataset)
 
-    %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id})
+      resource = insert(:resource, dataset: dataset, format: "NeTEx", url: "url")
 
-    insert(:multi_validation, %{
-      resource_history_id: resource_history_id,
-      validator: Transport.Validators.NeTEx.Validator.validator_name(),
-      result: %{"xsd-1871" => [%{"criticity" => "error"}]},
-      metadata: %DB.ResourceMetadata{
-        metadata: %{"elapsed_seconds" => 42},
-        modes: [],
-        features: []
-      }
-    })
+      resource_history = insert(:resource_history, resource: resource)
 
-    mock_empty_history_resources()
+      result =
+        case version do
+          "0.1.0" -> %{"xsd-1871" => issues}
+          _ -> %{"xsd-schema" => issues}
+        end
 
-    conn = conn |> get(dataset_path(conn, :details, slug))
-    assert conn |> html_response(200) =~ "1 erreur"
+      insert(:multi_validation,
+        resource_history: resource_history,
+        validator: Transport.Validators.NeTEx.Validator.validator_name(),
+        validator_version: version,
+        result: result,
+        metadata: %DB.ResourceMetadata{
+          metadata: %{"elapsed_seconds" => 42},
+          modes: [],
+          features: []
+        }
+      )
+
+      mock_empty_history_resources()
+
+      conn = conn |> get(dataset_path(conn, :details, dataset.slug))
+      assert conn |> html_response(200) =~ "1 erreur"
+    end
   end
 
   test "don't show NeTEx number of errors if no validation", %{conn: conn} do
