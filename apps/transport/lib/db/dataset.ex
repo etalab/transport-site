@@ -221,6 +221,15 @@ defmodule DB.Dataset do
     query |> preload(resources: ^s)
   end
 
+  defp preload_legal_owners(query) do
+    a = from(a in AOM, select: %DB.AOM{nom: a.nom, siren: a.siren})
+    r = from(r in Region, select: %DB.Region{nom: r.nom, insee: r.insee})
+
+    query
+    |> preload(legal_owners_aom: ^a)
+    |> preload(legal_owners_region: ^r)
+  end
+
   @spec filter_by_fulltext(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_fulltext(query, %{"q" => ""}), do: query
 
@@ -527,6 +536,7 @@ defmodule DB.Dataset do
       |> filter_by_resource_format(params)
       |> filter_by_fulltext(params)
       |> select([dataset: d], d.id)
+      |> where([dataset: d], is_nil(d.archived_at))
 
     base_query()
     |> where([dataset: d], d.id in subquery(q))
@@ -662,7 +672,8 @@ defmodule DB.Dataset do
       :slug,
       :datagouv_title,
       :type,
-      :organization_id
+      :organization_id,
+      :logo
     ])
     |> case do
       %{valid?: false, changes: changes} = changeset when changes == %{} ->
@@ -809,14 +820,10 @@ defmodule DB.Dataset do
     preload_without_validations()
     |> where(slug: ^slug)
     |> preload([
-      :aom,
-      :communes,
-      :region,
-      :legal_owners_aom,
-      :legal_owners_region,
       :declarative_spatial_areas,
       resources: [:resources_related, :dataset]
     ])
+    |> preload_legal_owners()
     |> Repo.one()
     |> case do
       nil -> {:error, "Dataset with slug #{slug} not found"}

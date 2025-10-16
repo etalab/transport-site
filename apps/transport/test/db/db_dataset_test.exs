@@ -55,7 +55,8 @@ defmodule DB.DatasetDBTest do
                  "licence" => "lov2",
                  "slug" => "ma_limace",
                  "insee" => "38185",
-                 "organization_id" => Ecto.UUID.generate()
+                 "organization_id" => Ecto.UUID.generate(),
+                 "logo" => "https://example.com/logo.png"
                })
     end
 
@@ -83,7 +84,8 @@ defmodule DB.DatasetDBTest do
                  "slug" => "ma_limace",
                  "zones" => ["38185"],
                  "associated_territory_name" => "paris",
-                 "organization_id" => Ecto.UUID.generate()
+                 "organization_id" => Ecto.UUID.generate(),
+                 "logo" => "https://example.com/logo.png"
                })
     end
 
@@ -97,7 +99,8 @@ defmodule DB.DatasetDBTest do
                  "licence" => "lov2",
                  "slug" => "ma_limace",
                  "national_dataset" => "true",
-                 "organization_id" => Ecto.UUID.generate()
+                 "organization_id" => Ecto.UUID.generate(),
+                 "logo" => "https://example.com/logo.png"
                })
     end
 
@@ -144,7 +147,8 @@ defmodule DB.DatasetDBTest do
             %{"format" => "gbfs", "url" => "coucou", "datagouv_id" => "pouet"},
             %{"format" => "gtfs", "url" => "coucou", "datagouv_id" => "pouet"}
           ],
-          "organization_id" => Ecto.UUID.generate()
+          "organization_id" => Ecto.UUID.generate(),
+          "logo" => "https://example.com/logo.png"
         })
 
       assert {:ok, %Ecto.Changeset{changes: %{has_realtime: true}}} = changeset
@@ -159,6 +163,7 @@ defmodule DB.DatasetDBTest do
           "type" => "public-transit",
           "licence" => "lov2",
           "organization_id" => Ecto.UUID.generate(),
+          "logo" => "https://example.com/logo.png",
           "slug" => "ma_limace",
           "insee" => "38185",
           "resources" => [%{"format" => "gtfs", "url" => "coucou", "datagouv_id" => "pouet"}]
@@ -178,7 +183,8 @@ defmodule DB.DatasetDBTest do
                  "slug" => "ma_limace",
                  "insee" => "38185",
                  "custom_tags" => ["masqué"],
-                 "organization_id" => Ecto.UUID.generate()
+                 "organization_id" => Ecto.UUID.generate(),
+                 "logo" => "https://example.com/logo.png"
                })
     end
 
@@ -193,7 +199,8 @@ defmodule DB.DatasetDBTest do
                  "slug" => "ma_limace",
                  "insee" => "38185",
                  "custom_tags" => ["not_hidden"],
-                 "organization_id" => Ecto.UUID.generate()
+                 "organization_id" => Ecto.UUID.generate(),
+                 "logo" => "https://example.com/logo.png"
                })
     end
 
@@ -222,7 +229,8 @@ defmodule DB.DatasetDBTest do
                  "slug" => "slug",
                  "national_dataset" => "true",
                  "legal_owner_company_siren" => "552049447",
-                 "organization_id" => Ecto.UUID.generate()
+                 "organization_id" => Ecto.UUID.generate(),
+                 "logo" => "https://example.com/logo.png"
                })
     end
 
@@ -236,7 +244,8 @@ defmodule DB.DatasetDBTest do
                  "slug" => "slug",
                  "national_dataset" => "true",
                  "custom_title" => "  Foo ",
-                 "organization_id" => Ecto.UUID.generate()
+                 "organization_id" => Ecto.UUID.generate(),
+                 "logo" => "https://example.com/logo.png"
                })
     end
 
@@ -250,11 +259,30 @@ defmodule DB.DatasetDBTest do
             "licence" => "lov2",
             "slug" => "slug",
             "national_dataset" => "true",
-            "custom_title" => "Foo"
+            "custom_title" => "Foo",
+            "logo" => "https://example.com/logo.png"
           })
         end)
 
       assert res == {:error, ~s|%{organization_id: ["can't be blank"]}|}
+    end
+
+    test "logo should be set" do
+      {res, _} =
+        with_log(fn ->
+          DB.Dataset.changeset(%{
+            "datagouv_id" => "1",
+            "datagouv_title" => "title",
+            "type" => "public-transit",
+            "licence" => "lov2",
+            "slug" => "slug",
+            "national_dataset" => "true",
+            "custom_title" => "Foo",
+            "organization_id" => Ecto.UUID.generate()
+          })
+        end)
+
+      assert res == {:error, ~s|%{logo: ["can't be blank"]}|}
     end
   end
 
@@ -269,7 +297,8 @@ defmodule DB.DatasetDBTest do
           "slug" => "slug",
           "national_dataset" => "true",
           "custom_title" => "foo",
-          "organization_id" => Ecto.UUID.generate()
+          "organization_id" => Ecto.UUID.generate(),
+          "logo" => "https://example.com/logo.png"
         })
 
       refute Map.has_key?(changes, :custom_logo_changed_at)
@@ -286,7 +315,8 @@ defmodule DB.DatasetDBTest do
                  "national_dataset" => "true",
                  "custom_title" => "foo",
                  "custom_logo" => "https://example.com/pic.jpg",
-                 "organization_id" => Ecto.UUID.generate()
+                 "organization_id" => Ecto.UUID.generate(),
+                 "logo" => "https://example.com/logo.png"
                })
 
       assert DateTime.diff(custom_logo_changed_at, DateTime.utc_now(), :second) < 3
