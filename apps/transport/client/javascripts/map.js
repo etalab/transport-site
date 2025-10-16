@@ -108,8 +108,8 @@ function displayQuality (featureFunction, style) {
     return qualityFeatureGroup
 }
 
-function searchURL(insee) {
-    if (insee == "11") {
+function searchURL (insee) {
+    if (insee === '11') {
         return `/datasets/region/${insee}?type=public-transit`
     }
     return `/datasets/epci/${insee}?type=public-transit`
