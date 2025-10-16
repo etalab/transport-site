@@ -672,7 +672,8 @@ defmodule DB.Dataset do
       :slug,
       :datagouv_title,
       :type,
-      :organization_id
+      :organization_id,
+      :logo
     ])
     |> case do
       %{valid?: false, changes: changes} = changeset when changes == %{} ->
