@@ -3,8 +3,6 @@ defmodule Transport.StatsHandler do
   Compute statistics on the datasets
   Also contains a function called periodically to store the stats in the DB
   """
-  alias DB.{AOM, Dataset, Region, Repo, StatsHistory}
-  alias Transport.CachedFiles
   import Ecto.Query
   require Logger
 
@@ -26,7 +24,7 @@ defmodule Transport.StatsHandler do
   end
 
   defp store_stat_history(key, value, %DateTime{} = timestamp) when is_number(value) do
-    %StatsHistory{timestamp: timestamp, metric: to_string(key), value: value} |> Repo.insert!()
+    %DB.StatsHistory{timestamp: timestamp, metric: to_string(key), value: value} |> DB.Repo.insert!()
   end
 
   @doc """
@@ -35,23 +33,18 @@ defmodule Transport.StatsHandler do
   @spec compute_stats() :: any()
   def compute_stats do
     aoms =
-      AOM
-      |> join(:left, [a], d in assoc(a, :legal_owners_dataset), as: :legal_owners_dataset)
-      |> join(:left, [a, legal_owners_dataset: legal_owners_dataset], d in Dataset,
-        on: (d.id == legal_owners_dataset.id or d.aom_id == a.id) and d.is_active,
-        as: :dataset
-      )
-      |> group_by([a], [a.id, a.population, a.region_id])
+      DB.AOM
+      |> join(:left, [a], d in assoc(a, :legal_owners_dataset), as: :dataset)
+      |> group_by([a], [a.id, a.population])
       |> select([a, dataset: d], %{
         population: a.population,
-        region_id: a.region_id,
         nb_datasets: count(d.id)
       })
-      |> Repo.all()
+      |> DB.Repo.all()
 
     aoms_with_datasets = aoms |> Enum.filter(&(&1.nb_datasets > 0))
 
-    regions = Repo.all(from(r in Region, where: r.nom != "National"))
+    regions = DB.Repo.all(from(r in DB.Region, where: r.nom != "National"))
 
     aoms_max_gtfs_severity = compute_aom_gtfs_max_severity()
 
@@ -62,8 +55,8 @@ defmodule Transport.StatsHandler do
       |> Enum.sum()
 
     %{
-      nb_datasets: Repo.aggregate(Dataset.base_query(), :count, :id),
-      nb_pt_datasets: Dataset.count_by_type("public-transit"),
+      nb_datasets: DB.Repo.aggregate(DB.Dataset.base_query(), :count, :id),
+      nb_pt_datasets: DB.Dataset.count_by_type("public-transit"),
       nb_aoms: Enum.count(aoms),
       nb_aoms_with_data: Enum.count(aoms_with_datasets),
       nb_regions: Enum.count(regions),
@@ -233,25 +226,25 @@ defmodule Transport.StatsHandler do
   end
 
   defp nb_dataset_types do
-    Dataset
-    |> select([d], count(d.type, :distinct))
-    |> Repo.one()
+    DB.Dataset.base_query()
+    |> select([dataset: d], count(d.type, :distinct))
+    |> DB.Repo.one()
   end
 
   defp nb_reusers do
-    Enum.count(CachedFiles.reusers())
+    Enum.count(Transport.CachedFiles.reusers())
   end
 
   defp nb_reuses do
-    Repo.aggregate(Dataset, :sum, :nb_reuses) || 0
+    DB.Repo.aggregate(DB.Dataset, :sum, :nb_reuses) || 0
   end
 
   def count_dataset_with_format(format) do
-    Dataset.base_query()
+    DB.Dataset.base_query()
     |> DB.Resource.join_dataset_with_resource()
     |> where([resource: r], r.format == ^format)
     |> select([resource: r], count(r.dataset_id, :distinct))
-    |> Repo.one()
+    |> DB.Repo.one()
   end
 
   @spec compute_aom_gtfs_max_severity() :: %{binary() => integer()}
@@ -278,22 +271,18 @@ defmodule Transport.StatsHandler do
         end_date: fragment("TO_DATE(?->>'end_date', 'YYYY-MM-DD')", m.metadata)
       })
 
-    AOM
-    |> join(:left, [a], d in assoc(a, :legal_owners_dataset), as: :legal_owners_dataset)
-    |> join(:left, [a, legal_owners_dataset: legal_owners_dataset], d in Dataset,
-      on: (d.id == legal_owners_dataset.id or d.aom_id == a.id) and d.is_active,
-      as: :dataset
-    )
-    |> join(:left, [_, _, dataset], _r in assoc(dataset, :resources))
-    |> join(:left, [_, _, _, r], v in subquery(validation_infos), on: v.resource_id == r.id)
-    |> where([_a, _l, _d, r, _v], r.format == "GTFS")
-    |> where([_a, _l, _d, _r, v], v.end_date >= ^dt)
-    |> group_by([a, _l, _d, _r, v], a.id)
-    |> select([a, l, d, r, v], %{
+    DB.AOM
+    |> join(:left, [a], d in assoc(a, :legal_owners_dataset), as: :dataset)
+    |> join(:left, [_, dataset], _r in assoc(dataset, :resources))
+    |> join(:left, [_, _, r], v in subquery(validation_infos), on: v.resource_id == r.id)
+    |> where([_a, _d, r, _v], r.format == "GTFS")
+    |> where([_a, _d, _r, v], v.end_date >= ^dt)
+    |> group_by([a, _d, _r, v], a.id)
+    |> select([a, d, r, v], %{
       aom: a.id,
       max_error: max(v.max_error)
     })
-    |> Repo.all()
+    |> DB.Repo.all()
     |> List.foldl(%{}, fn %{max_error: max_error}, acc ->
       max_error =
         case max_error do
