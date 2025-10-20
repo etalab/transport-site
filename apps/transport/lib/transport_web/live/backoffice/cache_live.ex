@@ -105,7 +105,7 @@ defmodule TransportWeb.Backoffice.CacheLive do
     |> elem(1)
     |> case do
       %{started: started} -> DateTime.from_unix!(started, :millisecond)
-      %{} -> "pas encore exécuté"
+      _ -> "pas encore exécuté"
     end
   end
 end

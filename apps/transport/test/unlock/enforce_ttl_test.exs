@@ -10,7 +10,7 @@ defmodule Unlock.EnforceTTLTest do
     on_exit(fn -> Cachex.clear(cache_name()) end)
   end
 
-  defp cache_put(key, ttl \\ nil), do: Cachex.put!(cache_name(), key, 42, ttl: ttl)
+  defp cache_put(key, ttl \\ nil), do: Cachex.put!(cache_name(), key, 42, expire: ttl)
 
   test "removes keys without a ttl or with a ttl greather than the configuration" do
     ttl_config_value = 10

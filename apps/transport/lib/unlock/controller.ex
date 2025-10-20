@@ -307,7 +307,7 @@ defmodule Unlock.Controller do
         Logger.debug("Proxy response for #{item.identifier} served from cache")
         result
 
-      {:commit, result, _options} ->
+      {:commit, result} ->
         result
 
       {:ignore, result} ->
