@@ -89,7 +89,7 @@ defmodule Transport.OpsTests do
       {:ok, records} = DNS.resolve(@domain_name, :txt)
 
       assert Enum.member?(records, [
-               ~c"v=spf1 include:spf.mailjet.com include:_spf.alwaysdata.com include:_spf.scw-tem.cloud include:servers.mcsv.net -all"
+               ~c"v=spf1 include:spf.mailjet.com include:_spf.alwaysdata.com include:_spf.scw-tem.cloud include:servers.mcsv.net include:sendgrid.net -all"
              ])
 
       assert {:ok, [[~c"v=spf1 include:sendgrid.net ~all"]]} = DNS.resolve("front-mail.#{@domain_name}", :txt)
