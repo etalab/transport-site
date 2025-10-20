@@ -198,6 +198,7 @@ defmodule TransportWeb.ValidationControllerTest do
         %{
           validator_version: "0.1.0",
           result: result,
+          digest: Transport.Validators.NeTEx.ResultsAdapters.V0_1_0.digest(result),
           max_error: "warning"
         }
       )
@@ -229,11 +230,14 @@ defmodule TransportWeb.ValidationControllerTest do
         ]
       }
 
+      digest = Transport.Validators.NeTEx.ResultsAdapter.resolve(validator_version).digest(result)
+
       mark_netex_validation_completed(
         multi_validation,
         %{
           validator_version: validator_version,
           result: result,
+          digest: digest,
           max_error: "error"
         }
       )

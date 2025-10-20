@@ -44,7 +44,7 @@ defmodule Transport.Jobs.ResourceHistoryJSONSchemaValidationJobTest do
              validation_timestamp: _,
              validator: "EXJSONSchema",
              validator_version: validator_version
-           } = DB.MultiValidation |> DB.Repo.get_by!(resource_history_id: resource_history_id)
+           } = DB.MultiValidation.with_result() |> DB.Repo.get_by!(resource_history_id: resource_history_id)
 
     assert "0." <> _ = validator_version
   end

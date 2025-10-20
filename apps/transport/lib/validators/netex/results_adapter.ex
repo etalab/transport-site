@@ -6,6 +6,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapter do
   @callback summary(map()) :: list()
   @callback count_by_severity(map()) :: map()
   @callback get_issues(map(), map()) :: list()
+  @callback digest(map()) :: map()
   @callback issue_type(list()) :: nil | binary()
   @callback format_severity(binary(), non_neg_integer()) :: binary()
   @callback count_max_severity(map()) :: {binary(), integer()}
