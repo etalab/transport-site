@@ -301,25 +301,25 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   test "show GTFS number of errors", %{conn: conn} do
-    %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug", aom: build(:aom)})
+    dataset = insert(:dataset, aom: build(:aom))
 
-    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, format: "GTFS", url: "url"})
+    resource = insert(:resource, dataset: dataset, format: "GTFS", url: "url")
 
-    %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id})
+    resource_history = insert(:resource_history, resource: resource)
 
     result = %{"Slow" => [%{"severity" => "Information"}]}
 
-    insert(:multi_validation, %{
-      resource_history_id: resource_history_id,
+    insert(:multi_validation,
+      resource_history_id: resource_history.id,
       validator: Transport.Validators.GTFSTransport.validator_name(),
       result: result,
       digest: Transport.Validators.GTFSTransport.digest(result),
       metadata: %DB.ResourceMetadata{metadata: %{}, modes: ["ferry", "bus"]}
-    })
+    )
 
     mock_empty_history_resources()
 
-    conn = conn |> get(dataset_path(conn, :details, slug))
+    conn = conn |> get(dataset_path(conn, :details, dataset.slug))
     assert conn |> html_response(200) |> extract_resource_details() =~ "1 information"
     # Dataset modes are not displayed
     refute conn |> html_response(200) |> extract_resource_details() =~ "ferry"
