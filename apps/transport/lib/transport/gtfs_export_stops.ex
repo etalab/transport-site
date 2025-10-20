@@ -19,7 +19,8 @@ defmodule Transport.GTFSExportStops do
     |> join(:inner, [_, di], rh in DB.ResourceHistory, on: di.resource_history_id == rh.id)
     |> join(:inner, [_, _, rh], r in DB.Resource, on: rh.resource_id == r.id)
     |> join(:inner, [_, _, _, r], d in DB.Dataset, on: r.dataset_id == d.id)
-    |> select([s, di, rh, r, d], %{
+    |> join(:left, [_, _, _, _, d], aom in assoc(d, :legal_owners_aom), as: :aom)
+    |> select([s, di, rh, r, d, a], %{
       dataset_custom_title: d.custom_title,
       dataset_organisation: d.organization,
       dataset_id: d.id,
@@ -27,7 +28,7 @@ defmodule Transport.GTFSExportStops do
       resource_id: r.id,
       resource_datagouv_id: r.datagouv_id,
       resource_title: r.title,
-      dataset_aom_id: d.aom_id,
+      dataset_aom_id: a.id,
       dataset_region_id: d.region_id,
       di_id: di.id,
       stop_id: s.stop_id,
