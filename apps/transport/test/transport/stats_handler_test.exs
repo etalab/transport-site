@@ -139,43 +139,47 @@ defmodule Transport.StatsHandlerTest do
   end
 
   test "compute aom max severity" do
-    aom_1 = insert(:aom)
-    %{dataset: dataset} = insert_up_to_date_resource_and_friends(max_error: "Error", aom: aom_1)
+    aom = insert(:aom)
+    dataset = insert(:dataset, legal_owners_aom: [aom])
+    insert_up_to_date_resource_and_friends(dataset: dataset, max_error: "Error")
     insert_up_to_date_resource_and_friends(dataset: dataset, max_error: "Warning")
     insert_outdated_resource_and_friends(dataset: dataset, max_error: "Fatal")
 
-    aoms = compute_aom_gtfs_max_severity()
-
-    assert %{"Error" => 1} == aoms
+    assert %{"Error" => 1} == compute_aom_gtfs_max_severity()
   end
 
   test "compute aom max severity bis" do
     aom_1 = insert(:aom)
-    insert_up_to_date_resource_and_friends(max_error: "Fatal", aom: aom_1)
+    dataset = insert(:dataset, legal_owners_aom: [aom_1])
+    insert_up_to_date_resource_and_friends(dataset: dataset, max_error: "Fatal")
 
     aom_2 = insert(:aom)
-    insert_up_to_date_resource_and_friends(max_error: "Fatal", aom: aom_2)
+    dataset = insert(:dataset, legal_owners_aom: [aom_2])
+    insert_up_to_date_resource_and_friends(dataset: dataset, max_error: "Fatal")
 
     aom_3 = insert(:aom)
-    insert_up_to_date_resource_and_friends(max_error: "Warning", aom: aom_3)
+    dataset = insert(:dataset, legal_owners_aom: [aom_3])
+    insert_up_to_date_resource_and_friends(dataset: dataset, max_error: "Warning")
 
     aom_4 = insert(:aom)
-    %{dataset: dataset} = insert_up_to_date_resource_and_friends(max_error: "Information", aom: aom_4)
+    dataset = insert(:dataset, legal_owners_aom: [aom_4])
+    insert_up_to_date_resource_and_friends(dataset: dataset, max_error: "Information")
     insert_outdated_resource_and_friends(dataset: dataset, max_error: "Fatal")
 
-    aoms = compute_aom_gtfs_max_severity()
-
-    assert %{"Fatal" => 2, "Warning" => 1, "Information" => 1} == aoms
+    assert %{"Fatal" => 2, "Warning" => 1, "Information" => 1} == compute_aom_gtfs_max_severity()
   end
 
   test "uses legal owners to assign datasets to AOMs" do
-    # There are existing datasets and AOMs in the database since we inserted some datasets in the setup method
-    aom1 = insert(:aom, population: 1_000_000)
+    DB.Dataset |> DB.Repo.delete_all()
+    DB.AOM |> DB.Repo.delete_all()
+
+    insert(:aom, population: 1_000_000)
     aom2 = insert(:aom, population: 1_000_000)
     insert(:aom, population: 1_000_000)
-    insert(:dataset, type: "public-transit", is_active: true, legal_owners_aom: [aom2], aom: aom1)
 
-    assert %{nb_aoms_with_data: 6, nb_aoms: 7, population_couverte: 6, population_totale: 7} = compute_stats()
+    insert(:dataset, legal_owners_aom: [aom2], aom: nil)
+
+    assert %{nb_aoms_with_data: 1, nb_aoms: 3, population_couverte: 1, population_totale: 3} = compute_stats()
   end
 
   test "ignores hidden datasets" do
