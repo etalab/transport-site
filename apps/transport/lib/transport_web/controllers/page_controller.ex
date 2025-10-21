@@ -47,7 +47,6 @@ defmodule TransportWeb.PageController do
       count_aoms_with_dataset: count_aoms_with_dataset(),
       count_regions_completed: count_regions_completed(),
       percent_population: percent_population(),
-      reusers: CachedFiles.reusers(),
       facilitators: CachedFiles.facilitators()
     ]
   end

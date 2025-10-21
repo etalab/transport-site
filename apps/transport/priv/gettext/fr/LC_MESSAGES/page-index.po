@@ -104,7 +104,7 @@ msgstr "<abbr title=\"Autorité organistatrice des mobilités\">AOMs</abbr>, op�
 
 #, elixir-autogen, elixir-format
 msgid "reusers list description"
-msgstr "Les réutilisateurs listés ici sont ceux ayant déclaré une réutilisation sur la plate-forme."
+msgstr "Un nombre important de réutilisateurs divers et variés utilisent les données référencées sur le PAN pour notre plus grand plaisir ! Certains d'entre eux mettent en avant leur services, applications, projets, études… sur notre page <a href=\"%{url}\">Réutilisations déclarées</a>. Soyez les prochains !"
 
 #, elixir-autogen, elixir-format
 msgid "Ask for help"

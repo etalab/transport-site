@@ -12,11 +12,6 @@ defmodule Transport.CachedFiles do
     Agent.start_link(fn -> load_documents() end, name: __MODULE__)
   end
 
-  @spec reusers :: [binary()]
-  def reusers do
-    Agent.get(__MODULE__, & &1.reusers)
-  end
-
   @spec facilitators :: [binary()]
   def facilitators do
     Agent.get(__MODULE__, & &1.facilitators)
@@ -43,7 +38,6 @@ defmodule Transport.CachedFiles do
   @spec load_documents :: map()
   defp load_documents do
     %{
-      reusers: read_csv("reusers.csv"),
       facilitators: read_csv("facilitators.csv"),
       zfe_ids: read_csv("zfe_ids.csv"),
       gbfs_operators: read_csv("gbfs_operators.csv"),
