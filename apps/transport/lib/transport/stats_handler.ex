@@ -76,7 +76,6 @@ defmodule Transport.StatsHandler do
       aom_with_errors: Map.get(aoms_max_gtfs_severity, "Error", 0),
       aom_with_fatal: Map.get(aoms_max_gtfs_severity, "Fatal", 0),
       nb_official_public_transit_realtime: DB.Dataset.count_public_transport_has_realtime(),
-      nb_reusers: nb_reusers(),
       nb_reuses: nb_reuses(),
       nb_dataset_types: nb_dataset_types(),
       nb_gtfs: count_dataset_with_format("GTFS"),
@@ -236,10 +235,6 @@ defmodule Transport.StatsHandler do
     Dataset
     |> select([d], count(d.type, :distinct))
     |> Repo.one()
-  end
-
-  defp nb_reusers do
-    Enum.count(CachedFiles.reusers())
   end
 
   defp nb_reuses do
