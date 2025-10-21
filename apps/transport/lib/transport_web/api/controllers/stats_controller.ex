@@ -1,25 +1,11 @@
 defmodule TransportWeb.API.StatsController do
   use TransportWeb, :controller
-  alias DB.{AOM, Dataset, DatasetGeographicView, Region, Repo}
   import Ecto.Query
   alias Geo.JSON
   alias OpenApiSpex.Operation
 
   @spec open_api_operation(any) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
-
-  @spec regions_operation() :: Operation.t()
-  def regions_operation,
-    do: %Operation{
-      tags: ["stats"],
-      summary: "Show regions",
-      description: "Show covered french administrative regions",
-      operationId: "API.StatsController.regions",
-      parameters: [],
-      responses: %{
-        200 => Operation.response("GeoJSON", "application/json", TransportWeb.API.Schemas.GeoJSONResponse)
-      }
-    }
 
   @spec index_operation() :: Operation.t()
   def index_operation,
@@ -71,36 +57,19 @@ defmodule TransportWeb.API.StatsController do
 
   @spec filter_neg(nil | integer()) :: nil | non_neg_integer()
   defp filter_neg(nil), do: nil
-
   defp filter_neg(val) when val < 0, do: nil
   defp filter_neg(val) when val >= 0, do: val
-
-  def new_aom_without_datasets?(%{created_after_2021: true, nb_datasets: 0}), do: true
-  def new_aom_without_datasets?(%{created_after_2021: true, dataset_types: %{pt: 0}}), do: true
-  def new_aom_without_datasets?(_), do: false
 
   @spec features([map()]) :: [map()]
   def features(result) do
     result
-    |> Enum.reject(fn aom -> is_nil(aom.geometry) or new_aom_without_datasets?(aom) end)
     |> Enum.map(fn aom ->
-      dataset_types =
-        aom
-        |> Map.get(:dataset_types, [])
-        |> Enum.filter(fn {_, v} -> !is_nil(v) end)
-        |> Enum.into(%{})
-
       %{
         "geometry" => aom.geometry |> JSON.encode!(),
         "type" => "Feature",
         "properties" => %{
-          "dataset_count" => Map.get(aom, :nb_datasets, 0),
-          "completed" => Map.get(aom, :is_completed, false),
           "nom" => Map.get(aom, :nom, ""),
-          "id" => aom.id,
-          "siren" => Map.get(aom, :siren) || Map.get(aom, :insee),
-          "forme_juridique" => Map.get(aom, :forme_juridique, ""),
-          "nb_other_datasets" => Map.get(aom, :nb_other_datasets, 0),
+          "insee" => Map.get(aom, :insee),
           "quality" => %{
             "expired_from" => %{
               # negative values are up to date datasets, we filter them
@@ -109,27 +78,13 @@ defmodule TransportWeb.API.StatsController do
                 case aom |> Map.get(:quality, %{}) |> Map.get(:expired_from) do
                   # if no validity period has been found, it's either that there was no data
                   # or that we were not able to read them
-                  nil ->
-                    case dataset_types[:pt] do
-                      0 -> "no_data"
-                      _ -> "unreadable"
-                    end
-
-                  i when i > 0 ->
-                    "outdated"
-
-                  _ ->
-                    "up_to_date"
+                  nil -> "no_data"
+                  i when i > 0 -> "outdated"
+                  _ -> "up_to_date"
                 end
             },
             "error_level" => aom |> Map.get(:quality, %{}) |> Map.get(:error_level)
-          },
-          "dataset_formats" =>
-            aom
-            |> Map.get(:dataset_formats, [])
-            |> Enum.filter(fn {_, v} -> v != nil end)
-            |> Enum.into(%{}),
-          "dataset_types" => dataset_types
+          }
         }
       }
     end)
@@ -144,101 +99,13 @@ defmodule TransportWeb.API.StatsController do
       %{
         "geometry" => r.geometry |> JSON.encode!(),
         "type" => "Feature",
-        # NOTE: there is a bug here - the key is an atom.
-        # I won't change it now because it would mean more changes somewhere else, maybe.
-        # `Map.reject(fn({k,v}) -> k == :geometry end)` will do it.
         "properties" => Map.take(r, Enum.filter(Map.keys(r), fn k -> k != "geometry" end))
       }
     end)
   end
 
-  defmacro count_aom_types(aom_id, type, include_aggregates: true) do
-    quote do
-      fragment(
-        """
-        select count(d.id)
-        from dataset d
-        left join dataset_aom_legal_owner a on a.dataset_id = d.id and a.aom_id = ?
-        where (d.aom_id = ? or a.dataset_id is not null) and d.is_active and d.type = ?
-        """,
-        unquote(aom_id),
-        unquote(aom_id),
-        unquote(type)
-      )
-    end
-  end
-
-  defmacro count_aom_types(aom_id, type) do
-    quote do
-      fragment(
-        """
-        select count(d.id)
-        from dataset d
-        where d.aom_id = ? and d.is_active and d.type = ?
-        """,
-        unquote(aom_id),
-        unquote(type)
-      )
-    end
-  end
-
-  defmacro count_aom_format(aom_id, format) do
-    quote do
-      fragment(
-        """
-        SELECT COUNT(format)
-        FROM resource
-        WHERE format = ?
-        AND dataset_id in (
-          select d.id
-          from dataset d
-          left join dataset_aom_legal_owner a on a.dataset_id = d.id and a.aom_id = ?
-          where (d.aom_id = ? or a.dataset_id is not null) and d.is_active
-        )
-        group by format
-        """,
-        unquote(format),
-        unquote(aom_id),
-        unquote(aom_id)
-      )
-    end
-  end
-
-  defmacro count_region_format(region, format) do
-    quote do
-      fragment(
-        """
-        SELECT COUNT(format) FROM resource
-        JOIN dataset_geographic_view d_geo ON d_geo.dataset_id = resource.dataset_id
-        WHERE d_geo.region_id = ?
-        AND format = ? GROUP BY format
-        """,
-        unquote(region),
-        unquote(format)
-      )
-    end
-  end
-
-  defmacro count_type_by_region(region_id, type) do
-    quote do
-      fragment(
-        """
-        SELECT COUNT(*) FROM dataset
-        JOIN dataset_geographic_view d_geo ON d_geo.dataset_id = dataset.id
-        WHERE d_geo.region_id = ? and is_active = TRUE
-        AND type = ?
-        """,
-        unquote(region_id),
-        unquote(type)
-      )
-    end
-  end
-
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(%Plug.Conn{} = conn, _params), do: render_features(conn, :aoms, "api-stats-aoms")
-
-  @spec regions(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def regions(%Plug.Conn{} = conn, _params), do: render_features(conn, :regions, "api-stats-regions")
 
   @spec vehicles_sharing(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def vehicles_sharing(%Plug.Conn{} = conn, _params),
@@ -280,21 +147,25 @@ defmodule TransportWeb.API.StatsController do
 
   def rendered_geojson(item, ecto_opts \\ [])
 
-  def rendered_geojson(item, ecto_opts) when item in [:aoms, :regions, :quality] do
-    case item do
-      :aoms -> aom_features_query()
-      :regions -> region_features_query()
-      :quality -> quality_features_query()
-    end
-    |> Repo.all(ecto_opts)
+  def rendered_geojson(:quality, ecto_opts) do
+    quality_features_query()
+    |> DB.Repo.all(ecto_opts)
     |> features()
+    |> geojson()
+    |> Jason.encode!()
+  end
+
+  def rendered_geojson(:aoms, ecto_opts) do
+    aom_features_query()
+    |> DB.Repo.all(ecto_opts)
+    |> vehicles_sharing_features()
     |> geojson()
     |> Jason.encode!()
   end
 
   def rendered_geojson(:vehicles_sharing, ecto_opts) do
     vehicles_sharing_features_query()
-    |> Repo.all(ecto_opts)
+    |> DB.Repo.all(ecto_opts)
     |> vehicles_sharing_features()
     |> geojson()
     |> Jason.encode!()
@@ -302,96 +173,41 @@ defmodule TransportWeb.API.StatsController do
 
   @spec aom_features_query :: Ecto.Query.t()
   defp aom_features_query do
-    nb_aggregates_dataset_by_aom =
-      AOM
-      |> join(:inner, [aom], d in assoc(aom, :legal_owners_dataset), as: :legal_owners_dataset)
-      |> where(
-        [legal_owners_dataset: d],
-        d.id in subquery(
-          Dataset.base_query()
-          |> join(:inner, [dataset: d], aom in assoc(d, :legal_owners_aom), as: :aom)
-          |> group_by([dataset: d], d.id)
-          |> having([aom: a], count(a.id) >= 2)
-          |> select([dataset: d], d.id)
-        )
-      )
-      |> group_by([aom], aom.id)
-      |> select([aom, legal_owners_dataset: d], %{aom_id: aom.id, count: count(d.id)})
-
-    AOM
-    |> join(:left, [aom], d in subquery(nb_aggregates_dataset_by_aom),
-      on: aom.id == d.aom_id,
-      as: :aggregates_by_aom
+    DB.DatasetGeographicView
+    |> join(:inner, [gv], dataset in DB.Dataset, on: dataset.id == gv.dataset_id, as: :dataset)
+    |> join(:inner, [dataset: d], a in assoc(d, :declarative_spatial_areas), as: :administrative_division)
+    |> join(:inner, [dataset: d], r in assoc(d, :resources), as: :resource)
+    |> select([gv, dataset, administrative_division: ad, resource: r], %{
+      geometry: gv.geom,
+      nb: count(gv.dataset_id, :distinct),
+      nom: fragment("string_agg(distinct ?, ', ')", ad.nom),
+      insee: min(ad.insee),
+      gtfs: fragment("sum(case when ? = 'GTFS' then 1 else 0 end)", r.format),
+      netex: fragment("sum(case when ? = 'NeTEx' then 1 else 0 end)", r.format),
+      gtfs_rt: fragment("sum(case when ? = 'gtfs-rt' then 1 else 0 end)", r.format),
+      siri: fragment("sum(case when ? = 'SIRI' then 1 else 0 end)", r.format),
+      siri_lite: fragment("sum(case when ? = 'SIRI Lite' then 1 else 0 end)", r.format)
+    })
+    |> where(
+      [_gv, dataset],
+      dataset.type == "public-transit" and dataset.is_active and dataset.id in subquery(relevant_coverage_datasets())
     )
-    |> select([aom, aggregates_by_aom: d], %{
-      geometry: aom.geom,
-      id: aom.id,
-      siren: aom.siren,
-      created_after_2021: aom.composition_res_id >= 1_000,
-      insee_commune_principale: aom.insee_commune_principale,
-      nb_datasets: fragment("select count(id) from dataset where aom_id = ? and is_active", aom.id),
-      dataset_formats: %{
-        gtfs: count_aom_format(aom.id, "GTFS"),
-        netex: count_aom_format(aom.id, "NeTEx"),
-        gtfs_rt: count_aom_format(aom.id, "gtfs-rt"),
-        gbfs: count_aom_format(aom.id, "gbfs"),
-        siri: count_aom_format(aom.id, "SIRI"),
-        siri_lite: count_aom_format(aom.id, "SIRI Lite")
-      },
-      nom: aom.nom,
-      forme_juridique: aom.forme_juridique,
-      dataset_types: %{
-        pt: count_aom_types(aom.id, "public-transit"),
-        vehicles_sharing: count_aom_types(aom.id, "vehicles-sharing")
-      },
-      nb_other_datasets: coalesce(d.count, 0)
-    })
-  end
-
-  @spec region_features_query :: Ecto.Query.t()
-  defp region_features_query do
-    Region
-    |> select([r], %{
-      geometry: r.geom,
-      id: r.id,
-      insee: r.insee,
-      nom: r.nom,
-      is_completed: r.is_completed,
-      nb_datasets:
-        fragment(
-          """
-          SELECT COUNT(*) FROM dataset
-          JOIN dataset_geographic_view d_geo ON d_geo.dataset_id = dataset.id
-          WHERE d_geo.region_id = ?
-          AND is_active=TRUE
-          """,
-          r.id
-        ),
-      dataset_formats: %{
-        gtfs: count_region_format(r.id, "GTFS"),
-        netex: count_region_format(r.id, "NeTEx"),
-        gtfs_rt: count_region_format(r.id, "gtfs-rt"),
-        gbfs: count_region_format(r.id, "gbfs"),
-        siri: count_region_format(r.id, "SIRI"),
-        siri_lite: count_region_format(r.id, "SIRI Lite")
-      },
-      dataset_types: %{
-        pt: count_type_by_region(r.id, "public-transit"),
-        vehicles_sharing: count_type_by_region(r.id, "vehicles-sharing")
-      }
-    })
+    |> group_by([gv], gv.geom)
   end
 
   @spec vehicles_sharing_features_query :: Ecto.Query.t()
   def vehicles_sharing_features_query do
-    DatasetGeographicView
-    |> join(:left, [gv], dataset in Dataset, on: dataset.id == gv.dataset_id)
+    DB.DatasetGeographicView
+    |> join(:left, [gv], dataset in DB.Dataset, on: dataset.id == gv.dataset_id)
     |> select([gv, dataset], %{
-      geometry: fragment("ST_Centroid(geom) as geometry"),
+      geometry: fragment("geom as geometry"),
       names: fragment("array_agg(? order by ? asc)", dataset.custom_title, dataset.custom_title),
       slugs: fragment("array_agg(? order by ? asc)", dataset.slug, dataset.custom_title)
     })
-    |> where([_gv, dataset], dataset.type == "vehicles-sharing" and dataset.is_active)
+    |> where(
+      [_gv, dataset],
+      dataset.type == "vehicles-sharing" and dataset.is_active and dataset.id in subquery(relevant_coverage_datasets())
+    )
     |> group_by(fragment("geometry"))
   end
 
@@ -402,12 +218,9 @@ defmodule TransportWeb.API.StatsController do
     error_info_sub = dataset_error_levels()
     expired_info_sub = dataset_expiration_dates()
 
-    AOM
-    |> join(:left, [a], d in assoc(a, :legal_owners_dataset), as: :legal_owners_dataset)
-    |> join(:left, [a, legal_owners_dataset: legal_owners_dataset], d in Dataset,
-      on: (d.id == legal_owners_dataset.id or d.aom_id == a.id) and d.is_active,
-      as: :dataset
-    )
+    DB.DatasetGeographicView
+    |> join(:inner, [gv], dataset in DB.Dataset, on: dataset.id == gv.dataset_id, as: :dataset)
+    |> join(:inner, [dataset: d], a in assoc(d, :declarative_spatial_areas), as: :administrative_division)
     |> join(:left, [dataset: d], error_info in subquery(error_info_sub),
       on: error_info.dataset_id == d.id,
       as: :error_info
@@ -416,20 +229,16 @@ defmodule TransportWeb.API.StatsController do
       on: expired_info.dataset_id == d.id,
       as: :expired_info
     )
+    |> where(
+      [dataset: d],
+      d.type == "public-transit" and d.is_active and d.id in subquery(relevant_coverage_datasets())
+    )
     |> select(
-      [aom, error_info: error_info, expired_info: expired_info],
+      [gv, administrative_division: ad, error_info: error_info, expired_info: expired_info],
       %{
-        geometry: aom.geom,
-        id: aom.id,
-        siren: aom.siren,
-        created_after_2021: aom.composition_res_id >= 1_000,
-        insee_commune_principale: aom.insee_commune_principale,
-        nom: aom.nom,
-        forme_juridique: aom.forme_juridique,
-        dataset_types: %{
-          pt: count_aom_types(aom.id, "public-transit", include_aggregates: true),
-          vehicles_sharing: count_aom_types(aom.id, "vehicles-sharing", include_aggregates: true)
-        },
+        geometry: gv.geom,
+        insee: min(ad.insee),
+        nom: fragment("string_agg(distinct ?, ', ')", ad.nom),
         quality: %{
           expired_from: fragment("TO_DATE(?, 'YYYY-MM-DD') - max(?)", ^dt, expired_info.end_date),
           error_level: fragment("case max(CASE max_error::text
@@ -449,7 +258,7 @@ defmodule TransportWeb.API.StatsController do
         }
       }
     )
-    |> group_by([aom], aom.id)
+    |> group_by([gv], gv.geom)
   end
 
   def dataset_expiration_dates do
@@ -468,5 +277,14 @@ defmodule TransportWeb.API.StatsController do
     |> DB.ResourceMetadata.where_gtfs_up_to_date()
     |> where([resource: r], r.is_available == true)
     |> select([dataset: d, multi_validation: mv], %{dataset_id: d.id, max_error: mv.max_error})
+  end
+
+  def relevant_coverage_datasets do
+    DB.Dataset.base_query()
+    |> join(:inner, [dataset: d], a in assoc(d, :declarative_spatial_areas), as: :administrative_division)
+    # Covering a commune, EPCI OR the Ile-de-France region
+    |> where([administrative_division: ad], ad.type in [:commune, :epci] or (ad.type == :region and ad.insee == "11"))
+    |> distinct(true)
+    |> select([dataset: d], d.id)
   end
 end
