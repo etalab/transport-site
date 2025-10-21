@@ -135,7 +135,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
         created_at: ~U[2021-12-23 13:30:40.000000Z],
         organization: "org",
         organization_id: "org_id",
-        aom: insert(:aom, nom: "Angers Métropole", siren: "siren"),
         declarative_spatial_areas: [
           build(:administrative_division, nom: "Angers Métropole", insee: "123456", type: :epci)
         ]
@@ -200,7 +199,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
     path = Helpers.dataset_path(conn, :datasets)
 
     dataset_res = %{
-      "aom" => %{"name" => "Angers Métropole", "siren" => "siren"},
       "community_resources" => [],
       "covered_area" => [%{"insee" => "123456", "nom" => "Angers Métropole", "type" => "epci"}],
       "legal_owners" => %{"aoms" => [], "company" => nil, "regions" => []},
@@ -298,7 +296,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
             created_at: ~U[2021-12-23 13:30:40.000000Z],
             organization: "org",
             organization_id: "org_id",
-            aom: insert(:aom, nom: "Angers Métropole", siren: "siren"),
             declarative_spatial_areas: [
               build(:administrative_division, nom: "Angers Métropole", insee: "123456", type: :epci)
             ]
@@ -315,7 +312,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
 
     assert [
              %{
-               "aom" => %{"name" => "Angers Métropole", "siren" => "siren"},
                "community_resources" => [],
                "covered_area" => [%{"insee" => "123456", "nom" => "Angers Métropole", "type" => "epci"}],
                "legal_owners" => %{"aoms" => [], "company" => nil, "regions" => []},
@@ -350,8 +346,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
   end
 
   test "GET /api/datasets without the experimental tagged datasets", %{conn: conn} do
-    aom = insert(:aom, nom: "Angers Métropole", siren: "siren")
-
     insert(:resource,
       dataset:
         insert(:dataset,
@@ -362,7 +356,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
           slug: "slug-1",
           is_active: true,
           created_at: ~U[2021-12-23 13:30:40.000000Z],
-          aom: aom,
           tags: ["netex"]
         ),
       url: "https://link.to/gbfs.json",
@@ -381,7 +374,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
           slug: "slug-2",
           is_active: true,
           created_at: ~U[2021-12-23 13:30:40.000000Z],
-          aom: aom,
           tags: ["netex", "experimental"]
         ),
       url: "https://link.to/gbfs.json",
@@ -436,7 +428,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
         ],
         created_at: ~U[2021-12-23 13:30:40.000000Z],
         last_update: DateTime.utc_now(),
-        aom: aom,
         legal_owners_aom: [aom],
         legal_owners_region: [region],
         declarative_spatial_areas: [
@@ -451,7 +442,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
     json = conn |> get(path) |> json_response(200)
 
     assert %{
-             "aom" => %{"name" => "Angers Métropole", "siren" => "siren"},
              "community_resources" => [],
              "covered_area" => [%{"insee" => "123456", "nom" => "Angers Métropole", "type" => "epci"}],
              "legal_owners" => %{
@@ -519,7 +509,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
         created_at: ~U[2021-12-23 13:30:40.000000Z],
         organization: "org",
         organization_id: "org_id",
-        aom: insert(:aom, nom: "Angers Métropole", siren: "siren"),
         declarative_spatial_areas: [
           build(:administrative_division, nom: "Angers Métropole", insee: "123456", type: :epci)
         ]
@@ -578,7 +567,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
     json = conn |> get(path) |> json_response(200)
 
     assert %{
-             "aom" => %{"name" => "Angers Métropole", "siren" => "siren"},
              "community_resources" => [],
              "covered_area" => [%{"insee" => "123456", "nom" => "Angers Métropole", "type" => "epci"}],
              "legal_owners" => %{"aoms" => [], "company" => nil, "regions" => []},
