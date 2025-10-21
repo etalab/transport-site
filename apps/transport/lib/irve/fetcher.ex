@@ -38,4 +38,21 @@ defmodule Transport.IRVE.Fetcher do
 
     http_client.get!(url, options)
   end
+
+  # Use this:
+  # resource = Transport.IRVE.Extractor.datagouv_resources() |> List.last
+  # stream = Transport.IRVE.Fetcher.get_and_store_file!(resource.url, resource.resource_title)
+  # stream.body |> Stream.each(&IO.puts/1) |> Stream.run()
+  def get_and_store_file!(url, file_name, options \\ []) do
+    http_client = Transport.HTTPClient
+
+    destination = File.stream!(System.tmp_dir!() |> Path.join(file_name))
+
+    options =
+      options
+      |> Keyword.merge(http_options())
+      |> Keyword.put(:into, destination)
+
+    http_client.get!(url, options)
+  end
 end
