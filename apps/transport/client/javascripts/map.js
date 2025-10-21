@@ -126,8 +126,8 @@ function addStaticPTMapAOMS (id, view) {
             : count === 1
                 ? 'Un jeu de données'
                 : `${count} jeux de données`
-        const aomSIREN = feature.properties.insee
-        layer.bindPopup(`<strong>${name}</strong><br>${text} propre à l'AOM.<br><a href="${searchURL(aomSIREN)}">Voir les jeux de données</a>`)
+        const insee = feature.properties.insee
+        layer.bindPopup(`<strong>${name}</strong><br>${text} propre à l'AOM.<br><a href="${searchURL(insee)}">Voir les jeux de données</a>`)
     }
 
     const styles = {
@@ -183,8 +183,8 @@ function addStaticPTUpToDate (id, view) {
                 up_to_date: 'Les données sont à jour'
             }[expiredFrom.status]
         }
-        const siren = feature.properties.siren
-        layer.bindPopup(`<a href="${searchURL(siren)}">${name}</a><br>${text}`)
+        const insee = feature.properties.insee
+        layer.bindPopup(`<a href="${searchURL(insee)}">${name}</a><br>${text}`)
     }
 
     const styles = {
@@ -244,8 +244,8 @@ function addStaticPTQuality (id, view) {
         } else {
             text = 'Pas de données valides disponible.'
         }
-        const siren = feature.properties.siren
-        layer.bindPopup(`<a href="${searchURL(siren)}">${name}</a><br/>${text}`)
+        const insee = feature.properties.insee
+        layer.bindPopup(`<a href="${searchURL(insee)}">${name}</a><br/>${text}`)
     }
     const styles = {
         fatal: {
@@ -324,8 +324,8 @@ function addRealTimePtFormatMap (id, view) {
         let bind = `<div class="pb-6"><strong>${name}</strong></div>`
         if (countRealTime) {
             const text = countRealTime === 1 ? 'Une ressource' : `${countRealTime} ressources`
-            const siren = feature.properties.insee
-            bind += `<div class="pb-6"><a href="${searchURL(siren)}">${text}</a>`
+            const insee = feature.properties.insee
+            bind += `<div class="pb-6"><a href="${searchURL(insee)}">${text}</a>`
             bind += '<br/>formats :'
             const formats = []
             if (gtfsRT) {
@@ -493,8 +493,8 @@ function addPtFormatMap (id, view) {
     const aomsFG = getAomsFG(
         (feature, layer) => {
             const name = feature.properties.nom
-            const siren = feature.properties.siren
-            const bind = `<a href="${searchURL(siren)}">${name}<br/></a>`
+            const insee = feature.properties.insee
+            const bind = `<a href="${searchURL(insee)}">${name}<br/></a>`
             layer.bindPopup(bind)
         },
         style,

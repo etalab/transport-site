@@ -69,7 +69,7 @@ defmodule TransportWeb.API.StatsController do
         "type" => "Feature",
         "properties" => %{
           "nom" => Map.get(aom, :nom, ""),
-          "siren" => Map.get(aom, :insee),
+          "insee" => Map.get(aom, :insee),
           "quality" => %{
             "expired_from" => %{
               # negative values are up to date datasets, we filter them
