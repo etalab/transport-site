@@ -311,13 +311,6 @@ a.tile:hover {
   justify-content: center;
 }
 
-.companies__logos {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
 @media (max-width: 899px) {
   .row {
     flex-direction: column;
