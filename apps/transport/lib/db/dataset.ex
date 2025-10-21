@@ -314,7 +314,6 @@ defmodule DB.Dataset do
   defp filter_by_category(query, %{"filter" => filter_key}) do
     case filter_key do
       "has_realtime" -> where(query, [d], d.has_realtime == true)
-      "urban_public_transport" -> where(query, [d], not is_nil(d.aom_id) and d.type == "public-transit")
       _ -> query
     end
   end
