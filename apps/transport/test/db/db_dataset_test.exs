@@ -671,9 +671,9 @@ defmodule DB.DatasetDBTest do
   end
 
   test "count dataset by mode" do
-    insert(:region, id: 14, nom: "France")
+    france = insert(:administrative_division, type: :pays, insee: "FR", nom: "France")
     dataset = insert(:dataset)
-    dataset_2 = insert(:dataset, region_id: 14)
+    dataset_2 = insert(:dataset, declarative_spatial_areas: [france])
 
     # As filled by `Transport.CounterCache`
     insert(:resource, counter_cache: %{gtfs_modes: ["bus"]}, dataset: dataset)
@@ -684,7 +684,7 @@ defmodule DB.DatasetDBTest do
 
     assert DB.Dataset.count_by_mode("bus") == 2
     assert DB.Dataset.count_by_mode("ski") == 2
-    # this counts national datasets (region id = 14) with bus resources
+    # this counts datasets covering France with bus resources
     assert DB.Dataset.count_coach() == 1
   end
 
