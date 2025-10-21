@@ -4,7 +4,6 @@ defmodule Transport.StatsHandler do
   Also contains a function called periodically to store the stats in the DB
   """
   alias DB.{AOM, Dataset, Region, Repo, StatsHistory}
-  alias Transport.CachedFiles
   import Ecto.Query
   require Logger
 
