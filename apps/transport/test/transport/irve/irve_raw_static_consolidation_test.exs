@@ -13,8 +13,9 @@ defmodule Transport.IRVE.RawStaticConsolidationTest do
           # Mock the data.gouv.fr API response
           mock_datagouv_resources()
 
+          resource_file_path = System.tmp_dir!() |> Path.join(Ecto.UUID.generate())
           # Mock HTTP requests for resource content
-          mock_resource_downloads()
+          mock_resource_downloads(resource_file_path)
 
           # Execute the function
           options = [
@@ -83,6 +84,8 @@ defmodule Transport.IRVE.RawStaticConsolidationTest do
           assert String.contains?(report_content, "dataset_id")
           assert String.contains?(report_content, "resource_id")
           assert String.contains?(report_content, "%RuntimeError{message: \"\"producer is not an organization\"\"}")
+
+          File.rm!(resource_file_path)
         end)
       end)
     end
@@ -110,12 +113,15 @@ defmodule Transport.IRVE.RawStaticConsolidationTest do
     end)
   end
 
-  defp mock_resource_downloads do
+  defp mock_resource_downloads(resource_file_path) do
+    body = [DB.Factory.IRVE.generate_row()] |> DB.Factory.IRVE.to_csv_body()
+    File.write!(resource_file_path, body)
+
     Transport.Req.Mock
     |> expect(:get!, 2, fn _url, _options ->
       %Req.Response{
         status: 200,
-        body: [DB.Factory.IRVE.generate_row()] |> DB.Factory.IRVE.to_csv_body()
+        body: File.stream!(resource_file_path)
       }
     end)
   end
