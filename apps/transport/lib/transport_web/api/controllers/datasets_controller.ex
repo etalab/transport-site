@@ -3,7 +3,7 @@ defmodule TransportWeb.API.DatasetController do
   import Ecto.Query
   alias Helpers
   alias OpenApiSpex.Operation
-  alias DB.{AOM, Dataset, Repo, Resource}
+  alias DB.{Dataset, Repo, Resource}
   alias Geo.{JSON, MultiPolygon}
 
   plug(:log_request when action in [:datasets, :by_id])
@@ -15,8 +15,6 @@ defmodule TransportWeb.API.DatasetController do
   @by_id_cache_ttl :timer.seconds(30)
   @dataset_preload [
     :resources,
-    :aom,
-    :region,
     :communes,
     :legal_owners_aom,
     :legal_owners_region,
@@ -192,8 +190,6 @@ defmodule TransportWeb.API.DatasetController do
       "updated" => Helpers.last_updated(Dataset.official_resources(dataset)),
       "resources" => Enum.map(dataset.resources, &transform_resource/1),
       "community_resources" => Enum.map(Dataset.community_resources(dataset), &transform_resource/1),
-      # DEPRECATED, only there for retrocompatibility, use covered_area and legal owners instead
-      "aom" => transform_aom(dataset.aom),
       "covered_area" => covered_area(dataset),
       "legal_owners" => legal_owners(dataset),
       "type" => dataset.type,
@@ -327,10 +323,6 @@ defmodule TransportWeb.API.DatasetController do
          not DB.Resource.real_time?(resource))
   end
 
-  @spec transform_aom(AOM.t() | nil) :: map()
-  defp transform_aom(nil), do: %{"name" => nil}
-  defp transform_aom(aom), do: %{"name" => aom.nom, "siren" => aom.siren}
-
   @spec covered_area(DB.Dataset.t()) :: [map()]
   def covered_area(%DB.Dataset{declarative_spatial_areas: declarative_spatial_areas}) do
     declarative_spatial_areas
@@ -364,12 +356,9 @@ defmodule TransportWeb.API.DatasetController do
     datasets_with_gtfs_metadata =
       DB.Dataset.base_query()
       |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
-      |> preload([resource: r, resource_history: rh, multi_validation: mv, metadata: m, dataset: d], [
-        :aom,
-        :region,
-        :communes,
+      |> preload([resource: r, resource_history: rh, multi_validation: mv, metadata: m, dataset: d],
         resources: {r, dataset: d, resource_history: {rh, validations: {mv, metadata: m}}}
-      ])
+      )
       |> Repo.all(timeout: 40_000)
 
     recent_limit = Transport.Jobs.GTFSRTMetadataJob.datetime_limit()

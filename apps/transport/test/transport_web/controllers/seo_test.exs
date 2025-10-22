@@ -42,8 +42,7 @@ defmodule TransportWeb.SeoMetadataTest do
           nom: "Angers Métropôle",
           population: 10
         }
-      ],
-      aom: %DB.AOM{id: 4242, nom: "Angers Métropôle AOM"}
+      ]
     )
 
     Mox.stub_with(Transport.HTTPoison.Mock, HTTPoison)

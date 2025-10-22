@@ -40,99 +40,6 @@ defmodule DB.DatasetDBTest do
       assert logs =~ "error while importing dataset"
     end
 
-    test "some geographic link is required" do
-      {{:error, _}, logs} = with_log(fn -> Dataset.changeset(%{"datagouv_id" => "1", "slug" => "ma_limace"}) end)
-      assert logs =~ "error while importing dataset"
-    end
-
-    test "with insee code of a commune linked to an aom, it works" do
-      assert {:ok, _} =
-               Dataset.changeset(%{
-                 "datagouv_id" => "1",
-                 "custom_title" => "custom title",
-                 "datagouv_title" => "title",
-                 "type" => "public-transit",
-                 "licence" => "lov2",
-                 "slug" => "ma_limace",
-                 "insee" => "38185",
-                 "organization_id" => Ecto.UUID.generate(),
-                 "logo" => "https://example.com/logo.png"
-               })
-    end
-
-    test "with datagouv_zone only, it fails" do
-      {{:error, _}, logs} =
-        with_log(fn ->
-          Dataset.changeset(%{
-            "datagouv_id" => "1",
-            "slug" => "ma_limace",
-            "zones" => ["38185"]
-          })
-        end)
-
-      assert logs =~ "error while importing dataset"
-    end
-
-    test "with datagouv_zone and territory name, it works" do
-      assert {:ok, _} =
-               Dataset.changeset(%{
-                 "datagouv_id" => "1",
-                 "custom_title" => "custom title",
-                 "datagouv_title" => "title",
-                 "type" => "public-transit",
-                 "licence" => "lov2",
-                 "slug" => "ma_limace",
-                 "zones" => ["38185"],
-                 "associated_territory_name" => "paris",
-                 "organization_id" => Ecto.UUID.generate(),
-                 "logo" => "https://example.com/logo.png"
-               })
-    end
-
-    test "national dataset" do
-      assert {:ok, _} =
-               Dataset.changeset(%{
-                 "datagouv_id" => "1",
-                 "custom_title" => "custom title",
-                 "datagouv_title" => "title",
-                 "type" => "public-transit",
-                 "licence" => "lov2",
-                 "slug" => "ma_limace",
-                 "national_dataset" => "true",
-                 "organization_id" => Ecto.UUID.generate(),
-                 "logo" => "https://example.com/logo.png"
-               })
-    end
-
-    test "territory mutual exclusion" do
-      {{:error, _}, logs} =
-        with_log(fn ->
-          Dataset.changeset(%{
-            "datagouv_id" => "1",
-            "slug" => "ma_limace",
-            "national_dataset" => "true",
-            "insee" => "38185"
-          })
-        end)
-
-      assert logs =~ "error while importing dataset"
-    end
-
-    test "territory mutual exclusion with nil INSEE code resets AOM" do
-      %{datagouv_id: datagouv_id} = insert(:dataset)
-
-      assert {:ok, %Ecto.Changeset{changes: %{aom_id: nil, region_id: 1}}} =
-               Dataset.changeset(%{
-                 "datagouv_id" => datagouv_id,
-                 "custom_title" => "custom title",
-                 "datagouv_title" => "title",
-                 "type" => "public-transit",
-                 "licence" => "lov2",
-                 "national_dataset" => "true",
-                 "insee" => nil
-               })
-    end
-
     test "has_real_time=true" do
       changeset =
         Dataset.changeset(%{
@@ -763,17 +670,6 @@ defmodule DB.DatasetDBTest do
 
     dataset = DB.Dataset |> preload(:legal_owners_region) |> DB.Repo.get!(dataset.id)
     assert [%DB.Region{id: ^region_id}] = dataset.legal_owners_region
-  end
-
-  test "changeset to national dataset" do
-    %{id: region_id} = insert(:region)
-    insert(:dataset, region_id: region_id, datagouv_id: datagouv_id = "1234", aom: nil)
-
-    {:ok, changeset} =
-      DB.Dataset.changeset(%{"datagouv_id" => datagouv_id, "national_dataset" => "true", "region_id" => ""})
-
-    %{region_id: national_region_id} = DB.Repo.update!(changeset)
-    assert national_region_id != region_id
   end
 
   test "cannot insert a dataset with a nil organization_id" do

@@ -256,7 +256,7 @@ defmodule TransportWeb.DatasetController do
 
     params
     |> Dataset.list_datasets()
-    |> preload([:aom, :region, :declarative_spatial_areas])
+    |> preload([:declarative_spatial_areas])
     |> Repo.paginate(page: config.page_number)
   end
 

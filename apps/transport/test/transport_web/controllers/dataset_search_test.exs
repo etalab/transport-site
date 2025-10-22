@@ -25,8 +25,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
           url: "https://link.to/angers.zip",
           title: "angers.zip"
         }
-      ],
-      aom: %DB.AOM{id: 4242, nom: "Angers Métropôle"}
+      ]
     )
 
     insert(:dataset,

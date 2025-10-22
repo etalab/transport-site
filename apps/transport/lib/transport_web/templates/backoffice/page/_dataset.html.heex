@@ -24,20 +24,6 @@
     </a>
   </td>
   <td>
-    <%= if @dataset.region do
-      @dataset.region.nom
-    else
-      ""
-    end %>
-  </td>
-  <td>
-    <%= if @dataset.aom do
-      @dataset.aom.insee_commune_principale
-    else
-      ""
-    end %>
-  </td>
-  <td>
     <%= @end_date %>
   </td>
   <td class="bo_action_button">

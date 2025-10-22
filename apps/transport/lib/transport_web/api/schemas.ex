@@ -273,26 +273,6 @@ defmodule TransportWeb.API.Schemas do
     })
   end
 
-  defmodule AOMShortRef do
-    @moduledoc false
-    require OpenApiSpex
-
-    OpenApiSpex.schema(%{
-      title: "AOMShortRef",
-      description:
-        "AOM object, as embedded in datasets (short version - DEPRECATED, only there for retrocompatibility, use covered_area instead)",
-      type: :object,
-      required: [:name],
-      properties: %{
-        # nullable because we saw it null in actual production data
-        # probably exactly what's described in https://github.com/etalab/transport-site/issues/3422
-        siren: %Schema{type: :string, nullable: true},
-        name: %Schema{type: :string, nullable: true}
-      },
-      additionalProperties: false
-    })
-  end
-
   defmodule AOM do
     @moduledoc false
     require OpenApiSpex
@@ -710,8 +690,6 @@ defmodule TransportWeb.API.Schemas do
           format: :date,
           description: "Date of creation of the dataset"
         },
-        # Obsolete, to be removed (see https://github.com/etalab/transport-site/issues/3422)
-        aom: AOMShortRef.schema(),
         resources: %Schema{
           type: :array,
           description: "All the resources associated with the dataset",

@@ -48,15 +48,10 @@ defmodule TransportWeb.EditDatasetLive do
   end
 
   def form_params(%DB.Dataset{} = dataset) do
-    insee = if is_nil(dataset.aom), do: "", else: dataset.aom.insee_commune_principale
-
     %{
       "url" => Dataset.datagouv_url(dataset),
       "custom_title" => dataset.custom_title,
-      "legal_owner_company_siren" => dataset.legal_owner_company_siren,
-      "national_dataset" => dataset.region_id == 14,
-      "insee" => insee,
-      "associated_territory_name" => dataset.associated_territory_name
+      "legal_owner_company_siren" => dataset.legal_owner_company_siren
     }
     |> to_form()
   end
@@ -65,10 +60,7 @@ defmodule TransportWeb.EditDatasetLive do
     %{
       "url" => "",
       "custom_title" => "",
-      "legal_owner_company_siren" => "",
-      "national_dataset" => "",
-      "insee" => "",
-      "associated_territory_name" => ""
+      "legal_owner_company_siren" => ""
     }
     |> to_form()
   end

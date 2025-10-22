@@ -14,10 +14,6 @@ msgid "Resource updated with URL!"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "or"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Add a new resource"
 msgstr ""
 
