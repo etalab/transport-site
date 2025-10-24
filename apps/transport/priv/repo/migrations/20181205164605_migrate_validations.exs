@@ -1,7 +1,7 @@
 defmodule DB.Repo.Migrations.MigrateValidations do
   use Ecto.Migration
-  alias Ecto.Adapters.SQL
   alias DB.{Repo, Resource}
+  alias Ecto.Adapters.SQL
 
   defp convert([id, validations, validation_date, download_url]) do
     %{

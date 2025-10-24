@@ -8,8 +8,8 @@ defmodule DB.DatabaseCase do
 
   using(options) do
     quote do
-      alias Ecto.Adapters.SQL.Sandbox
       alias DB.{AOM, Commune, Dataset, Region, Repo}
+      alias Ecto.Adapters.SQL.Sandbox
 
       import Ecto
       import Ecto.Query

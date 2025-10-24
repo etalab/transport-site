@@ -6,8 +6,8 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
   @shortdoc "Refreshes the database table `commune` with the latest data"
   use Mix.Task
   import Ecto.Query
-  alias Ecto.Changeset
   alias DB.{Commune, Region, Repo}
+  alias Ecto.Changeset
   require Logger
 
   # List of communes with their geometry, but lacking additional information
