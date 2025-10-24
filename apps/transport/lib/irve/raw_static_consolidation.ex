@@ -41,10 +41,15 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   # similarly, required to eliminate a test file
   @test_dataset_id "67811b8e8934d388950bca3f"
 
-  @spec store_resource_content!(String.t(), String.t()) :: map()
-  def store_resource_content!(url, filename) do
+  @doc """
+  Store the content of a resource locally, returning a file stream and the HTTP status code.
+  The file will have a name based on the resource ID which is good enough to prevent collisions.
+  """
+
+  @spec store_resource_content!(map()) :: map()
+  def store_resource_content!(%{url: url, resource_id: resource_id}) do
     %{body: file_stream, status: status} =
-      Transport.IRVE.Fetcher.get_and_store_file!(url, filename, compressed: false, decode_body: false)
+      Transport.IRVE.Fetcher.get_and_store_file!(url, "irve_raw_#{resource_id}", compressed: false, decode_body: false)
 
     %{body: file_stream, status: status}
   end
@@ -259,7 +264,7 @@ defmodule Transport.IRVE.RawStaticConsolidation do
 
   def process_individual_resource_and_report(row, main_df, report) do
     Logger.info("Processing resource #{row.resource_id} (url=#{row.url}, dataset_id=#{row.dataset_id})")
-    %{body: file_stream, status: status} = store_resource_content!(row.url, row.resource_title)
+    %{body: file_stream, status: status} = store_resource_content!(row)
     extension = Path.extname(row.url)
 
     {main_df, optional_error} = process_resource(row, file_stream, status, extension) |> maybe_concat_rows(main_df)
