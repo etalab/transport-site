@@ -216,7 +216,8 @@ defmodule Transport.IRVE.RawStaticConsolidation do
       resource_url: row.url,
       error: optional_error,
       estimated_pdc_count: file_stream |> Enum.count(),
-      extension: extension
+      extension: extension,
+      local_file_path: file_stream.path
     }
   end
 
@@ -254,12 +255,17 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     report_filename = Keyword.fetch!(options, :report_file)
     Logger.info("Generating IRVE consolidation report file at #{report_filename}")
 
-    output.report
-    |> Enum.reverse()
+    report =
+      output.report
+      |> Enum.reverse()
+
+    report
     |> Enum.map(&Map.from_struct/1)
     |> Enum.map(fn x -> Map.put(x, :error, x.error |> inspect) end)
     |> Explorer.DataFrame.new()
     |> Explorer.DataFrame.to_csv!(report_filename)
+
+    report
   end
 
   def process_individual_resource_and_report(row, main_df, report) do

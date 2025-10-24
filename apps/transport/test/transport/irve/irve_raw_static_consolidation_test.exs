@@ -13,9 +13,8 @@ defmodule Transport.IRVE.RawStaticConsolidationTest do
           # Mock the data.gouv.fr API response
           mock_datagouv_resources()
 
-          resource_file_path = System.tmp_dir!() |> Path.join(Ecto.UUID.generate())
           # Mock HTTP requests for resource content
-          mock_resource_downloads(resource_file_path)
+          resource_file_path = mock_resource_downloads()
 
           # Execute the function
           options = [
@@ -23,10 +22,14 @@ defmodule Transport.IRVE.RawStaticConsolidationTest do
             report_file: report_file
           ]
 
-          assert :ok = Transport.IRVE.RawStaticConsolidation.build_aggregate_and_report!(options)
+          assert [
+                   %Transport.IRVE.ReportItem{resource_id: "another-resource-id"},
+                   %Transport.IRVE.ReportItem{resource_id: "the-resource-id"}
+                 ] = Transport.IRVE.RawStaticConsolidation.build_aggregate_and_report!(options)
 
           # Verify data file was created and contains expected content
           assert File.exists?(data_file)
+          # Only one PDC line expected, even if two resources were given (the other had no organization)
           [headers, pdc_line] = data_file |> File.stream!() |> CSV.decode!() |> Enum.into([])
 
           assert headers ==
@@ -113,7 +116,9 @@ defmodule Transport.IRVE.RawStaticConsolidationTest do
     end)
   end
 
-  defp mock_resource_downloads(resource_file_path) do
+  defp mock_resource_downloads do
+    resource_file_path = System.tmp_dir!() |> Path.join("irve_raw_#{Ecto.UUID.generate()}")
+
     body = [DB.Factory.IRVE.generate_row()] |> DB.Factory.IRVE.to_csv_body()
     File.write!(resource_file_path, body)
 
@@ -124,5 +129,7 @@ defmodule Transport.IRVE.RawStaticConsolidationTest do
         body: File.stream!(resource_file_path)
       }
     end)
+
+    resource_file_path
   end
 end
