@@ -40,7 +40,7 @@ defmodule Transport.Cache.Cachex do
       Logger.info("Generating cached value for key #{key}")
 
       try do
-        {:commit, value_fn.(), ttl: expire_value}
+        {:commit, value_fn.(), expire: expire_value}
       rescue
         e ->
           # NOTE: if an error occurs inside the value_fn computation, then
@@ -57,8 +57,8 @@ defmodule Transport.Cache.Cachex do
         Logger.info("Value for key #{cache_key} served from cache")
         result
 
-      {:commit, result, options} ->
-        Logger.info("Value for key #{cache_key} regenerated (options=#{options |> inspect})")
+      {:commit, result} ->
+        Logger.info("Value for key #{cache_key} regenerated")
         result
 
       {:ignore, _} ->
@@ -90,7 +90,7 @@ defmodule Transport.Cache.Cachex do
       cache_name(),
       cache_key,
       value,
-      ttl: expire_value
+      expire: expire_value
     )
   end
 

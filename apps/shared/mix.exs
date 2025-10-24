@@ -62,7 +62,7 @@ defmodule Shared.MixProject do
       {:ex_cldr_units, "~> 3.17"},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
-      {:cachex, "~> 3.5"},
+      {:cachex, "~> 4.1"},
       {:ex_json_schema, "~> 0.10"},
       # added because of `TransportWeb.Plugs.AppSignalFilter`
       {:appsignal, "~> 2.0"},
