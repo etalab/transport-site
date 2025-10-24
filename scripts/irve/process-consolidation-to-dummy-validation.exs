@@ -39,6 +39,7 @@ defmodule Transport.Jobs.IRVEConsolidationDummyValidationJob do
 
         # This is the added step:
         IRVEDummyValidation.perform_validation!(report)
+        cleanup_tmp_resource_files(report)
       end)
     end)
   end
@@ -46,6 +47,14 @@ defmodule Transport.Jobs.IRVEConsolidationDummyValidationJob do
   def build_filter(nil = _limit), do: nil
   def build_filter(limit) when is_integer(limit), do: fn stream -> stream |> Enum.take(limit) end
   def timestamp, do: DateTime.utc_now() |> Calendar.strftime("%Y%m%d.%H%M%S.%f")
+
+  @doc """
+  Cleans up temporary resource files created during the raw consolidation generation.
+  For now, these files are useless (during and after this raw consolidation) but later on they’ll be useful.
+  """
+  def cleanup_tmp_resource_files(report) do
+    Enum.each(report, fn report_item -> File.rm!(report_item.local_file_path) end)
+  end
 end
 
 defmodule IRVEDummyValidation do

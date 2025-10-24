@@ -16,7 +16,7 @@ defmodule Transport.Jobs.IRVEConsolidationJob do
           report_file: report_file
         ]
 
-        Transport.IRVE.RawStaticConsolidation.build_aggregate_and_report!(config)
+        Transport.IRVE.RawStaticConsolidation.build_aggregate_and_report!(config) |> cleanup_tmp_resource_files()
 
         now = timestamp()
 
@@ -38,4 +38,12 @@ defmodule Transport.Jobs.IRVEConsolidationJob do
   def build_filter(nil = _limit), do: nil
   def build_filter(limit) when is_integer(limit), do: fn stream -> stream |> Enum.take(limit) end
   def timestamp, do: DateTime.utc_now() |> Calendar.strftime("%Y%m%d.%H%M%S.%f")
+
+  @doc """
+  Cleans up temporary resource files created during the raw consolidation generation.
+  For now, these files are useless (during and after this raw consolidation) but later on they’ll be useful.
+  """
+  def cleanup_tmp_resource_files(report) do
+    Enum.each(report, fn report_item -> File.rm!(report_item.local_file_path) end)
+  end
 end

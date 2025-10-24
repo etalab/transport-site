@@ -88,6 +88,9 @@ defmodule Transport.IRVE.RawStaticConsolidationTest do
           assert String.contains?(report_content, "resource_id")
           assert String.contains?(report_content, "%RuntimeError{message: \"\"producer is not an organization\"\"}")
 
+          # The file created on the disk (mocking Req behavior) should be removed.
+          # The consolidation job takes care of cleaning up those files, but here we’re testing the module, not the job.
+          # (And it’s expected that the module keeps these files on the disk).
           File.rm!(resource_file_path)
         end)
       end)
