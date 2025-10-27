@@ -28,14 +28,6 @@ msgid "A dataset cannot be national and regional"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Unable to find INSEE code '%{insee}'"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "INSEE code '%{insee}' not associated with an AOM"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Other informations"
 msgstr ""
 
