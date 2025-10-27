@@ -42,23 +42,28 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   @test_dataset_id "67811b8e8934d388950bca3f"
 
   @doc """
-  Download content separately from processing, because we need to provide an estimate of the number of lines
-  even if the processing fails. Asserting 200 is fine here, because the target server is data gouv & quite reliable.
+  Store the content of a resource locally, returning a file stream and the HTTP status code.
+  The file will have a name based on the resource ID which is good enough to prevent collisions.
   """
-  @spec download_resource_content!(String.t()) :: map()
-  def download_resource_content!(url) do
-    %{status: status, body: body} = Transport.IRVE.Fetcher.get!(url, compressed: false, decode_body: false)
-    %{status: status, body: body}
+
+  @spec store_resource_content!(map()) :: map()
+  def store_resource_content!(%{url: url, resource_id: resource_id}) do
+    %{body: file_stream, status: status} =
+      Transport.IRVE.Fetcher.get_and_store_file!(url, "irve_raw_#{resource_id}", compressed: false, decode_body: false)
+
+    %{body: file_stream, status: status}
   end
 
   @doc """
   Process a row (resource). The full content (body) is expected together with the original file extension.
   """
   @spec process_resource(map(), binary(), integer(), String.t()) :: {:ok, Explorer.DataFrame.t()} | {:error, any()}
-  def process_resource(row, body, status, extension) do
+  def process_resource(row, file_stream, status, extension) do
     if status != 200 do
       raise "HTTP status is not 200 (#{status})"
     end
+
+    body = File.read!(file_stream.path)
 
     # Producers can only be orgs, not individuals.
     # We perform the check here because we want an error to be reported and an estimation of number of pdc.
@@ -204,14 +209,15 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     |> Enum.reject(fn r -> r.dataset_id == @test_dataset_id end)
   end
 
-  def build_report_item(row, body, extension, optional_error) do
+  def build_report_item(row, file_stream, extension, optional_error) do
     %Transport.IRVE.ReportItem{
       dataset_id: row.dataset_id,
       resource_id: row.resource_id,
       resource_url: row.url,
       error: optional_error,
-      estimated_pdc_count: body |> String.split("\n") |> Enum.count(),
-      extension: extension
+      estimated_pdc_count: file_stream |> Enum.count(),
+      extension: extension,
+      local_file_path: file_stream.path
     }
   end
 
@@ -249,22 +255,27 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     report_filename = Keyword.fetch!(options, :report_file)
     Logger.info("Generating IRVE consolidation report file at #{report_filename}")
 
-    output.report
-    |> Enum.reverse()
+    report =
+      output.report
+      |> Enum.reverse()
+
+    report
     |> Enum.map(&Map.from_struct/1)
     |> Enum.map(fn x -> Map.put(x, :error, x.error |> inspect) end)
     |> Explorer.DataFrame.new()
     |> Explorer.DataFrame.to_csv!(report_filename)
+
+    report
   end
 
   def process_individual_resource_and_report(row, main_df, report) do
     Logger.info("Processing resource #{row.resource_id} (url=#{row.url}, dataset_id=#{row.dataset_id})")
-    %{body: body, status: status} = download_resource_content!(row.url)
+    %{body: file_stream, status: status} = store_resource_content!(row)
     extension = Path.extname(row.url)
 
-    {main_df, optional_error} = process_resource(row, body, status, extension) |> maybe_concat_rows(main_df)
+    {main_df, optional_error} = process_resource(row, file_stream, status, extension) |> maybe_concat_rows(main_df)
 
-    report_item = build_report_item(row, body, extension, optional_error)
+    report_item = build_report_item(row, file_stream, extension, optional_error)
 
     %{
       df: main_df,
