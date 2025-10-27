@@ -648,7 +648,6 @@ defmodule DB.Dataset do
       :organization_id
     ])
     |> update_change(:custom_title, &String.trim/1)
-    |> cast_aom(params)
     |> cast_datagouv_zone(params, territory_name)
     |> cast_nation_dataset(params)
     |> cast_assoc(:resources)
@@ -1044,34 +1043,6 @@ defmodule DB.Dataset do
       false -> changeset |> add_error(:organization_type, dgettext("db-dataset", "Organization type is invalid"))
     end
   end
-
-  @spec cast_aom(Ecto.Changeset.t(), map()) :: Ecto.Changeset.t()
-  defp cast_aom(changeset, %{"insee" => insee}) when insee in [nil, ""], do: change(changeset, aom_id: nil)
-
-  defp cast_aom(changeset, %{"insee" => insee}) do
-    Commune
-    |> preload([:aom_res])
-    |> Repo.get_by(insee: insee)
-    |> case do
-      nil ->
-        add_error(changeset, :aom_id, dgettext("db-dataset", "Unable to find INSEE code '%{insee}'", insee: insee))
-
-      commune ->
-        case commune.aom_res do
-          nil ->
-            add_error(
-              changeset,
-              :aom_id,
-              dgettext("db-dataset", "INSEE code '%{insee}' not associated with an AOM", insee: insee)
-            )
-
-          aom_res ->
-            change(changeset, aom_id: aom_res.id)
-        end
-    end
-  end
-
-  defp cast_aom(changeset, _), do: changeset
 
   @spec cast_nation_dataset(Ecto.Changeset.t(), map()) :: Ecto.Changeset.t()
   defp cast_nation_dataset(changeset, %{"national_dataset" => "true"}) do

@@ -36,15 +36,13 @@ defmodule DB.DatabaseCase do
         Repo.insert(%AOM{
           insee_commune_principale: "38185",
           nom: "Grenoble",
-          region: Repo.get_by(Region, nom: "Auvergne-Rhône-Alpes"),
-          composition_res_id: 100
+          region: Repo.get_by(Region, nom: "Auvergne-Rhône-Alpes")
         })
 
         Repo.insert(%Commune{
           insee: "38185",
           nom: "Grenoble",
-          surf_ha: 200_554.0,
-          aom_res_id: 100
+          surf_ha: 200_554.0
         })
 
         cleanup()

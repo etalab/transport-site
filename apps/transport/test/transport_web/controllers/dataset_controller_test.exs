@@ -28,7 +28,7 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   test "dataset details with a documentation resource", %{conn: conn} do
-    dataset = insert(:dataset, aom: insert(:aom, composition_res_id: 157))
+    dataset = insert(:dataset, aom: insert(:aom))
     resource = insert(:resource, type: "documentation", url: "https://example.com", dataset: dataset)
 
     dataset = dataset |> DB.Repo.preload(:resources)
