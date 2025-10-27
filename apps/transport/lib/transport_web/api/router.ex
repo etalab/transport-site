@@ -40,7 +40,6 @@ defmodule TransportWeb.API.Router do
 
     scope "/stats" do
       get("/", TransportWeb.API.StatsController, :index)
-      get("/regions", TransportWeb.API.StatsController, :regions)
       get("/vehicles-sharing", TransportWeb.API.StatsController, :vehicles_sharing)
       get("/quality", TransportWeb.API.StatsController, :quality)
     end

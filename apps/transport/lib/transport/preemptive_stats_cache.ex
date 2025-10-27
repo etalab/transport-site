@@ -23,12 +23,6 @@ defmodule Transport.PreemptiveStatsCache do
     )
 
     Transport.Cache.put(
-      "api-stats-regions",
-      TransportWeb.API.StatsController.rendered_geojson(:regions, timeout: :timer.seconds(60)),
-      @cache_ttl
-    )
-
-    Transport.Cache.put(
       "api-stats-quality",
       TransportWeb.API.StatsController.rendered_geojson(:quality, timeout: :timer.seconds(60)),
       @cache_ttl

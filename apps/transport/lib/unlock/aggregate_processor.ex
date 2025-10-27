@@ -96,7 +96,7 @@ defmodule Unlock.AggregateProcessor do
         Logger.info("Proxy response for #{item.identifier}:#{origin} served from cache")
         result
 
-      {:commit, result, _options} ->
+      {:commit, result} ->
         result
 
       {:ignore, result} ->

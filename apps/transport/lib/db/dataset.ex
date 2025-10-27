@@ -314,7 +314,6 @@ defmodule DB.Dataset do
   defp filter_by_category(query, %{"filter" => filter_key}) do
     case filter_key do
       "has_realtime" -> where(query, [d], d.has_realtime == true)
-      "urban_public_transport" -> where(query, [d], not is_nil(d.aom_id) and d.type == "public-transit")
       _ -> query
     end
   end
@@ -782,8 +781,8 @@ defmodule DB.Dataset do
   @spec count_coach() :: number()
   def count_coach do
     count_by_mode_query("bus")
-    # 14 is the national "region". It means that it is not bound to a region or local territory
-    |> where([dataset: d], d.region_id == 14)
+    |> join(:inner, [dataset: d], r in assoc(d, :declarative_spatial_areas), as: :administrative_divison)
+    |> where([administrative_divison: ad], ad.type == :pays and ad.insee == "FR")
     |> DB.Repo.aggregate(:count, :id)
   end
 
