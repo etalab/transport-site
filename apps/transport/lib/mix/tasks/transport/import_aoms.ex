@@ -19,7 +19,7 @@ defmodule Mix.Tasks.Transport.ImportAOMs do
   @shortdoc "Refreshes the database table `aom` with the latest data"
   use Mix.Task
   import Ecto.Query
-  alias DB.{Commune, Region, Repo}
+  alias DB.{AOM, Commune, Region, Repo}
   require Logger
 
   # The resources urls
