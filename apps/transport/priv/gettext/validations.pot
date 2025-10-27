@@ -389,7 +389,7 @@ msgid "netex-french-profile-partial-compliance"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "This file contains the GTFS-Flex extension. We are not able to validate it for now. You can validate it using the <a href=\"%{url}\">Canonical GTFS Schedule Validator from MobilityData</a>."
+msgid "This file contains the GTFS-Flex extension. We are not able to validate it for now. You can validate it using the <a href=\"%{url}\" target=\"_blank\">Canonical GTFS Schedule Validator from MobilityData</a>."
 msgstr ""
 
 #, elixir-autogen, elixir-format
