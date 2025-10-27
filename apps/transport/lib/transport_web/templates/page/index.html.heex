@@ -165,16 +165,9 @@
 <section class="section companies">
   <div class="container">
     <h2 class="text-center"><%= dgettext("page-index", "Who is reusing data from") %> transport.data.gouv.fr ?</h2>
-    <div class="companies__logos">
-      <%= for reuser <- @reusers do %>
-        <%= link(
-          img_tag(static_path(@conn, "/images/logos/#{reuser["image"]}"), alt: reuser["name"]),
-          to: reuser["website"]
-        ) %>
-      <% end %>
-    </div>
+
     <p class="text-center">
-      <%= dgettext("page-index", "reusers list description") %>
+      <%= raw(dgettext("page-index", "reusers list description", url: reuse_path(@conn, :index))) %>
       <%= link(dgettext("page-index", "Learn more"),
         to: "https://doc.transport.data.gouv.fr/reutilisations-des-donnees/reutilisation-des-donnees"
       ) %>.
