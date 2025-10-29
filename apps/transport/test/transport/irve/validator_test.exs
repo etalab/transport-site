@@ -44,7 +44,7 @@ defmodule Transport.IRVE.ValidatorTest do
       ) do
     IO.puts("Configuring field checks: #{name}")
 
-    # nothing to do
+    # nothing to do - the field is always valid
     assert constraints == %{"required" => false}
 
     df
