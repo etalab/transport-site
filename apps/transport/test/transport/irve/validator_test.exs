@@ -1,3 +1,8 @@
+#
+# ```
+# find . -name "*valid*" | entr -c mix test apps/transport/test/transport/irve/validator_test.exs --only focus
+# ```
+#
 defmodule Transport.IRVE.ValidatorTest do
   use ExUnit.Case, async: true
 
