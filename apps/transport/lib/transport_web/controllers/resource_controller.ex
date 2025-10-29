@@ -23,7 +23,7 @@ defmodule TransportWeb.ResourceController do
         not_found(conn)
 
       resource ->
-        validation = latest_validation(resource)
+        validation = latest_validation(resource, include_result: not prefer_digest?(resource))
 
         conn =
           conn
@@ -45,6 +45,12 @@ defmodule TransportWeb.ResourceController do
         end
     end
   end
+
+  defp prefer_digest?(%Resource{} = resource) do
+    Resource.gtfs?(resource) || Resource.netex?(resource)
+  end
+
+  defp default_params?(params), do: Map.keys(params) == ["id"]
 
   defp not_found(conn) do
     conn
@@ -136,7 +142,7 @@ defmodule TransportWeb.ResourceController do
 
   defp put_resource_flash(conn, _), do: conn
 
-  defp latest_validation(%Resource{id: resource_id} = resource) do
+  defp latest_validation(%Resource{id: resource_id} = resource, opts) do
     validators = resource |> Transport.ValidatorsSelection.validators() |> Enum.filter(&(&1 in @enabled_validators))
 
     validator =
@@ -145,7 +151,7 @@ defmodule TransportWeb.ResourceController do
         Enum.empty?(validators) -> nil
       end
 
-    DB.MultiValidation.resource_latest_validation(resource_id, validator, include_result: true)
+    DB.MultiValidation.resource_latest_validation(resource_id, validator, opts)
   end
 
   def render_details(conn, resource) do
@@ -153,7 +159,7 @@ defmodule TransportWeb.ResourceController do
   end
 
   defp render_gtfs_details(conn, params, resource, validation) do
-    validation_details = {_, _, _, _, issues} = build_gtfs_validation_details(validation, params)
+    validation_details = {_, _, _, _, issues} = build_gtfs_validation_details(resource, validation, params)
 
     issue_type =
       case params["issue_type"] do
@@ -168,19 +174,47 @@ defmodule TransportWeb.ResourceController do
     |> render("gtfs_details.html")
   end
 
-  defp build_gtfs_validation_details(nil, _params), do: {nil, nil, nil, [], []}
+  defp build_gtfs_validation_details(_resource, nil, _params), do: {nil, nil, nil, [], []}
 
-  defp build_gtfs_validation_details(%{result: validation_result, metadata: metadata = %DB.ResourceMetadata{}}, params) do
-    summary = Transport.Validators.GTFSTransport.summary(validation_result)
-    stats = Transport.Validators.GTFSTransport.count_by_severity(validation_result)
+  defp build_gtfs_validation_details(
+         %DB.Resource{} = resource,
+         %{digest: nil, metadata: metadata = %DB.ResourceMetadata{}},
+         params
+       ) do
+    # Notably useful if digest wasn't persisted yet
+
+    %DB.MultiValidation{result: validation_result} = latest_validation(resource, include_result: true)
+
+    %{"summary" => summary, "stats" => stats} =
+      Transport.Validators.GTFSTransport.digest(validation_result)
+
     issues = Transport.Validators.GTFSTransport.get_issues(validation_result, params)
+
+    {summary, stats, metadata.metadata, metadata.modes, issues}
+  end
+
+  defp build_gtfs_validation_details(
+         %DB.Resource{} = resource,
+         %{digest: digest, metadata: metadata = %DB.ResourceMetadata{}},
+         params
+       ) do
+    %{"summary" => summary, "stats" => stats, "issues" => issues} = digest
+
+    issues =
+      if default_params?(params) do
+        issues
+      else
+        %DB.MultiValidation{result: validation_result} = latest_validation(resource, include_result: true)
+
+        Transport.Validators.GTFSTransport.get_issues(validation_result, params)
+      end
 
     {summary, stats, metadata.metadata, metadata.modes, issues}
   end
 
   defp render_netex_details(conn, params, resource, validation) do
     {results_adapter, validation_details, errors_template, max_severity} =
-      build_netex_validation_details(validation, params)
+      build_netex_validation_details(resource, validation, params)
 
     conn
     |> assign_base_resource_details(params, resource, validation_details)
@@ -191,18 +225,43 @@ defmodule TransportWeb.ResourceController do
     |> render("netex_details.html")
   end
 
-  defp build_netex_validation_details(nil, _params), do: {nil, {nil, nil, nil, [], []}, nil, nil}
+  defp build_netex_validation_details(_resource, nil, _params), do: {nil, {nil, nil, nil, [], []}, nil, nil}
 
   defp build_netex_validation_details(
-         %{validator_version: version, result: validation_result, metadata: metadata = %DB.ResourceMetadata{}},
+         %DB.Resource{} = resource,
+         %{validator_version: version, digest: nil, metadata: metadata = %DB.ResourceMetadata{}},
          params
        ) do
+    # Notably useful if digest wasn't persisted yet
+    %DB.MultiValidation{result: validation_result} = latest_validation(resource, include_result: true)
     results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
-    summary = results_adapter.summary(validation_result)
-    stats = results_adapter.count_by_severity(validation_result)
-    issues = results_adapter.get_issues(validation_result, params)
+    digest = results_adapter.digest(validation_result)
+
+    build_netex_validation_details(resource, version, digest, metadata, params)
+  end
+
+  defp build_netex_validation_details(
+         resource,
+         %{validator_version: version, digest: digest, metadata: metadata = %DB.ResourceMetadata{}},
+         params
+       ) do
+    build_netex_validation_details(resource, version, digest, metadata, params)
+  end
+
+  defp build_netex_validation_details(resource, version, digest, metadata, params) do
+    %{"summary" => summary, "stats" => stats, "max_severity" => max_severity} = digest
+    results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
     errors_template = pick_netex_errors_template(version)
-    max_severity = results_adapter.count_max_severity(validation_result)
+
+    issues =
+      if default_params?(params) do
+        digest["issues"]
+      else
+        # Digest doesn't include issues for non default params
+        %DB.MultiValidation{result: validation_result} = latest_validation(resource, include_result: true)
+
+        results_adapter.get_issues(validation_result, params)
+      end
 
     {results_adapter, {summary, stats, metadata.metadata, metadata.modes, issues}, errors_template, max_severity}
   end

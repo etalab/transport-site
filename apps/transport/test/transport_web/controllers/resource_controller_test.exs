@@ -562,7 +562,8 @@ defmodule TransportWeb.ResourceControllerTest do
   test "GTFS Transport validation is shown", %{conn: conn} do
     items = page_size() * 2 + 1
 
-    for params <- gtfs_params("MissingCoordinates") do
+    for with_digest <- [true, false],
+        params <- gtfs_params("MissingCoordinates") do
       %{id: dataset_id} = insert(:dataset)
 
       %{id: resource_id} =
@@ -586,11 +587,17 @@ defmodule TransportWeb.ResourceControllerTest do
         "MissingCoordinates" => [%{"severity" => "Warning"}] |> repeated(items)
       }
 
+      digest =
+        if with_digest do
+          Transport.Validators.GTFSTransport.digest(result)
+        end
+
       %{metadata: metadata} =
         insert(:multi_validation, %{
           resource_history_id: resource_history_id,
           validator: Transport.Validators.GTFSTransport.validator_name(),
           result: result,
+          digest: digest,
           max_error: "Warning",
           metadata: %DB.ResourceMetadata{
             metadata: %{
@@ -697,25 +704,26 @@ defmodule TransportWeb.ResourceControllerTest do
       |> repeated(items)
 
     for version <- ["0.1.0", "0.2.0", "0.2.1"],
+        with_digest <- [true, false],
         params <- netex_params_for(version) do
-      %{id: dataset_id} = insert(:dataset)
+      dataset = insert(:dataset)
 
-      %{id: resource_id} =
-        insert(:resource, %{
-          dataset_id: dataset_id,
+      resource =
+        insert(:resource,
+          dataset: dataset,
           format: "NeTEx",
           url: "https://example.com/file"
-        })
+        )
 
-      url = resource_path(conn, :details, resource_id)
+      url = resource_path(conn, :details, resource.id)
       conn1 = conn |> get(url, params)
       assert conn1 |> html_response(200) =~ "Pas de validation disponible"
 
-      %{id: resource_history_id} =
-        insert(:resource_history, %{
-          resource_id: resource_id,
+      resource_history =
+        insert(:resource_history,
+          resource: resource,
           payload: %{"permanent_url" => permanent_url = "https://example.com/#{Ecto.UUID.generate()}"}
-        })
+        )
 
       result =
         case version do
@@ -723,11 +731,17 @@ defmodule TransportWeb.ResourceControllerTest do
           _ -> %{"xsd-schema" => issues}
         end
 
-      insert(:multi_validation, %{
-        resource_history_id: resource_history_id,
+      digest =
+        if with_digest do
+          Transport.Validators.NeTEx.ResultsAdapter.resolve(version).digest(result)
+        end
+
+      insert(:multi_validation,
+        resource_history: resource_history,
         validator: Transport.Validators.NeTEx.Validator.validator_name(),
         validator_version: version,
         result: result,
+        digest: digest,
         max_error: "error",
         metadata: %DB.ResourceMetadata{
           metadata: %{"elapsed_seconds" => 42},
@@ -735,9 +749,9 @@ defmodule TransportWeb.ResourceControllerTest do
           features: []
         },
         validation_timestamp: ~U[2022-10-28 14:12:29.041243Z]
-      })
+      )
 
-      url = resource_path(conn, :details, resource_id)
+      url = resource_path(conn, :details, resource.id)
       content = conn |> get(url, params) |> html_response(200)
       assert content =~ "Rapport de validation"
 
