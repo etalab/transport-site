@@ -19,11 +19,14 @@ defmodule Transport.Validators.TableSchema do
     schema_version = schema_version || Map.get(payload, "latest_schema_version_to_date", "latest")
     validation_result = perform_validation(schema_name, url, schema_version)
 
+    result = validation_result |> normalize_validation_result()
+
     %DB.MultiValidation{
       validation_timestamp: DateTime.utc_now(),
       command: TableSchemaValidator.validator_api_url(schema_name, url, schema_version),
       validator: validator_name(),
-      result: validation_result |> normalize_validation_result(),
+      result: result,
+      digest: digest(result),
       resource_history_id: resource_history_id,
       validator_version: validation_result |> validator_version()
     }
@@ -49,4 +52,14 @@ defmodule Transport.Validators.TableSchema do
 
   def validator_version(%{@validator_version_key_name => validata_api_version}), do: validata_api_version
   def validator_version(nil), do: nil
+
+  @doc """
+  iex> digest(%{"warnings_count" => 2, "errors_count" => 3, "issues" => []})
+  %{"errors_count" => 3, "warnings_count" => 2}
+  iex> digest(%{"issues" => []})
+  %{}
+  """
+  def digest(validation_result) do
+    Map.intersect(%{"warnings_count" => 0, "errors_count" => 0}, validation_result)
+  end
 end

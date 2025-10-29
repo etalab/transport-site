@@ -4,6 +4,8 @@ defmodule Transport.Validators.TableSchemaTest do
   import Mox
   alias Transport.Validators.TableSchema
 
+  doctest Transport.Validators.TableSchema, import: true
+
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
@@ -39,6 +41,7 @@ defmodule Transport.Validators.TableSchemaTest do
 
     assert %{
              result: %{"has_errors" => false, "errors_count" => 0, "errors" => [], "validation_performed" => true},
+             digest: %{"errors_count" => 0},
              resource_history_id: ^resource_history_id,
              command: ^expected_command_url,
              data_vis: nil,
