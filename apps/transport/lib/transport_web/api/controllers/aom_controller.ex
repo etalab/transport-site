@@ -1,10 +1,10 @@
 defmodule TransportWeb.API.AomController do
   use TransportWeb, :controller
-  alias Plug.Conn
-  alias DB.{AOM, Commune, Repo}
   import Ecto.Query
+  alias DB.{AOM, Commune, Repo}
   alias Geo.JSON
   alias OpenApiSpex.Operation
+  alias Plug.Conn
 
   @aom_fields [:nom, :insee_commune_principale, :departement, :forme_juridique, :siren]
 

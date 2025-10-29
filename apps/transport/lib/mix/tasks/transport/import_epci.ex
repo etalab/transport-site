@@ -5,9 +5,9 @@ defmodule Mix.Tasks.Transport.ImportEPCI do
   """
 
   use Mix.Task
-  import Ecto.Query
-  alias Ecto.Changeset
   alias DB.{Commune, EPCI, Repo}
+  alias Ecto.Changeset
+  import Ecto.Query
   require Logger
 
   @epci_file "https://unpkg.com/@etalab/decoupage-administratif@4.0.0/data/epci.json"

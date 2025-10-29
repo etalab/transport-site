@@ -1,10 +1,10 @@
 defmodule TransportWeb.API.DatasetController do
   use TransportWeb, :controller
   import Ecto.Query
-  alias Helpers
-  alias OpenApiSpex.Operation
   alias DB.{Dataset, Repo, Resource}
   alias Geo.{JSON, MultiPolygon}
+  alias Helpers
+  alias OpenApiSpex.Operation
 
   plug(:log_request when action in [:datasets, :by_id])
 
