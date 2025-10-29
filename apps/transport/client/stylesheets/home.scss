@@ -189,9 +189,6 @@ a.tile:hover {
       font-size: 1.5em;
       font-weight: normal;
     }
-    .button.reuser-space {
-      background-color: var(--primary-color-reuser)
-    }
   }
   .home-search {
     flex-basis: 50%;
@@ -309,6 +306,10 @@ a.tile:hover {
   flex-direction: column;
   flex-shrink: 1;
   justify-content: center;
+}
+
+a.button.reuser-space {
+  background-color: var(--primary-color-reuser)
 }
 
 @media (max-width: 899px) {
