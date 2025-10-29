@@ -168,10 +168,6 @@ msgid "Your improved data has been saved."
 msgstr "Vos données améliorées ont bien été sauvegardées."
 
 #, elixir-autogen, elixir-format
-msgid "Manage settings"
-msgstr "Gérer les paramètres"
-
-#, elixir-autogen, elixir-format
 msgid "Name"
 msgstr "Nom"
 
@@ -194,10 +190,6 @@ msgstr "Il n'y a pas de tokens pour le moment."
 #, elixir-autogen, elixir-format
 msgid "Tokens"
 msgstr "Tokens"
-
-#, elixir-autogen, elixir-format
-msgid "Update your preferences, manage tokens to access data."
-msgstr "Gérer vos préférences, gérer vos tokens pour accéder aux données."
 
 #, elixir-autogen, elixir-format
 msgid "A name identifying the application using this token."
@@ -274,3 +266,15 @@ msgstr "Réutilisations"
 #, elixir-autogen, elixir-format
 msgid "Personal token"
 msgstr "Token personnel"
+
+#, elixir-autogen, elixir-format
+msgid "API - Manage your tokens"
+msgstr "API - Gérer vos tokens"
+
+#, elixir-autogen, elixir-format
+msgid "Create and manage your tokens independently."
+msgstr "Créer et gérer vos tokens en toute autonomie"
+
+#, elixir-autogen, elixir-format
+msgid "Manage your tokens"
+msgstr "Gérer vos tokens"
