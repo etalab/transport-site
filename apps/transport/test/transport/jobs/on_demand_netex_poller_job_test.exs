@@ -31,7 +31,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
              metadata: nil,
              oban_args: %{"state" => "waiting", "type" => "netex"},
              result: nil
-           } = validation |> DB.Repo.reload() |> DB.Repo.preload(:metadata)
+           } = validation |> reload_validation()
   end
 
   test "too many attempts" do
@@ -54,7 +54,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
                       validation_timestamp: date,
                       validator: "enroute-chouette-netex-validator",
                       validator_version: "0.2.0"
-                    } = validation |> DB.Repo.reload() |> DB.Repo.preload(:metadata)
+                    } = validation |> reload_validation()
 
              assert DateTime.diff(date, DateTime.utc_now()) <= 1
            end) =~ "Timeout while fetching result"
@@ -76,7 +76,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
              validation_timestamp: date,
              validator: "enroute-chouette-netex-validator",
              validator_version: "0.2.0"
-           } = validation |> DB.Repo.reload() |> DB.Repo.preload(:metadata)
+           } = validation |> reload_validation()
 
     assert DateTime.diff(date, DateTime.utc_now()) <= 1
   end
@@ -119,7 +119,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
              oban_args: %{"state" => "completed", "type" => "netex"},
              result: result,
              validation_timestamp: date
-           } = validation |> DB.Repo.reload() |> DB.Repo.preload(:metadata)
+           } = validation |> reload_validation()
 
     assert %{"xsd-schema" => a1, "base-rules" => a2} = result
 
@@ -153,5 +153,11 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
       |> Map.merge(%{"id" => validation.id, "validation_id" => validation_id})
 
     perform_job(Transport.Jobs.OnDemandNeTExPollerJob, payload, attempt: attempt)
+  end
+
+  defp reload_validation(validation) do
+    DB.MultiValidation.with_result()
+    |> DB.Repo.get!(validation.id)
+    |> DB.Repo.preload(:metadata)
   end
 end

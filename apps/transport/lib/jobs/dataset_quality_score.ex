@@ -216,7 +216,7 @@ defmodule Transport.Jobs.DatasetComplianceScore do
   def current_dataset_compliance(dataset_id) do
     validation_details =
       dataset_id
-      |> DB.MultiValidation.dataset_latest_validation(@validators)
+      |> DB.MultiValidation.dataset_latest_validation(@validators, include_result: true)
       |> Enum.reject(fn {_resource_id, [multi_validation]} -> is_nil(multi_validation) end)
 
     current_dataset_infos = Enum.map(validation_details, &resource_compliance(&1))
