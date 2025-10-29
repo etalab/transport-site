@@ -70,7 +70,7 @@ defmodule DB.ResourceHistory do
   end
 
   @doc """
-  iex> gtfs_flex?(%DB.ResourceHistory{payload: %{"format" => "GTFS", "filenames" => ["stops.txt", "booking_rules.txt"]}})
+  iex> gtfs_flex?(%DB.ResourceHistory{payload: %{"format" => "GTFS", "filenames" => ["stops.txt", "location_groups.txt"]}})
   true
   iex> gtfs_flex?(%DB.ResourceHistory{payload: %{"format" => "GTFS", "filenames" => ["stops.txt", "locations.geojson"]}})
   true
@@ -79,8 +79,7 @@ defmodule DB.ResourceHistory do
   """
   @spec gtfs_flex?(DB.ResourceHistory.t()) :: boolean()
   def gtfs_flex?(%__MODULE__{payload: %{"format" => "GTFS", "filenames" => filenames}}) do
-    # See https://gtfs.org/extensions/flex/ and search for "Add new file"
-    Enum.any?(filenames, &(&1 in ["booking_rules.txt", "locations.geojson"]))
+    Enum.any?(filenames, &(&1 in ["location_groups.txt", "location_group_stops.txt", "locations.geojson"]))
   end
 
   def gtfs_flex?(%__MODULE__{}), do: false

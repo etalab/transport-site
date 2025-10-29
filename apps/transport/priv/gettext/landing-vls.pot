@@ -64,7 +64,7 @@ msgid "Real-time data in GBFS format"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "If you have any questions, the transport.data.gouv.fr team is available to help you reuse this data:"
+msgid "If you have any questions, the transport.data.gouv.fr team is available to help you reuse this data."
 msgstr ""
 
 #, elixir-autogen, elixir-format

@@ -47,7 +47,6 @@ defmodule TransportWeb.PageController do
       count_aoms_with_dataset: count_aoms_with_dataset(),
       count_regions_completed: count_regions_completed(),
       percent_population: percent_population(),
-      reusers: CachedFiles.reusers(),
       facilitators: CachedFiles.facilitators()
     ]
   end
@@ -234,9 +233,7 @@ defmodule TransportWeb.PageController do
       |> join(:inner, [dataset: d], a in assoc(d, :legal_owners_aom), as: :aom)
       |> select([aom: a], a.id)
 
-    aoms_datasets = Dataset.base_query() |> where([dataset: d], not is_nil(d.aom_id)) |> select([dataset: d], d.aom_id)
-
-    from(a in AOM, where: a.id in subquery(union(aoms_legal_owners, ^aoms_datasets)))
+    from(a in AOM, where: a.id in subquery(aoms_legal_owners))
   end
 
   defp count_aoms_with_dataset, do: Repo.aggregate(aoms_with_dataset(), :count, :id)

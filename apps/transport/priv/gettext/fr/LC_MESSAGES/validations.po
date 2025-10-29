@@ -392,7 +392,7 @@ msgstr "Nous ne vérifions que partiellement la conformité à la structure et a
 
 #, elixir-autogen, elixir-format
 msgid "This file contains the GTFS-Flex extension. We are not able to validate it for now. You can validate it using the <a href=\"%{url}\">Canonical GTFS Schedule Validator from MobilityData</a>."
-msgstr "Ce fichier contient l'extension GTFS-Flex. Nous ne sommes pas en mesure de le valider pour le moment. Vous pouvez le valider avec le <a href=\"%{url}\">validateur GTFS canonique de MobilityData</a>."
+msgstr "Ce fichier contient l'extension GTFS-Flex. Nous ne sommes pas en mesure de le valider pour le moment. Vous pouvez le valider avec le <a href=\"%{url}\" target=\"_blank\">validateur GTFS canonique de MobilityData</a>."
 
 #, elixir-autogen, elixir-format
 msgid "French profile"

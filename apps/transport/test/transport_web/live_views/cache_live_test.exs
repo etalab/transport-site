@@ -32,7 +32,7 @@ defmodule TransportWeb.Backoffice.CacheLiveTest do
     {:ok, view, _html} = live(conn)
 
     Cachex.put(cache_name(), "foo", 42)
-    Cachex.put(cache_name(), "bar", "value", ttl: ttl_ms = :timer.seconds(10))
+    Cachex.put(cache_name(), "bar", "value", expire: ttl_ms = :timer.seconds(10))
 
     send(view.pid, :update_data)
 

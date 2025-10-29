@@ -1,6 +1,5 @@
 defmodule TransportWeb.AOMSController do
   use TransportWeb, :controller
-  alias DB.{AOM, Commune, Dataset, Repo}
   import Ecto.Query
 
   @csv_headers [
@@ -97,9 +96,9 @@ defmodule TransportWeb.AOMSController do
   @spec gtfs_datasets() :: {%{required(aom_id) => [dataset]}, %{required(dataset_id) => dataset}}
   defp gtfs_datasets do
     gtfs_datasets =
-      Dataset.base_query()
-      |> Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
-      |> join(:left, [dataset: d], aom in AOM, on: d.aom_id == aom.id, as: :aom)
+      DB.Dataset.base_query()
+      |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+      |> join(:left, [dataset: d], a in assoc(d, :legal_owners_aom), as: :aom)
       |> where([dataset: d], d.type == "public-transit")
       |> select(
         [dataset: d, metadata: m, aom: a],
@@ -110,7 +109,7 @@ defmodule TransportWeb.AOMSController do
           has_realtime: d.has_realtime
         }
       )
-      |> Repo.all()
+      |> DB.Repo.all()
 
     gtfs_datasets_by_aom_id = gtfs_datasets |> Enum.group_by(& &1.aom_id)
     gtfs_dataset_by_dataset_id = gtfs_datasets |> Map.new(&{&1.dataset_id, &1})
@@ -120,22 +119,22 @@ defmodule TransportWeb.AOMSController do
   @spec aggregated_datasets(%{required(dataset_id) => dataset}) :: %{required(aom_id) => [dataset]}
   defp aggregated_datasets(gtfs_dataset_by_dataset_id) do
     aggregated_datasets_in_db =
-      AOM
+      DB.AOM
       |> join(:inner, [aom], d in assoc(aom, :legal_owners_dataset), as: :legal_owners_dataset)
       |> where(
         [legal_owners_dataset: d],
         d.id in subquery(
-          Dataset.base_query()
+          DB.Dataset.base_query()
           |> join(:inner, [dataset: d], aom in assoc(d, :legal_owners_aom), as: :aom)
           |> DB.Resource.join_dataset_with_resource()
           |> group_by([dataset: d], d.id)
-          |> having([aom: a], count(a.id) >= 2)
+          |> having([aom: a], count(a.id, :distinct) >= 2)
           |> where([resource: r], r.format in ["GTFS", "NeTEx"])
           |> select([dataset: d], d.id)
         )
       )
       |> select([aom, legal_owners_dataset: d], %{aom_id: aom.id, dataset_id: d.id})
-      |> Repo.all()
+      |> DB.Repo.all()
 
     aggregated_datasets_in_db
     |> Enum.group_by(& &1.aom_id, fn %{dataset_id: dataset_id} ->
@@ -144,17 +143,17 @@ defmodule TransportWeb.AOMSController do
         gtfs_dataset_by_dataset_id,
         dataset_id,
         # In case of a NeTEx or GTFS-Flex dataset, we don’t have the end_date
-        # We could have the realtime info by redoing the SQL query behing aggregated_datasets_in_db
+        # We could have the realtime info by redoing the SQL query behind aggregated_datasets_in_db
         %{dataset_id: dataset_id, end_date: nil, has_realtime: false}
       )
     end)
   end
 
   defp aom_and_commune_principale do
-    AOM
-    |> join(:left, [aom], c in Commune, on: aom.insee_commune_principale == c.insee)
+    DB.AOM
+    |> join(:left, [aom], c in DB.Commune, on: aom.insee_commune_principale == c.insee)
     |> preload([:region])
     |> select([aom, commune], {aom, commune.nom})
-    |> Repo.all()
+    |> DB.Repo.all()
   end
 end
