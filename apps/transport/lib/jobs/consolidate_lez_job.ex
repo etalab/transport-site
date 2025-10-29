@@ -11,7 +11,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
   use Oban.Worker, max_attempts: 3
   require Logger
   import Ecto.Query
-  alias DB.{AOM, Dataset, MultiValidation, Repo, Resource, ResourceHistory}
+  alias DB.{Dataset, MultiValidation, Repo, Resource, ResourceHistory}
   alias Transport.CachedFiles
 
   @schema_name "etalab/schema-zfe"
@@ -96,7 +96,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
           d.organization_id != ^own_publisher
     )
     |> where([r], r.schema_name == @schema_name)
-    |> preload(dataset: [:aom])
+    |> preload(:dataset)
     |> Repo.all()
   end
 
@@ -137,30 +137,34 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
     Map.put(features, "publisher", publisher_details)
   end
 
-  def publisher_details(%Resource{dataset: %Dataset{aom: %AOM{} = aom}}) do
-    %{
-      "nom" => aom.nom,
-      "siren" => aom.siren,
-      "forme_juridique" => aom.forme_juridique,
-      "zfe_id" => zfe_id(aom.siren)
-    }
-  end
-
   @doc """
   iex> publisher_details(%DB.Resource{dataset: %DB.Dataset{organization: "Dijon metropole"}})
   %{"forme_juridique" => "Métropole", "nom" => "Dijon Métropole", "siren" => "242100410", "zfe_id" => "DIJON"}
   """
-  def publisher_details(%Resource{dataset: %Dataset{organization: organization}}) do
-    CachedFiles.zfe_ids()
-    |> Enum.find_value(
-      &if lower_unaccent(organization) == lower_unaccent(&1["epci_principal"]),
-        do: %{
-          "nom" => &1["epci_principal"],
-          "siren" => &1["siren"],
-          "forme_juridique" => &1["forme_juridique"],
-          "zfe_id" => zfe_id(&1["siren"])
-        }
-    )
+  def publisher_details(%Resource{dataset: %Dataset{} = dataset}) do
+    aoms = dataset |> DB.Repo.preload(:legal_owners_aom) |> Map.fetch!(:legal_owners_aom)
+
+    if Enum.empty?(aoms) do
+      CachedFiles.zfe_ids()
+      |> Enum.find_value(
+        &if lower_unaccent(dataset.organization) == lower_unaccent(&1["epci_principal"]),
+          do: %{
+            "nom" => &1["epci_principal"],
+            "siren" => &1["siren"],
+            "forme_juridique" => &1["forme_juridique"],
+            "zfe_id" => zfe_id(&1["siren"])
+          }
+      )
+    else
+      aom = aoms |> hd()
+
+      %{
+        "nom" => aom.nom,
+        "siren" => aom.siren,
+        "forme_juridique" => aom.forme_juridique,
+        "zfe_id" => zfe_id(aom.siren)
+      }
+    end
   end
 
   def zfe_id(siren) do

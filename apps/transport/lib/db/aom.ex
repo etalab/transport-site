@@ -22,7 +22,6 @@ defmodule DB.AOM do
 
     belongs_to(:region, Region)
     belongs_to(:departement_object, Departement, foreign_key: :departement, references: :insee, type: :string)
-    has_many(:datasets, Dataset)
 
     many_to_many(:legal_owners_dataset, Dataset, join_through: "dataset_aom_legal_owner")
   end

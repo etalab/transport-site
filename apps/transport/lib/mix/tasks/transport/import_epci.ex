@@ -10,8 +10,8 @@ defmodule Mix.Tasks.Transport.ImportEPCI do
   import Ecto.Query
   require Logger
 
-  @epci_file "https://unpkg.com/@etalab/decoupage-administratif@4.0.0/data/epci.json"
-  @epci_geojson_url "http://etalab-datasets.geo.data.gouv.fr/contours-administratifs/2024/geojson/epci-100m.geojson"
+  @epci_file "https://unpkg.com/@etalab/decoupage-administratif@5.0.2/data/epci.json"
+  @epci_geojson_url "http://etalab-datasets.geo.data.gouv.fr/contours-administratifs/2025/geojson/epci-100m.geojson"
 
   def run(_params) do
     Logger.info("Importing EPCIs")

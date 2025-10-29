@@ -4,7 +4,6 @@ defmodule TransportWeb.BackofficeControllerTest do
   use TransportWeb.ExternalCase
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
   alias DB.{Repo, Resource}
-  import ExUnit.CaptureLog
 
   import Mox
   setup :verify_on_exit!
@@ -36,14 +35,6 @@ defmodule TransportWeb.BackofficeControllerTest do
     "action" => "new"
   }
 
-  @dataset_with_zones_url "https://demo.data.gouv.fr/fr/datasets/test-jeu-de-donnees-associes-a-plusieurs-villes-2/"
-  @dataset_with_zones %{
-    "url" => @dataset_with_zones_url,
-    "custom_title" => "Grenoble",
-    "type" => "public-transit",
-    "action" => "new"
-  }
-
   test "Deny access to backoffice if not logged", %{conn: conn} do
     conn = get(conn, backoffice_page_path(conn, :index))
     target_uri = URI.parse(redirected_to(conn, 302))
@@ -69,53 +60,9 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert html_response(conn, 200) =~ "Ajouter un jeu de données"
   end
 
-  test "Add a dataset with a region and AOM", %{conn: conn} do
-    conn = conn |> setup_admin_in_session()
-
-    {conn, logs} =
-      use_cassette "dataset/dataset-region-ao.json" do
-        with_log(fn -> post(conn, backoffice_dataset_path(conn, :post), %{"form" => @dataset}) end)
-      end
-
-    assert logs =~ "Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv"
-    assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
-    assert Resource |> Repo.all() |> length() == 0
-
-    assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
-             "%{region: [\"Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv\"]}"
-
-    assert [] == all_enqueued()
-  end
-
-  test "Add a dataset without a region nor aom", %{conn: conn} do
-    dataset = @dataset |> Map.put("region_id", nil) |> Map.put("insee", nil)
-
-    {conn, logs} =
-      use_cassette "dataset/dataset-no-region-nor-ao.json" do
-        with_log(fn ->
-          conn
-          |> setup_admin_in_session()
-          |> post(backoffice_dataset_path(conn, :post), %{"form" => dataset})
-        end)
-      end
-
-    assert logs =~ "Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv"
-    assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
-    assert Resource |> Repo.all() |> length() == 0
-
-    assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
-             "%{region: [\"Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv\"]}"
-
-    assert [] == all_enqueued()
-  end
-
-  test "Add a dataset linked to a region", %{conn: conn} do
+  test "Add a dataset", %{conn: conn} do
     dataset_datagouv_id = "12"
-
-    dataset =
-      @dataset
-      |> Map.put("region_id", Repo.get_by(Region, nom: "Auvergne-Rhône-Alpes").id)
-      |> Map.put("insee", nil)
+    dataset = @dataset
 
     Transport.HTTPoison.Mock
     |> expect(:request, fn :get, _url, _, _, _ ->
@@ -173,151 +120,6 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert Resource |> where([r], not r.is_community_resource) |> Repo.all() |> length() == 1
     assert Resource |> where([r], r.is_community_resource) |> Repo.all() |> length() == 2
     assert ["Dataset ajouté" | _] = Phoenix.Flash.get(conn.assigns.flash, :info)
-  end
-
-  test "Add a dataset linked to aom", %{conn: conn} do
-    conn = conn |> setup_admin_in_session()
-
-    dataset = %{@dataset | "region_id" => nil}
-
-    Datagouvfr.Client.CommunityResources.Mock
-    |> expect(:get, fn id ->
-      # we return the same urls that the one we find in dataset-aom.json cassette
-      # because for the moment the Hasher is not Mocked
-      # we it is the case, we will be able to put random urls here
-      assert id == "5760038cc751df708cac31a0"
-
-      {:ok,
-       [
-         %{
-           "url" => "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt.json",
-           "id" => "r1",
-           "type" => "main",
-           "last_modified" => DateTime.utc_now() |> DateTime.to_iso8601()
-         },
-         %{
-           "url" => "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt",
-           "id" => "r2",
-           "type" => "main",
-           "last_modified" => DateTime.utc_now() |> DateTime.to_iso8601()
-         }
-       ]}
-    end)
-
-    conn =
-      use_cassette "dataset/dataset-aom.json" do
-        post(conn, backoffice_dataset_path(conn, :post), %{"form" => dataset})
-      end
-
-    assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
-
-    assert Resource |> where([r], not r.is_community_resource) |> Repo.all() |> length() == 1
-    assert Resource |> where([r], r.is_community_resource) |> Repo.all() |> length() == 2
-    assert ["Dataset ajouté" | _] = Phoenix.Flash.get(conn.assigns.flash, :info)
-  end
-
-  test "Add a dataset linked to cities", %{conn: conn} do
-    conn = conn |> setup_admin_in_session()
-
-    dataset =
-      @dataset_with_zones
-      |> Map.put("region_id", nil)
-      |> Map.put("insee", nil)
-      |> Map.put("associated_territory_name", "pouet")
-
-    conn =
-      use_cassette "dataset/dataset-with-multiple-cities.json" do
-        post(conn, backoffice_dataset_path(conn, :post), %{"form" => dataset})
-      end
-
-    assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
-    assert Resource |> Repo.all() |> length() == 1
-    assert ["Dataset ajouté" | _] = Phoenix.Flash.get(conn.assigns.flash, :info)
-  end
-
-  test "Add a dataset linked to cities and to the country", %{conn: conn} do
-    conn = conn |> setup_admin_in_session()
-
-    dataset =
-      @dataset_with_zones
-      |> Map.put("region_id", nil)
-      |> Map.put("insee", nil)
-      |> Map.put("associated_territory_name", "pouet")
-      |> Map.put("national_dataset", "true")
-
-    {conn, logs} =
-      use_cassette "dataset/dataset-with-multiple-cities-and-country.json" do
-        with_log(fn -> post(conn, backoffice_dataset_path(conn, :post), %{"form" => dataset}) end)
-      end
-
-    # It should not be possible to link a dataset to either
-    # a list of cities and to the whole country
-    assert logs =~ "Vous devez remplir soit une région soit une AOM"
-    assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
-    assert Resource |> Repo.all() |> length() == 0
-    flash = Phoenix.Flash.get(conn.assigns.flash, :error)
-
-    assert flash =~
-             "Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv"
-
-    assert [] == all_enqueued()
-  end
-
-  test "Add a dataset linked to an AO and with an empty territory name", %{conn: conn} do
-    conn = conn |> setup_admin_in_session()
-
-    dataset =
-      @dataset_with_zones
-      |> Map.put("region_id", nil)
-      |> Map.put("associated_territory_name", "")
-      |> Map.put("national_dataset", "true")
-
-    conn =
-      use_cassette "dataset/dataset-with-multiple-cities.json" do
-        post(conn, backoffice_dataset_path(conn, :post), %{"form" => dataset})
-      end
-
-    # It should be possible to link a dataset to an AOM if the territory name
-    # is empty (but not null since it comes from a form)
-    assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
-    assert Resource |> Repo.all() |> length() == 1
-    assert ["Dataset ajouté" | _] = Phoenix.Flash.get(conn.assigns.flash, :info)
-    %Resource{id: resource_id} = Resource |> Repo.one!()
-
-    assert [
-             %Oban.Job{
-               args: %{
-                 "first_job_args" => %{"resource_id" => ^resource_id},
-                 "jobs" => [
-                   ["Elixir.Transport.Jobs.ResourceHistoryJob", %{}, %{}],
-                   ["Elixir.Transport.Jobs.ResourceHistoryValidationJob", %{"force_validation" => false}, %{}]
-                 ]
-               },
-               worker: "Transport.Jobs.Workflow"
-             }
-           ] = all_enqueued()
-  end
-
-  test "Add a dataset linked to a region and to the country", %{conn: conn} do
-    conn = conn |> setup_admin_in_session()
-
-    dataset =
-      @dataset
-      |> Map.put("region_id", 1)
-      |> Map.put("insee", nil)
-      |> Map.put("national_dataset", "true")
-
-    {conn, logs} =
-      use_cassette "dataset/dataset-region-and-country.json" do
-        with_log(fn -> post(conn, backoffice_dataset_path(conn, :post), %{"form" => dataset}) end)
-      end
-
-    # It should not be possible to link a dataset to either a region and to the whole country
-    assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
-    assert Resource |> Repo.all() |> length() == 0
-    flash = Phoenix.Flash.get(conn.assigns.flash, :error)
-    assert logs =~ "Un jeu de données ne peut pas être à la fois régional et national"
-    assert flash =~ "Un jeu de données ne peut pas être à la fois régional et national"
   end
 
   test "Add a dataset twice", %{conn: conn} do

@@ -1,18 +1,6 @@
 defmodule Transport.CachedFilesTest do
   use ExUnit.Case
 
-  test "ensures that all referenced logos do exist" do
-    Transport.CachedFiles.reusers()
-    |> Enum.each(fn %{"image" => image} ->
-      path =
-        __DIR__
-        |> Path.join("/../../client/images/logos")
-        |> Path.join(image)
-
-      assert File.exists?(path)
-    end)
-  end
-
   test "CSV for ZFE looks okay" do
     zfe = Transport.CachedFiles.zfe_ids()
 

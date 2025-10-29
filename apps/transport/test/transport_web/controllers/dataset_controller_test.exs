@@ -28,7 +28,7 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   test "dataset details with a documentation resource", %{conn: conn} do
-    dataset = insert(:dataset, aom: insert(:aom))
+    dataset = insert(:dataset)
     resource = insert(:resource, type: "documentation", url: "https://example.com", dataset: dataset)
 
     dataset = dataset |> DB.Repo.preload(:resources)
@@ -301,7 +301,7 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   test "show GTFS number of errors", %{conn: conn} do
-    %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug", aom: build(:aom)})
+    %{id: dataset_id} = insert(:dataset, slug: slug = "dataset-slug")
 
     %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, format: "GTFS", url: "url"})
 
@@ -360,7 +360,7 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   test "show NeTEx number of errors", %{conn: conn} do
-    %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug", aom: build(:aom)})
+    %{id: dataset_id} = insert(:dataset, slug: slug = "dataset-slug")
 
     %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, format: "NeTEx", url: "url"})
 
@@ -384,7 +384,7 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   test "don't show NeTEx number of errors if no validation", %{conn: conn} do
-    %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug", aom: build(:aom)})
+    %{id: dataset_id} = insert(:dataset, slug: slug = "dataset-slug")
 
     %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, format: "NeTEx", url: "url"})
 

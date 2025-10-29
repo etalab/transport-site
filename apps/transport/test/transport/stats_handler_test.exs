@@ -177,16 +177,15 @@ defmodule Transport.StatsHandlerTest do
     aom2 = insert(:aom, population: 1_000_000)
     insert(:aom, population: 1_000_000)
 
-    insert(:dataset, legal_owners_aom: [aom2], aom: nil)
+    insert(:dataset, legal_owners_aom: [aom2])
 
     assert %{nb_aoms_with_data: 1, nb_aoms: 3, population_couverte: 1, population_totale: 3} = compute_stats()
   end
 
   test "ignores hidden datasets" do
-    aom = insert(:aom, population: 1_000_000)
-    insert(:resource, dataset: insert(:dataset, aom: aom, is_active: true), format: "GTFS")
+    insert(:resource, dataset: insert(:dataset, is_active: true), format: "GTFS")
 
-    hidden_dataset = insert(:dataset, aom: aom, is_active: true, is_hidden: true)
+    hidden_dataset = insert(:dataset, is_active: true, is_hidden: true)
     insert(:resource, dataset: hidden_dataset, format: "GTFS")
 
     assert %{nb_datasets: 5, nb_gtfs: 1, nb_pt_datasets: 1} = compute_stats()

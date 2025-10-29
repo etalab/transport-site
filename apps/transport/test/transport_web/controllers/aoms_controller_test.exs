@@ -25,14 +25,11 @@ defmodule TransportWeb.AOMsControllerTest do
 
     dataset =
       insert(:dataset,
-        aom: nil,
         legal_owners_aom: [aom, aom2],
         is_active: true,
         type: "public-transit",
         has_realtime: true
       )
-
-    assert is_nil(dataset.aom_id)
 
     DB.Factory.insert_resource_and_friends(Date.utc_today() |> Date.add(10), dataset: dataset)
 
@@ -51,14 +48,11 @@ defmodule TransportWeb.AOMsControllerTest do
 
     dataset =
       insert(:dataset,
-        aom: nil,
         legal_owners_aom: [aom, aom2],
         is_active: true,
         type: "public-transit",
         has_realtime: true
       )
-
-    assert is_nil(dataset.aom_id)
 
     insert(:resource, title: "GTFS-flex TAD", dataset: dataset, format: "GTFS")
 

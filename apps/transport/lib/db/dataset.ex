@@ -100,13 +100,7 @@ defmodule DB.Dataset do
     # - a Region (and there is a special Region 'national' that represents the national datasets);
     # - an AOM;
     # - or a list of cities.
-    belongs_to(:region, Region)
-    belongs_to(:aom, AOM)
     belongs_to(:organization_object, DB.Organization, foreign_key: :organization_id, type: :string, on_replace: :nilify)
-
-    # we ask in the backoffice for a name to display
-    # (used in the long title of a dataset and to find the associated datasets)
-    field(:associated_territory_name, :string)
 
     field(:search_payload, :map)
     many_to_many(:followers, DB.Contact, join_through: "dataset_followers", on_replace: :delete)
@@ -598,8 +592,6 @@ defmodule DB.Dataset do
   end
 
   defp apply_changeset(%__MODULE__{} = dataset, params) do
-    territory_name = Map.get(params, "associated_territory_name") || dataset.associated_territory_name
-
     dataset =
       dataset
       |> Repo.preload([
@@ -616,7 +608,6 @@ defmodule DB.Dataset do
     |> Repo.preload([
       :resources,
       :communes,
-      :region,
       :organization_object
     ])
     |> cast(params, [
@@ -634,10 +625,8 @@ defmodule DB.Dataset do
       :tags,
       :datagouv_title,
       :type,
-      :region_id,
       :nb_reuses,
       :is_active,
-      :associated_territory_name,
       :latest_data_gouv_comment_timestamp,
       :archived_at,
       :custom_tags,
@@ -648,11 +637,8 @@ defmodule DB.Dataset do
       :organization_id
     ])
     |> update_change(:custom_title, &String.trim/1)
-    |> cast_datagouv_zone(params, territory_name)
-    |> cast_nation_dataset(params)
     |> cast_assoc(:resources)
     |> validate_siren()
-    |> validate_territory_mutual_exclusion()
     |> maybe_overwrite_licence()
     |> has_real_time()
     |> set_is_hidden()
@@ -1004,34 +990,6 @@ defmodule DB.Dataset do
     end
   end
 
-  @spec validate_territory_mutual_exclusion(Ecto.Changeset.t()) :: Ecto.Changeset.t()
-  defp validate_territory_mutual_exclusion(changeset) do
-    has_cities =
-      changeset
-      |> get_field(:communes)
-      |> length
-      |> Kernel.min(1)
-
-    other_fields =
-      [:region_id, :aom_id]
-      |> Enum.map(fn f -> get_field(changeset, f) end)
-      |> Enum.count(fn f -> f not in ["", nil] end)
-
-    fields = other_fields + has_cities
-
-    case fields do
-      1 ->
-        changeset
-
-      _ ->
-        add_error(
-          changeset,
-          :region,
-          dgettext("db-dataset", "You need to fill either aom, region or use datagouv's zone")
-        )
-    end
-  end
-
   @spec validate_organization_type(Ecto.Changeset.t()) :: Ecto.Changeset.t()
   defp validate_organization_type(changeset) do
     changeset
@@ -1042,44 +1000,6 @@ defmodule DB.Dataset do
       true -> changeset
       false -> changeset |> add_error(:organization_type, dgettext("db-dataset", "Organization type is invalid"))
     end
-  end
-
-  @spec cast_nation_dataset(Ecto.Changeset.t(), map()) :: Ecto.Changeset.t()
-  defp cast_nation_dataset(changeset, %{"national_dataset" => "true"}) do
-    if is_nil(get_field(changeset, :region_id)) do
-      national =
-        Region
-        |> where([r], r.nom == "National")
-        |> Repo.one!()
-
-      put_change(changeset, :region_id, national.id)
-    else
-      add_error(changeset, :region, dgettext("db-dataset", "A dataset cannot be national and regional"))
-    end
-  end
-
-  defp cast_nation_dataset(changeset, _), do: changeset
-
-  @spec cast_datagouv_zone(Ecto.Changeset.t(), map(), binary()) :: Ecto.Changeset.t()
-  defp cast_datagouv_zone(changeset, _, nil) do
-    changeset
-    |> put_assoc(:communes, [])
-  end
-
-  defp cast_datagouv_zone(changeset, _, "") do
-    changeset
-    |> put_assoc(:communes, [])
-  end
-
-  # We’ll only cast datagouv zone if there is something written in the associated territory name in the backoffice
-  defp cast_datagouv_zone(changeset, %{"zones" => zones_insee}, _associated_territory_name) do
-    communes =
-      Commune
-      |> where([c], c.insee in ^zones_insee)
-      |> Repo.all()
-
-    changeset
-    |> put_assoc(:communes, communes)
   end
 
   defp maybe_overwrite_licence(%Ecto.Changeset{} = changeset) do

@@ -56,7 +56,6 @@ defmodule DB.Factory do
       organization_id: sequence(:organization_id, fn i -> "dataset_organization_id_#{i}" end),
       licence: "lov2",
       # NOTE: need to figure out how to pass aom/region together with changeset checks here
-      aom: build(:aom),
       tags: [],
       type: "public-transit",
       logo: "https://example.com/#{Ecto.UUID.generate()}_small.png",
@@ -244,21 +243,13 @@ defmodule DB.Factory do
     def_opts = [resource_available: true, is_active: true, resource_history_payload: %{}]
     opts = Keyword.merge(def_opts, opts)
 
-    dataset_opts = [
-      is_active: Keyword.get(opts, :is_active),
-      region_id: Keyword.get(opts, :region_id),
-      has_realtime: Keyword.get(opts, :has_realtime),
-      type: Keyword.get(opts, :type),
-      aom: aom = Keyword.get(opts, :aom),
-      custom_title: Keyword.get(opts, :custom_title)
-    ]
-
     dataset_opts =
-      aom
-      |> case do
-        nil -> dataset_opts
-        aom -> dataset_opts |> Keyword.merge(aom: aom)
-      end
+      [
+        is_active: Keyword.get(opts, :is_active),
+        has_realtime: Keyword.get(opts, :has_realtime),
+        type: Keyword.get(opts, :type),
+        custom_title: Keyword.get(opts, :custom_title)
+      ]
       |> Enum.reject(fn {_, v} -> is_nil(v) end)
 
     dataset = Keyword.get(opts, :dataset, insert(:dataset, dataset_opts))
@@ -429,8 +420,7 @@ defmodule DB.Factory do
       type: "charging-stations",
       custom_title: "Infrastructures de Recharge pour Véhicules Électriques - IRVE",
       organization: "data.gouv.fr",
-      organization_id: "646b7187b50b2a93b1ae3d45",
-      aom: build(:aom, population: 1_000_000)
+      organization_id: "646b7187b50b2a93b1ae3d45"
     })
   end
 
@@ -438,8 +428,7 @@ defmodule DB.Factory do
     insert(:dataset, %{
       type: "carpooling-areas",
       organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
-      organization_id: "5abca8d588ee386ee6ece479",
-      aom: build(:aom, population: 1_000_000)
+      organization_id: "5abca8d588ee386ee6ece479"
     })
   end
 
@@ -448,8 +437,7 @@ defmodule DB.Factory do
       type: "road-data",
       custom_title: "Base nationale des parcs relais",
       organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
-      organization_id: "5abca8d588ee386ee6ece479",
-      aom: build(:aom, population: 1_000_000)
+      organization_id: "5abca8d588ee386ee6ece479"
     })
   end
 
@@ -459,8 +447,7 @@ defmodule DB.Factory do
       custom_title: "Base Nationale des Zones à Faibles Émissions (BNZFE)",
       organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
       organization_id: "5abca8d588ee386ee6ece479",
-      datagouv_id: "zfe_fake_dataset_id",
-      aom: build(:aom, population: 1_000_000)
+      datagouv_id: "zfe_fake_dataset_id"
     })
   end
 

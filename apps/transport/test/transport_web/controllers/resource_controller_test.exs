@@ -57,8 +57,7 @@ defmodule TransportWeb.ResourceControllerTest do
           datagouv_id: "5",
           format: "gtfs-rt"
         }
-      ],
-      aom: %DB.AOM{id: 4242, nom: "Angers Métropôle"}
+      ]
     )
 
     :ok

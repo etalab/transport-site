@@ -391,13 +391,13 @@ msgid "netex-french-profile-partial-compliance"
 msgstr "Nous ne vérifions que partiellement la conformité à la structure et aux spécificités du <a href=\"https://normes.transport.data.gouv.fr/\">profil France</a>."
 
 #, elixir-autogen, elixir-format
-msgid "This file contains the GTFS-Flex extension. We are not able to validate it for now. You can validate it using the <a href=\"%{url}\" target=\"_blank\">Canonical GTFS Schedule Validator from MobilityData</a>."
-msgstr "Ce fichier contient l'extension GTFS-Flex. Nous ne sommes pas en mesure de le valider pour le moment. Vous pouvez le valider avec le <a href=\"%{url}\" target=\"_blank\">validateur GTFS canonique de MobilityData</a>."
-
-#, elixir-autogen, elixir-format
 msgid "French profile"
 msgstr "Profil France"
 
 #, elixir-autogen, elixir-format
 msgid "french-profile-description"
 msgstr "Ensemble de règles spécifiques au <a href=\"https://normes.transport.data.gouv.fr\" target=\"_blank\">profil France</a>."
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "This file contains the GTFS-Flex extension. We are not able to validate it for now. You can validate it using the <a href=\"%{url}\" target=\"_blank\">Canonical GTFS Schedule Validator from MobilityData</a>."
+msgstr "Ce fichier contient l'extension GTFS-Flex. Nous ne sommes pas en mesure de le valider pour le moment. Vous pouvez le valider avec le <a href=\"%{url}\" target=\"_blank\">validateur GTFS canonique de MobilityData</a>."

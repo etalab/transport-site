@@ -16,16 +16,8 @@ msgid "Carpooling areas"
 msgstr "Lieux de covoiturage"
 
 #, elixir-autogen, elixir-format
-msgid "You need to fill either aom, region or use datagouv's zone"
-msgstr "Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv"
-
-#, elixir-autogen, elixir-format
 msgid "See on data.gouv.fr"
 msgstr "Voir sur data.gouv.fr"
-
-#, elixir-autogen, elixir-format
-msgid "A dataset cannot be national and regional"
-msgstr "Un jeu de données ne peut pas être à la fois régional et national"
 
 #, elixir-autogen, elixir-format
 msgid "Other informations"

@@ -147,7 +147,7 @@ defmodule TransportWeb.DatasetController do
     %{
       unavailabilities: unavailabilities(dataset),
       resources_updated_at: DB.Dataset.resources_content_updated_at(dataset),
-      validations: DB.MultiValidation.dataset_latest_validation(dataset.id, validators_to_use()),
+      validations: DB.MultiValidation.dataset_latest_validation(dataset.id, validators_to_use(), include_result: true),
       gtfs_rt_entities: gtfs_rt_entities(dataset)
     }
   end
@@ -256,7 +256,7 @@ defmodule TransportWeb.DatasetController do
 
     params
     |> Dataset.list_datasets()
-    |> preload([:aom, :region, :declarative_spatial_areas])
+    |> preload([:declarative_spatial_areas])
     |> Repo.paginate(page: config.page_number)
   end
 

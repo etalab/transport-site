@@ -45,7 +45,7 @@ defmodule Transport.Validators.TableSchemaTest do
              validation_timestamp: _,
              validator: "validata-api",
              validator_version: ^validator_version
-           } = DB.MultiValidation |> DB.Repo.get_by!(resource_history_id: resource_history_id)
+           } = DB.MultiValidation.with_result() |> DB.Repo.get_by!(resource_history_id: resource_history_id)
   end
 
   test "when validator returns nil" do
@@ -75,7 +75,9 @@ defmodule Transport.Validators.TableSchemaTest do
              validation_timestamp: _,
              validator: "validata-api",
              validator_version: nil
-           } = DB.MultiValidation |> DB.Repo.get_by!(resource_history_id: resource_history_id)
+           } =
+             DB.MultiValidation.with_result()
+             |> DB.Repo.get_by!(resource_history_id: resource_history_id)
   end
 
   def setup_mock_validator_url(schema_name, url, schema_version) do

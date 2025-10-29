@@ -189,14 +189,14 @@ defmodule Transport.Validators.GTFSRTTest do
       expected_errors = Map.fetch!(report, "errors")
 
       gtfs_rt_validation =
-        DB.MultiValidation
+        DB.MultiValidation.with_result()
         |> where([mv], mv.resource_id == ^gtfs_rt.id and mv.validator == ^GTFSRT.validator_name())
         |> order_by([mv], desc: mv.inserted_at)
         |> limit(1)
         |> DB.Repo.one!()
 
       gtfs_rt_no_errors_validation =
-        DB.MultiValidation
+        DB.MultiValidation.with_result()
         |> where([mv], mv.resource_id == ^gtfs_rt_no_errors.id and mv.validator == ^GTFSRT.validator_name())
         |> order_by([mv], desc: mv.inserted_at)
         |> limit(1)
@@ -333,7 +333,7 @@ defmodule Transport.Validators.GTFSRTTest do
       expected_errors = Map.fetch!(report, "errors")
 
       gtfs_rt_validation =
-        DB.MultiValidation
+        DB.MultiValidation.with_result()
         |> where([mv], mv.resource_id == ^gtfs_rt.id and mv.validator == ^GTFSRT.validator_name())
         |> order_by([mv], desc: mv.inserted_at)
         |> limit(1)
@@ -364,7 +364,7 @@ defmodule Transport.Validators.GTFSRTTest do
 
       assert gtfs_rt_permanent_url == Transport.S3.permanent_url(:history, gtfs_rt_filename)
 
-      refute DB.MultiValidation
+      refute DB.MultiValidation.with_result()
              |> where([mv], mv.resource_id == ^gtfs_rt_no_errors.id and mv.validator == ^GTFSRT.validator_name())
              |> DB.Repo.exists?()
 
@@ -436,7 +436,7 @@ defmodule Transport.Validators.GTFSRTTest do
       assert :ok == GTFSRT.validate_and_save(dataset)
 
       gtfs_rt_validation =
-        DB.MultiValidation
+        DB.MultiValidation.with_result()
         |> where([mv], mv.resource_id == ^gtfs_rt.id and mv.validator == ^GTFSRT.validator_name())
         |> order_by([mv], desc: mv.inserted_at)
         |> limit(1)
@@ -528,7 +528,7 @@ defmodule Transport.Validators.GTFSRTTest do
 
       assert :ok == GTFSRT.validate_and_save(dataset)
 
-      assert DB.MultiValidation
+      assert DB.MultiValidation.with_result()
              |> where([mv], mv.resource_id == ^gtfs_rt.id and mv.validator == ^GTFSRT.validator_name())
              |> DB.Repo.exists?()
 

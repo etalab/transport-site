@@ -24,10 +24,6 @@ defmodule Transport.ImportDataTest do
     :ok
   end
 
-  def insert_national_dataset(datagouv_id) do
-    insert(:dataset, datagouv_id: datagouv_id, aom: nil, region_id: DB.Repo.get_by!(DB.Region, nom: "National").id)
-  end
-
   def http_get_mock_200(datagouv_id, payload \\ nil) do
     fn url, [], hackney: [follow_redirect: true] ->
       base_url = Application.fetch_env!(:transport, :datagouvfr_site)
@@ -88,7 +84,7 @@ defmodule Transport.ImportDataTest do
   end
 
   test "hello world des imports" do
-    insert_national_dataset(datagouv_id = "dataset1_id")
+    insert(:dataset, datagouv_id: datagouv_id = "dataset1_id")
 
     assert db_count(DB.Dataset) == 1
     assert db_count(DB.Resource) == 0
@@ -115,7 +111,7 @@ defmodule Transport.ImportDataTest do
   end
 
   test "import fails when datagouv responds a 404" do
-    insert_national_dataset(datagouv_id = "dataset1_id")
+    insert(:dataset, datagouv_id: datagouv_id = "dataset1_id")
 
     assert db_count(DB.Dataset) == 1
     assert db_count(DB.Resource) == 0
@@ -135,7 +131,7 @@ defmodule Transport.ImportDataTest do
   end
 
   test "what happens with resources when a dataset is reimported multiple times" do
-    insert_national_dataset(datagouv_id = "dataset1_id")
+    insert(:dataset, datagouv_id: datagouv_id = "dataset1_id")
 
     assert db_count(DB.Dataset) == 1
     assert db_count(DB.Resource) == 0
@@ -223,7 +219,7 @@ defmodule Transport.ImportDataTest do
   end
 
   test "handle resource deletion" do
-    insert_national_dataset(datagouv_id = "dataset1_id")
+    insert(:dataset, datagouv_id: datagouv_id = "dataset1_id")
 
     assert db_count(DB.Dataset) == 1
     assert db_count(DB.Resource) == 0
@@ -264,7 +260,7 @@ defmodule Transport.ImportDataTest do
   end
 
   test "handle resource recycling" do
-    insert_national_dataset(datagouv_id = "dataset1_id")
+    insert(:dataset, datagouv_id: datagouv_id = "dataset1_id")
 
     assert db_count(DB.Dataset) == 1
     assert db_count(DB.Resource) == 0
@@ -379,7 +375,7 @@ defmodule Transport.ImportDataTest do
   end
 
   test "import dataset with a community resource" do
-    insert_national_dataset(datagouv_id = "dataset1_id")
+    insert(:dataset, datagouv_id: datagouv_id = "dataset1_id")
     assert db_count(DB.Dataset) == 1
     assert db_count(DB.Resource) == 0
 
