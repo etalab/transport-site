@@ -168,10 +168,6 @@ msgid "Your improved data has been saved."
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Manage settings"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Name"
 msgstr ""
 
@@ -193,10 +189,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Tokens"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Update your preferences, manage tokens to access data."
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -273,4 +265,16 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Personal token"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "API - Manage your tokens"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Create and manage your tokens independently."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Manage your tokens"
 msgstr ""
