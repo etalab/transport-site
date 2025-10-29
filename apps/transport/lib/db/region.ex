@@ -7,7 +7,7 @@ defmodule DB.Region do
   """
   use Ecto.Schema
   use TypedEctoSchema
-  alias DB.{AOM, Dataset, Departement}
+  alias DB.{AOM, Departement}
   alias Geo.MultiPolygon
 
   typed_schema "region" do
@@ -18,7 +18,6 @@ defmodule DB.Region do
 
     has_many(:aoms, AOM)
     has_many(:departements, Departement, foreign_key: :region_insee, references: :insee)
-    has_one(:datasets, Dataset)
   end
 
   def national, do: DB.Repo.get_by!(DB.Region, nom: "National")
