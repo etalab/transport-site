@@ -72,10 +72,6 @@ msgid "Service status"
 msgstr "État des services"
 
 #, elixir-autogen, elixir-format
-msgid "Producer informations"
-msgstr "Voir les infos producteurs"
-
-#, elixir-autogen, elixir-format
 msgid "My account"
 msgstr "Mon compte"
 
@@ -206,3 +202,11 @@ msgstr "Un besoin de support technique"
 #, elixir-autogen, elixir-format
 msgid "The website transport.data.gouv.fr"
 msgstr "Le site web transport.data.gouv.fr"
+
+#, elixir-autogen, elixir-format
+msgid "Producer information"
+msgstr "Infos producteurs"
+
+#, elixir-autogen, elixir-format
+msgid "Reuser information"
+msgstr "Infos réutilisateurs"
