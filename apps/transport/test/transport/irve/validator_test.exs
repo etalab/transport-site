@@ -3,65 +3,6 @@ defmodule Transport.IRVE.ValidatorTest do
 
   require Logger
 
-  # TODO: add doctest support, if needed
-
-  def validate(path, validation_callback) do
-    [file_first_line] =
-      File.stream!(path)
-      |> Enum.take(1)
-
-    # determine if we have an acceptable delimiter, or not
-    delimiter =
-      try do
-        Transport.IRVE.DataFrame.guess_delimiter!(file_first_line)
-      rescue
-        e in Transport.IRVE.DataFrame.ColumnDelimiterGuessError ->
-          validation_callback.({:error, :unsupported_delimiter, e})
-          reraise e, __STACKTRACE__
-      end
-
-    # only "," and ";" are supported. othercases will normally raise above, or
-    # worst case result in `case` failure here
-    case delimiter do
-      "," ->
-        # best case - no warnings, we're good, do nothing!
-        validation_callback.({:info, :best_delimiter_found})
-        true
-
-      ";" ->
-        # we're accepting it, but that's not what is normally expected, signal it
-        validation_callback.({:warning, :incorrect_delimiter, delimiter})
-        validation_callback.({:info, :applying_delimiter_tweak, delimiter})
-    end
-
-    # https://hexdocs.pm/explorer/Explorer.DataFrame.html#from_csv/2-options
-    options = [
-      # set to zero disables inference and default all values to string.
-      # this is what we want to keep the input intact & be able to report on its (in)validity
-      # "(set to) zero to disable inference and default all values to string"
-      infer_schema_length: 0,
-      delimiter: delimiter
-    ]
-
-    df = Explorer.DataFrame.from_csv!(path, options)
-
-    columns = Explorer.DataFrame.names(df)
-    # exact comparison (MUST in the spec), in the exact same order
-    if columns != Transport.IRVE.StaticIRVESchema.field_names_list() do
-      # NOTE: this could lead to a non-blocking warning (such as "we have extra columns, this is not recommended, but we'll take your file for now")
-      # or to harder stuff (e.g. "you have duplicates, please fix this, we won't go forward")
-      validation_callback.({:error, :invalid_columns, "TO BE SPECIFIED & SPLIT IN SEPARATE CASES"})
-    else
-      validation_callback.({:info, :columns_are_valid_yay})
-      validation_callback.({:info, :file_is_valid_at_this_point})
-    end
-
-    # start building validation columns
-    validation_callback.({:info, :starting_validation})
-
-    compute_validation_fields(df, Transport.IRVE.StaticIRVESchema.schema_content(), validation_callback)
-  end
-
   def compute_validation_fields(%Explorer.DataFrame{} = df, %{} = schema, validation_callback) do
     fields =
       Map.fetch!(schema, "fields")
