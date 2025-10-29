@@ -56,6 +56,43 @@ defmodule Transport.IRVE.ValidatorTest do
     df
   end
 
+  def configure_computations_for_one_schema_field(
+        %Explorer.DataFrame{} = df,
+        "siren_amenageur" = name,
+        "string" = type,
+        nil = _format,
+        constraints,
+        validation_callback
+      ) do
+    IO.puts("Configuring field checks: #{name}")
+
+    pattern = "^\\d{9}$"
+    # debugging assertions for now, will be removable later
+    assert constraints == %{"pattern" => pattern, "required" => false}
+
+    # either the field is empty (and we don't need to check the pattern),
+    # or it has a value (in which case the value must comply with the pattern)
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      value_is_absent =
+
+
+      # NOTE: this does not explain why the cell is invalid, when it is invalid
+      # We'll need to store each check result to be able to report on that.
+      # either using separate columns, or a complex type if needed or better & not memory hungry.
+      # I will experiment with a field requiring more logic
+      %{
+        "check_column_siren_amenageur_valid" =>
+          Explorer.Series.or(
+            df[name]
+              |> Explorer.Series.strip()
+              |> Explorer.Series.fill_missing("")
+              |> Explorer.Series.equal(""),
+            Explorer.Series.re_contains(df[name], pattern)
+          )
+      }
+    end)
+  end
+
   @test_resources [
     %{
       # https://www.data.gouv.fr/datasets/reseau-mobive-reseau-de-recharge-publique-en-nouvelle-aquitaine/
@@ -77,24 +114,94 @@ defmodule Transport.IRVE.ValidatorTest do
     if !File.exists?(@cache_dir), do: File.mkdir!(@cache_dir)
   end
 
-  test "hello world" do
-    @test_resources
-    |> Enum.each(fn %{label: label, url: url} ->
-      path = Path.join(@cache_dir, Path.basename(url))
+  describe "file level validation" do
+    test "reject invalid column separator"
+    test "accept (with warning) semi-colon column separator"
+    test "accept (with warning) latin1 encoding"
+    test "reject file with extra columns"
+    test "reject file with missing columns"
+    test "reject file with duplicate columns"
+    test "accept (with warning) incorrectly ordered columns"
+  end
 
-      if File.exists?(path) do
-        Logger.info("File #{path} exist, skipping")
-      else
-        Logger.info("Downloading #{url} to file #{path}")
-        Req.get!(url, into: File.stream!(path))
-      end
+  describe "row level validation" do
+    test "field:nom_amenageur" do
+      # je construis
+    end
 
-      callback = fn event ->
-        IO.inspect(event, IEx.inspect_opts() |> Keyword.put(:label, "Event"))
-      end
+    def generate_csv(row_override) do
+      # the exact fields, in the exact order
+      columns = Transport.IRVE.StaticIRVESchema.field_names_list()
 
-      IO.puts("Running #{label |> inspect} through the validator...")
-      validate(path, callback)
-    end)
+      row_override
+      |> DB.Factory.IRVE.generate_row()
+      |> List.wrap()
+      |> Explorer.DataFrame.new()
+      # https://github.com/elixir-explorer/explorer/issues/1126
+      |> Explorer.DataFrame.select(columns)
+      |> Explorer.DataFrame.dump_csv!()
+    end
+
+    @tag :focus
+    test "field:siren_amenageur" do
+
+      # je construis un fichier avec les bonnes colonnes, avec que des lignes bonnes au départ,
+      # mais N valeurs valides de SIREN aménageur, et N valeurs invalides
+      # je veux qu'en sortie, je puisse compter le nombre de lignes incorrectes, le nombre de lignes
+      # correctes, et avoir un message qui va bien pour la cellule de chaque ligne.
+
+      # invalid
+      csv_binary = generate_csv(%{"siren_amenageur" => "12345678"})
+
+      csv_binary
+      |> Explorer.DataFrame.load_csv!(infer_schema_length: 0)
+      |> Explorer.DataFrame.select(["siren_amenageur"])
+      |> IO.inspect(IEx.inspect_opts)
+
+      temp_path = System.tmp_dir!() |> Path.join("irve_test_#{Ecto.UUID.generate()}.csv")
+      File.write!(temp_path, csv_binary)
+
+      # TO BE IMPLEMENTED
+      assert Transport.IRVE.Validator.validate(temp_path) == false
+    end
+
+    test "field:contact_amenageur"
+    test "field:nom_operateur"
+    test "field:contact_operateur"
+    test "field:telephone_operateur"
+    test "field:nom_enseigne"
+    test "field:id_station_itinerance"
+    test "field:id_station_local"
+    test "field:nom_station"
+    test "field:implantation_station"
+    test "field:adresse_station"
+    test "field:code_insee_commune"
+    test "field:coordonneesXY"
+    test "field:nbre_pdc"
+    test "field:id_pdc_itinerance"
+    test "field:id_pdc_local"
+    test "field:puissance_nominale"
+    test "field:prise_type_ef"
+    test "field:prise_type_2"
+    test "field:prise_type_combo_ccs"
+    test "field:prise_type_chademo"
+    test "field:prise_type_autre"
+    test "field:gratuit"
+    test "field:paiement_acte"
+    test "field:paiement_cb"
+    test "field:paiement_autre"
+    test "field:tarification"
+    test "field:condition_acces"
+    test "field:reservation"
+    test "field:horaires"
+    test "field:accessibilite_pmr"
+    test "field:restriction_gabarit"
+    test "field:station_deux_roues"
+    test "field:raccordement"
+    test "field:num_pdl"
+    test "field:date_mise_en_service"
+    test "field:observations"
+    test "field:date_maj"
+    test "field:cable_t2_attache"
   end
 end
