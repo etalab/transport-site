@@ -6,6 +6,7 @@ defmodule Transport.IRVE.ValidatorTest do
   def compute_validation_fields(%Explorer.DataFrame{} = df, %{} = schema, validation_callback) do
     fields =
       Map.fetch!(schema, "fields")
+      |> Enum.drop(2)
       |> Enum.take(1)
 
     Enum.reduce(fields, df, fn field, df ->
