@@ -16,23 +16,26 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
 
   iex> validation_result = %{"uic-operating-period" => [%{"criticity" => "error"}], "valid-day-bits" => [%{"criticity" => "error"}], "frame-arret-resources" => [%{"criticity" => "warning"}]}
   iex> count_max_severity(validation_result)
-  {"error", 2}
+  %{"max_level" => "error", "worst_occurrences" => 2}
   iex> validation_result = %{"frame-arret-resources" => [%{"criticity" => "warning"}]}
   iex> count_max_severity(validation_result)
-  {"warning", 1}
+  %{"max_level" => "warning", "worst_occurrences" => 1}
   iex> count_max_severity(%{})
-  {"NoError", 0}
+  %{"max_level" => "NoError", "worst_occurrences" => 0}
   """
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def count_max_severity(validation_result) when validation_result == %{} do
-    {@no_error, 0}
+    %{"max_level" => @no_error, "worst_occurrences" => 0}
   end
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def count_max_severity(%{} = validation_result) do
-    validation_result
-    |> count_by_severity()
-    |> Enum.min_by(fn {severity, _count} -> severity |> severity_level() end)
+    {max_level, worst_occurrences} =
+      validation_result
+      |> count_by_severity()
+      |> Enum.min_by(fn {severity, _count} -> severity |> severity_level() end)
+
+    %{"max_level" => max_level, "worst_occurrences" => worst_occurrences}
   end
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
@@ -92,11 +95,11 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
   iex> validation_result = %{"uic-operating-period" => [%{"code" => "uic-operating-period", "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod", "criticity" => "error"}], "valid-day-bits" => [%{"code" => "valid-day-bits", "message" => "Mandatory attribute valid_day_bits not found", "criticity" => "error"}], "frame-arret-resources" => [%{"code" => "frame-arret-resources", "message" => "Tag frame_id doesn't match ''", "criticity" => "warning"}]}
   iex> summary(validation_result)
   [
-    {"error", [
-      {"uic-operating-period", %{count: 1, criticity: "error", title: "UIC operating period"}},
-      {"valid-day-bits", %{count: 1, criticity: "error", title: "Valid day bits"}}
+    %{"severity" => "error", "issues" => [
+      %{"key" => "uic-operating-period", "issue" => %{"count" => 1, "criticity" => "error", "title" => "UIC operating period"}},
+      %{"key" => "valid-day-bits", "issue" => %{"count" => 1, "criticity" => "error", "title" => "Valid day bits"}}
     ]},
-    {"warning", [{"frame-arret-resources", %{count: 1, criticity: "warning", title: "Frame arret resources"}}]}
+    %{"severity" => "warning", "issues" => [%{"key" => "frame-arret-resources", "issue" => %{"count" => 1, "criticity" => "warning", "title" => "Frame arret resources"}}]}
   ]
   iex> summary(%{})
   []
@@ -107,13 +110,19 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
     |> Enum.map(fn {code, errors} ->
       {code,
        %{
-         count: length(errors),
-         criticity: errors |> hd() |> Map.get("criticity"),
-         title: issues_short_translation_per_code(code)
+         "count" => length(errors),
+         "criticity" => errors |> hd() |> Map.get("criticity"),
+         "title" => issues_short_translation_per_code(code)
        }}
     end)
-    |> Enum.group_by(fn {_, details} -> details.criticity end)
+    |> Enum.group_by(fn {_, details} -> details["criticity"] end)
     |> Enum.sort_by(fn {criticity, _} -> severity_level(criticity) end)
+    |> Enum.map(fn {severity, issues} ->
+      %{
+        "severity" => severity,
+        "issues" => issues |> Enum.map(fn {key, issue} -> %{"key" => key, "issue" => issue} end)
+      }
+    end)
   end
 
   @spec issues_short_translation_per_code(binary()) :: binary()

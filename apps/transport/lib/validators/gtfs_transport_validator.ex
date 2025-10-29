@@ -134,8 +134,8 @@ defmodule Transport.Validators.GTFSTransport do
   iex> validation_result = %{"tooClose" => [%{"severity" => "Warning"}], "funnyName" => [%{"severity" => "Information"}]}
   iex> summary(validation_result)
   [
-    {"Warning", [{"tooClose", %{count: 1, severity: "Warning", title: nil}}]},
-    {"Information", [{"funnyName", %{count: 1, severity: "Information", title: nil}}]}
+    %{"severity" => "Warning", "issues" => [%{"key" => "tooClose", "issue" => %{"count" => 1, "severity" => "Warning", "title" => nil}}]},
+    %{"severity" => "Information", "issues" => [%{"key" => "funnyName", "issue" => %{"count" => 1, "severity" => "Information", "title" => nil}}]}
   ]
   iex> summary(%{})
   []
@@ -146,14 +146,19 @@ defmodule Transport.Validators.GTFSTransport do
     |> Enum.map(fn {key, issues} ->
       {key,
        %{
-         count: Enum.count(issues),
-         title: issues_short_translation()[key],
-         severity: issues |> List.first() |> Map.fetch!("severity")
+         "count" => Enum.count(issues),
+         "title" => issues_short_translation()[key],
+         "severity" => issues |> List.first() |> Map.fetch!("severity")
        }}
     end)
-    |> Map.new()
-    |> Enum.group_by(fn {_, issue} -> issue.severity end)
+    |> Enum.group_by(fn {_, issue} -> issue["severity"] end)
     |> Enum.sort_by(fn {severity, _} -> severity_level(severity) end)
+    |> Enum.map(fn {severity, issues} ->
+      %{
+        "severity" => severity,
+        "issues" => issues |> Enum.map(fn {key, issue} -> %{"key" => key, "issue" => issue} end)
+      }
+    end)
   end
 
   @doc """
@@ -180,19 +185,22 @@ defmodule Transport.Validators.GTFSTransport do
 
   iex> validation_result = %{"tooClose" => [%{"severity" => "Warning"}], "funnyName" => [%{"severity" => "Information"}, %{"severity" => "Information"}], "NullDuration" => [%{"severity" => "Warning"}]}
   iex> count_max_severity(validation_result)
-  {"Warning", 2}
+  %{"max_level" => "Warning", "worst_occurrences" => 2}
   iex> count_max_severity(%{})
-  {"NoError", 0}
+  %{"max_level" => "NoError", "worst_occurrences" => 0}
   """
   @spec count_max_severity(map()) :: {binary(), integer()}
   def count_max_severity(validation_result) when validation_result == %{} do
-    {@no_error, 0}
+    %{"max_level" => @no_error, "worst_occurrences" => 0}
   end
 
   def count_max_severity(%{} = validation_result) do
-    validation_result
-    |> count_by_severity()
-    |> Enum.min_by(fn {severity, _count} -> severity |> severity_level() end)
+    {max_level, worst_occurrences} =
+      validation_result
+      |> count_by_severity()
+      |> Enum.min_by(fn {severity, _count} -> severity |> severity_level() end)
+
+    %{"max_level" => max_level, "worst_occurrences" => worst_occurrences}
   end
 
   def no_error?(severity), do: @no_error == severity
@@ -216,8 +224,8 @@ defmodule Transport.Validators.GTFSTransport do
   """
   @spec get_max_severity_error(any) :: binary() | nil
   def get_max_severity_error(%{} = validations) do
-    {severity, _} = count_max_severity(validations)
-    severity
+    %{"max_level" => max_level} = count_max_severity(validations)
+    max_level
   end
 
   def get_max_severity_error(_), do: nil
