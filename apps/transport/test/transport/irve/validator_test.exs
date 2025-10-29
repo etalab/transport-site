@@ -37,10 +37,10 @@ defmodule Transport.IRVE.ValidatorTest do
   def configure_computations_for_one_schema_field(
         %Explorer.DataFrame{} = df,
         "nom_amenageur" = name,
-        "string" = type,
+        "string" = _type,
         nil = _format,
         constraints,
-        validation_callback
+        _validation_callback
       ) do
     IO.puts("Configuring field checks: #{name}")
 
