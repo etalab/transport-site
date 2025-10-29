@@ -60,6 +60,7 @@ defmodule Transport.Validators.ValidataJsonTest do
 
     assert mv.validator == Transport.Validators.ValidataJson.validator_name()
     assert mv.result == %{"validated" => true}
+    assert mv.digest == %{}
     assert mv.resource_history_id == rh.id
   end
 end

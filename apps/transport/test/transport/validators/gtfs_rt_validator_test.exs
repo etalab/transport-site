@@ -6,6 +6,8 @@ defmodule Transport.Validators.GTFSRTTest do
   alias Transport.Validators.GTFSRT
   import Mox
 
+  doctest Transport.Validators.GTFSRT, import: true
+
   @gtfs_rt_report_path "#{__DIR__}/../../fixture/files/gtfs-rt-validator-errors.json"
   @validator_filename "gtfs-realtime-validator-lib-1.0.0-SNAPSHOT.jar"
 
@@ -355,6 +357,10 @@ defmodule Transport.Validators.GTFSRTTest do
                  },
                  "has_errors" => true,
                  "uuid" => _uuid
+               },
+               digest: %{
+                 "warnings_count" => 26,
+                 "errors_count" => 4
                },
                resource_id: ^gtfs_rt_id,
                secondary_resource_id: ^gtfs_id,

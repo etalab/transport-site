@@ -200,4 +200,18 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def french_profile_compliance_check, do: :none
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  def digest(validation_result) do
+    summary = summary(validation_result)
+    stats = count_by_severity(validation_result)
+
+    %Scrivener.Config{page_size: page_size} = TransportWeb.PaginationHelpers.make_pagination_config(%{})
+    # Limit to the first page to limit payload size
+    issues = get_issues(validation_result, %{}) |> Enum.take(page_size)
+
+    max_severity = count_max_severity(validation_result)
+
+    %{"summary" => summary, "stats" => stats, "issues" => issues, "max_severity" => max_severity}
+  end
 end
