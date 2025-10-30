@@ -276,6 +276,7 @@ defmodule Transport.Validators.GTFSRT do
       validator: validator_name(),
       command: inspect(validator_arguments),
       result: validation_details,
+      digest: digest(validation_details),
       resource_id: gtfs_rt_resource.id,
       secondary_resource_id: gtfs_resource.id,
       secondary_resource_history_id: gtfs_resource_history.id,
@@ -360,4 +361,15 @@ defmodule Transport.Validators.GTFSRT do
   end
 
   defp remove_file(path), do: File.rm(path)
+
+  @doc """
+  iex> digest(%{"warnings_count" => 2, "errors_count" => 3, "issues" => []})
+  %{"errors_count" => 3, "warnings_count" => 2}
+  iex> digest(%{"issues" => []})
+  %{}
+  """
+  @spec digest(map) :: map
+  def digest(%{} = validation_result) do
+    Map.intersect(%{"warnings_count" => 0, "errors_count" => 0}, validation_result)
+  end
 end

@@ -16,10 +16,13 @@ defmodule Transport.Validators.EXJSONSchema do
       when is_binary(schema_name) do
     schema_version = schema_version || Map.get(payload, "latest_schema_version_to_date", "latest")
 
+    result = perform_validation(schema_name, schema_version, url)
+
     %DB.MultiValidation{
       validation_timestamp: DateTime.utc_now(),
       validator: validator_name(),
-      result: perform_validation(schema_name, schema_version, url),
+      result: result,
+      digest: digest(result),
       resource_history_id: resource_history_id,
       validator_version: validator_version()
     }
@@ -43,4 +46,14 @@ defmodule Transport.Validators.EXJSONSchema do
   @impl Transport.Validators.Validator
   def validator_name, do: "EXJSONSchema"
   def validator_version, do: to_string(Application.spec(:ex_json_schema, :vsn))
+
+  @doc """
+  iex> digest(%{"warnings_count" => 2, "errors_count" => 3, "issues" => []})
+  %{"errors_count" => 3, "warnings_count" => 2}
+  iex> digest(%{"issues" => []})
+  %{}
+  """
+  def digest(validation_result) do
+    Map.intersect(%{"warnings_count" => 0, "errors_count" => 0}, validation_result)
+  end
 end
