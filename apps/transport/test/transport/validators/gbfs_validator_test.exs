@@ -5,6 +5,8 @@ defmodule Transport.Validators.GBFSValidatorTest do
   alias Shared.Validation.GBFSValidator.Summary, as: GBFSValidationSummary
   alias Transport.Validators.GBFSValidator
 
+  doctest Transport.Validators.GBFSValidator, import: true
+
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end

@@ -4,6 +4,8 @@ defmodule Transport.Validators.EXJSONSchemaTest do
   import Mox
   alias Transport.Validators.EXJSONSchema
 
+  doctest Transport.Validators.EXJSONSchema, import: true
+
   @validator_version_regex ~r/^0\.\d+\.\d$/
 
   setup do
@@ -41,6 +43,7 @@ defmodule Transport.Validators.EXJSONSchemaTest do
 
     assert %{
              result: %{"has_errors" => false, "errors_count" => 0, "errors" => [], "validation_performed" => true},
+             digest: %{"errors_count" => 0},
              resource_history_id: ^resource_history_id,
              command: nil,
              data_vis: nil,
