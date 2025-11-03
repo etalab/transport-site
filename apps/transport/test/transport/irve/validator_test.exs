@@ -144,7 +144,6 @@ defmodule Transport.IRVE.ValidatorTest do
 
     @tag :focus
     test "field:siren_amenageur" do
-
       # je construis un fichier avec les bonnes colonnes, avec que des lignes bonnes au départ,
       # mais N valeurs valides de SIREN aménageur, et N valeurs invalides
       # je veux qu'en sortie, je puisse compter le nombre de lignes incorrectes, le nombre de lignes
@@ -156,7 +155,7 @@ defmodule Transport.IRVE.ValidatorTest do
       csv_binary
       |> Explorer.DataFrame.load_csv!(infer_schema_length: 0)
       |> Explorer.DataFrame.select(["siren_amenageur"])
-      |> IO.inspect(IEx.inspect_opts)
+      |> IO.inspect(IEx.inspect_opts())
 
       temp_path = System.tmp_dir!() |> Path.join("irve_test_#{Ecto.UUID.generate()}.csv")
       File.write!(temp_path, csv_binary)
