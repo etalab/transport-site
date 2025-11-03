@@ -16,7 +16,8 @@ defmodule Transport.IRVE.Validator do
       # an error is blocking - we just exit right away
       {:fatal_error, error_type, error_details} = event ->
         IO.inspect(event, IEx.inspect_opts() |> Keyword.put(:label, "Event"))
-        throw :fatal_validation_error
+        throw(:fatal_validation_error)
+
       {:info, msg} = event ->
         IO.inspect(event, IEx.inspect_opts() |> Keyword.put(:label, "Event"))
     end
@@ -71,6 +72,7 @@ defmodule Transport.IRVE.Validator do
       infer_schema_length: 0,
       delimiter: delimiter
     ]
+
     Explorer.DataFrame.from_csv!(file_path, options)
   end
 
