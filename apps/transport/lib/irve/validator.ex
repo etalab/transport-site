@@ -28,6 +28,8 @@ defmodule Transport.IRVE.Validator do
       df = load_dataframe!(file_path, delimiter, callback)
       verify_columns!(df, schema, callback)
       # at this point we should have exactly the columns required
+      df = setup_checks(df, schema)
+      IO.inspect(df |> Explorer.DataFrame.select(~r/siren/), IEx.inspect_opts())
       true
     catch
       :fatal_validation_error -> false
@@ -85,5 +87,61 @@ defmodule Transport.IRVE.Validator do
       # or to harder stuff (e.g. "you have duplicates, please fix this, we won't go forward")
       validation_callback.({:fatal_error, :invalid_columns, "TO BE SPECIFIED & SPLIT IN SEPARATE CASES"})
     end
+  end
+
+  def setup_checks(%Explorer.DataFrame{} = df, schema) do
+    schema
+    |> Map.fetch!("fields")
+    |> Enum.reduce(df, fn field_definition, df ->
+      # mandatory
+      field_name = field_definition |> Map.fetch!("name")
+      field_type = field_definition |> Map.fetch!("type")
+      field_constraints = field_definition |> Map.fetch!("constraints")
+      # optional
+      field_format = field_definition["format"]
+
+      case field_name do
+        "siren_amenageur" ->
+          configure_computations_for_one_schema_field(df, field_name, field_type, field_format, field_constraints)
+
+        # do nothing
+        _ ->
+          df
+      end
+    end)
+  end
+
+  import ExUnit.Assertions
+
+  def configure_computations_for_one_schema_field(
+        %Explorer.DataFrame{} = df,
+        "siren_amenageur" = name,
+        "string" = type,
+        nil = _format,
+        constraints
+      ) do
+    pattern = "^\\d{9}$"
+
+    # debugging assertions for now, will be removable later
+    assert constraints == %{"pattern" => pattern, "required" => false}
+
+    # either the field is empty (and we don't need to check the pattern),
+    # or it has a value (in which case the value must comply with the pattern)
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      # NOTE: this does not explain why the cell is invalid, when it is invalid
+      # We'll need to store each check result to be able to report on that.
+      # either using separate columns, or a complex type if needed or better & not memory hungry.
+      # I will experiment with a field requiring more logic
+      %{
+        "check_column_siren_amenageur_valid" =>
+          Explorer.Series.or(
+            df[name]
+            |> Explorer.Series.strip()
+            |> Explorer.Series.fill_missing("")
+            |> Explorer.Series.equal(""),
+            Explorer.Series.re_contains(df[name], pattern)
+          )
+      }
+    end)
   end
 end

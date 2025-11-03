@@ -56,43 +56,6 @@ defmodule Transport.IRVE.ValidatorTest do
     df
   end
 
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "siren_amenageur" = name,
-        "string" = type,
-        nil = _format,
-        constraints,
-        validation_callback
-      ) do
-    IO.puts("Configuring field checks: #{name}")
-
-    pattern = "^\\d{9}$"
-    # debugging assertions for now, will be removable later
-    assert constraints == %{"pattern" => pattern, "required" => false}
-
-    # either the field is empty (and we don't need to check the pattern),
-    # or it has a value (in which case the value must comply with the pattern)
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      value_is_absent =
-
-
-      # NOTE: this does not explain why the cell is invalid, when it is invalid
-      # We'll need to store each check result to be able to report on that.
-      # either using separate columns, or a complex type if needed or better & not memory hungry.
-      # I will experiment with a field requiring more logic
-      %{
-        "check_column_siren_amenageur_valid" =>
-          Explorer.Series.or(
-            df[name]
-              |> Explorer.Series.strip()
-              |> Explorer.Series.fill_missing("")
-              |> Explorer.Series.equal(""),
-            Explorer.Series.re_contains(df[name], pattern)
-          )
-      }
-    end)
-  end
-
   @test_resources [
     %{
       # https://www.data.gouv.fr/datasets/reseau-mobive-reseau-de-recharge-publique-en-nouvelle-aquitaine/
