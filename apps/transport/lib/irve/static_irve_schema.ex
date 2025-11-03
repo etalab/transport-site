@@ -28,8 +28,8 @@ defmodule Transport.IRVE.StaticIRVESchema do
   "station_deux_roues", "raccordement", "num_pdl", "date_mise_en_service",
   "observations", "date_maj", "cable_t2_attache"]
   """
-  def field_names_list do
-    schema_content()
+  def field_names_list(content \\ schema_content()) do
+    content
     |> Map.fetch!("fields")
     |> Enum.map(&Map.fetch!(&1, "name"))
   end
@@ -54,8 +54,8 @@ defmodule Transport.IRVE.StaticIRVESchema do
             ]
   """
 
-  def boolean_columns do
-    schema_content()
+  def boolean_columns(content \\ schema_content()) do
+    content
     |> Map.fetch!("fields")
     |> Enum.filter(&(&1["type"] == "boolean"))
     |> Enum.map(&Map.fetch!(&1, "name"))
