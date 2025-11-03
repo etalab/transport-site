@@ -10,7 +10,7 @@ defmodule Transport.IRVE.Validator do
   """
 
   def validate(file_path) do
-    schema_columns = Transport.IRVE.StaticIRVESchema.field_names_list()
+    schema = Transport.IRVE.StaticIRVESchema.schema_content()
 
     callback = fn
       # an error is blocking - we just exit right away
@@ -25,7 +25,7 @@ defmodule Transport.IRVE.Validator do
       Logger.info("Validating IRVE static file at #{file_path}")
       delimiter = guess_supported_column_separator!(file_path, callback)
       df = load_dataframe!(file_path, delimiter, callback)
-      verify_columns!(df, schema_columns, callback)
+      verify_columns!(df, schema, callback)
       # at this point we should have exactly the columns required
       true
     catch
@@ -74,7 +74,8 @@ defmodule Transport.IRVE.Validator do
     Explorer.DataFrame.from_csv!(file_path, options)
   end
 
-  def verify_columns!(%Explorer.DataFrame{} = df, schema_columns, validation_callback) do
+  def verify_columns!(%Explorer.DataFrame{} = df, schema, validation_callback) do
+    schema_columns = Transport.IRVE.StaticIRVESchema.field_names_list(schema)
     columns = Explorer.DataFrame.names(df)
     # exact comparison (MUST in the spec), in the exact same order
     if columns != schema_columns do
