@@ -81,10 +81,7 @@ defmodule Transport.IRVE.Validator do
     if columns != schema_columns do
       # NOTE: this could lead to a non-blocking warning (such as "we have extra columns, this is not recommended, but we'll take your file for now")
       # or to harder stuff (e.g. "you have duplicates, please fix this, we won't go forward")
-      validation_callback.({:error, :invalid_columns, "TO BE SPECIFIED & SPLIT IN SEPARATE CASES"})
-    else
-      validation_callback.({:info, :columns_are_valid_yay})
-      validation_callback.({:info, :file_is_valid_at_this_point})
+      validation_callback.({:fatal_error, :invalid_columns, "TO BE SPECIFIED & SPLIT IN SEPARATE CASES"})
     end
   end
 end
