@@ -28,8 +28,9 @@ defmodule Transport.IRVE.Validator do
       df = load_dataframe!(file_path, delimiter, callback)
       verify_columns!(df, schema, callback)
       # at this point we should have exactly the columns required
-      df = setup_checks(df, schema)
-      IO.inspect(df |> Explorer.DataFrame.select(~r/siren/), IEx.inspect_opts())
+      df = setup_column_checks(df, schema)
+      df = setup_row_check(df)
+      IO.inspect(df |> Explorer.DataFrame.select(~r/siren|check/), IEx.inspect_opts())
       true
     catch
       :fatal_validation_error -> false
@@ -89,7 +90,7 @@ defmodule Transport.IRVE.Validator do
     end
   end
 
-  def setup_checks(%Explorer.DataFrame{} = df, schema) do
+  def setup_column_checks(%Explorer.DataFrame{} = df, schema) do
     schema
     |> Map.fetch!("fields")
     |> Enum.reduce(df, fn field_definition, df ->
@@ -108,6 +109,23 @@ defmodule Transport.IRVE.Validator do
         _ ->
           df
       end
+    end)
+  end
+
+  @doc """
+  Grab all the `check_column_xyz` fields, and build a `and` operation between all of them.
+  """
+  def setup_row_check(%Explorer.DataFrame{} = df) do
+    df
+    |> Explorer.DataFrame.mutate_with(fn df ->
+      row_valid =
+        df
+        |> Explorer.DataFrame.names()
+        |> Enum.filter(&String.starts_with?(&1, "check_column_"))
+        |> Enum.map(&df[&1])
+        |> Enum.reduce(&Explorer.Series.and/2)
+
+      %{"check_row_valid" => row_valid}
     end)
   end
 
