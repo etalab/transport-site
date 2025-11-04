@@ -116,7 +116,10 @@ defmodule Transport.IRVE.ValidatorTest do
       # correctes, et avoir un message qui va bien pour la cellule de chaque ligne.
 
       # invalid
-      csv_binary = generate_csv(%{"siren_amenageur" => "12345678"})
+      csv_binary =
+        generate_csv([
+          %{"siren_amenageur" => "12345678"}
+        ])
 
       csv_binary
       |> Explorer.DataFrame.load_csv!(infer_schema_length: 0)
