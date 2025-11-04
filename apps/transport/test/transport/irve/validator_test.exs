@@ -128,8 +128,14 @@ defmodule Transport.IRVE.ValidatorTest do
       temp_path = System.tmp_dir!() |> Path.join("irve_test_#{Ecto.UUID.generate()}.csv")
       File.write!(temp_path, csv_binary)
 
-      # TO BE IMPLEMENTED
-      assert Transport.IRVE.Validator.validate(temp_path) == false
+      assert Transport.IRVE.Validator.validate(temp_path) == %{
+               file_valid: false,
+               row_stats: %{
+                 row_invalid_count: 1,
+                 row_valid_count: 0,
+                 row_total_count: 1
+               }
+             }
     end
 
     test "field:contact_amenageur"
