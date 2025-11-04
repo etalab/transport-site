@@ -92,13 +92,16 @@ defmodule Transport.IRVE.ValidatorTest do
       # je construis
     end
 
+    @doc """
+    Generate one or more rows of CSV data.
+    """
     def generate_csv(row_override) do
       # the exact fields, in the exact order
       columns = Transport.IRVE.StaticIRVESchema.field_names_list()
 
       row_override
-      |> DB.Factory.IRVE.generate_row()
       |> List.wrap()
+      |> Enum.map(&DB.Factory.IRVE.generate_row/1)
       |> Explorer.DataFrame.new()
       # https://github.com/elixir-explorer/explorer/issues/1126
       |> Explorer.DataFrame.select(columns)
