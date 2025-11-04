@@ -30,10 +30,21 @@ defmodule Transport.IRVE.Validator do
       # at this point we should have exactly the columns required
       df = setup_column_checks(df, schema)
       df = setup_row_check(df)
-      IO.inspect(df |> Explorer.DataFrame.select(~r/siren|check/), IEx.inspect_opts())
-      true
+
+      stats = compute_row_validity_stats(df)
+
+      %{
+        # provide an aggregate
+        file_valid: stats.row_invalid_count == 0,
+        # help me during tests for now
+        row_stats: stats
+      }
     catch
-      :fatal_validation_error -> false
+      :fatal_validation_error ->
+        # TODO: bubble up the exact reason, since the file was not processed
+        %{
+          file_valid: false
+        }
     end
   end
 
