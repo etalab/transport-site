@@ -14,11 +14,11 @@ defmodule Transport.IRVE.Validator do
 
     callback = fn
       # an error is blocking - we just exit right away
-      {:fatal_error, error_type, error_details} = event ->
+      {:fatal_error, _error_type, _error_details} = event ->
         IO.inspect(event, IEx.inspect_opts() |> Keyword.put(:label, "Event"))
         throw(:fatal_validation_error)
 
-      {:info, msg} = event ->
+      {:info, _msg} = event ->
         IO.inspect(event, IEx.inspect_opts() |> Keyword.put(:label, "Event"))
     end
 
