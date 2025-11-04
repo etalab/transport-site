@@ -25,7 +25,7 @@ defmodule Transport.IRVE.Validator do
     try do
       Logger.info("Validating IRVE static file at #{file_path}")
       delimiter = guess_supported_column_separator!(file_path, callback)
-      df = load_dataframe!(file_path, delimiter, callback)
+      df = load_dataframe!(file_path, delimiter)
       verify_columns!(df, schema, callback)
       # at this point we should have exactly the columns required
       df = setup_column_checks(df, schema)
@@ -66,7 +66,7 @@ defmodule Transport.IRVE.Validator do
     delimiter
   end
 
-  def load_dataframe!(file_path, delimiter, validation_callback) do
+  def load_dataframe!(file_path, delimiter) do
     # https://hexdocs.pm/explorer/Explorer.DataFrame.html#from_csv/2-options
     options = [
       # set to zero disables inference and default all values to string.
