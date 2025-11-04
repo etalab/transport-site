@@ -35,7 +35,7 @@ These CSS classes may be removed (soon?) when switching to the DSFR.
             ) %>
           </div>
           <a
-            class="button"
+            class="button reuser-space"
             href={page_path(@conn, :login, redirect_path: reuser_space_path(@conn, :espace_reutilisateur))}
           >
             <%= dgettext("page-dataset-details", "Log in") %>
@@ -48,11 +48,42 @@ These CSS classes may be removed (soon?) when switching to the DSFR.
         <div class="panel">
           <div class="presentation-description">
             <div class="presentation-icon">
-              <i class="fa fa-bell"></i>
+              <img
+                src={static_path(@conn, "/images/reutilisateurs/picto-bell.svg")}
+                alt={dgettext("reuser-space", "Notification bell")}
+              />
             </div>
             <h2><%= dgettext("reuser-space", "Set up notifications") %></h2>
             <div>
               <%= dgettext("reuser-space", "Receive helpful notifications about your favorite datasets.") %>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="presentation-description">
+            <div class="presentation-icon">
+              <img
+                src={static_path(@conn, "/images/reutilisateurs/reuses.svg")}
+                alt={dgettext("reuser-space", "Reuses")}
+              />
+            </div>
+            <h2><%= dgettext("reuser-space", "Declare your reuses") %></h2>
+            <div>
+              <%= dgettext("reuser-space", "Highlight your reuses and make yourself known.") %>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="presentation-description">
+            <div class="presentation-icon">
+              <img
+                src={static_path(@conn, "/images/reutilisateurs/gear.svg")}
+                alt={dgettext("reuser-space", "Settings")}
+              />
+            </div>
+            <h2><%= dgettext("reuser-space", "API - Manage your tokens") %></h2>
+            <div>
+              <%= dgettext("reuser-space", "Create and manage your tokens independently.") %>
             </div>
           </div>
         </div>

@@ -77,7 +77,7 @@ locale = get_session(@conn, :locale) %>
           <%= raw(
             dgettext(
               "validations",
-              ~s|This file contains the GTFS-Flex extension. We are not able to validate it for now. You can validate it using the <a href="%{url}">Canonical GTFS Schedule Validator from MobilityData</a>.|,
+              ~s|This file contains the GTFS-Flex extension. We are not able to validate it for now. You can validate it using the <a href="%{url}" target="_blank">Canonical GTFS Schedule Validator from MobilityData</a>.|,
               url: "https://gtfs-validator.mobilitydata.org"
             )
           ) %>

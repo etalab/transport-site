@@ -178,7 +178,6 @@ defmodule TransportWeb.Backoffice.PageController do
   def load_dataset(dataset_id) do
     DB.Dataset
     |> preload([
-      :aom,
       :notification_subscriptions,
       [notification_subscriptions: :contact],
       [organization_object: :contacts],
@@ -253,7 +252,7 @@ defmodule TransportWeb.Backoffice.PageController do
 
     paginated_result =
       datasets
-      |> preload([:region, :aom, :resources])
+      |> preload([:resources])
       |> select([dataset: d, end_dates: ed], {d, {ed.dataset_id, ed.end_date}})
       |> Repo.paginate(page: config.page_number)
 

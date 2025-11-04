@@ -11,7 +11,7 @@ defmodule DB.MultiValidation do
     field(:validator, :string)
     field(:validator_version, :string)
     field(:command, :string)
-    field(:result, :map)
+    field(:result, :map, load_in_query: false)
     field(:data_vis, :map)
     field(:max_error, :string)
 
@@ -31,7 +31,20 @@ defmodule DB.MultiValidation do
     timestamps(type: :utc_datetime_usec)
   end
 
-  def base_query, do: from(mv in DB.MultiValidation, as: :multi_validation)
+  def base_query(opts \\ []) do
+    include_result = Keyword.get(opts, :include_result, false)
+
+    if include_result do
+      from(mv in DB.MultiValidation, as: :multi_validation)
+      |> select_merge([mv], %{result: mv.result})
+    else
+      from(mv in DB.MultiValidation, as: :multi_validation)
+    end
+  end
+
+  def with_result do
+    base_query(include_result: true)
+  end
 
   @spec join_resource_history_with_latest_validation(Ecto.Query.t(), binary() | [binary()]) :: Ecto.Query.t()
   @doc """
@@ -79,13 +92,15 @@ defmodule DB.MultiValidation do
     |> DB.Repo.exists?()
   end
 
-  @spec resource_latest_validation(integer(), atom | nil) :: __MODULE__.t() | nil
-  def resource_latest_validation(_, nil), do: nil
+  @spec resource_latest_validation(integer(), atom | nil, keyword()) :: __MODULE__.t() | nil
+  def resource_latest_validation(resource_id, validator, opts \\ [])
 
-  def resource_latest_validation(resource_id, validator) when is_atom(validator) do
+  def resource_latest_validation(_, nil, _), do: nil
+
+  def resource_latest_validation(resource_id, validator, opts) when is_atom(validator) do
     validator_name = validator.validator_name()
 
-    DB.MultiValidation
+    DB.MultiValidation.base_query(opts)
     |> join(:left, [mv], rh in DB.ResourceHistory,
       on: rh.id == mv.resource_history_id and rh.resource_id == ^resource_id
     )
@@ -97,11 +112,11 @@ defmodule DB.MultiValidation do
     |> DB.Repo.one()
   end
 
-  @spec resource_latest_validations(integer(), atom, DateTime.t()) :: [__MODULE__.t()]
-  def resource_latest_validations(resource_id, validator, %DateTime{} = date_from) do
+  @spec resource_latest_validations(integer(), atom, DateTime.t(), keyword()) :: [__MODULE__.t()]
+  def resource_latest_validations(resource_id, validator, %DateTime{} = date_from, opts \\ []) do
     validator_name = validator.validator_name()
 
-    DB.MultiValidation
+    DB.MultiValidation.base_query(opts)
     |> where([mv], mv.validator == ^validator_name and mv.resource_id == ^resource_id and mv.inserted_at >= ^date_from)
     |> order_by([mv], asc: mv.validation_timestamp)
     |> DB.Repo.all()
@@ -124,8 +139,8 @@ defmodule DB.MultiValidation do
     |> DB.Repo.one()
   end
 
-  @spec dataset_latest_validation(integer(), [module()]) :: map
-  def dataset_latest_validation(dataset_id, validators) do
+  @spec dataset_latest_validation(integer(), [module()], keyword()) :: map
+  def dataset_latest_validation(dataset_id, validators, opts \\ []) do
     validators_names = validators |> Enum.map(fn v -> v.validator_name() end)
 
     resource_history_query =
@@ -135,7 +150,7 @@ defmodule DB.MultiValidation do
       |> limit(1)
 
     multi_validation_query =
-      DB.MultiValidation.base_query()
+      DB.MultiValidation.base_query(opts)
       |> where(
         [multi_validation: mv],
         parent_as(:resource).id == mv.resource_id or parent_as(:rh).id == mv.resource_history_id

@@ -390,10 +390,6 @@ msgstr "We do not yet check the compliance with the <a href=\"https://normes.tra
 msgid "netex-french-profile-partial-compliance"
 msgstr "We only partially check the compliance with the <a href=\"https://normes.transport.data.gouv.fr/\">French profile</a>."
 
-#, elixir-autogen, elixir-format, fuzzy
-msgid "This file contains the GTFS-Flex extension. We are not able to validate it for now. You can validate it using the <a href=\"%{url}\" target=\"_blank\">Canonical GTFS Schedule Validator from MobilityData</a>."
-msgstr ""
-
 #, elixir-autogen, elixir-format
 msgid "French profile"
 msgstr ""
@@ -401,3 +397,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "french-profile-description"
 msgstr "Set of rules of the <a href=\"https://normes.transport.data.gouv.fr\" target=\"_blank\">French profile</a>."
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "This file contains the GTFS-Flex extension. We are not able to validate it for now. You can validate it using the <a href=\"%{url}\" target=\"_blank\">Canonical GTFS Schedule Validator from MobilityData</a>."
+msgstr ""

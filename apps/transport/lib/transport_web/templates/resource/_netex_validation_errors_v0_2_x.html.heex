@@ -1,4 +1,4 @@
-<% {max_level, worst_occurrences} = @max_severity %>
+<% %{"max_level" => max_level, "worst_occurrences" => worst_occurrences} = @max_severity %>
 <% current_category = @conn.params["issues_category"] || "" %>
 
 <h4><%= @results_adapter.format_severity(max_level, worst_occurrences) |> String.capitalize() %></h4>

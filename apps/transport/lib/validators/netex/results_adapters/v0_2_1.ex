@@ -73,15 +73,15 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
   iex> validation_result = %{"xsd-schema" => [%{"code" => "xsd-123", "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod", "criticity" => "error"}], "french-profile"=>[%{"code"=>"pan:french_profile:123", "criticity" => "error"}], "base-rules" => [%{"code" => "valid-day-bits", "message" => "Mandatory attribute valid_day_bits not found", "criticity" => "error"}]}
   iex> summary(validation_result)
   [
-    {"xsd-schema", %{count: 1, criticity: "error"}},
-    {"french-profile", %{count: 1, criticity: "error"}},
-    {"base-rules", %{count: 1, criticity: "error"}}
+    %{"category" => "xsd-schema", "stats" => %{"count" => 1, "criticity" => "error"}},
+    %{"category" => "french-profile", "stats" => %{"count" => 1, "criticity" => "error"}},
+    %{"category" => "base-rules", "stats" => %{"count" => 1, "criticity" => "error"}}
   ]
   iex> summary(%{})
   [
-    {"xsd-schema", %{count: 0, criticity: "NoError"}},
-    {"french-profile", %{count: 0, criticity: "NoError"}},
-    {"base-rules", %{count: 0, criticity: "NoError"}}
+    %{"category" => "xsd-schema", "stats" => %{"count" => 0, "criticity" => "NoError"}},
+    %{"category" => "french-profile", "stats" => %{"count" => 0, "criticity" => "NoError"}},
+    %{"category" => "base-rules", "stats" => %{"count" => 0, "criticity" => "NoError"}}
   ]
   """
   @impl Transport.Validators.NeTEx.ResultsAdapter
@@ -95,9 +95,9 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
         |> Enum.map(fn error -> Map.get(error, "criticity", @no_error) end)
         |> Enum.min_by(&severity_level/1, fn -> @no_error end)
 
-      stats = %{count: length(errors), criticity: worst_criticity}
+      stats = %{"count" => length(errors), "criticity" => worst_criticity}
 
-      {category, stats}
+      %{"category" => category, "stats" => stats}
     end)
   end
 
@@ -113,6 +113,8 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
   iex> get_issues(validation_result, %{"issues_category" => "broken-file"})
   []
   iex> get_issues(validation_result, nil)
+  [%{"code" => "xsd-123", "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod", "criticity" => "error"}]
+  iex> get_issues(validation_result, %{})
   [%{"code" => "xsd-123", "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod", "criticity" => "error"}]
   iex> get_issues(%{}, nil)
   []

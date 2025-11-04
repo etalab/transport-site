@@ -15,8 +15,7 @@ defmodule TransportWeb.NavTest do
       custom_title: "Horaires Angers",
       resources: [
         build(:resource, url: "https://link.to/angers.zip")
-      ],
-      aom: build(:aom)
+      ]
     )
 
     Mox.stub_with(Transport.HTTPoison.Mock, HTTPoison)

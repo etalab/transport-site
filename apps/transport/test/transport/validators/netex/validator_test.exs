@@ -126,7 +126,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
     end
 
     defp load_multi_validation(resource_history_id) do
-      DB.MultiValidation
+      DB.MultiValidation.with_result()
       |> DB.Repo.get_by(resource_history_id: resource_history_id)
       |> DB.Repo.preload(:metadata)
     end

@@ -47,7 +47,7 @@ defmodule Transport.Validators.EXJSONSchemaTest do
              validation_timestamp: _,
              validator: "EXJSONSchema",
              validator_version: validator_version
-           } = DB.MultiValidation |> DB.Repo.get_by!(resource_history_id: resource_history_id)
+           } = DB.MultiValidation.with_result() |> DB.Repo.get_by!(resource_history_id: resource_history_id)
 
     assert String.match?(validator_version, @validator_version_regex)
   end
