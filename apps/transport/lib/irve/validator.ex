@@ -37,6 +37,29 @@ defmodule Transport.IRVE.Validator do
     end
   end
 
+  @doc """
+  Compute row stats (number of valid / invalid / total row count)
+  """
+  def compute_row_validity_stats(%Explorer.DataFrame{} = df, column_name \\ "check_row_valid") do
+    values =
+      df
+      |> Explorer.DataFrame.frequencies([column_name])
+      |> Explorer.DataFrame.to_rows()
+
+    f = fn c_name, bool ->
+      values
+      |> Enum.find(%{"counts" => 0}, &(&1[c_name] == bool))
+      |> Map.fetch!("counts")
+    end
+
+    result = %{
+      row_valid_count: a = f.(column_name, true),
+      row_invalid_count: b = f.(column_name, false)
+    }
+
+    Map.put(result, :row_total_count, a + b)
+  end
+
   def guess_supported_column_separator!(file_path, validation_callback) do
     [file_first_line] =
       File.stream!(file_path)
