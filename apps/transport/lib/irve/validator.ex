@@ -134,7 +134,7 @@ defmodule Transport.IRVE.Validator do
   def configure_computations_for_one_schema_field(
         %Explorer.DataFrame{} = df,
         "siren_amenageur" = name,
-        "string" = type,
+        "string" = _type,
         nil = _format,
         constraints
       ) do
