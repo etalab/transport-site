@@ -56,20 +56,20 @@ defmodule Transport.IRVE.ValidatorTest do
     df
   end
 
-  @test_resources [
-    %{
-      # https://www.data.gouv.fr/datasets/reseau-mobive-reseau-de-recharge-publique-en-nouvelle-aquitaine/
-      label: "Mobive (séparateur ;)",
-      url: "https://www.data.gouv.fr/api/1/datasets/r/e90f5ccc-dbe3-41bd-8fbb-d64c27ec4e1c"
-    }
-    # TODO: add a latin1 case
-    # TODO: report on non CSV data (e.g. zip, reusing the quick probe I implemented)
-    # TODO: add a case with extraneous columns (but nothing problematic)
-    # TODO: add a case with duplicate columns (maybe, if any)
-    # TODO: add a case with completely broken columns
-    # TODO: add a case with unsupported separator (e.g. `\t`)
-    # TODO: identify more cases as handled by the raw consolidation, evaluate them, see if we need to cover them or not
-  ]
+  # @test_resources [
+  #   %{
+  #     # https://www.data.gouv.fr/datasets/reseau-mobive-reseau-de-recharge-publique-en-nouvelle-aquitaine/
+  #     label: "Mobive (séparateur ;)",
+  #     url: "https://www.data.gouv.fr/api/1/datasets/r/e90f5ccc-dbe3-41bd-8fbb-d64c27ec4e1c"
+  #   }
+  #   # TODO: add a latin1 case
+  #   # TODO: report on non CSV data (e.g. zip, reusing the quick probe I implemented)
+  #   # TODO: add a case with extraneous columns (but nothing problematic)
+  #   # TODO: add a case with duplicate columns (maybe, if any)
+  #   # TODO: add a case with completely broken columns
+  #   # TODO: add a case with unsupported separator (e.g. `\t`)
+  #   # TODO: identify more cases as handled by the raw consolidation, evaluate them, see if we need to cover them or not
+  # ]
 
   @cache_dir Path.join(__DIR__, "../../cache-dir")
 
