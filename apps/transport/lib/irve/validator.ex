@@ -136,6 +136,8 @@ defmodule Transport.IRVE.Validator do
       # optional
       field_format = field_definition["format"]
 
+      # TODO: assert that nothing is left in the def
+
       case field_name do
         "siren_amenageur" ->
           configure_computations_for_one_schema_field(df, field_name, field_type, field_format, field_constraints)
