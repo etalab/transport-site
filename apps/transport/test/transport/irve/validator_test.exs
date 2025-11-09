@@ -88,10 +88,6 @@ defmodule Transport.IRVE.ValidatorTest do
   end
 
   describe "row level validation" do
-    test "field:nom_amenageur" do
-      # je construis
-    end
-
     @doc """
     Generate one or more rows of CSV data.
     """
@@ -108,73 +104,256 @@ defmodule Transport.IRVE.ValidatorTest do
       |> Explorer.DataFrame.dump_csv!()
     end
 
-    @tag :focus
-    test "field:siren_amenageur" do
-      # je construis un fichier avec les bonnes colonnes, avec que des lignes bonnes au départ,
-      # mais N valeurs valides de SIREN aménageur, et N valeurs invalides
-      # je veux qu'en sortie, je puisse compter le nombre de lignes incorrectes, le nombre de lignes
-      # correctes, et avoir un message qui va bien pour la cellule de chaque ligne.
-
-      # invalid
-      csv_binary =
-        generate_csv([
-          %{"siren_amenageur" => "12345678"}
-        ])
-
-      csv_binary
-      |> Explorer.DataFrame.load_csv!(infer_schema_length: 0)
-      |> Explorer.DataFrame.select(["siren_amenageur"])
-
+    def checks_for_row(key, value) do
+      csv_binary = generate_csv(%{key => value})
+      row_valid_name = "check_row_valid"
+      column_valid_name = "check_column_#{key}_valid"
       temp_path = System.tmp_dir!() |> Path.join("irve_test_#{Ecto.UUID.generate()}.csv")
       File.write!(temp_path, csv_binary)
 
-      assert Transport.IRVE.Validator.validate(temp_path) == %{
-               file_valid: false,
-               row_stats: %{
-                 row_invalid_count: 1,
-                 row_valid_count: 0,
-                 row_total_count: 1
-               }
-             }
+      try do
+        temp_path
+        |> Transport.IRVE.Validator.validate()
+        |> Map.fetch!(:df)
+        |> Explorer.DataFrame.select([row_valid_name, column_valid_name])
+        |> Explorer.DataFrame.to_rows()
+        |> Enum.map(fn result ->
+          [
+            if(result[row_valid_name] == true, do: :row_valid, else: :row_invalid),
+            if(result[column_valid_name] == true, do: :column_valid, else: :column_invalid)
+          ]
+        end)
+      after
+        File.rm!(temp_path)
+      end
     end
 
-    test "field:contact_amenageur"
-    test "field:nom_operateur"
-    test "field:contact_operateur"
-    test "field:telephone_operateur"
-    test "field:nom_enseigne"
-    test "field:id_station_itinerance"
-    test "field:id_station_local"
-    test "field:nom_station"
-    test "field:implantation_station"
-    test "field:adresse_station"
-    test "field:code_insee_commune"
-    test "field:coordonneesXY"
-    test "field:nbre_pdc"
-    test "field:id_pdc_itinerance"
-    test "field:id_pdc_local"
-    test "field:puissance_nominale"
-    test "field:prise_type_ef"
-    test "field:prise_type_2"
-    test "field:prise_type_combo_ccs"
-    test "field:prise_type_chademo"
-    test "field:prise_type_autre"
-    test "field:gratuit"
-    test "field:paiement_acte"
-    test "field:paiement_cb"
-    test "field:paiement_autre"
-    test "field:tarification"
-    test "field:condition_acces"
-    test "field:reservation"
-    test "field:horaires"
-    test "field:accessibilite_pmr"
-    test "field:restriction_gabarit"
-    test "field:station_deux_roues"
-    test "field:raccordement"
-    test "field:num_pdl"
-    test "field:date_mise_en_service"
-    test "field:observations"
-    test "field:date_maj"
-    test "field:cable_t2_attache"
+    @testcases [
+      # note: for now, we do not strip heading/trailing spaces (but that will change before merge I think)
+      {"siren_amenageur", "    ", :valid},
+      {"siren_amenageur", "   123456789  ", :invalid},
+      {"siren_amenageur", "  ABC  ", :invalid},
+
+      # nom_amenageur
+      {"nom_amenageur", "", :valid},
+      {"nom_amenageur", "Société X", :valid},
+
+      # siren_amenageur
+      {"siren_amenageur", "", :valid},
+      {"siren_amenageur", "123456789", :valid},
+      {"siren_amenageur", "12345678", :invalid},
+      {"siren_amenageur", "123A56789", :invalid},
+
+      # contact_amenageur
+      {"contact_amenageur", "", :valid},
+      {"contact_amenageur", "contact@entreprise.fr", :valid},
+      {"contact_amenageur", "contact@", :invalid},
+
+      # nom_operateur
+      {"nom_operateur", "", :valid},
+      {"nom_operateur", "Opérateur ABC", :valid},
+
+      # contact_operateur
+      {"contact_operateur", "contact@operateur.fr", :valid},
+      {"contact_operateur", "invalid@", :invalid},
+      {"contact_operateur", "", :invalid},
+
+      # telephone_operateur
+      {"telephone_operateur", "", :valid},
+      {"telephone_operateur", "0102030405", :valid},
+
+      # nom_enseigne
+      {"nom_enseigne", "Réseau X", :valid},
+      {"nom_enseigne", "", :invalid},
+
+      # id_station_itinerance
+      {"id_station_itinerance", "FRA68P68021001", :valid},
+      {"id_station_itinerance", "Non concerné", :valid},
+      {"id_station_itinerance", "FRX123", :invalid},
+      {"id_station_itinerance", "", :invalid},
+
+      # id_station_local
+      {"id_station_local", "", :valid},
+      {"id_station_local", "01F2KMMRZVQ5FQY882PCJQAPQ0", :valid},
+
+      # nom_station
+      {"nom_station", "Station Belleville", :valid},
+      {"nom_station", "", :invalid},
+
+      # implantation_station
+      {"implantation_station", "Voirie", :valid},
+      {"implantation_station", "Parking public", :valid},
+      {"implantation_station", "Autre", :invalid},
+      {"implantation_station", "", :invalid},
+
+      # adresse_station
+      {"adresse_station", "1 avenue de la Paix 75001 Paris", :valid},
+      {"adresse_station", "", :invalid},
+
+      # code_insee_commune
+      {"code_insee_commune", "", :valid},
+      {"code_insee_commune", "21231", :valid},
+      {"code_insee_commune", "2A031", :valid},
+      {"code_insee_commune", "9900", :invalid},
+
+      # coordonneesXY
+      {"coordonneesXY", "[7.48710500,48.345345]", :valid},
+      {"coordonneesXY", "[200,91]", :invalid},
+      {"coordonneesXY", "", :invalid},
+
+      # nbre_pdc
+      {"nbre_pdc", "3", :valid},
+      {"nbre_pdc", "0", :valid},
+      {"nbre_pdc", "-1", :invalid},
+      {"nbre_pdc", "3.7", :invalid},
+      {"nbre_pdc", "3,7", :invalid},
+      {"nbre_pdc", "", :invalid},
+
+      # id_pdc_itinerance
+      {"id_pdc_itinerance", "FRA68E680210015", :valid},
+      {"id_pdc_itinerance", "Non concerné", :valid},
+      {"id_pdc_itinerance", "FR12E", :invalid},
+      {"id_pdc_itinerance", "", :invalid},
+
+      # id_pdc_local
+      {"id_pdc_local", "", :valid},
+      {"id_pdc_local", "01F2KNFARDSJG7KEH1YHG4033M", :valid},
+
+      # puissance_nominale
+      {"puissance_nominale", "22.0", :valid},
+      {"puissance_nominale", "22", :valid},
+      {"puissance_nominale", "0", :valid},
+      {"puissance_nominale", "-5", :invalid},
+      {"puissance_nominale", "5A", :invalid},
+      {"puissance_nominale", "BC", :invalid},
+      {"puissance_nominale", "", :invalid},
+
+      # prise_type_ef
+      {"prise_type_ef", "true", :valid},
+      {"prise_type_ef", "false", :valid},
+      {"prise_type_ef", "", :invalid},
+
+      # prise_type_2
+      {"prise_type_2", "true", :valid},
+      {"prise_type_2", "false", :valid},
+      {"prise_type_2", "", :invalid},
+
+      # prise_type_combo_ccs
+      {"prise_type_combo_ccs", "true", :valid},
+      {"prise_type_combo_ccs", "false", :valid},
+      {"prise_type_combo_ccs", "", :invalid},
+
+      # prise_type_chademo
+      {"prise_type_chademo", "true", :valid},
+      {"prise_type_chademo", "false", :valid},
+      {"prise_type_chademo", "", :invalid},
+
+      # prise_type_autre
+      {"prise_type_autre", "true", :valid},
+      {"prise_type_autre", "false", :valid},
+      {"prise_type_autre", "", :invalid},
+
+      # gratuit
+      {"gratuit", "true", :valid},
+      {"gratuit", "false", :valid},
+      {"gratuit", "", :valid},
+
+      # paiement_acte
+      {"paiement_acte", "true", :valid},
+      {"paiement_acte", "false", :valid},
+      {"paiement_acte", "", :invalid},
+
+      # paiement_cb
+      {"paiement_cb", "", :valid},
+      {"paiement_cb", "true", :valid},
+      {"paiement_cb", "false", :valid},
+
+      # paiement_autre
+      {"paiement_autre", "", :valid},
+      {"paiement_autre", "true", :valid},
+      {"paiement_autre", "false", :valid},
+
+      # tarification
+      {"tarification", "", :valid},
+      {"tarification", "0,40€/kWh", :valid},
+
+      # condition_acces
+      {"condition_acces", "Accès libre", :valid},
+      {"condition_acces", "Accès réservé", :valid},
+      {"condition_acces", "Ouvert", :invalid},
+      {"condition_acces", "", :invalid},
+
+      # reservation
+      {"reservation", "true", :valid},
+      {"reservation", "false", :valid},
+      {"reservation", "", :invalid},
+
+      # horaires
+      {"horaires", "24/7", :valid},
+      {"horaires", "Mo-Fr 08:00-18:00", :valid},
+      {"horaires", "Mo-Fr 08:00-12:00,Mo-Fr 14:00-18:00,Th 08:00-18:00", :valid},
+      {"horaires", "Lundi 9h-18h", :invalid},
+      {"horaires", "", :invalid},
+
+      # accessibilite_pmr
+      {"accessibilite_pmr", "Réservé PMR", :valid},
+      {"accessibilite_pmr", "Non accessible", :valid},
+      {"accessibilite_pmr", "Autre", :invalid},
+      {"accessibilite_pmr", "", :invalid},
+
+      # restriction_gabarit
+      {"restriction_gabarit", "Hauteur maximale 2m", :valid},
+      {"restriction_gabarit", "", :invalid},
+
+      # station_deux_roues
+      {"station_deux_roues", "true", :valid},
+      {"station_deux_roues", "false", :valid},
+      {"station_deux_roues", "", :invalid},
+
+      # raccordement
+      {"raccordement", "", :valid},
+      {"raccordement", "Direct", :valid},
+      {"raccordement", "Indirect", :valid},
+      {"raccordement", "Autre", :invalid},
+
+      # num_pdl
+      {"num_pdl", "", :valid},
+      {"num_pdl", "12345678912345", :valid},
+
+      # date_mise_en_service
+      {"date_mise_en_service", "", :valid},
+      {"date_mise_en_service", "2021-12-30", :valid},
+      # TODO: implement support for invalid date verification, & add test-case
+      {"date_mise_en_service", "30/12/2021", :invalid},
+
+      # observations
+      {"observations", "", :valid},
+      {"observations", "Bornes réservées aux abonnés", :valid},
+
+      # date_maj
+      {"date_maj", "2021-12-30", :valid},
+      {"date_maj", "30/12/2021", :invalid},
+      # TODO: implement support for invalid date verification, & add test-case
+      {"date_maj", "", :invalid},
+
+      # cable_t2_attache
+      {"cable_t2_attache", "", :valid},
+      {"cable_t2_attache", "true", :valid},
+      {"cable_t2_attache", "false", :valid}
+    ]
+
+    @testcases
+    |> Enum.each(fn {field, value, validity} ->
+      expected_result =
+        case validity do
+          :valid -> [:row_valid, :column_valid]
+          :invalid -> [:row_invalid, :column_invalid]
+        end
+
+      @tag :focus
+      test "field:#{field}(#{value |> inspect})" do
+        assert checks_for_row(unquote(field), unquote(value)) == [unquote(expected_result)]
+      end
+    end)
   end
 end
