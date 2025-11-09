@@ -149,7 +149,10 @@ defmodule Transport.IRVE.Validator do
                "telephone_operateur",
                "nom_enseigne",
                "id_station_itinerance",
-               "id_station_local"
+               "id_station_local",
+               "nom_station",
+               "implantation_station",
+               "adresse_station"
              ] ->
           configure_computations_for_one_schema_field(df, field_name, field_type, field_format, field_constraints)
 
@@ -363,6 +366,77 @@ defmodule Transport.IRVE.Validator do
     Explorer.DataFrame.mutate_with(df, fn df ->
       %{
         "check_column_id_station_local_valid" => true
+      }
+    end)
+  end
+
+  def configure_computations_for_one_schema_field(
+        %Explorer.DataFrame{} = df,
+        "nom_station" = name,
+        "string" = _type,
+        nil = _format,
+        constraints
+      ) do
+    assert constraints == %{"required" => true}
+
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      %{
+        "check_column_nom_station_valid" =>
+          df[name]
+          |> Explorer.Series.strip()
+          |> Explorer.Series.fill_missing("")
+          |> Explorer.Series.not_equal("")
+      }
+    end)
+  end
+
+  def configure_computations_for_one_schema_field(
+        %Explorer.DataFrame{} = df,
+        "implantation_station" = name,
+        "string" = _type,
+        nil = _format,
+        constraints
+      ) do
+    enum_values = [
+      "Voirie",
+      "Parking public",
+      "Parking privé à usage public",
+      "Parking privé réservé à la clientèle",
+      "Station dédiée à la recharge rapide"
+    ]
+
+    assert constraints == %{"required" => true, "enum" => enum_values}
+
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      %{
+        "check_column_implantation_station_valid" =>
+          Explorer.Series.and(
+            df[name]
+            |> Explorer.Series.strip()
+            |> Explorer.Series.fill_missing("")
+            |> Explorer.Series.not_equal(""),
+            df[name] |> Explorer.Series.in(enum_values)
+          )
+      }
+    end)
+  end
+
+  def configure_computations_for_one_schema_field(
+        %Explorer.DataFrame{} = df,
+        "adresse_station" = name,
+        "string" = _type,
+        nil = _format,
+        constraints
+      ) do
+    assert constraints == %{"required" => true}
+
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      %{
+        "check_column_adresse_station_valid" =>
+          df[name]
+          |> Explorer.Series.strip()
+          |> Explorer.Series.fill_missing("")
+          |> Explorer.Series.not_equal("")
       }
     end)
   end
