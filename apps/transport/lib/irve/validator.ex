@@ -155,7 +155,9 @@ defmodule Transport.IRVE.Validator do
                "adresse_station",
                "code_insee_commune",
                "coordonneesXY",
-               "nbre_pdc"
+               "nbre_pdc",
+               "id_pdc_itinerance",
+               "id_pdc_local"
              ] ->
           configure_computations_for_one_schema_field(df, field_name, field_type, field_format, field_constraints)
 
@@ -511,6 +513,46 @@ defmodule Transport.IRVE.Validator do
             Explorer.Series.is_not_nil(casted),
             Explorer.Series.greater_equal(casted, 0)
           )
+      }
+    end)
+  end
+
+  def configure_computations_for_one_schema_field(
+        %Explorer.DataFrame{} = df,
+        "id_pdc_itinerance" = name,
+        "string" = _type,
+        nil = _format,
+        constraints
+      ) do
+    pattern = ~S/(?:(?:^|,)(^[A-Z]{2}[A-Z0-9]{4,33}$|Non concerné))+$/
+    assert constraints == %{"required" => true, "pattern" => pattern}
+
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      %{
+        "check_column_id_pdc_itinerance_valid" =>
+          Explorer.Series.and(
+            df[name]
+            |> Explorer.Series.strip()
+            |> Explorer.Series.fill_missing("")
+            |> Explorer.Series.not_equal(""),
+            Explorer.Series.re_contains(df[name], pattern)
+          )
+      }
+    end)
+  end
+
+  def configure_computations_for_one_schema_field(
+        %Explorer.DataFrame{} = df,
+        "id_pdc_local" = _name,
+        "string" = _type,
+        nil = _format,
+        constraints
+      ) do
+    assert constraints == %{"required" => false}
+
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      %{
+        "check_column_id_pdc_local_valid" => true
       }
     end)
   end
