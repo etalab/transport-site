@@ -99,6 +99,8 @@ defmodule Transport.IRVE.Validation.Primitives do
   # going with something simple for now, & we will improve as needed / if needed.
   @simple_email_pattern ~S/(?i)\A[^@\s]+@[^@\s]+\.[^@\s]+\z/
 
+  def simple_email_pattern, do: @simple_email_pattern
+
   @doc """
   Given a `format: "email"` field specifier, compute a column asserting that the format is verified.
 
