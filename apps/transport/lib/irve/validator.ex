@@ -243,7 +243,7 @@ defmodule Transport.IRVE.Validator do
 
   def configure_computations_for_one_schema_field(
         %Explorer.DataFrame{} = df,
-        "nom_operateur" = name,
+        "nom_operateur" = _name,
         "string" = _type,
         nil = _format,
         constraints
