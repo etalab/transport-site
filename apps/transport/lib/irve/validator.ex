@@ -162,6 +162,17 @@ defmodule Transport.IRVE.Validator do
 
   import ExUnit.Assertions
 
+  @doc """
+  Check if a value is present (not empty after stripping whitespace).
+  Returns a boolean series.
+  """
+  defp value_present?(series) do
+    series
+    |> Explorer.Series.strip()
+    |> Explorer.Series.fill_missing("")
+    |> Explorer.Series.not_equal("")
+  end
+
   def configure_computations_for_one_schema_field(
         %Explorer.DataFrame{} = df,
         "nom_amenageur" = name,
@@ -200,10 +211,7 @@ defmodule Transport.IRVE.Validator do
       %{
         "check_column_siren_amenageur_valid" =>
           Explorer.Series.or(
-            df[name]
-            |> Explorer.Series.strip()
-            |> Explorer.Series.fill_missing("")
-            |> Explorer.Series.equal(""),
+            Explorer.Series.not(value_present?(df[name])),
             Explorer.Series.re_contains(df[name], pattern)
           )
       }
@@ -225,10 +233,7 @@ defmodule Transport.IRVE.Validator do
       %{
         "check_column_contact_amenageur_valid" =>
           Explorer.Series.or(
-            df[name]
-            |> Explorer.Series.strip()
-            |> Explorer.Series.fill_missing("")
-            |> Explorer.Series.equal(""),
+            Explorer.Series.not(value_present?(df[name])),
             Explorer.Series.re_contains(df[name], Transport.IRVE.Validation.Primitives.simple_email_pattern())
           )
       }
@@ -264,10 +269,7 @@ defmodule Transport.IRVE.Validator do
       %{
         "check_column_contact_operateur_valid" =>
           Explorer.Series.and(
-            df[name]
-            |> Explorer.Series.strip()
-            |> Explorer.Series.fill_missing("")
-            |> Explorer.Series.not_equal(""),
+            value_present?(df[name]),
             Explorer.Series.re_contains(df[name], Transport.IRVE.Validation.Primitives.simple_email_pattern())
           )
       }
@@ -301,11 +303,7 @@ defmodule Transport.IRVE.Validator do
 
     Explorer.DataFrame.mutate_with(df, fn df ->
       %{
-        "check_column_nom_enseigne_valid" =>
-          df[name]
-          |> Explorer.Series.strip()
-          |> Explorer.Series.fill_missing("")
-          |> Explorer.Series.not_equal("")
+        "check_column_nom_enseigne_valid" => value_present?(df[name])
       }
     end)
   end
@@ -324,10 +322,7 @@ defmodule Transport.IRVE.Validator do
       %{
         "check_column_id_station_itinerance_valid" =>
           Explorer.Series.and(
-            df[name]
-            |> Explorer.Series.strip()
-            |> Explorer.Series.fill_missing("")
-            |> Explorer.Series.not_equal(""),
+            value_present?(df[name]),
             Explorer.Series.re_contains(df[name], pattern)
           )
       }
@@ -361,11 +356,7 @@ defmodule Transport.IRVE.Validator do
 
     Explorer.DataFrame.mutate_with(df, fn df ->
       %{
-        "check_column_nom_station_valid" =>
-          df[name]
-          |> Explorer.Series.strip()
-          |> Explorer.Series.fill_missing("")
-          |> Explorer.Series.not_equal("")
+        "check_column_nom_station_valid" => value_present?(df[name])
       }
     end)
   end
@@ -391,10 +382,7 @@ defmodule Transport.IRVE.Validator do
       %{
         "check_column_implantation_station_valid" =>
           Explorer.Series.and(
-            df[name]
-            |> Explorer.Series.strip()
-            |> Explorer.Series.fill_missing("")
-            |> Explorer.Series.not_equal(""),
+            value_present?(df[name]),
             df[name] |> Explorer.Series.in(enum_values)
           )
       }
@@ -412,11 +400,7 @@ defmodule Transport.IRVE.Validator do
 
     Explorer.DataFrame.mutate_with(df, fn df ->
       %{
-        "check_column_adresse_station_valid" =>
-          df[name]
-          |> Explorer.Series.strip()
-          |> Explorer.Series.fill_missing("")
-          |> Explorer.Series.not_equal("")
+        "check_column_adresse_station_valid" => value_present?(df[name])
       }
     end)
   end
@@ -435,10 +419,7 @@ defmodule Transport.IRVE.Validator do
       %{
         "check_column_code_insee_commune_valid" =>
           Explorer.Series.or(
-            df[name]
-            |> Explorer.Series.strip()
-            |> Explorer.Series.fill_missing("")
-            |> Explorer.Series.equal(""),
+            Explorer.Series.not(value_present?(df[name])),
             Explorer.Series.re_contains(df[name], pattern)
           )
       }
@@ -460,10 +441,7 @@ defmodule Transport.IRVE.Validator do
       %{
         "check_column_coordonneesXY_valid" =>
           Explorer.Series.and(
-            df[name]
-            |> Explorer.Series.strip()
-            |> Explorer.Series.fill_missing("")
-            |> Explorer.Series.not_equal(""),
+            value_present?(df[name]),
             Explorer.Series.re_contains(df[name], geopoint_pattern)
           )
       }
@@ -506,10 +484,7 @@ defmodule Transport.IRVE.Validator do
       %{
         "check_column_id_pdc_itinerance_valid" =>
           Explorer.Series.and(
-            df[name]
-            |> Explorer.Series.strip()
-            |> Explorer.Series.fill_missing("")
-            |> Explorer.Series.not_equal(""),
+            value_present?(df[name]),
             Explorer.Series.re_contains(df[name], pattern)
           )
       }
@@ -655,10 +630,7 @@ defmodule Transport.IRVE.Validator do
       %{
         "check_column_gratuit_valid" =>
           Explorer.Series.or(
-            df[name]
-            |> Explorer.Series.strip()
-            |> Explorer.Series.fill_missing("")
-            |> Explorer.Series.equal(""),
+            Explorer.Series.not(value_present?(df[name])),
             df[name] |> Explorer.Series.in(["true", "false"])
           )
       }
@@ -695,10 +667,7 @@ defmodule Transport.IRVE.Validator do
       %{
         "check_column_paiement_cb_valid" =>
           Explorer.Series.or(
-            df[name]
-            |> Explorer.Series.strip()
-            |> Explorer.Series.fill_missing("")
-            |> Explorer.Series.equal(""),
+            Explorer.Series.not(value_present?(df[name])),
             df[name] |> Explorer.Series.in(["true", "false"])
           )
       }
@@ -718,10 +687,7 @@ defmodule Transport.IRVE.Validator do
       %{
         "check_column_paiement_autre_valid" =>
           Explorer.Series.or(
-            df[name]
-            |> Explorer.Series.strip()
-            |> Explorer.Series.fill_missing("")
-            |> Explorer.Series.equal(""),
+            Explorer.Series.not(value_present?(df[name])),
             df[name] |> Explorer.Series.in(["true", "false"])
           )
       }
@@ -758,10 +724,7 @@ defmodule Transport.IRVE.Validator do
       %{
         "check_column_condition_acces_valid" =>
           Explorer.Series.and(
-            df[name]
-            |> Explorer.Series.strip()
-            |> Explorer.Series.fill_missing("")
-            |> Explorer.Series.not_equal(""),
+            value_present?(df[name]),
             df[name] |> Explorer.Series.in(enum_values)
           )
       }
@@ -799,10 +762,7 @@ defmodule Transport.IRVE.Validator do
       %{
         "check_column_horaires_valid" =>
           Explorer.Series.and(
-            df[name]
-            |> Explorer.Series.strip()
-            |> Explorer.Series.fill_missing("")
-            |> Explorer.Series.not_equal(""),
+            value_present?(df[name]),
             Explorer.Series.re_contains(df[name], pattern)
           )
       }
@@ -823,10 +783,7 @@ defmodule Transport.IRVE.Validator do
       %{
         "check_column_accessibilite_pmr_valid" =>
           Explorer.Series.and(
-            df[name]
-            |> Explorer.Series.strip()
-            |> Explorer.Series.fill_missing("")
-            |> Explorer.Series.not_equal(""),
+            value_present?(df[name]),
             df[name] |> Explorer.Series.in(enum_values)
           )
       }
@@ -844,11 +801,7 @@ defmodule Transport.IRVE.Validator do
 
     Explorer.DataFrame.mutate_with(df, fn df ->
       %{
-        "check_column_restriction_gabarit_valid" =>
-          df[name]
-          |> Explorer.Series.strip()
-          |> Explorer.Series.fill_missing("")
-          |> Explorer.Series.not_equal("")
+        "check_column_restriction_gabarit_valid" => value_present?(df[name])
       }
     end)
   end
@@ -884,10 +837,7 @@ defmodule Transport.IRVE.Validator do
       %{
         "check_column_raccordement_valid" =>
           Explorer.Series.or(
-            df[name]
-            |> Explorer.Series.strip()
-            |> Explorer.Series.fill_missing("")
-            |> Explorer.Series.equal(""),
+            Explorer.Series.not(value_present?(df[name])),
             df[name] |> Explorer.Series.in(enum_values)
           )
       }
@@ -925,10 +875,7 @@ defmodule Transport.IRVE.Validator do
       %{
         "check_column_date_mise_en_service_valid" =>
           Explorer.Series.or(
-            df[name]
-            |> Explorer.Series.strip()
-            |> Explorer.Series.fill_missing("")
-            |> Explorer.Series.equal(""),
+            Explorer.Series.not(value_present?(df[name])),
             Explorer.Series.re_contains(df[name], date_pattern)
           )
       }
@@ -966,10 +913,7 @@ defmodule Transport.IRVE.Validator do
       %{
         "check_column_date_maj_valid" =>
           Explorer.Series.and(
-            df[name]
-            |> Explorer.Series.strip()
-            |> Explorer.Series.fill_missing("")
-            |> Explorer.Series.not_equal(""),
+            value_present?(df[name]),
             Explorer.Series.re_contains(df[name], date_pattern)
           )
       }
@@ -989,10 +933,7 @@ defmodule Transport.IRVE.Validator do
       %{
         "check_column_cable_t2_attache_valid" =>
           Explorer.Series.or(
-            df[name]
-            |> Explorer.Series.strip()
-            |> Explorer.Series.fill_missing("")
-            |> Explorer.Series.equal(""),
+            Explorer.Series.not(value_present?(df[name])),
             df[name] |> Explorer.Series.in(["true", "false"])
           )
       }
