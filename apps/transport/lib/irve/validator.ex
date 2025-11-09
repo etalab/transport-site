@@ -139,7 +139,7 @@ defmodule Transport.IRVE.Validator do
       # TODO: assert that nothing is left in the def
 
       case field_name do
-        "siren_amenageur" ->
+        n when n in ["nom_amenageur", "siren_amenageur", "contact_amenageur"] ->
           configure_computations_for_one_schema_field(df, field_name, field_type, field_format, field_constraints)
 
         # do nothing
@@ -167,6 +167,22 @@ defmodule Transport.IRVE.Validator do
   end
 
   import ExUnit.Assertions
+
+  def configure_computations_for_one_schema_field(
+        %Explorer.DataFrame{} = df,
+        "nom_amenageur" = name,
+        "string" = _type,
+        nil = _format,
+        constraints
+      ) do
+    assert constraints == %{"required" => false}
+
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      %{
+        "check_column_nom_amenageur_valid" => true
+      }
+    end)
+  end
 
   def configure_computations_for_one_schema_field(
         %Explorer.DataFrame{} = df,
