@@ -37,7 +37,8 @@ defmodule Transport.IRVE.Validator do
         # provide an aggregate
         file_valid: stats.row_invalid_count == 0,
         # help me during tests for now
-        row_stats: stats
+        row_stats: stats,
+        df: df
       }
     catch
       :fatal_validation_error ->
