@@ -173,6 +173,7 @@ defmodule Transport.IRVE.Validator do
     |> Explorer.Series.not_equal("")
   end
 
+
   def configure_computations_for_one_schema_field(
         %Explorer.DataFrame{} = df,
         "nom_amenageur" = name,
@@ -532,165 +533,30 @@ defmodule Transport.IRVE.Validator do
     end)
   end
 
+  # Generic handler for all boolean fields
   def configure_computations_for_one_schema_field(
         %Explorer.DataFrame{} = df,
-        "prise_type_ef" = name,
+        field_name,
         "boolean" = _type,
         nil = _format,
-        constraints
+        %{"required" => required} = constraints
       ) do
-    assert constraints == %{"required" => true}
+    assert constraints == %{"required" => required}
 
     Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_prise_type_ef_valid" =>
-          df[name] |> Explorer.Series.in(["true", "false"])
-      }
-    end)
-  end
+      valid_boolean = df[field_name] |> Explorer.Series.in(["true", "false"])
 
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "prise_type_2" = name,
-        "boolean" = _type,
-        nil = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => true}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_prise_type_2_valid" =>
-          df[name] |> Explorer.Series.in(["true", "false"])
-      }
-    end)
-  end
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "prise_type_combo_ccs" = name,
-        "boolean" = _type,
-        nil = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => true}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_prise_type_combo_ccs_valid" =>
-          df[name] |> Explorer.Series.in(["true", "false"])
-      }
-    end)
-  end
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "prise_type_chademo" = name,
-        "boolean" = _type,
-        nil = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => true}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_prise_type_chademo_valid" =>
-          df[name] |> Explorer.Series.in(["true", "false"])
-      }
-    end)
-  end
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "prise_type_autre" = name,
-        "boolean" = _type,
-        nil = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => true}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_prise_type_autre_valid" =>
-          df[name] |> Explorer.Series.in(["true", "false"])
-      }
-    end)
-  end
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "gratuit" = name,
-        "boolean" = _type,
-        nil = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => false}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_gratuit_valid" =>
+      result =
+        if required do
+          valid_boolean
+        else
           Explorer.Series.or(
-            Explorer.Series.not(value_present?(df[name])),
-            df[name] |> Explorer.Series.in(["true", "false"])
+            Explorer.Series.not(value_present?(df[field_name])),
+            valid_boolean
           )
-      }
-    end)
-  end
+        end
 
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "paiement_acte" = name,
-        "boolean" = _type,
-        nil = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => true}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_paiement_acte_valid" =>
-          df[name] |> Explorer.Series.in(["true", "false"])
-      }
-    end)
-  end
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "paiement_cb" = name,
-        "boolean" = _type,
-        nil = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => false}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_paiement_cb_valid" =>
-          Explorer.Series.or(
-            Explorer.Series.not(value_present?(df[name])),
-            df[name] |> Explorer.Series.in(["true", "false"])
-          )
-      }
-    end)
-  end
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "paiement_autre" = name,
-        "boolean" = _type,
-        nil = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => false}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_paiement_autre_valid" =>
-          Explorer.Series.or(
-            Explorer.Series.not(value_present?(df[name])),
-            df[name] |> Explorer.Series.in(["true", "false"])
-          )
-      }
+      %{"check_column_#{field_name}_valid" => result}
     end)
   end
 
@@ -727,23 +593,6 @@ defmodule Transport.IRVE.Validator do
             value_present?(df[name]),
             df[name] |> Explorer.Series.in(enum_values)
           )
-      }
-    end)
-  end
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "reservation" = name,
-        "boolean" = _type,
-        nil = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => true}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_reservation_valid" =>
-          df[name] |> Explorer.Series.in(["true", "false"])
       }
     end)
   end
@@ -802,23 +651,6 @@ defmodule Transport.IRVE.Validator do
     Explorer.DataFrame.mutate_with(df, fn df ->
       %{
         "check_column_restriction_gabarit_valid" => value_present?(df[name])
-      }
-    end)
-  end
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "station_deux_roues" = name,
-        "boolean" = _type,
-        nil = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => true}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_station_deux_roues_valid" =>
-          df[name] |> Explorer.Series.in(["true", "false"])
       }
     end)
   end
@@ -920,23 +752,4 @@ defmodule Transport.IRVE.Validator do
     end)
   end
 
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "cable_t2_attache" = name,
-        "boolean" = _type,
-        nil = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => false}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_cable_t2_attache_valid" =>
-          Explorer.Series.or(
-            Explorer.Series.not(value_present?(df[name])),
-            df[name] |> Explorer.Series.in(["true", "false"])
-          )
-      }
-    end)
-  end
 end
