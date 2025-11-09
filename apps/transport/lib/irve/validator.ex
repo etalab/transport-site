@@ -215,4 +215,29 @@ defmodule Transport.IRVE.Validator do
       }
     end)
   end
+
+  def configure_computations_for_one_schema_field(
+        %Explorer.DataFrame{} = df,
+        "contact_amenageur" = name,
+        "string" = _type,
+        "email" = _format,
+        constraints
+      ) do
+    # # debugging assertions for now, will be removable later
+    assert constraints == %{"required" => false}
+
+    # TODO: reuse primitives instead, but they'll need a rework before this is doable.
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      %{
+        "check_column_contact_amenageur_valid" =>
+          Explorer.Series.or(
+            df[name]
+            |> Explorer.Series.strip()
+            |> Explorer.Series.fill_missing("")
+            |> Explorer.Series.equal(""),
+            Explorer.Series.re_contains(df[name], Transport.IRVE.Validation.Primitives.simple_email_pattern())
+          )
+      }
+    end)
+  end
 end
