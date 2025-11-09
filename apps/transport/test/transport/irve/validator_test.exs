@@ -199,7 +199,7 @@ defmodule Transport.IRVE.ValidatorTest do
 
       # coordonneesXY
       {"coordonneesXY", "[7.48710500,48.345345]", :valid},
-      {"coordonneesXY", "[200,91]", :invalid},
+      {"coordonneesXY", "[-7.123,-23.678]", :valid},
       {"coordonneesXY", "", :invalid},
 
       # nbre_pdc

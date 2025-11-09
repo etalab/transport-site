@@ -152,7 +152,10 @@ defmodule Transport.IRVE.Validator do
                "id_station_local",
                "nom_station",
                "implantation_station",
-               "adresse_station"
+               "adresse_station",
+               "code_insee_commune",
+               "coordonneesXY",
+               "nbre_pdc"
              ] ->
           configure_computations_for_one_schema_field(df, field_name, field_type, field_format, field_constraints)
 
@@ -437,6 +440,77 @@ defmodule Transport.IRVE.Validator do
           |> Explorer.Series.strip()
           |> Explorer.Series.fill_missing("")
           |> Explorer.Series.not_equal("")
+      }
+    end)
+  end
+
+  def configure_computations_for_one_schema_field(
+        %Explorer.DataFrame{} = df,
+        "code_insee_commune" = name,
+        "string" = _type,
+        nil = _format,
+        constraints
+      ) do
+    pattern = ~S/^([013-9]\d|2[AB1-9])\d{3}$/
+    assert constraints == %{"required" => false, "pattern" => pattern}
+
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      %{
+        "check_column_code_insee_commune_valid" =>
+          Explorer.Series.or(
+            df[name]
+            |> Explorer.Series.strip()
+            |> Explorer.Series.fill_missing("")
+            |> Explorer.Series.equal(""),
+            Explorer.Series.re_contains(df[name], pattern)
+          )
+      }
+    end)
+  end
+
+  def configure_computations_for_one_schema_field(
+        %Explorer.DataFrame{} = df,
+        "coordonneesXY" = name,
+        "geopoint" = _type,
+        "array" = _format,
+        constraints
+      ) do
+    assert constraints == %{"required" => true}
+
+    geopoint_pattern = ~S/\A\[\-?\d+(\.\d+)?,\s?\-?\d+(\.\d+)?\]\z/
+
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      %{
+        "check_column_coordonneesXY_valid" =>
+          Explorer.Series.and(
+            df[name]
+            |> Explorer.Series.strip()
+            |> Explorer.Series.fill_missing("")
+            |> Explorer.Series.not_equal(""),
+            Explorer.Series.re_contains(df[name], geopoint_pattern)
+          )
+      }
+    end)
+  end
+
+  def configure_computations_for_one_schema_field(
+        %Explorer.DataFrame{} = df,
+        "nbre_pdc" = name,
+        "integer" = _type,
+        nil = _format,
+        constraints
+      ) do
+    assert constraints == %{"required" => true, "minimum" => 0}
+
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      casted = df[name] |> Explorer.Series.cast(:integer)
+
+      %{
+        "check_column_nbre_pdc_valid" =>
+          Explorer.Series.and(
+            Explorer.Series.is_not_nil(casted),
+            Explorer.Series.greater_equal(casted, 0)
+          )
       }
     end)
   end
