@@ -160,12 +160,6 @@ defmodule Transport.IRVE.Validator do
     end)
   end
 
-  import ExUnit.Assertions
-
-  @doc """
-  Check if a value is present (not empty after stripping whitespace).
-  Returns a boolean series.
-  """
   defp value_present?(series) do
     series
     |> Explorer.Series.strip()
@@ -173,583 +167,105 @@ defmodule Transport.IRVE.Validator do
     |> Explorer.Series.not_equal("")
   end
 
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "nom_amenageur" = name,
-        "string" = _type,
-        nil = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => false}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_nom_amenageur_valid" => true
-      }
-    end)
+  def perform_base_validation(df, field_name, "boolean", nil, constraints) when map_size(constraints) == 0 do
+    df[field_name] |> Explorer.Series.in(["true", "false"])
   end
 
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "siren_amenageur" = name,
-        "string" = _type,
-        nil = _format,
-        constraints
-      ) do
-    pattern = "^\\d{9}$"
+  def perform_base_validation(df, field_name, "integer", nil, %{"minimum" => min} = constraints)
+      when map_size(constraints) == 1 do
+    casted = df[field_name] |> Explorer.Series.cast(:integer)
 
-    # debugging assertions for now, will be removable later
-    assert constraints == %{"pattern" => pattern, "required" => false}
-
-    # either the field is empty (and we don't need to check the pattern),
-    # or it has a value (in which case the value must comply with the pattern)
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      # NOTE: this does not explain why the cell is invalid, when it is invalid
-      # We'll need to store each check result to be able to report on that.
-      # either using separate columns, or a complex type if needed or better & not memory hungry.
-      # I will experiment with a field requiring more logic
-      %{
-        "check_column_siren_amenageur_valid" =>
-          Explorer.Series.or(
-            Explorer.Series.not(value_present?(df[name])),
-            Explorer.Series.re_contains(df[name], pattern)
-          )
-      }
-    end)
+    Explorer.Series.and(
+      Explorer.Series.is_not_nil(casted),
+      Explorer.Series.greater_equal(casted, min)
+    )
   end
 
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "contact_amenageur" = name,
-        "string" = _type,
-        "email" = _format,
-        constraints
-      ) do
-    # # debugging assertions for now, will be removable later
-    assert constraints == %{"required" => false}
+  def perform_base_validation(df, field_name, "number", nil, %{"minimum" => min} = constraints)
+      when map_size(constraints) == 1 do
+    casted = df[field_name] |> Explorer.Series.cast({:f, 64})
 
-    # TODO: reuse primitives instead, but they'll need a rework before this is doable.
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_contact_amenageur_valid" =>
-          Explorer.Series.or(
-            Explorer.Series.not(value_present?(df[name])),
-            Explorer.Series.re_contains(df[name], Transport.IRVE.Validation.Primitives.simple_email_pattern())
-          )
-      }
-    end)
+    Explorer.Series.and(
+      Explorer.Series.and(
+        Explorer.Series.is_not_nil(casted),
+        Explorer.Series.is_finite(casted)
+      ),
+      Explorer.Series.greater_equal(casted, min)
+    )
   end
 
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "nom_operateur" = _name,
-        "string" = _type,
-        nil = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => false}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_nom_operateur_valid" => true
-      }
-    end)
+  def perform_base_validation(df, field_name, "string", "email", constraints) when map_size(constraints) == 0 do
+    Explorer.Series.re_contains(
+      df[field_name],
+      Transport.IRVE.Validation.Primitives.simple_email_pattern()
+    )
   end
 
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "contact_operateur" = name,
-        "string" = _type,
-        "email" = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => true}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_contact_operateur_valid" =>
-          Explorer.Series.and(
-            value_present?(df[name]),
-            Explorer.Series.re_contains(df[name], Transport.IRVE.Validation.Primitives.simple_email_pattern())
-          )
-      }
-    end)
+  def perform_base_validation(df, field_name, "date", fmt, constraints) when map_size(constraints) == 0 do
+    true = fmt == "%Y-%m-%d"
+    date_pattern = ~S/\A\d{4}\-\d{2}\-\d{2}\z/
+    Explorer.Series.re_contains(df[field_name], date_pattern)
   end
 
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "telephone_operateur" = _name,
-        "string" = _type,
-        nil = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => false}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_telephone_operateur_valid" => true
-      }
-    end)
-  end
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "nom_enseigne" = name,
-        "string" = _type,
-        nil = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => true}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_nom_enseigne_valid" => value_present?(df[name])
-      }
-    end)
-  end
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "id_station_itinerance" = name,
-        "string" = _type,
-        nil = _format,
-        constraints
-      ) do
-    pattern = ~S/(?:(?:^|,)(^[A-Z]{2}[A-Z0-9]{4,33}$|Non concerné))+$/
-    assert constraints == %{"required" => true, "pattern" => pattern}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_id_station_itinerance_valid" =>
-          Explorer.Series.and(
-            value_present?(df[name]),
-            Explorer.Series.re_contains(df[name], pattern)
-          )
-      }
-    end)
-  end
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "id_station_local" = _name,
-        "string" = _type,
-        nil = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => false}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_id_station_local_valid" => true
-      }
-    end)
-  end
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "nom_station" = name,
-        "string" = _type,
-        nil = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => true}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_nom_station_valid" => value_present?(df[name])
-      }
-    end)
-  end
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "implantation_station" = name,
-        "string" = _type,
-        nil = _format,
-        constraints
-      ) do
-    enum_values = [
-      "Voirie",
-      "Parking public",
-      "Parking privé à usage public",
-      "Parking privé réservé à la clientèle",
-      "Station dédiée à la recharge rapide"
-    ]
-
-    assert constraints == %{"required" => true, "enum" => enum_values}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_implantation_station_valid" =>
-          Explorer.Series.and(
-            value_present?(df[name]),
-            df[name] |> Explorer.Series.in(enum_values)
-          )
-      }
-    end)
-  end
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "adresse_station" = name,
-        "string" = _type,
-        nil = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => true}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_adresse_station_valid" => value_present?(df[name])
-      }
-    end)
-  end
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "code_insee_commune" = name,
-        "string" = _type,
-        nil = _format,
-        constraints
-      ) do
-    pattern = ~S/^([013-9]\d|2[AB1-9])\d{3}$/
-    assert constraints == %{"required" => false, "pattern" => pattern}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_code_insee_commune_valid" =>
-          Explorer.Series.or(
-            Explorer.Series.not(value_present?(df[name])),
-            Explorer.Series.re_contains(df[name], pattern)
-          )
-      }
-    end)
-  end
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "coordonneesXY" = name,
-        "geopoint" = _type,
-        "array" = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => true}
-
+  def perform_base_validation(df, field_name, "geopoint", "array", constraints) when map_size(constraints) == 0 do
     geopoint_pattern = ~S/\A\[\-?\d+(\.\d+)?,\s?\-?\d+(\.\d+)?\]\z/
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_coordonneesXY_valid" =>
-          Explorer.Series.and(
-            value_present?(df[name]),
-            Explorer.Series.re_contains(df[name], geopoint_pattern)
-          )
-      }
-    end)
+    Explorer.Series.re_contains(df[field_name], geopoint_pattern)
   end
 
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "nbre_pdc" = name,
-        "integer" = _type,
-        nil = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => true, "minimum" => 0}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      casted = df[name] |> Explorer.Series.cast(:integer)
-
-      %{
-        "check_column_nbre_pdc_valid" =>
-          Explorer.Series.and(
-            Explorer.Series.is_not_nil(casted),
-            Explorer.Series.greater_equal(casted, 0)
-          )
-      }
-    end)
+  def perform_base_validation(df, field_name, "string", nil, %{"pattern" => pattern_value} = constraints)
+      when map_size(constraints) == 1 do
+    Explorer.Series.re_contains(df[field_name], pattern_value)
   end
 
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "id_pdc_itinerance" = name,
-        "string" = _type,
-        nil = _format,
-        constraints
-      ) do
-    pattern = ~S/(?:(?:^|,)(^[A-Z]{2}[A-Z0-9]{4,33}$|Non concerné))+$/
-    assert constraints == %{"required" => true, "pattern" => pattern}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_id_pdc_itinerance_valid" =>
-          Explorer.Series.and(
-            value_present?(df[name]),
-            Explorer.Series.re_contains(df[name], pattern)
-          )
-      }
-    end)
+  def perform_base_validation(df, field_name, "string", nil, %{"enum" => values} = constraints)
+      when map_size(constraints) == 1 do
+    df[field_name] |> Explorer.Series.in(values)
   end
 
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "id_pdc_local" = _name,
-        "string" = _type,
-        nil = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => false}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_id_pdc_local_valid" => true
-      }
-    end)
+  def perform_base_validation(df, field_name, "string", nil, constraints) when map_size(constraints) == 0 do
+    df[field_name] |> Explorer.Series.equal(df[field_name])
   end
 
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "puissance_nominale" = name,
-        "number" = _type,
-        nil = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => true, "minimum" => 0}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      casted = df[name] |> Explorer.Series.cast({:f, 64})
-
-      %{
-        "check_column_puissance_nominale_valid" =>
-          Explorer.Series.and(
-            Explorer.Series.and(
-              Explorer.Series.is_not_nil(casted),
-              Explorer.Series.is_finite(casted)
-            ),
-            Explorer.Series.greater_equal(casted, 0)
-          )
-      }
-    end)
+  def perform_base_validation(_df, field_name, type, format, constraints) do
+    raise """
+    Unhandled validation case for field: #{field_name}
+    type: #{inspect(type)}
+    format: #{inspect(format)}
+    constraints (excluding 'required'): #{inspect(constraints)}
+    """
   end
 
-  # Generic handler for all boolean fields
   def configure_computations_for_one_schema_field(
         %Explorer.DataFrame{} = df,
         field_name,
-        "boolean" = _type,
-        nil = _format,
-        %{"required" => required} = constraints
-      ) do
-    assert constraints == %{"required" => required}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      valid_boolean = df[field_name] |> Explorer.Series.in(["true", "false"])
-
-      result =
-        if required do
-          valid_boolean
-        else
-          Explorer.Series.or(
-            Explorer.Series.not(value_present?(df[field_name])),
-            valid_boolean
-          )
-        end
-
-      %{"check_column_#{field_name}_valid" => result}
-    end)
-  end
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "tarification" = _name,
-        "string" = _type,
-        nil = _format,
+        type,
+        format,
         constraints
       ) do
-    assert constraints == %{"required" => false}
+    {required, validation_constraints} = Map.pop!(constraints, "required")
 
     Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_tarification_valid" => true
-      }
+      base_validation = perform_base_validation(df, field_name, type, format, validation_constraints)
+      final_validation = apply_required_logic(df[field_name], base_validation, required)
+
+      %{"check_column_#{field_name}_valid" => final_validation}
     end)
   end
 
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "condition_acces" = name,
-        "string" = _type,
-        nil = _format,
-        constraints
-      ) do
-    enum_values = ["Accès libre", "Accès réservé"]
-    assert constraints == %{"required" => true, "enum" => enum_values}
+  @doc """
+  Apply required/optional logic to a field validation.
 
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_condition_acces_valid" =>
-          Explorer.Series.and(
-            value_present?(df[name]),
-            df[name] |> Explorer.Series.in(enum_values)
-          )
-      }
-    end)
+  When required is true: the field must be present (non-empty) AND pass base validation.
+  When required is false: the field must be empty OR pass base validation.
+  """
+  def apply_required_logic(series, base_validation, true) do
+    Explorer.Series.and(value_present?(series), base_validation)
   end
 
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "horaires" = name,
-        "string" = _type,
-        nil = _format,
-        constraints
-      ) do
-    pattern = ~S/(.*?)((\d{1,2}:\d{2})-(\d{1,2}:\d{2})|24\/7)/
-    assert constraints == %{"required" => true, "pattern" => pattern}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_horaires_valid" =>
-          Explorer.Series.and(
-            value_present?(df[name]),
-            Explorer.Series.re_contains(df[name], pattern)
-          )
-      }
-    end)
+  def apply_required_logic(series, base_validation, false) do
+    Explorer.Series.or(
+      Explorer.Series.not(value_present?(series)),
+      base_validation
+    )
   end
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "accessibilite_pmr" = name,
-        "string" = _type,
-        nil = _format,
-        constraints
-      ) do
-    enum_values = ["Réservé PMR", "Accessible mais non réservé PMR", "Non accessible", "Accessibilité inconnue"]
-    assert constraints == %{"required" => true, "enum" => enum_values}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_accessibilite_pmr_valid" =>
-          Explorer.Series.and(
-            value_present?(df[name]),
-            df[name] |> Explorer.Series.in(enum_values)
-          )
-      }
-    end)
-  end
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "restriction_gabarit" = name,
-        "string" = _type,
-        nil = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => true}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_restriction_gabarit_valid" => value_present?(df[name])
-      }
-    end)
-  end
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "raccordement" = name,
-        "string" = _type,
-        nil = _format,
-        constraints
-      ) do
-    enum_values = ["Direct", "Indirect"]
-    assert constraints == %{"required" => false, "enum" => enum_values}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_raccordement_valid" =>
-          Explorer.Series.or(
-            Explorer.Series.not(value_present?(df[name])),
-            df[name] |> Explorer.Series.in(enum_values)
-          )
-      }
-    end)
-  end
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "num_pdl" = _name,
-        "string" = _type,
-        nil = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => false}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_num_pdl_valid" => true
-      }
-    end)
-  end
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "date_mise_en_service" = name,
-        "date" = _type,
-        "%Y-%m-%d" = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => false}
-
-    date_pattern = ~S/\A\d{4}\-\d{2}\-\d{2}\z/
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_date_mise_en_service_valid" =>
-          Explorer.Series.or(
-            Explorer.Series.not(value_present?(df[name])),
-            Explorer.Series.re_contains(df[name], date_pattern)
-          )
-      }
-    end)
-  end
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "observations" = _name,
-        "string" = _type,
-        nil = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => false}
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_observations_valid" => true
-      }
-    end)
-  end
-
-  def configure_computations_for_one_schema_field(
-        %Explorer.DataFrame{} = df,
-        "date_maj" = name,
-        "date" = _type,
-        "%Y-%m-%d" = _format,
-        constraints
-      ) do
-    assert constraints == %{"required" => true}
-
-    date_pattern = ~S/\A\d{4}\-\d{2}\-\d{2}\z/
-
-    Explorer.DataFrame.mutate_with(df, fn df ->
-      %{
-        "check_column_date_maj_valid" =>
-          Explorer.Series.and(
-            value_present?(df[name]),
-            Explorer.Series.re_contains(df[name], date_pattern)
-          )
-      }
-    end)
-  end
-
 end
