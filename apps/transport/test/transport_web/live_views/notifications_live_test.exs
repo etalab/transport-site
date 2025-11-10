@@ -90,7 +90,7 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
     Datagouvfr.Client.User.Mock
     |> expect(:me, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
-    conn = conn |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, token: %{}})
+    conn = conn |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, datagouv_token: %{}})
     content = conn |> get(@producer_url) |> html_response(200)
     assert content =~ "Mon super JDD"
 
@@ -213,7 +213,7 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
     Datagouvfr.Client.User.Mock
     |> expect(:me, fn _ -> {:error, %HTTPoison.Error{reason: :nxdomain, id: nil}} end)
 
-    conn = conn |> init_test_session(%{current_user: %{"id" => Ecto.UUID.generate()}, token: %{}})
+    conn = conn |> init_test_session(%{current_user: %{"id" => Ecto.UUID.generate()}, datagouv_token: %{}})
     content = conn |> get(@producer_url) |> html_response(200)
     assert content =~ "Une erreur a eu lieu lors de la récupération de vos ressources"
   end
@@ -233,7 +233,7 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
 
       insert_admin()
 
-      conn = conn |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, token: %{}})
+      conn = conn |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, datagouv_token: %{}})
 
       Datagouvfr.Client.User.Mock
       |> expect(:me, 2, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
@@ -434,7 +434,7 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
     Datagouvfr.Client.User.Mock
     |> expect(:me, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
-    conn = conn |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, token: %{}})
+    conn = conn |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, datagouv_token: %{}})
     content = conn |> get(@producer_url) |> html_response(200)
     assert content =~ "Autres abonnés : Liste de diffusion service transport, Marina Loiseau, Mikhaïl Karlov"
     refute content =~ "Henri Duflot"
@@ -491,7 +491,7 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
         source: :admin
       )
 
-    conn = conn |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, token: %{}})
+    conn = conn |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, datagouv_token: %{}})
 
     Datagouvfr.Client.User.Mock
     |> expect(:me, 2, fn _ -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
