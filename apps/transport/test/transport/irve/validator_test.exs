@@ -129,9 +129,9 @@ defmodule Transport.IRVE.ValidatorTest do
     end
 
     @testcases [
-      # note: for now, we do not strip heading/trailing spaces (but that will change before merge I think)
+      # Preprocessing now strips leading/trailing whitespace before validation
       {"siren_amenageur", "    ", :valid},
-      {"siren_amenageur", "   123456789  ", :invalid},
+      {"siren_amenageur", "   123456789  ", :valid},
       {"siren_amenageur", "  ABC  ", :invalid},
 
       # nom_amenageur
