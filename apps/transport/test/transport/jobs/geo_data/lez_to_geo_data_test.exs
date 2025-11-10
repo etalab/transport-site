@@ -1,5 +1,7 @@
 defmodule Transport.Jobs.LowEmissionZonesToGeoDataTest do
-  use ExUnit.Case, async: true
+  # The trigger refresh_dataset_geographic_view_trigger makes this test
+  # unreliable in a concurrent setup.
+  use ExUnit.Case, async: false
   use Oban.Testing, repo: DB.Repo
   alias Transport.Jobs.{BaseGeoData, LowEmissionZonesToGeoData}
   import DB.Factory

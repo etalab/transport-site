@@ -4,7 +4,8 @@ defmodule Transport.EnRouteChouetteValidClient.Wrapper do
   Documentation: https://documenter.getpostman.com/view/9950294/2sA3e2gVEE
   """
 
-  @callback create_a_validation(Path.t()) :: binary()
+  @callback create_a_validation(filepath :: Path.t()) :: binary()
+  @callback create_a_validation(filepath :: Path.t(), rule_set :: binary()) :: binary()
   @callback get_a_validation(binary()) ::
               :pending
               | {:successful, binary(), integer()}
@@ -25,11 +26,11 @@ defmodule Transport.EnRouteChouetteValidClient do
   @base_url "https://chouette-valid.enroute.mobi/api/validations"
 
   @impl Transport.EnRouteChouetteValidClient.Wrapper
-  def create_a_validation(filepath) do
+  def create_a_validation(filepath, rule_set \\ "enroute:starter-kit") do
     form =
       {:multipart,
        [
-         {"validation[rule_set]", "enroute:starter-kit"},
+         {"validation[rule_set]", rule_set},
          {"validation[include_schema]", "true"},
          make_file_part("validation[file]", filepath)
        ]}

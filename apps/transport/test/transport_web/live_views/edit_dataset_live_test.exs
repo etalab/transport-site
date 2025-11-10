@@ -1,5 +1,7 @@
 defmodule TransportWeb.EditDatasetLiveTest do
-  use TransportWeb.ConnCase, async: true
+  # The trigger refresh_dataset_geographic_view_trigger makes this test
+  # unreliable in a concurrent setup.
+  use TransportWeb.ConnCase, async: false
   import Phoenix.LiveViewTest
   import Mox
   import DB.Factory
