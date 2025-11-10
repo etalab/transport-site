@@ -173,7 +173,7 @@ defmodule Transport.IRVE.Validator do
 
     Explorer.DataFrame.mutate_with(df, fn df ->
       base_validation = FieldValidation.perform_base_validation(df, field_name, type, format, validation_constraints)
-      final_validation = FieldValidation.apply_required_logic(df[field_name], base_validation, required)
+      final_validation = FieldValidation.apply_optionality(df[field_name], base_validation, required)
 
       %{"check_column_#{field_name}_valid" => final_validation}
     end)

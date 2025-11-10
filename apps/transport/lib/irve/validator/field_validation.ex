@@ -4,6 +4,26 @@ defmodule Transport.IRVE.Validator.FieldValidation do
 
   Performs base validation based on field type, format, and constraints.
   Each function clause handles a specific combination of type/format/constraints.
+
+  ## Separation of Concerns
+
+  The `required` constraint is handled separately at a higher level by
+  `apply_optionality/3`. This module's `perform_base_validation/5` receives
+  constraints with "required" already removed, allowing it to focus purely on
+  value validation logic (type checking, patterns, ranges, etc.) without mixing
+  in presence/absence logic.
+
+  ## Pattern Matching and map_size Guards
+
+  Each `perform_base_validation/5` clause uses `map_size/1` guards to ensure
+  the constraints map contains exactly the expected keys. This provides automatic
+  detection of schema changes - if a new constraint key is added to the schema,
+  the validation will fail with a clear error rather than silently accepting
+  unexpected constraint combinations.
+
+  For example, `when map_size(constraints) == 1` ensures the constraints map
+  contains exactly one key (e.g., only "minimum" or only "pattern"), preventing
+  cases where additional unexpected constraints might be present.
   """
 
   alias Explorer.Series
@@ -77,16 +97,16 @@ defmodule Transport.IRVE.Validator.FieldValidation do
   end
 
   @doc """
-  Apply required/optional logic to a field validation.
+  Apply optionality logic to a field validation.
 
   When required is true: the field must be present (non-empty) AND pass base validation.
-  When required is false: the field must be empty OR pass base validation.
+  When required is false: the field is optional - it must be empty OR pass base validation.
   """
-  def apply_required_logic(series, base_validation, true) do
+  def apply_optionality(series, base_validation, true) do
     Series.and(value_present?(series), base_validation)
   end
 
-  def apply_required_logic(series, base_validation, false) do
+  def apply_optionality(series, base_validation, false) do
     Series.or(
       Series.not(value_present?(series)),
       base_validation
