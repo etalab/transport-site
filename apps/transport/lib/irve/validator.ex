@@ -30,6 +30,7 @@ defmodule Transport.IRVE.Validator do
       df = load_dataframe!(file_path, delimiter)
       verify_columns!(df, schema, callback)
       # at this point we should have exactly the columns required
+      df = preprocess_data(df)
       df = setup_column_checks(df, schema)
       df = setup_row_check(df)
 
@@ -104,7 +105,7 @@ defmodule Transport.IRVE.Validator do
   end
 
   def load_dataframe!(file_path, delimiter) do
-    # https://hexdocs.pm/explorer/Explorer.DataFrame.html#from_csv/2-options
+    # https://hexdocs.pm/explorer/Explorer.html#from_csv/2-options
     options = [
       # set to zero disables inference and default all values to string.
       # this is what we want to keep the input intact & be able to report on its (in)validity
@@ -114,6 +115,22 @@ defmodule Transport.IRVE.Validator do
     ]
 
     Explorer.DataFrame.from_csv!(file_path, options)
+  end
+
+  @doc """
+  Preprocess the dataframe before validation:
+  - Strip leading/trailing whitespace from all string columns
+  """
+  def preprocess_data(%Explorer.DataFrame{} = df) do
+    Explorer.DataFrame.mutate_with(df, fn df ->
+      df
+      |> Explorer.DataFrame.names()
+      |> Enum.map(fn col_name ->
+        series = Explorer.Series.strip(df[col_name])
+        {col_name, series}
+      end)
+      |> Map.new()
+    end)
   end
 
   def verify_columns!(%Explorer.DataFrame{} = df, schema, validation_callback) do
