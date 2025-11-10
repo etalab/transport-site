@@ -1,6 +1,8 @@
 defmodule Transport.IRVE.Validator do
   require Logger
 
+  alias Transport.IRVE.Validator.FieldValidation
+
   @moduledoc """
   This modules implements a validator for the static IRVE file format (see `schema-irve-statique.json`).
 
@@ -160,81 +162,6 @@ defmodule Transport.IRVE.Validator do
     end)
   end
 
-  defp value_present?(series) do
-    series
-    |> Explorer.Series.strip()
-    |> Explorer.Series.fill_missing("")
-    |> Explorer.Series.not_equal("")
-  end
-
-  def perform_base_validation(df, field_name, "boolean", nil, constraints) when map_size(constraints) == 0 do
-    df[field_name] |> Explorer.Series.in(["true", "false"])
-  end
-
-  def perform_base_validation(df, field_name, "integer", nil, %{"minimum" => min} = constraints)
-      when map_size(constraints) == 1 do
-    casted = df[field_name] |> Explorer.Series.cast(:integer)
-
-    Explorer.Series.and(
-      Explorer.Series.is_not_nil(casted),
-      Explorer.Series.greater_equal(casted, min)
-    )
-  end
-
-  def perform_base_validation(df, field_name, "number", nil, %{"minimum" => min} = constraints)
-      when map_size(constraints) == 1 do
-    casted = df[field_name] |> Explorer.Series.cast({:f, 64})
-
-    Explorer.Series.and(
-      Explorer.Series.and(
-        Explorer.Series.is_not_nil(casted),
-        Explorer.Series.is_finite(casted)
-      ),
-      Explorer.Series.greater_equal(casted, min)
-    )
-  end
-
-  def perform_base_validation(df, field_name, "string", "email", constraints) when map_size(constraints) == 0 do
-    Explorer.Series.re_contains(
-      df[field_name],
-      Transport.IRVE.Validation.Primitives.simple_email_pattern()
-    )
-  end
-
-  def perform_base_validation(df, field_name, "date", fmt, constraints) when map_size(constraints) == 0 do
-    true = fmt == "%Y-%m-%d"
-    date_pattern = ~S/\A\d{4}\-\d{2}\-\d{2}\z/
-    Explorer.Series.re_contains(df[field_name], date_pattern)
-  end
-
-  def perform_base_validation(df, field_name, "geopoint", "array", constraints) when map_size(constraints) == 0 do
-    geopoint_pattern = ~S/\A\[\-?\d+(\.\d+)?,\s?\-?\d+(\.\d+)?\]\z/
-    Explorer.Series.re_contains(df[field_name], geopoint_pattern)
-  end
-
-  def perform_base_validation(df, field_name, "string", nil, %{"pattern" => pattern_value} = constraints)
-      when map_size(constraints) == 1 do
-    Explorer.Series.re_contains(df[field_name], pattern_value)
-  end
-
-  def perform_base_validation(df, field_name, "string", nil, %{"enum" => values} = constraints)
-      when map_size(constraints) == 1 do
-    df[field_name] |> Explorer.Series.in(values)
-  end
-
-  def perform_base_validation(df, field_name, "string", nil, constraints) when map_size(constraints) == 0 do
-    df[field_name] |> Explorer.Series.equal(df[field_name])
-  end
-
-  def perform_base_validation(_df, field_name, type, format, constraints) do
-    raise """
-    Unhandled validation case for field: #{field_name}
-    type: #{inspect(type)}
-    format: #{inspect(format)}
-    constraints (excluding 'required'): #{inspect(constraints)}
-    """
-  end
-
   def configure_computations_for_one_schema_field(
         %Explorer.DataFrame{} = df,
         field_name,
@@ -245,27 +172,10 @@ defmodule Transport.IRVE.Validator do
     {required, validation_constraints} = Map.pop!(constraints, "required")
 
     Explorer.DataFrame.mutate_with(df, fn df ->
-      base_validation = perform_base_validation(df, field_name, type, format, validation_constraints)
-      final_validation = apply_required_logic(df[field_name], base_validation, required)
+      base_validation = FieldValidation.perform_base_validation(df, field_name, type, format, validation_constraints)
+      final_validation = FieldValidation.apply_required_logic(df[field_name], base_validation, required)
 
       %{"check_column_#{field_name}_valid" => final_validation}
     end)
-  end
-
-  @doc """
-  Apply required/optional logic to a field validation.
-
-  When required is true: the field must be present (non-empty) AND pass base validation.
-  When required is false: the field must be empty OR pass base validation.
-  """
-  def apply_required_logic(series, base_validation, true) do
-    Explorer.Series.and(value_present?(series), base_validation)
-  end
-
-  def apply_required_logic(series, base_validation, false) do
-    Explorer.Series.or(
-      Explorer.Series.not(value_present?(series)),
-      base_validation
-    )
   end
 end
