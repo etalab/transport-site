@@ -1,6 +1,7 @@
 defmodule Transport.IRVE.Validator do
   require Logger
 
+  alias Transport.IRVE.Validation.RequirednessProcessing
   alias Transport.IRVE.Validator.FieldValidation
 
   @moduledoc """
@@ -189,8 +190,8 @@ defmodule Transport.IRVE.Validator do
     {required, validation_constraints} = Map.pop!(constraints, "required")
 
     Explorer.DataFrame.mutate_with(df, fn df ->
-      base_validation = FieldValidation.perform_base_validation(df, field_name, type, format, validation_constraints)
-      final_validation = FieldValidation.apply_optionality(df[field_name], base_validation, required)
+      base_validation = FieldValidation.is_column_valid(df, field_name, type, format, validation_constraints)
+      final_validation = RequirednessProcessing.apply_requiredness(df[field_name], base_validation, required)
 
       %{"check_column_#{field_name}_valid" => final_validation}
     end)
