@@ -19,7 +19,7 @@ defmodule Transport.IRVE.Validation.Primitives do
 
       iex> alias Explorer.Series
       iex> series = Series.from_list(["hello@example.com", "invalid", nil])
-      iex> validate_email(series) |> Series.to_list()
+      iex> is_email(series) |> Series.to_list()
       [true, false, nil]
   """
 
@@ -30,13 +30,13 @@ defmodule Transport.IRVE.Validation.Primitives do
 
   ## Examples
 
-      iex> validate_required(build_series(["something", nil])) |> Series.to_list()
+      iex> has_value(build_series(["something", nil])) |> Series.to_list()
       [true, false]
 
-      iex> validate_required(build_series(["hello", ""])) |> Series.to_list()
+      iex> has_value(build_series(["hello", ""])) |> Series.to_list()
       [true, false]
   """
-  def validate_required(series) do
+  def has_value(series) do
     Series.and(
       Series.is_not_nil(series),
       Series.not_equal(series, "")
@@ -48,13 +48,13 @@ defmodule Transport.IRVE.Validation.Primitives do
 
   ## Examples
 
-      iex> validate_pattern(build_series(["123456789", "12345678"]), ~S/^\\d{9}$/) |> Series.to_list()
+      iex> is_matching_the_pattern(build_series(["123456789", "12345678"]), ~S/^\\d{9}$/) |> Series.to_list()
       [true, false]
 
-      iex> validate_pattern(build_series(["abc", "123"]), ~S/^\\d+$/) |> Series.to_list()
+      iex> is_matching_the_pattern(build_series(["abc", "123"]), ~S/^\\d+$/) |> Series.to_list()
       [false, true]
   """
-  def validate_pattern(series, pattern) when is_binary(pattern) do
+  def is_matching_the_pattern(series, pattern) when is_binary(pattern) do
     Series.re_contains(series, pattern)
   end
 
@@ -74,13 +74,13 @@ defmodule Transport.IRVE.Validation.Primitives do
 
   ## Examples
 
-      iex> validate_email(build_series(["hello@example.com", "invalid"])) |> Series.to_list()
+      iex> is_email(build_series(["hello@example.com", "invalid"])) |> Series.to_list()
       [true, false]
 
-      iex> validate_email(build_series(["test@foo.bar", "hello@fool"])) |> Series.to_list()
+      iex> is_email(build_series(["test@foo.bar", "hello@fool"])) |> Series.to_list()
       [true, false]
   """
-  def validate_email(series) do
+  def is_email(series) do
     Series.re_contains(series, @simple_email_pattern)
   end
 
@@ -89,13 +89,13 @@ defmodule Transport.IRVE.Validation.Primitives do
 
   ## Examples
 
-      iex> validate_enum(build_series(["Voirie", "Invalid"]), ["Voirie", "Parking"]) |> Series.to_list()
+      iex> is_in_enum(build_series(["Voirie", "Invalid"]), ["Voirie", "Parking"]) |> Series.to_list()
       [true, false]
 
-      iex> validate_enum(build_series(["A", "B", "C"]), ["A", "B"]) |> Series.to_list()
+      iex> is_in_enum(build_series(["A", "B", "C"]), ["A", "B"]) |> Series.to_list()
       [true, true, false]
   """
-  def validate_enum(series, allowed_values) when is_list(allowed_values) do
+  def is_in_enum(series, allowed_values) when is_list(allowed_values) do
     Series.in(series, allowed_values)
   end
 
@@ -108,13 +108,13 @@ defmodule Transport.IRVE.Validation.Primitives do
 
   ## Examples
 
-      iex> validate_boolean(build_series(["true", "false", "TRUE"])) |> Series.to_list()
+      iex> is_boolean_value(build_series(["true", "false", "TRUE"])) |> Series.to_list()
       [true, true, false]
 
-      iex> validate_boolean(build_series(["1", "0", "VRAI", "FAUX"])) |> Series.to_list()
+      iex> is_boolean_value(build_series(["1", "0", "VRAI", "FAUX"])) |> Series.to_list()
       [false, false, false, false]
   """
-  def validate_boolean(series) do
+  def is_boolean_value(series) do
     Series.in(series, @supported_boolean_values)
   end
 
@@ -126,13 +126,13 @@ defmodule Transport.IRVE.Validation.Primitives do
 
   ## Examples
 
-      iex> validate_integer(build_series(["8", "-4", "05"])) |> Series.to_list()
+      iex> is_integer_value(build_series(["8", "-4", "05"])) |> Series.to_list()
       [true, true, true]
 
-      iex> validate_integer(build_series(["9999999999999999999999", "INF", "NaN"])) |> Series.to_list()
+      iex> is_integer_value(build_series(["9999999999999999999999", "INF", "NaN"])) |> Series.to_list()
       [false, false, false]
   """
-  def validate_integer(series) do
+  def is_integer_value(series) do
     series
     |> Series.cast(:integer)
     |> Series.is_not_nil()
@@ -145,16 +145,16 @@ defmodule Transport.IRVE.Validation.Primitives do
 
   ## Examples
 
-      iex> validate_number(build_series(["8", "-4.5", "05", "+5.47", "-9.789"])) |> Series.to_list()
+      iex> is_numeric(build_series(["8", "-4.5", "05", "+5.47", "-9.789"])) |> Series.to_list()
       [true, true, true, true, true]
 
-      iex> validate_number(build_series(["INF", "-INF", "NaN", "foobar"])) |> Series.to_list()
+      iex> is_numeric(build_series(["INF", "-INF", "NaN", "foobar"])) |> Series.to_list()
       [false, false, false, false]
 
-      iex> validate_number(build_series(["9999999999999999999999"])) |> Series.to_list()
+      iex> is_numeric(build_series(["9999999999999999999999"])) |> Series.to_list()
       [true]
   """
-  def validate_number(series) do
+  def is_numeric(series) do
     casted = Series.cast(series, {:f, 64})
 
     Series.and(
@@ -170,16 +170,16 @@ defmodule Transport.IRVE.Validation.Primitives do
 
   ## Examples
 
-      iex> validate_minimum(build_series(["8", "0", "5.1", "0.0"]), 0) |> Series.to_list()
+      iex> is_greater_or_equal(build_series(["8", "0", "5.1", "0.0"]), 0) |> Series.to_list()
       [true, true, true, true]
 
-      iex> validate_minimum(build_series(["-4", "-5.2"]), 0) |> Series.to_list()
+      iex> is_greater_or_equal(build_series(["-4", "-5.2"]), 0) |> Series.to_list()
       [false, false]
 
-      iex> validate_minimum(build_series(["9999999999999999999999"]), 0) |> Series.to_list()
+      iex> is_greater_or_equal(build_series(["9999999999999999999999"]), 0) |> Series.to_list()
       [true]
   """
-  def validate_minimum(series, minimum) when is_number(minimum) do
+  def is_greater_or_equal(series, minimum) when is_number(minimum) do
     series
     |> Series.cast({:f, 64})
     |> Series.greater_equal(minimum)
@@ -194,13 +194,13 @@ defmodule Transport.IRVE.Validation.Primitives do
 
   ## Examples
 
-      iex> validate_date(build_series(["2024-10-07"]), "%Y-%m-%d") |> Series.to_list()
+      iex> is_date(build_series(["2024-10-07"]), "%Y-%m-%d") |> Series.to_list()
       [true]
 
-      iex> validate_date(build_series(["2024/10/07", "2024", "2024-10", "foobar"]), "%Y-%m-%d") |> Series.to_list()
+      iex> is_date(build_series(["2024/10/07", "2024", "2024-10", "foobar"]), "%Y-%m-%d") |> Series.to_list()
       [false, false, false, false]
   """
-  def validate_date(series, "%Y-%m-%d" = _format) do
+  def is_date(series, "%Y-%m-%d" = _format) do
     Series.re_contains(series, @iso_date_pattern)
   end
 
@@ -214,17 +214,17 @@ defmodule Transport.IRVE.Validation.Primitives do
 
   ## Examples
 
-      iex> validate_geopoint(build_series(["[1,2]", "[-3,4.5]", "[0.0, -0.99]", "[-123.456,789]", "[42, 0]"]), "array") |> Series.to_list()
+      iex> is_geopoint(build_series(["[1,2]", "[-3,4.5]", "[0.0, -0.99]", "[-123.456,789]", "[42, 0]"]), "array") |> Series.to_list()
       [true, true, true, true, true]
 
-      iex> validate_geopoint(build_series(["1,2", "[1,2,3]", "[1;2]", "[1. ,2]", "[a, b]", "[,]"]), "array") |> Series.to_list()
+      iex> is_geopoint(build_series(["1,2", "[1,2,3]", "[1;2]", "[1. ,2]", "[a, b]", "[,]"]), "array") |> Series.to_list()
       [false, false, false, false, false, false]
   """
-  def validate_geopoint(series, "array" = _format) do
+  def is_geopoint(series, "array" = _format) do
     Series.re_contains(series, @geopoint_array_pattern)
   end
 
-  # Test helper
+  # Doctest helper - used in examples above
   defp build_series(list) do
     Series.from_list(list)
   end

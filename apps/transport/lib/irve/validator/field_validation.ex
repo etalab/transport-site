@@ -33,46 +33,46 @@ defmodule Transport.IRVE.Validator.FieldValidation do
   alias Transport.IRVE.Validation.Primitives
 
   def perform_base_validation(df, field_name, "boolean", nil, constraints) when map_size(constraints) == 0 do
-    Primitives.validate_boolean(df[field_name])
+    Primitives.is_boolean_value(df[field_name])
   end
 
   def perform_base_validation(df, field_name, "integer", nil, %{"minimum" => min} = constraints)
       when map_size(constraints) == 1 do
     Series.and(
-      Primitives.validate_integer(df[field_name]),
-      Primitives.validate_minimum(df[field_name], min)
+      Primitives.is_integer_value(df[field_name]),
+      Primitives.is_greater_or_equal(df[field_name], min)
     )
   end
 
   def perform_base_validation(df, field_name, "number", nil, %{"minimum" => min} = constraints)
       when map_size(constraints) == 1 do
     Series.and(
-      Primitives.validate_number(df[field_name]),
-      Primitives.validate_minimum(df[field_name], min)
+      Primitives.is_numeric(df[field_name]),
+      Primitives.is_greater_or_equal(df[field_name], min)
     )
   end
 
   def perform_base_validation(df, field_name, "string", "email", constraints) when map_size(constraints) == 0 do
-    Primitives.validate_email(df[field_name])
+    Primitives.is_email(df[field_name])
   end
 
   def perform_base_validation(df, field_name, "date", fmt, constraints) when map_size(constraints) == 0 do
     true = fmt == "%Y-%m-%d"
-    Primitives.validate_date(df[field_name], "%Y-%m-%d")
+    Primitives.is_date(df[field_name], "%Y-%m-%d")
   end
 
   def perform_base_validation(df, field_name, "geopoint", "array", constraints) when map_size(constraints) == 0 do
-    Primitives.validate_geopoint(df[field_name], "array")
+    Primitives.is_geopoint(df[field_name], "array")
   end
 
   def perform_base_validation(df, field_name, "string", nil, %{"pattern" => pattern_value} = constraints)
       when map_size(constraints) == 1 do
-    Primitives.validate_pattern(df[field_name], pattern_value)
+    Primitives.is_matching_the_pattern(df[field_name], pattern_value)
   end
 
   def perform_base_validation(df, field_name, "string", nil, %{"enum" => values} = constraints)
       when map_size(constraints) == 1 do
-    Primitives.validate_enum(df[field_name], values)
+    Primitives.is_in_enum(df[field_name], values)
   end
 
   def perform_base_validation(df, field_name, "string", nil, constraints) when map_size(constraints) == 0 do
@@ -95,12 +95,12 @@ defmodule Transport.IRVE.Validator.FieldValidation do
   When required is false: the field is optional - it must be empty OR pass base validation.
   """
   def apply_optionality(series, base_validation, true) do
-    Series.and(Primitives.validate_required(series), base_validation)
+    Series.and(Primitives.has_value(series), base_validation)
   end
 
   def apply_optionality(series, base_validation, false) do
     Series.or(
-      Series.not(Primitives.validate_required(series)),
+      Series.not(Primitives.has_value(series)),
       base_validation
     )
   end
