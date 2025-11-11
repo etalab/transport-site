@@ -29,7 +29,7 @@ defmodule Transport.IRVE.Validator.FieldValidation do
   """
 
   alias Explorer.Series
-  alias Transport.IRVE.Validation.Primitives
+  alias Transport.DataFrame.Validation.Primitives
 
   def is_column_valid(df, field_name, "boolean", nil, constraints) when map_size(constraints) == 0 do
     Primitives.is_boolean_value(df[field_name])
