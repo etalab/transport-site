@@ -15,6 +15,12 @@ defmodule Transport.IRVE.Validation.Primitives do
   - **No side effects**: Pure functions that don't modify input
   - **Composable**: Can be combined with other series operations
 
+  ## Whitespace handling
+
+  The checks implemented here assume that:
+  - Heading & trailing whitespaces have been removed during a preprocessing step
+  - Optionality of the value is handled at an upper level
+
   ## Examples
 
       iex> alias Explorer.Series
