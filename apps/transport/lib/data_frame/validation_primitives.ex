@@ -1,12 +1,9 @@
-defmodule Transport.IRVE.Validation.Primitives do
+defmodule Transport.DataFrame.Validation.Primitives do
   @moduledoc """
-  Series-based validation primitives for IRVE data.
+  Series-based validation primitives.
 
   Each function takes an `Explorer.Series` and returns a boolean `Explorer.Series`
   indicating whether each value passes validation.
-
-  This module provides pure validation logic without DataFrame manipulation concerns,
-  making functions composable, testable, and reusable.
 
   ## Philosophy
 
@@ -213,10 +210,12 @@ defmodule Transport.IRVE.Validation.Primitives do
   @geopoint_array_pattern ~S/\A\[\-?\d+(\.\d+)?,\s?\-?\d+(\.\d+)?\]\z/
 
   @doc """
-  Check if values are valid geopoint arrays.
+  Check if values are valid geopoint arrays (TableSchema format).
 
   Expects format like "[lat,lon]" with numeric coordinates.
   Does not validate coordinate ranges.
+
+  This validation follows the TableSchema specification for geopoint type.
 
   ## Examples
 

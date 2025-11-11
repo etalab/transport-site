@@ -1,4 +1,4 @@
-defmodule Transport.IRVE.Validation.PrimitivesTest do
+defmodule Transport.DataFrame.Validation.PrimitivesTest do
   use ExUnit.Case, async: true
 
   alias Explorer.Series
@@ -7,5 +7,5 @@ defmodule Transport.IRVE.Validation.PrimitivesTest do
     Series.from_list(values)
   end
 
-  doctest Transport.IRVE.Validation.Primitives, import: true
+  doctest Transport.DataFrame.Validation.Primitives, import: true
 end
