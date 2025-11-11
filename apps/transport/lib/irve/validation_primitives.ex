@@ -223,9 +223,4 @@ defmodule Transport.IRVE.Validation.Primitives do
   def is_geopoint(series, "array" = _format) do
     Series.re_contains(series, @geopoint_array_pattern)
   end
-
-  # Doctest helper - used in examples above
-  defp build_series(list) do
-    Series.from_list(list)
-  end
 end
