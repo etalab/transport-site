@@ -26,6 +26,7 @@ defmodule Transport.Validators.ValidataJson do
       validation_timestamp: DateTime.utc_now(),
       validator: validator_name(),
       result: validation,
+      digest: digest(validation),
       resource_history_id: resource_history_id,
       validator_version: validator_version(),
       command: validation_url(schema_url, url)
@@ -121,4 +122,14 @@ defmodule Transport.Validators.ValidataJson do
   @impl Transport.Validators.Validator
   def validator_name, do: "Validata JSON"
   def validator_version, do: "0.1.0"
+
+  @doc """
+  iex> digest(%{"warnings_count" => 2, "errors_count" => 3, "issues" => []})
+  %{"errors_count" => 3, "warnings_count" => 2}
+  iex> digest(%{"issues" => []})
+  %{}
+  """
+  def digest(validation_result) do
+    Map.intersect(%{"warnings_count" => 0, "errors_count" => 0}, validation_result)
+  end
 end
