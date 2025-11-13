@@ -32,9 +32,30 @@ defmodule Transport.IRVE.Fetcher do
     Transport.IRVE.HTTPPagination.naive_paginated_urls_stream(base_url, http_client, options, pagination_options)
   end
 
+  # Unused now, we don’t keep in RAM the body of resources when downloading them.
   def get!(url, options \\ []) do
     http_client = Transport.HTTPClient
     options = options |> Keyword.merge(http_options())
+
+    http_client.get!(url, options)
+  end
+
+  @doc """
+  Downloads a file and stores in the temp folder, returns the stream to read it.
+  This doesn’t use options |> Keyword.merge(http_options())
+  Because the :into option of Req is incompatible with the custom caching mechanism.
+
+  Use like this:
+  resource = Transport.IRVE.Extractor.datagouv_resources() |> List.last
+  stream = Transport.IRVE.Fetcher.get_and_store_file!(resource.url, resource.resource_title)
+  stream.body |> Stream.each(&IO.puts/1) |> Stream.run()
+  """
+  def get_and_store_file!(url, file_name, options \\ []) do
+    http_client = Transport.HTTPClient
+
+    destination = File.stream!(System.tmp_dir!() |> Path.join(file_name))
+
+    options = options |> Keyword.put(:into, destination)
 
     http_client.get!(url, options)
   end
