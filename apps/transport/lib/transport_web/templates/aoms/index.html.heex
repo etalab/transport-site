@@ -16,6 +16,11 @@
     <th>Population</th>
     <th>Commune principale</th>
     <th>Nombre de communes</th>
+    <th>Nombre de GTFS</th>
+    <th>Nombre de NeTEx</th>
+    <th>Nombre de GTFS-RT</th>
+    <th>Nombre de SIRI</th>
+    <th>Nombre de SIRI Lite</th>
   </tr>
   <%= for aom <- @aoms do %>
     <tr>
@@ -29,10 +34,15 @@
       <td><%= aom.population %></td>
       <td><%= aom.nom_commune %> (<%= aom.insee_commune_principale %>)</td>
       <td><%= aom.nombre_communes %></td>
+      <td><%= aom.nb_gtfs %></td>
+      <td><%= aom.nb_netex %></td>
+      <td><%= aom.nb_gtfs_rt %></td>
+      <td><%= aom.nb_siri %></td>
+      <td><%= aom.nb_siri_lite %></td>
     </tr>
   <% end %>
 </table>
-<script>
+<script nonce={@conn.assigns[:csp_nonce_value]}>
   const getCellValue = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;
 
   const comparer = (idx, asc) => (a, b) => ((v1, v2) =>

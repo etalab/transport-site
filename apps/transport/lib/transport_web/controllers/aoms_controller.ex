@@ -13,7 +13,12 @@ defmodule TransportWeb.AOMSController do
     :nom_commune,
     :insee_commune_principale,
     :nombre_communes,
-    :population
+    :population,
+    :nb_gtfs,
+    :nb_gtfs_rt,
+    :nb_netex,
+    :nb_siri,
+    :nb_siri_lite
   ]
 
   @type dataset :: %{
@@ -29,8 +34,8 @@ defmodule TransportWeb.AOMSController do
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(conn, _params), do: render(conn, "index.html", aoms: aoms())
 
-  @spec prepare_aom({AOM.t(), binary()}, list(), list()) :: map()
-  defp prepare_aom({aom, nom_commune}, gtfs_datasets, aggregated_datasets) do
+  @spec prepare_aom({AOM.t(), binary()}, list(), list(), map()) :: map()
+  defp prepare_aom({aom, nom_commune}, gtfs_datasets, aggregated_datasets, formats) do
     all_datasets = gtfs_datasets ++ aggregated_datasets
 
     datasets_up_to_date =
@@ -51,7 +56,12 @@ defmodule TransportWeb.AOMSController do
       nom_commune: nom_commune,
       insee_commune_principale: aom.insee_commune_principale,
       nombre_communes: aom.nombre_communes,
-      has_realtime: datasets_realtime
+      has_realtime: datasets_realtime,
+      nb_gtfs: Map.get(formats, :nb_gtfs, 0),
+      nb_gtfs_rt: Map.get(formats, :nb_gtfs_rt, 0),
+      nb_netex: Map.get(formats, :nb_netex, 0),
+      nb_siri: Map.get(formats, :nb_siri, 0),
+      nb_siri_lite: Map.get(formats, :nb_siri_lite, 0)
     }
   end
 
@@ -73,14 +83,14 @@ defmodule TransportWeb.AOMSController do
     # In this case, there are at least 2 legal owners on the dataset
     aggregated_datasets_by_aom_id = aggregated_datasets(gtfs_dataset_by_dataset_id)
 
-    aoms_and_commune_principale = aom_and_commune_principale()
+    formats_by_aom = formats_by_aom()
 
-    aoms_and_commune_principale
-    |> Enum.map(fn {aom, nom_commune} ->
+    Enum.map(aoms_and_commune_principale(), fn {aom, nom_commune} ->
       prepare_aom(
         {aom, nom_commune},
         Map.get(gtfs_datasets_by_aom_id, aom.id, []),
-        Map.get(aggregated_datasets_by_aom_id, aom.id, [])
+        Map.get(aggregated_datasets_by_aom_id, aom.id, []),
+        Map.get(formats_by_aom, aom.id, %{})
       )
     end)
   end
@@ -91,6 +101,27 @@ defmodule TransportWeb.AOMSController do
     |> CSV.encode(headers: @csv_headers)
     |> Enum.to_list()
     |> to_string
+  end
+
+  defp formats_by_aom do
+    DB.Dataset.base_query()
+    |> DB.Resource.join_dataset_with_resource()
+    |> join(:left, [dataset: d], a in assoc(d, :legal_owners_aom), as: :aom)
+    |> where([dataset: d], d.type == "public-transit")
+    |> select(
+      [aom: a, resource: r],
+      %{
+        aom_id: a.id,
+        nb_gtfs: fragment("sum(case when ? = 'GTFS' then 1 else 0 end)", r.format),
+        nb_netex: fragment("sum(case when ? = 'NeTEx' then 1 else 0 end)", r.format),
+        nb_gtfs_rt: fragment("sum(case when ? = 'gtfs-rt' then 1 else 0 end)", r.format),
+        nb_siri: fragment("sum(case when ? = 'SIRI' then 1 else 0 end)", r.format),
+        nb_siri_lite: fragment("sum(case when ? = 'SIRI Lite' then 1 else 0 end)", r.format)
+      }
+    )
+    |> group_by([aom: a], [a.id])
+    |> DB.Repo.all()
+    |> Map.new(&{&1.aom_id, &1})
   end
 
   @spec gtfs_datasets() :: {%{required(aom_id) => [dataset]}, %{required(dataset_id) => dataset}}
@@ -149,11 +180,12 @@ defmodule TransportWeb.AOMSController do
     end)
   end
 
-  defp aom_and_commune_principale do
+  defp aoms_and_commune_principale do
     DB.AOM
     |> join(:left, [aom], c in DB.Commune, on: aom.insee_commune_principale == c.insee)
     |> preload([:region])
     |> select([aom, commune], {aom, commune.nom})
+    |> order_by([a], a.nom)
     |> DB.Repo.all()
   end
 end
