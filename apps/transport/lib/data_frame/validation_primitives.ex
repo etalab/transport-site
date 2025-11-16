@@ -22,7 +22,7 @@ defmodule Transport.DataFrame.Validation.Primitives do
 
       iex> alias Explorer.Series
       iex> series = Series.from_list(["hello@example.com", "invalid", nil])
-      iex> is_email(series) |> Series.to_list()
+      iex> email?(series) |> Series.to_list()
       [true, false, nil]
   """
 
