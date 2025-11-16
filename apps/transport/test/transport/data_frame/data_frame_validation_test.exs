@@ -220,11 +220,33 @@ defmodule Transport.DataFrame.Validation.DataFrameValidationTest do
   |> Enum.each(fn {field, value, validity} ->
     test "field:#{field}(#{value |> inspect})" do
       validity = to_boolean(unquote(validity))
+
       assert compute_validity(unquote(field), unquote(value)) == [
-        [row_valid: validity, column_valid: validity]
-      ]
+               [row_valid: validity, column_valid: validity]
+             ]
     end
   end)
+
+  def stringify_row(row), do: row |> Enum.map(fn {a, b} -> {a, b |> to_string} end)
+
+  test "default factory IRVE row is considered valid" do
+    row =
+      DB.Factory.IRVE.generate_row()
+      |> stringify_row()
+
+    [result] =
+      [row]
+      |> compute_validity()
+      |> Explorer.DataFrame.select(~r/\Acheck/)
+      |> Explorer.DataFrame.to_rows()
+
+    expected_result =
+      Transport.IRVE.StaticIRVESchema.field_names_list()
+      |> Enum.map(fn f -> {"check_column_#{f}_valid", true} end)
+      |> Enum.into(%{"check_row_valid" => true})
+
+    assert result == expected_result
+  end
 
   @doc """
   Check how forcing a specific IRVE field to a given value affects validity.
@@ -238,20 +260,25 @@ defmodule Transport.DataFrame.Validation.DataFrameValidationTest do
     row =
       %{field => value}
       |> DB.Factory.IRVE.generate_row()
-      |> Enum.map(fn {a, b} -> {a, b |> to_string} end)
+      |> stringify_row()
 
     row_valid_name = "check_row_valid"
     column_valid_name = "check_column_#{field}_valid"
-    schema = Transport.IRVE.StaticIRVESchema.schema_content()
 
-    [row]
-    |> Explorer.DataFrame.new()
-    |> Transport.IRVE.Validator.DataFrameValidation.setup_field_validation_columns(schema)
-    |> Transport.IRVE.Validator.DataFrameValidation.setup_row_check()
+    compute_validity([row])
     |> Explorer.DataFrame.select([row_valid_name, column_valid_name])
     |> Explorer.DataFrame.to_rows()
     |> Enum.map(fn row ->
       [row_valid: row[row_valid_name], column_valid: row[column_valid_name]]
     end)
+  end
+
+  def compute_validity(rows) do
+    schema = Transport.IRVE.StaticIRVESchema.schema_content()
+
+    rows
+    |> Explorer.DataFrame.new()
+    |> Transport.IRVE.Validator.DataFrameValidation.setup_field_validation_columns(schema)
+    |> Transport.IRVE.Validator.DataFrameValidation.setup_row_check()
   end
 end
